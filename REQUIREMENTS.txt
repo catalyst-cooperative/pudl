@@ -1,0 +1,31 @@
+This Public Utility Data Liberation (PUDL) toolkit depends on a variety of
+other open source tools, and public data, including:
+
+Big Things:
+ - Postgres (database)
+   https://www.postgresql.org/
+
+Python Packages:
+ - NumPy (scientific computing)
+   http://www.numpy.org/
+
+ - Matplotlib (data visualization)
+   http://matplotlib.org/
+
+ - pandas (dataframe analysis)
+   http://pandas.pydata.org/
+
+ - dbfread (allows direct access to DBF files from Python)
+   https://github.com/olemb/dbfread
+
+ - SQLAlchemy (Python DB interface layer)
+   http://www.sqlalchemy.org/
+
+Other Programs:
+ - pgdbf (a program that converts DBF files to Postgres tables)
+   https://github.com/kstrauser/pgdbf
+
+Data:
+ - FERC Form 1
+ - EIA 923
+ - EIA 860

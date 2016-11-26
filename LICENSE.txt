@@ -1,0 +1,3 @@
+The code making up this Public Utility Data Liberation toolkit is copyright
+2016, by the data and policy analysis cooperative being formed by Zane Selvans,
+Christina Gosnell, and Steven Winter. All rights reserved (for now).
