@@ -1,8 +1,11 @@
 import numpy as np
 import pandas as pd
 import dbfread
-import dataset
+import subprocess
+import sqlalchemy
 import glob
+import string
+import re
 
 ###########################################################################
 # Variables and helper functions related to ingest & process of FERC Form 1
@@ -119,21 +122,49 @@ f1_fuel_unit_strings = { 'ton'   : f1_ton_strings,
                        }
 #}}}
 
-def f1_dbf2sql(dbf_files):
+def get_strings(filename, min=4):
+    with open(filename, errors="ignore") as f:
+        result = ""
+        for c in f.read():
+            if c in string.printable:
+                result += c
+                continue
+            if len(result) >= min:
+                yield result
+            result = ""
+        if len(result) >= min:  # catch result at EOF
+            yield result
+
+def f1_getTablesFields(year, min=4):
+    """Extract the names of all the tables and fields from FERC Form 1 DB
+
+    This function reads all the strings in the F1_PUB.DBC database file for the
+    corresponding year, and picks out the ones that appear to be database table
+    names, and their subsequent table field names, for use in re-naming the
+    truncated columns extracted from the corresponding DBF files (which are
+    limited to having only 10 characters in their names.) Strings must have at
+    least min printable characters."""
+
+    filename = glob.glob('{}/{}/*/FORM1/working/F1_PUB.DBC'.format(f1_dirname,year))
+    dbc_strs = list(get_strings(filename[0], min=min))
+    dbc_strs = [ s.strip() for s in dbc_strs ]
+    dbc_strs = [ s for s in dbc_strs if s is not '' ]
+    dbc_strs = [ re.sub('\s+',' ',s) for s in dbc_strs ]
+    dbc_strs = [ s for s in dbc_strs if re.match('(^Table|^Field)',s) ]
+    dbc_strs = [ ' '.join(s.split()[:2]) for s in dbc_strs ]
+    dbc_strs = [ re.sub('Field ','',s) for s in dbc_strs ]
+    dbc_list = ' '.join(dbc_strs).split('Table ')
+    dbc_list = [ s.strip() for s in dbc_list if s is not '' ]
+    tf_dict = {}
+    for tbl in dbc_list:
+        x = tbl.split()
+        tf_dict[x[0]]=x[1:]
+    return(tf_dict)
+
+def f1_dbf2sql(dbf_path, db):
     """Converts FERC Form 1 data from DBF to SQL format.
     """
-    # Mapping of DBF field types (characters) to SQL types.
-    dbf2sql_typemap = {
-        'F': 'FLOAT',
-        'L': 'BOOLEAN',
-        'I': 'INTEGER',
-        'C': 'TEXT',
-        'N': 'REAL',  # because it can be integer or float
-        'M': 'TEXT',
-        'D': 'DATE',
-        'T': 'DATETIME',
-        '0': 'INTEGER',
-    }
+    # pgdbf takes individual DBF files and turns them into SQL, but it uses the bad
 
     # Mapping of DBF filenames to corresponding logical tables.  We need to
     # preserve the table names becaue they are referenced inside some of the
@@ -259,14 +290,20 @@ def f1_dbf2sql(dbf_files):
         'F1_SECURITY.DBF': 'f1_security'
     } #}}}
 
-    for tf in dbf_files:
-        print_table(DBF(tf, lowernames=True))
+    # Use pgdbf to convert table into a postgres table and insert into the DB
+    # We're going to do this as if we were at the command line, not in Python...
+#    pgdbf = subprocess.Popen(['pgdbf', dbf_path], stdout=PIPE)
+#    psql  = subprocess.Popen(['psql',], stdin=pgdbf.stdout)
 
-def print_table(table):
-    field_types = {}
-    for f in table.fields:
-        field_types[f.name] = dbf2sql_typemap.get(f.type, 'TEXT')
+#    dbf_file = dbf_path.split('/')[-1]
+#    assert dbf_file in f1_tablemap.keys()
 
+#    subprocess.run("pgdbf {path}".format(path=dbf_path))
+
+    # grab the list of long field names from F1_PUB.DBF 
+
+    # replace all of the short column names w/ the long names
+#    for col in pg_table.columns:
 
 def utilname2fercid(search_str, years=f1_years):
     """Takes a search string, which should be contained within a single utility
@@ -418,142 +455,3 @@ def get_f1_steam(years=f1_years, util_ids=None): #{{{
 
     return(f1_steam)
 #}}}
-
-def get_f1_plant_in_svc(years=f1_years, util_ids=None): #{{{
-    """Pull electric plant in service data for a given set of utilties and
-    years, and do some basic cleanup on the data.
-    
-    FERC Form 1 Pages: 202-207
-    FERC DB File: F1_52.DBF
-
-    Plant in service includes the beginning & end of year balances for each of
-    nearly 100 FERC accounts, as well as the annual additions, retirements,
-    transfers and adjustments applied to each of those accounts. The data is
-    aggregated across the entire utility that is reporting, and not broken out
-    by individual plants.
-
-    There are several lines (identified by row_number) within the reporting
-    that are totals of other groups of lines, organized by type of assets.
-
-    ROW_NUMBER : Category
-    5  : "Intangible Plant (sum of rows 2, 3, & 4)"
-    16 : "Total Steam Production Plant (sum of rows 8-15)"
-    25 : "Total Nuclear Production Plant (sum of rows 18-24)"
-    35 : "Total Hydraulic Production Plant (sum of rows 27-34)"
-    45 : "Total Other Production Plant (sum of rows 37-44)"
-    46 : "Total Production Plant (sum of rows 16, 25, 35, 45)"
-    58 : "Total Transmission Plant (sum of rows 48-57)"
-    75 : "Total Distribution Plant (sum of rows 60-74)"
-    84 : "Total Transmission and Market Operation Plant (sum of rows 77-83)"
-    96 : "Subtotal (sum of rows 86-95)"
-    99 : "Total General Plant (sum of rows 96, 97, & 98)"
-    100: "Total Plant"
-    104: "Total Electric Plant in Service (sum of rows 100-103)"
-    """
-
-    f1_plant_in_svc = f1_table2df("F1_52", years=years, util_ids=util_ids)
-
-    # Key is row number, value is a list: [row_literal,
-    pis_desc =
-
-    # Categorize the different rows in the sheet
-    intangible_plant_rows = np.arange(2,5)
-    intangible_plant_tot = 5
-
-    steam_production_plant_rows = np.arange(8,16)
-    steam_production_plant_tot  = 16
-
-    nuclear_production_plant_rows = np.arange(18,25)
-    nuclear_production_plant_tot  = 25
-
-    hydraulic_production_plant_rows = np.arange(27,35)
-    other_production_plant_rows = np.arange(37,45)
-
-    # Array of all the row numbers that are primary production plant data...
-    production_plant_rows = np.concatenate([steam_production_plant_rows,
-                                            nuclear_production_plant_rows,
-                                            hydraulic_production_plant_rows,
-                                            other_production_plant_rows])
-
-    return(f1_plant_in_svc)
-#}}}
-
-def get_f1_cwip(years=f1_years, util_ids=None): #{{{
-    """Retrieve construction work in progress data from FERC Form 1 database.
-
-    FERC Form 1 Page: 216
-    FERC DB File: F1_70.DBF
-    """
-    f1_cwip = f1_table2df("F1_70", years=years, util_ids=util_ids)
-    return(f1_cwip)
-    #}}}
-
-def get_f1_purch_pwr(years=f1_years, util_ids=None): #{{{
-    """Retrieve purchased power data from FERC Form 1 database.
-
-    FERC Form 1 Pages: 326-327
-    FERC DB File: F1_54.DBF
-    """
-    f1_purch_pwr = f1_table2df("F1_54", years=years, util_ids=util_ids)
-    return(f1_purch_pwr)
-    #}}}
-
-def get_f1_small_plant(years=f1_years, util_ids=None): #{{{
-    """Retrieve small generating plant data from the FERC Form 1 database.
-
-    FERC Form 1 Pages: 410-411
-    FERC DB File: F1_33.DBF
-    """
-    f1_small_plant = f1_table2df("F1_33", years=years, util_ids=util_ids)
-    return(f1_small_plant)
-    #}}}
-
-def get_f1_ancil_svcs(years=f1_years, util_ids=None): #{{{
-    """Retrieve ancillary service purchase data from FERC Form 1 database.
-    
-    FERC Form 1 Pages: 398
-    FERC DB File: F1_398_ANCL_PS.DBF
-    """
-    f1_ancil_svcs = f1_table2df("F1_398_ANCL_PS", years=years, util_ids=util_ids)
-    return(f1_ancil_svcs)
-    #}}}
-
-def get_f1_trans_add(years=f1_years, util_ids=None): #{{{
-    """Retrieve transmission line addition data from the FERC Form 1 database.
-
-    FERC Form 1 Pages: 424-425
-    FERC DB File: F1_71.DBF
-    """
-    f1_trans_add = f1_table2df("F1_71", years=years, util_ids=util_ids)
-    return(f1_trans_add)
-    #}}}
-
-def get_f1_pump_stor(years=f1_years, util_ids=None): #{{{
-    """ Retrieve pumped storage data from the FERC Form 1 database.
-
-    FERC Form 1 Pages: 408-409
-    FERC DB File: F1_53.DBF
-    """
-    f1_pump_stor = f1_table2df("F1_53", years=years, util_ids=util_ids)
-    return(f1_pump_stor)
-    #}}}
-
-def get_f1_hydro(years=f1_years, util_ids=None): #{{{
-    """Retrieve hydroelectric facility data from the FERC Form 1 database.
-
-    FERC Form 1 Pages: 406-407
-    FERC DB File: F1_86
-    """
-    f1_hydro = f1_table2df("F1_86", years=years, util_ids=util_ids)
-    return(f1_hydro)
-    #}}}
-
-# Dummy get f1_table function....
-#def get_f1_(years=f1_years, util_ids=None): #{{{
-#    """Retrieve XXX data from the FERC Form 1 database.
-#
-#    FERC Form 1 Pages:
-#    FERC DB File:
-#    """
-#    f1_ = f1_table2df("", years=years, util_ids=util_ids)
-#    #}}}
