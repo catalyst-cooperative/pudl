@@ -143,23 +143,52 @@ def f1_getTablesFields(year, min=4):
     names, and their subsequent table field names, for use in re-naming the
     truncated columns extracted from the corresponding DBF files (which are
     limited to having only 10 characters in their names.) Strings must have at
-    least min printable characters."""
+    least min printable characters.
+    """ #{{{
 
+    # Find the right DBC file, based on the year we're looking at:
     filename = glob.glob('{}/{}/*/FORM1/working/F1_PUB.DBC'.format(f1_dirname,year))
+
+    # Extract all the strings longer than "min" from the DBC file
     dbc_strs = list(get_strings(filename[0], min=min))
+
+    # Get rid of leading & trailing whitespace in the strings:
     dbc_strs = [ s.strip() for s in dbc_strs ]
+
+    # Get rid of all the empty strings:
     dbc_strs = [ s for s in dbc_strs if s is not '' ]
+
+    # Collapse all whitespace to a single space:
     dbc_strs = [ re.sub('\s+',' ',s) for s in dbc_strs ]
+
+    # Pull out only strings that begin with Table or Field
     dbc_strs = [ s for s in dbc_strs if re.match('(^Table|^Field)',s) ]
+
+    # Split each string by whitespace, and retain only the first two elements.
+    # This eliminates some weird dangling junk characters
     dbc_strs = [ ' '.join(s.split()[:2]) for s in dbc_strs ]
+
+    # Remove all of the leading Field keywords
     dbc_strs = [ re.sub('Field ','',s) for s in dbc_strs ]
+
+    # Join all the strings together (separated by spaces) and then split the
+    # big string on Table, so each string is now a table name followed by the
+    # associated field names, separated by spaces
     dbc_list = ' '.join(dbc_strs).split('Table ')
+
+    # strip leading & trailing whitespace from the lists, and get rid of empty
+    # strings:
     dbc_list = [ s.strip() for s in dbc_list if s is not '' ]
+
+    # Create a dictionary using the first element of these strings (the table
+    # name) as the key, and the list of field names as the values, and return
+    # it:
     tf_dict = {}
     for tbl in dbc_list:
         x = tbl.split()
         tf_dict[x[0]]=x[1:]
     return(tf_dict)
+#}}}
 
 def f1_dbf2sql(dbf_path, db):
     """Converts FERC Form 1 data from DBF to SQL format.
