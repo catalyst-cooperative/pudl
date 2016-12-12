@@ -6,6 +6,7 @@ import sqlalchemy
 import glob
 import string
 import re
+import os.path
 
 ###########################################################################
 # Variables and helper functions related to ingest & process of FERC Form 1
@@ -16,12 +17,12 @@ import re
 f1_years = np.arange(1994,2016)
 
 # directory beneath which the FERC Form 1 data lives...
-f1_dirname = "data/ferc/form1"
+f1_datadir = "data/ferc/form1"
 
 # Pull in some metadata about the FERC Form 1 DB & its tables:
-f1_db_notes    = pd.read_csv("{}/docs/f1_db_notes.csv".format(f1_dirname),header=0)
-f1_fuel_notes  = pd.read_csv("{}/docs/f1_fuel_notes.csv".format(f1_dirname),header=0)
-f1_steam_notes = pd.read_csv("{}/docs/f1_steam_notes.csv".format(f1_dirname),header=0)
+f1_db_notes    = pd.read_csv("{}/docs/f1_db_notes.csv".format(f1_datadir),header=0)
+f1_fuel_notes  = pd.read_csv("{}/docs/f1_fuel_notes.csv".format(f1_datadir),header=0)
+f1_steam_notes = pd.read_csv("{}/docs/f1_steam_notes.csv".format(f1_datadir),header=0)
 
 # Dictionary for cleaning up fuel strings {{{
 # Construct a dictionary mapping a canonical fuel name to a list of strings
@@ -123,6 +124,12 @@ f1_fuel_unit_strings = { 'ton'   : f1_ton_strings,
 #}}}
 
 def get_strings(filename, min=4):
+    """Extract printable strings from a binary and return them as a generator.
+
+    This is meant to emulate the Unix "strings" command, for the purposes of
+    grabbing database table and column names from the F1_PUB.DBC file that is
+    distributed with the FERC Form 1 data.
+    """ #{{{
     with open(filename, errors="ignore") as f:
         result = ""
         for c in f.read():
@@ -134,6 +141,7 @@ def get_strings(filename, min=4):
             result = ""
         if len(result) >= min:  # catch result at EOF
             yield result
+#}}}
 
 def f1_getTablesFields(year, min=4):
     """Extract the names of all the tables and fields from FERC Form 1 DB
@@ -147,9 +155,10 @@ def f1_getTablesFields(year, min=4):
     """ #{{{
 
     # Find the right DBC file, based on the year we're looking at:
-    filename = glob.glob('{}/{}/*/FORM1/working/F1_PUB.DBC'.format(f1_dirname,year))
+    filename = glob.glob('{}/{}/*/FORM1/working/F1_PUB.DBC'.format(f1_datadir,year))
 
     # Extract all the strings longer than "min" from the DBC file
+    assert len(filename)==1
     dbc_strs = list(get_strings(filename[0], min=min))
 
     # Get rid of leading & trailing whitespace in the strings:
@@ -190,139 +199,187 @@ def f1_getTablesFields(year, min=4):
     return(tf_dict)
 #}}}
 
-def f1_dbf2sql(dbf_path, db):
-    """Converts FERC Form 1 data from DBF to SQL format.
+def f1_check_fieldnames(long_names, short_names):
+    """Compares lists of long and short field names for consistency.
+
+    DBF field names can only be 10 characters long. This function
+    checks to see if the long names we've extracted from the DBC file
+    are consistent with the short names from the DBF files by looking
+    to see if the first nine characters of each are the same.
     """
-    # pgdbf takes individual DBF files and turns them into SQL, but it uses the bad
+
+    # Make sure we don't have this weird field...
+    short_names = [ s for s in short_names if s.lower() != '_nullflags' ]
+    # They better be the same length, or we have a mis-match.
+    assert len(long_names) == len(short_names)
+    return([ s.lower()[:9] for s in long_names  ] ==
+           [ s.lower()[:9] for s in short_names ])
+
+def f1_dbf2sql(dbf_tbl,yr,f1_db):
+    """Imports a subset of the FERC Form 1 database tables into Postgres.
+
+    This function uses the dbfread module to pull tables from the FERC
+    Form 1 database into a Postgres database with the same basic
+    structure and data types.
+
+    """
+    # Use the dbfread module to access a given FERC Form 1 database table,
+    # and create a corresponding table in postgres.
 
     # Mapping of DBF filenames to corresponding logical tables.  We need to
-    # preserve the table names becaue they are referenced inside some of the
+    # preserve the table names because they are referenced inside some of the
     # tables, e.g. in f1_row_lit_tbl
     f1_tablemap = { #{{{
-        'F1_1.DBF': 'f1_respondent_id',
-        'F1_10.DBF': 'f1_allowances',
-        'F1_106_2009.DBF': 'f1_106_2009',
-        'F1_106A_2009.DBF': 'f1_106a_2009',
-        'F1_106B_2009.DBF': 'f1_106b_2009',
-        'F1_11.DBF': 'f1_bal_sheet_cr',
-        'F1_12.DBF': 'f1_capital_stock',
-        'F1_13.DBF': 'f1_cash_flow',
-        'F1_14.DBF': 'f1_cmmn_utlty_p_e',
-        'F1_15.DBF': 'f1_comp_balance_db',
-        'F1_16.DBF': 'f1_construction',
-        'F1_17.DBF': 'f1_control_respdnt',
-        'F1_18.DBF': 'f1_co_directors',
-        'F1_19.DBF': 'f1_cptl_stk_expns',
-        'F1_2.DBF': 'f1_acb_epda',
-        'F1_20.DBF': 'f1_csscslc_pcsircs',
-        'F1_208_ELC_DEP.DBF': 'f1_208_elc_dep',
-        'F1_21.DBF': 'f1_dacs_epda',
-        'F1_22.DBF': 'f1_dscnt_cptl_stk',
-        'F1_23.DBF': 'f1_edcfu_epda',
-        'F1_231_TRN_STDYCST.DBF': 'f1_231_trn_stdycst',
-        'F1_24.DBF': 'f1_elctrc_erg_acct',
-        'F1_25.DBF': 'f1_elctrc_oper_rev',
-        'F1_26.DBF': 'f1_elc_oper_rev_nb',
-        'F1_27.DBF': 'f1_elc_op_mnt_expn',
-        'F1_28.DBF': 'f1_electric',
-        'F1_29.DBF': 'f1_envrnmntl_expns',
-        'F1_3.DBF': 'f1_accumdepr_prvsn',
-        'F1_30.DBF': 'f1_envrnmntl_fclty',
-        'F1_31.DBF': 'f1_fuel',
-        'F1_32.DBF': 'f1_general_info',
-        'F1_324_ELC_EXPNS.DBF': 'f1_324_elc_expns',
-        'F1_325_ELC_CUST.DBF': 'f1_325_elc_cust',
-        'F1_33.DBF': 'f1_gnrt_plant',
-        'F1_331_TRANSISO.DBF': 'f1_331_transiso',
-        'F1_338_DEP_DEPL.DBF': 'f1_338_dep_depl',
-        'F1_34.DBF': 'f1_important_chg',
-        'F1_35.DBF': 'f1_incm_stmnt_2',
-        'F1_36.DBF': 'f1_income_stmnt',
-        'F1_37.DBF': 'f1_miscgen_expnelc',
-        'F1_38.DBF': 'f1_misc_dfrrd_dr',
-        'F1_39.DBF': 'f1_mthly_peak_otpt',
-        'F1_397_ISORTO_STL.DBF': 'f1_397_isorto_stl',
-        'F1_398_ANCL_PS.DBF': 'f1_398_ancl_ps',
-        'F1_399_MTH_PEAK.DBF': 'f1_399_mth_peak',
-        'F1_4.DBF': 'f1_accumdfrrdtaxcr',
-        'F1_40.DBF': 'f1_mtrl_spply',
-        'F1_400_SYS_PEAK.DBF': 'f1_400_sys_peak',
-        'F1_400A_ISO_PEAK.DBF': 'f1_400a_iso_peak',
-        'F1_41.DBF': 'f1_nbr_elc_deptemp',
-        'F1_42.DBF': 'f1_nonutility_prop',
-        'F1_429_TRANS_AFF.DBF': 'f1_429_trans_aff',
-        'F1_43.DBF': 'f1_note_fin_stmnt',
-        'F1_44.DBF': 'f1_nuclear_fuel',
-        'F1_45.DBF': 'f1_officers_co',
-        'F1_46.DBF': 'f1_othr_dfrrd_cr',
-        'F1_47.DBF': 'f1_othr_pd_in_cptl',
-        'F1_48.DBF': 'f1_othr_reg_assets',
-        'F1_49.DBF': 'f1_othr_reg_liab',
-        'F1_5.DBF': 'f1_adit_190_detail',
-        'F1_50.DBF': 'f1_overhead',
-        'F1_51.DBF': 'f1_pccidica',
-        'F1_52.DBF': 'f1_plant_in_srvce',
-        'F1_53.DBF': 'f1_pumped_storage',
-        'F1_54.DBF': 'f1_purchased_pwr',
-        'F1_55.DBF': 'f1_reconrpt_netinc',
-        'F1_56.DBF': 'f1_reg_comm_expn',
-        'F1_57.DBF': 'f1_respdnt_control',
-        'F1_58.DBF': 'f1_retained_erng',
-        'F1_59.DBF': 'f1_r_d_demo_actvty',
-        'F1_6.DBF': 'f1_adit_190_notes',
-        'F1_60.DBF': 'f1_sales_by_sched',
-        'F1_61.DBF': 'f1_sale_for_resale',
-        'F1_62.DBF': 'f1_sbsdry_totals',
-        'F1_63.DBF': 'f1_schedules_list',
-        'F1_64.DBF': 'f1_security_holder',
-        'F1_65.DBF': 'f1_slry_wg_dstrbtn',
-        'F1_66.DBF': 'f1_substations',
-        'F1_67.DBF': 'f1_taxacc_ppchrgyr',
-        'F1_68.DBF': 'f1_unrcvrd_cost',
-        'F1_69.DBF': 'f1_utltyplnt_smmry',
-        'F1_7.DBF': 'f1_adit_amrt_prop',
-        'F1_70.DBF': 'f1_work',
-        'F1_71.DBF': 'f1_xmssn_adds',
-        'F1_72.DBF': 'f1_xmssn_elc_bothr',
-        'F1_73.DBF': 'f1_xmssn_elc_fothr',
-        'F1_74.DBF': 'f1_xmssn_line',
-        'F1_75.DBF': 'f1_xtraordnry_loss',
-        'F1_76.DBF': 'f1_codes_val',
-        'F1_77.DBF': 'f1_sched_lit_tbl',
-        'F1_78.DBF': 'f1_audit_log',
-        'F1_79.DBF': 'f1_col_lit_tbl',
-        'F1_8.DBF': 'f1_adit_other',
-        'F1_80.DBF': 'f1_load_file_names',
-        'F1_81.DBF': 'f1_privilege',
-        'F1_82.DBF': 'f1_sys_error_log',
-        'F1_83.DBF': 'f1_unique_num_val',
-        'F1_84.DBF': 'f1_row_lit_tbl',
-        'F1_85.DBF': 'f1_footnote_data',
-        'F1_86.DBF': 'f1_hydro',
-        'F1_87.DBF': 'f1_footnote_tbl',
-        'F1_88.DBF': 'f1_ident_attsttn',
-        'F1_89.DBF': 'f1_steam',
-        'F1_9.DBF': 'f1_adit_other_prop',
-        'F1_90.DBF': 'f1_leased',
-        'F1_91.DBF': 'f1_sbsdry_detail',
-        'F1_92.DBF': 'f1_plant',
-        'F1_93.DBF': 'f1_long_term_debt',
-        'F1_ALLOWANCES_NOX.DBF': 'f1_allowances_nox',
-        'F1_CMPINC_HEDGE_A.DBF': 'f1_cmpinc_hedge_a',
-        'F1_CMPINC_HEDGE.DBF': 'f1_cmpinc_hedge',
-        'F1_EMAIL.DBF': 'f1_email',
-        'F1_FREEZE.DBF': 'f1_freeze',
-        'F1_PINS.DBF': 'f1_pins',
-        'F1_RG_TRN_SRV_REV.DBF': 'f1_rg_trn_srv_rev',
-        'F1_S0_CHECKS.DBF': 'f1_s0_checks',
-        'F1_S0_FILING_LOG.DBF': 'f1_s0_filing_log',
-        'F1_SECURITY.DBF': 'f1_security'
+        'F1_1':  'f1_respondent_id',    # GET THIS ONE
+        'F1_2':  'f1_acb_epda',
+        'F1_3':  'f1_accumdepr_prvsn',
+        'F1_4':  'f1_accumdfrrdtaxcr',
+        'F1_5':  'f1_adit_190_detail',
+        'F1_6':  'f1_adit_190_notes',
+        'F1_7':  'f1_adit_amrt_prop',
+        'F1_8':  'f1_adit_other',
+        'F1_9':  'f1_adit_other_prop',
+        'F1_10': 'f1_allowances',
+        'F1_11': 'f1_bal_sheet_cr',
+        'F1_12': 'f1_capital_stock',
+        'F1_13': 'f1_cash_flow',
+        'F1_14': 'f1_cmmn_utlty_p_e',
+        'F1_15': 'f1_comp_balance_db',
+        'F1_16': 'f1_construction',
+        'F1_17': 'f1_control_respdnt',
+        'F1_18': 'f1_co_directors',
+        'F1_19': 'f1_cptl_stk_expns',
+        'F1_20': 'f1_csscslc_pcsircs',
+        'F1_21': 'f1_dacs_epda',
+        'F1_22': 'f1_dscnt_cptl_stk',
+        'F1_23': 'f1_edcfu_epda',
+        'F1_24': 'f1_elctrc_erg_acct',
+        'F1_25': 'f1_elctrc_oper_rev',
+        'F1_26': 'f1_elc_oper_rev_nb',
+        'F1_27': 'f1_elc_op_mnt_expn',
+        'F1_28': 'f1_electric',
+        'F1_29': 'f1_envrnmntl_expns',
+        'F1_30': 'f1_envrnmntl_fclty',
+        'F1_31': 'f1_fuel',            # GET THIS ONE
+        'F1_32': 'f1_general_info',
+        'F1_33': 'f1_gnrt_plant',      # GET THIS ONE
+        'F1_34': 'f1_important_chg',
+        'F1_35': 'f1_incm_stmnt_2',
+        'F1_36': 'f1_income_stmnt',
+        'F1_37': 'f1_miscgen_expnelc',
+        'F1_38': 'f1_misc_dfrrd_dr',
+        'F1_39': 'f1_mthly_peak_otpt',
+        'F1_40': 'f1_mtrl_spply',
+        'F1_41': 'f1_nbr_elc_deptemp',
+        'F1_42': 'f1_nonutility_prop',
+        'F1_43': 'f1_note_fin_stmnt',
+        'F1_44': 'f1_nuclear_fuel',
+        'F1_45': 'f1_officers_co',
+        'F1_46': 'f1_othr_dfrrd_cr',
+        'F1_47': 'f1_othr_pd_in_cptl',
+        'F1_48': 'f1_othr_reg_assets',
+        'F1_49': 'f1_othr_reg_liab',
+        'F1_50': 'f1_overhead',
+        'F1_51': 'f1_pccidica',
+        'F1_52': 'f1_plant_in_srvce', # GET THIS ONE
+        'F1_53': 'f1_pumped_storage', # GET THIS ONE
+        'F1_54': 'f1_purchased_pwr',  # GET THIS ONE
+        'F1_55': 'f1_reconrpt_netinc',
+        'F1_56': 'f1_reg_comm_expn',
+        'F1_57': 'f1_respdnt_control',
+        'F1_58': 'f1_retained_erng',
+        'F1_59': 'f1_r_d_demo_actvty',
+        'F1_60': 'f1_sales_by_sched',
+        'F1_61': 'f1_sale_for_resale',
+        'F1_62': 'f1_sbsdry_totals',
+        'F1_63': 'f1_schedules_list',
+        'F1_64': 'f1_security_holder',
+        'F1_65': 'f1_slry_wg_dstrbtn',
+        'F1_66': 'f1_substations',
+        'F1_67': 'f1_taxacc_ppchrgyr',
+        'F1_68': 'f1_unrcvrd_cost',
+        'F1_69': 'f1_utltyplnt_smmry',
+        'F1_70': 'f1_work',            # GET THIS ONE
+        'F1_71': 'f1_xmssn_adds',      # GET THIS ONE
+        'F1_72': 'f1_xmssn_elc_bothr',
+        'F1_73': 'f1_xmssn_elc_fothr',
+        'F1_74': 'f1_xmssn_line',
+        'F1_75': 'f1_xtraordnry_loss',
+        'F1_76': 'f1_codes_val',
+        'F1_77': 'f1_sched_lit_tbl',
+        'F1_78': 'f1_audit_log',
+        'F1_79': 'f1_col_lit_tbl',    # GET THIS ONE
+        'F1_80': 'f1_load_file_names',
+        'F1_81': 'f1_privilege',
+        'F1_82': 'f1_sys_error_log',
+        'F1_83': 'f1_unique_num_val',
+        'F1_84': 'f1_row_lit_tbl',    # GET THIS ONE
+        'F1_85': 'f1_footnote_data',
+        'F1_86': 'f1_hydro',          # GET THIS ONE
+        'F1_87': 'f1_footnote_tbl',
+        'F1_88': 'f1_ident_attsttn',
+        'F1_89': 'f1_steam',          # GET THIS ONE
+        'F1_90': 'f1_leased',
+        'F1_91': 'f1_sbsdry_detail',
+        'F1_92': 'f1_plant',
+        'F1_93': 'f1_long_term_debt',
+        'F1_106_2009': 'f1_106_2009',
+        'F1_106A_2009': 'f1_106a_2009',
+        'F1_106B_2009': 'f1_106b_2009',
+        'F1_208_ELC_DEP': 'f1_208_elc_dep',
+        'F1_231_TRN_STDYCST': 'f1_231_trn_stdycst',
+        'F1_324_ELC_EXPNS': 'f1_324_elc_expns',
+        'F1_325_ELC_CUST': 'f1_325_elc_cust',
+        'F1_331_TRANSISO': 'f1_331_transiso',
+        'F1_338_DEP_DEPL': 'f1_338_dep_depl',
+        'F1_397_ISORTO_STL': 'f1_397_isorto_stl',
+        'F1_398_ANCL_PS': 'f1_398_ancl_ps', # GET THIS ONE
+        'F1_399_MTH_PEAK': 'f1_399_mth_peak',
+        'F1_400_SYS_PEAK': 'f1_400_sys_peak',
+        'F1_400A_ISO_PEAK': 'f1_400a_iso_peak',
+        'F1_429_TRANS_AFF': 'f1_429_trans_aff',
+        'F1_ALLOWANCES_NOX': 'f1_allowances_nox',
+        'F1_CMPINC_HEDGE_A': 'f1_cmpinc_hedge_a',
+        'F1_CMPINC_HEDGE': 'f1_cmpinc_hedge',
+        'F1_EMAIL': 'f1_email',
+        'F1_FREEZE': 'f1_freeze',
+        'F1_PINS': 'f1_pins',
+        'F1_RG_TRN_SRV_REV': 'f1_rg_trn_srv_rev',
+        'F1_S0_CHECKS': 'f1_s0_checks',
+        'F1_S0_FILING_LOG': 'f1_s0_filing_log', # GET THIS ONE
+        'F1_SECURITY': 'f1_security'
     } #}}}
 
-    # Use pgdbf to convert table into a postgres table and insert into the DB
-    # We're going to do this as if we were at the command line, not in Python...
-#    pgdbf = subprocess.Popen(['pgdbf', dbf_path], stdout=PIPE)
-#    psql  = subprocess.Popen(['psql',], stdin=pgdbf.stdout)
+    # Make sure we got a valid DBF table...
+    assert dbf_tbl in f1_tablemap.keys()
+    # Construct the path to the DBF field:
+    dbf_file = '{}/{}/*/FORM1/working/{}.DBF'.format(f1_datadir,yr,dbf_tbl)
+    assert os.path.isfile(dbf_file)
+
+    # name of the postgres table to create:
+    pg_tbl_name = f1_tablemap[dbf_tbl]
+
+    f1_table = dbfread.DBF(dbf_file, load=True)
+    f1_tbl_name
+
+    # Iterate over the list of DBF fields to generate an SQLAlchemy table
+    # creation statement...
+
+    # - Read the description of the fields.
+    #   - name
+    #   - type
+    #   - length
+    #   - decimal_count
+    # - Determine the name for the Postgres table based on the information in
+    #   f1_tablemap, 
+    # - Based on the name of the table we're creating, get the list of table
+    #   fields we expect to create from f1_getTablesFields
+    # - Check to make sure that the names of the fields we're creating is
+    #   at least consistent with the names we read from the DBF file. This is
+    #   an ill specified mapping b/c it depends on the ordering of the fields
+    #   in the DB, but that could be okay. We at least need to check for self
+    #   consitency.
+    # - 
 
 #    dbf_file = dbf_path.split('/')[-1]
 #    assert dbf_file in f1_tablemap.keys()
@@ -350,7 +407,7 @@ def utilname2fercid(search_str, years=f1_years):
     df = pd.DataFrame()
 
     for yr in years:
-        f1_respondent_id_filename = glob.glob("{}/{}/*/FORM1/working/F1_1.DBF".format(f1_dirname,yr))
+        f1_respondent_id_filename = glob.glob("{}/{}/*/FORM1/working/F1_1.DBF".format(f1_datadir,yr))
         numfiles = len(f1_respondent_id_filename)
         if numfiles!=1:
             print("ERROR: non-unique utility ID file for year {}".format(yr))
@@ -389,7 +446,7 @@ def f1_table2df(dbf_file, util_ids=None, years=f1_years):
     df = pd.DataFrame()
 
     for yr in years:
-        f1_file = glob.glob("{}/{}/*/FORM1/working/{}.DBF".format(f1_dirname,yr,dbf_file))
+        f1_file = glob.glob("{}/{}/*/FORM1/working/{}.DBF".format(f1_datadir,yr,dbf_file))
         numfiles = len(f1_file)
         if numfiles!=1:
             print("ERROR: non-unique utility ID file for year {}".format(yr))
@@ -445,13 +502,13 @@ def f1_cleanstrings(field, stringmap, unmapped=None):
     return field
 #}}} end f1_cleanstrings
 
-def get_f1_fuel(years=f1_years, util_ids=None): #{{{
+def get_f1_fuel(years=f1_years, util_ids=None):
     """Pull FERC plant level fuel consumption data for a given set of utilities
     & years. Do some cleanup on the data, specific to the fuel data table.
     
     FERC Form 1 page 402, lines 36-44
     FERC DB file: F1_31.DBF
-    """
+    """ #{{{
 
     f1_fuel = f1_table2df("F1_31", years=years, util_ids=util_ids)
 
@@ -471,13 +528,13 @@ def get_f1_fuel(years=f1_years, util_ids=None): #{{{
     return(f1_fuel)
 #}}}
 
-def get_f1_steam(years=f1_years, util_ids=None): #{{{
+def get_f1_steam(years=f1_years, util_ids=None):
     """Pull generation data for a given set of utilities & years. Perform some
     data cleanup specific to this data table.
     
     FERC Form 1 page 402, lines 1-35
     FERC DB File: F1_89.DBF
-    """
+    """ #{{{
 
     f1_steam = f1_table2df("F1_89",years=years, util_ids=util_ids)
     f1_steam = f1_steam[f1_steam.PLANT_NAME!=""]
