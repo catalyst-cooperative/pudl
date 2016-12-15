@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import dbfread
 import subprocess
-import sqlalchemy
 import glob
 import string
 import re
@@ -214,6 +213,615 @@ def f1_check_fieldnames(long_names, short_names):
     assert len(long_names) == len(short_names)
     return([ s.lower()[:9] for s in long_names  ] ==
            [ s.lower()[:9] for s in short_names ])
+
+def f1_defgen(f1_dbf,year=2015):
+    """A short hack to generate the code for defining SQLAlchemy table defs.
+    """
+    # Given a DBF file to convert:
+    # We need to generate and assemble....
+    #  - Name of the Table, e.g. f1_respondent_id
+    #  - For each Column:
+    #    - Field Name (e.g. respondent_id)
+    #    - Field Data type (e.g. Varchar)
+    #    - Field length  (e.g. 20)
+    #    - Field decimal length (just in case)
+
+    f1_tbls = f1_getTablesFields(year)
+
+    f1_tablemap = {'F1_1':  'f1_respondent_id',
+                   'F1_31': 'f1_fuel',
+                   'F1_33': 'f1_gnrt_plant',
+                   'F1_52': 'f1_plant_in_srvce',
+                   'F1_53': 'f1_pumped_storage',
+                   'F1_54': 'f1_purchased_pwr',
+                   'F1_70': 'f1_work',
+                   'F1_71': 'f1_xmssn_adds',
+                   'F1_77': 'f1_sched_lit_tbl',
+                   'F1_79': 'f1_col_lit_tbl',
+                   'F1_84': 'f1_row_lit_tbl',
+                   'F1_86': 'f1_hydro',
+                   'F1_89': 'f1_steam',
+                   'F1_398_ANCL_PS': 'f1_398_ancl_ps',
+                   'F1_S0_FILING_LOG': 'f1_s0_filing_log'
+                  }
+
+    f1_typemap = {'B': 'XXX', # .DBT block number, binary string
+                  'C': 'String',
+                  'D': 'Date',
+                  'N': 'Float',  # because it can be integer or float
+                  'L': 'Boolean',
+                  'M': 'XXX', # 10 digit .DBT block number, stored as a string...
+                  '@': 'XXX', # Timestamp... Date = Julian Day, Time is in milliseconds?
+                  'I': 'Integer',
+                  '+': 'XXX', # Autoincrement (e.g. for IDs)
+                  'F': 'Float',
+                  'O': 'XXX', # Double, 8 bytes
+                  'G': 'XXX', # OLE 10 digit/byte number of a .DBT block, stored as string
+                  'T': 'DateTime', #DateTime, based on dbf2sqlite mapping
+                  '0': 'XXX' # #Integer? based on dbf2sqlite mapping
+                 }
+
+    table_name = f1_tablemap[f1_dbf]
+    dbf_file = glob.glob("{}/{}/*/FORM1/working/{}.DBF".format(f1_datadir,year,f1_dbf))
+    dbf_fields = dbfread.DBF(dbf_file[0], load=True).fields
+    
+    print('Table(\'{}\', f1_meta,'.format(table_name))
+    for (col_name,dbf_field) in zip(f1_tbls[table_name],dbf_fields[:-1]):
+        len_str = ''
+        key_str = ''
+        if dbf_field.type == 'C':
+            len_str = '({})'.format(dbf_field.length)
+        if col_name == 'respondent_id':
+            key_str = ', ForeignKey(\'f1_respondent_id.respondent_id\'), primary_key=True'
+        if col_name == 'report_year':
+            key_str = ', ForeignKey(\'f1_s0_filing_log.report_yr\'), primary_key=True'
+        if col_name == 'report_prd':
+            key_str = ', ForeignKey(\'f1_s0_filing_log.report_prd\'), primary_key=True'
+        if col_name == 'spplmnt_num':
+            key_str = ', primary_key=True'
+        if col_name == 'row_number':
+            key_str = ', primary_key=True'
+        if col_name == 'sched_table_name':
+            key_str = ', primary_key=True'
+        if col_name == 'column_name':
+            key_str = ', primary_key=True'
+        if col_name == 'row_name':
+            key_str = ', primary_key=True'
+
+        print('        Column(\'{}\', {}{}{}),'.format(col_name,f1_typemap[dbf_field.type],len_str,key_str))
+    print('    )') # end of the Table() definition
+
+def f1_slurp():
+    """A bespoke import of a subset of the FERC Form 1 database tables to Postgres.
+
+    Programmatic creation of DB table structure requires using auxiliary DB
+    migration tools beyond the scope of SQL Alchemy. For the time being, we are
+    going to pull in just the initial tables we're interested in, and just for
+    2015, and we're going to do it "by hand". {{{
+
+    Initial FERC DBF files to be imported, and the corresponding tables:
+
+        'F1_1':  'f1_respondent_id',
+        'F1_31': 'f1_fuel',
+        'F1_33': 'f1_gnrt_plant',
+        'F1_52': 'f1_plant_in_srvce',
+        'F1_53': 'f1_pumped_storage',
+        'F1_54': 'f1_purchased_pwr',
+        'F1_70': 'f1_work',
+        'F1_71': 'f1_xmssn_adds',
+        'F1_77': 'f1_sched_lit_tbl',
+        'F1_79': 'f1_col_lit_tbl',
+        'F1_84': 'f1_row_lit_tbl',
+        'F1_86': 'f1_hydro',
+        'F1_89': 'f1_steam',
+        'F1_398_ANCL_PS': 'f1_398_ancl_ps',
+        'F1_S0_FILING_LOG': 'f1_s0_filing_log',
+
+    """
+    from sqlalchemy import create_engine
+    from sqlalchemy import Table, Column, Integer, String, Float, DateTime, Boolean, Date, MetaData, ForeignKey
+
+    f1_engine = create_engine('postgresql://catalyst@localhost:5432/ferc_f1')
+
+    f1_meta = MetaData()
+
+    Table('f1_respondent_id', f1_meta, #{{{
+        Column('respondent_id', Integer, primary_key=True),
+        Column('respondent_name', String(70)),
+        Column('respondent_alias', String(70)),
+        Column('status', String(1)),
+        Column('form_type', Integer),
+        Column('status_date', Date),
+        Column('sort_name', String(8)),
+        Column('pswd_gen', String(15))
+    ) #}}}
+
+    Table('f1_s0_filing_log', f1_meta, #{{{
+        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
+        Column('report_yr', Integer),
+        Column('report_prd', Integer),
+        Column('filing_num', Integer),
+        Column('poc_email', String(120)),
+        Column('submitted', DateTime),
+        Column('received', DateTime),
+        Column('loaded', DateTime)
+    ) #}}}
+
+    Table('f1_sched_lit_tbl', f1_meta, #{{{
+        Column('sched_table_name', String(18), primary_key=True),
+        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
+        Column('sched_literal', String(70)),
+        Column('sched_status', String(1)),
+        Column('sched_chg_year', Integer),
+        Column('turned_schedule', String(1)),
+    ) #}}}
+
+    Table('f1_col_lit_tbl', f1_meta, #{{{
+        Column('sched_table_name', String(18), primary_key=True),
+        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
+        Column('column_name', String(18), primary_key=True),
+        Column('col_literal', String(70)),
+        Column('col_status', String(1)),
+        Column('col_chg_yr', Integer)
+    ) #}}}
+
+    Table('f1_row_lit_tbl', f1_meta, #{{{
+        Column('sched_table_name', String(18), primary_key=True),
+        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
+        Column('row_number', Integer, primary_key=True),
+        Column('row_seq', Integer),
+        Column('row_literal', String(70)),
+        Column('row_status', String(1)),
+        Column('row_chg_yr', Integer),
+    ) #}}}
+
+    Table('f1_plant_in_srvce', f1_meta, #{{{
+        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
+        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
+        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
+        Column('spplmnt_num', Integer, primary_key=True),
+        Column('row_number', Integer, primary_key=True),
+        Column('row_seq', Integer),
+        Column('row_prvlg', String(1)),
+        Column('begin_yr_bal', Float),
+        Column('addition', Float),
+        Column('retirements', Float),
+        Column('adjustments', Float),
+        Column('transfers', Float),
+        Column('yr_end_bal', Float),
+        Column('begin_yr_bal_f', Integer),
+        Column('addition_f', Integer),
+        Column('retirements_f', Integer),
+        Column('adjustments_f', Integer),
+        Column('transfers_f', Integer),
+        Column('yr_end_bal_f', Integer)
+    ) #}}}
+
+    Table('f1_purchased_pwr', f1_meta, #{{{
+        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
+        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
+        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
+        Column('spplmnt_num', Integer, primary_key=True),
+        Column('row_number', Integer, primary_key=True),
+        Column('row_seq', Integer),
+        Column('row_prvlg', String(1)),
+        Column('athrty_co_name', String(38)),
+        Column('sttstcl_clssfctn', String(2)),
+        Column('rtsched_trffnbr', String(18)),
+        Column('avgmth_bill_dmnd', String(18)),
+        Column('avgmth_ncp_dmnd', String(18)),
+        Column('avgmth_cp_dmnd', String(18)),
+        Column('mwh_purchased', Float),
+        Column('mwh_recv', Float),
+        Column('mwh_delvd', Float),
+        Column('dmnd_charges', Float),
+        Column('erg_charges', Float),
+        Column('othr_charges', Float),
+        Column('settlement_tot', Float),
+        Column('athrty_co_name_f', Integer),
+        Column('sttstcl_clssfctn_f', Integer),
+        Column('rtsched_trffnbr_f', Integer),
+        Column('avgmth_bill_dmnd_f', Integer),
+        Column('avgmth_ncp_dmnd_f', Integer),
+        Column('avgmth_cp_dmnd_f', Integer),
+        Column('mwh_purchased_f', Integer),
+        Column('mwh_recv_f', Integer),
+        Column('mwh_delvd_f', Integer),
+        Column('dmnd_charges_f', Integer),
+        Column('erg_charges_f', Integer),
+        Column('othr_charges_f', Integer),
+        Column('settlement_tot_f', Integer)
+    ) #}}}
+
+    Table('f1_xmssn_adds', f1_meta, #{{{
+        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
+        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
+        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
+        Column('spplmnt_num', Integer, primary_key=True),
+        Column('row_number', Integer, primary_key=True),
+        Column('row_seq', Integer),
+        Column('row_prvlg', String(1)),
+        Column('designation_from', String(30)),
+        Column('designation_to', String(30)),
+        Column('line_length', Float),
+        Column('structure_type', String(14)),
+        Column('structure_miles', Float),
+        Column('crct_present', Integer),
+        Column('crct_ultimate', Float),
+        Column('cndctr_size', String(10)),
+        Column('cndctr_spec', String(7)),
+        Column('cndctr_config', String(12)),
+        Column('voltage', Float),
+        Column('cost_land', Float),
+        Column('cost_poles', Float),
+        Column('cost_cndctr', Float),
+        Column('asset_retire_cost', Float),
+        Column('cost_total', Float),
+        Column('designation_from_f', Integer),
+        Column('designation_to_f', Integer),
+        Column('line_length_f', Integer),
+        Column('structure_type_f', Integer),
+        Column('structure_miles_f', Integer),
+        Column('crct_present_f', Integer),
+        Column('crct_ultimate_f', Integer),
+        Column('cndctr_size_f', Integer),
+        Column('cndctr_spec_f', Integer),
+        Column('cndctr_config_f', Integer),
+        Column('voltage_f', Integer),
+        Column('cost_land_f', Integer),
+        Column('cost_poles_f', Integer),
+        Column('cost_cndctr_f', Integer),
+        Column('asset_retire_cost_f', Integer),
+        Column('cost_total_f', Integer)
+    ) #}}}
+
+    Table('f1_fuel', f1_meta, #{{{
+        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
+        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
+        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
+        Column('spplmnt_num', Integer, primary_key=True),
+        Column('row_number', Integer, primary_key=True),
+        Column('row_seq', Integer),
+        Column('row_prvlg', String(1)),
+        Column('plant_name', String(20)),
+        Column('fuel', String(13)),
+        Column('fuel_unit', String(13)),
+        Column('fuel_quantity', Float),
+        Column('fuel_avg_heat', Float),
+        Column('fuel_cost_delvd', Float),
+        Column('fuel_cost_burned', Float),
+        Column('fuel_cost_btu', Float),
+        Column('fuel_cost_kwh', Float),
+        Column('fuel_generaton', Float),
+        Column('fuel_f', Integer),
+        Column('fuel_unit_f', Integer),
+        Column('fuel_quantity_f', Integer),
+        Column('fuel_avg_heat_f', Integer),
+        Column('fuel_cost_delvd_f', Integer),
+        Column('fuel_cost_burned_f', Integer),
+        Column('fuel_cost_btu_f', Integer),
+        Column('fuel_cost_kwh_f', Integer),
+        Column('fuel_generaton_f', Integer)
+    ) #}}}
+
+    Table('f1_pumped_storage', f1_meta, #{{{
+        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
+        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
+        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
+        Column('spplmnt_num', Integer, primary_key=True),
+        Column('row_number', Integer, primary_key=True),
+        Column('row_seq', Integer),
+        Column('row_prvlg', String(1)),
+        Column('project_no', Integer),
+        Column('plant_name', String(20)),
+        Column('plant_kind', String(20)),
+        Column('yr_const', String(4)),
+        Column('yr_installed', String(4)),
+        Column('tot_capacity', Float),
+        Column('peak_demand', Float),
+        Column('plant_hours', Float),
+        Column('plant_capability', Float),
+        Column('avg_num_of_emp', Float),
+        Column('net_generation', Float),
+        Column('energy_used', Float),
+        Column('net_load', Float),
+        Column('cost_land', Float),
+        Column('cost_structures', Float),
+        Column('cost_facilties', Float),
+        Column('cost_wheels', Float),
+        Column('cost_electric', Float),
+        Column('cost_misc_eqpmnt', Float),
+        Column('cost_roads', Float),
+        Column('asset_retire_cost', Float),
+        Column('cost_of_plant', Float),
+        Column('cost_per_kw', Float),
+        Column('expns_operations', Float),
+        Column('expns_water_pwr', Float),
+        Column('expns_pump_strg', Float),
+        Column('expns_electric', Float),
+        Column('expns_misc_power', Float),
+        Column('expns_rents', Float),
+        Column('expns_engneering', Float),
+        Column('expns_structures', Float),
+        Column('expns_dams', Float),
+        Column('expns_plant', Float),
+        Column('expns_misc_plnt', Float),
+        Column('expns_producton', Float),
+        Column('pumping_expenses', Float),
+        Column('tot_prdctn_exns', Float),
+        Column('expns_kwh', Float),
+        Column('project_no_f', Integer),
+        Column('plant_name_f', Integer),
+        Column('plant_kind_f', Integer),
+        Column('yr_const_f', Integer),
+        Column('yr_installed_f', Integer),
+        Column('tot_capacity_f', Integer),
+        Column('peak_demand_f', Integer),
+        Column('plant_hours_f', Integer),
+        Column('plant_capability_f', Integer),
+        Column('avg_num_of_emp_f', Integer),
+        Column('net_generation_f', Integer),
+        Column('energy_used_f', Integer),
+        Column('net_load_f', Integer),
+        Column('cost_land_f', Integer),
+        Column('cost_structures_f', Integer),
+        Column('cost_facilties_f', Integer),
+        Column('cost_wheels_f', Integer),
+        Column('cost_electric_f', Integer),
+        Column('cost_misc_eqpmnt_f', Integer),
+        Column('cost_roads_f', Integer),
+        Column('asset_retire_cost_f', Integer),
+        Column('cost_of_plant_f', Integer),
+        Column('cost_per_kw_f', Integer),
+        Column('expns_operations_f', Integer),
+        Column('expns_water_pwr_f', Integer),
+        Column('expns_pump_strg_f', Integer),
+        Column('expns_electric_f', Integer),
+        Column('expns_misc_power_f', Integer),
+        Column('expns_rents_f', Integer),
+        Column('expns_engneering_f', Integer),
+        Column('expns_structures_f', Integer),
+        Column('expns_dams_f', Integer),
+        Column('expns_plant_f', Integer),
+        Column('expns_misc_plnt_f', Integer),
+        Column('expns_producton_f', Integer),
+        Column('pumping_expenses_f', Integer),
+        Column('tot_prdctn_exns_f', Integer),
+        Column('expns_kwh_f', Integer)
+    ) #}}}
+
+    Table('f1_work', f1_meta, #{{{
+        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
+        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
+        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
+        Column('spplmnt_num', Integer, primary_key=True),
+        Column('row_number', Integer, primary_key=True),
+        Column('row_seq', Integer),
+        Column('row_prvlg', String(1)),
+        Column('description', String(91)),
+        Column('work_in_progress', Float),
+        Column('description_f', Integer),
+        Column('work_in_progress_f', Integer)
+    ) #}}}
+
+    Table('f1_hydro', f1_meta, #{{{
+        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
+        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
+        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
+        Column('spplmnt_num', Integer, primary_key=True),
+        Column('row_number', Integer, primary_key=True),
+        Column('row_seq', Integer),
+        Column('row_prvlg', String(1)),
+        Column('project_no', Integer),
+        Column('plant_name', String(20)),
+        Column('plant_kind', String(20)),
+        Column('plant_const', String(20)),
+        Column('yr_const', String(4)),
+        Column('yr_installed', String(4)),
+        Column('tot_capacity', Float),
+        Column('peak_demand', Float),
+        Column('plant_hours', Float),
+        Column('favorable_cond', Float),
+        Column('adverse_cond', Float),
+        Column('avg_num_of_emp', Float),
+        Column('net_generation', Float),
+        Column('cost_of_land', Float),
+        Column('cost_structure', Float),
+        Column('cost_facilities', Float),
+        Column('cost_equipment', Float),
+        Column('cost_roads', Float),
+        Column('cost_plant_total', Float),
+        Column('cost_per_kw', Float),
+        Column('expns_operations', Float),
+        Column('expns_water_pwr', Float),
+        Column('expns_hydraulic', Float),
+        Column('expns_electric', Float),
+        Column('expns_generation', Float),
+        Column('expns_rents', Float),
+        Column('expns_engnr', Float),
+        Column('expns_structures', Float),
+        Column('expns_dams', Float),
+        Column('expns_plant', Float),
+        Column('expns_misc_plant', Float),
+        Column('expns_total', Float),
+        Column('expns_kwh', Float),
+        Column('project_no_f', Integer),
+        Column('plant_name_f', Integer),
+        Column('plant_kind_f', Integer),
+        Column('plant_const_f', Integer),
+        Column('yr_const_f', Integer),
+        Column('yr_installed_f', Integer),
+        Column('tot_capacity_f', Integer),
+        Column('peak_demand_f', Integer),
+        Column('plant_hours_f', Integer),
+        Column('favorable_cond_f', Integer),
+        Column('adverse_cond_f', Integer),
+        Column('avg_num_of_emp_f', Integer),
+        Column('net_generation_f', Integer),
+        Column('cost_of_land_f', Integer),
+        Column('cost_structure_f', Integer),
+        Column('cost_facilities_f', Integer),
+        Column('cost_equipment_f', Integer),
+        Column('cost_roads_f', Integer),
+        Column('cost_plant_total_f', Integer),
+        Column('cost_per_kw_f', Integer),
+        Column('expns_operations_f', Integer),
+        Column('expns_water_pwr_f', Integer),
+        Column('expns_hydraulic_f', Integer),
+        Column('expns_electric_f', Integer),
+        Column('expns_generation_f', Integer),
+        Column('expns_rents_f', Integer),
+        Column('expns_engnr_f', Integer),
+        Column('expns_structures_f', Integer),
+        Column('expns_dams_f', Integer),
+        Column('expns_plant_f', Integer),
+        Column('expns_misc_plant_f', Integer),
+        Column('expns_total_f', Integer),
+        Column('expns_kwh_f', Integer),
+        Column('asset_retire_cost', Float),
+        Column('asset_retire_cost_f', Integer)
+    ) #}}}
+
+    Table('f1_gnrt_plant', f1_meta, #{{{
+        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
+        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
+        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
+        Column('spplmnt_num', Integer, primary_key=True),
+        Column('row_number', Integer, primary_key=True),
+        Column('row_seq', Integer),
+        Column('row_prvlg', String(1)),
+        Column('plant_name', String(48)),
+        Column('yr_constructed', String(4)),
+        Column('capacity_rating', Float),
+        Column('net_demand', Float),
+        Column('net_generation', Float),
+        Column('plant_cost', Float),
+        Column('plant_cost_mw', Float),
+        Column('operation', Float),
+        Column('expns_fuel', Float),
+        Column('expns_maint', Float),
+        Column('kind_of_fuel', String(20)),
+        Column('fuel_cost', Float),
+        Column('plant_name_f', Integer),
+        Column('yr_constructed_f', Integer),
+        Column('capacity_rating_f', Integer),
+        Column('net_demand_f', Integer),
+        Column('net_generation_f', Integer),
+        Column('plant_cost_f', Integer),
+        Column('plant_cost_mw_f', Integer),
+        Column('operation_f', Integer),
+        Column('expns_fuel_f', Integer),
+        Column('expns_maint_f', Integer),
+        Column('kind_of_fuel_f', Integer),
+        Column('fuel_cost_f', Integer)
+    ) #}}}
+
+    Table('f1_398_ancl_ps', f1_meta, #{{{
+        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
+        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
+        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
+        Column('spplmnt_num', Integer, primary_key=True),
+        Column('row_number', Integer, primary_key=True),
+        Column('row_seq', Integer),
+        Column('purch_num_units', Float),
+        Column('purch_unit', String(10)),
+        Column('purch_dollars', Float),
+        Column('sold_num_units', Float),
+        Column('sold_unit', String(10)),
+        Column('sold_dollars', Float),
+        Column('row_prvlg', String(1)),
+        Column('purch_num_units_f', Integer),
+        Column('purch_unit_f', Integer),
+        Column('purch_dollars_f', Integer),
+        Column('sold_num_units_f', Integer),
+        Column('sold_unit_f', Integer)
+    ) #}}}
+
+    Table('f1_steam', f1_meta, #{{{
+        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
+        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
+        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
+        Column('spplmnt_num', Integer, primary_key=True),
+        Column('row_number', Integer, primary_key=True),
+        Column('row_seq', Integer),
+        Column('row_prvlg', String(1)),
+        Column('plant_name', String(20)),
+        Column('plant_kind', String(20)),
+        Column('type_const', String(20)),
+        Column('yr_const', String(4)),
+        Column('yr_installed', String(4)),
+        Column('tot_capacity', Float),
+        Column('peak_demand', Float),
+        Column('plant_hours', Float),
+        Column('plnt_capability', Float),
+        Column('when_not_limited', Float),
+        Column('when_limited', Float),
+        Column('avg_num_of_emp', Float),
+        Column('net_generation', Float),
+        Column('cost_land', Float),
+        Column('cost_structure', Float),
+        Column('cost_equipment', Float),
+        Column('cost_of_plant_to', Float),
+        Column('cost_per_kw', Float),
+        Column('expns_operations', Float),
+        Column('expns_fuel', Float),
+        Column('expns_coolants', Float),
+        Column('expns_steam', Float),
+        Column('expns_steam_othr', Float),
+        Column('expns_transfer', Float),
+        Column('expns_electric', Float),
+        Column('expns_misc_power', Float),
+        Column('expns_rents', Float),
+        Column('expns_allowances', Float),
+        Column('expns_engnr', Float),
+        Column('expns_structures', Float),
+        Column('expns_boiler', Float),
+        Column('expns_plants', Float),
+        Column('expns_misc_steam', Float),
+        Column('tot_prdctn_expns', Float),
+        Column('expns_kwh', Float),
+        Column('plant_name_f', Integer),
+        Column('plant_kind_f', Integer),
+        Column('type_const_f', Integer),
+        Column('yr_const_f', Integer),
+        Column('yr_installed_f', Integer),
+        Column('tot_capacity_f', Integer),
+        Column('peak_demand_f', Integer),
+        Column('plant_hours_f', Integer),
+        Column('plnt_capability_f', Integer),
+        Column('when_not_limited_f', Integer),
+        Column('when_limited_f', Integer),
+        Column('avg_num_of_emp_f', Integer),
+        Column('net_generation_f', Integer),
+        Column('cost_land_f', Integer),
+        Column('cost_structure_f', Integer),
+        Column('cost_equipment_f', Integer),
+        Column('cost_of_plant_to_f', Integer),
+        Column('cost_per_kw_f', Integer),
+        Column('expns_operations_f', Integer),
+        Column('expns_fuel_f', Integer),
+        Column('expns_coolants_f', Integer),
+        Column('expns_steam_f', Integer),
+        Column('expns_steam_othr_f', Integer),
+        Column('expns_transfer_f', Integer),
+        Column('expns_electric_f', Integer),
+        Column('expns_misc_power_f', Integer),
+        Column('expns_rents_f', Integer),
+        Column('expns_allowances_f', Integer),
+        Column('expns_engnr_f', Integer),
+        Column('expns_structures_f', Integer),
+        Column('expns_boiler_f', Integer),
+        Column('expns_plants_f', Integer),
+        Column('expns_misc_steam_f', Integer),
+        Column('tot_prdctn_expns_f', Integer),
+        Column('expns_kwh_f', Integer),
+        Column('asset_retire_cost', Float),
+        Column('asset_retire_cost_f', Integer)
+    ) #}}}
+
+    # Make the Tables!
+    f1_meta.create_all(f1_engine)
+    #}}}
 
 def f1_dbf2sql(dbf_tbl,yr,f1_db):
     """Imports a subset of the FERC Form 1 database tables into Postgres.
