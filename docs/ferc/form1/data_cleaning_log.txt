@@ -1,0 +1,7 @@
+Tue Dec 20 12:56:33 MST 2016
+- When f1_fuel into the postgres database for the first time, discovered that
+  respondent_id=454 exists in the f1_fuel table, but doesn't exist in the
+  f1_respondent_id table.  This violates the ForeignKeyConstraint that we have
+  implemented... and means we don't know what utility corresponds to 
+  respondent_id=454.  Based on the plants listed in f1_fuel, it appears to be
+  an Entergy company.
