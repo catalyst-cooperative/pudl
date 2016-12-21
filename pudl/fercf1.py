@@ -12,16 +12,8 @@ import os.path
 # data.
 ###########################################################################
 
-# This is a list of all the years we have FERC Form 1 Data for:
-f1_years = np.arange(1994,2016)
-
 # directory beneath which the FERC Form 1 data lives...
 f1_datadir = "data/ferc/form1"
-
-# Pull in some metadata about the FERC Form 1 DB & its tables:
-f1_db_notes    = pd.read_csv("{}/docs/f1_db_notes.csv".format(f1_datadir),header=0)
-f1_fuel_notes  = pd.read_csv("{}/docs/f1_fuel_notes.csv".format(f1_datadir),header=0)
-f1_steam_notes = pd.read_csv("{}/docs/f1_steam_notes.csv".format(f1_datadir),header=0)
 
 # Dictionary for cleaning up fuel strings {{{
 # Construct a dictionary mapping a canonical fuel name to a list of strings
@@ -122,6 +114,174 @@ f1_fuel_unit_strings = { 'ton'   : f1_ton_strings,
                        }
 #}}}
 
+# Dictionary mapping DBF files (w/o .DBF file extension) to DB table names
+f1_dbf2tbl = { #{{{
+    'F1_1':  'f1_respondent_id',    # GET THIS ONE
+    'F1_2':  'f1_acb_epda',
+    'F1_3':  'f1_accumdepr_prvsn',
+    'F1_4':  'f1_accumdfrrdtaxcr',
+    'F1_5':  'f1_adit_190_detail',
+    'F1_6':  'f1_adit_190_notes',
+    'F1_7':  'f1_adit_amrt_prop',
+    'F1_8':  'f1_adit_other',
+    'F1_9':  'f1_adit_other_prop',
+    'F1_10': 'f1_allowances',
+    'F1_11': 'f1_bal_sheet_cr',
+    'F1_12': 'f1_capital_stock',
+    'F1_13': 'f1_cash_flow',
+    'F1_14': 'f1_cmmn_utlty_p_e',
+    'F1_15': 'f1_comp_balance_db',
+    'F1_16': 'f1_construction',
+    'F1_17': 'f1_control_respdnt',
+    'F1_18': 'f1_co_directors',
+    'F1_19': 'f1_cptl_stk_expns',
+    'F1_20': 'f1_csscslc_pcsircs',
+    'F1_21': 'f1_dacs_epda',
+    'F1_22': 'f1_dscnt_cptl_stk',
+    'F1_23': 'f1_edcfu_epda',
+    'F1_24': 'f1_elctrc_erg_acct',
+    'F1_25': 'f1_elctrc_oper_rev',
+    'F1_26': 'f1_elc_oper_rev_nb',
+    'F1_27': 'f1_elc_op_mnt_expn',
+    'F1_28': 'f1_electric',
+    'F1_29': 'f1_envrnmntl_expns',
+    'F1_30': 'f1_envrnmntl_fclty',
+    'F1_31': 'f1_fuel',            # GET THIS ONE
+    'F1_32': 'f1_general_info',
+    'F1_33': 'f1_gnrt_plant',      # GET THIS ONE
+    'F1_34': 'f1_important_chg',
+    'F1_35': 'f1_incm_stmnt_2',
+    'F1_36': 'f1_income_stmnt',
+    'F1_37': 'f1_miscgen_expnelc',
+    'F1_38': 'f1_misc_dfrrd_dr',
+    'F1_39': 'f1_mthly_peak_otpt',
+    'F1_40': 'f1_mtrl_spply',
+    'F1_41': 'f1_nbr_elc_deptemp',
+    'F1_42': 'f1_nonutility_prop',
+    'F1_43': 'f1_note_fin_stmnt',
+    'F1_44': 'f1_nuclear_fuel',
+    'F1_45': 'f1_officers_co',
+    'F1_46': 'f1_othr_dfrrd_cr',
+    'F1_47': 'f1_othr_pd_in_cptl',
+    'F1_48': 'f1_othr_reg_assets',
+    'F1_49': 'f1_othr_reg_liab',
+    'F1_50': 'f1_overhead',
+    'F1_51': 'f1_pccidica',
+    'F1_52': 'f1_plant_in_srvce', # GET THIS ONE
+    'F1_53': 'f1_pumped_storage', # GET THIS ONE
+    'F1_54': 'f1_purchased_pwr',  # GET THIS ONE
+    'F1_55': 'f1_reconrpt_netinc',
+    'F1_56': 'f1_reg_comm_expn',
+    'F1_57': 'f1_respdnt_control',
+    'F1_58': 'f1_retained_erng',
+    'F1_59': 'f1_r_d_demo_actvty',
+    'F1_60': 'f1_sales_by_sched',
+    'F1_61': 'f1_sale_for_resale',
+    'F1_62': 'f1_sbsdry_totals',
+    'F1_63': 'f1_schedules_list',
+    'F1_64': 'f1_security_holder',
+    'F1_65': 'f1_slry_wg_dstrbtn',
+    'F1_66': 'f1_substations',
+    'F1_67': 'f1_taxacc_ppchrgyr',
+    'F1_68': 'f1_unrcvrd_cost',
+    'F1_69': 'f1_utltyplnt_smmry',
+    'F1_70': 'f1_work',            # GET THIS ONE
+    'F1_71': 'f1_xmssn_adds',      # GET THIS ONE
+    'F1_72': 'f1_xmssn_elc_bothr',
+    'F1_73': 'f1_xmssn_elc_fothr',
+    'F1_74': 'f1_xmssn_line',
+    'F1_75': 'f1_xtraordnry_loss',
+    'F1_76': 'f1_codes_val',
+    'F1_77': 'f1_sched_lit_tbl',  # GET THIS ONE
+    'F1_78': 'f1_audit_log',
+    'F1_79': 'f1_col_lit_tbl',    # GET THIS ONE
+    'F1_80': 'f1_load_file_names',
+    'F1_81': 'f1_privilege',
+    'F1_82': 'f1_sys_error_log',
+    'F1_83': 'f1_unique_num_val',
+    'F1_84': 'f1_row_lit_tbl',    # GET THIS ONE
+    'F1_85': 'f1_footnote_data',
+    'F1_86': 'f1_hydro',          # GET THIS ONE
+    'F1_87': 'f1_footnote_tbl',
+    'F1_88': 'f1_ident_attsttn',
+    'F1_89': 'f1_steam',          # GET THIS ONE
+    'F1_90': 'f1_leased',
+    'F1_91': 'f1_sbsdry_detail',
+    'F1_92': 'f1_plant',
+    'F1_93': 'f1_long_term_debt',
+    'F1_106_2009': 'f1_106_2009',
+    'F1_106A_2009': 'f1_106a_2009',
+    'F1_106B_2009': 'f1_106b_2009',
+    'F1_208_ELC_DEP': 'f1_208_elc_dep',
+    'F1_231_TRN_STDYCST': 'f1_231_trn_stdycst',
+    'F1_324_ELC_EXPNS': 'f1_324_elc_expns',
+    'F1_325_ELC_CUST': 'f1_325_elc_cust',
+    'F1_331_TRANSISO': 'f1_331_transiso',
+    'F1_338_DEP_DEPL': 'f1_338_dep_depl',
+    'F1_397_ISORTO_STL': 'f1_397_isorto_stl',
+    'F1_398_ANCL_PS': 'f1_398_ancl_ps', # GET THIS ONE
+    'F1_399_MTH_PEAK': 'f1_399_mth_peak',
+    'F1_400_SYS_PEAK': 'f1_400_sys_peak',
+    'F1_400A_ISO_PEAK': 'f1_400a_iso_peak',
+    'F1_429_TRANS_AFF': 'f1_429_trans_aff',
+    'F1_ALLOWANCES_NOX': 'f1_allowances_nox',
+    'F1_CMPINC_HEDGE_A': 'f1_cmpinc_hedge_a',
+    'F1_CMPINC_HEDGE': 'f1_cmpinc_hedge',
+    'F1_EMAIL': 'f1_email',
+    'F1_FREEZE': 'f1_freeze',
+    'F1_PINS': 'f1_pins',
+    'F1_RG_TRN_SRV_REV': 'f1_rg_trn_srv_rev',
+    'F1_S0_CHECKS': 'f1_s0_checks',
+    'F1_S0_FILING_LOG': 'f1_s0_filing_log', # GET THIS ONE
+    'F1_SECURITY': 'f1_security'
+}
+# Invert the map above so we can go either way as needed
+f1_tbl2dbf = { v: k for k, v in f1_dbf2tbl.items() }
+#}}}
+
+# The set of FERC Form 1 tables that have the same composite primary keys: [
+# respondent_id, report_year, report_prd, row_number, spplmnt_num ].
+# TODO: THIS ONLY PERTAINS TO 2015 AND NEEDS TO BE ADJUSTED BY YEAR... {{{
+f1_data_tables = [ 'f1_acb_epda', 'f1_accumdepr_prvsn', 'f1_accumdfrrdtaxcr',
+                   'f1_adit_190_detail', 'f1_adit_190_notes',
+                   'f1_adit_amrt_prop', 'f1_adit_other', 'f1_adit_other_prop',
+                   'f1_allowances', 'f1_bal_sheet_cr', 'f1_capital_stock',
+                   'f1_cash_flow', 'f1_cmmn_utlty_p_e', 'f1_comp_balance_db',
+                   'f1_construction', 'f1_control_respdnt', 'f1_co_directors',
+                   'f1_cptl_stk_expns', 'f1_csscslc_pcsircs', 'f1_dacs_epda',
+                   'f1_dscnt_cptl_stk', 'f1_edcfu_epda', 'f1_elctrc_erg_acct',
+                   'f1_elctrc_oper_rev', 'f1_elc_oper_rev_nb',
+                   'f1_elc_op_mnt_expn', 'f1_electric', 'f1_envrnmntl_expns',
+                   'f1_envrnmntl_fclty', 'f1_fuel', 'f1_general_info',
+                   'f1_gnrt_plant', 'f1_important_chg', 'f1_incm_stmnt_2',
+                   'f1_income_stmnt', 'f1_miscgen_expnelc', 'f1_misc_dfrrd_dr',
+                   'f1_mthly_peak_otpt', 'f1_mtrl_spply', 'f1_nbr_elc_deptemp',
+                   'f1_nonutility_prop', 'f1_note_fin_stmnt',
+                   'f1_nuclear_fuel', 'f1_officers_co', 'f1_othr_dfrrd_cr',
+                   'f1_othr_pd_in_cptl', 'f1_othr_reg_assets',
+                   'f1_othr_reg_liab', 'f1_overhead', 'f1_pccidica',
+                   'f1_plant_in_srvce', 'f1_pumped_storage',
+                   'f1_purchased_pwr', 'f1_reconrpt_netinc',
+                   'f1_reg_comm_expn', 'f1_respdnt_control',
+                   'f1_retained_erng', 'f1_r_d_demo_actvty',
+                   'f1_sales_by_sched', 'f1_sale_for_resale',
+                   'f1_sbsdry_totals', 'f1_schedules_list',
+                   'f1_security_holder', 'f1_slry_wg_dstrbtn',
+                   'f1_substations', 'f1_taxacc_ppchrgyr', 'f1_unrcvrd_cost',
+                   'f1_utltyplnt_smmry', 'f1_work', 'f1_xmssn_adds',
+                   'f1_xmssn_elc_bothr', 'f1_xmssn_elc_fothr', 'f1_xmssn_line',
+                   'f1_xtraordnry_loss', 'f1_audit_log', 'f1_privilege',
+                   'f1_hydro', 'f1_footnote_tbl', 'f1_steam', 'f1_leased',
+                   'f1_sbsdry_detail', 'f1_plant', 'f1_long_term_debt',
+                   'f1_106_2009', 'f1_106a_2009', 'f1_106b_2009',
+                   'f1_208_elc_dep', 'f1_231_trn_stdycst', 'f1_324_elc_expns',
+                   'f1_325_elc_cust', 'f1_331_transiso', 'f1_338_dep_depl',
+                   'f1_397_isorto_stl', 'f1_398_ancl_ps', 'f1_399_mth_peak',
+                   'f1_400_sys_peak', 'f1_400a_iso_peak', 'f1_429_trans_aff',
+                   'f1_allowances_nox', 'f1_cmpinc_hedge_a', 'f1_cmpinc_hedge',
+                   'f1_freeze', 'f1_rg_trn_srv_rev'
+                 ] #}}}
+
 def get_strings(filename, min=4):
     """Extract printable strings from a binary and return them as a generator.
 
@@ -142,23 +302,27 @@ def get_strings(filename, min=4):
             yield result
 #}}}
 
-def f1_getTablesFields(year, min=4):
+def f1_getTablesFields(dbc_filename, min=4):
     """Extract the names of all the tables and fields from FERC Form 1 DB
 
-    This function reads all the strings in the F1_PUB.DBC database file for the
-    corresponding year, and picks out the ones that appear to be database table
-    names, and their subsequent table field names, for use in re-naming the
-    truncated columns extracted from the corresponding DBF files (which are
-    limited to having only 10 characters in their names.) Strings must have at
-    least min printable characters.
+    This function reads all the strings in the given DBC database file for the
+    and picks out the ones that appear to be database table names, and their
+    subsequent table field names, for use in re-naming the truncated columns
+    extracted from the corresponding DBF files (which are limited to having
+    only 10 characters in their names.) Strings must have at least min
+    printable characters.
+
+    Returns a dictionary whose keys are the long table names extracted from
+    the DBC file, and whose values are lists of pairs of values, the first
+    of which is the full name of each field in the table with the same name
+    as the key, and the second of which is the truncated (<=10 character)
+    long name of that field as found in the DBF file.
+
+    TODO: THIS SHOULD NOT REFER TO ANY PARTICULAR YEAR OF DATA
     """ #{{{
 
-    # Find the right DBC file, based on the year we're looking at:
-    filename = glob.glob('{}/{}/*/FORM1/working/F1_PUB.DBC'.format(f1_datadir,year))
-
     # Extract all the strings longer than "min" from the DBC file
-    assert len(filename)==1
-    dbc_strs = list(get_strings(filename[0], min=min))
+    dbc_strs = list(get_strings(dbc_filename, min=min))
 
     # Get rid of leading & trailing whitespace in the strings:
     dbc_strs = [ s.strip() for s in dbc_strs ]
@@ -195,878 +359,232 @@ def f1_getTablesFields(year, min=4):
     for tbl in dbc_list:
         x = tbl.split()
         tf_dict[x[0]]=x[1:]
-    return(tf_dict)
+
+    tf_doubledict = {}
+    for dbf in f1_dbf2tbl.keys():
+        filename = 'data/ferc/form1/2015/UPLOADERS/FORM1/working/{}.DBF'.format(dbf)
+        if os.path.isfile(filename):
+            dbf_fields = dbfread.DBF(filename).field_names
+            dbf_fields = [ f for f in dbf_fields if f != '_NullFlags' ]
+            tf_doubledict[f1_dbf2tbl[dbf]]={ k:v for k,v in zip(dbf_fields,tf_dict[f1_dbf2tbl[dbf]]) }
+            assert(len(tf_dict[f1_dbf2tbl[dbf]])==len(dbf_fields))
+
+    # Insofar as we are able, make sure that the fields match each other
+    for k in tf_doubledict.keys():
+        for sn,ln in zip(tf_doubledict[k].keys(),tf_doubledict[k].values()):
+            assert(ln[:8]==sn.lower()[:8])
+
+    return(tf_doubledict)
 #}}}
 
-def f1_check_fieldnames(long_names, short_names):
-    """Compares lists of long and short field names for consistency.
-
-    DBF field names can only be 10 characters long. This function
-    checks to see if the long names we've extracted from the DBC file
-    are consistent with the short names from the DBF files by looking
-    to see if the first nine characters of each are the same.
-    """
-
-    # Make sure we don't have this weird field...
-    short_names = [ s for s in short_names if s.lower() != '_nullflags' ]
-    # They better be the same length, or we have a mis-match.
-    assert len(long_names) == len(short_names)
-    return([ s.lower()[:9] for s in long_names  ] ==
-           [ s.lower()[:9] for s in short_names ])
-
-def f1_defgen(f1_dbf,year=2015):
-    """A short hack to generate the code for defining SQLAlchemy table defs.
-    """
-    # Given a DBF file to convert:
-    # We need to generate and assemble....
-    #  - Name of the Table, e.g. f1_respondent_id
-    #  - For each Column:
-    #    - Field Name (e.g. respondent_id)
-    #    - Field Data type (e.g. Varchar)
-    #    - Field length  (e.g. 20)
-    #    - Field decimal length (just in case)
-
-    f1_tbls = f1_getTablesFields(year)
-
-    f1_tablemap = {'F1_1':  'f1_respondent_id',
-                   'F1_31': 'f1_fuel',
-                   'F1_33': 'f1_gnrt_plant',
-                   'F1_52': 'f1_plant_in_srvce',
-                   'F1_53': 'f1_pumped_storage',
-                   'F1_54': 'f1_purchased_pwr',
-                   'F1_70': 'f1_work',
-                   'F1_71': 'f1_xmssn_adds',
-                   'F1_77': 'f1_sched_lit_tbl',
-                   'F1_79': 'f1_col_lit_tbl',
-                   'F1_84': 'f1_row_lit_tbl',
-                   'F1_86': 'f1_hydro',
-                   'F1_89': 'f1_steam',
-                   'F1_398_ANCL_PS': 'f1_398_ancl_ps',
-                   'F1_S0_FILING_LOG': 'f1_s0_filing_log'
-                  }
-
-    f1_typemap = {'B': 'XXX', # .DBT block number, binary string
-                  'C': 'String',
-                  'D': 'Date',
-                  'N': 'Float',  # because it can be integer or float
-                  'L': 'Boolean',
-                  'M': 'XXX', # 10 digit .DBT block number, stored as a string...
-                  '@': 'XXX', # Timestamp... Date = Julian Day, Time is in milliseconds?
-                  'I': 'Integer',
-                  '+': 'XXX', # Autoincrement (e.g. for IDs)
-                  'F': 'Float',
-                  'O': 'XXX', # Double, 8 bytes
-                  'G': 'XXX', # OLE 10 digit/byte number of a .DBT block, stored as string
-                  'T': 'DateTime', #DateTime, based on dbf2sqlite mapping
-                  '0': 'XXX' # #Integer? based on dbf2sqlite mapping
-                 }
-
-    table_name = f1_tablemap[f1_dbf]
-    dbf_file = glob.glob("{}/{}/*/FORM1/working/{}.DBF".format(f1_datadir,year,f1_dbf))
-    dbf_fields = dbfread.DBF(dbf_file[0], load=True).fields
-    
-    print('Table(\'{}\', f1_meta,'.format(table_name))
-    for (col_name,dbf_field) in zip(f1_tbls[table_name],dbf_fields[:-1]):
-        len_str = ''
-        key_str = ''
-        if dbf_field.type == 'C':
-            len_str = '({})'.format(dbf_field.length)
-        if col_name == 'respondent_id':
-            key_str = ', ForeignKey(\'f1_respondent_id.respondent_id\'), primary_key=True'
-        if col_name == 'report_year':
-            key_str = ', ForeignKey(\'f1_s0_filing_log.report_yr\'), primary_key=True'
-        if col_name == 'report_prd':
-            key_str = ', ForeignKey(\'f1_s0_filing_log.report_prd\'), primary_key=True'
-        if col_name == 'spplmnt_num':
-            key_str = ', primary_key=True'
-        if col_name == 'row_number':
-            key_str = ', primary_key=True'
-        if col_name == 'sched_table_name':
-            key_str = ', primary_key=True'
-        if col_name == 'column_name':
-            key_str = ', primary_key=True'
-        if col_name == 'row_name':
-            key_str = ', primary_key=True'
-
-        print('        Column(\'{}\', {}{}{}),'.format(col_name,f1_typemap[dbf_field.type],len_str,key_str))
-    print('    )') # end of the Table() definition
-
 def f1_slurp():
-    """A bespoke import of a subset of the FERC Form 1 database tables to Postgres.
-
-    Programmatic creation of DB table structure requires using auxiliary DB
-    migration tools beyond the scope of SQL Alchemy. For the time being, we are
-    going to pull in just the initial tables we're interested in, and just for
-    2015, and we're going to do it "by hand". {{{
-
-    Initial FERC DBF files to be imported, and the corresponding tables:
-
-        'F1_1':  'f1_respondent_id',
-        'F1_31': 'f1_fuel',
-        'F1_33': 'f1_gnrt_plant',
-        'F1_52': 'f1_plant_in_srvce',
-        'F1_53': 'f1_pumped_storage',
-        'F1_54': 'f1_purchased_pwr',
-        'F1_70': 'f1_work',
-        'F1_71': 'f1_xmssn_adds',
-        'F1_77': 'f1_sched_lit_tbl',
-        'F1_79': 'f1_col_lit_tbl',
-        'F1_84': 'f1_row_lit_tbl',
-        'F1_86': 'f1_hydro',
-        'F1_89': 'f1_steam',
-        'F1_398_ANCL_PS': 'f1_398_ancl_ps',
-        'F1_S0_FILING_LOG': 'f1_s0_filing_log',
-
     """
-    from sqlalchemy import create_engine
-    from sqlalchemy import Table, Column, Integer, String, Float, DateTime, Boolean, Date, MetaData, ForeignKey
+    Assuming an empty FERC Form 1 DB, create tables and insert data.
+
+    This function uses dbfread and SQLAlchemy to migrate a set of FERC Form 1
+    database tables from the provided DBF format into a postgres database.
+    """ #{{{
+    from sqlalchemy import create_engine, MetaData
+    import datetime
 
     f1_engine = create_engine('postgresql://catalyst@localhost:5432/ferc_f1')
-
     f1_meta = MetaData()
+    dbc_fn = 'data/ferc/form1/2015/UPLOADERS/FORM1/working/F1_PUB.DBC'
 
-    Table('f1_respondent_id', f1_meta, #{{{
-        Column('respondent_id', Integer, primary_key=True),
-        Column('respondent_name', String(70)),
-        Column('respondent_alias', String(70)),
-        Column('status', String(1)),
-        Column('form_type', Integer),
-        Column('status_date', Date),
-        Column('sort_name', String(8)),
-        Column('pswd_gen', String(15))
-    ) #}}}
+    # These tables all have an unknown respondent_id = 454. For the moment, we
+    # are working around this by inserting a dummy record for that utility...
+    dbfs_454 = ['F1_31','F1_52','F1_54','F1_70','F1_71','F1_89','F1_398_ANCL_PS']
 
-    Table('f1_s0_filing_log', f1_meta, #{{{
-        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
-        Column('report_yr', Integer),
-        Column('report_prd', Integer),
-        Column('filing_num', Integer),
-        Column('poc_email', String(120)),
-        Column('submitted', DateTime),
-        Column('received', DateTime),
-        Column('loaded', DateTime)
-    ) #}}}
+    # We still don't understand the primary keys for these tables, and so they
+    # can't be inserted yet...
+    dbfs_bad_pk = ['F1_84','F1_S0_FILING_LOG']
 
-    Table('f1_sched_lit_tbl', f1_meta, #{{{
-        Column('sched_table_name', String(18), primary_key=True),
-        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
-        Column('sched_literal', String(70)),
-        Column('sched_status', String(1)),
-        Column('sched_chg_year', Integer),
-        Column('turned_schedule', String(1)),
-    ) #}}}
+    # These are the DBF files that we're interested in and can insert now,
+    # given the dummy Utility 454 entry
+    dbfs = ['F1_1','F1_31','F1_33','F1_52','F1_53','F1_54','F1_70','F1_71',
+            'F1_77','F1_79','F1_86','F1_89','F1_398_ANCL_PS']
 
-    Table('f1_col_lit_tbl', f1_meta, #{{{
-        Column('sched_table_name', String(18), primary_key=True),
-        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
-        Column('column_name', String(18), primary_key=True),
-        Column('col_literal', String(70)),
-        Column('col_status', String(1)),
-        Column('col_chg_yr', Integer)
-    ) #}}}
+    # This function (see below) uses metadata from the DBF files to define a
+    # postgres database structure suitable for accepting the FERC Form 1 data
+    f1_define_db(dbc_fn, dbfs, f1_meta, f1_engine)
 
-    Table('f1_row_lit_tbl', f1_meta, #{{{
-        Column('sched_table_name', String(18), primary_key=True),
-        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
-        Column('row_number', Integer, primary_key=True),
-        Column('row_seq', Integer),
-        Column('row_literal', String(70)),
-        Column('row_status', String(1)),
-        Column('row_chg_yr', Integer),
-    ) #}}}
+    # Wipe the DB and start over... just to be sure we aren't munging stuff
+    f1_meta.drop_all(f1_engine)
 
-    Table('f1_plant_in_srvce', f1_meta, #{{{
-        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
-        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
-        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
-        Column('spplmnt_num', Integer, primary_key=True),
-        Column('row_number', Integer, primary_key=True),
-        Column('row_seq', Integer),
-        Column('row_prvlg', String(1)),
-        Column('begin_yr_bal', Float),
-        Column('addition', Float),
-        Column('retirements', Float),
-        Column('adjustments', Float),
-        Column('transfers', Float),
-        Column('yr_end_bal', Float),
-        Column('begin_yr_bal_f', Integer),
-        Column('addition_f', Integer),
-        Column('retirements_f', Integer),
-        Column('adjustments_f', Integer),
-        Column('transfers_f', Integer),
-        Column('yr_end_bal_f', Integer)
-    ) #}}}
-
-    Table('f1_purchased_pwr', f1_meta, #{{{
-        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
-        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
-        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
-        Column('spplmnt_num', Integer, primary_key=True),
-        Column('row_number', Integer, primary_key=True),
-        Column('row_seq', Integer),
-        Column('row_prvlg', String(1)),
-        Column('athrty_co_name', String(38)),
-        Column('sttstcl_clssfctn', String(2)),
-        Column('rtsched_trffnbr', String(18)),
-        Column('avgmth_bill_dmnd', String(18)),
-        Column('avgmth_ncp_dmnd', String(18)),
-        Column('avgmth_cp_dmnd', String(18)),
-        Column('mwh_purchased', Float),
-        Column('mwh_recv', Float),
-        Column('mwh_delvd', Float),
-        Column('dmnd_charges', Float),
-        Column('erg_charges', Float),
-        Column('othr_charges', Float),
-        Column('settlement_tot', Float),
-        Column('athrty_co_name_f', Integer),
-        Column('sttstcl_clssfctn_f', Integer),
-        Column('rtsched_trffnbr_f', Integer),
-        Column('avgmth_bill_dmnd_f', Integer),
-        Column('avgmth_ncp_dmnd_f', Integer),
-        Column('avgmth_cp_dmnd_f', Integer),
-        Column('mwh_purchased_f', Integer),
-        Column('mwh_recv_f', Integer),
-        Column('mwh_delvd_f', Integer),
-        Column('dmnd_charges_f', Integer),
-        Column('erg_charges_f', Integer),
-        Column('othr_charges_f', Integer),
-        Column('settlement_tot_f', Integer)
-    ) #}}}
-
-    Table('f1_xmssn_adds', f1_meta, #{{{
-        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
-        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
-        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
-        Column('spplmnt_num', Integer, primary_key=True),
-        Column('row_number', Integer, primary_key=True),
-        Column('row_seq', Integer),
-        Column('row_prvlg', String(1)),
-        Column('designation_from', String(30)),
-        Column('designation_to', String(30)),
-        Column('line_length', Float),
-        Column('structure_type', String(14)),
-        Column('structure_miles', Float),
-        Column('crct_present', Integer),
-        Column('crct_ultimate', Float),
-        Column('cndctr_size', String(10)),
-        Column('cndctr_spec', String(7)),
-        Column('cndctr_config', String(12)),
-        Column('voltage', Float),
-        Column('cost_land', Float),
-        Column('cost_poles', Float),
-        Column('cost_cndctr', Float),
-        Column('asset_retire_cost', Float),
-        Column('cost_total', Float),
-        Column('designation_from_f', Integer),
-        Column('designation_to_f', Integer),
-        Column('line_length_f', Integer),
-        Column('structure_type_f', Integer),
-        Column('structure_miles_f', Integer),
-        Column('crct_present_f', Integer),
-        Column('crct_ultimate_f', Integer),
-        Column('cndctr_size_f', Integer),
-        Column('cndctr_spec_f', Integer),
-        Column('cndctr_config_f', Integer),
-        Column('voltage_f', Integer),
-        Column('cost_land_f', Integer),
-        Column('cost_poles_f', Integer),
-        Column('cost_cndctr_f', Integer),
-        Column('asset_retire_cost_f', Integer),
-        Column('cost_total_f', Integer)
-    ) #}}}
-
-    Table('f1_fuel', f1_meta, #{{{
-        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
-        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
-        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
-        Column('spplmnt_num', Integer, primary_key=True),
-        Column('row_number', Integer, primary_key=True),
-        Column('row_seq', Integer),
-        Column('row_prvlg', String(1)),
-        Column('plant_name', String(20)),
-        Column('fuel', String(13)),
-        Column('fuel_unit', String(13)),
-        Column('fuel_quantity', Float),
-        Column('fuel_avg_heat', Float),
-        Column('fuel_cost_delvd', Float),
-        Column('fuel_cost_burned', Float),
-        Column('fuel_cost_btu', Float),
-        Column('fuel_cost_kwh', Float),
-        Column('fuel_generaton', Float),
-        Column('fuel_f', Integer),
-        Column('fuel_unit_f', Integer),
-        Column('fuel_quantity_f', Integer),
-        Column('fuel_avg_heat_f', Integer),
-        Column('fuel_cost_delvd_f', Integer),
-        Column('fuel_cost_burned_f', Integer),
-        Column('fuel_cost_btu_f', Integer),
-        Column('fuel_cost_kwh_f', Integer),
-        Column('fuel_generaton_f', Integer)
-    ) #}}}
-
-    Table('f1_pumped_storage', f1_meta, #{{{
-        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
-        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
-        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
-        Column('spplmnt_num', Integer, primary_key=True),
-        Column('row_number', Integer, primary_key=True),
-        Column('row_seq', Integer),
-        Column('row_prvlg', String(1)),
-        Column('project_no', Integer),
-        Column('plant_name', String(20)),
-        Column('plant_kind', String(20)),
-        Column('yr_const', String(4)),
-        Column('yr_installed', String(4)),
-        Column('tot_capacity', Float),
-        Column('peak_demand', Float),
-        Column('plant_hours', Float),
-        Column('plant_capability', Float),
-        Column('avg_num_of_emp', Float),
-        Column('net_generation', Float),
-        Column('energy_used', Float),
-        Column('net_load', Float),
-        Column('cost_land', Float),
-        Column('cost_structures', Float),
-        Column('cost_facilties', Float),
-        Column('cost_wheels', Float),
-        Column('cost_electric', Float),
-        Column('cost_misc_eqpmnt', Float),
-        Column('cost_roads', Float),
-        Column('asset_retire_cost', Float),
-        Column('cost_of_plant', Float),
-        Column('cost_per_kw', Float),
-        Column('expns_operations', Float),
-        Column('expns_water_pwr', Float),
-        Column('expns_pump_strg', Float),
-        Column('expns_electric', Float),
-        Column('expns_misc_power', Float),
-        Column('expns_rents', Float),
-        Column('expns_engneering', Float),
-        Column('expns_structures', Float),
-        Column('expns_dams', Float),
-        Column('expns_plant', Float),
-        Column('expns_misc_plnt', Float),
-        Column('expns_producton', Float),
-        Column('pumping_expenses', Float),
-        Column('tot_prdctn_exns', Float),
-        Column('expns_kwh', Float),
-        Column('project_no_f', Integer),
-        Column('plant_name_f', Integer),
-        Column('plant_kind_f', Integer),
-        Column('yr_const_f', Integer),
-        Column('yr_installed_f', Integer),
-        Column('tot_capacity_f', Integer),
-        Column('peak_demand_f', Integer),
-        Column('plant_hours_f', Integer),
-        Column('plant_capability_f', Integer),
-        Column('avg_num_of_emp_f', Integer),
-        Column('net_generation_f', Integer),
-        Column('energy_used_f', Integer),
-        Column('net_load_f', Integer),
-        Column('cost_land_f', Integer),
-        Column('cost_structures_f', Integer),
-        Column('cost_facilties_f', Integer),
-        Column('cost_wheels_f', Integer),
-        Column('cost_electric_f', Integer),
-        Column('cost_misc_eqpmnt_f', Integer),
-        Column('cost_roads_f', Integer),
-        Column('asset_retire_cost_f', Integer),
-        Column('cost_of_plant_f', Integer),
-        Column('cost_per_kw_f', Integer),
-        Column('expns_operations_f', Integer),
-        Column('expns_water_pwr_f', Integer),
-        Column('expns_pump_strg_f', Integer),
-        Column('expns_electric_f', Integer),
-        Column('expns_misc_power_f', Integer),
-        Column('expns_rents_f', Integer),
-        Column('expns_engneering_f', Integer),
-        Column('expns_structures_f', Integer),
-        Column('expns_dams_f', Integer),
-        Column('expns_plant_f', Integer),
-        Column('expns_misc_plnt_f', Integer),
-        Column('expns_producton_f', Integer),
-        Column('pumping_expenses_f', Integer),
-        Column('tot_prdctn_exns_f', Integer),
-        Column('expns_kwh_f', Integer)
-    ) #}}}
-
-    Table('f1_work', f1_meta, #{{{
-        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
-        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
-        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
-        Column('spplmnt_num', Integer, primary_key=True),
-        Column('row_number', Integer, primary_key=True),
-        Column('row_seq', Integer),
-        Column('row_prvlg', String(1)),
-        Column('description', String(91)),
-        Column('work_in_progress', Float),
-        Column('description_f', Integer),
-        Column('work_in_progress_f', Integer)
-    ) #}}}
-
-    Table('f1_hydro', f1_meta, #{{{
-        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
-        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
-        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
-        Column('spplmnt_num', Integer, primary_key=True),
-        Column('row_number', Integer, primary_key=True),
-        Column('row_seq', Integer),
-        Column('row_prvlg', String(1)),
-        Column('project_no', Integer),
-        Column('plant_name', String(20)),
-        Column('plant_kind', String(20)),
-        Column('plant_const', String(20)),
-        Column('yr_const', String(4)),
-        Column('yr_installed', String(4)),
-        Column('tot_capacity', Float),
-        Column('peak_demand', Float),
-        Column('plant_hours', Float),
-        Column('favorable_cond', Float),
-        Column('adverse_cond', Float),
-        Column('avg_num_of_emp', Float),
-        Column('net_generation', Float),
-        Column('cost_of_land', Float),
-        Column('cost_structure', Float),
-        Column('cost_facilities', Float),
-        Column('cost_equipment', Float),
-        Column('cost_roads', Float),
-        Column('cost_plant_total', Float),
-        Column('cost_per_kw', Float),
-        Column('expns_operations', Float),
-        Column('expns_water_pwr', Float),
-        Column('expns_hydraulic', Float),
-        Column('expns_electric', Float),
-        Column('expns_generation', Float),
-        Column('expns_rents', Float),
-        Column('expns_engnr', Float),
-        Column('expns_structures', Float),
-        Column('expns_dams', Float),
-        Column('expns_plant', Float),
-        Column('expns_misc_plant', Float),
-        Column('expns_total', Float),
-        Column('expns_kwh', Float),
-        Column('project_no_f', Integer),
-        Column('plant_name_f', Integer),
-        Column('plant_kind_f', Integer),
-        Column('plant_const_f', Integer),
-        Column('yr_const_f', Integer),
-        Column('yr_installed_f', Integer),
-        Column('tot_capacity_f', Integer),
-        Column('peak_demand_f', Integer),
-        Column('plant_hours_f', Integer),
-        Column('favorable_cond_f', Integer),
-        Column('adverse_cond_f', Integer),
-        Column('avg_num_of_emp_f', Integer),
-        Column('net_generation_f', Integer),
-        Column('cost_of_land_f', Integer),
-        Column('cost_structure_f', Integer),
-        Column('cost_facilities_f', Integer),
-        Column('cost_equipment_f', Integer),
-        Column('cost_roads_f', Integer),
-        Column('cost_plant_total_f', Integer),
-        Column('cost_per_kw_f', Integer),
-        Column('expns_operations_f', Integer),
-        Column('expns_water_pwr_f', Integer),
-        Column('expns_hydraulic_f', Integer),
-        Column('expns_electric_f', Integer),
-        Column('expns_generation_f', Integer),
-        Column('expns_rents_f', Integer),
-        Column('expns_engnr_f', Integer),
-        Column('expns_structures_f', Integer),
-        Column('expns_dams_f', Integer),
-        Column('expns_plant_f', Integer),
-        Column('expns_misc_plant_f', Integer),
-        Column('expns_total_f', Integer),
-        Column('expns_kwh_f', Integer),
-        Column('asset_retire_cost', Float),
-        Column('asset_retire_cost_f', Integer)
-    ) #}}}
-
-    Table('f1_gnrt_plant', f1_meta, #{{{
-        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
-        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
-        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
-        Column('spplmnt_num', Integer, primary_key=True),
-        Column('row_number', Integer, primary_key=True),
-        Column('row_seq', Integer),
-        Column('row_prvlg', String(1)),
-        Column('plant_name', String(48)),
-        Column('yr_constructed', String(4)),
-        Column('capacity_rating', Float),
-        Column('net_demand', Float),
-        Column('net_generation', Float),
-        Column('plant_cost', Float),
-        Column('plant_cost_mw', Float),
-        Column('operation', Float),
-        Column('expns_fuel', Float),
-        Column('expns_maint', Float),
-        Column('kind_of_fuel', String(20)),
-        Column('fuel_cost', Float),
-        Column('plant_name_f', Integer),
-        Column('yr_constructed_f', Integer),
-        Column('capacity_rating_f', Integer),
-        Column('net_demand_f', Integer),
-        Column('net_generation_f', Integer),
-        Column('plant_cost_f', Integer),
-        Column('plant_cost_mw_f', Integer),
-        Column('operation_f', Integer),
-        Column('expns_fuel_f', Integer),
-        Column('expns_maint_f', Integer),
-        Column('kind_of_fuel_f', Integer),
-        Column('fuel_cost_f', Integer)
-    ) #}}}
-
-    Table('f1_398_ancl_ps', f1_meta, #{{{
-        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
-        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
-        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
-        Column('spplmnt_num', Integer, primary_key=True),
-        Column('row_number', Integer, primary_key=True),
-        Column('row_seq', Integer),
-        Column('purch_num_units', Float),
-        Column('purch_unit', String(10)),
-        Column('purch_dollars', Float),
-        Column('sold_num_units', Float),
-        Column('sold_unit', String(10)),
-        Column('sold_dollars', Float),
-        Column('row_prvlg', String(1)),
-        Column('purch_num_units_f', Integer),
-        Column('purch_unit_f', Integer),
-        Column('purch_dollars_f', Integer),
-        Column('sold_num_units_f', Integer),
-        Column('sold_unit_f', Integer)
-    ) #}}}
-
-    Table('f1_steam', f1_meta, #{{{
-        Column('respondent_id', Integer, ForeignKey('f1_respondent_id.respondent_id'), primary_key=True),
-        Column('report_year', Integer, ForeignKey('f1_s0_filing_log.report_yr'), primary_key=True),
-        Column('report_prd', Integer, ForeignKey('f1_s0_filing_log.report_prd'), primary_key=True),
-        Column('spplmnt_num', Integer, primary_key=True),
-        Column('row_number', Integer, primary_key=True),
-        Column('row_seq', Integer),
-        Column('row_prvlg', String(1)),
-        Column('plant_name', String(20)),
-        Column('plant_kind', String(20)),
-        Column('type_const', String(20)),
-        Column('yr_const', String(4)),
-        Column('yr_installed', String(4)),
-        Column('tot_capacity', Float),
-        Column('peak_demand', Float),
-        Column('plant_hours', Float),
-        Column('plnt_capability', Float),
-        Column('when_not_limited', Float),
-        Column('when_limited', Float),
-        Column('avg_num_of_emp', Float),
-        Column('net_generation', Float),
-        Column('cost_land', Float),
-        Column('cost_structure', Float),
-        Column('cost_equipment', Float),
-        Column('cost_of_plant_to', Float),
-        Column('cost_per_kw', Float),
-        Column('expns_operations', Float),
-        Column('expns_fuel', Float),
-        Column('expns_coolants', Float),
-        Column('expns_steam', Float),
-        Column('expns_steam_othr', Float),
-        Column('expns_transfer', Float),
-        Column('expns_electric', Float),
-        Column('expns_misc_power', Float),
-        Column('expns_rents', Float),
-        Column('expns_allowances', Float),
-        Column('expns_engnr', Float),
-        Column('expns_structures', Float),
-        Column('expns_boiler', Float),
-        Column('expns_plants', Float),
-        Column('expns_misc_steam', Float),
-        Column('tot_prdctn_expns', Float),
-        Column('expns_kwh', Float),
-        Column('plant_name_f', Integer),
-        Column('plant_kind_f', Integer),
-        Column('type_const_f', Integer),
-        Column('yr_const_f', Integer),
-        Column('yr_installed_f', Integer),
-        Column('tot_capacity_f', Integer),
-        Column('peak_demand_f', Integer),
-        Column('plant_hours_f', Integer),
-        Column('plnt_capability_f', Integer),
-        Column('when_not_limited_f', Integer),
-        Column('when_limited_f', Integer),
-        Column('avg_num_of_emp_f', Integer),
-        Column('net_generation_f', Integer),
-        Column('cost_land_f', Integer),
-        Column('cost_structure_f', Integer),
-        Column('cost_equipment_f', Integer),
-        Column('cost_of_plant_to_f', Integer),
-        Column('cost_per_kw_f', Integer),
-        Column('expns_operations_f', Integer),
-        Column('expns_fuel_f', Integer),
-        Column('expns_coolants_f', Integer),
-        Column('expns_steam_f', Integer),
-        Column('expns_steam_othr_f', Integer),
-        Column('expns_transfer_f', Integer),
-        Column('expns_electric_f', Integer),
-        Column('expns_misc_power_f', Integer),
-        Column('expns_rents_f', Integer),
-        Column('expns_allowances_f', Integer),
-        Column('expns_engnr_f', Integer),
-        Column('expns_structures_f', Integer),
-        Column('expns_boiler_f', Integer),
-        Column('expns_plants_f', Integer),
-        Column('expns_misc_steam_f', Integer),
-        Column('tot_prdctn_expns_f', Integer),
-        Column('expns_kwh_f', Integer),
-        Column('asset_retire_cost', Float),
-        Column('asset_retire_cost_f', Integer)
-    ) #}}}
-
-    # Make the Tables!
+    # Create a new database, as defined in the f1_meta MetaData object:
     f1_meta.create_all(f1_engine)
-    #}}}
 
-def f1_dbf2sql(dbf_tbl,yr,f1_db):
-    """Imports a subset of the FERC Form 1 database tables into Postgres.
+    # Create a DB connection to use for the record insertions below:
+    conn=f1_engine.connect()
 
-    This function uses the dbfread module to pull tables from the FERC
-    Form 1 database into a Postgres database with the same basic
-    structure and data types.
+    # This awkward dictionary of dictionaries lets us map from a DBF file
+    # to a couple of lists -- one of the short field names from the DBF file,
+    # and the other the full names that we want to have the SQL database...
+    f1_tblmap = f1_getTablesFields(dbc_fn)
 
+    for dbf in dbfs:
+        dbf_filename = 'data/ferc/form1/2015/UPLOADERS/FORM1/working/{}.DBF'.format(dbf)
+        dbf_table = dbfread.DBF(dbf_filename, load=True)
+
+        # f1_dbf2tbl is a dictionary mapping DBF file names to SQL table names
+        sql_table_name = f1_dbf2tbl[dbf]
+        sql_table = f1_meta.tables[sql_table_name]
+
+        # Build up a list of dictionaries to INSERT into the postgres database.
+        # Each dictionary is one record. Within each dictionary the keys are
+        # the field names, and the values are the values for that field.
+        sql_records = []
+        for dbf_rec in dbf_table.records:
+            sql_rec = {}
+            for dbf_field_name, sql_field_name in f1_tblmap[sql_table_name].items():
+                sql_rec[sql_field_name] = dbf_rec[dbf_field_name]
+            sql_records.append(sql_rec)
+
+        # For some reason this respondent_id was missing from the master
+        # table... but showing up in the data tables. Go figure
+        if (sql_table_name == 'f1_respondent_id'):
+            sql_records.append({
+                'respondent_id' : 454,
+                'respondent_name' : 'Entergy UNKNOWN SUBSIDIARY',
+                'respondent_alias' : '',
+                'status' : 'A',
+                'form_type' : 0,
+                'status_date' : datetime.date(1990,1,1),
+                'sort_name' : '',
+                'pswd_gen' : ''
+            })
+
+        # insert the new records!
+        conn.execute(sql_table.insert(), sql_records)
+    conn.close()
+#}}}
+
+def f1_define_db(dbc_fn, dbfs, f1_meta, db_engine):
     """
-    # Use the dbfread module to access a given FERC Form 1 database table,
-    # and create a corresponding table in postgres.
+    Based on DBF files, create postgres tables to accept FERC Form 1 data.
 
-    # Mapping of DBF filenames to corresponding logical tables.  We need to
-    # preserve the table names because they are referenced inside some of the
-    # tables, e.g. in f1_row_lit_tbl
-    f1_tablemap = { #{{{
-        'F1_1':  'f1_respondent_id',    # GET THIS ONE
-        'F1_2':  'f1_acb_epda',
-        'F1_3':  'f1_accumdepr_prvsn',
-        'F1_4':  'f1_accumdfrrdtaxcr',
-        'F1_5':  'f1_adit_190_detail',
-        'F1_6':  'f1_adit_190_notes',
-        'F1_7':  'f1_adit_amrt_prop',
-        'F1_8':  'f1_adit_other',
-        'F1_9':  'f1_adit_other_prop',
-        'F1_10': 'f1_allowances',
-        'F1_11': 'f1_bal_sheet_cr',
-        'F1_12': 'f1_capital_stock',
-        'F1_13': 'f1_cash_flow',
-        'F1_14': 'f1_cmmn_utlty_p_e',
-        'F1_15': 'f1_comp_balance_db',
-        'F1_16': 'f1_construction',
-        'F1_17': 'f1_control_respdnt',
-        'F1_18': 'f1_co_directors',
-        'F1_19': 'f1_cptl_stk_expns',
-        'F1_20': 'f1_csscslc_pcsircs',
-        'F1_21': 'f1_dacs_epda',
-        'F1_22': 'f1_dscnt_cptl_stk',
-        'F1_23': 'f1_edcfu_epda',
-        'F1_24': 'f1_elctrc_erg_acct',
-        'F1_25': 'f1_elctrc_oper_rev',
-        'F1_26': 'f1_elc_oper_rev_nb',
-        'F1_27': 'f1_elc_op_mnt_expn',
-        'F1_28': 'f1_electric',
-        'F1_29': 'f1_envrnmntl_expns',
-        'F1_30': 'f1_envrnmntl_fclty',
-        'F1_31': 'f1_fuel',            # GET THIS ONE
-        'F1_32': 'f1_general_info',
-        'F1_33': 'f1_gnrt_plant',      # GET THIS ONE
-        'F1_34': 'f1_important_chg',
-        'F1_35': 'f1_incm_stmnt_2',
-        'F1_36': 'f1_income_stmnt',
-        'F1_37': 'f1_miscgen_expnelc',
-        'F1_38': 'f1_misc_dfrrd_dr',
-        'F1_39': 'f1_mthly_peak_otpt',
-        'F1_40': 'f1_mtrl_spply',
-        'F1_41': 'f1_nbr_elc_deptemp',
-        'F1_42': 'f1_nonutility_prop',
-        'F1_43': 'f1_note_fin_stmnt',
-        'F1_44': 'f1_nuclear_fuel',
-        'F1_45': 'f1_officers_co',
-        'F1_46': 'f1_othr_dfrrd_cr',
-        'F1_47': 'f1_othr_pd_in_cptl',
-        'F1_48': 'f1_othr_reg_assets',
-        'F1_49': 'f1_othr_reg_liab',
-        'F1_50': 'f1_overhead',
-        'F1_51': 'f1_pccidica',
-        'F1_52': 'f1_plant_in_srvce', # GET THIS ONE
-        'F1_53': 'f1_pumped_storage', # GET THIS ONE
-        'F1_54': 'f1_purchased_pwr',  # GET THIS ONE
-        'F1_55': 'f1_reconrpt_netinc',
-        'F1_56': 'f1_reg_comm_expn',
-        'F1_57': 'f1_respdnt_control',
-        'F1_58': 'f1_retained_erng',
-        'F1_59': 'f1_r_d_demo_actvty',
-        'F1_60': 'f1_sales_by_sched',
-        'F1_61': 'f1_sale_for_resale',
-        'F1_62': 'f1_sbsdry_totals',
-        'F1_63': 'f1_schedules_list',
-        'F1_64': 'f1_security_holder',
-        'F1_65': 'f1_slry_wg_dstrbtn',
-        'F1_66': 'f1_substations',
-        'F1_67': 'f1_taxacc_ppchrgyr',
-        'F1_68': 'f1_unrcvrd_cost',
-        'F1_69': 'f1_utltyplnt_smmry',
-        'F1_70': 'f1_work',            # GET THIS ONE
-        'F1_71': 'f1_xmssn_adds',      # GET THIS ONE
-        'F1_72': 'f1_xmssn_elc_bothr',
-        'F1_73': 'f1_xmssn_elc_fothr',
-        'F1_74': 'f1_xmssn_line',
-        'F1_75': 'f1_xtraordnry_loss',
-        'F1_76': 'f1_codes_val',
-        'F1_77': 'f1_sched_lit_tbl',
-        'F1_78': 'f1_audit_log',
-        'F1_79': 'f1_col_lit_tbl',    # GET THIS ONE
-        'F1_80': 'f1_load_file_names',
-        'F1_81': 'f1_privilege',
-        'F1_82': 'f1_sys_error_log',
-        'F1_83': 'f1_unique_num_val',
-        'F1_84': 'f1_row_lit_tbl',    # GET THIS ONE
-        'F1_85': 'f1_footnote_data',
-        'F1_86': 'f1_hydro',          # GET THIS ONE
-        'F1_87': 'f1_footnote_tbl',
-        'F1_88': 'f1_ident_attsttn',
-        'F1_89': 'f1_steam',          # GET THIS ONE
-        'F1_90': 'f1_leased',
-        'F1_91': 'f1_sbsdry_detail',
-        'F1_92': 'f1_plant',
-        'F1_93': 'f1_long_term_debt',
-        'F1_106_2009': 'f1_106_2009',
-        'F1_106A_2009': 'f1_106a_2009',
-        'F1_106B_2009': 'f1_106b_2009',
-        'F1_208_ELC_DEP': 'f1_208_elc_dep',
-        'F1_231_TRN_STDYCST': 'f1_231_trn_stdycst',
-        'F1_324_ELC_EXPNS': 'f1_324_elc_expns',
-        'F1_325_ELC_CUST': 'f1_325_elc_cust',
-        'F1_331_TRANSISO': 'f1_331_transiso',
-        'F1_338_DEP_DEPL': 'f1_338_dep_depl',
-        'F1_397_ISORTO_STL': 'f1_397_isorto_stl',
-        'F1_398_ANCL_PS': 'f1_398_ancl_ps', # GET THIS ONE
-        'F1_399_MTH_PEAK': 'f1_399_mth_peak',
-        'F1_400_SYS_PEAK': 'f1_400_sys_peak',
-        'F1_400A_ISO_PEAK': 'f1_400a_iso_peak',
-        'F1_429_TRANS_AFF': 'f1_429_trans_aff',
-        'F1_ALLOWANCES_NOX': 'f1_allowances_nox',
-        'F1_CMPINC_HEDGE_A': 'f1_cmpinc_hedge_a',
-        'F1_CMPINC_HEDGE': 'f1_cmpinc_hedge',
-        'F1_EMAIL': 'f1_email',
-        'F1_FREEZE': 'f1_freeze',
-        'F1_PINS': 'f1_pins',
-        'F1_RG_TRN_SRV_REV': 'f1_rg_trn_srv_rev',
-        'F1_S0_CHECKS': 'f1_s0_checks',
-        'F1_S0_FILING_LOG': 'f1_s0_filing_log', # GET THIS ONE
-        'F1_SECURITY': 'f1_security'
-    } #}}}
-
-    # Make sure we got a valid DBF table...
-    assert dbf_tbl in f1_tablemap.keys()
-    # Construct the path to the DBF field:
-    dbf_file = '{}/{}/*/FORM1/working/{}.DBF'.format(f1_datadir,yr,dbf_tbl)
-    assert os.path.isfile(dbf_file)
-
-    # name of the postgres table to create:
-    pg_tbl_name = f1_tablemap[dbf_tbl]
-
-    f1_table = dbfread.DBF(dbf_file, load=True)
-    f1_tbl_name
-
-    # Iterate over the list of DBF fields to generate an SQLAlchemy table
-    # creation statement...
-
-    # - Read the description of the fields.
-    #   - name
-    #   - type
-    #   - length
-    #   - decimal_count
-    # - Determine the name for the Postgres table based on the information in
-    #   f1_tablemap, 
-    # - Based on the name of the table we're creating, get the list of table
-    #   fields we expect to create from f1_getTablesFields
-    # - Check to make sure that the names of the fields we're creating is
-    #   at least consistent with the names we read from the DBF file. This is
-    #   an ill specified mapping b/c it depends on the ordering of the fields
-    #   in the DB, but that could be okay. We at least need to check for self
-    #   consitency.
-    # - 
-
-#    dbf_file = dbf_path.split('/')[-1]
-#    assert dbf_file in f1_tablemap.keys()
-
-#    subprocess.run("pgdbf {path}".format(path=dbf_path))
-
-    # grab the list of long field names from F1_PUB.DBF 
-
-    # replace all of the short column names w/ the long names
-#    for col in pg_table.columns:
-
-def utilname2fercid(search_str, years=f1_years):
-    """Takes a search string, which should be contained within a single utility
-    name in the FERC Form 1 list of respondents, and returns a tuple containing
-    the unique name and respondent ID that matched.  Allows multiple names to
-    match, so long as there's only one responded ID mapped to all of them, to
-    account for irregularities in reporting within the free form text field.
-    e.g. with search_str="PacifiCo" the return value should be:
-    ("PacifiCorp",134)
-
-    If the string does not result in a single unique ID, consistent across all
-    the years of data that we've got, then we need to throw an error.
-    
     """ #{{{
-    df = pd.DataFrame()
+    from sqlalchemy import create_engine
+    from sqlalchemy import Table, Column, Integer, String, Float, DateTime
+    from sqlalchemy import Boolean, Date, MetaData, Text, ForeignKeyConstraint
+    from sqlalchemy import PrimaryKeyConstraint
 
-    for yr in years:
-        f1_respondent_id_filename = glob.glob("{}/{}/*/FORM1/working/F1_1.DBF".format(f1_datadir,yr))
-        numfiles = len(f1_respondent_id_filename)
-        if numfiles!=1:
-            print("ERROR: non-unique utility ID file for year {}".format(yr))
-        assert(len(f1_respondent_id_filename)==1)
-        f1_respondent_id_dbf = dbfread.DBF(f1_respondent_id_filename[0],load=True)
-        new_df = pd.DataFrame(f1_respondent_id_dbf.records)
-        new_df["YEAR"]=yr
-        df = pd.concat((df,new_df))
-    dfmatch = df[df.RESPONDEN2.str.contains(search_str)]
-    util_names = dfmatch.RESPONDEN2.unique()
-    util_ids   = dfmatch.RESPONDENT.unique()
-    if(len(util_names) > 1):
-        print("CAUTION: non-unique utility names found:")
-        print(dfmatch[["YEAR","RESPONDENT","RESPONDEN2"]])
-    if(len(util_names) == 0):
-        print("ERROR: no matching utility name found")
-    assert(len(util_ids)==1)
-    return((util_names[0],util_ids[0]))
-#}}} end utilname2fercid
+    # This dictionary maps the strings which are used to denote field types in the
+    # DBF objects to the corresponding generic SQLAlchemy Column types:
+    # These definitions come from a combination of the dbfread example program
+    # dbf2sqlite and this DBF file format documentation page:
+    # http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
+    # Un-mapped types left as 'XXX' which should obviously make an error...
+    dbf_typemap = {
+        'C' : String,
+        'D' : Date,
+        'F' : Float,
+        'I' : Integer,
+        'L' : Boolean,
+        'M' : Text, # 10 digit .DBT block number, stored as a string...
+        'N' : Float,
+        'T' : DateTime,
+        'B' : 'XXX', # .DBT block number, binary string
+        '@' : 'XXX', # Timestamp... Date = Julian Day, Time is in milliseconds?
+        '+' : 'XXX', # Autoincrement (e.g. for IDs)
+        'O' : 'XXX', # Double, 8 bytes
+        'G' : 'XXX', # OLE 10 digit/byte number of a .DBT block, stored as string
+        '0' : 'XXX' # #Integer? based on dbf2sqlite mapping
+    }
 
-def f1_table2df(dbf_file, util_ids=None, years=f1_years):
-    """Take the name of a DBF file from the FERC Form 1 database, and pull all
-    years worth of data for that table into a single pandas dataframe and
-    return it for longitudinal analysis.
+    f1_tblmap = f1_getTablesFields(dbc_fn)
 
-    dbf_file: Filename FERC Form 1 DBF file containing the data of interest.
-    
-    util_ids: a list of numbers corresponding to the FERC RESPONDENT field.  If
-              no list of IDs is given, data for all utilities is returned.
+    for dbf in dbfs:
+        # Create the DBF table object. XXX SHOULD NOT REFER TO 2015
+        f1_dbf = dbfread.DBF('{}/2015/UPLOADERS/FORM1/working/{}.DBF'.format(datadir,dbf))
 
-    years: a list of years for which to pull the data.
+        # And the corresponding SQLAlchemy Table object:
+        table_name = f1_dbf2tbl[dbf]
+        f1_sql = Table(table_name, f1_meta)
 
-    example: f1_table2df("F1_33",util_ids=(133,145),years=np.arange(2000,2016)
-    """ #{{{
+        # _NullFlags isn't a "real" data field... remove it.
+        fields = [ f for f in f1_dbf.fields if f.name != '_NullFlags' ]
 
-    df = pd.DataFrame()
+        for field in fields:
+            col_name = f1_tblmap[f1_dbf2tbl[dbf]][field.name]
+            col_type = dbf_typemap[field.type]
 
-    for yr in years:
-        f1_file = glob.glob("{}/{}/*/FORM1/working/{}.DBF".format(f1_datadir,yr,dbf_file))
-        numfiles = len(f1_file)
-        if numfiles!=1:
-            print("ERROR: non-unique utility ID file for year {}".format(yr))
-        assert(len(f1_file)==1)
-        f1_dbf = dbfread.DBF(f1_file[0],load=True)
-        new_df = pd.DataFrame(f1_dbf.records)
-        df = pd.concat((df,new_df))
+            # String/VarChar is the only type that really NEEDS a length
+            if(col_type == String):
+                col_type = col_type(length=field.length)
 
-    if util_ids is not None:
-        df = df[df.RESPONDENT.isin(util_ids)]
+            f1_sql.append_column(Column(col_name, col_type))
 
-    return(df)
+        # Append primary key constraints to the table:
+
+        if (table_name in f1_data_tables):
+            # All the "real" data tables use the same 5 fields as a composite
+            # primary key: [ respondent_id, report_year, report_prd,
+            # row_number, spplmnt_num ]
+            f1_sql.append_constraint(PrimaryKeyConstraint(
+                'respondent_id',
+                'report_year',
+                'report_prd',
+                'row_number',
+                'spplmnt_num')
+            )
+
+            # They also all have respondent_id as their foreign key:
+            f1_sql.append_constraint(ForeignKeyConstraint(
+                columns=['respondent_id',],
+                refcolumns=['f1_respondent_id.respondent_id'])
+            )
+
+        if (table_name == 'f1_respondent_id'):
+            f1_sql.append_constraint(PrimaryKeyConstraint('respondent_id'))
+
+        # Sadly the primary key definitions here don't seem to be right...
+        if (table_name == 'f1_s0_filing_log'):
+            f1_sql.append_constraint(PrimaryKeyConstraint('respondent_id'))
+            f1_sql.append_constraint(ForeignKeyConstraint(
+                columns=['respondent_id',],
+                refcolumns=['f1_respondent_id.respondent_id'])
+            )
+
+        # Sadly the primary key definitions here don't seem to be right...
+        if (table_name == 'f1_row_lit_tbl'):
+            f1_sql.append_constraint(PrimaryKeyConstraint(
+                'sched_table_name',
+                'report_year',
+                'row_number')
+            )
+
+        # Other tables we have not yet attempted to deal with...
+
+        #'f1_email'
+        #  primary_key = respondent_id
+        #  foreign_key = f1_respondent_id.respondent_id
+
+        #'f1_ident_attsttn',
+        #  primary_key = respondent_id
+        #  primary_key = report_year
+        #  primary_key = report_period
+        #  foreign_key = f1_responded_id.respondent_id
+
+        #'f1_footnote_data', #NOT USING NOW/NOT COMPLETE
+        #  primary_key = fn_id
+        #  primary_key = respondent_id
+        #  foreign_key = f1_respondent_id.respondent_id
+        #  foreign_key = f1_s0_filing_log.report_prd
+
+        #'f1_pins',
+        #  primary_key = f1_respondent_id.respondent_id
+        #  foreign_key = f1_respondent_id.respondent_id
+
+        #'f1_freeze',
+        #'f1_security'
+        #'f1_load_file_names'
+        #'f1_unique_num_val',
+        #'f1_sched_lit_tbl',
+        #'f1_sys_error_log',
+        #'f1_col_lit_tbl',    # GET THIS ONE
+        #'f1_codes_val',
+        #'f1_s0_checks',
 #}}}
 
 def f1_cleanstrings(field, stringmap, unmapped=None):
@@ -1109,43 +627,3 @@ def f1_cleanstrings(field, stringmap, unmapped=None):
 
     return field
 #}}} end f1_cleanstrings
-
-def get_f1_fuel(years=f1_years, util_ids=None):
-    """Pull FERC plant level fuel consumption data for a given set of utilities
-    & years. Do some cleanup on the data, specific to the fuel data table.
-    
-    FERC Form 1 page 402, lines 36-44
-    FERC DB file: F1_31.DBF
-    """ #{{{
-
-    f1_fuel = f1_table2df("F1_31", years=years, util_ids=util_ids)
-
-    # Condense strings used to describe fuels and fuel units into a few canonical
-    # values. May want to go to np.nan for unmapped string here eventually... but
-    # need to figure out how to filter a DF for rows that don't have NaN in that
-    # field first.
-    f1_fuel['FUEL'] = f1_cleanstrings(f1_fuel['FUEL'],f1_fuel_strings, unmapped="")
-    f1_fuel['FUEL_UNIT'] = f1_cleanstrings(f1_fuel['FUEL_UNIT'],f1_fuel_unit_strings)
-
-    # Get rid of rows with no plant data in them:
-    f1_fuel = f1_fuel[f1_fuel.PLANT_NAME!=""]
-
-    # Get rid of rows with no fuel type listed:
-    f1_fuel = f1_fuel[f1_fuel.FUEL!=""]
-
-    return(f1_fuel)
-#}}}
-
-def get_f1_steam(years=f1_years, util_ids=None):
-    """Pull generation data for a given set of utilities & years. Perform some
-    data cleanup specific to this data table.
-    
-    FERC Form 1 page 402, lines 1-35
-    FERC DB File: F1_89.DBF
-    """ #{{{
-
-    f1_steam = f1_table2df("F1_89",years=years, util_ids=util_ids)
-    f1_steam = f1_steam[f1_steam.PLANT_NAME!=""]
-
-    return(f1_steam)
-#}}}
