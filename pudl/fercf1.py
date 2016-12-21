@@ -1,11 +1,7 @@
 import numpy as np
 import pandas as pd
 import dbfread
-import subprocess
 import glob
-import string
-import re
-import os.path
 
 ###########################################################################
 # Variables and helper functions related to ingest & process of FERC Form 1
@@ -289,6 +285,7 @@ def get_strings(filename, min=4):
     grabbing database table and column names from the F1_PUB.DBC file that is
     distributed with the FERC Form 1 data.
     """ #{{{
+    import string
     with open(filename, errors="ignore") as f:
         result = ""
         for c in f.read():
@@ -320,6 +317,8 @@ def f1_getTablesFields(dbc_filename, min=4):
 
     TODO: THIS SHOULD NOT REFER TO ANY PARTICULAR YEAR OF DATA
     """ #{{{
+    import os.path
+    import re
 
     # Extract all the strings longer than "min" from the DBC file
     dbc_strs = list(get_strings(dbc_filename, min=min))
@@ -378,8 +377,7 @@ def f1_getTablesFields(dbc_filename, min=4):
 #}}}
 
 def f1_slurp():
-    """
-    Assuming an empty FERC Form 1 DB, create tables and insert data.
+    """Assuming an empty FERC Form 1 DB, create tables and insert data.
 
     This function uses dbfread and SQLAlchemy to migrate a set of FERC Form 1
     database tables from the provided DBF format into a postgres database.
@@ -460,9 +458,7 @@ def f1_slurp():
 #}}}
 
 def f1_define_db(dbc_fn, dbfs, f1_meta, db_engine):
-    """
-    Based on DBF files, create postgres tables to accept FERC Form 1 data.
-
+    """Based on DBF files, create postgres tables to accept FERC Form 1 data.
     """ #{{{
     from sqlalchemy import create_engine
     from sqlalchemy import Table, Column, Integer, String, Float, DateTime
@@ -496,7 +492,7 @@ def f1_define_db(dbc_fn, dbfs, f1_meta, db_engine):
 
     for dbf in dbfs:
         # Create the DBF table object. XXX SHOULD NOT REFER TO 2015
-        f1_dbf = dbfread.DBF('{}/2015/UPLOADERS/FORM1/working/{}.DBF'.format(datadir,dbf))
+        f1_dbf = dbfread.DBF('{}/2015/UPLOADERS/FORM1/working/{}.DBF'.format(f1_datadir,dbf))
 
         # And the corresponding SQLAlchemy Table object:
         table_name = f1_dbf2tbl[dbf]
