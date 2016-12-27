@@ -4,17 +4,17 @@ from .pudl import *
 from .fercf1 import *
 from .eiaf923 import *
 
-#__all__ = (
+#__all__ = [
 #    pudl.__all__ +
 #    fercf1.__all__ +
 #    eiaf923.__all__
-#)
+#]
 
-__author__ = "Plots, Power & Light Cooperative"
-__contact__ = "zane.selvans@gmail.com"
-__maintainer__ = "Plots, Power & Light Cooperative"
+__author__ = "Catalyst Cooperative"
+__contact__ = "zane.selvans@catalyst.coop"
+__maintainer__ = "Catalyst Cooperative"
 __license__ = "All Rights Reserved"
-__maintainer_email__ = "zane.selvans@gmail.com"
+__maintainer_email__ = "zane.selvans@catalyst.coop"
 __version__ = '0.1.0'
 __docformat__ = ""
 __description__ = "Tools for liberating US public utility data."
@@ -30,5 +30,5 @@ and public policy advocates to better understand the electricity system
 and its impacts on climate.
 """
 __pythonrequiredversion__ = "3.5"
-__projecturl__ = ""
-__downloadurl__ = ""
+__projecturl__ = "https://gitlab.com/catalyst-cooperative/pudl/"
+__downloadurl__ = "https://gitlab.com/catalyst-cooperative/pudl/"

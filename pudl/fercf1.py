@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import dbfread
 import glob
+import os.path
 
 ###########################################################################
 # Variables and helper functions related to ingest & process of FERC Form 1
@@ -9,7 +10,7 @@ import glob
 ###########################################################################
 
 # directory beneath which the FERC Form 1 data lives...
-f1_datadir = "data/ferc/form1"
+f1_datadir = '{}/data/ferc/form1'.format(os.path.dirname(os.path.dirname(__file__)))
 
 # Dictionary for cleaning up fuel strings {{{
 # Construct a dictionary mapping a canonical fuel name to a list of strings
@@ -361,7 +362,7 @@ def f1_getTablesFields(dbc_filename, min=4):
 
     tf_doubledict = {}
     for dbf in f1_dbf2tbl.keys():
-        filename = 'data/ferc/form1/2015/UPLOADERS/FORM1/working/{}.DBF'.format(dbf)
+        filename = '{}/2015/UPLOADERS/FORM1/working/{}.DBF'.format(f1_datadir,dbf)
         if os.path.isfile(filename):
             dbf_fields = dbfread.DBF(filename).field_names
             dbf_fields = [ f for f in dbf_fields if f != '_NullFlags' ]
@@ -387,7 +388,7 @@ def f1_slurp():
 
     f1_engine = create_engine('postgresql://catalyst@localhost:5432/ferc_f1')
     f1_meta = MetaData()
-    dbc_fn = 'data/ferc/form1/2015/UPLOADERS/FORM1/working/F1_PUB.DBC'
+    dbc_fn = '{}/2015/UPLOADERS/FORM1/working/F1_PUB.DBC'.format(f1_datadir)
 
     # These tables all have an unknown respondent_id = 454. For the moment, we
     # are working around this by inserting a dummy record for that utility...
@@ -421,7 +422,7 @@ def f1_slurp():
     f1_tblmap = f1_getTablesFields(dbc_fn)
 
     for dbf in dbfs:
-        dbf_filename = 'data/ferc/form1/2015/UPLOADERS/FORM1/working/{}.DBF'.format(dbf)
+        dbf_filename = '{}/2015/UPLOADERS/FORM1/working/{}.DBF'.format(f1_datadir,dbf)
         dbf_table = dbfread.DBF(dbf_filename, load=True)
 
         # f1_dbf2tbl is a dictionary mapping DBF file names to SQL table names
@@ -536,7 +537,12 @@ def f1_define_db(dbc_fn, dbfs, f1_meta, db_engine):
 
         # Sadly the primary key definitions here don't seem to be right...
         if (table_name == 'f1_s0_filing_log'):
-            f1_sql.append_constraint(PrimaryKeyConstraint('respondent_id'))
+            f1_sql.append_constraint(PrimaryKeyConstraint(
+                'respondent_id',
+                'report_yr',
+                'report_prd',
+                'filing_num')
+            )
             f1_sql.append_constraint(ForeignKeyConstraint(
                 columns=['respondent_id',],
                 refcolumns=['f1_respondent_id.respondent_id'])
