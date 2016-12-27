@@ -3,4 +3,6 @@
 ./pudl/*.swp
 ./pudl/__pycache__/*
 .ipynb_checkpoints/
-
+./test/__pycache__/*
+.cache/
+.DS_Store
