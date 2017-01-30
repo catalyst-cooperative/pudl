@@ -1,0 +1,82 @@
+Ingredients
+These CSV files/spreadsheet tabs were generated from the FERC Form 1 database tables, selecting 
+- FERC respondent IDs (from f1_respondents)
+  - F1 IDs
+  - Name
+- FERC Large Plants (from f1_steam)
+  - Respondent ID
+  - Respondent Name
+  - Plant Name
+- FERC Small Plants (from f1_gnrt_plant)
+  - Respondent_ID
+  - respondent_name
+  - Plant_name
+  - Kind_of_fuel
+  - capacity_rating
+- FERC Hydro and Pumped Storage (from f1_hydro & f1_pumped_storage)
+  - Respondent_ID
+  - respondent_name
+  - Plant_name
+  - Plant_kind
+  - Tot_capacity
+- EIA 923 (2015) (started with these fields)
+  - Plant ID
+  - Plant Name
+  -Operator Name
+  - Operator ID
+  - To get a unique set of EIA Operators and EIA plant names from 923, dumped these fields into a text file: eia_plant_ids.txt
+- EIA Operator IDs
+  - Operator
+  - Operator Name
+  - EIA Plant Names
+  - To get a unique list of Plants from EIA: grep -v Plant eia_plant_ids.txt | uniq > unique_plant_ids_filtered.csv
+- Plant ID
+  - Plant Name
+  - Operator Name
+  - Operator ID
+  - Plant State
+
+
+Utility Matching
+- Select keyword (utility name or a part of the utility name) from FERC respondent_name and search EIA Operator Name for potential matches
+- If no keywords match i.e. there’s no EIA Operator Name:
+  - Search in the “f1_plants” tab for the list of plants associated with the respondent ID, then search the “EIA plants” tab for those plant names.
+  - If there are no f1_plants associated with the respondent_ID or the plants associated with the respondent_ID have different EIA Operators, note “No EIA Operator”
+- If there’s exactly one EIA Operator Name that matches the FERC respondent_name, add that operator to eia_operator_name column
+- If there’s more than one potential EIA Operator ID associated with a given FERC respondent_id or vice versa (e.g. FERC respondent_name Northwestern Corporation and EIA Operator Names Northwestern Energy, Northwestern Energy - (SD), and Northwestern Energy DGGS) 
+  - Verify the companies are the same (e.g. by searching for more information about the various corporate entities with Google)
+  - If they are the same or associated corporate entities, create one row for each EIA Operator Name, with each having identical FERC respondent_ids/names.  
+- Search F1 plants for plants associated with FERC respondent_name
+- If there are no plants, note “No F1 plants”
+- If there are plants, leave note blank
+
+Plant Matching
+- Filter for a given FERC respondent_name in the f1_plants tab
+- Filter for matching/similar EIA Operator Name in EIA plants tab
+- If there’s a one-to-one mapping between EIA Plant IDs and the FERC Plant Names
+  - Add “EIA Plant ID,” “EIA Plant Name,” “EIA Operator ID,” and “EIA Operator Name” to the f1_plants table
+- If there’s no match, filter the eia_plantnames tab for plants matching the f1_plant_name
+  - If there is no match, note “*No EIA ID”
+- If there’s more than one EIA plant IDs associated with a single FERC plant name:
+  - Create a new row for each of the matching EIA Plant IDs, with identical FERC plant/respondent information
+  - Add multiple “EIA Plant ID,” “EIA Plant Name,” “EIA Operator ID,” and “EIA Operator Name” to each of the row
+- If there’s more than one (FERC plant name + respondent_ID) associated with a given EIA plant id:
+  - Add “EIA Plant ID,” “EIA Plant Name,” “EIA Operator ID,” and “EIA Operator Name” to the f1_plants table for each FERC plant name and respondent_ID
+  - Note “n f1_plant_name’s” (where N is the number of FERC plants associated with a given EIA Plant ID)
+- If the FERC & EIA plant names match but the FERC respondent and the EIA operator do not match:
+  - Verify that there is in fact one unique plant being represented by the data, by researching that plant and the relevant respondents/operators on Google...
+  - Add “EIA Plant ID,” “EIA Plant Name,” “EIA Operator ID,” and “EIA Operator Name” to the row, but note “F1 resp and EIA operator differ”
+  - Need to explore ownership shares in these cases
+- If the plants match but the plant has been decommissioned
+  -Note “Decommissioned”
+
+Assigning PUDL IDs
+
+
+Issues
+- There are almost certainly some EIA plants, especially plants with multiple owners, that are not mapped to the other operators or respondents.
+    - i.e. If a plant has multiple fields in FERC or EIA associated with the larger utilities,
+    then the smaller operators may have been lost because the plants were sorted based on FERC
+    respondent_ids.
+- As of 1/30/2017, all of the utility IDs were assigned without mapping holding companies or 
+multiple names for the same company.
