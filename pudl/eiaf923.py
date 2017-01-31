@@ -6,13 +6,13 @@ import pandas as pd
 # Helper functions & other objects to ingest & process Energy Information
 # Administration (EIA) Form 923 data.
 #def get_eia923(years=[2015,]):#Same note as Line4
-    """Retrieve data from EIA Form 923 for analysis.
-
-    For now this pulls from the published Excel spreadsheets. The same data
-    may also be available in a more machine readable form via the EIA's bulk
-    JSON download facility, but those files will require parsing.
-
-    """
+#    """Retrieve data from EIA Form 923 for analysis.
+#
+#    For now this pulls from the published Excel spreadsheets. The same data
+#    may also be available in a more machine readable form via the EIA's bulk
+#    JSON download facility, but those files will require parsing.
+#
+#    """
 """
 @author: alana for Catalyst Cooperative
 This code is for use analyzing EIA Form 923 data, years 2008-2016 
