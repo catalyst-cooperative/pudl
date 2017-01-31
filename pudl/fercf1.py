@@ -377,7 +377,7 @@ def f1_getTablesFields(dbc_filename, min=4):
     return(tf_doubledict)
 #}}}
 
-def f1_slurp():
+def f1_slurp(testing=False):
     """Assuming an empty FERC Form 1 DB, create tables and insert data.
 
     This function uses dbfread and SQLAlchemy to migrate a set of FERC Form 1
@@ -386,20 +386,21 @@ def f1_slurp():
     from sqlalchemy import create_engine, MetaData
     import datetime
 
-    f1_engine = create_engine('postgresql://catalyst@localhost:5432/ferc_f1')
+    if testing:
+    # We don't necessarily want to clobber the "real" DB if we're just testing
+    # the code... so we need to have a scratchpad to play with
+        f1_engine = create_engine('postgresql://catalyst@localhost:5432/test_f1')
+    else:
+        f1_engine = create_engine('postgresql://catalyst@localhost:5432/ferc_f1')
+
     f1_meta = MetaData()
     dbc_fn = '{}/2015/UPLOADERS/FORM1/working/F1_PUB.DBC'.format(f1_datadir)
-
-    # These tables all have an unknown respondent_id = 454. For the moment, we
-    # are working around this by inserting a dummy record for that utility...
-    dbfs_454 = ['F1_31','F1_52','F1_54','F1_70','F1_71','F1_89','F1_398_ANCL_PS']
 
     # We still don't understand the primary keys for these tables, and so they
     # can't be inserted yet...
     dbfs_bad_pk = ['F1_84','F1_S0_FILING_LOG']
 
     # These are the DBF files that we're interested in and can insert now,
-    # given the dummy Utility 454 entry
     dbfs = ['F1_1','F1_31','F1_33','F1_52','F1_53','F1_54','F1_70','F1_71',
             'F1_77','F1_79','F1_86','F1_89','F1_398_ANCL_PS']
 
@@ -439,22 +440,9 @@ def f1_slurp():
                 sql_rec[sql_field_name] = dbf_rec[dbf_field_name]
             sql_records.append(sql_rec)
 
-        # For some reason this respondent_id was missing from the master
-        # table... but showing up in the data tables. Go figure
-        if (sql_table_name == 'f1_respondent_id'):
-            sql_records.append({
-                'respondent_id' : 454,
-                'respondent_name' : 'Entergy UNKNOWN SUBSIDIARY',
-                'respondent_alias' : '',
-                'status' : 'A',
-                'form_type' : 0,
-                'status_date' : datetime.date(1990,1,1),
-                'sort_name' : '',
-                'pswd_gen' : ''
-            })
-
         # insert the new records!
         conn.execute(sql_table.insert(), sql_records)
+
     conn.close()
 #}}}
 
