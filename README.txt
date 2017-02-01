@@ -7,7 +7,7 @@ others.
 Most of the code is written in Python. Development is managed through a shared 
 Git repository, which can be found at:
 
-https://gitlab.com/catalyst-cooperative/pudl
+https://github.com/catalyst-cooperative/pudl
 
 Until January 1st, 2018, the project is private. After that date it will be
 available publicly.

@@ -30,5 +30,5 @@ and public policy advocates to better understand the electricity system
 and its impacts on climate.
 """
 __pythonrequiredversion__ = "3.5"
-__projecturl__ = "https://gitlab.com/catalyst-cooperative/pudl/"
-__downloadurl__ = "https://gitlab.com/catalyst-cooperative/pudl/"
+__projecturl__ = "https://github.com/catalyst-cooperative/pudl/"
+__downloadurl__ = "https://github.com/catalyst-cooperative/pudl/"
