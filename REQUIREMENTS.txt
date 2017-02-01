@@ -20,12 +20,10 @@ Python Packages:
 
  - SQLAlchemy (Python DB interface layer)
    http://www.sqlalchemy.org/
-
-Other Programs:
- - pgdbf (a program that converts DBF files to Postgres tables)
-   https://github.com/kstrauser/pgdbf
+ 
+ - PyTest (a unit testing harness)
+   http://docs.pytest.org/en/latest/
 
 Data:
  - FERC Form 1
  - EIA 923
- - EIA 860
