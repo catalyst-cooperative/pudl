@@ -196,50 +196,59 @@ def init_db(Base):
                                           'operator_id_eia923':int,
                                           'operator_name_eia923':str})
 
-    # PUDL Plants
     plants = plant_map[['plant_id','plant_name']]
     plants = plants.drop_duplicates('plant_id')
+
+    plants_eia923 = plant_map[['plant_id_eia923','plant_name_eia923','plant_id']]
+    plants_eia923 = plants_eia923.drop_duplicates('plant_id_eia923')
+
+    plants_ferc1 = plant_map[['plant_name_ferc1','respondent_id_ferc1','plant_id']]
+    plants_ferc1 = plants_ferc1.drop_duplicates(['plant_name_ferc1','respondent_id_ferc1'])
+
+    utils = util_map[['utility_id','utility_name']]
+    utils = utils.drop_duplicates('utility_id')
+
+    utils_eia923 = util_map[['operator_id_eia923','operator_name_eia923','utility_id']]
+    utils_eia923 = utils_eia923.drop_duplicates('operator_id_eia923')
+
+    utils_ferc1 = util_map[['respondent_id_ferc1','respondent_name_ferc1','utility_id']]
+    utils_ferc1 = utils_ferc1.drop_duplicates('respondent_id_ferc1')
+
+    # At this point there should be at most one row in each of these data
+    # frames with NaN values after we drop_duplicates in each. This is because
+    # there will be some plants and utilities that only exist in FERC, or only
+    # exist in EIA, and while they will have PUDL IDs, they may not have
+    # FERC/EIA info (and it'll get pulled in as NaN)
+
+    for df in [plants_eia923, plants_ferc1, utils_eia923, utils_ferc1]:
+        assert(df[pd.isnull(df).any(axis=1)].shape[0]<=1)
+        df.dropna(inplace=True)
+
     for p in plants.itertuples():
         session.add(Plant(id = int(p.plant_id), name = p.plant_name))
 
-    # EIA Plants
-#    plants_eia923 = plant_map[['plant_id_eia923','plant_name_eia923','plant_id']]
-#    plants_eia923 = plants_eia923.drop_duplicates('plant_id_eia923')
-#    df = pd.read_csv('../results/id_mapping/ferc_eia_test/plants_eia923_test.csv')
-#    for p in plants_eia923.itertuples():
-#        session.add(PlantEIA923(plant_id      = int(p.plant_id_eia923),
-#                                plant_name    = p.plant_name_eia923,
-#                                plant_id_pudl = int(p.plant_id)))
+    for p in plants_eia923.itertuples():
+        session.add(PlantEIA923(plant_id      = int(p.plant_id_eia923),
+                                plant_name    = p.plant_name_eia923,
+                                plant_id_pudl = int(p.plant_id)))
 
-    # FERC Plants HAS NaN
-#    plants_ferc1 = plant_map[['plant_name_ferc1','respondent_id_ferc1','plant_id']]
-#    plants_ferc1 = plants_ferc1.drop_duplicates(['plant_name_ferc1','respondent_id_ferc1'])
-#    for p in plants_ferc1.itertuples():
-#        session.add(PlantFERC1(respondent_id = int(p.respondent_id_ferc1),
-#                               plant_name    = p.plant_name_ferc1,
-#                               plant_id_pudl = int(p.plant_id)))
+    for p in plants_ferc1.itertuples():
+        session.add(PlantFERC1(respondent_id = int(p.respondent_id_ferc1),
+                               plant_name    = p.plant_name_ferc1,
+                               plant_id_pudl = int(p.plant_id)))
 
-    # PUDL Utilities
-    utils = util_map[['utility_id','utility_name']]
-    utils = utils.drop_duplicates('utility_id')
     for u in utils.itertuples():
         session.add(Utility(id = int(u.utility_id), name = u.utility_name))
 
-    # EIA Utilities HAS NaN
-#    utils_eia923 = util_map[['operator_id_eia923','operator_name_eia923','utility_id']]
-#    utils_eia923 = utils_eia923.drop_duplicates('operator_id_eia923')
-#    for u in utils_eia923.itertuples():
-#        session.add(UtilityEIA923(operator_id   = int(u.operator_id_eia923),
-#                                  operator_name = u.operator_name_eia923,
-#                                  util_id_pudl  = int(u.utility_id)))
+    for u in utils_eia923.itertuples():
+        session.add(UtilityEIA923(operator_id   = int(u.operator_id_eia923),
+                                  operator_name = u.operator_name_eia923,
+                                  util_id_pudl  = int(u.utility_id)))
 
-    # FERC Utilities HAS NaN
-#    utils_ferc1 = util_map[['respondent_id_ferc1','respondent_name_ferc1','utility_id']]
-#    utils_ferc1 = utils_ferc1.drop_duplicates('respondent_id_ferc1')
-#    for u in utils_ferc1.itertuples():
-#        session.add(UtilityFERC1(respondent_id   = int(u.respondent_id_ferc1),
-#                                 respondent_name = u.respondent_name_ferc1,
-#                                 util_id_pudl    = int(u.utility_id)))
+    for u in utils_ferc1.itertuples():
+        session.add(UtilityFERC1(respondent_id   = int(u.respondent_id_ferc1),
+                                 respondent_name = u.respondent_name_ferc1,
+                                 util_id_pudl    = int(u.utility_id)))
 
     session.commit()
     session.close_all()
