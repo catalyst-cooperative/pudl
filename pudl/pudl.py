@@ -125,7 +125,6 @@ class Month(Base):
     """A list of valid data months."""
     __tablename__ = 'months'
     month = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
 
 class Quarter(Base):
     """A list of fiscal/calendar quarters."""
@@ -137,7 +136,8 @@ class RTOISO(Base):
     """A list of valid Regional Transmission Organizations and Independent
        System Operators."""
     __tablename__ = 'rto_iso'
-    name = Column(String, primary_key=True)
+    abbr = Column(String, primary_key=True)
+    name = Column(String, nullable=False)
 
 class FuelUnit(Base):
     """A list of strings denoting possible fuel units of measure."""
@@ -165,7 +165,35 @@ def init_db(Base):
     Session = sessionmaker(bind=engine)
     session = Session()
 
+    # Populate tables that contain static lists:
+    fuel_names = ['coal', 'gas', 'oil']
+    fuel_units = ['tons', 'mcf', 'bbls']
+
+    prime_movers = ['steam_turbine',
+                    'gas_turbine',
+                    'hydro',
+                    'internal_combustion',
+                    'solar_pv',
+                    'wind_turbine']
+
+    rto_iso = {'CAISO':'California ISO',
+               'ERCOT':'Electric Reliability Council of Texas',
+               'MISO':'Midcontinent ISO',
+               'ISO-NE':'ISO New England',
+               'NYISO':'New York ISO',
+               'PJM':'PJM Interconnection',
+               'SPP':'Southwest Power Pool',}
+
+    session.add_all([Fuel(name=f) for f in fuel_names])
+    session.add_all([FuelUnit(unit=u) for u in fuel_units])
+    session.add_all([Month(month=i+1) for i in range(12)])
+    session.add_all([Quarter(q=i+1, end_month=3*(i+1)) for i in range(4)])
+    session.add_all([PrimeMover(prime_mover=pm) for pm in prime_movers])
+    session.add_all([RTOISO(abbr=k, name=v) for k,v in rto_iso.items()])
+
+    # States dictionary is defined outside this function, below.
     session.add_all([State(abbr=k, name=v) for k,v in us_states.items()])
+
     session.commit()
 
     # Populate the tables which define the mapping of EIA and FERC IDs to our
@@ -224,6 +252,12 @@ def init_db(Base):
         assert(df[pd.isnull(df).any(axis=1)].shape[0]<=1)
         df.dropna(inplace=True)
 
+    # Before we start inserting records into the database, let's do some basic
+    # sanity checks to ensure that it's (at least kind of) clean.
+
+    # Any FERC respondent_id that appears in plants_ferc1 must also exist in
+    # utils_ferc1:
+
     for p in plants.itertuples():
         session.add(Plant(id = int(p.plant_id), name = p.plant_name))
 
@@ -252,16 +286,6 @@ def init_db(Base):
 
     session.commit()
     session.close_all()
-
-    # Populate the static lists:
-    # State
-    # Fuel
-    # Month
-    # Year
-    # Quarter
-    # RTOISO
-    # FuelUnit
-    # PrimeMover
 
 #}}}
 
