@@ -453,6 +453,7 @@ def f1_define_db(dbc_fn, dbfs, f1_meta, db_engine):
     from sqlalchemy import Table, Column, Integer, String, Float, DateTime
     from sqlalchemy import Boolean, Date, MetaData, Text, ForeignKeyConstraint
     from sqlalchemy import PrimaryKeyConstraint
+    import re
 
     # This dictionary maps the strings which are used to denote field types in the
     # DBF objects to the corresponding generic SQLAlchemy Column types:
@@ -488,7 +489,7 @@ def f1_define_db(dbc_fn, dbfs, f1_meta, db_engine):
         f1_sql = Table(table_name, f1_meta)
 
         # _NullFlags isn't a "real" data field... remove it.
-        fields = [ f for f in f1_dbf.fields if f.name != '_NullFlags' ]
+        fields = [ f for f in f1_dbf.fields if not re.match('_NullFlags', f.name)]
 
         for field in fields:
             col_name = f1_tblmap[f1_dbf2tbl[dbf]][field.name]
@@ -498,7 +499,11 @@ def f1_define_db(dbc_fn, dbfs, f1_meta, db_engine):
             if(col_type == String):
                 col_type = col_type(length=field.length)
 
-            f1_sql.append_column(Column(col_name, col_type))
+            # This eliminates the "footnote" fields which all mirror database
+            # fields, but end with _f. We have not yet integrated the footnotes
+            # into the rest of the DB, and so why clutter it up?
+            if(not re.match('(.*_f$)', col_name)):
+                f1_sql.append_column(Column(col_name, col_type))
 
         # Append primary key constraints to the table:
 
