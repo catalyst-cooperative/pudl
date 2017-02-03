@@ -29,92 +29,24 @@ Mapper (ORM) and initializes the database from several sources:
 
 Base = declarative_base()
 
-class UtilityFERC1(Base):
-    """
-    """ #{{{
-    __tablename__ = 'utilities_ferc1'
-    respondent_id = Column(Integer, primary_key=True)
-    respondent_name = Column(String, nullable=False)
-    util_id_pudl = Column(Integer, ForeignKey('utilities.id'), nullable=False)
-#}}}
-
-class PlantFERC1(Base):
-    """
-    """ #{{{
-    __tablename__ = 'plants_ferc1'
-    respondent_id = Column(Integer,
-                           ForeignKey('utilities_ferc1.respondent_id'),
-                           primary_key=True)
-    plant_name = Column(String, primary_key=True, nullable=False)
-    plant_id_pudl = Column(Integer, ForeignKey('plants.id'), nullable=False)
-#}}}
-
-class UtilityEIA923(Base):
-    """
-    """ #{{{
-    __tablename__ = 'utilities_eia923'
-    operator_id = Column(Integer, primary_key=True)
-    operator_name = Column(String, nullable=False)
-    util_id_pudl = Column(Integer,
-                   ForeignKey('utilities.id'),
-                   nullable=False)
-#}}}
-
-class PlantEIA923(Base):
-    """
-    """ #{{{
-    __tablename__ = 'plants_eia923'
-    plant_id = Column(Integer, primary_key=True)
-    plant_name = Column(String, nullable=False)
-    plant_id_pudl = Column(Integer, ForeignKey('plants.id'), nullable=False)
-#}}}
-
-class Utility(Base):
-    """
-    An object describing an electric utility operating in the US.
-    
-    The ElecUtil object is populated with publicly reported data collected from
-    FERC, EIA, EPA and state Public Utility Commission proceedings.
-    """ #{{{
-    __tablename__ = 'utilities'
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-
-    utilities_eia923 = relationship("UtilityEIA923")
-    utilities_ferc1 = relationship("UtilityFERC1")
-#}}}
-
-class Plant(Base):
-    """
-    A co-located collection of electricity generating infrastructure.
-    """ # {{{
-    __tablename__ = 'plants'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-#    us_state = Column(String, ForeignKey('us_states.abbr'))
-#    primary_fuel = Column(String, ForeignKey('fuels.name')) # or ENUM?
-#    total_capacity = Column(Float)
-
-    plants_ferc1 = relationship("PlantFERC1")
-    plants_eia923 = relationship("PlantEIA923")
-#}}}
-
+###########################################################################
+# Tables which represent static lists. E.g. all the US States.
+###########################################################################
+#{{{
 class State(Base):
     """
-    A list of US states.
-    """ #{{{
+    A static list of US states.
+    """
     __tablename__ = 'us_states'
     abbr = Column(String, primary_key=True)
     name = Column(String)
-#}}}
 
 class Fuel(Base):
     """
-    A list of strings denoting possible fuel types.
-    """ #{{{
+    A static list of strings denoting possible fuel types.
+    """
     __tablename__ = 'fuels'
     name = Column(String, primary_key=True)
-#}}}
 
 class Year(Base):
     """A list of valid data years."""
@@ -148,9 +80,116 @@ class PrimeMover(Base):
     """A list of strings denoting different types of prime movers."""
     __tablename__ = 'prime_movers'
     prime_mover = Column(String, primary_key="True")
+#}}}
+
+###########################################################################
+# "Glue" tables relating names & IDs from different data sources
+###########################################################################
+# {{{
+class UtilityFERC1(Base):
+    """
+    A FERC respondent.
+    """
+    __tablename__ = 'utilities_ferc1'
+    respondent_id = Column(Integer, primary_key=True)
+    respondent_name = Column(String, nullable=False)
+    util_id_pudl = Column(Integer, ForeignKey('utilities.id'), nullable=False)
+
+class PlantFERC1(Base):
+    """
+    """
+    __tablename__ = 'plants_ferc1'
+    respondent_id = Column(Integer,
+                           ForeignKey('utilities_ferc1.respondent_id'),
+                           primary_key=True)
+    plant_name = Column(String, primary_key=True, nullable=False)
+    plant_id_pudl = Column(Integer, ForeignKey('plants.id'), nullable=False)
+
+class UtilityEIA923(Base):
+    """
+    An EIA operator.
+    """
+    __tablename__ = 'utilities_eia923'
+    operator_id = Column(Integer, primary_key=True)
+    operator_name = Column(String, nullable=False)
+    util_id_pudl = Column(Integer,
+                   ForeignKey('utilities.id'),
+                   nullable=False)
+
+class PlantEIA923(Base):
+    """
+    A plant listed in the EIA 923 form.
+    """
+    __tablename__ = 'plants_eia923'
+    plant_id = Column(Integer, primary_key=True)
+    plant_name = Column(String, nullable=False)
+    plant_id_pudl = Column(Integer, ForeignKey('plants.id'), nullable=False)
+
+class Utility(Base):
+    """
+    A general electric utility, constructed from FERC, EIA and other data.
+    """
+    __tablename__ = 'utilities'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+
+    utilities_eia923 = relationship("UtilityEIA923")
+    utilities_ferc1 = relationship("UtilityFERC1")
+
+class Plant(Base):
+    """
+    A co-located collection of electricity generating infrastructure.
+
+    Plants are enumerated based on their appearing in at least one public data
+    source, like the FERC Form 1, or EIA Form 923 reporting.
+    """
+    __tablename__ = 'plants'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+#    us_state = Column(String, ForeignKey('us_states.abbr'))
+#    primary_fuel = Column(String, ForeignKey('fuels.name')) # or ENUM?
+#    total_capacity = Column(Float)
+
+    plants_ferc1 = relationship("PlantFERC1")
+    plants_eia923 = relationship("PlantEIA923")
+
+class UtilityPlant(Base):
+    """Describes the relationships between plants and utilities."""
+    __tablename__ = 'plant_ownership'
+    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
+    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
+    #ownership_share = Column(Float, nullable=False)
+    #operator = Column(Boolean)
+#}}}
+
+###########################################################################
+# Tables comprising data from the FERC f1_steam & f1_fuel tables
+###########################################################################
+# {{{
+class FuelConsumedFERC1(Base):
+    """
+    Annual fuel consumed by a given plant, as reported to FERC in Form 1.
+    """
+    __tablename__ = 'fuel_consumed_ferc1'
+    # Each year, for each fuel, there's one report for each plant, which may
+    # be recorded multiple times for multiple utilities that have a stake in
+    # the plant... Primary key fields: utility, plant, fuel and year.
+    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
+    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
+    fuel_type = Column(String, ForeignKey('fuels.name'), primary_key=True)
+    year = Column(Integer, ForeignKey('years.year'), primary_key=True)
+
+    fuel_unit = Column(String, ForeignKey('fuel_units.unit'), nullable=False)
+
+# }}}
 
 def init_db(Base):
     """
+    Create the PUDL database and fill it up with data!
+
+    Uses the metadata associated with Base, which is defined by all the
+    objects & tables defined above.
+
     """ #{{{
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
@@ -165,7 +204,11 @@ def init_db(Base):
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    # Populate tables that contain static lists:
+    ###################################################################### 
+    # Lists of static data to pull into the DB:
+    ###################################################################### 
+    #{{{
+
     fuel_names = ['coal', 'gas', 'oil']
     fuel_units = ['tons', 'mcf', 'bbls']
 
@@ -176,14 +219,74 @@ def init_db(Base):
                     'solar_pv',
                     'wind_turbine']
 
-    rto_iso = {'CAISO':'California ISO',
-               'ERCOT':'Electric Reliability Council of Texas',
-               'MISO':'Midcontinent ISO',
-               'ISO-NE':'ISO New England',
-               'NYISO':'New York ISO',
-               'PJM':'PJM Interconnection',
-               'SPP':'Southwest Power Pool',}
+    rto_iso = { 'CAISO' :'California ISO',
+                'ERCOT' :'Electric Reliability Council of Texas',
+                'MISO'  :'Midcontinent ISO',
+                'ISO-NE':'ISO New England',
+                'NYISO' :'New York ISO',
+                'PJM'   :'PJM Interconnection',
+                'SPP'   :'Southwest Power Pool',}
+    
+    us_states = { 'AK':'Alaska',
+                  'AL':'Alabama',
+                  'AR':'Arkansas',
+                  'AS':'American Samoa',
+                  'AZ':'Arizona',
+                  'CA':'California',
+                  'CO':'Colorado',
+                  'CT':'Connecticut',
+                  'DC':'District of Columbia',
+                  'DE':'Delaware',
+                  'FL':'Florida',
+                  'GA':'Georgia',
+                  'GU':'Guam',
+                  'HI':'Hawaii',
+                  'IA':'Iowa',
+                  'ID':'Idaho',
+                  'IL':'Illinois',
+                  'IN':'Indiana',
+                  'KS':'Kansas',
+                  'KY':'Kentucky',
+                  'LA':'Louisiana',
+                  'MA':'Massachusetts',
+                  'MD':'Maryland',
+                  'ME':'Maine',
+                  'MI':'Michigan',
+                  'MN':'Minnesota',
+                  'MO':'Missouri',
+                  'MP':'Northern Mariana Islands',
+                  'MS':'Mississippi',
+                  'MT':'Montana',
+                  'NA':'National',
+                  'NC':'North Carolina',
+                  'ND':'North Dakota',
+                  'NE':'Nebraska',
+                  'NH':'New Hampshire',
+                  'NJ':'New Jersey',
+                  'NM':'New Mexico',
+                  'NV':'Nevada',
+                  'NY':'New York',
+                  'OH':'Ohio',
+                  'OK':'Oklahoma',
+                  'OR':'Oregon',
+                  'PA':'Pennsylvania',
+                  'PR':'Puerto Rico',
+                  'RI':'Rhode Island',
+                  'SC':'South Carolina',
+                  'SD':'South Dakota',
+                  'TN':'Tennessee',
+                  'TX':'Texas',
+                  'UT':'Utah',
+                  'VA':'Virginia',
+                  'VI':'Virgin Islands',
+                  'VT':'Vermont',
+                  'WA':'Washington',
+                  'WI':'Wisconsin',
+                  'WV':'West Virginia',
+                  'WY':'Wyoming' }
+    # }}}
 
+    # Populate tables with static data from above.
     session.add_all([Fuel(name=f) for f in fuel_names])
     session.add_all([FuelUnit(unit=u) for u in fuel_units])
     session.add_all([Month(month=i+1) for i in range(12)])
@@ -203,7 +306,7 @@ def init_db(Base):
     # little bit imperfect. We're pulling that information in from the
     # "results" directory...
 
-    map_eia923_ferc1_file = '../results/id_mapping/mapping_eia923_ferc1.xlsx'
+    map_eia923_ferc1_file = '../results/id_mapping/mapping_eia923_ferc1_test.xlsx'
 
     plant_map = pd.read_excel(map_eia923_ferc1_file,'plants_output',
                               converters={'plant_id':int,
@@ -261,16 +364,6 @@ def init_db(Base):
     for p in plants.itertuples():
         session.add(Plant(id = int(p.plant_id), name = p.plant_name))
 
-    for p in plants_eia923.itertuples():
-        session.add(PlantEIA923(plant_id      = int(p.plant_id_eia923),
-                                plant_name    = p.plant_name_eia923,
-                                plant_id_pudl = int(p.plant_id)))
-
-    for p in plants_ferc1.itertuples():
-        session.add(PlantFERC1(respondent_id = int(p.respondent_id_ferc1),
-                               plant_name    = p.plant_name_ferc1,
-                               plant_id_pudl = int(p.plant_id)))
-
     for u in utils.itertuples():
         session.add(Utility(id = int(u.utility_id), name = u.utility_name))
 
@@ -284,72 +377,19 @@ def init_db(Base):
                                  respondent_name = u.respondent_name_ferc1,
                                  util_id_pudl    = int(u.utility_id)))
 
+    for p in plants_eia923.itertuples():
+        session.add(PlantEIA923(plant_id      = int(p.plant_id_eia923),
+                                plant_name    = p.plant_name_eia923,
+                                plant_id_pudl = int(p.plant_id)))
+
+    for p in plants_ferc1.itertuples():
+        session.add(PlantFERC1(respondent_id = int(p.respondent_id_ferc1),
+                               plant_name    = p.plant_name_ferc1,
+                               plant_id_pudl = int(p.plant_id)))
+
     session.commit()
     session.close_all()
-
 #}}}
-
-# Static data for populating lists in the DB...
-
-us_states = {
-    'AK': 'Alaska',
-    'AL': 'Alabama',
-    'AR': 'Arkansas',
-    'AS': 'American Samoa',
-    'AZ': 'Arizona',
-    'CA': 'California',
-    'CO': 'Colorado',
-    'CT': 'Connecticut',
-    'DC': 'District of Columbia',
-    'DE': 'Delaware',
-    'FL': 'Florida',
-    'GA': 'Georgia',
-    'GU': 'Guam',
-    'HI': 'Hawaii',
-    'IA': 'Iowa',
-    'ID': 'Idaho',
-    'IL': 'Illinois',
-    'IN': 'Indiana',
-    'KS': 'Kansas',
-    'KY': 'Kentucky',
-    'LA': 'Louisiana',
-    'MA': 'Massachusetts',
-    'MD': 'Maryland',
-    'ME': 'Maine',
-    'MI': 'Michigan',
-    'MN': 'Minnesota',
-    'MO': 'Missouri',
-    'MP': 'Northern Mariana Islands',
-    'MS': 'Mississippi',
-    'MT': 'Montana',
-    'NA': 'National',
-    'NC': 'North Carolina',
-    'ND': 'North Dakota',
-    'NE': 'Nebraska',
-    'NH': 'New Hampshire',
-    'NJ': 'New Jersey',
-    'NM': 'New Mexico',
-    'NV': 'Nevada',
-    'NY': 'New York',
-    'OH': 'Ohio',
-    'OK': 'Oklahoma',
-    'OR': 'Oregon',
-    'PA': 'Pennsylvania',
-    'PR': 'Puerto Rico',
-    'RI': 'Rhode Island',
-    'SC': 'South Carolina',
-    'SD': 'South Dakota',
-    'TN': 'Tennessee',
-    'TX': 'Texas',
-    'UT': 'Utah',
-    'VA': 'Virginia',
-    'VI': 'Virgin Islands',
-    'VT': 'Vermont',
-    'WA': 'Washington',
-    'WI': 'Wisconsin',
-    'WV': 'West Virginia',
-    'WY': 'Wyoming'
-}
 
 #{{{
 
@@ -359,13 +399,6 @@ us_states = {
 #class Generator(Base):
 #    __tablename__ = 'generator'
 #
-#class PlantOwnership(Base):
-#    """Describes plant ownership shares by utility."""
-#    __tablename__ = 'plant_ownership'
-#    util_id = Column(Integer, primary_key=True, ForeignKey('utils_pudl.id'))
-#    plant_id = Column(Integer, primary_key=True, ForeignKey('plants_pudl.id'))
-#    ownership_share = Column(Float, nullable=False)
-
 #class FuelDeliveryFERC1(Base):
 #    __tablename__ = 'ferc_f1_fuel_delivery'
 #
@@ -380,3 +413,5 @@ us_states = {
 
 
 #}}}
+
+
