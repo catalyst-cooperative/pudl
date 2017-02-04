@@ -1,6 +1,6 @@
 # pudl/__init__.py
 
-from .pudl import *
+#from .pudl import *
 from .ferc1 import *
 from .eia923 import *
 
@@ -17,7 +17,7 @@ __license__ = "All Rights Reserved"
 __maintainer_email__ = "zane.selvans@catalyst.coop"
 __version__ = '0.1.0'
 __docformat__ = ""
-__description__ = "Tools for liberating US public utility data."
+__description__ = "Tools for liberating public US electric utility data."
 __long_description__ = """
 This Public Utility Data Liberation (PUDL) project is a collection of tools
 that allow programmatic access to and manipulation of many public data sets
