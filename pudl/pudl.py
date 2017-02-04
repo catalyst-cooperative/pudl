@@ -3,8 +3,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 #from sqlalchemy.orm.collections import attribute_mapped_collection
 
-#import eiaf923
-import fercf1
+#import eia923
+import ferc1
 
 """
 The Public Utility Data Liberation (PUDL) project integrates several different
@@ -32,7 +32,7 @@ Base = declarative_base()
 ###########################################################################
 # Tables which represent static lists. E.g. all the US States.
 ###########################################################################
-#{{{
+
 class State(Base):
     """
     A static list of US states.
@@ -80,15 +80,14 @@ class PrimeMover(Base):
     """A list of strings denoting different types of prime movers."""
     __tablename__ = 'prime_movers'
     prime_mover = Column(String, primary_key="True")
-#}}}
 
 ###########################################################################
 # "Glue" tables relating names & IDs from different data sources
 ###########################################################################
-# {{{
+
 class UtilityFERC1(Base):
     """
-    A FERC respondent.
+    A FERC respondent -- typically this is a utility company.
     """
     __tablename__ = 'utilities_ferc1'
     respondent_id = Column(Integer, primary_key=True)
@@ -160,12 +159,11 @@ class UtilityPlant(Base):
     plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
     #ownership_share = Column(Float, nullable=False)
     #operator = Column(Boolean)
-#}}}
 
 ###########################################################################
 # Tables comprising data from the FERC f1_steam & f1_fuel tables
 ###########################################################################
-# {{{
+
 class FuelConsumedFERC1(Base):
     """
     Annual fuel consumed by a given plant, as reported to FERC in Form 1.
@@ -178,10 +176,14 @@ class FuelConsumedFERC1(Base):
     utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
     fuel_type = Column(String, ForeignKey('fuels.name'), primary_key=True)
     year = Column(Integer, ForeignKey('years.year'), primary_key=True)
-
     fuel_unit = Column(String, ForeignKey('fuel_units.unit'), nullable=False)
-
-# }}}
+    fuel_qty_burned = Column(Float, nullable=False)
+    fuel_avg_heat = Column(Float, nullable=False)
+    fuel_cost_burned = Column(Float, nullable=False)
+    fuel_cost_delivered = Column(Float, nullable=False)
+    fuel_cost_btu = Column(Float, nullable=False)
+    fuel_cost_kwh = Column(Float, nullable=False)
+    fuel_heat_kwh = Column(Float, nullable=False)
 
 def init_db(Base):
     """
@@ -190,7 +192,7 @@ def init_db(Base):
     Uses the metadata associated with Base, which is defined by all the
     objects & tables defined above.
 
-    """ #{{{
+    """
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
     import pandas as pd
@@ -204,10 +206,9 @@ def init_db(Base):
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    ###################################################################### 
+    ######################################################################
     # Lists of static data to pull into the DB:
-    ###################################################################### 
-    #{{{
+    ######################################################################
 
     fuel_names = ['coal', 'gas', 'oil']
     fuel_units = ['tons', 'mcf', 'bbls']
@@ -226,7 +227,7 @@ def init_db(Base):
                 'NYISO' :'New York ISO',
                 'PJM'   :'PJM Interconnection',
                 'SPP'   :'Southwest Power Pool',}
-    
+
     us_states = { 'AK':'Alaska',
                   'AL':'Alabama',
                   'AR':'Arkansas',
@@ -284,7 +285,6 @@ def init_db(Base):
                   'WI':'Wisconsin',
                   'WV':'West Virginia',
                   'WY':'Wyoming' }
-    # }}}
 
     # Populate tables with static data from above.
     session.add_all([Fuel(name=f) for f in fuel_names])
@@ -389,9 +389,6 @@ def init_db(Base):
 
     session.commit()
     session.close_all()
-#}}}
-
-#{{{
 
 #class Boiler(Base):
 #    __tablename__ = 'boiler'
@@ -410,8 +407,3 @@ def init_db(Base):
 #
 #class PowerPlantUnit(Base):
 #    __tablename__ = 'power_plant_unit'
-
-
-#}}}
-
-
