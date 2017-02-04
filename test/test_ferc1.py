@@ -10,7 +10,7 @@ def test_f1_slurp():
     """
     from sqlalchemy import create_engine
     import pandas as pd
-    pudl.fercf1.f1_slurp()
+    pudl.ferc1.f1_slurp()
     f1_engine = create_engine('postgresql://catalyst@localhost:5432/ferc_f1')
     with f1_engine.connect() as con:
         df = pd.read_sql('SELECT respondent_id, respondent_name FROM f1_respondent_id', con)

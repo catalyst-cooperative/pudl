@@ -1,13 +1,13 @@
 # pudl/__init__.py
 
 from .pudl import *
-from .fercf1 import *
-from .eiaf923 import *
+from .ferc1 import *
+from .eia923 import *
 
 #__all__ = [
 #    pudl.__all__ +
-#    fercf1.__all__ +
-#    eiaf923.__all__
+#    ferc1.__all__ +
+#    eia923.__all__
 #]
 
 __author__ = "Catalyst Cooperative"
