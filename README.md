@@ -14,6 +14,7 @@ For more information, get in touch with:
  - Catalyst Cooperative
  - http://catalyst.coop
  - hello@catalyst.coop
+
 ---
 # Project Layout
 A brief layout and explanation of the files and directories you should find
@@ -21,13 +22,13 @@ here.  This is generally based on the "Good Enough Practices in Scientific
 Computing" white paper from the folks at Software Carpentry, which you can
 and should read in its entirety here: https://arxiv.org/pdf/1609.00037v2.pdf
 
-## LICENSE.txt
+## LICENSE.md
 Copyright and licensing information.
 
-## README.txt
+## README.md
 The file you're reading right now...
 
-## REQUIREMENTS.txt
+## REQUIREMENTS.md
 An explanation of the other software and data you'll need to have installed in
 order to make use of PUDL.
 
