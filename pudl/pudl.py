@@ -96,6 +96,11 @@ class UtilityFERC1(Base):
 
 class PlantFERC1(Base):
     """
+    A co-located collection of generation infrastructure. Sometimes broken out
+    by type of plant, depending on the utility and history of the facility.
+    FERC does not assign plant IDs -- the only identifying information we have
+    is the name, and the respondent it is associated with.  The same plant may
+    also be listed by multiple utilities (FERC respondents).
     """
     __tablename__ = 'plants_ferc1'
     respondent_id = Column(Integer,
@@ -106,7 +111,8 @@ class PlantFERC1(Base):
 
 class UtilityEIA923(Base):
     """
-    An EIA operator.
+    An EIA operator, typically a utility company. EIA does assign unique IDs
+    to each operator, as well as supplying a name.
     """
     __tablename__ = 'utilities_eia923'
     operator_id = Column(Integer, primary_key=True)
@@ -117,7 +123,9 @@ class UtilityEIA923(Base):
 
 class PlantEIA923(Base):
     """
-    A plant listed in the EIA 923 form.
+    A plant listed in the EIA 923 form. A single plant typically has only a
+    single operator.  However, plants may have multiple owners, and so the
+    same plant may show up under multiple FERC respondents (utilities).
     """
     __tablename__ = 'plants_eia923'
     plant_id = Column(Integer, primary_key=True)
@@ -126,8 +134,14 @@ class PlantEIA923(Base):
 
 class Utility(Base):
     """
-    A general electric utility, constructed from FERC, EIA and other data.
+    A general electric utility, constructed from FERC, EIA and other data. For
+    now this object class is just glue, that allows us to correlate  the FERC
+    respondents and EIA operators. In the future it could contain other useful
+    information associated with the Utility.  Unfortunately there's not a one
+    to one correspondence between FERC respondents and EIA operators, so
+    there's some inherent ambiguity in this correspondence.
     """
+
     __tablename__ = 'utilities'
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
@@ -140,20 +154,29 @@ class Plant(Base):
     A co-located collection of electricity generating infrastructure.
 
     Plants are enumerated based on their appearing in at least one public data
-    source, like the FERC Form 1, or EIA Form 923 reporting.
+    source, like the FERC Form 1, or EIA Form 923 reporting.  However, they
+    may not appear in all data sources.  Additionally, plants may in some
+    cases be broken down into smaller units in one data source than another.
     """
     __tablename__ = 'plants'
     id = Column(Integer, primary_key=True)
     name = Column(String)
-#    us_state = Column(String, ForeignKey('us_states.abbr'))
-#    primary_fuel = Column(String, ForeignKey('fuels.name')) # or ENUM?
-#    total_capacity = Column(Float)
+    #us_state = Column(String, ForeignKey('us_states.abbr'))
+    #primary_fuel = Column(String, ForeignKey('fuels.name')) # or ENUM?
+    #total_capacity = Column(Float)
 
     plants_ferc1 = relationship("PlantFERC1")
     plants_eia923 = relationship("PlantEIA923")
 
 class UtilityPlant(Base):
-    """Describes the relationships between plants and utilities."""
+    """
+    Enumerates the existence of relationships between plants and utilities.
+
+    In the future this table might also be used to describe the nature of the
+    relationship between the utility and the plant -- for example listing the
+    ownership share that the utility holds of the plant, and whether or not a
+    given utility is the operator of the plant or not.
+    """
     __tablename__ = 'plant_ownership'
     utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
     plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
@@ -164,11 +187,13 @@ class UtilityPlant(Base):
 # Tables comprising data from the FERC f1_steam & f1_fuel tables
 ###########################################################################
 
-class FuelConsumedFERC1(Base):
+class FuelFERC1(Base):
     """
-    Annual fuel consumed by a given plant, as reported to FERC in Form 1.
+    Annual fuel consumed by a given plant, as reported to FERC in Form 1. This
+    information comes from the f1_fuel table in the FERC DB, which is
+    populated from page 402 of the paper FERC For 1.
     """
-    __tablename__ = 'fuel_consumed_ferc1'
+    __tablename__ = 'fuel_ferc1'
     # Each year, for each fuel, there's one report for each plant, which may
     # be recorded multiple times for multiple utilities that have a stake in
     # the plant... Primary key fields: utility, plant, fuel and year.
@@ -184,6 +209,59 @@ class FuelConsumedFERC1(Base):
     fuel_cost_btu = Column(Float, nullable=False)
     fuel_cost_kwh = Column(Float, nullable=False)
     fuel_heat_kwh = Column(Float, nullable=False)
+
+class ThermalPlantFERC1(Base):
+    """
+    A large thermal generating plant, as reported to FERC on Form 1.
+    """
+    __tablename__ = 'thermal_plant_ferc1'
+    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
+    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
+    year = Column(Integer, ForeignKey('years.year'), primary_key=True)
+
+    #respondent_id
+    #report_year
+    #report_prd
+    #spplmnt_num
+    #row_number
+    #row_seq
+    #row_prvlg
+    #plant_name
+    plant_kind = Column(String)
+    type_const = Column(String)
+    year_constructed = Column(Integer)
+    year_installed = Column(Integer)
+    total_capacity = Column(Float)
+    peak_demand = Column(Float)
+    plant_hours = Column(Float)
+    plant_capability = Column(Float)
+    when_not_limited = Column(Float)
+    when_limited = Column(Float)
+    avg_num_employees = Column(Float)
+    net_generation = Column(Float)
+    cost_land = Column(Float)
+    cost_structure = Column(Float)
+    cost_equipment = Column(Float)
+    cost_of_plant_total= Column(Float)
+    cost_per_kw = Column(Float)
+    expns_operations = Column(Float)
+    expns_fuel = Column(Float)
+    expns_coolants = Column(Float)
+    expns_steam = Column(Float)
+    expns_steam_other = Column(Float)
+    expns_transfer = Column(Float)
+    expns_electric = Column(Float)
+    expns_misc_power = Column(Float)
+    expns_rents = Column(Float)
+    expns_allowances = Column(Float)
+    expns_engineering = Column(Float)
+    expns_structures = Column(Float)
+    expns_boiler = Column(Float)
+    expns_plants = Column(Float)
+    expns_misc_steam = Column(Float)
+    expns_production_total = Column(Float)
+    expns_kwh = Column(Float)
+    asset_retire_cost = Column(Float)
 
 def init_db(Base):
     """
@@ -226,7 +304,8 @@ def init_db(Base):
                 'ISO-NE':'ISO New England',
                 'NYISO' :'New York ISO',
                 'PJM'   :'PJM Interconnection',
-                'SPP'   :'Southwest Power Pool',}
+                'SPP'   :'Southwest Power Pool'
+              }
 
     us_states = { 'AK':'Alaska',
                   'AL':'Alabama',
@@ -284,7 +363,8 @@ def init_db(Base):
                   'WA':'Washington',
                   'WI':'Wisconsin',
                   'WV':'West Virginia',
-                  'WY':'Wyoming' }
+                  'WY':'Wyoming'
+                }
 
     # Populate tables with static data from above.
     session.add_all([Fuel(name=f) for f in fuel_names])
