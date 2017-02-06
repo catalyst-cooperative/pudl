@@ -16,7 +16,7 @@ This code is for use analyzing EIA Form 923 data, years 2008-2016
 Current version is for years 2014-2016, which have standardized naming conventions and file formatting
 """
 
-os.chdir(os.path.join('C:\\','Users','alana','Dropbox','Catalyst_Coop', 'pudl', 'data', 'eia', 'form923'))
+os.chdir(os.path.join('C:\\','Users','alana','Dropbox','Catalyst_Coop', 'data', 'eia', 'form923'))
 os.getcwd()
 MainFolder=os.getcwd()
 
