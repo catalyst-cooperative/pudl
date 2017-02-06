@@ -399,13 +399,13 @@ def init_db(Base):
                                           'operator_name_eia923':str,
                                           'operator_id_eia923':int})
 
-    util_map  = pd.read_excel(map_eia923_ferc1_file,'utilities_output',
-                              converters={'utility_id':int,
-                                          'utility_name':str,
-                                          'respondent_id_ferc1':int,
-                                          'respondent_name_ferc1':str,
-                                          'operator_id_eia923':int,
-                                          'operator_name_eia923':str})
+    util_map = pd.read_excel(map_eia923_ferc1_file,'utilities_output',
+                             converters={'utility_id':int,
+                                         'utility_name':str,
+                                         'respondent_id_ferc1':int,
+                                         'respondent_name_ferc1':str,
+                                         'operator_id_eia923':int,
+                                         'operator_name_eia923':str})
 
     plants = plant_map[['plant_id','plant_name']]
     plants = plants.drop_duplicates('plant_id')
@@ -468,6 +468,16 @@ def init_db(Base):
                                plant_id_pudl = int(p.plant_id)))
 
     session.commit()
+
+    # Now we pour in some actual data!
+    # FuelFERC1 pulls information from the f1_fuel table of the FERC DB.
+    # Need:
+    #  - handle to the ferc_f1 db
+    #  - list of all the (utility_id, plant_id, fuel_type, year) combos we want
+    #    to ingest.
+    #  - Create a select statement that gets us the fields we need to populate.
+    #  - Iterate across those results, adding them to the session.
+
     session.close_all()
 
 #class Boiler(Base):
