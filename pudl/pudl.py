@@ -1,10 +1,12 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+import pandas as pd
+import os.path
 #from sqlalchemy.orm.collections import attribute_mapped_collection
 
-#import eia923
-import ferc1
+import pudl.eia923
+import pudl.ferc1
 
 """
 The Public Utility Data Liberation (PUDL) project integrates several different
@@ -28,6 +30,7 @@ Mapper (ORM) and initializes the database from several sources:
 """
 
 Base = declarative_base()
+pudl_dir = os.path.dirname(os.path.dirname(pudl.__file__))
 
 ###########################################################################
 # Tables which represent static lists. E.g. all the US States.
@@ -168,20 +171,12 @@ class Plant(Base):
     plants_ferc1 = relationship("PlantFERC1")
     plants_eia923 = relationship("PlantEIA923")
 
-class UtilityPlant(Base):
-    """
-    Enumerates the existence of relationships between plants and utilities.
+class UtilityPlantAssn(Base):
+    "Enumerates existence of relationships between plants and utilities."
 
-    In the future this table might also be used to describe the nature of the
-    relationship between the utility and the plant -- for example listing the
-    ownership share that the utility holds of the plant, and whether or not a
-    given utility is the operator of the plant or not.
-    """
-    __tablename__ = 'plant_ownership'
+    __tablename__ = 'utility_plant_associations'
     utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
     plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
-    #ownership_share = Column(Float, nullable=False)
-    #operator = Column(Boolean)
 
 ###########################################################################
 # Tables comprising data from the FERC f1_steam & f1_fuel tables
@@ -284,88 +279,6 @@ def init_db(Base):
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    ######################################################################
-    # Lists of static data to pull into the DB:
-    ######################################################################
-
-    fuel_names = ['coal', 'gas', 'oil']
-    fuel_units = ['tons', 'mcf', 'bbls']
-
-    prime_movers = ['steam_turbine',
-                    'gas_turbine',
-                    'hydro',
-                    'internal_combustion',
-                    'solar_pv',
-                    'wind_turbine']
-
-    rto_iso = { 'CAISO' :'California ISO',
-                'ERCOT' :'Electric Reliability Council of Texas',
-                'MISO'  :'Midcontinent ISO',
-                'ISO-NE':'ISO New England',
-                'NYISO' :'New York ISO',
-                'PJM'   :'PJM Interconnection',
-                'SPP'   :'Southwest Power Pool'
-              }
-
-    us_states = { 'AK':'Alaska',
-                  'AL':'Alabama',
-                  'AR':'Arkansas',
-                  'AS':'American Samoa',
-                  'AZ':'Arizona',
-                  'CA':'California',
-                  'CO':'Colorado',
-                  'CT':'Connecticut',
-                  'DC':'District of Columbia',
-                  'DE':'Delaware',
-                  'FL':'Florida',
-                  'GA':'Georgia',
-                  'GU':'Guam',
-                  'HI':'Hawaii',
-                  'IA':'Iowa',
-                  'ID':'Idaho',
-                  'IL':'Illinois',
-                  'IN':'Indiana',
-                  'KS':'Kansas',
-                  'KY':'Kentucky',
-                  'LA':'Louisiana',
-                  'MA':'Massachusetts',
-                  'MD':'Maryland',
-                  'ME':'Maine',
-                  'MI':'Michigan',
-                  'MN':'Minnesota',
-                  'MO':'Missouri',
-                  'MP':'Northern Mariana Islands',
-                  'MS':'Mississippi',
-                  'MT':'Montana',
-                  'NA':'National',
-                  'NC':'North Carolina',
-                  'ND':'North Dakota',
-                  'NE':'Nebraska',
-                  'NH':'New Hampshire',
-                  'NJ':'New Jersey',
-                  'NM':'New Mexico',
-                  'NV':'Nevada',
-                  'NY':'New York',
-                  'OH':'Ohio',
-                  'OK':'Oklahoma',
-                  'OR':'Oregon',
-                  'PA':'Pennsylvania',
-                  'PR':'Puerto Rico',
-                  'RI':'Rhode Island',
-                  'SC':'South Carolina',
-                  'SD':'South Dakota',
-                  'TN':'Tennessee',
-                  'TX':'Texas',
-                  'UT':'Utah',
-                  'VA':'Virginia',
-                  'VI':'Virgin Islands',
-                  'VT':'Vermont',
-                  'WA':'Washington',
-                  'WI':'Wisconsin',
-                  'WV':'West Virginia',
-                  'WY':'Wyoming'
-                }
-
     # Populate tables with static data from above.
     session.add_all([Fuel(name=f) for f in fuel_names])
     session.add_all([FuelUnit(unit=u) for u in fuel_units])
@@ -386,7 +299,11 @@ def init_db(Base):
     # little bit imperfect. We're pulling that information in from the
     # "results" directory...
 
-    map_eia923_ferc1_file = '../results/id_mapping/mapping_eia923_ferc1_test.xlsx'
+
+    map_eia923_ferc1_file = os.path.join(pudl_dir,
+                                         'results',
+                                         'id_mapping',
+                                         'mapping_eia923_ferc1_test.xlsx')
 
     plant_map = pd.read_excel(map_eia923_ferc1_file,'plants_output',
                               converters={'plant_id':int,
@@ -425,6 +342,25 @@ def init_db(Base):
     utils_ferc1 = util_map[['respondent_id_ferc1','respondent_name_ferc1','utility_id']]
     utils_ferc1 = utils_ferc1.drop_duplicates('respondent_id_ferc1')
 
+    # Now we need to create a table that indicates which plants are associated
+    # with every utility.
+
+    # These dataframes map our plant_id to FERC respondents and EIA
+    # operators -- the equivalents of our "utilities"
+    plants_respondents = plant_map[['plant_id','respondent_id_ferc1']]
+    plants_operators = plant_map[['plant_id','operator_id_eia923']]
+
+    # Here we treat the dataframes like database tables, and join on the
+    # FERC respondent_id and EIA operator_id, respectively.
+    util_plant_ferc1 = utils_ferc1.join(plants_respondents.set_index('respondent_id_ferc1'), on='respondent_id_ferc1')
+    util_plant_eia923 = utils_eia923.join(plants_operators.set_index('operator_id_eia923'), on='operator_id_eia923')
+
+    # Now we can concatenate the two dataframes, and get rid of all the  columns
+    # except for plant_id and utility_id (which determine the  utility to plant
+    # association), and get rid of any duplicates or lingering NaN values...
+    util_plant_assn = pd.concat([util_plant_eia923,util_plant_ferc1])
+    util_plant_assn = util_plant_assn[['plant_id','utility_id']].dropna().drop_duplicates()
+
     # At this point there should be at most one row in each of these data
     # frames with NaN values after we drop_duplicates in each. This is because
     # there will be some plants and utilities that only exist in FERC, or only
@@ -437,37 +373,51 @@ def init_db(Base):
 
     # Before we start inserting records into the database, let's do some basic
     # sanity checks to ensure that it's (at least kind of) clean.
+    # INSERT SANITY HERE
 
     # Any FERC respondent_id that appears in plants_ferc1 must also exist in
     # utils_ferc1:
+    # INSERT MORE SANITY HERE
 
     for p in plants.itertuples():
         session.add(Plant(id = int(p.plant_id), name = p.plant_name))
+    session.commit()
 
     for u in utils.itertuples():
         session.add(Utility(id = int(u.utility_id), name = u.utility_name))
+    session.commit()
 
     for u in utils_eia923.itertuples():
         session.add(UtilityEIA923(operator_id   = int(u.operator_id_eia923),
                                   operator_name = u.operator_name_eia923,
                                   util_id_pudl  = int(u.utility_id)))
+    session.commit()
 
     for u in utils_ferc1.itertuples():
         session.add(UtilityFERC1(respondent_id   = int(u.respondent_id_ferc1),
                                  respondent_name = u.respondent_name_ferc1,
                                  util_id_pudl    = int(u.utility_id)))
+    session.commit()
 
     for p in plants_eia923.itertuples():
         session.add(PlantEIA923(plant_id      = int(p.plant_id_eia923),
                                 plant_name    = p.plant_name_eia923,
                                 plant_id_pudl = int(p.plant_id)))
+    session.commit()
 
     for p in plants_ferc1.itertuples():
         session.add(PlantFERC1(respondent_id = int(p.respondent_id_ferc1),
                                plant_name    = p.plant_name_ferc1,
                                plant_id_pudl = int(p.plant_id)))
-
     session.commit()
+
+    for assn in util_plant_assn.itertuples():
+        session.add(UtilityPlantAssn(plant_id   = int(assn.plant_id),
+                                     utility_id = int(assn.utility_id)))
+    session.commit()
+
+    #ferc1_engine = create_engine('postgresql://catalyst@localhost:5432/ferc_f1')
+    #ferc1_fuel_df = pd.read_sql('SELECT * FROM f1_fuel',ferc1_engine)
 
     # Now we pour in some actual data!
     # FuelFERC1 pulls information from the f1_fuel table of the FERC DB.
@@ -497,3 +447,81 @@ def init_db(Base):
 #
 #class PowerPlantUnit(Base):
 #    __tablename__ = 'power_plant_unit'
+
+######################################################################
+# Constants used within the pudl.py module.
+######################################################################
+fuel_names = ['coal', 'gas', 'oil']
+fuel_units = ['tons', 'mcf', 'bbls']
+prime_movers = ['steam_turbine', 'gas_turbine', 'hydro', 'internal_combustion',
+                'solar_pv', 'wind_turbine']
+
+rto_iso = {
+  'CAISO' :'California ISO',
+  'ERCOT' :'Electric Reliability Council of Texas',
+  'MISO'  :'Midcontinent ISO',
+  'ISO-NE':'ISO New England',
+  'NYISO' :'New York ISO',
+  'PJM'   :'PJM Interconnection',
+  'SPP'   :'Southwest Power Pool'
+}
+
+us_states = {
+  'AK':'Alaska',
+  'AL':'Alabama',
+  'AR':'Arkansas',
+  'AS':'American Samoa',
+  'AZ':'Arizona',
+  'CA':'California',
+  'CO':'Colorado',
+  'CT':'Connecticut',
+  'DC':'District of Columbia',
+  'DE':'Delaware',
+  'FL':'Florida',
+  'GA':'Georgia',
+  'GU':'Guam',
+  'HI':'Hawaii',
+  'IA':'Iowa',
+  'ID':'Idaho',
+  'IL':'Illinois',
+  'IN':'Indiana',
+  'KS':'Kansas',
+  'KY':'Kentucky',
+  'LA':'Louisiana',
+  'MA':'Massachusetts',
+  'MD':'Maryland',
+  'ME':'Maine',
+  'MI':'Michigan',
+  'MN':'Minnesota',
+  'MO':'Missouri',
+  'MP':'Northern Mariana Islands',
+  'MS':'Mississippi',
+  'MT':'Montana',
+  'NA':'National',
+  'NC':'North Carolina',
+  'ND':'North Dakota',
+  'NE':'Nebraska',
+  'NH':'New Hampshire',
+  'NJ':'New Jersey',
+  'NM':'New Mexico',
+  'NV':'Nevada',
+  'NY':'New York',
+  'OH':'Ohio',
+  'OK':'Oklahoma',
+  'OR':'Oregon',
+  'PA':'Pennsylvania',
+  'PR':'Puerto Rico',
+  'RI':'Rhode Island',
+  'SC':'South Carolina',
+  'SD':'South Dakota',
+  'TN':'Tennessee',
+  'TX':'Texas',
+  'UT':'Utah',
+  'VA':'Virginia',
+  'VI':'Virgin Islands',
+  'VT':'Vermont',
+  'WA':'Washington',
+  'WI':'Wisconsin',
+  'WV':'West Virginia',
+  'WY':'Wyoming'
+}
