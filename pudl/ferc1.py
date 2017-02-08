@@ -389,9 +389,9 @@ def f1_slurp(testing=False):
     if testing:
     # We don't necessarily want to clobber the "real" DB if we're just testing
     # the code... so we need to have a scratchpad to play with
-        f1_engine = create_engine('postgresql://catalyst@localhost:5432/test_f1')
+        f1_engine = create_engine('postgresql://catalyst@localhost:5432/ferc1_test')
     else:
-        f1_engine = create_engine('postgresql://catalyst@localhost:5432/ferc_f1')
+        f1_engine = create_engine('postgresql://catalyst@localhost:5432/ferc1')
 
     f1_meta = MetaData()
     dbc_fn = '{}/2015/UPLOADERS/FORM1/working/F1_PUB.DBC'.format(f1_datadir)
