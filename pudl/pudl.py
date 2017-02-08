@@ -5,8 +5,11 @@ import pandas as pd
 import os.path
 #from sqlalchemy.orm.collections import attribute_mapped_collection
 
-import pudl.eia923
-import pudl.ferc1
+from pudl import __file__ as pudl_pkg_file
+pudl_dir = os.path.dirname(os.path.dirname(pudl_pkg_file))
+
+#import pudl.eia923
+#import pudl.ferc1
 
 """
 The Public Utility Data Liberation (PUDL) project integrates several different
@@ -30,7 +33,6 @@ Mapper (ORM) and initializes the database from several sources:
 """
 
 Base = declarative_base()
-pudl_dir = os.path.dirname(os.path.dirname(pudl.__file__))
 
 ###########################################################################
 # Tables which represent static lists. E.g. all the US States.
@@ -174,7 +176,7 @@ class Plant(Base):
 class UtilityPlantAssn(Base):
     "Enumerates existence of relationships between plants and utilities."
 
-    __tablename__ = 'utility_plant_associations'
+    __tablename__ = 'util_plant_assn'
     utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
     plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
 
@@ -303,9 +305,10 @@ def init_db(Base):
     map_eia923_ferc1_file = os.path.join(pudl_dir,
                                          'results',
                                          'id_mapping',
-                                         'mapping_eia923_ferc1_test.xlsx')
+                                         'mapping_eia923_ferc1.xlsx')
 
     plant_map = pd.read_excel(map_eia923_ferc1_file,'plants_output',
+                              na_values='', keep_default_na=False,
                               converters={'plant_id':int,
                                           'plant_name':str,
                                           'respondent_id_ferc1':int,
@@ -317,6 +320,7 @@ def init_db(Base):
                                           'operator_id_eia923':int})
 
     util_map = pd.read_excel(map_eia923_ferc1_file,'utilities_output',
+                             na_values='', keep_default_na=False,
                              converters={'utility_id':int,
                                          'utility_name':str,
                                          'respondent_id_ferc1':int,
