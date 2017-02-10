@@ -23,20 +23,11 @@ EIA923_ZIPS="f923_2016 \
 
 for z in $EIA923_ZIPS
 do
-    curl $EIA923_XLS_URL/{$z}.zip -o '#1.zip'
-done
-
-for z in $EIA923_ZIPS
-do
+    echo "Downloading EIA 923 data $z.zip"
+    curl --progress-bar $EIA923_XLS_URL/{$z}.zip -o '#1.zip'
     mkdir -p $z
     mv $z.zip $z
-    (cd $z; unzip $z)
+    (cd $z; unzip -q $z.zip)
+    # Make the data store read only for safety
+    chmod -R a-w $z
 done
-
-# Make the data store read only for safety
-chmod -R a-w *
-
-# Not part of the data store:
-chmod 0755 get_eia923.sh
-chmod 0644 README.txt
-chmod 0644 .gitignore
