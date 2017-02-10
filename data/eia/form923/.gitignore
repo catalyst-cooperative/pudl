@@ -1,3 +1,4 @@
 *
 !.gitignore
-!README.txt
+!README.*
+!get_eia923.sh
