@@ -13,15 +13,14 @@ may also be available in a more machine readable form via the EIA's bulk
 JSON download facility, but those files will require parsing.
 
 @author: alana for Catalyst Cooperative
-This code is for use analyzing EIA Form 923 data, years 2008-2016 
+This code is for use analyzing EIA Form 923 data, years 2008-2016
 Current version is for years 2014-2016, which have standardized naming conventions and file formatting
 """
-
 
 # directory beneath which the FERC Form 1 data lives...
 eia923_datadir = '{}/data/eia/form923'.format(os.path.dirname(os.path.dirname(__file__)))
 
-os.chdir(os.path.join('C:\\','Users','alana','Dropbox','Catalyst_Coop', 'data', 'eia', 'form923'))
+#os.chdir(os.path.join('C:\\','Users','alana','Dropbox','Catalyst_Coop', 'data', 'eia', 'form923'))
 os.getcwd()
 MainFolder=os.getcwd()
 
@@ -31,8 +30,8 @@ MainFolder=os.getcwd()
 
 def get_eia923(years=[2014,2015,2016]):
     """Select desired spreadsheets containing string '2_3_4' for years 2014-2016 of EIA Form923 data.
-    
-    No input required; years prior to 2014 can be imported, but do not fit 
+
+    No input required; years prior to 2014 can be imported, but do not fit
     formatting used in 'parse_eia923' function
     """
     myFileList=[] #Empty list to add xcel files to
@@ -51,8 +50,8 @@ def get_eia923(years=[2014,2015,2016]):
 
 def parse_eia923(tabname, years=[2014,2015,2016]):
     """Utilize get_eia923 function to parse 1 tab of EIA Form 923.
-    
-    Only 1 tabname input allowed (i.e. "generation_fuel", "stocks","boiler_fuel", "generator", 
+
+    Only 1 tabname input allowed (i.e. "generation_fuel", "stocks","boiler_fuel", "generator",
     "fuel_receipts_costs", or "plant_frame")
     """
     df = pd.DataFrame()
@@ -69,12 +68,11 @@ def parse_eia923(tabname, years=[2014,2015,2016]):
               "fuel_receipts_costs":4,
               "plant_frame":4}
     files=get_eia923()
-    for file in files:       
+    for file in files:
         for year in years:
             if str(year) in file:
                 data = pd.read_excel(file, sheetname=tabmap[tabname], skiprows=rowskip[tabname])
-                data["YEAR"]=year #"stocks" tab is missing YEAR column; this ensures all tabs have YEAR data            
+                data["YEAR"]=year #"stocks" tab is missing YEAR column; this ensures all tabs have YEAR data
         df = df.append(data)
     return df #returns data frame of all years for input tabname# Helper functions & other objects to ingest & process Energy Information
 # Administration (EIA) Form 923 data.
-
