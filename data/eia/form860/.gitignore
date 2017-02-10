@@ -1,3 +1,4 @@
 *
 !.gitignore
-!README.txt
+!README.*
+!get_eia860.sh
