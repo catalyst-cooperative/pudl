@@ -1,13 +1,17 @@
-import dbfread
+import settings
 import os.path
 
 ###########################################################################
-# Variables and helper functions related to ingest & process of FERC Form 1
-# data.
+# Functions related to ingest & processing of FERC Form 1 data.
 ###########################################################################
 
-# This is a temporary hack... should become a variable that's passed in.
-ferc1_year = 2015
+def datadir(year):
+    """Given a year, return path to appropriate FERC Form 1 data directory."""
+    return os.path.join(settings.DATA_DIR,'ferc','form1','f1_{}'.format(year))
+
+def dbc_filename(year):
+    """Given a year, return path to the master FERC Form 1 .DBC file."""
+    return os.path.join(datadir(year),'F1_PUB.DBC')
 
 def get_strings(filename, min=4):
     """Extract printable strings from a binary and return them as a generator.
@@ -29,7 +33,192 @@ def get_strings(filename, min=4):
         if len(result) >= min:  # catch result at EOF
             yield result
 
-def f1_getTablesFields(dbc_filename, min=4):
+def cleanstrings(field, stringmap, unmapped=None):
+    """Clean up a field of string data in one of the Form 1 data frames.
+
+    This function maps many different strings meant to represent the same value
+    or category to a single value. In addition, white space is stripped and
+    values are translated to lower case.  Optionally replace all unmapped
+    values in the original field with a value (like NaN) to indicate data which
+    is uncategorized or confusing.
+
+    field is a pandas dataframe column (e.g. f1_fuel["FUEL"])
+
+    stringmap is a dictionary whose keys are the strings we're mapping to, and
+    whose values are the strings that get mapped.
+
+    unmapped is the value which strings not found in the stringmap dictionary
+    should be replaced by.
+
+    The function returns a new pandas series/column that can be used to set the
+    values of the original data.
+    """
+    from numpy import setdiff1d
+
+    # Simplify the strings we're working with, to reduce the number of strings
+    # we need to enumerate in the maps
+
+    # Transform the strings to lower case
+    field = field.apply(lambda x: x.lower())
+    # remove leading & trailing whitespace
+    field = field.apply(lambda x: x.strip())
+    # remove duplicate internal whitespace
+    field = field.replace('[\s+]', ' ', regex=True)
+
+    for k in stringmap.keys():
+        field = field.replace(stringmap[k],k)
+
+    if unmapped is not None:
+        badstrings = setdiff1d(field.unique(),list(stringmap.keys()))
+        field = field.replace(badstrings,unmapped)
+
+    return field
+
+def define_db(refyear, dbfs, ferc1_meta, db_engine):
+    """
+    Given a list of FERC Form 1 DBF files, create analogous database tables.
+
+    Based on strings extracted from the master F1_PUB.DBC file corresponding to
+    the year indicated by refyear, and the list of DBF files specified in dbfs
+    recreate a subset of the FERC Form 1 database as a Postgres database using
+    SQLAlchemy.
+
+    refyear:    year of FERC Form 1 data to use as the database template.
+    dbfs:       list of DBF file prefixes (e.g. F1_77) to ingest.
+    ferc1_meta: SQLAlchemy MetaData object to store the schema in.
+    db_engine:  SQLAlchemy database engine to use to create the tables.
+
+    """
+    from sqlalchemy import create_engine
+    from sqlalchemy import Table, Column, Integer, String, Float, DateTime
+    from sqlalchemy import Boolean, Date, MetaData, Text, ForeignKeyConstraint
+    from sqlalchemy import PrimaryKeyConstraint
+    import dbfread
+    import re
+    from constants import ferc1_dbf2tbl
+
+    # This dictionary maps the strings which are used to denote field types in the
+    # DBF objects to the corresponding generic SQLAlchemy Column types:
+    # These definitions come from a combination of the dbfread example program
+    # dbf2sqlite and this DBF file format documentation page:
+    # http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
+    # Un-mapped types left as 'XXX' which should obviously make an error...
+    # TODO: This should really be moved to constants.py
+    dbf_typemap = {
+        'C' : String,
+        'D' : Date,
+        'F' : Float,
+        'I' : Integer,
+        'L' : Boolean,
+        'M' : Text, # 10 digit .DBT block number, stored as a string...
+        'N' : Float,
+        'T' : DateTime,
+        'B' : 'XXX', # .DBT block number, binary string
+        '@' : 'XXX', # Timestamp... Date = Julian Day, Time is in milliseconds?
+        '+' : 'XXX', # Autoincrement (e.g. for IDs)
+        'O' : 'XXX', # Double, 8 bytes
+        'G' : 'XXX', # OLE 10 digit/byte number of a .DBT block, stored as string
+        '0' : 'XXX' # #Integer? based on dbf2sqlite mapping
+    }
+
+    ferc1_tblmap = extract_dbc_tables(dbc_filename(refyear))
+
+    for dbf in dbfs:
+        dbf_filename = os.path.join(datadir(refyear),'{}.DBF'.format(dbf))
+        f1_dbf = dbfread.DBF(dbf_filename)
+
+        # And the corresponding SQLAlchemy Table object:
+        table_name = ferc1_dbf2tbl[dbf]
+        ferc1_sql = Table(table_name, ferc1_meta)
+
+        # _NullFlags isn't a "real" data field... remove it.
+        fields = [ f for f in f1_dbf.fields if not re.match('_NullFlags', f.name)]
+
+        for field in fields:
+            col_name = f1_tblmap[f1_dbf2tbl[dbf]][field.name]
+            col_type = dbf_typemap[field.type]
+
+            # String/VarChar is the only type that really NEEDS a length
+            if(col_type == String):
+                col_type = col_type(length=field.length)
+
+            # This eliminates the "footnote" fields which all mirror database
+            # fields, but end with _f. We have not yet integrated the footnotes
+            # into the rest of the DB, and so why clutter it up?
+            if(not re.match('(.*_f$)', col_name)):
+                ferc1_sql.append_column(Column(col_name, col_type))
+
+        # Append primary key constraints to the table:
+
+        if (table_name in ferc1_data_tables):
+            # All the "real" data tables use the same 5 fields as a composite
+            # primary key: [ respondent_id, report_year, report_prd,
+            # row_number, spplmnt_num ]
+            ferc1_sql.append_constraint(PrimaryKeyConstraint(
+                'respondent_id',
+                'report_year',
+                'report_prd',
+                'row_number',
+                'spplmnt_num')
+            )
+
+            # They also all have respondent_id as their foreign key:
+            ferc1_sql.append_constraint(ForeignKeyConstraint(
+                columns=['respondent_id',],
+                refcolumns=['f1_respondent_id.respondent_id'])
+            )
+
+        if (table_name == 'f1_respondent_id'):
+            ferc1_sql.append_constraint(PrimaryKeyConstraint('respondent_id'))
+
+        # Sadly the primary key definitions here don't seem to be right...
+        if (table_name == 'f1_s0_filing_log'):
+            ferc1_sql.append_constraint(PrimaryKeyConstraint(
+                'respondent_id',
+                'report_yr',
+                'report_prd',
+                'filing_num')
+            )
+            ferc1_sql.append_constraint(ForeignKeyConstraint(
+                columns=['respondent_id',],
+                refcolumns=['f1_respondent_id.respondent_id'])
+            )
+
+        # Sadly the primary key definitions here don't seem to be right...
+        if (table_name == 'f1_row_lit_tbl'):
+            ferc1_sql.append_constraint(PrimaryKeyConstraint(
+                'sched_table_name',
+                'report_year',
+                'row_number')
+            )
+        # Other tables we have not yet attempted to deal with...
+        #'f1_email'
+        #  primary_key = respondent_id
+        #  foreign_key = f1_respondent_id.respondent_id
+        #'f1_ident_attsttn',
+        #  primary_key = respondent_id
+        #  primary_key = report_year
+        #  primary_key = report_period
+        #  foreign_key = f1_responded_id.respondent_id
+        #'f1_footnote_data', #NOT USING NOW/NOT COMPLETE
+        #  primary_key = fn_id
+        #  primary_key = respondent_id
+        #  foreign_key = f1_respondent_id.respondent_id
+        #  foreign_key = f1_s0_filing_log.report_prd
+        #'f1_pins',
+        #  primary_key = f1_respondent_id.respondent_id
+        #  foreign_key = f1_respondent_id.respondent_id
+        #'f1_freeze',
+        #'f1_security'
+        #'f1_load_file_names'
+        #'f1_unique_num_val',
+        #'f1_sched_lit_tbl',
+        #'f1_sys_error_log',
+        #'f1_col_lit_tbl',    # GET THIS ONE
+        #'f1_codes_val',
+        #'f1_s0_checks',
+
+def extract_dbc_tables(year, minstring=4):
     """Extract the names of all the tables and fields from FERC Form 1 DB
 
     This function reads all the strings in the given DBC database file for the
@@ -51,9 +240,10 @@ def f1_getTablesFields(dbc_filename, min=4):
     """
     import re
     from constants import ferc1_dbf2tbl
+    import dbfread
 
     # Extract all the strings longer than "min" from the DBC file
-    dbc_strs = list(get_strings(dbc_filename, min=min))
+    dbc_strs = list(get_strings(dbc_filename(year), min=minstring))
 
     # Get rid of leading & trailing whitespace in the strings:
     dbc_strs = [ s.strip() for s in dbc_strs ]
@@ -109,15 +299,17 @@ def f1_getTablesFields(dbc_filename, min=4):
 
     return(tf_doubledict)
 
-def init_db(testing=False):
+def init_db(refyear=2015, years=[2015,], testing=False):
     """Assuming an empty FERC Form 1 DB, create tables and insert data.
 
     This function uses dbfread and SQLAlchemy to migrate a set of FERC Form 1
     database tables from the provided DBF format into a postgres database.
-    """ #{{{
+    """
     from sqlalchemy import create_engine, MetaData
     from sqlalchemy.engine.url import URL
     import datetime
+    import dbfread
+    from constants import ferc1_tbl2dbf
 
     if testing:
     # We don't necessarily want to clobber the "real" DB if we're just testing
@@ -127,9 +319,6 @@ def init_db(testing=False):
         ferc1_engine = create_engine(URL(**settings.DB_FERC1))
 
     ferc1_meta = MetaData()
-    ferc1_yr_dir = os.path.join(settings.FERC1_DATA_DIR, ferc1_year,
-                                'UPLOADERS', 'working')
-    dbc_fn = os.path.join(ferc1_yr_dir,'F1_PUB.DBC')
 
     # We still don't understand the primary keys for these tables, and so they
     # can't be inserted yet...
@@ -141,10 +330,10 @@ def init_db(testing=False):
 
     # This function (see below) uses metadata from the DBF files to define a
     # postgres database structure suitable for accepting the FERC Form 1 data
-    define_db(dbc_fn, dbfs, f1_meta, f1_engine)
+    define_db(refyear, dbfs, ferc1_meta, ferc1_engine)
 
     # Wipe the DB and start over... just to be sure we aren't munging stuff
-    ferc1_meta.drop_all(f1_engine)
+    ferc1_meta.drop_all(ferc1_engine)
 
     # Create a new database, as defined in the f1_meta MetaData object:
     ferc1_meta.create_all(ferc1_engine)
@@ -155,10 +344,10 @@ def init_db(testing=False):
     # This awkward dictionary of dictionaries lets us map from a DBF file
     # to a couple of lists -- one of the short field names from the DBF file,
     # and the other the full names that we want to have the SQL database...
-    ferc1_tblmap = ferc1_getTablesFields(dbc_fn)
+    ferc1_tblmap = extract_dbc_tables(refyear)
 
     for dbf in dbfs:
-        dbf_filename = os.path.join(FERC1_DATA_DIR_YEAR, '{}.DBF'.format(dbf))
+        dbf_filename = os.path.join(datadir(refyear), '{}.DBF'.format(dbf))
         dbf_table = dbfread.DBF(dbf_filename, load=True)
 
         # f1_dbf2tbl is a dictionary mapping DBF file names to SQL table names
@@ -179,183 +368,3 @@ def init_db(testing=False):
         conn.execute(sql_table.insert(), sql_records)
 
     conn.close()
-
-def define_db(dbc_fn, dbfs, ferc1_meta, db_engine):
-    """
-    Based on DBF files, create postgres tables to accept FERC Form 1 data.
-    """
-    from sqlalchemy import create_engine
-    from sqlalchemy import Table, Column, Integer, String, Float, DateTime
-    from sqlalchemy import Boolean, Date, MetaData, Text, ForeignKeyConstraint
-    from sqlalchemy import PrimaryKeyConstraint
-    import re
-
-    # This dictionary maps the strings which are used to denote field types in the
-    # DBF objects to the corresponding generic SQLAlchemy Column types:
-    # These definitions come from a combination of the dbfread example program
-    # dbf2sqlite and this DBF file format documentation page:
-    # http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
-    # Un-mapped types left as 'XXX' which should obviously make an error...
-    dbf_typemap = {
-        'C' : String,
-        'D' : Date,
-        'F' : Float,
-        'I' : Integer,
-        'L' : Boolean,
-        'M' : Text, # 10 digit .DBT block number, stored as a string...
-        'N' : Float,
-        'T' : DateTime,
-        'B' : 'XXX', # .DBT block number, binary string
-        '@' : 'XXX', # Timestamp... Date = Julian Day, Time is in milliseconds?
-        '+' : 'XXX', # Autoincrement (e.g. for IDs)
-        'O' : 'XXX', # Double, 8 bytes
-        'G' : 'XXX', # OLE 10 digit/byte number of a .DBT block, stored as string
-        '0' : 'XXX' # #Integer? based on dbf2sqlite mapping
-    }
-
-    ferc1_tblmap = ferc1_getTablesFields(dbc_fn)
-
-    ferc1_yr_dir = os.path.join(settings.FERC1_DATA_DIR, ferc1_year,\
-                                'UPLOADERS', 'working')
-
-    for dbf in dbfs:
-        # Create the DBF table object. XXX SHOULD NOT REFER TO 2015
-        f1_dbf = dbfread.DBF(os.path.join(ferc1_yr_dir,'{}.DBF'.format(dbf))
-
-        # And the corresponding SQLAlchemy Table object:
-        table_name = ferc1_dbf2tbl[dbf]
-        f1_sql = Table(table_name, f1_meta)
-
-        # _NullFlags isn't a "real" data field... remove it.
-        fields = [ f for f in f1_dbf.fields if not re.match('_NullFlags', f.name)]
-
-        for field in fields:
-            col_name = f1_tblmap[f1_dbf2tbl[dbf]][field.name]
-            col_type = dbf_typemap[field.type]
-
-            # String/VarChar is the only type that really NEEDS a length
-            if(col_type == String):
-                col_type = col_type(length=field.length)
-
-            # This eliminates the "footnote" fields which all mirror database
-            # fields, but end with _f. We have not yet integrated the footnotes
-            # into the rest of the DB, and so why clutter it up?
-            if(not re.match('(.*_f$)', col_name)):
-                f1_sql.append_column(Column(col_name, col_type))
-
-        # Append primary key constraints to the table:
-
-        if (table_name in f1_data_tables):
-            # All the "real" data tables use the same 5 fields as a composite
-            # primary key: [ respondent_id, report_year, report_prd,
-            # row_number, spplmnt_num ]
-            f1_sql.append_constraint(PrimaryKeyConstraint(
-                'respondent_id',
-                'report_year',
-                'report_prd',
-                'row_number',
-                'spplmnt_num')
-            )
-
-            # They also all have respondent_id as their foreign key:
-            f1_sql.append_constraint(ForeignKeyConstraint(
-                columns=['respondent_id',],
-                refcolumns=['f1_respondent_id.respondent_id'])
-            )
-
-        if (table_name == 'f1_respondent_id'):
-            f1_sql.append_constraint(PrimaryKeyConstraint('respondent_id'))
-
-        # Sadly the primary key definitions here don't seem to be right...
-        if (table_name == 'f1_s0_filing_log'):
-            f1_sql.append_constraint(PrimaryKeyConstraint(
-                'respondent_id',
-                'report_yr',
-                'report_prd',
-                'filing_num')
-            )
-            f1_sql.append_constraint(ForeignKeyConstraint(
-                columns=['respondent_id',],
-                refcolumns=['f1_respondent_id.respondent_id'])
-            )
-
-        # Sadly the primary key definitions here don't seem to be right...
-        if (table_name == 'f1_row_lit_tbl'):
-            f1_sql.append_constraint(PrimaryKeyConstraint(
-                'sched_table_name',
-                'report_year',
-                'row_number')
-            )
-
-        # Other tables we have not yet attempted to deal with...
-
-        #'f1_email'
-        #  primary_key = respondent_id
-        #  foreign_key = f1_respondent_id.respondent_id
-
-        #'f1_ident_attsttn',
-        #  primary_key = respondent_id
-        #  primary_key = report_year
-        #  primary_key = report_period
-        #  foreign_key = f1_responded_id.respondent_id
-
-        #'f1_footnote_data', #NOT USING NOW/NOT COMPLETE
-        #  primary_key = fn_id
-        #  primary_key = respondent_id
-        #  foreign_key = f1_respondent_id.respondent_id
-        #  foreign_key = f1_s0_filing_log.report_prd
-
-        #'f1_pins',
-        #  primary_key = f1_respondent_id.respondent_id
-        #  foreign_key = f1_respondent_id.respondent_id
-
-        #'f1_freeze',
-        #'f1_security'
-        #'f1_load_file_names'
-        #'f1_unique_num_val',
-        #'f1_sched_lit_tbl',
-        #'f1_sys_error_log',
-        #'f1_col_lit_tbl',    # GET THIS ONE
-        #'f1_codes_val',
-        #'f1_s0_checks',
-
-def f1_cleanstrings(field, stringmap, unmapped=None):
-    """Clean up a field of string data in one of the Form 1 data frames.
-
-    This function maps many different strings meant to represent the same value
-    or category to a single value. In addition, white space is stripped and
-    values are translated to lower case.  Optionally replace all unmapped
-    values in the original field with a value (like NaN) to indicate data which
-    is uncategorized or confusing.
-
-    field is a pandas dataframe column (e.g. f1_fuel["FUEL"]
-
-    stringmap is a dictionary whose keys are the strings we're mapping to, and
-    whose values are the strings that get mapped.
-
-    unmapped is the value which strings not found in the stringmap dictionary
-    should be replaced by.
-
-    The function returns a new pandas series/column that can be used to set the
-    values of the original data.
-    """
-    from numpy import setdiff1d
-
-    # Simplify the strings we're working with, to reduce the number of strings
-    # we need to enumerate in the maps
-
-    # Transform the strings to lower case
-    field = field.apply(lambda x: x.lower())
-    # remove leading & trailing whitespace
-    field = field.apply(lambda x: x.strip())
-    # remove duplicate internal whitespace
-    field = field.replace('[\s+]', ' ', regex=True)
-
-    for k in stringmap.keys():
-        field = field.replace(stringmap[k],k)
-
-    if unmapped is not None:
-        badstrings = setdiff1d(field.unique(),list(stringmap.keys()))
-        field = field.replace(badstrings,unmapped)
-
-    return field
