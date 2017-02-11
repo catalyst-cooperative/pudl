@@ -1,8 +1,12 @@
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.engine.url import URL
+from sqlalchemy import create_engine
 import pandas as pd
 import os.path
 
 from pudl import settings
+from pudl.constants import fuel_names, fuel_units, us_states, prime_movers
+from pudl.constants import rto_iso
 
 # The Declarative Base used to define our database:
 from pudl.models import PUDLBase
@@ -213,7 +217,7 @@ def init_db(PUDLBase):
     #  - Create a select statement that gets us the fields we need to populate.
     #  - Iterate across those results, adding them to the session.
 
-    ferc1_engine = create_engine('postgresql://catalyst@localhost:5432/ferc1')
+    ferc1_engine = create_engine(URL(**settings.DB_FERC1))
     ferc1_fuel_df = pd.read_sql('SELECT respondent_id,\
                                         report_year,\
                                         plant_name,\
