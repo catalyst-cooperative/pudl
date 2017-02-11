@@ -121,16 +121,16 @@ ferc1_steam_strings = ['steam', 'purch steam', 'purch. steam']
 # that I don't know what to do with... hopefully they constitute only a
 # small fraction of the overall generation.
 
-ferc1_fuel_strings = { 'coal'    : f1_coal_strings,
-                       'gas'     : f1_gas_strings,
-                       'oil'     : f1_oil_strings,
-                       'nuke'    : f1_nuke_strings,
-                       'biomass' : f1_biomass_strings,
-                       'waste'   : f1_waste_strings,
-                       'steam'   : f1_steam_strings
+ferc1_fuel_strings = { 'coal'    : ferc1_coal_strings,
+                       'gas'     : ferc1_gas_strings,
+                       'oil'     : ferc1_oil_strings,
+                       'nuke'    : ferc1_nuke_strings,
+                       'biomass' : ferc1_biomass_strings,
+                       'waste'   : ferc1_waste_strings,
+                       'steam'   : ferc1_steam_strings
                      }
 
-# Similarly, dictionary for cleaning up fuel unit strings {{{
+# Similarly, dictionary for cleaning up fuel unit strings
 ferc1_ton_strings = ['toms','taons','tones','col-tons','toncoaleq','coal',\
                   'tons coal eq','coal-tons','ton','tons','tons coal',\
                   'coal-ton','tires-tons']
@@ -301,7 +301,7 @@ ferc1_tbl2dbf = { v: k for k, v in ferc1_dbf2tbl.items() }
 
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].
-# TODO: THIS ONLY PERTAINS TO 2015 AND NEEDS TO BE ADJUSTED BY YEAR... {{{
+# TODO: THIS ONLY PERTAINS TO 2015 AND MAY NEED TO BE ADJUSTED BY YEAR...
 ferc1_data_tables = [ 'f1_acb_epda', 'f1_accumdepr_prvsn', 'f1_accumdfrrdtaxcr',
     'f1_adit_190_detail', 'f1_adit_190_notes', 'f1_adit_amrt_prop',
     'f1_adit_other', 'f1_adit_other_prop', 'f1_allowances', 'f1_bal_sheet_cr',

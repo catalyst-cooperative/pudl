@@ -2,25 +2,25 @@ from sqlalchemy.ext.declarative import declarative_base
 import pandas as pd
 import os.path
 
-import settings
+from pudl import settings
 
 # The Declarative Base used to define our database:
-from models import PUDLBase
+from pudl.models import PUDLBase
 
 # A couple of helpers:
-from models import db_connect_pudl, create_tables_pudl, drop_tables_pudl
+from pudl.models import db_connect_pudl, create_tables_pudl, drop_tables_pudl
 
 # Tables that hold constant values:
-from models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year, RTOISO
-from models import State
+from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year, RTOISO
+from pudl.models import State
 
 # Tables that hold "glue" connecting FERC1 & EIA923 to each other:
-from models import Utility, UtilityFERC1, UtilityEIA923
-from models import Plant, PlantFERC1, PlantEIA923
-from models import UtilPlantAssn
+from pudl.models import Utility, UtilityFERC1, UtilityEIA923
+from pudl.models import Plant, PlantFERC1, PlantEIA923
+from pudl.models import UtilPlantAssn
 
 # Tables that hold FERC1 data:
-from models import FuelFERC1 PlantSteamFERC1
+from pudl.models import FuelFERC1, PlantSteamFERC1
 
 #import pudl.eia923
 #import pudl.ferc1
