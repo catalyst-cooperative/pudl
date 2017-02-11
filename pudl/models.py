@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.engine.url import URL
 #from sqlalchemy.orm.collections import attribute_mapped_collection
 
-import settings
+from pudl import settings, constants
 
 PUDLBase = declarative_base()
 
