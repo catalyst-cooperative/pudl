@@ -1,5 +1,5 @@
-import settings
 import os.path
+from pudl import settings
 
 ###########################################################################
 # Functions related to ingest & processing of FERC Form 1 data.
@@ -95,7 +95,7 @@ def define_db(refyear, dbfs, ferc1_meta, db_engine):
     from sqlalchemy import PrimaryKeyConstraint
     import dbfread
     import re
-    from constants import ferc1_dbf2tbl
+    from pudl.constants import ferc1_dbf2tbl, ferc1_data_tables
 
     # This dictionary maps the strings which are used to denote field types in the
     # DBF objects to the corresponding generic SQLAlchemy Column types:
@@ -121,21 +121,21 @@ def define_db(refyear, dbfs, ferc1_meta, db_engine):
         '0' : 'XXX' # #Integer? based on dbf2sqlite mapping
     }
 
-    ferc1_tblmap = extract_dbc_tables(dbc_filename(refyear))
+    ferc1_tblmap = extract_dbc_tables(refyear)
 
     for dbf in dbfs:
         dbf_filename = os.path.join(datadir(refyear),'{}.DBF'.format(dbf))
-        f1_dbf = dbfread.DBF(dbf_filename)
+        ferc1_dbf = dbfread.DBF(dbf_filename)
 
         # And the corresponding SQLAlchemy Table object:
         table_name = ferc1_dbf2tbl[dbf]
         ferc1_sql = Table(table_name, ferc1_meta)
 
         # _NullFlags isn't a "real" data field... remove it.
-        fields = [ f for f in f1_dbf.fields if not re.match('_NullFlags', f.name)]
+        fields = [ f for f in ferc1_dbf.fields if not re.match('_NullFlags', f.name)]
 
         for field in fields:
-            col_name = f1_tblmap[f1_dbf2tbl[dbf]][field.name]
+            col_name = ferc1_tblmap[ferc1_dbf2tbl[dbf]][field.name]
             col_type = dbf_typemap[field.type]
 
             # String/VarChar is the only type that really NEEDS a length
@@ -239,8 +239,8 @@ def extract_dbc_tables(year, minstring=4):
     the 2015 Form 1 database.
     """
     import re
-    from constants import ferc1_dbf2tbl
     import dbfread
+    from pudl.constants import ferc1_dbf2tbl
 
     # Extract all the strings longer than "min" from the DBC file
     dbc_strs = list(get_strings(dbc_filename(year), min=minstring))
@@ -283,9 +283,7 @@ def extract_dbc_tables(year, minstring=4):
 
     tf_doubledict = {}
     for dbf in ferc1_dbf2tbl.keys():
-        filename = os.path.join(
-                       settings.FERC1_DATA_DIR, ferc1_year, 'UPLOADERS',\
-                       'FORM1', 'working','{}.DBF'.format(dbf) )
+        filename = os.path.join(datadir(year),'{}.DBF'.format(dbf))
         if os.path.isfile(filename):
             dbf_fields = dbfread.DBF(filename).field_names
             dbf_fields = [ f for f in dbf_fields if f != '_NullFlags' ]
@@ -309,7 +307,7 @@ def init_db(refyear=2015, years=[2015,], testing=False):
     from sqlalchemy.engine.url import URL
     import datetime
     import dbfread
-    from constants import ferc1_tbl2dbf
+    from pudl.constants import ferc1_tbl2dbf, ferc1_dbf2tbl
 
     if testing:
     # We don't necessarily want to clobber the "real" DB if we're just testing
@@ -332,10 +330,8 @@ def init_db(refyear=2015, years=[2015,], testing=False):
     # postgres database structure suitable for accepting the FERC Form 1 data
     define_db(refyear, dbfs, ferc1_meta, ferc1_engine)
 
-    # Wipe the DB and start over... just to be sure we aren't munging stuff
+    # Wipe the DB and start over...
     ferc1_meta.drop_all(ferc1_engine)
-
-    # Create a new database, as defined in the f1_meta MetaData object:
     ferc1_meta.create_all(ferc1_engine)
 
     # Create a DB connection to use for the record insertions below:
@@ -346,25 +342,26 @@ def init_db(refyear=2015, years=[2015,], testing=False):
     # and the other the full names that we want to have the SQL database...
     ferc1_tblmap = extract_dbc_tables(refyear)
 
-    for dbf in dbfs:
-        dbf_filename = os.path.join(datadir(refyear), '{}.DBF'.format(dbf))
-        dbf_table = dbfread.DBF(dbf_filename, load=True)
+    for year in years:
+        for dbf in dbfs:
+            dbf_filename = os.path.join(datadir(year), '{}.DBF'.format(dbf))
+            dbf_table = dbfread.DBF(dbf_filename, load=True)
 
-        # f1_dbf2tbl is a dictionary mapping DBF file names to SQL table names
-        sql_table_name = ferc1_dbf2tbl[dbf]
-        sql_table = ferc1_meta.tables[sql_table_name]
+            # ferc1_dbf2tbl is a dictionary mapping DBF files to SQL table names
+            sql_table_name = ferc1_dbf2tbl[dbf]
+            sql_table = ferc1_meta.tables[sql_table_name]
 
-        # Build up a list of dictionaries to INSERT into the postgres database.
-        # Each dictionary is one record. Within each dictionary the keys are
-        # the field names, and the values are the values for that field.
-        sql_records = []
-        for dbf_rec in dbf_table.records:
-            sql_rec = {}
-            for dbf_field_name, sql_field_name in ferc1_tblmap[sql_table_name].items():
-                sql_rec[sql_field_name] = dbf_rec[dbf_field_name]
-            sql_records.append(sql_rec)
+            # Build up a list of dictionaries to INSERT into the postgres database.
+            # Each dictionary is one record. Within each dictionary the keys are
+            # the field names, and the values are the values for that field.
+            sql_records = []
+            for dbf_rec in dbf_table.records:
+                sql_rec = {}
+                for dbf_field, sql_field in ferc1_tblmap[sql_table_name].items():
+                    sql_rec[sql_field] = dbf_rec[dbf_field]
+                sql_records.append(sql_rec)
 
-        # insert the new records!
-        conn.execute(sql_table.insert(), sql_records)
+            # insert the new records!
+            conn.execute(sql_table.insert(), sql_records)
 
     conn.close()
