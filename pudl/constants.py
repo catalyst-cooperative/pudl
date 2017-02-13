@@ -299,6 +299,43 @@ ferc1_dbf2tbl = {
 # Invert the map above so we can go either way as needed
 ferc1_tbl2dbf = { v: k for k, v in ferc1_dbf2tbl.items() }
 
+# This dictionary maps the strings which are used to denote field types in the
+# DBF objects to the corresponding generic SQLAlchemy Column types:
+# These definitions come from a combination of the dbfread example program
+# dbf2sqlite and this DBF file format documentation page:
+# http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
+# Un-mapped types left as 'XXX' which should obviously make an error...
+dbf_typemap = {
+    'C' : String,
+    'D' : Date,
+    'F' : Float,
+    'I' : Integer,
+    'L' : Boolean,
+    'M' : Text, # 10 digit .DBT block number, stored as a string...
+    'N' : Float,
+    'T' : DateTime,
+    'B' : 'XXX', # .DBT block number, binary string
+    '@' : 'XXX', # Timestamp... Date = Julian Day, Time is in milliseconds?
+    '+' : 'XXX', # Autoincrement (e.g. for IDs)
+    'O' : 'XXX', # Double, 8 bytes
+    'G' : 'XXX', # OLE 10 digit/byte number of a .DBT block, stored as string
+    '0' : 'XXX' # #Integer? based on dbf2sqlite mapping
+}
+
+# We still don't understand the primary keys for these tables, and so they
+# can't be inserted yet...
+dbfs_bad_pk = ['F1_84','F1_S0_FILING_LOG']
+
+# These are the DBF files that we're interested in and can insert now,
+ferc1_default_tables = ['f1_respondent_id',
+                        'f1_fuel',
+                        'f1_steam',
+                        'f1_gnrt_plant',
+                        'f1_hydro',
+                        'f1_pumped_storage',
+                        'f1_plant_in_srvce',
+                        'f1_purchased_pwr']
+
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].
 # TODO: THIS ONLY PERTAINS TO 2015 AND MAY NEED TO BE ADJUSTED BY YEAR...

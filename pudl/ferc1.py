@@ -1,9 +1,22 @@
 import os.path
 from pudl import settings
+from pudl import constants
+from sqlalchemy import MetaData, create_engine
 
 ###########################################################################
 # Functions related to ingest & processing of FERC Form 1 data.
 ###########################################################################
+
+def db_connect_ferc1(testing=False):
+    """
+    Performs database connection using database settings from settings.py.
+    Returns sqlalchemy engine instance
+    """
+    from sqlalchemy.engine.url import URL
+    if(testing):
+        return create_engine(URL(**settings.DB_FERC1_TEST))
+    else:
+        return create_engine(URL(**settings.DB_FERC1))
 
 def datadir(year):
     """Given a year, return path to appropriate FERC Form 1 data directory."""
@@ -89,37 +102,12 @@ def define_db(refyear, dbfs, ferc1_meta, db_engine):
     db_engine:  SQLAlchemy database engine to use to create the tables.
 
     """
-    from sqlalchemy import create_engine
     from sqlalchemy import Table, Column, Integer, String, Float, DateTime
     from sqlalchemy import Boolean, Date, MetaData, Text, ForeignKeyConstraint
     from sqlalchemy import PrimaryKeyConstraint
     import dbfread
     import re
-    from pudl.constants import ferc1_dbf2tbl, ferc1_data_tables
-
-    # This dictionary maps the strings which are used to denote field types in the
-    # DBF objects to the corresponding generic SQLAlchemy Column types:
-    # These definitions come from a combination of the dbfread example program
-    # dbf2sqlite and this DBF file format documentation page:
-    # http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
-    # Un-mapped types left as 'XXX' which should obviously make an error...
-    # TODO: This should really be moved to constants.py
-    dbf_typemap = {
-        'C' : String,
-        'D' : Date,
-        'F' : Float,
-        'I' : Integer,
-        'L' : Boolean,
-        'M' : Text, # 10 digit .DBT block number, stored as a string...
-        'N' : Float,
-        'T' : DateTime,
-        'B' : 'XXX', # .DBT block number, binary string
-        '@' : 'XXX', # Timestamp... Date = Julian Day, Time is in milliseconds?
-        '+' : 'XXX', # Autoincrement (e.g. for IDs)
-        'O' : 'XXX', # Double, 8 bytes
-        'G' : 'XXX', # OLE 10 digit/byte number of a .DBT block, stored as string
-        '0' : 'XXX' # #Integer? based on dbf2sqlite mapping
-    }
+    from pudl.constants import ferc1_dbf2tbl, ferc1_data_tables, dbf_typemap
 
     ferc1_tblmap = extract_dbc_tables(refyear)
 
@@ -297,34 +285,28 @@ def extract_dbc_tables(year, minstring=4):
 
     return(tf_doubledict)
 
-def init_db(refyear=2015, years=[2015,], testing=False):
+def init_db(ferc1_tables=constants.ferc1_default_tables,
+            refyear=2015,
+            years=[2015,],
+            testing=False):
     """Assuming an empty FERC Form 1 DB, create tables and insert data.
 
     This function uses dbfread and SQLAlchemy to migrate a set of FERC Form 1
     database tables from the provided DBF format into a postgres database.
     """
-    from sqlalchemy import create_engine, MetaData
     from sqlalchemy.engine.url import URL
     import datetime
     import dbfread
     from pudl.constants import ferc1_tbl2dbf, ferc1_dbf2tbl
 
-    if testing:
-    # We don't necessarily want to clobber the "real" DB if we're just testing
-    # the code... so we need to have a scratchpad to play with
-        ferc1_engine = create_engine(URL(**settings.DB_FERC1_TEST))
-    else:
-        ferc1_engine = create_engine(URL(**settings.DB_FERC1))
+    ferc1_engine = db_connect_ferc1(testing=testing)
 
+    # MetaData object will contain the database schema.
     ferc1_meta = MetaData()
 
-    # We still don't understand the primary keys for these tables, and so they
-    # can't be inserted yet...
-    dbfs_bad_pk = ['F1_84','F1_S0_FILING_LOG']
-
-    # These are the DBF files that we're interested in and can insert now,
-    dbfs = ['F1_1','F1_31','F1_33','F1_52','F1_53','F1_54','F1_70','F1_71',
-            'F1_77','F1_79','F1_86','F1_89','F1_398_ANCL_PS']
+    # Translate the list of FERC Form 1 database tables that has
+    # been passed in into a list of DBF files prefixes:
+    dbfs = [ constants.ferc1_tbl2dbf[table] for table in ferc1_tables ]
 
     # This function (see below) uses metadata from the DBF files to define a
     # postgres database structure suitable for accepting the FERC Form 1 data
