@@ -4,7 +4,9 @@
 
 FERC1_URL="ftp://eforms1.ferc.gov/f1allyears"
 
-START_YEAR=2007
+# Electronic FERC Form 1 data begins in 1994, and is typically finalized
+# 9 months after the end of the preceding year.
+START_YEAR=1994
 END_YEAR=2015
 
 for yr in `seq $START_YEAR $END_YEAR`
