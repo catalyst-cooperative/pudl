@@ -49,7 +49,7 @@ Mapper (ORM) and initializes the database from several sources:
    - Greenhouse Gas Reporting Program (epaghgrp)
 
 """
-def init_db(PUDLBase):
+def init_db():
     """
     Create the PUDL database and fill it up with data!
 
