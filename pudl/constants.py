@@ -373,3 +373,21 @@ ferc1_data_tables = [ 'f1_acb_epda', 'f1_accumdepr_prvsn', 'f1_accumdfrrdtaxcr',
     'f1_397_isorto_stl', 'f1_398_ancl_ps', 'f1_399_mth_peak', 'f1_400_sys_peak',
     'f1_400a_iso_peak', 'f1_429_trans_aff', 'f1_allowances_nox',
     'f1_cmpinc_hedge_a', 'f1_cmpinc_hedge', 'f1_freeze', 'f1_rg_trn_srv_rev' ]
+
+
+census_region = {
+  'NEW':'New England',
+  'MAT':'Middle Atlantic',
+  'SAT':'South Atlantic',
+  'ESC':'East South Central',
+  'WSC':'West South Central',
+  'ENC':'East North Central',
+  'WNC':'West North Central',
+  'MTN':'Mountain',
+  'PACC':'Pacific Contiguous (OR, WA, CA)',
+  'PACN':'Pacific Non-Contiguous (AK, HI)',
+}
+
+nerc_region = {
+
+}
