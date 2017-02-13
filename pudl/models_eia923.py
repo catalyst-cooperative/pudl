@@ -18,9 +18,9 @@ from pudl import settings, constants, models
 #    combined_heat_power = Column(String, ForeignKey('????.???'), nullable=False)
 #    plant_state = Column(String, ForeignKey(us_states.abbr), nullable=False)
 #    census_region = Column(String, ForeignKey(census_region.abbr), nullable=False)
-#    NERC_region = Column(String, ForeignKey(NERC_region.abbr), nullable=False)
-#    EIA_sector = Column(String, ForeignKey(EIA_sector.number), nullable=False)
-#    sector_name = Column(String, ForeignKey(EIA_sector.name), nullable=False)
+#    nerc_region = Column(String, ForeignKey(nerc_region.abbr), nullable=False)
+#    eia_sector = Column(String, ForeignKey(eia_sector.number), nullable=False) #may need to rethink this
+#    sector_name = Column(String, ForeignKey(eia_sector.name), nullable=False) #may need to rethink this
 
 
 ##example class from pudl.py
