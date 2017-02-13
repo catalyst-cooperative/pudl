@@ -1,6 +1,10 @@
 # This file holds a bunch of constant values which are used throughout PUDL
 # to populate static lists within the DB or for data cleaning purposes.
 
+# These imports are necessary for the DBF to SQL type map.
+from sqlalchemy import String, Date, Float, Integer
+from sqlalchemy import Boolean, Text, Float, DateTime
+
 ######################################################################
 # Constants used within the pudl.py module.
 ######################################################################
