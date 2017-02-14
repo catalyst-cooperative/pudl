@@ -21,7 +21,7 @@ from pudl import settings, constants, models
 #    nerc_region = Column(String, ForeignKey(nerc_region.abbr), nullable=False)
 #    eia_sector = Column(String, ForeignKey(eia_sector.number), nullable=False) #may need to rethink this
 #    sector_name = Column(String, ForeignKey(eia_sector.name), nullable=False) #may need to rethink this
-
+#    naics_code = Column(Integer, ForeignKey(naics_code.number), nullable=False) #need to define the ForeignKey
 
 ##example class from pudl.py
 class GeneratorFuelEIA923(Base):
@@ -119,5 +119,62 @@ class GeneratorFuelEIA923(Base):
     net_gen_electricity_dec = Column(Integer, nullable=False)
 
 
-                                                        
-               
+class GeneratorDataEIA923(Base):
+    """
+    Monthly Generating Unit Net Generation Time Series by a given plant, as reported to EIA in Form 923.    
+    This information comes from the XXXXXX table in the XXXXX DB, which is
+    populated from EIA Form 923 Page 4 Generator Data.
+    """
+    __tablename__ = 'generator_data_eia923'                                                        
+    # Each month, for each unique combination of generator id and prime mover and fuel, 
+    #there is one report for each generator unit in each plant.
+    #Primary key fields: plant, utility, generator, and prime mover.
+    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
+    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True) #field is operator ID (column F) in EIA923Page1
+    prime_mover = Column(String, ForeignKey('prime_movers.prime_mover'), primary_key=True)
+    generator_id = Column(String, ForeignKey('generators.generator'), primary_key=True) #is this correct?
+    year = Column(Integer, ForeignKey('years.year'), primary_key=True)
+    plant_name = Column(String, nullable=False)
+    operator_name = Column(String, nullable=False)
+    net_generation_MWh_jan = Column(Integer, nullable=False)
+    net_generation_MWh_feb = Column(Integer, nullable=False)
+    net_generation_MWh_mar = Column(Integer, nullable=False)
+    net_generation_MWh_apr = Column(Integer, nullable=False)
+    net_generation_MWh_may = Column(Integer, nullable=False)
+    net_generation_MWh_jun = Column(Integer, nullable=False)
+    net_generation_MWh_jul = Column(Integer, nullable=False)
+    net_generation_MWh_aug = Column(Integer, nullable=False)
+    net_generation_MWh_sep = Column(Integer, nullable=False)
+    net_generation_MWh_oct = Column(Integer, nullable=False)
+    net_generation_MWh_nov = Column(Integer, nullable=False)
+    net_generation_MWh_dec = Column(Integer, nullable=False)
+
+class FuelReceiptsCostsEIA923(Base):
+    __tablename__ = 'fuel_receipts_costs_eia923' 
+#   fuel_receipt_id = db.Column(db.Integer, primary_key=True, autoincrement=True) attempting to auto-increment primary key
+    year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    month = Column(Integer, ForeignKey('months.month'), nullable=False) #is this correct?
+    plant_id = Column(Integer, ForeignKey('plants.id'), nullable=False)
+    purchase_type = Column(String, nullable=False)
+    contract_expiration_date = Column(Integer, nullable=False)
+    energy_source = Column(String, nullable=False) #do we have constants for these?
+    fuel_group = Column(String, nullable=False) #do we have constants for these?
+    coalmine_type = Column(String, nullable=False) #do we have constants for these?
+    coalmine_state = Column(String, nullable=False)  #includes foreign states
+    coalmine_county = Column(String, nullable=False)
+    coalmine_msha_id = Column(Integer, nullable=False)
+    coalmine_name = Column(String, nullable=False)
+    supplier =  Column(String, nullable=False)
+    quantity = Column(Integer, nullable=False)
+    average_heat_content = Column(Integer, nullable=False)
+    average_sulfur_content = Column(Integer, nullable=False)
+    average_ash_content = Column(Integer, nullable=False)
+    average_mercury_content = Column(Integer, nullable=False)
+    fuel_cost = Column(Integer, nullable=False)
+    regulated = Column(String, nullable=False) #do we have constants for these?
+    operator_name = Column(String, nullable=False) #since there is no utility id, do we need to include operator id?
+    reporting_frequency = Column(String, nullable=False)  #do we have constants for these?
+    primary_transportation_mode = Column(String, nullable=False)  #do we have constants for these?
+    secondary_transportation_mode = Column(String, nullable=False) #do we have constants for these?
+    natural_gas_transportation_service = Column(String, nullable=False)  #do we have constants for these?
+                    
