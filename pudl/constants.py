@@ -385,5 +385,17 @@ census_region = {
 }
 
 nerc_region = {
+  'NPCC':'Northeast Power Coordinating Council',
+  'MRO':'Midwest Reliability Organization',
+  'SERC':'SERC Reliability Corporation',
+  'RFC':'Reliability First Corporation',
+  'SPP':'Southwest Power Pool',
+  'TRE':'Texas Regional Entity',
+  'FRCC':'Florida Reliability Coordinating Council',
+  'WECC':'Western Electricity Coordinating Council'
+}
 
+eia_sector = {
+    '1':'Electric Utility', #Traditional regulated electric utilities
+    '2':
 }
