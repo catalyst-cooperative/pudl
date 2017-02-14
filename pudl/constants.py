@@ -400,13 +400,31 @@ nerc_region = {
 }
 
 eia_sector = {
-    '1':'Electric Utility', #Traditional regulated electric utilities
-    '2':'NAICS-22 Non-Cogen' #Independent power producers which are not cogenerators
-    '3':'NAICS-22 Cogen' #Independent power producers which are cogenerators, but whose primary business purpose is the sale of electricity to the public
-    '4':'Commercial NAICS Non-Cogen' #Commercial non-cogeneration facilities that produce electric power, are connected to the gird, and can sell power to the public
-    '5':'Commercial NAICS Cogen' #Commercial cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public
-    '6':'Industrial NAICS Non-Cogen' #Industrial non-cogeneration facilities that produce electric power, are connected to the gird, and can sell power to the public
-    '7':'Industrial NAICS Cogen' #Industrial cogeneration facilities that produce electric power, are connected to the gird, and can sell power to the public
+    #Traditional regulated electric utilities
+    '1':'Electric Utility',
+
+    #Independent power producers which are not cogenerators
+    '2':'NAICS-22 Non-Cogen',
+
+    #Independent power producers which are cogenerators, but whose
+    # primary business purpose is the sale of electricity to the public
+    '3':'NAICS-22 Cogen',
+
+    # Commercial non-cogeneration facilities that produce electric power,
+    # are connected to the gird, and can sell power to the public
+    '4':'Commercial NAICS Non-Cogen',
+
+    # Commercial cogeneration facilities that produce electric power, are
+    # connected to the grid, and can sell power to the public
+    '5':'Commercial NAICS Cogen',
+
+    # Industrial non-cogeneration facilities that produce electric power, are
+    # connected to the gird, and can sell power to the public
+    '6':'Industrial NAICS Non-Cogen',
+
+    # Industrial cogeneration facilities that produce electric power, are
+    # connected to the gird, and can sell power to the public
+    '7':'Industrial NAICS Cogen'
 }
 
 naics_code = {
