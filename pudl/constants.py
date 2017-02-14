@@ -391,3 +391,7 @@ census_region = {
 nerc_region = {
 
 }
+
+naics_code = {
+
+}
