@@ -119,6 +119,77 @@ class GeneratorFuelEIA923(Base):
     net_gen_electricity_dec = Column(Integer, nullable=False)
 
 
+class BoilerFuelDataEIA923(Base):
+    """
+    Monthly Boiler Fuel consumptino and emissions Time Series, as reported to EIA in Form 923.    
+    This information comes from the XXXXXX table in the XXXXX DB, which is
+    populated from EIA Form 923 Page 3 Generator Data.
+    """
+    __tablename__ = 'boiler_data_eia923'                                                        
+    # Each month, for each unique combination of boiler id and prime mover and fuel, 
+    #there is one report for each boiler unit in each plant.
+    #Primary key fields: plant, utility, boiler, prime mover, fuel type, and year.
+    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
+    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
+    prime_mover = Column(String, ForeignKey('prime_movers.prime_mover'), primary_key=True)
+    generator_id = Column(String, ForeignKey('boilers.boiler'), primary_key=True) #is this correct?
+    fuel_type = Column(String, ForeignKey('fuels.name'), primary_key=True)
+    year = Column(Integer, ForeignKey('years.year'), primary_key=True)
+    plant_name = Column(String, nullable=False)
+    operator_name = Column(String, nullable=False)
+    boiler_id = Column(String, nullable=False)
+    fuel_unit = Column(String, nullable=False)    
+    quant_consumed_jan = Column(Integer, nullable=False)
+    quant_consumed_feb = Column(Integer, nullable=False)
+    quant_consumed_mar = Column(Integer, nullable=False)
+    quant_consumed_apr = Column(Integer, nullable=False)
+    quant_consumed_may = Column(Integer, nullable=False)
+    quant_consumed_jun = Column(Integer, nullable=False)
+    quant_consumed_jul = Column(Integer, nullable=False)
+    quant_consumed_aug = Column(Integer, nullable=False)
+    quant_consumed_sep = Column(Integer, nullable=False)
+    quant_consumed_oct = Column(Integer, nullable=False)
+    quant_consumed_nov = Column(Integer, nullable=False)
+    quant_consumed_dec = Column(Integer, nullable=False)
+    fuel_mmbtu_per_unit_jan = Column(Float, nullable=False)
+    fuel_mmbtu_per_unit_feb = Column(Float, nullable=False)
+    fuel_mmbtu_per_unit_mar = Column(Float, nullable=False)
+    fuel_mmbtu_per_unit_apr = Column(Float, nullable=False)
+    fuel_mmbtu_per_unit_may = Column(Float, nullable=False)
+    fuel_mmbtu_per_unit_jun = Column(Float, nullable=False)
+    fuel_mmbtu_per_unit_jul = Column(Float, nullable=False)
+    fuel_mmbtu_per_unit_aug = Column(Float, nullable=False)
+    fuel_mmbtu_per_unit_sep = Column(Float, nullable=False)
+    fuel_mmbtu_per_unit_oct = Column(Float, nullable=False)
+    fuel_mmbtu_per_unit_nov = Column(Float, nullable=False)
+    fuel_mmbtu_per_unit_dec = Column(Float, nullable=False)
+    sulfur_content_jan = Column(Float, nullable=False)
+    sulfur_content_feb = Column(Float, nullable=False)
+    sulfur_content_mar = Column(Float, nullable=False)
+    sulfur_content_apr = Column(Float, nullable=False)
+    sulfur_content_may = Column(Float, nullable=False)
+    sulfur_content_jun = Column(Float, nullable=False)
+    sulfur_content_jul = Column(Float, nullable=False)
+    sulfur_content_aug = Column(Float, nullable=False)
+    sulfur_content_sep = Column(Float, nullable=False)
+    sulfur_content_oct = Column(Float, nullable=False)
+    sulfur_content_nov = Column(Float, nullable=False)
+    sulfur_content_dec = Column(Float, nullable=False)
+    ash_content_jan = Column(Float, nullable=False)
+    ash_content_feb = Column(Float, nullable=False)
+    ash_content_mar = Column(Float, nullable=False)
+    ash_content_apr = Column(Float, nullable=False)
+    ash_content_may = Column(Float, nullable=False)
+    ash_content_jun = Column(Float, nullable=False)
+    ash_content_jul = Column(Float, nullable=False)
+    ash_content_aug = Column(Float, nullable=False)
+    ash_content_sep = Column(Float, nullable=False)
+    ash_content_oct = Column(Float, nullable=False)
+    ash_content_nov = Column(Float, nullable=False)
+    ash_content_dec = Column(Float, nullable=False)
+    
+    
+
 class GeneratorDataEIA923(Base):
     """
     Monthly Generating Unit Net Generation Time Series by a given plant, as reported to EIA in Form 923.    
