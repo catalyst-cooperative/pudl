@@ -6,13 +6,13 @@ from sqlalchemy.engine.url import URL
 
 #from sqlalchemy.orm.collections import attribute_mapped_collection
 
-from pudl import settings, constants, PUDLBase
+from pudl import settings, constants, models
 
 ###########################################################################
 # Tables comprising data from the FERC f1_steam & f1_fuel tables
 ###########################################################################
 
-class FuelFERC1(PUDLBase):
+class FuelFERC1(models.PUDLBase):
     """
     Annual fuel consumed by a given plant, as reported to FERC in Form 1. This
     information comes from the f1_fuel table in the FERC DB, which is
@@ -35,7 +35,7 @@ class FuelFERC1(PUDLBase):
     fuel_cost_kwh = Column(Float, nullable=False)
     fuel_heat_kwh = Column(Float, nullable=False)
 
-class PlantSteamFERC1(PUDLBase):
+class PlantSteamFERC1(models.PUDLBase):
     """
     A large thermal generating plant, as reported to FERC on Form 1.
     """
@@ -88,7 +88,7 @@ class PlantSteamFERC1(PUDLBase):
     expns_kwh = Column(Float)
     asset_retire_cost = Column(Float)
 
-class HydroFERC1(Base):
+class HydroFERC1(models.PUDLBase):
     """
     Annual data on hydro plants from FERC form 1
     """

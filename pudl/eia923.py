@@ -1,5 +1,6 @@
 import pandas as pd
 import os.path
+from pudl import settings
 
 ###########################################################################
 # Helper functions & other objects to ingest & process Energy Information
@@ -17,21 +18,13 @@ This code is for use analyzing EIA Form 923 data, years 2008-2016
 Current version is for years 2014-2016, which have standardized naming conventions and file formatting
 """
 
-# directory beneath which the EIA Form 923 data lives...
-eia923_datadir = os.path.join(settings.PUDL_DIR,
-                                         'data',
-                                         'eia',
-                                         'form923',
-                                         'get_eia923.sh')
-
-
 def get_eia923(years=[2014,2015,2016]):
     """Select desired spreadsheets containing string '2_3_4' for years 2014-2016 of EIA Form923 data.
     No input required; years prior to 2014 can be imported, but do not fit
     formatting used in 'parse_eia923' function
     """
     myfilelist=[] #Empty list to add xcel files to
-    listfolder=[x[0] for x in os.walk(eia923_datadir)] #lists all folders inside eia923_datadir
+    listfolder=[x[0] for x in os.walk(settings.EIA923_DATA_DIR)] #lists all folders inside eia923_datadir
     for folderitem in listfolder:   #folderitem is individual folder within listfolder
         for filename in os.listdir(folderitem): #filename is individual spreadsheet within folderitem
             filelist=[] #filelist is list of all files in folderitem

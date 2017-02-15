@@ -1,18 +1,13 @@
+import pandas as pd
+import os.path
+
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.engine.url import URL
 from sqlalchemy import create_engine
-import pandas as pd
-import os.path
 
 from pudl import settings
 from pudl.constants import fuel_names, fuel_units, us_states, prime_movers
 from pudl.constants import rto_iso
-
-# The Declarative Base used to define our database:
-from pudl.models import PUDLBase
-
-# A couple of helpers:
-from pudl.models import db_connect_pudl, create_tables_pudl, drop_tables_pudl
 
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year, RTOISO
@@ -22,12 +17,7 @@ from pudl.models import State
 from pudl.models import Utility, UtilityFERC1, UtilityEIA923
 from pudl.models import Plant, PlantFERC1, PlantEIA923
 from pudl.models import UtilPlantAssn
-
-# Tables that hold FERC1 data:
-from pudl.models import FuelFERC1, PlantSteamFERC1
-
-#import pudl.eia923
-#import pudl.ferc1
+from pudl.models import PUDLBase
 
 """
 The Public Utility Data Liberation (PUDL) project integrates several different
@@ -49,6 +39,22 @@ Mapper (ORM) and initializes the database from several sources:
    - Greenhouse Gas Reporting Program (epaghgrp)
 
 """
+
+def db_connect_pudl():
+    """
+    Performs database connection using database settings from settings.py.
+    Returns sqlalchemy engine instance
+    """
+    return create_engine(URL(**settings.DB_PUDL))
+
+def create_tables_pudl(engine):
+    """"""
+    PUDLBase.metadata.create_all(engine)
+
+def drop_tables_pudl(engine):
+    """"""
+    PUDLBase.metadata.drop_all(engine)
+
 def init_db():
     """
     Create the PUDL database and fill it up with data!
