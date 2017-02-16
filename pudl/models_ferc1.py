@@ -1,4 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Float
+from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy.orm import relationship
 
 from pudl import settings, constants, models
@@ -14,13 +15,20 @@ class FuelFERC1(models.PUDLBase):
     populated from page 402 of the paper FERC For 1.
     """
     __tablename__ = 'fuel_ferc1'
+    __table_args__ = (ForeignKeyConstraint(
+                        ['respondent_id', 'plant_name'],
+                        ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
     # Each year, for each fuel, there's one report for each plant, which may
     # be recorded multiple times for multiple utilities that have a stake in
     # the plant... Primary key fields: utility, plant, fuel and year.
-    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
-    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
-    fuel_type = Column(String, ForeignKey('fuels.name'), primary_key=True)
-    year = Column(Integer, ForeignKey('years.year'), primary_key=True)
+
+#    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
+#    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
+
+    respondent_id = Column(Integer, primary_key=True)
+    plant_name = Column(String, primary_key=True)
+    report_year = Column(Integer, ForeignKey('years.year'), primary_key=True)
+    fuel = Column(String, ForeignKey('fuels.name'), primary_key=True)
     fuel_unit = Column(String, ForeignKey('fuel_units.unit'), nullable=False)
     fuel_qty_burned = Column(Float, nullable=False)
     fuel_avg_mmbtu_per_unit = Column(Float, nullable=False)
