@@ -5,6 +5,7 @@ import pandas as pd
 import os.path
 
 from pudl import settings
+from pudl.ferc1 import db_connect_ferc1
 from pudl.constants import fuel_names, fuel_units, us_states, prime_movers
 from pudl.constants import rto_iso
 
@@ -76,6 +77,7 @@ def init_db():
     pudl_session.add_all([Quarter(q=i+1, end_month=3*(i+1)) for i in range(4)])
     pudl_session.add_all([PrimeMover(prime_mover=pm) for pm in prime_movers])
     pudl_session.add_all([RTOISO(abbr=k, name=v) for k,v in rto_iso.items()])
+    pudl_session.add_all([Year(year=yr) for yr in range(1994,2017)])
 
     # States dictionary is defined outside this function, below.
     pudl_session.add_all([State(abbr=k, name=v) for k,v in us_states.items()])
@@ -217,20 +219,39 @@ def init_db():
     #  - Create a select statement that gets us the fields we need to populate.
     #  - Iterate across those results, adding them to the session.
 
-    ferc1_engine = create_engine(URL(**settings.DB_FERC1))
-    ferc1_fuel_df = pd.read_sql('SELECT respondent_id,\
-                                        report_year,\
-                                        plant_name,\
-                                        fuel,\
-                                        fuel_unit,\
-                                        fuel_quantity,\
-                                        fuel_avg_heat,\
-                                        fuel_cost_delvd,\
-                                        fuel_cost_burned,\
-                                        fuel_cost_btu,\
-                                        fuel_cost_kwh,\
-                                        fuel_generaton,\
-                                        report_prd\
-                                 FROM f1_fuel', ferc1_engine)
-
+#    ferc1_engine = db_connect_ferc1()
+#    ferc1_fuel_df = pd.read_sql('SELECT respondent_id,\
+#                                        report_year,\
+#                                        plant_name,\
+#                                        fuel,\
+#                                        fuel_unit,\
+#                                        fuel_quantity,\
+#                                        fuel_avg_heat,\
+#                                        fuel_cost_delvd,\
+#                                        fuel_cost_burned,\
+#                                        fuel_cost_btu,\
+#                                        fuel_cost_kwh,\
+#                                        fuel_generaton,\
+#                                        report_prd\
+#                                 FROM f1_fuel', ferc1_engine)
+#
+#    for rec in ferc1_fuel_df.itertuples():
+#        pudl_session.add(
+#            FuelFERC1(
+#                respondent_id = rec.respondent_id,
+#                plant_name = rec.plant_name,
+#                report_year = rec.report_year,
+#                fuel = rec.fuel,
+#                fuel_unit = rec.fuel_unit,
+#                fuel_qty_burned = rec.fuel_qty_burned,
+#                fuel_avg_mmbtu_per_unit = rec.fuel_avg_heat,
+#                fuel_cost_per_unit_burned = rec.fuel_cost_burned,
+#                fuel_cost_per_unit_delivered = rec.fuel_cost_delvd,
+#                fuel_cost_per_mmbtu = rec.fuel_cost_btu,
+#                fuel_cost_per_kwh = rec.fuel_cost_kwh,
+#                fuel_mmbtu_per_kwh = rec.fuel_generaton
+#            )
+#        )
+#
+#    pudl_session.commit()
     pudl_session.close_all()
