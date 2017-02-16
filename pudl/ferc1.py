@@ -20,7 +20,7 @@ def db_connect_ferc1(testing=False):
 
 def datadir(year):
     """Given a year, return path to appropriate FERC Form 1 data directory."""
-    return os.path.join(settings.DATA_DIR,'ferc','form1','f1_{}'.format(year))
+    return os.path.join(settings.FERC1_DATA_DIR,'f1_{}'.format(year))
 
 def dbc_filename(year):
     """Given a year, return path to the master FERC Form 1 .DBC file."""

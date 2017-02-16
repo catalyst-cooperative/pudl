@@ -1,10 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Float
 from sqlalchemy.orm import relationship
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.engine.url import URL
-
-#from sqlalchemy.orm.collections import attribute_mapped_collection
 
 from pudl import settings, constants, models
 
@@ -28,12 +23,12 @@ class FuelFERC1(models.PUDLBase):
     year = Column(Integer, ForeignKey('years.year'), primary_key=True)
     fuel_unit = Column(String, ForeignKey('fuel_units.unit'), nullable=False)
     fuel_qty_burned = Column(Float, nullable=False)
-    fuel_avg_heat = Column(Float, nullable=False)
-    fuel_cost_burned = Column(Float, nullable=False)
-    fuel_cost_delivered = Column(Float, nullable=False)
-    fuel_cost_btu = Column(Float, nullable=False)
-    fuel_cost_kwh = Column(Float, nullable=False)
-    fuel_heat_kwh = Column(Float, nullable=False)
+    fuel_avg_mmbtu_per_unit = Column(Float, nullable=False)
+    fuel_cost_per_unit_burned = Column(Float, nullable=False)
+    fuel_cost_per_unit_delivered = Column(Float, nullable=False)
+    fuel_cost_per_mmbtu = Column(Float, nullable=False)
+    fuel_cost_per_kwh = Column(Float, nullable=False)
+    fuel_mmbtu_per_kwh = Column(Float, nullable=False)
 
 class PlantSteamFERC1(models.PUDLBase):
     """
@@ -43,9 +38,7 @@ class PlantSteamFERC1(models.PUDLBase):
     plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
     utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
     year = Column(Integer, ForeignKey('years.year'), primary_key=True)
-
     #respondent_id
-    #report_year
     #report_prd
     #spplmnt_num
     #row_number

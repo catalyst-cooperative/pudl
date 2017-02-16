@@ -1,12 +1,8 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Float
 from sqlalchemy.orm import relationship
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.engine.url import URL
 #from sqlalchemy.orm.collections import attribute_mapped_collection
 
 from pudl import settings, constants, models
-from pudl.models import PUDLBase
 
 ###########################################################################
 # Tables which represent static lists. E.g. all the US States.
