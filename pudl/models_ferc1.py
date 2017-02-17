@@ -1,44 +1,42 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Float
-from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy.orm import relationship
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.engine.url import URL
 
-from pudl import settings, constants, models
+#from sqlalchemy.orm.collections import attribute_mapped_collection
+
+from pudl import settings, constants
+from pudl.models import PUDLBase
 
 ###########################################################################
 # Tables comprising data from the FERC f1_steam & f1_fuel tables
 ###########################################################################
 
-class FuelFERC1(models.PUDLBase):
+class FuelFERC1(PUDLBase):
     """
     Annual fuel consumed by a given plant, as reported to FERC in Form 1. This
     information comes from the f1_fuel table in the FERC DB, which is
     populated from page 402 of the paper FERC For 1.
     """
     __tablename__ = 'fuel_ferc1'
-    __table_args__ = (ForeignKeyConstraint(
-                        ['respondent_id', 'plant_name'],
-                        ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
     # Each year, for each fuel, there's one report for each plant, which may
     # be recorded multiple times for multiple utilities that have a stake in
     # the plant... Primary key fields: utility, plant, fuel and year.
-
-#    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
-#    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
-
-    respondent_id = Column(Integer, primary_key=True)
-    plant_name = Column(String, primary_key=True)
-    report_year = Column(Integer, ForeignKey('years.year'), primary_key=True)
-    fuel = Column(String, ForeignKey('fuels.name'), primary_key=True)
+    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
+    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
+    fuel_type = Column(String, ForeignKey('fuels.name'), primary_key=True)
+    year = Column(Integer, ForeignKey('years.year'), primary_key=True)
     fuel_unit = Column(String, ForeignKey('fuel_units.unit'), nullable=False)
     fuel_qty_burned = Column(Float, nullable=False)
-    fuel_avg_mmbtu_per_unit = Column(Float, nullable=False)
-    fuel_cost_per_unit_burned = Column(Float, nullable=False)
-    fuel_cost_per_unit_delivered = Column(Float, nullable=False)
-    fuel_cost_per_mmbtu = Column(Float, nullable=False)
-    fuel_cost_per_kwh = Column(Float, nullable=False)
-    fuel_mmbtu_per_kwh = Column(Float, nullable=False)
+    fuel_avg_heat = Column(Float, nullable=False)
+    fuel_cost_burned = Column(Float, nullable=False)
+    fuel_cost_delivered = Column(Float, nullable=False)
+    fuel_cost_btu = Column(Float, nullable=False)
+    fuel_cost_kwh = Column(Float, nullable=False)
+    fuel_heat_kwh = Column(Float, nullable=False)
 
-class PlantSteamFERC1(models.PUDLBase):
+class PlantSteamFERC1(PUDLBase):
     """
     A large thermal generating plant, as reported to FERC on Form 1.
     """
@@ -46,7 +44,9 @@ class PlantSteamFERC1(models.PUDLBase):
     plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
     utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
     year = Column(Integer, ForeignKey('years.year'), primary_key=True)
+
     #respondent_id
+    #report_year
     #report_prd
     #spplmnt_num
     #row_number
@@ -89,7 +89,7 @@ class PlantSteamFERC1(models.PUDLBase):
     expns_kwh = Column(Float)
     asset_retire_cost = Column(Float)
 
-class HydroFERC1(models.PUDLBase):
+class HydroFERC1(PUDLBase):
     """
     Annual data on hydro plants from FERC form 1
     """
