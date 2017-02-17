@@ -241,26 +241,26 @@ def init_db():
                                         report_prd\
                                  FROM f1_fuel', ferc1_engine)
 
-    # HERE IS WHERE WE CLEAN UP THE DATA IN THE DATAFRAME!
-    ferc1.cleanstrings()
-
-    for rec in ferc1_fuel_df.itertuples():
-        pudl_session.add(
-            FuelFERC1(
-                respondent_id = int(rec.respondent_id),
-                plant_name = rec.plant_name,
-                report_year = int(rec.report_year),
-                fuel = rec.fuel,
-                fuel_unit = rec.fuel_unit,
-                fuel_qty_burned = rec.fuel_quantity,
-                fuel_avg_mmbtu_per_unit = rec.fuel_avg_heat,
-                fuel_cost_per_unit_burned = rec.fuel_cost_burned,
-                fuel_cost_per_unit_delivered = rec.fuel_cost_delvd,
-                fuel_cost_per_mmbtu = rec.fuel_cost_btu,
-                fuel_cost_per_kwh = rec.fuel_cost_kwh,
-                fuel_mmbtu_per_kwh = rec.fuel_generaton
-            )
-        )
-
-    pudl_session.commit()
+#    # HERE IS WHERE WE CLEAN UP THE DATA IN THE DATAFRAME!
+#    ferc1.cleanstrings()
+#
+#    for rec in ferc1_fuel_df.itertuples():
+#        pudl_session.add(
+#            FuelFERC1(
+#                respondent_id = int(rec.respondent_id),
+#                plant_name = rec.plant_name,
+#                report_year = int(rec.report_year),
+#                fuel = rec.fuel,
+#                fuel_unit = rec.fuel_unit,
+#                fuel_qty_burned = rec.fuel_quantity,
+#                fuel_avg_mmbtu_per_unit = rec.fuel_avg_heat,
+#                fuel_cost_per_unit_burned = rec.fuel_cost_burned,
+#                fuel_cost_per_unit_delivered = rec.fuel_cost_delvd,
+#                fuel_cost_per_mmbtu = rec.fuel_cost_btu,
+#                fuel_cost_per_kwh = rec.fuel_cost_kwh,
+#                fuel_mmbtu_per_kwh = rec.fuel_generaton
+#            )
+#        )
+#
+#    pudl_session.commit()
     pudl_session.close_all()
