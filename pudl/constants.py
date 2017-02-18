@@ -374,64 +374,10 @@ ferc1_data_tables = [ 'f1_acb_epda', 'f1_accumdepr_prvsn', 'f1_accumdfrrdtaxcr',
     'f1_400a_iso_peak', 'f1_429_trans_aff', 'f1_allowances_nox',
     'f1_cmpinc_hedge_a', 'f1_cmpinc_hedge', 'f1_freeze', 'f1_rg_trn_srv_rev' ]
 
-
-census_region = {
-  'NEW':'New England',
-  'MAT':'Middle Atlantic',
-  'SAT':'South Atlantic',
-  'ESC':'East South Central',
-  'WSC':'West South Central',
-  'ENC':'East North Central',
-  'WNC':'West North Central',
-  'MTN':'Mountain',
-  'PACC':'Pacific Contiguous (OR, WA, CA)',
-  'PACN':'Pacific Non-Contiguous (AK, HI)',
-}
-
-nerc_region = {
-  'NPCC':'Northeast Power Coordinating Council',
-  'MRO':'Midwest Reliability Organization',
-  'SERC':'SERC Reliability Corporation',
-  'RFC':'Reliability First Corporation',
-  'SPP':'Southwest Power Pool',
-  'TRE':'Texas Regional Entity',
-  'FRCC':'Florida Reliability Coordinating Council',
-  'WECC':'Western Electricity Coordinating Council'
-}
-
-eia_sector = {
-    #Traditional regulated electric utilities
-    '1':'Electric Utility',
-
-    #Independent power producers which are not cogenerators
-    '2':'NAICS-22 Non-Cogen',
-
-    #Independent power producers which are cogenerators, but whose
-    # primary business purpose is the sale of electricity to the public
-    '3':'NAICS-22 Cogen',
-
-    # Commercial non-cogeneration facilities that produce electric power,
-    # are connected to the gird, and can sell power to the public
-    '4':'Commercial NAICS Non-Cogen',
-
-    # Commercial cogeneration facilities that produce electric power, are
-    # connected to the grid, and can sell power to the public
-    '5':'Commercial NAICS Cogen',
-
-    # Industrial non-cogeneration facilities that produce electric power, are
-    # connected to the gird, and can sell power to the public
-    '6':'Industrial NAICS Non-Cogen',
-
-    # Industrial cogeneration facilities that produce electric power, are
-    # connected to the gird, and can sell power to the public
-    '7':'Industrial NAICS Cogen'
-}
-
-naics_code = {
-    '22':'Utilities'
-}
-
-plant_in_service = {
+# Line numbers, and corresponding FERC account number
+# and FERC account numbers from FERC Form 1 page 203, Electric
+# Plant in Service.
+ferc1_plant_in_service = {
     2: { 'ferc_acct': '301', 'acct_desc': 'intangible_organization' },
     3: { 'ferc_acct': '302', 'acct_desc': 'intangible_franchises_and_consents'},
     4: { 'ferc_acct': '303', 'acct_desc': 'intangible_misc_intangible_plant'},
@@ -515,4 +461,291 @@ plant_in_service = {
     103: { 'ferc_acct': '103', 'acct_desc': 'experimental_plant_unclassified'}
 }
 
-# no totals in the above plant_in_service dictionary   
+# no totals in the above plant_in_service dictionary
+
+census_region = {
+  'NEW':'New England',
+  'MAT':'Middle Atlantic',
+  'SAT':'South Atlantic',
+  'ESC':'East South Central',
+  'WSC':'West South Central',
+  'ENC':'East North Central',
+  'WNC':'West North Central',
+  'MTN':'Mountain',
+  'PACC':'Pacific Contiguous (OR, WA, CA)',
+  'PACN':'Pacific Non-Contiguous (AK, HI)',
+}
+
+nerc_region = {
+  'NPCC':'Northeast Power Coordinating Council',
+  'MRO':'Midwest Reliability Organization',
+  'SERC':'SERC Reliability Corporation',
+  'RFC':'Reliability First Corporation',
+  'SPP':'Southwest Power Pool',
+  'TRE':'Texas Regional Entity',
+  'FRCC':'Florida Reliability Coordinating Council',
+  'WECC':'Western Electricity Coordinating Council'
+}
+
+eia_sector = {
+    #Traditional regulated electric utilities
+    '1':'Electric Utility',
+
+    #Independent power producers which are not cogenerators
+    '2':'NAICS-22 Non-Cogen',
+
+    #Independent power producers which are cogenerators, but whose
+    # primary business purpose is the sale of electricity to the public
+    '3':'NAICS-22 Cogen',
+
+    # Commercial non-cogeneration facilities that produce electric power,
+    # are connected to the gird, and can sell power to the public
+    '4':'Commercial NAICS Non-Cogen',
+
+    # Commercial cogeneration facilities that produce electric power, are
+    # connected to the grid, and can sell power to the public
+    '5':'Commercial NAICS Cogen',
+
+    # Industrial non-cogeneration facilities that produce electric power, are
+    # connected to the gird, and can sell power to the public
+    '6':'Industrial NAICS Non-Cogen',
+
+    # Industrial cogeneration facilities that produce electric power, are
+    # connected to the gird, and can sell power to the public
+    '7':'Industrial NAICS Cogen'
+}
+
+# EIA 923: EIA Type of prime mover:
+eia_reported_prime_mover = {
+  'BA': 'Energy Storage, Battery',
+  'BT': 'Turbines Used in a Binary Cycle. \
+   Including those used for geothermal applications',
+  'CA':'Combined-Cycle -- Steam Part',
+  'CE':'Energy Storage, Compressed Air',
+  'CP':'Energy Storage, Concentrated Solar Power',
+  'CS':'Combined-Cycle Single-Shaft Combustion \
+  Turbine and Steam Turbine share of single',
+  'CT':'Combined-Cycle Combustion Turbine Part',
+  'ES':'Energy Storage, Other (Specify on Schedule 9, Comments)',
+  'FC':'Fuel Cell',
+  'FW':'Energy Storage, Flywheel',
+  'GT':'Combustion (Gas) Turbine. Including Jet Engine design',
+  'HA':'Hydrokinetic, Axial Flow Turbine',
+  'HB':'Hydrokinetic, Wave Buoy',
+  'HK':'Hydrokinetic, Other',
+  'HY':'Hydraulic Turbine. Including turbines associated \
+   with delivery of water by pipeline.',
+  'IC':'Internal Combustion (diesel, piston, reciprocating) Engine',
+  'PS':'Energy Storage, Reversible Hydraulic Turbine (Pumped Storage)',
+  'OT':'Other',
+  'ST':'Steam Turbine. Including Nuclear, Geothermal, and \
+  Solar Steam (does not include Combined Cycle).',
+  'PV':'Photovoltaic',
+  'WT':'Wind Turbine, Onshore',
+  'WS':'Wind Turbine, Offshore'
+}
+
+# EIA 923: The fuel code reported to EIA.Two or three letter alphanumeric:
+eia_reported_fuel_type_code = {
+  'AB':'Agricultural By-Products',
+  'ANT':'Anthracite Coal',
+  'BFG':'Blast Furnace Gas',
+  'BIT':'Bituminous Coal',
+  'BLQ':'Black Liquor',
+  'DFO':'Distillate Fuel Oil. Including diesel, No. 1, No. 2, and No. 4 fuel oils.',
+  'GEO':'Geothermal',
+  'JF':'Jet Fuel',
+  'KER':'Kerosene',
+  'LFG':'Landfill Gas',
+  'LIG':'Lignite Coal',
+  'MSB':'Biogenic Municipal Solid Waste',
+  'MSN':'Non-biogenic Municipal Solid Waste',
+  'MWH':'Electricity used for energy storage',
+  'NG':'Natural Gas',
+  'NUC':'Nuclear. Including Uranium, Plutonium, and Thorium.',
+  'OBG':'Other Biomass Gas. Including digester gas, methane, and other biomass gases.',
+  'OBL':'Other Biomass Liquids',
+  'OBS':'Other Biomass Solids',
+  'OG':'Other Gas',
+  'OTH':'Other Fuel',
+  'PC':'Petroleum Coke',
+  'PG':'Gaseous Propane',
+  'PUR':'Purchased Steam',
+  'RC':'Refined Coal',
+  'RFO':'Residual Fuel Oil. Including No. 5 & 6 fuel oils and \
+  bunker C fuel oil.',
+  'SC':'Coal-based Synfuel. Including briquettes, pellets, or \
+  extrusions, which are formed by binding materials or \
+  processes that recycle materials.',
+  'SGC':'Coal-Derived Synthesis Gas',
+  'SGP':'Synthesis Gas from Petroleum Coke',
+  'SLW':'Sludge Waste',
+  'SUB':'Subbituminous Coal',
+  'SUN':'Solar',
+  'TDF':'Tire-derived Fuels',
+  'WAT':'Water at a Conventional Hydroelectric Turbine and \
+  water used in Wave Buoy Hydrokinetic Technology, \
+  current Hydrokinetic Technology, Tidal Hydrokinetic Technology, and \
+  Pumping Energy for Reversible (Pumped Storage) Hydroelectric Turbines.',
+  'WC':'Waste/Other Coal. Including anthracite culm, bituminous gob, \
+   fine coal, lignite waste, waste coal.',
+  'WDL':'Wood Waste Liquids, excluding Black Liquor. Including red liquor, \
+   sludge wood, spent sulfite liquor, and other wood-based liquids.',
+  'WDS':'Wood/Wood Waste Solids. Including paper pellets, \
+  railroad ties, utility polies, wood chips, bark, and \
+  other wood waste solids.',
+  'WH':'Waste Heat not directly attributed to a fuel source',
+  'WND':'Wind',
+  'WO':'Waste/Other Oil. Including crude oil, liquid butane, \
+  liquid propane, naphtha, oil waste, re-refined moto oil, \
+  sludge oil, tar oil, or other petroleum-based liquid wastes.'
+}
+
+#EIA 923: A partial aggregation of the reported fuel type codes into
+#larger categories used by EIA in, for example,
+#the Annual Energy Review (AER).Two or three letter alphanumeric.
+#See the Fuel Code table (Table 5), below:
+eia_aer_fuel_type_code = {
+  'SUN':'Solar PV and thermal',
+  'COL':'Coal',
+  'DFO':'Distillate Petroleum',
+  'GEO':'Geothermal',
+  'HPS':'Hydroelectric Pumped Storage',
+  'HYC':'Hydroelectric Conventional',
+  'MLG':'Biogenic Municipal Solid Waste and Landfill Gas',
+  'NG':'Natural Gas',
+  'NUC':'Nuclear',
+  'OOG':'Other Gases',
+  'ORW':'Other Renewables',
+  'OTH':'Other (including nonbiogenic MSW)',
+  'PC':'Petroleum Coke',
+  'RFO':'Residual Petroleum',
+  'WND':'Wind',
+  'WOC':'Waste Coal',
+  'WOO':'Waste Oil',
+  'WWW':'Wood and Wood Waste'
+}
+
+#EIA 923: EIA The type of physical units fuel consumption is reported in.
+#All consumption is reported in either short tons for solids,
+#thousands of cubic feet for gases, and barrels for liquids:"""
+eia_physical_label_unit = {
+  'mcf':'for gases',
+  'short tons':'for solid',
+  'barrels':'for liquids'
+}
+#EIA 923: Designates the purchase type under which receipts occurred
+#in the reporting month. One or two character alphanumeric:
+eia_contract_type = {
+  'C':'Contract',
+  'NC':'New Contract',
+  'S':'Spot Purchase'
+}
+#EIA 923: The fuel code associated with the fuel receipt.
+Two or three character alphanumeric:
+eia_energy_source = {
+  'ANT':'Anthracite Coal',
+  'BIT':'Bituminous Coal',
+  'DFO':'Distillate Fuel Oil. Including \
+  diesel, No. 1, No. 2, and No. 4 fuel oils.',
+  'LIG':'Lignite Coal',
+  'NG':'Natural Gas',
+  'PC':'Petroleum Coke',
+  'RC':'Refined Coal',
+  'RFO':'Residual Fuel Oil. Including \
+  No. 5 & 6 fuel oils and bunker C fuel oil.',
+  'SC':'Coal-based Synfuel. Including briquettes, pellets, or \
+  extrusions, which are formed by binding materials or \
+  processes that recycle materials.',
+  'SUB':'Subbituminous Coal',
+  'WC':'Waste/Other Coal. Including anthracite culm, \
+  bituminous gob, fine coal, lignite waste, waste coal.',
+  'WO':'Waste/Other Oil. Including crude oil, liquid butane, \
+  liquid propane, naphtha, oil waste, re-refined moto oil, sludge oil, \
+  tar oil, or other petroleum-based liquid wastes.'
+}
+
+#EIA 923: Type of Coal Mine
+eia_coalmine_type = {
+  'P':'Preperation Plant',
+  'S':'Surface',
+  'U':'Underground',
+  'U/S':'Both an underground and surface mine with \
+  most coal extracted from underground',
+  'S/U':'Both an underground and surface mine with \
+  most coal extracted from surface'
+}
+
+#EIA 923: State abbreviation related to coal mine location.
+#Country abbreviations are also listed under this category and are as follows:
+
+eia_coalmine_state = {
+  'AU':'Australia',
+  'CL':'Columbia',
+  'CN':'Canada',
+  'IS':'Indonesia',
+  'PL':'Poland',
+  'RS':'Russia',
+  'UK':'United Kingdom',
+  'VZ':'Venezula',
+  'OC':'Other Country'
+}
+
+#EIA 923: Non-Regulated Independent Power Plant or Nonutility Plant.
+eia_regulated = {
+  'REG':'Regulated Electric Utility',
+  'UNR':'Non-Regulated Independent Power Plant or Nonutility Plant.'
+}
+
+#EIA 923: One character designates the reporting
+#frequency for the plant. Alphanumeric:
+eia_respondent_frequency = {
+  'M':'Monthly respondent',
+  'A':'Annual respondent'
+}
+#EIA 923: Mode for the longest / second longest distance.
+eia_primary_secondary_mode_of_transporation = {
+  'RR':'Rail: Shipments of fuel moved to consumers by rail \
+  (private or public/commercial). Included is coal hauled to or \
+  away from a railroad siding by truck if the truck did not use public roads.',
+  'RV':'River:  Shipments of fuel moved to consumers via river by barge.  \
+  Not included are shipments to Great Lakes coal loading docks, \
+  tidewater piers, or coastal ports. ',
+  'GL':'Great Lakes:  Shipments of coal moved to consumers via \
+  the Great Lakes. These shipments are moved via the Great Lakes \
+  coal loading docks, which are identified by name and location as follows:  \
+  Conneaut Coal Storage & Transfer, Conneaut, Ohio;  \
+  NS Coal Dock (Ashtabula Coal Dock), Ashtabula, Ohio;  \
+  Sandusky Coal Pier, Sandusky, Ohio;  Toledo Docks, Toledo, Ohio; \
+  KCBX Terminals Inc., Chicago, Illinois;  \
+  Superior Midwest Energy Terminal, Superior, Wisconsin',
+  'TP':'Tidewater Piers and Coastal Ports:  Shipments of coal moved to \
+  Tidewater Piers and Coastal Ports for further shipments to consumers via \
+  coastal water or ocean.  The Tidewater Piers and Coastal Ports are \
+  identified by name and location as follows:  Dominion Terminal Associates, \
+  Newport News, Virginia; McDuffie Coal Terminal, Mobile, Alabama;  \
+  IC Railmarine Terminal, Convent, Louisiana;  \
+  International Marine Terminals, Myrtle Grove, Louisiana;  \
+  Cooper/T. Smith Stevedoring Co. Inc., Darrow, Louisiana;  \
+  Seward Terminal Inc., Seward, Alaska;  Los Angeles Export Terminal, Inc., \
+  Los Angeles, California;  Levin-Richmond Terminal Corp., \
+  Richmond, California; Baltimore Terminal, Baltimore, Maryland;  \
+  Norfolk Southern Lamberts Point P-6, Norfolk, Virginia;  \
+  Chesapeake Bay Piers, Baltimore, Maryland;  Pier IX Terminal Company, \
+  Newport News, Virginia;  Electro-Coal Transport Corp., Davant, Louisiana',
+  'WT':'Water: Shipments of fuel moved to consumers by other waterways.',
+  'TR':'Truck: Shipments of fuel moved to consumers by truck.  \
+  Not included is fuel hauled to or away from a railroad siding by \
+  truck on non-public roads.',
+  'TC':'Tramway/Conveyor: Shipments of fuel moved to consumers \
+  by tramway or conveyor.',
+  'SP':'Slurry Pipeline: Shipments of coal moved to consumers \
+  by slurry pipeline.',
+  'PL':'Pipeline: Shipments of fuel moved to consumers by pipeline'
+}
+
+#EIA 923: Contract type for natural gas capacity service:
+eia_natural_gas_transportation_service = {
+  'F':'Firm',
+  'I':'Interruptible'
+}
