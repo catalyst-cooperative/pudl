@@ -25,10 +25,11 @@ class FuelFERC1(models.PUDLBase):
 #    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
 #    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
 
-    respondent_id = Column(Integer, primary_key=True)
-    plant_name = Column(String, primary_key=True)
-    report_year = Column(Integer, ForeignKey('years.year'), primary_key=True)
-    fuel = Column(String, ForeignKey('fuels.name'), primary_key=True)
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    respondent_id = Column(Integer, nullable=False) # Also ForeignKeyConstraint
+    plant_name = Column(String, nullable=False) # Also ForeignKeyConstraint
+    report_year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    fuel = Column(String, ForeignKey('fuels.name'), nullable=False)
     fuel_unit = Column(String, ForeignKey('fuel_units.unit'), nullable=False)
     fuel_qty_burned = Column(Float, nullable=False)
     fuel_avg_mmbtu_per_unit = Column(Float, nullable=False)

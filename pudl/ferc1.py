@@ -71,10 +71,8 @@ def cleanstrings(field, stringmap, unmapped=None):
     # Simplify the strings we're working with, to reduce the number of strings
     # we need to enumerate in the maps
 
-    # Transform the strings to lower case
-    field = field.apply(lambda x: x.lower())
-    # remove leading & trailing whitespace
-    field = field.apply(lambda x: x.strip())
+    # Transform the strings to lower case, strip leading/trailing whitespace
+    field = field.str.lower().str.strip()
     # remove duplicate internal whitespace
     field = field.replace('[\s+]', ' ', regex=True)
 

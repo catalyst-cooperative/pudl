@@ -8,8 +8,6 @@ from sqlalchemy import Boolean, Text, Float, DateTime
 ######################################################################
 # Constants used within the pudl.py module.
 ######################################################################
-fuel_names = ['coal', 'gas', 'oil']
-fuel_units = ['tons', 'mcf', 'bbls']
 prime_movers = ['steam_turbine', 'gas_turbine', 'hydro', 'internal_combustion',
                 'solar_pv', 'wind_turbine']
 
@@ -109,7 +107,7 @@ ferc1_oil_strings  = ['oil', '#6 oil', '#2 oil', 'fuel oil', 'jet', 'no. 2 oil',
 ferc1_gas_strings  = ['gas', 'methane', 'natural gas', 'blast gas', 'gas mcf',\
                    'propane', 'prop', 'natural  gas', 'nat.gas', 'nat gas',\
                    'nat. gas', 'natl gas', 'ga', 'gas`', 'syngas', 'ng', 'mcf',\
-                   'blast gaa', 'nat  gas', 'gac', 'syngass', 'prop.']
+                   'blast gaa', 'nat  gas', 'gac', 'syngass', 'prop.','natural']
 
 ferc1_nuke_strings = ['nuclear', 'grams of uran', 'grams of', 'grams of  ura',\
                    'grams', 'nucleur', 'nulear', 'nucl', 'nucleart']
@@ -515,4 +513,4 @@ plant_in_service = {
     103: { 'ferc_acct': '103', 'acct_desc': 'experimental_plant_unclassified'}
 }
 
-# no totals in the above plant_in_service dictionary   
+# no totals in the above plant_in_service dictionary
