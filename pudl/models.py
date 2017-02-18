@@ -1,28 +1,13 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.engine.url import URL
+from sqlalchemy.ext.declarative import declarative_base
 #from sqlalchemy.orm.collections import attribute_mapped_collection
 
-from pudl import settings, constants
+from pudl import settings, constants, pudl
 
 PUDLBase = declarative_base()
-
-def db_connect_pudl():
-    """
-    Performs database connection using database settings from settings.py.
-    Returns sqlalchemy engine instance
-    """
-    return create_engine(URL(**settings.DB_PUDL))
-
-def create_tables_pudl(engine):
-    """"""
-    PUDLBase.metadata.create_all(engine)
-
-def drop_tables_pudl(engine):
-    """"""
-    PUDLBase.metadata.drop_all(engine)
 
 ###########################################################################
 # Tables which represent static lists. E.g. all the US States.

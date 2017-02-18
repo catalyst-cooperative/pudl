@@ -225,34 +225,31 @@ def init_db():
     #  - Create a select statement that gets us the fields we need to populate.
     #  - Iterate across those results, adding them to the session.
 
-    ferc1_engine = db_connect_ferc1()
-    ferc1_fuel_df = pd.read_sql('SELECT respondent_id,\
-                                        report_year,\
-                                        plant_name,\
-                                        fuel,\
-                                        fuel_unit,\
-                                        fuel_quantity,\
-                                        fuel_avg_heat,\
-                                        fuel_cost_delvd,\
-                                        fuel_cost_burned,\
-                                        fuel_cost_btu,\
-                                        fuel_cost_kwh,\
-                                        fuel_generaton,\
-                                        report_prd\
-                                 FROM f1_fuel', ferc1_engine)
-
-#    # HERE IS WHERE WE CLEAN UP THE DATA IN THE DATAFRAME!
-#    ferc1.cleanstrings()
+#    ferc1_engine = db_connect_ferc1()
+#    ferc1_fuel_df = pd.read_sql('SELECT respondent_id,\
+#                                        report_year,\
+#                                        plant_name,\
+#                                        fuel,\
+#                                        fuel_unit,\
+#                                        fuel_quantity,\
+#                                        fuel_avg_heat,\
+#                                        fuel_cost_delvd,\
+#                                        fuel_cost_burned,\
+#                                        fuel_cost_btu,\
+#                                        fuel_cost_kwh,\
+#                                        fuel_generaton,\
+#                                        report_prd\
+#                                 FROM f1_fuel', ferc1_engine)
 #
 #    for rec in ferc1_fuel_df.itertuples():
 #        pudl_session.add(
 #            FuelFERC1(
-#                respondent_id = int(rec.respondent_id),
+#                respondent_id = rec.respondent_id,
 #                plant_name = rec.plant_name,
-#                report_year = int(rec.report_year),
+#                report_year = rec.report_year,
 #                fuel = rec.fuel,
 #                fuel_unit = rec.fuel_unit,
-#                fuel_qty_burned = rec.fuel_quantity,
+#                fuel_qty_burned = rec.fuel_qty_burned,
 #                fuel_avg_mmbtu_per_unit = rec.fuel_avg_heat,
 #                fuel_cost_per_unit_burned = rec.fuel_cost_burned,
 #                fuel_cost_per_unit_delivered = rec.fuel_cost_delvd,

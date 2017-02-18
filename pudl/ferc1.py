@@ -20,7 +20,7 @@ def db_connect_ferc1(testing=False):
 
 def datadir(year):
     """Given a year, return path to appropriate FERC Form 1 data directory."""
-    return os.path.join(settings.DATA_DIR,'ferc','form1','f1_{}'.format(year))
+    return os.path.join(settings.FERC1_DATA_DIR,'f1_{}'.format(year))
 
 def dbc_filename(year):
     """Given a year, return path to the master FERC Form 1 .DBC file."""
@@ -159,53 +159,6 @@ def define_db(refyear, dbfs, ferc1_meta, db_engine):
         if (table_name == 'f1_respondent_id'):
             ferc1_sql.append_constraint(PrimaryKeyConstraint('respondent_id'))
 
-        # Sadly the primary key definitions here don't seem to be right...
-        if (table_name == 'f1_s0_filing_log'):
-            ferc1_sql.append_constraint(PrimaryKeyConstraint(
-                'respondent_id',
-                'report_yr',
-                'report_prd',
-                'filing_num')
-            )
-            ferc1_sql.append_constraint(ForeignKeyConstraint(
-                columns=['respondent_id',],
-                refcolumns=['f1_respondent_id.respondent_id'])
-            )
-
-        # Sadly the primary key definitions here don't seem to be right...
-        if (table_name == 'f1_row_lit_tbl'):
-            ferc1_sql.append_constraint(PrimaryKeyConstraint(
-                'sched_table_name',
-                'report_year',
-                'row_number')
-            )
-        # Other tables we have not yet attempted to deal with...
-        #'f1_email'
-        #  primary_key = respondent_id
-        #  foreign_key = f1_respondent_id.respondent_id
-        #'f1_ident_attsttn',
-        #  primary_key = respondent_id
-        #  primary_key = report_year
-        #  primary_key = report_period
-        #  foreign_key = f1_responded_id.respondent_id
-        #'f1_footnote_data', #NOT USING NOW/NOT COMPLETE
-        #  primary_key = fn_id
-        #  primary_key = respondent_id
-        #  foreign_key = f1_respondent_id.respondent_id
-        #  foreign_key = f1_s0_filing_log.report_prd
-        #'f1_pins',
-        #  primary_key = f1_respondent_id.respondent_id
-        #  foreign_key = f1_respondent_id.respondent_id
-        #'f1_freeze',
-        #'f1_security'
-        #'f1_load_file_names'
-        #'f1_unique_num_val',
-        #'f1_sched_lit_tbl',
-        #'f1_sys_error_log',
-        #'f1_col_lit_tbl',    # GET THIS ONE
-        #'f1_codes_val',
-        #'f1_s0_checks',
-
 def extract_dbc_tables(year, minstring=4):
     """Extract the names of all the tables and fields from FERC Form 1 DB
 
@@ -294,9 +247,8 @@ def init_db(ferc1_tables=constants.ferc1_default_tables,
     This function uses dbfread and SQLAlchemy to migrate a set of FERC Form 1
     database tables from the provided DBF format into a postgres database.
     """
-    from sqlalchemy.engine.url import URL
-    import datetime
     import dbfread
+    from sqlalchemy.dialects.postgresql import insert
     from pudl.constants import ferc1_tbl2dbf, ferc1_dbf2tbl
 
     ferc1_engine = db_connect_ferc1(testing=testing)
@@ -331,7 +283,7 @@ def init_db(ferc1_tables=constants.ferc1_default_tables,
 
             # ferc1_dbf2tbl is a dictionary mapping DBF files to SQL table names
             sql_table_name = ferc1_dbf2tbl[dbf]
-            sql_table = ferc1_meta.tables[sql_table_name]
+            sql_stmt = insert(ferc1_meta.tables[sql_table_name])
 
             # Build up a list of dictionaries to INSERT into the postgres database.
             # Each dictionary is one record. Within each dictionary the keys are
@@ -343,7 +295,14 @@ def init_db(ferc1_tables=constants.ferc1_default_tables,
                     sql_rec[sql_field] = dbf_rec[dbf_field]
                 sql_records.append(sql_rec)
 
+            # If we're reading in multiple years of FERC Form 1 data, we
+            # need to avoid collisions in the f1_respondent_id table, which
+            # does not have a year field... F1_1 is the DBF file that stores
+            # this table:
+            if(dbf=='F1_1'):
+                sql_stmt = sql_stmt.on_conflict_do_nothing()
+
             # insert the new records!
-            conn.execute(sql_table.insert(), sql_records)
+            conn.execute(sql_stmt, sql_records)
 
     conn.close()
