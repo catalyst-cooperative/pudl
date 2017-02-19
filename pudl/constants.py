@@ -640,7 +640,7 @@ eia_contract_type = {
   'S':'Spot Purchase'
 }
 # EIA 923: The fuel code associated with the fuel receipt.
-Two or three character alphanumeric:
+# Two or three character alphanumeric:
 eia_energy_source = {
     'ANT':'Anthracite Coal',
     'BIT':'Bituminous Coal',
