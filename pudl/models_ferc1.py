@@ -44,51 +44,47 @@ class PlantSteamFERC1(models.PUDLBase):
     A large thermal generating plant, as reported to FERC on Form 1.
     """
     __tablename__ = 'plants_steam_ferc1'
-    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
-    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
-    year = Column(Integer, ForeignKey('years.year'), primary_key=True)
-    #respondent_id
-    #report_prd
-    #spplmnt_num
-    #row_number
-    #row_seq
-    #row_prvlg
-    #plant_name
-    plant_kind = Column(String)
-    type_const = Column(String)
-    year_constructed = Column(Integer)
-    year_installed = Column(Integer)
-    total_capacity = Column(Float)
-    peak_demand = Column(Float)
-    plant_hours = Column(Float)
-    plant_capability = Column(Float)
-    when_not_limited = Column(Float)
-    when_limited = Column(Float)
-    avg_num_employees = Column(Float)
-    net_generation = Column(Float)
-    cost_land = Column(Float)
-    cost_structure = Column(Float)
-    cost_equipment = Column(Float)
-    cost_of_plant_total= Column(Float)
-    cost_per_kw = Column(Float)
-    expns_operations = Column(Float)
-    expns_fuel = Column(Float)
-    expns_coolants = Column(Float)
-    expns_steam = Column(Float)
-    expns_steam_other = Column(Float)
-    expns_transfer = Column(Float)
-    expns_electric = Column(Float)
-    expns_misc_power = Column(Float)
-    expns_rents = Column(Float)
-    expns_allowances = Column(Float)
-    expns_engineering = Column(Float)
-    expns_structures = Column(Float)
-    expns_boiler = Column(Float)
-    expns_plants = Column(Float)
-    expns_misc_steam = Column(Float)
-    expns_production_total = Column(Float)
-    expns_kwh = Column(Float)
-    asset_retire_cost = Column(Float)
+    __table_args__ = (ForeignKeyConstraint(
+                        ['respondent_id', 'plant_name'],
+                        ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
+    respondent_id = Column(Integer, primary_key=True)
+    plant_name = Column(String, primary_key=True)
+    report_year = Column(Integer, ForeignKey('years.year'), primary_key=True)
+    plant_kind = Column(String) # FK New, needs cleaning
+    type_const = Column(String) # FK New, needs cleaning
+    year_constructed = Column(Integer) # Data?
+    year_installed = Column(Integer) # Data?
+    total_capacity = Column(Float) # Data!
+    peak_demand = Column(Float) # Data
+    plant_hours = Column(Float) # Data
+    plant_capability = Column(Float) # Data
+    when_not_limited = Column(Float) # Data
+    when_limited = Column(Float) # Data
+    avg_num_employees = Column(Float) # Data
+    net_generation = Column(Float) # Data
+    cost_land = Column(Float) # Data
+    cost_structure = Column(Float) # Data
+    cost_equipment = Column(Float) # Data
+    cost_of_plant_total= Column(Float) # Data
+    cost_per_kw = Column(Float) # Data
+    expns_operations = Column(Float) # Data
+    expns_fuel = Column(Float) # Data
+    expns_coolants = Column(Float) # Data
+    expns_steam = Column(Float) # Data
+    expns_steam_other = Column(Float) # Data
+    expns_transfer = Column(Float) # Data
+    expns_electric = Column(Float) # Data
+    expns_misc_power = Column(Float) # Data
+    expns_rents = Column(Float) # Data
+    expns_allowances = Column(Float) # Data
+    expns_engineering = Column(Float) # Data
+    expns_structures = Column(Float) # Data
+    expns_boiler = Column(Float) # Data
+    expns_plants = Column(Float) # Data
+    expns_misc_steam = Column(Float) # Data
+    expns_production_total = Column(Float) # Data
+    expns_kwh = Column(Float) # Data
+    asset_retire_cost = Column(Float) # Data
 
 class HydroFERC1(models.PUDLBase):
     """

@@ -3,6 +3,10 @@ from pudl import settings
 from pudl import constants
 from sqlalchemy import MetaData, create_engine
 
+# MetaData object will contain the ferc1 database schema.
+ferc1_meta = MetaData()
+
+
 ###########################################################################
 # Functions related to ingest & processing of FERC Form 1 data.
 ###########################################################################
@@ -250,9 +254,6 @@ def init_db(ferc1_tables=constants.ferc1_default_tables,
     from pudl.constants import ferc1_tbl2dbf, ferc1_dbf2tbl
 
     ferc1_engine = db_connect_ferc1(testing=testing)
-
-    # MetaData object will contain the database schema.
-    ferc1_meta = MetaData()
 
     # Translate the list of FERC Form 1 database tables that has
     # been passed in into a list of DBF files prefixes:

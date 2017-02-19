@@ -5,9 +5,10 @@ import os.path
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.engine.url import URL
 from sqlalchemy import create_engine
+from sqlalchemy import Integer, String
 
 from pudl import settings
-from pudl.ferc1 import db_connect_ferc1, cleanstrings
+from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
 from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
 from pudl.constants import ferc1_fuel_unit_strings, rto_iso
 
@@ -21,7 +22,7 @@ from pudl.models import Plant, PlantFERC1, PlantEIA923
 from pudl.models import UtilPlantAssn
 from pudl.models import PUDLBase
 
-from pudl.models_ferc1 import FuelFERC1
+from pudl.models_ferc1 import FuelFERC1, PlantSteamFERC1
 
 """
 The Public Utility Data Liberation (PUDL) project integrates several different
@@ -68,6 +69,7 @@ def init_db():
 
     """
     from sqlalchemy.orm import sessionmaker
+    from sqlalchemy.sql import select
     import pandas as pd
 
     pudl_engine = db_connect_pudl()
@@ -92,6 +94,7 @@ def init_db():
     pudl_session.add_all([State(abbr=k, name=v) for k,v in us_states.items()])
 
     pudl_session.commit()
+    pudl_session.close_all()
 
     # Populate the tables which define the mapping of EIA and FERC IDs to our
     # internal PUDL IDs, for both plants and utilities, so that we don't need
@@ -118,7 +121,7 @@ def init_db():
                                           'operator_name_eia923':str,
                                           'operator_id_eia923':int})
 
-    util_map = pd.read_excel(map_eia923_ferc1_file,'utilities_output',
+    utility_map = pd.read_excel(map_eia923_ferc1_file,'utilities_output',
                              na_values='', keep_default_na=False,
                              converters={'utility_id':int,
                                          'utility_name':str,
@@ -136,14 +139,14 @@ def init_db():
     plants_ferc1 = plant_map[['plant_name_ferc1','respondent_id_ferc1','plant_id']]
     plants_ferc1 = plants_ferc1.drop_duplicates(['plant_name_ferc1','respondent_id_ferc1'])
 
-    utils = util_map[['utility_id','utility_name']]
-    utils = utils.drop_duplicates('utility_id')
+    utilities = utility_map[['utility_id','utility_name']]
+    utilities = utilities.drop_duplicates('utility_id')
 
-    utils_eia923 = util_map[['operator_id_eia923','operator_name_eia923','utility_id']]
-    utils_eia923 = utils_eia923.drop_duplicates('operator_id_eia923')
+    utilities_eia923 = utility_map[['operator_id_eia923','operator_name_eia923','utility_id']]
+    utilities_eia923 = utilities_eia923.drop_duplicates('operator_id_eia923')
 
-    utils_ferc1 = util_map[['respondent_id_ferc1','respondent_name_ferc1','utility_id']]
-    utils_ferc1 = utils_ferc1.drop_duplicates('respondent_id_ferc1')
+    utilities_ferc1 = utility_map[['respondent_id_ferc1','respondent_name_ferc1','utility_id']]
+    utilities_ferc1 = utilities_ferc1.drop_duplicates('respondent_id_ferc1')
 
     # Now we need to create a table that indicates which plants are associated
     # with every utility.
@@ -155,14 +158,19 @@ def init_db():
 
     # Here we treat the dataframes like database tables, and join on the
     # FERC respondent_id and EIA operator_id, respectively.
-    util_plant_ferc1 = utils_ferc1.join(plants_respondents.set_index('respondent_id_ferc1'), on='respondent_id_ferc1')
-    util_plant_eia923 = utils_eia923.join(plants_operators.set_index('operator_id_eia923'), on='operator_id_eia923')
+    utility_plant_ferc1 = utilities_ferc1.\
+                            join(plants_respondents.\
+                            set_index('respondent_id_ferc1'),
+                                      on='respondent_id_ferc1')
+    utility_plant_eia923 = utilities_eia923.join(plants_operators.set_index('operator_id_eia923'), on='operator_id_eia923')
 
     # Now we can concatenate the two dataframes, and get rid of all the  columns
     # except for plant_id and utility_id (which determine the  utility to plant
     # association), and get rid of any duplicates or lingering NaN values...
-    util_plant_assn = pd.concat([util_plant_eia923,util_plant_ferc1])
-    util_plant_assn = util_plant_assn[['plant_id','utility_id']].dropna().drop_duplicates()
+    utility_plant_assn = pd.concat([utility_plant_eia923,utility_plant_ferc1])
+    utility_plant_assn = utility_plant_assn[['plant_id','utility_id']].\
+                            dropna().\
+                            drop_duplicates()
 
     # At this point there should be at most one row in each of these data
     # frames with NaN values after we drop_duplicates in each. This is because
@@ -170,7 +178,7 @@ def init_db():
     # exist in EIA, and while they will have PUDL IDs, they may not have
     # FERC/EIA info (and it'll get pulled in as NaN)
 
-    for df in [plants_eia923, plants_ferc1, utils_eia923, utils_ferc1]:
+    for df in [plants_eia923, plants_ferc1, utilities_eia923, utilities_ferc1]:
         assert(df[pd.isnull(df).any(axis=1)].shape[0]<=1)
         df.dropna(inplace=True)
 
@@ -182,42 +190,60 @@ def init_db():
     # utils_ferc1:
     # INSERT MORE SANITY HERE
 
-    for p in plants.itertuples():
-        pudl_session.add(Plant(id = int(p.plant_id), name = p.plant_name))
-    pudl_session.commit()
+    plants.rename(columns={'plant_id':'id','plant_name':'name'},
+                  inplace=True)
+    plants.to_sql(name='plants',
+                  con=pudl_engine, index=False, if_exists='append',
+                  dtype={'id':Integer, 'name':String} )
 
-    for u in utils.itertuples():
-        pudl_session.add(Utility(id = int(u.utility_id), name = u.utility_name))
-    pudl_session.commit()
+    utilities.rename(columns={'utility_id':'id', 'utility_name':'name'},
+                     inplace=True)
+    utilities.to_sql(name='utilities',
+                     con=pudl_engine, index=False, if_exists='append',
+                     dtype={'id':Integer, 'name':String} )
 
-    for u in utils_eia923.itertuples():
-        pudl_session.add(UtilityEIA923(operator_id   = int(u.operator_id_eia923),
-                                       operator_name = u.operator_name_eia923,
-                                       util_id_pudl  = int(u.utility_id)))
-    pudl_session.commit()
+    utilities_eia923.rename(columns={'operator_id_eia923':'operator_id',
+                                     'operator_name_eia923':'operator_name',
+                                     'utility_id':'util_id_pudl'},
+                            inplace=True)
+    utilities_eia923.to_sql(name='utilities_eia923',
+                            con=pudl_engine, index=False, if_exists='append',
+                            dtype={'operator_id':Integer,
+                                   'operator_name':String,
+                                   'util_id_pudl':Integer} )
+    utilities_ferc1.rename(columns={'respondent_id_ferc1':'respondent_id',
+                                    'respondent_name_ferc1':'respondent_name',
+                                    'utility_id':'util_id_pudl'},
+                           inplace=True)
+    utilities_ferc1.to_sql(name='utilities_ferc1',
+                           con=pudl_engine, index=False, if_exists='append',
+                           dtype={'respondent_id':Integer,
+                                  'respondent_name':String,
+                                  'util_id_pudl':Integer} )
 
-    for u in utils_ferc1.itertuples():
-        pudl_session.add(UtilityFERC1(respondent_id   = int(u.respondent_id_ferc1),
-                                      respondent_name = u.respondent_name_ferc1,
-                                      util_id_pudl    = int(u.utility_id)))
-    pudl_session.commit()
+    plants_eia923.rename(columns={'plant_id_eia923':'plant_id',
+                                  'plant_name_eia923':'plant_name',
+                                  'plant_id':'plant_id_pudl'},
+                         inplace=True)
+    plants_eia923.to_sql(name='plants_eia923',
+                         con=pudl_engine, index=False, if_exists='append',
+                         dtype={'plant_id':Integer,
+                                'plant_name':String,
+                                'plant_id_pudl':Integer} )
 
-    for p in plants_eia923.itertuples():
-        pudl_session.add(PlantEIA923(plant_id      = int(p.plant_id_eia923),
-                                     plant_name    = p.plant_name_eia923,
-                                     plant_id_pudl = int(p.plant_id)))
-    pudl_session.commit()
+    plants_ferc1.rename(columns={'respondent_id_ferc1':'respondent_id',
+                                 'plant_name_ferc1':'plant_name',
+                                 'plant_id':'plant_id_pudl'},
+                        inplace=True)
+    plants_ferc1.to_sql(name='plants_ferc1',
+                        con=pudl_engine, index=False, if_exists='append',
+                        dtype={'respondent_id':Integer,
+                               'plant_name':String,
+                               'plant_id_pudl':Integer} )
 
-    for p in plants_ferc1.itertuples():
-        pudl_session.add(PlantFERC1(respondent_id = int(p.respondent_id_ferc1),
-                                    plant_name    = p.plant_name_ferc1,
-                                    plant_id_pudl = int(p.plant_id)))
-    pudl_session.commit()
-
-    for assn in util_plant_assn.itertuples():
-        pudl_session.add(UtilPlantAssn(plant_id   = int(assn.plant_id),
-                                       utility_id = int(assn.utility_id)))
-    pudl_session.commit()
+    utility_plant_assn.to_sql(name='util_plant_assn',
+                              con=pudl_engine, index=False, if_exists='append',
+                              dtype={'plant_id':Integer, 'utility_id':Integer})
 
     # Now we pour in some actual data!
     # FuelFERC1 pulls information from the f1_fuel table of the FERC DB.
@@ -230,40 +256,98 @@ def init_db():
 
     ferc1_engine = db_connect_ferc1()
 
-    ferc1_fuel_df = pd.read_sql('''
-        SELECT respondent_id, report_year, plant_name, fuel, fuel_unit,
-               fuel_quantity, fuel_avg_heat, fuel_cost_delvd,
-               fuel_cost_burned, fuel_cost_btu, fuel_cost_kwh, fuel_generaton
-        FROM f1_fuel
-        WHERE fuel<>'' AND fuel_quantity>0 AND plant_name<>'' ''', ferc1_engine)
+    f1_fuel = ferc1_meta.tables['f1_fuel']
+    f1_fuel_select = select([f1_fuel]).\
+                         where(f1_fuel.c.fuel != '').\
+                         where(f1_fuel.c.fuel_quantity > 0).\
+                         where(f1_fuel.c.plant_name != '')
 
+    ferc1_fuel_df = pd.read_sql(f1_fuel_select, ferc1_engine)
+
+    # Delete the columns that we aren't going to insert:
+    ferc1_fuel_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
+                       'report_prd'], axis=1, inplace=True)
+
+    # Do a little cleanup of some of the fields
     ferc1_fuel_df.fuel = cleanstrings(ferc1_fuel_df.fuel,
                                       ferc1_fuel_strings,
                                       unmapped=np.nan)
     ferc1_fuel_df.fuel_unit = cleanstrings(ferc1_fuel_df.fuel_unit,
                                            ferc1_fuel_unit_strings,
                                            unmapped=np.nan)
+    # drop any records w/ NA data...
     ferc1_fuel_df.dropna(inplace=True)
 
-    for rec in ferc1_fuel_df.itertuples():
-        pudl_session.add(
-            FuelFERC1(
-                respondent_id = int(rec.respondent_id),
-                plant_name = rec.plant_name,
-                report_year = int(rec.report_year),
-                fuel = rec.fuel,
-                fuel_unit = rec.fuel_unit,
-                fuel_qty_burned = rec.fuel_quantity,
-                fuel_avg_mmbtu_per_unit = rec.fuel_avg_heat,
-                fuel_cost_per_unit_burned = rec.fuel_cost_burned,
-                fuel_cost_per_unit_delivered = rec.fuel_cost_delvd,
-                fuel_cost_per_mmbtu = rec.fuel_cost_btu,
-                fuel_cost_per_kwh = rec.fuel_cost_kwh,
-                fuel_mmbtu_per_kwh = rec.fuel_generaton
-            )
-        )
-    pudl_session.commit()
+    ferc1_fuel_df.rename(columns={
+                            'fuel_quantity':'fuel_qty_burned',
+                            'fuel_avg_heat':'fuel_avg_mmbtu_per_unit',
+                            'fuel_cost_burned':'fuel_cost_per_unit_burned',
+                            'fuel_cost_delvd':'fuel_cost_per_unit_delivered',
+                            'fuel_cost_btu':'fuel_cost_per_mmbtu',
+                            'fuel_cost_kwh':'fuel_cost_per_kwh',
+                            'fuel_generaton':'fuel_mmbtu_per_kwh'},
+                         inplace=True)
+    ferc1_fuel_df.to_sql(name='ferc1_fuel',
+                         con=pudl_engine, index=False, if_exists='append',
+                         dtype={'respondent_id':Integer,
+                                'report_year':Integer} )
 
+    f1_steam = ferc1_meta.tables['f1_steam']
+    f1_steam_select = select([f1_steam]).\
+                          where(f1_steam.c.net_generation > 0).\
+                          where(f1_steam.c.plant_name != '')
 
+    ferc1_steam_df = pd.read_sql(f1_steam_select, ferc1_engine)
 
-    pudl_session.close_all()
+    # Clean up the steam data here if we need to...
+    # Many blank fields in steam table, need to be set to NA
+    #ferc1_steam_df.replace(r'\s*', None, regex=True, inplace=True)
+#
+#    for rec in ferc1_steam_df.itertuples():
+#        if not np.isnan(rec.yr_installed):
+#            yr_installed = int(rec.yr_installed)
+#        else:
+#            yr_installed =
+#        if not np.isnan(rec.yr_const): yr_const = int(rec.yr_const)
+#        pudl_session.add(
+#            PlantSteamFERC1(
+#                respondent_id = int(rec.respondent_id),
+#                plant_name = rec.plant_name,
+#                report_year = int(rec.report_year),
+#                plant_kind = rec.plant_kind,
+#                type_const = rec.type_const,
+#                year_constructed = yr_const,
+#                year_installed = yr_installed,
+#                total_capacity = rec.tot_capacity,
+#                peak_demand = rec.peak_demand,
+#                plant_hours = rec.plant_hours,
+#                plant_capability = rec.plnt_capability,
+#                when_not_limited = rec.when_not_limited,
+#                when_limited = rec.when_limited,
+#                avg_num_employees = rec.avg_num_of_emp,
+#                net_generation = rec.net_generation,
+#                cost_land = rec.cost_land,
+#                cost_structure = rec.cost_structure,
+#                cost_equipment = rec.cost_equipment,
+#                cost_of_plant_total = rec.cost_of_plant_to,
+#                cost_per_kw = rec.cost_per_kw,
+#                expns_operations = rec.expns_operations,
+#                expns_fuel = rec.expns_fuel,
+#                expns_coolants = rec.expns_coolants,
+#                expns_steam = rec.expns_steam,
+#                expns_steam_other = rec.expns_steam_othr,
+#                expns_transfer = rec.expns_transfer,
+#                expns_electric = rec.expns_electric,
+#                expns_misc_power = rec.expns_misc_power,
+#                expns_rents = rec.expns_rents,
+#                expns_allowances = rec.expns_allowances,
+#                expns_engineering = rec.expns_engnr,
+#                expns_structures = rec.expns_structures,
+#                expns_boiler = rec.expns_boiler,
+#                expns_plants = rec.expns_plants,
+#                expns_misc_steam = rec.expns_misc_steam,
+#                expns_production_total = rec.tot_prdctn_expns,
+#                expns_kwh = rec.expns_kwh,
+#                asset_retire_cost = rec.asset_retire_cost
+#            )
+#        )
