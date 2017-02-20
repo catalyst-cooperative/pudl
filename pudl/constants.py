@@ -328,7 +328,7 @@ dbf_typemap = {
 # can't be inserted yet...
 dbfs_bad_pk = ['F1_84','F1_S0_FILING_LOG']
 
-# These are the DBF files that we're interested in and can insert now,
+# These are the FERC Form 1 DB tables that we're focusing on initially.
 ferc1_default_tables = ['f1_respondent_id',
                         'f1_fuel',
                         'f1_steam',
@@ -336,7 +336,20 @@ ferc1_default_tables = ['f1_respondent_id',
                         'f1_hydro',
                         'f1_pumped_storage',
                         'f1_plant_in_srvce',
-                        'f1_purchased_pwr']
+                        'f1_purchased_pwr' ]
+
+# This is the set of tables which have been successfully integrated into PUDL:
+ferc1_pudl_tables = ['f1_fuel',]
+
+# This is the full set of tables that currently ingestible by the ferc1 DB:
+ferc1_working_tables = ['f1_respondent_id',
+                        'f1_fuel',
+                        'f1_steam',
+                        'f1_gnrt_plant',
+                        'f1_hydro',
+                        'f1_pumped_storage',
+                        'f1_plant_in_srvce',
+                        'f1_purchased_pwr' ]
 
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].

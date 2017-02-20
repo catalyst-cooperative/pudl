@@ -1,8 +1,7 @@
 import pandas as pd
 import numpy as np
-import os.path
 
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql import select
 from sqlalchemy.engine.url import URL
 from sqlalchemy import create_engine
 from sqlalchemy import Integer, String
@@ -11,15 +10,19 @@ from pudl import settings
 from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
 from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
 from pudl.constants import ferc1_fuel_unit_strings, rto_iso
+from pudl.constants import ferc1_default_tables, ferc1_pudl_tables
+from pudl.constants import ferc1_working_tables
 
 # Tables that hold constant values:
-from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year, RTOISO
-from pudl.models import State
+from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
+from pudl.models import State, RTOISO
 
 # Tables that hold "glue" connecting FERC1 & EIA923 to each other:
 from pudl.models import Utility, UtilityFERC1, UtilityEIA923
 from pudl.models import Plant, PlantFERC1, PlantEIA923
 from pudl.models import UtilPlantAssn
+
+# The declarative_base object that contains our PUDL DB MetaData
 from pudl.models import PUDLBase
 
 from pudl.models_ferc1 import FuelFERC1, PlantSteamFERC1
@@ -60,25 +63,13 @@ def drop_tables_pudl(engine):
     """"""
     PUDLBase.metadata.drop_all(engine)
 
-def init_db():
+def ingest_static_tables(engine):
     """
-    Create the PUDL database and fill it up with data!
-
-    Uses the metadata associated with Base, which is defined by all the
-    objects & tables defined above.
-
+    Populate PUDL DB static tables with constants for use as foreign keys.
     """
     from sqlalchemy.orm import sessionmaker
-    from sqlalchemy.sql import select
-    import pandas as pd
 
-    pudl_engine = db_connect_pudl()
-
-    # Wipe it out and start anew for testing purposes...
-    drop_tables_pudl(pudl_engine)
-    create_tables_pudl(pudl_engine)
-
-    PUDL_Session = sessionmaker(bind=pudl_engine)
+    PUDL_Session = sessionmaker(bind=engine)
     pudl_session = PUDL_Session()
 
     # Populate tables with static data from above.
@@ -93,16 +84,21 @@ def init_db():
     # States dictionary is defined outside this function, below.
     pudl_session.add_all([State(abbr=k, name=v) for k,v in us_states.items()])
 
+    # Commit the changes to the DB and close down the session.
     pudl_session.commit()
     pudl_session.close_all()
 
-    # Populate the tables which define the mapping of EIA and FERC IDs to our
-    # internal PUDL IDs, for both plants and utilities, so that we don't need
-    # to use those poorly defined relationships any more.  These mappings were
-    # largely determined by hand in an Excel spreadsheet, and so may be a
-    # little bit imperfect. We're pulling that information in from the
-    # "results" directory...
+def ingest_glue_tables(engine):
+    """
+    Populate the tables which relate the EIA & FERC datasets to each other.
 
+    internal PUDL IDs, for both plants and utilities, so that we don't need
+    to use those poorly defined relationships any more.  These mappings were
+    largely determined by hand in an Excel spreadsheet, and so may be a
+    little bit imperfect. We're pulling that information in from the
+    "results" directory...
+    """
+    import os.path
 
     map_eia923_ferc1_file = os.path.join(settings.PUDL_DIR,
                                          'results',
@@ -193,13 +189,13 @@ def init_db():
     plants.rename(columns={'plant_id':'id','plant_name':'name'},
                   inplace=True)
     plants.to_sql(name='plants',
-                  con=pudl_engine, index=False, if_exists='append',
+                  con=engine, index=False, if_exists='append',
                   dtype={'id':Integer, 'name':String} )
 
     utilities.rename(columns={'utility_id':'id', 'utility_name':'name'},
                      inplace=True)
     utilities.to_sql(name='utilities',
-                     con=pudl_engine, index=False, if_exists='append',
+                     con=engine, index=False, if_exists='append',
                      dtype={'id':Integer, 'name':String} )
 
     utilities_eia923.rename(columns={'operator_id_eia923':'operator_id',
@@ -207,7 +203,7 @@ def init_db():
                                      'utility_id':'util_id_pudl'},
                             inplace=True)
     utilities_eia923.to_sql(name='utilities_eia923',
-                            con=pudl_engine, index=False, if_exists='append',
+                            con=engine, index=False, if_exists='append',
                             dtype={'operator_id':Integer,
                                    'operator_name':String,
                                    'util_id_pudl':Integer} )
@@ -216,7 +212,7 @@ def init_db():
                                     'utility_id':'util_id_pudl'},
                            inplace=True)
     utilities_ferc1.to_sql(name='utilities_ferc1',
-                           con=pudl_engine, index=False, if_exists='append',
+                           con=engine, index=False, if_exists='append',
                            dtype={'respondent_id':Integer,
                                   'respondent_name':String,
                                   'util_id_pudl':Integer} )
@@ -226,7 +222,7 @@ def init_db():
                                   'plant_id':'plant_id_pudl'},
                          inplace=True)
     plants_eia923.to_sql(name='plants_eia923',
-                         con=pudl_engine, index=False, if_exists='append',
+                         con=engine, index=False, if_exists='append',
                          dtype={'plant_id':Integer,
                                 'plant_name':String,
                                 'plant_id_pudl':Integer} )
@@ -236,118 +232,173 @@ def init_db():
                                  'plant_id':'plant_id_pudl'},
                         inplace=True)
     plants_ferc1.to_sql(name='plants_ferc1',
-                        con=pudl_engine, index=False, if_exists='append',
+                        con=engine, index=False, if_exists='append',
                         dtype={'respondent_id':Integer,
                                'plant_name':String,
                                'plant_id_pudl':Integer} )
 
     utility_plant_assn.to_sql(name='util_plant_assn',
-                              con=pudl_engine, index=False, if_exists='append',
+                              con=engine, index=False, if_exists='append',
                               dtype={'plant_id':Integer, 'utility_id':Integer})
 
-    # Now we pour in some actual data!
-    # FuelFERC1 pulls information from the f1_fuel table of the FERC DB.
-    # Need:
-    #  - handle to the ferc_f1 db
-    #  - list of all the (utility_id, plant_id, fuel_type, year) combos we want
-    #    to ingest.
-    #  - Create a select statement that gets us the fields we need to populate.
-    #  - Iterate across those results, adding them to the session.
-
-    ferc1_engine = db_connect_ferc1()
-
+def ingest_fuel_ferc1(pudl_engine, ferc1_engine):
+    """
+    Clean and ingest the f1_fuel table of the FERC Form 1 DB into the PUDL DB.
+    """
+    # Grab the f1_fuel SQLAlchemy Table object from the metadata object.
     f1_fuel = ferc1_meta.tables['f1_fuel']
+    # Generate a SELECT statement that pulls all fields of the f1_fuel table,
+    # but only gets records with plant names, and non-zero fuel amounts:
     f1_fuel_select = select([f1_fuel]).\
                          where(f1_fuel.c.fuel != '').\
                          where(f1_fuel.c.fuel_quantity > 0).\
                          where(f1_fuel.c.plant_name != '')
-
+    # Use the above SELECT to pull those records into a DataFrame:
     ferc1_fuel_df = pd.read_sql(f1_fuel_select, ferc1_engine)
 
-    # Delete the columns that we aren't going to insert:
+    # Discard DataFrame columns that we aren't pulling into PUDL:
     ferc1_fuel_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
                        'report_prd'], axis=1, inplace=True)
 
-    # Do a little cleanup of some of the fields
+    # Take the messy free-form fuel & fuel_unit fields, and do our best to
+    # map them to some canonical categories... this is necessarily imperfect:
     ferc1_fuel_df.fuel = cleanstrings(ferc1_fuel_df.fuel,
                                       ferc1_fuel_strings,
                                       unmapped=np.nan)
     ferc1_fuel_df.fuel_unit = cleanstrings(ferc1_fuel_df.fuel_unit,
                                            ferc1_fuel_unit_strings,
                                            unmapped=np.nan)
-    # drop any records w/ NA data...
+    # Drop any records that are missing data.
     ferc1_fuel_df.dropna(inplace=True)
-
+    # Make sure that the DataFrame column names (which were imported from the
+    # f1_fuel table) match their corresponding field names in the PUDL DB.
     ferc1_fuel_df.rename(columns={
-                            'fuel_quantity':'fuel_qty_burned',
-                            'fuel_avg_heat':'fuel_avg_mmbtu_per_unit',
-                            'fuel_cost_burned':'fuel_cost_per_unit_burned',
-                            'fuel_cost_delvd':'fuel_cost_per_unit_delivered',
-                            'fuel_cost_btu':'fuel_cost_per_mmbtu',
-                            'fuel_cost_kwh':'fuel_cost_per_kwh',
-                            'fuel_generaton':'fuel_mmbtu_per_kwh'},
+                           'fuel_quantity'    : 'fuel_qty_burned',
+                           'fuel_avg_heat'    : 'fuel_avg_mmbtu_per_unit',
+                           'fuel_cost_burned' : 'fuel_cost_per_unit_burned',
+                           'fuel_cost_delvd'  : 'fuel_cost_per_unit_delivered',
+                           'fuel_cost_btu'    : 'fuel_cost_per_mmbtu',
+                           'fuel_cost_kwh'    : 'fuel_cost_per_kwh',
+                           'fuel_generaton'   : 'fuel_mmbtu_per_kwh' },
                          inplace=True)
-    ferc1_fuel_df.to_sql(name='ferc1_fuel',
+    ferc1_fuel_df.to_sql(name='fuel_ferc1',
                          con=pudl_engine, index=False, if_exists='append',
                          dtype={'respondent_id':Integer,
                                 'report_year':Integer} )
 
+def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine):
+    """
+    Clean and ingest the f1_steam table of the FERC Form 1 DB into the PUDL DB.
+    """
     f1_steam = ferc1_meta.tables['f1_steam']
     f1_steam_select = select([f1_steam]).\
                           where(f1_steam.c.net_generation > 0).\
                           where(f1_steam.c.plant_name != '')
 
     ferc1_steam_df = pd.read_sql(f1_steam_select, ferc1_engine)
+    # Discard DataFrame columns that we aren't pulling into PUDL:
+    ferc1_steam_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
+                         'report_prd'], axis=1, inplace=True)
 
-    # Clean up the steam data here if we need to...
-    # Many blank fields in steam table, need to be set to NA
-    #ferc1_steam_df.replace(r'\s*', None, regex=True, inplace=True)
-#
-#    for rec in ferc1_steam_df.itertuples():
-#        if not np.isnan(rec.yr_installed):
-#            yr_installed = int(rec.yr_installed)
-#        else:
-#            yr_installed =
-#        if not np.isnan(rec.yr_const): yr_const = int(rec.yr_const)
-#        pudl_session.add(
-#            PlantSteamFERC1(
-#                respondent_id = int(rec.respondent_id),
-#                plant_name = rec.plant_name,
-#                report_year = int(rec.report_year),
-#                plant_kind = rec.plant_kind,
-#                type_const = rec.type_const,
-#                year_constructed = yr_const,
-#                year_installed = yr_installed,
-#                total_capacity = rec.tot_capacity,
-#                peak_demand = rec.peak_demand,
-#                plant_hours = rec.plant_hours,
-#                plant_capability = rec.plnt_capability,
-#                when_not_limited = rec.when_not_limited,
-#                when_limited = rec.when_limited,
-#                avg_num_employees = rec.avg_num_of_emp,
-#                net_generation = rec.net_generation,
-#                cost_land = rec.cost_land,
-#                cost_structure = rec.cost_structure,
-#                cost_equipment = rec.cost_equipment,
-#                cost_of_plant_total = rec.cost_of_plant_to,
-#                cost_per_kw = rec.cost_per_kw,
-#                expns_operations = rec.expns_operations,
-#                expns_fuel = rec.expns_fuel,
-#                expns_coolants = rec.expns_coolants,
-#                expns_steam = rec.expns_steam,
-#                expns_steam_other = rec.expns_steam_othr,
-#                expns_transfer = rec.expns_transfer,
-#                expns_electric = rec.expns_electric,
-#                expns_misc_power = rec.expns_misc_power,
-#                expns_rents = rec.expns_rents,
-#                expns_allowances = rec.expns_allowances,
-#                expns_engineering = rec.expns_engnr,
-#                expns_structures = rec.expns_structures,
-#                expns_boiler = rec.expns_boiler,
-#                expns_plants = rec.expns_plants,
-#                expns_misc_steam = rec.expns_misc_steam,
-#                expns_production_total = rec.tot_prdctn_expns,
-#                expns_kwh = rec.expns_kwh,
-#                asset_retire_cost = rec.asset_retire_cost
-#            )
-#        )
+    # String cleaning is commented out until we get the string map dictionaries
+    # defined in constants.py
+    #ferc1_steam_df.type_const = cleanstrings(ferc1_steam_df.type_const,
+    #                                         ferc1_type_const_strings,
+    #                                         unmapped=np.nan)
+    #ferc1_steam_df.plant_kind = cleanstrings(ferc1_steam_df.plant_kind,
+    #                                         ferc1_plant_kind_strings,
+    #                                         unmapped=np.nan)
+
+    # Many blank fields in steam table, set them all to None (a N/A value?)
+    ferc1_steam_df.replace(r'\s*', None, regex=True, inplace=True)
+
+    ferc1_steam_df.rename(columns={
+                            'yr_const'         : 'year_constructed',
+                            'yr_installed'     : 'year_installed',
+                            'tot_capacity'     : 'total_capacity',
+                            'plnt_capability'  : 'plant_capability',
+                            'avg_num_of_emp'   : 'avg_num_employees',
+                            'cost_of_plant_to' : 'cost_of_plant_total',
+                            'expns_steam_othr' : 'expns_steam_other',
+                            'expns_engnr'      : 'expns_engineering',
+                            'tot_prdctn_expns' : 'expns_production_total' },
+                          inplace=True)
+
+    ferc1_steam_df.to_sql(name='plants_steam_ferc1',
+                          con=pudl_engine, index=False, if_exists='append',
+                          dtype={'respondent_id':Integer,
+                                 'report_year':Integer,
+                                 'type_const':String,
+                                 'plant_kind':String,
+                                 'year_constructed':Integer,
+                                 'year_installed':Integer} )
+
+def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
+    """
+    Ingest f1_hydro table of FERC Form 1 DB into PUDL DB.
+    """
+    pass
+
+def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine):
+    """
+    Ingest f1_pumped_storage table of FERC Form 1 DB into PUDL DB.
+    """
+    pass
+
+def ingest_plants_small_ferc1(pudl_engine, ferc1_engine):
+    """
+    Ingest f1_gnrt_plant table of FERC Form 1 DB into PUDL DB.
+    """
+    pass
+
+def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine):
+    """
+    Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB.
+    """
+    pass
+
+def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine):
+    """
+    Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB.
+    """
+    pass
+
+def init_db(ferc1_tables=ferc1_pudl_tables, verbose=True, debug=False):
+    """Create the PUDL database and fill it up with data!"""
+
+    # Make sure that the tables we're being asked to ingest can actually be
+    # pulled into both the FERC Form 1 DB, and the PUDL DB...
+    if not debug:
+        for table in ferc1_tables:
+            assert(table in ferc1_working_tables)
+            assert(table in ferc1_pudl_tables)
+
+    # Connect to the PUDL DB, wipe out & re-create tables:
+    pudl_engine = db_connect_pudl()
+    drop_tables_pudl(pudl_engine)
+    create_tables_pudl(pudl_engine)
+    # Populate all the static tables:
+    if verbose:
+        print("Ingesting static PUDL tables...")
+    ingest_static_tables(pudl_engine)
+    # Populate tables that relate FERC1 & EIA923 data to each other.
+    if verbose:
+        print("Sniffing EIA923/FERC1 glue tables...")
+    ingest_glue_tables(pudl_engine)
+
+    # BEGIN INGESTING FERC FORM 1 DATA:
+    ingest_functions = {
+        'f1_fuel'           : ingest_fuel_ferc1,
+        'f1_steam'          : ingest_plants_steam_ferc1,
+        'f1_gnrt_plant'     : ingest_plants_small_ferc1,
+        'f1_hydro'          : ingest_plants_hydro_ferc1,
+        'f1_pumped_storage' : ingest_plants_pumped_storage_ferc1,
+        'f1_plant_in_srvce' : ingest_plant_in_service_ferc1,
+        'f1_purchased_pwr'  : ingest_purchased_power_ferc1 }
+
+    ferc1_engine = db_connect_ferc1()
+    for table in ingest_functions.keys():
+        if table in ferc1_tables:
+            if verbose:
+                print("Ingesting {} from FERC Form 1 into PUDL.".format(table))
+            ingest_functions[table](pudl_engine, ferc1_engine)

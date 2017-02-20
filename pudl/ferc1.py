@@ -6,7 +6,6 @@ from sqlalchemy import MetaData, create_engine
 # MetaData object will contain the ferc1 database schema.
 ferc1_meta = MetaData()
 
-
 ###########################################################################
 # Functions related to ingest & processing of FERC Form 1 data.
 ###########################################################################
@@ -21,6 +20,18 @@ def db_connect_ferc1(testing=False):
         return create_engine(URL(**settings.DB_FERC1_TEST))
     else:
         return create_engine(URL(**settings.DB_FERC1))
+
+def create_tables_ferc1(engine):
+    """
+    Create the FERC Form 1 DB tables
+    """
+    ferc1_meta.create_all(engine)
+
+def drop_tables_ferc1(engine):
+    """
+    Drop the FERC Form 1 DB tables.
+    """
+    ferc1_meta.drop_all(engine)
 
 def datadir(year):
     """Given a year, return path to appropriate FERC Form 1 data directory."""
@@ -88,78 +99,6 @@ def cleanstrings(field, stringmap, unmapped=None):
         field = field.replace(badstrings,unmapped)
 
     return field
-
-def define_db(refyear, dbfs, ferc1_meta, db_engine):
-    """
-    Given a list of FERC Form 1 DBF files, create analogous database tables.
-
-    Based on strings extracted from the master F1_PUB.DBC file corresponding to
-    the year indicated by refyear, and the list of DBF files specified in dbfs
-    recreate a subset of the FERC Form 1 database as a Postgres database using
-    SQLAlchemy.
-
-    refyear:    year of FERC Form 1 data to use as the database template.
-    dbfs:       list of DBF file prefixes (e.g. F1_77) to ingest.
-    ferc1_meta: SQLAlchemy MetaData object to store the schema in.
-    db_engine:  SQLAlchemy database engine to use to create the tables.
-
-    """
-    from sqlalchemy import Table, Column, Integer, String, Float, DateTime
-    from sqlalchemy import Boolean, Date, MetaData, Text, ForeignKeyConstraint
-    from sqlalchemy import PrimaryKeyConstraint
-    import dbfread
-    import re
-    from pudl.constants import ferc1_dbf2tbl, ferc1_data_tables, dbf_typemap
-
-    ferc1_tblmap = extract_dbc_tables(refyear)
-
-    for dbf in dbfs:
-        dbf_filename = os.path.join(datadir(refyear),'{}.DBF'.format(dbf))
-        ferc1_dbf = dbfread.DBF(dbf_filename)
-
-        # And the corresponding SQLAlchemy Table object:
-        table_name = ferc1_dbf2tbl[dbf]
-        ferc1_sql = Table(table_name, ferc1_meta)
-
-        # _NullFlags isn't a "real" data field... remove it.
-        fields = [ f for f in ferc1_dbf.fields if not re.match('_NullFlags', f.name)]
-
-        for field in fields:
-            col_name = ferc1_tblmap[ferc1_dbf2tbl[dbf]][field.name]
-            col_type = dbf_typemap[field.type]
-
-            # String/VarChar is the only type that really NEEDS a length
-            if(col_type == String):
-                col_type = col_type(length=field.length)
-
-            # This eliminates the "footnote" fields which all mirror database
-            # fields, but end with _f. We have not yet integrated the footnotes
-            # into the rest of the DB, and so why clutter it up?
-            if(not re.match('(.*_f$)', col_name)):
-                ferc1_sql.append_column(Column(col_name, col_type))
-
-        # Append primary key constraints to the table:
-
-        if (table_name in ferc1_data_tables):
-            # All the "real" data tables use the same 5 fields as a composite
-            # primary key: [ respondent_id, report_year, report_prd,
-            # row_number, spplmnt_num ]
-            ferc1_sql.append_constraint(PrimaryKeyConstraint(
-                'respondent_id',
-                'report_year',
-                'report_prd',
-                'row_number',
-                'spplmnt_num')
-            )
-
-            # They also all have respondent_id as their foreign key:
-            ferc1_sql.append_constraint(ForeignKeyConstraint(
-                columns=['respondent_id',],
-                refcolumns=['f1_respondent_id.respondent_id'])
-            )
-
-        if (table_name == 'f1_respondent_id'):
-            ferc1_sql.append_constraint(PrimaryKeyConstraint('respondent_id'))
 
 def extract_dbc_tables(year, minstring=4):
     """Extract the names of all the tables and fields from FERC Form 1 DB
@@ -240,9 +179,87 @@ def extract_dbc_tables(year, minstring=4):
 
     return(tf_doubledict)
 
+def define_db(refyear, ferc1_tables, ferc1_meta, verbose=True):
+    """
+    Given a list of FERC Form 1 DBF files, create analogous database tables.
+
+    Based on strings extracted from the master F1_PUB.DBC file corresponding to
+    the year indicated by refyear, and the list of DBF files specified in dbfs
+    recreate a subset of the FERC Form 1 database as a Postgres database using
+    SQLAlchemy.
+
+    refyear:    year of FERC Form 1 data to use as the database template.
+    dbfs:       list of DBF file prefixes (e.g. F1_77) to ingest.
+    ferc1_meta: SQLAlchemy MetaData object to store the schema in.
+
+    """
+    from sqlalchemy import Table, Column, Integer, String, Float, DateTime
+    from sqlalchemy import Boolean, Date, MetaData, Text, ForeignKeyConstraint
+    from sqlalchemy import PrimaryKeyConstraint
+    import dbfread
+    import re
+    from pudl.constants import ferc1_dbf2tbl, ferc1_data_tables, dbf_typemap
+
+    ferc1_tblmap = extract_dbc_tables(refyear)
+    # Translate the list of FERC Form 1 database tables that has
+    # been passed in into a list of DBF files prefixes:
+    dbfs = [ constants.ferc1_tbl2dbf[table] for table in ferc1_tables ]
+
+    if verbose:
+        print("Defining new FERC Form 1 DB based on {}...".format(refyear))
+
+    for dbf in dbfs:
+        dbf_filename = os.path.join(datadir(refyear),'{}.DBF'.format(dbf))
+        ferc1_dbf = dbfread.DBF(dbf_filename)
+
+        # And the corresponding SQLAlchemy Table object:
+        table_name = ferc1_dbf2tbl[dbf]
+        ferc1_sql = Table(table_name, ferc1_meta)
+
+        # _NullFlags isn't a "real" data field... remove it.
+        fields = [ f for f in ferc1_dbf.fields if not re.match('_NullFlags', f.name)]
+
+        for field in fields:
+            col_name = ferc1_tblmap[ferc1_dbf2tbl[dbf]][field.name]
+            col_type = dbf_typemap[field.type]
+
+            # String/VarChar is the only type that really NEEDS a length
+            if(col_type == String):
+                col_type = col_type(length=field.length)
+
+            # This eliminates the "footnote" fields which all mirror database
+            # fields, but end with _f. We have not yet integrated the footnotes
+            # into the rest of the DB, and so why clutter it up?
+            if(not re.match('(.*_f$)', col_name)):
+                ferc1_sql.append_column(Column(col_name, col_type))
+
+        # Append primary key constraints to the table:
+        if (table_name == 'f1_respondent_id'):
+            ferc1_sql.append_constraint(PrimaryKeyConstraint('respondent_id'))
+
+        if (table_name in ferc1_data_tables):
+            # All the "real" data tables use the same 5 fields as a composite
+            # primary key: [ respondent_id, report_year, report_prd,
+            # row_number, spplmnt_num ]
+            ferc1_sql.append_constraint(PrimaryKeyConstraint(
+                'respondent_id',
+                'report_year',
+                'report_prd',
+                'row_number',
+                'spplmnt_num')
+            )
+
+            # They also all have respondent_id as their foreign key:
+            ferc1_sql.append_constraint(ForeignKeyConstraint(
+                columns=['respondent_id',],
+                refcolumns=['f1_respondent_id.respondent_id'])
+            )
+
 def init_db(ferc1_tables=constants.ferc1_default_tables,
             refyear=2015,
             years=[2015,],
+            def_db=True,
+            verbose=True,
             testing=False):
     """Assuming an empty FERC Form 1 DB, create tables and insert data.
 
@@ -255,13 +272,10 @@ def init_db(ferc1_tables=constants.ferc1_default_tables,
 
     ferc1_engine = db_connect_ferc1(testing=testing)
 
-    # Translate the list of FERC Form 1 database tables that has
-    # been passed in into a list of DBF files prefixes:
-    dbfs = [ constants.ferc1_tbl2dbf[table] for table in ferc1_tables ]
-
     # This function (see below) uses metadata from the DBF files to define a
     # postgres database structure suitable for accepting the FERC Form 1 data
-    define_db(refyear, dbfs, ferc1_meta, ferc1_engine)
+    if def_db:
+        define_db(refyear, ferc1_tables, ferc1_meta)
 
     # Wipe the DB and start over...
     ferc1_meta.drop_all(ferc1_engine)
@@ -275,7 +289,13 @@ def init_db(ferc1_tables=constants.ferc1_default_tables,
     # and the other the full names that we want to have the SQL database...
     ferc1_tblmap = extract_dbc_tables(refyear)
 
+    # Translate the list of FERC Form 1 database tables that has
+    # been passed in into a list of DBF files prefixes:
+    dbfs = [ constants.ferc1_tbl2dbf[table] for table in ferc1_tables ]
+
     for year in years:
+        if verbose:
+            print("Ingesting FERC Form 1 Data from {}...".format(year))
         for dbf in dbfs:
             dbf_filename = os.path.join(datadir(year), '{}.DBF'.format(dbf))
             dbf_table = dbfread.DBF(dbf_filename, load=True)
