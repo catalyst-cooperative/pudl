@@ -61,6 +61,14 @@ class PrimeMover(PUDLBase):
     __tablename__ = 'prime_movers'
     prime_mover = Column(String, primary_key="True")
 
+class FERCAccount(PUDLBase):
+    """
+    Static list of all the FERC account numbers and descriptions.
+    """
+    __tablename__ = 'ferc_accounts'
+    id = Column(String, primary_key=True)
+    description = Column(String, nullable=False)
+
 ###########################################################################
 # "Glue" tables relating names & IDs from different data sources
 ###########################################################################
