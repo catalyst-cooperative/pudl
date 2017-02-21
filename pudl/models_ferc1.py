@@ -47,9 +47,10 @@ class PlantSteamFERC1(models.PUDLBase):
     __table_args__ = (ForeignKeyConstraint(
                         ['respondent_id', 'plant_name'],
                         ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
-    respondent_id = Column(Integer, primary_key=True)
-    plant_name = Column(String, primary_key=True)
-    report_year = Column(Integer, ForeignKey('years.year'), primary_key=True)
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    respondent_id = Column(Integer, nullable=False)
+    plant_name = Column(String, nullable=False)
+    report_year = Column(Integer, ForeignKey('years.year'), nullable=False)
     plant_kind = Column(String) # FK New, needs cleaning
     type_const = Column(String) # FK New, needs cleaning
     year_constructed = Column(Integer) # Data?

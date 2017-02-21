@@ -309,8 +309,14 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine):
     #                                         ferc1_plant_kind_strings,
     #                                         unmapped=np.nan)
 
-    # Many blank fields in steam table, set them all to None (a N/A value?)
-    ferc1_steam_df.replace(r'\s*', None, regex=True, inplace=True)
+    # Force the construction and installation years to be numeric values, and
+    # set them to NA if they can't be converted. (table has some junk values)
+    ferc1_steam_df['yr_const'] = pd.to_numeric(
+                                    ferc1_steam_df['yr_const'],
+                                    errors='coerce')
+    ferc1_steam_df['yr_installed'] = pd.to_numeric(
+                                        ferc1_steam_df['yr_installed'],
+                                        errors='coerce')
 
     ferc1_steam_df.rename(columns={
                             'yr_const'         : 'year_constructed',
@@ -323,7 +329,6 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine):
                             'expns_engnr'      : 'expns_engineering',
                             'tot_prdctn_expns' : 'expns_production_total' },
                           inplace=True)
-
     ferc1_steam_df.to_sql(name='plants_steam_ferc1',
                           con=pudl_engine, index=False, if_exists='append',
                           dtype={'respondent_id':Integer,
