@@ -4,7 +4,7 @@ import numpy as np
 from sqlalchemy.sql import select
 from sqlalchemy.engine.url import URL
 from sqlalchemy import create_engine
-from sqlalchemy import Integer, String
+from sqlalchemy import Integer, String, Numeric
 
 from pudl import settings
 from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
@@ -12,6 +12,7 @@ from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
 from pudl.constants import ferc1_fuel_unit_strings, rto_iso
 from pudl.constants import ferc1_default_tables, ferc1_pudl_tables
 from pudl.constants import ferc1_working_tables
+from pudl.constants import ferc_electric_plant_accounts
 
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
@@ -87,6 +88,15 @@ def ingest_static_tables(engine):
     # Commit the changes to the DB and close down the session.
     pudl_session.commit()
     pudl_session.close_all()
+
+    ferc_accts_df = ferc_electric_plant_accounts.drop('row_number',axis=1)
+    ferc_accts_df.rename(columns={'ferc_account_id':'id',
+                                  'ferc_account_description':'description'},
+                        inplace=True)
+    ferc_accts_df.to_sql('ferc_accounts',
+                           con=engine, index=False, if_exists='append',
+                           dtype={'id' : String,
+                                  'description' : String} )
 
 def ingest_glue_tables(engine):
     """
@@ -268,11 +278,16 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine):
     ferc1_fuel_df.fuel_unit = cleanstrings(ferc1_fuel_df.fuel_unit,
                                            ferc1_fuel_unit_strings,
                                            unmapped=np.nan)
-    # Drop any records that are missing data.
+
+    # Drop any records that are missing data. This is a blunt instrument, to
+    # be sure. In some cases we lose data here, because some utilities have
+    # (for example) a "Total" line w/ only fuel_mmbtu_per_kwh on it. Grr.
     ferc1_fuel_df.dropna(inplace=True)
+
     # Make sure that the DataFrame column names (which were imported from the
     # f1_fuel table) match their corresponding field names in the PUDL DB.
     ferc1_fuel_df.rename(columns={
+                           # FERC 1 DB Name      PUDL DB Name
                            'fuel_quantity'    : 'fuel_qty_burned',
                            'fuel_avg_heat'    : 'fuel_avg_mmbtu_per_unit',
                            'fuel_cost_burned' : 'fuel_cost_per_unit_burned',
@@ -283,8 +298,8 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine):
                          inplace=True)
     ferc1_fuel_df.to_sql(name='fuel_ferc1',
                          con=pudl_engine, index=False, if_exists='append',
-                         dtype={'respondent_id':Integer,
-                                'report_year':Integer} )
+                         dtype={'respondent_id' : Integer,
+                                'report_year'   : Integer} )
 
 def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine):
     """
@@ -319,6 +334,7 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine):
                                         errors='coerce')
 
     ferc1_steam_df.rename(columns={
+                            # FERC 1 DB Name      PUDL DB Name
                             'yr_const'         : 'year_constructed',
                             'yr_installed'     : 'year_installed',
                             'tot_capacity'     : 'total_capacity',
@@ -331,12 +347,12 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine):
                           inplace=True)
     ferc1_steam_df.to_sql(name='plants_steam_ferc1',
                           con=pudl_engine, index=False, if_exists='append',
-                          dtype={'respondent_id':Integer,
-                                 'report_year':Integer,
-                                 'type_const':String,
-                                 'plant_kind':String,
-                                 'year_constructed':Integer,
-                                 'year_installed':Integer} )
+                          dtype={'respondent_id'    : Integer,
+                                 'report_year'      : Integer,
+                                 'type_const'       : String,
+                                 'plant_kind'       : String,
+                                 'year_constructed' : Integer,
+                                 'year_installed'   : Integer} )
 
 def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
     """
@@ -360,7 +376,45 @@ def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine):
     """
     Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB.
     """
-    pass
+    f1_plant_in_srvce = ferc1_meta.tables['f1_plant_in_srvce']
+    f1_plant_in_srvce_select = select([f1_plant_in_srvce])
+
+    ferc1_pis_df = pd.read_sql(f1_plant_in_srvce_select, ferc1_engine)
+
+    # Discard DataFrame columns that we aren't pulling into PUDL. For the
+    # Plant In Service table, we need to hold on to the row_number because it
+    # corresponds to a FERC account number.
+    ferc1_pis_df.drop(['spplmnt_num', 'row_seq', 'row_prvlg', 'report_prd'],
+                       axis=1, inplace=True)
+
+    # Now we need to add a column to the DataFrame that has the FERC account
+    # IDs corresponding to the row_number that's already in there...
+    ferc_acct_df = ferc_electric_plant_accounts
+    ferc_acct_df = ferc_acct_df.drop(['ferc_account_description'],axis=1)
+    ferc_acct_df = ferc_acct_df.dropna()
+    ferc_acct_df['row_number'] = ferc_acct_df['row_number'].astype(int)
+
+    ferc1_pis_df = pd.merge(ferc1_pis_df, ferc_acct_df,
+                            how='left', on='row_number')
+    ferc1_pis_df.drop('row_number', axis=1, inplace=True)
+
+    ferc1_pis_df.rename(columns={
+                           # FERC 1 DB Name  PUDL DB Name
+                            'begin_yr_bal' : 'beginning_year_balance',
+                            'addition'     : 'additions',
+                            'yr_end_bal'   : 'year_end_balance'},
+                        inplace=True)
+    ferc1_pis_df.to_sql(name='plant_in_service_ferc1',
+                        con=pudl_engine, index=False, if_exists='append',
+                        dtype={'respondent_id'          : Integer,
+                               'report_year'            : Integer,
+                               'ferc_account_id'        : String,
+                               'beginning_year_balance' : Numeric(14,2),
+                               'additions'              : Numeric(14,2),
+                               'retirements'            : Numeric(14,2),
+                               'adjustments'            : Numeric(14,2),
+                               'transfers'              : Numeric(14,2),
+                               'year_end_balance'       : Numeric(14,2)} )
 
 def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine):
     """
