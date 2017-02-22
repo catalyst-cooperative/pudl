@@ -17,7 +17,7 @@ from pudl import settings, constants, models
 #    nerc_region = Column(String, ForeignKey(nerc_region.abbr), nullable=False)
 #    eia_sector = Column(String, ForeignKey(eia_sector.number), nullable=False) #may need to rethink this
 #    sector_name = Column(String, ForeignKey(eia_sector.name), nullable=False) #may need to rethink this
-#    naics_code = Column(Integer, ForeignKey(naics_code.number), nullable=False) #need to define the ForeignKey
+#    naics_code = Column(Integer, ForeignKey(naics_code.number), nullable=False)
 
 ##example class from pudl.py
 class GeneratorFuelEIA923(models.PUDLBase):
