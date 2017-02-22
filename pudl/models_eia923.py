@@ -32,7 +32,7 @@ class GeneratorFuelEIA923(models.PUDLBase):
     #for multiple utilities that have a stake in the plant...
     #Primary key fields: plant, utility, prime mover, fuel type, and year.
     plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
-    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True) #field is operator ID (column F) in EIA923Page1
+    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
     prime_mover = Column(String, ForeignKey('prime_movers.prime_mover'), primary_key=True)
     fuel_type = Column(String, ForeignKey('fuels.name'), primary_key=True)
     year = Column(Integer, ForeignKey('years.year'), primary_key=True)

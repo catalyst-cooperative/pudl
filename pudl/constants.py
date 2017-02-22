@@ -703,6 +703,9 @@ eia_energy_source = {
           other petroleum-based liquid wastes.'
 }
 
+#EIA 923 Fuel Group
+eia_fuel_group = ['Coal', 'Natural Gas', 'Petroleum', 'Petroleum Coke']
+
 # EIA 923: Type of Coal Mine
 eia_coalmine_type = {
   'P':'Preperation Plant',
