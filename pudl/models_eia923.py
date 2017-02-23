@@ -17,7 +17,7 @@ from pudl import settings, constants, models
 #    nerc_region = Column(String, ForeignKey(nerc_region.abbr), nullable=False)
 #    eia_sector = Column(String, ForeignKey(eia_sector.number), nullable=False) #may need to rethink this
 #    sector_name = Column(String, ForeignKey(eia_sector.name), nullable=False) #may need to rethink this
-#    naics_code = Column(Integer, ForeignKey(naics_code.number), nullable=False) #need to define the ForeignKey
+#    naics_code = Column(Integer, ForeignKey(naics_code.number), nullable=False)
 
 ##example class from pudl.py
 class GeneratorFuelEIA923(models.PUDLBase):
@@ -32,7 +32,7 @@ class GeneratorFuelEIA923(models.PUDLBase):
     #for multiple utilities that have a stake in the plant...
     #Primary key fields: plant, utility, prime mover, fuel type, and year.
     plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
-    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True) #field is operator ID (column F) in EIA923Page1
+    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
     prime_mover = Column(String, ForeignKey('prime_movers.prime_mover'), primary_key=True)
     fuel_type = Column(String, ForeignKey('fuels.name'), primary_key=True)
     year = Column(Integer, ForeignKey('years.year'), primary_key=True)
