@@ -69,6 +69,15 @@ class FERCAccount(PUDLBase):
     id = Column(String, primary_key=True)
     description = Column(String, nullable=False)
 
+class CensusRegion(PUDLBase):
+    """
+    Static list of census regions used by EIA
+    """
+    __tablename__ = 'census_regions'
+    abbr = Column(String, primary_key=True)
+    name = Column(String, nullable=False)
+
+
 ###########################################################################
 # "Glue" tables relating names & IDs from different data sources
 ###########################################################################

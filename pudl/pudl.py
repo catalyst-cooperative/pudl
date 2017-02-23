@@ -9,14 +9,14 @@ from sqlalchemy import Integer, String, Numeric
 from pudl import settings
 from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
 from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
-from pudl.constants import ferc1_fuel_unit_strings, rto_iso
+from pudl.constants import ferc1_fuel_unit_strings, rto_iso, census_region
 from pudl.constants import ferc1_default_tables, ferc1_pudl_tables
 from pudl.constants import ferc1_working_tables
 from pudl.constants import ferc_electric_plant_accounts
 
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
-from pudl.models import State, RTOISO
+from pudl.models import State, RTOISO, CensusRegion
 
 # Tables that hold "glue" connecting FERC1 & EIA923 to each other:
 from pudl.models import Utility, UtilityFERC1, UtilityEIA923
@@ -81,6 +81,7 @@ def ingest_static_tables(engine):
     pudl_session.add_all([PrimeMover(prime_mover=pm) for pm in prime_movers])
     pudl_session.add_all([RTOISO(abbr=k, name=v) for k,v in rto_iso.items()])
     pudl_session.add_all([Year(year=yr) for yr in range(1994,2017)])
+    pudl_session.add_all([CensusRegion(abbr=m, name=w) for m,w in census_region.items()])
 
     # States dictionary is defined outside this function, below.
     pudl_session.add_all([State(abbr=k, name=v) for k,v in us_states.items()])

@@ -501,6 +501,7 @@ ferc_electric_plant_accounts = DataFrame.from_records([
     (104, 'total_electric_plant', 'TOTAL Electric Plant in Service')],
 columns=['row_number','ferc_account_id','ferc_account_description'])
 
+# From Tab 7 of Form EIA923
 census_region = {
   'NEW':'New England',
   'MAT':'Middle Atlantic',
