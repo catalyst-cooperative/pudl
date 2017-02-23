@@ -358,18 +358,21 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine):
 def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
     """
     Ingest f1_hydro table of FERC Form 1 DB into PUDL DB.
+    Christina Gosnell has got this one.
     """
     pass
 
 def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine):
     """
     Ingest f1_pumped_storage table of FERC Form 1 DB into PUDL DB.
+    Christina Gosnell has got this one.
     """
     pass
 
 def ingest_plants_small_ferc1(pudl_engine, ferc1_engine):
     """
     Ingest f1_gnrt_plant table of FERC Form 1 DB into PUDL DB.
+    Zane Selvans is doing this one.
     """
     pass
 
