@@ -178,6 +178,58 @@ ferc1_fuel_unit_strings = { 'ton'   : ferc1_ton_strings,
                             'mwhth' : ferc1_mwhth_strings
                           }
 
+# Categorizing the strings from the FERC Form 1 plant_kind field into lists.
+# There are many strings that weren't categorized, including variants on
+# Steam. Solar and Solar Project also were not classified as these do not
+# indicate if they are solar thermal or photovoltaic.
+
+ferc1_plant_kind_coal = ['Coal']
+
+ferc1_plant_kind_combustion_turbine = ['Combustion Turbine','GT','Gas Turbine',\
+'Gas Turbine # 1','Gas turbine','Gas Turbine (Note 1)',\
+'Gas Turbines','Simple Cycle','COMBUSTION TURBINE','COMB.TURB.PEAK.UNITS',\
+ 'GAS TURBINE','Combustion turbine','Com Turbine Peaking',\
+'Gas Turbine Peaking', 'Comb Turb Peaking', 'COMBUSTINE TURBINE',\
+'Comb. Turine','Conbustion Turbine','Combustine Turbine',\
+'Gas Turbine (Leased)','Combustion Tubine','Gas Turb','Gas Turbine Peaker',\
+'GTG/Gas','Simple Cycle Turbine','GAS-TURBINE','Gas Turbine-Simple',\
+'Gas Turbine - Note 1','Gas Turbine #1','SIMPLE CYCLE','GasTurbine',\
+'CombustionTurbine','Gas Turbine (2)','Comb Turb Peak Units','JET ENGINE']
+
+ferc1_plant_kind_combined_cycle = ['COMBINED CYCLE','Combined Cycle','Combined',\
+'GAS TURB. & HEAT REC','Combined cycle','Com. Cyc','Com. Cycle',\
+'GAS TURB-COMBINED CY','Combined Cycle CTG','Combined Cycle - 40%',\
+'Com Cycle Gas Turb','Combined Cycle Oper','Gas Turb/Comb. Cyc',\
+'Combine Cycle','CC','Comb. Cycle','Gas Turb-Combined Cy']
+
+ferc1_plant_kind_nuke = ['Nuclear','NUCLEAR','Nuclear (3)']
+
+ferc1_plant_kind_geothermal = ['Steam - Geothermal']
+
+ferc_1_plant_kind_internal_combustion = ['IC','Internal Combustion',\
+'Diesel Turbine','Int Combust (Note 1)','Int. Combust (Note1)',\
+'INT.COMBUSTINE','Comb. Cyc','Internal Comb','DIESEL','Diesel Engine',\
+'INTERNAL COMBUSTION','Int Combust - Note 1','Int. Combust - Note1',\
+'Internal Comb Recip','Reciprocating Engine','Comb. Turbine']
+
+ferc1_plant_kind_wind = ['Wind','Wind Energy','Wind Turbine','Wind - Turbine']
+
+ferc1_plant_kind_photovoltaic =['Solar Photovoltaic','Photovoltaic']
+
+ferc1_plant_kind_solar_thermal = ['Solar Thermal']
+
+ferc1_plant_kind_strings = {
+                'coal': ferc1_plant_kind_coal,
+                'combustine turbine': ferc1_plant_kind_combustion_turbine,
+                'combined cycle': ferc1_plant_kind_combined_cycle,
+                'nuclear': ferc1_plant_kind_nuke,
+                'geothermal': ferc1_plant_kind_geothermal,
+                'internal combustion': ferc_1_plant_kind_internal_combustion,
+                'wind': ferc1_plant_kind_wind,
+                'photovoltaic': ferc1_plant_kind_photovoltaic,
+                'solar thermal':ferc1_plant_kind_solar_thermal
+}
+
 # Dictionary mapping DBF files (w/o .DBF file extension) to DB table names
 ferc1_dbf2tbl = {
     'F1_1':  'f1_respondent_id',    # GET THIS ONE
