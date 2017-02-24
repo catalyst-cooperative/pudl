@@ -799,11 +799,11 @@ energy_source_eia923 = {
 }
 
 # EIA 923 Fuel Group, from Page 7 EIA Form 923
-# Groups the energy sources into fuel groups that are located in the Electric 
+# Groups the energy sources into fuel groups that are located in the Electric
 # Power Monthly:  Coal, Natural Gas, Petroleum, Petroleum Coke.
 fuel_group_eia923 = ['Coal', 'Natural Gas', 'Petroleum', 'Petroleum Coke']
 
-# EIA 923: Type of Coal Mine
+# EIA 923: Type of Coal Mine as defined on Page 7 of EIA Form 923
 coalmine_type_eia923 = {
   'P':'Preperation Plant',
   'S':'Surface',
@@ -829,8 +829,8 @@ coalmine_state_eia923 = {
   'OC':'Other Country'
 }
 
-#EIA 923: Non-Regulated Independent Power Plant or Nonutility Plant.
-regulated_eia923 = {
+# From Page 7 EIA Form 923 indicating regulatory status
+regulatory_status_eia923 = {
   'REG':'Regulated Electric Utility',
   'UNR':'Non-Regulated Independent Power Plant or Nonutility Plant.'
 }
@@ -842,7 +842,7 @@ respondent_frequency = {
   'A':'Annual respondent'
 }
 #EIA 923: Mode for the longest / second longest distance.
-eia_primary_secondary_mode_of_transporation = {
+transpo_mode_eia923 = {
   'RR':'Rail: Shipments of fuel moved to consumers by rail \
         (private or public/commercial). Included is coal hauled to or \
         away from a railroad siding by truck if the truck did not use public\
@@ -884,7 +884,7 @@ eia_primary_secondary_mode_of_transporation = {
 }
 
 # EIA 923: Contract type for natural gas capacity service:
-natural_gas_transportation_service_eia923 = {
+natural_gas_transpo_service_eia923 = {
   'F':'Firm',
   'I':'Interruptible'
 }

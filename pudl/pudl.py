@@ -22,6 +22,9 @@ from pudl.constants import sector_eia, contract_type_eia923
 from pudl.constants import fuel_type_eia923, prime_mover_eia923
 from pudl.constants import fuel_unit_eia923, energy_source_eia923
 from pudl.constants import fuel_group_eia923
+from pudl.constants import coalmine_type_eia923, coalmine_state_eia923
+from pudl.constants import regulatory_status_eia923
+from pudl.constants import natural_gas_transpo_service_eia923,transpo_mode_eia923
 
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
@@ -33,6 +36,9 @@ from pudl.models import SectorEIA, ContractTypeEIA923
 from pudl.models import FuelTypeEIA923, PrimeMoverEIA923
 from pudl.models import FuelUnitEIA923, EnergySourceEIA923
 from pudl.models import FuelGroupEIA923
+from pudl.models import CoalMineTypeEIA923, CoalMineStateEIA923
+from pudl.models import RegulatoryStatusEIA923, NaturalGasTranspoServiceEIA923
+from pudl.models import TranspoModeEIA923
 
 # Tables that hold "glue" connecting FERC1 & EIA923 to each other:
 from pudl.models import Utility, UtilityFERC1, UtilityEIA923
@@ -109,6 +115,13 @@ def ingest_static_tables(engine):
     pudl_session.add_all([FuelTypeAER(abbr=r, fuel_type=c) for r,c in fuel_type_aer.items()])
     pudl_session.add_all([EnergySourceEIA923(abbr=a, source=s) for a,s in energy_source_eia923.items()])
     pudl_session.add_all([FuelGroupEIA923(group=gr) for gr in fuel_group_eia923])
+    pudl_session.add_all([CoalMineTypeEIA923(abbr=b, name=n) for b,n in coalmine_type_eia923.items()])
+    pudl_session.add_all([CoalMineStateEIA923(abbr=c, state=o) for c,o in coalmine_state_eia923.items()])
+    pudl_session.add_all([CoalMineStateEIA923(abbr=c, state=o) for c,o in us_states.items()]) #is this right way to add these?
+    pudl_session.add_all([RegulatoryStatusEIA923(abbr=d, status=p) for d,p in regulatory_status_eia923.items()])
+    pudl_session.add_all([TranspoModeEIA923(abbr=e, mode=q) for e,q in transpo_mode_eia923.items()])
+    pudl_session.add_all([NaturalGasTranspoServiceEIA923(abbr=f, status=r) for f,r in natural_gas_transpo_service_eia923.items()])
+
 
 
     # States dictionary is defined outside this function, below.
