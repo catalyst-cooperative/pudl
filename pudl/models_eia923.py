@@ -1,5 +1,7 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Float
+from sqlalchemy import Column, ForeignKey, Integer, String, Float, Numeric
+from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy.orm import relationship
+
 #from sqlalchemy.orm.collections import attribute_mapped_collection
 
 from pudl import settings, constants, models
@@ -17,7 +19,7 @@ from pudl import settings, constants, models
     plant_id = Column(Integer, nullable=False, primary_key=True)
 #    combined_heat_power = Column(String, ForeignKey('????.???'), nullable=False)
 #    plant_state = Column(String, ForeignKey(us_states.abbr), nullable=False)
-#    census_region = Column(String, ForeignKey(census_region.abbr), nullable=False)
+    census_region = Column(String, ForeignKey(census_region.abbr), nullable=False)
 #    nerc_region = Column(String, ForeignKey(nerc_region.abbr), nullable=False)
 #    eia_sector = Column(String, ForeignKey(eia_sector.number), nullable=False) #may need to rethink this
 #    sector_name = Column(String, ForeignKey(eia_sector.name), nullable=False) #may need to rethink this
@@ -32,8 +34,8 @@ class GeneratorFuelEIA923(models.PUDLBase):
     """
     __tablename__ = 'generator_fuel_eia923'
     __table_args__ = (ForeignKeyConstraint(
-                        ['plant_id', 'utility_id', 'prime_mover'],
-                        ['plants_eia23.plant_id', 'utilities_eia923.operator_id', 'prime_mover_eia923']),)
+                        ['plant_id', 'utility_id', 'prime_mover', 'fuel_type'],
+                        ['plants_eia23.plant_id', 'utilities_eia923.operator_id', 'prime_mover_eia923.prime_mover', 'fuel_type_eia923.fuel_type']),)
     # Each month, for each unique combination of prime mover and fuel type,
     #there is one report for each plant, which may be recorded multiple times
     #for multiple utilities that have a stake in the plant...
@@ -41,14 +43,14 @@ class GeneratorFuelEIA923(models.PUDLBase):
     plant_id = Column(Integer, nullable=False, primary_key=True)
     utility_id = Column(Integer, nullable=False, primary_key=True)
     prime_mover = Column(String, nullable=False, primary_key=True)
-    fuel_type = Column(String, ForeignKey('fuels.name'), primary_key=True)
+    fuel_type = Column(String, nullable=False, primary_key=True)
     year = Column(Integer, ForeignKey('years.year'), primary_key=True)
     month = Column(Integer, ForeignKey('months.month'), primary_key=True)
     nuclear_unit_id = Column(Integer, nullable=True)
     plant_name = Column(String, nullable=False)
     operator_name = Column(String, nullable=False)
-    AER_fuel_type = Column(String, nullable=False)
-    fuel_unit = Column(String, nullable=False)
+    AER_fuel_type = Column(String, ForeignKey('fuel_type_aer_eia923.????????????????????????????') nullable=False)
+    fuel_unit = Column(String, ForeignKey('fuel_unit_eia923.unit') nullable=False)
     quant_consumed_total = Column(Float, nullable=False)
     quant_consumed_internal = Column(Float, nullable=False)
     fuel_mmbtu_per_unit = Column(Float, nullable=False)
@@ -63,19 +65,23 @@ class BoilerFuelDataEIA923(models.PUDLBase):
     DB, which is populated from EIA Form 923 Page 3 Generator Data.
     """
     __tablename__ = 'boiler_data_eia923'
+    __table_args__ = (ForeignKeyConstraint(
+                    ['plant_id', 'utility_id', 'prime_mover', 'fuel_type'],
+                    ['plants_eia23.plant_id', 'utilities_eia923.operator_id', 'prime_mover_eia923.prime_mover', 'fuel_type_eia923.fuel_type']),)
+
     # Each month, for each unique combination of boiler id and prime mover and fuel,
     #there is one report for each boiler unit in each plant.
     #Primary key fields: plant, utility, boiler, prime mover, fuel type, and year.
 
     # Should this be PUDL or EIA plant_id? Should we have both here?
-    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
-    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
-    prime_mover = Column(String, ForeignKey('prime_movers.prime_mover'), primary_key=True)
+    plant_id = Column(Integer, nullable=False, primary_key=True)
+    utility_id = Column(Integer, nullable=False, primary_key=True)
+    prime_mover = Column(String, nullable=False, primary_key=True)
     generator_id = Column(String, ForeignKey('boilers.boiler'), primary_key=True) #is this correct?
-    fuel_type = Column(String, ForeignKey('fuels.name'), primary_key=True)
+    fuel_type = Column(String, nullable = False, primary_key=True)
     year = Column(Integer, ForeignKey('years.year'), primary_key=True)
     month = Column(Integer, ForeignKey('months.month'), primary_key=True)
-    fuel_unit = Column(String, ForeignKey('fuel_units.unit'), nullable=False)
+    fuel_unit = Column(String, ForeignKey('fuel_unit_eia923.unit'), nullable=False)
     plant_name = Column(String, ForeignKey('plants_eia923.plant_name'), nullable=False)
     operator_name = Column(String, ForeignKey('utilities_eia923.operator_name'),nullable=False)
     boiler_id = Column(String, nullable=False) # TODO: boilers table? FK?

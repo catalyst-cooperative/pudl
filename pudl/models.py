@@ -86,6 +86,32 @@ class FuelTypeEIA923(PUDLBase):
     abbr = Column(String, primary_key=True)
     fuel_type = Column(String, nullable=False)
 
+class PrimeMoverEIA923(PUDLBase):
+    """
+    Static list of prime movers used by EIA in Form 923
+    """
+    __tablename__ = 'prime_mover_eia923'
+    abbr = Column(String, primary_key = True)
+    prime_mover = Column(String, nullable = True)
+
+class FuelUnitEIA923(PUDLBase):
+    """
+    Static list of fuel units (physical unit labels) used by EIA in Form 923
+    """
+    __tablename__ = 'fuel_unit_eia923'
+    abbr = Column(String, primary_key = True)
+    unit = Column(String, nullable = True)
+
+class FuelTypeAER(PUDLBase):
+    """
+    Static list of fuel types using AER codes, reported in EIA Form 923
+    """
+    __tablename__ = 'fuel_type_aer'
+    abbr = Column(String, primary_key = True)
+    fuel_type = Column(String, nullable = True)
+
+
+
 ###########################################################################
 # "Glue" tables relating names & IDs from different data sources
 ###########################################################################

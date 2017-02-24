@@ -732,7 +732,7 @@ fuel_type_eia923 = {
 # larger categories used by EIA in, for example,
 # the Annual Energy Review (AER).Two or three letter alphanumeric.
 # See the Fuel Code table (Table 5), below:
-fuel_type_aer_eia923 = {
+fuel_type_aer = {
   'SUN':'Solar PV and thermal',
   'COL':'Coal',
   'DFO':'Distillate Petroleum',
@@ -756,7 +756,7 @@ fuel_type_aer_eia923 = {
 # EIA 923: EIA The type of physical units fuel consumption is reported in.
 # All consumption is reported in either short tons for solids,
 # thousands of cubic feet for gases, and barrels for liquids:"""
-physical_label_unit_eia923 = {
+fuel_unit_eia923 = {
   'mcf':'for gases',
   'short tons':'for solid',
   'barrels':'for liquids'
