@@ -178,10 +178,10 @@ ferc1_fuel_unit_strings = { 'ton'   : ferc1_ton_strings,
                             'mwhth' : ferc1_mwhth_strings
                           }
 
-# Categorizing the strings from the FERC Form 1 plant_kind field into lists.
-# There are many strings that weren't categorized, including variants on
-# Steam. Solar and Solar Project also were not classified as these do not
-# indicate if they are solar thermal or photovoltaic.
+# Categorizing the strings from the FERC Form 1 Plant Kind (plant_kind) field
+# into lists. There are many strings that weren't categorized,
+# including variants on Steam. Solar and Solar Project also were not
+#classified as these do not indicate if they are solar thermal or photovoltaic.
 
 ferc1_plant_kind_coal = ['Coal']
 
@@ -218,6 +218,9 @@ ferc1_plant_kind_photovoltaic =['Solar Photovoltaic','Photovoltaic']
 
 ferc1_plant_kind_solar_thermal = ['Solar Thermal']
 
+# Making a dictionary of lists from the lists of plant_fuel strings to create
+# a dictionary of plant fuel lists.
+
 ferc1_plant_kind_strings = {
                 'coal': ferc1_plant_kind_coal,
                 'combustine turbine': ferc1_plant_kind_combustion_turbine,
@@ -228,6 +231,39 @@ ferc1_plant_kind_strings = {
                 'wind': ferc1_plant_kind_wind,
                 'photovoltaic': ferc1_plant_kind_photovoltaic,
                 'solar thermal':ferc1_plant_kind_solar_thermal
+}
+
+# Categorizing the strings from the FERC Form 1 Type of Plant Construction
+# (type_const) field into lists.
+# There are many strings that weren't categorized, including crosses between
+# conventional and outdoor, PV, wind, combined cycle, and internal combustion.
+# The lists are broken out into the two types specified in Form 1:
+# conventional and outdoor. These lists are inclusive so that variants of
+# conventional (e.g. "conventional full") and outdoor (e.g. "outdoor full"
+# and "outdoor hrsg") are included.
+
+ferc1_construction_type_outdoor = [ 'Outdoor','OUTDOOR BOILER','Full Outdoor',\
+'Outdoor Boiler','Outdoor Boilers','Outboilers','Fuel outdoor','FULL OUTDOOR',\
+'Outdoors','OUTDOOR','Boiler Outdoor& Full','Boiler Outdoor&Full',\
+'Outdoor Boiler& Full','Full -Outdoor','Outdoor Steam','Outdoor boiler',\
+'OB','Outdoor Automatic','OUTDOOR REPOWER','FULL OUTDOOR BOILER','FO',\
+'Outdoor Boiler & Ful''Full-Outdoor','Fuel Outdoor','Outoor','outdoor',\
+'Outdoor  Boiler&Full','Boiler Outdoor &Full','Outdoor Boiler &Full',\
+'Boiler Outdoor & Ful','Outdoor-Boiler', 'Outdoor - Boiler','Outdoor Const.',\
+'4 Outdoor Boilers','3 Outdoor Boilers','Full outdoor','Full Outdoors',\
+'Full Oudoors','Outdoor (Auto Oper)', 'Outside Boiler','Outdoor Boiler&Full',\
+'OUTDOOR HRSG','Outdoor HRSG']
+ferc1_construction_type_conventional = ['Conventional','CONVENTIONAL',\
+'Conventional Boiler','Conv-B','Conventionall','CONVENTION','conventional',\
+'Coventional','Conven Full Boiler','C0NVENTIONAL','Conventtional','Convential'
+]
+
+# Making a dictionary of lists from the lists of type_const strings to create
+# a dictionary of construction type lists.
+
+ferc1_construction_type_strings = {
+                'outdoor': ferc1_construction_type_outdoor,
+                'conventional':ferc1_construction_type_conventional
 }
 
 # Dictionary mapping DBF files (w/o .DBF file extension) to DB table names
