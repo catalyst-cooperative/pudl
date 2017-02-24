@@ -10,10 +10,13 @@ from pudl import settings, constants, models
 # Tables which represent static lists. E.g. all the US States.
 ###########################################################################
 
-#class PlantInfo(models.PUDLBase):
+class PlantInfo(models.PUDLBase):
+    """
+    Static information about each plant as reported on Page 1 of EIA Form 923
+    """
     __tablename__ = 'plant_info_eia'
 
-   __table_args__ = (ForeignKeyConstraint(
+    __table_args__ = (ForeignKeyConstraint(
                     ['plant_id'],
                     ['plants_eia23.plant_id']),)
     plant_id = Column(Integer, nullable=False, primary_key=True)
@@ -28,8 +31,8 @@ from pudl import settings, constants, models
 ##example class from pudl.py
 class GeneratorFuelEIA923(models.PUDLBase):
     """
-    Annual fuel consumed by a given plant, as reported to EIA in Form 923. This
-    information comes from the XXXXXX table in the XXXXX DB, which is
+    Annual fuel consumed by a given plant, as reported to EIA in Form 923 Page 1.
+    This information comes from the XXXXXX table in the XXXXX DB, which is
     populated from EIA Form 923 Page 1 Generation and Fuel Data.
     """
     __tablename__ = 'generator_fuel_eia923'
@@ -60,9 +63,10 @@ class GeneratorFuelEIA923(models.PUDLBase):
 
 class BoilerFuelDataEIA923(models.PUDLBase):
     """
-    Monthly Boiler Fuel consumptino and emissions Time Series, as reported to
+    Monthly Boiler Fuel consumption and emissions Time Series, as reported to
     EIA in Form 923. This information comes from the XXXXXX table in the XXXXX
     DB, which is populated from EIA Form 923 Page 3 Generator Data.
+    Sources: EIA-923 and EIA-860 Reports
     """
     __tablename__ = 'boiler_data_eia923'
     __table_args__ = (ForeignKeyConstraint(
@@ -95,16 +99,18 @@ class GeneratorDataEIA923(models.PUDLBase):
     Monthly Generating Unit Net Generation Time Series by a given plant, as
     reported to EIA in Form 923. This information comes from the XXXXXX table in
     the XXXXX DB, which is populated from EIA Form 923 Page 4 Generator Data.
+    Sources: EIA-923 and EIA-860 Reports
     """
     __tablename__ = 'generator_data_eia923'
+    __table_args__ = (ForeignKeyConstraint(
+                        ['plant_id', 'utility_id', 'prime_mover'],
+                        ['plants_eia23.plant_id', 'utilities_eia923.operator_id', 'prime_mover_eia923.prime_mover']),)
     # Each month, for each unique combination of generator id and prime mover and fuel,
-    #there is one report for each generator unit in each plant.
-    #Primary key fields: plant, utility, generator, and prime mover.
-    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
-
-    #field is operator ID (column F) in EIA923Page1
-    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
-    prime_mover = Column(String, ForeignKey('prime_movers.prime_mover'), primary_key=True)
+    # there is one report for each generator unit in each plant.
+    # Primary key fields: plant, utility, generator, and prime mover.
+    plant_id = Column(Integer, nullable=False, primary_key=True)
+    utility_id = Column(Integer, nullable=False, primary_key=True)
+    prime_mover = Column(String, nullable=False, primary_key=True)
     generator_id = Column(String, ForeignKey('generators.generator'), primary_key=True) #is this correct?
     year = Column(Integer, ForeignKey('years.year'), primary_key=True)
     month = Column(Integer, ForeignKey('months.month'), primary_key=True)
@@ -113,12 +119,22 @@ class GeneratorDataEIA923(models.PUDLBase):
     net_generation_mwh = Column(Float, nullable=False)
 
 class FuelReceiptsCostsEIA923(models.PUDLBase):
+    """
+    Fuel receipts and costs reported for individual fuel purchases;
+    As reported on Page 5 of EIA Form 923
+    Sources: EIA-923 and EIA-860 Reports
+    """
+
     __tablename__ = 'fuel_receipts_costs_eia923'
+    __table_args__ = (ForeignKeyConstraint(
+                        ['plant_id', 'fuel_type'],
+                        ['plants_eia23.plant_id', 'fuel_type_eia923.fuel_type']),)
+
     fuel_receipt_id = Column(Integer, primary_key=True, autoincrement=True)
+    plant_id = Column(Integer, nullable=False, primary_key=True)
     year = Column(Integer, ForeignKey('years.year'), nullable=False)
     month = Column(Integer, ForeignKey('months.month'), nullable=False) #is this correct?
-    plant_id = Column(Integer, ForeignKey('plants.id'), nullable=False)
-    purchase_type = Column(String, nullable=False)
+    purchase_type = Column(String, nullable=False) #TODO add FK/constants
     contract_expiration_date = Column(Integer, nullable=False)
     energy_source = Column(String, nullable=False) # TODO add FK/constants
     fuel_group = Column(String, nullable=False) # TODO add FK/constants

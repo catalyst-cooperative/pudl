@@ -589,7 +589,7 @@ ferc_electric_plant_accounts = DataFrame.from_records([
     (104, 'total_electric_plant', 'TOTAL Electric Plant in Service')],
 columns=['row_number','ferc_account_id','ferc_account_description'])
 
-# From Tab 7 of Form EIA923
+# From Tab 7 of EIA Form 923, Census Region the state is located in
 census_region = {
   'NEW':'New England',
   'MAT':'Middle Atlantic',
@@ -603,6 +603,9 @@ census_region = {
   'PACN':'Pacific Non-Contiguous (AK, HI)',
 }
 
+# From Page 7 of EIA Form923
+# Static list of NERC (North American Electric Reliability Corporation)
+# regions, used for where plant is located
 nerc_region = {
   'NPCC':'Northeast Power Coordinating Council',
   'MRO':'Midwest Reliability Organization',
@@ -614,8 +617,10 @@ nerc_region = {
   'WECC':'Western Electricity Coordinating Council'
 }
 
-eia_sector = {
-    #Traditional regulated electric utilities
+# From Page 7 of EIA Form 923 EIA’s internal consolidated NAICS sectors.
+# For internal purposes, EIA consolidates NAICS categories into seven groups.
+sector_eia = {
+    # traditional regulated electric utilities
     '1':'Electric Utility',
 
     #Independent power producers which are not cogenerators
@@ -769,6 +774,7 @@ contract_type_eia923 = {
   'S':'Spot Purchase'
 }
 # EIA 923: The fuel code associated with the fuel receipt.
+# Defined on Page 7 of EIA Form 923
 # Two or three character alphanumeric:
 energy_source_eia923 = {
     'ANT':'Anthracite Coal',
@@ -792,7 +798,9 @@ energy_source_eia923 = {
           other petroleum-based liquid wastes.'
 }
 
-#EIA 923 Fuel Group
+# EIA 923 Fuel Group, from Page 7 EIA Form 923
+# Groups the energy sources into fuel groups that are located in the Electric 
+# Power Monthly:  Coal, Natural Gas, Petroleum, Petroleum Coke.
 fuel_group_eia923 = ['Coal', 'Natural Gas', 'Petroleum', 'Petroleum Coke']
 
 # EIA 923: Type of Coal Mine
@@ -829,7 +837,7 @@ regulated_eia923 = {
 
 #EIA 923: One character designates the reporting
 #frequency for the plant. Alphanumeric:
-respondent_frequency_eia923 = {
+respondent_frequency = {
   'M':'Monthly respondent',
   'A':'Annual respondent'
 }
