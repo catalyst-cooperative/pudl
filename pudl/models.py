@@ -77,6 +77,14 @@ class CensusRegion(PUDLBase):
     abbr = Column(String, primary_key=True)
     name = Column(String, nullable=False)
 
+class FuelTypeEIA923(PUDLBase):
+    """
+    Static list of fuel types used by EIA in Form 923,
+    Enumerated on EIAForm923 Page 7
+    """
+    __tablename__ = 'fuel_type_eia923'
+    abbr = Column(String, primary_key=True)
+    fuel_type = Column(String, nullable=False)
 
 ###########################################################################
 # "Glue" tables relating names & IDs from different data sources

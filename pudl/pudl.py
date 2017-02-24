@@ -13,10 +13,12 @@ from pudl.constants import ferc1_fuel_unit_strings, rto_iso, census_region
 from pudl.constants import ferc1_default_tables, ferc1_pudl_tables
 from pudl.constants import ferc1_working_tables
 from pudl.constants import ferc_electric_plant_accounts
+from pudl.constants import fuel_type_eia923
 
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
 from pudl.models import State, RTOISO, CensusRegion
+from pudl.models import FuelTypeEIA923
 
 # Tables that hold "glue" connecting FERC1 & EIA923 to each other:
 from pudl.models import Utility, UtilityFERC1, UtilityEIA923
@@ -81,7 +83,9 @@ def ingest_static_tables(engine):
     pudl_session.add_all([PrimeMover(prime_mover=pm) for pm in prime_movers])
     pudl_session.add_all([RTOISO(abbr=k, name=v) for k,v in rto_iso.items()])
     pudl_session.add_all([Year(year=yr) for yr in range(1994,2017)])
+
     pudl_session.add_all([CensusRegion(abbr=m, name=w) for m,w in census_region.items()])
+    pudl_session.add_all([FuelTypeEIA923(abbr=n, fuel_type=z) for n,z in fuel_type_eia923.items()])
 
     # States dictionary is defined outside this function, below.
     pudl_session.add_all([State(abbr=k, name=v) for k,v in us_states.items()])
