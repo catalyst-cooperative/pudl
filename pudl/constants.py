@@ -643,7 +643,7 @@ eia_sector = {
 }
 
 # EIA 923: EIA Type of prime mover:
-eia_reported_prime_mover = {
+prime_mover_eia923 = {
   'BA':'Energy Storage, Battery',
   'BT':'Turbines Used in a Binary Cycle. \
         Including those used for geothermal applications',
@@ -673,7 +673,7 @@ eia_reported_prime_mover = {
 }
 
 # EIA 923: The fuel code reported to EIA.Two or three letter alphanumeric:
-eia_reported_fuel_type_code = {
+fuel_type_eia923 = {
   'AB':'Agricultural By-Products',
   'ANT':'Anthracite Coal',
   'BFG':'Blast Furnace Gas',
@@ -732,7 +732,7 @@ eia_reported_fuel_type_code = {
 # larger categories used by EIA in, for example,
 # the Annual Energy Review (AER).Two or three letter alphanumeric.
 # See the Fuel Code table (Table 5), below:
-eia_aer_fuel_type_code = {
+fuel_type_aer_eia923 = {
   'SUN':'Solar PV and thermal',
   'COL':'Coal',
   'DFO':'Distillate Petroleum',
@@ -756,21 +756,21 @@ eia_aer_fuel_type_code = {
 # EIA 923: EIA The type of physical units fuel consumption is reported in.
 # All consumption is reported in either short tons for solids,
 # thousands of cubic feet for gases, and barrels for liquids:"""
-eia_physical_label_unit = {
+physical_label_unit_eia923 = {
   'mcf':'for gases',
   'short tons':'for solid',
   'barrels':'for liquids'
 }
 # EIA 923: Designates the purchase type under which receipts occurred
 # in the reporting month. One or two character alphanumeric:
-eia_contract_type = {
+contract_type_eia923 = {
   'C':'Contract',
   'NC':'New Contract',
   'S':'Spot Purchase'
 }
 # EIA 923: The fuel code associated with the fuel receipt.
 # Two or three character alphanumeric:
-eia_energy_source = {
+energy_source_eia923 = {
     'ANT':'Anthracite Coal',
     'BIT':'Bituminous Coal',
     'DFO':'Distillate Fuel Oil. Including diesel,\
@@ -793,10 +793,10 @@ eia_energy_source = {
 }
 
 #EIA 923 Fuel Group
-eia_fuel_group = ['Coal', 'Natural Gas', 'Petroleum', 'Petroleum Coke']
+fuel_group_eia923 = ['Coal', 'Natural Gas', 'Petroleum', 'Petroleum Coke']
 
 # EIA 923: Type of Coal Mine
-eia_coalmine_type = {
+coalmine_type_eia923 = {
   'P':'Preperation Plant',
   'S':'Surface',
   'U':'Underground',
@@ -809,7 +809,7 @@ eia_coalmine_type = {
 # EIA 923: State abbreviation related to coal mine location.
 # Country abbreviations are also listed under this category and are as follows:
 
-eia_coalmine_state = {
+coalmine_state_eia923 = {
   'AU':'Australia',
   'CL':'Columbia',
   'CN':'Canada',
@@ -822,14 +822,14 @@ eia_coalmine_state = {
 }
 
 #EIA 923: Non-Regulated Independent Power Plant or Nonutility Plant.
-eia_regulated = {
+regulated_eia923 = {
   'REG':'Regulated Electric Utility',
   'UNR':'Non-Regulated Independent Power Plant or Nonutility Plant.'
 }
 
 #EIA 923: One character designates the reporting
 #frequency for the plant. Alphanumeric:
-eia_respondent_frequency = {
+respondent_frequency_eia923 = {
   'M':'Monthly respondent',
   'A':'Annual respondent'
 }
@@ -876,7 +876,7 @@ eia_primary_secondary_mode_of_transporation = {
 }
 
 # EIA 923: Contract type for natural gas capacity service:
-eia_natural_gas_transportation_service = {
+natural_gas_transportation_service_eia923 = {
   'F':'Firm',
   'I':'Interruptible'
 }
