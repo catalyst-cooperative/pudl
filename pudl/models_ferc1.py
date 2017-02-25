@@ -86,25 +86,25 @@ class PlantSteamFERC1(models.PUDLBase):
     expns_kwh = Column(Float) # Data
     asset_retire_cost = Column(Float) # Data
 
-class HydroFERC1(models.PUDLBase):
+class PlantsHydroFERC1(models.PUDLBase):
     """
     Annual data on hydro plants from FERC form 1
     """
-    __tablename__ = 'hydro_ferc1'
-    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
-    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
+    __tablename__ = 'plants_hydro_ferc1'
+    __table_args__ = (ForeignKeyConstraint(
+                        ['respondent_id', 'plant_name'],
+                        ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
+    respondent_id = Column(Integer, primary_key=True)
     year = Column(Integer, ForeignKey('years.year'), primary_key=True)
-    #respondent_id
-    #report_year ?? Don't we need to link the report_year to the year ??
     project_no = Column(Integer)
-    plant_name = Column(String)
-    plant_kind = Column(String)
-    plant_const = Column(String)
-    yr_const = Column(Integer)
-    yr_installed = Column(Integer)
-    tot_capacity = Column(Float)
+    plant_name = Column(String, primary_key=True)
+    plant_kind = Column(String) #FK
+    plant_construction = Column(String)
+    year_constructed = Column(Integer)
+    year_installed = Column(Integer)
+    total_capacity = Column(Float)
     peak_demand = Column(Float)
-    plant_hours = Column(Float)
+    plant_hours_connected_while_generating = Column(Float)
     favorable_cond = Column(Float)
     adverse_cond = Column(Float)
     avg_num_of_emp = Column(Float)
@@ -131,3 +131,55 @@ class HydroFERC1(models.PUDLBase):
     expns_kwh = Column(Float)
     asset_retire_cost = Column(Float)
     #report_prd
+
+# class PlantsPumpedHydro(models.PUDLBase):
+#     """docstring for PlantsPumpedHydro"""
+#     __tablename__ = 'plants_pummped_hydro_ferc1'
+#     __table_args__ = (ForeignKeyConstraint(
+#                         ['respondent_id', 'plant_name'],
+#                         ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
+#     respondent_id = Column(Integer, nullable=False)
+#     report_year = Colum(Integer, nullable=False)
+#     #spplmnt_num       | integer               | not null  | plain    |              |
+#     #row_number        | integer               | not null  | plain    |              |
+#     #row_seq           | integer               |           | plain    |              |
+#     #row_prvlg         | character varying(1)  |           | extended |              |
+#     project_number = Column(Integer)
+#     plant_name = Column(String, nullable=False)
+#     plant_kind = Column(String)
+#     year_constructed = Column(Integer)
+#     year_installed = Column(Integer)
+#     tot_capacity      | double precision      |           | plain    |              |
+#     peak_demand       | double precision      |           | plain    |              |
+#     plant_hours       | double precision      |           | plain    |              |
+#     plant_capability  | double precision      |           | plain    |              |
+#     avg_num_of_emp    | double precision      |           | plain    |              |
+#     net_generation    | double precision      |           | plain    |              |
+#     energy_used       | double precision      |           | plain    |              |
+#     net_load          | double precision      |           | plain    |              |
+#     cost_land         | double precision      |           | plain    |              |
+#     cost_structures   | double precision      |           | plain    |              |
+#     cost_facilties    | double precision      |           | plain    |              |
+#     cost_wheels       | double precision      |           | plain    |              |
+#     cost_electric     | double precision      |           | plain    |              |
+#     cost_misc_eqpmnt  | double precision      |           | plain    |              |
+#     cost_roads        | double precision      |           | plain    |              |
+#     asset_retire_cost | double precision      |           | plain    |              |
+#     cost_of_plant     | double precision      |           | plain    |              |
+#     cost_per_kw       | double precision      |           | plain    |              |
+#     expns_operations  | double precision      |           | plain    |              |
+#     expns_water_pwr   | double precision      |           | plain    |              |
+#     expns_pump_strg   | double precision      |           | plain    |              |
+#     expns_electric    | double precision      |           | plain    |              |
+#     expns_misc_power  | double precision      |           | plain    |              |
+#     expns_rents       | double precision      |           | plain    |              |
+#     expns_engneering  | double precision      |           | plain    |              |
+#     expns_structures  | double precision      |           | plain    |              |
+#     expns_dams        | double precision      |           | plain    |              |
+#     expns_plant       | double precision      |           | plain    |              |
+#     expns_misc_plnt   | double precision      |           | plain    |              |
+#     expns_producton   | double precision      |           | plain    |              |
+#     pumping_expenses  | double precision      |           | plain    |              |
+#     tot_prdctn_exns   | double precision      |           | plain    |              |
+#     expns_kwh         | double precision      |           | plain    |              |
+#     #report_prd        | integer               | not null  | plain    |              |
