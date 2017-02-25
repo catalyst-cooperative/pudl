@@ -13,26 +13,10 @@ from pudl.constants import ferc1_fuel_unit_strings, rto_iso
 from pudl.constants import ferc1_default_tables, ferc1_pudl_tables
 from pudl.constants import ferc1_working_tables
 from pudl.constants import ferc_electric_plant_accounts
-from pudl.constants import census_region, nerc_region
-from pudl.constants import fuel_type_aer, respondent_frequency
-
-
-# EIA specific lists that will get moved over to models_eia923.py
-from pudl.constants import sector_eia, contract_type_eia923
-from pudl.constants import fuel_type_eia923, prime_mover_eia923
-from pudl.constants import fuel_unit_eia923, energy_source_eia923
-from pudl.constants import fuel_group_eia923
 
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
-from pudl.models import State, RTOISO, CensusRegion, NERCRegion
-from pudl.models import FuelTypeAER, RespondentFrequency
-
-# EIA specific lists that will get moved over to models_eia923.py
-from pudl.models import SectorEIA, ContractTypeEIA923
-from pudl.models import FuelTypeEIA923, PrimeMoverEIA923
-from pudl.models import FuelUnitEIA923, EnergySourceEIA923
-from pudl.models import FuelGroupEIA923
+from pudl.models import State, RTOISO
 
 # Tables that hold "glue" connecting FERC1 & EIA923 to each other:
 from pudl.models import Utility, UtilityFERC1, UtilityEIA923
@@ -97,19 +81,6 @@ def ingest_static_tables(engine):
     pudl_session.add_all([PrimeMover(prime_mover=pm) for pm in prime_movers])
     pudl_session.add_all([RTOISO(abbr=k, name=v) for k,v in rto_iso.items()])
     pudl_session.add_all([Year(year=yr) for yr in range(1994,2017)])
-
-    pudl_session.add_all([CensusRegion(abbr=m, name=w) for m,w in census_region.items()])
-    pudl_session.add_all([NERCRegion(abbr=s, name=d) for s,d in nerc_region.items()])
-    pudl_session.add_all([RespondentFrequency(abbr=t, unit=e) for t,e in respondent_frequency.items()])
-    pudl_session.add_all([SectorEIA(number=nu, name=na) for nu,na in sector_eia.items()])
-    pudl_session.add_all([ContractTypeEIA923(abbr=ab, contract_type=ct) for ab, ct in contract_type_eia923.items()])
-    pudl_session.add_all([FuelTypeEIA923(abbr=n, fuel_type=z) for n,z in fuel_type_eia923.items()])
-    pudl_session.add_all([PrimeMoverEIA923(abbr=o, prime_mover = a) for o,a in prime_mover_eia923.items()])
-    pudl_session.add_all([FuelUnitEIA923(abbr=p, unit=b) for p,b in fuel_unit_eia923.items()])
-    pudl_session.add_all([FuelTypeAER(abbr=r, fuel_type=c) for r,c in fuel_type_aer.items()])
-    pudl_session.add_all([EnergySourceEIA923(abbr=a, source=s) for a,s in energy_source_eia923.items()])
-    pudl_session.add_all([FuelGroupEIA923(group=gr) for gr in fuel_group_eia923])
-
 
     # States dictionary is defined outside this function, below.
     pudl_session.add_all([State(abbr=k, name=v) for k,v in us_states.items()])
@@ -422,8 +393,8 @@ def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine):
     # Now we need to add a column to the DataFrame that has the FERC account
     # IDs corresponding to the row_number that's already in there...
     ferc_acct_df = ferc_electric_plant_accounts
-    ferc_acct_df = ferc_acct_df.drop(['ferc_account_description'],axis=1)
-    ferc_acct_df = ferc_acct_df.dropna()
+    ferc_acct_df.drop(['ferc_account_description'], axis=1, inplace=True)
+    ferc_acct_df.dropna(inplace=True)
     ferc_acct_df['row_number'] = ferc_acct_df['row_number'].astype(int)
 
     ferc1_pis_df = pd.merge(ferc1_pis_df, ferc_acct_df,
