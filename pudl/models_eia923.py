@@ -16,13 +16,10 @@ class PlantInfo(models.PUDLBase):
     """
     __tablename__ = 'plant_info_eia'
 
-    __table_args__ = (ForeignKeyConstraint(
-                    ['plant_id'],
-                    ['plants_eia23.plant_id']),)
-    plant_id = Column(Integer, nullable=False, primary_key=True)
+    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id') primary_key=True)
 #    combined_heat_power = Column(String, ForeignKey('????.???'), nullable=False)
 #    plant_state = Column(String, ForeignKey(us_states.abbr), nullable=False)
-    census_region = Column(String, ForeignKey(census_region.abbr), nullable=False)
+    census_region = Column(String, ForeignKey('census_region.abbr'), nullable=False)
 #    nerc_region = Column(String, ForeignKey(nerc_region.abbr), nullable=False)
 #    eia_sector = Column(String, ForeignKey(eia_sector.number), nullable=False) #may need to rethink this
 #    sector_name = Column(String, ForeignKey(eia_sector.name), nullable=False) #may need to rethink this
@@ -36,20 +33,18 @@ class GeneratorFuelEIA923(models.PUDLBase):
     populated from EIA Form 923 Page 1 Generation and Fuel Data.
     """
     __tablename__ = 'generator_fuel_eia923'
-    __table_args__ = (ForeignKeyConstraint(
-                        ['plant_id', 'utility_id', 'prime_mover', 'fuel_type'],
-                        ['plants_eia23.plant_id', 'utilities_eia923.operator_id', 'prime_mover_eia923.prime_mover', 'fuel_type_eia923.fuel_type']),)
+
     # Each month, for each unique combination of prime mover and fuel type,
     #there is one report for each plant, which may be recorded multiple times
     #for multiple utilities that have a stake in the plant...
     #Primary key fields: plant, utility, prime mover, fuel type, and year.
-    plant_id = Column(Integer, nullable=False, primary_key=True)
-    utility_id = Column(Integer, nullable=False, primary_key=True)
-    prime_mover = Column(String, nullable=False, primary_key=True)
-    fuel_type = Column(String, nullable=False, primary_key=True)
+    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'), primary_key=True)
+    utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'), primary_key=True)
+    prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'), primary_key=True)
+    fuel_type = Column(String, ForeignKey('fuel_type_eia923.fuel_type'), primary_key=True)
     year = Column(Integer, ForeignKey('years.year'), primary_key=True)
     month = Column(Integer, ForeignKey('months.month'), primary_key=True)
-    nuclear_unit_id = Column(Integer, nullable=True)
+    nuclear_unit_id = Column(Integer)
     plant_name = Column(String, nullable=False)
     operator_name = Column(String, nullable=False)
     AER_fuel_type = Column(String, ForeignKey('fuel_type_aer_eia923.????????????????????????????') nullable=False)
@@ -69,20 +64,17 @@ class BoilerFuelDataEIA923(models.PUDLBase):
     Sources: EIA-923 and EIA-860 Reports
     """
     __tablename__ = 'boiler_data_eia923'
-    __table_args__ = (ForeignKeyConstraint(
-                    ['plant_id', 'utility_id', 'prime_mover', 'fuel_type'],
-                    ['plants_eia23.plant_id', 'utilities_eia923.operator_id', 'prime_mover_eia923.prime_mover', 'fuel_type_eia923.fuel_type']),)
 
     # Each month, for each unique combination of boiler id and prime mover and fuel,
     #there is one report for each boiler unit in each plant.
     #Primary key fields: plant, utility, boiler, prime mover, fuel type, and year.
 
     # Should this be PUDL or EIA plant_id? Should we have both here?
-    plant_id = Column(Integer, nullable=False, primary_key=True)
-    utility_id = Column(Integer, nullable=False, primary_key=True)
-    prime_mover = Column(String, nullable=False, primary_key=True)
+    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'), primary_key=True)
+    utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'), primary_key=True)
+    prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'), primary_key=True)
+    fuel_type = Column(String, ForeignKey('fuel_type_eia923.fuel_type'), primary_key=True)
     generator_id = Column(String, ForeignKey('boilers.boiler'), primary_key=True) #is this correct?
-    fuel_type = Column(String, nullable = False, primary_key=True)
     year = Column(Integer, ForeignKey('years.year'), primary_key=True)
     month = Column(Integer, ForeignKey('months.month'), primary_key=True)
     fuel_unit = Column(String, ForeignKey('fuel_unit_eia923.unit'), nullable=False)
@@ -102,15 +94,13 @@ class GeneratorDataEIA923(models.PUDLBase):
     Sources: EIA-923 and EIA-860 Reports
     """
     __tablename__ = 'generator_data_eia923'
-    __table_args__ = (ForeignKeyConstraint(
-                        ['plant_id', 'utility_id', 'prime_mover'],
-                        ['plants_eia23.plant_id', 'utilities_eia923.operator_id', 'prime_mover_eia923.prime_mover']),)
+
     # Each month, for each unique combination of generator id and prime mover and fuel,
     # there is one report for each generator unit in each plant.
     # Primary key fields: plant, utility, generator, and prime mover.
-    plant_id = Column(Integer, nullable=False, primary_key=True)
-    utility_id = Column(Integer, nullable=False, primary_key=True)
-    prime_mover = Column(String, nullable=False, primary_key=True)
+    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'), primary_key=True)
+    utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'), primary_key=True)
+    prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'), primary_key=True)
     generator_id = Column(String, ForeignKey('generators.generator'), primary_key=True) #is this correct?
     year = Column(Integer, ForeignKey('years.year'), primary_key=True)
     month = Column(Integer, ForeignKey('months.month'), primary_key=True)
@@ -130,29 +120,29 @@ class FuelReceiptsCostsEIA923(models.PUDLBase):
                         ['plant_id', 'fuel_type'],
                         ['plants_eia23.plant_id', 'fuel_type_eia923.fuel_type']),)
 
-    fuel_receipt_id = Column(Integer, primary_key=True, autoincrement=True)
-    plant_id = Column(Integer, nullable=False, primary_key=True)
+    fuel_receipt_id = Column(Integer, primary_key=True, autoincrement=True) #Create this field?
+    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'), primary_key=True)#instead of plant name, which is field listed on Page 5?
     year = Column(Integer, ForeignKey('years.year'), nullable=False)
-    month = Column(Integer, ForeignKey('months.month'), nullable=False) #is this correct?
-    purchase_type = Column(String, nullable=False) #TODO add FK/constants
+    month = Column(Integer, ForeignKey('months.month'), nullable=False)
+    contract_type = Column(String, ForeignKey('contract_type_eia923.contract_type'), nullable=False) #use contract_type field? Or abbr?
     contract_expiration_date = Column(Integer, nullable=False)
-    energy_source = Column(String, nullable=False) # TODO add FK/constants
-    fuel_group = Column(String, nullable=False) # TODO add FK/constants
-    coalmine_type = Column(String, nullable=False) # TODO add FK/constants
-    coalmine_state = Column(String, nullable=False) # TODO add FK/constants
-    coalmine_county = Column(String, nullable=False) # TODO add FK/constants
-    coalmine_msha_id = Column(Integer, nullable=False) # TODO add FK/new table
-    coalmine_name = Column(String, nullable=False) # TODO add FK/new table?
+    energy_source = Column(String, ForeignKey('energy_source_eia923.source'), nullable=False)
+    fuel_group = Column(String, ForeignKey('fuel_group_eia923.group'), nullable=False)
+    coalmine_type = Column(String, ForeignKey('coalmine_type_eia923.name'))
+    coalmine_state = Column(String, ForeignKey('coalmine_state_eia923.state'))
+    coalmine_county = Column(Integer) # TODO check feasibility to add FK/constants or map to FIPS code used by EIA
+    coalmine_msha_id = Column(Integer) # TODO check feasibility to add FK/constants or map to MSHA ID# used by EIA
+    coalmine_name = Column(String) # TODO create FK as new table?
     supplier =  Column(String, nullable=False) # TODO FK new table?
     quantity = Column(Integer, nullable=False)
     average_heat_content = Column(Integer, nullable=False)
     average_sulfur_content = Column(Integer, nullable=False)
     average_ash_content = Column(Integer, nullable=False)
     average_mercury_content = Column(Integer, nullable=False)
-    fuel_cost = Column(Integer, nullable=False)
-    regulated = Column(String, nullable=False) # TODO add FK/constants
-    operator_name = Column(String, ForeignKey('utilities_eia923.operator_name'), nullable=False)
-    reporting_frequency = Column(String, nullable=False)  #do we have constants for these?
-    primary_transportation_mode = Column(String, nullable=False)  #do we have constants for these?
-    secondary_transportation_mode = Column(String, nullable=False) #do we have constants for these?
-    natural_gas_transportation_service = Column(String, nullable=False)  #do we have constants for these?
+    fuel_cost = Column(Integer) #null values exist in data
+    regulated = Column(String, ForeignKey('regulatory_status_eia923.status'), nullable=False)
+    operator_name = Column(String, ForeignKey('utilities_eia923.operator_name'), nullable=False) # TODO Operator Name or ID here?
+    reporting_frequency = Column(String, ForeignKey('respondent_frequency.unit'), nullable=False)
+    primary_transportation_mode = Column(String, ForeignKey('transpo_mode_eia923.mode'), nullable=False)
+    secondary_transportation_mode = Column(String, ForeignKey('transpo_mode_eia923.mode'), nullable=False)
+    natural_gas_transportation_service = Column(String, ForeignKey('natural_gas_transpo_service_eia923.status'), nullable=False)

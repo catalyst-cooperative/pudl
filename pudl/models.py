@@ -101,7 +101,7 @@ class FuelTypeAER(PUDLBase):
     """
     __tablename__ = 'fuel_type_aer'
     abbr = Column(String, primary_key = True)
-    fuel_type = Column(String, nullable = True)
+    fuel_type = Column(String, nullable = False)
 
 class ContractTypeEIA923(PUDLBase):
     """
@@ -109,7 +109,7 @@ class ContractTypeEIA923(PUDLBase):
     """
     __tablename__ = 'contract_type_eia923'
     abbr = Column(String, primary_key = True)
-    contract_type = Column(String, nullable = True)
+    contract_type = Column(String, nullable = False)
 
 class SectorEIA(PUDLBase):
     """
@@ -125,7 +125,7 @@ class PrimeMoverEIA923(PUDLBase):
     """
     __tablename__ = 'prime_mover_eia923'
     abbr = Column(String, primary_key = True)
-    prime_mover = Column(String, nullable = True)
+    prime_mover = Column(String, nullable = False)
 
 class FuelTypeEIA923(PUDLBase):
     """
@@ -142,7 +142,7 @@ class FuelUnitEIA923(PUDLBase):
     """
     __tablename__ = 'fuel_unit_eia923'
     abbr = Column(String, primary_key = True)
-    unit = Column(String, nullable = True)
+    unit = Column(String, nullable = False)
 
 class EnergySourceEIA923(PUDLBase):
     """
@@ -150,7 +150,7 @@ class EnergySourceEIA923(PUDLBase):
     """
     __tablename__ = 'energy_source_eia923'
     abbr = Column(String, primary_key = True)
-    source = Column(String, nullable = True)
+    source = Column(String, nullable = False)
 
 class FuelGroupEIA923(PUDLBase):
     """
@@ -158,6 +158,47 @@ class FuelGroupEIA923(PUDLBase):
     """
     __tablename__ = 'fuel_group_eia923'
     group = Column(String, primary_key = True)
+
+class CoalMineTypeEIA923(PUDLBase):
+    """
+    Type of coal mine, as used in EIA Form 923
+    """
+    __tablename__ = 'coalmine_type_eia923'
+    abbr = Column(String, primary_key = True)
+    name = Column(String, nullable = False)
+
+class CoalMineStateEIA923(PUDLBase):
+    """
+    State and country abbreviations for coal mine locations, used in EIA Form923
+    """
+    __tablename__ = 'coalmine_state_eia923'
+    abbr = Column(String, primary_key = True)
+    state = Column(String, nullable=False)
+
+class RegulatoryStatusEIA923(PUDLBase):
+    """
+    Regulatory status used in EIA Form 923
+    """
+    __tablename__ = 'regulatory_status_eia923'
+    abbr = Column(String, primary_key = True)
+    status = Column(String, nullable = False)
+
+class NaturalGasTranspoServiceEIA923(PUDLBase):
+    """
+    Contract type for natural gas capacity service, used in EIA Form 923
+    """
+    __tablename__ = 'natural_gas_transpo_service_eia923'
+    abbr = Column(String, primary_key = True)
+    status = Column(String, nullable = False)
+
+class TranspoModeEIA923(PUDLBase):
+    """
+    Mode used for longest & 2nd longest distance in EIA Form 923
+    """
+    __tablename__ = 'transpo_mode_eia923'
+    abbr = Column(String, primary_key = True)
+    mode = Column(String, nullable = False)
+
 
 ###########################################################################
 # "Glue" tables relating names & IDs from different data sources

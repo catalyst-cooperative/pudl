@@ -17,6 +17,32 @@ from pudl.constants import ferc_electric_plant_accounts
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
 from pudl.models import State, RTOISO
+from pudl.constants import census_region, nerc_region
+from pudl.constants import fuel_type_aer, respondent_frequency
+
+
+# EIA specific lists that will get moved over to models_eia923.py
+from pudl.constants import sector_eia, contract_type_eia923
+from pudl.constants import fuel_type_eia923, prime_mover_eia923
+from pudl.constants import fuel_unit_eia923, energy_source_eia923
+from pudl.constants import fuel_group_eia923
+from pudl.constants import coalmine_type_eia923, coalmine_state_eia923
+from pudl.constants import regulatory_status_eia923
+from pudl.constants import natural_gas_transpo_service_eia923,transpo_mode_eia923
+
+# Tables that hold constant values:
+from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
+from pudl.models import State, RTOISO, CensusRegion, NERCRegion
+from pudl.models import FuelTypeAER, RespondentFrequency
+
+# EIA specific lists that will get moved over to models_eia923.py
+from pudl.models import SectorEIA, ContractTypeEIA923
+from pudl.models import FuelTypeEIA923, PrimeMoverEIA923
+from pudl.models import FuelUnitEIA923, EnergySourceEIA923
+from pudl.models import FuelGroupEIA923
+from pudl.models import CoalMineTypeEIA923, CoalMineStateEIA923
+from pudl.models import RegulatoryStatusEIA923, NaturalGasTranspoServiceEIA923
+from pudl.models import TranspoModeEIA923
 
 # Tables that hold "glue" connecting FERC1 & EIA923 to each other:
 from pudl.models import Utility, UtilityFERC1, UtilityEIA923
@@ -81,6 +107,24 @@ def ingest_static_tables(engine):
     pudl_session.add_all([PrimeMover(prime_mover=pm) for pm in prime_movers])
     pudl_session.add_all([RTOISO(abbr=k, name=v) for k,v in rto_iso.items()])
     pudl_session.add_all([Year(year=yr) for yr in range(1994,2017)])
+
+    pudl_session.add_all([CensusRegion(abbr=m, name=w) for m,w in census_region.items()])
+    pudl_session.add_all([NERCRegion(abbr=s, name=d) for s,d in nerc_region.items()])
+    pudl_session.add_all([RespondentFrequency(abbr=t, unit=e) for t,e in respondent_frequency.items()])
+    pudl_session.add_all([SectorEIA(number=nu, name=na) for nu,na in sector_eia.items()])
+    pudl_session.add_all([ContractTypeEIA923(abbr=ab, contract_type=ct) for ab, ct in contract_type_eia923.items()])
+    pudl_session.add_all([FuelTypeEIA923(abbr=n, fuel_type=z) for n,z in fuel_type_eia923.items()])
+    pudl_session.add_all([PrimeMoverEIA923(abbr=o, prime_mover = a) for o,a in prime_mover_eia923.items()])
+    pudl_session.add_all([FuelUnitEIA923(abbr=p, unit=b) for p,b in fuel_unit_eia923.items()])
+    pudl_session.add_all([FuelTypeAER(abbr=r, fuel_type=c) for r,c in fuel_type_aer.items()])
+    pudl_session.add_all([EnergySourceEIA923(abbr=a, source=s) for a,s in energy_source_eia923.items()])
+    pudl_session.add_all([FuelGroupEIA923(group=gr) for gr in fuel_group_eia923])
+    pudl_session.add_all([CoalMineTypeEIA923(abbr=b, name=n) for b,n in coalmine_type_eia923.items()])
+    pudl_session.add_all([CoalMineStateEIA923(abbr=c, state=o) for c,o in coalmine_state_eia923.items()])
+    pudl_session.add_all([CoalMineStateEIA923(abbr=c, state=o) for c,o in us_states.items()]) #is this right way to add these?
+    pudl_session.add_all([RegulatoryStatusEIA923(abbr=d, status=p) for d,p in regulatory_status_eia923.items()])
+    pudl_session.add_all([TranspoModeEIA923(abbr=e, mode=q) for e,q in transpo_mode_eia923.items()])
+    pudl_session.add_all([NaturalGasTranspoServiceEIA923(abbr=f, status=r) for f,r in natural_gas_transpo_service_eia923.items()])
 
     # States dictionary is defined outside this function, below.
     pudl_session.add_all([State(abbr=k, name=v) for k,v in us_states.items()])
