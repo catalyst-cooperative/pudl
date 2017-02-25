@@ -337,6 +337,15 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
     """
     Ingest f1_hydro table of FERC Form 1 DB into PUDL DB.
     """
+    f1_hydro = ferc1_meta.tables['f1_hydro']
+
+    f1_hydro_select = select([f1_hydro]).\
+                            where(f1_hydro.c.plant_name != '')
+
+    ferc1_hydro_df = pd.read_sql(f1_hydro_select, ferc1_engine)
+
+
+
     pass
 
 def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine):
