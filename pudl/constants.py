@@ -425,7 +425,8 @@ ferc1_default_tables = ['f1_respondent_id',
                         'f1_hydro',
                         'f1_pumped_storage',
                         'f1_plant_in_srvce',
-                        'f1_purchased_pwr' ]
+                        'f1_purchased_pwr',
+                        'f1_accumdepr_prvsn' ]
 
 # This is the set of tables which have been successfully integrated into PUDL:
 ferc1_pudl_tables = ['f1_fuel',
@@ -799,7 +800,7 @@ energy_source_eia923 = {
 }
 
 # EIA 923 Fuel Group, from Page 7 EIA Form 923
-# Groups the energy sources into fuel groups that are located in the Electric 
+# Groups the energy sources into fuel groups that are located in the Electric
 # Power Monthly:  Coal, Natural Gas, Petroleum, Petroleum Coke.
 fuel_group_eia923 = ['Coal', 'Natural Gas', 'Petroleum', 'Petroleum Coke']
 
