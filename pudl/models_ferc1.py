@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Float
+from sqlalchemy import Column, ForeignKey, Integer, String, Float, Numeric
 from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy.orm import relationship
 
@@ -47,9 +47,10 @@ class PlantSteamFERC1(models.PUDLBase):
     __table_args__ = (ForeignKeyConstraint(
                         ['respondent_id', 'plant_name'],
                         ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
-    respondent_id = Column(Integer, primary_key=True)
-    plant_name = Column(String, primary_key=True)
-    report_year = Column(Integer, ForeignKey('years.year'), primary_key=True)
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    respondent_id = Column(Integer, nullable=False)
+    plant_name = Column(String, nullable=False)
+    report_year = Column(Integer, ForeignKey('years.year'), nullable=False)
     plant_kind = Column(String) # FK New, needs cleaning
     type_const = Column(String) # FK New, needs cleaning
     year_constructed = Column(Integer) # Data?
@@ -86,7 +87,37 @@ class PlantSteamFERC1(models.PUDLBase):
     expns_kwh = Column(Float) # Data
     asset_retire_cost = Column(Float) # Data
 
-class PlantsHydroFERC1(models.PUDLBase):
+class PlantInServiceFERC1(models.PUDLBase):
+    """
+    Balances and changes to FERC Electric Plant In Service accounts.
+
+    This data comes from f1_plant_in_srvce in the ferc1 DB. It corresponds to
+    the balances of the FERC Uniform System of Accounts for Electric Plant
+    which is well documented here:
+
+    https://www.law.cornell.edu/cfr/text/18/part-101
+
+    Each FERC respondent reports starting & ending balances, and changes to
+    the account balances, each year.
+    """
+    __tablename__ = 'plant_in_service_ferc1'
+    respondent_id = Column(Integer,
+                           ForeignKey('utilities_ferc1.respondent_id'),
+                           primary_key=True)
+    report_year = Column(Integer,
+                         ForeignKey('years.year'),
+                         primary_key=True)
+    ferc_account_id = Column(String,
+                             ForeignKey('ferc_accounts.id'),
+                             primary_key=True)
+    beginning_year_balance = Column(Numeric(14,2))
+    additions = Column(Numeric(14,2))
+    retirements = Column(Numeric(14,2))
+    adjustments = Column(Numeric(14,2))
+    transfers = Column(Numeric(14,2))
+    year_end_balance = Column(Numeric(14,2))
+
+class PlantHydroFERC1(models.PUDLBase):
     """
     Annual data on hydro plants from FERC form 1
     """

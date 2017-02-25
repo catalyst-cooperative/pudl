@@ -4,6 +4,7 @@
 # These imports are necessary for the DBF to SQL type map.
 from sqlalchemy import String, Date, Float, Integer
 from sqlalchemy import Boolean, Text, Float, DateTime
+from pandas import DataFrame
 
 ######################################################################
 # Constants used within the pudl.py module.
@@ -177,6 +178,94 @@ ferc1_fuel_unit_strings = { 'ton'   : ferc1_ton_strings,
                             'mwhth' : ferc1_mwhth_strings
                           }
 
+# Categorizing the strings from the FERC Form 1 Plant Kind (plant_kind) field
+# into lists. There are many strings that weren't categorized,
+# including variants on Steam. Solar and Solar Project also were not
+#classified as these do not indicate if they are solar thermal or photovoltaic.
+
+ferc1_plant_kind_coal = ['Coal']
+
+ferc1_plant_kind_combustion_turbine = ['Combustion Turbine','GT','Gas Turbine',\
+'Gas Turbine # 1','Gas turbine','Gas Turbine (Note 1)',\
+'Gas Turbines','Simple Cycle','COMBUSTION TURBINE','COMB.TURB.PEAK.UNITS',\
+ 'GAS TURBINE','Combustion turbine','Com Turbine Peaking',\
+'Gas Turbine Peaking', 'Comb Turb Peaking', 'COMBUSTINE TURBINE',\
+'Comb. Turine','Conbustion Turbine','Combustine Turbine',\
+'Gas Turbine (Leased)','Combustion Tubine','Gas Turb','Gas Turbine Peaker',\
+'GTG/Gas','Simple Cycle Turbine','GAS-TURBINE','Gas Turbine-Simple',\
+'Gas Turbine - Note 1','Gas Turbine #1','SIMPLE CYCLE','GasTurbine',\
+'CombustionTurbine','Gas Turbine (2)','Comb Turb Peak Units','JET ENGINE']
+
+ferc1_plant_kind_combined_cycle = ['COMBINED CYCLE','Combined Cycle','Combined',\
+'GAS TURB. & HEAT REC','Combined cycle','Com. Cyc','Com. Cycle',\
+'GAS TURB-COMBINED CY','Combined Cycle CTG','Combined Cycle - 40%',\
+'Com Cycle Gas Turb','Combined Cycle Oper','Gas Turb/Comb. Cyc',\
+'Combine Cycle','CC','Comb. Cycle','Gas Turb-Combined Cy']
+
+ferc1_plant_kind_nuke = ['Nuclear','NUCLEAR','Nuclear (3)']
+
+ferc1_plant_kind_geothermal = ['Steam - Geothermal']
+
+ferc_1_plant_kind_internal_combustion = ['IC','Internal Combustion',\
+'Diesel Turbine','Int Combust (Note 1)','Int. Combust (Note1)',\
+'INT.COMBUSTINE','Comb. Cyc','Internal Comb','DIESEL','Diesel Engine',\
+'INTERNAL COMBUSTION','Int Combust - Note 1','Int. Combust - Note1',\
+'Internal Comb Recip','Reciprocating Engine','Comb. Turbine']
+
+ferc1_plant_kind_wind = ['Wind','Wind Energy','Wind Turbine','Wind - Turbine']
+
+ferc1_plant_kind_photovoltaic =['Solar Photovoltaic','Photovoltaic']
+
+ferc1_plant_kind_solar_thermal = ['Solar Thermal']
+
+# Making a dictionary of lists from the lists of plant_fuel strings to create
+# a dictionary of plant fuel lists.
+
+ferc1_plant_kind_strings = {
+                'coal': ferc1_plant_kind_coal,
+                'combustine turbine': ferc1_plant_kind_combustion_turbine,
+                'combined cycle': ferc1_plant_kind_combined_cycle,
+                'nuclear': ferc1_plant_kind_nuke,
+                'geothermal': ferc1_plant_kind_geothermal,
+                'internal combustion': ferc_1_plant_kind_internal_combustion,
+                'wind': ferc1_plant_kind_wind,
+                'photovoltaic': ferc1_plant_kind_photovoltaic,
+                'solar thermal':ferc1_plant_kind_solar_thermal
+}
+
+# Categorizing the strings from the FERC Form 1 Type of Plant Construction
+# (type_const) field into lists.
+# There are many strings that weren't categorized, including crosses between
+# conventional and outdoor, PV, wind, combined cycle, and internal combustion.
+# The lists are broken out into the two types specified in Form 1:
+# conventional and outdoor. These lists are inclusive so that variants of
+# conventional (e.g. "conventional full") and outdoor (e.g. "outdoor full"
+# and "outdoor hrsg") are included.
+
+ferc1_construction_type_outdoor = [ 'Outdoor','OUTDOOR BOILER','Full Outdoor',\
+'Outdoor Boiler','Outdoor Boilers','Outboilers','Fuel outdoor','FULL OUTDOOR',\
+'Outdoors','OUTDOOR','Boiler Outdoor& Full','Boiler Outdoor&Full',\
+'Outdoor Boiler& Full','Full -Outdoor','Outdoor Steam','Outdoor boiler',\
+'OB','Outdoor Automatic','OUTDOOR REPOWER','FULL OUTDOOR BOILER','FO',\
+'Outdoor Boiler & Ful''Full-Outdoor','Fuel Outdoor','Outoor','outdoor',\
+'Outdoor  Boiler&Full','Boiler Outdoor &Full','Outdoor Boiler &Full',\
+'Boiler Outdoor & Ful','Outdoor-Boiler', 'Outdoor - Boiler','Outdoor Const.',\
+'4 Outdoor Boilers','3 Outdoor Boilers','Full outdoor','Full Outdoors',\
+'Full Oudoors','Outdoor (Auto Oper)', 'Outside Boiler','Outdoor Boiler&Full',\
+'OUTDOOR HRSG','Outdoor HRSG']
+ferc1_construction_type_conventional = ['Conventional','CONVENTIONAL',\
+'Conventional Boiler','Conv-B','Conventionall','CONVENTION','conventional',\
+'Coventional','Conven Full Boiler','C0NVENTIONAL','Conventtional','Convential'
+]
+
+# Making a dictionary of lists from the lists of type_const strings to create
+# a dictionary of construction type lists.
+
+ferc1_construction_type_strings = {
+                'outdoor': ferc1_construction_type_outdoor,
+                'conventional':ferc1_construction_type_conventional
+}
+
 # Dictionary mapping DBF files (w/o .DBF file extension) to DB table names
 ferc1_dbf2tbl = {
     'F1_1':  'f1_respondent_id',    # GET THIS ONE
@@ -336,10 +425,13 @@ ferc1_default_tables = ['f1_respondent_id',
                         'f1_hydro',
                         'f1_pumped_storage',
                         'f1_plant_in_srvce',
-                        'f1_purchased_pwr' ]
+                        'f1_purchased_pwr',
+                        'f1_accumdepr_prvsn' ]
 
 # This is the set of tables which have been successfully integrated into PUDL:
-ferc1_pudl_tables = ['f1_fuel',]
+ferc1_pudl_tables = ['f1_fuel',
+                     'f1_steam',
+                     'f1_plant_in_srvce']
 
 # This is the full set of tables that currently ingestible by the ferc1 DB:
 ferc1_working_tables = ['f1_respondent_id',
@@ -386,94 +478,119 @@ ferc1_data_tables = [ 'f1_acb_epda', 'f1_accumdepr_prvsn', 'f1_accumdfrrdtaxcr',
     'f1_cmpinc_hedge_a', 'f1_cmpinc_hedge', 'f1_freeze', 'f1_rg_trn_srv_rev' ]
 
 # Line numbers, and corresponding FERC account number
-# and FERC account numbers from FERC Form 1 page 203, Electric
-# Plant in Service.
-ferc1_plant_in_service = {
-    2: { 'ferc_acct': '301', 'acct_desc': 'intangible_organization' },
-    3: { 'ferc_acct': '302', 'acct_desc': 'intangible_franchises_and_consents'},
-    4: { 'ferc_acct': '303', 'acct_desc': 'intangible_misc_intangible_plant'},
-    8: { 'ferc_acct': '310', 'acct_desc': 'production_land_and_land_rights'},
-    9: { 'ferc_acct': '311', 'acct_desc': 'production_structures_and_improvements'},
-    10: { 'ferc_acct': '312', 'acct_desc': 'production_boiler_plant_equipment'},
-    11: { 'ferc_acct': '313', 'acct_desc': 'production_engines_and_engine-driven_generators'},
-    12: { 'ferc_acct': '314', 'acct_desc': 'production_turbogenerator_units'},
-    13: { 'ferc_acct': '315', 'acct_desc': 'production_accessory_electric_equipment'},
-    14: { 'ferc_acct': '316', 'acct_desc': 'production_misc_power_plant_equipment'},
-    15: { 'ferc_acct': '317', 'acct_desc': 'production_asset_retirement_costs'},
-    18: { 'ferc_acct': '320', 'acct_desc': 'nuclear_land_and_land_rights'},
-    19: { 'ferc_acct': '321', 'acct_desc': 'nuclear_structures_and_improvements'},
-    20: { 'ferc_acct': '322', 'acct_desc': 'nuclear_reactor_plant_equipment'},
-    21: { 'ferc_acct': '323', 'acct_desc': 'nuclear_turbogenerator_units'},
-    22: { 'ferc_acct': '324', 'acct_desc': 'nuclear_accessory_electric_equipment'},
-    23: { 'ferc_acct': '325', 'acct_desc': 'nuclear_misc_power_plant_equipment'},
-    24: { 'ferc_acct': '326', 'acct_desc': 'nuclear_asset_retirement_costs'},
-    27: { 'ferc_acct': '330', 'acct_desc': 'hydraulic_land_and_land_rights'},
-    28: { 'ferc_acct': '331', 'acct_desc': 'hydraulic_structures_and_improvements'},
-    29: { 'ferc_acct': '332', 'acct_desc': 'hydraulic_reservoirs_dams_waterways'},
-    30: { 'ferc_acct': '333', 'acct_desc': 'hydraulic_water_wheels_turbines_generators'},
-    31: { 'ferc_acct': '334', 'acct_desc': 'hydraulic_accessory_electric_equipment'},
-    32: { 'ferc_acct': '335', 'acct_desc': 'hydraulic_misc_power_plant_equipment'},
-    33: { 'ferc_acct': '336', 'acct_desc': 'hydraulic_roads_railroads_bridges'},
-    34: { 'ferc_acct': '337', 'acct_desc': 'hydraulic_asset_retirement_costs'},
-    37: { 'ferc_acct': '340', 'acct_desc': 'other_land_and_land_rights'},
-    38: { 'ferc_acct': '341', 'acct_desc': 'other_structures_and_improvements'},
-    39: { 'ferc_acct': '342', 'acct_desc': 'other_fuel_holders_products_accessories'},
-    40: { 'ferc_acct': '343', 'acct_desc': 'other_prime_movers'},
-    41: { 'ferc_acct': '344', 'acct_desc': 'other_generators'},
-    42: { 'ferc_acct': '345', 'acct_desc': 'other_accessory_electric_equipment'},
-    43: { 'ferc_acct': '346', 'acct_desc': 'other_misc_power_plant_equipment'},
-    44: { 'ferc_acct': '347', 'acct_desc': 'other_asset_retirement_costs'},
-    48: { 'ferc_acct': '350', 'acct_desc': 'transmission_land_and_land_rights'},
-    49: { 'ferc_acct': '352', 'acct_desc': 'transmission_structures_and_improvements'},
-    50: { 'ferc_acct': '353', 'acct_desc': 'transmission_station_equipment'},
-    51: { 'ferc_acct': '354', 'acct_desc': 'transmission_towers_and_fixtures'},
-    52: { 'ferc_acct': '355', 'acct_desc': 'transmission_poles_and_fixtures'},
-    53: { 'ferc_acct': '356', 'acct_desc': 'transmission_overhead_conductors'},
-    54: { 'ferc_acct': '357', 'acct_desc': 'transmission_underground_conduit'},
-    55: { 'ferc_acct': '358', 'acct_desc': 'transmission_underground_conductors'},
-    56: { 'ferc_acct': '359', 'acct_desc': 'transmission_roads_and_trails'},
-    57: { 'ferc_acct': '359.1', 'acct_desc': 'transmission_asset_retirement_costs'},
-    60: { 'ferc_acct': '360', 'acct_desc': 'distribution_land_and_land_rights'},
-    61: { 'ferc_acct': '361', 'acct_desc': 'distribution_structures_and_improvements'},
-    62: { 'ferc_acct': '362', 'acct_desc': 'distribution_station_equipment'},
-    63: { 'ferc_acct': '363', 'acct_desc': 'distribution_storage_battery_equipment'},
-    64: { 'ferc_acct': '364', 'acct_desc': 'distribution_poles_towers_and_fixtures'},
-    65: { 'ferc_acct': '365', 'acct_desc': 'distribution_overhead_conductors'},
-    66: { 'ferc_acct': '366', 'acct_desc': 'distribution_underground_conduit'},
-    67: { 'ferc_acct': '367', 'acct_desc': 'distribution_underground_conductors'},
-    68: { 'ferc_acct': '368', 'acct_desc': 'distribution_line_transformers'},
-    69: { 'ferc_acct': '369', 'acct_desc': 'distribution_services'},
-    70: { 'ferc_acct': '370', 'acct_desc': 'distribution_meters'},
-    71: { 'ferc_acct': '371', 'acct_desc': 'distribution_installations_customer_premises'},
-    72: { 'ferc_acct': '372', 'acct_desc': 'distribution_leased_property_customer_premises'},
-    73: { 'ferc_acct': '373', 'acct_desc': 'distribution_street_lighting_and_signals'},
-    74: { 'ferc_acct': '374', 'acct_desc': 'distribution_asset_retirement_costs'},
-    77: { 'ferc_acct': '380', 'acct_desc': 'regional_transmission_land_and_land_rights'},
-    78: { 'ferc_acct': '381', 'acct_desc': 'regional_transmission_structures_and_improvements'},
-    79: { 'ferc_acct': '382', 'acct_desc': 'regional_transmission_computer_hardware'},
-    80: { 'ferc_acct': '383', 'acct_desc': 'regional_transmission_computer_software'},
-    81: { 'ferc_acct': '384', 'acct_desc': 'regional_transmission_communication_equipment'},
-    82: { 'ferc_acct': '385', 'acct_desc': 'regional_transmission_misc_transmission_and_market'},
-    83: { 'ferc_acct': '386', 'acct_desc': 'regional_transmission_asset_retirement_costs'},
-    86: { 'ferc_acct': '389', 'acct_desc': 'general_plant_land_and_land_rights'},
-    87: { 'ferc_acct': '390', 'acct_desc': 'general_plant_structures_and_improvements'},
-    88: { 'ferc_acct': '391', 'acct_desc': 'general_plant_office_furniture_and_equipment'},
-    89: { 'ferc_acct': '392', 'acct_desc': 'general_plant_transportation_equipment'},
-    90: { 'ferc_acct': '393', 'acct_desc': 'general_plant_stores_equipment'},
-    91: { 'ferc_acct': '394', 'acct_desc': 'general_plant_tools_shop_garage_equipment'},
-    92: { 'ferc_acct': '395', 'acct_desc': 'general_plant_laboratory_equipment'},
-    93: { 'ferc_acct': '396', 'acct_desc': 'general_plant_power_operated_equipment'},
-    94: { 'ferc_acct': '397', 'acct_desc': 'general_plant_communication_equipment'},
-    95: { 'ferc_acct': '398', 'acct_desc': 'general_plant_misc_equipment'},
-    97: { 'ferc_acct': '399', 'acct_desc': 'general_plant_other_tangible_property'},
-    98: { 'ferc_acct': '399.1', 'acct_desc': 'general_plant_asset_retirement_costs'},
-    101: { 'ferc_acct': '102', 'acct_desc': 'electric_plant_purchased'},
-    #102: { 'ferc_acct': '102', 'acct_desc': 'electric_plant_sold'}, The FERC Account number is (Less)(102) - not sure how to handle, seems the value should be treated as a negative
-    103: { 'ferc_acct': '103', 'acct_desc': 'experimental_plant_unclassified'}
-}
+# from FERC Form 1 pages 204-207, Electric Plant in Service.
+# Descriptions from: https://www.law.cornell.edu/cfr/text/18/part-101
+ferc_electric_plant_accounts = DataFrame.from_records([
+# 1. Intangible Plant
+    (2, '301', 'Intangible: Organization'),
+    (3, '302', 'Intangible: Franchises and consents'),
+    (4, '303', 'Intangible: Miscellaneous intangible plant'),
+    (5, 'subtotal_intangible', 'Subtotal: Intangible Plant'),
+# 2. Production Plant
+    #  A. steam production
+    (8, '310', 'Steam production: Land and land rights'),
+    (9, '311', 'Steam production: Structures and improvements'),
+    (10, '312', 'Steam production: Boiler plant equipment'),
+    (11, '313', 'Steam production: Engines and engine-driven generators'),
+    (12, '314', 'Steam production: Turbogenerator units'),
+    (13, '315', 'Steam production: Accessory electric equipment'),
+    (14, '316', 'Steam production: Miscellaneous power plant equipment'),
+    (15, '317', 'Steam production: Asset retirement costs for steam production plant'),
+    (16, 'subtotal_steam_production', 'Subtotal: Steam Production Plant'),
+    #  B. nuclear production
+    (18, '320', 'Nuclear production: Land and land rights (Major only)'),
+    (19, '321', 'Nuclear production: Structures and improvements (Major only)'),
+    (20, '322', 'Nuclear production: Reactor plant equipment (Major only)'),
+    (21, '323', 'Nuclear production: Turbogenerator units (Major only)'),
+    (22, '324', 'Nuclear production: Accessory electric equipment (Major only)'),
+    (23, '325', 'Nuclear production: Miscellaneous power plant equipment (Major only)'),
+    (24, '326', 'Nuclear production: Asset retirement costs for nuclear production plant (Major only)'),
+    (25, 'subtotal_nuclear_produciton','Subtotal: Nuclear Production Plant'),
+    #  C. hydraulic production
+    (27, '330', 'Hydraulic production: Land and land rights'),
+    (28, '331', 'Hydraulic production: Structures and improvements'),
+    (29, '332', 'Hydraulic production: Reservoirs, dams, and waterways'),
+    (30, '333', 'Hydraulic production: Water wheels, turbines and generators'),
+    (31, '334', 'Hydraulic production: Accessory electric equipment'),
+    (32, '335', 'Hydraulic production: Miscellaneous power plant equipment'),
+    (33, '336', 'Hydraulic production: Roads, railroads and bridges'),
+    (34, '337', 'Hydraulic production: Asset retirement costs for hydraulic production plant'),
+    (35, 'subtotal_hydraulic_production', 'Subtotal: Hydraulic Production Plant'),
+    #  D. other production
+    (37, '340', 'Other production: Land and land rights'),
+    (38, '341', 'Other production: Structures and improvements'),
+    (39, '342', 'Other production: Fuel holders, producers, and accessories'),
+    (40, '343', 'Other production: Prime movers'),
+    (41, '344', 'Other production: Generators'),
+    (42, '345', 'Other production: Accessory electric equipment'),
+    (43, '346', 'Other production: Miscellaneous power plant equipment'),
+    (44, '347', 'Other production: Asset retirement costs for other production plant'),
+    (None, '348', 'Other production: Energy Storage Equipment'),
+    (45, 'subtotal_other_production', 'Subtotal: Other Production Plant'),
+    (46, 'subtotal_production', 'Subtotal: Production Plant'),
+# 3. Transmission Plant,
+    (48, '350', 'Transmission: Land and land rights'),
+    (None, '351', 'Transmission: Energy Storage Equipment'),
+    (49, '352', 'Transmission: Structures and improvements'),
+    (50, '353', 'Transmission: Station equipment'),
+    (51, '354', 'Transmission: Towers and fixtures'),
+    (52, '355', 'Transmission: Poles and fixtures'),
+    (53, '356', 'Transmission: Overhead conductors and devices'),
+    (54, '357', 'Transmission: Underground conduit'),
+    (55, '358', 'Transmission: Underground conductors and devices'),
+    (56, '359', 'Transmission: Roads and trails'),
+    (57, '359.1', 'Transmission: Asset retirement costs for transmission plant'),
+    (58, 'subtotal_transmission', 'Subtotal: Transmission Plant'),
+# 4. Distribution Plant
+    (60, '360', 'Distribution: Land and land rights'),
+    (61, '361', 'Distribution: Structures and improvements'),
+    (62, '362', 'Distribution: Station equipment'),
+    (63, '363', 'Distribution: Storage battery equipment'),
+    (64, '364', 'Distribution: Poles, towers and fixtures'),
+    (65, '365', 'Distribution: Overhead conductors and devices'),
+    (66, '366', 'Distribution: Underground conduit'),
+    (67, '367', 'Distribution: Underground conductors and devices'),
+    (68, '368', 'Distribution: Line transformers'),
+    (69, '369', 'Distribution: Services'),
+    (70, '370', 'Distribution: Meters'),
+    (71, '371', 'Distribution: Installations on customers\' premises'),
+    (72, '372', 'Distribution: Leased property on customers\' premises'),
+    (73, '373', 'Distribution: Street lighting and signal systems'),
+    (74, '374', 'Distribution: Asset retirement costs for distribution plant'),
+    (75, 'subtotal_distribution', 'Subtotal: Distribution Plant'),
+# 5. Regional Transmission and Market Operation Plant
+    (77, '380', 'Regional transmission: Land and land rights'),
+    (78, '381', 'Regional transmission: Structures and improvements'),
+    (79, '382', 'Regional transmission: Computer hardware'),
+    (80, '383', 'Regional transmission: Computer software'),
+    (81, '384', 'Regional transmission: Communication Equipment'),
+    (82, '385', 'Regional transmission: Miscellaneous Regional Transmission and Market Operation Plant'),
+    (83, '386', 'Regional transmission: Asset Retirement Costs for Regional Transmission and Market Operation Plant'),
+    (84, 'subtotal_regional_transmission', 'Subtotal: Transmission and Market Operation Plant'),
+    (None, '387', 'Regional transmission: [Reserved]'),
+# 6. General Plant
+    (86, '389', 'General: Land and land rights'),
+    (87, '390', 'General: Structures and improvements'),
+    (88, '391', 'General: Office furniture and equipment'),
+    (89, '392', 'General: Transportation equipment'),
+    (90, '393', 'General: Stores equipment'),
+    (91, '394', 'General: Tools, shop and garage equipment'),
+    (92, '395', 'General: Laboratory equipment'),
+    (93, '396', 'General: Power operated equipment'),
+    (94, '397', 'General: Communication equipment'),
+    (95, '398', 'General: Miscellaneous equipment'),
+    (96, 'subtotal_general', 'Subtotal: General Plant'),
+    (97, '399', 'General: Other tangible property'),
+    (98, '399.1', 'General: Asset retirement costs for general plant'),
+    (99, 'total_general', 'TOTAL General Plant'),
+    (100, '101_and_106', 'Electric plant in service (Major only)'),
+    (101, '102_purchased', 'Electric plant purchased'),
+    (102, '102_sold', 'Electric plant sold'),
+    (103, '103', 'Experimental plant unclassified'),
+    (104, 'total_electric_plant', 'TOTAL Electric Plant in Service')],
+columns=['row_number','ferc_account_id','ferc_account_description'])
 
-# no totals in the above plant_in_service dictionary
-
+# From Tab 7 of EIA Form 923, Census Region the state is located in
 census_region = {
   'NEW':'New England',
   'MAT':'Middle Atlantic',
@@ -487,6 +604,9 @@ census_region = {
   'PACN':'Pacific Non-Contiguous (AK, HI)',
 }
 
+# From Page 7 of EIA Form923
+# Static list of NERC (North American Electric Reliability Corporation)
+# regions, used for where plant is located
 nerc_region = {
   'NPCC':'Northeast Power Coordinating Council',
   'MRO':'Midwest Reliability Organization',
@@ -498,8 +618,10 @@ nerc_region = {
   'WECC':'Western Electricity Coordinating Council'
 }
 
-eia_sector = {
-    #Traditional regulated electric utilities
+# From Page 7 of EIA Form 923 EIA’s internal consolidated NAICS sectors.
+# For internal purposes, EIA consolidates NAICS categories into seven groups.
+sector_eia = {
+    # traditional regulated electric utilities
     '1':'Electric Utility',
 
     #Independent power producers which are not cogenerators
@@ -527,7 +649,7 @@ eia_sector = {
 }
 
 # EIA 923: EIA Type of prime mover:
-eia_reported_prime_mover = {
+prime_mover_eia923 = {
   'BA':'Energy Storage, Battery',
   'BT':'Turbines Used in a Binary Cycle. \
         Including those used for geothermal applications',
@@ -557,7 +679,7 @@ eia_reported_prime_mover = {
 }
 
 # EIA 923: The fuel code reported to EIA.Two or three letter alphanumeric:
-eia_reported_fuel_type_code = {
+fuel_type_eia923 = {
   'AB':'Agricultural By-Products',
   'ANT':'Anthracite Coal',
   'BFG':'Blast Furnace Gas',
@@ -616,7 +738,7 @@ eia_reported_fuel_type_code = {
 # larger categories used by EIA in, for example,
 # the Annual Energy Review (AER).Two or three letter alphanumeric.
 # See the Fuel Code table (Table 5), below:
-eia_aer_fuel_type_code = {
+fuel_type_aer = {
   'SUN':'Solar PV and thermal',
   'COL':'Coal',
   'DFO':'Distillate Petroleum',
@@ -640,21 +762,22 @@ eia_aer_fuel_type_code = {
 # EIA 923: EIA The type of physical units fuel consumption is reported in.
 # All consumption is reported in either short tons for solids,
 # thousands of cubic feet for gases, and barrels for liquids:"""
-eia_physical_label_unit = {
+fuel_unit_eia923 = {
   'mcf':'for gases',
   'short tons':'for solid',
   'barrels':'for liquids'
 }
 # EIA 923: Designates the purchase type under which receipts occurred
 # in the reporting month. One or two character alphanumeric:
-eia_contract_type = {
+contract_type_eia923 = {
   'C':'Contract',
   'NC':'New Contract',
   'S':'Spot Purchase'
 }
 # EIA 923: The fuel code associated with the fuel receipt.
+# Defined on Page 7 of EIA Form 923
 # Two or three character alphanumeric:
-eia_energy_source = {
+energy_source_eia923 = {
     'ANT':'Anthracite Coal',
     'BIT':'Bituminous Coal',
     'DFO':'Distillate Fuel Oil. Including diesel,\
@@ -676,8 +799,13 @@ eia_energy_source = {
           other petroleum-based liquid wastes.'
 }
 
-# EIA 923: Type of Coal Mine
-eia_coalmine_type = {
+# EIA 923 Fuel Group, from Page 7 EIA Form 923
+# Groups the energy sources into fuel groups that are located in the Electric
+# Power Monthly:  Coal, Natural Gas, Petroleum, Petroleum Coke.
+fuel_group_eia923 = ['Coal', 'Natural Gas', 'Petroleum', 'Petroleum Coke']
+
+# EIA 923: Type of Coal Mine as defined on Page 7 of EIA Form 923
+coalmine_type_eia923 = {
   'P':'Preperation Plant',
   'S':'Surface',
   'U':'Underground',
@@ -690,7 +818,7 @@ eia_coalmine_type = {
 # EIA 923: State abbreviation related to coal mine location.
 # Country abbreviations are also listed under this category and are as follows:
 
-eia_coalmine_state = {
+coalmine_state_eia923 = {
   'AU':'Australia',
   'CL':'Columbia',
   'CN':'Canada',
@@ -702,20 +830,20 @@ eia_coalmine_state = {
   'OC':'Other Country'
 }
 
-#EIA 923: Non-Regulated Independent Power Plant or Nonutility Plant.
-eia_regulated = {
+# From Page 7 EIA Form 923 indicating regulatory status
+regulatory_status_eia923 = {
   'REG':'Regulated Electric Utility',
   'UNR':'Non-Regulated Independent Power Plant or Nonutility Plant.'
 }
 
 #EIA 923: One character designates the reporting
 #frequency for the plant. Alphanumeric:
-eia_respondent_frequency = {
+respondent_frequency = {
   'M':'Monthly respondent',
   'A':'Annual respondent'
 }
 #EIA 923: Mode for the longest / second longest distance.
-eia_primary_secondary_mode_of_transporation = {
+transpo_mode_eia923 = {
   'RR':'Rail: Shipments of fuel moved to consumers by rail \
         (private or public/commercial). Included is coal hauled to or \
         away from a railroad siding by truck if the truck did not use public\
@@ -757,7 +885,7 @@ eia_primary_secondary_mode_of_transporation = {
 }
 
 # EIA 923: Contract type for natural gas capacity service:
-eia_natural_gas_transportation_service = {
+natural_gas_transpo_service_eia923 = {
   'F':'Firm',
   'I':'Interruptible'
 }
