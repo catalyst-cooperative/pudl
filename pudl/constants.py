@@ -888,7 +888,7 @@ regulatory_status_eia923 = {
 
 #EIA 923: One character designates the reporting
 #frequency for the plant. Alphanumeric:
-respondent_frequency = {
+respondent_frequency_eia923 = {
   'M':'Monthly respondent',
   'A':'Annual respondent'
 }

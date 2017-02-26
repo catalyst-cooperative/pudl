@@ -154,33 +154,49 @@ class PlantHydroFERC1(models.PUDLBase):
     plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
     utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
     year = Column(Integer, ForeignKey('years.year'), primary_key=True)
-    #respondent_id
-    #report_year ?? Don't we need to link the report_year to the year ??
+    # respondent_id
+    # report_year ?? Don't we need to link the report_year to the year ??
+    # Probably going to want to look at doing the composite foreign key to
+    # connect to respondent_id/plant_name pair here.
     project_no = Column(Integer)
     plant_name = Column(String)
     plant_kind = Column(String) #FK
-    plant_construction = Column(String) #
-    year_constructed = Column(Integer) #
-    year_installed = Column(Integer) #
-    total_capacity_mw = Column(Float) #name plate capacity
-    peak_demand_mw = Column(Float) #Net Peak Demand on Plant-Megawatts (60 minutes)
-    plant_hours_connected_while_generating = Column(Float) #Plant Hours Connect to Load
-    net_capacity_favorable_conditions_mw = Column(Float) # Net Plant Capability (in megawatts) (a) Under Most Favorable Oper Conditions
-    net_capacity_adverse_conditions = Column(Float) # Net Plant Capability (in megawatts) (b) Under the Most Adverse Oper Conditions
-    avg_number_employees = Column(Float) #Average Number of Employees
-    net_generation = Column(Float) #Net Generation, Exclusive of Plant Use - Kwh
-    cost_land = Column(Float) #Land and Land Rights
-    cost_structure = Column(Float) #Structures and Improvements
-    cost_facilities = Column(Float) #Reservoirs, Dams, and Waterways
-    cost_equipment = Column(Float) #Equipment Costs
-    cost_roads = Column(Float) #Roads, Railroads, and Bridges
-    asset_retire_cost = Column(Float) #Asset Retirement Costs
-    cost_plant_total = Column(Float) #TOTAL cost (Total of 14 thru 19)
-    cost_per_kw = Column(Float) #Cost per KW of Installed Capacity (line 20 / 5)
-    expns_operations = Column(Float) #Operation Supervision and Engineering
-    expns_water_pwr = Column(Float) #Water for Power
-    expns_hydraulic = Column(Float) #Hydraulic Expenses
-    expns_electric = Column(Float) #Electric Expenses
+    plant_construction = Column(String)
+    year_constructed = Column(Integer)
+    year_installed = Column(Integer)
+     # name plate capacity
+    total_capacity_mw = Column(Float)
+    # Net Peak Demand on Plant-Megawatts (60 minutes)
+    peak_demand_mw = Column(Float)
+    # Plant Hours Connect to Load
+    plant_hours_connected_while_generating = Column(Float)
+    # Net Plant Capability (in megawatts)
+    # (a) Under Most Favorable Oper Conditions
+    net_capacity_favorable_conditions_mw = Column(Float)
+    # Net Plant Capability (in megawatts)
+    # (b) Under the Most Adverse Oper Conditions
+    net_capacity_adverse_conditions = Column(Float)
+    # Average Number of Employees
+    avg_number_employees = Column(Float)
+    # Net Generation, Exclusive of Plant Use - Kwh
+    net_generation = Column(Float)
+    # Land and Land Rights
+    cost_land = Column(Float)
+    # Structures and Improvements
+    cost_structure = Column(Float)
+    # Reservoirs, Dams, and Waterways
+    cost_facilities = Column(Float)
+    # Equipment Costs
+    cost_equipment = Column(Float)
+    # Roads, Railroads, and Bridges
+    cost_roads = Column(Float)
+    asset_retire_cost = Column(Float)# Asset Retirement Costs
+    cost_plant_total = Column(Float) # TOTAL cost (Total of 14 thru 19)
+    cost_per_kw = Column(Float) # Cost per KW of Installed Capacity (line 20 / 5)
+    expns_operations = Column(Float) #O peration Supervision and Engineering
+    expns_water_pwr = Column(Float) # Water for Power
+    expns_hydraulic = Column(Float) # Hydraulic Expenses
+    expns_electric = Column(Float) # Electric Expenses
     expns_generation = Column(Float) #Misc Hydraulic Power Generation Expenses
     expns_rents = Column(Float) #Rents
     expns_engineering = Column(Float) #Maintenance Supervision and Engineering
