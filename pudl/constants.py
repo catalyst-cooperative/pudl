@@ -597,7 +597,7 @@ columns=['row_number','ferc_account_id','ferc_account_description'])
 ferc_accumulated_provision_for_depreciation = DataFrame.from_records([
 
 # Section A. Balances and Changes During Year
-    (1, 'Balance Beginning of Year', 'total_balance_beginning_of_year'),
+    (1, 'Balance Beginning of Year'),
     (2, 'Depreciation Provisions for Year, Charged to'),
     (3, '(403) Depreciation Expense'),
     (4, '(403.1) Depreciation Expense for Asset Retirement Costs'),
