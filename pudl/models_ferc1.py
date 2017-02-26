@@ -36,8 +36,8 @@ class FuelFERC1(models.PUDLBase):
     fuel_cost_per_unit_burned = Column(Float, nullable=False)
     fuel_cost_per_unit_delivered = Column(Float, nullable=False)
     fuel_cost_per_mmbtu = Column(Float, nullable=False)
-    fuel_cost_per_kwh = Column(Float, nullable=False)
-    fuel_mmbtu_per_kwh = Column(Float, nullable=False)
+    fuel_cost_per_mwh = Column(Float, nullable=False)
+    fuel_mmbtu_per_mwh = Column(Float, nullable=False)
 
 class PlantSteamFERC1(models.PUDLBase):
     """
@@ -55,37 +55,37 @@ class PlantSteamFERC1(models.PUDLBase):
     type_const = Column(String) # FK New, needs cleaning
     year_constructed = Column(Integer) # Data?
     year_installed = Column(Integer) # Data?
-    total_capacity = Column(Float) # Data!
-    peak_demand = Column(Float) # Data
+    total_capacity_mw = Column(Float) # Data!
+    peak_demand_mw = Column(Float) # Data
     plant_hours = Column(Float) # Data
-    plant_capability = Column(Float) # Data
-    when_not_limited = Column(Float) # Data
-    when_limited = Column(Float) # Data
+    plant_capability_mw = Column(Float) # Data
+    water_limited_mw = Column(Float) # Data
+    not_water_limited_mw = Column(Float) # Data
     avg_num_employees = Column(Float) # Data
-    net_generation = Column(Float) # Data
-    cost_land = Column(Float) # Data
-    cost_structure = Column(Float) # Data
-    cost_equipment = Column(Float) # Data
-    cost_of_plant_total= Column(Float) # Data
-    cost_per_kw = Column(Float) # Data
-    expns_operations = Column(Float) # Data
-    expns_fuel = Column(Float) # Data
-    expns_coolants = Column(Float) # Data
-    expns_steam = Column(Float) # Data
-    expns_steam_other = Column(Float) # Data
-    expns_transfer = Column(Float) # Data
-    expns_electric = Column(Float) # Data
-    expns_misc_power = Column(Float) # Data
-    expns_rents = Column(Float) # Data
-    expns_allowances = Column(Float) # Data
-    expns_engineering = Column(Float) # Data
-    expns_structures = Column(Float) # Data
-    expns_boiler = Column(Float) # Data
-    expns_plants = Column(Float) # Data
-    expns_misc_steam = Column(Float) # Data
-    expns_production_total = Column(Float) # Data
-    expns_kwh = Column(Float) # Data
-    asset_retire_cost = Column(Float) # Data
+    net_generation_mwh = Column(Float) # Data
+    cost_land = Column(Numeric(14,2)) # Data
+    cost_structure = Column(Numeric(14,2)) # Data
+    cost_equipment = Column(Numeric(14,2)) # Data
+    cost_of_plant_total= Column(Numeric(14,2)) # Data
+    cost_per_mw = Column(Numeric(14,2)) # Data
+    expns_operations = Column(Numeric(14,2)) # Data
+    expns_fuel = Column(Numeric(14,2)) # Data
+    expns_coolants = Column(Numeric(14,2)) # Data
+    expns_steam = Column(Numeric(14,2)) # Data
+    expns_steam_other = Column(Numeric(14,2)) # Data
+    expns_transfer = Column(Numeric(14,2)) # Data
+    expns_electric = Column(Numeric(14,2)) # Data
+    expns_misc_power = Column(Numeric(14,2)) # Data
+    expns_rents = Column(Numeric(14,2)) # Data
+    expns_allowances = Column(Numeric(14,2)) # Data
+    expns_engineering = Column(Numeric(14,2)) # Data
+    expns_structures = Column(Numeric(14,2)) # Data
+    expns_boiler = Column(Numeric(14,2)) # Data
+    expns_plants = Column(Numeric(14,2)) # Data
+    expns_misc_steam = Column(Numeric(14,2)) # Data
+    expns_production_total = Column(Numeric(14,2)) # Data
+    expns_per_mwh = Column(Numeric(14,2)) # Data
+    asset_retire_cost = Column(Numeric(14,2)) # Data
 
 class PlantInServiceFERC1(models.PUDLBase):
     """
@@ -117,11 +117,40 @@ class PlantInServiceFERC1(models.PUDLBase):
     transfers = Column(Numeric(14,2))
     year_end_balance = Column(Numeric(14,2))
 
-class HydroFERC1(models.PUDLBase):
+class PlantSmallFERC1(models.PUDLBase):
+    """
+    Annual data on "small plants" imported from the f1_gnrt_plant table.
+
+    Capacity and generation data related to a heterogenous collection of small
+    plants that have to report to FERC. Includes many renewable energy
+    facilities, as well as smaller thermal generation stations.
+    """
+    __tablename__ = 'plants_small_ferc1'
+    __table_args__ = (ForeignKeyConstraint(
+                        ['respondent_id', 'plant_name'],
+                        ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    respondent_id = Column(Integer, nullable=False)
+    plant_name = Column(String, nullable=False)
+    report_year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    year_constructed = Column(Integer)
+    total_capacity_mw = Column(Float)
+    peak_demand_mw = Column(Float)
+    net_generation_mwh = Column(Float)
+    cost_of_plant_total = Column(Numeric(14,2))
+    cost_of_plant_per_mw = Column(Numeric(14,2))
+    cost_of_operation = Column(Numeric(14,2)) # No idea what this field is.
+    expns_fuel = Column(Numeric(14,2))
+    expns_maintenance = Column(Numeric(14,2))
+    kind_of_fuel = Column(String)
+    fuel_cost_per_mmbtu = Column(Numeric(14,2))
+
+class PlantHydroFERC1(models.PUDLBase):
     """
     Annual data on hydro plants from FERC form 1
+    Christina is working on this one.
     """
-    __tablename__ = 'hydro_ferc1'
+    __tablename__ = 'plants_hydro_ferc1'
     plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
     utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
     year = Column(Integer, ForeignKey('years.year'), primary_key=True)
