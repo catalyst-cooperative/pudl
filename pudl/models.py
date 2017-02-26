@@ -86,12 +86,12 @@ class NERCRegion(PUDLBase):
     abbr = Column(String, primary_key=True)
     name = Column(String, nullable=False)
 
-class RespondentFrequency(PUDLBase):
+class RespondentFrequencyEIA923(PUDLBase):
     """
     Reporting frequency of plants, used by EIA in Form 923, Page 5:
     Fuel Receipts and Costs
     """
-    __tablename__ = 'respondent_frequency'
+    __tablename__ = 'respondent_frequency_eia923'
     abbr = Column(String, primary_key=True)
     unit = Column(String, nullable=False)
 

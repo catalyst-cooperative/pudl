@@ -590,6 +590,56 @@ ferc_electric_plant_accounts = DataFrame.from_records([
     (104, 'total_electric_plant', 'TOTAL Electric Plant in Service')],
 columns=['row_number','ferc_account_id','ferc_account_description'])
 
+# Line numbers, and corresponding FERC account number
+# from FERC Form 1 page 219, ACCUMULATED PROVISION FOR DEPRECIATION
+# OF ELECTRIC UTILITY PLANT (Account 108).
+
+ferc_accumulated_provision_for_depreciation = DataFrame.from_records([
+
+# Section A. Balances and Changes During Year
+    (1, 'Balance Beginning of Year'),
+    (2, 'Depreciation Provisions for Year, Charged to'),
+    (3, '(403) Depreciation Expense'),
+    (4, '(403.1) Depreciation Expense for Asset Retirement Costs'),
+    (5, '(413) Exp. of Elec. Plt. Leas. to Others'),
+    (6, 'Transportation Expenses-Clearing'),
+    (7, 'Other Clearing Accounts'),
+    (8, 'Other Accounts (Specify, details in footnote):'),
+    (9, ''), #blank: leave out?
+    (10, 'TOTAL Deprec. Prov for Year (Enter Total of lines 3 thru 9)'),
+    (11, 'Net Charges for Plant Retired:'),
+    (12, 'Book Cost of Plant Retired'),
+    (13, 'Cost of Removal'),
+    (14, 'Salvage (Credit)'),
+    (15, 'TOTAL Net Chrgs. for Plant Ret. (Enter Total of lines 12 thru 14)'),
+    (16, 'Other Debit or Cr. Items (Describe, details in footnote):'),
+    (17, ''), #blank: leave out?
+    (18, 'Book Cost or Asset Retirement Costs Retired'),
+    (19, 'Balance End of Year (Enter Totals of lines 1, 10, 15, 16, and 18)'),
+# Section B. Balances at End of Year According to Functional Classification
+    (20, 'Steam Production'),
+    (21, 'Nuclear Production'),
+    (22, 'Hydraulic Production-Conventional'),
+    (23, 'Hydraulic Production-Pumped Storage'),
+    (24, 'Other Production'),
+    (25, 'Transmission'),
+    (26, 'Distribution'),
+    (27, 'Regional Transmission and Market Operation'),
+    (28, 'General'),
+    (29, 'TOTAL (Enter Total of lines 20 thru 28)')],
+
+columns=['row_number','ferc_account_description'])
+
+# From Page 7 of EIA Form 923
+# For nuclear plants only, the unit number .One digit numeric.
+# Nuclear plants are the only type of plants for which data are shown
+# explicitly at the generating unit level.
+
+combined_heat_power_eia923 = {
+    'Y':'Yes',
+    'N':'No'
+}
+
 # From Tab 7 of EIA Form 923, Census Region the state is located in
 census_region = {
   'NEW':'New England',

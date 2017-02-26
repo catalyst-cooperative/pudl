@@ -18,7 +18,7 @@ from pudl.constants import ferc_electric_plant_accounts
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
 from pudl.models import State, RTOISO
 from pudl.constants import census_region, nerc_region
-from pudl.constants import fuel_type_aer, respondent_frequency
+from pudl.constants import fuel_type_aer, respondent_frequency_eia923
 
 
 # EIA specific lists that will get moved over to models_eia923.py
@@ -33,7 +33,7 @@ from pudl.constants import natural_gas_transpo_service_eia923,transpo_mode_eia92
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
 from pudl.models import State, RTOISO, CensusRegion, NERCRegion
-from pudl.models import FuelTypeAER, RespondentFrequency
+from pudl.models import FuelTypeAER, RespondentFrequencyEIA923
 
 # EIA specific lists that will get moved over to models_eia923.py
 from pudl.models import SectorEIA, ContractTypeEIA923
@@ -110,7 +110,7 @@ def ingest_static_tables(engine):
 
     pudl_session.add_all([CensusRegion(abbr=m, name=w) for m,w in census_region.items()])
     pudl_session.add_all([NERCRegion(abbr=s, name=d) for s,d in nerc_region.items()])
-    pudl_session.add_all([RespondentFrequency(abbr=t, unit=e) for t,e in respondent_frequency.items()])
+    pudl_session.add_all([RespondentFrequency923(abbr=t, unit=e) for t,e in respondent_frequency_eia923.items()])
     pudl_session.add_all([SectorEIA(number=nu, name=na) for nu,na in sector_eia.items()])
     pudl_session.add_all([ContractTypeEIA923(abbr=ab, contract_type=ct) for ab, ct in contract_type_eia923.items()])
     pudl_session.add_all([FuelTypeEIA923(abbr=n, fuel_type=z) for n,z in fuel_type_eia923.items()])
@@ -419,6 +419,43 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
     Ingest f1_hydro table of FERC Form 1 DB into PUDL DB.
     Christina Gosnell has got this one.
     """
+    f1_hydro = ferc1_meta.tables['f1_hydro']
+
+    f1_hydro_select = select([f1_hydro]).\
+                            where(f1_hydro.c.plant_name != '')
+
+    ferc1_hydro_df = pd.read_sql(f1_hydro_select, ferc1_engine)
+    ferc1_hydro_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
+                           'report_prd'], axis=1, inplace=True)
+    ferc1_hydro_df['yr_const'] = pd.to_numeric(
+                                    ferc1_hydro_df['yr_const'],
+                                    errors='coerce')
+    ferc1_hydro_df['yr_installed'] = pd.to_numeric(
+                                        ferc1_hydro_df['yr_installed'],
+                                        errors='coerce')
+    ferc1_hydro_df.dropna(inplace=True)
+    ferc1_hydro_df.rename(columns={
+                            'report_year' : 'year',
+                            'project_no' : 'project_number',
+                            'yr_const' : 'year_constructed',
+                            'plant_const' : 'plant_construction',
+                            'yr_installed' : 'year_installed',
+                            'tot_capacity' : 'total_capacity_mw',
+                            'peak_demand' : 'peak_demand_mw',
+                            'plant_hours' : 'plant_hours_connected_while_generating',
+                            'favorable_cond' : 'net_capacity_favorable_conditions_mw',
+                            'adverse_cond' : 'net_capacity_adverse_conditions',
+                            'avg_num_of_emp' : 'avg_number_employees',
+                            'cost_of_land' : 'cost_land',
+                            'expns_engnr':'expns_engineering',
+                            'expns_total' : 'expns_production_total',
+                            },
+                          inplace=True)
+    ferc1_hydro_df.to_sql(name='plants_hydro_ferc1',
+                        con=pudl_engine, index=False, if_exists='append',
+                         dtype={'respondent_id':Integer,
+                               'report_year':Integer})
+
     pass
 
 def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine):
