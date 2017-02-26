@@ -45,12 +45,12 @@ class GeneratorFuelEIA923(models.PUDLBase):
     # Primary key fields used previously:
     # plant, utility, prime mover, fuel type, and year.
     id = Column(Integer, autoincrement=True, primary_key=True) #creates surrogate key
-    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'))
-    utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id')) # TODO EIA uses Operator ID, not Utility ID; can we change all references from Utility ID to Operator ID?
-    prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'))
-    fuel_type = Column(String, ForeignKey('fuel_type_eia923.fuel_type'))
-    year = Column(Integer, ForeignKey('years.year'))
-    month = Column(Integer, ForeignKey('months.month'))
+    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'), nullable=False)
+    utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'), nullable=False) # TODO EIA uses Operator ID, not Utility ID; can we change all references from Utility ID to Operator ID?
+    prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'), nullable=False)
+    fuel_type = Column(String, ForeignKey('fuel_type_eia923.fuel_type'), nullable=False)
+    year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    month = Column(Integer, ForeignKey('months.month'), nullable=False)
     nuclear_unit_id = Column(Integer)
     plant_name = Column(String, nullable=False) # TODO leave this or just use Plant ID? If leaving, create class/FK?
     operator_name = Column(String, nullable=False) # TODO leave this or just use Utility ID? If leaving, create class/FK?
@@ -78,13 +78,13 @@ class BoilerFuelDataEIA923(models.PUDLBase):
     # plant, utility, boiler, prime mover, fuel type, and year.
 
     id = Column(Integer, autoincrement=True, primary_key=True) #creates surrogate key
-    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'))
-    utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'))
-    prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'))
-    fuel_type = Column(String, ForeignKey('fuel_type_eia923.fuel_type'))
-    boiler_id = Column(String, ForeignKey('XXXX.XXXXX'), nullable=False) # TODO: boilers table? FK?
-    year = Column(Integer, ForeignKey('years.year'))
-    month = Column(Integer, ForeignKey('months.month'))
+    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'), nullable=False)
+    utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'), nullable=False)
+    prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'), nullable=False)
+    fuel_type = Column(String, ForeignKey('fuel_type_eia923.fuel_type'), nullable=False)
+    boiler_id = Column(String, nullable=False) # TODO: boilers table? FK?
+    year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    month = Column(Integer, ForeignKey('months.month'), nullable=False)
     fuel_unit = Column(String, ForeignKey('fuel_unit_eia923.unit'), nullable=False)
     plant_name = Column(String, ForeignKey('plants_eia923.plant_name'), nullable=False) #TODO redundant with plant_id?
     operator_name = Column(String, ForeignKey('utilities_eia923.operator_name'),nullable=False) #TODO redundant with utility/operator_id?
@@ -107,12 +107,12 @@ class GeneratorDataEIA923(models.PUDLBase):
     # Primary key fields used previously:
     # plant, utility, generator, prime mover, year, and month.
     id = Column(Integer, autoincrement=True, primary_key=True) #creates surrogate key
-    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'))
-    utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'))
-    prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'))
-    generator_id = Column(String, ForeignKey('XXXX.XXXX'), nullable=False) #TODO generators table?  FK?
-    year = Column(Integer, ForeignKey('years.year'))
-    month = Column(Integer, ForeignKey('months.month'))
+    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'), nullable=False)
+    utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'), nullable=False)
+    prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'), nullable=False)
+    generator_id = Column(String, nullable=False) #TODO generators table?  FK?
+    year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    month = Column(Integer, ForeignKey('months.month'), nullable=False)
     plant_name = Column(String, ForeignKey('plants_eia923.plant_name'), nullable=False)
     operator_name = Column(String, ForeignKey('utilities_eia923.operator_name'), nullable=False)
     net_generation_mwh = Column(Float, nullable=False)
@@ -130,7 +130,7 @@ class FuelReceiptsCostsEIA923(models.PUDLBase):
     # plant_id and fuel_type.
 
     fuel_receipt_id = Column(Integer, primary_key=True, autoincrement=True) #TODO Create this field instead of 'id' surrogate key?
-    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'))#instead of plant name, which is field listed on Page 5?
+    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'), nullable=False)#instead of plant name, which is field listed on Page 5?
     year = Column(Integer, ForeignKey('years.year'), nullable=False)
     month = Column(Integer, ForeignKey('months.month'), nullable=False)
     contract_type = Column(String, ForeignKey('contract_type_eia923.contract_type'), nullable=False) #TODO use contract_type field? Or abbr?
