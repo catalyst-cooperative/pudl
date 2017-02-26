@@ -22,8 +22,8 @@ class PlantInfo(models.PUDLBase):
     __tablename__ = 'plant_info_eia'
 
     plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'), primary_key = True)
-#    combined_heat_power = Column(String, ForeignKey('????.???'), nullable=False)
-#    plant_state = Column(String, ForeignKey(us_states.abbr), nullable=False)
+    combined_heat_power = Column(String, ForeignKey('combined_heat_power_eia923.abbr'), nullable=False)
+    plant_state = Column(String, ForeignKey('us_states.abbr'), nullable=False)
     census_region = Column(String, ForeignKey('census_region.abbr'), nullable=False)
 #    nerc_region = Column(String, ForeignKey(nerc_region.abbr), nullable=False)
 #    eia_sector = Column(String, ForeignKey(eia_sector.number), nullable=False) #may need to rethink this
@@ -44,16 +44,16 @@ class GeneratorFuelEIA923(models.PUDLBase):
     # for multiple utilities that have a stake in the plant...
     # Primary key fields used previously:
     # plant, utility, prime mover, fuel type, and year.
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'))
-    utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'))
-    prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'))
-    fuel_type = Column(String, ForeignKey('fuel_type_eia923.fuel_type'))
-    year = Column(Integer, ForeignKey('years.year'))
-    month = Column(Integer, ForeignKey('months.month'))
+    id = Column(Integer, autoincrement=True, primary_key=True) #creates surrogate key
+    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'), nullable=False)
+    utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'), nullable=False) # TODO EIA uses Operator ID, not Utility ID; can we change all references from Utility ID to Operator ID?
+    prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'), nullable=False)
+    fuel_type = Column(String, ForeignKey('fuel_type_eia923.fuel_type'), nullable=False)
+    year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    month = Column(Integer, ForeignKey('months.month'), nullable=False)
     nuclear_unit_id = Column(Integer)
-    plant_name = Column(String, nullable=False) # TODO create class/FK
-    operator_name = Column(String, nullable=False) # TODO create class/FK
+    plant_name = Column(String, nullable=False) # TODO leave this or just use Plant ID? If leaving, create class/FK?
+    operator_name = Column(String, nullable=False) # TODO leave this or just use Utility ID? If leaving, create class/FK?
     AER_fuel_type = Column(String, ForeignKey('fuel_type_aer_eia923.fuel_type'), nullable=False)
     fuel_unit = Column(String, ForeignKey('fuel_unit_eia923.unit'), nullable=False)
     quant_consumed_total = Column(Float, nullable=False)
@@ -77,18 +77,17 @@ class BoilerFuelDataEIA923(models.PUDLBase):
     #Primary key fields used previously:
     # plant, utility, boiler, prime mover, fuel type, and year.
 
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'))
-    utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'))
-    prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'))
-    fuel_type = Column(String, ForeignKey('fuel_type_eia923.fuel_type'))
-    generator_id = Column(String, ForeignKey('boilers.boiler')) #TODO this was generator field - was that correct? TODO: need to create class/FK
-    year = Column(Integer, ForeignKey('years.year'))
-    month = Column(Integer, ForeignKey('months.month'))
-    fuel_unit = Column(String, ForeignKey('fuel_unit_eia923.unit'), nullable=False)
-    plant_name = Column(String, ForeignKey('plants_eia923.plant_name'), nullable=False)
-    operator_name = Column(String, ForeignKey('utilities_eia923.operator_name'),nullable=False)
+    id = Column(Integer, autoincrement=True, primary_key=True) #creates surrogate key
+    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'), nullable=False)
+    utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'), nullable=False)
+    prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'), nullable=False)
+    fuel_type = Column(String, ForeignKey('fuel_type_eia923.fuel_type'), nullable=False)
     boiler_id = Column(String, nullable=False) # TODO: boilers table? FK?
+    year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    month = Column(Integer, ForeignKey('months.month'), nullable=False)
+    fuel_unit = Column(String, ForeignKey('fuel_unit_eia923.unit'), nullable=False)
+    plant_name = Column(String, ForeignKey('plants_eia923.plant_name'), nullable=False) #TODO redundant with plant_id?
+    operator_name = Column(String, ForeignKey('utilities_eia923.operator_name'),nullable=False) #TODO redundant with utility/operator_id?
     quant_consumed = Column(Float, nullable=False)
     fuel_mmbtu_per_unit = Column(Float, nullable=False)
     sulfur_content = Column(Float, nullable=False)
@@ -105,13 +104,15 @@ class GeneratorDataEIA923(models.PUDLBase):
 
     # Each month, for each unique combination of generator id and prime mover and fuel,
     # there is one report for each generator unit in each plant.
-    # Primary key fields: plant, utility, generator, and prime mover.
-    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'), primary_key=True)
-    utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'), primary_key=True)
-    prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'), primary_key=True)
-    generator_id = Column(String, ForeignKey('generators.generator'), primary_key=True) #is this correct?
-    year = Column(Integer, ForeignKey('years.year'), primary_key=True)
-    month = Column(Integer, ForeignKey('months.month'), primary_key=True)
+    # Primary key fields used previously:
+    # plant, utility, generator, prime mover, year, and month.
+    id = Column(Integer, autoincrement=True, primary_key=True) #creates surrogate key
+    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'), nullable=False)
+    utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'), nullable=False)
+    prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'), nullable=False)
+    generator_id = Column(String, nullable=False) #TODO generators table?  FK?
+    year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    month = Column(Integer, ForeignKey('months.month'), nullable=False)
     plant_name = Column(String, ForeignKey('plants_eia923.plant_name'), nullable=False)
     operator_name = Column(String, ForeignKey('utilities_eia923.operator_name'), nullable=False)
     net_generation_mwh = Column(Float, nullable=False)
@@ -124,15 +125,15 @@ class FuelReceiptsCostsEIA923(models.PUDLBase):
     """
 
     __tablename__ = 'fuel_receipts_costs_eia923'
-    __table_args__ = (ForeignKeyConstraint(
-                        ['plant_id', 'fuel_type'],
-                        ['plants_eia23.plant_id', 'fuel_type_eia923.fuel_type']),)
 
-    fuel_receipt_id = Column(Integer, primary_key=True, autoincrement=True) #Create this field?
-    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'), primary_key=True)#instead of plant name, which is field listed on Page 5?
+    # Primary key fields used previously:
+    # plant_id and fuel_type.
+
+    fuel_receipt_id = Column(Integer, primary_key=True, autoincrement=True) #TODO Create this field instead of 'id' surrogate key?
+    plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'), nullable=False)#instead of plant name, which is field listed on Page 5?
     year = Column(Integer, ForeignKey('years.year'), nullable=False)
     month = Column(Integer, ForeignKey('months.month'), nullable=False)
-    contract_type = Column(String, ForeignKey('contract_type_eia923.contract_type'), nullable=False) #use contract_type field? Or abbr?
+    contract_type = Column(String, ForeignKey('contract_type_eia923.contract_type'), nullable=False) #TODO use contract_type field? Or abbr?
     contract_expiration_date = Column(Integer, nullable=False)
     energy_source = Column(String, ForeignKey('energy_source_eia923.source'), nullable=False)
     fuel_group = Column(String, ForeignKey('fuel_group_eia923.group'), nullable=False)

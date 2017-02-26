@@ -631,16 +631,15 @@ ferc_accumulated_provision_for_depreciation = DataFrame.from_records([
 columns=['row_number','ferc_account_description'])
 
 # From Page 7 of EIA Form 923
-# For nuclear plants only, the unit number .One digit numeric.
-# Nuclear plants are the only type of plants for which data are shown
-# explicitly at the generating unit level.
+# Whether or not the plant is a combined heat & power facility (cogenerator).
+# One character alphanumeric, “Y” or “N”
 
 combined_heat_power_eia923 = {
     'Y':'Yes',
     'N':'No'
 }
 
-# From Tab 7 of EIA Form 923, Census Region the state is located in
+# From Page 7 of EIA Form 923, Census Region the state is located in
 census_region = {
   'NEW':'New England',
   'MAT':'Middle Atlantic',
@@ -886,13 +885,15 @@ regulatory_status_eia923 = {
   'UNR':'Non-Regulated Independent Power Plant or Nonutility Plant.'
 }
 
-#EIA 923: One character designates the reporting
-#frequency for the plant. Alphanumeric:
+
+# EIA 923: One character designates the reporting
+# frequency for the plant. Alphanumeric:
 respondent_frequency_eia923 = {
   'M':'Monthly respondent',
   'A':'Annual respondent'
 }
-#EIA 923: Mode for the longest / second longest distance.
+
+# EIA 923: Mode for the longest / second longest distance.
 transpo_mode_eia923 = {
   'RR':'Rail: Shipments of fuel moved to consumers by rail \
         (private or public/commercial). Included is coal hauled to or \

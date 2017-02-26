@@ -29,6 +29,7 @@ from pudl.constants import fuel_group_eia923
 from pudl.constants import coalmine_type_eia923, coalmine_state_eia923
 from pudl.constants import regulatory_status_eia923
 from pudl.constants import natural_gas_transpo_service_eia923,transpo_mode_eia923
+from pudl.constants import combined_heat_power_eia923
 
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
@@ -43,6 +44,7 @@ from pudl.models import FuelGroupEIA923
 from pudl.models import CoalMineTypeEIA923, CoalMineStateEIA923
 from pudl.models import RegulatoryStatusEIA923, NaturalGasTranspoServiceEIA923
 from pudl.models import TranspoModeEIA923
+from pudl.models import CombinedHeatPowerEIA923
 
 # Tables that hold "glue" connecting FERC1 & EIA923 to each other:
 from pudl.models import Utility, UtilityFERC1, UtilityEIA923
@@ -125,6 +127,7 @@ def ingest_static_tables(engine):
     pudl_session.add_all([RegulatoryStatusEIA923(abbr=d, status=p) for d,p in regulatory_status_eia923.items()])
     pudl_session.add_all([TranspoModeEIA923(abbr=e, mode=q) for e,q in transpo_mode_eia923.items()])
     pudl_session.add_all([NaturalGasTranspoServiceEIA923(abbr=f, status=r) for f,r in natural_gas_transpo_service_eia923.items()])
+    pudl_session.add_all([CombinedHeatPowerEIA923(abbr=g, status=s) for g,s in combined_heat_power_eia923.items()])
 
     # States dictionary is defined outside this function, below.
     pudl_session.add_all([State(abbr=k, name=v) for k,v in us_states.items()])
