@@ -409,8 +409,36 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
                             where(f1_hydro.c.plant_name != '')
 
     ferc1_hydro_df = pd.read_sql(f1_hydro_select, ferc1_engine)
-
-
+    ferc1_hydro_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
+                           'report_prd'], axis=1, inplace=True)
+    ferc1_hydro_df['yr_const'] = pd.to_numeric(
+                                    ferc1_hydro_df['yr_const'],
+                                    errors='coerce')
+    ferc1_hydro_df['yr_installed'] = pd.to_numeric(
+                                        ferc1_hydro_df['yr_installed'],
+                                        errors='coerce')
+    ferc1_hydro_df.dropna(inplace=True)
+    ferc1_hydro_df.rename(columns={
+                            'report_year' : 'year',
+                            'project_no' : 'project_number',
+                            'yr_const' : 'year_constructed',
+                            'plant_const' : 'plant_construction',
+                            'yr_installed' : 'year_installed',
+                            'tot_capacity' : 'total_capacity_mw',
+                            'peak_demand' : 'peak_demand_mw',
+                            'plant_hours' : 'plant_hours_connected_while_generating',
+                            'favorable_cond' : 'net_capacity_favorable_conditions_mw',
+                            'adverse_cond' : 'net_capacity_adverse_conditions',
+                            'avg_num_of_emp' : 'avg_number_employees',
+                            'cost_of_land' : 'cost_land',
+                            'expns_engnr':'expns_engineering',
+                            'expns_total' : 'expns_production_total',
+                            },
+                          inplace=True)
+    ferc1_hydro_df.to_sql(name='plants_hydro_ferc1',
+                        con=pudl_engine, index=False, if_exists='append',
+                         dtype={'respondent_id':Integer,
+                               'report_year':Integer})
 
     pass
 
