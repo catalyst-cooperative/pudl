@@ -82,7 +82,7 @@ class BoilerFuelDataEIA923(models.PUDLBase):
     utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'))
     prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'))
     fuel_type = Column(String, ForeignKey('fuel_type_eia923.fuel_type'))
-    boiler_id = Column(String, ForeignKey('XXXX.XXXXX') nullable=False) # TODO: boilers table? FK?
+    boiler_id = Column(String, ForeignKey('XXXX.XXXXX'), nullable=False) # TODO: boilers table? FK?
     year = Column(Integer, ForeignKey('years.year'))
     month = Column(Integer, ForeignKey('months.month'))
     fuel_unit = Column(String, ForeignKey('fuel_unit_eia923.unit'), nullable=False)
@@ -110,7 +110,7 @@ class GeneratorDataEIA923(models.PUDLBase):
     plant_id = Column(Integer, ForeignKey('plants_eia23.plant_id'))
     utility_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'))
     prime_mover = Column(String, ForeignKey('prime_mover_eia923.prime_mover'))
-    generator_id = Column(String, ForeignKey('XXXX.XXXX')) #TODO generators table?  FK?
+    generator_id = Column(String, ForeignKey('XXXX.XXXX'), nullable=False) #TODO generators table?  FK?
     year = Column(Integer, ForeignKey('years.year'))
     month = Column(Integer, ForeignKey('months.month'))
     plant_name = Column(String, ForeignKey('plants_eia923.plant_name'), nullable=False)
