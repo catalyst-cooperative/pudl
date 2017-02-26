@@ -18,7 +18,7 @@ from pudl.constants import ferc_electric_plant_accounts
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
 from pudl.models import State, RTOISO
 from pudl.constants import census_region, nerc_region
-from pudl.constants import fuel_type_aer, respondent_frequency
+from pudl.constants import fuel_type_aer, respondent_frequency_eia923
 
 
 # EIA specific lists that will get moved over to models_eia923.py
@@ -33,7 +33,7 @@ from pudl.constants import natural_gas_transpo_service_eia923,transpo_mode_eia92
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
 from pudl.models import State, RTOISO, CensusRegion, NERCRegion
-from pudl.models import FuelTypeAER, RespondentFrequency
+from pudl.models import FuelTypeAER, RespondentFrequencyEIA923
 
 # EIA specific lists that will get moved over to models_eia923.py
 from pudl.models import SectorEIA, ContractTypeEIA923
@@ -110,7 +110,7 @@ def ingest_static_tables(engine):
 
     pudl_session.add_all([CensusRegion(abbr=m, name=w) for m,w in census_region.items()])
     pudl_session.add_all([NERCRegion(abbr=s, name=d) for s,d in nerc_region.items()])
-    pudl_session.add_all([RespondentFrequency(abbr=t, unit=e) for t,e in respondent_frequency.items()])
+    pudl_session.add_all([RespondentFrequency923(abbr=t, unit=e) for t,e in respondent_frequency_eia923.items()])
     pudl_session.add_all([SectorEIA(number=nu, name=na) for nu,na in sector_eia.items()])
     pudl_session.add_all([ContractTypeEIA923(abbr=ab, contract_type=ct) for ab, ct in contract_type_eia923.items()])
     pudl_session.add_all([FuelTypeEIA923(abbr=n, fuel_type=z) for n,z in fuel_type_eia923.items()])

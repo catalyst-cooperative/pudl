@@ -630,6 +630,16 @@ ferc_accumulated_provision_for_depreciation = DataFrame.from_records([
 
 columns=['row_number','ferc_account_description'])
 
+# From Page 7 of EIA Form 923
+# For nuclear plants only, the unit number .One digit numeric.
+# Nuclear plants are the only type of plants for which data are shown
+# explicitly at the generating unit level.
+
+combined_heat_power_eia923 = {
+    'Y':'Yes',
+    'N':'No'
+}
+
 # From Tab 7 of EIA Form 923, Census Region the state is located in
 census_region = {
   'NEW':'New England',
