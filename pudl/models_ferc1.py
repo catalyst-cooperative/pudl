@@ -193,20 +193,20 @@ class PlantHydroFERC1(models.PUDLBase):
     asset_retire_cost = Column(Float)# Asset Retirement Costs
     cost_plant_total = Column(Float) # TOTAL cost (Total of 14 thru 19)
     cost_per_kw = Column(Float) # Cost per KW of Installed Capacity (line 20 / 5)
-    expns_operations = Column(Float) #O peration Supervision and Engineering
+    expns_operations = Column(Float) # O peration Supervision and Engineering
     expns_water_pwr = Column(Float) # Water for Power
     expns_hydraulic = Column(Float) # Hydraulic Expenses
     expns_electric = Column(Float) # Electric Expenses
-    expns_generation = Column(Float) #Misc Hydraulic Power Generation Expenses
-    expns_rents = Column(Float) #Rents
-    expns_engineering = Column(Float) #Maintenance Supervision and Engineering
-    expns_structures = Column(Float) #Maintenance of Structures
-    expns_dams = Column(Float) #Maintenance of Reservoirs, Dams, and Waterways
-    expns_plant = Column(Float) #Maintenance of Electric Plant
-    expns_misc_plant = Column(Float) #Maintenance of Misc Hydraulic Plant
-    expns_production_total = Column(Float) #Total Production Expenses (total 23 thru 33)
-    expns_kwh = Column(Float) #Expenses per net KWh
-    #report_prd
+    expns_generation = Column(Float) # Misc Hydraulic Power Generation Expenses
+    expns_rents = Column(Float) # Rents
+    expns_engineering = Column(Float) # Maintenance Supervision and Engineering
+    expns_structures = Column(Float) # Maintenance of Structures
+    expns_dams = Column(Float) # Maintenance of Reservoirs, Dams, and Waterways
+    expns_plant = Column(Float) # Maintenance of Electric Plant
+    expns_misc_plant = Column(Float) # Maintenance of Misc Hydraulic Plant
+    # Total Production Expenses (total 23 thru 33)
+    expns_production_total = Column(Float)
+    expns_kwh = Column(Float) # Expenses per net KWh
 
 # class PlantsPumpedHydro(models.PUDLBase):
 #     """docstring for PlantsPumpedHydro"""
