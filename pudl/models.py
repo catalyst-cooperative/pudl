@@ -69,6 +69,15 @@ class FERCAccount(PUDLBase):
     id = Column(String, primary_key=True)
     description = Column(String, nullable=False)
 
+class CombinedHeatPowerEIA923(PUDLBase):
+    """
+    Whether or not the plant is a combined heat & power facility (cogenerator)
+    As reported in EIA Form 923 Page 7
+    """
+    __tablename__ = 'combined_heat_power_eia923'
+    abbr = Column(String, primary_key=True)
+    status = Column(String, nullable=False)
+
 class CensusRegion(PUDLBase):
     """
     Static list of census regions used by EIA
@@ -86,12 +95,12 @@ class NERCRegion(PUDLBase):
     abbr = Column(String, primary_key=True)
     name = Column(String, nullable=False)
 
-class RespondentFrequency(PUDLBase):
+class RespondentFrequencyEIA923(PUDLBase):
     """
     Reporting frequency of plants, used by EIA in Form 923, Page 5:
     Fuel Receipts and Costs
     """
-    __tablename__ = 'respondent_frequency'
+    __tablename__ = 'respondent_frequency_eia923'
     abbr = Column(String, primary_key=True)
     unit = Column(String, nullable=False)
 

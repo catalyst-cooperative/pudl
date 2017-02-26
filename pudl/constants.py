@@ -630,7 +630,16 @@ ferc_accumulated_provision_for_depreciation = DataFrame.from_records([
 
 columns=['row_number','ferc_account_description'])
 
-# From Tab 7 of EIA Form 923, Census Region the state is located in
+# From Page 7 of EIA Form 923
+# Whether or not the plant is a combined heat & power facility (cogenerator).
+# One character alphanumeric, “Y” or “N”
+
+combined_heat_power_eia923 = {
+    'Y':'Yes',
+    'N':'No'
+}
+
+# From Page 7 of EIA Form 923, Census Region the state is located in
 census_region = {
   'NEW':'New England',
   'MAT':'Middle Atlantic',
@@ -876,12 +885,13 @@ regulatory_status_eia923 = {
   'UNR':'Non-Regulated Independent Power Plant or Nonutility Plant.'
 }
 
-#EIA 923: One character designates the reporting
-#frequency for the plant. Alphanumeric:
-respondent_frequency = {
+# EIA 923: One character designates the reporting
+# frequency for the plant. Alphanumeric:
+respondent_frequency_eia923 = {
   'M':'Monthly respondent',
   'A':'Annual respondent'
 }
+
 #EIA 923: Mode for the longest / second longest distance.
 transpo_mode_eia923 = {
   'RR':'Rail: Shipments of fuel moved to consumers by rail \

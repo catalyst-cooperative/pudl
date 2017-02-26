@@ -18,7 +18,7 @@ from pudl.constants import ferc_electric_plant_accounts
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
 from pudl.models import State, RTOISO
 from pudl.constants import census_region, nerc_region
-from pudl.constants import fuel_type_aer, respondent_frequency
+from pudl.constants import fuel_type_aer, respondent_frequency_eia923
 
 
 # EIA specific lists that will get moved over to models_eia923.py
@@ -29,11 +29,12 @@ from pudl.constants import fuel_group_eia923
 from pudl.constants import coalmine_type_eia923, coalmine_state_eia923
 from pudl.constants import regulatory_status_eia923
 from pudl.constants import natural_gas_transpo_service_eia923,transpo_mode_eia923
+from pudl.constants import combined_heat_power_eia923
 
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
 from pudl.models import State, RTOISO, CensusRegion, NERCRegion
-from pudl.models import FuelTypeAER, RespondentFrequency
+from pudl.models import FuelTypeAER, RespondentFrequencyEIA923
 
 # EIA specific lists that will get moved over to models_eia923.py
 from pudl.models import SectorEIA, ContractTypeEIA923
@@ -43,6 +44,7 @@ from pudl.models import FuelGroupEIA923
 from pudl.models import CoalMineTypeEIA923, CoalMineStateEIA923
 from pudl.models import RegulatoryStatusEIA923, NaturalGasTranspoServiceEIA923
 from pudl.models import TranspoModeEIA923
+from pudl.models import CombinedHeatPowerEIA923
 
 # Tables that hold "glue" connecting FERC1 & EIA923 to each other:
 from pudl.models import Utility, UtilityFERC1, UtilityEIA923
@@ -110,7 +112,7 @@ def ingest_static_tables(engine):
 
     pudl_session.add_all([CensusRegion(abbr=m, name=w) for m,w in census_region.items()])
     pudl_session.add_all([NERCRegion(abbr=s, name=d) for s,d in nerc_region.items()])
-    pudl_session.add_all([RespondentFrequency(abbr=t, unit=e) for t,e in respondent_frequency.items()])
+    pudl_session.add_all([RespondentFrequency923(abbr=t, unit=e) for t,e in respondent_frequency_eia923.items()])
     pudl_session.add_all([SectorEIA(number=nu, name=na) for nu,na in sector_eia.items()])
     pudl_session.add_all([ContractTypeEIA923(abbr=ab, contract_type=ct) for ab, ct in contract_type_eia923.items()])
     pudl_session.add_all([FuelTypeEIA923(abbr=n, fuel_type=z) for n,z in fuel_type_eia923.items()])
@@ -125,6 +127,7 @@ def ingest_static_tables(engine):
     pudl_session.add_all([RegulatoryStatusEIA923(abbr=d, status=p) for d,p in regulatory_status_eia923.items()])
     pudl_session.add_all([TranspoModeEIA923(abbr=e, mode=q) for e,q in transpo_mode_eia923.items()])
     pudl_session.add_all([NaturalGasTranspoServiceEIA923(abbr=f, status=r) for f,r in natural_gas_transpo_service_eia923.items()])
+    pudl_session.add_all([CombinedHeatPowerEIA923(abbr=g, status=s) for g,s in combined_heat_power_eia923.items()])
 
     # States dictionary is defined outside this function, below.
     pudl_session.add_all([State(abbr=k, name=v) for k,v in us_states.items()])
@@ -323,6 +326,12 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine):
                                            ferc1_fuel_unit_strings,
                                            unmapped=np.nan)
 
+    # Conver to MW/MWh units across the board.
+    ferc1_fuel_df['fuel_cost_per_mwh'] = 1000*ferc1_fuel_df['fuel_cost_kwh']
+    ferc1_fuel_df.drop('fuel_cost_kwh', axis=1, inplace=True)
+    ferc1_fuel_df['fuel_mmbtu_per_mwh'] = 1000*ferc1_fuel_df['fuel_generaton']
+    ferc1_fuel_df.drop('fuel_generaton', axis=1, inplace=True)
+
     # Drop any records that are missing data. This is a blunt instrument, to
     # be sure. In some cases we lose data here, because some utilities have
     # (for example) a "Total" line w/ only fuel_mmbtu_per_kwh on it. Grr.
@@ -336,9 +345,7 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine):
                            'fuel_avg_heat'    : 'fuel_avg_mmbtu_per_unit',
                            'fuel_cost_burned' : 'fuel_cost_per_unit_burned',
                            'fuel_cost_delvd'  : 'fuel_cost_per_unit_delivered',
-                           'fuel_cost_btu'    : 'fuel_cost_per_mmbtu',
-                           'fuel_cost_kwh'    : 'fuel_cost_per_kwh',
-                           'fuel_generaton'   : 'fuel_mmbtu_per_kwh' },
+                           'fuel_cost_btu'    : 'fuel_cost_per_mmbtu' },
                          inplace=True)
     ferc1_fuel_df.to_sql(name='fuel_ferc1',
                          con=pudl_engine, index=False, if_exists='append',
@@ -377,13 +384,25 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine):
                                         ferc1_steam_df['yr_installed'],
                                         errors='coerce')
 
+    # Converting everything to per MW and MWh units...
+    ferc1_steam_df['cost_per_mw'] = 1000*ferc1_steam_df['cost_per_kw']
+    ferc1_steam_df.drop('cost_per_kw', axis=1, inplace=True)
+    ferc1_steam_df['net_generation_mwh'] = 1000*ferc1_steam_df['net_generation']
+    ferc1_steam_df.drop('net_generation', axis=1, inplace=True)
+    ferc1_steam_df['expns_per_mwh'] = 1000*ferc1_steam_df['expns_kwh']
+    ferc1_steam_df.drop('expns_kwh', axis=1, inplace=True)
+
     ferc1_steam_df.rename(columns={
                             # FERC 1 DB Name      PUDL DB Name
                             'yr_const'         : 'year_constructed',
                             'yr_installed'     : 'year_installed',
-                            'tot_capacity'     : 'total_capacity',
-                            'plnt_capability'  : 'plant_capability',
+                            'tot_capacity'     : 'total_capacity_mw',
+                            'peak_demand'      : 'peak_demand_mw',
+                            'plnt_capability'  : 'plant_capability_mw',
+                            'when_limited'     : 'water_limited_mw',
+                            'when_not_limited' : 'not_water_limited_mw',
                             'avg_num_of_emp'   : 'avg_num_employees',
+                            'net_generation'   : 'net_generation_mwh',
                             'cost_of_plant_to' : 'cost_of_plant_total',
                             'expns_steam_othr' : 'expns_steam_other',
                             'expns_engnr'      : 'expns_engineering',
@@ -454,7 +473,60 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine):
     Ingest f1_gnrt_plant table of FERC Form 1 DB into PUDL DB.
     Zane Selvans is doing this one.
     """
-    pass
+    f1_small_table = ferc1_meta.tables['f1_gnrt_plant']
+    f1_small_select = select([f1_small_table,])
+    ferc1_small_df = pd.read_sql(f1_small_select,ferc1_engine)
+
+    # In the FERC1 small plants data there are many lists of plants of a
+    # particular type (e.g. wind, hydro) where the only indicator of the type
+    # of plant is the heading at the beginning of the list, so we're going to
+    # need row & supplement numbers to parse out the beginning of the lists...
+    ferc1_small_df.drop(['row_seq', 'row_prvlg', 'report_prd'],
+                          axis=1, inplace=True)
+
+    # Clean up the fuel strings using the combined fuel strings dictionries
+    ferc1_small_df.kind_of_fuel = cleanstrings(ferc1_small_df.kind_of_fuel,
+                                               ferc1_fuel_strings,
+                                               unmapped=np.nan)
+
+    # Force the construction and installation years to be numeric values, and
+    # set them to NA if they can't be converted. (table has some junk values)
+    ferc1_small_df['yr_constructed'] = pd.to_numeric(
+                                    ferc1_small_df['yr_constructed'],
+                                    errors='coerce')
+    # Convert from cents per mmbtu to dollars per mmbtu to be consistent
+    # with the f1_fuel table data. Also, let's use a clearer name.
+    ferc1_small_df['fuel_cost_per_mmbtu'] = ferc1_small_df['fuel_cost']/100.0
+    ferc1_small_df.drop('fuel_cost', axis=1, inplace=True)
+
+    # PARSE OUT PLANT TYPE BASED ON EMBEDDED TITLES HERE...
+
+    # Create a single "record number" for the individual lines in the FERC
+    # Form 1 that report different small plants, so that we can more easily
+    # tell whether they are adjacent to each other in the reporting.
+    ferc1_small_df['record_number'] = 46 * ferc1_small_df['spplmnt_num'] + \
+                                           ferc1_small_df['row_number']
+    ferc1_small_df.drop(['row_number', 'spplmnt_num'], axis=1, inplace=True)
+
+    ferc1_small_df.rename(columns={
+                            # FERC 1 DB Name      PUDL DB Name
+                            'yr_constructed'   : 'year_constructed',
+                            'capacity_rating'  : 'total_capacity',
+                            'net_demand'       : 'peak_demand_mw',
+                            'net_generation'   : 'net_generation_mwh',
+                            'plant_cost'       : 'cost_of_plant_total',
+                            'plant_cost_mw'    : 'cost_of_plant_per_mw',
+                            'operation'        : 'cost_of_operation',
+                            'expns_maint'      : 'expns_maintenance',
+                            'fuel_cost'        : 'fuel_cost_per_mmbtu'},
+                          inplace=True)
+    ferc1_small_df.to_sql(name='plants_small_ferc1',
+                          con=pudl_engine, index=False, if_exists='append',
+                          dtype={'respondent_id'    : Integer,
+                                 'report_year'      : Integer,
+                                 'plant_name'       : String,
+                                 'kind_of_fuel'     : String,
+                                 'year_constructed' : Integer} )
 
 def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine):
     """
