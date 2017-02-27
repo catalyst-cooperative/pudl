@@ -151,15 +151,14 @@ class PlantHydroFERC1(models.PUDLBase):
     Christina is working on this one.
     """
     __tablename__ = 'plants_hydro_ferc1'
-    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
-    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
-    year = Column(Integer, ForeignKey('years.year'), primary_key=True)
-    # respondent_id
-    # report_year ?? Don't we need to link the report_year to the year ??
-    # Probably going to want to look at doing the composite foreign key to
-    # connect to respondent_id/plant_name pair here.
-    project_no = Column(Integer)
-    plant_name = Column(String)
+    __table_args__ = (ForeignKeyConstraint(
+                        ['respondent_id', 'plant_name'],
+                        ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    respondent_id = Column(Integer, nullable=False)
+    plant_name = Column(String, nullable=False)
+    report_year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    project_number = Column(Integer)
     plant_kind = Column(String) #FK
     plant_construction = Column(String)
     year_constructed = Column(Integer)
@@ -175,38 +174,54 @@ class PlantHydroFERC1(models.PUDLBase):
     net_capacity_favorable_conditions_mw = Column(Float)
     # Net Plant Capability (in megawatts)
     # (b) Under the Most Adverse Oper Conditions
-    net_capacity_adverse_conditions = Column(Float)
+    net_capacity_adverse_conditions_mw = Column(Float)
     # Average Number of Employees
     avg_number_employees = Column(Float)
-    # Net Generation, Exclusive of Plant Use - Kwh
-    net_generation = Column(Float)
+    # Net Generation, Exclusive of Plant Use - kWh in FERC, converted to MWh
+    net_generation_mwh = Column(Float)
     # Land and Land Rights
-    cost_land = Column(Float)
+    cost_land = Column(Numeric(14,2))
     # Structures and Improvements
-    cost_structure = Column(Float)
+    cost_structure = Column(Numeric(14,2))
     # Reservoirs, Dams, and Waterways
-    cost_facilities = Column(Float)
+    cost_facilities = Column(Numeric(14,2))
     # Equipment Costs
-    cost_equipment = Column(Float)
+    cost_equipment = Column(Numeric(14,2))
     # Roads, Railroads, and Bridges
-    cost_roads = Column(Float)
-    asset_retire_cost = Column(Float)# Asset Retirement Costs
-    cost_plant_total = Column(Float) # TOTAL cost (Total of 14 thru 19)
-    cost_per_kw = Column(Float) # Cost per KW of Installed Capacity (line 20 / 5)
-    expns_operations = Column(Float) # O peration Supervision and Engineering
-    expns_water_pwr = Column(Float) # Water for Power
-    expns_hydraulic = Column(Float) # Hydraulic Expenses
-    expns_electric = Column(Float) # Electric Expenses
-    expns_generation = Column(Float) # Misc Hydraulic Power Generation Expenses
-    expns_rents = Column(Float) # Rents
-    expns_engineering = Column(Float) # Maintenance Supervision and Engineering
-    expns_structures = Column(Float) # Maintenance of Structures
-    expns_dams = Column(Float) # Maintenance of Reservoirs, Dams, and Waterways
-    expns_plant = Column(Float) # Maintenance of Electric Plant
-    expns_misc_plant = Column(Float) # Maintenance of Misc Hydraulic Plant
+    cost_roads = Column(Numeric(14,2))
+    # Asset Retirement Costs
+    asset_retire_cost = Column(Numeric(14,2))
+    # TOTAL cost (Total of 14 thru 19)
+    cost_plant_total = Column(Numeric(14,2))
+    # Cost per KW of Installed Capacity (line 20 / 5)
+    # Converted to MW installed...
+    cost_per_mw = Column(Numeric(14,2))
+    # O peration Supervision and Engineering
+    expns_operations = Column(Numeric(14,2))
+     # Water for Power
+    expns_water_pwr = Column(Numeric(14,2))
+    # Hydraulic Expenses
+    expns_hydraulic = Column(Numeric(14,2))
+    # Electric Expenses
+    expns_electric = Column(Numeric(14,2))
+    # Misc Hydraulic Power Generation Expenses
+    expns_generation = Column(Numeric(14,2))
+    # Rents
+    expns_rents = Column(Numeric(14,2))
+    # Maintenance Supervision and Engineering
+    expns_engineering = Column(Numeric(14,2))
+    # Maintenance of Structures
+    expns_structures = Column(Numeric(14,2))
+    # Maintenance of Reservoirs, Dams, and Waterways
+    expns_dams = Column(Numeric(14,2))
+    # Maintenance of Electric Plant
+    expns_plant = Column(Numeric(14,2))
+    # Maintenance of Misc Hydraulic Plant
+    expns_misc_plant = Column(Numeric(14,2))
     # Total Production Expenses (total 23 thru 33)
-    expns_production_total = Column(Float)
-    expns_kwh = Column(Float) # Expenses per net KWh
+    expns_production_total = Column(Numeric(14,2))
+    # Expenses per net KWh in FERC, converted to MWh in PUDL
+    expns_per_mwh = Column(Numeric(14,2))
 
 # class PlantsPumpedHydro(models.PUDLBase):
 #     """docstring for PlantsPumpedHydro"""

@@ -431,7 +431,8 @@ ferc1_default_tables = ['f1_respondent_id',
 # This is the set of tables which have been successfully integrated into PUDL:
 ferc1_pudl_tables = ['f1_fuel',
                      'f1_steam',
-                     'f1_plant_in_srvce']
+                     'f1_hydro',
+                     'f1_plant_in_srvce' ]
 
 # This is the full set of tables that currently ingestible by the ferc1 DB:
 ferc1_working_tables = ['f1_respondent_id',
