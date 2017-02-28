@@ -431,7 +431,8 @@ ferc1_default_tables = ['f1_respondent_id',
 # This is the set of tables which have been successfully integrated into PUDL:
 ferc1_pudl_tables = ['f1_fuel',
                      'f1_steam',
-                     'f1_plant_in_srvce']
+                     'f1_hydro',
+                     'f1_plant_in_srvce' ]
 
 # This is the full set of tables that currently ingestible by the ferc1 DB:
 ferc1_working_tables = ['f1_respondent_id',
@@ -885,6 +886,7 @@ regulatory_status_eia923 = {
   'UNR':'Non-Regulated Independent Power Plant or Nonutility Plant.'
 }
 
+
 # EIA 923: One character designates the reporting
 # frequency for the plant. Alphanumeric:
 respondent_frequency_eia923 = {
@@ -892,7 +894,7 @@ respondent_frequency_eia923 = {
   'A':'Annual respondent'
 }
 
-#EIA 923: Mode for the longest / second longest distance.
+# EIA 923: Mode for the longest / second longest distance.
 transpo_mode_eia923 = {
   'RR':'Rail: Shipments of fuel moved to consumers by rail \
         (private or public/commercial). Included is coal hauled to or \

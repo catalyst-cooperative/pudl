@@ -112,7 +112,7 @@ def ingest_static_tables(engine):
 
     pudl_session.add_all([CensusRegion(abbr=m, name=w) for m,w in census_region.items()])
     pudl_session.add_all([NERCRegion(abbr=s, name=d) for s,d in nerc_region.items()])
-    pudl_session.add_all([RespondentFrequency923(abbr=t, unit=e) for t,e in respondent_frequency_eia923.items()])
+    pudl_session.add_all([RespondentFrequencyEIA923(abbr=t, unit=e) for t,e in respondent_frequency_eia923.items()])
     pudl_session.add_all([SectorEIA(number=nu, name=na) for nu,na in sector_eia.items()])
     pudl_session.add_all([ContractTypeEIA923(abbr=ab, contract_type=ct) for ab, ct in contract_type_eia923.items()])
     pudl_session.add_all([FuelTypeEIA923(abbr=n, fuel_type=z) for n,z in fuel_type_eia923.items()])
@@ -190,6 +190,13 @@ def ingest_glue_tables(engine):
     plants_eia923 = plants_eia923.drop_duplicates('plant_id_eia923')
 
     plants_ferc1 = plant_map[['plant_name_ferc1','respondent_id_ferc1','plant_id']]
+    # We need to standardize plant names -- same capitalization and no leading
+    # or trailing white space... since this field is being used as a key in
+    # many cases. This also needs to be done any time plant_name is pulled in
+    # from other tables.
+    plants_ferc1['plant_name_ferc1'] = plants_ferc1['plant_name_ferc1'].str.strip()
+    plants_ferc1['plant_name_ferc1'] = plants_ferc1['plant_name_ferc1'].str.title()
+
     plants_ferc1 = plants_ferc1.drop_duplicates(['plant_name_ferc1','respondent_id_ferc1'])
 
     utilities = utility_map[['utility_id','utility_name']]
@@ -215,7 +222,9 @@ def ingest_glue_tables(engine):
                             join(plants_respondents.\
                             set_index('respondent_id_ferc1'),
                                       on='respondent_id_ferc1')
-    utility_plant_eia923 = utilities_eia923.join(plants_operators.set_index('operator_id_eia923'), on='operator_id_eia923')
+    utility_plant_eia923 = utilities_eia923.join(
+        plants_operators.set_index('operator_id_eia923'),
+                                    on='operator_id_eia923')
 
     # Now we can concatenate the two dataframes, and get rid of all the  columns
     # except for plant_id and utility_id (which determine the  utility to plant
@@ -317,6 +326,11 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine):
     ferc1_fuel_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
                        'report_prd'], axis=1, inplace=True)
 
+    # Standardize plant_name capitalization and remove leading/trailing white
+    # space -- necesary b/c plant_name is part of many foreign keys.
+    ferc1_fuel_df['plant_name']=ferc1_fuel_df['plant_name'].str.strip()
+    ferc1_fuel_df['plant_name']=ferc1_fuel_df['plant_name'].str.title()
+
     # Take the messy free-form fuel & fuel_unit fields, and do our best to
     # map them to some canonical categories... this is necessarily imperfect:
     ferc1_fuel_df.fuel = cleanstrings(ferc1_fuel_df.fuel,
@@ -365,6 +379,11 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine):
     # Discard DataFrame columns that we aren't pulling into PUDL:
     ferc1_steam_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
                          'report_prd'], axis=1, inplace=True)
+
+    # Standardize plant_name capitalization and remove leading/trailing white
+    # space -- necesary b/c plant_name is part of many foreign keys.
+    ferc1_steam_df['plant_name'] = ferc1_steam_df['plant_name'].str.strip()
+    ferc1_steam_df['plant_name'] = ferc1_steam_df['plant_name'].str.title()
 
     # String cleaning is commented out until we get the string map dictionaries
     # defined in constants.py
@@ -430,6 +449,22 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
     ferc1_hydro_df = pd.read_sql(f1_hydro_select, ferc1_engine)
     ferc1_hydro_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
                            'report_prd'], axis=1, inplace=True)
+
+    # Standardize plant_name capitalization and remove leading/trailing white
+    # space -- necesary b/c plant_name is part of many foreign keys.
+    ferc1_hydro_df['plant_name'] = ferc1_hydro_df['plant_name'].str.strip()
+    ferc1_hydro_df['plant_name'] = ferc1_hydro_df['plant_name'].str.title()
+
+    # Converting kWh to MWh
+    ferc1_hydro_df['net_generation_mwh'] = ferc1_hydro_df['net_generation']/1000.0
+    ferc1_hydro_df.drop('net_generation', axis=1, inplace=True)
+    # Converting cost per kW installed to cost per MW installed:
+    ferc1_hydro_df['cost_per_mw'] = ferc1_hydro_df['cost_per_kw']*1000.0
+    ferc1_hydro_df.drop('cost_per_kw', axis=1, inplace=True)
+    # Converting kWh to MWh
+    ferc1_hydro_df['expns_per_mwh'] = ferc1_hydro_df['expns_kwh']*1000.0
+    ferc1_hydro_df.drop('expns_kwh', axis=1, inplace=True)
+
     ferc1_hydro_df['yr_const'] = pd.to_numeric(
                                     ferc1_hydro_df['yr_const'],
                                     errors='coerce')
@@ -438,28 +473,26 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
                                         errors='coerce')
     ferc1_hydro_df.dropna(inplace=True)
     ferc1_hydro_df.rename(columns={
-                            'report_year' : 'year',
-                            'project_no' : 'project_number',
-                            'yr_const' : 'year_constructed',
-                            'plant_const' : 'plant_construction',
-                            'yr_installed' : 'year_installed',
-                            'tot_capacity' : 'total_capacity_mw',
-                            'peak_demand' : 'peak_demand_mw',
-                            'plant_hours' : 'plant_hours_connected_while_generating',
-                            'favorable_cond' : 'net_capacity_favorable_conditions_mw',
-                            'adverse_cond' : 'net_capacity_adverse_conditions',
-                            'avg_num_of_emp' : 'avg_number_employees',
-                            'cost_of_land' : 'cost_land',
-                            'expns_engnr':'expns_engineering',
-                            'expns_total' : 'expns_production_total',
-                            },
-                          inplace=True)
+                # FERC1 DB          PUDL DB
+                'project_no'     : 'project_number',
+                'yr_const'       : 'year_constructed',
+                'plant_const'    : 'plant_construction',
+                'yr_installed'   : 'year_installed',
+                'tot_capacity'   : 'total_capacity_mw',
+                'peak_demand'    : 'peak_demand_mw',
+                'plant_hours'    : 'plant_hours_connected_while_generating',
+                'favorable_cond' : 'net_capacity_favorable_conditions_mw',
+                'adverse_cond'   : 'net_capacity_adverse_conditions_mw',
+                'avg_num_of_emp' : 'avg_number_employees',
+                'cost_of_land'   : 'cost_land',
+                'expns_engnr'    : 'expns_engineering',
+                'expns_total'    : 'expns_production_total'
+            }, inplace=True)
+
     ferc1_hydro_df.to_sql(name='plants_hydro_ferc1',
                         con=pudl_engine, index=False, if_exists='append',
-                         dtype={'respondent_id':Integer,
-                               'report_year':Integer})
-
-    pass
+                        dtype={'respondent_id' : Integer,
+                               'report_year'   : Integer })
 
 def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine):
     """
@@ -483,6 +516,11 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine):
     # need row & supplement numbers to parse out the beginning of the lists...
     ferc1_small_df.drop(['row_seq', 'row_prvlg', 'report_prd'],
                           axis=1, inplace=True)
+
+    # Standardize plant_name capitalization and remove leading/trailing white
+    # space -- necesary b/c plant_name is part of many foreign keys.
+    ferc1_small_df['plant_name']=ferc1_small_df['plant_name'].str.strip()
+    ferc1_small_df['plant_name']=ferc1_small_df['plant_name'].str.title()
 
     # Clean up the fuel strings using the combined fuel strings dictionries
     ferc1_small_df.kind_of_fuel = cleanstrings(ferc1_small_df.kind_of_fuel,

@@ -61,6 +61,26 @@ def get_strings(filename, min=4):
         if len(result) >= min:  # catch result at EOF
             yield result
 
+def parse_embedded_list(df, # DataFrame to embedded lists in
+                        pattern, # Pattern that identifies the list heading
+                        category, # Category to assign to each list item
+                        empty_fields): # Fields that should be empty in heading
+    """
+    Categorize items in a series of FERC Form 1 lines based on a list heading.
+
+    FERC Form 1 has lots of embedded lists of items (especially plants) of a
+    particular type, where the type information is stored in a header line
+    that doesn't contain any data. This function takes attaches that
+    information to the individual records.
+
+    """
+    # Convert supplement number & row number to record number
+    # Sort the DF by report_year, respondent_id, record_number
+    # For each report_year
+    #     For each respondent_id within that year
+    #         Iterate through the records
+    #
+
 def cleanstrings(field, stringmap, unmapped=None):
     """Clean up a field of string data in one of the Form 1 data frames.
 
