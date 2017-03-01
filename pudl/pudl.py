@@ -617,7 +617,18 @@ def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine):
     pass
 
 def init_db(ferc1_tables=ferc1_pudl_tables, verbose=True, debug=False):
-    """Create the PUDL database and fill it up with data!"""
+    """
+    Create the PUDL database and fill it up with data!
+
+    ferc1_tables is a list of tables that will be created and ingested.
+    By default only known to be working tables are ingested. That list of
+    tables is defined in pudl.constants.
+
+    You can tell it to ingest whatever list of tables you want, but if
+    it's not in the list of known to be working tables, you need to set
+    debug=True (otherwise it won't let you)
+
+    """
 
     # Make sure that the tables we're being asked to ingest can actually be
     # pulled into both the FERC Form 1 DB, and the PUDL DB...
