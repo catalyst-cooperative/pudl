@@ -18,33 +18,39 @@ from pudl.constants import ferc_electric_plant_accounts
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
 from pudl.models import State, RTOISO
 from pudl.constants import census_region, nerc_region
-from pudl.constants import fuel_type_aer, respondent_frequency_eia923
+from pudl.constants import fuel_type_aer_eia923, respondent_frequency_eia923
 
 
 # EIA specific lists that will get moved over to models_eia923.py
 from pudl.constants import sector_eia, contract_type_eia923
-from pudl.constants import fuel_type_eia923, prime_mover_eia923
-from pudl.constants import fuel_unit_eia923, energy_source_eia923
+from pudl.constants import fuel_type_eia923, prime_movers_eia923
+from pudl.constants import fuel_units_eia923, energy_source_eia923
 from pudl.constants import fuel_group_eia923
 from pudl.constants import coalmine_type_eia923, coalmine_state_eia923
 from pudl.constants import regulatory_status_eia923
-from pudl.constants import natural_gas_transpo_service_eia923,transpo_mode_eia923
+from pudl.constants import natural_gas_transpo_service_eia923
+from pudl.constants import transpo_mode_eia923
 from pudl.constants import combined_heat_power_eia923
 
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
 from pudl.models import State, RTOISO, CensusRegion, NERCRegion
-from pudl.models import FuelTypeAER, RespondentFrequencyEIA923
 
-# EIA specific lists that will get moved over to models_eia923.py
-from pudl.models import SectorEIA, ContractTypeEIA923
-from pudl.models import FuelTypeEIA923, PrimeMoverEIA923
-from pudl.models import FuelUnitEIA923, EnergySourceEIA923
-from pudl.models import FuelGroupEIA923
-from pudl.models import CoalMineTypeEIA923, CoalMineStateEIA923
-from pudl.models import RegulatoryStatusEIA923, NaturalGasTranspoServiceEIA923
-from pudl.models import TranspoModeEIA923
-from pudl.models import CombinedHeatPowerEIA923
+# EIA specific lists stored in models_eia923.py
+from pudl.models_eia923 import SectorEIA, ContractTypeEIA923
+from pudl.models_eia923 import EnergySourceEIA923
+from pudl.models_eia923 import CoalMineTypeEIA923, CoalMineStateEIA923
+from pudl.models_eia923 import RegulatoryStatusEIA923
+from pudl.models_eia923 import TranspoModeEIA923, NaturalGasTranspoServiceEIA923
+from pudl.models_eia923 import CombinedHeatPowerEIA923
+from pudl.models_eia923 import RespondentFrequencyEIA923
+from pudl.models_eia923 import PrimeMoverEIA923, FuelTypeAER
+from pudl.models_eia923 import FuelTypeEIA923
+from pudl.models_eia923 import FuelGroupEIA923, FuelUnitEIA923
+from pudl.models_eia923 import PlantInfoEIA923
+
+#TODO 'constants' not defined yet
+# from pudl.models import BoilersEIA923, GeneratorsEIA923
 
 # Tables that hold "glue" connecting FERC1 & EIA923 to each other:
 from pudl.models import Utility, UtilityFERC1, UtilityEIA923
@@ -103,31 +109,50 @@ def ingest_static_tables(engine):
 
     # Populate tables with static data from above.
     pudl_session.add_all([Fuel(name=f) for f in ferc1_fuel_strings.keys()])
-    pudl_session.add_all([FuelUnit(unit=u) for u in ferc1_fuel_unit_strings.keys()])
+    pudl_session.add_all([FuelUnit(unit=u) for u in
+        ferc1_fuel_unit_strings.keys()])
     pudl_session.add_all([Month(month=i+1) for i in range(12)])
     pudl_session.add_all([Quarter(q=i+1, end_month=3*(i+1)) for i in range(4)])
     pudl_session.add_all([PrimeMover(prime_mover=pm) for pm in prime_movers])
     pudl_session.add_all([RTOISO(abbr=k, name=v) for k,v in rto_iso.items()])
     pudl_session.add_all([Year(year=yr) for yr in range(1994,2017)])
 
-    pudl_session.add_all([CensusRegion(abbr=m, name=w) for m,w in census_region.items()])
-    pudl_session.add_all([NERCRegion(abbr=s, name=d) for s,d in nerc_region.items()])
-    pudl_session.add_all([RespondentFrequencyEIA923(abbr=t, unit=e) for t,e in respondent_frequency_eia923.items()])
-    pudl_session.add_all([SectorEIA(number=nu, name=na) for nu,na in sector_eia.items()])
-    pudl_session.add_all([ContractTypeEIA923(abbr=ab, contract_type=ct) for ab, ct in contract_type_eia923.items()])
-    pudl_session.add_all([FuelTypeEIA923(abbr=n, fuel_type=z) for n,z in fuel_type_eia923.items()])
-    pudl_session.add_all([PrimeMoverEIA923(abbr=o, prime_mover = a) for o,a in prime_mover_eia923.items()])
-    pudl_session.add_all([FuelUnitEIA923(abbr=p, unit=b) for p,b in fuel_unit_eia923.items()])
-    pudl_session.add_all([FuelTypeAER(abbr=r, fuel_type=c) for r,c in fuel_type_aer.items()])
-    pudl_session.add_all([EnergySourceEIA923(abbr=a, source=s) for a,s in energy_source_eia923.items()])
-    pudl_session.add_all([FuelGroupEIA923(group=gr) for gr in fuel_group_eia923])
-    pudl_session.add_all([CoalMineTypeEIA923(abbr=b, name=n) for b,n in coalmine_type_eia923.items()])
-    pudl_session.add_all([CoalMineStateEIA923(abbr=c, state=o) for c,o in coalmine_state_eia923.items()])
-    pudl_session.add_all([CoalMineStateEIA923(abbr=c, state=o) for c,o in us_states.items()]) #is this right way to add these?
-    pudl_session.add_all([RegulatoryStatusEIA923(abbr=d, status=p) for d,p in regulatory_status_eia923.items()])
-    pudl_session.add_all([TranspoModeEIA923(abbr=e, mode=q) for e,q in transpo_mode_eia923.items()])
-    pudl_session.add_all([NaturalGasTranspoServiceEIA923(abbr=f, status=r) for f,r in natural_gas_transpo_service_eia923.items()])
-    pudl_session.add_all([CombinedHeatPowerEIA923(abbr=g, status=s) for g,s in combined_heat_power_eia923.items()])
+    pudl_session.add_all([CensusRegion(abbr=k, name=v) for k,v in
+        census_region.items()])
+    pudl_session.add_all([NERCRegion(abbr=k, name=v) for k,v in
+        nerc_region.items()])
+    pudl_session.add_all([RespondentFrequencyEIA923(abbr=k, unit=v) for k,v in
+        respondent_frequency_eia923.items()])
+    pudl_session.add_all([SectorEIA(id=k, name=v) for k,v
+        in sector_eia.items()])
+    pudl_session.add_all([ContractTypeEIA923(abbr=k, contract_type=v) for k, v
+        in contract_type_eia923.items()])
+    pudl_session.add_all([FuelTypeEIA923(abbr=k, fuel_type=v) for k,v in
+        fuel_type_eia923.items()])
+    pudl_session.add_all([PrimeMoverEIA923(abbr=k, prime_mover = v) for k,v in
+        prime_movers_eia923.items()])
+    pudl_session.add_all([FuelUnitEIA923(abbr=k, unit=v) for k,v in
+        fuel_units_eia923.items()])
+    pudl_session.add_all([FuelTypeAER(abbr=k, fuel_type=v) for k,v in
+        fuel_type_aer_eia923.items()])
+    pudl_session.add_all([EnergySourceEIA923(abbr=k, source=v) for k,v in
+        energy_source_eia923.items()])
+    pudl_session.add_all([FuelGroupEIA923(group=gr) for gr in
+        fuel_group_eia923])
+    pudl_session.add_all([CoalMineTypeEIA923(abbr=k, name=v) for k,v in
+        coalmine_type_eia923.items()])
+    pudl_session.add_all([CoalMineStateEIA923(abbr=k, state=v) for k,v in
+        coalmine_state_eia923.items()])
+    pudl_session.add_all([CoalMineStateEIA923(abbr=k, state=v) for k,v in
+        us_states.items()]) #is this right way to add these?
+    pudl_session.add_all([RegulatoryStatusEIA923(abbr=k, status=v) for k,v in
+        regulatory_status_eia923.items()])
+    pudl_session.add_all([TranspoModeEIA923(abbr=k, mode=v) for k,v in
+        transpo_mode_eia923.items()])
+    pudl_session.add_all([NaturalGasTranspoServiceEIA923(abbr=k, status=v) for
+        k,v in natural_gas_transpo_service_eia923.items()])
+    pudl_session.add_all([CombinedHeatPowerEIA923(abbr=k, status=v) for k,v in
+        combined_heat_power_eia923.items()])
 
     # States dictionary is defined outside this function, below.
     pudl_session.add_all([State(abbr=k, name=v) for k,v in us_states.items()])
@@ -189,7 +214,8 @@ def ingest_glue_tables(engine):
     plants_eia923 = plant_map[['plant_id_eia923','plant_name_eia923','plant_id']]
     plants_eia923 = plants_eia923.drop_duplicates('plant_id_eia923')
 
-    plants_ferc1 = plant_map[['plant_name_ferc1','respondent_id_ferc1','plant_id']]
+    plants_ferc1 = plant_map[['plant_name_ferc1','respondent_id_ferc1',
+        'plant_id']]
     # We need to standardize plant names -- same capitalization and no leading
     # or trailing white space... since this field is being used as a key in
     # many cases. This also needs to be done any time plant_name is pulled in
@@ -197,15 +223,18 @@ def ingest_glue_tables(engine):
     plants_ferc1['plant_name_ferc1'] = plants_ferc1['plant_name_ferc1'].str.strip()
     plants_ferc1['plant_name_ferc1'] = plants_ferc1['plant_name_ferc1'].str.title()
 
-    plants_ferc1 = plants_ferc1.drop_duplicates(['plant_name_ferc1','respondent_id_ferc1'])
+    plants_ferc1 = plants_ferc1.drop_duplicates(['plant_name_ferc1',
+        'respondent_id_ferc1'])
 
     utilities = utility_map[['utility_id','utility_name']]
     utilities = utilities.drop_duplicates('utility_id')
 
-    utilities_eia923 = utility_map[['operator_id_eia923','operator_name_eia923','utility_id']]
+    utilities_eia923 = utility_map[['operator_id_eia923',
+        'operator_name_eia923','utility_id']]
     utilities_eia923 = utilities_eia923.drop_duplicates('operator_id_eia923')
 
-    utilities_ferc1 = utility_map[['respondent_id_ferc1','respondent_name_ferc1','utility_id']]
+    utilities_ferc1 = utility_map[['respondent_id_ferc1',
+        'respondent_name_ferc1','utility_id']]
     utilities_ferc1 = utilities_ferc1.drop_duplicates('respondent_id_ferc1')
 
     # Now we need to create a table that indicates which plants are associated

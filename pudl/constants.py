@@ -699,7 +699,7 @@ sector_eia = {
 }
 
 # EIA 923: EIA Type of prime mover:
-prime_mover_eia923 = {
+prime_movers_eia923 = {
   'BA':'Energy Storage, Battery',
   'BT':'Turbines Used in a Binary Cycle. \
         Including those used for geothermal applications',
@@ -788,7 +788,7 @@ fuel_type_eia923 = {
 # larger categories used by EIA in, for example,
 # the Annual Energy Review (AER).Two or three letter alphanumeric.
 # See the Fuel Code table (Table 5), below:
-fuel_type_aer = {
+fuel_type_aer_eia923 = {
   'SUN':'Solar PV and thermal',
   'COL':'Coal',
   'DFO':'Distillate Petroleum',
@@ -812,7 +812,7 @@ fuel_type_aer = {
 # EIA 923: EIA The type of physical units fuel consumption is reported in.
 # All consumption is reported in either short tons for solids,
 # thousands of cubic feet for gases, and barrels for liquids:"""
-fuel_unit_eia923 = {
+fuel_units_eia923 = {
   'mcf':'for gases',
   'short tons':'for solid',
   'barrels':'for liquids'

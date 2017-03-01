@@ -69,15 +69,6 @@ class FERCAccount(PUDLBase):
     id = Column(String, primary_key=True)
     description = Column(String, nullable=False)
 
-class CombinedHeatPowerEIA923(PUDLBase):
-    """
-    Whether or not the plant is a combined heat & power facility (cogenerator)
-    As reported in EIA Form 923 Page 7
-    """
-    __tablename__ = 'combined_heat_power_eia923'
-    abbr = Column(String, primary_key=True)
-    status = Column(String, nullable=False)
-
 class CensusRegion(PUDLBase):
     """
     Static list of census regions used by EIA
@@ -94,119 +85,6 @@ class NERCRegion(PUDLBase):
     __tablename__ = 'nerc_region'
     abbr = Column(String, primary_key=True)
     name = Column(String, nullable=False)
-
-class RespondentFrequencyEIA923(PUDLBase):
-    """
-    Reporting frequency of plants, used by EIA in Form 923, Page 5:
-    Fuel Receipts and Costs
-    """
-    __tablename__ = 'respondent_frequency_eia923'
-    abbr = Column(String, primary_key=True)
-    unit = Column(String, nullable=False)
-
-class FuelTypeAER(PUDLBase):
-    """
-    Static list of fuel types using AER codes, reported in EIA Form 923
-    """
-    __tablename__ = 'fuel_type_aer'
-    abbr = Column(String, primary_key = True)
-    fuel_type = Column(String, nullable = False)
-
-class ContractTypeEIA923(PUDLBase):
-    """
-    Purchase type under which receipts occurred, reported in EIA Form 923
-    """
-    __tablename__ = 'contract_type_eia923'
-    abbr = Column(String, primary_key = True)
-    contract_type = Column(String, nullable = False)
-
-class SectorEIA(PUDLBase):
-    """
-    EIA’s internal consolidated NAICS sectors
-    """
-    __tablename__ = 'sector_eia'
-    number = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-
-class PrimeMoverEIA923(PUDLBase):
-    """
-    Static list of prime movers used by EIA in Form 923
-    """
-    __tablename__ = 'prime_mover_eia923'
-    abbr = Column(String, primary_key = True)
-    prime_mover = Column(String, nullable = False)
-
-class FuelTypeEIA923(PUDLBase):
-    """
-    Static list of fuel types used by EIA in Form 923,
-    Enumerated on EIAForm923 Page 7
-    """
-    __tablename__ = 'fuel_type_eia923'
-    abbr = Column(String, primary_key=True)
-    fuel_type = Column(String, nullable=False)
-
-class FuelUnitEIA923(PUDLBase):
-    """
-    Static list of fuel units (physical unit labels) used by EIA in Form 923
-    """
-    __tablename__ = 'fuel_unit_eia923'
-    abbr = Column(String, primary_key = True)
-    unit = Column(String, nullable = False)
-
-class EnergySourceEIA923(PUDLBase):
-    """
-    Fuel code associated with fuel receipts in EIA Form 923
-    """
-    __tablename__ = 'energy_source_eia923'
-    abbr = Column(String, primary_key = True)
-    source = Column(String, nullable = False)
-
-class FuelGroupEIA923(PUDLBase):
-    """
-    EIA grouping of energy sources into fuel groups, used in EIA Form 923
-    """
-    __tablename__ = 'fuel_group_eia923'
-    group = Column(String, primary_key = True)
-
-class CoalMineTypeEIA923(PUDLBase):
-    """
-    Type of coal mine, as used in EIA Form 923
-    """
-    __tablename__ = 'coalmine_type_eia923'
-    abbr = Column(String, primary_key = True)
-    name = Column(String, nullable = False)
-
-class CoalMineStateEIA923(PUDLBase):
-    """
-    State and country abbreviations for coal mine locations, used in EIA Form923
-    """
-    __tablename__ = 'coalmine_state_eia923'
-    abbr = Column(String, primary_key = True)
-    state = Column(String, nullable=False)
-
-class RegulatoryStatusEIA923(PUDLBase):
-    """
-    Regulatory status used in EIA Form 923
-    """
-    __tablename__ = 'regulatory_status_eia923'
-    abbr = Column(String, primary_key = True)
-    status = Column(String, nullable = False)
-
-class NaturalGasTranspoServiceEIA923(PUDLBase):
-    """
-    Contract type for natural gas capacity service, used in EIA Form 923
-    """
-    __tablename__ = 'natural_gas_transpo_service_eia923'
-    abbr = Column(String, primary_key = True)
-    status = Column(String, nullable = False)
-
-class TranspoModeEIA923(PUDLBase):
-    """
-    Mode used for longest & 2nd longest distance in EIA Form 923
-    """
-    __tablename__ = 'transpo_mode_eia923'
-    abbr = Column(String, primary_key = True)
-    mode = Column(String, nullable = False)
 
 
 ###########################################################################
@@ -245,9 +123,7 @@ class UtilityEIA923(PUDLBase):
     __tablename__ = 'utilities_eia923'
     operator_id = Column(Integer, primary_key=True)
     operator_name = Column(String, nullable=False)
-    util_id_pudl = Column(Integer,
-                   ForeignKey('utilities.id'),
-                   nullable=False)
+    util_id_pudl = Column(Integer, ForeignKey('utilities.id'), nullable=False)
 
 class PlantEIA923(PUDLBase):
     """
@@ -308,10 +184,10 @@ class UtilPlantAssn(PUDLBase):
 ###########################################################################
 #class Boiler(Base):
 #    __tablename__ = 'boiler'
-#
+
 #class Generator(Base):
 #    __tablename__ = 'generator'
-#
+
 #class FuelDeliveryFERC1(Base):
 #    __tablename__ = 'ferc_f1_fuel_delivery'
 #
