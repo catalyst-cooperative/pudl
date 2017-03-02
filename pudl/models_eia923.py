@@ -36,7 +36,7 @@ class BoilersEIA923(models.PUDLBase):
     __tablename__ = 'boilers_eia923'
     boiler_id = Column(String, primary_key=True)
 
-class GeneratorEIA923(PUDLBase):
+class GeneratorEIA923(models.PUDLBase):
     """
     List of Generator IDs specific to each plant in EIA Form 923 Page 4
     """
@@ -71,7 +71,7 @@ class FuelGroupEIA923(models.PUDLBase):
     __tablename__ = 'fuel_group_eia923'
     group = Column(String, primary_key = True)
 
-class CombinedHeatPowerEIA923(PUDLBase):
+class CombinedHeatPowerEIA923(models.PUDLBase):
     """
     Whether or not the plant is a combined heat & power facility (cogenerator)
     As reported in EIA Form 923 Page 7
@@ -80,7 +80,7 @@ class CombinedHeatPowerEIA923(PUDLBase):
     abbr = Column(String, primary_key=True)
     status = Column(String, nullable=False)
 
-class RespondentFrequencyEIA923(PUDLBase):
+class RespondentFrequencyEIA923(models.PUDLBase):
     """
     Reporting frequency of plants, used by EIA in Form 923, Page 5:
     Fuel Receipts and Costs
@@ -97,7 +97,7 @@ class ContractTypeEIA923(models.PUDLBase):
     abbr = Column(String, primary_key = True)
     contract_type = Column(String, nullable = False)
 
-class SectorEIA(PUDLBase):
+class SectorEIA(models.PUDLBase):
     """
     EIA’s internal consolidated NAICS sectors
     """
@@ -175,7 +175,7 @@ class TranspoModeEIA923(models.PUDLBase):
 # Tables which represent EIA Form 923 data. E.g. Fuel Receipts.
 ###########################################################################
 
-class PlantInfoEIA923(PUDLBase):
+class PlantInfoEIA923(models.PUDLBase):
     """
     Includes static information about each plant as reported on Page 1 of EIA
     Form 923
