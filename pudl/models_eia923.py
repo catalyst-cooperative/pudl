@@ -185,12 +185,12 @@ class PlantInfoEIA923(models.PUDLBase):
     combined_heat_power = Column(String,
         ForeignKey('combined_heat_power_eia923.abbr'), nullable=False)
     plant_state = Column(String, ForeignKey('us_states.abbr'), nullable=False)
-    census_region = Column(String, ForeignKey('census_region.abbr'),
+    census_region = Column(String, ForeignKey('census_regions.abbr'),
         nullable=False)
     nerc_region = Column(String, ForeignKey('nerc_region.abbr'), nullable=False)
-    eia_sector = Column(String, ForeignKey('sector_eia.id'), nullable=False)
+    eia_sector = Column(Integer, ForeignKey('sector_eia.id'), nullable=False)
     naics_code = Column(Integer, nullable=False)
-    operator_id = Column(String, ForeignKey('utilities_eia923.operator_id'),
+    operator_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'),
         nullable=False)
     regulated = Column(String, ForeignKey('regulatory_status_eia923.abbr'))
     reporting_frequency = Column(String,
