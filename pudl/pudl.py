@@ -41,7 +41,8 @@ from pudl.models_eia923 import SectorEIA, ContractTypeEIA923
 from pudl.models_eia923 import EnergySourceEIA923
 from pudl.models_eia923 import CoalMineTypeEIA923, CoalMineStateEIA923
 from pudl.models_eia923 import RegulatoryStatusEIA923
-from pudl.models_eia923 import TranspoModeEIA923, NaturalGasTranspoServiceEIA923
+from pudl.models_eia923 import NaturalGasTranspoServiceEIA923
+from pudl.models_eia923 import TranspoModeEIA923
 from pudl.models_eia923 import CombinedHeatPowerEIA923
 from pudl.models_eia923 import RespondentFrequencyEIA923
 from pudl.models_eia923 import PrimeMoverEIA923, FuelTypeAER
@@ -117,42 +118,56 @@ def ingest_static_tables(engine):
     pudl_session.add_all([RTOISO(abbr=k, name=v) for k,v in rto_iso.items()])
     pudl_session.add_all([Year(year=yr) for yr in range(1994,2017)])
 
-    pudl_session.add_all([CensusRegion(abbr=k, name=v) for k,v in
-        census_region.items()])
-    pudl_session.add_all([NERCRegion(abbr=k, name=v) for k,v in
-        nerc_region.items()])
-    pudl_session.add_all([RespondentFrequencyEIA923(abbr=k, unit=v) for k,v in
-        respondent_frequency_eia923.items()])
-    pudl_session.add_all([SectorEIA(id=k, name=v) for k,v
-        in sector_eia.items()])
-    pudl_session.add_all([ContractTypeEIA923(abbr=k, contract_type=v) for k, v
-        in contract_type_eia923.items()])
-    pudl_session.add_all([FuelTypeEIA923(abbr=k, fuel_type=v) for k,v in
-        fuel_type_eia923.items()])
-    pudl_session.add_all([PrimeMoverEIA923(abbr=k, prime_mover = v) for k,v in
-        prime_movers_eia923.items()])
-    pudl_session.add_all([FuelUnitEIA923(abbr=k, unit=v) for k,v in
-        fuel_units_eia923.items()])
-    pudl_session.add_all([FuelTypeAER(abbr=k, fuel_type=v) for k,v in
-        fuel_type_aer_eia923.items()])
-    pudl_session.add_all([EnergySourceEIA923(abbr=k, source=v) for k,v in
-        energy_source_eia923.items()])
-    pudl_session.add_all([FuelGroupEIA923(group=gr) for gr in
-        fuel_group_eia923])
-    pudl_session.add_all([CoalMineTypeEIA923(abbr=k, name=v) for k,v in
-        coalmine_type_eia923.items()])
-    pudl_session.add_all([CoalMineStateEIA923(abbr=k, state=v) for k,v in
-        coalmine_state_eia923.items()])
-    pudl_session.add_all([CoalMineStateEIA923(abbr=k, state=v) for k,v in
-        us_states.items()]) #is this right way to add these?
-    pudl_session.add_all([RegulatoryStatusEIA923(abbr=k, status=v) for k,v in
-        regulatory_status_eia923.items()])
-    pudl_session.add_all([TranspoModeEIA923(abbr=k, mode=v) for k,v in
-        transpo_mode_eia923.items()])
-    pudl_session.add_all([NaturalGasTranspoServiceEIA923(abbr=k, status=v) for
-        k,v in natural_gas_transpo_service_eia923.items()])
-    pudl_session.add_all([CombinedHeatPowerEIA923(abbr=k, status=v) for k,v in
-        combined_heat_power_eia923.items()])
+    pudl_session.add_all(
+        [ CensusRegion(abbr=k, name=v) for k,v in census_region.items() ])
+    pudl_session.add_all(
+        [ NERCRegion(abbr=k, name=v) for k,v in nerc_region.items() ])
+    pudl_session.add_all(
+        [ RespondentFrequencyEIA923(abbr=k, unit=v)
+          for k,v in respondent_frequency_eia923.items() ])
+    pudl_session.add_all(
+        [ SectorEIA(id=k, name=v) for k,v in sector_eia.items()] )
+    pudl_session.add_all(
+        [ ContractTypeEIA923(abbr=k, contract_type=v)
+          for k, v in contract_type_eia923.items() ])
+    pudl_session.add_all(
+        [ FuelTypeEIA923(abbr=k, fuel_type=v)
+          for k,v in fuel_type_eia923.items() ])
+    pudl_session.add_all(
+        [ PrimeMoverEIA923(abbr=k, prime_mover = v)
+          for k,v in prime_movers_eia923.items() ])
+    pudl_session.add_all(
+        [ FuelUnitEIA923(abbr=k, unit=v)
+          for k,v in fuel_units_eia923.items() ])
+    pudl_session.add_all(
+        [ FuelTypeAER(abbr=k, fuel_type=v)
+          for k,v in fuel_type_aer_eia923.items()])
+    pudl_session.add_all(
+        [ EnergySourceEIA923(abbr=k, source=v)
+          for k,v in energy_source_eia923.items()])
+    pudl_session.add_all(
+        [ FuelGroupEIA923(group=gr) for gr in fuel_group_eia923 ])
+    pudl_session.add_all(
+        [ CoalMineTypeEIA923(abbr=k, name=v)
+          for k,v in coalmine_type_eia923.items() ])
+    pudl_session.add_all(
+        [ CoalMineStateEIA923(abbr=k, state=v)
+          for k,v in coalmine_state_eia923.items() ])
+    pudl_session.add_all(
+        [ CoalMineStateEIA923(abbr=k, state=v)
+          for k,v in us_states.items() ]) #is this right way to add these?
+    pudl_session.add_all(
+        [ RegulatoryStatusEIA923(abbr=k, status=v)
+          for k,v in regulatory_status_eia923.items() ])
+    pudl_session.add_all(
+        [ TranspoModeEIA923(abbr=k, mode=v)
+          for k,v in transpo_mode_eia923.items() ])
+    pudl_session.add_all(
+        [ NaturalGasTranspoServiceEIA923(abbr=k, status=v)
+          for k,v in natural_gas_transpo_service_eia923.items() ])
+    pudl_session.add_all(
+        [ CombinedHeatPowerEIA923(abbr=k, status=v)
+          for k,v in combined_heat_power_eia923.items() ])
 
     # States dictionary is defined outside this function, below.
     pudl_session.add_all([State(abbr=k, name=v) for k,v in us_states.items()])
@@ -208,6 +223,13 @@ def ingest_glue_tables(engine):
                                          'operator_id_eia923':int,
                                          'operator_name_eia923':str})
 
+    # We need to standardize plant names -- same capitalization and no leading
+    # or trailing white space... since this field is being used as a key in
+    # many cases. This also needs to be done any time plant_name is pulled in
+    # from other tables.
+    plant_map['plant_name_ferc1'] = plant_map['plant_name_ferc1'].str.strip()
+    plant_map['plant_name_ferc1'] = plant_map['plant_name_ferc1'].str.title()
+
     plants = plant_map[['plant_id','plant_name']]
     plants = plants.drop_duplicates('plant_id')
 
@@ -216,13 +238,6 @@ def ingest_glue_tables(engine):
 
     plants_ferc1 = plant_map[['plant_name_ferc1','respondent_id_ferc1',
         'plant_id']]
-    # We need to standardize plant names -- same capitalization and no leading
-    # or trailing white space... since this field is being used as a key in
-    # many cases. This also needs to be done any time plant_name is pulled in
-    # from other tables.
-    plants_ferc1['plant_name_ferc1'] = plants_ferc1['plant_name_ferc1'].str.strip()
-    plants_ferc1['plant_name_ferc1'] = plants_ferc1['plant_name_ferc1'].str.title()
-
     plants_ferc1 = plants_ferc1.drop_duplicates(['plant_name_ferc1',
         'respondent_id_ferc1'])
 
@@ -255,7 +270,7 @@ def ingest_glue_tables(engine):
         plants_operators.set_index('operator_id_eia923'),
                                     on='operator_id_eia923')
 
-    # Now we can concatenate the two dataframes, and get rid of all the  columns
+    # Now we can concatenate the two dataframes, and get rid of all the columns
     # except for plant_id and utility_id (which determine the  utility to plant
     # association), and get rid of any duplicates or lingering NaN values...
     utility_plant_assn = pd.concat([utility_plant_eia923,utility_plant_ferc1])
@@ -612,12 +627,12 @@ def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine):
 
     # Now we need to add a column to the DataFrame that has the FERC account
     # IDs corresponding to the row_number that's already in there...
-    ferc_acct_df = ferc_electric_plant_accounts
-    ferc_acct_df.drop(['ferc_account_description'], axis=1, inplace=True)
-    ferc_acct_df.dropna(inplace=True)
-    ferc_acct_df['row_number'] = ferc_acct_df['row_number'].astype(int)
+    ferc_accts_df = ferc_electric_plant_accounts.drop(
+                        ['ferc_account_description'], axis=1)
+    ferc_accts_df.dropna(inplace=True)
+    ferc_accts_df['row_number'] = ferc_accts_df['row_number'].astype(int)
 
-    ferc1_pis_df = pd.merge(ferc1_pis_df, ferc_acct_df,
+    ferc1_pis_df = pd.merge(ferc1_pis_df, ferc_accts_df,
                             how='left', on='row_number')
     ferc1_pis_df.drop('row_number', axis=1, inplace=True)
 

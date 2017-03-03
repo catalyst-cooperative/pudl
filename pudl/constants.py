@@ -496,16 +496,21 @@ ferc_electric_plant_accounts = DataFrame.from_records([
     (12, '314', 'Steam production: Turbogenerator units'),
     (13, '315', 'Steam production: Accessory electric equipment'),
     (14, '316', 'Steam production: Miscellaneous power plant equipment'),
-    (15, '317', 'Steam production: Asset retirement costs for steam production plant'),
+    (15, '317', 'Steam production: Asset retirement costs for steam production\
+                                   plant'),
     (16, 'subtotal_steam_production', 'Subtotal: Steam Production Plant'),
     #  B. nuclear production
     (18, '320', 'Nuclear production: Land and land rights (Major only)'),
-    (19, '321', 'Nuclear production: Structures and improvements (Major only)'),
+    (19, '321', 'Nuclear production: Structures and improvements (Major\
+                                     only)'),
     (20, '322', 'Nuclear production: Reactor plant equipment (Major only)'),
     (21, '323', 'Nuclear production: Turbogenerator units (Major only)'),
-    (22, '324', 'Nuclear production: Accessory electric equipment (Major only)'),
-    (23, '325', 'Nuclear production: Miscellaneous power plant equipment (Major only)'),
-    (24, '326', 'Nuclear production: Asset retirement costs for nuclear production plant (Major only)'),
+    (22, '324', 'Nuclear production: Accessory electric equipment (Major\
+                                     only)'),
+    (23, '325', 'Nuclear production: Miscellaneous power plant equipment\
+                                     (Major only)'),
+    (24, '326', 'Nuclear production: Asset retirement costs for nuclear\
+                                     production plant (Major only)'),
     (25, 'subtotal_nuclear_produciton','Subtotal: Nuclear Production Plant'),
     #  C. hydraulic production
     (27, '330', 'Hydraulic production: Land and land rights'),
@@ -515,8 +520,10 @@ ferc_electric_plant_accounts = DataFrame.from_records([
     (31, '334', 'Hydraulic production: Accessory electric equipment'),
     (32, '335', 'Hydraulic production: Miscellaneous power plant equipment'),
     (33, '336', 'Hydraulic production: Roads, railroads and bridges'),
-    (34, '337', 'Hydraulic production: Asset retirement costs for hydraulic production plant'),
-    (35, 'subtotal_hydraulic_production', 'Subtotal: Hydraulic Production Plant'),
+    (34, '337', 'Hydraulic production: Asset retirement costs for hydraulic\
+                                       production plant'),
+    (35, 'subtotal_hydraulic_production', 'Subtotal: Hydraulic Production\
+                                                     Plant'),
     #  D. other production
     (37, '340', 'Other production: Land and land rights'),
     (38, '341', 'Other production: Structures and improvements'),
@@ -525,7 +532,8 @@ ferc_electric_plant_accounts = DataFrame.from_records([
     (41, '344', 'Other production: Generators'),
     (42, '345', 'Other production: Accessory electric equipment'),
     (43, '346', 'Other production: Miscellaneous power plant equipment'),
-    (44, '347', 'Other production: Asset retirement costs for other production plant'),
+    (44, '347', 'Other production: Asset retirement costs for other production\
+                                   plant'),
     (None, '348', 'Other production: Energy Storage Equipment'),
     (45, 'subtotal_other_production', 'Subtotal: Other Production Plant'),
     (46, 'subtotal_production', 'Subtotal: Production Plant'),
@@ -540,7 +548,8 @@ ferc_electric_plant_accounts = DataFrame.from_records([
     (54, '357', 'Transmission: Underground conduit'),
     (55, '358', 'Transmission: Underground conductors and devices'),
     (56, '359', 'Transmission: Roads and trails'),
-    (57, '359.1', 'Transmission: Asset retirement costs for transmission plant'),
+    (57, '359.1', 'Transmission: Asset retirement costs for transmission\
+                                 plant'),
     (58, 'subtotal_transmission', 'Subtotal: Transmission Plant'),
 # 4. Distribution Plant
     (60, '360', 'Distribution: Land and land rights'),
@@ -565,9 +574,13 @@ ferc_electric_plant_accounts = DataFrame.from_records([
     (79, '382', 'Regional transmission: Computer hardware'),
     (80, '383', 'Regional transmission: Computer software'),
     (81, '384', 'Regional transmission: Communication Equipment'),
-    (82, '385', 'Regional transmission: Miscellaneous Regional Transmission and Market Operation Plant'),
-    (83, '386', 'Regional transmission: Asset Retirement Costs for Regional Transmission and Market Operation Plant'),
-    (84, 'subtotal_regional_transmission', 'Subtotal: Transmission and Market Operation Plant'),
+    (82, '385', 'Regional transmission: Miscellaneous Regional Transmission\
+                                        and Market Operation Plant'),
+    (83, '386', 'Regional transmission: Asset Retirement Costs for Regional\
+                                        Transmission and Market Operation\
+                                        Plant'),
+    (84, 'subtotal_regional_transmission', 'Subtotal: Transmission and Market\
+                                                      Operation Plant'),
     (None, '387', 'Regional transmission: [Reserved]'),
 # 6. General Plant
     (86, '389', 'General: Land and land rights'),
