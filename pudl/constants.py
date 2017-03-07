@@ -223,14 +223,14 @@ ferc1_plant_kind_solar_thermal = ['Solar Thermal']
 
 ferc1_plant_kind_strings = {
                 'coal': ferc1_plant_kind_coal,
-                'combustine turbine': ferc1_plant_kind_combustion_turbine,
-                'combined cycle': ferc1_plant_kind_combined_cycle,
+                'combustion_turbine': ferc1_plant_kind_combustion_turbine,
+                'combined_cycle': ferc1_plant_kind_combined_cycle,
                 'nuclear': ferc1_plant_kind_nuke,
                 'geothermal': ferc1_plant_kind_geothermal,
-                'internal combustion': ferc_1_plant_kind_internal_combustion,
+                'internal_combustion': ferc_1_plant_kind_internal_combustion,
                 'wind': ferc1_plant_kind_wind,
                 'photovoltaic': ferc1_plant_kind_photovoltaic,
-                'solar thermal':ferc1_plant_kind_solar_thermal
+                'solar_thermal':ferc1_plant_kind_solar_thermal
 }
 
 # Categorizing the strings from the FERC Form 1 Type of Plant Construction
@@ -834,9 +834,9 @@ fuel_type_aer_eia923 = {
 # All consumption is reported in either short tons for solids,
 # thousands of cubic feet for gases, and barrels for liquids:"""
 fuel_units_eia923 = {
-  'mcf':'for gases',
-  'short tons':'for solid',
-  'barrels':'for liquids'
+  'mcf'        : 'Thousands of cubic feet (for gases)',
+  'short_tons' : 'Short tons (for solids)',
+  'barrels'    : 'Barrels (for liquids)'
 }
 # EIA 923: Designates the purchase type under which receipts occurred
 # in the reporting month. One or two character alphanumeric:

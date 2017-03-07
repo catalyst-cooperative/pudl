@@ -187,7 +187,7 @@ class PlantOwnershipEIA923(models.PUDLBase):
 
 class OperatorInfoEIA923(models.PUDLBase):
     """
-
+    Information specific to operators of power plants (typically utilities).
     """
     __tablename__ = 'operator_info_eia923'
     operator_id = Column(Integer,
@@ -214,7 +214,7 @@ class PlantInfoEIA923(models.PUDLBase):
     # Census region & NERC region are nullable, because they're set from info
     # listed in the generation_fuel page of EIA923, which does not list the
     # entire universe of plants (those listed only in plant_frame will not have
-    # these values set) 
+    # these values set)
     census_region = Column(String, ForeignKey('census_regions.abbr'))
     nerc_region = Column(String, ForeignKey('nerc_region.abbr'))
 
@@ -237,8 +237,8 @@ class GenerationFuelEIA923(models.PUDLBase):
     fuel_type = Column(String, nullable = False)
     aer_fuel_type = Column(String, ForeignKey('fuel_type_aer_eia923.abbr'))
 #TODO: Ferc1 fuel table uses 'fuel_qty_burned' but EIA includes hydro data, etc.
-    fuel_qty_consumed_total = Column(Float, nullable=False)
-    fuel_qty_consumed_internal = Column(Float, nullable=False)
+    fuel_qty_consumed_total = Column(Float)
+    fuel_qty_consumed_internal = Column(Float)
     fuel_mmbtu_per_unit = Column(Float, nullable=False)
     fuel_consumed_mmbtu_tot = Column(Float, nullable=False)
     fuel_consumed_for_electricity_mmbtu = Column(Float, nullable=False)

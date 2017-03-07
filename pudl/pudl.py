@@ -172,7 +172,12 @@ def ingest_static_tables(engine):
     pudl_session.commit()
     pudl_session.close_all()
 
+    # We aren't bringing row_number in to the PUDL DB:
     ferc_accts_df = ferc_electric_plant_accounts.drop('row_number',axis=1)
+    # Get rid of excessive whitespace introduced to break long lines (ugh)
+    ferc_accts_df.ferc_account_description = \
+        ferc_accts_df.ferc_account_description.str.replace('\s+', ' ')
+
     ferc_accts_df.rename(columns={'ferc_account_id':'id',
                                   'ferc_account_description':'description'},
                         inplace=True)
@@ -697,11 +702,13 @@ def ingest_plant_info_eia923(pudl_engine, eia923_dfs):
 
     # because there ought to be one entry for each plant in each year's worth
     # of data, we're dropping duplicates by plant_id in the two data frames
-    # which we're combining.
+    # which we're combining. TODO: populate a table that lists plant operators
+    # by year... nominally plant_ownership_eia923
     plant_info_df = pd.merge(plant_frame_df.drop_duplicates('plant_id'),
                              gen_fuel_df.drop_duplicates('plant_id'),
                              how='outer', on='plant_id')
 
+    # Since this is a plain Yes/No variable -- just make it a real Boolean.
     plant_info_df.combined_heat_and_power_status.replace(
                                    {'N': False,'Y':True}, inplace=True)
 
@@ -709,7 +716,7 @@ def ingest_plant_info_eia923(pudl_engine, eia923_dfs):
                     # column heading in EIA 923        PUDL DB field name
                     'combined_heat_and_power_status' : 'combined_heat_power',
                     'sector_number'                  : 'eia_sector' },
-                    inplace=True)
+                inplace=True)
     # Output into the DB:
     plant_info_df.to_sql(name='plant_info_eia923',
                          con=pudl_engine, index=False, if_exists='append',
@@ -724,7 +731,55 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
     Page 1 of EIA 923 (in recent years) reports generation and fuel consumption
     on a monthly, per-plant basis.
     """
-    pass
+    common_cols = ['plant_id',
+                   'year',
+                   'nuclear_unit_id'
+                   'reported_prime_mover',
+                   'reported_fuel_type_code',
+                   'aer_fuel_type_code']
+
+# Pull out the set of common fields we're going to need for each record:
+    gen_fuel_common = eia923_dfs['generation_fuel'][common_cols]
+    # Rename them to be consistent with the PUDL DB fields, if need be.
+    gen_fuel_common.rename(columns={
+        # column heading in EIA 923        PUDL DB field name
+        'reported_prime_mover': 'prime_mover',
+        'reported_fuel_type_code': 'fuel_type',
+        'aer_fuel_type_code': 'aer_fuel_type'},
+        inplace=True)
+
+# patterns for matching columns to months:
+    month_cols = {1: '_january$',
+                  2: '_february$',
+                  3: '_march$',
+                  4: '_april$',
+                  5: '_may$',
+                  6: '_june$',
+                  7: '_july$',
+                  8: '_august$',
+                  9: '_september$',
+                  10: '_october$',
+                  11: '_november$',
+                  12: '_december$'}
+
+    # Pull out each month's worth of data, merge it with the common columns,
+    # rename columns to match the PUDL DB, add an appropriate month column,
+    # and insert it into the PUDL DB.
+    for month in month_cols.keys():
+        df = eia923_dfs['generation_fuel'].filter(regex=month_cols[month])
+        df['month'] = month
+        df.columns = df.columns.str.replace(month_cols[month], '')
+
+        #'quantity_{month}',
+        #'elec_quantity_{month}',
+        #'mmbtuper_unit_{month}',
+        #'tot_mmbtu_{month}',
+        #'elec_mmbtu_{month}',
+        #'netgen_{month}']
+
+    gen_fuel_df.to_sql(name='generation_fuel_eia923',
+                       con=pudl_engine, index=False, if_exists='append',
+                       dtype={})
 
 def init_db(ferc1_tables=ferc1_pudl_tables,
             ferc1_years=[2015,],
@@ -750,6 +805,10 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
         for table in ferc1_tables:
             assert(table in ferc1_working_tables)
             assert(table in ferc1_pudl_tables)
+
+    if not debug:
+        for table in eia923_tables:
+            assert(table in eia923_pudl_tables)
 
     # Connect to the PUDL DB, wipe out & re-create tables:
     pudl_engine = db_connect_pudl()
@@ -787,11 +846,36 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
     # consuming to read them in multiple times, let's try and read them all
     # into memory just once. In the long run this may not scale up.
     eia923_dfs = {}
-    #for page in pagemap_eia923.index:
-    for page in ['plant_frame','generation_fuel']:
-        eia923_dfs[page] = get_eia923_page(page,
-                                           years=eia923_years,
-                                           verbose=verbose)
+
+# Let's selectively read in only the pages of EIA923 that we need in order
+# to populate the tables we're initiliazing:
+    if 'plant_info_eia923' in eia923_tables:
+        for page in ['plant_frame', 'generation_fuel']:
+            eia923_dfs[page] = get_eia923_page(page,
+                                               years=eia923_years,
+                                               verbose=verbose)
+    if ('generation_fuel_eia923' in eia923_tables) \
+            and ('generation_fuel' not in eia923_dfs.keys()):
+        eia923_dfs['generation_fuel'] = get_eia923_page('generation_fuel',
+                                                        years=eia923_years,
+                                                        verbose=verbose)
+    if 'fuel_stocks_eia923' in eia923_tables:
+        pass  # no DB table defined for fuel stocks yet.
+
+    if 'boiler_fuel_eia923' in eia923_tables:
+        eia923_dfs['boiler_fuel'] = get_eia923_page('boiler_fuel',
+                                                    years=eia923_years,
+                                                    verbose=verbose)
+    if 'generation_eia923' in eia923_tables:
+        eia923_dfs['generator'] = get_eia923_page('generator',
+                                                  years=eia923_years,
+                                                  verbose=verbose)
+    if 'fuel_receipts_costs_eia923' in eia923_tables:
+        eia923_dfs['fuel_receipts_costs'] = \
+            get_eia923_page('fuel_receipts_costs',
+                            years=eia923_years,
+                            verbose=verbose)
+
 
     # NOW START INGESTING EIA923 DATA:
     eia923_ingest_functions = {
