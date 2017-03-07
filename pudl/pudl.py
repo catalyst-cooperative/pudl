@@ -4,10 +4,11 @@ import numpy as np
 from sqlalchemy.sql import select
 from sqlalchemy.engine.url import URL
 from sqlalchemy import create_engine
-from sqlalchemy import Integer, String, Numeric
+from sqlalchemy import Integer, String, Numeric, Boolean
 
 from pudl import settings
 from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
+from pudl.eia923 import get_eia923_page
 from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
 from pudl.constants import ferc1_fuel_unit_strings, rto_iso
 from pudl.constants import ferc1_default_tables, ferc1_pudl_tables
@@ -30,7 +31,8 @@ from pudl.constants import coalmine_type_eia923, coalmine_state_eia923
 from pudl.constants import regulatory_status_eia923
 from pudl.constants import natural_gas_transpo_service_eia923
 from pudl.constants import transpo_mode_eia923
-from pudl.constants import combined_heat_power_eia923
+from pudl.constants import pagemap_eia923
+from pudl.constants import eia923_pudl_tables
 
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
@@ -41,9 +43,8 @@ from pudl.models_eia923 import SectorEIA, ContractTypeEIA923
 from pudl.models_eia923 import EnergySourceEIA923
 from pudl.models_eia923 import CoalMineTypeEIA923, CoalMineStateEIA923
 from pudl.models_eia923 import RegulatoryStatusEIA923
-from pudl.models_eia923 import NaturalGasTranspoServiceEIA923
-from pudl.models_eia923 import TranspoModeEIA923
-from pudl.models_eia923 import CombinedHeatPowerEIA923
+from pudl.models_eia923 import NaturalGasTransportationServiceEIA923
+from pudl.models_eia923 import TransportModeEIA923
 from pudl.models_eia923 import RespondentFrequencyEIA923
 from pudl.models_eia923 import PrimeMoverEIA923, FuelTypeAER
 from pudl.models_eia923 import FuelTypeEIA923
@@ -60,8 +61,6 @@ from pudl.models import UtilPlantAssn
 
 # The declarative_base object that contains our PUDL DB MetaData
 from pudl.models import PUDLBase
-
-from pudl.models_ferc1 import FuelFERC1, PlantSteamFERC1
 
 """
 The Public Utility Data Liberation (PUDL) project integrates several different
@@ -160,14 +159,11 @@ def ingest_static_tables(engine):
         [ RegulatoryStatusEIA923(abbr=k, status=v)
           for k,v in regulatory_status_eia923.items() ])
     pudl_session.add_all(
-        [ TranspoModeEIA923(abbr=k, mode=v)
+        [ TransportModeEIA923(abbr=k, mode=v)
           for k,v in transpo_mode_eia923.items() ])
     pudl_session.add_all(
-        [ NaturalGasTranspoServiceEIA923(abbr=k, status=v)
+        [ NaturalGasTransportationServiceEIA923(abbr=k, status=v)
           for k,v in natural_gas_transpo_service_eia923.items() ])
-    pudl_session.add_all(
-        [ CombinedHeatPowerEIA923(abbr=k, status=v)
-          for k,v in combined_heat_power_eia923.items() ])
 
     # States dictionary is defined outside this function, below.
     pudl_session.add_all([State(abbr=k, name=v) for k,v in us_states.items()])
@@ -660,7 +656,81 @@ def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine):
     """
     pass
 
-def init_db(ferc1_tables=ferc1_pudl_tables, verbose=True, debug=False):
+def ingest_operator_info_eia923(pudl_engine, eia923_dfs):
+    """
+    Ingest data describing static attributes of operators from EIA Form 923.
+    """
+    # operator_id
+    # operator_name
+    # regulatory_status
+    pass
+
+def ingest_plant_info_eia923(pudl_engine, eia923_dfs):
+    """
+    Ingest data describing static attributes of plants from EIA Form 923.
+
+    Much of the static plant information is reported repeatedly, and scattered
+    across several different pages of EIA 923. This function tries to bring it
+    together into one unified, unduplicated table.
+    """
+
+    # From 'plant_frame'
+    plant_frame_cols = ['plant_id',
+                        'plant_state',
+                        'combined_heat_and_power_status',
+                        'sector_number',
+                        'naics_code',
+                        'reporting_frequency' ]
+
+    plant_frame_df = eia923_dfs['plant_frame'][plant_frame_cols]
+
+    # From 'generation_fuel' to merge by plant_id
+    gen_fuel_cols = ['plant_id',
+                     'census_region',
+                     'nerc_region' ]
+
+    gen_fuel_df = eia923_dfs['generation_fuel'][gen_fuel_cols]
+
+    # Remove "State fuel-level increment" records... which don't pertain to
+    # any particular plant (they have plant_id == operator_id == 99999)
+    gen_fuel_df = gen_fuel_df[gen_fuel_df.plant_id != 99999]
+
+    # because there ought to be one entry for each plant in each year's worth
+    # of data, we're dropping duplicates by plant_id in the two data frames
+    # which we're combining.
+    plant_info_df = pd.merge(plant_frame_df.drop_duplicates('plant_id'),
+                             gen_fuel_df.drop_duplicates('plant_id'),
+                             how='outer', on='plant_id')
+
+    plant_info_df.combined_heat_and_power_status.replace(
+                                   {'N': False,'Y':True}, inplace=True)
+
+    plant_info_df.rename(columns={
+                    # column heading in EIA 923        PUDL DB field name
+                    'combined_heat_and_power_status' : 'combined_heat_power',
+                    'sector_number'                  : 'eia_sector' },
+                    inplace=True)
+    # Output into the DB:
+    plant_info_df.to_sql(name='plant_info_eia923',
+                         con=pudl_engine, index=False, if_exists='append',
+                         dtype={'eia_sector' : Integer,
+                                'naics_code' : Integer,
+                                'combined_heat_power': Boolean } )
+
+def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
+    """
+    Ingest generation and fuel data from Page 1 of EIA Form 923 into PUDL DB.
+
+    Page 1 of EIA 923 (in recent years) reports generation and fuel consumption
+    on a monthly, per-plant basis.
+    """
+    pass
+
+def init_db(ferc1_tables=ferc1_pudl_tables,
+            ferc1_years=[2015,],
+            eia923_tables=eia923_pudl_tables,
+            eia923_years=[2014,2015,2016],
+            verbose=True, debug=False):
     """
     Create the PUDL database and fill it up with data!
 
@@ -695,18 +765,42 @@ def init_db(ferc1_tables=ferc1_pudl_tables, verbose=True, debug=False):
     ingest_glue_tables(pudl_engine)
 
     # BEGIN INGESTING FERC FORM 1 DATA:
-    ingest_functions = {
+    ferc1_ingest_functions = {
         'f1_fuel'           : ingest_fuel_ferc1,
         'f1_steam'          : ingest_plants_steam_ferc1,
         'f1_gnrt_plant'     : ingest_plants_small_ferc1,
         'f1_hydro'          : ingest_plants_hydro_ferc1,
         'f1_pumped_storage' : ingest_plants_pumped_storage_ferc1,
         'f1_plant_in_srvce' : ingest_plant_in_service_ferc1,
-        'f1_purchased_pwr'  : ingest_purchased_power_ferc1 }
+        'f1_purchased_pwr'  : ingest_purchased_power_ferc1
+    }
 
     ferc1_engine = db_connect_ferc1()
-    for table in ingest_functions.keys():
+    for table in ferc1_ingest_functions.keys():
         if table in ferc1_tables:
             if verbose:
                 print("Ingesting {} from FERC Form 1 into PUDL.".format(table))
-            ingest_functions[table](pudl_engine, ferc1_engine)
+            ferc1_ingest_functions[table](pudl_engine, ferc1_engine)
+
+    # Because we're going to be combining data froms several different EIA923
+    # spreadsheet pages into individual database tables, and it's time
+    # consuming to read them in multiple times, let's try and read them all
+    # into memory just once. In the long run this may not scale up.
+    eia923_dfs = {}
+    #for page in pagemap_eia923.index:
+    for page in ['plant_frame','generation_fuel']:
+        eia923_dfs[page] = get_eia923_page(page,
+                                           years=eia923_years,
+                                           verbose=verbose)
+
+    # NOW START INGESTING EIA923 DATA:
+    eia923_ingest_functions = {
+        'plant_info_eia923'      : ingest_plant_info_eia923,
+        'generation_fuel_eia923' : ingest_generation_fuel_eia923
+    }
+
+    for table in eia923_ingest_functions.keys():
+        if table in eia923_tables:
+            if verbose:
+                print("Ingesting {} from EIA 923 into PUDL.".format(table))
+            eia923_ingest_functions[table](pudl_engine, eia923_dfs)

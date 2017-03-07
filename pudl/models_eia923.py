@@ -1,5 +1,5 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Float, Numeric
-from sqlalchemy import ForeignKeyConstraint
+from sqlalchemy import Boolean, Integer, String, Float, Numeric
+from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import URL
@@ -17,6 +17,11 @@ PUDLBase = declarative_base()
 ###########################################################################
 
 class CoalMineInfoEIA923(models.PUDLBase):
+    """
+    Information that pertains to individual coal mines listed in EIA 923.
+
+    NOT DONE YET.
+    """
 #TODO figure out how to autoincrement a unique id and then insert that into a
 #new field
     __tablename__ = 'coalmine_info_eia923'
@@ -38,17 +43,16 @@ class BoilersEIA923(models.PUDLBase):
 
 class GeneratorEIA923(models.PUDLBase):
     """
-    List of Generator IDs specific to each plant in EIA Form 923 Page 4
+    List of Generator IDs specific to each plant in EIA Form 923 Page 4.
     """
     __tablename__ = 'generators_eia923'
     generator_id = Column(String, primary_key=True)
     plant_id = Column(Integer, ForeignKey('plants_eia923.plant_id'),
         primary_key=True)
 
-
 class FuelUnitEIA923(models.PUDLBase):
     """
-    Static list of fuel units (physical unit labels) used by EIA in Form 923
+    Static list of fuel units (physical unit labels) used by EIA in Form 923.
     """
     __tablename__ = 'fuel_units_eia923'
     abbr = Column(String, primary_key = True)
@@ -56,8 +60,9 @@ class FuelUnitEIA923(models.PUDLBase):
 
 class FuelTypeEIA923(models.PUDLBase):
     """
-    Static list of fuel types used by EIA in Form 923,
-    Enumerated on EIAForm923 Page 7
+    Static list of fuel types used by EIA in Form 923.
+
+    Enumerated on Page 7 of EIA Form 923.
     """
     __tablename__ = 'fuel_type_eia923'
     abbr = Column(String, primary_key=True)
@@ -66,19 +71,10 @@ class FuelTypeEIA923(models.PUDLBase):
 
 class FuelGroupEIA923(models.PUDLBase):
     """
-    EIA grouping of energy sources into fuel groups, used in EIA Form 923
+    EIA grouping of energy sources into fuel groups, used in EIA Form 923.
     """
     __tablename__ = 'fuel_group_eia923'
     group = Column(String, primary_key = True)
-
-class CombinedHeatPowerEIA923(models.PUDLBase):
-    """
-    Whether or not the plant is a combined heat & power facility (cogenerator)
-    As reported in EIA Form 923 Page 7
-    """
-    __tablename__ = 'combined_heat_power_eia923'
-    abbr = Column(String, primary_key=True)
-    status = Column(String, nullable=False)
 
 class RespondentFrequencyEIA923(models.PUDLBase):
     """
@@ -128,6 +124,7 @@ class EnergySourceEIA923(models.PUDLBase):
     __tablename__ = 'energy_source_eia923'
     abbr = Column(String, primary_key = True)
     source = Column(String, nullable = False)
+    fuel_group = Column(String, ForeignKey('fuel_group_eia923.group'))
 
 class CoalMineTypeEIA923(models.PUDLBase):
     """
@@ -139,7 +136,7 @@ class CoalMineTypeEIA923(models.PUDLBase):
 
 class CoalMineStateEIA923(models.PUDLBase):
     """
-    State and country abbreviations for coal mine locations, used in EIA Form923
+    State and country abbreviations for coal mine locations, from EIA Form923.
     """
     __tablename__ = 'coalmine_state_eia923'
     abbr = Column(String, primary_key = True)
@@ -153,88 +150,108 @@ class RegulatoryStatusEIA923(models.PUDLBase):
     abbr = Column(String, primary_key = True)
     status = Column(String, nullable = False)
 
-class NaturalGasTranspoServiceEIA923(models.PUDLBase):
+class NaturalGasTransportationServiceEIA923(models.PUDLBase):
     """
     Contract type for natural gas capacity service, used in EIA Form 923
     """
-    __tablename__ = 'natural_gas_transpo_service_eia923'
+    __tablename__ = 'natural_gas_transportation_service_eia923'
     abbr = Column(String, primary_key = True)
     status = Column(String, nullable = False)
 
-class TranspoModeEIA923(models.PUDLBase):
+class TransportModeEIA923(models.PUDLBase):
     """
     Mode used for longest & 2nd longest distance in EIA Form 923
     """
-    __tablename__ = 'transpo_mode_eia923'
+    __tablename__ = 'transport_modes_eia923'
     abbr = Column(String, primary_key = True)
     mode = Column(String, nullable = False)
-
-
 
 ###########################################################################
 # Tables which represent EIA Form 923 data. E.g. Fuel Receipts.
 ###########################################################################
 
+class PlantOwnershipEIA923(models.PUDLBase):
+    """
+    Information describing which entities own & operate power plants.
+
+    For now this table only describes how the reporting operator of a plant_id
+    changes from year to year, but it may also be used to house data from the
+    EIA860 form, describing ownership shares of various plants, year by year.
+    """
+    __tablename__ = 'plant_ownership_eia923'
+    plant_id = Column(Integer, primary_key=True)
+    year = Column(Integer, primary_key=True)
+    operator_id = Column(Integer,
+                         ForeignKey('utilities_eia923.operator_id'),
+                         primary_key=True)
+
+class OperatorInfoEIA923(models.PUDLBase):
+    """
+
+    """
+    __tablename__ = 'operator_info_eia923'
+    operator_id = Column(Integer,
+                         ForeignKey('utilities_eia923.operator_id'),
+                         primary_key=True)
+    regulated = Column(Boolean)
+
 class PlantInfoEIA923(models.PUDLBase):
     """
-    Includes static information about each plant as reported on Page 1 of EIA
-    Form 923
+    Static, plant specific information reported on Page 1 of EIA Form 923.
     """
     __tablename__ = 'plant_info_eia923'
+     # TODO: This should be a FK pointing at plants_eia923.plant_id_eia923
     plant_id = Column(Integer, primary_key=True)
-    combined_heat_power = Column(String,
-        ForeignKey('combined_heat_power_eia923.abbr'), nullable=False)
+    combined_heat_power = Column(Boolean, nullable=False)
     plant_state = Column(String, ForeignKey('us_states.abbr'), nullable=False)
-    census_region = Column(String, ForeignKey('census_regions.abbr'),
-        nullable=False)
-    nerc_region = Column(String, ForeignKey('nerc_region.abbr'), nullable=False)
-    eia_sector = Column(Integer, ForeignKey('sector_eia.id'), nullable=False)
+    eia_sector = Column(Integer,
+                        ForeignKey('sector_eia.id'),
+                        nullable=False)
     naics_code = Column(Integer, nullable=False)
-    operator_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'),
-        nullable=False)
-    regulated = Column(String, ForeignKey('regulatory_status_eia923.abbr'))
     reporting_frequency = Column(String,
-        ForeignKey('respondent_frequency_eia923.abbr'))
+                                 ForeignKey('respondent_frequency_eia923.abbr'),
+                                 nullable=False)
+    # Census region & NERC region are nullable, because they're set from info
+    # listed in the generation_fuel page of EIA923, which does not list the
+    # entire universe of plants (those listed only in plant_frame will not have
+    # these values set) 
+    census_region = Column(String, ForeignKey('census_regions.abbr'))
+    nerc_region = Column(String, ForeignKey('nerc_region.abbr'))
 
-class GeneratorFuelEIA923(models.PUDLBase):
+class GenerationFuelEIA923(models.PUDLBase):
     """
-    Annual fuel consumed by a given plant, as reported to EIA in Form 923 Page 1
-    This information comes from the XXXXXX table in the XXXXX DB, which is
-    populated from EIA Form 923 Page 1 Generation and Fuel Data.
+    Annual fuel consumption by plant, as reported on Page 1 of EIA Form 923.
     """
-    __tablename__ = 'generator_fuel_eia923'
+    __tablename__ = 'generation_fuel_eia923'
 
-    # Each month, for each unique combination of prime mover and fuel type,
-    # there is one report for each plant, which may be recorded multiple times
-    # for multiple utilities that have a stake in the plant...
-    # Primary key fields used previously:
-    # plant, prime mover, fuel type, and year.
     id = Column(Integer, autoincrement=True, primary_key=True) #surrogate key
-    plant_id = Column(Integer, ForeignKey('plants_eia923.plant_id'),
-        nullable=False)
+    plant_id = Column(Integer,
+                      ForeignKey('plants_eia923.plant_id'),
+                      nullable=False)
     year = Column(Integer, ForeignKey('years.year'), nullable=False)
     month = Column(Integer, ForeignKey('months.month'), nullable=False)
+    # TODO: Should nuclear_unit_id be somewhere else? w/ other per unit info?
     nuclear_unit_id = Column(Integer)
-    fuel_type = Column(String, nullable = False) #fuel_type & aer_fuel_type is a
-        # many to many relationship
-    aer_fuel_type = Column(String, ForeignKey('fuel_type_aer_eia923.abbr'),
-        nullable=False)
+    # fuel_type & aer_fuel_type is a many to many relationship
+    # TODO: shouldn't fuel_type also be a foreign key?
+    fuel_type = Column(String, nullable = False)
+    aer_fuel_type = Column(String, ForeignKey('fuel_type_aer_eia923.abbr'))
 #TODO: Ferc1 fuel table uses 'fuel_qty_burned' but EIA includes hydro data, etc.
     fuel_qty_consumed_total = Column(Float, nullable=False)
     fuel_qty_consumed_internal = Column(Float, nullable=False)
     fuel_mmbtu_per_unit = Column(Float, nullable=False)
     fuel_consumed_mmbtu_tot = Column(Float, nullable=False)
     fuel_consumed_for_electricity_mmbtu = Column(Float, nullable=False)
-    net_gen_electricity = Column(Float, nullable=False)
+    net_generation_mwh = Column(Float, nullable=False)
+    # TODO How do we determine the fuel unit associated with the generator?
 
-class BoilerFuelDataEIA923(models.PUDLBase):
+class BoilerFuelEIA923(models.PUDLBase):
     """
-    Monthly Boiler Fuel consumption and emissions Time Series, as reported to
-    EIA in Form 923. This information comes from the XXXXXX table in the XXXXX
-    DB, which is populated from EIA Form 923 Page 3 Generator Data.
-    Sources: EIA-923 and EIA-860 Reports
+    Monthly fuel consumption by boiler as reported on Page 3 of EIA Form 923.
+
+    NOT DONE YET.
     """
-    __tablename__ = 'boiler_data_eia923'
+    __tablename__ = 'boiler_fuel_eia923'
 
     # Each month, for each unique combination of boiler id and prime mover and
     # fuel, there is one report for each boiler unit in each plant.
@@ -257,14 +274,13 @@ class BoilerFuelDataEIA923(models.PUDLBase):
     sulfur_content = Column(Float, nullable=False)
     ash_content = Column(Float, nullable=False)
 
-class GeneratorDataEIA923(models.PUDLBase):
+class GenerationEIA923(models.PUDLBase):
     """
-    Monthly Generating Unit Net Generation Time Series by a given plant, as
-    reported to EIA in Form 923. This information comes from the XXXXXX table in
-    the XXXXX DB, which is populated from EIA Form 923 Page 4 Generator Data.
-    Sources: EIA-923 and EIA-860 Reports
+    Monthly electricity generation by generator from EIA Form 923 Page 4.
+
+    NOT DONE YET.
     """
-    __tablename__ = 'generator_data_eia923'
+    __tablename__ = 'generation_eia923'
 
     # Each month, for each unique combination of generator id and prime mover
     # and fuel,there is one report for each generator unit in each plant.
@@ -281,21 +297,16 @@ class GeneratorDataEIA923(models.PUDLBase):
     month = Column(Integer, ForeignKey('months.month'), nullable=False)
     net_generation_mwh = Column(Float, nullable=False)
 
-
 class FuelReceiptsCostsEIA923(models.PUDLBase):
     """
-    Fuel receipts and costs reported for individual fuel purchases;
-    As reported on Page 5 of EIA Form 923
-    Sources: EIA-923 and EIA-860 Reports
-    """
+    Fuel receipts and costs by plant and purchase from Page 5 of EIA Form 923.
 
+    NOT DONE YET.
+    """
     __tablename__ = 'fuel_receipts_costs_eia923'
 
-    # Primary key fields used previously:
-    # plant_id and fuel_type.
-
+    # surrogate key
     fuel_receipt_id = Column(Integer, primary_key=True, autoincrement=True)
-        # surrogate key
     plant_id = Column(Integer, ForeignKey('plants_eia923.plant_id'),
         nullable=False)#instead of plant name, which is field listed on Page 5?
     year = Column(Integer, ForeignKey('years.year'), nullable=False)
@@ -306,10 +317,7 @@ class FuelReceiptsCostsEIA923(models.PUDLBase):
     contract_expiration_date = Column(Integer, nullable=False)
     energy_source = Column(String, ForeignKey('energy_source_eia923.abbr'),
         nullable=False)
-    fuel_group = Column(String, ForeignKey('fuel_group_eia923.group'),
-        nullable=False)
-#TODO: add FK for coalmine_msha_id
-    coalmine_msha_id = Column(Integer)
+    coalmine_msha_id = Column(Integer) # TODO: add FK for coalmine_msha_id
     supplier =  Column(String, nullable=False) # TODO FK new table?
     qty = Column(Integer, nullable=False)
     average_heat_content = Column(Integer, nullable=False)
@@ -318,8 +326,9 @@ class FuelReceiptsCostsEIA923(models.PUDLBase):
     average_mercury_content = Column(Integer, nullable=False)
     fuel_cost = Column(Integer) #null values exist in data
     primary_transportation_mode = Column(String,
-        ForeignKey('transpo_mode_eia923.abbr'), nullable=False)
+        ForeignKey('transport_modes_eia923.abbr'), nullable=False)
     secondary_transportation_mode = Column(String,
-        ForeignKey('transpo_mode_eia923.abbr'), nullable=False)
+        ForeignKey('transport_modes_eia923.abbr'), nullable=False)
     natural_gas_transportation_service = Column(String,
-        ForeignKey('natural_gas_transpo_service_eia923.abbr'), nullable=False)
+        ForeignKey('natural_gas_transportation_service_eia923.abbr'),
+                    nullable=False)

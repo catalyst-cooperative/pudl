@@ -444,6 +444,21 @@ ferc1_working_tables = ['f1_respondent_id',
                         'f1_plant_in_srvce',
                         'f1_purchased_pwr' ]
 
+# This is the list of EIA923 tables that can be successfully pulled into PUDL
+eia923_pudl_tables = [ 'plant_info_eia923',
+                       'generation_fuel_eia923' ]
+
+# these are tabname inputs mapping to excel spreadsheet tabs
+pagemap_eia923 = DataFrame.from_records(
+                                [ (     'generation_fuel', 0, 5 ),
+                                  (              'stocks', 1, 5 ),
+                                  (         'boiler_fuel', 2, 5 ),
+                                  (           'generator', 3, 5 ),
+                                  ( 'fuel_receipts_costs', 4, 4 ),
+                                  (         'plant_frame', 5, 4 ) ],
+                                  columns=['page','sheetname','skiprows'],
+                                  index='page' )
+
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].
 # TODO: THIS ONLY PERTAINS TO 2015 AND MAY NEED TO BE ADJUSTED BY YEAR...
@@ -644,41 +659,34 @@ ferc_accumulated_provision_for_depreciation = DataFrame.from_records([
 
 columns=['row_number','ferc_account_description'])
 
-# From Page 7 of EIA Form 923
-# Whether or not the plant is a combined heat & power facility (cogenerator).
-# One character alphanumeric, “Y” or “N”
-
-combined_heat_power_eia923 = {
-    'Y':'Yes',
-    'N':'No'
-}
-
 # From Page 7 of EIA Form 923, Census Region the state is located in
 census_region = {
-  'NEW':'New England',
-  'MAT':'Middle Atlantic',
-  'SAT':'South Atlantic',
-  'ESC':'East South Central',
-  'WSC':'West South Central',
-  'ENC':'East North Central',
-  'WNC':'West North Central',
-  'MTN':'Mountain',
-  'PACC':'Pacific Contiguous (OR, WA, CA)',
-  'PACN':'Pacific Non-Contiguous (AK, HI)',
+  'NEW'  : 'New England',
+  'MAT'  : 'Middle Atlantic',
+  'SAT'  : 'South Atlantic',
+  'ESC'  : 'East South Central',
+  'WSC'  : 'West South Central',
+  'ENC'  : 'East North Central',
+  'WNC'  : 'West North Central',
+  'MTN'  : 'Mountain',
+  'PACC' : 'Pacific Contiguous (OR, WA, CA)',
+  'PACN' : 'Pacific Non-Contiguous (AK, HI)',
 }
 
 # From Page 7 of EIA Form923
 # Static list of NERC (North American Electric Reliability Corporation)
 # regions, used for where plant is located
 nerc_region = {
-  'NPCC':'Northeast Power Coordinating Council',
-  'MRO':'Midwest Reliability Organization',
-  'SERC':'SERC Reliability Corporation',
-  'RFC':'Reliability First Corporation',
-  'SPP':'Southwest Power Pool',
-  'TRE':'Texas Regional Entity',
-  'FRCC':'Florida Reliability Coordinating Council',
-  'WECC':'Western Electricity Coordinating Council'
+  'NPCC' : 'Northeast Power Coordinating Council',
+  'ASCC' : 'Alaska Systems Coordinating Council',
+  'HICC' : 'Hawaiian Islands Coordinating Council',
+  'MRO'  : 'Midwest Reliability Organization',
+  'SERC' : 'SERC Reliability Corporation',
+  'RFC'  : 'Reliability First Corporation',
+  'SPP'  : 'Southwest Power Pool',
+  'TRE'  : 'Texas Regional Entity',
+  'FRCC' : 'Florida Reliability Coordinating Council',
+  'WECC' : 'Western Electricity Coordinating Council'
 }
 
 # From Page 7 of EIA Form 923 EIA’s internal consolidated NAICS sectors.
