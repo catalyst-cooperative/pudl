@@ -46,7 +46,7 @@ def get_eia923_files(years=[2014,2015,2016]):
     # corresponding to the years that we're looking at.
     return([ glob(os.path.join(datadir(yr),'*2_3_4*'))[0] for yr in years ])
 
-def parse_eia923(tabname, years=[2014,2015,2016]):
+def get_eia923_page(page, years=[2014,2015,2016], verbose=True):
     """
     Read a single table from several years of EIA923 data. Return a DataFrame.
 
@@ -61,35 +61,39 @@ def parse_eia923(tabname, years=[2014,2015,2016]):
     for year in years:
         assert(year > 2013), "EIA923 parsing only works for 2014 and later."
 
-    # these are tabname inputs mapping to excel spreadsheet tabs
-    tabmap = { "generation_fuel" : 0,
-               "stocks" : 1,
-               "boiler_fuel" : 2,
-               "generator" : 3,
-               "fuel_receipts_costs" : 4,
-               "plant_frame" : 5 }
-
-    assert(tabname in tabmap.keys()), "Unrecognized tabname: {}".format(tabname)
-
-    # rowskip indicates the number of header rows to skip, which varies by tab
-    rowskip = { "generation_fuel" : 5,
-                "stocks" : 5,
-                "boiler_fuel" : 5,
-                "generator" : 5,
-                "fuel_receipts_costs" : 4,
-                "plant_frame" : 4 }
+    assert(page in constants.pagemap_eia923.index),\
+                                "Unrecognized EIA 923 page: {}".format(page)
 
     filenames = get_eia923_files(years)
 
     df = pd.DataFrame()
-    for (year, filename) in zip(years,filenames):
-        newdata = pd.read_excel(fn, sheetname=tabmap[tabname],
-                                    skiprows=rowskip[tabname])
+    for (yr, fn) in zip(years,filenames):
+        if verbose:
+            print('Reading EIA 923 {} data for {}...'.format(page, yr))
+        newdata = pd.read_excel(fn,
+                    sheetname=constants.pagemap_eia923.loc[page]['sheetname'],
+                    skiprows=constants.pagemap_eia923.loc[page]['skiprows'] )
 
         # stocks tab is missing a YEAR column for some reason. Add it!
-        if(tabname=="stocks"):
-            newdata["YEAR"]=yr
+        if(page=='stocks'):
+            newdata['YEAR']=yr
 
         df = df.append(newdata)
+
+    # Clean column names: lowercase, underscores instead of white space,
+    # no non-alphanumeric characters
+    df.columns = df.columns.str.replace('[^0-9a-zA-Z]+', ' ')
+    df.columns = df.columns.str.strip().str.lower()
+    df.columns = df.columns.str.replace(' ', '_')
+
+    # Drop columns that start with "reserved" because they are empty
+    to_drop = [ c for c in df.columns if c[:8]=='reserved' ]
+    df.drop(to_drop, axis=1, inplace=True)
+
+    # We could also do additional cleanup here -- for example:
+    #  - Substituting ISO-3166 3 letter country codes for the ad-hoc EIA
+    #    2-letter country codes.
+    #  - Replacing Y/N string values with True/False Booleans
+    #  - Replacing '.' strings with np.nan values as appropriate.
 
     return(df)

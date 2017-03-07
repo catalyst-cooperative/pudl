@@ -228,6 +228,11 @@ def define_db(refyear, ferc1_tables, ferc1_meta, verbose=True):
     if verbose:
         print("Defining new FERC Form 1 DB based on {}...".format(refyear))
 
+    if verbose:
+        print("Clearing any existing FERC Form 1 database MetaData...")
+    # This keeps us from having collisions when re-initializing the DB.
+    ferc1_meta.clear()
+
     for dbf in dbfs:
         dbf_filename = os.path.join(datadir(refyear),'{}.DBF'.format(dbf))
         ferc1_dbf = dbfread.DBF(dbf_filename)

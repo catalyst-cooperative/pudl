@@ -444,6 +444,21 @@ ferc1_working_tables = ['f1_respondent_id',
                         'f1_plant_in_srvce',
                         'f1_purchased_pwr' ]
 
+# This is the list of EIA923 tables that can be successfully pulled into PUDL
+eia923_pudl_tables = [ 'plant_info_eia923',
+                       'generation_fuel_eia923' ]
+
+# these are tabname inputs mapping to excel spreadsheet tabs
+pagemap_eia923 = DataFrame.from_records(
+                                [ (     'generation_fuel', 0, 5 ),
+                                  (              'stocks', 1, 5 ),
+                                  (         'boiler_fuel', 2, 5 ),
+                                  (           'generator', 3, 5 ),
+                                  ( 'fuel_receipts_costs', 4, 4 ),
+                                  (         'plant_frame', 5, 4 ) ],
+                                  columns=['page','sheetname','skiprows'],
+                                  index='page' )
+
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].
 # TODO: THIS ONLY PERTAINS TO 2015 AND MAY NEED TO BE ADJUSTED BY YEAR...
@@ -496,16 +511,21 @@ ferc_electric_plant_accounts = DataFrame.from_records([
     (12, '314', 'Steam production: Turbogenerator units'),
     (13, '315', 'Steam production: Accessory electric equipment'),
     (14, '316', 'Steam production: Miscellaneous power plant equipment'),
-    (15, '317', 'Steam production: Asset retirement costs for steam production plant'),
+    (15, '317', 'Steam production: Asset retirement costs for steam production\
+                                   plant'),
     (16, 'subtotal_steam_production', 'Subtotal: Steam Production Plant'),
     #  B. nuclear production
     (18, '320', 'Nuclear production: Land and land rights (Major only)'),
-    (19, '321', 'Nuclear production: Structures and improvements (Major only)'),
+    (19, '321', 'Nuclear production: Structures and improvements (Major\
+                                     only)'),
     (20, '322', 'Nuclear production: Reactor plant equipment (Major only)'),
     (21, '323', 'Nuclear production: Turbogenerator units (Major only)'),
-    (22, '324', 'Nuclear production: Accessory electric equipment (Major only)'),
-    (23, '325', 'Nuclear production: Miscellaneous power plant equipment (Major only)'),
-    (24, '326', 'Nuclear production: Asset retirement costs for nuclear production plant (Major only)'),
+    (22, '324', 'Nuclear production: Accessory electric equipment (Major\
+                                     only)'),
+    (23, '325', 'Nuclear production: Miscellaneous power plant equipment\
+                                     (Major only)'),
+    (24, '326', 'Nuclear production: Asset retirement costs for nuclear\
+                                     production plant (Major only)'),
     (25, 'subtotal_nuclear_produciton','Subtotal: Nuclear Production Plant'),
     #  C. hydraulic production
     (27, '330', 'Hydraulic production: Land and land rights'),
@@ -515,8 +535,10 @@ ferc_electric_plant_accounts = DataFrame.from_records([
     (31, '334', 'Hydraulic production: Accessory electric equipment'),
     (32, '335', 'Hydraulic production: Miscellaneous power plant equipment'),
     (33, '336', 'Hydraulic production: Roads, railroads and bridges'),
-    (34, '337', 'Hydraulic production: Asset retirement costs for hydraulic production plant'),
-    (35, 'subtotal_hydraulic_production', 'Subtotal: Hydraulic Production Plant'),
+    (34, '337', 'Hydraulic production: Asset retirement costs for hydraulic\
+                                       production plant'),
+    (35, 'subtotal_hydraulic_production', 'Subtotal: Hydraulic Production\
+                                                     Plant'),
     #  D. other production
     (37, '340', 'Other production: Land and land rights'),
     (38, '341', 'Other production: Structures and improvements'),
@@ -525,7 +547,8 @@ ferc_electric_plant_accounts = DataFrame.from_records([
     (41, '344', 'Other production: Generators'),
     (42, '345', 'Other production: Accessory electric equipment'),
     (43, '346', 'Other production: Miscellaneous power plant equipment'),
-    (44, '347', 'Other production: Asset retirement costs for other production plant'),
+    (44, '347', 'Other production: Asset retirement costs for other production\
+                                   plant'),
     (None, '348', 'Other production: Energy Storage Equipment'),
     (45, 'subtotal_other_production', 'Subtotal: Other Production Plant'),
     (46, 'subtotal_production', 'Subtotal: Production Plant'),
@@ -540,7 +563,8 @@ ferc_electric_plant_accounts = DataFrame.from_records([
     (54, '357', 'Transmission: Underground conduit'),
     (55, '358', 'Transmission: Underground conductors and devices'),
     (56, '359', 'Transmission: Roads and trails'),
-    (57, '359.1', 'Transmission: Asset retirement costs for transmission plant'),
+    (57, '359.1', 'Transmission: Asset retirement costs for transmission\
+                                 plant'),
     (58, 'subtotal_transmission', 'Subtotal: Transmission Plant'),
 # 4. Distribution Plant
     (60, '360', 'Distribution: Land and land rights'),
@@ -565,9 +589,13 @@ ferc_electric_plant_accounts = DataFrame.from_records([
     (79, '382', 'Regional transmission: Computer hardware'),
     (80, '383', 'Regional transmission: Computer software'),
     (81, '384', 'Regional transmission: Communication Equipment'),
-    (82, '385', 'Regional transmission: Miscellaneous Regional Transmission and Market Operation Plant'),
-    (83, '386', 'Regional transmission: Asset Retirement Costs for Regional Transmission and Market Operation Plant'),
-    (84, 'subtotal_regional_transmission', 'Subtotal: Transmission and Market Operation Plant'),
+    (82, '385', 'Regional transmission: Miscellaneous Regional Transmission\
+                                        and Market Operation Plant'),
+    (83, '386', 'Regional transmission: Asset Retirement Costs for Regional\
+                                        Transmission and Market Operation\
+                                        Plant'),
+    (84, 'subtotal_regional_transmission', 'Subtotal: Transmission and Market\
+                                                      Operation Plant'),
     (None, '387', 'Regional transmission: [Reserved]'),
 # 6. General Plant
     (86, '389', 'General: Land and land rights'),
@@ -637,41 +665,34 @@ ferc_accumulated_provision_for_depreciation = DataFrame.from_records([
 
 columns=['row_number','line_id', 'ferc_account_description'])
 
-# From Page 7 of EIA Form 923
-# Whether or not the plant is a combined heat & power facility (cogenerator).
-# One character alphanumeric, “Y” or “N”
-
-combined_heat_power_eia923 = {
-    'Y':'Yes',
-    'N':'No'
-}
-
 # From Page 7 of EIA Form 923, Census Region the state is located in
 census_region = {
-  'NEW':'New England',
-  'MAT':'Middle Atlantic',
-  'SAT':'South Atlantic',
-  'ESC':'East South Central',
-  'WSC':'West South Central',
-  'ENC':'East North Central',
-  'WNC':'West North Central',
-  'MTN':'Mountain',
-  'PACC':'Pacific Contiguous (OR, WA, CA)',
-  'PACN':'Pacific Non-Contiguous (AK, HI)',
+  'NEW'  : 'New England',
+  'MAT'  : 'Middle Atlantic',
+  'SAT'  : 'South Atlantic',
+  'ESC'  : 'East South Central',
+  'WSC'  : 'West South Central',
+  'ENC'  : 'East North Central',
+  'WNC'  : 'West North Central',
+  'MTN'  : 'Mountain',
+  'PACC' : 'Pacific Contiguous (OR, WA, CA)',
+  'PACN' : 'Pacific Non-Contiguous (AK, HI)',
 }
 
 # From Page 7 of EIA Form923
 # Static list of NERC (North American Electric Reliability Corporation)
 # regions, used for where plant is located
 nerc_region = {
-  'NPCC':'Northeast Power Coordinating Council',
-  'MRO':'Midwest Reliability Organization',
-  'SERC':'SERC Reliability Corporation',
-  'RFC':'Reliability First Corporation',
-  'SPP':'Southwest Power Pool',
-  'TRE':'Texas Regional Entity',
-  'FRCC':'Florida Reliability Coordinating Council',
-  'WECC':'Western Electricity Coordinating Council'
+  'NPCC' : 'Northeast Power Coordinating Council',
+  'ASCC' : 'Alaska Systems Coordinating Council',
+  'HICC' : 'Hawaiian Islands Coordinating Council',
+  'MRO'  : 'Midwest Reliability Organization',
+  'SERC' : 'SERC Reliability Corporation',
+  'RFC'  : 'Reliability First Corporation',
+  'SPP'  : 'Southwest Power Pool',
+  'TRE'  : 'Texas Regional Entity',
+  'FRCC' : 'Florida Reliability Coordinating Council',
+  'WECC' : 'Western Electricity Coordinating Council'
 }
 
 # From Page 7 of EIA Form 923 EIA’s internal consolidated NAICS sectors.
@@ -705,7 +726,7 @@ sector_eia = {
 }
 
 # EIA 923: EIA Type of prime mover:
-prime_mover_eia923 = {
+prime_movers_eia923 = {
   'BA':'Energy Storage, Battery',
   'BT':'Turbines Used in a Binary Cycle. \
         Including those used for geothermal applications',
@@ -794,7 +815,7 @@ fuel_type_eia923 = {
 # larger categories used by EIA in, for example,
 # the Annual Energy Review (AER).Two or three letter alphanumeric.
 # See the Fuel Code table (Table 5), below:
-fuel_type_aer = {
+fuel_type_aer_eia923 = {
   'SUN':'Solar PV and thermal',
   'COL':'Coal',
   'DFO':'Distillate Petroleum',
@@ -818,7 +839,7 @@ fuel_type_aer = {
 # EIA 923: EIA The type of physical units fuel consumption is reported in.
 # All consumption is reported in either short tons for solids,
 # thousands of cubic feet for gases, and barrels for liquids:"""
-fuel_unit_eia923 = {
+fuel_units_eia923 = {
   'mcf':'for gases',
   'short tons':'for solid',
   'barrels':'for liquids'

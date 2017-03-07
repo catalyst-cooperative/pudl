@@ -158,8 +158,8 @@ class PlantSmallFERC1(models.PUDLBase):
     """
     __tablename__ = 'plants_small_ferc1'
     __table_args__ = (ForeignKeyConstraint(
-                        ['respondent_id', 'plant_name'],
-                        ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
+                  ['respondent_id', 'plant_name'],
+                  ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
     id = Column(Integer, autoincrement=True, primary_key=True)
     respondent_id = Column(Integer, nullable=False)
     plant_name = Column(String, nullable=False)
@@ -183,8 +183,8 @@ class PlantHydroFERC1(models.PUDLBase):
     """
     __tablename__ = 'plants_hydro_ferc1'
     __table_args__ = (ForeignKeyConstraint(
-                        ['respondent_id', 'plant_name'],
-                        ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
+                  ['respondent_id', 'plant_name'],
+                  ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
     id = Column(Integer, autoincrement=True, primary_key=True)
     respondent_id = Column(Integer, nullable=False)
     plant_name = Column(String, nullable=False)
