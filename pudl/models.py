@@ -69,6 +69,14 @@ class FERCAccount(PUDLBase):
     id = Column(String, primary_key=True)
     description = Column(String, nullable=False)
 
+class FERCDepreciationLine(PUDLBase):
+    """
+    Static list of all the FERC account numbers and descriptions.
+    """
+    __tablename__ = 'ferc_depreciation_lines'
+    id = Column(String, primary_key=True)
+    description = Column(String, nullable=False)
+
 class CombinedHeatPowerEIA923(PUDLBase):
     """
     Whether or not the plant is a combined heat & power facility (cogenerator)

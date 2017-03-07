@@ -13,6 +13,7 @@ from pudl.constants import ferc1_fuel_unit_strings, rto_iso
 from pudl.constants import ferc1_default_tables, ferc1_pudl_tables
 from pudl.constants import ferc1_working_tables
 from pudl.constants import ferc_electric_plant_accounts
+from pudl.constants import ferc_accumulated_provision_for_depreciation
 
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
@@ -144,6 +145,15 @@ def ingest_static_tables(engine):
                            con=engine, index=False, if_exists='append',
                            dtype={'id' : String,
                                   'description' : String} )
+
+    ferc_depreciation_lines_df = ferc_accumulated_provision_for_depreciation.drop('row_number',axis=1)
+    ferc_depreciation_lines_df.rename(columns={'line_id':'id',
+                                               'ferc_account_description':'description'},
+                                               inplace=True)
+    ferc_depreciation_lines_df.to_sql('ferc_depreciation_lines',
+                            con=engine, index=False, if_exists='append',
+                            dtype={'id' : String,
+                                   'description' : String} )
 
 def ingest_glue_tables(engine):
     """
@@ -501,6 +511,43 @@ def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine):
     """
     pass
 
+def ingest_accumulated_provision_for_depreciation_ferc1(pudl_engine,\
+ferc1_engine):
+    """
+    Ingest f1_accumulated_provision_for_depreciation table of FERC
+    Form 1 DB into PUDL DB. Steve has got this one.
+    """
+    pass
+
+    f1_accumdepr_prvsn = ferc1_meta.tables['f1_accumdepr_prvsn']
+    f1_accumdepr_prvsn_select = select([f1_accumdepr_prvsn])
+
+    ferc1_apd_df = pd.read_sql(f1_accumdepr_prvsn_select, ferc1_engine)
+
+        # Discard DataFrame columns that we aren't pulling into PUDL. For
+    ferc1_apd_df.drop(['spplmnt_num', 'row_seq', 'row_prvlg','item', 'report_prd'],
+                       axis=1, inplace=True)
+
+    ferc1_acct_apd = ferc_accumulated_provision_for_depreciation
+    ferc1_acct_apd.drop(['ferc_account_description'], axis=1, inplace=True)
+    ferc1_acct_apd.dropna(inplace=True)
+    ferc1_acct_apd['row_number'] = ferc1_acct_apd['row_number'].astype(int)
+
+    ferc1_accumdepr_prvsn_df = pd.merge(ferc1_apd_df, ferc1_acct_apd,
+                            how='left', on='row_number')
+    ferc1_accumdepr_prvsn_df.drop('row_number', axis=1, inplace=True)
+
+    ferc1_accumdepr_prvsn_df.to_sql(name='accumulated_provision_for_depreciation_ferc1',
+                        con=pudl_engine, index=False, if_exists='append',
+                        dtype={'respondent_id'          : Integer,
+                               'report_year'            : Integer,
+                               'line_id'                : String,
+                               'total_cde'              : Numeric(14,2),
+                               'electric_plant'         : Numeric(14,2),
+                               'future_plant'           : Numeric(14,2),
+                               'leased plant'           : Numeric(14,2)} )
+
+
 def ingest_plants_small_ferc1(pudl_engine, ferc1_engine):
     """
     Ingest f1_gnrt_plant table of FERC Form 1 DB into PUDL DB.
@@ -647,7 +694,8 @@ def init_db(ferc1_tables=ferc1_pudl_tables, verbose=True, debug=False):
         'f1_hydro'          : ingest_plants_hydro_ferc1,
         'f1_pumped_storage' : ingest_plants_pumped_storage_ferc1,
         'f1_plant_in_srvce' : ingest_plant_in_service_ferc1,
-        'f1_purchased_pwr'  : ingest_purchased_power_ferc1 }
+        'f1_purchased_pwr'  : ingest_purchased_power_ferc1,
+        'f1_accumdepr_prvsn': ingest_accumulated_provision_for_depreciation_ferc1 }
 
     ferc1_engine = db_connect_ferc1()
     for table in ingest_functions.keys():
