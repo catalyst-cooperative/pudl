@@ -69,6 +69,26 @@ class FERCAccount(PUDLBase):
     id = Column(String, primary_key=True)
     description = Column(String, nullable=False)
 
+<<<<<<< HEAD
+class FERCDepreciationLine(PUDLBase):
+    """
+    Static list of all the FERC account numbers and descriptions.
+    """
+    __tablename__ = 'ferc_depreciation_lines'
+    id = Column(String, primary_key=True)
+    description = Column(String, nullable=False)
+
+class CombinedHeatPowerEIA923(PUDLBase):
+    """
+    Whether or not the plant is a combined heat & power facility (cogenerator)
+    As reported in EIA Form 923 Page 7
+    """
+    __tablename__ = 'combined_heat_power_eia923'
+    abbr = Column(String, primary_key=True)
+    status = Column(String, nullable=False)
+
+=======
+>>>>>>> 70a7b2e217dde013e882aad5c605dff35476256c
 class CensusRegion(PUDLBase):
     """
     Static list of census regions used by EIA

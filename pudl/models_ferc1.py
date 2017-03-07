@@ -117,6 +117,37 @@ class PlantInServiceFERC1(models.PUDLBase):
     transfers = Column(Numeric(14,2))
     year_end_balance = Column(Numeric(14,2))
 
+class AccumulatedProvisionforDepreciationFERC1(models.PUDLBase):
+    """
+    Balances and changes to FERC Accumulated Provision for Depreciation
+    of Electric Utility Plant accounts.
+
+    This data comes from ferc_accumulated_provision_for_depreciation
+    in the ferc1 DB. It corresponds to the balances of the
+    FERC Uniform System of Accounts for Electric Plant
+    which is well documented here:
+
+    https://www.law.cornell.edu/cfr/text/18/part-101
+
+    Each FERC respondent reports starting & ending balances, and changes to
+    the account balances, each year for Electric Plant in Service,
+    Electric Plant Held for Future Use, and Electric Plant Leased to Others.
+    """
+    __tablename__ = 'accumulated_provision_for_depreciation_ferc1'
+    respondent_id = Column(Integer,
+                           ForeignKey('utilities_ferc1.respondent_id'),
+                           primary_key=True)
+    report_year = Column(Integer,
+                         ForeignKey('years.year'),
+                         primary_key=True)
+    line_id = Column(String,
+                        ForeignKey('ferc_depreciation_lines.id'),
+                        primary_key=True)
+    total_cde = Column(Numeric(14,2))
+    electric_plant = Column(Numeric(14,2))
+    future_plant = Column(Numeric(14,2))
+    leased_plant = Column(Numeric(14,2))
+
 class PlantSmallFERC1(models.PUDLBase):
     """
     Annual data on "small plants" imported from the f1_gnrt_plant table.

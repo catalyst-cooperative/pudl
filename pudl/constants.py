@@ -626,38 +626,44 @@ columns=['row_number','ferc_account_id','ferc_account_description'])
 ferc_accumulated_provision_for_depreciation = DataFrame.from_records([
 
 # Section A. Balances and Changes During Year
-    (1, 'Balance Beginning of Year'),
-    (2, 'Depreciation Provisions for Year, Charged to'),
-    (3, '(403) Depreciation Expense'),
-    (4, '(403.1) Depreciation Expense for Asset Retirement Costs'),
-    (5, '(413) Exp. of Elec. Plt. Leas. to Others'),
-    (6, 'Transportation Expenses-Clearing'),
-    (7, 'Other Clearing Accounts'),
-    (8, 'Other Accounts (Specify, details in footnote):'),
-    (9, ''), #blank: leave out?
-    (10, 'TOTAL Deprec. Prov for Year (Enter Total of lines 3 thru 9)'),
-    (11, 'Net Charges for Plant Retired:'),
-    (12, 'Book Cost of Plant Retired'),
-    (13, 'Cost of Removal'),
-    (14, 'Salvage (Credit)'),
-    (15, 'TOTAL Net Chrgs. for Plant Ret. (Enter Total of lines 12 thru 14)'),
-    (16, 'Other Debit or Cr. Items (Describe, details in footnote):'),
-    (17, ''), #blank: leave out?
-    (18, 'Book Cost or Asset Retirement Costs Retired'),
-    (19, 'Balance End of Year (Enter Totals of lines 1, 10, 15, 16, and 18)'),
+    (1, 'balance_beginning_of_year', 'Balance Beginning of Year'),
+    (3, 'depreciation_expense', '(403) Depreciation Expense'),
+    (4, 'depreciation_expense_asset_retirement', \
+    '(403.1) Depreciation Expense for Asset Retirement Costs'),
+    (5, 'expense_electric_plant_leased_to_others', \
+    '(413) Exp. of Elec. Plt. Leas. to Others'),
+    (6, 'transportation_expenses_clearing', 'Transportation Expenses-Clearing'),
+    (7, 'other_clearing_accounts', 'Other Clearing Accounts'),
+    (8, 'other_accounts_specified','Other Accounts (Specify, details in footnote):'),
+    (9, 'other_charges','Other Charges:'), #blank: might also be other charges like line 17.
+    (10, 'total_depreciation_provision_for_year',\
+    'TOTAL Deprec. Prov for Year (Enter Total of lines 3 thru 9)'),
+    (11, 'net_charges_for_plant_retired', 'Net Charges for Plant Retired:'),
+    (12, 'book_cost_of_plant_retired','Book Cost of Plant Retired'),
+    (13, 'cost_of_removal','Cost of Removal'),
+    (14, 'salvage_credit','Salvage (Credit)'),
+    (15, 'total_net_charges_for_plant_retired',\
+    'TOTAL Net Chrgs. for Plant Ret. (Enter Total of lines 12 thru 14)'),
+    (16, 'other_debit_or_credit items',\
+    'Other Debit or Cr. Items (Describe, details in footnote):'),
+    (17, 'other_charges_2','Other Charges 2'), #blank: can be "Other Charges", e.g. in 2012 for PSCo.
+    (18, 'book_cost_or_asset_retirement_costs_retired',\
+    'Book Cost or Asset Retirement Costs Retired'),
+    (19, 'balance_end_of_year', \
+    'Balance End of Year (Enter Totals of lines 1, 10, 15, 16, and 18)'),
 # Section B. Balances at End of Year According to Functional Classification
-    (20, 'Steam Production'),
-    (21, 'Nuclear Production'),
-    (22, 'Hydraulic Production-Conventional'),
-    (23, 'Hydraulic Production-Pumped Storage'),
-    (24, 'Other Production'),
-    (25, 'Transmission'),
-    (26, 'Distribution'),
-    (27, 'Regional Transmission and Market Operation'),
-    (28, 'General'),
-    (29, 'TOTAL (Enter Total of lines 20 thru 28)')],
+    (20, 'steam_production_end_of_year','Steam Production'),
+    (21, 'nuclear_production_end_of_year', 'Nuclear Production'),
+    (22, 'hydraulic_production_end_of_year', 'Hydraulic Production-Conventional'),
+    (23, 'pumped_storage_end_of_year', 'Hydraulic Production-Pumped Storage'),
+    (24, 'other_production', 'Other Production'),
+    (25, 'transmission', 'Transmission'),
+    (26, 'distribution', 'Distribution'),
+    (27, 'regional_transmission_and_market_operation', 'Regional Transmission and Market Operation'),
+    (28, 'general', 'General'),
+    (29, 'total', 'TOTAL (Enter Total of lines 20 thru 28)')],
 
-columns=['row_number','ferc_account_description'])
+columns=['row_number','line_id', 'ferc_account_description'])
 
 # From Page 7 of EIA Form 923, Census Region the state is located in
 census_region = {
