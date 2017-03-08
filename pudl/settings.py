@@ -1,3 +1,10 @@
+"""
+Store and make available global settings pertaining to the entire PUDL project.
+
+This module specifies the location of the data stores for the various sources
+we rely upon to populate the PUDL DB. It also describes the database connection
+parameters.
+"""
 from pudl import __file__ as pudl_pkg_file
 import os.path
 
@@ -26,7 +33,7 @@ DB_PUDL = {
     'port': '5432',
     'username': 'catalyst',
     'password': '',
-    'database': 'pudl_sandbox'
+    'database': 'pudl'
 }
 
 DB_FERC1_TEST = {
@@ -36,4 +43,13 @@ DB_FERC1_TEST = {
     'username': 'catalyst',
     'password': '',
     'database': 'ferc1_test'
+}
+
+DB_PUDL_TEST = {
+    'drivername': 'postgresql',
+    'host': 'localhost',
+    'port': '5432',
+    'username': 'catalyst',
+    'password': '',
+    'database': 'pudl_test'
 }

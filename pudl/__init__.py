@@ -1,17 +1,18 @@
+"""The Public Utility Data Liberation (PUDL) Project."""
 # pudl/__init__.py
 
-#from .pudl import *
-#from .ferc1 import *
-#from .eia923 import *
-#from .settings import *
-#from .models import *
-#from .constants import *
+# from .pudl import *
+# from .ferc1 import *
+# from .eia923 import *
+# from .settings import *
+# from .models import *
+# from .constants import *
 #
-#__all__ = [
+# __all__ = [
 #    pudl.__all__ +
 #    ferc1.__all__ +
 #    eia923.__all__
-#]
+# ]
 
 __author__ = "Catalyst Cooperative"
 __contact__ = "zane.selvans@catalyst.coop"
@@ -32,6 +33,6 @@ data, with the goal of enabling small companies, non-profit organizations,
 and public policy advocates to better understand the electricity system
 and its impacts on climate.
 """
-__pythonrequiredversion__ = "3.5"
+__pythonrequiredversion__ = "3.6"
 __projecturl__ = "https://github.com/catalyst-cooperative/pudl/"
 __downloadurl__ = "https://github.com/catalyst-cooperative/pudl/"
