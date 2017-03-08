@@ -469,9 +469,14 @@ ferc1_working_tables = ['f1_respondent_id',
                         'f1_plant_in_srvce',
                         'f1_purchased_pwr']
 
+# The full set of years we expect to be able to pull into the FERC1 DB.
+ferc1_working_years = range(2004, 2016)
+
+# The full set of years we currently expect to be able to ingest from EIA923.
+eia923_working_years = range(2014, 2017)
+
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
-eia923_pudl_tables = ['plant_info_eia923',
-                      'generation_fuel_eia923']
+eia923_pudl_tables = ['plant_info_eia923', ]
 
 # these are tabname inputs mapping to excel spreadsheet tabs
 pagemap_eia923 = DataFrame.from_records(

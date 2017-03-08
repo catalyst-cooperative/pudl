@@ -90,9 +90,12 @@ Mapper (ORM) and initializes the database from several sources:
 """
 
 
-def db_connect_pudl():
+def db_connect_pudl(testing=False):
     """Connect to the PUDL database global settings from settings.py."""
-    return create_engine(URL(**settings.DB_PUDL))
+    if(testing):
+        return create_engine(URL(**settings.DB_PUDL_TEST))
+    else:
+        return create_engine(URL(**settings.DB_PUDL))
 
 
 def create_tables_pudl(engine):
@@ -796,7 +799,7 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
     """
     common_cols = ['plant_id',
                    'year',
-                   'nuclear_unit_id'
+                   'nuclear_unit_id',
                    'reported_prime_mover',
                    'reported_fuel_type_code',
                    'aer_fuel_type_code']
@@ -828,10 +831,10 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
     # Pull out each month's worth of data, merge it with the common columns,
     # rename columns to match the PUDL DB, add an appropriate month column,
     # and insert it into the PUDL DB.
-    for month in month_cols.keys():
-        df = eia923_dfs['generation_fuel'].filter(regex=month_cols[month])
-        df['month'] = month
-        df.columns = df.columns.str.replace(month_cols[month], '')
+    # for month in month_cols.keys():
+    #    df = eia923_dfs['generation_fuel'].filter(regex=month_cols[month])
+    #    df['month'] = month
+    #    df.columns = df.columns.str.replace(month_cols[month], '')
 
 # 'quantity_{month}',
 # 'elec_quantity_{month}',
@@ -840,16 +843,16 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
 # 'elec_mmbtu_{month}',
 # 'netgen_{month}']
 
-    gen_fuel_df.to_sql(name='generation_fuel_eia923',
-                       con=pudl_engine, index=False, if_exists='append',
-                       dtype={})
+#   gen_fuel_df.to_sql(name='generation_fuel_eia923',
+#                      con=pudl_engine, index=False, if_exists='append',
+#                      dtype={})
 
 
 def init_db(ferc1_tables=ferc1_pudl_tables,
             ferc1_years=[2015, ],
             eia923_tables=eia923_pudl_tables,
             eia923_years=[2014, 2015, 2016],
-            verbose=True, debug=False):
+            verbose=True, debug=False, testing=False):
     """
     Create the PUDL database and fill it up with data.
 
@@ -873,7 +876,7 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
             assert(table in eia923_pudl_tables)
 
     # Connect to the PUDL DB, wipe out & re-create tables:
-    pudl_engine = db_connect_pudl()
+    pudl_engine = db_connect_pudl(testing=testing)
     drop_tables_pudl(pudl_engine)
     create_tables_pudl(pudl_engine)
     # Populate all the static tables:
@@ -896,7 +899,7 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
         'f1_purchased_pwr': ingest_purchased_power_ferc1,
         'f1_accumdepr_prvsn': ingest_accumulated_depreciation_ferc1}
 
-    ferc1_engine = db_connect_ferc1()
+    ferc1_engine = db_connect_ferc1(testing=testing)
     for table in ferc1_ingest_functions.keys():
         if table in ferc1_tables:
             if verbose:

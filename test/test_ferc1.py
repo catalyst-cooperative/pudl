@@ -1,16 +1,13 @@
-# This is just a placeholder for the moment... we will need to create
-# unit tests as we go along.
+"""Tests excercising the ferc1 module for use with PyTest."""
 
-from .context import pudl
 import pytest
+import pudl.ferc1
+import pudl.constants as pc
 
-def test_f1_slurp():
-    """
-    Create a fresh FERC Form 1 DB in postgres, and attempt to access it.
-    """
-    from sqlalchemy import create_engine
-    import pandas as pd
-    pudl.ferc1.f1_slurp()
-    f1_engine = create_engine('postgresql://catalyst@localhost:5432/ferc_f1')
-    with f1_engine.connect() as con:
-        df = pd.read_sql('SELECT respondent_id, respondent_name FROM f1_respondent_id', con)
+
+def test_init_db():
+    """Create a fresh FERC Form 1 DB and attempt to access it."""
+    pudl.ferc1.init_db(refyear=2015, years=pc.ferc1_working_years,
+                       def_db=True, verbose=True, testing=True)
+    ferc1_engine = pudl.ferc1.db_connect_ferc1(testing=True)
+    pudl.ferc1.drop_tables_ferc1(ferc1_engine)
