@@ -48,7 +48,6 @@ from pudl.constants import fuel_type_eia923, prime_movers_eia923
 from pudl.constants import fuel_units_eia923, energy_source_eia923
 from pudl.constants import fuel_group_eia923
 from pudl.constants import coalmine_type_eia923, coalmine_state_eia923
-from pudl.constants import regulatory_status_eia923
 from pudl.constants import natural_gas_transpo_service_eia923
 from pudl.constants import transpo_mode_eia923
 from pudl.constants import pagemap_eia923
@@ -62,7 +61,6 @@ from pudl.models import State, RTOISO, CensusRegion, NERCRegion
 from pudl.models_eia923 import SectorEIA, ContractTypeEIA923
 from pudl.models_eia923 import EnergySourceEIA923
 from pudl.models_eia923 import CoalMineTypeEIA923, CoalMineStateEIA923
-from pudl.models_eia923 import RegulatoryStatusEIA923
 from pudl.models_eia923 import NaturalGasTransportationServiceEIA923
 from pudl.models_eia923 import TransportModeEIA923
 from pudl.models_eia923 import RespondentFrequencyEIA923
@@ -71,9 +69,6 @@ from pudl.models_eia923 import FuelTypeEIA923
 from pudl.models_eia923 import FuelGroupEIA923, FuelUnitEIA923
 from pudl.models_eia923 import PlantInfoEIA923
 
-# TODO 'constants' not defined yet
-# from pudl.models import BoilersEIA923, GeneratorsEIA923
-
 # Tables that hold "glue" connecting FERC1 & EIA923 to each other:
 from pudl.models import Utility, UtilityFERC1, UtilityEIA923
 from pudl.models import Plant, PlantFERC1, PlantEIA923
@@ -81,6 +76,13 @@ from pudl.models import UtilPlantAssn
 
 # The declarative_base object that contains our PUDL DB MetaData
 from pudl.models import PUDLBase
+
+
+###############################################################################
+###############################################################################
+# DATABASE CONNECTION & HELPER FUNCTIONS
+###############################################################################
+###############################################################################
 
 
 def db_connect_pudl(testing=False):
@@ -99,6 +101,13 @@ def create_tables_pudl(engine):
 def drop_tables_pudl(engine):
     """Drop all the tables associated with the PUDL Database and start over."""
     PUDLBase.metadata.drop_all(engine)
+
+
+###############################################################################
+###############################################################################
+#   BEGIN INGESTING STATIC & INFRASTRUCTURE TABLES
+###############################################################################
+###############################################################################
 
 
 def ingest_static_tables(engine):
@@ -156,9 +165,6 @@ def ingest_static_tables(engine):
     pudl_session.add_all(
         [CoalMineStateEIA923(abbr=k, state=v)
          for k, v in us_states.items()])  # is this right way to add these?
-    pudl_session.add_all(
-        [RegulatoryStatusEIA923(abbr=k, status=v)
-         for k, v in regulatory_status_eia923.items()])
     pudl_session.add_all(
         [TransportModeEIA923(abbr=k, mode=v)
          for k, v in transpo_mode_eia923.items()])
@@ -374,6 +380,13 @@ def ingest_glue_tables(engine):
                                      'utility_id': Integer})
 
 
+###############################################################################
+###############################################################################
+# BEGIN FERC 1 INGEST FUNCTIONS
+###############################################################################
+###############################################################################
+
+
 def ingest_fuel_ferc1(pudl_engine, ferc1_engine):
     """Clean & ingest f1_fuel table from FERC Form 1 DB into the PUDL DB."""
     # Grab the f1_fuel SQLAlchemy Table object from the metadata object.
@@ -504,11 +517,7 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine):
 
 
 def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
-    """
-    Ingest f1_hydro table of FERC Form 1 DB into PUDL DB.
-
-    Christina Gosnell has got this one.
-    """
+    """Ingest f1_hydro table of FERC Form 1 DB into PUDL DB."""
     f1_hydro = ferc1_meta.tables['f1_hydro']
 
     f1_hydro_select = select([f1_hydro]).\
@@ -564,15 +573,6 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
                                  'report_year': Integer})
 
 
-def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine):
-    """
-    Ingest f1_pumped_storage table of FERC Form 1 DB into PUDL DB.
-
-    Christina Gosnell has got this one.
-    """
-    pass
-
-
 def ingest_accumulated_depreciation_ferc1(pudl_engine, ferc1_engine):
     """Ingest f1_accumdepr_prvs table from FERC Form 1 DB."""
     f1_accumdepr_prvsn = ferc1_meta.tables['f1_accumdepr_prvsn']
@@ -606,11 +606,54 @@ def ingest_accumulated_depreciation_ferc1(pudl_engine, ferc1_engine):
                       'leased plant': Numeric(14, 2)})
 
 
+def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine):
+    """Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB."""
+    f1_plant_in_srvce = ferc1_meta.tables['f1_plant_in_srvce']
+    f1_plant_in_srvce_select = select([f1_plant_in_srvce])
+
+    ferc1_pis_df = pd.read_sql(f1_plant_in_srvce_select, ferc1_engine)
+
+    # Discard DataFrame columns that we aren't pulling into PUDL. For the
+    # Plant In Service table, we need to hold on to the row_number because it
+    # corresponds to a FERC account number.
+    ferc1_pis_df.drop(['spplmnt_num', 'row_seq', 'row_prvlg', 'report_prd'],
+                      axis=1, inplace=True)
+
+    # Now we need to add a column to the DataFrame that has the FERC account
+    # IDs corresponding to the row_number that's already in there...
+    ferc_accts_df = ferc_electric_plant_accounts.drop(
+        ['ferc_account_description'], axis=1)
+    ferc_accts_df.dropna(inplace=True)
+    ferc_accts_df['row_number'] = ferc_accts_df['row_number'].astype(int)
+
+    ferc1_pis_df = pd.merge(ferc1_pis_df, ferc_accts_df,
+                            how='left', on='row_number')
+    ferc1_pis_df.drop('row_number', axis=1, inplace=True)
+
+    ferc1_pis_df.rename(columns={
+        # FERC 1 DB Name  PUDL DB Name
+        'begin_yr_bal': 'beginning_year_balance',
+        'addition': 'additions',
+        'yr_end_bal': 'year_end_balance'},
+        inplace=True)
+    ferc1_pis_df.to_sql(name='plant_in_service_ferc1',
+                        con=pudl_engine, index=False, if_exists='append',
+                        dtype={'respondent_id': Integer,
+                               'report_year': Integer,
+                               'ferc_account_id': String,
+                               'beginning_year_balance': Numeric(14, 2),
+                               'additions': Numeric(14, 2),
+                               'retirements': Numeric(14, 2),
+                               'adjustments': Numeric(14, 2),
+                               'transfers': Numeric(14, 2),
+                               'year_end_balance': Numeric(14, 2)})
+
+
 def ingest_plants_small_ferc1(pudl_engine, ferc1_engine):
     """
     Ingest f1_gnrt_plant table of FERC Form 1 DB into PUDL DB.
 
-    Zane Selvans is doing this one.
+    Zane Selvans is doing this one. NOT DONE YET.
     """
     f1_small_table = ferc1_meta.tables['f1_gnrt_plant']
     f1_small_select = select([f1_small_table, ])
@@ -673,60 +716,29 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine):
                                  'year_constructed': Integer})
 
 
-def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine):
-    """Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB."""
-    f1_plant_in_srvce = ferc1_meta.tables['f1_plant_in_srvce']
-    f1_plant_in_srvce_select = select([f1_plant_in_srvce])
+def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine):
+    """
+    Ingest f1_pumped_storage table of FERC Form 1 DB into PUDL DB.
 
-    ferc1_pis_df = pd.read_sql(f1_plant_in_srvce_select, ferc1_engine)
-
-    # Discard DataFrame columns that we aren't pulling into PUDL. For the
-    # Plant In Service table, we need to hold on to the row_number because it
-    # corresponds to a FERC account number.
-    ferc1_pis_df.drop(['spplmnt_num', 'row_seq', 'row_prvlg', 'report_prd'],
-                      axis=1, inplace=True)
-
-    # Now we need to add a column to the DataFrame that has the FERC account
-    # IDs corresponding to the row_number that's already in there...
-    ferc_accts_df = ferc_electric_plant_accounts.drop(
-        ['ferc_account_description'], axis=1)
-    ferc_accts_df.dropna(inplace=True)
-    ferc_accts_df['row_number'] = ferc_accts_df['row_number'].astype(int)
-
-    ferc1_pis_df = pd.merge(ferc1_pis_df, ferc_accts_df,
-                            how='left', on='row_number')
-    ferc1_pis_df.drop('row_number', axis=1, inplace=True)
-
-    ferc1_pis_df.rename(columns={
-        # FERC 1 DB Name  PUDL DB Name
-        'begin_yr_bal': 'beginning_year_balance',
-        'addition': 'additions',
-        'yr_end_bal': 'year_end_balance'},
-        inplace=True)
-    ferc1_pis_df.to_sql(name='plant_in_service_ferc1',
-                        con=pudl_engine, index=False, if_exists='append',
-                        dtype={'respondent_id': Integer,
-                               'report_year': Integer,
-                               'ferc_account_id': String,
-                               'beginning_year_balance': Numeric(14, 2),
-                               'additions': Numeric(14, 2),
-                               'retirements': Numeric(14, 2),
-                               'adjustments': Numeric(14, 2),
-                               'transfers': Numeric(14, 2),
-                               'year_end_balance': Numeric(14, 2)})
+    Christina Gosnell has got this one.
+    """
+    pass
 
 
 def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine):
-    """Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB."""
+    """
+    Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB.
+
+    Steve Winter is working on this function.
+    """
     pass
 
 
-def ingest_operator_info_eia923(pudl_engine, eia923_dfs):
-    """Ingest data on static attributes of operators from EIA Form 923."""
-    # operator_id
-    # operator_name
-    # regulatory_status
-    pass
+###############################################################################
+###############################################################################
+# BEGIN EIA923 INGEST FUNCTIONS
+###############################################################################
+###############################################################################
 
 
 def ingest_plant_info_eia923(pudl_engine, eia923_dfs):
@@ -839,6 +851,23 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
 #   gen_fuel_df.to_sql(name='generation_fuel_eia923',
 #                      con=pudl_engine, index=False, if_exists='append',
 #                      dtype={})
+
+
+def ingest_operator_info_eia923(pudl_engine, eia923_dfs):
+    """Ingest data on static attributes of operators from EIA Form 923."""
+    # operator_id
+    # operator_name
+    # regulatory_status: make this a Boolean:
+    #  - Regulated = True
+    #  - Unregulated = False
+    pass
+
+
+###############################################################################
+###############################################################################
+# BEGIN DATABASE INITIALIZATION
+###############################################################################
+###############################################################################
 
 
 def init_db(ferc1_tables=ferc1_pudl_tables,

@@ -146,15 +146,6 @@ class CoalMineStateEIA923(models.PUDLBase):
     state = Column(String, nullable=False)
 
 
-class RegulatoryStatusEIA923(models.PUDLBase):
-    """Regulatory status used in EIA Form 923."""
-
-    # This should really be a Boolean... "regulated" vs. "unregulated"
-    __tablename__ = 'regulatory_status_eia923'
-    abbr = Column(String, primary_key=True)
-    status = Column(String, nullable=False)
-
-
 class NaturalGasTransportEIA923(models.PUDLBase):
     """Contract type for natural gas capacity service."""
 

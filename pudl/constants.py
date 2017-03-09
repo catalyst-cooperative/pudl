@@ -958,13 +958,6 @@ coalmine_state_eia923 = {
     'OC': 'Other Country'
 }
 
-# From Page 7 EIA Form 923 indicating regulatory status
-regulatory_status_eia923 = {
-    'REG': 'Regulated Electric Utility',
-    'UNR': 'Non-Regulated Independent Power Plant or Nonutility Plant.'
-}
-
-
 # EIA 923: One character designates the reporting
 # frequency for the plant. Alphanumeric:
 respondent_frequency_eia923 = {
