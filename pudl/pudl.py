@@ -1,9 +1,23 @@
 """
-This is the core module of the Public Utility Data Liberation project.
+The Public Utility Data Liberation (PUDL) project core module.
 
-The pudl module contains functions for initializing the PUDL database from all
-the other data sources -- EIA 923, FERC Form 1, EIA Form 860, etc.
+The PUDL project integrates several different public data sets into one well
+normalized database allowing easier access and interaction between all of them.
+This module defines database tables using the SQLAlchemy Object Relational
+Mapper (ORM) and initializes the database from several sources:
+
+ - US Energy Information Agency (EIA):
+   - Form 860 (eia860)
+   - Form 861 (eia861)
+   - Form 923 (eia923)
+ - US Federal Energy Regulatory Commission (FERC):
+   - Form 1 (ferc1)
+   - Form 714 (ferc714)
+ - US Environmental Protection Agency (EPA):
+   - Air Market Program Data (epaampd)
+   - Greenhouse Gas Reporting Program (epaghgrp)
 """
+
 import pandas as pd
 import numpy as np
 
@@ -67,27 +81,6 @@ from pudl.models import UtilPlantAssn
 
 # The declarative_base object that contains our PUDL DB MetaData
 from pudl.models import PUDLBase
-
-"""
-The Public Utility Data Liberation (PUDL) project integrates several different
-public data sets into one well normalized database allowing easier access and
-interaction between all of them.
-
-This module defines database tables using the SQLAlchemy Object Relational
-Mapper (ORM) and initializes the database from several sources:
-
- - US Energy Information Agency (EIA):
-   - Form 860 (eia860)
-   - Form 861 (eia861)
-   - Form 923 (eia923)
- - US Federal Energy Regulatory Commission (FERC):
-   - Form 1 (ferc1)
-   - Form 714 (ferc714)
- - US Environmental Protection Agency (EPA):
-   - Air Market Program Data (epaampd)
-   - Greenhouse Gas Reporting Program (epaghgrp)
-
-"""
 
 
 def db_connect_pudl(testing=False):
@@ -170,8 +163,8 @@ def ingest_static_tables(engine):
         [TransportModeEIA923(abbr=k, mode=v)
          for k, v in transpo_mode_eia923.items()])
     pudl_session.add_all(
-        [NaturalGasTransportationServiceEIA923(abbr=k, status=v)
-         for k, v in natural_gas_transpo_service_eia923.items()])
+        [NaturalGasTransportEIA923(abbr=k, status=v)
+         for k, v in natural_gas_transport_eia923.items()])
 
     # States dictionary is defined outside this function, below.
     pudl_session.add_all([State(abbr=k, name=v) for k, v in us_states.items()])

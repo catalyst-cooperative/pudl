@@ -468,7 +468,8 @@ ferc1_working_tables = ['f1_respondent_id',
                         'f1_hydro',
                         'f1_pumped_storage',
                         'f1_plant_in_srvce',
-                        'f1_purchased_pwr']
+                        'f1_purchased_pwr',
+                        'f1_accumdepr_prvsn']
 
 # The full set of years we expect to be able to pull into the FERC1 DB.
 ferc1_working_years = range(2004, 2016)
@@ -1015,7 +1016,7 @@ transpo_mode_eia923 = {
 }
 
 # EIA 923: Contract type for natural gas capacity service:
-natural_gas_transpo_service_eia923 = {
+natural_gas_transport_eia923 = {
     'F': 'Firm',
     'I': 'Interruptible'
 }

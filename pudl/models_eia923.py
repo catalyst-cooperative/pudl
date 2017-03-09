@@ -155,10 +155,10 @@ class RegulatoryStatusEIA923(models.PUDLBase):
     status = Column(String, nullable=False)
 
 
-class NaturalGasTransportationServiceEIA923(models.PUDLBase):
+class NaturalGasTransportEIA923(models.PUDLBase):
     """Contract type for natural gas capacity service."""
 
-    __tablename__ = 'natural_gas_transportation_service_eia923'
+    __tablename__ = 'natural_gas_transport_eia923'
     abbr = Column(String, primary_key=True)
     status = Column(String, nullable=False)
 
