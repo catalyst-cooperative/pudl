@@ -886,6 +886,26 @@ def ingest_operator_info_eia923(pudl_engine, eia923_dfs):
     pass
 
 
+def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
+    """Ingest data on fuel consumption by boiler from EIA Form 923."""
+    pass
+
+
+def ingest_generator_eia923(pudl_engine, eia923_dfs):
+    """Ingest data on electricity production by generator from EIA Form 923."""
+    pass
+
+
+def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
+    """Ingest data on fuel purchases and costs from EIA Form 923."""
+    pass
+
+
+def ingest_stocks_eia923(pudl_engine, eia923_dfs):
+    """Ingest data on fuel stocks from EIA Form 923."""
+    pass
+
+
 ###############################################################################
 ###############################################################################
 # BEGIN DATABASE INITIALIZATION
