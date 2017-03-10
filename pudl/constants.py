@@ -478,7 +478,8 @@ ferc1_working_years = range(2004, 2016)
 eia923_working_years = range(2014, 2017)
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
-eia923_pudl_tables = ['plant_info_eia923', ]
+eia923_pudl_tables = ['plant_info_eia923',
+                      'generation_fuel_eia923']
 
 # these are tabname inputs mapping to excel spreadsheet tabs
 pagemap_eia923 = DataFrame.from_records(
@@ -810,6 +811,7 @@ fuel_type_eia923 = {
     'BFG': 'Blast Furnace Gas',
     'BIT': 'Bituminous Coal',
     'BLQ': 'Black Liquor',
+    'CBL': 'Coal, Blended',
     'DFO': 'Distillate Fuel Oil. Including diesel, No. 1, No. 2, and No. 4 \
             fuel oils.',
     'GEO': 'Geothermal',

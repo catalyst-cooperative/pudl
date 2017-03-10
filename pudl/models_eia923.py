@@ -222,7 +222,7 @@ class PlantInfoEIA923(models.PUDLBase):
 
 class GenerationFuelEIA923(models.PUDLBase):
     """
-    Annual fuel consumption by plant.
+    Monthly fuel consumption and electricity generation by plant.
 
     As reported on Page 1 of EIA Form 923.
     """
@@ -235,21 +235,23 @@ class GenerationFuelEIA923(models.PUDLBase):
                       nullable=False)
     year = Column(Integer, ForeignKey('years.year'), nullable=False)
     month = Column(Integer, ForeignKey('months.month'), nullable=False)
-    # TODO: Should nuclear_unit_id be somewhere else? w/ other per unit info?
+    # TODO: Should nuclear_unit_id really be here? It's kind of part of the
+    # plant_id... but also unit_id.  Seems weird but necessary to uniquely
+    # identify the records as reported.
     nuclear_unit_id = Column(Integer)
-    # fuel_type & aer_fuel_type is a many to many relationship
-    # TODO: shouldn't fuel_type also be a foreign key?
-    fuel_type = Column(String, nullable=False)
+    fuel_type = Column(String,
+                       ForeignKey('fuel_type_eia923.abbr'),
+                       nullable=False)
     aer_fuel_type = Column(String, ForeignKey('fuel_type_aer_eia923.abbr'))
-# TODO: Ferc1 fuel table uses 'fuel_qty_burned' but EIA includes hydro
-# data, etc.
-    fuel_qty_consumed_total = Column(Float)
-    fuel_qty_consumed_internal = Column(Float)
-    fuel_mmbtu_per_unit = Column(Float, nullable=False)
-    fuel_consumed_mmbtu_tot = Column(Float, nullable=False)
-    fuel_consumed_for_electricity_mmbtu = Column(Float, nullable=False)
-    net_generation_mwh = Column(Float, nullable=False)
-    # TODO How do we determine the fuel unit associated with the generator?
+    prime_mover = Column(String,
+                         ForeignKey('prime_movers_eia923.abbr'),
+                         nullable=False)
+    fuel_consumed_total = Column(Float)
+    fuel_consumed_for_electricity = Column(Float)
+    fuel_mmbtu_per_unit = Column(Float)
+    fuel_consumed_total_mmbtu = Column(Float)
+    fuel_consumed_for_electricity_mmbtu = Column(Float)
+    net_generation_mwh = Column(Float)
 
 
 class BoilerFuelEIA923(models.PUDLBase):
@@ -346,7 +348,7 @@ class FuelReceiptsCostsEIA923(models.PUDLBase):
     secondary_transportation_mode = Column(
         String,
         ForeignKey('transport_modes_eia923.abbr'), nullable=False)
-    natural_gas_transportation_service = Column(
+    natural_gas_transport = Column(
         String,
-        ForeignKey('natural_gas_transportation_service_eia923.abbr'),
+        ForeignKey('natural_gas_transport_eia923.abbr'),
         nullable=False)

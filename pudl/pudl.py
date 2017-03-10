@@ -24,11 +24,11 @@ import numpy as np
 from sqlalchemy.sql import select
 from sqlalchemy.engine.url import URL
 from sqlalchemy import create_engine
-from sqlalchemy import Integer, String, Numeric, Boolean
+from sqlalchemy import Integer, String, Numeric, Boolean, Float
 
 from pudl import settings
 from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
-from pudl.eia923 import get_eia923_page
+from pudl.eia923 import get_eia923_page, yearly_to_monthly_eia923
 from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
 from pudl.constants import ferc1_fuel_unit_strings, rto_iso
 from pudl.constants import ferc1_default_tables, ferc1_pudl_tables
@@ -48,7 +48,7 @@ from pudl.constants import fuel_type_eia923, prime_movers_eia923
 from pudl.constants import fuel_units_eia923, energy_source_eia923
 from pudl.constants import fuel_group_eia923
 from pudl.constants import coalmine_type_eia923, coalmine_state_eia923
-from pudl.constants import natural_gas_transpo_service_eia923
+from pudl.constants import natural_gas_transport_eia923
 from pudl.constants import transpo_mode_eia923
 from pudl.constants import pagemap_eia923
 from pudl.constants import eia923_pudl_tables
@@ -61,7 +61,7 @@ from pudl.models import State, RTOISO, CensusRegion, NERCRegion
 from pudl.models_eia923 import SectorEIA, ContractTypeEIA923
 from pudl.models_eia923 import EnergySourceEIA923
 from pudl.models_eia923 import CoalMineTypeEIA923, CoalMineStateEIA923
-from pudl.models_eia923 import NaturalGasTransportationServiceEIA923
+from pudl.models_eia923 import NaturalGasTransportEIA923
 from pudl.models_eia923 import TransportModeEIA923
 from pudl.models_eia923 import RespondentFrequencyEIA923
 from pudl.models_eia923 import PrimeMoverEIA923, FuelTypeAER
@@ -585,8 +585,8 @@ def ingest_accumulated_depreciation_ferc1(pudl_engine, ferc1_engine):
                        'row_prvlg', 'item', 'report_prd'],
                       axis=1, inplace=True)
 
-    ferc1_acct_apd = ferc_accumulated_depreciation
-    ferc1_acct_apd.drop(['ferc_account_description'], axis=1, inplace=True)
+    ferc1_acct_apd = ferc_accumulated_depreciation.drop(
+        ['ferc_account_description'], axis=1)
     ferc1_acct_apd.dropna(inplace=True)
     ferc1_acct_apd['row_number'] = ferc1_acct_apd['row_number'].astype(int)
 
@@ -802,25 +802,30 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
     Page 1 of EIA 923 (in recent years) reports generation and fuel consumption
     on a monthly, per-plant basis.
     """
-    common_cols = ['plant_id',
-                   'year',
-                   'nuclear_unit_id',
-                   'reported_prime_mover',
-                   'reported_fuel_type_code',
-                   'aer_fuel_type_code']
+    # This needs to be a copy of what we're passed in so we can edit it.
+    gf_df = eia923_dfs['generation_fuel'].copy()
 
-# Pull out the set of common fields we're going to need for each record:
-    gen_fuel_common = eia923_dfs['generation_fuel'][common_cols]
-    # Rename them to be consistent with the PUDL DB fields, if need be.
-    gen_fuel_common.rename(columns={
-        # column heading in EIA 923        PUDL DB field name
-        'reported_prime_mover': 'prime_mover',
-        'reported_fuel_type_code': 'fuel_type',
-        'aer_fuel_type_code': 'aer_fuel_type'},
-        inplace=True)
+    # Drop fields we're not inserting into the generation_fuel_eia923 table.
+    cols_to_drop = ['combined_heat_and_power_plant',
+                    'plant_name',
+                    'operator_name',
+                    'operator_id',
+                    'plant_state',
+                    'census_region',
+                    'nerc_region',
+                    'naics_code',
+                    'eia_sector_number',
+                    'sector_name',
+                    'physical_unit_label',
+                    'total_fuel_consumption_quantity',
+                    'electric_fuel_consumption_quantity',
+                    'total_fuel_consumption_mmbtu',
+                    'elec_fuel_consumption_mmbtu',
+                    'net_generation_megawatthours']
+    gf_df.drop(cols_to_drop, axis=1, inplace=True)
 
-# patterns for matching columns to months:
-    month_cols = {1: '_january$',
+    # patterns for matching columns to months:
+    month_dict = {1: '_january$',
                   2: '_february$',
                   3: '_march$',
                   4: '_april$',
@@ -833,24 +838,42 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
                   11: '_november$',
                   12: '_december$'}
 
-    # Pull out each month's worth of data, merge it with the common columns,
-    # rename columns to match the PUDL DB, add an appropriate month column,
-    # and insert it into the PUDL DB.
-    # for month in month_cols.keys():
-    #    df = eia923_dfs['generation_fuel'].filter(regex=month_cols[month])
-    #    df['month'] = month
-    #    df.columns = df.columns.str.replace(month_cols[month], '')
+    # Convert the EIA923 DataFrame from yearly to monthly records.
+    gf_df = yearly_to_monthly_eia923(gf_df, month_dict)
+    # Replace the EIA923 NA value ('.') with a real NA value.
+    gf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
+    # Remove "State fuel-level increment" records... which don't pertain to
+    # any particular plant (they have plant_id == operator_id == 99999)
+    gf_df = gf_df[gf_df.plant_id != 99999]
 
-# 'quantity_{month}',
-# 'elec_quantity_{month}',
-# 'mmbtuper_unit_{month}',
-# 'tot_mmbtu_{month}',
-# 'elec_mmbtu_{month}',
-# 'netgen_{month}']
+    # Rename them to be consistent with the PUDL DB fields, if need be.
+    gf_df.rename(columns={
+        # EIA 923              PUDL DB field name
+        'reported_prime_mover': 'prime_mover',
+        'reported_fuel_type_code': 'fuel_type',
+        'aer_fuel_type_code': 'aer_fuel_type',
+        'quantity': 'fuel_consumed_total',
+        'elec_quantity': 'fuel_consumed_for_electricity',
+        'mmbtuper_unit': 'fuel_mmbtu_per_unit',
+        'tot_mmbtu': 'fuel_consumed_total_mmbtu',
+        'elec_mmbtu': 'fuel_consumed_for_electricity_mmbtu',
+        'netgen': 'net_generation_mwh'},
+        inplace=True)
 
-#   gen_fuel_df.to_sql(name='generation_fuel_eia923',
-#                      con=pudl_engine, index=False, if_exists='append',
-#                      dtype={})
+    gf_df.to_sql(name='generation_fuel_eia923',
+                 con=pudl_engine, index=False, if_exists='append',
+                 dtype={'plant_id': Integer,
+                        'nuclear_unit_id': Integer,
+                        'prime_mover': String,
+                        'fuel_type': String,
+                        'aer_fuel_type': String,
+                        'fuel_consumed_total': Float,
+                        'fuel_consumed_for_electricity': Float,
+                        'fuel_mmbtu_per_unit': Float,
+                        'fuel_consumed_total_mmbtu': Float,
+                        'fuel_consumed_for_electricity_mmbtu': Float,
+                        'net_generation_mwh': Float},
+                 chunksize=1000)
 
 
 def ingest_operator_info_eia923(pudl_engine, eia923_dfs):
