@@ -492,6 +492,21 @@ pagemap_eia923 = DataFrame.from_records(
     columns=['page', 'sheetname', 'skiprows'],
     index='page')
 
+# patterns for matching columns to months:
+month_dict_2015_eia923 = {1: '_january$',
+                          2: '_february$',
+                          3: '_march$',
+                          4: '_april$',
+                          5: '_may$',
+                          6: '_june$',
+                          7: '_july$',
+                          8: '_august$',
+                          9: '_september$',
+                          10: '_october$',
+                          11: '_november$',
+                          12: '_december$'}
+
+
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].
 # TODO: THIS ONLY PERTAINS TO 2015 AND MAY NEED TO BE ADJUSTED BY YEAR...

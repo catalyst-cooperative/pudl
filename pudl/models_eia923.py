@@ -183,6 +183,7 @@ class PlantOwnershipEIA923(models.PUDLBase):
                          primary_key=True)
 
 
+# TODO - AW fill in with remaining unaccounted for fields from Tab 1 & others
 class OperatorInfoEIA923(models.PUDLBase):
     """Information specific to plant operators (typically utilities)."""
 
