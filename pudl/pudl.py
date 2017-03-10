@@ -731,7 +731,48 @@ def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine):
 
     Steve Winter is working on this function.
     """
-    pass
+    f1_purchased_pwr = ferc1_meta.tables['f1_purchased_pwr']
+    f1_purchased_pwr_select = select([f1_purchased_pwr])
+
+    ferc1_purchased_pwr_df = pd.read_sql(f1_purchased_pwr_select, ferc1_engine)
+
+    ferc1_purchased_pwr_df.drop(['spplmnt_num','row_number', 'row_seq',\
+                                 'row_prvlg', 'report_prd'],
+                      axis=1, inplace=True) #row number?
+
+    ferc1_purchased_pwr_df.rename(columns={
+        # FERC 1 DB Name  PUDL DB Name
+        'athrty_co_name': 'authority_company_name',
+        'sttstcl_clssfctn': 'statistical_classification',
+        'rtsched_trffnbr': 'rate_schedule_tariff_number',
+        'avgmth_bill_dmnd': 'average_billing_demand',
+        'avgmth_ncp_dmnd': 'average_monthly_ncp_demand',
+        'avgmth_cp_dmnd': 'average_monthly_cp_demand',
+        'mwh_recv': 'mwh_received',
+        'mwh_delvd': 'mwh_delivered',
+        'dmnd_charges': 'demand_charges',
+        'erg_charges': 'energy_charges',
+        'othr_charges': 'other_charges',
+        'settlement_tot': 'settlement_total'},
+        inplace=True)
+
+    ferc1_purchased_pwr_df.to_sql(name='purchased_power_ferc1',
+                               con=pudl_engine, index=False, if_exists='append',
+                               dtype={'respondent_id': Integer,
+                                      'report_year': Integer,
+                                      'authority_company_name': String,
+                                      'statistical_classification': String,
+                                      'rate_schedule_tariff_number': Integer,
+                                      'average_billing_demand': String,
+                                      'average_monthly_ncp_demand': String,
+                                      'average_monthly_cp_demand': String,
+                                      'mwh_purchased' : Numeric(14, 2),
+                                      'mwh_received' : Numeric(14, 2),
+                                      'mwh_delivered' : Numeric(14, 2),
+                                      'demand_charges' : Numeric(14, 2),
+                                      'energy_charges' : Numeric(14, 2),
+                                      'other_charges' : Numeric(14, 2),
+                                      'settlement_total' : Numeric(14, 2)})
 
 
 ###############################################################################
