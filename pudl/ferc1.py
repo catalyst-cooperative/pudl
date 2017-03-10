@@ -67,10 +67,7 @@ def get_strings(filename, min=4):
             yield result
 
 
-def parse_embedded_list(df,  # DataFrame to embedded lists in
-                        pattern,  # Pattern that identifies the list heading
-                        category,  # Category to assign to each list item
-                        empty_fields):  # Heading fields expected to be empty
+def parse_embedded_list(df, pattern_dict, empty_heads):
     """
     Categorize items in a series of FERC Form 1 lines based on a list heading.
 
@@ -79,6 +76,15 @@ def parse_embedded_list(df,  # DataFrame to embedded lists in
     that doesn't contain any data. This function takes attaches that
     information to the individual records.
 
+    Args:
+        df (pandas.DataFrame): The DataFrame containing the records to parse.
+        pattern_dict (dict): A dictionary mapping categories (keys) to be
+            inferred from embedded list headings to the regex (value) used
+            to identify the category.
+        empty_heads (list of strings): fields within the DataFrame which should
+            have null values if a record is a list header and not data.
+        outfield (string): name of the DataFrame field into which the inferred
+            category should be inserted.
     """
     # Convert supplement number & row number to record number
     # Sort the DF by report_year, respondent_id, record_number
@@ -90,7 +96,8 @@ def parse_embedded_list(df,  # DataFrame to embedded lists in
 
 
 def cleanstrings(field, stringmap, unmapped=None):
-    """Clean up a field of string data in one of the Form 1 data frames.
+    """
+    Clean up a field of string data in one of the Form 1 data frames.
 
     This function maps many different strings meant to represent the same value
     or category to a single value. In addition, white space is stripped and
