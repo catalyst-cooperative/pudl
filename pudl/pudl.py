@@ -35,6 +35,7 @@ from pudl.constants import ferc1_default_tables, ferc1_pudl_tables
 from pudl.constants import ferc1_working_tables
 from pudl.constants import ferc_electric_plant_accounts
 from pudl.constants import ferc_accumulated_depreciation
+from pudl.constants import month_dict_2015_eia923
 
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
@@ -869,22 +870,8 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
                     'net_generation_megawatthours']
     gf_df.drop(cols_to_drop, axis=1, inplace=True)
 
-    # patterns for matching columns to months:
-    month_dict = {1: '_january$',
-                  2: '_february$',
-                  3: '_march$',
-                  4: '_april$',
-                  5: '_may$',
-                  6: '_june$',
-                  7: '_july$',
-                  8: '_august$',
-                  9: '_september$',
-                  10: '_october$',
-                  11: '_november$',
-                  12: '_december$'}
-
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    gf_df = yearly_to_monthly_eia923(gf_df, month_dict)
+    gf_df = yearly_to_monthly_eia923(gf_df, month_dict_2015_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     gf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
     # Remove "State fuel-level increment" records... which don't pertain to
@@ -928,6 +915,26 @@ def ingest_operator_info_eia923(pudl_engine, eia923_dfs):
     # regulatory_status: make this a Boolean:
     #  - Regulated = True
     #  - Unregulated = False
+    pass
+
+
+def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
+    """Ingest data on fuel consumption by boiler from EIA Form 923."""
+    pass
+
+
+def ingest_generator_eia923(pudl_engine, eia923_dfs):
+    """Ingest data on electricity production by generator from EIA Form 923."""
+    pass
+
+
+def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
+    """Ingest data on fuel purchases and costs from EIA Form 923."""
+    pass
+
+
+def ingest_stocks_eia923(pudl_engine, eia923_dfs):
+    """Ingest data on fuel stocks from EIA Form 923."""
     pass
 
 

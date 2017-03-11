@@ -458,7 +458,8 @@ ferc1_pudl_tables = ['f1_fuel',
                      'f1_steam',
                      'f1_hydro',
                      'f1_plant_in_srvce',
-                     'f1_accumdepr_prvsn',]
+                     'f1_accumdepr_prvsn']
+
 
 # This is the full set of tables that currently ingestible by the ferc1 DB:
 ferc1_working_tables = ['f1_respondent_id',
@@ -491,6 +492,21 @@ pagemap_eia923 = DataFrame.from_records(
      ('plant_frame', 5, 4)],
     columns=['page', 'sheetname', 'skiprows'],
     index='page')
+
+# patterns for matching columns to months:
+month_dict_2015_eia923 = {1: '_january$',
+                          2: '_february$',
+                          3: '_march$',
+                          4: '_april$',
+                          5: '_may$',
+                          6: '_june$',
+                          7: '_july$',
+                          8: '_august$',
+                          9: '_september$',
+                          10: '_october$',
+                          11: '_november$',
+                          12: '_december$'}
+
 
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].
