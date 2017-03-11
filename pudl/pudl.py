@@ -739,6 +739,10 @@ def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine):
     ferc1_purchased_pwr_df.drop(['spplmnt_num','row_number', 'row_seq',\
                                  'row_prvlg', 'report_prd'],
                       axis=1, inplace=True) #row number?
+    ferc1_purchased_pwr_df.replace(to_replace='', value=np.nan,inplace=True)
+    ferc1_purchased_pwr_df.dropna(subset=['sttstcl_clssfctn',\
+    'rtsched_trffnbr'], inplace=True)
+
 
     ferc1_purchased_pwr_df.rename(columns={
         # FERC 1 DB Name  PUDL DB Name
@@ -762,7 +766,7 @@ def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine):
                                       'report_year': Integer,
                                       'authority_company_name': String,
                                       'statistical_classification': String,
-                                      'rate_schedule_tariff_number': Integer,
+                                      'rate_schedule_tariff_number': String,
                                       'average_billing_demand': String,
                                       'average_monthly_ncp_demand': String,
                                       'average_monthly_cp_demand': String,
