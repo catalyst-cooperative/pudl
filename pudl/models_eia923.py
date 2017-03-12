@@ -263,7 +263,6 @@ class BoilerFuelEIA923(models.PUDLBase):
     """
 
     __tablename__ = 'boiler_fuel_eia923'
-
     # Each month, for each unique combination of boiler id and prime mover and
     # fuel, there is one report for each boiler unit in each plant.
     # Primary key fields used previously:

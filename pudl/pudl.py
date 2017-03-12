@@ -919,12 +919,10 @@ def ingest_operator_info_eia923(pudl_engine, eia923_dfs):
 
 def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
     """Ingest data on fuel consumption by boiler from EIA Form 923."""
-    pass
-
     # This needs to be a copy of what we're passed in so we can edit it.
     bf_df = eia923_dfs['boiler_fuel'].copy()
 
-    # Drop fields we're not inserting into the generation_fuel_eia923 table.
+    # Drop fields we're not inserting into the boiler_fuel_eia923 table.
     cols_to_drop = ['combined_heat_and_power_plant',
                     'plant_name',
                     'operator_name',
@@ -1088,7 +1086,11 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
     # NOW START INGESTING EIA923 DATA:
     eia923_ingest_functions = {
         'plant_info_eia923': ingest_plant_info_eia923,
-        'generation_fuel_eia923': ingest_generation_fuel_eia923
+        'generation_fuel_eia923': ingest_generation_fuel_eia923,
+        'boiler_fuel_eia923': ingest_boiler_fuel_eia923,
+        'generation_eia923': ingest_generator_eia923,
+        'fuel_receipts_costs_eia923': ingest_fuel_receipts_costs_eia923,
+        'stocks_eia923': ingest_stocks_eia923
     }
 
     for table in eia923_ingest_functions.keys():

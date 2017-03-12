@@ -482,6 +482,10 @@ eia923_working_years = range(2014, 2017)
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
 eia923_pudl_tables = ['plant_info_eia923',
                       'generation_fuel_eia923']
+# 'boiler_fuel_eia923',
+# 'generation_eia923',
+# 'fuel_receipts_costs_eia923',
+# 'stocks_eia923']
 
 # these are tabname inputs mapping to excel spreadsheet tabs
 pagemap_eia923 = DataFrame.from_records(
