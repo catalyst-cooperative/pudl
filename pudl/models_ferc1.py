@@ -155,10 +155,9 @@ class PurchasedPowerFERC1(models.PUDLBase):
     id = Column(Integer, autoincrement=True, primary_key=True)
     respondent_id = Column(Integer,
                            ForeignKey('utilities_ferc1.respondent_id'),
-                           primary_key=True)
+                           nullable=False)
     report_year = Column(Integer,
-                         ForeignKey('years.year'),
-                         primary_key=True)
+                         ForeignKey('years.year'), nullable=False)
     authority_company_name = Column(String)
     statistical_classification = Column(String)
     rate_schedule_tariff_number = Column(String)

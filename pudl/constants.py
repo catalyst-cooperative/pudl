@@ -458,7 +458,9 @@ ferc1_pudl_tables = ['f1_fuel',
                      'f1_steam',
                      'f1_hydro',
                      'f1_plant_in_srvce',
-                     'f1_accumdepr_prvsn']
+                     'f1_accumdepr_prvsn',
+                     'f1_purchased_pwr']
+
 
 # This is the full set of tables that currently ingestible by the ferc1 DB:
 ferc1_working_tables = ['f1_respondent_id',
