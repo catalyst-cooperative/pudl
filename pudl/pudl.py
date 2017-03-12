@@ -737,9 +737,9 @@ def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine):
 
     ferc1_purchased_pwr_df = pd.read_sql(f1_purchased_pwr_select, ferc1_engine)
 
-    ferc1_purchased_pwr_df.drop(['spplmnt_num','row_number', 'row_seq',\
+    ferc1_purchased_pwr_df.drop(['spplmnt_num', 'row_number', 'row_seq',
                                  'row_prvlg', 'report_prd'],
-                      axis=1, inplace=True) #row number?
+                                axis=1, inplace=True)  # row number?
 
     ferc1_purchased_pwr_df.rename(columns={
         # FERC 1 DB Name  PUDL DB Name
@@ -757,23 +757,25 @@ def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine):
         'settlement_tot': 'settlement_total'},
         inplace=True)
 
-    ferc1_purchased_pwr_df.to_sql(name='purchased_power_ferc1',
-                               con=pudl_engine, index=False, if_exists='append',
-                               dtype={'respondent_id': Integer,
-                                      'report_year': Integer,
-                                      'authority_company_name': String,
-                                      'statistical_classification': String,
-                                      'rate_schedule_tariff_number': Integer,
-                                      'average_billing_demand': String,
-                                      'average_monthly_ncp_demand': String,
-                                      'average_monthly_cp_demand': String,
-                                      'mwh_purchased' : Numeric(14, 2),
-                                      'mwh_received' : Numeric(14, 2),
-                                      'mwh_delivered' : Numeric(14, 2),
-                                      'demand_charges' : Numeric(14, 2),
-                                      'energy_charges' : Numeric(14, 2),
-                                      'other_charges' : Numeric(14, 2),
-                                      'settlement_total' : Numeric(14, 2)})
+    ferc1_purchased_pwr_df.to_sql(
+        name='purchased_power_ferc1',
+        con=pudl_engine, index=False,
+        if_exists='append',
+        dtype={'respondent_id': Integer,
+               'report_year': Integer,
+               'authority_company_name': String,
+               'statistical_classification': String,
+               'rate_schedule_tariff_number': Integer,
+               'average_billing_demand': String,
+               'average_monthly_ncp_demand': String,
+               'average_monthly_cp_demand': String,
+               'mwh_purchased': Numeric(14, 2),
+               'mwh_received': Numeric(14, 2),
+               'mwh_delivered': Numeric(14, 2),
+               'demand_charges': Numeric(14, 2),
+               'energy_charges': Numeric(14, 2),
+               'other_charges': Numeric(14, 2),
+               'settlement_total': Numeric(14, 2)})
 
 
 ###############################################################################

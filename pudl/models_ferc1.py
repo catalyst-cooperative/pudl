@@ -149,6 +149,7 @@ class AccumulatedDepreciationFERC1(models.PUDLBase):
     future_plant = Column(Numeric(14, 2))
     leased_plant = Column(Numeric(14, 2))
 
+
 class PurchasedPowerFERC1(models.PUDLBase):
     __tablename__ = 'purchased_power_ferc1'
     id = Column(Integer, autoincrement=True, primary_key=True)
@@ -164,13 +165,13 @@ class PurchasedPowerFERC1(models.PUDLBase):
     average_billing_demand = Column(String)
     average_monthly_ncp_demand = Column(String)
     average_monthly_cp_demand = Column(String)
-    mwh_purchased = Column(Numeric(14,2))
-    mwh_received = Column(Numeric(14,2))
-    mwh_delivered = Column(Numeric(14,2))
-    demand_charges = Column(Numeric(14,2))
-    energy_charges = Column(Numeric(14,2))
-    other_charges = Column(Numeric(14,2))
-    settlement_total = Column(Numeric(14,2))
+    mwh_purchased = Column(Numeric(14, 2))
+    mwh_received = Column(Numeric(14, 2))
+    mwh_delivered = Column(Numeric(14, 2))
+    demand_charges = Column(Numeric(14, 2))
+    energy_charges = Column(Numeric(14, 2))
+    other_charges = Column(Numeric(14, 2))
+    settlement_total = Column(Numeric(14, 2))
 
 
 class PlantSmallFERC1(models.PUDLBase):
