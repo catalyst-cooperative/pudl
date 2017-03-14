@@ -281,54 +281,87 @@ class PlantHydroFERC1(models.PUDLBase):
     # Expenses per net KWh in FERC, converted to MWh in PUDL
     expns_per_mwh = Column(Numeric(14, 2))
 
-# class PlantsPumpedHydro(models.PUDLBase):
-#     """docstring for PlantsPumpedHydro"""
-#     __tablename__ = 'plants_pummped_hydro_ferc1'
-#     __table_args__ = (ForeignKeyConstraint(
-#         ['respondent_id', 'plant_name'],
-#         ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
-#     respondent_id = Column(Integer, nullable=False)
-#     report_year = Colum(Integer, nullable=False)
-#     #spplmnt_num       | integer
-#     #row_number        | integer
-#     #row_seq           | integer
-#     #row_prvlg         | character varying(1)
-#     project_number = Column(Integer)
-#     plant_name = Column(String, nullable=False)
-#     plant_kind = Column(String)
-#     year_constructed = Column(Integer)
-#     year_installed = Column(Integer)
-#     tot_capacity      | double precision
-#     peak_demand       | double precision
-#     plant_hours       | double precision
-#     plant_capability  | double precision
-#     avg_num_of_emp    | double precision
-#     net_generation    | double precision
-#     energy_used       | double precision
-#     net_load          | double precision
-#     cost_land         | double precision
-#     cost_structures   | double precision
-#     cost_facilties    | double precision
-#     cost_wheels       | double precision
-#     cost_electric     | double precision
-#     cost_misc_eqpmnt  | double precision
-#     cost_roads        | double precision
-#     asset_retire_cost | double precision
-#     cost_of_plant     | double precision
-#     cost_per_kw       | double precision
-#     expns_operations  | double precision
-#     expns_water_pwr   | double precision
-#     expns_pump_strg   | double precision
-#     expns_electric    | double precision
-#     expns_misc_power  | double precision
-#     expns_rents       | double precision
-#     expns_engneering  | double precision
-#     expns_structures  | double precision
-#     expns_dams        | double precision
-#     expns_plant       | double precision
-#     expns_misc_plnt   | double precision
-#     expns_producton   | double precision
-#     pumping_expenses  | double precision
-#     tot_prdctn_exns   | double precision
-#     expns_kwh         | double precision
-#     #report_prd        | integer
+
+class PlantsPumpedStorage(models.PUDLBase):
+    """
+    Annual data on pumped storage imported from the f1_pumped_storage table.
+    """
+
+    __tablename__ = 'plants_pummped_storage_ferc1'
+    __table_args__ = (ForeignKeyConstraint(
+        ['id', 'plant_name'],
+        ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
+
+    id = Column(Integer, nullable=False, primary_key=True)
+    year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    project_number = Column(Integer)
+    plant_name = Column(String, nullable=False)
+    plant_kind = Column(String)
+    year_constructed = Column(Integer)
+    year_installed = Column(Integer)
+    # Total installed cap (Gen name plate Rating in MW)
+    total_capacity_mw = Column(Float)
+    # Net Peak Demaind on Plant-Megawatts (60 minutes)
+    peak_demand_mw = Column(Float)
+    # Plant Hours Connect to Load While Generating
+    plant_hours_connected_while_generating = Column(Float)
+    # Net Plant Capability (in megawatts)
+    plant_capability_mw = Column(Float)
+    # Average Number of Employees
+    avg_number_employees = Column(Float)
+    # Generation, Exclusive of Plant Use - Kwh, converted to mwh
+    net_generation_mwh = Column(Float)
+    # Energy Used for Pumping, converted from kwh to MWh
+    energy_used_for_pumping_mwh = Column(Float)
+    # Net Output for Load (line 9 - line 10) - Kwh, converted to MWh
+    net_load_mwh = Column(Float)
+    # Land and Land Rights
+    cost_land = Column(Numeric(14, 2))
+    # Structures and Improvements
+    cost_structures = Column(Numeric(14, 2))
+    # Reservoirs, Dams, and Waterways
+    cost_facilties = Column(Numeric(14, 2))
+    # Water Wheels, Turbines, and Generators
+    cost_wheels_turbines_generators = Column(Numeric(14, 2))
+    # Accessory Electric Equipment
+    cost_equipment_electric = Column(Numeric(14, 2))
+    # Miscellaneous Powerplant Equipment
+    cost_equipment_misc = Column(Numeric(14, 2))
+    # Roads, Railroads, and Bridges
+    cost_roads = Column(Numeric(14, 2))
+    # Asset Retirement Costs
+    asset_retire_cost = Column(Numeric(14, 2))
+    # Total cost (total 13 thru 20)
+    cost_plant_total = Column(Numeric(14, 2))
+    # Cost per KW of installed cap (line 21 / 4), converted to MW
+    cost_per_mw = Column(Numeric(14, 2))
+    # Operation Supervision and Engineering
+    expns_operations = Column(Numeric(14, 2))
+    # Water for Power
+    expns_water_for_pwr = Column(Numeric(14, 2))
+    # Pumped Storage Expenses
+    expns_pump_storage = Column(Numeric(14, 2))
+    # Electric Expenses
+    expns_electric = Column(Numeric(14, 2))
+    # Misc Pumped Storage Power generation Expenses
+    expns_generation_misc = Column(Numeric(14, 2))
+    # Rents
+    expns_rents = Column(Numeric(14, 2))
+    # Maintenance Supervision and Engineering
+    expns_engneering = Column(Numeric(14, 2))
+    # Maintenance of Structures
+    expns_structures = Column(Numeric(14, 2))
+    # Maintenance of Reservoirs, Dams, and Waterways
+    expns_dams = Column(Numeric(14, 2))
+    # Maintenance of Electric Plant
+    expns_plant = Column(Numeric(14, 2))
+    # Maintenance of Misc Pumped Storage Plant
+    expns_misc_plant = Column(Numeric(14, 2))
+    # Production Exp Before Pumping Exp (24 thru 34)
+    expns_producton_before_pumping = Column(Numeric(14, 2))
+    # Pumping Expenses
+    pumping_expenses = Column(Numeric(14, 2))
+    # Total Production Exp (total 35 and 36)
+    expns_producton_total = Column(Numeric(14, 2))
+    # Expenses per KWh (line 37 / 9), converted to mwh
+    expns_per_mwh = Column(Numeric(14, 2))
