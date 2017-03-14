@@ -575,6 +575,84 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
                                  'report_year': Integer})
 
 
+def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine):
+    """Ingest f1_pumped_storage table of FERC Form 1 DB into PUDL DB."""
+
+    f1_pumped_storage = ferc1_meta.tables['f1_pumped_storage']
+
+    # Removing the empty records.
+    # This reduces the entries for 2015 from 272 records to 27.
+    f1_pumped_storage_select = select([f1_pumped_storage]).\
+        where(f1_pumped_storage.c.plant_name != '')
+
+    ferc1_pumped_storage_df = pd.read_sql(
+        f1_pumped_storage_select, ferc1_engine)
+    ferc1_pumped_storage_df.drop(['spplmnt_num', 'row_number', 'row_seq',
+                                  'row_prvlg', 'report_prd'],
+                                 axis=1, inplace=True)
+
+    # Standardize plant_name capitalization and remove leading/trailing white
+    # space -- necesary b/c plant_name is part of many foreign keys.
+    ferc1_pumped_storage_df['plant_name'] = \
+        ferc1_pumped_storage_df['plant_name'].str.strip()
+    ferc1_pumped_storage_df['plant_name'] = \
+        ferc1_pumped_storage_df['plant_name'].str.title()
+
+    # Converting kWh to MWh
+    ferc1_pumped_storage_df['net_generation_mwh'] = \
+        ferc1_pumped_storage_df['net_generation'] / 1000.0
+    ferc1_pumped_storage_df.drop('net_generation', axis=1, inplace=True)
+
+    ferc1_pumped_storage_df['energy_used_for_pumping_mwh'] = \
+        ferc1_pumped_storage_df['energy_used'] / 1000.0
+    ferc1_pumped_storage_df.drop(
+        'energy_used_for_pumping_mwh', axis=1, inplace=True)
+
+    ferc1_pumped_storage_df['net_load_mwh'] = \
+        ferc1_pumped_storage_df['net_load'] / 1000.0
+    ferc1_pumped_storage_df.drop('net_load_mwh', axis=1, inplace=True)
+
+    # Converting cost per kW installed to cost per MW installed:
+    ferc1_pumped_storage_df['cost_per_mw'] = \
+        ferc1_pumped_storage_df['cost_per_kw'] * 1000.0
+    ferc1_pumped_storage_df.drop('cost_per_mw', axis=1, inplace=True)
+
+    ferc1_pumped_storage_df['expns_per_mwh'] = \
+        ferc1_pumped_storage_df['expns_kwh'] * 1000.0
+    ferc1_pumped_storage_df.drop('expns_per_mwh', axis=1, inplace=True)
+
+    ferc1_pumped_storage_df.dropna(inplace=True)
+
+    ferc1_pumped_storage_df.rename(columns={
+        # FERC1 DB          PUDL DB
+        'respondent_id': 'id',
+        'report_year ': 'year',
+        'project_no': 'project_number',
+        'tot_capacity': 'total_capacity_mw',
+        'peak_demand': 'peak_demand_mw',
+        'plant_hours': 'plant_hours_connected_while_generating',
+        'plant_capability': 'plant_capability_mw',
+        'avg_num_of_emp': 'avg_number_employees',
+        'net_generation': 'net_generation_mwh',
+        'net_load': 'net_load_mwh',
+        'cost_wheels': 'cost_wheels_turbines_generators',
+        'cost_electric': 'cost_equipment',
+        'cost_misc_eqpmnt': 'cost_equipment_misc',
+        'cost_of_plant': 'cost_plant_total',
+        'cost_per_kw': 'cost_per_mw',
+        'expns_water_pwr': 'expns_water_for_pwr',
+        'expns_pump_stg': 'expns_pump_storage',
+        'expns_misc_power': 'expns_generation_misc',
+        'expns_misc_plnt': 'expns_misc_plant',
+        'expns_producton': 'expns_producton_before_pumping',
+        'tot_prdctn_exns': 'expns_producton_total',
+        'expns_kwh': 'expns_per_mwh'})
+
+    ferc1_pumped_storage_df.to_sql(name='plants_pumped_storage_ferc1',
+                                   con=pudl_engine, index=False,
+                                   if_exists='append')
+
+
 def ingest_accumulated_depreciation_ferc1(pudl_engine, ferc1_engine):
     """Ingest f1_accumdepr_prvs table from FERC Form 1 DB."""
     f1_accumdepr_prvsn = ferc1_meta.tables['f1_accumdepr_prvsn']
@@ -716,15 +794,6 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine):
                                  'plant_name': String,
                                  'kind_of_fuel': String,
                                  'year_constructed': Integer})
-
-
-def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine):
-    """
-    Ingest f1_pumped_storage table of FERC Form 1 DB into PUDL DB.
-
-    Christina Gosnell has got this one.
-    """
-    pass
 
 
 def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine):
