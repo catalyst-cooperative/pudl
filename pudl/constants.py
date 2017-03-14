@@ -458,6 +458,7 @@ ferc1_pudl_tables = ['f1_fuel',
                      'f1_steam',
                      'f1_hydro',
                      'f1_plant_in_srvce',
+                     'f1_pumped_storage',
                      'f1_accumdepr_prvsn',
                      'f1_purchased_pwr']
 
