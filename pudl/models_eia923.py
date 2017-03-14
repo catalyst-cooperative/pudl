@@ -37,7 +37,13 @@ class BoilersEIA923(models.PUDLBase):
     """List of Boiler IDs specific to each plant in EIA Form 923 Page 3."""
 
     __tablename__ = 'boilers_eia923'
-    boiler_id = Column(String, primary_key=True)
+
+    id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
+    plant_id = Column(Integer, ForeignKey('plants_eia923.plant_id'))
+    boiler_id = Column(String, nullable=False)
+    prime_mover = Column(String,
+                         ForeignKey('prime_movers_eia923.abbr'),
+                         nullable=False)
 
 
 class GeneratorEIA923(models.PUDLBase):
@@ -47,6 +53,9 @@ class GeneratorEIA923(models.PUDLBase):
     generator_id = Column(String, primary_key=True)
     plant_id = Column(Integer, ForeignKey('plants_eia923.plant_id'),
                       primary_key=True)
+    prime_mover = Column(String,
+                         ForeignKey('prime_movers_eia923.abbr'),
+                         nullable=False)
 
 
 class FuelUnitEIA923(models.PUDLBase):
@@ -263,26 +272,30 @@ class BoilerFuelEIA923(models.PUDLBase):
     """
 
     __tablename__ = 'boiler_fuel_eia923'
+    #
+    # __table_args__ = (ForeignKeyConstraint(
+    #     ['plant_id', 'boiler_id'],
+    #     ['boilers_eia923.plant_id', 'boilers_eia923.id']),)
+
     # Each month, for each unique combination of boiler id and prime mover and
     # fuel, there is one report for each boiler unit in each plant.
     # Primary key fields used previously:
     # plant, boiler, prime mover, fuel type, and year.
 
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
-    plant_id = Column(Integer, ForeignKey('plants_eia923.plant_id'),
-                      nullable=False)
+    plant_id = Column(Integer, ForeignKey(
+        'plants_eia923.plant_id'), nullable=False)
+    boiler_id = Column(String, nullable=False)
     prime_mover = Column(String, ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
     fuel_type = Column(String, ForeignKey('fuel_type_eia923.abbr'),
                        nullable=False)
-    boiler_id = Column(String, ForeignKey('boilers_eia923.boiler_id'),
-                       nullable=False)
     year = Column(Integer, ForeignKey('years.year'), nullable=False)
     month = Column(Integer, ForeignKey('months.month'), nullable=False)
-    fuel_qty_consumed = Column(Float, nullable=False)
-    fuel_mmbtu_per_unit = Column(Float, nullable=False)
-    sulfur_content = Column(Float, nullable=False)
-    ash_content = Column(Float, nullable=False)
+    fuel_qty_consumed = Column(Float)
+    fuel_mmbtu_per_unit = Column(Float)
+    sulfur_content = Column(Float)
+    ash_content = Column(Float)
 
 
 class GenerationEIA923(models.PUDLBase):
