@@ -574,7 +574,7 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
                                  'report_year': Integer})
 
 
-def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
+def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine):
     """Ingest f1_pumped_storage table of FERC Form 1 DB into PUDL DB."""
 
     f1_pumped_storage = ferc1_meta.tables['f1_pumped_storage']
@@ -592,10 +592,10 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space -- necesary b/c plant_name is part of many foreign keys.
-    ferc1_pumped_storage_df['plant_name'] =
-    ferc1_pumped_storage_df['plant_name'].str.strip()
-    ferc1_pumped_storage_df['plant_name'] =
-    ferc1_pumped_storage_df['plant_name'].str.title()
+    ferc1_pumped_storage_df['plant_name'] = \
+        ferc1_pumped_storage_df['plant_name'].str.strip()
+    ferc1_pumped_storage_df['plant_name'] = \
+        ferc1_pumped_storage_df['plant_name'].str.title()
 
     # Converting kWh to MWh
     ferc1_pumped_storage_df['net_generation_mwh'] = \
