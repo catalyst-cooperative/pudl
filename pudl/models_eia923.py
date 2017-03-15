@@ -321,7 +321,7 @@ class GenerationEIA923(models.PUDLBase):
     generator_id = Column(String, nullable=False)
     year = Column(Integer, ForeignKey('years.year'), nullable=False)
     month = Column(Integer, ForeignKey('months.month'), nullable=False)
-    net_generation_mwh = Column(Float, nullable=False)
+    net_generation_mwh = Column(Float)
 
 
 class FuelReceiptsCostsEIA923(models.PUDLBase):
