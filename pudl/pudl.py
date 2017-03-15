@@ -1069,8 +1069,10 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
 
 def ingest_generator_eia923(pudl_engine, eia923_dfs):
     """Ingest data on electricity production by generator from EIA Form 923."""
+    # This needs to be a copy of what we're passed in so we can edit it.
+    g_df = eia923_dfs['generator'].copy()
 
-    # Populating the 'generators_eia923' table
+# Populating the 'generators_eia923' table
     generator_cols = ['plant_id',
                       'generator_id',
                       'reported_prime_mover']
@@ -1097,7 +1099,8 @@ def ingest_generator_eia923(pudl_engine, eia923_dfs):
     # This needs to be a copy of what we're passed in so we can edit it.
     g_df = eia923_dfs['generator'].copy()
 
-    # Drop fields we're not inserting into the boiler_fuel_eia923 table.
+    # Drop fields we're not inserting into the generation_eia923_fuel_eia923
+    # table.
     cols_to_drop = ['combined_heat_and_power_plant',
                     'plant_name',
                     'operator_name',
@@ -1109,36 +1112,33 @@ def ingest_generator_eia923(pudl_engine, eia923_dfs):
                     'sector_number',
                     'sector_name',
                     'net_generation_year_to_date']
+
     g_df.drop(cols_to_drop, axis=1, inplace=True)
 
-# # g_df.drop(cols_to_drop, axis=1, inplace=True)
-#
-# # Convert the EIA923 DataFrame from yearly to monthly records.
-# g_df = yearly_to_monthly_eia923(g_df, month_dict_2015_eia923)
-# # Replace the EIA923 NA value ('.') with a real NA value.
-# g_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
-# # Remove "State fuel-level increment" records... which don't pertain to
-# # any particular plant (they have plant_id == operator_id == 99999)
-# # These don't occur in boiler_fuel tab, so should be able to leave this out
-# # gf_df = gf_df[gf_df.plant_id != 99999]
-#
-# # Rename them to be consistent with the PUDL DB fields, if need be.
-# g_df.rename(columns={
-#     # EIA 923              PUDL DB field name
-#     'reported_prime_mover': 'prime_mover'},
-#     inplace=True)
-#
-# g_df.to_sql(name='generation_eia923',
-#             con=pudl_engine, index=False, if_exists='append',
-#             dtype={'plant_id': Integer,
-#                    'generator_id': String,
-#                    'prime_mover': String,
-#                    'net_generation_mwh': Float},
-#             chunksize=1000)
-    pass
+    # Convert the EIA923 DataFrame from yearly to monthly records.
+    g_df = yearly_to_monthly_eia923(g_df, month_dict_2015_eia923)
+    # Replace the EIA923 NA value ('.') with a real NA value.
+    g_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
+    # Remove "State fuel-level increment" records... which don't pertain to
+    # any particular plant (they have plant_id == operator_id == 99999)
+    # These don't occur in boiler_fuel tab, so should be able to leave this out
+    gf_df = gf_df[gf_df.plant_id != 99999]
+    #
+    # # Rename them to be consistent with the PUDL DB fields, if need be.
+    g_df.rename(columns={
+        # EIA 923              PUDL DB field name
+        'reported_prime_mover': 'prime_mover'},
+        inplace=True)
+
+    g_df.to_sql(name='generation_eia923',
+                con=pudl_engine, index=False, if_exists='append',
+                dtype={'plant_id': Integer,
+                       'generator_id': String,
+                       'prime_mover': String,
+                       'net_generation_mwh': Float},
+                chunksize=1000)
 
 
-# TODO need to add coalmine name here, or surrogate key...
 def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
     """Ingest data on fuel purchases and costs from EIA Form 923."""
     #
@@ -1241,11 +1241,6 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
 
     if 'fuel_stocks_eia923' in eia923_tables:
         pass  # no DB table defined for fuel stocks yet.
-
-    if 'boilers_eia923' in eia923_tables:
-        eia923_dfs['boiler_fuel'] = get_eia923_page('boiler_fuel',
-                                                    years=eia923_years,
-                                                    verbose=verbose)
 
     if 'boiler_fuel_eia923' in eia923_tables:
         eia923_dfs['boiler_fuel'] = get_eia923_page('boiler_fuel',
