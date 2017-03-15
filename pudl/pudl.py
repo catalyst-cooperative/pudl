@@ -992,7 +992,7 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
 
     This is going to populate boilers_eia923 and boiler_fuel_eia923 tables
     """
-    # From 'boiler_fuel'
+    # Populate 'boilers_eia923' table
     boiler_cols = ['plant_id',
                    'boiler_id',
                    'reported_prime_mover']
@@ -1015,6 +1015,7 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
                              'boiler_id': String,
                              'prime_mover': String})
 
+    # Populate 'boiler_fuel_eia923' table
     # This needs to be a copy of what we're passed in so we can edit it.
     bf_df = eia923_dfs['boiler_fuel'].copy()
 
@@ -1042,7 +1043,7 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
     # Remove "State fuel-level increment" records... which don't pertain to
     # any particular plant (they have plant_id == operator_id == 99999)
     # These don't occur in boiler_fuel tab so should be able to leave this out
-    # gf_df = gf_df[gf_df.plant_id != 99999]
+    # bf_df = bf_df[bf_df.plant_id != 99999]
 
     # Rename them to be consistent with the PUDL DB fields, if need be.
     bf_df.rename(columns={
@@ -1071,7 +1072,34 @@ def ingest_generator_eia923(pudl_engine, eia923_dfs):
     # This needs to be a copy of what we're passed in so we can edit it.
     g_df = eia923_dfs['generator'].copy()
 
-    # Drop fields we're not inserting into the generation_fuel_eia923
+    # Populating the 'generators_eia923' table
+    generator_cols = ['plant_id',
+                      'generator_id',
+                      'reported_prime_mover']
+
+    generators_df = eia923_dfs['generator'][generator_cols]
+    generators_df = generators_df.drop_duplicates(
+        subset=['plant_id', 'generator_id'])
+
+    generators_df.rename(columns={
+        # column HEADing in EIA 923        PUDL DB field name
+        'reported_prime_mover': 'prime_mover'},
+        inplace=True)
+
+    # drop null values from foreign key fields
+    generators_df.dropna(subset=['generator_id', 'plant_id'], inplace=True)
+
+    generators_df.to_sql(name='generators_eia923',
+                         con=pudl_engine, index=False, if_exists='append',
+                         dtype={'plant_id': Integer,
+                                'generator_id': String,
+                                'prime_mover': String})
+
+    # Populating the generation_eia923 table:
+    # This needs to be a copy of what we're passed in so we can edit it.
+    g_df = eia923_dfs['generator'].copy()
+
+    # Drop fields we're not inserting into the generation_eia923_fuel_eia923
     # table.
     cols_to_drop = ['combined_heat_and_power_plant',
                     'plant_name',
@@ -1094,12 +1122,13 @@ def ingest_generator_eia923(pudl_engine, eia923_dfs):
     # Remove "State fuel-level increment" records... which don't pertain to
     # any particular plant (they have plant_id == operator_id == 99999)
     # These don't occur in boiler_fuel tab, so should be able to leave this out
-    gf_df = gf_df[gf_df.plant_id != 99999]
+    # g_df = g_df[g_df.plant_id != 99999]
     #
     # # Rename them to be consistent with the PUDL DB fields, if need be.
     g_df.rename(columns={
         # EIA 923              PUDL DB field name
-        'reported_prime_mover': 'prime_mover'},
+        'reported_prime_mover': 'prime_mover',
+        'net_generation': 'net_generation_mwh'},
         inplace=True)
 
     g_df.to_sql(name='generation_eia923',

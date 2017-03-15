@@ -50,9 +50,9 @@ class GeneratorEIA923(models.PUDLBase):
     """List of Generator IDs specific to each plant in EIA Form 923 Page 4."""
 
     __tablename__ = 'generators_eia923'
-    generator_id = Column(String, primary_key=True)
     plant_id = Column(Integer, ForeignKey('plants_eia923.plant_id'),
                       primary_key=True)
+    generator_id = Column(String, primary_key=True)
     prime_mover = Column(String,
                          ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
@@ -314,14 +314,14 @@ class GenerationEIA923(models.PUDLBase):
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     plant_id = Column(Integer, ForeignKey('plants_eia923.plant_id'),
                       nullable=False)
-# TODO remove prime_mover since it's specific to generator_id?
+    # TODO remove prime_mover since it's specific to generator_id?
     prime_mover = Column(String, ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
     # TODO generators table?  FK?
     generator_id = Column(String, nullable=False)
     year = Column(Integer, ForeignKey('years.year'), nullable=False)
     month = Column(Integer, ForeignKey('months.month'), nullable=False)
-    net_generation_mwh = Column(Float, nullable=False)
+    net_generation_mwh = Column(Float)
 
 
 class FuelReceiptsCostsEIA923(models.PUDLBase):
