@@ -49,11 +49,30 @@ def get_eia923_files(years=[2014, 2015, 2016]):
     return([glob(os.path.join(datadir(yr), '*2_3_4*'))[0] for yr in years])
 
 
+def get_eia923_column_map(page, year):
+    """
+    Given a year and EIA923 page, return info required to slurp it from Excel.
+
+    The format of the EIA923 has changed slightly over the years, and so it
+    is not completely straightforward to pull information from the spreadsheets
+    into our analytical framework. This function looks up a map of the various
+    tabs in the spreadsheet by year and page, and returns the information
+    needed to name the data fields in a standardized way, and pull the right
+    cells from each year & page into our database.
+
+    Args:
+        page
+        year
+    Returns:
+    """
+    pass
+
+
 def get_eia923_page(page, years=[2014, 2015, 2016], verbose=True):
     """
     Read a single table from several years of EIA923 data. Return a DataFrame.
 
-    The tabname argument must be exactly one of the following strings:
+    The page argument must be exactly one of the following strings:
       - 'generation_fuel'
       - 'stocks'
       - 'boiler_fuel'
