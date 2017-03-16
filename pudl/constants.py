@@ -484,7 +484,6 @@ eia923_working_years = range(2014, 2017)
 eia923_pudl_tables = ['plant_info_eia923',
                       'generation_fuel_eia923',
                       'boiler_fuel_eia923',
-                      'generators_eia923',
                       'generation_eia923']
 # 'generation_eia923',
 # 'fuel_receipts_costs_eia923',
@@ -845,6 +844,7 @@ fuel_type_eia923 = {
     'LIG': 'Lignite Coal',
     'MSB': 'Biogenic Municipal Solid Waste',
     'MSN': 'Non-biogenic Municipal Solid Waste',
+    'MSW': 'Municipal Solid Waste',
     'MWH': 'Electricity used for energy storage',
     'NG': 'Natural Gas',
     'NUC': 'Nuclear. Including Uranium, Plutonium, and Thorium.',
