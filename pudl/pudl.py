@@ -389,7 +389,7 @@ def ingest_glue_tables(engine):
 ###############################################################################
 
 
-def ingest_fuel_ferc1(pudl_engine, ferc1_engine):
+def ingest_fuel_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     """Clean & ingest f1_fuel table from FERC Form 1 DB into the PUDL DB."""
     # Grab the f1_fuel SQLAlchemy Table object from the metadata object.
     f1_fuel = ferc1_meta.tables['f1_fuel']
@@ -398,7 +398,8 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine):
     f1_fuel_select = select([f1_fuel]).\
         where(f1_fuel.c.fuel != '').\
         where(f1_fuel.c.fuel_quantity > 0).\
-        where(f1_fuel.c.plant_name != '')
+        where(f1_fuel.c.plant_name != '').\
+        where(f1_fuel.c.report_year.in_(ferc1_years))
     # Use the above SELECT to pull those records into a DataFrame:
     ferc1_fuel_df = pd.read_sql(f1_fuel_select, ferc1_engine)
 
@@ -448,12 +449,13 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine):
                                 'report_year': Integer})
 
 
-def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine):
+def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     """Clean f1_steam table of the FERC Form 1 DB and pull into the PUDL DB."""
     f1_steam = ferc1_meta.tables['f1_steam']
     f1_steam_select = select([f1_steam]).\
         where(f1_steam.c.net_generation > 0).\
-        where(f1_steam.c.plant_name != '')
+        where(f1_steam.c.plant_name != '').\
+        where(f1_steam.c.report_year.in_(ferc1_years))
 
     ferc1_steam_df = pd.read_sql(f1_steam_select, ferc1_engine)
     # Discard DataFrame columns that we aren't pulling into PUDL:
@@ -501,13 +503,13 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine):
         'plnt_capability': 'plant_capability_mw',
         'when_limited': 'water_limited_mw',
         'when_not_limited': 'not_water_limited_mw',
-                            'avg_num_of_emp': 'avg_num_employees',
-                            'net_generation': 'net_generation_mwh',
-                            'cost_of_plant_to': 'cost_of_plant_total',
-                            'expns_steam_othr': 'expns_steam_other',
-                            'expns_engnr': 'expns_engineering',
-                            'tot_prdctn_expns': 'expns_production_total'},
-                          inplace=True)
+        'avg_num_of_emp': 'avg_num_employees',
+        'net_generation': 'net_generation_mwh',
+        'cost_of_plant_to': 'cost_of_plant_total',
+        'expns_steam_othr': 'expns_steam_other',
+        'expns_engnr': 'expns_engineering',
+        'tot_prdctn_expns': 'expns_production_total'},
+        inplace=True)
     ferc1_steam_df.to_sql(name='plants_steam_ferc1',
                           con=pudl_engine, index=False, if_exists='append',
                           dtype={'respondent_id': Integer,
@@ -518,12 +520,13 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine):
                                  'year_installed': Integer})
 
 
-def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
+def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     """Ingest f1_hydro table of FERC Form 1 DB into PUDL DB."""
     f1_hydro = ferc1_meta.tables['f1_hydro']
 
     f1_hydro_select = select([f1_hydro]).\
-        where(f1_hydro.c.plant_name != '')
+        where(f1_hydro.c.plant_name != '').\
+        where(f1_hydro.c.report_year.in_(ferc1_years))
 
     ferc1_hydro_df = pd.read_sql(f1_hydro_select, ferc1_engine)
     ferc1_hydro_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
@@ -575,14 +578,15 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine):
                                  'report_year': Integer})
 
 
-def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine):
+def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     """Ingest f1_pumped_storage table of FERC Form 1 DB into PUDL DB."""
     f1_pumped_storage = ferc1_meta.tables['f1_pumped_storage']
 
     # Removing the empty records.
     # This reduces the entries for 2015 from 272 records to 27.
     f1_pumped_storage_select = select([f1_pumped_storage]).\
-        where(f1_pumped_storage.c.plant_name != '')
+        where(f1_pumped_storage.c.plant_name != '').\
+        where(f1_pumped_storage.c.report_year.in_(ferc1_years))
 
     ferc1_pumped_storage_df = pd.read_sql(
         f1_pumped_storage_select, ferc1_engine)
@@ -652,10 +656,13 @@ def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine):
                                    if_exists='append')
 
 
-def ingest_accumulated_depreciation_ferc1(pudl_engine, ferc1_engine):
+def ingest_accumulated_depreciation_ferc1(pudl_engine,
+                                          ferc1_engine,
+                                          ferc1_years):
     """Ingest f1_accumdepr_prvs table from FERC Form 1 DB."""
     f1_accumdepr_prvsn = ferc1_meta.tables['f1_accumdepr_prvsn']
-    f1_accumdepr_prvsn_select = select([f1_accumdepr_prvsn])
+    f1_accumdepr_prvsn_select = select([f1_accumdepr_prvsn]).\
+        where(f1_accumdepr_prvsn.c.report_year.in_(ferc1_years))
 
     ferc1_apd_df = pd.read_sql(f1_accumdepr_prvsn_select, ferc1_engine)
 
@@ -685,10 +692,11 @@ def ingest_accumulated_depreciation_ferc1(pudl_engine, ferc1_engine):
                       'leased plant': Numeric(14, 2)})
 
 
-def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine):
+def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     """Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB."""
     f1_plant_in_srvce = ferc1_meta.tables['f1_plant_in_srvce']
-    f1_plant_in_srvce_select = select([f1_plant_in_srvce])
+    f1_plant_in_srvce_select = select([f1_plant_in_srvce]).\
+        where(f1_plant_in_srvce.c.report_year.in_(ferc1_years))
 
     ferc1_pis_df = pd.read_sql(f1_plant_in_srvce_select, ferc1_engine)
 
@@ -728,14 +736,15 @@ def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine):
                                'year_end_balance': Numeric(14, 2)})
 
 
-def ingest_plants_small_ferc1(pudl_engine, ferc1_engine):
+def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     """
     Ingest f1_gnrt_plant table of FERC Form 1 DB into PUDL DB.
 
     Zane Selvans is doing this one. NOT DONE YET.
     """
     f1_small_table = ferc1_meta.tables['f1_gnrt_plant']
-    f1_small_select = select([f1_small_table, ])
+    f1_small_select = select([f1_small_table, ]).\
+        where(f1_gnrt_plant.c.report_year.in_(ferc1_years))
     ferc1_small_df = pd.read_sql(f1_small_select, ferc1_engine)
 
     # In the FERC1 small plants data there are many lists of plants of a
@@ -795,14 +804,11 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine):
                                  'year_constructed': Integer})
 
 
-def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine):
-    """
-    Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB.
-
-    Steve Winter is working on this function.
-    """
+def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine, ferc1_years):
+    """Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB."""
     f1_purchased_pwr = ferc1_meta.tables['f1_purchased_pwr']
-    f1_purchased_pwr_select = select([f1_purchased_pwr])
+    f1_purchased_pwr_select = select([f1_purchased_pwr]).\
+        where(f1_purchased_pwr.c.report_year.in_(ferc1_years))
 
     ferc1_purchased_pwr_df = pd.read_sql(f1_purchased_pwr_select, ferc1_engine)
 
@@ -1219,7 +1225,9 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
         if table in ferc1_tables:
             if verbose:
                 print("Ingesting {} from FERC Form 1 into PUDL.".format(table))
-            ferc1_ingest_functions[table](pudl_engine, ferc1_engine)
+            ferc1_ingest_functions[table](pudl_engine,
+                                          ferc1_engine,
+                                          ferc1_years)
 
     # Because we're going to be combining data froms several different EIA923
     # spreadsheet pages into individual database tables, and it's time
