@@ -7,14 +7,20 @@ import pudl.constants as pc
 
 
 def test_init_db():
-    """Create a fresch PUDL DB and pull in some FERC1 & EIA923 data."""
-    pudl.ferc1.init_db(refyear=2015, years=[2015, ], def_db=True,
-                       verbose=True, testing=True)
+    """Create a fresh PUDL DB and pull in some FERC1 & EIA923 data."""
+    pudl.ferc1.init_db(refyear=2015,
+                       years=range(2007, 2016),
+                       def_db=True,
+                       verbose=True,
+                       testing=True)
+
     pudl.pudl.init_db(ferc1_tables=pc.ferc1_pudl_tables,
-                      ferc1_years=[2015, ],
+                      ferc1_years=range(2007, 2016),
                       eia923_tables=pc.eia923_pudl_tables,
-                      eia923_years=[2015, ],
-                      verbose=True, debug=False, testing=True)
+                      eia923_years=range(2014, 2016),
+                      verbose=True,
+                      debug=False,
+                      testing=True)
 
     ferc1_engine = pudl.ferc1.db_connect_ferc1(testing=True)
     pudl.ferc1.drop_tables_ferc1(ferc1_engine)
