@@ -286,7 +286,7 @@ ferc1_construction_type_conventional = \
 # Making a dictionary of lists from the lists of type_const strings to create
 # a dictionary of construction type lists.
 
-ferc1_construction_type_strings = {
+ferc1_type_const_strings = {
     'outdoor': ferc1_construction_type_outdoor,
     'conventional': ferc1_construction_type_conventional
 }

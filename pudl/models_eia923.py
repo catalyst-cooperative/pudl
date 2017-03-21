@@ -200,7 +200,7 @@ class OperatorInfoEIA923(models.PUDLBase):
     operator_id = Column(Integer,
                          ForeignKey('utilities_eia923.operator_id'),
                          primary_key=True)
-    regulated = Column(Boolean)
+    regulated = Column(Boolean, primary_key=True)
 
 
 class PlantInfoEIA923(models.PUDLBase):
