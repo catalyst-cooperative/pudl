@@ -31,7 +31,7 @@ from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
 from pudl.eia923 import get_eia923_page, yearly_to_monthly_eia923
 from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
 from pudl.constants import ferc1_fuel_unit_strings, rto_iso
-from pudl.constants import ferc1_type_const_strings, ferc1_plant_kind_strings
+from pudl.constants import ferc1_plant_kind_strings, ferc1_type_const_strings
 from pudl.constants import ferc1_default_tables, ferc1_pudl_tables
 from pudl.constants import ferc1_working_tables
 from pudl.constants import ferc_electric_plant_accounts
@@ -984,6 +984,7 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
                         'net_generation_mwh': Float},
                  chunksize=1000)
 
+
 """
  def ingest_operator_info_eia923(pudl_engine, eia923_dfs):
         # Ingest data on static attributes of operators from EIA Form 923.
@@ -1369,7 +1370,7 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
         'generation_eia923': ingest_generator_eia923,
         'fuel_receipts_costs_eia923': ingest_fuel_receipts_costs_eia923,
         'stocks_eia923': ingest_stocks_eia923
-    #    'operator_info_eia923': ingest_operator_info_eia923
+        #    'operator_info_eia923': ingest_operator_info_eia923
     }
 
     for table in eia923_ingest_functions.keys():
