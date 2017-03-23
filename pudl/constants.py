@@ -484,9 +484,10 @@ eia923_working_years = range(2014, 2017)
 eia923_pudl_tables = ['plant_info_eia923',
                       'generation_fuel_eia923',
                       'boiler_fuel_eia923',
-                      'generation_eia923']
+                      'generation_eia923',
+                      'fuel_receipts_costs_eia923']
 # 'generation_eia923',
-# 'fuel_receipts_costs_eia923',
+# ,
 # 'stocks_eia923']
 
 # these are tabname inputs mapping to excel spreadsheet tabs
@@ -960,6 +961,7 @@ fuel_group_eia923 = ['Coal', 'Natural Gas', 'Petroleum', 'Petroleum Coke']
 
 # EIA 923: Type of Coal Mine as defined on Page 7 of EIA Form 923
 coalmine_type_eia923 = {
+    'p': 'Preparation Plant',
     'P': 'Preperation Plant',
     'S': 'Surface',
     'U': 'Underground',
@@ -981,7 +983,8 @@ coalmine_state_eia923 = {
     'RS': 'Russia',
     'UK': 'United Kingdom',
     'VZ': 'Venezula',
-    'OC': 'Other Country'
+    'OC': 'Other Country',
+    'IM': 'Unknown'
 }
 
 # EIA 923: One character designates the reporting
@@ -992,12 +995,15 @@ respondent_frequency_eia923 = {
 }
 
 # EIA 923: Mode for the longest / second longest distance.
-transpo_mode_eia923 = {
+transport_modes_eia923 = {
     'RR': 'Rail: Shipments of fuel moved to consumers by rail \
         (private or public/commercial). Included is coal hauled to or \
         away from a railroad siding by truck if the truck did not use public\
         roads.',
     'RV': 'River:  Shipments of fuel moved to consumers via river by barge.  \
+        Not included are shipments to Great Lakes coal loading docks, \
+        tidewater piers, or coastal ports.',
+    'rv':  'River:  Shipments of fuel moved to consumers via river by barge.  \
         Not included are shipments to Great Lakes coal loading docks, \
         tidewater piers, or coastal ports.',
     'GL': 'Great Lakes:  Shipments of coal moved to consumers via \
@@ -1036,6 +1042,8 @@ transpo_mode_eia923 = {
 
 # EIA 923: Contract type for natural gas capacity service:
 natural_gas_transport_eia923 = {
+    '2': 'Unknown',
+    '8': 'Unknown',
     'F': 'Firm',
     'I': 'Interruptible'
 }
