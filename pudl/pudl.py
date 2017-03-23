@@ -31,6 +31,7 @@ from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
 from pudl.eia923 import get_eia923_page, yearly_to_monthly_eia923
 from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
 from pudl.constants import ferc1_fuel_unit_strings, rto_iso
+from pudl.constants import ferc1_type_const_strings, ferc1_plant_kind_strings
 from pudl.constants import ferc1_default_tables, ferc1_pudl_tables
 from pudl.constants import ferc1_working_tables
 from pudl.constants import ferc_electric_plant_accounts
@@ -50,7 +51,7 @@ from pudl.constants import fuel_units_eia923, energy_source_eia923
 from pudl.constants import fuel_group_eia923
 from pudl.constants import coalmine_type_eia923, coalmine_state_eia923
 from pudl.constants import natural_gas_transport_eia923
-from pudl.constants import transpo_mode_eia923
+from pudl.constants import transport_modes_eia923
 from pudl.constants import pagemap_eia923
 from pudl.constants import eia923_pudl_tables
 
@@ -138,9 +139,9 @@ def ingest_static_tables(engine):
          for k, v in respondent_frequency_eia923.items()])
     pudl_session.add_all(
         [SectorEIA(id=k, name=v) for k, v in sector_eia.items()])
-    pudl_session.add_all(
-        [ContractTypeEIA923(abbr=k, contract_type=v)
-         for k, v in contract_type_eia923.items()])
+    # pudl_session.add_all(
+    #     [ContractTypeEIA923(abbr=k, contract_type=v)
+    #      for k, v in contract_type_eia923.items()])
     pudl_session.add_all(
         [FuelTypeEIA923(abbr=k, fuel_type=v)
          for k, v in fuel_type_eia923.items()])
@@ -169,7 +170,7 @@ def ingest_static_tables(engine):
          for k, v in us_states.items()])  # is this right way to add these?
     pudl_session.add_all(
         [TransportModeEIA923(abbr=k, mode=v)
-         for k, v in transpo_mode_eia923.items()])
+         for k, v in transport_modes_eia923.items()])
     pudl_session.add_all(
         [NaturalGasTransportEIA923(abbr=k, status=v)
          for k, v in natural_gas_transport_eia923.items()])
@@ -467,14 +468,16 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     ferc1_steam_df['plant_name'] = ferc1_steam_df['plant_name'].str.strip()
     ferc1_steam_df['plant_name'] = ferc1_steam_df['plant_name'].str.title()
 
-    # String cleaning is commented out until we get the string map dictionaries
-    # defined in constants.py
-    # ferc1_steam_df.type_const = cleanstrings(ferc1_steam_df.type_const,
-    #                                         ferc1_type_const_strings,
-    #                                         unmapped=np.nan)
-    # ferc1_steam_df.plant_kind = cleanstrings(ferc1_steam_df.plant_kind,
-    #                                         ferc1_plant_kind_strings,
-    #                                         unmapped=np.nan)
+    # Take the messy free-form type_const and plant_kind fields, and do our
+    # best to map them to some canonical categories...
+    # this is necessarily imperfect:
+
+    ferc1_steam_df.type_const = cleanstrings(ferc1_steam_df.type_const,
+                                             ferc1_type_const_strings,
+                                             unmapped=np.nan)
+    ferc1_steam_df.plant_kind = cleanstrings(ferc1_steam_df.plant_kind,
+                                             ferc1_plant_kind_strings,
+                                             unmapped=np.nan)
 
     # Force the construction and installation years to be numeric values, and
     # set them to NA if they can't be converted. (table has some junk values)
@@ -981,15 +984,27 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
                         'net_generation_mwh': Float},
                  chunksize=1000)
 
+"""
+ def ingest_operator_info_eia923(pudl_engine, eia923_dfs):
+        # Ingest data on static attributes of operators from EIA Form 923.
+        # operator_id
+        # operator_name
+        # regulatory_status: make this a Boolean:
+        #  - Regulated = True
+        #  - Unregulated = False
+        # From 'fuel_receipts_costs'
+        fuel_receipts_costs_cols = ['operator_id', 'regulated']
 
-def ingest_operator_info_eia923(pudl_engine, eia923_dfs):
-    """Ingest data on static attributes of operators from EIA Form 923."""
-    # operator_id
-    # operator_name
-    # regulatory_status: make this a Boolean:
-    #  - Regulated = True
-    #  - Unregulated = False
-    pass
+        operator_df = eia923_dfs['fuel_receipts_costs'][fuel_receipts_costs_cols]
+
+        # Since this is a plain Yes/No variable -- just make it a real Boolean.
+        operator_df.regulated.replace(
+            {'REG': True, 'UNR': False}, inplace=True)
+
+        operator_df.to_sql(name='operator_info_eia923',
+                       con=pudl_engine, index=False, if_exists='append',
+                       dtype={'operator_id': Integer,
+                              'regulated': Boolean}) """
 
 
 def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
@@ -1146,15 +1161,96 @@ def ingest_generator_eia923(pudl_engine, eia923_dfs):
                 chunksize=1000)
 
 
+# fuel_receipts_cost ingest function
 def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
     """Ingest data on fuel purchases and costs from EIA Form 923."""
     #
-    # frc_df = eia923_dfs['fuel_receipts_costs'].copy()
+
+    # Populate 'coalmine_info_eia923' table
+    coalmine_cols = ['coalmine_name',
+                     'coalmine_type',
+                     'coalmine_state',
+                     'coalmine_county',
+                     'coalmine_msha_id']
+
+    coalmine_df = eia923_dfs['fuel_receipts_costs'][coalmine_cols]
+    # TODO: Not sure which fields of duplicates need to be dropped here
+    # coalmine_df = coalmine_df.drop_duplicates(
+    #     subset=['', ''])
     #
-    # # Drop fields we're not inserting into the generation_fuel_eia923 table.
-    # cols_to_drop = ['plant_name',
-    #                 'plant_state']
-    pass
+    # coalmine_df.rename(columns={
+    #     # column HEADing in EIA 923        PUDL DB field name
+    #     'reported_prime_mover': 'prime_mover'},
+    #     inplace=True)
+
+    # drop null values from foreign key fields
+    #   coalmine_df.dropna(subset=['coalmine_name'], inplace=True)
+
+    coalmine_df.to_sql(name='coalmine_info_eia923',
+                       con=pudl_engine, index=False, if_exists='append',
+                       dtype={'coalmine_name': String,
+                              'coalmine_type': String,
+                              'coalmine_state': String,
+                              'coalmine_county': String,
+                              'coalmine_msha_id': String},
+                       chunksize=1000)
+
+    frc_df = eia923_dfs['fuel_receipts_costs'].copy()
+
+    # Drop fields we're not inserting into the fuel_receipts_costs_eia923
+    # table.
+    # TODO: For now, keeping coalmine_msha_id in here, but need to replace with
+    # surrogate key
+    cols_to_drop = ['plant_name',
+                    'plant_state',
+                    'operator_name',
+                    'operator_id',
+                    'fuel_group',
+                    'coalmine_name',
+                    'coalmine_type',
+                    'coalmine_state',
+                    'coalmine_county',
+                    'regulated',
+                    'reporting_frequency']
+
+    frc_df.drop(cols_to_drop, axis=1, inplace=True)
+    frc_df = frc_df[frc_df.plant_id != 8899]
+
+# Convert the EIA923 DataFrame from yearly to monthly records.
+# frc_df = yearly_to_monthly_eia923(frc_df, month_dict_2015_eia923)
+# Replace the EIA923 NA value ('.') with a real NA value.
+    frc_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
+
+    # Rename them to be consistent with the PUDL DB fields, if need be.
+
+    frc_df.rename(columns={
+        # EIA 923              PUDL DB field name
+        'purchase_type': 'contract_type',
+        'reported_prime_mover': 'prime_mover',
+        'quantity': 'qty',
+        'natural_gas_transportation_service': 'natural_gas_transport'
+    },
+        inplace=True)
+
+    frc_df.to_sql(name='fuel_receipts_costs_eia923',
+                  con=pudl_engine, index=False, if_exists='append',
+                  dtype={'plant_id': Integer,
+                         'contract_type': String,
+                         'contract_expiration_date': Integer,
+                         'energy_source': String,
+                         'coalmine_msha_id': Integer,
+                         'supplier': String,
+                         'qty': Integer,
+                         'average_heat_content': Integer,
+                         'average_sulfur_content': Integer,
+                         'average_ash_content': Integer,
+                         'average_mercury_content': Integer,
+                         'fuel_cost': Float,
+                         'primary_transportation_mode': String,
+                         'secondary_transportation_mode': String,
+                         'natural_gas_transport': String
+                         },
+                  chunksize=1000)
 
 
 def ingest_stocks_eia923(pudl_engine, eia923_dfs):
@@ -1273,6 +1369,7 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
         'generation_eia923': ingest_generator_eia923,
         'fuel_receipts_costs_eia923': ingest_fuel_receipts_costs_eia923,
         'stocks_eia923': ingest_stocks_eia923
+    #    'operator_info_eia923': ingest_operator_info_eia923
     }
 
     for table in eia923_ingest_functions.keys():

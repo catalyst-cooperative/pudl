@@ -28,7 +28,7 @@ class CoalMineInfoEIA923(models.PUDLBase):
     coalmine_type = Column(String, ForeignKey('coalmine_type_eia923.abbr'))
     coalmine_state = Column(String, ForeignKey('coalmine_state_eia923.abbr'))
     # TODO check feasibility t add FK/constants or map to FIPS code used by EIA
-    coalmine_county = Column(Integer)
+    coalmine_county = Column(String)
     coalmine_msha_id = Column(Integer)
     # TODO check feasibility to add FK/constants or map to MSHA ID# used by EIA
 
@@ -200,7 +200,7 @@ class OperatorInfoEIA923(models.PUDLBase):
     operator_id = Column(Integer,
                          ForeignKey('utilities_eia923.operator_id'),
                          primary_key=True)
-    regulated = Column(Boolean)
+    regulated = Column(Boolean, primary_key=True)
 
 
 class PlantInfoEIA923(models.PUDLBase):
@@ -340,13 +340,9 @@ class FuelReceiptsCostsEIA923(models.PUDLBase):
                       nullable=False)
     year = Column(Integer, ForeignKey('years.year'), nullable=False)
     month = Column(Integer, ForeignKey('months.month'), nullable=False)
-    contract_type = Column(
-        String,
-        ForeignKey('contract_type_eia923.abbr'), nullable=False)
-    # TODO use contract_type field? Or abbr?
-    contract_expiration_date = Column(Integer, nullable=False)
-    energy_source = Column(String, ForeignKey('energy_source_eia923.abbr'),
-                           nullable=False)
+    contract_type = Column(String)
+    contract_expiration_date = Column(Integer)
+    energy_source = Column(String, ForeignKey('energy_source_eia923.abbr'))
     coalmine_msha_id = Column(Integer)  # TODO: add FK for coalmine_msha_id
     supplier = Column(String, nullable=False)  # TODO FK new table?
     qty = Column(Integer, nullable=False)
@@ -357,11 +353,10 @@ class FuelReceiptsCostsEIA923(models.PUDLBase):
     fuel_cost = Column(Integer)  # null values exist in data
     primary_transportation_mode = Column(
         String,
-        ForeignKey('transport_modes_eia923.abbr'), nullable=False)
+        ForeignKey('transport_modes_eia923.abbr'))
     secondary_transportation_mode = Column(
         String,
-        ForeignKey('transport_modes_eia923.abbr'), nullable=False)
+        ForeignKey('transport_modes_eia923.abbr'))
     natural_gas_transport = Column(
         String,
-        ForeignKey('natural_gas_transport_eia923.abbr'),
-        nullable=False)
+        ForeignKey('natural_gas_transport_eia923.abbr'))
