@@ -510,7 +510,7 @@ tab_map_eia923 = DataFrame.from_records([
     (2014, 0, 1, 2, 3, 4),
     (2015, 0, 1, 2, 3, 4),
     (2016, 0, 1, 2, 3, 4)],
-    columns=['year_index', 'gen_fuel', 'stocks', 'boiler_fuel', 'generator',
+    columns=['year_index', 'generation_fuel', 'stocks', 'boiler_fuel', 'generator',
              'fuel_receipts_costs'],
     index='year_index')
 
@@ -528,7 +528,7 @@ skiprows_eia923 = DataFrame.from_records([
              'fuel_receipts_costs'],
     index='year_index')
 
-gen_fuel_map_eia923 = DataFrame.from_records([
+generation_fuel_map_eia923 = DataFrame.from_records([
     (2009, 'plant_id', 'combined_heat_power_plant', 'nuclear_unit_i_d',
      'plant_name', 'operator_name', 'operator_id', 'state', 'census_region',
      'nerc_region', 'reserved', 'naics_code', 'eia_sector_number',
@@ -1100,6 +1100,26 @@ generator_map_eia923 = DataFrame.from_records([
              'net_generation_march', 'net_generation_april', 'net_generation_may', 'net_generation_june', 'net_generation_july', 'net_generation_august', 'net_generation_september', 'net_generation_october', 'net_generation_november', 'net_generation_december', 'net_generation_year_to_date', 'year'],
     index='year_index'
 )
+
+fuel_receipts_costs_map_eia923 = DataFrame.from_records([
+    (2009, 'year', 'month', 'plant_id', 'plant_name', 'state', 'contract_type', 'contract_exp_date', 'energy_source', 'fuel_group', 'coalmine_type', 'coalmine_state', 'coalmine_county', 'coalmine_msha_id', 'coalmine_name', 'supplier', 'quantity',
+     'average_heat_content', 'average_sulfur_content', 'average_ash_content', 'nan', 'fuel_cost', 'regulated', 'operator_name', 'operator_id', 'respondent_frequency', 'primary_transportation_mode', 'secondary_transportation_mode', 'natural_gas_transportation_service'),
+    (2010, 'year', 'month', 'plant_id', 'plant_name', 'state', 'contract_type', 'contract_exp_date', 'energy_source', 'fuel_group', 'coalmine_type', 'coalmine_state', 'coalmine_county', 'coalmine_msha_id', 'coalmine_name', 'supplier', 'quantity',
+     'average_heat_content', 'average_sulfur_content', 'average_ash_content', 'nan', 'fuel_cost', 'regulated', 'operator_name', 'operator_id', 'respondent_frequency', 'primary_transportation_mode', 'secondary_transportation_mode', 'natural_gas_transportation_service'),
+    (2011, 'year', 'month', 'plant_id', 'plant_name', 'state', 'contract_type', 'contract_exp_date', 'energy_source', 'fuel_group', 'coalmine_type', 'coalmine_state', 'coalmine_county', 'coalmine_msha_id', 'coalmine_name', 'supplier', 'quantity',
+     'average_heat_content', 'average_sulfur_content', 'average_ash_content', 'nan', 'fuel_cost', 'regulated', 'operator_name', 'operator_id', 'respondent_frequency', 'primary_transportation_mode', 'secondary_transportation_mode', 'natural_gas_transportation_service'),
+    (2012, 'year', 'month', 'plant_id', 'plant_name', 'plant_state', 'purchase_type', 'contract_expiration_date', 'energy_source', 'fuel_group', 'coalmine_type', 'coalmine_state', 'coalmine_county', 'coalmine_msha_id', 'coalmine_name', 'supplier', 'quantity', 'average_heat_content',
+     'average_sulfur_content', 'average_ash_content', 'average_mercury_content', 'fuel_cost', 'regulated', 'operator_name', 'operator_id', 'reporting_frequency', 'primary_transportation_mode', 'secondary_transportation_mode', 'natural_gas_transportation_service'),
+    (2013, 'year', 'month', 'plant_id', 'plant_name', 'state', 'contract_type', 'contract_exp_date', 'energy_source', 'fuel_group', 'coalmine_type', 'coalmine_state', 'coalmine_county', 'coalmine_msha_id', 'coalmine_name', 'supplier', 'quantity',
+     'average_heat_content', 'average_sulfur_content', 'average_ash_content', 'nan', 'fuel_cost', 'regulated', 'operator_name', 'operator_id', 'respondent_frequency', 'primary_transportation_mode', 'secondary_transportation_mode', 'natural_gas_transportation_service'),
+    (2014, 'year', 'month', 'plant_id', 'plant_name', 'plant_state', 'purchase_type', 'contract_expiration_date', 'energy_source', 'fuel_group', 'coalmine_type', 'coalmine_state', 'coalmine_county', 'coalmine_msha_id', 'coalmine_name', 'supplier', 'quantity', 'average_heat_content',
+     'average_sulfur_content', 'average_ash_content', 'average_mercury_content', 'fuel_cost', 'regulated', 'operator_name', 'operator_id', 'reporting_frequency', 'primary_transportation_mode', 'secondary_transportation_mode', 'natural_gas_transportation_service'),
+    (2015, 'year', 'month', 'plant_id', 'plant_name', 'plant_state', 'purchase_type', 'contract_expiration_date', 'energy_source', 'fuel_group', 'coalmine_type', 'coalmine_state', 'coalmine_county', 'coalmine_msha_id', 'coalmine_name', 'supplier', 'quantity', 'average_heat_content',
+     'average_sulfur_content', 'average_ash_content', 'average_mercury_content', 'fuel_cost', 'regulated', 'operator_name', 'operator_id', 'reporting_frequency', 'primary_transportation_mode', 'secondary_transportation_mode', 'natural_gas_transportation_service'),
+    (2016, 'year', 'month', 'plant_id', 'plant_name', 'plant_state', 'purchase_type', 'contract_expiration_date', 'energy_source', 'fuel_group', 'coalmine_type', 'coalmine_state', 'coalmine_county', 'coalmine_msha_id', 'coalmine_name', 'supplier', 'quantity', 'average_heat_content', 'average_sulfur_content', 'average_ash_content', 'average_mercury_content', 'fuel_cost', 'regulated', 'operator_name', 'operator_id', 'reporting_frequency', 'primary_transportation_mode', 'secondary_transportation_mode', 'natural_gas_transportation_service')],
+    columns=['year_index', 'year', 'month', 'plant_id', 'plant_name', 'plant_state', 'purchase_type', 'contract_expiration_date', 'energy_source', 'fuel_group', 'coalmine_type', 'coalmine_state', 'coalmine_county', 'coalmine_msha_id', 'coalmine_name', 'supplier', 'quantity',
+             'average_heat_content', 'average_sulfur_content', 'average_ash_content', 'average_mercury_content', 'fuel_cost', 'regulated', 'operator_name', 'operator_id', 'reporting_frequency', 'primary_transportation_mode', 'secondary_transportation_mode', 'natural_gas_transportation_service'],
+    index='year_index')
 
 # patterns for matching columns to months:
 month_dict_2015_eia923 = {1: '_january$',
