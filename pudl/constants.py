@@ -509,9 +509,9 @@ tab_map_eia923 = DataFrame.from_records([
     (2014, 0, 1, 2, 3, 4),
     (2015, 0, 1, 2, 3, 4),
     (2016, 0, 1, 2, 3, 4)],
-    columns=['year', 'gen_fuel', 'stocks', 'boiler_fuel', 'generator',
+    columns=['year_index', 'gen_fuel', 'stocks', 'boiler_fuel', 'generator',
              'fuel_receipts_costs'],
-    index='year')
+    index='year_index')
 
 skiprows_eia923 = DataFrame.from_records([
     (2008, 7, 7, 7, 7, 7),
@@ -523,9 +523,9 @@ skiprows_eia923 = DataFrame.from_records([
     (2014, 5, 5, 5, 5, 4),
     (2015, 5, 5, 5, 5, 4),
     (2016, 5, 5, 5, 5, 4)],
-    columns=['year', 'gen_fuel', 'stocks', 'boiler_fuel', 'generator',
+    columns=['year_index', 'gen_fuel', 'stocks', 'boiler_fuel', 'generator',
              'fuel_receipts_costs'],
-    index='year')
+    index='year_index')
 
 gen_fuel_map_eia923 = DataFrame.from_records([
     (2009, 'plant_id', 'combined_heat_power_plant', 'nuclear_unit_i_d',
@@ -766,8 +766,8 @@ gen_fuel_map_eia923 = DataFrame.from_records([
      'netgen_december', 'total_fuel_consumption_quantity',
      'electric_fuel_consumption_quantity', 'total_fuel_consumption_mmbtu',
      'elec_fuel_consumption_mmbtu', 'net_generation_megawatthours', 'year')
-]
-    columns=['year', 'plant_id', 'combined_heat_and_power_plant',
+],
+    columns=['year_index', 'plant_id', 'combined_heat_and_power_plant',
              'nuclear_unit_id', 'plant_name', 'operator_name', 'operator_id',
              'plant_state', 'census_region', 'nerc_region', 'reserved',
              'naics_code', 'eia_sector_number', 'sector_name',
@@ -804,7 +804,7 @@ gen_fuel_map_eia923 = DataFrame.from_records([
              'electric_fuel_consumption_quantity',
              'total_fuel_consumption_mmbtu', 'elec_fuel_consumption_mmbtu',
              'net_generation_megawatthours', 'year'],
-    index='year'
+    index='year_index'
 )
 
 stocks_map_eia923 = DataFrame.from_records([
@@ -872,8 +872,8 @@ stocks_map_eia923 = DataFrame.from_records([
      'petcoke_february', 'petcoke_march', 'petcoke_april', 'petcoke_may',
      'petcoke_june', 'petcoke_july', 'petcoke_august', 'petcoke_september',
      'petcoke_october', 'petcoke_november', 'petcoke_december')
-]
-    columns=['year', 'census_division_and_state', 'coal_january',
+],
+    columns=['year_index', 'census_division_and_state', 'coal_january',
              'coal_february', 'coal_march', 'coal_april', 'coal_may',
              'coal_june', 'coal_july', 'coal_august', 'coal_september',
              'coal_october', 'coal_november', 'coal_december', 'oil_january',
@@ -884,8 +884,10 @@ stocks_map_eia923 = DataFrame.from_records([
              'petcoke_may', 'petcoke_june', 'petcoke_july', 'petcoke_august',
              'petcoke_september', 'petcoke_october', 'petcoke_november',
              'petcoke_december'],
-    index='year'
+    index='year_index'
 )
+
+boiler_fuel_map_eia923 = DataFrame.from_records()
 
 # patterns for matching columns to months:
 month_dict_2015_eia923 = {1: '_january$',
