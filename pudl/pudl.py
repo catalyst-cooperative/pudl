@@ -786,6 +786,11 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
         ferc1_small_df['row_number']
     ferc1_small_df.drop(['row_number', 'spplmnt_num'], axis=1, inplace=True)
 
+    # Unforunately the plant types were not able to be parsed automatically
+    # in this table. It's been done manually for 2004-2015, and the results
+    # get merged in here:
+    #ferc1_small_types = pd.read_excel()
+
     ferc1_small_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
         'yr_constructed': 'year_constructed',
@@ -983,6 +988,7 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
                         'fuel_consumed_for_electricity_mmbtu': Float,
                         'net_generation_mwh': Float},
                  chunksize=1000)
+
 
 """
  def ingest_operator_info_eia923(pudl_engine, eia923_dfs):
@@ -1369,7 +1375,7 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
         'generation_eia923': ingest_generator_eia923,
         'fuel_receipts_costs_eia923': ingest_fuel_receipts_costs_eia923,
         'stocks_eia923': ingest_stocks_eia923
-    #    'operator_info_eia923': ingest_operator_info_eia923
+        #    'operator_info_eia923': ingest_operator_info_eia923
     }
 
     for table in eia923_ingest_functions.keys():
