@@ -31,7 +31,7 @@ from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
 from pudl.eia923 import get_eia923_page, yearly_to_monthly_eia923
 from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
 from pudl.constants import ferc1_fuel_unit_strings, rto_iso
-from pudl.constants import ferc1_type_const_strings, ferc1_plant_kind_strings
+from pudl.constants import ferc1_plant_kind_strings, ferc1_type_const_strings
 from pudl.constants import ferc1_default_tables, ferc1_pudl_tables
 from pudl.constants import ferc1_working_tables
 from pudl.constants import ferc_electric_plant_accounts
