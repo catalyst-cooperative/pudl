@@ -67,34 +67,6 @@ def get_strings(filename, min=4):
             yield result
 
 
-def parse_embedded_list(df, pattern_dict, empty_heads):
-    """
-    Categorize items in a series of FERC Form 1 lines based on a list heading.
-
-    FERC Form 1 has lots of embedded lists of items (especially plants) of a
-    particular type, where the type information is stored in a header line
-    that doesn't contain any data. This function takes attaches that
-    information to the individual records.
-
-    Args:
-        df (pandas.DataFrame): The DataFrame containing the records to parse.
-        pattern_dict (dict): A dictionary mapping categories (keys) to be
-            inferred from embedded list headings to the regex (value) used
-            to identify the category.
-        empty_heads (list of strings): fields within the DataFrame which should
-            have null values if a record is a list header and not data.
-        outfield (string): name of the DataFrame field into which the inferred
-            category should be inserted.
-    """
-    # Convert supplement number & row number to record number
-    # Sort the DF by report_year, respondent_id, record_number
-    # For each report_year
-    #     For each respondent_id within that year
-    #         Iterate through the records
-    #
-    pass
-
-
 def cleanstrings(field, stringmap, unmapped=None):
     """
     Clean up a field of string data in one of the Form 1 data frames.
