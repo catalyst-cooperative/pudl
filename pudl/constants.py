@@ -501,6 +501,63 @@ pagemap_eia923 = DataFrame.from_records(
     columns=['page', 'sheetname', 'skiprows'],
     index='page')
 
+tab_map_eia923 = DataFrame.from_records([
+    (2009, 0, 1, 2, 3, 4),
+    (2010, 0, 1, 2, 3, 4),
+    (2011, 0, 1, 2, 3, 4),
+    (2012, 0, 1, 2, 3, 4),
+    (2013, 0, 1, 2, 3, 4),
+    (2014, 0, 1, 2, 3, 4),
+    (2015, 0, 1, 2, 3, 4),
+    (2016, 0, 1, 2, 3, 4)],
+    columns=['year', 'gen_fuel', 'stocks', 'boiler_fuel', 'generator',
+             'fuel_receipts_costs'],
+    index='year')
+
+skiprows_eia923 = DataFrame.from_records([
+    (2008, 7, 7, 7, 7, 7),
+    (2009, 7, 7, 7, 7, 6),
+    (2010, 7, 7, 7, 7, 7),
+    (2011, 5, 5, 5, 5, 4),
+    (2012, 5, 5, 5, 5, 4),
+    (2013, 5, 5, 5, 5, 4),
+    (2014, 5, 5, 5, 5, 4),
+    (2015, 5, 5, 5, 5, 4),
+    (2016, 5, 5, 5, 5, 4)],
+    columns=['year', 'gen_fuel', 'stocks', 'boiler_fuel', 'generator',
+             'fuel_receipts_costs'],
+    index='year')
+
+# gen_fuel_map = DataFrame.from_records([
+#    (2009, 'plant_id', 'combined_heat_power_plant', 'nuclear_unit_i_d',
+#     'plant_name', 'operator_name', 'operator_id', 'state', 'census_region',
+#     'nerc_region', 'reserved', 'naics_code', 'eia_sector_number',
+#     'sector_name', 'reported_prime_mover', 'reported_fuel_type_code',
+#     'aer_fuel_type_code', 'reserved', 'reserved', 'physical_unit_label',
+#     'quantity_jan', 'quantity_feb', 'quantity_mar', 'quantity_apr',
+#     'quantity_may', 'quantity_jun', 'quantity_jul', 'quantity_aug',
+#     quantity_sep	quantity_oct	quantity_nov	quantity_dec
+#     elec_quantity_jan	elec_quantity_feb	elec_quantity_mar
+#    elec_quantity_apr	elec_quantity_may	elec_quantity_jun
+#    elec_quantity_jul	elec_quantity_aug	elec_quantity_sep
+#     elec_quantity_oct	elec_quantity_nov	elec_quantity_dec
+#     mmbtu_per_unit_jan	mmbtu_per_unit_feb	mmbtu_per_unit_mar
+#     mmbtu_per_unit_apr	mmbtu_per_unit_may	mmbtu_per_unit_jun
+#     mmbtu_per_unit_jul	mmbtu_per_unit_aug	mmbtu_per_unit_sep
+#     mmbtu_per_unit_oct	mmbtu_per_unit_nov	mmbtu_per_unit_dec	tot_mmbtu_jan
+#     tot_mmbtu_feb	tot_mmbtu_mar	tot_mmbtu_apr	tot_mmbtu_may
+#     tot_mmbtu_jun	tot_mmbtu_jul	tot_mmbtu_aug	tot_mmbtu_sep
+#     tot_mmbtu_oct	tot_mmbtu_nov	tot_mmbtu_dec	elec_mmbtus_jan
+#     elec_mmbtus_feb	elec_mmbtus_mar	elec_mmbtus_apr	elec_mmbtus_may
+#     elec_mmbtus_jun	elec_mmbtus_jul	elec_mmbtus_aug	elec_mmbtus_sep
+#     elec_mmbtus_oct	elec_mmbtus_nov	elec_mmbtus_dec	netgen_jan	netgen_feb
+#     netgen_mar	netgen_apr	netgen_may	netgen_jun	netgen_jul	netgen_aug
+#     netgen_sep	netgen_oct	netgen_nov	netgen_dec
+#     total_fuel_consumption_quantity	electric_fuel_consumption_quantity
+#     total_fuel_consumption_mmbtus	elec_fuel_consumption_mmbtus
+#     net_generation_megawatthours	year)
+#     ])
+
 # patterns for matching columns to months:
 month_dict_2015_eia923 = {1: '_january$',
                           2: '_february$',
