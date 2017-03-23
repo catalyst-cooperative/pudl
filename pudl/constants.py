@@ -1076,6 +1076,31 @@ boiler_fuel_map_eia923 = DataFrame.from_records([
     index='year_index'
 )
 
+
+generator_map_eia923 = DataFrame.from_records([
+    (2008, 'plant_id', 'combined_heat_power_plant', 'plant_name',
+     'operator_name', 'operator_id', 'state', 'census_region', 'nerc_region', 'naics_code', 'eia_sector_number', 'sector_name', 'generator_id', 'prime_mover_type', 'net_generation_january', 'net_generation_february',
+     'net_generation_march', 'net_generation_april', 'net_generation_may', 'net_generation_june', 'net_generation_july', 'net_generation_august', 'net_generation_september', 'net_generation_october', 'net_generation_november', 'net_generation_december', 'net_generation_year_to_date', 'year'),
+    (2009, 'plant_id', 'combined_heat_power_plant', 'plant_name', 'operator_name', 'operator_id', 'state', 'census_region', 'nerc_region', 'naics_code', 'eia_sector_number', 'sector_name', 'generator_id', 'prime_mover_type', 'net_generation_january', 'net_generation_february',
+     'net_generation_march', 'net_generation_april', 'net_generation_may', 'net_generation_june', 'net_generation_july', 'net_generation_august', 'net_generation_september', 'net_generation_october', 'net_generation_november', 'net_generation_december', 'net_generation_year_to_date', 'year'),
+    (2010, 'plant_id', 'combined_heat_power_plant', 'plant_name', 'operator_name', 'operator_id', 'state', 'census_region', 'nerc_region', 'naics_code', 'eia_sector_number', 'sector_name', 'generator_id', 'prime_mover_type', 'net_generation_january', 'net_generation_february',
+     'net_generation_march', 'net_generation_april', 'net_generation_may', 'net_generation_june', 'net_generation_july', 'net_generation_august', 'net_generation_september', 'net_generation_october', 'net_generation_november', 'net_generation_december', 'net_generation_year_to_date', 'year'),
+    (2011, 'plant_id', 'combined_heat_power_plant', 'plant_name', 'operator_name', 'operator_id', 'state', 'census_region', 'nerc_region', 'naics_code', 'eia_sector_number', 'sector_name', 'generator_id', 'prime_mover_type', 'net_generation_january', 'net_generation_february',
+     'net_generation_march', 'net_generation_april', 'net_generation_may', 'net_generation_june', 'net_generation_july', 'net_generation_august', 'net_generation_september', 'net_generation_october', 'net_generation_november', 'net_generation_december', 'net_generation_year_to_date', 'year'),
+    (2012, 'plant_id', 'combined_heat_and_power_plant', 'plant_name', 'operator_name', 'operator_id', 'plant_state', 'census_region', 'nerc_region', 'naics_code', 'sector_number', 'sector_name', 'generator_id', 'reported_prime_mover', 'net_generation_january', 'net_generation_february',
+     'net_generation_march', 'net_generation_april', 'net_generation_may', 'net_generation_june', 'net_generation_july', 'net_generation_august', 'net_generation_september', 'net_generation_october', 'net_generation_november', 'net_generation_december', 'net_generation_year_to_date', 'year'),
+    (2013, 'plant_id', 'combined_heat_power_plant', 'plant_name', 'operator_name', 'operator_id', 'state', 'census_region', 'nerc_region', 'naics_code', 'eia_sector_number', 'sector_name', 'generator_id', 'prime_mover_type', 'net_generation_january', 'net_generation_february',
+     'net_generation_march', 'net_generation_april', 'net_generation_may', 'net_generation_june', 'net_generation_july', 'net_generation_august', 'net_generation_september', 'net_generation_october', 'net_generation_november', 'net_generation_december', 'net_generation_year_to_date', 'year'),
+    (2014, 'plant_id', 'combined_heat_and_power_plant', 'plant_name', 'operator_name', 'operator_id', 'plant_state', 'census_region', 'nerc_region', 'naics_code', 'sector_number', 'sector_name', 'generator_id', 'reported_prime_mover', 'net_generation_january', 'net_generation_february',
+     'net_generation_march', 'net_generation_april', 'net_generation_may', 'net_generation_june', 'net_generation_july', 'net_generation_august', 'net_generation_september', 'net_generation_october', 'net_generation_november', 'net_generation_december', 'net_generation_year_to_date', 'year'),
+    (2015, 'plant_id', 'combined_heat_and_power_plant', 'plant_name', 'operator_name', 'operator_id', 'plant_state', 'census_region', 'nerc_region', 'naics_code', 'sector_number', 'sector_name', 'generator_id', 'reported_prime_mover', 'net_generation_january', 'net_generation_february',
+     'net_generation_march', 'net_generation_april', 'net_generation_may', 'net_generation_june', 'net_generation_july', 'net_generation_august', 'net_generation_september', 'net_generation_october', 'net_generation_november', 'net_generation_december', 'net_generation_year_to_date', 'year'),
+    (2016, 'plant_id', 'combined_heat_and_power_plant', 'plant_name', 'operator_name', 'operator_id', 'plant_state', 'census_region', 'nerc_region', 'naics_code', 'sector_number', 'sector_name', 'generator_id', 'reported_prime_mover', 'net_generation_january', 'net_generation_february', 'net_generation_march', 'net_generation_april', 'net_generation_may', 'net_generation_june', 'net_generation_july', 'net_generation_august', 'net_generation_september', 'net_generation_october', 'net_generation_november', 'net_generation_december', 'net_generation_year_to_date', 'year')],
+    columns=['year_index', 'plant_id', 'combined_heat_and_power_plant', 'plant_name', 'operator_name', 'operator_id', 'plant_state', 'census_region', 'nerc_region', 'naics_code', 'sector_number', 'sector_name', 'generator_id', 'reported_prime_mover', 'net_generation_january', 'net_generation_february',
+             'net_generation_march', 'net_generation_april', 'net_generation_may', 'net_generation_june', 'net_generation_july', 'net_generation_august', 'net_generation_september', 'net_generation_october', 'net_generation_november', 'net_generation_december', 'net_generation_year_to_date', 'year'],
+    index='year_index'
+)
+
 # patterns for matching columns to months:
 month_dict_2015_eia923 = {1: '_january$',
                           2: '_february$',
