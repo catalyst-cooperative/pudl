@@ -456,6 +456,7 @@ ferc1_default_tables = ['f1_respondent_id',
 # This is the set of tables which have been successfully integrated into PUDL:
 ferc1_pudl_tables = ['f1_fuel',
                      'f1_steam',
+                     'f1_gnrt_plant',
                      'f1_hydro',
                      'f1_plant_in_srvce',
                      'f1_pumped_storage',
@@ -486,8 +487,6 @@ eia923_pudl_tables = ['plant_info_eia923',
                       'boiler_fuel_eia923',
                       'generation_eia923',
                       'fuel_receipts_costs_eia923']
-# 'generation_eia923',
-# ,
 # 'stocks_eia923']
 
 # these are tabname inputs mapping to excel spreadsheet tabs
@@ -510,8 +509,8 @@ tab_map_eia923 = DataFrame.from_records([
     (2014, 0, 1, 2, 3, 4),
     (2015, 0, 1, 2, 3, 4),
     (2016, 0, 1, 2, 3, 4)],
-    columns=['year_index', 'generation_fuel', 'stocks', 'boiler_fuel', 'generator',
-             'fuel_receipts_costs'],
+    columns=['year_index', 'generation_fuel', 'stocks', 'boiler_fuel',
+             'generator', 'fuel_receipts_costs'],
     index='year_index')
 
 skiprows_eia923 = DataFrame.from_records([
@@ -524,8 +523,8 @@ skiprows_eia923 = DataFrame.from_records([
     (2014, 5, 5, 5, 5, 4),
     (2015, 5, 5, 5, 5, 4),
     (2016, 5, 5, 5, 5, 4)],
-    columns=['year_index', 'gen_fuel', 'stocks', 'boiler_fuel', 'generator',
-             'fuel_receipts_costs'],
+    columns=['year_index', 'generation_fuel', 'stocks', 'boiler_fuel',
+             'generator', 'fuel_receipts_costs'],
     index='year_index')
 
 generation_fuel_map_eia923 = DataFrame.from_records([
