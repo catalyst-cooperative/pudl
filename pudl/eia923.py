@@ -88,7 +88,24 @@ def get_eia923_column_map(page, year):
             trailing whitespace, converted to lower case, and have internal
             non-alphanumeric characters replaced with underscores.
     """
-    pass
+    sheetname = constants.tab_map_eia923.get_value(year, page)
+    skiprows = constants.skiprows_eia923.get_value(year, page)
+
+    page_to_df = {'generation_fuel': constants.generation_fuel_map_eia923,
+                  'stocks': constants.stocks_map_eia923,
+                  'boiler_fuel': constants.boiler_fuel_map_eia923,
+                  'generator': constants.generator_map_eia923,
+                  'fuel_receipts_costs':
+                  constants.fuel_receipts_costs_map_eia923,
+                  'plant_frame': constants.plant_frame_map_eia923}
+
+    d = page_to_df[page].loc[year].to_dict()
+
+    column_map = {}
+    for k, v in d.items():
+        column_map[v] = k
+
+    return((sheetname, skiprows, column_map))
 
 
 def get_eia923_page(page, years=[2014, 2015, 2016], verbose=True):
@@ -104,7 +121,7 @@ def get_eia923_page(page, years=[2014, 2015, 2016], verbose=True):
       - 'plant_frame'
     """
     for year in years:
-        assert(year > 2013), "EIA923 parsing only works for 2014 and later."
+        assert(year > 2010), "EIA923 parsing only works for 2011 and later."
 
     assert(page in constants.pagemap_eia923.index),\
         "Unrecognized EIA 923 page: {}".format(page)
@@ -115,26 +132,30 @@ def get_eia923_page(page, years=[2014, 2015, 2016], verbose=True):
     for (yr, fn) in zip(years, filenames):
         if verbose:
             print('Reading EIA 923 {} data for {}...'.format(page, yr))
-        newdata = pd.read_excel(
-            fn,
-            sheetname=constants.pagemap_eia923.loc[page]['sheetname'],
-            skiprows=constants.pagemap_eia923.loc[page]['skiprows'])
+
+        sheetname, skiprows, column_map = get_eia923_column_map(page, yr)
+        newdata = pd.read_excel(fn, sheetname=sheetname, skiprows=skiprows)
+
+        # Clean column names: lowercase, underscores instead of white space,
+        # no non-alphanumeric characters
+        newdata.columns = newdata.columns.str.replace('[^0-9a-zA-Z]+', ' ')
+        newdata.columns = newdata.columns.str.strip().str.lower()
+        newdata.columns = newdata.columns.str.replace(' ', '_')
+
+        # Drop columns that start with "reserved" because they are empty
+        to_drop = [c for c in newdata.columns if c[:8] == 'reserved']
+        newdata.drop(to_drop, axis=1, inplace=True)
 
         # stocks tab is missing a YEAR column for some reason. Add it!
         if(page == 'stocks'):
-            newdata['YEAR'] = yr
+            newdata['year'] = yr
+
+        newdata = newdata.rename(columns=column_map)
+        if(page == 'stocks'):
+            newdata = newdata.rename(columns={
+                'unnamed_0': 'census_division_and_state'})
 
         df = df.append(newdata)
-
-    # Clean column names: lowercase, underscores instead of white space,
-    # no non-alphanumeric characters
-    df.columns = df.columns.str.replace('[^0-9a-zA-Z]+', ' ')
-    df.columns = df.columns.str.strip().str.lower()
-    df.columns = df.columns.str.replace(' ', '_')
-
-    # Drop columns that start with "reserved" because they are empty
-    to_drop = [c for c in df.columns if c[:8] == 'reserved']
-    df.drop(to_drop, axis=1, inplace=True)
 
     # We could also do additional cleanup here -- for example:
     #  - Substituting ISO-3166 3 letter country codes for the ad-hoc EIA
