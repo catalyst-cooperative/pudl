@@ -739,32 +739,38 @@ def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
 
 def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
-    """
-    Ingest f1_gnrt_plant table of FERC Form 1 DB into PUDL DB.
+    """Ingest f1_gnrt_plant table of FERC Form 1 DB into PUDL DB."""
+    import os.path
+    from sqlalchemy import or_
+    f1_small = ferc1_meta.tables['f1_gnrt_plant']
+    f1_small_select = select([f1_small, ]).\
+        where(f1_small.c.report_year.in_(ferc1_years)).\
+        where(f1_small.c.plant_name != '').\
+        where(or_((f1_small.c.capacity_rating != 0),
+                  (f1_small.c.net_demand != 0),
+                  (f1_small.c.net_generation != 0),
+                  (f1_small.c.plant_cost != 0),
+                  (f1_small.c.plant_cost_mw != 0),
+                  (f1_small.c.operation != 0),
+                  (f1_small.c.expns_fuel != 0),
+                  (f1_small.c.expns_maint != 0),
+                  (f1_small.c.fuel_cost != 0)))
 
-    Zane Selvans is doing this one. NOT DONE YET.
-    """
-    f1_small_table = ferc1_meta.tables['f1_gnrt_plant']
-    f1_small_select = select([f1_small_table, ]).\
-        where(f1_gnrt_plant.c.report_year.in_(ferc1_years))
     ferc1_small_df = pd.read_sql(f1_small_select, ferc1_engine)
-
-    # In the FERC1 small plants data there are many lists of plants of a
-    # particular type (e.g. wind, hydro) where the only indicator of the type
-    # of plant is the HEADing at the beginning of the list, so we're going to
-    # need row & supplement numbers to parse out the beginning of the lists...
-    ferc1_small_df.drop(['row_seq', 'row_prvlg', 'report_prd'],
-                        axis=1, inplace=True)
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space -- necesary b/c plant_name is part of many foreign keys.
     ferc1_small_df['plant_name'] = ferc1_small_df['plant_name'].str.strip()
     ferc1_small_df['plant_name'] = ferc1_small_df['plant_name'].str.title()
 
+    ferc1_small_df['kind_of_fuel'] = ferc1_small_df['kind_of_fuel'].str.strip()
+    ferc1_small_df['kind_of_fuel'] = ferc1_small_df['kind_of_fuel'].str.title()
+
     # Clean up the fuel strings using the combined fuel strings dictionries
-    ferc1_small_df.kind_of_fuel = cleanstrings(ferc1_small_df.kind_of_fuel,
-                                               ferc1_fuel_strings,
-                                               unmapped=np.nan)
+    # TODO: not sure these fuel types have the same categories.
+    # ferc1_small_df.kind_of_fuel = cleanstrings(ferc1_small_df.kind_of_fuel,
+    #                                           ferc1_fuel_strings,
+    #                                           unmapped=np.nan)
 
     # Force the construction and installation years to be numeric values, and
     # set them to NA if they can't be converted. (table has some junk values)
@@ -776,24 +782,55 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     ferc1_small_df['fuel_cost_per_mmbtu'] = ferc1_small_df['fuel_cost'] / 100.0
     ferc1_small_df.drop('fuel_cost', axis=1, inplace=True)
 
-    # PARSE OUT PLANT TYPE BASED ON EMBEDDED TITLES HERE...
-
     # Create a single "record number" for the individual lines in the FERC
     # Form 1 that report different small plants, so that we can more easily
     # tell whether they are adjacent to each other in the reporting.
     ferc1_small_df['record_number'] = 46 * ferc1_small_df['spplmnt_num'] + \
         ferc1_small_df['row_number']
-    ferc1_small_df.drop(['row_number', 'spplmnt_num'], axis=1, inplace=True)
 
     # Unforunately the plant types were not able to be parsed automatically
     # in this table. It's been done manually for 2004-2015, and the results
-    # get merged in here:
-    #ferc1_small_types = pd.read_excel()
+    # get merged in in the following section.
+    small_types_file = os.path.join(settings.PUDL_DIR,
+                                    'results',
+                                    'ferc1_small_plants',
+                                    'small_plants_2004-2015.xlsx')
+    small_types_df = pd.read_excel(small_types_file)
+
+    # Only rows with plant_type set will give us novel information.
+    small_types_df.dropna(subset=['plant_type', ], inplace=True)
+    # We only need this small subset of the columns to extract the plant type.
+    small_types_df = small_types_df[['report_year', 'respondent_id',
+                                     'record_number', 'plant_name_clean',
+                                     'plant_type', 'ferc_license']]
+
+    # Munge the two dataframes together, keeping everything from the
+    # frame we pulled out of the FERC1 DB, and supplementing it with the
+    # plant_name_clean, plant_type, and ferc_license fields from our hand
+    # made file.
+    ferc1_small_df = pd.merge(ferc1_small_df,
+                              small_types_df,
+                              how='left',
+                              on=['report_year',
+                                  'respondent_id',
+                                  'record_number'])
+
+    # We don't need to pull these columns into PUDL, so drop them:
+    ferc1_small_df.drop(['row_seq', 'row_prvlg', 'report_prd',
+                         'row_number', 'spplmnt_num', 'record_number'],
+                        axis=1, inplace=True)
+
+    # Standardize plant_name capitalization and remove leading/trailing white
+    # space, so that plant_name_clean matches formatting of plant_name
+    ferc1_small_df['plant_name_clean'] = \
+        ferc1_small_df['plant_name_clean'].str.strip()
+    ferc1_small_df['plant_name_clean'] = \
+        ferc1_small_df['plant_name_clean'].str.title()
 
     ferc1_small_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
         'yr_constructed': 'year_constructed',
-        'capacity_rating': 'total_capacity',
+        'capacity_rating': 'total_capacity_mw',
         'net_demand': 'peak_demand_mw',
         'net_generation': 'net_generation_mwh',
         'plant_cost': 'cost_of_plant_total',
@@ -807,8 +844,20 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
                           dtype={'respondent_id': Integer,
                                  'report_year': Integer,
                                  'plant_name': String,
+                                 'plant_name_clean': String,
+                                 'plant_type': String,
                                  'kind_of_fuel': String,
-                                 'year_constructed': Integer})
+                                 'ferc_license': Integer,
+                                 'year_constructed': Integer,
+                                 'total_capacity_mw': Float,
+                                 'peak_demand_mw': Float,
+                                 'net_generation_mwh': Float,
+                                 'cost_of_plant_total': Numeric(14, 2),
+                                 'cost_of_plant_per_mw': Numeric(14, 2),
+                                 'cost_of_operation': Numeric(14, 2),
+                                 'expns_fuel': Numeric(14, 2),
+                                 'expns_maintenance': Numeric(14, 2),
+                                 'fuel_cost_per_mmbtu': Numeric(14, 2)})
 
 
 def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine, ferc1_years):
@@ -991,18 +1040,18 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
 
 """
  def ingest_operator_info_eia923(pudl_engine, eia923_dfs):
-        # Ingest data on static attributes of operators from EIA Form 923.
-        # operator_id
-        # operator_name
-        # regulatory_status: make this a Boolean:
-        #  - Regulated = True
-        #  - Unregulated = False
-        # From 'fuel_receipts_costs'
-        fuel_receipts_costs_cols = ['operator_id', 'regulated']
+    # Ingest data on static attributes of operators from EIA Form 923.
+    # operator_id
+    # operator_name
+    # regulatory_status: make this a Boolean:
+    #  - Regulated = True
+    #  - Unregulated = False
+    # From 'fuel_receipts_costs'
+    fuel_receipts_costs_cols = ['operator_id', 'regulated']
 
-        operator_df = eia923_dfs['fuel_receipts_costs'][fuel_receipts_costs_cols]
+    operator_df = eia923_dfs['fuel_receipts_costs'][fuel_receipts_costs_cols]
 
-        # Since this is a plain Yes/No variable -- just make it a real Boolean.
+    # Since this is a plain Yes/No variable -- just make it a real Boolean.
         operator_df.regulated.replace(
             {'REG': True, 'UNR': False}, inplace=True)
 

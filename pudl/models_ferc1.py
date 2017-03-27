@@ -147,6 +147,8 @@ class AccumulatedDepreciationFERC1(models.PUDLBase):
 
 
 class PurchasedPowerFERC1(models.PUDLBase):
+    """Utility power purchase data, from FERC1 DB f1_purchased_pwr table."""
+
     __tablename__ = 'purchased_power_ferc1'
     id = Column(Integer, autoincrement=True, primary_key=True)
     respondent_id = Column(Integer,
@@ -185,8 +187,11 @@ class PlantSmallFERC1(models.PUDLBase):
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     respondent_id = Column(Integer, nullable=False)
-    plant_name = Column(String, nullable=False)
     report_year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    plant_name = Column(String, nullable=False)
+    plant_name_clean = Column(String)
+    plant_type = Column(String)
+    ferc_license = Column(Integer)
     year_constructed = Column(Integer)
     total_capacity_mw = Column(Float)
     peak_demand_mw = Column(Float)
@@ -201,11 +206,7 @@ class PlantSmallFERC1(models.PUDLBase):
 
 
 class PlantHydroFERC1(models.PUDLBase):
-    """
-    Annual data on hydro plants from FERC form 1.
-
-    Christina is working on this one.
-    """
+    """Annual data on hydro plants from FERC form 1."""
 
     __tablename__ = 'plants_hydro_ferc1'
     __table_args__ = (ForeignKeyConstraint(

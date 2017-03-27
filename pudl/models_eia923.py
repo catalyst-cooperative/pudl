@@ -325,11 +325,7 @@ class GenerationEIA923(models.PUDLBase):
 
 
 class FuelReceiptsCostsEIA923(models.PUDLBase):
-    """
-    Fuel receipts and costs by plant and purchase from Page 5 of EIA Form 923.
-
-    NOT DONE YET.
-    """
+    """Fuel receipts & costs by plant &purchase from Page 5 of EIA Form 923."""
 
     __tablename__ = 'fuel_receipts_costs_eia923'
 
