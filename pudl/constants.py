@@ -486,20 +486,7 @@ eia923_pudl_tables = ['plant_info_eia923',
                       'boiler_fuel_eia923',
                       'generation_eia923',
                       'fuel_receipts_costs_eia923']
-# 'generation_eia923',
-# ,
-# 'stocks_eia923']
-
-# these are tabname inputs mapping to excel spreadsheet tabs
-pagemap_eia923 = DataFrame.from_records(
-    [('generation_fuel', 0, 5),
-     ('stocks', 1, 5),
-     ('boiler_fuel', 2, 5),
-     ('generator', 3, 5),
-     ('fuel_receipts_costs', 4, 4),
-     ('plant_frame', 5, 4)],
-    columns=['page', 'sheetname', 'skiprows'],
-    index='page')
+# 'stocks_eia923'
 
 tab_map_eia923 = DataFrame.from_records([
     (2009, 0, 1, 2, 3, 4, -1),
@@ -510,8 +497,8 @@ tab_map_eia923 = DataFrame.from_records([
     (2014, 0, 1, 2, 3, 4, 5),
     (2015, 0, 1, 2, 3, 4, 5),
     (2016, 0, 1, 2, 3, 4, 5)],
-    columns=['year_index', 'generation_fuel', 'stocks', 'boiler_fuel', 'generator',
-             'fuel_receipts_costs', 'plant_frame'],
+    columns=['year_index', 'generation_fuel', 'stocks', 'boiler_fuel',
+             'generator', 'fuel_receipts_costs', 'plant_frame'],
     index='year_index')
 
 skiprows_eia923 = DataFrame.from_records([
@@ -1791,15 +1778,21 @@ contract_type_eia923 = {
 # Two or three character alphanumeric:
 energy_source_eia923 = {
     'ANT': 'Anthracite Coal',
+    'BFG': 'Blast Furnace Gas',
     'BIT': 'Bituminous Coal',
     'DFO': 'Distillate Fuel Oil. Including diesel,\
            No. 1, No. 2, and No. 4 fuel oils.',
+    'JF': 'Jet Fuel',
+    'KER': 'Kerosene',
     'LIG': 'Lignite Coal',
     'NG': 'Natural Gas',
     'PC': 'Petroleum Coke',
+    'PG': 'Gaseous Propone',
+    'OG': 'Other Gas',
     'RC': 'Refined Coal',
     'RFO': 'Residual Fuel Oil. Including \
            No. 5 & 6 fuel oils and bunker C fuel oil.',
+    'SGP': 'Petroleum Coke Derived Synthesis Gas',
     'SC': 'Coal-based Synfuel. Including briquettes, pellets, or \
           extrusions, which are formed by binding materials or \
           processes that recycle materials.',
@@ -1808,7 +1801,7 @@ energy_source_eia923 = {
           coal, lignite waste, waste coal.',
     'WO': 'Waste/Other Oil. Including crude oil, liquid butane, liquid propane,\
           naphtha, oil waste, re-refined moto oil, sludge oil, tar oil, or\
-          other petroleum-based liquid wastes.'
+          other petroleum-based liquid wastes.',
 }
 
 # EIA 923 Fuel Group, from Page 7 EIA Form 923
@@ -1900,6 +1893,7 @@ transport_modes_eia923 = {
 # EIA 923: Contract type for natural gas capacity service:
 natural_gas_transport_eia923 = {
     '2': 'Unknown',
+    '3': 'Unknown',
     '8': 'Unknown',
     'F': 'Firm',
     'I': 'Interruptible'

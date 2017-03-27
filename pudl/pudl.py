@@ -52,7 +52,6 @@ from pudl.constants import fuel_group_eia923
 from pudl.constants import coalmine_type_eia923, coalmine_state_eia923
 from pudl.constants import natural_gas_transport_eia923
 from pudl.constants import transport_modes_eia923
-from pudl.constants import pagemap_eia923
 from pudl.constants import eia923_pudl_tables
 
 # Tables that hold constant values:

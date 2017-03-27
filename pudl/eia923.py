@@ -123,7 +123,7 @@ def get_eia923_page(page, years=[2014, 2015, 2016], verbose=True):
     for year in years:
         assert(year > 2010), "EIA923 parsing only works for 2011 and later."
 
-    assert(page in constants.pagemap_eia923.index),\
+    assert(page in constants.tab_map_eia923.columns and page != 'year_index'),\
         "Unrecognized EIA 923 page: {}".format(page)
 
     filenames = get_eia923_files(years)
