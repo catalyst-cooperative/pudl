@@ -479,7 +479,7 @@ ferc1_working_tables = ['f1_respondent_id',
 ferc1_working_years = range(2004, 2016)
 
 # The full set of years we currently expect to be able to ingest from EIA923.
-eia923_working_years = range(2014, 2017)
+eia923_working_years = range(2011, 2017)
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
 eia923_pudl_tables = ['plant_info_eia923',
