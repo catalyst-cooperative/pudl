@@ -1229,9 +1229,11 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
                      'coalmine_msha_id']
 
     coalmine_df = eia923_dfs['fuel_receipts_costs'][coalmine_cols]
+    coalmine_df = coalmine_df.copy()
+
     # TODO: Not sure which fields of duplicates need to be dropped here
-    # coalmine_df = coalmine_df.drop_duplicates(
-    #     subset=['', ''])
+    coalmine_df = coalmine_df.drop_duplicates(subset=['coalmine_name',
+                                                      'coalmine_msha_id'])
     #
     # coalmine_df.rename(columns={
     #     # column HEADing in EIA 923        PUDL DB field name
@@ -1239,7 +1241,8 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
     #     inplace=True)
 
     # drop null values from foreign key fields
-    #   coalmine_df.dropna(subset=['coalmine_name'], inplace=True)
+    coalmine_df.dropna(
+        subset=['coalmine_name', ], inplace=True)
 
     coalmine_df.to_sql(name='coalmine_info_eia923',
                        con=pudl_engine, index=False, if_exists='append',
@@ -1261,23 +1264,22 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
                     'operator_name',
                     'operator_id',
                     'fuel_group',
-                    'coalmine_name',
+                    'coalmine_msha_id',
                     'coalmine_type',
                     'coalmine_state',
                     'coalmine_county',
+                    'coalmine_name',
                     'regulated',
                     'reporting_frequency']
 
     frc_df.drop(cols_to_drop, axis=1, inplace=True)
     frc_df = frc_df[frc_df.plant_id != 8899]
 
-# Convert the EIA923 DataFrame from yearly to monthly records.
-# frc_df = yearly_to_monthly_eia923(frc_df, month_dict_2015_eia923)
+
 # Replace the EIA923 NA value ('.') with a real NA value.
     frc_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
 
     # Rename them to be consistent with the PUDL DB fields, if need be.
-
     frc_df.rename(columns={
         # EIA 923              PUDL DB field name
         'purchase_type': 'contract_type',
@@ -1293,7 +1295,7 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
                          'contract_type': String,
                          'contract_expiration_date': Integer,
                          'energy_source': String,
-                         'coalmine_msha_id': Integer,
+                         'coalmine_id': Integer,
                          'supplier': String,
                          'qty': Integer,
                          'average_heat_content': Integer,

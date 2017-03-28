@@ -1798,6 +1798,8 @@ coalmine_type_eia923 = {
     'U/S': 'Both an underground and surface mine with \
   most coal extracted from underground',
     'S/U': 'Both an underground and surface mine with \
+  most coal extracted from surface',
+    'SU': 'Both an underground and surface mine with \
   most coal extracted from surface'
 }
 
