@@ -1235,8 +1235,8 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
         inplace=True, regex=True)
 
     # TODO: Not sure which fields of duplicates need to be dropped here
-    # coalmine_df = coalmine_df.drop_duplicates(
-    #     subset=['', ''])
+    coalmine_df = coalmine_df.drop_duplicates(subset=['coalmine_name',
+                                                      'coalmine_msha_id'])
     #
     # coalmine_df.rename(columns={
     #     # column HEADing in EIA 923        PUDL DB field name
@@ -1244,7 +1244,8 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
     #     inplace=True)
 
     # drop null values from foreign key fields
-    #   coalmine_df.dropna(subset=['coalmine_name'], inplace=True)
+    coalmine_df.dropna(
+        subset=['coalmine_name', ], inplace=True)
 
     coalmine_df.to_sql(name='coalmine_info_eia923',
                        con=pudl_engine, index=False, if_exists='append',
@@ -1266,10 +1267,11 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
                     'operator_name',
                     'operator_id',
                     'fuel_group',
-                    'coalmine_name',
+                    'coalmine_msha_id',
                     'coalmine_type',
                     'coalmine_state',
                     'coalmine_county',
+                    'coalmine_name',
                     'regulated',
                     'reporting_frequency']
 
@@ -1303,7 +1305,7 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
                          'contract_type': String,
                          'contract_expiration_date': Integer,
                          'energy_source': String,
-                         'coalmine_msha_id': Integer,
+                         'coalmine_id': Integer,
                          'supplier': String,
                          'qty': Integer,
                          'average_heat_content': Integer,
