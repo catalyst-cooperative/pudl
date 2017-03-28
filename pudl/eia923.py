@@ -79,7 +79,7 @@ def get_eia923_column_map(page, year):
             at the top of the sheet being read in, before the header row that
             contains the strings which will be converted into column names in
             the dataframe which is created by pandas.read_excel()
-        column_map: (dict): A dictionary that maps the names of the columns
+        column_map (dict): A dictionary that maps the names of the columns
             in the year being read in, to the canonical EIA923 column names
             (i.e. the column names as they are in 2014-2016). This dictionary
             will be used by DataFrame.rename(). The keys are the column names
@@ -112,13 +112,22 @@ def get_eia923_page(page, eia923_xlsx, years=[2014, 2015, 2016], verbose=True):
     """
     Read a single table from several years of EIA923 data. Return a DataFrame.
 
-    The page argument must be exactly one of the following strings:
-      - 'generation_fuel'
-      - 'stocks'
-      - 'boiler_fuel'
-      - 'generator'
-      - 'fuel_receipts_costs'
-      - 'plant_frame'
+    Args:
+        page (str): The string label indicating which page of the EIA923 we
+        are attempting to read in. The page argument must be exactly one of the
+        following strings:
+            - 'generation_fuel'
+            - 'stocks'
+            - 'boiler_fuel'
+            - 'generator'
+            - 'fuel_receipts_costs'
+            - 'plant_frame'
+
+      years (list): The set of years to read into the dataframe.
+
+    Returns:
+        pandas.DataFrame: A dataframe containing the data from the selected
+            page and selected years from EIA 923.
     """
     for year in years:
         assert(year > 2010), "EIA923 parsing only works for 2011 and later."
