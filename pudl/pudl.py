@@ -29,6 +29,7 @@ from sqlalchemy import Integer, String, Numeric, Boolean, Float
 from pudl import settings
 from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
 from pudl.eia923 import get_eia923_page, yearly_to_monthly_eia923
+from pudl.eia923 import get_eia923_files
 from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
 from pudl.constants import ferc1_fuel_unit_strings, rto_iso
 from pudl.constants import ferc1_plant_kind_strings, ferc1_type_const_strings
@@ -1035,7 +1036,7 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
                         'fuel_consumed_total_mmbtu': Float,
                         'fuel_consumed_for_electricity_mmbtu': Float,
                         'net_generation_mwh': Float},
-                 chunksize=1000)
+                 chunksize=10000)
 
 
 """
@@ -1088,7 +1089,8 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
                       con=pudl_engine, index=False, if_exists='append',
                       dtype={'plant_id': Integer,
                              'boiler_id': String,
-                             'prime_mover': String})
+                             'prime_mover': String},
+                      chunksize=10000)
 
     # Populate 'boiler_fuel_eia923' table
     # This needs to be a copy of what we're passed in so we can edit it.
@@ -1139,7 +1141,7 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
                         'fuel_mmbtu_per_unit': Float,
                         'sulfur_content': Float,
                         'ash_content': Float},
-                 chunksize=1000)
+                 chunksize=10000)
 
 
 def ingest_generator_eia923(pudl_engine, eia923_dfs):
@@ -1168,7 +1170,8 @@ def ingest_generator_eia923(pudl_engine, eia923_dfs):
                          con=pudl_engine, index=False, if_exists='append',
                          dtype={'plant_id': Integer,
                                 'generator_id': String,
-                                'prime_mover': String})
+                                'prime_mover': String},
+                         chunksize=10000)
 
     # Populating the generation_eia923 table:
     # This needs to be a copy of what we're passed in so we can edit it.
@@ -1212,7 +1215,7 @@ def ingest_generator_eia923(pudl_engine, eia923_dfs):
                        'generator_id': String,
                        'prime_mover': String,
                        'net_generation_mwh': Float},
-                chunksize=1000)
+                chunksize=10000)
 
 
 # fuel_receipts_cost ingest function
@@ -1227,7 +1230,14 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
                      'coalmine_county',
                      'coalmine_msha_id']
 
-    coalmine_df = eia923_dfs['fuel_receipts_costs'][coalmine_cols]
+    coalmine_df = eia923_dfs['fuel_receipts_costs'].copy()
+    coalmine_df = coalmine_df[coalmine_cols]
+
+    # Map codes to a few standard values:
+    coalmine_df['coalmine_type'].replace(
+        {'[pP]': 'P', 'U/S': 'US', 'S/U': 'SU'},
+        inplace=True, regex=True)
+
     # TODO: Not sure which fields of duplicates need to be dropped here
     # coalmine_df = coalmine_df.drop_duplicates(
     #     subset=['', ''])
@@ -1247,7 +1257,7 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
                               'coalmine_state': String,
                               'coalmine_county': String,
                               'coalmine_msha_id': String},
-                       chunksize=1000)
+                       chunksize=10000)
 
     frc_df = eia923_dfs['fuel_receipts_costs'].copy()
 
@@ -1268,15 +1278,20 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
                     'reporting_frequency']
 
     frc_df.drop(cols_to_drop, axis=1, inplace=True)
+
+    # Why is this one ID being excluced? (ZS)
     frc_df = frc_df[frc_df.plant_id != 8899]
 
-# Convert the EIA923 DataFrame from yearly to monthly records.
-# frc_df = yearly_to_monthly_eia923(frc_df, month_dict_2015_eia923)
-# Replace the EIA923 NA value ('.') with a real NA value.
+    # Replace the EIA923 NA value ('.') with a real NA value.
     frc_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
 
-    # Rename them to be consistent with the PUDL DB fields, if need be.
+    # Standardize case on transportaion codes -- all upper case!
+    frc_df['primary_transportation_mode'] = \
+        frc_df['primary_transportation_mode'].str.upper()
+    frc_df['secondary_transportation_mode'] = \
+        frc_df['secondary_transportation_mode'].str.upper()
 
+    # Rename them to be consistent with the PUDL DB fields, if need be.
     frc_df.rename(columns={
         # EIA 923              PUDL DB field name
         'purchase_type': 'contract_type',
@@ -1304,7 +1319,7 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
                          'secondary_transportation_mode': String,
                          'natural_gas_transport': String
                          },
-                  chunksize=1000)
+                  chunksize=10000)
 
 
 def ingest_stocks_eia923(pudl_engine, eia923_dfs):
@@ -1379,22 +1394,29 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
                                           ferc1_engine,
                                           ferc1_years)
 
-    # Because we're going to be combining data froms several different EIA923
-    # spreadsheet pages into individual database tables, and it's time
-    # consuming to read them in multiple times, let's try and read them all
-    # into memory just once. In the long run this may not scale up.
+    # Rather than reading in the same Excel files several times, we can just
+    # read them each in once (one per year) and use the ExcelFile object to
+    # refer back to the data in memory:
+    eia923_xlsx = {}
+    for yr in eia923_years:
+        if verbose:
+            print("Reading EIA 923 spreadsheet data for {}.".format(yr))
+        eia923_xlsx[yr] = pd.ExcelFile(get_eia923_files([yr, ])[0])
+
+    # Now we can take the year by year Excel files, and turn them into page
+    # by page dataframes...
     eia923_dfs = {}
 
-# Let's selectively read in only the pages of EIA923 that we need in order
-# to populate the tables we're initiliazing:
     if 'plant_info_eia923' in eia923_tables:
         for page in ['plant_frame', 'generation_fuel']:
             eia923_dfs[page] = get_eia923_page(page,
+                                               eia923_xlsx,
                                                years=eia923_years,
                                                verbose=verbose)
     if ('generation_fuel_eia923' in eia923_tables) \
             and ('generation_fuel' not in eia923_dfs.keys()):
         eia923_dfs['generation_fuel'] = get_eia923_page('generation_fuel',
+                                                        eia923_xlsx,
                                                         years=eia923_years,
                                                         verbose=verbose)
 
@@ -1403,15 +1425,18 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
 
     if 'boiler_fuel_eia923' in eia923_tables:
         eia923_dfs['boiler_fuel'] = get_eia923_page('boiler_fuel',
+                                                    eia923_xlsx,
                                                     years=eia923_years,
                                                     verbose=verbose)
     if 'generation_eia923' in eia923_tables:
         eia923_dfs['generator'] = get_eia923_page('generator',
+                                                  eia923_xlsx,
                                                   years=eia923_years,
                                                   verbose=verbose)
     if 'fuel_receipts_costs_eia923' in eia923_tables:
         eia923_dfs['fuel_receipts_costs'] = \
             get_eia923_page('fuel_receipts_costs',
+                            eia923_xlsx,
                             years=eia923_years,
                             verbose=verbose)
 

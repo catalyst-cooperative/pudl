@@ -1812,14 +1812,13 @@ fuel_group_eia923 = ['Coal', 'Natural Gas', 'Petroleum', 'Petroleum Coke']
 
 # EIA 923: Type of Coal Mine as defined on Page 7 of EIA Form 923
 coalmine_type_eia923 = {
-    'p': 'Preparation Plant',
-    'P': 'Preperation Plant',
+    'P': 'Preparation Plant',
     'S': 'Surface',
     'U': 'Underground',
-    'U/S': 'Both an underground and surface mine with \
-  most coal extracted from underground',
-    'S/U': 'Both an underground and surface mine with \
-  most coal extracted from surface'
+    'US': 'Both an underground and surface mine with\
+ most coal extracted from underground',
+    'SU': 'Both an underground and surface mine with\
+ most coal extracted from surface'
 }
 
 # EIA 923: State abbreviation related to coal mine location.
@@ -1852,9 +1851,6 @@ transport_modes_eia923 = {
         away from a railroad siding by truck if the truck did not use public\
         roads.',
     'RV': 'River:  Shipments of fuel moved to consumers via river by barge.  \
-        Not included are shipments to Great Lakes coal loading docks, \
-        tidewater piers, or coastal ports.',
-    'rv':  'River:  Shipments of fuel moved to consumers via river by barge.  \
         Not included are shipments to Great Lakes coal loading docks, \
         tidewater piers, or coastal ports.',
     'GL': 'Great Lakes:  Shipments of coal moved to consumers via \
