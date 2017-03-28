@@ -1062,11 +1062,7 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
 
 
 def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
-    """
-    Ingest data on fuel consumption by boiler from EIA Form 923.
-
-    This is going to populate boilers_eia923 and boiler_fuel_eia923 tables
-    """
+    """Ingest data on fuel consumption by boiler from EIA Form 923."""
     # Populate 'boilers_eia923' table
     boiler_cols = ['plant_id',
                    'boiler_id',
@@ -1327,13 +1323,21 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
     """
     Create the PUDL database and fill it up with data.
 
-    ferc1_tables is a list of tables that will be created and ingested.
-    By default only known to be working tables are ingested. That list of
-    tables is defined in pudl.constants.
-
-    You can tell it to ingest whatever list of tables you want, but if
-    it's not in the list of known to be working tables, you need to set
-    debug=True (otherwise it won't let you)
+    Args:
+        ferc1_tables (list): The list of tables that will be created and
+            ingested. By default only known to be working tables are ingested.
+            That list of tables is defined in pudl.constants.
+        ferc1_years (list): The list of years from which to pull FERC Form 1
+            data.
+        eia923_tables (list): The list of tables that will be created and
+            ingested. By default only known to be working tables are ingested.
+            That list of tables is defined in pudl.constants.
+        eia923_years (list): The list of years from which to pull EIA 923
+            data.
+        debug (bool): You can tell init_db to ingest whatever list of tables
+            you want, but if your desired table is not in the list of known to
+            be working tables, you need to set debug=True (otherwise init_db
+            won't let you).
     """
     # Make sure that the tables we're being asked to ingest can actually be
     # pulled into both the FERC Form 1 DB, and the PUDL DB...
