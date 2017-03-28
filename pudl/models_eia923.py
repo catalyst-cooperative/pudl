@@ -345,7 +345,7 @@ class FuelReceiptsCostsEIA923(models.PUDLBase):
     average_heat_content = Column(Integer, nullable=False)
     average_sulfur_content = Column(Integer, nullable=False)
     average_ash_content = Column(Integer, nullable=False)
-    average_mercury_content = Column(Integer, nullable=False)
+    average_mercury_content = Column(Integer)
     fuel_cost = Column(Integer)  # null values exist in data
     primary_transportation_mode = Column(
         String,

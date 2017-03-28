@@ -487,44 +487,32 @@ eia923_pudl_tables = ['plant_info_eia923',
                       'boiler_fuel_eia923',
                       'generation_eia923',
                       'fuel_receipts_costs_eia923']
-# 'stocks_eia923']
-
-# these are tabname inputs mapping to excel spreadsheet tabs
-pagemap_eia923 = DataFrame.from_records(
-    [('generation_fuel', 0, 5),
-     ('stocks', 1, 5),
-     ('boiler_fuel', 2, 5),
-     ('generator', 3, 5),
-     ('fuel_receipts_costs', 4, 4),
-     ('plant_frame', 5, 4)],
-    columns=['page', 'sheetname', 'skiprows'],
-    index='page')
+# 'stocks_eia923'
 
 tab_map_eia923 = DataFrame.from_records([
-    (2009, 0, 1, 2, 3, 4),
-    (2010, 0, 1, 2, 3, 4),
-    (2011, 0, 1, 2, 3, 4),
-    (2012, 0, 1, 2, 3, 4),
-    (2013, 0, 1, 2, 3, 4),
-    (2014, 0, 1, 2, 3, 4),
-    (2015, 0, 1, 2, 3, 4),
-    (2016, 0, 1, 2, 3, 4)],
+    (2009, 0, 1, 2, 3, 4, -1),
+    (2010, 0, 1, 2, 3, 4, -1),
+    (2011, 0, 1, 2, 3, 4, 5),
+    (2012, 0, 1, 2, 3, 4, 5),
+    (2013, 0, 1, 2, 3, 4, 5),
+    (2014, 0, 1, 2, 3, 4, 5),
+    (2015, 0, 1, 2, 3, 4, 5),
+    (2016, 0, 1, 2, 3, 4, 5)],
     columns=['year_index', 'generation_fuel', 'stocks', 'boiler_fuel',
-             'generator', 'fuel_receipts_costs'],
+             'generator', 'fuel_receipts_costs', 'plant_frame'],
     index='year_index')
 
 skiprows_eia923 = DataFrame.from_records([
-    (2008, 7, 7, 7, 7, 7),
-    (2009, 7, 7, 7, 7, 6),
-    (2010, 7, 7, 7, 7, 7),
-    (2011, 5, 5, 5, 5, 4),
-    (2012, 5, 5, 5, 5, 4),
-    (2013, 5, 5, 5, 5, 4),
-    (2014, 5, 5, 5, 5, 4),
-    (2015, 5, 5, 5, 5, 4),
-    (2016, 5, 5, 5, 5, 4)],
+    (2009, 7, 7, 7, 7, 6, -1),
+    (2010, 7, 7, 7, 7, 7, -1),
+    (2011, 5, 5, 5, 5, 4, 4),
+    (2012, 5, 5, 5, 5, 4, 4),
+    (2013, 5, 5, 5, 5, 4, 4),
+    (2014, 5, 5, 5, 5, 4, 4),
+    (2015, 5, 5, 5, 5, 4, 4),
+    (2016, 5, 5, 5, 5, 4, 4)],
     columns=['year_index', 'generation_fuel', 'stocks', 'boiler_fuel',
-             'generator', 'fuel_receipts_costs'],
+             'generator', 'fuel_receipts_costs', 'plant_frame'],
     index='year_index')
 
 generation_fuel_map_eia923 = DataFrame.from_records([
@@ -813,7 +801,7 @@ generation_fuel_map_eia923 = DataFrame.from_records([
              'net_generation_megawatthours', 'year'], index='year_index')
 
 stocks_map_eia923 = DataFrame.from_records([
-    (2009, 'none', 'coal_jan', 'coal_feb', 'coal_mar', 'coal_apr', 'coal_may',
+    (2009, None, 'coal_jan', 'coal_feb', 'coal_mar', 'coal_apr', 'coal_may',
      'coal_jun', 'coal_jul', 'coal_aug', 'coal_sep', 'coal_oct', 'coal_nov',
      'coal_dec', 'oil_jan', 'oil_feb', 'oil_mar', 'oil_apr', 'oil_may',
      'oil_jun', 'oil_jul', 'oil_aug', 'oil_sep', 'oil_oct', 'oil_nov',
@@ -821,7 +809,7 @@ stocks_map_eia923 = DataFrame.from_records([
      'petcoke_may', 'petcoke_jun', 'petcoke_jul', 'petcoke_aug', 'petcoke_sep',
      'petcoke_oct', 'petcoke_nov', 'petcoke_dec'),
 
-    (2010, 'none', 'coal_jan', 'coal_feb', 'coal_mar', 'coal_apr', 'coal_may',
+    (2010, None, 'coal_jan', 'coal_feb', 'coal_mar', 'coal_apr', 'coal_may',
      'coal_jun', 'coal_jul', 'coal_aug', 'coal_sep', 'coal_oct', 'coal_nov',
      'coal_dec', 'oil_jan', 'oil_feb', 'oil_mar', 'oil_apr', 'oil_may',
      'oil_jun', 'oil_jul', 'oil_aug', 'oil_sep', 'oil_oct', 'oil_nov',
@@ -1254,7 +1242,7 @@ fuel_receipts_costs_map_eia923 = DataFrame.from_records([
      'contract_exp_date', 'energy_source', 'fuel_group', 'coalmine_type',
      'coalmine_state', 'coalmine_county', 'coalmine_msha_id', 'coalmine_name',
      'supplier', 'quantity', 'average_heat_content', 'average_sulfur_content',
-     'average_ash_content', 'nan', 'fuel_cost', 'regulated', 'operator_name',
+     'average_ash_content', None, 'fuel_cost', 'regulated', 'operator_name',
      'operator_id', 'respondent_frequency', 'primary_transportation_mode',
      'secondary_transportation_mode', 'natural_gas_transportation_service'),
 
@@ -1262,7 +1250,7 @@ fuel_receipts_costs_map_eia923 = DataFrame.from_records([
      'contract_exp_date', 'energy_source', 'fuel_group', 'coalmine_type',
      'coalmine_state', 'coalmine_county', 'coalmine_msha_id', 'coalmine_name',
      'supplier', 'quantity', 'average_heat_content', 'average_sulfur_content',
-     'average_ash_content', 'nan', 'fuel_cost', 'regulated', 'operator_name',
+     'average_ash_content', None, 'fuel_cost', 'regulated', 'operator_name',
      'operator_id', 'respondent_frequency', 'primary_transportation_mode',
      'secondary_transportation_mode', 'natural_gas_transportation_service'),
 
@@ -1270,7 +1258,7 @@ fuel_receipts_costs_map_eia923 = DataFrame.from_records([
      'contract_exp_date', 'energy_source', 'fuel_group', 'coalmine_type',
      'coalmine_state', 'coalmine_county', 'coalmine_msha_id', 'coalmine_name',
      'supplier', 'quantity', 'average_heat_content', 'average_sulfur_content',
-     'average_ash_content', 'nan', 'fuel_cost', 'regulated', 'operator_name',
+     'average_ash_content', None, 'fuel_cost', 'regulated', 'operator_name',
      'operator_id', 'respondent_frequency', 'primary_transportation_mode',
      'secondary_transportation_mode', 'natural_gas_transportation_service'),
 
@@ -1287,7 +1275,7 @@ fuel_receipts_costs_map_eia923 = DataFrame.from_records([
      'contract_exp_date', 'energy_source', 'fuel_group', 'coalmine_type',
      'coalmine_state', 'coalmine_county', 'coalmine_msha_id', 'coalmine_name',
      'supplier', 'quantity', 'average_heat_content', 'average_sulfur_content',
-     'average_ash_content', 'nan', 'fuel_cost', 'regulated', 'operator_name',
+     'average_ash_content', None, 'fuel_cost', 'regulated', 'operator_name',
      'operator_id', 'respondent_frequency', 'primary_transportation_mode',
      'secondary_transportation_mode', 'natural_gas_transportation_service'),
 
@@ -1331,6 +1319,34 @@ fuel_receipts_costs_map_eia923 = DataFrame.from_records([
     index='year_index'
 )
 
+plant_frame_map_eia923 = DataFrame.from_records([
+    (2009, None, None, None, None, None, None, None, None, None),
+    (2010, None, None, None, None, None, None, None, None, None),
+    (2011, 'year', None, 'eia_plant_id', 'plant_state', 'sector',
+     'north_american_industiral_classification_system_naics_code',
+     'plant_name', 'combined_heat_and_power_status_y_chp_n_non_chp',
+     'reporting_frequency_annual_or_monthly'),
+    (2012, 'year', None, 'plant_id', 'plant_state', 'sector_number',
+     'naics_code', 'plant_name', 'combined_heat_and_power_status',
+     'reporting_frequency'),
+    (2013, 'year', None, 'eia_plant_id', 'plant_state', 'sector',
+     'north_american_industrial_classification_system_naics_code',
+     'plant_name', 'combined_heat_and_power_status_y_chp_n_non_chp',
+     'reporting_frequency_annual_or_monthly',),
+    (2014, 'year', 'month', 'plant_id', 'plant_state', 'sector_number',
+     'naics_code', 'plant_name', 'combined_heat_and_power_status',
+     'reporting_frequency'),
+    (2015, 'year', 'month', 'plant_id', 'plant_state', 'sector_number',
+     'naics_code', 'plant_name', 'combined_heat_and_power_status',
+     'reporting_frequency'),
+    (2016, 'year', 'month', 'plant_id', 'plant_state', 'sector_number',
+     'naics_code', 'plant_name', 'combined_heat_and_power_status',
+     'reporting_frequency')],
+    columns=['year_index', 'year', 'month', 'plant_id', 'plant_state',
+             'sector_number', 'naics_code', 'plant_name',
+             'combined_heat_and_power_status', 'reporting_frequency'],
+    index='year_index')
+
 # patterns for matching columns to months:
 month_dict_2015_eia923 = {1: '_january$',
                           2: '_february$',
@@ -1349,46 +1365,45 @@ month_dict_2015_eia923 = {1: '_january$',
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].
 # TODO: THIS ONLY PERTAINS TO 2015 AND MAY NEED TO BE ADJUSTED BY YEAR...
-ferc1_data_tables = \
-    ['f1_acb_epda', 'f1_accumdepr_prvsn', 'f1_accumdfrrdtaxcr',
-     'f1_adit_190_detail', 'f1_adit_190_notes',
-     'f1_adit_amrt_prop', 'f1_adit_other', 'f1_adit_other_prop',
-     'f1_allowances', 'f1_bal_sheet_cr', 'f1_capital_stock',
-     'f1_cash_flow', 'f1_cmmn_utlty_p_e', 'f1_comp_balance_db',
-     'f1_construction', 'f1_control_respdnt', 'f1_co_directors',
-     'f1_cptl_stk_expns', 'f1_csscslc_pcsircs', 'f1_dacs_epda',
-     'f1_dscnt_cptl_stk', 'f1_edcfu_epda', 'f1_elctrc_erg_acct',
-     'f1_elctrc_oper_rev', 'f1_elc_oper_rev_nb',
-     'f1_elc_op_mnt_expn', 'f1_electric', 'f1_envrnmntl_expns',
-     'f1_envrnmntl_fclty', 'f1_fuel', 'f1_general_info',
-     'f1_gnrt_plant', 'f1_important_chg', 'f1_incm_stmnt_2',
-     'f1_income_stmnt', 'f1_miscgen_expnelc',
-     'f1_misc_dfrrd_dr', 'f1_mthly_peak_otpt', 'f1_mtrl_spply',
-     'f1_nbr_elc_deptemp', 'f1_nonutility_prop',
-     'f1_note_fin_stmnt', 'f1_nuclear_fuel', 'f1_officers_co',
-     'f1_othr_dfrrd_cr', 'f1_othr_pd_in_cptl',
-     'f1_othr_reg_assets', 'f1_othr_reg_liab', 'f1_overhead',
-     'f1_pccidica', 'f1_plant_in_srvce', 'f1_pumped_storage',
-     'f1_purchased_pwr', 'f1_reconrpt_netinc',
-     'f1_reg_comm_expn', 'f1_respdnt_control',
-     'f1_retained_erng', 'f1_r_d_demo_actvty',
-     'f1_sales_by_sched', 'f1_sale_for_resale',
-     'f1_sbsdry_totals', 'f1_schedules_list',
-     'f1_security_holder', 'f1_slry_wg_dstrbtn',
-     'f1_substations', 'f1_taxacc_ppchrgyr', 'f1_unrcvrd_cost',
-     'f1_utltyplnt_smmry', 'f1_work', 'f1_xmssn_adds',
-     'f1_xmssn_elc_bothr', 'f1_xmssn_elc_fothr',
-     'f1_xmssn_line', 'f1_xtraordnry_loss', 'f1_audit_log',
-     'f1_privilege', 'f1_hydro', 'f1_footnote_tbl', 'f1_steam',
-     'f1_leased', 'f1_sbsdry_detail', 'f1_plant',
-     'f1_long_term_debt', 'f1_106_2009', 'f1_106a_2009',
-     'f1_106b_2009', 'f1_208_elc_dep', 'f1_231_trn_stdycst',
-     'f1_324_elc_expns', 'f1_325_elc_cust', 'f1_331_transiso',
-     'f1_338_dep_depl', 'f1_397_isorto_stl', 'f1_398_ancl_ps',
-     'f1_399_mth_peak', 'f1_400_sys_peak', 'f1_400a_iso_peak',
-     'f1_429_trans_aff', 'f1_allowances_nox',
-     'f1_cmpinc_hedge_a', 'f1_cmpinc_hedge', 'f1_freeze',
-     'f1_rg_trn_srv_rev']
+ferc1_data_tables = ['f1_acb_epda', 'f1_accumdepr_prvsn', 'f1_accumdfrrdtaxcr',
+                     'f1_adit_190_detail', 'f1_adit_190_notes',
+                     'f1_adit_amrt_prop', 'f1_adit_other', 'f1_adit_other_prop',
+                     'f1_allowances', 'f1_bal_sheet_cr', 'f1_capital_stock',
+                     'f1_cash_flow', 'f1_cmmn_utlty_p_e', 'f1_comp_balance_db',
+                     'f1_construction', 'f1_control_respdnt', 'f1_co_directors',
+                     'f1_cptl_stk_expns', 'f1_csscslc_pcsircs', 'f1_dacs_epda',
+                     'f1_dscnt_cptl_stk', 'f1_edcfu_epda', 'f1_elctrc_erg_acct',
+                     'f1_elctrc_oper_rev', 'f1_elc_oper_rev_nb',
+                     'f1_elc_op_mnt_expn', 'f1_electric', 'f1_envrnmntl_expns',
+                     'f1_envrnmntl_fclty', 'f1_fuel', 'f1_general_info',
+                     'f1_gnrt_plant', 'f1_important_chg', 'f1_incm_stmnt_2',
+                     'f1_income_stmnt', 'f1_miscgen_expnelc',
+                     'f1_misc_dfrrd_dr', 'f1_mthly_peak_otpt', 'f1_mtrl_spply',
+                     'f1_nbr_elc_deptemp', 'f1_nonutility_prop',
+                     'f1_note_fin_stmnt', 'f1_nuclear_fuel', 'f1_officers_co',
+                     'f1_othr_dfrrd_cr', 'f1_othr_pd_in_cptl',
+                     'f1_othr_reg_assets', 'f1_othr_reg_liab', 'f1_overhead',
+                     'f1_pccidica', 'f1_plant_in_srvce', 'f1_pumped_storage',
+                     'f1_purchased_pwr', 'f1_reconrpt_netinc',
+                     'f1_reg_comm_expn', 'f1_respdnt_control',
+                     'f1_retained_erng', 'f1_r_d_demo_actvty',
+                     'f1_sales_by_sched', 'f1_sale_for_resale',
+                     'f1_sbsdry_totals', 'f1_schedules_list',
+                     'f1_security_holder', 'f1_slry_wg_dstrbtn',
+                     'f1_substations', 'f1_taxacc_ppchrgyr', 'f1_unrcvrd_cost',
+                     'f1_utltyplnt_smmry', 'f1_work', 'f1_xmssn_adds',
+                     'f1_xmssn_elc_bothr', 'f1_xmssn_elc_fothr',
+                     'f1_xmssn_line', 'f1_xtraordnry_loss', 'f1_audit_log',
+                     'f1_privilege', 'f1_hydro', 'f1_footnote_tbl', 'f1_steam',
+                     'f1_leased', 'f1_sbsdry_detail', 'f1_plant',
+                     'f1_long_term_debt', 'f1_106_2009', 'f1_106a_2009',
+                     'f1_106b_2009', 'f1_208_elc_dep', 'f1_231_trn_stdycst',
+                     'f1_324_elc_expns', 'f1_325_elc_cust', 'f1_331_transiso',
+                     'f1_338_dep_depl', 'f1_397_isorto_stl', 'f1_398_ancl_ps',
+                     'f1_399_mth_peak', 'f1_400_sys_peak', 'f1_400a_iso_peak',
+                     'f1_429_trans_aff', 'f1_allowances_nox',
+                     'f1_cmpinc_hedge_a', 'f1_cmpinc_hedge', 'f1_freeze',
+                     'f1_rg_trn_srv_rev']
 
 # Line numbers, and corresponding FERC account number
 # from FERC Form 1 pages 204-207, Electric Plant in Service.
@@ -1764,15 +1779,21 @@ contract_type_eia923 = {
 # Two or three character alphanumeric:
 energy_source_eia923 = {
     'ANT': 'Anthracite Coal',
+    'BFG': 'Blast Furnace Gas',
     'BIT': 'Bituminous Coal',
     'DFO': 'Distillate Fuel Oil. Including diesel,\
            No. 1, No. 2, and No. 4 fuel oils.',
+    'JF': 'Jet Fuel',
+    'KER': 'Kerosene',
     'LIG': 'Lignite Coal',
     'NG': 'Natural Gas',
     'PC': 'Petroleum Coke',
+    'PG': 'Gaseous Propone',
+    'OG': 'Other Gas',
     'RC': 'Refined Coal',
     'RFO': 'Residual Fuel Oil. Including \
            No. 5 & 6 fuel oils and bunker C fuel oil.',
+    'SGP': 'Petroleum Coke Derived Synthesis Gas',
     'SC': 'Coal-based Synfuel. Including briquettes, pellets, or \
           extrusions, which are formed by binding materials or \
           processes that recycle materials.',
@@ -1781,7 +1802,7 @@ energy_source_eia923 = {
           coal, lignite waste, waste coal.',
     'WO': 'Waste/Other Oil. Including crude oil, liquid butane, liquid propane,\
           naphtha, oil waste, re-refined moto oil, sludge oil, tar oil, or\
-          other petroleum-based liquid wastes.'
+          other petroleum-based liquid wastes.',
 }
 
 # EIA 923 Fuel Group, from Page 7 EIA Form 923
@@ -1875,6 +1896,7 @@ transport_modes_eia923 = {
 # EIA 923: Contract type for natural gas capacity service:
 natural_gas_transport_eia923 = {
     '2': 'Unknown',
+    '3': 'Unknown',
     '8': 'Unknown',
     'F': 'Firm',
     'I': 'Interruptible'
