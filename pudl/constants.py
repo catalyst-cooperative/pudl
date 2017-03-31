@@ -1819,7 +1819,9 @@ coalmine_type_eia923 = {
     'U/S': 'Both an underground and surface mine with \
   most coal extracted from underground',
     'S/U': 'Both an underground and surface mine with \
-  most coal extracted from surface'
+  most coal extracted from surface',
+    'SU': 'Both an underground and surface mine with \
+  most coal extracted from surface',
 }
 
 # EIA 923: State abbreviation related to coal mine location.
@@ -1882,6 +1884,9 @@ transport_modes_eia923 = {
         Louisiana',
     'WT': 'Water: Shipments of fuel moved to consumers by other waterways.',
     'TR': 'Truck: Shipments of fuel moved to consumers by truck.  \
+        Not included is fuel hauled to or away from a railroad siding by \
+        truck on non-public roads.',
+    'tr': 'Truck: Shipments of fuel moved to consumers by truck.  \
         Not included is fuel hauled to or away from a railroad siding by \
         truck on non-public roads.',
     'TC': 'Tramway/Conveyor: Shipments of fuel moved to consumers \
