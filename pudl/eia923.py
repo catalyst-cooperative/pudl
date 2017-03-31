@@ -79,7 +79,7 @@ def get_eia923_column_map(page, year):
             at the top of the sheet being read in, before the header row that
             contains the strings which will be converted into column names in
             the dataframe which is created by pandas.read_excel()
-        column_map: (dict): A dictionary that maps the names of the columns
+        column_map (dict): A dictionary that maps the names of the columns
             in the year being read in, to the canonical EIA923 column names
             (i.e. the column names as they are in 2014-2016). This dictionary
             will be used by DataFrame.rename(). The keys are the column names
@@ -108,17 +108,26 @@ def get_eia923_column_map(page, year):
     return((sheetname, skiprows, column_map))
 
 
-def get_eia923_page(page, years=[2014, 2015, 2016], verbose=True):
+def get_eia923_page(page, eia923_xlsx, years=[2014, 2015, 2016], verbose=True):
     """
     Read a single table from several years of EIA923 data. Return a DataFrame.
 
-    The page argument must be exactly one of the following strings:
-      - 'generation_fuel'
-      - 'stocks'
-      - 'boiler_fuel'
-      - 'generator'
-      - 'fuel_receipts_costs'
-      - 'plant_frame'
+    Args:
+        page (str): The string label indicating which page of the EIA923 we
+        are attempting to read in. The page argument must be exactly one of the
+        following strings:
+            - 'generation_fuel'
+            - 'stocks'
+            - 'boiler_fuel'
+            - 'generator'
+            - 'fuel_receipts_costs'
+            - 'plant_frame'
+
+      years (list): The set of years to read into the dataframe.
+
+    Returns:
+        pandas.DataFrame: A dataframe containing the data from the selected
+            page and selected years from EIA 923.
     """
     for year in years:
         assert(year > 2010), "EIA923 parsing only works for 2011 and later."
@@ -126,15 +135,16 @@ def get_eia923_page(page, years=[2014, 2015, 2016], verbose=True):
     assert(page in constants.tab_map_eia923.columns and page != 'year_index'),\
         "Unrecognized EIA 923 page: {}".format(page)
 
-    filenames = get_eia923_files(years)
-
     df = pd.DataFrame()
-    for (yr, fn) in zip(years, filenames):
+    for yr in years:
         if verbose:
-            print('Reading EIA 923 {} data for {}...'.format(page, yr))
+            print('Converting EIA 923 {} for {} to DataFrame...'.
+                  format(page, yr))
 
         sheetname, skiprows, column_map = get_eia923_column_map(page, yr)
-        newdata = pd.read_excel(fn, sheetname=sheetname, skiprows=skiprows)
+        newdata = pd.read_excel(eia923_xlsx[yr],
+                                sheetname=sheetname,
+                                skiprows=skiprows)
 
         # Clean column names: lowercase, underscores instead of white space,
         # no non-alphanumeric characters

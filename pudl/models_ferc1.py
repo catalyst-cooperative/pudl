@@ -284,9 +284,7 @@ class PlantHydroFERC1(models.PUDLBase):
 
 
 class PlantsPumpedStorage(models.PUDLBase):
-    """
-    Annual data on pumped storage imported from the f1_pumped_storage table.
-    """
+    """Annual data on pumped storage from the f1_pumped_storage table."""
 
     __tablename__ = 'plants_pummped_storage_ferc1'
     __table_args__ = (ForeignKeyConstraint(

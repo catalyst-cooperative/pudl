@@ -77,16 +77,21 @@ def cleanstrings(field, stringmap, unmapped=None):
     values in the original field with a value (like NaN) to indicate data which
     is uncategorized or confusing.
 
-    field is a pandas dataframe column (e.g. f1_fuel["FUEL"])
+    Args:
+        field (pandas.DataFrame column): A pandas DataFrame column
+            (e.g. f1_fuel["FUEL"]) whose strings will be matched, where
+            possible, to categorical values from the stringmap dictionary.
 
-    stringmap is a dictionary whose keys are the strings we're mapping to, and
-    whose values are the strings that get mapped.
+        stringmap (dict): A dictionary whose keys are the strings we're mapping
+            to, and whose values are the strings that get mapped.
 
-    unmapped is the value which strings not found in the stringmap dictionary
-    should be replaced by.
+        unmapped (str, None, NaN) is the value which strings not found in the
+            stringmap dictionary should be replaced by.
 
-    The function returns a new pandas series/column that can be used to set the
-    values of the original data.
+    Returns:
+
+        pandas.Series: The function returns a new pandas series/column that can
+            be used to set the values of the original data.
     """
     from numpy import setdiff1d
 
@@ -118,11 +123,13 @@ def extract_dbc_tables(year, minstring=4):
     only 10 characters in their names.) Strings must have at least min
     printable characters.
 
-    Returns a dictionary whose keys are the long table names extracted from the
-    DBC file, and whose values are lists of pairs of values, the first of which
-    is the full name of each field in the table with the same name as the key,
-    and the second of which is the truncated (<=10 character) long name of that
-    field as found in the DBF file.
+    Returns:
+
+        dict: A dictionary whose keys are the long table names extracted from
+            the DBC file, and whose values are lists of pairs of values, the
+            first of which is the full name of each field in the table with the
+            same name as the key, and the second of which is the truncated
+            (<=10 character) long name of that field as found in the DBF file.
 
     TODO: This routine shouldn't refer to any particular year of data, but
     right now it depends on the ferc1_dbf2tbl dictionary, which was generated
@@ -198,10 +205,13 @@ def define_db(refyear, ferc1_tables, ferc1_meta, verbose=True):
     recreate a subset of the FERC Form 1 database as a Postgres database using
     SQLAlchemy.
 
-    refyear:    year of FERC Form 1 data to use as the database template.
-    dbfs:       list of DBF file prefixes (e.g. F1_77) to ingest.
-    ferc1_meta: SQLAlchemy MetaData object to store the schema in.
+    Args:
 
+        refyear (int): Year of FERC Form 1 data to use as the database
+            template.
+        ferc1_tables (list): List of FERC Form 1 tables to ingest.
+        ferc1_meta (SQLAlchemy MetaData): SQLAlchemy MetaData object
+            to store the schema in.
     """
     from sqlalchemy import Table, Column, Integer, String, Float, DateTime
     from sqlalchemy import Boolean, Date, MetaData, Text, ForeignKeyConstraint
@@ -282,6 +292,15 @@ def init_db(ferc1_tables=constants.ferc1_default_tables,
 
     This function uses dbfread and SQLAlchemy to migrate a set of FERC Form 1
     database tables from the provided DBF format into a postgres database.
+
+    Args:
+
+        ferc1_tables (list): The set of tables to read from the FERC Form 1 dbf
+            database into the FERC Form 1 DB.
+        refyear (int): Year of FERC Form 1 data to use as the database
+            template.
+        years (list): The set of years to read from FERC Form 1 dbf database
+            into the FERC Form 1 DB.
     """
     import dbfread
     from sqlalchemy.dialects.postgresql import insert

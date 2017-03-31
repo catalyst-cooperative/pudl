@@ -339,7 +339,7 @@ class FuelReceiptsCostsEIA923(models.PUDLBase):
     contract_type = Column(String)
     contract_expiration_date = Column(Integer)
     energy_source = Column(String, ForeignKey('energy_source_eia923.abbr'))
-    coalmine_msha_id = Column(Integer)  # TODO: add FK for coalmine_msha_id
+    coalmine_id = Column(Integer, ForeignKey('coalmine_info_eia923.id'))
     supplier = Column(String, nullable=False)  # TODO FK new table?
     qty = Column(Integer, nullable=False)
     average_heat_content = Column(Integer, nullable=False)
