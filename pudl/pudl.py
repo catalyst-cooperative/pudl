@@ -29,7 +29,7 @@ from sqlalchemy import Integer, String, Numeric, Boolean, Float
 from pudl import settings
 from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
 from pudl.eia923 import get_eia923_page, yearly_to_monthly_eia923
-from pudl.eia923 import get_eia923_files
+from pudl.eia923 import get_eia923_files, get_eia923_xlsx
 from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
 from pudl.constants import ferc1_fuel_unit_strings, rto_iso
 from pudl.constants import ferc1_plant_kind_strings, ferc1_type_const_strings
@@ -1403,11 +1403,7 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
     # Rather than reading in the same Excel files several times, we can just
     # read them each in once (one per year) and use the ExcelFile object to
     # refer back to the data in memory:
-    eia923_xlsx = {}
-    for yr in eia923_years:
-        if verbose:
-            print("Reading EIA 923 spreadsheet data for {}.".format(yr))
-        eia923_xlsx[yr] = pd.ExcelFile(get_eia923_files([yr, ])[0])
+    eia923_xlsx = get_eia923_xlsx(eia923_years)
 
     # Now we can take the year by year Excel files, and turn them into page
     # by page dataframes...
