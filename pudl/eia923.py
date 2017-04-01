@@ -166,6 +166,93 @@ def get_eia923_page(page, eia923_xlsx, years=[2014, 2015, 2016], verbose=True):
     return(df)
 
 
+def get_eia923_xlsx(years=[2014, 2015]):
+    """
+    Read in Excel files to create Excel objects.
+
+    Rather than reading in the same Excel files several times, we can just
+    read them each in once (one per year) and use the ExcelFile object to
+    refer back to the data in memory.
+    """
+    eia923_xlsx = {}
+    for yr in years:
+        print("Reading EIA 923 spreadsheet data for {}.".format(yr))
+        eia923_xlsx[yr] = pd.ExcelFile(get_eia923_files([yr, ])[0])
+    return(eia923_xlsx)
+
+
+def get_eia923_plant_info(years, eia923_xlsx):
+    """
+    Generate an exhaustive list of EIA 923 plants.
+
+    Most plants are listed in the 'Plant Frame' tabs for each year. The 'Plant
+    Frame' tab does not exist before 2011 and there is plant specific
+    information that is not included in the 'Plant Frame' tab that will be
+    pulled into the plant info table. For years before 2011, it will be used to
+    generate the exhaustive list of plants.
+
+    This function will be used in two ways: to populate the plant info table
+    and to check the plant mapping to find missing plants.
+    """
+    df = pd.DataFrame(columns=['plant_id', 'census_region', 'nerc_region'])
+    early_years = [y for y in years if y < 2011]
+    recent_years = [y for y in years if y >= 2011]
+
+    for yr in years:
+        assert(yr > 2011), "EIA923 plant info only works for 2011 & later."
+
+    df_recent_years = pd.DataFrame(columns=['plant_id'])
+    pf = get_eia923_page('plant_frame', eia923_xlsx, recent_years)
+    pf = pf[['plant_id', 'plant_state',
+             'combined_heat_and_power_status',
+             'sector_number', 'naics_code',
+             'reporting_frequency']]
+
+    gf = get_eia923_page('generation_fuel', eia923_xlsx, recent_years)
+    gf = gf[['plant_id', 'plant_state',
+             'combined_heat_and_power_plant', ]]
+    gf = gf.rename(
+        columns={'combined_heat_and_power_plant':
+                 'combined_heat_and_power_status'})
+    gf = gf.drop_duplicates(subset='plant_id')
+
+    bf = get_eia923_page('boiler_fuel', eia923_xlsx, recent_years)
+    bf = bf[['plant_id', 'plant_state',
+             'combined_heat_and_power_plant',
+             'naics_code', 'naics_code',
+             'sector_number', 'census_region', 'nerc_region', ]]
+    bf = bf.rename(
+        columns={'combined_heat_and_power_plant':
+                 'combined_heat_and_power_status'})
+    bf = bf.drop_duplicates(subset='plant_id')
+
+    g = get_eia923_page('generator', eia923_xlsx, recent_years)
+    g = g[['plant_id', 'plant_state', 'combined_heat_and_power_plant',
+           'census_region', 'nerc_region', 'naics_code', 'sector_number']]
+    g = g.rename(
+        columns={'combined_heat_and_power_plant':
+                 'combined_heat_and_power_status'})
+    g = g.drop_duplicates(subset='plant_id')
+
+    frc = get_eia923_page('fuel_receipts_costs', eia923_xlsx, recent_years)
+    frc = frc[['plant_id', 'plant_state']]
+    frc = frc.drop_duplicates(subset='plant_id')
+
+    plant_ids = pd.concat([pf.plant_id, gf.plant_id, bf.plant_id],)
+    plant_ids = plant_ids.unique()
+    df_recent_years['plant_id'] = plant_ids
+
+    df_recent_years = df_recent_years.merge(pf, on='plant_id', how='left')
+    df_recent_years = df_recent_years.merge(bf[['plant_id',
+                                                'census_region',
+                                                'nerc_region']],
+                                            on='plant_id', how='left')
+    df = pd.concat([df, df_recent_years, ])
+    df = df.drop_duplicates()
+
+    return(df)
+
+
 def yearly_to_monthly_eia923(df, md):
     """
     Convert an EIA 923 record with 12 months of data into 12 monthly records.
