@@ -166,7 +166,7 @@ def get_eia923_page(page, eia923_xlsx, years=[2014, 2015, 2016], verbose=True):
     return(df)
 
 
-def get_eia923_xlsx(years=[2014, 2015]):
+def get_eia923_xlsx(years):
     """
     Read in Excel files to create Excel objects.
 
@@ -177,7 +177,7 @@ def get_eia923_xlsx(years=[2014, 2015]):
     eia923_xlsx = {}
     for yr in years:
         print("Reading EIA 923 spreadsheet data for {}.".format(yr))
-        eia923_xlsx[yr] = pd.ExcelFile(get_eia923_files([yr, ])[0])
+        eia923_xlsx[yr] = pd.ExcelFile(get_eia923_file(yr))
     return(eia923_xlsx)
 
 
