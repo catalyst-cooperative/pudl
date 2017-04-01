@@ -31,22 +31,12 @@ def datadir(year):
         return(os.path.join(settings.EIA923_DATA_DIR, 'f923_{}'.format(year)))
 
 
-def get_eia923_files(years=[2014, 2015, 2016]):
-    """
-    Generate paths to EIA 923 spreadsheets corresponding to given years.
-
-    This function select spreadsheets containing string '2_3_4' for years
-    2014-2016 of EIA Form923 data. Years prior to 2014 do not fit formatting
-    used in 'get_eia923_page' function. Additional parsing logic is required.
-    """
+def get_eia923_file(yr):
+    """Return path to EIA 923 spreadsheets corresponding to a given year."""
     from glob import glob
 
-    for yr in years:
-        assert(yr > 2008), "EIA923 file selection only works for 2008 & later."
-
-    # Find all the files matching *2_3_4* within the EIA923 data directories
-    # corresponding to the years that we're looking at.
-    return([glob(os.path.join(datadir(yr), '*2_3_4*'))[0] for yr in years])
+    assert(yr > 2008), "EIA923 file selection only works for 2008 & later."
+    return(glob(os.path.join(datadir(yr), '*2_3_4*'))[0])
 
 
 def get_eia923_column_map(page, year):

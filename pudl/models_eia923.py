@@ -265,17 +265,9 @@ class GenerationFuelEIA923(models.PUDLBase):
 
 
 class BoilerFuelEIA923(models.PUDLBase):
-    """
-    Monthly fuel consumption by boiler as reported on Page 3 of EIA Form 923.
-
-    NOT DONE YET.
-    """
+    """Monthly fuel consumption by boiler reported on Page 3 of EIA 923."""
 
     __tablename__ = 'boiler_fuel_eia923'
-    #
-    # __table_args__ = (ForeignKeyConstraint(
-    #     ['plant_id', 'boiler_id'],
-    #     ['boilers_eia923.plant_id', 'boilers_eia923.id']),)
 
     # Each month, for each unique combination of boiler id and prime mover and
     # fuel, there is one report for each boiler unit in each plant.
@@ -341,12 +333,12 @@ class FuelReceiptsCostsEIA923(models.PUDLBase):
     energy_source = Column(String, ForeignKey('energy_source_eia923.abbr'))
     coalmine_id = Column(Integer, ForeignKey('coalmine_info_eia923.id'))
     supplier = Column(String, nullable=False)  # TODO FK new table?
-    qty = Column(Integer, nullable=False)
-    average_heat_content = Column(Integer, nullable=False)
-    average_sulfur_content = Column(Integer, nullable=False)
-    average_ash_content = Column(Integer, nullable=False)
-    average_mercury_content = Column(Integer)
-    fuel_cost = Column(Integer)  # null values exist in data
+    fuel_quantity = Column(Float, nullable=False)
+    average_heat_content = Column(Float, nullable=False)
+    average_sulfur_content = Column(Float, nullable=False)
+    average_ash_content = Column(Float, nullable=False)
+    average_mercury_content = Column(Float)
+    fuel_cost = Column(Float)
     primary_transportation_mode = Column(
         String,
         ForeignKey('transport_modes_eia923.abbr'))

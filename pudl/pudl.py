@@ -20,6 +20,7 @@ Mapper (ORM) and initializes the database from several sources:
 
 import pandas as pd
 import numpy as np
+import postgres_copy
 
 from sqlalchemy.sql import select
 from sqlalchemy.engine.url import URL
@@ -29,7 +30,7 @@ from sqlalchemy import Integer, String, Numeric, Boolean, Float
 from pudl import settings
 from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
 from pudl.eia923 import get_eia923_page, yearly_to_monthly_eia923
-from pudl.eia923 import get_eia923_files
+from pudl.eia923 import get_eia923_file
 from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
 from pudl.constants import ferc1_fuel_unit_strings, rto_iso
 from pudl.constants import ferc1_plant_kind_strings, ferc1_type_const_strings
@@ -37,7 +38,7 @@ from pudl.constants import ferc1_default_tables, ferc1_pudl_tables
 from pudl.constants import ferc1_working_tables
 from pudl.constants import ferc_electric_plant_accounts
 from pudl.constants import ferc_accumulated_depreciation
-from pudl.constants import month_dict_2015_eia923
+from pudl.constants import month_dict_eia923
 
 # Tables that hold constant values:
 from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
@@ -767,12 +768,6 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     ferc1_small_df['kind_of_fuel'] = ferc1_small_df['kind_of_fuel'].str.strip()
     ferc1_small_df['kind_of_fuel'] = ferc1_small_df['kind_of_fuel'].str.title()
 
-    # Clean up the fuel strings using the combined fuel strings dictionries
-    # TODO: not sure these fuel types have the same categories.
-    # ferc1_small_df.kind_of_fuel = cleanstrings(ferc1_small_df.kind_of_fuel,
-    #                                           ferc1_fuel_strings,
-    #                                           unmapped=np.nan)
-
     # Force the construction and installation years to be numeric values, and
     # set them to NA if they can't be converted. (table has some junk values)
     ferc1_small_df['yr_constructed'] = pd.to_numeric(
@@ -929,8 +924,8 @@ def ingest_plant_info_eia923(pudl_engine, eia923_dfs):
     # From 'plant_frame'
     plant_frame_cols = ['plant_id',
                         'plant_state',
-                        'combined_heat_and_power_status',
-                        'sector_number',
+                        'combined_heat_power',
+                        'eia_sector',
                         'naics_code',
                         'reporting_frequency']
 
@@ -956,14 +951,9 @@ def ingest_plant_info_eia923(pudl_engine, eia923_dfs):
                              how='outer', on='plant_id')
 
     # Since this is a plain Yes/No variable -- just make it a real Boolean.
-    plant_info_df.combined_heat_and_power_status.replace(
-        {'N': False, 'Y': True}, inplace=True)
+    plant_info_df.combined_heat_power.replace({'N': False, 'Y': True},
+                                              inplace=True)
 
-    plant_info_df.rename(columns={
-        # column HEADing in EIA 923        PUDL DB field name
-        'combined_heat_and_power_status': 'combined_heat_power',
-        'sector_number': 'eia_sector'},
-        inplace=True)
     # Output into the DB:
     plant_info_df.to_sql(name='plant_info_eia923',
                          con=pudl_engine, index=False, if_exists='append',
@@ -983,7 +973,7 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
     gf_df = eia923_dfs['generation_fuel'].copy()
 
     # Drop fields we're not inserting into the generation_fuel_eia923 table.
-    cols_to_drop = ['combined_heat_and_power_plant',
+    cols_to_drop = ['combined_heat_power',
                     'plant_name',
                     'operator_name',
                     'operator_id',
@@ -991,9 +981,9 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
                     'census_region',
                     'nerc_region',
                     'naics_code',
-                    'eia_sector_number',
+                    'eia_sector',
                     'sector_name',
-                    'physical_unit_label',
+                    'fuel_unit',
                     'total_fuel_consumption_quantity',
                     'electric_fuel_consumption_quantity',
                     'total_fuel_consumption_mmbtu',
@@ -1002,64 +992,27 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
     gf_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    gf_df = yearly_to_monthly_eia923(gf_df, month_dict_2015_eia923)
+    gf_df = yearly_to_monthly_eia923(gf_df, month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     gf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
     # Remove "State fuel-level increment" records... which don't pertain to
     # any particular plant (they have plant_id == operator_id == 99999)
     gf_df = gf_df[gf_df.plant_id != 99999]
 
-    # Rename them to be consistent with the PUDL DB fields, if need be.
-    gf_df.rename(columns={
-        # EIA 923              PUDL DB field name
-        'reported_prime_mover': 'prime_mover',
-        'reported_fuel_type_code': 'fuel_type',
-        'aer_fuel_type_code': 'aer_fuel_type',
-        'quantity': 'fuel_consumed_total',
-        'elec_quantity': 'fuel_consumed_for_electricity',
-        'mmbtuper_unit': 'fuel_mmbtu_per_unit',
-        'tot_mmbtu': 'fuel_consumed_total_mmbtu',
-        'elec_mmbtu': 'fuel_consumed_for_electricity_mmbtu',
-        'netgen': 'net_generation_mwh'},
-        inplace=True)
-
-    gf_df.to_sql(name='generation_fuel_eia923',
-                 con=pudl_engine, index=False, if_exists='append',
-                 dtype={'plant_id': Integer,
-                        'nuclear_unit_id': Integer,
-                        'prime_mover': String,
-                        'fuel_type': String,
-                        'aer_fuel_type': String,
-                        'fuel_consumed_total': Float,
-                        'fuel_consumed_for_electricity': Float,
-                        'fuel_mmbtu_per_unit': Float,
-                        'fuel_consumed_total_mmbtu': Float,
-                        'fuel_consumed_for_electricity_mmbtu': Float,
-                        'net_generation_mwh': Float},
-                 chunksize=10000)
-
-
-"""
- def ingest_operator_info_eia923(pudl_engine, eia923_dfs):
-    # Ingest data on static attributes of operators from EIA Form 923.
-    # operator_id
-    # operator_name
-    # regulatory_status: make this a Boolean:
-    #  - Regulated = True
-    #  - Unregulated = False
-    # From 'fuel_receipts_costs'
-    fuel_receipts_costs_cols = ['operator_id', 'regulated']
-
-    operator_df = eia923_dfs['fuel_receipts_costs'][fuel_receipts_costs_cols]
-
-    # Since this is a plain Yes/No variable -- just make it a real Boolean.
-        operator_df.regulated.replace(
-            {'REG': True, 'UNR': False}, inplace=True)
-
-        operator_df.to_sql(name='operator_info_eia923',
-                       con=pudl_engine, index=False, if_exists='append',
-                       dtype={'operator_id': Integer,
-                              'regulated': Boolean}) """
+    # Take a float field and make it an integer, with the empty String
+    # as the NA value... for postgres loading. Yes, this is janky.
+    gf_df['nuclear_unit_id'] = gf_df.nuclear_unit_id.\
+        replace(np.nan, -1).\
+        astype(int).\
+        astype(str).\
+        replace('-1', '')
+    gf_df.to_csv('generation_fuel_eia923.csv', index=False)
+    gf_table = PUDLBase.metadata.tables['generation_fuel_eia923']
+    postgres_copy.copy_from(
+        open('generation_fuel_eia923.csv', 'r'),
+        gf_table, pudl_engine,
+        columns=tuple(gf_df.columns),
+        format='csv', header=True, delimiter=',')
 
 
 def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
@@ -1067,33 +1020,29 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
     # Populate 'boilers_eia923' table
     boiler_cols = ['plant_id',
                    'boiler_id',
-                   'reported_prime_mover']
+                   'prime_mover']
 
     boilers_df = eia923_dfs['boiler_fuel'][boiler_cols]
     boilers_df = boilers_df.drop_duplicates(
         subset=['plant_id', 'boiler_id'])
 
-    boilers_df.rename(columns={
-        # column HEADing in EIA 923        PUDL DB field name
-        'reported_prime_mover': 'prime_mover'},
-        inplace=True)
-
     # drop null values from foreign key fields
     boilers_df.dropna(subset=['boiler_id', 'plant_id'], inplace=True)
 
-    boilers_df.to_sql(name='boilers_eia923',
-                      con=pudl_engine, index=False, if_exists='append',
-                      dtype={'plant_id': Integer,
-                             'boiler_id': String,
-                             'prime_mover': String},
-                      chunksize=10000)
+    boilers_df.to_csv('boilers_eia923.csv', index=False)
+    boilers_table = PUDLBase.metadata.tables['boilers_eia923']
+    postgres_copy.copy_from(
+        open('boilers_eia923.csv', 'r'),
+        boilers_table, pudl_engine,
+        columns=tuple(boilers_df.columns),
+        format='csv', header=True, delimiter=',')
 
     # Populate 'boiler_fuel_eia923' table
     # This needs to be a copy of what we're passed in so we can edit it.
     bf_df = eia923_dfs['boiler_fuel'].copy()
 
     # Drop fields we're not inserting into the boiler_fuel_eia923 table.
-    cols_to_drop = ['combined_heat_and_power_plant',
+    cols_to_drop = ['combined_heat_power',
                     'plant_name',
                     'operator_name',
                     'operator_id',
@@ -1101,73 +1050,58 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
                     'census_region',
                     'nerc_region',
                     'naics_code',
-                    'sector_number',
+                    'eia_sector',
                     'sector_name',
-                    'physical_unit_label',
+                    'fuel_unit',
                     'total_fuel_consumption_quantity']
     bf_df.drop(cols_to_drop, axis=1, inplace=True)
 
     bf_df.dropna(subset=['boiler_id', 'plant_id'], inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    bf_df = yearly_to_monthly_eia923(bf_df, month_dict_2015_eia923)
+    bf_df = yearly_to_monthly_eia923(bf_df, month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     bf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
-    # Remove "State fuel-level increment" records... which don't pertain to
-    # any particular plant (they have plant_id == operator_id == 99999)
-    # These don't occur in boiler_fuel tab so should be able to leave this out
-    # bf_df = bf_df[bf_df.plant_id != 99999]
 
-    # Rename them to be consistent with the PUDL DB fields, if need be.
-    bf_df.rename(columns={
-        # EIA 923              PUDL DB field name
-        'reported_prime_mover': 'prime_mover',
-        'reported_fuel_type_code': 'fuel_type',
-        'quantity_of_fuel_consumed': 'fuel_qty_consumed',
-        'mmbtu_per_unit': 'fuel_mmbtu_per_unit'},
-        inplace=True)
-
-    bf_df.to_sql(name='boiler_fuel_eia923',
-                 con=pudl_engine, index=False, if_exists='append',
-                 dtype={'plant_id': Integer,
-                        'boiler_id': String,
-                        'prime_mover': String,
-                        'fuel_type': String,
-                        'fuel_consumed_total': Float,
-                        'fuel_mmbtu_per_unit': Float,
-                        'sulfur_content': Float,
-                        'ash_content': Float},
-                 chunksize=10000)
+    bf_df.to_csv('boiler_fuel_eia923.csv', index=False)
+    bf_table = PUDLBase.metadata.tables['boiler_fuel_eia923']
+    postgres_copy.copy_from(
+        open('boiler_fuel_eia923.csv', 'r'),
+        bf_table, pudl_engine,
+        columns=tuple(bf_df.columns),
+        format='csv', header=True, delimiter=',')
 
 
 def ingest_generator_eia923(pudl_engine, eia923_dfs):
-    """Ingest data on electricity production by generator from EIA Form 923."""
+    """
+    Ingest data on electricity production by generator from EIA Form 923.
+
+    This function populates two tables in the PUDL DB.  One describing the
+    generators (generators_eia923) and another containing records of reported
+    generation (generation_eia923).
+    """
     # This needs to be a copy of what we're passed in so we can edit it.
     g_df = eia923_dfs['generator'].copy()
 
     # Populating the 'generators_eia923' table
     generator_cols = ['plant_id',
                       'generator_id',
-                      'reported_prime_mover']
+                      'prime_mover']
 
     generators_df = eia923_dfs['generator'][generator_cols]
     generators_df = generators_df.drop_duplicates(
         subset=['plant_id', 'generator_id'])
 
-    generators_df.rename(columns={
-        # column HEADing in EIA 923        PUDL DB field name
-        'reported_prime_mover': 'prime_mover'},
-        inplace=True)
-
     # drop null values from foreign key fields
     generators_df.dropna(subset=['generator_id', 'plant_id'], inplace=True)
 
-    generators_df.to_sql(name='generators_eia923',
-                         con=pudl_engine, index=False, if_exists='append',
-                         dtype={'plant_id': Integer,
-                                'generator_id': String,
-                                'prime_mover': String},
-                         chunksize=10000)
+    generators_df.to_csv('generators_eia923.csv', index=False)
+    generators_table = PUDLBase.metadata.tables['generators_eia923']
+    postgres_copy.copy_from(
+        open('generators_eia923.csv', 'r'),
+        generators_table, pudl_engine,
+        columns=tuple(generators_df.columns),
+        format='csv', header=True, delimiter=',')
 
     # Populating the generation_eia923 table:
     # This needs to be a copy of what we're passed in so we can edit it.
@@ -1175,7 +1109,7 @@ def ingest_generator_eia923(pudl_engine, eia923_dfs):
 
     # Drop fields we're not inserting into the generation_eia923_fuel_eia923
     # table.
-    cols_to_drop = ['combined_heat_and_power_plant',
+    cols_to_drop = ['combined_heat_power',
                     'plant_name',
                     'operator_name',
                     'operator_id',
@@ -1183,42 +1117,28 @@ def ingest_generator_eia923(pudl_engine, eia923_dfs):
                     'census_region',
                     'nerc_region',
                     'naics_code',
-                    'sector_number',
+                    'eia_sector',
                     'sector_name',
-                    'net_generation_year_to_date']
+                    'net_generation_mwh_year_to_date']
 
     g_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    g_df = yearly_to_monthly_eia923(g_df, month_dict_2015_eia923)
+    g_df = yearly_to_monthly_eia923(g_df, month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     g_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
-    # Remove "State fuel-level increment" records... which don't pertain to
-    # any particular plant (they have plant_id == operator_id == 99999)
-    # These don't occur in boiler_fuel tab, so should be able to leave this out
-    # g_df = g_df[g_df.plant_id != 99999]
-    #
-    # # Rename them to be consistent with the PUDL DB fields, if need be.
-    g_df.rename(columns={
-        # EIA 923              PUDL DB field name
-        'reported_prime_mover': 'prime_mover',
-        'net_generation': 'net_generation_mwh'},
-        inplace=True)
 
-    g_df.to_sql(name='generation_eia923',
-                con=pudl_engine, index=False, if_exists='append',
-                dtype={'plant_id': Integer,
-                       'generator_id': String,
-                       'prime_mover': String,
-                       'net_generation_mwh': Float},
-                chunksize=10000)
+    g_df.to_csv('generation_eia923.csv', index=False)
+    g_table = PUDLBase.metadata.tables['generation_eia923']
+    postgres_copy.copy_from(
+        open('generation_eia923.csv', 'r'),
+        g_table, pudl_engine,
+        columns=tuple(g_df.columns),
+        format='csv', header=True, delimiter=',')
 
 
-# fuel_receipts_cost ingest function
 def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
     """Ingest data on fuel purchases and costs from EIA Form 923."""
-    #
-
     # Populate 'coalmine_info_eia923' table
     coalmine_cols = ['coalmine_name',
                      'coalmine_type',
@@ -1237,31 +1157,29 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
     # TODO: Not sure which fields of duplicates need to be dropped here
     coalmine_df = coalmine_df.drop_duplicates(subset=['coalmine_name',
                                                       'coalmine_msha_id'])
-    #
-    # coalmine_df.rename(columns={
-    #     # column HEADing in EIA 923        PUDL DB field name
-    #     'reported_prime_mover': 'prime_mover'},
-    #     inplace=True)
 
     # drop null values from foreign key fields
-    coalmine_df.dropna(
-        subset=['coalmine_name', ], inplace=True)
+    coalmine_df.dropna(subset=['coalmine_name', ], inplace=True)
 
-    coalmine_df.to_sql(name='coalmine_info_eia923',
-                       con=pudl_engine, index=False, if_exists='append',
-                       dtype={'coalmine_name': String,
-                              'coalmine_type': String,
-                              'coalmine_state': String,
-                              'coalmine_county': String,
-                              'coalmine_msha_id': String},
-                       chunksize=10000)
+    # Take a float field and make it an integer, with the empty String
+    # as the NA value... for postgres loading. Yes, this is janky.
+    coalmine_df['coalmine_msha_id'] = coalmine_df.coalmine_msha_id.\
+        replace(np.nan, -1).\
+        astype(int).\
+        astype(str).\
+        replace('-1', '')
+    coalmine_df.to_csv('coalmine_info_eia923.csv', index=False)
+    coalmine_table = PUDLBase.metadata.tables['coalmine_info_eia923']
+    postgres_copy.copy_from(
+        open('coalmine_info_eia923.csv', 'r'),
+        coalmine_table, pudl_engine,
+        columns=tuple(coalmine_df.columns),
+        format='csv', header=True, delimiter=',')
 
     frc_df = eia923_dfs['fuel_receipts_costs'].copy()
 
     # Drop fields we're not inserting into the fuel_receipts_costs_eia923
     # table.
-    # TODO: For now, keeping coalmine_msha_id in here, but need to replace with
-    # surrogate key
     cols_to_drop = ['plant_name',
                     'plant_state',
                     'operator_name',
@@ -1289,35 +1207,18 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
     frc_df['secondary_transportation_mode'] = \
         frc_df['secondary_transportation_mode'].str.upper()
 
-    # Rename them to be consistent with the PUDL DB fields, if need be.
-    frc_df.rename(columns={
-        # EIA 923              PUDL DB field name
-        'purchase_type': 'contract_type',
-        'reported_prime_mover': 'prime_mover',
-        'quantity': 'qty',
-        'natural_gas_transportation_service': 'natural_gas_transport'
-    },
-        inplace=True)
-
-    frc_df.to_sql(name='fuel_receipts_costs_eia923',
-                  con=pudl_engine, index=False, if_exists='append',
-                  dtype={'plant_id': Integer,
-                         'contract_type': String,
-                         'contract_expiration_date': Integer,
-                         'energy_source': String,
-                         'coalmine_id': Integer,
-                         'supplier': String,
-                         'qty': Integer,
-                         'average_heat_content': Integer,
-                         'average_sulfur_content': Integer,
-                         'average_ash_content': Integer,
-                         'average_mercury_content': Integer,
-                         'fuel_cost': Float,
-                         'primary_transportation_mode': String,
-                         'secondary_transportation_mode': String,
-                         'natural_gas_transport': String
-                         },
-                  chunksize=10000)
+    frc_df['contract_expiration_date'] = frc_df.contract_expiration_date.\
+        replace(np.nan, -1).\
+        astype(int).\
+        astype(str).\
+        replace('-1', '')
+    frc_df.to_csv('fuel_receipts_costs_eia923.csv', index=False)
+    frc_table = PUDLBase.metadata.tables['fuel_receipts_costs_eia923']
+    postgres_copy.copy_from(
+        open('fuel_receipts_costs_eia923.csv', 'r'),
+        frc_table, pudl_engine,
+        columns=tuple(frc_df.columns),
+        format='csv', header=True, delimiter=',')
 
 
 def ingest_stocks_eia923(pudl_engine, eia923_dfs):
@@ -1407,7 +1308,7 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
     for yr in eia923_years:
         if verbose:
             print("Reading EIA 923 spreadsheet data for {}.".format(yr))
-        eia923_xlsx[yr] = pd.ExcelFile(get_eia923_files([yr, ])[0])
+        eia923_xlsx[yr] = pd.ExcelFile(get_eia923_file(yr))
 
     # Now we can take the year by year Excel files, and turn them into page
     # by page dataframes...
