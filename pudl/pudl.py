@@ -21,6 +21,7 @@ Mapper (ORM) and initializes the database from several sources:
 import pandas as pd
 import numpy as np
 import postgres_copy
+import os.path
 
 from sqlalchemy.sql import select
 from sqlalchemy.engine.url import URL
@@ -106,6 +107,67 @@ def drop_tables_pudl(engine):
     """Drop all the tables associated with the PUDL Database and start over."""
     PUDLBase.metadata.drop_all(engine)
 
+###############################################################################
+###############################################################################
+#   OTHER HELPER FUNCTIONS
+###############################################################################
+###############################################################################
+
+
+def fix_int_na(col, float_na=np.nan, int_na=-1, str_na=''):
+    """
+    Convert a dataframe column from float to string for CSV export.
+
+    Numpy doesn't have a real NA value for integers. When pandas stores integer
+    data which has NA values, it thus upcasts integers to floating point
+    values, using np.nan values for NA. However, in order to dump some of our
+    dataframes to CSV files that are suitable for loading into postgres
+    directly, we need to write out integer formatted numbers, with empty
+    strings as the NA value. This function replaces np.nan values with a
+    sentiel value, converts the column to integers, and then to strings,
+    finally replacing the sentinel value with the desired NA string.
+
+    Args:
+        col (pandas.Series): The DataFrame column that needs to be
+            reformatted for output.
+        float_na (float): The floating point value to be interpreted as NA and
+            replaced in col.
+        int_na (int): Sentinel value to substitute for float_na prior to
+            conversion of the column to integers.
+        str_na (str): String value to substitute for int_na after the column
+            has been converted to strings.
+
+    Returns:
+        str_col (pandas.Series): a column containing the same values and lack
+            of values as the col argument, but stored as strings that are
+            compatible with the postgresql COPY FROM command.
+    """
+    return(col.replace(float_na, int_na).
+           astype(int).
+           astype(str).
+           replace(str(int_na), str_na))
+
+
+def csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
+    """
+    Write a dataframe to CSV and load it into postgresql using COPY FROM.
+
+    The fastest way to load a bunch of records is using the database's native
+    text file copy function.  This function dumps a given dataframe out to a
+    CSV file, and then loads it into the specified table as quickly as
+    possible.
+    """
+    import postgres_copy
+    import os
+
+    csvfile = os.path.join(csvdir, table_name + '.csv')
+    df.to_csv(csvfile, index=False)
+    tbl = PUDLBase.metadata.tables[table_name]
+    postgres_copy.copy_from(open(csvfile, 'r'), tbl, engine,
+                            columns=tuple(df.columns),
+                            format='csv', header=True, delimiter=',')
+    if not keep_csv:
+        os.remove(csvfile)
 
 ###############################################################################
 ###############################################################################
@@ -913,7 +975,8 @@ def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 ###############################################################################
 
 
-def ingest_plant_info_eia923(pudl_engine, eia923_dfs):
+def ingest_plant_info_eia923(pudl_engine, eia923_dfs,
+                             csvdir='', keep_csv=True):
     """
     Ingest data describing static attributes of plants from EIA Form 923.
 
@@ -962,7 +1025,8 @@ def ingest_plant_info_eia923(pudl_engine, eia923_dfs):
                                 'combined_heat_power': Boolean})
 
 
-def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
+def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
+                                  csvdir='', keep_csv=True):
     """
     Ingest generation and fuel data from Page 1 of EIA Form 923 into PUDL DB.
 
@@ -1000,22 +1064,19 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs):
     gf_df = gf_df[gf_df.plant_id != 99999]
 
     # Take a float field and make it an integer, with the empty String
-    # as the NA value... for postgres loading. Yes, this is janky.
-    gf_df['nuclear_unit_id'] = gf_df.nuclear_unit_id.\
-        replace(np.nan, -1).\
-        astype(int).\
-        astype(str).\
-        replace('-1', '')
-    gf_df.to_csv('generation_fuel_eia923.csv', index=False)
-    gf_table = PUDLBase.metadata.tables['generation_fuel_eia923']
-    postgres_copy.copy_from(
-        open('generation_fuel_eia923.csv', 'r'),
-        gf_table, pudl_engine,
-        columns=tuple(gf_df.columns),
-        format='csv', header=True, delimiter=',')
+    # as the NA value... for postgres loading.
+    gf_df['nuclear_unit_id'] = fix_int_na(gf_df['nuclear_unit_id'],
+                                          float_na=np.nan,
+                                          int_na=-1,
+                                          str_na='')
+
+    # Write the dataframe out to a csv file and load it directly
+    csv_dump_load(gf_df, 'generation_fuel_eia923', pudl_engine,
+                  csvdir=csvdir, keep_csv=keep_csv)
 
 
-def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
+def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
+                              csvdir='', keep_csv=True):
     """Ingest data on fuel consumption by boiler from EIA Form 923."""
     # Populate 'boilers_eia923' table
     boiler_cols = ['plant_id',
@@ -1029,13 +1090,9 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
     # drop null values from foreign key fields
     boilers_df.dropna(subset=['boiler_id', 'plant_id'], inplace=True)
 
-    boilers_df.to_csv('boilers_eia923.csv', index=False)
-    boilers_table = PUDLBase.metadata.tables['boilers_eia923']
-    postgres_copy.copy_from(
-        open('boilers_eia923.csv', 'r'),
-        boilers_table, pudl_engine,
-        columns=tuple(boilers_df.columns),
-        format='csv', header=True, delimiter=',')
+    # Write the dataframe out to a csv file and load it directly
+    csv_dump_load(boilers_df, 'boilers_eia923', pudl_engine,
+                  csvdir=csvdir, keep_csv=True)
 
     # Populate 'boiler_fuel_eia923' table
     # This needs to be a copy of what we're passed in so we can edit it.
@@ -1063,16 +1120,13 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs):
     # Replace the EIA923 NA value ('.') with a real NA value.
     bf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
 
-    bf_df.to_csv('boiler_fuel_eia923.csv', index=False)
-    bf_table = PUDLBase.metadata.tables['boiler_fuel_eia923']
-    postgres_copy.copy_from(
-        open('boiler_fuel_eia923.csv', 'r'),
-        bf_table, pudl_engine,
-        columns=tuple(bf_df.columns),
-        format='csv', header=True, delimiter=',')
+    # Write the dataframe out to a csv file and load it directly
+    csv_dump_load(bf_df, 'boiler_fuel_eia923', pudl_engine,
+                  csvdir=csvdir, keep_csv=keep_csv)
 
 
-def ingest_generator_eia923(pudl_engine, eia923_dfs):
+def ingest_generator_eia923(pudl_engine, eia923_dfs,
+                            csvdir='', keep_csv=True):
     """
     Ingest data on electricity production by generator from EIA Form 923.
 
@@ -1095,13 +1149,9 @@ def ingest_generator_eia923(pudl_engine, eia923_dfs):
     # drop null values from foreign key fields
     generators_df.dropna(subset=['generator_id', 'plant_id'], inplace=True)
 
-    generators_df.to_csv('generators_eia923.csv', index=False)
-    generators_table = PUDLBase.metadata.tables['generators_eia923']
-    postgres_copy.copy_from(
-        open('generators_eia923.csv', 'r'),
-        generators_table, pudl_engine,
-        columns=tuple(generators_df.columns),
-        format='csv', header=True, delimiter=',')
+    # Write the dataframe out to a csv file and load it directly
+    csv_dump_load(generators_df, 'generators_eia923', pudl_engine,
+                  csvdir=csvdir, keep_csv=keep_csv)
 
     # Populating the generation_eia923 table:
     # This needs to be a copy of what we're passed in so we can edit it.
@@ -1128,16 +1178,13 @@ def ingest_generator_eia923(pudl_engine, eia923_dfs):
     # Replace the EIA923 NA value ('.') with a real NA value.
     g_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
 
-    g_df.to_csv('generation_eia923.csv', index=False)
-    g_table = PUDLBase.metadata.tables['generation_eia923']
-    postgres_copy.copy_from(
-        open('generation_eia923.csv', 'r'),
-        g_table, pudl_engine,
-        columns=tuple(g_df.columns),
-        format='csv', header=True, delimiter=',')
+    # Write the dataframe out to a csv file and load it directly
+    csv_dump_load(g_df, 'generation_eia923', pudl_engine,
+                  csvdir=csvdir, keep_csv=keep_csv)
 
 
-def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
+def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
+                                      csvdir='', keep_csv=True):
     """Ingest data on fuel purchases and costs from EIA Form 923."""
     # Populate 'coalmine_info_eia923' table
     coalmine_cols = ['coalmine_name',
@@ -1163,18 +1210,15 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
 
     # Take a float field and make it an integer, with the empty String
     # as the NA value... for postgres loading. Yes, this is janky.
-    coalmine_df['coalmine_msha_id'] = coalmine_df.coalmine_msha_id.\
-        replace(np.nan, -1).\
-        astype(int).\
-        astype(str).\
-        replace('-1', '')
-    coalmine_df.to_csv('coalmine_info_eia923.csv', index=False)
-    coalmine_table = PUDLBase.metadata.tables['coalmine_info_eia923']
-    postgres_copy.copy_from(
-        open('coalmine_info_eia923.csv', 'r'),
-        coalmine_table, pudl_engine,
-        columns=tuple(coalmine_df.columns),
-        format='csv', header=True, delimiter=',')
+    coalmine_df['coalmine_msha_id'] = \
+        fix_int_na(coalmine_df['coalmine_msha_id'],
+                   float_na=np.nan,
+                   int_na=-1,
+                   str_na='')
+
+    # Write the dataframe out to a csv file and load it directly
+    csv_dump_load(coalmine_df, 'coalmine_info_eia923', pudl_engine,
+                  csvdir=csvdir, keep_csv=keep_csv)
 
     frc_df = eia923_dfs['fuel_receipts_costs'].copy()
 
@@ -1207,21 +1251,17 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs):
     frc_df['secondary_transportation_mode'] = \
         frc_df['secondary_transportation_mode'].str.upper()
 
-    frc_df['contract_expiration_date'] = frc_df.contract_expiration_date.\
-        replace(np.nan, -1).\
-        astype(int).\
-        astype(str).\
-        replace('-1', '')
-    frc_df.to_csv('fuel_receipts_costs_eia923.csv', index=False)
-    frc_table = PUDLBase.metadata.tables['fuel_receipts_costs_eia923']
-    postgres_copy.copy_from(
-        open('fuel_receipts_costs_eia923.csv', 'r'),
-        frc_table, pudl_engine,
-        columns=tuple(frc_df.columns),
-        format='csv', header=True, delimiter=',')
+    frc_df['contract_expiration_date'] = \
+        fix_int_na(frc_df['contract_expiration_date'],
+                   float_na=np.nan,
+                   int_na=-1,
+                   str_na='')
+    # Write the dataframe out to a csv file and load it directly
+    csv_dump_load(frc_df, 'fuel_receipts_costs_eia923', pudl_engine,
+                  csvdir=csvdir, keep_csv=keep_csv)
 
 
-def ingest_stocks_eia923(pudl_engine, eia923_dfs):
+def ingest_stocks_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
     """Ingest data on fuel stocks from EIA Form 923."""
     pass
 
@@ -1234,10 +1274,12 @@ def ingest_stocks_eia923(pudl_engine, eia923_dfs):
 
 
 def init_db(ferc1_tables=ferc1_pudl_tables,
-            ferc1_years=[2015, ],
+            ferc1_years=range(2007, 2016),
             eia923_tables=eia923_pudl_tables,
-            eia923_years=[2014, 2015, 2016],
-            verbose=True, debug=False, testing=False):
+            eia923_years=range(2011, 2016),
+            verbose=True, debug=False, testing=False,
+            csvdir=os.path.join(settings.PUDL_DIR, 'results', 'csvdump'),
+            keep_csv=True):
     """
     Create the PUDL database and fill it up with data.
 
@@ -1352,4 +1394,5 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
         if table in eia923_tables:
             if verbose:
                 print("Ingesting {} from EIA 923 into PUDL.".format(table))
-            eia923_ingest_functions[table](pudl_engine, eia923_dfs)
+            eia923_ingest_functions[table](pudl_engine, eia923_dfs,
+                                           csvdir=csvdir, keep_csv=keep_csv)
