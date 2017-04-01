@@ -200,45 +200,45 @@ ferc1_fuel_unit_strings = {'ton': ferc1_ton_strings,
 # classified as these do not indicate if they are solar thermal or
 # photovoltaic.
 
-ferc1_plant_kind_coal = ['Coal']
+ferc1_plant_kind_coal = ['coal']
 
 ferc1_plant_kind_combustion_turbine = \
-    ['Combustion Turbine', 'GT', 'Gas Turbine',
-     'Gas Turbine # 1', 'Gas turbine', 'Gas Turbine (Note 1)',
-     'Gas Turbines', 'Simple Cycle', 'COMBUSTION TURBINE',
-     'COMB.TURB.PEAK.UNITS', 'GAS TURBINE', 'Combustion turbine',
-     'Com Turbine Peaking', 'Gas Turbine Peaking', 'Comb Turb Peaking',
-     'COMBUSTINE TURBINE', 'Comb. Turine', 'Conbustion Turbine',
-     'Combustine Turbine', 'Gas Turbine (Leased)', 'Combustion Tubine',
-     'Gas Turb', 'Gas Turbine Peaker', 'GTG/Gas', 'Simple Cycle Turbine',
-     'GAS-TURBINE', 'Gas Turbine-Simple', 'Gas Turbine - Note 1',
-     'Gas Turbine #1', 'SIMPLE CYCLE', 'GasTurbine', 'CombustionTurbine',
-     'Gas Turbine (2)', 'Comb Turb Peak Units', 'JET ENGINE']
+    ['combustion turbine', 'gt', 'gas turbine',
+     'gas turbine # 1', 'gas turbine', 'gas turbine (note 1)',
+     'gas turbines', 'simple cycle', 'combustion turbine',
+     'comb.turb.peak.units', 'gas turbine', 'combustion turbine',
+     'com turbine peaking', 'gas turbine peaking', 'comb turb peaking',
+     'combustine turbine', 'comb. turine', 'conbustion turbine',
+     'combustine turbine', 'gas turbine (leased)', 'combustion tubine',
+     'gas turb', 'gas turbine peaker', 'gtg/gas', 'simple cycle turbine',
+     'gas-turbine', 'gas turbine-simple', 'gas turbine - note 1',
+     'gas turbine #1', 'simple cycle', 'gasturbine', 'combustionturbine',
+     'gas turbine (2)', 'comb turb peak units', 'jet engine']
 
 ferc1_plant_kind_combined_cycle = \
-    ['COMBINED CYCLE', 'Combined Cycle', 'Combined',
-     'GAS TURB. & HEAT REC', 'Combined cycle', 'Com. Cyc', 'Com. Cycle',
-     'GAS TURB-COMBINED CY', 'Combined Cycle CTG', 'Combined Cycle - 40%',
-     'Com Cycle Gas Turb', 'Combined Cycle Oper', 'Gas Turb/Comb. Cyc',
-     'Combine Cycle', 'CC', 'Comb. Cycle', 'Gas Turb-Combined Cy']
+    ['Combined cycle', 'combined cycle', 'combined',
+     'gas turb. & heat rec', 'combined cycle', 'com. cyc', 'com. cycle',
+     'gas turb-combined cy', 'combined cycle ctg', 'combined cycle - 40%',
+     'com cycle gas turb', 'combined cycle oper', 'gas turb/comb. cyc',
+     'combine cycle', 'cc', 'comb. cycle', 'gas turb-combined cy']
 
-ferc1_plant_kind_nuke = ['Nuclear', 'NUCLEAR', 'Nuclear (3)']
+ferc1_plant_kind_nuke = ['nuclear', 'nuclear', 'nuclear (3)']
 
-ferc1_plant_kind_geothermal = ['Steam - Geothermal']
+ferc1_plant_kind_geothermal = ['steam - geothermal']
 
 ferc_1_plant_kind_internal_combustion = \
-    ['IC', 'Internal Combustion',
-     'Diesel Turbine', 'Int Combust (Note 1)', 'Int. Combust (Note1)',
-     'INT.COMBUSTINE', 'Comb. Cyc', 'Internal Comb', 'DIESEL', 'Diesel Engine',
-     'INTERNAL COMBUSTION', 'Int Combust - Note 1', 'Int. Combust - Note1',
-     'Internal Comb Recip', 'Reciprocating Engine', 'Comb. Turbine']
+    ['ic', 'internal combustion',
+     'diesel turbine', 'int combust (note 1)', 'int. combust (note1)',
+     'int.combustine', 'comb. cyc', 'internal comb', 'diesel', 'diesel engine',
+     'internal combustion', 'int combust - note 1', 'int. combust - note1',
+     'internal comb recip', 'reciprocating engine', 'comb. turbine']
 
-ferc1_plant_kind_wind = ['Wind', 'Wind Energy',
-                         'Wind Turbine', 'Wind - Turbine']
+ferc1_plant_kind_wind = ['wind', 'wind energy',
+                         'wind turbine', 'wind - turbine']
 
-ferc1_plant_kind_photovoltaic = ['Solar Photovoltaic', 'Photovoltaic']
+ferc1_plant_kind_photovoltaic = ['solar photovoltaic', 'photovoltaic']
 
-ferc1_plant_kind_solar_thermal = ['Solar Thermal']
+ferc1_plant_kind_solar_thermal = ['solar thermal']
 
 # Making a dictionary of lists from the lists of plant_fuel strings to create
 # a dictionary of plant fuel lists.
@@ -265,23 +265,23 @@ ferc1_plant_kind_strings = {
 # and "outdoor hrsg") are included.
 
 ferc1_construction_type_outdoor = \
-    ['Outdoor', 'OUTDOOR BOILER', 'Full Outdoor', 'Outdoor Boiler',
-     'Outdoor Boilers', 'Outboilers', 'Fuel outdoor', 'FULL OUTDOOR',
-     'Outdoors', 'OUTDOOR', 'Boiler Outdoor& Full', 'Boiler Outdoor&Full',
-     'Outdoor Boiler& Full', 'Full -Outdoor', 'Outdoor Steam',
-     'Outdoor boiler', 'OB', 'Outdoor Automatic', 'OUTDOOR REPOWER',
-     'FULL OUTDOOR BOILER', 'FO', 'Outdoor Boiler & Ful', 'Full-Outdoor',
-     'Fuel Outdoor', 'Outoor', 'outdoor', 'Outdoor  Boiler&Full',
-     'Boiler Outdoor &Full', 'Outdoor Boiler &Full', 'Boiler Outdoor & Ful',
-     'Outdoor-Boiler', 'Outdoor - Boiler', 'Outdoor Const.',
-     '4 Outdoor Boilers', '3 Outdoor Boilers', 'Full outdoor', 'Full Outdoors',
-     'Full Oudoors', 'Outdoor (Auto Oper)', 'Outside Boiler',
-     'Outdoor Boiler&Full', 'OUTDOOR HRSG', 'Outdoor HRSG']
+    ['outdoor', 'outdoor boiler', 'full outdoor', 'outdoor boiler',
+     'outdoor boilers', 'outboilers', 'fuel outdoor', 'full outdoor',
+     'outdoors', 'outdoor', 'boiler outdoor& full', 'boiler outdoor&full',
+     'outdoor boiler& full', 'full -outdoor', 'outdoor steam',
+     'outdoor boiler', 'ob', 'outdoor automatic', 'outdoor repower',
+     'full outdoor boiler', 'fo', 'outdoor boiler & ful', 'full-outdoor',
+     'fuel outdoor', 'outoor', 'outdoor', 'outdoor  boiler&full',
+     'boiler outdoor &full', 'outdoor boiler &full', 'boiler outdoor & ful',
+     'outdoor-boiler', 'outdoor - boiler', 'outdoor const.',
+     '4 outdoor boilers', '3 outdoor boilers', 'full outdoor', 'full outdoors',
+     'full oudoors', 'outdoor (auto oper)', 'outside boiler',
+     'outdoor boiler&full', 'outdoor hrsg', 'outdoor hrsg']
 
 ferc1_construction_type_conventional = \
-    ['Conventional', 'CONVENTIONAL', 'Conventional Boiler', 'Conv-B',
-     'Conventionall', 'CONVENTION', 'conventional', 'Coventional',
-     'Conven Full Boiler', 'C0NVENTIONAL', 'Conventtional', 'Convential']
+    ['conventional', 'conventional', 'conventional boiler', 'conv-b',
+     'conventionall', 'convention', 'conventional', 'coventional',
+     'conven full boiler', 'c0nventional', 'conventtional', 'convential']
 
 # Making a dictionary of lists from the lists of type_const strings to create
 # a dictionary of construction type lists.
