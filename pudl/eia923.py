@@ -81,13 +81,13 @@ def get_eia923_column_map(page, year):
     sheetname = constants.tab_map_eia923.get_value(year, page)
     skiprows = constants.skiprows_eia923.get_value(year, page)
 
-    page_to_df = {'generation_fuel': constants.generation_fuel_map_eia923,
-                  'stocks': constants.stocks_map_eia923,
-                  'boiler_fuel': constants.boiler_fuel_map_eia923,
-                  'generator': constants.generator_map_eia923,
-                  'fuel_receipts_costs':
-                  constants.fuel_receipts_costs_map_eia923,
-                  'plant_frame': constants.plant_frame_map_eia923}
+    page_to_df = {
+        'generation_fuel': constants.generation_fuel_map_eia923,
+        'stocks': constants.stocks_map_eia923,
+        'boiler_fuel': constants.boiler_fuel_map_eia923,
+        'generator': constants.generator_map_eia923,
+        'fuel_receipts_costs': constants.fuel_receipts_costs_map_eia923,
+        'plant_frame': constants.plant_frame_map_eia923}
 
     d = page_to_df[page].loc[year].to_dict()
 
