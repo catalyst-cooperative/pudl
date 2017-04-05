@@ -485,12 +485,17 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine, ferc1_years):
                                            ferc1_fuel_unit_strings,
                                            unmapped=np.nan)
 
-    # Conver to MW/MWh units across the board.
+    # Convert to MW/MWh units across the board.
     ferc1_fuel_df['fuel_cost_per_mwh'] = 1000 * ferc1_fuel_df['fuel_cost_kwh']
     ferc1_fuel_df.drop('fuel_cost_kwh', axis=1, inplace=True)
-    ferc1_fuel_df['fuel_mmbtu_per_mwh'] = 1000 * \
+    # Here we are converting from BTU/kWh to 1e6 BTU/MWh
+    ferc1_fuel_df['fuel_mmbtu_per_mwh'] = (1e3 / 1e6) * \
         ferc1_fuel_df['fuel_generaton']
     ferc1_fuel_df.drop('fuel_generaton', axis=1, inplace=True)
+    # Convert from BTU/unit of fuel to 1e6 BTU/unit.
+    ferc1_fuel_df['fuel_avg_mmbtu_per_unit'] = \
+        ferc1_fuel_df['fuel_avg_heat'] / 1e6
+    ferc1_fuel_df.drop('fuel_avg_heat', axis=1, inplace=True)
 
     # Drop any records that are missing data. This is a blunt instrument, to
     # be sure. In some cases we lose data here, because some utilities have
@@ -502,7 +507,6 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     ferc1_fuel_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
         'fuel_quantity': 'fuel_qty_burned',
-        'fuel_avg_heat': 'fuel_avg_mmbtu_per_unit',
         'fuel_cost_burned': 'fuel_cost_per_unit_burned',
         'fuel_cost_delvd': 'fuel_cost_per_unit_delivered',
                            'fuel_cost_btu': 'fuel_cost_per_mmbtu'},
