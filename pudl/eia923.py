@@ -98,7 +98,8 @@ def get_eia923_column_map(page, year):
     return((sheetname, skiprows, column_map))
 
 
-def get_eia923_page(page, eia923_xlsx, years=[2014, 2015, 2016], verbose=True):
+def get_eia923_page(page, eia923_xlsx, years=[2011, 2012, 2013, 2014, 2015, 2016],
+                    verbose=True):
     """
     Read a single table from several years of EIA923 data. Return a DataFrame.
 

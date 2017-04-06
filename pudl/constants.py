@@ -141,8 +141,8 @@ ferc1_fuel_strings = {'coal': ferc1_coal_strings,
                       'biomass': ferc1_biomass_strings,
                       'waste': ferc1_waste_strings,
                       'steam': ferc1_steam_strings
-                      }
 
+                      }
 # Similarly, dictionary for cleaning up fuel unit strings
 ferc1_ton_strings = ['toms', 'taons', 'tones', 'col-tons', 'toncoaleq', 'coal',
                      'tons coal eq', 'coal-tons', 'ton', 'tons', 'tons coal',
@@ -1913,4 +1913,16 @@ natural_gas_transport_eia923 = {
     '8': 'Unknown',
     'F': 'Firm',
     'I': 'Interruptible'
+}
+
+aer_fuel_type_strings = {
+    'coal': ['COL', 'WOC'],
+    'natural gas': ['NG', 'OOG'],
+    'petroleum': ['DFO', 'RFO'],
+    'petroleum coke': ['PC'],
+    'solar': ['SUN'],
+    'wind': ['WND'],
+    'hydro': ['HPS', 'HYC'],
+    'nuclear': ['NUC'],
+    'other': ['GEO', 'MLG', 'ORW', 'OTH', 'WOO', 'WWW']
 }

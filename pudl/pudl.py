@@ -51,7 +51,7 @@ from pudl.constants import fuel_type_aer_eia923, respondent_frequency_eia923
 from pudl.constants import sector_eia, contract_type_eia923
 from pudl.constants import fuel_type_eia923, prime_movers_eia923
 from pudl.constants import fuel_units_eia923, energy_source_eia923
-from pudl.constants import fuel_group_eia923
+from pudl.constants import fuel_group_eia923, aer_fuel_type_strings
 from pudl.constants import coalmine_type_eia923, coalmine_state_eia923
 from pudl.constants import natural_gas_transport_eia923
 from pudl.constants import transport_modes_eia923
@@ -69,7 +69,7 @@ from pudl.models_eia923 import NaturalGasTransportEIA923
 from pudl.models_eia923 import TransportModeEIA923
 from pudl.models_eia923 import RespondentFrequencyEIA923
 from pudl.models_eia923 import PrimeMoverEIA923, FuelTypeAER
-from pudl.models_eia923 import FuelTypeEIA923
+from pudl.models_eia923 import FuelTypeEIA923, AERFuelCategoryEIA923
 from pudl.models_eia923 import FuelGroupEIA923, FuelUnitEIA923
 from pudl.models_eia923 import PlantInfoEIA923, BoilersEIA923
 from pudl.models_eia923 import BoilerFuelEIA923
@@ -237,6 +237,9 @@ def ingest_static_tables(engine):
     pudl_session.add_all(
         [NaturalGasTransportEIA923(abbr=k, status=v)
          for k, v in natural_gas_transport_eia923.items()])
+    pudl_session.add_all(
+        [AERFuelCategoryEIA923(name=k, types=v)
+         for k, v in aer_fuel_type_strings.items()])
 
     # States dictionary is defined outside this function, below.
     pudl_session.add_all([State(abbr=k, name=v) for k, v in us_states.items()])

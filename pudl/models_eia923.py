@@ -170,6 +170,15 @@ class TransportModeEIA923(models.PUDLBase):
     abbr = Column(String, primary_key=True)
     mode = Column(String, nullable=False)
 
+
+class AERFuelCategoryEIA923(models.PUDLBase):
+    """Simplification of AER Fuel Types."""
+
+    __tablename__ = 'aer_fuel_type_strings'
+    name = Column(String, primary_key=True)
+    types = Column(String, nullable=False)
+
+
 ###########################################################################
 # Tables which represent EIA Form 923 data. E.g. Fuel Receipts.
 ###########################################################################
@@ -253,6 +262,8 @@ class GenerationFuelEIA923(models.PUDLBase):
                        ForeignKey('fuel_type_eia923.abbr'),
                        nullable=False)
     aer_fuel_type = Column(String, ForeignKey('fuel_type_aer_eia923.abbr'))
+    aer_fuel_category = Column(
+        String, ForeignKey('aer_fuel_type_strings.name'))
     prime_mover = Column(String,
                          ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
@@ -291,11 +302,7 @@ class BoilerFuelEIA923(models.PUDLBase):
 
 
 class GenerationEIA923(models.PUDLBase):
-    """
-    Monthly electricity generation by generator from EIA Form 923 Page 4.
-
-    NOT DONE YET.
-    """
+    """Monthly electricity generation by generator from EIA923 Page 4."""
 
     __tablename__ = 'generation_eia923'
 
