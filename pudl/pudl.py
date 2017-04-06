@@ -202,9 +202,9 @@ def ingest_static_tables(engine):
          for k, v in respondent_frequency_eia923.items()])
     pudl_session.add_all(
         [SectorEIA(id=k, name=v) for k, v in sector_eia.items()])
-    # pudl_session.add_all(
-    #     [ContractTypeEIA923(abbr=k, contract_type=v)
-    #      for k, v in contract_type_eia923.items()])
+    pudl_session.add_all(
+        [ContractTypeEIA923(abbr=k, contract_type=v)
+         for k, v in contract_type_eia923.items()])
     pudl_session.add_all(
         [FuelTypeEIA923(abbr=k, fuel_type=v)
          for k, v in fuel_type_eia923.items()])
@@ -1039,6 +1039,8 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
 
     Page 1 of EIA 923 (in recent years) reports generation and fuel consumption
     on a monthly, per-plant basis.
+
+    Populates the generation_fuel_eia923 table.
     """
     # This needs to be a copy of what we're passed in so we can edit it.
     gf_df = eia923_dfs['generation_fuel'].copy()
@@ -1084,7 +1086,11 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
 
 def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
                               csvdir='', keep_csv=True):
-    """Ingest data on fuel consumption by boiler from EIA Form 923."""
+    """
+    Ingest data on fuel consumption by boiler from EIA Form 923.
+
+    Populates the boilers_eia923 table and the boiler_fuel_eia923 table.
+    """
     # Populate 'boilers_eia923' table
     boiler_cols = ['plant_id',
                    'boiler_id',
@@ -1192,7 +1198,11 @@ def ingest_generator_eia923(pudl_engine, eia923_dfs,
 
 def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
                                       csvdir='', keep_csv=True):
-    """Ingest data on fuel purchases and costs from EIA Form 923."""
+    """
+    Ingest data on fuel purchases and costs from EIA Form 923.
+
+    Populates the coalmine_info_eia923 and fuel_receipts_costs_eia923 tables.
+    """
     # Populate 'coalmine_info_eia923' table
     coalmine_cols = ['coalmine_name',
                      'coalmine_type',

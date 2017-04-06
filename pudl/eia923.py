@@ -3,10 +3,8 @@ Retrieve data from EIA Form 923 spreadsheets for analysis.
 
 This modules pulls data from EIA's published Excel spreadsheets.
 
-@author: alana for Catalyst Cooperative.
-
 This code is for use analyzing EIA Form 923 data, years 2008-2016 Current
-version is for years 2014-2016, which have standardized naming conventions and
+version is for years 2011-2016, which have standardized naming conventions and
 file formatting.
 """
 
@@ -21,7 +19,14 @@ from pudl import settings, constants
 
 
 def datadir(year):
-    """Given a year, return path to appropriate EIA 923 data directory."""
+    """
+    Data directory search for EIA Form 923
+
+    Args:
+        year (int): The year that we're trying to read data for.
+    Returns:
+        path to appropriate EIA 923 data directory.
+    """
     # These are the only years we've got...
     assert year in range(2001, 2017)
     if(year < 2008):
@@ -32,7 +37,14 @@ def datadir(year):
 
 
 def get_eia923_file(yr):
-    """Return path to EIA 923 spreadsheets corresponding to a given year."""
+    """
+    Given a year, return the appopriate EIA923 excel file.
+
+    Args:
+        year (int): The year that we're trying to read data for.
+    Returns:
+        path to EIA 923 spreadsheets corresponding to a given year.
+    """
     from glob import glob
 
     assert(yr > 2008), "EIA923 file selection only works for 2008 & later."
@@ -174,6 +186,11 @@ def get_eia923_xlsx(years):
     Rather than reading in the same Excel files several times, we can just
     read them each in once (one per year) and use the ExcelFile object to
     refer back to the data in memory.
+
+    Args:
+        years: The years that we're trying to read data for.
+    Returns:
+        xlsx file of EIA Form 923 for input year(s)
     """
     eia923_xlsx = {}
     for yr in years:
@@ -194,7 +211,15 @@ def get_eia923_plant_info(years, eia923_xlsx):
 
     This function will be used in two ways: to populate the plant info table
     and to check the plant mapping to find missing plants.
+
+    Args:
+        years: The year that we're trying to read data for.
+        eia923_xlsx: required and should not be modified
+    Returns:
+        Data frame that populates the plant info table
+        A check of plant mapping to identify missing plants
     """
+
     df = pd.DataFrame(columns=['plant_id', 'census_region', 'nerc_region'])
     early_years = [y for y in years if y < 2011]
     recent_years = [y for y in years if y >= 2011]
@@ -262,17 +287,17 @@ def yearly_to_monthly_eia923(df, md):
     of data is reported in a single record, with one field for each of the 12
     months.  This function converts these annualized composite records into a
     set of 12 monthly records containing the same information, by parsing the
-    field names for months, and adding a month field.  Non-time series data is
+    field names for months, and adding a month field.  Non - time series data is
     retained in the same format.
 
     Args:
-        df (pandas.DataFrame): A pandas DataFrame containing the annual
+        df(pandas.DataFrame): A pandas DataFrame containing the annual
             data to be converted into monthly records.
-        md (dict): a dictionary with the numbers 1-12 as keys, and the patterns
+        md(dict): a dictionary with the numbers 1 - 12 as keys, and the patterns
             used to match field names for each of the months as values. These
-            patterns are also used to re-name the columns in the dataframe
+            patterns are also used to re - name the columns in the dataframe
             which is returned, so they need to match the entire portion of the
-            column name that is month-specific.
+            column name that is month - specific.
 
     Returns:
         pandas.DataFrame: A dataframe containing the same data as was passed in

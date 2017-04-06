@@ -1597,7 +1597,11 @@ ferc_accumulated_depreciation = DataFrame.from_records([
 
     columns=['row_number', 'line_id', 'ferc_account_description'])
 
-# From Page 7 of EIA Form 923, Census Region the state is located in
+######################################################################
+# Constants from EIA From 923 used within pudl.py module
+######################################################################
+
+# From Page 7 of EIA Form 923, Census Region a US state is located in
 census_region = {
     'NEW': 'New England',
     'MAT': 'Middle Atlantic',
@@ -1773,21 +1777,30 @@ fuel_type_aer_eia923 = {
     'WWW': 'Wood and Wood Waste'
 }
 
-# EIA 923: EIA The type of physical units fuel consumption is reported in.
+# EIA 923: The type of physical units fuel consumption is reported in.
 # All consumption is reported in either short tons for solids,
-# thousands of cubic feet for gases, and barrels for liquids:"""
+# thousands of cubic feet for gases, and barrels for liquids.
 fuel_units_eia923 = {
     'mcf': 'Thousands of cubic feet (for gases)',
     'short_tons': 'Short tons (for solids)',
     'barrels': 'Barrels (for liquids)'
 }
+
 # EIA 923: Designates the purchase type under which receipts occurred
 # in the reporting month. One or two character alphanumeric:
 contract_type_eia923 = {
-    'C': 'Contract',
-    'NC': 'New Contract',
-    'S': 'Spot Purchase'
+    'C': 'Contract - Fuel received under a purchase order or contract \
+        with a term of one year or longer.  Contracts with a shorter term \
+        are considered spot purchases ',
+    'NC': 'New Contract - Fuel received under a purchase order or contract \
+        with duration of one year or longer, under which deliveries were \
+        first made during the reporting month',
+    'S': 'Spot Purchase',
+    'T': 'Tolling Agreement – \
+        Fuel received under a tolling agreement \
+        (bartering arrangement of fuel for generation)'
 }
+
 # EIA 923: The fuel code associated with the fuel receipt.
 # Defined on Page 7 of EIA Form 923
 # Two or three character alphanumeric:
@@ -1820,8 +1833,8 @@ energy_source_eia923 = {
 }
 
 # EIA 923 Fuel Group, from Page 7 EIA Form 923
-# Groups the energy sources into fuel groups that are located in the Electric
-# Power Monthly:  Coal, Natural Gas, Petroleum, Petroleum Coke.
+# Groups fossil fuel energy sources into fuel groups that are located in the
+# Electric Power Monthly:  Coal, Natural Gas, Petroleum, Petroleum Coke.
 fuel_group_eia923 = ['Coal', 'Natural Gas', 'Petroleum', 'Petroleum Coke']
 
 # EIA 923: Type of Coal Mine as defined on Page 7 of EIA Form 923
@@ -1915,6 +1928,8 @@ natural_gas_transport_eia923 = {
     'I': 'Interruptible'
 }
 
+# PUDL consolidation of EIA923 AER fuel type strings into same categories as
+# 'energy_source_eia923' plus additional renewable and nuclear categories.
 aer_fuel_type_strings = {
     'coal': ['COL', 'WOC'],
     'natural gas': ['NG', 'OOG'],

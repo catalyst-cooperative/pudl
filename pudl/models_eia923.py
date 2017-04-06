@@ -172,7 +172,7 @@ class TransportModeEIA923(models.PUDLBase):
 
 
 class AERFuelCategoryEIA923(models.PUDLBase):
-    """Simplification of AER Fuel Types."""
+    """PUDL Consolidation of AER Fuel Types."""
 
     __tablename__ = 'aer_fuel_type_strings'
     name = Column(String, primary_key=True)
@@ -201,9 +201,12 @@ class PlantOwnershipEIA923(models.PUDLBase):
                          primary_key=True)
 
 
-# TODO - AW fill in with remaining unaccounted for fields from Tab 1 & others
 class OperatorInfoEIA923(models.PUDLBase):
-    """Information specific to plant operators (typically utilities)."""
+    """
+    Information specific to plant operators (typically utilities).
+
+    Reported on Page 1 of EIA Form 923.
+    """
 
     __tablename__ = 'operator_info_eia923'
     operator_id = Column(Integer,
@@ -243,7 +246,7 @@ class GenerationFuelEIA923(models.PUDLBase):
     """
     Monthly fuel consumption and electricity generation by plant.
 
-    As reported on Page 1 of EIA Form 923.
+    Reported on Page 1 of EIA Form 923.
     """
 
     __tablename__ = 'generation_fuel_eia923'
@@ -335,7 +338,7 @@ class FuelReceiptsCostsEIA923(models.PUDLBase):
                       nullable=False)
     year = Column(Integer, ForeignKey('years.year'), nullable=False)
     month = Column(Integer, ForeignKey('months.month'), nullable=False)
-    contract_type = Column(String)
+    contract_type = Column(String, ForeignKey('contract_type_eia923.abbr'))
     contract_expiration_date = Column(Integer)
     energy_source = Column(String, ForeignKey('energy_source_eia923.abbr'))
     coalmine_id = Column(Integer, ForeignKey('coalmine_info_eia923.id'))
