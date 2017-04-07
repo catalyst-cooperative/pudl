@@ -30,6 +30,7 @@ from pudl import settings
 from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
 from pudl.eia923 import get_eia923_page, yearly_to_monthly_eia923
 from pudl.eia923 import get_eia923_files, get_eia923_xlsx
+from pudl.eia923 import get_eia923_plant_info
 from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
 from pudl.constants import ferc1_fuel_unit_strings, rto_iso
 from pudl.constants import ferc1_plant_kind_strings, ferc1_type_const_strings
@@ -918,7 +919,8 @@ def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 ###############################################################################
 
 
-def ingest_plant_info_eia923(pudl_engine, eia923_dfs):
+def ingest_plant_info_eia923(pudl_engine, eia923_xlsx,
+                             eia923_years=[2014, 2015, 2016]):
     """
     Ingest data describing static attributes of plants from EIA Form 923.
 
@@ -926,34 +928,7 @@ def ingest_plant_info_eia923(pudl_engine, eia923_dfs):
     across several different pages of EIA 923. This function tries to bring it
     together into one unified, unduplicated table.
     """
-    # From 'plant_frame'
-    plant_frame_cols = ['plant_id',
-                        'plant_state',
-                        'combined_heat_and_power_status',
-                        'sector_number',
-                        'naics_code',
-                        'reporting_frequency']
-
-    plant_frame_df = eia923_dfs['plant_frame'][plant_frame_cols]
-
-    # From 'generation_fuel' to merge by plant_id
-    gen_fuel_cols = ['plant_id',
-                     'census_region',
-                     'nerc_region']
-
-    gen_fuel_df = eia923_dfs['generation_fuel'][gen_fuel_cols]
-
-    # Remove "State fuel-level increment" records... which don't pertain to
-    # any particular plant (they have plant_id == operator_id == 99999)
-    gen_fuel_df = gen_fuel_df[gen_fuel_df.plant_id != 99999]
-
-    # because there ought to be one entry for each plant in each year's worth
-    # of data, we're dropping duplicates by plant_id in the two data frames
-    # which we're combining. TODO: populate a table that lists plant operators
-    # by year... nominally plant_ownership_eia923
-    plant_info_df = pd.merge(plant_frame_df.drop_duplicates('plant_id'),
-                             gen_fuel_df.drop_duplicates('plant_id'),
-                             how='outer', on='plant_id')
+    plant_info_df = get_eia923_plant_info(eia923_years, eia923_xlsx)
 
     # Since this is a plain Yes/No variable -- just make it a real Boolean.
     plant_info_df.combined_heat_and_power_status.replace(
@@ -964,6 +939,7 @@ def ingest_plant_info_eia923(pudl_engine, eia923_dfs):
         'combined_heat_and_power_status': 'combined_heat_power',
         'sector_number': 'eia_sector'},
         inplace=True)
+
     # Output into the DB:
     plant_info_df.to_sql(name='plant_info_eia923',
                          con=pudl_engine, index=False, if_exists='append',
