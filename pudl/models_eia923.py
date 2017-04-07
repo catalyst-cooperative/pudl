@@ -221,7 +221,7 @@ class PlantInfoEIA923(models.PUDLBase):
     reporting_frequency = Column(String,
                                  ForeignKey(
                                      'respondent_frequency_eia923.abbr'),
-                                 nullable=False)
+                                 nullable=True)
     # Census region & NERC region are nullable, because they're set from info
     # listed in the generation_fuel page of EIA923, which does not list the
     # entire universe of plants (those listed only in plant_frame will not have
