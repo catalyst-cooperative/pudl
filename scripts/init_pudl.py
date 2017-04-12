@@ -19,12 +19,22 @@ def parse_command_line(argv):
     """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
-                        help="Display messages indicating progress or errors.")
+    verbosity = parser.add_mutually_exclusive_group()
+    verbosity.add_argument(
+        '-v', '--verbose', dest='verbose', action='store_true',
+        help="Display messages indicating progress or errors.",
+        default=True)
+    verbosity.add_argument(
+        '-q', '--quiet', dest='verbose', action='store_false',
+        help="Suppress messages indicating progress or errors.")
+
     parser.add_argument('--keep_csv', dest='keep_csv', action='store_true',
-                        help="Do not delete CSV files after loading them.")
+                        help="Do not delete CSV files after loading them.",
+                        default=False)
     parser.add_argument('--csvdir', dest='csvdir', type=str,
-                        help="Path to directory for CSV file storage.")
+                        help="Path to directory for CSV file storage.",
+                        default='')
+
     parser.add_argument('--ferc1_refyear', dest='ferc1_refyear', type=int,
                         default=2015,
                         help="Reference year for FERC Form 1 database.")
@@ -34,6 +44,7 @@ def parse_command_line(argv):
     parser.add_argument('--ferc1_end', dest='ferc1_end', type=int,
                         default=2015,
                         help="Last year of FERC Form 1 data to load.")
+
     parser.add_argument('--eia923_start', dest='eia923_start', type=int,
                         default=2011,
                         help="First year of EIA Form 923 data to load.")
