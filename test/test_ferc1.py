@@ -1,8 +1,7 @@
 """Tests excercising the ferc1 module for use with PyTest."""
 
 import pytest
-import pudl.ferc1
-from pudl import ferc1, settings, constants
+from pudl import ferc1, constants
 
 
 def test_init_db():
@@ -15,4 +14,4 @@ def test_init_db():
                   testing=True)
 
     ferc1_engine = ferc1.db_connect_ferc1(testing=True)
-    pudl.ferc1.drop_tables_ferc1(ferc1_engine)
+    ferc1.drop_tables_ferc1(ferc1_engine)
