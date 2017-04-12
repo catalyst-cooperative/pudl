@@ -761,7 +761,24 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
 
 def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine, ferc1_years):
-    """Ingest f1_pumped_storage table of FERC Form 1 DB into PUDL DB."""
+    """
+    Ingest f1_pumped_storage table of FERC Form 1 DB into PUDL DB.
+    Ingest f1_hydro table of FERC Form 1 DB into PUDL DB.
+
+    Load data about hydroelectric generation resources from our cloned FERC 1
+    database into the PUDL DB. Standardizes plant names (stripping whitespace
+    and Using Title Case).  Also converts into our preferred units of MW and
+    MWh.
+
+    Args:
+       pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
+       ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
+       ferc1_years (sequence of integers): Years for which we should extract
+           fuel data from the FERC1 Database.
+
+    Returns: Nothing.
+    """
+
     f1_pumped_storage = ferc1_meta.tables['f1_pumped_storage']
 
     # Removing the empty records.
@@ -1217,7 +1234,7 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
 
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(boilers_df, 'boilers_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=True)
+                  csvdir=csvdir, keep_csv=keep_csv)
 
     # Populate 'boiler_fuel_eia923' table
     # This needs to be a copy of what we're passed in so we can edit it.
