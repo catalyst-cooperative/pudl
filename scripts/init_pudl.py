@@ -38,7 +38,7 @@ def parse_command_line(argv):
                         default=2011,
                         help="First year of EIA Form 923 data to load.")
     parser.add_argument('--eia923_end', dest='eia923_end', type=int,
-                        default=2016,
+                        default=2015,
                         help="Last year of EIA Form 923 data to load.")
 
     arguments = parser.parse_args(argv[1:])
