@@ -1,9 +1,14 @@
 """This is a script for initializing the PUDL database locally."""
 
+import os
 import sys
 import argparse
 
-sys.path.append('/Users/zaneselvans/code/catalyst/pudl')
+# This is a hack to make the pudl package importable from within this script,
+# even though it isn't in one of the normal site-packages directories where
+# Python typically searches.  When we have some real installation/packaging
+# happening, this will no longer be necessary.
+sys.path.append(os.path.abspath('..'))
 
 
 def parse_command_line(argv):
