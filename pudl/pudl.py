@@ -1083,9 +1083,6 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
     gf_df['aer_fuel_category'] = cleanstringsEIA923(gf_df.aer_fuel_type,
                                                     aer_fuel_type_strings)
 
-    # = gf_df['aer_fuel_type'].map(
-    #     aer_fuel_type_strings)
-
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(gf_df, 'generation_fuel_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
