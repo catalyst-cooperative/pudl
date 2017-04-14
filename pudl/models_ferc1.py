@@ -27,7 +27,6 @@ class FuelFERC1(models.PUDLBase):
     # be recorded multiple times for multiple utilities that have a stake in
     # the plant... Primary key fields: utility, plant, fuel and year.
     id = Column(Integer, autoincrement=True, primary_key=True)
-    # Also ForeignKeyConstraint
     respondent_id = Column(Integer, nullable=False)
     plant_name = Column(String, nullable=False)  # Also ForeignKeyConstraint
     report_year = Column(Integer, ForeignKey('years.year'), nullable=False)
