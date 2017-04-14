@@ -31,7 +31,7 @@ from sqlalchemy import Integer, String, Numeric, Boolean, Float
 from pudl import settings
 from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
 from pudl.eia923 import get_eia923_page, yearly_to_monthly_eia923
-from pudl.eia923 import get_eia923_file, get_eia923_xlsx
+from pudl.eia923 import get_eia923_file, get_eia923_xlsx, cleanstringsEIA923
 from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
 from pudl.constants import ferc1_fuel_unit_strings, rto_iso
 from pudl.constants import ferc1_plant_kind_strings, ferc1_type_const_strings
@@ -255,10 +255,10 @@ def ingest_static_tables(engine):
         [FuelTypeAER(abbr=k, fuel_type=v)
          for k, v in fuel_type_aer_eia923.items()])
     pudl_session.add_all(
+        [FuelGroupEIA923(group=gr) for gr in fuel_group_eia923])
+    pudl_session.add_all(
         [EnergySourceEIA923(abbr=k, source=v)
          for k, v in energy_source_eia923.items()])
-    pudl_session.add_all(
-        [FuelGroupEIA923(group=gr) for gr in fuel_group_eia923])
     pudl_session.add_all(
         [CoalMineTypeEIA923(abbr=k, name=v)
          for k, v in coalmine_type_eia923.items()])
@@ -275,8 +275,8 @@ def ingest_static_tables(engine):
         [NaturalGasTransportEIA923(abbr=k, status=v)
          for k, v in natural_gas_transport_eia923.items()])
     pudl_session.add_all(
-        [AERFuelCategoryEIA923(name=k, types=v)
-         for k, v in aer_fuel_type_strings.items()])
+        [AERFuelCategoryEIA923(name=k)
+         for k in aer_fuel_type_strings.keys()])
 
     # States dictionary is defined outside this function, below.
     pudl_session.add_all([State(abbr=k, name=v) for k, v in us_states.items()])
@@ -1292,6 +1292,10 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
                                           int_na=-1,
                                           str_na='')
 
+    # # map AER fuel types to simplified PUDL categories
+    gf_df['aer_fuel_category'] = cleanstringsEIA923(gf_df.aer_fuel_type,
+                                                    aer_fuel_type_strings)
+
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(gf_df, 'generation_fuel_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
@@ -1414,7 +1418,8 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
     """
     Ingest data on fuel purchases and costs from EIA Form 923.
 
-    Populates the coalmine_info_eia923 and fuel_receipts_costs_eia923 tables.
+    Populates the coalmine_info_eia923, energy_source_eia923, and
+    fuel_receipts_costs_eia923 tables.
     """
     # Populate 'coalmine_info_eia923' table
     coalmine_cols = ['coalmine_name',
@@ -1458,7 +1463,6 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
                     'plant_state',
                     'operator_name',
                     'operator_id',
-                    'fuel_group',
                     'coalmine_msha_id',
                     'coalmine_type',
                     'coalmine_state',
@@ -1468,9 +1472,6 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
                     'reporting_frequency']
 
     frc_df.drop(cols_to_drop, axis=1, inplace=True)
-
-    # Why is this one ID being excluced? (ZS)
-    frc_df = frc_df[frc_df.plant_id != 8899]
 
     # Replace the EIA923 NA value ('.') with a real NA value.
     frc_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
