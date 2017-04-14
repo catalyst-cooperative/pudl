@@ -314,8 +314,8 @@ def init_db(ferc1_tables=constants.ferc1_default_tables,
         define_db(refyear, ferc1_tables, ferc1_meta)
 
     # Wipe the DB and start over...
-    ferc1_meta.drop_all(ferc1_engine)
-    ferc1_meta.create_all(ferc1_engine)
+    drop_tables_ferc1(ferc1_engine)
+    create_tables_ferc1(ferc1_engine)
 
     # Create a DB connection to use for the record insertions below:
     conn = ferc1_engine.connect()
