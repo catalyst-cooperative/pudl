@@ -286,13 +286,14 @@ class PlantHydroFERC1(models.PUDLBase):
 class PlantsPumpedStorage(models.PUDLBase):
     """Annual data on pumped storage from the f1_pumped_storage table."""
 
-    __tablename__ = 'plants_pummped_storage_ferc1'
+    __tablename__ = 'plants_pumped_storage_ferc1'
     __table_args__ = (ForeignKeyConstraint(
-        ['id', 'plant_name'],
+        ['respondent_id', 'plant_name'],
         ['plants_ferc1.respondent_id', 'plants_ferc1.plant_name']),)
 
-    id = Column(Integer, nullable=False, primary_key=True)
-    year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    respondent_id = Column(Integer, nullable=False)
+    report_year = Column(Integer, ForeignKey('years.year'), nullable=False)
     project_number = Column(Integer)
     plant_name = Column(String, nullable=False)
     plant_kind = Column(String)
