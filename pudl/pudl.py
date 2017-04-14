@@ -763,9 +763,8 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     """
     Ingest f1_pumped_storage table of FERC Form 1 DB into PUDL DB.
-    Ingest f1_hydro table of FERC Form 1 DB into PUDL DB.
 
-    Load data about hydroelectric generation resources from our cloned FERC 1
+    Load data about pumped hydro storage facilities from our cloned FERC 1
     database into the PUDL DB. Standardizes plant names (stripping whitespace
     and Using Title Case).  Also converts into our preferred units of MW and
     MWh.
@@ -778,7 +777,6 @@ def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-
     f1_pumped_storage = ferc1_meta.tables['f1_pumped_storage']
 
     # Removing the empty records.
@@ -861,7 +859,22 @@ def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 def ingest_accumulated_depreciation_ferc1(pudl_engine,
                                           ferc1_engine,
                                           ferc1_years):
-    """Ingest f1_accumdepr_prvs table from FERC Form 1 DB."""
+    """
+    Ingest f1_accumdepr_prvs table from FERC Form 1 DB into PUDL DB.
+
+    Load data about accumulated depreciation from our cloned FERC Form 1
+    database into the PUDL DB. This information is organized by FERC account,
+    with each line of the FERC Form 1 having a different descriptive
+    identifier like 'balance_end_of_year' or 'transmission'.
+
+    Args:
+       pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
+       ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
+       ferc1_years (sequence of integers): Years for which we should extract
+           fuel data from the FERC1 Database.
+
+    Returns: Nothing.
+    """
     f1_accumdepr_prvsn = ferc1_meta.tables['f1_accumdepr_prvsn']
     f1_accumdepr_prvsn_select = select([f1_accumdepr_prvsn]).\
         where(f1_accumdepr_prvsn.c.report_year.in_(ferc1_years))
@@ -895,7 +908,29 @@ def ingest_accumulated_depreciation_ferc1(pudl_engine,
 
 
 def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine, ferc1_years):
-    """Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB."""
+    """
+    Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB.
+
+    Load data about the financial value of utility plant in service from our
+    cloned FERC Form 1 database into the PUDL DB. This information is organized
+    by FERC account, with each line of the FERC Form 1 having a different FERC
+    account id (most are numeric and correspond to FERC's Uniform Electric
+    System of Accounts). As of PUDL v0.1, this data is only valid from 2007
+    onward, as the line numbers for several accounts are different in earlier
+    years.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
+        ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
+        ferc1_years (sequence of integers): Years for which we should extract
+            fuel data from the FERC1 Database.
+
+       Returns: Nothing.
+    """
+    min_yr = min(ferc1_years)
+    assert min_yr >= 2007,\
+        """Invalid year requested: {}. FERC Form 1 Plant In Service data is
+        currently only valid for years 2007 and later.""".format(min_yr)
     f1_plant_in_srvce = ferc1_meta.tables['f1_plant_in_srvce']
     f1_plant_in_srvce_select = select([f1_plant_in_srvce]).\
         where(f1_plant_in_srvce.c.report_year.in_(ferc1_years))
@@ -939,9 +974,40 @@ def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
 
 def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
-    """Ingest f1_gnrt_plant table of FERC Form 1 DB into PUDL DB."""
+    """
+    Ingest f1_gnrt_plant table from our cloned FERC Form 1 DB into PUDL DB.
+
+    This FERC Form 1 table contains information about a large number of small
+    plants, including many small hydroelectric and other renewable generation
+    facilities. Unfortunately the data is not well standardized, and so the
+    plants have been categorized manually, with the results of that
+    categorization stored in an Excel spreadsheet. This function reads in the
+    plant type data from the spreadsheet and merges it with the rest of the
+    information from the FERC DB based on record number, FERC respondent ID,
+    and report year. When possible the FERC license number for small hydro
+    plants is also manually extracted from the data.
+
+    This categorization will need to be renewed with each additional year of
+    FERC data we pull in. As of v0.1 the small plants have been categorized
+    for 2004-2015.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
+        ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
+        ferc1_years (sequence of integers): Years for which we should extract
+            fuel data from the FERC1 Database.
+
+    Returns: Nothing.
+    """
     import os.path
     from sqlalchemy import or_
+
+    assert min(ferc_years) >= 2004,\
+        """Year {} is too early. Small plant data has not been categorized for
+        before 2004.""".format(min(ferc_years))
+    assert max(ferc_years) <= 2015,\
+        """Year {} is too recent. Small plant data has not been categorized for
+        any year 2015.""".format(max(ferc_years))
     f1_small = ferc1_meta.tables['f1_gnrt_plant']
     f1_small_select = select([f1_small, ]).\
         where(f1_small.c.report_year.in_(ferc1_years)).\
@@ -1055,7 +1121,25 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
 
 def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine, ferc1_years):
-    """Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB."""
+    """
+    Ingest f1_purchased_pwr table from our cloned FERC Form 1 DB into PUDL DB.
+
+    This function pulls FERC Form 1 data about inter-untility power purchases
+    into the PUDL DB. This includes how much electricty was purchased, how
+    much it cost, and who it was purchased from. Unfortunately the field
+    describing which other utility the power was being bought from is poorly
+    standardized, making it difficult to correlate with other data. It will
+    need to be categorized by hand or with some fuzzy matching eventually.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
+        ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
+        ferc1_years (sequence of integers): Years for which we should extract
+            fuel data from the FERC1 Database.
+
+    Returns: Nothing.
+    """
+
     f1_purchased_pwr = ferc1_meta.tables['f1_purchased_pwr']
     f1_purchased_pwr_select = select([f1_purchased_pwr]).\
         where(f1_purchased_pwr.c.report_year.in_(ferc1_years))

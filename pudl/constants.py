@@ -1573,7 +1573,7 @@ ferc_accumulated_depreciation = DataFrame.from_records([
     (14, 'salvage_credit', 'Salvage (Credit)'),
     (15, 'total_net_charges_for_plant_retired',\
      'TOTAL Net Chrgs. for Plant Ret. (Enter Total of lines 12 thru 14)'),
-    (16, 'other_debit_or_credit items',\
+    (16, 'other_debit_or_credit_items',\
      'Other Debit or Cr. Items (Describe, details in footnote):'),
     # blank: can be "Other Charges", e.g. in 2012 for PSCo.
     (17, 'other_charges_2', 'Other Charges 2'),
