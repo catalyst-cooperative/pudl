@@ -136,7 +136,6 @@ class EnergySourceEIA923(models.PUDLBase):
     __tablename__ = 'energy_source_eia923'
     abbr = Column(String, primary_key=True)
     source = Column(String, nullable=False)
-    fuel_group = Column(String, ForeignKey('fuel_group_eia923.group'))
 
 
 class CoalMineTypeEIA923(models.PUDLBase):
@@ -176,7 +175,6 @@ class AERFuelCategoryEIA923(models.PUDLBase):
 
     __tablename__ = 'aer_fuel_type_strings'
     name = Column(String, primary_key=True)
-    types = Column(String, nullable=False)
 
 
 ###########################################################################
@@ -341,6 +339,7 @@ class FuelReceiptsCostsEIA923(models.PUDLBase):
     contract_type = Column(String, ForeignKey('contract_type_eia923.abbr'))
     contract_expiration_date = Column(Integer)
     energy_source = Column(String, ForeignKey('energy_source_eia923.abbr'))
+    fuel_group = Column(String, ForeignKey('fuel_group_eia923.group'))
     coalmine_id = Column(Integer, ForeignKey('coalmine_info_eia923.id'))
     supplier = Column(String, nullable=False)  # TODO FK new table?
     fuel_quantity = Column(Float, nullable=False)
