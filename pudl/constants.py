@@ -141,8 +141,8 @@ ferc1_fuel_strings = {'coal': ferc1_coal_strings,
                       'biomass': ferc1_biomass_strings,
                       'waste': ferc1_waste_strings,
                       'steam': ferc1_steam_strings
-                      }
 
+                      }
 # Similarly, dictionary for cleaning up fuel unit strings
 ferc1_ton_strings = ['toms', 'taons', 'tones', 'col-tons', 'toncoaleq', 'coal',
                      'tons coal eq', 'coal-tons', 'ton', 'tons', 'tons coal',
@@ -200,45 +200,45 @@ ferc1_fuel_unit_strings = {'ton': ferc1_ton_strings,
 # classified as these do not indicate if they are solar thermal or
 # photovoltaic.
 
-ferc1_plant_kind_coal = ['Coal']
+ferc1_plant_kind_coal = ['coal']
 
 ferc1_plant_kind_combustion_turbine = \
-    ['Combustion Turbine', 'GT', 'Gas Turbine',
-     'Gas Turbine # 1', 'Gas turbine', 'Gas Turbine (Note 1)',
-     'Gas Turbines', 'Simple Cycle', 'COMBUSTION TURBINE',
-     'COMB.TURB.PEAK.UNITS', 'GAS TURBINE', 'Combustion turbine',
-     'Com Turbine Peaking', 'Gas Turbine Peaking', 'Comb Turb Peaking',
-     'COMBUSTINE TURBINE', 'Comb. Turine', 'Conbustion Turbine',
-     'Combustine Turbine', 'Gas Turbine (Leased)', 'Combustion Tubine',
-     'Gas Turb', 'Gas Turbine Peaker', 'GTG/Gas', 'Simple Cycle Turbine',
-     'GAS-TURBINE', 'Gas Turbine-Simple', 'Gas Turbine - Note 1',
-     'Gas Turbine #1', 'SIMPLE CYCLE', 'GasTurbine', 'CombustionTurbine',
-     'Gas Turbine (2)', 'Comb Turb Peak Units', 'JET ENGINE']
+    ['combustion turbine', 'gt', 'gas turbine',
+     'gas turbine # 1', 'gas turbine', 'gas turbine (note 1)',
+     'gas turbines', 'simple cycle', 'combustion turbine',
+     'comb.turb.peak.units', 'gas turbine', 'combustion turbine',
+     'com turbine peaking', 'gas turbine peaking', 'comb turb peaking',
+     'combustine turbine', 'comb. turine', 'conbustion turbine',
+     'combustine turbine', 'gas turbine (leased)', 'combustion tubine',
+     'gas turb', 'gas turbine peaker', 'gtg/gas', 'simple cycle turbine',
+     'gas-turbine', 'gas turbine-simple', 'gas turbine - note 1',
+     'gas turbine #1', 'simple cycle', 'gasturbine', 'combustionturbine',
+     'gas turbine (2)', 'comb turb peak units', 'jet engine']
 
 ferc1_plant_kind_combined_cycle = \
-    ['COMBINED CYCLE', 'Combined Cycle', 'Combined',
-     'GAS TURB. & HEAT REC', 'Combined cycle', 'Com. Cyc', 'Com. Cycle',
-     'GAS TURB-COMBINED CY', 'Combined Cycle CTG', 'Combined Cycle - 40%',
-     'Com Cycle Gas Turb', 'Combined Cycle Oper', 'Gas Turb/Comb. Cyc',
-     'Combine Cycle', 'CC', 'Comb. Cycle', 'Gas Turb-Combined Cy']
+    ['Combined cycle', 'combined cycle', 'combined',
+     'gas turb. & heat rec', 'combined cycle', 'com. cyc', 'com. cycle',
+     'gas turb-combined cy', 'combined cycle ctg', 'combined cycle - 40%',
+     'com cycle gas turb', 'combined cycle oper', 'gas turb/comb. cyc',
+     'combine cycle', 'cc', 'comb. cycle', 'gas turb-combined cy']
 
-ferc1_plant_kind_nuke = ['Nuclear', 'NUCLEAR', 'Nuclear (3)']
+ferc1_plant_kind_nuke = ['nuclear', 'nuclear', 'nuclear (3)']
 
-ferc1_plant_kind_geothermal = ['Steam - Geothermal']
+ferc1_plant_kind_geothermal = ['steam - geothermal']
 
 ferc_1_plant_kind_internal_combustion = \
-    ['IC', 'Internal Combustion',
-     'Diesel Turbine', 'Int Combust (Note 1)', 'Int. Combust (Note1)',
-     'INT.COMBUSTINE', 'Comb. Cyc', 'Internal Comb', 'DIESEL', 'Diesel Engine',
-     'INTERNAL COMBUSTION', 'Int Combust - Note 1', 'Int. Combust - Note1',
-     'Internal Comb Recip', 'Reciprocating Engine', 'Comb. Turbine']
+    ['ic', 'internal combustion',
+     'diesel turbine', 'int combust (note 1)', 'int. combust (note1)',
+     'int.combustine', 'comb. cyc', 'internal comb', 'diesel', 'diesel engine',
+     'internal combustion', 'int combust - note 1', 'int. combust - note1',
+     'internal comb recip', 'reciprocating engine', 'comb. turbine']
 
-ferc1_plant_kind_wind = ['Wind', 'Wind Energy',
-                         'Wind Turbine', 'Wind - Turbine']
+ferc1_plant_kind_wind = ['wind', 'wind energy',
+                         'wind turbine', 'wind - turbine']
 
-ferc1_plant_kind_photovoltaic = ['Solar Photovoltaic', 'Photovoltaic']
+ferc1_plant_kind_photovoltaic = ['solar photovoltaic', 'photovoltaic']
 
-ferc1_plant_kind_solar_thermal = ['Solar Thermal']
+ferc1_plant_kind_solar_thermal = ['solar thermal']
 
 # Making a dictionary of lists from the lists of plant_fuel strings to create
 # a dictionary of plant fuel lists.
@@ -265,23 +265,23 @@ ferc1_plant_kind_strings = {
 # and "outdoor hrsg") are included.
 
 ferc1_construction_type_outdoor = \
-    ['Outdoor', 'OUTDOOR BOILER', 'Full Outdoor', 'Outdoor Boiler',
-     'Outdoor Boilers', 'Outboilers', 'Fuel outdoor', 'FULL OUTDOOR',
-     'Outdoors', 'OUTDOOR', 'Boiler Outdoor& Full', 'Boiler Outdoor&Full',
-     'Outdoor Boiler& Full', 'Full -Outdoor', 'Outdoor Steam',
-     'Outdoor boiler', 'OB', 'Outdoor Automatic', 'OUTDOOR REPOWER',
-     'FULL OUTDOOR BOILER', 'FO', 'Outdoor Boiler & Ful', 'Full-Outdoor',
-     'Fuel Outdoor', 'Outoor', 'outdoor', 'Outdoor  Boiler&Full',
-     'Boiler Outdoor &Full', 'Outdoor Boiler &Full', 'Boiler Outdoor & Ful',
-     'Outdoor-Boiler', 'Outdoor - Boiler', 'Outdoor Const.',
-     '4 Outdoor Boilers', '3 Outdoor Boilers', 'Full outdoor', 'Full Outdoors',
-     'Full Oudoors', 'Outdoor (Auto Oper)', 'Outside Boiler',
-     'Outdoor Boiler&Full', 'OUTDOOR HRSG', 'Outdoor HRSG']
+    ['outdoor', 'outdoor boiler', 'full outdoor', 'outdoor boiler',
+     'outdoor boilers', 'outboilers', 'fuel outdoor', 'full outdoor',
+     'outdoors', 'outdoor', 'boiler outdoor& full', 'boiler outdoor&full',
+     'outdoor boiler& full', 'full -outdoor', 'outdoor steam',
+     'outdoor boiler', 'ob', 'outdoor automatic', 'outdoor repower',
+     'full outdoor boiler', 'fo', 'outdoor boiler & ful', 'full-outdoor',
+     'fuel outdoor', 'outoor', 'outdoor', 'outdoor  boiler&full',
+     'boiler outdoor &full', 'outdoor boiler &full', 'boiler outdoor & ful',
+     'outdoor-boiler', 'outdoor - boiler', 'outdoor const.',
+     '4 outdoor boilers', '3 outdoor boilers', 'full outdoor', 'full outdoors',
+     'full oudoors', 'outdoor (auto oper)', 'outside boiler',
+     'outdoor boiler&full', 'outdoor hrsg', 'outdoor hrsg']
 
 ferc1_construction_type_conventional = \
-    ['Conventional', 'CONVENTIONAL', 'Conventional Boiler', 'Conv-B',
-     'Conventionall', 'CONVENTION', 'conventional', 'Coventional',
-     'Conven Full Boiler', 'C0NVENTIONAL', 'Conventtional', 'Convential']
+    ['conventional', 'conventional', 'conventional boiler', 'conv-b',
+     'conventionall', 'convention', 'conventional', 'coventional',
+     'conven full boiler', 'c0nventional', 'conventtional', 'convential']
 
 # Making a dictionary of lists from the lists of type_const strings to create
 # a dictionary of construction type lists.
@@ -762,39 +762,65 @@ generation_fuel_map_eia923 = DataFrame.from_records([
      'electric_fuel_consumption_quantity', 'total_fuel_consumption_mmbtu',
      'elec_fuel_consumption_mmbtu', 'net_generation_megawatthours', 'year')],
 
-    columns=['year_index', 'plant_id', 'combined_heat_and_power_plant',
+    columns=['year_index', 'plant_id', 'combined_heat_power',
              'nuclear_unit_id', 'plant_name', 'operator_name', 'operator_id',
              'plant_state', 'census_region', 'nerc_region', 'reserved',
-             'naics_code', 'eia_sector_number', 'sector_name',
-             'reported_prime_mover', 'reported_fuel_type_code',
-             'aer_fuel_type_code', 'reserved_1', 'reserved_2',
-             'physical_unit_label', 'quantity_january', 'quantity_february',
-             'quantity_march', 'quantity_april', 'quantity_may',
-             'quantity_june', 'quantity_july', 'quantity_august',
-             'quantity_september', 'quantity_october', 'quantity_november',
-             'quantity_december', 'elec_quantity_january',
-             'elec_quantity_february', 'elec_quantity_march',
-             'elec_quantity_april', 'elec_quantity_may', 'elec_quantity_june',
-             'elec_quantity_july', 'elec_quantity_august',
-             'elec_quantity_september', 'elec_quantity_october',
-             'elec_quantity_november', 'elec_quantity_december',
-             'mmbtuper_unit_january', 'mmbtuper_unit_february',
-             'mmbtuper_unit_march', 'mmbtuper_unit_april', 'mmbtuper_unit_may',
-             'mmbtuper_unit_june', 'mmbtuper_unit_july',
-             'mmbtuper_unit_august', 'mmbtuper_unit_september',
-             'mmbtuper_unit_october', 'mmbtuper_unit_november',
-             'mmbtuper_unit_december', 'tot_mmbtu_january',
-             'tot_mmbtu_february', 'tot_mmbtu_march', 'tot_mmbtu_april',
-             'tot_mmbtu_may', 'tot_mmbtu_june', 'tot_mmbtu_july',
-             'tot_mmbtu_august', 'tot_mmbtu_september', 'tot_mmbtu_october',
-             'tot_mmbtu_november', 'tot_mmbtu_december', 'elec_mmbtu_january',
-             'elec_mmbtu_february', 'elec_mmbtu_march', 'elec_mmbtu_april',
-             'elec_mmbtu_may', 'elec_mmbtu_june', 'elec_mmbtu_july',
-             'elec_mmbtu_august', 'elec_mmbtu_september', 'elec_mmbtu_october',
-             'elec_mmbtu_november', 'elec_mmbtu_december', 'netgen_january',
-             'netgen_february', 'netgen_march', 'netgen_april', 'netgen_may',
-             'netgen_june', 'netgen_july', 'netgen_august', 'netgen_september',
-             'netgen_october', 'netgen_november', 'netgen_december',
+             'naics_code', 'eia_sector', 'sector_name', 'prime_mover',
+             'fuel_type', 'aer_fuel_type', 'reserved_1', 'reserved_2',
+             'fuel_unit', 'fuel_consumed_total_january',
+             'fuel_consumed_total_february', 'fuel_consumed_total_march',
+             'fuel_consumed_total_april', 'fuel_consumed_total_may',
+             'fuel_consumed_total_june', 'fuel_consumed_total_july',
+             'fuel_consumed_total_august', 'fuel_consumed_total_september',
+             'fuel_consumed_total_october', 'fuel_consumed_total_november',
+             'fuel_consumed_total_december',
+             'fuel_consumed_for_electricity_january',
+             'fuel_consumed_for_electricity_february',
+             'fuel_consumed_for_electricity_march',
+             'fuel_consumed_for_electricity_april',
+             'fuel_consumed_for_electricity_may',
+             'fuel_consumed_for_electricity_june',
+             'fuel_consumed_for_electricity_july',
+             'fuel_consumed_for_electricity_august',
+             'fuel_consumed_for_electricity_september',
+             'fuel_consumed_for_electricity_october',
+             'fuel_consumed_for_electricity_november',
+             'fuel_consumed_for_electricity_december',
+             'fuel_mmbtu_per_unit_january', 'fuel_mmbtu_per_unit_february',
+             'fuel_mmbtu_per_unit_march', 'fuel_mmbtu_per_unit_april',
+             'fuel_mmbtu_per_unit_may', 'fuel_mmbtu_per_unit_june',
+             'fuel_mmbtu_per_unit_july', 'fuel_mmbtu_per_unit_august',
+             'fuel_mmbtu_per_unit_september', 'fuel_mmbtu_per_unit_october',
+             'fuel_mmbtu_per_unit_november', 'fuel_mmbtu_per_unit_december',
+             'fuel_consumed_total_mmbtu_january',
+             'fuel_consumed_total_mmbtu_february',
+             'fuel_consumed_total_mmbtu_march',
+             'fuel_consumed_total_mmbtu_april',
+             'fuel_consumed_total_mmbtu_may', 'fuel_consumed_total_mmbtu_june',
+             'fuel_consumed_total_mmbtu_july',
+             'fuel_consumed_total_mmbtu_august',
+             'fuel_consumed_total_mmbtu_september',
+             'fuel_consumed_total_mmbtu_october',
+             'fuel_consumed_total_mmbtu_november',
+             'fuel_consumed_total_mmbtu_december',
+             'fuel_consumed_for_electricity_mmbtu_january',
+             'fuel_consumed_for_electricity_mmbtu_february',
+             'fuel_consumed_for_electricity_mmbtu_march',
+             'fuel_consumed_for_electricity_mmbtu_april',
+             'fuel_consumed_for_electricity_mmbtu_may',
+             'fuel_consumed_for_electricity_mmbtu_june',
+             'fuel_consumed_for_electricity_mmbtu_july',
+             'fuel_consumed_for_electricity_mmbtu_august',
+             'fuel_consumed_for_electricity_mmbtu_september',
+             'fuel_consumed_for_electricity_mmbtu_october',
+             'fuel_consumed_for_electricity_mmbtu_november',
+             'fuel_consumed_for_electricity_mmbtu_december',
+             'net_generation_mwh_january', 'net_generation_mwh_february',
+             'net_generation_mwh_march', 'net_generation_mwh_april',
+             'net_generation_mwh_may', 'net_generation_mwh_june',
+             'net_generation_mwh_july', 'net_generation_mwh_august',
+             'net_generation_mwh_september', 'net_generation_mwh_october',
+             'net_generation_mwh_november', 'net_generation_mwh_december',
              'total_fuel_consumption_quantity',
              'electric_fuel_consumption_quantity',
              'total_fuel_consumption_mmbtu', 'elec_fuel_consumption_mmbtu',
@@ -1096,28 +1122,23 @@ boiler_fuel_map_eia923 = DataFrame.from_records([
      'ash_content_september', 'ash_content_october', 'ash_content_november',
      'ash_content_december', 'total_fuel_consumption_quantity', 'year')],
 
-    columns=['year_index', 'plant_id', 'combined_heat_and_power_plant',
+    columns=['year_index', 'plant_id', 'combined_heat_power',
              'plant_name', 'operator_name', 'operator_id', 'plant_state',
-             'census_region', 'nerc_region', 'naics_code', 'sector_number',
-             'sector_name', 'boiler_id', 'reported_prime_mover',
-             'reported_fuel_type_code', 'physical_unit_label',
-             'quantity_of_fuel_consumed_january',
-             'quantity_of_fuel_consumed_february',
-             'quantity_of_fuel_consumed_march',
-             'quantity_of_fuel_consumed_april',
-             'quantity_of_fuel_consumed_may', 'quantity_of_fuel_consumed_june',
-             'quantity_of_fuel_consumed_july',
-             'quantity_of_fuel_consumed_august',
-             'quantity_of_fuel_consumed_september',
-             'quantity_of_fuel_consumed_october',
-             'quantity_of_fuel_consumed_november',
-             'quantity_of_fuel_consumed_december', 'mmbtu_per_unit_january',
-             'mmbtu_per_unit_february', 'mmbtu_per_unit_march',
-             'mmbtu_per_unit_april', 'mmbtu_per_unit_may',
-             'mmbtu_per_unit_june', 'mmbtu_per_unit_july',
-             'mmbtu_per_unit_august', 'mmbtu_per_unit_september',
-             'mmbtu_per_unit_october', 'mmbtu_per_unit_november',
-             'mmbtu_per_unit_december', 'sulfur_content_january',
+             'census_region', 'nerc_region', 'naics_code', 'eia_sector',
+             'sector_name', 'boiler_id', 'prime_mover', 'fuel_type',
+             'fuel_unit', 'fuel_qty_consumed_january',
+             'fuel_qty_consumed_february', 'fuel_qty_consumed_march',
+             'fuel_qty_consumed_april', 'fuel_qty_consumed_may',
+             'fuel_qty_consumed_june', 'fuel_qty_consumed_july',
+             'fuel_qty_consumed_august', 'fuel_qty_consumed_september',
+             'fuel_qty_consumed_october', 'fuel_qty_consumed_november',
+             'fuel_qty_consumed_december', 'fuel_mmbtu_per_unit_january',
+             'fuel_mmbtu_per_unit_february', 'fuel_mmbtu_per_unit_march',
+             'fuel_mmbtu_per_unit_april', 'fuel_mmbtu_per_unit_may',
+             'fuel_mmbtu_per_unit_june', 'fuel_mmbtu_per_unit_july',
+             'fuel_mmbtu_per_unit_august', 'fuel_mmbtu_per_unit_september',
+             'fuel_mmbtu_per_unit_october', 'fuel_mmbtu_per_unit_november',
+             'fuel_mmbtu_per_unit_december', 'sulfur_content_january',
              'sulfur_content_february', 'sulfur_content_march',
              'sulfur_content_april', 'sulfur_content_may',
              'sulfur_content_june', 'sulfur_content_july',
@@ -1129,8 +1150,8 @@ boiler_fuel_map_eia923 = DataFrame.from_records([
              'ash_content_august', 'ash_content_september',
              'ash_content_october', 'ash_content_november',
              'ash_content_december', 'total_fuel_consumption_quantity',
-             'year'], index='year_index')
-
+             'year'],
+    index='year_index')
 
 generator_map_eia923 = DataFrame.from_records([
     (2008, 'plant_id', 'combined_heat_power_plant', 'plant_name',
@@ -1223,17 +1244,17 @@ generator_map_eia923 = DataFrame.from_records([
      'net_generation_october', 'net_generation_november',
      'net_generation_december', 'net_generation_year_to_date', 'year')],
 
-    columns=['year_index', 'plant_id', 'combined_heat_and_power_plant',
+    columns=['year_index', 'plant_id', 'combined_heat_power',
              'plant_name', 'operator_name', 'operator_id', 'plant_state',
-             'census_region', 'nerc_region', 'naics_code', 'sector_number',
-             'sector_name', 'generator_id', 'reported_prime_mover',
-             'net_generation_january', 'net_generation_february',
-             'net_generation_march', 'net_generation_april',
-             'net_generation_may', 'net_generation_june',
-             'net_generation_july', 'net_generation_august',
-             'net_generation_september', 'net_generation_october',
-             'net_generation_november', 'net_generation_december',
-             'net_generation_year_to_date', 'year'],
+             'census_region', 'nerc_region', 'naics_code', 'eia_sector',
+             'sector_name', 'generator_id', 'prime_mover',
+             'net_generation_mwh_january', 'net_generation_mwh_february',
+             'net_generation_mwh_march', 'net_generation_mwh_april',
+             'net_generation_mwh_may', 'net_generation_mwh_june',
+             'net_generation_mwh_july', 'net_generation_mwh_august',
+             'net_generation_mwh_september', 'net_generation_mwh_october',
+             'net_generation_mwh_november', 'net_generation_mwh_december',
+             'net_generation_mwh_year_to_date', 'year'],
     index='year_index'
 )
 
@@ -1307,15 +1328,15 @@ fuel_receipts_costs_map_eia923 = DataFrame.from_records([
      'secondary_transportation_mode', 'natural_gas_transportation_service')],
 
     columns=['year_index', 'year', 'month', 'plant_id', 'plant_name',
-             'plant_state', 'purchase_type', 'contract_expiration_date',
+             'plant_state', 'contract_type', 'contract_expiration_date',
              'energy_source', 'fuel_group', 'coalmine_type', 'coalmine_state',
              'coalmine_county', 'coalmine_msha_id', 'coalmine_name',
-             'supplier', 'quantity', 'average_heat_content',
+             'supplier', 'fuel_quantity', 'average_heat_content',
              'average_sulfur_content', 'average_ash_content',
              'average_mercury_content', 'fuel_cost', 'regulated',
              'operator_name', 'operator_id', 'reporting_frequency',
              'primary_transportation_mode', 'secondary_transportation_mode',
-             'natural_gas_transportation_service'],
+             'natural_gas_transport'],
     index='year_index'
 )
 
@@ -1343,23 +1364,23 @@ plant_frame_map_eia923 = DataFrame.from_records([
      'naics_code', 'plant_name', 'combined_heat_and_power_status',
      'reporting_frequency')],
     columns=['year_index', 'year', 'month', 'plant_id', 'plant_state',
-             'sector_number', 'naics_code', 'plant_name',
-             'combined_heat_and_power_status', 'reporting_frequency'],
+             'eia_sector', 'naics_code', 'plant_name',
+             'combined_heat_power', 'reporting_frequency'],
     index='year_index')
 
 # patterns for matching columns to months:
-month_dict_2015_eia923 = {1: '_january$',
-                          2: '_february$',
-                          3: '_march$',
-                          4: '_april$',
-                          5: '_may$',
-                          6: '_june$',
-                          7: '_july$',
-                          8: '_august$',
-                          9: '_september$',
-                          10: '_october$',
-                          11: '_november$',
-                          12: '_december$'}
+month_dict_eia923 = {1: '_january$',
+                     2: '_february$',
+                     3: '_march$',
+                     4: '_april$',
+                     5: '_may$',
+                     6: '_june$',
+                     7: '_july$',
+                     8: '_august$',
+                     9: '_september$',
+                     10: '_october$',
+                     11: '_november$',
+                     12: '_december$'}
 
 
 # The set of FERC Form 1 tables that have the same composite primary keys: [
@@ -1576,7 +1597,11 @@ ferc_accumulated_depreciation = DataFrame.from_records([
 
     columns=['row_number', 'line_id', 'ferc_account_description'])
 
-# From Page 7 of EIA Form 923, Census Region the state is located in
+######################################################################
+# Constants from EIA From 923 used within pudl.py module
+######################################################################
+
+# From Page 7 of EIA Form 923, Census Region a US state is located in
 census_region = {
     'NEW': 'New England',
     'MAT': 'Middle Atlantic',
@@ -1752,21 +1777,30 @@ fuel_type_aer_eia923 = {
     'WWW': 'Wood and Wood Waste'
 }
 
-# EIA 923: EIA The type of physical units fuel consumption is reported in.
+# EIA 923: The type of physical units fuel consumption is reported in.
 # All consumption is reported in either short tons for solids,
-# thousands of cubic feet for gases, and barrels for liquids:"""
+# thousands of cubic feet for gases, and barrels for liquids.
 fuel_units_eia923 = {
     'mcf': 'Thousands of cubic feet (for gases)',
     'short_tons': 'Short tons (for solids)',
     'barrels': 'Barrels (for liquids)'
 }
+
 # EIA 923: Designates the purchase type under which receipts occurred
 # in the reporting month. One or two character alphanumeric:
 contract_type_eia923 = {
-    'C': 'Contract',
-    'NC': 'New Contract',
-    'S': 'Spot Purchase'
+    'C': 'Contract - Fuel received under a purchase order or contract \
+        with a term of one year or longer.  Contracts with a shorter term \
+        are considered spot purchases ',
+    'NC': 'New Contract - Fuel received under a purchase order or contract \
+        with duration of one year or longer, under which deliveries were \
+        first made during the reporting month',
+    'S': 'Spot Purchase',
+    'T': 'Tolling Agreement – \
+        Fuel received under a tolling agreement \
+        (bartering arrangement of fuel for generation)'
 }
+
 # EIA 923: The fuel code associated with the fuel receipt.
 # Defined on Page 7 of EIA Form 923
 # Two or three character alphanumeric:
@@ -1799,8 +1833,8 @@ energy_source_eia923 = {
 }
 
 # EIA 923 Fuel Group, from Page 7 EIA Form 923
-# Groups the energy sources into fuel groups that are located in the Electric
-# Power Monthly:  Coal, Natural Gas, Petroleum, Petroleum Coke.
+# Groups fossil fuel energy sources into fuel groups that are located in the
+# Electric Power Monthly:  Coal, Natural Gas, Petroleum, Petroleum Coke.
 fuel_group_eia923 = ['Coal', 'Natural Gas', 'Petroleum', 'Petroleum Coke']
 
 # EIA 923: Type of Coal Mine as defined on Page 7 of EIA Form 923
@@ -1892,4 +1926,18 @@ natural_gas_transport_eia923 = {
     '8': 'Unknown',
     'F': 'Firm',
     'I': 'Interruptible'
+}
+
+# PUDL consolidation of EIA923 AER fuel type strings into same categories as
+# 'energy_source_eia923' plus additional renewable and nuclear categories.
+aer_fuel_type_strings = {
+    'coal': ['COL', 'WOC'],
+    'natural gas': ['NG', 'OOG'],
+    'petroleum': ['DFO', 'RFO'],
+    'petroleum coke': ['PC'],
+    'solar': ['SUN'],
+    'wind': ['WND'],
+    'hydro': ['HPS', 'HYC'],
+    'nuclear': ['NUC'],
+    'other': ['GEO', 'MLG', 'ORW', 'OTH', 'WOO', 'WWW']
 }

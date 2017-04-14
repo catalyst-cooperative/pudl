@@ -10,7 +10,7 @@ other open source tools, and public data, including:
    http://www.numpy.org/
  - Matplotlib (data visualization)
    http://matplotlib.org/
- - pandas (dataframe analysis)
+ - pandas (dataframe based analysis)
    http://pandas.pydata.org/
  - dbfread (allows direct access to DBF files from Python)
    https://github.com/olemb/dbfread
@@ -18,6 +18,8 @@ other open source tools, and public data, including:
    http://www.sqlalchemy.org/
  - PyTest (a unit testing harness)
    http://docs.pytest.org/en/latest/
+ - postgres-copy (SQLAlchemy based postgresql COPY FROM wrapper)
+   https://github.com/jmcarp/sqlalchemy-postgres-copy
 
 ### Data:
  - FERC Form 1
