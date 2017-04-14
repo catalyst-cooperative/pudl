@@ -1080,9 +1080,6 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
                                           str_na='')
 
     # # map AER fuel types to simplified PUDL categories
-    # gf_df.aer_fuel_category = cleanstringsEIA923(gf_df.aer_fuel_type,
-    #                                              aer_fuel_type_strings)
-    #
     gf_df['aer_fuel_category'] = cleanstringsEIA923(gf_df.aer_fuel_type,
                                                     aer_fuel_type_strings)
 
