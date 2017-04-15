@@ -225,26 +225,29 @@ def get_eia923_plant_info(years, eia923_xlsx):
         Data frame that populates the plant info table
         A check of plant mapping to identify missing plants
     """
-    df = pd.DataFrame(columns=['plant_id', 'census_region', 'nerc_region'])
-    early_years = [y for y in years if y < 2011]
     recent_years = [y for y in years if y >= 2011]
 
     df_all_years = pd.DataFrame(columns=['plant_id'])
 
-    pf = get_eia923_page('plant_frame', eia923_xlsx, recent_years)
-    pf = pf[['plant_id', 'plant_state',
-             'combined_heat_power',
-             'eia_sector', 'naics_code',
-             'reporting_frequency', 'year']]
-    pf = pf.sort_values(['year', ], ascending=False)
+    pf = pd.DataFrame(columns=['plant_id', 'plant_state',
+                               'combined_heat_power',
+                               'eia_sector', 'naics_code',
+                               'reporting_frequency', 'year'])
+    if (len(recent_years) > 0):
+        pf = get_eia923_page('plant_frame', eia923_xlsx, years=recent_years)
+        pf = pf[['plant_id', 'plant_state',
+                 'combined_heat_power',
+                 'eia_sector', 'naics_code',
+                 'reporting_frequency', 'year']]
+        pf = pf.sort_values(['year', ], ascending=False)
 
-    gf = get_eia923_page('generation_fuel', eia923_xlsx, years)
+    gf = get_eia923_page('generation_fuel', eia923_xlsx, years=years)
     gf = gf[['plant_id', 'plant_state',
              'combined_heat_power', 'census_region', 'nerc_region', 'year']]
     gf = gf.sort_values(['year', ], ascending=False)
     gf = gf.drop_duplicates(subset='plant_id')
 
-    bf = get_eia923_page('boiler_fuel', eia923_xlsx, years)
+    bf = get_eia923_page('boiler_fuel', eia923_xlsx, years=years)
     bf = bf[['plant_id', 'plant_state',
              'combined_heat_power',
              'naics_code', 'naics_code',
@@ -252,13 +255,13 @@ def get_eia923_plant_info(years, eia923_xlsx):
     bf = bf.sort_values(['year'], ascending=False)
     bf = bf.drop_duplicates(subset='plant_id')
 
-    g = get_eia923_page('generator', eia923_xlsx, years)
+    g = get_eia923_page('generator', eia923_xlsx, years=years)
     g = g[['plant_id', 'plant_state', 'combined_heat_power',
            'census_region', 'nerc_region', 'naics_code', 'eia_sector', 'year']]
     g = g.sort_values(['year'], ascending=False)
     g = g.drop_duplicates(subset='plant_id')
 
-    frc = get_eia923_page('fuel_receipts_costs', eia923_xlsx, years)
+    frc = get_eia923_page('fuel_receipts_costs', eia923_xlsx, years=years)
     frc = frc[['plant_id', 'plant_state', 'year']]
     frc = frc.sort_values(['plant_id'], ascending=False)
     frc = frc.drop_duplicates(subset='plant_id')
@@ -278,11 +281,11 @@ def get_eia923_plant_info(years, eia923_xlsx):
                                              'plant_state',
                                              'eia_sector'], na_position='last')
 
-    df = pd.concat([df, df_all_years, ])
-    df = df.drop_duplicates('plant_id')
-    df = df.drop(['year', ], axis=1)
+    #df = pd.concat([df, df_all_years, ])
+    df_all_years = df_all_years.drop_duplicates('plant_id')
+    df_all_years = df_all_years.drop(['year', ], axis=1)
 
-    return(df)
+    return(df_all_years)
 
 
 def yearly_to_monthly_eia923(df, md):

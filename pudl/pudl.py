@@ -37,7 +37,7 @@ from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
 from pudl.constants import ferc1_fuel_unit_strings, rto_iso
 from pudl.constants import ferc1_plant_kind_strings, ferc1_type_const_strings
 from pudl.constants import ferc1_default_tables, ferc1_pudl_tables
-from pudl.constants import ferc1_working_tables
+from pudl.constants import ferc1_working_tables, tab_map_eia923
 from pudl.constants import ferc_electric_plant_accounts
 from pudl.constants import ferc_accumulated_depreciation
 from pudl.constants import month_dict_eia923
@@ -1145,7 +1145,7 @@ def ingest_plant_info_eia923(pudl_engine, eia923_xlsx,
                    int_na=-1,
                    str_na='')
 
-    plant_info_df['plant_id'] = plant_info_df['plant_id'].apply(np.int64)
+    plant_info_df['plant_id'] = plant_info_df['plant_id'].astype(int)
 
     csv_dump_load(plant_info_df, 'plant_info_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
@@ -1267,14 +1267,14 @@ def ingest_generator_eia923(pudl_engine, eia923_dfs,
     generation (generation_eia923).
     """
     # This needs to be a copy of what we're passed in so we can edit it.
-    g_df = eia923_dfs['generator'].copy()
+    generators_df = eia923_dfs['generator'].copy()
 
     # Populating the 'generators_eia923' table
     generator_cols = ['plant_id',
                       'generator_id',
                       'prime_mover']
 
-    generators_df = eia923_dfs['generator'][generator_cols]
+    generators_df = generators_df[generator_cols]
     generators_df = generators_df.drop_duplicates(
         subset=['plant_id', 'generator_id'])
 
@@ -1302,6 +1302,8 @@ def ingest_generator_eia923(pudl_engine, eia923_dfs,
                     'eia_sector',
                     'sector_name',
                     'net_generation_mwh_year_to_date']
+
+    g_df.dropna(subset=['generator_id'], inplace=True)
 
     g_df.drop(cols_to_drop, axis=1, inplace=True)
 
@@ -1480,46 +1482,20 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
                                           ferc1_years)
 
     eia923_xlsx = get_eia923_xlsx(eia923_years)
+
+    if('plant_info_eia923' in eia923_tables):
+        if verbose:
+            print("Ingesting plant_info_eia923 from EIA 923 into PUDL.")
+        ingest_plant_info_eia923(pudl_engine, eia923_xlsx,
+                                 eia923_years=eia923_years, csvdir=csvdir,
+                                 keep_csv=keep_csv)
+
     eia923_dfs = {}
-
-#    if 'plant_info_eia923' in eia923_tables:
-#        for page in ['plant_frame', 'generation_fuel']:
-#            eia923_dfs[page] = get_eia923_page(page,
-#                                               eia923_xlsx,
-#                                               years=eia923_years,
-#                                               verbose=verbose)
-    if ('generation_fuel_eia923' in eia923_tables) \
-            and ('generation_fuel' not in eia923_dfs.keys()):
-        eia923_dfs['generation_fuel'] = get_eia923_page('generation_fuel',
-                                                        eia923_xlsx,
-                                                        years=eia923_years,
-                                                        verbose=verbose)
-
-    if 'fuel_stocks_eia923' in eia923_tables:
-        pass  # no DB table defined for fuel stocks yet.
-
-    if 'boiler_fuel_eia923' in eia923_tables:
-        eia923_dfs['boiler_fuel'] = get_eia923_page('boiler_fuel',
-                                                    eia923_xlsx,
-                                                    years=eia923_years,
-                                                    verbose=verbose)
-    if 'generation_eia923' in eia923_tables:
-        eia923_dfs['generator'] = get_eia923_page('generator',
-                                                  eia923_xlsx,
-                                                  years=eia923_years,
-                                                  verbose=verbose)
-    if 'fuel_receipts_costs_eia923' in eia923_tables:
-        eia923_dfs['fuel_receipts_costs'] = \
-            get_eia923_page('fuel_receipts_costs',
-                            eia923_xlsx,
-                            years=eia923_years,
-                            verbose=verbose)
-
-    if verbose:
-        print("Ingesting plant_info_eia923 from EIA 923 into PUDL.")
-    ingest_plant_info_eia923(pudl_engine, eia923_xlsx,
-                             eia923_years=eia923_years, csvdir=csvdir,
-                             keep_csv=keep_csv)
+    for page in tab_map_eia923.columns:
+        if (page != 'plant_frame'):
+            eia923_dfs[page] = get_eia923_page(page, eia923_xlsx,
+                                               years=eia923_years,
+                                               verbose=verbose)
 
     # NOW START INGESTING EIA923 DATA:
     eia923_ingest_functions = {
@@ -1527,8 +1503,6 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
         'boiler_fuel_eia923': ingest_boiler_fuel_eia923,
         'generation_eia923': ingest_generator_eia923,
         'fuel_receipts_costs_eia923': ingest_fuel_receipts_costs_eia923,
-        'stocks_eia923': ingest_stocks_eia923
-        #    'operator_info_eia923': ingest_operator_info_eia923
     }
 
     for table in eia923_ingest_functions.keys():
