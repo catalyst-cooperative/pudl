@@ -33,6 +33,7 @@ from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
 from pudl.eia923 import get_eia923_page, yearly_to_monthly_eia923
 from pudl.eia923 import get_eia923_xlsx
 from pudl.eia923 import get_eia923_plant_info
+from pudl.eia923 import get_eia923_file, get_eia923_xlsx, cleanstringsEIA923
 from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
 from pudl.constants import ferc1_fuel_unit_strings, rto_iso
 from pudl.constants import ferc1_plant_kind_strings, ferc1_type_const_strings
@@ -256,10 +257,10 @@ def ingest_static_tables(engine):
         [FuelTypeAER(abbr=k, fuel_type=v)
          for k, v in fuel_type_aer_eia923.items()])
     pudl_session.add_all(
+        [FuelGroupEIA923(group=gr) for gr in fuel_group_eia923])
+    pudl_session.add_all(
         [EnergySourceEIA923(abbr=k, source=v)
          for k, v in energy_source_eia923.items()])
-    pudl_session.add_all(
-        [FuelGroupEIA923(group=gr) for gr in fuel_group_eia923])
     pudl_session.add_all(
         [CoalMineTypeEIA923(abbr=k, name=v)
          for k, v in coalmine_type_eia923.items()])
@@ -276,8 +277,8 @@ def ingest_static_tables(engine):
         [NaturalGasTransportEIA923(abbr=k, status=v)
          for k, v in natural_gas_transport_eia923.items()])
     pudl_session.add_all(
-        [AERFuelCategoryEIA923(name=k, types=v)
-         for k, v in aer_fuel_type_strings.items()])
+        [AERFuelCategoryEIA923(name=k)
+         for k in aer_fuel_type_strings.keys()])
 
     # States dictionary is defined outside this function, below.
     pudl_session.add_all([State(abbr=k, name=v) for k, v in us_states.items()])
@@ -764,9 +765,8 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     """
     Ingest f1_pumped_storage table of FERC Form 1 DB into PUDL DB.
-    Ingest f1_hydro table of FERC Form 1 DB into PUDL DB.
 
-    Load data about hydroelectric generation resources from our cloned FERC 1
+    Load data about pumped hydro storage facilities from our cloned FERC 1
     database into the PUDL DB. Standardizes plant names (stripping whitespace
     and Using Title Case).  Also converts into our preferred units of MW and
     MWh.
@@ -779,7 +779,6 @@ def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-
     f1_pumped_storage = ferc1_meta.tables['f1_pumped_storage']
 
     # Removing the empty records.
@@ -862,7 +861,22 @@ def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 def ingest_accumulated_depreciation_ferc1(pudl_engine,
                                           ferc1_engine,
                                           ferc1_years):
-    """Ingest f1_accumdepr_prvs table from FERC Form 1 DB."""
+    """
+    Ingest f1_accumdepr_prvs table from FERC Form 1 DB into PUDL DB.
+
+    Load data about accumulated depreciation from our cloned FERC Form 1
+    database into the PUDL DB. This information is organized by FERC account,
+    with each line of the FERC Form 1 having a different descriptive
+    identifier like 'balance_end_of_year' or 'transmission'.
+
+    Args:
+       pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
+       ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
+       ferc1_years (sequence of integers): Years for which we should extract
+           fuel data from the FERC1 Database.
+
+    Returns: Nothing.
+    """
     f1_accumdepr_prvsn = ferc1_meta.tables['f1_accumdepr_prvsn']
     f1_accumdepr_prvsn_select = select([f1_accumdepr_prvsn]).\
         where(f1_accumdepr_prvsn.c.report_year.in_(ferc1_years))
@@ -896,7 +910,29 @@ def ingest_accumulated_depreciation_ferc1(pudl_engine,
 
 
 def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine, ferc1_years):
-    """Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB."""
+    """
+    Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB.
+
+    Load data about the financial value of utility plant in service from our
+    cloned FERC Form 1 database into the PUDL DB. This information is organized
+    by FERC account, with each line of the FERC Form 1 having a different FERC
+    account id (most are numeric and correspond to FERC's Uniform Electric
+    System of Accounts). As of PUDL v0.1, this data is only valid from 2007
+    onward, as the line numbers for several accounts are different in earlier
+    years.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
+        ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
+        ferc1_years (sequence of integers): Years for which we should extract
+            fuel data from the FERC1 Database.
+
+       Returns: Nothing.
+    """
+    min_yr = min(ferc1_years)
+    assert min_yr >= 2007,\
+        """Invalid year requested: {}. FERC Form 1 Plant In Service data is
+        currently only valid for years 2007 and later.""".format(min_yr)
     f1_plant_in_srvce = ferc1_meta.tables['f1_plant_in_srvce']
     f1_plant_in_srvce_select = select([f1_plant_in_srvce]).\
         where(f1_plant_in_srvce.c.report_year.in_(ferc1_years))
@@ -940,9 +976,40 @@ def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
 
 def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
-    """Ingest f1_gnrt_plant table of FERC Form 1 DB into PUDL DB."""
+    """
+    Ingest f1_gnrt_plant table from our cloned FERC Form 1 DB into PUDL DB.
+
+    This FERC Form 1 table contains information about a large number of small
+    plants, including many small hydroelectric and other renewable generation
+    facilities. Unfortunately the data is not well standardized, and so the
+    plants have been categorized manually, with the results of that
+    categorization stored in an Excel spreadsheet. This function reads in the
+    plant type data from the spreadsheet and merges it with the rest of the
+    information from the FERC DB based on record number, FERC respondent ID,
+    and report year. When possible the FERC license number for small hydro
+    plants is also manually extracted from the data.
+
+    This categorization will need to be renewed with each additional year of
+    FERC data we pull in. As of v0.1 the small plants have been categorized
+    for 2004-2015.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
+        ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
+        ferc1_years (sequence of integers): Years for which we should extract
+            fuel data from the FERC1 Database.
+
+    Returns: Nothing.
+    """
     import os.path
     from sqlalchemy import or_
+
+    assert min(ferc_years) >= 2004,\
+        """Year {} is too early. Small plant data has not been categorized for
+        before 2004.""".format(min(ferc_years))
+    assert max(ferc_years) <= 2015,\
+        """Year {} is too recent. Small plant data has not been categorized for
+        any year 2015.""".format(max(ferc_years))
     f1_small = ferc1_meta.tables['f1_gnrt_plant']
     f1_small_select = select([f1_small, ]).\
         where(f1_small.c.report_year.in_(ferc1_years)).\
@@ -1056,7 +1123,25 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
 
 def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine, ferc1_years):
-    """Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB."""
+    """
+    Ingest f1_purchased_pwr table from our cloned FERC Form 1 DB into PUDL DB.
+
+    This function pulls FERC Form 1 data about inter-untility power purchases
+    into the PUDL DB. This includes how much electricty was purchased, how
+    much it cost, and who it was purchased from. Unfortunately the field
+    describing which other utility the power was being bought from is poorly
+    standardized, making it difficult to correlate with other data. It will
+    need to be categorized by hand or with some fuzzy matching eventually.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
+        ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
+        ferc1_years (sequence of integers): Years for which we should extract
+            fuel data from the FERC1 Database.
+
+    Returns: Nothing.
+    """
+
     f1_purchased_pwr = ferc1_meta.tables['f1_purchased_pwr']
     f1_purchased_pwr_select = select([f1_purchased_pwr]).\
         where(f1_purchased_pwr.c.report_year.in_(ferc1_years))
@@ -1198,6 +1283,10 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
                                           int_na=-1,
                                           str_na='')
 
+    # # map AER fuel types to simplified PUDL categories
+    gf_df['aer_fuel_category'] = cleanstringsEIA923(gf_df.aer_fuel_type,
+                                                    aer_fuel_type_strings)
+
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(gf_df, 'generation_fuel_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
@@ -1322,7 +1411,8 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
     """
     Ingest data on fuel purchases and costs from EIA Form 923.
 
-    Populates the coalmine_info_eia923 and fuel_receipts_costs_eia923 tables.
+    Populates the coalmine_info_eia923, energy_source_eia923, and
+    fuel_receipts_costs_eia923 tables.
     """
     # Populate 'coalmine_info_eia923' table
     coalmine_cols = ['coalmine_name',
@@ -1366,7 +1456,6 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
                     'plant_state',
                     'operator_name',
                     'operator_id',
-                    'fuel_group',
                     'coalmine_msha_id',
                     'coalmine_type',
                     'coalmine_state',
@@ -1376,9 +1465,6 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
                     'reporting_frequency']
 
     frc_df.drop(cols_to_drop, axis=1, inplace=True)
-
-    # Why is this one ID being excluced? (ZS)
-    frc_df = frc_df[frc_df.plant_id != 8899]
 
     # Replace the EIA923 NA value ('.') with a real NA value.
     frc_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)

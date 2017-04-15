@@ -1573,7 +1573,7 @@ ferc_accumulated_depreciation = DataFrame.from_records([
     (14, 'salvage_credit', 'Salvage (Credit)'),
     (15, 'total_net_charges_for_plant_retired',\
      'TOTAL Net Chrgs. for Plant Ret. (Enter Total of lines 12 thru 14)'),
-    (16, 'other_debit_or_credit items',\
+    (16, 'other_debit_or_credit_items',\
      'Other Debit or Cr. Items (Describe, details in footnote):'),
     # blank: can be "Other Charges", e.g. in 2012 for PSCo.
     (17, 'other_charges_2', 'Other Charges 2'),
@@ -1835,7 +1835,8 @@ energy_source_eia923 = {
 # EIA 923 Fuel Group, from Page 7 EIA Form 923
 # Groups fossil fuel energy sources into fuel groups that are located in the
 # Electric Power Monthly:  Coal, Natural Gas, Petroleum, Petroleum Coke.
-fuel_group_eia923 = ['Coal', 'Natural Gas', 'Petroleum', 'Petroleum Coke']
+fuel_group_eia923 = ['Coal', 'Natural Gas',
+                     'Petroleum', 'Petroleum Coke', 'Other Gas']
 
 # EIA 923: Type of Coal Mine as defined on Page 7 of EIA Form 923
 coalmine_type_eia923 = {
@@ -1930,14 +1931,23 @@ natural_gas_transport_eia923 = {
 
 # PUDL consolidation of EIA923 AER fuel type strings into same categories as
 # 'energy_source_eia923' plus additional renewable and nuclear categories.
-aer_fuel_type_strings = {
-    'coal': ['COL', 'WOC'],
-    'natural gas': ['NG', 'OOG'],
-    'petroleum': ['DFO', 'RFO'],
-    'petroleum coke': ['PC'],
-    'solar': ['SUN'],
-    'wind': ['WND'],
-    'hydro': ['HPS', 'HYC'],
-    'nuclear': ['NUC'],
-    'other': ['GEO', 'MLG', 'ORW', 'OTH', 'WOO', 'WWW']
-}
+aer_coal_strings = ['COL', 'WOC']
+aer_gas_strings = ['NG']
+aer_petroleum_strings = ['DFO', 'RFO']
+aer_petcoke_strings = ['PC']
+aer_solar_strings = ['SUN']
+aer_wind_strings = ['WND']
+aer_hydro_strings = ['HPS', 'HYC']
+aer_nuclear_strings = ['NUC']
+aer_other_strings = ['GEO', 'MLG', 'OOG', 'ORW', 'OTH', 'WOO', 'WWW']
+
+aer_fuel_type_strings = {'coal': aer_coal_strings,
+                         'gas': aer_gas_strings,
+                         'petroleum': aer_petroleum_strings,
+                         'petroleum coke': aer_petcoke_strings,
+                         'solar': aer_solar_strings,
+                         'wind': aer_wind_strings,
+                         'hydro': aer_hydro_strings,
+                         'nuclear': aer_nuclear_strings,
+                         'other': aer_other_strings
+                         }
