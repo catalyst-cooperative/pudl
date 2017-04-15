@@ -1004,12 +1004,12 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     import os.path
     from sqlalchemy import or_
 
-    assert min(ferc_years) >= 2004,\
+    assert min(ferc1_years) >= 2004,\
         """Year {} is too early. Small plant data has not been categorized for
-        before 2004.""".format(min(ferc_years))
-    assert max(ferc_years) <= 2015,\
+        before 2004.""".format(min(ferc1_years))
+    assert max(ferc1_years) <= 2015,\
         """Year {} is too recent. Small plant data has not been categorized for
-        any year 2015.""".format(max(ferc_years))
+        any year 2015.""".format(max(ferc1_years))
     f1_small = ferc1_meta.tables['f1_gnrt_plant']
     f1_small_select = select([f1_small, ]).\
         where(f1_small.c.report_year.in_(ferc1_years)).\
@@ -1141,7 +1141,6 @@ def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-
     f1_purchased_pwr = ferc1_meta.tables['f1_purchased_pwr']
     f1_purchased_pwr_select = select([f1_purchased_pwr]).\
         where(f1_purchased_pwr.c.report_year.in_(ferc1_years))
@@ -1197,8 +1196,7 @@ def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 ###############################################################################
 
 
-def ingest_plant_info_eia923(pudl_engine, eia923_xlsx,
-                             eia923_years=range(2011, 2016),
+def ingest_plant_info_eia923(pudl_engine, eia923_dfs,
                              csvdir='', keep_csv=True):
     """
     Ingest data describing static attributes of plants from EIA Form 923.
@@ -1207,7 +1205,7 @@ def ingest_plant_info_eia923(pudl_engine, eia923_xlsx,
     across several different pages of EIA 923. This function tries to bring it
     together into one unified, unduplicated table.
     """
-    plant_info_df = get_eia923_plant_info(eia923_years, eia923_xlsx)
+    plant_info_df = eia923_dfs['plant_frame'].copy()
 
     # Since this is a plain Yes/No variable -- just make it a real Boolean.
     plant_info_df.combined_heat_power.replace({'N': False, 'Y': True},
@@ -1292,31 +1290,32 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
-def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
-                              csvdir='', keep_csv=True):
-    """
-    Ingest data on fuel consumption by boiler from EIA Form 923.
-
-    Populates the boilers_eia923 table and the boiler_fuel_eia923 table.
-    """
+def ingest_boilers_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
+    """Ingest data on individual boilers from EIA Form 923."""
+    boilers_df = eia923_dfs['boiler_fuel'].copy()
     # Populate 'boilers_eia923' table
     boiler_cols = ['plant_id',
                    'boiler_id',
                    'prime_mover']
-
-    boilers_df = eia923_dfs['boiler_fuel'][boiler_cols]
-    boilers_df = boilers_df.drop_duplicates(
-        subset=['plant_id', 'boiler_id'])
+    boilers_df = boilers_df[boiler_cols]
 
     # drop null values from foreign key fields
     boilers_df.dropna(subset=['boiler_id', 'plant_id'], inplace=True)
+
+    # We need to cast the boiler_id column as type str because sometimes
+    # it is heterogeneous int/str which make drop_duplicates fail.
+    boilers_df['boiler_id'] = boilers_df['boiler_id'].astype(str)
+    boilers_df = boilers_df.drop_duplicates(
+        subset=['plant_id', 'boiler_id'])
 
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(boilers_df, 'boilers_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
-    # Populate 'boiler_fuel_eia923' table
-    # This needs to be a copy of what we're passed in so we can edit it.
+
+def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
+                              csvdir='', keep_csv=True):
+    """Ingest data on fuel consumption by boiler from EIA Form 923."""
     bf_df = eia923_dfs['boiler_fuel'].copy()
 
     # Drop fields we're not inserting into the boiler_fuel_eia923 table.
@@ -1346,37 +1345,35 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
-def ingest_generator_eia923(pudl_engine, eia923_dfs,
-                            csvdir='', keep_csv=True):
-    """
-    Ingest data on electricity production by generator from EIA Form 923.
-
-    This function populates two tables in the PUDL DB.  One describing the
-    generators (generators_eia923) and another containing records of reported
-    generation (generation_eia923).
-    """
-    # This needs to be a copy of what we're passed in so we can edit it.
-    generators_df = eia923_dfs['generator'].copy()
-
+def ingest_generators_eia923(pudl_engine, eia923_dfs,
+                             csvdir='', keep_csv=True):
+    """Ingest data on individual generators from EIA Form 923."""
     # Populating the 'generators_eia923' table
+    generators_df = eia923_dfs['generator'].copy()
     generator_cols = ['plant_id',
                       'generator_id',
                       'prime_mover']
-
     generators_df = generators_df[generator_cols]
-    generators_df = generators_df.drop_duplicates(
-        subset=['plant_id', 'generator_id'])
 
     # drop null values from foreign key fields
     generators_df.dropna(subset=['generator_id', 'plant_id'], inplace=True)
+
+    # We need to cast the generator_id column as type str because sometimes
+    # it is heterogeneous int/str which make drop_duplicates fail.
+    generators_df['generator_id'] = generators_df['generator_id'].astype(str)
+    generators_df = generators_df.drop_duplicates(
+        subset=['plant_id', 'generator_id'])
 
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(generators_df, 'generators_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
-    # Populating the generation_eia923 table:
+
+def ingest_generation_eia923(pudl_engine, eia923_dfs,
+                             csvdir='', keep_csv=True):
+    """Ingest data on generation by each generator from EIA Form 923."""
     # This needs to be a copy of what we're passed in so we can edit it.
-    g_df = eia923_dfs['generator'].copy()
+    generation_df = eia923_dfs['generator'].copy()
 
     # Drop fields we're not inserting into the generation_eia923_fuel_eia923
     # table.
@@ -1392,28 +1389,24 @@ def ingest_generator_eia923(pudl_engine, eia923_dfs,
                     'sector_name',
                     'net_generation_mwh_year_to_date']
 
-    g_df.dropna(subset=['generator_id'], inplace=True)
+    generation_df.dropna(subset=['generator_id'], inplace=True)
 
-    g_df.drop(cols_to_drop, axis=1, inplace=True)
+    generation_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    g_df = yearly_to_monthly_eia923(g_df, month_dict_eia923)
+    generation_df = yearly_to_monthly_eia923(generation_df, month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
-    g_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
+    generation_df.replace(to_replace='^\.$', value=np.nan,
+                          regex=True, inplace=True)
 
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(g_df, 'generation_eia923', pudl_engine,
+    csv_dump_load(generation_df, 'generation_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
-def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
-                                      csvdir='', keep_csv=True):
-    """
-    Ingest data on fuel purchases and costs from EIA Form 923.
-
-    Populates the coalmine_info_eia923, energy_source_eia923, and
-    fuel_receipts_costs_eia923 tables.
-    """
+def ingest_coalmine_info_eia923(pudl_engine, eia923_dfs,
+                                csvdir='', keep_csv=True):
+    """Ingest data on coal mines supplying fuel from EIA Form 923."""
     # Populate 'coalmine_info_eia923' table
     coalmine_cols = ['coalmine_name',
                      'coalmine_type',
@@ -1448,6 +1441,10 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
     csv_dump_load(coalmine_df, 'coalmine_info_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
+
+def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
+                                      csvdir='', keep_csv=True):
+    """Ingest data on fuel purchases and costs from EIA Form 923."""
     frc_df = eia923_dfs['fuel_receipts_costs'].copy()
 
     # Drop fields we're not inserting into the fuel_receipts_costs_eia923
@@ -1569,25 +1566,24 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
 
     eia923_xlsx = get_eia923_xlsx(eia923_years)
 
-    if('plant_info_eia923' in eia923_tables):
-        if verbose:
-            print("Ingesting plant_info_eia923 from EIA 923 into PUDL.")
-        ingest_plant_info_eia923(pudl_engine, eia923_xlsx,
-                                 eia923_years=eia923_years, csvdir=csvdir,
-                                 keep_csv=keep_csv)
-
     eia923_dfs = {}
     for page in tab_map_eia923.columns:
-        if (page != 'plant_frame'):
+        if (page == 'plant_frame'):
+            eia923_dfs[page] = get_eia923_plant_info(eia923_years, eia923_xlsx)
+        else:
             eia923_dfs[page] = get_eia923_page(page, eia923_xlsx,
                                                years=eia923_years,
                                                verbose=verbose)
 
     # NOW START INGESTING EIA923 DATA:
     eia923_ingest_functions = {
+        'plant_info_eia923': ingest_plant_info_eia923,
         'generation_fuel_eia923': ingest_generation_fuel_eia923,
+        'boilers_eia923': ingest_boilers_eia923,
         'boiler_fuel_eia923': ingest_boiler_fuel_eia923,
-        'generation_eia923': ingest_generator_eia923,
+        'generation_eia923': ingest_generation_eia923,
+        'generators_eia923': ingest_generators_eia923,
+        'coalmine_info_eia923': ingest_coalmine_info_eia923,
         'fuel_receipts_costs_eia923': ingest_fuel_receipts_costs_eia923,
     }
 

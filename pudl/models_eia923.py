@@ -37,10 +37,9 @@ class BoilersEIA923(models.PUDLBase):
     """List of Boiler IDs specific to each plant in EIA Form 923 Page 3."""
 
     __tablename__ = 'boilers_eia923'
-
-    id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
-    plant_id = Column(Integer, ForeignKey('plants_eia923.plant_id'))
-    boiler_id = Column(String, nullable=False)
+    plant_id = Column(Integer, ForeignKey('plants_eia923.plant_id'),
+                      primary_key=True)
+    boiler_id = Column(String, primary_key=True)
     prime_mover = Column(String,
                          ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)

@@ -17,7 +17,7 @@ def test_init_db():
     pudl.init_db(ferc1_tables=constants.ferc1_pudl_tables,
                  ferc1_years=range(2007, 2016),
                  eia923_tables=constants.eia923_pudl_tables,
-                 eia923_years=range(2011, 2016),
+                 eia923_years=range(2009, 2016),
                  verbose=True,
                  debug=False,
                  testing=True)
