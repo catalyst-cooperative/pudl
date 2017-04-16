@@ -20,17 +20,15 @@ PUDLBase = declarative_base()
 class CoalMineInfoEIA923(models.PUDLBase):
     """Information pertaining to individual coal mines listed in EIA 923."""
 
-# TODO figure out how to autoincrement a unique id and then insert that into a
-# new field
     __tablename__ = 'coalmine_info_eia923'
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
-    coalmine_name = Column(String)  # TODO create FK as new table?
+    coalmine_name = Column(String)
     coalmine_type = Column(String, ForeignKey('coalmine_type_eia923.abbr'))
     coalmine_state = Column(String, ForeignKey('coalmine_state_eia923.abbr'))
     # TODO check feasibility t add FK/constants or map to FIPS code used by EIA
     coalmine_county = Column(String)
-    coalmine_msha_id = Column(Integer)
     # TODO check feasibility to add FK/constants or map to MSHA ID# used by EIA
+    coalmine_msha_id = Column(Integer)
 
 
 class BoilersEIA923(models.PUDLBase):
@@ -314,7 +312,8 @@ class GenerationEIA923(models.PUDLBase):
     # TODO remove prime_mover since it's specific to generator_id?
     prime_mover = Column(String, ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
-    # TODO generators table?  FK?
+    # TODO: Add FK constraint refering to (plant_id, generator_id) in the
+    # generators_eia923 table.  Or at least give it a shot.
     generator_id = Column(String, nullable=False)
     year = Column(Integer, ForeignKey('years.year'), nullable=False)
     month = Column(Integer, ForeignKey('months.month'), nullable=False)
