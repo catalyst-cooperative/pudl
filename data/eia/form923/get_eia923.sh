@@ -4,7 +4,8 @@
 
 EIA923_XLS_URL="https://www.eia.gov/electricity/data/eia923/xls"
 
-EIA923_ZIPS="f923_2016 \
+EIA923_ZIPS="f923_2017 \
+             f923_2016 \
              f923_2015 \
              f923_2014 \
              f923_2013 \
