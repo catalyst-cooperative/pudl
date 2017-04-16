@@ -46,7 +46,7 @@ def parse_command_line(argv):
                         help="Last year of FERC Form 1 data to load.")
 
     parser.add_argument('--eia923_start', dest='eia923_start', type=int,
-                        default=2011,
+                        default=2009,
                         help="First year of EIA Form 923 data to load.")
     parser.add_argument('--eia923_end', dest='eia923_end', type=int,
                         default=2015,

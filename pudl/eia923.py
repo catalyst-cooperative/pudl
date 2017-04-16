@@ -133,18 +133,15 @@ def get_eia923_page(page, eia923_xlsx,
         pandas.DataFrame: A dataframe containing the data from the selected
             page and selected years from EIA 923.
     """
-#    for year in years:
-#        assert(year > 2010), "EIA923 parsing only works for 2011 and later."
-
-    assert(page in constants.tab_map_eia923.columns and page != 'year_index'),\
+    assert min(years) >= 2009,\
+        "EIA923 works for 2009 and later. {} requested.".format(min(years))
+    assert page in constants.tab_map_eia923.columns and page != 'year_index',\
         "Unrecognized EIA 923 page: {}".format(page)
 
+    if verbose:
+        print('Converting EIA 923 {} to DataFrame...'.format(page))
     df = pd.DataFrame()
     for yr in years:
-        if verbose:
-            print('Converting EIA 923 {} for {} to DataFrame...'.
-                  format(page, yr))
-
         sheetname, skiprows, column_map = get_eia923_column_map(page, yr)
         newdata = pd.read_excel(eia923_xlsx[yr],
                                 sheetname=sheetname,
