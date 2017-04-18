@@ -1,6 +1,6 @@
 """Database models for PUDL tables derived from EIA Form 923 Data."""
 
-from sqlalchemy import Boolean, Integer, String, Float, Numeric
+from sqlalchemy import Boolean, Integer, String, Float, Numeric, Date
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
@@ -248,8 +248,7 @@ class GenerationFuelEIA923(models.PUDLBase):
     plant_id = Column(Integer,
                       ForeignKey('plants_eia923.plant_id'),
                       nullable=False)
-    year = Column(Integer, ForeignKey('years.year'), nullable=False)
-    month = Column(Integer, ForeignKey('months.month'), nullable=False)
+    report_date = Column(Date, nullable=False)
     # TODO: Should nuclear_unit_id really be here? It's kind of part of the
     # plant_id... but also unit_id.  Seems weird but necessary to uniquely
     # identify the records as reported.
@@ -289,8 +288,7 @@ class BoilerFuelEIA923(models.PUDLBase):
                          nullable=False)
     fuel_type = Column(String, ForeignKey('fuel_type_eia923.abbr'),
                        nullable=False)
-    year = Column(Integer, ForeignKey('years.year'), nullable=False)
-    month = Column(Integer, ForeignKey('months.month'), nullable=False)
+    report_date = Column(Date, nullable=False)
     fuel_qty_consumed = Column(Float)
     fuel_mmbtu_per_unit = Column(Float)
     sulfur_content = Column(Float)
@@ -315,8 +313,7 @@ class GenerationEIA923(models.PUDLBase):
     # TODO: Add FK constraint refering to (plant_id, generator_id) in the
     # generators_eia923 table.  Or at least give it a shot.
     generator_id = Column(String, nullable=False)
-    year = Column(Integer, ForeignKey('years.year'), nullable=False)
-    month = Column(Integer, ForeignKey('months.month'), nullable=False)
+    report_date = Column(Date, nullable=False)
     net_generation_mwh = Column(Float)
 
 
@@ -330,10 +327,9 @@ class FuelReceiptsCostsEIA923(models.PUDLBase):
     plant_id = Column(Integer,
                       ForeignKey('plants_eia923.plant_id'),
                       nullable=False)
-    year = Column(Integer, ForeignKey('years.year'), nullable=False)
-    month = Column(Integer, ForeignKey('months.month'), nullable=False)
+    report_date = Column(Date, nullable=False)
     contract_type = Column(String, ForeignKey('contract_type_eia923.abbr'))
-    contract_expiration_date = Column(Integer)
+    contract_expiration_date = Column(Date)
     energy_source = Column(String, ForeignKey('energy_source_eia923.abbr'))
     fuel_group = Column(String, ForeignKey('fuel_group_eia923.group'))
     coalmine_id = Column(Integer, ForeignKey('coalmine_info_eia923.id'))

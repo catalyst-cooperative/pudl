@@ -1285,6 +1285,12 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
     gf_df['aer_fuel_category'] = cleanstringsEIA923(gf_df.aer_fuel_type,
                                                     aer_fuel_type_strings)
 
+    # Convert Year/Month columns into a single Date column...
+    gf_df['report_date'] = pd.to_datetime({'year': gf_df.year,
+                                           'month': gf_df.month,
+                                           'day': 1})
+    gf_df.drop(['year', 'month'], axis=1, inplace=True)
+
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(gf_df, 'generation_fuel_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
@@ -1340,6 +1346,11 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
     # Replace the EIA923 NA value ('.') with a real NA value.
     bf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
 
+    # Convert Year/Month columns into a single Date column...
+    bf_df['report_date'] = pd.to_datetime({'year': bf_df.year,
+                                           'month': bf_df.month,
+                                           'day': 1})
+    bf_df.drop(['year', 'month'], axis=1, inplace=True)
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(bf_df, 'boiler_fuel_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
@@ -1399,6 +1410,12 @@ def ingest_generation_eia923(pudl_engine, eia923_dfs,
     generation_df.replace(to_replace='^\.$', value=np.nan,
                           regex=True, inplace=True)
 
+    # Convert Year/Month columns into a single Date column...
+    generation_df['report_date'] = \
+        pd.to_datetime({'year': generation_df.year,
+                        'month': generation_df.month,
+                        'day': 1})
+    generation_df.drop(['year', 'month'], axis=1, inplace=True)
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(generation_df, 'generation_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
@@ -1477,6 +1494,25 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
                    float_na=np.nan,
                    int_na=-1,
                    str_na='')
+    # Convert the 3-4 digit (MYY|MMYY) date of contract expiration to
+    # two fields MM and YYYY for easier analysis later.
+    exp_month = frc_df.contract_expiration_date. \
+        apply(lambda x: x[:-2] if x != '' else x)
+    # This gets rid of some bad data that's not in (MYY|MMYY) format.
+    exp_month = \
+        exp_month.apply(lambda x: x if x != '' and int(x) <= 12 else '')
+    exp_year = frc_df.contract_expiration_date. \
+        apply(lambda x: '20' + x[-2:] if x != '' else x)
+
+    frc_df['contract_expiration_date'] = \
+        pd.to_datetime({'year': exp_year,
+                        'month': exp_month,
+                        'day': 1})
+
+    frc_df['report_date'] = pd.to_datetime({'year': frc_df.year,
+                                            'month': frc_df.month,
+                                            'day': 1})
+    frc_df.drop(['year', 'month'], axis=1, inplace=True)
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(frc_df, 'fuel_receipts_costs_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
