@@ -28,6 +28,9 @@ def parse_command_line(argv):
         '-q', '--quiet', dest='verbose', action='store_false',
         help="Suppress messages indicating progress or errors.")
 
+    parser.add_argument('-t', '--test', dest='test', action='store_true',
+                        help="Use ferc1_test & pudl_test databases.",
+                        default=False)
     parser.add_argument('--keep_csv', dest='keep_csv', action='store_true',
                         help="Do not delete CSV files after loading them.",
                         default=False)
@@ -69,7 +72,7 @@ def main():
                   years=range(args.ferc1_start, args.ferc1_end + 1),
                   def_db=True,
                   verbose=args.verbose,
-                  testing=False)
+                  testing=args.test)
 
     pudl.init_db(ferc1_tables=constants.ferc1_pudl_tables,
                  ferc1_years=range(args.ferc1_start, args.ferc1_end + 1),
@@ -78,7 +81,7 @@ def main():
                                     args.eia923_end + 1),
                  verbose=args.verbose,
                  debug=False,
-                 testing=False,
+                 testing=args.test,
                  csvdir=args.csvdir,
                  keep_csv=args.keep_csv)
 
