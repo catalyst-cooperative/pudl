@@ -1935,15 +1935,15 @@ natural_gas_transport_eia923 = {
 
 # PUDL consolidation of EIA923 AER fuel type strings into same categories as
 # 'energy_source_eia923' plus additional renewable and nuclear categories.
-aer_coal_strings = ['COL', 'WOC']
-aer_gas_strings = ['NG']
-aer_petroleum_strings = ['DFO', 'RFO']
-aer_petcoke_strings = ['PC']
-aer_solar_strings = ['SUN']
-aer_wind_strings = ['WND']
-aer_hydro_strings = ['HPS', 'HYC']
-aer_nuclear_strings = ['NUC']
-aer_other_strings = ['GEO', 'MLG', 'OOG', 'ORW', 'OTH', 'WOO', 'WWW']
+aer_coal_strings = ['col', 'woc']
+aer_gas_strings = ['ng']
+aer_petroleum_strings = ['dfo', 'rfo']
+aer_petcoke_strings = ['pc']
+aer_solar_strings = ['sun']
+aer_wind_strings = ['wnd']
+aer_hydro_strings = ['hps', 'hyc']
+aer_nuclear_strings = ['nuc']
+aer_other_strings = ['geo', 'mlg', 'oog', 'orw', 'oth', 'woo', 'www']
 
 aer_fuel_type_strings = {'coal': aer_coal_strings,
                          'gas': aer_gas_strings,

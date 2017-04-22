@@ -20,70 +20,15 @@ Mapper (ORM) and initializes the database from several sources:
 
 import pandas as pd
 import numpy as np
+import sqlalchemy as sa
 import postgres_copy
 import os.path
 
-from sqlalchemy.sql import select
-from sqlalchemy.engine.url import URL
-from sqlalchemy import create_engine
-from sqlalchemy import Integer, String, Numeric, Boolean, Float
+from pudl import eia923, ferc1
+from pudl import constants, settings
+from pudl import models, models_eia923
 
-from pudl import settings
-from pudl.ferc1 import db_connect_ferc1, cleanstrings, ferc1_meta
-from pudl.eia923 import get_eia923_page, yearly_to_monthly_eia923
-from pudl.eia923 import get_eia923_xlsx
-from pudl.eia923 import get_eia923_plant_info
-from pudl.eia923 import get_eia923_file, get_eia923_xlsx, cleanstringsEIA923
-from pudl.constants import ferc1_fuel_strings, us_states, prime_movers
-from pudl.constants import ferc1_fuel_unit_strings, rto_iso
-from pudl.constants import ferc1_plant_kind_strings, ferc1_type_const_strings
-from pudl.constants import ferc1_default_tables, ferc1_pudl_tables
-from pudl.constants import ferc1_working_tables, tab_map_eia923
-from pudl.constants import ferc_electric_plant_accounts
-from pudl.constants import ferc_accumulated_depreciation
-from pudl.constants import month_dict_eia923
-
-# Tables that hold constant values:
-from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
-from pudl.models import State, RTOISO
-from pudl.constants import census_region, nerc_region
-from pudl.constants import fuel_type_aer_eia923, respondent_frequency_eia923
-
-# EIA specific lists that will get moved over to models_eia923.py
-from pudl.constants import sector_eia, contract_type_eia923
-from pudl.constants import fuel_type_eia923, prime_movers_eia923
-from pudl.constants import fuel_units_eia923, energy_source_eia923
-from pudl.constants import fuel_group_eia923, aer_fuel_type_strings
-from pudl.constants import coalmine_type_eia923, coalmine_state_eia923
-from pudl.constants import natural_gas_transport_eia923
-from pudl.constants import transport_modes_eia923
-from pudl.constants import eia923_pudl_tables
-
-# Tables that hold constant values:
-from pudl.models import Fuel, FuelUnit, Month, Quarter, PrimeMover, Year
-from pudl.models import State, RTOISO, CensusRegion, NERCRegion
-
-# EIA specific lists stored in models_eia923.py
-from pudl.models_eia923 import SectorEIA, ContractTypeEIA923
-from pudl.models_eia923 import EnergySourceEIA923
-from pudl.models_eia923 import CoalMineTypeEIA923, CoalMineStateEIA923
-from pudl.models_eia923 import NaturalGasTransportEIA923
-from pudl.models_eia923 import TransportModeEIA923
-from pudl.models_eia923 import RespondentFrequencyEIA923
-from pudl.models_eia923 import PrimeMoverEIA923, FuelTypeAER
-from pudl.models_eia923 import FuelTypeEIA923, AERFuelCategoryEIA923
-from pudl.models_eia923 import FuelGroupEIA923, FuelUnitEIA923
-from pudl.models_eia923 import PlantInfoEIA923, BoilersEIA923
-from pudl.models_eia923 import BoilerFuelEIA923
-
-# Tables that hold "glue" connecting FERC1 & EIA923 to each other:
-from pudl.models import Utility, UtilityFERC1, UtilityEIA923
-from pudl.models import Plant, PlantFERC1, PlantEIA923
-from pudl.models import UtilPlantAssn
-
-# The declarative_base object that contains our PUDL DB MetaData
-from pudl.models import PUDLBase
-
+import pudl.constants as pc
 
 ###############################################################################
 ###############################################################################
@@ -95,25 +40,70 @@ from pudl.models import PUDLBase
 def db_connect_pudl(testing=False):
     """Connect to the PUDL database using global settings from settings.py."""
     if(testing):
-        return create_engine(URL(**settings.DB_PUDL_TEST))
+        return sa.create_engine(sa.engine.url.URL(**settings.DB_PUDL_TEST))
     else:
-        return create_engine(URL(**settings.DB_PUDL))
+        return sa.create_engine(sa.engine.url.URL(**settings.DB_PUDL))
 
 
 def create_tables_pudl(engine):
     """Create the tables associated with the PUDL Database."""
-    PUDLBase.metadata.create_all(engine)
+    models.PUDLBase.metadata.create_all(engine)
 
 
 def drop_tables_pudl(engine):
     """Drop all the tables associated with the PUDL Database and start over."""
-    PUDLBase.metadata.drop_all(engine)
+    models.PUDLBase.metadata.drop_all(engine)
 
 ###############################################################################
 ###############################################################################
 #   OTHER HELPER FUNCTIONS
 ###############################################################################
 ###############################################################################
+
+
+def cleanstrings(field, stringmap, unmapped=None):
+    """
+    Consolidate freeform strings in dataframe column to canonical codes.
+
+    This function maps many different strings meant to represent the same value
+    or category to a single value. In addition, white space is stripped and
+    values are translated to lower case.  Optionally replace all unmapped
+    values in the original field with a value (like NaN) to indicate data which
+    is uncategorized or confusing.
+
+    Args:
+        field (pandas.DataFrame column): A pandas DataFrame column
+            (e.g. f1_fuel["FUEL"]) whose strings will be matched, where
+            possible, to categorical values from the stringmap dictionary.
+
+        stringmap (dict): A dictionary whose keys are the strings we're mapping
+            to, and whose values are the strings that get mapped.
+
+        unmapped (str, None, NaN) is the value which strings not found in the
+            stringmap dictionary should be replaced by.
+
+    Returns:
+        pandas.Series: The function returns a new pandas series/column that can
+            be used to set the values of the original data.
+    """
+    from numpy import setdiff1d
+
+    # Simplify the strings we're working with, to reduce the number of strings
+    # we need to enumerate in the maps
+
+    # Transform the strings to lower case, strip leading/trailing whitespace
+    field = field.str.lower().str.strip()
+    # remove duplicate internal whitespace
+    field = field.replace('[\s+]', ' ', regex=True)
+
+    for k in stringmap.keys():
+        field = field.replace(stringmap[k], k)
+
+    if unmapped is not None:
+        badstrings = setdiff1d(field.unique(), list(stringmap.keys()))
+        field = field.replace(badstrings, unmapped)
+
+    return field
 
 
 def fix_int_na(col, float_na=np.nan, int_na=-1, str_na=''):
@@ -136,7 +126,7 @@ def fix_int_na(col, float_na=np.nan, int_na=-1, str_na=''):
             replaced in col.
         int_na (int): Sentinel value to substitute for float_na prior to
             conversion of the column to integers.
-        str_na (str): String value to substitute for int_na after the column
+        str_na (str): sa.String value to substitute for int_na after the column
             has been converted to strings.
 
     Returns:
@@ -184,7 +174,7 @@ def csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
 
     csvfile = os.path.join(csvdir, table_name + '.csv')
     df.to_csv(csvfile, index=False)
-    tbl = PUDLBase.metadata.tables[table_name]
+    tbl = models.PUDLBase.metadata.tables[table_name]
     postgres_copy.copy_from(open(csvfile, 'r'), tbl, engine,
                             columns=tuple(df.columns),
                             format='csv', header=True, delimiter=',')
@@ -217,78 +207,82 @@ def ingest_static_tables(engine):
 
     Returns: Nothing.
     """
-    from sqlalchemy.orm import sessionmaker
-
-    PUDL_Session = sessionmaker(bind=engine)
+    PUDL_Session = sa.orm.sessionmaker(bind=engine)
     pudl_session = PUDL_Session()
 
     # Populate tables with static data from above.
-    pudl_session.add_all([Fuel(name=f) for f in ferc1_fuel_strings.keys()])
-    pudl_session.add_all([FuelUnit(unit=u) for u in
-                          ferc1_fuel_unit_strings.keys()])
-    pudl_session.add_all([Month(month=i + 1) for i in range(12)])
     pudl_session.add_all(
-        [Quarter(q=i + 1, end_month=3 * (i + 1)) for i in range(4)])
-    pudl_session.add_all([PrimeMover(prime_mover=pm) for pm in prime_movers])
-    pudl_session.add_all([RTOISO(abbr=k, name=v) for k, v in rto_iso.items()])
-    pudl_session.add_all([Year(year=yr) for yr in range(1994, 2017)])
+        [models.Fuel(name=f) for f in pc.ferc1_fuel_strings.keys()])
     pudl_session.add_all(
-        [CensusRegion(abbr=k, name=v) for k, v in census_region.items()])
+        [models.FuelUnit(unit=u) for u in pc.ferc1_fuel_unit_strings.keys()])
+    pudl_session.add_all([models.Month(month=i + 1) for i in range(12)])
     pudl_session.add_all(
-        [NERCRegion(abbr=k, name=v) for k, v in nerc_region.items()])
+        [models.Quarter(q=i + 1, end_month=3 * (i + 1)) for i in range(4)])
     pudl_session.add_all(
-        [RespondentFrequencyEIA923(abbr=k, unit=v)
-         for k, v in respondent_frequency_eia923.items()])
+        [models.PrimeMover(prime_mover=pm) for pm in pc.prime_movers])
     pudl_session.add_all(
-        [SectorEIA(id=k, name=v) for k, v in sector_eia.items()])
-    pudl_session.add_all(
-        [ContractTypeEIA923(abbr=k, contract_type=v)
-         for k, v in contract_type_eia923.items()])
-    pudl_session.add_all(
-        [FuelTypeEIA923(abbr=k, fuel_type=v)
-         for k, v in fuel_type_eia923.items()])
-    pudl_session.add_all(
-        [PrimeMoverEIA923(abbr=k, prime_mover=v)
-         for k, v in prime_movers_eia923.items()])
-    pudl_session.add_all(
-        [FuelUnitEIA923(abbr=k, unit=v)
-         for k, v in fuel_units_eia923.items()])
-    pudl_session.add_all(
-        [FuelTypeAER(abbr=k, fuel_type=v)
-         for k, v in fuel_type_aer_eia923.items()])
-    pudl_session.add_all(
-        [FuelGroupEIA923(group=gr) for gr in fuel_group_eia923])
-    pudl_session.add_all(
-        [EnergySourceEIA923(abbr=k, source=v)
-         for k, v in energy_source_eia923.items()])
-    pudl_session.add_all(
-        [CoalMineTypeEIA923(abbr=k, name=v)
-         for k, v in coalmine_type_eia923.items()])
-    pudl_session.add_all(
-        [CoalMineStateEIA923(abbr=k, state=v)
-         for k, v in coalmine_state_eia923.items()])
-    pudl_session.add_all(
-        [CoalMineStateEIA923(abbr=k, state=v)
-         for k, v in us_states.items()])  # is this right way to add these?
-    pudl_session.add_all(
-        [TransportModeEIA923(abbr=k, mode=v)
-         for k, v in transport_modes_eia923.items()])
-    pudl_session.add_all(
-        [NaturalGasTransportEIA923(abbr=k, status=v)
-         for k, v in natural_gas_transport_eia923.items()])
-    pudl_session.add_all(
-        [AERFuelCategoryEIA923(name=k)
-         for k in aer_fuel_type_strings.keys()])
+        [models.RTOISO(abbr=k, name=v) for k, v in pc.rto_iso.items()])
+    pudl_session.add_all([models.Year(year=yr) for yr in range(1994, 2017)])
 
-    # States dictionary is defined outside this function, below.
-    pudl_session.add_all([State(abbr=k, name=v) for k, v in us_states.items()])
+    pudl_session.add_all([models.CensusRegion(abbr=k, name=v)
+                          for k, v in pc.census_region.items()])
+    pudl_session.add_all(
+        [models.NERCRegion(abbr=k, name=v) for k, v in pc.nerc_region.items()])
+    pudl_session.add_all(
+        [models_eia923.RespondentFrequencyEIA923(abbr=k, unit=v)
+         for k, v in pc.respondent_frequency_eia923.items()])
+    pudl_session.add_all(
+        [models_eia923.SectorEIA(id=k, name=v)
+         for k, v in pc.sector_eia.items()])
+    pudl_session.add_all(
+        [models_eia923.ContractTypeEIA923(abbr=k, contract_type=v)
+         for k, v in pc.contract_type_eia923.items()])
+    pudl_session.add_all(
+        [models_eia923.FuelTypeEIA923(abbr=k, fuel_type=v)
+         for k, v in pc.fuel_type_eia923.items()])
+    pudl_session.add_all(
+        [models_eia923.PrimeMoverEIA923(abbr=k, prime_mover=v)
+         for k, v in pc.prime_movers_eia923.items()])
+    pudl_session.add_all(
+        [models_eia923.FuelUnitEIA923(abbr=k, unit=v)
+         for k, v in pc.fuel_units_eia923.items()])
+    pudl_session.add_all(
+        [models_eia923.FuelTypeAER(abbr=k, fuel_type=v)
+         for k, v in pc.fuel_type_aer_eia923.items()])
+    pudl_session.add_all(
+        [models_eia923.FuelGroupEIA923(group=gr)
+         for gr in pc.fuel_group_eia923])
+    pudl_session.add_all(
+        [models_eia923.EnergySourceEIA923(abbr=k, source=v)
+         for k, v in pc.energy_source_eia923.items()])
+    pudl_session.add_all(
+        [models_eia923.CoalMineTypeEIA923(abbr=k, name=v)
+         for k, v in pc.coalmine_type_eia923.items()])
+    pudl_session.add_all(
+        [models_eia923.CoalMineStateEIA923(abbr=k, state=v)
+         for k, v in pc.coalmine_state_eia923.items()])
+    pudl_session.add_all(
+        [models_eia923.CoalMineStateEIA923(abbr=k, state=v)
+         for k, v in pc.us_states.items()])  # is this right way to add these?
+    pudl_session.add_all(
+        [models_eia923.TransportModeEIA923(abbr=k, mode=v)
+         for k, v in pc.transport_modes_eia923.items()])
+    pudl_session.add_all(
+        [models_eia923.NaturalGasTransportEIA923(abbr=k, status=v)
+         for k, v in pc.natural_gas_transport_eia923.items()])
+    pudl_session.add_all(
+        [models_eia923.AERFuelCategoryEIA923(name=k)
+         for k in pc.aer_fuel_type_strings.keys()])
+
+    pudl_session.add_all([models.State(abbr=k, name=v)
+                          for k, v in pc.us_states.items()])
 
     # Commit the changes to the DB and close down the session.
     pudl_session.commit()
     pudl_session.close_all()
 
     # We aren't bringing row_number in to the PUDL DB:
-    ferc_accts_df = ferc_electric_plant_accounts.drop('row_number', axis=1)
+    ferc_accts_df = pc.ferc_electric_plant_accounts.drop('row_number', axis=1)
     # Get rid of excessive whitespace introduced to break long lines (ugh)
     ferc_accts_df.ferc_account_description = \
         ferc_accts_df.ferc_account_description.str.replace('\s+', ' ')
@@ -299,11 +293,11 @@ def ingest_static_tables(engine):
 
     ferc_accts_df.to_sql('ferc_accounts',
                          con=engine, index=False, if_exists='append',
-                         dtype={'id': String,
-                                'description': String})
+                         dtype={'id': sa.String,
+                                'description': sa.String})
 
     ferc_depreciation_lines_df = \
-        ferc_accumulated_depreciation.drop('row_number', axis=1)
+        pc.ferc_accumulated_depreciation.drop('row_number', axis=1)
 
     ferc_depreciation_lines_df.\
         rename(columns={'line_id': 'id',
@@ -313,8 +307,8 @@ def ingest_static_tables(engine):
     ferc_depreciation_lines_df.\
         to_sql('ferc_depreciation_lines',
                con=engine, index=False, if_exists='append',
-               dtype={'id': String,
-                      'description': String})
+               dtype={'id': sa.String,
+                      'description': sa.String})
 
 
 def ingest_glue_tables(engine):
@@ -458,13 +452,13 @@ def ingest_glue_tables(engine):
                   inplace=True)
     plants.to_sql(name='plants',
                   con=engine, index=False, if_exists='append',
-                  dtype={'id': Integer, 'name': String})
+                  dtype={'id': sa.Integer, 'name': sa.String})
 
     utilities.rename(columns={'utility_id': 'id', 'utility_name': 'name'},
                      inplace=True)
     utilities.to_sql(name='utilities',
                      con=engine, index=False, if_exists='append',
-                     dtype={'id': Integer, 'name': String})
+                     dtype={'id': sa.Integer, 'name': sa.String})
 
     utilities_eia923.rename(columns={'operator_id_eia923': 'operator_id',
                                      'operator_name_eia923': 'operator_name',
@@ -472,9 +466,9 @@ def ingest_glue_tables(engine):
                             inplace=True)
     utilities_eia923.to_sql(name='utilities_eia923',
                             con=engine, index=False, if_exists='append',
-                            dtype={'operator_id': Integer,
-                                   'operator_name': String,
-                                   'util_id_pudl': Integer})
+                            dtype={'operator_id': sa.Integer,
+                                   'operator_name': sa.String,
+                                   'util_id_pudl': sa.Integer})
 
     utilities_ferc1.rename(columns={'respondent_id_ferc1': 'respondent_id',
                                     'respondent_name_ferc1': 'respondent_name',
@@ -482,9 +476,9 @@ def ingest_glue_tables(engine):
                            inplace=True)
     utilities_ferc1.to_sql(name='utilities_ferc1',
                            con=engine, index=False, if_exists='append',
-                           dtype={'respondent_id': Integer,
-                                  'respondent_name': String,
-                                  'util_id_pudl': Integer})
+                           dtype={'respondent_id': sa.Integer,
+                                  'respondent_name': sa.String,
+                                  'util_id_pudl': sa.Integer})
 
     plants_eia923.rename(columns={'plant_id_eia923': 'plant_id',
                                   'plant_name_eia923': 'plant_name',
@@ -492,9 +486,9 @@ def ingest_glue_tables(engine):
                          inplace=True)
     plants_eia923.to_sql(name='plants_eia923',
                          con=engine, index=False, if_exists='append',
-                         dtype={'plant_id': Integer,
-                                'plant_name': String,
-                                'plant_id_pudl': Integer})
+                         dtype={'plant_id': sa.Integer,
+                                'plant_name': sa.String,
+                                'plant_id_pudl': sa.Integer})
 
     plants_ferc1.rename(columns={'respondent_id_ferc1': 'respondent_id',
                                  'plant_name_ferc1': 'plant_name',
@@ -502,14 +496,14 @@ def ingest_glue_tables(engine):
                         inplace=True)
     plants_ferc1.to_sql(name='plants_ferc1',
                         con=engine, index=False, if_exists='append',
-                        dtype={'respondent_id': Integer,
-                               'plant_name': String,
-                               'plant_id_pudl': Integer})
+                        dtype={'respondent_id': sa.Integer,
+                               'plant_name': sa.String,
+                               'plant_id_pudl': sa.Integer})
 
     utility_plant_assn.to_sql(name='util_plant_assn',
                               con=engine, index=False, if_exists='append',
-                              dtype={'plant_id': Integer,
-                                     'utility_id': Integer})
+                              dtype={'plant_id': sa.Integer,
+                                     'utility_id': sa.Integer})
 
 
 ###############################################################################
@@ -540,10 +534,10 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     Returns: Nothing.
     """
     # Grab the f1_fuel SQLAlchemy Table object from the metadata object.
-    f1_fuel = ferc1_meta.tables['f1_fuel']
+    f1_fuel = ferc1.ferc1_meta.tables['f1_fuel']
     # Generate a SELECT statement that pulls all fields of the f1_fuel table,
     # but only gets records with plant names, and non-zero fuel amounts:
-    f1_fuel_select = select([f1_fuel]).\
+    f1_fuel_select = sa.sql.select([f1_fuel]).\
         where(f1_fuel.c.fuel != '').\
         where(f1_fuel.c.fuel_quantity > 0).\
         where(f1_fuel.c.plant_name != '').\
@@ -563,10 +557,10 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     # Take the messy free-form fuel & fuel_unit fields, and do our best to
     # map them to some canonical categories... this is necessarily imperfect:
     ferc1_fuel_df.fuel = cleanstrings(ferc1_fuel_df.fuel,
-                                      ferc1_fuel_strings,
+                                      pc.ferc1_fuel_strings,
                                       unmapped=np.nan)
     ferc1_fuel_df.fuel_unit = cleanstrings(ferc1_fuel_df.fuel_unit,
-                                           ferc1_fuel_unit_strings,
+                                           pc.ferc1_fuel_unit_strings,
                                            unmapped=np.nan)
 
     # Convert to MW/MWh units across the board.
@@ -597,8 +591,8 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine, ferc1_years):
                          inplace=True)
     ferc1_fuel_df.to_sql(name='fuel_ferc1',
                          con=pudl_engine, index=False, if_exists='append',
-                         dtype={'respondent_id': Integer,
-                                'report_year': Integer})
+                         dtype={'respondent_id': sa.Integer,
+                                'report_year': sa.Integer})
 
 
 def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine, ferc1_years):
@@ -618,8 +612,8 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-    f1_steam = ferc1_meta.tables['f1_steam']
-    f1_steam_select = select([f1_steam]).\
+    f1_steam = ferc1.ferc1_meta.tables['f1_steam']
+    f1_steam_select = sa.sql.select([f1_steam]).\
         where(f1_steam.c.net_generation > 0).\
         where(f1_steam.c.plant_name != '').\
         where(f1_steam.c.report_year.in_(ferc1_years))
@@ -639,10 +633,10 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     # this is necessarily imperfect:
 
     ferc1_steam_df.type_const = cleanstrings(ferc1_steam_df.type_const,
-                                             ferc1_type_const_strings,
+                                             pc.ferc1_type_const_strings,
                                              unmapped=np.nan)
     ferc1_steam_df.plant_kind = cleanstrings(ferc1_steam_df.plant_kind,
-                                             ferc1_plant_kind_strings,
+                                             pc.ferc1_plant_kind_strings,
                                              unmapped=np.nan)
 
     # Force the construction and installation years to be numeric values, and
@@ -681,12 +675,12 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine, ferc1_years):
         inplace=True)
     ferc1_steam_df.to_sql(name='plants_steam_ferc1',
                           con=pudl_engine, index=False, if_exists='append',
-                          dtype={'respondent_id': Integer,
-                                 'report_year': Integer,
-                                 'type_const': String,
-                                 'plant_kind': String,
-                                 'year_constructed': Integer,
-                                 'year_installed': Integer})
+                          dtype={'respondent_id': sa.Integer,
+                                 'report_year': sa.Integer,
+                                 'type_const': sa.String,
+                                 'plant_kind': sa.String,
+                                 'year_constructed': sa.Integer,
+                                 'year_installed': sa.Integer})
 
 
 def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine, ferc1_years):
@@ -706,9 +700,9 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-    f1_hydro = ferc1_meta.tables['f1_hydro']
+    f1_hydro = ferc1.ferc1_meta.tables['f1_hydro']
 
-    f1_hydro_select = select([f1_hydro]).\
+    f1_hydro_select = sa.sql.select([f1_hydro]).\
         where(f1_hydro.c.plant_name != '').\
         where(f1_hydro.c.report_year.in_(ferc1_years))
 
@@ -758,8 +752,8 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     ferc1_hydro_df.to_sql(name='plants_hydro_ferc1',
                           con=pudl_engine, index=False, if_exists='append',
-                          dtype={'respondent_id': Integer,
-                                 'report_year': Integer})
+                          dtype={'respondent_id': sa.Integer,
+                                 'report_year': sa.Integer})
 
 
 def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine, ferc1_years):
@@ -779,11 +773,11 @@ def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-    f1_pumped_storage = ferc1_meta.tables['f1_pumped_storage']
+    f1_pumped_storage = ferc1.ferc1_meta.tables['f1_pumped_storage']
 
     # Removing the empty records.
     # This reduces the entries for 2015 from 272 records to 27.
-    f1_pumped_storage_select = select([f1_pumped_storage]).\
+    f1_pumped_storage_select = sa.sql.select([f1_pumped_storage]).\
         where(f1_pumped_storage.c.plant_name != '').\
         where(f1_pumped_storage.c.report_year.in_(ferc1_years))
 
@@ -877,8 +871,8 @@ def ingest_accumulated_depreciation_ferc1(pudl_engine,
 
     Returns: Nothing.
     """
-    f1_accumdepr_prvsn = ferc1_meta.tables['f1_accumdepr_prvsn']
-    f1_accumdepr_prvsn_select = select([f1_accumdepr_prvsn]).\
+    f1_accumdepr_prvsn = ferc1.ferc1_meta.tables['f1_accumdepr_prvsn']
+    f1_accumdepr_prvsn_select = sa.sql.select([f1_accumdepr_prvsn]).\
         where(f1_accumdepr_prvsn.c.report_year.in_(ferc1_years))
 
     ferc1_apd_df = pd.read_sql(f1_accumdepr_prvsn_select, ferc1_engine)
@@ -888,7 +882,7 @@ def ingest_accumulated_depreciation_ferc1(pudl_engine,
                        'row_prvlg', 'item', 'report_prd'],
                       axis=1, inplace=True)
 
-    ferc1_acct_apd = ferc_accumulated_depreciation.drop(
+    ferc1_acct_apd = pc.ferc_accumulated_depreciation.drop(
         ['ferc_account_description'], axis=1)
     ferc1_acct_apd.dropna(inplace=True)
     ferc1_acct_apd['row_number'] = ferc1_acct_apd['row_number'].astype(int)
@@ -900,13 +894,13 @@ def ingest_accumulated_depreciation_ferc1(pudl_engine,
     ferc1_accumdepr_prvsn_df.\
         to_sql(name='accumulated_depreciation_ferc1',
                con=pudl_engine, index=False, if_exists='append',
-               dtype={'respondent_id': Integer,
-                      'report_year': Integer,
-                      'line_id': String,
-                      'total_cde': Numeric(14, 2),
-                      'electric_plant': Numeric(14, 2),
-                      'future_plant': Numeric(14, 2),
-                      'leased plant': Numeric(14, 2)})
+               dtype={'respondent_id': sa.Integer,
+                      'report_year': sa.Integer,
+                      'line_id': sa.String,
+                      'total_cde': sa.Numeric(14, 2),
+                      'electric_plant': sa.Numeric(14, 2),
+                      'future_plant': sa.Numeric(14, 2),
+                      'leased plant': sa.Numeric(14, 2)})
 
 
 def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine, ferc1_years):
@@ -933,8 +927,8 @@ def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     assert min_yr >= 2007,\
         """Invalid year requested: {}. FERC Form 1 Plant In Service data is
         currently only valid for years 2007 and later.""".format(min_yr)
-    f1_plant_in_srvce = ferc1_meta.tables['f1_plant_in_srvce']
-    f1_plant_in_srvce_select = select([f1_plant_in_srvce]).\
+    f1_plant_in_srvce = ferc1.ferc1_meta.tables['f1_plant_in_srvce']
+    f1_plant_in_srvce_select = sa.sql.select([f1_plant_in_srvce]).\
         where(f1_plant_in_srvce.c.report_year.in_(ferc1_years))
 
     ferc1_pis_df = pd.read_sql(f1_plant_in_srvce_select, ferc1_engine)
@@ -947,7 +941,7 @@ def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     # Now we need to add a column to the DataFrame that has the FERC account
     # IDs corresponding to the row_number that's already in there...
-    ferc_accts_df = ferc_electric_plant_accounts.drop(
+    ferc_accts_df = pc.ferc_electric_plant_accounts.drop(
         ['ferc_account_description'], axis=1)
     ferc_accts_df.dropna(inplace=True)
     ferc_accts_df['row_number'] = ferc_accts_df['row_number'].astype(int)
@@ -964,15 +958,15 @@ def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine, ferc1_years):
         inplace=True)
     ferc1_pis_df.to_sql(name='plant_in_service_ferc1',
                         con=pudl_engine, index=False, if_exists='append',
-                        dtype={'respondent_id': Integer,
-                               'report_year': Integer,
-                               'ferc_account_id': String,
-                               'beginning_year_balance': Numeric(14, 2),
-                               'additions': Numeric(14, 2),
-                               'retirements': Numeric(14, 2),
-                               'adjustments': Numeric(14, 2),
-                               'transfers': Numeric(14, 2),
-                               'year_end_balance': Numeric(14, 2)})
+                        dtype={'respondent_id': sa.Integer,
+                               'report_year': sa.Integer,
+                               'ferc_account_id': sa.String,
+                               'beginning_year_balance': sa.Numeric(14, 2),
+                               'additions': sa.Numeric(14, 2),
+                               'retirements': sa.Numeric(14, 2),
+                               'adjustments': sa.Numeric(14, 2),
+                               'transfers': sa.Numeric(14, 2),
+                               'year_end_balance': sa.Numeric(14, 2)})
 
 
 def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
@@ -1010,8 +1004,8 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     assert max(ferc1_years) <= 2015,\
         """Year {} is too recent. Small plant data has not been categorized for
         any year 2015.""".format(max(ferc1_years))
-    f1_small = ferc1_meta.tables['f1_gnrt_plant']
-    f1_small_select = select([f1_small, ]).\
+    f1_small = ferc1.ferc1_meta.tables['f1_gnrt_plant']
+    f1_small_select = sa.sql.select([f1_small, ]).\
         where(f1_small.c.report_year.in_(ferc1_years)).\
         where(f1_small.c.plant_name != '').\
         where(or_((f1_small.c.capacity_rating != 0),
@@ -1103,23 +1097,23 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
         inplace=True)
     ferc1_small_df.to_sql(name='plants_small_ferc1',
                           con=pudl_engine, index=False, if_exists='append',
-                          dtype={'respondent_id': Integer,
-                                 'report_year': Integer,
-                                 'plant_name': String,
-                                 'plant_name_clean': String,
-                                 'plant_type': String,
-                                 'kind_of_fuel': String,
-                                 'ferc_license': Integer,
-                                 'year_constructed': Integer,
-                                 'total_capacity_mw': Float,
-                                 'peak_demand_mw': Float,
-                                 'net_generation_mwh': Float,
-                                 'cost_of_plant_total': Numeric(14, 2),
-                                 'cost_of_plant_per_mw': Numeric(14, 2),
-                                 'cost_of_operation': Numeric(14, 2),
-                                 'expns_fuel': Numeric(14, 2),
-                                 'expns_maintenance': Numeric(14, 2),
-                                 'fuel_cost_per_mmbtu': Numeric(14, 2)})
+                          dtype={'respondent_id': sa.Integer,
+                                 'report_year': sa.Integer,
+                                 'plant_name': sa.String,
+                                 'plant_name_clean': sa.String,
+                                 'plant_type': sa.String,
+                                 'kind_of_fuel': sa.String,
+                                 'ferc_license': sa.Integer,
+                                 'year_constructed': sa.Integer,
+                                 'total_capacity_mw': sa.Float,
+                                 'peak_demand_mw': sa.Float,
+                                 'net_generation_mwh': sa.Float,
+                                 'cost_of_plant_total': sa.Numeric(14, 2),
+                                 'cost_of_plant_per_mw': sa.Numeric(14, 2),
+                                 'cost_of_operation': sa.Numeric(14, 2),
+                                 'expns_fuel': sa.Numeric(14, 2),
+                                 'expns_maintenance': sa.Numeric(14, 2),
+                                 'fuel_cost_per_mmbtu': sa.Numeric(14, 2)})
 
 
 def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine, ferc1_years):
@@ -1141,8 +1135,8 @@ def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-    f1_purchased_pwr = ferc1_meta.tables['f1_purchased_pwr']
-    f1_purchased_pwr_select = select([f1_purchased_pwr]).\
+    f1_purchased_pwr = ferc1.ferc1_meta.tables['f1_purchased_pwr']
+    f1_purchased_pwr_select = sa.sql.select([f1_purchased_pwr]).\
         where(f1_purchased_pwr.c.report_year.in_(ferc1_years))
 
     ferc1_purchased_pwr_df = pd.read_sql(f1_purchased_pwr_select, ferc1_engine)
@@ -1170,24 +1164,25 @@ def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine, ferc1_years):
         'settlement_tot': 'settlement_total'},
         inplace=True)
 
-    ferc1_purchased_pwr_df.to_sql(name='purchased_power_ferc1',
-                                  con=pudl_engine, index=False,
-                                  if_exists='append',
-                                  dtype={'respondent_id': Integer,
-                                         'report_year': Integer,
-                                         'authority_company_name': String,
-                                         'statistical_classification': String,
-                                         'rate_schedule_tariff_number': String,
-                                         'average_billing_demand': String,
-                                         'average_monthly_ncp_demand': String,
-                                         'average_monthly_cp_demand': String,
-                                         'mwh_purchased': Numeric(14, 2),
-                                         'mwh_received': Numeric(14, 2),
-                                         'mwh_delivered': Numeric(14, 2),
-                                         'demand_charges': Numeric(14, 2),
-                                         'energy_charges': Numeric(14, 2),
-                                         'other_charges': Numeric(14, 2),
-                                         'settlement_total': Numeric(14, 2)})
+    ferc1_purchased_pwr_df.to_sql(
+        name='purchased_power_ferc1',
+        con=pudl_engine, index=False,
+        if_exists='append',
+        dtype={'respondent_id': sa.Integer,
+               'report_year': sa.Integer,
+               'authority_company_name': sa.String,
+               'statistical_classification': sa.String,
+               'rate_schedule_tariff_number': sa.String,
+               'average_billing_demand': sa.String,
+               'average_monthly_ncp_demand': sa.String,
+               'average_monthly_cp_demand': sa.String,
+               'mwh_purchased': sa.Numeric(14, 2),
+               'mwh_received': sa.Numeric(14, 2),
+               'mwh_delivered': sa.Numeric(14, 2),
+               'demand_charges': sa.Numeric(14, 2),
+               'energy_charges': sa.Numeric(14, 2),
+               'other_charges': sa.Numeric(14, 2),
+               'settlement_total': sa.Numeric(14, 2)})
 
 ###############################################################################
 ###############################################################################
@@ -1224,16 +1219,19 @@ def ingest_plant_info_eia923(pudl_engine, eia923_dfs,
     """
     plant_info_df = eia923_dfs['plant_frame'].copy()
 
-    cols_to_drop = ['plant_name',
-                    'operator_name',
-                    'operator_id']
+    # There are other fields being compiled in the plant_info_df from all of
+    # the various EIA923 spreadsheet pages. Do we want to add them to the
+    # database model too? E.g. nameplate_capacity_mw, operator_name, etc.
+    plant_info_df = plant_info_df[['plant_id',
+                                   'combined_heat_power',
+                                   'plant_state',
+                                   'eia_sector',
+                                   'naics_code',
+                                   'reporting_frequency',
+                                   'census_region',
+                                   'nerc_region']]
 
-    if 'nameplate_capacity_mw' in plant_info_df.columns:
-        cols_to_drop = cols_to_drop + ['nameplate_capacity_mw', ]
-
-    plant_info_df.drop(cols_to_drop, axis=1, inplace=True)
-
-    # Since this is a plain Yes/No variable -- just make it a real Boolean.
+    # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
     plant_info_df.combined_heat_power.replace({'N': False, 'Y': True},
                                               inplace=True)
 
@@ -1306,14 +1304,14 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
     gf_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    gf_df = yearly_to_monthly_eia923(gf_df, month_dict_eia923)
+    gf_df = eia923.yearly_to_monthly_eia923(gf_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     gf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
     # Remove "State fuel-level increment" records... which don't pertain to
     # any particular plant (they have plant_id == operator_id == 99999)
     gf_df = gf_df[gf_df.plant_id != 99999]
 
-    # Take a float field and make it an integer, with the empty String
+    # Take a float field and make it an integer, with the empty sa.String
     # as the NA value... for postgres loading.
     gf_df['nuclear_unit_id'] = fix_int_na(gf_df['nuclear_unit_id'],
                                           float_na=np.nan,
@@ -1321,8 +1319,8 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
                                           str_na='')
 
     # # map AER fuel types to simplified PUDL categories
-    gf_df['aer_fuel_category'] = cleanstringsEIA923(gf_df.aer_fuel_type,
-                                                    aer_fuel_type_strings)
+    gf_df['aer_fuel_category'] = cleanstrings(gf_df.aer_fuel_type,
+                                              pc.aer_fuel_type_strings)
 
     # Convert Year/Month columns into a single Date column...
     gf_df['report_date'] = pd.to_datetime({'year': gf_df.year,
@@ -1336,7 +1334,23 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
 
 
 def ingest_boilers_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
-    """Ingest data on individual boilers from EIA Form 923."""
+    """Ingest data on individual boilers from EIA Form 923.
+
+    Populates the boilers_eia923 table.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA923 form, as repoted in the Excel spreadsheets they distribute.
+        csvdir (string): Path to the directory where the CSV files representing
+            our data tables should be written, before being read in to the
+            postgres database directly.
+        keep_csv (boolean): If True, do not delete the CSV files after they
+            have been read into the database. If False, remove them.
+
+    Returns: Nothing.
+    """
     boilers_df = eia923_dfs['boiler_fuel'].copy()
     # Populate 'boilers_eia923' table
     boiler_cols = ['plant_id',
@@ -1360,7 +1374,24 @@ def ingest_boilers_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
 
 def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
                               csvdir='', keep_csv=True):
-    """Ingest data on fuel consumption by boiler from EIA Form 923."""
+    """
+    Ingest data on fuel consumption by boiler from EIA Form 923.
+
+    Populates the boiler_fuel_eia923 table.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA923 form, as repoted in the Excel spreadsheets they distribute.
+        csvdir (string): Path to the directory where the CSV files representing
+            our data tables should be written, before being read in to the
+            postgres database directly.
+        keep_csv (boolean): If True, do not delete the CSV files after they
+            have been read into the database. If False, remove them.
+
+    Returns: Nothing.
+    """
     bf_df = eia923_dfs['boiler_fuel'].copy()
 
     # Drop fields we're not inserting into the boiler_fuel_eia923 table.
@@ -1381,7 +1412,7 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
     bf_df.dropna(subset=['boiler_id', 'plant_id'], inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    bf_df = yearly_to_monthly_eia923(bf_df, month_dict_eia923)
+    bf_df = eia923.yearly_to_monthly_eia923(bf_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     bf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
 
@@ -1397,7 +1428,24 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
 
 def ingest_generators_eia923(pudl_engine, eia923_dfs,
                              csvdir='', keep_csv=True):
-    """Ingest data on individual generators from EIA Form 923."""
+    """
+    Ingest data on individual generators from EIA Form 923.
+
+    Populates the boiler_fuel_eia923 table.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA923 form, as repoted in the Excel spreadsheets they distribute.
+        csvdir (string): Path to the directory where the CSV files representing
+            our data tables should be written, before being read in to the
+            postgres database directly.
+        keep_csv (boolean): If True, do not delete the CSV files after they
+            have been read into the database. If False, remove them.
+
+    Returns: Nothing.
+    """
     # Populating the 'generators_eia923' table
     generators_df = eia923_dfs['generator'].copy()
     generator_cols = ['plant_id',
@@ -1421,7 +1469,24 @@ def ingest_generators_eia923(pudl_engine, eia923_dfs,
 
 def ingest_generation_eia923(pudl_engine, eia923_dfs,
                              csvdir='', keep_csv=True):
-    """Ingest data on generation by each generator from EIA Form 923."""
+    """
+    Ingest data on generation by each generator from EIA Form 923.
+
+    Populates the generation_eia923 table.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA923 form, as repoted in the Excel spreadsheets they distribute.
+        csvdir (string): Path to the directory where the CSV files representing
+            our data tables should be written, before being read in to the
+            postgres database directly.
+        keep_csv (boolean): If True, do not delete the CSV files after they
+            have been read into the database. If False, remove them.
+
+    Returns: Nothing.
+    """
     # This needs to be a copy of what we're passed in so we can edit it.
     generation_df = eia923_dfs['generator'].copy()
 
@@ -1444,7 +1509,8 @@ def ingest_generation_eia923(pudl_engine, eia923_dfs,
     generation_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    generation_df = yearly_to_monthly_eia923(generation_df, month_dict_eia923)
+    generation_df = eia923.yearly_to_monthly_eia923(
+        generation_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     generation_df.replace(to_replace='^\.$', value=np.nan,
                           regex=True, inplace=True)
@@ -1462,7 +1528,25 @@ def ingest_generation_eia923(pudl_engine, eia923_dfs,
 
 def ingest_coalmine_info_eia923(pudl_engine, eia923_dfs,
                                 csvdir='', keep_csv=True):
-    """Ingest data on coal mines supplying fuel from EIA Form 923."""
+    """
+    Ingest data on coal mines supplying fuel from EIA Form 923.
+
+    Populates the coalmine_info_eia923 table.  Also applies canonical
+    categories across the different types of mines.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA923 form, as repoted in the Excel spreadsheets they distribute.
+        csvdir (string): Path to the directory where the CSV files representing
+            our data tables should be written, before being read in to the
+            postgres database directly.
+        keep_csv (boolean): If True, do not delete the CSV files after they
+            have been read into the database. If False, remove them.
+
+    Returns: Nothing.
+    """
     # Populate 'coalmine_info_eia923' table
     coalmine_cols = ['coalmine_name',
                      'coalmine_type',
@@ -1485,7 +1569,7 @@ def ingest_coalmine_info_eia923(pudl_engine, eia923_dfs,
     # drop null values from foreign key fields
     coalmine_df.dropna(subset=['coalmine_name', ], inplace=True)
 
-    # Take a float field and make it an integer, with the empty String
+    # Take a float field and make it an integer, with the empty sa.String
     # as the NA value... for postgres loading. Yes, this is janky.
     coalmine_df['coalmine_msha_id'] = \
         fix_int_na(coalmine_df['coalmine_msha_id'],
@@ -1569,10 +1653,10 @@ def ingest_stocks_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
 ###############################################################################
 
 
-def init_db(ferc1_tables=ferc1_pudl_tables,
+def init_db(ferc1_tables=pc.ferc1_pudl_tables,
             ferc1_years=range(2007, 2016),
-            eia923_tables=eia923_pudl_tables,
-            eia923_years=range(2011, 2017),
+            eia923_tables=pc.eia923_pudl_tables,
+            eia923_years=range(2011, 2016),
             verbose=True, debug=False, testing=False,
             csvdir=os.path.join(settings.PUDL_DIR, 'results', 'csvdump'),
             keep_csv=True):
@@ -1599,12 +1683,12 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
     # pulled into both the FERC Form 1 DB, and the PUDL DB...
     if not debug:
         for table in ferc1_tables:
-            assert(table in ferc1_working_tables)
-            assert(table in ferc1_pudl_tables)
+            assert(table in pc.ferc1_working_tables)
+            assert(table in pc.ferc1_pudl_tables)
 
     if not debug:
         for table in eia923_tables:
-            assert(table in eia923_pudl_tables)
+            assert(table in pc.eia923_pudl_tables)
 
     # Connect to the PUDL DB, wipe out & re-create tables:
     pudl_engine = db_connect_pudl(testing=testing)
@@ -1630,7 +1714,7 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
         'f1_purchased_pwr': ingest_purchased_power_ferc1,
         'f1_accumdepr_prvsn': ingest_accumulated_depreciation_ferc1}
 
-    ferc1_engine = db_connect_ferc1(testing=testing)
+    ferc1_engine = ferc1.db_connect_ferc1(testing=testing)
     for table in ferc1_ingest_functions.keys():
         if table in ferc1_tables:
             if verbose:
@@ -1639,16 +1723,17 @@ def init_db(ferc1_tables=ferc1_pudl_tables,
                                           ferc1_engine,
                                           ferc1_years)
 
-    eia923_xlsx = get_eia923_xlsx(eia923_years)
+    eia923_xlsx = eia923.get_eia923_xlsx(eia923_years)
 
     eia923_dfs = {}
-    for page in tab_map_eia923.columns:
+    for page in pc.tab_map_eia923.columns:
         if (page == 'plant_frame'):
-            eia923_dfs[page] = get_eia923_plant_info(eia923_years, eia923_xlsx)
+            eia923_dfs[page] = eia923.get_eia923_plant_info(
+                eia923_years, eia923_xlsx)
         else:
-            eia923_dfs[page] = get_eia923_page(page, eia923_xlsx,
-                                               years=eia923_years,
-                                               verbose=verbose)
+            eia923_dfs[page] = eia923.get_eia923_page(page, eia923_xlsx,
+                                                      years=eia923_years,
+                                                      verbose=verbose)
 
     # NOW START INGESTING EIA923 DATA:
     eia923_ingest_functions = {

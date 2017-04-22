@@ -67,52 +67,6 @@ def get_strings(filename, min=4):
             yield result
 
 
-def cleanstrings(field, stringmap, unmapped=None):
-    """
-    Clean up a field of string data in one of the Form 1 data frames.
-
-    This function maps many different strings meant to represent the same value
-    or category to a single value. In addition, white space is stripped and
-    values are translated to lower case.  Optionally replace all unmapped
-    values in the original field with a value (like NaN) to indicate data which
-    is uncategorized or confusing.
-
-    Args:
-        field (pandas.DataFrame column): A pandas DataFrame column
-            (e.g. f1_fuel["FUEL"]) whose strings will be matched, where
-            possible, to categorical values from the stringmap dictionary.
-
-        stringmap (dict): A dictionary whose keys are the strings we're mapping
-            to, and whose values are the strings that get mapped.
-
-        unmapped (str, None, NaN) is the value which strings not found in the
-            stringmap dictionary should be replaced by.
-
-    Returns:
-
-        pandas.Series: The function returns a new pandas series/column that can
-            be used to set the values of the original data.
-    """
-    from numpy import setdiff1d
-
-    # Simplify the strings we're working with, to reduce the number of strings
-    # we need to enumerate in the maps
-
-    # Transform the strings to lower case, strip leading/trailing whitespace
-    field = field.str.lower().str.strip()
-    # remove duplicate internal whitespace
-    field = field.replace('[\s+]', ' ', regex=True)
-
-    for k in stringmap.keys():
-        field = field.replace(stringmap[k], k)
-
-    if unmapped is not None:
-        badstrings = setdiff1d(field.unique(), list(stringmap.keys()))
-        field = field.replace(badstrings, unmapped)
-
-    return field
-
-
 def extract_dbc_tables(year, minstring=4):
     """Extract the names of all the tables and fields from FERC Form 1 DB.
 

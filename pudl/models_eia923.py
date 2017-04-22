@@ -221,12 +221,10 @@ class PlantInfoEIA923(models.PUDLBase):
     plant_id = Column(Integer, primary_key=True)
     combined_heat_power = Column(Boolean)
     plant_state = Column(String, ForeignKey('us_states.abbr'))
-    eia_sector = Column(Integer,
-                        ForeignKey('sector_eia.id'))
+    eia_sector = Column(Integer, ForeignKey('sector_eia.id'))
     naics_code = Column(Integer)
-    reporting_frequency = Column(String,
-                                 ForeignKey(
-                                     'respondent_frequency_eia923.abbr'))
+    reporting_frequency = \
+        Column(String, ForeignKey('respondent_frequency_eia923.abbr'))
     # Census region & NERC region are nullable, because they're set from info
     # listed in the generation_fuel page of EIA923, which does not list the
     # entire universe of plants (those listed only in plant_frame will not have
