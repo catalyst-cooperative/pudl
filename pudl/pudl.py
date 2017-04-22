@@ -1202,8 +1202,25 @@ def ingest_plant_info_eia923(pudl_engine, eia923_dfs,
     Ingest data describing static attributes of plants from EIA Form 923.
 
     Much of the static plant information is reported repeatedly, and scattered
-    across several different pages of EIA 923. This function tries to bring it
-    together into one unified, unduplicated table.
+    across several different pages of EIA 923. The data frame which this
+    function uses is assembled from those many different pages, and passed in
+    via the same dictionary of dataframes that all the other ingest functions
+    use for uniformity.
+
+    Populates the plant_info_eia923 table in the PUDL DB.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA923 form, as repoted in the Excel spreadsheets they distribute.
+        csvdir (string): Path to the directory where the CSV files representing
+            our data tables should be written, before being read in to the
+            postgres database directly.
+        keep_csv (boolean): If True, do not delete the CSV files after they
+            have been read into the database. If False, remove them.
+
+    Returns: Nothing.
     """
     plant_info_df = eia923_dfs['plant_frame'].copy()
 
@@ -1243,6 +1260,19 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
     on a monthly, per-plant basis.
 
     Populates the generation_fuel_eia923 table.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA923 form, as repoted in the Excel spreadsheets they distribute.
+        csvdir (string): Path to the directory where the CSV files representing
+            our data tables should be written, before being read in to the
+            postgres database directly.
+        keep_csv (boolean): If True, do not delete the CSV files after they
+            have been read into the database. If False, remove them.
+
+    Returns: Nothing.
     """
     # This needs to be a copy of what we're passed in so we can edit it.
     gf_df = eia923_dfs['generation_fuel'].copy()
