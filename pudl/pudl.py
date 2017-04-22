@@ -1224,6 +1224,15 @@ def ingest_plant_info_eia923(pudl_engine, eia923_dfs,
     """
     plant_info_df = eia923_dfs['plant_frame'].copy()
 
+    cols_to_drop = ['plant_name',
+                    'operator_name',
+                    'operator_id']
+
+    if 'nameplate_capacity_mw' in plant_info_df.columns:
+        cols_to_drop = cols_to_drop + ['nameplate_capacity_mw', ]
+
+    plant_info_df.drop(cols_to_drop, axis=1, inplace=True)
+
     # Since this is a plain Yes/No variable -- just make it a real Boolean.
     plant_info_df.combined_heat_power.replace({'N': False, 'Y': True},
                                               inplace=True)
@@ -1563,7 +1572,7 @@ def ingest_stocks_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
 def init_db(ferc1_tables=ferc1_pudl_tables,
             ferc1_years=range(2007, 2016),
             eia923_tables=eia923_pudl_tables,
-            eia923_years=range(2011, 2016),
+            eia923_years=range(2011, 2017),
             verbose=True, debug=False, testing=False,
             csvdir=os.path.join(settings.PUDL_DIR, 'results', 'csvdump'),
             keep_csv=True):

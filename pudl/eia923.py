@@ -231,57 +231,59 @@ def get_eia923_plant_info(years, eia923_xlsx):
                                'eia_sector', 'naics_code',
                                'reporting_frequency', 'year'])
     if (len(recent_years) > 0):
-        pf = get_eia923_page('plant_frame', eia923_xlsx, years=recent_years)
-        pf = pf[['plant_id', 'plant_state',
-                 'combined_heat_power',
-                 'eia_sector', 'naics_code',
-                 'reporting_frequency', 'year']]
-        pf = pf.sort_values(['year', ], ascending=False)
+        pf1 = get_eia923_page('plant_frame', eia923_xlsx, years=recent_years)
+        pf = pf1[['plant_id', 'plant_name', 'plant_state',
+                  'combined_heat_power',
+                  'eia_sector', 'naics_code',
+                  'reporting_frequency', 'year']]
+        if 2011 in recent_years:
+            pf = pf.merge(pf1[['plant_id', 'nameplate_capacity_mw']],
+                          on='plant_id', how='left')
 
     gf = get_eia923_page('generation_fuel', eia923_xlsx, years=years)
-    gf = gf[['plant_id', 'plant_state',
+    gf = gf[['plant_id', 'plant_name',
+             'operator_name', 'operator_id', 'plant_state',
              'combined_heat_power', 'census_region', 'nerc_region', 'year']]
-    gf = gf.sort_values(['year', ], ascending=False)
-    gf = gf.drop_duplicates(subset='plant_id')
 
     bf = get_eia923_page('boiler_fuel', eia923_xlsx, years=years)
     bf = bf[['plant_id', 'plant_state',
              'combined_heat_power',
-             'naics_code', 'naics_code',
-             'eia_sector', 'census_region', 'nerc_region', 'year']]
-    bf = bf.sort_values(['year'], ascending=False)
-    bf = bf.drop_duplicates(subset='plant_id')
+             'naics_code',
+             'eia_sector', 'census_region', 'nerc_region', 'operator_name',
+             'operator_id', 'year']]
 
     g = get_eia923_page('generator', eia923_xlsx, years=years)
     g = g[['plant_id', 'plant_state', 'combined_heat_power',
-           'census_region', 'nerc_region', 'naics_code', 'eia_sector', 'year']]
-    g = g.sort_values(['year'], ascending=False)
-    g = g.drop_duplicates(subset='plant_id')
+           'census_region', 'nerc_region', 'naics_code', 'eia_sector',
+           'operator_name', 'operator_id', 'year']]
 
     frc = get_eia923_page('fuel_receipts_costs', eia923_xlsx, years=years)
     frc = frc[['plant_id', 'plant_state', 'year']]
-    frc = frc.sort_values(['plant_id'], ascending=False)
-    frc = frc.drop_duplicates(subset='plant_id')
 
     plant_ids = pd.concat(
         [pf.plant_id, gf.plant_id, bf.plant_id, g.plant_id, frc.plant_id],)
     plant_ids = plant_ids.unique()
 
-    df_all_years = pd.DataFrame(columns=['plant_id'])
-    df_all_years['plant_id'] = plant_ids
-
-    df_all_years = df_all_years.merge(pf, on='plant_id', how='left')
-    df_all_years = df_all_years.merge(gf[['plant_id', 'census_region',
-                                          'nerc_region']],
-                                      on='plant_id', how='left')
-    df_all_years = df_all_years.sort_values(['nerc_region',
-                                             'plant_state',
-                                             'eia_sector'], na_position='last')
-
-    df_all_years = df_all_years.drop_duplicates('plant_id')
-    df_all_years = df_all_years.drop(['year', ], axis=1)
-
-    return(df_all_years)
+    plant_info_compiled = pd.DataFrame(columns=['plant_id'])
+    plant_info_compiled['plant_id'] = plant_ids
+    for tab in [pf, gf, bf, g, frc]:
+        tab = tab.sort_values(['year', ], ascending=False)
+        tab = tab.drop_duplicates(subset='plant_id')
+        plant_info_compiled = plant_info_compiled.merge(tab, on='plant_id',
+                                                        how='left')
+        plant_info_compiled_x = plant_info_compiled.filter(regex='_x$')
+        cols_x = plant_info_compiled_x.columns
+        if len(cols_x) > 0:
+            cols_y = plant_info_compiled_x.columns.str.replace('_x$', '_y')
+            for col_x, col_y in zip(cols_x, cols_y):
+                plant_info_compiled[col_x].fillna(plant_info_compiled[col_y],
+                                                  inplace=True, axis=0)
+            plant_info_compiled.drop(cols_y, axis=1, inplace=True)
+            plant_info_compiled.columns = \
+                plant_info_compiled.columns.str.replace('_x$', '')
+    plant_info_compiled = plant_info_compiled.drop_duplicates('plant_id')
+    plant_info_compiled = plant_info_compiled.drop(['year'], axis=1)
+    return(plant_info_compiled)
 
 
 def yearly_to_monthly_eia923(df, md):
