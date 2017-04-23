@@ -7,11 +7,7 @@ is required to relate information from different data sources to each other.
 
 from sqlalchemy import Column, ForeignKey, Integer, String, Float
 from sqlalchemy.orm import relationship
-from sqlalchemy import create_engine
-from sqlalchemy.engine.url import URL
 from sqlalchemy.ext.declarative import declarative_base
-
-from pudl import settings, constants, pudl
 
 PUDLBase = declarative_base()
 

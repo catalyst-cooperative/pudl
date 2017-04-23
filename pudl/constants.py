@@ -10,10 +10,8 @@ We may want to migrate these values into a Data Package as specified by:
 http://frictionlessdata.io/guides/data-package/
 """
 
-# These imports are necessary for the DBF to SQL type map.
-from sqlalchemy import String, Date, Float, Integer
-from sqlalchemy import Boolean, Text, Float, DateTime
-from pandas import DataFrame
+import sqlalchemy as sa
+import pandas as pd
 
 ######################################################################
 # Constants used within the pudl.py module.
@@ -422,20 +420,20 @@ ferc1_tbl2dbf = {v: k for k, v in ferc1_dbf2tbl.items()}
 # http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
 # Un-mapped types left as 'XXX' which should obviously make an error...
 dbf_typemap = {
-    'C': String,
-    'D': Date,
-    'F': Float,
-    'I': Integer,
-    'L': Boolean,
-    'M': Text,  # 10 digit .DBT block number, stored as a string...
-    'N': Float,
-    'T': DateTime,
+    'C': sa.String,
+    'D': sa.Date,
+    'F': sa.Float,
+    'I': sa.Integer,
+    'L': sa.Boolean,
+    'M': sa.Text,  # 10 digit .DBT block number, stored as a string...
+    'N': sa.Float,
+    'T': sa.DateTime,
     'B': 'XXX',  # .DBT block number, binary string
     '@': 'XXX',  # Timestamp... Date = Julian Day, Time is in milliseconds?
     '+': 'XXX',  # Autoincrement (e.g. for IDs)
     'O': 'XXX',  # Double, 8 bytes
     'G': 'XXX',  # OLE 10 digit/byte number of a .DBT block, stored as string
-    '0': 'XXX'  # Integer? based on dbf2sqlite mapping
+    '0': 'XXX'  # sa.Integer? based on dbf2sqlite mapping
 }
 
 # We still don't understand the primary keys for these tables, and so they
@@ -492,7 +490,7 @@ eia923_pudl_tables = ['plant_info_eia923',
                       'fuel_receipts_costs_eia923']
 # 'stocks_eia923'
 
-tab_map_eia923 = DataFrame.from_records([
+tab_map_eia923 = pd.DataFrame.from_records([
     (2009, 0, 1, 2, 3, 4, -1),
     (2010, 0, 1, 2, 3, 4, -1),
     (2011, 0, 1, 2, 3, 4, 5),
@@ -505,7 +503,7 @@ tab_map_eia923 = DataFrame.from_records([
              'generator', 'fuel_receipts_costs', 'plant_frame'],
     index='year_index')
 
-skiprows_eia923 = DataFrame.from_records([
+skiprows_eia923 = pd.DataFrame.from_records([
     (2009, 7, 7, 7, 7, 6, -1),
     (2010, 7, 7, 7, 7, 7, -1),
     (2011, 5, 5, 5, 5, 4, 4),
@@ -518,7 +516,7 @@ skiprows_eia923 = DataFrame.from_records([
              'generator', 'fuel_receipts_costs', 'plant_frame'],
     index='year_index')
 
-generation_fuel_map_eia923 = DataFrame.from_records([
+generation_fuel_map_eia923 = pd.DataFrame.from_records([
     (2009, 'plant_id', 'combined_heat_power_plant', 'nuclear_unit_i_d',
      'plant_name', 'operator_name', 'operator_id', 'state', 'census_region',
      'nerc_region', 'reserved', 'naics_code', 'eia_sector_number',
@@ -829,7 +827,7 @@ generation_fuel_map_eia923 = DataFrame.from_records([
              'total_fuel_consumption_mmbtu', 'elec_fuel_consumption_mmbtu',
              'net_generation_megawatthours', 'year'], index='year_index')
 
-stocks_map_eia923 = DataFrame.from_records([
+stocks_map_eia923 = pd.DataFrame.from_records([
     (2009, None, 'coal_jan', 'coal_feb', 'coal_mar', 'coal_apr', 'coal_may',
      'coal_jun', 'coal_jul', 'coal_aug', 'coal_sep', 'coal_oct', 'coal_nov',
      'coal_dec', 'oil_jan', 'oil_feb', 'oil_mar', 'oil_apr', 'oil_may',
@@ -916,7 +914,7 @@ stocks_map_eia923 = DataFrame.from_records([
     index='year_index'
 )
 
-boiler_fuel_map_eia923 = DataFrame.from_records([
+boiler_fuel_map_eia923 = pd.DataFrame.from_records([
     (2009, 'plant_id', 'combined_heat_power_plant', 'plant_name',
      'operator_name', 'operator_id', 'state', 'census_region', 'nerc_region',
      'naics_code', 'eia_sector_number', 'sector_name', 'boiler_id',
@@ -1156,7 +1154,7 @@ boiler_fuel_map_eia923 = DataFrame.from_records([
              'year'],
     index='year_index')
 
-generator_map_eia923 = DataFrame.from_records([
+generator_map_eia923 = pd.DataFrame.from_records([
     (2008, 'plant_id', 'combined_heat_power_plant', 'plant_name',
      'operator_name', 'operator_id', 'state', 'census_region', 'nerc_region',
      'naics_code', 'eia_sector_number', 'sector_name', 'generator_id',
@@ -1261,7 +1259,7 @@ generator_map_eia923 = DataFrame.from_records([
     index='year_index'
 )
 
-fuel_receipts_costs_map_eia923 = DataFrame.from_records([
+fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
     (2009, 'year', 'month', 'plant_id', 'plant_name', 'state', 'contract_type',
      'contract_exp_date', 'energy_source', 'fuel_group', 'coalmine_type',
      'coalmine_state', 'coalmine_county', 'coalmine_msha_id', 'coalmine_name',
@@ -1343,7 +1341,7 @@ fuel_receipts_costs_map_eia923 = DataFrame.from_records([
     index='year_index'
 )
 
-plant_frame_map_eia923 = DataFrame.from_records([
+plant_frame_map_eia923 = pd.DataFrame.from_records([
     (2009, None, None, None, None, None, None, None, None, None, None),
     (2010, None, None, None, None, None, None, None, None, None, None),
     (2011, 'year', None, 'eia_plant_id', 'plant_state', 'sector',
@@ -1426,7 +1424,7 @@ ferc1_data_tables = [
 # Line numbers, and corresponding FERC account number
 # from FERC Form 1 pages 204-207, Electric Plant in Service.
 # Descriptions from: https://www.law.cornell.edu/cfr/text/18/part-101
-ferc_electric_plant_accounts = DataFrame.from_records([
+ferc_electric_plant_accounts = pd.DataFrame.from_records([
     # 1. Intangible Plant
     (2, '301', 'Intangible: Organization'),
     (3, '302', 'Intangible: Franchises and consents'),
@@ -1553,7 +1551,7 @@ ferc_electric_plant_accounts = DataFrame.from_records([
 # from FERC Form 1 page 219, ACCUMULATED PROVISION FOR DEPRECIATION
 # OF ELECTRIC UTILITY PLANT (Account 108).
 
-ferc_accumulated_depreciation = DataFrame.from_records([
+ferc_accumulated_depreciation = pd.DataFrame.from_records([
 
     # Section A. Balances and Changes During Year
     (1, 'balance_beginning_of_year', 'Balance Beginning of Year'),

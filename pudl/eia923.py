@@ -3,14 +3,15 @@ Retrieve data from EIA Form 923 spreadsheets for analysis.
 
 This modules pulls data from EIA's published Excel spreadsheets.
 
-This code is for use analyzing EIA Form 923 data, years 2008-2016 Current
-version is for years 2011-2016, which have standardized naming conventions and
-file formatting.
+This code is for use analyzing EIA Form 923 data. Currenly only
+years 2009-2016 work, as they share nearly identical file formatting.
 """
 
 import pandas as pd
 import os.path
-from pudl import settings, constants
+import glob
+from pudl import settings
+import pudl.constants as pc
 
 ###########################################################################
 # Helper functions & other objects to ingest & process Energy Information
@@ -45,10 +46,8 @@ def get_eia923_file(yr):
     Returns:
         path to EIA 923 spreadsheets corresponding to a given year.
     """
-    from glob import glob
-
     assert(yr > 2008), "EIA923 file selection only works for 2008 & later."
-    return(glob(os.path.join(datadir(yr), '*2_3_4*'))[0])
+    return(glob.glob(os.path.join(datadir(yr), '*2_3_4*'))[0])
 
 
 def get_eia923_column_map(page, year):
@@ -90,16 +89,16 @@ def get_eia923_column_map(page, year):
             trailing whitespace, converted to lower case, and have internal
             non-alphanumeric characters replaced with underscores.
     """
-    sheetname = constants.tab_map_eia923.get_value(year, page)
-    skiprows = constants.skiprows_eia923.get_value(year, page)
+    sheetname = pc.tab_map_eia923.get_value(year, page)
+    skiprows = pc.skiprows_eia923.get_value(year, page)
 
     page_to_df = {
-        'generation_fuel': constants.generation_fuel_map_eia923,
-        'stocks': constants.stocks_map_eia923,
-        'boiler_fuel': constants.boiler_fuel_map_eia923,
-        'generator': constants.generator_map_eia923,
-        'fuel_receipts_costs': constants.fuel_receipts_costs_map_eia923,
-        'plant_frame': constants.plant_frame_map_eia923}
+        'generation_fuel': pc.generation_fuel_map_eia923,
+        'stocks': pc.stocks_map_eia923,
+        'boiler_fuel': pc.boiler_fuel_map_eia923,
+        'generator': pc.generator_map_eia923,
+        'fuel_receipts_costs': pc.fuel_receipts_costs_map_eia923,
+        'plant_frame': pc.plant_frame_map_eia923}
 
     d = page_to_df[page].loc[year].to_dict()
 
@@ -135,7 +134,7 @@ def get_eia923_page(page, eia923_xlsx,
     """
     assert min(years) >= 2009,\
         "EIA923 works for 2009 and later. {} requested.".format(min(years))
-    assert page in constants.tab_map_eia923.columns and page != 'year_index',\
+    assert page in pc.tab_map_eia923.columns and page != 'year_index',\
         "Unrecognized EIA 923 page: {}".format(page)
 
     if verbose:

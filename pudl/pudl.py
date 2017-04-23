@@ -25,7 +25,7 @@ import postgres_copy
 import os.path
 
 from pudl import eia923, ferc1
-from pudl import constants, settings
+from pudl import settings
 from pudl import models, models_eia923
 
 import pudl.constants as pc
