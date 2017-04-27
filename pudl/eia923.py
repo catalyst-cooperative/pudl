@@ -228,16 +228,17 @@ def get_eia923_plant_info(years, eia923_xlsx):
     pf = pd.DataFrame(columns=['plant_id', 'plant_state',
                                'combined_heat_power',
                                'eia_sector', 'naics_code',
-                               'reporting_frequency', 'year'])
+                               'reporting_frequency', 'nameplate_capacity_mw',
+                               'year'])
     if (len(recent_years) > 0):
-        pf1 = get_eia923_page('plant_frame', eia923_xlsx, years=recent_years)
-        pf = pf1[['plant_id', 'plant_name', 'plant_state',
-                  'combined_heat_power',
-                  'eia_sector', 'naics_code',
-                  'reporting_frequency', 'year']]
+        pf = get_eia923_page('plant_frame', eia923_xlsx, years=recent_years)
         if 2011 in recent_years:
-            pf = pf.merge(pf1[['plant_id', 'nameplate_capacity_mw']],
-                          on='plant_id', how='left')
+            pf_mw = pf[['plant_id', 'nameplate_capacity_mw']]
+            pf_mw = pf_mw[pf_mw['nameplate_capacity_mw'] > 0]
+        pf = pf[['plant_id', 'plant_name', 'plant_state',
+                 'combined_heat_power',
+                 'eia_sector', 'naics_code',
+                 'reporting_frequency', 'year']]
 
     gf = get_eia923_page('generation_fuel', eia923_xlsx, years=years)
     gf = gf[['plant_id', 'plant_name',
@@ -282,6 +283,9 @@ def get_eia923_plant_info(years, eia923_xlsx):
                 plant_info_compiled.columns.str.replace('_x$', '')
     plant_info_compiled = plant_info_compiled.drop_duplicates('plant_id')
     plant_info_compiled = plant_info_compiled.drop(['year'], axis=1)
+    if 2011 in recent_years:
+        plant_info_compiled = plant_info_compiled.merge(pf_mw, on='plant_id',
+                                                        how='left')
     return(plant_info_compiled)
 
 
