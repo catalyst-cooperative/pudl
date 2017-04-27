@@ -1229,7 +1229,8 @@ def ingest_plant_info_eia923(pudl_engine, eia923_dfs,
                                    'naics_code',
                                    'reporting_frequency',
                                    'census_region',
-                                   'nerc_region']]
+                                   'nerc_region',
+                                   'nameplate_capacity_mw']]
 
     # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
     plant_info_df.combined_heat_power.replace({'N': False, 'Y': True},

@@ -232,8 +232,10 @@ def get_eia923_plant_info(years, eia923_xlsx):
                                'year'])
     if (len(recent_years) > 0):
         pf = get_eia923_page('plant_frame', eia923_xlsx, years=recent_years)
+        pf_mw = pd.DataFrame(columns=['plant_id', 'nameplate_capacity_mw',
+                                      'year'])
         if 2011 in recent_years:
-            pf_mw = pf[['plant_id', 'nameplate_capacity_mw']]
+            pf_mw = pf[['plant_id', 'nameplate_capacity_mw', 'year']]
             pf_mw = pf_mw[pf_mw['nameplate_capacity_mw'] > 0]
         pf = pf[['plant_id', 'plant_name', 'plant_state',
                  'combined_heat_power',
@@ -266,7 +268,7 @@ def get_eia923_plant_info(years, eia923_xlsx):
 
     plant_info_compiled = pd.DataFrame(columns=['plant_id'])
     plant_info_compiled['plant_id'] = plant_ids
-    for tab in [pf, gf, bf, g, frc]:
+    for tab in [pf, pf_mw, gf, bf, g, frc]:
         tab = tab.sort_values(['year', ], ascending=False)
         tab = tab.drop_duplicates(subset='plant_id')
         plant_info_compiled = plant_info_compiled.merge(tab, on='plant_id',
@@ -283,9 +285,6 @@ def get_eia923_plant_info(years, eia923_xlsx):
                 plant_info_compiled.columns.str.replace('_x$', '')
     plant_info_compiled = plant_info_compiled.drop_duplicates('plant_id')
     plant_info_compiled = plant_info_compiled.drop(['year'], axis=1)
-    if 2011 in recent_years:
-        plant_info_compiled = plant_info_compiled.merge(pf_mw, on='plant_id',
-                                                        how='left')
     return(plant_info_compiled)
 
 
