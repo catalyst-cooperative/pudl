@@ -225,6 +225,7 @@ class PlantInfoEIA923(pudl.models.PUDLBase):
     # these values set)
     census_region = Column(String, ForeignKey('census_regions.abbr'))
     nerc_region = Column(String, ForeignKey('nerc_region.abbr'))
+    nameplate_capacity_mw = Column(Float)
 
 
 class GenerationFuelEIA923(pudl.models.PUDLBase):
