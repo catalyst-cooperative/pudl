@@ -228,16 +228,19 @@ def get_eia923_plant_info(years, eia923_xlsx):
     pf = pd.DataFrame(columns=['plant_id', 'plant_state',
                                'combined_heat_power',
                                'eia_sector', 'naics_code',
-                               'reporting_frequency', 'year'])
+                               'reporting_frequency', 'nameplate_capacity_mw',
+                               'year'])
     if (len(recent_years) > 0):
-        pf1 = get_eia923_page('plant_frame', eia923_xlsx, years=recent_years)
-        pf = pf1[['plant_id', 'plant_name', 'plant_state',
-                  'combined_heat_power',
-                  'eia_sector', 'naics_code',
-                  'reporting_frequency', 'year']]
+        pf = get_eia923_page('plant_frame', eia923_xlsx, years=recent_years)
+        pf_mw = pd.DataFrame(columns=['plant_id', 'nameplate_capacity_mw',
+                                      'year'])
         if 2011 in recent_years:
-            pf = pf.merge(pf1[['plant_id', 'nameplate_capacity_mw']],
-                          on='plant_id', how='left')
+            pf_mw = pf[['plant_id', 'nameplate_capacity_mw', 'year']]
+            pf_mw = pf_mw[pf_mw['nameplate_capacity_mw'] > 0]
+        pf = pf[['plant_id', 'plant_name', 'plant_state',
+                 'combined_heat_power',
+                 'eia_sector', 'naics_code',
+                 'reporting_frequency', 'year']]
 
     gf = get_eia923_page('generation_fuel', eia923_xlsx, years=years)
     gf = gf[['plant_id', 'plant_name',
@@ -265,7 +268,7 @@ def get_eia923_plant_info(years, eia923_xlsx):
 
     plant_info_compiled = pd.DataFrame(columns=['plant_id'])
     plant_info_compiled['plant_id'] = plant_ids
-    for tab in [pf, gf, bf, g, frc]:
+    for tab in [pf, pf_mw, gf, bf, g, frc]:
         tab = tab.sort_values(['year', ], ascending=False)
         tab = tab.drop_duplicates(subset='plant_id')
         plant_info_compiled = plant_info_compiled.merge(tab, on='plant_id',
@@ -283,52 +286,3 @@ def get_eia923_plant_info(years, eia923_xlsx):
     plant_info_compiled = plant_info_compiled.drop_duplicates('plant_id')
     plant_info_compiled = plant_info_compiled.drop(['year'], axis=1)
     return(plant_info_compiled)
-
-
-def yearly_to_monthly_eia923(df, md):
-    """
-    Convert an EIA 923 record with 12 months of data into 12 monthly records.
-
-    Much of the data reported in EIA 923 is monthly, but all 12 months worth of
-    data is reported in a single record, with one field for each of the 12
-    months.  This function converts these annualized composite records into a
-    set of 12 monthly records containing the same information, by parsing the
-    field names for months, and adding a month field.  Non - time series data
-    is retained in the same format.
-
-    Args:
-        df(pandas.DataFrame): A pandas DataFrame containing the annual
-            data to be converted into monthly records.
-        md(dict): a dictionary with the numbers 1 - 12 as keys, and the
-            patterns used to match field names for each of the months as
-            values. These patterns are also used to re - name the columns in
-            the dataframe which is returned, so they need to match the entire
-            portion of the column name that is month - specific.
-
-    Returns:
-        pandas.DataFrame: A dataframe containing the same data as was passed in
-            via df, but with monthly records instead of annual records.
-    """
-    # Pull out each month's worth of data, merge it with the common columns,
-    # rename columns to match the PUDL DB, add an appropriate month column,
-    # and insert it into the PUDL DB.
-    yearly = df.copy()
-    monthly = pd.DataFrame()
-
-    for m in md.keys():
-        # Grab just the columns for the month we're working on.
-        this_month = yearly.filter(regex=md[m])
-        # Drop this month's data from the yearly data frame.
-        yearly.drop(this_month.columns, axis=1, inplace=True)
-        # Rename this month's columns to get rid of the month reference.
-        this_month.columns = this_month.columns.str.replace(md[m], '')
-        # Add a numerical month column corresponding to this month.
-        this_month['month'] = m
-        # Add this month's data to the monthly DataFrame we're building.
-        monthly = pd.concat([monthly, this_month])
-
-    # Merge the monthly data we've built up with the remaining fields in the
-    # data frame we started with -- all of which should be independent of the
-    # month, and apply across all 12 of the monthly records created from each
-    # of the # initial annual records.
-    return(yearly.merge(monthly, left_index=True, right_index=True))

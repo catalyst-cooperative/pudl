@@ -27,6 +27,7 @@ import os.path
 from pudl import eia923, ferc1
 from pudl import settings
 from pudl import models, models_eia923
+from pudl import clean_ferc1, clean_pudl, clean_eia923
 
 import pudl.constants as pc
 
@@ -59,85 +60,6 @@ def drop_tables_pudl(engine):
 #   OTHER HELPER FUNCTIONS
 ###############################################################################
 ###############################################################################
-
-
-def cleanstrings(field, stringmap, unmapped=None):
-    """
-    Consolidate freeform strings in dataframe column to canonical codes.
-
-    This function maps many different strings meant to represent the same value
-    or category to a single value. In addition, white space is stripped and
-    values are translated to lower case.  Optionally replace all unmapped
-    values in the original field with a value (like NaN) to indicate data which
-    is uncategorized or confusing.
-
-    Args:
-        field (pandas.DataFrame column): A pandas DataFrame column
-            (e.g. f1_fuel["FUEL"]) whose strings will be matched, where
-            possible, to categorical values from the stringmap dictionary.
-
-        stringmap (dict): A dictionary whose keys are the strings we're mapping
-            to, and whose values are the strings that get mapped.
-
-        unmapped (str, None, NaN) is the value which strings not found in the
-            stringmap dictionary should be replaced by.
-
-    Returns:
-        pandas.Series: The function returns a new pandas series/column that can
-            be used to set the values of the original data.
-    """
-    from numpy import setdiff1d
-
-    # Simplify the strings we're working with, to reduce the number of strings
-    # we need to enumerate in the maps
-
-    # Transform the strings to lower case, strip leading/trailing whitespace
-    field = field.str.lower().str.strip()
-    # remove duplicate internal whitespace
-    field = field.replace('[\s+]', ' ', regex=True)
-
-    for k in stringmap.keys():
-        field = field.replace(stringmap[k], k)
-
-    if unmapped is not None:
-        badstrings = setdiff1d(field.unique(), list(stringmap.keys()))
-        field = field.replace(badstrings, unmapped)
-
-    return field
-
-
-def fix_int_na(col, float_na=np.nan, int_na=-1, str_na=''):
-    """
-    Convert a dataframe column from float to string for CSV export.
-
-    Numpy doesn't have a real NA value for integers. When pandas stores integer
-    data which has NA values, it thus upcasts integers to floating point
-    values, using np.nan values for NA. However, in order to dump some of our
-    dataframes to CSV files that are suitable for loading into postgres
-    directly, we need to write out integer formatted numbers, with empty
-    strings as the NA value. This function replaces np.nan values with a
-    sentiel value, converts the column to integers, and then to strings,
-    finally replacing the sentinel value with the desired NA string.
-
-    Args:
-        col (pandas.Series): The DataFrame column that needs to be
-            reformatted for output.
-        float_na (float): The floating point value to be interpreted as NA and
-            replaced in col.
-        int_na (int): Sentinel value to substitute for float_na prior to
-            conversion of the column to integers.
-        str_na (str): sa.String value to substitute for int_na after the column
-            has been converted to strings.
-
-    Returns:
-        str_col (pandas.Series): a column containing the same values and lack
-            of values as the col argument, but stored as strings that are
-            compatible with the postgresql COPY FROM command.
-    """
-    return(col.replace(float_na, int_na).
-           astype(int).
-           astype(str).
-           replace(str(int_na), str_na))
 
 
 def csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
@@ -543,53 +465,11 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine, ferc1_years):
         where(f1_fuel.c.plant_name != '').\
         where(f1_fuel.c.report_year.in_(ferc1_years))
     # Use the above SELECT to pull those records into a DataFrame:
-    ferc1_fuel_df = pd.read_sql(f1_fuel_select, ferc1_engine)
+    fuel_ferc1_df = pd.read_sql(f1_fuel_select, ferc1_engine)
 
-    # Discard DataFrame columns that we aren't pulling into PUDL:
-    ferc1_fuel_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
-                        'report_prd'], axis=1, inplace=True)
+    fuel_ferc1_df = clean_ferc1.clean_fuel_ferc1(fuel_ferc1_df)
 
-    # Standardize plant_name capitalization and remove leading/trailing white
-    # space -- necesary b/c plant_name is part of many foreign keys.
-    ferc1_fuel_df['plant_name'] = ferc1_fuel_df['plant_name'].str.strip()
-    ferc1_fuel_df['plant_name'] = ferc1_fuel_df['plant_name'].str.title()
-
-    # Take the messy free-form fuel & fuel_unit fields, and do our best to
-    # map them to some canonical categories... this is necessarily imperfect:
-    ferc1_fuel_df.fuel = cleanstrings(ferc1_fuel_df.fuel,
-                                      pc.ferc1_fuel_strings,
-                                      unmapped=np.nan)
-    ferc1_fuel_df.fuel_unit = cleanstrings(ferc1_fuel_df.fuel_unit,
-                                           pc.ferc1_fuel_unit_strings,
-                                           unmapped=np.nan)
-
-    # Convert to MW/MWh units across the board.
-    ferc1_fuel_df['fuel_cost_per_mwh'] = 1000 * ferc1_fuel_df['fuel_cost_kwh']
-    ferc1_fuel_df.drop('fuel_cost_kwh', axis=1, inplace=True)
-    # Here we are converting from BTU/kWh to 1e6 BTU/MWh
-    ferc1_fuel_df['fuel_mmbtu_per_mwh'] = (1e3 / 1e6) * \
-        ferc1_fuel_df['fuel_generaton']
-    ferc1_fuel_df.drop('fuel_generaton', axis=1, inplace=True)
-    # Convert from BTU/unit of fuel to 1e6 BTU/unit.
-    ferc1_fuel_df['fuel_avg_mmbtu_per_unit'] = \
-        ferc1_fuel_df['fuel_avg_heat'] / 1e6
-    ferc1_fuel_df.drop('fuel_avg_heat', axis=1, inplace=True)
-
-    # Drop any records that are missing data. This is a blunt instrument, to
-    # be sure. In some cases we lose data here, because some utilities have
-    # (for example) a "Total" line w/ only fuel_mmbtu_per_kwh on it. Grr.
-    ferc1_fuel_df.dropna(inplace=True)
-
-    # Make sure that the DataFrame column names (which were imported from the
-    # f1_fuel table) match their corresponding field names in the PUDL DB.
-    ferc1_fuel_df.rename(columns={
-        # FERC 1 DB Name      PUDL DB Name
-        'fuel_quantity': 'fuel_qty_burned',
-        'fuel_cost_burned': 'fuel_cost_per_unit_burned',
-        'fuel_cost_delvd': 'fuel_cost_per_unit_delivered',
-                           'fuel_cost_btu': 'fuel_cost_per_mmbtu'},
-                         inplace=True)
-    ferc1_fuel_df.to_sql(name='fuel_ferc1',
+    fuel_ferc1_df.to_sql(name='fuel_ferc1',
                          con=pudl_engine, index=False, if_exists='append',
                          dtype={'respondent_id': sa.Integer,
                                 'report_year': sa.Integer})
@@ -632,12 +512,14 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     # best to map them to some canonical categories...
     # this is necessarily imperfect:
 
-    ferc1_steam_df.type_const = cleanstrings(ferc1_steam_df.type_const,
-                                             pc.ferc1_type_const_strings,
-                                             unmapped=np.nan)
-    ferc1_steam_df.plant_kind = cleanstrings(ferc1_steam_df.plant_kind,
-                                             pc.ferc1_plant_kind_strings,
-                                             unmapped=np.nan)
+    ferc1_steam_df.type_const = \
+        clean_pudl.cleanstrings(ferc1_steam_df.type_const,
+                                pc.ferc1_type_const_strings,
+                                unmapped=np.nan)
+    ferc1_steam_df.plant_kind = \
+        clean_pudl.cleanstrings(ferc1_steam_df.plant_kind,
+                                pc.ferc1_plant_kind_strings,
+                                unmapped=np.nan)
 
     # Force the construction and installation years to be numeric values, and
     # set them to NA if they can't be converted. (table has some junk values)
@@ -1229,7 +1111,8 @@ def ingest_plant_info_eia923(pudl_engine, eia923_dfs,
                                    'naics_code',
                                    'reporting_frequency',
                                    'census_region',
-                                   'nerc_region']]
+                                   'nerc_region',
+                                   'nameplate_capacity_mw']]
 
     # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
     plant_info_df.combined_heat_power.replace({'N': False, 'Y': True},
@@ -1241,16 +1124,16 @@ def ingest_plant_info_eia923(pudl_engine, eia923_dfs,
     plant_info_df.drop_duplicates(subset='plant_id')
 
     plant_info_df['eia_sector'] = \
-        fix_int_na(plant_info_df['eia_sector'],
-                   float_na=np.nan,
-                   int_na=-1,
-                   str_na='')
+        clean_pudl.fix_int_na(plant_info_df['eia_sector'],
+                              float_na=np.nan,
+                              int_na=-1,
+                              str_na='')
 
     plant_info_df['naics_code'] = \
-        fix_int_na(plant_info_df['naics_code'],
-                   float_na=np.nan,
-                   int_na=-1,
-                   str_na='')
+        clean_pudl.fix_int_na(plant_info_df['naics_code'],
+                              float_na=np.nan,
+                              int_na=-1,
+                              str_na='')
 
     plant_info_df['plant_id'] = plant_info_df['plant_id'].astype(int)
 
@@ -1304,7 +1187,7 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
     gf_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    gf_df = eia923.yearly_to_monthly_eia923(gf_df, pc.month_dict_eia923)
+    gf_df = clean_eia923.yearly_to_monthly_eia923(gf_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     gf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
     # Remove "State fuel-level increment" records... which don't pertain to
@@ -1313,14 +1196,15 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
 
     # Take a float field and make it an integer, with the empty sa.String
     # as the NA value... for postgres loading.
-    gf_df['nuclear_unit_id'] = fix_int_na(gf_df['nuclear_unit_id'],
-                                          float_na=np.nan,
-                                          int_na=-1,
-                                          str_na='')
+    gf_df['nuclear_unit_id'] = \
+        clean_pudl.fix_int_na(gf_df['nuclear_unit_id'],
+                              float_na=np.nan,
+                              int_na=-1,
+                              str_na='')
 
     # # map AER fuel types to simplified PUDL categories
-    gf_df['aer_fuel_category'] = cleanstrings(gf_df.aer_fuel_type,
-                                              pc.aer_fuel_type_strings)
+    gf_df['aer_fuel_category'] = \
+        clean_pudl.cleanstrings(gf_df.aer_fuel_type, pc.aer_fuel_type_strings)
 
     # Convert Year/Month columns into a single Date column...
     gf_df['report_date'] = pd.to_datetime({'year': gf_df.year,
@@ -1412,7 +1296,7 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
     bf_df.dropna(subset=['boiler_id', 'plant_id'], inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    bf_df = eia923.yearly_to_monthly_eia923(bf_df, pc.month_dict_eia923)
+    bf_df = clean_eia923.yearly_to_monthly_eia923(bf_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     bf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
 
@@ -1509,7 +1393,7 @@ def ingest_generation_eia923(pudl_engine, eia923_dfs,
     generation_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    generation_df = eia923.yearly_to_monthly_eia923(
+    generation_df = clean_eia923.yearly_to_monthly_eia923(
         generation_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     generation_df.replace(to_replace='^\.$', value=np.nan,
@@ -1572,10 +1456,10 @@ def ingest_coalmine_info_eia923(pudl_engine, eia923_dfs,
     # Take a float field and make it an integer, with the empty sa.String
     # as the NA value... for postgres loading. Yes, this is janky.
     coalmine_df['coalmine_msha_id'] = \
-        fix_int_na(coalmine_df['coalmine_msha_id'],
-                   float_na=np.nan,
-                   int_na=-1,
-                   str_na='')
+        clean_pudl.fix_int_na(coalmine_df['coalmine_msha_id'],
+                              float_na=np.nan,
+                              int_na=-1,
+                              str_na='')
 
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(coalmine_df, 'coalmine_info_eia923', pudl_engine,
@@ -1613,10 +1497,10 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
         frc_df['secondary_transportation_mode'].str.upper()
 
     frc_df['contract_expiration_date'] = \
-        fix_int_na(frc_df['contract_expiration_date'],
-                   float_na=np.nan,
-                   int_na=-1,
-                   str_na='')
+        clean_pudl.fix_int_na(frc_df['contract_expiration_date'],
+                              float_na=np.nan,
+                              int_na=-1,
+                              str_na='')
     # Convert the 3-4 digit (MYY|MMYY) date of contract expiration to
     # two fields MM and YYYY for easier analysis later.
     exp_month = frc_df.contract_expiration_date. \
