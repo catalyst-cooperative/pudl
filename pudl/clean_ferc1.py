@@ -149,14 +149,14 @@ def clean_fuel_ferc1(fuel_ferc1_df):
     corrections = [
         # mult = 2000: reported in units of lbs instead of short tons
         # mult = 1e6:  reported BTUs instead of mmBTUs
-        ['fuel_avg_mmbtu_per_unit', coal_mask, 10.0, 30.0, (2e3, 1e6)],
+        ['fuel_avg_mmbtu_per_unit', coal_mask, 9.0, 30.0, (2e3, 1e6)],
 
         # mult = 1e-2: reported cents/mmBTU instead of USD/mmBTU
         ['fuel_cost_per_mmbtu', coal_mask, 0.5, 6.0, (1e-2, )],
 
         # mult = 1e3: reported fuel quantity in cubic feet, not mcf
         # mult = 1e6: reported fuel quantity in BTU, not mmBTU
-        ['fuel_avg_mmbtu_per_unit', gas_mask, 0.75, 1.25, (1e3, 1e6)],
+        ['fuel_avg_mmbtu_per_unit', gas_mask, 0.8, 1.2, (1e3, 1e6)],
 
         # mult = 1e-2: reported in cents/mmBTU instead of USD/mmBTU
         # Is $165/mmBTU really a reasonable upper bound? Seems huge.
