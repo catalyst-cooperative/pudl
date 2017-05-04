@@ -28,26 +28,34 @@ def yearly_to_monthly_eia923(df, md):
         pandas.DataFrame: A dataframe containing the same data as was passed in
             via df, but with monthly records instead of annual records.
     """
-    # Pull out each month's worth of data, merge it with the common columns,
-    # rename columns to match the PUDL DB, add an appropriate month column,
-    # and insert it into the PUDL DB.
     yearly = df.copy()
-    monthly = pd.DataFrame()
+    all_years = pd.DataFrame()
 
-    for m in md.keys():
-        # Grab just the columns for the month we're working on.
-        this_month = yearly.filter(regex=md[m])
-        # Drop this month's data from the yearly data frame.
-        yearly.drop(this_month.columns, axis=1, inplace=True)
-        # Rename this month's columns to get rid of the month reference.
-        this_month.columns = this_month.columns.str.replace(md[m], '')
-        # Add a numerical month column corresponding to this month.
-        this_month['month'] = m
-        # Add this month's data to the monthly DataFrame we're building.
-        monthly = pd.concat([monthly, this_month])
+    for y in yearly.year.unique():
+        this_year = yearly[yearly.year == y].copy()
+        monthly = pd.DataFrame()
+        for m in md.keys():
+            # Grab just the columns for the month we're working on.
+            this_month = this_year.filter(regex=md[m])
 
-    # Merge the monthly data we've built up with the remaining fields in the
-    # data frame we started with -- all of which should be independent of the
-    # month, and apply across all 12 of the monthly records created from each
-    # of the # initial annual records.
-    return(yearly.merge(monthly, left_index=True, right_index=True))
+            # Drop this month's data from the yearly data frame.
+            this_year.drop(this_month.columns, axis=1, inplace=True)
+
+            # Rename this month's columns to get rid of the month reference.
+            this_month.columns = this_month.columns.str.replace(md[m], '')
+
+            # Add a numerical month column corresponding to this month.
+            this_month['month'] = m
+
+            # Add this month's data to the monthly DataFrame we're building.
+            monthly = pd.concat([monthly, this_month])
+
+        # Merge the monthly data we've built up with the remaining fields in
+        # the data frame we started with -- all of which should be independent
+        # of the month, and apply across all 12 of the monthly records created
+        # from each of the # initial annual records.
+        this_year = this_year.merge(monthly, left_index=True, right_index=True)
+        # Add this new year's worth of data to the big dataframe we'll return
+        all_years = pd.concat([all_years, this_year])
+
+    return(all_years)
