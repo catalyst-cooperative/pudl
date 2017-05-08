@@ -145,22 +145,45 @@ def clean_fuel_ferc1(fuel_ferc1_df):
     #########################################################################
     coal_mask = fuel_ferc1_df['fuel'] == 'coal'
     gas_mask = fuel_ferc1_df['fuel'] == 'gas'
+    oil_mask = fuel_ferc1df['fuel'] == 'oil'
 
     corrections = [
         # mult = 2000: reported in units of lbs instead of short tons
         # mult = 1e6:  reported BTUs instead of mmBTUs
-        ['fuel_avg_mmbtu_per_unit', coal_mask, 9.0, 30.0, (2e3, 1e6)],
+        # minval and maxval of 10 and 29 mmBTUs are the range of values
+        # specified by EIA 923 instructions at:
+        # https://www.eia.gov/survey/form/eia_923/instructions.pdf
+        ['fuel_avg_mmbtu_per_unit', coal_mask, 10.0, 29.0, (2e3, 1e6)],
 
         # mult = 1e-2: reported cents/mmBTU instead of USD/mmBTU
-        ['fuel_cost_per_mmbtu', coal_mask, 0.5, 6.0, (1e-2, )],
+        # minval and maxval of .5 and 7.5 dollars per mmBTUs are the
+        # end points of the primary distribution of EIA 923 fuel receipts
+        # and cost per mmBTU data weighted by quantity delivered
+        ['fuel_cost_per_mmbtu', coal_mask, 0.5, 7.5, (1e-2, )],
 
         # mult = 1e3: reported fuel quantity in cubic feet, not mcf
         # mult = 1e6: reported fuel quantity in BTU, not mmBTU
+        # minval and maxval of .8 and 1.2 mmBTUs are the range of values
+        # specified by EIA 923 instructions
         ['fuel_avg_mmbtu_per_unit', gas_mask, 0.8, 1.2, (1e3, 1e6)],
 
         # mult = 1e-2: reported in cents/mmBTU instead of USD/mmBTU
-        # Is $165/mmBTU really a reasonable upper bound? Seems huge.
-        ['fuel_cost_per_mmbtu', gas_mask, 1.5, 165, (1e-2, )]
+        # minval and maxval of 1 and 35 dollars per mmBTUs are the
+        # end points of the primary distribution of EIA 923 fuel receipts
+        # and cost per mmBTU data weighted by quantity delivered
+        ['fuel_cost_per_mmbtu', gas_mask, 1, 35, (1e-2, )],
+
+        # mult = 42: reported fuel quantity in gallons, not barrels
+        # mult = 1e6: reported fuel quantity in BTU, not mmBTU
+        # minval and maxval of 3 and 6.9 mmBTUs are the range of values
+        # specified by EIA 923 instructions
+        ['fuel_avg_mmbtu_per_unit', oil_mask, 3, 6.9, (42, )],
+
+        # mult = 1e-2: reported in cents/mmBTU instead of USD/mmBTU
+        # minval and maxval of 5 and 33 dollars per mmBTUs are the
+        # end points of the primary distribution of EIA 923 fuel receipts
+        # and cost per mmBTU data weighted by quantity delivered
+        ['fuel_cost_per_mmbtu', oil_mask, 5, 33, (1e-2, )]
     ]
 
     for (coltofix, mask, minval, maxval, mults) in corrections:
