@@ -185,9 +185,7 @@ class PlantOwnershipEIA923(pudl.models.PUDLBase):
     __tablename__ = 'plant_ownership_eia923'
     plant_id = Column(Integer, primary_key=True)
     year = Column(Integer, primary_key=True)
-    operator_id = Column(Integer,
-                         ForeignKey('utilities_eia923.operator_id'),
-                         primary_key=True)
+    operator_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'))
 
 
 class OperatorInfoEIA923(pudl.models.PUDLBase):

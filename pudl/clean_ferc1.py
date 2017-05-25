@@ -145,7 +145,7 @@ def clean_fuel_ferc1(fuel_ferc1_df):
     #########################################################################
     coal_mask = fuel_ferc1_df['fuel'] == 'coal'
     gas_mask = fuel_ferc1_df['fuel'] == 'gas'
-    oil_mask = fuel_ferc1df['fuel'] == 'oil'
+    oil_mask = fuel_ferc1_df['fuel'] == 'oil'
 
     corrections = [
         # mult = 2000: reported in units of lbs instead of short tons
