@@ -1217,6 +1217,46 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
+def ingest_plant_ownership_eia923(pudl_engine, eia923_dfs,
+                                  csvdir='', keep_csv=True):
+    """
+    Ingest utility_id and plant_id data from Page 1 of EIA Form 923 into
+    PUDL DB.
+
+    Populates the plant_ownership_eia923 table.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA923 form, as repoted in the Excel spreadsheets they distribute.
+        csvdir (string): Path to the directory where the CSV files representing
+            our data tables should be written, before being read in to the
+            postgres database directly.
+        keep_csv (boolean): If True, do not delete the CSV files after they
+            have been read into the database. If False, remove them.
+
+    Returns: Nothing.
+    """
+    # This needs to be a copy of what we're passed in so we can edit it.
+    po_df = eia923_dfs['generation_fuel'].copy()
+
+    # Populate 'plant_ownership_eia923' table
+    po_cols = ['plant_id', 'year', 'operator_id']
+    po_df = po_df[po_cols]
+
+    po_df = po_df.drop_duplicates(
+        subset=['plant_id', 'year'])
+
+    # Remove "State fuel-level increment" records... which don't pertain to
+    # any particular plant (they have plant_id == operator_id == 99999)
+    po_df = po_df[po_df.plant_id != 99999]
+
+    # Write the dataframe out to a csv file and load it directly
+    csv_dump_load(po_df, 'plant_ownership_eia923', pudl_engine,
+                  csvdir=csvdir, keep_csv=keep_csv)
+
+
 def ingest_boilers_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
     """Ingest data on individual boilers from EIA Form 923.
 
@@ -1315,7 +1355,7 @@ def ingest_generators_eia923(pudl_engine, eia923_dfs,
     """
     Ingest data on individual generators from EIA Form 923.
 
-    Populates the boiler_fuel_eia923 table.
+    Populates the generators_eia923 table.
 
     Args:
         pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
@@ -1623,6 +1663,7 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
     eia923_ingest_functions = {
         'plant_info_eia923': ingest_plant_info_eia923,
         'generation_fuel_eia923': ingest_generation_fuel_eia923,
+        'plant_ownership_eia923': ingest_plant_ownership_eia923,
         'boilers_eia923': ingest_boilers_eia923,
         'boiler_fuel_eia923': ingest_boiler_fuel_eia923,
         'generation_eia923': ingest_generation_eia923,

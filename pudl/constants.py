@@ -482,6 +482,7 @@ eia923_working_years = range(2009, 2017)
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
 eia923_pudl_tables = ['plant_info_eia923',
                       'generation_fuel_eia923',
+                      'plant_ownership_eia923',
                       'boiler_fuel_eia923',
                       'boilers_eia923',
                       'generators_eia923',

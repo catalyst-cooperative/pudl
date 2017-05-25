@@ -22,13 +22,20 @@ EIA923_ZIPS="f923_2017 \
              f906920_2002 \
              f906920_2001 "
 
+DIR=`dirname $0`
+
 for z in $EIA923_ZIPS
-do
+do (
+    base=$DIR/$z
     echo "Downloading EIA 923 data $z.zip"
-    curl --progress-bar $EIA923_XLS_URL/{$z}.zip -o '#1.zip'
-    mkdir -p $z
-    mv $z.zip $z
-    (cd $z; unzip -q $z.zip)
+    curl -s $EIA923_XLS_URL/{$z}.zip -o $base.zip
+    echo "Downloaded EIA 923 data for $z"
+    mkdir -p $base
+    mv $base.zip $base
+    pushd $base
+        unzip -q $z.zip
+    popd
     # Make the data store read only for safety
-    chmod -R a-w $z
+    chmod -R a-w $base ) &
 done
+wait
