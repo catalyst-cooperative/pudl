@@ -1,0 +1,16 @@
+appdirs==1.4.3
+dbfread==2.0.7
+numpy==1.12.1
+packaging==16.8
+pandas==0.20.1
+pipdeptree==0.10.1
+psycopg2==2.7.1
+py==1.4.33
+pyparsing==2.2.0
+pytest==3.1.0
+python-dateutil==2.6.0
+pytz==2017.2
+six==1.10.0
+SQLAlchemy==1.1.10
+sqlalchemy-postgres-copy==0.5.0
+xlrd==1.0.0

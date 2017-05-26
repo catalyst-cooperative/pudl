@@ -8,27 +8,35 @@ FERC1_URL="ftp://eforms1.ferc.gov/f1allyears"
 # 9 months after the end of the preceding year.
 START_YEAR=1994
 END_YEAR=2015
+DIR=`dirname $0`
 
 for yr in `seq $START_YEAR $END_YEAR`
-do
-    base=f1_$yr
+do (
+    fn=f1_$yr
+    base=$DIR/$fn
     echo "Downloading FERC Form 1 data for $yr"
-    curl --progress-bar $FERC1_URL/$base.zip -o $base.zip
+    curl -s $FERC1_URL/$fn.zip -o $base.zip
+    echo "Downloaded FERC Form 1 data for $yr"
     mkdir -p $base
     mv $base.zip $base
-    (cd $base; unzip -q $base.zip)
 
-    for topdir in UPLOADERS FORMSADMIN
-    do
-        if [ -d $base/$topdir ]
-        then
-            mv $base/$topdir/FORM1/working/* $base
-            rmdir $base/$topdir/FORM1/working
-            rmdir $base/$topdir/FORM1
-            rmdir $base/$topdir
-        fi
-    done
+    pushd $base
+        unzip -q $fn.zip
+
+
+        for topdir in UPLOADERS FORMSADMIN
+        do
+            if [ -d $base/$topdir ]
+            then
+                mv $base/$topdir/FORM1/working/* $base
+                rmdir $base/$topdir/FORM1/working
+                rmdir $base/$topdir/FORM1
+                rmdir $base/$topdir
+            fi
+        done
+    popd
 
     # Make the data store read only for safety
-    chmod -R a-w $base
+    chmod -R a-w $base ) &
 done
+wait
