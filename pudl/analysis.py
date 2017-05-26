@@ -67,6 +67,94 @@ def ferc1_expns_corr(pudl_engine, capacity_factor=0.6):
     return(expns_corr)
 
 
+def generator_proportion_eia923(g):
+    """
+    Generate a dataframe with the proportion of generation for each generator.
+
+    Args:
+        g: a dataframe from either all of generation_eia923 or some subset of
+        records from generation_eia923. The dataframe needs the following
+        columns to be present:
+            plant_id, generator_id, report_date, net_generation_mwh
+
+    Returns: a dataframe with:
+            report_date, plant_id, generator_id, proportion_of_generation
+    """
+    # Set the datetimeindex
+    g = g.set_index(pd.DatetimeIndex(g['report_date']))
+    # groupby plant_id and by year
+    g_yr = g.groupby([pd.TimeGrouper(freq='A'), 'plant_id', 'generator_id'])
+    # sum net_gen by year by plant
+    g_net_generation_per_generator = pd.DataFrame(
+        g_yr.net_generation_mwh.sum())
+    g_net_generation_per_generator = \
+        g_net_generation_per_generator.reset_index(level=['generator_id'])
+
+    # groupby plant_id and by year
+    g_net_generation_per_plant = g.groupby(
+        [pd.TimeGrouper(freq='A'), 'plant_id'])
+    # sum net_gen by year by plant and convert to datafram
+    g_net_generation_per_plant = pd.DataFrame(
+        g_net_generation_per_plant.net_generation_mwh.sum())
+
+    # Merge the summed net generation by generator with the summed net
+    # generation by plant
+    g_gens_proportion = g_net_generation_per_generator.merge(
+        g_net_generation_per_plant, how="left", left_index=True,
+        right_index=True)
+    g_gens_proportion['proportion_of_generation'] = (
+        g_gens_proportion.net_generation_mwh_x /
+        g_gens_proportion.net_generation_mwh_y)
+    # Remove the net generation columns
+    g_gens_proportion = g_gens_proportion.drop(
+        ['net_generation_mwh_x', 'net_generation_mwh_y'], axis=1)
+    return(g_gens_proportion)
+
+
+def values_by_generator_eia923(table_eia923, column_name, g):
+    """
+    Generate a dataframe with a plant value proportioned out by generator.
+
+    Args:
+        table_eia923: an EIA923 table (this has been tested with
+        fuel_receipts_costs_eia923 and generation_fuel_eia923).
+        column_name: a column name from the table_eia923.
+        g: a dataframe from either all of generation_eia923 or some subset of
+        records from generation_eia923. The dataframe needs the following
+        columns to be present:
+            plant_id, generator_id, report_date, and net_generation_mwh.
+
+    Returns: a dataframe with report_date, plant_id, generator_id, and the
+        proportioned value from the column_name.
+    """
+    # Set the datetimeindex
+    table_eia923 = table_eia923.set_index(
+        pd.DatetimeIndex(table_eia923['report_date']))
+    # groupby plant_id and by year
+    table_eia923_gb = table_eia923.groupby(
+        [pd.TimeGrouper(freq='A'), 'plant_id'])
+    # sum fuel cost by year by plant
+    table_eia923_sr = table_eia923_gb[column_name].sum()
+    # Convert back into a dataframe
+    table_eia923_df = pd.DataFrame(table_eia923_sr)
+    column_name_by_plant = "{}_plant".format(column_name)
+    table_eia923_df = table_eia923_df.rename(
+        columns={column_name: column_name_by_plant})
+    # get the generator proportions
+    g_gens_proportion = generator_proportion_eia923(g)
+    # merge the per generator proportions with the summed fuel cost
+    g_generator = g_gens_proportion.merge(
+        table_eia923_df, how="left", right_index=True, left_index=True)
+    # calculate the proportional fuel costs
+    g_generator["{}_generator".format(column_name)] = (
+        g_generator[column_name_by_plant] *
+        g_generator.proportion_of_generation)
+    # drop the unneccessary columns
+    g_generator = g_generator.drop(
+        ['proportion_of_generation', column_name_by_plant], axis=1)
+    return(g_generator)
+
+
 def mcoe_by_plant(plant_id, pudl_engine, years=range(2007, 2016)):
     """
     Extract data relevant to the calculation of a power plant's MCOE.
