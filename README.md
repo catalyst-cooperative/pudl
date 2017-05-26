@@ -2,11 +2,7 @@ The Public Utility Data Liberation project aims to provide a useful interface
 to publicly available electric utility data in the US.  It uses information
 from the Federal Energy Regulatory Commission (FERC), the Energy Information
 Administration (EIA), and the Environmental Protection Agency (EPA), among
-others. Until January 1st, 2018, the project is private. After that date it
-will be available publicly under an MIT License. The software has been
-developed in collaboration with the Climate Policy Initiative (CPI) on a
-philanthropically funded project. Most of the code is written in Python.
-Development is managed through a shared Git repository, which can be found at:
+others.
 
 https://github.com/catalyst-cooperative/pudl
 
