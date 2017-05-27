@@ -2,6 +2,8 @@
 """Routines specific to cleaning up EIA Form 923 data."""
 
 import pandas as pd
+import numpy as np
+from pudl import clean_pudl
 
 
 def yearly_to_monthly_eia923(df, md):
@@ -59,3 +61,55 @@ def yearly_to_monthly_eia923(df, md):
         all_years = pd.concat([all_years, this_year])
 
     return(all_years)
+
+
+def coalmine_cleanup(cmi_df):
+    """
+    """
+    cmi_df = cmi_df.copy()
+    # Map mine type codes, which have changed over the years, to a few
+    # canonical values:
+    cmi_df['coalmine_type'].replace(
+        {'[pP]': 'P', 'U/S': 'US', 'S/U': 'SU', 'Su': 'S'},
+        inplace=True, regex=True)
+
+    # Because we need to pull the coalmine_id field into the FRC table,
+    # but we don't know what that ID is going to be until we've populated
+    # this table... we're going to functionally end up using the data in
+    # the coalmine info table as a "key."  Whatever set of things we
+    # drop duplicates on will be the defacto key.  Whatever massaging we do
+    # of the values here (case, removing whitespace, punctuation, etc.) will
+    # affect the total number of "unique" mines that we end up having in the
+    # table... and we probably want to minimize it (without creating
+    # collisions).  We will need to do exactly the same transofrmations in the
+    # FRC ingest function before merging these values in, or they won't match
+    # up.
+
+    # Transform coalmine names to a canonical form to reduce duplicates:
+    # No leading or trailing whitespace:
+    cmi_df['coalmine_name'] = cmi_df['coalmine_name'].str.strip()
+    # Let's use Title Case:
+    cmi_df['coalmine_name'] = cmi_df['coalmine_name'].str.title()
+    # compact internal whitespace:
+    cmi_df['coalmine_name'] = \
+        cmi_df['coalmine_name'].replace('[\s+]', ' ', regex=True)
+    # remove all internal non-alphanumeric characters:
+    cmi_df['coalmine_name'] = \
+        cmi_df['coalmine_name'].replace('[^a-zA-Z0-9 -]', '', regex=True)
+
+    # Homogenize the data type that we're finding inside the coalmine_county
+    # field (ugh, Excel sheets!).  Mostly these are integers or NA values,
+    # but for imported coal, there are both 'IMP' and 'IM' string values.
+    # This should change it all to strings that are compatible with the
+    # Integer type within postgresql.
+    cmi_df['coalmine_county'].replace('[a-zA-Z]+',
+                                      value=np.nan,
+                                      regex=True,
+                                      inplace=True)
+    cmi_df['coalmine_county'] = cmi_df['coalmine_county'].astype(float)
+    cmi_df['coalmine_county'] = \
+        clean_pudl.fix_int_na(cmi_df['coalmine_county'],
+                              float_na=np.nan,
+                              int_na=-1,
+                              str_na='')
+    return(cmi_df)

@@ -1471,38 +1471,54 @@ def ingest_coalmine_info_eia923(pudl_engine, eia923_dfs,
 
     Returns: Nothing.
     """
-    # Populate 'coalmine_info_eia923' table
+    # These are the columns that we want to keep from FRC for the
+    # coal mine info table.
     coalmine_cols = ['coalmine_name',
                      'coalmine_type',
                      'coalmine_state',
                      'coalmine_county',
                      'coalmine_msha_id']
 
-    coalmine_df = eia923_dfs['fuel_receipts_costs'].copy()
-    coalmine_df = coalmine_df[coalmine_cols]
+    # Make a copy so we don't alter the FRC data frame... which we'll need
+    # to use again for populating the FRC table (see below)
+    cmi_df = eia923_dfs['fuel_receipts_costs'].copy()
+    # Keep only the columns listed above:
+    cmi_df = clean_eia923.coalmine_cleanup(cmi_df)
 
-    # Map codes to a few standard values:
-    coalmine_df['coalmine_type'].replace(
-        {'[pP]': 'P', 'U/S': 'US', 'S/U': 'SU'},
-        inplace=True, regex=True)
+    cmi_df = cmi_df[coalmine_cols]
 
-    # TODO: Not sure which fields of duplicates need to be dropped here
-    coalmine_df = coalmine_df.drop_duplicates(subset=['coalmine_name',
-                                                      'coalmine_msha_id'])
+    # If we actually *have* an MSHA ID for a mine, then we have a totally
+    # unique identifier for that mine, and we can safely drop duplicates and
+    # keep just one copy of that mine, no matter how different all the other
+    # fields associated with the mine info are... Here we split out all the
+    # coalmine records that have an MSHA ID, remove them from the CMI
+    # data frame, drop duplicates, and then bring the unique mine records
+    # back into the overall CMI dataframe...
+    cmi_with_msha = cmi_df[cmi_df['coalmine_msha_id'] > 0]
+    cmi_with_msha = \
+        cmi_with_msha.drop_duplicates(subset=['coalmine_msha_id', ])
+    cmi_df.drop(cmi_df[cmi_df['coalmine_msha_id'] > 0].index)
+    cmi_df.append(cmi_with_msha)
 
-    # drop null values from foreign key fields
-    coalmine_df.dropna(subset=['coalmine_name', ], inplace=True)
+    cmi_df = cmi_df.drop_duplicates(subset=['coalmine_name',
+                                            'coalmine_state',
+                                            'coalmine_msha_id',
+                                            'coalmine_type',
+                                            'coalmine_county'])
+
+    # drop null values if they occur in vital fields....
+    cmi_df.dropna(subset=['coalmine_name', 'coalmine_state'], inplace=True)
 
     # Take a float field and make it an integer, with the empty sa.String
     # as the NA value... for postgres loading. Yes, this is janky.
-    coalmine_df['coalmine_msha_id'] = \
-        clean_pudl.fix_int_na(coalmine_df['coalmine_msha_id'],
+    cmi_df['coalmine_msha_id'] = \
+        clean_pudl.fix_int_na(cmi_df['coalmine_msha_id'],
                               float_na=np.nan,
                               int_na=-1,
                               str_na='')
 
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(coalmine_df, 'coalmine_info_eia923', pudl_engine,
+    csv_dump_load(cmi_df, 'coalmine_info_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1525,10 +1541,34 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
                     'regulated',
                     'reporting_frequency']
 
+    cmi_df = pd.read_sql('''SELECT * FROM coalmine_info_eia923''', pudl_engine)
+    # In order for the merge to work, we need to get the coalmine_county field
+    # back into ready-to-dump form... so it matches the types of the
+    # coalmine_county field that we are going to be merging on in the frc_df.
+    cmi_df['coalmine_county'] = \
+        clean_pudl.fix_int_na(cmi_df['coalmine_county'])
+    cmi_df = cmi_df.rename(columns={'id': 'coalmine_id'})
+
+    # This type/naming cleanup function is separated out so that we can be
+    # sure it is applied exactly the same both when the coalmine_info table
+    # is populated, and here (since we need them to be identical for the
+    # following merge)
+    frc_df = clean_eia923.coalmine_cleanup(frc_df)
+    frc_df = frc_df.merge(cmi_df, how='left',
+                          on=['coalmine_name',
+                              'coalmine_state',
+                              'coalmine_msha_id',
+                              'coalmine_type',
+                              'coalmine_county'])
+
     frc_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Replace the EIA923 NA value ('.') with a real NA value.
     frc_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
+
+    # These come in ALL CAPS from EIA...
+    frc_df['supplier'] = frc_df['supplier'].astype(str).str.strip()
+    frc_df['supplier'] = frc_df['supplier'].astype(str).str.title()
 
     # Standardize case on transportaion codes -- all upper case!
     frc_df['primary_transportation_mode'] = \
@@ -1560,6 +1600,10 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
                                             'month': frc_df.month,
                                             'day': 1})
     frc_df.drop(['year', 'month'], axis=1, inplace=True)
+    frc_df['coalmine_id'] = clean_pudl.fix_int_na(frc_df['coalmine_id'],
+                                                  float_na=np.nan,
+                                                  int_na=-1,
+                                                  str_na='')
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(frc_df, 'fuel_receipts_costs_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
@@ -1663,7 +1707,7 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
     eia923_ingest_functions = {
         'plant_info_eia923': ingest_plant_info_eia923,
         'generation_fuel_eia923': ingest_generation_fuel_eia923,
-        'plant_ownership_eia923': ingest_plant_ownership_eia923,
+        #'plant_ownership_eia923': ingest_plant_ownership_eia923,
         'boilers_eia923': ingest_boilers_eia923,
         'boiler_fuel_eia923': ingest_boiler_fuel_eia923,
         'generation_eia923': ingest_generation_eia923,

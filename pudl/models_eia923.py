@@ -20,7 +20,7 @@ class CoalMineInfoEIA923(pudl.models.PUDLBase):
     coalmine_type = Column(String, ForeignKey('coalmine_type_eia923.abbr'))
     coalmine_state = Column(String, ForeignKey('coalmine_state_eia923.abbr'))
     # TODO check feasibility t add FK/constants or map to FIPS code used by EIA
-    coalmine_county = Column(String)
+    coalmine_county = Column(Integer)
     # TODO check feasibility to add FK/constants or map to MSHA ID# used by EIA
     coalmine_msha_id = Column(Integer)
 
