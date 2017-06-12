@@ -283,61 +283,55 @@ def get_eia923_plant_info(years, eia923_xlsx):
             plant_info_compiled.drop(cols_y, axis=1, inplace=True)
             plant_info_compiled.columns = \
                 plant_info_compiled.columns.str.replace('_x$', '')
-    # plant_info_compiled = plant_info_compiled.drop_duplicates('plant_id')
+    plant_info_compiled = plant_info_compiled.drop_duplicates('plant_id')
     plant_info_compiled = plant_info_compiled.drop(['year'], axis=1)
     return(plant_info_compiled)
 
 
-def get_eia923_operator_info(years, eia923_xlsx):
+def yearly_to_monthly_eia923(df, md):
     """
-    Generate an exhaustive list of EIA 923 plants.
+    Convert an EIA 923 record with 12 months of data into 12 monthly records.
 
-    Most plants are listed in the 'Plant Frame' tabs for each year. The 'Plant
-    Frame' tab does not exist before 2011 and there is plant specific
-    information that is not included in the 'Plant Frame' tab that will be
-    pulled into the plant info table. For years before 2011, it will be used to
-    generate the exhaustive list of plants.
-
-    This function will be used in two ways: to populate the plant info table
-    and to check the plant mapping to find missing plants.
+    Much of the data reported in EIA 923 is monthly, but all 12 months worth of
+    data is reported in a single record, with one field for each of the 12
+    months.  This function converts these annualized composite records into a
+    set of 12 monthly records containing the same information, by parsing the
+    field names for months, and adding a month field.  Non - time series data
+    is retained in the same format.
 
     Args:
-        years: The year that we're trying to read data for.
-        eia923_xlsx: required and should not be modified
+        df(pandas.DataFrame): A pandas DataFrame containing the annual
+            data to be converted into monthly records.
+        md(dict): a dictionary with the numbers 1 - 12 as keys, and the
+            patterns used to match field names for each of the months as
+            values. These patterns are also used to re - name the columns in
+            the dataframe which is returned, so they need to match the entire
+            portion of the column name that is month - specific.
+
     Returns:
-        Data frame that populates the plant info table
-        A check of plant mapping to identify missing plants
+        pandas.DataFrame: A dataframe containing the same data as was passed in
+            via df, but with monthly records instead of annual records.
     """
-    df_all_years = pd.DataFrame(columns=['operator_id'])
+    # Pull out each month's worth of data, merge it with the common columns,
+    # rename columns to match the PUDL DB, add an appropriate month column,
+    # and insert it into the PUDL DB.
+    yearly = df.copy()
+    monthly = pd.DataFrame()
 
-    gf = get_eia923_page('generation_fuel', eia923_xlsx, years=years)
-    gf = gf[['plant_id', 'plant_name',
-             'operator_name', 'operator_id', 'plant_state',
-             'combined_heat_power', 'census_region', 'nerc_region', 'year']]
+    for m in md.keys():
+        # Grab just the columns for the month we're working on.
+        this_month = yearly.filter(regex=md[m])
+        # Drop this month's data from the yearly data frame.
+        yearly.drop(this_month.columns, axis=1, inplace=True)
+        # Rename this month's columns to get rid of the month reference.
+        this_month.columns = this_month.columns.str.replace(md[m], '')
+        # Add a numerical month column corresponding to this month.
+        this_month['month'] = m
+        # Add this month's data to the monthly DataFrame we're building.
+        monthly = pd.concat([monthly, this_month])
 
-    bf = get_eia923_page('boiler_fuel', eia923_xlsx, years=years)
-    bf = bf[['plant_id', 'plant_state',
-             'combined_heat_power',
-             'naics_code',
-             'eia_sector', 'census_region', 'nerc_region', 'operator_name',
-             'operator_id', 'year']]
-
-    g = get_eia923_page('generator', eia923_xlsx, years=years)
-    g = g[['plant_id', 'plant_state', 'combined_heat_power',
-           'census_region', 'nerc_region', 'naics_code', 'eia_sector',
-           'operator_name', 'operator_id', 'year']]
-
-    operator_ids = pd.concat(
-        [gf.operator_id, bf.operator_id, g.operator_id],)
-    operator_ids = operator_ids.unique()
-
-    operator_info_compiled = pd.DataFrame(columns=['operator_id'])
-    operator_info_compiled['operator_id'] = operator_ids
-
-    operator_info_compiled = operator_info_compiled.drop_duplicates(
-        'operator_id')
-
-    operator_info_compiled = operator_info_compiled.merge(
-        gf[['operator_id', 'operator_name']], on='operator_id', how='left')
-
-    return(operator_info_compiled)
+    # Merge the monthly data we've built up with the remaining fields in the
+    # data frame we started with -- all of which should be independent of the
+    # month, and apply across all 12 of the monthly records created from each
+    # of the # initial annual records.
+    return(yearly.merge(monthly, left_index=True, right_index=True))

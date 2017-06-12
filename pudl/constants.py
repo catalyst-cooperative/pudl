@@ -1385,6 +1385,53 @@ month_dict_eia923 = {1: '_january$',
                      11: '_november$',
                      12: '_december$'}
 
+######################################################################
+# Constants from EIA From 860
+######################################################################
+
+# The full set of years we currently expect to be able to ingest from EIA860.
+eia860_working_years = range(2015, 2016)
+
+# This is the list of EIA923 tables that can be successfully pulled into PUDL
+eia860_pudl_tables = ['boiler_generator_assn_eia860']
+
+tab_map_eia860 = pd.DataFrame.from_records([
+    (2009, 0),
+    (2010, 0),
+    (2011, 0),
+    (2012, 0),
+    (2013, 0),
+    (2014, 0),
+    (2015, 0)],
+    columns=['year_index', 'boiler_generator_assn'],
+    index='year_index')
+
+skiprows_eia860 = pd.DataFrame.from_records([
+    (2009, 0),
+    (2010, 0),
+    (2011, 1),
+    (2012, 1),
+    (2013, 1),
+    (2014, 1),
+    (2015, 1)],
+    columns=['year_index', 'boiler_generator_assn'],
+    index='year_index')
+
+boiler_generator_assn_map_eia860 = pd.DataFrame.from_records([
+    (2009, "'utility_id", "'plant_code", "'boiler_id", "'generator_id"),
+    (2010, 'utility_id', 'plant_code', 'boiler_id', 'generator_id'),
+    (2011, 'utility_id', 'plant_code', 'boiler_id', 'generator_id'),
+    (2012, 'utility_id', 'plant_code', 'boiler_id', 'generator_id'),
+    (2013, 'utility_id', 'plant_code', 'boiler_id', 'generator_id'),
+    (2014, 'utility_id', 'plant_code', 'boiler_id', 'generator_id'),
+    (2015, 'utility_id', 'plant_code', 'boiler_id', 'generator_id')],
+    columns=['year_index', 'operator_id', 'plant_id', 'boiler_id',
+             'generator_id'],
+    index='year_index')
+
+######################################################################
+# Constants from FERC1 used within pudl.py module
+######################################################################
 
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].
@@ -1931,6 +1978,7 @@ natural_gas_transport_eia923 = {
     'F': 'Firm',
     'I': 'Interruptible'
 }
+
 
 # PUDL consolidation of EIA923 AER fuel type strings into same categories as
 # 'energy_source_eia923' plus additional renewable and nuclear categories.

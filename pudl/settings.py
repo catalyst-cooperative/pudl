@@ -13,6 +13,7 @@ PUDL_DIR = os.path.dirname(os.path.dirname(pudl_pkg_file))
 DATA_DIR = os.path.join(PUDL_DIR, 'data')
 FERC1_DATA_DIR = os.path.join(DATA_DIR, 'ferc', 'form1')
 EIA923_DATA_DIR = os.path.join(DATA_DIR, 'eia', 'form923')
+EIA860_DATA_DIR = os.path.join(DATA_DIR, 'eia', 'form860')
 TEST_DIR = os.path.join(PUDL_DIR, 'test')
 DOCS_DIR = os.path.join(PUDL_DIR, 'docs')
 
