@@ -165,5 +165,7 @@ def get_eia860_page(page, eia860_xlsx,
         if(page == 'boiler_generator_assn'):
             newdata['year'] = yr
 
+        newdata = newdata.rename(columns=column_map)
+
         df = df.append(newdata)
     return(df)

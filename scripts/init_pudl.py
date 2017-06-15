@@ -55,6 +55,12 @@ def parse_command_line(argv):
                         default=2016,
                         help="Last year of EIA Form 923 data to load.")
 
+    parser.add_argument('--eia860_start', dest='eia860_start', type=int,
+                        default=2011,
+                        help="First year of EIA Form 860 data to load.")
+    parser.add_argument('--eia860_end', dest='eia860_end', type=int,
+                        default=2015,
+                        help="Last year of EIA Form 860 data to load.")
     arguments = parser.parse_args(argv[1:])
 
     return arguments
@@ -63,7 +69,7 @@ def parse_command_line(argv):
 def main():
     """The main function."""
     from pudl import pudl, ferc1, eia923, settings, constants
-    from pudl import models, models_ferc1, models_eia923
+    from pudl import models, models_ferc1, models_eia923, eia860, models_eia860
 
     args = parse_command_line(sys.argv)
 
@@ -79,6 +85,9 @@ def main():
                  eia923_tables=constants.eia923_pudl_tables,
                  eia923_years=range(args.eia923_start,
                                     args.eia923_end + 1),
+                 eia860_tables=constants.eia860_pudl_tables,
+                 eia860_years=range(args.eia860_start,
+                                    args.eia860_end + 1),
                  verbose=args.verbose,
                  debug=False,
                  testing=args.test,
