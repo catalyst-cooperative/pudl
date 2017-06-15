@@ -1631,7 +1631,7 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
         pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
         eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as repoted in the Excel spreadsheets they distribute.
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
         csvdir (string): Path to the directory where the CSV files representing
             our data tables should be written, before being read in to the
             postgres database directly.

@@ -45,7 +45,7 @@ def get_eia860_file(yr):
     Returns:
         path to EIA 860 spreadsheets corresponding to a given year.
     """
-    assert(yr > 2008), "EIA923 file selection only works for 2008 & later."
+    assert(yr > 2008), "EIA860 file selection only works for 2009 & later."
     return(glob.glob(os.path.join(datadir(yr), '*EnviroAsso*'))[0])
 
 
@@ -71,9 +71,9 @@ def get_eia860_xlsx(years):
 
 def get_eia860_column_map(page, year):
     """
-    Given a year and EIA923 page, return info required to slurp it from Excel.
+    Given a year and EIA860 page, return info required to slurp it from Excel.
 
-    The format of the EIA923 has changed slightly over the years, and so it
+    The format of the EIA860 has changed slightly over the years, and so it
     is not completely straightforward to pull information from the spreadsheets
     into our analytical framework. This function looks up a map of the various
     tabs in the spreadsheet by year and page, and returns the information
@@ -81,7 +81,7 @@ def get_eia860_column_map(page, year):
     cells from each year & page into our database.
 
     Args:
-        page (str): The string label indicating which page of the EIA923 we
+        page (str): The string label indicating which page of the EIA860 we
             are attempting to read in. Must be one of the following:
                 - 'generation_fuel'
                 - 'stocks'
