@@ -1220,8 +1220,7 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
 def ingest_plant_ownership_eia923(pudl_engine, eia923_dfs,
                                   csvdir='', keep_csv=True):
     """
-    Ingest utility_id and plant_id data from Page 1 of EIA Form 923 into
-    PUDL DB.
+    Ingest utility_id and plant_id data from Page 1 of EIA 923 into PUDL DB.
 
     Populates the plant_ownership_eia923 table.
 
@@ -1707,7 +1706,7 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
     eia923_ingest_functions = {
         'plant_info_eia923': ingest_plant_info_eia923,
         'generation_fuel_eia923': ingest_generation_fuel_eia923,
-        #'plant_ownership_eia923': ingest_plant_ownership_eia923,
+        # 'plant_ownership_eia923': ingest_plant_ownership_eia923,
         'boilers_eia923': ingest_boilers_eia923,
         'boiler_fuel_eia923': ingest_boiler_fuel_eia923,
         'generation_eia923': ingest_generation_eia923,
