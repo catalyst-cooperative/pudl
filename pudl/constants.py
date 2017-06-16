@@ -1390,7 +1390,24 @@ month_dict_eia923 = {1: '_january$',
 ######################################################################
 
 # The full set of years we currently expect to be able to ingest from EIA860.
-eia860_working_years = range(2015, 2016)
+eia860_working_years = range(2013, 2016)
+
+# list of eia860 file names
+files_eia860 = ['enviro_assn', ]
+
+# file names to glob file pattern (used in get_eia860_file)
+files_dict_eia860 = {'utilities': '*Utility*',
+                     'plants': '*Plant*',
+                     'generators': '*Generat*',
+                     'wind': '*Wind*',
+                     'solar': '*Solar*',
+                     'multi_fuel': '*Multi*',
+                     'ownership': '*Owner*',
+                     'enviro_assn': '*EnviroAssoc*',
+                     'envrio_equipment': '*EnviroEquip*'}
+
+# files to list of tabs
+file_pages_eia860 = {'enviro_assn': ['boiler_generator_assn', ]}
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
 eia860_pudl_tables = ['boiler_generator_assn_eia860']

@@ -36,7 +36,7 @@ def datadir(year):
         return(os.path.join(settings.EIA860_DATA_DIR, 'eia860{}'.format(year)))
 
 
-def get_eia860_file(yr):
+def get_eia860_file(yr, file):
     """
     Given a year, return the appopriate EIA860 excel file.
 
@@ -45,11 +45,11 @@ def get_eia860_file(yr):
     Returns:
         path to EIA 860 spreadsheets corresponding to a given year.
     """
-    assert(yr > 2008), "EIA860 file selection only works for 2009 & later."
-    return(glob.glob(os.path.join(datadir(yr), '*EnviroAsso*'))[0])
+    assert(yr > 2010), "EIA860 file selection only works for 2010 & later."
+    return(glob.glob(os.path.join(datadir(yr), file))[0])
 
 
-def get_eia860_xlsx(years):
+def get_eia860_xlsx(years, file):
     """
     Read in Excel files to create Excel objects.
 
@@ -65,7 +65,7 @@ def get_eia860_xlsx(years):
     eia860_xlsx = {}
     for yr in years:
         print("Reading EIA 860 spreadsheet data for {}.".format(yr))
-        eia860_xlsx[yr] = pd.ExcelFile(get_eia860_file(yr))
+        eia860_xlsx[yr] = pd.ExcelFile(get_eia860_file(yr, file))
     return(eia860_xlsx)
 
 
