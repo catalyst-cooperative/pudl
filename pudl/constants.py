@@ -1431,6 +1431,29 @@ boiler_generator_assn_map_eia860 = pd.DataFrame.from_records([
              'generator_id'],
     index='year_index')
 
+utility_assn_map_eia860 = pd.DataFrame.from_records([
+    (2009, "'utility_id", "'utility_street_address","'utility_city",
+    "'utility_state","'utility_zip5", None, None, None, None, None),
+    (2010, 'utility_id','utility_street_address','utility_city',
+    'utility_state','utility_zip5', None, None, None, None, None),
+    (2011, 'utility_id','street_address','city','state','zip5',
+     None, None, None, None, None),
+    (2012, 'utility_id','street_address','city','state','zip',
+     None, None, None, None, None),
+    (2013, 'utility_id','street_address','city','state','zip', 'owner?',
+     'operator?', 'asset_manager?',
+     'other_relationships_with_plants_reported_on_form?', 'entity_type'),
+    (2014, 'utility_id', 'street_address', 'city', 'state', 'zip', 'owner?',
+     'operator?', 'asset_manager?',
+     'other_relationships_with_plants_reported_on_form?', 'entity_type'),
+    (2015, 'utility_id', 'street_address', 'city', 'state', 'zip', 'owner?',
+     'operator?', 'asset_manager?',
+     'other_relationships_with_plants_reported_on_form?', 'entity_type')],
+     columns=['year_index', 'operator_id', 'street_address', 'city', 'state',
+              'zip', 'owner', 'operator', 'asset_manager',
+              'other_relationship', 'entity_type'],
+     index='year_index')
+
 ######################################################################
 # Constants from FERC1 used within pudl.py module
 ######################################################################
