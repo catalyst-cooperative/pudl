@@ -24,7 +24,7 @@ import sqlalchemy as sa
 import postgres_copy
 import os.path
 
-from pudl import eia923, ferc1
+from pudl import eia923, ferc1, eia860
 from pudl import settings
 from pudl import models, models_eia923
 from pudl import clean_ferc1, clean_pudl, clean_eia923
@@ -1612,6 +1612,57 @@ def ingest_stocks_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
     """Ingest data on fuel stocks from EIA Form 923."""
     pass
 
+###############################################################################
+###############################################################################
+# BEGIN EIA860 INGEST FUNCTIONS
+###############################################################################
+###############################################################################
+
+
+def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
+                                        csvdir='', keep_csv=True):
+    """
+    Ingest data on individual generators from EIA Form 860.
+
+    Populates the boiler_generator_assn_eia860 table.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
+        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        csvdir (string): Path to the directory where the CSV files representing
+            our data tables should be written, before being read in to the
+            postgres database directly.
+        keep_csv (boolean): If True, do not delete the CSV files after they
+            have been read into the database. If False, remove them.
+
+    Returns: Nothing.
+    """
+    # Populating the 'generators_eia923' table
+    b_g_df = eia860_dfs['boiler_generator_assn'].copy()
+
+    b_g_df.rename(columns={'utility_id': 'operator_id',
+                           'plant_code': 'plant_id'},
+                  inplace=True)
+
+    b_g_cols = ['operator_id',
+                'plant_id',
+                'boiler_id',
+                'generator_id']
+
+    b_g_df = b_g_df[b_g_cols]
+
+    # We need to cast the generator_id column as type str because sometimes
+    # it is heterogeneous int/str which make drop_duplicates fail.
+    b_g_df['generator_id'] = b_g_df['generator_id'].astype(str)
+    b_g_df = b_g_df.drop_duplicates().dropna()
+    b_g_df['plant_id'] = b_g_df['plant_id'].astype(int)
+
+    # Write the dataframe out to a csv file and load it directly
+    csv_dump_load(b_g_df, 'boiler_generator_assn_eia860', pudl_engine,
+                  csvdir=csvdir, keep_csv=keep_csv)
+
 
 ###############################################################################
 ###############################################################################
@@ -1624,6 +1675,8 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
             ferc1_years=range(2007, 2016),
             eia923_tables=pc.eia923_pudl_tables,
             eia923_years=range(2011, 2016),
+            eia860_tables=pc.eia860_pudl_tables,
+            eia860_years=range(2011, 2016),
             verbose=True, debug=False, testing=False,
             csvdir=os.path.join(settings.PUDL_DIR, 'results', 'csvdump'),
             keep_csv=True):
@@ -1690,8 +1743,11 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
                                           ferc1_engine,
                                           ferc1_years)
 
+    # Prep for ingesting EIA923
+    # Create excel objects
     eia923_xlsx = eia923.get_eia923_xlsx(eia923_years)
 
+    # Create DataFrames
     eia923_dfs = {}
     for page in pc.tab_map_eia923.columns:
         if (page == 'plant_frame'):
@@ -1720,4 +1776,24 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
             if verbose:
                 print("Ingesting {} from EIA 923 into PUDL.".format(table))
             eia923_ingest_functions[table](pudl_engine, eia923_dfs,
+                                           csvdir=csvdir, keep_csv=keep_csv)
+
+    # Prep for ingesting EIA860
+    # Create excel objects
+    eia860_xlsx = eia860.get_eia860_xlsx(eia860_years)
+
+    # Create DataFrames
+    eia860_dfs = {}
+    for page in pc.tab_map_eia860.columns:
+        eia860_dfs[page] = eia860.get_eia860_page(page, eia860_xlsx,
+                                                  years=eia860_years,
+                                                  verbose=verbose)
+    eia860_ingest_functions = {
+        'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860}
+
+    for table in eia860_ingest_functions.keys():
+        if table in eia860_tables:
+            if verbose:
+                print("Ingesting {} from EIA 860 into PUDL.".format(table))
+            eia860_ingest_functions[table](pudl_engine, eia860_dfs,
                                            csvdir=csvdir, keep_csv=keep_csv)

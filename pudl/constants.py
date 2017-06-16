@@ -1385,6 +1385,95 @@ month_dict_eia923 = {1: '_january$',
                      11: '_november$',
                      12: '_december$'}
 
+######################################################################
+# Constants from EIA From 860
+######################################################################
+
+# The full set of years we currently expect to be able to ingest from EIA860.
+eia860_working_years = range(2013, 2016)
+
+# list of eia860 file names
+files_eia860 = ['enviro_assn', ]
+
+# file names to glob file pattern (used in get_eia860_file)
+files_dict_eia860 = {'utilities': '*Utility*',
+                     'plants': '*Plant*',
+                     'generators': '*Generat*',
+                     'wind': '*Wind*',
+                     'solar': '*Solar*',
+                     'multi_fuel': '*Multi*',
+                     'ownership': '*Owner*',
+                     'enviro_assn': '*EnviroAssoc*',
+                     'envrio_equipment': '*EnviroEquip*'}
+
+# files to list of tabs
+file_pages_eia860 = {'enviro_assn': ['boiler_generator_assn', ]}
+
+# This is the list of EIA923 tables that can be successfully pulled into PUDL
+eia860_pudl_tables = ['boiler_generator_assn_eia860']
+
+tab_map_eia860 = pd.DataFrame.from_records([
+    (2009, 0, 0, 0, 0, 0, 1, 2),
+    (2010, 0, 0, 0, 0, 0, 1, 2),
+    (2011, 0, 0, 0, 0, 0, 1, 2),
+    (2012, 0, 0, 0, 0, 0, 1, 2),
+    (2013, 0, 0, 0, 0, 0, 1, 2),
+    (2014, 0, 0, 0, 0, 0, 1, 2),
+    (2015, 0, 0, 0, 0, 0, 1, 2)],
+    columns=['year_index', 'boiler_generator_assn', 'utility','ownership',\
+    'plant','generator_existing','generator_proposed','generator_retired'],
+    index='year_index')
+
+skiprows_eia860 = pd.DataFrame.from_records([
+    (2009, 0, 0, 0, 0, 0, 0, 0),
+    (2010, 0, 0, 0, 0, 0, 0, 0),
+    (2011, 1, 1, 1, 1, 1, 1, 1),
+    (2012, 1, 1, 1, 1, 1, 1, 1),
+    (2013, 1, 1, 1, 1, 1, 1, 1),
+    (2014, 1, 1, 1, 1, 1, 1, 1),
+    (2015, 1, 1, 1, 1, 1, 1, 1)],
+    columns=['year_index', 'boiler_generator_assn','utility','ownership',\
+    'plant','generator_existing','generator_proposed','generator_retired'],
+    index='year_index')
+
+boiler_generator_assn_map_eia860 = pd.DataFrame.from_records([
+    (2009, "'utility_id", "'plant_code", "'boiler_id", "'generator_id"),
+    (2010, 'utility_id', 'plant_code', 'boiler_id', 'generator_id'),
+    (2011, 'utility_id', 'plant_code', 'boiler_id', 'generator_id'),
+    (2012, 'utility_id', 'plant_code', 'boiler_id', 'generator_id'),
+    (2013, 'utility_id', 'plant_code', 'boiler_id', 'generator_id'),
+    (2014, 'utility_id', 'plant_code', 'boiler_id', 'generator_id'),
+    (2015, 'utility_id', 'plant_code', 'boiler_id', 'generator_id')],
+    columns=['year_index', 'operator_id', 'plant_id', 'boiler_id',
+             'generator_id'],
+    index='year_index')
+
+utility_assn_map_eia860 = pd.DataFrame.from_records([
+    (2009, "'utility_id", "'utility_street_address","'utility_city",
+    "'utility_state","'utility_zip5", None, None, None, None, None),
+    (2010, 'utility_id','utility_street_address','utility_city',
+    'utility_state','utility_zip5', None, None, None, None, None),
+    (2011, 'utility_id','street_address','city','state','zip5',
+     None, None, None, None, None),
+    (2012, 'utility_id','street_address','city','state','zip',
+     None, None, None, None, None),
+    (2013, 'utility_id','street_address','city','state','zip', 'owner?',
+     'operator?', 'asset_manager?',
+     'other_relationships_with_plants_reported_on_form?', 'entity_type'),
+    (2014, 'utility_id', 'street_address', 'city', 'state', 'zip', 'owner?',
+     'operator?', 'asset_manager?',
+     'other_relationships_with_plants_reported_on_form?', 'entity_type'),
+    (2015, 'utility_id', 'street_address', 'city', 'state', 'zip', 'owner?',
+     'operator?', 'asset_manager?',
+     'other_relationships_with_plants_reported_on_form?', 'entity_type')],
+     columns=['year_index', 'operator_id', 'street_address', 'city', 'state',
+              'zip', 'owner', 'operator', 'asset_manager',
+              'other_relationship', 'entity_type'],
+     index='year_index')
+
+######################################################################
+# Constants from FERC1 used within pudl.py module
+######################################################################
 
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].
@@ -1931,6 +2020,7 @@ natural_gas_transport_eia923 = {
     'F': 'Firm',
     'I': 'Interruptible'
 }
+
 
 # PUDL consolidation of EIA923 AER fuel type strings into same categories as
 # 'energy_source_eia923' plus additional renewable and nuclear categories.
