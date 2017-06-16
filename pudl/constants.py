@@ -1413,25 +1413,27 @@ file_pages_eia860 = {'enviro_assn': ['boiler_generator_assn', ]}
 eia860_pudl_tables = ['boiler_generator_assn_eia860']
 
 tab_map_eia860 = pd.DataFrame.from_records([
-    (2009, 0),
-    (2010, 0),
-    (2011, 0),
-    (2012, 0),
-    (2013, 0),
-    (2014, 0),
-    (2015, 0)],
-    columns=['year_index', 'boiler_generator_assn'],
+    (2009, 0, 0, 0, 0, 0, 1, 2),
+    (2010, 0, 0, 0, 0, 0, 1, 2),
+    (2011, 0, 0, 0, 0, 0, 1, 2),
+    (2012, 0, 0, 0, 0, 0, 1, 2),
+    (2013, 0, 0, 0, 0, 0, 1, 2),
+    (2014, 0, 0, 0, 0, 0, 1, 2),
+    (2015, 0, 0, 0, 0, 0, 1, 2)],
+    columns=['year_index', 'boiler_generator_assn', 'utility','ownership',\
+    'plant','generator_existing','generator_proposed','generator_retired'],
     index='year_index')
 
 skiprows_eia860 = pd.DataFrame.from_records([
-    (2009, 0),
-    (2010, 0),
-    (2011, 1),
-    (2012, 1),
-    (2013, 1),
-    (2014, 1),
-    (2015, 1)],
-    columns=['year_index', 'boiler_generator_assn'],
+    (2009, 0, 0, 0, 0, 0, 0, 0),
+    (2010, 0, 0, 0, 0, 0, 0, 0),
+    (2011, 1, 1, 1, 1, 1, 1, 1),
+    (2012, 1, 1, 1, 1, 1, 1, 1),
+    (2013, 1, 1, 1, 1, 1, 1, 1),
+    (2014, 1, 1, 1, 1, 1, 1, 1),
+    (2015, 1, 1, 1, 1, 1, 1, 1)],
+    columns=['year_index', 'boiler_generator_assn','utility','ownership',\
+    'plant','generator_existing','generator_proposed','generator_retired'],
     index='year_index')
 
 boiler_generator_assn_map_eia860 = pd.DataFrame.from_records([
@@ -1445,6 +1447,29 @@ boiler_generator_assn_map_eia860 = pd.DataFrame.from_records([
     columns=['year_index', 'operator_id', 'plant_id', 'boiler_id',
              'generator_id'],
     index='year_index')
+
+utility_assn_map_eia860 = pd.DataFrame.from_records([
+    (2009, "'utility_id", "'utility_street_address","'utility_city",
+    "'utility_state","'utility_zip5", None, None, None, None, None),
+    (2010, 'utility_id','utility_street_address','utility_city',
+    'utility_state','utility_zip5', None, None, None, None, None),
+    (2011, 'utility_id','street_address','city','state','zip5',
+     None, None, None, None, None),
+    (2012, 'utility_id','street_address','city','state','zip',
+     None, None, None, None, None),
+    (2013, 'utility_id','street_address','city','state','zip', 'owner?',
+     'operator?', 'asset_manager?',
+     'other_relationships_with_plants_reported_on_form?', 'entity_type'),
+    (2014, 'utility_id', 'street_address', 'city', 'state', 'zip', 'owner?',
+     'operator?', 'asset_manager?',
+     'other_relationships_with_plants_reported_on_form?', 'entity_type'),
+    (2015, 'utility_id', 'street_address', 'city', 'state', 'zip', 'owner?',
+     'operator?', 'asset_manager?',
+     'other_relationships_with_plants_reported_on_form?', 'entity_type')],
+     columns=['year_index', 'operator_id', 'street_address', 'city', 'state',
+              'zip', 'owner', 'operator', 'asset_manager',
+              'other_relationship', 'entity_type'],
+     index='year_index')
 
 ######################################################################
 # Constants from FERC1 used within pudl.py module
