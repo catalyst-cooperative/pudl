@@ -155,14 +155,19 @@ def values_by_generator_eia923(table_eia923, column_name, g):
     return(g_generator)
 
 
-def mcoe_by_plant(plant_id, pudl_engine, years=range(2007, 2016)):
+def mcoe_by_plant(utility_id, plant_id, pudl_engine, years):
     """
     Extract data relevant to the calculation of a power plant's MCOE.
 
-    Given a plant ID (PUDL or EIA), return several data series relevant to the
-    calculation of the plant's marginal cost of electricity (MCOE) including:
+    Given a PUDL utility_id and a PUDL plant_id, return several data series
+    relevant to the calculation of the plant's marginal cost of electricity
+    (MCOE). Both utility_id and plant_id are required because the same plants
+    are reported by multiple FERC respondents in cases where ownership is
+    shared. Including the utility_id allows us to pull only a single instance
+    of the plant, rather than duplicates,w hich would result in incorrect
+    total fuel consumption, etc.
 
-    Index & plant specific constants...
+    Index & plant specific constants to return:
     - Nameplate Capacity
     - Summer Capacity
     - PUDL Plant ID
@@ -170,9 +175,9 @@ def mcoe_by_plant(plant_id, pudl_engine, years=range(2007, 2016)):
     - Plant Name
     - Year
 
-    Yearly data by plant:
+    Yearly data by plant to return:
     - Total electricity Generated (MWh)
-    - Capacity factor
+    - Capacity factor (as a fraction)
     - Gross energy consumed per unit of net generation (mmBTU/MWh)
     - Fuel cost per unit net generation ($/MWh)
     - Non-fuel production costs (aka Variable O&M? $/MWh)
@@ -191,38 +196,74 @@ def mcoe_by_plant(plant_id, pudl_engine, years=range(2007, 2016)):
 
     """
     # For testing purposes right now...
-    plant_id_pudl = 122  # Comanche's PUDL plant_id
+    utility_id = 272  # PSCo's PUDL utility_id
+    plant_id = 122  # Comanche's PUDL plant_id
+
+    # Grab the tables that we're going to need to work with from FERC.
     pudl_tables = models.PUDLBase.metadata.tables
-    respondents_ferc1_tbl = pudl_tables['utilities_ferc1']
-    plants_ferc1_tbl = pudl_tables['plants_ferc1']
-    fuel_ferc1_tbl = pudl_tables['fuel_ferc1']
-    steam_ferc1_tbl = pudl_tables['plants_steam_ferc1']
+    utilities_ferc1 = pudl_tables['utilities_ferc1']
+    plants_ferc1 = pudl_tables['plants_ferc1']
+    fuel_ferc1 = pudl_tables['fuel_ferc1']
+    steam_ferc1 = pudl_tables['plants_steam_ferc1']
 
     # We need to pull the fuel information separately, because it has several
     # entries for each plant for each year -- we'll groupby() plant before
     # merging it with the steam plant info
     fuel_ferc1_select = sa.sql.select([
-        fuel_ferc1_tbl.c.report_year,
-        respondents_ferc1_tbl.c.respondent_id,
-        respondents_ferc1_tbl.c.util_id_pudl,
-        respondents_ferc1_tbl.c.respondent_name,
-        plants_ferc1_tbl.c.plant_id_pudl,
-        fuel_ferc1_tbl.c.plant_name,
-        fuel_ferc1_tbl.c.fuel,
-        fuel_ferc1_tbl.c.fuel_qty_burned,
-        fuel_ferc1_tbl.c.fuel_avg_mmbtu_per_unit,
-        fuel_ferc1_tbl.c.fuel_cost_per_unit_burned,
-        fuel_ferc1_tbl.c.fuel_cost_per_unit_delivered,
-        fuel_ferc1_tbl.c.fuel_cost_per_mmbtu,
-        fuel_ferc1_tbl.c.fuel_cost_per_mwh,
-        fuel_ferc1_tbl.c.fuel_mmbtu_per_mwh]).\
+        fuel_ferc1.c.report_year,
+        utilities_ferc1.c.respondent_id,
+        utilities_ferc1.c.util_id_pudl,
+        utilities_ferc1.c.respondent_name,
+        plants_ferc1.c.plant_id_pudl,
+        fuel_ferc1.c.plant_name,
+        fuel_ferc1.c.fuel,
+        fuel_ferc1.c.fuel_qty_burned,
+        fuel_ferc1.c.fuel_avg_mmbtu_per_unit,
+        fuel_ferc1.c.fuel_cost_per_unit_burned,
+        fuel_ferc1.c.fuel_cost_per_unit_delivered,
+        fuel_ferc1.c.fuel_cost_per_mmbtu,
+        fuel_ferc1.c.fuel_cost_per_mwh,
+        fuel_ferc1.c.fuel_mmbtu_per_mwh]).\
         where(sa.sql.and_(
-            respondents_ferc1_tbl.c.respondent_id == respondent_id_ferc1,
-            fuel_ferc1_tbl.c.respondent_id == respondent_id_ferc1,
-            plants_ferc1_tbl.c.respondent_id == respondent_id_ferc1,
-            plants_ferc1_tbl.c.plant_name == fuel_ferc1_tbl.c.plant_name))
+            utilities_ferc1.c.respondent_id == fuel_ferc1.c.respondent_id,
+            plants_ferc1.c.respondent_id == fuel_ferc1.c.respondent_id,
+            plants_ferc1.c.plant_name == fuel_ferc1.c.plant_name))
 
     fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)
+
+    # Pull relevant cost/expense data from the FERC large plant table:
+    steam_ferc1_select = sa.sql.select([
+        steam_ferc1.c.report_year,
+        utilities_ferc1.c.respondent_id,
+        utilities_ferc1.c.util_id_pudl,
+        utilities_ferc1.c.respondent_name,
+        plants_ferc1.c.plant_id_pudl,
+        steam_ferc1.c.plant_name,
+        steam_ferc1.c.total_capacity_mw,
+        steam_ferc1.c.net_generation_mwh,
+        steam_ferc1.c.expns_operations,
+        steam_ferc1.c.expns_fuel,
+        steam_ferc1.c.expns_coolants,
+        steam_ferc1.c.expns_steam,
+        steam_ferc1.c.expns_steam_other,
+        steam_ferc1.c.expns_transfer,
+        steam_ferc1.c.expns_electric,
+        steam_ferc1.c.expns_misc_power,
+        steam_ferc1.c.expns_rents,
+        steam_ferc1.c.expns_allowances,
+        steam_ferc1.c.expns_engineering,
+        steam_ferc1.c.expns_structures,
+        steam_ferc1.c.expns_boiler,
+        steam_ferc1.c.expns_plants,
+        steam_ferc1.c.expns_misc_steam,
+        steam_ferc1.c.expns_production_total,
+        steam_ferc1.c.expns_per_mwh]).\
+        where(sa.sql.and_(
+            utilities_ferc1.c.respondent_id == steam_ferc1.c.respondent_id,
+            plants_ferc1.c.respondent_id == steam_ferc1.c.respondent_id,
+            plants_ferc1.c.plant_name == steam_ferc1.c.plant_name))
+
+    steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
 
     # Add some columns with totals so we can sum things up...
     fuel_df['fuel_burned_mmbtu_total'] = \
@@ -249,41 +290,6 @@ def mcoe_by_plant(plant_id, pudl_engine, years=range(2007, 2016)):
     fuel_merge = fuel_merge.merge(cost_sum,
                                   left_on=['plant_id_pudl', 'report_year'],
                                   right_index=True)
-
-    # Pull relevant cost/expense data from the FERC large plant table:
-    steam_ferc1_select = sa.sql.select([
-        steam_ferc1_tbl.c.report_year,
-        respondents_ferc1_tbl.c.respondent_id,
-        respondents_ferc1_tbl.c.util_id_pudl,
-        respondents_ferc1_tbl.c.respondent_name,
-        plants_ferc1_tbl.c.plant_id_pudl,
-        steam_ferc1_tbl.c.plant_name,
-        steam_ferc1_tbl.c.total_capacity_mw,
-        steam_ferc1_tbl.c.net_generation_mwh,
-        steam_ferc1_tbl.c.expns_operations,
-        steam_ferc1_tbl.c.expns_fuel,
-        steam_ferc1_tbl.c.expns_coolants,
-        steam_ferc1_tbl.c.expns_steam,
-        steam_ferc1_tbl.c.expns_steam_other,
-        steam_ferc1_tbl.c.expns_transfer,
-        steam_ferc1_tbl.c.expns_electric,
-        steam_ferc1_tbl.c.expns_misc_power,
-        steam_ferc1_tbl.c.expns_rents,
-        steam_ferc1_tbl.c.expns_allowances,
-        steam_ferc1_tbl.c.expns_engineering,
-        steam_ferc1_tbl.c.expns_structures,
-        steam_ferc1_tbl.c.expns_boiler,
-        steam_ferc1_tbl.c.expns_plants,
-        steam_ferc1_tbl.c.expns_misc_steam,
-        steam_ferc1_tbl.c.expns_production_total,
-        steam_ferc1_tbl.c.expns_per_mwh]).\
-        where(sa.sql.and_(
-            respondents_ferc1_tbl.c.respondent_id == respondent_id_ferc1,
-            steam_ferc1_tbl.c.respondent_id == respondent_id_ferc1,
-            plants_ferc1_tbl.c.respondent_id == respondent_id_ferc1,
-            plants_ferc1_tbl.c.plant_name == steam_ferc1_tbl.c.plant_name))
-
-    steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
 
     # Calculate correlation of expenses to net power generation. Require a
     # minimum plant capacity factor of 0.6 so we the signal will be high,
