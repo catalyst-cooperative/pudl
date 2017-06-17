@@ -1454,6 +1454,28 @@ utility_assn_map_eia860 = pd.DataFrame.from_records([
               'other_relationship', 'entity_type'],
      index='year_index')
 
+
+ownership_assn_map_eia860 = pd.DataFrame.from_records([
+    (2009, "'utility_id", "'plant_code", "'state", "'generator_id", "'status",
+     "'ownership_id", "'owner_name", "'owner_state", "'percent_owned"),
+    (2010, 'utility_id', 'plant_code', 'state', 'generator_id', 'status',
+     'ownership_id', 'owner_name', 'owner_state', 'percent_owned'),
+    (2011, 'utility_id', 'plant_code', 'state', 'generator_id', 'status',
+     'ownership_id', 'owner_name', 'owner_state', 'percent_owned'),
+    (2012, 'utility_id', 'plant_code', 'state', 'generator_id', 'status',
+     'ownership_id', 'owner_name', 'owner_state', 'percent_owned'),
+    (2013, 'utility_id', 'plant_code', 'state', 'generator_id', 'status',
+     'ownership_id', 'owner_name', 'owner_state', 'percent_owned'),
+    (2014, 'utility_id', 'plant_code', 'state', 'generator_id', 'status',
+     'ownership_id', 'owner_name', 'owner_state', 'percent_owned'),
+    (2015, 'utility_id', 'plant_code', 'state', 'generator_id', 'status',
+     'ownership_id', 'owner_name', 'owner_state', 'percent_owned')],
+    columns=['year_index', 'operator_id', 'plant_id', 'state',
+             'generator_id', 'status', 'ownership_id', 'owner_name',
+             'owner_state', 'percent_owned'],
+    index='year_index')
+
+
 ######################################################################
 # Constants from FERC1 used within pudl.py module
 ######################################################################
