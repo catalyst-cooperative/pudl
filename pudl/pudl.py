@@ -26,7 +26,7 @@ import os.path
 
 from pudl import eia923, ferc1, eia860
 from pudl import settings
-from pudl import models, models_eia923
+from pudl import models, models_eia923, models_eia860
 from pudl import clean_ferc1, clean_pudl, clean_eia923
 
 import pudl.constants as pc
@@ -1220,8 +1220,7 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
 def ingest_plant_ownership_eia923(pudl_engine, eia923_dfs,
                                   csvdir='', keep_csv=True):
     """
-    Ingest utility_id and plant_id data from Page 1 of EIA Form 923 into
-    PUDL DB.
+    Ingest utility_id and plant_id data from Page 1 of EIA 923 into PUDL DB.
 
     Populates the plant_ownership_eia923 table.
 
@@ -1665,6 +1664,36 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
+def create_dfs_eia860(files=pc.files_eia860,
+                      eia860_years=pc.eia860_working_years,
+                      verbose=True):
+    """
+    Creates a dictionary of pages (keys) to dataframes (values) from eia860
+    tabs.
+
+    Args:
+        a list of eia860 files
+        a list of years
+
+    Returns:
+        dictionary of pages (key) to dataframes (values)
+
+    """
+    # Prep for ingesting EIA860
+    # Create excel objects
+    eia860_dfs = {}
+    for file in files:
+        eia860_xlsx = eia860.get_eia860_xlsx(
+            eia860_years, pc.files_dict_eia860[file])
+        # Create DataFrames
+        pages = pc.file_pages_eia860[file]
+
+        for page in pages:
+            eia860_dfs[page] = eia860.get_eia860_page(page, eia860_xlsx,
+                                                      years=eia860_years,
+                                                      verbose=verbose)
+    return(eia860_dfs)
+
 ###############################################################################
 ###############################################################################
 # BEGIN DATABASE INITIALIZATION
@@ -1677,7 +1706,7 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
             eia923_tables=pc.eia923_pudl_tables,
             eia923_years=range(2011, 2016),
             eia860_tables=pc.eia860_pudl_tables,
-            eia860_years=range(2011, 2016),
+            eia860_years=pc.eia860_working_years,
             verbose=True, debug=False, testing=False,
             csvdir=os.path.join(settings.PUDL_DIR, 'results', 'csvdump'),
             keep_csv=True):
@@ -1779,16 +1808,9 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
             eia923_ingest_functions[table](pudl_engine, eia923_dfs,
                                            csvdir=csvdir, keep_csv=keep_csv)
 
-    # Prep for ingesting EIA860
-    # Create excel objects
-    eia860_xlsx = eia860.get_eia860_xlsx(eia860_years)
+    eia860_dfs = create_dfs_eia860(files=pc.files_eia860,
+                                   eia860_years=eia860_years, verbose=verbose)
 
-    # Create DataFrames
-    eia860_dfs = {}
-    for page in pc.tab_map_eia860.columns:
-        eia860_dfs[page] = eia860.get_eia860_page(page, eia860_xlsx,
-                                                  years=eia860_years,
-                                                  verbose=verbose)
     eia860_ingest_functions = {
         'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860}
 

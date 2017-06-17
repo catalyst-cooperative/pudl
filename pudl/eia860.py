@@ -36,7 +36,7 @@ def datadir(year):
         return(os.path.join(settings.EIA860_DATA_DIR, 'eia860{}'.format(year)))
 
 
-def get_eia860_file(yr):
+def get_eia860_file(yr, file):
     """
     Given a year, return the appopriate EIA860 excel file.
 
@@ -45,11 +45,11 @@ def get_eia860_file(yr):
     Returns:
         path to EIA 860 spreadsheets corresponding to a given year.
     """
-    assert(yr > 2008), "EIA860 file selection only works for 2009 & later."
-    return(glob.glob(os.path.join(datadir(yr), '*EnviroAsso*'))[0])
+    assert(yr > 2010), "EIA860 file selection only works for 2010 & later."
+    return(glob.glob(os.path.join(datadir(yr), file))[0])
 
 
-def get_eia860_xlsx(years):
+def get_eia860_xlsx(years, file):
     """
     Read in Excel files to create Excel objects.
 
@@ -65,7 +65,7 @@ def get_eia860_xlsx(years):
     eia860_xlsx = {}
     for yr in years:
         print("Reading EIA 860 spreadsheet data for {}.".format(yr))
-        eia860_xlsx[yr] = pd.ExcelFile(get_eia860_file(yr))
+        eia860_xlsx[yr] = pd.ExcelFile(get_eia860_file(yr, file))
     return(eia860_xlsx)
 
 
@@ -112,7 +112,8 @@ def get_eia860_column_map(page, year):
     skiprows = pc.skiprows_eia860.get_value(year, page)
 
     page_to_df = {
-        'boiler_generator_assn': pc.boiler_generator_assn_map_eia860}
+        'boiler_generator_assn': pc.boiler_generator_assn_map_eia860,
+        'utility': pc.utility_assn_map_eia860}
 
     d = page_to_df[page].loc[year].to_dict()
 
@@ -162,7 +163,7 @@ def get_eia860_page(page, eia860_xlsx,
         newdata.columns = newdata.columns.str.replace(' ', '_')
 
         # boiler_generator_assn tab is missing a YEAR column. Add it!
-        if(page == 'boiler_generator_assn'):
+        if(page == 'boiler_generator_assn', 'utilty'):
             newdata['year'] = yr
 
         newdata = newdata.rename(columns=column_map)

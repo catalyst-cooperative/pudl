@@ -1390,7 +1390,25 @@ month_dict_eia923 = {1: '_january$',
 ######################################################################
 
 # The full set of years we currently expect to be able to ingest from EIA860.
-eia860_working_years = range(2015, 2016)
+eia860_working_years = range(2013, 2016)
+
+# list of eia860 file names
+files_eia860 = ['enviro_assn', 'utilities']
+
+# file names to glob file pattern (used in get_eia860_file)
+files_dict_eia860 = {'utilities': '*Utility*',
+                     'plants': '*Plant*',
+                     'generators': '*Generat*',
+                     'wind': '*Wind*',
+                     'solar': '*Solar*',
+                     'multi_fuel': '*Multi*',
+                     'ownership': '*Owner*',
+                     'enviro_assn': '*EnviroAssoc*',
+                     'envrio_equipment': '*EnviroEquip*'}
+
+# files to list of tabs
+file_pages_eia860 = {'enviro_assn': ['boiler_generator_assn', ],
+                     'utilities': ['utility', ]}
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
 eia860_pudl_tables = ['boiler_generator_assn_eia860']
@@ -1403,8 +1421,9 @@ tab_map_eia860 = pd.DataFrame.from_records([
     (2013, 0, 0, 0, 0, 0, 1, 2),
     (2014, 0, 0, 0, 0, 0, 1, 2),
     (2015, 0, 0, 0, 0, 0, 1, 2)],
-    columns=['year_index', 'boiler_generator_assn', 'utility','ownership',\
-    'plant','generator_existing','generator_proposed','generator_retired'],
+    columns=['year_index', 'boiler_generator_assn', 'utility', 'ownership',
+             'plant', 'generator_existing', 'generator_proposed',
+             'generator_retired'],
     index='year_index')
 
 skiprows_eia860 = pd.DataFrame.from_records([
@@ -1415,8 +1434,9 @@ skiprows_eia860 = pd.DataFrame.from_records([
     (2013, 1, 1, 1, 1, 1, 1, 1),
     (2014, 1, 1, 1, 1, 1, 1, 1),
     (2015, 1, 1, 1, 1, 1, 1, 1)],
-    columns=['year_index', 'boiler_generator_assn','utility','ownership',\
-    'plant','generator_existing','generator_proposed','generator_retired'],
+    columns=['year_index', 'boiler_generator_assn', 'utility', 'ownership',
+             'plant', 'generator_existing', 'generator_proposed',
+             'generator_retired'],
     index='year_index')
 
 boiler_generator_assn_map_eia860 = pd.DataFrame.from_records([
@@ -1432,27 +1452,32 @@ boiler_generator_assn_map_eia860 = pd.DataFrame.from_records([
     index='year_index')
 
 utility_assn_map_eia860 = pd.DataFrame.from_records([
-    (2009, "'utility_id", "'utility_street_address","'utility_city",
-    "'utility_state","'utility_zip5", None, None, None, None, None),
-    (2010, 'utility_id','utility_street_address','utility_city',
-    'utility_state','utility_zip5', None, None, None, None, None),
-    (2011, 'utility_id','street_address','city','state','zip5',
-     None, None, None, None, None),
-    (2012, 'utility_id','street_address','city','state','zip',
-     None, None, None, None, None),
-    (2013, 'utility_id','street_address','city','state','zip', 'owner?',
-     'operator?', 'asset_manager?',
-     'other_relationships_with_plants_reported_on_form?', 'entity_type'),
-    (2014, 'utility_id', 'street_address', 'city', 'state', 'zip', 'owner?',
-     'operator?', 'asset_manager?',
-     'other_relationships_with_plants_reported_on_form?', 'entity_type'),
-    (2015, 'utility_id', 'street_address', 'city', 'state', 'zip', 'owner?',
-     'operator?', 'asset_manager?',
-     'other_relationships_with_plants_reported_on_form?', 'entity_type')],
-     columns=['year_index', 'operator_id', 'street_address', 'city', 'state',
-              'zip', 'owner', 'operator', 'asset_manager',
-              'other_relationship', 'entity_type'],
-     index='year_index')
+    (2009, "'utility_id", "'utility_name", "'utility_street_address",
+     "'utility_city", "'utility_state", "'utility_zip5", None, None, None,
+     None, None),
+    (2010, 'utility_id', 'utility_name', 'utility_street_address',
+     'utility_city', 'utility_state', 'utility_zip5', None, None, None, None,
+     None),
+    (2011, 'utility_id', 'utility_name', 'street_address', 'city', 'state',
+     'zip5', None, None, None, None, None),
+    (2012, 'utility_id', 'utility_name', 'street_address', 'city', 'state',
+     'zip', None, None, None, None, None),
+    (2013, 'utility_id', 'utility_name', 'street_address', 'city', 'state',
+     'zip', 'owner', 'operator', 'asset_manager',
+     'other_reltionships_with_plants_reported_on_form', 'entity_type'),
+    (2014, 'utility_id', 'utility_name', 'street_address', 'city', 'state',
+     'zip', 'owner', 'operator', 'asset_manager',
+     'other_relationships_with_plants_reported_on_form', 'entity_type'),
+    (2015, 'utility_id', 'utility_name', 'street_address', 'city', 'state',
+     'zip', 'owner_of_plants_reported_on_form',
+     'operator_of_plants_reported_on_form',
+     'asset_manager_of_plants_reported_on_form',
+     'other_relationships_with_plants_reported_on_form', 'entity_type')],
+    columns=['year_index', 'operator_id', 'operator_name', 'street_address',
+             'city', 'state', 'zip_code', 'plants_reported_owner',
+             'plants_reported_operator', 'plants_reported_asset_manager',
+             'plants_reported_other_relationship', 'entity_type'],
+    index='year_index')
 
 
 ownership_assn_map_eia860 = pd.DataFrame.from_records([
