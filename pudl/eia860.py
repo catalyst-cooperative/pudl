@@ -112,7 +112,8 @@ def get_eia860_column_map(page, year):
     skiprows = pc.skiprows_eia860.get_value(year, page)
 
     page_to_df = {
-        'boiler_generator_assn': pc.boiler_generator_assn_map_eia860}
+        'boiler_generator_assn': pc.boiler_generator_assn_map_eia860,
+        'utility': pc.utility_assn_map_eia860}
 
     d = page_to_df[page].loc[year].to_dict()
 
@@ -162,7 +163,7 @@ def get_eia860_page(page, eia860_xlsx,
         newdata.columns = newdata.columns.str.replace(' ', '_')
 
         # boiler_generator_assn tab is missing a YEAR column. Add it!
-        if(page == 'boiler_generator_assn'):
+        if(page == 'boiler_generator_assn', 'utilty'):
             newdata['year'] = yr
 
         newdata = newdata.rename(columns=column_map)
