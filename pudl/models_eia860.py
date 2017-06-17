@@ -24,15 +24,17 @@ class UtilityEIA860(pudl.models.PUDLBase):
     __tablename__ = 'utility_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
     operator_id = Column(Integer)
+    operator_name = Column(String)
     street_address = Column(String)
     city = Column(String)
     state = Column(String)
-    zip_code = Column(Integer)
+    zip_code = Column(String)
     plants_reported_owner = Column(String)
     plants_reported_operator = Column(String)
     plants_reported_asset_manager = Column(String)
     plants_reported_other_relationship = Column(String)
     entity_type = Column(String)
+    year = Column(Integer)
 
 
 class PlantEIA860(pudl.models.PUDLBase):
