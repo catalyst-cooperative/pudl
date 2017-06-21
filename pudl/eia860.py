@@ -14,7 +14,7 @@ import pudl.constants as pc
 
 ###########################################################################
 # Helper functions & other objects to ingest & process Energy Information
-# Administration (EIA) Form 923 data.
+# Administration (EIA) Form 860 data.
 ###########################################################################
 
 
