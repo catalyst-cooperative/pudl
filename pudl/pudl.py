@@ -1664,6 +1664,34 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
+def ingest_utility_eia860(pudl_engine, eia860_dfs,
+                          csvdir='', keep_csv=True):
+    """
+    Ingest data on utilities from EIA Form 860.
+
+    Populates the utility_eia860 table.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
+        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        csvdir (string): Path to the directory where the CSV files representing
+            our data tables should be written, before being read in to the
+            postgres database directly.
+        keep_csv (boolean): If True, do not delete the CSV files after they
+            have been read into the database. If False, remove them.
+
+    Returns: Nothing.
+    """
+    # Populating the 'utility_eia860' table
+    u_df = eia860_dfs['utility'].copy()
+
+    # Write the dataframe out to a csv file and load it directly
+    csv_dump_load(u_df, 'utility_eia860', pudl_engine,
+                  csvdir=csvdir, keep_csv=keep_csv)
+
+
 def create_dfs_eia860(files=pc.files_eia860,
                       eia860_years=pc.eia860_working_years,
                       verbose=True):
@@ -1812,7 +1840,8 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
                                    eia860_years=eia860_years, verbose=verbose)
 
     eia860_ingest_functions = {
-        'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860}
+        'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860,
+        'utility_eia860': ingest_utility_eia860}
 
     for table in eia860_ingest_functions.keys():
         if table in eia860_tables:

@@ -1411,7 +1411,7 @@ file_pages_eia860 = {'enviro_assn': ['boiler_generator_assn', ],
                      'utilities': ['utility', ]}
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
-eia860_pudl_tables = ['boiler_generator_assn_eia860']
+eia860_pudl_tables = ['boiler_generator_assn_eia860', 'utility_eia860']
 
 tab_map_eia860 = pd.DataFrame.from_records([
     (2009, 0, 0, 0, 0, 0, 1, 2),
