@@ -209,7 +209,7 @@ class PlantInfoEIA923(pudl.models.PUDLBase):
     """
 
     __tablename__ = 'plant_info_eia923'
-    # TODO: This should be a FK pointing at plants_eia923.plant_id_eia923
+    # TODO: This should be a FK pointing at plants_eia923.plant_id_eia
     plant_id = Column(Integer, primary_key=True)
     combined_heat_power = Column(Boolean)
     plant_state = Column(String, ForeignKey('us_states.abbr'))
