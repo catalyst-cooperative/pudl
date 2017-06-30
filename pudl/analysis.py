@@ -30,7 +30,7 @@ def eia_operator_plants(operator_id, pudl_engine):
     return(eia923_plant_ids)
 
 
-def ferc1_expns_corr(pudl_engine, capacity_factor=0.6):
+def ferc1_expns_corr(steam_df, capacity_factor=0.6):
     """
     Calculate generation vs. expense correlation for FERC Form 1 plants.
 
@@ -52,14 +52,32 @@ def ferc1_expns_corr(pudl_engine, capacity_factor=0.6):
     Returns a dictionary with expns_ field names as the keys, and correlations
     as the values.
     """
-    steam_df = pd.read_sql('SELECT * FROM plants_steam_ferc1', pudl_engine)
+    steam_df = steam_df.copy()
     steam_df['capacity_factor'] = \
         (steam_df['net_generation_mwh'] / 8760 * steam_df['total_capacity_mw'])
 
     # Limit plants by capacity factor
     steam_df = steam_df[steam_df['capacity_factor'] > capacity_factor]
+
+    # This is all the expns_* fields, except for the per_mwh and total.
+    cols_to_correlate = ['expns_operations',
+                         'expns_fuel',
+                         'expns_coolants',
+                         'expns_steam',
+                         'expns_steam_other',
+                         'expns_transfer',
+                         'expns_electric',
+                         'expns_misc_power',
+                         'expns_rents',
+                         'expns_allowances',
+                         'expns_engineering',
+                         'expns_structures',
+                         'expns_boiler',
+                         'expns_plants',
+                         'expns_misc_steam']
+
     expns_corr = {}
-    for expns in steam_df.filter(regex='expns').columns.tolist():
+    for expns in cols_to_correlate:
         mwh_plants = steam_df.net_generation_mwh[steam_df[expns] != 0]
         expns_plants = steam_df[expns][steam_df[expns] != 0]
         expns_corr[expns] = np.corrcoef(mwh_plants, expns_plants)[0, 1]
@@ -339,3 +357,241 @@ def mcoe_by_plant(utility_id, plant_id, pudl_engine, years):
     steam_prod_gb = steam_out.groupby(['plant_id_pudl', 'report_year'])
 
     return(output)
+
+
+def consolidate_ferc1_expns(steam_df, min_capfac=0.6, min_corr=0.5):
+    """
+    Calculate non-fuel production & nonproduction costs from a steam DataFrame.
+
+    Takes a DataFrame containing information from the plants_steam_ferc1 table
+    and add columns representing the non-production costs, and non-fuel
+    production costs, which are sums of other expense columns. Which columns
+    are treated as production vs. non-production costs is determined based on
+    the overall correlation between those column values and net_generation_mwh
+    for the entire steam_df DataFrame.
+
+    Args:
+        steam_df (DataFrame): Data selected from the PUDL plants_steam_ferc1
+            table, containing expense columns, prefixed with expns_
+        min_capfac (float): Minimum capacity factor required for a plant's
+            data to be used in determining which expense columns are
+            production vs. non-production costs.
+        min_corr (float): Minimum correlation with net_generation_mwh required
+            to indicate that a given expense field should be considered a
+            "production" cost.
+
+    Returns:
+        DataFrame containing all the same information as the original steam_df,
+            but with two additional columns consolidating the non-fuel
+            production and non-production costs for ease of calculation.
+    """
+    steam_df = steam_df.copy()
+    # Calculate correlation of expenses to net power generation. Require a
+    # minimum plant capacity factor of 0.6 so we the signal will be high,
+    # but we'll still have lots of plants to look at:
+    expns_corr = ferc1_expns_corr(steam_df, capacity_factor=min_capfac)
+
+    # We've already got fuel separately, and we know it's a production expense
+    expns_corr.pop('expns_fuel')
+    # Sort these expense fields into nonfuel production (nonfuel_px) or
+    # non-production (npx) expenses.
+    nonfuel_px = [k for k in expns_corr.keys() if expns_corr[k] >= min_corr]
+    npx = [k for k in expns_corr.keys() if expns_corr[k] < min_corr]
+
+    # The three main categories of expenses we're reporting:
+    # - fuel production expenses (already in the table)
+    # - non-fuel production expenses
+    steam_df['expns_total_nonfuel_production'] = \
+        steam_df[nonfuel_px].copy().sum(axis=1)
+    # - non-production expenses
+    steam_df['expns_total_nonproduction'] = steam_df[npx].copy().sum(axis=1)
+
+    return(steam_df)
+
+
+def get_steam_ferc1_df(testing=False):
+    """
+    FERC Steam Stuff for Eric:
+     - Respondent ID
+     - Respondent Name
+     - Plant Name
+     - Report Year
+     - PUDL ID
+     - Net Generation (MWh)
+     - Capacity (MW)
+     - Capacity Factor
+     - All itemized expenses (USD)
+     - Total fuel expenses (USD)
+     - Total non-fuel production expenses (USD)
+     - Total non-production expenses (USD)
+     - Total MMBTU consumed (USD)
+     - Heat Rate (BTU/kWh)
+    """
+    # Connect to the DB
+    pudl_engine = pudl.db_connect_pudl(testing=testing)
+
+    # Grab the list of tables so we can reference them shorthand.
+    pt = models.PUDLBase.metadata.tables
+
+    steam_ferc1_select = sa.sql.select([
+        pt['plants_steam_ferc1'].c.report_year,
+        pt['utilities_ferc1'].c.respondent_id,
+        pt['utilities_ferc1'].c.util_id_pudl,
+        pt['utilities_ferc1'].c.respondent_name,
+        pt['plants_ferc1'].c.plant_id_pudl,
+        pt['plants_steam_ferc1'].c.plant_name,
+        pt['plants_steam_ferc1'].c.total_capacity_mw,
+        pt['plants_steam_ferc1'].c.year_constructed,
+        pt['plants_steam_ferc1'].c.year_installed,
+        pt['plants_steam_ferc1'].c.peak_demand_mw,
+        pt['plants_steam_ferc1'].c.water_limited_mw,
+        pt['plants_steam_ferc1'].c.not_water_limited_mw,
+        pt['plants_steam_ferc1'].c.plant_hours,
+        pt['plants_steam_ferc1'].c.net_generation_mwh,
+        pt['plants_steam_ferc1'].c.expns_operations,
+        pt['plants_steam_ferc1'].c.expns_fuel,
+        pt['plants_steam_ferc1'].c.expns_coolants,
+        pt['plants_steam_ferc1'].c.expns_steam,
+        pt['plants_steam_ferc1'].c.expns_steam_other,
+        pt['plants_steam_ferc1'].c.expns_transfer,
+        pt['plants_steam_ferc1'].c.expns_electric,
+        pt['plants_steam_ferc1'].c.expns_misc_power,
+        pt['plants_steam_ferc1'].c.expns_rents,
+        pt['plants_steam_ferc1'].c.expns_allowances,
+        pt['plants_steam_ferc1'].c.expns_engineering,
+        pt['plants_steam_ferc1'].c.expns_structures,
+        pt['plants_steam_ferc1'].c.expns_boiler,
+        pt['plants_steam_ferc1'].c.expns_plants,
+        pt['plants_steam_ferc1'].c.expns_misc_steam,
+        pt['plants_steam_ferc1'].c.expns_production_total,
+        pt['plants_steam_ferc1'].c.expns_per_mwh]).\
+        where(sa.sql.and_(
+            pt['utilities_ferc1'].c.respondent_id == pt['plants_steam_ferc1'].c.respondent_id,
+            pt['plants_ferc1'].c.respondent_id == pt['plants_steam_ferc1'].c.respondent_id,
+            pt['plants_ferc1'].c.plant_name == pt['plants_steam_ferc1'].c.plant_name,
+        ))
+
+    steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
+
+    return(steam_df)
+
+# heat rates
+# capacity
+# state
+# utility
+# energy generation over the last few years
+# Option, but good to have:
+# O&M costs, where possible
+# fuel costs, if you have it
+# date it came online - that would be really useful if we did
+# date its set to retire - that would be useful
+# interconnect voltage if we have it
+
+
+def get_fuel_ferc1_df(testing=False):
+    """
+    Pull a useful dataframe related to FERC Form 1 fuel information.
+
+    We often want to pull information from the PUDL database that is
+    not exactly what's contained in the table. This might include
+    joining with other tables to get IDs for cross referencing, or doing
+    some basic calculations to get e.g. heat rate or capacity factor.
+    """
+    # Connect to the DB
+    pudl_engine = pudl.db_connect_pudl(testing=testing)
+
+    # Grab the list of tables so we can reference them shorthand.
+    pt = models.PUDLBase.metadata.tables
+
+    # Build a SELECT statement that gives us information from several different
+    # tables that are relevant to FERC Fuel.
+    fuel_ferc1_select = sa.sql.select([
+        pt['fuel_ferc1'].c.report_year,
+        pt['utilities_ferc1'].c.respondent_id,
+        pt['utilities_ferc1'].c.respondent_name,
+        pt['utilities_ferc1'].c.util_id_pudl,
+        pt['plants_ferc1'].c.plant_id_pudl,
+        pt['fuel_ferc1'].c.plant_name,
+        pt['fuel_ferc1'].c.fuel,
+        pt['fuel_ferc1'].c.fuel_qty_burned,
+        pt['fuel_ferc1'].c.fuel_avg_mmbtu_per_unit,
+        pt['fuel_ferc1'].c.fuel_cost_per_unit_burned,
+        pt['fuel_ferc1'].c.fuel_cost_per_unit_delivered,
+        pt['fuel_ferc1'].c.fuel_cost_per_mmbtu,
+        pt['fuel_ferc1'].c.fuel_cost_per_mwh,
+        pt['fuel_ferc1'].c.fuel_mmbtu_per_mwh]).\
+        where(sa.sql.and_(
+            pt['utilities_ferc1'].c.respondent_id == pt['fuel_ferc1'].c.respondent_id,
+            pt['plants_ferc1'].c.respondent_id == pt['fuel_ferc1'].c.respondent_id,
+            pt['plants_ferc1'].c.plant_name == pt['fuel_ferc1'].c.plant_name))
+
+    # Pull the data from the DB into a DataFrame
+    fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)
+
+    # Calculate additional useful quantities, and add them to the DataFrame
+    # before we return the result, including
+
+    return(fuel_df)
+
+
+def primary_fuel_ferc1(fuel_df, fuel_thresh=0.5):
+    """
+    Determine the primary fuel for plants listed in the PUDL fuel_ferc1 table.
+
+    Given a selection of records from the PUDL fuel_ferc1 table, determine
+    the primary fuel type for each plant (as identified by a unique
+    combination of report_year, respondent_id, and plant_name).
+
+    Args:
+        fuel_df (DataFrame): a DataFrame selected from the PUDL fuel_ferc1
+            table, with columns including report_year, respondent_id,
+            plant_name, fuel, fuel_qty_burned, and fuel_avg_mmbtu_per_unit.
+        fuel_thresh (float): What is the minimum proportion of a plant's
+            annual fuel consumption in terms of heat content, that a fuel
+            must account for, in order for that fuel to be considered the
+            primary fuel.
+
+    Returns:
+        plants_by_primary_fuel (DataFrame): a DataFrame containing report_year,
+            respondent_id, plant_name, and primary_fuel.
+    """
+    fuel_df = fuel_df.copy()
+    fuel_df['total_mmbtu'] = \
+        fuel_df['fuel_qty_burned'] * fuel_df['fuel_avg_mmbtu_per_unit']
+
+    heat_df = fuel_df[['report_year',
+                       'respondent_id',
+                       'plant_name',
+                       'fuel',
+                       'total_mmbtu']]
+
+    heat_pivot = heat_df.pivot_table(
+        index=['report_year', 'respondent_id', 'plant_name'],
+        columns='fuel',
+        values='total_mmbtu')
+
+    heat_pivot['total'] = heat_pivot.sum(axis=1, numeric_only=True)
+    mmbtu_total = heat_pivot.copy()
+    mmbtu_total = pd.DataFrame(mmbtu_total['total'])
+    heat_pivot = heat_pivot.fillna(value=0)
+    heat_pivot = heat_pivot.divide(heat_pivot.total, axis='index')
+    heat_pivot = heat_pivot.drop('total', axis=1)
+    fuels = fuel_df.fuel.unique()
+
+    heat_pivot['primary_fuel'] = None
+    for f in fuel_df.fuel.unique():
+        fuel_mask = heat_pivot[f] >= fuel_thresh
+        heat_pivot.primary_fuel = \
+            heat_pivot.primary_fuel.where(~fuel_mask, other=f)
+
+    plants_by_primary_fuel = \
+        heat_pivot.reset_index()[['report_year',
+                                  'respondent_id',
+                                  'plant_name',
+                                  'primary_fuel']]
+    plants_by_primary_fuel = \
+        plants_by_primary_fuel.merge(mmbtu_total.reset_index())
+    plants_by_primary_fuel.rename(columns={'total': 'total_mmbtu'},
+                                  inplace=True)
+
+    return(plants_by_primary_fuel)
