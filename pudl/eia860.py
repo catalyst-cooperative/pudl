@@ -113,7 +113,8 @@ def get_eia860_column_map(page, year):
 
     page_to_df = {
         'boiler_generator_assn': pc.boiler_generator_assn_map_eia860,
-        'utility': pc.utility_assn_map_eia860}
+        'utility': pc.utility_assn_map_eia860,
+        'plant': pc.plant_assn_map_eia860}
 
     d = page_to_df[page].loc[year].to_dict()
 

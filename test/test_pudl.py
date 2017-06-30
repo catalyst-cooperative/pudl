@@ -1,8 +1,12 @@
-"""Tests excercising the pudl module for use with PyTest."""
+"""
+Tests excercising the pudl module for use with PyTest.
+
+Run this test by with 'pytest -s test/test_pudl.py'
+"""
 
 import pytest
-from pudl import pudl, ferc1, eia923, settings, constants
-from pudl import models, models_ferc1, models_eia923
+from pudl import pudl, ferc1, eia923, eia860, settings, constants
+from pudl import models, models_ferc1, models_eia923, models_eia860
 
 
 def test_init_db():
@@ -18,6 +22,8 @@ def test_init_db():
                  ferc1_years=range(2007, 2016),
                  eia923_tables=constants.eia923_pudl_tables,
                  eia923_years=range(2009, 2017),
+                 eia860_tables=constants.eia860_pudl_tables,
+                 eia860_years=constants.eia860_working_years,
                  verbose=True,
                  debug=False,
                  testing=True)

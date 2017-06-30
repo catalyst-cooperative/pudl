@@ -1393,7 +1393,7 @@ month_dict_eia923 = {1: '_january$',
 eia860_working_years = range(2013, 2016)
 
 # list of eia860 file names
-files_eia860 = ['enviro_assn', 'utilities']
+files_eia860 = ['enviro_assn', 'utilities', 'plants']
 
 # file names to glob file pattern (used in get_eia860_file)
 files_dict_eia860 = {'utilities': '*Utility*',
@@ -1408,10 +1408,12 @@ files_dict_eia860 = {'utilities': '*Utility*',
 
 # files to list of tabs
 file_pages_eia860 = {'enviro_assn': ['boiler_generator_assn', ],
-                     'utilities': ['utility', ]}
+                     'utilities': ['utility', ],
+                     'plants': ['plant', ]}
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
-eia860_pudl_tables = ['boiler_generator_assn_eia860']
+eia860_pudl_tables = ['boiler_generator_assn_eia860', 'utility_eia860',
+                      'plant_eia860']
 
 tab_map_eia860 = pd.DataFrame.from_records([
     (2009, 0, 0, 0, 0, 0, 1, 2),

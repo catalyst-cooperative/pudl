@@ -1639,7 +1639,7 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
 
     Returns: Nothing.
     """
-    # Populating the 'generators_eia923' table
+    # Populating the 'generators_eia860' table
     b_g_df = eia860_dfs['boiler_generator_assn'].copy()
 
     b_g_df.rename(columns={'utility_id': 'operator_id',
@@ -1664,11 +1664,85 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
+def ingest_utility_eia860(pudl_engine, eia860_dfs,
+                          csvdir='', keep_csv=True):
+    """
+    Ingest data on utilities from EIA Form 860.
+
+    Populates the utility_eia860 table.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
+        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        csvdir (string): Path to the directory where the CSV files representing
+            our data tables should be written, before being read in to the
+            postgres database directly.
+        keep_csv (boolean): If True, do not delete the CSV files after they
+            have been read into the database. If False, remove them.
+
+    Returns: Nothing.
+    """
+    # Populating the 'utility_eia860' table
+    u_df = eia860_dfs['utility'].copy()
+
+    # Write the dataframe out to a csv file and load it directly
+    csv_dump_load(u_df, 'utility_eia860', pudl_engine,
+                  csvdir=csvdir, keep_csv=keep_csv)
+
+
+def ingest_plant_eia860(pudl_engine, eia860_dfs,
+                        csvdir='', keep_csv=True):
+    """
+    Ingest data on plants from EIA Form 860.
+
+    Populates the plant_eia860 table.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
+        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        csvdir (string): Path to the directory where the CSV files representing
+            our data tables should be written, before being read in to the
+            postgres database directly.
+        keep_csv (boolean): If True, do not delete the CSV files after they
+            have been read into the database. If False, remove them.
+
+    Returns: Nothing.
+    """
+    # Populating the 'plant_eia860' table
+    p_df = eia860_dfs['plant'].copy()
+
+    # Replace '.' and ' ' with NaN in order to read in integer values
+
+    p_df.replace(to_replace='.', value=np.nan, inplace=True)
+    p_df.replace(to_replace=' ', value=np.nan, inplace=True)
+
+    # Cast integer values in sector to floats to avoid type errors
+
+    p_df['sector'] = p_df['sector'].astype(float)
+
+    # Cast various types in transmission_distribution_owner_id to str
+
+    p_df['transmission_distribution_owner_id'] = \
+        p_df['transmission_distribution_owner_id'].astype(str)
+
+    # Cast values in zip_code to floats to avoid type errors
+
+    p_df['zip_code'] = p_df['zip_code'].astype(str)
+
+    # Write the dataframe out to a csv file and load it directly
+    csv_dump_load(p_df, 'plant_eia860', pudl_engine,
+                  csvdir=csvdir, keep_csv=keep_csv)
+
+
 def create_dfs_eia860(files=pc.files_eia860,
                       eia860_years=pc.eia860_working_years,
                       verbose=True):
     """
-    Creates a dictionary of pages (keys) to dataframes (values) from eia860
+    Create a dictionary of pages (keys) to dataframes (values) from eia860
     tabs.
 
     Args:
@@ -1812,7 +1886,9 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
                                    eia860_years=eia860_years, verbose=verbose)
 
     eia860_ingest_functions = {
-        'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860}
+        'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860,
+        'utility_eia860': ingest_utility_eia860,
+        'plant_eia860': ingest_plant_eia860}
 
     for table in eia860_ingest_functions.keys():
         if table in eia860_tables:
