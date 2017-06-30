@@ -102,10 +102,10 @@ class OwnershipEIA860(pudl.models.PUDLBase):
     year = Column(Integer)
 
 
-class GeneratorEIA860(pudl.models.PUDLBase):
+class GeneratorsEIA860(pudl.models.PUDLBase):
     """Generator-level data reported in form EIA860."""
 
-    __tablename__ = 'generator_eia860'
+    __tablename__ = 'generators_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
     operator_id = Column(Integer)
     operator_name = Column(String)
@@ -133,7 +133,7 @@ class GeneratorEIA860(pudl.models.PUDLBase):
     multiple_fuels = Column(String)
     deliver_power_transgrid = Column(String)
     syncronized_transmission_grid = Column(String)
-    turbines = Column(Integer)
+    # turbines = Column(Integer)
     cogenerator = Column(String)
     sector_name = Column(String)
     sector = Column(Integer)
