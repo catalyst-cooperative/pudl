@@ -21,7 +21,7 @@ class BoilerGeneratorAssnEIA860(pudl.models.PUDLBase):
 class UtilityEIA860(pudl.models.PUDLBase):
     """Information on utilities reporting information on form EIA860."""
 
-    __tablename__ = 'utility_eia860'
+    __tablename__ = 'utilities_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
     operator_id = Column(Integer)
     operator_name = Column(String)
@@ -40,7 +40,7 @@ class UtilityEIA860(pudl.models.PUDLBase):
 class PlantEIA860(pudl.models.PUDLBase):
     """Plant-specific information reported on form EIA860."""
 
-    __tablename__ = 'plant_eia860'
+    __tablename__ = 'plants_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
     operator_id = Column(Integer)
     operator_name = Column(String)
@@ -133,7 +133,7 @@ class GeneratorsEIA860(pudl.models.PUDLBase):
     multiple_fuels = Column(String)
     deliver_power_transgrid = Column(String)
     syncronized_transmission_grid = Column(String)
-    # turbines = Column(Integer)
+    turbines = Column(Integer)
     cogenerator = Column(String)
     sector_name = Column(String)
     sector = Column(Integer)

@@ -1664,12 +1664,12 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
-def ingest_utility_eia860(pudl_engine, eia860_dfs,
-                          csvdir='', keep_csv=True):
+def ingest_utilities_eia860(pudl_engine, eia860_dfs,
+                            csvdir='', keep_csv=True):
     """
     Ingest data on utilities from EIA Form 860.
 
-    Populates the utility_eia860 table.
+    Populates the utilities_eia860 table.
 
     Args:
         pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
@@ -1684,20 +1684,20 @@ def ingest_utility_eia860(pudl_engine, eia860_dfs,
 
     Returns: Nothing.
     """
-    # Populating the 'utility_eia860' table
+    # Populating the 'utilities_eia860' table
     u_df = eia860_dfs['utility'].copy()
 
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(u_df, 'utility_eia860', pudl_engine,
+    csv_dump_load(u_df, 'utilities_eia860', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
-def ingest_plant_eia860(pudl_engine, eia860_dfs,
-                        csvdir='', keep_csv=True):
+def ingest_plants_eia860(pudl_engine, eia860_dfs,
+                         csvdir='', keep_csv=True):
     """
     Ingest data on plants from EIA Form 860.
 
-    Populates the plant_eia860 table.
+    Populates the plants_eia860 table.
 
     Args:
         pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
@@ -1712,7 +1712,7 @@ def ingest_plant_eia860(pudl_engine, eia860_dfs,
 
     Returns: Nothing.
     """
-    # Populating the 'plant_eia860' table
+    # Populating the 'plants_eia860' table
     p_df = eia860_dfs['plant'].copy()
 
     # Replace '.' and ' ' with NaN in order to read in integer values
@@ -1734,7 +1734,7 @@ def ingest_plant_eia860(pudl_engine, eia860_dfs,
     p_df['zip_code'] = p_df['zip_code'].astype(str)
 
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(p_df, 'plant_eia860', pudl_engine,
+    csv_dump_load(p_df, 'plants_eia860', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1818,8 +1818,6 @@ def ingest_generators_eia860(pudl_engine, eia860_dfs,
                                   float_na=np.nan,
                                   int_na=-1,
                                   str_na='')
-
-    ge_df.drop(['turbines'], axis=1, inplace=True)
 
     csv_dump_load(ge_df, 'generators_eia860', pudl_engine,
                   csvdir='', keep_csv=True)
@@ -1921,8 +1919,8 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
     # NOW START INGESTING EIA923 DATA:
     eia860_ingest_functions = {
         'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860,
-        'utility_eia860': ingest_utility_eia860,
-        'plant_eia860': ingest_plant_eia860,
+        'utilities_eia860': ingest_utilities_eia860,
+        'plants_eia860': ingest_plants_eia860,
         'generators_eia860': ingest_generators_eia860}
 
     for table in eia860_ingest_functions.keys():
