@@ -1820,7 +1820,7 @@ def ingest_generators_eia860(pudl_engine, eia860_dfs,
                                   str_na='')
 
     csv_dump_load(ge_df, 'generators_eia860', pudl_engine,
-                  csvdir='', keep_csv=True)
+                  csvdir=csvdir, keep_csv=keep_csv)
 
 
 def create_dfs_eia860(files=pc.files_eia860,
