@@ -7,7 +7,7 @@ from pudl import ferc1, constants
 def test_init_db():
     """Create a fresh FERC Form 1 DB and attempt to access it."""
     ferc1.init_db(ferc1_tables=constants.ferc1_default_tables,
-                  refyear=2015,
+                  refyear=max(constants.ferc1_working_years),
                   years=constants.ferc1_working_years,
                   def_db=True,
                   verbose=True,
