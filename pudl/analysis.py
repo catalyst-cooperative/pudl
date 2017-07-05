@@ -201,8 +201,8 @@ def mcoe_by_plant(utility_id, plant_id, pudl_engine, years):
 
     # Grab the tables that we're going to need to work with from FERC.
     pudl_tables = models.PUDLBase.metadata.tables
-    utilities_ferc1 = pudl_tables['utilities_ferc1']
-    plants_ferc1 = pudl_tables['plants_ferc1']
+    utilities_ferc = pudl_tables['utilities_ferc']
+    plants_ferc = pudl_tables['plants_ferc']
     fuel_ferc1 = pudl_tables['fuel_ferc1']
     steam_ferc1 = pudl_tables['plants_steam_ferc1']
 
@@ -211,10 +211,10 @@ def mcoe_by_plant(utility_id, plant_id, pudl_engine, years):
     # merging it with the steam plant info
     fuel_ferc1_select = sa.sql.select([
         fuel_ferc1.c.report_year,
-        utilities_ferc1.c.respondent_id,
-        utilities_ferc1.c.util_id_pudl,
-        utilities_ferc1.c.respondent_name,
-        plants_ferc1.c.plant_id_pudl,
+        utilities_ferc.c.respondent_id,
+        utilities_ferc.c.util_id_pudl,
+        utilities_ferc.c.respondent_name,
+        plants_ferc.c.plant_id_pudl,
         fuel_ferc1.c.plant_name,
         fuel_ferc1.c.fuel,
         fuel_ferc1.c.fuel_qty_burned,
@@ -225,19 +225,19 @@ def mcoe_by_plant(utility_id, plant_id, pudl_engine, years):
         fuel_ferc1.c.fuel_cost_per_mwh,
         fuel_ferc1.c.fuel_mmbtu_per_mwh]).\
         where(sa.sql.and_(
-            utilities_ferc1.c.respondent_id == fuel_ferc1.c.respondent_id,
-            plants_ferc1.c.respondent_id == fuel_ferc1.c.respondent_id,
-            plants_ferc1.c.plant_name == fuel_ferc1.c.plant_name))
+            utilities_ferc.c.respondent_id == fuel_ferc1.c.respondent_id,
+            plants_ferc.c.respondent_id == fuel_ferc1.c.respondent_id,
+            plants_ferc.c.plant_name == fuel_ferc1.c.plant_name))
 
     fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)
 
     # Pull relevant cost/expense data from the FERC large plant table:
     steam_ferc1_select = sa.sql.select([
         steam_ferc1.c.report_year,
-        utilities_ferc1.c.respondent_id,
-        utilities_ferc1.c.util_id_pudl,
-        utilities_ferc1.c.respondent_name,
-        plants_ferc1.c.plant_id_pudl,
+        utilities_ferc.c.respondent_id,
+        utilities_ferc.c.util_id_pudl,
+        utilities_ferc.c.respondent_name,
+        plants_ferc.c.plant_id_pudl,
         steam_ferc1.c.plant_name,
         steam_ferc1.c.total_capacity_mw,
         steam_ferc1.c.net_generation_mwh,
@@ -259,9 +259,9 @@ def mcoe_by_plant(utility_id, plant_id, pudl_engine, years):
         steam_ferc1.c.expns_production_total,
         steam_ferc1.c.expns_per_mwh]).\
         where(sa.sql.and_(
-            utilities_ferc1.c.respondent_id == steam_ferc1.c.respondent_id,
-            plants_ferc1.c.respondent_id == steam_ferc1.c.respondent_id,
-            plants_ferc1.c.plant_name == steam_ferc1.c.plant_name))
+            utilities_ferc.c.respondent_id == steam_ferc1.c.respondent_id,
+            plants_ferc.c.respondent_id == steam_ferc1.c.respondent_id,
+            plants_ferc.c.plant_name == steam_ferc1.c.plant_name))
 
     steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
 

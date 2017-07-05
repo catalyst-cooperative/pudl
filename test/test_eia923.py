@@ -16,8 +16,8 @@ def test_get_pages_eia923():
     for page in constants.tab_map_eia923.columns:
         if (page == 'plant_frame'):
             eia923_dfs[page] = \
-                eia923.get_eia923_plant_info(constants.eia923_working_years,
-                                             eia923_xlsx)
+                eia923.get_eia923_plants(constants.eia923_working_years,
+                                         eia923_xlsx)
         else:
             eia923_dfs[page] = \
                 eia923.get_eia923_page(page, eia923_xlsx,

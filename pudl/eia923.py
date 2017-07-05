@@ -201,7 +201,7 @@ def get_eia923_xlsx(years):
     return(eia923_xlsx)
 
 
-def get_eia923_plant_info(years, eia923_xlsx):
+def get_eia923_plants(years, eia923_xlsx):
     """
     Generate an exhaustive list of EIA 923 plants.
 

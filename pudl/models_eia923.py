@@ -29,7 +29,7 @@ class BoilersEIA923(pudl.models.PUDLBase):
     """List of Boiler IDs specific to each plant in EIA Form 923 Page 3."""
 
     __tablename__ = 'boilers_eia923'
-    plant_id = Column(Integer, ForeignKey('plants_eia923.plant_id'),
+    plant_id = Column(Integer, ForeignKey('plants_eia.plant_id'),
                       primary_key=True)
     boiler_id = Column(String, primary_key=True)
     prime_mover = Column(String,
@@ -41,7 +41,7 @@ class GeneratorEIA923(pudl.models.PUDLBase):
     """List of Generator IDs specific to each plant in EIA Form 923 Page 4."""
 
     __tablename__ = 'generators_eia923'
-    plant_id = Column(Integer, ForeignKey('plants_eia923.plant_id'),
+    plant_id = Column(Integer, ForeignKey('plants_eia.plant_id'),
                       primary_key=True)
     generator_id = Column(String, primary_key=True)
     prime_mover = Column(String,
@@ -185,7 +185,7 @@ class PlantOwnershipEIA923(pudl.models.PUDLBase):
     __tablename__ = 'plant_ownership_eia923'
     plant_id = Column(Integer, primary_key=True)
     year = Column(Integer, primary_key=True)
-    operator_id = Column(Integer, ForeignKey('utilities_eia923.operator_id'))
+    operator_id = Column(Integer, ForeignKey('utilities_eia.operator_id'))
 
 
 class OperatorInfoEIA923(pudl.models.PUDLBase):
@@ -197,20 +197,21 @@ class OperatorInfoEIA923(pudl.models.PUDLBase):
 
     __tablename__ = 'operator_info_eia923'
     operator_id = Column(Integer,
-                         ForeignKey('utilities_eia923.operator_id'),
+                         ForeignKey('utilities_eia.operator_id'),
                          primary_key=True)
     regulated = Column(Boolean, primary_key=True)
 
 
-class PlantInfoEIA923(pudl.models.PUDLBase):
+class PlantsEIA923(pudl.models.PUDLBase):
     """Information specific to individual power plants.
 
     Reported on Page 1 of EIA Form 923.
     """
 
-    __tablename__ = 'plant_info_eia923'
-    # TODO: This should be a FK pointing at plants_eia923.plant_id_eia
-    plant_id = Column(Integer, primary_key=True)
+    __tablename__ = 'plants_eia923'
+    # TODO: This should be a FK pointing at plants_eia.plant_id_eia
+    plant_id = Column(Integer, ForeignKey(
+        'plants_eia.plant_id'), primary_key=True)
     combined_heat_power = Column(Boolean)
     plant_state = Column(String, ForeignKey('us_states.abbr'))
     eia_sector = Column(Integer, ForeignKey('sector_eia.id'))
@@ -237,7 +238,7 @@ class GenerationFuelEIA923(pudl.models.PUDLBase):
 
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     plant_id = Column(Integer,
-                      ForeignKey('plants_eia923.plant_id'),
+                      ForeignKey('plants_eia.plant_id'),
                       nullable=False)
     report_date = Column(Date, nullable=False)
     # TODO: Should nuclear_unit_id really be here? It's kind of part of the
@@ -273,7 +274,7 @@ class BoilerFuelEIA923(pudl.models.PUDLBase):
 
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     plant_id = Column(Integer, ForeignKey(
-        'plants_eia923.plant_id'), nullable=False)
+        'plants_eia.plant_id'), nullable=False)
     boiler_id = Column(String, nullable=False)
     prime_mover = Column(String, ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
@@ -296,7 +297,7 @@ class GenerationEIA923(pudl.models.PUDLBase):
     # Primary key fields used previously:
     # plant, generator, prime mover, year, and month.
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
-    plant_id = Column(Integer, ForeignKey('plants_eia923.plant_id'),
+    plant_id = Column(Integer, ForeignKey('plants_eia.plant_id'),
                       nullable=False)
     # TODO remove prime_mover since it's specific to generator_id?
     prime_mover = Column(String, ForeignKey('prime_movers_eia923.abbr'),
@@ -316,7 +317,7 @@ class FuelReceiptsCostsEIA923(pudl.models.PUDLBase):
     # surrogate key
     fuel_receipt_id = Column(Integer, primary_key=True, autoincrement=True)
     plant_id = Column(Integer,
-                      ForeignKey('plants_eia923.plant_id'),
+                      ForeignKey('plants_eia.plant_id'),
                       nullable=False)
     report_date = Column(Date, nullable=False)
     contract_type = Column(String, ForeignKey('contract_type_eia923.abbr'))

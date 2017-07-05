@@ -480,7 +480,7 @@ ferc1_working_years = range(2004, 2016)
 eia923_working_years = range(2009, 2017)
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
-eia923_pudl_tables = ['plant_info_eia923',
+eia923_pudl_tables = ['plants_eia923',
                       'generation_fuel_eia923',
                       'plant_ownership_eia923',
                       'boiler_fuel_eia923',
@@ -1412,8 +1412,8 @@ file_pages_eia860 = {'enviro_assn': ['boiler_generator_assn', ],
                      'plants': ['plant', ]}
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
-eia860_pudl_tables = ['boiler_generator_assn_eia860', 'utility_eia860',
-                      'plant_eia860']
+eia860_pudl_tables = ['boiler_generator_assn_eia860', 'utilities_eia860',
+                      'plants_eia860']
 
 tab_map_eia860 = pd.DataFrame.from_records([
     (2009, 0, 0, 0, 0, 0, 1, 2),

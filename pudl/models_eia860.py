@@ -11,17 +11,17 @@ class BoilerGeneratorAssnEIA860(pudl.models.PUDLBase):
 
     __tablename__ = 'boiler_generator_assn_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
-    # Integer, ForeignKey('utilities_eia923.operator_id'))
+    # Integer, ForeignKey('utilities_eia.operator_id'))
     operator_id = Column(Integer)
-    plant_id = Column(Integer)  # , ForeignKey('plants_eia923.plant_id'))
+    plant_id = Column(Integer)  # , ForeignKey('plants_eia.plant_id'))
     boiler_id = Column(String)
     generator_id = Column(String)
 
 
-class UtilityEIA860(pudl.models.PUDLBase):
+class UtilitiesEIA860(pudl.models.PUDLBase):
     """Information on utilities reporting information on form EIA860."""
 
-    __tablename__ = 'utility_eia860'
+    __tablename__ = 'utilities_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
     operator_id = Column(Integer)
     operator_name = Column(String)
@@ -37,10 +37,10 @@ class UtilityEIA860(pudl.models.PUDLBase):
     year = Column(Integer)
 
 
-class PlantEIA860(pudl.models.PUDLBase):
+class PlantsEIA860(pudl.models.PUDLBase):
     """Plant-specific information reported on form EIA860."""
 
-    __tablename__ = 'plant_eia860'
+    __tablename__ = 'plants_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
     operator_id = Column(Integer)
     operator_name = Column(String)
