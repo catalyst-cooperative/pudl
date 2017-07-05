@@ -474,7 +474,7 @@ ferc1_working_tables = ['f1_respondent_id',
                         'f1_accumdepr_prvsn']
 
 # The full set of years we expect to be able to pull into the FERC1 DB.
-ferc1_working_years = range(2004, 2016)
+ferc1_working_years = range(2007, 2016)
 
 # The full set of years we currently expect to be able to ingest from EIA923.
 eia923_working_years = range(2009, 2017)
@@ -1390,10 +1390,10 @@ month_dict_eia923 = {1: '_january$',
 ######################################################################
 
 # The full set of years we currently expect to be able to ingest from EIA860.
-eia860_working_years = range(2013, 2016)
+eia860_working_years = range(2011, 2016)
 
 # list of eia860 file names
-files_eia860 = ['enviro_assn', 'utilities', 'plants']
+files_eia860 = ['enviro_assn', 'utilities', 'plants', 'generators']
 
 # file names to glob file pattern (used in get_eia860_file)
 files_dict_eia860 = {'utilities': '*Utility*',
@@ -1409,11 +1409,13 @@ files_dict_eia860 = {'utilities': '*Utility*',
 # files to list of tabs
 file_pages_eia860 = {'enviro_assn': ['boiler_generator_assn', ],
                      'utilities': ['utility', ],
-                     'plants': ['plant', ]}
+                     'plants': ['plant', ],
+                     'generators': ['generator_existing', 'generator_proposed',
+                                    'generator_retired']}
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
 eia860_pudl_tables = ['boiler_generator_assn_eia860', 'utilities_eia860',
-                      'plants_eia860']
+                      'plants_eia860', 'generators_eia860']
 
 tab_map_eia860 = pd.DataFrame.from_records([
     (2009, 0, 0, 0, 0, 0, 1, 2),

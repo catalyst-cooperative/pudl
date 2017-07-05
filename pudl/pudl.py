@@ -1738,6 +1738,91 @@ def ingest_plants_eia860(pudl_engine, eia860_dfs,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
+def ingest_generators_eia860(pudl_engine, eia860_dfs,
+                             csvdir='', keep_csv=True):
+    """
+    Ingest data on generators from EIA Form 860.
+
+    Populates the generators_eia860 table.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
+        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        csvdir (string): Path to the directory where the CSV files representing
+            our data tables should be written, before being read in to the
+            postgres database directly.
+        keep_csv (boolean): If True, do not delete the CSV files after they
+            have been read into the database. If False, remove them.
+
+    Returns: Nothing.
+    """
+    ge_df = eia860_dfs['generator_existing'].copy()
+
+    ge_df.dropna(subset=['generator_id', 'plant_id'], inplace=True)
+
+    ge_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
+    ge_df.replace(to_replace='^\s$', value=np.nan, regex=True, inplace=True)
+    ge_df.replace(to_replace='^$', value=np.nan, regex=True, inplace=True)
+
+    columns_to_fix = ['planned_retirement_month',
+                      'planned_retirement_year',
+                      'planned_uprate_month',
+                      'planned_uprate_year',
+                      'other_modifications_month',
+                      'other_modifications_year',
+                      'planned_derate_month',
+                      'planned_derate_year',
+                      'planned_repower_month',
+                      'planned_repower_year',
+                      'planned_net_summer_capacity_derate',
+                      'planned_net_summer_capacity_uprate',
+                      'planned_net_winter_capacity_derate',
+                      'planned_net_winter_capacity_uprate',
+                      'planned_new_nameplate_capacity_mw',
+                      'nameplate_power_factor',
+                      'minimum_load_mw',
+                      'winter_capacity_mw',
+                      'summer_capacity_mw']
+
+    for column in columns_to_fix:
+        ge_df[column] = ge_df[column].replace(
+            to_replace=[" ", 0], value=np.nan)
+
+    fix_int_na_columns = ['operating_month',
+                          'operating_year',
+                          'plant_id',
+                          'sector',
+                          'turbines',
+                          'planned_retirement_month',
+                          'planned_retirement_year',
+                          'planned_uprate_month',
+                          'planned_uprate_year',
+                          'other_modifications_month',
+                          'other_modifications_year',
+                          'planned_derate_month',
+                          'planned_derate_year',
+                          'planned_repower_month',
+                          'planned_repower_year',
+                          'planned_net_summer_capacity_derate',
+                          'planned_net_summer_capacity_uprate',
+                          'planned_net_winter_capacity_derate',
+                          'planned_net_winter_capacity_uprate',
+                          'planned_new_nameplate_capacity_mw',
+                          'nameplate_power_factor']
+
+    for column in fix_int_na_columns:
+        ge_df[column] = \
+            clean_pudl.fix_int_na(ge_df[column],
+                                  float_na=np.nan,
+                                  int_na=-1,
+                                  str_na='')
+
+    csv_dump_load(ge_df, 'generators_eia860', pudl_engine,
+                  csvdir=csvdir, keep_csv=keep_csv)
+
+
 def create_dfs_eia860(files=pc.files_eia860,
                       eia860_years=pc.eia860_working_years,
                       verbose=True):
@@ -1827,25 +1912,23 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
         print("Sniffing EIA923/FERC1 glue tables...")
     ingest_glue_tables(pudl_engine)
 
-    # BEGIN INGESTING FERC FORM 1 DATA:
-    ferc1_ingest_functions = {
-        'f1_fuel': ingest_fuel_ferc1,
-        'f1_steam': ingest_plants_steam_ferc1,
-        'f1_gnrt_plant': ingest_plants_small_ferc1,
-        'f1_hydro': ingest_plants_hydro_ferc1,
-        'f1_pumped_storage': ingest_plants_pumped_storage_ferc1,
-        'f1_plant_in_srvce': ingest_plant_in_service_ferc1,
-        'f1_purchased_pwr': ingest_purchased_power_ferc1,
-        'f1_accumdepr_prvsn': ingest_accumulated_depreciation_ferc1}
+    # Prep for ingesting EIA860
+    # Create excel objects
+    eia860_dfs = create_dfs_eia860(files=pc.files_eia860,
+                                   eia860_years=eia860_years, verbose=verbose)
+    # NOW START INGESTING EIA923 DATA:
+    eia860_ingest_functions = {
+        'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860,
+        'utilities_eia860': ingest_utilities_eia860,
+        'plants_eia860': ingest_plants_eia860,
+        'generators_eia860': ingest_generators_eia860}
 
-    ferc1_engine = ferc1.db_connect_ferc1(testing=testing)
-    for table in ferc1_ingest_functions.keys():
-        if table in ferc1_tables:
+    for table in eia860_ingest_functions.keys():
+        if table in eia860_tables:
             if verbose:
-                print("Ingesting {} from FERC Form 1 into PUDL.".format(table))
-            ferc1_ingest_functions[table](pudl_engine,
-                                          ferc1_engine,
-                                          ferc1_years)
+                print("Ingesting {} from EIA 860 into PUDL.".format(table))
+            eia860_ingest_functions[table](pudl_engine, eia860_dfs,
+                                           csvdir=csvdir, keep_csv=keep_csv)
 
     # Prep for ingesting EIA923
     # Create excel objects
@@ -1885,14 +1968,22 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
     eia860_dfs = create_dfs_eia860(files=pc.files_eia860,
                                    eia860_years=eia860_years, verbose=verbose)
 
-    eia860_ingest_functions = {
-        'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860,
-        'utilities_eia860': ingest_utilities_eia860,
-        'plants_eia860': ingest_plants_eia860}
+    # BEGIN INGESTING FERC FORM 1 DATA:
+    ferc1_ingest_functions = {
+        'f1_fuel': ingest_fuel_ferc1,
+        'f1_steam': ingest_plants_steam_ferc1,
+        'f1_gnrt_plant': ingest_plants_small_ferc1,
+        'f1_hydro': ingest_plants_hydro_ferc1,
+        'f1_pumped_storage': ingest_plants_pumped_storage_ferc1,
+        'f1_plant_in_srvce': ingest_plant_in_service_ferc1,
+        'f1_purchased_pwr': ingest_purchased_power_ferc1,
+        'f1_accumdepr_prvsn': ingest_accumulated_depreciation_ferc1}
 
-    for table in eia860_ingest_functions.keys():
-        if table in eia860_tables:
+    ferc1_engine = ferc1.db_connect_ferc1(testing=testing)
+    for table in ferc1_ingest_functions.keys():
+        if table in ferc1_tables:
             if verbose:
-                print("Ingesting {} from EIA 860 into PUDL.".format(table))
-            eia860_ingest_functions[table](pudl_engine, eia860_dfs,
-                                           csvdir=csvdir, keep_csv=keep_csv)
+                print("Ingesting {} from FERC Form 1 into PUDL.".format(table))
+            ferc1_ingest_functions[table](pudl_engine,
+                                          ferc1_engine,
+                                          ferc1_years)

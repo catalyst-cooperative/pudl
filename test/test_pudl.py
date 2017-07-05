@@ -12,16 +12,16 @@ from pudl import models, models_ferc1, models_eia923, models_eia860
 def test_init_db():
     """Create a fresh PUDL DB and pull in some FERC1 & EIA923 data."""
     ferc1.init_db(ferc1_tables=constants.ferc1_default_tables,
-                  refyear=2015,
-                  years=range(2007, 2016),
+                  refyear=max(constants.ferc1_working_years),
+                  years=constants.ferc1_working_years,
                   def_db=True,
                   verbose=True,
                   testing=True)
 
     pudl.init_db(ferc1_tables=constants.ferc1_pudl_tables,
-                 ferc1_years=range(2007, 2016),
+                 ferc1_years=constants.ferc1_working_years,
                  eia923_tables=constants.eia923_pudl_tables,
-                 eia923_years=range(2009, 2017),
+                 eia923_years=constants.eia923_working_years,
                  eia860_tables=constants.eia860_pudl_tables,
                  eia860_years=constants.eia860_working_years,
                  verbose=True,

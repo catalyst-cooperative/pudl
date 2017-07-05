@@ -17,6 +17,7 @@ def parse_command_line(argv):
 
     :param argv: arguments on the command line must include caller file name.
     """
+    from pudl import constants
     parser = argparse.ArgumentParser()
 
     verbosity = parser.add_mutually_exclusive_group()
@@ -39,27 +40,27 @@ def parse_command_line(argv):
                         default='')
 
     parser.add_argument('--ferc1_refyear', dest='ferc1_refyear', type=int,
-                        default=2015,
+                        default=max(constants.ferc1_working_years),
                         help="Reference year for FERC Form 1 database.")
     parser.add_argument('--ferc1_start', dest='ferc1_start', type=int,
-                        default=2007,
+                        default=min(constants.ferc1_working_years),
                         help="First year of FERC Form 1 data to load.")
     parser.add_argument('--ferc1_end', dest='ferc1_end', type=int,
-                        default=2015,
+                        default=max(constants.ferc1_working_years),
                         help="Last year of FERC Form 1 data to load.")
 
     parser.add_argument('--eia923_start', dest='eia923_start', type=int,
-                        default=2009,
+                        default=min(constants.eia923_working_years),
                         help="First year of EIA Form 923 data to load.")
     parser.add_argument('--eia923_end', dest='eia923_end', type=int,
-                        default=2016,
+                        default=max(constants.eia923_working_years),
                         help="Last year of EIA Form 923 data to load.")
 
     parser.add_argument('--eia860_start', dest='eia860_start', type=int,
-                        default=2011,
+                        default=min(constants.eia860_working_years),
                         help="First year of EIA Form 860 data to load.")
     parser.add_argument('--eia860_end', dest='eia860_end', type=int,
-                        default=2015,
+                        default=max(constants.eia860_working_years),
                         help="Last year of EIA Form 860 data to load.")
     arguments = parser.parse_args(argv[1:])
 
