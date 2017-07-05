@@ -531,3 +531,35 @@ def primary_fuel_gf_eia923(gf_df, fuel_thresh=0.5):
     gf_by_heat = gf_by_heat.where(mask)
     gf_by_heat['primary_fuel'] = gf_by_heat.idxmax(axis=1)
     return(gf_by_heat[['primary_fuel', ]].reset_index())
+
+
+def partition(collection):
+    """
+    Generate all possible partitions of a collection of items.
+
+    Recursively generate all the possible groupings of the individual items in
+    the collection, such that all items appear, and appear only once.
+
+    We use this funciton to generate different sets of potential plant and
+    sub-plant generation infrastructure within the collection of generators
+    associated with each plant_id_pudl -- both in the FERC and EIA data, so
+    that we can find the association between the two data sets which results
+    in the highest correlation between some variables reported in each one.
+    Namely: net generation, fuel heat content, and fuel costs.
+
+    Args:
+        collection (list of items): the set to partition.
+    Returns:
+        A list of all valid set partitions.
+    """
+    if len(collection) == 1:
+        yield [collection]
+        return
+
+    first = collection[0]
+    for smaller in partition(collection[1:]):
+        # insert `first` in each of the subpartition's subsets
+        for n, subset in enumerate(smaller):
+            yield smaller[:n] + [[first] + subset] + smaller[n + 1:]
+        # put `first` in its own subset
+        yield [[first]] + smaller
