@@ -6,7 +6,7 @@ plant_id_eia, "EIA Plant ID"
 plant_id_pudl, "PUDL utility id. Allows some linkage between FERC & EIA Data."
 plant_name_eia, "Plant Name in EIA reporting."
 state, "US State abbreviation."
-nameplate_capacity_mw, "Total installed capacity for all units (coal or otherwise) that are part of the plant.
+nameplate_capacity_mw, "Total installed capacity for all units (coal or otherwise) that are part of the plant."
 net_generation_mwh, "Net electricity generation in MWh for all units (coal or otherwise) that are part of the plant."
 capacity_factor, "(net_generation_mwh) / (nameplate_capacity_mw * 8760)"
 fuel_consumed_total_mmbtu, "Total heat content of all fuels consumed (coal or otherwise) by the plant."
