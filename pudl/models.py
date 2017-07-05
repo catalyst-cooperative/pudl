@@ -118,7 +118,7 @@ class NERCRegion(PUDLBase):
 class UtilityFERC1(PUDLBase):
     """A FERC respondent -- typically this is a utility company."""
 
-    __tablename__ = 'utilities_ferc1'
+    __tablename__ = 'utilities_ferc'
     respondent_id = Column(Integer, primary_key=True)
     respondent_name = Column(String, nullable=False)
     util_id_pudl = Column(Integer, ForeignKey('utilities.id'), nullable=False)
@@ -144,14 +144,14 @@ class PlantFERC1(PUDLBase):
     by multiple utilities (FERC respondents).
     """
 
-    __tablename__ = 'plants_ferc1'
+    __tablename__ = 'plants_ferc'
     respondent_id = Column(Integer,
-                           ForeignKey('utilities_ferc1.respondent_id'),
+                           ForeignKey('utilities_ferc.respondent_id'),
                            primary_key=True)
     plant_name = Column(String, primary_key=True, nullable=False)
     plant_id_pudl = Column(Integer, ForeignKey('plants.id'), nullable=False)
 
-    plants_pudl = relationship("Plant", back_populates="plants_ferc1")
+    plants_pudl = relationship("Plant", back_populates="plants_ferc")
 
     def __repr__(self):
         """Print out a string representation of the PlantFERC1."""
@@ -168,7 +168,7 @@ class UtilityEIA923(PUDLBase):
     EIA does assign unique IDs to each operator, as well as supplying a name.
     """
 
-    __tablename__ = 'utilities_eia923'
+    __tablename__ = 'utilities_eia'
     operator_id = Column(Integer, primary_key=True)
     operator_name = Column(String, nullable=False)
     util_id_pudl = Column(Integer, ForeignKey('utilities.id'), nullable=False)
@@ -192,12 +192,12 @@ class PlantEIA923(PUDLBase):
     respondents (utilities).
     """
 
-    __tablename__ = 'plants_eia923'
+    __tablename__ = 'plants_eia'
     plant_id = Column(Integer, primary_key=True)
     plant_name = Column(String, nullable=False)
     plant_id_pudl = Column(Integer, ForeignKey('plants.id'), nullable=False)
 
-    plants_pudl = relationship("Plant", back_populates="plants_eia923")
+    plants_pudl = relationship("Plant", back_populates="plants_eia")
 
     def __repr__(self):
         """Print out a string representation of the PlantEIA923."""
@@ -245,8 +245,8 @@ class Plant(PUDLBase):
     id = Column(Integer, primary_key=True)
     name = Column(String)
 
-    plants_eia923 = relationship("PlantEIA923", back_populates="plants_pudl")
-    plants_ferc1 = relationship("PlantFERC1", back_populates="plants_pudl")
+    plants_eia = relationship("PlantEIA923", back_populates="plants_pudl")
+    plants_ferc = relationship("PlantFERC1", back_populates="plants_pudl")
     utilities = relationship("UtilPlantAssn", back_populates="plants")
 
     def __repr__(self):

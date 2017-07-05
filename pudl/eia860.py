@@ -175,3 +175,91 @@ def get_eia860_page(page, eia860_xlsx,
 
         df = df.append(newdata)
     return(df)
+
+
+def get_eia860_plants(years, eia860_xlsx):
+    """
+    Generate an exhaustive list of EIA 860 plants.
+
+    # Most plants are listed in the 'Plant Frame' tabs for each year. 'Plant
+    # Frame' tab does not exist before 2011 and there is plant specific
+    # information that is not included in the 'Plant Frame' tab that will be
+    # pulled into the plant info table. For years before 2011 it will be used
+    # to generate the exhaustive list of plants.
+
+    This function will be used in two ways: to populate the plant info table
+    and to check the plant mapping to find missing plants.
+
+    Args:
+        years: The year that we're trying to read data for.
+        eia860_xlsx: required and should not be modified
+    Returns:
+        Data frame that populates the plant info table
+        A check of plant mapping to identify missing plants
+    """
+    recent_years = [y for y in years if y >= 2011]
+
+    df_all_years = pd.DataFrame(columns=['plant_id'])
+
+    pf = pd.DataFrame(columns=['plant_id', 'plant_state',
+                               'combined_heat_power',
+                               'eia_sector', 'naics_code',
+                               'reporting_frequency', 'nameplate_capacity_mw',
+                               'year'])
+    if (len(recent_years) > 0):
+        pf = get_eia860_page('boiler_generator_assn_eia860', eia860_xlsx,
+                             years=recent_years)
+    #     pf_mw = pd.DataFrame(columns=['plant_id', 'nameplate_capacity_mw',
+    #                                   'year'])
+    #     if 2011 in recent_years:
+    #         pf_mw = pf[['plant_id', 'nameplate_capacity_mw', 'year']]
+    #         pf_mw = pf_mw[pf_mw['nameplate_capacity_mw'] > 0]
+    #     pf = pf[['plant_id', 'plant_name', 'plant_state',
+    #              'combined_heat_power',
+    #              'eia_sector', 'naics_code',
+    #              'reporting_frequency', 'year']]
+    #
+    # gf = get_eia923_page('generation_fuel', eia923_xlsx, years=years)
+    # gf = gf[['plant_id', 'plant_name',
+    #          'operator_name', 'operator_id', 'plant_state',
+    #          'combined_heat_power', 'census_region', 'nerc_region', 'year']]
+    #
+    # bf = get_eia923_page('boiler_fuel', eia923_xlsx, years=years)
+    # bf = bf[['plant_id', 'plant_state',
+    #          'combined_heat_power',
+    #          'naics_code',
+    #          'eia_sector', 'census_region', 'nerc_region', 'operator_name',
+    #          'operator_id', 'year']]
+    #
+    # g = get_eia923_page('generator', eia923_xlsx, years=years)
+    # g = g[['plant_id', 'plant_state', 'combined_heat_power',
+    #        'census_region', 'nerc_region', 'naics_code', 'eia_sector',
+    #        'operator_name', 'operator_id', 'year']]
+    #
+    # frc = get_eia923_page('fuel_receipts_costs', eia923_xlsx, years=years)
+    # frc = frc[['plant_id', 'plant_state', 'year']]
+    #
+    # plant_ids = pd.concat(
+    #     [pf.plant_id, gf.plant_id, bf.plant_id, g.plant_id, frc.plant_id],)
+    # plant_ids = plant_ids.unique()
+    #
+    # plant_info_compiled = pd.DataFrame(columns=['plant_id'])
+    # plant_info_compiled['plant_id'] = plant_ids
+    # for tab in [pf, pf_mw, gf, bf, g, frc]:
+    #     tab = tab.sort_values(['year', ], ascending=False)
+    #     tab = tab.drop_duplicates(subset='plant_id')
+    #     plant_info_compiled = plant_info_compiled.merge(tab, on='plant_id',
+    #                                                     how='left')
+    #     plant_info_compiled_x = plant_info_compiled.filter(regex='_x$')
+    #     cols_x = plant_info_compiled_x.columns
+    #     if len(cols_x) > 0:
+    #         cols_y = plant_info_compiled_x.columns.str.replace('_x$', '_y')
+    #         for col_x, col_y in zip(cols_x, cols_y):
+    #             plant_info_compiled[col_x].fillna(plant_info_compiled[col_y],
+    #                                               inplace=True, axis=0)
+    #         plant_info_compiled.drop(cols_y, axis=1, inplace=True)
+    #         plant_info_compiled.columns = \
+    #             plant_info_compiled.columns.str.replace('_x$', '')
+    # plant_info_compiled = plant_info_compiled.drop_duplicates('plant_id')
+    # plant_info_compiled = plant_info_compiled.drop(['year'], axis=1)
+    # return(plant_info_compiled)
