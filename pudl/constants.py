@@ -1393,7 +1393,7 @@ month_dict_eia923 = {1: '_january$',
 eia860_working_years = range(2011, 2016)
 
 # list of eia860 file names
-files_eia860 = ['enviro_assn', 'utilities', 'plants', 'generators']
+files_eia860 = ['enviro_assn', 'utilities', 'plants', 'generators','ownership']
 
 # file names to glob file pattern (used in get_eia860_file)
 files_dict_eia860 = {'utilities': '*Utility*',
@@ -1411,11 +1411,12 @@ file_pages_eia860 = {'enviro_assn': ['boiler_generator_assn', ],
                      'utilities': ['utility', ],
                      'plants': ['plant', ],
                      'generators': ['generator_existing', 'generator_proposed',
-                                    'generator_retired']}
+                                    'generator_retired'],
+                     'ownership': ['ownership', ]}
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
 eia860_pudl_tables = ['boiler_generator_assn_eia860', 'utilities_eia860',
-                      'plants_eia860', 'generators_eia860']
+                      'plants_eia860', 'generators_eia860', 'ownership_eia860']
 
 tab_map_eia860 = pd.DataFrame.from_records([
     (2009, 0, 0, 0, 0, 0, 1, 2),
@@ -1487,28 +1488,29 @@ utility_assn_map_eia860 = pd.DataFrame.from_records([
 ownership_assn_map_eia860 = pd.DataFrame.from_records([
     (2009, 'utility_id', 'utility_name', 'plant_code', 'plant_name', 'state',
      'generator_id', 'status', 'ownership_id', 'owner_name', 'owner_state',
-     'percent_owned'),
+     None, None, None, 'percent_owned'),
     (2010, 'utility_id', 'utility_name', 'plant_code', 'plant_name', 'state',
      'generator_id', 'status', 'ownership_id', 'owner_name', 'owner_state',
-     'percent_owned'),
+     None, None, None, 'percent_owned'),
     (2011, 'utility_id', 'utility_name', 'plant_code', 'plant_name',
      'state', 'generator_id', 'status', 'ownership_id', 'owner_name',
-     'owner_state', 'percent_owned'),
+     'owner_state', None, None, None, 'percent_owned'),
     (2012, 'utility_id', 'utility_name', 'plant_code', 'plant_name', 'state',
      'generator_id', 'status', 'ownership_id', 'owner_name', 'owner_state',
-     'percent_owned'),
+     None, None, None, 'percent_owned'),
     (2013, 'utility_id', 'utility_name', 'plant_code', 'plant_name', 'state',
      'generator_id', 'status', 'ownership_id', 'owner_name', 'owner_state',
-     'percent_owned'),
+     'owner_street_address', 'owner_city', 'owner_zip', 'percent_owned'),
     (2014, 'utility_id', 'utility_name', 'plant_code', 'plant_name', 'state',
      'generator_id', 'status', 'ownership_id', 'owner_name', 'owner_state',
-     'percent_owned'),
+     'owner_street_address', 'owner_city', 'owner_zip', 'percent_owned'),
     (2015, 'utility_id', 'utility_name', 'plant_code', 'plant_name', 'state',
      'generator_id', 'status', 'ownership_id', 'owner_name', 'owner_state',
-     'percent_owned')],
+     'owner_street_address', 'owner_city', 'owner_zip', 'percent_owned')],
     columns=['year_index', 'operator_id', 'operator_name', 'plant_id',
              'plant_name', 'state', 'generator_id', 'status', 'ownership_id',
-             'owner_name', 'owner_state', 'percent_owned'],
+             'owner_name', 'owner_state', 'owner_street_address',
+             'owner_city', 'owner_zip', 'percent_owned'],
     index='year_index')
 
 

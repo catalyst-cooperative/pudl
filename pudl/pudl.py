@@ -1823,6 +1823,39 @@ def ingest_generators_eia860(pudl_engine, eia860_dfs,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
+def ingest_ownership_eia860(pudl_engine, eia860_dfs,
+                            csvdir='', keep_csv=True):
+    """
+    Ingest data on ownership from EIA Form 860.
+
+    Populates the ownership_eia860 table.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
+        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        csvdir (string): Path to the directory where the CSV files representing
+            our data tables should be written, before being read in to the
+            postgres database directly.
+        keep_csv (boolean): If True, do not delete the CSV files after they
+            have been read into the database. If False, remove them.
+
+    Returns: Nothing.
+    """
+    o_df = eia860_dfs['ownership'].copy()
+
+    # Replace '.' and ' ' with NaN in order to read in integer values
+
+    o_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
+    o_df.replace(to_replace='^\s$', value=np.nan, regex=True, inplace=True)
+    o_df.replace(to_replace='^$', value=np.nan, regex=True, inplace=True)
+
+    # Write the dataframe out to a csv file and load it directly
+    csv_dump_load(o_df, 'ownership_eia860', pudl_engine,
+                  csvdir=csvdir, keep_csv=keep_csv)
+
+
 def create_dfs_eia860(files=pc.files_eia860,
                       eia860_years=pc.eia860_working_years,
                       verbose=True):
@@ -1921,7 +1954,8 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
         'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860,
         'utilities_eia860': ingest_utilities_eia860,
         'plants_eia860': ingest_plants_eia860,
-        'generators_eia860': ingest_generators_eia860}
+        'generators_eia860': ingest_generators_eia860,
+        'ownership_eia860': ingest_ownership_eia860}
 
     for table in eia860_ingest_functions.keys():
         if table in eia860_tables:

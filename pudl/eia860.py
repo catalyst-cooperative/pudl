@@ -118,6 +118,7 @@ def get_eia860_column_map(page, year):
         'generator_existing': pc.generator_assn_map_eia860,
         'generator_proposed': pc.generator_proposed_assn_map_eia860,
         'generator_retired': pc.generator_retired_assn_map_eia860,
+        'ownership': pc.ownership_assn_map_eia860
     }
 
     d = page_to_df[page].loc[year].to_dict()
