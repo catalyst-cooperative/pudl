@@ -98,6 +98,9 @@ class OwnershipEIA860(pudl.models.PUDLBase):
     ownership_id = Column(Integer)
     owner_name = Column(String)
     owner_state = Column(String)
+    owner_city = Column(String)
+    owner_street_address = Column(String)
+    owner_zip = Column(String)
     percent_owned = Column(Float)
     year = Column(Integer)
 

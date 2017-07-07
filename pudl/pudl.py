@@ -358,8 +358,16 @@ def ingest_glue_tables(engine):
     # exist in EIA, and while they will have PUDL IDs, they may not have
     # FERC/EIA info (and it'll get pulled in as NaN)
 
-    for df in [plants_eia, plants_ferc, utilities_eia, utilities_ferc]:
-        assert df[pd.isnull(df).any(axis=1)].shape[0] <= 1
+    for df, df_n in zip([plants_eia,
+                         plants_ferc,
+                         utilities_eia,
+                         utilities_ferc],
+                        ['plants_eia',
+                         'plants_ferc',
+                         'utilities_eia',
+                         'utilities_ferc']):
+        assert df[pd.isnull(df).any(axis=1)].shape[0] <= 1,\
+            print("breaks on {}".format(df_n))
         df.dropna(inplace=True)
 
     # Before we start inserting records into the database, let's do some basic
@@ -1825,6 +1833,39 @@ def ingest_generators_eia860(pudl_engine, eia860_dfs,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
+def ingest_ownership_eia860(pudl_engine, eia860_dfs,
+                            csvdir='', keep_csv=True):
+    """
+    Ingest data on ownership from EIA Form 860.
+
+    Populates the ownership_eia860 table.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
+        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        csvdir (string): Path to the directory where the CSV files representing
+            our data tables should be written, before being read in to the
+            postgres database directly.
+        keep_csv (boolean): If True, do not delete the CSV files after they
+            have been read into the database. If False, remove them.
+
+    Returns: Nothing.
+    """
+    o_df = eia860_dfs['ownership'].copy()
+
+    # Replace '.' and ' ' with NaN in order to read in integer values
+
+    o_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
+    o_df.replace(to_replace='^\s$', value=np.nan, regex=True, inplace=True)
+    o_df.replace(to_replace='^$', value=np.nan, regex=True, inplace=True)
+
+    # Write the dataframe out to a csv file and load it directly
+    csv_dump_load(o_df, 'ownership_eia860', pudl_engine,
+                  csvdir=csvdir, keep_csv=keep_csv)
+
+
 def create_dfs_eia860(files=pc.files_eia860,
                       eia860_years=pc.eia860_working_years,
                       verbose=True):
@@ -1878,7 +1919,8 @@ def ingest_eia860(pudl_engine,
         'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860,
         'utilities_eia860': ingest_utilities_eia860,
         'plants_eia860': ingest_plants_eia860,
-        'generators_eia860': ingest_generators_eia860}
+        'generators_eia860': ingest_generators_eia860,
+        'ownership_eia860': ingest_ownership_eia860}
 
     for table in eia860_ingest_functions.keys():
         if table in eia860_tables:
