@@ -151,6 +151,9 @@ def get_eia860_page(page, eia860_xlsx,
         "EIA860 works for 2009 and later. {} requested.".format(min(years))
     assert page in pc.tab_map_eia860.columns and page != 'year_index',\
         "Unrecognized EIA 860 page: {}".format(page)
+    assert min(years) <= 2013,\
+        "The generators_eia860 table only works when years include 2012 and\
+        before."
 
     if verbose:
         print('Converting EIA 860 {} to DataFrame...'.format(page))
