@@ -161,10 +161,10 @@ def get_steam_ferc1_df(testing=False):
 
     steam_ferc1_select = sa.sql.select([
         pt['plants_steam_ferc1'].c.report_year,
-        pt['utilities_ferc1'].c.respondent_id,
-        pt['utilities_ferc1'].c.util_id_pudl,
-        pt['utilities_ferc1'].c.respondent_name,
-        pt['plants_ferc1'].c.plant_id_pudl,
+        pt['utilities_ferc'].c.respondent_id,
+        pt['utilities_ferc'].c.util_id_pudl,
+        pt['utilities_ferc'].c.respondent_name,
+        pt['plants_ferc'].c.plant_id_pudl,
         pt['plants_steam_ferc1'].c.plant_name,
         pt['plants_steam_ferc1'].c.total_capacity_mw,
         pt['plants_steam_ferc1'].c.year_constructed,
@@ -192,9 +192,9 @@ def get_steam_ferc1_df(testing=False):
         pt['plants_steam_ferc1'].c.expns_production_total,
         pt['plants_steam_ferc1'].c.expns_per_mwh]).\
         where(sa.sql.and_(
-            pt['utilities_ferc1'].c.respondent_id == pt['plants_steam_ferc1'].c.respondent_id,
-            pt['plants_ferc1'].c.respondent_id == pt['plants_steam_ferc1'].c.respondent_id,
-            pt['plants_ferc1'].c.plant_name == pt['plants_steam_ferc1'].c.plant_name,
+            pt['utilities_ferc'].c.respondent_id == pt['plants_steam_ferc1'].c.respondent_id,
+            pt['plants_ferc'].c.respondent_id == pt['plants_steam_ferc1'].c.respondent_id,
+            pt['plants_ferc'].c.plant_name == pt['plants_steam_ferc1'].c.plant_name,
         ))
 
     steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
@@ -221,10 +221,10 @@ def get_fuel_ferc1_df(testing=False):
     # tables that are relevant to FERC Fuel.
     fuel_ferc1_select = sa.sql.select([
         pt['fuel_ferc1'].c.report_year,
-        pt['utilities_ferc1'].c.respondent_id,
-        pt['utilities_ferc1'].c.respondent_name,
-        pt['utilities_ferc1'].c.util_id_pudl,
-        pt['plants_ferc1'].c.plant_id_pudl,
+        pt['utilities_ferc'].c.respondent_id,
+        pt['utilities_ferc'].c.respondent_name,
+        pt['utilities_ferc'].c.util_id_pudl,
+        pt['plants_ferc'].c.plant_id_pudl,
         pt['fuel_ferc1'].c.plant_name,
         pt['fuel_ferc1'].c.fuel,
         pt['fuel_ferc1'].c.fuel_qty_burned,
@@ -235,9 +235,9 @@ def get_fuel_ferc1_df(testing=False):
         pt['fuel_ferc1'].c.fuel_cost_per_mwh,
         pt['fuel_ferc1'].c.fuel_mmbtu_per_mwh]).\
         where(sa.sql.and_(
-            pt['utilities_ferc1'].c.respondent_id == pt['fuel_ferc1'].c.respondent_id,
-            pt['plants_ferc1'].c.respondent_id == pt['fuel_ferc1'].c.respondent_id,
-            pt['plants_ferc1'].c.plant_name == pt['fuel_ferc1'].c.plant_name))
+            pt['utilities_ferc'].c.respondent_id == pt['fuel_ferc1'].c.respondent_id,
+            pt['plants_ferc'].c.respondent_id == pt['fuel_ferc1'].c.respondent_id,
+            pt['plants_ferc'].c.plant_name == pt['fuel_ferc1'].c.plant_name))
 
     # Pull the data from the DB into a DataFrame
     fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)
@@ -357,7 +357,26 @@ def primary_fuel_ferc1(fuel_df, fuel_thresh=0.5):
         plants_by_primary_fuel (DataFrame): a DataFrame containing report_year,
             respondent_id, plant_name, and primary_fuel.
     """
+    plants_by_heat = plant_fuel_proportions_ferc1(fuel_df)
+
+    # On a per plant, per year basis, identify the fuel that made the largest
+    # contribution to the plant's overall heat content consumed. If that
+    # proportion is greater than fuel_thresh, set the primary_fuel to be
+    # that fuel.  Otherwise, leave it None.
+    plants_by_heat = plants_by_heat.set_index(['report_year',
+                                               'respondent_id',
+                                               'plant_name'])
+    plants_by_heat = plants_by_heat.drop('total_mmbtu', axis=1)
+    mask = plants_by_heat >= fuel_thresh
+    plants_by_heat = plants_by_heat.where(mask)
+    plants_by_heat['primary_fuel'] = plants_by_heat.idxmax(axis=1)
+    return(plants_by_heat[['primary_fuel', ]].reset_index())
+
+
+def plant_fuel_proportions_ferc1(fuel_df):
+    """Calculate annual fuel proportions by plant based on FERC data."""
     fuel_df = fuel_df.copy()
+
     fuel_df['total_mmbtu'] = \
         fuel_df['fuel_qty_burned'] * fuel_df['fuel_avg_mmbtu_per_unit']
 
@@ -375,28 +394,18 @@ def primary_fuel_ferc1(fuel_df, fuel_thresh=0.5):
     heat_pivot['total'] = heat_pivot.sum(axis=1, numeric_only=True)
     mmbtu_total = heat_pivot.copy()
     mmbtu_total = pd.DataFrame(mmbtu_total['total'])
+
     heat_pivot = heat_pivot.fillna(value=0)
     heat_pivot = heat_pivot.divide(heat_pivot.total, axis='index')
     heat_pivot = heat_pivot.drop('total', axis=1)
-    fuels = fuel_df.fuel.unique()
+    heat_pivot = heat_pivot.reset_index()
 
-    heat_pivot['primary_fuel'] = None
-    for f in fuel_df.fuel.unique():
-        fuel_mask = heat_pivot[f] >= fuel_thresh
-        heat_pivot.primary_fuel = \
-            heat_pivot.primary_fuel.where(~fuel_mask, other=f)
+    heat_pivot = heat_pivot.merge(mmbtu_total.reset_index())
+    heat_pivot.rename(columns={'total': 'total_mmbtu'},
+                      inplace=True)
+    del heat_pivot.columns.name
 
-    plants_by_primary_fuel = \
-        heat_pivot.reset_index()[['report_year',
-                                  'respondent_id',
-                                  'plant_name',
-                                  'primary_fuel']]
-    plants_by_primary_fuel = \
-        plants_by_primary_fuel.merge(mmbtu_total.reset_index())
-    plants_by_primary_fuel.rename(columns={'total': 'total_mmbtu'},
-                                  inplace=True)
-
-    return(plants_by_primary_fuel)
+    return(heat_pivot)
 
 
 def plant_fuel_proportions_frc_eia923(frc_df):
