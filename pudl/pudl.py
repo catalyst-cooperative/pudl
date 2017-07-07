@@ -358,8 +358,16 @@ def ingest_glue_tables(engine):
     # exist in EIA, and while they will have PUDL IDs, they may not have
     # FERC/EIA info (and it'll get pulled in as NaN)
 
-    for df in [plants_eia, plants_ferc, utilities_eia, utilities_ferc]:
-        assert df[pd.isnull(df).any(axis=1)].shape[0] <= 1
+    for df, df_n in zip([plants_eia,
+                         plants_ferc,
+                         utilities_eia,
+                         utilities_ferc],
+                        ['plants_eia',
+                         'plants_ferc',
+                         'utilities_eia',
+                         'utilities_ferc']):
+        assert df[pd.isnull(df).any(axis=1)].shape[0] <= 1,\
+            print("breaks on {}".format(df_n))
         df.dropna(inplace=True)
 
     # Before we start inserting records into the database, let's do some basic
