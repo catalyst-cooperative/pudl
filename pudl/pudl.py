@@ -805,13 +805,15 @@ def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
        Returns: Nothing.
     """
-    min_yr = min(ferc1_years)
-    assert min_yr >= 2007,\
-        """Invalid year requested: {}. FERC Form 1 Plant In Service data is
-        currently only valid for years 2007 and later.""".format(min_yr)
     f1_plant_in_srvce = ferc1.ferc1_meta.tables['f1_plant_in_srvce']
     f1_plant_in_srvce_select = sa.sql.select([f1_plant_in_srvce]).\
-        where(f1_plant_in_srvce.c.report_year.in_(ferc1_years))
+        where(
+            sa.sql.and_(
+                f1_plant_in_srvce.c.report_year.in_(ferc1_years),
+                # line_no mapping is invalid before 2007
+                f1_plant_in_srvce.c.report_year >= 2007
+            )
+    )
 
     ferc1_pis_df = pd.read_sql(f1_plant_in_srvce_select, ferc1_engine)
 
@@ -885,7 +887,7 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
         before 2004.""".format(min(ferc1_years))
     assert max(ferc1_years) <= 2015,\
         """Year {} is too recent. Small plant data has not been categorized for
-        any year 2015.""".format(max(ferc1_years))
+        any year after 2015.""".format(max(ferc1_years))
     f1_small = ferc1.ferc1_meta.tables['f1_gnrt_plant']
     f1_small_select = sa.sql.select([f1_small, ]).\
         where(f1_small.c.report_year.in_(ferc1_years)).\
@@ -1860,10 +1862,107 @@ def create_dfs_eia860(files=pc.files_eia860,
 ###############################################################################
 
 
+def ingest_eia860(pudl_engine,
+                  eia860_years=pc.eia860_working_years,
+                  eia860_tables=pc.eia860_pudl_tables,
+                  verbose=True, debug=False, testing=False,
+                  csvdir=os.path.join(settings.PUDL_DIR,
+                                      'results', 'csvdump'),
+                  keep_csv=True):
+    """Wrapper function that ingests all the EIA Form 860 tables."""
+    # Prep for ingesting EIA860
+    eia860_dfs = create_dfs_eia860(files=pc.files_eia860,
+                                   eia860_years=eia860_years, verbose=verbose)
+    # NOW START INGESTING EIA923 DATA:
+    eia860_ingest_functions = {
+        'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860,
+        'utilities_eia860': ingest_utilities_eia860,
+        'plants_eia860': ingest_plants_eia860,
+        'generators_eia860': ingest_generators_eia860}
+
+    for table in eia860_ingest_functions.keys():
+        if table in eia860_tables:
+            if verbose:
+                print("Ingesting {} from EIA 860 into PUDL.".format(table))
+            eia860_ingest_functions[table](pudl_engine, eia860_dfs,
+                                           csvdir=csvdir, keep_csv=keep_csv)
+
+
+def ingest_eia923(pudl_engine,
+                  eia923_tables=pc.eia923_pudl_tables,
+                  eia923_years=pc.eia923_working_years,
+                  verbose=True, debug=False, testing=False,
+                  csvdir=os.path.join(settings.PUDL_DIR, 'results', 'csvdump'),
+                  keep_csv=True):
+    """Wrapper function that ingests all the EIA Form 923 tables."""
+    # Prep for ingesting EIA923
+    # Create excel objects
+    eia923_xlsx = eia923.get_eia923_xlsx(eia923_years)
+
+    # Create DataFrames
+    eia923_dfs = {}
+    for page in pc.tab_map_eia923.columns:
+        if (page == 'plant_frame'):
+            eia923_dfs[page] = eia923.get_eia923_plants(
+                eia923_years, eia923_xlsx)
+        else:
+            eia923_dfs[page] = eia923.get_eia923_page(page, eia923_xlsx,
+                                                      years=eia923_years,
+                                                      verbose=verbose)
+
+    # NOW START INGESTING EIA923 DATA:
+    eia923_ingest_functions = {
+        'plants_eia923': ingest_plants_eia923,
+        'generation_fuel_eia923': ingest_generation_fuel_eia923,
+        # 'plant_ownership_eia923': ingest_plant_ownership_eia923,
+        'boilers_eia923': ingest_boilers_eia923,
+        'boiler_fuel_eia923': ingest_boiler_fuel_eia923,
+        'generation_eia923': ingest_generation_eia923,
+        'generators_eia923': ingest_generators_eia923,
+        'coalmine_info_eia923': ingest_coalmine_info_eia923,
+        'fuel_receipts_costs_eia923': ingest_fuel_receipts_costs_eia923,
+    }
+
+    for table in eia923_ingest_functions.keys():
+        if table in eia923_tables:
+            if verbose:
+                print("Ingesting {} from EIA 923 into PUDL.".format(table))
+            eia923_ingest_functions[table](pudl_engine, eia923_dfs,
+                                           csvdir=csvdir, keep_csv=keep_csv)
+
+
+def ingest_ferc1(pudl_engine,
+                 ferc1_tables=pc.ferc1_pudl_tables,
+                 ferc1_years=pc.ferc1_working_years,
+                 verbose=True, debug=False, testing=False):
+    """Wrapper function that ingests all the FERC Form 1 tables."""
+    # BEGIN INGESTING FERC FORM 1 DATA:
+    # Note that ferc1.init_db() must already have been run... somewhere.
+    ferc1_ingest_functions = {
+        'f1_fuel': ingest_fuel_ferc1,
+        'f1_steam': ingest_plants_steam_ferc1,
+        'f1_gnrt_plant': ingest_plants_small_ferc1,
+        'f1_hydro': ingest_plants_hydro_ferc1,
+        'f1_pumped_storage': ingest_plants_pumped_storage_ferc1,
+        'f1_plant_in_srvce': ingest_plant_in_service_ferc1,
+        'f1_purchased_pwr': ingest_purchased_power_ferc1,
+        'f1_accumdepr_prvsn': ingest_accumulated_depreciation_ferc1
+    }
+
+    ferc1_engine = ferc1.db_connect_ferc1(testing=testing)
+    for table in ferc1_ingest_functions.keys():
+        if table in ferc1_tables:
+            if verbose:
+                print("Ingesting {} from FERC Form 1 into PUDL.".format(table))
+            ferc1_ingest_functions[table](pudl_engine,
+                                          ferc1_engine,
+                                          ferc1_years)
+
+
 def init_db(ferc1_tables=pc.ferc1_pudl_tables,
-            ferc1_years=range(2007, 2016),
+            ferc1_years=pc.ferc1_working_years,
             eia923_tables=pc.eia923_pudl_tables,
-            eia923_years=range(2011, 2016),
+            eia923_years=pc.eia923_working_years,
             eia860_tables=pc.eia860_pudl_tables,
             eia860_years=pc.eia860_working_years,
             verbose=True, debug=False, testing=False,
@@ -1912,78 +2011,19 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
         print("Sniffing EIA923/FERC1 glue tables...")
     ingest_glue_tables(pudl_engine)
 
-    # Prep for ingesting EIA860
-    # Create excel objects
-    eia860_dfs = create_dfs_eia860(files=pc.files_eia860,
-                                   eia860_years=eia860_years, verbose=verbose)
-    # NOW START INGESTING EIA923 DATA:
-    eia860_ingest_functions = {
-        'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860,
-        'utilities_eia860': ingest_utilities_eia860,
-        'plants_eia860': ingest_plants_eia860,
-        'generators_eia860': ingest_generators_eia860}
+    ingest_ferc1(pudl_engine,
+                 ferc1_tables=ferc1_tables,
+                 ferc1_years=ferc1_years,
+                 verbose=verbose, debug=debug, testing=testing)
 
-    for table in eia860_ingest_functions.keys():
-        if table in eia860_tables:
-            if verbose:
-                print("Ingesting {} from EIA 860 into PUDL.".format(table))
-            eia860_ingest_functions[table](pudl_engine, eia860_dfs,
-                                           csvdir=csvdir, keep_csv=keep_csv)
+    ingest_eia860(pudl_engine,
+                  eia860_tables=eia860_tables,
+                  eia860_years=eia860_years,
+                  verbose=verbose, debug=debug, testing=testing,
+                  csvdir=csvdir, keep_csv=keep_csv)
 
-    # Prep for ingesting EIA923
-    # Create excel objects
-    eia923_xlsx = eia923.get_eia923_xlsx(eia923_years)
-
-    # Create DataFrames
-    eia923_dfs = {}
-    for page in pc.tab_map_eia923.columns:
-        if (page == 'plant_frame'):
-            eia923_dfs[page] = eia923.get_eia923_plants(
-                eia923_years, eia923_xlsx)
-        else:
-            eia923_dfs[page] = eia923.get_eia923_page(page, eia923_xlsx,
-                                                      years=eia923_years,
-                                                      verbose=verbose)
-
-    # NOW START INGESTING EIA923 DATA:
-    eia923_ingest_functions = {
-        'plants_eia923': ingest_plants_eia923,
-        'generation_fuel_eia923': ingest_generation_fuel_eia923,
-        # 'plant_ownership_eia923': ingest_plant_ownership_eia923,
-        'boilers_eia923': ingest_boilers_eia923,
-        'boiler_fuel_eia923': ingest_boiler_fuel_eia923,
-        'generation_eia923': ingest_generation_eia923,
-        'generators_eia923': ingest_generators_eia923,
-        'coalmine_info_eia923': ingest_coalmine_info_eia923,
-        'fuel_receipts_costs_eia923': ingest_fuel_receipts_costs_eia923,
-    }
-
-    for table in eia923_ingest_functions.keys():
-        if table in eia923_tables:
-            if verbose:
-                print("Ingesting {} from EIA 923 into PUDL.".format(table))
-            eia923_ingest_functions[table](pudl_engine, eia923_dfs,
-                                           csvdir=csvdir, keep_csv=keep_csv)
-
-    eia860_dfs = create_dfs_eia860(files=pc.files_eia860,
-                                   eia860_years=eia860_years, verbose=verbose)
-
-    # BEGIN INGESTING FERC FORM 1 DATA:
-    ferc1_ingest_functions = {
-        'f1_fuel': ingest_fuel_ferc1,
-        'f1_steam': ingest_plants_steam_ferc1,
-        'f1_gnrt_plant': ingest_plants_small_ferc1,
-        'f1_hydro': ingest_plants_hydro_ferc1,
-        'f1_pumped_storage': ingest_plants_pumped_storage_ferc1,
-        'f1_plant_in_srvce': ingest_plant_in_service_ferc1,
-        'f1_purchased_pwr': ingest_purchased_power_ferc1,
-        'f1_accumdepr_prvsn': ingest_accumulated_depreciation_ferc1}
-
-    ferc1_engine = ferc1.db_connect_ferc1(testing=testing)
-    for table in ferc1_ingest_functions.keys():
-        if table in ferc1_tables:
-            if verbose:
-                print("Ingesting {} from FERC Form 1 into PUDL.".format(table))
-            ferc1_ingest_functions[table](pudl_engine,
-                                          ferc1_engine,
-                                          ferc1_years)
+    ingest_eia923(pudl_engine,
+                  eia923_tables=eia923_tables,
+                  eia923_years=eia923_years,
+                  verbose=verbose, debug=debug, testing=testing,
+                  csvdir=csvdir, keep_csv=keep_csv)
