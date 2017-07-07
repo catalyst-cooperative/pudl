@@ -7,7 +7,7 @@ FERC1_URL="ftp://eforms1.ferc.gov/f1allyears"
 # Electronic FERC Form 1 data begins in 1994, and is typically finalized
 # 9 months after the end of the preceding year.
 START_YEAR=1994
-END_YEAR=2015
+END_YEAR=2016
 DIR=`dirname $0`
 
 for yr in `seq $START_YEAR $END_YEAR`
@@ -23,15 +23,14 @@ do (
     pushd $base
         unzip -q $fn.zip
 
-
         for topdir in UPLOADERS FORMSADMIN
         do
-            if [ -d $base/$topdir ]
+            if [ -d $topdir ]
             then
-                mv $base/$topdir/FORM1/working/* $base
-                rmdir $base/$topdir/FORM1/working
-                rmdir $base/$topdir/FORM1
-                rmdir $base/$topdir
+                mv $topdir/FORM1/working/* .
+                rmdir $topdir/FORM1/working
+                rmdir $topdir/FORM1
+                rmdir $topdir
             fi
         done
     popd

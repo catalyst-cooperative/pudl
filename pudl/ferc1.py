@@ -229,8 +229,8 @@ def define_db(refyear, ferc1_tables, ferc1_meta, verbose=True):
 
 
 def init_db(ferc1_tables=pc.ferc1_default_tables,
-            refyear=2015,
-            years=[2015, ],
+            refyear=max(pc.ferc1_working_years),
+            years=pc.ferc1_working_years,
             def_db=True,
             verbose=True,
             testing=False):
@@ -289,11 +289,13 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
             # the keys are the field names, and the values are the values for
             # that field.
             sql_records = []
+            bad_respondents = [515, ]
             for dbf_rec in dbf_table.records:
                 sql_rec = {}
                 for d, s in ferc1_tblmap[sql_table_name].items():
                     sql_rec[s] = dbf_rec[d]
-                sql_records.append(sql_rec)
+                if sql_rec['respondent_id'] not in bad_respondents:
+                    sql_records.append(sql_rec)
 
             # If we're reading in multiple years of FERC Form 1 data, we
             # need to avoid collisions in the f1_respondent_id table, which
