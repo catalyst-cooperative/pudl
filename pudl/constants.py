@@ -1393,7 +1393,8 @@ month_dict_eia923 = {1: '_january$',
 eia860_working_years = range(2011, 2016)
 
 # list of eia860 file names
-files_eia860 = ['enviro_assn', 'utilities', 'plants', 'generators','ownership']
+files_eia860 = ['enviro_assn', 'utilities',
+                'plants', 'generators', 'ownership']
 
 # file names to glob file pattern (used in get_eia860_file)
 files_dict_eia860 = {'utilities': '*Utility*',
