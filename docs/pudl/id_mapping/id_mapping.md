@@ -73,7 +73,9 @@ possibilities:
 - In all cases, try to verify the lack of matches:
   - Verify that this FERC utility actually has plants associated with it
     in FERC.
-     - If it *doesn't* have plants, make a note of it, and you're good!
+     - If it *doesn't* have plants, make a note of it and add the utility
+     respondent ID and utility name to the utilities_output tab of the
+     mapping_eia923_ferc1 sheet, and you're good!
        - POSSIBLE FAIL: EIA has many more plants than FERC listed. Could
           be that utility names are different enough between FERC & EIA
           that it doesn't come up in simple keyword search, and because
@@ -130,6 +132,10 @@ possibilities:
   - Or, they're actually different, and you figure out which one to map
     to the FERC respondent, based on their plants (again, see exactly
     one match process, above).
+
+## Ingesting Utilities Without Plants
+
+- When ingesting a new year's worth of FERC Form 1 data,  
 
 # Plant Mapping
 Most plant mapping will have taken place during the utility mapping processes
