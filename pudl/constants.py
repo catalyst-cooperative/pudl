@@ -474,7 +474,7 @@ ferc1_working_tables = ['f1_respondent_id',
                         'f1_accumdepr_prvsn']
 
 # The full set of years we expect to be able to pull into the FERC1 DB.
-ferc1_working_years = range(2004, 2016)
+ferc1_working_years = range(2004, 2017)
 
 # The full set of years we currently expect to be able to ingest from EIA923.
 eia923_working_years = range(2009, 2017)
