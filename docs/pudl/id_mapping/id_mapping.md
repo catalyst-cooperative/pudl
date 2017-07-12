@@ -73,7 +73,9 @@ possibilities:
 - In all cases, try to verify the lack of matches:
   - Verify that this FERC utility actually has plants associated with it
     in FERC.
-     - If it *doesn't* have plants, make a note of it and add the utility
+     - If it *doesn't* have plants, make a note of it and compare the list of
+     utilities currently in the database with the ones being added. If the
+     utility is not currently in the database, add the utility's
      respondent ID and utility name to the utilities_output tab of the
      mapping_eia923_ferc1 sheet, and you're good!
        - POSSIBLE FAIL: EIA has many more plants than FERC listed. Could
