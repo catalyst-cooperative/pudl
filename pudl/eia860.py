@@ -59,6 +59,8 @@ def get_eia860_xlsx(years, file):
 
     Args:
         years: The years that we're trying to read data for.
+        files: ['enviro_assn', 'utilities', 'plants', 'generators']
+
     Returns:
         xlsx file of EIA Form 860 for input year(s)
     """

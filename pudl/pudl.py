@@ -893,7 +893,7 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     assert min(ferc1_years) >= 2004,\
         """Year {} is too early. Small plant data has not been categorized for
         before 2004.""".format(min(ferc1_years))
-    assert max(ferc1_years) <= 2015,\
+    assert max(ferc1_years) <= 2016,\
         """Year {} is too recent. Small plant data has not been categorized for
         any year after 2015.""".format(max(ferc1_years))
     f1_small = ferc1.ferc1_meta.tables['f1_gnrt_plant']
@@ -942,7 +942,7 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     small_types_file = os.path.join(settings.PUDL_DIR,
                                     'results',
                                     'ferc1_small_plants',
-                                    'small_plants_2004-2015.xlsx')
+                                    'small_plants_2004-2016.xlsx')
     small_types_df = pd.read_excel(small_types_file)
 
     # Only rows with plant_type set will give us novel information.
