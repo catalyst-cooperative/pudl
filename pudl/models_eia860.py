@@ -112,7 +112,8 @@ class GeneratorsEIA860(pudl.models.PUDLBase):
     id = Column(Integer, autoincrement=True, primary_key=True)
     operator_id = Column(Integer)
     operator_name = Column(String)
-    plant_id = Column(Integer)
+    plant_id = Column(Integer, ForeignKey('plants_eia.plant_id'),
+                      primary_key=True)
     plant_name = Column(String)
     state = Column(String)
     county = Column(String)
