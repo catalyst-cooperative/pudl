@@ -707,8 +707,217 @@ def fercplants(plant_tables=['f1_steam',
     return(ferc1_plants)
 
 
+def random_chunk(li, min_chunk=1, max_chunk=3):
+    """Chunk a list of items into a list of lists containing the same items.
+
+    Takes a list, and creates a generator that returns sub-lists containing
+    at least min_chunk items and at most max_chunk items from the original
+    list. Used here to create groupings of individual generators that get
+    aggregated into either FERC plants or PUDL plants for synthetic data.
+    """
+    from itertools import islice
+    from random import randint
+    it = iter(li)
+    while True:
+        nxt = list(islice(it, randint(min_chunk, max_chunk)))
+        if nxt:
+            yield nxt
+        else:
+            break
+
+
+def zippertestdata(gens=50, max_group_size=6, series=3, samples=10,
+                   noise=[0.25, 0.25, 0.25]):
+    """Generate a test dataset for the datazipper, with known solutions.
+
+    Args:
+        gens (int): number of actual atomic units (analogous to generators)
+            which may not fully enumerated in either dataset.
+        max_group_size (int): Maximum number of atomic units which should
+            be allowed to aggregate in the FERC groups.
+        series (int): How many shared data series should exist between the two
+            datasets, for use in connecting them to each other?
+        samples (int): How many samples should be available in each shared data
+            series?
+        noise (array): An array-like collection of numbers indicating the
+            amount of noise (dispersion) to add between the two synthetic
+            datasets. Larger numbers will result in lower correlations.
+
+    Returns:
+        eia_df (pd.DataFrame): Synthetic test data representing the EIA data
+            to be used in connecting EIA and FERC plant data. For now it
+            assumes that we have annual data at the generator level for all
+            of the variables we're using to correlate.
+        ferc_df (pd.DataFrame): Synthetic data representing the FERC data to
+            be used in connecting the EIA and FERC plant data. Does not have
+            individual generator level information. Rather, the dependent
+            variables are grouped by ferc_plant_id, each of which is a sum
+            of several original generator level data series. The ferc_plant_id
+            values indicate which original generators went into creating the
+            data series, allowing us to easily check whether they've been
+            correctly matched.
+    """
+    from string import ascii_uppercase, ascii_lowercase
+    from itertools import product
+
+    # Make sure we've got enough plant IDs to work with:
+    rpt = 1
+    while(len(ascii_lowercase)**rpt < gens):
+        rpt = rpt + 1
+
+    # Generate the list of atomic generator IDs for both FERC (upper case) and
+    # EIA (lower case) Using the same IDs across both datasets will make it
+    # easy for us to tell whether we've correctly inferred the connections
+    # between them.
+    gen_ids_ferc = [''.join(s) for s in product(ascii_uppercase, repeat=rpt)]
+    gen_ids_ferc = gen_ids_ferc[:gens]
+    gen_ids_eia = [''.join(s) for s in product(ascii_lowercase, repeat=rpt)]
+    gen_ids_eia = gen_ids_eia[:gens]
+
+    # make some dummy years to use as the independent (time) variable:
+    years = np.arange(2000, 2000 + samples)
+
+    # Set up some empty Data Frames to receive the synthetic data:
+    eia_df = pd.DataFrame(columns=[['year', 'eia_gen_id']])
+    ferc_df = pd.DataFrame(columns=[['year', 'ferc_gen_id']])
+
+    # Now we create several pairs of synthetic data by atomic generator, which
+    # will exist in both datasets, but apply some noise to one of them, so the
+    # correlation between them isn't perfect.
+
+    for ferc_gen_id, eia_gen_id in zip(gen_ids_ferc, gen_ids_eia):
+        # Create a new set of FERC and EIA records, 'samples' long, with
+        # years as the independent variable.
+        eia_new = pd.DataFrame(columns=['year', 'eia_gen_id'])
+        ferc_new = pd.DataFrame(columns=['year', 'ferc_gen_id'])
+
+        eia_new['year'] = years
+        eia_new['eia_gen_id'] = eia_gen_id
+        ferc_new['year'] = years
+        ferc_new['ferc_gen_id'] = ferc_gen_id
+        for N in range(0, series):
+            series_label = 'series_{}'.format(N)
+            # Create a pair of logarithmically distributed correlated
+            # randomized data series:
+            eia_data = 10**(np.random.uniform(low=3, high=9, size=samples))
+            ferc_data = eia_data * np.random.normal(loc=1,
+                                                    scale=noise[N],
+                                                    size=samples)
+            eia_new[series_label] = eia_data
+            ferc_new[series_label] = ferc_data
+
+        # Add the new set of records (samples years for each ID)
+        eia_df = eia_df.append(eia_new)
+        ferc_df = ferc_df.append(ferc_new)
+
+    # Now we're going to group the "true" data together into groups which are
+    # the same in both datasets -- these are analogous to the PUDL Plant ID
+    # groups. Here we're just randomly chunking the list of all generator IDs
+    # into little pieces:
+
+    eia_groups = [group for group in random_chunk(gen_ids_eia,
+                                                  min_chunk=1,
+                                                  max_chunk=max_group_size)]
+
+    ferc_groups = [[id.upper() for id in group] for group in eia_groups]
+
+    # Then within each of these groups, we need to randomly aggregate the data
+    # series on the FERC side, to represent the non-atomic FERC plants, which
+    # are made up of more than a single generator, but which are still
+    # contained within the PUDL ID group:
+    ferc_plant_groups = []
+    for group in ferc_groups:
+        ferc_plant_groups.append([g for g in
+                                  random_chunk(group,
+                                               min_chunk=1,
+                                               max_chunk=max_group_size)])
+
+    for pudl_plant_id in np.arange(0, len(ferc_plant_groups)):
+        # set the pudl_plant_id on every record whose ID is in this group.
+        for ferc_plant in ferc_plant_groups[pudl_plant_id]:
+            # set ferc_plant_id on every record whose ID is in this sub-group.
+            ferc_plant_id = '_'.join(ferc_plant)
+            ferc_plant_mask = ferc_df.ferc_gen_id.isin(ferc_plant)
+            ferc_df.loc[ferc_plant_mask, 'ferc_plant_id'] = ferc_plant_id
+            ferc_df.loc[ferc_plant_mask, 'pudl_plant_id'] = pudl_plant_id
+
+    # Fix the type of the pudl_plant_id... getting upcast to float
+    ferc_df.pudl_plant_id = ferc_df.pudl_plant_id.astype(int)
+
+    # Assign a numerical pudl_plant_id to each EIA generator, enabling us to
+    # compare the same small groups of generators on both the FERC and EIA
+    # sides.  This is the only thing that makes the search space workable with
+    # so few data points in each series to correlate.
+    for pudl_plant_id in np.arange(0, len(eia_groups)):
+        eia_group_mask = eia_df.eia_gen_id.isin(eia_groups[pudl_plant_id])
+        eia_df.loc[eia_group_mask, 'pudl_plant_id'] = pudl_plant_id
+
+    # Fix the type of the pudl_plant_id... getting upcast to float
+    eia_df.pudl_plant_id = eia_df.pudl_plant_id.astype(int)
+
+    # Sum the dependent data series by PUDL plant, FERC plant, and year,
+    # creating our synthetic lumped dataset for the algorithm to untangle.
+    ferc_gb = ferc_df.groupby(['pudl_plant_id', 'ferc_plant_id', 'year'])
+    ferc_df = ferc_gb.agg(sum).reset_index()
+    return(eia_df, ferc_df)
+
+
 def correlation_merge():
     """
     Merge two datasets based on correlations between selected series.
+
+    A couple of times now, we've come up against the issue of having two
+    datasets which contain similar/comparable data, but no common ID that
+    can be used to merge them together conclusively. This function attempts
+    to use the correlations between common data series in the two data sets
+    to infer a mapping between them, so that other un-shared fields in the
+    two data sets can also be cross-referenced.
+
+    Pieces of the two datasets that we need to use to create the connection
+    between them include:
+    - the independent variable for correlations (e.g. time) which must be
+      present in each dataset.
+    - the list of pairs of dependent variables from each dataset, and how they
+      map to each other. Maybe this should be a dictionary of DataFrame field
+      names.
+    - A subset identifier, (in our case the PUDL Plant ID) that can be used
+      to limit the number of correlations which are attempted. This also needs
+      to be present in both datasets.
+    - The atomic identifier for the objects which we are trying different
+      combinations of within either dataset, to try and get a good match. In
+      our case, this is the FERC (respondent_id, plant_name) and the EIA
+      plant_id (or is it boiler_id or generator_id...)
+
+    Once we've got all of that stuff pulled together, the algorithm goes
+    something like this:
+    - For each subset_id, come up with all the set coverages of a given number
+      of elements within each of the datasets (and actually, this could
+      potentially be generalized to more than 2 datasets... but let's not get
+      crazy right now)
+    - Generate the list of all possible mappings from N elements in one
+      dataset to the other.
+    - For each of those mappings, for each value of N ranging from 1 to the
+      smaller maximum number of atomic elements within the two subsets,
+      calculate the correlation between each of the enumerated depdendent
+      variables.
+    - At this point, we should have a bunch of correlations that we can score.
+      The bigger the N is, the more specific the mapping from one dataset to
+      the other will be, and specificity is valuble, so given similar
+      correlations between two mappings, the more specific of the two should
+      be preferred. But by how much? How do we encode this preference flexibly?
+    - It might also be the case that different dependent variables are more or
+      less meaningful, in terms of whether we believe the two data sets really
+      match up, so we might want to be able to adjust the weighting of the
+      different data series in scoring the calculated correlations.
+    - Once the scoring mechanism has been determined, what do we output?
+      Ideally, we should be able to create new subset_ids, which show which
+      collections of records in the two datasets best correlate with each
+      other, and should be used to link the two data sets together. This would
+      allow direct comparison of other dependent variables, if all records
+      associated with a given subset_id and time slice were aggregated
+      together appropriately.
+
+    A lot of this is reminding me of "clustering" analysis, and I'm wondering
+    which parts of it have already been done "right" somewhere that could be
+    learned from.
     """
-    pass
