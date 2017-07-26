@@ -542,6 +542,14 @@ def primary_fuel_gf_eia923(gf_df, fuel_thresh=0.5):
     return(gf_by_heat[['primary_fuel', ]].reset_index())
 
 
+def partition_k(collection, k):
+    """
+    """
+    for part in partition(collection):
+        if(len(part) == k):
+            yield part
+
+
 def partition(collection):
     """
     Generate all possible partitions of a collection of items.
@@ -796,7 +804,7 @@ def zippertestdata(gens=50, max_group_size=6, series=3, samples=10,
         ferc_new['year'] = years
         ferc_new['ferc_gen_id'] = ferc_gen_id
         for N in range(0, series):
-            series_label = 'series_{}'.format(N)
+            series_label = 'series{}'.format(N)
             # Create a pair of logarithmically distributed correlated
             # randomized data series:
             eia_data = 10**(np.random.uniform(low=3, high=9, size=samples))
