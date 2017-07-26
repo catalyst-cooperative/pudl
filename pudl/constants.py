@@ -1335,7 +1335,7 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
              'coalmine_county', 'coalmine_msha_id', 'coalmine_name',
              'supplier', 'fuel_quantity', 'average_heat_content',
              'average_sulfur_content', 'average_ash_content',
-             'average_mercury_content', 'fuel_cost', 'regulated',
+             'average_mercury_content', 'fuel_cost_per_mmbtu', 'regulated',
              'operator_name', 'operator_id', 'reporting_frequency',
              'primary_transportation_mode', 'secondary_transportation_mode',
              'natural_gas_transport'],
