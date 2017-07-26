@@ -12,6 +12,38 @@ from pudl import models, models_ferc1, models_eia923
 from pudl import clean_eia923, clean_ferc1, clean_pudl
 
 
+def simple_select(table_name, pudl_engine):
+    """
+    Simple select statement.
+
+    Args:
+        table_name: pudl table name
+        pudl_engine
+
+    Returns:
+        DataFrame from table
+    """
+    # Pull in the table
+    tbl = models.PUDLBase.metadata.tables[table_name]
+    # Creates a sql Select object
+    select = sa.sql.select([tbl, ])
+    # Converts sql object to pandas dataframe
+    return(pd.read_sql(select, pudl_engine))
+
+
+def yearly_sum_eia(table,
+                   sum_by,
+                   columns=['plant_id',
+                            'report_date',
+                            'generator_id']):
+    if 'report_date' in table.columns:
+        table = table.set_index(pd.DatetimeIndex(table['report_date']).year)
+        table.drop('report_date', axis=1, inplace=True)
+        table.reset_index(inplace=True)
+    gb = table.groupby(by=columns)
+    return(gb.agg({sum_by: np.sum}))
+
+
 def eia_operator_plants(operator_id, pudl_engine):
     """Return all the EIA plant IDs associated with a given EIA operator ID."""
     Session = sa.orm.sessionmaker()
@@ -192,9 +224,12 @@ def get_steam_ferc1_df(testing=False):
         pt['plants_steam_ferc1'].c.expns_production_total,
         pt['plants_steam_ferc1'].c.expns_per_mwh]).\
         where(sa.sql.and_(
-            pt['utilities_ferc'].c.respondent_id == pt['plants_steam_ferc1'].c.respondent_id,
-            pt['plants_ferc'].c.respondent_id == pt['plants_steam_ferc1'].c.respondent_id,
-            pt['plants_ferc'].c.plant_name == pt['plants_steam_ferc1'].c.plant_name,
+            pt['utilities_ferc'].c.respondent_id ==
+            pt['plants_steam_ferc1'].c.respondent_id,
+            pt['plants_ferc'].c.respondent_id ==
+            pt['plants_steam_ferc1'].c.respondent_id,
+            pt['plants_ferc'].c.plant_name ==
+            pt['plants_steam_ferc1'].c.plant_name,
         ))
 
     steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
@@ -235,9 +270,12 @@ def get_fuel_ferc1_df(testing=False):
         pt['fuel_ferc1'].c.fuel_cost_per_mwh,
         pt['fuel_ferc1'].c.fuel_mmbtu_per_mwh]).\
         where(sa.sql.and_(
-            pt['utilities_ferc'].c.respondent_id == pt['fuel_ferc1'].c.respondent_id,
-            pt['plants_ferc'].c.respondent_id == pt['fuel_ferc1'].c.respondent_id,
-            pt['plants_ferc'].c.plant_name == pt['fuel_ferc1'].c.plant_name))
+            pt['utilities_ferc'].c.respondent_id ==
+            pt['fuel_ferc1'].c.respondent_id,
+            pt['plants_ferc'].c.respondent_id ==
+            pt['fuel_ferc1'].c.respondent_id,
+            pt['plants_ferc'].c.plant_name ==
+            pt['fuel_ferc1'].c.plant_name))
 
     # Pull the data from the DB into a DataFrame
     fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)

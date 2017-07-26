@@ -1613,6 +1613,10 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
                                                   float_na=np.nan,
                                                   int_na=-1,
                                                   str_na='')
+
+    # Convert fuel cost (cents per mmbtu) into dollars per mmbtu
+    frc_df = clean_eia923.fuel_reciept_cost_clean(frc_df)
+
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(frc_df, 'fuel_receipts_costs_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
