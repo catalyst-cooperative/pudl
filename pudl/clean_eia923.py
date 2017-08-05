@@ -122,5 +122,5 @@ def fuel_reciept_cost_clean(frc_df):
     Fuel cost is reported in cents per mmbtu. Convert cents to dollars.
     """
     frc_df = frc_df.copy()
-    frc_df['fuel_cost_per_mmbtu'] = frc_df['fuel_cost_per_mmbtu'] * 100
+    frc_df['fuel_cost_per_mmbtu'] = frc_df['fuel_cost_per_mmbtu'] / 100
     return(frc_df)
