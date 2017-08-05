@@ -1,0 +1,9 @@
+Field Name, Annotation
+report_date,Year for which the data was reported.
+plant_id,EIA Plant ID
+plant_id_pudl,PUDL utility id. Allows some linkage between FERC & EIA Data.
+nameplate_capacity_mw,Total installed capacity for all units (coal or otherwise) that are part of the plant.
+net_generation_mwh,Net electricity generation in MWh for all units (coal or otherwise) that are part of the plant.
+capacity_factor,(net_generation_mwh) / (nameplate_capacity_mw * 8760)
+fuel_consumed_total_mmbtu,Total heat content of all fuels consumed (coal or otherwise) by the plant.
+heat_rate_btu_per_kwh,Overall heat rate for the plant in BTU per kWh of net generation (fuel_consumed_total_mmbtu / net_generation_mwh).
