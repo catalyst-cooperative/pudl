@@ -908,6 +908,142 @@ def zippertestdata(gens=50, max_group_size=6, series=3, samples=10,
     return(eia_df, ferc_df)
 
 
+def correlate_pudl_plant(eia_df, ferc_df):
+    """Calculate correlations between all possible plant mappings.
+
+    Given two dataframes in which the same data is reported, but potentially
+    aggregated differently in the two cases, create a bunch of candidate
+    matching groups between them, and calculate the correlations between them.
+    """
+    import re
+    # Create a DataFrame where we will accumulate the tests cases:
+    eia_test_df = pd.DataFrame(columns=eia_df.columns)
+    eia_pudl_ids = eia_df.pudl_plant_id.unique()
+    ferc_pudl_ids = ferc_df.pudl_plant_id.unique()
+    assert set(eia_pudl_ids) == set(ferc_pudl_ids)
+    pudl_plant_ids = eia_pudl_ids
+
+    for pudl_plant_id in pudl_plant_ids:
+        # Grab a single PUDL plant from FERC:
+        ferc_pudl_plant = ferc_df[ferc_df['pudl_plant_id'] == pudl_plant_id]
+        eia_pudl_plant = eia_df[eia_df['pudl_plant_id'] == pudl_plant_id]
+
+        # Count how many FERC plants there are within this PUDL ID.
+        ferc_plant_ids = ferc_pudl_plant.ferc_plant_id.unique()
+        ferc_plant_n = len(ferc_plant_ids)
+
+        # Enumerate all the EIA generator set coverages with the same number of
+        # elements as there are FERC plants.
+        eia_test_groups = \
+            partition_k(list(eia_pudl_plant.eia_gen_id.unique()), ferc_plant_n)
+
+        # Create new records from the EIA dataframe with the data series
+        # aggregated according to each of the candidate generator groupings.
+        test_group_id = 0
+        for group in eia_test_groups:
+            new_eia_grouping = eia_pudl_plant.copy()
+            new_eia_grouping['test_group_id'] = test_group_id
+
+            for subgroup in group:
+                eia_subgroup_id = '_'.join(subgroup)
+                eia_subgroup_mask = new_eia_grouping.eia_gen_id.isin(subgroup)
+                new_eia_grouping.loc[eia_subgroup_mask, 'eia_gen_subgroup'] = \
+                    eia_subgroup_id
+
+            eia_test_df = eia_test_df.append(new_eia_grouping)
+            test_group_id = test_group_id + 1
+
+    eia_test_df['test_group_id'] = eia_test_df['test_group_id'].astype(int)
+    eia_test_df = eia_test_df.groupby(['pudl_plant_id',
+                                       'test_group_id',
+                                       'eia_gen_subgroup',
+                                       'year']).agg(sum)
+
+    # Within each (pudl_plant_id, test_group_id) pairing, we'll have a list of
+    # N generator subgroups. We need to calculate the correlations with FERC
+    # Form 1 for each possible generator subgroup ordering We can generate the
+    # list of all possible combinations of FERC plant and EIA subgroups using
+    # the itertools.product() function... but what do we do with that
+    # information?
+    eia_test_df = eia_test_df.reset_index()
+    eia_test_df = eia_test_df.rename(
+        columns=lambda x: re.sub('(series[0-9]*$)', r'\1_eia', x))
+    ferc_df = ferc_df.reset_index()
+    ferc_df = ferc_df.drop('index', axis=1)
+    ferc_df = ferc_df.rename(
+        columns=lambda x: re.sub('(series[0-9]*$)', r'\1_ferc', x))
+    both_df = eia_test_df.merge(ferc_df, on=['pudl_plant_id', 'year'])
+
+    return(both_df)
+
+
+def score_all(df):
+    """
+    Select the mapping of FERC to EIA plant mappings based on data series.
+
+    This needs to be generalized to work for more than one data series.
+    """
+    candidates = {}
+    # Iterate through each PUDL Plant ID
+    for ppid in df.pudl_plant_id.unique():
+        combo_list = []
+        # Create a miniature dataframe for just this PUDL Plant ID:
+        ppid_df = df[df.pudl_plant_id == ppid].copy()
+        # For each test group that exists within this PUDL Plant ID:
+        for tgid in ppid_df.test_group_id.unique():
+            # Create yet another subset dataframe... jsut for this test group:
+            tg_df = ppid_df[ppid_df.test_group_id == tgid].copy()
+            ferc_ids = tg_df.ferc_plant_id.unique()
+            ferc_combos = itertools.combinations(ferc_ids, len(ferc_ids))
+            eia_ids = tg_df.eia_gen_subgroup.unique()
+            eia_permus = itertools.permutations(eia_ids, len(eia_ids))
+            combos = list(itertools.product(ferc_combos, eia_permus))
+            combo_list = combo_list + combos
+
+        # Re-organize these lists of tuples into binary mappings... ugh.
+        y = []
+        for x in combo_list:
+            y = y + [[z for z in zip(x[0], x[1])], ]
+
+        # Now we've got a dictionary with pudl plant IDs as the keys,
+        # and lists of all possible candidate FERC/EIA mappings as the values.
+        candidates[ppid] = y
+
+    candidates_df = pd.DataFrame(columns=df.columns)
+    candidates_df['candidate_id'] = []
+    candidates_df.drop(['test_group_id', ], axis=1, inplace=True)
+
+    for ppid in candidates.keys():
+        cid = 0
+        for c in candidates[ppid]:
+            candidate = pd.DataFrame(columns=candidates_df.columns)
+            for mapping in c:
+                newrow = df.loc[(df['ferc_plant_id'] == mapping[0]) &
+                                (df['eia_gen_subgroup'] == mapping[1])]
+                candidate = candidate.append(newrow)
+            candidate['candidate_id'] = cid
+            candidates_df = candidates_df.append(candidate)
+            cid = cid + 1
+
+    candidates_df.candidate_id = candidates_df.candidate_id.astype(int)
+    candidates_df = candidates_df.drop('test_group_id', axis=1)
+    cand_gb = candidates_df.groupby(['pudl_plant_id', 'candidate_id'])
+    cand_mean_corrs = cand_gb.agg({'corr': np.mean})
+    idx = cand_mean_corrs.groupby(['pudl_plant_id', ])['corr'].\
+        transform(max) == cand_mean_corrs['corr']
+
+    winners = cand_mean_corrs[idx].reset_index()
+    winners = winners.merge(candidates_df,
+                            how='left',
+                            on=['pudl_plant_id', 'candidate_id'])
+    winners = winners.drop(['corr_y', ], axis=1).\
+        drop_duplicates(['eia_gen_subgroup', ]).\
+        rename(columns={'corr_x': 'mean_corr'})
+    winners['success'] = \
+        winners.eia_gen_subgroup == winners.ferc_plant_id.str.lower()
+    return(winners)
+
+
 def correlation_merge():
     """
     Merge two datasets based on correlations between selected series.
