@@ -772,8 +772,8 @@ def random_chunk(li, min_chunk=1, max_chunk=3):
             break
 
 
-def zippertestdata(gens=50, max_group_size=6, series=3, samples=10,
-                   noise=[0.25, 0.25, 0.25]):
+def zippertestdata(gens=50, max_group_size=6, samples=10,
+                   noise=[0.10, 0.10, 0.10]):
     """Generate a test dataset for the datazipper, with known solutions.
 
     Args:
@@ -781,13 +781,13 @@ def zippertestdata(gens=50, max_group_size=6, series=3, samples=10,
             which may not fully enumerated in either dataset.
         max_group_size (int): Maximum number of atomic units which should
             be allowed to aggregate in the FERC groups.
-        series (int): How many shared data series should exist between the two
-            datasets, for use in connecting them to each other?
         samples (int): How many samples should be available in each shared data
             series?
         noise (array): An array-like collection of numbers indicating the
             amount of noise (dispersion) to add between the two synthetic
-            datasets. Larger numbers will result in lower correlations.
+            datasets. Larger numbers will result in lower correlations. The
+            length of the noise array determines how many data series are
+            created in the two synthetic datasets.
 
     Returns:
         eia_df (pd.DataFrame): Synthetic test data representing the EIA data
@@ -841,7 +841,7 @@ def zippertestdata(gens=50, max_group_size=6, series=3, samples=10,
         eia_new['eia_gen_id'] = eia_gen_id
         ferc_new['year'] = years
         ferc_new['ferc_gen_id'] = ferc_gen_id
-        for N in range(0, series):
+        for N in range(0, len(noise)):
             series_label = 'series{}'.format(N)
             # Create a pair of logarithmically distributed correlated
             # randomized data series:
