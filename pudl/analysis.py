@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 import sqlalchemy as sa
 import matplotlib.pyplot as plt
+import itertools
+import random
 
 # Our own code...
 from pudl import pudl, ferc1, eia923, settings, constants
@@ -761,11 +763,9 @@ def random_chunk(li, min_chunk=1, max_chunk=3):
     list. Used here to create groupings of individual generators that get
     aggregated into either FERC plants or PUDL plants for synthetic data.
     """
-    from itertools import islice
-    from random import randint
     it = iter(li)
     while True:
-        nxt = list(islice(it, randint(min_chunk, max_chunk)))
+        nxt = list(itertools.islice(it, random.randint(min_chunk, max_chunk)))
         if nxt:
             yield nxt
         else:
@@ -804,7 +804,6 @@ def zippertestdata(gens=50, max_group_size=6, samples=10,
             correctly matched.
     """
     from string import ascii_uppercase, ascii_lowercase
-    from itertools import product
 
     # Make sure we've got enough plant IDs to work with:
     rpt = 1
@@ -815,9 +814,11 @@ def zippertestdata(gens=50, max_group_size=6, samples=10,
     # EIA (lower case) Using the same IDs across both datasets will make it
     # easy for us to tell whether we've correctly inferred the connections
     # between them.
-    gen_ids_ferc = [''.join(s) for s in product(ascii_uppercase, repeat=rpt)]
+    gen_ids_ferc = [''.join(s) for s in
+                    itertools.product(ascii_uppercase, repeat=rpt)]
     gen_ids_ferc = gen_ids_ferc[:gens]
-    gen_ids_eia = [''.join(s) for s in product(ascii_lowercase, repeat=rpt)]
+    gen_ids_eia = [''.join(s) for s in
+                   itertools.product(ascii_lowercase, repeat=rpt)]
     gen_ids_eia = gen_ids_eia[:gens]
 
     # make some dummy years to use as the independent (time) variable:
@@ -908,7 +909,7 @@ def zippertestdata(gens=50, max_group_size=6, samples=10,
     return(eia_df, ferc_df)
 
 
-def correlate_pudl_plant(eia_df, ferc_df):
+def aggregate_by_pudl_plant(eia_df, ferc_df):
     """Calculate correlations between all possible plant mappings.
 
     Given two dataframes in which the same data is reported, but potentially
@@ -977,7 +978,44 @@ def correlate_pudl_plant(eia_df, ferc_df):
     return(both_df)
 
 
-def score_all(df):
+def correlate_by_generators(agg_df, eia_cols, ferc_cols, corr_cols):
+    """Calculate EIA vs. FERC correlations for several data series.
+
+    Takes a dataframe containing several analogous aggregated
+    variables in two datasets, and calculates the correlations for
+    each shared variable betwteen the two datasets.
+
+    The shared variables are indicated with eia_cols and ferc_cols
+    which contain the names of columns that exist in both of the
+    two data sources, which need to be correlated. E.g.
+    'net_generation_mwh_eia' and 'net_generation_mwh_ferc'.
+
+    Returns a dataframe containing the per-variable correlations,
+    and a bunch of ID fields for grouping and joining on.
+    """
+    index_cols = ['pudl_plant_id',
+                  'ferc_plant_id',
+                  'test_group_id',
+                  'eia_gen_subgroup']
+
+    gb = agg_df.groupby(index_cols)
+
+    # We'll accumulate the various correlation results in this DF
+    corrs = agg_df[index_cols].drop_duplicates()
+    for eia_var, ferc_var, corr_var in zip(eia_cols, ferc_cols, corr_cols):
+        # Calculate correlations between the two variables
+        newcorr = gb[[eia_var, ferc_var]].corr().reset_index()
+        # Need to eliminate extraneous correlation matrix elements.
+        newcorr = newcorr.drop(ferc_var, axis=1)
+        newcorr = newcorr[newcorr['level_4'] == ferc_var]
+        newcorr = newcorr.drop('level_4', axis=1)
+        newcorr = newcorr.rename(columns={eia_var: corr_var})
+        corrs = corrs.merge(newcorr, on=index_cols)
+
+    return(corrs)
+
+
+def score_all(df, corr_cols):
     """
     Select the mapping of FERC to EIA plant mappings based on data series.
 
@@ -1028,19 +1066,23 @@ def score_all(df):
     candidates_df.candidate_id = candidates_df.candidate_id.astype(int)
     candidates_df = candidates_df.drop('test_group_id', axis=1)
     cand_gb = candidates_df.groupby(['pudl_plant_id', 'candidate_id'])
-    cand_mean_corrs = cand_gb.agg({'corr': np.mean})
-    idx = cand_mean_corrs.groupby(['pudl_plant_id', ])['corr'].\
-        transform(max) == cand_mean_corrs['corr']
 
-    winners = cand_mean_corrs[idx].reset_index()
+    cand_mean_corrs = cand_gb[corr_cols].mean()
+    scored = pd.DataFrame(cand_mean_corrs.mean(axis=1),
+                          columns=['mean_corr', ])
+
+    idx = scored.groupby(['pudl_plant_id', ])['mean_corr'].\
+        transform(max) == scored['mean_corr']
+
+    winners = scored[idx].reset_index()
     winners = winners.merge(candidates_df,
                             how='left',
                             on=['pudl_plant_id', 'candidate_id'])
-    winners = winners.drop(['corr_y', ], axis=1).\
-        drop_duplicates(['eia_gen_subgroup', ]).\
-        rename(columns={'corr_x': 'mean_corr'})
+    winners = winners.drop(corr_cols, axis=1).\
+        drop_duplicates(['eia_gen_subgroup', ])
     winners['success'] = \
         winners.eia_gen_subgroup == winners.ferc_plant_id.str.lower()
+
     return(winners)
 
 
