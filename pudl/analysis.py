@@ -910,11 +910,35 @@ def zippertestdata(gens=50, max_group_size=6, samples=10,
 
 
 def aggregate_by_pudl_plant(eia_df, ferc_df):
-    """Calculate correlations between all possible plant mappings.
+    """Create all possible candidate aggregations of EIA test data.
 
-    Given two dataframes in which the same data is reported, but potentially
-    aggregated differently in the two cases, create a bunch of candidate
-    matching groups between them, and calculate the correlations between them.
+    The two input dataframes (eia_df and ferc_df) each contain several
+    columns of corresponding synthetic data, with some amaount of noise added
+    in to keep them from being identical. However, within the two dataframes,
+    this data is aggregated differently.  Both dataframes have pudl_plant_id
+    values, and the same data can be found within each pudl_plant_id.
+
+    In eia_df, within each pudl_plant_id group there will be some number of
+    individual generator units, each with a data value reported for each of the
+    data columns, and its own unique alphabetical generator ID.
+
+    In ferc_df, the full granularity is not available -- some lumping of the
+    original generators has already been done, and the data associated with
+    those lumps are the sums of the data which was originally associated with
+    the individual generators which make up the lumps.
+
+    This function generates all the possible lumpings of the fine-grained
+    EIA data which have the same number of elements as the FERC data within the
+    same pudl_plant_id group, and aggregates the data series within each of
+    those possible lumpings so that the data associated with each possible
+    collection of generators can be compared with the (already lumped) data
+    associated with the FERC plants.
+
+    The function returns a dataframe which contains all of the data from both
+    datasets, with many copies of the FERC data, and a different candidate
+    aggregation of the EIA data associated with each one. This can be a very
+    big dataframe, if there are lots of generators, and lots of plant entities
+    within some of the pudl_plant_id groups.
     """
     import re
     # Create a DataFrame where we will accumulate the tests cases:
@@ -981,9 +1005,11 @@ def aggregate_by_pudl_plant(eia_df, ferc_df):
 def correlate_by_generators(agg_df, eia_cols, ferc_cols, corr_cols):
     """Calculate EIA vs. FERC correlations for several data series.
 
-    Takes a dataframe containing several analogous aggregated
-    variables in two datasets, and calculates the correlations for
-    each shared variable betwteen the two datasets.
+    Given a dataframe output by aggregate_by_pudl_plant(), and lists of
+    corresponding columns from the input EIA and FERC datasets, and for the
+    output dataframe, calculate the correlations between every possible
+    candidate lumping of EIA generators, and the existing FERC generating
+    units for which data was supplied.
 
     The shared variables are indicated with eia_cols and ferc_cols
     which contain the names of columns that exist in both of the
@@ -991,7 +1017,7 @@ def correlate_by_generators(agg_df, eia_cols, ferc_cols, corr_cols):
     'net_generation_mwh_eia' and 'net_generation_mwh_ferc'.
 
     Returns a dataframe containing the per-variable correlations,
-    and a bunch of ID fields for grouping and joining on.
+    and a bunch of ID fields for grouping and joining on later.
     """
     index_cols = ['pudl_plant_id',
                   'ferc_plant_id',
@@ -1015,12 +1041,52 @@ def correlate_by_generators(agg_df, eia_cols, ferc_cols, corr_cols):
     return(corrs)
 
 
-def score_all(df, corr_cols):
-    """
-    Select the mapping of FERC to EIA plant mappings based on data series.
+def score_all(df, corr_cols, verbose=False):
+    """Score candidate ensembles of EIA generators based on match to FERC.
 
-    This needs to be generalized to work for more than one data series.
+    Given a datafram output from correlate_by_generators() above, containing
+    correlations between potential EIA generator lumpings and the original
+    FERC sub-plant groupings, generate all the possible ensembles of lumped
+    EIA generators which have the same number of elements as the FERC
+    plants we're trying to replicate, with all possible mappings between the
+    EIA generator groups and the FERC generator groups.
+
+    Then, calculate the mean correlations for all the data series for each
+    entire candidate ensemble. Return a dataframe of winners, with the EIA
+    and FERC plant IDs, the candidate_id, and the mean correlation of the
+    entire candidate ensemble across all of the data series used to determine
+    the mapping between the two data sources.
+
+    Potential improvements:
+      - Might need to be able to use a more general scoring function, rather
+        than just taking the mean of all the correlations across all the data
+        columns within a given candidate grouping. Is there a way to pass in
+        an arbitrary number of columns associated with a group in a groupby
+        object for array application? Doing two rounds of aggretation and
+        mean() calculation seems dumb.
+      - The generation of all the candidate groupings of generator ensembles
+        is hella kludgy, and also slow -- it seems like there must be a less
+        iterative, more vectorized way of doing the same thing. Depending on
+        the number of permutations that need to be generated and tested in the
+        real data, this may or may not be functional from a speed perspective.
+      - Just for scale, assuming 100 generators, 10 data series, and 100
+        samples in each data series, as we change the maximum group size
+        (which determines both how large a PUDL plant can be, and how large the
+        lumpings within a PUDL plant can be), the time to complete the tests
+        increased as follows:
+          - 5 => 20 seconds
+          - 6 => 60 seconds
+          - 7 => 150 seconds
+          - 8 => 5000 seconds
+      - Can this whole process be made more general, so that it can be used
+        to zip together other more arbitrary datasets based on shared data
+        fields? What would that look like? What additional parameters would
+        we need to pass in?
+      - Is there a good reason to keep this chain of functions separate, or
+        should they be concatenated into one longer function? Are there more
+        sensible ways to break the pipeline up?
     """
+
     candidates = {}
     # Iterate through each PUDL Plant ID
     for ppid in df.pudl_plant_id.unique():
@@ -1063,6 +1129,9 @@ def score_all(df, corr_cols):
             candidates_df = candidates_df.append(candidate)
             cid = cid + 1
 
+    if(verbose):
+        print('{} candidate generator ensembles identified.'.
+              format(len(candidates_df)))
     candidates_df.candidate_id = candidates_df.candidate_id.astype(int)
     candidates_df = candidates_df.drop('test_group_id', axis=1)
     cand_gb = candidates_df.groupby(['pudl_plant_id', 'candidate_id'])
@@ -1084,64 +1153,3 @@ def score_all(df, corr_cols):
         winners.eia_gen_subgroup == winners.ferc_plant_id.str.lower()
 
     return(winners)
-
-
-def correlation_merge():
-    """
-    Merge two datasets based on correlations between selected series.
-
-    A couple of times now, we've come up against the issue of having two
-    datasets which contain similar/comparable data, but no common ID that
-    can be used to merge them together conclusively. This function attempts
-    to use the correlations between common data series in the two data sets
-    to infer a mapping between them, so that other un-shared fields in the
-    two data sets can also be cross-referenced.
-
-    Pieces of the two datasets that we need to use to create the connection
-    between them include:
-    - the independent variable for correlations (e.g. time) which must be
-      present in each dataset.
-    - the list of pairs of dependent variables from each dataset, and how they
-      map to each other. Maybe this should be a dictionary of DataFrame field
-      names.
-    - A subset identifier, (in our case the PUDL Plant ID) that can be used
-      to limit the number of correlations which are attempted. This also needs
-      to be present in both datasets.
-    - The atomic identifier for the objects which we are trying different
-      combinations of within either dataset, to try and get a good match. In
-      our case, this is the FERC (respondent_id, plant_name) and the EIA
-      plant_id (or is it boiler_id or generator_id...)
-
-    Once we've got all of that stuff pulled together, the algorithm goes
-    something like this:
-    - For each subset_id, come up with all the set coverages of a given number
-      of elements within each of the datasets (and actually, this could
-      potentially be generalized to more than 2 datasets... but let's not get
-      crazy right now)
-    - Generate the list of all possible mappings from N elements in one
-      dataset to the other.
-    - For each of those mappings, for each value of N ranging from 1 to the
-      smaller maximum number of atomic elements within the two subsets,
-      calculate the correlation between each of the enumerated depdendent
-      variables.
-    - At this point, we should have a bunch of correlations that we can score.
-      The bigger the N is, the more specific the mapping from one dataset to
-      the other will be, and specificity is valuble, so given similar
-      correlations between two mappings, the more specific of the two should
-      be preferred. But by how much? How do we encode this preference flexibly?
-    - It might also be the case that different dependent variables are more or
-      less meaningful, in terms of whether we believe the two data sets really
-      match up, so we might want to be able to adjust the weighting of the
-      different data series in scoring the calculated correlations.
-    - Once the scoring mechanism has been determined, what do we output?
-      Ideally, we should be able to create new subset_ids, which show which
-      collections of records in the two datasets best correlate with each
-      other, and should be used to link the two data sets together. This would
-      allow direct comparison of other dependent variables, if all records
-      associated with a given subset_id and time slice were aggregated
-      together appropriately.
-
-    A lot of this is reminding me of "clustering" analysis, and I'm wondering
-    which parts of it have already been done "right" somewhere that could be
-    learned from.
-    """
