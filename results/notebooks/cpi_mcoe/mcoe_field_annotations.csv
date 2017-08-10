@@ -1,10 +1,9 @@
-Field Name, Annotation
-plant_id,EIA Plant ID
-report_date,Year for which the data was reported.
-generator_id,Plant-level generator identification number (EIA)
-energy_source,The code representing the most predominant type of energy that fuels the generator
-fuel_cost_per_mmbtu,All costs incurred in the purchase and delivery of the fuel to the plant in dollars per million Btu(MMBtu) to the nearest cent.
-fuel_cost_per_mwh,(fuel_cost_per_mmbtu)/(net_generation_mwh)
+plant_id,EIA Plant Identification number. One to five digit numeric.
+report_date,Data year
+generator_id,Generator identification code by plant
+energy_source,The EIA fuel code associated with the fuel receipt
+fuel_cost ,"(fuel_quantity * average_heat_content  * fuel_cost_per_mmbtu), where: average_heat_content is mmbtu per unit of fuel_quantity, and fuel_cost_per_mmbtu is all costs incurred in the purchase and delivery of the fuel to the plant in dollars per million Btu(MMBtu)"
+fuel_cost_per_mwh,fuel_cost / net_generation_mwh
 fuel_consumed_mmbtu,Total heat content of all fuels consumed by the plant.
 heat_rate_mmbtu_mwh,Overall heat rate for the plant in MMBTU per Mwh of net generation (fuel_consumed_mmbtu / net_generation_mwh).
 net_generation_mwh,Net electricity generation in Mwh for all units that are part of the plant.
@@ -12,3 +11,4 @@ nameplate_capacity_mw,Total installed capacity for all units (coal or otherwise)
 summer_capacity,The net summer capacity
 winter_capacity,The net winter capacity
 capacity_factor,(net_generation_mwh) / (nameplate_capacity_mw * 8760)
+real_fuel_cost,fuel_cost_per_mwh * net_generation_mwh
