@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 import sqlalchemy as sa
 import matplotlib.pyplot as plt
+import itertools
+import random
 
 # Our own code...
 from pudl import pudl, ferc1, eia923, settings, constants
@@ -583,6 +585,14 @@ def primary_fuel_gf_eia923(gf_df, fuel_thresh=0.5):
     return(gf_by_heat[['primary_fuel', ]].reset_index())
 
 
+def partition_k(collection, k):
+    """
+    """
+    for part in partition(collection):
+        if(len(part) == k):
+            yield part
+
+
 def partition(collection):
     """
     Generate all possible partitions of a collection of items.
@@ -756,19 +766,17 @@ def random_chunk(li, min_chunk=1, max_chunk=3):
     list. Used here to create groupings of individual generators that get
     aggregated into either FERC plants or PUDL plants for synthetic data.
     """
-    from itertools import islice
-    from random import randint
     it = iter(li)
     while True:
-        nxt = list(islice(it, randint(min_chunk, max_chunk)))
+        nxt = list(itertools.islice(it, random.randint(min_chunk, max_chunk)))
         if nxt:
             yield nxt
         else:
             break
 
 
-def zippertestdata(gens=50, max_group_size=6, series=3, samples=10,
-                   noise=[0.25, 0.25, 0.25]):
+def zippertestdata(gens=50, max_group_size=6, samples=10,
+                   noise=[0.10, 0.10, 0.10]):
     """Generate a test dataset for the datazipper, with known solutions.
 
     Args:
@@ -776,13 +784,13 @@ def zippertestdata(gens=50, max_group_size=6, series=3, samples=10,
             which may not fully enumerated in either dataset.
         max_group_size (int): Maximum number of atomic units which should
             be allowed to aggregate in the FERC groups.
-        series (int): How many shared data series should exist between the two
-            datasets, for use in connecting them to each other?
         samples (int): How many samples should be available in each shared data
             series?
         noise (array): An array-like collection of numbers indicating the
             amount of noise (dispersion) to add between the two synthetic
-            datasets. Larger numbers will result in lower correlations.
+            datasets. Larger numbers will result in lower correlations. The
+            length of the noise array determines how many data series are
+            created in the two synthetic datasets.
 
     Returns:
         eia_df (pd.DataFrame): Synthetic test data representing the EIA data
@@ -799,7 +807,6 @@ def zippertestdata(gens=50, max_group_size=6, series=3, samples=10,
             correctly matched.
     """
     from string import ascii_uppercase, ascii_lowercase
-    from itertools import product
 
     # Make sure we've got enough plant IDs to work with:
     rpt = 1
@@ -810,9 +817,11 @@ def zippertestdata(gens=50, max_group_size=6, series=3, samples=10,
     # EIA (lower case) Using the same IDs across both datasets will make it
     # easy for us to tell whether we've correctly inferred the connections
     # between them.
-    gen_ids_ferc = [''.join(s) for s in product(ascii_uppercase, repeat=rpt)]
+    gen_ids_ferc = [''.join(s) for s in
+                    itertools.product(ascii_uppercase, repeat=rpt)]
     gen_ids_ferc = gen_ids_ferc[:gens]
-    gen_ids_eia = [''.join(s) for s in product(ascii_lowercase, repeat=rpt)]
+    gen_ids_eia = [''.join(s) for s in
+                   itertools.product(ascii_lowercase, repeat=rpt)]
     gen_ids_eia = gen_ids_eia[:gens]
 
     # make some dummy years to use as the independent (time) variable:
@@ -836,8 +845,8 @@ def zippertestdata(gens=50, max_group_size=6, series=3, samples=10,
         eia_new['eia_gen_id'] = eia_gen_id
         ferc_new['year'] = years
         ferc_new['ferc_gen_id'] = ferc_gen_id
-        for N in range(0, series):
-            series_label = 'series_{}'.format(N)
+        for N in range(0, len(noise)):
+            series_label = 'series{}'.format(N)
             # Create a pair of logarithmically distributed correlated
             # randomized data series:
             eia_data = 10**(np.random.uniform(low=3, high=9, size=samples))
@@ -903,62 +912,247 @@ def zippertestdata(gens=50, max_group_size=6, series=3, samples=10,
     return(eia_df, ferc_df)
 
 
-def correlation_merge():
+def aggregate_by_pudl_plant(eia_df, ferc_df):
+    """Create all possible candidate aggregations of EIA test data.
+
+    The two input dataframes (eia_df and ferc_df) each contain several
+    columns of corresponding synthetic data, with some amaount of noise added
+    in to keep them from being identical. However, within the two dataframes,
+    this data is aggregated differently.  Both dataframes have pudl_plant_id
+    values, and the same data can be found within each pudl_plant_id.
+
+    In eia_df, within each pudl_plant_id group there will be some number of
+    individual generator units, each with a data value reported for each of the
+    data columns, and its own unique alphabetical generator ID.
+
+    In ferc_df, the full granularity is not available -- some lumping of the
+    original generators has already been done, and the data associated with
+    those lumps are the sums of the data which was originally associated with
+    the individual generators which make up the lumps.
+
+    This function generates all the possible lumpings of the fine-grained
+    EIA data which have the same number of elements as the FERC data within the
+    same pudl_plant_id group, and aggregates the data series within each of
+    those possible lumpings so that the data associated with each possible
+    collection of generators can be compared with the (already lumped) data
+    associated with the FERC plants.
+
+    The function returns a dataframe which contains all of the data from both
+    datasets, with many copies of the FERC data, and a different candidate
+    aggregation of the EIA data associated with each one. This can be a very
+    big dataframe, if there are lots of generators, and lots of plant entities
+    within some of the pudl_plant_id groups.
     """
-    Merge two datasets based on correlations between selected series.
+    import re
+    # Create a DataFrame where we will accumulate the tests cases:
+    eia_test_df = pd.DataFrame(columns=eia_df.columns)
+    eia_pudl_ids = eia_df.pudl_plant_id.unique()
+    ferc_pudl_ids = ferc_df.pudl_plant_id.unique()
+    assert set(eia_pudl_ids) == set(ferc_pudl_ids)
+    pudl_plant_ids = eia_pudl_ids
 
-    A couple of times now, we've come up against the issue of having two
-    datasets which contain similar/comparable data, but no common ID that
-    can be used to merge them together conclusively. This function attempts
-    to use the correlations between common data series in the two data sets
-    to infer a mapping between them, so that other un-shared fields in the
-    two data sets can also be cross-referenced.
+    for pudl_plant_id in pudl_plant_ids:
+        # Grab a single PUDL plant from FERC:
+        ferc_pudl_plant = ferc_df[ferc_df['pudl_plant_id'] == pudl_plant_id]
+        eia_pudl_plant = eia_df[eia_df['pudl_plant_id'] == pudl_plant_id]
 
-    Pieces of the two datasets that we need to use to create the connection
-    between them include:
-    - the independent variable for correlations (e.g. time) which must be
-      present in each dataset.
-    - the list of pairs of dependent variables from each dataset, and how they
-      map to each other. Maybe this should be a dictionary of DataFrame field
-      names.
-    - A subset identifier, (in our case the PUDL Plant ID) that can be used
-      to limit the number of correlations which are attempted. This also needs
-      to be present in both datasets.
-    - The atomic identifier for the objects which we are trying different
-      combinations of within either dataset, to try and get a good match. In
-      our case, this is the FERC (respondent_id, plant_name) and the EIA
-      plant_id (or is it boiler_id or generator_id...)
+        # Count how many FERC plants there are within this PUDL ID.
+        ferc_plant_ids = ferc_pudl_plant.ferc_plant_id.unique()
+        ferc_plant_n = len(ferc_plant_ids)
 
-    Once we've got all of that stuff pulled together, the algorithm goes
-    something like this:
-    - For each subset_id, come up with all the set coverages of a given number
-      of elements within each of the datasets (and actually, this could
-      potentially be generalized to more than 2 datasets... but let's not get
-      crazy right now)
-    - Generate the list of all possible mappings from N elements in one
-      dataset to the other.
-    - For each of those mappings, for each value of N ranging from 1 to the
-      smaller maximum number of atomic elements within the two subsets,
-      calculate the correlation between each of the enumerated depdendent
-      variables.
-    - At this point, we should have a bunch of correlations that we can score.
-      The bigger the N is, the more specific the mapping from one dataset to
-      the other will be, and specificity is valuble, so given similar
-      correlations between two mappings, the more specific of the two should
-      be preferred. But by how much? How do we encode this preference flexibly?
-    - It might also be the case that different dependent variables are more or
-      less meaningful, in terms of whether we believe the two data sets really
-      match up, so we might want to be able to adjust the weighting of the
-      different data series in scoring the calculated correlations.
-    - Once the scoring mechanism has been determined, what do we output?
-      Ideally, we should be able to create new subset_ids, which show which
-      collections of records in the two datasets best correlate with each
-      other, and should be used to link the two data sets together. This would
-      allow direct comparison of other dependent variables, if all records
-      associated with a given subset_id and time slice were aggregated
-      together appropriately.
+        # Enumerate all the EIA generator set coverages with the same number of
+        # elements as there are FERC plants.
+        eia_test_groups = \
+            partition_k(list(eia_pudl_plant.eia_gen_id.unique()), ferc_plant_n)
 
-    A lot of this is reminding me of "clustering" analysis, and I'm wondering
-    which parts of it have already been done "right" somewhere that could be
-    learned from.
+        # Create new records from the EIA dataframe with the data series
+        # aggregated according to each of the candidate generator groupings.
+        test_group_id = 0
+        for group in eia_test_groups:
+            new_eia_grouping = eia_pudl_plant.copy()
+            new_eia_grouping['test_group_id'] = test_group_id
+
+            for subgroup in group:
+                eia_subgroup_id = '_'.join(subgroup)
+                eia_subgroup_mask = new_eia_grouping.eia_gen_id.isin(subgroup)
+                new_eia_grouping.loc[eia_subgroup_mask, 'eia_gen_subgroup'] = \
+                    eia_subgroup_id
+
+            eia_test_df = eia_test_df.append(new_eia_grouping)
+            test_group_id = test_group_id + 1
+
+    eia_test_df['test_group_id'] = eia_test_df['test_group_id'].astype(int)
+    eia_test_df = eia_test_df.groupby(['pudl_plant_id',
+                                       'test_group_id',
+                                       'eia_gen_subgroup',
+                                       'year']).agg(sum)
+
+    # Within each (pudl_plant_id, test_group_id) pairing, we'll have a list of
+    # N generator subgroups. We need to calculate the correlations with FERC
+    # Form 1 for each possible generator subgroup ordering We can generate the
+    # list of all possible combinations of FERC plant and EIA subgroups using
+    # the itertools.product() function... but what do we do with that
+    # information?
+    eia_test_df = eia_test_df.reset_index()
+    eia_test_df = eia_test_df.rename(
+        columns=lambda x: re.sub('(series[0-9]*$)', r'\1_eia', x))
+    ferc_df = ferc_df.reset_index()
+    ferc_df = ferc_df.drop('index', axis=1)
+    ferc_df = ferc_df.rename(
+        columns=lambda x: re.sub('(series[0-9]*$)', r'\1_ferc', x))
+    both_df = eia_test_df.merge(ferc_df, on=['pudl_plant_id', 'year'])
+
+    return(both_df)
+
+
+def correlate_by_generators(agg_df, eia_cols, ferc_cols, corr_cols):
+    """Calculate EIA vs. FERC correlations for several data series.
+
+    Given a dataframe output by aggregate_by_pudl_plant(), and lists of
+    corresponding columns from the input EIA and FERC datasets, and for the
+    output dataframe, calculate the correlations between every possible
+    candidate lumping of EIA generators, and the existing FERC generating
+    units for which data was supplied.
+
+    The shared variables are indicated with eia_cols and ferc_cols
+    which contain the names of columns that exist in both of the
+    two data sources, which need to be correlated. E.g.
+    'net_generation_mwh_eia' and 'net_generation_mwh_ferc'.
+
+    Returns a dataframe containing the per-variable correlations,
+    and a bunch of ID fields for grouping and joining on later.
     """
+    index_cols = ['pudl_plant_id',
+                  'ferc_plant_id',
+                  'test_group_id',
+                  'eia_gen_subgroup']
+
+    gb = agg_df.groupby(index_cols)
+
+    # We'll accumulate the various correlation results in this DF
+    corrs = agg_df[index_cols].drop_duplicates()
+    for eia_var, ferc_var, corr_var in zip(eia_cols, ferc_cols, corr_cols):
+        # Calculate correlations between the two variables
+        newcorr = gb[[eia_var, ferc_var]].corr().reset_index()
+        # Need to eliminate extraneous correlation matrix elements.
+        newcorr = newcorr.drop(ferc_var, axis=1)
+        newcorr = newcorr[newcorr['level_4'] == ferc_var]
+        newcorr = newcorr.drop('level_4', axis=1)
+        newcorr = newcorr.rename(columns={eia_var: corr_var})
+        corrs = corrs.merge(newcorr, on=index_cols)
+
+    return(corrs)
+
+
+def score_all(df, corr_cols, verbose=False):
+    """Score candidate ensembles of EIA generators based on match to FERC.
+
+    Given a datafram output from correlate_by_generators() above, containing
+    correlations between potential EIA generator lumpings and the original
+    FERC sub-plant groupings, generate all the possible ensembles of lumped
+    EIA generators which have the same number of elements as the FERC
+    plants we're trying to replicate, with all possible mappings between the
+    EIA generator groups and the FERC generator groups.
+
+    Then, calculate the mean correlations for all the data series for each
+    entire candidate ensemble. Return a dataframe of winners, with the EIA
+    and FERC plant IDs, the candidate_id, and the mean correlation of the
+    entire candidate ensemble across all of the data series used to determine
+    the mapping between the two data sources.
+
+    Potential improvements:
+      - Might need to be able to use a more general scoring function, rather
+        than just taking the mean of all the correlations across all the data
+        columns within a given candidate grouping. Is there a way to pass in
+        an arbitrary number of columns associated with a group in a groupby
+        object for array application? Doing two rounds of aggretation and
+        mean() calculation seems dumb.
+      - The generation of all the candidate groupings of generator ensembles
+        is hella kludgy, and also slow -- it seems like there must be a less
+        iterative, more vectorized way of doing the same thing. Depending on
+        the number of permutations that need to be generated and tested in the
+        real data, this may or may not be functional from a speed perspective.
+      - Just for scale, assuming 100 generators, 10 data series, and 100
+        samples in each data series, as we change the maximum group size
+        (which determines both how large a PUDL plant can be, and how large the
+        lumpings within a PUDL plant can be), the time to complete the tests
+        increased as follows:
+          - 5 => 20 seconds
+          - 6 => 60 seconds
+          - 7 => 150 seconds
+          - 8 => 5000 seconds
+      - Can this whole process be made more general, so that it can be used
+        to zip together other more arbitrary datasets based on shared data
+        fields? What would that look like? What additional parameters would
+        we need to pass in?
+      - Is there a good reason to keep this chain of functions separate, or
+        should they be concatenated into one longer function? Are there more
+        sensible ways to break the pipeline up?
+    """
+
+    candidates = {}
+    # Iterate through each PUDL Plant ID
+    for ppid in df.pudl_plant_id.unique():
+        combo_list = []
+        # Create a miniature dataframe for just this PUDL Plant ID:
+        ppid_df = df[df.pudl_plant_id == ppid].copy()
+        # For each test group that exists within this PUDL Plant ID:
+        for tgid in ppid_df.test_group_id.unique():
+            # Create yet another subset dataframe... jsut for this test group:
+            tg_df = ppid_df[ppid_df.test_group_id == tgid].copy()
+            ferc_ids = tg_df.ferc_plant_id.unique()
+            ferc_combos = itertools.combinations(ferc_ids, len(ferc_ids))
+            eia_ids = tg_df.eia_gen_subgroup.unique()
+            eia_permus = itertools.permutations(eia_ids, len(eia_ids))
+            combos = list(itertools.product(ferc_combos, eia_permus))
+            combo_list = combo_list + combos
+
+        # Re-organize these lists of tuples into binary mappings... ugh.
+        y = []
+        for x in combo_list:
+            y = y + [[z for z in zip(x[0], x[1])], ]
+
+        # Now we've got a dictionary with pudl plant IDs as the keys,
+        # and lists of all possible candidate FERC/EIA mappings as the values.
+        candidates[ppid] = y
+
+    candidates_df = pd.DataFrame(columns=df.columns)
+    candidates_df['candidate_id'] = []
+    candidates_df.drop(['test_group_id', ], axis=1, inplace=True)
+
+    for ppid in candidates.keys():
+        cid = 0
+        for c in candidates[ppid]:
+            candidate = pd.DataFrame(columns=candidates_df.columns)
+            for mapping in c:
+                newrow = df.loc[(df['ferc_plant_id'] == mapping[0]) &
+                                (df['eia_gen_subgroup'] == mapping[1])]
+                candidate = candidate.append(newrow)
+            candidate['candidate_id'] = cid
+            candidates_df = candidates_df.append(candidate)
+            cid = cid + 1
+
+    if(verbose):
+        print('{} candidate generator ensembles identified.'.
+              format(len(candidates_df)))
+    candidates_df.candidate_id = candidates_df.candidate_id.astype(int)
+    candidates_df = candidates_df.drop('test_group_id', axis=1)
+    cand_gb = candidates_df.groupby(['pudl_plant_id', 'candidate_id'])
+
+    cand_mean_corrs = cand_gb[corr_cols].mean()
+    scored = pd.DataFrame(cand_mean_corrs.mean(axis=1),
+                          columns=['mean_corr', ])
+
+    idx = scored.groupby(['pudl_plant_id', ])['mean_corr'].\
+        transform(max) == scored['mean_corr']
+
+    winners = scored[idx].reset_index()
+    winners = winners.merge(candidates_df,
+                            how='left',
+                            on=['pudl_plant_id', 'candidate_id'])
+    winners = winners.drop(corr_cols, axis=1).\
+        drop_duplicates(['eia_gen_subgroup', ])
+    winners['success'] = \
+        winners.eia_gen_subgroup == winners.ferc_plant_id.str.lower()
+
+    return(winners)
