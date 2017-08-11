@@ -1670,8 +1670,10 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
     # We need to cast the generator_id column as type str because sometimes
     # it is heterogeneous int/str which make drop_duplicates fail.
     b_g_df['generator_id'] = b_g_df['generator_id'].astype(str)
-    b_g_df = b_g_df.drop_duplicates().dropna()
+    b_g_df['boiler_id'] = b_g_df['boiler_id'].astype(str)
     b_g_df['plant_id'] = b_g_df['plant_id'].astype(int)
+    # This drop_duplicates isn't removing all duplicates
+    b_g_df = b_g_df.drop_duplicates().dropna()
 
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(b_g_df, 'boiler_generator_assn_eia860', pudl_engine,
