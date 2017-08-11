@@ -170,23 +170,7 @@ def ferc1_expns_corr(steam_df, capacity_factor=0.6):
 
 
 def get_steam_ferc1_df(testing=False):
-    """
-    FERC Steam Stuff for Eric:
-     - Respondent ID
-     - Respondent Name
-     - Plant Name
-     - Report Year
-     - PUDL ID
-     - Net Generation (MWh)
-     - Capacity (MW)
-     - Capacity Factor
-     - All itemized expenses (USD)
-     - Total fuel expenses (USD)
-     - Total non-fuel production expenses (USD)
-     - Total non-production expenses (USD)
-     - Total MMBTU consumed (USD)
-     - Heat Rate (BTU/kWh)
-    """
+    """Select and join some useful fields from the FERC Form 1 steam table."""
     # Connect to the DB
     pudl_engine = pudl.db_connect_pudl(testing=testing)
 
@@ -296,6 +280,7 @@ def get_fuel_ferc1_df(testing=False):
 
 
 def get_gen_fuel_eia923_df(testing=False):
+    """Pull a useful set of fields related to generation_fuel_eia923 table."""
     # Connect to the DB
     pudl_engine = pudl.db_connect_pudl(testing=testing)
 
@@ -325,6 +310,7 @@ def get_gen_fuel_eia923_df(testing=False):
 
 
 def get_frc_eia923_df(testing=False):
+    """Pull a useful fields related to fuel_receipts_costs_eia923 table."""
     # Connect to the DB
     pudl_engine = pudl.db_connect_pudl(testing=testing)
 
@@ -427,6 +413,24 @@ def steam_ferc1_by_pudl(pudl_plant_ids, cols=['net_generation_mwh', ]):
 def frc_by_pudl(pudl_plant_ids,
                 fuels=['gas', 'oil', 'coal'],
                 cols=['total_fuel_cost', ]):
+    """
+    Aggregate fuel_receipts_costs_eia923 table for comparison with FERC Form 1.
+
+    In order to correlate informataion between EIA 923 and FERC Form 1, we need
+    to aggregate the EIA data annually, and potentially by fuel. This function
+    groups fuel_receipts_costs_eia923 by pudl_plant_id, fuel, and year, and
+    sums the columns of interest specified in cols, and returns a dataframe
+    with the totals by pudl_plant_id, fuel, and year.
+
+    Args:
+        pudl_plant_ids: list of plant IDs to keep.
+        fuels: list of fuel strings that we want to group by. Alternatively,
+            this can be set to 'all' in which case fuel is not grouped by.
+        cols: List of data columns which we are summing.
+    Returns:
+        A dataframe with the sums of cols, as grouped by pudl ID, year, and
+            (optionally) fuel.
+    """
     # Get all the EIA info from generation_fuel_eia923
     frc_df = get_frc_eia923_df()
     # Limit just to the plants we're looking at
@@ -466,6 +470,24 @@ def gen_fuel_by_pudl(pudl_plant_ids,
                      fuels=['gas', 'oil', 'coal'],
                      cols=['fuel_consumed_total_mmbtu',
                            'net_generation_mwh']):
+    """
+    Aggregate generation_fuel_eia923 table for comparison with FERC Form 1.
+
+    In order to correlate informataion between EIA 923 and FERC Form 1, we need
+    to aggregate the EIA data annually, and potentially by fuel. This function
+    groups generation_fuel_eia923 by pudl_plant_id, fuel, and year, and sums
+    the columns of interest specified in cols, and returns a dataframe with
+    the totals by pudl_plant_id, fuel, and year.
+
+    Args:
+        pudl_plant_ids: list of plant IDs to keep.
+        fuels: list of fuel strings that we want to group by. Alternatively,
+            this can be set to 'all' in which case fuel is not grouped by.
+        cols: List of data columns which we are summing.
+    Returns:
+        A dataframe with the sums of cols, as grouped by pudl ID, year, and
+            (optionally) fuel.
+    """
     # Get all the EIA info from generation_fuel_eia923
     gf_df = get_gen_fuel_eia923_df()
 
@@ -803,8 +825,7 @@ def primary_fuel_gf_eia923(gf_df, fuel_thresh=0.5):
 
 
 def partition_k(collection, k):
-    """
-    """
+    """Generate all partitions of a set having k elements."""
     for part in partition(collection):
         if(len(part) == k):
             yield part
