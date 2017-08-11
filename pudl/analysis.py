@@ -282,10 +282,227 @@ def get_fuel_ferc1_df(testing=False):
     # Pull the data from the DB into a DataFrame
     fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)
 
-    # Calculate additional useful quantities, and add them to the DataFrame
-    # before we return the result, including
+    # We have two different ways of assessing the total cost of fuel given cost
+    # per unit delivered and cost per mmbtu. They *should* be the same, but we
+    # know they aren't always. Calculate both so we can compare both.
+    fuel_df['fuel_consumed_total_mmbtu'] = \
+        fuel_df['fuel_qty_burned'] * fuel_df['fuel_avg_mmbtu_per_unit']
+    fuel_df['fuel_consumed_total_cost_mmbtu'] = \
+        fuel_df['fuel_cost_per_mmbtu'] * fuel_df['fuel_consumed_total_mmbtu']
+    fuel_df['fuel_consumed_total_cost_unit'] = \
+        fuel_df['fuel_cost_per_unit_burned'] * fuel_df['fuel_qty_burned']
 
     return(fuel_df)
+
+
+def get_gen_fuel_eia923_df(testing=False):
+    # Connect to the DB
+    pudl_engine = pudl.db_connect_pudl(testing=testing)
+
+    # Grab the list of tables so we can reference them shorthand.
+    pt = models.PUDLBase.metadata.tables
+
+    gf_eia923_select = sa.sql.select([
+        pt['utilities_eia'].c.operator_id,
+        pt['utilities_eia'].c.operator_name,
+        pt['plants_eia'].c.plant_id_pudl,
+        pt['plants_eia'].c.plant_name,
+        pt['generation_fuel_eia923'].c.plant_id,
+        pt['generation_fuel_eia923'].c.report_date,
+        pt['generation_fuel_eia923'].c.aer_fuel_category,
+        pt['generation_fuel_eia923'].c.fuel_consumed_total_mmbtu,
+        pt['generation_fuel_eia923'].c.net_generation_mwh]).\
+        where(sa.sql.and_(
+            pt['plants_eia'].c.plant_id ==
+            pt['generation_fuel_eia923'].c.plant_id,
+            pt['util_plant_assn'].c.plant_id ==
+            pt['plants_eia'].c.plant_id_pudl,
+            pt['util_plant_assn'].c.utility_id ==
+            pt['utilities_eia'].c.util_id_pudl
+        ))
+
+    return(pd.read_sql(gf_eia923_select, pudl_engine))
+
+
+def get_frc_eia923_df(testing=False):
+    # Connect to the DB
+    pudl_engine = pudl.db_connect_pudl(testing=testing)
+
+    # Grab the list of tables so we can reference them shorthand.
+    pt = models.PUDLBase.metadata.tables
+
+    frc_eia923_select = sa.sql.select([
+        pt['utilities_eia'].c.operator_id,
+        pt['utilities_eia'].c.operator_name,
+        pt['plants_eia'].c.plant_id_pudl,
+        pt['plants_eia'].c.plant_name,
+        pt['fuel_receipts_costs_eia923'].c.plant_id,
+        pt['fuel_receipts_costs_eia923'].c.report_date,
+        pt['fuel_receipts_costs_eia923'].c.fuel_group,
+        pt['fuel_receipts_costs_eia923'].c.average_heat_content,
+        pt['fuel_receipts_costs_eia923'].c.fuel_quantity,
+        pt['fuel_receipts_costs_eia923'].c.fuel_cost_per_mmbtu]).\
+        where(sa.sql.and_(
+            pt['plants_eia'].c.plant_id ==
+            pt['fuel_receipts_costs_eia923'].c.plant_id,
+            pt['util_plant_assn'].c.plant_id ==
+            pt['plants_eia'].c.plant_id_pudl,
+            pt['util_plant_assn'].c.utility_id ==
+            pt['utilities_eia'].c.util_id_pudl
+        ))
+
+    # There are some quantities that we want pre-calculated based on the
+    # columns in the FRC table... let's just do it here so we don't end up
+    # doing it over and over again in every goddamned notebook.
+    frc_df = pd.read_sql(frc_eia923_select, pudl_engine)
+    frc_df['total_heat_content_mmbtu'] = \
+        frc_df['average_heat_content'] * frc_df['fuel_quantity']
+    frc_df['total_fuel_cost'] = \
+        frc_df['total_heat_content_mmbtu'] * frc_df['fuel_cost_per_mmbtu']
+
+    # Standardize the fuel codes (need to fix this in DB ingest!!!)
+    frc_df = frc_df.rename(columns={'fuel_group': 'fuel'})
+    frc_df['fuel'] = frc_df.fuel.replace(
+        to_replace=['Petroleum', 'Natural Gas', 'Coal'],
+        value=['oil', 'gas', 'coal'])
+
+    return(frc_df)
+
+
+def fuel_ferc1_by_pudl(pudl_plant_ids,
+                       fuels=['gas', 'oil', 'coal'],
+                       cols=['fuel_consumed_total_mmbtu',
+                             'fuel_consumed_total_cost_mmbtu',
+                             'fuel_consumed_total_cost_unit']):
+    """Aggregate FERC Form 1 fuel data by PUDL plant id and, optionally, fuel.
+
+    Arguments:
+        pudl_plant_ids: which PUDL plants should we retain for aggregation?
+        fuels: Should the columns listed in cols be broken out by each
+            individual fuel? If so, which fuels do we want totals for? If
+            you want all fuels lumped together, pass in 'all'.
+        cols: which columns from the fuel_ferc1 table should be summed.
+    Returns:
+        fuel_df: a dataframe with pudl_plant_id, year, and the summed values
+            specified in cols. If fuels is not 'all' then it also has a column
+            specifying fuel type.
+    """
+    fuel_df = get_fuel_ferc1_df()
+
+    # Calculate the total fuel heat content for the plant by fuel
+    fuel_df = fuel_df[fuel_df.plant_id_pudl.isin(pudl_plant_ids)]
+
+    if (fuels == 'all'):
+        cols_to_gb = ['plant_id_pudl', 'report_year']
+    else:
+        # Limit to records that pertain to our fuels of interest.
+        fuel_df = fuel_df[fuel_df['fuel'].isin(fuels)]
+        # Group by fuel as well, so we get individual fuel totals.
+        cols_to_gb = ['plant_id_pudl', 'report_year', 'fuel']
+
+    fuel_df = fuel_df.groupby(cols_to_gb)[cols].sum()
+    fuel_df = fuel_df.reset_index()
+
+    return(fuel_df)
+
+
+def steam_ferc1_by_pudl(pudl_plant_ids, cols=['net_generation_mwh', ]):
+    """Aggregate and return data from the steam_ferc1 table by pudl_plant_id.
+
+    Arguments:
+        pudl_plant_ids: A list of ids to include in the output.
+        cols: The data columns that you want to aggregate and return.
+    Returns:
+        steam_df: A dataframe with columns for report_year, pudl_plant_id and
+            cols, with the values in cols aggregated by plant and year.
+    """
+    steam_df = get_steam_ferc1_df()
+    steam_df = steam_df[steam_df.plant_id_pudl.isin(pudl_plant_ids)]
+    steam_df = steam_df.groupby(['plant_id_pudl', 'report_year'])[cols].sum()
+    steam_df = steam_df.reset_index()
+
+    return(steam_df)
+
+
+def frc_by_pudl(pudl_plant_ids,
+                fuels=['gas', 'oil', 'coal'],
+                cols=['total_fuel_cost', ]):
+    # Get all the EIA info from generation_fuel_eia923
+    frc_df = get_frc_eia923_df()
+    # Limit just to the plants we're looking at
+    frc_df = frc_df[frc_df.plant_id_pudl.isin(pudl_plant_ids)]
+    # Just keep the columns we need for output:
+    cols_to_keep = ['plant_id_pudl', 'report_date']
+    cols_to_keep = cols_to_keep + cols
+    cols_to_gb = [pd.TimeGrouper(freq='A'), 'plant_id_pudl']
+
+    if (fuels != 'all'):
+        frc_df = frc_df[frc_df.fuel.isin(fuels)]
+        cols_to_keep = cols_to_keep + ['fuel', ]
+        cols_to_gb = cols_to_gb + ['fuel', ]
+
+    # Pare down the dataframe to make it easier to play with:
+    frc_df = frc_df[cols_to_keep]
+
+    # Prepare to group annually
+    frc_df['report_date'] = pd.to_datetime(frc_df['report_date'])
+    frc_df.index = frc_df.report_date
+    frc_df.drop('report_date', axis=1, inplace=True)
+
+    # Group and sum of the columns of interest:
+    frc_gb = frc_df.groupby(by=cols_to_gb)
+    frc_totals_df = frc_gb[cols].sum()
+
+    # Simplify and clean the DF for return:
+    frc_totals_df = frc_totals_df.reset_index()
+    frc_totals_df['report_year'] = frc_totals_df.report_date.dt.year
+    frc_totals_df = frc_totals_df.drop('report_date', axis=1)
+    frc_totals_df = frc_totals_df.dropna()
+
+    return(frc_totals_df)
+
+
+def gen_fuel_by_pudl(pudl_plant_ids,
+                     fuels=['gas', 'oil', 'coal'],
+                     cols=['fuel_consumed_total_mmbtu',
+                           'net_generation_mwh']):
+    # Get all the EIA info from generation_fuel_eia923
+    gf_df = get_gen_fuel_eia923_df()
+
+    # Standardize the fuel codes (need to fix this in the DB!!!!)
+    gf_df = gf_df.rename(columns={'aer_fuel_category': 'fuel'})
+    gf_df['fuel'] = gf_df.fuel.replace(to_replace='petroleum', value='oil')
+
+    # Select only the records that pertain to our target IDs
+    gf_df = gf_df[gf_df.plant_id_pudl.isin(pudl_plant_ids)]
+
+    cols_to_keep = ['plant_id_pudl', 'report_date']
+    cols_to_keep = cols_to_keep + cols
+    cols_to_gb = [pd.TimeGrouper(freq='A'), 'plant_id_pudl']
+
+    if (fuels != 'all'):
+        gf_df = gf_df[gf_df.fuel.isin(fuels)]
+        cols_to_keep = cols_to_keep + ['fuel', ]
+        cols_to_gb = cols_to_gb + ['fuel', ]
+
+    # Pare down the dataframe to make it easier to play with:
+    gf_df = gf_df[cols_to_keep]
+
+    # Prepare to group annually
+    gf_df['report_date'] = pd.to_datetime(gf_df['report_date'])
+    gf_df.index = gf_df.report_date
+    gf_df.drop('report_date', axis=1, inplace=True)
+
+    gf_gb = gf_df.groupby(by=cols_to_gb)
+    gf_totals_df = gf_gb[cols].sum()
+    gf_totals_df = gf_totals_df.reset_index()
+
+    # Simplify date info for easy comparison with FERC.
+    gf_totals_df['report_year'] = gf_totals_df.report_date.dt.year
+    gf_totals_df = gf_totals_df.drop('report_date', axis=1)
+    gf_totals_df = gf_totals_df.dropna()
+
+    return(gf_totals_df)
 
 
 def generator_proportion_eia923(g):
@@ -1153,3 +1370,9 @@ def score_all(df, corr_cols, verbose=False):
         winners.eia_gen_subgroup == winners.ferc_plant_id.str.lower()
 
     return(winners)
+
+
+def correlation_merge():
+    """Merge two datasets based on specified shared data series."""
+    # What fields do we need in the data frames to be merged? What's the
+    # output that we're expecting?
