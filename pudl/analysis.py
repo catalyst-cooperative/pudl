@@ -523,6 +523,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
                    'aer_fuel_category',
                    'fuel_consumed_total_mmbtu']]
 
+    # Set report_date as a DatetimeIndex
     gf_df = gf_df.set_index(pd.DatetimeIndex(gf_df['report_date']))
 
     # Group by report_date(annual), plant_id, fuel_group
