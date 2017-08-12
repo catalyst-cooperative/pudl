@@ -1,9 +1,10 @@
 Notes on marginal cost of electricity (MCOE) calculations using EIA860 and EIA923 data
 Years in analysis: 2011-2016
 Plants with nameplate_capacity >50 MW are excluded
-Heat_rate_mmbtu_mwh < 5.0 are excluded(replaced with NaN)
+Heat_rate_mmbtu_mwh < 5.0 are excluded (replaced with NA)
 Capacity_factor < 0 are excluded
 Capacity_factor >= 1.5 are excluded
-Fuel_cost_by_generator < 0 are excluded
+Fuel_cost_per_mwh < 0 are excluded (replaced with NA)
+Fuel_cost_by_generator < 0 are excluded (replaced with NA)
 Net_generation_mwh < 0 are retained to account for generators where parasitic load is greater than annual net generation
 Proportion_generation_by_generator < 0  are retained to account for generators where parasitic load is greater than annual net generation
