@@ -1613,6 +1613,10 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
                                                   float_na=np.nan,
                                                   int_na=-1,
                                                   str_na='')
+
+    # Convert fuel cost (cents per mmbtu) into dollars per mmbtu
+    frc_df = clean_eia923.fuel_reciept_cost_clean(frc_df)
+
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(frc_df, 'fuel_receipts_costs_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
@@ -1666,8 +1670,10 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
     # We need to cast the generator_id column as type str because sometimes
     # it is heterogeneous int/str which make drop_duplicates fail.
     b_g_df['generator_id'] = b_g_df['generator_id'].astype(str)
-    b_g_df = b_g_df.drop_duplicates().dropna()
+    b_g_df['boiler_id'] = b_g_df['boiler_id'].astype(str)
     b_g_df['plant_id'] = b_g_df['plant_id'].astype(int)
+    # This drop_duplicates isn't removing all duplicates
+    b_g_df = b_g_df.drop_duplicates().dropna()
 
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(b_g_df, 'boiler_generator_assn_eia860', pudl_engine,

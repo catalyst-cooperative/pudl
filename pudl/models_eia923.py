@@ -331,7 +331,7 @@ class FuelReceiptsCostsEIA923(pudl.models.PUDLBase):
     average_sulfur_content = Column(Float, nullable=False)
     average_ash_content = Column(Float, nullable=False)
     average_mercury_content = Column(Float)
-    fuel_cost = Column(Float)
+    fuel_cost_per_mmbtu = Column(Float)
     primary_transportation_mode = Column(
         String,
         ForeignKey('transport_modes_eia923.abbr'))
