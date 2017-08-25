@@ -1,11 +1,13 @@
 plant_id,EIA Plant Identification number. One to five digit numeric.
 report_date,Data year
 generator_id,Generator identification code by plant
-energy_source,The EIA fuel code associated with the fuel receipt
-fuel_cost ,"(fuel_quantity * average_heat_content  * fuel_cost_per_mmbtu), where: average_heat_content is mmbtu per unit of fuel_quantity, and fuel_cost_per_mmbtu is all costs incurred in the purchase and delivery of the fuel to the plant in dollars per million Btu(MMBtu)"
-fuel_cost_per_mwh,fuel_cost / net_generation_mwh
-fuel_consumed_mmbtu,Total heat content of all fuels consumed by the plant.
-heat_rate_mmbtu_mwh,Overall heat rate for the plant in MMBTU per Mwh of net generation (fuel_consumed_mmbtu / net_generation_mwh).
+energy_source,The EIA fuel code associated with the fuel receipt: https://www.eia.gov/electricity/2008forms/aaqs_923.html
+proportion_generation_by_generator,net_generation_mwh_per_generator/net_generation_mwh
+fuel_cost_by_generator,fuel_cost * proportion_generation_by_generator; where fuel_cost = (fuel_quantity * average_heat_content  * fuel_cost_per_mmbtu) where: average_heat_content is mmbtu per unit of fuel_quantity & fuel_cost_per_mmbtu is all costs incurred in purchase & delivery of the fuel to the plant in dollars per million Btu(MMBtu)
+fuel_cost_per_mwh,fuel_cost / net_generation_mwh (calculated by plant and fuel type so values are same for generators with same fuel type)
+fuel_consumed_mmbtu_per_generator,proportion_generation_by_generator * fuel_consumed_mmbtu; where fuel_consumed_mmbtu is total heat content of all fuels consumed by the plant
+heat_rate_mmbtu_mwh,Overall heat rate for each generator in MMBTU per Mwh of net generation (fuel_consumed_mmbtu_per_generator / net_generation_mwh_per_generator)
+plant_assn,True (value = 1) if all generators are mapped to a boiler for a given year of plant data; False (value = 0) if generator data exists that is not mapped to a boiler in the boiler generator association table in EIA860
 net_generation_mwh,Net electricity generation in Mwh for all units that are part of the plant.
 nameplate_capacity_mw,Total installed capacity for all units (coal or otherwise) that are part of the plant.
 summer_capacity,The net summer capacity
