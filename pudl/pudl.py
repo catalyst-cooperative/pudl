@@ -1667,11 +1667,22 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
 
     b_g_df = b_g_df[b_g_cols]
 
+    # There are some bad (non-data) lines in some of the boiler generator
+    # data files (notes from EIA) which are messing up the import. Need to
+    # identify and drop them early on.
+    b_g_df['operator_id'] = b_g_df['operator_id'].astype(str)
+    b_g_df = b_g_df[b_g_df.operator_id.str.isnumeric()]
+
+    b_g_df['plant_id'] = clean_pudl.fix_int_na(b_g_df['plant_id'],
+                                               float_na=np.nan,
+                                               int_na=-1,
+                                               str_na='')
+
     # We need to cast the generator_id column as type str because sometimes
     # it is heterogeneous int/str which make drop_duplicates fail.
     b_g_df['generator_id'] = b_g_df['generator_id'].astype(str)
     b_g_df['boiler_id'] = b_g_df['boiler_id'].astype(str)
-    b_g_df['plant_id'] = b_g_df['plant_id'].astype(int)
+
     # This drop_duplicates isn't removing all duplicates
     b_g_df = b_g_df.drop_duplicates().dropna()
 
