@@ -154,7 +154,7 @@ def consolidate_ferc1_expns(steam_df, min_capfac=0.6, min_corr=0.5):
     # Calculate correlation of expenses to net power generation. Require a
     # minimum plant capacity factor of 0.6 so we the signal will be high,
     # but we'll still have lots of plants to look at:
-    expns_corr = ferc1_expns_corr(steam_df, capacity_factor=min_capfac)
+    expns_corr = ferc1_expns_corr(steam_df, min_capfac=min_capfac)
 
     # We've already got fuel separately, and we know it's a production expense
     expns_corr.pop('expns_fuel')
@@ -174,7 +174,7 @@ def consolidate_ferc1_expns(steam_df, min_capfac=0.6, min_corr=0.5):
     return(steam_df)
 
 
-def ferc1_expns_corr(steam_df, capacity_factor=0.6):
+def ferc1_expns_corr(steam_df, min_capfac=0.6):
     """
     Calculate generation vs. expense correlation for FERC Form 1 plants.
 
@@ -201,7 +201,7 @@ def ferc1_expns_corr(steam_df, capacity_factor=0.6):
         (steam_df['net_generation_mwh'] / 8760 * steam_df['total_capacity_mw'])
 
     # Limit plants by capacity factor
-    steam_df = steam_df[steam_df['capacity_factor'] > capacity_factor]
+    steam_df = steam_df[steam_df['capacity_factor'] > min_capfac]
 
     # This is all the expns_* fields, except for the per_mwh and total.
     cols_to_correlate = ['expns_operations',
@@ -333,9 +333,19 @@ def get_fuel_ferc1_df(pudl_engine):
     return(fuel_df)
 
 
-def simple_ferc_expenses(pudl_engine):
+def simple_ferc_expenses(pudl_engine, min_capfac=0.6, min_corr=0.5):
     """
     Gather operating expense data for all simple FERC steam plants.
+
+    Args:
+        pudl_engine: a connection to the PUDL database.
+        min_capfac: the minimum plant capacity factor to use in
+            determining whether an expense category is a production or
+            non-production cost.
+        min_corr: The threhold correlation to use in determining whether an
+            expense is a production or non-production expense. If an expense
+            has a correlation to net generation that is greater than or equal
+            to this threshold, it is categorized as a production expense.
 
     Returns:
         ferc1_expns_corr: A dictionary of expense categories
@@ -345,23 +355,22 @@ def simple_ferc_expenses(pudl_engine):
             broken out for each simple FERC PUDL plant.
     """
     # All the simple FERC plants -- only one unit reported per PUDL ID:
-    simple_ferc = analysis.simple_ferc1_plant_ids(pudl_engine)
+    simple_ferc = simple_ferc1_plant_ids(pudl_engine)
     # All of the EIA PUDL plant IDs
-    eia_pudl = analysis.eia_pudl_plant_ids(pudl_engine)
+    eia_pudl = eia_pudl_plant_ids(pudl_engine)
     # All of the large steam plants from FERC:
-    steam_df = analysis.get_steam_ferc1_df(pudl_engine)
+    steam_df = get_steam_ferc1_df(pudl_engine)
 
     # Calculate the dataset-wide expense correlations, for the record.
-    ferc1_expns_corr = analysis.ferc1_expns_corr(steam_df, capacity_factor=0.6)
+    expns_corrs = ferc1_expns_corr(steam_df, min_capfac=min_capfac)
     # Lump the operating expenses based on those correlations. Note that we
     # could also do this lumping after limiting the set of plants that we're
     # reporting on.  However, doing it based on the entire dataset seems more
     # appropriate, given that these correlations are properties of the fields,
     # not the plants... or so we hope.
-
-    steam_df = analysis.consolidate_ferc1_expns(steam_df,
-                                                min_capfac=0.6,
-                                                min_corr=0.5)
+    steam_df = consolidate_ferc1_expns(steam_df,
+                                       min_capfac=min_capfac,
+                                       min_corr=min_corr)
 
     # Limit the plants in the output to be those which are both simple FERC
     # plants, and appear in the EIA data.
@@ -369,7 +378,7 @@ def simple_ferc_expenses(pudl_engine):
     steam_df = steam_df[steam_df.plant_id_pudl.isin(eia_pudl.plant_id_pudl)]
 
     # Pass back both the expense correlations, and the plant data.
-    return(ferc1_expns_corr, steam_df)
+    return(expns_corrs, steam_df)
 
 
 def get_gen_fuel_eia923_df(pudl_engine):
