@@ -459,7 +459,7 @@ def get_frc_eia923_df(pudl_engine):
     return(frc_df)
 
 
-def fuel_ferc1_by_pudl(pudl_plant_ids,
+def fuel_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
                        fuels=['gas', 'oil', 'coal'],
                        cols=['fuel_consumed_total_mmbtu',
                              'fuel_consumed_total_cost_mmbtu',
@@ -477,7 +477,7 @@ def fuel_ferc1_by_pudl(pudl_plant_ids,
             specified in cols. If fuels is not 'all' then it also has a column
             specifying fuel type.
     """
-    fuel_df = get_fuel_ferc1_df()
+    fuel_df = get_fuel_ferc1_df(pudl_engine)
 
     # Calculate the total fuel heat content for the plant by fuel
     fuel_df = fuel_df[fuel_df.plant_id_pudl.isin(pudl_plant_ids)]
@@ -496,7 +496,8 @@ def fuel_ferc1_by_pudl(pudl_plant_ids,
     return(fuel_df)
 
 
-def steam_ferc1_by_pudl(pudl_plant_ids, cols=['net_generation_mwh', ]):
+def steam_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
+                        cols=['net_generation_mwh', ]):
     """Aggregate and return data from the steam_ferc1 table by pudl_plant_id.
 
     Arguments:
@@ -506,7 +507,7 @@ def steam_ferc1_by_pudl(pudl_plant_ids, cols=['net_generation_mwh', ]):
         steam_df: A dataframe with columns for report_year, pudl_plant_id and
             cols, with the values in cols aggregated by plant and year.
     """
-    steam_df = get_steam_ferc1_df()
+    steam_df = get_steam_ferc1_df(pudl_engine)
     steam_df = steam_df[steam_df.plant_id_pudl.isin(pudl_plant_ids)]
     steam_df = steam_df.groupby(['plant_id_pudl', 'report_year'])[cols].sum()
     steam_df = steam_df.reset_index()
@@ -514,7 +515,7 @@ def steam_ferc1_by_pudl(pudl_plant_ids, cols=['net_generation_mwh', ]):
     return(steam_df)
 
 
-def frc_by_pudl(pudl_plant_ids,
+def frc_by_pudl(pudl_plant_ids, pudl_engine,
                 fuels=['gas', 'oil', 'coal'],
                 cols=['total_fuel_cost', ]):
     """
@@ -536,7 +537,7 @@ def frc_by_pudl(pudl_plant_ids,
             (optionally) fuel.
     """
     # Get all the EIA info from generation_fuel_eia923
-    frc_df = get_frc_eia923_df()
+    frc_df = get_frc_eia923_df(pudl_engine)
     # Limit just to the plants we're looking at
     frc_df = frc_df[frc_df.plant_id_pudl.isin(pudl_plant_ids)]
     # Just keep the columns we need for output:
@@ -570,7 +571,7 @@ def frc_by_pudl(pudl_plant_ids,
     return(frc_totals_df)
 
 
-def gen_fuel_by_pudl(pudl_plant_ids,
+def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
                      fuels=['gas', 'oil', 'coal'],
                      cols=['fuel_consumed_total_mmbtu',
                            'net_generation_mwh']):
@@ -593,7 +594,7 @@ def gen_fuel_by_pudl(pudl_plant_ids,
             (optionally) fuel.
     """
     # Get all the EIA info from generation_fuel_eia923
-    gf_df = get_gen_fuel_eia923_df()
+    gf_df = get_gen_fuel_eia923_df(pudl_engine)
 
     # Standardize the fuel codes (need to fix this in the DB!!!!)
     gf_df = gf_df.rename(columns={'aer_fuel_category': 'fuel'})
