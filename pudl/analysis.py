@@ -33,6 +33,66 @@ def simple_select(table_name, pudl_engine):
     return(pd.read_sql(select, pudl_engine))
 
 
+def simple_ferc1_plant_ids(pudl_engine):
+    """
+    Generate a list of all the PUDL plant IDs which map to a single FERC plant.
+    """
+    ferc1_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_ferc''',
+                                  pudl_engine)
+    ferc1_simple_plant_ids = ferc1_plant_ids.drop_duplicates('plant_id_pudl',
+                                                             keep=False)
+    return(ferc1_simple_plant_ids)
+
+
+def simple_eia_plant_ids(pudl_engine):
+    """
+    Generate a list of all the PUDL plant IDs which map to a single EIA plant.
+    """
+    eia_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_eia''',
+                                pudl_engine)
+    eia_simple_plant_ids = eia_plant_ids.drop_duplicates('plant_id_pudl',
+                                                         keep=False)
+    return(eia_simple_plant_ids)
+
+
+def simple_pudl_plant_ids(pudl_engine):
+    """
+    Get all PUDL plant IDs that map to a single EIA and a single FERC plant ID.
+    """
+    ferc1_simple = simple_ferc1_plant_ids(pudl_engine)
+    eia_simple = simple_eia_plant_ids(pudl_engine)
+    pudl_simple = np.intersect1d(ferc1_simple['plant_id_pudl'],
+                                 eia_simple['plant_id_pudl'])
+    return(pudl_simple)
+
+
+def ferc_eia_shared_plant_ids(pudl_engine):
+    """
+    Generate a list of PUDL plant IDs that appear in both FERC and EIA.
+    """
+    ferc_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_ferc''',
+                                 pudl_engine)
+    eia_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_eia''',
+                                pudl_engine)
+    shared_plant_ids = np.intersect1d(ferc_plant_ids['plant_id_pudl'],
+                                      eia_plant_ids['plant_id_pudl'])
+    return(shared_plant_ids)
+
+
+def ferc_pudl_plant_ids(pudl_engine):
+    """Generate a list of PUDL plant IDs that correspond to FERC plants."""
+    ferc_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_ferc''',
+                                 pudl_engine)
+    return(ferc_plant_ids)
+
+
+def eia_pudl_plant_ids(pudl_engine):
+    """Generate a list of PUDL plant IDs that correspond to EIA plants."""
+    eia_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_eia''',
+                                pudl_engine)
+    return(eia_plant_ids)
+
+
 def yearly_sum_eia(table,
                    sum_by,
                    columns=['plant_id',
@@ -169,11 +229,8 @@ def ferc1_expns_corr(steam_df, capacity_factor=0.6):
     return(expns_corr)
 
 
-def get_steam_ferc1_df(testing=False):
+def get_steam_ferc1_df(pudl_engine):
     """Select and join some useful fields from the FERC Form 1 steam table."""
-    # Connect to the DB
-    pudl_engine = pudl.db_connect_pudl(testing=testing)
-
     # Grab the list of tables so we can reference them shorthand.
     pt = models.PUDLBase.metadata.tables
 
@@ -223,7 +280,7 @@ def get_steam_ferc1_df(testing=False):
     return(steam_df)
 
 
-def get_fuel_ferc1_df(testing=False):
+def get_fuel_ferc1_df(pudl_engine):
     """
     Pull a useful dataframe related to FERC Form 1 fuel information.
 
@@ -232,9 +289,6 @@ def get_fuel_ferc1_df(testing=False):
     joining with other tables to get IDs for cross referencing, or doing
     some basic calculations to get e.g. heat rate or capacity factor.
     """
-    # Connect to the DB
-    pudl_engine = pudl.db_connect_pudl(testing=testing)
-
     # Grab the list of tables so we can reference them shorthand.
     pt = models.PUDLBase.metadata.tables
 
@@ -279,11 +333,47 @@ def get_fuel_ferc1_df(testing=False):
     return(fuel_df)
 
 
-def get_gen_fuel_eia923_df(testing=False):
-    """Pull a useful set of fields related to generation_fuel_eia923 table."""
-    # Connect to the DB
-    pudl_engine = pudl.db_connect_pudl(testing=testing)
+def simple_ferc_expenses(pudl_engine):
+    """
+    Gather operating expense data for all simple FERC steam plants.
 
+    Returns:
+        ferc1_expns_corr: A dictionary of expense categories
+            and their correlations to the plant's net electricity
+            generation.
+        steam_df: a dataframe with all the operating expenses
+            broken out for each simple FERC PUDL plant.
+    """
+    # All the simple FERC plants -- only one unit reported per PUDL ID:
+    simple_ferc = analysis.simple_ferc1_plant_ids(pudl_engine)
+    # All of the EIA PUDL plant IDs
+    eia_pudl = analysis.eia_pudl_plant_ids(pudl_engine)
+    # All of the large steam plants from FERC:
+    steam_df = analysis.get_steam_ferc1_df(pudl_engine)
+
+    # Calculate the dataset-wide expense correlations, for the record.
+    ferc1_expns_corr = analysis.ferc1_expns_corr(steam_df, capacity_factor=0.6)
+    # Lump the operating expenses based on those correlations. Note that we
+    # could also do this lumping after limiting the set of plants that we're
+    # reporting on.  However, doing it based on the entire dataset seems more
+    # appropriate, given that these correlations are properties of the fields,
+    # not the plants... or so we hope.
+
+    steam_df = analysis.consolidate_ferc1_expns(steam_df,
+                                                min_capfac=0.6,
+                                                min_corr=0.5)
+
+    # Limit the plants in the output to be those which are both simple FERC
+    # plants, and appear in the EIA data.
+    steam_df = steam_df[steam_df.plant_id_pudl.isin(simple_ferc.plant_id_pudl)]
+    steam_df = steam_df[steam_df.plant_id_pudl.isin(eia_pudl.plant_id_pudl)]
+
+    # Pass back both the expense correlations, and the plant data.
+    return(ferc1_expns_corr, steam_df)
+
+
+def get_gen_fuel_eia923_df(pudl_engine):
+    """Pull a useful set of fields related to generation_fuel_eia923 table."""
     # Grab the list of tables so we can reference them shorthand.
     pt = models.PUDLBase.metadata.tables
 
@@ -309,11 +399,8 @@ def get_gen_fuel_eia923_df(testing=False):
     return(pd.read_sql(gf_eia923_select, pudl_engine))
 
 
-def get_frc_eia923_df(testing=False):
+def get_frc_eia923_df(pudl_engine):
     """Pull a useful fields related to fuel_receipts_costs_eia923 table."""
-    # Connect to the DB
-    pudl_engine = pudl.db_connect_pudl(testing=testing)
-
     # Grab the list of tables so we can reference them shorthand.
     pt = models.PUDLBase.metadata.tables
 
