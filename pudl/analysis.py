@@ -333,12 +333,18 @@ def get_fuel_ferc1_df(pudl_engine):
     return(fuel_df)
 
 
-def simple_ferc_expenses(pudl_engine, min_capfac=0.6, min_corr=0.5):
+def ferc_expenses(pudl_engine, pudl_plant_ids=[], require_eia=True,
+                  min_capfac=0.6, min_corr=0.5):
     """
-    Gather operating expense data for all simple FERC steam plants.
+    Gather operating expense data for a selection of FERC plants by PUDL ID.
 
     Args:
         pudl_engine: a connection to the PUDL database.
+        pudl_plant_ids: list of PUDL plant IDs for which to pull expenses out
+            of the FERC dataset. If it's an empty list, get all the plants.
+        require_eia: Boolean (True/False). If True, then only return FERC
+            plants which also appear in the EIA dataset.  Useful for when you
+            want to merge the FERC expenses with other EIA data.
         min_capfac: the minimum plant capacity factor to use in
             determining whether an expense category is a production or
             non-production cost.
@@ -354,10 +360,6 @@ def simple_ferc_expenses(pudl_engine, min_capfac=0.6, min_corr=0.5):
         steam_df: a dataframe with all the operating expenses
             broken out for each simple FERC PUDL plant.
     """
-    # All the simple FERC plants -- only one unit reported per PUDL ID:
-    simple_ferc = simple_ferc1_plant_ids(pudl_engine)
-    # All of the EIA PUDL plant IDs
-    eia_pudl = eia_pudl_plant_ids(pudl_engine)
     # All of the large steam plants from FERC:
     steam_df = get_steam_ferc1_df(pudl_engine)
 
@@ -372,10 +374,16 @@ def simple_ferc_expenses(pudl_engine, min_capfac=0.6, min_corr=0.5):
                                        min_capfac=min_capfac,
                                        min_corr=min_corr)
 
-    # Limit the plants in the output to be those which are both simple FERC
-    # plants, and appear in the EIA data.
-    steam_df = steam_df[steam_df.plant_id_pudl.isin(simple_ferc.plant_id_pudl)]
-    steam_df = steam_df[steam_df.plant_id_pudl.isin(eia_pudl.plant_id_pudl)]
+    # If we are only looking at a specified subset of the FERC plants, then
+    # here is where we limit the information that's returned:
+    if len(pudl_plant_ids) > 0:
+        steam_df = steam_df[steam_df.plant_id_pudl.isin(pudl_plant_ids)]
+
+    if require_eia:
+        # All of the EIA PUDL plant IDs
+        eia_pudl = eia_pudl_plant_ids(pudl_engine)
+        steam_df = steam_df[
+            steam_df.plant_id_pudl.isin(eia_pudl.plant_id_pudl)]
 
     # Pass back both the expense correlations, and the plant data.
     return(expns_corrs, steam_df)
