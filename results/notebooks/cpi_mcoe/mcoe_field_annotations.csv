@@ -7,18 +7,20 @@ state,US state in which the plant is located.,EIA
 report_date,Data year.,EIA
 generator_id,Generator identification code by plant.,EIA
 energy_source,The EIA fuel code associated with the fuel receipt: https://www.eia.gov/electricity/2008forms/aaqs_923.html,EIA
-fuel_cost_per_mmbtu_total,(fuel_cost)/(mmbtu); total dollars spent on a given fuel type for a plant in a given year divided by the number of mmbtu in that fuel.,EIA
+fuel_cost_per_mmbtu_average,(fuel_cost)/(mmbtu); total dollars spent on a given fuel type for a plant in a given year divided by the number of mmbtu in that fuel.,EIA
 fuel_consumed_mmbtu_per_gen,proportion_generation_by_generator * fuel_consumed_mmbtu; where fuel_consumed_mmbtu is total heat content of all fuels consumed by the plant.,EIA
+fuel_cost_annual_eia,Total dollars spent on all fuels annually for a plant (to compare with expns_fuel from FERC),EIA
 heat_rate_mmbtu_mwh,Overall heat rate for each generator in MMBTU per Mwh of net generation (fuel_consumed_mmbtu_per_generator / net_generation_mwh_per_generator).,EIA
 plant_assn,True (value = 1) if all generators are mapped to a boiler for a given year of plant data; False (value = 0) if generator data exists that is not mapped to a boiler in the boiler generator association table in EIA860.,EIA
 net_generation_mwh_generator,Net electricity generation in Mwh for all units that are part of the plant.,EIA
+net_generation_mwh_plant_eia,Total Mwh of generation for a plant in a year (to compare with net_generation_mwh_plant from FERC),
 fuel_cost_per_mwh,(fuel_cost_per_mmbtu_total)/(heat_rate_mmbtu_mwh); this is plant-averaged fuel costs by fuel type for a given year divided by generator-specific heat rate (mmbtu/mwh).,EIA
 nameplate_capacity_mw_generator, The highest value on the generator nameplate in megawatts rounded to the nearest tenth.,EIA
 summer_capacity_mw_generator,The net summer capacity.,EIA
 winter_capacity_mw_generator,The net winter capacity.,EIA
 capacity_factor,(net_generation_mwh) / (nameplate_capacity_mw * 8760),EIA
 report_year, Year for which the data was reported.,FERC
- respondent_id_ferc, FERC respondent (utility) ID.,FERC
+respondent_id_ferc, FERC respondent (utility) ID.,FERC
 util_id_pudl, PUDL utility id. Allows some linkage between FERC & EIA Data.,FERC
 respondent_name_ferc,FERC respondent name.,FERC
 plant_name_ferc,Name of the power plant as reported to FERC.,FERC
