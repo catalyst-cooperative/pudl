@@ -1,0 +1,40 @@
+FIELD,Definition,Data source
+plant_id_pudl, PUDL plant id. Allows some linkage between FERC & EIA Data. ,
+plant_id_eia,EIA Plant Identification number. One to five digit numeric.,EIA
+plant_name_eia,EIA Plant name.,EIA
+operator_name_eia,Name of entity which operates the plant; from EIA923 records.,EIA
+state,US state in which the plant is located.,EIA
+report_date,Data year.,EIA
+generator_id,Generator identification code by plant.,EIA
+report_year, Year for which the data was reported.,FERC
+respondent_id_ferc, FERC respondent (utility) ID.,FERC
+util_id_pudl, PUDL utility id. Allows some linkage between FERC & EIA Data.,FERC
+respondent_name_ferc,FERC respondent name.,FERC
+plant_name_ferc,Name of the power plant as reported to FERC.,FERC
+total_capacity_mw,Total installed capacity. Maximum generation nameplate rating in MW.,FERC
+year_constructed,Year originally constructed.,FERC
+year_installed,Year last unit was installed.,FERC
+peak_demand_mw,Net peak demand on plant in MW.,FERC
+water_limited_mw,Net continuous plant capacity when limited by condenser water in MW.,FERC
+not_water_limited_mw,Net continuous plant capacity when not limited by condenser water in MW.,FERC
+plant_hours,Plant hours connected to load.,FERC
+net_generation_mwh_plant,Net generation exclusive of plant use in MWh.,FERC
+expns_operations,Production expenses: operation supervision & engineering.,FERC
+expns_fuel,Total fuel expenses.,FERC
+expns_coolants,Coolants and water (Nuclear plants only).,FERC
+expns_steam,Steam expenses.,FERC
+expns_steam_other,Steam from other sources.,FERC
+expns_transfer,Steam transferred (Circulation Ratio).,FERC
+expns_electric,Electric expenses.,FERC
+expns_misc_power,Miscellaneous steam (or nuclear) power expenses.,FERC
+expns_rents,Rents.,FERC
+expns_allowances,Allowances.,FERC
+expns_engineering,Maintenance supervision and engineering.,FERC
+expns_structures,Maintenance of structures.,FERC
+expns_boiler,Maintenance of boiler (or reactor) plant.,FERC
+expns_plants,Maintenance of electric plant.,FERC
+expns_misc_steam,Maintenance of miscellaneous steam (or nuclear) plant.,FERC
+expns_production_total,If correlation of an expns field with net_generation_mwh is >0.5 then that expense field is considered a "production" cost. (see ‘Expense Correlations’ tab for values),FERC
+expns_per_mwh,expns_total / net_generation_mwh,FERC
+expns_total_nonfuel_production,Total of all non-fuel expns_ fields having >= 0.5 correlation with net_generation_mwh across the entire dataset.,FERC
+expns_total_nonproduction, Total of all expns_ fields that having < 0.5 correlation with net_generation_mwh.,FERC
