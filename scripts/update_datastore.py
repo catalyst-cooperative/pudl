@@ -1,6 +1,4 @@
-"""A script for fetching public utility data from reporting agency servers.
-
-"""
+"""A script for fetching public utility data from reporting agency servers."""
 
 import os
 import sys
