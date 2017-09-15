@@ -1,13 +1,12 @@
 The data associated with PUDL is too large for easy storage within the
-Git repository. Many data sources have scripts associated with them that
-will pull the entire dataset down from e.g. FERC or EIA automatically.
+Git repository. We have provided a python module for doing datastore
+management, including downloading the original files from the public agencies
+which compile the data, and a script which uses that module to initialize and
+update the datastore as needed
 
-e.g.:
+../pudl/datastore.py
+../scripts/update_datastore.py
 
-./ferc/form1/get_ferc1.sh
-./eia/form860/get_eia860.sh
-./eia/form923/get_eia923.sh
+For more information, cd into the scripts directory and run:
 
-The (uncompressed) data store can also be downloaded from:
-
-https://spideroak.com/browse/share/CatalystCoop/pudl
+python update_datastore.py --help
