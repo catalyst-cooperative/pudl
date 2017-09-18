@@ -13,7 +13,7 @@ sys.path.append(os.path.abspath('..'))
 
 def parse_command_line(argv):
     """
-    Parse command line argument. See -h option.
+    Parse command line arguments. See the -h option.
 
     :param argv: arguments on the command line must include caller file name.
     """

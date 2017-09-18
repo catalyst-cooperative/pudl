@@ -19,35 +19,41 @@ import pudl.constants as pc
 ###########################################################################
 
 
-def datadir(year):
+def datadir(year, basedir=settings.EIA923_DATA_DIR):
     """
     Data directory search for EIA Form 923.
 
     Args:
         year (int): The year that we're trying to read data for.
+        basedir (os.path): Directory in which EIA923 data resides.
     Returns:
         path to appropriate EIA 923 data directory.
     """
     # These are the only years we've got...
-    assert year in range(2001, 2017)
+    assert year in pc.eia923_data_years
     if(year < 2008):
-        return(os.path.join(settings.EIA923_DATA_DIR,
-                            'f906920_{}'.format(year)))
+        return(os.path.join(basedir, 'f906920_{}'.format(year)))
     else:
-        return(os.path.join(settings.EIA923_DATA_DIR, 'f923_{}'.format(year)))
+        return(os.path.join(basedir, 'f923_{}'.format(year)))
 
 
-def get_eia923_file(yr):
+def get_eia923_file(yr, basedir=settings.EIA923_DATA_DIR):
     """
     Given a year, return the appopriate EIA923 excel file.
 
     Args:
         year (int): The year that we're trying to read data for.
+        basedir (os.path): Directory in which EIA923 data resides.
     Returns:
         path to EIA 923 spreadsheets corresponding to a given year.
     """
-    assert(yr > 2008), "EIA923 file selection only works for 2008 & later."
-    return(glob.glob(os.path.join(datadir(yr), '*2_3_4*'))[0])
+    assert(yr > 2008), "EIA923 file selection only works for 2009 & later."
+    eia923_filematch = glob.glob(os.path.join(
+        datadir(yr, basedir=basedir), '*2_3_4*'))
+    if len(eia923_filematch) == 1:
+        return(eia923_filematch[0])
+    else:
+        return('')
 
 
 def get_eia923_column_map(page, year):

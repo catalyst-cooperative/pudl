@@ -7,19 +7,20 @@ For the full list of requirements to install, review [REQUIREMENTS.md](https://g
 
 ### 3. Setting up PostgresQL
 1. Now that we have all the required packages installed, we can install the PostgreSQL database. It’s most straightforward to set up through Postgres.app, which is available [here](http://postgresapp.com/).
-2. With PostgreSQL installed, we’ll set up command line access to PostgreSQL. In your terminal window, run `sudo mkdir -p /etc/paths.d &&
+2. After installing PostgreSQL, open the application. Then we’ll set up command line access to PostgreSQL. In your terminal window, run `sudo mkdir -p /etc/paths.d &&
 echo /Applications/Postgres.app/Contents/Versions/latest/bin | sudo tee /etc/paths.d/postgresapp`. Then close the Terminal window and open a new one for changes to take effect. In your new terminal window, run `which psql` and press enter to verify that the changes took effect.
 3. We can now set up our PostgreSQL databases. In your terminal window, run `psql` to bring up the PostgreSQL prompt.
-  1. Run `CREATE SUPERUSER catalyst with CREATEDB;` to create the catalyst superuser.
+  1. Run `CREATE USER catalyst with SUPERUSER CREATEDB` to create the catalyst superuser.
   2. Run `CREATE DATABASE ferc1;` to create the database that will receive data from FERC form 1.
   3. Run `CREATE DATABASE pudl;` to create the PUDL database.
   4. Run `CREATE DATABASE pudl_test;` to create the PUDL test database.
   5. Run `CREATE DATABASE ferc1_test;` to create the FERC Form 1 test database.
   6. Run `\q` to exit the PostgreSQL prompt.
 ### 4. Setting up the PUDL repository
-  1. If you don’t have a GitHub account, you’ll need to create one at [github.com](github.com). Since the database is a public repository, you’ll want to select a free public account (the option reads “Unlimited public repositories for free.”).
-  2. Once you’ve created an account and confirmed your email address, you’ll want to download and install the GitHub desktop client at [desktop.github.com](desktop.github.com).
+  1. If you don’t have a GitHub account, you’ll need to create one at [github.com](https://github.com). Since the database is a public repository, you’ll want to select a free public account (the option reads “Unlimited public repositories for free.”).
+  2. Once you’ve created an account and confirmed your email address, you’ll want to download and install the GitHub desktop client at [desktop.github.com](https://desktop.github.com/).
   3. Use your new account credentials to log into the GitHub desktop client and select the option to clone a repository. Then, enter the URL `https://github.com/catalyst-cooperative/pudl`.
+  4. Once you've cloned the repository you can use the `Repository -> Show In Finder` option in the desktop Github app to obtain the location of the repository directory so that you find it using Terminal.
 ### 5. Downloading data from FERC and EIA
 Now we’re ready to download the data that we’ll use to populate the database.
   1. In your Terminal window, use `cd` to navigate to the directory containing the clone of the PUDL repository.

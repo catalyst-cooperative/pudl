@@ -473,11 +473,16 @@ ferc1_working_tables = ['f1_respondent_id',
                         'f1_purchased_pwr',
                         'f1_accumdepr_prvsn']
 
+# All the years for which we ought to be able to download FERC1 data
+ferc1_data_years = range(1994, 2017)
 # The full set of years we expect to be able to pull into the FERC1 DB.
 ferc1_working_years = range(2004, 2017)
 
+# All the years for which we ought to be able to download EIA923 data
+eia923_data_years = range(2001, 2018)
 # The full set of years we currently expect to be able to ingest from EIA923.
 eia923_working_years = range(2009, 2017)
+
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
 eia923_pudl_tables = ['plants_eia923',
@@ -1389,6 +1394,8 @@ month_dict_eia923 = {1: '_january$',
 # Constants from EIA From 860
 ######################################################################
 
+# All the years for which we ought to be able to download EIA860 data
+eia860_data_years = range(2001, 2016)
 # The full set of years we currently expect to be able to ingest from EIA860.
 eia860_working_years = range(2011, 2016)
 
@@ -2734,13 +2741,35 @@ aer_hydro_strings = ['hps', 'hyc']
 aer_nuclear_strings = ['nuc']
 aer_other_strings = ['geo', 'mlg', 'oog', 'orw', 'oth', 'woo', 'www']
 
-aer_fuel_type_strings = {'coal': aer_coal_strings,
-                         'gas': aer_gas_strings,
-                         'petroleum': aer_petroleum_strings,
-                         'petroleum coke': aer_petcoke_strings,
-                         'solar': aer_solar_strings,
-                         'wind': aer_wind_strings,
-                         'hydro': aer_hydro_strings,
-                         'nuclear': aer_nuclear_strings,
-                         'other': aer_other_strings
-                         }
+aer_fuel_type_strings = {
+    'coal': aer_coal_strings,
+    'gas': aer_gas_strings,
+    'petroleum': aer_petroleum_strings,
+    'petroleum coke': aer_petcoke_strings,
+    'solar': aer_solar_strings,
+    'wind': aer_wind_strings,
+    'hydro': aer_hydro_strings,
+    'nuclear': aer_nuclear_strings,
+    'other': aer_other_strings
+}
+
+data_sources = [
+    'ferc1',
+    'eia860',
+    'eia923',
+    # 'epacems'
+]
+
+data_years = {
+    'ferc1': ferc1_data_years,
+    'eia860': eia860_data_years,
+    'eia923': eia923_data_years,
+    # 'epacems': epacems_data_years
+}
+
+base_data_urls = {
+    'ferc1': 'ftp://eforms1.ferc.gov/f1allyears',
+    'eia923': 'https://www.eia.gov/electricity/data/eia923/xls',
+    'eia860': 'https://www.eia.gov/electricity/data/eia860/xls',
+    # 'epacems': 'ftp://ftp.epa.gov/dmdnload/emissions/hourly/monthly'
+}
