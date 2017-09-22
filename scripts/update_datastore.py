@@ -27,7 +27,7 @@ def parse_command_line(argv):
         dest='verbose',
         action='store_false',
         help="Quiet mode. Suppress download progress indicators and warnings.",
-        default=False
+        default=True
     )
     parser.add_argument(
         '-z',
@@ -35,7 +35,7 @@ def parse_command_line(argv):
         dest='unzip',
         action='store_false',
         help="Do not unzip downloaded data files.",
-        default=False
+        default=True
     )
     parser.add_argument(
         '-c',
