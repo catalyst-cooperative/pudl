@@ -26,7 +26,8 @@ def parse_command_line(argv):
         '--quiet',
         dest='verbose',
         action='store_false',
-        help="Quiet mode. Suppress download progress indicators and warnings."
+        help="Quiet mode. Suppress download progress indicators and warnings.",
+        default=False
     )
     parser.add_argument(
         '-z',

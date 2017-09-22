@@ -154,6 +154,17 @@ def download(source, year, datadir=settings.DATA_DIR, verbose=True):
     checking to see whether the file already exists, or needs to be updated,
     and does not do any of the organization of the datastore after download,
     it simply gets the requested file.
+
+    Args:
+        source (str): the data source to retrieve. Must be one of: 'eia860',
+            'eia923', or 'ferc1'.
+        year (int): the year of data that the returned path should pertain to.
+            Must be within the range of valid data years, which is specified
+            for each data source in pudl.constants.data_years.
+        datadir (str): path to the top level directory of the datastore.
+        verbose (bool): If True, print messages about what's happening.
+    Returns:
+        outfile (str): path to the local downloaded file.
     """
     assert source in pc.data_sources, \
         "Source '{}' not found in valid data sources.".format(source)
@@ -182,13 +193,28 @@ def download(source, year, datadir=settings.DATA_DIR, verbose=True):
     return(outfile)
 
 
-def organize(source, year, unzip=True, datadir=settings.DATA_DIR):
+def organize(source, year, unzip=True,
+             datadir=settings.DATA_DIR,
+             verbose=False):
     """
     Put a downloaded original data file where it belongs in the datastore.
 
     Once we've downloaded an original file from the public website it lives on
     we need to put it where it belongs in the datastore. Optionally, we also
     unzip it and clean up the directory hierarchy that results from unzipping.
+
+    Args:
+        source (str): the data source to retrieve. Must be one of: 'eia860',
+            'eia923', or 'ferc1'.
+        year (int): the year of data that the returned path should pertain to.
+            Must be within the range of valid data years, which is specified
+            for each data source in pudl.constants.data_years.
+        unzip (bool): If true, unzip the file once downloaded, and place the
+            resulting data files where they ought to be in the datastore.
+        datadir (str): path to the top level directory of the datastore.
+        verbose (bool): If True, print messages about what's happening.
+
+    Returns: nothing
     """
     import zipfile
     import shutil
@@ -261,6 +287,21 @@ def update(source, year, clobber=False, unzip=True, verbose=True,
     source and year. If we already have the requested data, do nothing,
     unless clobber is True -- in which case remove the existing data and
     replace it with a freshly downloaded copy.
+
+    Args:
+        source (str): the data source to retrieve. Must be one of: 'eia860',
+            'eia923', or 'ferc1'.
+        year (int): the year of data that the returned path should pertain to.
+            Must be within the range of valid data years, which is specified
+            for each data source in pudl.constants.data_years.
+        unzip (bool): If true, unzip the file once downloaded, and place the
+            resulting data files where they ought to be in the datastore.
+        clobber (bool): If true, replace existing copy of the requested data
+            if we have it, with freshly downloaded data.
+        datadir (str): path to the top level directory of the datastore.
+        verbose (bool): If True, print messages about what's happening.
+
+    Returns: nothing
     """
     # Do we really need to download the requested data? Only case in which
     # we don't have to do anything is when the downloaded file already exists
