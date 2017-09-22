@@ -12,6 +12,7 @@ import random
 from pudl import pudl, ferc1, eia923, settings, constants
 from pudl import models, models_ferc1, models_eia923
 from pudl import clean_eia923, clean_ferc1, clean_pudl
+from pudl import outputs
 
 
 def simple_select(table_name, pudl_engine):
@@ -67,9 +68,7 @@ def simple_pudl_plant_ids(pudl_engine):
 
 
 def ferc_eia_shared_plant_ids(pudl_engine):
-    """
-    Generate a list of PUDL plant IDs that appear in both FERC and EIA.
-    """
+    """Generate a list of PUDL plant IDs that appear in both FERC and EIA."""
     ferc_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_ferc''',
                                  pudl_engine)
     eia_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_eia''',
@@ -452,110 +451,6 @@ def ferc1_expns_corr(steam_df, min_capfac=0.6):
     return(expns_corr)
 
 
-def get_steam_ferc1_df(pudl_engine):
-    """Select and join some useful fields from the FERC Form 1 steam table."""
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
-
-    steam_ferc1_select = sa.sql.select([
-        pt['plants_steam_ferc1'].c.report_year,
-        pt['utilities_ferc'].c.respondent_id,
-        pt['utilities_ferc'].c.util_id_pudl,
-        pt['utilities_ferc'].c.respondent_name,
-        pt['plants_ferc'].c.plant_id_pudl,
-        pt['plants_steam_ferc1'].c.plant_name,
-        pt['plants_steam_ferc1'].c.total_capacity_mw,
-        pt['plants_steam_ferc1'].c.year_constructed,
-        pt['plants_steam_ferc1'].c.year_installed,
-        pt['plants_steam_ferc1'].c.peak_demand_mw,
-        pt['plants_steam_ferc1'].c.water_limited_mw,
-        pt['plants_steam_ferc1'].c.not_water_limited_mw,
-        pt['plants_steam_ferc1'].c.plant_hours,
-        pt['plants_steam_ferc1'].c.net_generation_mwh,
-        pt['plants_steam_ferc1'].c.expns_operations,
-        pt['plants_steam_ferc1'].c.expns_fuel,
-        pt['plants_steam_ferc1'].c.expns_coolants,
-        pt['plants_steam_ferc1'].c.expns_steam,
-        pt['plants_steam_ferc1'].c.expns_steam_other,
-        pt['plants_steam_ferc1'].c.expns_transfer,
-        pt['plants_steam_ferc1'].c.expns_electric,
-        pt['plants_steam_ferc1'].c.expns_misc_power,
-        pt['plants_steam_ferc1'].c.expns_rents,
-        pt['plants_steam_ferc1'].c.expns_allowances,
-        pt['plants_steam_ferc1'].c.expns_engineering,
-        pt['plants_steam_ferc1'].c.expns_structures,
-        pt['plants_steam_ferc1'].c.expns_boiler,
-        pt['plants_steam_ferc1'].c.expns_plants,
-        pt['plants_steam_ferc1'].c.expns_misc_steam,
-        pt['plants_steam_ferc1'].c.expns_production_total,
-        pt['plants_steam_ferc1'].c.expns_per_mwh]).\
-        where(sa.sql.and_(
-            pt['utilities_ferc'].c.respondent_id ==
-            pt['plants_steam_ferc1'].c.respondent_id,
-            pt['plants_ferc'].c.respondent_id ==
-            pt['plants_steam_ferc1'].c.respondent_id,
-            pt['plants_ferc'].c.plant_name ==
-            pt['plants_steam_ferc1'].c.plant_name,
-        ))
-
-    steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
-
-    return(steam_df)
-
-
-def get_fuel_ferc1_df(pudl_engine):
-    """
-    Pull a useful dataframe related to FERC Form 1 fuel information.
-
-    We often want to pull information from the PUDL database that is
-    not exactly what's contained in the table. This might include
-    joining with other tables to get IDs for cross referencing, or doing
-    some basic calculations to get e.g. heat rate or capacity factor.
-    """
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
-
-    # Build a SELECT statement that gives us information from several different
-    # tables that are relevant to FERC Fuel.
-    fuel_ferc1_select = sa.sql.select([
-        pt['fuel_ferc1'].c.report_year,
-        pt['utilities_ferc'].c.respondent_id,
-        pt['utilities_ferc'].c.respondent_name,
-        pt['utilities_ferc'].c.util_id_pudl,
-        pt['plants_ferc'].c.plant_id_pudl,
-        pt['fuel_ferc1'].c.plant_name,
-        pt['fuel_ferc1'].c.fuel,
-        pt['fuel_ferc1'].c.fuel_qty_burned,
-        pt['fuel_ferc1'].c.fuel_avg_mmbtu_per_unit,
-        pt['fuel_ferc1'].c.fuel_cost_per_unit_burned,
-        pt['fuel_ferc1'].c.fuel_cost_per_unit_delivered,
-        pt['fuel_ferc1'].c.fuel_cost_per_mmbtu,
-        pt['fuel_ferc1'].c.fuel_cost_per_mwh,
-        pt['fuel_ferc1'].c.fuel_mmbtu_per_mwh]).\
-        where(sa.sql.and_(
-            pt['utilities_ferc'].c.respondent_id ==
-            pt['fuel_ferc1'].c.respondent_id,
-            pt['plants_ferc'].c.respondent_id ==
-            pt['fuel_ferc1'].c.respondent_id,
-            pt['plants_ferc'].c.plant_name ==
-            pt['fuel_ferc1'].c.plant_name))
-
-    # Pull the data from the DB into a DataFrame
-    fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)
-
-    # We have two different ways of assessing the total cost of fuel given cost
-    # per unit delivered and cost per mmbtu. They *should* be the same, but we
-    # know they aren't always. Calculate both so we can compare both.
-    fuel_df['fuel_consumed_total_mmbtu'] = \
-        fuel_df['fuel_qty_burned'] * fuel_df['fuel_avg_mmbtu_per_unit']
-    fuel_df['fuel_consumed_total_cost_mmbtu'] = \
-        fuel_df['fuel_cost_per_mmbtu'] * fuel_df['fuel_consumed_total_mmbtu']
-    fuel_df['fuel_consumed_total_cost_unit'] = \
-        fuel_df['fuel_cost_per_unit_burned'] * fuel_df['fuel_qty_burned']
-
-    return(fuel_df)
-
-
 def ferc_expenses(pudl_engine, pudl_plant_ids=[], require_eia=True,
                   min_capfac=0.6, min_corr=0.5):
     """
@@ -584,7 +479,7 @@ def ferc_expenses(pudl_engine, pudl_plant_ids=[], require_eia=True,
             broken out for each simple FERC PUDL plant.
     """
     # All of the large steam plants from FERC:
-    steam_df = get_steam_ferc1_df(pudl_engine)
+    steam_df = outputs.plants_steam_ferc1_df(pudl_engine)
 
     # Calculate the dataset-wide expense correlations, for the record.
     expns_corrs = ferc1_expns_corr(steam_df, min_capfac=min_capfac)
@@ -612,76 +507,6 @@ def ferc_expenses(pudl_engine, pudl_plant_ids=[], require_eia=True,
     return(expns_corrs, steam_df)
 
 
-def get_gen_fuel_eia923_df(pudl_engine):
-    """Pull a useful set of fields related to generation_fuel_eia923 table."""
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
-
-    gf_eia923_select = sa.sql.select([
-        pt['utilities_eia'].c.operator_id,
-        pt['utilities_eia'].c.operator_name,
-        pt['plants_eia'].c.plant_id_pudl,
-        pt['plants_eia'].c.plant_name,
-        pt['generation_fuel_eia923'].c.plant_id,
-        pt['generation_fuel_eia923'].c.report_date,
-        pt['generation_fuel_eia923'].c.aer_fuel_category,
-        pt['generation_fuel_eia923'].c.fuel_consumed_total_mmbtu,
-        pt['generation_fuel_eia923'].c.net_generation_mwh]).\
-        where(sa.sql.and_(
-            pt['plants_eia'].c.plant_id ==
-            pt['generation_fuel_eia923'].c.plant_id,
-            pt['util_plant_assn'].c.plant_id ==
-            pt['plants_eia'].c.plant_id_pudl,
-            pt['util_plant_assn'].c.utility_id ==
-            pt['utilities_eia'].c.util_id_pudl
-        ))
-
-    return(pd.read_sql(gf_eia923_select, pudl_engine))
-
-
-def get_frc_eia923_df(pudl_engine):
-    """Pull a useful fields related to fuel_receipts_costs_eia923 table."""
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
-
-    frc_eia923_select = sa.sql.select([
-        pt['utilities_eia'].c.operator_id,
-        pt['utilities_eia'].c.operator_name,
-        pt['plants_eia'].c.plant_id_pudl,
-        pt['plants_eia'].c.plant_name,
-        pt['fuel_receipts_costs_eia923'].c.plant_id,
-        pt['fuel_receipts_costs_eia923'].c.report_date,
-        pt['fuel_receipts_costs_eia923'].c.fuel_group,
-        pt['fuel_receipts_costs_eia923'].c.average_heat_content,
-        pt['fuel_receipts_costs_eia923'].c.fuel_quantity,
-        pt['fuel_receipts_costs_eia923'].c.fuel_cost_per_mmbtu]).\
-        where(sa.sql.and_(
-            pt['plants_eia'].c.plant_id ==
-            pt['fuel_receipts_costs_eia923'].c.plant_id,
-            pt['util_plant_assn'].c.plant_id ==
-            pt['plants_eia'].c.plant_id_pudl,
-            pt['util_plant_assn'].c.utility_id ==
-            pt['utilities_eia'].c.util_id_pudl
-        ))
-
-    # There are some quantities that we want pre-calculated based on the
-    # columns in the FRC table... let's just do it here so we don't end up
-    # doing it over and over again in every goddamned notebook.
-    frc_df = pd.read_sql(frc_eia923_select, pudl_engine)
-    frc_df['total_heat_content_mmbtu'] = \
-        frc_df['average_heat_content'] * frc_df['fuel_quantity']
-    frc_df['total_fuel_cost'] = \
-        frc_df['total_heat_content_mmbtu'] * frc_df['fuel_cost_per_mmbtu']
-
-    # Standardize the fuel codes (need to fix this in DB ingest!!!)
-    frc_df = frc_df.rename(columns={'fuel_group': 'fuel'})
-    frc_df['fuel'] = frc_df.fuel.replace(
-        to_replace=['Petroleum', 'Natural Gas', 'Coal'],
-        value=['oil', 'gas', 'coal'])
-
-    return(frc_df)
-
-
 def fuel_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
                        fuels=['gas', 'oil', 'coal'],
                        cols=['fuel_consumed_total_mmbtu',
@@ -700,7 +525,7 @@ def fuel_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
             specified in cols. If fuels is not 'all' then it also has a column
             specifying fuel type.
     """
-    fuel_df = get_fuel_ferc1_df(pudl_engine)
+    fuel_df = outputs.fuel_ferc1_df(pudl_engine)
 
     # Calculate the total fuel heat content for the plant by fuel
     fuel_df = fuel_df[fuel_df.plant_id_pudl.isin(pudl_plant_ids)]
@@ -730,7 +555,7 @@ def steam_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
         steam_df: A dataframe with columns for report_year, pudl_plant_id and
             cols, with the values in cols aggregated by plant and year.
     """
-    steam_df = get_steam_ferc1_df(pudl_engine)
+    steam_df = outputs.plants_steam_ferc1_df(pudl_engine)
     steam_df = steam_df[steam_df.plant_id_pudl.isin(pudl_plant_ids)]
     steam_df = steam_df.groupby(['plant_id_pudl', 'report_year'])[cols].sum()
     steam_df = steam_df.reset_index()
@@ -817,7 +642,7 @@ def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
             (optionally) fuel.
     """
     # Get all the EIA info from generation_fuel_eia923
-    gf_df = get_gen_fuel_eia923_df(pudl_engine)
+    gf_df = outputs.gf_eia923_df(pudl_engine)
 
     # Standardize the fuel codes (need to fix this in the DB!!!!)
     gf_df = gf_df.rename(columns={'aer_fuel_category': 'fuel'})
