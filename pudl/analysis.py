@@ -744,7 +744,7 @@ def frc_by_pudl(pudl_plant_ids, pudl_engine,
     """
     Aggregate fuel_receipts_costs_eia923 table for comparison with FERC Form 1.
 
-    In order to correlate informataion between EIA 923 and FERC Form 1, we need
+    In order to correlate information between EIA 923 and FERC Form 1, we need
     to aggregate the EIA data annually, and potentially by fuel. This function
     groups fuel_receipts_costs_eia923 by pudl_plant_id, fuel, and year, and
     sums the columns of interest specified in cols, and returns a dataframe

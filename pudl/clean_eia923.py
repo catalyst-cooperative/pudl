@@ -117,7 +117,7 @@ def coalmine_cleanup(cmi_df):
 
 def fuel_reciept_cost_clean(frc_df):
     """
-    Clean fields in fuel_reciept_cost.
+    Clean fields in fuel_receipts_costs_eia923.
 
     Fuel cost is reported in cents per mmbtu. Convert cents to dollars.
     """
