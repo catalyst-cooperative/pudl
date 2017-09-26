@@ -27,133 +27,69 @@ from pudl import clean_eia923, clean_ferc1, clean_pudl
 ##############################################################################
 
 
-def plants_steam_ferc1_df(pudl_engine):
+def plants_utils_eia_df(pudl_engine):
+    """Create a dataframe of plant and utility IDs and names from EIA.
+
+    Returns a pandas dataframe with the following columns:
+    - year (in which data was reported)
+    - plant_name (from EIA860)
+    - plant_id (from EIA860)
+    - plant_id_pudl
+    - operator_id (from EIA860)
+    - operator_name (frome EIA860)
+    - util_id_pudl
+
+    EIA 860 data has only been integrated back to 2011, so this information
+    isn't available any further back.
     """
-    Select and join some useful fields from the FERC Form 1 steam table.
-
-    Select the FERC Form 1 steam plant table entries, add in the reporting
-    utility's name, and the PUDL ID for the plant and utility for readability
-    and integration with other tables that have PUDL IDs.
-
-    TODO: Check whether this includes all of the steam_ferc1 fields...
-
-    Args:
-        pudl_engine: An SQLAlchemy DB connection engine.
-    Returns:
-        steam_df: a pandas dataframe.
-    """
-    # Grab the list of tables so we can reference them shorthand.
+    # Shorthand for readability... pt = PUDL Tables
     pt = models.PUDLBase.metadata.tables
+    # Contains the one-to-one mapping of EIA plants to their operators, but
+    # we only have the 860 data integrated for 2011 forward right now.
+    plants_eia860_tbl = pt['plants_eia860']
+    plants_eia860_select = sa.sql.select([
+        plants_eia860_tbl.c.year,
+        plants_eia860_tbl.c.plant_id,
+        plants_eia860_tbl.c.plant_name,
+        plants_eia860_tbl.c.operator_id,
+    ])
+    plants_eia860 = pd.read_sql(plants_eia860_select, pudl_engine)
 
-    steam_ferc1_select = sa.sql.select([
-        pt['plants_steam_ferc1'].c.report_year,
-        pt['utilities_ferc'].c.respondent_id,
-        pt['utilities_ferc'].c.util_id_pudl,
-        pt['utilities_ferc'].c.respondent_name,
-        pt['plants_ferc'].c.plant_id_pudl,
-        pt['plants_steam_ferc1'].c.plant_name,
-        pt['plants_steam_ferc1'].c.total_capacity_mw,
-        pt['plants_steam_ferc1'].c.year_constructed,
-        pt['plants_steam_ferc1'].c.year_installed,
-        pt['plants_steam_ferc1'].c.peak_demand_mw,
-        pt['plants_steam_ferc1'].c.water_limited_mw,
-        pt['plants_steam_ferc1'].c.not_water_limited_mw,
-        pt['plants_steam_ferc1'].c.plant_hours,
-        pt['plants_steam_ferc1'].c.net_generation_mwh,
-        pt['plants_steam_ferc1'].c.expns_operations,
-        pt['plants_steam_ferc1'].c.expns_fuel,
-        pt['plants_steam_ferc1'].c.expns_coolants,
-        pt['plants_steam_ferc1'].c.expns_steam,
-        pt['plants_steam_ferc1'].c.expns_steam_other,
-        pt['plants_steam_ferc1'].c.expns_transfer,
-        pt['plants_steam_ferc1'].c.expns_electric,
-        pt['plants_steam_ferc1'].c.expns_misc_power,
-        pt['plants_steam_ferc1'].c.expns_rents,
-        pt['plants_steam_ferc1'].c.expns_allowances,
-        pt['plants_steam_ferc1'].c.expns_engineering,
-        pt['plants_steam_ferc1'].c.expns_structures,
-        pt['plants_steam_ferc1'].c.expns_boiler,
-        pt['plants_steam_ferc1'].c.expns_plants,
-        pt['plants_steam_ferc1'].c.expns_misc_steam,
-        pt['plants_steam_ferc1'].c.expns_production_total,
-        pt['plants_steam_ferc1'].c.expns_per_mwh]).\
-        where(sa.sql.and_(
-            pt['utilities_ferc'].c.respondent_id ==
-            pt['plants_steam_ferc1'].c.respondent_id,
-            pt['plants_ferc'].c.respondent_id ==
-            pt['plants_steam_ferc1'].c.respondent_id,
-            pt['plants_ferc'].c.plant_name ==
-            pt['plants_steam_ferc1'].c.plant_name,
-        ))
+    utils_eia860_tbl = pt['utilities_eia860']
+    utils_eia860_select = sa.sql.select([
+        utils_eia860_tbl.c.year,
+        utils_eia860_tbl.c.operator_id,
+        utils_eia860_tbl.c.operator_name,
+    ])
+    utils_eia860 = pd.read_sql(utils_eia860_select, pudl_engine)
 
-    steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
+    # Pull the canonical EIA860 operator name into the output DataFrame:
+    out_df = pd.merge(plants_eia860, utils_eia860,
+                      how='left', on=['year', 'operator_id', ])
 
-    return(steam_df)
+    # Get the PUDL Utility ID
+    utils_eia_tbl = pt['utilities_eia']
+    utils_eia_select = sa.sql.select([
+        utils_eia_tbl.c.operator_id,
+        utils_eia_tbl.c.util_id_pudl,
+    ])
+    utils_eia = pd.read_sql(utils_eia_select,  pudl_engine)
+    out_df = pd.merge(out_df, utils_eia, how='left', on='operator_id')
 
+    # Get the PUDL Plant ID
+    plants_eia_tbl = pt['plants_eia']
+    plants_eia_select = sa.sql.select([
+        plants_eia_tbl.c.plant_id,
+        plants_eia_tbl.c.plant_id_pudl,
+    ])
+    plants_eia = pd.read_sql(plants_eia_select, pudl_engine)
+    out_df = pd.merge(out_df, plants_eia, how='left', on='plant_id')
 
-def fuel_ferc1_df(pudl_engine):
-    """
-    Pull a useful dataframe related to FERC Form 1 fuel information.
+    out_df = out_df.dropna()
+    out_df.plant_id_pudl = out_df.plant_id_pudl.astype(int)
+    out_df.util_id_pudl = out_df.util_id_pudl.astype(int)
 
-    This function pulls the FERC Form 1 fuel data, and joins in the name of the
-    reporting utility, as well as the PUDL IDs for that utility and the plant,
-    allowing integration with other PUDL tables.
-
-    Also calculates the total heat content consumed for each fuel, and the
-    total cost for each fuel. Total cost is calculated in two different ways,
-    on the basis of fuel units consumed (e.g. tons of coal, mcf of gas) and
-    on the basis of heat content consumed. In theory these should give the
-    same value for total cost, but this is not always the case.
-
-    TODO: Check whether this includes all of the fuel_ferc1 fields...
-
-    Args:
-        pudl_engine: An SQLAlchemy DB connection engine.
-    Returns:
-        fuel_df: a pandas dataframe.
-    """
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
-
-    # Build a SELECT statement that gives us information from several different
-    # tables that are relevant to FERC Fuel.
-    fuel_ferc1_select = sa.sql.select([
-        pt['fuel_ferc1'].c.report_year,
-        pt['utilities_ferc'].c.respondent_id,
-        pt['utilities_ferc'].c.respondent_name,
-        pt['utilities_ferc'].c.util_id_pudl,
-        pt['plants_ferc'].c.plant_id_pudl,
-        pt['fuel_ferc1'].c.plant_name,
-        pt['fuel_ferc1'].c.fuel,
-        pt['fuel_ferc1'].c.fuel_qty_burned,
-        pt['fuel_ferc1'].c.fuel_avg_mmbtu_per_unit,
-        pt['fuel_ferc1'].c.fuel_cost_per_unit_burned,
-        pt['fuel_ferc1'].c.fuel_cost_per_unit_delivered,
-        pt['fuel_ferc1'].c.fuel_cost_per_mmbtu,
-        pt['fuel_ferc1'].c.fuel_cost_per_mwh,
-        pt['fuel_ferc1'].c.fuel_mmbtu_per_mwh]).\
-        where(sa.sql.and_(
-            pt['utilities_ferc'].c.respondent_id ==
-            pt['fuel_ferc1'].c.respondent_id,
-            pt['plants_ferc'].c.respondent_id ==
-            pt['fuel_ferc1'].c.respondent_id,
-            pt['plants_ferc'].c.plant_name ==
-            pt['fuel_ferc1'].c.plant_name))
-
-    # Pull the data from the DB into a DataFrame
-    fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)
-
-    # We have two different ways of assessing the total cost of fuel given cost
-    # per unit delivered and cost per mmbtu. They *should* be the same, but we
-    # know they aren't always. Calculate both so we can compare both.
-    fuel_df['fuel_consumed_total_mmbtu'] = \
-        fuel_df['fuel_qty_burned'] * fuel_df['fuel_avg_mmbtu_per_unit']
-    fuel_df['fuel_consumed_total_cost_mmbtu'] = \
-        fuel_df['fuel_cost_per_mmbtu'] * fuel_df['fuel_consumed_total_mmbtu']
-    fuel_df['fuel_consumed_total_cost_unit'] = \
-        fuel_df['fuel_cost_per_unit_burned'] * fuel_df['fuel_qty_burned']
-
-    return(fuel_df)
+    return(out_df)
 
 
 def gf_eia923_df(pudl_engine):
@@ -174,27 +110,53 @@ def gf_eia923_df(pudl_engine):
     """
     # Grab the list of tables so we can reference them shorthand.
     pt = models.PUDLBase.metadata.tables
+    gf_eia923_tbl = pt['generation_fuel_eia923']
+    gf_eia923_select = sa.sql.select([gf_eia923_tbl, ])
+    gf_df = pd.read_sql(gf_eia923_select, pudl_engine)
 
-    gf_eia923_select = sa.sql.select([
-        pt['utilities_eia'].c.operator_id,
-        pt['utilities_eia'].c.operator_name,
-        pt['plants_eia'].c.plant_id_pudl,
-        pt['plants_eia'].c.plant_name,
-        pt['generation_fuel_eia923'].c.plant_id,
-        pt['generation_fuel_eia923'].c.report_date,
-        pt['generation_fuel_eia923'].c.aer_fuel_category,
-        pt['generation_fuel_eia923'].c.fuel_consumed_total_mmbtu,
-        pt['generation_fuel_eia923'].c.net_generation_mwh]).\
-        where(sa.sql.and_(
-            pt['plants_eia'].c.plant_id ==
-            pt['generation_fuel_eia923'].c.plant_id,
-            pt['util_plant_assn'].c.plant_id ==
-            pt['plants_eia'].c.plant_id_pudl,
-            pt['util_plant_assn'].c.utility_id ==
-            pt['utilities_eia'].c.util_id_pudl
-        ))
+    pu_eia = plants_utils_eia_df(pudl_engine)
 
-    return(pd.read_sql(gf_eia923_select, pudl_engine))
+    # Need a temporary year column to merge with EIA860 data which is annual.
+    gf_df['year'] = pd.to_datetime(gf_df['report_date']).dt.year
+    out_df = pd.merge(gf_df, pu_eia, how='left', on=['plant_id', 'year'])
+    out_df = out_df.drop(['year', 'id'], axis=1)
+    out_df = out_df.dropna(subset=[
+        'plant_id',
+        'plant_id_pudl',
+        'plant_name',
+        'operator_id',
+        'util_id_pudl',
+        'operator_name',
+    ])
+
+    out_df = out_df[[
+        'report_date',
+        'plant_id',
+        'plant_id_pudl',
+        'plant_name',
+        'operator_id',
+        'util_id_pudl',
+        'operator_name',
+        'nuclear_unit_id',
+        'fuel_type',
+        'aer_fuel_type',
+        'aer_fuel_category',
+        'prime_mover',
+        'fuel_consumed_total',
+        'fuel_consumed_for_electricity',
+        'fuel_mmbtu_per_unit',
+        'fuel_consumed_total_mmbtu',
+        'fuel_consumed_for_electricity_mmbtu',
+        'net_generation_mwh',
+    ]]
+
+    # Clean up the types of a few columns...
+    out_df['plant_id'] = out_df.plant_id.astype(int)
+    out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
+    out_df['operator_id'] = out_df.operator_id.astype(int)
+    out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
+
+    return(out_df)
 
 
 def frc_eia923_df(pudl_engine):
@@ -219,34 +181,27 @@ def frc_eia923_df(pudl_engine):
     Returns:
         A pandas dataframe.
     """
+    # Shorthand for readability... pt = PUDL Tables
+    pt = models.PUDLBase.metadata.tables
     # Most of the fields we want come direclty from Fuel Receipts & Costs
-    frc_df = pd.read_sql(
-        '''SELECT * FROM fuel_receipts_costs_eia923''', pudl_engine)
+    frc_tbl = pt['fuel_receipts_costs_eia923']
+    frc_select = sa.sql.select([frc_tbl, ])
+    frc_df = pd.read_sql(frc_select, pudl_engine)
+
     # Need a year column to merge with EIA860 data which is annual.
     frc_df['year'] = pd.to_datetime(frc_df['report_date']).dt.year
 
     # Need to re-integrate the MSHA coalmine info:
-    cmi_df = pd.read_sql('''SELECT * FROM coalmine_info_eia923''', pudl_engine)
-
-    # Contains the one-to-one mapping of EIA plants to their operators, but
-    # we only have the 860 data integrated for 2011 forward right now.
-    plants_eia860 = pd.read_sql(
-        '''SELECT * FROM plants_eia860''', pudl_engine)
-    plants_eia860 = plants_eia860[['year', 'plant_id', 'operator_id']]
-
-    # For the PUDL Utility & Plant IDs, as well as utility & plant names:
-    utils_eia = pd.read_sql('''SELECT * FROM utilities_eia''', pudl_engine)
-    plants_eia = pd.read_sql('''SELECT * FROM plants_eia''', pudl_engine)
+    cmi_tbl = pt['coalmine_info_eia923']
+    cmi_select = sa.sql.select([cmi_tbl, ])
+    cmi_df = pd.read_sql(cmi_select, pudl_engine)
 
     out_df = pd.merge(frc_df, cmi_df,
                       how='left',
                       left_on='coalmine_id',
                       right_on='id')
-    out_df = pd.merge(out_df, plants_eia860,
-                      how='left',
-                      on=['plant_id', 'year'])
-    out_df = pd.merge(out_df, utils_eia, how='left', on='operator_id')
-    out_df = pd.merge(out_df, plants_eia, how='left', on='plant_id')
+    pu_eia = plants_utils_eia_df(pudl_engine)
+    out_df = pd.merge(out_df, pu_eia, how='left', on=['plant_id', 'year'])
 
     # Sadly b/c we're depending on 860 for Operator/Plant mapping,
     # we only get 2011 and later
@@ -272,6 +227,9 @@ def frc_eia923_df(pudl_engine):
         value=['oil', 'gas', 'gas', 'coal', 'petcoke'])
 
     # Clean up the types of a few columns...
+    out_df['plant_id'] = out_df.plant_id.astype(int)
+    out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
+    out_df['operator_id'] = out_df.operator_id.astype(int)
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
 
     # Re-arrange the columns for easier readability:
@@ -310,39 +268,55 @@ def frc_eia923_df(pudl_engine):
     return(out_df)
 
 
-def generators_eia860_df(pudl_engine):
+def gens_eia860_df(pudl_engine):
     """
-    Pull all fields reported in the generators_eia860 table. Merge in other
-    useful fields including the latitude & longitude of the plant that the
-    generators are part of, canonical plant & operator names and the PUDL
-    IDs of the plant and operator, for merging with other PUDL data sources.
+    Pull all fields reported in the generators_eia860 table.
+
+    Merge in other useful fields including the latitude & longitude of the
+    plant that the generators are part of, canonical plant & operator names and
+    the PUDL IDs of the plant and operator, for merging with other PUDL data
+    sources.
 
     Args:
         pudl_engine: An SQLAlchemy DB connection engine.
     Returns:
         A pandas dataframe.
     """
+    # Shorthand for readability... pt = PUDL Tables
+    pt = models.PUDLBase.metadata.tables
     # Almost all the info we need will come from here.
-    gens_eia860 = pd.read_sql(
-        '''SELECT * FROM generators_eia860''', pudl_engine)
-    # Canonical sources for these fields are elsewhere.
+    gens_eia860_tbl = pt['generators_eia860']
+    gens_eia860_select = sa.sql.select([gens_eia860_tbl, ])
+    gens_eia860 = pd.read_sql(gens_eia860_select, pudl_engine)
+
+    # Canonical sources for these fields are elsewhere. We will merge them in.
     gens_eia860 = gens_eia860.drop(['operator_id',
                                     'operator_name',
                                     'plant_name'], axis=1)
 
     # To get the Lat/Lon coordinates, and plant/utility ID mapping:
-    plants_eia860 = pd.read_sql('''
-        SELECT year, plant_id, operator_id, latitude, longitude
-        FROM plants_eia860''', pudl_engine)
+    plants_eia860_tbl = pt['plants_eia860']
+    plants_eia860_select = sa.sql.select([
+        plants_eia860_tbl.c.year,
+        plants_eia860_tbl.c.plant_id,
+        plants_eia860_tbl.c.operator_id,
+        plants_eia860_tbl.c.latitude,
+        plants_eia860_tbl.c.longitude,
+    ])
+    plants_eia860 = pd.read_sql(plants_eia860_select, pudl_engine)
+
     out_df = pd.merge(gens_eia860, plants_eia860,
                       how='left', on=['year', 'plant_id'])
 
-    # Get the utility names and PUDL utility IDs
-    utils_eia = pd.read_sql('''SELECT * FROM utilities_eia''', pudl_engine)
+    # For the PUDL Utility & Plant IDs, as well as utility & plant names:
+    utils_eia_tbl = pt['utilities_eia']
+    utils_eia_select = sa.sql.select([utils_eia_tbl, ])
+    utils_eia = pd.read_sql(utils_eia_select,  pudl_engine)
     out_df = pd.merge(out_df, utils_eia, on='operator_id')
 
-    # Get the plant names and PUDL plant IDs
-    plants_eia = pd.read_sql('''SELECT * FROM plants_eia''', pudl_engine)
+    plants_eia_tbl = pt['plants_eia']
+    plants_eia_select = sa.sql.select([plants_eia_tbl, ])
+    plants_eia = pd.read_sql(plants_eia_select, pudl_engine)
     out_df = pd.merge(out_df, plants_eia, how='left', on='plant_id')
 
     # Drop a few extraneous fields...
@@ -443,6 +417,159 @@ def generators_eia860_df(pudl_engine):
         'previously_canceled',
         'retirement_month',
         'retirement_year',
+    ]]
+
+    return(out_df)
+
+
+def plants_utils_ferc_df(pudl_engine):
+    """Build a dataframe of useful FERC Plant & Utility information."""
+    # Grab the list of tables so we can reference them shorthand.
+    pt = models.PUDLBase.metadata.tables
+
+    utils_ferc_tbl = pt['utilities_ferc']
+    utils_ferc_select = sa.sql.select([utils_ferc_tbl, ])
+    utils_ferc = pd.read_sql(utils_ferc_select, pudl_engine)
+
+    plants_ferc_tbl = pt['plants_ferc']
+    plants_ferc_select = sa.sql.select([plants_ferc_tbl, ])
+    plants_ferc = pd.read_sql(plants_ferc_select, pudl_engine)
+
+    out_df = pd.merge(plants_ferc, utils_ferc, on='respondent_id')
+    return(out_df)
+
+
+def plants_steam_ferc1_df(pudl_engine):
+    """
+    Select and join some useful fields from the FERC Form 1 steam table.
+
+    Select the FERC Form 1 steam plant table entries, add in the reporting
+    utility's name, and the PUDL ID for the plant and utility for readability
+    and integration with other tables that have PUDL IDs.
+
+    Args:
+        pudl_engine: An SQLAlchemy DB connection engine.
+    Returns:
+        steam_df: a pandas dataframe.
+    """
+    # Grab the list of tables so we can reference them shorthand.
+    pt = models.PUDLBase.metadata.tables
+
+    steam_ferc1_tbl = pt['plants_steam_ferc1']
+    steam_ferc1_select = sa.sql.select([steam_ferc1_tbl, ])
+    steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
+
+    pu_ferc = plants_utils_ferc_df(pudl_engine)
+
+    out_df = pd.merge(steam_df, pu_ferc, on=['respondent_id', 'plant_name'])
+    out_df = out_df.drop(['id', ])
+    out_df = out_df[[
+        'report_year',
+        'respondent_id',
+        'respondent_name',
+        'util_id_pudl'
+        'plant_name',
+        'plant_id_pudl',
+        'plant_kind',
+        'type_const',
+        'year_constructed',
+        'year_installed',
+        'total_capacity_mw',
+        'peak_demand_mw',
+        'plant_hours',
+        'plant_capability_mw',
+        'water_limited_mw',
+        'not_water_limited_mw',
+        'avg_num_employees',
+        'net_generation_mwh',
+        'cost_land',
+        'cost_structure',
+        'cost_equipment',
+        'cost_of_plant_total',
+        'cost_per_mw',
+        'expns_operations',
+        'expns_fuel',
+        'expns_coolants',
+        'expns_steam',
+        'expns_steam_other',
+        'expns_transfer',
+        'expns_electric',
+        'expns_misc_power',
+        'expns_rents',
+        'expns_allowances',
+        'expns_engineering',
+        'expns_structures',
+        'expns_boiler',
+        'expns_plants',
+        'expns_misc_steam',
+        'expns_production_total',
+        'expns_per_mwh',
+        'asset_retire_cost',
+    ]]
+    return(out_df)
+
+
+def fuel_ferc1_df(pudl_engine):
+    """
+    Pull a useful dataframe related to FERC Form 1 fuel information.
+
+    This function pulls the FERC Form 1 fuel data, and joins in the name of the
+    reporting utility, as well as the PUDL IDs for that utility and the plant,
+    allowing integration with other PUDL tables.
+
+    Also calculates the total heat content consumed for each fuel, and the
+    total cost for each fuel. Total cost is calculated in two different ways,
+    on the basis of fuel units consumed (e.g. tons of coal, mcf of gas) and
+    on the basis of heat content consumed. In theory these should give the
+    same value for total cost, but this is not always the case.
+
+    TODO: Check whether this includes all of the fuel_ferc1 fields...
+
+    Args:
+        pudl_engine: An SQLAlchemy DB connection engine.
+    Returns:
+        fuel_df: a pandas dataframe.
+    """
+    # Grab the list of tables so we can reference them shorthand.
+    pt = models.PUDLBase.metadata.tables
+    fuel_ferc1_tbl = pt['fuel_ferc1']
+    fuel_ferc1_select = sa.sql.select([fuel_ferc1_tbl, ])
+    fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)
+
+    # We have two different ways of assessing the total cost of fuel given cost
+    # per unit delivered and cost per mmbtu. They *should* be the same, but we
+    # know they aren't always. Calculate both so we can compare both.
+    fuel_df['fuel_consumed_total_mmbtu'] = \
+        fuel_df['fuel_qty_burned'] * fuel_df['fuel_avg_mmbtu_per_unit']
+    fuel_df['fuel_consumed_total_cost_mmbtu'] = \
+        fuel_df['fuel_cost_per_mmbtu'] * fuel_df['fuel_consumed_total_mmbtu']
+    fuel_df['fuel_consumed_total_cost_unit'] = \
+        fuel_df['fuel_cost_per_unit_burned'] * fuel_df['fuel_qty_burned']
+
+    pu_ferc = plants_utils_ferc_df(pudl_engine)
+
+    out_df = pd.merge(fuel_df, pu_ferc, on=['respondent_id', 'plant_name'])
+    out_df = out_df.drop('id', axis=1)
+
+    out_df = out_df[[
+        'report_year',
+        'respondent_id',
+        'respondent_name',
+        'util_id_pudl',
+        'plant_name',
+        'plant_id_pudl',
+        'fuel',
+        'fuel_unit',
+        'fuel_qty_burned',
+        'fuel_avg_mmbtu_per_unit',
+        'fuel_cost_per_unit_burned',
+        'fuel_cost_per_unit_delivered',
+        'fuel_cost_per_mmbtu',
+        'fuel_cost_per_mwh',
+        'fuel_mmbtu_per_mwh',
+        'fuel_consumed_total_mmbtu',
+        'fuel_cost_per_mmbtu',
+        'fuel_cost_per_unit_burned',
     ]]
 
     return(out_df)
