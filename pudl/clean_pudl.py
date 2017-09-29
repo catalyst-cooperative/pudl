@@ -87,3 +87,54 @@ def fix_int_na(col, float_na=np.nan, int_na=-1, str_na=''):
            astype(int).
            astype(str).
            replace(str(int_na), str_na))
+
+
+def month_year_to_date(df, month_regex="(_month$|^month_)",
+                       year_regex="(_year$|^year_)"):
+    """Convert pairs of year/month fields in a dataframe into Date fields."""
+    import re
+    df = df.copy()
+    # Columns that match our month or year patterns.
+    month_cols = list(df.filter(regex=month_regex).columns)
+    year_cols = list(df.filter(regex=year_regex).columns)
+
+    # Base column names that don't include the month or year pattern
+    months_base = [re.sub(month_regex, '', m) for m in month_cols]
+    years_base = [re.sub(year_regex, '', y) for y in year_cols]
+
+    # We only want to retain columns that have BOTH month and year
+    # matches -- otherwise there's no point in creating a Date.
+    date_base = [base for base in months_base if base in years_base]
+
+    # For each base column that DOES have both a month and year,
+    # We need to grab the real column names corresponding to each,
+    # so we can access the values in the data frame, and use them
+    # to create a corresponding Date column named [BASE]_date
+    month_year_base = []
+    for base in date_base:
+        cols = list(df.filter(regex=base).columns)
+        # the one field that matches col & also month_regex
+        for col in cols:
+            if re.search(month_regex, col) is not None:
+                month_col = col
+            elif re.search(year_regex, col) is not None:
+                year_col = col
+        month_year_base.append((month_col, year_col, base))
+
+    for m, y, b in month_year_base:
+        df[y] = fix_int_na(df[y])
+        df[m] = fix_int_na(df[m])
+
+        date_mask = (df[y] != '') & (df[m] != '')
+        years = df.loc[date_mask, y]
+        months = df.loc[date_mask, m]
+
+        df.loc[date_mask, '{}_date'.format(b)] = pd.to_datetime({
+            'year': years,
+            'month': months,
+            'day': 1}, errors='coerce')
+
+        # Now that we've replaced these fields with a date, we drop them.
+        df = df.drop([m, y], axis=1)
+
+    return(df)
