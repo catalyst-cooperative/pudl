@@ -34,7 +34,7 @@ class UtilitiesEIA860(pudl.models.PUDLBase):
     plants_reported_asset_manager = Column(String)
     plants_reported_other_relationship = Column(String)
     entity_type = Column(String)
-    year = Column(Integer)
+    report_year = Column(Integer)
 
 
 class PlantsEIA860(pudl.models.PUDLBase):
@@ -80,7 +80,7 @@ class PlantsEIA860(pudl.models.PUDLBase):
     ash_impoundment_lined = Column(String)
     ash_impoundment_status = Column(String)
     natural_gas_pipeline = Column(String)
-    year = Column(Integer)
+    report_year = Column(Integer)
 
 
 class OwnershipEIA860(pudl.models.PUDLBase):
@@ -102,7 +102,7 @@ class OwnershipEIA860(pudl.models.PUDLBase):
     owner_street_address = Column(String)
     owner_zip = Column(String)
     percent_owned = Column(Float)
-    year = Column(Integer)
+    report_year = Column(Integer)
 
 
 class GeneratorsEIA860(pudl.models.PUDLBase):
@@ -110,14 +110,15 @@ class GeneratorsEIA860(pudl.models.PUDLBase):
 
     __tablename__ = 'generators_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
-    operator_id = Column(Integer)
-    operator_name = Column(String)
+    report_year = Column(Integer)
+    operator_id = Column(Integer)  # FK
+    operator_name = Column(String)  # FK
     plant_id = Column(Integer, ForeignKey('plants_eia.plant_id'))
-    plant_name = Column(String)
-    state = Column(String)
-    county = Column(String)
+    plant_name = Column(String)  # FK
+    state = Column(String)  # FK
+    county = Column(String)  # FK
     generator_id = Column(String)
-    prime_mover = Column(String)
+    prime_mover = Column(String)  # FK?
     unit_code = Column(String)
     status = Column(String)
     ownership = Column(String)
@@ -125,8 +126,7 @@ class GeneratorsEIA860(pudl.models.PUDLBase):
     nameplate_capacity_mw = Column(Float)
     summer_capacity_mw = Column(Float)
     winter_capacity_mw = Column(Float)
-    operating_month = Column(Integer)
-    operating_year = Column(Integer)
+    operating_date = Column(Date)
     energy_source_1 = Column(String)
     energy_source_2 = Column(String)
     energy_source_3 = Column(String)
@@ -144,21 +144,16 @@ class GeneratorsEIA860(pudl.models.PUDLBase):
     planned_modifications = Column(String)
     planned_net_summer_capacity_uprate = Column(Float)
     planned_net_winter_capacity_uprate = Column(Float)
-    planned_uprate_month = Column(Integer)
-    planned_uprate_year = Column(Integer)
+    planned_uprate_date = Column(Date)
     planned_net_summer_capacity_derate = Column(Float)
     planned_net_winter_capacity_derate = Column(Float)
-    planned_derate_month = Column(Integer)
-    planned_derate_year = Column(Integer)
+    planned_derate_date = Column(Date)
     planned_new_prime_mover = Column(String)
     planned_energy_source_1 = Column(String)
-    planned_repower_month = Column(Integer)
-    planned_repower_year = Column(Integer)
+    planned_repower_date = Column(Date)
     other_planned_modifications = Column(String)
-    other_modifications_month = Column(Integer)
-    other_modifications_year = Column(Integer)
-    planned_retirement_month = Column(Integer)
-    planned_retirement_year = Column(Integer)
+    other_modifications_date = Column(Date)
+    planned_retirement_date = Column(Date)
     solid_fuel_gasification = Column(String)
     pulverized_coal_tech = Column(String)
     fluidized_bed_tech = Column(String)
@@ -184,17 +179,12 @@ class GeneratorsEIA860(pudl.models.PUDLBase):
     nameplate_power_factor = Column(Float)
     minimum_load_mw = Column(Float)
     uprate_derate_during_year = Column(String)
-    month_uprate_derate_completed = Column(String)
-    year_uprate_derate_completed = Column(String)
+    uprate_derate_completed_date = Column(Date)
     associated_combined_heat_power = Column(String)
-    effective_month = Column(Integer)
-    effective_year = Column(Integer)
-    current_month = Column(Integer)
-    current_year = Column(Integer)
+    effective_date = Column(Date)
+    current_date = Column(Date)
     summer_estimated_capability = Column(Float)
     winter_estimated_capability = Column(Float)
     operating_switch = Column(String)
     previously_canceled = Column(String)
-    retirement_month = Column(Integer)
-    retirement_year = Column(Integer)
-    year = Column(Integer)
+    retirement_date = Column(Date)

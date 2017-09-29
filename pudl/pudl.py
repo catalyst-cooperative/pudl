@@ -23,6 +23,7 @@ import numpy as np
 import sqlalchemy as sa
 import postgres_copy
 import os.path
+import re
 
 from pudl import eia923, ferc1, eia860
 from pudl import settings
@@ -1785,68 +1786,32 @@ def ingest_generators_eia860(pudl_engine, eia860_dfs,
 
     Returns: Nothing.
     """
+    # There are three sets of generator data reported in the EIA860 table,
+    # planned, existing, and retired generators. We're going to concatenate
+    # them all together into a single big table, with a column that indicates
+    # which one of these tables the data came from, since they all have almost
+    # exactly the same structure
+    gp_df = eia860_dfs['generator_proposed'].copy()
     ge_df = eia860_dfs['generator_existing'].copy()
+    gr_df = eia860_dfs['generator_retired'].copy()
+    gp_df['status'] = 'proposed'
+    ge_df['status'] = 'existing'
+    gr_df['status'] = 'retired'
 
-    ge_df.dropna(subset=['generator_id', 'plant_id'], inplace=True)
+    gens_df = pd.concat([ge_df, gp_df, gr_df])
+    gens_df = clean_eia860.clean_generators_eia860(gens_df)
 
-    ge_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
-    ge_df.replace(to_replace='^\s$', value=np.nan, regex=True, inplace=True)
-    ge_df.replace(to_replace='^$', value=np.nan, regex=True, inplace=True)
-
-    columns_to_fix = ['planned_retirement_month',
-                      'planned_retirement_year',
-                      'planned_uprate_month',
-                      'planned_uprate_year',
-                      'other_modifications_month',
-                      'other_modifications_year',
-                      'planned_derate_month',
-                      'planned_derate_year',
-                      'planned_repower_month',
-                      'planned_repower_year',
-                      'planned_net_summer_capacity_derate',
-                      'planned_net_summer_capacity_uprate',
-                      'planned_net_winter_capacity_derate',
-                      'planned_net_winter_capacity_uprate',
-                      'planned_new_nameplate_capacity_mw',
-                      'nameplate_power_factor',
-                      'minimum_load_mw',
-                      'winter_capacity_mw',
-                      'summer_capacity_mw']
-
-    for column in columns_to_fix:
-        ge_df[column] = ge_df[column].replace(
-            to_replace=[" ", 0], value=np.nan)
-
-    fix_int_na_columns = ['operating_month',
-                          'operating_year',
-                          'plant_id',
-                          'sector',
-                          'turbines',
-                          'planned_retirement_month',
-                          'planned_retirement_year',
-                          'planned_uprate_month',
-                          'planned_uprate_year',
-                          'other_modifications_month',
-                          'other_modifications_year',
-                          'planned_derate_month',
-                          'planned_derate_year',
-                          'planned_repower_month',
-                          'planned_repower_year',
-                          'planned_net_summer_capacity_derate',
-                          'planned_net_summer_capacity_uprate',
-                          'planned_net_winter_capacity_derate',
-                          'planned_net_winter_capacity_uprate',
-                          'planned_new_nameplate_capacity_mw',
-                          'nameplate_power_factor']
+    # String-ify a bunch of fields for output.
+    fix_int_na_columns = ['sector', 'turbines']
 
     for column in fix_int_na_columns:
-        ge_df[column] = \
-            clean_pudl.fix_int_na(ge_df[column],
+        gens_df[column] = \
+            clean_pudl.fix_int_na(gens_df[column],
                                   float_na=np.nan,
                                   int_na=-1,
                                   str_na='')
 
-    csv_dump_load(ge_df, 'generators_eia860', pudl_engine,
+    csv_dump_load(gens_df, 'generators_eia860', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
