@@ -89,11 +89,12 @@ def fix_int_na(col, float_na=np.nan, int_na=-1, str_na=''):
            replace(str(int_na), str_na))
 
 
-def month_year_to_date(df, month_regex="(_month$|^month_)",
-                       year_regex="(_year$|^year_)"):
+def month_year_to_date(df):
     """Convert pairs of year/month fields in a dataframe into Date fields."""
     import re
     df = df.copy()
+    month_regex = "_month$"
+    year_regex = "_year$"
     # Columns that match our month or year patterns.
     month_cols = list(df.filter(regex=month_regex).columns)
     year_cols = list(df.filter(regex=year_regex).columns)
@@ -110,31 +111,33 @@ def month_year_to_date(df, month_regex="(_month$|^month_)",
     # We need to grab the real column names corresponding to each,
     # so we can access the values in the data frame, and use them
     # to create a corresponding Date column named [BASE]_date
-    month_year_base = []
+    month_year_date = []
     for base in date_base:
-        cols = list(df.filter(regex=base).columns)
-        # the one field that matches col & also month_regex
-        for col in cols:
-            if re.search(month_regex, col) is not None:
-                month_col = col
-            elif re.search(year_regex, col) is not None:
-                year_col = col
-        month_year_base.append((month_col, year_col, base))
+        base_month_regex = '^{}{}'.format(base, month_regex)
+        month_col = list(df.filter(regex=base_month_regex).columns)
+        assert(len(month_col) == 1)
+        month_col = month_col[0]
+        base_year_regex = '^{}{}'.format(base, year_regex)
+        year_col = list(df.filter(regex=base_year_regex).columns)
+        assert(len(year_col) == 1)
+        year_col = year_col[0]
+        date_col = '{}_date'.format(base)
+        month_year_date.append((month_col, year_col, date_col))
 
-    for m, y, b in month_year_base:
-        df[y] = fix_int_na(df[y])
-        df[m] = fix_int_na(df[m])
+    for month_col, year_col, date_col in month_year_date:
+        df[year_col] = fix_int_na(df[year_col])
+        df[month_col] = fix_int_na(df[month_col])
 
-        date_mask = (df[y] != '') & (df[m] != '')
-        years = df.loc[date_mask, y]
-        months = df.loc[date_mask, m]
+        date_mask = (df[year_col] != '') & (df[month_col] != '')
+        years = df.loc[date_mask, year_col]
+        months = df.loc[date_mask, month_col]
 
-        df.loc[date_mask, '{}_date'.format(b)] = pd.to_datetime({
+        df.loc[date_mask, date_col] = pd.to_datetime({
             'year': years,
             'month': months,
             'day': 1}, errors='coerce')
 
         # Now that we've replaced these fields with a date, we drop them.
-        df = df.drop([m, y], axis=1)
+        df = df.drop([month_col, year_col], axis=1)
 
     return(df)

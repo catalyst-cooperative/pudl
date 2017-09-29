@@ -28,7 +28,7 @@ import re
 from pudl import eia923, ferc1, eia860
 from pudl import settings
 from pudl import models, models_eia923, models_eia860, models_epacems
-from pudl import clean_ferc1, clean_pudl, clean_eia923
+from pudl import clean_ferc1, clean_pudl, clean_eia923, clean_eia860
 
 import pudl.constants as pc
 
@@ -1802,7 +1802,7 @@ def ingest_generators_eia860(pudl_engine, eia860_dfs,
     gens_df = clean_eia860.clean_generators_eia860(gens_df)
 
     # String-ify a bunch of fields for output.
-    fix_int_na_columns = ['sector', 'turbines']
+    fix_int_na_columns = ['plant_id', 'sector', 'turbines']
 
     for column in fix_int_na_columns:
         gens_df[column] = \
