@@ -462,12 +462,11 @@ def plants_steam_ferc1_df(pudl_engine):
     pu_ferc = plants_utils_ferc_df(pudl_engine)
 
     out_df = pd.merge(steam_df, pu_ferc, on=['respondent_id', 'plant_name'])
-    out_df = out_df.drop(['id', ])
     out_df = out_df[[
         'report_year',
         'respondent_id',
         'respondent_name',
-        'util_id_pudl'
+        'util_id_pudl',
         'plant_name',
         'plant_id_pudl',
         'plant_kind',
