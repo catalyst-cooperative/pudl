@@ -173,21 +173,6 @@ class AERFuelCategoryEIA923(pudl.models.PUDLBase):
 ###########################################################################
 
 
-class PlantOwnershipEIA923(pudl.models.PUDLBase):
-    """
-    Information describing which entities own & operate power plants.
-
-    For now this table only describes how the reporting operator of a plant_id
-    changes from year to year, but it may also be used to house data from the
-    EIA860 form, describing ownership shares of various plants, year by year.
-    """
-
-    __tablename__ = 'plant_ownership_eia923'
-    plant_id = Column(Integer, primary_key=True)
-    year = Column(Integer, primary_key=True)
-    operator_id = Column(Integer, ForeignKey('utilities_eia.operator_id'))
-
-
 class OperatorInfoEIA923(pudl.models.PUDLBase):
     """
     Information specific to plant operators (typically utilities).
