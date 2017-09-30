@@ -48,7 +48,7 @@ def plants_utils_eia_df(pudl_engine):
     # we only have the 860 data integrated for 2011 forward right now.
     plants_eia860_tbl = pt['plants_eia860']
     plants_eia860_select = sa.sql.select([
-        plants_eia860_tbl.c.year,
+        plants_eia860_tbl.c.report_year,
         plants_eia860_tbl.c.plant_id,
         plants_eia860_tbl.c.plant_name,
         plants_eia860_tbl.c.operator_id,
@@ -57,7 +57,7 @@ def plants_utils_eia_df(pudl_engine):
 
     utils_eia860_tbl = pt['utilities_eia860']
     utils_eia860_select = sa.sql.select([
-        utils_eia860_tbl.c.year,
+        utils_eia860_tbl.c.report_year,
         utils_eia860_tbl.c.operator_id,
         utils_eia860_tbl.c.operator_name,
     ])
@@ -65,7 +65,7 @@ def plants_utils_eia_df(pudl_engine):
 
     # Pull the canonical EIA860 operator name into the output DataFrame:
     out_df = pd.merge(plants_eia860, utils_eia860,
-                      how='left', on=['year', 'operator_id', ])
+                      how='left', on=['report_year', 'operator_id', ])
 
     # Get the PUDL Utility ID
     utils_eia_tbl = pt['utilities_eia']
@@ -117,9 +117,10 @@ def gf_eia923_df(pudl_engine):
     pu_eia = plants_utils_eia_df(pudl_engine)
 
     # Need a temporary year column to merge with EIA860 data which is annual.
-    gf_df['year'] = pd.to_datetime(gf_df['report_date']).dt.year
-    out_df = pd.merge(gf_df, pu_eia, how='left', on=['plant_id', 'year'])
-    out_df = out_df.drop(['year', 'id'], axis=1)
+    gf_df['report_year'] = pd.to_datetime(gf_df['report_date']).dt.year
+    out_df = pd.merge(gf_df, pu_eia,
+                      how='left', on=['plant_id', 'report_year'])
+    out_df = out_df.drop(['report_year', 'id'], axis=1)
     out_df = out_df.dropna(subset=[
         'plant_id',
         'plant_id_pudl',
@@ -189,7 +190,7 @@ def frc_eia923_df(pudl_engine):
     frc_df = pd.read_sql(frc_select, pudl_engine)
 
     # Need a year column to merge with EIA860 data which is annual.
-    frc_df['year'] = pd.to_datetime(frc_df['report_date']).dt.year
+    frc_df['report_year'] = pd.to_datetime(frc_df['report_date']).dt.year
 
     # Need to re-integrate the MSHA coalmine info:
     cmi_tbl = pt['coalmine_info_eia923']
@@ -201,7 +202,8 @@ def frc_eia923_df(pudl_engine):
                       left_on='coalmine_id',
                       right_on='id')
     pu_eia = plants_utils_eia_df(pudl_engine)
-    out_df = pd.merge(out_df, pu_eia, how='left', on=['plant_id', 'year'])
+    out_df = pd.merge(out_df, pu_eia,
+                      how='left', on=['plant_id', 'report_year'])
 
     # Sadly b/c we're depending on 860 for Operator/Plant mapping,
     # we only get 2011 and later
@@ -209,7 +211,7 @@ def frc_eia923_df(pudl_engine):
     cols_to_drop = ['fuel_receipt_id',
                     'coalmine_id',
                     'id',
-                    'year']
+                    'report_year']
     out_df = out_df.drop(cols_to_drop, axis=1)
 
     # Calculate a few totals that are commonly needed:
@@ -297,7 +299,7 @@ def gens_eia860_df(pudl_engine):
     # To get the Lat/Lon coordinates, and plant/utility ID mapping:
     plants_eia860_tbl = pt['plants_eia860']
     plants_eia860_select = sa.sql.select([
-        plants_eia860_tbl.c.year,
+        plants_eia860_tbl.c.report_year,
         plants_eia860_tbl.c.plant_id,
         plants_eia860_tbl.c.operator_id,
         plants_eia860_tbl.c.latitude,
@@ -306,7 +308,7 @@ def gens_eia860_df(pudl_engine):
     plants_eia860 = pd.read_sql(plants_eia860_select, pudl_engine)
 
     out_df = pd.merge(gens_eia860, plants_eia860,
-                      how='left', on=['year', 'plant_id'])
+                      how='left', on=['report_year', 'plant_id'])
 
     # For the PUDL Utility & Plant IDs, as well as utility & plant names:
     utils_eia_tbl = pt['utilities_eia']
@@ -325,7 +327,7 @@ def gens_eia860_df(pudl_engine):
 
     # Re-arrange the dataframe to be more readable:
     out_df = out_df[[
-        'year',
+        'report_year',
         'operator_id',
         'util_id_pudl',
         'operator_name',
@@ -345,8 +347,7 @@ def gens_eia860_df(pudl_engine):
         'nameplate_capacity_mw',
         'summer_capacity_mw',
         'winter_capacity_mw',
-        'operating_month',
-        'operating_year',
+        'operating_date',
         'energy_source_1',
         'energy_source_2',
         'energy_source_3',
@@ -364,21 +365,16 @@ def gens_eia860_df(pudl_engine):
         'planned_modifications',
         'planned_net_summer_capacity_uprate',
         'planned_net_winter_capacity_uprate',
-        'planned_uprate_month',
-        'planned_uprate_year',
+        'planned_uprate_date',
         'planned_net_summer_capacity_derate',
         'planned_net_winter_capacity_derate',
-        'planned_derate_month',
-        'planned_derate_year',
+        'planned_derate_date',
         'planned_new_prime_mover',
         'planned_energy_source_1',
-        'planned_repower_month',
-        'planned_repower_year',
+        'planned_repower_date',
         'other_planned_modifications',
-        'other_modifications_month',
-        'other_modifications_year',
-        'planned_retirement_month',
-        'planned_retirement_year',
+        'other_modifications_date',
+        'planned_retirement_date',
         'solid_fuel_gasification',
         'pulverized_coal_tech',
         'fluidized_bed_tech',
@@ -404,19 +400,15 @@ def gens_eia860_df(pudl_engine):
         'nameplate_power_factor',
         'minimum_load_mw',
         'uprate_derate_during_year',
-        'month_uprate_derate_completed',
-        'year_uprate_derate_completed',
+        'uprate_derate_completed_date',
         'associated_combined_heat_power',
-        'effective_month',
-        'effective_year',
-        'current_month',
-        'current_year',
+        'original_planned_operating_date',
+        'current_planned_operating_date',
         'summer_estimated_capability',
         'winter_estimated_capability',
         'operating_switch',
         'previously_canceled',
-        'retirement_month',
-        'retirement_year',
+        'retirement_date',
     ]]
 
     return(out_df)
