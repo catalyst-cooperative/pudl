@@ -1,12 +1,11 @@
 """
 Tests excercising the pudl module for use with PyTest.
 
-Run this test by with 'pytest -s test/test_pudl.py'
+Run this test by with 'pytest -s test/pudl_test.py'
 """
 
 import pytest
-from pudl import pudl, ferc1, eia923, eia860, settings, constants
-from pudl import models, models_ferc1, models_eia923, models_eia860
+from pudl import pudl, ferc1, constants
 
 
 def test_init_db():
