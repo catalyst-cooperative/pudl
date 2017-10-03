@@ -285,6 +285,115 @@ def frc_eia923_df(pudl_engine):
     return(out_df)
 
 
+def bf_eia923_df(pudl_engine):
+    """
+    Pull a useful set of fields related to boiler_fuel_eia923 table.
+
+    Args:
+        pudl_engine: An SQLAlchemy DB connection engine.
+    Returns:
+        out_df: a pandas dataframe.
+    """
+
+    # Grab the list of tables so we can reference them shorthand.
+    pt = models.PUDLBase.metadata.tables
+    bf_eia923_tbl = pt['boiler_fuel_eia923']
+    bf_eia923_select = sa.sql.select([bf_eia923_tbl, ])
+    bf_df = pd.read_sql(bf_eia923_select, pudl_engine)
+
+    pu_eia = plants_utils_eia_df(pudl_engine)
+
+    # Need a temporary year column to merge with EIA860 data which is annual.
+    bf_df['report_year'] = pd.to_datetime(bf_df['report_date']).dt.year
+
+    out_df = pd.merge(bf_df, pu_eia, how='left', on=['plant_id',
+                      'report_year'])
+    out_df = out_df.drop(['report_year', 'id'], axis=1)
+
+    out_df = out_df.dropna(subset=[
+        'plant_id',
+        'plant_id_pudl',
+        'plant_name',
+        'operator_id',
+        'util_id_pudl',
+        'operator_name',
+    ])
+
+    out_df['operator_id'] = out_df.operator_id.astype(int)
+    out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
+    out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
+
+    return out_df
+
+
+def g_eia923_df(pudl_engine):
+    """
+    Pull a useful set of fields related to generation_eia923 table.
+
+    Args:
+        pudl_engine: An SQLAlchemy DB connection engine.
+    Returns:
+        out_df: a pandas dataframe.
+    """
+
+    # Grab the list of tables so we can reference them shorthand.
+    pt = models.PUDLBase.metadata.tables
+    g_eia923_tbl = pt['generation_eia923']
+    g_eia923_select = sa.sql.select([g_eia923_tbl, ])
+    g_df = pd.read_sql(g_eia923_select, pudl_engine)
+
+    pu_eia = plants_utils_eia_df(pudl_engine)
+
+    # Need a temporary year column to merge with EIA860 data which is annual.
+    g_df['report_year'] = pd.to_datetime(g_df['report_date']).dt.year
+
+    out_df = pd.merge(g_df, pu_eia, how='left', on=['plant_id', 'report_year'])
+    out_df = out_df.drop(['report_year', 'id'], axis=1)
+
+    out_df = out_df.dropna(subset=[
+        'plant_id',
+        'plant_id_pudl',
+        'plant_name',
+        'operator_id',
+        'util_id_pudl',
+        'operator_name',
+    ])
+
+    out_df['operator_id'] = out_df.operator_id.astype(int)
+    out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
+    out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
+
+    return out_df
+
+
+def o_eia860_df(pudl_engine):
+    """
+    Pull a useful set of fields related to ownership_eia860 table.
+
+    Args:
+        pudl_engine: An SQLAlchemy DB connection engine.
+    Returns:
+        out_df: a pandas dataframe.
+    """
+
+    # Grab the list of tables so we can reference them shorthand.
+    pt = models.PUDLBase.metadata.tables
+
+    o_eia860_tbl = pt['ownership_eia860']
+    o_eia860_select = sa.sql.select([o_eia860_tbl, ])
+    o_df = pd.read_sql(o_eia860_select, pudl_engine)
+
+    pu_eia = plants_utils_eia_df(pudl_engine)
+    pu_eia = pu_eia[['plant_id', 'plant_id_pudl', 'util_id_pudl',
+                     'report_year']]
+
+    out_df = pd.merge(o_df, pu_eia, how='left', on=['report_year', 'plant_id'])
+
+    out_df = out_df.drop(['id'], axis=1)
+
+    return out_df
+
+
 def gens_eia860_df(pudl_engine):
     """
     Pull all fields reported in the generators_eia860 table.
