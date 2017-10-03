@@ -1,13 +1,34 @@
-"""A library of useful tabular outputs compiled from multiple data sources."""
+"""
+A library of useful tabular outputs compiled from multiple data sources.
+
+Many of our potential users are comfortable using spreadsheets, not databases,
+so we are creating a collection of tabular outputs that containt the most
+useful core information from the PUDL DB, including additional keys and human
+readable names for the objects (utilities, plants, generators) being described
+in the table.
+
+These tabular outputs can be joined with each other using those keys, and used
+as a data source within Microsoft Excel, Access, R Studio, or other data
+analysis packages that folks may be familiar with.  They aren't meant to
+completely replicate all the data and relationships contained within the full
+PUDL database, but should serve as a generally usable set of data products
+that contain some calculated values, and allow a variety of interesting
+questions to be addressed (e.g. about the marginal cost of electricity on a
+generator by generatory basis).
+
+Over time this library will hopefully grow and acccumulate more data and more
+post-processing, post-analysis outputs as well.
+"""
 
 # Useful high-level external modules.
 import sqlalchemy as sa
 import pandas as pd
 
-# Our own code...
-from pudl import pudl, ferc1, eia923, settings, constants
-from pudl import models, models_ferc1, models_eia923
-from pudl import clean_eia923, clean_ferc1, clean_pudl
+# Need the models so we can grab table structures.
+from pudl import models
+
+# Shorthand for easier table referecnes:
+pt = models.PUDLBase.metadata.tables
 
 ##############################################################################
 ##############################################################################
@@ -42,8 +63,6 @@ def plants_utils_eia_df(pudl_engine):
     EIA 860 data has only been integrated back to 2011, so this information
     isn't available any further back.
     """
-    # Shorthand for readability... pt = PUDL Tables
-    pt = models.PUDLBase.metadata.tables
     # Contains the one-to-one mapping of EIA plants to their operators, but
     # we only have the 860 data integrated for 2011 forward right now.
     plants_eia860_tbl = pt['plants_eia860']
@@ -108,8 +127,6 @@ def gf_eia923_df(pudl_engine):
     Returns:
         gf_df: a pandas dataframe.
     """
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
     gf_eia923_tbl = pt['generation_fuel_eia923']
     gf_eia923_select = sa.sql.select([gf_eia923_tbl, ])
     gf_df = pd.read_sql(gf_eia923_select, pudl_engine)
@@ -182,8 +199,6 @@ def frc_eia923_df(pudl_engine):
     Returns:
         A pandas dataframe.
     """
-    # Shorthand for readability... pt = PUDL Tables
-    pt = models.PUDLBase.metadata.tables
     # Most of the fields we want come direclty from Fuel Receipts & Costs
     frc_tbl = pt['fuel_receipts_costs_eia923']
     frc_select = sa.sql.select([frc_tbl, ])
@@ -284,8 +299,6 @@ def gens_eia860_df(pudl_engine):
     Returns:
         A pandas dataframe.
     """
-    # Shorthand for readability... pt = PUDL Tables
-    pt = models.PUDLBase.metadata.tables
     # Almost all the info we need will come from here.
     gens_eia860_tbl = pt['generators_eia860']
     gens_eia860_select = sa.sql.select([gens_eia860_tbl, ])
@@ -416,9 +429,6 @@ def gens_eia860_df(pudl_engine):
 
 def plants_utils_ferc_df(pudl_engine):
     """Build a dataframe of useful FERC Plant & Utility information."""
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
-
     utils_ferc_tbl = pt['utilities_ferc']
     utils_ferc_select = sa.sql.select([utils_ferc_tbl, ])
     utils_ferc = pd.read_sql(utils_ferc_select, pudl_engine)
@@ -444,9 +454,6 @@ def plants_steam_ferc1_df(pudl_engine):
     Returns:
         steam_df: a pandas dataframe.
     """
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
-
     steam_ferc1_tbl = pt['plants_steam_ferc1']
     steam_ferc1_select = sa.sql.select([steam_ferc1_tbl, ])
     steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
@@ -521,8 +528,6 @@ def fuel_ferc1_df(pudl_engine):
     Returns:
         fuel_df: a pandas dataframe.
     """
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
     fuel_ferc1_tbl = pt['fuel_ferc1']
     fuel_ferc1_select = sa.sql.select([fuel_ferc1_tbl, ])
     fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)
