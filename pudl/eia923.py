@@ -50,10 +50,10 @@ def get_eia923_file(yr, basedir=settings.EIA923_DATA_DIR):
     assert(yr > 2008), "EIA923 file selection only works for 2009 & later."
     eia923_filematch = glob.glob(os.path.join(
         datadir(yr, basedir=basedir), '*2_3_4*'))
-    if len(eia923_filematch) == 1:
-        return(eia923_filematch[0])
-    else:
-        return('')
+    # There can only be one!
+    assert len(eia923_filematch) == 1, \
+        'Multiple matching EIA923 spreadsheets found for {}'.format(yr)
+    return(eia923_filematch[0])
 
 
 def get_eia923_column_map(page, year):
