@@ -202,15 +202,14 @@ def create_dfs_eia860(files=pc.files_eia860,
     # Create excel objects
     eia860_dfs = {}
     for file in files:
-        eia860_xlsx = eia860.get_eia860_xlsx(
-            eia860_years, pc.files_dict_eia860[file])
+        eia860_xlsx = get_eia860_xlsx(eia860_years, pc.files_dict_eia860[file])
         # Create DataFrames
         pages = pc.file_pages_eia860[file]
 
         for page in pages:
-            eia860_dfs[page] = eia860.get_eia860_page(page, eia860_xlsx,
-                                                      years=eia860_years,
-                                                      verbose=verbose)
+            eia860_dfs[page] = get_eia860_page(page, eia860_xlsx,
+                                               years=eia860_years,
+                                               verbose=verbose)
     return(eia860_dfs)
 
 

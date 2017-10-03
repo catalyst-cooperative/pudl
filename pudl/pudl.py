@@ -1827,7 +1827,7 @@ def ingest_eia860(pudl_engine,
     eia860_dfs = eia860.create_dfs_eia860(files=pc.files_eia860,
                                           eia860_years=eia860_years,
                                           verbose=verbose)
-    # NOW START INGESTING EIA923 DATA:
+    # NOW START INGESTING EIA860 DATA:
     eia860_ingest_functions = {
         'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860,
         'utilities_eia860': ingest_utilities_eia860,
