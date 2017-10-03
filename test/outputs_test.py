@@ -16,13 +16,16 @@ def test_ferc1_output():
     pudl_engine = pudl.db_connect_pudl(testing=False)
 
     print("Compiling FERC Form 1 Plants & Utilities table...")
-    pu_ferc = outputs.plants_utils_ferc_df(pudl_engine)
+    pu_ferc = outputs.plants_utils_ferc1(pudl_engine)
+    print("    {} records found.".format(len(pu_ferc)))
 
     print("Compiling FERC Form 1 Fuel table...")
-    fuel_out = outputs.fuel_ferc1_df(pudl_engine)
+    fuel_out = outputs.fuel_ferc1(pudl_engine)
+    print("    {} records found.".format(len(fuel_out)))
 
     print("Compiling FERC Form 1 Steam Plants table...")
-    steam_out = outputs.plants_steam_ferc1_df(pudl_engine)
+    steam_out = outputs.plants_steam_ferc1(pudl_engine)
+    print("    {} records found.".format(len(steam_out)))
 
 
 def test_eia_output():
@@ -30,7 +33,8 @@ def test_eia_output():
     pudl_engine = pudl.db_connect_pudl(testing=False)
 
     print("Compiling EIA Plants & Utilities table...")
-    pu_eia = outputs.plants_utils_eia_df(pudl_engine)
+    pu_eia = outputs.plants_utils_eia(pudl_engine)
+    print("    {} records found.".format(len(pu_eia)))
 
 
 def test_eia923_output():
@@ -38,16 +42,20 @@ def test_eia923_output():
     pudl_engine = pudl.db_connect_pudl(testing=False)
 
     print("Compiling EIA 923 Fuel Receipts & Costs table...")
-    frc_out = outputs.frc_eia923_df(pudl_engine)
+    frc_out = outputs.fuel_receipts_costs_eia923(pudl_engine)
+    print("    {} records found.".format(len(frc_out)))
 
     print("Compiling EIA 923 Generation Fuel table...")
-    gf_out = outputs.gf_eia923_df(pudl_engine)
+    gf_out = outputs.generation_fuel_eia923(pudl_engine)
+    print("    {} records found.".format(len(gf_out)))
 
     print("Compiling EIA 923 Boiler Fuel table...")
-    bf_out = outputs.bf_eia923_df(pudl_engine)
+    bf_out = outputs.boiler_fuel_eia923(pudl_engine)
+    print("    {} records found".format(len(bf_out)))
 
     print("Compiling EIA 923 Generation table...")
-    g_out = outputs.g_eia923_df(pudl_engine)
+    g_out = outputs.generation_eia923(pudl_engine)
+    print("    {} records found".format(len(g_out)))
 
 
 def test_eia860_output():
@@ -55,7 +63,9 @@ def test_eia860_output():
     pudl_engine = pudl.db_connect_pudl(testing=False)
 
     print("Compiling EIA 860 Generators table...")
-    gens_out = outputs.gens_eia860_df(pudl_engine)
+    gens_out = outputs.generators_eia860(pudl_engine)
+    print("    {} records found".format(len(gens_out)))
 
     print("Compiling EIA 860 Ownership table...")
-    own_out = outputs.o_eia860_df(pudl_engine)
+    own_out = outputs.ownership_eia860(pudl_engine)
+    print("    {} records found".format(len(own_out)))
