@@ -10,12 +10,11 @@ class BoilerGeneratorAssnEIA860(pudl.models.PUDLBase):
     """Information pertaining to boiler_generator pairs listed in EIA 860."""
 
     __tablename__ = 'boiler_generator_assn_eia860'
-    id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
-    # Integer, ForeignKey('utilities_eia.operator_id'))
-    operator_id = Column(Integer)
-    plant_id = Column(Integer)  # , ForeignKey('plants_eia.plant_id'))
-    boiler_id = Column(String)
-    generator_id = Column(String)
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    operator_id = Column(Integer, nullable=False)  # FK?
+    plant_id = Column(Integer, nullable=False)  # FK?
+    boiler_id = Column(String, nullable=False)  # FK?
+    generator_id = Column(String, nullable=False)  # FK?
 
 
 class UtilitiesEIA860(pudl.models.PUDLBase):
@@ -23,8 +22,9 @@ class UtilitiesEIA860(pudl.models.PUDLBase):
 
     __tablename__ = 'utilities_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
-    operator_id = Column(Integer)
-    operator_name = Column(String)
+    report_year = Column(Integer, nullable=False)
+    operator_id = Column(Integer, nullable=False)  # FK
+    operator_name = Column(String, nullable=False)  # FK
     street_address = Column(String)
     city = Column(String)
     state = Column(String)
@@ -34,7 +34,6 @@ class UtilitiesEIA860(pudl.models.PUDLBase):
     plants_reported_asset_manager = Column(String)
     plants_reported_other_relationship = Column(String)
     entity_type = Column(String)
-    report_year = Column(Integer)
 
 
 class PlantsEIA860(pudl.models.PUDLBase):
@@ -42,10 +41,11 @@ class PlantsEIA860(pudl.models.PUDLBase):
 
     __tablename__ = 'plants_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
-    operator_id = Column(Integer)
-    operator_name = Column(String)
-    plant_id = Column(Integer)
-    plant_name = Column(String)
+    report_year = Column(Integer, nullable=False)
+    operator_id = Column(Integer)  # FK
+    operator_name = Column(String)  # FK
+    plant_id = Column(Integer, nullable=False)  # FK
+    plant_name = Column(String)  # FK
     street_address = Column(String)
     city = Column(String)
     county = Column(String)
@@ -80,7 +80,6 @@ class PlantsEIA860(pudl.models.PUDLBase):
     ash_impoundment_lined = Column(String)
     ash_impoundment_status = Column(String)
     natural_gas_pipeline = Column(String)
-    report_year = Column(Integer)
 
 
 class OwnershipEIA860(pudl.models.PUDLBase):
@@ -88,12 +87,13 @@ class OwnershipEIA860(pudl.models.PUDLBase):
 
     __tablename__ = 'ownership_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
-    operator_id = Column(Integer)
-    operator_name = Column(String)
-    plant_id = Column(Integer)
-    plant_name = Column(String)
-    state = Column(String)
-    generator_id = Column(String)
+    report_year = Column(Integer, nullable=False)
+    operator_id = Column(Integer, nullable=False)  # FK
+    operator_name = Column(String, nullable=False)  # FK
+    plant_id = Column(Integer, nullable=False)  # FK
+    plant_name = Column(String, nullable=False)  # FK
+    state = Column(String)  # FK?
+    generator_id = Column(String, nullable=False)  # FK
     status = Column(String)
     ownership_id = Column(Integer)
     owner_name = Column(String)
@@ -102,7 +102,6 @@ class OwnershipEIA860(pudl.models.PUDLBase):
     owner_street_address = Column(String)
     owner_zip = Column(String)
     percent_owned = Column(Float)
-    report_year = Column(Integer)
 
 
 class GeneratorsEIA860(pudl.models.PUDLBase):
@@ -110,7 +109,7 @@ class GeneratorsEIA860(pudl.models.PUDLBase):
 
     __tablename__ = 'generators_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
-    report_year = Column(Integer)
+    report_year = Column(Integer, nullable=False)
     operator_id = Column(Integer)  # FK
     operator_name = Column(String)  # FK
     plant_id = Column(Integer, ForeignKey('plants_eia.plant_id'))
