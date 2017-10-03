@@ -43,6 +43,12 @@ def test_eia923_output():
     print("Compiling EIA 923 Generation Fuel table...")
     gf_out = outputs.gf_eia923_df(pudl_engine)
 
+    print("Compiling EIA 923 Boiler Fuel table...")
+    bf_out = outputs.bf_eia923_df(pudl_engine)
+
+    print("Compiling EIA 923 Generation table...")
+    g_out = outputs.g_eia923_df(pudl_engine)
+
 
 def test_eia860_output():
     """Test output routines for tables from EIA Form 860."""
@@ -50,3 +56,6 @@ def test_eia860_output():
 
     print("Compiling EIA 860 Generators table...")
     gens_out = outputs.gens_eia860_df(pudl_engine)
+
+    print("Compiling EIA 860 Ownership table...")
+    own_out = outputs.o_eia860_df(pudl_engine)

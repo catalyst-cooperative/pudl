@@ -30,23 +30,6 @@ from pudl import models
 # Shorthand for easier table referecnes:
 pt = models.PUDLBase.metadata.tables
 
-##############################################################################
-##############################################################################
-# A collection of tabular compilations whose core information comes from a
-# single table in the PUDL database, with minimal calculations taking place
-# to generate them, but additional IDs, names, and plant or utility linked
-# information joined in, allowing extensive filtering to be done downstream.
-#
-# naming convention: tablename_returntype
-#
-# EIA 923 table abbreviations:
-# - gf = generation_fuel
-# - bf = boiler_fuel
-# - frc = fuel_receipts_costs
-# - g = generation
-##############################################################################
-##############################################################################
-
 
 def plants_utils_eia_df(pudl_engine):
     """Create a dataframe of plant and utility IDs and names from EIA.
@@ -294,9 +277,6 @@ def bf_eia923_df(pudl_engine):
     Returns:
         out_df: a pandas dataframe.
     """
-
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
     bf_eia923_tbl = pt['boiler_fuel_eia923']
     bf_eia923_select = sa.sql.select([bf_eia923_tbl, ])
     bf_df = pd.read_sql(bf_eia923_select, pudl_engine)
@@ -307,7 +287,7 @@ def bf_eia923_df(pudl_engine):
     bf_df['report_year'] = pd.to_datetime(bf_df['report_date']).dt.year
 
     out_df = pd.merge(bf_df, pu_eia, how='left', on=['plant_id',
-                      'report_year'])
+                                                     'report_year'])
     out_df = out_df.drop(['report_year', 'id'], axis=1)
 
     out_df = out_df.dropna(subset=[
@@ -323,7 +303,7 @@ def bf_eia923_df(pudl_engine):
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
 
-    return out_df
+    return(out_df)
 
 
 def g_eia923_df(pudl_engine):
@@ -335,9 +315,6 @@ def g_eia923_df(pudl_engine):
     Returns:
         out_df: a pandas dataframe.
     """
-
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
     g_eia923_tbl = pt['generation_eia923']
     g_eia923_select = sa.sql.select([g_eia923_tbl, ])
     g_df = pd.read_sql(g_eia923_select, pudl_engine)
@@ -363,7 +340,7 @@ def g_eia923_df(pudl_engine):
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
 
-    return out_df
+    return(out_df)
 
 
 def o_eia860_df(pudl_engine):
@@ -375,10 +352,6 @@ def o_eia860_df(pudl_engine):
     Returns:
         out_df: a pandas dataframe.
     """
-
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
-
     o_eia860_tbl = pt['ownership_eia860']
     o_eia860_select = sa.sql.select([o_eia860_tbl, ])
     o_df = pd.read_sql(o_eia860_select, pudl_engine)
@@ -391,7 +364,7 @@ def o_eia860_df(pudl_engine):
 
     out_df = out_df.drop(['id'], axis=1)
 
-    return out_df
+    return(out_df)
 
 
 def gens_eia860_df(pudl_engine):
