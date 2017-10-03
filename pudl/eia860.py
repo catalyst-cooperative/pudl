@@ -183,6 +183,37 @@ def get_eia860_page(page, eia860_xlsx,
     return(df)
 
 
+def create_dfs_eia860(files=pc.files_eia860,
+                      eia860_years=pc.eia860_working_years,
+                      verbose=True):
+    """
+    Create a dictionary of pages (keys) to dataframes (values) from eia860
+    tabs.
+
+    Args:
+        a list of eia860 files
+        a list of years
+
+    Returns:
+        dictionary of pages (key) to dataframes (values)
+
+    """
+    # Prep for ingesting EIA860
+    # Create excel objects
+    eia860_dfs = {}
+    for file in files:
+        eia860_xlsx = eia860.get_eia860_xlsx(
+            eia860_years, pc.files_dict_eia860[file])
+        # Create DataFrames
+        pages = pc.file_pages_eia860[file]
+
+        for page in pages:
+            eia860_dfs[page] = eia860.get_eia860_page(page, eia860_xlsx,
+                                                      years=eia860_years,
+                                                      verbose=verbose)
+    return(eia860_dfs)
+
+
 def get_eia860_plants(years, eia860_xlsx):
     """
     Generate an exhaustive list of EIA 860 plants.

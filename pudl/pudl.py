@@ -1799,7 +1799,6 @@ def ingest_ownership_eia860(pudl_engine, eia860_dfs,
     o_df = eia860_dfs['ownership'].copy()
 
     # Replace '.' and ' ' with NaN in order to read in integer values
-
     o_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
     o_df.replace(to_replace='^\s$', value=np.nan, regex=True, inplace=True)
     o_df.replace(to_replace='^$', value=np.nan, regex=True, inplace=True)
@@ -1808,36 +1807,6 @@ def ingest_ownership_eia860(pudl_engine, eia860_dfs,
     csv_dump_load(o_df, 'ownership_eia860', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
-
-def create_dfs_eia860(files=pc.files_eia860,
-                      eia860_years=pc.eia860_working_years,
-                      verbose=True):
-    """
-    Create a dictionary of pages (keys) to dataframes (values) from eia860
-    tabs.
-
-    Args:
-        a list of eia860 files
-        a list of years
-
-    Returns:
-        dictionary of pages (key) to dataframes (values)
-
-    """
-    # Prep for ingesting EIA860
-    # Create excel objects
-    eia860_dfs = {}
-    for file in files:
-        eia860_xlsx = eia860.get_eia860_xlsx(
-            eia860_years, pc.files_dict_eia860[file])
-        # Create DataFrames
-        pages = pc.file_pages_eia860[file]
-
-        for page in pages:
-            eia860_dfs[page] = eia860.get_eia860_page(page, eia860_xlsx,
-                                                      years=eia860_years,
-                                                      verbose=verbose)
-    return(eia860_dfs)
 
 ###############################################################################
 ###############################################################################
@@ -1855,8 +1824,9 @@ def ingest_eia860(pudl_engine,
                   keep_csv=True):
     """Wrapper function that ingests all the EIA Form 860 tables."""
     # Prep for ingesting EIA860
-    eia860_dfs = create_dfs_eia860(files=pc.files_eia860,
-                                   eia860_years=eia860_years, verbose=verbose)
+    eia860_dfs = eia860.create_dfs_eia860(files=pc.files_eia860,
+                                          eia860_years=eia860_years,
+                                          verbose=verbose)
     # NOW START INGESTING EIA923 DATA:
     eia860_ingest_functions = {
         'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860,
