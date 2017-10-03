@@ -31,8 +31,28 @@ from pudl import models
 pt = models.PUDLBase.metadata.tables
 
 
+def organize_cols(df, cols):
+    """
+    Organize columns into key ID & name fields & alphabetical data columns.
+
+    For readability, it's nice to group a few key columns at the beginning
+    of the dataframe (report_year or report_data, plant_id, etc.) and then
+    put all the rest of the data columns in alphabetical order.
+
+    Args:
+        df: The DataFrame to be re-organized.
+        cols: The columns to put first, in their desired output ordering.
+    """
+    key_cols = df[cols].copy()
+    data_cols = df.drop(cols, axis=1)
+    data_cols = df[df.columns.sort_values()]
+    out_df = pd.merge(key_cols, data_cols)
+    return(out_df)
+
+
 def plants_utils_eia(pudl_engine):
-    """Create a dataframe of plant and utility IDs and names from EIA.
+    """
+    Create a dataframe of plant and utility IDs and names from EIA.
 
     Returns a pandas dataframe with the following columns:
     - year (in which data was reported)
@@ -130,26 +150,15 @@ def generation_fuel_eia923(pudl_engine):
         'operator_name',
     ])
 
-    out_df = out_df[[
-        'report_date',
-        'plant_id',
-        'plant_id_pudl',
-        'plant_name',
-        'operator_id',
-        'util_id_pudl',
-        'operator_name',
-        'nuclear_unit_id',
-        'fuel_type',
-        'aer_fuel_type',
-        'aer_fuel_category',
-        'prime_mover',
-        'fuel_consumed_total',
-        'fuel_consumed_for_electricity',
-        'fuel_mmbtu_per_unit',
-        'fuel_consumed_total_mmbtu',
-        'fuel_consumed_for_electricity_mmbtu',
-        'net_generation_mwh',
-    ]]
+    first_cols = ['report_date',
+                  'plant_id',
+                  'plant_id_pudl',
+                  'plant_name',
+                  'operator_id',
+                  'util_id_pudl',
+                  'operator_name', ]
+
+    out_df = organize_cols(out_df, first_cols)
 
     # Clean up the types of a few columns...
     out_df['plant_id'] = out_df.plant_id.astype(int)
@@ -226,44 +235,22 @@ def fuel_receipts_costs_eia923(pudl_engine):
                     'Petroleum Coke'],
         value=['oil', 'gas', 'gas', 'coal', 'petcoke'])
 
+    first_cols = ['report_date',
+                  'plant_id',
+                  'plant_id_pudl',
+                  'plant_name',
+                  'operator_id',
+                  'util_id_pudl',
+                  'operator_name', ]
+
+    # Re-arrange the columns for easier readability:
+    out_df = organize_cols(out_df, first_cols)
+
     # Clean up the types of a few columns...
     out_df['plant_id'] = out_df.plant_id.astype(int)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
     out_df['operator_id'] = out_df.operator_id.astype(int)
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
-
-    # Re-arrange the columns for easier readability:
-    out_df = out_df[[
-        'report_date',
-        'plant_id',
-        'plant_id_pudl',
-        'plant_name',
-        'operator_id',
-        'util_id_pudl',
-        'operator_name',
-        'contract_type',
-        'contract_expiration_date',
-        'energy_source',
-        'fuel_group',
-        'fuel_pudl',
-        'supplier',
-        'fuel_quantity',
-        'average_heat_content',
-        'average_sulfur_content',
-        'average_ash_content',
-        'average_mercury_content',
-        'fuel_cost_per_mmbtu',
-        'primary_transportation_mode',
-        'secondary_transportation_mode',
-        'natural_gas_transport',
-        'coalmine_msha_id',
-        'coalmine_name',
-        'coalmine_type',
-        'coalmine_state',
-        'coalmine_county',
-        'total_heat_content_mmbtu',
-        'total_fuel_cost',
-    ]]
 
     return(out_df)
 
@@ -293,11 +280,24 @@ def boiler_fuel_eia923(pudl_engine):
     out_df = out_df.dropna(subset=[
         'plant_id',
         'plant_id_pudl',
+        'operator_id',
+        'util_id_pudl',
+        'boiler_id',
+    ])
+
+    first_cols = [
+        'report_date',
+        'plant_id',
+        'plant_id_pudl',
         'plant_name',
         'operator_id',
         'util_id_pudl',
         'operator_name',
-    ])
+        'boiler_id',
+    ]
+
+    # Re-arrange the columns for easier readability:
+    out_df = organize_cols(out_df, first_cols)
 
     out_df['operator_id'] = out_df.operator_id.astype(int)
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
@@ -330,11 +330,24 @@ def generation_eia923(pudl_engine):
     out_df = out_df.dropna(subset=[
         'plant_id',
         'plant_id_pudl',
+        'operator_id',
+        'util_id_pudl',
+        'generator_id',
+    ])
+
+    first_cols = [
+        'report_date',
+        'plant_id',
+        'plant_id_pudl',
         'plant_name',
         'operator_id',
         'util_id_pudl',
         'operator_name',
-    ])
+        'generator_id',
+    ]
+
+    # Re-arrange the columns for easier readability:
+    out_df = organize_cols(out_df, first_cols)
 
     out_df['operator_id'] = out_df.operator_id.astype(int)
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
@@ -363,6 +376,31 @@ def ownership_eia860(pudl_engine):
     out_df = pd.merge(o_df, pu_eia, how='left', on=['report_year', 'plant_id'])
 
     out_df = out_df.drop(['id'], axis=1)
+
+    out_df = out_df.dropna(subset=[
+        'plant_id',
+        'plant_id_pudl',
+        'operator_id',
+        'util_id_pudl',
+        'generator_id',
+        'ownership_id',
+    ])
+
+    first_cols = [
+        'report_year',
+        'plant_id',
+        'plant_id_pudl',
+        'plant_name',
+        'operator_id',
+        'util_id_pudl',
+        'operator_name',
+        'generator_id',
+        'ownership_id',
+        'owner_name',
+    ]
+
+    # Re-arrange the columns for easier readability:
+    out_df = organize_cols(out_df, first_cols)
 
     return(out_df)
 
@@ -420,91 +458,19 @@ def generators_eia860(pudl_engine):
     cols_to_drop = ['id', ]
     out_df = out_df.drop(cols_to_drop, axis=1)
 
-    # Re-arrange the dataframe to be more readable:
-    out_df = out_df[[
+    first_cols = [
         'report_year',
-        'operator_id',
-        'util_id_pudl',
-        'operator_name',
         'plant_id',
         'plant_id_pudl',
         'plant_name',
+        'operator_id',
+        'util_id_pudl',
+        'operator_name',
         'generator_id',
-        'state',
-        'county',
-        'latitude',
-        'longitude',
-        'prime_mover',
-        'unit_code',
-        'status',
-        'ownership',
-        'duct_burners',
-        'nameplate_capacity_mw',
-        'summer_capacity_mw',
-        'winter_capacity_mw',
-        'operating_date',
-        'energy_source_1',
-        'energy_source_2',
-        'energy_source_3',
-        'energy_source_4',
-        'energy_source_5',
-        'energy_source_6',
-        'multiple_fuels',
-        'deliver_power_transgrid',
-        'syncronized_transmission_grid',
-        'turbines',
-        'cogenerator',
-        'sector_name',
-        'sector',
-        'topping_bottoming',
-        'planned_modifications',
-        'planned_net_summer_capacity_uprate',
-        'planned_net_winter_capacity_uprate',
-        'planned_uprate_date',
-        'planned_net_summer_capacity_derate',
-        'planned_net_winter_capacity_derate',
-        'planned_derate_date',
-        'planned_new_prime_mover',
-        'planned_energy_source_1',
-        'planned_repower_date',
-        'other_planned_modifications',
-        'other_modifications_date',
-        'planned_retirement_date',
-        'solid_fuel_gasification',
-        'pulverized_coal_tech',
-        'fluidized_bed_tech',
-        'subcritical_tech',
-        'supercritical_tech',
-        'ultrasupercritical_tech',
-        'carbon_capture',
-        'startup_source_1',
-        'startup_source_2',
-        'startup_source_3',
-        'startup_source_4',
-        'technology',
-        'turbines_inverters_hydrokinetics',
-        'time_cold_shutdown_full_load',
-        'stoker_tech',
-        'other_combustion_tech',
-        'planned_new_nameplate_capacity_mw',
-        'cofire_fuels',
-        'switch_oil_gas',
-        'heat_bypass_recovery',
-        'rto_iso_lmp_node',
-        'rto_iso_location_wholesale_reporting',
-        'nameplate_power_factor',
-        'minimum_load_mw',
-        'uprate_derate_during_year',
-        'uprate_derate_completed_date',
-        'associated_combined_heat_power',
-        'original_planned_operating_date',
-        'current_planned_operating_date',
-        'summer_estimated_capability',
-        'winter_estimated_capability',
-        'operating_switch',
-        'previously_canceled',
-        'retirement_date',
-    ]]
+    ]
+
+    # Re-arrange the columns for easier readability:
+    out_df = organize_cols(out_df, first_cols)
 
     return(out_df)
 
@@ -543,49 +509,18 @@ def plants_steam_ferc1(pudl_engine):
     pu_ferc = plants_utils_ferc1(pudl_engine)
 
     out_df = pd.merge(steam_df, pu_ferc, on=['respondent_id', 'plant_name'])
-    out_df = out_df[[
+
+    first_cols = [
         'report_year',
         'respondent_id',
-        'respondent_name',
         'util_id_pudl',
-        'plant_name',
+        'respondent_name',
         'plant_id_pudl',
-        'plant_kind',
-        'type_const',
-        'year_constructed',
-        'year_installed',
-        'total_capacity_mw',
-        'peak_demand_mw',
-        'plant_hours',
-        'plant_capability_mw',
-        'water_limited_mw',
-        'not_water_limited_mw',
-        'avg_num_employees',
-        'net_generation_mwh',
-        'cost_land',
-        'cost_structure',
-        'cost_equipment',
-        'cost_of_plant_total',
-        'cost_per_mw',
-        'expns_operations',
-        'expns_fuel',
-        'expns_coolants',
-        'expns_steam',
-        'expns_steam_other',
-        'expns_transfer',
-        'expns_electric',
-        'expns_misc_power',
-        'expns_rents',
-        'expns_allowances',
-        'expns_engineering',
-        'expns_structures',
-        'expns_boiler',
-        'expns_plants',
-        'expns_misc_steam',
-        'expns_production_total',
-        'expns_per_mwh',
-        'asset_retire_cost',
-    ]]
+        'plant_name'
+    ]
+
+    out_df = organize_cols(out_df, first_cols)
+
     return(out_df)
 
 
@@ -629,25 +564,15 @@ def fuel_ferc1(pudl_engine):
     out_df = pd.merge(fuel_df, pu_ferc, on=['respondent_id', 'plant_name'])
     out_df = out_df.drop('id', axis=1)
 
-    out_df = out_df[[
+    first_cols = [
         'report_year',
         'respondent_id',
-        'respondent_name',
         'util_id_pudl',
-        'plant_name',
+        'respondent_name',
         'plant_id_pudl',
-        'fuel',
-        'fuel_unit',
-        'fuel_qty_burned',
-        'fuel_avg_mmbtu_per_unit',
-        'fuel_cost_per_unit_burned',
-        'fuel_cost_per_unit_delivered',
-        'fuel_cost_per_mmbtu',
-        'fuel_cost_per_mwh',
-        'fuel_mmbtu_per_mwh',
-        'fuel_consumed_total_mmbtu',
-        'fuel_cost_per_mmbtu',
-        'fuel_cost_per_unit_burned',
-    ]]
+        'plant_name'
+    ]
+
+    out_df = organize_cols(out_df, first_cols)
 
     return(out_df)
