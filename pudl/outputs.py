@@ -31,7 +31,7 @@ from pudl import models
 pt = models.PUDLBase.metadata.tables
 
 
-def plants_utils_eia_df(pudl_engine):
+def plants_utils_eia(pudl_engine):
     """Create a dataframe of plant and utility IDs and names from EIA.
 
     Returns a pandas dataframe with the following columns:
@@ -94,7 +94,7 @@ def plants_utils_eia_df(pudl_engine):
     return(out_df)
 
 
-def gf_eia923_df(pudl_engine):
+def generation_fuel_eia923(pudl_engine):
     """
     Pull a useful set of fields related to generation_fuel_eia923 table.
 
@@ -114,7 +114,7 @@ def gf_eia923_df(pudl_engine):
     gf_eia923_select = sa.sql.select([gf_eia923_tbl, ])
     gf_df = pd.read_sql(gf_eia923_select, pudl_engine)
 
-    pu_eia = plants_utils_eia_df(pudl_engine)
+    pu_eia = plants_utils_eia(pudl_engine)
 
     # Need a temporary year column to merge with EIA860 data which is annual.
     gf_df['report_year'] = pd.to_datetime(gf_df['report_date']).dt.year
@@ -160,7 +160,7 @@ def gf_eia923_df(pudl_engine):
     return(out_df)
 
 
-def frc_eia923_df(pudl_engine):
+def fuel_receipts_costs_eia923(pudl_engine):
     """
     Pull a useful fields related to fuel_receipts_costs_eia923 table.
 
@@ -199,7 +199,7 @@ def frc_eia923_df(pudl_engine):
                       how='left',
                       left_on='coalmine_id',
                       right_on='id')
-    pu_eia = plants_utils_eia_df(pudl_engine)
+    pu_eia = plants_utils_eia(pudl_engine)
     out_df = pd.merge(out_df, pu_eia,
                       how='left', on=['plant_id', 'report_year'])
 
@@ -268,7 +268,7 @@ def frc_eia923_df(pudl_engine):
     return(out_df)
 
 
-def bf_eia923_df(pudl_engine):
+def boiler_fuel_eia923(pudl_engine):
     """
     Pull a useful set of fields related to boiler_fuel_eia923 table.
 
@@ -281,7 +281,7 @@ def bf_eia923_df(pudl_engine):
     bf_eia923_select = sa.sql.select([bf_eia923_tbl, ])
     bf_df = pd.read_sql(bf_eia923_select, pudl_engine)
 
-    pu_eia = plants_utils_eia_df(pudl_engine)
+    pu_eia = plants_utils_eia(pudl_engine)
 
     # Need a temporary year column to merge with EIA860 data which is annual.
     bf_df['report_year'] = pd.to_datetime(bf_df['report_date']).dt.year
@@ -306,7 +306,7 @@ def bf_eia923_df(pudl_engine):
     return(out_df)
 
 
-def g_eia923_df(pudl_engine):
+def generation_eia923(pudl_engine):
     """
     Pull a useful set of fields related to generation_eia923 table.
 
@@ -319,7 +319,7 @@ def g_eia923_df(pudl_engine):
     g_eia923_select = sa.sql.select([g_eia923_tbl, ])
     g_df = pd.read_sql(g_eia923_select, pudl_engine)
 
-    pu_eia = plants_utils_eia_df(pudl_engine)
+    pu_eia = plants_utils_eia(pudl_engine)
 
     # Need a temporary year column to merge with EIA860 data which is annual.
     g_df['report_year'] = pd.to_datetime(g_df['report_date']).dt.year
@@ -343,7 +343,7 @@ def g_eia923_df(pudl_engine):
     return(out_df)
 
 
-def o_eia860_df(pudl_engine):
+def ownership_eia860(pudl_engine):
     """
     Pull a useful set of fields related to ownership_eia860 table.
 
@@ -356,7 +356,7 @@ def o_eia860_df(pudl_engine):
     o_eia860_select = sa.sql.select([o_eia860_tbl, ])
     o_df = pd.read_sql(o_eia860_select, pudl_engine)
 
-    pu_eia = plants_utils_eia_df(pudl_engine)
+    pu_eia = plants_utils_eia(pudl_engine)
     pu_eia = pu_eia[['plant_id', 'plant_id_pudl', 'util_id_pudl',
                      'report_year']]
 
@@ -367,7 +367,7 @@ def o_eia860_df(pudl_engine):
     return(out_df)
 
 
-def gens_eia860_df(pudl_engine):
+def generators_eia860(pudl_engine):
     """
     Pull all fields reported in the generators_eia860 table.
 
@@ -509,7 +509,7 @@ def gens_eia860_df(pudl_engine):
     return(out_df)
 
 
-def plants_utils_ferc_df(pudl_engine):
+def plants_utils_ferc1(pudl_engine):
     """Build a dataframe of useful FERC Plant & Utility information."""
     utils_ferc_tbl = pt['utilities_ferc']
     utils_ferc_select = sa.sql.select([utils_ferc_tbl, ])
@@ -523,7 +523,7 @@ def plants_utils_ferc_df(pudl_engine):
     return(out_df)
 
 
-def plants_steam_ferc1_df(pudl_engine):
+def plants_steam_ferc1(pudl_engine):
     """
     Select and join some useful fields from the FERC Form 1 steam table.
 
@@ -540,7 +540,7 @@ def plants_steam_ferc1_df(pudl_engine):
     steam_ferc1_select = sa.sql.select([steam_ferc1_tbl, ])
     steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
 
-    pu_ferc = plants_utils_ferc_df(pudl_engine)
+    pu_ferc = plants_utils_ferc1(pudl_engine)
 
     out_df = pd.merge(steam_df, pu_ferc, on=['respondent_id', 'plant_name'])
     out_df = out_df[[
@@ -589,7 +589,7 @@ def plants_steam_ferc1_df(pudl_engine):
     return(out_df)
 
 
-def fuel_ferc1_df(pudl_engine):
+def fuel_ferc1(pudl_engine):
     """
     Pull a useful dataframe related to FERC Form 1 fuel information.
 
@@ -624,7 +624,7 @@ def fuel_ferc1_df(pudl_engine):
     fuel_df['fuel_consumed_total_cost_unit'] = \
         fuel_df['fuel_cost_per_unit_burned'] * fuel_df['fuel_qty_burned']
 
-    pu_ferc = plants_utils_ferc_df(pudl_engine)
+    pu_ferc = plants_utils_ferc1(pudl_engine)
 
     out_df = pd.merge(fuel_df, pu_ferc, on=['respondent_id', 'plant_name'])
     out_df = out_df.drop('id', axis=1)
