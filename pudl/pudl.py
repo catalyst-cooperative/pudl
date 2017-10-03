@@ -28,6 +28,7 @@ import re
 from pudl import eia923, ferc1, eia860
 from pudl import settings
 from pudl import models, models_eia923, models_eia860, models_epacems
+from pudl import models_ferc1
 from pudl import clean_ferc1, clean_pudl, clean_eia923, clean_eia860
 
 import pudl.constants as pc

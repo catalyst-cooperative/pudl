@@ -11,6 +11,20 @@ import pytest
 from pudl import pudl, outputs
 
 
+def test_ferc1_output():
+    """Test output routines for tables from FERC Form 1."""
+    pudl_engine = pudl.db_connect_pudl(testing=False)
+
+    print("Compiling FERC Form 1 Plants & Utilities table...")
+    pu_ferc = outputs.plants_utils_ferc_df(pudl_engine)
+
+    print("Compiling FERC Form 1 Fuel table...")
+    fuel_out = outputs.fuel_ferc1_df(pudl_engine)
+
+    print("Compiling FERC Form 1 Steam Plants table...")
+    steam_out = outputs.plants_steam_ferc1_df(pudl_engine)
+
+
 def test_eia_output():
     """Test output routines for tables from across EIA data sources."""
     pudl_engine = pudl.db_connect_pudl(testing=False)
@@ -36,17 +50,3 @@ def test_eia860_output():
 
     print("Compiling EIA 860 Generators table...")
     gens_out = outputs.gens_eia860_df(pudl_engine)
-
-
-def test_ferc1_output():
-    """Test output routines for tables from FERC Form 1."""
-    pudl_engine = pudl.db_connect_pudl(testing=False)
-
-    print("Compiling FERC Form 1 Plants & Utilities table...")
-    pu_ferc = outputs.plants_utils_ferc_df(pudl_engine)
-
-    print("Compiling FERC Form 1 Steam Plants table...")
-    steam_out = outputs.plants_steam_ferc1_df(pudl_engine)
-
-    print("Compiling FERC Form 1 Fuel table...")
-    fuel_out = outputs.fuel_ferc1_df(pudl_engine)

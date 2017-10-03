@@ -2,7 +2,6 @@
 
 from sqlalchemy import Boolean, Integer, String, Float, Numeric, Date
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint
-from sqlalchemy.ext.declarative import declarative_base
 import pudl.models
 
 ###########################################################################
