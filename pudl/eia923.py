@@ -47,7 +47,8 @@ def get_eia923_file(yr, basedir=settings.EIA923_DATA_DIR):
     Returns:
         path to EIA 923 spreadsheets corresponding to a given year.
     """
-    assert(yr > 2008), "EIA923 file selection only works for 2009 & later."
+    assert(yr >= min(pc.working_years['eia923'])),\
+        "EIA923 file selection only works for 2009 & later."
     eia923_filematch = glob.glob(os.path.join(
         datadir(yr, basedir=basedir), '*2_3_4*'))
     # There can only be one!
@@ -138,7 +139,7 @@ def get_eia923_page(page, eia923_xlsx,
         pandas.DataFrame: A dataframe containing the data from the selected
             page and selected years from EIA 923.
     """
-    assert min(years) >= 2009,\
+    assert min(years) >= min(pc.working_years['eia923']),\
         "EIA923 works for 2009 and later. {} requested.".format(min(years))
     assert page in pc.tab_map_eia923.columns and page != 'year_index',\
         "Unrecognized EIA 923 page: {}".format(page)

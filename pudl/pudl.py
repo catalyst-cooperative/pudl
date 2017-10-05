@@ -145,7 +145,10 @@ def ingest_static_tables(engine):
         [models.PrimeMover(prime_mover=pm) for pm in pc.prime_movers])
     pudl_session.add_all(
         [models.RTOISO(abbr=k, name=v) for k, v in pc.rto_iso.items()])
-    pudl_session.add_all([models.Year(year=yr) for yr in range(1994, 2017)])
+    all_years = [year for list_of_years in pc.data_years.values()
+                 for year in list_of_years]
+    pudl_session.add_all([models.Year(year=yr) for yr in range(min(all_years),
+                         max(all_years)+1])
 
     pudl_session.add_all([models.CensusRegion(abbr=k, name=v)
                           for k, v in pc.census_region.items()])
@@ -891,10 +894,10 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     import os.path
     from sqlalchemy import or_
 
-    assert min(ferc1_years) >= 2004,\
+    assert min(ferc1_years) >= min(pc.working_years['ferc1']),\
         """Year {} is too early. Small plant data has not been categorized for
         before 2004.""".format(min(ferc1_years))
-    assert max(ferc1_years) <= 2016,\
+    assert max(ferc1_years) <= max(pc.working_years['ferc1']),\
         """Year {} is too recent. Small plant data has not been categorized for
         any year after 2015.""".format(max(ferc1_years))
     f1_small = ferc1.ferc1_meta.tables['f1_gnrt_plant']

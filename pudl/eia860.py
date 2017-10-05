@@ -28,12 +28,10 @@ def datadir(year):
         path to appropriate EIA 860 data directory.
     """
     # These are the only years we've got...
-    assert year in range(2001, 2017)
-    if(year < 2008):
-        return(os.path.join(settings.EIA860_DATA_DIR,
-                            'eia860{}'.format(year)))
-    else:
-        return(os.path.join(settings.EIA860_DATA_DIR, 'eia860{}'.format(year)))
+    assert year in range(min(pc.data_years['eia860']),
+                         max(pc.data_years['eia860']))
+    return(os.path.join(settings.EIA860_DATA_DIR,
+                        'eia860{}'.format(year)))
 
 
 def get_eia860_file(yr, file):
@@ -150,8 +148,8 @@ def get_eia860_page(page, eia860_xlsx,
         pandas.DataFrame: A dataframe containing the data from the selected
             page and selected years from EIA 860.
     """
-    assert min(years) >= 2009,\
-        "EIA860 works for 2009 and later. {} requested.".format(min(years))
+    assert min(years) >= min(pc.working_years['eia860']),\
+        "EIA860 works for 2011 and later. {} requested.".format(min(years))
     assert page in pc.tab_map_eia860.columns and page != 'year_index',\
         "Unrecognized EIA 860 page: {}".format(page)
     assert min(years) <= 2013,\

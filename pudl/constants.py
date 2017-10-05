@@ -2769,6 +2769,12 @@ data_years = {
     # 'epacems': epacems_data_years
 }
 
+working_years = {
+    'ferc1': ferc1_working_years,
+    'eia860': eia860_working_years,
+    'eia923': eia923_working_years,
+}
+
 base_data_urls = {
     'ferc1': 'ftp://eforms1.ferc.gov/f1allyears',
     'eia923': 'https://www.eia.gov/electricity/data/eia923/xls',
