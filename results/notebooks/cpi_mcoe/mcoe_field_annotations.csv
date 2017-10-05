@@ -13,7 +13,7 @@ fuel_cost_annual_eia,Total dollars spent on all fuels annually for a plant (to c
 heat_rate_mmbtu_mwh,Overall heat rate for each generator in MMBTU per Mwh of net generation (fuel_consumed_mmbtu_per_generator / net_generation_mwh_per_generator).,EIA
 plant_assn,True (value = 1) if all generators are mapped to a boiler for a given year of plant data; False (value = 0) if generator data exists that is not mapped to a boiler in the boiler generator association table in EIA860.,EIA
 net_generation_mwh_generator,Net electricity generation in Mwh for all units that are part of the plant.,EIA
-net_generation_mwh_plant_eia,Total Mwh of generation for a plant in a year (to compare with net_generation_mwh_plant from FERC),
+net_generation_mwh_plant_eia,Total Mwh of generation for a plant in a year (to compare with net_generation_mwh_plant from FERC),EIA
 fuel_cost_per_mwh,(fuel_cost_per_mmbtu_total)/(heat_rate_mmbtu_mwh); this is plant-averaged fuel costs by fuel type for a given year divided by generator-specific heat rate (mmbtu/mwh).,EIA
 nameplate_capacity_mw_generator, The highest value on the generator nameplate in megawatts rounded to the nearest tenth.,EIA
 summer_capacity_mw_generator,The net summer capacity.,EIA
