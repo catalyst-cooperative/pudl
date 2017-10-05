@@ -149,7 +149,7 @@ def ingest_static_tables(engine):
     all_years = [year for list_of_years in pc.data_years.values()
                  for year in list_of_years]
     pudl_session.add_all([models.Year(year=yr) for yr in range(min(all_years),
-                         max(all_years)+1])
+                         max(all_years)+1)])
 
     pudl_session.add_all([models.CensusRegion(abbr=k, name=v)
                           for k, v in pc.census_region.items()])

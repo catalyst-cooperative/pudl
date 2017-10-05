@@ -29,7 +29,7 @@ def datadir(year):
     """
     # These are the only years we've got...
     assert year in range(min(pc.data_years['eia860']),
-                         max(pc.data_years['eia860']))
+                         max(pc.data_years['eia860'])+1)
     return(os.path.join(settings.EIA860_DATA_DIR,
                         'eia860{}'.format(year)))
 
