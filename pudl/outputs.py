@@ -1,34 +1,58 @@
-"""A library of useful tabular outputs compiled from multiple data sources."""
+"""
+A library of useful tabular outputs compiled from multiple data sources.
+
+Many of our potential users are comfortable using spreadsheets, not databases,
+so we are creating a collection of tabular outputs that containt the most
+useful core information from the PUDL DB, including additional keys and human
+readable names for the objects (utilities, plants, generators) being described
+in the table.
+
+These tabular outputs can be joined with each other using those keys, and used
+as a data source within Microsoft Excel, Access, R Studio, or other data
+analysis packages that folks may be familiar with.  They aren't meant to
+completely replicate all the data and relationships contained within the full
+PUDL database, but should serve as a generally usable set of data products
+that contain some calculated values, and allow a variety of interesting
+questions to be addressed (e.g. about the marginal cost of electricity on a
+generator by generatory basis).
+
+Over time this library will hopefully grow and acccumulate more data and more
+post-processing, post-analysis outputs as well.
+"""
 
 # Useful high-level external modules.
 import sqlalchemy as sa
 import pandas as pd
 
-# Our own code...
-from pudl import pudl, ferc1, eia923, settings, constants
-from pudl import models, models_ferc1, models_eia923
-from pudl import clean_eia923, clean_ferc1, clean_pudl
+# Need the models so we can grab table structures.
+from pudl import models
 
-##############################################################################
-##############################################################################
-# A collection of tabular compilations whose core information comes from a
-# single table in the PUDL database, with minimal calculations taking place
-# to generate them, but additional IDs, names, and plant or utility linked
-# information joined in, allowing extensive filtering to be done downstream.
-#
-# naming convention: tablename_returntype
-#
-# EIA 923 table abbreviations:
-# - gf = generation_fuel
-# - bf = boiler_fuel
-# - frc = fuel_receipts_costs
-# - g = generation
-##############################################################################
-##############################################################################
+# Shorthand for easier table referecnes:
+pt = models.PUDLBase.metadata.tables
 
 
-def plants_utils_eia_df(pudl_engine):
-    """Create a dataframe of plant and utility IDs and names from EIA.
+def organize_cols(df, cols):
+    """
+    Organize columns into key ID & name fields & alphabetical data columns.
+
+    For readability, it's nice to group a few key columns at the beginning
+    of the dataframe (report_year or report_data, plant_id, etc.) and then
+    put all the rest of the data columns in alphabetical order.
+
+    Args:
+        df: The DataFrame to be re-organized.
+        cols: The columns to put first, in their desired output ordering.
+    """
+    key_cols = df[cols].copy()
+    data_cols = df.drop(cols, axis=1)
+    data_cols = df[df.columns.sort_values()]
+    out_df = pd.merge(key_cols, data_cols)
+    return(out_df)
+
+
+def plants_utils_eia(pudl_engine):
+    """
+    Create a dataframe of plant and utility IDs and names from EIA.
 
     Returns a pandas dataframe with the following columns:
     - year (in which data was reported)
@@ -42,8 +66,6 @@ def plants_utils_eia_df(pudl_engine):
     EIA 860 data has only been integrated back to 2011, so this information
     isn't available any further back.
     """
-    # Shorthand for readability... pt = PUDL Tables
-    pt = models.PUDLBase.metadata.tables
     # Contains the one-to-one mapping of EIA plants to their operators, but
     # we only have the 860 data integrated for 2011 forward right now.
     plants_eia860_tbl = pt['plants_eia860']
@@ -92,7 +114,7 @@ def plants_utils_eia_df(pudl_engine):
     return(out_df)
 
 
-def gf_eia923_df(pudl_engine):
+def generation_fuel_eia923(pudl_engine):
     """
     Pull a useful set of fields related to generation_fuel_eia923 table.
 
@@ -108,13 +130,11 @@ def gf_eia923_df(pudl_engine):
     Returns:
         gf_df: a pandas dataframe.
     """
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
     gf_eia923_tbl = pt['generation_fuel_eia923']
     gf_eia923_select = sa.sql.select([gf_eia923_tbl, ])
     gf_df = pd.read_sql(gf_eia923_select, pudl_engine)
 
-    pu_eia = plants_utils_eia_df(pudl_engine)
+    pu_eia = plants_utils_eia(pudl_engine)
 
     # Need a temporary year column to merge with EIA860 data which is annual.
     gf_df['report_year'] = pd.to_datetime(gf_df['report_date']).dt.year
@@ -130,26 +150,15 @@ def gf_eia923_df(pudl_engine):
         'operator_name',
     ])
 
-    out_df = out_df[[
-        'report_date',
-        'plant_id',
-        'plant_id_pudl',
-        'plant_name',
-        'operator_id',
-        'util_id_pudl',
-        'operator_name',
-        'nuclear_unit_id',
-        'fuel_type',
-        'aer_fuel_type',
-        'aer_fuel_category',
-        'prime_mover',
-        'fuel_consumed_total',
-        'fuel_consumed_for_electricity',
-        'fuel_mmbtu_per_unit',
-        'fuel_consumed_total_mmbtu',
-        'fuel_consumed_for_electricity_mmbtu',
-        'net_generation_mwh',
-    ]]
+    first_cols = ['report_date',
+                  'plant_id',
+                  'plant_id_pudl',
+                  'plant_name',
+                  'operator_id',
+                  'util_id_pudl',
+                  'operator_name', ]
+
+    out_df = organize_cols(out_df, first_cols)
 
     # Clean up the types of a few columns...
     out_df['plant_id'] = out_df.plant_id.astype(int)
@@ -160,7 +169,7 @@ def gf_eia923_df(pudl_engine):
     return(out_df)
 
 
-def frc_eia923_df(pudl_engine):
+def fuel_receipts_costs_eia923(pudl_engine):
     """
     Pull a useful fields related to fuel_receipts_costs_eia923 table.
 
@@ -182,8 +191,6 @@ def frc_eia923_df(pudl_engine):
     Returns:
         A pandas dataframe.
     """
-    # Shorthand for readability... pt = PUDL Tables
-    pt = models.PUDLBase.metadata.tables
     # Most of the fields we want come direclty from Fuel Receipts & Costs
     frc_tbl = pt['fuel_receipts_costs_eia923']
     frc_select = sa.sql.select([frc_tbl, ])
@@ -201,7 +208,7 @@ def frc_eia923_df(pudl_engine):
                       how='left',
                       left_on='coalmine_id',
                       right_on='id')
-    pu_eia = plants_utils_eia_df(pudl_engine)
+    pu_eia = plants_utils_eia(pudl_engine)
     out_df = pd.merge(out_df, pu_eia,
                       how='left', on=['plant_id', 'report_year'])
 
@@ -228,49 +235,27 @@ def frc_eia923_df(pudl_engine):
                     'Petroleum Coke'],
         value=['oil', 'gas', 'gas', 'coal', 'petcoke'])
 
+    first_cols = ['report_date',
+                  'plant_id',
+                  'plant_id_pudl',
+                  'plant_name',
+                  'operator_id',
+                  'util_id_pudl',
+                  'operator_name', ]
+
+    # Re-arrange the columns for easier readability:
+    out_df = organize_cols(out_df, first_cols)
+
     # Clean up the types of a few columns...
     out_df['plant_id'] = out_df.plant_id.astype(int)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
     out_df['operator_id'] = out_df.operator_id.astype(int)
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
 
-    # Re-arrange the columns for easier readability:
-    out_df = out_df[[
-        'report_date',
-        'plant_id',
-        'plant_id_pudl',
-        'plant_name',
-        'operator_id',
-        'util_id_pudl',
-        'operator_name',
-        'contract_type',
-        'contract_expiration_date',
-        'energy_source',
-        'fuel_group',
-        'fuel_pudl',
-        'supplier',
-        'fuel_quantity',
-        'average_heat_content',
-        'average_sulfur_content',
-        'average_ash_content',
-        'average_mercury_content',
-        'fuel_cost_per_mmbtu',
-        'primary_transportation_mode',
-        'secondary_transportation_mode',
-        'natural_gas_transport',
-        'coalmine_msha_id',
-        'coalmine_name',
-        'coalmine_type',
-        'coalmine_state',
-        'coalmine_county',
-        'total_heat_content_mmbtu',
-        'total_fuel_cost',
-    ]]
-
     return(out_df)
 
 
-def bf_eia923_df(pudl_engine):
+def boiler_fuel_eia923(pudl_engine):
     """
     Pull a useful set of fields related to boiler_fuel_eia923 table.
 
@@ -279,39 +264,49 @@ def bf_eia923_df(pudl_engine):
     Returns:
         out_df: a pandas dataframe.
     """
-
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
     bf_eia923_tbl = pt['boiler_fuel_eia923']
     bf_eia923_select = sa.sql.select([bf_eia923_tbl, ])
     bf_df = pd.read_sql(bf_eia923_select, pudl_engine)
 
-    pu_eia = plants_utils_eia_df(pudl_engine)
+    pu_eia = plants_utils_eia(pudl_engine)
 
     # Need a temporary year column to merge with EIA860 data which is annual.
     bf_df['report_year'] = pd.to_datetime(bf_df['report_date']).dt.year
 
     out_df = pd.merge(bf_df, pu_eia, how='left', on=['plant_id',
-                      'report_year'])
+                                                     'report_year'])
     out_df = out_df.drop(['report_year', 'id'], axis=1)
 
     out_df = out_df.dropna(subset=[
+        'plant_id',
+        'plant_id_pudl',
+        'operator_id',
+        'util_id_pudl',
+        'boiler_id',
+    ])
+
+    first_cols = [
+        'report_date',
         'plant_id',
         'plant_id_pudl',
         'plant_name',
         'operator_id',
         'util_id_pudl',
         'operator_name',
-    ])
+        'boiler_id',
+    ]
+
+    # Re-arrange the columns for easier readability:
+    out_df = organize_cols(out_df, first_cols)
 
     out_df['operator_id'] = out_df.operator_id.astype(int)
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
 
-    return out_df
+    return(out_df)
 
 
-def g_eia923_df(pudl_engine):
+def generation_eia923(pudl_engine):
     """
     Pull a useful set of fields related to generation_eia923 table.
 
@@ -320,14 +315,11 @@ def g_eia923_df(pudl_engine):
     Returns:
         out_df: a pandas dataframe.
     """
-
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
     g_eia923_tbl = pt['generation_eia923']
     g_eia923_select = sa.sql.select([g_eia923_tbl, ])
     g_df = pd.read_sql(g_eia923_select, pudl_engine)
 
-    pu_eia = plants_utils_eia_df(pudl_engine)
+    pu_eia = plants_utils_eia(pudl_engine)
 
     # Need a temporary year column to merge with EIA860 data which is annual.
     g_df['report_year'] = pd.to_datetime(g_df['report_date']).dt.year
@@ -338,20 +330,33 @@ def g_eia923_df(pudl_engine):
     out_df = out_df.dropna(subset=[
         'plant_id',
         'plant_id_pudl',
+        'operator_id',
+        'util_id_pudl',
+        'generator_id',
+    ])
+
+    first_cols = [
+        'report_date',
+        'plant_id',
+        'plant_id_pudl',
         'plant_name',
         'operator_id',
         'util_id_pudl',
         'operator_name',
-    ])
+        'generator_id',
+    ]
+
+    # Re-arrange the columns for easier readability:
+    out_df = organize_cols(out_df, first_cols)
 
     out_df['operator_id'] = out_df.operator_id.astype(int)
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
 
-    return out_df
+    return(out_df)
 
 
-def o_eia860_df(pudl_engine):
+def ownership_eia860(pudl_engine):
     """
     Pull a useful set of fields related to ownership_eia860 table.
 
@@ -360,15 +365,11 @@ def o_eia860_df(pudl_engine):
     Returns:
         out_df: a pandas dataframe.
     """
-
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
-
     o_eia860_tbl = pt['ownership_eia860']
     o_eia860_select = sa.sql.select([o_eia860_tbl, ])
     o_df = pd.read_sql(o_eia860_select, pudl_engine)
 
-    pu_eia = plants_utils_eia_df(pudl_engine)
+    pu_eia = plants_utils_eia(pudl_engine)
     pu_eia = pu_eia[['plant_id', 'plant_id_pudl', 'util_id_pudl',
                      'report_year']]
 
@@ -376,10 +377,35 @@ def o_eia860_df(pudl_engine):
 
     out_df = out_df.drop(['id'], axis=1)
 
-    return out_df
+    out_df = out_df.dropna(subset=[
+        'plant_id',
+        'plant_id_pudl',
+        'operator_id',
+        'util_id_pudl',
+        'generator_id',
+        'ownership_id',
+    ])
+
+    first_cols = [
+        'report_year',
+        'plant_id',
+        'plant_id_pudl',
+        'plant_name',
+        'operator_id',
+        'util_id_pudl',
+        'operator_name',
+        'generator_id',
+        'ownership_id',
+        'owner_name',
+    ]
+
+    # Re-arrange the columns for easier readability:
+    out_df = organize_cols(out_df, first_cols)
+
+    return(out_df)
 
 
-def gens_eia860_df(pudl_engine):
+def generators_eia860(pudl_engine):
     """
     Pull all fields reported in the generators_eia860 table.
 
@@ -393,8 +419,6 @@ def gens_eia860_df(pudl_engine):
     Returns:
         A pandas dataframe.
     """
-    # Shorthand for readability... pt = PUDL Tables
-    pt = models.PUDLBase.metadata.tables
     # Almost all the info we need will come from here.
     gens_eia860_tbl = pt['generators_eia860']
     gens_eia860_select = sa.sql.select([gens_eia860_tbl, ])
@@ -434,100 +458,25 @@ def gens_eia860_df(pudl_engine):
     cols_to_drop = ['id', ]
     out_df = out_df.drop(cols_to_drop, axis=1)
 
-    # Re-arrange the dataframe to be more readable:
-    out_df = out_df[[
+    first_cols = [
         'report_year',
-        'operator_id',
-        'util_id_pudl',
-        'operator_name',
         'plant_id',
         'plant_id_pudl',
         'plant_name',
+        'operator_id',
+        'util_id_pudl',
+        'operator_name',
         'generator_id',
-        'state',
-        'county',
-        'latitude',
-        'longitude',
-        'prime_mover',
-        'unit_code',
-        'status',
-        'ownership',
-        'duct_burners',
-        'nameplate_capacity_mw',
-        'summer_capacity_mw',
-        'winter_capacity_mw',
-        'operating_date',
-        'energy_source_1',
-        'energy_source_2',
-        'energy_source_3',
-        'energy_source_4',
-        'energy_source_5',
-        'energy_source_6',
-        'multiple_fuels',
-        'deliver_power_transgrid',
-        'syncronized_transmission_grid',
-        'turbines',
-        'cogenerator',
-        'sector_name',
-        'sector',
-        'topping_bottoming',
-        'planned_modifications',
-        'planned_net_summer_capacity_uprate',
-        'planned_net_winter_capacity_uprate',
-        'planned_uprate_date',
-        'planned_net_summer_capacity_derate',
-        'planned_net_winter_capacity_derate',
-        'planned_derate_date',
-        'planned_new_prime_mover',
-        'planned_energy_source_1',
-        'planned_repower_date',
-        'other_planned_modifications',
-        'other_modifications_date',
-        'planned_retirement_date',
-        'solid_fuel_gasification',
-        'pulverized_coal_tech',
-        'fluidized_bed_tech',
-        'subcritical_tech',
-        'supercritical_tech',
-        'ultrasupercritical_tech',
-        'carbon_capture',
-        'startup_source_1',
-        'startup_source_2',
-        'startup_source_3',
-        'startup_source_4',
-        'technology',
-        'turbines_inverters_hydrokinetics',
-        'time_cold_shutdown_full_load',
-        'stoker_tech',
-        'other_combustion_tech',
-        'planned_new_nameplate_capacity_mw',
-        'cofire_fuels',
-        'switch_oil_gas',
-        'heat_bypass_recovery',
-        'rto_iso_lmp_node',
-        'rto_iso_location_wholesale_reporting',
-        'nameplate_power_factor',
-        'minimum_load_mw',
-        'uprate_derate_during_year',
-        'uprate_derate_completed_date',
-        'associated_combined_heat_power',
-        'original_planned_operating_date',
-        'current_planned_operating_date',
-        'summer_estimated_capability',
-        'winter_estimated_capability',
-        'operating_switch',
-        'previously_canceled',
-        'retirement_date',
-    ]]
+    ]
+
+    # Re-arrange the columns for easier readability:
+    out_df = organize_cols(out_df, first_cols)
 
     return(out_df)
 
 
-def plants_utils_ferc_df(pudl_engine):
+def plants_utils_ferc1(pudl_engine):
     """Build a dataframe of useful FERC Plant & Utility information."""
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
-
     utils_ferc_tbl = pt['utilities_ferc']
     utils_ferc_select = sa.sql.select([utils_ferc_tbl, ])
     utils_ferc = pd.read_sql(utils_ferc_select, pudl_engine)
@@ -540,7 +489,7 @@ def plants_utils_ferc_df(pudl_engine):
     return(out_df)
 
 
-def plants_steam_ferc1_df(pudl_engine):
+def plants_steam_ferc1(pudl_engine):
     """
     Select and join some useful fields from the FERC Form 1 steam table.
 
@@ -553,63 +502,29 @@ def plants_steam_ferc1_df(pudl_engine):
     Returns:
         steam_df: a pandas dataframe.
     """
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
-
     steam_ferc1_tbl = pt['plants_steam_ferc1']
     steam_ferc1_select = sa.sql.select([steam_ferc1_tbl, ])
     steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
 
-    pu_ferc = plants_utils_ferc_df(pudl_engine)
+    pu_ferc = plants_utils_ferc1(pudl_engine)
 
     out_df = pd.merge(steam_df, pu_ferc, on=['respondent_id', 'plant_name'])
-    out_df = out_df[[
+
+    first_cols = [
         'report_year',
         'respondent_id',
-        'respondent_name',
         'util_id_pudl',
-        'plant_name',
+        'respondent_name',
         'plant_id_pudl',
-        'plant_kind',
-        'type_const',
-        'year_constructed',
-        'year_installed',
-        'total_capacity_mw',
-        'peak_demand_mw',
-        'plant_hours',
-        'plant_capability_mw',
-        'water_limited_mw',
-        'not_water_limited_mw',
-        'avg_num_employees',
-        'net_generation_mwh',
-        'cost_land',
-        'cost_structure',
-        'cost_equipment',
-        'cost_of_plant_total',
-        'cost_per_mw',
-        'expns_operations',
-        'expns_fuel',
-        'expns_coolants',
-        'expns_steam',
-        'expns_steam_other',
-        'expns_transfer',
-        'expns_electric',
-        'expns_misc_power',
-        'expns_rents',
-        'expns_allowances',
-        'expns_engineering',
-        'expns_structures',
-        'expns_boiler',
-        'expns_plants',
-        'expns_misc_steam',
-        'expns_production_total',
-        'expns_per_mwh',
-        'asset_retire_cost',
-    ]]
+        'plant_name'
+    ]
+
+    out_df = organize_cols(out_df, first_cols)
+
     return(out_df)
 
 
-def fuel_ferc1_df(pudl_engine):
+def fuel_ferc1(pudl_engine):
     """
     Pull a useful dataframe related to FERC Form 1 fuel information.
 
@@ -630,8 +545,6 @@ def fuel_ferc1_df(pudl_engine):
     Returns:
         fuel_df: a pandas dataframe.
     """
-    # Grab the list of tables so we can reference them shorthand.
-    pt = models.PUDLBase.metadata.tables
     fuel_ferc1_tbl = pt['fuel_ferc1']
     fuel_ferc1_select = sa.sql.select([fuel_ferc1_tbl, ])
     fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)
@@ -646,30 +559,20 @@ def fuel_ferc1_df(pudl_engine):
     fuel_df['fuel_consumed_total_cost_unit'] = \
         fuel_df['fuel_cost_per_unit_burned'] * fuel_df['fuel_qty_burned']
 
-    pu_ferc = plants_utils_ferc_df(pudl_engine)
+    pu_ferc = plants_utils_ferc1(pudl_engine)
 
     out_df = pd.merge(fuel_df, pu_ferc, on=['respondent_id', 'plant_name'])
     out_df = out_df.drop('id', axis=1)
 
-    out_df = out_df[[
+    first_cols = [
         'report_year',
         'respondent_id',
-        'respondent_name',
         'util_id_pudl',
-        'plant_name',
+        'respondent_name',
         'plant_id_pudl',
-        'fuel',
-        'fuel_unit',
-        'fuel_qty_burned',
-        'fuel_avg_mmbtu_per_unit',
-        'fuel_cost_per_unit_burned',
-        'fuel_cost_per_unit_delivered',
-        'fuel_cost_per_mmbtu',
-        'fuel_cost_per_mwh',
-        'fuel_mmbtu_per_mwh',
-        'fuel_consumed_total_mmbtu',
-        'fuel_cost_per_mmbtu',
-        'fuel_cost_per_unit_burned',
-    ]]
+        'plant_name'
+    ]
+
+    out_df = organize_cols(out_df, first_cols)
 
     return(out_df)

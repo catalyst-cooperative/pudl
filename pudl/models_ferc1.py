@@ -2,7 +2,6 @@
 
 from sqlalchemy import Column, ForeignKey, Integer, String, Float, Numeric
 from sqlalchemy import ForeignKeyConstraint
-
 import pudl.models
 
 ###########################################################################

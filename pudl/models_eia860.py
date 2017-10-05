@@ -2,7 +2,6 @@
 
 from sqlalchemy import Boolean, Integer, String, Float, Numeric, Date
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint
-from sqlalchemy.ext.declarative import declarative_base
 import pudl.models
 
 
@@ -95,13 +94,13 @@ class OwnershipEIA860(pudl.models.PUDLBase):
     state = Column(String)  # FK?
     generator_id = Column(String, nullable=False)  # FK
     status = Column(String)
-    ownership_id = Column(Integer)
+    ownership_id = Column(Integer, nullable=False)  # FK operator_id
     owner_name = Column(String)
     owner_state = Column(String)
     owner_city = Column(String)
     owner_street_address = Column(String)
     owner_zip = Column(String)
-    percent_owned = Column(Float)
+    fraction_owned = Column(Float)
 
 
 class GeneratorsEIA860(pudl.models.PUDLBase):
