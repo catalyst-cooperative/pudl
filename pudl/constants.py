@@ -2735,7 +2735,7 @@ natural_gas_transport_eia923 = {
 # 'energy_source_eia923' plus additional renewable and nuclear categories.
 aer_coal_strings = ['col', 'woc']
 aer_gas_strings = ['ng']
-aer_petroleum_strings = ['dfo', 'rfo']
+aer_oil_strings = ['dfo', 'rfo']
 aer_petcoke_strings = ['pc']
 aer_solar_strings = ['sun']
 aer_wind_strings = ['wnd']
@@ -2746,8 +2746,8 @@ aer_other_strings = ['geo', 'mlg', 'oog', 'orw', 'oth', 'woo', 'www']
 aer_fuel_type_strings = {
     'coal': aer_coal_strings,
     'gas': aer_gas_strings,
-    'petroleum': aer_petroleum_strings,
-    'petroleum coke': aer_petcoke_strings,
+    'oil': aer_oil_strings,
+    'petcoke': aer_petcoke_strings,
     'solar': aer_solar_strings,
     'wind': aer_wind_strings,
     'hydro': aer_hydro_strings,
