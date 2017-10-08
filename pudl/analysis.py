@@ -131,11 +131,12 @@ def eia_pudl_plant_ids(pudl_engine):
 def yearly_sum_eia(table,
                    sum_by,
                    columns=['plant_id_eia',
-                            'report_date', 'generator_id']):
+                            'report_year', 'generator_id']):
     if 'report_date' in table.columns:
         table = table.set_index(pd.DatetimeIndex(table['report_date']).year)
         table.drop('report_date', axis=1, inplace=True)
         table.reset_index(inplace=True)
+        table = table.rename(columns={'report_date': 'report_year'})
     gb = table.groupby(by=columns)
     return(gb.agg({sum_by: np.sum}))
 
@@ -154,7 +155,7 @@ def gens_with_bga(bga8, g9_summed, id_col='plant_id_eia'):
     gens8 = bga8.drop_duplicates(subset=[id_col, 'generator_id'])
     # All cenerators from the generation table (923)/
     gens9 = g9_summed.drop_duplicates(
-        subset=[id_col, 'generator_id', 'report_date'])
+        subset=[id_col, 'generator_id', 'report_year'])
 
     # See which generators are missing from the bga table
     gens = gens9.merge(gens8, on=[id_col, 'generator_id'], how="left")
@@ -165,7 +166,7 @@ def gens_with_bga(bga8, g9_summed, id_col='plant_id_eia'):
     # Create a list of plants that include any generators that are not in the
     # bga table
     unassociated_plants = gens[gens['boiler_generator_assn'] == False].\
-        drop_duplicates(subset=[id_col, 'report_date']).\
+        drop_duplicates(subset=[id_col, 'report_year']).\
         drop(['generator_id', 'net_generation_mwh',
               'boiler_id', 'boiler_generator_assn'], axis=1)
     unassociated_plants['plant_assn'] = False
@@ -174,7 +175,7 @@ def gens_with_bga(bga8, g9_summed, id_col='plant_id_eia'):
     # are a part of plants that have generators that are not included
     # in the bga table
     gens = gens.merge(unassociated_plants, on=[
-                      id_col, 'report_date'], how='left')
+                      id_col, 'report_year'], how='left')
     gens['plant_assn'] = gens.plant_assn.fillna(value=True)
 
     # Using the associtated plants, extract the generator/boiler combos
@@ -211,13 +212,13 @@ def heat_rate(bga8, g9_summed, bf9_summed,
     gens_unassn_plants = gens[gens['complete_assn'] == False]
 
     # Sum the yearly net generation for these plants
-    gup_gb = gens_unassn_plants.groupby(by=[id_col, 'report_date'])
+    gup_gb = gens_unassn_plants.groupby(by=[id_col, 'report_year'])
     gens_unassn_plants_summed = gup_gb.agg({'net_generation_mwh': np.sum})
     gens_unassn_plants_summed.reset_index(inplace=True)
 
     # Pull in mmbtu
     unassn_plants = gens_unassn_plants_summed.merge(
-        bf9_plant_summed, on=[id_col, 'report_date'])
+        bf9_plant_summed, on=[id_col, 'report_year'])
     # calculate heat rate by plant
     unassn_plants['heat_rate_mmbtu_mwh'] = \
         unassn_plants['fuel_consumed_mmbtu'] / \
@@ -228,10 +229,10 @@ def heat_rate(bga8, g9_summed, bf9_summed,
     # generators
     heat_rate_unassn = gens_unassn_plants.merge(unassn_plants[[
                                                 id_col,
-                                                'report_date',
+                                                'report_year',
                                                 'heat_rate_mmbtu_mwh']],
                                                 on=[id_col,
-                                                    'report_date'],
+                                                    'report_year'],
                                                 how='left')
     heat_rate_unassn.drop(
         ['boiler_id', 'boiler_generator_assn'], axis=1, inplace=True)
@@ -244,7 +245,7 @@ def heat_rate(bga8, g9_summed, bf9_summed,
 
     # get net generation per boiler
     gb1 = generation_w_boilers.groupby(
-        by=[id_col, 'report_date', 'boiler_id'])
+        by=[id_col, 'report_year', 'boiler_id'])
     generation_w_boilers_summed = gb1.agg({'net_generation_mwh': np.sum})
     generation_w_boilers_summed.reset_index(inplace=True)
     generation_w_boilers_summed.rename(
@@ -253,7 +254,7 @@ def heat_rate(bga8, g9_summed, bf9_summed,
 
     # get the generation per boiler/generator combo
     gb2 = generation_w_boilers.groupby(
-        by=[id_col, 'report_date', 'boiler_id', 'generator_id'])
+        by=[id_col, 'report_year', 'boiler_id', 'generator_id'])
     generation_w_bg_summed = gb2.agg({'net_generation_mwh': np.sum})
     generation_w_bg_summed.reset_index(inplace=True)
     generation_w_bg_summed.rename(
@@ -265,12 +266,12 @@ def heat_rate(bga8, g9_summed, bf9_summed,
         generation_w_boilers_summed.merge(generation_w_bg_summed,
                                           how='left',
                                           on=[id_col,
-                                              'report_date',
+                                              'report_year',
                                               'boiler_id'])
 
     bg = bf9_summed.merge(bga8, how='left', on=[id_col, 'boiler_id'])
     bg = bg.merge(generation_w_boilers_summed, how='left', on=[
-                  id_col, 'report_date', 'boiler_id', 'generator_id'])
+                  id_col, 'report_year', 'boiler_id', 'generator_id'])
 
     # Use the proportion of the generation of each generator to allot mmBTU
     bg['proportion_of_gen_by_boil_gen'] = \
@@ -280,14 +281,14 @@ def heat_rate(bga8, g9_summed, bf9_summed,
 
     # Get yearly fuel_consumed_mmbtu by plant_id, year and generator_id
     bg_gb = bg.groupby(by=[id_col,
-                           'report_date',
+                           'report_year',
                            'generator_id'])
     bg_summed = bg_gb.agg({'fuel_consumed_mmbtu_per_gen': np.sum})
     bg_summed.reset_index(inplace=True)
 
     # Calculate heat rate
     heat_rate = bg_summed.merge(g9_summed, how='left', on=[
-                                id_col, 'report_date', 'generator_id'])
+                                id_col, 'report_year', 'generator_id'])
     heat_rate['heat_rate_mmbtu_mwh'] = \
         heat_rate['fuel_consumed_mmbtu_per_gen'] / \
         heat_rate['net_generation_mwh']
@@ -295,19 +296,22 @@ def heat_rate(bga8, g9_summed, bf9_summed,
     # Importing the plant association tag to filter out the
     # generators that are a part of plants that aren't in the bga table
     heat_rate = heat_rate.merge(gens[[id_col,
-                                      'report_date',
+                                      'report_year',
                                       'generator_id',
                                       'complete_assn',
                                       'plant_assn']],
                                 on=[id_col,
-                                    'report_date',
+                                    'report_year',
                                     'generator_id'])
     heat_rate_assn = heat_rate[heat_rate['complete_assn'] == True]
+
+    # Now, let's chuck the incorrect (lower than 5 mmBTU/MWh)
+    heat_rate = heat_rate[heat_rate['heat_rate_mmbtu_mwh'] >= 5]
 
     # Append heat rates for associated and unassociated
     heat_rate_all = heat_rate_assn.append(heat_rate_unassn)
     heat_rate_all.sort_values(
-        by=[id_col, 'report_date', 'generator_id'], inplace=True)
+        by=[id_col, 'report_year', 'generator_id'], inplace=True)
     return(heat_rate_all)
 
 

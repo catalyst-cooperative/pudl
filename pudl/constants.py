@@ -2578,6 +2578,18 @@ fuel_type_aer_eia923 = {
     'WWW': 'Wood and Wood Waste'
 }
 
+# EIA 923/860: Lumping of energy source categories.
+energy_source_map = {
+    'coal': ['ANT', 'BIT', 'LIG', 'SUB', 'WC', 'RC'],
+    'gas': ['BFG', 'NG', 'OG', 'SGP', 'PG', 'SGC'],
+    'oil': ['DFO', 'JF', 'KER', 'PC', 'RFO', 'WO'],
+    'solid_renewable': ['AB', 'MSW', 'OBS', 'WDS'],
+    'biomass_solid': ['OBL', 'SLW', 'BLQ', 'WDL'],
+    'biomass_gas': ['LFG', 'OBG'],
+    'renewable_other': ['SUN', 'WND', 'GEO', 'WAT'],  # wtf is SG?
+    'other': ['NUC', 'PUR', 'WH', 'TDF', 'MWH', 'OTH', 'SG']
+}
+
 # EIA 923: The type of physical units fuel consumption is reported in.
 # All consumption is reported in either short tons for solids,
 # thousands of cubic feet for gases, and barrels for liquids.
