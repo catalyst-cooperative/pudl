@@ -2578,6 +2578,18 @@ fuel_type_aer_eia923 = {
     'WWW': 'Wood and Wood Waste'
 }
 
+# EIA 923/860: Lumping of energy source categories.
+energy_source_map = {
+    'coal': ['ANT', 'BIT', 'LIG', 'SUB', 'WC', 'RC'],
+    'gas': ['BFG', 'NG', 'OG', 'SGP', 'PG', 'SGC'],
+    'oil': ['DFO', 'JF', 'KER', 'PC', 'RFO', 'WO'],
+    'solid_renewable': ['AB', 'MSW', 'OBS', 'WDS'],
+    'biomass_solid': ['OBL', 'SLW', 'BLQ', 'WDL'],
+    'biomass_gas': ['LFG', 'OBG'],
+    'renewable_other': ['SUN', 'WND', 'GEO', 'WAT'],  # wtf is SG?
+    'other': ['NUC', 'PUR', 'WH', 'TDF', 'MWH', 'OTH', 'SG']
+}
+
 # EIA 923: The type of physical units fuel consumption is reported in.
 # All consumption is reported in either short tons for solids,
 # thousands of cubic feet for gases, and barrels for liquids.
@@ -2735,7 +2747,7 @@ natural_gas_transport_eia923 = {
 # 'energy_source_eia923' plus additional renewable and nuclear categories.
 aer_coal_strings = ['col', 'woc']
 aer_gas_strings = ['ng']
-aer_petroleum_strings = ['dfo', 'rfo']
+aer_oil_strings = ['dfo', 'rfo']
 aer_petcoke_strings = ['pc']
 aer_solar_strings = ['sun']
 aer_wind_strings = ['wnd']
@@ -2746,8 +2758,8 @@ aer_other_strings = ['geo', 'mlg', 'oog', 'orw', 'oth', 'woo', 'www']
 aer_fuel_type_strings = {
     'coal': aer_coal_strings,
     'gas': aer_gas_strings,
-    'petroleum': aer_petroleum_strings,
-    'petroleum coke': aer_petcoke_strings,
+    'oil': aer_oil_strings,
+    'petcoke': aer_petcoke_strings,
     'solar': aer_solar_strings,
     'wind': aer_wind_strings,
     'hydro': aer_hydro_strings,

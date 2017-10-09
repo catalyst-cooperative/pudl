@@ -31,6 +31,11 @@ from pudl import models
 pt = models.PUDLBase.metadata.tables
 
 
+###############################################################################
+###############################################################################
+#   Output Helper Functions
+###############################################################################
+###############################################################################
 def organize_cols(df, cols):
     """
     Organize columns into key ID & name fields & alphabetical data columns.
@@ -50,6 +55,11 @@ def organize_cols(df, cols):
     return(out_df)
 
 
+###############################################################################
+###############################################################################
+#   Cross datasource output (e.g. EIA923 + EIA860, PUDL specific IDs)
+###############################################################################
+###############################################################################
 def plants_utils_eia(pudl_engine):
     """
     Create a dataframe of plant and utility IDs and names from EIA.
@@ -114,6 +124,216 @@ def plants_utils_eia(pudl_engine):
     return(out_df)
 
 
+def plants_utils_ferc1(pudl_engine):
+    """Build a dataframe of useful FERC Plant & Utility information."""
+    utils_ferc_tbl = pt['utilities_ferc']
+    utils_ferc_select = sa.sql.select([utils_ferc_tbl, ])
+    utils_ferc = pd.read_sql(utils_ferc_select, pudl_engine)
+
+    plants_ferc_tbl = pt['plants_ferc']
+    plants_ferc_select = sa.sql.select([plants_ferc_tbl, ])
+    plants_ferc = pd.read_sql(plants_ferc_select, pudl_engine)
+
+    out_df = pd.merge(plants_ferc, utils_ferc, on='respondent_id')
+    return(out_df)
+
+
+###############################################################################
+###############################################################################
+#   EIA 860 Outputs
+###############################################################################
+###############################################################################
+def utilities_eia860(pudl_engine):
+    utils_eia860_tbl = pt['utilities_eia860']
+    utils_eia860_select = sa.sql.select([utils_eia860_tbl])
+    utils_eia860_df = pd.read_sql(utils_eia860_select, pudl_engine)
+
+    utils_eia_tbl = pt['utilities_eia']
+    utils_eia_select = sa.sql.select([
+        utils_eia_tbl.c.operator_id,
+        utils_eia_tbl.c.util_id_pudl,
+    ])
+    utils_eia_df = pd.read_sql(utils_eia_select,  pudl_engine)
+
+    out_df = pd.merge(utils_eia860_df, utils_eia_df,
+                      how='left', on=['operator_id', ])
+
+    out_df = out_df.drop(['id'], axis=1)
+    first_cols = [
+        'report_year',
+        'operator_id',
+        'util_id_pudl',
+        'operator_name',
+    ]
+
+    out_df = organize_cols(out_df, first_cols)
+    return(out_df)
+
+
+def plants_eia860(pudl_engine):
+    plants_eia860_tbl = pt['plants_eia860']
+    plants_eia860_select = sa.sql.select([plants_eia860_tbl])
+    plants_eia860_df = pd.read_sql(plants_eia860_select, pudl_engine)
+
+    plants_eia_tbl = pt['plants_eia']
+    plants_eia_select = sa.sql.select([
+        plants_eia_tbl.c.plant_id,
+        plants_eia_tbl.c.plant_id_pudl,
+    ])
+    plants_eia_df = pd.read_sql(plants_eia_select,  pudl_engine)
+
+    out_df = pd.merge(plants_eia860_df, plants_eia_df,
+                      how='left', on=['plant_id', ])
+
+    utils_eia_tbl = pt['utilities_eia']
+    utils_eia_select = sa.sql.select([
+        utils_eia_tbl.c.operator_id,
+        utils_eia_tbl.c.util_id_pudl,
+    ])
+    utils_eia_df = pd.read_sql(utils_eia_select,  pudl_engine)
+
+    out_df = pd.merge(out_df, utils_eia_df,
+                      how='left', on=['operator_id', ])
+
+    out_df = out_df.drop(['id'], axis=1)
+    first_cols = [
+        'report_year',
+        'operator_id',
+        'util_id_pudl',
+        'operator_name',
+        'plant_id',
+        'plant_id_pudl',
+        'plant_name',
+    ]
+
+    out_df = organize_cols(out_df, first_cols)
+    return(out_df)
+
+
+def generators_eia860(pudl_engine):
+    """
+    Pull all fields reported in the generators_eia860 table.
+
+    Merge in other useful fields including the latitude & longitude of the
+    plant that the generators are part of, canonical plant & operator names and
+    the PUDL IDs of the plant and operator, for merging with other PUDL data
+    sources.
+
+    Args:
+        pudl_engine: An SQLAlchemy DB connection engine.
+    Returns:
+        A pandas dataframe.
+    """
+    # Almost all the info we need will come from here.
+    gens_eia860_tbl = pt['generators_eia860']
+    gens_eia860_select = sa.sql.select([gens_eia860_tbl, ])
+    gens_eia860 = pd.read_sql(gens_eia860_select, pudl_engine)
+
+    # Canonical sources for these fields are elsewhere. We will merge them in.
+    gens_eia860 = gens_eia860.drop(['operator_id',
+                                    'operator_name',
+                                    'plant_name'], axis=1)
+
+    # To get the Lat/Lon coordinates, and plant/utility ID mapping:
+    plants_eia860_tbl = pt['plants_eia860']
+    plants_eia860_select = sa.sql.select([
+        plants_eia860_tbl.c.report_year,
+        plants_eia860_tbl.c.plant_id,
+        plants_eia860_tbl.c.operator_id,
+        plants_eia860_tbl.c.latitude,
+        plants_eia860_tbl.c.longitude,
+    ])
+    plants_eia860 = pd.read_sql(plants_eia860_select, pudl_engine)
+
+    out_df = pd.merge(gens_eia860, plants_eia860,
+                      how='left', on=['report_year', 'plant_id'])
+
+    # For the PUDL Utility & Plant IDs, as well as utility & plant names:
+    utils_eia_tbl = pt['utilities_eia']
+    utils_eia_select = sa.sql.select([utils_eia_tbl, ])
+    utils_eia = pd.read_sql(utils_eia_select,  pudl_engine)
+    out_df = pd.merge(out_df, utils_eia, on='operator_id')
+
+    plants_eia_tbl = pt['plants_eia']
+    plants_eia_select = sa.sql.select([plants_eia_tbl, ])
+    plants_eia = pd.read_sql(plants_eia_select, pudl_engine)
+    out_df = pd.merge(out_df, plants_eia, how='left', on='plant_id')
+
+    # Drop a few extraneous fields...
+    cols_to_drop = ['id', ]
+    out_df = out_df.drop(cols_to_drop, axis=1)
+
+    first_cols = [
+        'report_year',
+        'plant_id',
+        'plant_id_pudl',
+        'plant_name',
+        'operator_id',
+        'util_id_pudl',
+        'operator_name',
+        'generator_id',
+    ]
+
+    # Re-arrange the columns for easier readability:
+    out_df = organize_cols(out_df, first_cols)
+
+    return(out_df)
+
+
+def ownership_eia860(pudl_engine):
+    """
+    Pull a useful set of fields related to ownership_eia860 table.
+
+    Args:
+        pudl_engine: An SQLAlchemy DB connection engine.
+    Returns:
+        out_df: a pandas dataframe.
+    """
+    o_eia860_tbl = pt['ownership_eia860']
+    o_eia860_select = sa.sql.select([o_eia860_tbl, ])
+    o_df = pd.read_sql(o_eia860_select, pudl_engine)
+
+    pu_eia = plants_utils_eia(pudl_engine)
+    pu_eia = pu_eia[['plant_id', 'plant_id_pudl', 'util_id_pudl',
+                     'report_year']]
+
+    out_df = pd.merge(o_df, pu_eia, how='left', on=['report_year', 'plant_id'])
+
+    out_df = out_df.drop(['id'], axis=1)
+
+    out_df = out_df.dropna(subset=[
+        'plant_id',
+        'plant_id_pudl',
+        'operator_id',
+        'util_id_pudl',
+        'generator_id',
+        'ownership_id',
+    ])
+
+    first_cols = [
+        'report_year',
+        'plant_id',
+        'plant_id_pudl',
+        'plant_name',
+        'operator_id',
+        'util_id_pudl',
+        'operator_name',
+        'generator_id',
+        'ownership_id',
+        'owner_name',
+    ]
+
+    # Re-arrange the columns for easier readability:
+    out_df = organize_cols(out_df, first_cols)
+
+    return(out_df)
+
+
+###############################################################################
+###############################################################################
+#   EIA 923 Outputs
+###############################################################################
+###############################################################################
 def generation_fuel_eia923(pudl_engine):
     """
     Pull a useful set of fields related to generation_fuel_eia923 table.
@@ -356,139 +576,11 @@ def generation_eia923(pudl_engine):
     return(out_df)
 
 
-def ownership_eia860(pudl_engine):
-    """
-    Pull a useful set of fields related to ownership_eia860 table.
-
-    Args:
-        pudl_engine: An SQLAlchemy DB connection engine.
-    Returns:
-        out_df: a pandas dataframe.
-    """
-    o_eia860_tbl = pt['ownership_eia860']
-    o_eia860_select = sa.sql.select([o_eia860_tbl, ])
-    o_df = pd.read_sql(o_eia860_select, pudl_engine)
-
-    pu_eia = plants_utils_eia(pudl_engine)
-    pu_eia = pu_eia[['plant_id', 'plant_id_pudl', 'util_id_pudl',
-                     'report_year']]
-
-    out_df = pd.merge(o_df, pu_eia, how='left', on=['report_year', 'plant_id'])
-
-    out_df = out_df.drop(['id'], axis=1)
-
-    out_df = out_df.dropna(subset=[
-        'plant_id',
-        'plant_id_pudl',
-        'operator_id',
-        'util_id_pudl',
-        'generator_id',
-        'ownership_id',
-    ])
-
-    first_cols = [
-        'report_year',
-        'plant_id',
-        'plant_id_pudl',
-        'plant_name',
-        'operator_id',
-        'util_id_pudl',
-        'operator_name',
-        'generator_id',
-        'ownership_id',
-        'owner_name',
-    ]
-
-    # Re-arrange the columns for easier readability:
-    out_df = organize_cols(out_df, first_cols)
-
-    return(out_df)
-
-
-def generators_eia860(pudl_engine):
-    """
-    Pull all fields reported in the generators_eia860 table.
-
-    Merge in other useful fields including the latitude & longitude of the
-    plant that the generators are part of, canonical plant & operator names and
-    the PUDL IDs of the plant and operator, for merging with other PUDL data
-    sources.
-
-    Args:
-        pudl_engine: An SQLAlchemy DB connection engine.
-    Returns:
-        A pandas dataframe.
-    """
-    # Almost all the info we need will come from here.
-    gens_eia860_tbl = pt['generators_eia860']
-    gens_eia860_select = sa.sql.select([gens_eia860_tbl, ])
-    gens_eia860 = pd.read_sql(gens_eia860_select, pudl_engine)
-
-    # Canonical sources for these fields are elsewhere. We will merge them in.
-    gens_eia860 = gens_eia860.drop(['operator_id',
-                                    'operator_name',
-                                    'plant_name'], axis=1)
-
-    # To get the Lat/Lon coordinates, and plant/utility ID mapping:
-    plants_eia860_tbl = pt['plants_eia860']
-    plants_eia860_select = sa.sql.select([
-        plants_eia860_tbl.c.report_year,
-        plants_eia860_tbl.c.plant_id,
-        plants_eia860_tbl.c.operator_id,
-        plants_eia860_tbl.c.latitude,
-        plants_eia860_tbl.c.longitude,
-    ])
-    plants_eia860 = pd.read_sql(plants_eia860_select, pudl_engine)
-
-    out_df = pd.merge(gens_eia860, plants_eia860,
-                      how='left', on=['report_year', 'plant_id'])
-
-    # For the PUDL Utility & Plant IDs, as well as utility & plant names:
-    utils_eia_tbl = pt['utilities_eia']
-    utils_eia_select = sa.sql.select([utils_eia_tbl, ])
-    utils_eia = pd.read_sql(utils_eia_select,  pudl_engine)
-    out_df = pd.merge(out_df, utils_eia, on='operator_id')
-
-    plants_eia_tbl = pt['plants_eia']
-    plants_eia_select = sa.sql.select([plants_eia_tbl, ])
-    plants_eia = pd.read_sql(plants_eia_select, pudl_engine)
-    out_df = pd.merge(out_df, plants_eia, how='left', on='plant_id')
-
-    # Drop a few extraneous fields...
-    cols_to_drop = ['id', ]
-    out_df = out_df.drop(cols_to_drop, axis=1)
-
-    first_cols = [
-        'report_year',
-        'plant_id',
-        'plant_id_pudl',
-        'plant_name',
-        'operator_id',
-        'util_id_pudl',
-        'operator_name',
-        'generator_id',
-    ]
-
-    # Re-arrange the columns for easier readability:
-    out_df = organize_cols(out_df, first_cols)
-
-    return(out_df)
-
-
-def plants_utils_ferc1(pudl_engine):
-    """Build a dataframe of useful FERC Plant & Utility information."""
-    utils_ferc_tbl = pt['utilities_ferc']
-    utils_ferc_select = sa.sql.select([utils_ferc_tbl, ])
-    utils_ferc = pd.read_sql(utils_ferc_select, pudl_engine)
-
-    plants_ferc_tbl = pt['plants_ferc']
-    plants_ferc_select = sa.sql.select([plants_ferc_tbl, ])
-    plants_ferc = pd.read_sql(plants_ferc_select, pudl_engine)
-
-    out_df = pd.merge(plants_ferc, utils_ferc, on='respondent_id')
-    return(out_df)
-
-
+###############################################################################
+###############################################################################
+#   FERC Form 1 Outputs
+###############################################################################
+###############################################################################
 def plants_steam_ferc1(pudl_engine):
     """
     Select and join some useful fields from the FERC Form 1 steam table.
