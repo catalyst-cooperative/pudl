@@ -31,7 +31,30 @@ def simple_select(table_name, pudl_engine):
     # Creates a sql Select object
     select = sa.sql.select([tbl, ])
     # Converts sql object to pandas dataframe
-    return(pd.read_sql(select, pudl_engine))
+
+    table = pd.read_sql(select, pudl_engine)
+
+    # If table includes plant_id, get the PUDL Plant ID
+
+    if 'plant_id' in table.columns:
+        # Shorthand for readability... pt = PUDL Tables
+        pt = models.PUDLBase.metadata.tables
+
+        # Pull in plants_eia which connects EIA & PUDL plant IDs
+        plants_eia_tbl = pt['plants_eia']
+        plants_eia_select = sa.sql.select([
+            plants_eia_tbl.c.plant_id,
+            plants_eia_tbl.c.plant_id_pudl,
+        ])
+        plants_eia = pd.read_sql(plants_eia_select, pudl_engine)
+        out_df = pd.merge(table, plants_eia, how='left', on='plant_id')
+        out_df.rename(columns={'plant_id': 'plant_id_eia'}, inplace=True)
+        out_df.plant_id_pudl = out_df.plant_id_pudl.astype(int)
+        table = out_df
+    else:
+        table = table
+
+    return(table)
 
 
 def simple_ferc1_plant_ids(pudl_engine):
@@ -54,42 +77,6 @@ def simple_eia_plant_ids(pudl_engine):
     eia_simple_plant_ids = eia_plant_ids.drop_duplicates('plant_id_pudl',
                                                          keep=False)
     return(eia_simple_plant_ids)
-
-
-def simple_select_with_pudl_plant_id(table_name, pudl_engine):
-    """
-    Pull any PUDL table and inculde the PUDL Plant IDs
-
-    Args:
-        table_name: pudl table name
-        pudl_engine
-
-    Returns:
-        DataFrame from table with PUDL IDs included
-
-    """
-
-    # Shorthand for readability... pt = PUDL Tables
-    pt = models.PUDLBase.metadata.tables
-
-    # Pull in the table
-    tbl = pt[table_name]
-    # Creates a sql Select object
-    select = sa.sql.select([tbl, ])
-    # Converts sql object to pandas dataframe
-    table = pd.read_sql(select, pudl_engine)
-
-    # Get the PUDL Plant ID
-    plants_eia_tbl = pt['plants_eia']
-    plants_eia_select = sa.sql.select([
-        plants_eia_tbl.c.plant_id,
-        plants_eia_tbl.c.plant_id_pudl,
-    ])
-    plants_eia = pd.read_sql(plants_eia_select, pudl_engine)
-    out_df = pd.merge(table, plants_eia, how='left', on='plant_id')
-    out_df.rename(columns={'plant_id': 'plant_id_eia'}, inplace=True)
-    out_df.plant_id_pudl = out_df.plant_id_pudl.astype(int)
-    return(out_df)
 
 
 def simple_pudl_plant_ids(pudl_engine):
@@ -157,7 +144,8 @@ def gens_with_bga(bga8, g9_summed, id_col='plant_id_eia'):
         subset=[id_col, 'generator_id', 'report_date'])
 
     # See which generators are missing from the bga table
-    gens = gens9.merge(gens8, on=[id_col, 'generator_id'], how="left")
+    gens = gens9.merge(
+        gens8, on=['plant_id_eia', 'plant_id_pudl', 'generator_id'], how="left")
     gens.boiler_id = gens.boiler_id.astype(str)
     gens['boiler_generator_assn'] = np.where(
         gens['boiler_id'] == 'nan', False, True)
@@ -174,7 +162,7 @@ def gens_with_bga(bga8, g9_summed, id_col='plant_id_eia'):
     # are a part of plants that have generators that are not included
     # in the bga table
     gens = gens.merge(unassociated_plants, on=[
-                      id_col, 'report_date'], how='left')
+                      'plant_id_eia', 'plant_id_pudl', 'report_date'], how='left')
     gens['plant_assn'] = gens.plant_assn.fillna(value=True)
 
     # Using the associtated plants, extract the generator/boiler combos
@@ -182,18 +170,18 @@ def gens_with_bga(bga8, g9_summed, id_col='plant_id_eia'):
     # associations (i.e. if a coal plant had its boilers and generators
     # fully associated in the bga table in 2011 and then adds a
     # combined cycle plant the coal boiler/gen combo will be saved).
-    gens_complete = gens[[id_col, 'generator_id',
+    gens_complete = gens[['plant_id_eia', 'plant_id_pudl', 'generator_id',
                           'boiler_id', 'boiler_generator_assn', 'plant_assn']]
     gens_complete = \
         gens_complete[gens_complete['plant_assn'] == True].\
         drop_duplicates(subset=[id_col, 'generator_id', 'boiler_id'])
     gens_complete['complete_assn'] = True
-    gens = gens.merge(gens_complete[[id_col,
+    gens = gens.merge(gens_complete[['plant_id_eia', 'plant_id_pudl',
                                      'generator_id',
                                      'boiler_id',
                                      'complete_assn']],
                       how='left',
-                      on=[id_col, 'generator_id', 'boiler_id'])
+                      on=['plant_id_eia', 'plant_id_pudl', 'generator_id', 'boiler_id'])
     gens['complete_assn'] = gens.complete_assn.fillna(value=False)
 
     return(gens)
@@ -227,10 +215,10 @@ def heat_rate(bga8, g9_summed, bf9_summed,
     # Assign heat rates to generators across the plants with unassociated
     # generators
     heat_rate_unassn = gens_unassn_plants.merge(unassn_plants[[
-                                                id_col,
+                                                'plant_id_eia', 'plant_id_pudl',
                                                 'report_date',
                                                 'heat_rate_mmbtu_mwh']],
-                                                on=[id_col,
+                                                on=['plant_id_eia', 'plant_id_pudl',
                                                     'report_date'],
                                                 how='left')
     heat_rate_unassn.drop(
@@ -240,7 +228,7 @@ def heat_rate(bga8, g9_summed, bf9_summed,
     # the plants that have any generators that are included in
     # the boiler generator association table (860)
     generation_w_boilers = g9_summed.merge(
-        bga8, how='left', on=[id_col, 'generator_id'])
+        bga8, how='left', on=['plant_id_eia', 'plant_id_pudl', 'generator_id'])
 
     # get net generation per boiler
     gb1 = generation_w_boilers.groupby(
@@ -268,7 +256,8 @@ def heat_rate(bga8, g9_summed, bf9_summed,
                                               'report_date',
                                               'boiler_id'])
 
-    bg = bf9_summed.merge(bga8, how='left', on=[id_col, 'boiler_id'])
+    bg = bf9_summed.merge(bga8, how='left', on=[
+                          'plant_id_eia', 'plant_id_pudl', 'boiler_id'])
     bg = bg.merge(generation_w_boilers_summed, how='left', on=[
                   id_col, 'report_date', 'boiler_id', 'generator_id'])
 
@@ -294,12 +283,12 @@ def heat_rate(bga8, g9_summed, bf9_summed,
 
     # Importing the plant association tag to filter out the
     # generators that are a part of plants that aren't in the bga table
-    heat_rate = heat_rate.merge(gens[[id_col,
+    heat_rate = heat_rate.merge(gens[['plant_id_eia', 'plant_id_pudl',
                                       'report_date',
                                       'generator_id',
                                       'complete_assn',
                                       'plant_assn']],
-                                on=[id_col,
+                                on=['plant_id_eia', 'plant_id_pudl',
                                     'report_date',
                                     'generator_id'])
     heat_rate_assn = heat_rate[heat_rate['complete_assn'] == True]
@@ -308,6 +297,12 @@ def heat_rate(bga8, g9_summed, bf9_summed,
     heat_rate_all = heat_rate_assn.append(heat_rate_unassn)
     heat_rate_all.sort_values(
         by=[id_col, 'report_date', 'generator_id'], inplace=True)
+
+    if 'plant_id_pudl_x' in heat_rate_all.columns:
+        heat_rate_all.drop('plant_id_pudl_x', axis=1, inplace=True)
+    if 'plant_id_pudl_y' in heat_rate_all.columns:
+        heat_rate_all.drop('plant_id_pudl_y', axis=1, inplace=True)
+
     return(heat_rate_all)
 
 
@@ -318,7 +313,7 @@ def capacity_factor(g9_summed, g8, id_col='plant_id_eia'):
     # merge the generation and capacity to calculate capacity fazctor
     # plant_id should be specified as either plant_id_eia or plant_id_pudl
     capacity_factor = g9_summed.merge(g8,
-                                      on=[id_col,
+                                      on=['plant_id_eia', 'plant_id_pudl',
                                           'generator_id',
                                           'report_date'])
     capacity_factor['capacity_factor'] = \
@@ -331,6 +326,17 @@ def capacity_factor(g9_summed, g8, id_col='plant_id_eia'):
     capacity_factor.loc[capacity_factor['capacity_factor']
                         >= 1.5, 'capacity_factor'] = np.nan
 
+    if 'plant_id_pudl_x' in capacity_factor.columns:
+        capacity_factor.rename(
+            columns={'plant_id_pudl_x': 'plant_id_pudl'}, inplace=True)
+    if 'plant_id_pudl_y' in capacity_factor.columns:
+        capacity_factor.drop('plant_id_pudl_y', axis=1, inplace=True)
+    if 'plant_id_eia_x' in capacity_factor.columns:
+        capacity_factor.rename(
+            columns={'plant_id_eia_x': 'plant_id_eia'}, inplace=True)
+    if 'plant_id_eia_y' in capacity_factor.columns:
+        capacity_factor.drop('plant_id_eia_y', axis=1, inplace=True)
+
     return(capacity_factor)
 
 
@@ -338,21 +344,21 @@ def fuel_cost(g9_summed, g8_es, frc9_summed, heat_rate, id_col='plant_id_eia'):
     """Generate fuel cost for all EIA generators."""
     # Merge generation table with the generator table to include energy_source
     net_gen = g9_summed.merge(g8_es, how='left', on=[
-                              id_col, 'generator_id'])
+                              'plant_id_eia', 'plant_id_pudl', 'generator_id'])
     # Merge this net_gen table with frc9_summed to have
     # fuel_cost_per_mmbtu_total associated with generators
     fuel_cost_per_mmbtu = net_gen.merge(frc9_summed,
                                         how='left',
-                                        on=[id_col,
+                                        on=['plant_id_eia', 'plant_id_pudl',
                                             'report_date',
                                             'energy_source'])
 
-    fuel_cost = fuel_cost_per_mmbtu.merge(heat_rate[[id_col,
+    fuel_cost = fuel_cost_per_mmbtu.merge(heat_rate[['plant_id_eia', 'plant_id_pudl',
                                                      'report_date',
                                                      'generator_id',
                                                      'net_generation_mwh',
                                                      'heat_rate_mmbtu_mwh']],
-                                          on=[id_col,
+                                          on=['plant_id_eia', 'plant_id_pudl',
                                               'report_date',
                                               'generator_id',
                                               'net_generation_mwh'])
@@ -758,8 +764,50 @@ def generator_proportion_eia923(g, id_col='plant_id_eia'):
     # Remove the net generation columns
     g_gens_proportion = g_gens_proportion.drop(
         ['net_generation_mwh_x', 'net_generation_mwh_y'], axis=1)
+    g_gens_proportion.reset_index(inplace=True)
 
     return(g_gens_proportion)
+
+
+def capacity_proportion_eia923(g, id_col='plant_id_eia',
+                               capacity='nameplate_capacity_mw'):
+    """
+    Generate a dataframe with the proportion of plant capacity for each generator.
+
+    Args:
+        g: a dataframe from either all of generation_eia923 or some subset of
+        records from generation_eia923. The dataframe needs the following
+        columns to be present:
+            generator_id, report_date, nameplate_capacity_mw
+
+        id_col: either plant_id_eia (default) or plant_id_pudl
+        capacity: nameplate_capacity_mw (default), summer_capacity_mw,
+            or winter_capacity_mw
+
+    Returns: a dataframe with:
+            report_date, plant_id, generator_id, proportion_of_capacity
+    """
+
+    # groupby plant_id and by year
+    g_net_capacity_per_plant = g.groupby(['report_date', id_col])
+    # sum net_gen by year by plant and convert to datafram
+    g_net_capacity_per_plant = pd.DataFrame(
+        g_net_capacity_per_plant.nameplate_capacity_mw.sum())
+    g_net_capacity_per_plant.reset_index(inplace=True)
+
+    # Merge the summed net generation by generator with the summed net
+    # generation by plant
+    g_capacity_proportion = g.merge(
+        g_net_capacity_per_plant, on=[id_col, 'report_date'], how="left")
+    g_capacity_proportion['proportion_of_plant_capacity'] = (
+        g_capacity_proportion.nameplate_capacity_mw_x /
+        g_capacity_proportion.nameplate_capacity_mw_y)
+    # Remove the net generation columns
+    g_capacity_proportion = g_capacity_proportion.rename(
+        columns={'nameplate_capacity_mw_x': 'nameplate_capacity_gen_mw',
+                 'nameplate_capacity_mw_y': 'nameplate_capacity_plant_mw'})
+
+    return(g_capacity_proportion)
 
 
 def values_by_generator_eia923(table_eia923, column_name, g):
@@ -886,7 +934,8 @@ def plant_fuel_proportions_frc_eia923(frc_df, id_col='plant_id_eia'):
     frc_df['total_mmbtu'] = frc_df.fuel_quantity * frc_df.average_heat_content
 
     # Drop everything but report_date, plant_id, fuel_group, total_mmbtu
-    frc_df = frc_df[['report_date', id_col, 'fuel_group', 'total_mmbtu']]
+    frc_df = frc_df[['report_date', 'plant_id_eia',
+                     'plant_id_pudl', 'fuel_group', 'total_mmbtu']]
 
     # Group by report_date(annual), plant_id, fuel_group
     frc_gb = frc_df.groupby(
