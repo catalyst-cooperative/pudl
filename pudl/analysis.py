@@ -305,13 +305,14 @@ def heat_rate(bga8, g9_summed, bf9_summed,
                                     'generator_id'])
     heat_rate_assn = heat_rate[heat_rate['complete_assn'] == True]
 
-    # Now, let's chuck the incorrect (lower than 5 mmBTU/MWh)
-    heat_rate = heat_rate[heat_rate['heat_rate_mmbtu_mwh'] >= 5]
-
     # Append heat rates for associated and unassociated
     heat_rate_all = heat_rate_assn.append(heat_rate_unassn)
     heat_rate_all.sort_values(
         by=[id_col, 'report_year', 'generator_id'], inplace=True)
+
+    # Now, let's chuck the incorrect (lower than 5 mmBTU/MWh)
+    heat_rate_all = heat_rate_all[heat_rate_all['heat_rate_mmbtu_mwh'] >= 5]
+
     return(heat_rate_all)
 
 
