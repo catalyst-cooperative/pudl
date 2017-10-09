@@ -62,6 +62,14 @@ def test_eia860_output():
     """Test output routines for tables from EIA Form 860."""
     pudl_engine = pudl.db_connect_pudl(testing=False)
 
+    print("Compiling EIA 860 Utilities table...")
+    utils_out = outputs.utilities_eia860(pudl_engine)
+    print("    {} records found".format(len(utils_out)))
+
+    print("Compiling EIA 860 Plants table...")
+    plants_out = outputs.plants_eia860(pudl_engine)
+    print("    {} records found".format(len(plants_out)))
+
     print("Compiling EIA 860 Generators table...")
     gens_out = outputs.generators_eia860(pudl_engine)
     print("    {} records found".format(len(gens_out)))
