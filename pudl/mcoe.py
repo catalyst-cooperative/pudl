@@ -1,18 +1,6 @@
 """A module with functions to aid generating MCOE."""
 
-# Useful high-level external modules.
-import numpy as np
-import pandas as pd
-import sqlalchemy as sa
-import matplotlib.pyplot as plt
-import itertools
-import random
-
-# Our own code...
-from pudl import pudl, ferc1, eia923, settings, constants
-from pudl import models, models_ferc1, models_eia923
-from pudl import clean_eia923, clean_ferc1, clean_pudl
-from pudl import outputs, analysis
+from pudl import constants, analysis
 
 # Data Pulls
 
@@ -75,7 +63,7 @@ def generators_pull_eia860(pudl_engine):
     return(g8_es)
 
 
-def fuel_reciept_costs_pull_eia923(pudl_engine):
+def fuel_reciepts_costs_pull_eia923(pudl_engine):
     # Convert the fuel_receipts_costs_eia923 table into a dataframe
     frc9 = analysis.simple_select_with_pudl_plant_id(
         'fuel_receipts_costs_eia923', pudl_engine)

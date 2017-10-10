@@ -67,6 +67,21 @@ def simple_select_with_pudl_plant_id(table_name, pudl_engine):
     Returns:
         DataFrame from table with PUDL IDs included
 
+    Comments from Zane:
+     - Renaming plant_id to plant_id_eia seems like a big decision. plant_id
+       is all over the place in our code as the EIA plant_id. If we want to
+       have source specific plant_id values, that seems reasonable, but we
+       should propagate it everywhere so we don't have to think about which
+       name that ID is currently using in any given context.
+     - We could also have a more general function which adds all the relevant
+       IDs and/or names based on the columns that exist in the input dataframe.
+       If there are FERC respondents, it would add a util_id_pudd column. If
+       there's a FERC respondent and a plant name, it would add a plant_id_pudl
+       column.  operator_id would also get a util_id_pudl column. plant_id
+       would get a plant_id_pudl column -- and could also find the associated
+       operator_id... etc.  Putting all that functionality in one function
+       would make it easier to update if/when the canonical location in the DB
+       that stores the ID and name information changes.
     """
 
     # Shorthand for readability... pt = PUDL Tables
@@ -132,6 +147,21 @@ def yearly_sum_eia(table,
                    sum_by,
                    columns=['plant_id_eia',
                             'report_year', 'generator_id']):
+    """
+    Comments from Zane:
+     - If we enforce a consistent report_year and report_date naming
+       convention in our database tables, then couldn't we eliminate
+       the need to pass in the date/year column here?  If there's a report_date
+       then we turn it into a report_year, and if there's a report_year, then
+       it's fine.
+     - Need to do some assert() checking to make sure we have a valid date or
+       year field... otherwise this function can't work.
+     - Is there any reason why this needs to be an EIA specific function?
+       If we're using report_year and report_date in the other data sources
+       could we make it work there as well?
+     - How did we end up converting things to integer years rather than using
+       the native time-based grouping functions?
+    """
     if 'report_date' in table.columns:
         table = table.set_index(pd.DatetimeIndex(table['report_date']).year)
         table.drop('report_date', axis=1, inplace=True)
@@ -202,9 +232,7 @@ def gens_with_bga(bga8, g9_summed, id_col='plant_id_eia'):
 
 def heat_rate(bga8, g9_summed, bf9_summed,
               bf9_plant_summed, pudl_engine, id_col='plant_id_eia'):
-    """
-    Generate hate rates for all EIA generators.
-    """
+    """Generate hate rates for all EIA generators."""
     # This section pulls the unassociated generators
     gens = gens_with_bga(bga8, g9_summed)
     # Get a list of generators from plants with unassociated plants
@@ -337,37 +365,6 @@ def capacity_factor(g9_summed, g8, id_col='plant_id_eia'):
                         >= 1.5, 'capacity_factor'] = np.nan
 
     return(capacity_factor)
-
-
-def fuel_cost(g9_summed, g8_es, frc9_summed, heat_rate, id_col='plant_id_eia'):
-    """Generate fuel cost for all EIA generators."""
-    # Merge generation table with the generator table to include energy_source
-    net_gen = g9_summed.merge(g8_es, how='left', on=[
-                              id_col, 'generator_id'])
-    # Merge this net_gen table with frc9_summed to have
-    # fuel_cost_per_mmbtu_total associated with generators
-    fuel_cost_per_mmbtu = net_gen.merge(frc9_summed,
-                                        how='left',
-                                        on=[id_col,
-                                            'report_date',
-                                            'energy_source'])
-
-    fuel_cost = fuel_cost_per_mmbtu.merge(heat_rate[[id_col,
-                                                     'report_date',
-                                                     'generator_id',
-                                                     'net_generation_mwh',
-                                                     'heat_rate_mmbtu_mwh']],
-                                          on=[id_col,
-                                              'report_date',
-                                              'generator_id',
-                                              'net_generation_mwh'])
-
-    # Calculate fuel cost per mwh using average fuel cost given year, plant,
-    # fuel type; divide by generator-specific heat rate
-    fuel_cost['fuel_cost_per_mwh'] = (fuel_cost['fuel_cost_per_mmbtu_average']
-                                      * fuel_cost['heat_rate_mmbtu_mwh'])
-
-    return(fuel_cost)
 
 
 def eia_operator_plants(operator_id, pudl_engine):
