@@ -7,8 +7,8 @@ costs reported to EIA, and non-fuel operating costs reported to FERC.  Much
 of what these functions do is attempt to correctly attribute data reported on a
 per plant basis to individual generators.
 
-This test module assumes that you have a working and up-to-date NON TEST PUDL
-database.
+For now, these calculations are only using the EIA fuel cost data. FERC Form 1
+non-fuel production costs have yet to be integrated.
 """
 import pytest
 from pudl import pudl, mcoe, analysis
@@ -19,7 +19,15 @@ from pudl import pudl, mcoe, analysis
 def test_mcoe_pulls_eia860(pudl_engine,
                            generators_pull_eia860,
                            boiler_generator_pull_eia860):
-    """Test MCOE data pull functions that use EIA860 data."""
+    """
+    Test MCOE data pull functions that use EIA860 data.
+
+    For now, the stuff being tested all happens int he fixtures, which are
+    the things that look like arguments to this function.  Ideally, we would
+    add some sanity checks that operate on those inputs in the body of the
+    test function below.
+    """
+    pass
 
 
 @pytest.mark.eia923
@@ -28,7 +36,15 @@ def test_mcoe_pulls_eia923(pudl_engine,
                            generation_pull_eia923,
                            fuel_receipts_costs_pull_eia923,
                            boiler_fuel_pull_eia923):
-    """Test MCOE data pull functions that use EIA923 data."""
+    """
+    Test MCOE data pull functions that use EIA923 data.
+
+    For now, the stuff being tested all happens int he fixtures, which are
+    the things that look like arguments to this function.  Ideally, we would
+    add some sanity checks that operate on those inputs in the body of the
+    test function below.
+    """
+    pass
 
 
 @pytest.mark.eia860
@@ -40,7 +56,7 @@ def test_mcoe_calcs(pudl_engine,
                     boiler_fuel_pull_eia923,
                     boiler_generator_pull_eia860,
                     generators_pull_eia860):
-    """Test MCOE data pull functions that use EIA923 data."""
+    """Run the MCOE fuel cost and heat rate calculations."""
     # We need to split these into individual values to pass them on
     (frc9_summed, frc9_summed_plant) = fuel_receipts_costs_pull_eia923
     (bf9_summed, bf9_plant_summed) = boiler_fuel_pull_eia923
