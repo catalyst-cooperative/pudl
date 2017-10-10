@@ -68,14 +68,15 @@ def simple_select_with_pudl_plant_id(table_name, pudl_engine):
         DataFrame from table with PUDL IDs included
 
     Comments from Zane:
-     - Renaming plant_id to plant_id_eia seems like a big decision. plant_id
-       is all over the place in our code as the EIA plant_id. If we want to
-       have source specific plant_id values, that seems reasonable, but we
-       should propagate it everywhere so we don't have to think about which
-       name that ID is currently using in any given context.
+     - Renaming plant_id to plant_id_eia seems like it might impact other
+       things downstream unexpectedly, since plant_id pretty ubiquitous
+       in our code as the EIA plant_id. It seems reasonable to want to
+       have source specific plant_id columns, but we might want to propagate it
+       everywhere so we don't have to think about which name that ID is
+       currently using in any given context.
      - We could also have a more general function which adds all the relevant
        IDs and/or names based on the columns that exist in the input dataframe.
-       If there are FERC respondents, it would add a util_id_pudd column. If
+       If there are FERC respondents, it would add a util_id_pudl column. If
        there's a FERC respondent and a plant name, it would add a plant_id_pudl
        column.  operator_id would also get a util_id_pudl column. plant_id
        would get a plant_id_pudl column -- and could also find the associated
@@ -143,24 +144,35 @@ def eia_pudl_plant_ids(pudl_engine):
     return(eia_plant_ids)
 
 
-def yearly_sum_eia(table,
-                   sum_by,
-                   columns=['plant_id_eia',
-                            'report_year', 'generator_id']):
+def yearly_sum_eia(table, sum_by, columns=['plant_id_eia',
+                                           'report_year', 'generator_id']):
     """
+    Group an input dataframe by serveral columns, and calculate annual sums.
+
+    The dataframe to group and sum is 'table'. The column to sum on an annual
+    basis is 'sum_by' and 'columns' is the set of fields to group the dataframe
+    by before summing.
+
+    The dataframe can start with either a report_year or report_date field. If
+    it's got a report_date, that's converted into an integer year field named
+    report_year.
+
     Comments from Zane:
-     - If we enforce a consistent report_year and report_date naming
-       convention in our database tables, then couldn't we eliminate
-       the need to pass in the date/year column here?  If there's a report_date
-       then we turn it into a report_year, and if there's a report_year, then
-       it's fine.
-     - Need to do some assert() checking to make sure we have a valid date or
-       year field... otherwise this function can't work.
-     - Is there any reason why this needs to be an EIA specific function?
-       If we're using report_year and report_date in the other data sources
-       could we make it work there as well?
-     - How did we end up converting things to integer years rather than using
+     - If we implement consistent report_year and report_date naming
+       convention in our database tables, then I think we could eliminate
+       the need to pass in a date/year column? If there's a report_date
+       then we'd turn it into a report_year, and if there's a report_year, then
+       it's ready to go.
+     - Might want to do some assert() checking to make sure we have a valid
+       date or year field in the dataframe that's passed in.
+     - Does this need to be an EIA specific function? If we're using the same
+       report_year and report_date convention in other data sources could we
+       make it work for them as well?
+     - Why did we end up converting things to integer years rather than using
        the native time-based grouping functions?
+     - Calling the input 'table' seems a little confusing, since there are
+       also database table objects & definitions floating around, and in this
+       case the input type is a dataframe.
     """
     if 'report_date' in table.columns:
         table = table.set_index(pd.DatetimeIndex(table['report_date']).year)
