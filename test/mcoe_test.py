@@ -11,7 +11,7 @@ For now, these calculations are only using the EIA fuel cost data. FERC Form 1
 non-fuel production costs have yet to be integrated.
 """
 import pytest
-from pudl import pudl, mcoe, analysis
+from pudl import pudl, mcoe
 
 
 @pytest.mark.eia860
@@ -62,10 +62,10 @@ def test_mcoe_calcs(pudl_engine,
     (bf9_summed, bf9_plant_summed) = boiler_fuel_pull_eia923
 
     print("Calculating per-generator heat rates for MCOE...")
-    heat_rate = analysis.heat_rate(boiler_generator_pull_eia860,
-                                   generation_pull_eia923,
-                                   bf9_summed, bf9_plant_summed,
-                                   pudl_engine)
+    heat_rate = mcoe.heat_rate(boiler_generator_pull_eia860,
+                               generation_pull_eia923,
+                               bf9_summed, bf9_plant_summed,
+                               pudl_engine)
 
     print("Calculating per-generator fuel costs for MCOE...")
     fuel_cost = mcoe.fuel_cost(generators_pull_eia860,
