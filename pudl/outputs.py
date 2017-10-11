@@ -186,6 +186,7 @@ def plants_utils_ferc1(pudl_engine):
 ###############################################################################
 ###############################################################################
 def utilities_eia860(pudl_engine):
+    """Pull all fields from the EIA860 Utilities table."""
     utils_eia860_tbl = pt['utilities_eia860']
     utils_eia860_select = sa.sql.select([utils_eia860_tbl])
     utils_eia860_df = pd.read_sql(utils_eia860_select, pudl_engine)
@@ -213,6 +214,7 @@ def utilities_eia860(pudl_engine):
 
 
 def plants_eia860(pudl_engine):
+    """Pull all fields from the EIA860 Plants table."""
     plants_eia860_tbl = pt['plants_eia860']
     plants_eia860_select = sa.sql.select([plants_eia860_tbl])
     plants_eia860_df = pd.read_sql(plants_eia860_select, pudl_engine)
