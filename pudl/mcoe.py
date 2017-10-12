@@ -471,8 +471,9 @@ def heat_rate(bga8, g9_summed, bf9_summed,
     # Assign heat rates to generators across the plants with unassociated
     # generators
     heat_rate_unassn = gens_unassn_plants.merge(
-        unassn_plants[[id_col, 'report_year', 'heat_rate_mmbtu_mwh']],
-        on=[id_col, 'report_year'],
+        unassn_plants[[id_col, 'report_year',
+                       'heat_rate_mmbtu_mwh']],
+        on=['plant_id_eia', 'plant_id_pudl', 'report_year'],
         how='left')
     heat_rate_unassn.drop(
         ['boiler_id', 'boiler_generator_assn'], axis=1, inplace=True)
@@ -481,7 +482,7 @@ def heat_rate(bga8, g9_summed, bf9_summed,
     # the plants that have any generators that are included in
     # the boiler generator association table (860)
     generation_w_boilers = g9_summed.merge(
-        bga8, how='left', on=[id_col, 'generator_id'])
+        bga8, how='left', on=['plant_id_eia', 'plant_id_pudl', 'generator_id'])
 
     # get net generation per boiler
     gb1 = generation_w_boilers.groupby(
@@ -509,7 +510,9 @@ def heat_rate(bga8, g9_summed, bf9_summed,
                                               'report_year',
                                               'boiler_id'])
 
-    bg = bf9_summed.merge(bga8, how='left', on=[id_col, 'boiler_id'])
+    bg = bf9_summed.merge(bga8, how='left', on=['plant_id_eia',
+                                                'plant_id_pudl',
+                                                'boiler_id'])
     bg = bg.merge(generation_w_boilers_summed, how='left', on=[
                   id_col, 'report_year', 'boiler_id', 'generator_id'])
 
@@ -539,7 +542,8 @@ def heat_rate(bga8, g9_summed, bf9_summed,
 
     # Importing the plant association tag to filter out the
     # generators that are a part of plants that aren't in the bga table
-    heat_rate = heat_rate.merge(gens[[id_col,
+    heat_rate = heat_rate.merge(gens[['plant_id_eia',
+                                      'plant_id_pudl',
                                       'report_year',
                                       'generator_id',
                                       'complete_assn',
