@@ -185,7 +185,7 @@ def capacity_factor(g9_summed, g8, id_col='plant_id_eia'):
     capacity_factor = g9_summed.merge(g8,
                                       on=[id_col,
                                           'generator_id',
-                                          'report_date'])
+                                          'report_year'])
     capacity_factor['capacity_factor'] = \
         capacity_factor['net_generation_mwh'] / \
         (capacity_factor['nameplate_capacity_mw'] * 8760)
@@ -831,7 +831,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
     return(heat_pivot)
 
 
-def primary_fuel_gf_eia923(gf_df, fuel_thresh=0.5):
+def primary_fuel_gf_eia923(gf_df, id_col='plant_id_eia', fuel_thresh=0.5):
     """Determine a plant's primary fuel from EIA923 generation fuel table."""
     gf_df = gf_df.copy()
 
@@ -842,7 +842,7 @@ def primary_fuel_gf_eia923(gf_df, fuel_thresh=0.5):
     # contribution to the plant's overall heat content consumed. If that
     # proportion is greater than fuel_thresh, set the primary_fuel to be
     # that fuel.  Otherwise, leave it None.
-    gf_by_heat = gf_by_heat.set_index(['plant_id', 'year'])
+    gf_by_heat = gf_by_heat.set_index([id_col, 'report_year'])
     mask = gf_by_heat >= fuel_thresh
     gf_by_heat = gf_by_heat.where(mask)
     gf_by_heat['primary_fuel'] = gf_by_heat.idxmax(axis=1)
