@@ -17,7 +17,10 @@ def generation_pull_eia923(pudl_engine):
     g9 = analysis.simple_select('generation_eia923', pudl_engine)
 
     # Get yearly net generation by plant_id, year and generator_id
-    g9_summed = analysis.yearly_sum_eia(g9, 'net_generation_mwh')
+    g9_summed = analysis.yearly_sum_eia(g9, 'net_generation_mwh',
+                                        columns=['report_year', 'plant_id_eia',
+                                                 'plant_id_pudl',
+                                                 'generator_id'])
     g9_summed.reset_index(inplace=True)
 
     return(g9_summed)
@@ -529,6 +532,11 @@ def heat_rate(bga8, g9_summed, bf9_summed,
     # Now, let's chuck the incorrect (lower than 5 mmBTU/MWh)
     heat_rate_all = heat_rate_all[heat_rate_all['heat_rate_mmbtu_mwh'] >= 5]
 
+    # if 'plant_id_pudl_x' in heat_rate_all.columns:
+    #     heat_rate_all.drop('plant_id_pudl_x', axis=1, inplace=True)
+    # if 'plant_id_pudl_y' in heat_rate_all.columns:
+    #     heat_rate_all.drop('plant_id_pudl_y', axis=1, inplace=True)
+
     return(heat_rate_all)
 
 
@@ -642,11 +650,6 @@ def heat_rate(bga8, g9_summed, bf9_summed,
     heat_rate_all = heat_rate_assn.append(heat_rate_unassn)
     heat_rate_all.sort_values(
         by=[id_col, 'report_year', 'generator_id'], inplace=True)
-
-    if 'plant_id_pudl_x' in heat_rate_all.columns:
-        heat_rate_all.drop('plant_id_pudl_x', axis=1, inplace=True)
-    if 'plant_id_pudl_y' in heat_rate_all.columns:
-        heat_rate_all.drop('plant_id_pudl_y', axis=1, inplace=True)
 
     return(heat_rate_all)
 
