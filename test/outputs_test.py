@@ -11,10 +11,11 @@ import pytest
 from pudl import pudl, outputs
 
 
-def test_ferc1_output():
+@pytest.mark.ferc1
+@pytest.mark.tabular_output
+@pytest.mark.post_etl
+def test_ferc1_output(pudl_engine):
     """Test output routines for tables from FERC Form 1."""
-    pudl_engine = pudl.db_connect_pudl(testing=False)
-
     print("Compiling FERC Form 1 Plants & Utilities table...")
     pu_ferc = outputs.plants_utils_ferc1(pudl_engine)
     print("    {} records found.".format(len(pu_ferc)))
@@ -28,19 +29,22 @@ def test_ferc1_output():
     print("    {} records found.".format(len(steam_out)))
 
 
-def test_eia_output():
+@pytest.mark.tabular_output
+@pytest.mark.eia923
+@pytest.mark.eia860
+@pytest.mark.post_etl
+def test_eia_output(pudl_engine):
     """Test output routines for tables from across EIA data sources."""
-    pudl_engine = pudl.db_connect_pudl(testing=False)
-
     print("Compiling EIA Plants & Utilities table...")
     pu_eia = outputs.plants_utils_eia(pudl_engine)
     print("    {} records found.".format(len(pu_eia)))
 
 
-def test_eia923_output():
+@pytest.mark.tabular_output
+@pytest.mark.eia923
+@pytest.mark.post_etl
+def test_eia923_output(pudl_engine):
     """Test output routines for tables from EIA Form 923."""
-    pudl_engine = pudl.db_connect_pudl(testing=False)
-
     print("Compiling EIA 923 Fuel Receipts & Costs table...")
     frc_out = outputs.fuel_receipts_costs_eia923(pudl_engine)
     print("    {} records found.".format(len(frc_out)))
@@ -58,10 +62,11 @@ def test_eia923_output():
     print("    {} records found".format(len(g_out)))
 
 
-def test_eia860_output():
+@pytest.mark.tabular_output
+@pytest.mark.eia860
+@pytest.mark.post_etl
+def test_eia860_output(pudl_engine):
     """Test output routines for tables from EIA Form 860."""
-    pudl_engine = pudl.db_connect_pudl(testing=False)
-
     print("Compiling EIA 860 Utilities table...")
     utils_out = outputs.utilities_eia860(pudl_engine)
     print("    {} records found".format(len(utils_out)))

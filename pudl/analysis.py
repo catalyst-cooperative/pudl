@@ -58,9 +58,7 @@ def simple_select(table_name, pudl_engine):
 
 
 def simple_ferc1_plant_ids(pudl_engine):
-    """
-    Generate a list of all the PUDL plant IDs which map to a single FERC plant.
-    """
+    """Generate list of all PUDL plant IDs which map to a single FERC plant."""
     ferc1_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_ferc''',
                                   pudl_engine)
     ferc1_simple_plant_ids = ferc1_plant_ids.drop_duplicates('plant_id_pudl',
@@ -69,9 +67,7 @@ def simple_ferc1_plant_ids(pudl_engine):
 
 
 def simple_eia_plant_ids(pudl_engine):
-    """
-    Generate a list of all the PUDL plant IDs which map to a single EIA plant.
-    """
+    """Generate list of all PUDL plant IDs which map to a single EIA plant."""
     eia_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_eia''',
                                 pudl_engine)
     eia_simple_plant_ids = eia_plant_ids.drop_duplicates('plant_id_pudl',
@@ -80,9 +76,7 @@ def simple_eia_plant_ids(pudl_engine):
 
 
 def simple_pudl_plant_ids(pudl_engine):
-    """
-    Get all PUDL plant IDs that map to a single EIA and a single FERC plant ID.
-    """
+    """Get all PUDL plant IDs that map to single EIA & single FERC plant ID."""
     ferc1_simple = simple_ferc1_plant_ids(pudl_engine)
     eia_simple = simple_eia_plant_ids(pudl_engine)
     pudl_simple = np.intersect1d(ferc1_simple['plant_id_pudl'],
@@ -115,10 +109,38 @@ def eia_pudl_plant_ids(pudl_engine):
     return(eia_plant_ids)
 
 
-def yearly_sum_eia(table,
-                   sum_by,
-                   columns=['plant_id_eia', 'plant_id_pudl',
-                            'report_year', 'generator_id']):
+def yearly_sum_eia(table, sum_by, columns=['plant_id_eia',
+                                           'report_year', 'generator_id']):
+    """
+    Group an input dataframe by serveral columns, and calculate annual sums.
+
+    The dataframe to group and sum is 'table'. The column to sum on an annual
+    basis is 'sum_by' and 'columns' is the set of fields to group the dataframe
+    by before summing.
+
+    The dataframe can start with either a report_year or report_date field. If
+    it's got a report_date, that's converted into an integer year field named
+    report_year.
+
+    Comments from Zane:
+     - If we implement consistent report_year and report_date naming
+       convention in our database tables, then I think we could eliminate
+       the need to pass in a date/year column? If there's a report_date
+       then we'd turn it into a report_year, and if there's a report_year, then
+       it's ready to go.
+     - Might want to do some assert() checking to make sure we have a valid
+       date or year field in the dataframe that's passed in.
+     - Does this need to be an EIA specific function? If we're using the same
+       report_year and report_date convention in other data sources could we
+       make it work for them as well?
+     - Why did we end up converting things to integer years rather than using
+       the native time-based grouping functions?
+     - Calling the input 'table' seems a little confusing, since there are
+       also database table objects & definitions floating around, and in this
+       case the input type is a dataframe.
+     - More concise way to swap a report_date for report_year column:
+       df['report_year'] = pd.to_datetime(df['report_date']).dt.year
+    """
     if 'report_date' in table.columns:
         table = table.set_index(pd.DatetimeIndex(table['report_date']).year)
         table.drop('report_date', axis=1, inplace=True)
@@ -128,70 +150,8 @@ def yearly_sum_eia(table,
     return(gb.agg({sum_by: np.sum}))
 
 
-def gens_with_bga(bga8, g9_summed, id_col='plant_id_eia'):
-    """
-    Label EIA generators with boiler generator association.
-
-    Because there are missing generators in the bga table, without lumping all
-    of the heat input and generation from these plants together, the heat rates
-    were off. The vast majority of missing generators from the bga table seem
-    to be the gas tubrine from combine cycle plants. This was generating heat
-    rates for the steam generators alone, therefor much too low.
-    """
-    # All cenerators from the Boiler Generator Association table (860)
-    gens8 = bga8.drop_duplicates(subset=[id_col, 'generator_id'])
-    # All cenerators from the generation table (923)/
-    gens9 = g9_summed.drop_duplicates(
-        subset=[id_col, 'generator_id', 'report_year'])
-
-    # See which generators are missing from the bga table
-    gens = gens9.merge(
-        gens8, on=['plant_id_eia', 'plant_id_pudl', 'generator_id'], how="left")
-    gens.boiler_id = gens.boiler_id.astype(str)
-    gens['boiler_generator_assn'] = np.where(
-        gens['boiler_id'] == 'nan', False, True)
-
-    # Create a list of plants that include any generators that are not in the
-    # bga table
-    unassociated_plants = gens[gens['boiler_generator_assn'] == False].\
-        drop_duplicates(subset=[id_col, 'report_year']).\
-        drop(['generator_id', 'net_generation_mwh',
-              'boiler_id', 'boiler_generator_assn'], axis=1)
-    unassociated_plants['plant_assn'] = False
-
-    # Using these unassociated_plants, lable all the generators that
-    # are a part of plants that have generators that are not included
-    # in the bga table
-    gens = gens.merge(unassociated_plants, on=[
-                      'plant_id_eia', 'plant_id_pudl', 'report_year'], how='left')
-    gens['plant_assn'] = gens.plant_assn.fillna(value=True)
-
-    # Using the associtated plants, extract the generator/boiler combos
-    # that represent complete plants at any time to preserve
-    # associations (i.e. if a coal plant had its boilers and generators
-    # fully associated in the bga table in 2011 and then adds a
-    # combined cycle plant the coal boiler/gen combo will be saved).
-    gens_complete = gens[['plant_id_eia', 'plant_id_pudl', 'generator_id',
-                          'boiler_id', 'boiler_generator_assn', 'plant_assn']]
-    gens_complete = \
-        gens_complete[gens_complete['plant_assn'] == True].\
-        drop_duplicates(subset=[id_col, 'generator_id', 'boiler_id'])
-    gens_complete['complete_assn'] = True
-    gens = gens.merge(gens_complete[['plant_id_eia', 'plant_id_pudl',
-                                     'generator_id',
-                                     'boiler_id',
-                                     'complete_assn']],
-                      how='left',
-                      on=['plant_id_eia', 'plant_id_pudl', 'generator_id', 'boiler_id'])
-    gens['complete_assn'] = gens.complete_assn.fillna(value=False)
-
-    return(gens)
-
-
 def capacity_factor(g9_summed, g8, id_col='plant_id_eia'):
-    """
-    Generate capacity facotrs for all EIA generators.
-    """
+    """Generate capacity facotrs for all EIA generators."""
     # merge the generation and capacity to calculate capacity fazctor
     # plant_id should be specified as either plant_id_eia or plant_id_pudl
     capacity_factor = g9_summed.merge(g8,

@@ -55,6 +55,48 @@ def organize_cols(df, cols):
     return(out_df)
 
 
+def add_id_cols(df):
+    """
+    Merge in additional commonly useful columns, based on dataframe contents.
+
+    We constantly merge in additional Utility, Plant, and Generator columns
+    from elsewhere in the database for output. This function automates that
+    process, based on the columns which are present in the input dataframe.
+
+    Within EIA at least, a generator_id + plant_id + report_year implies a
+    given plant, and a plant_id + a report_year implies an operator_id. So
+    when those lower level ids are included in the table, we can
+    automatically merge in the associated lower level entities.
+
+    Having all of these IDs and names integrated into each of these tables
+    allows them to be easily joined with other tables so additional columns
+    can be pulled in if needed.
+
+    Utilities:
+        - if 'operator_id' pull in:
+            - 'operator_name' (from utilities_eia)
+            - 'util_id_pudl' (from utilities_eia)
+        - if 'respondent_id' pull in:
+            - 'respondent_name'
+
+    Plants:
+        - if 'plant_id' pull in:
+            - 'plant_name' (from plants_eia)
+            - 'plant_id_pudl' (from plants_eia)
+        - if 'plant_id' and 'report_year' or 'report_date' also pull in:
+            - 'operator_id' (from plants_eia860)
+            - 'operator_name' (from utilities_eia)
+            - 'util_id_pudl' (from utilities_eia)
+
+    Generators:
+        - if 'generator_id' and 'plant_id' pull in:
+            - 'plant_name' (from generators_eia860)
+            - 'plant_id_pudl' (from plants_eia)
+        - if 'plant_id' and ''
+    """
+    pass
+
+
 ###############################################################################
 ###############################################################################
 #   Cross datasource output (e.g. EIA923 + EIA860, PUDL specific IDs)
@@ -144,6 +186,7 @@ def plants_utils_ferc1(pudl_engine):
 ###############################################################################
 ###############################################################################
 def utilities_eia860(pudl_engine):
+    """Pull all fields from the EIA860 Utilities table."""
     utils_eia860_tbl = pt['utilities_eia860']
     utils_eia860_select = sa.sql.select([utils_eia860_tbl])
     utils_eia860_df = pd.read_sql(utils_eia860_select, pudl_engine)
@@ -171,6 +214,7 @@ def utilities_eia860(pudl_engine):
 
 
 def plants_eia860(pudl_engine):
+    """Pull all fields from the EIA860 Plants table."""
     plants_eia860_tbl = pt['plants_eia860']
     plants_eia860_select = sa.sql.select([plants_eia860_tbl])
     plants_eia860_df = pd.read_sql(plants_eia860_select, pudl_engine)
@@ -495,6 +539,11 @@ def boiler_fuel_eia923(pudl_engine):
 
     out_df = pd.merge(bf_df, pu_eia, how='left', on=['plant_id',
                                                      'report_year'])
+
+    # It's often useful to know total heat content consumed by each boiler:
+    out_df['total_heat_content_mmbtu'] = out_df['fuel_qty_consumed'] * \
+        out_df['fuel_mmbtu_per_unit']
+
     out_df = out_df.drop(['report_year', 'id'], axis=1)
 
     out_df = out_df.dropna(subset=[

@@ -7,12 +7,11 @@ datasets related to plant operating expenses). However, in some cases, there
 are quantities which are reported in both sets of data (e.g. net electricity
 generation and heat content of fuel consumed). The correlations between those
 reported data can potentially be used to associate the other independent
-information in the two datasets with each other, if the search space for
-matching the two sets of data series is sufficiently constrained. This module
-provides a generalized tool for creating this association, when there's a
-shared set of IDs in both data sets that narrows the number of potential
-matches down enough that an exhausive attempt at correlating the series is
-computationally tractable.
+information in the two datasets with each other, if the search space for is
+sufficiently constrained. This module provides a generalized tool for creating
+these associations when there's a shared set of IDs in both data sets that
+narrows the number of potential matches down enough that an exhausive attempt
+at correlating the series is computationally tractable.
 
 How does this work in the particular case of FERC & EIA data?
 
@@ -78,9 +77,7 @@ import itertools
 import random
 
 # Our own code...
-from pudl import pudl, ferc1, eia923, settings, constants
-from pudl import models, models_ferc1, models_eia923
-from pudl import clean_eia923, clean_ferc1, clean_pudl
+from pudl import pudl, eia923, settings, constants
 from pudl import outputs
 
 

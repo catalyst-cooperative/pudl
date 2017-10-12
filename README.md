@@ -13,20 +13,26 @@ For more information, get in touch with:
 
 ---
 # Project Status
-As of v0.1, the data which have been integrated into the PUDL database include:
+As of October, 2017 the data which have been integrated into the PUDL database include:
 
 ## FERC Form 1
 A subset of the FERC Form 1 data, mostly pertaining to power plants, their
 capital & operating expenses, and fuel consumption. This data is available for
-the years 2007-2015. Earlier data is available from FERC, but the structure of
-their database differs from the present version somewhat before 2007, and so
-more work will be required to integrate that information.
+the years 2004-2016. Earlier data is available from FERC, but the structure of
+their database differs slightly from the present version somewhat before 2004,
+and so more work will be required to integrate that information.
 
 ## EIA Form 923
 Nearly all of EIA Form 923 is being pulled into the PUDL database, for years
 2009-2016. Earlier data is available from EIA, but the reporting format for
 earlier years is substantially different from the present day, and will require
 more work to integrate.
+
+## EIA Form 860
+Nearly all of the data reported to the EIA on Form 860 is being pulled into the
+PUDL database, for the years 2011-2015 (2016 data should be out in November of
+2017). Earlier years use a different reporting format, and will require more
+work to integrate.
 
 ---
 # Project Layout
@@ -53,19 +59,19 @@ example, the FERC Form 1 data from 2014 would be found in
 `./data/eia/form923/f923_2010`. The year-by-year directory structure is
 determined by the reporting agency, based on what is provided for download.
 
-The data itself is too large to conveniently be stored within the git
-repository, but several shell scripts (e.g. `./data/eia/form923/get_eia923.sh`) are provided to automatically download
-the data form the federal agencies and re-organize the directory hierarchy
-to be compatible with the PUDL modules. These scripts also set the permissions
-on the downloaded data to read only, to prevent it from being corrupted or
-edited by the user accidentally.
+The data itself is too large to be conveniently stored within the git
+repository, so we have a script (`./scripts/update_datastore.py`) that can
+pull down the most recent version of all the data that's needed to build the
+PUDL database, and organize it so that the software knows where to find it.
+Run `python ./scripts/update_datastore.py --help` for more info.
 
 ## docs/
-Documentation related to the data sources or our results, preferably in text
-format if we're creating them, and under revision control. Other files that
-help explain the data sources are also stored under here, in a hierarchy
-similar to the data store.  E.g. a blank copy of the FERC Form 1 is available
-in `./docs/ferc/form1/` as a PDF.
+Documentation related to the data sources, our results, and how to go about
+getting the PUDL database up and running on your machine. We try to keep these
+in text or Jupyter notebook form. Other files that help explain the data
+sources are also stored under here, in a hierarchy similar to the data store.
+E.g. a blank copy of the FERC Form 1 is available in `./docs/ferc/form1/` as a
+PDF.
 
 ## pudl/
 The PUDL python package, where all of our actual code ends up.  Each data
@@ -83,6 +89,24 @@ many functions specific to ingesting the tables specific to particular data
 sources.  Those ingest functions will likely be moved to their own source
 specific modules in a future release.
 
+We are beginning to accumulate analytical functionality in additional modules.
+`./pudl/analysis.py` is a staging area where new analysis functions go before
+getting organized into their own thematic modules like `./pudl/outputs.py`
+which generates some useful tabular outputs for folks who would like to work
+with CSV files, or `./pudl/mcoe.py` which calculates the marginal cost of
+electricity by generator for every power plant in the US which reports to EIA
+and FERC.
+
+### Other miscellaneous bits:
+ - `./pudl/settings.py` contains global settings for things like connecting to
+   the postgres database, and a few paths to resources within the repository.
+
+ - `./pudl/constants.py` stores a variety of static data for loading, like the
+   mapping of FERC Form 1 line numbers to FERC account numbers in the plant in
+   service table, or the mapping of EIA923 spreadsheet columns to database
+   column names over the years, or the list of codes describing fuel types in
+   EIA923.
+
 ## results/
 The results directory contains derived data products. These are outputs from
 our manipulation and combination of the original data, that are necessary for
@@ -94,23 +118,22 @@ presenting various data processing or analysis tasks, such as pulling the
 required IDs from the cloned FERC database to use in matching up plants and
 utilities between FERC and EIA datasets.
 
+## scripts/
+A collection of command line tools written in Python and used for high level
+management of the PUDL database system, e.g. the initial download of and
+ongoing updates to the datastore, and the initialization of your local
+copy of the PUDL database.  These scripts are generally meant to be run from
+within the `./scripts` directory, and should all have built-in Documentation
+as to their usage. Run `python script_name.py --help` to for more information.
+
 ## test/
-The test directory holds test cases which are run with `pytest`.  Each data
-source has its own test cases (e.g. `./test/test_eia923.py`) which exercises
-the routines required to prepare that data source for loading into PUDL. The
-loading of all data sources which ought to be functional can be tested using
-`./test/test_pudl.py` by calling `pytest -s test/test_pudl.py`. As of v0.1
-the full PUDL test takes about 20 minutes to run.  After the tests have been
-run the test database is deleted.
+The test directory holds test cases which are run with `pytest`. To run a
+complete suite of tests that ingests all of the available and working data,
+and performs some post-ingest analysis, you simply run `pytest` from the top
+level PUDL directory. You can choose to run the post-analysis tests using an
+existing, live (rather than test) database by adding `--live_pudl_db` and
+`--live_ferc_db` to the command line. Populating the test database from
+scratch can take ~20 minutes. After the tests have completed, the test
+database is dropped. See `pytest --help` for more information.
 
-More information on pytest can be found at: http://docs.pytest.org/en/latest/
-
-## Other miscellaneous bits:
- - `settings.py` contains global settings for things like connecting to the
- postgres database, and a few paths to resources within the repository.
- - `constants.py` stores a variety of static data for loading, like the mapping
- of FERC Form 1 line numbers to FERC account numbers in the plant in service
- table, or the mapping of EIA923 spreadsheet columns to database column names
- over the years, or the list of codes describing fuel types in EIA923.
- - `init_pudl.py` is a command line program that can be used to load the
- currently available PUDL data into a live database for use.
+More information on PyTest can be found at: http://docs.pytest.org/en/latest/

@@ -149,7 +149,7 @@ def ingest_static_tables(engine):
     all_years = [year for list_of_years in pc.data_years.values()
                  for year in list_of_years]
     pudl_session.add_all([models.Year(year=yr) for yr in range(min(all_years),
-                         max(all_years)+1)])
+                                                               max(all_years) + 1)])
 
     pudl_session.add_all([models.CensusRegion(abbr=k, name=v)
                           for k, v in pc.census_region.items()])
@@ -1923,7 +1923,9 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
             eia923_years=pc.eia923_working_years,
             eia860_tables=pc.eia860_pudl_tables,
             eia860_years=pc.eia860_working_years,
-            verbose=True, debug=False, testing=False,
+            verbose=True, debug=False,
+            pudl_testing=False,
+            ferc1_testing=False,
             csvdir=os.path.join(settings.PUDL_DIR, 'results', 'csvdump'),
             keep_csv=True):
     """
@@ -1957,7 +1959,7 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
             assert(table in pc.eia923_pudl_tables)
 
     # Connect to the PUDL DB, wipe out & re-create tables:
-    pudl_engine = db_connect_pudl(testing=testing)
+    pudl_engine = db_connect_pudl(testing=pudl_testing)
     drop_tables_pudl(pudl_engine)
     create_tables_pudl(pudl_engine)
     # Populate all the static tables:
@@ -1972,16 +1974,16 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
     ingest_ferc1(pudl_engine,
                  ferc1_tables=ferc1_tables,
                  ferc1_years=ferc1_years,
-                 verbose=verbose, debug=debug, testing=testing)
+                 verbose=verbose, debug=debug, testing=ferc1_testing)
 
     ingest_eia860(pudl_engine,
                   eia860_tables=eia860_tables,
                   eia860_years=eia860_years,
-                  verbose=verbose, debug=debug, testing=testing,
+                  verbose=verbose, debug=debug, testing=pudl_testing,
                   csvdir=csvdir, keep_csv=keep_csv)
 
     ingest_eia923(pudl_engine,
                   eia923_tables=eia923_tables,
                   eia923_years=eia923_years,
-                  verbose=verbose, debug=debug, testing=testing,
+                  verbose=verbose, debug=debug, testing=pudl_testing,
                   csvdir=csvdir, keep_csv=keep_csv)
