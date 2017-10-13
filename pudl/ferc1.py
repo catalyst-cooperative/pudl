@@ -229,8 +229,8 @@ def define_db(refyear, ferc1_tables, ferc1_meta, verbose=True):
 
 
 def init_db(ferc1_tables=pc.ferc1_default_tables,
-            refyear=max(pc.ferc1_working_years),
-            years=pc.ferc1_working_years,
+            refyear=max(pc.working_years['ferc1']),
+            years=pc.working_years['ferc1'],
             def_db=True,
             verbose=True,
             testing=False):

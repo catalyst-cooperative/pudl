@@ -29,7 +29,7 @@ def datadir(year):
     """
     # These are the only years we've got...
     assert year in range(min(pc.data_years['eia860']),
-                         max(pc.data_years['eia860'])+1)
+                         max(pc.data_years['eia860']) + 1)
     return(os.path.join(settings.EIA860_DATA_DIR,
                         'eia860{}'.format(year)))
 
@@ -182,7 +182,7 @@ def get_eia860_page(page, eia860_xlsx,
 
 
 def create_dfs_eia860(files=pc.files_eia860,
-                      eia860_years=pc.eia860_working_years,
+                      eia860_years=pc.working_years['eia860'],
                       verbose=True):
     """
     Create a dictionary of pages (keys) to dataframes (values) from eia860

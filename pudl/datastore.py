@@ -25,9 +25,13 @@ def source_url(source, year):
     Args:
         source (str): A string indicating which data source we are going to be
             downloading. Currently it must be one of the following:
-            - 'ferc1'
-            - 'eia923'
             - 'eia860'
+            - 'eia861'
+            - 'eia923'
+            - 'ferc1'
+            - 'mshamines'
+            - 'mshaops'
+            - 'mshaprod'
         year (int): the year for which data should be downloaded. Must be
             within the range of valid data years, which is specified for
             each data source in the pudl.constants module.
@@ -46,16 +50,28 @@ def source_url(source, year):
 
     base_url = pc.base_data_urls[source]
 
-    if (source == 'ferc1'):
-        download_url = '{}/f1_{}.zip'.format(base_url, year)
+    if (source == 'eia860'):
+        download_url = '{}/eia860{}.zip'.format(base_url, year)
+    elif (source == 'eia861'):
+        if (year < 2012):
+            # Before 2012 they used 2 digit years. Y2K12 FTW!
+            download_url = '{}/f861{}.zip'.format(base_url, str(year)[2:])
+        else:
+            download_url = '{}/f861{}.zip'.format(base_url, year)
     elif (source == 'eia923'):
         if(year < 2008):
             prefix = 'f906920_'
         else:
             prefix = 'f923_'
         download_url = '{}/{}{}.zip'.format(base_url, prefix, year)
-    elif (source == 'eia860'):
-        download_url = '{}/eia860{}.zip'.format(base_url, year)
+    elif (source == 'ferc1'):
+        download_url = '{}/f1_{}.zip'.format(base_url, year)
+    elif (source == 'mshamines'):
+        download_url = '{}/Mines.zip'.format(base_url)
+    elif (source == 'mshaops'):
+        download_url = '{}/ControllerOperatorHistory.zip'.format(base_url)
+    elif (source == 'mshaprod'):
+        download_url = '{}/MinesProdQuarterly.zip'.format(base_url)
     # elif (source == 'epacems'):
     # We have not yet implemented downloading of EPA CEMS data.
     else:
@@ -109,14 +125,14 @@ def path(source, year=0, file=True, datadir=settings.DATA_DIR):
         assert year != 0, \
             "Non-zero year required to generate full datastore file path."
 
-    if (source == 'ferc1'):
-        dstore_path = os.path.join(datadir, 'ferc', 'form1')
-        if(year != 0):
-            dstore_path = os.path.join(dstore_path, 'f1_{}'.format(year))
-    elif (source == 'eia860'):
+    if (source == 'eia860'):
         dstore_path = os.path.join(datadir, 'eia', 'form860')
         if(year != 0):
             dstore_path = os.path.join(dstore_path, 'eia860{}'.format(year))
+    elif (source == 'eia861'):
+        dstore_path = os.path.join(datadir, 'eia', 'form861')
+        if(year != 0):
+            dstore_path = os.path.join(dstore_path, 'eia861{}'.format(year))
     elif (source == 'eia923'):
         dstore_path = os.path.join(datadir, 'eia', 'form923')
         if(year != 0):
@@ -126,6 +142,23 @@ def path(source, year=0, file=True, datadir=settings.DATA_DIR):
                 prefix = 'f923_'
             dstore_path = os.path.join(dstore_path,
                                        '{}{}'.format(prefix, year))
+    elif (source == 'ferc1'):
+        dstore_path = os.path.join(datadir, 'ferc', 'form1')
+        if(year != 0):
+            dstore_path = os.path.join(dstore_path, 'f1_{}'.format(year))
+    elif (source == 'mshamines' and file):
+        dstore_path = os.path.join(datadir, 'msha')
+        if(year != 0):
+            dstore_path = os.path.join(dstore_path, 'Mines.zip')
+    elif (source == 'mshaops'):
+        dstore_path = os.path.join(datadir, 'msha')
+        if(year != 0 and file):
+            dstore_path = os.path.join(dstore_path,
+                                       'ControllerOperatorHistory.zip')
+    elif (source == 'mshaprod' and file):
+        dstore_path = os.path.join(datadir, 'msha')
+        if(year != 0):
+            dstore_path = os.path.join(dstore_path, 'MinesProdQuarterly.zip')
     # elif (source == 'epacems'):
     # We have not yet implemented downloading of EPA CEMS data.
     else:
@@ -137,9 +170,10 @@ def path(source, year=0, file=True, datadir=settings.DATA_DIR):
     # an original data source is downloaded to be the same as the basename
     # of the file itself...
     if(file):
-        dstore_path = \
-            os.path.join(dstore_path,
-                         '{}.zip'.format(os.path.basename(dstore_path)))
+        if source not in ['mshamines', 'mshaops', 'mshaprod']:
+            dstore_path = \
+                os.path.join(dstore_path,
+                             '{}.zip'.format(os.path.basename(dstore_path)))
 
     return(dstore_path)
 
