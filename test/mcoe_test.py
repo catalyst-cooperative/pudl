@@ -16,6 +16,7 @@ from pudl import pudl, mcoe
 
 @pytest.mark.eia860
 @pytest.mark.post_etl
+@pytest.mark.mcoe
 def test_mcoe_pulls_eia860(pudl_engine,
                            generators_pull_eia860,
                            boiler_generator_pull_eia860):
@@ -32,6 +33,7 @@ def test_mcoe_pulls_eia860(pudl_engine,
 
 @pytest.mark.eia923
 @pytest.mark.post_etl
+@pytest.mark.mcoe
 def test_mcoe_pulls_eia923(pudl_engine,
                            generation_pull_eia923,
                            fuel_receipts_costs_pull_eia923,
@@ -50,6 +52,7 @@ def test_mcoe_pulls_eia923(pudl_engine,
 @pytest.mark.eia860
 @pytest.mark.eia923
 @pytest.mark.post_etl
+@pytest.mark.mcoe
 def test_mcoe_calcs(pudl_engine,
                     generation_pull_eia923,
                     fuel_receipts_costs_pull_eia923,
