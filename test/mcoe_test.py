@@ -60,6 +60,7 @@ def test_mcoe_calcs(pudl_engine,
     # We need to split these into individual values to pass them on
     (frc9_summed, frc9_summed_plant) = fuel_receipts_costs_pull_eia923
     (bf9_summed, bf9_plant_summed) = boiler_fuel_pull_eia923
+    (g8, g8_es) = generators_pull_eia860
 
     print("Calculating per-generator heat rates for MCOE...")
     heat_rate = mcoe.heat_rate(boiler_generator_pull_eia860,
@@ -68,10 +69,8 @@ def test_mcoe_calcs(pudl_engine,
                                pudl_engine)
 
     print("Calculating per-generator fuel costs for MCOE...")
-    fuel_cost = mcoe.fuel_cost(generators_pull_eia860,
-                               generation_pull_eia923,
-                               frc9_summed, frc9_summed_plant,
-                               heat_rate)
+    fuel_cost = mcoe.fuel_cost(g8_es, generation_pull_eia923, frc9_summed,
+                               frc9_summed_plant, heat_rate)
 
 
 @pytest.fixture(scope='module')
