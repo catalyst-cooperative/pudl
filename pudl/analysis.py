@@ -31,7 +31,30 @@ def simple_select(table_name, pudl_engine):
     # Creates a sql Select object
     select = sa.sql.select([tbl, ])
     # Converts sql object to pandas dataframe
-    return(pd.read_sql(select, pudl_engine))
+
+    table = pd.read_sql(select, pudl_engine)
+
+    # If table includes plant_id, get the PUDL Plant ID
+
+    if 'plant_id' in table.columns:
+        # Shorthand for readability... pt = PUDL Tables
+        pt = models.PUDLBase.metadata.tables
+
+        # Pull in plants_eia which connects EIA & PUDL plant IDs
+        plants_eia_tbl = pt['plants_eia']
+        plants_eia_select = sa.sql.select([
+            plants_eia_tbl.c.plant_id,
+            plants_eia_tbl.c.plant_id_pudl,
+        ])
+        plants_eia = pd.read_sql(plants_eia_select, pudl_engine)
+        out_df = pd.merge(table, plants_eia, how='left', on='plant_id')
+        out_df.rename(columns={'plant_id': 'plant_id_eia'}, inplace=True)
+        out_df.plant_id_pudl = out_df.plant_id_pudl.astype(int)
+        table = out_df
+    else:
+        table = table
+
+    return(table)
 
 
 def simple_ferc1_plant_ids(pudl_engine):
@@ -50,57 +73,6 @@ def simple_eia_plant_ids(pudl_engine):
     eia_simple_plant_ids = eia_plant_ids.drop_duplicates('plant_id_pudl',
                                                          keep=False)
     return(eia_simple_plant_ids)
-
-
-def simple_select_with_pudl_plant_id(table_name, pudl_engine):
-    """
-    Pull any PUDL table and inculde the PUDL Plant IDs.
-
-    Args:
-        table_name: pudl table name
-        pudl_engine
-
-    Returns:
-        DataFrame from table with PUDL IDs included
-
-    Comments from Zane:
-     - Renaming plant_id to plant_id_eia seems like it might impact other
-       things downstream unexpectedly, since plant_id pretty ubiquitous
-       in our code as the EIA plant_id. It seems reasonable to want to
-       have source specific plant_id columns, but we might want to propagate it
-       everywhere so we don't have to think about which name that ID is
-       currently using in any given context.
-     - We could also have a more general function which adds all the relevant
-       IDs and/or names based on the columns that exist in the input dataframe.
-       If there are FERC respondents, it would add a util_id_pudl column. If
-       there's a FERC respondent and a plant name, it would add a plant_id_pudl
-       column.  operator_id would also get a util_id_pudl column. plant_id
-       would get a plant_id_pudl column -- and could also find the associated
-       operator_id... etc.  Putting all that functionality in one function
-       would make it easier to update if/when the canonical location in the DB
-       that stores the ID and name information changes.
-    """
-    # Shorthand for readability... pt = PUDL Tables
-    pt = models.PUDLBase.metadata.tables
-
-    # Pull in the table
-    tbl = pt[table_name]
-    # Creates a sql Select object
-    select = sa.sql.select([tbl, ])
-    # Converts sql object to pandas dataframe
-    table = pd.read_sql(select, pudl_engine)
-
-    # Get the PUDL Plant ID
-    plants_eia_tbl = pt['plants_eia']
-    plants_eia_select = sa.sql.select([
-        plants_eia_tbl.c.plant_id,
-        plants_eia_tbl.c.plant_id_pudl,
-    ])
-    plants_eia = pd.read_sql(plants_eia_select, pudl_engine)
-    out_df = pd.merge(table, plants_eia, how='left', on='plant_id')
-    out_df.rename(columns={'plant_id': 'plant_id_eia'}, inplace=True)
-    out_df.plant_id_pudl = out_df.plant_id_pudl.astype(int)
-    return(out_df)
 
 
 def simple_pudl_plant_ids(pudl_engine):
@@ -183,9 +155,9 @@ def capacity_factor(g9_summed, g8, id_col='plant_id_eia'):
     # merge the generation and capacity to calculate capacity fazctor
     # plant_id should be specified as either plant_id_eia or plant_id_pudl
     capacity_factor = g9_summed.merge(g8,
-                                      on=[id_col,
+                                      on=['plant_id_eia', 'plant_id_pudl',
                                           'generator_id',
-                                          'report_date'])
+                                          'report_year'])
     capacity_factor['capacity_factor'] = \
         capacity_factor['net_generation_mwh'] / \
         (capacity_factor['nameplate_capacity_mw'] * 8760)
@@ -195,6 +167,17 @@ def capacity_factor(g9_summed, g8, id_col='plant_id_eia'):
                         < 0, 'capacity_factor'] = np.nan
     capacity_factor.loc[capacity_factor['capacity_factor']
                         >= 1.5, 'capacity_factor'] = np.nan
+
+    if 'plant_id_pudl_x' in capacity_factor.columns:
+        capacity_factor.rename(
+            columns={'plant_id_pudl_x': 'plant_id_pudl'}, inplace=True)
+    if 'plant_id_pudl_y' in capacity_factor.columns:
+        capacity_factor.drop('plant_id_pudl_y', axis=1, inplace=True)
+    if 'plant_id_eia_x' in capacity_factor.columns:
+        capacity_factor.rename(
+            columns={'plant_id_eia_x': 'plant_id_eia'}, inplace=True)
+    if 'plant_id_eia_y' in capacity_factor.columns:
+        capacity_factor.drop('plant_id_eia_y', axis=1, inplace=True)
 
     return(capacity_factor)
 
@@ -350,7 +333,7 @@ def ferc_expenses(pudl_engine, pudl_plant_ids=[], require_eia=True,
             broken out for each simple FERC PUDL plant.
     """
     # All of the large steam plants from FERC:
-    steam_df = outputs.plants_steam_ferc1_df(pudl_engine)
+    steam_df = outputs.plants_steam_ferc1(pudl_engine)
 
     # Calculate the dataset-wide expense correlations, for the record.
     expns_corrs = ferc1_expns_corr(steam_df, min_capfac=min_capfac)
@@ -562,10 +545,10 @@ def generator_proportion_eia923(g, id_col='plant_id_eia'):
             plant_id, generator_id, report_date, net_generation_mwh
 
     Returns: a dataframe with:
-            report_date, plant_id, generator_id, proportion_of_generation
+            report_year, plant_id, generator_id, proportion_of_generation
     """
     # Set the datetimeindex
-    g = g.set_index(pd.DatetimeIndex(g['report_date']))
+    g = g.set_index(pd.DatetimeIndex(g['report_year']))
     # groupby plant_id and by year
     g_yr = g.groupby([pd.TimeGrouper(freq='A'), id_col, 'generator_id'])
     # sum net_gen by year by plant
@@ -592,8 +575,50 @@ def generator_proportion_eia923(g, id_col='plant_id_eia'):
     # Remove the net generation columns
     g_gens_proportion = g_gens_proportion.drop(
         ['net_generation_mwh_x', 'net_generation_mwh_y'], axis=1)
+    g_gens_proportion.reset_index(inplace=True)
 
     return(g_gens_proportion)
+
+
+def capacity_proportion_eia923(g, id_col='plant_id_eia',
+                               capacity='nameplate_capacity_mw'):
+    """
+    Generate a dataframe with the proportion of plant capacity for each generator.
+
+    Args:
+        g: a dataframe from either all of generation_eia923 or some subset of
+        records from generation_eia923. The dataframe needs the following
+        columns to be present:
+            generator_id, report_date, nameplate_capacity_mw
+
+        id_col: either plant_id_eia (default) or plant_id_pudl
+        capacity: nameplate_capacity_mw (default), summer_capacity_mw,
+            or winter_capacity_mw
+
+    Returns: a dataframe with:
+            report_year, plant_id, generator_id, proportion_of_capacity
+    """
+
+    # groupby plant_id and by year
+    g_net_capacity_per_plant = g.groupby(['report_year', id_col])
+    # sum net_gen by year by plant and convert to datafram
+    g_net_capacity_per_plant = pd.DataFrame(
+        g_net_capacity_per_plant.nameplate_capacity_mw.sum())
+    g_net_capacity_per_plant.reset_index(inplace=True)
+
+    # Merge the summed net generation by generator with the summed net
+    # generation by plant
+    g_capacity_proportion = g.merge(
+        g_net_capacity_per_plant, on=[id_col, 'report_year'], how="left")
+    g_capacity_proportion['proportion_of_plant_capacity'] = (
+        g_capacity_proportion.nameplate_capacity_mw_x /
+        g_capacity_proportion.nameplate_capacity_mw_y)
+    # Remove the net generation columns
+    g_capacity_proportion = g_capacity_proportion.rename(
+        columns={'nameplate_capacity_mw_x': 'nameplate_capacity_gen_mw',
+                 'nameplate_capacity_mw_y': 'nameplate_capacity_plant_mw'})
+
+    return(g_capacity_proportion)
 
 
 def values_by_generator_eia923(table_eia923, column_name, g):
@@ -720,7 +745,8 @@ def plant_fuel_proportions_frc_eia923(frc_df, id_col='plant_id_eia'):
     frc_df['total_mmbtu'] = frc_df.fuel_quantity * frc_df.average_heat_content
 
     # Drop everything but report_date, plant_id, fuel_group, total_mmbtu
-    frc_df = frc_df[['report_date', id_col, 'fuel_group', 'total_mmbtu']]
+    frc_df = frc_df[['report_date', 'plant_id_eia',
+                     'plant_id_pudl', 'fuel_group', 'total_mmbtu']]
 
     # Group by report_date(annual), plant_id, fuel_group
     frc_gb = frc_df.groupby(
@@ -831,7 +857,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
     return(heat_pivot)
 
 
-def primary_fuel_gf_eia923(gf_df, fuel_thresh=0.5):
+def primary_fuel_gf_eia923(gf_df, id_col='plant_id_eia', fuel_thresh=0.5):
     """Determine a plant's primary fuel from EIA923 generation fuel table."""
     gf_df = gf_df.copy()
 
@@ -842,7 +868,7 @@ def primary_fuel_gf_eia923(gf_df, fuel_thresh=0.5):
     # contribution to the plant's overall heat content consumed. If that
     # proportion is greater than fuel_thresh, set the primary_fuel to be
     # that fuel.  Otherwise, leave it None.
-    gf_by_heat = gf_by_heat.set_index(['plant_id', 'year'])
+    gf_by_heat = gf_by_heat.set_index([id_col, 'report_year'])
     mask = gf_by_heat >= fuel_thresh
     gf_by_heat = gf_by_heat.where(mask)
     gf_by_heat['primary_fuel'] = gf_by_heat.idxmax(axis=1)

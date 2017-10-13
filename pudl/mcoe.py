@@ -14,11 +14,13 @@ def generation_pull_eia923(pudl_engine):
     EIA plant and per year. Also renames plant_id column to plant_id_eia.
     """
     # Convert the generation_eia923 table into a dataframe
-    g9 = analysis.simple_select_with_pudl_plant_id(
-        'generation_eia923', pudl_engine)
+    g9 = analysis.simple_select('generation_eia923', pudl_engine)
 
     # Get yearly net generation by plant_id, year and generator_id
-    g9_summed = analysis.yearly_sum_eia(g9, 'net_generation_mwh')
+    g9_summed = analysis.yearly_sum_eia(g9, 'net_generation_mwh',
+                                        columns=['report_year', 'plant_id_eia',
+                                                 'plant_id_pudl',
+                                                 'generator_id'])
     g9_summed.reset_index(inplace=True)
 
     return(g9_summed)
@@ -45,32 +47,22 @@ def generators_pull_eia860(pudl_engine):
     shouldn't be too wrong for now -- those things don't change much.
 
     Comments from Zane:
-     - The replacement of many energy_source codes with just a few should be
-       doable using the cleanstrings() function that we developed first in
-       support of the FERC data, rather than needing to do a double-loop.
-     - This simplified fuel taxonomy is going to get used in a lot of places.
-       Should probably be moved far upstream in the data cleaning -- always
-       adding our own simple column(s), and leaving the original codes intact.
      - Rather than hard-coding the 2011, 2010, and 2016 years here, we could
        automatically detect which years we DO have for EIA 923, that we DON'T
        have for EIA 860, and automatically extend the fields forward and
        backward using the earliest and latest years in EIA 860.  Then we
        wouldn't have to worry about updating this function when new data is
        integrated into the system.
-     - In the process of counting how many energy_source_cons values there are
-       for each plant, is it appropriate to be doing it on a year-by-year
-       basis? For the plant-years that change status over time, are we
-       sure that we're doing all of the subsequent analysis on the basis of
-       plant-year, rather than plant_id alone?
+        Do it, but with a flag or assert statement if more than x years.
     """
     # Convert the generators_eia860 table into a dataframe
-    g8 = analysis.simple_select_with_pudl_plant_id(
-        'generators_eia860', pudl_engine)
+    g8 = analysis.simple_select('generators_eia860', pudl_engine)
 
     # create a generator table with mostly just the energy source
     # for use in manipulating values by energy source
-    g8_es = g8[['plant_id_eia', 'generator_id',
-                'energy_source_1', 'report_year']]
+    g8_es = g8[['plant_id_eia', 'plant_id_pudl', 'plant_name', 'operator_name',
+                'state', 'generator_id', 'energy_source_1',
+                'nameplate_capacity_mw', 'report_year']]
     g8_es = g8_es.rename(columns={'energy_source_1': 'energy_source'})
     g8_es.drop_duplicates(
         ['plant_id_eia', 'generator_id', 'report_year'], inplace=True)
@@ -105,7 +97,18 @@ def generators_pull_eia860(pudl_engine):
     # Append 2009 and 2010
     g8_es = g8_es.append([g8_es_2009, g8_es_2010, g8_es_2016])
 
-    return(g8_es)
+    # Now we are going to compile the generators by generator (not by energy
+    # source) in order to use the capacity of each generator
+    g8 = g8[['plant_id_eia', 'plant_id_pudl', 'plant_name', 'operator_name',
+             'state', 'generator_id', 'nameplate_capacity_mw',
+             'summer_capacity_mw', 'winter_capacity_mw', 'report_year']]
+
+    # # Cheating to duplicate 2015 EIA860 capacity factor data for 2016:
+    g8_2016 = g8.loc[g8['report_year'] == 2015]
+    g8_2016.report_year.replace([2015], [2016], inplace=True)
+    g8 = g8_2016.append(g8)
+
+    return(g8, g8_es)
 
 
 def fuel_reciepts_costs_pull_eia923(pudl_engine):
@@ -127,27 +130,33 @@ def fuel_reciepts_costs_pull_eia923(pudl_engine):
     Notes from Zane:
     - Should functionalize consolidation of energy_source, since it's being
       done in more than one place.
+        We should do this in the cleaning functions, through a function that is
+        used on multiple tables.
     - Addition of plant_id_pudl and the mmbtu and fuel cost calculations are
       also already being done in the outputs module. We should just do those
       calculations in one place.
     - Should be able to simultaneously annualize multiple data columns at the
       same time, as they're all being grouped by report_year and plant_id_eia.
+        TODO.
     - What's the difference between frc9_summed and frc9_summed_plant? Seems
       like the frc9_summed is grouped by plant, year, and energy source, while
       frc9_summed_plant is just year and plant?
+        Yup.
     - Handing back two dataframes feels a little awkward, and the additional
       step of further grouping and calculating cost per mmbtu across the entire
       plant feels like it might be done over in the fuel_cost function
       instead, so it's clear what two different things are being done, side by
       side, in the single vs. multi-fuel plant cases.
+        I don't think I agree with this, but we'll see.
     - Also slightly dangerous to calculate the fuel cost per mmbtu column for
       all of the plants, when I don't think we want folks to use those numbers
       for the multi-fuel plants (since it'd be a mix of e.g. coal and gas costs
       per mmbtu).
+        Maybe you need to explain this. I don't see this going anywhere expect
+        for into the fuel cost calcs.
     """
     # Convert the fuel_receipts_costs_eia923 table into a dataframe
-    frc9 = analysis.simple_select_with_pudl_plant_id(
-        'fuel_receipts_costs_eia923', pudl_engine)
+    frc9 = analysis.simple_select('fuel_receipts_costs_eia923', pudl_engine)
     frc9['fuel_cost'] = (frc9['fuel_quantity'] *
                          frc9['average_heat_content'] *
                          frc9['fuel_cost_per_mmbtu'])
@@ -162,16 +171,18 @@ def fuel_reciepts_costs_pull_eia923(pudl_engine):
 
     # Get yearly fuel cost by plant_id, year and energy_source
     frc9_summed = analysis.yearly_sum_eia(frc9, 'fuel_cost', columns=[
-                                          'plant_id_eia', 'report_year',
-                                          'energy_source_cons'])
+                                          'plant_id_eia', 'plant_id_pudl',
+                                          'report_year', 'energy_source_cons'])
     frc9_summed = frc9_summed.reset_index()
     frc9_mmbtu_summed = analysis.yearly_sum_eia(
         frc9, 'mmbtu', columns=['plant_id_eia', 'report_year',
                                 'energy_source_cons'])
     frc9_mmbtu_summed = frc9_mmbtu_summed.reset_index()
     frc9_summed = frc9_mmbtu_summed.merge(frc9_summed)
-    frc9_summed['fuel_cost_per_mmbtu_average'] = (
+    frc9_summed['fuel_cost_per_mmbtu_es'] = (
         frc9_summed.fuel_cost / frc9_summed.mmbtu)
+    frc9_summed.rename(columns={'mmbtu': 'mmbtu_es',
+                                'fuel_cost': 'fuel_cost_es'}, inplace=True)
 
     # Get yearly fuel cost by plant_id and year
     # For use in calculating fuel cost for plants with one main energy soure
@@ -182,8 +193,11 @@ def fuel_reciepts_costs_pull_eia923(pudl_engine):
         frc9, 'mmbtu', columns=['plant_id_eia', 'report_year'])
     frc9_mmbtu_summed_plant = frc9_mmbtu_summed_plant.reset_index()
     frc9_summed_plant = frc9_mmbtu_summed_plant.merge(frc9_summed_plant)
-    frc9_summed_plant['fuel_cost_per_mmbtu_average'] = (
+    frc9_summed_plant['fuel_cost_per_mmbtu_plant'] = (
         frc9_summed_plant.fuel_cost / frc9_summed_plant.mmbtu)
+    frc9_summed_plant.rename(columns={'mmbtu': 'mmbtu_plant',
+                                      'fuel_cost': 'fuel_cost_plant'},
+                             inplace=True)
 
     return(frc9_summed, frc9_summed_plant)
 
@@ -199,6 +213,7 @@ def boiler_generator_pull_eia860(pudl_engine):
     Comments from Zane:
      - Under what circumstances were we finding duplicate records that need to
        be dropped? Shouldn't the plant/boiler/generator records be unique?
+        It's every year.
      - Is this a table that also contains years? Is that the duplication that's
        being eliminated?  If so, does it ever result in weird duplications of
        a mapping? I.e. is there ever a case where in some years a given boiler
@@ -207,18 +222,19 @@ def boiler_generator_pull_eia860(pudl_engine):
        returns, since they're not identical... but they would be year specific.
     """
     # Convert the boiler_generator_assn_eia860 table into a dataframe
-    bga8 = analysis.simple_select_with_pudl_plant_id(
-        'boiler_generator_assn_eia860', pudl_engine)
+    bga8 = analysis.simple_select('boiler_generator_assn_eia860', pudl_engine)
     bga8.drop(['id', 'operator_id'], axis=1, inplace=True)
     bga8.drop_duplicates(['plant_id_eia', 'boiler_id',
                           'generator_id'], inplace=True)
-
+    # TODO: drop the year
     return(bga8)
 
 
 def boiler_fuel_pull_eia923(pudl_engine):
     """
     Pull annualized boiler fuel consumption data from EIA 923 for MCOE.
+
+    Note: 'fuel_consumed_mmbtu' renmaed to 'fuel_consumed_mmbtu_plant'
 
     Calculates total heat content of all fuel consumed by each boiler, and then
     sums that on an annual basis by plant and boiler ID. Also creates a second
@@ -236,18 +252,18 @@ def boiler_fuel_pull_eia923(pudl_engine):
        outputs.boiler_fuel_eia923() calculations.
     """
     # Convert the boiler_fuel_eia923 table into a dataframe
-    bf9 = analysis.simple_select_with_pudl_plant_id(
-        'boiler_fuel_eia923', pudl_engine)
-    bf9['fuel_consumed_mmbtu'] = bf9['fuel_qty_consumed'] * \
+    bf9 = analysis.simple_select('boiler_fuel_eia923', pudl_engine)
+    bf9['fuel_consumed_mmbtu_plant'] = bf9['fuel_qty_consumed'] * \
         bf9['fuel_mmbtu_per_unit']
     # Get yearly fuel consumed by plant_id, year and boiler_id
-    bf9_summed = analysis.yearly_sum_eia(bf9, 'fuel_consumed_mmbtu', columns=[
-                                         'plant_id_eia', 'report_year',
-                                         'boiler_id'])
+    bf9_summed = analysis.yearly_sum_eia(bf9, 'fuel_consumed_mmbtu_plant', columns=[
+                                         'plant_id_eia', 'plant_id_pudl',
+                                         'report_year', 'boiler_id'])
     bf9_summed.reset_index(inplace=True)
     # Get yearly fuel consumed by plant_id and year.
     bf9_plant_summed = analysis.yearly_sum_eia(
-        bf9, 'fuel_consumed_mmbtu', columns=['plant_id_eia', 'report_year'])
+        bf9, 'fuel_consumed_mmbtu_plant', columns=['plant_id_eia', 'plant_id_pudl',
+                                                   'report_year'])
     bf9_plant_summed.reset_index(inplace=True)
 
     return(bf9_summed, bf9_plant_summed)
@@ -303,13 +319,17 @@ def gens_with_bga(bga8, g9_summed, id_col='plant_id_eia'):
       understand what's being done.
     """
     # All generators from the Boiler Generator Association table (860)
-    gens8 = bga8.drop_duplicates(subset=[id_col, 'generator_id'])
+    gens8 = bga8.drop_duplicates(
+        subset=['plant_id_eia', 'plant_id_pudl', 'generator_id'])
     # All generators from the generation table (923)/
     gens9 = g9_summed.drop_duplicates(
-        subset=[id_col, 'generator_id', 'report_year'])
+        subset=['plant_id_eia', 'plant_id_pudl', 'generator_id',
+                'report_year'])
 
     # See which generators are missing from the bga table
-    gens = gens9.merge(gens8, on=[id_col, 'generator_id'], how="left")
+    gens = gens9.merge(
+        gens8, on=['plant_id_eia', 'plant_id_pudl', 'generator_id'],
+        how="left")
     gens.boiler_id = gens.boiler_id.astype(str)
     gens['boiler_generator_assn'] = np.where(
         gens['boiler_id'] == 'nan', False, True)
@@ -326,7 +346,8 @@ def gens_with_bga(bga8, g9_summed, id_col='plant_id_eia'):
     # are a part of plants that have generators that are not included
     # in the bga table
     gens = gens.merge(unassociated_plants, on=[
-                      id_col, 'report_year'], how='left')
+                      'plant_id_eia', 'plant_id_pudl', 'report_year'],
+                      how='left')
     gens['plant_assn'] = gens.plant_assn.fillna(value=True)
 
     # Using the associtated plants, extract the generator/boiler combos
@@ -334,18 +355,21 @@ def gens_with_bga(bga8, g9_summed, id_col='plant_id_eia'):
     # associations (i.e. if a coal plant had its boilers and generators
     # fully associated in the bga table in 2011 and then adds a
     # combined cycle plant the coal boiler/gen combo will be saved).
-    gens_complete = gens[[id_col, 'generator_id',
+    gens_complete = gens[['plant_id_eia', 'plant_id_pudl', 'generator_id',
                           'boiler_id', 'boiler_generator_assn', 'plant_assn']]
     gens_complete = \
         gens_complete[gens_complete['plant_assn']].\
-        drop_duplicates(subset=[id_col, 'generator_id', 'boiler_id'])
+        drop_duplicates(
+            subset=['plant_id_eia', 'plant_id_pudl', 'generator_id',
+                    'boiler_id'])
     gens_complete['complete_assn'] = True
-    gens = gens.merge(gens_complete[[id_col,
+    gens = gens.merge(gens_complete[['plant_id_eia', 'plant_id_pudl',
                                      'generator_id',
                                      'boiler_id',
                                      'complete_assn']],
                       how='left',
-                      on=[id_col, 'generator_id', 'boiler_id'])
+                      on=['plant_id_eia', 'plant_id_pudl', 'generator_id',
+                          'boiler_id'])
     gens['complete_assn'] = gens.complete_assn.fillna(value=False)
 
     return(gens)
@@ -355,6 +379,8 @@ def heat_rate(bga8, g9_summed, bf9_summed,
               bf9_plant_summed, pudl_engine, id_col='plant_id_eia'):
     """
     Calculate heat rates for all EIA generators.
+    Note: 'fuel_consumed_mmbtu_per_gen' renamed to
+          'fuel_consumed_mmbtu_generator'
 
     Zane attempt to understand/describe what's going on here:
     - Create a dataframe of (year, plant, generator, boiler) records for which
@@ -391,11 +417,14 @@ def heat_rate(bga8, g9_summed, bf9_summed,
     - Not sure if this is an issue or not, but looking at the dataframe the
       heat_rate() function returns, I see that the plant_id_pudl columns
       appear to all be null, and there are two of them (_x, _y)
+        This is a problem in the integration of the plant_id_pudl. We need to
+        fix ths.
     - There are a lot of instances in which a boolean (True/False) field is
       being used with == comparison to create a mask for a dataframe. If the
       column is already entirely boolean, you can just use the values directly
       as a mask. E.g. my_df[my_df.boolean_column] if you want the True records,
       or my_df[~my_df.boolean_column] if you want the False records.
+        Cool.
     - When we bring in the heat consumed for an unassociated plant from the
       bf9_plant_summed dataframe, we're just merging on plant and year. Won't
       this be *all* of the heat consumed by the plant for that year, as opposed
@@ -405,17 +434,21 @@ def heat_rate(bga8, g9_summed, bf9_summed,
       fully associated? Whereas the net_generation_mwh that is being summed
       is what was attributed only to those generators that weren't ever part
       of a fully associated plant?
+        TODO: We need to also lump by association and strip away the associated
+        boilers.
     - I can't remember the nature of the boiler/generator relationships... When
       we merge g9_summed and bga8 to get generation_w_boilers, if the generator
       & plant appears only once per year in g9_summed, but the generator has
       more than boiler associated with it (does that ever happen?) then we'll
       create multiple records -- one for each boiler-generator pair, right? Is
       that what we want?
+        Yup.
     - Why do we have to sum up the mmbtu consumed by each generator for each
       year -- why isn't this already a consolidated annual quantity, as soon
       as we've calculated it?  Under what circumstances do we have the same
       generator showing up more than once per year, and thus needing to be
       summed?
+        Explained below.
     - Have we done any kind of checking to see if we're losing any records
       when we drop the unassociated plant invalid heat rates... and then
       append the plant-level heat rates that were calculated earlier?
@@ -426,6 +459,11 @@ def heat_rate(bga8, g9_summed, bf9_summed,
       combining all the fuel consumed by a given boiler regardless of the fuel
       type. But I guess heat is heat is heat, and we're attributing cost based
       on the primary fuel for each generator.
+        We could add an additional refinement. For the combo coal and combined
+        cycle natural gas plants for which we have no years of boiler generator
+        association for the coal plant (which is a rare instance), we could use
+        the energy source to associate coal heat inputs with coal generators
+        and gas heat inputs to gas generators.
     """
     # This section pulls the unassociated generators
     gens = gens_with_bga(bga8, g9_summed)
@@ -443,14 +481,15 @@ def heat_rate(bga8, g9_summed, bf9_summed,
         bf9_plant_summed, on=[id_col, 'report_year'])
     # calculate heat rate by plant
     unassn_plants['heat_rate_mmbtu_mwh'] = \
-        unassn_plants['fuel_consumed_mmbtu'] / \
+        unassn_plants['fuel_consumed_mmbtu_plant'] / \
         unassn_plants['net_generation_mwh']
 
     # Merge these plant level heat heat rates with the unassociated generators
     # Assign heat rates to generators across the plants with unassociated
     # generators
     heat_rate_unassn = gens_unassn_plants.merge(
-        unassn_plants[[id_col, 'report_year', 'heat_rate_mmbtu_mwh']],
+        unassn_plants[[id_col, 'report_year',
+                       'heat_rate_mmbtu_mwh']],
         on=[id_col, 'report_year'],
         how='left')
     heat_rate_unassn.drop(
@@ -460,7 +499,7 @@ def heat_rate(bga8, g9_summed, bf9_summed,
     # the plants that have any generators that are included in
     # the boiler generator association table (860)
     generation_w_boilers = g9_summed.merge(
-        bga8, how='left', on=[id_col, 'generator_id'])
+        bga8, how='left', on=['plant_id_eia', 'plant_id_pudl', 'generator_id'])
 
     # get net generation per boiler
     gb1 = generation_w_boilers.groupby(
@@ -488,28 +527,34 @@ def heat_rate(bga8, g9_summed, bf9_summed,
                                               'report_year',
                                               'boiler_id'])
 
-    bg = bf9_summed.merge(bga8, how='left', on=[id_col, 'boiler_id'])
+    bg = bf9_summed.merge(bga8, how='left', on=['plant_id_eia',
+                                                'plant_id_pudl',
+                                                'boiler_id'])
     bg = bg.merge(generation_w_boilers_summed, how='left', on=[
                   id_col, 'report_year', 'boiler_id', 'generator_id'])
 
     # Use the proportion of the generation of each generator to allot mmBTU
     bg['proportion_of_gen_by_boil_gen'] = \
         bg['net_generation_mwh_boiler_gen'] / bg['net_generation_mwh_boiler']
-    bg['fuel_consumed_mmbtu_per_gen'] = \
-        bg['proportion_of_gen_by_boil_gen'] * bg['fuel_consumed_mmbtu']
+    bg['fuel_consumed_mmbtu_generator'] = \
+        bg['proportion_of_gen_by_boil_gen'] * bg['fuel_consumed_mmbtu_plant']
 
-    # Get yearly fuel_consumed_mmbtu by plant_id, year and generator_id
+    # Get yearly fuel_consumed_mmbtu_plant by plant_id, year and generator_id
+    # before this, the bg dataframe has mulitple records for each generators
+    # when there are multiple boiler associated with each generators. This step
+    # squishes the boiler level data into generators to be compared to the
+    # generator level net generation.
     bg_gb = bg.groupby(by=[id_col,
                            'report_year',
                            'generator_id'])
-    bg_summed = bg_gb.agg({'fuel_consumed_mmbtu_per_gen': np.sum})
+    bg_summed = bg_gb.agg({'fuel_consumed_mmbtu_generator': np.sum})
     bg_summed.reset_index(inplace=True)
 
     # Calculate heat rate
     heat_rate = bg_summed.merge(g9_summed, how='left', on=[
                                 id_col, 'report_year', 'generator_id'])
     heat_rate['heat_rate_mmbtu_mwh'] = \
-        heat_rate['fuel_consumed_mmbtu_per_gen'] / \
+        heat_rate['fuel_consumed_mmbtu_generator'] / \
         heat_rate['net_generation_mwh']
 
     # Importing the plant association tag to filter out the
@@ -531,6 +576,10 @@ def heat_rate(bga8, g9_summed, bf9_summed,
 
     # Now, let's chuck the incorrect (lower than 5 mmBTU/MWh)
     heat_rate_all = heat_rate_all[heat_rate_all['heat_rate_mmbtu_mwh'] >= 5]
+
+    # Because there were null values in the plant_id_pudl field before merging
+    # the unassn and assn plants, we needed to reassing the type.
+    heat_rate_all.plant_id_pudl = heat_rate_all.plant_id_pudl.astype(int)
 
     return(heat_rate_all)
 
@@ -563,13 +612,16 @@ def fuel_cost(g8_es, g9_summed, frc9_summed, frc9_summed_plant, heat_rate):
        would make more sense in terms of readability than doing it in the table
        pull function -- it's really specific to what's going on here, and kinda
        comes out of nowhere.
+        Agree, let's move it.
      - For net_gen_one_fuel, rather than doing a left join and then dropping
        NA values, why not just do an inner join?
+        Sure.
      - In creation of fuel_cost_one_fuel why is net_generation_mwh one of the
        fields that's being merged on? That's a data field... normally this is
        a no-no. Especially for floating point numbers, which you can't easily
        guarantee will be exactly the same, even when they should be
        conceptually. Because binary.
+        TODO: drop net gen from one of the dataframes b4 merging w/ out net gen
      - Same question as above for fuel_cost_multi_fuel merge.
      - In creation of fuel_cost_per_mmbtu_multi_fuel we're merging on the
        energy_source_cons, but not including generator_id (because FRC doesn't
@@ -583,7 +635,7 @@ def fuel_cost(g8_es, g9_summed, frc9_summed, frc9_summed_plant, heat_rate):
 
     # one fuel plants
     net_gen_one_fuel = g9_summed.merge(one_fuel_plants, how='left', on=[
-        'plant_id_eia', 'generator_id', 'report_year'])
+        'plant_id_eia', 'plant_id_pudl', 'generator_id', 'report_year'])
     net_gen_one_fuel.dropna(inplace=True)
 
     # Merge this net_gen table with frc9_summed_plant to have
@@ -607,20 +659,23 @@ def fuel_cost(g8_es, g9_summed, frc9_summed, frc9_summed_plant, heat_rate):
     # Calculate fuel cost per mwh using average fuel cost given year, plant,
     # fuel type; divide by generator-specific heat rate
     fuel_cost_one_fuel['fuel_cost_per_mwh'] = \
-        (fuel_cost_one_fuel['fuel_cost_per_mmbtu_average']
+        (fuel_cost_one_fuel['fuel_cost_per_mmbtu_plant']
          * fuel_cost_one_fuel['heat_rate_mmbtu_mwh'])
 
-    # mutli fuel plants
+    # multi fuel plants
     net_gen_multi_fuel = g9_summed.merge(multi_fuel_plants, how='left', on=[
-        'plant_id_eia', 'generator_id', 'report_year'])
+        'plant_id_eia', 'plant_id_pudl', 'generator_id', 'report_year'])
     net_gen_multi_fuel.dropna(inplace=True)
 
     # Merge this net_gen table with frc9_summed to have
-    # fuel_cost_per_mmbtu_total associated with generators
+    # fuel_cost_per_mmbtu_total associated with energy source
+    # in this case, we are using energy source as a more granular sub plant
+    # lumping because we don't have generator ids in the frc table.
     fuel_cost_per_mmbtu_multi_fuel = net_gen_multi_fuel.\
         merge(frc9_summed,
               how='left',
               on=['plant_id_eia',
+                  'plant_id_pudl',
                   'report_year',
                   'energy_source_cons'])
 
@@ -628,17 +683,15 @@ def fuel_cost(g8_es, g9_summed, frc9_summed, frc9_summed_plant, heat_rate):
         merge(heat_rate[['plant_id_eia',
                          'report_year',
                          'generator_id',
-                         'net_generation_mwh',
                          'heat_rate_mmbtu_mwh']],
               on=['plant_id_eia',
                   'report_year',
-                  'generator_id',
-                  'net_generation_mwh'])
+                  'generator_id'])
 
     # Calculate fuel cost per mwh using average fuel cost given year, plant,
     # fuel type; divide by generator-specific heat rate
     fuel_cost_multi_fuel['fuel_cost_per_mwh'] = \
-        (fuel_cost_multi_fuel['fuel_cost_per_mmbtu_average'] *
+        (fuel_cost_multi_fuel['fuel_cost_per_mmbtu_es'] *
          fuel_cost_multi_fuel['heat_rate_mmbtu_mwh'])
 
     # Squish them together!
