@@ -30,7 +30,7 @@ def datadir(year, basedir=settings.EIA923_DATA_DIR):
         path to appropriate EIA 923 data directory.
     """
     # These are the only years we've got...
-    assert year in pc.eia923_data_years
+    assert year in pc.data_years['eia923']
     if(year < 2008):
         return(os.path.join(basedir, 'f906920_{}'.format(year)))
     else:
