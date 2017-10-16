@@ -33,12 +33,12 @@ def ferc1_engine(live_ferc_db):
     If we're using the live database, then we just yield a conneciton to it.
     """
     ferc1_tables = constants.ferc1_default_tables
-    ferc1_refyear = max(constants.ferc1_working_years)
+    ferc1_refyear = max(constants.working_years['ferc1'])
 
     if not live_ferc_db:
         ferc1.init_db(ferc1_tables=ferc1_tables,
                       refyear=ferc1_refyear,
-                      years=constants.ferc1_working_years,
+                      years=constants.working_years['ferc1'],
                       def_db=True,
                       verbose=True,
                       testing=True)
@@ -71,11 +71,11 @@ def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
         else:
             ferc1_testing = True
         pudl.init_db(ferc1_tables=constants.ferc1_pudl_tables,
-                     ferc1_years=constants.ferc1_working_years,
+                     ferc1_years=constants.working_years['ferc1'],
                      eia923_tables=constants.eia923_pudl_tables,
-                     eia923_years=constants.eia923_working_years,
+                     eia923_years=constants.working_years['eia923'],
                      eia860_tables=constants.eia860_pudl_tables,
-                     eia860_years=constants.eia860_working_years,
+                     eia860_years=constants.working_years['eia860'],
                      verbose=True,
                      debug=False,
                      pudl_testing=True,
