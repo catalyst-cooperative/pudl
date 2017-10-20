@@ -65,8 +65,30 @@ def test_mcoe_calcs(pudl_engine,
     (bf9_summed, bf9_plant_summed) = boiler_fuel_pull_eia923
     (g8, g8_es) = generators_pull_eia860
 
+    gens = mcoe.gens_with_bga(boiler_generator_pull_eia860,
+                              generation_pull_eia923)
+
+    # Spot check a few plants to ensure that their generators have been
+    # assigned the expected association status. These dictionaries are
+    # plant_id_eia: ['list','of','generator','ids']
+    complete = {
+        470: ['1', '2', '3'],
+    }
+    incomplete = {
+        470: [],
+    }
+    for plant_id, gen_ids in complete.items():
+        complete_mask = (gens.plant_id_eia == plant_id) & \
+                        (gens.generator_id.isin(gen_ids))
+        assert gens[complete_mask].complete_assn.all()
+
+    for plant_id, gen_ids in incomplete.items():
+        incomplete_mask = (gens.plant_id_eia == plant_id) & \
+                          (gens.generator_id.isin(gen_ids))
+        assert (~gens[incomplete_mask].complete_assn).all()
+
     print("Calculating per-generator heat rates for MCOE...")
-    heat_rate = mcoe.heat_rate(boiler_generator_pull_eia860,
+    heat_rate = mcoe.heat_rate(g8_es, boiler_generator_pull_eia860,
                                generation_pull_eia923,
                                bf9_summed, bf9_plant_summed,
                                pudl_engine)
