@@ -6,7 +6,7 @@ import pandas as pd
 # Data Pulls
 
 
-def generation_pull_eia923(pudl_engine):
+def generation_pull_eia923(pudl_engine, years=[2014, 2015, 2016]):
     """
     Pull an annualized version of the EIA 923 generation table.
 
@@ -22,11 +22,12 @@ def generation_pull_eia923(pudl_engine):
                                                  'plant_id_pudl',
                                                  'generator_id'])
     g9_summed.reset_index(inplace=True)
+    g9_summed = g9_summed[g9_summed.report_year.isin(years)]
 
     return(g9_summed)
 
 
-def generators_pull_eia860(pudl_engine):
+def generators_pull_eia860(pudl_engine, years=[2014, 2015, 2016]):
     """
     Compile a table of EIA generators by year and primary energy source.
 
@@ -87,31 +88,40 @@ def generators_pull_eia860(pudl_engine):
     g8_es = g8_es.merge(g8_es_count, how='left', on=[
                         'plant_id_eia', 'report_year'])
 
-    # Cheating to duplicate 2011 EIA860 energy srouce for 2010 and 2009:
-    g8_es_2010 = g8_es.loc[g8_es['report_year'] == 2011].copy()
-    g8_es_2010.report_year.replace([2011], [2010], inplace=True)
-    g8_es_2009 = g8_es.loc[g8_es['report_year'] == 2011].copy()
-    g8_es_2009.report_year.replace([2011], [2009], inplace=True)
-    g8_es_2016 = g8_es.loc[g8_es['report_year'] == 2015].copy()
-    g8_es_2016.report_year.replace([2015], [2016], inplace=True)
-    # Append 2009 and 2010
-    g8_es = g8_es.append([g8_es_2009, g8_es_2010, g8_es_2016])
-
     # Now we are going to compile the generators by generator (not by energy
     # source) in order to use the capacity of each generator
     g8 = g8[['plant_id_eia', 'plant_id_pudl', 'plant_name', 'operator_name',
              'state', 'generator_id', 'nameplate_capacity_mw',
              'summer_capacity_mw', 'winter_capacity_mw', 'report_year']]
 
-    # # Cheating to duplicate 2015 EIA860 capacity factor data for 2016:
-    g8_2016 = g8.loc[g8['report_year'] == 2015]
-    g8_2016.report_year.replace([2015], [2016], inplace=True)
-    g8 = g8_2016.append(g8)
+    # Cheating to duplicate 2011 EIA860 energy srouce for 2010 and 2009:
+    if(2010 in years):
+        g8_es_2010 = g8_es.loc[g8_es['report_year'] == 2011].copy()
+        g8_es_2010.report_year.replace([2011], [2010], inplace=True)
+        g8_es = g8_es.append(g8_es_2010)
+
+    if(2009 in years):
+        g8_es_2009 = g8_es.loc[g8_es['report_year'] == 2011].copy()
+        g8_es_2009.report_year.replace([2011], [2009], inplace=True)
+        g8_es = g8_es.append(g8_es_2009)
+
+    if(2016 in years):
+        g8_es_2016 = g8_es.loc[g8_es['report_year'] == 2015].copy()
+        g8_es_2016.report_year.replace([2015], [2016], inplace=True)
+        g8_es = g8_es.append(g8_es_2016)
+
+        # Cheating to duplicate 2015 EIA860 capacity factor data for 2016:
+        g8_2016 = g8.loc[g8['report_year'] == 2015]
+        g8_2016.report_year.replace([2015], [2016], inplace=True)
+        g8 = g8_2016.append(g8)
+
+    g8 = g8[g8.report_year.isin(years)]
+    g8_es = g8_es[g8_es.report_year.isin(years)]
 
     return(g8, g8_es)
 
 
-def fuel_reciepts_costs_pull_eia923(pudl_engine):
+def fuel_reciepts_costs_pull_eia923(pudl_engine, years=[2014, 2015, 2016]):
     """
     Compile dataframes of annual EIA 923 fuel receipts and costs for MCOE.
 
@@ -174,6 +184,7 @@ def fuel_reciepts_costs_pull_eia923(pudl_engine):
                                           'plant_id_eia', 'plant_id_pudl',
                                           'report_year', 'energy_source_cons'])
     frc9_summed = frc9_summed.reset_index()
+
     frc9_mmbtu_summed = analysis.yearly_sum_eia(
         frc9, 'mmbtu', columns=['plant_id_eia', 'report_year',
                                 'energy_source_cons'])
@@ -198,6 +209,10 @@ def fuel_reciepts_costs_pull_eia923(pudl_engine):
     frc9_summed_plant.rename(columns={'mmbtu': 'mmbtu_plant',
                                       'fuel_cost': 'fuel_cost_plant'},
                              inplace=True)
+
+    frc9_summed = frc9_summed[frc9_summed.report_year.isin(years)]
+    frc9_summed_plant = \
+        frc9_summed_plant[frc9_summed_plant.report_year.isin(years)]
 
     return(frc9_summed, frc9_summed_plant)
 
@@ -230,7 +245,7 @@ def boiler_generator_pull_eia860(pudl_engine):
     return(bga8)
 
 
-def boiler_fuel_pull_eia923(pudl_engine):
+def boiler_fuel_pull_eia923(pudl_engine, years=[2014, 2015, 2016]):
     """
     Pull annualized boiler fuel consumption data from EIA 923 for MCOE.
 
@@ -268,6 +283,9 @@ def boiler_fuel_pull_eia923(pudl_engine):
                                                    'plant_id_pudl',
                                                    'report_year'])
     bf9_plant_summed.reset_index(inplace=True)
+    bf9_summed = bf9_summed[bf9_summed.report_year.isin(years)]
+    bf9_plant_summed = \
+        bf9_plant_summed[bf9_plant_summed.report_year.isin(years)]
 
     return(bf9_summed, bf9_plant_summed)
 
@@ -659,6 +677,7 @@ def heat_rate(g8_es, bga8, g9_summed, bf9_summed,
 
     # That this cleanup is required seems to suggest something isn't okay.
     hr_good.plant_id_pudl = hr_good.plant_id_pudl.astype(int)
+    hr_good = hr_good.drop(['boiler_generator_assn', 'boiler_id'], axis=1)
     return(hr_good)
 
 
@@ -872,12 +891,6 @@ def fuel_cost(g8_es, g9_summed, frc9_summed, frc9_summed_plant, heat_rate):
      - For net_gen_one_fuel, rather than doing a left join and then dropping
        NA values, why not just do an inner join?
         Sure.
-     - In creation of fuel_cost_one_fuel why is net_generation_mwh one of the
-       fields that's being merged on? That's a data field... normally this is
-       a no-no. Especially for floating point numbers, which you can't easily
-       guarantee will be exactly the same, even when they should be
-       conceptually. Because binary.
-        TODO: drop net gen from one of the dataframes b4 merging w/ out net gen
      - Same question as above for fuel_cost_multi_fuel merge.
      - In creation of fuel_cost_per_mmbtu_multi_fuel we're merging on the
        energy_source_cons, but not including generator_id (because FRC doesn't
@@ -905,12 +918,10 @@ def fuel_cost(g8_es, g9_summed, frc9_summed, frc9_summed_plant, heat_rate):
         merge(heat_rate[['plant_id_eia',
                          'report_year',
                          'generator_id',
-                         'net_generation_mwh',
                          'heat_rate_mmbtu_mwh']],
               on=['plant_id_eia',
                   'report_year',
-                  'generator_id',
-                  'net_generation_mwh'])
+                  'generator_id'])
 
     # Calculate fuel cost per mwh using average fuel cost given year, plant,
     # fuel type; divide by generator-specific heat rate
@@ -953,4 +964,16 @@ def fuel_cost(g8_es, g9_summed, frc9_summed, frc9_summed_plant, heat_rate):
     # Squish them together!
     fuel_cost = fuel_cost_one_fuel.append(fuel_cost_multi_fuel)
 
+    cols_to_keep = [
+        'report_year',
+        'plant_id_eia',
+        'plant_id_pudl',
+        'generator_id',
+        'energy_source_cons',
+        'fuel_cost_per_mmbtu_plant',
+        'fuel_cost_per_mwh',
+    ]
+    fuel_cost = fuel_cost[cols_to_keep]
+    fuel_cost = \
+        fuel_cost.sort_values(['report_year', 'plant_id_eia', 'generator_id'])
     return(fuel_cost)

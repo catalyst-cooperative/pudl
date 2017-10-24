@@ -12,6 +12,8 @@ non-fuel production costs have yet to be integrated.
 """
 import pytest
 from pudl import pudl, mcoe
+# These are the only years that EIA923/860 data give us clean heat rates.
+mcoe_years = [2014, 2015, 2016]
 
 
 @pytest.mark.eia860
@@ -113,21 +115,21 @@ def generators_pull_eia860(pudl_engine):
 
 
 @pytest.fixture(scope='module')
-def generation_pull_eia923(pudl_engine):
+def generation_pull_eia923(pudl_engine, years=mcoe_years):
     """Fixture for pulling annualized EIA923 generation dataframe for MCOE."""
     print("Pulling annualized EI923 net generation data...")
     return(mcoe.generation_pull_eia923(pudl_engine))
 
 
 @pytest.fixture(scope='module')
-def fuel_receipts_costs_pull_eia923(pudl_engine):
+def fuel_receipts_costs_pull_eia923(pudl_engine, years=mcoe_years):
     """Fixture for pulling annual EIA923 fuel receipts dataframe for MCOE."""
     print("Pulling EIA923 fuel receipts & costs data for MCOE...")
     return(mcoe.fuel_reciepts_costs_pull_eia923(pudl_engine))
 
 
 @pytest.fixture(scope='module')
-def boiler_fuel_pull_eia923(pudl_engine):
+def boiler_fuel_pull_eia923(pudl_engine, years=mcoe_years):
     """Fixture for pulling EIA923 boiler fuel consumed dataframe for MCOE."""
     print("Pulling EIA923 boiler fuel data for MCOE...")
     return(mcoe.boiler_fuel_pull_eia923(pudl_engine))
