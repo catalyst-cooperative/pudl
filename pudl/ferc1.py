@@ -37,14 +37,15 @@ def drop_tables_ferc1(engine):
     ferc1_meta.drop_all(engine)
 
 
-def datadir(year):
+def datadir(year, basedir=settings.FERC1_DATA_DIR):
     """Given a year, return path to appropriate FERC Form 1 data directory."""
-    return os.path.join(settings.FERC1_DATA_DIR, 'f1_{}'.format(year))
+    assert year in pc.data_years['ferc1']
+    return os.path.join(basedir, 'f1_{}'.format(year))
 
 
-def dbc_filename(year):
+def dbc_filename(year, basedir=settings.FERC1_DATA_DIR):
     """Given a year, return path to the master FERC Form 1 .DBC file."""
-    return os.path.join(datadir(year), 'F1_PUB.DBC')
+    return os.path.join(datadir(year, basedir), 'F1_PUB.DBC')
 
 
 def get_strings(filename, min=4):
@@ -68,7 +69,7 @@ def get_strings(filename, min=4):
             yield result
 
 
-def extract_dbc_tables(year, minstring=4):
+def extract_dbc_tables(year, minstring=4, basedir=settings.FERC1_DATA_DIR):
     """Extract the names of all the tables and fields from FERC Form 1 DB.
 
     This function reads all the strings in the given DBC database file for the
@@ -131,7 +132,7 @@ def extract_dbc_tables(year, minstring=4):
 
     tf_doubledict = {}
     for dbf in pc.ferc1_dbf2tbl.keys():
-        filename = os.path.join(datadir(year), '{}.DBF'.format(dbf))
+        filename = os.path.join(datadir(year, basedir), '{}.DBF'.format(dbf))
         if os.path.isfile(filename):
             dbf_fields = dbfread.DBF(filename).field_names
             dbf_fields = [f for f in dbf_fields if f != '_NullFlags']
@@ -148,7 +149,9 @@ def extract_dbc_tables(year, minstring=4):
     return(tf_doubledict)
 
 
-def define_db(refyear, ferc1_tables, ferc1_meta, verbose=True):
+def define_db(refyear, ferc1_tables, ferc1_meta,
+              basedir=settings.FERC1_DATA_DIR,
+              verbose=True):
     """
     Given a list of FERC Form 1 DBF files, create analogous database tables.
 
@@ -179,7 +182,8 @@ def define_db(refyear, ferc1_tables, ferc1_meta, verbose=True):
     ferc1_meta.clear()
 
     for dbf in dbfs:
-        dbf_filename = os.path.join(datadir(refyear), '{}.DBF'.format(dbf))
+        dbf_filename = os.path.join(datadir(refyear, basedir),
+                                    '{}.DBF'.format(dbf))
         ferc1_dbf = dbfread.DBF(dbf_filename)
 
         # And the corresponding SQLAlchemy Table object:
@@ -229,8 +233,9 @@ def define_db(refyear, ferc1_tables, ferc1_meta, verbose=True):
 
 
 def init_db(ferc1_tables=pc.ferc1_default_tables,
-            refyear=max(pc.ferc1_working_years),
-            years=pc.ferc1_working_years,
+            refyear=max(pc.working_years['ferc1']),
+            years=pc.working_years['ferc1'],
+            basedir=settings.FERC1_DATA_DIR,
             def_db=True,
             verbose=True,
             testing=False):
@@ -275,7 +280,8 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
         if verbose:
             print("Ingesting FERC Form 1 Data from {}...".format(year))
         for dbf in dbfs:
-            dbf_filename = os.path.join(datadir(year), '{}.DBF'.format(dbf))
+            dbf_filename = os.path.join(datadir(year, basedir),
+                                        '{}.DBF'.format(dbf))
             dbf_table = dbfread.DBF(dbf_filename, load=True)
 
             # pc.ferc1_dbf2tbl is a dictionary mapping DBF files to SQL table

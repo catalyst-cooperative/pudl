@@ -1820,7 +1820,7 @@ def ingest_ownership_eia860(pudl_engine, eia860_dfs,
 
 
 def ingest_eia860(pudl_engine,
-                  eia860_years=pc.eia860_working_years,
+                  eia860_years=pc.working_years['eia860'],
                   eia860_tables=pc.eia860_pudl_tables,
                   verbose=True, debug=False, testing=False,
                   csvdir=os.path.join(settings.PUDL_DIR,
@@ -1849,7 +1849,7 @@ def ingest_eia860(pudl_engine,
 
 def ingest_eia923(pudl_engine,
                   eia923_tables=pc.eia923_pudl_tables,
-                  eia923_years=pc.eia923_working_years,
+                  eia923_years=pc.working_years['eia923'],
                   verbose=True, debug=False, testing=False,
                   csvdir=os.path.join(settings.PUDL_DIR, 'results', 'csvdump'),
                   keep_csv=True):
@@ -1891,7 +1891,7 @@ def ingest_eia923(pudl_engine,
 
 def ingest_ferc1(pudl_engine,
                  ferc1_tables=pc.ferc1_pudl_tables,
-                 ferc1_years=pc.ferc1_working_years,
+                 ferc1_years=pc.working_years['ferc1'],
                  verbose=True, debug=False, testing=False):
     """Wrapper function that ingests all the FERC Form 1 tables."""
     # BEGIN INGESTING FERC FORM 1 DATA:
@@ -1918,11 +1918,11 @@ def ingest_ferc1(pudl_engine,
 
 
 def init_db(ferc1_tables=pc.ferc1_pudl_tables,
-            ferc1_years=pc.ferc1_working_years,
+            ferc1_years=pc.working_years['ferc1'],
             eia923_tables=pc.eia923_pudl_tables,
-            eia923_years=pc.eia923_working_years,
+            eia923_years=pc.working_years['eia923'],
             eia860_tables=pc.eia860_pudl_tables,
-            eia860_years=pc.eia860_working_years,
+            eia860_years=pc.working_years['eia860'],
             verbose=True, debug=False,
             pudl_testing=False,
             ferc1_testing=False,

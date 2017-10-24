@@ -879,7 +879,7 @@ def fercplants(plant_tables=['f1_steam',
                              'f1_gnrt_plant',
                              'f1_hydro',
                              'f1_pumped_storage'],
-               years=constants.ferc1_working_years,
+               years=constants.working_years['ferc1'],
                new=True,
                min_capacity=5.0):
     """
@@ -924,7 +924,7 @@ def fercplants(plant_tables=['f1_steam',
     # to get new plant ID info...
     if not new:
         for yr in years:
-            assert yr in constants.ferc1_working_years
+            assert yr in constants.working_years['ferc1']
 
     okay_tbls = ['f1_steam',
                  'f1_gnrt_plant',
@@ -939,7 +939,7 @@ def fercplants(plant_tables=['f1_steam',
 
     # Need to make sure we have a populated metadata object, which isn't
     # always the case, since folks often are not initializing the FERC DB.
-    ferc1.define_db(max(constants.ferc1_working_years),
+    ferc1.define_db(max(constants.working_years['ferc1']),
                     constants.ferc1_working_tables,
                     ferc1.ferc1_meta)
     f1_tbls = ferc1.ferc1_meta.tables
