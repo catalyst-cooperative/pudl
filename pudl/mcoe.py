@@ -964,16 +964,16 @@ def fuel_cost(g8_es, g9_summed, frc9_summed, frc9_summed_plant, heat_rate):
     # Squish them together!
     fuel_cost = fuel_cost_one_fuel.append(fuel_cost_multi_fuel)
 
-    cols_to_keep = [
-        'report_year',
-        'plant_id_eia',
-        'plant_id_pudl',
-        'generator_id',
-        'energy_source_cons',
-        'fuel_cost_per_mmbtu_plant',
-        'fuel_cost_per_mwh',
-    ]
-    fuel_cost = fuel_cost[cols_to_keep]
+    # cols_to_keep = [
+    #    'report_year',
+    #    'plant_id_eia',
+    #    'plant_id_pudl',
+    #    'generator_id',
+    #    'energy_source_cons',
+    #    'fuel_cost_per_mmbtu_plant',
+    #    'fuel_cost_per_mwh',
+    # ]
+    # fuel_cost = fuel_cost[cols_to_keep]
     fuel_cost = \
         fuel_cost.sort_values(['report_year', 'plant_id_eia', 'generator_id'])
     return(fuel_cost)
