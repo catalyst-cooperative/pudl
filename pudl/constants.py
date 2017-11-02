@@ -194,11 +194,15 @@ ferc1_fuel_unit_strings = {'ton': ferc1_ton_strings,
 
 # Categorizing the strings from the FERC Form 1 Plant Kind (plant_kind) field
 # into lists. There are many strings that weren't categorized,
-# including variants on Steam. Solar and Solar Project also were not
-# classified as these do not indicate if they are solar thermal or
-# photovoltaic.
+# Solar and Solar Project were not classified as these do not indicate if they
+# are solar thermal or photovoltaic. Variants on Steam (e.g. "steam 72" and
+# "steam and gas") were classified based on additional research of the plants
+# on the Internet.
 
-ferc1_plant_kind_coal = ['coal']
+ferc1_plant_kind_steam_turbine = \
+    ['coal', 'steam', 'steam units 1 2 3', 'steam units 4 5',
+     'steam fossil', 'steam turbine', 'steam a', 'steam 100',
+     'steam units 1 2 3', 'steams', 'steam 1', 'steam retired 2013', 'stream']
 
 ferc1_plant_kind_combustion_turbine = \
     ['combustion turbine', 'gt', 'gas turbine',
@@ -218,11 +222,13 @@ ferc1_plant_kind_combined_cycle = \
      'gas turb. & heat rec', 'combined cycle', 'com. cyc', 'com. cycle',
      'gas turb-combined cy', 'combined cycle ctg', 'combined cycle - 40%',
      'com cycle gas turb', 'combined cycle oper', 'gas turb/comb. cyc',
-     'combine cycle', 'cc', 'comb. cycle', 'gas turb-combined cy']
+     'combine cycle', 'cc', 'comb. cycle', 'gas turb-combined cy',
+     'steam and cc', 'steam cc', 'gas steam', 'ctg steam gas',
+     'steam comb cycle',]
 
 ferc1_plant_kind_nuke = ['nuclear', 'nuclear', 'nuclear (3)']
 
-ferc1_plant_kind_geothermal = ['steam - geothermal']
+ferc1_plant_kind_geothermal = ['steam - geothermal', 'steam_geothermal']
 
 ferc_1_plant_kind_internal_combustion = \
     ['ic', 'internal combustion',
@@ -242,7 +248,7 @@ ferc1_plant_kind_solar_thermal = ['solar thermal']
 # a dictionary of plant fuel lists.
 
 ferc1_plant_kind_strings = {
-    'coal': ferc1_plant_kind_coal,
+    'steam': ferc1_plant_kind_steam_turbine,
     'combustion_turbine': ferc1_plant_kind_combustion_turbine,
     'combined_cycle': ferc1_plant_kind_combined_cycle,
     'nuclear': ferc1_plant_kind_nuke,
