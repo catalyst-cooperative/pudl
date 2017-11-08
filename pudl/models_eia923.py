@@ -264,11 +264,12 @@ class BoilerFuelEIA923(pudl.models.PUDLBase):
                          nullable=False)
     fuel_type = Column(String, ForeignKey('fuel_type_eia923.abbr'),
                        nullable=False)
+    fuel_type_simple = Column(String)
     report_date = Column(Date, nullable=False)
     fuel_qty_consumed = Column(Float)
     fuel_mmbtu_per_unit = Column(Float)
-    sulfur_content = Column(Float)
-    ash_content = Column(Float)
+    sulfur_content_pct = Column(Float)
+    ash_content_pct = Column(Float)
 
 
 class GenerationEIA923(pudl.models.PUDLBase):
@@ -307,14 +308,16 @@ class FuelReceiptsCostsEIA923(pudl.models.PUDLBase):
     contract_type = Column(String, ForeignKey('contract_type_eia923.abbr'))
     contract_expiration_date = Column(Date)
     energy_source = Column(String, ForeignKey('energy_source_eia923.abbr'))
+    energy_source_simple = Column(String)
     fuel_group = Column(String, ForeignKey('fuel_group_eia923.group'))
+    fuel_group_simple = Column(String)
     coalmine_id = Column(Integer, ForeignKey('coalmine_info_eia923.id'))
     supplier = Column(String, nullable=False)  # TODO FK new table?
     fuel_quantity = Column(Float, nullable=False)
-    average_heat_content = Column(Float, nullable=False)
-    average_sulfur_content = Column(Float, nullable=False)
-    average_ash_content = Column(Float, nullable=False)
-    average_mercury_content = Column(Float)
+    heat_content_mmbtu_per_unit = Column(Float, nullable=False)
+    sulfur_content_pct = Column(Float, nullable=False)
+    ash_content_pct = Column(Float, nullable=False)
+    mercury_content_ppm = Column(Float)
     fuel_cost_per_mmbtu = Column(Float)
     primary_transportation_mode = Column(
         String,

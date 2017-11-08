@@ -1135,18 +1135,19 @@ boiler_fuel_map_eia923 = pd.DataFrame.from_records([
              'fuel_mmbtu_per_unit_june', 'fuel_mmbtu_per_unit_july',
              'fuel_mmbtu_per_unit_august', 'fuel_mmbtu_per_unit_september',
              'fuel_mmbtu_per_unit_october', 'fuel_mmbtu_per_unit_november',
-             'fuel_mmbtu_per_unit_december', 'sulfur_content_january',
-             'sulfur_content_february', 'sulfur_content_march',
-             'sulfur_content_april', 'sulfur_content_may',
-             'sulfur_content_june', 'sulfur_content_july',
-             'sulfur_content_august', 'sulfur_content_september',
-             'sulfur_content_october', 'sulfur_content_november',
-             'sulfur_content_december', 'ash_content_january',
-             'ash_content_february', 'ash_content_march', 'ash_content_april',
-             'ash_content_may', 'ash_content_june', 'ash_content_july',
-             'ash_content_august', 'ash_content_september',
-             'ash_content_october', 'ash_content_november',
-             'ash_content_december', 'total_fuel_consumption_quantity',
+             'fuel_mmbtu_per_unit_december', 'sulfur_content_pct_january',
+             'sulfur_content_pct_february', 'sulfur_content_pct_march',
+             'sulfur_content_pct_april', 'sulfur_content_pct_may',
+             'sulfur_content_pct_june', 'sulfur_content_pct_july',
+             'sulfur_content_pct_august', 'sulfur_content_pct_september',
+             'sulfur_content_pct_october', 'sulfur_content_pct_november',
+             'sulfur_content_pct_december', 'ash_content_pct_january',
+             'ash_content_pct_february', 'ash_content_pct_march',
+             'ash_content_pct_april', 'ash_content_pct_may',
+             'ash_content_pct_june', 'ash_content_pct_july',
+             'ash_content_pct_august', 'ash_content_pct_september',
+             'ash_content_pct_october', 'ash_content_pct_november',
+             'ash_content_pct_december', 'total_fuel_consumption_quantity',
              'year'],
     index='year_index')
 
@@ -1328,9 +1329,9 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
              'plant_state', 'contract_type', 'contract_expiration_date',
              'energy_source', 'fuel_group', 'coalmine_type', 'coalmine_state',
              'coalmine_county', 'coalmine_msha_id', 'coalmine_name',
-             'supplier', 'fuel_quantity', 'average_heat_content',
-             'average_sulfur_content', 'average_ash_content',
-             'average_mercury_content', 'fuel_cost_per_mmbtu', 'regulated',
+             'supplier', 'fuel_quantity', 'heat_content_mmbtu_per_unit',
+             'sulfur_content_pct', 'ash_content_pct',
+             'mercury_content_ppm', 'fuel_cost_per_mmbtu', 'regulated',
              'operator_name', 'operator_id', 'reporting_frequency',
              'primary_transportation_mode', 'secondary_transportation_mode',
              'natural_gas_transport'],
@@ -2539,6 +2540,31 @@ fuel_type_eia923 = {
         sludge oil, tar oil, or other petroleum-based liquid wastes.'
 }
 
+fuel_type_eia923_coal_strings = ['ant', 'bit', 'cbl', 'lig', 'pc', 'rc', 'sc',
+                                 'sub', 'wc']
+fuel_type_eia923_oil_strings = ['blq', 'dfo', 'jf', 'ker', 'rfo', 'wo']
+fuel_type_eia923_gas_strings = ['bfg', 'lfg', 'ng', 'obg', 'og', 'pg', 'sgc',
+                                'sgp']
+fuel_type_eia923_solar_strings = ['sun', ]
+fuel_type_eia923_wind_strings = ['wnd', ]
+fuel_type_eia923_hydro_strings = ['wat', ]
+fuel_type_eia923_nuclear_strings = ['nuc', ]
+fuel_type_eia923_waste_strings = ['ab', 'msb', 'msn', 'obl', 'obs', 'slw',
+                                  'tdf', 'wdl', 'wds', ]
+fuel_type_eia923_other_strings = ['mwh', 'oth', 'pur', 'wh', 'geo']
+
+fuel_type_eia923_simple_map = {
+    'coal': fuel_type_eia923_coal_strings,
+    'oil': fuel_type_eia923_oil_strings,
+    'gas': fuel_type_eia923_gas_strings,
+    'solar': fuel_type_eia923_solar_strings,
+    'wind': fuel_type_eia923_wind_strings,
+    'hydro': fuel_type_eia923_hydro_strings,
+    'nuclear': fuel_type_eia923_nuclear_strings,
+    'waste': fuel_type_eia923_waste_strings,
+    'other': fuel_type_eia923_other_strings,
+}
+
 # EIA 923: A partial aggregation of the reported fuel type codes into
 # larger categories used by EIA in, for example,
 # the Annual Energy Review (AER).Two or three letter alphanumeric.
@@ -2565,7 +2591,7 @@ fuel_type_aer_eia923 = {
 }
 
 # EIA 923/860: Lumping of energy source categories.
-energy_source_map = {
+energy_source_eia_simple_map = {
     'coal': ['ANT', 'BIT', 'LIG', 'SUB', 'WC', 'RC'],
     'gas': ['BFG', 'NG', 'OG', 'SGP', 'PG', 'SGC'],
     'oil': ['DFO', 'JF', 'KER', 'PC', 'RFO', 'WO'],
@@ -2574,6 +2600,12 @@ energy_source_map = {
     'biomass_gas': ['LFG', 'OBG'],
     'renewable_other': ['SUN', 'WND', 'GEO', 'WAT'],  # wtf is SG?
     'other': ['NUC', 'PUR', 'WH', 'TDF', 'MWH', 'OTH', 'SG']
+}
+
+fuel_group_eia923_simple_map = {
+    'coal': ['coal', 'petroleum coke'],
+    'oil': ['petroleum'],
+    'gas': ['natural gas', 'other gas']
 }
 
 # EIA 923: The type of physical units fuel consumption is reported in.
@@ -2731,10 +2763,9 @@ natural_gas_transport_eia923 = {
 
 # PUDL consolidation of EIA923 AER fuel type strings into same categories as
 # 'energy_source_eia923' plus additional renewable and nuclear categories.
-aer_coal_strings = ['col', 'woc']
+aer_coal_strings = ['col', 'woc', 'pc']
 aer_gas_strings = ['ng']
 aer_oil_strings = ['dfo', 'rfo']
-aer_petcoke_strings = ['pc']
 aer_solar_strings = ['sun']
 aer_wind_strings = ['wnd']
 aer_hydro_strings = ['hps', 'hyc']
@@ -2745,7 +2776,6 @@ aer_fuel_type_strings = {
     'coal': aer_coal_strings,
     'gas': aer_gas_strings,
     'oil': aer_oil_strings,
-    'petcoke': aer_petcoke_strings,
     'solar': aer_solar_strings,
     'wind': aer_wind_strings,
     'hydro': aer_hydro_strings,
