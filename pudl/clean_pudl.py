@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 
 
-def cleanstrings(field, stringmap, unmapped=None):
+def cleanstrings(field, stringmap, unmapped=None, simplify=True):
     """
     Consolidate freeform strings in dataframe column to canonical codes.
 
@@ -31,19 +31,27 @@ def cleanstrings(field, stringmap, unmapped=None):
         unmapped (str, None, NaN) is the value which strings not found in the
             stringmap dictionary should be replaced by.
 
+        simplify (bool): If true, strip whitespace, remove duplicate
+            whitespace, and force lower-case on both the string map and the
+            field values.
+
     Returns:
         pandas.Series: The function returns a new pandas series/column that can
             be used to set the values of the original data.
     """
     from numpy import setdiff1d
+    import re
 
     # Simplify the strings we're working with, to reduce the number of strings
     # we need to enumerate in the maps
 
-    # Transform the strings to lower case, strip leading/trailing whitespace
-    field = field.str.lower().str.strip()
-    # remove duplicate internal whitespace
-    field = field.replace('[\s+]', ' ', regex=True)
+    if simplify:
+        # Transform strings to lower case, strip leading/trailing whitespace
+        field = field.str.lower().str.strip()
+        # remove duplicate internal whitespace
+        field = field.replace('[\s+]', ' ', regex=True)
+        for k, v in stringmap.items():
+            stringmap[k] = [re.sub('\s+', ' ', s.lower().strip()) for s in v]
 
     for k in stringmap.keys():
         field = field.replace(stringmap[k], k)

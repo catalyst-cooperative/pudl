@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 from pudl import clean_pudl
+from pudl import constants as pc
 
 
 def clean_generators_eia860(gens_df):
@@ -43,5 +44,9 @@ def clean_generators_eia860(gens_df):
             to_replace=[" ", 0], value=np.nan)
 
     gens_df = clean_pudl.month_year_to_date(gens_df)
+
+    gens_df['energy_source_simple'] = \
+        clean_pudl.cleanstrings(gens_df['energy_source_1'],
+                                pc.energy_source_eia_simple_map)
 
     return(gens_df)
