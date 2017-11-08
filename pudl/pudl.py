@@ -148,8 +148,8 @@ def ingest_static_tables(engine):
         [models.RTOISO(abbr=k, name=v) for k, v in pc.rto_iso.items()])
     all_years = [year for list_of_years in pc.data_years.values()
                  for year in list_of_years]
-    pudl_session.add_all([models.Year(year=yr) for yr in range(min(all_years),
-                                                               max(all_years) + 1)])
+    pudl_session.add_all([models.Year(year=yr) for
+                          yr in range(min(all_years), max(all_years) + 1)])
 
     pudl_session.add_all([models.CensusRegion(abbr=k, name=v)
                           for k, v in pc.census_region.items()])
@@ -1312,6 +1312,9 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
     bf_df = clean_eia923.yearly_to_monthly_eia923(bf_df, pc.month_dict_eia923)
+    bf_df['fuel_type_simple'] = \
+        clean_pudl.cleanstrings(bf_df.fuel_type,
+                                pc.fuel_type_eia923_simple_map)
     # Replace the EIA923 NA value ('.') with a real NA value.
     bf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
 
@@ -1582,6 +1585,12 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
 
     # Convert fuel cost (cents per mmbtu) into dollars per mmbtu
     frc_df = clean_eia923.fuel_reciept_cost_clean(frc_df)
+    frc_df['energy_source_simple'] = \
+        clean_pudl.cleanstrings(frc_df.energy_source,
+                                pc.energy_source_eia_simple_map)
+    frc_df['fuel_group_simple'] = \
+        clean_pudl.cleanstrings(frc_df.fuel_group,
+                                pc.fuel_group_eia923_simple_map)
 
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(frc_df, 'fuel_receipts_costs_eia923', pudl_engine,
@@ -1976,14 +1985,14 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
                  ferc1_years=ferc1_years,
                  verbose=verbose, debug=debug, testing=ferc1_testing)
 
-    ingest_eia860(pudl_engine,
-                  eia860_tables=eia860_tables,
-                  eia860_years=eia860_years,
-                  verbose=verbose, debug=debug, testing=pudl_testing,
-                  csvdir=csvdir, keep_csv=keep_csv)
-
     ingest_eia923(pudl_engine,
                   eia923_tables=eia923_tables,
                   eia923_years=eia923_years,
+                  verbose=verbose, debug=debug, testing=pudl_testing,
+                  csvdir=csvdir, keep_csv=keep_csv)
+
+    ingest_eia860(pudl_engine,
+                  eia860_tables=eia860_tables,
+                  eia860_years=eia860_years,
                   verbose=verbose, debug=debug, testing=pudl_testing,
                   csvdir=csvdir, keep_csv=keep_csv)
