@@ -15,6 +15,58 @@ from pudl import clean_eia923, clean_ferc1, clean_pudl
 from pudl import outputs
 
 
+def merge_on_date_year(df1, df2, on=[], how='inner',
+                       date_col='report_date',
+                       year_col='report_year'):
+    """
+    Merge two dataframes based on a year and a date column.
+
+    Some of our data is annual, and has an integer year column.  Some of our
+    data is more granular, and has true date columns (usually representing
+    montly reporting).  It's often useful to be able to merge one of these
+    annual dataframes with a monthly dataframe.
+
+    The function assumes that one of the dataframes has a year only, and the
+    other has a date only, but doesn't. In the dataframe with only a date,
+    it creates a temporary year column based on the year described in the
+    date_col for merging.
+
+    Args:
+        df1, df2: the two dataframes to be merged.
+        on: The list of columns to merge on, other than the year and date
+            columns.
+        date_col: name of the date column to use to find the year to merge on.
+        year_col: name of the year column to merge on.
+
+    Returns:
+        merged: a dataframe with a date column, but no year columns, and only
+            one copy of any shared columns that were not part of the list of
+            columns to be merged on.  The values from df1 are the ones which
+            are retained for any shared, non-merging columns.
+    """
+    if year_col not in df1.columns:
+        assert date_col in df1.columns
+        assert date_col not in df2.columns
+        df1[year_col] = pd.to_datetime(df1[date_col]).dt.year
+
+    if year_col not in df2.columns:
+        assert date_col in df2.columns
+        assert date_col not in df1.columns
+        df2[year_col] = pd.to_datetime(df2[date_col]).dt.year
+
+    assert year_col in df1.columns
+    assert year_col in df2.columns
+
+    full_on = on + [year_col]
+    unshared_cols = [col for col in df1.columns.tolist()
+                     if col not in df2.columns.tolist()]
+    cols_to_use = unshared_cols + full_on
+    merged = pd.merge(df1[cols_to_use], df2, how=how, on=full_on)
+    merged = merged.drop(year_col, axis=1)
+
+    return(merged)
+
+
 def simple_select(table_name, pudl_engine):
     """
     Simple select statement.
@@ -109,8 +161,7 @@ def eia_pudl_plant_ids(pudl_engine):
     return(eia_plant_ids)
 
 
-def yearly_sum_eia(table, sum_by, columns=['plant_id_eia',
-                                           'report_year', 'generator_id']):
+def yearly_sum_eia(df, sum_by, columns=['plant_id_eia', 'generator_id']):
     """
     Group an input dataframe by serveral columns, and calculate annual sums.
 
@@ -135,18 +186,9 @@ def yearly_sum_eia(table, sum_by, columns=['plant_id_eia',
        make it work for them as well?
      - Why did we end up converting things to integer years rather than using
        the native time-based grouping functions?
-     - Calling the input 'table' seems a little confusing, since there are
-       also database table objects & definitions floating around, and in this
-       case the input type is a dataframe.
-     - More concise way to swap a report_date for report_year column:
-       df['report_year'] = pd.to_datetime(df['report_date']).dt.year
     """
-    if 'report_date' in table.columns:
-        table = table.set_index(pd.DatetimeIndex(table['report_date']).year)
-        table.drop('report_date', axis=1, inplace=True)
-        table.reset_index(inplace=True)
-        table = table.rename(columns={'report_date': 'report_year'})
-    gb = table.groupby(by=columns)
+    df['report_year'] = pd.to_datetime(df['report_date']).dt.year
+    gb = df.groupby(by=columns)
     return(gb.agg({sum_by: np.sum}))
 
 
@@ -445,7 +487,7 @@ def frc_by_pudl(pudl_plant_ids, pudl_engine,
     # Just keep the columns we need for output:
     cols_to_keep = ['plant_id_pudl', 'report_date']
     cols_to_keep = cols_to_keep + cols
-    cols_to_gb = [pd.TimeGrouper(freq='A'), 'plant_id_pudl']
+    cols_to_gb = [pd.Grouper(freq='A'), 'plant_id_pudl']
 
     if (fuels != 'all'):
         frc_df = frc_df[frc_df.fuel.isin(fuels)]
@@ -507,7 +549,7 @@ def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
 
     cols_to_keep = ['plant_id_pudl', 'report_date']
     cols_to_keep = cols_to_keep + cols
-    cols_to_gb = [pd.TimeGrouper(freq='A'), 'plant_id_pudl']
+    cols_to_gb = [pd.Grouper(freq='A'), 'plant_id_pudl']
 
     if (fuels != 'all'):
         gf_df = gf_df[gf_df.fuel.isin(fuels)]
@@ -550,7 +592,7 @@ def generator_proportion_eia923(g, id_col='plant_id_eia'):
     # Set the datetimeindex
     g = g.set_index(pd.DatetimeIndex(g['report_year']))
     # groupby plant_id and by year
-    g_yr = g.groupby([pd.TimeGrouper(freq='A'), id_col, 'generator_id'])
+    g_yr = g.groupby([pd.Grouper(freq='A'), id_col, 'generator_id'])
     # sum net_gen by year by plant
     g_net_generation_per_generator = pd.DataFrame(
         g_yr.net_generation_mwh.sum())
@@ -559,7 +601,7 @@ def generator_proportion_eia923(g, id_col='plant_id_eia'):
 
     # groupby plant_id and by year
     g_net_generation_per_plant = g.groupby(
-        [pd.TimeGrouper(freq='A'), id_col])
+        [pd.Grouper(freq='A'), id_col])
     # sum net_gen by year by plant and convert to datafram
     g_net_generation_per_plant = pd.DataFrame(
         g_net_generation_per_plant.net_generation_mwh.sum())
@@ -583,7 +625,7 @@ def generator_proportion_eia923(g, id_col='plant_id_eia'):
 def capacity_proportion_eia923(g, id_col='plant_id_eia',
                                capacity='nameplate_capacity_mw'):
     """
-    Generate a dataframe with the proportion of plant capacity for each generator.
+    Generate dataframe with proportion of plant capacity for each generator.
 
     Args:
         g: a dataframe from either all of generation_eia923 or some subset of
@@ -598,7 +640,6 @@ def capacity_proportion_eia923(g, id_col='plant_id_eia',
     Returns: a dataframe with:
             report_year, plant_id, generator_id, proportion_of_capacity
     """
-
     # groupby plant_id and by year
     g_net_capacity_per_plant = g.groupby(['report_year', id_col])
     # sum net_gen by year by plant and convert to datafram
@@ -642,7 +683,7 @@ def values_by_generator_eia923(table_eia923, column_name, g):
         pd.DatetimeIndex(table_eia923['report_date']))
     # groupby plant_id and by year
     table_eia923_gb = table_eia923.groupby(
-        [pd.TimeGrouper(freq='A'), 'plant_id'])
+        [pd.Grouper(freq='A'), 'plant_id'])
     # sum fuel cost by year by plant
     table_eia923_sr = table_eia923_gb[column_name].sum()
     # Convert back into a dataframe
@@ -750,7 +791,7 @@ def plant_fuel_proportions_frc_eia923(frc_df, id_col='plant_id_eia'):
 
     # Group by report_date(annual), plant_id, fuel_group
     frc_gb = frc_df.groupby(
-        [id_col, pd.TimeGrouper(freq='A'), 'fuel_group'])
+        [id_col, pd.Grouper(freq='A'), 'fuel_group'])
 
     # Add up all the MMBTU for each plant & year. At this point each record
     # in the dataframe contains only information about a single fuel.
@@ -820,7 +861,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
 
     # Group by report_date(annual), plant_id, fuel_group
     gf_gb = gf_df.groupby(
-        ['plant_id', pd.TimeGrouper(freq='A'), 'aer_fuel_category'])
+        ['plant_id', pd.Grouper(freq='A'), 'aer_fuel_category'])
 
     # Add up all the MMBTU for each plant & year. At this point each record
     # in the dataframe contains only information about a single fuel.
