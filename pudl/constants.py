@@ -224,7 +224,7 @@ ferc1_plant_kind_combined_cycle = \
      'com cycle gas turb', 'combined cycle oper', 'gas turb/comb. cyc',
      'combine cycle', 'cc', 'comb. cycle', 'gas turb-combined cy',
      'steam and cc', 'steam cc', 'gas steam', 'ctg steam gas',
-     'steam comb cycle',]
+     'steam comb cycle', ]
 
 ferc1_plant_kind_nuke = ['nuclear', 'nuclear', 'nuclear (3)']
 
@@ -827,7 +827,8 @@ generation_fuel_map_eia923 = pd.DataFrame.from_records([
              'total_fuel_consumption_quantity',
              'electric_fuel_consumption_quantity',
              'total_fuel_consumption_mmbtu', 'elec_fuel_consumption_mmbtu',
-             'net_generation_megawatthours', 'year'], index='year_index')
+             'net_generation_megawatthours', 'report_year'],
+    index='year_index')
 
 stocks_map_eia923 = pd.DataFrame.from_records([
     (2009, None, 'coal_jan', 'coal_feb', 'coal_mar', 'coal_apr', 'coal_may',
@@ -1154,7 +1155,7 @@ boiler_fuel_map_eia923 = pd.DataFrame.from_records([
              'ash_content_pct_august', 'ash_content_pct_september',
              'ash_content_pct_october', 'ash_content_pct_november',
              'ash_content_pct_december', 'total_fuel_consumption_quantity',
-             'year'],
+             'report_year'],
     index='year_index')
 
 generator_map_eia923 = pd.DataFrame.from_records([
@@ -1258,7 +1259,7 @@ generator_map_eia923 = pd.DataFrame.from_records([
              'net_generation_mwh_july', 'net_generation_mwh_august',
              'net_generation_mwh_september', 'net_generation_mwh_october',
              'net_generation_mwh_november', 'net_generation_mwh_december',
-             'net_generation_mwh_year_to_date', 'year'],
+             'net_generation_mwh_year_to_date', 'report_year'],
     index='year_index'
 )
 
@@ -1331,16 +1332,16 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
      'operator_id', 'reporting_frequency', 'primary_transportation_mode',
      'secondary_transportation_mode', 'natural_gas_transportation_service')],
 
-    columns=['year_index', 'year', 'month', 'plant_id', 'plant_name',
-             'plant_state', 'contract_type', 'contract_expiration_date',
-             'energy_source', 'fuel_group', 'coalmine_type', 'coalmine_state',
-             'coalmine_county', 'coalmine_msha_id', 'coalmine_name',
-             'supplier', 'fuel_quantity', 'heat_content_mmbtu_per_unit',
-             'sulfur_content_pct', 'ash_content_pct',
-             'mercury_content_ppm', 'fuel_cost_per_mmbtu', 'regulated',
-             'operator_name', 'operator_id', 'reporting_frequency',
-             'primary_transportation_mode', 'secondary_transportation_mode',
-             'natural_gas_transport'],
+    columns=['year_index', 'report_year', 'report_month', 'plant_id',
+             'plant_name', 'plant_state', 'contract_type',
+             'contract_expiration_date', 'energy_source', 'fuel_group',
+             'coalmine_type', 'coalmine_state', 'coalmine_county',
+             'coalmine_msha_id', 'coalmine_name', 'supplier', 'fuel_quantity',
+             'heat_content_mmbtu_per_unit', 'sulfur_content_pct',
+             'ash_content_pct', 'mercury_content_ppm', 'fuel_cost_per_mmbtu',
+             'regulated', 'operator_name', 'operator_id',
+             'reporting_frequency', 'primary_transportation_mode',
+             'secondary_transportation_mode', 'natural_gas_transport'],
     index='year_index'
 )
 
@@ -1367,8 +1368,8 @@ plant_frame_map_eia923 = pd.DataFrame.from_records([
     (2016, 'year', 'month', 'plant_id', 'plant_state', 'sector_number',
      'naics_code', 'plant_name', 'combined_heat_and_power_status',
      'reporting_frequency', None)],
-    columns=['year_index', 'year', 'month', 'plant_id', 'plant_state',
-             'eia_sector', 'naics_code', 'plant_name',
+    columns=['year_index', 'report_year', 'report_month', 'plant_id',
+             'plant_state', 'eia_sector', 'naics_code', 'plant_name',
              'combined_heat_power', 'reporting_frequency',
              'nameplate_capacity_mw'],
     index='year_index')
@@ -2822,6 +2823,12 @@ working_years = {
     'mshamines': [],
     'mshaops': [],
     'mshaprod': [],
+}
+
+pudl_tables = {
+    'eia860': eia860_pudl_tables,
+    'eia923': eia923_pudl_tables,
+    'ferc1': ferc1_pudl_tables,
 }
 
 base_data_urls = {
