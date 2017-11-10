@@ -98,7 +98,22 @@ def fix_int_na(col, float_na=np.nan, int_na=-1, str_na=''):
 
 
 def month_year_to_date(df):
-    """Convert pairs of year/month fields in a dataframe into Date fields."""
+    """Convert all pairs of year/month fields in a dataframe into Date fields.
+
+    This function finds all column names within a dataframe that match the
+    regular expression '_month$' and '_year$', and looks for pairs that have
+    identical prefixes before the underscore. These fields are assumed to
+    describe a date, accurate to the month.  The two fields are used to
+    construct a new _date column (having the same prefix) and the month/year
+    columns are then dropped.
+
+    This function needs to be combined with convert_to_date, and improved:
+     - find and use a _day$ column as well
+     - allow specification of default month & day values, if none are found.
+     - allow specification of lists of year, month, and day columns to be
+       combined, rather than automataically finding all the matching ones.
+     - Do the Right Thing when invalid or NA values are encountered.
+    """
     import re
     df = df.copy()
     month_regex = "_month$"
@@ -151,15 +166,15 @@ def month_year_to_date(df):
     return(df)
 
 
-def clean_report_date(df,
-                      date_col='report_date',
-                      year_col='report_year',
-                      month_col='month',
-                      day_col='day',
-                      month_value=1,
-                      day_value=1):
+def convert_to_date(df,
+                    date_col='report_date',
+                    year_col='report_year',
+                    month_col='report_month',
+                    day_col='report_day',
+                    month_value=1,
+                    day_value=1):
     """
-    Convert year, month or day columns into a datetime object.
+    Convert specified year, month or day columns into a datetime object.
 
     Args:
         df: dataframe to convert
@@ -170,6 +185,7 @@ def clean_report_date(df,
         month_value: generated month if no month exists.
         day_value: generated day if no month exists.
     """
+    df = df.copy()
     if date_col in df.columns:
         return(df)
 

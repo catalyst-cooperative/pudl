@@ -33,8 +33,8 @@ def yearly_to_monthly_eia923(df, md):
     yearly = df.copy()
     all_years = pd.DataFrame()
 
-    for y in yearly.year.unique():
-        this_year = yearly[yearly.year == y].copy()
+    for y in yearly.report_year.unique():
+        this_year = yearly[yearly.report_year == y].copy()
         monthly = pd.DataFrame()
         for m in md.keys():
             # Grab just the columns for the month we're working on.
@@ -47,7 +47,7 @@ def yearly_to_monthly_eia923(df, md):
             this_month.columns = this_month.columns.str.replace(md[m], '')
 
             # Add a numerical month column corresponding to this month.
-            this_month['month'] = m
+            this_month['report_month'] = m
 
             # Add this month's data to the monthly DataFrame we're building.
             monthly = pd.concat([monthly, this_month])
