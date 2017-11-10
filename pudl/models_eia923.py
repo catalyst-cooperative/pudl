@@ -253,8 +253,6 @@ class BoilerFuelEIA923(pudl.models.PUDLBase):
 
     # Each month, for each unique combination of boiler id and prime mover and
     # fuel, there is one report for each boiler unit in each plant.
-    # Primary key fields used previously:
-    # plant, boiler, prime mover, fuel type, and year.
 
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     plant_id = Column(Integer, ForeignKey(
@@ -279,8 +277,6 @@ class GenerationEIA923(pudl.models.PUDLBase):
 
     # Each month, for each unique combination of generator id and prime mover
     # and fuel,there is one report for each generator unit in each plant.
-    # Primary key fields used previously:
-    # plant, generator, prime mover, year, and month.
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     plant_id = Column(Integer, ForeignKey('plants_eia.plant_id'),
                       nullable=False)

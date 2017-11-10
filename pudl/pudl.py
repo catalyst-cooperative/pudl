@@ -1682,6 +1682,7 @@ def ingest_utilities_eia860(pudl_engine, eia860_dfs,
     # Populating the 'utilities_eia860' table
     u_df = eia860_dfs['utility'].copy()
 
+    u_df = clean_pudl.convert_to_date(u_df)
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(u_df, 'utilities_eia860', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
@@ -1727,6 +1728,8 @@ def ingest_plants_eia860(pudl_engine, eia860_dfs,
     # Cast values in zip_code to floats to avoid type errors
 
     p_df['zip_code'] = p_df['zip_code'].astype(str)
+
+    p_df = clean_pudl.convert_to_date(p_df)
 
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(p_df, 'plants_eia860', pudl_engine,
@@ -1811,6 +1814,7 @@ def ingest_ownership_eia860(pudl_engine, eia860_dfs,
     o_df.replace(to_replace='^\s$', value=np.nan, regex=True, inplace=True)
     o_df.replace(to_replace='^$', value=np.nan, regex=True, inplace=True)
 
+    o_df = clean_pudl.convert_to_date(o_df)
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(o_df, 'ownership_eia860', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
