@@ -108,7 +108,7 @@ class GeneratorsEIA860(pudl.models.PUDLBase):
 
     __tablename__ = 'generators_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
-    report_year = Column(Integer, nullable=False)
+    report_date = Column(Date, nullable=False)
     operator_id = Column(Integer)  # FK
     operator_name = Column(String)  # FK
     plant_id = Column(Integer, ForeignKey('plants_eia.plant_id'))

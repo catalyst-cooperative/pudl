@@ -293,7 +293,7 @@ def generators_eia860(pudl_engine):
     plants_eia860 = pd.read_sql(plants_eia860_select, pudl_engine)
 
     out_df = pd.merge(gens_eia860, plants_eia860,
-                      how='left', on=['report_year', 'plant_id'])
+                      how='left', on=['report_date', 'plant_id'])
 
     # For the PUDL Utility & Plant IDs, as well as utility & plant names:
     utils_eia_tbl = pt['utilities_eia']
@@ -311,7 +311,7 @@ def generators_eia860(pudl_engine):
     out_df = out_df.drop(cols_to_drop, axis=1)
 
     first_cols = [
-        'report_year',
+        'report_date',
         'plant_id',
         'plant_id_pudl',
         'plant_name',

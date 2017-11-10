@@ -1222,10 +1222,11 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
         clean_pudl.cleanstrings(gf_df.aer_fuel_type, pc.aer_fuel_type_strings)
 
     # Convert Year/Month columns into a single Date column...
-    gf_df['report_date'] = pd.to_datetime({'year': gf_df.year,
-                                           'month': gf_df.month,
-                                           'day': 1})
-    gf_df.drop(['year', 'month'], axis=1, inplace=True)
+    clean_pudl.clean_report_date(gf_df, year_col='year')
+    # gf_df['report_date'] = pd.to_datetime({'year': gf_df.year,
+    #                                       'month': gf_df.month,
+    #                                       'day': 1})
+    # gf_df.drop(['year', 'month'], axis=1, inplace=True)
 
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(gf_df, 'generation_fuel_eia923', pudl_engine,
@@ -1319,10 +1320,11 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
     bf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
 
     # Convert Year/Month columns into a single Date column...
-    bf_df['report_date'] = pd.to_datetime({'year': bf_df.year,
-                                           'month': bf_df.month,
-                                           'day': 1})
-    bf_df.drop(['year', 'month'], axis=1, inplace=True)
+    clean_pudl.clean_report_date(bf_df, year_col='year')
+    # bf_df['report_date'] = pd.to_datetime({'year': bf_df.year,
+    #                                       'month': bf_df.month,
+    #                                       'day': 1})
+    # bf_df.drop(['year', 'month'], axis=1, inplace=True)
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(bf_df, 'boiler_fuel_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
@@ -1418,11 +1420,12 @@ def ingest_generation_eia923(pudl_engine, eia923_dfs,
                           regex=True, inplace=True)
 
     # Convert Year/Month columns into a single Date column...
-    generation_df['report_date'] = \
-        pd.to_datetime({'year': generation_df.year,
-                        'month': generation_df.month,
-                        'day': 1})
-    generation_df.drop(['year', 'month'], axis=1, inplace=True)
+    clean_pudl.clean_report_date(generation_df, year_col='year')
+    # generation_df['report_date'] = \
+    #    pd.to_datetime({'year': generation_df.year,
+    #                    'month': generation_df.month,
+    #                    'day': 1})
+    # generation_df.drop(['year', 'month'], axis=1, inplace=True)
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(generation_df, 'generation_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
@@ -1574,10 +1577,11 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
                         'month': exp_month,
                         'day': 1})
 
-    frc_df['report_date'] = pd.to_datetime({'year': frc_df.year,
-                                            'month': frc_df.month,
-                                            'day': 1})
-    frc_df.drop(['year', 'month'], axis=1, inplace=True)
+    clean_pudl.clean_report_date(frc_df, year_col='year')
+    # frc_df['report_date'] = pd.to_datetime({'year': frc_df.year,
+    #                                        'month': frc_df.month,
+    #                                        'day': 1})
+    # frc_df.drop(['year', 'month'], axis=1, inplace=True)
     frc_df['coalmine_id'] = clean_pudl.fix_int_na(frc_df['coalmine_id'],
                                                   float_na=np.nan,
                                                   int_na=-1,
@@ -1784,6 +1788,13 @@ def ingest_generators_eia860(pudl_engine, eia860_dfs,
                                   float_na=np.nan,
                                   int_na=-1,
                                   str_na='')
+
+    clean_pudl.clean_report_date(gens_df)
+    # gens_df['report_year'] = \
+    #    pd.to_datetime({'year': gens_df.report_year,
+    #                    'month': 1,
+    #                    'day': 1})
+    # gens_df = gens_df.rename(columns={'report_year': 'report_date'})
 
     csv_dump_load(gens_df, 'generators_eia860', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)

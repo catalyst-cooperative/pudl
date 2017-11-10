@@ -149,3 +149,48 @@ def month_year_to_date(df):
         df = df.drop([month_col, year_col], axis=1)
 
     return(df)
+
+
+def clean_report_date(df,
+                      date_col='report_date',
+                      year_col='report_year',
+                      month_col='month',
+                      day_col='day',
+                      month_value=1,
+                      day_value=1):
+    """
+    Convert year, month or day columns into a datetime object.
+
+    Args:
+        df: dataframe to convert
+        date_col: the name of the column you want in the output.
+        year_col: the name of the year column in the original table.
+        month_col: the name of the month column in the original table.
+        day_col: the name of the day column in the original table.
+        month_value: generated month if no month exists.
+        day_value: generated day if no month exists.
+    """
+    if date_col in df.columns:
+        return(df)
+
+    year = df[year_col]
+
+    if month_col not in df.columns:
+        month = month_value
+    else:
+        month = df[month_col]
+
+    if day_col not in df.columns:
+        day = day_value
+    else:
+        day = df[day_col]
+
+    df[date_col] = \
+        pd.to_datetime({'year': year,
+                        'month': month,
+                        'day': day})
+    cols_to_drop = [x for x in [
+        day_col, year_col, month_col] if x in df.columns]
+    df.drop(cols_to_drop, axis=1, inplace=True)
+
+    return(df)
