@@ -1222,7 +1222,7 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
         clean_pudl.cleanstrings(gf_df.aer_fuel_type, pc.aer_fuel_type_strings)
 
     # Convert Year/Month columns into a single Date column...
-    clean_pudl.clean_report_date(gf_df, year_col='year')
+    gf_df = clean_pudl.clean_report_date(gf_df, year_col='year')
     # gf_df['report_date'] = pd.to_datetime({'year': gf_df.year,
     #                                       'month': gf_df.month,
     #                                       'day': 1})
@@ -1320,7 +1320,7 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
     bf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
 
     # Convert Year/Month columns into a single Date column...
-    clean_pudl.clean_report_date(bf_df, year_col='year')
+    bf_df = clean_pudl.clean_report_date(bf_df, year_col='year')
     # bf_df['report_date'] = pd.to_datetime({'year': bf_df.year,
     #                                       'month': bf_df.month,
     #                                       'day': 1})
@@ -1420,7 +1420,8 @@ def ingest_generation_eia923(pudl_engine, eia923_dfs,
                           regex=True, inplace=True)
 
     # Convert Year/Month columns into a single Date column...
-    clean_pudl.clean_report_date(generation_df, year_col='year')
+    generation_df = clean_pudl.clean_report_date(
+        generation_df, year_col='year')
     # generation_df['report_date'] = \
     #    pd.to_datetime({'year': generation_df.year,
     #                    'month': generation_df.month,
@@ -1577,7 +1578,7 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
                         'month': exp_month,
                         'day': 1})
 
-    clean_pudl.clean_report_date(frc_df, year_col='year')
+    frc_df = clean_pudl.clean_report_date(frc_df, year_col='year')
     # frc_df['report_date'] = pd.to_datetime({'year': frc_df.year,
     #                                        'month': frc_df.month,
     #                                        'day': 1})
@@ -1693,6 +1694,9 @@ def ingest_utilities_eia860(pudl_engine, eia860_dfs,
     # Populating the 'utilities_eia860' table
     u_df = eia860_dfs['utility'].copy()
 
+    # Chage the report year to a datetime objects
+    u_df = clean_pudl.clean_report_date(u_df)
+
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(u_df, 'utilities_eia860', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
@@ -1738,6 +1742,9 @@ def ingest_plants_eia860(pudl_engine, eia860_dfs,
     # Cast values in zip_code to floats to avoid type errors
 
     p_df['zip_code'] = p_df['zip_code'].astype(str)
+
+    # Convert the report year into a datetime object
+    p_df = clean_pudl.clean_report_date(p_df)
 
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(p_df, 'plants_eia860', pudl_engine,
@@ -1789,7 +1796,7 @@ def ingest_generators_eia860(pudl_engine, eia860_dfs,
                                   int_na=-1,
                                   str_na='')
 
-    clean_pudl.clean_report_date(gens_df)
+    gens_df = clean_pudl.clean_report_date(gens_df)
     # gens_df['report_year'] = \
     #    pd.to_datetime({'year': gens_df.report_year,
     #                    'month': 1,
@@ -1826,6 +1833,8 @@ def ingest_ownership_eia860(pudl_engine, eia860_dfs,
     o_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
     o_df.replace(to_replace='^\s$', value=np.nan, regex=True, inplace=True)
     o_df.replace(to_replace='^$', value=np.nan, regex=True, inplace=True)
+
+    o_df = clean_pudl.clean_report_date(o_df)
 
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(o_df, 'ownership_eia860', pudl_engine,

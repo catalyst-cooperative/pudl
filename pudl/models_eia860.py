@@ -21,7 +21,7 @@ class UtilitiesEIA860(pudl.models.PUDLBase):
 
     __tablename__ = 'utilities_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
-    report_year = Column(Integer, nullable=False)
+    report_date = Column(Date, nullable=False)
     operator_id = Column(Integer, nullable=False)  # FK
     operator_name = Column(String, nullable=False)  # FK
     street_address = Column(String)
@@ -40,7 +40,7 @@ class PlantsEIA860(pudl.models.PUDLBase):
 
     __tablename__ = 'plants_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
-    report_year = Column(Integer, nullable=False)
+    report_date = Column(Date, nullable=False)
     operator_id = Column(Integer)  # FK
     operator_name = Column(String)  # FK
     plant_id = Column(Integer, nullable=False)  # FK
@@ -86,7 +86,7 @@ class OwnershipEIA860(pudl.models.PUDLBase):
 
     __tablename__ = 'ownership_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
-    report_year = Column(Integer, nullable=False)
+    report_date = Column(Date, nullable=False)
     operator_id = Column(Integer, nullable=False)  # FK
     operator_name = Column(String, nullable=False)  # FK
     plant_id = Column(Integer, nullable=False)  # FK
