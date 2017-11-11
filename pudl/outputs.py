@@ -125,7 +125,7 @@ def plants_utils_eia(pudl_engine):
     # we only have the 860 data integrated for 2011 forward right now.
     plants_eia860_tbl = pt['plants_eia860']
     plants_eia860_select = sa.sql.select([
-        plants_eia860_tbl.c.report_year,
+        plants_eia860_tbl.c.report_date,
         plants_eia860_tbl.c.plant_id,
         plants_eia860_tbl.c.plant_name,
         plants_eia860_tbl.c.operator_id,
@@ -134,7 +134,7 @@ def plants_utils_eia(pudl_engine):
 
     utils_eia860_tbl = pt['utilities_eia860']
     utils_eia860_select = sa.sql.select([
-        utils_eia860_tbl.c.report_year,
+        utils_eia860_tbl.c.report_date,
         utils_eia860_tbl.c.operator_id,
         utils_eia860_tbl.c.operator_name,
     ])
@@ -142,7 +142,7 @@ def plants_utils_eia(pudl_engine):
 
     # Pull the canonical EIA860 operator name into the output DataFrame:
     out_df = pd.merge(plants_eia860, utils_eia860,
-                      how='left', on=['report_year', 'operator_id', ])
+                      how='left', on=['report_date', 'operator_id', ])
 
     # Get the PUDL Utility ID
     utils_eia_tbl = pt['utilities_eia']
@@ -284,7 +284,7 @@ def generators_eia860(pudl_engine):
     # To get the Lat/Lon coordinates, and plant/utility ID mapping:
     plants_eia860_tbl = pt['plants_eia860']
     plants_eia860_select = sa.sql.select([
-        plants_eia860_tbl.c.report_year,
+        plants_eia860_tbl.c.report_date,
         plants_eia860_tbl.c.plant_id,
         plants_eia860_tbl.c.operator_id,
         plants_eia860_tbl.c.latitude,
@@ -787,11 +787,21 @@ def generation_eia923(pudl_engine, freq=None,
 
     # Grab EIA 860 plant and utility specific information:
     pu_eia = plants_utils_eia(pudl_engine)
+    # force report_date to be a datetime object
+    pu_eia['report_date'] = pd.to_datetime(pu_eia['report_date'])
+
+    # Group g_df annually (creat the datetimeindex to do so)
+    g_df = g_df.set_index(pd.DatetimeIndex(g_df['report_date']))
+    gb = g_df.groupby(by=['plant_id', pd.TimeGrouper(
+        'AS'), 'generator_id', 'prime_mover'])
+    g_df = gb.agg({'net_generation_mwh': np.sum})
+    g_df = g_df.reset_index()
 
     # Merge annual plant/utility data in with the more granular dataframe
-    out_df = analysis.merge_on_date_year(g_df, pu_eia, on=['plant_id'])
-    if freq is None:
-        out_df = out_df.drop(['id'], axis=1)
+    out_df = g_df.merge(pu_eia, on=['plant_id', 'report_date'])
+
+    # if freq is None:
+    #    out_df = out_df.drop(['id'], axis=1)
 
     # These ID fields are vital -- without them we don't have a complete record
     out_df = out_df.dropna(subset=[
