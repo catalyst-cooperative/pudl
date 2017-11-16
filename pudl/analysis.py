@@ -15,9 +15,9 @@ from pudl import clean_eia923, clean_ferc1, clean_pudl
 from pudl import outputs
 
 
-def merge_on_date_year(df1, df2, on=[], how='inner',
+def merge_on_date_year(df_year='', df_date='', on=[], how='inner',
                        date_col='report_date',
-                       year_col='report_year'):
+                       year_col='report_date'):
     """
     Merge two dataframes based on a year and a date column.
 
@@ -32,7 +32,8 @@ def merge_on_date_year(df1, df2, on=[], how='inner',
     date_col for merging.
 
     Args:
-        df1, df2: the two dataframes to be merged.
+        df_year: the dataframe with a yearly report_date column
+        df_date: the dataframe with a more granular report_date column
         on: The list of columns to merge on, other than the year and date
             columns.
         date_col: name of the date column to use to find the year to merge on.
@@ -44,25 +45,21 @@ def merge_on_date_year(df1, df2, on=[], how='inner',
             columns to be merged on.  The values from df1 are the ones which
             are retained for any shared, non-merging columns.
     """
-    if year_col not in df1.columns:
-        assert date_col in df1.columns
-        assert date_col not in df2.columns
-        df1[year_col] = pd.to_datetime(df1[date_col]).dt.year
+    # Create a temporary column in each dataframe with the year
+    df_year['year_temp'] = pd.to_datetime(df_year[year_col]).dt.year
+    # Drop the yearly report_date column: this way there won't be duplicates
+    # and the final df will have the more granular report_date.
+    df_year = df_year.drop([year_col], axis=1)
+    df_date['year_temp'] = pd.to_datetime(df_date[date_col]).dt.year
 
-    if year_col not in df2.columns:
-        assert date_col in df2.columns
-        assert date_col not in df1.columns
-        df2[year_col] = pd.to_datetime(df2[date_col]).dt.year
-
-    assert year_col in df1.columns
-    assert year_col in df2.columns
-
-    full_on = on + [year_col]
-    unshared_cols = [col for col in df1.columns.tolist()
-                     if col not in df2.columns.tolist()]
+    full_on = on + ['year_temp']
+    unshared_cols = [col for col in df_year.columns.tolist()
+                     if col not in df_date.columns.tolist()]
     cols_to_use = unshared_cols + full_on
-    merged = pd.merge(df1[cols_to_use], df2, how=how, on=full_on)
-    merged = merged.drop(year_col, axis=1)
+
+    # Merge and drop the temp
+    merged = pd.merge(df_year[cols_to_use], df_date, how=how, on=full_on)
+    merged = merged.drop(['year_temp'], axis=1)
 
     return(merged)
 
