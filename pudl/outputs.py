@@ -787,21 +787,14 @@ def generation_eia923(pudl_engine, freq=None,
 
     # Grab EIA 860 plant and utility specific information:
     pu_eia = plants_utils_eia(pudl_engine)
-    # force report_date to be a datetime object
-    pu_eia['report_date'] = pd.to_datetime(pu_eia['report_date'])
-
-    # Group g_df annually (creat the datetimeindex to do so)
-    g_df = g_df.set_index(pd.DatetimeIndex(g_df['report_date']))
-    gb = g_df.groupby(by=['plant_id', pd.TimeGrouper(
-        'AS'), 'generator_id', 'prime_mover'])
-    g_df = gb.agg({'net_generation_mwh': np.sum})
-    g_df = g_df.reset_index()
 
     # Merge annual plant/utility data in with the more granular dataframe
-    out_df = g_df.merge(pu_eia, on=['plant_id', 'report_date'])
+    out_df = analysis.merge_on_date_year(df_date=g_df,
+                                         df_year=pu_eia,
+                                         on=['plant_id'])
 
-    # if freq is None:
-    #    out_df = out_df.drop(['id'], axis=1)
+    if freq is None:
+        out_df = out_df.drop(['id'], axis=1)
 
     # These ID fields are vital -- without them we don't have a complete record
     out_df = out_df.dropna(subset=[
