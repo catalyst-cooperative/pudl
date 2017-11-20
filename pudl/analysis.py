@@ -35,10 +35,10 @@ def merge_on_date_year(df_date, df_year, on=[], how='inner',
     bringing together EIA860 and EIA923 data.
 
     Args:
-        df_date: a dataframe having a date column, with the label specified
-            by date_col.
-        df_year: a dataframe having a year column, described as a Date, with
-            the label specified by year_col.
+        df_date: the dataframe with a more granular date column, the label of
+            which is specified by date_col (report_date by default)
+        df_year: the dataframe with a column containing annual dates, the label
+            of which is specified by year_col (report_date by default)
         on: The list of columns to merge on, other than the year and date
             columns.
         date_col: name of the date column to use to find the year to merge on.
@@ -52,24 +52,21 @@ def merge_on_date_year(df_date, df_year, on=[], how='inner',
             columns to be merged on.  The values from df1 are the ones which
             are retained for any shared, non-merging columns.
     """
-    assert date_col in df_date.columns
-    assert year_col in df_year.columns
-    # need to make these real assertions:
-    # assert df_year is truly annual data.
-    # assert df_date[date_col] is a Date
-    # assert df_year[year_col] is a Date
-    df_date = df_date.copy()
-    df_year = df_year.copy()
+    # Create a temporary column in each dataframe with the year
+    df_year['year_temp'] = pd.to_datetime(df_year[year_col]).dt.year
+    # Drop the yearly report_date column: this way there won't be duplicates
+    # and the final df will have the more granular report_date.
+    df_year = df_year.drop([year_col], axis=1)
+    df_date['year_temp'] = pd.to_datetime(df_date[date_col]).dt.year
 
-    df_date['tmp_year'] = pd.to_datetime(df_date[date_col]).dt.year
-    df_year['tmp_year'] = pd.to_datetime(df_year[year_col]).dt.year
-
-    full_on = on + ['tmp_year']
-    unshared_cols = [col for col in df_date.columns.tolist()
-                     if col not in df_year.columns.tolist()]
+    full_on = on + ['year_temp']
+    unshared_cols = [col for col in df_year.columns.tolist()
+                     if col not in df_date.columns.tolist()]
     cols_to_use = unshared_cols + full_on
-    merged = pd.merge(df_date[cols_to_use], df_year, how=how, on=full_on)
-    merged = merged.drop('tmp_year', axis=1)
+
+    # Merge and drop the temp
+    merged = pd.merge(df_date, df_year[cols_to_use], how=how, on=full_on)
+    merged = merged.drop(['year_temp'], axis=1)
 
     return(merged)
 
