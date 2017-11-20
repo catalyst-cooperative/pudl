@@ -43,7 +43,7 @@ def organize_cols(df, cols):
     Organize columns into key ID & name fields & alphabetical data columns.
 
     For readability, it's nice to group a few key columns at the beginning
-    of the dataframe (e.g. report_year or report_data, plant_id...) and then
+    of the dataframe (e.g. report_year or report_date, plant_id...) and then
     put all the rest of the data columns in alphabetical order.
 
     Args:
@@ -125,7 +125,7 @@ def plants_utils_eia(pudl_engine):
     # we only have the 860 data integrated for 2011 forward right now.
     plants_eia860_tbl = pt['plants_eia860']
     plants_eia860_select = sa.sql.select([
-        plants_eia860_tbl.c.report_year,
+        plants_eia860_tbl.c.report_date,
         plants_eia860_tbl.c.plant_id,
         plants_eia860_tbl.c.plant_name,
         plants_eia860_tbl.c.operator_id,
@@ -134,7 +134,7 @@ def plants_utils_eia(pudl_engine):
 
     utils_eia860_tbl = pt['utilities_eia860']
     utils_eia860_select = sa.sql.select([
-        utils_eia860_tbl.c.report_year,
+        utils_eia860_tbl.c.report_date,
         utils_eia860_tbl.c.operator_id,
         utils_eia860_tbl.c.operator_name,
     ])
@@ -142,7 +142,7 @@ def plants_utils_eia(pudl_engine):
 
     # Pull the canonical EIA860 operator name into the output DataFrame:
     out_df = pd.merge(plants_eia860, utils_eia860,
-                      how='left', on=['report_year', 'operator_id', ])
+                      how='left', on=['report_date', 'operator_id', ])
 
     # Get the PUDL Utility ID
     utils_eia_tbl = pt['utilities_eia']
@@ -206,7 +206,7 @@ def utilities_eia860(pudl_engine):
 
     out_df = out_df.drop(['id'], axis=1)
     first_cols = [
-        'report_year',
+        'report_date',
         'operator_id',
         'util_id_pudl',
         'operator_name',
@@ -244,7 +244,7 @@ def plants_eia860(pudl_engine):
 
     out_df = out_df.drop(['id'], axis=1)
     first_cols = [
-        'report_year',
+        'report_date',
         'operator_id',
         'util_id_pudl',
         'operator_name',
@@ -284,7 +284,7 @@ def generators_eia860(pudl_engine):
     # To get the Lat/Lon coordinates, and plant/utility ID mapping:
     plants_eia860_tbl = pt['plants_eia860']
     plants_eia860_select = sa.sql.select([
-        plants_eia860_tbl.c.report_year,
+        plants_eia860_tbl.c.report_date,
         plants_eia860_tbl.c.plant_id,
         plants_eia860_tbl.c.operator_id,
         plants_eia860_tbl.c.latitude,
@@ -342,9 +342,9 @@ def ownership_eia860(pudl_engine):
 
     pu_eia = plants_utils_eia(pudl_engine)
     pu_eia = pu_eia[['plant_id', 'plant_id_pudl', 'util_id_pudl',
-                     'report_year']]
+                     'report_date']]
 
-    out_df = pd.merge(o_df, pu_eia, how='left', on=['report_year', 'plant_id'])
+    out_df = pd.merge(o_df, pu_eia, how='left', on=['report_date', 'plant_id'])
 
     out_df = out_df.drop(['id'], axis=1)
 
@@ -358,7 +358,7 @@ def ownership_eia860(pudl_engine):
     ])
 
     first_cols = [
-        'report_year',
+        'report_date',
         'plant_id',
         'plant_id_pudl',
         'plant_name',

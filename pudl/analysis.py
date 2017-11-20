@@ -15,28 +15,36 @@ from pudl import clean_eia923, clean_ferc1, clean_pudl
 from pudl import outputs
 
 
-def merge_on_date_year(df1, df2, on=[], how='inner',
+def merge_on_date_year(df_date, df_year, on=[], how='inner',
                        date_col='report_date',
-                       year_col='report_year'):
+                       year_col='report_date'):
     """
-    Merge two dataframes based on a year and a date column.
+    Merge two dataframes based on a shared year.
 
-    Some of our data is annual, and has an integer year column.  Some of our
-    data is more granular, and has true date columns (usually representing
-    montly reporting).  It's often useful to be able to merge one of these
-    annual dataframes with a monthly dataframe.
+    Some of our data is annual, and has an integer year column (e.g. FERC 1).
+    Some of our data is annual, and uses a Date column (e.g. EIA 860), and
+    some of our data has other temporal resolutions, and uses date columns
+    (e.g. EIA 923 fuel receipts are monthly, EPA CEMS data is hourly). This
+    function takes two data frames and merges them based on the year that the
+    data pertains to.  It requires one of the dataframes to have annual
+    resolution, and allows the annual time to be described as either an integer
+    year or a Date. The non-annual dataframe must have a Date column.
 
-    The function assumes that one of the dataframes has a year only, and the
-    other has a date only, but doesn't. In the dataframe with only a date,
-    it creates a temporary year column based on the year described in the
-    date_col for merging.
+    By default, it is assumed that both the date and annual columns to be
+    merged on are called 'report_date' since that's the common case when
+    bringing together EIA860 and EIA923 data.
 
     Args:
-        df1, df2: the two dataframes to be merged.
+        df_date: a dataframe having a date column, with the label specified
+            by date_col.
+        df_year: a dataframe having a year column, described as a Date, with
+            the label specified by year_col.
         on: The list of columns to merge on, other than the year and date
             columns.
         date_col: name of the date column to use to find the year to merge on.
-        year_col: name of the year column to merge on.
+            Must be a Date.
+        year_col: name of the year column to merge on. Must be a Date
+            column with annual resolution.
 
     Returns:
         merged: a dataframe with a date column, but no year columns, and only
@@ -44,25 +52,24 @@ def merge_on_date_year(df1, df2, on=[], how='inner',
             columns to be merged on.  The values from df1 are the ones which
             are retained for any shared, non-merging columns.
     """
-    if year_col not in df1.columns:
-        assert date_col in df1.columns
-        assert date_col not in df2.columns
-        df1[year_col] = pd.to_datetime(df1[date_col]).dt.year
+    assert date_col in df_date.columns
+    assert year_col in df_year.columns
+    # need to make these real assertions:
+    # assert df_year is truly annual data.
+    # assert df_date[date_col] is a Date
+    # assert df_year[year_col] is a Date
+    df_date = df_date.copy()
+    df_year = df_year.copy()
 
-    if year_col not in df2.columns:
-        assert date_col in df2.columns
-        assert date_col not in df1.columns
-        df2[year_col] = pd.to_datetime(df2[date_col]).dt.year
+    df_date['tmp_year'] = pd.to_datetime(df_date[date_col]).dt.year
+    df_year['tmp_year'] = pd.to_datetime(df_year[year_col]).dt.year
 
-    assert year_col in df1.columns
-    assert year_col in df2.columns
-
-    full_on = on + [year_col]
-    unshared_cols = [col for col in df1.columns.tolist()
-                     if col not in df2.columns.tolist()]
+    full_on = on + ['tmp_year']
+    unshared_cols = [col for col in df_date.columns.tolist()
+                     if col not in df_year.columns.tolist()]
     cols_to_use = unshared_cols + full_on
-    merged = pd.merge(df1[cols_to_use], df2, how=how, on=full_on)
-    merged = merged.drop(year_col, axis=1)
+    merged = pd.merge(df_date[cols_to_use], df_year, how=how, on=full_on)
+    merged = merged.drop('tmp_year', axis=1)
 
     return(merged)
 
