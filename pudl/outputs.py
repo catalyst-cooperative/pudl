@@ -789,8 +789,7 @@ def generation_eia923(pudl_engine, freq=None,
     pu_eia = plants_utils_eia(pudl_engine)
 
     # Merge annual plant/utility data in with the more granular dataframe
-    out_df = analysis.merge_on_date_year(df_date=g_df,
-                                         df_year=pu_eia,
+    out_df = analysis.merge_on_date_year(g_df, pu_eia,
                                          on=['plant_id'])
 
     if freq is None:
