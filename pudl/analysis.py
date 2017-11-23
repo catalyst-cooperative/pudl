@@ -52,6 +52,12 @@ def merge_on_date_year(df_date, df_year, on=[], how='inner',
             columns to be merged on.  The values from df1 are the ones which
             are retained for any shared, non-merging columns.
     """
+    assert date_col in df_date.columns.tolist()
+    assert year_col in df_year.columns.tolist()
+    assert pd.infer_freq(
+        pd.DatetimeIndex(df_year[year_col].unique()).sort_values()) == 'AS-JAN'
+    # assert that df_date has annual or finer time resolution.
+
     # Create a temporary column in each dataframe with the year
     df_year['year_temp'] = pd.to_datetime(df_year[year_col]).dt.year
     # Drop the yearly report_date column: this way there won't be duplicates
