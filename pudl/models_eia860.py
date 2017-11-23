@@ -78,7 +78,14 @@ class PlantsEIA860(pudl.models.PUDLBase):
     ash_impoundment = Column(String)
     ash_impoundment_lined = Column(String)
     ash_impoundment_status = Column(String)
-    natural_gas_pipeline = Column(String)
+    energy_storage = Column(String)
+    natural_gas_pipeline_name_1 = Column(String)
+    natural_gas_pipeline_name_2 = Column(String)
+    natural_gas_pipeline_name_3 = Column(String)
+    pipeline_notes = Column(String)
+    natural_gas_ldc_name = Column(String)
+    natural_gas_storage = Column(String)
+    liquefied_natural_gas_storage = Column(String)
 
 
 class OwnershipEIA860(pudl.models.PUDLBase):
