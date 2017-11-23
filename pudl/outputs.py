@@ -206,7 +206,7 @@ def utilities_eia860(pudl_engine):
 
     out_df = out_df.drop(['id'], axis=1)
     first_cols = [
-        'report_year',
+        'report_date',
         'operator_id',
         'util_id_pudl',
         'operator_name',
@@ -244,7 +244,7 @@ def plants_eia860(pudl_engine):
 
     out_df = out_df.drop(['id'], axis=1)
     first_cols = [
-        'report_year',
+        'report_date',
         'operator_id',
         'util_id_pudl',
         'operator_name',
@@ -342,9 +342,9 @@ def ownership_eia860(pudl_engine):
 
     pu_eia = plants_utils_eia(pudl_engine)
     pu_eia = pu_eia[['plant_id', 'plant_id_pudl', 'util_id_pudl',
-                     'report_year']]
+                     'report_date']]
 
-    out_df = pd.merge(o_df, pu_eia, how='left', on=['report_year', 'plant_id'])
+    out_df = pd.merge(o_df, pu_eia, how='left', on=['report_date', 'plant_id'])
 
     out_df = out_df.drop(['id'], axis=1)
 
@@ -358,7 +358,7 @@ def ownership_eia860(pudl_engine):
     ])
 
     first_cols = [
-        'report_year',
+        'report_date',
         'plant_id',
         'plant_id_pudl',
         'plant_name',
