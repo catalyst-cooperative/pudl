@@ -2904,6 +2904,7 @@ aer_fuel_type_strings = {
     'other': aer_other_strings
 }
 
+# Data sources which are commented out are not yet available.
 data_sources = [
     'eia860',
     # 'eia861',
