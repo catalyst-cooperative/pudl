@@ -409,6 +409,7 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
     pu_eia = pu_eia[['plant_id', 'plant_id_pudl', 'util_id_pudl',
                      'report_date']]
 
+    o_df['report_date'] = pd.to_datetime(o_df.report_date)
     out_df = pd.merge(o_df, pu_eia, how='left', on=['report_date', 'plant_id'])
 
     out_df = out_df.drop(['id'], axis=1)
@@ -437,6 +438,8 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
 
     # Re-arrange the columns for easier readability:
     out_df = organize_cols(out_df, first_cols)
+    out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
+    out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
     out_df = extend_annual(out_df, start_date=start_date, end_date=end_date)
 
     return(out_df)

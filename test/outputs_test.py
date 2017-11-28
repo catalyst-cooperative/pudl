@@ -8,7 +8,10 @@ read data from the DB, so that's safe.  To use these tests you need to have
 initialized the DB successfully.
 """
 import pytest
+import itertools
+import pandas as pd
 from pudl import pudl, outputs
+from pudl import constants as pc
 
 
 @pytest.mark.ferc1
@@ -37,9 +40,18 @@ def test_ferc1_output(live_pudl_db):
 def test_eia_output(live_pudl_db):
     """Test output routines for tables from across EIA data sources."""
     testing = (not live_pudl_db)
-    print("Compiling EIA Plants & Utilities table...")
-    pu_eia = outputs.plants_utils_eia(testing=testing)
-    print("    {} records found.".format(len(pu_eia)))
+    print('\n')
+    first_eia923 = \
+        pd.to_datetime('{}-01-01'.format(min(pc.working_years['eia923'])))
+    last_eia923 = \
+        pd.to_datetime('{}-12-31'.format(max(pc.working_years['eia923'])))
+    dates = [(None, None), (first_eia923, last_eia923)]
+    for (start_date, end_date) in dates:
+        print("start_date={}, end_date={}".format(start_date, end_date))
+        pu_eia = outputs.plants_utils_eia(testing=testing,
+                                          start_date=start_date,
+                                          end_date=end_date)
+        print("    pu_eia: {} records found.".format(len(pu_eia)))
 
 
 @pytest.mark.tabular_output
@@ -48,21 +60,36 @@ def test_eia_output(live_pudl_db):
 def test_eia923_output(live_pudl_db):
     """Test output routines for tables from EIA Form 923."""
     testing = (not live_pudl_db)
-    print("Compiling EIA 923 Fuel Receipts & Costs table...")
-    frc_out = outputs.fuel_receipts_costs_eia923(testing=testing)
-    print("    {} records found.".format(len(frc_out)))
+    first_eia923 = \
+        pd.to_datetime('{}-01-01'.format(min(pc.working_years['eia923'])))
+    last_eia923 = \
+        pd.to_datetime('{}-12-31'.format(max(pc.working_years['eia923'])))
+    freqs = (None, 'AS', 'MS')
+    dates = [(None, None), (first_eia923, last_eia923)]
+    params = itertools.product(freqs, dates)
+    print('\n')
+    for freq, (start_date, end_date) in params:
+        print("freq={}, start_date={}, end_date={}".
+              format(freq, start_date, end_date))
+        frc_out = outputs.fuel_receipts_costs_eia923(
+            testing=testing, freq=freq,
+            start_date=start_date, end_date=end_date)
+        print("    frc_eia923: {} records found.".format(len(frc_out)))
 
-    print("Compiling EIA 923 Generation Fuel table...")
-    gf_out = outputs.generation_fuel_eia923(testing=testing)
-    print("    {} records found.".format(len(gf_out)))
+        gf_out = outputs.generation_fuel_eia923(
+            testing=testing, freq=freq,
+            start_date=start_date, end_date=end_date)
+        print("    gf_eia923: {} records found.".format(len(gf_out)))
 
-    print("Compiling EIA 923 Boiler Fuel table...")
-    bf_out = outputs.boiler_fuel_eia923(testing=testing)
-    print("    {} records found".format(len(bf_out)))
+        bf_out = outputs.boiler_fuel_eia923(
+            testing=testing, freq=freq,
+            start_date=start_date, end_date=end_date)
+        print("    bf_eia923: {} records found".format(len(bf_out)))
 
-    print("Compiling EIA 923 Generation table...")
-    g_out = outputs.generation_eia923(testing=testing)
-    print("    {} records found".format(len(g_out)))
+        g_out = outputs.generation_eia923(
+            testing=testing, freq=freq,
+            start_date=start_date, end_date=end_date)
+        print("    gen_eia923: {} records found".format(len(g_out)))
 
 
 @pytest.mark.tabular_output
@@ -71,18 +98,30 @@ def test_eia923_output(live_pudl_db):
 def test_eia860_output(live_pudl_db):
     """Test output routines for tables from EIA Form 860."""
     testing = (not live_pudl_db)
-    print("Compiling EIA 860 Utilities table...")
-    utils_out = outputs.utilities_eia860(testing=testing)
-    print("    {} records found".format(len(utils_out)))
+    first_eia923 = \
+        pd.to_datetime('{}-01-01'.format(min(pc.working_years['eia923'])))
+    last_eia923 = \
+        pd.to_datetime('{}-12-31'.format(max(pc.working_years['eia923'])))
+    dates = [(None, None), (first_eia923, last_eia923)]
+    print('\n')
+    for (start_date, end_date) in dates:
+        print("start_date={}, end_date={}". format(start_date, end_date))
+        utils_out = outputs.utilities_eia860(testing=testing,
+                                             start_date=start_date,
+                                             end_date=end_date)
+        print("    utils_eia860: {} records found".format(len(utils_out)))
 
-    print("Compiling EIA 860 Plants table...")
-    plants_out = outputs.plants_eia860(testing=testing)
-    print("    {} records found".format(len(plants_out)))
+        plants_out = outputs.plants_eia860(testing=testing,
+                                           start_date=start_date,
+                                           end_date=end_date)
+        print("    plants_eia860: {} records found".format(len(plants_out)))
 
-    print("Compiling EIA 860 Generators table...")
-    gens_out = outputs.generators_eia860(testing=testing)
-    print("    {} records found".format(len(gens_out)))
+        gens_out = outputs.generators_eia860(testing=testing,
+                                             start_date=start_date,
+                                             end_date=end_date)
+        print("    gens_eia860: {} records found".format(len(gens_out)))
 
-    print("Compiling EIA 860 Ownership table...")
-    own_out = outputs.ownership_eia860(testing=testing)
-    print("    {} records found".format(len(own_out)))
+        own_out = outputs.ownership_eia860(testing=testing,
+                                           start_date=start_date,
+                                           end_date=end_date)
+        print("    own_eia860: {} records found".format(len(own_out)))
