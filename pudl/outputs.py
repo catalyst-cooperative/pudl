@@ -83,8 +83,8 @@ def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
             prev_year = \
                 df[pd.to_datetime(df[date_col]) == earliest_date].copy()
             prev_year[date_col] = earliest_date - pd.DateOffset(years=1)
-            prev_year[date_col] = prev_year[date_col].dt.date
             df = df.append(prev_year)
+            df[date_col] = pd.to_datetime(df[date_col])
             earliest_date = pd.to_datetime(df[date_col].min())
 
     latest_date = pd.to_datetime(df[date_col].max())
@@ -93,10 +93,11 @@ def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
         while end_date >= latest_date + pd.DateOffset(years=1):
             next_year = df[pd.to_datetime(df[date_col]) == latest_date].copy()
             next_year[date_col] = latest_date + pd.DateOffset(years=1)
-            next_year[date_col] = next_year[date_col].dt.date
             df = df.append(next_year)
+            df[date_col] = pd.to_datetime(df[date_col])
             latest_date = pd.to_datetime(df[date_col].max())
 
+    df[date_col] = pd.to_datetime(df[date_col])
     return(df)
 
 
@@ -289,8 +290,6 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
     Returns:
         A pandas dataframe.
 
-    Issues:
-        - Use generic extend_annual function.
     """
     pudl_engine = pudl.db_connect_pudl(testing=testing)
     # Almost all the info we need will come from here.
@@ -340,9 +339,9 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
                                     'operator_name',
                                     'plant_name'], axis=1)
     plants_eia860 = pd.read_sql(plants_eia860_select, pudl_engine)
-
     out_df = pd.merge(gens_eia860, plants_eia860,
                       how='left', on=['report_date', 'plant_id'])
+    out_df.report_date = pd.to_datetime(out_df.report_date)
 
     # Bring in some generic plant & utility information:
     pu_eia = plants_utils_eia(start_date=start_date,
