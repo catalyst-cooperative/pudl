@@ -8,89 +8,6 @@ import pandas as pd
 # General issues:
 # - Need to deal with both EIA & PUDL plant IDs.
 
-# - boiler_generator_pull_eia860:
-#   - We need the more complex and exhaustive construction of the BGA that
-#     Christina is working on.  Needs to vary over time, and integrate more
-#     inter-year information.
-
-
-def fuel_receipts_costs_pull_eia923(pudl_engine, years=[2014, 2015, 2016]):
-    """
-    Compile dataframes of annual EIA 923 fuel receipts and costs for MCOE.
-
-    Additional columns are calculated, containing the total MMBTU and total
-    cost for each fuel delivery. The energy_source associated with the fuel
-    delivery is consolidated into gas, oil, or coal, codes which we've been
-    using across the datasets.
-
-    Two separate data frames are returned, one is grouped by plant_id_eia,
-    report_year, and consolidated energy source, the other is the same,
-    except it's not grouped by energy_source, and has an additional column
-    that contains the average cost per mmbtu for the listed plants. This is
-    for use with the single-fuel plants, in calculating their fuel_cost per
-    generator.
-
-    - Handing back two dataframes feels a little awkward, and the additional
-      step of further grouping and calculating cost per mmbtu across the entire
-      plant feels like it might be done over in the fuel_cost function
-      instead, so it's clear what two different things are being done, side by
-      side, in the single vs. multi-fuel plant cases.
-        I don't think I agree with this, but we'll see.
-
-    - Also slightly dangerous to calculate the fuel cost per mmbtu column for
-      all of the plants, when I don't think we want folks to use those numbers
-      for the multi-fuel plants (since it'd be a mix of e.g. coal and gas costs
-      per mmbtu).
-        Maybe you need to explain this. I don't see this going anywhere expect
-        for into the fuel cost calcs.
-    """
-    # Convert the fuel_receipts_costs_eia923 table into a dataframe
-    frc9 = analysis.simple_select('fuel_receipts_costs_eia923', pudl_engine)
-
-    frc9['fuel_cost'] = (frc9['fuel_quantity'] *
-                         frc9['average_heat_content'] *
-                         frc9['fuel_cost_per_mmbtu'])
-
-    frc9['mmbtu'] = (frc9['fuel_quantity'] * frc9['average_heat_content'])
-
-    # Get yearly fuel cost by plant_id, year and energy_source
-    frc9_summed = analysis.yearly_sum_eia(frc9, 'fuel_cost', columns=[
-                                          'plant_id_eia', 'plant_id_pudl',
-                                          'report_year',
-                                          'energy_source_simple'])
-    frc9_summed = frc9_summed.reset_index()
-
-    frc9_mmbtu_summed = analysis.yearly_sum_eia(
-        frc9, 'mmbtu', columns=['plant_id_eia', 'report_year',
-                                'energy_source_simple'])
-    frc9_mmbtu_summed = frc9_mmbtu_summed.reset_index()
-    frc9_summed = frc9_mmbtu_summed.merge(frc9_summed)
-    frc9_summed['fuel_cost_per_mmbtu_es'] = (
-        frc9_summed.fuel_cost / frc9_summed.mmbtu)
-    frc9_summed.rename(columns={'mmbtu': 'mmbtu_es',
-                                'fuel_cost': 'fuel_cost_es'}, inplace=True)
-
-    # Get yearly fuel cost by plant_id and year
-    # For use in calculating fuel cost for plants with one main energy soure
-    frc9_summed_plant = analysis.yearly_sum_eia(
-        frc9, 'fuel_cost', columns=['plant_id_eia', 'report_year'])
-    frc9_summed_plant = frc9_summed_plant.reset_index()
-    frc9_mmbtu_summed_plant = analysis.yearly_sum_eia(
-        frc9, 'mmbtu', columns=['plant_id_eia', 'report_year'])
-    frc9_mmbtu_summed_plant = frc9_mmbtu_summed_plant.reset_index()
-    frc9_summed_plant = frc9_mmbtu_summed_plant.merge(frc9_summed_plant)
-    frc9_summed_plant['fuel_cost_per_mmbtu_plant'] = (
-        frc9_summed_plant.fuel_cost / frc9_summed_plant.mmbtu)
-    frc9_summed_plant.rename(columns={'mmbtu': 'mmbtu_plant',
-                                      'fuel_cost': 'fuel_cost_plant'},
-                             inplace=True)
-
-    frc9_summed = frc9_summed[frc9_summed.report_year.isin(years)]
-    frc9_summed_plant = \
-        frc9_summed_plant[frc9_summed_plant.report_year.isin(years)]
-
-    return(frc9_summed, frc9_summed_plant)
-
 
 def boiler_generator_pull_eia860(testing=False):
     """
@@ -308,7 +225,7 @@ def heat_rate(bga_eia860, gen_eia923, bf_eia923,
     return(hr)
 
 
-def fuel_cost(freq=None, testing=False, start_date=None, end_date=None):
+def fuel_cost(hr, frc_eia923, gen_eia923):
     """
     Calculate fuel costs per MWh on a per generator basis for MCOE.
 
@@ -330,82 +247,90 @@ def fuel_cost(freq=None, testing=False, start_date=None, end_date=None):
     split out the fuel costs according to fuel type -- so the gas fuel costs
     are associated with generators that have energy_source gas, and the coal
     fuel costs are associated with the generators that have energy_source coal.
-
-    Zane Comments:
-     - For net_gen_one_fuel, rather than doing a left join and then dropping
-       NA values, why not just do an inner join?
-        Sure.
-     - Same question as above for fuel_cost_multi_fuel merge.
     """
-    one_fuel_plants = g8_es[g8_es['energy_source_count'] == 1]
-    multi_fuel_plants = g8_es[g8_es['energy_source_count'] > 1]
+    # Split up the plants on the basis of how many different primary energy
+    # sources the component generators have:
+    gen_w_es = pd.merge(gen_eia923,
+                        hr[['plant_id_eia', 'report_date', 'generator_id',
+                            'energy_source_simple', 'energy_source_count',
+                            'heat_rate_mmbtu_mwh']],
+                        how='inner',
+                        on=['plant_id_eia', 'report_date', 'generator_id'])
 
-    # one fuel plants
-    net_gen_one_fuel = g9_summed.merge(one_fuel_plants, how='left', on=[
-        'plant_id_eia', 'plant_id_pudl', 'generator_id', 'report_year'])
-    net_gen_one_fuel.dropna(inplace=True)
+    one_fuel = gen_w_es[gen_w_es.energy_source_count == 1]
+    multi_fuel = gen_w_es[gen_w_es.energy_source_count > 1]
 
-    # Merge this net_gen table with frc9_summed_plant to have
-    # fuel_cost_per_mmbtu_total associated with generators
-    fuel_cost_per_mmbtu_one_fuel = net_gen_one_fuel.merge(frc9_summed_plant,
-                                                          how='left',
-                                                          on=['plant_id_eia',
-                                                              'report_year'])
+    # Bring the single fuel cost & generation information together for just
+    # the one fuel plants:
+    one_fuel = pd.merge(one_fuel, frc_eia923[['plant_id_eia', 'report_date',
+                                              'fuel_cost_per_mmbtu',
+                                              'energy_source_simple',
+                                              'total_fuel_cost',
+                                              'total_heat_content_mmbtu']],
+                        how='left', on=['plant_id_eia', 'report_date'])
+    # We need to retain the different energy_source information from the
+    # generators (primary for the generator) and the fuel receipts (which is
+    # per-delivery), and in the one_fuel case, there will only be a single
+    # generator getting all of the fuels:
+    one_fuel.rename(columns={'energy_source_simple_x': 'ess_gen',
+                             'energy_source_simple_y': 'ess_frc'},
+                    inplace=True)
 
-    fuel_cost_one_fuel = fuel_cost_per_mmbtu_one_fuel.\
-        merge(heat_rate[['plant_id_eia',
-                         'report_year',
-                         'generator_id',
-                         'heat_rate_mmbtu_mwh']],
-              on=['plant_id_eia',
-                  'report_year',
-                  'generator_id'])
+    # Do the same thing for the multi fuel plants, but also merge based on
+    # the different fuel types within the plant, so that we keep that info
+    # as separate records:
+    multi_fuel = pd.merge(multi_fuel,
+                          frc_eia923[['plant_id_eia', 'report_date',
+                                      'fuel_cost_per_mmbtu',
+                                      'energy_source_simple']],
+                          how='left', on=['plant_id_eia', 'report_date',
+                                          'energy_source_simple'])
 
-    # Calculate fuel cost per mwh using average fuel cost given year, plant,
-    # fuel type; divide by generator-specific heat rate
-    fuel_cost_one_fuel['fuel_cost_per_mwh'] = \
-        (fuel_cost_one_fuel['fuel_cost_per_mmbtu_plant']
-         * fuel_cost_one_fuel['heat_rate_mmbtu_mwh'])
+    # At this point, within each plant, we should have one record per
+    # combination of generator & fuel type, which includes the heat rate of
+    # each generator, as well as *plant* level fuel cost per unit heat input
+    # for *each* fuel, which we can combine to figure out the fuel cost per
+    # unit net electricity generation on a generator basis.
 
-    # multi fuel plants
-    net_gen_multi_fuel = g9_summed.merge(multi_fuel_plants, how='left', on=[
-        'plant_id_eia', 'plant_id_pudl', 'generator_id', 'report_year'])
-    net_gen_multi_fuel.dropna(inplace=True)
+    # We have to do these calculations separately for the single and multi-fuel
+    # plants because in the case of the one fuel plants we need to sum up all
+    # of the fuel costs -- including both primary and secondary fuel
+    # consumption -- whereas in the multi-fuel plants we are going to look at
+    # fuel costs on a per-fuel basis (this is very close to being correct,
+    # since secondary fuels are typically a fraction of a percent of the
+    # plant's overall costs).
 
-    # Merge this net_gen table with frc9_summed to have
-    # fuel_cost_per_mmbtu_total associated with energy source
-    # in this case, we are using energy source as a more granular sub plant
-    # lumping because we don't have generator ids in the frc table.
-    fuel_cost_per_mmbtu_multi_fuel = net_gen_multi_fuel.\
-        merge(frc9_summed,
-              how='left',
-              on=['plant_id_eia',
-                  'plant_id_pudl',
-                  'report_year',
-                  'energy_source_simple'])
+    one_fuel_gb = one_fuel.groupby(by=['report_date', 'plant_id_eia'])
+    one_fuel_agg = one_fuel_gb.agg({
+        'total_fuel_cost': np.sum,
+        'total_heat_content_mmbtu': np.sum
+    })
+    one_fuel_agg['fuel_cost_per_mmbtu'] = \
+        one_fuel_agg['total_fuel_cost'] / \
+        one_fuel_agg['total_heat_content_mmbtu']
+    one_fuel_agg = one_fuel_agg.reset_index()
+    one_fuel = pd.merge(one_fuel[['plant_id_eia', 'report_date',
+                                  'generator_id', 'heat_rate_mmbtu_mwh']],
+                        one_fuel_agg[['plant_id_eia', 'report_date',
+                                      'fuel_cost_per_mmbtu']],
+                        on=['plant_id_eia', 'report_date'])
+    one_fuel = one_fuel.drop_duplicates(
+        subset=['plant_id_eia', 'report_date', 'generator_id'])
 
-    fuel_cost_multi_fuel = fuel_cost_per_mmbtu_multi_fuel.\
-        merge(heat_rate[['plant_id_eia',
-                         'report_year',
-                         'generator_id',
-                         'heat_rate_mmbtu_mwh']],
-              on=['plant_id_eia',
-                  'report_year',
-                  'generator_id'])
+    multi_fuel = multi_fuel[['plant_id_eia', 'report_date', 'generator_id',
+                             'fuel_cost_per_mmbtu', 'heat_rate_mmbtu_mwh']]
 
-    # Calculate fuel cost per mwh using average fuel cost given year, plant,
-    # fuel type; divide by generator-specific heat rate
-    fuel_cost_multi_fuel['fuel_cost_per_mwh'] = \
-        (fuel_cost_multi_fuel['fuel_cost_per_mmbtu_es'] *
-         fuel_cost_multi_fuel['heat_rate_mmbtu_mwh'])
-
-    # Squish them together!
-    fuel_cost = fuel_cost_one_fuel.append(fuel_cost_multi_fuel)
-
+    fuel_cost = one_fuel.append(multi_fuel)
+    fuel_cost['fuel_cost_per_mwh'] = \
+        fuel_cost['fuel_cost_per_mmbtu'] * fuel_cost['heat_rate_mmbtu_mwh']
     fuel_cost = \
-        fuel_cost.sort_values(['report_year', 'plant_id_eia', 'generator_id'])
+        fuel_cost.sort_values(['report_date', 'plant_id_eia', 'generator_id'])
 
-    return(fuel_cost)
+    out_df = gen_w_es.drop('heat_rate_mmbtu_mwh', axis=1)
+    out_df = pd.merge(out_df, fuel_cost,
+                      on=['report_date', 'plant_id_eia', 'generator_id'])
+
+    return(out_df)
 
 
 def mcoe(freq='AS', testing=False, plant_id='plant_id_eia',
@@ -454,48 +379,57 @@ def mcoe(freq='AS', testing=False, plant_id='plant_id_eia',
         end_date = pd.to_datetime(end_date)
 
     # Select the required data from the database:
-    # formerly g8_es
-    gens_eia860 = outputs.generators_eia860(testing=testing,
-                                            start_date=start_date,
-                                            end_date=end_date)
-    gens_eia860 = gens_eia860.rename(columns={'plant_id': 'plant_id_eia'})
-
-    # formerly bga8
-    bga_eia860 = boiler_generator_pull_eia860(testing=testing)
-    bga_eia860 = bga_eia860.rename(columns={'plant_id': 'plant_id_eia'})
-
-    # formerly g9_summed
+    # Generation:
     gen_eia923 = outputs.generation_eia923(freq=freq, testing=testing,
                                            start_date=start_date,
                                            end_date=end_date)
     gen_eia923 = gen_eia923.rename(columns={'plant_id': 'plant_id_eia'})
 
-    # formerly bf9_summed & bf9_plant_summed
+    # Boiler Fuel Consumption:
     bf_eia923 = outputs.boiler_fuel_eia923(freq=freq, testing=testing,
                                            start_date=start_date,
                                            end_date=end_date)
     bf_eia923 = bf_eia923.rename(columns={'plant_id': 'plant_id_eia'})
 
-    # Calculate heat rates by generator
-    hr_df = heat_rate(bga_eia860=bga_eia860,
-                      gen_eia923=gen_eia923,
-                      bf_eia923=bf_eia923,
-                      plant_id=plant_id,
-                      min_heat_rate=min_heat_rate)
+    # The Boiler - Generator Associations:
+    bga_eia860 = boiler_generator_pull_eia860(testing=testing)
+    bga_eia860 = bga_eia860.rename(columns={'plant_id': 'plant_id_eia'})
 
-    hr_df = analysis.merge_on_date_year(
-        hr_df,
+    # Now, calculate the heat_rates on a per-generator basis:
+    hr = heat_rate(bga_eia860=bga_eia860,
+                   gen_eia923=gen_eia923,
+                   bf_eia923=bf_eia923,
+                   plant_id=plant_id,
+                   min_heat_rate=min_heat_rate)
+
+    # Grab information about the individual generators:
+    gens_eia860 = outputs.generators_eia860(testing=testing,
+                                            start_date=start_date,
+                                            end_date=end_date)
+    gens_eia860 = gens_eia860.rename(columns={'plant_id': 'plant_id_eia'})
+
+    # Merge just the primary energy source information into heat rate, since
+    # we will need it to calculate the per-fuel costs, based on plant level
+    # fuel receipts:
+    hr = analysis.merge_on_date_year(
+        hr,
         gens_eia860[['report_date', 'plant_id_eia', 'plant_id_pudl',
-                     'generator_id', 'energy_source_simple']],
+                     'generator_id', 'energy_source_simple',
+                     'energy_source_count']],
         how='inner', on=['plant_id_eia', 'plant_id_pudl', 'generator_id'])
 
     # formerly frc9_summed & frc9_summed_plant
-    # frc_eia923 = outputs.fuel_receipts_costs_eia923(freq=freq, testing=testing,
-    #                                                 start_date=start_date,
-    #                                                 end_date=end_date)
+    frc_eia923 = outputs.fuel_receipts_costs_eia923(freq=freq, testing=testing,
+                                                    start_date=start_date,
+                                                    end_date=end_date)
+    frc_eia923 = frc_eia923.rename(columns={'plant_id': 'plant_id_eia'})
 
     # Calculate fuel costs by generator
+    fc = fuel_cost(hr, frc_eia923, gen_eia923)
+
     # Calculate capacity factors by generator
+    # Should this be done somewhere not specific to MCOE instead?
+
     # Compile the above into a single dataframe for output/return.
 
-    return(hr_df)
+    return(fc)
