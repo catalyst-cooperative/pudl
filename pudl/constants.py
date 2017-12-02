@@ -2968,6 +2968,33 @@ natural_gas_transport_eia923 = {
     'I': 'Interruptible'
 }
 
+<<<<<<< HEAD
+=======
+
+# PUDL consolidation of EIA923 AER fuel type strings into same categories as
+# 'energy_source_eia923' plus additional renewable and nuclear categories.
+aer_coal_strings = ['col', 'woc', 'pc']
+aer_gas_strings = ['ng']
+aer_oil_strings = ['dfo', 'rfo']
+aer_solar_strings = ['sun']
+aer_wind_strings = ['wnd']
+aer_hydro_strings = ['hps', 'hyc']
+aer_nuclear_strings = ['nuc']
+aer_other_strings = ['geo', 'mlg', 'oog', 'orw', 'oth', 'woo', 'www']
+
+aer_fuel_type_strings = {
+    'coal': aer_coal_strings,
+    'gas': aer_gas_strings,
+    'oil': aer_oil_strings,
+    'solar': aer_solar_strings,
+    'wind': aer_wind_strings,
+    'hydro': aer_hydro_strings,
+    'nuclear': aer_nuclear_strings,
+    'other': aer_other_strings
+}
+
+# Data sources which are commented out are not yet available.
+>>>>>>> 6113213a595a654a310f96fed88843e95945a4a1
 data_sources = [
     'eia860',
     # 'eia861',
