@@ -397,7 +397,7 @@ def generation_fuel_eia923(pudl_engine, freq=None,
     given plant and fuel type.
      - plant_id
      - report_date
-     - aer_fuel_category (TODO: USE STANDARD SIMPLE FUEL CODES/FIELD)
+     - fuel_type_pudl
      - fuel_consumed_total
      - fuel_consumed_for_electricity
      - fuel_mmbtu_per_unit
@@ -433,9 +433,9 @@ def generation_fuel_eia923(pudl_engine, freq=None,
 
     cols_to_drop = ['id']
     gf_df = gf_df.drop(cols_to_drop, axis=1)
-    # TODO: change this from aer_fuel_category to aer_fuel_type_simple or
-    # fuel_type_simple or fuel_type_pudl or whatever we're going to use.
-    by = ['plant_id', 'aer_fuel_category']
+
+    # fuel_type_pudl was formerly aer_fuel_category
+    by = ['plant_id', 'fuel_type_pudl']
     if freq is not None:
         # Create a date index for temporal resampling:
         gf_df = gf_df.set_index(pd.DatetimeIndex(gf_df.report_date))
@@ -504,7 +504,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
     calculated, for total fuel heat content and total fuel cost.
      - plant_id
      - report_date
-     - energy_source_simple
+     - fuel_type_pudl (formerly energy_source_simple)
      - fuel_quantity (sum)
      - fuel_cost_per_mmbtu (weighted average)
      - total_fuel_cost (sum)
@@ -561,7 +561,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
     frc_df['total_fuel_cost'] = \
         frc_df['total_heat_content_mmbtu'] * frc_df['fuel_cost_per_mmbtu']
 
-    by = ['plant_id', 'energy_source_simple']
+    by = ['plant_id', 'fuel_type_pudl']
     if freq is not None:
         # Create a date index for temporal resampling:
         frc_df = frc_df.set_index(pd.DatetimeIndex(frc_df.report_date))
@@ -684,7 +684,7 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
         bf_df['fuel_mmbtu_per_unit']
 
     # Create a date index for grouping based on freq
-    by = ['plant_id', 'boiler_id', 'fuel_type_simple']
+    by = ['plant_id', 'boiler_id', 'fuel_type_pudl']
     if freq is not None:
         # In order to calculate the weighted average sulfur
         # content and ash content we need to calculate these totals.

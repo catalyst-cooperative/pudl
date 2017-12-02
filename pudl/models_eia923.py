@@ -160,13 +160,6 @@ class TransportModeEIA923(pudl.models.PUDLBase):
     mode = Column(String, nullable=False)
 
 
-class AERFuelCategoryEIA923(pudl.models.PUDLBase):
-    """PUDL Consolidation of AER Fuel Types."""
-
-    __tablename__ = 'aer_fuel_type_strings'
-    name = Column(String, primary_key=True)
-
-
 ###########################################################################
 # Tables which represent EIA Form 923 data. E.g. Fuel Receipts.
 ###########################################################################
@@ -232,9 +225,8 @@ class GenerationFuelEIA923(pudl.models.PUDLBase):
     fuel_type = Column(String,
                        ForeignKey('fuel_type_eia923.abbr'),
                        nullable=False)
+    fuel_type_pudl = Column(String)
     aer_fuel_type = Column(String, ForeignKey('fuel_type_aer_eia923.abbr'))
-    aer_fuel_category = Column(
-        String, ForeignKey('aer_fuel_type_strings.name'))
     prime_mover = Column(String,
                          ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
@@ -262,7 +254,7 @@ class BoilerFuelEIA923(pudl.models.PUDLBase):
                          nullable=False)
     fuel_type = Column(String, ForeignKey('fuel_type_eia923.abbr'),
                        nullable=False)
-    fuel_type_simple = Column(String)
+    fuel_type_pudl = Column(String)
     report_date = Column(Date, nullable=False)
     fuel_qty_consumed = Column(Float)
     fuel_mmbtu_per_unit = Column(Float)
@@ -304,7 +296,7 @@ class FuelReceiptsCostsEIA923(pudl.models.PUDLBase):
     contract_type = Column(String, ForeignKey('contract_type_eia923.abbr'))
     contract_expiration_date = Column(Date)
     energy_source = Column(String, ForeignKey('energy_source_eia923.abbr'))
-    energy_source_simple = Column(String)
+    fuel_type_pudl = Column(String)
     fuel_group = Column(String, ForeignKey('fuel_group_eia923.group'))
     fuel_group_simple = Column(String)
     coalmine_id = Column(Integer, ForeignKey('coalmine_info_eia923.id'))
