@@ -2661,30 +2661,83 @@ fuel_type_eia923 = {
         sludge oil, tar oil, or other petroleum-based liquid wastes.'
 }
 
-fuel_type_eia923_coal_strings = ['ant', 'bit', 'cbl', 'lig', 'pc', 'rc', 'sc',
-                                 'sub', 'wc']
-fuel_type_eia923_oil_strings = ['blq', 'dfo', 'jf', 'ker', 'rfo', 'wo']
-fuel_type_eia923_gas_strings = ['bfg', 'lfg', 'ng', 'obg', 'og', 'pg', 'sgc',
-                                'sgp']
-fuel_type_eia923_solar_strings = ['sun', ]
-fuel_type_eia923_wind_strings = ['wnd', ]
-fuel_type_eia923_hydro_strings = ['wat', ]
-fuel_type_eia923_nuclear_strings = ['nuc', ]
-fuel_type_eia923_waste_strings = ['ab', 'msb', 'msn', 'obl', 'obs', 'slw',
-                                  'tdf', 'wdl', 'wds', ]
-fuel_type_eia923_other_strings = ['mwh', 'oth', 'pur', 'wh', 'geo']
+# Fuel type strings for EIA 923 generator fuel table
 
-fuel_type_eia923_simple_map = {
-    'coal': fuel_type_eia923_coal_strings,
-    'oil': fuel_type_eia923_oil_strings,
-    'gas': fuel_type_eia923_gas_strings,
-    'solar': fuel_type_eia923_solar_strings,
-    'wind': fuel_type_eia923_wind_strings,
-    'hydro': fuel_type_eia923_hydro_strings,
-    'nuclear': fuel_type_eia923_nuclear_strings,
-    'waste': fuel_type_eia923_waste_strings,
-    'other': fuel_type_eia923_other_strings,
+fuel_type_eia923_gen_fuel_coal_strings = [
+    'ant', 'bit', 'cbl', 'lig', 'pc', 'rc', 'sc', 'sub', 'wc', ]
+fuel_type_eia923_gen_fuel_oil_strings = [
+    'blq', 'dfo', 'rfo', 'wo', 'jf', 'ker', ]
+fuel_type_eia923_gen_fuel_gas_strings = [
+    'bfg', 'lfg', 'ng', 'og', 'obg', 'pg', 'sgc', 'sgp', ]
+fuel_type_eia923_gen_fuel_solar_strings = ['sun', ]
+fuel_type_eia923_gen_fuel_wind_strings = ['wnd', ]
+fuel_type_eia923_gen_fuel_hydro_strings = ['wat', ]
+fuel_type_eia923_gen_fuel_nuclear_strings = ['nuc', ]
+fuel_type_eia923_gen_fuel_waste_strings = [
+    'ab', 'msb', 'msn', 'msw', 'obl', 'obs', 'slw', 'tdf', 'wdl', 'wds', ]
+fuel_type_eia923_gen_fuel_other_strings = ['geo', 'mwh', 'oth', 'pur', 'wh', ]
+
+
+fuel_type_eia923_gen_fuel_simple_map = {
+    'coal': fuel_type_eia923_gen_fuel_coal_strings,
+    'oil': fuel_type_eia923_gen_fuel_oil_strings,
+    'gas': fuel_type_eia923_gen_fuel_gas_strings,
+    'solar': fuel_type_eia923_gen_fuel_solar_strings,
+    'wind': fuel_type_eia923_gen_fuel_wind_strings,
+    'hydro': fuel_type_eia923_gen_fuel_hydro_strings,
+    'nuclear': fuel_type_eia923_gen_fuel_nuclear_strings,
+    'waste': fuel_type_eia923_gen_fuel_waste_strings,
+    'other': fuel_type_eia923_gen_fuel_other_strings,
 }
+
+
+# Fuel type strings for EIA 923 boiler fuel table
+
+fuel_type_eia923_boiler_fuel_coal_strings = [
+    'ant', 'bit', 'lig', 'pc', 'rc', 'sc', 'sub', 'wc', ]
+fuel_type_eia923_boiler_fuel_oil_strings = [
+    'blq', 'dfo', 'rfo', 'wo', 'jf', 'ker', ]
+fuel_type_eia923_boiler_fuel_gas_strings = [
+    'bfg', 'lfg', 'ng', 'og', 'obg', 'pg', 'sgc', 'sgp', ]
+fuel_type_eia923_boiler_fuel_waste_strings = ['ab', 'msb', 'msn', 'obl', 'obs',
+                                              'slw', 'tdf', 'wdl', 'wds', ]
+fuel_type_eia923_boiler_fuel_other_strings = ['oth', 'pur', 'wh', ]
+
+fuel_type_eia923_boiler_fuel_simple_map = {
+    'coal': fuel_type_eia923_boiler_fuel_coal_strings,
+    'oil': fuel_type_eia923_boiler_fuel_oil_strings,
+    'gas': fuel_type_eia923_boiler_fuel_gas_strings,
+    'waste': fuel_type_eia923_boiler_fuel_waste_strings,
+    'other': fuel_type_eia923_boiler_fuel_other_strings,
+}
+
+# PUDL consolidation of EIA923 AER fuel type strings into same categories as
+# 'energy_source_eia923' plus additional renewable and nuclear categories.
+# These classifications are not currently used, as the EIA fuel type and energy
+# source designations provide more detailed information.
+
+aer_coal_strings = ['col', 'woc', 'pc']
+aer_gas_strings = ['mlg', 'ng', 'oog']
+aer_oil_strings = ['dfo', 'rfo', 'woo']
+aer_solar_strings = ['sun']
+aer_wind_strings = ['wnd']
+aer_hydro_strings = ['hps', 'hyc']
+aer_nuclear_strings = ['nuc']
+aer_waste_strings = ['www']
+aer_other_strings = ['geo', 'orw', 'oth']
+
+aer_fuel_type_strings = {
+    'coal': aer_coal_strings,
+    'gas': aer_gas_strings,
+    'oil': aer_oil_strings,
+    'solar': aer_solar_strings,
+    'wind': aer_wind_strings,
+    'hydro': aer_hydro_strings,
+    'nuclear': aer_nuclear_strings,
+    'waste': aer_waste_strings,
+    'other': aer_other_strings
+}
+
 
 # EIA 923: A partial aggregation of the reported fuel type codes into
 # larger categories used by EIA in, for example,
@@ -2711,16 +2764,48 @@ fuel_type_aer_eia923 = {
     'WWW': 'Wood and Wood Waste'
 }
 
+fuel_type_eia860_coal_strings = ['ant', 'bit', 'cbl', 'lig', 'pc', 'rc', 'sc',
+                                 'sub', 'wc', 'coal', 'petroleum coke', 'col',
+                                 'woc']
+fuel_type_eia860_oil_strings = ['blq', 'dfo', 'jf', 'ker', 'rfo', 'wo', 'woo',
+                                'petroleum']
+fuel_type_eia860_gas_strings = ['bfg', 'lfg', 'mlg', 'ng', 'obg', 'og', 'pg',
+                                'sgc', 'sgp', 'natural gas', 'other gas',
+                                'oog', 'sg']
+fuel_type_eia860_solar_strings = ['sun', 'solar']
+fuel_type_eia860_wind_strings = ['wnd', 'wind', 'wt']
+fuel_type_eia860_hydro_strings = ['wat', 'hyc', 'hps', 'hydro']
+fuel_type_eia860_nuclear_strings = ['nuc', 'nuclear']
+fuel_type_eia860_waste_strings = ['ab', 'bm', 'msb', 'msn', 'obl',
+                                  'obs', 'slw', 'tdf', 'wdl', 'wds', 'biomass',
+                                  'msw', 'www']
+fuel_type_eia860_other_strings = ['mwh', 'oth', 'pur', 'wh', 'geo', 'none',
+                                  'orw', 'other']
+
+fuel_type_eia860_simple_map = {
+    'coal': fuel_type_eia860_coal_strings,
+    'oil': fuel_type_eia860_oil_strings,
+    'gas': fuel_type_eia860_gas_strings,
+    'solar': fuel_type_eia860_solar_strings,
+    'wind': fuel_type_eia860_wind_strings,
+    'hydro': fuel_type_eia860_hydro_strings,
+    'nuclear': fuel_type_eia860_nuclear_strings,
+    'waste': fuel_type_eia860_waste_strings,
+    'other': fuel_type_eia860_other_strings,
+}
+
+
 # EIA 923/860: Lumping of energy source categories.
 energy_source_eia_simple_map = {
-    'coal': ['ANT', 'BIT', 'LIG', 'SUB', 'WC', 'RC'],
-    'gas': ['BFG', 'NG', 'OG', 'SGP', 'PG', 'SGC'],
-    'oil': ['DFO', 'JF', 'KER', 'PC', 'RFO', 'WO'],
-    'solid_renewable': ['AB', 'MSW', 'OBS', 'WDS'],
-    'biomass_solid': ['OBL', 'SLW', 'BLQ', 'WDL'],
-    'biomass_gas': ['LFG', 'OBG'],
-    'renewable_other': ['SUN', 'WND', 'GEO', 'WAT'],  # wtf is SG?
-    'other': ['NUC', 'PUR', 'WH', 'TDF', 'MWH', 'OTH', 'SG']
+    'coal': ['ANT', 'BIT', 'LIG', 'PC', 'SUB', 'WC', 'RC'],
+    'oil': ['BLQ', 'DFO', 'JF', 'KER', 'RFO', 'WO'],
+    'gas': ['BFG', 'LFG', 'NG', 'OBG', 'OG', 'PG', 'SG', 'SGC', 'SGP'],
+    'solar': ['SUN'],
+    'wind': ['WND'],
+    'hydro': ['WAT'],
+    'nuclear': ['NUC'],
+    'waste': ['AB', 'MSW', 'OBL', 'OBS', 'SLW', 'TDF', 'WDL', 'WDS'],
+    'other': ['GEO', 'MWH', 'OTH', 'PUR', 'WH']
 }
 
 fuel_group_eia923_simple_map = {
@@ -2759,6 +2844,7 @@ contract_type_eia923 = {
 energy_source_eia923 = {
     'ANT': 'Anthracite Coal',
     'BFG': 'Blast Furnace Gas',
+    'BM': 'Biomass',
     'BIT': 'Bituminous Coal',
     'DFO': 'Distillate Fuel Oil. Including diesel,\
            No. 1, No. 2, and No. 4 fuel oils.',
@@ -2772,6 +2858,7 @@ energy_source_eia923 = {
     'RC': 'Refined Coal',
     'RFO': 'Residual Fuel Oil. Including \
            No. 5 & 6 fuel oils and bunker C fuel oil.',
+    'SG': 'Synhtesis Gas from Petroleum Coke',
     'SGP': 'Petroleum Coke Derived Synthesis Gas',
     'SC': 'Coal-based Synfuel. Including briquettes, pellets, or \
           extrusions, which are formed by binding materials or \
@@ -2881,30 +2968,6 @@ natural_gas_transport_eia923 = {
     'I': 'Interruptible'
 }
 
-
-# PUDL consolidation of EIA923 AER fuel type strings into same categories as
-# 'energy_source_eia923' plus additional renewable and nuclear categories.
-aer_coal_strings = ['col', 'woc', 'pc']
-aer_gas_strings = ['ng']
-aer_oil_strings = ['dfo', 'rfo']
-aer_solar_strings = ['sun']
-aer_wind_strings = ['wnd']
-aer_hydro_strings = ['hps', 'hyc']
-aer_nuclear_strings = ['nuc']
-aer_other_strings = ['geo', 'mlg', 'oog', 'orw', 'oth', 'woo', 'www']
-
-aer_fuel_type_strings = {
-    'coal': aer_coal_strings,
-    'gas': aer_gas_strings,
-    'oil': aer_oil_strings,
-    'solar': aer_solar_strings,
-    'wind': aer_wind_strings,
-    'hydro': aer_hydro_strings,
-    'nuclear': aer_nuclear_strings,
-    'other': aer_other_strings
-}
-
-# Data sources which are commented out are not yet available.
 data_sources = [
     'eia860',
     # 'eia861',

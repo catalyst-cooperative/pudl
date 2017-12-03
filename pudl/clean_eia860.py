@@ -45,8 +45,8 @@ def clean_generators_eia860(gens_df):
 
     gens_df = clean_pudl.month_year_to_date(gens_df)
 
-    gens_df['energy_source_simple'] = \
+    gens_df['fuel_type_pudl'] = \
         clean_pudl.cleanstrings(gens_df['energy_source_1'],
-                                pc.energy_source_eia_simple_map)
+                                pc.fuel_type_eia860_simple_map)
 
     return(gens_df)

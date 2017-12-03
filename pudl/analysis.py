@@ -551,8 +551,8 @@ def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
     gf_df = outputs.gf_eia923_df(pudl_engine)
 
     # Standardize the fuel codes (need to fix this in the DB!!!!)
-    gf_df = gf_df.rename(columns={'aer_fuel_category': 'fuel'})
-    gf_df['fuel'] = gf_df.fuel.replace(to_replace='petroleum', value='oil')
+    gf_df = gf_df.rename(columns={'fuel_type_pudl': 'fuel'})
+    # gf_df['fuel'] = gf_df.fuel.replace(to_replace='petroleum', value='oil')
 
     # Select only the records that pertain to our target IDs
     gf_df = gf_df[gf_df.plant_id_pudl.isin(pudl_plant_ids)]
@@ -863,7 +863,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
     # Drop everything but report_date, plant_id, fuel_group, total_mmbtu
     gf_df = gf_df[['report_date',
                    'plant_id',
-                   'aer_fuel_category',
+                   'fuel_type_pudl',
                    'fuel_consumed_total_mmbtu']]
 
     # Set report_date as a DatetimeIndex
@@ -871,7 +871,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
 
     # Group by report_date(annual), plant_id, fuel_group
     gf_gb = gf_df.groupby(
-        ['plant_id', pd.Grouper(freq='A'), 'aer_fuel_category'])
+        ['plant_id', pd.Grouper(freq='A'), 'fuel_type_pudl'])
 
     # Add up all the MMBTU for each plant & year. At this point each record
     # in the dataframe contains only information about a single fuel.
@@ -886,7 +886,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
     # columns, each with the total MMBTU for that fuel, year, and plant.
     heat_pivot = heat_df.pivot_table(
         index=['year', 'plant_id'],
-        columns='aer_fuel_category',
+        columns='fuel_type_pudl',
         values='fuel_consumed_total_mmbtu')
 
     # Add a column that has the *total* heat content of all fuels:

@@ -138,7 +138,7 @@ class GeneratorsEIA860(pudl.models.PUDLBase):
     energy_source_4 = Column(String)
     energy_source_5 = Column(String)
     energy_source_6 = Column(String)
-    energy_source_simple = Column(String)
+    fuel_type_pudl = Column(String)
     multiple_fuels = Column(String)
     deliver_power_transgrid = Column(String)
     syncronized_transmission_grid = Column(String)

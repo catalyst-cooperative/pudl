@@ -197,10 +197,6 @@ def ingest_static_tables(engine):
     pudl_session.add_all(
         [models_eia923.NaturalGasTransportEIA923(abbr=k, status=v)
          for k, v in pc.natural_gas_transport_eia923.items()])
-    pudl_session.add_all(
-        [models_eia923.AERFuelCategoryEIA923(name=k)
-         for k in pc.aer_fuel_type_strings.keys()])
-
     pudl_session.add_all([models.State(abbr=k, name=v)
                           for k, v in pc.us_states.items()])
 
@@ -1217,9 +1213,9 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
                               int_na=-1,
                               str_na='')
 
-    # # map AER fuel types to simplified PUDL categories
-    gf_df['aer_fuel_category'] = \
-        clean_pudl.cleanstrings(gf_df.aer_fuel_type, pc.aer_fuel_type_strings)
+    gf_df['fuel_type_pudl'] = \
+        clean_pudl.cleanstrings(gf_df.fuel_type,
+                                pc.fuel_type_eia923_gen_fuel_simple_map)
 
     # Convert Year/Month columns into a single Date column...
     gf_df = clean_pudl.convert_to_date(gf_df)
@@ -1309,9 +1305,9 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
     bf_df = clean_eia923.yearly_to_monthly_eia923(bf_df, pc.month_dict_eia923)
-    bf_df['fuel_type_simple'] = \
+    bf_df['fuel_type_pudl'] = \
         clean_pudl.cleanstrings(bf_df.fuel_type,
-                                pc.fuel_type_eia923_simple_map)
+                                pc.fuel_type_eia923_boiler_fuel_simple_map)
     # Replace the EIA923 NA value ('.') with a real NA value.
     bf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
 
@@ -1578,7 +1574,7 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
 
     # Convert fuel cost (cents per mmbtu) into dollars per mmbtu
     frc_df = clean_eia923.fuel_reciept_cost_clean(frc_df)
-    frc_df['energy_source_simple'] = \
+    frc_df['fuel_type_pudl'] = \
         clean_pudl.cleanstrings(frc_df.energy_source,
                                 pc.energy_source_eia_simple_map)
     frc_df['fuel_group_simple'] = \
