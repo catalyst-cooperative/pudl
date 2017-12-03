@@ -105,6 +105,212 @@ def gens_with_bga(bga_eia860, gen_eia923, id_col='plant_id_eia'):
     return(gens)
 
 
+def boiler_generator_association(testing=False):
+    """
+    Temporay function to create more complete boiler generator associations.
+
+    This is a temporary function until it can be pulled into a datatable. This
+    function pulls in all of the generators and all of the boilers, uses them
+    to create a relatively complete association list. First, the original bga
+    table is used, then the remaining unmatched generators are matched to the
+    boilers with the same string (in the same plant and year), then the unit
+    codes are used to connect all generators and boilers within each given
+    unit. Each of the incomplete or inaccurate records are tagged in columns.
+
+    Args:
+        none
+    Returns:
+        a dataframe with associations
+    """
+    pudl_engine = pudl.db_connect_pudl(testing=testing)
+    # compile and scrub all the parts
+    # original bga
+    bga8 = analysis.simple_select('boiler_generator_assn_eia860', pudl_engine)
+    bga8.drop_duplicates(['plant_id_eia', 'boiler_id',
+                          'generator_id'], inplace=True)
+    bga8.drop(['id', 'operator_id'], axis=1, inplace=True)
+
+    # generation 923 table
+    gens9 = outputs.generation_eia923(freq='AS', testing=testing)
+    # we need to drop some columns from the less populated dataframe for
+    # merging
+    gens9.drop(['plant_name', 'operator_id', 'operator_name', 'util_id_pudl'],
+               axis=1,
+               inplace=True)
+    gens9['missing_from_923'] = False
+
+    # generaotrs 860 table
+    gens8 = outputs.generators_eia860(testing=testing)
+    gens8['report_date'] = pd.to_datetime(gens8['report_date'])
+
+    # The generator records that are missing from 860 but appear in 923
+    # I created issue no. 128 to deal with this at a later date
+    merged = gens8.merge(gens9, on=['plant_id', 'report_date', 'generator_id'],
+                         indicator=True, how='outer')
+    missing = merged[merged['_merge'] == 'right_only']
+
+    # compile all of the generators
+    gens = gens9.merge(gens8,
+                       on=['plant_id',
+                           'plant_id_pudl',
+                           'report_date',
+                           'generator_id'],
+                       how='outer')
+
+    gens = gens[['plant_id',
+                 'plant_id_pudl',
+                 'report_date',
+                 'generator_id',
+                 'operator_id',
+                 'unit_code',
+                 'energy_source_1',
+                 'net_generation_mwh',
+                 'missing_from_923']].drop_duplicates()
+    gens = gens.rename(columns={'plant_id': 'plant_id_eia'})
+    # gens['og_tag'] = 1
+
+    # create the beginning of a bga compilation w/ the generators as the
+    # background
+    bga_compiled_1 = gens.merge(bga8,
+                                on=['plant_id_eia', 'plant_id_pudl',
+                                    'generator_id'],
+                                how='outer')
+    # TODO: Pull bga8 yearly and add in 'report_date',
+
+    # Side note: there are only 6 generators that appear in bga8 that don't
+    # apear in gens9 or gens8 (must uncomment-out the og_tag creation above)
+    # bga_compiled_1[bga_compiled_1['og_tag'].isnull()]
+
+    # pull in boiler fuel
+    bf9 = outputs.boiler_fuel_eia923(freq='AS', testing=testing)
+    bf9 = bf9.rename(columns={'plant_id': 'plant_id_eia'})
+    bf9['report_date'] = pd.to_datetime(bf9['report_date'])
+    bf9.drop_duplicates(
+        subset=['plant_id_eia', 'report_date', 'boiler_id'], inplace=True)
+    # we need to drop duplicate info columns before merging
+    # the bga table is more complete, so we're dropping them from bf9
+    bf9 = bf9.drop(['operator_id', 'plant_id_pudl'], axis=1)
+
+    # Create a set of bga's that are linked, directly from bga8
+    bga_assn = bga_compiled_1[bga_compiled_1['boiler_id'].notnull()].copy()
+    # TODO: When fuel_type/energy_source stnadardization happens remove this
+    bga_assn['fuel_type_simple'] = 'NaN'
+    bga_assn['bga_source'] = 'eia860_org'
+
+    # Create a set of bga's that were not linked directly through bga8
+    bga_unassn = bga_compiled_1[bga_compiled_1['boiler_id'].isnull()].copy()
+    bga_unassn = bga_unassn.drop(['boiler_id'], axis=1)
+
+    # Create a list of boilers that were not in bga8
+    bf9_bga = bf9.merge(bga_compiled_1,
+                        on=['plant_id_eia', 'boiler_id', 'report_date'],
+                        how='outer',
+                        indicator=True)
+    bf9_not_in_bga = bf9_bga[bf9_bga['_merge'] == 'left_only']
+    bf9_not_in_bga = bf9_not_in_bga.drop(['_merge'], axis=1)
+
+    # Match the unassociated generators with unassociated boilers
+    # This method is assuming that some the strings of the generators and the
+    # boilers are the same
+    bga_unassn = bga_unassn.merge(bf9_not_in_bga[['plant_id_eia',
+                                                  'boiler_id',
+                                                  'report_date',
+                                                  'fuel_type_simple']],
+                                  how='left',
+                                  left_on=['report_date',
+                                           'plant_id_eia',
+                                           'generator_id'],
+                                  right_on=['report_date',
+                                            'plant_id_eia',
+                                            'boiler_id'])
+    bga_unassn.sort_values(['report_date', 'plant_id_eia'], inplace=True)
+    bga_unassn['bga_source'] = None
+    bga_unassn.loc[bga_unassn.boiler_id.notnull(),
+                   'bga_source'] = 'string_assn'
+
+    bga_compiled_2 = bga_assn.append(bga_unassn)
+    bga_compiled_2.sort_values(['plant_id_eia', 'report_date'], inplace=True)
+    bga_compiled_2['missing_from_923'].fillna(value=True, inplace=True)
+
+    # Connect the gens and boilers in units
+    bga_compiled_units = bga_compiled_2.loc[
+        bga_compiled_2['unit_code'].notnull()]
+    bga_gen_units = bga_compiled_units.drop(['boiler_id'], axis=1)
+    bga_boil_units = bga_compiled_units[['plant_id_eia',
+                                         'report_date',
+                                         'boiler_id',
+                                         'unit_code']].copy()
+    bga_boil_units.dropna(subset=['boiler_id'], inplace=True)
+
+    # merge the units with the boilers
+    bga_unit_compilation = bga_gen_units.merge(bga_boil_units,
+                                               how='outer',
+                                               on=['plant_id_eia',
+                                                   'report_date',
+                                                   'unit_code'],
+                                               indicator=True)
+    # label the bga_source
+    bga_unit_compilation.loc[bga_unit_compilation['bga_source'].isnull(
+    ), 'bga_source'] = 'unit_connection'
+    bga_unit_compilation.drop(['_merge'], axis=1, inplace=True)
+    bga_non_units = bga_compiled_2[bga_compiled_2['unit_code'].isnull()]
+
+    # combine the unit compilation and the non units
+    bga_compiled_3 = bga_non_units.append(bga_unit_compilation)
+
+    # resort the records and the columns
+    bga_compiled_3.sort_values(['plant_id_eia', 'report_date'], inplace=True)
+    bga_compiled_3 = bga_compiled_3[['plant_id_eia',
+                                     'plant_id_pudl',
+                                     'report_date',
+                                     'operator_id',
+                                     'generator_id',
+                                     'boiler_id',
+                                     'unit_code',
+                                     'bga_source',
+                                     'energy_source_1',
+                                     'fuel_type_simple',
+                                     'net_generation_mwh',
+                                     'missing_from_923']]
+
+    # label plants that have 'bad' generator records (generators that have MWhs
+    # in gens9 but don't have connected boilers) create a df with just the bad
+    # plants by searching for the 'bad' generators
+    bad_plants = bga_compiled_3[(bga_compiled_3['boiler_id'].isnull()) &
+                                (bga_compiled_3['net_generation_mwh'] > 0)].\
+        drop_duplicates(subset=['plant_id_eia', 'report_date'])
+    bad_plants = bad_plants[['plant_id_eia', 'report_date']]
+
+    # merge the 'bad' plants back into the larger frame
+    bga_compiled_3 = bga_compiled_3.merge(bad_plants,
+                                          how='outer',
+                                          on=['plant_id_eia', 'report_date'],
+                                          indicator=True)
+
+    # use the indicator to create labels
+    bga_compiled_3['plant_w_bad_generator'] = \
+        np.where(bga_compiled_3._merge == 'both', True, False)
+    # Note: At least one gen has reported MWh in 923, but could not be
+    # programmatically mapped to a boiler
+
+    # we don't need this one anymore
+    bga_compiled_3 = bga_compiled_3.drop(['_merge'], axis=1)
+
+    # create a label for generators that are unmapped but in 923
+    bga_compiled_3['unmapped_but_in_923'] = \
+        np.where((bga_compiled_3.boiler_id.isnull()) &
+                 (bga_compiled_3.missing_from_923 == False) &
+                 (bga_compiled_3.net_generation_mwh == 0),
+                 True,
+                 False)
+
+    # create a label for generators that are unmapped
+    bga_compiled_3['unmapped'] = np.where(bga_compiled_3.boiler_id.isnull(),
+                                          True,
+                                          False)
+    return(bga_compiled_3)
+
+
 def heat_rate(bga_eia860, gen_eia923, bf_eia923,
               plant_id='plant_id_eia', min_heat_rate=5.5):
     """
