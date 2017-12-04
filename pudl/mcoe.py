@@ -250,21 +250,21 @@ def fuel_cost(hr, frc_eia923, gen_eia923):
     """
     # Split up the plants on the basis of how many different primary energy
     # sources the component generators have:
-    gen_w_es = pd.merge(gen_eia923,
+    gen_w_ft = pd.merge(gen_eia923,
                         hr[['plant_id_eia', 'report_date', 'generator_id',
-                            'energy_source_simple', 'energy_source_count',
+                            'fuel_type_pudl', 'fuel_type_count',
                             'heat_rate_mmbtu_mwh']],
                         how='inner',
                         on=['plant_id_eia', 'report_date', 'generator_id'])
 
-    one_fuel = gen_w_es[gen_w_es.energy_source_count == 1]
-    multi_fuel = gen_w_es[gen_w_es.energy_source_count > 1]
+    one_fuel = gen_w_ft[gen_w_ft.fuel_type_count == 1]
+    multi_fuel = gen_w_ft[gen_w_ft.fuel_type_count > 1]
 
     # Bring the single fuel cost & generation information together for just
     # the one fuel plants:
     one_fuel = pd.merge(one_fuel, frc_eia923[['plant_id_eia', 'report_date',
                                               'fuel_cost_per_mmbtu',
-                                              'energy_source_simple',
+                                              'fuel_type_pudl',
                                               'total_fuel_cost',
                                               'total_heat_content_mmbtu']],
                         how='left', on=['plant_id_eia', 'report_date'])
@@ -272,8 +272,8 @@ def fuel_cost(hr, frc_eia923, gen_eia923):
     # generators (primary for the generator) and the fuel receipts (which is
     # per-delivery), and in the one_fuel case, there will only be a single
     # generator getting all of the fuels:
-    one_fuel.rename(columns={'energy_source_simple_x': 'ess_gen',
-                             'energy_source_simple_y': 'ess_frc'},
+    one_fuel.rename(columns={'fuel_type_pudl_x': 'ess_gen',
+                             'fuel_type_pudl_y': 'ess_frc'},
                     inplace=True)
 
     # Do the same thing for the multi fuel plants, but also merge based on
@@ -282,9 +282,9 @@ def fuel_cost(hr, frc_eia923, gen_eia923):
     multi_fuel = pd.merge(multi_fuel,
                           frc_eia923[['plant_id_eia', 'report_date',
                                       'fuel_cost_per_mmbtu',
-                                      'energy_source_simple']],
+                                      'fuel_type_pudl']],
                           how='left', on=['plant_id_eia', 'report_date',
-                                          'energy_source_simple'])
+                                          'fuel_type_pudl'])
 
     # At this point, within each plant, we should have one record per
     # combination of generator & fuel type, which includes the heat rate of
@@ -326,7 +326,7 @@ def fuel_cost(hr, frc_eia923, gen_eia923):
     fuel_cost = \
         fuel_cost.sort_values(['report_date', 'plant_id_eia', 'generator_id'])
 
-    out_df = gen_w_es.drop('heat_rate_mmbtu_mwh', axis=1)
+    out_df = gen_w_ft.drop('heat_rate_mmbtu_mwh', axis=1)
     out_df = pd.merge(out_df, fuel_cost,
                       on=['report_date', 'plant_id_eia', 'generator_id'])
 
@@ -414,8 +414,8 @@ def mcoe(freq='AS', testing=False, plant_id='plant_id_eia',
     hr = analysis.merge_on_date_year(
         hr,
         gens_eia860[['report_date', 'plant_id_eia', 'plant_id_pudl',
-                     'generator_id', 'energy_source_simple',
-                     'energy_source_count']],
+                     'generator_id', 'fuel_type_pudl',
+                     'fuel_type_count']],
         how='inner', on=['plant_id_eia', 'plant_id_pudl', 'generator_id'])
 
     # formerly frc9_summed & frc9_summed_plant
