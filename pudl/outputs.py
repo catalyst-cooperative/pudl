@@ -215,6 +215,28 @@ def utilities_eia860(start_date=None, end_date=None, testing=False):
     return(out_df)
 
 
+def boiler_generator_assn_eia860(start_date=None, end_date=None,
+                                 testing=False):
+    pudl_engine = pudl.db_connect_pudl(testing=testing)
+    bga_eia860_tbl = pt['boiler_generator_assn_eia860']
+    bga_eia860_select = sa.sql.select([bga_eia860_tbl])
+
+    if start_date is not None:
+        start_date = pd.to_datetime(start_date)
+        bga_eia860_select = bga_eia860_select.where(
+            bga_eia860_tbl.c.report_date >= start_date
+        )
+    if end_date is not None:
+        end_date = pd.to_datetime(end_date)
+        bga_eia860_select = bga_eia860_select.where(
+            bga_eia860_tbl.c.report_date <= end_date
+        )
+    bga_eia860_df = pd.read_sql(bga_eia860_select, pudl_engine)
+    out_df = extend_annual(bga_eia860_df,
+                           start_date=start_date, end_date=end_date)
+    return(out_df)
+
+
 def plants_eia860(start_date=None, end_date=None, testing=False):
     """Pull all fields from the EIA860 Plants table."""
     pudl_engine = pudl.db_connect_pudl(testing=testing)

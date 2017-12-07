@@ -10,6 +10,7 @@ class BoilerGeneratorAssnEIA860(pudl.models.PUDLBase):
 
     __tablename__ = 'boiler_generator_assn_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
+    report_date = Column(Date, nullable=False)
     operator_id = Column(Integer, nullable=False)  # FK?
     plant_id = Column(Integer, nullable=False)  # FK?
     boiler_id = Column(String, nullable=False)  # FK?
