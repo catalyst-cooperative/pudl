@@ -139,7 +139,7 @@ def plants_utils_eia(start_date=None, end_date=None, testing=False):
                       how='left', on=['report_date', 'operator_id'])
 
     cols_to_keep = ['report_date',
-                    'plant_id',
+                    'plant_id_eia',
                     'plant_name',
                     'plant_id_pudl',
                     'operator_id',
@@ -232,6 +232,7 @@ def boiler_generator_assn_eia860(start_date=None, end_date=None,
             bga_eia860_tbl.c.report_date <= end_date
         )
     bga_eia860_df = pd.read_sql(bga_eia860_select, pudl_engine)
+    bga_eia860_df = bga_eia860_df.rename(columns={'plant_id': 'plant_id_eia'})
     out_df = extend_annual(bga_eia860_df,
                            start_date=start_date, end_date=end_date)
     return(out_df)
@@ -253,6 +254,8 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
             plants_eia860_tbl.c.report_date <= end_date
         )
     plants_eia860_df = pd.read_sql(plants_eia860_select, pudl_engine)
+    plants_eia860_df = \
+        plants_eia860_df.rename(columns={'plant_id': 'plant_id_eia'})
 
     plants_eia_tbl = pt['plants_eia']
     plants_eia_select = sa.sql.select([
@@ -260,9 +263,10 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
         plants_eia_tbl.c.plant_id_pudl,
     ])
     plants_eia_df = pd.read_sql(plants_eia_select,  pudl_engine)
+    plants_eia_df = plants_eia_df.rename(columns={'plant_id': 'plant_id_eia'})
 
     out_df = pd.merge(plants_eia860_df, plants_eia_df,
-                      how='left', on=['plant_id', ])
+                      how='left', on=['plant_id_eia', ])
 
     utils_eia_tbl = pt['utilities_eia']
     utils_eia_select = sa.sql.select([
@@ -280,7 +284,7 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
         'operator_id',
         'util_id_pudl',
         'operator_name',
-        'plant_id',
+        'plant_id_eia',
         'plant_id_pudl',
         'plant_name',
     ]
@@ -356,20 +360,22 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
         )
 
     gens_eia860 = pd.read_sql(gens_eia860_select, pudl_engine)
+    gens_eia860 = gens_eia860.rename(columns={'plant_id': 'plant_id_eia'})
     # Canonical sources for these fields are elsewhere. We will merge them in.
     gens_eia860 = gens_eia860.drop(['operator_id',
                                     'operator_name',
                                     'plant_name'], axis=1)
     plants_eia860 = pd.read_sql(plants_eia860_select, pudl_engine)
+    plants_eia860 = plants_eia860.rename(columns={'plant_id': 'plant_id_eia'})
     out_df = pd.merge(gens_eia860, plants_eia860,
-                      how='left', on=['report_date', 'plant_id'])
+                      how='left', on=['report_date', 'plant_id_eia'])
     out_df.report_date = pd.to_datetime(out_df.report_date)
 
     # Bring in some generic plant & utility information:
     pu_eia = plants_utils_eia(start_date=start_date,
                               end_date=end_date,
                               testing=testing)
-    out_df = pd.merge(out_df, pu_eia, on=['report_date', 'plant_id'])
+    out_df = pd.merge(out_df, pu_eia, on=['report_date', 'plant_id_eia'])
 
     # Drop a few extraneous fields...
     cols_to_drop = ['id', ]
@@ -381,17 +387,17 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
     # lumping of an entire plant's fuel & generation if its primary fuels
     # are homogeneous, and split out fuel & generation by fuel if it is
     # hetereogeneous.
-    ft_count = out_df[['plant_id', 'fuel_type_pudl', 'report_date']].\
-        drop_duplicates().groupby(['plant_id', 'report_date']).count()
+    ft_count = out_df[['plant_id_eia', 'fuel_type_pudl', 'report_date']].\
+        drop_duplicates().groupby(['plant_id_eia', 'report_date']).count()
     ft_count = ft_count.reset_index()
     ft_count = ft_count.rename(
         columns={'fuel_type_pudl': 'fuel_type_count'})
     out_df = pd.merge(out_df, ft_count, how='left',
-                      on=['plant_id', 'report_date'])
+                      on=['plant_id_eia', 'report_date'])
 
     first_cols = [
         'report_date',
-        'plant_id',
+        'plant_id_eia',
         'plant_id_pudl',
         'plant_name',
         'operator_id',
@@ -403,7 +409,9 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
     # Re-arrange the columns for easier readability:
     out_df = organize_cols(out_df, first_cols)
     out_df = extend_annual(out_df, start_date=start_date, end_date=end_date)
-    out_df = out_df.sort_values(['report_date', 'plant_id', 'generator_id'])
+    out_df = out_df.sort_values(['report_date',
+                                 'plant_id_eia',
+                                 'generator_id'])
 
     return(out_df)
 
@@ -424,20 +432,22 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
     o_eia860_tbl = pt['ownership_eia860']
     o_eia860_select = sa.sql.select([o_eia860_tbl, ])
     o_df = pd.read_sql(o_eia860_select, pudl_engine)
+    o_df = o_df.rename(columns={'plant_id': 'plant_id_eia'})
 
     pu_eia = plants_utils_eia(start_date=start_date,
                               end_date=end_date,
                               testing=testing)
-    pu_eia = pu_eia[['plant_id', 'plant_id_pudl', 'util_id_pudl',
+    pu_eia = pu_eia[['plant_id_eia', 'plant_id_pudl', 'util_id_pudl',
                      'report_date']]
 
     o_df['report_date'] = pd.to_datetime(o_df.report_date)
-    out_df = pd.merge(o_df, pu_eia, how='left', on=['report_date', 'plant_id'])
+    out_df = pd.merge(o_df, pu_eia,
+                      how='left', on=['report_date', 'plant_id_eia'])
 
     out_df = out_df.drop(['id'], axis=1)
 
     out_df = out_df.dropna(subset=[
-        'plant_id',
+        'plant_id_eia',
         'plant_id_pudl',
         'operator_id',
         'util_id_pudl',
@@ -447,7 +457,7 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
 
     first_cols = [
         'report_date',
-        'plant_id',
+        'plant_id_eia',
         'plant_id_pudl',
         'plant_name',
         'operator_id',
@@ -522,12 +532,13 @@ def generation_fuel_eia923(freq=None, testing=False,
             gf_tbl.c.report_date <= end_date)
 
     gf_df = pd.read_sql(gf_select, pudl_engine)
+    gf_df = gf_df.rename(columns={'plant_id': 'plant_id_eia'})
 
     cols_to_drop = ['id']
     gf_df = gf_df.drop(cols_to_drop, axis=1)
 
     # fuel_type_pudl was formerly aer_fuel_category
-    by = ['plant_id', 'fuel_type_pudl']
+    by = ['plant_id_eia', 'fuel_type_pudl']
     if freq is not None:
         # Create a date index for temporal resampling:
         gf_df = gf_df.set_index(pd.DatetimeIndex(gf_df.report_date))
@@ -551,10 +562,10 @@ def generation_fuel_eia923(freq=None, testing=False,
     pu_eia = plants_utils_eia(start_date=start_date,
                               end_date=end_date,
                               testing=testing)
-    out_df = analysis.merge_on_date_year(gf_df, pu_eia, on=['plant_id'])
+    out_df = analysis.merge_on_date_year(gf_df, pu_eia, on=['plant_id_eia'])
     # Drop any records where we've failed to get the 860 data merged in...
     out_df = out_df.dropna(subset=[
-        'plant_id',
+        'plant_id_eia',
         'plant_id_pudl',
         'plant_name',
         'operator_id',
@@ -563,7 +574,7 @@ def generation_fuel_eia923(freq=None, testing=False,
     ])
 
     first_cols = ['report_date',
-                  'plant_id',
+                  'plant_id_eia',
                   'plant_id_pudl',
                   'plant_name',
                   'operator_id',
@@ -573,7 +584,7 @@ def generation_fuel_eia923(freq=None, testing=False,
     out_df = organize_cols(out_df, first_cols)
 
     # Clean up the types of a few columns...
-    out_df['plant_id'] = out_df.plant_id.astype(int)
+    out_df['plant_id_eia'] = out_df.plant_id_eia.astype(int)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
     out_df['operator_id'] = out_df.operator_id.astype(int)
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
@@ -641,6 +652,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
             frc_tbl.c.report_date <= end_date)
 
     frc_df = pd.read_sql(frc_select, pudl_engine)
+    frc_df = frc_df.rename(columns={'plant_id': 'plant_id_eia'})
 
     frc_df = pd.merge(frc_df, cmi_df,
                       how='left',
@@ -656,7 +668,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
     frc_df['total_fuel_cost'] = \
         frc_df['total_heat_content_mmbtu'] * frc_df['fuel_cost_per_mmbtu']
 
-    by = ['plant_id', 'fuel_type_pudl']
+    by = ['plant_id_eia', 'fuel_type_pudl']
     if freq is not None:
         # Create a date index for temporal resampling:
         frc_df = frc_df.set_index(pd.DatetimeIndex(frc_df.report_date))
@@ -698,7 +710,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
     pu_eia = plants_utils_eia(start_date=start_date,
                               end_date=end_date,
                               testing=testing)
-    out_df = analysis.merge_on_date_year(frc_df, pu_eia, on=['plant_id'])
+    out_df = analysis.merge_on_date_year(frc_df, pu_eia, on=['plant_id_eia'])
 
     # Drop any records where we've failed to get the 860 data merged in...
     out_df = out_df.dropna(subset=['operator_id', 'operator_name'])
@@ -708,7 +720,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
         out_df = out_df.dropna(subset=['fuel_group'])
 
     first_cols = ['report_date',
-                  'plant_id',
+                  'plant_id_eia',
                   'plant_id_pudl',
                   'plant_name',
                   'operator_id',
@@ -719,7 +731,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
     out_df = organize_cols(out_df, first_cols)
 
     # Clean up the types of a few columns...
-    out_df['plant_id'] = out_df.plant_id.astype(int)
+    out_df['plant_id_eia'] = out_df.plant_id_eia.astype(int)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
     out_df['operator_id'] = out_df.operator_id.astype(int)
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
@@ -775,6 +787,7 @@ def boiler_fuel_eia923(freq=None, testing=False,
             bf_eia923_tbl.c.report_date <= end_date
         )
     bf_df = pd.read_sql(bf_eia923_select, pudl_engine)
+    bf_df = bf_df.rename(columns={'plant_id': 'plant_id_eia'})
 
     # The total heat content is also useful in its own right, and we'll keep it
     # around.  Also needed to calculate average heat content per unit of fuel.
@@ -782,7 +795,7 @@ def boiler_fuel_eia923(freq=None, testing=False,
         bf_df['fuel_mmbtu_per_unit']
 
     # Create a date index for grouping based on freq
-    by = ['plant_id', 'boiler_id', 'fuel_type_pudl']
+    by = ['plant_id_eia', 'boiler_id', 'fuel_type_pudl']
     if freq is not None:
         # In order to calculate the weighted average sulfur
         # content and ash content we need to calculate these totals.
@@ -815,12 +828,12 @@ def boiler_fuel_eia923(freq=None, testing=False,
     pu_eia = plants_utils_eia(start_date=start_date,
                               end_date=end_date,
                               testing=False)
-    out_df = analysis.merge_on_date_year(bf_df, pu_eia, on=['plant_id'])
+    out_df = analysis.merge_on_date_year(bf_df, pu_eia, on=['plant_id_eia'])
     if freq is None:
         out_df = out_df.drop(['id'], axis=1)
 
     out_df = out_df.dropna(subset=[
-        'plant_id',
+        'plant_id_eia',
         'plant_id_pudl',
         'operator_id',
         'util_id_pudl',
@@ -829,7 +842,7 @@ def boiler_fuel_eia923(freq=None, testing=False,
 
     first_cols = [
         'report_date',
-        'plant_id',
+        'plant_id_eia',
         'plant_id_pudl',
         'plant_name',
         'operator_id',
@@ -877,10 +890,11 @@ def generation_eia923(freq=None, testing=False,
             g_eia923_tbl.c.report_date <= end_date
         )
     g_df = pd.read_sql(g_eia923_select, pudl_engine)
+    g_df = g_df.rename(columns={'plant_id': 'plant_id_eia'})
 
     # Index by date and aggregate net generation.
     # Create a date index for grouping based on freq
-    by = ['plant_id', 'generator_id']
+    by = ['plant_id_eia', 'generator_id']
     if freq is not None:
         g_df = g_df.set_index(pd.DatetimeIndex(g_df.report_date))
         by = by + [pd.Grouper(freq=freq)]
@@ -893,14 +907,14 @@ def generation_eia923(freq=None, testing=False,
                               testing=testing)
 
     # Merge annual plant/utility data in with the more granular dataframe
-    out_df = analysis.merge_on_date_year(g_df, pu_eia, on=['plant_id'])
+    out_df = analysis.merge_on_date_year(g_df, pu_eia, on=['plant_id_eia'])
 
     if freq is None:
         out_df = out_df.drop(['id'], axis=1)
 
     # These ID fields are vital -- without them we don't have a complete record
     out_df = out_df.dropna(subset=[
-        'plant_id',
+        'plant_id_eia',
         'plant_id_pudl',
         'operator_id',
         'util_id_pudl',
@@ -909,7 +923,7 @@ def generation_eia923(freq=None, testing=False,
 
     first_cols = [
         'report_date',
-        'plant_id',
+        'plant_id_eia',
         'plant_id_pudl',
         'plant_name',
         'operator_id',
