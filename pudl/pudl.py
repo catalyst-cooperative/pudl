@@ -1613,10 +1613,6 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
     # Populating the 'generators_eia860' table
     b_g_df = eia860_dfs['boiler_generator_assn'].copy()
 
-    # b_g_df.rename(columns={'utility_id': 'operator_id',
-    #                       'plant_code': 'plant_id'},
-    #              inplace=True)
-
     b_g_cols = ['report_year',
                 'operator_id',
                 'plant_id',
