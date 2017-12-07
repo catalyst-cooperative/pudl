@@ -106,6 +106,9 @@ def clean_fuel_ferc1(fuel_ferc1_df):
         clean_pudl.cleanstrings(fuel_ferc1_df.fuel,
                                 pc.ferc1_fuel_strings,
                                 unmapped=np.nan)
+
+    fuel_ferc1_df.rename(columns={'fuel': 'fuel_type_pudl'}, inplace=True)
+
     fuel_ferc1_df.fuel_unit = \
         clean_pudl.cleanstrings(fuel_ferc1_df.fuel_unit,
                                 pc.ferc1_fuel_unit_strings,
@@ -143,9 +146,9 @@ def clean_fuel_ferc1(fuel_ferc1_df):
     #########################################################################
     # CORRECT DATA ENTRY ERRORS #############################################
     #########################################################################
-    coal_mask = fuel_ferc1_df['fuel'] == 'coal'
-    gas_mask = fuel_ferc1_df['fuel'] == 'gas'
-    oil_mask = fuel_ferc1_df['fuel'] == 'oil'
+    coal_mask = fuel_ferc1_df['fuel_type_pudl'] == 'coal'
+    gas_mask = fuel_ferc1_df['fuel_type_pudl'] == 'gas'
+    oil_mask = fuel_ferc1_df['fuel_type_pudl'] == 'oil'
 
     corrections = [
         # mult = 2000: reported in units of lbs instead of short tons

@@ -24,20 +24,6 @@ class State(PUDLBase):
     name = Column(String)
 
 
-class Fuel(PUDLBase):
-    """A static list of strings denoting possible fuel types."""
-
-    __tablename__ = 'fuels'
-    name = Column(String, primary_key=True)
-
-
-class Year(PUDLBase):
-    """A list of valid data years."""
-
-    __tablename__ = 'years'
-    year = Column(Integer, primary_key=True)
-
-
 class Month(PUDLBase):
     """A list of valid data months."""
 

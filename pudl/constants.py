@@ -93,6 +93,10 @@ us_states = {
 # which are used to represent that fuel in the FERC Form 1 Reporting. Case is
 # ignored, as all fuel strings can be converted to a lower case in the data
 # set.
+# Previous categories of ferc1_biomass_strings and ferc1_stream_strings have
+# been deleted and their contents redistributed to ferc1_waste_strings and
+# ferc1_other_strings
+
 ferc1_coal_strings = \
     ['coal', 'coal-subbit', 'lignite', 'coal(sb)', 'coal (sb)', 'coal-lignite',
      'coke', 'coa', 'lignite/coal', 'coal - subbit', 'coal-subb', 'coal-sub',
@@ -109,37 +113,46 @@ ferc1_oil_strings = \
      'oil-kero', 'oil bbl', 'biofuel', 'no 2', 'kero', '#1 fuel oil',
      'no. 2  oil', 'blended oil', 'no 2. oil', '# 6 oil', 'nno. 2 oil',
      '#2 fuel', 'oill', 'oils', 'gas/oil', 'no.2 oil gas', '#2 fuel oil',
-     'oli', 'oil (#6)']
+     'oli', 'oil (#6)', 'oil/diesel', '2 Oil']
 
 ferc1_gas_strings = \
-    ['gas', 'methane', 'natural gas', 'blast gas', 'gas mcf',
+    ['gas', 'gass', 'methane', 'natural gas', 'blast gas', 'gas mcf',
      'propane', 'prop', 'natural  gas', 'nat.gas', 'nat gas',
      'nat. gas', 'natl gas', 'ga', 'gas`', 'syngas', 'ng', 'mcf',
-     'blast gaa', 'nat  gas', 'gac', 'syngass', 'prop.', 'natural']
+     'blast gaa', 'nat  gas', 'gac', 'syngass', 'prop.', 'natural', 'coal.gas']
+
+ferc1_solar_strings = []
+
+ferc1_wind_strings = []
+
+ferc1_hydro_strings = []
 
 ferc1_nuke_strings = \
     ['nuclear', 'grams of uran', 'grams of', 'grams of  ura',
      'grams', 'nucleur', 'nulear', 'nucl', 'nucleart']
 
-ferc1_biomass_strings = \
-    ['switchgrass', 'wood waste', 'woodchips', 'biomass', 'wood', 'wood chips']
+ferc1_waste_strings = ['tires', 'tire', 'refuse', 'switchgrass',
+                       'wood waste', 'woodchips', 'biomass', 'wood',
+                       'wood chips', 'rdf']
 
-ferc1_waste_strings = ['tires', 'tire', 'refuse']
+ferc1_other_strings = ['steam', 'purch steam',
+                       'purch. steam', 'other', 'composite', 'composit',
+                       'mbtus', 'total prairie', 'all', 'n/a']
 
-ferc1_steam_strings = ['steam', 'purch steam', 'purch. steam']
 
 # There are also a bunch of other weird and hard to categorize strings
 # that I don't know what to do with... hopefully they constitute only a
 # small fraction of the overall generation.
 
 ferc1_fuel_strings = {'coal': ferc1_coal_strings,
-                      'gas': ferc1_gas_strings,
                       'oil': ferc1_oil_strings,
-                      'nuke': ferc1_nuke_strings,
-                      'biomass': ferc1_biomass_strings,
+                      'gas': ferc1_gas_strings,
+                      'solar': ferc1_solar_strings,
+                      'wind': ferc1_wind_strings,
+                      'hydro': ferc1_hydro_strings,
+                      'nuclear': ferc1_nuke_strings,
                       'waste': ferc1_waste_strings,
-                      'steam': ferc1_steam_strings
-
+                      'other': ferc1_other_strings
                       }
 # Similarly, dictionary for cleaning up fuel unit strings
 ferc1_ton_strings = ['toms', 'taons', 'tones', 'col-tons', 'toncoaleq', 'coal',
