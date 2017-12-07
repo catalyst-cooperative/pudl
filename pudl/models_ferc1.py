@@ -27,8 +27,9 @@ class FuelFERC1(pudl.models.PUDLBase):
     id = Column(Integer, autoincrement=True, primary_key=True)
     respondent_id = Column(Integer, nullable=False)
     plant_name = Column(String, nullable=False)  # Also ForeignKeyConstraint
-    report_year = Column(Integer, ForeignKey('years.year'), nullable=False)
-    fuel = Column(String, ForeignKey('fuels.name'), nullable=False)
+    report_year = Column(Integer, nullable=False)
+    # fuel_type_pudl field was ormerly fuels.name and was called 'fuel'
+    fuel_type_pudl = Column(String)
     fuel_unit = Column(String, ForeignKey('fuel_units.unit'), nullable=False)
     fuel_qty_burned = Column(Float, nullable=False)
     fuel_avg_mmbtu_per_unit = Column(Float, nullable=False)
@@ -50,7 +51,7 @@ class PlantSteamFERC1(pudl.models.PUDLBase):
     id = Column(Integer, autoincrement=True, primary_key=True)
     respondent_id = Column(Integer, nullable=False)
     plant_name = Column(String, nullable=False)
-    report_year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    report_year = Column(Integer, nullable=False)
     plant_kind = Column(String)  # FK New, needs cleaning
     type_const = Column(String)  # FK New, needs cleaning
     year_constructed = Column(Integer)
@@ -107,7 +108,6 @@ class PlantInServiceFERC1(pudl.models.PUDLBase):
                            ForeignKey('utilities_ferc.respondent_id'),
                            primary_key=True)
     report_year = Column(Integer,
-                         ForeignKey('years.year'),
                          primary_key=True)
     ferc_account_id = Column(String,
                              ForeignKey('ferc_accounts.id'),
@@ -132,7 +132,6 @@ class AccumulatedDepreciationFERC1(pudl.models.PUDLBase):
                            ForeignKey('utilities_ferc.respondent_id'),
                            primary_key=True)
     report_year = Column(Integer,
-                         ForeignKey('years.year'),
                          primary_key=True)
     line_id = Column(String,
                      ForeignKey('ferc_depreciation_lines.id'),
@@ -151,8 +150,7 @@ class PurchasedPowerFERC1(pudl.models.PUDLBase):
     respondent_id = Column(Integer,
                            ForeignKey('utilities_ferc.respondent_id'),
                            nullable=False)
-    report_year = Column(Integer,
-                         ForeignKey('years.year'), nullable=False)
+    report_year = Column(Integer, nullable=False)
     authority_company_name = Column(String)
     statistical_classification = Column(String)
     rate_schedule_tariff_number = Column(String)
@@ -184,7 +182,7 @@ class PlantSmallFERC1(pudl.models.PUDLBase):
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     respondent_id = Column(Integer, nullable=False)
-    report_year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    report_year = Column(Integer, nullable=False)
     plant_name = Column(String, nullable=False)
     plant_name_clean = Column(String)
     plant_type = Column(String)
@@ -213,7 +211,7 @@ class PlantHydroFERC1(pudl.models.PUDLBase):
     id = Column(Integer, autoincrement=True, primary_key=True)
     respondent_id = Column(Integer, nullable=False)
     plant_name = Column(String, nullable=False)
-    report_year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    report_year = Column(Integer, nullable=False)
     project_number = Column(Integer)
     plant_kind = Column(String)  # FK
     plant_construction = Column(String)
@@ -290,7 +288,7 @@ class PlantsPumpedStorage(pudl.models.PUDLBase):
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     respondent_id = Column(Integer, nullable=False)
-    report_year = Column(Integer, ForeignKey('years.year'), nullable=False)
+    report_year = Column(Integer, nullable=False)
     project_number = Column(Integer)
     plant_name = Column(String, nullable=False)
     plant_kind = Column(String)

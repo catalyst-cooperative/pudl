@@ -54,7 +54,8 @@ def cleanstrings(field, stringmap, unmapped=None, simplify=True):
             stringmap[k] = [re.sub('\s+', ' ', s.lower().strip()) for s in v]
 
     for k in stringmap.keys():
-        field = field.replace(stringmap[k], k)
+        if len(stringmap[k]) > 0:
+            field = field.replace(stringmap[k], k)
 
     if unmapped is not None:
         badstrings = setdiff1d(field.unique(), list(stringmap.keys()))

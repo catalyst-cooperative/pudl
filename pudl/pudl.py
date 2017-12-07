@@ -136,8 +136,6 @@ def ingest_static_tables(engine):
 
     # Populate tables with static data from above.
     pudl_session.add_all(
-        [models.Fuel(name=f) for f in pc.ferc1_fuel_strings.keys()])
-    pudl_session.add_all(
         [models.FuelUnit(unit=u) for u in pc.ferc1_fuel_unit_strings.keys()])
     pudl_session.add_all([models.Month(month=i + 1) for i in range(12)])
     pudl_session.add_all(
@@ -146,11 +144,6 @@ def ingest_static_tables(engine):
         [models.PrimeMover(prime_mover=pm) for pm in pc.prime_movers])
     pudl_session.add_all(
         [models.RTOISO(abbr=k, name=v) for k, v in pc.rto_iso.items()])
-    all_years = [year for list_of_years in pc.data_years.values()
-                 for year in list_of_years]
-    pudl_session.add_all([models.Year(year=yr) for
-                          yr in range(min(all_years), max(all_years) + 1)])
-
     pudl_session.add_all([models.CensusRegion(abbr=k, name=v)
                           for k, v in pc.census_region.items()])
     pudl_session.add_all(
