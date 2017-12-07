@@ -538,6 +538,64 @@ def fuel_cost(hr, frc_eia923, gen_eia923):
     return(out_df)
 
 
+def capacity_factor(gens_eia860, gen_eia923,
+                    freq='AS', min_cap_fact=0, max_cap_fact=1.5):
+    """
+    Calculate the capacity factor for each generator.
+
+    Capacity Factor is calculated by using the net generation from eia923 and
+    the nameplate capacity from eia860. The net gen and capacity are pulled
+    into one dataframe, then the dates from that dataframe are pulled out to
+    determine the hours in each period based on the frequency. The number of
+    hours is used in calculating the capacity factor. Then the 'bad' records
+    are dropped.
+    """
+    # Only include columns to be used
+    gens_eia860 = gens_eia860[['plant_id_eia',
+                               'report_date',
+                               'generator_id',
+                               'nameplate_capacity_mw']]
+    gen_eia923 = gen_eia923[['plant_id_eia',
+                             'report_date',
+                             'generator_id',
+                             'net_generation_mwh']]
+
+    # merge the generation and capacity to calculate capacity factor
+    capacity_factor = analysis.merge_on_date_year(gen_eia923,
+                                                  gens_eia860,
+                                                  on=['plant_id_eia',
+                                                      'generator_id'])
+
+    # get a unique set of dates to generate the number of hours
+    dates = capacity_factor['report_date'].drop_duplicates()
+    dates_to_hours = pd.DataFrame(
+        data={'report_date': dates,
+              'hours': dates.apply(lambda d: (pd.date_range(d, periods=2,
+                                                            freq=freq)[1] -
+                                              pd.date_range(d, periods=2,
+                                                            freq=freq)[0]) /
+                                   pd.Timedelta(hours=1))})
+
+    # merge in the hours for the calculation
+    capacity_factor = capacity_factor.merge(dates_to_hours, on=['report_date'])
+
+    # actually calculate capacity factor wooo!
+    capacity_factor['capacity_factor'] = \
+        capacity_factor['net_generation_mwh'] / \
+        (capacity_factor['nameplate_capacity_mw'] * capacity_factor['hours'])
+
+    # Replace unrealistic capacity factors with NaN
+    capacity_factor.loc[capacity_factor['capacity_factor']
+                        < min_cap_fact, 'capacity_factor'] = np.nan
+    capacity_factor.loc[capacity_factor['capacity_factor']
+                        >= max_cap_fact, 'capacity_factor'] = np.nan
+
+    # drop the hours column, cause we don't need it anymore
+    capacity_factor.drop(['hours'], axis=1, inplace=True)
+
+    return(capacity_factor)
+
+
 def mcoe(freq='AS', testing=False, plant_id='plant_id_eia',
          start_date=None, end_date=None,
          min_heat_rate=5.5, output=None, debug=False):
