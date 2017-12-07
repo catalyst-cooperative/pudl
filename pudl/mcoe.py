@@ -5,28 +5,6 @@ from pudl import constants as pc
 import numpy as np
 import pandas as pd
 
-# General issues:
-# - Need to deal with both EIA & PUDL plant IDs.
-
-
-def boiler_generator_pull_eia860(testing=False):
-    """
-    Pull the boiler generator associations from EIA 860.
-
-    Adds plant_id_pudl and drops operator_id and id (an internal automatically
-    incrementing surrogate key), and keeps only unique combinations of plant,
-    boiler, and generator -- without preserving any changes over time.
-
-    This function will be replaced with Christina's new BGA compilation.
-    """
-    pudl_engine = pudl.db_connect_pudl(testing=testing)
-    # Convert the boiler_generator_assn_eia860 table into a dataframe
-    bga8 = analysis.simple_select('boiler_generator_assn_eia860', pudl_engine)
-    bga8.drop(['id', 'operator_id'], axis=1, inplace=True)
-    bga8.drop_duplicates(['plant_id_eia', 'boiler_id',
-                          'generator_id'], inplace=True)
-    return(bga8)
-
 
 def gens_with_bga(bga_eia860, gen_eia923, id_col='plant_id_eia'):
     """
@@ -105,9 +83,10 @@ def gens_with_bga(bga_eia860, gen_eia923, id_col='plant_id_eia'):
     return(gens)
 
 
-def boiler_generator_association(testing=False):
+def boiler_generator_association(start_date=None, end_date=None,
+                                 testing=False):
     """
-    Temporay function to create more complete boiler generator associations.
+    Temporary function to create more complete boiler generator associations.
 
     This is a temporary function until it can be pulled into a datatable. This
     function pulls in all of the generators and all of the boilers, uses them
@@ -121,17 +100,34 @@ def boiler_generator_association(testing=False):
         none
     Returns:
         a dataframe with associations
+
+    Zane Notes:
+     - unit_code is coming out as a mix of None and NaN values. Should pick
+       a single type for the column and stick to it (or enforce on output).
+     - Need to integrate report_date into the bga_eia860 table, ingest, etc.
+     - Some irrelevant columns can be dropped at the outset to simplify the
+       merges and return values. I think these include:
+       - plant_id_pudl
+       - util_id_pudl
+       - operator_id
+       - net_generation_mwh (after it's been used)
+     - For the moment, the fuel_type_pudl, until we need it to double check
+       that the string matching for generators & boilers isn't giving us pairs
+       with different fuel types.
     """
     pudl_engine = pudl.db_connect_pudl(testing=testing)
     # compile and scrub all the parts
     # original bga
-    bga8 = analysis.simple_select('boiler_generator_assn_eia860', pudl_engine)
+    bga8 = outputs.boiler_generator_assn_eia860(start_date=start_date,
+                                                end_date=end_date,
+                                                testing=testing)
     bga8.drop_duplicates(['plant_id_eia', 'boiler_id',
-                          'generator_id'], inplace=True)
+                          'generator_id', 'report_date'], inplace=True)
     bga8.drop(['id', 'operator_id'], axis=1, inplace=True)
 
     # generation 923 table
-    gens9 = outputs.generation_eia923(freq='AS', testing=testing)
+    gens9 = outputs.generation_eia923(freq='AS', start_date=start_date,
+                                      end_date=end_date, testing=testing)
     # we need to drop some columns from the less populated dataframe for
     # merging
     gens9.drop(['plant_name', 'operator_id', 'operator_name', 'util_id_pudl'],
@@ -140,40 +136,40 @@ def boiler_generator_association(testing=False):
     gens9['missing_from_923'] = False
 
     # generaotrs 860 table
-    gens8 = outputs.generators_eia860(testing=testing)
+    gens8 = outputs.generators_eia860(start_date=start_date, end_date=end_date,
+                                      testing=testing)
     gens8['report_date'] = pd.to_datetime(gens8['report_date'])
 
     # The generator records that are missing from 860 but appear in 923
     # I created issue no. 128 to deal with this at a later date
-    merged = gens8.merge(gens9, on=['plant_id', 'report_date', 'generator_id'],
+    merged = gens8.merge(gens9,
+                         on=['plant_id_eia', 'report_date', 'generator_id'],
                          indicator=True, how='outer')
     missing = merged[merged['_merge'] == 'right_only']
 
     # compile all of the generators
     gens = gens9.merge(gens8,
-                       on=['plant_id',
+                       on=['plant_id_eia',
                            'plant_id_pudl',
                            'report_date',
                            'generator_id'],
                        how='outer')
 
-    gens = gens[['plant_id',
+    gens = gens[['plant_id_eia',
                  'plant_id_pudl',
                  'report_date',
                  'generator_id',
-                 'operator_id',
                  'unit_code',
-                 'energy_source_1',
                  'net_generation_mwh',
                  'missing_from_923']].drop_duplicates()
-    gens = gens.rename(columns={'plant_id': 'plant_id_eia'})
     # gens['og_tag'] = 1
 
     # create the beginning of a bga compilation w/ the generators as the
     # background
     bga_compiled_1 = gens.merge(bga8,
-                                on=['plant_id_eia', 'plant_id_pudl',
-                                    'generator_id'],
+                                on=['plant_id_eia',
+                                    'generator_id',
+                                    'report_date'],
                                 how='outer')
     # TODO: Pull bga8 yearly and add in 'report_date',
 
@@ -182,8 +178,8 @@ def boiler_generator_association(testing=False):
     # bga_compiled_1[bga_compiled_1['og_tag'].isnull()]
 
     # pull in boiler fuel
-    bf9 = outputs.boiler_fuel_eia923(freq='AS', testing=testing)
-    bf9 = bf9.rename(columns={'plant_id': 'plant_id_eia'})
+    bf9 = outputs.boiler_fuel_eia923(freq='AS', start_date=start_date,
+                                     end_date=end_date, testing=testing)
     bf9['report_date'] = pd.to_datetime(bf9['report_date'])
     bf9.drop_duplicates(
         subset=['plant_id_eia', 'report_date', 'boiler_id'], inplace=True)
@@ -194,7 +190,7 @@ def boiler_generator_association(testing=False):
     # Create a set of bga's that are linked, directly from bga8
     bga_assn = bga_compiled_1[bga_compiled_1['boiler_id'].notnull()].copy()
     # TODO: When fuel_type/energy_source stnadardization happens remove this
-    bga_assn['fuel_type_simple'] = 'NaN'
+    # bga_assn['fuel_type_pudl'] = np.nan
     bga_assn['bga_source'] = 'eia860_org'
 
     # Create a set of bga's that were not linked directly through bga8
@@ -214,8 +210,7 @@ def boiler_generator_association(testing=False):
     # boilers are the same
     bga_unassn = bga_unassn.merge(bf9_not_in_bga[['plant_id_eia',
                                                   'boiler_id',
-                                                  'report_date',
-                                                  'fuel_type_simple']],
+                                                  'report_date']],
                                   how='left',
                                   left_on=['report_date',
                                            'plant_id_eia',
@@ -250,8 +245,9 @@ def boiler_generator_association(testing=False):
                                                    'unit_code'],
                                                indicator=True)
     # label the bga_source
-    bga_unit_compilation.loc[bga_unit_compilation['bga_source'].isnull(
-    ), 'bga_source'] = 'unit_connection'
+    bga_unit_compilation. \
+        loc[bga_unit_compilation['bga_source'].isnull(),
+            'bga_source'] = 'unit_connection'
     bga_unit_compilation.drop(['_merge'], axis=1, inplace=True)
     bga_non_units = bga_compiled_2[bga_compiled_2['unit_code'].isnull()]
 
@@ -263,13 +259,12 @@ def boiler_generator_association(testing=False):
     bga_compiled_3 = bga_compiled_3[['plant_id_eia',
                                      'plant_id_pudl',
                                      'report_date',
-                                     'operator_id',
+                                     # 'operator_id',
                                      'generator_id',
                                      'boiler_id',
                                      'unit_code',
                                      'bga_source',
-                                     'energy_source_1',
-                                     'fuel_type_simple',
+                                     # 'fuel_type_pudl',
                                      'net_generation_mwh',
                                      'missing_from_923']]
 
@@ -308,6 +303,8 @@ def boiler_generator_association(testing=False):
     bga_compiled_3['unmapped'] = np.where(bga_compiled_3.boiler_id.isnull(),
                                           True,
                                           False)
+    bga_compiled_3 = bga_compiled_3.drop('net_generation_mwh', axis=1)
+    bga_compiled_3.loc[bga_compiled_3.unit_code.isnull(), 'unit_code'] = None
     return(bga_compiled_3)
 
 
@@ -335,7 +332,8 @@ def heat_rate(bga_eia860, gen_eia923, bf_eia923,
     else:
         other_plant_id = 'plant_id_eia'
 
-    generation_w_boilers = pd.merge(gen_eia923, bga_eia860, how='left',
+    generation_w_boilers = \
+        analysis.merge_on_date_year(gen_eia923, bga_eia860, how='left',
                                     on=['plant_id_eia', 'plant_id_pudl',
                                         'generator_id'])
 
@@ -361,8 +359,9 @@ def heat_rate(bga_eia860, gen_eia923, bf_eia923,
                                     how='left')
 
     # Bring in boiler fuel consumption and boiler generator associations
-    bg = pd.merge(bf_eia923, bga_eia860, how='left',
-                  on=['plant_id_eia', 'plant_id_pudl', 'boiler_id'])
+    bg = analysis.merge_on_date_year(bf_eia923, bga_eia860, how='left',
+                                     on=['plant_id_eia', 'plant_id_pudl',
+                                         'boiler_id'])
     # Merge boiler fuel consumption in with our per-boiler and boiler
     # generator combo net generation calculations
     bg = pd.merge(bg, gen_by_bg_and_boiler, how='left',
@@ -541,7 +540,7 @@ def fuel_cost(hr, frc_eia923, gen_eia923):
 
 def mcoe(freq='AS', testing=False, plant_id='plant_id_eia',
          start_date=None, end_date=None,
-         min_heat_rate=5.5, output=None,):
+         min_heat_rate=5.5, output=None, debug=False):
     """
     Compile marginal cost of electricity (MCOE) at the generator level.
 
@@ -589,20 +588,32 @@ def mcoe(freq='AS', testing=False, plant_id='plant_id_eia',
     gen_eia923 = outputs.generation_eia923(freq=freq, testing=testing,
                                            start_date=start_date,
                                            end_date=end_date)
-    gen_eia923 = gen_eia923.rename(columns={'plant_id': 'plant_id_eia'})
 
     # Boiler Fuel Consumption:
     bf_eia923 = outputs.boiler_fuel_eia923(freq=freq, testing=testing,
                                            start_date=start_date,
                                            end_date=end_date)
-    bf_eia923 = bf_eia923.rename(columns={'plant_id': 'plant_id_eia'})
 
     # The Boiler - Generator Associations:
-    bga_eia860 = boiler_generator_pull_eia860(testing=testing)
-    bga_eia860 = bga_eia860.rename(columns={'plant_id': 'plant_id_eia'})
+    bga = boiler_generator_association(start_date=start_date,
+                                       end_date=end_date,
+                                       testing=testing)
+
+    # Remove all associations tagged as bad for one reason or another
+    bga_good = bga[~bga.missing_from_923 &
+                   ~bga.plant_w_bad_generator &
+                   ~bga.unmapped_but_in_923 &
+                   ~bga.unmapped]
+
+    bga_good = bga_good.drop(['missing_from_923',
+                              'plant_w_bad_generator',
+                              'unmapped_but_in_923',
+                              'unmapped'], axis=1)
+    bga_good = bga_good.drop_duplicates(subset=['report_date', 'plant_id_eia',
+                                                'boiler_id', 'generator_id'])
 
     # Now, calculate the heat_rates on a per-generator basis:
-    hr = heat_rate(bga_eia860=bga_eia860,
+    hr = heat_rate(bga_eia860=bga_good,
                    gen_eia923=gen_eia923,
                    bf_eia923=bf_eia923,
                    plant_id=plant_id,
@@ -612,7 +623,6 @@ def mcoe(freq='AS', testing=False, plant_id='plant_id_eia',
     gens_eia860 = outputs.generators_eia860(testing=testing,
                                             start_date=start_date,
                                             end_date=end_date)
-    gens_eia860 = gens_eia860.rename(columns={'plant_id': 'plant_id_eia'})
 
     # Merge just the primary energy source information into heat rate, since
     # we will need it to calculate the per-fuel costs, based on plant level
@@ -628,14 +638,12 @@ def mcoe(freq='AS', testing=False, plant_id='plant_id_eia',
     frc_eia923 = outputs.fuel_receipts_costs_eia923(freq=freq, testing=testing,
                                                     start_date=start_date,
                                                     end_date=end_date)
-    frc_eia923 = frc_eia923.rename(columns={'plant_id': 'plant_id_eia'})
 
     # Calculate fuel costs by generator
     fc = fuel_cost(hr, frc_eia923, gen_eia923)
 
     # Calculate capacity factors by generator
-    # Should this be done somewhere not specific to MCOE instead?
 
     # Compile the above into a single dataframe for output/return.
 
-    return(fc)
+    return(hr, fc)
