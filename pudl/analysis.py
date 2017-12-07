@@ -59,6 +59,8 @@ def merge_on_date_year(df_date, df_year, on=[], how='inner',
     # assert that df_date has annual or finer time resolution.
 
     # Create a temporary column in each dataframe with the year
+    df_year = df_year.copy()
+    df_date = df_date.copy()
     df_year['year_temp'] = pd.to_datetime(df_year[year_col]).dt.year
     # Drop the yearly report_date column: this way there won't be duplicates
     # and the final df will have the more granular report_date.
