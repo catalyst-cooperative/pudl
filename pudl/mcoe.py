@@ -500,8 +500,68 @@ def fuel_cost(hr, frc_eia923, gen_eia923):
     return(out_df)
 
 
-def mcoe(freq='AS', testing=False, start_date=None, end_date=None,
-         min_heat_rate=5.5, output=None, debug=False):
+def capacity_factor(gens_eia860, gen_eia923,
+                    freq='AS', min_cap_fact=0, max_cap_fact=1.5):
+    """
+    Calculate the capacity factor for each generator.
+
+    Capacity Factor is calculated by using the net generation from eia923 and
+    the nameplate capacity from eia860. The net gen and capacity are pulled
+    into one dataframe, then the dates from that dataframe are pulled out to
+    determine the hours in each period based on the frequency. The number of
+    hours is used in calculating the capacity factor. Then the 'bad' records
+    are dropped.
+    """
+    # Only include columns to be used
+    gens_eia860 = gens_eia860[['plant_id_eia',
+                               'report_date',
+                               'generator_id',
+                               'nameplate_capacity_mw']]
+    gen_eia923 = gen_eia923[['plant_id_eia',
+                             'report_date',
+                             'generator_id',
+                             'net_generation_mwh']]
+
+    # merge the generation and capacity to calculate capacity factor
+    capacity_factor = analysis.merge_on_date_year(gen_eia923,
+                                                  gens_eia860,
+                                                  on=['plant_id_eia',
+                                                      'generator_id'])
+
+    # get a unique set of dates to generate the number of hours
+    dates = capacity_factor['report_date'].drop_duplicates()
+    dates_to_hours = pd.DataFrame(
+        data={'report_date': dates,
+              'hours': dates.apply(lambda d: (pd.date_range(d, periods=2,
+                                                            freq=freq)[1] -
+                                              pd.date_range(d, periods=2,
+                                                            freq=freq)[0]) /
+                                   pd.Timedelta(hours=1))})
+
+    # merge in the hours for the calculation
+    capacity_factor = capacity_factor.merge(dates_to_hours, on=['report_date'])
+
+    # actually calculate capacity factor wooo!
+    capacity_factor['capacity_factor'] = \
+        capacity_factor['net_generation_mwh'] / \
+        (capacity_factor['nameplate_capacity_mw'] * capacity_factor['hours'])
+
+    # Replace unrealistic capacity factors with NaN
+    capacity_factor.loc[capacity_factor['capacity_factor']
+                        < min_cap_fact, 'capacity_factor'] = np.nan
+    capacity_factor.loc[capacity_factor['capacity_factor']
+                        >= max_cap_fact, 'capacity_factor'] = np.nan
+
+    # drop the hours column, cause we don't need it anymore
+    capacity_factor.drop(['hours'], axis=1, inplace=True)
+
+    return(capacity_factor)
+
+
+def mcoe(freq='AS', testing=False,
+         start_date=None, end_date=None,
+         min_heat_rate=5.5, min_cap_fact=0.0, max_cap_fact=1.5,
+         output=None, debug=False):
     """
     Compile marginal cost of electricity (MCOE) at the generator level.
 
@@ -549,27 +609,29 @@ def mcoe(freq='AS', testing=False, start_date=None, end_date=None,
     gen_eia923 = outputs.generation_eia923(freq=freq, testing=testing,
                                            start_date=start_date,
                                            end_date=end_date)
-
+    print('len(gen_eia923) = {}'.format(len(gen_eia923)))
     # Boiler Fuel Consumption:
     bf_eia923 = outputs.boiler_fuel_eia923(freq=freq, testing=testing,
                                            start_date=start_date,
                                            end_date=end_date)
-
+    print('len(bf_eia923) = {}'.format(len(bf_eia923)))
     # Grab information about the individual generators:
     gens_eia860 = outputs.generators_eia860(testing=testing,
                                             start_date=start_date,
                                             end_date=end_date)
-
+    print('len(gens_eia860) = {}'.format(len(gens_eia860)))
     # The proto-BGA:
     bga_eia860 = outputs.boiler_generator_assn_eia860(testing=testing,
                                                       start_date=start_date,
                                                       end_date=end_date)
+    print('len(bga_eia860) = {}'.format(len(bga_eia860)))
     # The Boiler - Generator Associations:
     bga = boiler_generator_association(bga_eia860, gens_eia860,
                                        gen_eia923, bf_eia923,
                                        start_date=start_date,
                                        end_date=end_date,
                                        testing=testing)
+    print('len(bga) = {}'.format(len(bga)))
 
     # Remove all associations tagged as bad for one reason or another
     bga_good = bga[~bga.missing_from_923 &
@@ -581,11 +643,15 @@ def mcoe(freq='AS', testing=False, start_date=None, end_date=None,
                               'plant_w_bad_generator',
                               'unmapped_but_in_923',
                               'unmapped'], axis=1)
+    print('len(bga_good) = {}'.format(len(bga_good)))
     bga_good = bga_good.drop_duplicates(subset=['report_date', 'plant_id_eia',
                                                 'boiler_id', 'generator_id'])
+    print('len(bga_good) = {} (deduped)'.format(len(bga_good)))
+    print(bga_good[bga_good.plant_id_eia == 470])
     # Now, calculate the heat_rates on a per-generator basis:
     hr = heat_rate(bga_good, gen_eia923, bf_eia923,
                    min_heat_rate=min_heat_rate)
+    print('len(hr) = {}'.format(len(hr)))
 
     # Merge just the primary energy source information into heat rate, since
     # we will need it to calculate the per-fuel costs, based on plant level
@@ -595,15 +661,26 @@ def mcoe(freq='AS', testing=False, start_date=None, end_date=None,
         gens_eia860[['report_date', 'plant_id_eia', 'generator_id',
                      'fuel_type_pudl', 'fuel_type_count']],
         how='inner', on=['plant_id_eia', 'generator_id'])
+    print('len(hr) (merged) = {}'.format(len(hr)))
 
     frc_eia923 = outputs.fuel_receipts_costs_eia923(freq=freq, testing=testing,
                                                     start_date=start_date,
                                                     end_date=end_date)
+    print('len(frc_eia923) = {}'.format(len(frc_eia923)))
     # Calculate fuel costs by generator
     fc = fuel_cost(hr, frc_eia923, gen_eia923)
-
+    print('len(fc) = {}'.format(len(fc)))
     # Calculate capacity factors by generator
-
+    cf = capacity_factor(gens_eia860, gen_eia923,
+                         min_cap_fact=min_cap_fact,
+                         max_cap_fact=max_cap_fact)
+    print('len(cf) = {}'.format(len(cf)))
     # Compile the above into a single dataframe for output/return.
+    mcoe_out = pd.merge(fc,
+                        cf[['report_date', 'plant_id_eia',
+                            'generator_id', 'capacity_factor']],
+                        on=['report_date', 'plant_id_eia', 'generator_id'],
+                        how='left')
+    print('len(mcoe_out) = {}'.format(len(mcoe_out)))
 
-    return(hr, fc)
+    return(hr, cf, fc, mcoe_out)
