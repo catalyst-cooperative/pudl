@@ -22,7 +22,8 @@ def gens_with_bga(bga_eia860, gen_eia923):
         can tell which generators are mapped to which boilers later on.
     """
     # All generators from the Boiler Generator Association table (860)
-    bga8 = bga_eia860[['plant_id_eia', 'generator_id', 'boiler_id']]
+    bga8 = bga_eia860[['report_date', 'plant_id_eia',
+                       'generator_id', 'boiler_id']]
 
     # All generators from the generation_eia923 table, by year.
     gens9 = gen_eia923[['report_date', 'plant_id_eia',
@@ -30,8 +31,8 @@ def gens_with_bga(bga_eia860, gen_eia923):
 
     # Merge in the boiler associations across all the different years of
     # generator - plant associations.
-    gens = pd.merge(gens9, bga8, how='left',
-                    on=['plant_id_eia', 'generator_id'])
+    gens = analysis.merge_on_date_year(gens9, bga8, how='left',
+                                       on=['plant_id_eia', 'generator_id'])
     # Set a boolean flag on each record indicating whether the plant-generator
     # pairing has a boiler associated with it.
     gens['boiler_generator_assn'] = \
@@ -320,7 +321,6 @@ def heat_rate(bga, gen_eia923, bf_eia923, min_heat_rate=5.5):
     gen_by_bg_and_boiler = \
         pd.merge(gen_by_boiler, gen_by_bg,
                  on=['plant_id_eia', 'report_date', 'boiler_id'], how='left')
-
     # Bring in boiler fuel consumption and boiler generator associations
     bg = analysis.merge_on_date_year(bf_eia923, bga, how='left',
                                      on=['plant_id_eia', 'boiler_id'])
@@ -352,7 +352,6 @@ def heat_rate(bga, gen_eia923, bf_eia923, min_heat_rate=5.5):
     # generator level net generation.
     bg_gb = bg.groupby(by=['plant_id_eia', 'report_date', 'generator_id'])
     bg = bg_gb.fuel_consumed_mmbtu_generator.sum().to_frame().reset_index()
-
     # Now that we have the fuel consumed per generator, bring the net
     # generation per generator back in:
     hr = pd.merge(bg, gen_eia923, how='left',
@@ -609,29 +608,24 @@ def mcoe(freq='AS', testing=False,
     gen_eia923 = outputs.generation_eia923(freq=freq, testing=testing,
                                            start_date=start_date,
                                            end_date=end_date)
-    print('len(gen_eia923) = {}'.format(len(gen_eia923)))
     # Boiler Fuel Consumption:
     bf_eia923 = outputs.boiler_fuel_eia923(freq=freq, testing=testing,
                                            start_date=start_date,
                                            end_date=end_date)
-    print('len(bf_eia923) = {}'.format(len(bf_eia923)))
     # Grab information about the individual generators:
     gens_eia860 = outputs.generators_eia860(testing=testing,
                                             start_date=start_date,
                                             end_date=end_date)
-    print('len(gens_eia860) = {}'.format(len(gens_eia860)))
     # The proto-BGA:
     bga_eia860 = outputs.boiler_generator_assn_eia860(testing=testing,
                                                       start_date=start_date,
                                                       end_date=end_date)
-    print('len(bga_eia860) = {}'.format(len(bga_eia860)))
     # The Boiler - Generator Associations:
     bga = boiler_generator_association(bga_eia860, gens_eia860,
                                        gen_eia923, bf_eia923,
                                        start_date=start_date,
                                        end_date=end_date,
                                        testing=testing)
-    print('len(bga) = {}'.format(len(bga)))
 
     # Remove all associations tagged as bad for one reason or another
     bga_good = bga[~bga.missing_from_923 &
@@ -643,15 +637,11 @@ def mcoe(freq='AS', testing=False,
                               'plant_w_bad_generator',
                               'unmapped_but_in_923',
                               'unmapped'], axis=1)
-    print('len(bga_good) = {}'.format(len(bga_good)))
     bga_good = bga_good.drop_duplicates(subset=['report_date', 'plant_id_eia',
                                                 'boiler_id', 'generator_id'])
-    print('len(bga_good) = {} (deduped)'.format(len(bga_good)))
-    print(bga_good[bga_good.plant_id_eia == 470])
     # Now, calculate the heat_rates on a per-generator basis:
     hr = heat_rate(bga_good, gen_eia923, bf_eia923,
                    min_heat_rate=min_heat_rate)
-    print('len(hr) = {}'.format(len(hr)))
 
     # Merge just the primary energy source information into heat rate, since
     # we will need it to calculate the per-fuel costs, based on plant level
@@ -661,26 +651,21 @@ def mcoe(freq='AS', testing=False,
         gens_eia860[['report_date', 'plant_id_eia', 'generator_id',
                      'fuel_type_pudl', 'fuel_type_count']],
         how='inner', on=['plant_id_eia', 'generator_id'])
-    print('len(hr) (merged) = {}'.format(len(hr)))
 
     frc_eia923 = outputs.fuel_receipts_costs_eia923(freq=freq, testing=testing,
                                                     start_date=start_date,
                                                     end_date=end_date)
-    print('len(frc_eia923) = {}'.format(len(frc_eia923)))
     # Calculate fuel costs by generator
     fc = fuel_cost(hr, frc_eia923, gen_eia923)
-    print('len(fc) = {}'.format(len(fc)))
     # Calculate capacity factors by generator
     cf = capacity_factor(gens_eia860, gen_eia923,
                          min_cap_fact=min_cap_fact,
                          max_cap_fact=max_cap_fact)
-    print('len(cf) = {}'.format(len(cf)))
     # Compile the above into a single dataframe for output/return.
     mcoe_out = pd.merge(fc,
                         cf[['report_date', 'plant_id_eia',
                             'generator_id', 'capacity_factor']],
                         on=['report_date', 'plant_id_eia', 'generator_id'],
                         how='left')
-    print('len(mcoe_out) = {}'.format(len(mcoe_out)))
 
     return(hr, cf, fc, mcoe_out)
