@@ -59,6 +59,8 @@ def merge_on_date_year(df_date, df_year, on=[], how='inner',
     # assert that df_date has annual or finer time resolution.
 
     # Create a temporary column in each dataframe with the year
+    df_year = df_year.copy()
+    df_date = df_date.copy()
     df_year['year_temp'] = pd.to_datetime(df_year[year_col]).dt.year
     # Drop the yearly report_date column: this way there won't be duplicates
     # and the final df will have the more granular report_date.
@@ -200,38 +202,6 @@ def yearly_sum_eia(df, sum_by, columns=['plant_id_eia', 'generator_id']):
     df['report_year'] = pd.to_datetime(df['report_date']).dt.year
     gb = df.groupby(by=columns)
     return(gb.agg({sum_by: np.sum}))
-
-
-def capacity_factor(g9_summed, g8, id_col='plant_id_eia'):
-    """Generate capacity facotrs for all EIA generators."""
-    # merge the generation and capacity to calculate capacity fazctor
-    # plant_id should be specified as either plant_id_eia or plant_id_pudl
-    capacity_factor = g9_summed.merge(g8,
-                                      on=['plant_id_eia', 'plant_id_pudl',
-                                          'generator_id',
-                                          'report_year'])
-    capacity_factor['capacity_factor'] = \
-        capacity_factor['net_generation_mwh'] / \
-        (capacity_factor['nameplate_capacity_mw'] * 8760)
-
-    # Replace unrealistic capacity factors with NaN: < 0 or > 1.5
-    capacity_factor.loc[capacity_factor['capacity_factor']
-                        < 0, 'capacity_factor'] = np.nan
-    capacity_factor.loc[capacity_factor['capacity_factor']
-                        >= 1.5, 'capacity_factor'] = np.nan
-
-    if 'plant_id_pudl_x' in capacity_factor.columns:
-        capacity_factor.rename(
-            columns={'plant_id_pudl_x': 'plant_id_pudl'}, inplace=True)
-    if 'plant_id_pudl_y' in capacity_factor.columns:
-        capacity_factor.drop('plant_id_pudl_y', axis=1, inplace=True)
-    if 'plant_id_eia_x' in capacity_factor.columns:
-        capacity_factor.rename(
-            columns={'plant_id_eia_x': 'plant_id_eia'}, inplace=True)
-    if 'plant_id_eia_y' in capacity_factor.columns:
-        capacity_factor.drop('plant_id_eia_y', axis=1, inplace=True)
-
-    return(capacity_factor)
 
 
 def eia_operator_plants(operator_id, pudl_engine):

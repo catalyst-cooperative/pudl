@@ -1613,11 +1613,8 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
     # Populating the 'generators_eia860' table
     b_g_df = eia860_dfs['boiler_generator_assn'].copy()
 
-    b_g_df.rename(columns={'utility_id': 'operator_id',
-                           'plant_code': 'plant_id'},
-                  inplace=True)
-
-    b_g_cols = ['operator_id',
+    b_g_cols = ['report_year',
+                'operator_id',
                 'plant_id',
                 'boiler_id',
                 'generator_id']
@@ -1643,6 +1640,7 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
     # This drop_duplicates isn't removing all duplicates
     b_g_df = b_g_df.drop_duplicates().dropna()
 
+    b_g_df = clean_pudl.convert_to_date(b_g_df)
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(b_g_df, 'boiler_generator_assn_eia860', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
@@ -1968,10 +1966,11 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
         print("Sniffing EIA923/FERC1 glue tables...")
     ingest_glue_tables(pudl_engine)
 
-    ingest_ferc1(pudl_engine,
-                 ferc1_tables=ferc1_tables,
-                 ferc1_years=ferc1_years,
-                 verbose=verbose, debug=debug, testing=ferc1_testing)
+    ingest_eia860(pudl_engine,
+                  eia860_tables=eia860_tables,
+                  eia860_years=eia860_years,
+                  verbose=verbose, debug=debug, testing=pudl_testing,
+                  csvdir=csvdir, keep_csv=keep_csv)
 
     ingest_eia923(pudl_engine,
                   eia923_tables=eia923_tables,
@@ -1979,8 +1978,7 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
                   verbose=verbose, debug=debug, testing=pudl_testing,
                   csvdir=csvdir, keep_csv=keep_csv)
 
-    ingest_eia860(pudl_engine,
-                  eia860_tables=eia860_tables,
-                  eia860_years=eia860_years,
-                  verbose=verbose, debug=debug, testing=pudl_testing,
-                  csvdir=csvdir, keep_csv=keep_csv)
+    ingest_ferc1(pudl_engine,
+                 ferc1_tables=ferc1_tables,
+                 ferc1_years=ferc1_years,
+                 verbose=verbose, debug=debug, testing=ferc1_testing)

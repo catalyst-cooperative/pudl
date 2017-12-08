@@ -47,7 +47,7 @@ def get_eia860_file(yr, file):
     return(glob.glob(os.path.join(datadir(yr), file))[0])
 
 
-def get_eia860_xlsx(years, file):
+def get_eia860_xlsx(years, filename):
     """
     Read in Excel files to create Excel objects.
 
@@ -63,9 +63,11 @@ def get_eia860_xlsx(years, file):
         xlsx file of EIA Form 860 for input year(s)
     """
     eia860_xlsx = {}
+    pattern = pc.files_dict_eia860[filename]
+    print("Reading EIA 860 {} data...".format(filename))
     for yr in years:
-        print("Reading EIA 860 spreadsheet data for {}.".format(yr))
-        eia860_xlsx[yr] = pd.ExcelFile(get_eia860_file(yr, file))
+        print("    {}...".format(yr))
+        eia860_xlsx[yr] = pd.ExcelFile(get_eia860_file(yr, pattern))
     return(eia860_xlsx)
 
 
@@ -199,10 +201,10 @@ def create_dfs_eia860(files=pc.files_eia860,
     # Prep for ingesting EIA860
     # Create excel objects
     eia860_dfs = {}
-    for file in files:
-        eia860_xlsx = get_eia860_xlsx(eia860_years, pc.files_dict_eia860[file])
+    for f in files:
+        eia860_xlsx = get_eia860_xlsx(eia860_years, f)
         # Create DataFrames
-        pages = pc.file_pages_eia860[file]
+        pages = pc.file_pages_eia860[f]
 
         for page in pages:
             eia860_dfs[page] = get_eia860_page(page, eia860_xlsx,
