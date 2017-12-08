@@ -137,7 +137,7 @@ ferc1_waste_strings = ['tires', 'tire', 'refuse', 'switchgrass',
 
 ferc1_other_strings = ['steam', 'purch steam',
                        'purch. steam', 'other', 'composite', 'composit',
-                       'mbtus', 'total prairie', 'all', 'n/a']
+                       'mbtus']
 
 
 # There are also a bunch of other weird and hard to categorize strings

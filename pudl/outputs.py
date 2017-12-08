@@ -359,11 +359,11 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
     # lumping of an entire plant's fuel & generation if its primary fuels
     # are homogeneous, and split out fuel & generation by fuel if it is
     # hetereogeneous.
-    es_count = out_df[['plant_id', 'energy_source_simple', 'report_date']].\
+    es_count = out_df[['plant_id', 'fuel_type_pudl', 'report_date']].\
         drop_duplicates().groupby(['plant_id', 'report_date']).count()
     es_count = es_count.reset_index()
     es_count = es_count.rename(
-        columns={'energy_source_simple': 'energy_source_count'})
+        columns={'fuel_type_pudl': 'energy_source_count'})
     out_df = pd.merge(out_df, es_count, how='left',
                       on=['plant_id', 'report_date'])
 
