@@ -8,18 +8,23 @@ import pandas as pd
 
 def gens_with_bga(bga_eia860, gen_eia923):
     """
-    Label EIA generators by whether they've ever been part of complete plants.
+    Label EIA generators based on which type of associations they have.
 
-    Issues/Comments:
-      - Dropping duplicates from bga_eia860 means we lose many boiler
-        generator associations -- any time there's more than one boiler
-        associated w/ a given generator we only retain one of them.
-      - How is it that we're actually retaining all of the reported MWh?
-        - Oh, the MWh is associated w/ generators, not the boilers
-      - Seems like there are two incompatible things going on here. We need
-        to know how much generation is associated with each generator, and
-        we need to retain all of the boiler-generator relationships so we
-        can tell which generators are mapped to which boilers later on.
+    Given the boiler generator associations, and the generation records,
+    label each generator according to which kinds of associations it has
+    had. Three boolean values are set for each generator, for each time
+    period:
+        - boiler_generator_assn: True if the generator has any boilers
+          associated with it, False otherwise.
+        - plant_assn: True if all the generators associated with a given
+          plant_id have a boiler associated with them, False otherwise.
+        - complete_assn: True if the generator has *ever* been part of a
+          plant in which all generators had a boiler associated with them,
+          False if otherwise.
+
+    Returns:
+        A dataframe containing plant_id_eia, generator_id, boiler_id, and
+        the three boolean columns mentioned above.
     """
     # All generators from the Boiler Generator Association table (860)
     bga8 = bga_eia860[['report_date', 'plant_id_eia',
@@ -95,24 +100,9 @@ def boiler_generator_association(bga_eia860, gens_eia860,
     codes are used to connect all generators and boilers within each given
     unit. Each of the incomplete or inaccurate records are tagged in columns.
 
-    Args:
-        none
-    Returns:
-        a dataframe with associations
-
-    Zane Notes:
+    Notes:
      - unit_code is coming out as a mix of None and NaN values. Should pick
        a single type for the column and stick to it (or enforce on output).
-     - Need to integrate report_date into the bga_eia860 table, ingest, etc.
-     - Some irrelevant columns can be dropped at the outset to simplify the
-       merges and return values. I think these include:
-       - plant_id_pudl
-       - util_id_pudl
-       - operator_id
-       - net_generation_mwh (after it's been used)
-     - For the moment, the fuel_type_pudl, until we need it to double check
-       that the string matching for generators & boilers isn't giving us pairs
-       with different fuel types.
     """
     pudl_engine = pudl.db_connect_pudl(testing=testing)
     # compile and scrub all the parts
@@ -281,22 +271,7 @@ def boiler_generator_association(bga_eia860, gens_eia860,
 
 
 def heat_rate(bga, gen_eia923, bf_eia923, min_heat_rate=5.5):
-    """
-    Calculate heat rates (mmBTU/MWh) within separable generation units.
-
-    We use three different methods to calculate the heat rate for three types
-    of boiler/generator arrangements:
-     - Generator level heat rates if we know the boiler-generator associations.
-       (these are overwhelmingly coal plants and their steam turbines)
-     - Plant level average heat rates if we don't know the boiler-generator
-       associations. (these are overwhelmingly combined cycle gas plants)
-     - Plant level average heat rates if we get a heat rate which is too low
-       to be real, based on a given boiler-generator association.
-
-    The resulting heat rates are returned on a per-generator basis, with a
-    column entitled heatrate_calc indicating which type of heat rate was
-    calculated.
-    """
+    """Calculate heat rates (mmBTU/MWh) within separable generation units."""
     generation_w_boilers = \
         analysis.merge_on_date_year(gen_eia923, bga, how='left',
                                     on=['plant_id_eia', 'generator_id'])
@@ -438,8 +413,8 @@ def fuel_cost(hr, frc_eia923, gen_eia923):
     # generators (primary for the generator) and the fuel receipts (which is
     # per-delivery), and in the one_fuel case, there will only be a single
     # generator getting all of the fuels:
-    one_fuel.rename(columns={'fuel_type_pudl_x': 'ess_gen',
-                             'fuel_type_pudl_y': 'ess_frc'},
+    one_fuel.rename(columns={'fuel_type_pudl_x': 'ftp_gen',
+                             'fuel_type_pudl_y': 'ftp_frc'},
                     inplace=True)
 
     # Do the same thing for the multi fuel plants, but also merge based on
@@ -493,14 +468,13 @@ def fuel_cost(hr, frc_eia923, gen_eia923):
         fuel_cost.sort_values(['report_date', 'plant_id_eia', 'generator_id'])
 
     out_df = gen_w_ft.drop('heat_rate_mmbtu_mwh', axis=1)
-    out_df = pd.merge(out_df, fuel_cost,
+    out_df = pd.merge(out_df.drop_duplicates(), fuel_cost,
                       on=['report_date', 'plant_id_eia', 'generator_id'])
 
     return(out_df)
 
 
-def capacity_factor(gens_eia860, gen_eia923,
-                    freq='AS', min_cap_fact=0, max_cap_fact=1.5):
+def capacity_factor(gens_eia860, gen_eia923, min_cap_fact=0, max_cap_fact=1.5):
     """
     Calculate the capacity factor for each generator.
 
@@ -511,6 +485,10 @@ def capacity_factor(gens_eia860, gen_eia923,
     hours is used in calculating the capacity factor. Then the 'bad' records
     are dropped.
     """
+    # infer the natural frequency of our input dataset:
+    freq = pd.infer_freq(
+        pd.DatetimeIndex(gen_eia923.report_date.unique()).sort_values()
+    )
     # Only include columns to be used
     gens_eia860 = gens_eia860[['plant_id_eia',
                                'report_date',
