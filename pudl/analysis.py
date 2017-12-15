@@ -15,6 +15,31 @@ from pudl import clean_eia923, clean_ferc1, clean_pudl
 from pudl import outputs
 
 
+def is_annual(df_year, year_col='report_date'):
+    """Determine whether dataframe is consistent with yearly reporting."""
+    year_index = pd.DatetimeIndex(df_year[year_col].unique()).sort_values()
+    if len(year_index) >= 3:
+        date_freq = pd.infer_freq(year_index)
+        assert date_freq == 'AS-JAN', "infer_freq() not AS-JAN"
+    elif len(year_index) == 2:
+        min_year = year_index.min()
+        max_year = year_index.max()
+        assert year_index.min().month == 1, "min year not Jan"
+        assert year_index.min().day == 1, "min day not 1st"
+        assert year_index.max().month == 1, "max year not Jan"
+        assert year_index.max().day == 1, "max day not 1st"
+        delta_year = pd.Timedelta(max_year - min_year)
+        assert delta_year / pd.Timedelta(days=1) >= 365.0
+        assert delta_year / pd.Timedelta(days=1) <= 366.0
+    elif len(year_index) == 1:
+        assert year_index.min().month == 1, "only month not Jan"
+        assert year_index.min().day == 1, "only day not 1st"
+    else:
+        assert False, "Zero dates found!"
+
+    return(True)
+
+
 def merge_on_date_year(df_date, df_year, on=[], how='inner',
                        date_col='report_date',
                        year_col='report_date'):
@@ -54,9 +79,13 @@ def merge_on_date_year(df_date, df_year, on=[], how='inner',
     """
     assert date_col in df_date.columns.tolist()
     assert year_col in df_year.columns.tolist()
-    assert pd.infer_freq(
-        pd.DatetimeIndex(df_year[year_col].unique()).sort_values()) == 'AS-JAN'
+    # assert that the annual data is in fact annual:
+    assert is_annual(df_year, year_col=year_col)
+
     # assert that df_date has annual or finer time resolution.
+    first_date = df_date[date_col].min()
+    rng = pd.date_range(start=first_date, periods=2, freq=date_freq)
+    assert (rng[1] - rng[0]) / pd.Timedelta(days=366) <= 1.0
 
     # Create a temporary column in each dataframe with the year
     df_year = df_year.copy()
