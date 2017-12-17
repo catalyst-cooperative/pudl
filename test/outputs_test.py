@@ -37,15 +37,11 @@ def test_ferc1_output(live_pudl_db):
 @pytest.mark.eia923
 @pytest.mark.eia860
 @pytest.mark.post_etl
-def test_eia_output(live_pudl_db):
+def test_eia_output(live_pudl_db, start_date_eia923, end_date_eia923):
     """Test output routines for tables from across EIA data sources."""
     testing = (not live_pudl_db)
     print('\n')
-    first_eia923 = \
-        pd.to_datetime('{}-01-01'.format(min(pc.working_years['eia923'])))
-    last_eia923 = \
-        pd.to_datetime('{}-12-31'.format(max(pc.working_years['eia923'])))
-    dates = [(None, None), (first_eia923, last_eia923)]
+    dates = [(None, None), (start_date_eia923, end_date_eia923)]
     for (start_date, end_date) in dates:
         print("start_date={}, end_date={}".format(start_date, end_date))
         pu_eia = outputs.plants_utils_eia(testing=testing,
@@ -57,15 +53,11 @@ def test_eia_output(live_pudl_db):
 @pytest.mark.tabular_output
 @pytest.mark.eia923
 @pytest.mark.post_etl
-def test_eia923_output(live_pudl_db):
+def test_eia923_output(live_pudl_db, start_date_eia923, end_date_eia923):
     """Test output routines for tables from EIA Form 923."""
     testing = (not live_pudl_db)
-    first_eia923 = \
-        pd.to_datetime('{}-01-01'.format(min(pc.working_years['eia923'])))
-    last_eia923 = \
-        pd.to_datetime('{}-12-31'.format(max(pc.working_years['eia923'])))
     freqs = (None, 'AS', 'MS')
-    dates = [(None, None), (first_eia923, last_eia923)]
+    dates = [(None, None), (start_date_eia923, end_date_eia923)]
     params = itertools.product(freqs, dates)
     print('\n')
     for freq, (start_date, end_date) in params:
@@ -95,14 +87,10 @@ def test_eia923_output(live_pudl_db):
 @pytest.mark.tabular_output
 @pytest.mark.eia860
 @pytest.mark.post_etl
-def test_eia860_output(live_pudl_db):
+def test_eia860_output(live_pudl_db, start_date_eia923, end_date_eia923):
     """Test output routines for tables from EIA Form 860."""
     testing = (not live_pudl_db)
-    first_eia923 = \
-        pd.to_datetime('{}-01-01'.format(min(pc.working_years['eia923'])))
-    last_eia923 = \
-        pd.to_datetime('{}-12-31'.format(max(pc.working_years['eia923'])))
-    dates = [(None, None), (first_eia923, last_eia923)]
+    dates = [(None, None), (start_date_eia923, end_date_eia923)]
     print('\n')
     for (start_date, end_date) in dates:
         print("start_date={}, end_date={}". format(start_date, end_date))
