@@ -1,7 +1,9 @@
 """PyTest configuration module. Defines useful fixtures, command line args."""
 
 import pytest
-from pudl import pudl, ferc1, constants
+import pandas as pd
+from pudl import pudl, ferc1
+from pudl import constants as pc
 
 
 def pytest_addoption(parser):
@@ -32,13 +34,13 @@ def ferc1_engine(live_ferc_db):
     If we are using the test database, we initialize it from scratch first.
     If we're using the live database, then we just yield a conneciton to it.
     """
-    ferc1_tables = constants.ferc1_default_tables
-    ferc1_refyear = max(constants.working_years['ferc1'])
+    ferc1_tables = pc.ferc1_default_tables
+    ferc1_refyear = max(pc.working_years['ferc1'])
 
     if not live_ferc_db:
         ferc1.init_db(ferc1_tables=ferc1_tables,
                       refyear=ferc1_refyear,
-                      years=constants.working_years['ferc1'],
+                      years=pc.working_years['ferc1'],
                       def_db=True,
                       verbose=True,
                       testing=True)
@@ -70,12 +72,12 @@ def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
             ferc1_testing = False
         else:
             ferc1_testing = True
-        pudl.init_db(ferc1_tables=constants.ferc1_pudl_tables,
-                     ferc1_years=constants.working_years['ferc1'],
-                     eia923_tables=constants.eia923_pudl_tables,
-                     eia923_years=constants.working_years['eia923'],
-                     eia860_tables=constants.eia860_pudl_tables,
-                     eia860_years=constants.working_years['eia860'],
+        pudl.init_db(ferc1_tables=pc.ferc1_pudl_tables,
+                     ferc1_years=pc.working_years['ferc1'],
+                     eia923_tables=pc.eia923_pudl_tables,
+                     eia923_years=pc.working_years['eia923'],
+                     eia860_tables=pc.eia860_pudl_tables,
+                     eia860_years=pc.working_years['eia860'],
                      verbose=True,
                      debug=False,
                      pudl_testing=True,
@@ -90,3 +92,27 @@ def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
     else:
         print("Connecting to the live PUDL database.")
         yield(pudl.db_connect_pudl(testing=False))
+
+
+@pytest.fixture(scope='session')
+def start_date_eia923():
+    """Start date for EIA923."""
+    return(pd.to_datetime('{}-01-01'.format(min(pc.working_years['eia923']))))
+
+
+@pytest.fixture(scope='session')
+def end_date_eia923():
+    """End date for EIA923."""
+    return(pd.to_datetime('{}-12-31'.format(max(pc.working_years['eia923']))))
+
+
+@pytest.fixture(scope='session')
+def start_date_eia860():
+    """Start date for EIA860."""
+    return(pd.to_datetime('{}-01-01'.format(min(pc.working_years['eia860']))))
+
+
+@pytest.fixture(scope='session')
+def end_date_eia860():
+    """End date for EIA860."""
+    return(pd.to_datetime('{}-12-31'.format(max(pc.working_years['eia860']))))

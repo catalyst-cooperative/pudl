@@ -11,43 +11,60 @@ For now, these calculations are only using the EIA fuel cost data. FERC Form 1
 non-fuel production costs have yet to be integrated.
 """
 import pytest
-from pudl import pudl, mcoe
-# These are the only years that EIA923/860 data give us clean heat rates.
-mcoe_years = [2014, 2015, 2016]
+from pudl import pudl, mcoe, outputs
 
 
 @pytest.mark.eia860
-@pytest.mark.post_etl
-@pytest.mark.mcoe
-def test_mcoe_pulls_eia860(pudl_engine,
-                           generators_pull_eia860,
-                           boiler_generator_pull_eia860):
-    """
-    Test MCOE data pull functions that use EIA860 data.
-
-    For now, the stuff being tested all happens int he fixtures, which are
-    the things that look like arguments to this function.  Ideally, we would
-    add some sanity checks that operate on those inputs in the body of the
-    test function below.
-    """
-    pass
-
-
 @pytest.mark.eia923
 @pytest.mark.post_etl
 @pytest.mark.mcoe
-def test_mcoe_pulls_eia923(pudl_engine,
-                           generation_pull_eia923,
-                           fuel_receipts_costs_pull_eia923,
-                           boiler_fuel_pull_eia923):
-    """
-    Test MCOE data pull functions that use EIA923 data.
+def test_capacity_factor(generators_eia860,
+                         generation_eia923_as,
+                         generation_eia923_ms):
+    """Run capacity factor calculation."""
+    print("Calculating annual capacity factors...")
+    cap_fact_as = mcoe.capacity_factor(generators_eia860,
+                                       generation_eia923_as,
+                                       freq='AS',
+                                       min_cap_fact=0,
+                                       max_cap_fact=1.5)
+    print("    capacity_factor: {} records found".format(len(cap_fact_as)))
 
-    For now, the stuff being tested all happens int he fixtures, which are
-    the things that look like arguments to this function.  Ideally, we would
-    add some sanity checks that operate on those inputs in the body of the
-    test function below.
-    """
+    print("Calculating monthly capacity factors...")
+    cap_fact_ms = mcoe.capacity_factor(generators_eia860,
+                                       generation_eia923_ms,
+                                       freq='MS',
+                                       min_cap_fact=0,
+                                       max_cap_fact=1.5)
+    print("    capacity_factor: {} records found".format(len(cap_fact_ms)))
+
+    assert len(cap_fact_ms) / len(cap_fact_as) == 12, \
+        'Annual records are not 1/12 of monthly records'
+
+
+@pytest.mark.eia860
+@pytest.mark.eia923
+@pytest.mark.post_etl
+@pytest.mark.mcoe
+def test_heat_rate(heat_rate_as):
+    """Run heat rate calculation."""
+    pass
+
+
+@pytest.mark.eia860
+@pytest.mark.eia923
+@pytest.mark.post_etl
+@pytest.mark.mcoe
+def test_fuel_cost(heat_rate_as,
+                   fuel_receipts_costs_eia923_as,
+                   generation_eia923_as):
+    """Run fuel cost calculation."""
+    print("Calculating annual fuel cost...")
+    fuel_cost_as = mcoe.fuel_cost(heat_rate_as,
+                                  fuel_receipts_costs_eia923_as,
+                                  generation_eia923_as)
+    print("    fuel_cost: {} records found".format(len(fuel_cost_as)))
+
     pass
 
 
@@ -101,35 +118,123 @@ def test_mcoe_calcs(pudl_engine,
 
 
 @pytest.fixture(scope='module')
-def boiler_generator_pull_eia860(pudl_engine):
-    """Fixture for pulling boiler generator EIA860 dataframe for MCOE."""
-    print("Pulling EIA860 boiler generator associations for MCOE...")
-    return(mcoe.boiler_generator_pull_eia860(pudl_engine))
+def boiler_generator_assn_eia860(live_pudl_db,
+                                 start_date_eia923,
+                                 end_date_eia923):
+    """Fixture for pulling boiler generator associations from EIA860."""
+    testing = (not live_pudl_db)
+    print("Pulling EIA boiler generator associations for MCOE...")
+    return(outputs.boiler_generator_assn_eia860(start_date=start_date_eia923,
+                                                end_date=end_date_eia923,
+                                                testing=testing))
 
 
 @pytest.fixture(scope='module')
-def generators_pull_eia860(pudl_engine):
+def generators_eia860(live_pudl_db, start_date_eia923, end_date_eia923):
     """Fixture for pulling generator info from EIA860 dataframe for MCOE."""
+    testing = (not live_pudl_db)
     print("Pulling EIA860 generator data for MCOE...")
-    return(mcoe.generators_pull_eia860(pudl_engine))
+    return(outputs.generators_eia860(start_date=start_date_eia923,
+                                     end_date=end_date_eia923,
+                                     testing=testing))
 
 
 @pytest.fixture(scope='module')
-def generation_pull_eia923(pudl_engine, years=mcoe_years):
+def generation_eia923_as(live_pudl_db, start_date_eia923, end_date_eia923):
     """Fixture for pulling annualized EIA923 generation dataframe for MCOE."""
+    testing = (not live_pudl_db)
     print("Pulling annualized EI923 net generation data...")
-    return(mcoe.generation_pull_eia923(pudl_engine))
+    return(outputs.generation_eia923(freq='AS',
+                                     start_date=start_date_eia923,
+                                     end_date=end_date_eia923,
+                                     testing=testing))
 
 
 @pytest.fixture(scope='module')
-def fuel_receipts_costs_pull_eia923(pudl_engine, years=mcoe_years):
+def generation_eia923_ms(live_pudl_db, start_date_eia923, end_date_eia923):
+    """Fixture for pulling monthly EIA923 generation dataframe for MCOE."""
+    testing = (not live_pudl_db)
+    print("Pulling monthly EI923 net generation data...")
+    return(outputs.generation_eia923(freq='MS',
+                                     start_date=start_date_eia923,
+                                     end_date=end_date_eia923,
+                                     testing=testing))
+
+
+@pytest.fixture(scope='module')
+def fuel_receipts_costs_eia923_as(live_pudl_db,
+                                  start_date_eia923,
+                                  end_date_eia923):
     """Fixture for pulling annual EIA923 fuel receipts dataframe for MCOE."""
-    print("Pulling EIA923 fuel receipts & costs data for MCOE...")
-    return(mcoe.fuel_reciepts_costs_pull_eia923(pudl_engine))
+    testing = (not live_pudl_db)
+    print("Pulling annual EIA923 fuel receipts & costs data for MCOE...")
+    return(outputs.fuel_receipts_costs_eia923(freq='AS',
+                                              start_date=start_date_eia923,
+                                              end_date=end_date_eia923,
+                                              testing=testing))
 
 
 @pytest.fixture(scope='module')
-def boiler_fuel_pull_eia923(pudl_engine, years=mcoe_years):
-    """Fixture for pulling EIA923 boiler fuel consumed dataframe for MCOE."""
-    print("Pulling EIA923 boiler fuel data for MCOE...")
-    return(mcoe.boiler_fuel_pull_eia923(pudl_engine))
+def fuel_receipts_costs_eia923_ms(live_pudl_db,
+                                  start_date_eia923,
+                                  end_date_eia923):
+    """Fixture for pulling annual EIA923 fuel receipts dataframe for MCOE."""
+    testing = (not live_pudl_db)
+    print("Pulling monthly EIA923 fuel receipts & costs data for MCOE...")
+    return(outputs.fuel_receipts_costs_eia923(freq='MS',
+                                              start_date=start_date_eia923,
+                                              end_date=end_date_eia923,
+                                              testing=testing))
+
+
+@pytest.fixture(scope='module')
+def boiler_fuel_eia923_as(live_pudl_db, start_date_eia923, end_date_eia923):
+    """Fixture for pulling annual EIA923 boiler fuel dataframe for MCOE."""
+    testing = (not live_pudl_db)
+    print("Pulling annual EIA923 boiler fuel data for MCOE...")
+    return(outputs.boiler_fuel_eia923(freq='AS',
+                                      start_date=start_date_eia923,
+                                      end_date=end_date_eia923,
+                                      testing=testing))
+
+
+@pytest.fixture(scope='module')
+def boiler_fuel_eia923_ms(live_pudl_db, start_date_eia923, end_date_eia923):
+    """Fixture for pulling annual EIA923 boiler fuel dataframe for MCOE."""
+    testing = (not live_pudl_db)
+    print("Pulling monthly EIA923 boiler fuel data for MCOE...")
+    return(outputs.boiler_fuel_eia923(freq='MS',
+                                      start_date=start_date_eia923,
+                                      end_date=end_date_eia923,
+                                      testing=testing))
+
+
+@pytest.fixture(scope='module')
+def boiler_generator_assn_eia(boiler_generator_assn_eia860,
+                              generators_eia860,
+                              generation_eia923_as, boiler_fuel_eia923_as,
+                              live_pudl_db,
+                              start_date_eia923,
+                              end_date_eia923):
+    """Fixture for pulling boiler generator associations dataframe for MCOE."""
+    testing = (not live_pudl_db)
+    print("Pulling EIA boiler generator associations for MCOE...")
+    return(mcoe.boiler_generator_association(boiler_generator_assn_eia860,
+                                             generators_eia860,
+                                             generation_eia923_as,
+                                             boiler_fuel_eia923_as,
+                                             start_date=start_date_eia923,
+                                             end_date=end_date_eia923,
+                                             testing=testing))
+
+
+@pytest.fixture(scope='module')
+def heat_rate_as(boiler_generator_assn_eia,
+                 generation_eia923_as,
+                 boiler_fuel_eia923_as):
+    """Fixture for heat rate dataframe."""
+    print("Calculating heat rate...")
+    return(mcoe.heat_rate(boiler_generator_assn_eia,
+                          generation_eia923_as,
+                          boiler_fuel_eia923_as,
+                          min_heat_rate=5.5))
