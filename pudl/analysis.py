@@ -84,6 +84,9 @@ def merge_on_date_year(df_date, df_year, on=[], how='inner',
 
     # assert that df_date has annual or finer time resolution.
     first_date = df_date[date_col].min()
+    date_freq = pd.infer_freq(
+        pd.DatetimeIndex(df_date[date_col]).unique().sort_values()
+    )
     rng = pd.date_range(start=first_date, periods=2, freq=date_freq)
     assert (rng[1] - rng[0]) / pd.Timedelta(days=366) <= 1.0
 
