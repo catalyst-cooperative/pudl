@@ -25,7 +25,6 @@ def test_capacity_factor(generators_eia860,
     print("Calculating annual capacity factors...")
     cap_fact_as = mcoe.capacity_factor(generators_eia860,
                                        generation_eia923_as,
-                                       freq='AS',
                                        min_cap_fact=0,
                                        max_cap_fact=1.5)
     print("    capacity_factor: {} records found".format(len(cap_fact_as)))
@@ -33,7 +32,6 @@ def test_capacity_factor(generators_eia860,
     print("Calculating monthly capacity factors...")
     cap_fact_ms = mcoe.capacity_factor(generators_eia860,
                                        generation_eia923_ms,
-                                       freq='MS',
                                        min_cap_fact=0,
                                        max_cap_fact=1.5)
     print("    capacity_factor: {} records found".format(len(cap_fact_ms)))
@@ -72,6 +70,7 @@ def test_fuel_cost(heat_rate_as,
 @pytest.mark.eia923
 @pytest.mark.post_etl
 @pytest.mark.mcoe
+@pytest.mark.skip(reason="MCOE tests still not updated to use output.py")
 def test_mcoe_calcs(pudl_engine,
                     generation_pull_eia923,
                     fuel_receipts_costs_pull_eia923,
@@ -231,10 +230,12 @@ def boiler_generator_assn_eia(boiler_generator_assn_eia860,
 @pytest.fixture(scope='module')
 def heat_rate_as(boiler_generator_assn_eia,
                  generation_eia923_as,
-                 boiler_fuel_eia923_as):
+                 boiler_fuel_eia923_as,
+                 generators_eia860):
     """Fixture for heat rate dataframe."""
     print("Calculating heat rate...")
     return(mcoe.heat_rate(boiler_generator_assn_eia,
                           generation_eia923_as,
                           boiler_fuel_eia923_as,
+                          generators_eia860,
                           min_heat_rate=5.5))

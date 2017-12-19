@@ -270,7 +270,7 @@ def boiler_generator_association(bga_eia860, gens_eia860,
     return(bga_compiled_3)
 
 
-def heat_rate(bga, gen_eia923, bf_eia923, min_heat_rate=5.5):
+def heat_rate(bga, gen_eia923, bf_eia923, gens_eia860, min_heat_rate=5.5):
     """Calculate heat rates (mmBTU/MWh) within separable generation units."""
     generation_w_boilers = \
         analysis.merge_on_date_year(gen_eia923, bga, how='left',
@@ -348,6 +348,12 @@ def heat_rate(bga, gen_eia923, bf_eia923, min_heat_rate=5.5):
 
     # Only keep the generators with reasonable heat rates
     hr = hr[hr.heat_rate_mmbtu_mwh >= min_heat_rate]
+
+    hr = analysis.merge_on_date_year(
+        hr,
+        gens_eia860[['report_date', 'plant_id_eia', 'generator_id',
+                     'fuel_type_pudl', 'fuel_type_count']],
+        how='inner', on=['plant_id_eia', 'generator_id'])
 
     # Sort it a bit and clean up some types
     first_cols = [
@@ -618,17 +624,8 @@ def mcoe(freq='AS', testing=False,
     bga_good = bga_good.drop_duplicates(subset=['report_date', 'plant_id_eia',
                                                 'boiler_id', 'generator_id'])
     # Now, calculate the heat_rates on a per-generator basis:
-    hr = heat_rate(bga_good, gen_eia923, bf_eia923,
+    hr = heat_rate(bga_good, gen_eia923, bf_eia923, gens_eia860,
                    min_heat_rate=min_heat_rate)
-
-    # Merge just the primary energy source information into heat rate, since
-    # we will need it to calculate the per-fuel costs, based on plant level
-    # fuel receipts:
-    hr = analysis.merge_on_date_year(
-        hr,
-        gens_eia860[['report_date', 'plant_id_eia', 'generator_id',
-                     'fuel_type_pudl', 'fuel_type_count']],
-        how='inner', on=['plant_id_eia', 'generator_id'])
 
     frc_eia923 = outputs.fuel_receipts_costs_eia923(freq=freq, testing=testing,
                                                     start_date=start_date,
