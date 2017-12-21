@@ -296,6 +296,7 @@ def heat_rate(bga, gen_eia923, bf_eia923, gens_eia860, min_heat_rate=5.5):
     gen_by_bg_and_boiler = \
         pd.merge(gen_by_boiler, gen_by_bg,
                  on=['plant_id_eia', 'report_date', 'boiler_id'], how='left')
+
     # Bring in boiler fuel consumption and boiler generator associations
     bg = analysis.merge_on_date_year(bf_eia923, bga, how='left',
                                      on=['plant_id_eia', 'boiler_id'])
@@ -331,7 +332,6 @@ def heat_rate(bga, gen_eia923, bf_eia923, gens_eia860, min_heat_rate=5.5):
     # generation per generator back in:
     hr = pd.merge(bg, gen_eia923, how='left',
                   on=['plant_id_eia', 'report_date', 'generator_id'])
-
     # Finally, calculate heat rate
     hr['heat_rate_mmbtu_mwh'] = \
         hr['fuel_consumed_mmbtu_generator'] / \
@@ -343,6 +343,9 @@ def heat_rate(bga, gen_eia923, bf_eia923, gens_eia860, min_heat_rate=5.5):
     # This is a per-generator table now -- so we don't want the boiler_id
     # And we only want the ones with complete associations.
     gens_assn = gens[gens['complete_assn']].drop('boiler_id', axis=1)
+    gens_assn = gens_assn.drop_duplicates(subset=['plant_id_eia',
+                                                  'generator_id',
+                                                  'report_date'])
     hr = pd.merge(hr, gens_assn,
                   on=['plant_id_eia', 'report_date', 'generator_id'])
 
@@ -643,4 +646,23 @@ def mcoe(freq='AS', testing=False,
                         on=['report_date', 'plant_id_eia', 'generator_id'],
                         how='left')
 
-    return(hr, cf, fc, mcoe_out)
+    return(mcoe_out)
+
+
+def single_gens(df, key_cols=['report_date', 'plant_id_eia', 'generator_id']):
+    """Test whether dataframe has a single record per generator."""
+    len_1 = len(df)
+    len_2 = len(df.drop_duplicates(subset=key_cols))
+    if len_1 == len_2:
+        return True
+    else:
+        return False
+
+
+def nonunique_gens(df,
+                   key_cols=['plant_id_eia', 'generator_id', 'report_date']):
+    """Generate a list of all the non-unique generator reecords for testing."""
+    unique_gens = df.drop_duplicates(subset=key_cols)
+    dupes = df[~df.isin(unique_gens)].dropna()
+    dupes = dupes.sort_values(by=key_cols)
+    return(dupes)
