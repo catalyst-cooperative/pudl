@@ -646,6 +646,36 @@ def mcoe(freq='AS', testing=False,
                         on=['report_date', 'plant_id_eia', 'generator_id'],
                         how='left')
 
+    mcoe_out['total_mmbtu'] = \
+        mcoe_out.net_generation_mwh * mcoe_out.heat_rate_mmbtu_mwh
+    mcoe_out['total_fuel_cost'] = \
+        mcoe_out.total_mmbtu * mcoe_out.fuel_cost_per_mmbtu
+
+    simplified_gens_eia860 = gens_eia860.drop([
+        'plant_id_pudl',
+        'plant_name',
+        'operator_id',
+        'util_id_pudl',
+        'operator_name',
+        'fuel_type_count',
+        'fuel_type_pudl'
+    ], axis=1)
+    mcoe_out = analysis.merge_on_date_year(mcoe_out, simplified_gens_eia860,
+                                           on=['plant_id_eia',
+                                               'generator_id'])
+    first_cols = ['report_date',
+                  'plant_id_eia',
+                  'plant_id_pudl',
+                  'generator_id',
+                  'plant_name',
+                  'operator_id',
+                  'util_id_pudl',
+                  'operator_name']
+    mcoe_out = outputs.organize_cols(mcoe_out, first_cols)
+    mcoe_out = mcoe_out.sort_values(
+        ['plant_id_eia', 'generator_id', 'report_date']
+    )
+
     return(mcoe_out)
 
 
