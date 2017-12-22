@@ -202,8 +202,9 @@ def get_eia923_xlsx(years):
         xlsx file of EIA Form 923 for input year(s)
     """
     eia923_xlsx = {}
+    print("Reading EIA 923 spreadsheet data")
     for yr in years:
-        print("Reading EIA 923 spreadsheet data for {}.".format(yr))
+        print("    {}...".format(yr))
         eia923_xlsx[yr] = pd.ExcelFile(get_eia923_file(yr))
     return(eia923_xlsx)
 

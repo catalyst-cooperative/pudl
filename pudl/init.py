@@ -24,12 +24,15 @@ import sqlalchemy as sa
 import postgres_copy
 import os.path
 import re
+import datetime
 
-from pudl import eia923, ferc1, eia860
 from pudl import settings
 from pudl import models, models_eia923, models_eia860, models_epacems
 from pudl import models_ferc1
 from pudl import clean_ferc1, clean_pudl, clean_eia923, clean_eia860
+import pudl.extract.eia860
+import pudl.extract.eia923
+import pudl.extract.ferc1
 
 import pudl.constants as pc
 
@@ -458,7 +461,7 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     Returns: Nothing.
     """
     # Grab the f1_fuel SQLAlchemy Table object from the metadata object.
-    f1_fuel = ferc1.ferc1_meta.tables['f1_fuel']
+    f1_fuel = pudl.extract.ferc1.ferc1_meta.tables['f1_fuel']
     # Generate a SELECT statement that pulls all fields of the f1_fuel table,
     # but only gets records with plant names, and non-zero fuel amounts:
     f1_fuel_select = sa.sql.select([f1_fuel]).\
@@ -494,7 +497,7 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-    f1_steam = ferc1.ferc1_meta.tables['f1_steam']
+    f1_steam = pudl.extract.ferc1.ferc1_meta.tables['f1_steam']
     f1_steam_select = sa.sql.select([f1_steam]).\
         where(f1_steam.c.net_generation > 0).\
         where(f1_steam.c.plant_name != '').\
@@ -584,7 +587,7 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-    f1_hydro = ferc1.ferc1_meta.tables['f1_hydro']
+    f1_hydro = pudl.extract.ferc1.ferc1_meta.tables['f1_hydro']
 
     f1_hydro_select = sa.sql.select([f1_hydro]).\
         where(f1_hydro.c.plant_name != '').\
@@ -657,7 +660,7 @@ def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-    f1_pumped_storage = ferc1.ferc1_meta.tables['f1_pumped_storage']
+    f1_pumped_storage = pudl.extract.ferc1.ferc1_meta.tables['f1_pumped_storage']
 
     # Removing the empty records.
     # This reduces the entries for 2015 from 272 records to 27.
@@ -755,7 +758,7 @@ def ingest_accumulated_depreciation_ferc1(pudl_engine,
 
     Returns: Nothing.
     """
-    f1_accumdepr_prvsn = ferc1.ferc1_meta.tables['f1_accumdepr_prvsn']
+    f1_accumdepr_prvsn = pudl.extract.ferc1.ferc1_meta.tables['f1_accumdepr_prvsn']
     f1_accumdepr_prvsn_select = sa.sql.select([f1_accumdepr_prvsn]).\
         where(f1_accumdepr_prvsn.c.report_year.in_(ferc1_years))
 
@@ -807,7 +810,7 @@ def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
        Returns: Nothing.
     """
-    f1_plant_in_srvce = ferc1.ferc1_meta.tables['f1_plant_in_srvce']
+    f1_plant_in_srvce = pudl.extract.ferc1.ferc1_meta.tables['f1_plant_in_srvce']
     f1_plant_in_srvce_select = sa.sql.select([f1_plant_in_srvce]).\
         where(
             sa.sql.and_(
@@ -890,7 +893,7 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     assert max(ferc1_years) <= max(pc.working_years['ferc1']),\
         """Year {} is too recent. Small plant data has not been categorized for
         any year after 2015.""".format(max(ferc1_years))
-    f1_small = ferc1.ferc1_meta.tables['f1_gnrt_plant']
+    f1_small = pudl.extract.ferc1.ferc1_meta.tables['f1_gnrt_plant']
     f1_small_select = sa.sql.select([f1_small, ]).\
         where(f1_small.c.report_year.in_(ferc1_years)).\
         where(f1_small.c.plant_name != '').\
@@ -1021,7 +1024,7 @@ def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-    f1_purchased_pwr = ferc1.ferc1_meta.tables['f1_purchased_pwr']
+    f1_purchased_pwr = pudl.extract.ferc1.ferc1_meta.tables['f1_purchased_pwr']
     f1_purchased_pwr_select = sa.sql.select([f1_purchased_pwr]).\
         where(f1_purchased_pwr.c.report_year.in_(ferc1_years))
 
@@ -1823,9 +1826,9 @@ def ingest_eia860(pudl_engine,
                   keep_csv=True):
     """Wrapper function that ingests all the EIA Form 860 tables."""
     # Prep for ingesting EIA860
-    eia860_dfs = eia860.create_dfs_eia860(files=pc.files_eia860,
-                                          eia860_years=eia860_years,
-                                          verbose=verbose)
+    eia860_dfs = pudl.extract.eia860.create_dfs_eia860(files=pc.files_eia860,
+                                                       eia860_years=eia860_years,
+                                                       verbose=verbose)
     # NOW START INGESTING EIA860 DATA:
     eia860_ingest_functions = {
         'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860,
@@ -1851,18 +1854,19 @@ def ingest_eia923(pudl_engine,
     """Wrapper function that ingests all the EIA Form 923 tables."""
     # Prep for ingesting EIA923
     # Create excel objects
-    eia923_xlsx = eia923.get_eia923_xlsx(eia923_years)
+    eia923_xlsx = pudl.extract.eia923.get_eia923_xlsx(eia923_years)
 
     # Create DataFrames
     eia923_dfs = {}
     for page in pc.tab_map_eia923.columns:
         if (page == 'plant_frame'):
-            eia923_dfs[page] = eia923.get_eia923_plants(
+            eia923_dfs[page] = pudl.extract.eia923.get_eia923_plants(
                 eia923_years, eia923_xlsx)
         else:
-            eia923_dfs[page] = eia923.get_eia923_page(page, eia923_xlsx,
-                                                      years=eia923_years,
-                                                      verbose=verbose)
+            eia923_dfs[page] = pudl.extract.eia923.\
+                get_eia923_page(page, eia923_xlsx,
+                                years=eia923_years,
+                                verbose=verbose)
 
     # NOW START INGESTING EIA923 DATA:
     eia923_ingest_functions = {
@@ -1902,7 +1906,7 @@ def ingest_ferc1(pudl_engine,
         'f1_accumdepr_prvsn': ingest_accumulated_depreciation_ferc1
     }
 
-    ferc1_engine = ferc1.db_connect_ferc1(testing=testing)
+    ferc1_engine = pudl.extract.ferc1.db_connect_ferc1(testing=testing)
     for table in ferc1_ingest_functions.keys():
         if table in ferc1_tables:
             if verbose:
@@ -1944,6 +1948,9 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
     """
     # Make sure that the tables we're being asked to ingest can actually be
     # pulled into both the FERC Form 1 DB, and the PUDL DB...
+    if verbose:
+        print("Start ingest at {}".format(datetime.datetime.now().
+                                          strftime("%A, %d. %B %Y %I:%M%p")))
     if not debug:
         for table in ferc1_tables:
             assert(table in pc.ferc1_working_tables)
