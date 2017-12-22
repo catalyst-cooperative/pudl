@@ -1,6 +1,6 @@
 """A module with functions to aid generating MCOE."""
 
-from pudl import analysis, clean_pudl, outputs, pudl
+from pudl import analysis, clean_pudl, outputs, init
 from pudl import constants as pc
 import numpy as np
 import pandas as pd
@@ -104,7 +104,7 @@ def boiler_generator_association(bga_eia860, gens_eia860,
      - unit_code is coming out as a mix of None and NaN values. Should pick
        a single type for the column and stick to it (or enforce on output).
     """
-    pudl_engine = pudl.db_connect_pudl(testing=testing)
+    pudl_engine = init.db_connect_pudl(testing=testing)
     # compile and scrub all the parts
     bga_eia860.drop_duplicates(['plant_id_eia', 'boiler_id',
                                 'generator_id', 'report_date'], inplace=True)

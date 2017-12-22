@@ -14,7 +14,7 @@ import sqlalchemy as sa
 import pandas as pd
 
 ######################################################################
-# Constants used within the pudl.py module.
+# Constants used within the init.py module.
 ######################################################################
 prime_movers = ['steam_turbine', 'gas_turbine', 'hydro', 'internal_combustion',
                 'solar_pv', 'wind_turbine']
@@ -2302,7 +2302,7 @@ generator_retired_assn_map_eia860 = pd.DataFrame.from_records([
     index='year_index')
 
 ######################################################################
-# Constants from FERC1 used within pudl.py module
+# Constants from FERC1 used within init.py module
 ######################################################################
 
 # The set of FERC Form 1 tables that have the same composite primary keys: [
@@ -2520,7 +2520,7 @@ ferc_accumulated_depreciation = pd.DataFrame.from_records([
     columns=['row_number', 'line_id', 'ferc_account_description'])
 
 ######################################################################
-# Constants from EIA From 923 used within pudl.py module
+# Constants from EIA From 923 used within init.py module
 ######################################################################
 
 # From Page 7 of EIA Form 923, Census Region a US state is located in
