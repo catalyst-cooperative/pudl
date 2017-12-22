@@ -11,7 +11,7 @@ For now, these calculations are only using the EIA fuel cost data. FERC Form 1
 non-fuel production costs have yet to be integrated.
 """
 import pytest
-from pudl import pudl, mcoe, outputs
+from pudl import init, mcoe, outputs
 
 
 @pytest.mark.eia860

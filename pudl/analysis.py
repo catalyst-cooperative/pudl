@@ -9,10 +9,11 @@ import itertools
 import random
 
 # Our own code...
-from pudl import pudl, ferc1, eia923, settings, constants
+from pudl import init, settings, constants
 from pudl import models, models_ferc1, models_eia923
 from pudl import clean_eia923, clean_ferc1, clean_pudl
 from pudl import outputs
+import pudl.extract.ferc1
 
 
 def merge_on_date_year(df_date, df_year, on=[], how='inner',
@@ -956,14 +957,14 @@ def fercplants(plant_tables=['f1_steam',
     for tbl in plant_tables:
         assert tbl in okay_tbls
 
-    f1_engine = ferc1.db_connect_ferc1()
+    f1_engine = pudl.extract.ferc1.db_connect_ferc1()
 
     # Need to make sure we have a populated metadata object, which isn't
     # always the case, since folks often are not initializing the FERC DB.
-    ferc1.define_db(max(constants.working_years['ferc1']),
-                    constants.ferc1_working_tables,
-                    ferc1.ferc1_meta)
-    f1_tbls = ferc1.ferc1_meta.tables
+    pudl.extract.ferc1.define_db(max(constants.working_years['ferc1']),
+                                 constants.ferc1_working_tables,
+                                 pudl.extract.ferc1.ferc1_meta)
+    f1_tbls = pudl.extract.ferc1.ferc1_meta.tables
 
     # FERC doesn't use the sme column names for the same values across all of
     # Their tables... but all of these are cpacity in MW.
@@ -1006,7 +1007,7 @@ def fercplants(plant_tables=['f1_steam',
         ferc1_plants_all = ferc1_plants_all.set_index(
             ['respondent_id', 'plant_name'])
 
-        pudl_engine = pudl.db_connect_pudl()
+        pudl_engine = init.db_connect_pudl()
         pudl_tbls = pudl.models.PUDLBase.metadata.tables
 
         ferc1_plants_tbl = pudl_tbls['plants_ferc']

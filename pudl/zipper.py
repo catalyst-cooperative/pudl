@@ -77,8 +77,9 @@ import itertools
 import random
 
 # Our own code...
-from pudl import pudl, eia923, settings, constants
+from pudl import settings, constants
 from pudl import outputs
+import pudl.extract.eia923
 
 
 def partition(collection):

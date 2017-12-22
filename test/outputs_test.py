@@ -10,7 +10,7 @@ initialized the DB successfully.
 import pytest
 import itertools
 import pandas as pd
-from pudl import pudl, outputs
+from pudl import outputs
 from pudl import constants as pc
 
 

@@ -2,7 +2,8 @@
 
 import pytest
 import pandas as pd
-from pudl import pudl, ferc1
+import pudl.extract.ferc1
+from pudl import init
 from pudl import constants as pc
 
 
@@ -38,25 +39,26 @@ def ferc1_engine(live_ferc_db):
     ferc1_refyear = max(pc.working_years['ferc1'])
 
     if not live_ferc_db:
-        ferc1.init_db(ferc1_tables=ferc1_tables,
-                      refyear=ferc1_refyear,
-                      years=pc.working_years['ferc1'],
-                      def_db=True,
-                      verbose=True,
-                      testing=True)
+        pudl.extract.ferc1.init_db(ferc1_tables=ferc1_tables,
+                                   refyear=ferc1_refyear,
+                                   years=pc.working_years['ferc1'],
+                                   def_db=True,
+                                   verbose=True,
+                                   testing=True)
 
         # Grab a connection to the freshly populated database, and hand it off.
-        ferc1_engine = ferc1.db_connect_ferc1(testing=True)
+        ferc1_engine = pudl.extract.ferc1.db_connect_ferc1(testing=True)
         yield(ferc1_engine)
 
         # Clean up after ourselves by dropping the test DB tables.
-        ferc1.drop_tables_ferc1(ferc1_engine)
+        pudl.extract.ferc1.drop_tables_ferc1(ferc1_engine)
     else:
         print("Constructing FERC1 DB MetaData based on refyear {}".
               format(ferc1_refyear))
-        ferc1.define_db(ferc1_refyear, ferc1_tables, ferc1.ferc1_meta)
+        pudl.extract.ferc1.define_db(
+            ferc1_refyear, ferc1_tables, pudl.extract.ferc1.ferc1_meta)
         print("Connecting to the live FERC1 database.")
-        yield(ferc1.db_connect_ferc1(testing=False))
+        yield(pudl.extract.ferc1.db_connect_ferc1(testing=False))
 
 
 @pytest.fixture(scope='session')
@@ -72,7 +74,7 @@ def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
             ferc1_testing = False
         else:
             ferc1_testing = True
-        pudl.init_db(ferc1_tables=pc.ferc1_pudl_tables,
+        init.init_db(ferc1_tables=pc.ferc1_pudl_tables,
                      ferc1_years=pc.working_years['ferc1'],
                      eia923_tables=pc.eia923_pudl_tables,
                      eia923_years=pc.working_years['eia923'],
@@ -84,14 +86,14 @@ def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
                      ferc1_testing=ferc1_testing)
 
         # Grab a connection to the freshly populated PUDL DB, and hand it off.
-        pudl_engine = pudl.db_connect_pudl(testing=True)
+        pudl_engine = init.db_connect_pudl(testing=True)
         yield(pudl_engine)
 
         # Clean up after ourselves by dropping the test DB tables.
-        pudl.drop_tables_pudl(pudl_engine)
+        init.drop_tables_pudl(pudl_engine)
     else:
         print("Connecting to the live PUDL database.")
-        yield(pudl.db_connect_pudl(testing=False))
+        yield(init.db_connect_pudl(testing=False))
 
 
 @pytest.fixture(scope='session')
