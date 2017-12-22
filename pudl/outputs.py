@@ -73,8 +73,7 @@ def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
     long lag in being released.
     """
     # assert that df time resolution really is annual
-    assert pd.infer_freq(
-        pd.DatetimeIndex(df[date_col].unique()).sort_values()) == 'AS-JAN'
+    assert analysis.is_annual(df, year_col=date_col)
 
     earliest_date = pd.to_datetime(df[date_col].min())
     if start_date is not None:

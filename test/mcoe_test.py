@@ -25,7 +25,6 @@ def test_capacity_factor(generators_eia860,
     print("Calculating annual capacity factors...")
     cap_fact_as = mcoe.capacity_factor(generators_eia860,
                                        generation_eia923_as,
-                                       freq='AS',
                                        min_cap_fact=0,
                                        max_cap_fact=1.5)
     print("    capacity_factor: {} records found".format(len(cap_fact_as)))
@@ -33,22 +32,26 @@ def test_capacity_factor(generators_eia860,
     print("Calculating monthly capacity factors...")
     cap_fact_ms = mcoe.capacity_factor(generators_eia860,
                                        generation_eia923_ms,
-                                       freq='MS',
                                        min_cap_fact=0,
                                        max_cap_fact=1.5)
     print("    capacity_factor: {} records found".format(len(cap_fact_ms)))
 
     assert len(cap_fact_ms) / len(cap_fact_as) == 12, \
-        'Annual records are not 1/12 of monthly records'
+        'Did not find 12x as many monthly as annual capacity factor records.'
 
 
 @pytest.mark.eia860
 @pytest.mark.eia923
 @pytest.mark.post_etl
 @pytest.mark.mcoe
-def test_heat_rate(heat_rate_as):
+def test_heat_rate(heat_rate_as, heat_rate_ms):
     """Run heat rate calculation."""
-    pass
+    print("    heat_rate: {} annual records found".format(len(heat_rate_as)))
+    assert mcoe.single_gens(heat_rate_as),\
+        "Found non-unique annual generator heat rates!"
+    print("    heat_rate: {} monthly records found".format(len(heat_rate_ms)))
+    assert mcoe.single_gens(heat_rate_ms),\
+        "Found non-unique monthly generator heat rates!"
 
 
 @pytest.mark.eia860
@@ -56,65 +59,27 @@ def test_heat_rate(heat_rate_as):
 @pytest.mark.post_etl
 @pytest.mark.mcoe
 def test_fuel_cost(heat_rate_as,
+                   heat_rate_ms,
                    fuel_receipts_costs_eia923_as,
-                   generation_eia923_as):
+                   fuel_receipts_costs_eia923_ms,
+                   generation_eia923_as,
+                   generation_eia923_ms):
     """Run fuel cost calculation."""
-    print("Calculating annual fuel cost...")
+    print("Calculating annual fuel costs...")
     fuel_cost_as = mcoe.fuel_cost(heat_rate_as,
                                   fuel_receipts_costs_eia923_as,
                                   generation_eia923_as)
-    print("    fuel_cost: {} records found".format(len(fuel_cost_as)))
+    print("    fuel_cost: {} annual records found".format(len(fuel_cost_as)))
+    assert mcoe.single_gens(fuel_cost_as),\
+        "Non-unique annual generator fuel cost records found."
 
-    pass
-
-
-@pytest.mark.eia860
-@pytest.mark.eia923
-@pytest.mark.post_etl
-@pytest.mark.mcoe
-def test_mcoe_calcs(pudl_engine,
-                    generation_pull_eia923,
-                    fuel_receipts_costs_pull_eia923,
-                    boiler_fuel_pull_eia923,
-                    boiler_generator_pull_eia860,
-                    generators_pull_eia860):
-    """Run the MCOE fuel cost and heat rate calculations."""
-    # We need to split these into individual values to pass them on
-    (frc9_summed, frc9_summed_plant) = fuel_receipts_costs_pull_eia923
-    (bf9_summed, bf9_plant_summed) = boiler_fuel_pull_eia923
-    (g8, g8_es) = generators_pull_eia860
-
-    gens = mcoe.gens_with_bga(boiler_generator_pull_eia860,
-                              generation_pull_eia923)
-
-    # Spot check a few plants to ensure that their generators have been
-    # assigned the expected association status. These dictionaries are
-    # plant_id_eia: ['list','of','generator','ids']
-    complete = {
-        470: ['1', '2', '3'],
-    }
-    incomplete = {
-        470: [],
-    }
-    for plant_id, gen_ids in complete.items():
-        complete_mask = (gens.plant_id_eia == plant_id) & \
-                        (gens.generator_id.isin(gen_ids))
-        assert gens[complete_mask].complete_assn.all()
-
-    for plant_id, gen_ids in incomplete.items():
-        incomplete_mask = (gens.plant_id_eia == plant_id) & \
-                          (gens.generator_id.isin(gen_ids))
-        assert (~gens[incomplete_mask].complete_assn).all()
-
-    print("Calculating per-generator heat rates for MCOE...")
-    heat_rate = mcoe.heat_rate(g8_es, boiler_generator_pull_eia860,
-                               generation_pull_eia923,
-                               bf9_summed, bf9_plant_summed,
-                               pudl_engine)
-
-    print("Calculating per-generator fuel costs for MCOE...")
-    fuel_cost = mcoe.fuel_cost(g8_es, generation_pull_eia923, frc9_summed,
-                               frc9_summed_plant, heat_rate)
+    print("Calculating monthly fuel costs...")
+    fuel_cost_ms = mcoe.fuel_cost(heat_rate_ms,
+                                  fuel_receipts_costs_eia923_ms,
+                                  generation_eia923_ms)
+    print("    fuel_cost: {} monthly records found".format(len(fuel_cost_ms)))
+    assert mcoe.single_gens(fuel_cost_ms),\
+        "Non-unique monthly generator fuel cost records found."
 
 
 @pytest.fixture(scope='module')
@@ -231,10 +196,54 @@ def boiler_generator_assn_eia(boiler_generator_assn_eia860,
 @pytest.fixture(scope='module')
 def heat_rate_as(boiler_generator_assn_eia,
                  generation_eia923_as,
-                 boiler_fuel_eia923_as):
-    """Fixture for heat rate dataframe."""
-    print("Calculating heat rate...")
-    return(mcoe.heat_rate(boiler_generator_assn_eia,
-                          generation_eia923_as,
-                          boiler_fuel_eia923_as,
-                          min_heat_rate=5.5))
+                 boiler_fuel_eia923_as,
+                 generators_eia860):
+    """Fixture for annual heat rate dataframe."""
+    print("Calculating annual heat rates...")
+    # Remove all associations tagged as bad for one reason or another
+    bga_good = boiler_generator_assn_eia[
+        ~boiler_generator_assn_eia.missing_from_923 &
+        ~boiler_generator_assn_eia.plant_w_bad_generator &
+        ~boiler_generator_assn_eia.unmapped_but_in_923 &
+        ~boiler_generator_assn_eia.unmapped
+    ]
+    bga_good = bga_good.drop(['missing_from_923',
+                              'plant_w_bad_generator',
+                              'unmapped_but_in_923',
+                              'unmapped'], axis=1)
+    bga_good = bga_good.drop_duplicates(subset=['report_date', 'plant_id_eia',
+                                                'boiler_id', 'generator_id'])
+    hr_annual = mcoe.heat_rate(bga_good,
+                               generation_eia923_as,
+                               boiler_fuel_eia923_as,
+                               generators_eia860,
+                               min_heat_rate=5.5)
+    return(hr_annual)
+
+
+@pytest.fixture(scope='module')
+def heat_rate_ms(boiler_generator_assn_eia,
+                 generation_eia923_ms,
+                 boiler_fuel_eia923_ms,
+                 generators_eia860):
+    """Fixture for monthly heat rate dataframe."""
+    print("Calculating monthly heat rates...")
+    # Remove all associations tagged as bad for one reason or another
+    bga_good = boiler_generator_assn_eia[
+        ~boiler_generator_assn_eia.missing_from_923 &
+        ~boiler_generator_assn_eia.plant_w_bad_generator &
+        ~boiler_generator_assn_eia.unmapped_but_in_923 &
+        ~boiler_generator_assn_eia.unmapped
+    ]
+    bga_good = bga_good.drop(['missing_from_923',
+                              'plant_w_bad_generator',
+                              'unmapped_but_in_923',
+                              'unmapped'], axis=1)
+    bga_good = bga_good.drop_duplicates(subset=['report_date', 'plant_id_eia',
+                                                'boiler_id', 'generator_id'])
+    hr_monthly = mcoe.heat_rate(bga_good,
+                                generation_eia923_ms,
+                                boiler_fuel_eia923_ms,
+                                generators_eia860,
+                                min_heat_rate=5.5)
+    return(hr_monthly)
