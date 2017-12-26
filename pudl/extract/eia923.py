@@ -80,7 +80,7 @@ def get_eia923_column_map(page, year):
         year (int): The year that we're trying to read data for.
 
     Returns:
-        sheetname (int): An integer indicating which page in the worksheet
+        sheet_name (int): An integer indicating which page in the worksheet
             the data should be pulled from. 0 is the first page, 1 is the
             second page, etc. For use by pandas.read_excel()
         skiprows (int): An integer indicating how many rows should be skipped
@@ -96,8 +96,8 @@ def get_eia923_column_map(page, year):
             trailing whitespace, converted to lower case, and have internal
             non-alphanumeric characters replaced with underscores.
     """
-    sheetname = pc.tab_map_eia923.get_value(year, page)
-    skiprows = pc.skiprows_eia923.get_value(year, page)
+    sheet_name = pc.tab_map_eia923.at[year, page]
+    skiprows = pc.skiprows_eia923.at[year, page]
 
     page_to_df = {
         'generation_fuel': pc.generation_fuel_map_eia923,
@@ -113,7 +113,7 @@ def get_eia923_column_map(page, year):
     for k, v in d.items():
         column_map[v] = k
 
-    return((sheetname, skiprows, column_map))
+    return((sheet_name, skiprows, column_map))
 
 
 def get_eia923_page(page, eia923_xlsx,
@@ -148,9 +148,9 @@ def get_eia923_page(page, eia923_xlsx,
         print('Converting EIA 923 {} to DataFrame...'.format(page))
     df = pd.DataFrame()
     for yr in years:
-        sheetname, skiprows, column_map = get_eia923_column_map(page, yr)
+        sheet_name, skiprows, column_map = get_eia923_column_map(page, yr)
         newdata = pd.read_excel(eia923_xlsx[yr],
-                                sheetname=sheetname,
+                                sheet_name=sheet_name,
                                 skiprows=skiprows)
 
         # Clean column names: lowercase, underscores instead of white space,
