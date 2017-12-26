@@ -4,6 +4,7 @@ from pudl import analysis, clean_pudl, outputs, init
 from pudl import constants as pc
 import numpy as np
 import pandas as pd
+import networkx as nx
 
 
 def gens_with_bga(bga_eia860, gen_eia923):
@@ -265,9 +266,91 @@ def boiler_generator_association(bga_eia860, gens_eia860,
     bga_compiled_3['unmapped'] = np.where(bga_compiled_3.boiler_id.isnull(),
                                           True,
                                           False)
-    bga_compiled_3 = bga_compiled_3.drop('net_generation_mwh', axis=1)
-    bga_compiled_3.loc[bga_compiled_3.unit_code.isnull(), 'unit_code'] = None
-    return(bga_compiled_3)
+    bga_out = bga_compiled_3.drop('net_generation_mwh', axis=1)
+    bga_out.loc[bga_out.unit_code.isnull(), 'unit_code'] = None
+
+    bga_for_nx = bga_out[['plant_id_eia', 'report_date', 'generator_id',
+                          'boiler_id', 'unit_code']]
+    # If there's no boiler... there's no boiler-generator association
+    bga_for_nx = bga_for_nx.dropna(subset=['boiler_id']).drop_duplicates()
+
+    # Need boiler & generator specific ID strings, or they look like
+    # the same node to NX
+    bga_for_nx['generators'] = 'p' + bga_for_nx.plant_id_eia.astype(str) + \
+                               '_g' + bga_for_nx.generator_id.astype(str)
+    bga_for_nx['boilers'] = 'p' + bga_for_nx.plant_id_eia.astype(str) + \
+                            '_b' + bga_for_nx.boiler_id.astype(str)
+
+    # dataframe to accumulate the unit_ids in
+    bga_w_units = pd.DataFrame()
+    # We want to start our unit_id counter anew for each plant:
+    for pid in bga_for_nx.plant_id_eia.unique():
+        bga_byplant = bga_for_nx[bga_for_nx.plant_id_eia == pid].copy()
+
+        # Create a graph from the dataframe of boilers and generators. It's a
+        # multi-graph, meaning the same nodes can be connected by more than one
+        # edge -- this allows us to preserve multiple years worth of boiler
+        # generator association information for later inspection if need be:
+        bga_graph = nx.from_pandas_edgelist(bga_byplant,
+                                            source='generators',
+                                            target='boilers',
+                                            edge_attr=True,
+                                            create_using=nx.MultiGraph())
+
+        # Each connected sub-graph is a generation unit:
+        gen_units = list(nx.connected_component_subgraphs(bga_graph))
+
+        # Assign a unit_id to each subgraph, and extract edges into a dataframe
+        for unit_id, unit in zip(range(len(gen_units)), gen_units):
+            # All the boiler-generator association graphs should be bi-partite,
+            # meaning generators only connect to boilers, and boilers only
+            # connect to generators.
+            assert nx.algorithms.bipartite.is_bipartite(unit), \
+                """Non-bipartite generation unit graph found.
+    plant_id_eia={}, unit_id_pudl={}.""".format(pid, unit_id)
+            nx.set_edge_attributes(
+                unit, name='unit_id_pudl', values=unit_id + 1)
+            new_unit_df = nx.to_pandas_edgelist(unit)
+            bga_w_units = bga_w_units.append(new_unit_df)
+
+    bga_w_units = bga_w_units.sort_values(['plant_id_eia', 'unit_id_pudl',
+                                           'generator_id', 'boiler_id'])
+    bga_w_units = bga_w_units.drop(['source', 'target'], axis=1)
+
+    # Check whether the PUDL unit_id values we've inferred conflict with
+    # the unit_code values that were reported to EIA. Are there any PUDL
+    # unit_id values that have more than 1 EIA unit_code within them?
+    bga_unit_code_counts = \
+        bga_w_units.groupby(['plant_id_eia', 'unit_id_pudl'])['unit_code'].\
+        nunique().to_frame().reset_index()
+    bga_unit_code_counts = bga_unit_code_counts.rename(
+        columns={'unit_code': 'unit_code_count'})
+    bga_unit_code_counts = pd.merge(bga_w_units, bga_unit_code_counts,
+                                    on=['plant_id_eia', 'unit_id_pudl'])
+    too_many_codes = \
+        bga_unit_code_counts[bga_unit_code_counts.unit_code_count > 1]
+    too_many_codes = \
+        too_many_codes[~too_many_codes.unit_code.isnull()].\
+        groupby(['plant_id_eia', 'unit_id_pudl'])['unit_code'].unique()
+    print('WARNING: multiple EIA unit codes found in these PUDL units:')
+    print(too_many_codes)
+    bga_w_units = bga_w_units.drop('unit_code', axis=1)
+
+    # These assertions test that all boilers and generators ended up in the
+    # same unit_id across all the years of reporting:
+    assert (bga_w_units.groupby(
+        ['plant_id_eia', 'generator_id'])['unit_id_pudl'].nunique() == 1).all()
+    assert (bga_w_units.groupby(
+        ['plant_id_eia', 'boiler_id'])['unit_id_pudl'].nunique() == 1).all()
+    bga_w_units = bga_w_units.drop('report_date', axis=1)
+    bga_w_units = bga_w_units[['plant_id_eia', 'unit_id_pudl',
+                               'generator_id', 'boiler_id']].drop_duplicates()
+    bga_out = pd.merge(bga_out, bga_w_units, how='left',
+                       on=['plant_id_eia', 'generator_id', 'boiler_id'])
+    bga_out['unit_id_pudl'] = \
+        bga_out['unit_id_pudl'].fillna(value=0).astype(int)
+
+    return(bga_out)
 
 
 def heat_rate(bga, gen_eia923, bf_eia923, gens_eia860, min_heat_rate=5.5):
@@ -646,6 +729,12 @@ def mcoe(freq='AS', testing=False,
                         on=['report_date', 'plant_id_eia', 'generator_id'],
                         how='left')
 
+    mcoe_out = analysis.merge_on_date_year(
+        mcoe_out,
+        bga[['report_date', 'plant_id_eia', 'unit_id_pudl', 'generator_id']],
+        how='left',
+        on=['plant_id_eia', 'generator_id'])
+
     mcoe_out['total_mmbtu'] = \
         mcoe_out.net_generation_mwh * mcoe_out.heat_rate_mmbtu_mwh
     mcoe_out['total_fuel_cost'] = \
@@ -666,6 +755,7 @@ def mcoe(freq='AS', testing=False,
     first_cols = ['report_date',
                   'plant_id_eia',
                   'plant_id_pudl',
+                  'unit_id_pudl',
                   'generator_id',
                   'plant_name',
                   'operator_id',
@@ -673,7 +763,7 @@ def mcoe(freq='AS', testing=False,
                   'operator_name']
     mcoe_out = outputs.organize_cols(mcoe_out, first_cols)
     mcoe_out = mcoe_out.sort_values(
-        ['plant_id_eia', 'generator_id', 'report_date']
+        ['plant_id_eia', 'unit_id_pudl', 'generator_id', 'report_date']
     )
 
     return(mcoe_out)
