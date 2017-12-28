@@ -69,19 +69,20 @@ def parse_command_line(argv):
 
 def main():
     """The main function."""
-    from pudl import pudl, ferc1, eia923, settings, constants
-    from pudl import models, models_ferc1, models_eia923, eia860, models_eia860
+    from pudl import init, settings, constants
+    from pudl import models, models_ferc1, models_eia923, models_eia860
+    from pudl import extract
 
     args = parse_command_line(sys.argv)
 
-    ferc1.init_db(ferc1_tables=constants.ferc1_default_tables,
-                  refyear=args.ferc1_refyear,
-                  years=range(args.ferc1_start, args.ferc1_end + 1),
-                  def_db=True,
-                  verbose=args.verbose,
-                  testing=args.test)
+    extract.ferc1.init_db(ferc1_tables=constants.ferc1_default_tables,
+                          refyear=args.ferc1_refyear,
+                          years=range(args.ferc1_start, args.ferc1_end + 1),
+                          def_db=True,
+                          verbose=args.verbose,
+                          testing=args.test)
 
-    pudl.init_db(ferc1_tables=constants.ferc1_pudl_tables,
+    init.init_db(ferc1_tables=constants.ferc1_pudl_tables,
                  ferc1_years=range(args.ferc1_start, args.ferc1_end + 1),
                  eia923_tables=constants.eia923_pudl_tables,
                  eia923_years=range(args.eia923_start,
