@@ -43,6 +43,53 @@ def clean_generators_eia860(gens_df):
         gens_df[column] = gens_df[column].replace(
             to_replace=[" ", 0], value=np.nan)
 
+    # A subset of the columns have "X" values, where other columns_to_fix
+    # have "N" values. Replacing these values with "N" will make for uniform
+    # values that can be converted to Boolean True and False pairs.
+
+    gens_df.duct_burners = \
+        gens_df.duct_burners.replace(to_replace='X', value='N')
+    gens_df.heat_bypass_recovery = \
+        gens_df.heat_bypass_recovery.replace(to_replace='X', value='N')
+    gens_df.syncronized_transmission_grid = \
+        gens_df.heat_bypass_recovery.replace(to_replace='X', value='N')
+
+    # A subset of the columns have "U" values, presumably for "Unknown," which
+    # must be set to None in order to convert the columns to datatype Boolean.
+
+    gens_df.multiple_fuels = \
+        gens_df.multiple_fuels.replace(to_replace='U', value=None)
+    gens_df.switch_oil_gas = \
+        gens_df.switch_oil_gas.replace(to_replace='U', value=None)
+
+    boolean_columns_to_fix = [
+        'duct_burners',
+        'multiple_fuels',
+        'deliver_power_transgrid',
+        'syncronized_transmission_grid',
+        'solid_fuel_gasification',
+        'pulverized_coal_tech',
+        'fluidized_bed_tech',
+        'subcritical_tech',
+        'supercritical_tech',
+        'ultrasupercritical_tech',
+        'carbon_capture',
+        'stoker_tech',
+        'other_combustion_tech',
+        'cofire_fuels',
+        'switch_oil_gas',
+        'heat_bypass_recovery',
+        'associated_combined_heat_power',
+        'planned_modifications',
+        'other_planned_modifications',
+        'uprate_derate_during_year',
+        'previously_canceled'
+    ]
+
+    for column in boolean_columns_to_fix:
+        gens_df[column] = gens_df[column].replace(
+            to_replace=["Y", "N"], value=[True, False])
+
     gens_df = clean_pudl.month_year_to_date(gens_df)
 
     gens_df['fuel_type_pudl'] = \
