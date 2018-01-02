@@ -179,12 +179,6 @@ def get_eia923_page(page, eia923_xlsx,
 
         df = df.append(newdata)
 
-    # We could also do additional cleanup here -- for example:
-    #  - Substituting ISO-3166 3 letter country codes for the ad-hoc EIA
-    #    2-letter country codes.
-    #  - Replacing Y/N string values with True/False Booleans
-    #  - Replacing '.' strings with np.nan values as appropriate.
-
     return(df)
 
 
