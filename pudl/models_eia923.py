@@ -316,3 +316,4 @@ class FuelReceiptsCostsEIA923(pudl.models.PUDLBase):
     natural_gas_transport = Column(
         String,
         ForeignKey('natural_gas_transport_eia923.abbr'))
+    natural_gas_delivery_contract_type = Column(String)
