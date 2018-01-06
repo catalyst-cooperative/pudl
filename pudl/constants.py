@@ -513,7 +513,7 @@ tab_map_eia923 = pd.DataFrame.from_records([
     (2013, 0, 1, 2, 3, 4, 5),
     (2014, 0, 1, 2, 3, 4, 5),
     (2015, 0, 1, 2, 3, 4, 5),
-    (2016, 0, 1, 2, 3, 4, 5)],
+    (2016, 0, 1, 3, 4, 5, 6)],
     columns=['year_index', 'generation_fuel', 'stocks', 'boiler_fuel',
              'generator', 'fuel_receipts_costs', 'plant_frame'],
     index='year_index')
@@ -1283,7 +1283,8 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
      'supplier', 'quantity', 'average_heat_content', 'average_sulfur_content',
      'average_ash_content', None, 'fuel_cost', 'regulated', 'operator_name',
      'operator_id', 'respondent_frequency', 'primary_transportation_mode',
-     'secondary_transportation_mode', 'natural_gas_transportation_service'),
+     'secondary_transportation_mode', 'natural_gas_transportation_service',
+     None),
 
     (2010, 'year', 'month', 'plant_id', 'plant_name', 'state', 'contract_type',
      'contract_exp_date', 'energy_source', 'fuel_group', 'coalmine_type',
@@ -1291,7 +1292,8 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
      'supplier', 'quantity', 'average_heat_content', 'average_sulfur_content',
      'average_ash_content', None, 'fuel_cost', 'regulated', 'operator_name',
      'operator_id', 'respondent_frequency', 'primary_transportation_mode',
-     'secondary_transportation_mode', 'natural_gas_transportation_service'),
+     'secondary_transportation_mode', 'natural_gas_transportation_service',
+     None),
 
     (2011, 'year', 'month', 'plant_id', 'plant_name', 'state', 'contract_type',
      'contract_exp_date', 'energy_source', 'fuel_group', 'coalmine_type',
@@ -1299,7 +1301,8 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
      'supplier', 'quantity', 'average_heat_content', 'average_sulfur_content',
      'average_ash_content', None, 'fuel_cost', 'regulated', 'operator_name',
      'operator_id', 'respondent_frequency', 'primary_transportation_mode',
-     'secondary_transportation_mode', 'natural_gas_transportation_service'),
+     'secondary_transportation_mode', 'natural_gas_transportation_service',
+     None),
 
     (2012, 'year', 'month', 'plant_id', 'plant_name', 'plant_state',
      'purchase_type', 'contract_expiration_date', 'energy_source',
@@ -1308,7 +1311,8 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
      'average_heat_content', 'average_sulfur_content', 'average_ash_content',
      'average_mercury_content', 'fuel_cost', 'regulated', 'operator_name',
      'operator_id', 'reporting_frequency', 'primary_transportation_mode',
-     'secondary_transportation_mode', 'natural_gas_transportation_service'),
+     'secondary_transportation_mode', 'natural_gas_transportation_service',
+     None),
 
     (2013, 'year', 'month', 'plant_id', 'plant_name', 'state', 'contract_type',
      'contract_exp_date', 'energy_source', 'fuel_group', 'coalmine_type',
@@ -1316,7 +1320,8 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
      'supplier', 'quantity', 'average_heat_content', 'average_sulfur_content',
      'average_ash_content', None, 'fuel_cost', 'regulated', 'operator_name',
      'operator_id', 'respondent_frequency', 'primary_transportation_mode',
-     'secondary_transportation_mode', 'natural_gas_transportation_service'),
+     'secondary_transportation_mode', 'natural_gas_transportation_service',
+     None),
 
     (2014, 'year', 'month', 'plant_id', 'plant_name', 'plant_state',
      'purchase_type', 'contract_expiration_date', 'energy_source',
@@ -1325,7 +1330,8 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
      'average_heat_content', 'average_sulfur_content', 'average_ash_content',
      'average_mercury_content', 'fuel_cost', 'regulated', 'operator_name',
      'operator_id', 'reporting_frequency', 'primary_transportation_mode',
-     'secondary_transportation_mode', 'natural_gas_transportation_service'),
+     'secondary_transportation_mode', 'natural_gas_transportation_service',
+     None),
 
     (2015, 'year', 'month', 'plant_id', 'plant_name', 'plant_state',
      'purchase_type', 'contract_expiration_date', 'energy_source',
@@ -1334,7 +1340,8 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
      'average_heat_content', 'average_sulfur_content', 'average_ash_content',
      'average_mercury_content', 'fuel_cost', 'regulated', 'operator_name',
      'operator_id', 'reporting_frequency', 'primary_transportation_mode',
-     'secondary_transportation_mode', 'natural_gas_transportation_service'),
+     'secondary_transportation_mode', 'natural_gas_transportation_service',
+     None),
 
     (2016, 'year', 'month', 'plant_id', 'plant_name', 'plant_state',
      'purchase_type', 'contract_expiration_date', 'energy_source',
@@ -1343,7 +1350,8 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
      'average_heat_content', 'average_sulfur_content', 'average_ash_content',
      'average_mercury_content', 'fuel_cost', 'regulated', 'operator_name',
      'operator_id', 'reporting_frequency', 'primary_transportation_mode',
-     'secondary_transportation_mode', 'natural_gas_transportation_service')],
+     'secondary_transportation_mode', 'natural_gas_supply_contract_type',
+     'natural_gas_delivery_contract_type')],
 
     columns=['year_index', 'report_year', 'report_month', 'plant_id',
              'plant_name', 'plant_state', 'contract_type',
@@ -1354,7 +1362,8 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
              'ash_content_pct', 'mercury_content_ppm', 'fuel_cost_per_mmbtu',
              'regulated', 'operator_name', 'operator_id',
              'reporting_frequency', 'primary_transportation_mode',
-             'secondary_transportation_mode', 'natural_gas_transport'],
+             'secondary_transportation_mode', 'natural_gas_transport',
+             'natural_gas_delivery_contract_type'],
     index='year_index'
 )
 

@@ -175,7 +175,7 @@ def get_eia923_page(page, eia923_xlsx,
         # Drop the fields with plant_id 99999.
         # These are state index
         if(page != 'stocks'):
-            newdata = newdata.loc[newdata['plant_id'] != 99999]
+            newdata = newdata[~newdata.plant_id.isin([99999, 999999])]
 
         df = df.append(newdata)
 
