@@ -94,27 +94,3 @@ def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
     else:
         print("Connecting to the live PUDL database.")
         yield(init.db_connect_pudl(testing=False))
-
-
-@pytest.fixture(scope='session')
-def start_date_eia923():
-    """Start date for EIA923."""
-    return(pd.to_datetime('{}-01-01'.format(min(pc.working_years['eia923']))))
-
-
-@pytest.fixture(scope='session')
-def end_date_eia923():
-    """End date for EIA923."""
-    return(pd.to_datetime('{}-12-31'.format(max(pc.working_years['eia923']))))
-
-
-@pytest.fixture(scope='session')
-def start_date_eia860():
-    """Start date for EIA860."""
-    return(pd.to_datetime('{}-01-01'.format(min(pc.working_years['eia860']))))
-
-
-@pytest.fixture(scope='session')
-def end_date_eia860():
-    """End date for EIA860."""
-    return(pd.to_datetime('{}-12-31'.format(max(pc.working_years['eia860']))))

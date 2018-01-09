@@ -27,18 +27,246 @@ import numpy as np
 
 # Need the models so we can grab table structures. Need some helpers from the
 # analysis module
-from pudl import models, analysis, init
+from pudl import models, analysis, init, mcoe
 from pudl import constants as pc
 
 # Shorthand for easier table referecnes:
 pt = models.PUDLBase.metadata.tables
 
+###############################################################################
+#   Output Class, that can pull all the below tables with similar parameters
+###############################################################################
+
+
+class PudlOutput(object):
+    """A class that obtains tabular outputs from the PUDL DB."""
+
+    def __init__(self, freq=None, testing=False,
+                 start_date=None, end_date=None):
+        self.freq = freq
+        self.testing = testing
+
+        if start_date is None:
+            self.start_date = \
+                pd.to_datetime(
+                    '{}-01-01'.format(min(pc.working_years['eia923'])))
+        else:
+            # Make sure it's a date... and not a string.
+            self.start_date = pd.to_datetime(start_date)
+
+        if end_date is None:
+            self.end_date = \
+                pd.to_datetime(
+                    '{}-12-31'.format(max(pc.working_years['eia923'])))
+        else:
+            # Make sure it's a date... and not a string.
+            self.end_date = pd.to_datetime(end_date)
+
+        # We populate this library of dataframes as they are generated, and
+        # allow them to persist, in case they need to be used again.
+        self._dfs = {
+            'pu_eia': None,
+            'pu_ferc1': None,
+
+            'utils_eia860': None,
+            'bga_eia860': None,
+            'plants_eia860': None,
+            'gens_eia860': None,
+            'own_eia860': None,
+
+            'gf_eia923': None,
+            'frc_eia923': None,
+            'bf_eia923': None,
+            'gen_eia923': None,
+
+            'plants_steam_ferc1': None,
+            'fuel_ferc1': None,
+
+            'bga': None,
+            'hr_by_unit': None,
+            'hr_by_gen': None,
+            'fc': None,
+            'cf': None,
+            'mcoe': None,
+        }
+
+    def plants_utilities_eia(self, update=False):
+        if update or self._dfs['pu_eia'] is None:
+            self._dfs['pu_eia'] = \
+                plants_utils_eia(start_date=self.start_date,
+                                 end_date=self.end_date,
+                                 testing=self.testing)
+        return(self._dfs['pu_eia'])
+
+    def pu_eia(self, update=False):
+        return(self.plants_utilities_eia(update=update))
+
+    def plants_utilities_ferc1(self, update=False):
+        if update or self._dfs['pu_ferc1'] is None:
+            self._dfs['pu_ferc1'] = plants_utils_ferc1(testing=self.testing)
+        return(self._dfs['pu_ferc1'])
+
+    def pu_ferc1(self, update=False):
+        return(self.plants_utilities_ferc1(update=update))
+
+    def utilities_eia860(self, update=False):
+        if update or self._dfs['utils_eia860'] is None:
+            self._dfs['utils_eia860'] = \
+                utilities_eia860(start_date=self.start_date,
+                                 end_date=self.end_date,
+                                 testing=self.testing)
+        return(self._dfs['utils_eia860'])
+
+    def utils_eia860(self, update=False):
+        return(self.utilities_eia860(update=update))
+
+    def boiler_generator_assn_eia860(self, update=False):
+        if update or self._dfs['bga_eia860'] is None:
+            self._dfs['bga_eia860'] = \
+                boiler_generator_assn_eia860(start_date=self.start_date,
+                                             end_date=self.end_date,
+                                             testing=self.testing)
+        return(self._dfs['bga_eia860'])
+
+    def bga_eia860(self, update=False):
+        return(self.boiler_generator_assn_eia860(update=update))
+
+    def plants_eia860(self, update=False):
+        if update or self._dfs['plants_eia860'] is None:
+            self._dfs['plants_eia860'] = \
+                plants_eia860(start_date=self.start_date,
+                              end_date=self.end_date,
+                              testing=self.testing)
+        return(self._dfs['plants_eia860'])
+
+    def generators_eia860(self, update=False):
+        if update or self._dfs['gens_eia860'] is None:
+            self._dfs['gens_eia860'] = \
+                generators_eia860(start_date=self.start_date,
+                                  end_date=self.end_date,
+                                  testing=self.testing)
+        return(self._dfs['gens_eia860'])
+
+    def gens_eia860(self, update=False):
+        return(self.generators_eia860(update=update))
+
+    def ownership_eia860(self, update=False):
+        if update or self._dfs['own_eia860'] is None:
+            self._dfs['own_eia860'] = \
+                ownership_eia860(start_date=self.start_date,
+                                 end_date=self.end_date,
+                                 testing=self.testing)
+        return(self._dfs['own_eia860'])
+
+    def own_eia860(self, update=False):
+        return(self.ownership_eia860(update=update))
+
+    def generation_fuel_eia923(self, update=False):
+        if update or self._dfs['gf_eia923'] is None:
+            self._dfs['gf_eia923'] = \
+                generation_fuel_eia923(freq=self.freq,
+                                       start_date=self.start_date,
+                                       end_date=self.end_date,
+                                       testing=self.testing)
+        return(self._dfs['gf_eia923'])
+
+    def gf_eia923(self, update=False):
+        return(self.generation_fuel_eia923(update=update))
+
+    def fuel_receipts_costs_eia923(self, update=False):
+        if update or self._dfs['frc_eia923'] is None:
+            self._dfs['frc_eia923'] = \
+                fuel_receipts_costs_eia923(freq=self.freq,
+                                           start_date=self.start_date,
+                                           end_date=self.end_date,
+                                           testing=self.testing)
+        return(self._dfs['frc_eia923'])
+
+    def frc_eia923(self, update=False):
+        return(self.fuel_receipts_costs_eia923(update=update))
+
+    def boiler_fuel_eia923(self, update=False):
+        if update or self._dfs['bf_eia923'] is None:
+            self._dfs['bf_eia923'] = \
+                boiler_fuel_eia923(freq=self.freq,
+                                   start_date=self.start_date,
+                                   end_date=self.end_date,
+                                   testing=self.testing)
+        return(self._dfs['bf_eia923'])
+
+    def bf_eia923(self, update=False):
+        return(self.boiler_fuel_eia923(update=update))
+
+    def generation_eia923(self, update=False):
+        if update or self._dfs['gen_eia923'] is None:
+            self._dfs['gen_eia923'] = \
+                generation_eia923(freq=self.freq,
+                                  start_date=self.start_date,
+                                  end_date=self.end_date,
+                                  testing=self.testing)
+        return(self._dfs['gen_eia923'])
+
+    def gen_eia923(self, update=False):
+        return(self.generation_eia923(update=update))
+
+    def plants_steam_ferc1(self, update=False):
+        if update or self._dfs['plants_steam_ferc1'] is None:
+            self._dfs['plants_steam_ferc1'] = \
+                plants_steam_ferc1(testing=self.testing)
+        return(self._dfs['plants_steam_ferc1'])
+
+    def fuel_ferc1(self, update=False):
+        if update or self._dfs['fuel_ferc1'] is None:
+            self._dfs['fuel_ferc1'] = fuel_ferc1(testing=self.testing)
+        return(self._dfs['fuel_ferc1'])
+
+    def boiler_generator_association(self, update=False):
+        if update or self._dfs['bga'] is None:
+            self._dfs['bga'] = mcoe.boiler_generator_association(self)
+        return(self._dfs['bga'])
+
+    def bga(self, update=False):
+        return(self.boiler_generator_association(update=update))
+
+    def heat_rate_by_unit(self, update=False):
+        if update or self._dfs['hr_by_unit'] is None:
+            self._dfs['hr_by_unit'] = mcoe.heat_rate_by_unit(self)
+        return(self._dfs['hr_by_unit'])
+
+    def heat_rate_by_gen(self, update=False):
+        if update or self._dfs['hr_by_gen'] is None:
+            self._dfs['hr_by_gen'] = mcoe.heat_rate_by_gen(self)
+        return(self._dfs['hr_by_gen'])
+
+    def fuel_cost(self, update=False):
+        if update or self._dfs['fc'] is None:
+            self._dfs['fc'] = mcoe.fuel_cost(self)
+        return(self._dfs['fc'])
+
+    def capacity_factor(self, update=False):
+        if update or self._dfs['cf'] is None:
+            self._dfs['cf'] = mcoe.capacity_factor(self)
+        return(self._dfs['cf'])
+
+    def mcoe(self, update=False,
+             min_heat_rate=5.5, min_fuel_cost_per_mwh=0.0,
+             min_cap_fact=0.0, max_cap_fact=1.5):
+        if update or self._dfs['mcoe'] is None:
+            self._dfs['mcoe'] = \
+                mcoe.mcoe(self,
+                          min_heat_rate=min_heat_rate,
+                          min_fuel_cost_per_mwh=min_fuel_cost_per_mwh,
+                          min_cap_fact=min_cap_fact,
+                          max_cap_fact=max_cap_fact)
+        return(self._dfs['mcoe'])
 
 ###############################################################################
 ###############################################################################
 #   Output Helper Functions
 ###############################################################################
 ###############################################################################
+
+
 def organize_cols(df, cols):
     """
     Organize columns into key ID & name fields & alphabetical data columns.

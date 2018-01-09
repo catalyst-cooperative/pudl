@@ -11,239 +11,114 @@ For now, these calculations are only using the EIA fuel cost data. FERC Form 1
 non-fuel production costs have yet to be integrated.
 """
 import pytest
+import pandas as pd
 from pudl import init, mcoe, outputs
+from pudl import constants as pc
+
+start_date = pd.to_datetime(str(min(pc.working_years['eia923'])))
+end_date = pd.to_datetime('{}-12-31'.format(max(pc.working_years['eia923'])))
+
+
+@pytest.fixture(scope='module', params=['MS', 'AS'])
+def output_byfreq(live_pudl_db, request):
+    pudl_out = outputs.PudlOutput(
+        freq=request.param, testing=(not live_pudl_db),
+        start_date=start_date, end_date=end_date
+    )
+    return(pudl_out)
 
 
 @pytest.mark.eia860
 @pytest.mark.eia923
 @pytest.mark.post_etl
 @pytest.mark.mcoe
-def test_capacity_factor(generators_eia860,
-                         generation_eia923_as,
-                         generation_eia923_ms):
-    """Run capacity factor calculation."""
-    print("Calculating annual capacity factors...")
-    cap_fact_as = mcoe.capacity_factor(generators_eia860,
-                                       generation_eia923_as,
-                                       min_cap_fact=0,
-                                       max_cap_fact=1.5)
-    print("    capacity_factor: {} records found".format(len(cap_fact_as)))
+def test_capacity_factor(output_byfreq):
+    """Test the capacity factor calculation."""
+    cf = mcoe.capacity_factor(output_byfreq)
+    print("capacity_factor: {} records found".format(len(cf)))
 
-    print("Calculating monthly capacity factors...")
-    cap_fact_ms = mcoe.capacity_factor(generators_eia860,
-                                       generation_eia923_ms,
-                                       min_cap_fact=0,
-                                       max_cap_fact=1.5)
-    print("    capacity_factor: {} records found".format(len(cap_fact_ms)))
 
-    assert len(cap_fact_ms) / len(cap_fact_as) == 12, \
-        'Did not find 12x as many monthly as annual capacity factor records.'
+@pytest.mark.eia860
+@pytest.mark.mcoe
+@pytest.mark.post_etl
+def test_bga(output_byfreq):
+    """Test the boiler generator associations."""
+    bga = output_byfreq.bga()
+    gens_simple = output_byfreq.gens_eia860()[['report_date',
+                                               'plant_id_eia',
+                                               'generator_id',
+                                               'fuel_type_pudl']]
+    bga_gens = bga[['report_date', 'plant_id_eia',
+                    'unit_id_pudl', 'generator_id']].drop_duplicates()
+
+    gens_simple = pd.merge(gens_simple, bga_gens,
+                           on=['report_date', 'plant_id_eia', 'generator_id'],
+                           validate='one_to_one')
+    units_simple = gens_simple.drop('generator_id', axis=1).drop_duplicates()
+    units_fuel_count = \
+        units_simple.groupby(
+            ['report_date',
+             'plant_id_eia',
+             'unit_id_pudl'])['fuel_type_pudl'].count().reset_index()
+    units_fuel_count.rename(
+        columns={'fuel_type_pudl': 'fuel_type_count'}, inplace=True)
+    units_simple = pd.merge(units_simple, units_fuel_count,
+                            on=['report_date', 'plant_id_eia', 'unit_id_pudl'])
+    num_multi_fuel_units = len(units_simple[units_simple.fuel_type_count > 1])
+    multi_fuel_unit_fraction = num_multi_fuel_units / len(units_simple)
+    print('''NOTE: {:.0%} of generation units contain generators with\
+differing primary fuels.'''.format(multi_fuel_unit_fraction))
 
 
 @pytest.mark.eia860
 @pytest.mark.eia923
 @pytest.mark.post_etl
 @pytest.mark.mcoe
-def test_heat_rate(heat_rate_as, heat_rate_ms):
+def test_heat_rate(output_byfreq):
     """Run heat rate calculation."""
-    print("    heat_rate: {} annual records found".format(len(heat_rate_as)))
-    assert mcoe.single_gens(heat_rate_as),\
-        "Found non-unique annual generator heat rates!"
-    print("    heat_rate: {} monthly records found".format(len(heat_rate_ms)))
-    assert mcoe.single_gens(heat_rate_ms),\
-        "Found non-unique monthly generator heat rates!"
+    print("Calculating heat rates by generation unit...")
+    hr_by_unit = mcoe.heat_rate_by_unit(output_byfreq)
+    print("    heat_rate: {} unit records found".format(len(hr_by_unit)))
+    assert single_records(
+        hr_by_unit,
+        key_cols=['report_date', 'plant_id_eia', 'unit_id_pudl']),\
+        "Found non-unique unit heat rates!"
+
+    print("Re-calculating heat rates by individual generator...")
+    hr_by_gen = mcoe.heat_rate_by_gen(output_byfreq)
+    print("    heat_rate: {} generator records found".format(len(hr_by_gen)))
+    assert single_records(hr_by_gen),\
+        "Found non-unique generator heat rates!"
 
 
 @pytest.mark.eia860
 @pytest.mark.eia923
 @pytest.mark.post_etl
 @pytest.mark.mcoe
-def test_fuel_cost(heat_rate_as,
-                   heat_rate_ms,
-                   fuel_receipts_costs_eia923_as,
-                   fuel_receipts_costs_eia923_ms,
-                   generation_eia923_as,
-                   generation_eia923_ms):
+def test_fuel_cost(output_byfreq):
     """Run fuel cost calculation."""
-    print("Calculating annual fuel costs...")
-    fuel_cost_as = mcoe.fuel_cost(heat_rate_as,
-                                  fuel_receipts_costs_eia923_as,
-                                  generation_eia923_as)
-    print("    fuel_cost: {} annual records found".format(len(fuel_cost_as)))
-    assert mcoe.single_gens(fuel_cost_as),\
-        "Non-unique annual generator fuel cost records found."
-
-    print("Calculating monthly fuel costs...")
-    fuel_cost_ms = mcoe.fuel_cost(heat_rate_ms,
-                                  fuel_receipts_costs_eia923_ms,
-                                  generation_eia923_ms)
-    print("    fuel_cost: {} monthly records found".format(len(fuel_cost_ms)))
-    assert mcoe.single_gens(fuel_cost_ms),\
-        "Non-unique monthly generator fuel cost records found."
+    print("Calculating fuel costs by individual generator...")
+    fc = output_byfreq.fuel_cost()
+    print("    fuel_cost: {} records found".format(len(fc)))
+    assert single_records(fc),\
+        "Found non-unique generator fuel cost records!"
 
 
-@pytest.fixture(scope='module')
-def boiler_generator_assn_eia860(live_pudl_db,
-                                 start_date_eia923,
-                                 end_date_eia923):
-    """Fixture for pulling boiler generator associations from EIA860."""
-    testing = (not live_pudl_db)
-    print("Pulling EIA boiler generator associations for MCOE...")
-    return(outputs.boiler_generator_assn_eia860(start_date=start_date_eia923,
-                                                end_date=end_date_eia923,
-                                                testing=testing))
+def single_records(df,
+                   key_cols=['report_date', 'plant_id_eia', 'generator_id']):
+    """Test whether dataframe has a single record per generator."""
+    len_1 = len(df)
+    len_2 = len(df.drop_duplicates(subset=key_cols))
+    if len_1 == len_2:
+        return True
+    else:
+        return False
 
 
-@pytest.fixture(scope='module')
-def generators_eia860(live_pudl_db, start_date_eia923, end_date_eia923):
-    """Fixture for pulling generator info from EIA860 dataframe for MCOE."""
-    testing = (not live_pudl_db)
-    print("Pulling EIA860 generator data for MCOE...")
-    return(outputs.generators_eia860(start_date=start_date_eia923,
-                                     end_date=end_date_eia923,
-                                     testing=testing))
-
-
-@pytest.fixture(scope='module')
-def generation_eia923_as(live_pudl_db, start_date_eia923, end_date_eia923):
-    """Fixture for pulling annualized EIA923 generation dataframe for MCOE."""
-    testing = (not live_pudl_db)
-    print("Pulling annualized EI923 net generation data...")
-    return(outputs.generation_eia923(freq='AS',
-                                     start_date=start_date_eia923,
-                                     end_date=end_date_eia923,
-                                     testing=testing))
-
-
-@pytest.fixture(scope='module')
-def generation_eia923_ms(live_pudl_db, start_date_eia923, end_date_eia923):
-    """Fixture for pulling monthly EIA923 generation dataframe for MCOE."""
-    testing = (not live_pudl_db)
-    print("Pulling monthly EI923 net generation data...")
-    return(outputs.generation_eia923(freq='MS',
-                                     start_date=start_date_eia923,
-                                     end_date=end_date_eia923,
-                                     testing=testing))
-
-
-@pytest.fixture(scope='module')
-def fuel_receipts_costs_eia923_as(live_pudl_db,
-                                  start_date_eia923,
-                                  end_date_eia923):
-    """Fixture for pulling annual EIA923 fuel receipts dataframe for MCOE."""
-    testing = (not live_pudl_db)
-    print("Pulling annual EIA923 fuel receipts & costs data for MCOE...")
-    return(outputs.fuel_receipts_costs_eia923(freq='AS',
-                                              start_date=start_date_eia923,
-                                              end_date=end_date_eia923,
-                                              testing=testing))
-
-
-@pytest.fixture(scope='module')
-def fuel_receipts_costs_eia923_ms(live_pudl_db,
-                                  start_date_eia923,
-                                  end_date_eia923):
-    """Fixture for pulling annual EIA923 fuel receipts dataframe for MCOE."""
-    testing = (not live_pudl_db)
-    print("Pulling monthly EIA923 fuel receipts & costs data for MCOE...")
-    return(outputs.fuel_receipts_costs_eia923(freq='MS',
-                                              start_date=start_date_eia923,
-                                              end_date=end_date_eia923,
-                                              testing=testing))
-
-
-@pytest.fixture(scope='module')
-def boiler_fuel_eia923_as(live_pudl_db, start_date_eia923, end_date_eia923):
-    """Fixture for pulling annual EIA923 boiler fuel dataframe for MCOE."""
-    testing = (not live_pudl_db)
-    print("Pulling annual EIA923 boiler fuel data for MCOE...")
-    return(outputs.boiler_fuel_eia923(freq='AS',
-                                      start_date=start_date_eia923,
-                                      end_date=end_date_eia923,
-                                      testing=testing))
-
-
-@pytest.fixture(scope='module')
-def boiler_fuel_eia923_ms(live_pudl_db, start_date_eia923, end_date_eia923):
-    """Fixture for pulling annual EIA923 boiler fuel dataframe for MCOE."""
-    testing = (not live_pudl_db)
-    print("Pulling monthly EIA923 boiler fuel data for MCOE...")
-    return(outputs.boiler_fuel_eia923(freq='MS',
-                                      start_date=start_date_eia923,
-                                      end_date=end_date_eia923,
-                                      testing=testing))
-
-
-@pytest.fixture(scope='module')
-def boiler_generator_assn_eia(boiler_generator_assn_eia860,
-                              generators_eia860,
-                              generation_eia923_as, boiler_fuel_eia923_as,
-                              live_pudl_db,
-                              start_date_eia923,
-                              end_date_eia923):
-    """Fixture for pulling boiler generator associations dataframe for MCOE."""
-    testing = (not live_pudl_db)
-    print("Pulling EIA boiler generator associations for MCOE...")
-    return(mcoe.boiler_generator_association(boiler_generator_assn_eia860,
-                                             generators_eia860,
-                                             generation_eia923_as,
-                                             boiler_fuel_eia923_as,
-                                             start_date=start_date_eia923,
-                                             end_date=end_date_eia923,
-                                             testing=testing))
-
-
-@pytest.fixture(scope='module')
-def heat_rate_as(boiler_generator_assn_eia,
-                 generation_eia923_as,
-                 boiler_fuel_eia923_as,
-                 generators_eia860):
-    """Fixture for annual heat rate dataframe."""
-    print("Calculating annual heat rates...")
-    # Remove all associations tagged as bad for one reason or another
-    bga_good = boiler_generator_assn_eia[
-        ~boiler_generator_assn_eia.missing_from_923 &
-        ~boiler_generator_assn_eia.plant_w_bad_generator &
-        ~boiler_generator_assn_eia.unmapped_but_in_923 &
-        ~boiler_generator_assn_eia.unmapped
-    ]
-    bga_good = bga_good.drop(['missing_from_923',
-                              'plant_w_bad_generator',
-                              'unmapped_but_in_923',
-                              'unmapped'], axis=1)
-    bga_good = bga_good.drop_duplicates(subset=['report_date', 'plant_id_eia',
-                                                'boiler_id', 'generator_id'])
-    hr_annual = mcoe.heat_rate(bga_good,
-                               generation_eia923_as,
-                               boiler_fuel_eia923_as,
-                               generators_eia860,
-                               min_heat_rate=5.5)
-    return(hr_annual)
-
-
-@pytest.fixture(scope='module')
-def heat_rate_ms(boiler_generator_assn_eia,
-                 generation_eia923_ms,
-                 boiler_fuel_eia923_ms,
-                 generators_eia860):
-    """Fixture for monthly heat rate dataframe."""
-    print("Calculating monthly heat rates...")
-    # Remove all associations tagged as bad for one reason or another
-    bga_good = boiler_generator_assn_eia[
-        ~boiler_generator_assn_eia.missing_from_923 &
-        ~boiler_generator_assn_eia.plant_w_bad_generator &
-        ~boiler_generator_assn_eia.unmapped_but_in_923 &
-        ~boiler_generator_assn_eia.unmapped
-    ]
-    bga_good = bga_good.drop(['missing_from_923',
-                              'plant_w_bad_generator',
-                              'unmapped_but_in_923',
-                              'unmapped'], axis=1)
-    bga_good = bga_good.drop_duplicates(subset=['report_date', 'plant_id_eia',
-                                                'boiler_id', 'generator_id'])
-    hr_monthly = mcoe.heat_rate(bga_good,
-                                generation_eia923_ms,
-                                boiler_fuel_eia923_ms,
-                                generators_eia860,
-                                min_heat_rate=5.5)
-    return(hr_monthly)
+def nonunique_gens(df,
+                   key_cols=['plant_id_eia', 'generator_id', 'report_date']):
+    """Generate a list of all the non-unique generator records for testing."""
+    unique_gens = df.drop_duplicates(subset=key_cols)
+    dupes = df[~df.isin(unique_gens)].dropna()
+    dupes = dupes.sort_values(by=key_cols)
+    return(dupes)
