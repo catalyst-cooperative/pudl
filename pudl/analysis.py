@@ -84,7 +84,7 @@ def merge_on_date_year(df_date, df_year, on=[], how='inner',
     assert is_annual(df_year, year_col=year_col)
 
     # assert that df_date has annual or finer time resolution.
-    first_date = df_date[date_col].min()
+    first_date = pd.to_datetime(df_date[date_col].min())
     all_dates = pd.DatetimeIndex(df_date[date_col]).unique().sort_values()
     assert len(all_dates) > 0
     if len(all_dates) > 1:
