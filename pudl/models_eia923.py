@@ -10,18 +10,18 @@ import pudl.models
 ###########################################################################
 
 
-class CoalMineInfoEIA923(pudl.models.PUDLBase):
+class CoalMineEIA923(pudl.models.PUDLBase):
     """Information pertaining to individual coal mines listed in EIA 923."""
 
-    __tablename__ = 'coalmine_info_eia923'
+    __tablename__ = 'coalmine_eia923'
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
-    coalmine_name = Column(String)
-    coalmine_type = Column(String, ForeignKey('coalmine_type_eia923.abbr'))
-    coalmine_state = Column(String, ForeignKey('coalmine_state_eia923.abbr'))
+    name = Column(String)
+    mine_type = Column(String, ForeignKey('coalmine_type_eia923.abbr'))
+    state = Column(String, ForeignKey('coalmine_state_eia923.abbr'))
     # TODO check feasibility t add FK/constants or map to FIPS code used by EIA
-    coalmine_county = Column(Integer)
+    county_fips_id = Column(Integer)
     # TODO check feasibility to add FK/constants or map to MSHA ID# used by EIA
-    coalmine_msha_id = Column(Integer)
+    mine_id = Column(Integer)
 
 
 class BoilersEIA923(pudl.models.PUDLBase):
@@ -299,7 +299,7 @@ class FuelReceiptsCostsEIA923(pudl.models.PUDLBase):
     fuel_type_pudl = Column(String)
     fuel_group = Column(String, ForeignKey('fuel_group_eia923.group'))
     fuel_group_simple = Column(String)
-    coalmine_id = Column(Integer, ForeignKey('coalmine_info_eia923.id'))
+    mine_id_pudl = Column(Integer, ForeignKey('coalmine_eia923.id'))
     supplier = Column(String, nullable=False)  # TODO FK new table?
     fuel_quantity = Column(Float, nullable=False)
     heat_content_mmbtu_per_unit = Column(Float, nullable=False)
