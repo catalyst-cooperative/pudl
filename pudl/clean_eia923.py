@@ -69,11 +69,11 @@ def coalmine_cleanup(cmi_df):
     cmi_df = cmi_df.copy()
     # Map mine type codes, which have changed over the years, to a few
     # canonical values:
-    cmi_df['coalmine_type'].replace(
+    cmi_df['mine_type'].replace(
         {'[pP]': 'P', 'U/S': 'US', 'S/U': 'SU', 'Su': 'S'},
         inplace=True, regex=True)
 
-    # Because we need to pull the coalmine_id field into the FRC table,
+    # Because we need to pull the mine_id field into the FRC table,
     # but we don't know what that ID is going to be until we've populated
     # this table... we're going to functionally end up using the data in
     # the coalmine info table as a "key."  Whatever set of things we
@@ -87,28 +87,28 @@ def coalmine_cleanup(cmi_df):
 
     # Transform coalmine names to a canonical form to reduce duplicates:
     # No leading or trailing whitespace:
-    cmi_df['coalmine_name'] = cmi_df['coalmine_name'].str.strip()
+    cmi_df['name'] = cmi_df['name'].str.strip()
     # Let's use Title Case:
-    cmi_df['coalmine_name'] = cmi_df['coalmine_name'].str.title()
+    cmi_df['name'] = cmi_df['name'].str.title()
     # compact internal whitespace:
-    cmi_df['coalmine_name'] = \
-        cmi_df['coalmine_name'].replace('[\s+]', ' ', regex=True)
+    cmi_df['name'] = \
+        cmi_df['name'].replace('[\s+]', ' ', regex=True)
     # remove all internal non-alphanumeric characters:
-    cmi_df['coalmine_name'] = \
-        cmi_df['coalmine_name'].replace('[^a-zA-Z0-9 -]', '', regex=True)
+    cmi_df['name'] = \
+        cmi_df['name'].replace('[^a-zA-Z0-9 -]', '', regex=True)
 
-    # Homogenize the data type that we're finding inside the coalmine_county
+    # Homogenize the data type that we're finding inside the county_fips_id
     # field (ugh, Excel sheets!).  Mostly these are integers or NA values,
     # but for imported coal, there are both 'IMP' and 'IM' string values.
     # This should change it all to strings that are compatible with the
     # Integer type within postgresql.
-    cmi_df['coalmine_county'].replace('[a-zA-Z]+',
+    cmi_df['county_fips_id'].replace('[a-zA-Z]+',
                                       value=np.nan,
                                       regex=True,
                                       inplace=True)
-    cmi_df['coalmine_county'] = cmi_df['coalmine_county'].astype(float)
-    cmi_df['coalmine_county'] = \
-        clean_pudl.fix_int_na(cmi_df['coalmine_county'],
+    cmi_df['county_fips_id'] = cmi_df['county_fips_id'].astype(float)
+    cmi_df['county_fips_id'] = \
+        clean_pudl.fix_int_na(cmi_df['county_fips_id'],
                               float_na=np.nan,
                               int_na=-1,
                               str_na='')

@@ -639,7 +639,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
     frc_select = sa.sql.select([frc_tbl, ])
 
     # Need to re-integrate the MSHA coalmine info:
-    cmi_tbl = pt['coalmine_info_eia923']
+    cmi_tbl = pt['coalmine_eia923']
     cmi_select = sa.sql.select([cmi_tbl, ])
     cmi_df = pd.read_sql(cmi_select, pudl_engine)
 
@@ -655,10 +655,10 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
 
     frc_df = pd.merge(frc_df, cmi_df,
                       how='left',
-                      left_on='coalmine_id',
+                      left_on='mine_id',
                       right_on='id')
 
-    cols_to_drop = ['fuel_receipt_id', 'coalmine_id', 'id']
+    cols_to_drop = ['fuel_receipt_id', 'mine_id', 'id']
     frc_df = frc_df.drop(cols_to_drop, axis=1)
 
     # Calculate a few totals that are commonly needed:

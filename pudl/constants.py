@@ -501,7 +501,7 @@ eia923_pudl_tables = ['plants_eia923',
                       'boilers_eia923',
                       'generators_eia923',
                       'generation_eia923',
-                      'coalmine_info_eia923',
+                      'coalmine_eia923',
                       'fuel_receipts_costs_eia923']
 # 'stocks_eia923'
 
@@ -1356,8 +1356,8 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
     columns=['year_index', 'report_year', 'report_month', 'plant_id',
              'plant_name', 'plant_state', 'contract_type',
              'contract_expiration_date', 'energy_source', 'fuel_group',
-             'coalmine_type', 'coalmine_state', 'coalmine_county',
-             'coalmine_msha_id', 'coalmine_name', 'supplier', 'fuel_quantity',
+             'mine_type', 'state', 'county_fips_id',
+             'mine_id', 'name', 'supplier', 'fuel_quantity',
              'heat_content_mmbtu_per_unit', 'sulfur_content_pct',
              'ash_content_pct', 'mercury_content_ppm', 'fuel_cost_per_mmbtu',
              'regulated', 'operator_name', 'operator_id',

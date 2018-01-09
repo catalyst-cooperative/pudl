@@ -1410,12 +1410,12 @@ def ingest_generation_eia923(pudl_engine, eia923_dfs,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
-def ingest_coalmine_info_eia923(pudl_engine, eia923_dfs,
+def ingest_coalmine_eia923(pudl_engine, eia923_dfs,
                                 csvdir='', keep_csv=True):
     """
     Ingest data on coal mines supplying fuel from EIA Form 923.
 
-    Populates the coalmine_info_eia923 table.  Also applies canonical
+    Populates the coalmine_eia923 table.  Also applies canonical
     categories across the different types of mines.
 
     Args:
@@ -1433,11 +1433,11 @@ def ingest_coalmine_info_eia923(pudl_engine, eia923_dfs,
     """
     # These are the columns that we want to keep from FRC for the
     # coal mine info table.
-    coalmine_cols = ['coalmine_name',
-                     'coalmine_type',
-                     'coalmine_state',
-                     'coalmine_county',
-                     'coalmine_msha_id']
+    coalmine_cols = ['name',
+                     'mine_type',
+                     'state',
+                     'county_fips_id',
+                     'mine_id']
 
     # Make a copy so we don't alter the FRC data frame... which we'll need
     # to use again for populating the FRC table (see below)
@@ -1454,31 +1454,31 @@ def ingest_coalmine_info_eia923(pudl_engine, eia923_dfs,
     # coalmine records that have an MSHA ID, remove them from the CMI
     # data frame, drop duplicates, and then bring the unique mine records
     # back into the overall CMI dataframe...
-    cmi_with_msha = cmi_df[cmi_df['coalmine_msha_id'] > 0]
+    cmi_with_msha = cmi_df[cmi_df['mine_id'] > 0]
     cmi_with_msha = \
-        cmi_with_msha.drop_duplicates(subset=['coalmine_msha_id', ])
-    cmi_df.drop(cmi_df[cmi_df['coalmine_msha_id'] > 0].index)
+        cmi_with_msha.drop_duplicates(subset=['mine_id', ])
+    cmi_df.drop(cmi_df[cmi_df['mine_id'] > 0].index)
     cmi_df.append(cmi_with_msha)
 
-    cmi_df = cmi_df.drop_duplicates(subset=['coalmine_name',
-                                            'coalmine_state',
-                                            'coalmine_msha_id',
-                                            'coalmine_type',
-                                            'coalmine_county'])
+    cmi_df = cmi_df.drop_duplicates(subset=['name',
+                                            'state',
+                                            'mine_id',
+                                            'mine_type',
+                                            'county_fips_id'])
 
     # drop null values if they occur in vital fields....
-    cmi_df.dropna(subset=['coalmine_name', 'coalmine_state'], inplace=True)
+    cmi_df.dropna(subset=['name', 'state'], inplace=True)
 
     # Take a float field and make it an integer, with the empty sa.String
     # as the NA value... for postgres loading. Yes, this is janky.
-    cmi_df['coalmine_msha_id'] = \
-        clean_pudl.fix_int_na(cmi_df['coalmine_msha_id'],
+    cmi_df['mine_id'] = \
+        clean_pudl.fix_int_na(cmi_df['mine_id'],
                               float_na=np.nan,
                               int_na=-1,
                               str_na='')
 
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(cmi_df, 'coalmine_info_eia923', pudl_engine,
+    csv_dump_load(cmi_df, 'coalmine_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1493,33 +1493,33 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
                     'plant_state',
                     'operator_name',
                     'operator_id',
-                    'coalmine_msha_id',
-                    'coalmine_type',
-                    'coalmine_state',
-                    'coalmine_county',
-                    'coalmine_name',
+                    'mine_id',
+                    'mine_type',
+                    'state',
+                    'county_fips_id',
+                    'name',
                     'regulated',
                     'reporting_frequency']
 
-    cmi_df = pd.read_sql('''SELECT * FROM coalmine_info_eia923''', pudl_engine)
-    # In order for the merge to work, we need to get the coalmine_county field
+    cmi_df = pd.read_sql('''SELECT * FROM coalmine_eia923''', pudl_engine)
+    # In order for the merge to work, we need to get the county_fips_id field
     # back into ready-to-dump form... so it matches the types of the
-    # coalmine_county field that we are going to be merging on in the frc_df.
-    cmi_df['coalmine_county'] = \
-        clean_pudl.fix_int_na(cmi_df['coalmine_county'])
-    cmi_df = cmi_df.rename(columns={'id': 'coalmine_id'})
+    # county_fips_id field that we are going to be merging on in the frc_df.
+    cmi_df['county_fips_id'] = \
+        clean_pudl.fix_int_na(cmi_df['county_fips_id'])
+    cmi_df = cmi_df.rename(columns={'id': 'mine_id_pudl'})
 
     # This type/naming cleanup function is separated out so that we can be
-    # sure it is applied exactly the same both when the coalmine_info table
+    # sure it is applied exactly the same both when the coalmine_eia923 table
     # is populated, and here (since we need them to be identical for the
     # following merge)
     frc_df = clean_eia923.coalmine_cleanup(frc_df)
     frc_df = frc_df.merge(cmi_df, how='left',
-                          on=['coalmine_name',
-                              'coalmine_state',
-                              'coalmine_msha_id',
-                              'coalmine_type',
-                              'coalmine_county'])
+                          on=['name',
+                              'state',
+                              'mine_id',
+                              'mine_type',
+                              'county_fips_id'])
 
     frc_df.drop(cols_to_drop, axis=1, inplace=True)
 
@@ -1563,7 +1563,7 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
     )
 
     frc_df = clean_pudl.convert_to_date(frc_df)
-    frc_df['coalmine_id'] = clean_pudl.fix_int_na(frc_df['coalmine_id'],
+    frc_df['mine_id_pudl'] = clean_pudl.fix_int_na(frc_df['mine_id_pudl'],
                                                   float_na=np.nan,
                                                   int_na=-1,
                                                   str_na='')
@@ -1876,7 +1876,7 @@ def ingest_eia923(pudl_engine,
         'boiler_fuel_eia923': ingest_boiler_fuel_eia923,
         'generation_eia923': ingest_generation_eia923,
         'generators_eia923': ingest_generators_eia923,
-        'coalmine_info_eia923': ingest_coalmine_info_eia923,
+        'coalmine_eia923': ingest_coalmine_eia923,
         'fuel_receipts_costs_eia923': ingest_fuel_receipts_costs_eia923,
     }
 
