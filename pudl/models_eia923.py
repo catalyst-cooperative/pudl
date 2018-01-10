@@ -29,7 +29,7 @@ class BoilersEIA923(pudl.models.PUDLBase):
 
     __tablename__ = 'boilers_eia923'
     plant_id_eia = Column(Integer, ForeignKey('plants_eia.plant_id'),
-                      primary_key=True)
+                          primary_key=True)
     boiler_id = Column(String, primary_key=True)
     prime_mover = Column(String,
                          ForeignKey('prime_movers_eia923.abbr'),
@@ -41,7 +41,7 @@ class GeneratorEIA923(pudl.models.PUDLBase):
 
     __tablename__ = 'generators_eia923'
     plant_id_eia = Column(Integer, ForeignKey('plants_eia.plant_id'),
-                      primary_key=True)
+                          primary_key=True)
     generator_id = Column(String, primary_key=True)
     prime_mover = Column(String,
                          ForeignKey('prime_movers_eia923.abbr'),
@@ -165,14 +165,14 @@ class TransportModeEIA923(pudl.models.PUDLBase):
 ###########################################################################
 
 
-class OperatorInfoEIA923(pudl.models.PUDLBase):
+class OperatorEIA923(pudl.models.PUDLBase):
     """
     Information specific to plant operators (typically utilities).
 
     Reported on Page 1 of EIA Form 923.
     """
 
-    __tablename__ = 'operator_info_eia923'
+    __tablename__ = 'operator_eia923'
     operator_id = Column(Integer,
                          ForeignKey('utilities_eia.operator_id'),
                          primary_key=True)
