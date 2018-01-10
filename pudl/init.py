@@ -660,7 +660,8 @@ def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-    f1_pumped_storage = pudl.extract.ferc1.ferc1_meta.tables['f1_pumped_storage']
+    f1_pumped_storage = \
+        pudl.extract.ferc1.ferc1_meta.tables['f1_pumped_storage']
 
     # Removing the empty records.
     # This reduces the entries for 2015 from 272 records to 27.
@@ -758,7 +759,8 @@ def ingest_accumulated_depreciation_ferc1(pudl_engine,
 
     Returns: Nothing.
     """
-    f1_accumdepr_prvsn = pudl.extract.ferc1.ferc1_meta.tables['f1_accumdepr_prvsn']
+    f1_accumdepr_prvsn = \
+        pudl.extract.ferc1.ferc1_meta.tables['f1_accumdepr_prvsn']
     f1_accumdepr_prvsn_select = sa.sql.select([f1_accumdepr_prvsn]).\
         where(f1_accumdepr_prvsn.c.report_year.in_(ferc1_years))
 
@@ -810,7 +812,8 @@ def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
        Returns: Nothing.
     """
-    f1_plant_in_srvce = pudl.extract.ferc1.ferc1_meta.tables['f1_plant_in_srvce']
+    f1_plant_in_srvce = \
+        pudl.extract.ferc1.ferc1_meta.tables['f1_plant_in_srvce']
     f1_plant_in_srvce_select = sa.sql.select([f1_plant_in_srvce]).\
         where(
             sa.sql.and_(
@@ -1097,7 +1100,7 @@ def ingest_plants_eia923(pudl_engine, eia923_dfs,
         pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
         eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
-            EIA923 form, as repoted in the Excel spreadsheets they distribute.
+            EIA923 form, as reported in the Excel spreadsheets they distribute.
         csvdir (string): Path to the directory where the CSV files representing
             our data tables should be written, before being read in to the
             postgres database directly.
@@ -1111,7 +1114,7 @@ def ingest_plants_eia923(pudl_engine, eia923_dfs,
     # There are other fields being compiled in the plant_info_df from all of
     # the various EIA923 spreadsheet pages. Do we want to add them to the
     # database model too? E.g. nameplate_capacity_mw, operator_name, etc.
-    plant_info_df = plant_info_df[['plant_id',
+    plant_info_df = plant_info_df[['plant_id_eia',
                                    'combined_heat_power',
                                    'plant_state',
                                    'eia_sector',
@@ -1128,7 +1131,7 @@ def ingest_plants_eia923(pudl_engine, eia923_dfs,
     # Get rid of excessive whitespace introduced to break long lines (ugh)
     plant_info_df.census_region = \
         plant_info_df.census_region.str.replace(' ', '')
-    plant_info_df.drop_duplicates(subset='plant_id')
+    plant_info_df.drop_duplicates(subset='plant_id_eia')
 
     plant_info_df['eia_sector'] = \
         clean_pudl.fix_int_na(plant_info_df['eia_sector'],
@@ -1142,7 +1145,7 @@ def ingest_plants_eia923(pudl_engine, eia923_dfs,
                               int_na=-1,
                               str_na='')
 
-    plant_info_df['plant_id'] = plant_info_df['plant_id'].astype(int)
+    plant_info_df['plant_id_eia'] = plant_info_df['plant_id_eia'].astype(int)
 
     csv_dump_load(plant_info_df, 'plants_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
@@ -1198,8 +1201,8 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
     # Replace the EIA923 NA value ('.') with a real NA value.
     gf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
     # Remove "State fuel-level increment" records... which don't pertain to
-    # any particular plant (they have plant_id == operator_id == 99999)
-    gf_df = gf_df[gf_df.plant_id != 99999]
+    # any particular plant (they have plant_id_eia == operator_id == 99999)
+    gf_df = gf_df[gf_df.plant_id_eia != 99999]
 
     # Take a float field and make it an integer, with the empty sa.String
     # as the NA value... for postgres loading.
@@ -1241,19 +1244,19 @@ def ingest_boilers_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
     """
     boilers_df = eia923_dfs['boiler_fuel'].copy()
     # Populate 'boilers_eia923' table
-    boiler_cols = ['plant_id',
+    boiler_cols = ['plant_id_eia',
                    'boiler_id',
                    'prime_mover']
     boilers_df = boilers_df[boiler_cols]
 
     # drop null values from foreign key fields
-    boilers_df.dropna(subset=['boiler_id', 'plant_id'], inplace=True)
+    boilers_df.dropna(subset=['boiler_id', 'plant_id_eia'], inplace=True)
 
     # We need to cast the boiler_id column as type str because sometimes
     # it is heterogeneous int/str which make drop_duplicates fail.
     boilers_df['boiler_id'] = boilers_df['boiler_id'].astype(str)
     boilers_df = boilers_df.drop_duplicates(
-        subset=['plant_id', 'boiler_id'])
+        subset=['plant_id_eia', 'boiler_id'])
 
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(boilers_df, 'boilers_eia923', pudl_engine,
@@ -1297,7 +1300,7 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
                     'total_fuel_consumption_quantity']
     bf_df.drop(cols_to_drop, axis=1, inplace=True)
 
-    bf_df.dropna(subset=['boiler_id', 'plant_id'], inplace=True)
+    bf_df.dropna(subset=['boiler_id', 'plant_id_eia'], inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
     bf_df = clean_eia923.yearly_to_monthly_eia923(bf_df, pc.month_dict_eia923)
@@ -1336,19 +1339,19 @@ def ingest_generators_eia923(pudl_engine, eia923_dfs,
     """
     # Populating the 'generators_eia923' table
     generators_df = eia923_dfs['generator'].copy()
-    generator_cols = ['plant_id',
+    generator_cols = ['plant_id_eia',
                       'generator_id',
                       'prime_mover']
     generators_df = generators_df[generator_cols]
 
     # drop null values from foreign key fields
-    generators_df.dropna(subset=['generator_id', 'plant_id'], inplace=True)
+    generators_df.dropna(subset=['generator_id', 'plant_id_eia'], inplace=True)
 
     # We need to cast the generator_id column as type str because sometimes
     # it is heterogeneous int/str which make drop_duplicates fail.
     generators_df['generator_id'] = generators_df['generator_id'].astype(str)
     generators_df = generators_df.drop_duplicates(
-        subset=['plant_id', 'generator_id'])
+        subset=['plant_id_eia', 'generator_id'])
 
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(generators_df, 'generators_eia923', pudl_engine,
@@ -1366,7 +1369,7 @@ def ingest_generation_eia923(pudl_engine, eia923_dfs,
         pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
         eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
-            EIA923 form, as repoted in the Excel spreadsheets they distribute.
+            EIA923 form, as reported in the Excel spreadsheets they distribute.
         csvdir (string): Path to the directory where the CSV files representing
             our data tables should be written, before being read in to the
             postgres database directly.
@@ -1411,7 +1414,7 @@ def ingest_generation_eia923(pudl_engine, eia923_dfs,
 
 
 def ingest_coalmine_eia923(pudl_engine, eia923_dfs,
-                                csvdir='', keep_csv=True):
+                           csvdir='', keep_csv=True):
     """
     Ingest data on coal mines supplying fuel from EIA Form 923.
 
@@ -1564,9 +1567,9 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
 
     frc_df = clean_pudl.convert_to_date(frc_df)
     frc_df['mine_id_pudl'] = clean_pudl.fix_int_na(frc_df['mine_id_pudl'],
-                                                  float_na=np.nan,
-                                                  int_na=-1,
-                                                  str_na='')
+                                                   float_na=np.nan,
+                                                   int_na=-1,
+                                                   str_na='')
 
     # Convert fuel cost (cents per mmbtu) into dollars per mmbtu
     frc_df = clean_eia923.fuel_reciept_cost_clean(frc_df)
@@ -1826,9 +1829,10 @@ def ingest_eia860(pudl_engine,
                   keep_csv=True):
     """Wrapper function that ingests all the EIA Form 860 tables."""
     # Prep for ingesting EIA860
-    eia860_dfs = pudl.extract.eia860.create_dfs_eia860(files=pc.files_eia860,
-                                                       eia860_years=eia860_years,
-                                                       verbose=verbose)
+    eia860_dfs = \
+        pudl.extract.eia860.create_dfs_eia860(files=pc.files_eia860,
+                                              eia860_years=eia860_years,
+                                              verbose=verbose)
     # NOW START INGESTING EIA860 DATA:
     eia860_ingest_functions = {
         'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860,
