@@ -1479,7 +1479,7 @@ boiler_generator_assn_map_eia860 = pd.DataFrame.from_records([
     (2014, 'utility_id', 'plant_code', 'boiler_id', 'generator_id'),
     (2015, 'utility_id', 'plant_code', 'boiler_id', 'generator_id'),
     (2016, 'utility_id', 'plant_code', 'boiler_id', 'generator_id')],
-    columns=['year_index', 'operator_id', 'plant_id', 'boiler_id',
+    columns=['year_index', 'operator_id', 'plant_id_eia', 'boiler_id',
              'generator_id'],
     index='year_index')
 
@@ -1661,7 +1661,7 @@ plant_assn_map_eia860 = pd.DataFrame.from_records([
      'natural_gas_pipeline_name_2', 'natural_gas_pipeline_name_3',
      'pipeline_notes', 'natural_gas_ldc_name', 'natural_gas_storage',
      'liquefied_natural_gas_storage')],
-    columns=['year_index', 'operator_id', 'operator_name', 'plant_id',
+    columns=['year_index', 'operator_id', 'operator_name', 'plant_id_eia',
              'plant_name', 'street_address', 'city', 'county', 'state',
              'zip_code', 'water_source', 'nerc_region',
              'primary_purpose_naics', 'transmission_distribution_owner',

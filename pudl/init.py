@@ -1621,7 +1621,7 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
 
     b_g_cols = ['report_year',
                 'operator_id',
-                'plant_id',
+                'plant_id_eia',
                 'boiler_id',
                 'generator_id']
 
@@ -1633,7 +1633,7 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
     b_g_df['operator_id'] = b_g_df['operator_id'].astype(str)
     b_g_df = b_g_df[b_g_df.operator_id.str.isnumeric()]
 
-    b_g_df['plant_id'] = clean_pudl.fix_int_na(b_g_df['plant_id'],
+    b_g_df['plant_id_eia'] = clean_pudl.fix_int_na(b_g_df['plant_id_eia'],
                                                float_na=np.nan,
                                                int_na=-1,
                                                str_na='')

@@ -12,7 +12,7 @@ class BoilerGeneratorAssnEIA860(pudl.models.PUDLBase):
     id = Column(Integer, autoincrement=True, primary_key=True)
     report_date = Column(Date, nullable=False)
     operator_id = Column(Integer, nullable=False)  # FK?
-    plant_id = Column(Integer, nullable=False)  # FK?
+    plant_id_eia = Column(Integer, nullable=False)  # FK?
     boiler_id = Column(String, nullable=False)  # FK?
     generator_id = Column(String, nullable=False)  # FK?
 
@@ -44,7 +44,7 @@ class PlantsEIA860(pudl.models.PUDLBase):
     report_date = Column(Date, nullable=False)
     operator_id = Column(Integer)  # FK
     operator_name = Column(String)  # FK
-    plant_id = Column(Integer, nullable=False)  # FK
+    plant_id_eia = Column(Integer, nullable=False)  # FK
     plant_name = Column(String)  # FK
     street_address = Column(String)
     city = Column(String)
