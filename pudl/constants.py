@@ -273,7 +273,7 @@ ferc1_plant_kind_strings = {
 }
 
 # Categorizing the strings from the FERC Form 1 Type of Plant Construction
-# (type_const) field into lists.
+# (construction_type) field into lists.
 # There are many strings that weren't categorized, including crosses between
 # conventional and outdoor, PV, wind, combined cycle, and internal combustion.
 # The lists are broken out into the two types specified in Form 1:
@@ -300,10 +300,10 @@ ferc1_construction_type_conventional = \
      'conventionall', 'convention', 'conventional', 'coventional',
      'conven full boiler', 'c0nventional', 'conventtional', 'convential']
 
-# Making a dictionary of lists from the lists of type_const strings to create
+# Making a dictionary of lists from the lists of construction_type strings to create
 # a dictionary of construction type lists.
 
-ferc1_type_const_strings = {
+ferc1_construction_type_strings = {
     'outdoor': ferc1_construction_type_outdoor,
     'conventional': ferc1_construction_type_conventional
 }

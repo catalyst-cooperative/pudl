@@ -53,7 +53,7 @@ class PlantSteamFERC1(pudl.models.PUDLBase):
     plant_name = Column(String, nullable=False)
     report_year = Column(Integer, nullable=False)
     plant_kind = Column(String)  # FK New, needs cleaning
-    type_const = Column(String)  # FK New, needs cleaning
+    construction_type = Column(String)  # FK New, needs cleaning
     year_constructed = Column(Integer)
     year_installed = Column(Integer)
     total_capacity_mw = Column(Float)
@@ -67,7 +67,7 @@ class PlantSteamFERC1(pudl.models.PUDLBase):
     cost_land = Column(Numeric(14, 2))
     cost_structure = Column(Numeric(14, 2))
     cost_equipment = Column(Numeric(14, 2))
-    cost_of_plant_total = Column(Numeric(14, 2))
+    total_plant_cost = Column(Numeric(14, 2))
     cost_per_mw = Column(Numeric(14, 2))
     expns_operations = Column(Numeric(14, 2))
     expns_fuel = Column(Numeric(14, 2))
@@ -86,7 +86,7 @@ class PlantSteamFERC1(pudl.models.PUDLBase):
     expns_misc_steam = Column(Numeric(14, 2))
     expns_production_total = Column(Numeric(14, 2))
     expns_per_mwh = Column(Numeric(14, 2))
-    asset_retire_cost = Column(Numeric(14, 2))
+    asset_retirement_cost = Column(Numeric(14, 2))
 
 
 class PlantInServiceFERC1(pudl.models.PUDLBase):
@@ -136,7 +136,7 @@ class AccumulatedDepreciationFERC1(pudl.models.PUDLBase):
     line_id = Column(String,
                      ForeignKey('ferc_depreciation_lines.id'),
                      primary_key=True)
-    total_cde = Column(Numeric(14, 2))
+    total = Column(Numeric(14, 2))
     electric_plant = Column(Numeric(14, 2))
     future_plant = Column(Numeric(14, 2))
     leased_plant = Column(Numeric(14, 2))
@@ -230,7 +230,7 @@ class PlantHydroFERC1(pudl.models.PUDLBase):
     # (b) Under the Most Adverse Oper Conditions
     net_capacity_adverse_conditions_mw = Column(Float)
     # Average Number of Employees
-    avg_number_employees = Column(Float)
+    avg_num_employees = Column(Float)
     # Net Generation, Exclusive of Plant Use - kWh in FERC, converted to MWh
     net_generation_mwh = Column(Float)
     # Land and Land Rights
@@ -244,7 +244,7 @@ class PlantHydroFERC1(pudl.models.PUDLBase):
     # Roads, Railroads, and Bridges
     cost_roads = Column(Numeric(14, 2))
     # Asset Retirement Costs
-    asset_retire_cost = Column(Numeric(14, 2))
+    asset_retirement_cost = Column(Numeric(14, 2))
     # TOTAL cost (Total of 14 thru 19)
     cost_plant_total = Column(Numeric(14, 2))
     # Cost per KW of Installed Capacity (line 20 / 5)
@@ -353,10 +353,10 @@ class PlantsPumpedStorage(pudl.models.PUDLBase):
     # Maintenance of Misc Pumped Storage Plant
     expns_misc_plant = Column(Numeric(14, 2))
     # Production Exp Before Pumping Exp (24 thru 34)
-    expns_producton_before_pumping = Column(Numeric(14, 2))
+    expns_production_before_pumping = Column(Numeric(14, 2))
     # Pumping Expenses
     pumping_expenses = Column(Numeric(14, 2))
     # Total Production Exp (total 35 and 36)
-    expns_producton_total = Column(Numeric(14, 2))
+    expns_production_total = Column(Numeric(14, 2))
     # Expenses per KWh (line 37 / 9), converted to mwh
     expns_per_mwh = Column(Numeric(14, 2))

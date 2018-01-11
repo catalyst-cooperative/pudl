@@ -513,13 +513,13 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     ferc1_steam_df['plant_name'] = ferc1_steam_df['plant_name'].str.strip()
     ferc1_steam_df['plant_name'] = ferc1_steam_df['plant_name'].str.title()
 
-    # Take the messy free-form type_const and plant_kind fields, and do our
+    # Take the messy free-form construction_type and plant_kind fields, and do our
     # best to map them to some canonical categories...
     # this is necessarily imperfect:
 
     ferc1_steam_df.type_const = \
         clean_pudl.cleanstrings(ferc1_steam_df.type_const,
-                                pc.ferc1_type_const_strings,
+                                pc.ferc1_construction_type_strings,
                                 unmapped=np.nan)
     ferc1_steam_df.plant_kind = \
         clean_pudl.cleanstrings(ferc1_steam_df.plant_kind,
@@ -547,6 +547,8 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     ferc1_steam_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
         'yr_const': 'year_constructed',
+        'type_const': 'construction_type',
+        'asset_retire_cost':'asset_retirement_cost',
         'yr_installed': 'year_installed',
         'tot_capacity': 'total_capacity_mw',
         'peak_demand': 'peak_demand_mw',
@@ -555,7 +557,7 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine, ferc1_years):
         'when_not_limited': 'not_water_limited_mw',
         'avg_num_of_emp': 'avg_num_employees',
         'net_generation': 'net_generation_mwh',
-        'cost_of_plant_to': 'cost_of_plant_total',
+        'cost_of_plant_to': 'total_plant_cost',
         'expns_steam_othr': 'expns_steam_other',
         'expns_engnr': 'expns_engineering',
         'tot_prdctn_expns': 'expns_production_total'},
@@ -564,7 +566,7 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine, ferc1_years):
                           con=pudl_engine, index=False, if_exists='append',
                           dtype={'respondent_id': sa.Integer,
                                  'report_year': sa.Integer,
-                                 'type_const': sa.String,
+                                 'construction_type': sa.String,
                                  'plant_kind': sa.String,
                                  'year_constructed': sa.Integer,
                                  'year_installed': sa.Integer})
@@ -631,10 +633,11 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine, ferc1_years):
         'plant_hours': 'plant_hours_connected_while_generating',
         'favorable_cond': 'net_capacity_favorable_conditions_mw',
         'adverse_cond': 'net_capacity_adverse_conditions_mw',
-        'avg_num_of_emp': 'avg_number_employees',
+        'avg_num_of_emp': 'avg_num_employees',
         'cost_of_land': 'cost_land',
         'expns_engnr': 'expns_engineering',
-        'expns_total': 'expns_production_total'
+        'expns_total': 'expns_production_total',
+        'asset_retire_cost': 'asset_retirement_cost'
     }, inplace=True)
 
     ferc1_hydro_df.to_sql(name='plants_hydro_ferc1',
@@ -731,8 +734,8 @@ def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine, ferc1_years):
         'expns_pump_strg': 'expns_pump_storage',
         'expns_misc_power': 'expns_generation_misc',
         'expns_misc_plnt': 'expns_misc_plant',
-        'expns_producton': 'expns_producton_before_pumping',
-        'tot_prdctn_exns': 'expns_producton_total'},
+        'expns_producton': 'expns_production_before_pumping',
+        'tot_prdctn_exns': 'expns_production_total'},
         inplace=True)
 
     ferc1_pumped_storage_df.to_sql(name='plants_pumped_storage_ferc1',
@@ -780,13 +783,18 @@ def ingest_accumulated_depreciation_ferc1(pudl_engine,
                                         how='left', on='row_number')
     ferc1_accumdepr_prvsn_df.drop('row_number', axis=1, inplace=True)
 
+    ferc1_accumdepr_prvsn_df.rename(columns={
+        # FERC1 DB   PUDL DB
+        'total_cde': 'total'},
+        inplace=True)
+
     ferc1_accumdepr_prvsn_df.\
         to_sql(name='accumulated_depreciation_ferc1',
                con=pudl_engine, index=False, if_exists='append',
                dtype={'respondent_id': sa.Integer,
                       'report_year': sa.Integer,
                       'line_id': sa.String,
-                      'total_cde': sa.Numeric(14, 2),
+                      'total': sa.Numeric(14, 2),
                       'electric_plant': sa.Numeric(14, 2),
                       'future_plant': sa.Numeric(14, 2),
                       'leased plant': sa.Numeric(14, 2)})
