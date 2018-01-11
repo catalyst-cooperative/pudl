@@ -67,7 +67,7 @@ class PlantSteamFERC1(pudl.models.PUDLBase):
     cost_land = Column(Numeric(14, 2))
     cost_structure = Column(Numeric(14, 2))
     cost_equipment = Column(Numeric(14, 2))
-    total_plant_cost = Column(Numeric(14, 2))
+    total_cost_of_plant = Column(Numeric(14, 2))
     cost_per_mw = Column(Numeric(14, 2))
     expns_operations = Column(Numeric(14, 2))
     expns_fuel = Column(Numeric(14, 2))
@@ -191,7 +191,7 @@ class PlantSmallFERC1(pudl.models.PUDLBase):
     total_capacity_mw = Column(Float)
     peak_demand_mw = Column(Float)
     net_generation_mwh = Column(Float)
-    cost_of_plant_total = Column(Numeric(14, 2))
+    total_cost_of_plant = Column(Numeric(14, 2))
     cost_of_plant_per_mw = Column(Numeric(14, 2))
     cost_of_operation = Column(Numeric(14, 2))  # No idea what this field is.
     expns_fuel = Column(Numeric(14, 2))
@@ -303,7 +303,7 @@ class PlantsPumpedStorage(pudl.models.PUDLBase):
     # Net Plant Capability (in megawatts)
     plant_capability_mw = Column(Float)
     # Average Number of Employees
-    avg_number_employees = Column(Float)
+    avg_num_employees = Column(Float)
     # Generation, Exclusive of Plant Use - Kwh, converted to mwh
     net_generation_mwh = Column(Float)
     # Energy Used for Pumping, converted from kwh to MWh
