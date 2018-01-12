@@ -552,7 +552,7 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
     plants_eia860_tbl = pt['plants_eia860']
     plants_eia860_select = sa.sql.select([
         plants_eia860_tbl.c.report_date,
-        plants_eia860_tbl.c.plant_id,
+        plants_eia860_tbl.c.plant_id_eia,
         plants_eia860_tbl.c.latitude,
         plants_eia860_tbl.c.longitude,
     ])
