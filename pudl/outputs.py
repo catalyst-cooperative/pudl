@@ -340,7 +340,7 @@ def plants_utils_eia(start_date=None, end_date=None, testing=False):
     Returns a pandas dataframe with the following columns:
     - report_date (in which data was reported)
     - plant_name (from EIA860)
-    - plant_id (from EIA860)
+    - plant_id_eia (from EIA860)
     - plant_id_pudl
     - operator_id (from EIA860)
     - operator_name (from EIA860)
@@ -583,13 +583,11 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
         )
 
     gens_eia860 = pd.read_sql(gens_eia860_select, pudl_engine)
-    gens_eia860 = gens_eia860.rename(columns={'plant_id': 'plant_id_eia'})
     # Canonical sources for these fields are elsewhere. We will merge them in.
     gens_eia860 = gens_eia860.drop(['operator_id',
                                     'operator_name',
                                     'plant_name'], axis=1)
     plants_eia860 = pd.read_sql(plants_eia860_select, pudl_engine)
-    plants_eia860 = plants_eia860.rename(columns={'plant_id': 'plant_id_eia'})
     out_df = pd.merge(gens_eia860, plants_eia860,
                       how='left', on=['report_date', 'plant_id_eia'])
     out_df.report_date = pd.to_datetime(out_df.report_date)
@@ -655,7 +653,6 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
     o_eia860_tbl = pt['ownership_eia860']
     o_eia860_select = sa.sql.select([o_eia860_tbl, ])
     o_df = pd.read_sql(o_eia860_select, pudl_engine)
-    o_df = o_df.rename(columns={'plant_id': 'plant_id_eia'})
 
     pu_eia = plants_utils_eia(start_date=start_date,
                               end_date=end_date,
@@ -755,7 +752,6 @@ def generation_fuel_eia923(freq=None, testing=False,
             gf_tbl.c.report_date <= end_date)
 
     gf_df = pd.read_sql(gf_select, pudl_engine)
-    gf_df = gf_df.rename(columns={'plant_id': 'plant_id_eia'})
 
     cols_to_drop = ['id']
     gf_df = gf_df.drop(cols_to_drop, axis=1)
@@ -875,7 +871,6 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
             frc_tbl.c.report_date <= end_date)
 
     frc_df = pd.read_sql(frc_select, pudl_engine)
-    frc_df = frc_df.rename(columns={'plant_id': 'plant_id_eia'})
 
     frc_df = pd.merge(frc_df, cmi_df,
                       how='left',
@@ -1010,7 +1005,6 @@ def boiler_fuel_eia923(freq=None, testing=False,
             bf_eia923_tbl.c.report_date <= end_date
         )
     bf_df = pd.read_sql(bf_eia923_select, pudl_engine)
-    bf_df = bf_df.rename(columns={'plant_id': 'plant_id_eia'})
 
     # The total heat content is also useful in its own right, and we'll keep it
     # around.  Also needed to calculate average heat content per unit of fuel.
@@ -1113,7 +1107,6 @@ def generation_eia923(freq=None, testing=False,
             g_eia923_tbl.c.report_date <= end_date
         )
     g_df = pd.read_sql(g_eia923_select, pudl_engine)
-    g_df = g_df.rename(columns={'plant_id': 'plant_id_eia'})
 
     # Index by date and aggregate net generation.
     # Create a date index for grouping based on freq

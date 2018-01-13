@@ -138,7 +138,7 @@ def simple_select(table_name, pudl_engine):
 
     # If table includes plant_id, get the PUDL Plant ID
 
-    if 'plant_id' in table.columns:
+    if 'plant_id_eia' in table.columns:
         # Shorthand for readability... pt = PUDL Tables
         pt = models.PUDLBase.metadata.tables
 
@@ -149,8 +149,7 @@ def simple_select(table_name, pudl_engine):
             plants_eia_tbl.c.plant_id_pudl,
         ])
         plants_eia = pd.read_sql(plants_eia_select, pudl_engine)
-        out_df = pd.merge(table, plants_eia, how='left', on='plant_id')
-        out_df.rename(columns={'plant_id': 'plant_id_eia'}, inplace=True)
+        out_df = pd.merge(table, plants_eia, how='left', on='plant_id_eia')
         out_df.plant_id_pudl = out_df.plant_id_pudl.astype(int)
         table = out_df
     else:
@@ -701,7 +700,7 @@ def values_by_generator_eia923(table_eia923, column_name, g):
         pd.DatetimeIndex(table_eia923['report_date']))
     # groupby plant_id and by year
     table_eia923_gb = table_eia923.groupby(
-        [pd.Grouper(freq='A'), 'plant_id'])
+        [pd.Grouper(freq='A'), 'plant_id_eia'])
     # sum fuel cost by year by plant
     table_eia923_sr = table_eia923_gb[column_name].sum()
     # Convert back into a dataframe
@@ -870,7 +869,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
 
     # Drop everything but report_date, plant_id, fuel_group, total_mmbtu
     gf_df = gf_df[['report_date',
-                   'plant_id',
+                   'plant_id_eia',
                    'fuel_type_pudl',
                    'fuel_consumed_total_mmbtu']]
 
@@ -879,7 +878,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
 
     # Group by report_date(annual), plant_id, fuel_group
     gf_gb = gf_df.groupby(
-        ['plant_id', pd.Grouper(freq='A'), 'fuel_type_pudl'])
+        ['plant_id_eia', pd.Grouper(freq='A'), 'fuel_type_pudl'])
 
     # Add up all the MMBTU for each plant & year. At this point each record
     # in the dataframe contains only information about a single fuel.
@@ -893,7 +892,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
     # Take the individual rows organized by fuel_group, and turn them into
     # columns, each with the total MMBTU for that fuel, year, and plant.
     heat_pivot = heat_df.pivot_table(
-        index=['year', 'plant_id'],
+        index=['year', 'plant_id_eia'],
         columns='fuel_type_pudl',
         values='fuel_consumed_total_mmbtu')
 
