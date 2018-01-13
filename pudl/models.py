@@ -179,7 +179,7 @@ class PlantEIA923(PUDLBase):
     """
 
     __tablename__ = 'plants_eia'
-    plant_id = Column(Integer, primary_key=True)
+    plant_id_eia = Column(Integer, primary_key=True)
     plant_name = Column(String, nullable=False)
     plant_id_pudl = Column(Integer, ForeignKey('plants.id'), nullable=False)
 

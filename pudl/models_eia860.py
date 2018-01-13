@@ -97,7 +97,7 @@ class OwnershipEIA860(pudl.models.PUDLBase):
     report_date = Column(Date, nullable=False)
     operator_id = Column(Integer, nullable=False)  # FK
     operator_name = Column(String, nullable=False)  # FK
-    plant_id = Column(Integer, nullable=False)  # FK
+    plant_id_eia = Column(Integer, nullable=False)  # FK
     plant_name = Column(String, nullable=False)  # FK
     state = Column(String)  # FK?
     generator_id = Column(String, nullable=False)  # FK
@@ -119,7 +119,7 @@ class GeneratorsEIA860(pudl.models.PUDLBase):
     report_date = Column(Date, nullable=False)
     operator_id = Column(Integer)  # FK
     operator_name = Column(String)  # FK
-    plant_id = Column(Integer, ForeignKey('plants_eia.plant_id'))
+    plant_id_eia = Column(Integer, ForeignKey('plants_eia.plant_id_eia'))
     plant_name = Column(String)  # FK
     state = Column(String)  # FK
     county = Column(String)  # FK

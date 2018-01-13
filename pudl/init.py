@@ -407,13 +407,12 @@ def ingest_glue_tables(engine):
                                  'respondent_name': sa.String,
                                  'util_id_pudl': sa.Integer})
 
-    plants_eia.rename(columns={'plant_id_eia': 'plant_id',
-                               'plant_name_eia': 'plant_name',
+    plants_eia.rename(columns={'plant_name_eia': 'plant_name',
                                'plant_id': 'plant_id_pudl'},
                       inplace=True)
     plants_eia.to_sql(name='plants_eia',
                       con=engine, index=False, if_exists='append',
-                      dtype={'plant_id': sa.Integer,
+                      dtype={'plant_id_eia': sa.Integer,
                              'plant_name': sa.String,
                              'plant_id_pudl': sa.Integer})
 
@@ -1773,7 +1772,7 @@ def ingest_generators_eia860(pudl_engine, eia860_dfs,
     gens_df = clean_eia860.clean_generators_eia860(gens_df)
 
     # String-ify a bunch of fields for output.
-    fix_int_na_columns = ['plant_id', 'sector', 'turbines']
+    fix_int_na_columns = ['plant_id_eia', 'sector', 'turbines']
 
     for column in fix_int_na_columns:
         gens_df[column] = \

@@ -9,7 +9,7 @@ from pudl import constants as pc
 def clean_generators_eia860(gens_df):
     """Clean up the combined EIA860 generators data frame."""
     # Get rid of any unidentifiable records:
-    gens_df.dropna(subset=['generator_id', 'plant_id'], inplace=True)
+    gens_df.dropna(subset=['generator_id', 'plant_id_eia'], inplace=True)
 
     # Replace empty strings, whitespace, and '.' fields with real NA values
     gens_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)

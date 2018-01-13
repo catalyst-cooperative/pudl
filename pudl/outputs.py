@@ -459,7 +459,6 @@ def boiler_generator_assn_eia860(start_date=None, end_date=None,
             bga_eia860_tbl.c.report_date <= end_date
         )
     bga_eia860_df = pd.read_sql(bga_eia860_select, pudl_engine)
-    bga_eia860_df = bga_eia860_df.rename(columns={'plant_id': 'plant_id_eia'})
     out_df = extend_annual(bga_eia860_df,
                            start_date=start_date, end_date=end_date)
     return(out_df)
@@ -481,16 +480,13 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
             plants_eia860_tbl.c.report_date <= end_date
         )
     plants_eia860_df = pd.read_sql(plants_eia860_select, pudl_engine)
-    plants_eia860_df = \
-        plants_eia860_df.rename(columns={'plant_id': 'plant_id_eia'})
 
     plants_eia_tbl = pt['plants_eia']
     plants_eia_select = sa.sql.select([
-        plants_eia_tbl.c.plant_id,
+        plants_eia_tbl.c.plant_id_eia,
         plants_eia_tbl.c.plant_id_pudl,
     ])
     plants_eia_df = pd.read_sql(plants_eia_select,  pudl_engine)
-    plants_eia_df = plants_eia_df.rename(columns={'plant_id': 'plant_id_eia'})
 
     out_df = pd.merge(plants_eia860_df, plants_eia_df,
                       how='left', on=['plant_id_eia', ])
