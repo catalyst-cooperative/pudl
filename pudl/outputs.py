@@ -220,40 +220,44 @@ class PudlOutput(object):
             self._dfs['fuel_ferc1'] = fuel_ferc1(testing=self.testing)
         return(self._dfs['fuel_ferc1'])
 
-    def boiler_generator_association(self, update=False):
+    def boiler_generator_association(self, update=False, verbose=False):
         if update or self._dfs['bga'] is None:
-            self._dfs['bga'] = mcoe.boiler_generator_association(self)
+            self._dfs['bga'] = \
+                mcoe.boiler_generator_association(self, verbose=verbose)
         return(self._dfs['bga'])
 
-    def bga(self, update=False):
-        return(self.boiler_generator_association(update=update))
+    def bga(self, update=False, verbose=False):
+        return(self.boiler_generator_association(update=update,
+                                                 verbose=verbose))
 
-    def heat_rate_by_unit(self, update=False):
+    def heat_rate_by_unit(self, update=False, verbose=False):
         if update or self._dfs['hr_by_unit'] is None:
-            self._dfs['hr_by_unit'] = mcoe.heat_rate_by_unit(self)
+            self._dfs['hr_by_unit'] = mcoe.heat_rate_by_unit(self,
+                                                             verbose=verbose)
         return(self._dfs['hr_by_unit'])
 
-    def heat_rate_by_gen(self, update=False):
+    def heat_rate_by_gen(self, update=False, verbose=False):
         if update or self._dfs['hr_by_gen'] is None:
-            self._dfs['hr_by_gen'] = mcoe.heat_rate_by_gen(self)
+            self._dfs['hr_by_gen'] = mcoe.heat_rate_by_gen(self,
+                                                           verbose=verbose)
         return(self._dfs['hr_by_gen'])
 
-    def fuel_cost(self, update=False):
+    def fuel_cost(self, update=False, verbose=False):
         if update or self._dfs['fc'] is None:
-            self._dfs['fc'] = mcoe.fuel_cost(self)
+            self._dfs['fc'] = mcoe.fuel_cost(self, verbose=verbose)
         return(self._dfs['fc'])
 
-    def capacity_factor(self, update=False):
+    def capacity_factor(self, update=False, verbose=False):
         if update or self._dfs['cf'] is None:
-            self._dfs['cf'] = mcoe.capacity_factor(self)
+            self._dfs['cf'] = mcoe.capacity_factor(self, verbose=verbose)
         return(self._dfs['cf'])
 
     def mcoe(self, update=False,
              min_heat_rate=5.5, min_fuel_cost_per_mwh=0.0,
-             min_cap_fact=0.0, max_cap_fact=1.5):
+             min_cap_fact=0.0, max_cap_fact=1.5, verbose=False):
         if update or self._dfs['mcoe'] is None:
             self._dfs['mcoe'] = \
-                mcoe.mcoe(self,
+                mcoe.mcoe(self, verbose=verbose,
                           min_heat_rate=min_heat_rate,
                           min_fuel_cost_per_mwh=min_fuel_cost_per_mwh,
                           min_cap_fact=min_cap_fact,
@@ -766,11 +770,11 @@ def generation_fuel_eia923(freq=None, testing=False,
         # Sum up these values so we can calculate quantity weighted averages
         gf_gb = gf_df.groupby(by=by)
         gf_df = gf_gb.agg({
-            'fuel_consumed_total': np.sum,
-            'fuel_consumed_for_electricity': np.sum,
-            'fuel_consumed_total_mmbtu': np.sum,
-            'fuel_consumed_for_electricity_mmbtu': np.sum,
-            'net_generation_mwh': np.sum,
+            'fuel_consumed_total': analysis.sum_na,
+            'fuel_consumed_for_electricity': analysis.sum_na,
+            'fuel_consumed_total_mmbtu': analysis.sum_na,
+            'fuel_consumed_for_electricity_mmbtu': analysis.sum_na,
+            'net_generation_mwh': analysis.sum_na,
         })
         gf_df['fuel_mmbtu_per_unit'] = \
             gf_df['fuel_consumed_total_mmbtu'] / gf_df['fuel_consumed_total']
@@ -886,11 +890,10 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
     frc_df['total_fuel_cost'] = \
         frc_df['total_heat_content_mmbtu'] * frc_df['fuel_cost_per_mmbtu']
 
-    by = ['plant_id_eia', 'fuel_type_pudl']
     if freq is not None:
+        by = ['plant_id_eia', 'fuel_type_pudl', pd.Grouper(freq=freq)]
         # Create a date index for temporal resampling:
         frc_df = frc_df.set_index(pd.DatetimeIndex(frc_df.report_date))
-        by = by + [pd.Grouper(freq=freq)]
         # Sum up these values so we can calculate quantity weighted averages
         frc_df['total_ash_content'] = \
             frc_df['ash_content_pct'] * frc_df['fuel_quantity']
@@ -901,14 +904,13 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
 
         frc_gb = frc_df.groupby(by=by)
         frc_df = frc_gb.agg({
-            'fuel_quantity': np.sum,
-            'total_heat_content_mmbtu': np.sum,
-            'total_fuel_cost': np.sum,
-            'total_sulfur_content': np.sum,
-            'total_ash_content': np.sum,
-            'total_mercury_content': np.sum,
+            'fuel_quantity': analysis.sum_na,
+            'total_heat_content_mmbtu': analysis.sum_na,
+            'total_fuel_cost': analysis.sum_na,
+            'total_sulfur_content': analysis.sum_na,
+            'total_ash_content': analysis.sum_na,
+            'total_mercury_content': analysis.sum_na,
         })
-
         frc_df['fuel_cost_per_mmbtu'] = \
             frc_df['total_fuel_cost'] / frc_df['total_heat_content_mmbtu']
         frc_df['heat_content_mmbtu_per_unit'] = \
@@ -1026,10 +1028,12 @@ def boiler_fuel_eia923(freq=None, testing=False,
 
         # Sum up these totals within each group, and recalculate the per-unit
         # values (weighted in this case by fuel_qty_consumed)
-        bf_df = bf_gb.agg({'total_heat_content_mmbtu': np.sum,
-                           'fuel_qty_consumed': np.sum,
-                           'total_sulfur_content': np.sum,
-                           'total_ash_content': np.sum})
+        bf_df = bf_gb.agg({
+            'total_heat_content_mmbtu': analysis.sum_na,
+            'fuel_qty_consumed': analysis.sum_na,
+            'total_sulfur_content': analysis.sum_na,
+            'total_ash_content': analysis.sum_na,
+        })
 
         bf_df['fuel_mmbtu_per_unit'] = \
             bf_df['total_heat_content_mmbtu'] / bf_df['fuel_qty_consumed']
@@ -1115,7 +1119,7 @@ def generation_eia923(freq=None, testing=False,
         g_df = g_df.set_index(pd.DatetimeIndex(g_df.report_date))
         by = by + [pd.Grouper(freq=freq)]
         g_gb = g_df.groupby(by=by)
-        g_df = g_gb['net_generation_mwh'].sum().reset_index()
+        g_df = g_gb.agg({'net_generation_mwh': analysis.sum_na}).reset_index()
 
     # Grab EIA 860 plant and utility specific information:
     pu_eia = plants_utils_eia(start_date=start_date,

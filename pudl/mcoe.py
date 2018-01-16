@@ -7,21 +7,45 @@ import pandas as pd
 import networkx as nx
 
 
-def boiler_generator_association(pudl_out, debug=False):
+def boiler_generator_association(pudl_out, debug=False, verbose=False):
     """
     Temporary function to create more complete boiler generator associations.
 
-    This is a temporary function until it can be pulled into a datatable. This
-    function pulls in all of the generators and all of the boilers, uses them
-    to create a relatively complete association list. First, the original bga
-    table is used, then the remaining unmatched generators are matched to the
-    boilers with the same string (in the same plant and year), then the unit
-    codes are used to connect all generators and boilers within each given
-    unit. Each of the incomplete or inaccurate records are tagged in columns.
+    Creates a unique unit_id_pudl for each collection of boilers and generators
+    within a plant that have ever been associated with each other, based on
+    the boiler generator associations reported in EIA860. Unfortunately, this
+    information is not complete for years before 2014, as the gas turbine
+    portion of combined cycle power plants in those earlier years were not
+    reporting their fuel consumption, or existence as part of the plants.
 
-    Notes:
-     - unit_code is coming out as a mix of None and NaN values. Should pick
-       a single type for the column and stick to it (or enforce on output).
+    For years 2014 and on, EIA860 contains a unit_code value, allowing the
+    combined cycle plant compoents to be associated with each other. For many
+    plants not listed in the reported boiler generator associations, it is
+    nonetheless possible to associate boilers and generators on a one-to-one
+    basis, as they use identical strings to describe the units.
+
+    In the end, between the reported BGA table, the string matching, and the
+    unit_code values, it's possible to create a nearly complete mapping of the
+    generation units, at least for 2014 and later.
+
+    Ultimately, this work needs to be ported into the ingest/load step for
+    the PUDL DB, creating a valuable 'glue' table allowing the boilers and
+    generators to be associated by unit_id easily.
+
+    For now, it is done in the context of the MCOE calculation, within the
+    pudl_out PudlOutput object that is passed in as the only positional
+    argument.
+
+    Args:
+        pudl_out: a PudlOutput object, which can obtain the dataframes needed
+            to infer the boiler generator associations.
+        debug (bool): If True, include columns in the returned dataframe
+            indicating by what method the individual boiler generator
+            associations were inferred.
+
+    Returns:
+        bga_out (DataFrame): A dataframe containing plant_id_eia, generator_id,
+            boiler_id, and unit_id_pudl
     """
     # compile and scrub all the parts
     bga_eia860 = pudl_out.bga_eia860().drop_duplicates(['plant_id_eia',
@@ -71,7 +95,9 @@ def boiler_generator_association(pudl_out, debug=False):
     bf_eia923 = bf_eia923.set_index(pd.DatetimeIndex(bf_eia923.report_date))
     bf_eia923_gb = bf_eia923.groupby(
         [pd.Grouper(freq='AS'), 'plant_id_eia', 'boiler_id'])
-    bf_eia923 = bf_eia923_gb['total_heat_content_mmbtu'].sum().reset_index()
+    bf_eia923 = bf_eia923_gb.agg({
+        'total_heat_content_mmbtu': analysis.sum_na,
+    }).reset_index()
 
     bf_eia923.drop_duplicates(
         subset=['plant_id_eia', 'report_date', 'boiler_id'], inplace=True)
@@ -288,7 +314,7 @@ def boiler_generator_association(pudl_out, debug=False):
     return(bga_out)
 
 
-def heat_rate_by_unit(pudl_out):
+def heat_rate_by_unit(pudl_out, verbose=False):
     """Calculate heat rates (mmBTU/MWh) within separable generation units.
 
     Assumes a "good" Boiler Generator Association (bga) i.e. one that only
@@ -329,7 +355,8 @@ def heat_rate_by_unit(pudl_out):
     gen_gb = gen_w_unit.groupby(['report_date',
                                  'plant_id_eia',
                                  'unit_id_pudl'])
-    gen_by_unit = gen_gb['net_generation_mwh'].sum().reset_index()
+    gen_by_unit = gen_gb.agg({'net_generation_mwh': analysis.sum_na})
+    gen_by_unit = gen_by_unit.reset_index()
 
     # Create a dataframe containingonly the unit-boiler mappings:
     bga_boils = pudl_out.bga()[['report_date', 'plant_id_eia',
@@ -341,7 +368,8 @@ def heat_rate_by_unit(pudl_out):
     bf_gb = bf_w_unit.groupby(['report_date',
                                'plant_id_eia',
                                'unit_id_pudl'])
-    bf_by_unit = bf_gb['total_heat_content_mmbtu'].sum().reset_index()
+    bf_by_unit = bf_gb.agg({'total_heat_content_mmbtu': analysis.sum_na})
+    bf_by_unit = bf_by_unit.reset_index()
 
     # Merge together the per-unit generation and fuel consumption data so we
     # can calculate a per-unit heat rate:
@@ -354,7 +382,7 @@ def heat_rate_by_unit(pudl_out):
     return(hr_by_unit)
 
 
-def heat_rate_by_gen(pudl_out):
+def heat_rate_by_gen(pudl_out, verbose=False):
     """Convert by-unit heat rate to by-generator, adding fuel type & count."""
     gens_simple = pudl_out.gens_eia860()[['report_date', 'plant_id_eia',
                                           'generator_id', 'fuel_type_pudl']]
@@ -383,7 +411,7 @@ def heat_rate_by_gen(pudl_out):
     return(hr_by_gen)
 
 
-def fuel_cost(pudl_out):
+def fuel_cost(pudl_out, verbose=False):
     """
     Calculate fuel costs per MWh on a per generator basis for MCOE.
 
@@ -466,8 +494,8 @@ def fuel_cost(pudl_out):
 
     one_fuel_gb = one_fuel.groupby(by=['report_date', 'plant_id_eia'])
     one_fuel_agg = one_fuel_gb.agg({
-        'total_fuel_cost': np.sum,
-        'total_heat_content_mmbtu': np.sum
+        'total_fuel_cost': analysis.sum_na,
+        'total_heat_content_mmbtu': analysis.sum_na
     })
     one_fuel_agg['fuel_cost_per_mmbtu'] = \
         one_fuel_agg['total_fuel_cost'] / \
@@ -497,7 +525,7 @@ def fuel_cost(pudl_out):
     return(out_df)
 
 
-def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
+def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5, verbose=False):
     """
     Calculate the capacity factor for each generator.
 
@@ -557,51 +585,59 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
 
 def mcoe(pudl_out,
          min_heat_rate=5.5, min_fuel_cost_per_mwh=0.0,
-         min_cap_fact=0.0, max_cap_fact=1.5):
+         min_cap_fact=0.0, max_cap_fact=1.5, verbose=False):
     """
     Compile marginal cost of electricity (MCOE) at the generator level.
 
     Use data from EIA 923, EIA 860, and (eventually) FERC Form 1 to estimate
-    the MCOE of individual generating units. By default, this is done at
-    annual resolution, since the FERC Form 1 data is annual.  Perform the
-    calculation for time periods between start_date and end_date. If those
-    dates aren't given, then perform the calculation across all of the years
-    for which the EIA 923 data is available.
+    the MCOE of individual generating units. The calculation is performed at
+    the time resolution, and for the period indicated by the pudl_out object.
+    that is passed in.
 
     Args:
-        freq: String indicating time resolution on which to calculate MCOE.
-        start_date: beginning of the date range to calculate MCOE within.
-        end_date: end of the date range to calculate MCOE within.
-        output: path to output CSV to. No output if None.
-        plant_id: Which plant ID to aggregate on? PUDL or EIA?
-        min_heat_rate: lowest plausible heat rate, in mmBTU/MWh.
+        pudl_out: a PudlOutput object, specifying the time resolution and
+            date range for which the calculations should be performed.
+        min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any MCOE
+            records with lower heat rates are presumed to be invalid, and are
+            discarded before returning.
+        min_cap_fact, max_cap_fact: minimum & maximum generator capacity
+            factor. Generator records with a lower capacity factor will be
+            filtered out before returning. This allows the user to exclude
+            generators that aren't being used enough to have valid.
+        min_fuel_cost_per_mwh: minimum fuel cost on a per MWh basis that is
+            required for a generator record to be considered valid. For some
+            reason there are now a large number of $0 fuel cost records, which
+            previously would have been NaN.
 
     Returns:
-        mcoe: a dataframe organized by date and generator, with lots of juicy
-            information about MCOE.
-
-    Issues:
-        - Start and end dates outside of the EIA860 valid range don't seem to
-          result in additional EIA860 data being synthesized and returned.
-        - Merge annual data with other time resolutions.
+        mcoe_out: a dataframe organized by date and generator, with lots of
+        juicy information about the generators -- including fuel cost on a per
+        MWh and MMBTU basis, heat rates, and neg generation.
     """
-    # Compile the above into a single dataframe for output/return.
-    mcoe_out = pd.merge(pudl_out.fuel_cost(),
-                        pudl_out.capacity_factor()[['report_date',
-                                                    'plant_id_eia',
-                                                    'generator_id',
-                                                    'capacity_factor']],
+    # Bring together the fuel cost and capacity factor dataframes, which
+    # also include heat rate information.
+    mcoe_out = pd.merge(pudl_out.fuel_cost(verbose=verbose),
+                        pudl_out.capacity_factor(verbose=verbose)[
+                            ['report_date', 'plant_id_eia',
+                             'generator_id', 'capacity_factor']],
                         on=['report_date', 'plant_id_eia', 'generator_id'],
                         how='left')
 
-    # Bring the PUDL Unit IDs into the output dataframe.
+    # Bring the PUDL Unit IDs into the output dataframe so we can see how
+    # the generators are really grouped.
     mcoe_out = analysis.merge_on_date_year(
         mcoe_out,
-        pudl_out.bga()[['report_date', 'plant_id_eia',
-                        'unit_id_pudl', 'generator_id']].drop_duplicates(),
+        pudl_out.bga(verbose=verbose)[['report_date',
+                                       'plant_id_eia',
+                                       'unit_id_pudl',
+                                       'generator_id']].drop_duplicates(),
         how='left',
         on=['plant_id_eia', 'generator_id'])
 
+    # Instead of getting the total MMBTU through this multiplication... we
+    # could also calculate the total fuel consumed on a per-unit basis, from
+    # the boiler_fuel table, and then determine what proportion should be
+    # distributed to each generator based on its heat-rate and net generation.
     mcoe_out['total_mmbtu'] = \
         mcoe_out.net_generation_mwh * mcoe_out.heat_rate_mmbtu_mwh
     mcoe_out['total_fuel_cost'] = \

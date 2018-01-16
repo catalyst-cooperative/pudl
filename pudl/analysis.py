@@ -14,6 +14,12 @@ from pudl import models, models_ferc1, models_eia923
 from pudl import clean_eia923, clean_ferc1, clean_pudl
 from pudl import outputs
 import pudl.extract.ferc1
+from functools import partial
+
+# This is a little abbreviated function that allows us to propagate the NA
+# values through groupby aggregations, rather than using inefficient lambda
+# functions in each one.
+sum_na = partial(pd.Series.sum, skipna=False)
 
 
 def is_annual(df_year, year_col='report_date'):
