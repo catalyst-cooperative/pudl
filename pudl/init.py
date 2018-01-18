@@ -1641,9 +1641,9 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
     b_g_df = b_g_df[b_g_df.operator_id.str.isnumeric()]
 
     b_g_df['plant_id_eia'] = clean_pudl.fix_int_na(b_g_df['plant_id_eia'],
-                                               float_na=np.nan,
-                                               int_na=-1,
-                                               str_na='')
+                                                   float_na=np.nan,
+                                                   int_na=-1,
+                                                   str_na='')
 
     # We need to cast the generator_id column as type str because sometimes
     # it is heterogeneous int/str which make drop_duplicates fail.
@@ -1815,6 +1815,7 @@ def ingest_ownership_eia860(pudl_engine, eia860_dfs,
     o_df.replace(to_replace='^$', value=np.nan, regex=True, inplace=True)
 
     o_df = clean_pudl.convert_to_date(o_df)
+    o_df = clean_eia860.clean_ownership_eia860(o_df)
     # Write the dataframe out to a csv file and load it directly
     csv_dump_load(o_df, 'ownership_eia860', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
