@@ -151,7 +151,7 @@ def simple_select(table_name, pudl_engine):
         # Pull in plants_eia which connects EIA & PUDL plant IDs
         plants_eia_tbl = pt['plants_eia']
         plants_eia_select = sa.sql.select([
-            plants_eia_tbl.c.plant_id,
+            plants_eia_tbl.c.plant_id_eia,
             plants_eia_tbl.c.plant_id_pudl,
         ])
         plants_eia = pd.read_sql(plants_eia_select, pudl_engine)
@@ -252,10 +252,11 @@ def eia_operator_plants(operator_id, pudl_engine):
     Session = sa.orm.sessionmaker()
     Session.configure(bind=pudl_engine)
     session = Session()
-    pudl_plant_ids = [p.plant_id for p in session.query(models.UtilityEIA923).
+    pudl_plant_ids = [p.plant_id_eia for p in
+                      session.query(models.UtilityEIA923).
                       filter_by(operator_id=operator_id).
                       first().util_pudl.plants]
-    eia923_plant_ids = [p.plant_id for p in
+    eia923_plant_ids = [p.plant_id_eia for p in
                         session.query(models.PlantEIA923).
                         filter(models.
                                PlantEIA923.
