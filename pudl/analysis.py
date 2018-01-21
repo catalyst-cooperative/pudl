@@ -142,7 +142,7 @@ def simple_select(table_name, pudl_engine):
 
     table = pd.read_sql(select, pudl_engine)
 
-    # If table includes plant_id, get the PUDL Plant ID
+    # If table includes plant_id_eia, get the PUDL Plant ID
 
     if 'plant_id_eia' in table.columns:
         # Shorthand for readability... pt = PUDL Tables
@@ -151,7 +151,7 @@ def simple_select(table_name, pudl_engine):
         # Pull in plants_eia which connects EIA & PUDL plant IDs
         plants_eia_tbl = pt['plants_eia']
         plants_eia_select = sa.sql.select([
-            plants_eia_tbl.c.plant_id,
+            plants_eia_tbl.c.plant_id_eia,
             plants_eia_tbl.c.plant_id_pudl,
         ])
         plants_eia = pd.read_sql(plants_eia_select, pudl_engine)
@@ -218,7 +218,7 @@ def eia_pudl_plant_ids(pudl_engine):
 
 def yearly_sum_eia(df, sum_by, columns=['plant_id_eia', 'generator_id']):
     """
-    Group an input dataframe by serveral columns, and calculate annual sums.
+    Group an input dataframe by several columns, and calculate annual sums.
 
     The dataframe to group and sum is 'table'. The column to sum on an annual
     basis is 'sum_by' and 'columns' is the set of fields to group the dataframe
@@ -252,10 +252,11 @@ def eia_operator_plants(operator_id, pudl_engine):
     Session = sa.orm.sessionmaker()
     Session.configure(bind=pudl_engine)
     session = Session()
-    pudl_plant_ids = [p.plant_id for p in session.query(models.UtilityEIA923).
+    pudl_plant_ids = [p.plant_id for p in
+                      session.query(models.UtilityEIA923).
                       filter_by(operator_id=operator_id).
                       first().util_pudl.plants]
-    eia923_plant_ids = [p.plant_id for p in
+    eia923_plant_ids = [p.plant_id_eia for p in
                         session.query(models.PlantEIA923).
                         filter(models.
                                PlantEIA923.
@@ -607,14 +608,14 @@ def generator_proportion_eia923(g, id_col='plant_id_eia'):
         g: a dataframe from either all of generation_eia923 or some subset of
         records from generation_eia923. The dataframe needs the following
         columns to be present:
-            plant_id, generator_id, report_date, net_generation_mwh
+            plant_id_eia, generator_id, report_date, net_generation_mwh
 
     Returns: a dataframe with:
-            report_year, plant_id, generator_id, proportion_of_generation
+            report_year, plant_id_eia, generator_id, proportion_of_generation
     """
     # Set the datetimeindex
     g = g.set_index(pd.DatetimeIndex(g['report_year']))
-    # groupby plant_id and by year
+    # groupby plant_id_eia and by year
     g_yr = g.groupby([pd.Grouper(freq='A'), id_col, 'generator_id'])
     # sum net_gen by year by plant
     g_net_generation_per_generator = pd.DataFrame(
@@ -622,7 +623,7 @@ def generator_proportion_eia923(g, id_col='plant_id_eia'):
     g_net_generation_per_generator = \
         g_net_generation_per_generator.reset_index(level=['generator_id'])
 
-    # groupby plant_id and by year
+    # groupby plant_id_eia and by year
     g_net_generation_per_plant = g.groupby(
         [pd.Grouper(freq='A'), id_col])
     # sum net_gen by year by plant and convert to datafram
@@ -661,9 +662,9 @@ def capacity_proportion_eia923(g, id_col='plant_id_eia',
             or winter_capacity_mw
 
     Returns: a dataframe with:
-            report_year, plant_id, generator_id, proportion_of_capacity
+            report_year, plant_id_eia, generator_id, proportion_of_capacity
     """
-    # groupby plant_id and by year
+    # groupby plant_id_eia and by year
     g_net_capacity_per_plant = g.groupby(['report_year', id_col])
     # sum net_gen by year by plant and convert to datafram
     g_net_capacity_per_plant = pd.DataFrame(
@@ -696,15 +697,15 @@ def values_by_generator_eia923(table_eia923, column_name, g):
         g: a dataframe from either all of generation_eia923 or some subset of
         records from generation_eia923. The dataframe needs the following
         columns to be present:
-            plant_id, generator_id, report_date, and net_generation_mwh.
+            plant_id_eia, generator_id, report_date, and net_generation_mwh.
 
-    Returns: a dataframe with report_date, plant_id, generator_id, and the
+    Returns: a dataframe with report_date, plant_id_eia, generator_id, and the
         proportioned value from the column_name.
     """
     # Set the datetimeindex
     table_eia923 = table_eia923.set_index(
         pd.DatetimeIndex(table_eia923['report_date']))
-    # groupby plant_id and by year
+    # groupby plant_id_eia and by year
     table_eia923_gb = table_eia923.groupby(
         [pd.Grouper(freq='A'), 'plant_id_eia'])
     # sum fuel cost by year by plant
@@ -808,11 +809,11 @@ def plant_fuel_proportions_frc_eia923(frc_df, id_col='plant_id_eia'):
     # Add a column with total fuel heat content per delivery
     frc_df['total_mmbtu'] = frc_df.fuel_quantity * frc_df.average_heat_content
 
-    # Drop everything but report_date, plant_id, fuel_group, total_mmbtu
+    # Drop everything but report_date, plant_id_eia, fuel_group, total_mmbtu
     frc_df = frc_df[['report_date', 'plant_id_eia',
                      'plant_id_pudl', 'fuel_group', 'total_mmbtu']]
 
-    # Group by report_date(annual), plant_id, fuel_group
+    # Group by report_date(annual), plant_id_eia, fuel_group
     frc_gb = frc_df.groupby(
         [id_col, pd.Grouper(freq='A'), 'fuel_group'])
 
@@ -873,7 +874,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
     """Calculate annual fuel proportions by plant from EIA923 gen fuel."""
     gf_df = gf_df.copy()
 
-    # Drop everything but report_date, plant_id, fuel_group, total_mmbtu
+    # Drop everything but report_date, plant_id_eia, fuel_group, total_mmbtu
     gf_df = gf_df[['report_date',
                    'plant_id_eia',
                    'fuel_type_pudl',
@@ -882,7 +883,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
     # Set report_date as a DatetimeIndex
     gf_df = gf_df.set_index(pd.DatetimeIndex(gf_df['report_date']))
 
-    # Group by report_date(annual), plant_id, fuel_group
+    # Group by report_date(annual), plant_id_eia, fuel_group
     gf_gb = gf_df.groupby(
         ['plant_id_eia', pd.Grouper(freq='A'), 'fuel_type_pudl'])
 

@@ -1007,7 +1007,7 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
                                  'total_capacity_mw': sa.Float,
                                  'peak_demand_mw': sa.Float,
                                  'net_generation_mwh': sa.Float,
-                                 'cost_of_plant_total': sa.Numeric(14, 2),
+                                 'total_cost_of_plant': sa.Numeric(14, 2),
                                  'cost_of_plant_per_mw': sa.Numeric(14, 2),
                                  'cost_of_operation': sa.Numeric(14, 2),
                                  'expns_fuel': sa.Numeric(14, 2),

@@ -719,7 +719,7 @@ def generation_fuel_eia923(freq=None, testing=False,
     fields. Per-unit values are re-calculated based on the aggregated totals.
     Totals are summed across whatever time range is being used, within a
     given plant and fuel type.
-     - plant_id
+     - plant_id_eia
      - report_date
      - fuel_type_pudl
      - fuel_consumed_total
@@ -829,7 +829,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
     following fields are preserved, and appropriately summed or re-calculated
     based on the specified aggregation. In both cases, new total values are
     calculated, for total fuel heat content and total fuel cost.
-     - plant_id
+     - plant_id_eia
      - report_date
      - fuel_type_pudl (formerly energy_source_simple)
      - fuel_quantity (sum)
