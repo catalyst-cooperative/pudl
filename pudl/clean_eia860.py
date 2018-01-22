@@ -6,6 +6,20 @@ from pudl import clean_pudl
 from pudl import constants as pc
 
 
+def clean_ownership_eia860(own_df):
+    """Standardize the per-generator ownership fractions."""
+    # The fix we're making here is only known to be valid for 2011 -- if we
+    # get older data... then we need to to revisit the cleaning function and
+    # make sure it also applies to those earlier years.
+    assert min(own_df.report_date.dt.year) >= 2011
+    # Prior to 2012, ownership was reported as a percentage, rather than
+    # as a proportion, so we need to divide those values by 100.
+    own_df.loc[own_df.report_date.dt.year == 2011, 'fraction_owned'] = \
+        own_df.loc[own_df.report_date.dt.year == 2011, 'fraction_owned'] / 100
+
+    return(own_df)
+
+
 def clean_generators_eia860(gens_df):
     """Clean up the combined EIA860 generators data frame."""
     # Get rid of any unidentifiable records:

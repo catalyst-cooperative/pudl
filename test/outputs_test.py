@@ -12,6 +12,8 @@ import itertools
 import pandas as pd
 from pudl import outputs
 from pudl import constants as pc
+from pudl import analysis
+from scipy import stats
 
 start_date_eia923 = pd.to_datetime(
     str(min(pc.working_years['eia923'])))
@@ -120,6 +122,23 @@ def test_eia860_output(live_pudl_db, start_date, end_date):
     own_out = outputs.ownership_eia860(
         testing=testing, start_date=start_date, end_date=end_date)
     print("    own_eia860: {} records found.".format(len(own_out)))
+
+    # Verify that the reported ownership fractions add up to something very
+    # close to 1.0 (i.e. that the full ownership of each generator is
+    # specified by the EIA860 data)
+    own_gb = own_out.groupby(['report_date', 'plant_id_eia', 'generator_id'])
+    own_sum = own_gb['fraction_owned'].agg(analysis.sum_na).reset_index()
+    print("    own_eia860: {} generator-years have no ownership data.".
+          format(len(own_sum[own_sum.fraction_owned.isnull()])))
+    own_sum = own_sum.dropna()
+    print("    own_eia860: {} generator-years have incomplete ownership data.".
+          format(len(own_sum[own_sum.fraction_owned < 0.98])))
+    assert max(own_sum['fraction_owned'] < 1.02)
+    # There might be a few generators with incomplete ownership but virtually
+    # everything should be pretty fully described. If not, let us know. The
+    # 0.1 threshold means 0.1% -- i.e. less than 1 in 1000 is partial.
+    assert stats.percentileofscore(own_sum.fraction_owned, 0.98) < 0.1, \
+        "Found too many generators with partial ownership data."
 
     bga_out = outputs.boiler_generator_assn_eia860(
         testing=testing, start_date=start_date, end_date=end_date)
