@@ -1000,7 +1000,7 @@ def fercplants(plant_tables=['f1_steam',
     for tbl in plant_tables:
         assert tbl in okay_tbls
 
-    f1_engine = pudl.extract.ferc1.db_connect_ferc1()
+    f1_engine = pudl.extract.ferc1.connect_db()
 
     # Need to make sure we have a populated metadata object, which isn't
     # always the case, since folks often are not initializing the FERC DB.
@@ -1050,7 +1050,7 @@ def fercplants(plant_tables=['f1_steam',
         ferc1_plants_all = ferc1_plants_all.set_index(
             ['respondent_id', 'plant_name'])
 
-        pudl_engine = init.db_connect_pudl()
+        pudl_engine = init.connect_db()
         pudl_tbls = pudl.models.PUDLBase.metadata.tables
 
         ferc1_plants_tbl = pudl_tbls['plants_ferc']

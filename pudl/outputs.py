@@ -355,7 +355,7 @@ def plants_utils_eia(start_date=None, end_date=None, testing=False):
           to take start_date & end_date and synthesize the earlier and later
           years if need be.
     """
-    pudl_engine = init.db_connect_pudl(testing=testing)
+    pudl_engine = init.connect_db(testing=testing)
     # Contains the one-to-one mapping of EIA plants to their operators, but
     # we only have the 860 data integrated for 2011 forward right now.
     plants_eia = plants_eia860(start_date=start_date,
@@ -386,7 +386,7 @@ def plants_utils_eia(start_date=None, end_date=None, testing=False):
 
 def plants_utils_ferc1(testing=False):
     """Build a dataframe of useful FERC Plant & Utility information."""
-    pudl_engine = init.db_connect_pudl(testing=testing)
+    pudl_engine = init.connect_db(testing=testing)
 
     utils_ferc_tbl = pt['utilities_ferc']
     utils_ferc_select = sa.sql.select([utils_ferc_tbl, ])
@@ -407,7 +407,7 @@ def plants_utils_ferc1(testing=False):
 ###############################################################################
 def utilities_eia860(start_date=None, end_date=None, testing=False):
     """Pull all fields from the EIA860 Utilities table."""
-    pudl_engine = init.db_connect_pudl(testing=testing)
+    pudl_engine = init.connect_db(testing=testing)
     utils_eia860_tbl = pt['utilities_eia860']
     utils_eia860_select = sa.sql.select([utils_eia860_tbl])
 
@@ -448,7 +448,7 @@ def utilities_eia860(start_date=None, end_date=None, testing=False):
 
 def boiler_generator_assn_eia860(start_date=None, end_date=None,
                                  testing=False):
-    pudl_engine = init.db_connect_pudl(testing=testing)
+    pudl_engine = init.connect_db(testing=testing)
     bga_eia860_tbl = pt['boiler_generator_assn_eia860']
     bga_eia860_select = sa.sql.select([bga_eia860_tbl])
 
@@ -470,7 +470,7 @@ def boiler_generator_assn_eia860(start_date=None, end_date=None,
 
 def plants_eia860(start_date=None, end_date=None, testing=False):
     """Pull all fields from the EIA860 Plants table."""
-    pudl_engine = init.db_connect_pudl(testing=testing)
+    pudl_engine = init.connect_db(testing=testing)
     plants_eia860_tbl = pt['plants_eia860']
     plants_eia860_select = sa.sql.select([plants_eia860_tbl])
     if start_date is not None:
@@ -544,7 +544,7 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
         A pandas dataframe.
 
     """
-    pudl_engine = init.db_connect_pudl(testing=testing)
+    pudl_engine = init.connect_db(testing=testing)
     # Almost all the info we need will come from here.
     gens_eia860_tbl = pt['generators_eia860']
     gens_eia860_select = sa.sql.select([gens_eia860_tbl, ])
@@ -653,7 +653,7 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
     Returns:
         out_df (pandas dataframe)
     """
-    pudl_engine = init.db_connect_pudl(testing=testing)
+    pudl_engine = init.connect_db(testing=testing)
     o_eia860_tbl = pt['ownership_eia860']
     o_eia860_select = sa.sql.select([o_eia860_tbl, ])
     o_df = pd.read_sql(o_eia860_select, pudl_engine)
@@ -745,7 +745,7 @@ def generation_fuel_eia923(freq=None, testing=False,
     Returns:
         gf_df: a pandas dataframe.
     """
-    pudl_engine = init.db_connect_pudl(testing=testing)
+    pudl_engine = init.connect_db(testing=testing)
     gf_tbl = pt['generation_fuel_eia923']
     gf_select = sa.sql.select([gf_tbl, ])
     if start_date is not None:
@@ -857,7 +857,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
     Returns:
         frc_df: a pandas dataframe.
     """
-    pudl_engine = init.db_connect_pudl(testing=testing)
+    pudl_engine = init.connect_db(testing=testing)
     # Most of the fields we want come direclty from Fuel Receipts & Costs
     frc_tbl = pt['fuel_receipts_costs_eia923']
     frc_select = sa.sql.select([frc_tbl, ])
@@ -995,7 +995,7 @@ def boiler_fuel_eia923(freq=None, testing=False,
         bf_df: a pandas dataframe.
 
     """
-    pudl_engine = init.db_connect_pudl(testing=testing)
+    pudl_engine = init.connect_db(testing=testing)
     bf_eia923_tbl = pt['boiler_fuel_eia923']
     bf_eia923_select = sa.sql.select([bf_eia923_tbl, ])
     if start_date is not None:
@@ -1099,7 +1099,7 @@ def generation_eia923(freq=None, testing=False,
     Returns:
         out_df: a pandas dataframe.
     """
-    pudl_engine = init.db_connect_pudl(testing=testing)
+    pudl_engine = init.connect_db(testing=testing)
     g_eia923_tbl = pt['generation_eia923']
     g_eia923_select = sa.sql.select([g_eia923_tbl, ])
     if start_date is not None:
@@ -1182,7 +1182,7 @@ def plants_steam_ferc1(testing=False):
     Returns:
         steam_df: a pandas dataframe.
     """
-    pudl_engine = init.db_connect_pudl(testing=testing)
+    pudl_engine = init.connect_db(testing=testing)
     steam_ferc1_tbl = pt['plants_steam_ferc1']
     steam_ferc1_select = sa.sql.select([steam_ferc1_tbl, ])
     steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
@@ -1227,7 +1227,7 @@ def fuel_ferc1(testing=False):
     Returns:
         fuel_df: a pandas dataframe.
     """
-    pudl_engine = init.db_connect_pudl(testing=testing)
+    pudl_engine = init.connect_db(testing=testing)
     fuel_ferc1_tbl = pt['fuel_ferc1']
     fuel_ferc1_select = sa.sql.select([fuel_ferc1_tbl, ])
     fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)

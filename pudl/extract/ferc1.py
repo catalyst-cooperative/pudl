@@ -15,7 +15,7 @@ ferc1_meta = sa.MetaData()
 ###########################################################################
 
 
-def db_connect_ferc1(testing=False):
+def connect_db(testing=False):
     """
     Connect to the FERC Form 1 DB using global settings from settings.py.
 
@@ -253,7 +253,7 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
         years (list): The set of years to read from FERC Form 1 dbf database
             into the FERC Form 1 DB.
     """
-    ferc1_engine = db_connect_ferc1(testing=testing)
+    ferc1_engine = connect_db(testing=testing)
 
     # This function (see below) uses metadata from the DBF files to define a
     # postgres database structure suitable for accepting the FERC Form 1 data

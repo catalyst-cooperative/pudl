@@ -43,7 +43,7 @@ import pudl.constants as pc
 ###############################################################################
 
 
-def db_connect_pudl(testing=False):
+def connect_db(testing=False):
     """Connect to the PUDL database using global settings from settings.py."""
     if(testing):
         return sa.create_engine(sa.engine.url.URL(**settings.DB_PUDL_TEST))
@@ -1918,7 +1918,7 @@ def ingest_ferc1(pudl_engine,
         'f1_accumdepr_prvsn': ingest_accumulated_depreciation_ferc1
     }
 
-    ferc1_engine = pudl.extract.ferc1.db_connect_ferc1(testing=testing)
+    ferc1_engine = pudl.extract.ferc1.connect_db(testing=testing)
     for table in ferc1_ingest_functions.keys():
         if table in ferc1_tables:
             if verbose:
@@ -1973,7 +1973,7 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
             assert(table in pc.eia923_pudl_tables)
 
     # Connect to the PUDL DB, wipe out & re-create tables:
-    pudl_engine = db_connect_pudl(testing=pudl_testing)
+    pudl_engine = connect_db(testing=pudl_testing)
     drop_tables_pudl(pudl_engine)
     create_tables_pudl(pudl_engine)
     # Populate all the static tables:
