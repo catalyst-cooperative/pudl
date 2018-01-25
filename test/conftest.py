@@ -51,7 +51,7 @@ def ferc1_engine(live_ferc_db):
         yield(ferc1_engine)
 
         # Clean up after ourselves by dropping the test DB tables.
-        pudl.extract.ferc1.drop_tables_ferc1(ferc1_engine)
+        pudl.extract.ferc1.drop_tables(ferc1_engine)
     else:
         print("Constructing FERC1 DB MetaData based on refyear {}".
               format(ferc1_refyear))
@@ -90,7 +90,7 @@ def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
         yield(pudl_engine)
 
         # Clean up after ourselves by dropping the test DB tables.
-        init.drop_tables_pudl(pudl_engine)
+        init.drop_tables(pudl_engine)
     else:
         print("Connecting to the live PUDL database.")
         yield(init.connect_db(testing=False))

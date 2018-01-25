@@ -51,12 +51,12 @@ def connect_db(testing=False):
         return sa.create_engine(sa.engine.url.URL(**settings.DB_PUDL))
 
 
-def create_tables_pudl(engine):
+def _create_tables(engine):
     """Create the tables associated with the PUDL Database."""
     models.PUDLBase.metadata.create_all(engine)
 
 
-def drop_tables_pudl(engine):
+def drop_tables(engine):
     """Drop all the tables associated with the PUDL Database and start over."""
     models.PUDLBase.metadata.drop_all(engine)
 
@@ -67,7 +67,7 @@ def drop_tables_pudl(engine):
 ###############################################################################
 
 
-def csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
+def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
     """
     Write a dataframe to CSV and load it into postgresql using COPY FROM.
 
@@ -1154,7 +1154,7 @@ def ingest_plants_eia923(pudl_engine, eia923_dfs,
 
     plant_info_df['plant_id_eia'] = plant_info_df['plant_id_eia'].astype(int)
 
-    csv_dump_load(plant_info_df, 'plants_eia923', pudl_engine,
+    _csv_dump_load(plant_info_df, 'plants_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1227,7 +1227,7 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
     gf_df = clean_pudl.convert_to_date(gf_df)
 
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(gf_df, 'generation_fuel_eia923', pudl_engine,
+    _csv_dump_load(gf_df, 'generation_fuel_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1266,7 +1266,7 @@ def ingest_boilers_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
         subset=['plant_id_eia', 'boiler_id'])
 
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(boilers_df, 'boilers_eia923', pudl_engine,
+    _csv_dump_load(boilers_df, 'boilers_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1320,7 +1320,7 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
     # Convert Year/Month columns into a single Date column...
     bf_df = clean_pudl.convert_to_date(bf_df)
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(bf_df, 'boiler_fuel_eia923', pudl_engine,
+    _csv_dump_load(bf_df, 'boiler_fuel_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1361,7 +1361,7 @@ def ingest_generators_eia923(pudl_engine, eia923_dfs,
         subset=['plant_id_eia', 'generator_id'])
 
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(generators_df, 'generators_eia923', pudl_engine,
+    _csv_dump_load(generators_df, 'generators_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1416,7 +1416,7 @@ def ingest_generation_eia923(pudl_engine, eia923_dfs,
     # Convert Year/Month columns into a single Date column...
     generation_df = clean_pudl.convert_to_date(generation_df)
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(generation_df, 'generation_eia923', pudl_engine,
+    _csv_dump_load(generation_df, 'generation_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1488,7 +1488,7 @@ def ingest_coalmine_eia923(pudl_engine, eia923_dfs,
                               str_na='')
 
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(cmi_df, 'coalmine_eia923', pudl_engine,
+    _csv_dump_load(cmi_df, 'coalmine_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1588,7 +1588,7 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
                                 pc.fuel_group_eia923_simple_map)
 
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(frc_df, 'fuel_receipts_costs_eia923', pudl_engine,
+    _csv_dump_load(frc_df, 'fuel_receipts_costs_eia923', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1655,7 +1655,7 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
 
     b_g_df = clean_pudl.convert_to_date(b_g_df)
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(b_g_df, 'boiler_generator_assn_eia860', pudl_engine,
+    _csv_dump_load(b_g_df, 'boiler_generator_assn_eia860', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1684,7 +1684,7 @@ def ingest_utilities_eia860(pudl_engine, eia860_dfs,
 
     u_df = clean_pudl.convert_to_date(u_df)
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(u_df, 'utilities_eia860', pudl_engine,
+    _csv_dump_load(u_df, 'utilities_eia860', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1732,7 +1732,7 @@ def ingest_plants_eia860(pudl_engine, eia860_dfs,
     p_df = clean_pudl.convert_to_date(p_df)
 
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(p_df, 'plants_eia860', pudl_engine,
+    _csv_dump_load(p_df, 'plants_eia860', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1783,7 +1783,7 @@ def ingest_generators_eia860(pudl_engine, eia860_dfs,
 
     gens_df = clean_pudl.convert_to_date(gens_df)
 
-    csv_dump_load(gens_df, 'generators_eia860', pudl_engine,
+    _csv_dump_load(gens_df, 'generators_eia860', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1817,7 +1817,7 @@ def ingest_ownership_eia860(pudl_engine, eia860_dfs,
     o_df = clean_pudl.convert_to_date(o_df)
     o_df = clean_eia860.clean_ownership_eia860(o_df)
     # Write the dataframe out to a csv file and load it directly
-    csv_dump_load(o_df, 'ownership_eia860', pudl_engine,
+    _csv_dump_load(o_df, 'ownership_eia860', pudl_engine,
                   csvdir=csvdir, keep_csv=keep_csv)
 
 
@@ -1974,8 +1974,8 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
 
     # Connect to the PUDL DB, wipe out & re-create tables:
     pudl_engine = connect_db(testing=pudl_testing)
-    drop_tables_pudl(pudl_engine)
-    create_tables_pudl(pudl_engine)
+    drop_tables(pudl_engine)
+    _create_tables(pudl_engine)
     # Populate all the static tables:
     if verbose:
         print("Ingesting static PUDL tables...")
