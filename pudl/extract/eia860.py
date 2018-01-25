@@ -133,7 +133,7 @@ def get_eia860_column_map(page, year):
 
 
 def get_eia860_page(page, eia860_xlsx,
-                    years=[2011, 2012, 2013, 2014, 2015],
+                    years=pc.working_years['eia860'],
                     verbose=True):
     """
     Read a single table from several years of EIA860 data. Return a DataFrame.
