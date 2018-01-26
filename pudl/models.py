@@ -187,8 +187,8 @@ class PlantEIA923(PUDLBase):
 
     def __repr__(self):
         """Print out a string representation of the PlantEIA923."""
-        return "<PlantEIA923(plant_id={}, plant_name='{}', \
-plant_id_pudl={})>".format(self.plant_id,
+        return "<PlantEIA923(plant_id_eia={}, plant_name='{}', \
+plant_id_pudl={})>".format(self.plant_id_eia,
                            self.plant_name,
                            self.plant_id_pudl)
 
