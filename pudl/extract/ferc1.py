@@ -15,7 +15,7 @@ ferc1_meta = sa.MetaData()
 ###########################################################################
 
 
-def db_connect_ferc1(testing=False):
+def connect_db(testing=False):
     """
     Connect to the FERC Form 1 DB using global settings from settings.py.
 
@@ -27,12 +27,12 @@ def db_connect_ferc1(testing=False):
         return sa.create_engine(sa.engine.url.URL(**settings.DB_FERC1))
 
 
-def create_tables_ferc1(engine):
+def _create_tables(engine):
     """Create the FERC Form 1 DB tables."""
     ferc1_meta.create_all(engine)
 
 
-def drop_tables_ferc1(engine):
+def drop_tables(engine):
     """Drop the FERC Form 1 DB tables."""
     ferc1_meta.drop_all(engine)
 
@@ -253,7 +253,7 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
         years (list): The set of years to read from FERC Form 1 dbf database
             into the FERC Form 1 DB.
     """
-    ferc1_engine = db_connect_ferc1(testing=testing)
+    ferc1_engine = connect_db(testing=testing)
 
     # This function (see below) uses metadata from the DBF files to define a
     # postgres database structure suitable for accepting the FERC Form 1 data
@@ -261,8 +261,8 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
         define_db(refyear, ferc1_tables, ferc1_meta)
 
     # Wipe the DB and start over...
-    drop_tables_ferc1(ferc1_engine)
-    create_tables_ferc1(ferc1_engine)
+    drop_tables(ferc1_engine)
+    _create_tables(ferc1_engine)
 
     # Create a DB connection to use for the record insertions below:
     conn = ferc1_engine.connect()

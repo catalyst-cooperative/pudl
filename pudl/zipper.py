@@ -52,7 +52,7 @@ FERC:
  - coal_total_cost
 
 EIA:
- - plant_id
+ - plant_id_eia
  - generator_id
  - plant_id_pudl
  - report_year
