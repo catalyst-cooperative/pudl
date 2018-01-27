@@ -70,8 +70,11 @@ def parse_command_line(argv):
 def main():
     """The main function."""
     from pudl import init, settings, constants
-    from pudl import models, models_ferc1, models_eia923, models_eia860
     from pudl import extract
+    import pudl.models.glue
+    import pudl.models.eia860
+    import pudl.models.eia923
+    import pudl.models.ferc1
 
     args = parse_command_line(sys.argv)
 

@@ -27,11 +27,14 @@ import numpy as np
 
 # Need the models so we can grab table structures. Need some helpers from the
 # analysis module
-from pudl import models, analysis, init, mcoe
+from pudl import analysis, init, mcoe
 from pudl import constants as pc
-
+import pudl.models.glue
+import pudl.models.eia923
+import pudl.models.eia860
+import pudl.models.ferc1
 # Shorthand for easier table referecnes:
-pt = models.PUDLBase.metadata.tables
+pt = pudl.models.glue.PUDLBase.metadata.tables
 
 ###############################################################################
 #   Output Class, that can pull all the below tables with similar parameters

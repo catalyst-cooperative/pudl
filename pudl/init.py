@@ -27,9 +27,11 @@ import re
 import datetime
 
 from pudl import settings
-from pudl import models, models_eia923, models_eia860, models_epacems
-from pudl import models_ferc1
 from pudl import clean_ferc1, clean_pudl, clean_eia923, clean_eia860
+import pudl.models.glue
+import pudl.models.eia923
+import pudl.models.eia860
+import pudl.models.ferc1
 import pudl.extract.eia860
 import pudl.extract.eia923
 import pudl.extract.ferc1
@@ -53,12 +55,12 @@ def connect_db(testing=False):
 
 def _create_tables(engine):
     """Create the tables associated with the PUDL Database."""
-    models.PUDLBase.metadata.create_all(engine)
+    pudl.models.glue.PUDLBase.metadata.create_all(engine)
 
 
 def drop_tables(engine):
     """Drop all the tables associated with the PUDL Database and start over."""
-    models.PUDLBase.metadata.drop_all(engine)
+    pudl.models.glue.PUDLBase.metadata.drop_all(engine)
 
 ###############################################################################
 ###############################################################################
@@ -101,7 +103,7 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
 
     csvfile = os.path.join(csvdir, table_name + '.csv')
     df.to_csv(csvfile, index=False)
-    tbl = models.PUDLBase.metadata.tables[table_name]
+    tbl = pudl.models.glue.PUDLBase.metadata.tables[table_name]
     postgres_copy.copy_from(open(csvfile, 'r'), tbl, engine,
                             columns=tuple(df.columns),
                             format='csv', header=True, delimiter=',')
@@ -139,61 +141,62 @@ def ingest_static_tables(engine):
 
     # Populate tables with static data from above.
     pudl_session.add_all(
-        [models.FuelUnit(unit=u) for u in pc.ferc1_fuel_unit_strings.keys()])
-    pudl_session.add_all([models.Month(month=i + 1) for i in range(12)])
+        [pudl.models.glue.FuelUnit(unit=u) for u in pc.ferc1_fuel_unit_strings.keys()])
+    pudl_session.add_all([pudl.models.glue.Month(month=i + 1)
+                          for i in range(12)])
     pudl_session.add_all(
-        [models.Quarter(q=i + 1, end_month=3 * (i + 1)) for i in range(4)])
+        [pudl.models.glue.Quarter(q=i + 1, end_month=3 * (i + 1)) for i in range(4)])
     pudl_session.add_all(
-        [models.PrimeMover(prime_mover=pm) for pm in pc.prime_movers])
+        [pudl.models.glue.PrimeMover(prime_mover=pm) for pm in pc.prime_movers])
     pudl_session.add_all(
-        [models.RTOISO(abbr=k, name=v) for k, v in pc.rto_iso.items()])
-    pudl_session.add_all([models.CensusRegion(abbr=k, name=v)
+        [pudl.models.glue.RTOISO(abbr=k, name=v) for k, v in pc.rto_iso.items()])
+    pudl_session.add_all([pudl.models.glue.CensusRegion(abbr=k, name=v)
                           for k, v in pc.census_region.items()])
     pudl_session.add_all(
-        [models.NERCRegion(abbr=k, name=v) for k, v in pc.nerc_region.items()])
+        [pudl.models.glue.NERCRegion(abbr=k, name=v) for k, v in pc.nerc_region.items()])
     pudl_session.add_all(
-        [models_eia923.RespondentFrequencyEIA923(abbr=k, unit=v)
+        [pudl.models.eia923.RespondentFrequencyEIA923(abbr=k, unit=v)
          for k, v in pc.respondent_frequency_eia923.items()])
     pudl_session.add_all(
-        [models_eia923.SectorEIA(id=k, name=v)
+        [pudl.models.eia923.SectorEIA(id=k, name=v)
          for k, v in pc.sector_eia.items()])
     pudl_session.add_all(
-        [models_eia923.ContractTypeEIA923(abbr=k, contract_type=v)
+        [pudl.models.eia923.ContractTypeEIA923(abbr=k, contract_type=v)
          for k, v in pc.contract_type_eia923.items()])
     pudl_session.add_all(
-        [models_eia923.FuelTypeEIA923(abbr=k, fuel_type=v)
+        [pudl.models.eia923.FuelTypeEIA923(abbr=k, fuel_type=v)
          for k, v in pc.fuel_type_eia923.items()])
     pudl_session.add_all(
-        [models_eia923.PrimeMoverEIA923(abbr=k, prime_mover=v)
+        [pudl.models.eia923.PrimeMoverEIA923(abbr=k, prime_mover=v)
          for k, v in pc.prime_movers_eia923.items()])
     pudl_session.add_all(
-        [models_eia923.FuelUnitEIA923(abbr=k, unit=v)
+        [pudl.models.eia923.FuelUnitEIA923(abbr=k, unit=v)
          for k, v in pc.fuel_units_eia923.items()])
     pudl_session.add_all(
-        [models_eia923.FuelTypeAER(abbr=k, fuel_type=v)
+        [pudl.models.eia923.FuelTypeAER(abbr=k, fuel_type=v)
          for k, v in pc.fuel_type_aer_eia923.items()])
     pudl_session.add_all(
-        [models_eia923.FuelGroupEIA923(group=gr)
+        [pudl.models.eia923.FuelGroupEIA923(group=gr)
          for gr in pc.fuel_group_eia923])
     pudl_session.add_all(
-        [models_eia923.EnergySourceEIA923(abbr=k, source=v)
+        [pudl.models.eia923.EnergySourceEIA923(abbr=k, source=v)
          for k, v in pc.energy_source_eia923.items()])
     pudl_session.add_all(
-        [models_eia923.CoalMineTypeEIA923(abbr=k, name=v)
+        [pudl.models.eia923.CoalMineTypeEIA923(abbr=k, name=v)
          for k, v in pc.coalmine_type_eia923.items()])
     pudl_session.add_all(
-        [models_eia923.CoalMineStateEIA923(abbr=k, state=v)
+        [pudl.models.eia923.CoalMineStateEIA923(abbr=k, state=v)
          for k, v in pc.coalmine_state_eia923.items()])
     pudl_session.add_all(
-        [models_eia923.CoalMineStateEIA923(abbr=k, state=v)
+        [pudl.models.eia923.CoalMineStateEIA923(abbr=k, state=v)
          for k, v in pc.us_states.items()])  # is this right way to add these?
     pudl_session.add_all(
-        [models_eia923.TransportModeEIA923(abbr=k, mode=v)
+        [pudl.models.eia923.TransportModeEIA923(abbr=k, mode=v)
          for k, v in pc.transport_modes_eia923.items()])
     pudl_session.add_all(
-        [models_eia923.NaturalGasTransportEIA923(abbr=k, status=v)
+        [pudl.models.eia923.NaturalGasTransportEIA923(abbr=k, status=v)
          for k, v in pc.natural_gas_transport_eia923.items()])
-    pudl_session.add_all([models.State(abbr=k, name=v)
+    pudl_session.add_all([pudl.models.glue.State(abbr=k, name=v)
                           for k, v in pc.us_states.items()])
 
     # Commit the changes to the DB and close down the session.
@@ -1155,7 +1158,7 @@ def ingest_plants_eia923(pudl_engine, eia923_dfs,
     plant_info_df['plant_id_eia'] = plant_info_df['plant_id_eia'].astype(int)
 
     _csv_dump_load(plant_info_df, 'plants_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
@@ -1228,7 +1231,7 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(gf_df, 'generation_fuel_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_boilers_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
@@ -1267,7 +1270,7 @@ def ingest_boilers_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(boilers_df, 'boilers_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
@@ -1321,7 +1324,7 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
     bf_df = clean_pudl.convert_to_date(bf_df)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(bf_df, 'boiler_fuel_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_generators_eia923(pudl_engine, eia923_dfs,
@@ -1362,7 +1365,7 @@ def ingest_generators_eia923(pudl_engine, eia923_dfs,
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(generators_df, 'generators_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_generation_eia923(pudl_engine, eia923_dfs,
@@ -1417,7 +1420,7 @@ def ingest_generation_eia923(pudl_engine, eia923_dfs,
     generation_df = clean_pudl.convert_to_date(generation_df)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(generation_df, 'generation_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_coalmine_eia923(pudl_engine, eia923_dfs,
@@ -1489,7 +1492,7 @@ def ingest_coalmine_eia923(pudl_engine, eia923_dfs,
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(cmi_df, 'coalmine_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
@@ -1589,7 +1592,7 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(frc_df, 'fuel_receipts_costs_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_stocks_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
@@ -1656,7 +1659,7 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
     b_g_df = clean_pudl.convert_to_date(b_g_df)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(b_g_df, 'boiler_generator_assn_eia860', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_utilities_eia860(pudl_engine, eia860_dfs,
@@ -1685,7 +1688,7 @@ def ingest_utilities_eia860(pudl_engine, eia860_dfs,
     u_df = clean_pudl.convert_to_date(u_df)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(u_df, 'utilities_eia860', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_plants_eia860(pudl_engine, eia860_dfs,
@@ -1733,7 +1736,7 @@ def ingest_plants_eia860(pudl_engine, eia860_dfs,
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(p_df, 'plants_eia860', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_generators_eia860(pudl_engine, eia860_dfs,
@@ -1784,7 +1787,7 @@ def ingest_generators_eia860(pudl_engine, eia860_dfs,
     gens_df = clean_pudl.convert_to_date(gens_df)
 
     _csv_dump_load(gens_df, 'generators_eia860', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_ownership_eia860(pudl_engine, eia860_dfs,
@@ -1818,7 +1821,7 @@ def ingest_ownership_eia860(pudl_engine, eia860_dfs,
     o_df = clean_eia860.clean_ownership_eia860(o_df)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(o_df, 'ownership_eia860', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 ###############################################################################
