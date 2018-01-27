@@ -512,8 +512,8 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     ferc1_steam_df['plant_name'] = ferc1_steam_df['plant_name'].str.strip()
     ferc1_steam_df['plant_name'] = ferc1_steam_df['plant_name'].str.title()
 
-    # Take the messy free-form construction_type and plant_kind fields, and do our
-    # best to map them to some canonical categories...
+    # Take the messy free-form construction_type and plant_kind fields, and do
+    # our best to map them to some canonical categories...
     # this is necessarily imperfect:
 
     ferc1_steam_df.type_const = \
@@ -1155,7 +1155,7 @@ def ingest_plants_eia923(pudl_engine, eia923_dfs,
     plant_info_df['plant_id_eia'] = plant_info_df['plant_id_eia'].astype(int)
 
     _csv_dump_load(plant_info_df, 'plants_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
@@ -1228,7 +1228,7 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(gf_df, 'generation_fuel_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_boilers_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
@@ -1267,7 +1267,7 @@ def ingest_boilers_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(boilers_df, 'boilers_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
@@ -1321,7 +1321,7 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
     bf_df = clean_pudl.convert_to_date(bf_df)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(bf_df, 'boiler_fuel_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_generators_eia923(pudl_engine, eia923_dfs,
@@ -1362,7 +1362,7 @@ def ingest_generators_eia923(pudl_engine, eia923_dfs,
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(generators_df, 'generators_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_generation_eia923(pudl_engine, eia923_dfs,
@@ -1417,7 +1417,7 @@ def ingest_generation_eia923(pudl_engine, eia923_dfs,
     generation_df = clean_pudl.convert_to_date(generation_df)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(generation_df, 'generation_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_coalmine_eia923(pudl_engine, eia923_dfs,
@@ -1489,7 +1489,7 @@ def ingest_coalmine_eia923(pudl_engine, eia923_dfs,
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(cmi_df, 'coalmine_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
@@ -1589,7 +1589,7 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(frc_df, 'fuel_receipts_costs_eia923', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_stocks_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
@@ -1656,7 +1656,7 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
     b_g_df = clean_pudl.convert_to_date(b_g_df)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(b_g_df, 'boiler_generator_assn_eia860', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_utilities_eia860(pudl_engine, eia860_dfs,
@@ -1685,7 +1685,7 @@ def ingest_utilities_eia860(pudl_engine, eia860_dfs,
     u_df = clean_pudl.convert_to_date(u_df)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(u_df, 'utilities_eia860', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_plants_eia860(pudl_engine, eia860_dfs,
@@ -1733,7 +1733,7 @@ def ingest_plants_eia860(pudl_engine, eia860_dfs,
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(p_df, 'plants_eia860', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_generators_eia860(pudl_engine, eia860_dfs,
@@ -1784,7 +1784,7 @@ def ingest_generators_eia860(pudl_engine, eia860_dfs,
     gens_df = clean_pudl.convert_to_date(gens_df)
 
     _csv_dump_load(gens_df, 'generators_eia860', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_ownership_eia860(pudl_engine, eia860_dfs,
@@ -1818,7 +1818,7 @@ def ingest_ownership_eia860(pudl_engine, eia860_dfs,
     o_df = clean_eia860.clean_ownership_eia860(o_df)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(o_df, 'ownership_eia860', pudl_engine,
-                  csvdir=csvdir, keep_csv=keep_csv)
+                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 ###############################################################################

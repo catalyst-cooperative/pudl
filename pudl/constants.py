@@ -300,8 +300,8 @@ ferc1_construction_type_conventional = \
      'conventionall', 'convention', 'conventional', 'coventional',
      'conven full boiler', 'c0nventional', 'conventtional', 'convential']
 
-# Making a dictionary of lists from the lists of construction_type strings to create
-# a dictionary of construction type lists.
+# Making a dictionary of lists from the lists of construction_type strings to
+# create a dictionary of construction type lists.
 
 ferc1_construction_type_strings = {
     'outdoor': ferc1_construction_type_outdoor,
@@ -2081,8 +2081,9 @@ generator_proposed_assn_map_eia860 = pd.DataFrame.from_records([
              'fluidized_bed_tech', 'subcritical_tech', 'supercritical_tech',
              'ultrasupercritical_tech', 'carbon_capture', 'startup_source_1',
              'startup_source_2', 'startup_source_3', 'startup_source_4',
-             'summer_estimated_capability_mw', 'winter_estimated_capability_mw',
-             'operating_switch', 'heat_bypass_recovery', 'rto_iso_lmp_node',
+             'summer_estimated_capability_mw',
+             'winter_estimated_capability_mw', 'operating_switch',
+             'heat_bypass_recovery', 'rto_iso_lmp_node',
              'rto_iso_location_wholesale_reporting',
              'nameplate_power_factor',
              'turbines_inverters_hydrokinetics', 'stoker_tech',
