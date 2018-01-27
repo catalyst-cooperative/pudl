@@ -2,14 +2,14 @@
 
 from sqlalchemy import Column, ForeignKey, Integer, String, Float, Numeric
 from sqlalchemy import ForeignKeyConstraint
-import pudl.models
+import pudl.models.glue
 
 ###########################################################################
 # Tables comprising data from the FERC f1_steam & f1_fuel tables
 ###########################################################################
 
 
-class FuelFERC1(pudl.models.PUDLBase):
+class FuelFERC1(pudl.models.glue.PUDLBase):
     """
     Annual fuel consumed by plant, as reported to FERC in Form 1.
 
@@ -40,7 +40,7 @@ class FuelFERC1(pudl.models.PUDLBase):
     fuel_mmbtu_per_mwh = Column(Float, nullable=False)
 
 
-class PlantSteamFERC1(pudl.models.PUDLBase):
+class PlantSteamFERC1(pudl.models.glue.PUDLBase):
     """A large thermal generating plant, as reported to FERC on Form 1."""
 
     __tablename__ = 'plants_steam_ferc1'
@@ -89,7 +89,7 @@ class PlantSteamFERC1(pudl.models.PUDLBase):
     asset_retirement_cost = Column(Numeric(14, 2))
 
 
-class PlantInServiceFERC1(pudl.models.PUDLBase):
+class PlantInServiceFERC1(pudl.models.glue.PUDLBase):
     """
     Balances and changes to FERC Electric Plant In Service accounts.
 
@@ -120,7 +120,7 @@ class PlantInServiceFERC1(pudl.models.PUDLBase):
     year_end_balance = Column(Numeric(14, 2))
 
 
-class AccumulatedDepreciationFERC1(pudl.models.PUDLBase):
+class AccumulatedDepreciationFERC1(pudl.models.glue.PUDLBase):
     """
     Balances and changes to FERC Accumulated Provision for Depreciation.
 
@@ -142,7 +142,7 @@ class AccumulatedDepreciationFERC1(pudl.models.PUDLBase):
     leased_plant = Column(Numeric(14, 2))
 
 
-class PurchasedPowerFERC1(pudl.models.PUDLBase):
+class PurchasedPowerFERC1(pudl.models.glue.PUDLBase):
     """Utility power purchase data, from FERC1 DB f1_purchased_pwr table."""
 
     __tablename__ = 'purchased_power_ferc1'
@@ -166,7 +166,7 @@ class PurchasedPowerFERC1(pudl.models.PUDLBase):
     settlement_total = Column(Numeric(14, 2))
 
 
-class PlantSmallFERC1(pudl.models.PUDLBase):
+class PlantSmallFERC1(pudl.models.glue.PUDLBase):
     """
     Annual data on "small plants" imported from the f1_gnrt_plant table.
 
@@ -200,7 +200,7 @@ class PlantSmallFERC1(pudl.models.PUDLBase):
     fuel_cost_per_mmbtu = Column(Numeric(14, 2))
 
 
-class PlantHydroFERC1(pudl.models.PUDLBase):
+class PlantHydroFERC1(pudl.models.glue.PUDLBase):
     """Annual data on hydro plants from FERC form 1."""
 
     __tablename__ = 'plants_hydro_ferc1'
@@ -278,7 +278,7 @@ class PlantHydroFERC1(pudl.models.PUDLBase):
     expns_per_mwh = Column(Numeric(14, 2))
 
 
-class PlantsPumpedStorage(pudl.models.PUDLBase):
+class PlantsPumpedStorage(pudl.models.glue.PUDLBase):
     """Annual data on pumped storage from the f1_pumped_storage table."""
 
     __tablename__ = 'plants_pumped_storage_ferc1'
