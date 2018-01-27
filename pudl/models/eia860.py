@@ -2,10 +2,10 @@
 
 from sqlalchemy import Boolean, Integer, String, Float, Numeric, Date
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint
-import pudl.models
+import pudl.models.glue
 
 
-class BoilerGeneratorAssnEIA860(pudl.models.PUDLBase):
+class BoilerGeneratorAssnEIA860(pudl.models.glue.PUDLBase):
     """Information pertaining to boiler_generator pairs listed in EIA 860."""
 
     __tablename__ = 'boiler_generator_assn_eia860'
@@ -17,7 +17,7 @@ class BoilerGeneratorAssnEIA860(pudl.models.PUDLBase):
     generator_id = Column(String, nullable=False)  # FK?
 
 
-class UtilitiesEIA860(pudl.models.PUDLBase):
+class UtilitiesEIA860(pudl.models.glue.PUDLBase):
     """Information on utilities reporting information on form EIA860."""
 
     __tablename__ = 'utilities_eia860'
@@ -36,7 +36,7 @@ class UtilitiesEIA860(pudl.models.PUDLBase):
     entity_type = Column(String)
 
 
-class PlantsEIA860(pudl.models.PUDLBase):
+class PlantsEIA860(pudl.models.glue.PUDLBase):
     """Plant-specific information reported on form EIA860."""
 
     __tablename__ = 'plants_eia860'
@@ -89,7 +89,7 @@ class PlantsEIA860(pudl.models.PUDLBase):
     liquefied_natural_gas_storage = Column(String)
 
 
-class OwnershipEIA860(pudl.models.PUDLBase):
+class OwnershipEIA860(pudl.models.glue.PUDLBase):
     """The schedule of generator ownership shares from EIA860."""
 
     __tablename__ = 'ownership_eia860'
@@ -111,7 +111,7 @@ class OwnershipEIA860(pudl.models.PUDLBase):
     fraction_owned = Column(Float)
 
 
-class GeneratorsEIA860(pudl.models.PUDLBase):
+class GeneratorsEIA860(pudl.models.glue.PUDLBase):
     """Generator-level data reported in form EIA860."""
 
     __tablename__ = 'generators_eia860'
