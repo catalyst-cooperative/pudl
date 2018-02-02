@@ -11,8 +11,9 @@ with the appropriate NA values.
 
 import pandas as pd
 import numpy as np
-from pudl import clean_pudl
+#from pudl import clean_pudl
 import pudl.constants as pc
+import pudl.transform.pudl
 
 ##############################################################################
 # HELPER FUNCTIONS ###########################################################
@@ -103,16 +104,16 @@ def clean_fuel_ferc1(fuel_ferc1_df):
     # Take the messy free-form fuel & fuel_unit fields, and do our best to
     # map them to some canonical categories... this is necessarily imperfect:
     fuel_ferc1_df.fuel = \
-        clean_pudl.cleanstrings(fuel_ferc1_df.fuel,
-                                pc.ferc1_fuel_strings,
-                                unmapped=np.nan)
+        pudl.transform.pudl.cleanstrings(fuel_ferc1_df.fuel,
+                                         pc.ferc1_fuel_strings,
+                                         unmapped=np.nan)
 
     fuel_ferc1_df.rename(columns={'fuel': 'fuel_type_pudl'}, inplace=True)
 
     fuel_ferc1_df.fuel_unit = \
-        clean_pudl.cleanstrings(fuel_ferc1_df.fuel_unit,
-                                pc.ferc1_fuel_unit_strings,
-                                unmapped=np.nan)
+        pudl.transform.pudl.cleanstrings(fuel_ferc1_df.fuel_unit,
+                                         pc.ferc1_fuel_unit_strings,
+                                         unmapped=np.nan)
 
     #########################################################################
     # PERFORM UNIT CONVERSIONS ##############################################

@@ -2,8 +2,9 @@
 
 import pandas as pd
 import numpy as np
-from pudl import clean_pudl
+#from pudl import clean_pudl
 from pudl import constants as pc
+import pudl.transform.pudl
 
 
 def clean_ownership_eia860(own_df):
@@ -104,10 +105,10 @@ def clean_generators_eia860(gens_df):
         gens_df[column] = gens_df[column].replace(
             to_replace=["Y", "N"], value=[True, False])
 
-    gens_df = clean_pudl.month_year_to_date(gens_df)
+    gens_df = pudl.transform.pudl.month_year_to_date(gens_df)
 
     gens_df['fuel_type_pudl'] = \
-        clean_pudl.cleanstrings(gens_df['energy_source_1'],
-                                pc.fuel_type_eia860_simple_map)
+        pudl.transform.pudl.cleanstrings(gens_df['energy_source_1'],
+                                         pc.fuel_type_eia860_simple_map)
 
     return(gens_df)

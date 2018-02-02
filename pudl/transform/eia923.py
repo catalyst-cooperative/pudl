@@ -3,7 +3,8 @@
 
 import pandas as pd
 import numpy as np
-from pudl import clean_pudl
+#from pudl import clean_pudl
+import pudl.transform.pudl
 
 
 def yearly_to_monthly_eia923(df, md):
@@ -108,10 +109,10 @@ def coalmine_cleanup(cmi_df):
                                      inplace=True)
     cmi_df['county_id_fips'] = cmi_df['county_id_fips'].astype(float)
     cmi_df['county_id_fips'] = \
-        clean_pudl.fix_int_na(cmi_df['county_id_fips'],
-                              float_na=np.nan,
-                              int_na=-1,
-                              str_na='')
+        pudl.transform.pudl.fix_int_na(cmi_df['county_id_fips'],
+                                       float_na=np.nan,
+                                       int_na=-1,
+                                       str_na='')
     return(cmi_df)
 
 
