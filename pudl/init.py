@@ -27,7 +27,7 @@ import re
 import datetime
 
 from pudl import settings
-from pudl import clean_ferc1, clean_pudl, clean_eia923, clean_eia860
+#from pudl import clean_ferc1, clean_pudl, clean_eia923, clean_eia860
 import pudl.models.glue
 import pudl.models.eia923
 import pudl.models.eia860
@@ -35,6 +35,10 @@ import pudl.models.ferc1
 import pudl.extract.eia860
 import pudl.extract.eia923
 import pudl.extract.ferc1
+import pudl.transform.ferc1
+import pudl.transform.eia923
+import pudl.transform.eia860
+import pudl.transform.pudl
 
 import pudl.constants as pc
 
@@ -474,7 +478,7 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     # Use the above SELECT to pull those records into a DataFrame:
     fuel_ferc1_df = pd.read_sql(f1_fuel_select, ferc1_engine)
 
-    fuel_ferc1_df = clean_ferc1.clean_fuel_ferc1(fuel_ferc1_df)
+    fuel_ferc1_df = pudl.transform.ferc1.clean_fuel_ferc1(fuel_ferc1_df)
 
     fuel_ferc1_df.to_sql(name='fuel_ferc1',
                          con=pudl_engine, index=False, if_exists='append',
@@ -520,13 +524,13 @@ def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     # this is necessarily imperfect:
 
     ferc1_steam_df.type_const = \
-        clean_pudl.cleanstrings(ferc1_steam_df.type_const,
-                                pc.ferc1_construction_type_strings,
-                                unmapped=np.nan)
+        pudl.transform.pudl.cleanstrings(ferc1_steam_df.type_const,
+                                         pc.ferc1_construction_type_strings,
+                                         unmapped=np.nan)
     ferc1_steam_df.plant_kind = \
-        clean_pudl.cleanstrings(ferc1_steam_df.plant_kind,
-                                pc.ferc1_plant_kind_strings,
-                                unmapped=np.nan)
+        pudl.transform.pudl.cleanstrings(ferc1_steam_df.plant_kind,
+                                         pc.ferc1_plant_kind_strings,
+                                         unmapped=np.nan)
 
     # Force the construction and installation years to be numeric values, and
     # set them to NA if they can't be converted. (table has some junk values)
@@ -1144,16 +1148,16 @@ def ingest_plants_eia923(pudl_engine, eia923_dfs,
     plant_info_df.drop_duplicates(subset='plant_id_eia')
 
     plant_info_df['eia_sector'] = \
-        clean_pudl.fix_int_na(plant_info_df['eia_sector'],
-                              float_na=np.nan,
-                              int_na=-1,
-                              str_na='')
+        pudl.transform.pudl.fix_int_na(plant_info_df['eia_sector'],
+                                       float_na=np.nan,
+                                       int_na=-1,
+                                       str_na='')
 
     plant_info_df['naics_code'] = \
-        clean_pudl.fix_int_na(plant_info_df['naics_code'],
-                              float_na=np.nan,
-                              int_na=-1,
-                              str_na='')
+        pudl.transform.pudl.fix_int_na(plant_info_df['naics_code'],
+                                       float_na=np.nan,
+                                       int_na=-1,
+                                       str_na='')
 
     plant_info_df['plant_id_eia'] = plant_info_df['plant_id_eia'].astype(int)
 
@@ -1207,7 +1211,8 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
     gf_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    gf_df = clean_eia923.yearly_to_monthly_eia923(gf_df, pc.month_dict_eia923)
+    gf_df = pudl.transform.eia923.yearly_to_monthly_eia923(
+        gf_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     gf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
     # Remove "State fuel-level increment" records... which don't pertain to
@@ -1217,17 +1222,17 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
     # Take a float field and make it an integer, with the empty sa.String
     # as the NA value... for postgres loading.
     gf_df['nuclear_unit_id'] = \
-        clean_pudl.fix_int_na(gf_df['nuclear_unit_id'],
-                              float_na=np.nan,
-                              int_na=-1,
-                              str_na='')
+        pudl.transform.pudl.fix_int_na(gf_df['nuclear_unit_id'],
+                                       float_na=np.nan,
+                                       int_na=-1,
+                                       str_na='')
 
     gf_df['fuel_type_pudl'] = \
-        clean_pudl.cleanstrings(gf_df.fuel_type,
-                                pc.fuel_type_eia923_gen_fuel_simple_map)
+        pudl.transform.pudl.cleanstrings(gf_df.fuel_type,
+                                         pc.fuel_type_eia923_gen_fuel_simple_map)
 
     # Convert Year/Month columns into a single Date column...
-    gf_df = clean_pudl.convert_to_date(gf_df)
+    gf_df = pudl.transform.pudl.convert_to_date(gf_df)
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(gf_df, 'generation_fuel_eia923', pudl_engine,
@@ -1313,15 +1318,16 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
     bf_df.dropna(subset=['boiler_id', 'plant_id_eia'], inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    bf_df = clean_eia923.yearly_to_monthly_eia923(bf_df, pc.month_dict_eia923)
+    bf_df = pudl.transform.eia923.yearly_to_monthly_eia923(
+        bf_df, pc.month_dict_eia923)
     bf_df['fuel_type_pudl'] = \
-        clean_pudl.cleanstrings(bf_df.fuel_type,
-                                pc.fuel_type_eia923_boiler_fuel_simple_map)
+        pudl.transform.pudl.cleanstrings(bf_df.fuel_type,
+                                         pc.fuel_type_eia923_boiler_fuel_simple_map)
     # Replace the EIA923 NA value ('.') with a real NA value.
     bf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
 
     # Convert Year/Month columns into a single Date column...
-    bf_df = clean_pudl.convert_to_date(bf_df)
+    bf_df = pudl.transform.pudl.convert_to_date(bf_df)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(bf_df, 'boiler_fuel_eia923', pudl_engine,
                    csvdir=csvdir, keep_csv=keep_csv)
@@ -1410,14 +1416,14 @@ def ingest_generation_eia923(pudl_engine, eia923_dfs,
     generation_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    generation_df = clean_eia923.yearly_to_monthly_eia923(
+    generation_df = pudl.transform.eia923.yearly_to_monthly_eia923(
         generation_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     generation_df.replace(to_replace='^\.$', value=np.nan,
                           regex=True, inplace=True)
 
     # Convert Year/Month columns into a single Date column...
-    generation_df = clean_pudl.convert_to_date(generation_df)
+    generation_df = pudl.transform.pudl.convert_to_date(generation_df)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(generation_df, 'generation_eia923', pudl_engine,
                    csvdir=csvdir, keep_csv=keep_csv)
@@ -1456,7 +1462,7 @@ def ingest_coalmine_eia923(pudl_engine, eia923_dfs,
     # to use again for populating the FRC table (see below)
     cmi_df = eia923_dfs['fuel_receipts_costs'].copy()
     # Keep only the columns listed above:
-    cmi_df = clean_eia923.coalmine_cleanup(cmi_df)
+    cmi_df = pudl.transform.eia923.coalmine_cleanup(cmi_df)
 
     cmi_df = cmi_df[coalmine_cols]
 
@@ -1485,10 +1491,10 @@ def ingest_coalmine_eia923(pudl_engine, eia923_dfs,
     # Take a float field and make it an integer, with the empty sa.String
     # as the NA value... for postgres loading. Yes, this is janky.
     cmi_df['mine_id_msha'] = \
-        clean_pudl.fix_int_na(cmi_df['mine_id_msha'],
-                              float_na=np.nan,
-                              int_na=-1,
-                              str_na='')
+        pudl.transform.pudl.fix_int_na(cmi_df['mine_id_msha'],
+                                       float_na=np.nan,
+                                       int_na=-1,
+                                       str_na='')
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(cmi_df, 'coalmine_eia923', pudl_engine,
@@ -1519,14 +1525,14 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
     # back into ready-to-dump form... so it matches the types of the
     # county_id_fips field that we are going to be merging on in the frc_df.
     cmi_df['county_id_fips'] = \
-        clean_pudl.fix_int_na(cmi_df['county_id_fips'])
+        pudl.transform.pudl.fix_int_na(cmi_df['county_id_fips'])
     cmi_df = cmi_df.rename(columns={'id': 'mine_id_pudl'})
 
     # This type/naming cleanup function is separated out so that we can be
     # sure it is applied exactly the same both when the coalmine_eia923 table
     # is populated, and here (since we need them to be identical for the
     # following merge)
-    frc_df = clean_eia923.coalmine_cleanup(frc_df)
+    frc_df = pudl.transform.eia923.coalmine_cleanup(frc_df)
     frc_df = frc_df.merge(cmi_df, how='left',
                           on=['mine_name',
                               'state',
@@ -1550,10 +1556,10 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
         frc_df['secondary_transportation_mode'].str.upper()
 
     frc_df['contract_expiration_date'] = \
-        clean_pudl.fix_int_na(frc_df['contract_expiration_date'],
-                              float_na=np.nan,
-                              int_na=-1,
-                              str_na='')
+        pudl.transform.pudl.fix_int_na(frc_df['contract_expiration_date'],
+                                       float_na=np.nan,
+                                       int_na=-1,
+                                       str_na='')
     # Convert the 3-4 digit (MYY|MMYY) date of contract expiration to
     # two fields MM and YYYY for easier analysis later.
     frc_df['contract_expiration_month'] = \
@@ -1568,27 +1574,27 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
         apply(lambda x: '20' + x[-2:] if x != '' else x)
 
     frc_df = frc_df.drop('contract_expiration_date', axis=1)
-    frc_df = clean_pudl.convert_to_date(
+    frc_df = pudl.transform.pudl.convert_to_date(
         frc_df,
         date_col='contract_expiration_date',
         year_col='contract_expiration_year',
         month_col='contract_expiration_month'
     )
 
-    frc_df = clean_pudl.convert_to_date(frc_df)
-    frc_df['mine_id_pudl'] = clean_pudl.fix_int_na(frc_df['mine_id_pudl'],
-                                                   float_na=np.nan,
-                                                   int_na=-1,
-                                                   str_na='')
+    frc_df = pudl.transform.pudl.convert_to_date(frc_df)
+    frc_df['mine_id_pudl'] = pudl.transform.pudl.fix_int_na(frc_df['mine_id_pudl'],
+                                                            float_na=np.nan,
+                                                            int_na=-1,
+                                                            str_na='')
 
     # Convert fuel cost (cents per mmbtu) into dollars per mmbtu
-    frc_df = clean_eia923.fuel_reciept_cost_clean(frc_df)
+    frc_df = pudl.transform.eia923.fuel_reciept_cost_clean(frc_df)
     frc_df['fuel_type_pudl'] = \
-        clean_pudl.cleanstrings(frc_df.energy_source,
-                                pc.energy_source_eia_simple_map)
+        pudl.transform.pudl.cleanstrings(frc_df.energy_source,
+                                         pc.energy_source_eia_simple_map)
     frc_df['fuel_group_simple'] = \
-        clean_pudl.cleanstrings(frc_df.fuel_group,
-                                pc.fuel_group_eia923_simple_map)
+        pudl.transform.pudl.cleanstrings(frc_df.fuel_group,
+                                         pc.fuel_group_eia923_simple_map)
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(frc_df, 'fuel_receipts_costs_eia923', pudl_engine,
@@ -1643,10 +1649,10 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
     b_g_df['operator_id'] = b_g_df['operator_id'].astype(str)
     b_g_df = b_g_df[b_g_df.operator_id.str.isnumeric()]
 
-    b_g_df['plant_id_eia'] = clean_pudl.fix_int_na(b_g_df['plant_id_eia'],
-                                                   float_na=np.nan,
-                                                   int_na=-1,
-                                                   str_na='')
+    b_g_df['plant_id_eia'] = pudl.transform.pudl.fix_int_na(b_g_df['plant_id_eia'],
+                                                            float_na=np.nan,
+                                                            int_na=-1,
+                                                            str_na='')
 
     # We need to cast the generator_id column as type str because sometimes
     # it is heterogeneous int/str which make drop_duplicates fail.
@@ -1656,7 +1662,7 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
     # This drop_duplicates isn't removing all duplicates
     b_g_df = b_g_df.drop_duplicates().dropna()
 
-    b_g_df = clean_pudl.convert_to_date(b_g_df)
+    b_g_df = pudl.transform.pudl.convert_to_date(b_g_df)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(b_g_df, 'boiler_generator_assn_eia860', pudl_engine,
                    csvdir=csvdir, keep_csv=keep_csv)
@@ -1685,7 +1691,7 @@ def ingest_utilities_eia860(pudl_engine, eia860_dfs,
     # Populating the 'utilities_eia860' table
     u_df = eia860_dfs['utility'].copy()
 
-    u_df = clean_pudl.convert_to_date(u_df)
+    u_df = pudl.transform.pudl.convert_to_date(u_df)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(u_df, 'utilities_eia860', pudl_engine,
                    csvdir=csvdir, keep_csv=keep_csv)
@@ -1732,7 +1738,7 @@ def ingest_plants_eia860(pudl_engine, eia860_dfs,
 
     p_df['zip_code'] = p_df['zip_code'].astype(str)
 
-    p_df = clean_pudl.convert_to_date(p_df)
+    p_df = pudl.transform.pudl.convert_to_date(p_df)
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(p_df, 'plants_eia860', pudl_engine,
@@ -1772,19 +1778,19 @@ def ingest_generators_eia860(pudl_engine, eia860_dfs,
     gr_df['status'] = 'retired'
 
     gens_df = pd.concat([ge_df, gp_df, gr_df])
-    gens_df = clean_eia860.clean_generators_eia860(gens_df)
+    gens_df = pudl.transform.eia860.clean_generators_eia860(gens_df)
 
     # String-ify a bunch of fields for output.
     fix_int_na_columns = ['plant_id_eia', 'sector', 'turbines']
 
     for column in fix_int_na_columns:
         gens_df[column] = \
-            clean_pudl.fix_int_na(gens_df[column],
-                                  float_na=np.nan,
-                                  int_na=-1,
-                                  str_na='')
+            pudl.transform.pudl.fix_int_na(gens_df[column],
+                                           float_na=np.nan,
+                                           int_na=-1,
+                                           str_na='')
 
-    gens_df = clean_pudl.convert_to_date(gens_df)
+    gens_df = pudl.transform.pudl.convert_to_date(gens_df)
 
     _csv_dump_load(gens_df, 'generators_eia860', pudl_engine,
                    csvdir=csvdir, keep_csv=keep_csv)
@@ -1817,8 +1823,8 @@ def ingest_ownership_eia860(pudl_engine, eia860_dfs,
     o_df.replace(to_replace='^\s$', value=np.nan, regex=True, inplace=True)
     o_df.replace(to_replace='^$', value=np.nan, regex=True, inplace=True)
 
-    o_df = clean_pudl.convert_to_date(o_df)
-    o_df = clean_eia860.clean_ownership_eia860(o_df)
+    o_df = pudl.transform.pudl.convert_to_date(o_df)
+    o_df = pudl.transform.eia860.clean_ownership_eia860(o_df)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(o_df, 'ownership_eia860', pudl_engine,
                    csvdir=csvdir, keep_csv=keep_csv)

@@ -1,6 +1,6 @@
 """A module with functions to aid generating MCOE."""
 
-from pudl import analysis, clean_pudl, outputs, init
+from pudl import analysis, outputs, init
 from pudl import constants as pc
 import numpy as np
 import pandas as pd
