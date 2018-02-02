@@ -2,23 +2,42 @@
 
 import pandas as pd
 import numpy as np
-#from pudl import clean_pudl
 from pudl import constants as pc
 import pudl.transform.pudl
 
 
-def clean_ownership_eia860(own_df):
-    """Standardize the per-generator ownership fractions."""
+def clean_ownership_eia860(eia860_dfs):
+    """
+    Pull and transform the ownership table
+
+    Args: eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+        dictionary of DataFrame objects corresponds to a page from the
+        EIA860 form, as reported in the Excel spreadsheets they distribute.
+    Returns: transformed dataframe.
+    """
+    o_df = eia860_dfs['ownership'].copy()
+
+    # Replace '.' and ' ' with NaN in order to read in integer values
+    o_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
+    o_df.replace(to_replace='^\s$', value=np.nan, regex=True, inplace=True)
+    o_df.replace(to_replace='^$', value=np.nan, regex=True, inplace=True)
+
+    o_df = pudl.transform.pudl.convert_to_date(o_df)
+
     # The fix we're making here is only known to be valid for 2011 -- if we
     # get older data... then we need to to revisit the cleaning function and
     # make sure it also applies to those earlier years.
-    assert min(own_df.report_date.dt.year) >= 2011
+    assert min(o_df.report_date.dt.year) >= 2011
+
     # Prior to 2012, ownership was reported as a percentage, rather than
     # as a proportion, so we need to divide those values by 100.
-    own_df.loc[own_df.report_date.dt.year == 2011, 'fraction_owned'] = \
-        own_df.loc[own_df.report_date.dt.year == 2011, 'fraction_owned'] / 100
+    o_df.loc[o_df.report_date.dt.year == 2011, 'fraction_owned'] = \
+        o_df.loc[o_df.report_date.dt.year == 2011, 'fraction_owned'] / 100
 
-    return(own_df)
+    # TODO: this function should feed this altered dataframe back into eia860,
+    # which should then feed into a yet to be created standardized 'load' step
+
+    return(o_df)
 
 
 def clean_generators_eia860(gens_df):

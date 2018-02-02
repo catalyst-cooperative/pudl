@@ -27,7 +27,6 @@ import re
 import datetime
 
 from pudl import settings
-#from pudl import clean_ferc1, clean_pudl, clean_eia923, clean_eia860
 import pudl.models.glue
 import pudl.models.eia923
 import pudl.models.eia860
@@ -1582,10 +1581,11 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
     )
 
     frc_df = pudl.transform.pudl.convert_to_date(frc_df)
-    frc_df['mine_id_pudl'] = pudl.transform.pudl.fix_int_na(frc_df['mine_id_pudl'],
-                                                            float_na=np.nan,
-                                                            int_na=-1,
-                                                            str_na='')
+    frc_df['mine_id_pudl'] = \
+        pudl.transform.pudl.fix_int_na(frc_df['mine_id_pudl'],
+                                       float_na=np.nan,
+                                       int_na=-1,
+                                       str_na='')
 
     # Convert fuel cost (cents per mmbtu) into dollars per mmbtu
     frc_df = pudl.transform.eia923.fuel_reciept_cost_clean(frc_df)
@@ -1649,10 +1649,11 @@ def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
     b_g_df['operator_id'] = b_g_df['operator_id'].astype(str)
     b_g_df = b_g_df[b_g_df.operator_id.str.isnumeric()]
 
-    b_g_df['plant_id_eia'] = pudl.transform.pudl.fix_int_na(b_g_df['plant_id_eia'],
-                                                            float_na=np.nan,
-                                                            int_na=-1,
-                                                            str_na='')
+    b_g_df['plant_id_eia'] = \
+        pudl.transform.pudl.fix_int_na(b_g_df['plant_id_eia'],
+                                       float_na=np.nan,
+                                       int_na=-1,
+                                       str_na='')
 
     # We need to cast the generator_id column as type str because sometimes
     # it is heterogeneous int/str which make drop_duplicates fail.
@@ -1816,15 +1817,7 @@ def ingest_ownership_eia860(pudl_engine, eia860_dfs,
 
     Returns: Nothing.
     """
-    o_df = eia860_dfs['ownership'].copy()
-
-    # Replace '.' and ' ' with NaN in order to read in integer values
-    o_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
-    o_df.replace(to_replace='^\s$', value=np.nan, regex=True, inplace=True)
-    o_df.replace(to_replace='^$', value=np.nan, regex=True, inplace=True)
-
-    o_df = pudl.transform.pudl.convert_to_date(o_df)
-    o_df = pudl.transform.eia860.clean_ownership_eia860(o_df)
+    o_df = pudl.transform.eia860.clean_ownership_eia860(eia860_dfs)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(o_df, 'ownership_eia860', pudl_engine,
                    csvdir=csvdir, keep_csv=keep_csv)
