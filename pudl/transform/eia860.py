@@ -6,9 +6,9 @@ from pudl import constants as pc
 import pudl.transform.pudl
 
 
-def clean_ownership_eia860(eia860_dfs):
+def ownership(eia860_dfs, eia860_table_dfs):
     """
-    Pull and transform the ownership table
+    Pull and transform the ownership table.
 
     Args: eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
         dictionary of DataFrame objects corresponds to a page from the
@@ -36,8 +36,9 @@ def clean_ownership_eia860(eia860_dfs):
 
     # TODO: this function should feed this altered dataframe back into eia860,
     # which should then feed into a yet to be created standardized 'load' step
+    eia860_table_dfs['ownership_eia860'] = o_df
 
-    return(o_df)
+    return(eia860_table_dfs)
 
 
 def clean_generators_eia860(gens_df):

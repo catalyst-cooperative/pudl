@@ -27,6 +27,7 @@ import re
 import datetime
 
 from pudl import settings
+from pudl import load
 import pudl.models.glue
 import pudl.models.eia923
 import pudl.models.eia860
@@ -1817,7 +1818,7 @@ def ingest_ownership_eia860(pudl_engine, eia860_dfs,
 
     Returns: Nothing.
     """
-    o_df = pudl.transform.eia860.clean_ownership_eia860(eia860_dfs)
+    o_df = pudl.transform.eia860.ownership(eia860_dfs)
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(o_df, 'ownership_eia860', pudl_engine,
                    csvdir=csvdir, keep_csv=keep_csv)
@@ -1844,12 +1845,12 @@ def ingest_eia860(pudl_engine,
                                               eia860_years=eia860_years,
                                               verbose=verbose)
     # NOW START INGESTING EIA860 DATA:
+    # Old Ingest Process:
     eia860_ingest_functions = {
         'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860,
         'utilities_eia860': ingest_utilities_eia860,
         'plants_eia860': ingest_plants_eia860,
-        'generators_eia860': ingest_generators_eia860,
-        'ownership_eia860': ingest_ownership_eia860}
+        'generators_eia860': ingest_generators_eia860}
 
     for table in eia860_ingest_functions.keys():
         if table in eia860_tables:
@@ -1857,6 +1858,23 @@ def ingest_eia860(pudl_engine,
                 print("Ingesting {} from EIA 860 into PUDL.".format(table))
             eia860_ingest_functions[table](pudl_engine, eia860_dfs,
                                            csvdir=csvdir, keep_csv=keep_csv)
+
+    # New ingest process:
+    eia860_transform_functions = {
+        'ownership_eia860': pudl.transform.eia860.ownership}
+    eia860_table_dfs = {}
+
+    for table in eia860_transform_functions.keys():
+        if table in eia860_tables:
+            if verbose:
+                print("Ingesting {} from EIA 860 into PUDL.".format(table))
+            eia860_transform_functions[table](eia860_dfs,
+                                              eia860_table_dfs)
+
+    load.load_eia860(eia860_table_dfs,
+                     pudl_engine,
+                     csvdir=csvdir,
+                     keep_csv=keep_csv)
 
 
 def ingest_eia923(pudl_engine,
