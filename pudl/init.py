@@ -1719,27 +1719,8 @@ def ingest_plants_eia860(pudl_engine, eia860_dfs,
     Returns: Nothing.
     """
     # Populating the 'plants_eia860' table
-    p_df = eia860_dfs['plant'].copy()
 
-    # Replace '.' and ' ' with NaN in order to read in integer values
-
-    p_df.replace(to_replace='.', value=np.nan, inplace=True)
-    p_df.replace(to_replace=' ', value=np.nan, inplace=True)
-
-    # Cast integer values in sector to floats to avoid type errors
-
-    p_df['sector'] = p_df['sector'].astype(float)
-
-    # Cast various types in transmission_distribution_owner_id to str
-
-    p_df['transmission_distribution_owner_id'] = \
-        p_df['transmission_distribution_owner_id'].astype(str)
-
-    # Cast values in zip_code to floats to avoid type errors
-
-    p_df['zip_code'] = p_df['zip_code'].astype(str)
-
-    p_df = pudl.transform.pudl.convert_to_date(p_df)
+    p_df = pudl.transform.eia860.clean_plants_eia860(eia860_dfs)
 
     # Write the dataframe out to a csv file and load it directly
     _csv_dump_load(p_df, 'plants_eia860', pudl_engine,

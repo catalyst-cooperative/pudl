@@ -1438,7 +1438,7 @@ file_pages_eia860 = {'enviro_assn': ['boiler_generator_assn', ],
                                     'generator_retired'],
                      'ownership': ['ownership', ]}
 
-# This is the list of EIA923 tables that can be successfully pulled into PUDL
+# This is the list of EIA860 tables that can be successfully pulled into PUDL
 eia860_pudl_tables = ['boiler_generator_assn_eia860', 'utilities_eia860',
                       'plants_eia860', 'generators_eia860', 'ownership_eia860']
 
