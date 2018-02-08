@@ -45,11 +45,11 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
         os.remove(csvfile)
 
 
-def load_eia860(eia860_table_dfs,
-                pudl_engine,
-                csvdir='',
-                keep_csv=True):
-    for key, value in eia860_table_dfs.items():
+def eia860(eia860_transformed_dfs,
+           pudl_engine,
+           csvdir='',
+           keep_csv=True):
+    for key, value in eia860_transformed_dfs.items():
         _csv_dump_load(value,
                        key,
                        pudl_engine,

@@ -66,53 +66,6 @@ def drop_tables(engine):
     """Drop all the tables associated with the PUDL Database and start over."""
     pudl.models.glue.PUDLBase.metadata.drop_all(engine)
 
-###############################################################################
-###############################################################################
-#   OTHER HELPER FUNCTIONS
-###############################################################################
-###############################################################################
-
-
-def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
-    """
-    Write a dataframe to CSV and load it into postgresql using COPY FROM.
-
-    The fastest way to load a bunch of records is using the database's native
-    text file copy function.  This function dumps a given dataframe out to a
-    CSV file, and then loads it into the specified table using a sqlalchemy
-    wrapper around the postgresql COPY FROM command, called postgres_copy.
-
-    Args:
-        df (pandas.DataFrame): The DataFrame which is to be dumped to CSV and
-            loaded into the database. All DataFrame columns must have exactly
-            the same names as the database fields they are meant to populate,
-            and all column data types must be directly compatible with the
-            database fields they are meant to populate. Do any cleanup before
-            you call this function.
-        table_name (str): The exact name of the database table which the
-            DataFrame df is going to be used to populate. It will be used both
-            to look up an SQLAlchemy table object in the PUDLBase metadata
-            object, and to name the CSV file.
-        engine (sqlalchemy.engine): SQLAlchemy database engine, which will be
-            used to pull the CSV output into the database.
-        csvdir (str): Path to the directory into which the CSV files should be
-            output (and saved, if they are being kept).
-        keep_csv (bool): True if the CSV output should be saved after the data
-            has been loaded into the database. False if they should be deleted.
-
-    Returns: Nothing.
-    """
-    import postgres_copy
-    import os
-
-    csvfile = os.path.join(csvdir, table_name + '.csv')
-    df.to_csv(csvfile, index=False)
-    tbl = pudl.models.glue.PUDLBase.metadata.tables[table_name]
-    postgres_copy.copy_from(open(csvfile, 'r'), tbl, engine,
-                            columns=tuple(df.columns),
-                            format='csv', header=True, delimiter=',')
-    if not keep_csv:
-        os.remove(csvfile)
 
 ###############################################################################
 ###############################################################################
@@ -1161,8 +1114,8 @@ def ingest_plants_eia923(pudl_engine, eia923_dfs,
 
     plant_info_df['plant_id_eia'] = plant_info_df['plant_id_eia'].astype(int)
 
-    _csv_dump_load(plant_info_df, 'plants_eia923', pudl_engine,
-                   csvdir=csvdir, keep_csv=keep_csv)
+    load._csv_dump_load(plant_info_df, 'plants_eia923', pudl_engine,
+                        csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
@@ -1235,8 +1188,8 @@ def ingest_generation_fuel_eia923(pudl_engine, eia923_dfs,
     gf_df = pudl.transform.pudl.convert_to_date(gf_df)
 
     # Write the dataframe out to a csv file and load it directly
-    _csv_dump_load(gf_df, 'generation_fuel_eia923', pudl_engine,
-                   csvdir=csvdir, keep_csv=keep_csv)
+    load._csv_dump_load(gf_df, 'generation_fuel_eia923', pudl_engine,
+                        csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_boilers_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
@@ -1274,8 +1227,8 @@ def ingest_boilers_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
         subset=['plant_id_eia', 'boiler_id'])
 
     # Write the dataframe out to a csv file and load it directly
-    _csv_dump_load(boilers_df, 'boilers_eia923', pudl_engine,
-                   csvdir=csvdir, keep_csv=keep_csv)
+    load._csv_dump_load(boilers_df, 'boilers_eia923', pudl_engine,
+                        csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
@@ -1329,8 +1282,8 @@ def ingest_boiler_fuel_eia923(pudl_engine, eia923_dfs,
     # Convert Year/Month columns into a single Date column...
     bf_df = pudl.transform.pudl.convert_to_date(bf_df)
     # Write the dataframe out to a csv file and load it directly
-    _csv_dump_load(bf_df, 'boiler_fuel_eia923', pudl_engine,
-                   csvdir=csvdir, keep_csv=keep_csv)
+    load._csv_dump_load(bf_df, 'boiler_fuel_eia923', pudl_engine,
+                        csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_generators_eia923(pudl_engine, eia923_dfs,
@@ -1370,8 +1323,8 @@ def ingest_generators_eia923(pudl_engine, eia923_dfs,
         subset=['plant_id_eia', 'generator_id'])
 
     # Write the dataframe out to a csv file and load it directly
-    _csv_dump_load(generators_df, 'generators_eia923', pudl_engine,
-                   csvdir=csvdir, keep_csv=keep_csv)
+    load._csv_dump_load(generators_df, 'generators_eia923', pudl_engine,
+                        csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_generation_eia923(pudl_engine, eia923_dfs,
@@ -1425,8 +1378,8 @@ def ingest_generation_eia923(pudl_engine, eia923_dfs,
     # Convert Year/Month columns into a single Date column...
     generation_df = pudl.transform.pudl.convert_to_date(generation_df)
     # Write the dataframe out to a csv file and load it directly
-    _csv_dump_load(generation_df, 'generation_eia923', pudl_engine,
-                   csvdir=csvdir, keep_csv=keep_csv)
+    load._csv_dump_load(generation_df, 'generation_eia923', pudl_engine,
+                        csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_coalmine_eia923(pudl_engine, eia923_dfs,
@@ -1497,8 +1450,8 @@ def ingest_coalmine_eia923(pudl_engine, eia923_dfs,
                                        str_na='')
 
     # Write the dataframe out to a csv file and load it directly
-    _csv_dump_load(cmi_df, 'coalmine_eia923', pudl_engine,
-                   csvdir=csvdir, keep_csv=keep_csv)
+    load._csv_dump_load(cmi_df, 'coalmine_eia923', pudl_engine,
+                        csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
@@ -1598,230 +1551,13 @@ def ingest_fuel_receipts_costs_eia923(pudl_engine, eia923_dfs,
                                          pc.fuel_group_eia923_simple_map)
 
     # Write the dataframe out to a csv file and load it directly
-    _csv_dump_load(frc_df, 'fuel_receipts_costs_eia923', pudl_engine,
-                   csvdir=csvdir, keep_csv=keep_csv)
+    load._csv_dump_load(frc_df, 'fuel_receipts_costs_eia923', pudl_engine,
+                        csvdir=csvdir, keep_csv=keep_csv)
 
 
 def ingest_stocks_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
     """Ingest data on fuel stocks from EIA Form 923."""
     pass
-
-###############################################################################
-###############################################################################
-# BEGIN EIA860 INGEST FUNCTIONS
-###############################################################################
-###############################################################################
-
-
-def ingest_boiler_generator_assn_eia860(pudl_engine, eia860_dfs,
-                                        csvdir='', keep_csv=True):
-    """
-    Ingest data on individual generators from EIA Form 860.
-
-    Populates the boiler_generator_assn_eia860 table.
-
-    Args:
-        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
-        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
-            dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        csvdir (string): Path to the directory where the CSV files representing
-            our data tables should be written, before being read in to the
-            postgres database directly.
-        keep_csv (boolean): If True, do not delete the CSV files after they
-            have been read into the database. If False, remove them.
-
-    Returns: Nothing.
-    """
-    # Populating the 'generators_eia860' table
-    b_g_df = eia860_dfs['boiler_generator_assn'].copy()
-
-    b_g_cols = ['report_year',
-                'operator_id',
-                'plant_id_eia',
-                'boiler_id',
-                'generator_id']
-
-    b_g_df = b_g_df[b_g_cols]
-
-    # There are some bad (non-data) lines in some of the boiler generator
-    # data files (notes from EIA) which are messing up the import. Need to
-    # identify and drop them early on.
-    b_g_df['operator_id'] = b_g_df['operator_id'].astype(str)
-    b_g_df = b_g_df[b_g_df.operator_id.str.isnumeric()]
-
-    b_g_df['plant_id_eia'] = \
-        pudl.transform.pudl.fix_int_na(b_g_df['plant_id_eia'],
-                                       float_na=np.nan,
-                                       int_na=-1,
-                                       str_na='')
-
-    # We need to cast the generator_id column as type str because sometimes
-    # it is heterogeneous int/str which make drop_duplicates fail.
-    b_g_df['generator_id'] = b_g_df['generator_id'].astype(str)
-    b_g_df['boiler_id'] = b_g_df['boiler_id'].astype(str)
-
-    # This drop_duplicates isn't removing all duplicates
-    b_g_df = b_g_df.drop_duplicates().dropna()
-
-    b_g_df = pudl.transform.pudl.convert_to_date(b_g_df)
-    # Write the dataframe out to a csv file and load it directly
-    _csv_dump_load(b_g_df, 'boiler_generator_assn_eia860', pudl_engine,
-                   csvdir=csvdir, keep_csv=keep_csv)
-
-
-def ingest_utilities_eia860(pudl_engine, eia860_dfs,
-                            csvdir='', keep_csv=True):
-    """
-    Ingest data on utilities from EIA Form 860.
-
-    Populates the utilities_eia860 table.
-
-    Args:
-        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
-        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
-            dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        csvdir (string): Path to the directory where the CSV files representing
-            our data tables should be written, before being read in to the
-            postgres database directly.
-        keep_csv (boolean): If True, do not delete the CSV files after they
-            have been read into the database. If False, remove them.
-
-    Returns: Nothing.
-    """
-    # Populating the 'utilities_eia860' table
-    u_df = eia860_dfs['utility'].copy()
-
-    u_df = pudl.transform.pudl.convert_to_date(u_df)
-    # Write the dataframe out to a csv file and load it directly
-    _csv_dump_load(u_df, 'utilities_eia860', pudl_engine,
-                   csvdir=csvdir, keep_csv=keep_csv)
-
-
-def ingest_plants_eia860(pudl_engine, eia860_dfs,
-                         csvdir='', keep_csv=True):
-    """
-    Ingest data on plants from EIA Form 860.
-
-    Populates the plants_eia860 table.
-
-    Args:
-        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
-        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
-            dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        csvdir (string): Path to the directory where the CSV files representing
-            our data tables should be written, before being read in to the
-            postgres database directly.
-        keep_csv (boolean): If True, do not delete the CSV files after they
-            have been read into the database. If False, remove them.
-
-    Returns: Nothing.
-    """
-    # Populating the 'plants_eia860' table
-    p_df = eia860_dfs['plant'].copy()
-
-    # Replace '.' and ' ' with NaN in order to read in integer values
-
-    p_df.replace(to_replace='.', value=np.nan, inplace=True)
-    p_df.replace(to_replace=' ', value=np.nan, inplace=True)
-
-    # Cast integer values in sector to floats to avoid type errors
-
-    p_df['sector'] = p_df['sector'].astype(float)
-
-    # Cast various types in transmission_distribution_owner_id to str
-
-    p_df['transmission_distribution_owner_id'] = \
-        p_df['transmission_distribution_owner_id'].astype(str)
-
-    # Cast values in zip_code to floats to avoid type errors
-
-    p_df['zip_code'] = p_df['zip_code'].astype(str)
-
-    p_df = pudl.transform.pudl.convert_to_date(p_df)
-
-    # Write the dataframe out to a csv file and load it directly
-    _csv_dump_load(p_df, 'plants_eia860', pudl_engine,
-                   csvdir=csvdir, keep_csv=keep_csv)
-
-
-def ingest_generators_eia860(pudl_engine, eia860_dfs,
-                             csvdir='', keep_csv=True):
-    """
-    Ingest data on generators from EIA Form 860.
-
-    Populates the generators_eia860 table.
-
-    Args:
-        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
-        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
-            dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        csvdir (string): Path to the directory where the CSV files representing
-            our data tables should be written, before being read in to the
-            postgres database directly.
-        keep_csv (boolean): If True, do not delete the CSV files after they
-            have been read into the database. If False, remove them.
-
-    Returns: Nothing.
-    """
-    # There are three sets of generator data reported in the EIA860 table,
-    # planned, existing, and retired generators. We're going to concatenate
-    # them all together into a single big table, with a column that indicates
-    # which one of these tables the data came from, since they all have almost
-    # exactly the same structure
-    gp_df = eia860_dfs['generator_proposed'].copy()
-    ge_df = eia860_dfs['generator_existing'].copy()
-    gr_df = eia860_dfs['generator_retired'].copy()
-    gp_df['status'] = 'proposed'
-    ge_df['status'] = 'existing'
-    gr_df['status'] = 'retired'
-
-    gens_df = pd.concat([ge_df, gp_df, gr_df])
-    gens_df = pudl.transform.eia860.clean_generators_eia860(gens_df)
-
-    # String-ify a bunch of fields for output.
-    fix_int_na_columns = ['plant_id_eia', 'sector', 'turbines']
-
-    for column in fix_int_na_columns:
-        gens_df[column] = \
-            pudl.transform.pudl.fix_int_na(gens_df[column],
-                                           float_na=np.nan,
-                                           int_na=-1,
-                                           str_na='')
-
-    gens_df = pudl.transform.pudl.convert_to_date(gens_df)
-
-    _csv_dump_load(gens_df, 'generators_eia860', pudl_engine,
-                   csvdir=csvdir, keep_csv=keep_csv)
-
-
-def ingest_ownership_eia860(pudl_engine, eia860_dfs,
-                            csvdir='', keep_csv=True):
-    """
-    Ingest data on ownership from EIA Form 860.
-
-    Populates the ownership_eia860 table.
-
-    Args:
-        pudl_engine (sqlalchemy.engine): a connection to the PUDL DB.
-        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
-            dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        csvdir (string): Path to the directory where the CSV files representing
-            our data tables should be written, before being read in to the
-            postgres database directly.
-        keep_csv (boolean): If True, do not delete the CSV files after they
-            have been read into the database. If False, remove them.
-
-    Returns: Nothing.
-    """
-    o_df = pudl.transform.eia860.ownership(eia860_dfs)
-    # Write the dataframe out to a csv file and load it directly
-    _csv_dump_load(o_df, 'ownership_eia860', pudl_engine,
-                   csvdir=csvdir, keep_csv=keep_csv)
 
 
 ###############################################################################
@@ -1845,36 +1581,25 @@ def ingest_eia860(pudl_engine,
                                               eia860_years=eia860_years,
                                               verbose=verbose)
     # NOW START INGESTING EIA860 DATA:
-    # Old Ingest Process:
-    eia860_ingest_functions = {
-        'boiler_generator_assn_eia860': ingest_boiler_generator_assn_eia860,
-        'utilities_eia860': ingest_utilities_eia860,
-        'plants_eia860': ingest_plants_eia860,
-        'generators_eia860': ingest_generators_eia860}
-
-    for table in eia860_ingest_functions.keys():
-        if table in eia860_tables:
-            if verbose:
-                print("Ingesting {} from EIA 860 into PUDL.".format(table))
-            eia860_ingest_functions[table](pudl_engine, eia860_dfs,
-                                           csvdir=csvdir, keep_csv=keep_csv)
-
-    # New ingest process:
     eia860_transform_functions = {
-        'ownership_eia860': pudl.transform.eia860.ownership}
-    eia860_table_dfs = {}
+        'ownership_eia860': pudl.transform.eia860.ownership,
+        'generators_eia860': pudl.transform.eia860.generators,
+        'plants_eia860': pudl.transform.eia860.plants,
+        'boiler_generator_assn_eia860': pudl.transform.eia860.boiler_generator_assn,
+        'utilities_eia860': pudl.transform.eia860.utilities}
+    eia860_transformed_dfs = {}
 
     for table in eia860_transform_functions.keys():
         if table in eia860_tables:
             if verbose:
                 print("Ingesting {} from EIA 860 into PUDL.".format(table))
             eia860_transform_functions[table](eia860_dfs,
-                                              eia860_table_dfs)
+                                              eia860_transformed_dfs)
 
-    load.load_eia860(eia860_table_dfs,
-                     pudl_engine,
-                     csvdir=csvdir,
-                     keep_csv=keep_csv)
+    load.eia860(eia860_transformed_dfs,
+                pudl_engine,
+                csvdir=csvdir,
+                keep_csv=keep_csv)
 
 
 def ingest_eia923(pudl_engine,
