@@ -6,13 +6,16 @@ from pudl import constants as pc
 import pudl.transform.pudl
 
 
-def clean_ownership_eia860(eia860_dfs):
+def ownership(eia860_dfs, eia860_transformed_dfs):
     """
-    Pull and transform the ownership table
+    Pull and transform the ownership table.
 
-    Args: eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
-        dictionary of DataFrame objects corresponds to a page from the
-        EIA860 form, as reported in the Excel spreadsheets they distribute.
+    Args:
+        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        eia860_transformed_dfs (dictionary of DataFrames)
+
     Returns: transformed dataframe.
     """
     o_df = eia860_dfs['ownership'].copy()
@@ -36,12 +39,37 @@ def clean_ownership_eia860(eia860_dfs):
 
     # TODO: this function should feed this altered dataframe back into eia860,
     # which should then feed into a yet to be created standardized 'load' step
+    eia860_transformed_dfs['ownership_eia860'] = o_df
 
-    return(o_df)
+    return(eia860_transformed_dfs)
 
 
-def clean_generators_eia860(gens_df):
-    """Clean up the combined EIA860 generators data frame."""
+def generators(eia860_dfs, eia860_transformed_dfs):
+    """
+    Pull and transform the generators table.
+
+    Args:
+        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        eia860_transformed_dfs (dictionary of DataFrames)
+
+    Returns: transformed dataframe.
+    """
+    # There are three sets of generator data reported in the EIA860 table,
+    # planned, existing, and retired generators. We're going to concatenate
+    # them all together into a single big table, with a column that indicates
+    # which one of these tables the data came from, since they all have almost
+    # exactly the same structure
+    gp_df = eia860_dfs['generator_proposed'].copy()
+    ge_df = eia860_dfs['generator_existing'].copy()
+    gr_df = eia860_dfs['generator_retired'].copy()
+    gp_df['status'] = 'proposed'
+    ge_df['status'] = 'existing'
+    gr_df['status'] = 'retired'
+
+    gens_df = pd.concat([ge_df, gp_df, gr_df])
+
     # Get rid of any unidentifiable records:
     gens_df.dropna(subset=['generator_id', 'plant_id_eia'], inplace=True)
 
@@ -130,73 +158,136 @@ def clean_generators_eia860(gens_df):
     gens_df['fuel_type_pudl'] = \
         pudl.transform.pudl.cleanstrings(gens_df['energy_source_1'],
                                          pc.fuel_type_eia860_simple_map)
+    # String-ify a bunch of fields for output.
+    fix_int_na_columns = ['plant_id_eia', 'sector', 'turbines']
 
-    return(gens_df)
+    for column in fix_int_na_columns:
+        gens_df[column] = \
+            pudl.transform.pudl.fix_int_na(gens_df[column],
+                                           float_na=np.nan,
+                                           int_na=-1,
+                                           str_na='')
+
+    gens_df = pudl.transform.pudl.convert_to_date(gens_df)
+
+    eia860_transformed_dfs['generators_eia860'] = gens_df
+
+    return(eia860_transformed_dfs)
 
 
-def clean_plants_eia860(eia860_dfs):
+def plants(eia860_dfs, eia860_transformed_dfs):
     """
-    Pull and transform the EIA 860 plants table
+    Pull and transform the plants table.
 
-    Args: eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
-        dictionary of DataFrame objects corresponds to a page from the
-        EIA860 form, as reported in the Excel spreadsheets they distribute.
+    Much of the static plant information is reported repeatedly, and scattered
+    across several different pages of EIA 923. The data frame which this
+    function uses is assembled from those many different pages, and passed in
+    via the same dictionary of dataframes that all the other ingest functions
+    use for uniformity.
+
+    Args:
+        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        eia860_transformed_dfs (dictionary of DataFrames)
+
     Returns: transformed dataframe.
     """
-    # Pull the plants data frame
+    # Populating the 'plants_eia860' table
     p_df = eia860_dfs['plant'].copy()
 
-    # # Replace '.' and ' ' with NaN in order to read in integer values
-    # p_df.replace(to_replace='.', value=np.nan, regex=True, inplace=True)
-    # p_df.replace(to_replace=' ', value=np.nan, regex=True,  inplace=True)
+    # Replace '.' and ' ' with NaN in order to read in integer values
 
-    # Replace empty strings, whitespace, and '.' fields with real NA values
-    p_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
-    p_df.replace(to_replace='^\s$', value=np.nan, regex=True, inplace=True)
-    p_df.replace(to_replace='^$', value=np.nan, regex=True, inplace=True)
+    p_df.replace(to_replace='.', value=np.nan, inplace=True)
+    p_df.replace(to_replace=' ', value=np.nan, inplace=True)
 
     # Cast integer values in sector to floats to avoid type errors
+
     p_df['sector'] = p_df['sector'].astype(float)
 
     # Cast various types in transmission_distribution_owner_id to str
+
     p_df['transmission_distribution_owner_id'] = \
         p_df['transmission_distribution_owner_id'].astype(str)
 
     # Cast values in zip_code to floats to avoid type errors
+
     p_df['zip_code'] = p_df['zip_code'].astype(str)
-
-    # A subset of the columns have "X" values, where other columns_to_fix
-    # have "N" values. Replacing these values with "N" will make for uniform
-    # values that can be converted to Boolean True and False pairs.
-
-    p_df.ash_impoundment_lined = \
-        p_df.ash_impoundment_lined.replace(to_replace='X', value='N')
-    p_df.natural_gas_storage = \
-        p_df.natural_gas_storage.replace(to_replace='X', value='N')
-    p_df.liquefied_natural_gas_storage = \
-        p_df.liquefied_natural_gas_storage.replace(to_replace='X', value='N')
-
-    boolean_columns_to_fix = [
-        'ferc_cogen_status',
-        'ferc_small_power_producer',
-        'ferc_exempt_wholesale_generator',
-        'ash_impoundment',
-        'ash_impoundment_lined',
-        'energy_storage',
-        'natural_gas_storage',
-        'liquefied_natural_gas_storage'
-    ]
-
-    for column in boolean_columns_to_fix:
-        p_df[column] = p_df[column].replace(
-            to_replace=["Y", "N"], value=[True, False])
-        p_df[column] = p_df[column].fillna('False')
 
     p_df = pudl.transform.pudl.convert_to_date(p_df)
 
-    # The fix we're making here is only known to be valid for 2011 -- if we
-    # get older data... then we need to to revisit the cleaning function and
-    # make sure it also applies to those earlier years.
-    assert min(p_df.report_date.dt.year) >= 2011
+    eia860_transformed_dfs['plants_eia860'] = p_df
 
-    return(p_df)
+    return(eia860_transformed_dfs)
+
+
+def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
+    """
+    Pull and transform the boilder generator association table.
+
+    Args:
+        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        eia860_transformed_dfs (dictionary of DataFrames)
+
+    Returns: transformed dataframe.
+    """
+    # Populating the 'generators_eia860' table
+    b_g_df = eia860_dfs['boiler_generator_assn'].copy()
+
+    b_g_cols = ['report_year',
+                'operator_id',
+                'plant_id_eia',
+                'boiler_id',
+                'generator_id']
+
+    b_g_df = b_g_df[b_g_cols]
+
+    # There are some bad (non-data) lines in some of the boiler generator
+    # data files (notes from EIA) which are messing up the import. Need to
+    # identify and drop them early on.
+    b_g_df['operator_id'] = b_g_df['operator_id'].astype(str)
+    b_g_df = b_g_df[b_g_df.operator_id.str.isnumeric()]
+
+    b_g_df['plant_id_eia'] = \
+        pudl.transform.pudl.fix_int_na(b_g_df['plant_id_eia'],
+                                       float_na=np.nan,
+                                       int_na=-1,
+                                       str_na='')
+
+    # We need to cast the generator_id column as type str because sometimes
+    # it is heterogeneous int/str which make drop_duplicates fail.
+    b_g_df['generator_id'] = b_g_df['generator_id'].astype(str)
+    b_g_df['boiler_id'] = b_g_df['boiler_id'].astype(str)
+
+    # This drop_duplicates isn't removing all duplicates
+    b_g_df = b_g_df.drop_duplicates().dropna()
+
+    b_g_df = pudl.transform.pudl.convert_to_date(b_g_df)
+
+    eia860_transformed_dfs['boiler_generator_assn_eia860'] = b_g_df
+
+    return(eia860_transformed_dfs)
+
+
+def utilities(eia860_dfs, eia860_transformed_dfs):
+    """
+    Pull and transform the utilities table.
+
+    Args:
+        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        eia860_transformed_dfs (dictionary of DataFrames)
+
+    Returns: transformed dataframe.
+    """
+    # Populating the 'utilities_eia860' table
+    u_df = eia860_dfs['utility'].copy()
+
+    u_df = pudl.transform.pudl.convert_to_date(u_df)
+
+    eia860_transformed_dfs['utilities_eia860'] = u_df
+
+    return(eia860_transformed_dfs)
