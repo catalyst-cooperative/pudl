@@ -320,6 +320,23 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
     # Populating the 'utilities_eia860' table
     u_df = eia860_dfs['utility'].copy()
 
+    # Replace empty strings, whitespace, and '.' fields with real NA values
+    u_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
+    u_df.replace(to_replace='^\s$', value=np.nan, regex=True, inplace=True)
+    u_df.replace(to_replace='^$', value=np.nan, regex=True, inplace=True)
+
+    boolean_columns_to_fix = [
+        'plants_reported_owner',
+        'plants_reported_operator',
+        'plants_reported_asset_manager',
+        'plants_reported_other_relationship'
+    ]
+
+    for column in boolean_columns_to_fix:
+        u_df[column] = u_df[column].replace(
+            to_replace=["Y", "N"], value=[True, False])
+        u_df[column] = u_df[column].fillna('False')
+
     u_df = pudl.transform.pudl.convert_to_date(u_df)
 
     eia860_transformed_dfs['utilities_eia860'] = u_df
