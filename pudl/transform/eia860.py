@@ -196,10 +196,10 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     # Populating the 'plants_eia860' table
     p_df = eia860_dfs['plant'].copy()
 
-    # Replace '.' and ' ' with NaN in order to read in integer values
-
-    p_df.replace(to_replace='.', value=np.nan, inplace=True)
-    p_df.replace(to_replace=' ', value=np.nan, inplace=True)
+    # Replace empty strings, whitespace, and '.' fields with real NA values
+    p_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
+    p_df.replace(to_replace='^\s$', value=np.nan, regex=True, inplace=True)
+    p_df.replace(to_replace='^$', value=np.nan, regex=True, inplace=True)
 
     # Cast integer values in sector to floats to avoid type errors
 
@@ -213,6 +213,40 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     # Cast values in zip_code to floats to avoid type errors
 
     p_df['zip_code'] = p_df['zip_code'].astype(str)
+
+    # A subset of the columns have "X" values, where other columns_to_fix
+    # have "N" values. Replacing these values with "N" will make for uniform
+    # values that can be converted to Boolean True and False pairs.
+
+    p_df.ash_impoundment_lined = \
+        p_df.ash_impoundment_lined.replace(to_replace='X', value='N')
+    p_df.natural_gas_storage = \
+        p_df.natural_gas_storage.replace(to_replace='X', value='N')
+    p_df.liquefied_natural_gas_storage = \
+        p_df.liquefied_natural_gas_storage.replace(to_replace='X', value='N')
+
+    boolean_columns_to_fix = [
+        'ferc_cogen_status',
+        'ferc_small_power_producer',
+        'ferc_exempt_wholesale_generator',
+        'ash_impoundment',
+        'ash_impoundment_lined',
+        'energy_storage',
+        'natural_gas_storage',
+        'liquefied_natural_gas_storage'
+    ]
+
+    for column in boolean_columns_to_fix:
+        p_df[column] = p_df[column].replace(
+            to_replace=["Y", "N"], value=[True, False])
+        p_df[column] = p_df[column].fillna('False')
+
+    p_df = pudl.transform.pudl.convert_to_date(p_df)
+
+    # The fix we're making here is only known to be valid for 2011 -- if we
+    # get older data... then we need to to revisit the cleaning function and
+    # make sure it also applies to those earlier years.
+    assert min(p_df.report_date.dt.year) >= 2011
 
     p_df = pudl.transform.pudl.convert_to_date(p_df)
 
@@ -285,6 +319,23 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
     """
     # Populating the 'utilities_eia860' table
     u_df = eia860_dfs['utility'].copy()
+
+    # Replace empty strings, whitespace, and '.' fields with real NA values
+    u_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
+    u_df.replace(to_replace='^\s$', value=np.nan, regex=True, inplace=True)
+    u_df.replace(to_replace='^$', value=np.nan, regex=True, inplace=True)
+
+    boolean_columns_to_fix = [
+        'plants_reported_owner',
+        'plants_reported_operator',
+        'plants_reported_asset_manager',
+        'plants_reported_other_relationship'
+    ]
+
+    for column in boolean_columns_to_fix:
+        u_df[column] = u_df[column].replace(
+            to_replace=["Y", "N"], value=[True, False])
+        u_df[column] = u_df[column].fillna('False')
 
     u_df = pudl.transform.pudl.convert_to_date(u_df)
 

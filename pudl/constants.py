@@ -3046,7 +3046,7 @@ pudl_tables = {
 base_data_urls = {
     'eia860': 'https://www.eia.gov/electricity/data/eia860/xls',
     'eia861': 'https://www.eia.gov/electricity/data/eia861/zip',
-    'eia923': 'https://www.eia.gov/electricity/data/eia923/xls',
+    'eia923': 'https://www.eia.gov/electricity/data/eia923/archive/xls',
     'epacems': 'ftp://ftp.epa.gov/dmdnload/emissions/hourly/monthly',
     'ferc1': 'ftp://eforms1.ferc.gov/f1allyears',
     'mshaprod': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',

@@ -41,7 +41,7 @@ def parse_command_line(argv):
         '-c',
         '--clobber',
         action='store_true',
-        help="Clobber existing files in the datastore if they exist.",
+        help="Clobber existing zipfiles in the datastore if they exist.",
         default=False
     )
     parser.add_argument(
@@ -72,6 +72,14 @@ def parse_command_line(argv):
         specified, all available data will be downloaded for all requested data
         sources.""",
         default=[]
+    )
+    parser.add_argument(
+        '-n',
+        '--no-download',
+        dest='no_download',
+        action='store_true',
+        help="Do not download data files, only unzip ones that are already present.",
+        default=False
     )
 
     arguments = parser.parse_args(argv[1:])
@@ -108,7 +116,8 @@ def main():
                              clobber=args.clobber,
                              unzip=args.unzip,
                              verbose=args.verbose,
-                             datadir=args.datadir)
+                             datadir=args.datadir,
+                             no_download=args.no_download)
 
 
 if __name__ == '__main__':
