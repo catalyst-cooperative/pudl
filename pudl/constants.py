@@ -471,14 +471,14 @@ ferc1_default_tables = ['f1_respondent_id',
                         'f1_accumdepr_prvsn']
 
 # This is the set of tables which have been successfully integrated into PUDL:
-ferc1_pudl_tables = ['f1_fuel',
-                     'f1_steam',
-                     'f1_gnrt_plant',
-                     'f1_hydro',
-                     'f1_plant_in_srvce',
-                     'f1_pumped_storage',
-                     'f1_accumdepr_prvsn',
-                     'f1_purchased_pwr']
+ferc1_pudl_tables = ['fuel_ferc1',
+                     'plants_steam_ferc1',
+                     'plants_small_ferc1',
+                     'plants_hydro_ferc1',
+                     'plants_pumped_storage_ferc1',
+                     'plant_in_service_ferc1',
+                     'purchased_power_ferc1',
+                     'accumulated_depreciation_ferc1']
 
 
 # This is the full set of tables that currently ingestible by the ferc1 DB:
@@ -491,6 +491,15 @@ ferc1_working_tables = ['f1_respondent_id',
                         'f1_plant_in_srvce',
                         'f1_purchased_pwr',
                         'f1_accumdepr_prvsn']
+
+table_map_ferc1_pudl = {'fuel_ferc1': 'f1_fuel',
+                        'plants_steam_ferc1': 'f1_steam',
+                        'plants_small_ferc1': 'f1_gnrt_plant',
+                        'plants_hydro_ferc1': 'f1_hydro',
+                        'plants_pumped_storage_ferc1': 'f1_pumped_storage',
+                        'plant_in_service_ferc1': 'f1_plant_in_srvce',
+                        'purchased_power_ferc1': 'f1_purchased_pwr',
+                        'accumulated_depreciation_ferc1': 'f1_accumdepr_prvsn'}
 
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL

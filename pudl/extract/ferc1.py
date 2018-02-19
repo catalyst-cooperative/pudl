@@ -2,6 +2,7 @@
 import os.path
 from pudl import settings
 import pudl.constants as pc
+import pandas as pd
 import sqlalchemy as sa
 import dbfread
 import string
@@ -314,3 +315,178 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
             conn.execute(sql_stmt, sql_records)
 
     conn.close()
+
+
+###########################################################################
+# Functions related to extracting ferc1 tables for pudl.
+###########################################################################
+
+def fuel(ferc1_raw_dfs,
+         ferc1_engine,
+         ferc1_table='f1_fuel',
+         pudl_table='fuel_ferc1',
+         ferc1_years=pc.working_years['ferc1']):
+    """Pull the f1_fuel table from the ferc1 db."""
+    # Grab the f1_fuel SQLAlchemy Table object from the metadata object.
+    f1_fuel = ferc1_meta.tables[ferc1_table]
+    # Generate a SELECT statement that pulls all fields of the f1_fuel table,
+    # but only gets records with plant names, and non-zero fuel amounts:
+    f1_fuel_select = sa.sql.select([f1_fuel]).\
+        where(f1_fuel.c.fuel != '').\
+        where(f1_fuel.c.fuel_quantity > 0).\
+        where(f1_fuel.c.plant_name != '').\
+        where(f1_fuel.c.report_year.in_(ferc1_years))
+    # Use the above SELECT to pull those records into a DataFrame:
+    fuel_ferc1_df = pd.read_sql(f1_fuel_select, ferc1_engine)
+
+    ferc1_raw_dfs[pudl_table] = fuel_ferc1_df
+
+    return(ferc1_raw_dfs)
+
+
+def plants_steam(ferc1_raw_dfs,
+                 ferc1_engine,
+                 ferc1_table='f1_steam',
+                 pudl_table='plants_steam_ferc1',
+                 ferc1_years=pc.working_years['ferc1']):
+    """ """
+    f1_steam = ferc1_meta.tables[ferc1_table]
+    f1_steam_select = sa.sql.select([f1_steam]).\
+        where(f1_steam.c.net_generation > 0).\
+        where(f1_steam.c.plant_name != '').\
+        where(f1_steam.c.report_year.in_(ferc1_years))
+
+    ferc1_steam_df = pd.read_sql(f1_steam_select, ferc1_engine)
+
+    # populate the unlatered dictionary of dataframes
+    ferc1_raw_dfs[pudl_table] = ferc1_steam_df
+
+    return(ferc1_raw_dfs)
+
+
+def plants_small(ferc1_raw_dfs,
+                 ferc1_engine,
+                 ferc1_table='f1_gnrt_plant',
+                 pudl_table='plants_small_ferc1',
+                 ferc1_years=pc.working_years['ferc1']):
+    from sqlalchemy import or_
+
+    assert min(ferc1_years) >= min(pc.working_years['ferc1']),\
+        """Year {} is too early. Small plant data has not been categorized for
+         before 2004.""".format(min(ferc1_years))
+    assert max(ferc1_years) <= max(pc.working_years['ferc1']),\
+        """Year {} is too recent. Small plant data has not been categorized for
+         any year after 2015.""".format(max(ferc1_years))
+    f1_small = ferc1_meta.tables[ferc1_table]
+    f1_small_select = sa.sql.select([f1_small, ]).\
+        where(f1_small.c.report_year.in_(ferc1_years)).\
+        where(f1_small.c.plant_name != '').\
+        where(or_((f1_small.c.capacity_rating != 0),
+                  (f1_small.c.net_demand != 0),
+                  (f1_small.c.net_generation != 0),
+                  (f1_small.c.plant_cost != 0),
+                  (f1_small.c.plant_cost_mw != 0),
+                  (f1_small.c.operation != 0),
+                  (f1_small.c.expns_fuel != 0),
+                  (f1_small.c.expns_maint != 0),
+                  (f1_small.c.fuel_cost != 0)))
+
+    ferc1_small_df = pd.read_sql(f1_small_select, ferc1_engine)
+
+    # populate the unlatered dictionary of dataframes
+    ferc1_raw_dfs[pudl_table] = ferc1_small_df
+
+    return(ferc1_raw_dfs)
+
+
+def plants_hydro(ferc1_raw_dfs,
+                 ferc1_engine,
+                 ferc1_table='f1_hydro',
+                 pudl_table='plants_hydro_ferc1',
+                 ferc1_years=pc.working_years['ferc1']):
+    f1_hydro = ferc1_meta.tables[ferc1_table]
+
+    f1_hydro_select = sa.sql.select([f1_hydro]).\
+        where(f1_hydro.c.plant_name != '').\
+        where(f1_hydro.c.report_year.in_(ferc1_years))
+
+    ferc1_hydro_df = pd.read_sql(f1_hydro_select, ferc1_engine)
+
+    ferc1_raw_dfs[pudl_table] = ferc1_hydro_df
+
+    return(ferc1_raw_dfs)
+
+
+def plants_pumped_storage(ferc1_raw_dfs,
+                          ferc1_engine,
+                          ferc1_table='f1_pumped_storage',
+                          pudl_table='plants_pumped_storage_ferc1',
+                          ferc1_years=pc.working_years['ferc1']):
+    f1_pumped_storage = \
+        ferc1_meta.tables[ferc1_table]
+
+    # Removing the empty records.
+    # This reduces the entries for 2015 from 272 records to 27.
+    f1_pumped_storage_select = sa.sql.select([f1_pumped_storage]).\
+        where(f1_pumped_storage.c.plant_name != '').\
+        where(f1_pumped_storage.c.report_year.in_(ferc1_years))
+
+    ferc1_pumped_storage_df = pd.read_sql(
+        f1_pumped_storage_select, ferc1_engine)
+
+    ferc1_raw_dfs[pudl_table] = ferc1_pumped_storage_df
+
+    return(ferc1_raw_dfs)
+
+
+def plant_in_service(ferc1_raw_dfs,
+                     ferc1_engine,
+                     ferc1_table='f1_plant_in_srvce',
+                     pudl_table='plant_in_service_ferc1',
+                     ferc1_years=pc.working_years['ferc1']):
+    f1_plant_in_srvce = \
+        ferc1_meta.tables[ferc1_table]
+    f1_plant_in_srvce_select = sa.sql.select([f1_plant_in_srvce]).\
+        where(
+            sa.sql.and_(
+                f1_plant_in_srvce.c.report_year.in_(ferc1_years),
+                # line_no mapping is invalid before 2007
+                f1_plant_in_srvce.c.report_year >= 2007))
+
+    ferc1_pis_df = pd.read_sql(f1_plant_in_srvce_select, ferc1_engine)
+
+    ferc1_raw_dfs[pudl_table] = ferc1_pis_df
+
+    return(ferc1_raw_dfs)
+
+
+def purchased_power(ferc1_raw_dfs,
+                    ferc1_engine,
+                    ferc1_table='f1_purchased_pwr',
+                    pudl_table='purchased_power_ferc1',
+                    ferc1_years=pc.working_years['ferc1']):
+    f1_purchased_pwr = ferc1_meta.tables[ferc1_table]
+    f1_purchased_pwr_select = sa.sql.select([f1_purchased_pwr]).\
+        where(f1_purchased_pwr.c.report_year.in_(ferc1_years))
+
+    ferc1_purchased_pwr_df = pd.read_sql(f1_purchased_pwr_select, ferc1_engine)
+
+    ferc1_raw_dfs[pudl_table] = ferc1_purchased_pwr_df
+
+    return(ferc1_raw_dfs)
+
+
+def accumulated_depreciation(ferc1_raw_dfs,
+                             ferc1_engine,
+                             ferc1_table='f1_accumdepr_prvsn',
+                             pudl_table='accumulated_depreciation_ferc1',
+                             ferc1_years=pc.working_years['ferc1']):
+    f1_accumdepr_prvsn = ferc1_meta.tables[ferc1_table]
+    f1_accumdepr_prvsn_select = sa.sql.select([f1_accumdepr_prvsn]).\
+        where(f1_accumdepr_prvsn.c.report_year.in_(ferc1_years))
+
+    ferc1_apd_df = pd.read_sql(f1_accumdepr_prvsn_select, ferc1_engine)
+
+    ferc1_raw_dfs[pudl_table] = ferc1_apd_df
+
+    return(ferc1_raw_dfs)
