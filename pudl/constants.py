@@ -471,14 +471,14 @@ ferc1_default_tables = ['f1_respondent_id',
                         'f1_accumdepr_prvsn']
 
 # This is the set of tables which have been successfully integrated into PUDL:
-ferc1_pudl_tables = ['f1_fuel',
-                     'f1_steam',
-                     'f1_gnrt_plant',
-                     'f1_hydro',
-                     'f1_plant_in_srvce',
-                     'f1_pumped_storage',
-                     'f1_accumdepr_prvsn',
-                     'f1_purchased_pwr']
+ferc1_pudl_tables = ['fuel_ferc1',
+                     'plants_steam_ferc1',
+                     'plants_small_ferc1',
+                     'plants_hydro_ferc1',
+                     'plants_pumped_storage_ferc1',
+                     'plant_in_service_ferc1',
+                     'purchased_power_ferc1',
+                     'accumulated_depreciation_ferc1']
 
 
 # This is the full set of tables that currently ingestible by the ferc1 DB:
@@ -491,6 +491,15 @@ ferc1_working_tables = ['f1_respondent_id',
                         'f1_plant_in_srvce',
                         'f1_purchased_pwr',
                         'f1_accumdepr_prvsn']
+
+table_map_ferc1_pudl = {'fuel_ferc1': 'f1_fuel',
+                        'plants_steam_ferc1': 'f1_steam',
+                        'plants_small_ferc1': 'f1_gnrt_plant',
+                        'plants_hydro_ferc1': 'f1_hydro',
+                        'plants_pumped_storage_ferc1': 'f1_pumped_storage',
+                        'plant_in_service_ferc1': 'f1_plant_in_srvce',
+                        'purchased_power_ferc1': 'f1_purchased_pwr',
+                        'accumulated_depreciation_ferc1': 'f1_accumdepr_prvsn'}
 
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
@@ -506,14 +515,14 @@ eia923_pudl_tables = ['plants_eia923',
 # 'stocks_eia923'
 
 tab_map_eia923 = pd.DataFrame.from_records([
-    (2009, 0, 1, 2, 3, 4, -1),
-    (2010, 0, 1, 2, 3, 4, -1),
-    (2011, 0, 1, 2, 3, 4, 5),
-    (2012, 0, 1, 2, 3, 4, 5),
-    (2013, 0, 1, 2, 3, 4, 5),
-    (2014, 0, 1, 2, 3, 4, 5),
-    (2015, 0, 1, 2, 3, 4, 5),
-    (2016, 0, 1, 3, 4, 5, 6)],
+    (2009, 0, 1, 5, 6, 7, -1),
+    (2010, 0, 1, 5, 6, 7, -1),
+    (2011, 0, 1, 5, 6, 7, 8),
+    (2012, 0, 1, 5, 6, 7, 8),
+    (2013, 0, 1, 5, 6, 7, 8),
+    (2014, 0, 1, 5, 6, 7, 8),
+    (2015, 0, 1, 5, 6, 7, 8),
+    (2016, 0, 1, 5, 6, 7, 8)],
     columns=['year_index', 'generation_fuel', 'stocks', 'boiler_fuel',
              'generator', 'fuel_receipts_costs', 'plant_frame'],
     index='year_index')
@@ -3008,7 +3017,7 @@ data_sources = [
 data_years = {
     'eia860': range(2001, 2017),
     'eia861': range(1990, 2016),
-    'eia923': range(2001, 2018),
+    'eia923': range(2001, 2017),
     'epacems': range(1995, 2018),
     'ferc1': range(1994, 2017),
     'mshamines': range(2000, 2018),
@@ -3037,7 +3046,7 @@ pudl_tables = {
 base_data_urls = {
     'eia860': 'https://www.eia.gov/electricity/data/eia860/xls',
     'eia861': 'https://www.eia.gov/electricity/data/eia861/zip',
-    'eia923': 'https://www.eia.gov/electricity/data/eia923/xls',
+    'eia923': 'https://www.eia.gov/electricity/data/eia923/archive/xls',
     'epacems': 'ftp://ftp.epa.gov/dmdnload/emissions/hourly/monthly',
     'ferc1': 'ftp://eforms1.ferc.gov/f1allyears',
     'mshaprod': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',

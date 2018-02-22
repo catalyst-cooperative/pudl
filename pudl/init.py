@@ -431,7 +431,8 @@ def ingest_fuel_ferc1(pudl_engine, ferc1_engine, ferc1_years):
     # Use the above SELECT to pull those records into a DataFrame:
     fuel_ferc1_df = pd.read_sql(f1_fuel_select, ferc1_engine)
 
-    fuel_ferc1_df = pudl.transform.ferc1.clean_fuel_ferc1(fuel_ferc1_df)
+    fuel_ferc1_df = pudl.transform.ferc1.fuel(
+        ferc1_transformed_dfs['fuel_ferc1'])
 
     fuel_ferc1_df.to_sql(name='fuel_ferc1',
                          con=pudl_engine, index=False, if_exists='append',
@@ -548,56 +549,6 @@ def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-    f1_hydro = pudl.extract.ferc1.ferc1_meta.tables['f1_hydro']
-
-    f1_hydro_select = sa.sql.select([f1_hydro]).\
-        where(f1_hydro.c.plant_name != '').\
-        where(f1_hydro.c.report_year.in_(ferc1_years))
-
-    ferc1_hydro_df = pd.read_sql(f1_hydro_select, ferc1_engine)
-    ferc1_hydro_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
-                         'report_prd'], axis=1, inplace=True)
-
-    # Standardize plant_name capitalization and remove leading/trailing white
-    # space -- necesary b/c plant_name is part of many foreign keys.
-    ferc1_hydro_df['plant_name'] = ferc1_hydro_df['plant_name'].str.strip()
-    ferc1_hydro_df['plant_name'] = ferc1_hydro_df['plant_name'].str.title()
-
-    # Converting kWh to MWh
-    ferc1_hydro_df['net_generation_mwh'] = \
-        ferc1_hydro_df['net_generation'] / 1000.0
-    ferc1_hydro_df.drop('net_generation', axis=1, inplace=True)
-    # Converting cost per kW installed to cost per MW installed:
-    ferc1_hydro_df['cost_per_mw'] = ferc1_hydro_df['cost_per_kw'] * 1000.0
-    ferc1_hydro_df.drop('cost_per_kw', axis=1, inplace=True)
-    # Converting kWh to MWh
-    ferc1_hydro_df['expns_per_mwh'] = ferc1_hydro_df['expns_kwh'] * 1000.0
-    ferc1_hydro_df.drop('expns_kwh', axis=1, inplace=True)
-
-    ferc1_hydro_df['yr_const'] = pd.to_numeric(
-        ferc1_hydro_df['yr_const'],
-        errors='coerce')
-    ferc1_hydro_df['yr_installed'] = pd.to_numeric(
-        ferc1_hydro_df['yr_installed'],
-        errors='coerce')
-    ferc1_hydro_df.dropna(inplace=True)
-    ferc1_hydro_df.rename(columns={
-        # FERC1 DB          PUDL DB
-        'project_no': 'project_number',
-        'yr_const': 'year_constructed',
-        'plant_const': 'plant_construction',
-        'yr_installed': 'year_installed',
-        'tot_capacity': 'total_capacity_mw',
-        'peak_demand': 'peak_demand_mw',
-        'plant_hours': 'plant_hours_connected_while_generating',
-        'favorable_cond': 'net_capacity_favorable_conditions_mw',
-        'adverse_cond': 'net_capacity_adverse_conditions_mw',
-        'avg_num_of_emp': 'avg_num_employees',
-        'cost_of_land': 'cost_land',
-        'expns_engnr': 'expns_engineering',
-        'expns_total': 'expns_production_total',
-        'asset_retire_cost': 'asset_retirement_cost'
-    }, inplace=True)
 
     ferc1_hydro_df.to_sql(name='plants_hydro_ferc1',
                           con=pudl_engine, index=False, if_exists='append',
@@ -622,81 +573,6 @@ def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-    f1_pumped_storage = \
-        pudl.extract.ferc1.ferc1_meta.tables['f1_pumped_storage']
-
-    # Removing the empty records.
-    # This reduces the entries for 2015 from 272 records to 27.
-    f1_pumped_storage_select = sa.sql.select([f1_pumped_storage]).\
-        where(f1_pumped_storage.c.plant_name != '').\
-        where(f1_pumped_storage.c.report_year.in_(ferc1_years))
-
-    ferc1_pumped_storage_df = pd.read_sql(
-        f1_pumped_storage_select, ferc1_engine)
-    ferc1_pumped_storage_df.drop(['spplmnt_num', 'row_number', 'row_seq',
-                                  'row_prvlg', 'report_prd'],
-                                 axis=1, inplace=True)
-
-    # Standardize plant_name capitalization and remove leading/trailing white
-    # space -- necesary b/c plant_name is part of many foreign keys.
-    ferc1_pumped_storage_df['plant_name'] = \
-        ferc1_pumped_storage_df['plant_name'].str.strip()
-    ferc1_pumped_storage_df['plant_name'] = \
-        ferc1_pumped_storage_df['plant_name'].str.title()
-
-    # Converting kWh to MWh
-    ferc1_pumped_storage_df['net_generation_mwh'] = \
-        ferc1_pumped_storage_df['net_generation'] / 1000.0
-    ferc1_pumped_storage_df.drop('net_generation', axis=1, inplace=True)
-
-    ferc1_pumped_storage_df['energy_used_for_pumping_mwh'] = \
-        ferc1_pumped_storage_df['energy_used'] / 1000.0
-    ferc1_pumped_storage_df.drop('energy_used', axis=1, inplace=True)
-
-    ferc1_pumped_storage_df['net_load_mwh'] = \
-        ferc1_pumped_storage_df['net_load'] / 1000.0
-    ferc1_pumped_storage_df.drop('net_load', axis=1, inplace=True)
-
-    # Converting cost per kW installed to cost per MW installed:
-    ferc1_pumped_storage_df['cost_per_mw'] = \
-        ferc1_pumped_storage_df['cost_per_kw'] * 1000.0
-    ferc1_pumped_storage_df.drop('cost_per_kw', axis=1, inplace=True)
-
-    ferc1_pumped_storage_df['expns_per_mwh'] = \
-        ferc1_pumped_storage_df['expns_kwh'] * 1000.0
-    ferc1_pumped_storage_df.drop('expns_kwh', axis=1, inplace=True)
-
-    ferc1_pumped_storage_df['yr_const'] = pd.to_numeric(
-        ferc1_pumped_storage_df['yr_const'],
-        errors='coerce')
-    ferc1_pumped_storage_df['yr_installed'] = pd.to_numeric(
-        ferc1_pumped_storage_df['yr_installed'],
-        errors='coerce')
-
-    ferc1_pumped_storage_df.dropna(inplace=True)
-
-    ferc1_pumped_storage_df.rename(columns={
-        # FERC1 DB          PUDL DB
-        'tot_capacity': 'total_capacity_mw',
-        'project_no': 'project_number',
-        'peak_demand': 'peak_demand_mw',
-        'yr_const': 'year_constructed',
-        'yr_installed': 'year_installed',
-        'plant_hours': 'plant_hours_connected_while_generating',
-        'plant_capability': 'plant_capability_mw',
-        'avg_num_of_emp': 'avg_num_employees',
-        'cost_wheels': 'cost_wheels_turbines_generators',
-        'cost_electric': 'cost_equipment_electric',
-        'cost_misc_eqpmnt': 'cost_equipment_misc',
-        'cost_of_plant': 'cost_plant_total',
-        'expns_water_pwr': 'expns_water_for_pwr',
-        'expns_pump_strg': 'expns_pump_storage',
-        'expns_misc_power': 'expns_generation_misc',
-        'expns_misc_plnt': 'expns_misc_plant',
-        'expns_producton': 'expns_production_before_pumping',
-        'tot_prdctn_exns': 'expns_production_total'},
-        inplace=True)
-
     ferc1_pumped_storage_df.to_sql(name='plants_pumped_storage_ferc1',
                                    con=pudl_engine, index=False,
                                    if_exists='append')
@@ -721,31 +597,6 @@ def ingest_accumulated_depreciation_ferc1(pudl_engine,
 
     Returns: Nothing.
     """
-    f1_accumdepr_prvsn = \
-        pudl.extract.ferc1.ferc1_meta.tables['f1_accumdepr_prvsn']
-    f1_accumdepr_prvsn_select = sa.sql.select([f1_accumdepr_prvsn]).\
-        where(f1_accumdepr_prvsn.c.report_year.in_(ferc1_years))
-
-    ferc1_apd_df = pd.read_sql(f1_accumdepr_prvsn_select, ferc1_engine)
-
-    # Discard DataFrame columns that we aren't pulling into PUDL. For
-    ferc1_apd_df.drop(['spplmnt_num', 'row_seq',
-                       'row_prvlg', 'item', 'report_prd'],
-                      axis=1, inplace=True)
-
-    ferc1_acct_apd = pc.ferc_accumulated_depreciation.drop(
-        ['ferc_account_description'], axis=1)
-    ferc1_acct_apd.dropna(inplace=True)
-    ferc1_acct_apd['row_number'] = ferc1_acct_apd['row_number'].astype(int)
-
-    ferc1_accumdepr_prvsn_df = pd.merge(ferc1_apd_df, ferc1_acct_apd,
-                                        how='left', on='row_number')
-    ferc1_accumdepr_prvsn_df.drop('row_number', axis=1, inplace=True)
-
-    ferc1_accumdepr_prvsn_df.rename(columns={
-        # FERC1 DB   PUDL DB
-        'total_cde': 'total'},
-        inplace=True)
 
     ferc1_accumdepr_prvsn_df.\
         to_sql(name='accumulated_depreciation_ferc1',
@@ -779,42 +630,7 @@ def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
        Returns: Nothing.
     """
-    f1_plant_in_srvce = \
-        pudl.extract.ferc1.ferc1_meta.tables['f1_plant_in_srvce']
-    f1_plant_in_srvce_select = sa.sql.select([f1_plant_in_srvce]).\
-        where(
-            sa.sql.and_(
-                f1_plant_in_srvce.c.report_year.in_(ferc1_years),
-                # line_no mapping is invalid before 2007
-                f1_plant_in_srvce.c.report_year >= 2007
-            )
-    )
 
-    ferc1_pis_df = pd.read_sql(f1_plant_in_srvce_select, ferc1_engine)
-
-    # Discard DataFrame columns that we aren't pulling into PUDL. For the
-    # Plant In Service table, we need to hold on to the row_number because it
-    # corresponds to a FERC account number.
-    ferc1_pis_df.drop(['spplmnt_num', 'row_seq', 'row_prvlg', 'report_prd'],
-                      axis=1, inplace=True)
-
-    # Now we need to add a column to the DataFrame that has the FERC account
-    # IDs corresponding to the row_number that's already in there...
-    ferc_accts_df = pc.ferc_electric_plant_accounts.drop(
-        ['ferc_account_description'], axis=1)
-    ferc_accts_df.dropna(inplace=True)
-    ferc_accts_df['row_number'] = ferc_accts_df['row_number'].astype(int)
-
-    ferc1_pis_df = pd.merge(ferc1_pis_df, ferc_accts_df,
-                            how='left', on='row_number')
-    ferc1_pis_df.drop('row_number', axis=1, inplace=True)
-
-    ferc1_pis_df.rename(columns={
-        # FERC 1 DB Name  PUDL DB Name
-        'begin_yr_bal': 'beginning_year_balance',
-        'addition': 'additions',
-        'yr_end_bal': 'year_end_balance'},
-        inplace=True)
     ferc1_pis_df.to_sql(name='plant_in_service_ferc1',
                         con=pudl_engine, index=False, if_exists='append',
                         dtype={'respondent_id': sa.Integer,
@@ -854,106 +670,6 @@ def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-    import os.path
-    from sqlalchemy import or_
-
-    assert min(ferc1_years) >= min(pc.working_years['ferc1']),\
-        """Year {} is too early. Small plant data has not been categorized for
-        before 2004.""".format(min(ferc1_years))
-    assert max(ferc1_years) <= max(pc.working_years['ferc1']),\
-        """Year {} is too recent. Small plant data has not been categorized for
-        any year after 2015.""".format(max(ferc1_years))
-    f1_small = pudl.extract.ferc1.ferc1_meta.tables['f1_gnrt_plant']
-    f1_small_select = sa.sql.select([f1_small, ]).\
-        where(f1_small.c.report_year.in_(ferc1_years)).\
-        where(f1_small.c.plant_name != '').\
-        where(or_((f1_small.c.capacity_rating != 0),
-                  (f1_small.c.net_demand != 0),
-                  (f1_small.c.net_generation != 0),
-                  (f1_small.c.plant_cost != 0),
-                  (f1_small.c.plant_cost_mw != 0),
-                  (f1_small.c.operation != 0),
-                  (f1_small.c.expns_fuel != 0),
-                  (f1_small.c.expns_maint != 0),
-                  (f1_small.c.fuel_cost != 0)))
-
-    ferc1_small_df = pd.read_sql(f1_small_select, ferc1_engine)
-
-    # Standardize plant_name capitalization and remove leading/trailing white
-    # space -- necesary b/c plant_name is part of many foreign keys.
-    ferc1_small_df['plant_name'] = ferc1_small_df['plant_name'].str.strip()
-    ferc1_small_df['plant_name'] = ferc1_small_df['plant_name'].str.title()
-
-    ferc1_small_df['kind_of_fuel'] = ferc1_small_df['kind_of_fuel'].str.strip()
-    ferc1_small_df['kind_of_fuel'] = ferc1_small_df['kind_of_fuel'].str.title()
-
-    # Force the construction and installation years to be numeric values, and
-    # set them to NA if they can't be converted. (table has some junk values)
-    ferc1_small_df['yr_constructed'] = pd.to_numeric(
-        ferc1_small_df['yr_constructed'],
-        errors='coerce')
-    # Convert from cents per mmbtu to dollars per mmbtu to be consistent
-    # with the f1_fuel table data. Also, let's use a clearer name.
-    ferc1_small_df['fuel_cost_per_mmbtu'] = ferc1_small_df['fuel_cost'] / 100.0
-    ferc1_small_df.drop('fuel_cost', axis=1, inplace=True)
-
-    # Create a single "record number" for the individual lines in the FERC
-    # Form 1 that report different small plants, so that we can more easily
-    # tell whether they are adjacent to each other in the reporting.
-    ferc1_small_df['record_number'] = 46 * ferc1_small_df['spplmnt_num'] + \
-        ferc1_small_df['row_number']
-
-    # Unforunately the plant types were not able to be parsed automatically
-    # in this table. It's been done manually for 2004-2015, and the results
-    # get merged in in the following section.
-    small_types_file = os.path.join(settings.PUDL_DIR,
-                                    'results',
-                                    'ferc1_small_plants',
-                                    'small_plants_2004-2016.xlsx')
-    small_types_df = pd.read_excel(small_types_file)
-
-    # Only rows with plant_type set will give us novel information.
-    small_types_df.dropna(subset=['plant_type', ], inplace=True)
-    # We only need this small subset of the columns to extract the plant type.
-    small_types_df = small_types_df[['report_year', 'respondent_id',
-                                     'record_number', 'plant_name_clean',
-                                     'plant_type', 'ferc_license']]
-
-    # Munge the two dataframes together, keeping everything from the
-    # frame we pulled out of the FERC1 DB, and supplementing it with the
-    # plant_name_clean, plant_type, and ferc_license fields from our hand
-    # made file.
-    ferc1_small_df = pd.merge(ferc1_small_df,
-                              small_types_df,
-                              how='left',
-                              on=['report_year',
-                                  'respondent_id',
-                                  'record_number'])
-
-    # We don't need to pull these columns into PUDL, so drop them:
-    ferc1_small_df.drop(['row_seq', 'row_prvlg', 'report_prd',
-                         'row_number', 'spplmnt_num', 'record_number'],
-                        axis=1, inplace=True)
-
-    # Standardize plant_name capitalization and remove leading/trailing white
-    # space, so that plant_name_clean matches formatting of plant_name
-    ferc1_small_df['plant_name_clean'] = \
-        ferc1_small_df['plant_name_clean'].str.strip()
-    ferc1_small_df['plant_name_clean'] = \
-        ferc1_small_df['plant_name_clean'].str.title()
-
-    ferc1_small_df.rename(columns={
-        # FERC 1 DB Name      PUDL DB Name
-        'yr_constructed': 'year_constructed',
-        'capacity_rating': 'total_capacity_mw',
-        'net_demand': 'peak_demand_mw',
-        'net_generation': 'net_generation_mwh',
-        'plant_cost': 'total_cost_of_plant',
-        'plant_cost_mw': 'cost_of_plant_per_mw',
-        'operation': 'cost_of_operation',
-        'expns_maint': 'expns_maintenance',
-        'fuel_cost': 'fuel_cost_per_mmbtu'},
-        inplace=True)
     ferc1_small_df.to_sql(name='plants_small_ferc1',
                           con=pudl_engine, index=False, if_exists='append',
                           dtype={'respondent_id': sa.Integer,
@@ -994,34 +710,6 @@ def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine, ferc1_years):
 
     Returns: Nothing.
     """
-    f1_purchased_pwr = pudl.extract.ferc1.ferc1_meta.tables['f1_purchased_pwr']
-    f1_purchased_pwr_select = sa.sql.select([f1_purchased_pwr]).\
-        where(f1_purchased_pwr.c.report_year.in_(ferc1_years))
-
-    ferc1_purchased_pwr_df = pd.read_sql(f1_purchased_pwr_select, ferc1_engine)
-
-    ferc1_purchased_pwr_df.drop(['spplmnt_num', 'row_number', 'row_seq',
-                                 'row_prvlg', 'report_prd'],
-                                axis=1, inplace=True)
-    ferc1_purchased_pwr_df.replace(to_replace='', value=np.nan, inplace=True)
-    ferc1_purchased_pwr_df.dropna(subset=['sttstcl_clssfctn',
-                                          'rtsched_trffnbr'], inplace=True)
-
-    ferc1_purchased_pwr_df.rename(columns={
-        # FERC 1 DB Name  PUDL DB Name
-        'athrty_co_name': 'authority_company_name',
-        'sttstcl_clssfctn': 'statistical_classification',
-        'rtsched_trffnbr': 'rate_schedule_tariff_number',
-        'avgmth_bill_dmnd': 'average_billing_demand',
-        'avgmth_ncp_dmnd': 'average_monthly_ncp_demand',
-        'avgmth_cp_dmnd': 'average_monthly_cp_demand',
-        'mwh_recv': 'mwh_received',
-        'mwh_delvd': 'mwh_delivered',
-        'dmnd_charges': 'demand_charges',
-        'erg_charges': 'energy_charges',
-        'othr_charges': 'other_charges',
-        'settlement_tot': 'settlement_total'},
-        inplace=True)
 
     ferc1_purchased_pwr_df.to_sql(
         name='purchased_power_ferc1',
@@ -1159,29 +847,84 @@ def ingest_eia923(pudl_engine,
 def ingest_ferc1(pudl_engine,
                  ferc1_tables=pc.ferc1_pudl_tables,
                  ferc1_years=pc.working_years['ferc1'],
-                 verbose=True, debug=False, testing=False):
+                 csvdir=os.path.join(settings.PUDL_DIR, 'results', 'csvdump'),
+                 keep_csv=True,
+                 verbose=True,
+                 debug=False,
+                 testing=False):
     """Wrapper function that ingests all the FERC Form 1 tables."""
     # BEGIN INGESTING FERC FORM 1 DATA:
-    # Note that ferc1.init_db() must already have been run... somewhere.
-    ferc1_ingest_functions = {
-        'f1_fuel': ingest_fuel_ferc1,
-        'f1_steam': ingest_plants_steam_ferc1,
-        'f1_gnrt_plant': ingest_plants_small_ferc1,
-        'f1_hydro': ingest_plants_hydro_ferc1,
-        'f1_pumped_storage': ingest_plants_pumped_storage_ferc1,
-        'f1_plant_in_srvce': ingest_plant_in_service_ferc1,
-        'f1_purchased_pwr': ingest_purchased_power_ferc1,
-        'f1_accumdepr_prvsn': ingest_accumulated_depreciation_ferc1
+    # Note that extract.ferc1.init_db() must already have been run...somewhere
+    ferc1_engine = pudl.extract.ferc1.connect_db(testing=testing)
+
+    # new process:
+    ferc1_raw_dfs = {}
+    ferc1_extract_functions = {
+        'fuel_ferc1': pudl.extract.ferc1.fuel,
+        'plants_steam_ferc1': pudl.extract.ferc1.plants_steam,
+        'plants_small_ferc1': pudl.extract.ferc1.plants_small,
+        'plants_hydro_ferc1': pudl.extract.ferc1.plants_hydro,
+        'plants_pumped_storage_ferc1':
+        pudl.extract.ferc1.plants_pumped_storage,
+        'plant_in_service_ferc1': pudl.extract.ferc1.plant_in_service,
+        'purchased_power_ferc1': pudl.extract.ferc1.purchased_power,
+        'accumulated_depreciation_ferc1':
+        pudl.extract.ferc1.accumulated_depreciation
     }
 
-    ferc1_engine = pudl.extract.ferc1.connect_db(testing=testing)
-    for table in ferc1_ingest_functions.keys():
+    # define the ferc 1 metadata object
+    if len(pudl.extract.ferc1.ferc1_meta.tables) == 0:
+        pudl.extract.ferc1.define_db(max(pc.working_years['ferc1']),
+                                     pc.ferc1_default_tables,
+                                     pudl.extract.ferc1.ferc1_meta,
+                                     basedir=settings.FERC1_DATA_DIR,
+                                     verbose=True)
+
+    if verbose:
+        print("Extracting tables from FERC 1:")
+    for table in ferc1_extract_functions.keys():
         if table in ferc1_tables:
             if verbose:
-                print("Ingesting {} from FERC Form 1 into PUDL.".format(table))
-            ferc1_ingest_functions[table](pudl_engine,
-                                          ferc1_engine,
-                                          ferc1_years)
+                print("    {}...".format(table))
+            ferc1_extract_functions[table](ferc1_raw_dfs,
+                                           ferc1_engine,
+                                           ferc1_table=pc.table_map_ferc1_pudl[table],
+                                           pudl_table=table,
+                                           ferc1_years=ferc1_years)
+
+    ferc1_transform_functions = {
+        'fuel_ferc1': pudl.transform.ferc1.fuel,
+        'plants_steam_ferc1': pudl.transform.ferc1.plants_steam,
+        'plants_small_ferc1': pudl.transform.ferc1.plants_small,
+        'plants_hydro_ferc1': pudl.transform.ferc1.plants_hydro,
+        'plants_pumped_storage_ferc1':
+        pudl.transform.ferc1.plants_pumped_storage,
+        'plant_in_service_ferc1': pudl.transform.ferc1.plant_in_service,
+        'purchased_power_ferc1': pudl.transform.ferc1.purchased_power,
+        'accumulated_depreciation_ferc1':
+        pudl.transform.ferc1.accumulated_depreciation
+    }
+    ferc1_transformed_dfs = {}
+
+    if verbose:
+        print("Transforming dataframes from FERC 1:")
+    for table in ferc1_transform_functions.keys():
+        if table in ferc1_tables:
+            if verbose:
+                print("    {}...".format(table))
+            ferc1_transform_functions[table](ferc1_raw_dfs,
+                                             ferc1_transformed_dfs)
+
+    if verbose:
+        print("Loading tables from FERC 1 into PUDL:")
+    for key, value in ferc1_transformed_dfs.items():
+        if verbose:
+            print("    {}...".format(key))
+        load._csv_dump_load(value,
+                            key,
+                            pudl_engine,
+                            csvdir=csvdir,
+                            keep_csv=keep_csv)
 
 
 def init_db(ferc1_tables=pc.ferc1_pudl_tables,
@@ -1221,7 +964,7 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
                                           strftime("%A, %d. %B %Y %I:%M%p")))
     if not debug:
         for table in ferc1_tables:
-            assert(table in pc.ferc1_working_tables)
+            # assert(table in pc.ferc1_working_tables)
             assert(table in pc.ferc1_pudl_tables)
 
     if not debug:
@@ -1241,6 +984,11 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
         print("Sniffing EIA923/FERC1 glue tables...")
     ingest_glue_tables(pudl_engine)
 
+    ingest_ferc1(pudl_engine,
+                 ferc1_tables=ferc1_tables,
+                 ferc1_years=ferc1_years,
+                 verbose=verbose, debug=debug, testing=ferc1_testing)
+
     ingest_eia860(pudl_engine,
                   eia860_tables=eia860_tables,
                   eia860_years=eia860_years,
@@ -1252,8 +1000,3 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
                   eia923_years=eia923_years,
                   verbose=verbose, debug=debug, testing=pudl_testing,
                   csvdir=csvdir, keep_csv=keep_csv)
-
-    ingest_ferc1(pudl_engine,
-                 ferc1_tables=ferc1_tables,
-                 ferc1_years=ferc1_years,
-                 verbose=verbose, debug=debug, testing=ferc1_testing)

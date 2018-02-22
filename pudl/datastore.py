@@ -229,7 +229,7 @@ def download(source, year, datadir=settings.DATA_DIR, verbose=True):
 
 def organize(source, year, unzip=True,
              datadir=settings.DATA_DIR,
-             verbose=False):
+             verbose=False, no_download=False):
     """
     Put a downloaded original data file where it belongs in the datastore.
 
@@ -247,6 +247,7 @@ def organize(source, year, unzip=True,
             resulting data files where they ought to be in the datastore.
         datadir (str): path to the top level directory of the datastore.
         verbose (bool): If True, print messages about what's happening.
+        no_download (bool): If True, the files were not downloaded in this run
 
     Returns: nothing
     """
@@ -271,13 +272,15 @@ def organize(source, year, unzip=True,
     # If we've gotten to this point, we're wiping out the previous version of
     # the data for this source and year... so lets wipe it! Scary!
     destdir = path(source, year, file=False, datadir=datadir)
-    if(os.path.exists(destdir)):
-        shutil.rmtree(destdir)
-
-    # move the new file from wherever it is, to its rightful home.
-    if not os.path.exists(destdir):
-        os.makedirs(destdir)
-    os.rename(newfile, destfile)
+    if not no_download:
+        if os.path.exists(destdir):
+            shutil.rmtree(destdir)
+        # move the new file from wherever it is, to its rightful home.
+        if not os.path.exists(destdir):
+            os.makedirs(destdir)
+        os.rename(newfile, destfile)
+    # If no_download is True, then we already did this rmtree and rename
+    # The last time this program ran.
 
     # If we're unzipping the downloaded file, then we may have some
     # reorganization to do. Currently all data sources will get unzipped.
@@ -313,7 +316,7 @@ def organize(source, year, unzip=True,
 
 
 def update(source, year, clobber=False, unzip=True, verbose=True,
-           datadir=settings.DATA_DIR):
+           datadir=settings.DATA_DIR, no_download=False):
     """
     Update the local datastore for the given source and year.
 
@@ -334,6 +337,10 @@ def update(source, year, clobber=False, unzip=True, verbose=True,
             if we have it, with freshly downloaded data.
         datadir (str): path to the top level directory of the datastore.
         verbose (bool): If True, print messages about what's happening.
+        no_download (bool): If True, don't download the files, only unzip ones
+            that are already present. If False, do download the files. Either
+            way, still obey the unzip and clobber settings. (unzip=False and
+            no_download=True will do nothing.)
 
     Returns: nothing
     """
@@ -352,5 +359,7 @@ def update(source, year, clobber=False, unzip=True, verbose=True,
             return
 
     # Otherwise we're downloading:
-    download(source, year, datadir=datadir, verbose=verbose)
-    organize(source, year, unzip=unzip, datadir=datadir)
+    if not no_download:
+        download(source, year, datadir=datadir, verbose=verbose)
+    organize(source, year, unzip=unzip, datadir=datadir, verbose=verbose,
+        no_download=no_download)
