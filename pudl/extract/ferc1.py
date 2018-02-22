@@ -369,6 +369,8 @@ def plants_small(ferc1_raw_dfs,
                  ferc1_table='f1_gnrt_plant',
                  pudl_table='plants_small_ferc1',
                  ferc1_years=pc.working_years['ferc1']):
+    """
+    """
     from sqlalchemy import or_
 
     assert min(ferc1_years) >= min(pc.working_years['ferc1']),\
