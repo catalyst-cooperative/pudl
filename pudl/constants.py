@@ -515,14 +515,14 @@ eia923_pudl_tables = ['plants_eia923',
 # 'stocks_eia923'
 
 tab_map_eia923 = pd.DataFrame.from_records([
-    (2009, 0, 1, 2, 3, 4, -1),
-    (2010, 0, 1, 2, 3, 4, -1),
-    (2011, 0, 1, 2, 3, 4, 5),
-    (2012, 0, 1, 2, 3, 4, 5),
-    (2013, 0, 1, 2, 3, 4, 5),
-    (2014, 0, 1, 2, 3, 4, 5),
-    (2015, 0, 1, 2, 3, 4, 5),
-    (2016, 0, 1, 3, 4, 5, 6)],
+    (2009, 0, 1, 5, 6, 7, -1),
+    (2010, 0, 1, 5, 6, 7, -1),
+    (2011, 0, 1, 5, 6, 7, 8),
+    (2012, 0, 1, 5, 6, 7, 8),
+    (2013, 0, 1, 5, 6, 7, 8),
+    (2014, 0, 1, 5, 6, 7, 8),
+    (2015, 0, 1, 5, 6, 7, 8),
+    (2016, 0, 1, 5, 6, 7, 8)],
     columns=['year_index', 'generation_fuel', 'stocks', 'boiler_fuel',
              'generator', 'fuel_receipts_costs', 'plant_frame'],
     index='year_index')
@@ -3017,7 +3017,7 @@ data_sources = [
 data_years = {
     'eia860': range(2001, 2017),
     'eia861': range(1990, 2016),
-    'eia923': range(2001, 2018),
+    'eia923': range(2001, 2017),
     'epacems': range(1995, 2018),
     'ferc1': range(1994, 2017),
     'mshamines': range(2000, 2018),

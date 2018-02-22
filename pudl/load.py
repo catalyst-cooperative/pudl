@@ -38,9 +38,9 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
     csvfile = os.path.join(csvdir, table_name + '.csv')
     df.to_csv(csvfile, index=False)
     tbl = pudl.models.glue.PUDLBase.metadata.tables[table_name]
-    postgres_copy.copy_from(open(csvfile, 'r'), tbl, engine,
-                            columns=tuple(df.columns),
-                            format='csv', header=True, delimiter=',')
+    with open(csvfile, 'r', encoding = 'utf8') as f:
+        postgres_copy.copy_from(f, tbl, engine, columns=tuple(df.columns),
+                                format='csv', header=True, delimiter=',')
     if not keep_csv:
         os.remove(csvfile)
 
