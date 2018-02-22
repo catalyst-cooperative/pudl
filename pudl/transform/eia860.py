@@ -56,6 +56,9 @@ def generators(eia860_dfs, eia860_transformed_dfs):
 
     Returns: transformed dataframe.
     """
+    # Groupby objects were creating chained assignment warning that is N/A
+    pd.options.mode.chained_assignment = None
+
     # There are three sets of generator data reported in the EIA860 table,
     # planned, existing, and retired generators. We're going to concatenate
     # them all together into a single big table, with a column that indicates
@@ -153,13 +156,24 @@ def generators(eia860_dfs, eia860_transformed_dfs):
             to_replace=["Y", "N"], value=[True, False])
         gens_df[column] = gens_df[column].fillna('False')
 
+    # Backfill 'technology' field if only one unique values exists for a
+    # generator
+    backfill_df = gens_df.groupby(['plant_id_eia', 'generator_id']).filter(
+        lambda x: x['technology'].nunique() == 1)
+    backfill_df = backfill_df.groupby(['plant_id_eia', 'generator_id']).filter(
+        lambda x: x['technology'].count() > 1)
+    backfill_df.reset_index(inplace=True)
+    backfill_df.technology = backfill_df.groupby(
+        ['plant_id_eia', 'generator_id']).technology.bfill()
+    gens_df.update(backfill_df)
+
     gens_df = pudl.transform.pudl.month_year_to_date(gens_df)
 
     gens_df['fuel_type_pudl'] = \
         pudl.transform.pudl.cleanstrings(gens_df['energy_source_1'],
                                          pc.fuel_type_eia860_simple_map)
     # String-ify a bunch of fields for output.
-    fix_int_na_columns = ['plant_id_eia', 'sector', 'turbines']
+    fix_int_na_columns = ['sector', 'turbines']
 
     for column in fix_int_na_columns:
         gens_df[column] = \
@@ -167,6 +181,8 @@ def generators(eia860_dfs, eia860_transformed_dfs):
                                            float_na=np.nan,
                                            int_na=-1,
                                            str_na='')
+    # Ensure plant IDs are integers.
+    gens_df['plant_id_eia'] = gens_df['plant_id_eia'].astype(int)
 
     gens_df = pudl.transform.pudl.convert_to_date(gens_df)
 
@@ -241,12 +257,36 @@ def plants(eia860_dfs, eia860_transformed_dfs):
             to_replace=["Y", "N"], value=[True, False])
         p_df[column] = p_df[column].fillna('False')
 
-    p_df = pudl.transform.pudl.convert_to_date(p_df)
+    # Ensure plant & operator IDs are integers.
+    p_df['plant_id_eia'] = p_df['plant_id_eia'].astype(int)
+    p_df['operator_id'] = p_df['operator_id'].astype(int)
 
-    # The fix we're making here is only known to be valid for 2011 -- if we
-    # get older data... then we need to to revisit the cleaning function and
-    # make sure it also applies to those earlier years.
-    assert min(p_df.report_date.dt.year) >= 2011
+    # # Backfill 'latitude' & 'longitude' fields if zip code is constant across
+    # # data set and more than 2 lat/long values exist
+    #
+    backfill_df = p_df.groupby('plant_id_eia').filter(
+        lambda x: x['zip_code'].nunique() == 1)
+    backfill_df = backfill_df.groupby('plant_id_eia').filter(
+        lambda x: x['latitude'].count() > 2)
+    backfill_df = backfill_df.groupby('plant_id_eia').filter(
+        (lambda x: x['latitude'].max() - x['latitude'].min() >= 0))
+    backfill_df = backfill_df.groupby('plant_id_eia').filter(
+        (lambda x: x['latitude'].max() - x['latitude'].min() < 0.1))
+    backfill_df = backfill_df.groupby('plant_id_eia').filter(
+        (lambda x: x['longitude'].max() - x['longitude'].min() >= 0))
+    backfill_df = backfill_df.groupby('plant_id_eia').filter(
+        (lambda x: x['longitude'].max() - x['longitude'].min() < 0.1))
+    backfill_df.reset_index(inplace=True)
+    backfill_df.latitude = backfill_df.groupby(
+        ['plant_id_eia']).latitude.bfill()
+    backfill_df.longitude = backfill_df.groupby(
+        ['plant_id_eia']).longitude.bfill()
+    p_df.update(backfill_df)
+
+# Ensure plant & operator IDs are integers.
+    p_df['plant_id_eia'] = p_df['plant_id_eia'].astype(int)
+    p_df['operator_id'] = p_df['operator_id'].astype(int)
+    p_df['primary_purpose_naics'] = p_df['primary_purpose_naics'].astype(int)
 
     p_df = pudl.transform.pudl.convert_to_date(p_df)
 
