@@ -87,7 +87,24 @@ def multiplicative_error_correction(tofix, mask, minval, maxval, mults):
 # DATABSE TABLE SPECIFIC PROCEDURES ##########################################
 ##############################################################################
 def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
-    """Transform FERC Form 1 fuel data for loading into PUDL Database."""
+    """
+    Transform FERC Form 1 fuel data for loading into PUDL Database.
+
+    This process includes converting some columns to be in terms of our
+    preferred units, like MWh and mmbtu instead of kWh and btu. Plant names are
+    also standardized (stripped & Title Case). Fuel and fuel unit strings are
+    also standardized using our cleanstrings() function and string cleaning
+    dictionaries found in pudl.constants.
+
+    Args:
+        ferc1_raw_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        ferc1_transformed_dfs (dictionary of DataFrames)
+
+    Returns: transformed dataframe.
+    """
+    # grab table from dictionary of dfs
     fuel_ferc1_df = ferc1_raw_dfs['fuel_ferc1']
     #########################################################################
     # PRUNE IRRELEVANT COLUMNS ##############################################
@@ -211,6 +228,21 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
 
 
 def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
+    """
+    Transform FERC Form 1 plant_steam data for loading into PUDL Database.
+
+    This includes converting to our preferred units of MWh and MW, as well as
+    standardizing the strings describing the kind of plant and construction.
+
+    Args:
+        ferc1_raw_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        ferc1_transformed_dfs (dictionary of DataFrames)
+
+    Returns: transformed dataframe.
+    """
+    # grab table from dictionary of dfs
     ferc1_steam_df = ferc1_raw_dfs['plants_steam_ferc1']
 
     # Discard DataFrame columns that we aren't pulling into PUDL:
@@ -290,6 +322,32 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
 
 
 def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
+    """
+    Transform FERC Form 1 plant_small data for loading into PUDL Database.
+
+    This FERC Form 1 table contains information about a large number of small
+    plants, including many small hydroelectric and other renewable generation
+    facilities. Unfortunately the data is not well standardized, and so the
+    plants have been categorized manually, with the results of that
+    categorization stored in an Excel spreadsheet. This function reads in the
+    plant type data from the spreadsheet and merges it with the rest of the
+    information from the FERC DB based on record number, FERC respondent ID,
+    and report year. When possible the FERC license number for small hydro
+    plants is also manually extracted from the data.
+
+    This categorization will need to be renewed with each additional year of
+    FERC data we pull in. As of v0.1 the small plants have been categorized
+    for 2004-2015.
+
+    Args:
+        ferc1_raw_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        ferc1_transformed_dfs (dictionary of DataFrames)
+
+    Returns: transformed dataframe.
+    """
+    # grab table from dictionary of dfs
     ferc1_small_df = ferc1_raw_dfs['plants_small_ferc1']
     # Standardize plant_name capitalization and remove leading/trailing white
     # space -- necesary b/c plant_name is part of many foreign keys.
@@ -384,6 +442,21 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
 
 def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
+    """
+    Transform FERC Form 1 plant_hydro data for loading into PUDL Database.
+
+    Standardizes plant names (stripping whitespace and Using Title Case).  Also
+    converts into our preferred units of MW and MWh.
+
+    Args:
+        ferc1_raw_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        ferc1_transformed_dfs (dictionary of DataFrames)
+
+    Returns: transformed dataframe.
+    """
+    # grab table from dictionary of dfs
     ferc1_hydro_df = ferc1_raw_dfs['plants_hydro_ferc1']
 
     ferc1_hydro_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
@@ -447,6 +520,21 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
 
 
 def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
+    """
+    Transform FERC Form 1 pumped storage data for loading into PUDL Database.
+
+    Standardizes plant names (stripping whitespace and Using Title Case).  Also
+    converts into our preferred units of MW and MWh.
+
+    Args:
+        ferc1_raw_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        ferc1_transformed_dfs (dictionary of DataFrames)
+
+    Returns: transformed dataframe.
+    """
+    # grab table from dictionary of dfs
     ferc1_pumped_storage_df = ferc1_raw_dfs['plants_pumped_storage_ferc1']
 
     ferc1_pumped_storage_df.drop(['spplmnt_num', 'row_number', 'row_seq',
@@ -531,6 +619,24 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
 
 
 def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
+    """
+    Transform FERC Form 1 plant_in_service data for loading into PUDL Database.
+
+    This information is organized by FERC account, with each line of the FERC
+    Form 1 having a different FERC account id (most are numeric and correspond
+    to FERC's Uniform Electric System of Accounts). As of PUDL v0.1, this data
+    is only valid from 2007 onward, as the line numbers for several accounts
+    are different in earlier years.
+
+    Args:
+        ferc1_raw_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        ferc1_transformed_dfs (dictionary of DataFrames)
+
+    Returns: transformed dataframe.
+    """
+    # grab table from dictionary of dfs
     ferc1_pis_df = ferc1_raw_dfs['plant_in_service_ferc1']
     # Discard DataFrame columns that we aren't pulling into PUDL. For the
     # Plant In Service table, we need to hold on to the row_number because it
@@ -562,6 +668,25 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
 
 
 def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
+    """
+    Transform FERC Form 1 pumped storage data for loading into PUDL Database.
+
+    This table has data about inter-untility power purchases into the PUDL DB.
+    This includes how much electricty was purchased, how much it cost, and who
+    it was purchased from. Unfortunately the field describing which other
+    utility the power was being bought from is poorly standardized, making it
+    difficult to correlate with other data. It will need to be categorized by
+    hand or with some fuzzy matching eventually.
+
+    Args:
+        ferc1_raw_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        ferc1_transformed_dfs (dictionary of DataFrames)
+
+    Returns: transformed dataframe.
+    """
+    # grab table from dictionary of dfs
     ferc1_purchased_pwr_df = ferc1_raw_dfs['purchased_power_ferc1']
 
     ferc1_purchased_pwr_df.drop(['spplmnt_num', 'row_number', 'row_seq',
@@ -593,6 +718,22 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
 
 
 def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
+    """
+    Transform FERC Form 1 depreciation data for loading into PUDL Database.
+
+    This information is organized by FERC account, with each line of the FERC
+    Form 1 having a different descriptive identifier like 'balance_end_of_year'
+    or 'transmission'.
+
+    Args:
+        ferc1_raw_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        ferc1_transformed_dfs (dictionary of DataFrames)
+
+    Returns: transformed dataframe.
+    """
+    # grab table from dictionary of dfs
     ferc1_apd_df = ferc1_raw_dfs['accumulated_depreciation_ferc1']
 
     # Discard DataFrame columns that we aren't pulling into PUDL. For

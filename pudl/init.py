@@ -27,7 +27,6 @@ import re
 import datetime
 
 from pudl import settings
-from pudl import load
 import pudl.models.glue
 import pudl.models.eia923
 import pudl.models.eia860
@@ -39,6 +38,7 @@ import pudl.transform.ferc1
 import pudl.transform.eia923
 import pudl.transform.eia860
 import pudl.transform.pudl
+import pudl.load
 
 import pudl.constants as pc
 
@@ -394,351 +394,6 @@ def ingest_glue_tables(engine):
 
 ###############################################################################
 ###############################################################################
-# BEGIN FERC 1 INGEST FUNCTIONS
-###############################################################################
-###############################################################################
-
-
-def ingest_fuel_ferc1(pudl_engine, ferc1_engine, ferc1_years):
-    """
-    Clean & ingest f1_fuel table from FERC Form 1 DB into the PUDL DB.
-
-    Read data from the f1_fuel table of our cloned FERC Form 1 database for
-    the years specified by ferc1_years, clean it up and re-organize it for
-    loading into the PUDL DB. This process includes converting some columns
-    to be in terms of our preferred units, like MWh and mmbtu instead of kWh
-    and btu. Plant names are also standardized (stripped & Title Case). Fuel
-    and fuel unit strings are also standardized using our cleanstrings()
-    function and string cleaning dictionaries found in pudl.constants.
-
-    Args:
-        pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
-        ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
-        ferc1_years (sequence of integers): Years for which we should extract
-            fuel data from the FERC1 Database.
-
-    Returns: Nothing.
-    """
-    # Grab the f1_fuel SQLAlchemy Table object from the metadata object.
-    f1_fuel = pudl.extract.ferc1.ferc1_meta.tables['f1_fuel']
-    # Generate a SELECT statement that pulls all fields of the f1_fuel table,
-    # but only gets records with plant names, and non-zero fuel amounts:
-    f1_fuel_select = sa.sql.select([f1_fuel]).\
-        where(f1_fuel.c.fuel != '').\
-        where(f1_fuel.c.fuel_quantity > 0).\
-        where(f1_fuel.c.plant_name != '').\
-        where(f1_fuel.c.report_year.in_(ferc1_years))
-    # Use the above SELECT to pull those records into a DataFrame:
-    fuel_ferc1_df = pd.read_sql(f1_fuel_select, ferc1_engine)
-
-    fuel_ferc1_df = pudl.transform.ferc1.fuel(
-        ferc1_transformed_dfs['fuel_ferc1'])
-
-    fuel_ferc1_df.to_sql(name='fuel_ferc1',
-                         con=pudl_engine, index=False, if_exists='append',
-                         dtype={'respondent_id': sa.Integer,
-                                'report_year': sa.Integer})
-
-
-def ingest_plants_steam_ferc1(pudl_engine, ferc1_engine, ferc1_years):
-    """
-    Clean f1_steam table of the FERC Form 1 DB and pull into the PUDL DB.
-
-    Load data about large thermal plants from our cloned FERC Form 1 DB into
-    the PUDL DB. Clean up and reorganize some of the information along the way.
-    This includes converting to our preferred units of MWh and MW, as well as
-    standardizing the strings describing the kind of plant and construction.
-
-    Args:
-        pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
-        ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
-        ferc1_years (sequence of integers): Years for which we should extract
-            fuel data from the FERC1 Database.
-
-    Returns: Nothing.
-    """
-    f1_steam = pudl.extract.ferc1.ferc1_meta.tables['f1_steam']
-    f1_steam_select = sa.sql.select([f1_steam]).\
-        where(f1_steam.c.net_generation > 0).\
-        where(f1_steam.c.plant_name != '').\
-        where(f1_steam.c.report_year.in_(ferc1_years))
-
-    ferc1_steam_df = pd.read_sql(f1_steam_select, ferc1_engine)
-    # Discard DataFrame columns that we aren't pulling into PUDL:
-    ferc1_steam_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
-                         'report_prd'], axis=1, inplace=True)
-
-    # Standardize plant_name capitalization and remove leading/trailing white
-    # space -- necesary b/c plant_name is part of many foreign keys.
-    ferc1_steam_df['plant_name'] = ferc1_steam_df['plant_name'].str.strip()
-    ferc1_steam_df['plant_name'] = ferc1_steam_df['plant_name'].str.title()
-
-    # Take the messy free-form construction_type and plant_kind fields, and do
-    # our best to map them to some canonical categories...
-    # this is necessarily imperfect:
-
-    ferc1_steam_df.type_const = \
-        pudl.transform.pudl.cleanstrings(ferc1_steam_df.type_const,
-                                         pc.ferc1_construction_type_strings,
-                                         unmapped=np.nan)
-    ferc1_steam_df.plant_kind = \
-        pudl.transform.pudl.cleanstrings(ferc1_steam_df.plant_kind,
-                                         pc.ferc1_plant_kind_strings,
-                                         unmapped=np.nan)
-
-    # Force the construction and installation years to be numeric values, and
-    # set them to NA if they can't be converted. (table has some junk values)
-    ferc1_steam_df['yr_const'] = pd.to_numeric(
-        ferc1_steam_df['yr_const'],
-        errors='coerce')
-    ferc1_steam_df['yr_installed'] = pd.to_numeric(
-        ferc1_steam_df['yr_installed'],
-        errors='coerce')
-
-    # Converting everything to per MW and MWh units...
-    ferc1_steam_df['cost_per_mw'] = 1000 * ferc1_steam_df['cost_per_kw']
-    ferc1_steam_df.drop('cost_per_kw', axis=1, inplace=True)
-    ferc1_steam_df['net_generation_mwh'] = \
-        ferc1_steam_df['net_generation'] / 1000
-    ferc1_steam_df.drop('net_generation', axis=1, inplace=True)
-    ferc1_steam_df['expns_per_mwh'] = 1000 * ferc1_steam_df['expns_kwh']
-    ferc1_steam_df.drop('expns_kwh', axis=1, inplace=True)
-
-    ferc1_steam_df.rename(columns={
-        # FERC 1 DB Name      PUDL DB Name
-        'yr_const': 'year_constructed',
-        'type_const': 'construction_type',
-        'asset_retire_cost': 'asset_retirement_cost',
-        'yr_installed': 'year_installed',
-        'tot_capacity': 'total_capacity_mw',
-        'peak_demand': 'peak_demand_mw',
-        'plnt_capability': 'plant_capability_mw',
-        'when_limited': 'water_limited_mw',
-        'when_not_limited': 'not_water_limited_mw',
-        'avg_num_of_emp': 'avg_num_employees',
-        'net_generation': 'net_generation_mwh',
-        'cost_of_plant_to': 'total_cost_of_plant',
-        'expns_steam_othr': 'expns_steam_other',
-        'expns_engnr': 'expns_engineering',
-        'tot_prdctn_expns': 'expns_production_total'},
-        inplace=True)
-    ferc1_steam_df.to_sql(name='plants_steam_ferc1',
-                          con=pudl_engine, index=False, if_exists='append',
-                          dtype={'respondent_id': sa.Integer,
-                                 'report_year': sa.Integer,
-                                 'construction_type': sa.String,
-                                 'plant_kind': sa.String,
-                                 'year_constructed': sa.Integer,
-                                 'year_installed': sa.Integer})
-
-
-def ingest_plants_hydro_ferc1(pudl_engine, ferc1_engine, ferc1_years):
-    """
-    Ingest f1_hydro table of FERC Form 1 DB into PUDL DB.
-
-    Load data about hydroelectric generation resources from our cloned FERC 1
-    database into the PUDL DB. Standardizes plant names (stripping whitespace
-    and Using Title Case).  Also converts into our preferred units of MW and
-    MWh.
-
-    Args:
-        pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
-        ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
-        ferc1_years (sequence of integers): Years for which we should extract
-            fuel data from the FERC1 Database.
-
-    Returns: Nothing.
-    """
-
-    ferc1_hydro_df.to_sql(name='plants_hydro_ferc1',
-                          con=pudl_engine, index=False, if_exists='append',
-                          dtype={'respondent_id': sa.Integer,
-                                 'report_year': sa.Integer})
-
-
-def ingest_plants_pumped_storage_ferc1(pudl_engine, ferc1_engine, ferc1_years):
-    """
-    Ingest f1_pumped_storage table of FERC Form 1 DB into PUDL DB.
-
-    Load data about pumped hydro storage facilities from our cloned FERC 1
-    database into the PUDL DB. Standardizes plant names (stripping whitespace
-    and Using Title Case).  Also converts into our preferred units of MW and
-    MWh.
-
-    Args:
-       pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
-       ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
-       ferc1_years (sequence of integers): Years for which we should extract
-           fuel data from the FERC1 Database.
-
-    Returns: Nothing.
-    """
-    ferc1_pumped_storage_df.to_sql(name='plants_pumped_storage_ferc1',
-                                   con=pudl_engine, index=False,
-                                   if_exists='append')
-
-
-def ingest_accumulated_depreciation_ferc1(pudl_engine,
-                                          ferc1_engine,
-                                          ferc1_years):
-    """
-    Ingest f1_accumdepr_prvs table from FERC Form 1 DB into PUDL DB.
-
-    Load data about accumulated depreciation from our cloned FERC Form 1
-    database into the PUDL DB. This information is organized by FERC account,
-    with each line of the FERC Form 1 having a different descriptive
-    identifier like 'balance_end_of_year' or 'transmission'.
-
-    Args:
-       pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
-       ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
-       ferc1_years (sequence of integers): Years for which we should extract
-           fuel data from the FERC1 Database.
-
-    Returns: Nothing.
-    """
-
-    ferc1_accumdepr_prvsn_df.\
-        to_sql(name='accumulated_depreciation_ferc1',
-               con=pudl_engine, index=False, if_exists='append',
-               dtype={'respondent_id': sa.Integer,
-                      'report_year': sa.Integer,
-                      'line_id': sa.String,
-                      'total': sa.Numeric(14, 2),
-                      'electric_plant': sa.Numeric(14, 2),
-                      'future_plant': sa.Numeric(14, 2),
-                      'leased plant': sa.Numeric(14, 2)})
-
-
-def ingest_plant_in_service_ferc1(pudl_engine, ferc1_engine, ferc1_years):
-    """
-    Ingest f1_plant_in_srvce table of FERC Form 1 DB into PUDL DB.
-
-    Load data about the financial value of utility plant in service from our
-    cloned FERC Form 1 database into the PUDL DB. This information is organized
-    by FERC account, with each line of the FERC Form 1 having a different FERC
-    account id (most are numeric and correspond to FERC's Uniform Electric
-    System of Accounts). As of PUDL v0.1, this data is only valid from 2007
-    onward, as the line numbers for several accounts are different in earlier
-    years.
-
-    Args:
-        pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
-        ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
-        ferc1_years (sequence of integers): Years for which we should extract
-            fuel data from the FERC1 Database.
-
-       Returns: Nothing.
-    """
-
-    ferc1_pis_df.to_sql(name='plant_in_service_ferc1',
-                        con=pudl_engine, index=False, if_exists='append',
-                        dtype={'respondent_id': sa.Integer,
-                               'report_year': sa.Integer,
-                               'ferc_account_id': sa.String,
-                               'beginning_year_balance': sa.Numeric(14, 2),
-                               'additions': sa.Numeric(14, 2),
-                               'retirements': sa.Numeric(14, 2),
-                               'adjustments': sa.Numeric(14, 2),
-                               'transfers': sa.Numeric(14, 2),
-                               'year_end_balance': sa.Numeric(14, 2)})
-
-
-def ingest_plants_small_ferc1(pudl_engine, ferc1_engine, ferc1_years):
-    """
-    Ingest f1_gnrt_plant table from our cloned FERC Form 1 DB into PUDL DB.
-
-    This FERC Form 1 table contains information about a large number of small
-    plants, including many small hydroelectric and other renewable generation
-    facilities. Unfortunately the data is not well standardized, and so the
-    plants have been categorized manually, with the results of that
-    categorization stored in an Excel spreadsheet. This function reads in the
-    plant type data from the spreadsheet and merges it with the rest of the
-    information from the FERC DB based on record number, FERC respondent ID,
-    and report year. When possible the FERC license number for small hydro
-    plants is also manually extracted from the data.
-
-    This categorization will need to be renewed with each additional year of
-    FERC data we pull in. As of v0.1 the small plants have been categorized
-    for 2004-2015.
-
-    Args:
-        pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
-        ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
-        ferc1_years (sequence of integers): Years for which we should extract
-            fuel data from the FERC1 Database.
-
-    Returns: Nothing.
-    """
-    ferc1_small_df.to_sql(name='plants_small_ferc1',
-                          con=pudl_engine, index=False, if_exists='append',
-                          dtype={'respondent_id': sa.Integer,
-                                 'report_year': sa.Integer,
-                                 'plant_name': sa.String,
-                                 'plant_name_clean': sa.String,
-                                 'plant_type': sa.String,
-                                 'kind_of_fuel': sa.String,
-                                 'ferc_license': sa.Integer,
-                                 'year_constructed': sa.Integer,
-                                 'total_capacity_mw': sa.Float,
-                                 'peak_demand_mw': sa.Float,
-                                 'net_generation_mwh': sa.Float,
-                                 'total_cost_of_plant': sa.Numeric(14, 2),
-                                 'cost_of_plant_per_mw': sa.Numeric(14, 2),
-                                 'cost_of_operation': sa.Numeric(14, 2),
-                                 'expns_fuel': sa.Numeric(14, 2),
-                                 'expns_maintenance': sa.Numeric(14, 2),
-                                 'fuel_cost_per_mmbtu': sa.Numeric(14, 2)})
-
-
-def ingest_purchased_power_ferc1(pudl_engine, ferc1_engine, ferc1_years):
-    """
-    Ingest f1_purchased_pwr table from our cloned FERC Form 1 DB into PUDL DB.
-
-    This function pulls FERC Form 1 data about inter-untility power purchases
-    into the PUDL DB. This includes how much electricty was purchased, how
-    much it cost, and who it was purchased from. Unfortunately the field
-    describing which other utility the power was being bought from is poorly
-    standardized, making it difficult to correlate with other data. It will
-    need to be categorized by hand or with some fuzzy matching eventually.
-
-    Args:
-        pudl_engine (sqlalchemy.engine): Engine for connecting to the PUDL DB.
-        ferc1_engine (sqlalchemy.engine): Engine for connecting to the FERC DB.
-        ferc1_years (sequence of integers): Years for which we should extract
-            fuel data from the FERC1 Database.
-
-    Returns: Nothing.
-    """
-
-    ferc1_purchased_pwr_df.to_sql(
-        name='purchased_power_ferc1',
-        con=pudl_engine, index=False,
-        if_exists='append',
-        dtype={'respondent_id': sa.Integer,
-               'report_year': sa.Integer,
-               'authority_company_name': sa.String,
-               'statistical_classification': sa.String,
-               'rate_schedule_tariff_number': sa.String,
-               'average_billing_demand': sa.String,
-               'average_monthly_ncp_demand': sa.String,
-               'average_monthly_cp_demand': sa.String,
-               'mwh_purchased': sa.Numeric(14, 2),
-               'mwh_received': sa.Numeric(14, 2),
-               'mwh_delivered': sa.Numeric(14, 2),
-               'demand_charges': sa.Numeric(14, 2),
-               'energy_charges': sa.Numeric(14, 2),
-               'other_charges': sa.Numeric(14, 2),
-               'settlement_total': sa.Numeric(14, 2)})
-
-
-def ingest_stocks_eia923(pudl_engine, eia923_dfs, csvdir='', keep_csv=True):
-    """Ingest data on fuel stocks from EIA Form 923."""
-    pass
-
-
-###############################################################################
-###############################################################################
 # BEGIN DATABASE INITIALIZATION
 ###############################################################################
 ###############################################################################
@@ -762,7 +417,8 @@ def ingest_eia860(pudl_engine,
         'ownership_eia860': pudl.transform.eia860.ownership,
         'generators_eia860': pudl.transform.eia860.generators,
         'plants_eia860': pudl.transform.eia860.plants,
-        'boiler_generator_assn_eia860': pudl.transform.eia860.boiler_generator_assn,
+        'boiler_generator_assn_eia860':
+            pudl.transform.eia860.boiler_generator_assn,
         'utilities_eia860': pudl.transform.eia860.utilities}
     eia860_transformed_dfs = {}
 
@@ -773,10 +429,12 @@ def ingest_eia860(pudl_engine,
             eia860_transform_functions[table](eia860_dfs,
                                               eia860_transformed_dfs)
 
-    load.eia860(eia860_transformed_dfs,
-                pudl_engine,
-                csvdir=csvdir,
-                keep_csv=keep_csv)
+    pudl.load.dict_dump_load(eia860_transformed_dfs,
+                             "EIA 860",
+                             pudl_engine,
+                             verbose=verbose,
+                             csvdir=csvdir,
+                             keep_csv=keep_csv)
 
 
 def ingest_eia923(pudl_engine,
@@ -821,14 +479,12 @@ def ingest_eia923(pudl_engine,
             eia923_transform_functions[table](eia923_dfs,
                                               eia923_transformed_dfs)
 
-    for key, value in eia923_transformed_dfs.items():
-        if verbose:
-            print("Loading {} from EIA 923 into PUDL.".format(key))
-        load._csv_dump_load(value,
-                            key,
-                            pudl_engine,
-                            csvdir=csvdir,
-                            keep_csv=keep_csv)
+    pudl.load.dict_dump_load(eia923_transformed_dfs,
+                             "EIA 923",
+                             pudl_engine,
+                             verbose=verbose,
+                             csvdir=csvdir,
+                             keep_csv=keep_csv)
 
     # FRC table requires the auto incremented id's from the coalmine table so
     # we need to load the coalmine table which requires the  pudl_engine, so
@@ -837,11 +493,11 @@ def ingest_eia923(pudl_engine,
                                               eia923_transformed_dfs,
                                               pudl_engine)
 
-    load._csv_dump_load(eia923_transformed_dfs['fuel_receipts_costs_eia923'],
-                        'fuel_receipts_costs_eia923',
-                        pudl_engine,
-                        csvdir=csvdir,
-                        keep_csv=keep_csv)
+    pudl.load._csv_dump_load(eia923_transformed_dfs['fuel_receipts_costs_eia923'],
+                             'fuel_receipts_costs_eia923',
+                             pudl_engine,
+                             csvdir=csvdir,
+                             keep_csv=keep_csv)
 
 
 def ingest_ferc1(pudl_engine,
@@ -865,12 +521,11 @@ def ingest_ferc1(pudl_engine,
         'plants_small_ferc1': pudl.extract.ferc1.plants_small,
         'plants_hydro_ferc1': pudl.extract.ferc1.plants_hydro,
         'plants_pumped_storage_ferc1':
-        pudl.extract.ferc1.plants_pumped_storage,
+            pudl.extract.ferc1.plants_pumped_storage,
         'plant_in_service_ferc1': pudl.extract.ferc1.plant_in_service,
         'purchased_power_ferc1': pudl.extract.ferc1.purchased_power,
         'accumulated_depreciation_ferc1':
-        pudl.extract.ferc1.accumulated_depreciation
-    }
+            pudl.extract.ferc1.accumulated_depreciation}
 
     # define the ferc 1 metadata object
     if len(pudl.extract.ferc1.ferc1_meta.tables) == 0:
@@ -892,20 +547,23 @@ def ingest_ferc1(pudl_engine,
                                            pudl_table=table,
                                            ferc1_years=ferc1_years)
 
+    # Begin transform step
     ferc1_transform_functions = {
         'fuel_ferc1': pudl.transform.ferc1.fuel,
         'plants_steam_ferc1': pudl.transform.ferc1.plants_steam,
         'plants_small_ferc1': pudl.transform.ferc1.plants_small,
         'plants_hydro_ferc1': pudl.transform.ferc1.plants_hydro,
         'plants_pumped_storage_ferc1':
-        pudl.transform.ferc1.plants_pumped_storage,
+            pudl.transform.ferc1.plants_pumped_storage,
         'plant_in_service_ferc1': pudl.transform.ferc1.plant_in_service,
         'purchased_power_ferc1': pudl.transform.ferc1.purchased_power,
         'accumulated_depreciation_ferc1':
-        pudl.transform.ferc1.accumulated_depreciation
+            pudl.transform.ferc1.accumulated_depreciation
     }
+    # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
 
+    # for each ferc table,
     if verbose:
         print("Transforming dataframes from FERC 1:")
     for table in ferc1_transform_functions.keys():
@@ -915,16 +573,12 @@ def ingest_ferc1(pudl_engine,
             ferc1_transform_functions[table](ferc1_raw_dfs,
                                              ferc1_transformed_dfs)
 
-    if verbose:
-        print("Loading tables from FERC 1 into PUDL:")
-    for key, value in ferc1_transformed_dfs.items():
-        if verbose:
-            print("    {}...".format(key))
-        load._csv_dump_load(value,
-                            key,
-                            pudl_engine,
-                            csvdir=csvdir,
-                            keep_csv=keep_csv)
+    pudl.load.dict_dump_load(ferc1_transformed_dfs,
+                             "FERC 1",
+                             pudl_engine,
+                             verbose=verbose,
+                             csvdir=csvdir,
+                             keep_csv=keep_csv)
 
 
 def init_db(ferc1_tables=pc.ferc1_pudl_tables,
