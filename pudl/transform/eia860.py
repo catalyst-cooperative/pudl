@@ -158,14 +158,14 @@ def generators(eia860_dfs, eia860_transformed_dfs):
 
     # Backfill 'technology' field if only one unique values exists for a
     # generator
-    backfill_df = gens_df.groupby(['plant_id_eia', 'generator_id']).filter(
-        lambda x: x['technology'].nunique() == 1)
-    backfill_df = backfill_df.groupby(['plant_id_eia', 'generator_id']).filter(
-        lambda x: x['technology'].count() > 1)
-    backfill_df.reset_index(inplace=True)
-    backfill_df.technology = backfill_df.groupby(
-        ['plant_id_eia', 'generator_id']).technology.bfill()
-    gens_df.update(backfill_df)
+    # backfill_df = gens_df.groupby(['plant_id_eia', 'generator_id']).filter(
+    #    lambda x: x['technology'].nunique() == 1)
+    # backfill_df = backfill_df.groupby(['plant_id_eia', 'generator_id']).filter(
+    #    lambda x: x['technology'].count() > 1)
+    # backfill_df.reset_index(inplace=True)
+    # backfill_df.technology = backfill_df.groupby(
+    #    ['plant_id_eia', 'generator_id']).technology.bfill()
+    # gens_df.update(backfill_df)
 
     gens_df = pudl.transform.pudl.month_year_to_date(gens_df)
 
@@ -264,24 +264,24 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     # # Backfill 'latitude' & 'longitude' fields if zip code is constant across
     # # data set and more than 2 lat/long values exist
     #
-    backfill_df = p_df.groupby('plant_id_eia').filter(
-        lambda x: x['zip_code'].nunique() == 1)
-    backfill_df = backfill_df.groupby('plant_id_eia').filter(
-        lambda x: x['latitude'].count() > 2)
-    backfill_df = backfill_df.groupby('plant_id_eia').filter(
-        (lambda x: x['latitude'].max() - x['latitude'].min() >= 0))
-    backfill_df = backfill_df.groupby('plant_id_eia').filter(
-        (lambda x: x['latitude'].max() - x['latitude'].min() < 0.1))
-    backfill_df = backfill_df.groupby('plant_id_eia').filter(
-        (lambda x: x['longitude'].max() - x['longitude'].min() >= 0))
-    backfill_df = backfill_df.groupby('plant_id_eia').filter(
-        (lambda x: x['longitude'].max() - x['longitude'].min() < 0.1))
-    backfill_df.reset_index(inplace=True)
-    backfill_df.latitude = backfill_df.groupby(
-        ['plant_id_eia']).latitude.bfill()
-    backfill_df.longitude = backfill_df.groupby(
-        ['plant_id_eia']).longitude.bfill()
-    p_df.update(backfill_df)
+    # backfill_df = p_df.groupby('plant_id_eia').filter(
+    #    lambda x: x['zip_code'].nunique() == 1)
+    # backfill_df = backfill_df.groupby('plant_id_eia').filter(
+    #    lambda x: x['latitude'].count() > 2)
+    # backfill_df = backfill_df.groupby('plant_id_eia').filter(
+    #    (lambda x: x['latitude'].max() - x['latitude'].min() >= 0))
+    # backfill_df = backfill_df.groupby('plant_id_eia').filter(
+    #    (lambda x: x['latitude'].max() - x['latitude'].min() < 0.1))
+    # backfill_df = backfill_df.groupby('plant_id_eia').filter(
+    #    (lambda x: x['longitude'].max() - x['longitude'].min() >= 0))
+    # backfill_df = backfill_df.groupby('plant_id_eia').filter(
+    #    (lambda x: x['longitude'].max() - x['longitude'].min() < 0.1))
+    # backfill_df.reset_index(inplace=True)
+    # backfill_df.latitude = backfill_df.groupby(
+    #    ['plant_id_eia']).latitude.bfill()
+    # backfill_df.longitude = backfill_df.groupby(
+    #    ['plant_id_eia']).longitude.bfill()
+    # p_df.update(backfill_df)
 
 # Ensure plant & operator IDs are integers.
     p_df['plant_id_eia'] = p_df['plant_id_eia'].astype(int)
