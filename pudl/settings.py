@@ -18,39 +18,34 @@ TEST_DIR = os.path.join(PUDL_DIR, 'test')
 DOCS_DIR = os.path.join(PUDL_DIR, 'docs')
 
 # These DB connection dictionaries are used by sqlalchemy.URL()
-
+# (Using 127.0.0.1, the numeric equivalent of localhost, to make postgres use
+# the `.pgpass` file without fussing around in the config.)
+# sqlalchemy.URL will make a URL missing post (therefore using the default),
+# and missing a password (which will make the system look for .pgpass)
 DB_FERC1 = {
     'drivername': 'postgresql',
-    'host': 'localhost',
-    'port': '5432',
+    'host': '127.0.0.1',
     'username': 'catalyst',
-    'password': '',
     'database': 'ferc1'
 }
 
 DB_PUDL = {
     'drivername': 'postgresql',
-    'host': 'localhost',
-    'port': '5432',
+    'host': '127.0.0.1',
     'username': 'catalyst',
-    'password': '',
     'database': 'pudl'
 }
 
 DB_FERC1_TEST = {
     'drivername': 'postgresql',
-    'host': 'localhost',
-    'port': '5432',
+    'host': '127.0.0.1',
     'username': 'catalyst',
-    'password': '',
     'database': 'ferc1_test'
 }
 
 DB_PUDL_TEST = {
     'drivername': 'postgresql',
-    'host': 'localhost',
-    'port': '5432',
+    'host': '127.0.0.1',
     'username': 'catalyst',
-    'password': '',
     'database': 'pudl_test'
 }
