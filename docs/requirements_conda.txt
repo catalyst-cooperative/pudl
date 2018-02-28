@@ -4,7 +4,6 @@ numpy==1.13.3
 networkx==2.1
 packaging==16.8
 pandas==0.22.0
-pipdeptree==0.10.1
 psycopg2==2.7.1
 py==1.4.34
 pyparsing==2.2.0
