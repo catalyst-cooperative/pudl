@@ -349,10 +349,12 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     # grab table from dictionary of dfs
     ferc1_small_df = ferc1_raw_dfs['plants_small_ferc1']
-    # Standardize plant_name capitalization and remove leading/trailing white
-    # space -- necesary b/c plant_name is part of many foreign keys.
-    ferc1_small_df['plant_name'] = ferc1_small_df['plant_name'].str.strip()
-    ferc1_small_df['plant_name'] = ferc1_small_df['plant_name'].str.title()
+    # Standardize plant_name_raw capitalization and remove leading/trailing
+    # white space -- necesary b/c plant_name_raw is part of many foreign keys.
+    ferc1_small_df['plant_name'] = \
+        ferc1_small_df['plant_name'].str.strip()
+    ferc1_small_df['plant_name'] = \
+        ferc1_small_df['plant_name'].str.title()
 
     ferc1_small_df['kind_of_fuel'] = ferc1_small_df['kind_of_fuel'].str.strip()
     ferc1_small_df['kind_of_fuel'] = ferc1_small_df['kind_of_fuel'].str.title()
@@ -391,7 +393,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     # Munge the two dataframes together, keeping everything from the
     # frame we pulled out of the FERC1 DB, and supplementing it with the
-    # plant_name_clean, plant_type, and ferc_license fields from our hand
+    # plant_name, plant_type, and ferc_license fields from our hand
     # made file.
     ferc1_small_df = pd.merge(ferc1_small_df,
                               small_types_df,
@@ -406,11 +408,25 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
                         axis=1, inplace=True)
 
     # Standardize plant_name capitalization and remove leading/trailing white
-    # space, so that plant_name_clean matches formatting of plant_name
+    # space, so that plant_name matches formatting of plant_name_raw
     ferc1_small_df['plant_name_clean'] = \
         ferc1_small_df['plant_name_clean'].str.strip()
     ferc1_small_df['plant_name_clean'] = \
         ferc1_small_df['plant_name_clean'].str.title()
+
+    # in order to create one complete column of plant names, we have to use the
+    # cleaned plant names when available and the orignial plant names when the
+    # cleaned version is not available, but the strings first need cleaning
+    ferc1_small_df['plant_name_clean'] = \
+        ferc1_small_df['plant_name_clean'].fillna(value="")
+    ferc1_small_df['plant_name_clean'] = ferc1_small_df.apply(
+        lambda row: row['plant_name']
+        if (row['plant_name_clean'] == "")
+        else row['plant_name_clean'],
+        axis=1)
+
+    # now we don't need the uncleaned version anymore
+    # ferc1_small_df.drop(['plant_name'], axis=1, inplace=True)
 
     ferc1_small_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
@@ -423,6 +439,8 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
         'operation': 'cost_of_operation',
         'expns_maint': 'expns_maintenance',
         'fuel_cost': 'fuel_cost_per_mmbtu'},
+        #'plant_name': 'plant_name_raw',
+        #'plant_name_clean': 'plant_name'},
         inplace=True)
 
     ferc1_small_df['year_constructed'] = \

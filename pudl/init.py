@@ -662,15 +662,3 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
                                  verbose=verbose,
                                  csvdir=csvdir,
                                  keep_csv=keep_csv)
-
-    # ingest_eia860(pudl_engine,
-    #              eia860_tables=eia860_tables,
-    #              eia860_years=eia860_years,
-    #              verbose=verbose, debug=debug, testing=pudl_testing,
-    #              csvdir=csvdir, keep_csv=keep_csv)
-
-    # ingest_eia923(pudl_engine,
-    #              eia923_tables=eia923_tables,
-    #              eia923_years=eia923_years,
-    #              verbose=verbose, debug=debug, testing=pudl_testing,
-    #              csvdir=csvdir, keep_csv=keep_csv)
