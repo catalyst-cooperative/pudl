@@ -159,7 +159,8 @@ def plants(eia923_dfs, eia923_transformed_dfs):
                                    'reporting_frequency',
                                    'census_region',
                                    'nerc_region',
-                                   'nameplate_capacity_mw']]
+                                   'nameplate_capacity_mw',
+                                   'report_year']]
 
     # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
     plant_info_df.combined_heat_power.replace({'N': False, 'Y': True},
@@ -224,7 +225,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     gf_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    gf_df = pudl.transform.eia923.yearly_to_monthly_eia923(
+    gf_df = yearly_to_monthly_eia923(
         gf_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     gf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
@@ -317,7 +318,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     bf_df.dropna(subset=['boiler_id', 'plant_id_eia'], inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    bf_df = pudl.transform.eia923.yearly_to_monthly_eia923(
+    bf_df = yearly_to_monthly_eia923(
         bf_df, pc.month_dict_eia923)
     bf_df['fuel_type_pudl'] = \
         pudl.transform.pudl.cleanstrings(bf_df.fuel_type,
@@ -367,7 +368,7 @@ def generation(eia923_dfs, eia923_transformed_dfs):
     generation_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    generation_df = pudl.transform.eia923.yearly_to_monthly_eia923(
+    generation_df = yearly_to_monthly_eia923(
         generation_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     generation_df.replace(to_replace='^\.$', value=np.nan,
@@ -586,4 +587,37 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs, pudl_engine):
 
     eia923_transformed_dfs['fuel_receipts_costs_eia923'] = frc_df
 
+    return(eia923_transformed_dfs)
+
+
+def transform(eia923_raw_dfs,
+              pudl_engine,
+              eia923_tables=pc.eia923_pudl_tables,
+              verbose=True):
+    """Transform all EIA 923 tables."""
+    eia923_transform_functions = {
+        # 'plants_eia923': pudl.transform.eia923.plants,
+        'generation_fuel_eia923': generation_fuel,
+        'boilers_eia923': boilers,
+        'boiler_fuel_eia923': boiler_fuel,
+        'generation_eia923': generation,
+        'generators_eia923': generators,
+        'coalmine_eia923': coalmine,
+        'fuel_receipts_costs_eia923': fuel_reciepts_costs
+    }
+    eia923_transformed_dfs = {}
+
+    if verbose:
+        print("Transforming tables from EIA 923:")
+    for table in eia923_transform_functions.keys():
+        if table in eia923_tables:
+            if verbose:
+                print("    {}...".format(table))
+            if (table == 'fuel_receipts_costs_eia923'):
+                eia923_transform_functions[table](eia923_raw_dfs,
+                                                  eia923_transformed_dfs,
+                                                  pudl_engine)
+            else:
+                eia923_transform_functions[table](eia923_raw_dfs,
+                                                  eia923_transformed_dfs)
     return(eia923_transformed_dfs)

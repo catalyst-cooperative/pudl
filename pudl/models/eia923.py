@@ -28,7 +28,7 @@ class BoilersEIA923(pudl.models.glue.PUDLBase):
     """List of Boiler IDs specific to each plant in EIA Form 923 Page 3."""
 
     __tablename__ = 'boilers_eia923'
-    plant_id_eia = Column(Integer, ForeignKey('plants_eia.plant_id_eia'),
+    plant_id_eia = Column(Integer, ForeignKey('plants_entity_eia.plant_id_eia'),
                           primary_key=True)
     boiler_id = Column(String, primary_key=True)
     prime_mover = Column(String,
@@ -40,7 +40,7 @@ class GeneratorEIA923(pudl.models.glue.PUDLBase):
     """List of Generator IDs specific to each plant in EIA Form 923 Page 4."""
 
     __tablename__ = 'generators_eia923'
-    plant_id_eia = Column(Integer, ForeignKey('plants_eia.plant_id_eia'),
+    plant_id_eia = Column(Integer, ForeignKey('plants_entity_eia.plant_id_eia'),
                           primary_key=True)
     generator_id = Column(String, primary_key=True)
     prime_mover = Column(String,
@@ -188,7 +188,7 @@ class PlantsEIA923(pudl.models.glue.PUDLBase):
     __tablename__ = 'plants_eia923'
     # TODO: This should be a FK pointing at plants_eia.plant_id_eia
     plant_id_eia = Column(Integer, ForeignKey(
-        'plants_eia.plant_id_eia'), primary_key=True)
+        'plants_entity_eia.plant_id_eia'), primary_key=True)
     combined_heat_power = Column(Boolean)
     plant_state = Column(String, ForeignKey('us_states.abbr'))
     eia_sector = Column(Integer, ForeignKey('sector_eia.id'))
@@ -215,7 +215,7 @@ class GenerationFuelEIA923(pudl.models.glue.PUDLBase):
 
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     plant_id_eia = Column(Integer,
-                          ForeignKey('plants_eia.plant_id_eia'),
+                          ForeignKey('plants_entity_eia.plant_id_eia'),
                           nullable=False)
     report_date = Column(Date, nullable=False)
     # TODO: Should nuclear_unit_id really be here? It's kind of part of the
@@ -248,7 +248,7 @@ class BoilerFuelEIA923(pudl.models.glue.PUDLBase):
 
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     plant_id_eia = Column(Integer, ForeignKey(
-        'plants_eia.plant_id_eia'), nullable=False)
+        'plants_entity_eia.plant_id_eia'), nullable=False)
     boiler_id = Column(String, nullable=False)
     prime_mover = Column(String, ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
@@ -270,7 +270,7 @@ class GenerationEIA923(pudl.models.glue.PUDLBase):
     # Each month, for each unique combination of generator id and prime mover
     # and fuel,there is one report for each generator unit in each plant.
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
-    plant_id_eia = Column(Integer, ForeignKey('plants_eia.plant_id_eia'),
+    plant_id_eia = Column(Integer, ForeignKey('plants_entity_eia.plant_id_eia'),
                           nullable=False)
     # TODO remove prime_mover since it's specific to generator_id?
     prime_mover = Column(String, ForeignKey('prime_movers_eia923.abbr'),
@@ -290,7 +290,7 @@ class FuelReceiptsCostsEIA923(pudl.models.glue.PUDLBase):
     # surrogate key
     fuel_receipt_id = Column(Integer, primary_key=True, autoincrement=True)
     plant_id_eia = Column(Integer,
-                          ForeignKey('plants_eia.plant_id_eia'),
+                          ForeignKey('plants_entity_eia.plant_id_eia'),
                           nullable=False)
     report_date = Column(Date, nullable=False)
     contract_type = Column(String, ForeignKey('contract_type_eia923.abbr'))

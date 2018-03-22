@@ -119,7 +119,8 @@ class GeneratorsEIA860(pudl.models.glue.PUDLBase):
     report_date = Column(Date, nullable=False)
     operator_id = Column(Integer)  # FK
     operator_name = Column(String)  # FK
-    plant_id_eia = Column(Integer, ForeignKey('plants_eia.plant_id_eia'))
+    plant_id_eia = Column(Integer, ForeignKey(
+        'plants_entity_eia.plant_id_eia'))
     plant_name = Column(String)  # FK
     state = Column(String)  # FK
     county = Column(String)  # FK

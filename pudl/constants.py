@@ -512,6 +512,11 @@ eia923_pudl_tables = ['plants_eia923',
                       'generation_eia923',
                       'coalmine_eia923',
                       'fuel_receipts_costs_eia923']
+
+# List of entity tables
+entity_tables = ['plants_entity_eia',
+                 'generators_entity_eia']
+
 # 'stocks_eia923'
 
 tab_map_eia923 = pd.DataFrame.from_records([
