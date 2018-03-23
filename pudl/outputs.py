@@ -430,8 +430,8 @@ def annotations(df1, df2, layout):
         new_rows = annotations_transposed.loc[['field', 'source', 'origin'], :]
         new_rows = new_rows.rename(columns=new_rows.iloc[0])
         new_rows = new_rows.drop('field')
-        annotated = pd.concat([new_rows, df2])
-        return annotated
+        annotations = pd.concat([new_rows, df2])
+        return annotations
 
 ###############################################################################
 ###############################################################################
