@@ -9,7 +9,14 @@
 ### 1. Reviewing requirements
 For the full list of requirements to install, review [REQUIREMENTS.md](https://github.com/catalyst-cooperative/pudl/blob/master/REQUIREMENTS.md) in the PUDL GitHub repository.
 
-### 2. Installing Anaconda and Python packages
+### 2. Setting up the PUDL repository
+1. [Clone](https://help.github.com/articles/cloning-a-repository/) the PUDL repository. (This may require installing Git if you don't already have it.)
+```sh
+git clone git@github.com:catalyst-cooperative/pudl.git
+```
+
+
+### 3. Installing Anaconda and Python packages
 1. Anaconda is a package manager, environment manager and Python distribution that contains many of the packages we’ll need to get the PUDL database up and running. Please select the Python 3.6 version on this [page](https://www.anaconda.com/download/#windows). You can follow a step by step guide to completing the installation on the Graphical Installer [here](https://docs.anaconda.com/anaconda/install/windows).
     - If you prefer a more minimal install, [miniconda](https://conda.io/miniconda.html) is also acceptable.
 2. Set up conda to use [conda-forge](https://conda-forge.org/), and install the required packages. In a terminal window type:
@@ -27,7 +34,7 @@ More on conda environments [here](https://conda.io/docs/user-guide/tasks/manage-
 pip install sqlalchemy-postgres-copy==0.5.0
 ```
 
-### 3. Setting up PostgreSQL
+### 4. Setting up PostgreSQL
 
 
 1. [Download](https://www.postgresql.org/download/windows/) the Postgres installer.
@@ -48,19 +55,14 @@ The installer offers other things, like Stack Builder, that aren't necessary.
 6. Next, right-click on "databases" and open up the create database menu.
 Create the `ferc1` database with `catalyst` as the owner. This database will receive data from FERC form 1.
 7. Repeat #6 to create databases called `pudl`, `ferc1_test`, and `pudl_test`.
-8. In Windows Explorer, go to `%APPDATA%\postgresql`. If the file `pgpass.conf` exists, open it. If not, create it.
-On a new line in `pgpass.conf`, add the following, substituting in the password you set for the `catalyst` user.
-```
-127.0.0.1:*:*:catalyst:the_password_you_picked
-```
-The line above says "whenever you try to connect to the local machine over IPv4 with the username `catalyst`, use the password ______".
-
-
-### 4. Setting up the PUDL repository
-1. [Clone](https://help.github.com/articles/cloning-a-repository/) the PUDL repository. (This may require installing Git if you don't already have it.)
-```sh
-git clone git@github.com:catalyst-cooperative/pudl.git
-```
+8. Set up a `pgpass.conf` file with the password you set:
+    - In Windows Explorer, type %APPDATA%\postgresql into the address bar and press enter. This should take you to something like c:\users\username\appdata\local\postgresql, but don't worry if that's not the exact path.
+    - See if there's already a file called pgpass.conf
+    - If there is, open it. If not, use Notepad to create a text file called pgpass.conf in that folder.
+    - Whether it previously existed or not, you're going to add a new line.
+    - The contents of that line will be: `127.0.0.1:*:*:catalyst:the password you picked`, substituting in the password you picked for the catalyst user.
+        - The line above says "whenever you try to connect to the local machine over IPv4 with the username `catalyst`, use the password ______".
+    - Save and close.
 
 
 ### 5. Initializing the database
@@ -82,7 +84,7 @@ This script will load all of the data that is currently working (see [README.md]
 5. This process will take tens of minutes to download the data and about 20 minutes to run the initialization script. The unzipped data folder will be about 8GB and the postgres database will take up about 1GB.
 If you want to just do a small subset of the data to test whether the setup is working, check out the help message on the script by calling python `init_pudl.py -h`.
 
-### 7. Playing with the data
+### 6. Playing with the data
 
 In your Terminal window use cd to navigate to the `pudl\docs\notebooks\tutorials directory`. Then run `jupyter notebook pudl_intro.ipynb` to fire up the introductory notebook. There you’ll find more information on how to begin to play with the data.
 (If you installed miniconda in step 2, you may have to `conda install jupyter`.)
