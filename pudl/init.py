@@ -27,8 +27,8 @@ import re
 import datetime
 
 from pudl import settings
-import pudl.models.glue
 import pudl.models.entities
+import pudl.models.glue
 import pudl.models.eia923
 import pudl.models.eia860
 import pudl.models.ferc1
@@ -62,12 +62,12 @@ def connect_db(testing=False):
 
 def _create_tables(engine):
     """Create the tables associated with the PUDL Database."""
-    pudl.models.glue.PUDLBase.metadata.create_all(engine)
+    pudl.models.entities.PUDLBase.metadata.create_all(engine)
 
 
 def drop_tables(engine):
     """Drop all the tables associated with the PUDL Database and start over."""
-    pudl.models.glue.PUDLBase.metadata.drop_all(engine)
+    pudl.models.entities.PUDLBase.metadata.drop_all(engine)
 
 
 ###############################################################################

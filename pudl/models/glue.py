@@ -8,15 +8,15 @@ is required to relate information from different data sources to each other.
 from sqlalchemy import Column, ForeignKey, Integer, String, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+import pudl.models.entities
 
-PUDLBase = declarative_base()
 
 ###########################################################################
 # Tables which represent static lists. E.g. all the US States.
 ###########################################################################
 
 
-class State(PUDLBase):
+class State(pudl.models.entities.PUDLBase):
     """A static list of US states."""
 
     __tablename__ = 'us_states'
@@ -24,14 +24,14 @@ class State(PUDLBase):
     name = Column(String)
 
 
-class Month(PUDLBase):
+class Month(pudl.models.entities.PUDLBase):
     """A list of valid data months."""
 
     __tablename__ = 'months'
     month = Column(Integer, primary_key=True)
 
 
-class Quarter(PUDLBase):
+class Quarter(pudl.models.entities.PUDLBase):
     """A list of fiscal/calendar quarters."""
 
     __tablename__ = 'quarters'
@@ -39,7 +39,7 @@ class Quarter(PUDLBase):
     end_month = Column(Integer, nullable=False)  # 3, 6, 9, 12
 
 
-class RTOISO(PUDLBase):
+class RTOISO(pudl.models.entities.PUDLBase):
     """Valid Regional Transmission Orgs and Independent System Operators."""
 
     __tablename__ = 'rto_iso'
@@ -47,21 +47,21 @@ class RTOISO(PUDLBase):
     name = Column(String, nullable=False)
 
 
-class FuelUnit(PUDLBase):
+class FuelUnit(pudl.models.entities.PUDLBase):
     """A list of strings denoting possible fuel units of measure."""
 
     __tablename__ = 'fuel_units'
     unit = Column(String, primary_key=True)
 
 
-class PrimeMover(PUDLBase):
+class PrimeMover(pudl.models.entities.PUDLBase):
     """A list of strings denoting different types of prime movers."""
 
     __tablename__ = 'prime_movers'
     prime_mover = Column(String, primary_key="True")
 
 
-class FERCAccount(PUDLBase):
+class FERCAccount(pudl.models.entities.PUDLBase):
     """Static list of all the FERC account numbers and descriptions."""
 
     __tablename__ = 'ferc_accounts'
@@ -69,7 +69,7 @@ class FERCAccount(PUDLBase):
     description = Column(String, nullable=False)
 
 
-class FERCDepreciationLine(PUDLBase):
+class FERCDepreciationLine(pudl.models.entities.PUDLBase):
     """Static list of all the FERC account numbers and descriptions."""
 
     __tablename__ = 'ferc_depreciation_lines'
@@ -77,7 +77,7 @@ class FERCDepreciationLine(PUDLBase):
     description = Column(String, nullable=False)
 
 
-class CensusRegion(PUDLBase):
+class CensusRegion(pudl.models.entities.PUDLBase):
     """Static list of census regions used by EIA."""
 
     __tablename__ = 'census_regions'
@@ -85,7 +85,7 @@ class CensusRegion(PUDLBase):
     name = Column(String, nullable=False)
 
 
-class NERCRegion(PUDLBase):
+class NERCRegion(pudl.models.entities.PUDLBase):
     """
     Valid NERC (North American Electric Reliability Corporation) regions.
 
@@ -101,7 +101,7 @@ class NERCRegion(PUDLBase):
 # "Glue" tables relating names & IDs from different data sources
 ###########################################################################
 
-class UtilityFERC1(PUDLBase):
+class UtilityFERC1(pudl.models.entities.PUDLBase):
     """A FERC respondent -- typically this is a utility company."""
 
     __tablename__ = 'utilities_ferc'
@@ -119,7 +119,7 @@ util_id_pudl='{}')>".format(self.respondent_id,
                             self.util_id_pudl)
 
 
-class PlantFERC1(PUDLBase):
+class PlantFERC1(pudl.models.entities.PUDLBase):
     """
     A co-located collection of generation infrastructure.
 
@@ -147,7 +147,7 @@ plant_id_pudl={})>".format(self.respondent_id,
                            self.plant_id_pudl)
 
 
-class UtilityEIA923(PUDLBase):
+class UtilityEIA923(pudl.models.entities.PUDLBase):
     """
     An EIA operator, typically a utility company.
 
@@ -169,7 +169,7 @@ util_id_pudl={})>".format(self.operator_id,
                           self.util_id_pudl)
 
 
-class PlantEIA923(PUDLBase):
+class PlantEIA923(pudl.models.entities.PUDLBase):
     """
     A plant listed in the EIA 923 form.
 
@@ -193,7 +193,7 @@ plant_id_pudl={})>".format(self.plant_id_eia,
                            self.plant_id_pudl)
 
 
-class Utility(PUDLBase):
+class Utility(pudl.models.entities.PUDLBase):
     """
     A general electric utility, constructed from FERC, EIA and other data.
 
@@ -217,7 +217,7 @@ class Utility(PUDLBase):
         return "<Utility(id={}, name='{}')>".format(self.id, self.name)
 
 
-class Plant(PUDLBase):
+class Plant(pudl.models.entities.PUDLBase):
     """
     A co-located collection of electricity generating infrastructure.
 
@@ -240,7 +240,7 @@ class Plant(PUDLBase):
         return "<Plant(id={}, name='{}')>".format(self.id, self.name)
 
 
-class UtilPlantAssn(PUDLBase):
+class UtilPlantAssn(pudl.models.entities.PUDLBase):
     """Enumerates existence of relationships between plants and utilities."""
 
     __tablename__ = 'util_plant_assn'

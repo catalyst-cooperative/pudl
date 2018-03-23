@@ -29,12 +29,14 @@ import numpy as np
 # analysis module
 from pudl import analysis, init, mcoe
 from pudl import constants as pc
+import pudl.models.entities
 import pudl.models.glue
+import pudl.models.eia
 import pudl.models.eia923
 import pudl.models.eia860
 import pudl.models.ferc1
 # Shorthand for easier table referecnes:
-pt = pudl.models.glue.PUDLBase.metadata.tables
+pt = pudl.models.entities.PUDLBase.metadata.tables
 
 ###############################################################################
 #   Output Class, that can pull all the below tables with similar parameters

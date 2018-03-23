@@ -2,12 +2,13 @@
 
 from sqlalchemy import Column, ForeignKey, Integer, String, Float
 from sqlalchemy import Boolean, Integer, String, Float, Numeric, Date
+from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-import pudl.models.glue
+import pudl.models.entities
 
 
-class PlantAnnualEIA(pudl.models.glue.PUDLBase):
+class PlantAnnualEIA(pudl.models.entities.PUDLBase):
     """
     EIA Plants per year, listed in 923 or 860.
 
@@ -15,6 +16,7 @@ class PlantAnnualEIA(pudl.models.glue.PUDLBase):
     """
 
     __tablename__ = 'plants_annual_eia'
+
     id = Column(Integer, autoincrement=True, primary_key=True)
     plant_id_eia = Column(Integer,
                           ForeignKey('plants_entity_eia.plant_id_eia'),
@@ -23,7 +25,7 @@ class PlantAnnualEIA(pudl.models.glue.PUDLBase):
     # TODO: Add plant info that varies per year
 
 
-class GeneratorAnnualEIA(pudl.models.glue.PUDLBase):
+class GeneratorAnnualEIA(pudl.models.entities.PUDLBase):
     """
     EIA generators per year, listed in 923 or 860.
 
@@ -31,10 +33,13 @@ class GeneratorAnnualEIA(pudl.models.glue.PUDLBase):
     """
 
     __tablename__ = 'generators_annual_eia'
+    __table_args__ = (ForeignKeyConstraint(
+        ['plant_id_eia', 'generator_id'],
+        ['generators_entity_eia.plant_id_eia',
+         'generators_entity_eia.generator_id']),)
+
     id = Column(Integer, autoincrement=True, primary_key=True)
-    plant_id_eia = Column(Integer,
-                          ForeignKey('plants_entity_eia.plant_id_eia'),
-                          nullable=False)
+    plant_id_eia = Column(Integer, nullable=False)
     generator_id = Column(String, nullable=False)
     report_date = Column(Date, nullable=False)
     # TODO: Add static plant info

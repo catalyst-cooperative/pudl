@@ -10,10 +10,9 @@ import random
 
 # Our own code...
 from pudl import init, settings, constants
-#from pudl import clean_eia923, clean_ferc1, clean_pudl
 from pudl import outputs
 import pudl.extract.ferc1
-import pudl.models.glue
+import pudl.models.entities
 import pudl.models.eia923
 import pudl.models.ferc1
 from functools import partial
@@ -137,7 +136,7 @@ def simple_select(table_name, pudl_engine):
         DataFrame from table
     """
     # Pull in the table
-    tbl = pudl.models.glue.PUDLBase.metadata.tables[table_name]
+    tbl = pudl.models.entities.PUDLBase.metadata.tables[table_name]
     # Creates a sql Select object
     select = sa.sql.select([tbl, ])
     # Converts sql object to pandas dataframe
@@ -148,7 +147,7 @@ def simple_select(table_name, pudl_engine):
 
     if 'plant_id_eia' in table.columns:
         # Shorthand for readability... pt = PUDL Tables
-        pt = pudl.models.glue.PUDLBase.metadata.tables
+        pt = pudl.models.entities.PUDLBase.metadata.tables
 
         # Pull in plants_eia which connects EIA & PUDL plant IDs
         plants_eia_tbl = pt['plants_eia']
@@ -255,12 +254,12 @@ def eia_operator_plants(operator_id, pudl_engine):
     Session.configure(bind=pudl_engine)
     session = Session()
     pudl_plant_ids = [p.plant_id for p in
-                      session.query(pudl.models.glue.UtilityEIA923).
+                      session.query(pudl.models.entities.UtilityEIA923).
                       filter_by(operator_id=operator_id).
                       first().util_pudl.plants]
     eia923_plant_ids = [p.plant_id_eia for p in
-                        session.query(pudl.models.glue.PlantEIA923).
-                        filter(pudl.models.glue.
+                        session.query(pudl.models.entities.PlantEIA923).
+                        filter(pudl.models.entities.
                                PlantEIA923.
                                plant_id_pudl.
                                in_(pudl_plant_ids))]

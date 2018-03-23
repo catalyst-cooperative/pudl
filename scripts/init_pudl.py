@@ -71,9 +71,11 @@ def main():
     """The main function."""
     from pudl import init, settings, constants
     from pudl import extract
+    import pudl.models.entities
     import pudl.models.glue
     import pudl.models.eia860
     import pudl.models.eia923
+    import pudl.models.eia
     import pudl.models.ferc1
 
     args = parse_command_line(sys.argv)
