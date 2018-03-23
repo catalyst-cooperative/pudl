@@ -403,11 +403,43 @@ def plants_utils_ferc1(testing=False):
     return(out_df)
 
 
+def annotations(df1, df2, layout):
+    """
+    Create annotation tab or header rows for EIA 860, EIA 923, and FERC 1
+    fields in a dataframe
+
+    Args:
+        df1: A DataFrame with annotation information. Should have 'field',
+             'source', and 'origin' fields where 'source' is EIA860, EIA923, or
+             FERC1; and 'origin' is reported, calculated, or assigned
+        df2: Only required if (layout = 'header'); this is the DF into which
+             header rows will be inserted
+        layout: 'tab' or 'header'
+
+    Returns either df1 as-is for layout == 'tab', or for layout == 'header'
+        returns new df with 'source' and 'origin' header rows
+    """
+
+    if layout == 'tab':
+        annotations = df1
+        return annotations
+
+    if layout == 'header':
+        # data_cols = [c for c in df1.columns.tolist()]
+        annotations_transposed = df1.transpose()
+        new_rows = annotations_transposed.loc[['field', 'source', 'origin'], :]
+        new_rows = new_rows.rename(columns=new_rows.iloc[0])
+        new_rows = new_rows.drop('field')
+        annotated = pd.concat([new_rows, df2])
+        return annotated
+
 ###############################################################################
 ###############################################################################
 #   EIA 860 Outputs
 ###############################################################################
 ###############################################################################
+
+
 def utilities_eia860(start_date=None, end_date=None, testing=False):
     """Pull all fields from the EIA860 Utilities table."""
     pudl_engine = init.connect_db(testing=testing)
