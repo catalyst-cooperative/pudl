@@ -405,35 +405,63 @@ def plants_utils_ferc1(testing=False):
     return(out_df)
 
 
-def annotations(df1, df2, layout):
+def annotate_export(df1, df2, outfile='output.xlsx'):
     """
     Create annotation tab or header rows for EIA 860, EIA 923, and FERC 1
     fields in a dataframe
 
     Args:
-        df1: A DataFrame with annotation information. Should have 'field',
+        df1: The dataframe for which annotations are being created
+
+        df2: A dataframe with annotation information. Should have 'field',
              'source', and 'origin' fields where 'source' is EIA860, EIA923, or
              FERC1; and 'origin' is reported, calculated, or assigned
-        df2: Only required if (layout = 'header'); this is the DF into which
-             header rows will be inserted
-        layout: 'tab' or 'header'
+        outfile: name of output file, must include '.xlsx' extension; default
+            name is 'output.xlsx'
 
-    Returns either df1 as-is for layout == 'tab', or for layout == 'header'
-        returns new df with 'source' and 'origin' header rows
+    Returns .xlsx file with two tabs: data tab with annotated rows, and
+        annotations tab
     """
+    # Transpose the annotations (df2) so they can be inserted as rows in the
+    # data table, df1
+    annotations_transposed = df2.transpose()
 
-    if layout == 'tab':
-        annotations = df1
-        return annotations
+    # Use the 'field' to match the columns, then insert info on 'source' and
+    # 'origin' of data into df1
+    new_rows = annotations_transposed.loc[['field', 'source', 'origin'], :]
+    new_rows = new_rows.rename(columns=new_rows.iloc[0])
+    new_rows = new_rows.drop('field')
+    annotated = pd.concat([new_rows, df1])
 
-    if layout == 'header':
-        # data_cols = [c for c in df1.columns.tolist()]
-        annotations_transposed = df1.transpose()
-        new_rows = annotations_transposed.loc[['field', 'source', 'origin'], :]
-        new_rows = new_rows.rename(columns=new_rows.iloc[0])
-        new_rows = new_rows.drop('field')
-        annotations = pd.concat([new_rows, df2])
-        return annotations
+    # Make sure columns we want to be first are kept there
+    first_cols = [
+        'report_date',
+        'plant_id_eia',
+        'plant_id_pudl',
+        'plant_name',
+        'operator_id',
+        'util_id_pudl',
+        'operator_name',
+        'generator_id',
+        'boiler_id',
+        'ownership_id',
+        'owner_name',
+    ]
+
+    data_cols = [c for c in annotated.columns.tolist()]
+    cols = []
+    for c in first_cols:
+        if c in data_cols:
+            cols.append(c)
+    annotated = organize_cols(annotated, cols)
+
+    # Export the two dataframes to .xlsx file using 'outfile' name
+    xlsx_writer = pd.ExcelWriter(outfile)
+    annotated.to_excel(xlsx_writer, sheet_name=str(outfile),
+                       index=False, na_rep='NA')
+    df2.to_excel(xlsx_writer, sheet_name='annotations',
+                 index=False, na_rep='NA')
+    xlsx_writer.save()
 
 ###############################################################################
 ###############################################################################
