@@ -2,22 +2,27 @@
 
 from sqlalchemy import Boolean, Integer, String, Float, Numeric, Date
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint
-import pudl.models.glue
+import pudl.models.entities
 
 
-class BoilerGeneratorAssnEIA860(pudl.models.glue.PUDLBase):
+class BoilerGeneratorAssnEIA860(pudl.models.entities.PUDLBase):
     """Information pertaining to boiler_generator pairs listed in EIA 860."""
 
     __tablename__ = 'boiler_generator_assn_eia860'
+    __table_args__ = (ForeignKeyConstraint(
+        ['plant_id_eia', 'generator_id'],
+        ['generators_entity_eia.plant_id_eia',
+         'generators_entity_eia.generator_id']),)
+
     id = Column(Integer, autoincrement=True, primary_key=True)
     report_date = Column(Date, nullable=False)
     operator_id = Column(Integer, nullable=False)  # FK?
     plant_id_eia = Column(Integer, nullable=False)  # FK?
     boiler_id = Column(String, nullable=False)  # FK?
-    generator_id = Column(String, nullable=False)  # FK?
+    generator_id = Column(String, nullable=False)
 
 
-class UtilitiesEIA860(pudl.models.glue.PUDLBase):
+class UtilitiesEIA860(pudl.models.entities.PUDLBase):
     """Information on utilities reporting information on form EIA860."""
 
     __tablename__ = 'utilities_eia860'
@@ -36,7 +41,7 @@ class UtilitiesEIA860(pudl.models.glue.PUDLBase):
     entity_type = Column(String)
 
 
-class PlantsEIA860(pudl.models.glue.PUDLBase):
+class PlantsEIA860(pudl.models.entities.PUDLBase):
     """Plant-specific information reported on form EIA860."""
 
     __tablename__ = 'plants_eia860'
@@ -89,10 +94,15 @@ class PlantsEIA860(pudl.models.glue.PUDLBase):
     liquefied_natural_gas_storage = Column(String)
 
 
-class OwnershipEIA860(pudl.models.glue.PUDLBase):
+class OwnershipEIA860(pudl.models.entities.PUDLBase):
     """The schedule of generator ownership shares from EIA860."""
 
     __tablename__ = 'ownership_eia860'
+    __table_args__ = (ForeignKeyConstraint(
+        ['plant_id_eia', 'generator_id'],
+        ['generators_entity_eia.plant_id_eia',
+         'generators_entity_eia.generator_id']),)
+
     id = Column(Integer, autoincrement=True, primary_key=True)
     report_date = Column(Date, nullable=False)
     operator_id = Column(Integer, nullable=False)  # FK
@@ -100,7 +110,7 @@ class OwnershipEIA860(pudl.models.glue.PUDLBase):
     plant_id_eia = Column(Integer, nullable=False)  # FK
     plant_name = Column(String, nullable=False)  # FK
     state = Column(String)  # FK?
-    generator_id = Column(String, nullable=False)  # FK
+    generator_id = Column(String, nullable=False,)
     status = Column(String)
     ownership_id = Column(Integer, nullable=False)  # FK operator_id
     owner_name = Column(String)
@@ -111,15 +121,20 @@ class OwnershipEIA860(pudl.models.glue.PUDLBase):
     fraction_owned = Column(Float)
 
 
-class GeneratorsEIA860(pudl.models.glue.PUDLBase):
+class GeneratorsEIA860(pudl.models.entities.PUDLBase):
     """Generator-level data reported in form EIA860."""
 
     __tablename__ = 'generators_eia860'
+    __table_args__ = (ForeignKeyConstraint(
+        ['plant_id_eia', 'generator_id'],
+        ['generators_entity_eia.plant_id_eia',
+         'generators_entity_eia.generator_id']),)
+
     id = Column(Integer, autoincrement=True, primary_key=True)
     report_date = Column(Date, nullable=False)
     operator_id = Column(Integer)  # FK
     operator_name = Column(String)  # FK
-    plant_id_eia = Column(Integer, ForeignKey('plants_eia.plant_id_eia'))
+    plant_id_eia = Column(Integer)
     plant_name = Column(String)  # FK
     state = Column(String)  # FK
     county = Column(String)  # FK

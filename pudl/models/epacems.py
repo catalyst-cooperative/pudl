@@ -2,10 +2,10 @@
 
 from sqlalchemy import Boolean, Integer, String, Float, Numeric, Date
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint
-import pudl.models.glue
+import pudl.models.entities
 
 
-class HourlyEmissions(pudl.models.glue.PUDLBase):
+class HourlyEmissions(pudl.models.entities.PUDLBase):
     """Hourly emissions data by month as reported to EPA CEMS."""
 
     __tablename__ = 'hourly_emissions_epacems'

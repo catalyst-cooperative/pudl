@@ -29,12 +29,14 @@ import numpy as np
 # analysis module
 from pudl import analysis, init, mcoe
 from pudl import constants as pc
+import pudl.models.entities
 import pudl.models.glue
+import pudl.models.eia
 import pudl.models.eia923
 import pudl.models.eia860
 import pudl.models.ferc1
 # Shorthand for easier table referecnes:
-pt = pudl.models.glue.PUDLBase.metadata.tables
+pt = pudl.models.entities.PUDLBase.metadata.tables
 
 ###############################################################################
 #   Output Class, that can pull all the below tables with similar parameters
@@ -403,11 +405,71 @@ def plants_utils_ferc1(testing=False):
     return(out_df)
 
 
+def annotate_export(df1, df2, outfile='output.xlsx'):
+    """
+    Create annotation tab or header rows for EIA 860, EIA 923, and FERC 1
+    fields in a dataframe
+
+    Args:
+        df1: The dataframe for which annotations are being created
+
+        df2: A dataframe with annotation information. Should have 'field',
+             'source', and 'origin' fields where 'source' is EIA860, EIA923, or
+             FERC1; and 'origin' is reported, calculated, or assigned
+        outfile: name of output file, must include '.xlsx' extension; default
+            name is 'output.xlsx'
+
+    Returns .xlsx file with two tabs: data tab with annotated rows, and
+        annotations tab
+    """
+    # Transpose the annotations (df2) so they can be inserted as rows in the
+    # data table, df1
+    annotations_transposed = df2.transpose()
+
+    # Use the 'field' to match the columns, then insert info on 'source' and
+    # 'origin' of data into df1
+    new_rows = annotations_transposed.loc[['field', 'source', 'origin'], :]
+    new_rows = new_rows.rename(columns=new_rows.iloc[0])
+    new_rows = new_rows.drop('field')
+    annotated = pd.concat([new_rows, df1])
+
+    # Make sure columns we want to be first are kept there
+    first_cols = [
+        'report_date',
+        'plant_id_eia',
+        'plant_id_pudl',
+        'plant_name',
+        'operator_id',
+        'util_id_pudl',
+        'operator_name',
+        'generator_id',
+        'boiler_id',
+        'ownership_id',
+        'owner_name',
+    ]
+
+    data_cols = [c for c in annotated.columns.tolist()]
+    cols = []
+    for c in first_cols:
+        if c in data_cols:
+            cols.append(c)
+    annotated = organize_cols(annotated, cols)
+
+    # Export the two dataframes to .xlsx file using 'outfile' name
+    xlsx_writer = pd.ExcelWriter(outfile)
+    annotated.to_excel(xlsx_writer, sheet_name=str(outfile),
+                       index=False, na_rep='NA')
+    df2.to_excel(xlsx_writer, sheet_name='annotations',
+                 index=False, na_rep='NA')
+    xlsx_writer.save()
+
 ###############################################################################
 ###############################################################################
 #   EIA 860 Outputs
 ###############################################################################
 ###############################################################################
+
+
 def utilities_eia860(start_date=None, end_date=None, testing=False):
     """Pull all fields from the EIA860 Utilities table."""
     pudl_engine = init.connect_db(testing=testing)

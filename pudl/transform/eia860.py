@@ -382,3 +382,28 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
     eia860_transformed_dfs['utilities_eia860'] = u_df
 
     return(eia860_transformed_dfs)
+
+
+def transform(eia860_raw_dfs,
+              eia860_tables=pc.eia860_pudl_tables,
+              verbose=True):
+    """Transform EIA 860 dfs"""
+    eia860_transform_functions = {
+        'ownership_eia860': ownership,
+        'generators_eia860': generators,
+        'plants_eia860': plants,
+        'boiler_generator_assn_eia860': boiler_generator_assn,
+        'utilities_eia860': utilities}
+    eia860_transformed_dfs = {}
+
+    if verbose:
+        print("Transforming tables from EIA 860:")
+    for table in eia860_transform_functions.keys():
+
+        if table in eia860_tables:
+            if verbose:
+                print("    {}...".format(table))
+            eia860_transform_functions[table](eia860_raw_dfs,
+                                              eia860_transformed_dfs)
+
+    return(eia860_transformed_dfs)

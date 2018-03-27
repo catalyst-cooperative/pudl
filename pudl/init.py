@@ -27,16 +27,19 @@ import re
 import datetime
 
 from pudl import settings
+import pudl.models.entities
 import pudl.models.glue
 import pudl.models.eia923
 import pudl.models.eia860
 import pudl.models.ferc1
+import pudl.models.eia
 import pudl.extract.eia860
 import pudl.extract.eia923
 import pudl.extract.ferc1
 import pudl.transform.ferc1
 import pudl.transform.eia923
 import pudl.transform.eia860
+import pudl.transform.eia
 import pudl.transform.pudl
 import pudl.load
 
@@ -59,12 +62,12 @@ def connect_db(testing=False):
 
 def _create_tables(engine):
     """Create the tables associated with the PUDL Database."""
-    pudl.models.glue.PUDLBase.metadata.create_all(engine)
+    pudl.models.entities.PUDLBase.metadata.create_all(engine)
 
 
 def drop_tables(engine):
     """Drop all the tables associated with the PUDL Database and start over."""
-    pudl.models.glue.PUDLBase.metadata.drop_all(engine)
+    pudl.models.entities.PUDLBase.metadata.drop_all(engine)
 
 
 ###############################################################################
@@ -409,32 +412,6 @@ def extract_eia860(eia860_years=pc.working_years['eia860'],
     return(eia860_raw_dfs)
 
 
-def transform_eia860(eia860_raw_dfs,
-                     eia860_tables=pc.eia860_pudl_tables,
-                     verbose=True):
-    """Transform EIA 860 dfs"""
-    eia860_transform_functions = {
-        'ownership_eia860': pudl.transform.eia860.ownership,
-        'generators_eia860': pudl.transform.eia860.generators,
-        'plants_eia860': pudl.transform.eia860.plants,
-        'boiler_generator_assn_eia860':
-            pudl.transform.eia860.boiler_generator_assn,
-        'utilities_eia860': pudl.transform.eia860.utilities}
-    eia860_transformed_dfs = {}
-
-    if verbose:
-        print("Transforming tables from EIA 860:")
-    for table in eia860_transform_functions.keys():
-
-        if table in eia860_tables:
-            if verbose:
-                print("    {}...".format(table))
-            eia860_transform_functions[table](eia860_raw_dfs,
-                                              eia860_transformed_dfs)
-
-    return(eia860_transformed_dfs)
-
-
 def extract_eia923(eia923_years=pc.working_years['eia923'],
                    verbose=True):
     """Extract all EIA 923 tables."""
@@ -445,14 +422,14 @@ def extract_eia923(eia923_years=pc.working_years['eia923'],
     # Create DataFrames
     eia923_raw_dfs = {}
     for page in pc.tab_map_eia923.columns:
-        if (page == 'plant_frame'):
-            eia923_raw_dfs[page] = pudl.extract.eia923.get_eia923_plants(
-                eia923_years, eia923_xlsx)
-        else:
+        if (page != 'plant_frame'):
             eia923_raw_dfs[page] = pudl.extract.eia923.\
                 get_eia923_page(page, eia923_xlsx,
                                 years=eia923_years,
                                 verbose=verbose)
+            # eia923_raw_dfs[page] = pudl.extract.eia923.get_eia923_plants(
+            #    eia923_years, eia923_xlsx)
+        # else:
 
     return(eia923_raw_dfs)
 
@@ -463,7 +440,7 @@ def transform_eia923(eia923_raw_dfs,
                      verbose=True):
     """Transform all EIA 923 tables."""
     eia923_transform_functions = {
-        'plants_eia923': pudl.transform.eia923.plants,
+        # 'plants_eia923': pudl.transform.eia923.plants,
         'generation_fuel_eia923': pudl.transform.eia923.generation_fuel,
         'boilers_eia923': pudl.transform.eia923.boilers,
         'boiler_fuel_eia923': pudl.transform.eia923.boiler_fuel,
@@ -642,18 +619,29 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
                                             ferc1_tables=ferc1_tables,
                                             verbose=verbose)
 
-    eia923_transformed_dfs = transform_eia923(eia923_raw_dfs,
-                                              pudl_engine,
-                                              eia923_tables=eia923_tables,
-                                              verbose=verbose)
+    eia923_transformed_dfs = \
+        pudl.transform.eia923.transform(eia923_raw_dfs,
+                                        pudl_engine,
+                                        eia923_tables=eia923_tables,
+                                        verbose=verbose)
 
-    eia860_transformed_dfs = transform_eia860(eia860_raw_dfs,
-                                              eia860_tables=eia860_tables,
-                                              verbose=verbose)
+    eia860_transformed_dfs = \
+        pudl.transform.eia860.transform(eia860_raw_dfs,
+                                        eia860_tables=eia860_tables,
+                                        verbose=verbose)
+
+    # create an eia transformed dfs dictionary
+    eia_transformed_dfs = eia860_transformed_dfs.copy()
+    eia_transformed_dfs.update(eia923_transformed_dfs)
+
+    entities_dfs, eia_transformed_dfs = \
+        pudl.transform.eia.transform(eia_transformed_dfs,
+                                     verbose=verbose)
+
     # Compile transformed dfs for loading...
-    transformed_dfs = {"FERC 1": ferc1_transformed_dfs,
-                       "EIA 923": eia923_transformed_dfs,
-                       "EIA 860": eia860_transformed_dfs}
+    transformed_dfs = {"Entities": entities_dfs,
+                       "FERC 1": ferc1_transformed_dfs,
+                       "EIA": eia_transformed_dfs}
     # Load step
     for key, value in transformed_dfs.items():
         pudl.load.dict_dump_load(value,

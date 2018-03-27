@@ -2,7 +2,7 @@
 
 from sqlalchemy import Boolean, Integer, String, Float, Numeric, Date
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint
-import pudl.models.glue
+import pudl.models.entities
 
 ###########################################################################
 # EIA Form 923 tables which represent constants or metadata
@@ -10,7 +10,7 @@ import pudl.models.glue
 ###########################################################################
 
 
-class CoalMineEIA923(pudl.models.glue.PUDLBase):
+class CoalMineEIA923(pudl.models.entities.PUDLBase):
     """Information pertaining to individual coal mines listed in EIA 923."""
 
     __tablename__ = 'coalmine_eia923'
@@ -24,11 +24,12 @@ class CoalMineEIA923(pudl.models.glue.PUDLBase):
     mine_id_msha = Column(Integer)
 
 
-class BoilersEIA923(pudl.models.glue.PUDLBase):
+class BoilersEIA923(pudl.models.entities.PUDLBase):
     """List of Boiler IDs specific to each plant in EIA Form 923 Page 3."""
 
     __tablename__ = 'boilers_eia923'
-    plant_id_eia = Column(Integer, ForeignKey('plants_eia.plant_id_eia'),
+    plant_id_eia = Column(Integer,
+                          ForeignKey('plants_entity_eia.plant_id_eia'),
                           primary_key=True)
     boiler_id = Column(String, primary_key=True)
     prime_mover = Column(String,
@@ -36,19 +37,23 @@ class BoilersEIA923(pudl.models.glue.PUDLBase):
                          nullable=False)
 
 
-class GeneratorEIA923(pudl.models.glue.PUDLBase):
+class GeneratorEIA923(pudl.models.entities.PUDLBase):
     """List of Generator IDs specific to each plant in EIA Form 923 Page 4."""
 
     __tablename__ = 'generators_eia923'
-    plant_id_eia = Column(Integer, ForeignKey('plants_eia.plant_id_eia'),
-                          primary_key=True)
+    __table_args__ = (ForeignKeyConstraint(
+        ['plant_id_eia', 'generator_id'],
+        ['generators_entity_eia.plant_id_eia',
+         'generators_entity_eia.generator_id']),)
+
+    plant_id_eia = Column(Integer, primary_key=True)
     generator_id = Column(String, primary_key=True)
     prime_mover = Column(String,
                          ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
 
 
-class FuelUnitEIA923(pudl.models.glue.PUDLBase):
+class FuelUnitEIA923(pudl.models.entities.PUDLBase):
     """Static list of physical unit labels used by EIA in Form 923."""
 
     __tablename__ = 'fuel_units_eia923'
@@ -56,7 +61,7 @@ class FuelUnitEIA923(pudl.models.glue.PUDLBase):
     unit = Column(String)
 
 
-class FuelTypeEIA923(pudl.models.glue.PUDLBase):
+class FuelTypeEIA923(pudl.models.entities.PUDLBase):
     """
     Static list of fuel types used by EIA in Form 923.
 
@@ -69,14 +74,14 @@ class FuelTypeEIA923(pudl.models.glue.PUDLBase):
     fuel_unit = Column(String, ForeignKey('fuel_units_eia923.abbr'))
 
 
-class FuelGroupEIA923(pudl.models.glue.PUDLBase):
+class FuelGroupEIA923(pudl.models.entities.PUDLBase):
     """Grouping of energy sources into fuel groups, used in EIA Form 923."""
 
     __tablename__ = 'fuel_group_eia923'
     group = Column(String, primary_key=True)
 
 
-class RespondentFrequencyEIA923(pudl.models.glue.PUDLBase):
+class RespondentFrequencyEIA923(pudl.models.entities.PUDLBase):
     """
     Plant reporting frequency in EIA Form 923.
 
@@ -88,7 +93,7 @@ class RespondentFrequencyEIA923(pudl.models.glue.PUDLBase):
     unit = Column(String, nullable=False)
 
 
-class ContractTypeEIA923(pudl.models.glue.PUDLBase):
+class ContractTypeEIA923(pudl.models.entities.PUDLBase):
     """Type of contract under which fuel receipt occured."""
 
     __tablename__ = 'contract_type_eia923'
@@ -96,7 +101,7 @@ class ContractTypeEIA923(pudl.models.glue.PUDLBase):
     contract_type = Column(String, nullable=False)
 
 
-class SectorEIA(pudl.models.glue.PUDLBase):
+class SectorEIA(pudl.models.entities.PUDLBase):
     """EIA’s internal consolidated NAICS sectors."""
 
     __tablename__ = 'sector_eia'
@@ -104,7 +109,7 @@ class SectorEIA(pudl.models.glue.PUDLBase):
     name = Column(String, nullable=False)
 
 
-class FuelTypeAER(pudl.models.glue.PUDLBase):
+class FuelTypeAER(pudl.models.entities.PUDLBase):
     """Static list of fuel types using AER codes, reported in EIA Form 923."""
 
     __tablename__ = 'fuel_type_aer_eia923'
@@ -112,7 +117,7 @@ class FuelTypeAER(pudl.models.glue.PUDLBase):
     fuel_type = Column(String, nullable=False)
 
 
-class PrimeMoverEIA923(pudl.models.glue.PUDLBase):
+class PrimeMoverEIA923(pudl.models.entities.PUDLBase):
     """Static list of prime movers used by EIA in Form 923."""
 
     __tablename__ = 'prime_movers_eia923'
@@ -120,7 +125,7 @@ class PrimeMoverEIA923(pudl.models.glue.PUDLBase):
     prime_mover = Column(String, nullable=False)
 
 
-class EnergySourceEIA923(pudl.models.glue.PUDLBase):
+class EnergySourceEIA923(pudl.models.entities.PUDLBase):
     """Fuel code associated with fuel receipts in EIA Form 923."""
 
     __tablename__ = 'energy_source_eia923'
@@ -128,7 +133,7 @@ class EnergySourceEIA923(pudl.models.glue.PUDLBase):
     source = Column(String, nullable=False)
 
 
-class CoalMineTypeEIA923(pudl.models.glue.PUDLBase):
+class CoalMineTypeEIA923(pudl.models.entities.PUDLBase):
     """Type of coal mine, as used in EIA Form 923."""
 
     __tablename__ = 'coalmine_type_eia923'
@@ -136,7 +141,7 @@ class CoalMineTypeEIA923(pudl.models.glue.PUDLBase):
     name = Column(String, nullable=False)
 
 
-class CoalMineStateEIA923(pudl.models.glue.PUDLBase):
+class CoalMineStateEIA923(pudl.models.entities.PUDLBase):
     """State and country abbreviations for coal mine locations."""
 
     __tablename__ = 'coalmine_state_eia923'
@@ -144,7 +149,7 @@ class CoalMineStateEIA923(pudl.models.glue.PUDLBase):
     state = Column(String, nullable=False)
 
 
-class NaturalGasTransportEIA923(pudl.models.glue.PUDLBase):
+class NaturalGasTransportEIA923(pudl.models.entities.PUDLBase):
     """Contract type for natural gas capacity service."""
 
     __tablename__ = 'natural_gas_transport_eia923'
@@ -152,7 +157,7 @@ class NaturalGasTransportEIA923(pudl.models.glue.PUDLBase):
     status = Column(String, nullable=False)
 
 
-class TransportModeEIA923(pudl.models.glue.PUDLBase):
+class TransportModeEIA923(pudl.models.entities.PUDLBase):
     """Mode used for longest & 2nd longest distance in EIA Form 923."""
 
     __tablename__ = 'transport_modes_eia923'
@@ -165,7 +170,7 @@ class TransportModeEIA923(pudl.models.glue.PUDLBase):
 ###########################################################################
 
 
-class OperatorEIA923(pudl.models.glue.PUDLBase):
+class OperatorEIA923(pudl.models.entities.PUDLBase):
     """
     Information specific to plant operators (typically utilities).
 
@@ -179,7 +184,7 @@ class OperatorEIA923(pudl.models.glue.PUDLBase):
     regulated = Column(Boolean, primary_key=True)
 
 
-class PlantsEIA923(pudl.models.glue.PUDLBase):
+class PlantsEIA923(pudl.models.entities.PUDLBase):
     """Information specific to individual power plants.
 
     Reported on Page 1 of EIA Form 923.
@@ -188,7 +193,7 @@ class PlantsEIA923(pudl.models.glue.PUDLBase):
     __tablename__ = 'plants_eia923'
     # TODO: This should be a FK pointing at plants_eia.plant_id_eia
     plant_id_eia = Column(Integer, ForeignKey(
-        'plants_eia.plant_id_eia'), primary_key=True)
+        'plants_entity_eia.plant_id_eia'), primary_key=True)
     combined_heat_power = Column(Boolean)
     plant_state = Column(String, ForeignKey('us_states.abbr'))
     eia_sector = Column(Integer, ForeignKey('sector_eia.id'))
@@ -204,7 +209,7 @@ class PlantsEIA923(pudl.models.glue.PUDLBase):
     nameplate_capacity_mw = Column(Float)
 
 
-class GenerationFuelEIA923(pudl.models.glue.PUDLBase):
+class GenerationFuelEIA923(pudl.models.entities.PUDLBase):
     """
     Monthly fuel consumption and electricity generation by plant.
 
@@ -215,7 +220,7 @@ class GenerationFuelEIA923(pudl.models.glue.PUDLBase):
 
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     plant_id_eia = Column(Integer,
-                          ForeignKey('plants_eia.plant_id_eia'),
+                          ForeignKey('plants_entity_eia.plant_id_eia'),
                           nullable=False)
     report_date = Column(Date, nullable=False)
     # TODO: Should nuclear_unit_id really be here? It's kind of part of the
@@ -238,7 +243,7 @@ class GenerationFuelEIA923(pudl.models.glue.PUDLBase):
     net_generation_mwh = Column(Float)
 
 
-class BoilerFuelEIA923(pudl.models.glue.PUDLBase):
+class BoilerFuelEIA923(pudl.models.entities.PUDLBase):
     """Monthly fuel consumption by boiler reported on Page 3 of EIA 923."""
 
     __tablename__ = 'boiler_fuel_eia923'
@@ -248,7 +253,7 @@ class BoilerFuelEIA923(pudl.models.glue.PUDLBase):
 
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     plant_id_eia = Column(Integer, ForeignKey(
-        'plants_eia.plant_id_eia'), nullable=False)
+        'plants_entity_eia.plant_id_eia'), nullable=False)
     boiler_id = Column(String, nullable=False)
     prime_mover = Column(String, ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
@@ -262,16 +267,19 @@ class BoilerFuelEIA923(pudl.models.glue.PUDLBase):
     ash_content_pct = Column(Float)
 
 
-class GenerationEIA923(pudl.models.glue.PUDLBase):
+class GenerationEIA923(pudl.models.entities.PUDLBase):
     """Monthly electricity generation by generator from EIA923 Page 4."""
 
     __tablename__ = 'generation_eia923'
+    __table_args__ = (ForeignKeyConstraint(
+        ['plant_id_eia', 'generator_id'],
+        ['generators_entity_eia.plant_id_eia',
+         'generators_entity_eia.generator_id']),)
 
     # Each month, for each unique combination of generator id and prime mover
     # and fuel,there is one report for each generator unit in each plant.
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
-    plant_id_eia = Column(Integer, ForeignKey('plants_eia.plant_id_eia'),
-                          nullable=False)
+    plant_id_eia = Column(Integer, nullable=False)
     # TODO remove prime_mover since it's specific to generator_id?
     prime_mover = Column(String, ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
@@ -282,7 +290,7 @@ class GenerationEIA923(pudl.models.glue.PUDLBase):
     net_generation_mwh = Column(Float)
 
 
-class FuelReceiptsCostsEIA923(pudl.models.glue.PUDLBase):
+class FuelReceiptsCostsEIA923(pudl.models.entities.PUDLBase):
     """Fuel receipts & costs by plant &purchase from Page 5 of EIA Form 923."""
 
     __tablename__ = 'fuel_receipts_costs_eia923'
@@ -290,7 +298,7 @@ class FuelReceiptsCostsEIA923(pudl.models.glue.PUDLBase):
     # surrogate key
     fuel_receipt_id = Column(Integer, primary_key=True, autoincrement=True)
     plant_id_eia = Column(Integer,
-                          ForeignKey('plants_eia.plant_id_eia'),
+                          ForeignKey('plants_entity_eia.plant_id_eia'),
                           nullable=False)
     report_date = Column(Date, nullable=False)
     contract_type = Column(String, ForeignKey('contract_type_eia923.abbr'))
