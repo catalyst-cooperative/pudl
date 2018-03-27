@@ -558,6 +558,10 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
         plants_eia860_tbl.c.plant_id_eia,
         plants_eia860_tbl.c.latitude,
         plants_eia860_tbl.c.longitude,
+        plants_eia860_tbl.c.balancing_authority_code,
+        plants_eia860_tbl.c.balancing_authority_name,
+        plants_eia860_tbl.c.iso_rto,
+        plants_eia860_tbl.c.iso_rto_code,
     ])
 
     if start_date is not None:
