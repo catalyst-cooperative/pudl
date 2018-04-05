@@ -324,11 +324,12 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     b_g_df['operator_id'] = b_g_df['operator_id'].astype(str)
     b_g_df = b_g_df[b_g_df.operator_id.str.isnumeric()]
 
-    b_g_df['plant_id_eia'] = \
-        pudl.transform.pudl.fix_int_na(b_g_df['plant_id_eia'],
-                                       float_na=np.nan,
-                                       int_na=-1,
-                                       str_na='')
+    b_g_df['plant_id_eia'] = b_g_df['plant_id_eia'].astype(int)
+    # b_g_df['plant_id_eia'] = \
+    #    pudl.transform.pudl.fix_int_na(b_g_df['plant_id_eia'],
+    #                                   float_na=np.nan,
+    #                                   int_na=-1,
+    #                                   str_na='')
 
     # We need to cast the generator_id column as type str because sometimes
     # it is heterogeneous int/str which make drop_duplicates fail.
