@@ -13,7 +13,13 @@ They may work on other operating systems too.
 ### 1. Reviewing requirements
 For the full list of requirements to install, review [REQUIREMENTS.md](https://github.com/catalyst-cooperative/pudl/blob/master/REQUIREMENTS.md) in the PUDL GitHub repository.
 
-### 2. Installing Anaconda and Python packages
+### 2. Setting up the PUDL repository
+1. [Clone](https://help.github.com/articles/cloning-a-repository/) the PUDL repository. (This may require installing Git if you don't already have it.)
+```sh
+git clone git@github.com:catalyst-cooperative/pudl.git
+```
+
+### 3. Installing Anaconda and Python packages
 1. Anaconda is a package manager, environment manager and Python distribution that contains many of the packages we’ll need to get the PUDL database up and running. Please select the Python 3.6 version on this [page](https://www.anaconda.com/download/#linux). You can follow a step by step guide to completing the installation on the Graphical Installer [here](https://docs.anaconda.com/anaconda/install/linux).
     - If you prefer a more minimal install, [miniconda](https://conda.io/miniconda.html) is also acceptable.
 2. Set up conda to use [conda-forge](https://conda-forge.org/), and install the required packages. In a terminal window type:
@@ -32,7 +38,7 @@ More on conda environments [here](https://conda.io/docs/user-guide/tasks/manage-
 pip install sqlalchemy-postgres-copy==0.5.0
 ```
 
-### 3. Setting up PostgreSQL
+### 4. Setting up PostgreSQL
 
 These instructions borrow from [Ubuntu's PostgreSQL instructions](https://help.ubuntu.com/community/PostgreSQL).
 
@@ -72,14 +78,6 @@ CREATE DATABASE pudl_test;
 ```
 
 
-
-### 4. Setting up the PUDL repository
-1. [Clone](https://help.github.com/articles/cloning-a-repository/) the PUDL repository. (This may require installing Git if you don't already have it.)
-```sh
-git clone git@github.com:catalyst-cooperative/pudl.git
-```
-
-
 ### 5. Initializing the database
 
 Now we’re ready to download the data that we’ll use to populate the database.
@@ -99,7 +97,7 @@ This script will load all of the data that is currently working (see [README.md]
 5. This process will take tens of minutes to download the data and about 20 minutes to run the initialization script. The unzipped data folder will be about 8GB and the postgres database will take up about 1GB.
 If you want to just do a small subset of the data to test whether the setup is working, check out the help message on the script by calling python `init_pudl.py -h`.
 
-### 7. Playing with the data
+### 6. Playing with the data
 
 In your Terminal window use cd to navigate to the `pudl/docs/notebooks/tutorials directory`. Then run `jupyter notebook pudl_intro.ipynb` to fire up the introductory notebook. There you’ll find more information on how to begin to play with the data.
 (If you installed miniconda in step 2, you may have to `conda install jupyter`.)
