@@ -173,14 +173,14 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         pudl.transform.pudl.cleanstrings(gens_df['energy_source_1'],
                                          pc.fuel_type_eia860_simple_map)
     # String-ify a bunch of fields for output.
-    fix_int_na_columns = ['sector', 'turbines']
+    # fix_int_na_columns = ['sector', 'turbines']
 
-    for column in fix_int_na_columns:
-        gens_df[column] = \
-            pudl.transform.pudl.fix_int_na(gens_df[column],
-                                           float_na=np.nan,
-                                           int_na=-1,
-                                           str_na='')
+    # for column in fix_int_na_columns:
+    #    gens_df[column] = \
+    #        pudl.transform.pudl.fix_int_na(gens_df[column],
+    #                                       float_na=np.nan,
+    #                                       int_na=-1,
+    #                                       str_na='')
     # Ensure plant IDs are integers.
     gens_df['plant_id_eia'] = gens_df['plant_id_eia'].astype(int)
 

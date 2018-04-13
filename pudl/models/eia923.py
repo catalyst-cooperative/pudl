@@ -14,7 +14,7 @@ class CoalMineEIA923(pudl.models.entities.PUDLBase):
     """Information pertaining to individual coal mines listed in EIA 923."""
 
     __tablename__ = 'coalmine_eia923'
-    id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
+    id = Column(Integer, primary_key=True)  # surrogate key
     mine_name = Column(String)
     mine_type = Column(String, ForeignKey('coalmine_type_eia923.abbr'))
     state = Column(String, ForeignKey('coalmine_state_eia923.abbr'))

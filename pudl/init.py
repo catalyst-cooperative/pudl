@@ -632,7 +632,7 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
 
     # create an eia transformed dfs dictionary
     eia_transformed_dfs = eia860_transformed_dfs.copy()
-    eia_transformed_dfs.update(eia923_transformed_dfs)
+    eia_transformed_dfs.update(eia923_transformed_dfs.copy())
 
     entities_dfs, eia_transformed_dfs = \
         pudl.transform.eia.transform(eia_transformed_dfs,
@@ -643,10 +643,11 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
                        "FERC 1": ferc1_transformed_dfs,
                        "EIA": eia_transformed_dfs}
     # Load step
-    for key, value in transformed_dfs.items():
-        pudl.load.dict_dump_load(value,
-                                 key,
+    for data_source, transformed_df in transformed_dfs.items():
+        pudl.load.dict_dump_load(transformed_df,
+                                 data_source,
                                  pudl_engine,
+                                 need_fix_inting=pc.need_fix_inting,
                                  verbose=verbose,
                                  csvdir=csvdir,
                                  keep_csv=keep_csv)

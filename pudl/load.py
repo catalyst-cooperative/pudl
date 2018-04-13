@@ -1,6 +1,9 @@
 """A module with functions for loading the pudl database tables."""
 
 import pudl.models.entities
+import pudl.transform.pudl
+import pudl.constants as pc
+import numpy as np
 
 
 def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
@@ -45,9 +48,33 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
         os.remove(csvfile)
 
 
+def _fix_int_cols(table_to_fix,
+                  transformed_dct,
+                  need_fix_inting=pc.need_fix_inting,
+                  verbose=True):
+    """
+    Run fix_int_na on multiple columns per table.
+
+    There are some tables that have one table that needs fix_int_naing, while
+    some tables have a few columns.
+
+    Args:
+        table_to_fix: the name of the table that needs fixing.
+        transformed_dct: dictionary of tables with transformed dfs.
+        need_fix_inting: dictionary of tables with columns that need fixing.
+    """
+    for column in need_fix_inting[table_to_fix]:
+        if verbose:
+            print("        fixing {} column".format(column))
+        transformed_dct[table_to_fix][column] = \
+            pudl.transform.pudl.fix_int_na(
+                transformed_dct[table_to_fix][column])
+
+
 def dict_dump_load(transformed_dfs,
                    data_source,
                    pudl_engine,
+                   need_fix_inting=pc.need_fix_inting,
                    verbose=True,
                    csvdir='',
                    keep_csv=True):
@@ -56,11 +83,16 @@ def dict_dump_load(transformed_dfs,
     """
     if verbose:
         print("Loading tables from {} into PUDL:".format(data_source))
-    for key, value in transformed_dfs.items():
+    for table_name, df in transformed_dfs.items():
         if verbose:
-            print("    {}...".format(key))
-        _csv_dump_load(value,
-                       key,
+            print("    {}...".format(table_name))
+        if table_name in list(need_fix_inting.keys()):
+            _fix_int_cols(table_name,
+                          transformed_dfs,
+                          need_fix_inting=pc.need_fix_inting,
+                          verbose=verbose)
+        _csv_dump_load(df,
+                       table_name,
                        pudl_engine,
                        csvdir=csvdir,
                        keep_csv=keep_csv)

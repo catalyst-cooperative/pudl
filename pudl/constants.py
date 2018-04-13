@@ -3058,3 +3058,18 @@ base_data_urls = {
     'mshamines': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
     'mshaops': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
 }
+
+
+need_fix_inting = {'generators_eia860': ['sector', 'turbines'],
+                   'coalmine_eia923': ['mine_id_msha',
+                                       'county_id_fips'],
+                   'fuel_receipts_costs_eia923': ['mine_id_pudl'],
+                   'generation_fuel_eia923': ['nuclear_unit_id'],
+                   'plants_steam_ferc1': ['year_constructed',
+                                          'year_installed'],
+                   'plants_small_ferc1': ['year_constructed', 'ferc_license'],
+                   'plants_hydro_ferc1': ['year_constructed',
+                                          'year_installed'],
+                   'plants_pumped_storage_ferc1': ['year_constructed',
+                                                   'year_installed']
+                   }

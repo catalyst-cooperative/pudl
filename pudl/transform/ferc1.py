@@ -304,17 +304,17 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
         'tot_prdctn_expns': 'expns_production_total'},
         inplace=True)
 
-    ferc1_steam_df['year_constructed'] = \
-        pudl.transform.pudl.fix_int_na(ferc1_steam_df['year_constructed'],
-                                       float_na=np.nan,
-                                       int_na=-1,
-                                       str_na='')
+    # ferc1_steam_df['year_constructed'] = \
+    #    pudl.transform.pudl.fix_int_na(ferc1_steam_df['year_constructed'],
+    #                                   float_na=np.nan,
+    #                                   int_na=-1,
+    #                                   str_na='')
 
-    ferc1_steam_df['year_installed'] = \
-        pudl.transform.pudl.fix_int_na(ferc1_steam_df['year_installed'],
-                                       float_na=np.nan,
-                                       int_na=-1,
-                                       str_na='')
+    # ferc1_steam_df['year_installed'] = \
+    #    pudl.transform.pudl.fix_int_na(ferc1_steam_df['year_installed'],
+    #                                   float_na=np.nan,
+    #                                   int_na=-1,
+    #                                   str_na='')
 
     ferc1_transformed_dfs['plants_steam_ferc1'] = ferc1_steam_df
 
@@ -443,16 +443,16 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
         #'plant_name_clean': 'plant_name'},
         inplace=True)
 
-    ferc1_small_df['year_constructed'] = \
-        pudl.transform.pudl.fix_int_na(ferc1_small_df['year_constructed'],
-                                       float_na=np.nan,
-                                       int_na=-1,
-                                       str_na='')
-    ferc1_small_df['ferc_license'] = \
-        pudl.transform.pudl.fix_int_na(ferc1_small_df['ferc_license'],
-                                       float_na=np.nan,
-                                       int_na=-1,
-                                       str_na='')
+    # ferc1_small_df['year_constructed'] = \
+    #    pudl.transform.pudl.fix_int_na(ferc1_small_df['year_constructed'],
+    #                                   float_na=np.nan,
+    #                                   int_na=-1,
+    #                                   str_na='')
+    # ferc1_small_df['ferc_license'] = \
+    #    pudl.transform.pudl.fix_int_na(ferc1_small_df['ferc_license'],
+    #                                   float_na=np.nan,
+    #                                   int_na=-1,
+    #                                   str_na='')
 
     ferc1_transformed_dfs['plants_small_ferc1'] = ferc1_small_df
 
@@ -521,16 +521,16 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
         'asset_retire_cost': 'asset_retirement_cost'
     }, inplace=True)
 
-    ferc1_hydro_df['year_constructed'] = \
-        pudl.transform.pudl.fix_int_na(ferc1_hydro_df['year_constructed'],
-                                       float_na=np.nan,
-                                       int_na=-1,
-                                       str_na='')
-    ferc1_hydro_df['year_installed'] = \
-        pudl.transform.pudl.fix_int_na(ferc1_hydro_df['year_installed'],
-                                       float_na=np.nan,
-                                       int_na=-1,
-                                       str_na='')
+    # ferc1_hydro_df['year_constructed'] = \
+    #    pudl.transform.pudl.fix_int_na(ferc1_hydro_df['year_constructed'],
+    #                                   float_na=np.nan,
+    #                                   int_na=-1,
+    #                                   str_na='')
+    # ferc1_hydro_df['year_installed'] = \
+    #    pudl.transform.pudl.fix_int_na(ferc1_hydro_df['year_installed'],
+    #                                   float_na=np.nan,
+    #                                   int_na=-1,
+    #                                   str_na='')
 
     ferc1_transformed_dfs['plants_hydro_ferc1'] = ferc1_hydro_df
 
@@ -619,17 +619,17 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
         'tot_prdctn_exns': 'expns_production_total'},
         inplace=True)
 
-    ferc1_pumped_storage_df['year_constructed'] = \
-        pudl.transform.pudl.fix_int_na(ferc1_pumped_storage_df['year_constructed'],
-                                       float_na=np.nan,
-                                       int_na=-1,
-                                       str_na='')
+    # ferc1_pumped_storage_df['year_constructed'] = \
+    #    pudl.transform.pudl.fix_int_na(ferc1_pumped_storage_df['year_constructed'],
+    #                                   float_na=np.nan,
+    #                                   int_na=-1,
+    #                                   str_na='')
 
-    ferc1_pumped_storage_df['year_installed'] = \
-        pudl.transform.pudl.fix_int_na(ferc1_pumped_storage_df['year_installed'],
-                                       float_na=np.nan,
-                                       int_na=-1,
-                                       str_na='')
+    # ferc1_pumped_storage_df['year_installed'] = \
+    #    pudl.transform.pudl.fix_int_na(ferc1_pumped_storage_df['year_installed'],
+    #                                   float_na=np.nan,
+    #                                   int_na=-1,
+    #                                   str_na='')
 
     ferc1_transformed_dfs['plants_pumped_storage_ferc1'] = ferc1_pumped_storage_df
 
