@@ -636,6 +636,8 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
 
     entities_dfs, eia_transformed_dfs = \
         pudl.transform.eia.transform(eia_transformed_dfs,
+                                     eia923_years=eia923_years,
+                                     eia860_years=eia860_years,
                                      verbose=verbose)
 
     # Compile transformed dfs for loading...

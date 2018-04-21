@@ -43,3 +43,26 @@ class GeneratorAnnualEIA(pudl.models.entities.PUDLBase):
     generator_id = Column(String, nullable=False)
     report_date = Column(Date, nullable=False)
     # TODO: Add static plant info
+
+
+class BoilerGeneratorAssociationEIA(pudl.models.entities.PUDLBase):
+    """
+    EIA boiler generator associations.
+
+    Compiled from 860 and 923.
+    """
+
+    __tablename__ = 'boiler_generator_assn_eia'
+    __table_args__ = (ForeignKeyConstraint(
+        ['plant_id_eia', 'generator_id'],
+        ['generators_entity_eia.plant_id_eia',
+         'generators_entity_eia.generator_id']),)
+
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    plant_id_eia = Column(Integer, nullable=False)
+    report_date = Column(Date, nullable=False)
+    generator_id = Column(String)
+    boiler_id = Column(String)
+    unit_code = Column(String)
+    unit_id_pudl = Column(Integer, nullable=False)
+    bga_source = Column(String)
