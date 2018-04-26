@@ -47,6 +47,11 @@ def boiler_generator_association(pudl_out, debug=False, verbose=False):
         bga_out (DataFrame): A dataframe containing plant_id_eia, generator_id,
             boiler_id, and unit_id_pudl
     """
+    # pudl_out must have a freq, otherwise capacity factor will fail and merges
+    # between tables with different frequencies will fail
+    assert pudl_out.freq is not None,\
+        "pudl_out must inclue a frequency for mcoe"
+
     # compile and scrub all the parts
     bga_eia860 = pudl_out.bga_eia860().drop_duplicates(['plant_id_eia',
                                                         'boiler_id',
@@ -343,6 +348,11 @@ def heat_rate_by_unit(pudl_out, verbose=False):
      - total_heat_content_mmbtu
      - heat_rate_mmbtu_mwh
     """
+    # pudl_out must have a freq, otherwise capacity factor will fail and merges
+    # between tables with different frequencies will fail
+    assert pudl_out.freq is not None,\
+        "pudl_out must inclue a frequency for mcoe"
+
     # Create a dataframe containing only the unit-generator mappings:
     bga_gens = pudl_out.bga()[['report_date',
                                'plant_id_eia',
@@ -384,6 +394,11 @@ def heat_rate_by_unit(pudl_out, verbose=False):
 
 def heat_rate_by_gen(pudl_out, verbose=False):
     """Convert by-unit heat rate to by-generator, adding fuel type & count."""
+    # pudl_out must have a freq, otherwise capacity factor will fail and merges
+    # between tables with different frequencies will fail
+    assert pudl_out.freq is not None,\
+        "pudl_out must inclue a frequency for mcoe"
+
     gens_simple = pudl_out.gens_eia860()[['report_date', 'plant_id_eia',
                                           'generator_id', 'fuel_type_pudl']]
     bga_gens = pudl_out.bga()[['report_date',
@@ -434,6 +449,11 @@ def fuel_cost(pudl_out, verbose=False):
     are associated with generators that have energy_source gas, and the coal
     fuel costs are associated with the generators that have energy_source coal.
     """
+    # pudl_out must have a freq, otherwise capacity factor will fail and merges
+    # between tables with different frequencies will fail
+    assert pudl_out.freq is not None,\
+        "pudl_out must inclue a frequency for mcoe"
+
     # Split up the plants on the basis of how many different primary energy
     # sources the component generators have:
     gen_w_ft = pd.merge(pudl_out.gen_eia923(),
@@ -537,6 +557,15 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5, verbose=False):
     capacity factors outside the range specified by min_cap_fact and
     max_cap_fact are dropped.
     """
+    # pudl_out must have a freq, otherwise capacity factor will fail and merges
+    # between tables with different frequencies will fail
+    assert pudl_out.freq is not None,\
+        "pudl_out must inclue a frequency for mcoe"
+
+    # pudl_out must have a freq, otherwise capacity factor will fail and merges
+    # between tables with different frequencies will fail
+    assert pudl_out.freq is not None,\
+        "pudl_out must inclue a frequency for mcoe"
     # Only include columns to be used
     gens_eia860 = pudl_out.gens_eia860()[['plant_id_eia',
                                           'report_date',

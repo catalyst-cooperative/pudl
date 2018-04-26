@@ -47,9 +47,10 @@ class PudlOutput(object):
     """A class that obtains tabular outputs from the PUDL DB."""
 
     def __init__(self, freq=None, testing=False,
-                 start_date=None, end_date=None):
+                 start_date=None, end_date=None, bga_source='table'):
         self.freq = freq
         self.testing = testing
+        self.bga_source = bga_source
 
         if start_date is None:
             self.start_date = \
@@ -83,6 +84,8 @@ class PudlOutput(object):
             'frc_eia923': None,
             'bf_eia923': None,
             'gen_eia923': None,
+            #'bga_mcoe': None,
+            #'bga_eia': None,
 
             'plants_steam_ferc1': None,
             'fuel_ferc1': None,
@@ -225,15 +228,28 @@ class PudlOutput(object):
             self._dfs['fuel_ferc1'] = fuel_ferc1(testing=self.testing)
         return(self._dfs['fuel_ferc1'])
 
-    def boiler_generator_association(self, update=False, verbose=False):
-        if update or self._dfs['bga'] is None:
-            self._dfs['bga'] = \
-                mcoe.boiler_generator_association(self, verbose=verbose)
+    def boiler_generator_assn_eia(self, update=False, verbose=False):
+        if self.bga_source == 'table':
+            if update or self._dfs['bga'] is None:
+                self._dfs['bga'] = \
+                    boiler_generator_assn_eia(start_date=self.start_date,
+                                              end_date=self.end_date,
+                                              testing=self.testing)
+        if self.bga_source == 'mcoe':
+            if update or self._dfs['bga'] is None:
+                self._dfs['bga'] = \
+                    mcoe.boiler_generator_association(self, verbose=verbose)
+
         return(self._dfs['bga'])
 
+    # def boiler_generator_association_mcoe(self, update=False, verbose=False):
+    #    if update or self._dfs['bga_mcoe'] is None:
+    #        self._dfs['bga_mcoe'] = \
+    #            mcoe.boiler_generator_association(self, verbose=verbose)
+    #    return(self._dfs['bga_mcoe'])
+
     def bga(self, update=False, verbose=False):
-        return(self.boiler_generator_association(update=update,
-                                                 verbose=verbose))
+        return(self.boiler_generator_assn_eia(update=update))
 
     def heat_rate_by_unit(self, update=False, verbose=False):
         if update or self._dfs['hr_by_unit'] is None:
@@ -508,6 +524,28 @@ def utilities_eia860(start_date=None, end_date=None, testing=False):
 
     out_df = organize_cols(out_df, first_cols)
     out_df = extend_annual(out_df, start_date=start_date, end_date=end_date)
+    return(out_df)
+
+
+def boiler_generator_assn_eia(start_date=None, end_date=None,
+                              testing=False):
+    pudl_engine = init.connect_db(testing=testing)
+    bga_eia_tbl = pt['boiler_generator_assn_eia']
+    bga_eia_select = sa.sql.select([bga_eia_tbl])
+
+    if start_date is not None:
+        start_date = pd.to_datetime(start_date)
+        bga_eia_select = bga_eia_select.where(
+            bga_eia_tbl.c.report_date >= start_date
+        )
+    if end_date is not None:
+        end_date = pd.to_datetime(end_date)
+        bga_eia_select = bga_eia_select.where(
+            bga_eia_tbl.c.report_date <= end_date
+        )
+    bga_eia_df = pd.read_sql(bga_eia_select, pudl_engine)
+    out_df = extend_annual(bga_eia_df,
+                           start_date=start_date, end_date=end_date)
     return(out_df)
 
 
