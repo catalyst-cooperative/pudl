@@ -47,10 +47,9 @@ class PudlOutput(object):
     """A class that obtains tabular outputs from the PUDL DB."""
 
     def __init__(self, freq=None, testing=False,
-                 start_date=None, end_date=None, bga_source='table'):
+                 start_date=None, end_date=None):
         self.freq = freq
         self.testing = testing
-        self.bga_source = bga_source
 
         if start_date is None:
             self.start_date = \
@@ -84,8 +83,6 @@ class PudlOutput(object):
             'frc_eia923': None,
             'bf_eia923': None,
             'gen_eia923': None,
-            #'bga_mcoe': None,
-            #'bga_eia': None,
 
             'plants_steam_ferc1': None,
             'fuel_ferc1': None,
@@ -229,24 +226,12 @@ class PudlOutput(object):
         return(self._dfs['fuel_ferc1'])
 
     def boiler_generator_assn_eia(self, update=False, verbose=False):
-        if self.bga_source == 'table':
-            if update or self._dfs['bga'] is None:
-                self._dfs['bga'] = \
-                    boiler_generator_assn_eia(start_date=self.start_date,
-                                              end_date=self.end_date,
-                                              testing=self.testing)
-        if self.bga_source == 'mcoe':
-            if update or self._dfs['bga'] is None:
-                self._dfs['bga'] = \
-                    mcoe.boiler_generator_association(self, verbose=verbose)
-
+        if update or self._dfs['bga'] is None:
+            self._dfs['bga'] = \
+                boiler_generator_assn_eia(start_date=self.start_date,
+                                          end_date=self.end_date,
+                                          testing=self.testing)
         return(self._dfs['bga'])
-
-    # def boiler_generator_association_mcoe(self, update=False, verbose=False):
-    #    if update or self._dfs['bga_mcoe'] is None:
-    #        self._dfs['bga_mcoe'] = \
-    #            mcoe.boiler_generator_association(self, verbose=verbose)
-    #    return(self._dfs['bga_mcoe'])
 
     def bga(self, update=False, verbose=False):
         return(self.boiler_generator_assn_eia(update=update))
