@@ -515,7 +515,8 @@ eia923_pudl_tables = ['plants_eia923',
 
 # List of entity tables
 entity_tables = ['plants_entity_eia',
-                 'generators_entity_eia']
+                 'generators_entity_eia',
+                 'boilers_entity_eia']
 
 # 'stocks_eia923'
 

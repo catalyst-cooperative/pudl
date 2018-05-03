@@ -28,8 +28,11 @@ class BoilersEIA923(pudl.models.entities.PUDLBase):
     """List of Boiler IDs specific to each plant in EIA Form 923 Page 3."""
 
     __tablename__ = 'boilers_eia923'
+    #__table_args__ = (ForeignKeyConstraint(
+    #    ['plant_id_eia', 'boiler_id'],
+    #    ['boilers_entity_eia.plant_id_eia',
+    #     'boilers_entity_eia.boiler_id']),)
     plant_id_eia = Column(Integer,
-                          ForeignKey('plants_entity_eia.plant_id_eia'),
                           primary_key=True)
     boiler_id = Column(String, primary_key=True)
     prime_mover = Column(String,
@@ -247,13 +250,16 @@ class BoilerFuelEIA923(pudl.models.entities.PUDLBase):
     """Monthly fuel consumption by boiler reported on Page 3 of EIA 923."""
 
     __tablename__ = 'boiler_fuel_eia923'
+    #__table_args__ = (ForeignKeyConstraint(
+    #    ['plant_id_eia', 'boiler_id'],
+    #    ['boilers_entity_eia.plant_id_eia',
+    #     'boilers_entity_eia.boiler_id']),)
 
     # Each month, for each unique combination of boiler id and prime mover and
     # fuel, there is one report for each boiler unit in each plant.
 
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
-    plant_id_eia = Column(Integer, ForeignKey(
-        'plants_entity_eia.plant_id_eia'), nullable=False)
+    plant_id_eia = Column(Integer, nullable=False)
     boiler_id = Column(String, nullable=False)
     prime_mover = Column(String, ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
