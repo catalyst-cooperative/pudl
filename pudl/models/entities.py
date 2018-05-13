@@ -23,7 +23,7 @@ class PlantEntityEIA(PUDLBase):
 
 class GeneratorEntityEIA(PUDLBase):
     """
-    An EIA Plant, listed in 923 or 860.
+    An EIA Generator, listed in 923 or 860.
 
     A compilation of all EIA plant ids and static info.
     """
@@ -34,3 +34,18 @@ class GeneratorEntityEIA(PUDLBase):
                           primary_key=True, nullable=False)
     generator_id = Column(String, primary_key=True, nullable=False)
     # TODO: Add static plant info
+
+
+class BoilerEntityEIA(PUDLBase):
+    """
+    An EIA Boiler, listed in 923 or 860.
+
+    A compilation of all EIA plant ids and static info.
+    """
+
+    __tablename__ = 'boilers_entity_eia'
+    plant_id_eia = Column(Integer,
+                          ForeignKey('plants_entity_eia.plant_id_eia'),
+                          primary_key=True, nullable=False)
+    boiler_id = Column(String, primary_key=True, nullable=False)
+    # TODO: Add static boiler info (if necessary?)

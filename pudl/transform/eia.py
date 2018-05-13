@@ -101,6 +101,60 @@ def generators(eia_transformed_dfs,
     return(entities_dfs, eia_transformed_dfs)
 
 
+def boilers(eia_transformed_dfs,
+            entities_dfs,
+            verbose=True):
+    """Compiling boiler entities."""
+    # create empty df with columns we want
+    boilers_compiled = pd.DataFrame(columns=['plant_id_eia',
+                                             'boiler_id',
+                                             'report_date'])
+    if verbose:
+        print("    compiling plants for entity tables from:")
+    # for each df in the dtc of transformed dfs
+    for table_name, transformed_df in eia_transformed_dfs.items():
+        # create a copy of the df to muck with
+        df = transformed_df.copy()
+        # if the if contains the desired columns the grab those columns
+        if (df.columns.contains('report_date') &
+            df.columns.contains('plant_id_eia') &
+                df.columns.contains('boiler_id')):
+            if verbose:
+                print("        {}...".format(table_name))
+            df = df[['plant_id_eia', 'report_date', 'boiler_id']]
+            # add those records to the compliation
+            boilers_compiled = boilers_compiled.append(df)
+    # strip the month and day from the date so we can have annual records
+    boilers_compiled['report_date'] = boilers_compiled['report_date'].dt.year
+    boilers_compiled = boilers_compiled.drop_duplicates()
+    boilers_compiled.sort_values(['report_date',
+                                  'plant_id_eia'],
+                                 inplace=True, ascending=False)
+    # convert the year back into a date_time object
+    year = boilers_compiled['report_date']
+    boilers_compiled['report_date'] = \
+        pd.to_datetime({'year': year,
+                        'month': 1,
+                        'day': 1})
+
+    # create the annual and entity dfs
+    boilers_compiled['plant_id_eia'] = boilers_compiled.plant_id_eia.astype(
+        int)
+    boilers_compiled['boiler_id'] = boilers_compiled.boiler_id.astype(str)
+
+    # Not sure yet if we need an annual boiler table
+    # boilers_annual = boilers_compiled.copy()
+
+    boilers = boilers_compiled.drop(['report_date'], axis=1)
+    boilers = boilers.drop_duplicates(subset=['plant_id_eia'])
+
+    # insert the annual and entity dfs to their respective dtc
+    # eia_transformed_dfs['boilder_annual_eia'] = boilers_annual
+    entities_dfs['boilers_entity_eia'] = boilers
+
+    return(entities_dfs, eia_transformed_dfs)
+
+
 def boiler_generator_assn(eia_transformed_dfs,
                           eia923_years=pc.working_years['eia923'],
                           eia860_years=pc.working_years['eia860'],
@@ -448,6 +502,7 @@ def transform(eia_transformed_dfs,
     eia_transform_functions = {
         'plants_entity_eia': plants,
         'generators_entity_eia': generators,
+        'boilers_entity_eia': boilers,
         'boiler_generator_assn_eia': boiler_generator_assn,
     }
     # create the empty entities df to fill up
