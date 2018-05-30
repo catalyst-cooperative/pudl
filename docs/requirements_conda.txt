@@ -13,3 +13,4 @@ pytz==2017.2
 six==1.10.0
 SQLAlchemy==1.1.13
 xlrd==1.0.0
+matplotlib=2.2.2
