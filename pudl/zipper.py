@@ -117,7 +117,7 @@ def partition(collection):
 def partition_k(collection, k):
     """Generate all partitions of a set having k elements."""
     for part in partition(collection):
-        if(len(part) == k):
+        if len(part) == k:
             yield part
 
 
@@ -272,7 +272,7 @@ def zippertestdata(gens=50, max_group_size=6, samples=10,
     # creating our synthetic lumped dataset for the algorithm to untangle.
     ferc_gb = ferc_df.groupby(['pudl_plant_id', 'ferc_plant_id', 'year'])
     ferc_df = ferc_gb.agg(sum).reset_index()
-    return(eia_df, ferc_df)
+    return eia_df, ferc_df
 
 
 def aggregate_by_pudl_plant(eia_df, ferc_df):
@@ -365,7 +365,7 @@ def aggregate_by_pudl_plant(eia_df, ferc_df):
         columns=lambda x: re.sub('(series[0-9]*$)', r'\1_ferc', x))
     both_df = eia_test_df.merge(ferc_df, on=['pudl_plant_id', 'year'])
 
-    return(both_df)
+    return both_df
 
 
 def correlate_by_generators(agg_df, eia_cols, ferc_cols, corr_cols):
@@ -404,7 +404,7 @@ def correlate_by_generators(agg_df, eia_cols, ferc_cols, corr_cols):
         newcorr = newcorr.rename(columns={eia_var: corr_var})
         corrs = corrs.merge(newcorr, on=index_cols)
 
-    return(corrs)
+    return corrs
 
 
 def score_all(df, corr_cols, verbose=False):
@@ -495,7 +495,7 @@ def score_all(df, corr_cols, verbose=False):
             candidates_df = candidates_df.append(candidate)
             cid = cid + 1
 
-    if(verbose):
+    if verbose:
         print('{} candidate generator ensembles identified.'.
               format(len(candidates_df)))
     candidates_df.candidate_id = candidates_df.candidate_id.astype(int)
@@ -518,7 +518,7 @@ def score_all(df, corr_cols, verbose=False):
     winners['success'] = \
         winners.eia_gen_subgroup == winners.ferc_plant_id.str.lower()
 
-    return(winners)
+    return winners
 
 
 def correlation_merge():

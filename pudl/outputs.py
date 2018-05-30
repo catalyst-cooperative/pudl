@@ -101,18 +101,18 @@ class PudlOutput(object):
                 plants_utils_eia(start_date=self.start_date,
                                  end_date=self.end_date,
                                  testing=self.testing)
-        return(self._dfs['pu_eia'])
+        return self._dfs['pu_eia']
 
     def pu_eia(self, update=False):
-        return(self.plants_utilities_eia(update=update))
+        return self.plants_utilities_eia(update=update)
 
     def plants_utilities_ferc1(self, update=False):
         if update or self._dfs['pu_ferc1'] is None:
             self._dfs['pu_ferc1'] = plants_utils_ferc1(testing=self.testing)
-        return(self._dfs['pu_ferc1'])
+        return self._dfs['pu_ferc1']
 
     def pu_ferc1(self, update=False):
-        return(self.plants_utilities_ferc1(update=update))
+        return self.plants_utilities_ferc1(update=update)
 
     def utilities_eia860(self, update=False):
         if update or self._dfs['utils_eia860'] is None:
@@ -120,10 +120,10 @@ class PudlOutput(object):
                 utilities_eia860(start_date=self.start_date,
                                  end_date=self.end_date,
                                  testing=self.testing)
-        return(self._dfs['utils_eia860'])
+        return self._dfs['utils_eia860']
 
     def utils_eia860(self, update=False):
-        return(self.utilities_eia860(update=update))
+        return self.utilities_eia860(update=update)
 
     def boiler_generator_assn_eia860(self, update=False):
         if update or self._dfs['bga_eia860'] is None:
@@ -131,10 +131,10 @@ class PudlOutput(object):
                 boiler_generator_assn_eia860(start_date=self.start_date,
                                              end_date=self.end_date,
                                              testing=self.testing)
-        return(self._dfs['bga_eia860'])
+        return self._dfs['bga_eia860']
 
     def bga_eia860(self, update=False):
-        return(self.boiler_generator_assn_eia860(update=update))
+        return self.boiler_generator_assn_eia860(update=update)
 
     def plants_eia860(self, update=False):
         if update or self._dfs['plants_eia860'] is None:
@@ -142,7 +142,7 @@ class PudlOutput(object):
                 plants_eia860(start_date=self.start_date,
                               end_date=self.end_date,
                               testing=self.testing)
-        return(self._dfs['plants_eia860'])
+        return self._dfs['plants_eia860']
 
     def generators_eia860(self, update=False):
         if update or self._dfs['gens_eia860'] is None:
@@ -150,10 +150,10 @@ class PudlOutput(object):
                 generators_eia860(start_date=self.start_date,
                                   end_date=self.end_date,
                                   testing=self.testing)
-        return(self._dfs['gens_eia860'])
+        return self._dfs['gens_eia860']
 
     def gens_eia860(self, update=False):
-        return(self.generators_eia860(update=update))
+        return self.generators_eia860(update=update)
 
     def ownership_eia860(self, update=False):
         if update or self._dfs['own_eia860'] is None:
@@ -161,10 +161,10 @@ class PudlOutput(object):
                 ownership_eia860(start_date=self.start_date,
                                  end_date=self.end_date,
                                  testing=self.testing)
-        return(self._dfs['own_eia860'])
+        return self._dfs['own_eia860']
 
     def own_eia860(self, update=False):
-        return(self.ownership_eia860(update=update))
+        return self.ownership_eia860(update=update)
 
     def generation_fuel_eia923(self, update=False):
         if update or self._dfs['gf_eia923'] is None:
@@ -173,10 +173,10 @@ class PudlOutput(object):
                                        start_date=self.start_date,
                                        end_date=self.end_date,
                                        testing=self.testing)
-        return(self._dfs['gf_eia923'])
+        return self._dfs['gf_eia923']
 
     def gf_eia923(self, update=False):
-        return(self.generation_fuel_eia923(update=update))
+        return self.generation_fuel_eia923(update=update)
 
     def fuel_receipts_costs_eia923(self, update=False):
         if update or self._dfs['frc_eia923'] is None:
@@ -185,10 +185,10 @@ class PudlOutput(object):
                                            start_date=self.start_date,
                                            end_date=self.end_date,
                                            testing=self.testing)
-        return(self._dfs['frc_eia923'])
+        return self._dfs['frc_eia923']
 
     def frc_eia923(self, update=False):
-        return(self.fuel_receipts_costs_eia923(update=update))
+        return self.fuel_receipts_costs_eia923(update=update)
 
     def boiler_fuel_eia923(self, update=False):
         if update or self._dfs['bf_eia923'] is None:
@@ -197,10 +197,10 @@ class PudlOutput(object):
                                    start_date=self.start_date,
                                    end_date=self.end_date,
                                    testing=self.testing)
-        return(self._dfs['bf_eia923'])
+        return self._dfs['bf_eia923']
 
     def bf_eia923(self, update=False):
-        return(self.boiler_fuel_eia923(update=update))
+        return self.boiler_fuel_eia923(update=update)
 
     def generation_eia923(self, update=False):
         if update or self._dfs['gen_eia923'] is None:
@@ -209,21 +209,21 @@ class PudlOutput(object):
                                   start_date=self.start_date,
                                   end_date=self.end_date,
                                   testing=self.testing)
-        return(self._dfs['gen_eia923'])
+        return self._dfs['gen_eia923']
 
     def gen_eia923(self, update=False):
-        return(self.generation_eia923(update=update))
+        return self.generation_eia923(update=update)
 
     def plants_steam_ferc1(self, update=False):
         if update or self._dfs['plants_steam_ferc1'] is None:
             self._dfs['plants_steam_ferc1'] = \
                 plants_steam_ferc1(testing=self.testing)
-        return(self._dfs['plants_steam_ferc1'])
+        return self._dfs['plants_steam_ferc1']
 
     def fuel_ferc1(self, update=False):
         if update or self._dfs['fuel_ferc1'] is None:
             self._dfs['fuel_ferc1'] = fuel_ferc1(testing=self.testing)
-        return(self._dfs['fuel_ferc1'])
+        return self._dfs['fuel_ferc1']
 
     def boiler_generator_assn_eia(self, update=False, verbose=False):
         if update or self._dfs['bga'] is None:
@@ -231,32 +231,32 @@ class PudlOutput(object):
                 boiler_generator_assn_eia(start_date=self.start_date,
                                           end_date=self.end_date,
                                           testing=self.testing)
-        return(self._dfs['bga'])
+        return self._dfs['bga']
 
     def bga(self, update=False, verbose=False):
-        return(self.boiler_generator_assn_eia(update=update))
+        return self.boiler_generator_assn_eia(update=update)
 
     def heat_rate_by_unit(self, update=False, verbose=False):
         if update or self._dfs['hr_by_unit'] is None:
             self._dfs['hr_by_unit'] = mcoe.heat_rate_by_unit(self,
                                                              verbose=verbose)
-        return(self._dfs['hr_by_unit'])
+        return self._dfs['hr_by_unit']
 
     def heat_rate_by_gen(self, update=False, verbose=False):
         if update or self._dfs['hr_by_gen'] is None:
             self._dfs['hr_by_gen'] = mcoe.heat_rate_by_gen(self,
                                                            verbose=verbose)
-        return(self._dfs['hr_by_gen'])
+        return self._dfs['hr_by_gen']
 
     def fuel_cost(self, update=False, verbose=False):
         if update or self._dfs['fc'] is None:
             self._dfs['fc'] = mcoe.fuel_cost(self, verbose=verbose)
-        return(self._dfs['fc'])
+        return self._dfs['fc']
 
     def capacity_factor(self, update=False, verbose=False):
         if update or self._dfs['cf'] is None:
             self._dfs['cf'] = mcoe.capacity_factor(self, verbose=verbose)
-        return(self._dfs['cf'])
+        return self._dfs['cf']
 
     def mcoe(self, update=False,
              min_heat_rate=5.5, min_fuel_cost_per_mwh=0.0,
@@ -268,7 +268,7 @@ class PudlOutput(object):
                           min_fuel_cost_per_mwh=min_fuel_cost_per_mwh,
                           min_cap_fact=min_cap_fact,
                           max_cap_fact=max_cap_fact)
-        return(self._dfs['mcoe'])
+        return self._dfs['mcoe']
 
 ###############################################################################
 ###############################################################################
@@ -294,7 +294,7 @@ def organize_cols(df, cols):
     data_cols = [c for c in df.columns.tolist() if c not in cols]
     data_cols.sort()
     organized_cols = cols + data_cols
-    return(df[organized_cols])
+    return df[organized_cols]
 
 
 def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
@@ -335,7 +335,7 @@ def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
             latest_date = pd.to_datetime(df[date_col].max())
 
     df[date_col] = pd.to_datetime(df[date_col])
-    return(df)
+    return df
 
 
 ###############################################################################
@@ -387,7 +387,7 @@ def plants_utils_eia(start_date=None, end_date=None, testing=False):
     out_df = out_df.dropna()
     out_df.plant_id_pudl = out_df.plant_id_pudl.astype(int)
     out_df.util_id_pudl = out_df.util_id_pudl.astype(int)
-    return(out_df)
+    return out_df
 
 
 def plants_utils_ferc1(testing=False):
@@ -403,7 +403,7 @@ def plants_utils_ferc1(testing=False):
     plants_ferc = pd.read_sql(plants_ferc_select, pudl_engine)
 
     out_df = pd.merge(plants_ferc, utils_ferc, on='respondent_id')
-    return(out_df)
+    return out_df
 
 
 def annotate_export(df1, df2, outfile='output.xlsx'):
@@ -509,7 +509,7 @@ def utilities_eia860(start_date=None, end_date=None, testing=False):
 
     out_df = organize_cols(out_df, first_cols)
     out_df = extend_annual(out_df, start_date=start_date, end_date=end_date)
-    return(out_df)
+    return out_df
 
 
 def boiler_generator_assn_eia(start_date=None, end_date=None,
@@ -531,7 +531,7 @@ def boiler_generator_assn_eia(start_date=None, end_date=None,
     bga_eia_df = pd.read_sql(bga_eia_select, pudl_engine)
     out_df = extend_annual(bga_eia_df,
                            start_date=start_date, end_date=end_date)
-    return(out_df)
+    return out_df
 
 
 def boiler_generator_assn_eia860(start_date=None, end_date=None,
@@ -553,7 +553,7 @@ def boiler_generator_assn_eia860(start_date=None, end_date=None,
     bga_eia860_df = pd.read_sql(bga_eia860_select, pudl_engine)
     out_df = extend_annual(bga_eia860_df,
                            start_date=start_date, end_date=end_date)
-    return(out_df)
+    return out_df
 
 
 def plants_eia860(start_date=None, end_date=None, testing=False):
@@ -606,7 +606,7 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
 
     out_df = organize_cols(out_df, first_cols)
     out_df = extend_annual(out_df, start_date=start_date, end_date=end_date)
-    return(out_df)
+    return out_df
 
 
 def generators_eia860(start_date=None, end_date=None, testing=False):
@@ -730,7 +730,7 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
                                  'plant_id_eia',
                                  'generator_id'])
 
-    return(out_df)
+    return out_df
 
 
 def ownership_eia860(start_date=None, end_date=None, testing=False):
@@ -790,7 +790,7 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
     out_df = extend_annual(out_df, start_date=start_date, end_date=end_date)
 
-    return(out_df)
+    return out_df
 
 
 ###############################################################################
@@ -904,7 +904,7 @@ def generation_fuel_eia923(freq=None, testing=False,
     out_df['operator_id'] = out_df.operator_id.astype(int)
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
 
-    return(out_df)
+    return out_df
 
 
 def fuel_receipts_costs_eia923(freq=None, testing=False,
@@ -1048,7 +1048,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
     out_df['operator_id'] = out_df.operator_id.astype(int)
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
 
-    return(out_df)
+    return out_df
 
 
 def boiler_fuel_eia923(freq=None, testing=False,
@@ -1171,7 +1171,7 @@ def boiler_fuel_eia923(freq=None, testing=False,
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
 
-    return(out_df)
+    return out_df
 
 
 def generation_eia923(freq=None, testing=False,
@@ -1251,7 +1251,7 @@ def generation_eia923(freq=None, testing=False,
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
 
-    return(out_df)
+    return out_df
 
 
 ###############################################################################
@@ -1294,7 +1294,7 @@ def plants_steam_ferc1(testing=False):
 
     out_df = organize_cols(out_df, first_cols)
 
-    return(out_df)
+    return out_df
 
 
 def fuel_ferc1(testing=False):
@@ -1350,4 +1350,4 @@ def fuel_ferc1(testing=False):
 
     out_df = organize_cols(out_df, first_cols)
 
-    return(out_df)
+    return out_df

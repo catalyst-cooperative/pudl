@@ -50,36 +50,36 @@ def source_url(source, year):
 
     base_url = pc.base_data_urls[source]
 
-    if (source == 'eia860'):
+    if source == 'eia860':
         download_url = '{}/eia860{}.zip'.format(base_url, year)
-    elif (source == 'eia861'):
-        if (year < 2012):
+    elif source == 'eia861':
+        if year < 2012:
             # Before 2012 they used 2 digit years. Y2K12 FTW!
             download_url = '{}/f861{}.zip'.format(base_url, str(year)[2:])
         else:
             download_url = '{}/f861{}.zip'.format(base_url, year)
-    elif (source == 'eia923'):
-        if(year < 2008):
+    elif source == 'eia923':
+        if year < 2008:
             prefix = 'f906920_'
         else:
             prefix = 'f923_'
         download_url = '{}/{}{}.zip'.format(base_url, prefix, year)
-    elif (source == 'ferc1'):
+    elif source == 'ferc1':
         download_url = '{}/f1_{}.zip'.format(base_url, year)
-    elif (source == 'mshamines'):
+    elif source == 'mshamines':
         download_url = '{}/Mines.zip'.format(base_url)
-    elif (source == 'mshaops'):
+    elif source == 'mshaops':
         download_url = '{}/ControllerOperatorHistory.zip'.format(base_url)
-    elif (source == 'mshaprod'):
+    elif source == 'mshaprod':
         download_url = '{}/MinesProdQuarterly.zip'.format(base_url)
-    # elif (source == 'epacems'):
+    # elif source == 'epacems':
     # We have not yet implemented downloading of EPA CEMS data.
     else:
         # we should never ever get here because of the assert statement.
         assert False, \
             "Bad data source '{}' requested.".format(source)
 
-    return(download_url)
+    return download_url
 
 
 def path(source, year=0, file=True, datadir=settings.DATA_DIR):
@@ -121,45 +121,45 @@ def path(source, year=0, file=True, datadir=settings.DATA_DIR):
         assert year in pc.data_years[source], \
             "Invalid year {} specified for datastore path.".format(year)
 
-    if(file):
+    if file:
         assert year != 0, \
             "Non-zero year required to generate full datastore file path."
 
-    if (source == 'eia860'):
+    if source == 'eia860':
         dstore_path = os.path.join(datadir, 'eia', 'form860')
-        if(year != 0):
+        if year != 0:
             dstore_path = os.path.join(dstore_path, 'eia860{}'.format(year))
-    elif (source == 'eia861'):
+    elif source == 'eia861':
         dstore_path = os.path.join(datadir, 'eia', 'form861')
-        if(year != 0):
+        if year != 0:
             dstore_path = os.path.join(dstore_path, 'eia861{}'.format(year))
-    elif (source == 'eia923'):
+    elif source == 'eia923':
         dstore_path = os.path.join(datadir, 'eia', 'form923')
-        if(year != 0):
-            if(year < 2008):
+        if year != 0:
+            if year < 2008:
                 prefix = 'f906920_'
             else:
                 prefix = 'f923_'
             dstore_path = os.path.join(dstore_path,
                                        '{}{}'.format(prefix, year))
-    elif (source == 'ferc1'):
+    elif source == 'ferc1':
         dstore_path = os.path.join(datadir, 'ferc', 'form1')
-        if(year != 0):
+        if year != 0:
             dstore_path = os.path.join(dstore_path, 'f1_{}'.format(year))
-    elif (source == 'mshamines' and file):
+    elif source == 'mshamines' and file:
         dstore_path = os.path.join(datadir, 'msha')
-        if(year != 0):
+        if year != 0:
             dstore_path = os.path.join(dstore_path, 'Mines.zip')
-    elif (source == 'mshaops'):
+    elif source == 'mshaops':
         dstore_path = os.path.join(datadir, 'msha')
-        if(year != 0 and file):
+        if year != 0 and file:
             dstore_path = os.path.join(dstore_path,
                                        'ControllerOperatorHistory.zip')
-    elif (source == 'mshaprod' and file):
+    elif source == 'mshaprod' and file:
         dstore_path = os.path.join(datadir, 'msha')
-        if(year != 0):
+        if year != 0:
             dstore_path = os.path.join(dstore_path, 'MinesProdQuarterly.zip')
-    # elif (source == 'epacems'):
+    # elif source == 'epacems':
     # We have not yet implemented downloading of EPA CEMS data.
     else:
         # we should never ever get here because of the assert statement.
@@ -169,13 +169,13 @@ def path(source, year=0, file=True, datadir=settings.DATA_DIR):
     # Current naming convention requires the name of the directory to which
     # an original data source is downloaded to be the same as the basename
     # of the file itself...
-    if(file):
+    if file:
         if source not in ['mshamines', 'mshaops', 'mshaprod']:
             dstore_path = \
                 os.path.join(dstore_path,
                              '{}.zip'.format(os.path.basename(dstore_path)))
 
-    return(dstore_path)
+    return dstore_path
 
 
 def download(source, year, datadir=settings.DATA_DIR, verbose=True):
@@ -218,13 +218,13 @@ def download(source, year, datadir=settings.DATA_DIR, verbose=True):
 
     tmp_file = os.path.join(tmp_dir, os.path.basename(path(source, year)))
 
-    if(verbose):
+    if verbose:
         print("""Downloading {} data for {}...
     {}""".format(source, year, src_url))
 
     outfile, msg = urllib.request.urlretrieve(src_url, filename=tmp_file)
 
-    return(outfile)
+    return outfile
 
 
 def organize(source, year, unzip=True,
@@ -287,7 +287,7 @@ def organize(source, year, unzip=True,
     # However, when we integrate the CEMS data, we may need to store it
     # in its zipped form -- since unzipped it is ~100GB, and it's extremely
     # compressible.
-    if(unzip):
+    if unzip:
         # Unzip the downloaded file in its new home:
         zip_ref = zipfile.ZipFile(destfile, 'r')
         zip_ref.extractall(destdir)
@@ -295,7 +295,7 @@ def organize(source, year, unzip=True,
         # Most of the data sources can just be unzipped in place and be done
         # with it, but FERC Form 1 requires some special attention:
         # data source we're working with:
-        if(source == 'ferc1'):
+        if source == 'ferc1':
             topdirs = [os.path.join(destdir, td)
                        for td in ['UPLOADERS', 'FORMSADMIN']]
             for td in topdirs:
