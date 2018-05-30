@@ -174,7 +174,7 @@ def get_eia860_page(page, eia860_xlsx,
         newdata.columns = newdata.columns.str.replace(' ', '_')
 
         # boiler_generator_assn tab is missing a YEAR column. Add it!
-        if page == 'boiler_generator_assn', 'utilty':
+        if 'report_year' not in newdata.columns:
             newdata['report_year'] = yr
 
         newdata = newdata.rename(columns=column_map)
