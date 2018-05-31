@@ -32,5 +32,6 @@ class HourlyEmissions(pudl.models.entities.PUDLBase):
     co2_rate_tons_mmbtu = Column(Float)
     co2_rate_measure_flg = Column(String)
     heat_input_mmbtu = Column(Float)
+    # TODO: I think these are the same as orispl_code and unitid, but check.
     fac_id = Column(Integer)
     unit_id = Column(Integer)
