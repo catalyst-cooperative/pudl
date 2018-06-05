@@ -89,17 +89,6 @@ us_states = {
     'WY': 'Wyoming'
 }
 
-cems_states = {k:v for k, v in us_states.items() if v not in
-    {'Alaska',
-     'American Samoa',
-     'Guam',
-     'Hawaii',
-     'Northern Mariana Islands',
-     'National',
-     'Puerto Rico',
-     'Virgin Islands'}
-    }
-
 # Construct a dictionary mapping a canonical fuel name to a list of strings
 # which are used to represent that fuel in the FERC Form 1 Reporting. Case is
 # ignored, as all fuel strings can be converted to a lower case in the data
@@ -3023,7 +3012,7 @@ data_sources = [
     'eia860',
     # 'eia861',
     'eia923',
-    'epacems',
+    # 'epacems',
     'ferc1',
     # 'mshamines',
     # 'mshaops',
@@ -3047,7 +3036,7 @@ working_years = {
     'eia860': range(2011, 2017),
     'eia861': [],
     'eia923': range(2009, 2017),
-    'epacems': range(1995, 2018),
+    'epacems': [],
     'ferc1': range(2004, 2017),
     'mshamines': [],
     'mshaops': [],
