@@ -45,7 +45,7 @@ def is_annual(df_year, year_col='report_date'):
     else:
         assert False, "Zero dates found!"
 
-    return(True)
+    return True
 
 
 def merge_on_date_year(df_date, df_year, on=[], how='inner',
@@ -121,7 +121,7 @@ def merge_on_date_year(df_date, df_year, on=[], how='inner',
     merged = pd.merge(df_date, df_year[cols_to_use], how=how, on=full_on)
     merged = merged.drop(['year_temp'], axis=1)
 
-    return(merged)
+    return merged
 
 
 def simple_select(table_name, pudl_engine):
@@ -162,7 +162,7 @@ def simple_select(table_name, pudl_engine):
     else:
         table = table
 
-    return(table)
+    return table
 
 
 def simple_ferc1_plant_ids(pudl_engine):
@@ -171,7 +171,7 @@ def simple_ferc1_plant_ids(pudl_engine):
                                   pudl_engine)
     ferc1_simple_plant_ids = ferc1_plant_ids.drop_duplicates('plant_id_pudl',
                                                              keep=False)
-    return(ferc1_simple_plant_ids)
+    return ferc1_simple_plant_ids
 
 
 def simple_eia_plant_ids(pudl_engine):
@@ -180,7 +180,7 @@ def simple_eia_plant_ids(pudl_engine):
                                 pudl_engine)
     eia_simple_plant_ids = eia_plant_ids.drop_duplicates('plant_id_pudl',
                                                          keep=False)
-    return(eia_simple_plant_ids)
+    return eia_simple_plant_ids
 
 
 def simple_pudl_plant_ids(pudl_engine):
@@ -189,7 +189,7 @@ def simple_pudl_plant_ids(pudl_engine):
     eia_simple = simple_eia_plant_ids(pudl_engine)
     pudl_simple = np.intersect1d(ferc1_simple['plant_id_pudl'],
                                  eia_simple['plant_id_pudl'])
-    return(pudl_simple)
+    return pudl_simple
 
 
 def ferc_eia_shared_plant_ids(pudl_engine):
@@ -200,21 +200,21 @@ def ferc_eia_shared_plant_ids(pudl_engine):
                                 pudl_engine)
     shared_plant_ids = np.intersect1d(ferc_plant_ids['plant_id_pudl'],
                                       eia_plant_ids['plant_id_pudl'])
-    return(shared_plant_ids)
+    return shared_plant_ids
 
 
 def ferc_pudl_plant_ids(pudl_engine):
     """Generate a list of PUDL plant IDs that correspond to FERC plants."""
     ferc_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_ferc''',
                                  pudl_engine)
-    return(ferc_plant_ids)
+    return ferc_plant_ids
 
 
 def eia_pudl_plant_ids(pudl_engine):
     """Generate a list of PUDL plant IDs that correspond to EIA plants."""
     eia_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_eia''',
                                 pudl_engine)
-    return(eia_plant_ids)
+    return eia_plant_ids
 
 
 def yearly_sum_eia(df, sum_by, columns=['plant_id_eia', 'generator_id']):
@@ -245,7 +245,7 @@ def yearly_sum_eia(df, sum_by, columns=['plant_id_eia', 'generator_id']):
     """
     df['report_year'] = pd.to_datetime(df['report_date']).dt.year
     gb = df.groupby(by=columns)
-    return(gb.agg({sum_by: np.sum}))
+    return gb.agg({sum_by: np.sum})
 
 
 def eia_operator_plants(operator_id, pudl_engine):
@@ -264,7 +264,7 @@ def eia_operator_plants(operator_id, pudl_engine):
                                plant_id_pudl.
                                in_(pudl_plant_ids))]
     session.close_all()
-    return(eia923_plant_ids)
+    return eia923_plant_ids
 
 
 def consolidate_ferc1_expns(steam_df, min_capfac=0.6, min_corr=0.5):
@@ -314,7 +314,7 @@ def consolidate_ferc1_expns(steam_df, min_capfac=0.6, min_corr=0.5):
     # - non-production expenses
     steam_df['expns_total_nonproduction'] = steam_df[npx].copy().sum(axis=1)
 
-    return(steam_df)
+    return steam_df
 
 
 def ferc1_expns_corr(steam_df, min_capfac=0.6):
@@ -369,7 +369,7 @@ def ferc1_expns_corr(steam_df, min_capfac=0.6):
         expns_plants = steam_df[expns][steam_df[expns] != 0]
         expns_corr[expns] = np.corrcoef(mwh_plants, expns_plants)[0, 1]
 
-    return(expns_corr)
+    return expns_corr
 
 
 def ferc_expenses(pudl_engine, pudl_plant_ids=[], require_eia=True,
@@ -425,7 +425,7 @@ def ferc_expenses(pudl_engine, pudl_plant_ids=[], require_eia=True,
             steam_df.plant_id_pudl.isin(eia_pudl.plant_id_pudl)]
 
     # Pass back both the expense correlations, and the plant data.
-    return(expns_corrs, steam_df)
+    return expns_corrs, steam_df
 
 
 def fuel_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
@@ -451,7 +451,7 @@ def fuel_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
     # Calculate the total fuel heat content for the plant by fuel
     fuel_df = fuel_df[fuel_df.plant_id_pudl.isin(pudl_plant_ids)]
 
-    if (fuels == 'all'):
+    if fuels == 'all':
         cols_to_gb = ['plant_id_pudl', 'report_year']
     else:
         # Limit to records that pertain to our fuels of interest.
@@ -462,7 +462,7 @@ def fuel_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
     fuel_df = fuel_df.groupby(cols_to_gb)[cols].sum()
     fuel_df = fuel_df.reset_index()
 
-    return(fuel_df)
+    return fuel_df
 
 
 def steam_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
@@ -481,7 +481,7 @@ def steam_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
     steam_df = steam_df.groupby(['plant_id_pudl', 'report_year'])[cols].sum()
     steam_df = steam_df.reset_index()
 
-    return(steam_df)
+    return steam_df
 
 
 def frc_by_pudl(pudl_plant_ids, pudl_engine,
@@ -514,7 +514,7 @@ def frc_by_pudl(pudl_plant_ids, pudl_engine,
     cols_to_keep = cols_to_keep + cols
     cols_to_gb = [pd.Grouper(freq='A'), 'plant_id_pudl']
 
-    if (fuels != 'all'):
+    if fuels != 'all':
         frc_df = frc_df[frc_df.fuel.isin(fuels)]
         cols_to_keep = cols_to_keep + ['fuel', ]
         cols_to_gb = cols_to_gb + ['fuel', ]
@@ -537,7 +537,7 @@ def frc_by_pudl(pudl_plant_ids, pudl_engine,
     frc_totals_df = frc_totals_df.drop('report_date', axis=1)
     frc_totals_df = frc_totals_df.dropna()
 
-    return(frc_totals_df)
+    return frc_totals_df
 
 
 def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
@@ -576,7 +576,7 @@ def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
     cols_to_keep = cols_to_keep + cols
     cols_to_gb = [pd.Grouper(freq='A'), 'plant_id_pudl']
 
-    if (fuels != 'all'):
+    if fuels != 'all':
         gf_df = gf_df[gf_df.fuel.isin(fuels)]
         cols_to_keep = cols_to_keep + ['fuel', ]
         cols_to_gb = cols_to_gb + ['fuel', ]
@@ -598,7 +598,7 @@ def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
     gf_totals_df = gf_totals_df.drop('report_date', axis=1)
     gf_totals_df = gf_totals_df.dropna()
 
-    return(gf_totals_df)
+    return gf_totals_df
 
 
 def generator_proportion_eia923(g, id_col='plant_id_eia'):
@@ -644,7 +644,7 @@ def generator_proportion_eia923(g, id_col='plant_id_eia'):
         ['net_generation_mwh_x', 'net_generation_mwh_y'], axis=1)
     g_gens_proportion.reset_index(inplace=True)
 
-    return(g_gens_proportion)
+    return g_gens_proportion
 
 
 def capacity_proportion_eia923(g, id_col='plant_id_eia',
@@ -684,7 +684,7 @@ def capacity_proportion_eia923(g, id_col='plant_id_eia',
         columns={'nameplate_capacity_mw_x': 'nameplate_capacity_gen_mw',
                  'nameplate_capacity_mw_y': 'nameplate_capacity_plant_mw'})
 
-    return(g_capacity_proportion)
+    return g_capacity_proportion
 
 
 def values_by_generator_eia923(table_eia923, column_name, g):
@@ -728,7 +728,7 @@ def values_by_generator_eia923(table_eia923, column_name, g):
     # drop the unneccessary columns
     g_generator = g_generator.drop(
         ['proportion_of_generation', column_name_by_plant], axis=1)
-    return(g_generator)
+    return g_generator
 
 
 def primary_fuel_ferc1(fuel_df, fuel_thresh=0.5):
@@ -765,7 +765,7 @@ def primary_fuel_ferc1(fuel_df, fuel_thresh=0.5):
     mask = plants_by_heat >= fuel_thresh
     plants_by_heat = plants_by_heat.where(mask)
     plants_by_heat['primary_fuel'] = plants_by_heat.idxmax(axis=1)
-    return(plants_by_heat[['primary_fuel', ]].reset_index())
+    return plants_by_heat[['primary_fuel', ]].reset_index()
 
 
 def plant_fuel_proportions_ferc1(fuel_df):
@@ -800,7 +800,7 @@ def plant_fuel_proportions_ferc1(fuel_df):
                       inplace=True)
     del heat_pivot.columns.name
 
-    return(heat_pivot)
+    return heat_pivot
 
 
 def plant_fuel_proportions_frc_eia923(frc_df, id_col='plant_id_eia'):
@@ -850,7 +850,7 @@ def plant_fuel_proportions_frc_eia923(frc_df, id_col='plant_id_eia'):
     heat_pivot = heat_pivot.reset_index()
     del heat_pivot.columns.name
 
-    return(heat_pivot)
+    return heat_pivot
 
 
 def primary_fuel_frc_eia923(frc_df, id_col='plant_id_eia', fuel_thresh=0.5):
@@ -868,7 +868,7 @@ def primary_fuel_frc_eia923(frc_df, id_col='plant_id_eia', fuel_thresh=0.5):
     mask = frc_by_heat >= fuel_thresh
     frc_by_heat = frc_by_heat.where(mask)
     frc_by_heat['primary_fuel'] = frc_by_heat.idxmax(axis=1)
-    return(frc_by_heat[['primary_fuel', ]].reset_index())
+    return frc_by_heat[['primary_fuel', ]].reset_index()
 
 
 def plant_fuel_proportions_gf_eia923(gf_df):
@@ -920,7 +920,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
     heat_pivot = heat_pivot.reset_index()
     del heat_pivot.columns.name
 
-    return(heat_pivot)
+    return heat_pivot
 
 
 def primary_fuel_gf_eia923(gf_df, id_col='plant_id_eia', fuel_thresh=0.5):
@@ -938,7 +938,7 @@ def primary_fuel_gf_eia923(gf_df, id_col='plant_id_eia', fuel_thresh=0.5):
     mask = gf_by_heat >= fuel_thresh
     gf_by_heat = gf_by_heat.where(mask)
     gf_by_heat['primary_fuel'] = gf_by_heat.idxmax(axis=1)
-    return(gf_by_heat[['primary_fuel', ]].reset_index())
+    return gf_by_heat[['primary_fuel', ]].reset_index()
 
 
 def fercplants(plant_tables=['f1_steam',
@@ -1047,7 +1047,7 @@ def fercplants(plant_tables=['f1_steam',
 
     # If we're only trying to get the NEW plants, then we need to see which
     # ones we've already got in the PUDL DB, and look at what's different.
-    if(new):
+    if new:
         ferc1_plants_all = ferc1_plants_all.set_index(
             ['respondent_id', 'plant_name'])
 
@@ -1071,4 +1071,4 @@ def fercplants(plant_tables=['f1_steam',
     else:
         ferc1_plants = ferc1_plants_all
 
-    return(ferc1_plants)
+    return ferc1_plants

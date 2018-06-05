@@ -49,7 +49,7 @@ def plants(eia_transformed_dfs,
     eia_transformed_dfs['plants_annual_eia'] = plants_annual
     entities_dfs['plants_entity_eia'] = plants
 
-    return(entities_dfs, eia_transformed_dfs)
+    return entities_dfs, eia_transformed_dfs
 
 
 def generators(eia_transformed_dfs,
@@ -98,7 +98,7 @@ def generators(eia_transformed_dfs,
     eia_transformed_dfs['generators_annual_eia'] = gens_annual
     entities_dfs['generators_entity_eia'] = gens
 
-    return(entities_dfs, eia_transformed_dfs)
+    return entities_dfs, eia_transformed_dfs
 
 
 def boilers(eia_transformed_dfs,
@@ -152,7 +152,7 @@ def boilers(eia_transformed_dfs,
     # eia_transformed_dfs['boilder_annual_eia'] = boilers_annual
     entities_dfs['boilers_entity_eia'] = boilers
 
-    return(entities_dfs, eia_transformed_dfs)
+    return entities_dfs, eia_transformed_dfs
 
 
 def boiler_generator_assn(eia_transformed_dfs,
@@ -479,7 +479,7 @@ def boiler_generator_assn(eia_transformed_dfs,
 
     eia_transformed_dfs['boiler_generator_assn_eia'] = bga_out
 
-    return(eia_transformed_dfs)
+    return eia_transformed_dfs
 
 
 def _restrict_years(df,
@@ -488,7 +488,7 @@ def _restrict_years(df,
     """Restrict eia years for boiler generator association"""
     bga_years = set(eia860_years) & set(eia923_years)
     df = df[df.report_date.dt.year.isin(bga_years)]
-    return(df)
+    return df
 
 
 def transform(eia_transformed_dfs,
@@ -528,4 +528,4 @@ def transform(eia_transformed_dfs,
                                            debug=debug,
                                            verbose=verbose)
 
-    return(entities_dfs, eia_transformed_dfs)
+    return entities_dfs, eia_transformed_dfs

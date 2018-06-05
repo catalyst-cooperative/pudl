@@ -22,7 +22,7 @@ def connect_db(testing=False):
 
     Returns sqlalchemy engine instance.
     """
-    if(testing):
+    if testing:
         return sa.create_engine(sa.engine.url.URL(**settings.DB_FERC1_TEST))
     else:
         return sa.create_engine(sa.engine.url.URL(**settings.DB_FERC1))
@@ -147,7 +147,7 @@ def extract_dbc_tables(year, minstring=4, basedir=settings.FERC1_DATA_DIR):
         for sn, ln in zip(tf_doubledict[k].keys(), tf_doubledict[k].values()):
             assert(ln[:8] == sn.lower()[:8])
 
-    return(tf_doubledict)
+    return tf_doubledict
 
 
 def define_db(refyear, ferc1_tables, ferc1_meta,
@@ -200,21 +200,21 @@ def define_db(refyear, ferc1_tables, ferc1_meta,
             col_type = pc.dbf_typemap[field.type]
 
             # String/VarChar is the only type that really NEEDS a length
-            if(col_type == sa.String):
+            if col_type == sa.String:
                 col_type = col_type(length=field.length)
 
             # This eliminates the "footnote" fields which all mirror database
             # fields, but end with _f. We have not yet integrated the footnotes
             # into the rest of the DB, and so why clutter it up?
-            if(not re.match('(.*_f$)', col_name)):
+            if not re.match('(.*_f$)', col_name):
                 ferc1_sql.append_column(sa.Column(col_name, col_type))
 
         # Append primary key constraints to the table:
-        if (table_name == 'f1_respondent_id'):
+        if table_name == 'f1_respondent_id':
             ferc1_sql.append_constraint(
                 sa.PrimaryKeyConstraint('respondent_id'))
 
-        if (table_name in pc.ferc1_data_tables):
+        if table_name in pc.ferc1_data_tables:
             # All the "real" data tables use the same 5 fields as a composite
             # primary key: [ respondent_id, report_year, report_prd,
             # row_number, spplmnt_num ]
@@ -308,7 +308,7 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
             # need to avoid collisions in the f1_respondent_id table, which
             # does not have a year field... F1_1 is the DBF file that stores
             # this table:
-            if(dbf == 'F1_1'):
+            if dbf == 'F1_1':
                 sql_stmt = sql_stmt.on_conflict_do_nothing()
 
             # insert the new records!
@@ -341,7 +341,7 @@ def fuel(ferc1_raw_dfs,
 
     ferc1_raw_dfs[pudl_table] = fuel_ferc1_df
 
-    return(ferc1_raw_dfs)
+    return ferc1_raw_dfs
 
 
 def plants_steam(ferc1_raw_dfs,
@@ -361,7 +361,7 @@ def plants_steam(ferc1_raw_dfs,
     # populate the unlatered dictionary of dataframes
     ferc1_raw_dfs[pudl_table] = ferc1_steam_df
 
-    return(ferc1_raw_dfs)
+    return ferc1_raw_dfs
 
 
 def plants_small(ferc1_raw_dfs,
@@ -398,7 +398,7 @@ def plants_small(ferc1_raw_dfs,
     # populate the unlatered dictionary of dataframes
     ferc1_raw_dfs[pudl_table] = ferc1_small_df
 
-    return(ferc1_raw_dfs)
+    return ferc1_raw_dfs
 
 
 def plants_hydro(ferc1_raw_dfs,
@@ -416,7 +416,7 @@ def plants_hydro(ferc1_raw_dfs,
 
     ferc1_raw_dfs[pudl_table] = ferc1_hydro_df
 
-    return(ferc1_raw_dfs)
+    return ferc1_raw_dfs
 
 
 def plants_pumped_storage(ferc1_raw_dfs,
@@ -438,7 +438,7 @@ def plants_pumped_storage(ferc1_raw_dfs,
 
     ferc1_raw_dfs[pudl_table] = ferc1_pumped_storage_df
 
-    return(ferc1_raw_dfs)
+    return ferc1_raw_dfs
 
 
 def plant_in_service(ferc1_raw_dfs,
@@ -459,7 +459,7 @@ def plant_in_service(ferc1_raw_dfs,
 
     ferc1_raw_dfs[pudl_table] = ferc1_pis_df
 
-    return(ferc1_raw_dfs)
+    return ferc1_raw_dfs
 
 
 def purchased_power(ferc1_raw_dfs,
@@ -475,7 +475,7 @@ def purchased_power(ferc1_raw_dfs,
 
     ferc1_raw_dfs[pudl_table] = ferc1_purchased_pwr_df
 
-    return(ferc1_raw_dfs)
+    return ferc1_raw_dfs
 
 
 def accumulated_depreciation(ferc1_raw_dfs,
@@ -491,4 +491,4 @@ def accumulated_depreciation(ferc1_raw_dfs,
 
     ferc1_raw_dfs[pudl_table] = ferc1_apd_df
 
-    return(ferc1_raw_dfs)
+    return ferc1_raw_dfs

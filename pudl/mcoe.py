@@ -77,7 +77,7 @@ def heat_rate_by_unit(pudl_out, verbose=False):
     hr_by_unit['heat_rate_mmbtu_mwh'] = \
         hr_by_unit.total_heat_content_mmbtu / hr_by_unit.net_generation_mwh
 
-    return(hr_by_unit)
+    return hr_by_unit
 
 
 def heat_rate_by_gen(pudl_out, verbose=False):
@@ -111,7 +111,7 @@ def heat_rate_by_gen(pudl_out, verbose=False):
                                 'fuel_type_pudl', 'fuel_type_count']],
         on=['plant_id_eia', 'generator_id']
     )
-    return(hr_by_gen)
+    return hr_by_gen
 
 
 def fuel_cost(pudl_out, verbose=False):
@@ -230,7 +230,7 @@ def fuel_cost(pudl_out, verbose=False):
     out_df = pd.merge(out_df.drop_duplicates(), fuel_cost,
                       on=['report_date', 'plant_id_eia', 'generator_id'])
 
-    return(out_df)
+    return out_df
 
 
 def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5, verbose=False):
@@ -297,7 +297,7 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5, verbose=False):
     # drop the hours column, cause we don't need it anymore
     capacity_factor.drop(['hours'], axis=1, inplace=True)
 
-    return(capacity_factor)
+    return capacity_factor
 
 
 def mcoe(pudl_out,
@@ -397,4 +397,4 @@ def mcoe(pudl_out,
     if max_cap_fact is not None:
         mcoe_out = mcoe_out[mcoe_out.capacity_factor <= max_cap_fact]
 
-    return(mcoe_out)
+    return mcoe_out
