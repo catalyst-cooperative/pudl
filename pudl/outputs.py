@@ -406,34 +406,30 @@ def plants_utils_ferc1(testing=False):
     return(out_df)
 
 
-def annotate_export(df1, df2, outfile='output.xlsx'):
+def annotate_export(df, notes_dict, tags_dict, first_cols, sheet_name,
+                    xlsx_writer):
     """
-    Create annotation tab or header rows for EIA 860, EIA 923, and FERC 1
-    fields in a dataframe
+    Create annotation tab and header rows for EIA 860, EIA 923, and FERC 1
+    fields in a dataframe. This is done using an Excel Writer object, which
+    must be created and saved outside the function, thereby allowing multiple
+    sheets and associated annotations to be compiled in the same Excel file
 
     Args:
-        df1: The dataframe for which annotations are being created
+        df: The dataframe for which annotations are being created
+        notes_dict: dictionary with column names as keys and long annotations
+            as values
+        tags_dict: dictionary of dictionaries with tag categories as keys for
+            outer dictionary and values are dictionaries with column names as
+            keys and values are tag within the tag category
+        first_cols: ordered list of columns that should come first in outfile
+        sheet_name: name of data sheet in output spreadsheet
+        xlsx_writer: this is an ExcelWriter object used to accumulate multiple
+            tabs, which must be created outside of function, before calling the
+            first time e.g. "xlsx_writer = pd.ExcelWriter('outfile.xlsx')"
 
-        df2: A dataframe with annotation information. Should have 'field',
-             'source', and 'origin' fields where 'source' is EIA860, EIA923, or
-             FERC1; and 'origin' is reported, calculated, or assigned
-        outfile: name of output file, must include '.xlsx' extension; default
-            name is 'output.xlsx'
-
-    Returns .xlsx file with two tabs: data tab with annotated rows, and
-        annotations tab
+    Returns xlsx_writer which must be called outside the function, after final
+        use of function, for written out to excel: "xlsx_writer.save()"
     """
-    # Transpose the annotations (df2) so they can be inserted as rows in the
-    # data table, df1
-    annotations_transposed = df2.transpose()
-
-    # Use the 'field' to match the columns, then insert info on 'source' and
-    # 'origin' of data into df1
-    new_rows = annotations_transposed.loc[['field', 'source', 'origin'], :]
-    new_rows = new_rows.rename(columns=new_rows.iloc[0])
-    new_rows = new_rows.drop('field')
-    annotated = pd.concat([new_rows, df1])
-
     # Make sure columns we want to be first are kept there
     first_cols = [
         'report_date',
@@ -446,23 +442,39 @@ def annotate_export(df1, df2, outfile='output.xlsx'):
         'generator_id',
         'boiler_id',
         'ownership_id',
-        'owner_name',
-    ]
-
-    data_cols = [c for c in annotated.columns.tolist()]
+        'owner_name']
+    data_cols = [c for c in df.columns.tolist()]
     cols = []
     for c in first_cols:
         if c in data_cols:
             cols.append(c)
-    annotated = organize_cols(annotated, cols)
+    df = organize_cols(df, cols)
+    # Transpose the original dataframe to easily add and map tags as columns
+    dfnew = df.transpose()
+    # For loop where tag is metadata field (e.g. data_source or data_origin) &
+    # column is a nested dictionary of column name & value; maps tags_dict to
+    # columns in df and creates a new column for each tag category
+    for tag, column_dict in tags_dict.items():
+        for key in column_dict.keys():  # key is column name
+            dfnew[tag] = dfnew.index.to_series().map(column_dict)
+    # Take the new columns that were created for each tag category and add them
+    # to the index
+    for tag, column_dict in tags_dict.items():
+        dfnew = dfnew.set_index([tag], append=True)
+    # Transpose to return data fields to columns
+    dfnew = dfnew.transpose()
+    # Create an excel sheet for the data frame
+    dfnew.to_excel(xlsx_writer, sheet_name=str(sheet_name),
+                   index=True, na_rep='NA')
+    # Convert notes dictionary into a pandas series
+    notes = pd.Series(notes_dict, name='annotations')
+    # Create an excel sheet of the notes_dict
+    notes.to_excel(xlsx_writer, sheet_name=str(sheet_name) + '_annotations',
+                   index=False, na_rep='NA')
+    # Return the xlsx_writer object, which can be written out, outside of
+    # fucntion, with 'xlsx_writer.save()'
+    return xlsx_writer
 
-    # Export the two dataframes to .xlsx file using 'outfile' name
-    xlsx_writer = pd.ExcelWriter(outfile)
-    annotated.to_excel(xlsx_writer, sheet_name=str(outfile),
-                       index=False, na_rep='NA')
-    df2.to_excel(xlsx_writer, sheet_name='annotations',
-                 index=False, na_rep='NA')
-    xlsx_writer.save()
 
 ###############################################################################
 ###############################################################################
