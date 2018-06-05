@@ -25,7 +25,7 @@ def output_byfreq(live_pudl_db, request):
         freq=request.param, testing=(not live_pudl_db),
         start_date=start_date, end_date=end_date
     )
-    return(pudl_out)
+    return pudl_out
 
 
 @pytest.mark.eia860
@@ -121,4 +121,4 @@ def nonunique_gens(df,
     unique_gens = df.drop_duplicates(subset=key_cols)
     dupes = df[~df.isin(unique_gens)].dropna()
     dupes = dupes.sort_values(by=key_cols)
-    return(dupes)
+    return dupes
