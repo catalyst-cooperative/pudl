@@ -36,9 +36,11 @@ import pudl.models.eia
 import pudl.extract.eia860
 import pudl.extract.eia923
 import pudl.extract.ferc1
+import pudl.extract.epacems
 import pudl.transform.ferc1
 import pudl.transform.eia923
 import pudl.transform.eia860
+import pudl.transform.epacems
 import pudl.transform.eia
 import pudl.transform.pudl
 import pudl.load
@@ -195,10 +197,10 @@ def ingest_static_tables(engine):
 
 def ingest_glue_tables(engine):
     """
-    Populate the tables which relate the EIA & FERC datasets to each other.
+    Populate the tables which relate the EIA, EPA, and FERC datasets.
 
     We have compiled a bunch of information which can be used to map individual
-    utilities and plants listed in both the EIA and FERC data sets to each
+    utilities and plants listed in the EIA, EPA, and FERC data sets to each
     other, allowing disparate data reported in the two sources to be related
     to each other. That data is primarily stored in the plant_output and
     utility_output tabs of results/id_mapping/mapping_eia923_ferc1.xlsx in the
@@ -434,39 +436,6 @@ def extract_eia923(eia923_years=pc.working_years['eia923'],
     return(eia923_raw_dfs)
 
 
-def transform_eia923(eia923_raw_dfs,
-                     pudl_engine,
-                     eia923_tables=pc.eia923_pudl_tables,
-                     verbose=True):
-    """Transform all EIA 923 tables."""
-    eia923_transform_functions = {
-        # 'plants_eia923': pudl.transform.eia923.plants,
-        'generation_fuel_eia923': pudl.transform.eia923.generation_fuel,
-        'boilers_eia923': pudl.transform.eia923.boilers,
-        'boiler_fuel_eia923': pudl.transform.eia923.boiler_fuel,
-        'generation_eia923': pudl.transform.eia923.generation,
-        'generators_eia923': pudl.transform.eia923.generators,
-        'coalmine_eia923': pudl.transform.eia923.coalmine,
-        'fuel_receipts_costs_eia923': pudl.transform.eia923.fuel_reciepts_costs
-    }
-    eia923_transformed_dfs = {}
-
-    if verbose:
-        print("Transforming tables from EIA 923:")
-    for table in eia923_transform_functions.keys():
-        if table in eia923_tables:
-            if verbose:
-                print("    {}...".format(table))
-            if (table == 'fuel_receipts_costs_eia923'):
-                eia923_transform_functions[table](eia923_raw_dfs,
-                                                  eia923_transformed_dfs,
-                                                  pudl_engine)
-            else:
-                eia923_transform_functions[table](eia923_raw_dfs,
-                                                  eia923_transformed_dfs)
-    return(eia923_transformed_dfs)
-
-
 def extract_ferc1(ferc1_tables=pc.ferc1_pudl_tables,
                   ferc1_years=pc.working_years['ferc1'],
                   testing=False,
@@ -546,12 +515,97 @@ def transform_ferc1(ferc1_raw_dfs,
     return(ferc1_transformed_dfs)
 
 
+def _ETL_ferc1(pudl_engine, ferc1_tables, ferc1_years, verbose, ferc1_testing, csvdir, keep_csv):
+    # Extract FERC form 1
+    ferc1_raw_dfs = extract_ferc1(ferc1_tables=ferc1_tables,
+                                  ferc1_years=ferc1_years,
+                                  testing=ferc1_testing,
+                                  verbose=verbose)
+    # Transform FERC form 1
+    ferc1_transformed_dfs = transform_ferc1(ferc1_raw_dfs,
+                                            ferc1_tables=ferc1_tables,
+                                            verbose=verbose)
+    # Load FERC form 1
+    pudl.load.dict_dump_load(ferc1_transformed_dfs,
+                             "FERC 1",
+                             pudl_engine,
+                             need_fix_inting=pc.need_fix_inting,
+                             verbose=verbose,
+                             csvdir=csvdir,
+                             keep_csv=keep_csv)
+
+def _ETL_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables, eia860_years,
+        verbose, csvdir, keep_csv):
+    # Extract EIA forms 923, 860
+    eia923_raw_dfs = extract_eia923(eia923_years=eia923_years,
+                                    verbose=verbose)
+    eia860_raw_dfs = extract_eia860(eia860_years=eia860_years,
+                                    verbose=verbose)
+    # Transform EIA forms 923, 860
+    eia923_transformed_dfs = \
+        pudl.transform.eia923.transform(eia923_raw_dfs,
+                                        pudl_engine,
+                                        eia923_tables=eia923_tables,
+                                        verbose=verbose)
+    eia860_transformed_dfs = \
+        pudl.transform.eia860.transform(eia860_raw_dfs,
+                                        eia860_tables=eia860_tables,
+                                        verbose=verbose)
+    # create an eia transformed dfs dictionary
+    eia_transformed_dfs = eia860_transformed_dfs.copy()
+    eia_transformed_dfs.update(eia923_transformed_dfs.copy())
+
+    entities_dfs, eia_transformed_dfs = \
+        pudl.transform.eia.transform(eia_transformed_dfs,
+                                     eia923_years=eia923_years,
+                                     eia860_years=eia860_years,
+                                     verbose=verbose)
+    # Compile transformed dfs for loading...
+    transformed_dfs = {"Entities": entities_dfs, "EIA": eia_transformed_dfs}
+    # Load step
+    for data_source, transformed_df in transformed_dfs.items():
+        pudl.load.dict_dump_load(transformed_df,
+                                 data_source,
+                                 pudl_engine,
+                                 need_fix_inting=pc.need_fix_inting,
+                                 verbose=verbose,
+                                 csvdir=csvdir,
+                                 keep_csv=keep_csv)
+
+
+def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv):
+
+    # NOTE: This a generator for raw dataframes
+    epacems_raw_dfs = pudl.extract.epacems.extract(
+        epacems_years=epacems_years, verbose=verbose)
+    # NOTE: This is a generator for transformed dataframes
+    epacems_transformed_dfs = pudl.transform.epacems.transform(
+        epacems_raw_dfs, verbose=verbose
+    )
+    # TODO: the current dict_dump_load just loads the data in fresh
+    # (overwriting existing), but we will need to append here.
+    for transformed_df_dict in epacems_transformed_dfs:
+        for yr_mo_st, transformed_df in transformed_df_dict.items():
+            # There's currently only one dataframe in this dict at a time, but
+            # that could be changed
+            # TODO: Is this dict thing useful? If not, delete
+            year, month, state = yr_mo_st
+            pudl.load.dict_dump_load({"HourlyEmissions": transformed_df},
+                                     data_source="EPA CEMS",
+                                     pudl_engine=pudl_engine,
+                                     need_fix_inting=pc.need_fix_inting,
+                                     verbose=verbose,
+                                     csvdir=csvdir,
+                                     keep_csv=keep_csv)
+
+
 def init_db(ferc1_tables=pc.ferc1_pudl_tables,
             ferc1_years=pc.working_years['ferc1'],
             eia923_tables=pc.eia923_pudl_tables,
             eia923_years=pc.working_years['eia923'],
             eia860_tables=pc.eia860_pudl_tables,
             eia860_years=pc.working_years['eia860'],
+            epacems_years=pc.working_years['epacems'],
             verbose=True, debug=False,
             pudl_testing=False,
             ferc1_testing=False,
@@ -569,8 +623,15 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
         eia923_tables (list): The list of tables that will be created and
             ingested. By default only known to be working tables are ingested.
             That list of tables is defined in pudl.constants.
-        eia923_years (list): The list of years from which to pull EIA 923
+        eia923_years (iterable): The list of years from which to pull EIA 923
             data.
+        eia860_tables (list): The list of tables that will be created and
+            ingested. By default only known to be working tables are ingested.
+            That list of tables is defined in pudl.constants.
+        eia860_years (iterable): The list of years from which to pull EIA 860
+            data.
+        epacems_years (iterable): The list of years from which to pull EPA CEMS
+            data. Note that there's only one EPA CEMS table.
         debug (bool): You can tell init_db to ingest whatever list of tables
             you want, but if your desired table is not in the list of known to
             be working tables, you need to set debug=True (otherwise init_db
@@ -603,53 +664,30 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
         print("Sniffing EIA923/FERC1 glue tables...")
     ingest_glue_tables(pudl_engine)
 
-    # Extract step
-    ferc1_raw_dfs = extract_ferc1(ferc1_tables=ferc1_tables,
-                                  ferc1_years=ferc1_years,
-                                  testing=ferc1_testing,
-                                  verbose=verbose)
+    # Separate the extract/transform/load for the different datsets because
+    # they don't depend on each other and it's nice to not have so much stuff
+    # in memory at the same time.
 
-    eia923_raw_dfs = extract_eia923(eia923_years=eia923_years,
-                                    verbose=verbose)
-
-    eia860_raw_dfs = extract_eia860(eia860_years=eia860_years,
-                                    verbose=verbose)
-    # Transform step
-    ferc1_transformed_dfs = transform_ferc1(ferc1_raw_dfs,
-                                            ferc1_tables=ferc1_tables,
-                                            verbose=verbose)
-
-    eia923_transformed_dfs = \
-        pudl.transform.eia923.transform(eia923_raw_dfs,
-                                        pudl_engine,
-                                        eia923_tables=eia923_tables,
-                                        verbose=verbose)
-
-    eia860_transformed_dfs = \
-        pudl.transform.eia860.transform(eia860_raw_dfs,
-                                        eia860_tables=eia860_tables,
-                                        verbose=verbose)
-
-    # create an eia transformed dfs dictionary
-    eia_transformed_dfs = eia860_transformed_dfs.copy()
-    eia_transformed_dfs.update(eia923_transformed_dfs.copy())
-
-    entities_dfs, eia_transformed_dfs = \
-        pudl.transform.eia.transform(eia_transformed_dfs,
-                                     eia923_years=eia923_years,
-                                     eia860_years=eia860_years,
-                                     verbose=verbose)
-
-    # Compile transformed dfs for loading...
-    transformed_dfs = {"Entities": entities_dfs,
-                       "FERC 1": ferc1_transformed_dfs,
-                       "EIA": eia_transformed_dfs}
-    # Load step
-    for data_source, transformed_df in transformed_dfs.items():
-        pudl.load.dict_dump_load(transformed_df,
-                                 data_source,
-                                 pudl_engine,
-                                 need_fix_inting=pc.need_fix_inting,
-                                 verbose=verbose,
-                                 csvdir=csvdir,
-                                 keep_csv=keep_csv)
+    # ETL for FERC form 1
+    _ETL_ferc1(pudl_engine=pudl_engine,
+               ferc1_tables=ferc1_tables,
+               ferc1_years=ferc1_years,
+               verbose=verbose,
+               ferc1_testing=ferc1_testing,
+               csvdir=csvdir,
+               keep_csv=keep_csv)
+    # ETL for EIA forms 860, 923
+    _ETL_eia(pudl_engine=pudl_engine,
+             eia923_tables=eia923_tables,
+             eia923_years=eia923_years,
+             eia860_tables=eia860_tables,
+             eia860_years=eia860_years,
+             verbose=verbose,
+             csvdir=csvdir,
+             keep_csv=keep_csv)
+    # ETL for EPA CEMS
+    _ETL_cems(pudl_engine=pudl_engine,
+              epacems_years=epacems_years,
+              verbose=verbose,
+              csvdir=csvdir,
+              keep_csv=keep_csv)
