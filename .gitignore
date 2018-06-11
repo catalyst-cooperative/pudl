@@ -6,4 +6,5 @@
 .ipynb_checkpoints/
 ./test/__pycache__/*
 .cache/
+.pytest_cache/*
 .DS_Store
