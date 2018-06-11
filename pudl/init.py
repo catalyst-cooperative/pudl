@@ -54,7 +54,7 @@ import pudl.constants as pc
 
 def connect_db(testing=False):
     """Connect to the PUDL database using global settings from settings.py."""
-    if(testing):
+    if testing:
         return sa.create_engine(sa.engine.url.URL(**settings.DB_PUDL_TEST))
     else:
         return sa.create_engine(sa.engine.url.URL(**settings.DB_PUDL))
@@ -409,7 +409,7 @@ def extract_eia860(eia860_years=pc.working_years['eia860'],
         pudl.extract.eia860.create_dfs_eia860(files=pc.files_eia860,
                                               eia860_years=eia860_years,
                                               verbose=verbose)
-    return(eia860_raw_dfs)
+    return eia860_raw_dfs
 
 
 def extract_eia923(eia923_years=pc.working_years['eia923'],
@@ -422,7 +422,7 @@ def extract_eia923(eia923_years=pc.working_years['eia923'],
     # Create DataFrames
     eia923_raw_dfs = {}
     for page in pc.tab_map_eia923.columns:
-        if (page != 'plant_frame'):
+        if page != 'plant_frame':
             eia923_raw_dfs[page] = pudl.extract.eia923.\
                 get_eia923_page(page, eia923_xlsx,
                                 years=eia923_years,
@@ -431,7 +431,7 @@ def extract_eia923(eia923_years=pc.working_years['eia923'],
             #    eia923_years, eia923_xlsx)
         # else:
 
-    return(eia923_raw_dfs)
+    return eia923_raw_dfs
 
 
 def transform_eia923(eia923_raw_dfs,
@@ -457,14 +457,14 @@ def transform_eia923(eia923_raw_dfs,
         if table in eia923_tables:
             if verbose:
                 print("    {}...".format(table))
-            if (table == 'fuel_receipts_costs_eia923'):
+            if table == 'fuel_receipts_costs_eia923':
                 eia923_transform_functions[table](eia923_raw_dfs,
                                                   eia923_transformed_dfs,
                                                   pudl_engine)
             else:
                 eia923_transform_functions[table](eia923_raw_dfs,
                                                   eia923_transformed_dfs)
-    return(eia923_transformed_dfs)
+    return eia923_transformed_dfs
 
 
 def extract_ferc1(ferc1_tables=pc.ferc1_pudl_tables,
@@ -511,7 +511,7 @@ def extract_ferc1(ferc1_tables=pc.ferc1_pudl_tables,
                                            pudl_table=table,
                                            ferc1_years=ferc1_years)
 
-    return(ferc1_raw_dfs)
+    return ferc1_raw_dfs
 
 
 def transform_ferc1(ferc1_raw_dfs,
@@ -543,7 +543,7 @@ def transform_ferc1(ferc1_raw_dfs,
             ferc1_transform_functions[table](ferc1_raw_dfs,
                                              ferc1_transformed_dfs)
 
-    return(ferc1_transformed_dfs)
+    return ferc1_transformed_dfs
 
 
 def init_db(ferc1_tables=pc.ferc1_pudl_tables,

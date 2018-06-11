@@ -41,7 +41,7 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     # which should then feed into a yet to be created standardized 'load' step
     eia860_transformed_dfs['ownership_eia860'] = o_df
 
-    return(eia860_transformed_dfs)
+    return eia860_transformed_dfs
 
 
 def generators(eia860_dfs, eia860_transformed_dfs):
@@ -188,7 +188,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
 
     eia860_transformed_dfs['generators_eia860'] = gens_df
 
-    return(eia860_transformed_dfs)
+    return eia860_transformed_dfs
 
 
 def plants(eia860_dfs, eia860_transformed_dfs):
@@ -292,7 +292,7 @@ def plants(eia860_dfs, eia860_transformed_dfs):
 
     eia860_transformed_dfs['plants_eia860'] = p_df
 
-    return(eia860_transformed_dfs)
+    return eia860_transformed_dfs
 
 
 def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
@@ -343,7 +343,7 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
 
     eia860_transformed_dfs['boiler_generator_assn_eia860'] = b_g_df
 
-    return(eia860_transformed_dfs)
+    return eia860_transformed_dfs
 
 
 def utilities(eia860_dfs, eia860_transformed_dfs):
@@ -382,7 +382,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
 
     eia860_transformed_dfs['utilities_eia860'] = u_df
 
-    return(eia860_transformed_dfs)
+    return eia860_transformed_dfs
 
 
 def transform(eia860_raw_dfs,
@@ -407,4 +407,4 @@ def transform(eia860_raw_dfs,
             eia860_transform_functions[table](eia860_raw_dfs,
                                               eia860_transformed_dfs)
 
-    return(eia860_transformed_dfs)
+    return eia860_transformed_dfs

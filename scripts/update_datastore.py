@@ -83,7 +83,7 @@ def parse_command_line(argv):
     )
 
     arguments = parser.parse_args(argv[1:])
-    return(arguments)
+    return arguments
 
 
 def main():
@@ -100,14 +100,14 @@ def main():
     # being ignored because they aren't valid.
     yrs_by_src = {}
     for src in args.sources:
-        if(len(args.year) == 0):
+        if len(args.year) == 0:
             yrs_by_src[src] = constants.data_years[src]
         else:
             yrs_by_src[src] = [int(yr) for yr in args.year
                                if int(yr) in constants.data_years[src]]
             bad_yrs = [int(yr) for yr in args.year
                        if int(yr) not in constants.data_years[src]]
-            if(args.verbose and len(bad_yrs) > 0):
+            if args.verbose and len(bad_yrs) > 0:
                 print("Invalid {} years ignored: {}.".format(src, bad_yrs))
 
     for src in args.sources:
