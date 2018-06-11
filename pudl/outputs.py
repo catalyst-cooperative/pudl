@@ -430,27 +430,12 @@ def annotate_export(df, notes_dict, tags_dict, first_cols, sheet_name,
     Returns xlsx_writer which must be called outside the function, after final
         use of function, for written out to excel: "xlsx_writer.save()"
     """
-    # Make sure columns we want to be first are kept there
-    first_cols = [
-        'report_date',
-        'plant_id_eia',
-        'plant_id_pudl',
-        'plant_name',
-        'operator_id',
-        'util_id_pudl',
-        'operator_name',
-        'generator_id',
-        'boiler_id',
-        'ownership_id',
-        'owner_name']
-    data_cols = [c for c in df.columns.tolist()]
-    cols = []
-    for c in first_cols:
-        if c in data_cols:
-            cols.append(c)
-    df = organize_cols(df, cols)
+    first_cols = [c for c in first_cols if c in df.columns]
+    df = organize_cols(df, first_cols)
+
     # Transpose the original dataframe to easily add and map tags as columns
     dfnew = df.transpose()
+
     # For loop where tag is metadata field (e.g. data_source or data_origin) &
     # column is a nested dictionary of column name & value; maps tags_dict to
     # columns in df and creates a new column for each tag category
@@ -464,15 +449,23 @@ def annotate_export(df, notes_dict, tags_dict, first_cols, sheet_name,
     # Transpose to return data fields to columns
     dfnew = dfnew.transpose()
     # Create an excel sheet for the data frame
-    dfnew.to_excel(xlsx_writer, sheet_name=str(sheet_name),
-                   index=True, na_rep='NA')
+    dfnew.to_excel(xlsx_writer, sheet_name=str(sheet_name), na_rep='NA')
     # Convert notes dictionary into a pandas series
-    notes = pd.Series(notes_dict, name='annotations')
+    notes = pd.Series(notes_dict, name='notes')
+    notes.index.name = 'field_name'
     # Create an excel sheet of the notes_dict
-    notes.to_excel(xlsx_writer, sheet_name=str(sheet_name) + '_annotations',
-                   index=False, na_rep='NA')
+    notes.to_excel(xlsx_writer, sheet_name=str(sheet_name) + '_notes',
+                   na_rep='NA')
+
+    # ZS: Don't think we *need* to return the xlsx_writer object here, because
+    # any alternations we've made are stored within the object -- and its scope
+    # exists beyond this function (since it was passed in).
+    # If we *are* going to return the xlsx_writer, then we should probably be
+    # making copy of it up front and not alter the one that's passed in. Either
+    # idiom is common, but the mix of both might be confusing.
+
     # Return the xlsx_writer object, which can be written out, outside of
-    # fucntion, with 'xlsx_writer.save()'
+    # function, with 'xlsx_writer.save()'
     return xlsx_writer
 
 
