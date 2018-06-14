@@ -71,7 +71,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     ge_df['status'] = 'existing'
     gr_df['status'] = 'retired'
 
-    gens_df = pd.concat([ge_df, gp_df, gr_df])
+    gens_df = pd.concat([ge_df, gp_df, gr_df], sort=True)
 
     # Get rid of any unidentifiable records:
     gens_df.dropna(subset=['generator_id', 'plant_id_eia'], inplace=True)

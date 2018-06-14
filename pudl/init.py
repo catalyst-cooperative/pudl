@@ -21,7 +21,6 @@ Mapper (ORM) and initializes the database from several sources:
 import pandas as pd
 import numpy as np
 import sqlalchemy as sa
-import postgres_copy
 import os.path
 import re
 import datetime
@@ -95,6 +94,7 @@ def ingest_static_tables(engine):
             to the PUDL DB.
 
     Returns: Nothing.
+
     """
     PUDL_Session = sa.orm.sessionmaker(bind=engine)
     pudl_session = PUDL_Session()
@@ -280,11 +280,13 @@ def ingest_glue_tables(engine):
                                  'operator_name_eia',
                                  'utility_id']]
     utilities_eia = utilities_eia.drop_duplicates('operator_id_eia')
+    utilities_eia = utilities_eia.dropna(subset=['operator_id_eia'])
 
     utilities_ferc = utility_map[['respondent_id_ferc',
                                   'respondent_name_ferc',
                                   'utility_id']]
     utilities_ferc = utilities_ferc.drop_duplicates('respondent_id_ferc')
+    utilities_ferc = utilities_ferc.dropna(subset=['respondent_id_ferc'])
 
     # Now we need to create a table that indicates which plants are associated
     # with every utility.
@@ -292,23 +294,24 @@ def ingest_glue_tables(engine):
     # These dataframes map our plant_id to FERC respondents and EIA
     # operators -- the equivalents of our "utilities"
     plants_respondents = plant_map[['plant_id', 'respondent_id_ferc']]
+    plants_respondents = plants_respondents.dropna(
+        subset=['respondent_id_ferc'])
     plants_operators = plant_map[['plant_id', 'operator_id_eia']]
+    plants_operators = plants_operators.dropna(subset=['operator_id_eia'])
 
     # Here we treat the dataframes like database tables, and join on the
     # FERC respondent_id and EIA operator_id, respectively.
-    utility_plant_ferc1 = utilities_ferc.\
-        join(plants_respondents.
-             set_index('respondent_id_ferc'),
-             on='respondent_id_ferc')
-
-    utility_plant_eia923 = utilities_eia.join(
-        plants_operators.set_index('operator_id_eia'),
-        on='operator_id_eia')
-
+    utility_plant_ferc1 = pd.merge(utilities_ferc,
+                                   plants_respondents,
+                                   on='respondent_id_ferc')
+    utility_plant_eia923 = pd.merge(utilities_eia,
+                                    plants_operators,
+                                    on='operator_id_eia')
     # Now we can concatenate the two dataframes, and get rid of all the columns
     # except for plant_id and utility_id (which determine the  utility to plant
     # association), and get rid of any duplicates or lingering NaN values...
-    utility_plant_assn = pd.concat([utility_plant_eia923, utility_plant_ferc1])
+    utility_plant_assn = pd.concat([utility_plant_eia923, utility_plant_ferc1],
+                                   sort=True)
     utility_plant_assn = utility_plant_assn[['plant_id', 'utility_id']].\
         dropna().drop_duplicates()
 
