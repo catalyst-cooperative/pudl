@@ -31,10 +31,10 @@ def datadir(year, basedir=settings.EIA923_DATA_DIR):
     """
     # These are the only years we've got...
     assert year in pc.data_years['eia923']
-    if(year < 2008):
-        return(os.path.join(basedir, 'f906920_{}'.format(year)))
+    if year < 2008:
+        return os.path.join(basedir, 'f906920_{}'.format(year))
     else:
-        return(os.path.join(basedir, 'f923_{}'.format(year)))
+        return os.path.join(basedir, 'f923_{}'.format(year))
 
 
 def get_eia923_file(yr, basedir=settings.EIA923_DATA_DIR):
@@ -54,7 +54,7 @@ def get_eia923_file(yr, basedir=settings.EIA923_DATA_DIR):
     # There can only be one!
     assert len(eia923_filematch) == 1, \
         'Multiple matching EIA923 spreadsheets found for {}'.format(yr)
-    return(eia923_filematch[0])
+    return eia923_filematch[0]
 
 
 def get_eia923_column_map(page, year):
@@ -113,7 +113,7 @@ def get_eia923_column_map(page, year):
     for k, v in d.items():
         column_map[v] = k
 
-    return((sheet_name, skiprows, column_map))
+    return (sheet_name, skiprows, column_map)
 
 
 def get_eia923_page(page, eia923_xlsx,
@@ -164,22 +164,22 @@ def get_eia923_page(page, eia923_xlsx,
         newdata.drop(to_drop, axis=1, inplace=True)
 
         # stocks tab is missing a YEAR column for some reason. Add it!
-        if(page == 'stocks'):
+        if page == 'stocks':
             newdata['report_year'] = yr
 
         newdata = newdata.rename(columns=column_map)
-        if(page == 'stocks'):
+        if page == 'stocks':
             newdata = newdata.rename(columns={
                 'unnamed_0': 'census_division_and_state'})
 
         # Drop the fields with plant_id_eia 99999 or 999999.
         # These are state index
-        if(page != 'stocks'):
+        if page != 'stocks':
             newdata = newdata[~newdata.plant_id_eia.isin([99999, 999999])]
 
         df = df.append(newdata)
 
-    return(df)
+    return df
 
 
 def get_eia923_xlsx(years):
@@ -200,7 +200,7 @@ def get_eia923_xlsx(years):
     for yr in years:
         print("    {}...".format(yr))
         eia923_xlsx[yr] = pd.ExcelFile(get_eia923_file(yr))
-    return(eia923_xlsx)
+    return eia923_xlsx
 
 
 def get_eia923_plants(years, eia923_xlsx):
@@ -232,7 +232,7 @@ def get_eia923_plants(years, eia923_xlsx):
                                'eia_sector', 'naics_code',
                                'reporting_frequency', 'nameplate_capacity_mw',
                                'report_year'])
-    if (len(recent_years) > 0):
+    if len(recent_years) > 0:
         pf = get_eia923_page('plant_frame', eia923_xlsx, years=recent_years)
         pf_mw = pd.DataFrame(columns=['plant_id_eia', 'nameplate_capacity_mw',
                                       'report_year'])
@@ -290,7 +290,7 @@ def get_eia923_plants(years, eia923_xlsx):
                 plant_info_compiled.columns.str.replace('_x$', '')
     plant_info_compiled = plant_info_compiled.drop_duplicates('plant_id_eia')
     plant_info_compiled = plant_info_compiled.drop(['report_year'], axis=1)
-    return(plant_info_compiled)
+    return plant_info_compiled
 
 
 def yearly_to_monthly_eia923(df, md):
@@ -339,4 +339,4 @@ def yearly_to_monthly_eia923(df, md):
     # data frame we started with -- all of which should be independent of the
     # month, and apply across all 12 of the monthly records created from each
     # of the # initial annual records.
-    return(yearly.merge(monthly, left_index=True, right_index=True))
+    return yearly.merge(monthly, left_index=True, right_index=True)

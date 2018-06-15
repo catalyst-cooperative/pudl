@@ -14,7 +14,6 @@ DATA_DIR = os.path.join(PUDL_DIR, 'data')
 FERC1_DATA_DIR = os.path.join(DATA_DIR, 'ferc', 'form1')
 EIA923_DATA_DIR = os.path.join(DATA_DIR, 'eia', 'form923')
 EIA860_DATA_DIR = os.path.join(DATA_DIR, 'eia', 'form860')
-EPACEMS_DATA_DIR = os.path.join(DATA_DIR, 'epa', 'cems')
 TEST_DIR = os.path.join(PUDL_DIR, 'test')
 DOCS_DIR = os.path.join(PUDL_DIR, 'docs')
 

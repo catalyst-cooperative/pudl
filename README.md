@@ -11,6 +11,9 @@ For more information, get in touch with:
  - http://catalyst.coop
  - hello@catalyst.coop
 
+# Quickstart
+Just want to get started building a database? Read [the documentation for your operating system](/docs).
+
 ---
 # Project Status
 As of February, 2018 the data which have been integrated into the PUDL database include:

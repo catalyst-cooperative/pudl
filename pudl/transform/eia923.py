@@ -67,7 +67,7 @@ def yearly_to_monthly_eia923(df, md):
         # Add this new year's worth of data to the big dataframe we'll return
         all_years = pd.concat([all_years, this_year])
 
-    return(all_years)
+    return all_years
 
 
 def coalmine_cleanup(cmi_df):
@@ -119,7 +119,7 @@ def coalmine_cleanup(cmi_df):
     #                                   float_na=np.nan,
     #                                   int_na=-1,
     #                                   str_na='')
-    return(cmi_df)
+    return cmi_df
 
 ###############################################################################
 ###############################################################################
@@ -187,7 +187,7 @@ def plants(eia923_dfs, eia923_transformed_dfs):
 
     eia923_transformed_dfs['plants_eia923'] = plant_info_df
 
-    return(eia923_transformed_dfs)
+    return eia923_transformed_dfs
 
 
 def generation_fuel(eia923_dfs, eia923_transformed_dfs):
@@ -250,7 +250,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
 
     eia923_transformed_dfs['generation_fuel_eia923'] = gf_df
 
-    return(eia923_transformed_dfs)
+    return eia923_transformed_dfs
 
 
 def boilers(eia923_dfs, eia923_transformed_dfs):
@@ -283,7 +283,7 @@ def boilers(eia923_dfs, eia923_transformed_dfs):
 
     eia923_transformed_dfs['boilers_eia923'] = boilers_df
 
-    return(eia923_transformed_dfs)
+    return eia923_transformed_dfs
 
 
 def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
@@ -331,7 +331,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
 
     eia923_transformed_dfs['boiler_fuel_eia923'] = bf_df
 
-    return(eia923_transformed_dfs)
+    return eia923_transformed_dfs
 
 
 def generation(eia923_dfs, eia923_transformed_dfs):
@@ -379,7 +379,7 @@ def generation(eia923_dfs, eia923_transformed_dfs):
 
     eia923_transformed_dfs['generation_eia923'] = generation_df
 
-    return(eia923_transformed_dfs)
+    return eia923_transformed_dfs
 
 
 def generators(eia923_dfs, eia923_transformed_dfs):
@@ -412,7 +412,7 @@ def generators(eia923_dfs, eia923_transformed_dfs):
 
     eia923_transformed_dfs['generators_eia923'] = generators_df
 
-    return(eia923_transformed_dfs)
+    return eia923_transformed_dfs
 
 
 def coalmine(eia923_dfs, eia923_transformed_dfs):
@@ -489,7 +489,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
 
     eia923_transformed_dfs['coalmine_eia923'] = cmi_df
 
-    return(eia923_transformed_dfs)
+    return eia923_transformed_dfs
 
 
 def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs, pudl_engine):
@@ -603,7 +603,7 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs, pudl_engine):
 
     eia923_transformed_dfs['fuel_receipts_costs_eia923'] = frc_df
 
-    return(eia923_transformed_dfs)
+    return eia923_transformed_dfs
 
 
 def transform(eia923_raw_dfs,
@@ -629,11 +629,11 @@ def transform(eia923_raw_dfs,
         if table in eia923_tables:
             if verbose:
                 print("    {}...".format(table))
-            if (table == 'fuel_receipts_costs_eia923'):
+            if table == 'fuel_receipts_costs_eia923':
                 eia923_transform_functions[table](eia923_raw_dfs,
                                                   eia923_transformed_dfs,
                                                   pudl_engine)
             else:
                 eia923_transform_functions[table](eia923_raw_dfs,
                                                   eia923_transformed_dfs)
-    return(eia923_transformed_dfs)
+    return eia923_transformed_dfs

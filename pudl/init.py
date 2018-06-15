@@ -21,7 +21,6 @@ Mapper (ORM) and initializes the database from several sources:
 import pandas as pd
 import numpy as np
 import sqlalchemy as sa
-import postgres_copy
 import os.path
 import re
 import datetime
@@ -37,11 +36,9 @@ import pudl.models.epacems
 import pudl.extract.eia860
 import pudl.extract.eia923
 import pudl.extract.ferc1
-import pudl.extract.epacems
 import pudl.transform.ferc1
 import pudl.transform.eia923
 import pudl.transform.eia860
-import pudl.transform.epacems
 import pudl.transform.eia
 import pudl.transform.pudl
 import pudl.load
@@ -57,7 +54,7 @@ import pudl.constants as pc
 
 def connect_db(testing=False):
     """Connect to the PUDL database using global settings from settings.py."""
-    if(testing):
+    if testing:
         return sa.create_engine(sa.engine.url.URL(**settings.DB_PUDL_TEST))
     else:
         return sa.create_engine(sa.engine.url.URL(**settings.DB_PUDL))
@@ -98,6 +95,7 @@ def ingest_static_tables(engine):
             to the PUDL DB.
 
     Returns: Nothing.
+
     """
     PUDL_Session = sa.orm.sessionmaker(bind=engine)
     pudl_session = PUDL_Session()
@@ -198,10 +196,10 @@ def ingest_static_tables(engine):
 
 def ingest_glue_tables(engine):
     """
-    Populate the tables which relate the EIA, EPA, and FERC datasets.
+    Populate the tables which relate the EIA & FERC datasets to each other.
 
     We have compiled a bunch of information which can be used to map individual
-    utilities and plants listed in the EIA, EPA, and FERC data sets to each
+    utilities and plants listed in both the EIA and FERC data sets to each
     other, allowing disparate data reported in the two sources to be related
     to each other. That data is primarily stored in the plant_output and
     utility_output tabs of results/id_mapping/mapping_eia923_ferc1.xlsx in the
@@ -283,11 +281,13 @@ def ingest_glue_tables(engine):
                                  'operator_name_eia',
                                  'utility_id']]
     utilities_eia = utilities_eia.drop_duplicates('operator_id_eia')
+    utilities_eia = utilities_eia.dropna(subset=['operator_id_eia'])
 
     utilities_ferc = utility_map[['respondent_id_ferc',
                                   'respondent_name_ferc',
                                   'utility_id']]
     utilities_ferc = utilities_ferc.drop_duplicates('respondent_id_ferc')
+    utilities_ferc = utilities_ferc.dropna(subset=['respondent_id_ferc'])
 
     # Now we need to create a table that indicates which plants are associated
     # with every utility.
@@ -295,23 +295,24 @@ def ingest_glue_tables(engine):
     # These dataframes map our plant_id to FERC respondents and EIA
     # operators -- the equivalents of our "utilities"
     plants_respondents = plant_map[['plant_id', 'respondent_id_ferc']]
+    plants_respondents = plants_respondents.dropna(
+        subset=['respondent_id_ferc'])
     plants_operators = plant_map[['plant_id', 'operator_id_eia']]
+    plants_operators = plants_operators.dropna(subset=['operator_id_eia'])
 
     # Here we treat the dataframes like database tables, and join on the
     # FERC respondent_id and EIA operator_id, respectively.
-    utility_plant_ferc1 = utilities_ferc.\
-        join(plants_respondents.
-             set_index('respondent_id_ferc'),
-             on='respondent_id_ferc')
-
-    utility_plant_eia923 = utilities_eia.join(
-        plants_operators.set_index('operator_id_eia'),
-        on='operator_id_eia')
-
+    utility_plant_ferc1 = pd.merge(utilities_ferc,
+                                   plants_respondents,
+                                   on='respondent_id_ferc')
+    utility_plant_eia923 = pd.merge(utilities_eia,
+                                    plants_operators,
+                                    on='operator_id_eia')
     # Now we can concatenate the two dataframes, and get rid of all the columns
     # except for plant_id and utility_id (which determine the  utility to plant
     # association), and get rid of any duplicates or lingering NaN values...
-    utility_plant_assn = pd.concat([utility_plant_eia923, utility_plant_ferc1])
+    utility_plant_assn = pd.concat([utility_plant_eia923, utility_plant_ferc1],
+                                   sort=True)
     utility_plant_assn = utility_plant_assn[['plant_id', 'utility_id']].\
         dropna().drop_duplicates()
 
@@ -412,7 +413,7 @@ def extract_eia860(eia860_years=pc.working_years['eia860'],
         pudl.extract.eia860.create_dfs_eia860(files=pc.files_eia860,
                                               eia860_years=eia860_years,
                                               verbose=verbose)
-    return(eia860_raw_dfs)
+    return eia860_raw_dfs
 
 
 def extract_eia923(eia923_years=pc.working_years['eia923'],
@@ -425,7 +426,7 @@ def extract_eia923(eia923_years=pc.working_years['eia923'],
     # Create DataFrames
     eia923_raw_dfs = {}
     for page in pc.tab_map_eia923.columns:
-        if (page != 'plant_frame'):
+        if page != 'plant_frame':
             eia923_raw_dfs[page] = pudl.extract.eia923.\
                 get_eia923_page(page, eia923_xlsx,
                                 years=eia923_years,
@@ -434,7 +435,40 @@ def extract_eia923(eia923_years=pc.working_years['eia923'],
             #    eia923_years, eia923_xlsx)
         # else:
 
-    return(eia923_raw_dfs)
+    return eia923_raw_dfs
+
+
+def transform_eia923(eia923_raw_dfs,
+                     pudl_engine,
+                     eia923_tables=pc.eia923_pudl_tables,
+                     verbose=True):
+    """Transform all EIA 923 tables."""
+    eia923_transform_functions = {
+        # 'plants_eia923': pudl.transform.eia923.plants,
+        'generation_fuel_eia923': pudl.transform.eia923.generation_fuel,
+        'boilers_eia923': pudl.transform.eia923.boilers,
+        'boiler_fuel_eia923': pudl.transform.eia923.boiler_fuel,
+        'generation_eia923': pudl.transform.eia923.generation,
+        'generators_eia923': pudl.transform.eia923.generators,
+        'coalmine_eia923': pudl.transform.eia923.coalmine,
+        'fuel_receipts_costs_eia923': pudl.transform.eia923.fuel_reciepts_costs
+    }
+    eia923_transformed_dfs = {}
+
+    if verbose:
+        print("Transforming tables from EIA 923:")
+    for table in eia923_transform_functions.keys():
+        if table in eia923_tables:
+            if verbose:
+                print("    {}...".format(table))
+            if table == 'fuel_receipts_costs_eia923':
+                eia923_transform_functions[table](eia923_raw_dfs,
+                                                  eia923_transformed_dfs,
+                                                  pudl_engine)
+            else:
+                eia923_transform_functions[table](eia923_raw_dfs,
+                                                  eia923_transformed_dfs)
+    return eia923_transformed_dfs
 
 
 def extract_ferc1(ferc1_tables=pc.ferc1_pudl_tables,
@@ -481,7 +515,7 @@ def extract_ferc1(ferc1_tables=pc.ferc1_pudl_tables,
                                            pudl_table=table,
                                            ferc1_years=ferc1_years)
 
-    return(ferc1_raw_dfs)
+    return ferc1_raw_dfs
 
 
 def transform_ferc1(ferc1_raw_dfs,
@@ -604,7 +638,6 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
             eia923_years=pc.working_years['eia923'],
             eia860_tables=pc.eia860_pudl_tables,
             eia860_years=pc.working_years['eia860'],
-            epacems_years=pc.working_years['epacems'],
             verbose=True, debug=False,
             pudl_testing=False,
             ferc1_testing=False,
@@ -622,15 +655,8 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
         eia923_tables (list): The list of tables that will be created and
             ingested. By default only known to be working tables are ingested.
             That list of tables is defined in pudl.constants.
-        eia923_years (iterable): The list of years from which to pull EIA 923
+        eia923_years (list): The list of years from which to pull EIA 923
             data.
-        eia860_tables (list): The list of tables that will be created and
-            ingested. By default only known to be working tables are ingested.
-            That list of tables is defined in pudl.constants.
-        eia860_years (iterable): The list of years from which to pull EIA 860
-            data.
-        epacems_years (iterable): The list of years from which to pull EPA CEMS
-            data. Note that there's only one EPA CEMS table.
         debug (bool): You can tell init_db to ingest whatever list of tables
             you want, but if your desired table is not in the list of known to
             be working tables, you need to set debug=True (otherwise init_db

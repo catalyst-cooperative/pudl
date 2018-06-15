@@ -92,7 +92,7 @@ def fix_int_na(col, float_na=np.nan, int_na=-1, str_na=''):
             of values as the col argument, but stored as strings that are
             compatible with the postgresql COPY FROM command.
     """
-    return(col.replace(float_na, int_na).
+    return (col.replace(float_na, int_na).
            astype(int).
            astype(str).
            replace(str(int_na), str_na))
@@ -164,7 +164,7 @@ def month_year_to_date(df):
         # Now that we've replaced these fields with a date, we drop them.
         df = df.drop([month_col, year_col], axis=1)
 
-    return(df)
+    return df
 
 
 def convert_to_date(df,
@@ -188,7 +188,7 @@ def convert_to_date(df,
     """
     df = df.copy()
     if date_col in df.columns:
-        return(df)
+        return df
 
     year = df[year_col]
 
@@ -210,4 +210,4 @@ def convert_to_date(df,
         day_col, year_col, month_col] if x in df.columns]
     df.drop(cols_to_drop, axis=1, inplace=True)
 
-    return(df)
+    return df

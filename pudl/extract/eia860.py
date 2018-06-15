@@ -44,7 +44,7 @@ def get_eia860_file(yr, file):
         path to EIA 860 spreadsheets corresponding to a given year.
     """
     assert(yr > 2010), "EIA860 file selection only works for 2010 & later."
-    return(glob.glob(os.path.join(datadir(yr), file))[0])
+    return glob.glob(os.path.join(datadir(yr), file))[0]
 
 
 def get_eia860_xlsx(years, filename):
@@ -68,7 +68,7 @@ def get_eia860_xlsx(years, filename):
     for yr in years:
         print("    {}...".format(yr))
         eia860_xlsx[yr] = pd.ExcelFile(get_eia860_file(yr, pattern))
-    return(eia860_xlsx)
+    return eia860_xlsx
 
 
 def get_eia860_column_map(page, year):
@@ -129,7 +129,7 @@ def get_eia860_column_map(page, year):
     for k, v in d.items():
         column_map[v] = k
 
-    return((sheet_name, skiprows, column_map))
+    return (sheet_name, skiprows, column_map)
 
 
 def get_eia860_page(page, eia860_xlsx,
@@ -174,13 +174,13 @@ def get_eia860_page(page, eia860_xlsx,
         newdata.columns = newdata.columns.str.replace(' ', '_')
 
         # boiler_generator_assn tab is missing a YEAR column. Add it!
-        if(page == 'boiler_generator_assn', 'utilty'):
+        if 'report_year' not in newdata.columns:
             newdata['report_year'] = yr
 
         newdata = newdata.rename(columns=column_map)
 
         df = df.append(newdata)
-    return(df)
+    return df
 
 
 def create_dfs_eia860(files=pc.files_eia860,
@@ -210,7 +210,7 @@ def create_dfs_eia860(files=pc.files_eia860,
             eia860_dfs[page] = get_eia860_page(page, eia860_xlsx,
                                                years=eia860_years,
                                                verbose=verbose)
-    return(eia860_dfs)
+    return eia860_dfs
 
 
 def get_eia860_plants(years, eia860_xlsx):
@@ -242,6 +242,6 @@ def get_eia860_plants(years, eia860_xlsx):
                                'eia_sector', 'naics_code',
                                'reporting_frequency', 'nameplate_capacity_mw',
                                'report_year'])
-    if (len(recent_years) > 0):
+    if len(recent_years) > 0:
         pf = get_eia860_page('boiler_generator_assn_eia860', eia860_xlsx,
                              years=recent_years)

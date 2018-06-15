@@ -17,32 +17,8 @@ import urllib
 import pudl.constants as pc
 from pudl import settings
 
-def assert_valid_param(source, year, month=None, state=None, check_month=None):
-    assert source in pc.data_sources, \
-        f"Source '{source}' not found in valid data sources."
-    assert source in pc.data_years, \
-        f"Source '{source}' not found in valid data years."
-    assert source in pc.base_data_urls, \
-        f"Source '{source}' not found in valid base download URLs."
-    assert year in pc.data_years[source], \
-        f"Year {year} is not valid for source {source}."
-    if check_month is None:
-        check_month = source == 'epacems'
 
-    if source == 'epacems':
-        valid_states = pc.cems_states.keys()
-    else:
-        valid_states = pc.us_states.keys()
-
-    if check_month:
-        assert month in range(1, 13), \
-            f"Month {month} is not valid (must be 1-12)"
-        assert state.upper() in valid_states, \
-            f"State '{state}' is not valid. It must be a US state abbreviation."
-
-
-
-def source_url(source, year, month=None, state=None):
+def source_url(source, year):
     """
     Construct a download URL for the specified federal data source and year.
 
@@ -56,59 +32,57 @@ def source_url(source, year, month=None, state=None):
             - 'mshamines'
             - 'mshaops'
             - 'mshaprod'
-            - 'epacems'
         year (int): the year for which data should be downloaded. Must be
             within the range of valid data years, which is specified for
             each data source in the pudl.constants module.
-        month (int): the month for which data should be downloaded.
-            Only used for EPA CEMS.
-        state (str): the state for which data should be downloaded.
-            Only used for EPA CEMS.
     Returns:
-        download_url (string): a full URL from which the requested
-            data may be obtained
+        download_url (string): a full URL from which the requested data may
+            be obtained.
     """
-    assert_valid_param(source=source, year=year, month=month, state=state)
+    assert source in pc.data_sources, \
+        "Source '{}' not found in valid data sources.".format(source)
+    assert source in pc.data_years, \
+        "Source '{}' not found in valid data years.".format(source)
+    assert source in pc.base_data_urls, \
+        "Source '{}' not found in valid base download URLs.".format(source)
+    assert year in pc.data_years[source], \
+        "Year {} is not valid for source {}.".format(year, source)
 
     base_url = pc.base_data_urls[source]
 
-    if (source == 'eia860'):
+    if source == 'eia860':
         download_url = '{}/eia860{}.zip'.format(base_url, year)
-    elif (source == 'eia861'):
-        if (year < 2012):
+    elif source == 'eia861':
+        if year < 2012:
             # Before 2012 they used 2 digit years. Y2K12 FTW!
             download_url = '{}/f861{}.zip'.format(base_url, str(year)[2:])
         else:
             download_url = '{}/f861{}.zip'.format(base_url, year)
-    elif (source == 'eia923'):
-        if(year < 2008):
+    elif source == 'eia923':
+        if year < 2008:
             prefix = 'f906920_'
         else:
             prefix = 'f923_'
         download_url = '{}/{}{}.zip'.format(base_url, prefix, year)
-    elif (source == 'ferc1'):
+    elif source == 'ferc1':
         download_url = '{}/f1_{}.zip'.format(base_url, year)
-    elif (source == 'mshamines'):
+    elif source == 'mshamines':
         download_url = '{}/Mines.zip'.format(base_url)
-    elif (source == 'mshaops'):
+    elif source == 'mshaops':
         download_url = '{}/ControllerOperatorHistory.zip'.format(base_url)
-    elif (source == 'mshaprod'):
+    elif source == 'mshaprod':
         download_url = '{}/MinesProdQuarterly.zip'.format(base_url)
-    elif (source == 'epacems'):
-        # lowercase the state and zero-pad the month
-        download_url = '{base_url}/{year}/{year}{state}{month}.zip'.format(
-            base_url=base_url, year=year,
-            state=state.lower(), month=str(month).zfill(2)
-        )
+    # elif source == 'epacems':
+    # We have not yet implemented downloading of EPA CEMS data.
     else:
         # we should never ever get here because of the assert statement.
         assert False, \
             "Bad data source '{}' requested.".format(source)
 
-    return(download_url)
+    return download_url
 
 
-def path(source, year=0, month=None, state=None, file=True, datadir=settings.DATA_DIR):
+def path(source, year=0, file=True, datadir=settings.DATA_DIR):
     """
     Construct a variety of local datastore paths for a given data source.
 
@@ -119,15 +93,13 @@ def path(source, year=0, month=None, state=None, file=True, datadir=settings.DAT
     whether you want the originally downloaded files for that year, or the
     directory in which a given year's worth of data for a particular data
     source can be found.
-    Note: if you change the default arguments here, you should also change them
-    for paths_for_year()
+
     Args:
         source (str): A string indicating which data source we are going to be
             downloading. Currently it must be one of the following:
             - 'ferc1'
             - 'eia923'
             - 'eia860'
-            - 'epacems'
         year (int): the year of data that the returned path should pertain to.
             Must be within the range of valid data years, which is specified
             for each data source in pudl.constants.data_years, unless year is
@@ -144,92 +116,66 @@ def path(source, year=0, month=None, state=None, file=True, datadir=settings.DAT
         dstore_path (os.pat): the path to the requested resource within the
             local PUDL datastore.
     """
-    assert_valid_param(source=source, year=year, month=month, state=state,
-        check_month=False)
+    assert source in pc.data_sources
+    if year != 0:
+        assert year in pc.data_years[source], \
+            "Invalid year {} specified for datastore path.".format(year)
 
-    if(file):
+    if file:
         assert year != 0, \
             "Non-zero year required to generate full datastore file path."
 
-    if (source == 'eia860'):
+    if source == 'eia860':
         dstore_path = os.path.join(datadir, 'eia', 'form860')
-        if(year != 0):
+        if year != 0:
             dstore_path = os.path.join(dstore_path, 'eia860{}'.format(year))
-    elif (source == 'eia861'):
+    elif source == 'eia861':
         dstore_path = os.path.join(datadir, 'eia', 'form861')
-        if(year != 0):
+        if year != 0:
             dstore_path = os.path.join(dstore_path, 'eia861{}'.format(year))
-    elif (source == 'eia923'):
+    elif source == 'eia923':
         dstore_path = os.path.join(datadir, 'eia', 'form923')
-        if(year != 0):
-            if(year < 2008):
+        if year != 0:
+            if year < 2008:
                 prefix = 'f906920_'
             else:
                 prefix = 'f923_'
             dstore_path = os.path.join(dstore_path,
                                        '{}{}'.format(prefix, year))
-    elif (source == 'ferc1'):
+    elif source == 'ferc1':
         dstore_path = os.path.join(datadir, 'ferc', 'form1')
-        if(year != 0):
+        if year != 0:
             dstore_path = os.path.join(dstore_path, 'f1_{}'.format(year))
-    elif (source == 'mshamines' and file):
+    elif source == 'mshamines' and file:
         dstore_path = os.path.join(datadir, 'msha')
-        if(year != 0):
+        if year != 0:
             dstore_path = os.path.join(dstore_path, 'Mines.zip')
-    elif (source == 'mshaops'):
+    elif source == 'mshaops':
         dstore_path = os.path.join(datadir, 'msha')
-        if(year != 0 and file):
+        if year != 0 and file:
             dstore_path = os.path.join(dstore_path,
                                        'ControllerOperatorHistory.zip')
-    elif (source == 'mshaprod' and file):
+    elif source == 'mshaprod' and file:
         dstore_path = os.path.join(datadir, 'msha')
-        if(year != 0):
+        if year != 0:
             dstore_path = os.path.join(dstore_path, 'MinesProdQuarterly.zip')
-    elif (source == 'epacems'):
-        dstore_path = os.path.join(datadir, 'epa', 'cems')
-        if(year != 0):
-            dstore_path = os.path.join(dstore_path, 'epacems{}'.format(year))
+    # elif source == 'epacems':
     # We have not yet implemented downloading of EPA CEMS data.
     else:
         # we should never ever get here because of the assert statement.
         assert False, \
             "Bad data source '{}' requested.".format(source)
 
-    # Handle month and state, if they're provided
-    if month is None:
-        month_str = ''
-    else:
-        month_str = str(month).zfill(2)
-    if state is None:
-        state_str = ''
-    else:
-        state_str = state.lower()
     # Current naming convention requires the name of the directory to which
     # an original data source is downloaded to be the same as the basename
     # of the file itself...
-    if (file and source not in ['mshamines', 'mshaops', 'mshaprod']):
-        basename = os.path.basename(dstore_path)
-        # For all the non-CEMS data, state_str and month_str are '',
-        # but this should work for other monthly data too.
-        dstore_path = os.path.join(dstore_path,
-            f"{basename}{state_str}{month_str}.zip")
+    if file:
+        if source not in ['mshamines', 'mshaops', 'mshaprod']:
+            dstore_path = \
+                os.path.join(dstore_path,
+                             '{}.zip'.format(os.path.basename(dstore_path)))
 
-    return(dstore_path)
-
-
-def paths_for_year(source, year=0, file=True, datadir=settings.DATA_DIR):
-    """Get all the paths for a given source and year. See path() for details."""
-    # TODO: I'm not sure this is the best construction, since it relies on
-    # the order being the same here as in the url list comprehension
-    if source == 'epacems':
-        paths = [path(source=source, year=year, month=month, state=state,
-            file=file, datadir=datadir)
-            # For consistency, it's important that this is state, then month
-            for state in pc.cems_states.keys()
-            for month in range(1, 13)]
-    else:
-        paths = [path(source=source, year=year, file=file, datadir=datadir)]
-    return paths
+    return dstore_path
 
 
 def download(source, year, datadir=settings.DATA_DIR, verbose=True):
@@ -245,55 +191,40 @@ def download(source, year, datadir=settings.DATA_DIR, verbose=True):
 
     Args:
         source (str): the data source to retrieve. Must be one of: 'eia860',
-            'eia923', 'ferc1', or 'epacems'.
+            'eia923', or 'ferc1'.
         year (int): the year of data that the returned path should pertain to.
             Must be within the range of valid data years, which is specified
-            for each data source in pudl.constants.data_years. Note that for
-            data (like EPA CEMS) that have multiple datasets per year, this
-            function will download all the files for the specified year.
+            for each data source in pudl.constants.data_years.
         datadir (str): path to the top level directory of the datastore.
         verbose (bool): If True, print messages about what's happening.
     Returns:
         outfile (str): path to the local downloaded file.
     """
-    assert_valid_param(source=source, year=year, check_month=False)
+    assert source in pc.data_sources, \
+        "Source '{}' not found in valid data sources.".format(source)
+    assert source in pc.data_years, \
+        "Source '{}' not found in valid data years.".format(source)
+    assert source in pc.base_data_urls, \
+        "Source '{}' not found in valid base download URLs.".format(source)
+    assert year in pc.data_years[source], \
+        "Year {} is not valid for source {}.".format(year, source)
 
+    src_url = source_url(source, year)
     tmp_dir = os.path.join(datadir, 'tmp')
 
     # Ensure that the temporary download directory exists:
     if not os.path.exists(tmp_dir):
         os.makedirs(tmp_dir)
 
-    if source == 'epacems':
-        src_urls = [source_url(source, year, month=month, state=state)
-            # For consistency, it's important that this is state, then month
-            for state in pc.cems_states.keys()
-            for month in range(1, 13)]
-        tmp_files = [os.path.join(tmp_dir, os.path.basename(f))
-            for f in paths_for_year(source, year)]
-    else:
-        src_urls = [source_url(source, year)]
-        tmp_files = [os.path.join(tmp_dir, os.path.basename(path(source, year)))]
+    tmp_file = os.path.join(tmp_dir, os.path.basename(path(source, year)))
 
-    if(verbose):
-        if source != 'epacems':
-            print(f"Downloading {source} data for {year}...\n    {src_url[0]}")
-        else:
-            print(f"Downloading {source} data for {year}...")
-    for src_url, tmp_file in zip(src_urls, tmp_files):
-        try:
-            # TODO: This is really slow for the CEMS files, I think because it's
-            # doing the full FTP setup every time. We might want to use
-            # urllib.request.CacheFTPHandler or pycurl, but that will be fussier
-            #
-            outfile, _ = urllib.request.urlretrieve(src_url, filename=tmp_file)
-        except urllib.error.URLError:
-            # TODO: should print this to stderr rather than stdout
-            print(f"\nERROR: Failed to download {source} data for {year}.",
-                "The program will continue with other downloads, but you must "
-                "re-run to complete the download process.\n")
+    if verbose:
+        print("""Downloading {} data for {}...
+    {}""".format(source, year, src_url))
 
-    return(outfile)
+    outfile, msg = urllib.request.urlretrieve(src_url, filename=tmp_file)
+
+    return outfile
 
 
 def organize(source, year, unzip=True,
@@ -308,7 +239,7 @@ def organize(source, year, unzip=True,
 
     Args:
         source (str): the data source to retrieve. Must be one of: 'eia860',
-            'eia923', 'ferc1', or 'epacems'.
+            'eia923', or 'ferc1'.
         year (int): the year of data that the returned path should pertain to.
             Must be within the range of valid data years, which is specified
             for each data source in pudl.constants.data_years.
@@ -323,13 +254,20 @@ def organize(source, year, unzip=True,
     import zipfile
     import shutil
     import stat
-    assert_valid_param(source=source, year=year, check_month=False)
+    assert source in pc.data_sources, \
+        "Source '{}' not found in valid data sources.".format(source)
+    assert source in pc.data_years, \
+        "Source '{}' not found in valid data years.".format(source)
+    assert source in pc.base_data_urls, \
+        "Source '{}' not found in valid base download URLs.".format(source)
+    assert year in pc.data_years[source], \
+        "Year {} is not valid for source {}.".format(year, source)
 
     tmpdir = os.path.join(datadir, 'tmp')
-    # For non-CEMS, the newfiles and destfiles lists will have length 1.
-    newfiles = [os.path.join(tmpdir, os.path.basename(f))
-        for f in paths_for_year(source, year)]
-    destfiles = paths_for_year(source, year, file=True, datadir=datadir)
+    newfile = os.path.join(tmpdir, os.path.basename(path(source, year)))
+    destfile = path(source, year, file=True, datadir=datadir)
+    # paranoid safety check to make sure these files match...
+    assert os.path.basename(newfile) == os.path.basename(destfile)
 
     # If we've gotten to this point, we're wiping out the previous version of
     # the data for this source and year... so lets wipe it! Scary!
@@ -340,17 +278,16 @@ def organize(source, year, unzip=True,
         # move the new file from wherever it is, to its rightful home.
         if not os.path.exists(destdir):
             os.makedirs(destdir)
-        for newfile, destfile in zip(newfiles, destfiles):
-            # paranoid safety check to make sure these files match...
-            assert os.path.basename(newfile) == os.path.basename(destfile)
-            shutil.move(newfile, destfile)  # works more cases than os.rename
-    # If no_download is True, then we already did this rmtree and move
+        os.rename(newfile, destfile)
+    # If no_download is True, then we already did this rmtree and rename
     # The last time this program ran.
 
     # If we're unzipping the downloaded file, then we may have some
-    # reorganization to do. Currently all data sources will get unzipped,
-    # except the CEMS, because they're really big and take up 92% less space.
-    if(unzip and source != 'epacems'):
+    # reorganization to do. Currently all data sources will get unzipped.
+    # However, when we integrate the CEMS data, we may need to store it
+    # in its zipped form -- since unzipped it is ~100GB, and it's extremely
+    # compressible.
+    if unzip:
         # Unzip the downloaded file in its new home:
         zip_ref = zipfile.ZipFile(destfile, 'r')
         zip_ref.extractall(destdir)
@@ -358,7 +295,7 @@ def organize(source, year, unzip=True,
         # Most of the data sources can just be unzipped in place and be done
         # with it, but FERC Form 1 requires some special attention:
         # data source we're working with:
-        if(source == 'ferc1'):
+        if source == 'ferc1':
             topdirs = [os.path.join(destdir, td)
                        for td in ['UPLOADERS', 'FORMSADMIN']]
             for td in topdirs:
@@ -378,30 +315,6 @@ def organize(source, year, unzip=True,
     #         os.chmod(os.path.join(paths, filename), stat.S_IREAD)
 
 
-def check_if_need_update(source, year, datadir, clobber, verbose):
-    """
-    Do we really need to download the requested data? Only case in which
-    we don't have to do anything is when the downloaded file already exists
-    and clobber is False.
-    """
-    paths = paths_for_year(source=source, year=year, datadir=datadir)
-    need_update = False
-    message = None
-    for path in paths:
-        if os.path.exists(path):
-            if clobber:
-                message = f'{source} data for {year} already present, CLOBBERING.'
-                need_update = True
-            else:
-                message = f'{source} data for {year} already present, skipping.'
-        else:
-            message = ''
-            need_update = True
-    if verbose and message is not None:
-        print(message)
-    return need_update
-
-
 def update(source, year, clobber=False, unzip=True, verbose=True,
            datadir=settings.DATA_DIR, no_download=False):
     """
@@ -414,13 +327,12 @@ def update(source, year, clobber=False, unzip=True, verbose=True,
 
     Args:
         source (str): the data source to retrieve. Must be one of: 'eia860',
-            'eia923', 'ferc1', or 'epacems'.
+            'eia923', or 'ferc1'.
         year (int): the year of data that the returned path should pertain to.
             Must be within the range of valid data years, which is specified
             for each data source in pudl.constants.data_years.
         unzip (bool): If true, unzip the file once downloaded, and place the
             resulting data files where they ought to be in the datastore.
-            EPA CEMS files will never be unzipped.
         clobber (bool): If true, replace existing copy of the requested data
             if we have it, with freshly downloaded data.
         datadir (str): path to the top level directory of the datastore.
@@ -432,11 +344,22 @@ def update(source, year, clobber=False, unzip=True, verbose=True,
 
     Returns: nothing
     """
-    need_update = check_if_need_update(source=source, year=year,
-        datadir=datadir, clobber=clobber, verbose=verbose)
-    if need_update:
-        # Otherwise we're downloading:
-        if not no_download:
-            download(source, year, datadir=datadir, verbose=verbose)
-        organize(source, year, unzip=unzip, datadir=datadir, verbose=verbose,
-            no_download=no_download)
+    # Do we really need to download the requested data? Only case in which
+    # we don't have to do anything is when the downloaded file already exists
+    # and clobber is False.
+    if os.path.exists(path(source, year, datadir=datadir)):
+        if clobber:
+            if verbose:
+                print('{} data for {} already present, CLOBBERING.'.
+                      format(source, year))
+        else:
+            if verbose:
+                print('{} data for {} already present, skipping.'.
+                      format(source, year))
+            return
+
+    # Otherwise we're downloading:
+    if not no_download:
+        download(source, year, datadir=datadir, verbose=verbose)
+    organize(source, year, unzip=unzip, datadir=datadir, verbose=verbose,
+        no_download=no_download)

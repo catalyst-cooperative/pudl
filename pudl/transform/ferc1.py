@@ -80,7 +80,7 @@ def multiplicative_error_correction(tofix, mask, minval, maxval, mults):
                                           else x)
     # Add our fixed records back to the complete data series and return it
     fixed = fixed.append(records_to_fix)
-    return(fixed)
+    return fixed
 
 
 ##############################################################################
@@ -224,7 +224,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_transformed_dfs['fuel_ferc1'] = fuel_ferc1_df
 
-    return(ferc1_transformed_dfs)
+    return ferc1_transformed_dfs
 
 
 def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
@@ -318,7 +318,7 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_transformed_dfs['plants_steam_ferc1'] = ferc1_steam_df
 
-    return(ferc1_transformed_dfs)
+    return ferc1_transformed_dfs
 
 
 def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
@@ -456,7 +456,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_transformed_dfs['plants_small_ferc1'] = ferc1_small_df
 
-    return(ferc1_transformed_dfs)
+    return ferc1_transformed_dfs
 
 
 def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
@@ -534,7 +534,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_transformed_dfs['plants_hydro_ferc1'] = ferc1_hydro_df
 
-    return(ferc1_transformed_dfs)
+    return ferc1_transformed_dfs
 
 
 def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
@@ -633,7 +633,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_transformed_dfs['plants_pumped_storage_ferc1'] = ferc1_pumped_storage_df
 
-    return(ferc1_transformed_dfs)
+    return ferc1_transformed_dfs
 
 
 def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
@@ -682,7 +682,7 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_transformed_dfs['plant_in_service_ferc1'] = ferc1_pis_df
 
-    return(ferc1_transformed_dfs)
+    return ferc1_transformed_dfs
 
 
 def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
@@ -732,7 +732,7 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_transformed_dfs['purchased_power_ferc1'] = ferc1_purchased_pwr_df
 
-    return(ferc1_transformed_dfs)
+    return ferc1_transformed_dfs
 
 
 def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
@@ -776,4 +776,4 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     ferc1_transformed_dfs['accumulated_depreciation_ferc1'] = \
         ferc1_accumdepr_prvsn_df
 
-    return(ferc1_transformed_dfs)
+    return ferc1_transformed_dfs
