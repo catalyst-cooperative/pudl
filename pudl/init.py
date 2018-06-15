@@ -36,9 +36,11 @@ import pudl.models.epacems
 import pudl.extract.eia860
 import pudl.extract.eia923
 import pudl.extract.ferc1
+import pudl.extract.epacems
 import pudl.transform.ferc1
 import pudl.transform.eia923
 import pudl.transform.eia860
+import pudl.transform.epacems
 import pudl.transform.eia
 import pudl.transform.pudl
 import pudl.load
@@ -196,10 +198,10 @@ def ingest_static_tables(engine):
 
 def ingest_glue_tables(engine):
     """
-    Populate the tables which relate the EIA & FERC datasets to each other.
+    Populate the tables which relate the EIA, EPA, and FERC datasets.
 
     We have compiled a bunch of information which can be used to map individual
-    utilities and plants listed in both the EIA and FERC data sets to each
+    utilities and plants listed in the EIA, EPA, and FERC data sets to each
     other, allowing disparate data reported in the two sources to be related
     to each other. That data is primarily stored in the plant_output and
     utility_output tabs of results/id_mapping/mapping_eia923_ferc1.xlsx in the
@@ -638,6 +640,7 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
             eia923_years=pc.working_years['eia923'],
             eia860_tables=pc.eia860_pudl_tables,
             eia860_years=pc.working_years['eia860'],
+            epacems_years=pc.working_years['epacems'],
             verbose=True, debug=False,
             pudl_testing=False,
             ferc1_testing=False,
@@ -655,8 +658,15 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
         eia923_tables (list): The list of tables that will be created and
             ingested. By default only known to be working tables are ingested.
             That list of tables is defined in pudl.constants.
-        eia923_years (list): The list of years from which to pull EIA 923
+        eia923_years (iterable): The list of years from which to pull EIA 923
             data.
+        eia860_tables (list): The list of tables that will be created and
+            ingested. By default only known to be working tables are ingested.
+            That list of tables is defined in pudl.constants.
+        eia860_years (iterable): The list of years from which to pull EIA 860
+            data.
+        epacems_years (iterable): The list of years from which to pull EPA CEMS
+            data. Note that there's only one EPA CEMS table.
         debug (bool): You can tell init_db to ingest whatever list of tables
             you want, but if your desired table is not in the list of known to
             be working tables, you need to set debug=True (otherwise init_db
@@ -712,7 +722,7 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
              keep_csv=keep_csv)
     # ETL for EPA CEMS
     _ETL_cems(pudl_engine=pudl_engine,
-        epacems_years=epacems_years,
-        verbose=verbose,
-        csvdir=csvdir,
-        keep_csv=keep_csv)
+              epacems_years=epacems_years,
+              verbose=verbose,
+              csvdir=csvdir,
+              keep_csv=keep_csv)

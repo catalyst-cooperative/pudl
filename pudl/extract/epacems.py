@@ -9,7 +9,6 @@ import pandas as pd
 from pudl import settings
 import pudl.constants as pc
 
-
 def get_epacems_dir(year):
     """
     Data directory search for EPA CEMS hourly
@@ -20,11 +19,10 @@ def get_epacems_dir(year):
         path to appropriate EPA CEMS data directory.
     """
     # These are the only years we've got...
-    assert year in range(
-        min(pc.data_years["epacems"]), max(pc.data_years["epacems"]) + 1
-    )
+    assert year in range(min(pc.data_years['epacems']),
+                         max(pc.data_years['epacems']) + 1)
 
-    return os.path.join(settings.EPACEMS_DATA_DIR, "epacems{}".format(year))
+    return os.path.join(settings.EPACEMS_DATA_DIR, 'epacems{}'.format(year))
 
 
 def get_epacems_file(year, month, state):
@@ -40,12 +38,11 @@ def get_epacems_file(year, month, state):
     """
     state = state.lower()
     month = str(month).zfill(2)
-    filename = f"epacems{year}{state}{month}.zip"
+    filename = f'epacems{year}{state}{month}.zip'
     full_path = os.path.join(get_epacems_dir(year), filename)
     assert os.path.isfile(full_path), (
-        f"ERROR: Failed to find EPA CEMS file for {state}, {year}-{month}.\n"
-        + f"Expected it here: {full_path}"
-    )
+        f"ERROR: Failed to find EPA CEMS file for {state}, {year}-{month}.\n" +
+        f"Expected it here: {full_path}")
     return full_path
 
 
