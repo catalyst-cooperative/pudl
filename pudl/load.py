@@ -44,6 +44,8 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
     with open(csvfile, 'r', encoding='utf8') as f:
         postgres_copy.copy_from(f, tbl, engine, columns=tuple(df.columns),
                                 format='csv', header=True, delimiter=',')
+    # TODO: For the CEMS, this function is called many times, but the CSV
+    # filename is the same. If you want to save all, that will be unsatisfying.
     if not keep_csv:
         os.remove(csvfile)
 
@@ -70,6 +72,41 @@ def _fix_int_cols(table_to_fix,
             pudl.transform.pudl.fix_int_na(
                 transformed_dct[table_to_fix][column])
 
+def dump_load_accum(df, table_name, engine, buffer = 1e6):
+    """UNTESTED:
+    Accumulate the tables in a list, then COPY them when they've hit
+    buffer count.
+
+    Uses function's lst attribute (see https://www.python.org/dev/peps/pep-0232/)
+
+    Args:
+        df (pandas.DataFrame): The DataFrame which is to be dumped to CSV and
+            loaded into the database. All DataFrame columns must have exactly
+            the same names as the database fields they are meant to populate,
+            and all column data types must be directly compatible with the
+            database fields they are meant to populate. Do any cleanup before
+            you call this function.
+        table_name (str): The exact name of the database table which the
+            DataFrame df is going to be used to populate. It will be used both
+            to look up an SQLAlchemy table object in the PUDLBase metadata
+            object, and to name the CSV file.
+        engine (sqlalchemy.engine): SQLAlchemy database engine, which will be
+            used to pull the CSV output into the database.
+        csvdir (str): Path to the directory into which the CSV files should be
+            output (and saved, if they are being kept).
+        keep_csv (bool): True if the CSV output should be saved after the data
+            has been loaded into the database. False if they should be deleted.
+    """
+    row_count = sum([x.shape[0] for x in _csv_dump_load_accum.lst])
+    if row_count < buffer:
+        dump_load_accum.lst.append(df)
+    else:
+        all_dfs = pd.concat(_csv_dump_load_accum.lst, copy=False, ignore_index=True)
+        _csv_dump_load(all_dfs, table_name=table_name, engine=engine, keep_csv=False)
+        dump_load_accum.lst = []
+# Initialize lst attributed
+dump_load_accum.lst = []
+
 
 def dict_dump_load(transformed_dfs,
                    data_source,
@@ -84,7 +121,7 @@ def dict_dump_load(transformed_dfs,
     if verbose:
         print("Loading tables from {} into PUDL:".format(data_source))
     for table_name, df in transformed_dfs.items():
-        if verbose:
+        if verbose and table_name != "hourly_emissions_epacems":
             print("    {}...".format(table_name))
         if table_name in list(need_fix_inting.keys()):
             _fix_int_cols(table_name,

@@ -33,6 +33,7 @@ import pudl.models.eia923
 import pudl.models.eia860
 import pudl.models.ferc1
 import pudl.models.eia
+import pudl.models.epacems
 import pudl.extract.eia860
 import pudl.extract.eia923
 import pudl.extract.ferc1
@@ -574,7 +575,6 @@ def _ETL_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables, eia860_yea
 
 
 def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv):
-
     # NOTE: This a generator for raw dataframes
     epacems_raw_dfs = pudl.extract.epacems.extract(
         epacems_years=epacems_years, verbose=verbose)
@@ -582,15 +582,14 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv):
     epacems_transformed_dfs = pudl.transform.epacems.transform(
         epacems_raw_dfs, verbose=verbose
     )
-    # TODO: the current dict_dump_load just loads the data in fresh
-    # (overwriting existing), but we will need to append here.
     for transformed_df_dict in epacems_transformed_dfs:
         for yr_mo_st, transformed_df in transformed_df_dict.items():
             # There's currently only one dataframe in this dict at a time, but
             # that could be changed
             # TODO: Is this dict thing useful? If not, delete
             year, month, state = yr_mo_st
-            pudl.load.dict_dump_load({"HourlyEmissions": transformed_df},
+
+            pudl.load.dict_dump_load({"hourly_emissions_epacems": transformed_df},
                                      data_source="EPA CEMS",
                                      pudl_engine=pudl_engine,
                                      need_fix_inting=pc.need_fix_inting,
@@ -687,7 +686,7 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
              keep_csv=keep_csv)
     # ETL for EPA CEMS
     _ETL_cems(pudl_engine=pudl_engine,
-              epacems_years=epacems_years,
-              verbose=verbose,
-              csvdir=csvdir,
-              keep_csv=keep_csv)
+        epacems_years=epacems_years,
+        verbose=verbose,
+        csvdir=csvdir,
+        keep_csv=keep_csv)
