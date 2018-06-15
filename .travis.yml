@@ -1,0 +1,45 @@
+sudo: false
+language: python
+# Default Python version is usually 2.7
+python: 3.6
+
+services:
+  - postgresql
+
+env:
+  global:
+    # create a github personal access token and encrypt
+    # https://docs.travis-ci.com/user/environment-variables/#Encrypting-environment-variables
+    - secure: "KEY HERE"
+    - TEST_ARGS=""  # put extra pytest args here if you want
+
+
+git:
+    # for cloning
+    depth: 1
+# Borrowing heavily from the pandas .travis.yml here.
+
+before_install:
+  - echo "before_install"
+  - export PATH="$HOME/miniconda3/bin:$PATH"
+  - df -h
+  - pwd
+  - uname -a
+  - git --version
+  - git tag
+
+install:
+  - echo "install start"
+  - ci/install_travis.sh  # install conda and run setup.py
+  - echo "install done"
+
+before_script:
+  - ci/setup_postgres.sh
+  - export DISPLAY=":99.0"
+
+script:
+  - echo "script start"
+  - conda activate pudl
+  # TODO: mark tests as fast or not.
+  - pytest -r xX -m fast --strict $TEST_ARGS pudl
+  - echo "script done"

@@ -11,11 +11,12 @@ dependencies:
   - psycopg2 =2.7.*
   - networkx =2.1.*
   - pytest =3.5.*
-  - scipy =1.1.* 
+  - scipy =1.1.*
   - matplotlib =2.2.*
   - jupyter =1.0.*
   - cython =0.28.*
   - xlrd =1.1.*
+  - matplotlib
+  - dbfread
   - pip:
-    - dbfread
     - sqlalchemy-postgres-copy
