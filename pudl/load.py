@@ -1,12 +1,13 @@
 """A module with functions for loading the pudl database tables."""
 
+import pandas as pd
+import contextlib
 import pudl.models.entities
 import pudl.transform.pudl
 import pudl.constants as pc
-import numpy as np
 
 
-def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
+def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
     """
     Write a dataframe to CSV and load it into postgresql using COPY FROM.
 
@@ -28,26 +29,30 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
             object, and to name the CSV file.
         engine (sqlalchemy.engine): SQLAlchemy database engine, which will be
             used to pull the CSV output into the database.
-        csvdir (str): Path to the directory into which the CSV files should be
-            output (and saved, if they are being kept).
+        csvdir (str): Path to the directory into which the CSV file should be
+            saved, if it's being kept.
         keep_csv (bool): True if the CSV output should be saved after the data
             has been loaded into the database. False if they should be deleted.
-
+            NOTE: If multiple COPYs are done for the same table_name, only
+            the last will be retained by keep_csv, which may be unsatisfying.
     Returns: Nothing.
     """
     import postgres_copy
     import os
+    import tempfile
 
-    csvfile = os.path.join(csvdir, table_name + '.csv')
-    df.to_csv(csvfile, index=False)
     tbl = pudl.models.entities.PUDLBase.metadata.tables[table_name]
-    with open(csvfile, 'r', encoding='utf8') as f:
+    # max_size is in bytes; spill to disk if >2GB
+    with tempfile.SpooledTemporaryFile(max_size=2*1024**3, encoding='utf8') as f:
+        df.to_csv(f, index=False)
+        f.seek(0)
         postgres_copy.copy_from(f, tbl, engine, columns=tuple(df.columns),
                                 format='csv', header=True, delimiter=',')
-    # TODO: For the CEMS, this function is called many times, but the CSV
-    # filename is the same. If you want to save all, that will be unsatisfying.
-    if not keep_csv:
-        os.remove(csvfile)
+        if keep_csv:
+            import shutil
+            f.seek(0)
+            outfile = os.path.join(csvdir, table_name + '.csv')
+            shutil.copyfileobj(f, outfile)
 
 
 def _fix_int_cols(table_to_fix,
@@ -72,40 +77,66 @@ def _fix_int_cols(table_to_fix,
             pudl.transform.pudl.fix_int_na(
                 transformed_dct[table_to_fix][column])
 
-def dump_load_accum(df, table_name, engine, buffer = 1e6):
-    """UNTESTED:
-    Accumulate the tables in a list, then COPY them when they've hit
-    buffer count.
 
-    Uses function's lst attribute (see https://www.python.org/dev/peps/pep-0232/)
+class BulkCopy(contextlib.AbstractContextManager):
+    """Accumulate several DataFrames, then COPY them to postgresql
 
     Args:
-        df (pandas.DataFrame): The DataFrame which is to be dumped to CSV and
-            loaded into the database. All DataFrame columns must have exactly
-            the same names as the database fields they are meant to populate,
-            and all column data types must be directly compatible with the
-            database fields they are meant to populate. Do any cleanup before
-            you call this function.
         table_name (str): The exact name of the database table which the
             DataFrame df is going to be used to populate. It will be used both
             to look up an SQLAlchemy table object in the PUDLBase metadata
             object, and to name the CSV file.
         engine (sqlalchemy.engine): SQLAlchemy database engine, which will be
             used to pull the CSV output into the database.
-        csvdir (str): Path to the directory into which the CSV files should be
-            output (and saved, if they are being kept).
+        buffer (int): Size of data to accumulate (in bytes) before actually
+            writing the data into postgresql. (Approximate, because we don't
+            introspect memory usage 'deeply'). Default 300MB.
+            The default was chosen to (hopefully) fit inside the 2GB
+            SpooledTemporaryFile after conversion to CSV.
+        csvdir (str): Path to the directory into which the CSV file should be
+            saved, if it's being kept.
         keep_csv (bool): True if the CSV output should be saved after the data
             has been loaded into the database. False if they should be deleted.
+            NOTE: If multiple COPYs are done for the same table_name, only
+            the last will be retained by keep_csv, which may be unsatisfying.
+    Example:
+    with BulkCopy(my_table, my_engine) as p:
+        for df in df_generator:
+            p.add(df)
     """
-    row_count = sum([x.shape[0] for x in _csv_dump_load_accum.lst])
-    if row_count < buffer:
-        dump_load_accum.lst.append(df)
-    else:
-        all_dfs = pd.concat(_csv_dump_load_accum.lst, copy=False, ignore_index=True)
-        _csv_dump_load(all_dfs, table_name=table_name, engine=engine, keep_csv=False)
-        dump_load_accum.lst = []
-# Initialize lst attributed
-dump_load_accum.lst = []
+    def __init__(self, table_name, engine, buffer=300*1024**2,
+                 csvdir='', keep_csv=False):
+        self.table_name = table_name
+        self.engine = engine
+        self.buffer = buffer
+        self.keep_csv = keep_csv
+        self.csvdir = csvdir
+        # Initialize a list to keep the dataframes
+        self.accumulated_dfs = []
+        self.accumulated_size = 0
+
+    def add(self, df):
+        """Add a DataFrame to the accumulated list"""
+        assert isinstance(df, pd.DataFrame)
+        # Note: append to a list here, then do a concat when we spill
+        self.accumulated_dfs.append(df)
+        self.accumulated_size += sum(df.memory_usage())
+        if self.accumulated_size > self.buffer:
+            self.spill()
+
+    def spill(self):
+        """Spill the accumulated dataframes into postgresql"""
+        all_dfs = pd.concat(self.accumulated_dfs, copy=False, ignore_index=True)
+        _csv_dump_load(all_dfs, table_name=self.table_name, engine=self.engine,
+                       csvdir=self.csvdir, keep_csv=self.keep_csv)
+        self.accumulated_dfs = []
+        self.accumulated_row_count = 0
+
+    def close(self):
+        self.spill()
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        self.close()
 
 
 def dict_dump_load(transformed_dfs,
@@ -114,7 +145,7 @@ def dict_dump_load(transformed_dfs,
                    need_fix_inting=pc.need_fix_inting,
                    verbose=True,
                    csvdir='',
-                   keep_csv=True):
+                   keep_csv=False):
     """
     Wrapper for _csv_dump_load for each data source.
     """

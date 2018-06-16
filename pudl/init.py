@@ -618,20 +618,22 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv):
     epacems_transformed_dfs = pudl.transform.epacems.transform(
         epacems_raw_dfs, verbose=verbose
     )
-    for transformed_df_dict in epacems_transformed_dfs:
-        for yr_mo_st, transformed_df in transformed_df_dict.items():
-            # There's currently only one dataframe in this dict at a time, but
-            # that could be changed
-            # TODO: Is this dict thing useful? If not, delete
-            year, month, state = yr_mo_st
-
-            pudl.load.dict_dump_load({"hourly_emissions_epacems": transformed_df},
-                                     data_source="EPA CEMS",
-                                     pudl_engine=pudl_engine,
-                                     need_fix_inting=pc.need_fix_inting,
-                                     verbose=verbose,
-                                     csvdir=csvdir,
-                                     keep_csv=keep_csv)
+    if verbose:
+        print("Loading tables from EPA CEMS into PUDL:")
+    with pudl.load.BulkCopy(
+            table_name="hourly_emissions_epacems",
+            engine=pudl_engine,
+            csvdir=csvdir,
+            keep_csv=keep_csv) as loader:
+        for transformed_df_dict in epacems_transformed_dfs:
+            # There's currently only one dataframe in this dict at a time,
+            # but that could be changed if useful.
+            for yr_mo_st, transformed_df in transformed_df_dict.items():
+                # TODO: Is this dict thing useful? If not, delete
+                year, month, state = yr_mo_st
+                if verbose:
+                    print(f"    {year}-{month} for {state}...")
+                loader.add(transformed_df)
 
 
 def init_db(ferc1_tables=pc.ferc1_pudl_tables,
@@ -645,7 +647,7 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
             pudl_testing=False,
             ferc1_testing=False,
             csvdir=os.path.join(settings.PUDL_DIR, 'results', 'csvdump'),
-            keep_csv=True):
+            keep_csv=False):
     """
     Create the PUDL database and fill it up with data.
 
