@@ -189,7 +189,6 @@ def path(source, year=0, month=None, state=None, file=True, datadir=settings.DAT
         dstore_path = os.path.join(datadir, 'epa', 'cems')
         if(year != 0):
             dstore_path = os.path.join(dstore_path, 'epacems{}'.format(year))
-    # We have not yet implemented downloading of EPA CEMS data.
     else:
         # we should never ever get here because of the assert statement.
         assert False, \
@@ -274,25 +273,102 @@ def download(source, year, datadir=settings.DATA_DIR, verbose=True):
     else:
         src_urls = [source_url(source, year)]
         tmp_files = [os.path.join(tmp_dir, os.path.basename(path(source, year)))]
-
     if(verbose):
         if source != 'epacems':
-            print(f"Downloading {source} data for {year}...\n    {src_url[0]}")
+            print(f"Downloading {source} data for {year}...\n    {src_urls[0]}")
         else:
             print(f"Downloading {source} data for {year}...")
-    for src_url, tmp_file in zip(src_urls, tmp_files):
+    url_schemes = {urllib.parse.urlparse(url).scheme for url in src_urls}
+    # Pass all the URLs at once, rather than looping here, because that way
+    # we can use the same FTP connection for all of the src_urls
+    # (without going all the way to a global FTP cache)
+    if url_schemes == {"ftp"}:
+        _download_FTP(src_urls, tmp_files)
+    else:
+        _download_default(src_urls, tmp_files)
+    return tmp_files
+
+def _download_FTP(src_urls, tmp_files, allow_retry=True):
+    assert len(src_urls) == len(tmp_files) > 0
+    import ftplib
+    parsed_urls = [urllib.parse.urlparse(url) for url in src_urls]
+    domains = {url.netloc for url in parsed_urls}
+    within_domain_paths = [url.path for url in parsed_urls]
+    if len(domains) > 1:
+        # This should never be true, but it seems good to check
+        raise NotImplementedError("I don't yet know how to download from multiple domains")
+    domain = domains.pop()
+    ftp = ftplib.FTP(domain)
+    login_result = ftp.login()
+    assert login_result.startswith("230"), \
+        f"Failed to login to {domain}: {login_result}"
+    url_to_retry = []
+    tmp_to_retry = []
+    for path, tmp_file, src_url in zip(within_domain_paths, tmp_files, src_urls):
+        with open(tmp_file, "wb") as f:
+            try:
+                ftp.retrbinary(f"RETR {path}", f.write)
+            except ftplib.all_errors as e:
+                print(f"{e}: {src_url}")
+                url_to_retry.append(src_url)
+                tmp_to_retry.append(tmp_file)
+    # Now retry failures recursively
+    num_failed = len(url_to_retry)
+    if num_failed > 0:
+        if allow_retry and len(src_urls) == 1:
+            # If there was only one URL and it failed, retry once.
+            return _download_FTP(url_to_retry, tmp_to_retry, allow_retry=False)
+        elif allow_retry and src_urls != url_to_retry:
+            # If there were multiple URLs and at least one didn't fail,
+            # keep retrying until all fail or all succeed.
+            return _download_FTP(url_to_retry, tmp_to_retry, allow_retry=allow_retry)
+        if url_to_retry == src_urls:
+            err_msg = f"Download failed for all {num_failed} URLs. Maybe the server is down?"
+        if not allow_retry:
+            err_msg = f"Download failed for {num_failed} URLs and no more retries are allowed"
+        import warnings  # Use warnings so this gets printed to stderr
+        warnings.warn(err_msg)
+
+
+def _download_default(src_urls, tmp_files, allow_retry=True):
+    """Download URLs to files. Designed to be called by `download` function.
+
+    Args:
+        src_urls (list of str): the source URLs to download.
+        tmp_files (list of str): the corresponding files to save.
+        allow_retry (bool): Should the function call itself again to
+            retry the download? (Default will try twice for a single file, or
+            until all files fail)
+    Returns:
+        None
+
+    If the file cannot be downloaded, the program will issue a warning.
+    """
+    assert len(src_urls) == len(tmp_files) > 0
+    url_to_retry = []
+    tmp_to_retry = []
+    for src_url, tmp_to_retry in zip(src_urls, tmp_files):
         try:
-            # TODO: This is really slow for the CEMS files, I think because it's
-            # doing the full FTP setup every time. We might want to use
-            # urllib.request.CacheFTPHandler or pycurl, but that will be fussier
-            #
             outfile, _ = urllib.request.urlretrieve(src_url, filename=tmp_file)
         except urllib.error.URLError:
-            # TODO: should print this to stderr rather than stdout
-            print(f"\nERROR: Failed to download {source} data for {year}.",
-                "The program will continue with other downloads, but you must "
-                "re-run to complete the download process.\n")
-    return outfile
+            url_to_retry.append(src_url)
+            tmp_to_retry.append(tmp_to_retry)
+    # Now retry failures recursively
+    num_failed = len(url_to_retry)
+    if num_failed > 0:
+        if allow_retry and len(src_urls) == 1:
+            # If there was only one URL and it failed, retry once.
+            return _download_default(url_to_retry, tmp_to_retry, allow_retry=False)
+        elif allow_retry and src_urls != url_to_retry:
+            # If there were multiple URLs and at least one didn't fail,
+            # keep retrying until all fail or all succeed.
+            return _download_default(url_to_retry, tmp_to_retry, allow_retry=allow_retry)
+        if url_to_retry == src_urls:
+            err_msg = f"ERROR: Download failed for all {num_failed} URLs. Maybe the server is down?"
+        if not allow_retry:
+            err_msg = f"ERROR: Download failed for {num_failed} URLs and no more retries are allowed"
+        import warnings  # Use warnings so this gets printed to stderr
+        warnings.warn(err_msg)
 
 
 def organize(source, year, unzip=True,
@@ -411,6 +487,8 @@ def update(source, year, clobber=False, unzip=True, verbose=True,
     unless clobber is True -- in which case remove the existing data and
     replace it with a freshly downloaded copy.
 
+    Note that update_datastore.py runs this function in parallel, so files
+    multiple sources and years may be in progress simultaneously.
     Args:
         source (str): the data source to retrieve. Must be one of: 'eia860',
             'eia923', 'ferc1', or 'epacems'.
