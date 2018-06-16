@@ -304,12 +304,13 @@ def _download_FTP(src_urls, tmp_files, allow_retry=True):
         f"Failed to login to {domain}: {login_result}"
     url_to_retry = []
     tmp_to_retry = []
+    error_messages = []
     for path, tmp_file, src_url in zip(within_domain_paths, tmp_files, src_urls):
         with open(tmp_file, "wb") as f:
             try:
                 ftp.retrbinary(f"RETR {path}", f.write)
             except ftplib.all_errors as e:
-                print(f"{e}: {src_url}")
+                error_messages.append(e)
                 url_to_retry.append(src_url)
                 tmp_to_retry.append(tmp_file)
     # Now retry failures recursively
@@ -323,9 +324,19 @@ def _download_FTP(src_urls, tmp_files, allow_retry=True):
             # keep retrying until all fail or all succeed.
             return _download_FTP(url_to_retry, tmp_to_retry, allow_retry=allow_retry)
         if url_to_retry == src_urls:
-            err_msg = f"Download failed for all {num_failed} URLs. Maybe the server is down?"
+            err_msg = (
+                f"Download failed for all {num_failed} URLs. " +
+                "Maybe the server is down?\n" +
+                "Here are the failure messages:\n " +
+                " \n".join(error_messages)
+                )
         if not allow_retry:
-            err_msg = f"Download failed for {num_failed} URLs and no more retries are allowed"
+            err_msg = (
+                f"Download failed for {num_failed} URLs and no more " +
+                "retries are allowed.\n" +
+                "Here are the failure messages:\n " +
+                " \n".join(error_messages)
+                )
         import warnings  # Use warnings so this gets printed to stderr
         warnings.warn(err_msg)
 
@@ -347,7 +358,7 @@ def _download_default(src_urls, tmp_files, allow_retry=True):
     assert len(src_urls) == len(tmp_files) > 0
     url_to_retry = []
     tmp_to_retry = []
-    for src_url, tmp_to_retry in zip(src_urls, tmp_files):
+    for src_url, tmp_file in zip(src_urls, tmp_files):
         try:
             outfile, _ = urllib.request.urlretrieve(src_url, filename=tmp_file)
         except urllib.error.URLError:
