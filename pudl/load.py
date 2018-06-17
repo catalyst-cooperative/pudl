@@ -38,18 +38,19 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
     Returns: Nothing.
     """
     import postgres_copy
-    import os
-    import tempfile
+    import io
 
     tbl = pudl.models.entities.PUDLBase.metadata.tables[table_name]
     # max_size is in bytes; spill to disk if >2GB
-    with tempfile.SpooledTemporaryFile(max_size=2*1024**3, encoding='utf8') as f:
+    with io.StringIO() as f:
         df.to_csv(f, index=False)
+        #print(f"DEBUG: tempfile spilled to disk: {f._rolled}")
         f.seek(0)
         postgres_copy.copy_from(f, tbl, engine, columns=tuple(df.columns),
                                 format='csv', header=True, delimiter=',')
         if keep_csv:
             import shutil
+            import os
             f.seek(0)
             outfile = os.path.join(csvdir, table_name + '.csv')
             shutil.copyfileobj(f, outfile)
@@ -122,15 +123,19 @@ class BulkCopy(contextlib.AbstractContextManager):
         self.accumulated_dfs.append(df)
         self.accumulated_size += sum(df.memory_usage())
         if self.accumulated_size > self.buffer:
+            # Debugging:
+            print(f"DEBUG: Copying {len(self.accumulated_dfs)} accumulated dataframes, " +
+                  f"totalling {round(self.accumulated_size / 1024**2)} MB")
             self.spill()
 
     def spill(self):
         """Spill the accumulated dataframes into postgresql"""
-        all_dfs = pd.concat(self.accumulated_dfs, copy=False, ignore_index=True)
-        _csv_dump_load(all_dfs, table_name=self.table_name, engine=self.engine,
-                       csvdir=self.csvdir, keep_csv=self.keep_csv)
+        if self.accumulated_dfs:
+            all_dfs = pd.concat(self.accumulated_dfs, copy=False, ignore_index=True)
+            _csv_dump_load(all_dfs, table_name=self.table_name, engine=self.engine,
+                           csvdir=self.csvdir, keep_csv=self.keep_csv)
         self.accumulated_dfs = []
-        self.accumulated_row_count = 0
+        self.accumulated_size = 0
 
     def close(self):
         self.spill()
