@@ -10,7 +10,6 @@ env:
 git:
   depth: 1
 before_install:
-- echo "before_install"
 - export PATH="$HOME/miniconda3/bin:$PATH"
 - df -h
 - pwd
@@ -18,14 +17,9 @@ before_install:
 - git --version
 - git tag
 install:
-- echo "install start"
 - ci/install_travis.sh
 - source activate pudl
-- echo "install done"
-before_script:
 - ci/setup_postgres.sh
 - export DISPLAY=":99.0"
 script:
-- echo "script start"
-- pytest -r xX -m fast --strict $TEST_ARGS pudl
-- echo "script done"
+- pytest -sv --strict $TEST_ARGS -m ci
