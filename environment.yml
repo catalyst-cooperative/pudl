@@ -1,7 +1,6 @@
 name: pudl
 channels:
   - defaults
-prefix: /home/zane/anaconda3/envs/pudl
 dependencies:
   - python =3.6.*
   - numpy =1.14.*
@@ -12,7 +11,6 @@ dependencies:
   - networkx =2.1.*
   - pytest =3.5.*
   - scipy =1.1.*
-  - matplotlib =2.2.*
   - jupyter =1.0.*
   - cython =0.28.*
   - xlrd =1.1.*
