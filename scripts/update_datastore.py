@@ -90,11 +90,12 @@ def main():
     """Main function controlling flow of the script."""
     from pudl import datastore
     from pudl import constants
+    import concurrent.futures
 
     args = parse_command_line(sys.argv)
 
     # Generate a list of valid years of data to download for each data source.
-    # If no years were speecified, use the full set of valid years.
+    # If no years were specified, use the full set of valid years.
     # If years were specified, keep only the years which are valid for that
     # data source, and optionally output a message saying which years are
     # being ignored because they aren't valid.
@@ -110,15 +111,15 @@ def main():
             if args.verbose and len(bad_yrs) > 0:
                 print("Invalid {} years ignored: {}.".format(src, bad_yrs))
 
-    for src in args.sources:
-        for yr in yrs_by_src[src]:
-            datastore.update(src, yr,
-                             clobber=args.clobber,
-                             unzip=args.unzip,
-                             verbose=args.verbose,
-                             datadir=args.datadir,
-                             no_download=args.no_download)
-
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        for src in args.sources:
+            for yr in yrs_by_src[src]:
+                executor.submit(datastore.update, src, yr,
+                                clobber=args.clobber,
+                                unzip=args.unzip,
+                                verbose=args.verbose,
+                                datadir=args.datadir,
+                                no_download=args.no_download)
 
 if __name__ == '__main__':
     sys.exit(main())
