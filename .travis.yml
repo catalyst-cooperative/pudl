@@ -20,13 +20,16 @@ before_install:
 install:
 - echo "install start"
 - ci/install_travis.sh
+- conda env create -f environment.yml
+- conda config --set always_yes yes --set changeps1 no
+- conda update -q conda
+- conda info -a
+- source activate pudl
 - echo "install done"
 before_script:
 - ci/setup_postgres.sh
 - export DISPLAY=":99.0"
 script:
 - echo "script start"
-- echo ". /home/travis/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc
-- conda activate pudl
 - pytest -r xX -m fast --strict $TEST_ARGS pudl
 - echo "script done"
