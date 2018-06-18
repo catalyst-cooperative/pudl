@@ -1,45 +1,31 @@
 sudo: false
 language: python
-# Default Python version is usually 2.7
 python: 3.6
-
 services:
-  - postgresql
-
+- postgresql
 env:
   global:
-    # create a github personal access token and encrypt
-    # https://docs.travis-ci.com/user/environment-variables/#Encrypting-environment-variables
-    - secure: "KEY HERE"
-    - TEST_ARGS=""  # put extra pytest args here if you want
-
-
+  - TEST_ARGS=""
+  - secure: IAQoyAqW1pccRx1fqdnjJjh3iRe9l+rxU+OlQojvAqo4lcxdv6DkuVp4Rhvx2eiBXfdsZl7XrI2zCXHbVrUSbKL4RNnjv9ouJN/m29cUME+uwuTWOO+jY5g7bNdKOpeWvUZyhUR3FUdPdeh2sN7odsLF8XybV5uOdHdQSzK7R/Nf4XSYRgMsKLTNSq/MIBOD4goCpHT2etTe4P02HJxZ+a/ksv3DGI3cVgAcAzF8EDF0SFXauBZVYeffTl82lGSPRPVlUXdC7nBh8W9p49zJQEOhKq7rDMf5A3P8ZfoOVDBlsMGpqHJejezvR1c/GTDkenEWE8har4xwxvP/pJDfUrNKWjI79hdEpKcN2xOxAeobNAPJP4Ee33XCD6Q0spf7LePv3fNlERavqz0hNSIBrX4w2ueXBGh/hJr9fKtfDbcD7myRFe17X2vHEeiwzTGKkVVPqmaXRMg/1RgTHVFqhy2ayQpldvM+2d2Y9GO46CVr+Xf+CUdkOvNRd5tD9ur5s4L76GTJZlotGvZp0AIzgSa//wiX/ZGPTgN41NcDGnumbmfJ9nK11aCpq5elOaYunEKkiYzo1JSzNHxnoaa6lKLF3koRb7BUudHVxGsIUGMGTaXXjrMd1JF+RcISjija3YbzF//iheiTBJDbkl9TrMxVx0NFRG7SkG6jO0oHtcQ=
 git:
-    # for cloning
-    depth: 1
-# Borrowing heavily from the pandas .travis.yml here.
-
+  depth: 1
 before_install:
-  - echo "before_install"
-  - export PATH="$HOME/miniconda3/bin:$PATH"
-  - df -h
-  - pwd
-  - uname -a
-  - git --version
-  - git tag
-
+- echo "before_install"
+- export PATH="$HOME/miniconda3/bin:$PATH"
+- df -h
+- pwd
+- uname -a
+- git --version
+- git tag
 install:
-  - echo "install start"
-  - ci/install_travis.sh  # install conda and run setup.py
-  - echo "install done"
-
+- echo "install start"
+- ci/install_travis.sh
+- echo "install done"
 before_script:
-  - ci/setup_postgres.sh
-  - export DISPLAY=":99.0"
-
+- ci/setup_postgres.sh
+- export DISPLAY=":99.0"
 script:
-  - echo "script start"
-  - conda activate pudl
-  # TODO: mark tests as fast or not.
-  - pytest -r xX -m fast --strict $TEST_ARGS pudl
-  - echo "script done"
+- echo "script start"
+- conda activate pudl
+- pytest -r xX -m fast --strict $TEST_ARGS pudl
+- echo "script done"
