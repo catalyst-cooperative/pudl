@@ -9,6 +9,14 @@ command line options by running pytest --help.
 import pytest
 
 
+@pytest.mark.ci
+def test_travis_ci():
+    """
+    Dummy test to make sure Travis CI setup is working.
+    """
+    print("Hello Test World!")
+    return True
+
 @pytest.mark.etl
 @pytest.mark.eia860
 @pytest.mark.eia923
