@@ -1,3 +1,5 @@
+# Public Utility Data Liberation (PUDL)
+[![Build Status](https://travis-ci.org/catalyst-cooperative/pudl.svg?branch=master)](https://travis-ci.org/catalyst-cooperative/pudl)
 The Public Utility Data Liberation project aims to provide a useful interface
 to publicly available electric utility data in the US.  It uses information
 from the Federal Energy Regulatory Commission (FERC), the Energy Information
@@ -8,15 +10,17 @@ https://github.com/catalyst-cooperative/pudl
 
 For more information, get in touch with:
  - Catalyst Cooperative
- - http://catalyst.coop
+ - https://catalyst.coop
  - hello@catalyst.coop
 
 # Quickstart
-Just want to get started building a database? Read [the documentation for your operating system](/docs).
+Just want to get started building a database? Read [the documentation for your
+operating system](/docs).
 
 ---
 # Project Status
-As of February, 2018 the data which have been integrated into the PUDL database include:
+As of June, 2018 the data which have been integrated into the PUDL database
+include:
 
 ## FERC Form 1
 A subset of the FERC Form 1 data, mostly pertaining to power plants, their
@@ -85,7 +89,8 @@ initialization process (extract, transform, load) they pertain to. For example:
 The load step is currently very simple, and so it just has a single top level
 module dedicated to it.
 
-The database models (table definitions) are also organized by data source, and are kept in the models subpackage. E.g.:
+The database models (table definitions) are also organized by data source, and
+are kept in the models subpackage. E.g.:
  - `./models/eia923.py`
  - `./models/eia860.py`
 
