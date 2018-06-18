@@ -12,7 +12,6 @@ Emissions Monitoring System dataset will be added in the future.
 """
 
 import os
-import sys
 import urllib
 import pudl.constants as pc
 from pudl import settings
@@ -253,7 +252,6 @@ def organize(source, year, unzip=True,
     """
     import zipfile
     import shutil
-    import stat
     assert source in pc.data_sources, \
         "Source '{}' not found in valid data sources.".format(source)
     assert source in pc.data_years, \
@@ -305,14 +303,6 @@ def organize(source, year, unzip=True,
                     for fn in tomove:
                         shutil.move(os.path.join(bottomdir, fn), destdir)
                     shutil.rmtree(td)
-
-    # Change the permissions on the files we just moved into the datastore
-    # so they can't be overwritten accidentally by the user in the filesystem.
-    # For some reason... Python doesn't seem to be respecting the filesystem
-    # permissions settings. Not absolutely vital. Not going to debug now.
-    # for paths, subdirs, filenames in os.walk(destdir):
-    #     for filename in filenames:
-    #         os.chmod(os.path.join(paths, filename), stat.S_IREAD)
 
 
 def update(source, year, clobber=False, unzip=True, verbose=True,
