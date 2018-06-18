@@ -22,4 +22,4 @@ install:
 - ci/setup_postgres.sh
 - export DISPLAY=":99.0"
 script:
-- pytest -sv --strict $TEST_ARGS -m ci
+- pytest -sv $TEST_ARGS -m ci
