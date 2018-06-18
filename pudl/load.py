@@ -44,11 +44,15 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
     # max_size is in bytes; spill to disk if >2GB
     with io.StringIO() as f:
         df.to_csv(f, index=False)
-        #print(f"DEBUG: tempfile spilled to disk: {f._rolled}")
         f.seek(0)
         postgres_copy.copy_from(f, tbl, engine, columns=tuple(df.columns),
                                 format='csv', header=True, delimiter=',')
+        # DEBUG memory usage:
+        f.seek(0, 2)  # seek to end of file
+        mem_used = round(f.tell() / (1024**2))
+        print(f"DEBUG: StringIO buffer used {mem_used} MB")
         if keep_csv:
+            print(f"DEBUG: writing CSV")
             import shutil
             import os
             f.seek(0)
