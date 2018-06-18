@@ -1,5 +1,6 @@
-# Public Utility Data Liberation (PUDL)
+# The Public Utility Data Liberation (PUDL) Project
 [![Build Status](https://travis-ci.org/catalyst-cooperative/pudl.svg?branch=master)](https://travis-ci.org/catalyst-cooperative/pudl)
+
 The Public Utility Data Liberation project aims to provide a useful interface
 to publicly available electric utility data in the US.  It uses information
 from the Federal Energy Regulatory Commission (FERC), the Energy Information
@@ -39,6 +40,11 @@ more work to integrate.
 Nearly all of the data reported to the EIA on Form 860 is being pulled into the
 PUDL database, for the years 2011-2016. Earlier years use a different reporting
 format, and will require more work to integrate.
+
+## EPA Continuous Emissions Monitoring System (CEMS)
+The EPA's hourly CEMS data is in the process of being integrated. However, it
+is a much larger dataset than the FERC or EIA data we've already brought in, and
+so has required some changes to the overall ETL process.
 
 ---
 # Project Layout
