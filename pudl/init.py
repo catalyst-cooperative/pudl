@@ -635,6 +635,32 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv):
                     print(f"    {year}-{month} for {state}...")
                 loader.add(transformed_df)
 
+    # List of indexes and constraints we need to create later, after loading
+    # See https://stackoverflow.com/a/41254430
+    # index names follow SQLAlchemy's convention ix_tablename_columnname, but
+    # this doesn't matter
+    to_create_later = [
+        Index("ix_hourly_emissions_epacems_op_datetime",
+              pudl.models.epacems.HourlyEmissions.op_datetime),
+        Index("ix_hourly_emissions_epacems_orispl_code",
+            pudl.models.epacems.HourlyEmissions.orispl_code),
+        Index("ix_hourly_emissions_epacems_op_date_part",
+              sa.cast(pudl.models.epacems.HourlyEmissions.op_datetime, sa.Date)),
+        UniqueConstraint(
+            pudl.models.epacems.HourlyEmissions.orispl_code,
+            pudl.models.epacems.HourlyEmissions.unitid,
+            pudl.models.epacems.HourlyEmissions.op_datetime,
+            name = "uq_hourly_emissions_epacems_orispl_code_unitid_op_datetime"
+        )
+    ]
+    for index_or_constraint in to_create_later:
+        try:
+            index_or_constraint.create(pudl_engine)
+        except sa.exc.ProgrammingError as e:
+            from warnings import warn
+            warn(f"Failed to add index/constraint '{index_or_constraint.name}'\n" +
+                "Details:\n" + e)
+
 
 def init_db(ferc1_tables=pc.ferc1_pudl_tables,
             ferc1_years=pc.working_years['ferc1'],
