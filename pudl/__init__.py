@@ -3,7 +3,7 @@
 __author__ = "Catalyst Cooperative"
 __contact__ = "zane.selvans@catalyst.coop"
 __maintainer__ = "Catalyst Cooperative"
-__license__ = "All Rights Reserved"
+__license__ = "MIT License"
 __maintainer_email__ = "zane.selvans@catalyst.coop"
 __version__ = '0.1.0'
 __docformat__ = ""
