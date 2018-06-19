@@ -4,6 +4,8 @@ import os
 import sys
 import argparse
 
+assert sys.version_info >= (3, 3)  # require modern python
+
 # This is a hack to make the pudl package importable from within this script,
 # even though it isn't in one of the normal site-packages directories where
 # Python typically searches.  When we have some real installation/packaging
@@ -62,6 +64,16 @@ def parse_command_line(argv):
     parser.add_argument('--eia860_end', dest='eia860_end', type=int,
                         default=max(constants.working_years['eia860']),
                         help="Last year of EIA Form 860 data to load.")
+
+    parser.add_argument('--epacems_start', dest='epacems_start', type=int,
+                        default=min(constants.working_years['epacems']),
+                        help="First year of EPA hourly CEMS data to load.")
+    parser.add_argument('--epacems_end', dest='epacems_end', type=int,
+                        default=max(constants.working_years['eia860']),
+                        help="Last year of EPA hourly CEMS data to load.")
+    parser.add_argument('--epacems_states', dest='epacems_states',
+                        nargs='+', default=['CO',],
+                        help="Abbreviations of US states to load CEMS data for.")
     arguments = parser.parse_args(argv[1:])
 
     return arguments
@@ -79,6 +91,10 @@ def main():
     import pudl.models.ferc1
 
     args = parse_command_line(sys.argv)
+    if args.epacems_states=='all':
+        epacems_states = pc.cems_states.keys()
+    else:
+        epacems_states = args.epacems_states
 
     extract.ferc1.init_db(ferc1_tables=constants.ferc1_default_tables,
                           refyear=args.ferc1_refyear,
@@ -95,6 +111,9 @@ def main():
                  eia860_tables=constants.eia860_pudl_tables,
                  eia860_years=range(args.eia860_start,
                                     args.eia860_end + 1),
+                 epacems_years = range(args.epacems_start,
+                                       args.epacems_end + 1),
+                 epacems_states=epacems_states,
                  verbose=args.verbose,
                  debug=False,
                  pudl_testing=args.test,

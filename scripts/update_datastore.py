@@ -81,6 +81,16 @@ def parse_command_line(argv):
         help="Do not download data files, only unzip ones that are already present.",
         default=False
     )
+    parser.add_argument(
+        '-t',
+        '--states',
+        nargs='+',
+        choices=constants.cems_states.keys(),
+        help="""List of two letter US state abbreviations indicating which
+        states data should be downloaded. Currently only applicable to the EPA's
+        CEMS dataset.""",
+        default=constants.cems_states.keys()
+    )
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -90,11 +100,12 @@ def main():
     """Main function controlling flow of the script."""
     from pudl import datastore
     from pudl import constants
+    import concurrent.futures
 
     args = parse_command_line(sys.argv)
 
     # Generate a list of valid years of data to download for each data source.
-    # If no years were speecified, use the full set of valid years.
+    # If no years were specified, use the full set of valid years.
     # If years were specified, keep only the years which are valid for that
     # data source, and optionally output a message saying which years are
     # being ignored because they aren't valid.
@@ -110,15 +121,15 @@ def main():
             if args.verbose and len(bad_yrs) > 0:
                 print("Invalid {} years ignored: {}.".format(src, bad_yrs))
 
-    for src in args.sources:
-        for yr in yrs_by_src[src]:
-            datastore.update(src, yr,
-                             clobber=args.clobber,
-                             unzip=args.unzip,
-                             verbose=args.verbose,
-                             datadir=args.datadir,
-                             no_download=args.no_download)
-
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        for src in args.sources:
+            for yr in yrs_by_src[src]:
+                executor.submit(datastore.update, src, yr, args.states,
+                                clobber=args.clobber,
+                                unzip=args.unzip,
+                                verbose=args.verbose,
+                                datadir=args.datadir,
+                                no_download=args.no_download)
 
 if __name__ == '__main__':
     sys.exit(main())

@@ -89,6 +89,22 @@ us_states = {
     'WY': 'Wyoming'
 }
 
+cems_states = {k:v for k, v in us_states.items() if v not in
+    {'Alaska',
+     'American Samoa',
+     'Guam',
+     'Hawaii',
+     'Northern Mariana Islands',
+     'National',
+     'Puerto Rico',
+     'Virgin Islands'}
+    }
+
+travis_ci_ferc1_years = [2012, 2016,]
+travis_ci_eia860_years = [2012, 2016,]
+travis_ci_eia923_years = [2016,]
+travis_ci_epacems_years = [2016,]
+travis_ci_epacems_states = ['CO',]
 # Construct a dictionary mapping a canonical fuel name to a list of strings
 # which are used to represent that fuel in the FERC Form 1 Reporting. Case is
 # ignored, as all fuel strings can be converted to a lower case in the data
@@ -3012,7 +3028,7 @@ data_sources = [
     'eia860',
     # 'eia861',
     'eia923',
-    # 'epacems',
+    'epacems',
     'ferc1',
     # 'mshamines',
     # 'mshaops',
@@ -3024,7 +3040,7 @@ data_years = {
     'eia860': range(2001, 2017),
     'eia861': range(1990, 2016),
     'eia923': range(2001, 2017),
-    'epacems': range(1995, 2018),
+    'epacems': range(1995, 2017),
     'ferc1': range(1994, 2017),
     'mshamines': range(2000, 2018),
     'mshaops': range(2000, 2018),
@@ -3036,7 +3052,7 @@ working_years = {
     'eia860': range(2011, 2017),
     'eia861': [],
     'eia923': range(2009, 2017),
-    'epacems': [],
+    'epacems': range(1995, 2017),
     'ferc1': range(2004, 2017),
     'mshamines': [],
     'mshaops': [],
@@ -3053,7 +3069,7 @@ base_data_urls = {
     'eia860': 'https://www.eia.gov/electricity/data/eia860/xls',
     'eia861': 'https://www.eia.gov/electricity/data/eia861/zip',
     'eia923': 'https://www.eia.gov/electricity/data/eia923/archive/xls',
-    'epacems': 'ftp://ftp.epa.gov/dmdnload/emissions/hourly/monthly',
+    'epacems': 'ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly',
     'ferc1': 'ftp://eforms1.ferc.gov/f1allyears',
     'mshaprod': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
     'mshamines': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
