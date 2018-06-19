@@ -21,8 +21,9 @@ install:
 - source activate pudl
 - ci/setup_postgres.sh
 - export DISPLAY=":99.0"
+- (cd scripts && python update_datastore.py --source ferc1 --years 2016)
 script:
-- pytest -sv $TEST_ARGS -m ci
+- pytest -sv $TEST_ARGS test/travis_ci.py::test_ferc1_init_db
 notifications:
   slack:
     secure: WuYtc2adpwG+EKxqIL2Hz1W8AL67/5HaILvQzEs7RM2+qUR+dvLroTdUl3nFTMYdvfaa6X+T4Loptjcpke3/0ZESynXegI3HL+KKOcDG6uoln6yEHM96WJ6uBjAR9Irkdx9NOBi1Py7SEDJ1LAOaxR1Z7re5UB6cZRQdCzsEIdcGmfb4aKAVLrowZiZmQKMlJXvd3LgSpGVhsCBV2msqBg0zz4ic5RYrCNNek/LN435sYgfzo2PN9wuVMarkR7plp925BVletqLcbL+0yrvLLxIAQrbWtF5vg0vlt8btps5PVf7DHkZYTBgjGHeayBcNGMgPHP3c4NAeU6t6VhwCY7rTHEI9HLwp8Qcd/pxLiDNq5csMz6yZ/1xmOreiHNAN48jxJefKGbeLUl9q9KLXuqrl+UuwEDJEcFFkpPKeCg0X2q3fk3mIighk0cfttAn42XXapd+TCplkwR7jiAnLr5S4F8nUpWirxCZeyO3YUS79RdtD1CZjdO/dB8bdzzp52puIq4GbkG8fVAQ5ZDGvWviEj5I194vylG0JQU5ohhDEM+alb8dc32euWbmsucjIiHH2Tr05UasLQbujEQaokVaHyBQEdSAvVyz1vScoKIJ4fxquGR0t5T0CbCvXumPxi8KmVK46oYo+23HJeHGIgzRD8XSoLsRW5DvnsXnQAdM=

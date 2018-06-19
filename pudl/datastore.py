@@ -12,7 +12,6 @@ Emissions Monitoring System dataset will be added in the future.
 """
 
 import os
-import sys
 import urllib
 import pudl.constants as pc
 from pudl import settings
@@ -216,7 +215,8 @@ def path(source, year=0, month=None, state=None, file=True, datadir=settings.DAT
     return dstore_path
 
 
-def paths_for_year(source, year=0, file=True, datadir=settings.DATA_DIR):
+def paths_for_year(source, year=0, states=pc.cems_states.keys(),
+                   file=True, datadir=settings.DATA_DIR):
     """Get all the paths for a given source and year. See path() for details."""
     # TODO: I'm not sure this is the best construction, since it relies on
     # the order being the same here as in the url list comprehension
@@ -224,14 +224,14 @@ def paths_for_year(source, year=0, file=True, datadir=settings.DATA_DIR):
         paths = [path(source=source, year=year, month=month, state=state,
             file=file, datadir=datadir)
             # For consistency, it's important that this is state, then month
-            for state in pc.cems_states.keys()
+            for state in states
             for month in range(1, 13)]
     else:
         paths = [path(source=source, year=year, file=file, datadir=datadir)]
     return paths
 
 
-def download(source, year, datadir=settings.DATA_DIR, verbose=True):
+def download(source, year, states, datadir=settings.DATA_DIR, verbose=True):
     """
     Download the original data for the specified data source and year.
 
@@ -266,10 +266,10 @@ def download(source, year, datadir=settings.DATA_DIR, verbose=True):
     if source == 'epacems':
         src_urls = [source_url(source, year, month=month, state=state)
             # For consistency, it's important that this is state, then month
-            for state in pc.cems_states.keys()
+            for state in states
             for month in range(1, 13)]
         tmp_files = [os.path.join(tmp_dir, os.path.basename(f))
-            for f in paths_for_year(source, year)]
+            for f in paths_for_year(source, year, states=states)]
     else:
         src_urls = [source_url(source, year)]
         tmp_files = [os.path.join(tmp_dir, os.path.basename(path(source, year)))]
@@ -382,7 +382,7 @@ def _download_default(src_urls, tmp_files, allow_retry=True):
         warnings.warn(err_msg)
 
 
-def organize(source, year, unzip=True,
+def organize(source, year, states, unzip=True,
              datadir=settings.DATA_DIR,
              verbose=False, no_download=False):
     """
@@ -414,8 +414,8 @@ def organize(source, year, unzip=True,
     tmpdir = os.path.join(datadir, 'tmp')
     # For non-CEMS, the newfiles and destfiles lists will have length 1.
     newfiles = [os.path.join(tmpdir, os.path.basename(f))
-        for f in paths_for_year(source, year)]
-    destfiles = paths_for_year(source, year, file=True, datadir=datadir)
+        for f in paths_for_year(source, year, states)]
+    destfiles = paths_for_year(source, year, states, file=True, datadir=datadir)
 
     # If we've gotten to this point, we're wiping out the previous version of
     # the data for this source and year... so lets wipe it! Scary!
@@ -464,13 +464,14 @@ def organize(source, year, unzip=True,
     #         os.chmod(os.path.join(paths, filename), stat.S_IREAD)
 
 
-def check_if_need_update(source, year, datadir, clobber, verbose):
+def check_if_need_update(source, year, states, datadir, clobber, verbose):
     """
     Do we really need to download the requested data? Only case in which
     we don't have to do anything is when the downloaded file already exists
     and clobber is False.
     """
-    paths = paths_for_year(source=source, year=year, datadir=datadir)
+    paths = paths_for_year(source=source, year=year, states=states,
+                           datadir=datadir)
     need_update = False
     message = None
     for path in paths:
@@ -488,7 +489,7 @@ def check_if_need_update(source, year, datadir, clobber, verbose):
     return need_update
 
 
-def update(source, year, clobber=False, unzip=True, verbose=True,
+def update(source, year, states, clobber=False, unzip=True, verbose=True,
            datadir=settings.DATA_DIR, no_download=False):
     """
     Update the local datastore for the given source and year.
@@ -520,11 +521,11 @@ def update(source, year, clobber=False, unzip=True, verbose=True,
 
     Returns: nothing
     """
-    need_update = check_if_need_update(source=source, year=year,
+    need_update = check_if_need_update(source=source, year=year, states=states,
         datadir=datadir, clobber=clobber, verbose=verbose)
     if need_update:
         # Otherwise we're downloading:
         if not no_download:
-            download(source, year, datadir=datadir, verbose=verbose)
-        organize(source, year, unzip=unzip, datadir=datadir, verbose=verbose,
-            no_download=no_download)
+            download(source, year, states, datadir=datadir, verbose=verbose)
+        organize(source, year, states, unzip=unzip, datadir=datadir,
+                 verbose=verbose, no_download=no_download)

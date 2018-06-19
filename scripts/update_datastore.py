@@ -81,6 +81,16 @@ def parse_command_line(argv):
         help="Do not download data files, only unzip ones that are already present.",
         default=False
     )
+    parser.add_argument(
+        '-t',
+        '--states',
+        nargs='+',
+        choices=constants.cems_states.keys(),
+        help="""List of two letter US state abbreviations indicating which
+        states data should be downloaded. Currently only applicable to the EPA's
+        CEMS dataset.""",
+        default=constants.cems_states.keys()
+    )
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -114,7 +124,7 @@ def main():
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for src in args.sources:
             for yr in yrs_by_src[src]:
-                executor.submit(datastore.update, src, yr,
+                executor.submit(datastore.update, src, yr, args.states,
                                 clobber=args.clobber,
                                 unzip=args.unzip,
                                 verbose=args.verbose,

@@ -109,7 +109,7 @@ class BulkCopy(contextlib.AbstractContextManager):
         for df in df_generator:
             p.add(df)
     """
-    def __init__(self, table_name, engine, buffer=300*1024**2,
+    def __init__(self, table_name, engine, buffer=1024**3,
                  csvdir='', keep_csv=False):
         self.table_name = table_name
         self.engine = engine

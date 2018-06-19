@@ -104,7 +104,7 @@ def drop_columns(df, to_drop=["fac_id", "unit_id"]):
     return df
 
 
-def extract(epacems_years, verbose):
+def extract(epacems_years, states, verbose):
     """
     Extract the EPA CEMS hourly data.
 
@@ -118,7 +118,7 @@ def extract(epacems_years, verbose):
         if verbose:
             print("    {}...".format(year))
         # The keys of the us_states dictionary are the state abbrevs
-        for state in pc.cems_states.keys():
+        for state in states:
             for month in range(1, 13):
                 filename = get_epacems_file(year, month, state)
 

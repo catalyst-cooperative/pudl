@@ -610,10 +610,10 @@ def _ETL_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables, eia860_yea
                                  keep_csv=keep_csv)
 
 
-def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv):
+def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
     # NOTE: This a generator for raw dataframes
     epacems_raw_dfs = pudl.extract.epacems.extract(
-        epacems_years=epacems_years, verbose=verbose)
+        epacems_years=epacems_years, states=states, verbose=verbose)
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform(
         epacems_raw_dfs, verbose=verbose
@@ -640,18 +640,18 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv):
     # index names follow SQLAlchemy's convention ix_tablename_columnname, but
     # this doesn't matter
     to_create_later = [
-        Index("ix_hourly_emissions_epacems_op_datetime",
+        sa.Index("ix_hourly_emissions_epacems_op_datetime",
               pudl.models.epacems.HourlyEmissions.op_datetime),
-        Index("ix_hourly_emissions_epacems_orispl_code",
+        sa.Index("ix_hourly_emissions_epacems_orispl_code",
             pudl.models.epacems.HourlyEmissions.orispl_code),
-        Index("ix_hourly_emissions_epacems_op_date_part",
+        sa.Index("ix_hourly_emissions_epacems_op_date_part",
               sa.cast(pudl.models.epacems.HourlyEmissions.op_datetime, sa.Date)),
-        UniqueConstraint(
-            pudl.models.epacems.HourlyEmissions.orispl_code,
-            pudl.models.epacems.HourlyEmissions.unitid,
-            pudl.models.epacems.HourlyEmissions.op_datetime,
-            name = "uq_hourly_emissions_epacems_orispl_code_unitid_op_datetime"
-        )
+        #sa.UniqueConstraint(
+        #    pudl.models.epacems.HourlyEmissions.orispl_code,
+        #    pudl.models.epacems.HourlyEmissions.unitid,
+        #    pudl.models.epacems.HourlyEmissions.op_datetime,
+        #    name = "uq_hourly_emissions_epacems_orispl_code_unitid_op_datetime"
+        #)
     ]
     for index_or_constraint in to_create_later:
         try:
@@ -669,6 +669,7 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
             eia860_tables=pc.eia860_pudl_tables,
             eia860_years=pc.working_years['eia860'],
             epacems_years=pc.working_years['epacems'],
+            epacems_states=pc.cems_states.keys(),
             verbose=True, debug=False,
             pudl_testing=False,
             ferc1_testing=False,
@@ -751,6 +752,8 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
     # ETL for EPA CEMS
     _ETL_cems(pudl_engine=pudl_engine,
               epacems_years=epacems_years,
+              #states=pc.cems_states.keys(),
+              states=['CO',],
               verbose=verbose,
               csvdir=csvdir,
               keep_csv=keep_csv)

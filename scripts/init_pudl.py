@@ -71,6 +71,9 @@ def parse_command_line(argv):
     parser.add_argument('--epacems_end', dest='epacems_end', type=int,
                         default=max(constants.working_years['eia860']),
                         help="Last year of EPA hourly CEMS data to load.")
+    parser.add_argument('--epacems_states', dest='epacems_states',
+                        nargs='+', default=['CO',],
+                        help="Abbreviations of US states to load CEMS data for.")
     arguments = parser.parse_args(argv[1:])
 
     return arguments
@@ -88,6 +91,10 @@ def main():
     import pudl.models.ferc1
 
     args = parse_command_line(sys.argv)
+    if args.epacems_states=='all':
+        epacems_states = pc.cems_states.keys()
+    else:
+        epacems_states = args.epacems_states
 
     extract.ferc1.init_db(ferc1_tables=constants.ferc1_default_tables,
                           refyear=args.ferc1_refyear,
@@ -106,6 +113,7 @@ def main():
                                     args.eia860_end + 1),
                  epacems_years = range(args.epacems_start,
                                        args.epacems_end + 1),
+                 epacems_states=epacems_states,
                  verbose=args.verbose,
                  debug=False,
                  pudl_testing=args.test,
