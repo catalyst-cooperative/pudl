@@ -13,6 +13,7 @@ before_install:
 - export PATH="$HOME/miniconda3/bin:$PATH"
 - df -h
 - pwd
+- ls -a
 - uname -a
 - git --version
 - git tag
@@ -21,7 +22,10 @@ install:
 - source activate pudl
 - ci/setup_postgres.sh
 - export DISPLAY=":99.0"
-- (cd scripts && python update_datastore.py --source ferc1 --years 2016)
+- cd scripts
+- python update_datastore.py --source ferc1 --years 2016
+- cd ..
+- pwd
 script:
 - pytest -sv $TEST_ARGS test/travis_ci.py::test_ferc1_init_db
 notifications:
