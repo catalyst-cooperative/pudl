@@ -23,7 +23,7 @@ install:
 - ci/setup_postgres.sh
 - export DISPLAY=":99.0"
 - cd scripts
-- python update_datastore.py --source ferc1 --years 2016
+- python update_datastore.py --source ferc1 --years 2012 2016
 - cd ..
 - pwd
 script:
