@@ -27,6 +27,7 @@ def test_ferc1_init_db(ferc1_engine_travis_ci):
 
 
 @pytest.mark.travis_ci
+@pytest.mark.skip(reason="PUDL Travis CI not ready yet.")
 def test_pudl_init_db(pudl_engine_travis_ci):
     """
     Create a fresh PUDL DB and pull in some FERC1 & EIA data.
