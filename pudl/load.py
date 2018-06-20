@@ -16,6 +16,9 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
     CSV file, and then loads it into the specified table using a sqlalchemy
     wrapper around the postgresql COPY FROM command, called postgres_copy.
 
+    Note that this creates an additional in-memory representation of the data,
+    which takes slightly less memory than the DataFrame itself.
+
     Args:
         df (pandas.DataFrame): The DataFrame which is to be dumped to CSV and
             loaded into the database. All DataFrame columns must have exactly
@@ -41,16 +44,11 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
     import io
 
     tbl = pudl.models.entities.PUDLBase.metadata.tables[table_name]
-    # max_size is in bytes; spill to disk if >2GB
     with io.StringIO() as f:
         df.to_csv(f, index=False)
         f.seek(0)
         postgres_copy.copy_from(f, tbl, engine, columns=tuple(df.columns),
                                 format='csv', header=True, delimiter=',')
-        # DEBUG memory usage:
-        f.seek(0, 2)  # seek to end of file
-        mem_used = round(f.tell() / (1024**2))
-        print(f"DEBUG: StringIO buffer used {mem_used} MB")
         if keep_csv:
             print(f"DEBUG: writing CSV")
             import shutil
@@ -84,7 +82,10 @@ def _fix_int_cols(table_to_fix,
 
 
 class BulkCopy(contextlib.AbstractContextManager):
-    """Accumulate several DataFrames, then COPY them to postgresql
+    """Accumulate several DataFrames, then COPY FROM python to postgresql
+
+    NOTE: You shoud use this class to load one table at a time. To load
+    different tables, use different instances of BulkCopy.
 
     Args:
         table_name (str): The exact name of the database table which the
@@ -95,9 +96,7 @@ class BulkCopy(contextlib.AbstractContextManager):
             used to pull the CSV output into the database.
         buffer (int): Size of data to accumulate (in bytes) before actually
             writing the data into postgresql. (Approximate, because we don't
-            introspect memory usage 'deeply'). Default 300MB.
-            The default was chosen to (hopefully) fit inside the 2GB
-            SpooledTemporaryFile after conversion to CSV.
+            introspect memory usage 'deeply'). Default 1 GB.
         csvdir (str): Path to the directory into which the CSV file should be
             saved, if it's being kept.
         keep_csv (bool): True if the CSV output should be saved after the data
@@ -128,14 +127,25 @@ class BulkCopy(contextlib.AbstractContextManager):
         self.accumulated_size += sum(df.memory_usage())
         if self.accumulated_size > self.buffer:
             # Debugging:
-            print(f"DEBUG: Copying {len(self.accumulated_dfs)} accumulated dataframes, " +
-                  f"totalling {round(self.accumulated_size / 1024**2)} MB")
+            # print(f"DEBUG: Copying {len(self.accumulated_dfs)} accumulated dataframes, " +
+            #       f"totalling {round(self.accumulated_size / 1024**2)} MB")
             self.spill()
+
+    def _check_names(self):
+        expected_colnames = set(self.accumulated_dfs[0].columns.values)
+        for df in self.accumulated_dfs:
+            colnames = set(df.columns.values)
+            assert colnames == expected_colnames, ("Column names weren't " +
+                "constant. BulkCopy should only be used with one table at a " +
+                "time, and all columns should be present."
+            )
 
     def spill(self):
         """Spill the accumulated dataframes into postgresql"""
         if self.accumulated_dfs:
-            all_dfs = pd.concat(self.accumulated_dfs, copy=False, ignore_index=True)
+            self._check_names()
+            all_dfs = pd.concat(self.accumulated_dfs,
+                                copy=False, ignore_index=True, sort=False)
             _csv_dump_load(all_dfs, table_name=self.table_name, engine=self.engine,
                            csvdir=self.csvdir, keep_csv=self.keep_csv)
         self.accumulated_dfs = []
