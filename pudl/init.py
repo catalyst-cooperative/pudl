@@ -639,27 +639,32 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
     # See https://stackoverflow.com/a/41254430
     # index names follow SQLAlchemy's convention ix_tablename_columnname, but
     # this doesn't matter
-    to_create_later = [
+    indexes_to_create = [
         sa.Index("ix_hourly_emissions_epacems_op_datetime",
-              pudl.models.epacems.HourlyEmissions.op_datetime),
+                 pudl.models.epacems.HourlyEmissions.op_datetime),
         sa.Index("ix_hourly_emissions_epacems_orispl_code",
-            pudl.models.epacems.HourlyEmissions.orispl_code),
+                 pudl.models.epacems.HourlyEmissions.orispl_code),
         sa.Index("ix_hourly_emissions_epacems_op_date_part",
-              sa.cast(pudl.models.epacems.HourlyEmissions.op_datetime, sa.Date)),
-        #sa.UniqueConstraint(
-        #    pudl.models.epacems.HourlyEmissions.orispl_code,
-        #    pudl.models.epacems.HourlyEmissions.unitid,
-        #    pudl.models.epacems.HourlyEmissions.op_datetime,
-        #    name = "uq_hourly_emissions_epacems_orispl_code_unitid_op_datetime"
-        #)
+                 sa.cast(pudl.models.epacems.HourlyEmissions.op_datetime, sa.Date)),
     ]
-    for index_or_constraint in to_create_later:
+    for index in indexes_to_create:
         try:
-            index_or_constraint.create(pudl_engine)
+            index.create(pudl_engine)
         except sa.exc.ProgrammingError as e:
             from warnings import warn
             warn(f"Failed to add index/constraint '{index_or_constraint.name}'\n" +
                 "Details:\n" + e)
+    # Constraints don't have create() methods
+    try:
+        sa.UniqueConstraint(
+            pudl.models.epacems.HourlyEmissions.orispl_code,
+            pudl.models.epacems.HourlyEmissions.unitid,
+            pudl.models.epacems.HourlyEmissions.op_datetime,
+            name = "uq_hourly_emissions_epacems_orispl_code_unitid_op_datetime"
+        )
+    except sa.exc.SQLAlchemyError as e:  # Any kind of SQLAlchemy error
+        print("Failed to create CEMS uniqness constraint")
+        print(e)
 
 
 def init_db(ferc1_tables=pc.ferc1_pudl_tables,
