@@ -46,64 +46,6 @@ def get_epacems_file(year, month, state):
     return full_path
 
 
-def fix_names(df):
-    rename_dict = {
-        "STATE": "state",
-        "FACILITY_NAME": "facility_name",
-        "ORISPL_CODE": "orispl_code",
-        "UNITID": "unitid",
-        "OP_DATE": "op_date",
-        "OP_HOUR": "op_hour",
-        "OP_TIME": "op_time",
-        "GLOAD (MW)": "gload_mw",
-        "GLOAD": "gload_mw",
-        "SLOAD (1000 lbs)": "sload_1000_lbs",
-        "SLOAD (1000lb/hr)": "sload_1000_lbs",
-        "SLOAD": "sload_1000_lbs",
-        "SO2_MASS (lbs)": "so2_mass_lbs",
-        "SO2_MASS": "so2_mass_lbs",
-        "SO2_MASS_MEASURE_FLG": "so2_mass_measure_flg",
-        "SO2_RATE (lbs/mmBtu)": "so2_rate_lbs_mmbtu",
-        "SO2_RATE": "so2_rate_lbs_mmbtu",
-        "SO2_RATE_MEASURE_FLG": "so2_rate_measure_flg",
-        "NOX_RATE (lbs/mmBtu)": "nox_rate_lbs_mmbtu",
-        "NOX_RATE": "nox_rate_lbs_mmbtu",
-        "NOX_RATE_MEASURE_FLG": "nox_rate_measure_flg",
-        "NOX_MASS (lbs)": "nox_mass_lbs",
-        "NOX_MASS": "nox_mass_lbs",
-        "NOX_MASS_MEASURE_FLG": "nox_mass_measure_flg",
-        "CO2_MASS (tons)": "co2_mass_tons",
-        "CO2_MASS": "co2_mass_tons",
-        "CO2_MASS_MEASURE_FLG": "co2_mass_measure_flg",
-        "CO2_RATE (tons/mmBtu)": "co2_rate_tons_mmbtu",
-        "CO2_RATE": "co2_rate_tons_mmbtu",
-        "CO2_RATE_MEASURE_FLG": "co2_rate_measure_flg",
-        "HEAT_INPUT (mmBtu)": "heat_input_mmbtu",
-        "HEAT_INPUT": "heat_input_mmbtu",
-        "FAC_ID": "fac_id",
-        "UNIT_ID": "unit_id",
-    }
-    return df.rename(columns=rename_dict)
-
-
-def drop_columns(df, to_drop=["fac_id", "unit_id"]):
-    """
-    Delete columns, if they exist. Used for columns that are added in 2008.
-
-    Args:
-        df(pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
-        to_drop(list): A list of columns to drop, if they exist
-    Output:
-        pandas.DataFrame: The same data, with the indicated columns removed
-    """
-    for col in to_drop:
-        try:
-            del df[col]
-        except KeyError:
-            pass
-    return df
-
-
 def extract(epacems_years, states, verbose):
     """
     Extract the EPA CEMS hourly data.
@@ -129,16 +71,8 @@ def extract(epacems_years, states, verbose):
                 # others, this is yielded as a generator (and it's a one-item
                 # dictionary).
                 # TODO: set types explicitly
-                try:
-                    df = (
-                        pd.read_csv(filename, low_memory=False)
-                        .pipe(fix_names)
-                        .pipe(drop_columns)
-                    )
-                # TODO: remove this try/except once all files can be read.
-                except:
-                    print(
-                        f"ERROR: Failed to extract EPA CEMs data for {state}, {year}-{month}."
-                    )
-                    df = None
+                df = (
+                    pd.read_csv(filename, low_memory=False)
+                    .rename(columns=pc.epacems_rename_dict)
+                )
                 yield {(year, month, state): df}

@@ -3024,6 +3024,51 @@ natural_gas_transport_eia923 = {
     'I': 'Interruptible'
 }
 
+
+##### EPA CEMS constants #####
+
+epacems_rename_dict = {
+    "STATE": "state",
+    "FACILITY_NAME": "facility_name",
+    "ORISPL_CODE": "orispl_code",
+    "UNITID": "unitid",
+    # These op_date, op_hour, and op_time variables get converted to
+    # operating_date, operating_datetime and operating_interval in
+    # transform/epacems.py
+    "OP_DATE": "op_date",
+    "OP_HOUR": "op_hour",
+    "OP_TIME": "op_time",
+    "GLOAD (MW)": "gross_load_mw",
+    "GLOAD": "gross_load_mw",
+    "SLOAD (1000 lbs)": "steam_load_1000_lbs",
+    "SLOAD (1000lb/hr)": "steam_load_1000_lbs",
+    "SLOAD": "steam_load_1000_lbs",
+    "SO2_MASS (lbs)": "so2_mass_lbs",
+    "SO2_MASS": "so2_mass_lbs",
+    "SO2_MASS_MEASURE_FLG": "so2_mass_measure_flg",
+    "SO2_RATE (lbs/mmBtu)": "so2_rate_lbs_mmbtu",
+    "SO2_RATE": "so2_rate_lbs_mmbtu",
+    "SO2_RATE_MEASURE_FLG": "so2_rate_measure_flg",
+    "NOX_RATE (lbs/mmBtu)": "nox_rate_lbs_mmbtu",
+    "NOX_RATE": "nox_rate_lbs_mmbtu",
+    "NOX_RATE_MEASURE_FLG": "nox_rate_measure_flg",
+    "NOX_MASS (lbs)": "nox_mass_lbs",
+    "NOX_MASS": "nox_mass_lbs",
+    "NOX_MASS_MEASURE_FLG": "nox_mass_measure_flg",
+    "CO2_MASS (tons)": "co2_mass_tons",
+    "CO2_MASS": "co2_mass_tons",
+    "CO2_MASS_MEASURE_FLG": "co2_mass_measure_flg",
+    "CO2_RATE (tons/mmBtu)": "co2_rate_tons_mmbtu",
+    "CO2_RATE": "co2_rate_tons_mmbtu",
+    "CO2_RATE_MEASURE_FLG": "co2_rate_measure_flg",
+    "HEAT_INPUT (mmBtu)": "heat_input_mmbtu",
+    "HEAT_INPUT": "heat_input_mmbtu",
+    "FAC_ID": "fac_id",
+    "UNIT_ID": "unit_id",
+}
+
+epacems_tables = ["hourly_emissions_epacems"]
+
 data_sources = [
     'eia860',
     # 'eia861',
@@ -3063,6 +3108,7 @@ pudl_tables = {
     'eia860': eia860_pudl_tables,
     'eia923': eia923_pudl_tables,
     'ferc1': ferc1_pudl_tables,
+    'epacems': epacems_tables,
 }
 
 base_data_urls = {
