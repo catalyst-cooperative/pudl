@@ -74,7 +74,7 @@ def parse_command_line(argv):
     parser.add_argument('--epacems_states', dest='epacems_states',
                         nargs='+', default=['CO',],
                         help="Abbreviations of US states for which to load CEMS\
-                              data. Default: 'CO'")
+                              data. Default: 'CO'. (Use 'all' to load all)")
     arguments = parser.parse_args(argv[1:])
 
     return arguments

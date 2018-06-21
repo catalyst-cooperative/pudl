@@ -640,12 +640,12 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
     # index names follow SQLAlchemy's convention ix_tablename_columnname, but
     # this doesn't matter
     indexes_to_create = [
-        sa.Index("ix_hourly_emissions_epacems_op_datetime",
-                 pudl.models.epacems.HourlyEmissions.op_datetime),
+        sa.Index("ix_hourly_emissions_epacems_operating_datetime",
+                 pudl.models.epacems.HourlyEmissions.operating_datetime),
         sa.Index("ix_hourly_emissions_epacems_orispl_code",
                  pudl.models.epacems.HourlyEmissions.orispl_code),
-        sa.Index("ix_hourly_emissions_epacems_op_date_part",
-                 sa.cast(pudl.models.epacems.HourlyEmissions.op_datetime, sa.Date)),
+        sa.Index("ix_hourly_emissions_epacems_opperating_date_part",
+                 sa.cast(pudl.models.epacems.HourlyEmissions.operating_datetime, sa.Date)),
     ]
     for index in indexes_to_create:
         try:
@@ -659,8 +659,8 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
         sa.UniqueConstraint(
             pudl.models.epacems.HourlyEmissions.orispl_code,
             pudl.models.epacems.HourlyEmissions.unitid,
-            pudl.models.epacems.HourlyEmissions.op_datetime,
-            name = "uq_hourly_emissions_epacems_orispl_code_unitid_op_datetime"
+            pudl.models.epacems.HourlyEmissions.operating_datetime,
+            name = "uq_hourly_emissions_epacems_orispl_code_unitid_operating_datetime"
         )
     except sa.exc.SQLAlchemyError as e:  # Any kind of SQLAlchemy error
         print("Failed to create CEMS uniqness constraint")

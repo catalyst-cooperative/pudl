@@ -6,6 +6,7 @@ This modules pulls data from EPA's published CSV files.
 import glob
 import os
 import pandas as pd
+import numpy as np
 from pudl import settings
 import pudl.constants as pc
 
@@ -45,6 +46,22 @@ def get_epacems_file(year, month, state):
         f"Expected it here: {full_path}")
     return full_path
 
+def add_fac_id_unit_id(df):
+    """Harmonize columns that are added later
+
+    The load into Postgres checks for consistent column names, and these
+    two columns aren't present before August 2008, so add them in.
+
+    Args:
+        df (pd.DataFrame): A CEMS dataframe
+    Returns:
+        The same DataFrame, guaranteed to have fac_id and unit_id cols.
+    """
+    if "fac_id" not in df.columns:
+        df["fac_id"] = np.NaN
+    if "unit_id" not in df.columns:
+        df["unit_id"] = np.NaN
+    return df
 
 def extract(epacems_years, states, verbose):
     """
@@ -74,5 +91,6 @@ def extract(epacems_years, states, verbose):
                 df = (
                     pd.read_csv(filename, low_memory=False)
                     .rename(columns=pc.epacems_rename_dict)
+                    .pipe(add_fac_id_unit_id)
                 )
                 yield {(year, month, state): df}

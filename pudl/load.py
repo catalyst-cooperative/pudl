@@ -122,6 +122,7 @@ class BulkCopy(contextlib.AbstractContextManager):
     def add(self, df):
         """Add a DataFrame to the accumulated list"""
         assert isinstance(df, pd.DataFrame)
+        df = self._fix_inting(df)
         # Note: append to a list here, then do a concat when we spill
         self.accumulated_dfs.append(df)
         self.accumulated_size += sum(df.memory_usage())
@@ -137,8 +138,19 @@ class BulkCopy(contextlib.AbstractContextManager):
             colnames = set(df.columns.values)
             assert colnames == expected_colnames, ("Column names weren't " +
                 "constant. BulkCopy should only be used with one table at a " +
-                "time, and all columns should be present."
+                "time, and all columns should be present. Symmetric difference " +
+                "between actual and expected:\n" +
+                str(colnames.symmetric_difference(expected_colnames))
             )
+
+    def _fix_inting(self, df):
+        """Fix integers for columns with NA. See pudl.transform.pudl.fix_int_na"""
+        try:
+            for column in pc.need_fix_inting[self.table_name]:
+                df[column] = pudl.transform.pudl.fix_int_na(df[column])
+        except KeyError:
+            pass
+        return df
 
     def spill(self):
         """Spill the accumulated dataframes into postgresql"""

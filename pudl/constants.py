@@ -3134,5 +3134,6 @@ need_fix_inting = {'generators_eia860': ['sector', 'turbines'],
                    'plants_hydro_ferc1': ['year_constructed',
                                           'year_installed'],
                    'plants_pumped_storage_ferc1': ['year_constructed',
-                                                   'year_installed']
+                                                   'year_installed'],
+                   'hourly_emissions_epacems': ['fac_id', 'unit_id'],
                    }
