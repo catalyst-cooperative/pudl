@@ -33,17 +33,12 @@ def fix_up_dates(df):
     # Convert op_date and op_hour from string and integer to datetime:
     # Note that doing this conversion, rather than reading the CSV with
     # `parse_dates=True` is >10x faster.
-    df["operating_date"] = pd.to_datetime(df.op_date,
-        format=r"%m-%d-%Y", exact=True, cache=True)
-
-    del df["op_date"]
-
-    # Make an operating timestamp (for this step, operating_date must be a
-    # datetime)
-    df["operating_datetime"] = df["operating_date"] + pd.to_timedelta(df["op_hour"], unit="h")
-    # Then convert from datetime to date:
-    df["operating_date"] = df["operating_date"].dt.date
-    del df["op_hour"]
+    # Make an operating timestamp
+    df["operating_datetime"] = (
+        pd.to_datetime(df["op_date"], format=r"%m-%d-%Y", exact=True, cache=True) +
+        pd.to_timedelta(df["op_hour"], unit="h")
+        )
+    del df["op_hour"], df["op_date"]
 
     # Make op_time into an time delta (called interval in postgres)
     df["operating_interval"] = pd.to_timedelta(df["op_time"], unit="h")

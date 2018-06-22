@@ -63,14 +63,34 @@ def connect_db(testing=False):
 
 
 def _create_tables(engine):
-    """Create the tables associated with the PUDL Database."""
+    """Create the tables and views associated with the PUDL Database."""
     pudl.models.entities.PUDLBase.metadata.create_all(engine)
-
+    _create_views(engine)
 
 def drop_tables(engine):
-    """Drop all the tables associated with the PUDL Database and start over."""
+    """Drop all the tables and views associated with the PUDL Database."""
+    # Drop the views first because they depend on the underlying tables.
+    # can't easily cascade because SQLAlchemy doesn't know about the views
+    _drop_views(engine)
     pudl.models.entities.PUDLBase.metadata.drop_all(engine)
 
+def _create_views(engine):
+    """Create views on the PUDL tables
+
+    stackoverflow doesn't know how to create views with declarative_base, so I
+    don't either.
+    https://stackoverflow.com/questions/40083753/sqlalchemy-creating-view-with-orm
+    """
+    views_sql_list = pudl.models.epacems.CREATE_VIEWS
+    for s in views_sql_list:
+        engine.execute(s)
+
+
+def _drop_views(engine):
+    """Drop the views associated with the PUDL database"""
+    views_sql_commands = pudl.models.epacems.DROP_VIEWS
+    for s in views_sql_commands:
+        engine.execute(s)
 
 ###############################################################################
 ###############################################################################
@@ -652,7 +672,7 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
             index.create(pudl_engine)
         except sa.exc.ProgrammingError as e:
             from warnings import warn
-            warn(f"Failed to add index/constraint '{index_or_constraint.name}'\n" +
+            warn(f"Failed to add index/constraint '{index.name}'\n" +
                 "Details:\n" + e)
     # Constraints don't have create() methods
     try:
@@ -761,3 +781,5 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
               verbose=verbose,
               csvdir=csvdir,
               keep_csv=keep_csv)
+
+    pudl_engine.execute("ANALYZE")

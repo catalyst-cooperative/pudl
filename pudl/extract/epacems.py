@@ -63,6 +63,27 @@ def add_fac_id_unit_id(df):
         df["unit_id"] = np.NaN
     return df
 
+def drop_calculated_rates(df):
+    """Drop these calculated rates because they don't provide any information.
+
+    If you want these, you can just use a view.
+
+    It's always true that so2_rate_lbs_mmbtu == so2_mass_lbs / heat_input_mmbtu
+    and co2_rate_tons_mmbtu == co2_mass_tons / heat_input_mmbtu,
+    but the same does not hold for NOx.
+
+    Args:
+        df (pd.DataFrame): A CEMS dataframe
+    Returns:
+        The same DataFrame, without the variables so2_rate_measure_flg,
+        so2_rate_lbs_mmbtu, co2_rate_measure_flg, or co2_rate_tons_mmbtu
+    """
+    assert df["so2_rate_measure_flg"].isin({"Calculated", np.NaN}).all()
+    assert df["co2_rate_measure_flg"].isin({"Calculated", np.NaN}).all()
+    del df["so2_rate_measure_flg"], df["so2_rate_lbs_mmbtu"]
+    del df["co2_rate_measure_flg"], df["co2_rate_tons_mmbtu"]
+    return df
+
 def extract(epacems_years, states, verbose):
     """
     Extract the EPA CEMS hourly data.
@@ -92,5 +113,6 @@ def extract(epacems_years, states, verbose):
                     pd.read_csv(filename, low_memory=False)
                     .rename(columns=pc.epacems_rename_dict)
                     .pipe(add_fac_id_unit_id)
+                    .pipe(drop_calculated_rates)
                 )
                 yield {(year, month, state): df}
