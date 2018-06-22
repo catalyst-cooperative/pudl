@@ -268,7 +268,8 @@ def get_eia923_plants(years, eia923_xlsx):
 
     plant_ids = pd.concat(
         [pf.plant_id_eia, gf.plant_id_eia, bf.plant_id_eia, g.plant_id_eia,
-            frc.plant_id_eia],)
+            frc.plant_id_eia],
+        sort=True)
     plant_ids = plant_ids.unique()
 
     plant_info_compiled = pd.DataFrame(columns=['plant_id_eia'])
@@ -333,7 +334,7 @@ def yearly_to_monthly_eia923(df, md):
         # Add a numerical month column corresponding to this month.
         this_month['month'] = m
         # Add this month's data to the monthly DataFrame we're building.
-        monthly = pd.concat([monthly, this_month])
+        monthly = pd.concat([monthly, this_month], sort=True)
 
     # Merge the monthly data we've built up with the remaining fields in the
     # data frame we started with -- all of which should be independent of the

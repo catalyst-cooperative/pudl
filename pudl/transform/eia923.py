@@ -57,7 +57,7 @@ def yearly_to_monthly_eia923(df, md):
             this_month['report_month'] = m
 
             # Add this month's data to the monthly DataFrame we're building.
-            monthly = pd.concat([monthly, this_month])
+            monthly = pd.concat([monthly, this_month], sort=True)
 
         # Merge the monthly data we've built up with the remaining fields in
         # the data frame we started with -- all of which should be independent
@@ -65,7 +65,7 @@ def yearly_to_monthly_eia923(df, md):
         # from each of the # initial annual records.
         this_year = this_year.merge(monthly, left_index=True, right_index=True)
         # Add this new year's worth of data to the big dataframe we'll return
-        all_years = pd.concat([all_years, this_year])
+        all_years = pd.concat([all_years, this_year], sort=True)
 
     return all_years
 
