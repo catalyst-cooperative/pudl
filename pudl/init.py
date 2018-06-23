@@ -631,6 +631,14 @@ def _ETL_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables, eia860_yea
 
 
 def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
+    """"""
+    # If we're not doing CEMS, just stop here to avoid printing messages like
+    # "Reading EPA CEMS data...", which could be confusing.
+    if states[0].lower() == 'none':
+        return None
+    if states[0].lower() =='all':
+        states = list(pc.cems_states.keys())
+
     # NOTE: This a generator for raw dataframes
     epacems_raw_dfs = pudl.extract.epacems.extract(
         epacems_years=epacems_years, states=states, verbose=verbose)
