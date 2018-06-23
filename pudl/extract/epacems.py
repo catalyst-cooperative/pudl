@@ -63,6 +63,31 @@ def add_fac_id_unit_id(df):
         df["unit_id"] = np.NaN
     return df
 
+def _all_na_or_values(series, values):
+    """Test whether every element in the series is either missing or in values
+
+    This is fiddly because isin() changes behavior if the series is totally NaN
+    (because of type issues)
+    Demo: x = pd.DataFrame({'a': ['x', np.NaN], 'b': [np.NaN, np.NaN]})
+    x.isin({'x', np.NaN})
+
+    Args:
+        series (pd.Series): A data column
+        values (set): A set of values
+    Returns:
+        True or False
+    """
+    series_excl_na = series[series.notna()]
+    if not len(series_excl_na):
+        out = True
+    elif series_excl_na.isin(values).all():
+        out = True
+    else:
+        out = False
+    return out
+
+
+
 def drop_calculated_rates(df):
     """Drop these calculated rates because they don't provide any information.
 
@@ -78,8 +103,9 @@ def drop_calculated_rates(df):
         The same DataFrame, without the variables so2_rate_measure_flg,
         so2_rate_lbs_mmbtu, co2_rate_measure_flg, or co2_rate_tons_mmbtu
     """
-    assert df["so2_rate_measure_flg"].isin({"Calculated", np.NaN}).all()
-    assert df["co2_rate_measure_flg"].isin({"Calculated", np.NaN}).all()
+
+    assert _all_na_or_values(df["so2_rate_measure_flg"], {"Calculated"})
+    assert _all_na_or_values(df["co2_rate_measure_flg"], {"Calculated"})
     del df["so2_rate_measure_flg"], df["so2_rate_lbs_mmbtu"]
     del df["co2_rate_measure_flg"], df["co2_rate_tons_mmbtu"]
     return df
