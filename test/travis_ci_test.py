@@ -3,15 +3,6 @@ import pytest
 
 
 @pytest.mark.travis_ci
-def test_travis_ci():
-    """
-    Dummy test to make sure Travis CI setup is working.
-    """
-    print("Hello Test World!")
-    return True
-
-
-@pytest.mark.travis_ci
 def test_ferc1_init_db(ferc1_engine_travis_ci):
     """
     Create a fresh FERC Form 1 DB and attempt to access it.
