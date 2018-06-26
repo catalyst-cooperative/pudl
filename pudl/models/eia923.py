@@ -1,6 +1,6 @@
 """Database models for PUDL tables derived from EIA Form 923 Data."""
 
-from sqlalchemy import Boolean, Integer, String, Float, Numeric, Date
+from sqlalchemy import Boolean, Integer, String, Float, Date
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint
 import pudl.models.entities
 
@@ -28,7 +28,7 @@ class BoilersEIA923(pudl.models.entities.PUDLBase):
     """List of Boiler IDs specific to each plant in EIA Form 923 Page 3."""
 
     __tablename__ = 'boilers_eia923'
-    #__table_args__ = (ForeignKeyConstraint(
+    # __table_args__ = (ForeignKeyConstraint(
     #    ['plant_id_eia', 'boiler_id'],
     #    ['boilers_entity_eia.plant_id_eia',
     #     'boilers_entity_eia.boiler_id']),)
@@ -209,7 +209,7 @@ class BoilerFuelEIA923(pudl.models.entities.PUDLBase):
     """Monthly fuel consumption by boiler reported on Page 3 of EIA 923."""
 
     __tablename__ = 'boiler_fuel_eia923'
-    #__table_args__ = (ForeignKeyConstraint(
+    # __table_args__ = (ForeignKeyConstraint(
     #    ['plant_id_eia', 'boiler_id'],
     #    ['boilers_entity_eia.plant_id_eia',
     #     'boilers_entity_eia.boiler_id']),)
