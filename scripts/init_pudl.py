@@ -110,7 +110,7 @@ def main():
                                     args.eia860_end + 1),
                  epacems_years = range(args.epacems_start,
                                        args.epacems_end + 1),
-                 epacems_states=epacems_states,
+                 epacems_states=args.epacems_states,
                  verbose=args.verbose,
                  debug=False,
                  pudl_testing=args.test,
