@@ -16,5 +16,6 @@ dependencies:
   - xlrd =1.1.*
   - matplotlib
   - dbfread
+  - xlsxwriter =1.0.*
   - pip:
     - sqlalchemy-postgres-copy
