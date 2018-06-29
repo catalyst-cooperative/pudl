@@ -9,15 +9,25 @@ the existing data. It may also include removing bad data, or replacing it
 with the appropriate NA values.
 """
 
+import os.path
+import scipy
 import pandas as pd
 import numpy as np
-import sqlalchemy as sa
-import os.path
-from pudl import settings
+
+# These modules are required for the FERC Form 1 Plant ID & Time Series
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.preprocessing import LabelBinarizer
+from sklearn.preprocessing import normalize
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import scale
+from sklearn.base import BaseEstimator, ClassifierMixin
+
 import pudl.constants as pc
 import pudl.models.ferc1
 import pudl.extract.ferc1
 import pudl.transform.pudl
+import pudl.settings
 
 ##############################################################################
 # HELPER FUNCTIONS ###########################################################
@@ -304,18 +314,6 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
         'tot_prdctn_expns': 'expns_production_total'},
         inplace=True)
 
-    # ferc1_steam_df['year_constructed'] = \
-    #    pudl.transform.pudl.fix_int_na(ferc1_steam_df['year_constructed'],
-    #                                   float_na=np.nan,
-    #                                   int_na=-1,
-    #                                   str_na='')
-
-    # ferc1_steam_df['year_installed'] = \
-    #    pudl.transform.pudl.fix_int_na(ferc1_steam_df['year_installed'],
-    #                                   float_na=np.nan,
-    #                                   int_na=-1,
-    #                                   str_na='')
-
     ferc1_transformed_dfs['plants_steam_ferc1'] = ferc1_steam_df
 
     return ferc1_transformed_dfs
@@ -378,7 +376,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     # Unforunately the plant types were not able to be parsed automatically
     # in this table. It's been done manually for 2004-2015, and the results
     # get merged in in the following section.
-    small_types_file = os.path.join(settings.PUDL_DIR,
+    small_types_file = os.path.join(pudl.settings.PUDL_DIR,
                                     'results',
                                     'ferc1_small_plants',
                                     'small_plants_2004-2016.xlsx')
@@ -439,20 +437,9 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
         'operation': 'cost_of_operation',
         'expns_maint': 'expns_maintenance',
         'fuel_cost': 'fuel_cost_per_mmbtu'},
-        #'plant_name': 'plant_name_raw',
-        #'plant_name_clean': 'plant_name'},
+        # 'plant_name': 'plant_name_raw',
+        # 'plant_name_clean': 'plant_name'},
         inplace=True)
-
-    # ferc1_small_df['year_constructed'] = \
-    #    pudl.transform.pudl.fix_int_na(ferc1_small_df['year_constructed'],
-    #                                   float_na=np.nan,
-    #                                   int_na=-1,
-    #                                   str_na='')
-    # ferc1_small_df['ferc_license'] = \
-    #    pudl.transform.pudl.fix_int_na(ferc1_small_df['ferc_license'],
-    #                                   float_na=np.nan,
-    #                                   int_na=-1,
-    #                                   str_na='')
 
     ferc1_transformed_dfs['plants_small_ferc1'] = ferc1_small_df
 
@@ -520,17 +507,6 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
         'expns_total': 'expns_production_total',
         'asset_retire_cost': 'asset_retirement_cost'
     }, inplace=True)
-
-    # ferc1_hydro_df['year_constructed'] = \
-    #    pudl.transform.pudl.fix_int_na(ferc1_hydro_df['year_constructed'],
-    #                                   float_na=np.nan,
-    #                                   int_na=-1,
-    #                                   str_na='')
-    # ferc1_hydro_df['year_installed'] = \
-    #    pudl.transform.pudl.fix_int_na(ferc1_hydro_df['year_installed'],
-    #                                   float_na=np.nan,
-    #                                   int_na=-1,
-    #                                   str_na='')
 
     ferc1_transformed_dfs['plants_hydro_ferc1'] = ferc1_hydro_df
 
@@ -618,18 +594,6 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
         'expns_producton': 'expns_production_before_pumping',
         'tot_prdctn_exns': 'expns_production_total'},
         inplace=True)
-
-    # ferc1_pumped_storage_df['year_constructed'] = \
-    #    pudl.transform.pudl.fix_int_na(ferc1_pumped_storage_df['year_constructed'],
-    #                                   float_na=np.nan,
-    #                                   int_na=-1,
-    #                                   str_na='')
-
-    # ferc1_pumped_storage_df['year_installed'] = \
-    #    pudl.transform.pudl.fix_int_na(ferc1_pumped_storage_df['year_installed'],
-    #                                   float_na=np.nan,
-    #                                   int_na=-1,
-    #                                   str_na='')
 
     ferc1_transformed_dfs['plants_pumped_storage_ferc1'] = ferc1_pumped_storage_df
 
@@ -777,3 +741,387 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
         ferc1_accumdepr_prvsn_df
 
     return ferc1_transformed_dfs
+
+
+###############################################################################
+# Identifying FERC Plants
+###############################################################################
+# Sadly FERC doesn't provide any kind of real IDs for the plants that report to
+# them -- all we have is their names (a freeform string) and the data that is
+# reported alongside them. This is often enough information to be able to
+# recognize which records ought to be associated with each other year to year
+# to create a continuous time series. However, we want to do that
+# programmatically, which means using some clustering / categorization tools
+# from scikit-learn
+
+# These sets of strings allow us to simplify the plant_kind field. They came
+# from Uday & Laura at CPI. We may change/replace them, and they'll need to go
+# into the constants module eventually. But for now they're here for coziness.
+diesel_strings = [
+    'DIESEL',
+    'Diesel Engine',
+    'Diesel Turbine',
+]
+
+geothermal_strings = [
+    'Steam - Geothermal',
+]
+natural_gas_strings = [
+    'Combined Cycle',
+    'Combustion Turbine',
+    'GT',
+    'GAS TURBINE',
+    'Comb. Turbine',
+    'Gas Turbine #1',
+    'Combine Cycle Oper',
+    'Combustion',
+    'Combined',
+    'Gas Turbine/Steam',
+    'Gas Turbine Peaker',
+    'Gas Turbine - Note 1',
+    'Resp Share Gas Note3',
+    'Gas Turbines',
+    'Simple Cycle',
+    'Gas / Steam',
+    'GasTurbine',
+    'Combine Cycle',
+    'CTG/Steam-Gas',
+    'GTG/Gas',
+    'CTG/Steam -Gas',
+    'Steam/Gas Turbine',
+    'CombustionTurbine',
+    'Gas Turbine-Simple',
+    'STEAM & GAS TURBINE',
+    'Gas & Steam Turbine',
+    'Gas',
+    'Gas Turbine (2)',
+    'COMBUSTION AND GAS',
+    'Com Turbine Peaking',
+    'Gas Turbine Peaking',
+    'Comb Turb Peaking',
+    'JET ENGINE',
+    'Comb. Cyc',
+    'Com. Cyc',
+    'Com. Cycle',
+    'GAS TURB-COMBINED CY',
+    'Gas Turb',
+    'Combined Cycle - 40%',
+    'IGCC/Gas Turbine',
+    'CC',
+    'Combined Cycle Oper',
+    'Simple Cycle Turbine',
+    'Steam and CC',
+    'Com Cycle Gas Turb',
+    'I.C.E/  Gas Turbine',
+    'Combined Cycle CTG',
+    'GAS-TURBINE',
+    'Gas Expander Turbine',
+    'Gas Turbine (Leased)',
+    'Gas Turbine # 1',
+    'Gas Turbine (Note 1)',
+    'COMBUSTINE TURBINE',
+    'Gas Turb, Int. Comb.',
+    'Combined Turbine',
+    'Comb Turb Peak Units',
+    'Combustion Tubine',
+    'Comb. Cycle',
+    'COMB.TURB.PEAK.UNITS',
+    'Steam  and  CC',
+    'I.C.E. /Gas Turbine',
+    'Conbustion Turbine',
+    'Gas Turbine/Int Comb',
+    'Steam & CC',
+    'GAS TURB. & HEAT REC',
+    'Gas Turb/Comb. Cyc',
+    'Comb. Turine',
+]
+nuclear_strings = [
+    'Nuclear',
+    'Nuclear (3)',
+]
+other_strings = [
+    'IC',
+    'Internal Combustion',
+    'Int Combust - Note 1',
+    'Resp. Share - Note 2',
+    'Int. Combust - Note1',
+    'Resp. Share - Note 4',
+    'Resp Share - Note 5',
+    'Resp. Share - Note 7',
+    'Internal Comb Recip',
+    'Reciprocating Engine',
+    'Internal Comb',
+    'Resp. Share - Note 8',
+    'Resp. Share - Note 9',
+    'Resp Share - Note 11',
+    'Resp. Share - Note 6',
+    'INT.COMBUSTINE',
+    'Steam (Incl I.C.)',
+    'Other',
+    'Int Combust (Note 1)',
+    'Resp. Share (Note 2)',
+    'Int. Combust (Note1)',
+    'Resp. Share (Note 8)',
+    'Resp. Share (Note 9)',
+    'Resp Share (Note 11)',
+    'Resp. Share (Note 4)',
+    'Resp. Share (Note 6)',
+    'Plant retired- 2013',
+    'Retired - 2013',
+]
+steam_strings = [
+    'Steam',
+    'Steam Units 1, 2, 3',
+    'Resp Share St Note 3',
+    'Steam Turbine',
+    'Steam-Internal Comb',
+    'IGCC',
+    'Steam- 72%',
+    'Steam (1)',
+    'Steam (1)',
+    'Steam Units 1,2,3',
+    'Steam/Fossil',
+    'Steams',
+    'Steam - 72%',
+    'Steam - 100%',
+    'Stream',
+    'Steam Units 4, 5',
+    'Steam - 64%',
+    'Common',
+    'Steam (A)',
+    'Coal',
+    'Steam;Retired - 2013',
+    'Steam Units 4 & 6',
+]
+wind_strings = [
+    'Wind',
+    'Wind Turbine',
+    'Wind - Turbine',
+    'Wind Energy',
+]
+solar_strings = [
+    'Solar Photovoltaic',
+    'Solar Thermal',
+    'SOLAR PROJECT',
+    'Solar',
+    'Photovoltaic',
+]
+cpi_plant_kind_map = {
+    'natural_gas': natural_gas_strings,
+    'diesel': diesel_strings,
+    'geothermal': geothermal_strings,
+    'nuclear': nuclear_strings,
+    'steam': steam_strings,
+    'wind': wind_strings,
+    'solar': solar_strings,
+    'other': other_strings,
+}
+
+
+def prepare_plants(ferc1_steam):
+    """Prepare raw FERC Form 1 plant records for identification."""
+
+    ferc1_steam = ferc1_steam.drop(
+        ['row_seq', 'row_prvlg', 'report_prd'], axis=1)
+    ferc1_steam['plant_kind_cpi'] = \
+        pudl.transform.pudl.cleanstrings(ferc1_steam.plant_kind,
+                                         cpi_plant_kind_map,
+                                         unmapped='')
+    # Create a unique inter-year FERC table record ID:
+    ferc1_steam['record_id'] = \
+        ferc1_steam.report_year.astype(str) + \
+        ferc1_steam.respondent_id.astype(str) + \
+        ferc1_steam.spplmnt_num.astype(str) + \
+        ferc1_steam.row_number.astype(str)
+    # ferc1_steam['record_id'] = ferc1_steam.record_id.astype(int)
+
+    # If there's no generation, no fuel expenses, and no total expenses...
+    # probably the record is not relevant.
+    mask_one = \
+        ((ferc1_steam.net_generation == 0) |
+         (ferc1_steam.net_generation.isnull())) & \
+        ((ferc1_steam.expns_fuel == 0) | (ferc1_steam.expns_fuel.isnull())) & \
+        ((ferc1_steam.tot_prdctn_expns == 0) |
+         (ferc2_steam.tot_prdctn_expns.isnull()))
+    ferc1_steam = ferc1_steam[~mask_one].reset_index()
+    # Simplify the plant names for matching purposes.
+    # May also want to remove non-alphanumeric characters
+    ferc1_steam['plant_name'] = \
+        ferc1_steam.plant_name.str.strip().str.lower().str.replace('\s+', ' ')
+
+    # These are the columns which we're using to infer inter-year time series,
+    # based on the experience of doing it by hand.
+    matching_cols = [
+        'record_id',
+        'report_year',
+        'spplmnt_num',
+        'row_number',
+        'respondent_id',
+        'plant_name',
+        'plant_kind_cpi',
+        'yr_const',
+        'tot_capacity'
+    ]
+
+    # This was purely for readability in the notebook:
+    # ferc1_tomatch = ferc1_steam[matching_cols]
+    # ferc1_steam_new = ferc1_steam.drop(matching_cols, axis=1)
+    # ferc1_steam_new = pd.merge(
+    #     ferc1_tomatch, ferc1_steam_new, left_index=True, right_index=True)
+
+
+def vectorize_plants(plants,
+                     ngram_range=(2, 5),
+                     sup_num_wt=1.0,
+                     row_num_wt=1.0,
+                     plant_name_wt=1.0,
+                     yr_const_wt=1.0,
+                     respondent_wt=1.0,
+                     plant_kind_wt=1.0,
+                     capacity_wt=1.0):
+    """
+    Vectorize and weight FERC Form 1 large plant records for clustering.
+
+    Several vectorization methods are used for different features:
+      - TF-IDF with character based n-grams for plant names
+      - MinMaxScaler with mean of zero and range (-1,1) for plant capacity
+      - Categorical binary weights for:
+        - respondent_id
+        - construction year
+        - plant type
+        - row number
+        - supplement number
+
+    The vectorized plant features are normalized according to the weights that
+    were passed in before the feature matrix is returned.
+    """
+
+    plant_name_vectorizer = TfidfVectorizer(
+        analyzer='char', ngram_range=ngram_range)
+    plant_name_vectors = plant_name_vectorizer.fit_transform(plants.plant_name)
+
+    scaler = MinMaxScaler()
+    capacity_vectors = scaler.fit_transform(
+        plants.tot_capacity.values.reshape(-1, 1))
+
+    lb_yr_const = LabelBinarizer()
+    yr_const_vectors = scipy.sparse.csr_matrix(
+        lb_yr_const.fit_transform(plants.yr_const))
+
+    lb_sup_num = LabelBinarizer()
+    sup_num_vectors = scipy.sparse.csr_matrix(
+        lb_sup_num.fit_transform(plants.spplmnt_num))
+
+    lb_row_num = LabelBinarizer()
+    row_num_vectors = scipy.sparse.csr_matrix(
+        lb_row_num.fit_transform(plants.row_number))
+
+    lb_respondent = LabelBinarizer()
+    respondent_vectors = scipy.sparse.csr_matrix(
+        lb_respondent.fit_transform(plants.respondent_id))
+
+    lb_plantkind = LabelBinarizer()
+    plant_kind_vectors = scipy.sparse.csr_matrix(
+        lb_plantkind.fit_transform(plants.plant_kind_cpi))
+
+    plant_vectors = normalize(scipy.sparse.hstack([
+        plant_name_vectors * plant_name_wt,
+        yr_const_vectors * yr_const_wt,
+        respondent_vectors * respondent_wt,
+        plant_kind_vectors * plant_kind_wt,
+        capacity_vectors * capacity_wt,
+        sup_num_vectors * sup_num_wt,
+        row_num_vectors * row_num_wt
+    ]))
+    return plant_vectors
+
+
+def best_by_year(plants_df, sim_df, min_sim=0.8):
+    """Find the best match for each plant record in each other year."""
+    out_df = plants_df.copy()
+
+    # only keep similarity matrix entries above our minimum threshold:
+    sim_df = sim_df[sim_df >= min_sim]
+
+    # Add a column for each of the years, in which we will store indices of the
+    # records which best match the record in question:
+    years = plants_df.report_year.unique()
+    for yr in years:
+        newcol = yr
+        out_df[newcol] = -1
+
+    # seed_yr is the year we are matching *from* -- we do the entire matching
+    # process from each year, since it may not be symmetric:
+    for seed_yr in years:
+        seed_idx = plants_df.index[plants_df.report_year == seed_yr]
+        # match_yr is all the other years, in which we are finding the best match
+        for match_yr in years:
+            bestof_yr = match_yr
+            match_idx = plants_df.index[plants_df.report_year == match_yr]
+            # For each record specified by seed_idx, obtain the index of
+            # the record within match_idx that that is the most similar.
+            best_idx = sim_df.iloc[seed_idx, match_idx].idxmax(axis=1)
+            out_df[bestof_yr].iloc[seed_idx] = best_idx
+
+        #out_df = pd.merge(out_df, sim_df.iloc[yr_idx, y_idx].idxmax(axis=1).to_frame(), left_index=True, right_index=True)
+    return(out_df)
+
+
+class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
+    """A classifier for identifying FERC plants in FERC Form 1 data."""
+
+    def __init__(self,
+                 ngram_min=2,
+                 ngram_max=5,
+                 sup_num_wt=1.0,
+                 row_num_wt=1.0,
+                 plant_name_wt=1.0,
+                 yr_const_wt=1.0,
+                 respondent_wt=1.0,
+                 plant_kind_wt=1.0,
+                 capacity_wt=1.0):
+        """
+        Called when initializing the classifier.
+        """
+        self.ngram_min = ngram_min
+        self.ngram_max = ngram_max
+        self.sup_num_wt = sup_num_wt
+        self.row_num_wt = row_num_wt
+        self.plant_name_wt = plant_name_wt
+        self.yr_const_wt = yr_const_wt
+        self.respondent_wt = respondent_wt
+        self.plant_kind_wt = plant_kind_wt
+        self.capacity_wt = capacity_wt
+
+    def fit(self, X, y=None):
+        """
+        This should fit classifier. All the "work" should be done here.
+
+        Note: assert is not a good choice here and you should rather
+        use try/except blog with exceptions. This is just for short syntax.
+        """
+
+        assert (type(self.ngram_min) == int), "ngram_min must be integer"
+        assert (type(self.ngram_max) == int), "ngram_max must be integer"
+
+        self.treshold_ = (sum(X) / len(X)) + self.intValue  # mean + intValue
+
+        return self
+
+    def _meaning(self, x):
+        # returns True/False according to fitted classifier
+        # notice underscore on the beginning
+        return(True if x >= self.treshold_ else False)
+
+    def predict(self, X, y=None):
+        try:
+            getattr(self, "treshold_")
+        except AttributeError:
+            raise RuntimeError(
+                "You must train classifer before predicting data!")
+
+        return([self._meaning(x) for x in X])
+
+    def score(self, X, y=None):
+        # counts number of values bigger than mean
+        return(sum(self.predict(X)))
