@@ -918,124 +918,6 @@ cpi_plant_kind_map = {
 }
 
 
-def prepare_plants(ferc1_steam):
-    """Prepare raw FERC Form 1 plant records for identification."""
-
-    ferc1_steam = ferc1_steam.drop(
-        ['row_seq', 'row_prvlg', 'report_prd'], axis=1)
-    ferc1_steam['plant_kind_cpi'] = \
-        pudl.transform.pudl.cleanstrings(ferc1_steam.plant_kind,
-                                         cpi_plant_kind_map,
-                                         unmapped='')
-    # Create a unique inter-year FERC table record ID:
-    ferc1_steam['record_id'] = \
-        ferc1_steam.report_year.astype(str) + \
-        ferc1_steam.respondent_id.astype(str) + \
-        ferc1_steam.spplmnt_num.astype(str) + \
-        ferc1_steam.row_number.astype(str)
-    # ferc1_steam['record_id'] = ferc1_steam.record_id.astype(int)
-
-    # If there's no generation, no fuel expenses, and no total expenses...
-    # probably the record is not relevant.
-    mask_one = \
-        ((ferc1_steam.net_generation == 0) |
-         (ferc1_steam.net_generation.isnull())) & \
-        ((ferc1_steam.expns_fuel == 0) | (ferc1_steam.expns_fuel.isnull())) & \
-        ((ferc1_steam.tot_prdctn_expns == 0) |
-         (ferc2_steam.tot_prdctn_expns.isnull()))
-    ferc1_steam = ferc1_steam[~mask_one].reset_index()
-    # Simplify the plant names for matching purposes.
-    # May also want to remove non-alphanumeric characters
-    ferc1_steam['plant_name'] = \
-        ferc1_steam.plant_name.str.strip().str.lower().str.replace('\s+', ' ')
-
-    # These are the columns which we're using to infer inter-year time series,
-    # based on the experience of doing it by hand.
-    matching_cols = [
-        'record_id',
-        'report_year',
-        'spplmnt_num',
-        'row_number',
-        'respondent_id',
-        'plant_name',
-        'plant_kind_cpi',
-        'yr_const',
-        'tot_capacity'
-    ]
-
-    # This was purely for readability in the notebook:
-    # ferc1_tomatch = ferc1_steam[matching_cols]
-    # ferc1_steam_new = ferc1_steam.drop(matching_cols, axis=1)
-    # ferc1_steam_new = pd.merge(
-    #     ferc1_tomatch, ferc1_steam_new, left_index=True, right_index=True)
-
-
-def vectorize_plants(plants,
-                     ngram_range=(2, 5),
-                     sup_num_wt=1.0,
-                     row_num_wt=1.0,
-                     plant_name_wt=1.0,
-                     yr_const_wt=1.0,
-                     respondent_wt=1.0,
-                     plant_kind_wt=1.0,
-                     capacity_wt=1.0):
-    """
-    Vectorize and weight FERC Form 1 large plant records for clustering.
-
-    Several vectorization methods are used for different features:
-      - TF-IDF with character based n-grams for plant names
-      - MinMaxScaler with mean of zero and range (-1,1) for plant capacity
-      - Categorical binary weights for:
-        - respondent_id
-        - construction year
-        - plant type
-        - row number
-        - supplement number
-
-    The vectorized plant features are normalized according to the weights that
-    were passed in before the feature matrix is returned.
-    """
-
-    plant_name_vectorizer = TfidfVectorizer(
-        analyzer='char', ngram_range=ngram_range)
-    plant_name_vectors = plant_name_vectorizer.fit_transform(plants.plant_name)
-
-    scaler = MinMaxScaler()
-    capacity_vectors = scaler.fit_transform(
-        plants.tot_capacity.values.reshape(-1, 1))
-
-    lb_yr_const = LabelBinarizer()
-    yr_const_vectors = scipy.sparse.csr_matrix(
-        lb_yr_const.fit_transform(plants.yr_const))
-
-    lb_sup_num = LabelBinarizer()
-    sup_num_vectors = scipy.sparse.csr_matrix(
-        lb_sup_num.fit_transform(plants.spplmnt_num))
-
-    lb_row_num = LabelBinarizer()
-    row_num_vectors = scipy.sparse.csr_matrix(
-        lb_row_num.fit_transform(plants.row_number))
-
-    lb_respondent = LabelBinarizer()
-    respondent_vectors = scipy.sparse.csr_matrix(
-        lb_respondent.fit_transform(plants.respondent_id))
-
-    lb_plantkind = LabelBinarizer()
-    plant_kind_vectors = scipy.sparse.csr_matrix(
-        lb_plantkind.fit_transform(plants.plant_kind_cpi))
-
-    plant_vectors = normalize(scipy.sparse.hstack([
-        plant_name_vectors * plant_name_wt,
-        yr_const_vectors * yr_const_wt,
-        respondent_vectors * respondent_wt,
-        plant_kind_vectors * plant_kind_wt,
-        capacity_vectors * capacity_wt,
-        sup_num_vectors * sup_num_wt,
-        row_num_vectors * row_num_wt
-    ]))
-    return plant_vectors
-
-
 def best_by_year(plants_df, sim_df, min_sim=0.8):
     """Find the best match for each plant record in each other year."""
     out_df = plants_df.copy()
@@ -1064,11 +946,43 @@ def best_by_year(plants_df, sim_df, min_sim=0.8):
             out_df[bestof_yr].iloc[seed_idx] = best_idx
 
         #out_df = pd.merge(out_df, sim_df.iloc[yr_idx, y_idx].idxmax(axis=1).to_frame(), left_index=True, right_index=True)
-    return(out_df)
+    return out_df
 
 
 class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
-    """A classifier for identifying FERC plants in FERC Form 1 data."""
+    """
+    A classifier for identifying FERC plant time series in FERC Form 1 data.
+
+    We want to be able to give the classifier a FERC plant record, and get back
+    the group of records (or the ID of the group of records) that it ought to
+    be part of.
+
+    There are hundreds of different groups of records, and we can only know
+    what they are by looking at the whole dataset ahead of time. This is the
+    "fitting" step, in which the groups of records resulting from a particular
+    set of model parameters (e.g. the weights that are attributes of the class)
+    are generated.
+
+    Once we have that set of record categories, we can test how well the
+    classifier performs, by checking it against test/training data which we
+    have already classified by hand. The test/training set is a list of lists
+    of unique FERC plant record IDs (each record ID is the concatenation of:
+    report year, respondent id, supplement number, and row number). It could
+    also be stored as a dataframe where each column is associated with a year
+    of data (some of which could be empty). Not sure what the best structure
+    would be.
+
+    If it's useful, we can assign each group a unique ID that is the time
+    ordered concatenation of each of the constituent record IDs. Need to
+    understand what the process for checking the classification of an input
+    record looks like.
+
+    To score a given classifier, we can look at what proportion of the records
+    in the test dataset are assigned to the same group as in our manual
+    classification of those records. There are much more complicated ways to
+    do the scoring too... but for now let's just keep it as simple as possible.
+
+    """
 
     def __init__(self,
                  ngram_min=2,
@@ -1080,9 +994,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
                  respondent_wt=1.0,
                  plant_kind_wt=1.0,
                  capacity_wt=1.0):
-        """
-        Called when initializing the classifier.
-        """
+        """Called when initializing the classifier."""
         self.ngram_min = ngram_min
         self.ngram_max = ngram_max
         self.sup_num_wt = sup_num_wt
@@ -1095,18 +1007,130 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
 
     def fit(self, X, y=None):
         """
-        This should fit classifier. All the "work" should be done here.
+        The fit method takes the raw plant records (X) as input, and along
+        with the model parameters that are stored as attributes in self, does
+        the work of categorizing those records.
 
-        Note: assert is not a good choice here and you should rather
-        use try/except blog with exceptions. This is just for short syntax.
+        It stores the results of that categorization in some private data
+        members for later lookup, testing, and scoring of the model.
+
         """
 
         assert (type(self.ngram_min) == int), "ngram_min must be integer"
+        assert (self.ngram_min > 1), "ngram_min must be greater than one"
         assert (type(self.ngram_max) == int), "ngram_max must be integer"
 
-        self.treshold_ = (sum(X) / len(X)) + self.intValue  # mean + intValue
+        self._plants_df = self._prepare_plants(X)
 
         return self
+
+    def _prepare_plants(self, ferc1_steam):
+        """Prepare raw FERC Form 1 plant records for identification."""
+
+        ferc1_steam = ferc1_steam.drop(
+            ['row_seq', 'row_prvlg', 'report_prd'], axis=1)
+        ferc1_steam['plant_kind_cpi'] = \
+            pudl.transform.pudl.cleanstrings(ferc1_steam.plant_kind,
+                                             cpi_plant_kind_map,
+                                             unmapped='')
+        # Create a unique inter-year FERC table record ID:
+        ferc1_steam['record_id'] = \
+            ferc1_steam.report_year.astype(str) + '_' + \
+            ferc1_steam.respondent_id.astype(str) + '_' + \
+            ferc1_steam.spplmnt_num.astype(str) + '_' + \
+            ferc1_steam.row_number.astype(str)
+        # ferc1_steam['record_id'] = ferc1_steam.record_id.astype(int)
+
+        # If there's no generation, no fuel expenses, and no total expenses...
+        # probably the record is not relevant.
+        mask_one = \
+            ((ferc1_steam.net_generation == 0) |
+             (ferc1_steam.net_generation.isnull())) & \
+            ((ferc1_steam.expns_fuel == 0) |
+             (ferc1_steam.expns_fuel.isnull())) & \
+            ((ferc1_steam.tot_prdctn_expns == 0) |
+             (ferc1_steam.tot_prdctn_expns.isnull()))
+        ferc1_steam = ferc1_steam[~mask_one].reset_index()
+        # Simplify the plant names for matching purposes.
+        # May also want to remove non-alphanumeric characters
+        ferc1_steam['plant_name'] = \
+            ferc1_steam.plant_name.str.strip().\
+            str.lower().\
+            str.replace('\s+', ' ')
+
+        # These are the columns containing the features we will match on.
+        matching_cols = [
+            'record_id',
+            'report_year',
+            'spplmnt_num',
+            'row_number',
+            'respondent_id',
+            'plant_name',
+            'plant_kind_cpi',
+            'yr_const',
+            'tot_capacity'
+        ]
+
+        self._ferc1_tomatch = ferc1_steam[matching_cols]
+        ferc1_steam = ferc1_steam.drop(matching_cols, axis=1)
+        self._ferc1_steam = pd.merge(self._ferc1_tomatch, ferc1_steam,
+                                     left_index=True, right_index=True)
+
+    def _vectorize_plants(self, X):
+        """
+        Vectorize and weight FERC Form 1 plant record features for weighting.
+
+        Several vectorization methods are used for different features:
+          - TF-IDF with character based n-grams for plant names
+          - MinMaxScaler with mean of zero and range (-1,1) for plant capacity
+          - Categorical binary weights for:
+            - respondent_id
+            - construction year
+            - plant type
+            - row number
+            - supplement number
+
+        The vectorized plant features are normalized according to the weights
+        that were passed in before the feature matrix is returned.
+        """
+
+        plant_name_vectorizer = TfidfVectorizer(
+            analyzer='char', ngram_range=(self.ngram_min, self.ngram_max))
+        plant_name_vectors = plant_name_vectorizer.fit_transform(X.plant_name)
+
+        scaler = MinMaxScaler()
+        capacity_vectors = scaler.fit_transform(
+            X.tot_capacity.values.reshape(-1, 1))
+
+        lb_yr_const = LabelBinarizer()
+        yr_const_vectors = scipy.sparse.csr_matrix(
+            lb_yr_const.fit_transform(X.yr_const))
+
+        lb_sup_num = LabelBinarizer()
+        sup_num_vectors = scipy.sparse.csr_matrix(
+            lb_sup_num.fit_transform(X.spplmnt_num))
+
+        lb_row_num = LabelBinarizer()
+        row_num_vectors = scipy.sparse.csr_matrix(
+            lb_row_num.fit_transform(X.row_number))
+
+        lb_respondent = LabelBinarizer()
+        respondent_vectors = scipy.sparse.csr_matrix(
+            lb_respondent.fit_transform(X.respondent_id))
+
+        lb_plantkind = LabelBinarizer()
+        plant_kind_vectors = scipy.sparse.csr_matrix(
+            lb_plantkind.fit_transform(X.plant_kind_cpi))
+
+        self._plant_vectors = normalize(scipy.sparse.hstack([
+            plant_name_vectors * self.plant_name_wt,
+            yr_const_vectors * self.yr_const_wt,
+            respondent_vectors * self.respondent_wt,
+            plant_kind_vectors * self.plant_kind_wt,
+            capacity_vectors * self.capacity_wt,
+            sup_num_vectors * self.sup_num_wt,
+            row_num_vectors * self.row_num_wt
+        ]))
 
     def _meaning(self, x):
         # returns True/False according to fitted classifier
