@@ -89,22 +89,22 @@ us_states = {
     'WY': 'Wyoming'
 }
 
-cems_states = {k:v for k, v in us_states.items() if v not in
-    {'Alaska',
-     'American Samoa',
-     'Guam',
-     'Hawaii',
-     'Northern Mariana Islands',
-     'National',
-     'Puerto Rico',
-     'Virgin Islands'}
-    }
+cems_states = {k: v for k, v in us_states.items() if v not in
+               {'Alaska',
+                'American Samoa',
+                'Guam',
+                'Hawaii',
+                'Northern Mariana Islands',
+                'National',
+                'Puerto Rico',
+                'Virgin Islands'}
+               }
 
-travis_ci_ferc1_years = [2012, 2016,]
-travis_ci_eia860_years = [2012, 2016,]
-travis_ci_eia923_years = [2016,]
-travis_ci_epacems_years = [2016,]
-travis_ci_epacems_states = ['CO',]
+travis_ci_ferc1_years = [2012, 2016, ]
+travis_ci_eia860_years = [2012, 2016, ]
+travis_ci_eia923_years = [2016, ]
+travis_ci_epacems_years = [2016, ]
+travis_ci_epacems_states = ['CO', ]
 # Construct a dictionary mapping a canonical fuel name to a list of strings
 # which are used to represent that fuel in the FERC Form 1 Reporting. Case is
 # ignored, as all fuel strings can be converted to a lower case in the data
@@ -3086,7 +3086,7 @@ data_years = {
     'eia861': range(1990, 2016),
     'eia923': range(2001, 2017),
     'epacems': range(1995, 2017),
-    'ferc1': range(1994, 2017),
+    'ferc1': range(1994, 2018),
     'mshamines': range(2000, 2018),
     'mshaops': range(2000, 2018),
     'mshaprod': range(2000, 2018),
