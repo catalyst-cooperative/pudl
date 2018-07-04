@@ -71,8 +71,15 @@ def drop_tables(engine):
     """Drop all the tables and views associated with the PUDL Database."""
     # Drop the views first because they depend on the underlying tables.
     # can't easily cascade because SQLAlchemy doesn't know about the views
-    _drop_views(engine)
-    pudl.models.entities.PUDLBase.metadata.drop_all(engine)
+    try:
+        _drop_views(engine)
+        pudl.models.entities.PUDLBase.metadata.drop_all(engine)
+    except sa.exc.DBAPIError as e:
+        print("""Error dropping and the existing tables. This sometimes
+        happens when the database organization has changed. The easiest fix
+        is to reset the databases. Instructions here:
+        https://github.com/catalyst-cooperative/pudl/blob/master/docs/reset_instructions.md""")
+        raise e
 
 def _create_views(engine):
     """Create views on the PUDL tables
