@@ -23,7 +23,6 @@ post-processing, post-analysis outputs as well.
 # Useful high-level external modules.
 import sqlalchemy as sa
 import pandas as pd
-import numpy as np
 
 # Need the models so we can grab table structures. Need some helpers from the
 # analysis module
@@ -48,6 +47,24 @@ class PudlOutput(object):
 
     def __init__(self, freq=None, testing=False,
                  start_date=None, end_date=None):
+        """Initialize the PUDL output object.
+
+        Private data members are not initialized until they are requested.
+        They are then cached within the object unless they get re-initialized
+        via a method that includes update=True.
+
+        Some methods (e.g mcoe) will take a while to run, since they need to
+        pull substantial data and do a bunch of calculations.
+
+        Parameters:
+        -----------
+        freq : String describing time frequency at which to aggregate the
+               reported data. E.g. 'MS' (monthly start).
+        testing : Whether to use the live or testing PUDL DB.
+        start_date : Beginning date for data to pull from the PUDL DB.
+        end_date : End date for data to pull from the PUDL DB.
+
+        """
         self.freq = freq
         self.testing = testing
 
@@ -90,12 +107,13 @@ class PudlOutput(object):
             'bga': None,
             'hr_by_unit': None,
             'hr_by_gen': None,
-            'fc': None,
-            'cf': None,
+            'fuel_cost': None,
+            'capacity_factor': None,
             'mcoe': None,
         }
 
-    def plants_utilities_eia(self, update=False):
+    def pu_eia(self, update=False):
+        """Pull a dataframe of EIA plant-utility associations."""
         if update or self._dfs['pu_eia'] is None:
             self._dfs['pu_eia'] = \
                 plants_utils_eia(start_date=self.start_date,
@@ -103,18 +121,14 @@ class PudlOutput(object):
                                  testing=self.testing)
         return self._dfs['pu_eia']
 
-    def pu_eia(self, update=False):
-        return self.plants_utilities_eia(update=update)
-
-    def plants_utilities_ferc1(self, update=False):
+    def pu_ferc1(self, update=False):
+        """Pull a dataframe of FERC plant-utility associations."""
         if update or self._dfs['pu_ferc1'] is None:
             self._dfs['pu_ferc1'] = plants_utils_ferc1(testing=self.testing)
         return self._dfs['pu_ferc1']
 
-    def pu_ferc1(self, update=False):
-        return self.plants_utilities_ferc1(update=update)
-
-    def utilities_eia860(self, update=False):
+    def utils_eia860(self, update=False):
+        """Pull a dataframe describing utilities reported in EIA 860."""
         if update or self._dfs['utils_eia860'] is None:
             self._dfs['utils_eia860'] = \
                 utilities_eia860(start_date=self.start_date,
@@ -122,10 +136,8 @@ class PudlOutput(object):
                                  testing=self.testing)
         return self._dfs['utils_eia860']
 
-    def utils_eia860(self, update=False):
-        return self.utilities_eia860(update=update)
-
-    def boiler_generator_assn_eia860(self, update=False):
+    def bga_eia860(self, update=False):
+        """Pull a dataframe of boiler-generator associations from EIA 860."""
         if update or self._dfs['bga_eia860'] is None:
             self._dfs['bga_eia860'] = \
                 boiler_generator_assn_eia860(start_date=self.start_date,
@@ -133,10 +145,8 @@ class PudlOutput(object):
                                              testing=self.testing)
         return self._dfs['bga_eia860']
 
-    def bga_eia860(self, update=False):
-        return self.boiler_generator_assn_eia860(update=update)
-
     def plants_eia860(self, update=False):
+        """Pull a dataframe of plant level info reported in EIA 860."""
         if update or self._dfs['plants_eia860'] is None:
             self._dfs['plants_eia860'] = \
                 plants_eia860(start_date=self.start_date,
@@ -144,7 +154,8 @@ class PudlOutput(object):
                               testing=self.testing)
         return self._dfs['plants_eia860']
 
-    def generators_eia860(self, update=False):
+    def gens_eia860(self, update=False):
+        """Pull a dataframe describing generators, as reported in EIA 860."""
         if update or self._dfs['gens_eia860'] is None:
             self._dfs['gens_eia860'] = \
                 generators_eia860(start_date=self.start_date,
@@ -152,10 +163,8 @@ class PudlOutput(object):
                                   testing=self.testing)
         return self._dfs['gens_eia860']
 
-    def gens_eia860(self, update=False):
-        return self.generators_eia860(update=update)
-
-    def ownership_eia860(self, update=False):
+    def own_eia860(self, update=False):
+        """Pull a dataframe of generator level ownership data from EIA 860."""
         if update or self._dfs['own_eia860'] is None:
             self._dfs['own_eia860'] = \
                 ownership_eia860(start_date=self.start_date,
@@ -163,10 +172,8 @@ class PudlOutput(object):
                                  testing=self.testing)
         return self._dfs['own_eia860']
 
-    def own_eia860(self, update=False):
-        return self.ownership_eia860(update=update)
-
-    def generation_fuel_eia923(self, update=False):
+    def gf_eia923(self, update=False):
+        """Pull EIA 923 generation and fuel consumption data."""
         if update or self._dfs['gf_eia923'] is None:
             self._dfs['gf_eia923'] = \
                 generation_fuel_eia923(freq=self.freq,
@@ -175,10 +182,8 @@ class PudlOutput(object):
                                        testing=self.testing)
         return self._dfs['gf_eia923']
 
-    def gf_eia923(self, update=False):
-        return self.generation_fuel_eia923(update=update)
-
-    def fuel_receipts_costs_eia923(self, update=False):
+    def frc_eia923(self, update=False):
+        """Pull EIA 923 fuel receipts and costs data."""
         if update or self._dfs['frc_eia923'] is None:
             self._dfs['frc_eia923'] = \
                 fuel_receipts_costs_eia923(freq=self.freq,
@@ -187,10 +192,8 @@ class PudlOutput(object):
                                            testing=self.testing)
         return self._dfs['frc_eia923']
 
-    def frc_eia923(self, update=False):
-        return self.fuel_receipts_costs_eia923(update=update)
-
-    def boiler_fuel_eia923(self, update=False):
+    def bf_eia923(self, update=False):
+        """Pull EIA 923 boiler fuel consumption data."""
         if update or self._dfs['bf_eia923'] is None:
             self._dfs['bf_eia923'] = \
                 boiler_fuel_eia923(freq=self.freq,
@@ -199,10 +202,8 @@ class PudlOutput(object):
                                    testing=self.testing)
         return self._dfs['bf_eia923']
 
-    def bf_eia923(self, update=False):
-        return self.boiler_fuel_eia923(update=update)
-
-    def generation_eia923(self, update=False):
+    def gen_eia923(self, update=False):
+        """Pull EIA 923 net generation data by generator."""
         if update or self._dfs['gen_eia923'] is None:
             self._dfs['gen_eia923'] = \
                 generation_eia923(freq=self.freq,
@@ -211,21 +212,21 @@ class PudlOutput(object):
                                   testing=self.testing)
         return self._dfs['gen_eia923']
 
-    def gen_eia923(self, update=False):
-        return self.generation_eia923(update=update)
-
     def plants_steam_ferc1(self, update=False):
+        """Pull the FERC Form 1 steam plants data."""
         if update or self._dfs['plants_steam_ferc1'] is None:
             self._dfs['plants_steam_ferc1'] = \
                 plants_steam_ferc1(testing=self.testing)
         return self._dfs['plants_steam_ferc1']
 
     def fuel_ferc1(self, update=False):
+        """Pull the FERC Form 1 steam plants fuel consumption data."""
         if update or self._dfs['fuel_ferc1'] is None:
             self._dfs['fuel_ferc1'] = fuel_ferc1(testing=self.testing)
         return self._dfs['fuel_ferc1']
 
-    def boiler_generator_assn_eia(self, update=False, verbose=False):
+    def bga(self, update=False):
+        """Pull the more complete EIA/PUDL boiler-generator associations."""
         if update or self._dfs['bga'] is None:
             self._dfs['bga'] = \
                 boiler_generator_assn_eia(start_date=self.start_date,
@@ -233,34 +234,43 @@ class PudlOutput(object):
                                           testing=self.testing)
         return self._dfs['bga']
 
-    def bga(self, update=False, verbose=False):
-        return self.boiler_generator_assn_eia(update=update)
-
-    def heat_rate_by_unit(self, update=False, verbose=False):
-        if update or self._dfs['hr_by_unit'] is None:
-            self._dfs['hr_by_unit'] = mcoe.heat_rate_by_unit(self,
-                                                             verbose=verbose)
-        return self._dfs['hr_by_unit']
-
     def heat_rate_by_gen(self, update=False, verbose=False):
+        """Calculate and return generator level heat rates (mmBTU/MWh)."""
         if update or self._dfs['hr_by_gen'] is None:
             self._dfs['hr_by_gen'] = mcoe.heat_rate_by_gen(self,
                                                            verbose=verbose)
         return self._dfs['hr_by_gen']
 
+    def heat_rate_by_unit(self, update=False, verbose=False):
+        """Calculate and return generation unit level heat rates."""
+        if update or self._dfs['hr_by_unit'] is None:
+            self._dfs['hr_by_unit'] = mcoe.heat_rate_by_unit(self,
+                                                             verbose=verbose)
+        return self._dfs['hr_by_unit']
+
     def fuel_cost(self, update=False, verbose=False):
-        if update or self._dfs['fc'] is None:
-            self._dfs['fc'] = mcoe.fuel_cost(self, verbose=verbose)
-        return self._dfs['fc']
+        """Calculate and return generator level fuel costs per MWh."""
+        if update or self._dfs['fuel_cost'] is None:
+            self._dfs['fuel_cost'] = mcoe.fuel_cost(self, verbose=verbose)
+        return self._dfs['fuel_cost']
 
     def capacity_factor(self, update=False, verbose=False):
-        if update or self._dfs['cf'] is None:
-            self._dfs['cf'] = mcoe.capacity_factor(self, verbose=verbose)
-        return self._dfs['cf']
+        """Calculate and return generator level capacity factors."""
+        if update or self._dfs['capacity_factor'] is None:
+            self._dfs['capacity_factor'] = \
+                mcoe.capacity_factor(self, verbose=verbose)
+        return self._dfs['capacity_factor']
 
     def mcoe(self, update=False,
              min_heat_rate=5.5, min_fuel_cost_per_mwh=0.0,
              min_cap_fact=0.0, max_cap_fact=1.5, verbose=False):
+        """Calculate and return generator level MCOE based on EIA data.
+
+        Eventually this calculation will include non-fuel operating expenses
+        as reported in FERC Form 1, but for now only the fuel costs reported
+        to EIA are included. They are attibuted based on the unit-level heat
+        rates and fuel costs.
+        """
         if update or self._dfs['mcoe'] is None:
             self._dfs['mcoe'] = \
                 mcoe.mcoe(self, verbose=verbose,
@@ -361,7 +371,6 @@ def plants_utils_eia(start_date=None, end_date=None, testing=False):
           to take start_date & end_date and synthesize the earlier and later
           years if need be.
     """
-    pudl_engine = init.connect_db(testing=testing)
     # Contains the one-to-one mapping of EIA plants to their operators, but
     # we only have the 860 data integrated for 2011 forward right now.
     plants_eia = plants_eia860(start_date=start_date,
@@ -408,7 +417,8 @@ def plants_utils_ferc1(testing=False):
 
 def annotate_export(df, notes_dict, tags_dict, first_cols, sheet_name,
                     xlsx_writer):
-    """
+    """Output an annotated spreadsheet workbook based on compiled dataframes.
+
     Create annotation tab and header rows for EIA 860, EIA 923, and FERC 1
     fields in a dataframe. This is done using an Excel Writer object, which
     must be created and saved outside the function, thereby allowing multiple
@@ -440,8 +450,7 @@ def annotate_export(df, notes_dict, tags_dict, first_cols, sheet_name,
     # column is a nested dictionary of column name & value; maps tags_dict to
     # columns in df and creates a new column for each tag category
     for tag, column_dict in tags_dict.items():
-        for key in column_dict.keys():  # key is column name
-            dfnew[tag] = dfnew.index.to_series().map(column_dict)
+        dfnew[tag] = dfnew.index.to_series().map(column_dict)
     # Take the new columns that were created for each tag category and add them
     # to the index
     for tag, column_dict in tags_dict.items():
@@ -499,7 +508,7 @@ def utilities_eia860(start_date=None, end_date=None, testing=False):
         utils_eia_tbl.c.operator_id,
         utils_eia_tbl.c.util_id_pudl,
     ])
-    utils_eia_df = pd.read_sql(utils_eia_select,  pudl_engine)
+    utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
     out_df = pd.merge(utils_eia860_df, utils_eia_df,
                       how='left', on=['operator_id', ])
@@ -519,6 +528,7 @@ def utilities_eia860(start_date=None, end_date=None, testing=False):
 
 def boiler_generator_assn_eia(start_date=None, end_date=None,
                               testing=False):
+    """Pull the more complete PUDL/EIA boiler generator associations."""
     pudl_engine = init.connect_db(testing=testing)
     bga_eia_tbl = pt['boiler_generator_assn_eia']
     bga_eia_select = sa.sql.select([bga_eia_tbl])
@@ -541,6 +551,7 @@ def boiler_generator_assn_eia(start_date=None, end_date=None,
 
 def boiler_generator_assn_eia860(start_date=None, end_date=None,
                                  testing=False):
+    """Pull all fields from the EIA 860 boiler generator association table."""
     pudl_engine = init.connect_db(testing=testing)
     bga_eia860_tbl = pt['boiler_generator_assn_eia860']
     bga_eia860_select = sa.sql.select([bga_eia860_tbl])
@@ -583,7 +594,7 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
         plants_eia_tbl.c.plant_id_eia,
         plants_eia_tbl.c.plant_id_pudl,
     ])
-    plants_eia_df = pd.read_sql(plants_eia_select,  pudl_engine)
+    plants_eia_df = pd.read_sql(plants_eia_select, pudl_engine)
 
     out_df = pd.merge(plants_eia860_df, plants_eia_df,
                       how='left', on=['plant_id_eia', ])
@@ -593,7 +604,7 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
         utils_eia_tbl.c.operator_id,
         utils_eia_tbl.c.util_id_pudl,
     ])
-    utils_eia_df = pd.read_sql(utils_eia_select,  pudl_engine)
+    utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
     out_df = pd.merge(out_df, utils_eia_df,
                       how='left', on=['operator_id', ])
@@ -688,8 +699,8 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
     gens_eia860 = gens_eia860.drop(['operator_id',
                                     'operator_name',
                                     'plant_name'], axis=1)
-    plants_eia860 = pd.read_sql(plants_eia860_select, pudl_engine)
-    out_df = pd.merge(gens_eia860, plants_eia860,
+    plants_eia860_df = pd.read_sql(plants_eia860_select, pudl_engine)
+    out_df = pd.merge(gens_eia860, plants_eia860_df,
                       how='left', on=['report_date', 'plant_id_eia'])
     out_df.report_date = pd.to_datetime(out_df.report_date)
 
@@ -743,12 +754,15 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
     Pull a useful set of fields related to ownership_eia860 table.
 
     Args:
+    -----
         start_date (date): date of the earliest data to retrieve
         end_date (date): date of the latest data to retrieve
         testing (bool): True if we're connecting to the pudl_test DB, False
             if we're connecting to the live PUDL DB. False by default.
     Returns:
+    --------
         out_df (pandas dataframe)
+
     """
     pudl_engine = init.connect_db(testing=testing)
     o_eia860_tbl = pt['ownership_eia860']
@@ -830,6 +844,7 @@ def generation_fuel_eia923(freq=None, testing=False,
     860 tables.
 
     Args:
+    -----
         testing (bool): True if we are connecting to the pudl_test DB, False
             if we're using the live DB.  False by default.
         freq (str): a pandas timeseries offset alias. The original data is
@@ -840,7 +855,9 @@ def generation_fuel_eia923(freq=None, testing=False,
             records to be pulled.  Dates are inclusive.
 
     Returns:
+    --------
         gf_df: a pandas dataframe.
+
     """
     pudl_engine = init.connect_db(testing=testing)
     gf_tbl = pt['generation_fuel_eia923']
@@ -942,6 +959,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
     860 tables.
 
     Args:
+    -----
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are
             probably month start (freq='MS') and year start (freq='YS').
@@ -952,7 +970,9 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
             using the live PUDL DB. False by default.
 
     Returns:
+    --------
         frc_df: a pandas dataframe.
+
     """
     pudl_engine = init.connect_db(testing=testing)
     # Most of the fields we want come direclty from Fuel Receipts & Costs
@@ -1189,12 +1209,16 @@ def generation_eia923(freq=None, testing=False,
     dataframe before it is returned.
 
     Args:
+    -----
         pudl_engine: An SQLAlchemy DB connection engine.
         freq: A string used to specify a time grouping frequency.
         testing (bool): True if we're using the pudl_test DB, False if we're
-            using the live PUDL DB.  False by default.
+                        using the live PUDL DB.  False by default.
+
     Returns:
+    --------
         out_df: a pandas dataframe.
+
     """
     pudl_engine = init.connect_db(testing=testing)
     g_eia923_tbl = pt['generation_eia923']
@@ -1273,11 +1297,14 @@ def plants_steam_ferc1(testing=False):
     and integration with other tables that have PUDL IDs.
 
     Args:
-        testing (bool): True if we're using the pudl_test DB, False if we're
-            using the live PUDL DB.  False by default.
+    -----
+    testing (bool) : True if we're using the pudl_test DB, False if we're
+                     using the live PUDL DB.  False by default.
 
     Returns:
-        steam_df: a pandas dataframe.
+    --------
+    steam_df : a pandas dataframe.
+
     """
     pudl_engine = init.connect_db(testing=testing)
     steam_ferc1_tbl = pt['plants_steam_ferc1']
@@ -1319,10 +1346,14 @@ def fuel_ferc1(testing=False):
     TODO: Check whether this includes all of the fuel_ferc1 fields...
 
     Args:
-        testing (bool): True if we're using the pudl_test DB, False if we're
-            using the live PUDL DB.  False by default.
+    -----
+    testing (bool): True if we're using the pudl_test DB, False if we're
+                    using the live PUDL DB.  False by default.
+
     Returns:
+    --------
         fuel_df: a pandas dataframe.
+
     """
     pudl_engine = init.connect_db(testing=testing)
     fuel_ferc1_tbl = pt['fuel_ferc1']
