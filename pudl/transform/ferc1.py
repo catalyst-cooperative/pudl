@@ -21,7 +21,7 @@ from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import normalize
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import scale
-from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 
 import pudl.constants as pc
 import pudl.models.ferc1
@@ -945,8 +945,44 @@ def best_by_year(plants_df, sim_df, min_sim=0.8):
             best_idx = sim_df.iloc[seed_idx, match_idx].idxmax(axis=1)
             out_df[bestof_yr].iloc[seed_idx] = best_idx
 
-        #out_df = pd.merge(out_df, sim_df.iloc[yr_idx, y_idx].idxmax(axis=1).to_frame(), left_index=True, right_index=True)
+        # out_df = pd.merge(
+        #    out_df,
+        #    sim_df.iloc[yr_idx, y_idx].\
+        #    idxmax(axis=1).to_frame(), left_index=True, right_index=True
+        # )
     return out_df
+
+
+class FERCPlantTransformer(BaseEstimator, TransformerMixin):
+    """A transformer that prepares raw FERC plant records for classification.
+
+    The FERC records as we get them out of the Form 1 database are not
+    appropriate for use in machine learning. We need to vectorize and normalize
+    them first. This seems to be the kind of thing that's done with a
+    "transformer" class, rather than within the classifier itself.
+
+    Questions:
+     - Can the transformer take in the raw data (e.g. an array of plant names)
+       and turn it into vectorized features (e.g. ngram based TF-IDF values)?
+       Seems like many require [n_samples, n_features] shaped input and output.
+     - Does it need to be focused on just a single feature like plant name, or
+       can it be several concatenated features?
+     - Does combining the features into one transformer / array mean that we
+       can't use the Composite Estimator FeatureUnion and Pipeline
+       functionality?
+     - If the data pre-processing isn't done here, where does it get done? Is
+       it just scripted before handing the information off to the Classifier?
+       Is it done by functions within the Classifier?
+    """
+
+    def __init__(self, ngram_min=2, ngram_max=5):
+        pass
+
+    def fit(self, X, y=None):
+        pass
+
+    def transform(self, X):
+        pass
 
 
 class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
@@ -1024,42 +1060,58 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
 
         return self
 
+    def predict(self, X, y=None):
+        try:
+            getattr(self, "treshold_")
+        except AttributeError:
+            raise RuntimeError(
+                "You must train classifer before predicting data!")
+
+        return([self._meaning(x) for x in X])
+
+    def score(self, X, y=None):
+        # counts number of values bigger than mean
+        return(sum(self.predict(X)))
+
     def _prepare_plants(self, ferc1_steam):
         """Prepare raw FERC Form 1 plant records for identification."""
 
-        ferc1_steam = ferc1_steam.drop(
+        ferc1_steam_full = ferc1_steam.drop(
             ['row_seq', 'row_prvlg', 'report_prd'], axis=1)
-        ferc1_steam['plant_kind_cpi'] = \
-            pudl.transform.pudl.cleanstrings(ferc1_steam.plant_kind,
+        ferc1_steam_full['plant_kind_cpi'] = \
+            pudl.transform.pudl.cleanstrings(ferc1_steam_full.plant_kind,
                                              cpi_plant_kind_map,
                                              unmapped='')
         # Create a unique inter-year FERC table record ID:
-        ferc1_steam['record_id'] = \
+        ferc1_steam_full['record_id'] = \
             ferc1_steam.report_year.astype(str) + '_' + \
             ferc1_steam.respondent_id.astype(str) + '_' + \
             ferc1_steam.spplmnt_num.astype(str) + '_' + \
             ferc1_steam.row_number.astype(str)
-        # ferc1_steam['record_id'] = ferc1_steam.record_id.astype(int)
 
         # If there's no generation, no fuel expenses, and no total expenses...
-        # probably the record is not relevant.
+        # probably the record is not relevant. However, there are sometimes
+        # aggregate numbers (e.g. total plant employment) that are reported
+        # on a separate line, and those may also be interesting to pull out
+        # as separate time series. But for now we'll focus on the records
+        # that have generation and expense data associated with them.
         mask_one = \
-            ((ferc1_steam.net_generation == 0) |
-             (ferc1_steam.net_generation.isnull())) & \
-            ((ferc1_steam.expns_fuel == 0) |
-             (ferc1_steam.expns_fuel.isnull())) & \
-            ((ferc1_steam.tot_prdctn_expns == 0) |
-             (ferc1_steam.tot_prdctn_expns.isnull()))
-        ferc1_steam = ferc1_steam[~mask_one].reset_index()
+            ((ferc1_steam_full.net_generation == 0) |
+             (ferc1_steam_full.net_generation.isnull())) & \
+            ((ferc1_steam_full.expns_fuel == 0) |
+             (ferc1_steam_full.expns_fuel.isnull())) & \
+            ((ferc1_steam_full.tot_prdctn_expns == 0) |
+             (ferc1_steam_full.tot_prdctn_expns.isnull()))
+        ferc1_steam_full = ferc1_steam_full[~mask_one].reset_index()
         # Simplify the plant names for matching purposes.
         # May also want to remove non-alphanumeric characters
-        ferc1_steam['plant_name'] = \
-            ferc1_steam.plant_name.str.strip().\
+        ferc1_steam_full['plant_name'] = \
+            ferc1_steam_full.plant_name.str.strip().\
             str.lower().\
             str.replace('\s+', ' ')
 
         # These are the columns containing the features we will match on.
-        matching_cols = [
+        feature_cols = [
             'record_id',
             'report_year',
             'spplmnt_num',
@@ -1071,10 +1123,12 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
             'tot_capacity'
         ]
 
-        self._ferc1_tomatch = ferc1_steam[matching_cols]
-        ferc1_steam = ferc1_steam.drop(matching_cols, axis=1)
-        self._ferc1_steam = pd.merge(self._ferc1_tomatch, ferc1_steam,
-                                     left_index=True, right_index=True)
+        self._ferc1_features = ferc1_steam_full[feature_cols]
+        ferc1_steam_full = ferc1_steam_full.drop(feature_cols, axis=1)
+        self._ferc1_steam_full = pd.merge(self._ferc1_features,
+                                          ferc1_steam_full,
+                                          left_index=True,
+                                          right_index=True)
 
     def _vectorize_plants(self, X):
         """
@@ -1090,8 +1144,8 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
             - row number
             - supplement number
 
-        The vectorized plant features are normalized according to the weights
-        that were passed in before the feature matrix is returned.
+        The vectorized plant features are assigned relative weights based on
+        the weights that were passed in before the feature matrix is returned.
         """
 
         plant_name_vectorizer = TfidfVectorizer(
@@ -1136,16 +1190,3 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         # returns True/False according to fitted classifier
         # notice underscore on the beginning
         return(True if x >= self.treshold_ else False)
-
-    def predict(self, X, y=None):
-        try:
-            getattr(self, "treshold_")
-        except AttributeError:
-            raise RuntimeError(
-                "You must train classifer before predicting data!")
-
-        return([self._meaning(x) for x in X])
-
-    def score(self, X, y=None):
-        # counts number of values bigger than mean
-        return(sum(self.predict(X)))
