@@ -1,10 +1,10 @@
 """Routines specific to cleaning up EIA Form 923 data."""
 
-import pudl.constants as pc
-from pudl import analysis
 import numpy as np
 import networkx as nx
 import pandas as pd
+import pudl.constants as pc
+from pudl import helpers
 
 
 def plants(eia_transformed_dfs,
@@ -42,12 +42,12 @@ def plants(eia_transformed_dfs,
 
     # create the annual and entity dfs
     plants_annual = plants_compiled.copy()
-    plants = plants_compiled.drop(['report_date'], axis=1)
-    plants = plants.astype(int)
-    plants = plants.drop_duplicates(subset=['plant_id_eia'])
+    plants_df = plants_compiled.drop(['report_date'], axis=1)
+    plants_df = plants_df.astype(int)
+    plants_df = plants_df.drop_duplicates(subset=['plant_id_eia'])
     # insert the annual and entity dfs to their respective dtc
     eia_transformed_dfs['plants_annual_eia'] = plants_annual
-    entities_dfs['plants_entity_eia'] = plants
+    entities_dfs['plants_entity_eia'] = plants_df
 
     return entities_dfs, eia_transformed_dfs
 
@@ -117,7 +117,7 @@ def boilers(eia_transformed_dfs,
         df = transformed_df.copy()
         # if the if contains the desired columns the grab those columns
         if (df.columns.contains('report_date') &
-            df.columns.contains('plant_id_eia') &
+                df.columns.contains('plant_id_eia') &
                 df.columns.contains('boiler_id')):
             if verbose:
                 print("        {}...".format(table_name))
@@ -145,12 +145,12 @@ def boilers(eia_transformed_dfs,
     # Not sure yet if we need an annual boiler table
     # boilers_annual = boilers_compiled.copy()
 
-    boilers = boilers_compiled.drop(['report_date'], axis=1)
-    boilers = boilers.drop_duplicates(subset=['plant_id_eia'])
+    boilers_df = boilers_compiled.drop(['report_date'], axis=1)
+    boilers_df = boilers_df.drop_duplicates(subset=['plant_id_eia'])
 
     # insert the annual and entity dfs to their respective dtc
     # eia_transformed_dfs['boilder_annual_eia'] = boilers_annual
-    entities_dfs['boilers_entity_eia'] = boilers
+    entities_dfs['boilers_entity_eia'] = boilers_df
 
     return entities_dfs, eia_transformed_dfs
 
@@ -158,8 +158,7 @@ def boilers(eia_transformed_dfs,
 def boiler_generator_assn(eia_transformed_dfs,
                           eia923_years=pc.working_years['eia923'],
                           eia860_years=pc.working_years['eia860'],
-                          debug=False,
-                          verbose=False):
+                          debug=False, verbose=False):
     """
     Create more complete boiler generator associations.
 
@@ -180,24 +179,28 @@ def boiler_generator_assn(eia_transformed_dfs,
     unit_code values, it's possible to create a nearly complete mapping of the
     generation units, at least for 2014 and later.
 
-    Ultimately, this work needs to be ported into the ingest/load step for
-    the PUDL DB, creating a valuable 'glue' table allowing the boilers and
-    generators to be associated by unit_id easily.
-
-    For now, it is done in the context of the MCOE calculation, within the
-    pudl_out PudlOutput object that is passed in as the only positional
-    argument.
-
     Args:
-        pudl_out: a PudlOutput object, which can obtain the dataframes needed
-            to infer the boiler generator associations.
+    -----
+        eia_transformed_dfs (dict): a dictionary of post-transform dataframes
+            representing the EIA database tables.
+        eia923_years (list-like): a list of the years of EIA 923 data that
+            should be used to infer the boiler-generator associations. By
+            default it is all the working years of data.
+        eia860_years (list-like): a list of the years of EIA 860 data that
+            should be used to infer the boiler-generator associations. By
+            default it is all the working years of data.
         debug (bool): If True, include columns in the returned dataframe
             indicating by what method the individual boiler generator
             associations were inferred.
+        verbose (bool): If True, provide additional output. False by default.
 
     Returns:
-        bga_out (DataFrame): A dataframe containing plant_id_eia, generator_id,
-            boiler_id, and unit_id_pudl
+    --------
+        eia_transformed_dfs (dict): Returns the same dictionary of dataframes
+            that was passed in, and adds a new dataframe to it representing
+            the boiler-generator associations as records containing
+            plant_id_eia, generator_id, boiler_id, and unit_id_pudl
+
     """
     # compile and scrub all the parts
     bga_eia860 = eia_transformed_dfs['boiler_generator_assn_eia860'].copy()
@@ -222,7 +225,7 @@ def boiler_generator_assn(eia_transformed_dfs,
                       gen_eia923,
                       on=['plant_id_eia', 'report_date', 'generator_id'],
                       indicator=True, how='outer')
-    missing = merged[merged['_merge'] == 'right_only']
+    # missing = merged[merged['_merge'] == 'right_only']
 
     # compile all of the generators
     gens_eia860 = eia_transformed_dfs['generators_eia860'].copy()
@@ -261,7 +264,7 @@ def boiler_generator_assn(eia_transformed_dfs,
     bf_eia923_gb = bf_eia923.groupby(
         [pd.Grouper(freq='AS'), 'plant_id_eia', 'boiler_id'])
     bf_eia923 = bf_eia923_gb.agg({
-        'total_heat_content_mmbtu': analysis.sum_na,
+        'total_heat_content_mmbtu': helpers.sum_na,
     }).reset_index()
 
     bf_eia923.drop_duplicates(
@@ -511,21 +514,19 @@ def transform(eia_transformed_dfs,
     if verbose:
         print("Transforming entity tables from EIA:")
     # for each table, run through the eia transform functions
-    for table in eia_transform_functions.keys():
+    for table, func in eia_transform_functions.items():
         # eia_pudl_tables have different inputs than entity tbls
         if table in entity_tables:
             if verbose:
                 print("    {}...".format(table))
-            eia_transform_functions[table](eia_transformed_dfs,
-                                           entities_dfs,
-                                           verbose=verbose)
+            func(eia_transformed_dfs, entities_dfs, verbose=verbose)
         if table in eia_pudl_tables:
             if verbose:
                 print("    {}...".format(table))
-            eia_transform_functions[table](eia_transformed_dfs,
-                                           eia923_years=eia923_years,
-                                           eia860_years=eia860_years,
-                                           debug=debug,
-                                           verbose=verbose)
+            func(eia_transformed_dfs,
+                 eia923_years=eia923_years,
+                 eia860_years=eia860_years,
+                 debug=debug,
+                 verbose=verbose)
 
     return entities_dfs, eia_transformed_dfs

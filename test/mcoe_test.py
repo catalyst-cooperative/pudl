@@ -12,18 +12,19 @@ non-fuel production costs have yet to be integrated.
 """
 import pytest
 import pandas as pd
-from pudl import init, mcoe, outputs
+import pudl.analysis.mcoe as mcoe
+from pudl.output.pudltabl import PudlTabl
 from pudl import constants as pc
 
-start_date = pd.to_datetime(str(min(pc.working_years['eia923'])))
-end_date = pd.to_datetime('{}-12-31'.format(max(pc.working_years['eia923'])))
+START_DATE = pd.to_datetime(str(min(pc.working_years['eia923'])))
+END_DATE = pd.to_datetime('{}-12-31'.format(max(pc.working_years['eia923'])))
 
 
 @pytest.fixture(scope='module', params=['MS', 'AS'])
 def output_byfreq(live_pudl_db, request):
-    pudl_out = outputs.PudlOutput(
+    pudl_out = PudlTabl(
         freq=request.param, testing=(not live_pudl_db),
-        start_date=start_date, end_date=end_date
+        start_date=START_DATE, end_date=END_DATE
     )
     return pudl_out
 
@@ -109,10 +110,7 @@ def single_records(df,
     """Test whether dataframe has a single record per generator."""
     len_1 = len(df)
     len_2 = len(df.drop_duplicates(subset=key_cols))
-    if len_1 == len_2:
-        return True
-    else:
-        return False
+    return bool(len_1 == len_2)
 
 
 def nonunique_gens(df,
