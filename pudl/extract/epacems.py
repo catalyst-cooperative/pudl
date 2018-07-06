@@ -129,7 +129,7 @@ def extract(epacems_years, states, verbose):
                 filename = get_epacems_file(year, month, state)
 
                 if verbose:
-                    print(f"Extracting: {filename}")
+                    print(f"        Extracting: {filename}")
                 # Return a dictionary where the key identifies this dataset
                 # (just like the other extract functions), but unlike the
                 # others, this is yielded as a generator (and it's a one-item

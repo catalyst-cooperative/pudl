@@ -24,6 +24,7 @@ import sqlalchemy as sa
 import os.path
 import re
 import datetime
+import time
 
 from pudl import settings
 import pudl.models.entities
@@ -655,51 +656,32 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
     )
     if verbose:
         print("Loading tables from EPA CEMS into PUDL:")
+        start_time = time.monotonic()
     with pudl.load.BulkCopy(
             table_name="hourly_emissions_epacems",
             engine=pudl_engine,
             csvdir=csvdir,
             keep_csv=keep_csv) as loader:
+
         for transformed_df_dict in epacems_transformed_dfs:
             # There's currently only one dataframe in this dict at a time,
             # but that could be changed if useful.
-            for yr_mo_st, transformed_df in transformed_df_dict.items():
-                # TODO: Is this dict thing useful? If not, delete
-                year, month, state = yr_mo_st
-                if verbose:
-                    print(f"    {year}-{month} for {state}...")
+            # The keys to the dict are a tuple (year, month, state)
+            for transformed_df in transformed_df_dict.values():
                 loader.add(transformed_df)
-
-    # List of indexes and constraints we need to create later, after loading
-    # See https://stackoverflow.com/a/41254430
-    # index names follow SQLAlchemy's convention ix_tablename_columnname, but
-    # this doesn't matter
-    indexes_to_create = [
-        sa.Index("ix_hourly_emissions_epacems_operating_datetime",
-                 pudl.models.epacems.HourlyEmissions.operating_datetime),
-        sa.Index("ix_hourly_emissions_epacems_orispl_code",
-                 pudl.models.epacems.HourlyEmissions.orispl_code),
-        sa.Index("ix_hourly_emissions_epacems_opperating_date_part",
-                 sa.cast(pudl.models.epacems.HourlyEmissions.operating_datetime, sa.Date)),
-    ]
-    for index in indexes_to_create:
-        try:
-            index.create(pudl_engine)
-        except sa.exc.ProgrammingError as e:
-            from warnings import warn
-            warn(f"Failed to add index/constraint '{index.name}'\n" +
-                "Details:\n" + e)
-    # Constraints don't have create() methods
-    try:
-        sa.UniqueConstraint(
-            pudl.models.epacems.HourlyEmissions.orispl_code,
-            pudl.models.epacems.HourlyEmissions.unitid,
-            pudl.models.epacems.HourlyEmissions.operating_datetime,
-            name = "uq_hourly_emissions_epacems_orispl_code_unitid_operating_datetime"
+    if verbose:
+        time_message = "    Loading    EPA CEMS took {}".format(
+            time.strftime("%H:%M:%S", time.gmtime(time.monotonic() - start_time))
         )
-    except sa.exc.SQLAlchemyError as e:  # Any kind of SQLAlchemy error
-        print("Failed to create CEMS uniqness constraint")
-        print(e)
+        print(time_message)
+        start_time = time.monotonic()
+    pudl.models.epacems.finalize(pudl_engine)
+    if verbose:
+        time_message = "    Finalizing EPA CEMS took {}".format(
+            time.strftime("%H:%M:%S", time.gmtime(time.monotonic() - start_time))
+        )
+        print(time_message)
+
 
 
 def init_db(ferc1_tables=pc.ferc1_pudl_tables,

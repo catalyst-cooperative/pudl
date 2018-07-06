@@ -1,5 +1,6 @@
 """Database models for PUDL tables derived from EPA CEMS Data."""
 
+import sqlalchemy as sa
 from sqlalchemy import Integer, SmallInteger, String, REAL, DateTime, Column, Enum, Interval, Date
 from sqlalchemy.dialects.postgresql import TSRANGE
 import pudl.models.entities
@@ -114,3 +115,56 @@ CREATE_VIEWS = ["""
     FROM hourly_emissions_epacems
     """,
     ]
+
+
+def finalize(engine):
+    """Finalize the EPA CEMS table
+
+    args: engine (sqlalchemy engine)
+
+    This function does a few things after all the data have been written because
+    it's faster to do these after the fact.
+    1. Add individual indexes for operating_datetime, orispl_code, and
+       the date part of operating_datetime,
+    2. Add a unique index for the combination of operating_datetime,
+       orispl_code, and unitid.
+    3. Run ALTER TABLE hourly_emissions_epacems SET LOGGED to make the table
+       robust to unclean shutdowns.
+    """
+
+    # List of indexes and constraints we need to create later, after loading
+    # See https://stackoverflow.com/a/41254430
+    # index names follow SQLAlchemy's convention ix_tablename_columnname, but
+    # this doesn't matter
+    indexes_to_create = [
+        sa.Index("ix_hourly_emissions_epacems_operating_datetime",
+                 HourlyEmissions.operating_datetime),
+        sa.Index("ix_hourly_emissions_epacems_orispl_code",
+                 HourlyEmissions.orispl_code),
+        sa.Index("ix_hourly_emissions_epacems_opperating_date_part",
+                 sa.cast(HourlyEmissions.operating_datetime, sa.Date)),
+        # The name that follows the pattern would be
+        # ix_hourly_emissions_epacems_orispl_code_unitid_operating_datetime
+        # But that's too long.
+        sa.Index("ix_orispl_code_unitid_operating_datetime",
+                 HourlyEmissions.orispl_code,
+                 HourlyEmissions.unitid,
+                 HourlyEmissions.operating_datetime,
+                 unique=True),
+    ]
+    for index in indexes_to_create:
+        try:
+            index.create(engine)
+        except sa.exc.ProgrammingError as e:
+            from warnings import warn
+            warn(f"Failed to add index/constraint '{index.name}'\n" +
+                "Details:\n" + e)
+
+    alter_table_sql = f"ALTER TABLE {HourlyEmissions.__tablename__} SET LOGGED"
+    try:
+        engine.execute(alter_table_sql)
+    except sa.exc.SQLAlchemyError as e:  # Any kind of SQLAlchemy error
+        # Note that ALTER TABLE ... SET LOGGGED requires postgres >= 9.5
+        print("Failed to set EPA CEMS table to LOGGED! If you shut down " +
+            "postgres abruptly, the table will be empty.")
+        print(e)
