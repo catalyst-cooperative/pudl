@@ -32,21 +32,12 @@ git clone git@github.com:catalyst-cooperative/pudl.git
 ### 3. Installing Anaconda and Python packages
 1. Anaconda is a package manager, environment manager and Python distribution that contains many of the packages we’ll need to get the PUDL database up and running. Please select the Python 3.6 version on this [page](https://www.anaconda.com/download/#linux). You can follow a step by step guide to completing the installation on the Graphical Installer [here](https://docs.continuum.io/anaconda/install/mac-os#macos-graphical-install).
     - If you prefer a more minimal install, [miniconda](https://conda.io/miniconda.html) is also acceptable.
-2. Set up conda to use [conda-forge](https://conda-forge.org/), and install the required packages. In a terminal window type:
+2. Install the required packages in a new conda environment called `pudl`. In a terminal window type:
 ```sh
-conda config --add channels conda-forge
-# To install in the default conda environment:
-#conda install --file=docs/requirements_conda.txt
-# Or to install in a new environment called 'pudl'
-conda create -n pudl --file=docs/requirements_conda.txt
+conda env create --file=environment.yml
 ```
-If you get an error `No such file or directory: docs/requirements_conda.txt`, make sure you're in the `pudl` repository downloaded in step 2.
+If you get an error `No such file or directory: environment.yml`, make sure you're in the `pudl` repository downloaded in step 2.
 More on conda environments [here](https://conda.io/docs/user-guide/tasks/manage-environments.html).
-
-3. One of the required Python packages are not included in conda-forge so we’ll install it separately using pip. In your terminal window, run the following command to install the `postgres-copy` package.
-```sh
-pip install sqlalchemy-postgres-copy==0.5.0
-```
 
 
 ### 4. Setting up PostgreSQL
@@ -80,8 +71,8 @@ If the download fails (e.g. the FTP server times out), this command can be run r
 ```sh
 python init_pudl.py
 ```
-This script will load all of the data that is currently working (see [README.md](https://github.com/catalyst-cooperative/pudl/#project-status) for details.)
-5. This process will take tens of minutes to download the data and about 20 minutes to run the initialization script. The unzipped data folder will be about 8GB and the postgres database will take up about 1GB.
+This script will load all of the data that is currently working (see [README.md](https://github.com/catalyst-cooperative/pudl/#project-status) for details), except the CEMS dataset, which is really big.
+5. This process will take tens of minutes to download the data and about 20 minutes to several hours run the initialization script (depending if the CEMS is being processed). The unzipped data folder will be about 18 GB and the postgres database will take up about 1 GB without CEMS data or 135 GB with all of it.
 If you want to just do a small subset of the data to test whether the setup is working, check out the help message on the script by calling python `init_pudl.py -h`.
 
 ### 6. Playing with the data

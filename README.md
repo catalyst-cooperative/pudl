@@ -1,3 +1,5 @@
+# The Public Utility Data Liberation (PUDL) Project [![Build Status](https://travis-ci.org/catalyst-cooperative/pudl.svg?branch=master)](https://travis-ci.org/catalyst-cooperative/pudl)
+
 The Public Utility Data Liberation project aims to provide a useful interface
 to publicly available electric utility data in the US.  It uses information
 from the Federal Energy Regulatory Commission (FERC), the Energy Information
@@ -8,33 +10,41 @@ https://github.com/catalyst-cooperative/pudl
 
 For more information, get in touch with:
  - Catalyst Cooperative
- - http://catalyst.coop
+ - https://catalyst.coop
  - hello@catalyst.coop
 
 # Quickstart
-Just want to get started building a database? Read [the documentation for your operating system](/docs).
+Just want to get started building a database? Read [the documentation for your
+operating system](/docs).
 
 ---
 # Project Status
-As of February, 2018 the data which have been integrated into the PUDL database include:
+As of June, 2018 the data which have been integrated into the PUDL database
+include:
 
-## FERC Form 1
+## [FERC Form 1](https://www.ferc.gov/docs-filing/forms/form-1/data.asp)
 A subset of the FERC Form 1 data, mostly pertaining to power plants, their
 capital & operating expenses, and fuel consumption. This data is available for
 the years 2004-2016. Earlier data is available from FERC, but the structure of
 their database differs slightly from the present version somewhat before 2004,
 and so more work will be required to integrate that information.
 
-## EIA Form 923
+## [EIA Form 923](https://www.eia.gov/electricity/data/eia923/)
 Nearly all of EIA Form 923 is being pulled into the PUDL database, for years
 2009-2016. Earlier data is available from EIA, but the reporting format for
 earlier years is substantially different from the present day, and will require
 more work to integrate.
 
-## EIA Form 860
+## [EIA Form 860](https://www.eia.gov/electricity/data/eia860/)
 Nearly all of the data reported to the EIA on Form 860 is being pulled into the
 PUDL database, for the years 2011-2016. Earlier years use a different reporting
 format, and will require more work to integrate.
+
+## [EPA CEMS](https://ampd.epa.gov/ampd/)
+The EPA's hourly Continuous Emissions Monitoring System (CEMS) data is in the
+process of being integrated. However, it is a much larger dataset than the FERC
+or EIA data we've already brought in, and so has required some changes to the
+overall ETL process.
 
 ---
 # Project Layout
@@ -85,7 +95,8 @@ initialization process (extract, transform, load) they pertain to. For example:
 The load step is currently very simple, and so it just has a single top level
 module dedicated to it.
 
-The database models (table definitions) are also organized by data source, and are kept in the models subpackage. E.g.:
+The database models (table definitions) are also organized by data source, and
+are kept in the models subpackage. E.g.:
  - `./models/eia923.py`
  - `./models/eia860.py`
 

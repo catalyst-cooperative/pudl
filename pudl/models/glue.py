@@ -5,9 +5,8 @@ These tables include many lists of static values, as well as the "glue" that
 is required to relate information from different data sources to each other.
 """
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Float
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 import pudl.models.entities
 
 

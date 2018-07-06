@@ -1,6 +1,6 @@
 """Database models for PUDL tables derived from EIA Form 923 Data."""
 
-from sqlalchemy import Boolean, Integer, String, Float, Numeric, Date
+from sqlalchemy import Boolean, Integer, String, Float, Date
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint
 import pudl.models.entities
 
@@ -28,7 +28,7 @@ class BoilersEIA923(pudl.models.entities.PUDLBase):
     """List of Boiler IDs specific to each plant in EIA Form 923 Page 3."""
 
     __tablename__ = 'boilers_eia923'
-    #__table_args__ = (ForeignKeyConstraint(
+    # __table_args__ = (ForeignKeyConstraint(
     #    ['plant_id_eia', 'boiler_id'],
     #    ['boilers_entity_eia.plant_id_eia',
     #     'boilers_entity_eia.boiler_id']),)
@@ -171,47 +171,6 @@ class TransportModeEIA923(pudl.models.entities.PUDLBase):
 ###########################################################################
 # Tables which represent EIA Form 923 data. E.g. Fuel Receipts.
 ###########################################################################
-
-
-class OperatorEIA923(pudl.models.entities.PUDLBase):
-    """
-    Information specific to plant operators (typically utilities).
-
-    Reported on Page 1 of EIA Form 923.
-    """
-
-    __tablename__ = 'operator_eia923'
-    operator_id = Column(Integer,
-                         ForeignKey('utilities_eia.operator_id'),
-                         primary_key=True)
-    regulated = Column(Boolean, primary_key=True)
-
-
-class PlantsEIA923(pudl.models.entities.PUDLBase):
-    """Information specific to individual power plants.
-
-    Reported on Page 1 of EIA Form 923.
-    """
-
-    __tablename__ = 'plants_eia923'
-    # TODO: This should be a FK pointing at plants_eia.plant_id_eia
-    plant_id_eia = Column(Integer, ForeignKey(
-        'plants_entity_eia.plant_id_eia'), primary_key=True)
-    combined_heat_power = Column(Boolean)
-    plant_state = Column(String, ForeignKey('us_states.abbr'))
-    eia_sector = Column(Integer, ForeignKey('sector_eia.id'))
-    naics_code = Column(Integer)
-    reporting_frequency = \
-        Column(String, ForeignKey('respondent_frequency_eia923.abbr'))
-    # Census region & NERC region are nullable, because they're set from info
-    # listed in the generation_fuel page of EIA923, which does not list the
-    # entire universe of plants (those listed only in plant_frame will not have
-    # these values set)
-    census_region = Column(String, ForeignKey('census_regions.abbr'))
-    nerc_region = Column(String, ForeignKey('nerc_region.abbr'))
-    nameplate_capacity_mw = Column(Float)
-
-
 class GenerationFuelEIA923(pudl.models.entities.PUDLBase):
     """
     Monthly fuel consumption and electricity generation by plant.
@@ -250,7 +209,7 @@ class BoilerFuelEIA923(pudl.models.entities.PUDLBase):
     """Monthly fuel consumption by boiler reported on Page 3 of EIA 923."""
 
     __tablename__ = 'boiler_fuel_eia923'
-    #__table_args__ = (ForeignKeyConstraint(
+    # __table_args__ = (ForeignKeyConstraint(
     #    ['plant_id_eia', 'boiler_id'],
     #    ['boilers_entity_eia.plant_id_eia',
     #     'boilers_entity_eia.boiler_id']),)

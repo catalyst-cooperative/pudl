@@ -89,6 +89,22 @@ us_states = {
     'WY': 'Wyoming'
 }
 
+cems_states = {k: v for k, v in us_states.items() if v not in
+               {'Alaska',
+                'American Samoa',
+                'Guam',
+                'Hawaii',
+                'Northern Mariana Islands',
+                'National',
+                'Puerto Rico',
+                'Virgin Islands'}
+               }
+
+travis_ci_ferc1_years = [2012, 2016, ]
+travis_ci_eia860_years = [2012, 2016, ]
+travis_ci_eia923_years = [2016, ]
+travis_ci_epacems_years = [2016, ]
+travis_ci_epacems_states = ['CO', ]
 # Construct a dictionary mapping a canonical fuel name to a list of strings
 # which are used to represent that fuel in the FERC Form 1 Reporting. Case is
 # ignored, as all fuel strings can be converted to a lower case in the data
@@ -3008,11 +3024,56 @@ natural_gas_transport_eia923 = {
     'I': 'Interruptible'
 }
 
+
+##### EPA CEMS constants #####
+
+epacems_rename_dict = {
+    "STATE": "state",
+    "FACILITY_NAME": "facility_name",
+    "ORISPL_CODE": "orispl_code",
+    "UNITID": "unitid",
+    # These op_date, op_hour, and op_time variables get converted to
+    # operating_date, operating_datetime and operating_interval in
+    # transform/epacems.py
+    "OP_DATE": "op_date",
+    "OP_HOUR": "op_hour",
+    "OP_TIME": "op_time",
+    "GLOAD (MW)": "gross_load_mw",
+    "GLOAD": "gross_load_mw",
+    "SLOAD (1000 lbs)": "steam_load_1000_lbs",
+    "SLOAD (1000lb/hr)": "steam_load_1000_lbs",
+    "SLOAD": "steam_load_1000_lbs",
+    "SO2_MASS (lbs)": "so2_mass_lbs",
+    "SO2_MASS": "so2_mass_lbs",
+    "SO2_MASS_MEASURE_FLG": "so2_mass_measure_flg",
+    "SO2_RATE (lbs/mmBtu)": "so2_rate_lbs_mmbtu",
+    "SO2_RATE": "so2_rate_lbs_mmbtu",
+    "SO2_RATE_MEASURE_FLG": "so2_rate_measure_flg",
+    "NOX_RATE (lbs/mmBtu)": "nox_rate_lbs_mmbtu",
+    "NOX_RATE": "nox_rate_lbs_mmbtu",
+    "NOX_RATE_MEASURE_FLG": "nox_rate_measure_flg",
+    "NOX_MASS (lbs)": "nox_mass_lbs",
+    "NOX_MASS": "nox_mass_lbs",
+    "NOX_MASS_MEASURE_FLG": "nox_mass_measure_flg",
+    "CO2_MASS (tons)": "co2_mass_tons",
+    "CO2_MASS": "co2_mass_tons",
+    "CO2_MASS_MEASURE_FLG": "co2_mass_measure_flg",
+    "CO2_RATE (tons/mmBtu)": "co2_rate_tons_mmbtu",
+    "CO2_RATE": "co2_rate_tons_mmbtu",
+    "CO2_RATE_MEASURE_FLG": "co2_rate_measure_flg",
+    "HEAT_INPUT (mmBtu)": "heat_input_mmbtu",
+    "HEAT_INPUT": "heat_input_mmbtu",
+    "FAC_ID": "fac_id",
+    "UNIT_ID": "unit_id",
+}
+
+epacems_tables = ["hourly_emissions_epacems"]
+
 data_sources = [
     'eia860',
     # 'eia861',
     'eia923',
-    # 'epacems',
+    'epacems',
     'ferc1',
     # 'mshamines',
     # 'mshaops',
@@ -3024,8 +3085,8 @@ data_years = {
     'eia860': range(2001, 2017),
     'eia861': range(1990, 2016),
     'eia923': range(2001, 2017),
-    'epacems': range(1995, 2018),
-    'ferc1': range(1994, 2017),
+    'epacems': range(1995, 2017),
+    'ferc1': range(1994, 2018),
     'mshamines': range(2000, 2018),
     'mshaops': range(2000, 2018),
     'mshaprod': range(2000, 2018),
@@ -3036,7 +3097,7 @@ working_years = {
     'eia860': range(2011, 2017),
     'eia861': [],
     'eia923': range(2009, 2017),
-    'epacems': [],
+    'epacems': range(1995, 2017),
     'ferc1': range(2004, 2017),
     'mshamines': [],
     'mshaops': [],
@@ -3047,13 +3108,14 @@ pudl_tables = {
     'eia860': eia860_pudl_tables,
     'eia923': eia923_pudl_tables,
     'ferc1': ferc1_pudl_tables,
+    'epacems': epacems_tables,
 }
 
 base_data_urls = {
     'eia860': 'https://www.eia.gov/electricity/data/eia860/xls',
     'eia861': 'https://www.eia.gov/electricity/data/eia861/zip',
     'eia923': 'https://www.eia.gov/electricity/data/eia923/archive/xls',
-    'epacems': 'ftp://ftp.epa.gov/dmdnload/emissions/hourly/monthly',
+    'epacems': 'ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly',
     'ferc1': 'ftp://eforms1.ferc.gov/f1allyears',
     'mshaprod': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
     'mshamines': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
@@ -3072,5 +3134,6 @@ need_fix_inting = {'generators_eia860': ['sector', 'turbines'],
                    'plants_hydro_ferc1': ['year_constructed',
                                           'year_installed'],
                    'plants_pumped_storage_ferc1': ['year_constructed',
-                                                   'year_installed']
+                                                   'year_installed'],
+                   'hourly_emissions_epacems': ['fac_id', 'unit_id'],
                    }

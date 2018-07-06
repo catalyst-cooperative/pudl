@@ -1,10 +1,9 @@
 """A module with functions to aid generating MCOE."""
 
-from pudl import analysis, outputs, init
+from pudl import helpers, init
 from pudl import constants as pc
 import numpy as np
 import pandas as pd
-import networkx as nx
 
 
 def heat_rate_by_unit(pudl_out, verbose=False):
@@ -47,26 +46,26 @@ def heat_rate_by_unit(pudl_out, verbose=False):
                                'generator_id',
                                'unit_id_pudl']].drop_duplicates()
     # Merge those unit ids into the generation data:
-    gen_w_unit = analysis.merge_on_date_year(
+    gen_w_unit = helpers.merge_on_date_year(
         pudl_out.gen_eia923(), bga_gens, on=['plant_id_eia', 'generator_id'])
     # Sum up the net generation per unit for each time period:
     gen_gb = gen_w_unit.groupby(['report_date',
                                  'plant_id_eia',
                                  'unit_id_pudl'])
-    gen_by_unit = gen_gb.agg({'net_generation_mwh': analysis.sum_na})
+    gen_by_unit = gen_gb.agg({'net_generation_mwh': helpers.sum_na})
     gen_by_unit = gen_by_unit.reset_index()
 
     # Create a dataframe containingonly the unit-boiler mappings:
     bga_boils = pudl_out.bga()[['report_date', 'plant_id_eia',
                                 'boiler_id', 'unit_id_pudl']].drop_duplicates()
     # Merge those unit ids into the boiler fule consumption data:
-    bf_w_unit = analysis.merge_on_date_year(
+    bf_w_unit = helpers.merge_on_date_year(
         pudl_out.bf_eia923(), bga_boils, on=['plant_id_eia', 'boiler_id'])
     # Sum up all the fuel consumption per unit for each time period:
     bf_gb = bf_w_unit.groupby(['report_date',
                                'plant_id_eia',
                                'unit_id_pudl'])
-    bf_by_unit = bf_gb.agg({'total_heat_content_mmbtu': analysis.sum_na})
+    bf_by_unit = bf_gb.agg({'total_heat_content_mmbtu': helpers.sum_na})
     bf_by_unit = bf_by_unit.reset_index()
 
     # Merge together the per-unit generation and fuel consumption data so we
@@ -98,14 +97,14 @@ def heat_rate_by_gen(pudl_out, verbose=False):
                            validate='one_to_one')
     # Associate those heat rates with individual generators. This also means
     # losing the net generation and fuel consumption information for now.
-    hr_by_gen = analysis.merge_on_date_year(
+    hr_by_gen = helpers.merge_on_date_year(
         pudl_out.heat_rate_by_unit()[['report_date', 'plant_id_eia',
                                       'unit_id_pudl', 'heat_rate_mmbtu_mwh']],
         bga_gens, on=['plant_id_eia', 'unit_id_pudl']
     )
     hr_by_gen = hr_by_gen.drop('unit_id_pudl', axis=1)
     # Now bring information about generator fuel type & count
-    hr_by_gen = analysis.merge_on_date_year(
+    hr_by_gen = helpers.merge_on_date_year(
         hr_by_gen,
         pudl_out.gens_eia860()[['report_date', 'plant_id_eia', 'generator_id',
                                 'fuel_type_pudl', 'fuel_type_count']],
@@ -202,8 +201,8 @@ def fuel_cost(pudl_out, verbose=False):
 
     one_fuel_gb = one_fuel.groupby(by=['report_date', 'plant_id_eia'])
     one_fuel_agg = one_fuel_gb.agg({
-        'total_fuel_cost': analysis.sum_na,
-        'total_heat_content_mmbtu': analysis.sum_na
+        'total_fuel_cost': helpers.sum_na,
+        'total_heat_content_mmbtu': helpers.sum_na
     })
     one_fuel_agg['fuel_cost_per_mmbtu'] = \
         one_fuel_agg['total_fuel_cost'] / \
@@ -265,10 +264,10 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5, verbose=False):
                                         'net_generation_mwh']]
 
     # merge the generation and capacity to calculate capacity factor
-    capacity_factor = analysis.merge_on_date_year(gen_eia923,
-                                                  gens_eia860,
-                                                  on=['plant_id_eia',
-                                                      'generator_id'])
+    capacity_factor = helpers.merge_on_date_year(gen_eia923,
+                                                 gens_eia860,
+                                                 on=['plant_id_eia',
+                                                     'generator_id'])
 
     # get a unique set of dates to generate the number of hours
     dates = capacity_factor['report_date'].drop_duplicates()
@@ -312,7 +311,8 @@ def mcoe(pudl_out,
     that is passed in.
 
     Args:
-        pudl_out: a PudlOutput object, specifying the time resolution and
+    -----
+        pudl_out: a PudlTabl object, specifying the time resolution and
             date range for which the calculations should be performed.
         min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any MCOE
             records with lower heat rates are presumed to be invalid, and are
@@ -327,9 +327,11 @@ def mcoe(pudl_out,
             previously would have been NaN.
 
     Returns:
+    --------
         mcoe_out: a dataframe organized by date and generator, with lots of
-        juicy information about the generators -- including fuel cost on a per
-        MWh and MMBTU basis, heat rates, and neg generation.
+            juicy information about the generators -- including fuel cost on a
+            per MWh and MMBTU basis, heat rates, and neg generation.
+
     """
     # Bring together the fuel cost and capacity factor dataframes, which
     # also include heat rate information.
@@ -342,7 +344,7 @@ def mcoe(pudl_out,
 
     # Bring the PUDL Unit IDs into the output dataframe so we can see how
     # the generators are really grouped.
-    mcoe_out = analysis.merge_on_date_year(
+    mcoe_out = helpers.merge_on_date_year(
         mcoe_out,
         pudl_out.bga(verbose=verbose)[['report_date',
                                        'plant_id_eia',
@@ -369,9 +371,9 @@ def mcoe(pudl_out,
         'fuel_type_count',
         'fuel_type_pudl'
     ], axis=1)
-    mcoe_out = analysis.merge_on_date_year(mcoe_out, simplified_gens_eia860,
-                                           on=['plant_id_eia',
-                                               'generator_id'])
+    mcoe_out = helpers.merge_on_date_year(mcoe_out, simplified_gens_eia860,
+                                          on=['plant_id_eia',
+                                              'generator_id'])
 
     first_cols = ['report_date',
                   'plant_id_eia',
@@ -382,7 +384,7 @@ def mcoe(pudl_out,
                   'operator_id',
                   'util_id_pudl',
                   'operator_name']
-    mcoe_out = outputs.organize_cols(mcoe_out, first_cols)
+    mcoe_out = helpers.organize_cols(mcoe_out, first_cols)
     mcoe_out = mcoe_out.sort_values(
         ['plant_id_eia', 'unit_id_pudl', 'generator_id', 'report_date']
     )

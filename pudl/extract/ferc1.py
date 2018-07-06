@@ -1,12 +1,12 @@
 """A module to clone the FERC Form 1 Database from FoxPro to Postgres."""
 import os.path
-from pudl import settings
-import pudl.constants as pc
+import string
+import re
 import pandas as pd
 import sqlalchemy as sa
 import dbfread
-import string
-import re
+from pudl import settings
+import pudl.constants as pc
 
 # MetaData object will contain the ferc1 database schema.
 ferc1_meta = sa.MetaData()
@@ -24,8 +24,8 @@ def connect_db(testing=False):
     """
     if testing:
         return sa.create_engine(sa.engine.url.URL(**settings.DB_FERC1_TEST))
-    else:
-        return sa.create_engine(sa.engine.url.URL(**settings.DB_FERC1))
+
+    return sa.create_engine(sa.engine.url.URL(**settings.DB_FERC1))
 
 
 def _create_tables(engine):
