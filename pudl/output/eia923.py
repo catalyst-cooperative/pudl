@@ -291,6 +291,7 @@ def boiler_fuel_eia923(freq=None, testing=False,
     860 tables.
 
     Args:
+    -----
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are
             probably month start (freq='MS') and year start (freq='YS').
@@ -301,6 +302,7 @@ def boiler_fuel_eia923(freq=None, testing=False,
             using the live PUDL DB.  False by default.
 
     Returns:
+    --------
         bf_df: a pandas dataframe.
 
     """
