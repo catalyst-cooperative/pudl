@@ -114,11 +114,6 @@ def coalmine_cleanup(cmi_df):
                                      regex=True,
                                      inplace=True)
     cmi_df['county_id_fips'] = cmi_df['county_id_fips'].astype(float)
-    # cmi_df['county_id_fips'] = \
-    #    pudl.transform.pudl.fix_int_na(cmi_df['county_id_fips'],
-    #                                   float_na=np.nan,
-    #                                   int_na=-1,
-    #                                   str_na='')
     return cmi_df
 
 ###############################################################################
@@ -171,18 +166,6 @@ def plants(eia923_dfs, eia923_transformed_dfs):
         plant_info_df.census_region.str.replace(' ', '')
     plant_info_df.drop_duplicates(subset='plant_id_eia')
 
-    # plant_info_df['eia_sector'] = \
-    #    pudl.transform.pudl.fix_int_na(plant_info_df['eia_sector'],
-    #                                   float_na=np.nan,
-    #                                   int_na=-1,
-    #                                   str_na='')
-
-    # plant_info_df['naics_code'] = \
-    #    pudl.transform.pudl.fix_int_na(plant_info_df['naics_code'],
-    #                                   float_na=np.nan,
-    #                                   int_na=-1,
-    #                                   str_na='')
-
     plant_info_df['plant_id_eia'] = plant_info_df['plant_id_eia'].astype(int)
 
     eia923_transformed_dfs['plants_eia923'] = plant_info_df
@@ -233,17 +216,10 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     # any particular plant (they have plant_id_eia == operator_id == 99999)
     gf_df = gf_df[gf_df.plant_id_eia != 99999]
 
-    # Take a float field and make it an integer, with the empty sa.String
-    # as the NA value... for postgres loading.
-    # gf_df['nuclear_unit_id'] = \
-    #    pudl.transform.pudl.fix_int_na(gf_df['nuclear_unit_id'],
-    #                                   float_na=np.nan,
-    #                                   int_na=-1,
-    #                                   str_na='')
-
     gf_df['fuel_type_pudl'] = \
-        pudl.transform.pudl.cleanstrings(gf_df.fuel_type,
-                                         pc.fuel_type_eia923_gen_fuel_simple_map)
+        pudl.transform.pudl.cleanstrings(
+            gf_df.fuel_type,
+            pc.fuel_type_eia923_gen_fuel_simple_map)
 
     # Convert Year/Month columns into a single Date column...
     gf_df = pudl.transform.pudl.convert_to_date(gf_df)
@@ -321,8 +297,9 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     bf_df = yearly_to_monthly_eia923(
         bf_df, pc.month_dict_eia923)
     bf_df['fuel_type_pudl'] = \
-        pudl.transform.pudl.cleanstrings(bf_df.fuel_type,
-                                         pc.fuel_type_eia923_boiler_fuel_simple_map)
+        pudl.transform.pudl.cleanstrings(
+            bf_df.fuel_type,
+            pc.fuel_type_eia923_boiler_fuel_simple_map)
     # Replace the EIA923 NA value ('.') with a real NA value.
     bf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
 
@@ -420,12 +397,16 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     Transform the coalmine_eia923 table.
 
     Args:
+    -----
         eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
             EIA860 form, as reported in the Excel spreadsheets they distribute.
         eia860_transformed_dfs (dictionary of DataFrames)
 
-    Returns: transformed dataframe.
+    Returns:
+    --------
+        Transformed dataframe.
+
     """
     # These are the columns that we want to keep from FRC for the
     # coal mine info table.
@@ -479,32 +460,28 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     # then make the id index a column for simpler transferability
     cmi_df = cmi_df.reset_index()
 
-    # Take a float field and make it an integer, with the empty sa.String
-    # as the NA value... for postgres loading. Yes, this is janky.
-    # cmi_df['mine_id_msha'] = \
-    #    pudl.transform.pudl.fix_int_na(cmi_df['mine_id_msha'],
-    #                                   float_na=np.nan,
-    #                                   int_na=-1,
-    #                                   str_na='')
-
     eia923_transformed_dfs['coalmine_eia923'] = cmi_df
 
     return eia923_transformed_dfs
 
 
-def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs, pudl_engine):
+def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
     """
     Transform the fuel_receipts_costs_eia923.
 
     Fuel cost is reported in cents per mmbtu. Convert cents to dollars.
 
     Args:
+    -----
         eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
             EIA860 form, as reported in the Excel spreadsheets they distribute.
         eia860_transformed_dfs (dictionary of DataFrames)
 
-    Returns: transformed dataframe.
+    Returns:
+    --------
+        Transformed dataframe.
+
     """
     frc_df = eia923_dfs['fuel_receipts_costs'].copy()
 
@@ -522,14 +499,11 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs, pudl_engine):
                     'regulated',
                     'reporting_frequency']
 
-    # cmi_df = pd.read_sql('''SELECT * FROM coalmine_eia923''', pudl_engine)
     cmi_df = eia923_transformed_dfs['coalmine_eia923'].copy()
 
     # In order for the merge to work, we need to get the county_id_fips field
     # back into ready-to-dump form... so it matches the types of the
     # county_id_fips field that we are going to be merging on in the frc_df.
-    # cmi_df['county_id_fips'] = \
-    #    pudl.transform.pudl.fix_int_na(cmi_df['county_id_fips'])
     cmi_df = cmi_df.rename(columns={'id': 'mine_id_pudl'})
 
     # This type/naming cleanup function is separated out so that we can be
@@ -586,11 +560,6 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs, pudl_engine):
     )
 
     frc_df = pudl.transform.pudl.convert_to_date(frc_df)
-    # frc_df['mine_id_pudl'] = \
-    #    pudl.transform.pudl.fix_int_na(frc_df['mine_id_pudl'],
-    #                                   float_na=np.nan,
-    #                                   int_na=-1,
-    #                                   str_na='')
 
     frc_df['fuel_cost_per_mmbtu'] = frc_df['fuel_cost_per_mmbtu'] / 100
 
@@ -607,12 +576,10 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs, pudl_engine):
 
 
 def transform(eia923_raw_dfs,
-              pudl_engine,
               eia923_tables=pc.eia923_pudl_tables,
               verbose=True):
     """Transform all EIA 923 tables."""
     eia923_transform_functions = {
-        # 'plants_eia923': pudl.transform.eia923.plants, don't need bc entity table
         'generation_fuel_eia923': generation_fuel,
         'boilers_eia923': boilers,
         'boiler_fuel_eia923': boiler_fuel,
@@ -625,15 +592,10 @@ def transform(eia923_raw_dfs,
 
     if verbose:
         print("Transforming tables from EIA 923:")
-    for table in eia923_transform_functions.keys():
+    for table in eia923_transform_functions:
         if table in eia923_tables:
             if verbose:
                 print("    {}...".format(table))
-            if table == 'fuel_receipts_costs_eia923':
-                eia923_transform_functions[table](eia923_raw_dfs,
-                                                  eia923_transformed_dfs,
-                                                  pudl_engine)
-            else:
-                eia923_transform_functions[table](eia923_raw_dfs,
-                                                  eia923_transformed_dfs)
+            eia923_transform_functions[table](eia923_raw_dfs,
+                                              eia923_transformed_dfs)
     return eia923_transformed_dfs

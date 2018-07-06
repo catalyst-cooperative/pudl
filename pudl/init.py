@@ -18,13 +18,11 @@ Mapper (ORM) and initializes the database from several sources:
    - Greenhouse Gas Reporting Program (epaghgrp)
 """
 
-import pandas as pd
-import numpy as np
-import sqlalchemy as sa
 import os.path
-import re
 import datetime
 import time
+import pandas as pd
+import sqlalchemy as sa
 
 from pudl import settings
 import pudl.models.entities
@@ -59,14 +57,14 @@ def connect_db(testing=False):
     """Connect to the PUDL database using global settings from settings.py."""
     if testing:
         return sa.create_engine(sa.engine.url.URL(**settings.DB_PUDL_TEST))
-    else:
-        return sa.create_engine(sa.engine.url.URL(**settings.DB_PUDL))
+    return sa.create_engine(sa.engine.url.URL(**settings.DB_PUDL))
 
 
 def _create_tables(engine):
     """Create the tables and views associated with the PUDL Database."""
     pudl.models.entities.PUDLBase.metadata.create_all(engine)
     _create_views(engine)
+
 
 def drop_tables(engine):
     """Drop all the tables and views associated with the PUDL Database."""
@@ -81,6 +79,7 @@ def drop_tables(engine):
         is to reset the databases. Instructions here:
         https://github.com/catalyst-cooperative/pudl/blob/master/docs/reset_instructions.md""")
         raise e
+
 
 def _create_views(engine):
     """Create views on the PUDL tables
@@ -132,19 +131,23 @@ def ingest_static_tables(engine):
 
     # Populate tables with static data from above.
     pudl_session.add_all(
-        [pudl.models.glue.FuelUnit(unit=u) for u in pc.ferc1_fuel_unit_strings.keys()])
+        [pudl.models.glue.FuelUnit(unit=u)for u in pc.ferc1_fuel_unit_strings])
     pudl_session.add_all([pudl.models.glue.Month(month=i + 1)
                           for i in range(12)])
     pudl_session.add_all(
-        [pudl.models.glue.Quarter(q=i + 1, end_month=3 * (i + 1)) for i in range(4)])
+        [pudl.models.glue.Quarter(
+            q=i + 1, end_month=3 * (i + 1)) for i in range(4)])
     pudl_session.add_all(
-        [pudl.models.glue.PrimeMover(prime_mover=pm) for pm in pc.prime_movers])
+        [pudl.models.glue.PrimeMover(
+            prime_mover=pm) for pm in pc.prime_movers])
     pudl_session.add_all(
-        [pudl.models.glue.RTOISO(abbr=k, name=v) for k, v in pc.rto_iso.items()])
+        [pudl.models.glue.RTOISO(
+            abbr=k, name=v) for k, v in pc.rto_iso.items()])
     pudl_session.add_all([pudl.models.glue.CensusRegion(abbr=k, name=v)
                           for k, v in pc.census_region.items()])
     pudl_session.add_all(
-        [pudl.models.glue.NERCRegion(abbr=k, name=v) for k, v in pc.nerc_region.items()])
+        [pudl.models.glue.NERCRegion(
+            abbr=k, name=v) for k, v in pc.nerc_region.items()])
     pudl_session.add_all(
         [pudl.models.eia923.RespondentFrequencyEIA923(abbr=k, unit=v)
          for k, v in pc.respondent_frequency_eia923.items()])
@@ -535,15 +538,16 @@ def extract_ferc1(ferc1_tables=pc.ferc1_pudl_tables,
 
     if verbose:
         print("Extracting tables from FERC 1:")
-    for table in ferc1_extract_functions.keys():
+    for table in ferc1_extract_functions:
         if table in ferc1_tables:
             if verbose:
                 print("    {}...".format(table))
-            ferc1_extract_functions[table](ferc1_raw_dfs,
-                                           ferc1_engine,
-                                           ferc1_table=pc.table_map_ferc1_pudl[table],
-                                           pudl_table=table,
-                                           ferc1_years=ferc1_years)
+            ferc1_extract_functions[table](
+                ferc1_raw_dfs,
+                ferc1_engine,
+                ferc1_table=pc.table_map_ferc1_pudl[table],
+                pudl_table=table,
+                ferc1_years=ferc1_years)
 
     return ferc1_raw_dfs
 
@@ -570,17 +574,18 @@ def transform_ferc1(ferc1_raw_dfs,
     # for each ferc table,
     if verbose:
         print("Transforming dataframes from FERC 1:")
-    for table in ferc1_transform_functions.keys():
+    for table in ferc1_transform_functions:
         if table in ferc1_tables:
             if verbose:
                 print("    {}...".format(table))
             ferc1_transform_functions[table](ferc1_raw_dfs,
                                              ferc1_transformed_dfs)
 
-    return(ferc1_transformed_dfs)
+    return ferc1_transformed_dfs
 
 
-def _ETL_ferc1(pudl_engine, ferc1_tables, ferc1_years, verbose, ferc1_testing, csvdir, keep_csv):
+def _ETL_ferc1(pudl_engine, ferc1_tables, ferc1_years, verbose, ferc1_testing,
+               csvdir, keep_csv):
     # Extract FERC form 1
     ferc1_raw_dfs = extract_ferc1(ferc1_tables=ferc1_tables,
                                   ferc1_years=ferc1_years,
@@ -599,8 +604,9 @@ def _ETL_ferc1(pudl_engine, ferc1_tables, ferc1_years, verbose, ferc1_testing, c
                              csvdir=csvdir,
                              keep_csv=keep_csv)
 
-def _ETL_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables, eia860_years,
-        verbose, csvdir, keep_csv):
+
+def _ETL_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables,
+             eia860_years, verbose, csvdir, keep_csv):
     # Extract EIA forms 923, 860
     eia923_raw_dfs = extract_eia923(eia923_years=eia923_years,
                                     verbose=verbose)
@@ -609,7 +615,6 @@ def _ETL_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables, eia860_yea
     # Transform EIA forms 923, 860
     eia923_transformed_dfs = \
         pudl.transform.eia923.transform(eia923_raw_dfs,
-                                        pudl_engine,
                                         eia923_tables=eia923_tables,
                                         verbose=verbose)
     eia860_transformed_dfs = \
@@ -644,7 +649,7 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
     # "Reading EPA CEMS data...", which could be confusing.
     if states[0].lower() == 'none':
         return None
-    if states[0].lower() =='all':
+    if states[0].lower() == 'all':
         states = list(pc.cems_states.keys())
 
     # NOTE: This a generator for raw dataframes
@@ -671,17 +676,17 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
                 loader.add(transformed_df)
     if verbose:
         time_message = "    Loading    EPA CEMS took {}".format(
-            time.strftime("%H:%M:%S", time.gmtime(time.monotonic() - start_time))
-        )
+            time.strftime("%H:%M:%S",
+                          time.gmtime(time.monotonic() - start_time)))
         print(time_message)
         start_time = time.monotonic()
     pudl.models.epacems.finalize(pudl_engine)
     if verbose:
         time_message = "    Finalizing EPA CEMS took {}".format(
-            time.strftime("%H:%M:%S", time.gmtime(time.monotonic() - start_time))
+            time.strftime("%H:%M:%S", time.gmtime(
+                time.monotonic() - start_time))
         )
         print(time_message)
-
 
 
 def init_db(ferc1_tables=pc.ferc1_pudl_tables,
@@ -731,11 +736,11 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
     if not debug:
         for table in ferc1_tables:
             # assert(table in pc.ferc1_working_tables)
-            assert(table in pc.ferc1_pudl_tables)
+            assert table in pc.ferc1_pudl_tables
 
     if not debug:
         for table in eia923_tables:
-            assert(table in pc.eia923_pudl_tables)
+            assert table in pc.eia923_pudl_tables
 
     # Connect to the PUDL DB, wipe out & re-create tables:
     pudl_engine = connect_db(testing=pudl_testing)

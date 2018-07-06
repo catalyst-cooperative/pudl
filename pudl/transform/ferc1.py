@@ -521,12 +521,16 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
     converts into our preferred units of MW and MWh.
 
     Args:
+    -----
         ferc1_raw_dfs (dictionary of pandas.DataFrame): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
             EIA860 form, as reported in the Excel spreadsheets they distribute.
         ferc1_transformed_dfs (dictionary of DataFrames)
 
-    Returns: transformed dataframe.
+    Returns:
+    --------
+        transformed dataframe.
+
     """
     # grab table from dictionary of dfs
     ferc1_pumped_storage_df = ferc1_raw_dfs['plants_pumped_storage_ferc1']
@@ -595,7 +599,8 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
         'tot_prdctn_exns': 'expns_production_total'},
         inplace=True)
 
-    ferc1_transformed_dfs['plants_pumped_storage_ferc1'] = ferc1_pumped_storage_df
+    ferc1_transformed_dfs['plants_pumped_storage_ferc1'] = \
+        ferc1_pumped_storage_df
 
     return ferc1_transformed_dfs
 
@@ -762,7 +767,6 @@ diesel_strings = [
     'Diesel Engine',
     'Diesel Turbine',
 ]
-
 geothermal_strings = [
     'Steam - Geothermal',
 ]
@@ -1189,4 +1193,4 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
     def _meaning(self, x):
         # returns True/False according to fitted classifier
         # notice underscore on the beginning
-        return(True if x >= self.treshold_ else False)
+        return bool(x >= self.threshold_)
