@@ -248,6 +248,14 @@ def boiler_generator_assn(eia_transformed_dfs,
                                   'report_date'],
                               how='outer')
 
+    # Create a set of bga's that are linked, directly from bga8
+    bga_assn = bga_compiled_1[bga_compiled_1['boiler_id'].notnull()].copy()
+    bga_assn['bga_source'] = 'eia860_org'
+
+    # Create a set of bga's that were not linked directly through bga8
+    bga_unassn = bga_compiled_1[bga_compiled_1['boiler_id'].isnull()].copy()
+    bga_unassn = bga_unassn.drop(['boiler_id'], axis=1)
+
     # Side note: there are only 6 generators that appear in bga8 that don't
     # apear in gens9 or gens8 (must uncomment-out the og_tag creation above)
     # bga_compiled_1[bga_compiled_1['og_tag'].isnull()]
@@ -266,14 +274,6 @@ def boiler_generator_assn(eia_transformed_dfs,
 
     bf_eia923.drop_duplicates(
         subset=['plant_id_eia', 'report_date', 'boiler_id'], inplace=True)
-
-    # Create a set of bga's that are linked, directly from bga8
-    bga_assn = bga_compiled_1[bga_compiled_1['boiler_id'].notnull()].copy()
-    bga_assn['bga_source'] = 'eia860_org'
-
-    # Create a set of bga's that were not linked directly through bga8
-    bga_unassn = bga_compiled_1[bga_compiled_1['boiler_id'].isnull()].copy()
-    bga_unassn = bga_unassn.drop(['boiler_id'], axis=1)
 
     # Create a list of boilers that were not in bga8
     bf9_bga = bf_eia923.merge(bga_compiled_1,
