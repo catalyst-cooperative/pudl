@@ -346,10 +346,10 @@ def mcoe(pudl_out,
     # the generators are really grouped.
     mcoe_out = helpers.merge_on_date_year(
         mcoe_out,
-        pudl_out.bga(verbose=verbose)[['report_date',
-                                       'plant_id_eia',
-                                       'unit_id_pudl',
-                                       'generator_id']].drop_duplicates(),
+        pudl_out.bga()[['report_date',
+                        'plant_id_eia',
+                        'unit_id_pudl',
+                        'generator_id']].drop_duplicates(),
         how='left',
         on=['plant_id_eia', 'generator_id'])
 
