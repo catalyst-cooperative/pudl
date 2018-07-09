@@ -438,71 +438,6 @@ def ingest_glue_tables(engine):
 ###############################################################################
 ###############################################################################
 
-def extract_eia860(eia860_years=pc.working_years['eia860'],
-                   verbose=True):
-    # Prep for ingesting EIA860
-    # create raw 860 dfs from spreadsheets
-    eia860_raw_dfs = \
-        pudl.extract.eia860.create_dfs_eia860(files=pc.files_eia860,
-                                              eia860_years=eia860_years,
-                                              verbose=verbose)
-    return eia860_raw_dfs
-
-
-def extract_eia923(eia923_years=pc.working_years['eia923'],
-                   verbose=True):
-    """Extract all EIA 923 tables."""
-    # Prep for ingesting EIA923
-    # Create excel objects
-    eia923_xlsx = pudl.extract.eia923.get_eia923_xlsx(eia923_years)
-
-    # Create DataFrames
-    eia923_raw_dfs = {}
-    for page in pc.tab_map_eia923.columns:
-        if page != 'plant_frame':
-            eia923_raw_dfs[page] = pudl.extract.eia923.\
-                get_eia923_page(page, eia923_xlsx,
-                                years=eia923_years,
-                                verbose=verbose)
-            # eia923_raw_dfs[page] = pudl.extract.eia923.get_eia923_plants(
-            #    eia923_years, eia923_xlsx)
-        # else:
-
-    return eia923_raw_dfs
-
-
-def transform_eia923(eia923_raw_dfs,
-                     pudl_engine,
-                     eia923_tables=pc.eia923_pudl_tables,
-                     verbose=True):
-    """Transform all EIA 923 tables."""
-    eia923_transform_functions = {
-        # 'plants_eia923': pudl.transform.eia923.plants,
-        'generation_fuel_eia923': pudl.transform.eia923.generation_fuel,
-        'boilers_eia923': pudl.transform.eia923.boilers,
-        'boiler_fuel_eia923': pudl.transform.eia923.boiler_fuel,
-        'generation_eia923': pudl.transform.eia923.generation,
-        'generators_eia923': pudl.transform.eia923.generators,
-        'coalmine_eia923': pudl.transform.eia923.coalmine,
-        'fuel_receipts_costs_eia923': pudl.transform.eia923.fuel_reciepts_costs
-    }
-    eia923_transformed_dfs = {}
-
-    if verbose:
-        print("Transforming tables from EIA 923:")
-    for table in eia923_transform_functions:
-        if table in eia923_tables:
-            if verbose:
-                print("    {}...".format(table))
-            if table == 'fuel_receipts_costs_eia923':
-                eia923_transform_functions[table](eia923_raw_dfs,
-                                                  eia923_transformed_dfs,
-                                                  pudl_engine)
-            else:
-                eia923_transform_functions[table](eia923_raw_dfs,
-                                                  eia923_transformed_dfs)
-    return eia923_transformed_dfs
-
 
 def extract_ferc1(ferc1_tables=pc.ferc1_pudl_tables,
                   ferc1_years=pc.working_years['ferc1'],
@@ -608,10 +543,10 @@ def _ETL_ferc1(pudl_engine, ferc1_tables, ferc1_years, verbose, ferc1_testing,
 def _ETL_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables,
              eia860_years, verbose, csvdir, keep_csv):
     # Extract EIA forms 923, 860
-    eia923_raw_dfs = extract_eia923(eia923_years=eia923_years,
-                                    verbose=verbose)
-    eia860_raw_dfs = extract_eia860(eia860_years=eia860_years,
-                                    verbose=verbose)
+    eia923_raw_dfs = pudl.extract.eia923.extract(eia923_years=eia923_years,
+                                                 verbose=verbose)
+    eia860_raw_dfs = pudl.extract.eia860.extract(eia860_years=eia860_years,
+                                                 verbose=verbose)
     # Transform EIA forms 923, 860
     eia923_transformed_dfs = \
         pudl.transform.eia923.transform(eia923_raw_dfs,

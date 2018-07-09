@@ -182,7 +182,7 @@ def get_eia923_page(page, eia923_xlsx,
     return df
 
 
-def get_eia923_xlsx(years):
+def get_eia923_xlsx(years, verbose=True):
     """
     Read in Excel files to create Excel objects.
 
@@ -196,9 +196,11 @@ def get_eia923_xlsx(years):
         xlsx file of EIA Form 923 for input year(s)
     """
     eia923_xlsx = {}
-    print("Reading EIA 923 spreadsheet data")
+    if verbose:
+        print("Reading EIA 923 spreadsheet data")
     for yr in years:
-        print("    {}...".format(yr))
+        if verbose:
+            print("    {}...".format(yr))
         eia923_xlsx[yr] = pd.ExcelFile(get_eia923_file(yr))
     return eia923_xlsx
 
@@ -341,3 +343,25 @@ def yearly_to_monthly_eia923(df, md):
     # month, and apply across all 12 of the monthly records created from each
     # of the # initial annual records.
     return yearly.merge(monthly, left_index=True, right_index=True)
+
+
+def extract(eia923_years=pc.working_years['eia923'],
+            verbose=True):
+    """Extract all EIA 923 tables."""
+    # Prep for ingesting EIA923
+    # Create excel objects
+    eia923_xlsx = get_eia923_xlsx(eia923_years,
+                                  verbose=verbose)
+
+    # Create DataFrames
+    eia923_raw_dfs = {}
+    for page in pc.tab_map_eia923.columns:
+        if page != 'plant_frame':
+            eia923_raw_dfs[page] = get_eia923_page(page, eia923_xlsx,
+                                                   years=eia923_years,
+                                                   verbose=verbose)
+            # eia923_raw_dfs[page] = pudl.extract.eia923.get_eia923_plants(
+            #    eia923_years, eia923_xlsx)
+        # else:
+
+    return eia923_raw_dfs

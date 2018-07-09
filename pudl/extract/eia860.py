@@ -47,7 +47,7 @@ def get_eia860_file(yr, file):
     return glob.glob(os.path.join(datadir(yr), file))[0]
 
 
-def get_eia860_xlsx(years, filename):
+def get_eia860_xlsx(years, filename, verbose=True):
     """
     Read in Excel files to create Excel objects.
 
@@ -64,9 +64,11 @@ def get_eia860_xlsx(years, filename):
     """
     eia860_xlsx = {}
     pattern = pc.files_dict_eia860[filename]
-    print("Reading EIA 860 {} data...".format(filename))
+    if verbose:
+        print("Reading EIA 860 {} data...".format(filename))
     for yr in years:
-        print("    {}...".format(yr))
+        if verbose:
+            print("    {}...".format(yr))
         eia860_xlsx[yr] = pd.ExcelFile(get_eia860_file(yr, pattern))
     return eia860_xlsx
 
@@ -202,7 +204,7 @@ def create_dfs_eia860(files=pc.files_eia860,
     # Create excel objects
     eia860_dfs = {}
     for f in files:
-        eia860_xlsx = get_eia860_xlsx(eia860_years, f)
+        eia860_xlsx = get_eia860_xlsx(eia860_years, f, verbose=verbose)
         # Create DataFrames
         pages = pc.file_pages_eia860[f]
 
@@ -245,3 +247,13 @@ def get_eia860_plants(years, eia860_xlsx):
     if len(recent_years) > 0:
         pf = get_eia860_page('boiler_generator_assn_eia860', eia860_xlsx,
                              years=recent_years)
+
+
+def extract(eia860_years=pc.working_years['eia860'],
+            verbose=True):
+    # Prep for ingesting EIA860
+    # create raw 860 dfs from spreadsheets
+    eia860_raw_dfs = create_dfs_eia860(files=pc.files_eia860,
+                                       eia860_years=eia860_years,
+                                       verbose=verbose)
+    return eia860_raw_dfs
