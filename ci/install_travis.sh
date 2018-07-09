@@ -44,12 +44,6 @@ conda info -a || exit 1
 # create our environment
 echo "[create env]"
 time conda env create -q --file=environment.yml || exit 1
-source activate pudl
-
-echo
-echo "[show environment]"
-conda list
-which python
 
 echo
 echo "[done]"
