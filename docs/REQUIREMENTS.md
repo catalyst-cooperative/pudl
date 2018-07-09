@@ -2,7 +2,7 @@ This Public Utility Data Liberation (PUDL) toolkit depends on a variety of
 other open source tools and public data. We use the
 [Anaconda](https://www.anaconda.com/download/) Python 3 distribution, and
 manage package dependencies using conda environments. See our
-[`environment.yml`](pudl/environment.yml) for the machine readable details.
+[`environment.yml`](../environment.yml) for the machine readable details.
 
 ## Python Packages:
  - [NumPy](https://www.numpy.org/)
