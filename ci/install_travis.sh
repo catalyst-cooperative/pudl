@@ -49,6 +49,7 @@ source activate pudl
 echo
 echo "[show environment]"
 conda list
+which python
 
 echo
 echo "[done]"
