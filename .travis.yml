@@ -22,6 +22,7 @@ before_install:
 install:
 - ci/install_travis.sh
 - echo ". $HOME/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc
+- source ~/.bashrc
 - conda activate pudl
 - ci/setup_postgres.sh
 - export DISPLAY=":99.0"
