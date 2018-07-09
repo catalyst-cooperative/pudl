@@ -490,7 +490,7 @@ def transform_eia923(eia923_raw_dfs,
 
     if verbose:
         print("Transforming tables from EIA 923:")
-    for table in eia923_transform_functions.keys():
+    for table in eia923_transform_functions:
         if table in eia923_tables:
             if verbose:
                 print("    {}...".format(table))
