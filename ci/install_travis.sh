@@ -40,15 +40,11 @@ conda update -q conda
 
 # Useful for debugging any issues with conda
 conda info -a || exit 1
-echo "[create env]"
 
 # create our environment
+echo "[create env]"
 time conda env create -q --file=environment.yml || exit 1
-conda activate pudl
-
-# build and install
-#echo "[running setup.py develop]"
-#python setup.py develop  || exit 1
+source activate pudl
 
 echo
 echo "[show environment]"

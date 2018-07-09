@@ -21,17 +21,8 @@ before_install:
 - git tag
 install:
 - ci/install_travis.sh
-#- echo ". $HOME/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc
-##- source ~/.bashrc
-#- conda create -q -n pudl -f environment.yml
-#- conda activate pudl
 - ci/setup_postgres.sh
-- cd scripts
-- python update_datastore.py --source ferc1 eia860 --years 2012 2016
-- find ../data/ferc/form1/f1_2016 | sort
-- python update_datastore.py --source eia923 --years 2016
-- python update_datastore.py --source epacems --states CO --years 2016
-- cd ..
+- ci/update_datastore.sh
 script:
 - pytest -sv $TEST_ARGS -m travis_ci
 notifications:
