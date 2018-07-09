@@ -7,7 +7,7 @@
 - Run PUDL setup scripts to download data and load into postgres
 
 ### 1. Reviewing requirements
-For the full list of requirements to install, review [REQUIREMENTS.md](https://github.com/catalyst-cooperative/pudl/blob/master/docs/REQUIREMENTS.md) in the PUDL GitHub repository.
+For the full list of requirements to install, review [REQUIREMENTS.md](REQUIREMENTS.md) in the PUDL GitHub repository.
 
 ### 2. Setting up the PUDL repository
 1. [Clone](https://help.github.com/articles/cloning-a-repository/) the PUDL repository.

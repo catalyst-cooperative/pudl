@@ -25,7 +25,7 @@ Mac OS X) and Windows platforms.
 
 We want to make the PUDL project welcoming to contributors with different
 levels of experience and diverse personal backgrounds. If you're considering
-contributing please read our [Code of Conduct](pudl/docs/CODE_OF_CONDUCT.md),
+contributing please read our [Code of Conduct](CODE_OF_CONDUCT.md),
 which is based on the
 [Contributor Covenant](https://www.contributor-covenant.org/).
 
@@ -274,7 +274,7 @@ more independent of the underlying database, which may be helpful if and when
 we need to be able to host the data both on local machines and a platform like
 AWS.
 
-### Follow [naming conventions](pudl/docs/naming_conventions.md).
+### Follow [naming conventions](naming_conventions.md).
 We are trying to use consistent naming conventions for database tables,
 columns, data sources, and functions. Generally speaking PUDL is a collection
 of subpackages organized by purpose (extract, transform, load, analysis,
