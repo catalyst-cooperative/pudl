@@ -21,7 +21,8 @@ before_install:
 - git tag
 install:
 - ci/install_travis.sh
-- source activate pudl
+- echo ". $HOME/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc
+- conda activate pudl
 - ci/setup_postgres.sh
 - export DISPLAY=":99.0"
 - cd scripts
