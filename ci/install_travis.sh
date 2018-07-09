@@ -40,41 +40,15 @@ conda update -q conda
 
 # Useful for debugging any issues with conda
 conda info -a || exit 1
-#
-# # set the compiler cache to work
-# echo
-# if [ -z "$NOCACHE" ] && [ "${TRAVIS_OS_NAME}" == "linux" ]; then
-#     echo "[Using ccache]"
-#     export PATH=/usr/lib/ccache:/usr/lib64/ccache:$PATH
-#     gcc=$(which gcc)
-#     echo "[gcc]: $gcc"
-#     ccache=$(which ccache)
-#     echo "[ccache]: $ccache"
-#     export CC='ccache gcc'
-# elif [ -z "$NOCACHE" ] && [ "${TRAVIS_OS_NAME}" == "osx" ]; then
-#     echo "[Install ccache]"
-#     brew install ccache > /dev/null 2>&1
-#     echo "[Using ccache]"
-#     export PATH=/usr/local/opt/ccache/libexec:$PATH
-#     gcc=$(which gcc)
-#     echo "[gcc]: $gcc"
-#     ccache=$(which ccache)
-#     echo "[ccache]: $ccache"
-# else
-#     echo "[Not using ccache]"
-# fi
-
-echo
 echo "[create env]"
 
 # create our environment
 time conda env create -q --file=environment.yml || exit 1
-
 conda activate pudl
 
 # build and install
-echo "[running setup.py develop]"
-python setup.py develop  || exit 1
+#echo "[running setup.py develop]"
+#python setup.py develop  || exit 1
 
 echo
 echo "[show environment]"
