@@ -1,28 +1,27 @@
 This Public Utility Data Liberation (PUDL) toolkit depends on a variety of
-other open source tools, and public data, including:
+other open source tools and public data. We use the
+[Anaconda](https://www.anaconda.com/download/) Python 3 distribution, and
+manage package dependencies using conda environments. See our
+[`environment.yml`](pudl/environment.yml) for the machine readable details.
 
-### Big Things:
- - Postgres (database)
-   https://www.postgresql.org/
+## Python Packages:
+ - [NumPy](https://www.numpy.org/)
+ - [SciPy](https://scipy.org)
+ - [pandas](https://pandas.pydata.org/)
+ - [SQLAlchemy](https://www.sqlalchemy.org/)
+ - [PyTest](https://docs.pytest.org/en/latest/)
+ - [scikit-learn](https://scikit-learn.org)
+ - [NetworkX](https://networkx.github.io/)
+ - [dbfread](https://github.com/olemb/dbfread)
+ - [postgres-copy](https://github.com/jmcarp/sqlalchemy-postgres-copy)
+ - [Matplotlib](http://matplotlib.org/)
+ - [Jupyter Notebooks](https://jupyter.org/)
 
-### Python Packages:
- - NumPy (scientific computing)
-   http://www.numpy.org/
- - Matplotlib (data visualization)
-   http://matplotlib.org/
- - pandas (dataframe based analysis)
-   http://pandas.pydata.org/
- - dbfread (allows direct access to DBF files from Python)
-   https://github.com/olemb/dbfread
- - SQLAlchemy (Python DB interface layer)
-   http://www.sqlalchemy.org/
- - PyTest (a unit testing harness)
-   http://docs.pytest.org/en/latest/
- - postgres-copy (SQLAlchemy based postgresql COPY FROM wrapper)
-   https://github.com/jmcarp/sqlalchemy-postgres-copy
+## Public Data:
+ - [FERC Form 1](https://www.ferc.gov/docs-filing/forms/form-1/data.asp)
+ - [EIA Form 923](https://www.eia.gov/electricity/data/eia923/)
+ - [EIA Form 860](https://www.eia.gov/electricity/data/eia860/)
+ - [EPA Hourly CEMS](https://ampd.epa.gov/ampd/)
 
-### Data:
- - FERC Form 1
-   https://www.ferc.gov/docs-filing/forms/form-1/data.asp
- - EIA 923
-   https://www.eia.gov/electricity/data/eia923/
+## Other Software:
+ - The [Postgres](https://www.postgresql.org/) database, version 9.5 or later.
