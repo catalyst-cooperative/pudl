@@ -1,4 +1,6 @@
-# The Public Utility Data Liberation (PUDL) Project [![Build Status](https://travis-ci.org/catalyst-cooperative/pudl.svg?branch=master)](https://travis-ci.org/catalyst-cooperative/pudl)
+# The Public Utility Data Liberation (PUDL) Project
+[![Build Status](https://travis-ci.org/catalyst-cooperative/pudl.svg?branch=master)](https://travis-ci.org/catalyst-cooperative/pudl)
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/catalyst-cooperative/pudl/master)
 
 The Public Utility Data Liberation project aims to provide a useful interface
 to publicly available electric utility data in the US.  It uses information
