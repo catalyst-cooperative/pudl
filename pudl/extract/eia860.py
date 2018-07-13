@@ -152,13 +152,14 @@ def get_eia860_page(page, eia860_xlsx,
         pandas.DataFrame: A dataframe containing the data from the selected
             page and selected years from EIA 860.
     """
-    assert min(years) >= min(pc.working_years['eia860']),\
-        "EIA860 works for 2011 and later. {} requested.".format(min(years))
-    assert page in pc.tab_map_eia860.columns and page != 'year_index',\
-        "Unrecognized EIA 860 page: {}".format(page)
-    assert min(years) <= 2013,\
-        "The generators_eia860 table only works when years include 2012 and\
-        before."
+    if years:
+        assert min(years) >= min(pc.working_years['eia860']),\
+            "EIA860 works for 2011 and later. {} requested.".format(min(years))
+        assert page in pc.tab_map_eia860.columns and page != 'year_index',\
+            "Unrecognized EIA 860 page: {}".format(page)
+        assert min(years) <= 2013,\
+            "The generators_eia860 table only works when years include 2012 and\
+            before."
 
     if verbose:
         print('Converting EIA 860 {} to DataFrame...'.format(page))
@@ -253,6 +254,12 @@ def extract(eia860_years=pc.working_years['eia860'],
             verbose=True):
     # Prep for ingesting EIA860
     # create raw 860 dfs from spreadsheets
+    eia860_raw_dfs = {}
+    if not eia860_years:
+        if verbose:
+            print('Not extracting EIA 860.')
+        return eia860_raw_dfs
+
     eia860_raw_dfs = create_dfs_eia860(files=pc.files_eia860,
                                        eia860_years=eia860_years,
                                        verbose=verbose)

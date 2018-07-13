@@ -590,6 +590,11 @@ def transform(eia923_raw_dfs,
     }
     eia923_transformed_dfs = {}
 
+    if not eia923_raw_dfs:
+        if verbose:
+            print('Not transforming EIA 923.')
+        return eia923_transformed_dfs
+
     if verbose:
         print("Transforming tables from EIA 923:")
     for table in eia923_transform_functions:

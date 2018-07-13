@@ -202,6 +202,9 @@ def boiler_generator_assn(eia_transformed_dfs,
             plant_id_eia, generator_id, boiler_id, and unit_id_pudl
 
     """
+    # if you're not ingesting both 860 and 923, the bga is not compilable
+    if not (eia860_years and eia923_years):
+        return
     # compile and scrub all the parts
     bga_eia860 = eia_transformed_dfs['boiler_generator_assn_eia860'].copy()
     bga_eia860 = _restrict_years(bga_eia860, eia923_years, eia860_years)
@@ -510,23 +513,23 @@ def transform(eia_transformed_dfs,
     }
     # create the empty entities df to fill up
     entities_dfs = {}
-
-    if verbose:
-        print("Transforming entity tables from EIA:")
-    # for each table, run through the eia transform functions
-    for table, func in eia_transform_functions.items():
-        # eia_pudl_tables have different inputs than entity tbls
-        if table in entity_tables:
-            if verbose:
-                print("    {}...".format(table))
-            func(eia_transformed_dfs, entities_dfs, verbose=verbose)
-        if table in eia_pudl_tables:
-            if verbose:
-                print("    {}...".format(table))
-            func(eia_transformed_dfs,
-                 eia923_years=eia923_years,
-                 eia860_years=eia860_years,
-                 debug=debug,
-                 verbose=verbose)
+    if eia860_years or eia923_years:
+        if verbose:
+            print("Transforming entity tables from EIA:")
+        # for each table, run through the eia transform functions
+        for table, func in eia_transform_functions.items():
+            # eia_pudl_tables have different inputs than entity tbls
+            if table in entity_tables:
+                if verbose:
+                    print("    {}...".format(table))
+                func(eia_transformed_dfs, entities_dfs, verbose=verbose)
+            if table in eia_pudl_tables:
+                if verbose:
+                    print("    {}...".format(table))
+                func(eia_transformed_dfs,
+                     eia923_years=eia923_years,
+                     eia860_years=eia860_years,
+                     debug=debug,
+                     verbose=verbose)
 
     return entities_dfs, eia_transformed_dfs

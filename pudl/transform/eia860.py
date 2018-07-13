@@ -397,6 +397,11 @@ def transform(eia860_raw_dfs,
         'utilities_eia860': utilities}
     eia860_transformed_dfs = {}
 
+    if not eia860_raw_dfs:
+        if verbose:
+            print('Not transforming EIA 860.')
+        return eia860_transformed_dfs
+
     if verbose:
         print("Transforming tables from EIA 860:")
     for table in eia860_transform_functions.keys():
