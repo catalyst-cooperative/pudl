@@ -1,9 +1,21 @@
 """Database models for PUDL tables for ."""
 
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 
 PUDLBase = declarative_base()
+
+
+class DataSets(PUDLBase):
+    """
+    Active datasets ingest into PUDL.
+
+    A compilation of the active or inactive datasets in the databaseself.
+    """
+
+    __tablename__ = 'datasets'
+    datasource = Column(String, primary_key=True)
+    active = Column(Boolean)
 
 
 class PlantEntityEIA(PUDLBase):

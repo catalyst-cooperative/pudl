@@ -106,6 +106,28 @@ def _drop_views(engine):
 ###############################################################################
 
 
+def _ingest_datasets_table(ferc1_years,
+                           eia860_years,
+                           eia923_years,
+                           epacems_years,
+                           engine):
+    """
+    Create and populate datasets table.
+
+    This table will be used to determine which sources have been ingested into
+    the database in later output or anaylsis.
+    """
+    datasets = pd.DataFrame.from_records([('ferc1', bool(ferc1_years)),
+                                          ('eia860', bool(eia860_years)),
+                                          ('eia923', bool(eia923_years)),
+                                          ('epacems', bool(epacems_years)), ],
+                                         columns=['datasource', 'active'])
+
+    datasets.to_sql(name='datasets',
+                    con=engine, index=False, if_exists='append',
+                    dtype={'datasource': sa.String, 'active': sa.Boolean})
+
+
 def ingest_static_tables(engine):
     """
     Populate static PUDL tables with constants for use as foreign keys.
@@ -227,7 +249,24 @@ def ingest_static_tables(engine):
                       'description': sa.String})
 
 
-def ingest_glue_tables(engine):
+def _ingest_glue(engine,
+                 eia923_years,
+                 eia860_years,
+                 ferc1_years):
+    """
+    Populate glue tables depending on which datasources are being ingested.
+    """
+    # currently we only have on set of glue between datasets...
+    _ingest_glue_eia_ferc1(engine,
+                           eia923_years,
+                           eia860_years,
+                           ferc1_years)
+
+
+def _ingest_glue_eia_ferc1(engine,
+                           eia923_years,
+                           eia860_years,
+                           ferc1_years):
     """
     Populate the tables which relate the EIA, EPA, and FERC datasets.
 
@@ -263,6 +302,11 @@ def ingest_glue_tables(engine):
     relationships between data from different sources are looser than we had
     originally anticipated.
     """
+    # ferc glue tables are structurally entity tables w/ forigen key
+    # relationships to ferc datatables, so we need some of the eia/ferc 'glue'
+    # when only ferc is ingested into the database.
+    if not ferc1_years:
+        return
     map_eia_ferc_file = os.path.join(settings.PUDL_DIR,
                                      'results',
                                      'id_mapping',
@@ -387,16 +431,6 @@ def ingest_glue_tables(engine):
                      con=engine, index=False, if_exists='append',
                      dtype={'id': sa.Integer, 'name': sa.String})
 
-    utilities_eia.rename(columns={'operator_id_eia': 'operator_id',
-                                  'operator_name_eia': 'operator_name',
-                                  'utility_id': 'util_id_pudl'},
-                         inplace=True)
-    utilities_eia.to_sql(name='utilities_eia',
-                         con=engine, index=False, if_exists='append',
-                         dtype={'operator_id': sa.Integer,
-                                'operator_name': sa.String,
-                                'util_id_pudl': sa.Integer})
-
     utilities_ferc.rename(columns={'respondent_id_ferc': 'respondent_id',
                                    'respondent_name_ferc': 'respondent_name',
                                    'utility_id': 'util_id_pudl'},
@@ -406,15 +440,6 @@ def ingest_glue_tables(engine):
                           dtype={'respondent_id': sa.Integer,
                                  'respondent_name': sa.String,
                                  'util_id_pudl': sa.Integer})
-
-    plants_eia.rename(columns={'plant_name_eia': 'plant_name',
-                               'plant_id': 'plant_id_pudl'},
-                      inplace=True)
-    plants_eia.to_sql(name='plants_eia',
-                      con=engine, index=False, if_exists='append',
-                      dtype={'plant_id_eia': sa.Integer,
-                             'plant_name': sa.String,
-                             'plant_id_pudl': sa.Integer})
 
     plants_ferc.rename(columns={'respondent_id_ferc': 'respondent_id',
                                 'plant_name_ferc': 'plant_name',
@@ -430,6 +455,26 @@ def ingest_glue_tables(engine):
                               con=engine, index=False, if_exists='append',
                               dtype={'plant_id': sa.Integer,
                                      'utility_id': sa.Integer})
+
+    # when either eia form is being ingested, include the eia tables as well.
+    if eia860_years or eia923_years:
+        utilities_eia.rename(columns={'operator_id_eia': 'operator_id',
+                                      'operator_name_eia': 'operator_name',
+                                      'utility_id': 'util_id_pudl'},
+                             inplace=True)
+        utilities_eia.to_sql(name='utilities_eia',
+                             con=engine, index=False, if_exists='append',
+                             dtype={'operator_id': sa.Integer,
+                                    'operator_name': sa.String,
+                                    'util_id_pudl': sa.Integer})
+        plants_eia.rename(columns={'plant_name_eia': 'plant_name',
+                                   'plant_id': 'plant_id_pudl'},
+                          inplace=True)
+        plants_eia.to_sql(name='plants_eia',
+                          con=engine, index=False, if_exists='append',
+                          dtype={'plant_id_eia': sa.Integer,
+                                 'plant_name': sa.String,
+                                 'plant_id_pudl': sa.Integer})
 
 
 ###############################################################################
@@ -521,6 +566,11 @@ def transform_ferc1(ferc1_raw_dfs,
 
 def _ETL_ferc1(pudl_engine, ferc1_tables, ferc1_years, verbose, ferc1_testing,
                csvdir, keep_csv):
+    if not ferc1_years:
+        if verbose:
+            print('Not ingesting FERC1')
+        return
+
     # Extract FERC form 1
     ferc1_raw_dfs = extract_ferc1(ferc1_tables=ferc1_tables,
                                   ferc1_years=ferc1_years,
@@ -586,6 +636,8 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
         return None
     if states[0].lower() == 'all':
         states = list(pc.cems_states.keys())
+    if not epacems_years:
+        return
 
     # NOTE: This a generator for raw dataframes
     epacems_raw_dfs = pudl.extract.epacems.extract(
@@ -681,6 +733,13 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
     pudl_engine = connect_db(testing=pudl_testing)
     drop_tables(pudl_engine)
     _create_tables(pudl_engine)
+
+    _ingest_datasets_table(ferc1_years=ferc1_years,
+                           eia860_years=eia860_years,
+                           eia923_years=eia923_years,
+                           epacems_years=epacems_years,
+                           engine=pudl_engine)
+
     # Populate all the static tables:
     if verbose:
         print("Ingesting static PUDL tables...")
@@ -688,7 +747,10 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
     # Populate tables that relate FERC1 & EIA923 data to each other.
     if verbose:
         print("Sniffing EIA923/FERC1 glue tables...")
-    ingest_glue_tables(pudl_engine)
+    _ingest_glue(engine=pudl_engine,
+                 eia923_years=eia923_years,
+                 eia860_years=eia860_years,
+                 ferc1_years=ferc1_years)
 
     # Separate the extract/transform/load for the different datsets because
     # they don't depend on each other and it's nice to not have so much stuff

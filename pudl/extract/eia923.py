@@ -348,13 +348,18 @@ def yearly_to_monthly_eia923(df, md):
 def extract(eia923_years=pc.working_years['eia923'],
             verbose=True):
     """Extract all EIA 923 tables."""
+    eia923_raw_dfs = {}
+    if not eia923_years:
+        if verbose:
+            print('Not extracting EIA 923.')
+        return eia923_raw_dfs
+
     # Prep for ingesting EIA923
     # Create excel objects
     eia923_xlsx = get_eia923_xlsx(eia923_years,
                                   verbose=verbose)
 
     # Create DataFrames
-    eia923_raw_dfs = {}
     for page in pc.tab_map_eia923.columns:
         if page != 'plant_frame':
             eia923_raw_dfs[page] = get_eia923_page(page, eia923_xlsx,
