@@ -11,7 +11,7 @@ They may work on other operating systems too.
 
 
 ### 1. Reviewing requirements
-For the full list of requirements to install, review [REQUIREMENTS.md](https://github.com/catalyst-cooperative/pudl/blob/master/REQUIREMENTS.md) in the PUDL GitHub repository.
+For the full list of requirements to install, review [REQUIREMENTS.md](REQUIREMENTS.md) in the PUDL GitHub repository.
 
 ### 2. Setting up the PUDL repository
 1. [Clone](https://help.github.com/articles/cloning-a-repository/) the PUDL repository.
