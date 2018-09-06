@@ -940,7 +940,8 @@ def best_by_year(plants_df, sim_df, min_sim=0.8):
     # process from each year, since it may not be symmetric:
     for seed_yr in years:
         seed_idx = plants_df.index[plants_df.report_year == seed_yr]
-        # match_yr is all the other years, in which we are finding the best match
+        # match_yr is all the other years, in which we are finding the best
+        # match
         for match_yr in years:
             bestof_yr = match_yr
             match_idx = plants_df.index[plants_df.report_year == match_yr]
@@ -1194,3 +1195,33 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         # returns True/False according to fitted classifier
         # notice underscore on the beginning
         return bool(x >= self.threshold_)
+
+
+def transform(ferc1_raw_dfs,
+              ferc1_tables=pc.ferc1_pudl_tables,
+              verbose=True):
+    """Transform FERC 1."""
+    ferc1_transform_functions = {
+        'fuel_ferc1': fuel,
+        'plants_steam_ferc1': plants_steam,
+        'plants_small_ferc1': plants_small,
+        'plants_hydro_ferc1': plants_hydro,
+        'plants_pumped_storage_ferc1': plants_pumped_storage,
+        'plant_in_service_ferc1': plant_in_service,
+        'purchased_power_ferc1': purchased_power,
+        'accumulated_depreciation_ferc1': accumulated_depreciation
+    }
+    # create an empty ditctionary to fill up through the transform fuctions
+    ferc1_transformed_dfs = {}
+
+    # for each ferc table,
+    if verbose:
+        print("Transforming dataframes from FERC 1:")
+    for table in ferc1_transform_functions:
+        if table in ferc1_tables:
+            if verbose:
+                print("    {}...".format(table))
+            ferc1_transform_functions[table](ferc1_raw_dfs,
+                                             ferc1_transformed_dfs)
+
+    return ferc1_transformed_dfs

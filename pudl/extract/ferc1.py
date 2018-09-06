@@ -492,3 +492,49 @@ def accumulated_depreciation(ferc1_raw_dfs,
     ferc1_raw_dfs[pudl_table] = ferc1_apd_df
 
     return ferc1_raw_dfs
+
+
+def extract(ferc1_tables=pc.ferc1_pudl_tables,
+            ferc1_years=pc.working_years['ferc1'],
+            testing=False,
+            verbose=True):
+    """Extract FERC 1."""
+    # BEGIN INGESTING FERC FORM 1 DATA:
+    ferc1_engine = connect_db(testing=testing)
+
+    ferc1_raw_dfs = {}
+    ferc1_extract_functions = {
+        'fuel_ferc1': fuel,
+        'plants_steam_ferc1': plants_steam,
+        'plants_small_ferc1': plants_small,
+        'plants_hydro_ferc1': plants_hydro,
+        'plants_pumped_storage_ferc1': plants_pumped_storage,
+        'plant_in_service_ferc1': plant_in_service,
+        'purchased_power_ferc1': purchased_power,
+        'accumulated_depreciation_ferc1': accumulated_depreciation}
+
+    # define the ferc 1 metadata object
+    # this is here because if ferc wasn't ingested in the same session, there
+    # will not be a defined metadata object to use to find and grab the tables
+    # from the ferc1 mirror db
+    if len(ferc1_meta.tables) == 0:
+        ferc1.define_db(max(pc.working_years['ferc1']),
+                        pc.ferc1_default_tables,
+                        ferc1_meta,
+                        basedir=settings.FERC1_DATA_DIR,
+                        verbose=verbose)
+
+    if verbose:
+        print("Extracting tables from FERC 1:")
+    for table in ferc1_extract_functions:
+        if table in ferc1_tables:
+            if verbose:
+                print("    {}...".format(table))
+            ferc1_extract_functions[table](
+                ferc1_raw_dfs,
+                ferc1_engine,
+                ferc1_table=pc.table_map_ferc1_pudl[table],
+                pudl_table=table,
+                ferc1_years=ferc1_years)
+
+    return ferc1_raw_dfs
