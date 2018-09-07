@@ -84,7 +84,18 @@ In column names:
 
 Abbreviations: "util" for utility, “assn” for association, “info” for information
 
-Column abbreviations: "us" for United States, “abbr” for abbreviation, “q” for quarter, “ferc” for FERC form 1, “util” for utility, “qty” for quantity, “avg” for average, “num” for number, “expns” for expenses, “pwr” for power, “pct” for percentage
+Column abbreviations: "us" for United States, “abbr” for abbreviation, “q” for
+quarter, “ferc” for FERC form 1, “util” for utility, “qty” for quantity, “avg”
+for average, “num” for number, “expns” for expenses, “pwr” for power, “pct” for
+percentage, ppm for parts per million
+
+* \_code indicates the field contains a readable abbreviation from a finite list of values.
+* \_id indicates the field contains a usually numerical reference to another table, which will not be intelligible without looking up the value in that other table.
+* \_name indicates a longer human readable name.
+* \_date indicates the field contains a Date type.
+* \_type indicates the field contains a short but complete human readable description (usually 1-3 words) from a list of finite valid values.
+* capacity refers to nameplate capacity -- other more specific types of capacity are annotated.
+* Regardless of what label utilities are given in the original data source (e.g. operator in EIA or respondent in FERC) we refer to them as utilities in all tables.
 
 ### Constants Tables
 
