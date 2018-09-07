@@ -938,7 +938,8 @@ def best_by_year(plants_df, sim_df, min_sim=0.8):
     # process from each year, since it may not be symmetric:
     for seed_yr in years:
         seed_idx = plants_df.index[plants_df.report_year == seed_yr]
-        # match_yr is all the other years, in which we are finding the best match
+        # match_yr is all the other years, in which we are finding the best
+        # match
         for match_yr in years:
             best_of_yr = match_yr
             match_idx = plants_df.index[plants_df.report_year == match_yr]
@@ -1309,5 +1310,76 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         For now, this just returns the proportion of records that were
         correctly categorized.
 
+<<<<<<< HEAD
         """
         return 1.0
+=======
+        scaler = MinMaxScaler()
+        capacity_vectors = scaler.fit_transform(
+            X.tot_capacity.values.reshape(-1, 1))
+
+        lb_yr_const = LabelBinarizer()
+        yr_const_vectors = scipy.sparse.csr_matrix(
+            lb_yr_const.fit_transform(X.yr_const))
+
+        lb_sup_num = LabelBinarizer()
+        sup_num_vectors = scipy.sparse.csr_matrix(
+            lb_sup_num.fit_transform(X.spplmnt_num))
+
+        lb_row_num = LabelBinarizer()
+        row_num_vectors = scipy.sparse.csr_matrix(
+            lb_row_num.fit_transform(X.row_number))
+
+        lb_respondent = LabelBinarizer()
+        respondent_vectors = scipy.sparse.csr_matrix(
+            lb_respondent.fit_transform(X.respondent_id))
+
+        lb_plantkind = LabelBinarizer()
+        plant_kind_vectors = scipy.sparse.csr_matrix(
+            lb_plantkind.fit_transform(X.plant_kind_cpi))
+
+        self._plant_vectors = normalize(scipy.sparse.hstack([
+            plant_name_vectors * self.plant_name_wt,
+            yr_const_vectors * self.yr_const_wt,
+            respondent_vectors * self.respondent_wt,
+            plant_kind_vectors * self.plant_kind_wt,
+            capacity_vectors * self.capacity_wt,
+            sup_num_vectors * self.sup_num_wt,
+            row_num_vectors * self.row_num_wt
+        ]))
+
+    def _meaning(self, x):
+        # returns True/False according to fitted classifier
+        # notice underscore on the beginning
+        return bool(x >= self.threshold_)
+
+
+def transform(ferc1_raw_dfs,
+              ferc1_tables=pc.ferc1_pudl_tables,
+              verbose=True):
+    """Transform FERC 1."""
+    ferc1_transform_functions = {
+        'fuel_ferc1': fuel,
+        'plants_steam_ferc1': plants_steam,
+        'plants_small_ferc1': plants_small,
+        'plants_hydro_ferc1': plants_hydro,
+        'plants_pumped_storage_ferc1': plants_pumped_storage,
+        'plant_in_service_ferc1': plant_in_service,
+        'purchased_power_ferc1': purchased_power,
+        'accumulated_depreciation_ferc1': accumulated_depreciation
+    }
+    # create an empty ditctionary to fill up through the transform fuctions
+    ferc1_transformed_dfs = {}
+
+    # for each ferc table,
+    if verbose:
+        print("Transforming dataframes from FERC 1:")
+    for table in ferc1_transform_functions:
+        if table in ferc1_tables:
+            if verbose:
+                print("    {}...".format(table))
+            ferc1_transform_functions[table](ferc1_raw_dfs,
+                                             ferc1_transformed_dfs)
+
+    return ferc1_transformed_dfs
+>>>>>>> 39ca085a0fc13c7eea0b819b81d081fcf13af5cd

@@ -484,86 +484,6 @@ def _ingest_glue_eia_ferc1(engine,
 ###############################################################################
 
 
-def extract_ferc1(ferc1_tables=pc.ferc1_pudl_tables,
-                  ferc1_years=pc.working_years['ferc1'],
-                  testing=False,
-                  verbose=True):
-    """Extract FERC 1."""
-    # BEGIN INGESTING FERC FORM 1 DATA:
-    ferc1_engine = pudl.extract.ferc1.connect_db(testing=testing)
-
-    ferc1_raw_dfs = {}
-    ferc1_extract_functions = {
-        'fuel_ferc1': pudl.extract.ferc1.fuel,
-        'plants_steam_ferc1': pudl.extract.ferc1.plants_steam,
-        'plants_small_ferc1': pudl.extract.ferc1.plants_small,
-        'plants_hydro_ferc1': pudl.extract.ferc1.plants_hydro,
-        'plants_pumped_storage_ferc1':
-            pudl.extract.ferc1.plants_pumped_storage,
-        'plant_in_service_ferc1': pudl.extract.ferc1.plant_in_service,
-        'purchased_power_ferc1': pudl.extract.ferc1.purchased_power,
-        'accumulated_depreciation_ferc1':
-            pudl.extract.ferc1.accumulated_depreciation}
-
-    # define the ferc 1 metadata object
-    # this is here because if ferc wasn't ingested in the same session, there
-    # will not be a defined metadata object to use to find and grab the tables
-    # from the ferc1 mirror db
-    if len(pudl.extract.ferc1.ferc1_meta.tables) == 0:
-        pudl.extract.ferc1.define_db(max(pc.working_years['ferc1']),
-                                     pc.ferc1_default_tables,
-                                     pudl.extract.ferc1.ferc1_meta,
-                                     basedir=settings.FERC1_DATA_DIR,
-                                     verbose=verbose)
-
-    if verbose:
-        print("Extracting tables from FERC 1:")
-    for table in ferc1_extract_functions:
-        if table in ferc1_tables:
-            if verbose:
-                print("    {}...".format(table))
-            ferc1_extract_functions[table](
-                ferc1_raw_dfs,
-                ferc1_engine,
-                ferc1_table=pc.table_map_ferc1_pudl[table],
-                pudl_table=table,
-                ferc1_years=ferc1_years)
-
-    return ferc1_raw_dfs
-
-
-def transform_ferc1(ferc1_raw_dfs,
-                    ferc1_tables=pc.ferc1_pudl_tables,
-                    verbose=True):
-    """Transform FERC 1."""
-    ferc1_transform_functions = {
-        'fuel_ferc1': pudl.transform.ferc1.fuel,
-        'plants_steam_ferc1': pudl.transform.ferc1.plants_steam,
-        'plants_small_ferc1': pudl.transform.ferc1.plants_small,
-        'plants_hydro_ferc1': pudl.transform.ferc1.plants_hydro,
-        'plants_pumped_storage_ferc1':
-            pudl.transform.ferc1.plants_pumped_storage,
-        'plant_in_service_ferc1': pudl.transform.ferc1.plant_in_service,
-        'purchased_power_ferc1': pudl.transform.ferc1.purchased_power,
-        'accumulated_depreciation_ferc1':
-            pudl.transform.ferc1.accumulated_depreciation
-    }
-    # create an empty ditctionary to fill up through the transform fuctions
-    ferc1_transformed_dfs = {}
-
-    # for each ferc table,
-    if verbose:
-        print("Transforming dataframes from FERC 1:")
-    for table in ferc1_transform_functions:
-        if table in ferc1_tables:
-            if verbose:
-                print("    {}...".format(table))
-            ferc1_transform_functions[table](ferc1_raw_dfs,
-                                             ferc1_transformed_dfs)
-
-    return ferc1_transformed_dfs
-
-
 def _ETL_ferc1(pudl_engine, ferc1_tables, ferc1_years, verbose, ferc1_testing,
                csvdir, keep_csv):
     if not ferc1_years:
@@ -572,14 +492,14 @@ def _ETL_ferc1(pudl_engine, ferc1_tables, ferc1_years, verbose, ferc1_testing,
         return
 
     # Extract FERC form 1
-    ferc1_raw_dfs = extract_ferc1(ferc1_tables=ferc1_tables,
-                                  ferc1_years=ferc1_years,
-                                  testing=ferc1_testing,
-                                  verbose=verbose)
+    ferc1_raw_dfs = pudl.extract.ferc1.extract(ferc1_tables=ferc1_tables,
+                                               ferc1_years=ferc1_years,
+                                               testing=ferc1_testing,
+                                               verbose=verbose)
     # Transform FERC form 1
-    ferc1_transformed_dfs = transform_ferc1(ferc1_raw_dfs,
-                                            ferc1_tables=ferc1_tables,
-                                            verbose=verbose)
+    ferc1_transformed_dfs = pudl.transform.ferc1.transform(ferc1_raw_dfs,
+                                                           ferc1_tables=ferc1_tables,
+                                                           verbose=verbose)
     # Load FERC form 1
     pudl.load.dict_dump_load(ferc1_transformed_dfs,
                              "FERC 1",
