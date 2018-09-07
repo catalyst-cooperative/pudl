@@ -80,6 +80,10 @@ def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
                      eia923_years=pc.working_years['eia923'],
                      eia860_tables=pc.eia860_pudl_tables,
                      eia860_years=pc.working_years['eia860'],
+                     # Full EPA CEMS ingest takes 8 hours, so using an
+                     # abbreviated list here
+                     epacems_years=pc.travis_ci_epacems_years,
+                     epacems_states=pc.travis_ci_epacems_states,
                      verbose=True,
                      debug=False,
                      pudl_testing=True,
