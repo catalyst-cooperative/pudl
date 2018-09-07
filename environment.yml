@@ -2,23 +2,23 @@ name: pudl
 channels:
   - defaults
 dependencies:
-  - python =3.6.*
-  - numpy =1.14.*
-  - pandas =0.23.*
-  - scikit-learn =0.19.*
-  - sqlalchemy =1.2.*
-  - psycopg2 =2.7.*
-  - networkx =2.1.*
-  - pytest =3.5.*
-  - scipy =1.1.*
   - cython =0.28.*
-  - xlrd =1.1.*
-  - scikit-learn =0.19.*
-  - xlsxwriter =1.0.*
-  - matplotlib
+  - dbfread
   - jupyter
   - jupyterlab
-  - dbfread
+  - matplotlib
+  - networkx =2.1.*
+  - numpy =1.14.*
+  - pandas =0.23.*
+  - psycopg2 =2.7.*
+  - pytest =3.5.*
+  - python =3.6.*
+  - scikit-learn =0.19.*
+  - scipy =1.1.*
+  - sqlalchemy =1.2.*
+  - xlrd =1.1.*
+  - xlsxwriter =1.0.*
   - pip:
-    - sqlalchemy-postgres-copy
+    - datapackage
     - sklearn-pandas
+    - sqlalchemy-postgres-copy
