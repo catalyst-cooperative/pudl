@@ -1219,6 +1219,11 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
             records are part of the same plant record time series. All entries
             in the pairwise similarity matrix below this value will be zeroed
             out.
+        plants_df : The entire FERC Form 1 plant table as a dataframe. Needed
+            in order to calculate the distance metrics between all of the
+            records so we can group the plants in the fit() step, so we can
+            check how well they are categorized later...
+
         """
         self.min_sim = min_sim
         self.plants_df = plants_df
@@ -1257,23 +1262,18 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
 
     def predict(self, X, y=None):
         """
-        Given a dataframe containing FERC plant records, return the ID of the
-        time series in which that record is found, based on the results of the
-        best_by_year grouping which was performed in the fit() step.
+        Given a list of FERC plant records (or record IDs? Not sure on what
+        form it needs to take given the Pipeline API), return a dataframe
+        containing record IDs of the records which make up the best time series
+        for each of the input records, in columns organized by year. For use in
+        scoring the model, based on how the plant records were grouped in the
+        fit() step.
 
         Questions:
         ----------
         * How does predict work? Do we need to accept a y value to specify the
-          expected output for the test dataset?
-
-        Issues:
-        --------
-        * Not getting anything back when there are any NaN values in a list.
-        * Shouldn't be using np.array for list of strings.
-        * If we're putting in a list of IDs maybe we should get back a
-          dataframe of IDs describing the matching group. Could do better
-          scoring that way (e.g. number of correct records, not just a binary
-          yes or no on match).
+          expected output for the test dataset? Does it have to take full
+          records, or can it take just the record_id values?
 
         """
         try:
