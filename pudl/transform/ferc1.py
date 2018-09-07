@@ -1310,10 +1310,8 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         For now, this just returns the proportion of records that were
         correctly categorized.
 
-<<<<<<< HEAD
         """
         return 1.0
-=======
         scaler = MinMaxScaler()
         capacity_vectors = scaler.fit_transform(
             X.tot_capacity.values.reshape(-1, 1))
@@ -1382,4 +1380,3 @@ def transform(ferc1_raw_dfs,
                                              ferc1_transformed_dfs)
 
     return ferc1_transformed_dfs
->>>>>>> 39ca085a0fc13c7eea0b819b81d081fcf13af5cd
