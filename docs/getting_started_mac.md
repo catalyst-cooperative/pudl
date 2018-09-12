@@ -37,7 +37,11 @@ git clone git@github.com:catalyst-cooperative/pudl.git
 conda env create --file=environment.yml
 ```
 If you get an error `No such file or directory: environment.yml`, make sure you're in the `pudl` repository downloaded in step 2.
-More on conda environments [here](https://conda.io/docs/user-guide/tasks/manage-environments.html).
+3. Then activate the `pudl` environment with the command:
+```sh
+conda activate pudl
+```
+For more on conda environments see [here](https://conda.io/docs/user-guide/tasks/manage-environments.html).
 
 
 ### 4. Setting up PostgreSQL
