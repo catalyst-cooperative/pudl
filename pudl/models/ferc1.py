@@ -177,26 +177,26 @@ class PlantSmallFERC1(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'plants_small_ferc1'
     __table_args__ = (ForeignKeyConstraint(
-        ['respondent_id', 'plant_name'],
+        ['utility_id_ferc', 'plant_name_original'],
         ['plants_ferc.respondent_id', 'plants_ferc.plant_name']),)
 
     id = Column(Integer, autoincrement=True, primary_key=True)
-    respondent_id = Column(Integer, nullable=False)
+    utility_id_ferc = Column(Integer, nullable=False)
     report_year = Column(Integer, nullable=False)
-    plant_name = Column(String, nullable=False)
-    plant_name_clean = Column(String)
+    plant_name_original = Column(String, nullable=False)
+    plant_name = Column(String)
     plant_type = Column(String)
-    ferc_license = Column(Integer)
-    year_constructed = Column(Integer)
-    total_capacity_mw = Column(Float)
+    ferc_license_id = Column(Integer)
+    construction_year = Column(Integer)
+    capacity_mw = Column(Float)
     peak_demand_mw = Column(Float)
     net_generation_mwh = Column(Float)
     total_cost_of_plant = Column(Numeric(14, 2))
-    cost_of_plant_per_mw = Column(Numeric(14, 2))
-    cost_of_operation = Column(Numeric(14, 2))  # No idea what this field is.
-    expns_fuel = Column(Numeric(14, 2))
-    expns_maintenance = Column(Numeric(14, 2))
-    kind_of_fuel = Column(String)
+    capex_per_mw = Column(Numeric(14, 2))
+    opex_total = Column(Numeric(14, 2))  # No idea what this field is.
+    opex_fuel = Column(Numeric(14, 2))
+    opex_maintenance = Column(Numeric(14, 2))
+    fuel_type = Column(String)
     fuel_cost_per_mmbtu = Column(Numeric(14, 2))
 
 
