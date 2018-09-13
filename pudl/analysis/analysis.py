@@ -4,17 +4,16 @@
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
-import matplotlib.pyplot as plt
-import itertools
-import random
 
 # Our own code...
-from pudl import init, settings, constants
-from pudl import outputs
+from pudl import init, constants
 import pudl.extract.ferc1
+
+import pudl.models.ferc1
 import pudl.models.entities
 import pudl.models.eia923
-import pudl.models.ferc1
+
+import pudl.output.ferc1
 
 
 def simple_select(table_name, pudl_engine):
@@ -141,25 +140,6 @@ def yearly_sum_eia(df, sum_by, columns=['plant_id_eia', 'generator_id']):
     return gb.agg({sum_by: np.sum})
 
 
-def eia_operator_plants(operator_id, pudl_engine):
-    """Return all the EIA plant IDs associated with a given EIA operator ID."""
-    Session = sa.orm.sessionmaker()
-    Session.configure(bind=pudl_engine)
-    session = Session()
-    pudl_plant_ids = [p.plant_id for p in
-                      session.query(pudl.models.entities.UtilityEIA923).
-                      filter_by(operator_id=operator_id).
-                      first().util_pudl.plants]
-    eia923_plant_ids = [p.plant_id_eia for p in
-                        session.query(pudl.models.entities.PlantEIA923).
-                        filter(pudl.models.entities.
-                               PlantEIA923.
-                               plant_id_pudl.
-                               in_(pudl_plant_ids))]
-    session.close_all()
-    return eia923_plant_ids
-
-
 def consolidate_ferc1_expns(steam_df, min_capfac=0.6, min_corr=0.5):
     """
     Calculate non-fuel production & nonproduction costs from a steam DataFrame.
@@ -172,6 +152,7 @@ def consolidate_ferc1_expns(steam_df, min_capfac=0.6, min_corr=0.5):
     for the entire steam_df DataFrame.
 
     Args:
+    -----
         steam_df (DataFrame): Data selected from the PUDL plants_steam_ferc1
             table, containing expense columns, prefixed with expns_
         min_capfac (float): Minimum capacity factor required for a plant's
@@ -182,9 +163,11 @@ def consolidate_ferc1_expns(steam_df, min_capfac=0.6, min_corr=0.5):
             "production" cost.
 
     Returns:
+    --------
         DataFrame containing all the same information as the original steam_df,
             but with two additional columns consolidating the non-fuel
             production and non-production costs for ease of calculation.
+
     """
     steam_df = steam_df.copy()
     # Calculate correlation of expenses to net power generation. Require a
@@ -196,8 +179,8 @@ def consolidate_ferc1_expns(steam_df, min_capfac=0.6, min_corr=0.5):
     expns_corr.pop('expns_fuel')
     # Sort these expense fields into nonfuel production (nonfuel_px) or
     # non-production (npx) expenses.
-    nonfuel_px = [k for k in expns_corr.keys() if expns_corr[k] >= min_corr]
-    npx = [k for k in expns_corr.keys() if expns_corr[k] < min_corr]
+    nonfuel_px = [k for k in expns_corr if expns_corr[k] >= min_corr]
+    npx = [k for k in expns_corr if expns_corr[k] < min_corr]
 
     # The three main categories of expenses we're reporting:
     # - fuel production expenses (already in the table)
@@ -271,6 +254,7 @@ def ferc_expenses(pudl_engine, pudl_plant_ids=[], require_eia=True,
     Gather operating expense data for a selection of FERC plants by PUDL ID.
 
     Args:
+    -----
         pudl_engine: a connection to the PUDL database.
         pudl_plant_ids: list of PUDL plant IDs for which to pull expenses out
             of the FERC dataset. If it's an empty list, get all the plants.
@@ -286,14 +270,16 @@ def ferc_expenses(pudl_engine, pudl_plant_ids=[], require_eia=True,
             to this threshold, it is categorized as a production expense.
 
     Returns:
+    --------
         ferc1_expns_corr: A dictionary of expense categories
             and their correlations to the plant's net electricity
             generation.
         steam_df: a dataframe with all the operating expenses
             broken out for each simple FERC PUDL plant.
+
     """
     # All of the large steam plants from FERC:
-    steam_df = outputs.plants_steam_ferc1(pudl_engine)
+    steam_df = pudl.output.ferc1.plants_steam_ferc1(pudl_engine)
 
     # Calculate the dataset-wide expense correlations, for the record.
     expns_corrs = ferc1_expns_corr(steam_df, min_capfac=min_capfac)
@@ -326,20 +312,25 @@ def fuel_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
                        cols=['fuel_consumed_total_mmbtu',
                              'fuel_consumed_total_cost_mmbtu',
                              'fuel_consumed_total_cost_unit']):
-    """Aggregate FERC Form 1 fuel data by PUDL plant id and, optionally, fuel.
+    """
+    Aggregate FERC Form 1 fuel data by PUDL plant id and, optionally, fuel.
 
-    Arguments:
+    Args:
+    -----
         pudl_plant_ids: which PUDL plants should we retain for aggregation?
         fuels: Should the columns listed in cols be broken out by each
             individual fuel? If so, which fuels do we want totals for? If
             you want all fuels lumped together, pass in 'all'.
         cols: which columns from the fuel_ferc1 table should be summed.
+
     Returns:
+    --------
         fuel_df: a dataframe with pudl_plant_id, year, and the summed values
             specified in cols. If fuels is not 'all' then it also has a column
             specifying fuel type.
+
     """
-    fuel_df = outputs.fuel_ferc1_df(pudl_engine)
+    fuel_df = pudl.output.ferc1.fuel_ferc1_df(pudl_engine)
 
     # Calculate the total fuel heat content for the plant by fuel
     fuel_df = fuel_df[fuel_df.plant_id_pudl.isin(pudl_plant_ids)]
@@ -360,16 +351,21 @@ def fuel_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
 
 def steam_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
                         cols=['net_generation_mwh', ]):
-    """Aggregate and return data from the steam_ferc1 table by pudl_plant_id.
+    """
+    Aggregate and return data from the steam_ferc1 table by pudl_plant_id.
 
-    Arguments:
+    Args:
+    -----
         pudl_plant_ids: A list of ids to include in the output.
         cols: The data columns that you want to aggregate and return.
+
     Returns:
+    --------
         steam_df: A dataframe with columns for report_year, pudl_plant_id and
             cols, with the values in cols aggregated by plant and year.
+
     """
-    steam_df = outputs.plants_steam_ferc1_df(pudl_engine)
+    steam_df = pudl.output.ferc1.plants_steam_ferc1_df(pudl_engine)
     steam_df = steam_df[steam_df.plant_id_pudl.isin(pudl_plant_ids)]
     steam_df = steam_df.groupby(['plant_id_pudl', 'report_year'])[cols].sum()
     steam_df = steam_df.reset_index()
@@ -390,16 +386,20 @@ def frc_by_pudl(pudl_plant_ids, pudl_engine,
     with the totals by pudl_plant_id, fuel, and year.
 
     Args:
+    -----
         pudl_plant_ids: list of plant IDs to keep.
         fuels: list of fuel strings that we want to group by. Alternatively,
             this can be set to 'all' in which case fuel is not grouped by.
         cols: List of data columns which we are summing.
+
     Returns:
+    --------
         A dataframe with the sums of cols, as grouped by pudl ID, year, and
             (optionally) fuel.
+
     """
     # Get all the EIA info from generation_fuel_eia923
-    frc_df = outputs.frc_eia923_df(pudl_engine)
+    frc_df = pudl.output.eia923.fuel_receipts_costs_eia923(pudl_engine)
     # Limit just to the plants we're looking at
     frc_df = frc_df[frc_df.plant_id_pudl.isin(pudl_plant_ids)]
     # Just keep the columns we need for output:
@@ -456,7 +456,7 @@ def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
             (optionally) fuel.
     """
     # Get all the EIA info from generation_fuel_eia923
-    gf_df = outputs.gf_eia923_df(pudl_engine)
+    gf_df = pudl.output.eia923.generation_fuel_eia923(pudl_engine)
 
     # Standardize the fuel codes (need to fix this in the DB!!!!)
     gf_df = gf_df.rename(columns={'fuel_type_pudl': 'fuel'})
@@ -864,6 +864,7 @@ def fercplants(plant_tables=['f1_steam',
     out.
 
     Args:
+    -----
         f1_tables (list): A list of tables in the FERC Form 1 DB whose plants
             you want to get information about.  Can include any of: f1_steam,
             f1_gnrt_plant, f1_hydro, and f1_pumped_storage.
@@ -876,8 +877,10 @@ def fercplants(plant_tables=['f1_steam',
             included in the output. This avoids most of the plants being tiny.
 
     Returns:
+    --------
         DataFrame: with four columns: respondent_id, respondent_name,
             plant_name, and plant_table.
+
     """
     # Need to be able to use years outside the "valid" range if we're trying
     # to get new plant ID info...
@@ -945,7 +948,7 @@ def fercplants(plant_tables=['f1_steam',
             ['respondent_id', 'plant_name'])
 
         pudl_engine = init.connect_db()
-        pudl_tbls = pudl.models.PUDLBase.metadata.tables
+        pudl_tbls = pudl.models.entities.PUDLBase.metadata.tables
 
         ferc1_plants_tbl = pudl_tbls['plants_ferc']
         ferc1_plants_select = sa.sql.select([
