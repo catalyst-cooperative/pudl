@@ -3112,7 +3112,7 @@ pudl_tables = {
 }
 
 base_data_urls = {
-    'eia860': 'https://www.eia.gov/electricity/data/eia860/xls',
+    'eia860': 'https://www.eia.gov/electricity/data/eia860/archive/xls',
     'eia861': 'https://www.eia.gov/electricity/data/eia861/zip',
     'eia923': 'https://www.eia.gov/electricity/data/eia923/archive/xls',
     'epacems': 'ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly',
