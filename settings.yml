@@ -1,11 +1,9 @@
-'''
-The following settings are inputs into init_db and the init_pudl script
+#The following settings are inputs into init_db and the init_pudl script
 
-The defautl settings is to ingest no datasources, but the working years and
-tables are all listed below, but they are commented out (with a # at the
-beginning of each line). For each datasource you want to ingest, simply detele
-the # in front of the tables and years you want.
-'''
+#The defautl settings is to ingest no datasources, but the working years and
+#tables are all listed below, but they are commented out (with a # at the
+#beginning of each line). For each datasource you want to ingest, simply detele
+#the # in front of the tables and years you want.
 
 # for list of working ferc1 tables see ferc1_working_tables in constants
 ferc1_tables:
