@@ -9,7 +9,7 @@ This code is for use analyzing EIA Form 860 data.
 import pandas as pd
 import os.path
 import glob
-from pudl import settings
+from config import SETTINGS
 import pudl.constants as pc
 
 ###########################################################################
@@ -30,7 +30,7 @@ def datadir(year):
     # These are the only years we've got...
     assert year in range(min(pc.data_years['eia860']),
                          max(pc.data_years['eia860']) + 1)
-    return(os.path.join(settings.EIA860_DATA_DIR,
+    return(os.path.join(SETTINGS['eia860_data_dir'],
                         'eia860{}'.format(year)))
 
 

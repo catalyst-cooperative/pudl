@@ -27,7 +27,7 @@ import pudl.constants as pc
 import pudl.models.ferc1
 import pudl.extract.ferc1
 import pudl.transform.pudl
-import pudl.settings
+from config import SETTINGS
 
 ##############################################################################
 # HELPER FUNCTIONS ###########################################################
@@ -376,7 +376,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     # Unforunately the plant types were not able to be parsed automatically
     # in this table. It's been done manually for 2004-2015, and the results
     # get merged in in the following section.
-    small_types_file = os.path.join(pudl.settings.PUDL_DIR,
+    small_types_file = os.path.join(SETTINGS['pudl_dir'],
                                     'results',
                                     'ferc1_small_plants',
                                     'small_plants_2004-2016.xlsx')

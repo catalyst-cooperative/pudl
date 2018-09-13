@@ -77,7 +77,7 @@ import itertools
 import random
 
 # Our own code...
-from pudl import settings, constants
+from pudl import constants
 from pudl import outputs
 import pudl.extract.eia923
 

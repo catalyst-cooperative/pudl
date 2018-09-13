@@ -7,8 +7,9 @@ import glob
 import os
 import pandas as pd
 import numpy as np
-from pudl import settings
+from config import SETTINGS
 import pudl.constants as pc
+
 
 def get_epacems_dir(year):
     """
@@ -23,7 +24,7 @@ def get_epacems_dir(year):
     assert year in range(min(pc.data_years['epacems']),
                          max(pc.data_years['epacems']) + 1)
 
-    return os.path.join(settings.EPACEMS_DATA_DIR, 'epacems{}'.format(year))
+    return os.path.join(SETTINGS['epacems_data_dir'], 'epacems{}'.format(year))
 
 
 def get_epacems_file(year, month, state):
@@ -46,6 +47,7 @@ def get_epacems_file(year, month, state):
         f"Expected it here: {full_path}")
     return full_path
 
+
 def add_fac_id_unit_id(df):
     """Harmonize columns that are added later
 
@@ -62,6 +64,7 @@ def add_fac_id_unit_id(df):
     if "unit_id" not in df.columns:
         df["unit_id"] = np.NaN
     return df
+
 
 def _all_na_or_values(series, values):
     """Test whether every element in the series is either missing or in values
@@ -87,7 +90,6 @@ def _all_na_or_values(series, values):
     return out
 
 
-
 def drop_calculated_rates(df):
     """Drop these calculated rates because they don't provide any information.
 
@@ -109,6 +111,7 @@ def drop_calculated_rates(df):
     del df["so2_rate_measure_flg"], df["so2_rate_lbs_mmbtu"]
     del df["co2_rate_measure_flg"], df["co2_rate_tons_mmbtu"]
     return df
+
 
 def extract(epacems_years, states, verbose):
     """
