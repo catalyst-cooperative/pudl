@@ -205,20 +205,20 @@ class PlantHydroFERC1(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'plants_hydro_ferc1'
     __table_args__ = (ForeignKeyConstraint(
-        ['respondent_id', 'plant_name'],
+        ['utility_id_ferc', 'plant_name'],
         ['plants_ferc.respondent_id', 'plants_ferc.plant_name']),)
 
     id = Column(Integer, autoincrement=True, primary_key=True)
-    respondent_id = Column(Integer, nullable=False)
+    utility_id_ferc = Column(Integer, nullable=False)
     plant_name = Column(String, nullable=False)
     report_year = Column(Integer, nullable=False)
-    project_number = Column(Integer)
-    plant_kind = Column(String)  # FK
-    plant_construction = Column(String)
-    year_constructed = Column(Integer)
-    year_installed = Column(Integer)
+    project_num = Column(Integer)
+    plant_type = Column(String)  # FK
+    plant_construction_type = Column(String)
+    construction_year = Column(Integer)
+    installation_year = Column(Integer)
     # name plate capacity
-    total_capacity_mw = Column(Float)
+    capacity_mw = Column(Float)
     # Net Peak Demand on Plant-Megawatts (60 minutes)
     peak_demand_mw = Column(Float)
     # Plant Hours Connect to Load
@@ -234,48 +234,48 @@ class PlantHydroFERC1(pudl.models.entities.PUDLBase):
     # Net Generation, Exclusive of Plant Use - kWh in FERC, converted to MWh
     net_generation_mwh = Column(Float)
     # Land and Land Rights
-    cost_land = Column(Numeric(14, 2))
+    capex_land = Column(Numeric(14, 2))
     # Structures and Improvements
-    cost_structure = Column(Numeric(14, 2))
+    capex_structure = Column(Numeric(14, 2))
     # Reservoirs, Dams, and Waterways
-    cost_facilities = Column(Numeric(14, 2))
+    capex_facilities = Column(Numeric(14, 2))
     # Equipment Costs
-    cost_equipment = Column(Numeric(14, 2))
+    capex_equipment = Column(Numeric(14, 2))
     # Roads, Railroads, and Bridges
-    cost_roads = Column(Numeric(14, 2))
+    capex_roads = Column(Numeric(14, 2))
     # Asset Retirement Costs
     asset_retirement_cost = Column(Numeric(14, 2))
     # TOTAL cost (Total of 14 thru 19)
-    cost_plant_total = Column(Numeric(14, 2))
+    capex_total = Column(Numeric(14, 2))
     # Cost per KW of Installed Capacity (line 20 / 5)
     # Converted to MW installed...
-    cost_per_mw = Column(Numeric(14, 2))
+    capex_per_mw = Column(Numeric(14, 2))
     # O peration Supervision and Engineering
-    expns_operations = Column(Numeric(14, 2))
+    opex_operations = Column(Numeric(14, 2))
     # Water for Power
-    expns_water_pwr = Column(Numeric(14, 2))
+    opex_water_pwr = Column(Numeric(14, 2))
     # Hydraulic Expenses
-    expns_hydraulic = Column(Numeric(14, 2))
+    opex_hydraulic = Column(Numeric(14, 2))
     # Electric Expenses
-    expns_electric = Column(Numeric(14, 2))
+    opex_electric = Column(Numeric(14, 2))
     # Misc Hydraulic Power Generation Expenses
-    expns_generation = Column(Numeric(14, 2))
+    opex_generation = Column(Numeric(14, 2))
     # Rents
-    expns_rents = Column(Numeric(14, 2))
+    opex_rents = Column(Numeric(14, 2))
     # Maintenance Supervision and Engineering
-    expns_engineering = Column(Numeric(14, 2))
+    opex_engineering = Column(Numeric(14, 2))
     # Maintenance of Structures
-    expns_structures = Column(Numeric(14, 2))
+    opex_structures = Column(Numeric(14, 2))
     # Maintenance of Reservoirs, Dams, and Waterways
-    expns_dams = Column(Numeric(14, 2))
+    opex_dams = Column(Numeric(14, 2))
     # Maintenance of Electric Plant
-    expns_plant = Column(Numeric(14, 2))
+    opex_plant = Column(Numeric(14, 2))
     # Maintenance of Misc Hydraulic Plant
-    expns_misc_plant = Column(Numeric(14, 2))
+    opex_misc_plant = Column(Numeric(14, 2))
     # Total Production Expenses (total 23 thru 33)
-    expns_production_total = Column(Numeric(14, 2))
+    opex_total = Column(Numeric(14, 2))
     # Expenses per net KWh in FERC, converted to MWh in PUDL
-    expns_per_mwh = Column(Numeric(14, 2))
+    opex_per_mwh = Column(Numeric(14, 2))
 
 
 class PlantsPumpedStorage(pudl.models.entities.PUDLBase):
