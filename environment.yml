@@ -20,5 +20,6 @@ dependencies:
   - xlsxwriter =1.0.*
   - pip:
     - datapackage
+    - goodtables
     - sklearn-pandas
     - sqlalchemy-postgres-copy
