@@ -3112,7 +3112,7 @@ pudl_tables = {
 }
 
 base_data_urls = {
-    'eia860': 'https://www.eia.gov/electricity/data/eia860/xls',
+    'eia860': 'https://www.eia.gov/electricity/data/eia860/archive/xls',
     'eia861': 'https://www.eia.gov/electricity/data/eia861/zip',
     'eia923': 'https://www.eia.gov/electricity/data/eia923/archive/xls',
     'epacems': 'ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly',
@@ -3130,10 +3130,10 @@ need_fix_inting = {'generators_eia860': ['sector', 'turbines'],
                    'generation_fuel_eia923': ['nuclear_unit_id'],
                    'plants_steam_ferc1': ['year_constructed',
                                           'year_installed'],
-                   'plants_small_ferc1': ['year_constructed', 'ferc_license'],
-                   'plants_hydro_ferc1': ['year_constructed',
-                                          'year_installed'],
-                   'plants_pumped_storage_ferc1': ['year_constructed',
-                                                   'year_installed'],
+                   'plants_small_ferc1': ['construction_year', 'ferc_license_id'],
+                   'plants_hydro_ferc1': ['construction_year',
+                                          'installation_year'],
+                   'plants_pumped_storage_ferc1': ['construction_year',
+                                                   'installation_year'],
                    'hourly_emissions_epacems': ['fac_id', 'unit_id'],
                    }

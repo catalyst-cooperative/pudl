@@ -17,7 +17,7 @@ def parse_command_line(argv):
 
     :param argv: arguments on the command line must include caller file name.
     """
-    from pudl import settings
+    from config import SETTINGS
     from pudl import constants
     parser = argparse.ArgumentParser()
 
@@ -50,7 +50,7 @@ def parse_command_line(argv):
         type=str,
         help="""Path to the top level datastore directory. (default:
         %(default)s).""",
-        default=settings.DATA_DIR
+        default=SETTINGS['data_dir']
     )
     parser.add_argument(
         '-s',
@@ -130,6 +130,7 @@ def main():
                                 verbose=args.verbose,
                                 datadir=args.datadir,
                                 no_download=args.no_download)
+
 
 if __name__ == '__main__':
     sys.exit(main())

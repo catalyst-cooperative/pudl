@@ -14,7 +14,8 @@ Emissions Monitoring System dataset will be added in the future.
 import os
 import urllib
 import pudl.constants as pc
-from pudl import settings
+from config import SETTINGS
+
 
 def assert_valid_param(source, year, month=None, state=None, check_month=None):
     assert source in pc.data_sources, \
@@ -38,7 +39,6 @@ def assert_valid_param(source, year, month=None, state=None, check_month=None):
             f"Month {month} is not valid (must be 1-12)"
         assert state.upper() in valid_states, \
             f"State '{state}' is not valid. It must be a US state abbreviation."
-
 
 
 def source_url(source, year, month=None, state=None):
@@ -107,7 +107,7 @@ def source_url(source, year, month=None, state=None):
     return download_url
 
 
-def path(source, year=0, month=None, state=None, file=True, datadir=settings.DATA_DIR):
+def path(source, year=0, month=None, state=None, file=True, datadir=SETTINGS['data_dir']):
     """
     Construct a variety of local datastore paths for a given data source.
 
@@ -144,7 +144,7 @@ def path(source, year=0, month=None, state=None, file=True, datadir=settings.DAT
             local PUDL datastore.
     """
     assert_valid_param(source=source, year=year, month=month, state=state,
-        check_month=False)
+                       check_month=False)
 
     if file:
         assert year != 0, \
@@ -210,28 +210,29 @@ def path(source, year=0, month=None, state=None, file=True, datadir=settings.DAT
         # For all the non-CEMS data, state_str and month_str are '',
         # but this should work for other monthly data too.
         dstore_path = os.path.join(dstore_path,
-            f"{basename}{state_str}{month_str}.zip")
+                                   f"{basename}{state_str}{month_str}.zip")
 
     return dstore_path
 
 
 def paths_for_year(source, year=0, states=pc.cems_states.keys(),
-                   file=True, datadir=settings.DATA_DIR):
+                   file=True, datadir=SETTINGS['data_dir']):
     """Get all the paths for a given source and year. See path() for details."""
     # TODO: I'm not sure this is the best construction, since it relies on
     # the order being the same here as in the url list comprehension
     if source == 'epacems':
         paths = [path(source=source, year=year, month=month, state=state,
-            file=file, datadir=datadir)
-            # For consistency, it's important that this is state, then month
-            for state in states
-            for month in range(1, 13)]
+                      file=file, datadir=datadir)
+                 # For consistency, it's important that this is state, then
+                 # month
+                 for state in states
+                 for month in range(1, 13)]
     else:
         paths = [path(source=source, year=year, file=file, datadir=datadir)]
     return paths
 
 
-def download(source, year, states, datadir=settings.DATA_DIR, verbose=True):
+def download(source, year, states, datadir=SETTINGS['data_dir'], verbose=True):
     """
     Download the original data for the specified data source and year.
 
@@ -265,17 +266,20 @@ def download(source, year, states, datadir=settings.DATA_DIR, verbose=True):
 
     if source == 'epacems':
         src_urls = [source_url(source, year, month=month, state=state)
-            # For consistency, it's important that this is state, then month
-            for state in states
-            for month in range(1, 13)]
+                    # For consistency, it's important that this is state, then
+                    # month
+                    for state in states
+                    for month in range(1, 13)]
         tmp_files = [os.path.join(tmp_dir, os.path.basename(f))
-            for f in paths_for_year(source, year, states=states)]
+                     for f in paths_for_year(source, year, states=states)]
     else:
         src_urls = [source_url(source, year)]
-        tmp_files = [os.path.join(tmp_dir, os.path.basename(path(source, year)))]
+        tmp_files = [os.path.join(
+            tmp_dir, os.path.basename(path(source, year)))]
     if(verbose):
         if source != 'epacems':
-            print(f"Downloading {source} data for {year}...\n    {src_urls[0]}")
+            print(
+                f"Downloading {source} data for {year}...\n    {src_urls[0]}")
         else:
             print(f"Downloading {source} data for {year}...")
     url_schemes = {urllib.parse.urlparse(url).scheme for url in src_urls}
@@ -288,6 +292,7 @@ def download(source, year, states, datadir=settings.DATA_DIR, verbose=True):
         _download_default(src_urls, tmp_files)
     return tmp_files
 
+
 def _download_FTP(src_urls, tmp_files, allow_retry=True):
     assert len(src_urls) == len(tmp_files) > 0
     import ftplib
@@ -296,7 +301,8 @@ def _download_FTP(src_urls, tmp_files, allow_retry=True):
     within_domain_paths = [url.path for url in parsed_urls]
     if len(domains) > 1:
         # This should never be true, but it seems good to check
-        raise NotImplementedError("I don't yet know how to download from multiple domains")
+        raise NotImplementedError(
+            "I don't yet know how to download from multiple domains")
     domain = domains.pop()
     ftp = ftplib.FTP(domain)
     login_result = ftp.login()
@@ -329,14 +335,14 @@ def _download_FTP(src_urls, tmp_files, allow_retry=True):
                 "Maybe the server is down?\n" +
                 "Here are the failure messages:\n " +
                 " \n".join(error_messages)
-                )
+            )
         if not allow_retry:
             err_msg = (
                 f"Download failed for {num_failed} URLs and no more " +
                 "retries are allowed.\n" +
                 "Here are the failure messages:\n " +
                 " \n".join(error_messages)
-                )
+            )
         import warnings  # Use warnings so this gets printed to stderr
         warnings.warn(err_msg)
 
@@ -383,7 +389,7 @@ def _download_default(src_urls, tmp_files, allow_retry=True):
 
 
 def organize(source, year, states, unzip=True,
-             datadir=settings.DATA_DIR,
+             datadir=SETTINGS['data_dir'],
              verbose=False, no_download=False):
     """
     Put a downloaded original data file where it belongs in the datastore.
@@ -421,8 +427,9 @@ def organize(source, year, states, unzip=True,
     tmpdir = os.path.join(datadir, 'tmp')
     # For non-CEMS, the newfiles and destfiles lists will have length 1.
     newfiles = [os.path.join(tmpdir, os.path.basename(f))
-        for f in paths_for_year(source, year, states)]
-    destfiles = paths_for_year(source, year, states, file=True, datadir=datadir)
+                for f in paths_for_year(source, year, states)]
+    destfiles = paths_for_year(
+        source, year, states, file=True, datadir=datadir)
 
     # If we've gotten to this point, we're wiping out the previous version of
     # the data for this source and year... so lets wipe it! Scary!
@@ -489,7 +496,7 @@ def check_if_need_update(source, year, states, datadir, clobber, verbose):
 
 
 def update(source, year, states, clobber=False, unzip=True, verbose=True,
-           datadir=settings.DATA_DIR, no_download=False):
+           datadir=SETTINGS['data_dir'], no_download=False):
     """
     Update the local datastore for the given source and year.
 
@@ -521,7 +528,7 @@ def update(source, year, states, clobber=False, unzip=True, verbose=True,
     Returns: nothing
     """
     need_update = check_if_need_update(source=source, year=year, states=states,
-        datadir=datadir, clobber=clobber, verbose=verbose)
+                                       datadir=datadir, clobber=clobber, verbose=verbose)
     if need_update:
         # Otherwise we're downloading:
         if not no_download:

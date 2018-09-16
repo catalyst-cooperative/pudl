@@ -10,7 +10,7 @@ years 2009-2016 work, as they share nearly identical file formatting.
 import pandas as pd
 import os.path
 import glob
-from pudl import settings
+from config import SETTINGS
 import pudl.constants as pc
 
 ###########################################################################
@@ -19,7 +19,7 @@ import pudl.constants as pc
 ###########################################################################
 
 
-def datadir(year, basedir=settings.EIA923_DATA_DIR):
+def datadir(year, basedir=SETTINGS['eia923_data_dir']):
     """
     Data directory search for EIA Form 923.
 
@@ -37,7 +37,7 @@ def datadir(year, basedir=settings.EIA923_DATA_DIR):
         return os.path.join(basedir, 'f923_{}'.format(year))
 
 
-def get_eia923_file(yr, basedir=settings.EIA923_DATA_DIR):
+def get_eia923_file(yr, basedir=SETTINGS['eia923_data_dir']):
     """
     Given a year, return the appopriate EIA923 excel file.
 

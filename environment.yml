@@ -18,6 +18,7 @@ dependencies:
   - sqlalchemy =1.2.*
   - xlrd =1.1.*
   - xlsxwriter =1.0.*
+  - pyyaml
   - pip:
     - datapackage
     - goodtables

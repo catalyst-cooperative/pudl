@@ -24,7 +24,6 @@ import time
 import pandas as pd
 import sqlalchemy as sa
 
-from pudl import settings
 import pudl.models.entities
 import pudl.models.glue
 import pudl.models.eia923
@@ -45,6 +44,7 @@ import pudl.transform.pudl
 import pudl.load
 
 import pudl.constants as pc
+from config import SETTINGS
 
 ###############################################################################
 ###############################################################################
@@ -56,8 +56,8 @@ import pudl.constants as pc
 def connect_db(testing=False):
     """Connect to the PUDL database using global settings from settings.py."""
     if testing:
-        return sa.create_engine(sa.engine.url.URL(**settings.DB_PUDL_TEST))
-    return sa.create_engine(sa.engine.url.URL(**settings.DB_PUDL))
+        return sa.create_engine(sa.engine.url.URL(**SETTINGS['db_pudl_test']))
+    return sa.create_engine(sa.engine.url.URL(**SETTINGS['db_pudl']))
 
 
 def _create_tables(engine):
@@ -307,7 +307,7 @@ def _ingest_glue_eia_ferc1(engine,
     # when only ferc is ingested into the database.
     if not ferc1_years:
         return
-    map_eia_ferc_file = os.path.join(settings.PUDL_DIR,
+    map_eia_ferc_file = os.path.join(SETTINGS['pudl_dir'],
                                      'results',
                                      'id_mapping',
                                      'mapping_eia923_ferc1.xlsx')
@@ -486,10 +486,10 @@ def _ingest_glue_eia_ferc1(engine,
 
 def _ETL_ferc1(pudl_engine, ferc1_tables, ferc1_years, verbose, ferc1_testing,
                csvdir, keep_csv):
-    if not ferc1_years:
+    if not ferc1_years or not ferc1_tables:
         if verbose:
             print('Not ingesting FERC1')
-        return
+        return None
 
     # Extract FERC form 1
     ferc1_raw_dfs = pudl.extract.ferc1.extract(ferc1_tables=ferc1_tables,
@@ -552,7 +552,11 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
     """"""
     # If we're not doing CEMS, just stop here to avoid printing messages like
     # "Reading EPA CEMS data...", which could be confusing.
-    if states[0].lower() == 'none':
+    # if states[0].lower() == 'none':
+    #    return None
+    if not states:
+        if verbose:
+            print('Not ingesting EPA CEMS.')
         return None
     if states[0].lower() == 'all':
         states = list(pc.cems_states.keys())
@@ -596,19 +600,20 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
         print(time_message)
 
 
-def init_db(ferc1_tables=pc.ferc1_pudl_tables,
-            ferc1_years=pc.working_years['ferc1'],
-            eia923_tables=pc.eia923_pudl_tables,
-            eia923_years=pc.working_years['eia923'],
-            eia860_tables=pc.eia860_pudl_tables,
-            eia860_years=pc.working_years['eia860'],
-            epacems_years=pc.working_years['epacems'],
-            epacems_states=list(pc.cems_states.keys()),
-            verbose=True, debug=False,
-            pudl_testing=False,
-            ferc1_testing=False,
-            csvdir=os.path.join(settings.PUDL_DIR, 'results', 'csvdump'),
-            keep_csv=False):
+def init_db(ferc1_tables=SETTINGS['ferc1_tables'],
+            ferc1_years=SETTINGS['ferc1_years'],
+            eia923_tables=SETTINGS['eia923_tables'],
+            eia923_years=SETTINGS['eia923_years'],
+            eia860_tables=SETTINGS['eia860_tables'],
+            eia860_years=SETTINGS['eia860_years'],
+            epacems_years=SETTINGS['epacems_years'],
+            epacems_states=SETTINGS['epacems_states'],
+            verbose=SETTINGS['verbose'],
+            debug=SETTINGS['debug'],
+            pudl_testing=SETTINGS['pudl_testing'],
+            ferc1_testing=SETTINGS['ferc1_testing'],
+            csvdir=SETTINGS['csvdir'],
+            keep_csv=SETTINGS['keep_csv']):
     """
     Create the PUDL database and fill it up with data.
 
@@ -640,14 +645,16 @@ def init_db(ferc1_tables=pc.ferc1_pudl_tables,
     if verbose:
         print("Start ingest at {}".format(datetime.datetime.now().
                                           strftime("%A, %d. %B %Y %I:%M%p")))
-    if not debug:
-        for table in ferc1_tables:
-            # assert(table in pc.ferc1_working_tables)
-            assert table in pc.ferc1_pudl_tables
 
     if not debug:
-        for table in eia923_tables:
-            assert table in pc.eia923_pudl_tables
+        if ferc1_tables:
+            for table in ferc1_tables:
+                assert table in pc.ferc1_pudl_tables
+
+    if not debug:
+        if eia923_tables:
+            for table in eia923_tables:
+                assert table in pc.eia923_pudl_tables
 
     # Connect to the PUDL DB, wipe out & re-create tables:
     pudl_engine = connect_db(testing=pudl_testing)

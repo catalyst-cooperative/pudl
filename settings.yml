@@ -1,0 +1,115 @@
+#The following settings are inputs into init_db and the init_pudl script
+
+#The defautl settings is to ingest no datasources, but the working years and
+#tables are all listed below, but they are commented out (with a # at the
+#beginning of each line). For each datasource you want to ingest, simply detele
+#the # in front of the tables and years you want.
+
+# for list of working ferc1 tables see ferc1_working_tables in constants
+ferc1_tables:
+ - fuel_ferc1
+ - plants_steam_ferc1
+ - plants_small_ferc1
+ - plants_hydro_ferc1
+ - plants_pumped_storage_ferc1
+ - plant_in_service_ferc1
+ - purchased_power_ferc1
+ - accumulated_depreciation_ferc1
+
+# for list of working ferc1 years see ferc1_working_tables in constants
+ferc1_years:
+  #- 2011
+  #- 2012
+  #- 2013
+  #- 2014
+  #- 2015
+  #- 2016
+
+# if you are ingesting ferc1, you need a reference year which dictates which
+# year's database structure to use. If one is not defined, the default will be
+# the most recent year in ferc1_years
+ferc1_ref_year:
+  #- 2016
+
+# for list of working eia923 years see eia923_pudl_tables in constants
+eia923_tables:
+  - plants_eia923
+  - generation_fuel_eia923
+  - plant_ownership_eia923
+  - boiler_fuel_eia923
+  - boilers_eia923
+  - generators_eia923
+  - generation_eia923
+  - coalmine_eia923
+  - fuel_receipts_costs_eia923
+
+# for list of working eia923 years see working_years in constants
+eia923_years:
+  #- 2009
+  #- 2010
+  #- 2011
+  #- 2012
+  #- 2013
+  #- 2014
+  #- 2015
+  #- 2016
+
+# for list of working eia860 tables see eia860_pudl_tables in constants
+eia860_tables:
+  - boiler_generator_assn_eia860
+  - utilities_eia860
+  - plants_eia860
+  - generators_eia860
+  - ownership_eia860
+
+# for list of working eia860 years see working_years in constants
+eia860_years:
+  #- 2011
+  #- 2012
+  #- 2013
+  #- 2014
+  #- 2015
+  #- 2016
+
+# for list of working epacems years see working_years in constants
+epacems_years:
+  #- 2016
+
+# for list of working epacems states see cems_states in constants
+epacems_states:
+  #- CO
+  #- ALL
+verbose: True
+debug: False
+pudl_testing: False
+ferc1_testing: False
+keep_csv: False
+
+# These DB connection dictionaries are used by sqlalchemy.URL()
+# (Using 127.0.0.1, the numeric equivalent of localhost, to make postgres use
+# the `.pgpass` file without fussing around in the config.)
+# sqlalchemy.URL will make a URL missing post (therefore using the default),
+# and missing a password (which will make the system look for .pgpass)
+db_ferc1:
+ drivername: postgresql
+ host: 127.0.0.1
+ username: catalyst
+ database: ferc1
+
+db_pudl:
+  drivername: postgresql
+  host: 127.0.0.1
+  username: catalyst
+  database: pudl
+
+db_ferc1_test:
+  drivername: postgresql
+  host: 127.0.0.1
+  username: catalyst
+  database: ferc1_test
+
+db_pudl_test:
+  drivername: postgresql
+  host: 127.0.0.1
+  username: catalyst
+  database: pudl_test
