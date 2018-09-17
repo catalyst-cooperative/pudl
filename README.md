@@ -88,22 +88,23 @@ E.g. a blank copy of the FERC Form 1 is available in `./docs/ferc/form1/` as a
 PDF.
 
 ## environment.yml
-A specification of the conda python environment required by PUDL.
+A specification of the [conda](https://conda.io/docs/) python environment
+required by PUDL.
 
 ## pudl/
 The PUDL python package, where all of our actual code ends up. The modules and
 packages are organized by data source, as well as by what step of the database
 initialization process (extract, transform, load) they pertain to. For example:
- - [`./pudl/extract/eia923.py`](/pudl/pudl/extract/eia923.py)
- - [`./pudl/transform/ferc1.py`](/pudl/pudl/transform/ferc1.py)
+ - [`./pudl/extract/eia923.py`](/pudl/extract/eia923.py)
+ - [`./pudl/transform/ferc1.py`](/pudl/transform/ferc1.py)
 
 The load step is currently very simple, and so it just has a single top level
 module dedicated to it.
 
 The database models (table definitions) are also organized by data source, and
 are kept in the models subpackage. E.g.:
- - [`./pudl/models/eia923.py`](/pudl/pudl/models/eia923.py)
- - [`./pudl/models/eia860.py`](/pudl/pudl/models/eia860.py)
+ - [`./pudl/models/eia923.py`](/pudl/models/eia923.py)
+ - [`./pudl/models/eia860.py`](/pudl/models/eia860.py)
 
 We are beginning to accumulate analytical functionality in the [analysis
 subpackage](/pudl/analysis/), like calculation of the marginal cost of
@@ -112,13 +113,13 @@ subpackage](/pudl/output/) contains data source specific output routines and an
 [output class definition](/pudl/output/pudltabl.py).
 
 ### Other miscellaneous bits:
- - [`./pudl/constants.py`](/pudl/pudl/constants.py) stores a variety of static
+ - [`./pudl/constants.py`](/pudl/constants.py) stores a variety of static
    data for loading, like the mapping of FERC Form 1 line numbers to FERC
    account numbers in the plant in service table, or the mapping of EIA923
    spreadsheet columns to database column names over the years, or the list of
    codes describing fuel types in EIA923.
 
- - [`./pudl/helpers.py`](/pudl/pudl/constants.py) contains a collection of
+ - [`./pudl/helpers.py`](/pudl/constants.py) contains a collection of
    helper functions that are used throughout the project.
 
 ## results/
