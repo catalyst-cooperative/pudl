@@ -1,13 +1,8 @@
 #!/usr/bin/env python
-"""
-Script to create MSHA data package for PUDL.
-"""
+"""Script to create MSHA data package for PUDL."""
 
 import sys
 import os
-import datapackage
-import goodtables
-import tableschema
 import json
 import hashlib
 import datetime
@@ -16,13 +11,16 @@ import urllib
 import shutil
 from pprint import pprint
 
+import datapackage
+import goodtables
 import pandas as pd
 
-sys.path.append(os.path.abspath(os.path.join('..', '..', '..', '..')))
+sys.path.append(os.path.abspath(os.path.join('..', '..', '..')))
 
 
 def main(arguments):
-    from pudl import init, datastore, settings
+    """The main function."""
+    from config import SETTINGS
     from pudl.transform.pudl import fix_int_na
     import pudl.constants as pc
 
@@ -41,12 +39,12 @@ def main(arguments):
     args = parser.parse_args(arguments)
 
     # Construct some paths we'll need later...
-    input_dir = os.path.join(settings.PUDL_DIR, "scripts", "data_pkgs",
-                             "msha", "pudl-msha")
+    input_dir = os.path.join(
+        SETTINGS['pudl_dir'], "scripts", "data_pkgs", "pudl-msha")
 
     # Generate package output directories based on name of the data package
-    output_dir = os.path.join(settings.PUDL_DIR, "results", "data_pkgs",
-                              "msha", "pudl-msha")
+    output_dir = os.path.join(
+        SETTINGS['pudl_dir'], "results", "data_pkgs", "pudl-msha")
 
     archive_dir = os.path.join(output_dir, "archive")
     os.makedirs(archive_dir, exist_ok=True)
@@ -106,7 +104,7 @@ def main(arguments):
                 )
     else:
         # Get the data from our local PUDL datastore.
-        data_path = os.path.join(settings.DATA_DIR, "msha")
+        data_path = os.path.join(SETTINGS['data_dir'], "msha")
         for res in resources:
             for d in ["data", "defs"]:
                 src_file = os.path.join(data_path, resources[res][d])
@@ -171,7 +169,8 @@ def main(arguments):
 
         # the data itself goes in output -- this is what we're packaging up
         output_csv = os.path.join(data_dir, f"{res}.csv")
-        resources[res]['data_df'].to_csv(output_csv, index=False)
+        resources[res]['data_df'].to_csv(output_csv, index=False,
+                                         encoding='utf-8')
 
         # calculate some useful information about the output file, and add it to the resource:
         # resource file size:
