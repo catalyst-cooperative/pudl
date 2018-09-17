@@ -4,11 +4,12 @@
 [![Join the chat at https://gitter.im/catalyst-cooperative/pudl](https://badges.gitter.im/catalyst-cooperative/pudl.svg)](https://gitter.im/catalyst-cooperative/pudl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/catalyst-cooperative/pudl/master)
 
-The Public Utility Data Liberation project aims to provide a useful interface
-to publicly available electric utility data in the US.  It uses information
-from the Federal Energy Regulatory Commission (FERC), the Energy Information
-Administration (EIA), and the Environmental Protection Agency (EPA), among
-others.
+The [Public Utility Data Liberation (PUDL)
+project](https://catalyst.coop/public-utility-data-liberation/) aims to provide
+a useful interface to publicly available electric utility data in the US.  It
+uses information from the Federal Energy Regulatory Commission (FERC), the
+Energy Information Administration (EIA), and the Environmental Protection
+Agency (EPA), among others.
 
 https://github.com/catalyst-cooperative/pudl
 
@@ -18,13 +19,16 @@ For more information, get in touch with:
  - hello@catalyst.coop
 
 # Quickstart
-Just want to get started building a database? Read [the documentation for your
-operating system](/docs).
+Just want to get started building a database? Read the setup guide for your
+operating system:
+ - [Linux](/docs/getting_started_linux.md)
+ - [Mac OS X](/docs/getting_started_mac.md)
+ - [Windows](/docs/getting_started_pc.md)
 
 ---
 # Project Status
-As of June, 2018 the data which have been integrated into the PUDL database
-include:
+As of September, 2018 the data which have been integrated into the PUDL
+database include:
 
 ## [FERC Form 1](https://www.ferc.gov/docs-filing/forms/form-1/data.asp)
 A subset of the FERC Form 1 data, mostly pertaining to power plants, their
@@ -101,15 +105,21 @@ are kept in the models subpackage. E.g.:
  - [`./pudl/models/eia923.py`](/pudl/pudl/models/eia923.py)
  - [`./pudl/models/eia860.py`](/pudl/pudl/models/eia860.py)
 
-We are beginning to accumulate analytical functionality in the [analysis subpackage](/pudl/analysis/), like calculation of the marginal cost of electricity (MCOE) on a per generator basis. The [output subpackage](/pudl/output/) contains data source specific output routines and an [output class definition](/pudl/output/pudltabl.py).
+We are beginning to accumulate analytical functionality in the [analysis
+subpackage](/pudl/analysis/), like calculation of the marginal cost of
+electricity (MCOE) on a per generator basis. The [output
+subpackage](/pudl/output/) contains data source specific output routines and an
+[output class definition](/pudl/output/pudltabl.py).
 
 ### Other miscellaneous bits:
- - [`./pudl/constants.py`](/pudl/pudl/constants.py) stores a variety of static data for loading, like the
-   mapping of FERC Form 1 line numbers to FERC account numbers in the plant in
-   service table, or the mapping of EIA923 spreadsheet columns to database
-   column names over the years, or the list of codes describing fuel types in
-   EIA923.
- - [`./pudl/helpers.py`](/pudl/pudl/constants.py) contains a collection of helper functions that are used throughout the project.
+ - [`./pudl/constants.py`](/pudl/pudl/constants.py) stores a variety of static
+   data for loading, like the mapping of FERC Form 1 line numbers to FERC
+   account numbers in the plant in service table, or the mapping of EIA923
+   spreadsheet columns to database column names over the years, or the list of
+   codes describing fuel types in EIA923.
+
+ - [`./pudl/helpers.py`](/pudl/pudl/constants.py) contains a collection of
+   helper functions that are used throughout the project.
 
 ## results/
 The results directory contains derived data products. These are outputs from
