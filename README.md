@@ -57,29 +57,23 @@ here.  This is generally based on the "Good Enough Practices in Scientific
 Computing" white paper from the folks at Software Carpentry, which you can and
 should read in its entirety here: https://arxiv.org/pdf/1609.00037v2.pdf
 
-## LICENSE.md
-Copyright and licensing information.
-
-## README.md
-The file you're reading right now...
-
-## REQUIREMENTS.md
-An explanation of the other software and data you'll need to have installed in
-order to make use of PUDL.
+## ci/
+Scripts used for continuous integration with [Travis CI](https://travis-ci.org/catalyst-cooperative/pudl).
 
 ## data/
 A data store containing the original data from FERC, EIA, EPA and other
-agencies. It's organized first by agency, then by form, and finally year. For
-example, the FERC Form 1 data from 2014 would be found in
+agencies. It's organized first by agency, then by form, and (in most cases)
+finally year. For example, the FERC Form 1 data from 2014 would be found in
 `./data/ferc/form1/f1_2014` and the EIA data from 2010 can be found in
 `./data/eia/form923/f923_2010`. The year-by-year directory structure is
 determined by the reporting agency, based on what is provided for download.
 
 The data itself is too large to be conveniently stored within the git
-repository, so we have a script (`./scripts/update_datastore.py`) that can pull
-down the most recent version of all the data that's needed to build the PUDL
-database, and organize it so that the software knows where to find it. Run
-`python ./scripts/update_datastore.py --help` for more info.
+repository, so we use [a datastore management
+script](/scripts/update_datastore.py) that can pull down the most recent
+version of all the data that's needed to build the PUDL database, and organize
+it so that the software knows where to find it. Run `python
+./scripts/update_datastore.py --help` for more info.
 
 ## docs/
 Documentation related to the data sources, our results, and how to go about
@@ -89,48 +83,42 @@ sources are also stored under here, in a hierarchy similar to the data store.
 E.g. a blank copy of the FERC Form 1 is available in `./docs/ferc/form1/` as a
 PDF.
 
+## environment.yml
+A specification of the conda python environment required by PUDL.
+
 ## pudl/
 The PUDL python package, where all of our actual code ends up. The modules and
 packages are organized by data source, as well as by what step of the database
 initialization process (extract, transform, load) they pertain to. For example:
- - `./pudl/extract/eia923.py`
- - `./pudl/transform/ferc1.py`
+ - [`./pudl/extract/eia923.py`](/pudl/pudl/extract/eia923.py)
+ - [`./pudl/transform/ferc1.py`](/pudl/pudl/transform/ferc1.py)
 
 The load step is currently very simple, and so it just has a single top level
 module dedicated to it.
 
 The database models (table definitions) are also organized by data source, and
 are kept in the models subpackage. E.g.:
- - `./models/eia923.py`
- - `./models/eia860.py`
+ - [`./pudl/models/eia923.py`](/pudl/pudl/models/eia923.py)
+ - [`./pudl/models/eia860.py`](/pudl/pudl/models/eia860.py)
 
-We are beginning to accumulate analytical functionality in additional modules.
-`./pudl/analysis.py` is a staging area where new analysis functions go before
-getting organized into their own thematic modules like `./pudl/outputs.py`
-which generates some useful tabular outputs for folks who would like to work
-with CSV files, or `./pudl/mcoe.py` which calculates the marginal cost of
-electricity by generator for every power plant in the US which reports to EIA
-and FERC. Eventually these analytical tools that sit on top of the database
-will need to get organized into their own subpackages, but for now they're kind
-of chaotic.
+We are beginning to accumulate analytical functionality in the [analysis subpackage](/pudl/analysis/), like calculation of the marginal cost of electricity (MCOE) on a per generator basis. The [output subpackage](/pudl/output/) contains data source specific output routines and an [output class definition](/pudl/output/pudltabl.py).
 
 ### Other miscellaneous bits:
- - `./pudl/settings.py` contains global settings for things like connecting to
-   the postgres database, and a few paths to resources within the repository.
-
- - `./pudl/constants.py` stores a variety of static data for loading, like the
+ - [`./pudl/constants.py`](/pudl/pudl/constants.py) stores a variety of static data for loading, like the
    mapping of FERC Form 1 line numbers to FERC account numbers in the plant in
    service table, or the mapping of EIA923 spreadsheet columns to database
    column names over the years, or the list of codes describing fuel types in
    EIA923.
+ - [`./pudl/helpers.py`](/pudl/pudl/constants.py) contains a collection of helper functions that are used throughout the project.
 
 ## results/
 The results directory contains derived data products. These are outputs from
 our manipulation and combination of the original data, that are necessary for
-the integration of those data sets into the central database. It will also be
-the place where outputs we're going to hand off to others get put.
+the integration of those data sets into the central database. It also
+contains outputs we've generated for others.
 
-The results directory also contains a collection of Jupyter notebooks
+The results directory also contains [a collection of Jupyter
+notebooks](/pudl/results/notebooks) (which desperately needs organizing)
 presenting various data processing or analysis tasks, such as pulling the
 required IDs from the cloned FERC database to use in matching up plants and
 utilities between FERC and EIA datasets.
