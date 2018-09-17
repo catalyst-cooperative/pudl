@@ -92,7 +92,7 @@ def multiplicative_error_correction(tofix, mask, minval, maxval, mults):
 
 
 ##############################################################################
-# DATABSE TABLE SPECIFIC PROCEDURES ##########################################
+# DATABASE TABLE SPECIFIC PROCEDURES ##########################################
 ##############################################################################
 def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
@@ -135,8 +135,6 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
                                          pc.ferc1_fuel_strings,
                                          unmapped=np.nan)
 
-    fuel_ferc1_df.rename(columns={'fuel': 'fuel_type_pudl'}, inplace=True)
-
     fuel_ferc1_df.fuel_unit = \
         pudl.transform.pudl.cleanstrings(fuel_ferc1_df.fuel_unit,
                                          pc.ferc1_fuel_unit_strings,
@@ -165,6 +163,9 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
     #########################################################################
     fuel_ferc1_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
+        'respondent_id':'utility_id_ferc',
+        'fuel': 'fuel_type_code_pudl',
+        'fuel_avg_mmbtu_per_unit':'fuel_mmbtu_per_unit',
         'fuel_quantity': 'fuel_qty_burned',
         'fuel_cost_burned': 'fuel_cost_per_unit_burned',
         'fuel_cost_delvd': 'fuel_cost_per_unit_delivered',
@@ -174,9 +175,9 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
     #########################################################################
     # CORRECT DATA ENTRY ERRORS #############################################
     #########################################################################
-    coal_mask = fuel_ferc1_df['fuel_type_pudl'] == 'coal'
-    gas_mask = fuel_ferc1_df['fuel_type_pudl'] == 'gas'
-    oil_mask = fuel_ferc1_df['fuel_type_pudl'] == 'oil'
+    coal_mask = fuel_ferc1_df['fuel_type_code_pudl'] == 'coal'
+    gas_mask = fuel_ferc1_df['fuel_type_code_pudl'] == 'gas'
+    oil_mask = fuel_ferc1_df['fuel_type_code_pudl'] == 'oil'
 
     corrections = [
         # mult = 2000: reported in units of lbs instead of short tons
@@ -184,7 +185,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
         # minval and maxval of 10 and 29 mmBTUs are the range of values
         # specified by EIA 923 instructions at:
         # https://www.eia.gov/survey/form/eia_923/instructions.pdf
-        ['fuel_avg_mmbtu_per_unit', coal_mask, 10.0, 29.0, (2e3, 1e6)],
+        ['fuel_mmbtu_per_unit', coal_mask, 10.0, 29.0, (2e3, 1e6)],
 
         # mult = 1e-2: reported cents/mmBTU instead of USD/mmBTU
         # minval and maxval of .5 and 7.5 dollars per mmBTUs are the
@@ -196,7 +197,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
         # mult = 1e6: reported fuel quantity in BTU, not mmBTU
         # minval and maxval of .8 and 1.2 mmBTUs are the range of values
         # specified by EIA 923 instructions
-        ['fuel_avg_mmbtu_per_unit', gas_mask, 0.8, 1.2, (1e3, 1e6)],
+        ['fuel_mmbtu_per_unit', gas_mask, 0.8, 1.2, (1e3, 1e6)],
 
         # mult = 1e-2: reported in cents/mmBTU instead of USD/mmBTU
         # minval and maxval of 1 and 35 dollars per mmBTUs are the
@@ -208,7 +209,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
         # mult = 1e6: reported fuel quantity in BTU, not mmBTU
         # minval and maxval of 3 and 6.9 mmBTUs are the range of values
         # specified by EIA 923 instructions
-        ['fuel_avg_mmbtu_per_unit', oil_mask, 3, 6.9, (42, )],
+        ['fuel_mmbtu_per_unit', oil_mask, 3, 6.9, (42, )],
 
         # mult = 1e-2: reported in cents/mmBTU instead of USD/mmBTU
         # minval and maxval of 5 and 33 dollars per mmBTUs are the
@@ -295,6 +296,7 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_steam_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
+        'respondent_id':'utility_id_ferc',
         'yr_const': 'year_constructed',
         'type_const': 'construction_type',
         'asset_retire_cost': 'asset_retirement_cost',
@@ -686,6 +688,7 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_pis_df.rename(columns={
         # FERC 1 DB Name  PUDL DB Name
+        'respondent_id':'utility_id_ferc',
         'begin_yr_bal': 'beginning_year_balance',
         'addition': 'additions',
         'yr_end_bal': 'year_end_balance'},
@@ -783,6 +786,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_accumdepr_prvsn_df.rename(columns={
         # FERC1 DB   PUDL DB
+        'respondent_id':'utility_id_ferc',
         'total_cde': 'total'},
         inplace=True)
 
