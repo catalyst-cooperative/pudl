@@ -727,18 +727,20 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_purchased_pwr_df.rename(columns={
         # FERC 1 DB Name  PUDL DB Name
+        'respondent_id':'utility_id_ferc',
         'athrty_co_name': 'authority_company_name',
         'sttstcl_clssfctn': 'statistical_classification',
-        'rtsched_trffnbr': 'rate_schedule_tariff_number',
-        'avgmth_bill_dmnd': 'average_billing_demand',
-        'avgmth_ncp_dmnd': 'average_monthly_ncp_demand',
-        'avgmth_cp_dmnd': 'average_monthly_cp_demand',
-        'mwh_recv': 'mwh_received',
-        'mwh_delvd': 'mwh_delivered',
+        'rtsched_trffnbr': 'rate_schedule_tariff_num',
+        'avgmth_bill_dmnd': 'avg_billing_demand_mw',
+        'avgmth_ncp_dmnd': 'avg_monthly_ncp_demand_mw',
+        'avgmth_cp_dmnd': 'avg_monthly_cp_demand_mw',
+        'mwh_purchased':'purchased_mwh',
+        'mwh_recv': 'received_mwh',
+        'mwh_delvd': 'delivered_mwh',
         'dmnd_charges': 'demand_charges',
         'erg_charges': 'energy_charges',
         'othr_charges': 'other_charges',
-        'settlement_tot': 'settlement_total'},
+        'settlement_tot': 'total_settlement'},
         inplace=True)
 
     ferc1_transformed_dfs['purchased_power_ferc1'] = ferc1_purchased_pwr_df

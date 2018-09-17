@@ -147,23 +147,23 @@ class PurchasedPowerFERC1(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'purchased_power_ferc1'
     id = Column(Integer, autoincrement=True, primary_key=True)
-    respondent_id = Column(Integer,
+    utility_id_ferc = Column(Integer,
                            ForeignKey('utilities_ferc.respondent_id'),
                            nullable=False)
     report_year = Column(Integer, nullable=False)
     authority_company_name = Column(String)
     statistical_classification = Column(String)
-    rate_schedule_tariff_number = Column(String)
-    average_billing_demand = Column(String)
-    average_monthly_ncp_demand = Column(String)
-    average_monthly_cp_demand = Column(String)
-    mwh_purchased = Column(Numeric(14, 2))
-    mwh_received = Column(Numeric(14, 2))
-    mwh_delivered = Column(Numeric(14, 2))
+    rate_schedule_tariff_num = Column(String)
+    avg_billing_demand_mw = Column(String)
+    avg_monthly_ncp_demand_mw = Column(String)
+    avg_monthly_cp_demand_mw = Column(String)
+    purchased_mwh = Column(Numeric(14, 2))
+    received_mwh = Column(Numeric(14, 2))
+    delivered_mwh = Column(Numeric(14, 2))
     demand_charges = Column(Numeric(14, 2))
     energy_charges = Column(Numeric(14, 2))
     other_charges = Column(Numeric(14, 2))
-    settlement_total = Column(Numeric(14, 2))
+    total_settlement = Column(Numeric(14, 2))
 
 
 class PlantSmallFERC1(pudl.models.entities.PUDLBase):
