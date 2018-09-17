@@ -3,9 +3,8 @@
 import os
 import sys
 import argparse
-#from config import settings
 
-assert sys.version_info >= (3, 3)  # require modern python
+assert sys.version_info >= (3, 5)  # require modern python
 
 # This is a hack to make the pudl package importable from within this script,
 # even though it isn't in one of the normal site-packages directories where
@@ -30,7 +29,6 @@ def main():
     """The main function."""
     from pudl import init, constants
     from pudl import extract
-    import pudl.models.entities
     import pudl.models.glue
     import pudl.models.eia860
     import pudl.models.eia923
