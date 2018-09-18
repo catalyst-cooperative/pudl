@@ -158,7 +158,7 @@ def finalize(engine):
         except sa.exc.ProgrammingError as e:
             from warnings import warn
             warn(f"Failed to add index/constraint '{index.name}'\n" +
-                "Details:\n" + e)
+                "Details:\n" + str(e))
 
     alter_table_sql = f"ALTER TABLE {HourlyEmissions.__tablename__} SET LOGGED"
     try:
