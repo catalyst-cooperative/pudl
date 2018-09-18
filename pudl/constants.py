@@ -1387,7 +1387,7 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
     columns=['year_index', 'report_year', 'report_month', 'plant_id_eia',
              'plant_name', 'plant_state', 'contract_type',
              'contract_expiration_date', 'energy_source', 'fuel_group',
-             'mine_type', 'state', 'county_id_fips',
+             'mine_type_code', 'state', 'county_id_fips',
              'mine_id_msha', 'mine_name', 'supplier', 'fuel_quantity',
              'heat_content_mmbtu_per_unit', 'sulfur_content_pct',
              'ash_content_pct', 'mercury_content_ppm', 'fuel_cost_per_mmbtu',

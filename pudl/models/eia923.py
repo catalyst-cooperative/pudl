@@ -16,7 +16,7 @@ class CoalMineEIA923(pudl.models.entities.PUDLBase):
     __tablename__ = 'coalmine_eia923'
     id = Column(Integer, primary_key=True)  # surrogate key
     mine_name = Column(String)
-    mine_type = Column(String, ForeignKey('coalmine_type_eia923.abbr'))
+    mine_type_code = Column(String, ForeignKey('coalmine_type_eia923.abbr'))
     state = Column(String, ForeignKey('coalmine_state_eia923.abbr'))
     # TODO check feasibility t add FK/constants or map to FIPS code used by EIA
     county_id_fips = Column(Integer)
