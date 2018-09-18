@@ -375,7 +375,7 @@ def generators(eia923_dfs, eia923_transformed_dfs):
     generators_df = eia923_dfs['generator'].copy()
     generator_cols = ['plant_id_eia',
                       'generator_id',
-                      'prime_mover']
+                      'prime_mover_code']
     generators_df = generators_df[generator_cols]
 
     # drop null values from foreign key fields

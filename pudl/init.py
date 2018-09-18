@@ -174,7 +174,7 @@ def ingest_static_tables(engine):
         [pudl.models.eia923.RespondentFrequencyEIA923(abbr=k, unit=v)
          for k, v in pc.respondent_frequency_eia923.items()])
     pudl_session.add_all(
-        [pudl.models.eia923.SectorEIA(id=k, name=v)
+        [pudl.models.eia923.SectorEIA(sector_id=k, sector_name=v)
          for k, v in pc.sector_eia.items()])
     pudl_session.add_all(
         [pudl.models.eia923.ContractTypeEIA923(abbr=k, contract_type=v)
@@ -183,7 +183,7 @@ def ingest_static_tables(engine):
         [pudl.models.eia923.FuelTypeEIA923(abbr=k, fuel_type=v)
          for k, v in pc.fuel_type_eia923.items()])
     pudl_session.add_all(
-        [pudl.models.eia923.PrimeMoverEIA923(abbr=k, prime_mover_code=v)
+        [pudl.models.eia923.PrimeMoverEIA923(abbr=k, prime_mover=v)
          for k, v in pc.prime_movers_eia923.items()])
     pudl_session.add_all(
         [pudl.models.eia923.FuelUnitEIA923(abbr=k, unit=v)
