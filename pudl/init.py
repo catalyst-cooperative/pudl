@@ -183,7 +183,7 @@ def ingest_static_tables(engine):
         [pudl.models.eia923.FuelTypeEIA923(abbr=k, fuel_type=v)
          for k, v in pc.fuel_type_eia923.items()])
     pudl_session.add_all(
-        [pudl.models.eia923.PrimeMoverEIA923(abbr=k, prime_mover=v)
+        [pudl.models.eia923.PrimeMoverEIA923(abbr=k, prime_mover_code=v)
          for k, v in pc.prime_movers_eia923.items()])
     pudl_session.add_all(
         [pudl.models.eia923.FuelUnitEIA923(abbr=k, unit=v)

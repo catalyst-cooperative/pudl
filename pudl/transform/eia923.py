@@ -234,10 +234,10 @@ def boilers(eia923_dfs, eia923_transformed_dfs):
     Transform the boiler_eia923 table.
 
     Args:
-        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        eia860_transformed_dfs (dictionary of DataFrames)
+            EIA923 form, as reported in the Excel spreadsheets they distribute.
+        eia923_transformed_dfs (dictionary of DataFrames)
 
     Returns: transformed dataframe.
     """
@@ -245,7 +245,7 @@ def boilers(eia923_dfs, eia923_transformed_dfs):
     # Populate 'boilers_eia923' table
     boiler_cols = ['plant_id_eia',
                    'boiler_id',
-                   'prime_mover']
+                   'prime_mover_code']
     boilers_df = boilers_df[boiler_cols]
 
     # drop null values from foreign key fields

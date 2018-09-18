@@ -1173,7 +1173,7 @@ boiler_fuel_map_eia923 = pd.DataFrame.from_records([
     columns=['year_index', 'plant_id_eia', 'combined_heat_power',
              'plant_name', 'operator_name', 'operator_id', 'plant_state',
              'census_region', 'nerc_region', 'naics_code', 'eia_sector',
-             'sector_name', 'boiler_id', 'prime_mover', 'fuel_type',
+             'sector_name', 'boiler_id', 'prime_mover_code', 'fuel_type',
              'fuel_unit', 'fuel_qty_consumed_january',
              'fuel_qty_consumed_february', 'fuel_qty_consumed_march',
              'fuel_qty_consumed_april', 'fuel_qty_consumed_may',

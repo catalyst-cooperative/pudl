@@ -35,7 +35,7 @@ class BoilersEIA923(pudl.models.entities.PUDLBase):
     plant_id_eia = Column(Integer,
                           primary_key=True)
     boiler_id = Column(String, primary_key=True)
-    prime_mover = Column(String,
+    prime_mover_code = Column(String,
                          ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
 
@@ -125,7 +125,7 @@ class PrimeMoverEIA923(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'prime_movers_eia923'
     abbr = Column(String, primary_key=True)
-    prime_mover = Column(String, nullable=False)
+    prime_mover_code = Column(String, nullable=False)
 
 
 class EnergySourceEIA923(pudl.models.entities.PUDLBase):
@@ -220,7 +220,7 @@ class BoilerFuelEIA923(pudl.models.entities.PUDLBase):
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     plant_id_eia = Column(Integer, nullable=False)
     boiler_id = Column(String, nullable=False)
-    prime_mover = Column(String, ForeignKey('prime_movers_eia923.abbr'),
+    prime_mover_code = Column(String, ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
     fuel_type = Column(String, ForeignKey('fuel_type_eia923.abbr'),
                        nullable=False)
