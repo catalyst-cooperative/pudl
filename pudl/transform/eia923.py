@@ -267,10 +267,10 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     Transform the boiler_fuel_eia923 table.
 
     Args:
-        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        eia860_transformed_dfs (dictionary of DataFrames)
+            EIA923 form, as reported in the Excel spreadsheets they distribute.
+        eia923_transformed_dfs (dictionary of DataFrames)
 
     Returns: transformed dataframe.
     """
@@ -296,9 +296,9 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     # Convert the EIA923 DataFrame from yearly to monthly records.
     bf_df = yearly_to_monthly_eia923(
         bf_df, pc.month_dict_eia923)
-    bf_df['fuel_type_pudl'] = \
+    bf_df['fuel_type_code_pudl'] = \
         pudl.transform.pudl.cleanstrings(
-            bf_df.fuel_type,
+            bf_df.fuel_type_code,
             pc.fuel_type_eia923_boiler_fuel_simple_map)
     # Replace the EIA923 NA value ('.') with a real NA value.
     bf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)

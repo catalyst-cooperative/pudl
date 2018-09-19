@@ -281,7 +281,7 @@ def boiler_fuel_eia923(freq=None, testing=False,
     fields. Per-unit values are re-calculated based on the aggregated totals.
     Totals are summed across whatever time range is being used, within a
     given plant and fuel type.
-     - fuel_qty_consumed (sum)
+     - fuel_consumed_units (sum)
      - fuel_mmbtu_per_unit (weighted average)
      - total_heat_content_mmbtu (sum)
      - sulfur_content_pct (weighted average)
@@ -321,37 +321,37 @@ def boiler_fuel_eia923(freq=None, testing=False,
 
     # The total heat content is also useful in its own right, and we'll keep it
     # around.  Also needed to calculate average heat content per unit of fuel.
-    bf_df['total_heat_content_mmbtu'] = bf_df['fuel_qty_consumed'] * \
+    bf_df['total_heat_content_mmbtu'] = bf_df['fuel_consumed_units'] * \
         bf_df['fuel_mmbtu_per_unit']
 
     # Create a date index for grouping based on freq
-    by = ['plant_id_eia', 'boiler_id', 'fuel_type_pudl']
+    by = ['plant_id_eia', 'boiler_id', 'fuel_type_code_pudl']
     if freq is not None:
         # In order to calculate the weighted average sulfur
         # content and ash content we need to calculate these totals.
-        bf_df['total_sulfur_content'] = bf_df['fuel_qty_consumed'] * \
+        bf_df['total_sulfur_content'] = bf_df['fuel_consumed_units'] * \
             bf_df['sulfur_content_pct']
-        bf_df['total_ash_content'] = bf_df['fuel_qty_consumed'] * \
+        bf_df['total_ash_content'] = bf_df['fuel_consumed_units'] * \
             bf_df['ash_content_pct']
         bf_df = bf_df.set_index(pd.DatetimeIndex(bf_df.report_date))
         by = by + [pd.Grouper(freq=freq)]
         bf_gb = bf_df.groupby(by=by)
 
         # Sum up these totals within each group, and recalculate the per-unit
-        # values (weighted in this case by fuel_qty_consumed)
+        # values (weighted in this case by fuel_consumed_units)
         bf_df = bf_gb.agg({
             'total_heat_content_mmbtu': helpers.sum_na,
-            'fuel_qty_consumed': helpers.sum_na,
+            'fuel_consumed_units': helpers.sum_na,
             'total_sulfur_content': helpers.sum_na,
             'total_ash_content': helpers.sum_na,
         })
 
         bf_df['fuel_mmbtu_per_unit'] = \
-            bf_df['total_heat_content_mmbtu'] / bf_df['fuel_qty_consumed']
+            bf_df['total_heat_content_mmbtu'] / bf_df['fuel_consumed_units']
         bf_df['sulfur_content_pct'] = \
-            bf_df['total_sulfur_content'] / bf_df['fuel_qty_consumed']
+            bf_df['total_sulfur_content'] / bf_df['fuel_consumed_units']
         bf_df['ash_content_pct'] = \
-            bf_df['total_ash_content'] / bf_df['fuel_qty_consumed']
+            bf_df['total_ash_content'] / bf_df['fuel_consumed_units']
         bf_df = bf_df.reset_index()
         bf_df = bf_df.drop(['total_ash_content', 'total_sulfur_content'],
                            axis=1)

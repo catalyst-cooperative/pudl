@@ -222,11 +222,11 @@ class BoilerFuelEIA923(pudl.models.entities.PUDLBase):
     boiler_id = Column(String, nullable=False)
     prime_mover_code = Column(String, ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
-    fuel_type = Column(String, ForeignKey('fuel_type_eia923.abbr'),
+    fuel_type_code = Column(String, ForeignKey('fuel_type_eia923.abbr'),
                        nullable=False)
-    fuel_type_pudl = Column(String)
+    fuel_type_code_pudl = Column(String)
     report_date = Column(Date, nullable=False)
-    fuel_qty_consumed = Column(Float)
+    fuel_consumed_units = Column(Float)
     fuel_mmbtu_per_unit = Column(Float)
     sulfur_content_pct = Column(Float)
     ash_content_pct = Column(Float)
