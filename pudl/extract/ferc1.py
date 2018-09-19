@@ -270,6 +270,12 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
         refyear = max(SETTINGS['ferc1_years'])
         if verbose:
             print("Changed ferc1 refyear to {}".format(refyear))
+    elif isinstance(refyear, list):
+        # yaml processing gives lists, so extract a single year value here
+        # don't worry about length 0: empty lists are caught by 'if not'
+        if len(refyear) > 1:
+            print(f"ferc1 refyear must have length 1. Changed to {refyear[0]}")
+        refyear = refyear[0]
 
     ferc1_engine = connect_db(testing=testing)
 
