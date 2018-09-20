@@ -701,15 +701,15 @@ def plant_fuel_proportions_frc_eia923(frc_df, id_col='plant_id_eia'):
     frc_df = frc_df.copy()
 
     # Add a column with total fuel heat content per delivery
-    frc_df['total_mmbtu'] = frc_df.fuel_quantity * frc_df.average_heat_content
+    frc_df['total_mmbtu'] = frc_df.fuel_qty_units * frc_df.average_heat_content
 
-    # Drop everything but report_date, plant_id_eia, fuel_group, total_mmbtu
+    # Drop everything but report_date, plant_id_eia, fuel_group_code, total_mmbtu
     frc_df = frc_df[['report_date', 'plant_id_eia',
-                     'plant_id_pudl', 'fuel_group', 'total_mmbtu']]
+                     'plant_id_pudl', 'fuel_group_code', 'total_mmbtu']]
 
-    # Group by report_date(annual), plant_id_eia, fuel_group
+    # Group by report_date(annual), plant_id_eia, fuel_group_code
     frc_gb = frc_df.groupby(
-        [id_col, pd.Grouper(freq='A'), 'fuel_group'])
+        [id_col, pd.Grouper(freq='A'), 'fuel_group_code'])
 
     # Add up all the MMBTU for each plant & year. At this point each record
     # in the dataframe contains only information about a single fuel.
@@ -720,11 +720,11 @@ def plant_fuel_proportions_frc_eia923(frc_df, id_col='plant_id_eia'):
     heat_df['year'] = pd.DatetimeIndex(heat_df['report_date']).year
     heat_df = heat_df.drop('report_date', axis=1)
 
-    # Take the individual rows organized by fuel_group, and turn them into
+    # Take the individual rows organized by fuel_group_code, and turn them into
     # columns, each with the total MMBTU for that fuel, year, and plant.
     heat_pivot = heat_df.pivot_table(
         index=['year', id_col],
-        columns='fuel_group',
+        columns='fuel_group_code',
         values='total_mmbtu')
 
     # Add a column that has the *total* heat content of all fuels:
@@ -768,7 +768,8 @@ def plant_fuel_proportions_gf_eia923(gf_df):
     """Calculate annual fuel proportions by plant from EIA923 gen fuel."""
     gf_df = gf_df.copy()
 
-    # Drop everything but report_date, plant_id_eia, fuel_group, total_mmbtu
+    # Drop everything but report_date, plant_id_eia, fuel_type_code_pudl,
+    # total_mmbtu
     gf_df = gf_df[['report_date',
                    'plant_id_eia',
                    'fuel_type_code_pudl',
@@ -777,7 +778,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
     # Set report_date as a DatetimeIndex
     gf_df = gf_df.set_index(pd.DatetimeIndex(gf_df['report_date']))
 
-    # Group by report_date(annual), plant_id_eia, fuel_group
+    # Group by report_date(annual), plant_id_eia, fuel_type_code_pudl
     gf_gb = gf_df.groupby(
         ['plant_id_eia', pd.Grouper(freq='A'), 'fuel_type_code_pudl'])
 
@@ -790,8 +791,8 @@ def plant_fuel_proportions_gf_eia923(gf_df):
     heat_df['year'] = pd.DatetimeIndex(heat_df['report_date']).year
     heat_df = heat_df.drop('report_date', axis=1)
 
-    # Take the individual rows organized by fuel_group, and turn them into
-    # columns, each with the total MMBTU for that fuel, year, and plant.
+    # Take the individual rows organized by fuel_type_code_pudl, and turn them
+    # into columns, each with the total MMBTU for that fuel, year, and plant.
     heat_pivot = heat_df.pivot_table(
         index=['year', 'plant_id_eia'],
         columns='fuel_type_code_pudl',

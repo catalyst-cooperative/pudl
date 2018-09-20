@@ -48,7 +48,7 @@ def test_bga(output_byfreq):
     gens_simple = output_byfreq.gens_eia860()[['report_date',
                                                'plant_id_eia',
                                                'generator_id',
-                                               'fuel_type_pudl']]
+                                               'fuel_type_code_pudl']]
     bga_gens = bga[['report_date', 'plant_id_eia',
                     'unit_id_pudl', 'generator_id']].drop_duplicates()
 
@@ -60,9 +60,9 @@ def test_bga(output_byfreq):
         units_simple.groupby(
             ['report_date',
              'plant_id_eia',
-             'unit_id_pudl'])['fuel_type_pudl'].count().reset_index()
+             'unit_id_pudl'])['fuel_type_code_pudl'].count().reset_index()
     units_fuel_count.rename(
-        columns={'fuel_type_pudl': 'fuel_type_count'}, inplace=True)
+        columns={'fuel_type_code_pudl': 'fuel_type_count'}, inplace=True)
     units_simple = pd.merge(units_simple, units_fuel_count,
                             on=['report_date', 'plant_id_eia', 'unit_id_pudl'])
     num_multi_fuel_units = len(units_simple[units_simple.fuel_type_count > 1])

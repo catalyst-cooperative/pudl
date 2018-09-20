@@ -1385,16 +1385,16 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
      'natural_gas_delivery_contract_type')],
 
     columns=['year_index', 'report_year', 'report_month', 'plant_id_eia',
-             'plant_name', 'plant_state', 'contract_type',
-             'contract_expiration_date', 'energy_source', 'fuel_group',
-             'mine_type_code', 'state', 'county_id_fips',
-             'mine_id_msha', 'mine_name', 'supplier', 'fuel_quantity',
+             'plant_name', 'plant_state', 'contract_type_code',
+             'contract_expiration_date', 'energy_source_code',
+             'fuel_group_code', 'mine_type_code', 'state', 'county_id_fips',
+             'mine_id_msha', 'mine_name', 'supplier_name', 'fuel_qty_units',
              'heat_content_mmbtu_per_unit', 'sulfur_content_pct',
              'ash_content_pct', 'mercury_content_ppm', 'fuel_cost_per_mmbtu',
              'regulated', 'operator_name', 'operator_id',
-             'reporting_frequency', 'primary_transportation_mode',
-             'secondary_transportation_mode', 'natural_gas_transport',
-             'natural_gas_delivery_contract_type'],
+             'reporting_frequency', 'primary_transportation_mode_code',
+             'secondary_transportation_mode_code', 'natural_gas_transport_code',
+             'natural_gas_delivery_contract_type_code'],
     index='year_index'
 )
 
