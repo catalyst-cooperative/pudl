@@ -3,6 +3,7 @@ channels:
   - defaults
 dependencies:
   - coverage
+  - coveralls
   - cython =0.28.*
   - dbfread
   - jupyter

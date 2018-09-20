@@ -31,6 +31,8 @@ install:
 - cd ..
 script:
 - pytest -sv --cov=pudl -m travis_ci
+after_success:
+- coveralls
 notifications:
   webhooks:
     urls:
