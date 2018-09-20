@@ -216,7 +216,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     # any particular plant (they have plant_id_eia == operator_id == 99999)
     gf_df = gf_df[gf_df.plant_id_eia != 99999]
 
-    gf_df['fuel_type_pudl'] = \
+    gf_df['fuel_type_code_pudl'] = \
         pudl.transform.pudl.cleanstrings(
             gf_df.fuel_type,
             pc.fuel_type_eia923_gen_fuel_simple_map)

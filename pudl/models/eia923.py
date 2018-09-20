@@ -192,15 +192,15 @@ class GenerationFuelEIA923(pudl.models.entities.PUDLBase):
     fuel_type = Column(String,
                        ForeignKey('fuel_type_eia923.abbr'),
                        nullable=False)
-    fuel_type_pudl = Column(String)
-    aer_fuel_type = Column(String, ForeignKey('fuel_type_aer_eia923.abbr'))
+    fuel_type_code_pudl = Column(String)
+    fuel_type_code_aer = Column(String, ForeignKey('fuel_type_aer_eia923.abbr'))
     prime_mover_code = Column(String,
                          ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
-    fuel_consumed_total = Column(Float)
-    fuel_consumed_for_electricity = Column(Float)
+    fuel_consumed_units = Column(Float)
+    fuel_consumed_for_electricity_units = Column(Float)
     fuel_mmbtu_per_unit = Column(Float)
-    fuel_consumed_total_mmbtu = Column(Float)
+    fuel_consumed_mmbtu = Column(Float)
     fuel_consumed_for_electricity_mmbtu = Column(Float)
     net_generation_mwh = Column(Float)
 

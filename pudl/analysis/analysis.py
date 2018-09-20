@@ -435,7 +435,7 @@ def frc_by_pudl(pudl_plant_ids, pudl_engine,
 
 def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
                      fuels=['gas', 'oil', 'coal'],
-                     cols=['fuel_consumed_total_mmbtu',
+                     cols=['fuel_consumed_mmbtu',
                            'net_generation_mwh']):
     """
     Aggregate generation_fuel_eia923 table for comparison with FERC Form 1.
@@ -459,7 +459,7 @@ def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
     gf_df = pudl.output.eia923.generation_fuel_eia923(pudl_engine)
 
     # Standardize the fuel codes (need to fix this in the DB!!!!)
-    gf_df = gf_df.rename(columns={'fuel_type_pudl': 'fuel'})
+    gf_df = gf_df.rename(columns={'fuel_type_code_pudl': 'fuel'})
     # gf_df['fuel'] = gf_df.fuel.replace(to_replace='petroleum', value='oil')
 
     # Select only the records that pertain to our target IDs
@@ -771,15 +771,15 @@ def plant_fuel_proportions_gf_eia923(gf_df):
     # Drop everything but report_date, plant_id_eia, fuel_group, total_mmbtu
     gf_df = gf_df[['report_date',
                    'plant_id_eia',
-                   'fuel_type_pudl',
-                   'fuel_consumed_total_mmbtu']]
+                   'fuel_type_code_pudl',
+                   'fuel_consumed_mmbtu']]
 
     # Set report_date as a DatetimeIndex
     gf_df = gf_df.set_index(pd.DatetimeIndex(gf_df['report_date']))
 
     # Group by report_date(annual), plant_id_eia, fuel_group
     gf_gb = gf_df.groupby(
-        ['plant_id_eia', pd.Grouper(freq='A'), 'fuel_type_pudl'])
+        ['plant_id_eia', pd.Grouper(freq='A'), 'fuel_type_code_pudl'])
 
     # Add up all the MMBTU for each plant & year. At this point each record
     # in the dataframe contains only information about a single fuel.
@@ -794,8 +794,8 @@ def plant_fuel_proportions_gf_eia923(gf_df):
     # columns, each with the total MMBTU for that fuel, year, and plant.
     heat_pivot = heat_df.pivot_table(
         index=['year', 'plant_id_eia'],
-        columns='fuel_type_pudl',
-        values='fuel_consumed_total_mmbtu')
+        columns='fuel_type_code_pudl',
+        values='fuel_consumed_mmbtu')
 
     # Add a column that has the *total* heat content of all fuels:
     heat_pivot['total'] = heat_pivot.sum(axis=1, numeric_only=True)

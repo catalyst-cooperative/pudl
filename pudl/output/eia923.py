@@ -24,11 +24,11 @@ def generation_fuel_eia923(freq=None, testing=False,
     given plant and fuel type.
      - plant_id_eia
      - report_date
-     - fuel_type_pudl
-     - fuel_consumed_total
-     - fuel_consumed_for_electricity
+     - fuel_type_code_pudl
+     - fuel_consumed_units
+     - fuel_consumed_for_electricity_units
      - fuel_mmbtu_per_unit
-     - fuel_consumed_total_mmbtu
+     - fuel_consumed_mmbtu
      - fuel_consumed_for_electricity_mmbtu
      - net_generation_mwh
 
@@ -67,7 +67,7 @@ def generation_fuel_eia923(freq=None, testing=False,
     gf_df = gf_df.drop(cols_to_drop, axis=1)
 
     # fuel_type_pudl was formerly aer_fuel_category
-    by = ['plant_id_eia', 'fuel_type_pudl']
+    by = ['plant_id_eia', 'fuel_type_code_pudl']
     if freq is not None:
         # Create a date index for temporal resampling:
         gf_df = gf_df.set_index(pd.DatetimeIndex(gf_df.report_date))
@@ -76,14 +76,14 @@ def generation_fuel_eia923(freq=None, testing=False,
         # Sum up these values so we can calculate quantity weighted averages
         gf_gb = gf_df.groupby(by=by)
         gf_df = gf_gb.agg({
-            'fuel_consumed_total': helpers.sum_na,
-            'fuel_consumed_for_electricity': helpers.sum_na,
-            'fuel_consumed_total_mmbtu': helpers.sum_na,
+            'fuel_consumed_units': helpers.sum_na,
+            'fuel_consumed_for_electricity_units': helpers.sum_na,
+            'fuel_consumed_mmbtu': helpers.sum_na,
             'fuel_consumed_for_electricity_mmbtu': helpers.sum_na,
             'net_generation_mwh': helpers.sum_na,
         })
         gf_df['fuel_mmbtu_per_unit'] = \
-            gf_df['fuel_consumed_total_mmbtu'] / gf_df['fuel_consumed_total']
+            gf_df['fuel_consumed_mmbtu'] / gf_df['fuel_consumed_units']
 
         gf_df = gf_df.reset_index()
 
