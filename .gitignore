@@ -8,3 +8,4 @@
 .cache/
 .pytest_cache/*
 .DS_Store
+.coverage
