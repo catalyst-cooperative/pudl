@@ -269,7 +269,7 @@ def boiler_generator_assn(eia_transformed_dfs,
     bf_eia923 = eia_transformed_dfs['boiler_fuel_eia923'].copy()
     bf_eia923 = _restrict_years(bf_eia923, eia923_years, eia860_years)
     bf_eia923['boiler_id'] = bf_eia923.boiler_id.astype(str)
-    bf_eia923['total_heat_content_mmbtu'] = bf_eia923['fuel_qty_consumed'] * \
+    bf_eia923['total_heat_content_mmbtu'] = bf_eia923['fuel_consumed_units'] * \
         bf_eia923['fuel_mmbtu_per_unit']
     bf_eia923 = bf_eia923.set_index(pd.DatetimeIndex(bf_eia923.report_date))
     bf_eia923_gb = bf_eia923.groupby(

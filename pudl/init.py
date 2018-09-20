@@ -174,7 +174,7 @@ def ingest_static_tables(engine):
         [pudl.models.eia923.RespondentFrequencyEIA923(abbr=k, unit=v)
          for k, v in pc.respondent_frequency_eia923.items()])
     pudl_session.add_all(
-        [pudl.models.eia923.SectorEIA(id=k, name=v)
+        [pudl.models.eia923.SectorEIA(sector_id=k, sector_name=v)
          for k, v in pc.sector_eia.items()])
     pudl_session.add_all(
         [pudl.models.eia923.ContractTypeEIA923(abbr=k, contract_type=v)
@@ -431,23 +431,23 @@ def _ingest_glue_eia_ferc1(engine,
                      con=engine, index=False, if_exists='append',
                      dtype={'id': sa.Integer, 'name': sa.String})
 
-    utilities_ferc.rename(columns={'respondent_id_ferc': 'respondent_id',
+    utilities_ferc.rename(columns={'respondent_id_ferc': 'utility_id_ferc',
                                    'respondent_name_ferc': 'respondent_name',
                                    'utility_id': 'util_id_pudl'},
                           inplace=True)
     utilities_ferc.to_sql(name='utilities_ferc',
                           con=engine, index=False, if_exists='append',
-                          dtype={'respondent_id': sa.Integer,
+                          dtype={'utility_id_ferc': sa.Integer,
                                  'respondent_name': sa.String,
                                  'util_id_pudl': sa.Integer})
 
-    plants_ferc.rename(columns={'respondent_id_ferc': 'respondent_id',
+    plants_ferc.rename(columns={'respondent_id_ferc': 'utility_id_ferc',
                                 'plant_name_ferc': 'plant_name',
                                 'plant_id': 'plant_id_pudl'},
                        inplace=True)
     plants_ferc.to_sql(name='plants_ferc',
                        con=engine, index=False, if_exists='append',
-                       dtype={'respondent_id': sa.Integer,
+                       dtype={'utility_id_ferc': sa.Integer,
                               'plant_name': sa.String,
                               'plant_id_pudl': sa.Integer})
 

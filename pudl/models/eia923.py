@@ -16,7 +16,7 @@ class CoalMineEIA923(pudl.models.entities.PUDLBase):
     __tablename__ = 'coalmine_eia923'
     id = Column(Integer, primary_key=True)  # surrogate key
     mine_name = Column(String)
-    mine_type = Column(String, ForeignKey('coalmine_type_eia923.abbr'))
+    mine_type_code = Column(String, ForeignKey('coalmine_type_eia923.abbr'))
     state = Column(String, ForeignKey('coalmine_state_eia923.abbr'))
     # TODO check feasibility t add FK/constants or map to FIPS code used by EIA
     county_id_fips = Column(Integer)
@@ -35,7 +35,7 @@ class BoilersEIA923(pudl.models.entities.PUDLBase):
     plant_id_eia = Column(Integer,
                           primary_key=True)
     boiler_id = Column(String, primary_key=True)
-    prime_mover = Column(String,
+    prime_mover_code = Column(String,
                          ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
 
@@ -51,7 +51,7 @@ class GeneratorEIA923(pudl.models.entities.PUDLBase):
 
     plant_id_eia = Column(Integer, primary_key=True)
     generator_id = Column(String, primary_key=True)
-    prime_mover = Column(String,
+    prime_mover_code = Column(String,
                          ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
 
@@ -108,8 +108,8 @@ class SectorEIA(pudl.models.entities.PUDLBase):
     """EIA’s internal consolidated NAICS sectors."""
 
     __tablename__ = 'sector_eia'
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
+    sector_id = Column(Integer, primary_key=True)
+    sector_name = Column(String, nullable=False)
 
 
 class FuelTypeAER(pudl.models.entities.PUDLBase):
@@ -194,7 +194,7 @@ class GenerationFuelEIA923(pudl.models.entities.PUDLBase):
                        nullable=False)
     fuel_type_pudl = Column(String)
     aer_fuel_type = Column(String, ForeignKey('fuel_type_aer_eia923.abbr'))
-    prime_mover = Column(String,
+    prime_mover_code = Column(String,
                          ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
     fuel_consumed_total = Column(Float)
@@ -220,13 +220,13 @@ class BoilerFuelEIA923(pudl.models.entities.PUDLBase):
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     plant_id_eia = Column(Integer, nullable=False)
     boiler_id = Column(String, nullable=False)
-    prime_mover = Column(String, ForeignKey('prime_movers_eia923.abbr'),
+    prime_mover_code = Column(String, ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
-    fuel_type = Column(String, ForeignKey('fuel_type_eia923.abbr'),
+    fuel_type_code = Column(String, ForeignKey('fuel_type_eia923.abbr'),
                        nullable=False)
-    fuel_type_pudl = Column(String)
+    fuel_type_code_pudl = Column(String)
     report_date = Column(Date, nullable=False)
-    fuel_qty_consumed = Column(Float)
+    fuel_consumed_units = Column(Float)
     fuel_mmbtu_per_unit = Column(Float)
     sulfur_content_pct = Column(Float)
     ash_content_pct = Column(Float)
@@ -246,7 +246,7 @@ class GenerationEIA923(pudl.models.entities.PUDLBase):
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     plant_id_eia = Column(Integer, nullable=False)
     # TODO remove prime_mover since it's specific to generator_id?
-    prime_mover = Column(String, ForeignKey('prime_movers_eia923.abbr'),
+    prime_mover_code = Column(String, ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
     # TODO: Add FK constraint refering to (plant_id, generator_id) in the
     # generators_eia923 table.  Or at least give it a shot.

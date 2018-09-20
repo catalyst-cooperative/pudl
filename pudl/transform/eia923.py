@@ -76,7 +76,7 @@ def coalmine_cleanup(cmi_df):
     cmi_df = cmi_df.copy()
     # Map mine type codes, which have changed over the years, to a few
     # canonical values:
-    cmi_df['mine_type'].replace(
+    cmi_df['mine_type_code'].replace(
         {'[pP]': 'P', 'U/S': 'US', 'S/U': 'SU', 'Su': 'S'},
         inplace=True, regex=True)
 
@@ -234,10 +234,10 @@ def boilers(eia923_dfs, eia923_transformed_dfs):
     Transform the boiler_eia923 table.
 
     Args:
-        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        eia860_transformed_dfs (dictionary of DataFrames)
+            EIA923 form, as reported in the Excel spreadsheets they distribute.
+        eia923_transformed_dfs (dictionary of DataFrames)
 
     Returns: transformed dataframe.
     """
@@ -245,7 +245,7 @@ def boilers(eia923_dfs, eia923_transformed_dfs):
     # Populate 'boilers_eia923' table
     boiler_cols = ['plant_id_eia',
                    'boiler_id',
-                   'prime_mover']
+                   'prime_mover_code']
     boilers_df = boilers_df[boiler_cols]
 
     # drop null values from foreign key fields
@@ -267,10 +267,10 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     Transform the boiler_fuel_eia923 table.
 
     Args:
-        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        eia860_transformed_dfs (dictionary of DataFrames)
+            EIA923 form, as reported in the Excel spreadsheets they distribute.
+        eia923_transformed_dfs (dictionary of DataFrames)
 
     Returns: transformed dataframe.
     """
@@ -296,9 +296,9 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     # Convert the EIA923 DataFrame from yearly to monthly records.
     bf_df = yearly_to_monthly_eia923(
         bf_df, pc.month_dict_eia923)
-    bf_df['fuel_type_pudl'] = \
+    bf_df['fuel_type_code_pudl'] = \
         pudl.transform.pudl.cleanstrings(
-            bf_df.fuel_type,
+            bf_df.fuel_type_code,
             pc.fuel_type_eia923_boiler_fuel_simple_map)
     # Replace the EIA923 NA value ('.') with a real NA value.
     bf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
@@ -375,7 +375,7 @@ def generators(eia923_dfs, eia923_transformed_dfs):
     generators_df = eia923_dfs['generator'].copy()
     generator_cols = ['plant_id_eia',
                       'generator_id',
-                      'prime_mover']
+                      'prime_mover_code']
     generators_df = generators_df[generator_cols]
 
     # drop null values from foreign key fields
@@ -398,10 +398,10 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
 
     Args:
     -----
-        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        eia860_transformed_dfs (dictionary of DataFrames)
+            EIA923 form, as reported in the Excel spreadsheets they distribute.
+            eia923_transformed_dfs (dictionary of DataFrames)
 
     Returns:
     --------
@@ -411,7 +411,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     # These are the columns that we want to keep from FRC for the
     # coal mine info table.
     coalmine_cols = ['mine_name',
-                     'mine_type',
+                     'mine_type_code',
                      'state',
                      'county_id_fips',
                      'mine_id_msha']
@@ -440,7 +440,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     cmi_df = cmi_df.drop_duplicates(subset=['mine_name',
                                             'state',
                                             'mine_id_msha',
-                                            'mine_type',
+                                            'mine_type_code',
                                             'county_id_fips'])
 
     # drop null values if they occur in vital fields....
@@ -492,7 +492,7 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
                     'operator_name',
                     'operator_id',
                     'mine_id_msha',
-                    'mine_type',
+                    'mine_type_code',
                     'state',
                     'county_id_fips',
                     'mine_name',
@@ -515,7 +515,7 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
                           on=['mine_name',
                               'state',
                               'mine_id_msha',
-                              'mine_type',
+                              'mine_type_code',
                               'county_id_fips'])
 
     frc_df.drop(cols_to_drop, axis=1, inplace=True)

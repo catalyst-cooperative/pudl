@@ -21,7 +21,7 @@ def plants_utils_ferc1(testing=False):
     plants_ferc_select = sa.sql.select([plants_ferc_tbl, ])
     plants_ferc = pd.read_sql(plants_ferc_select, pudl_engine)
 
-    out_df = pd.merge(plants_ferc, utils_ferc, on='respondent_id')
+    out_df = pd.merge(plants_ferc, utils_ferc, on='utility_id_ferc')
     return out_df
 
 
@@ -50,11 +50,11 @@ def plants_steam_ferc1(testing=False):
 
     pu_ferc = plants_utils_ferc1(testing=testing)
 
-    out_df = pd.merge(steam_df, pu_ferc, on=['respondent_id', 'plant_name'])
+    out_df = pd.merge(steam_df, pu_ferc, on=['utility_id_ferc', 'plant_name'])
 
     first_cols = [
         'report_year',
-        'respondent_id',
+        'utility_id_ferc',
         'util_id_pudl',
         'respondent_name',
         'plant_id_pudl',
@@ -101,7 +101,7 @@ def fuel_ferc1(testing=False):
     # per unit delivered and cost per mmbtu. They *should* be the same, but we
     # know they aren't always. Calculate both so we can compare both.
     fuel_df['fuel_consumed_total_mmbtu'] = \
-        fuel_df['fuel_qty_burned'] * fuel_df['fuel_avg_mmbtu_per_unit']
+        fuel_df['fuel_qty_burned'] * fuel_df['fuel_mmbtu_per_unit']
     fuel_df['fuel_consumed_total_cost_mmbtu'] = \
         fuel_df['fuel_cost_per_mmbtu'] * fuel_df['fuel_consumed_total_mmbtu']
     fuel_df['fuel_consumed_total_cost_unit'] = \
@@ -109,12 +109,12 @@ def fuel_ferc1(testing=False):
 
     pu_ferc = plants_utils_ferc1(testing=testing)
 
-    out_df = pd.merge(fuel_df, pu_ferc, on=['respondent_id', 'plant_name'])
+    out_df = pd.merge(fuel_df, pu_ferc, on=['utility_id_ferc', 'plant_name'])
     out_df = out_df.drop('id', axis=1)
 
     first_cols = [
         'report_year',
-        'respondent_id',
+        'utility_id_ferc',
         'util_id_pudl',
         'respondent_name',
         'plant_id_pudl',

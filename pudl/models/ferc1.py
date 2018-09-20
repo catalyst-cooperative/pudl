@@ -19,20 +19,20 @@ class FuelFERC1(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'fuel_ferc1'
     __table_args__ = (ForeignKeyConstraint(
-        ['respondent_id', 'plant_name'],
-        ['plants_ferc.respondent_id', 'plants_ferc.plant_name']),)
+        ['utility_id_ferc', 'plant_name'],
+        ['plants_ferc.utility_id_ferc', 'plants_ferc.plant_name']),)
     # Each year, for each fuel, there's one report for each plant, which may
     # be recorded multiple times for multiple utilities that have a stake in
     # the plant... Primary key fields: utility, plant, fuel and year.
     id = Column(Integer, autoincrement=True, primary_key=True)
-    respondent_id = Column(Integer, nullable=False)
+    utility_id_ferc = Column(Integer, nullable=False)
     plant_name = Column(String, nullable=False)  # Also ForeignKeyConstraint
     report_year = Column(Integer, nullable=False)
-    # fuel_type_pudl field was ormerly fuels.name and was called 'fuel'
-    fuel_type_pudl = Column(String)
+    # fuel_type_code_pudl field was formerly fuels.name and was called 'fuel'
+    fuel_type_code_pudl = Column(String)
     fuel_unit = Column(String, ForeignKey('fuel_units.unit'), nullable=False)
     fuel_qty_burned = Column(Float, nullable=False)
-    fuel_avg_mmbtu_per_unit = Column(Float, nullable=False)
+    fuel_mmbtu_per_unit = Column(Float, nullable=False)
     fuel_cost_per_unit_burned = Column(Float, nullable=False)
     fuel_cost_per_unit_delivered = Column(Float, nullable=False)
     fuel_cost_per_mmbtu = Column(Float, nullable=False)
@@ -45,47 +45,47 @@ class PlantSteamFERC1(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'plants_steam_ferc1'
     __table_args__ = (ForeignKeyConstraint(
-        ['respondent_id', 'plant_name'],
-        ['plants_ferc.respondent_id', 'plants_ferc.plant_name']),)
+        ['utility_id_ferc', 'plant_name'],
+        ['plants_ferc.utility_id_ferc', 'plants_ferc.plant_name']),)
 
     id = Column(Integer, autoincrement=True, primary_key=True)
-    respondent_id = Column(Integer, nullable=False)
+    utility_id_ferc = Column(Integer, nullable=False)
     plant_name = Column(String, nullable=False)
     report_year = Column(Integer, nullable=False)
-    plant_kind = Column(String)  # FK New, needs cleaning
+    plant_type = Column(String)  # FK New, needs cleaning
     construction_type = Column(String)  # FK New, needs cleaning
-    year_constructed = Column(Integer)
-    year_installed = Column(Integer)
-    total_capacity_mw = Column(Float)
+    construction_year = Column(Integer)
+    installation_year = Column(Integer)
+    capacity_mw = Column(Float)
     peak_demand_mw = Column(Float)
-    plant_hours = Column(Float)
+    plant_hours_connected_while_generating = Column(Float)
     plant_capability_mw = Column(Float)
-    water_limited_mw = Column(Float)
-    not_water_limited_mw = Column(Float)
+    water_limited_capacity_mw = Column(Float)
+    not_water_limited_capacity_mw = Column(Float)
     avg_num_employees = Column(Float)
     net_generation_mwh = Column(Float)
-    cost_land = Column(Numeric(14, 2))
-    cost_structure = Column(Numeric(14, 2))
-    cost_equipment = Column(Numeric(14, 2))
-    total_cost_of_plant = Column(Numeric(14, 2))
-    cost_per_mw = Column(Numeric(14, 2))
-    expns_operations = Column(Numeric(14, 2))
-    expns_fuel = Column(Numeric(14, 2))
-    expns_coolants = Column(Numeric(14, 2))
-    expns_steam = Column(Numeric(14, 2))
-    expns_steam_other = Column(Numeric(14, 2))
-    expns_transfer = Column(Numeric(14, 2))
-    expns_electric = Column(Numeric(14, 2))
-    expns_misc_power = Column(Numeric(14, 2))
-    expns_rents = Column(Numeric(14, 2))
-    expns_allowances = Column(Numeric(14, 2))
-    expns_engineering = Column(Numeric(14, 2))
-    expns_structures = Column(Numeric(14, 2))
-    expns_boiler = Column(Numeric(14, 2))
-    expns_plants = Column(Numeric(14, 2))
-    expns_misc_steam = Column(Numeric(14, 2))
-    expns_production_total = Column(Numeric(14, 2))
-    expns_per_mwh = Column(Numeric(14, 2))
+    capex_land = Column(Numeric(14, 2))
+    capex_structure = Column(Numeric(14, 2))
+    capex_equipment = Column(Numeric(14, 2))
+    capex_total = Column(Numeric(14, 2))
+    capex_per_mw = Column(Numeric(14, 2))
+    opex_operations = Column(Numeric(14, 2))
+    opex_fuel = Column(Numeric(14, 2))
+    opex_coolants = Column(Numeric(14, 2))
+    opex_steam = Column(Numeric(14, 2))
+    opex_steam_other = Column(Numeric(14, 2))
+    opex_transfer = Column(Numeric(14, 2))
+    opex_electric = Column(Numeric(14, 2))
+    opex_misc_power = Column(Numeric(14, 2))
+    opex_rents = Column(Numeric(14, 2))
+    opex_allowances = Column(Numeric(14, 2))
+    opex_engineering = Column(Numeric(14, 2))
+    opex_structures = Column(Numeric(14, 2))
+    opex_boiler = Column(Numeric(14, 2))
+    opex_plants = Column(Numeric(14, 2))
+    opex_misc_steam = Column(Numeric(14, 2))
+    opex_production_total = Column(Numeric(14, 2))
+    opex_per_mwh = Column(Numeric(14, 2))
     asset_retirement_cost = Column(Numeric(14, 2))
 
 
@@ -104,8 +104,8 @@ class PlantInServiceFERC1(pudl.models.entities.PUDLBase):
     """
 
     __tablename__ = 'plant_in_service_ferc1'
-    respondent_id = Column(Integer,
-                           ForeignKey('utilities_ferc.respondent_id'),
+    utility_id_ferc = Column(Integer,
+                           ForeignKey('utilities_ferc.utility_id_ferc'),
                            primary_key=True)
     report_year = Column(Integer,
                          primary_key=True)
@@ -128,8 +128,8 @@ class AccumulatedDepreciationFERC1(pudl.models.entities.PUDLBase):
     """
 
     __tablename__ = 'accumulated_depreciation_ferc1'
-    respondent_id = Column(Integer,
-                           ForeignKey('utilities_ferc.respondent_id'),
+    utility_id_ferc = Column(Integer,
+                           ForeignKey('utilities_ferc.utility_id_ferc'),
                            primary_key=True)
     report_year = Column(Integer,
                          primary_key=True)
@@ -147,23 +147,23 @@ class PurchasedPowerFERC1(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'purchased_power_ferc1'
     id = Column(Integer, autoincrement=True, primary_key=True)
-    respondent_id = Column(Integer,
-                           ForeignKey('utilities_ferc.respondent_id'),
+    utility_id_ferc = Column(Integer,
+                           ForeignKey('utilities_ferc.utility_id_ferc'),
                            nullable=False)
     report_year = Column(Integer, nullable=False)
     authority_company_name = Column(String)
     statistical_classification = Column(String)
-    rate_schedule_tariff_number = Column(String)
-    average_billing_demand = Column(String)
-    average_monthly_ncp_demand = Column(String)
-    average_monthly_cp_demand = Column(String)
-    mwh_purchased = Column(Numeric(14, 2))
-    mwh_received = Column(Numeric(14, 2))
-    mwh_delivered = Column(Numeric(14, 2))
+    rate_schedule_tariff_num = Column(String)
+    avg_billing_demand_mw = Column(String)
+    avg_monthly_ncp_demand_mw = Column(String)
+    avg_monthly_cp_demand_mw = Column(String)
+    purchased_mwh = Column(Numeric(14, 2))
+    received_mwh = Column(Numeric(14, 2))
+    delivered_mwh = Column(Numeric(14, 2))
     demand_charges = Column(Numeric(14, 2))
     energy_charges = Column(Numeric(14, 2))
     other_charges = Column(Numeric(14, 2))
-    settlement_total = Column(Numeric(14, 2))
+    total_settlement = Column(Numeric(14, 2))
 
 
 class PlantSmallFERC1(pudl.models.entities.PUDLBase):
@@ -178,7 +178,7 @@ class PlantSmallFERC1(pudl.models.entities.PUDLBase):
     __tablename__ = 'plants_small_ferc1'
     __table_args__ = (ForeignKeyConstraint(
         ['utility_id_ferc', 'plant_name_original'],
-        ['plants_ferc.respondent_id', 'plants_ferc.plant_name']),)
+        ['plants_ferc.utility_id_ferc', 'plants_ferc.plant_name']),)
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     utility_id_ferc = Column(Integer, nullable=False)
@@ -206,7 +206,7 @@ class PlantHydroFERC1(pudl.models.entities.PUDLBase):
     __tablename__ = 'plants_hydro_ferc1'
     __table_args__ = (ForeignKeyConstraint(
         ['utility_id_ferc', 'plant_name'],
-        ['plants_ferc.respondent_id', 'plants_ferc.plant_name']),)
+        ['plants_ferc.utility_id_ferc', 'plants_ferc.plant_name']),)
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     utility_id_ferc = Column(Integer, nullable=False)
@@ -284,7 +284,7 @@ class PlantsPumpedStorage(pudl.models.entities.PUDLBase):
     __tablename__ = 'plants_pumped_storage_ferc1'
     __table_args__ = (ForeignKeyConstraint(
         ['utility_id_ferc', 'plant_name'],
-        ['plants_ferc.respondent_id', 'plants_ferc.plant_name']),)
+        ['plants_ferc.utility_id_ferc', 'plants_ferc.plant_name']),)
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     utility_id_ferc = Column(Integer, nullable=False)
