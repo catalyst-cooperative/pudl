@@ -1,6 +1,8 @@
 # The Public Utility Data Liberation (PUDL) Project
 ---
 [![Build Status](https://travis-ci.org/catalyst-cooperative/pudl.svg?branch=master)](https://travis-ci.org/catalyst-cooperative/pudl)
+[![Coverage Status](https://coveralls.io/repos/github/catalyst-cooperative/pudl/badge.svg?branch=master)](https://coveralls.io/github/catalyst-cooperative/pudl?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2fead07adef249c08288d0bafae7cbb5)](https://app.codacy.com/app/zaneselvans/pudl?utm_source=github.com&utm_medium=referral&utm_content=catalyst-cooperative/pudl&utm_campaign=Badge_Grade_Dashboard)
 [![Join the chat at https://gitter.im/catalyst-cooperative/pudl](https://badges.gitter.im/catalyst-cooperative/pudl.svg)](https://gitter.im/catalyst-cooperative/pudl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/catalyst-cooperative/pudl/master)
 

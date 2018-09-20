@@ -1,9 +1,12 @@
 This data package contains a subset of the open data published by the [US
 Mining Health and Safety Administration (MSHA)](https://www.msha.gov). It
-focuses primarily on data that is related to the production of coal, and thus
-also to the US electricity system. It was packaged for easy re-use by [Catalyst
-Cooperative](https://catalyst.coop) as part of the [Public Utility Data
-Liberation (PUDL) project](https://github.com/catalyst-cooperative/pudl).
+focuses primarily on MSHA data that is related to the production of coal, and
+thus also to the US electricity system.
+
+This data package was created by [Catalyst Cooperative](https://catalyst.coop)
+as part of the [Public Utility Data Liberation (PUDL)
+project](https://github.com/catalyst-cooperative/pudl). It can be downloaded
+from [DataHub](https://datahub.io/zaneselvans/pudl-msha).
 
 ## Data
 This data package contains a collection of public data compiled and published

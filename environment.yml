@@ -2,6 +2,8 @@ name: pudl
 channels:
   - defaults
 dependencies:
+  - coverage
+  - coveralls
   - cython =0.28.*
   - dbfread
   - jupyter
@@ -12,13 +14,14 @@ dependencies:
   - pandas =0.23.*
   - psycopg2 =2.7.*
   - pytest =3.5.*
+  - pytest-cov
   - python =3.6.*
+  - pyyaml
   - scikit-learn =0.19.*
   - scipy =1.1.*
   - sqlalchemy =1.2.*
   - xlrd =1.1.*
   - xlsxwriter =1.0.*
-  - pyyaml
   - pip:
     - datapackage
     - goodtables

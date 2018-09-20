@@ -7,7 +7,6 @@ addons:
   postgresql: "9.6"
 env:
   global:
-  - TEST_ARGS=""
   - secure: IAQoyAqW1pccRx1fqdnjJjh3iRe9l+rxU+OlQojvAqo4lcxdv6DkuVp4Rhvx2eiBXfdsZl7XrI2zCXHbVrUSbKL4RNnjv9ouJN/m29cUME+uwuTWOO+jY5g7bNdKOpeWvUZyhUR3FUdPdeh2sN7odsLF8XybV5uOdHdQSzK7R/Nf4XSYRgMsKLTNSq/MIBOD4goCpHT2etTe4P02HJxZ+a/ksv3DGI3cVgAcAzF8EDF0SFXauBZVYeffTl82lGSPRPVlUXdC7nBh8W9p49zJQEOhKq7rDMf5A3P8ZfoOVDBlsMGpqHJejezvR1c/GTDkenEWE8har4xwxvP/pJDfUrNKWjI79hdEpKcN2xOxAeobNAPJP4Ee33XCD6Q0spf7LePv3fNlERavqz0hNSIBrX4w2ueXBGh/hJr9fKtfDbcD7myRFe17X2vHEeiwzTGKkVVPqmaXRMg/1RgTHVFqhy2ayQpldvM+2d2Y9GO46CVr+Xf+CUdkOvNRd5tD9ur5s4L76GTJZlotGvZp0AIzgSa//wiX/ZGPTgN41NcDGnumbmfJ9nK11aCpq5elOaYunEKkiYzo1JSzNHxnoaa6lKLF3koRb7BUudHVxGsIUGMGTaXXjrMd1JF+RcISjija3YbzF//iheiTBJDbkl9TrMxVx0NFRG7SkG6jO0oHtcQ=
 git:
   depth: 1
@@ -31,7 +30,9 @@ install:
 - python update_datastore.py --source epacems --states CO --years 2016
 - cd ..
 script:
-- pytest -sv $TEST_ARGS -m travis_ci
+- pytest -sv --cov=pudl -m travis_ci
+after_success:
+- coveralls
 notifications:
   webhooks:
     urls:
