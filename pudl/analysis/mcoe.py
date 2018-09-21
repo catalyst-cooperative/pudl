@@ -383,7 +383,7 @@ def mcoe(pudl_out,
                   'unit_id_pudl',
                   'generator_id',
                   'plant_name',
-                  'operator_id',
+                  'utility_id_eia',
                   'util_id_pudl',
                   'operator_name']
     mcoe_out = helpers.organize_cols(mcoe_out, first_cols)

@@ -16,7 +16,7 @@ class BoilerGeneratorAssnEIA860(pudl.models.entities.PUDLBase):
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     report_date = Column(Date, nullable=False)
-    operator_id = Column(Integer, nullable=False)  # FK?
+    utility_id_eia = Column(Integer, nullable=False)  # FK?
     plant_id_eia = Column(Integer, nullable=False)  # FK?
     boiler_id = Column(String, nullable=False)  # FK?
     generator_id = Column(String, nullable=False)

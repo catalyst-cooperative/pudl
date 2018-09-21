@@ -210,7 +210,7 @@ def boiler_generator_assn(eia_transformed_dfs,
     bga_eia860 = _restrict_years(bga_eia860, eia923_years, eia860_years)
     bga_eia860['generator_id'] = bga_eia860.generator_id.astype(str)
     bga_eia860['boiler_id'] = bga_eia860.boiler_id.astype(str)
-    bga_eia860 = bga_eia860.drop(['operator_id'], axis=1)
+    bga_eia860 = bga_eia860.drop(['utility_id_eia'], axis=1)
 
     gen_eia923 = eia_transformed_dfs['generation_eia923'].copy()
     gen_eia923 = _restrict_years(gen_eia923, eia923_years, eia860_years)

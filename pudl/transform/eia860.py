@@ -311,7 +311,7 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     b_g_df = eia860_dfs['boiler_generator_assn'].copy()
 
     b_g_cols = ['report_year',
-                'operator_id',
+                'utility_id_eia',
                 'plant_id_eia',
                 'boiler_id',
                 'generator_id']
@@ -321,8 +321,8 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     # There are some bad (non-data) lines in some of the boiler generator
     # data files (notes from EIA) which are messing up the import. Need to
     # identify and drop them early on.
-    b_g_df['operator_id'] = b_g_df['operator_id'].astype(str)
-    b_g_df = b_g_df[b_g_df.operator_id.str.isnumeric()]
+    b_g_df['utility_id_eia'] = b_g_df['utility_id_eia'].astype(str)
+    b_g_df = b_g_df[b_g_df.utility_id_eia.str.isnumeric()]
 
     b_g_df['plant_id_eia'] = b_g_df['plant_id_eia'].astype(int)
     # b_g_df['plant_id_eia'] = \

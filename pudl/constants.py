@@ -1510,7 +1510,7 @@ boiler_generator_assn_map_eia860 = pd.DataFrame.from_records([
     (2014, 'utility_id', 'plant_code', 'boiler_id', 'generator_id'),
     (2015, 'utility_id', 'plant_code', 'boiler_id', 'generator_id'),
     (2016, 'utility_id', 'plant_code', 'boiler_id', 'generator_id')],
-    columns=['year_index', 'operator_id', 'plant_id_eia', 'boiler_id',
+    columns=['year_index', 'utility_id_eia', 'plant_id_eia', 'boiler_id',
              'generator_id'],
     index='year_index')
 
