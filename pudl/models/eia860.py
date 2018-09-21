@@ -105,19 +105,19 @@ class OwnershipEIA860(pudl.models.entities.PUDLBase):
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     report_date = Column(Date, nullable=False)
-    operator_id = Column(Integer, nullable=False)  # FK
-    operator_name = Column(String, nullable=False)  # FK
+    utility_id_eia = Column(Integer, nullable=False)  # FK
+    utility_name = Column(String, nullable=False)  # FK
     plant_id_eia = Column(Integer, nullable=False)  # FK
     plant_name = Column(String, nullable=False)  # FK
     state = Column(String)  # FK?
     generator_id = Column(String, nullable=False,)
-    status = Column(String)
-    ownership_id = Column(Integer, nullable=False)  # FK operator_id
+    operational_status_code = Column(String)
+    owner_utility_id_eia = Column(Integer, nullable=False)  # FK operator_id
     owner_name = Column(String)
     owner_state = Column(String)
     owner_city = Column(String)
     owner_street_address = Column(String)
-    owner_zip = Column(String)
+    owner_zip_code = Column(String)
     fraction_owned = Column(Float)
 
 

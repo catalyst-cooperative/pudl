@@ -337,10 +337,10 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
     out_df = out_df.dropna(subset=[
         'plant_id_eia',
         'plant_id_pudl',
-        'operator_id',
+        'utility_id_eia',
         'util_id_pudl',
         'generator_id',
-        'ownership_id',
+        'owner_utility_id_eia',
     ])
 
     first_cols = [
@@ -348,11 +348,11 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
         'plant_id_eia',
         'plant_id_pudl',
         'plant_name',
-        'operator_id',
+        'utility_id_eia',
         'util_id_pudl',
-        'operator_name',
+        'utility_name',
         'generator_id',
-        'ownership_id',
+        'owner_utility_id_eia',
         'owner_name',
     ]
 

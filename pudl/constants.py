@@ -1573,10 +1573,11 @@ ownership_assn_map_eia860 = pd.DataFrame.from_records([
     (2016, 'utility_id', 'utility_name', 'plant_code', 'plant_name', 'state',
      'generator_id', 'status', 'ownership_id', 'owner_name', 'owner_state',
      'owner_street_address', 'owner_city', 'owner_zip', 'percent_owned')],
-    columns=['year_index', 'operator_id', 'operator_name', 'plant_id_eia',
-             'plant_name', 'state', 'generator_id', 'status', 'ownership_id',
-             'owner_name', 'owner_state', 'owner_street_address',
-             'owner_city', 'owner_zip', 'fraction_owned'],
+    columns=['year_index', 'utility_id_eia', 'utility_name', 'plant_id_eia',
+             'plant_name', 'state', 'generator_id', 'operational_status_code',
+             'owner_utility_id_eia', 'owner_name', 'owner_state',
+             'owner_street_address', 'owner_city', 'owner_zip_code',
+             'fraction_owned'],
     index='year_index')
 
 
