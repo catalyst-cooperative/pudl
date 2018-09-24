@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """This is a script for initializing the PUDL database locally."""
 
 import os
