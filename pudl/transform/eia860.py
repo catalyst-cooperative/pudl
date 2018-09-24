@@ -169,7 +169,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
 
     gens_df = pudl.transform.pudl.month_year_to_date(gens_df)
 
-    gens_df['fuel_type_pudl'] = \
+    gens_df['fuel_type_code_pudl'] = \
         pudl.transform.pudl.cleanstrings(gens_df['energy_source_1'],
                                          pc.fuel_type_eia860_simple_map)
     # String-ify a bunch of fields for output.

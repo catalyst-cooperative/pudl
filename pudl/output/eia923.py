@@ -24,11 +24,11 @@ def generation_fuel_eia923(freq=None, testing=False,
     given plant and fuel type.
      - plant_id_eia
      - report_date
-     - fuel_type_pudl
-     - fuel_consumed_total
-     - fuel_consumed_for_electricity
+     - fuel_type_code_pudl
+     - fuel_consumed_units
+     - fuel_consumed_for_electricity_units
      - fuel_mmbtu_per_unit
-     - fuel_consumed_total_mmbtu
+     - fuel_consumed_mmbtu
      - fuel_consumed_for_electricity_mmbtu
      - net_generation_mwh
 
@@ -66,8 +66,8 @@ def generation_fuel_eia923(freq=None, testing=False,
     cols_to_drop = ['id']
     gf_df = gf_df.drop(cols_to_drop, axis=1)
 
-    # fuel_type_pudl was formerly aer_fuel_category
-    by = ['plant_id_eia', 'fuel_type_pudl']
+    # fuel_type_code_pudl was formerly aer_fuel_category
+    by = ['plant_id_eia', 'fuel_type_code_pudl']
     if freq is not None:
         # Create a date index for temporal resampling:
         gf_df = gf_df.set_index(pd.DatetimeIndex(gf_df.report_date))
@@ -76,14 +76,14 @@ def generation_fuel_eia923(freq=None, testing=False,
         # Sum up these values so we can calculate quantity weighted averages
         gf_gb = gf_df.groupby(by=by)
         gf_df = gf_gb.agg({
-            'fuel_consumed_total': helpers.sum_na,
-            'fuel_consumed_for_electricity': helpers.sum_na,
-            'fuel_consumed_total_mmbtu': helpers.sum_na,
+            'fuel_consumed_units': helpers.sum_na,
+            'fuel_consumed_for_electricity_units': helpers.sum_na,
+            'fuel_consumed_mmbtu': helpers.sum_na,
             'fuel_consumed_for_electricity_mmbtu': helpers.sum_na,
             'net_generation_mwh': helpers.sum_na,
         })
         gf_df['fuel_mmbtu_per_unit'] = \
-            gf_df['fuel_consumed_total_mmbtu'] / gf_df['fuel_consumed_total']
+            gf_df['fuel_consumed_mmbtu'] / gf_df['fuel_consumed_units']
 
         gf_df = gf_df.reset_index()
 
@@ -137,8 +137,8 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
     calculated, for total fuel heat content and total fuel cost.
      - plant_id_eia
      - report_date
-     - fuel_type_pudl (formerly energy_source_simple)
-     - fuel_quantity (sum)
+     - fuel_type_code_pudl (formerly energy_source_simple)
+     - fuel_qty_units (sum)
      - fuel_cost_per_mmbtu (weighted average)
      - total_fuel_cost (sum)
      - total_heat_content_mmbtu (sum)
@@ -195,25 +195,25 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
 
     # Calculate a few totals that are commonly needed:
     frc_df['total_heat_content_mmbtu'] = \
-        frc_df['heat_content_mmbtu_per_unit'] * frc_df['fuel_quantity']
+        frc_df['heat_content_mmbtu_per_unit'] * frc_df['fuel_qty_units']
     frc_df['total_fuel_cost'] = \
         frc_df['total_heat_content_mmbtu'] * frc_df['fuel_cost_per_mmbtu']
 
     if freq is not None:
-        by = ['plant_id_eia', 'fuel_type_pudl', pd.Grouper(freq=freq)]
+        by = ['plant_id_eia', 'fuel_type_code_pudl', pd.Grouper(freq=freq)]
         # Create a date index for temporal resampling:
         frc_df = frc_df.set_index(pd.DatetimeIndex(frc_df.report_date))
         # Sum up these values so we can calculate quantity weighted averages
         frc_df['total_ash_content'] = \
-            frc_df['ash_content_pct'] * frc_df['fuel_quantity']
+            frc_df['ash_content_pct'] * frc_df['fuel_qty_units']
         frc_df['total_sulfur_content'] = \
-            frc_df['sulfur_content_pct'] * frc_df['fuel_quantity']
+            frc_df['sulfur_content_pct'] * frc_df['fuel_qty_units']
         frc_df['total_mercury_content'] = \
-            frc_df['mercury_content_ppm'] * frc_df['fuel_quantity']
+            frc_df['mercury_content_ppm'] * frc_df['fuel_qty_units']
 
         frc_gb = frc_df.groupby(by=by)
         frc_df = frc_gb.agg({
-            'fuel_quantity': helpers.sum_na,
+            'fuel_qty_units': helpers.sum_na,
             'total_heat_content_mmbtu': helpers.sum_na,
             'total_fuel_cost': helpers.sum_na,
             'total_sulfur_content': helpers.sum_na,
@@ -223,13 +223,13 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
         frc_df['fuel_cost_per_mmbtu'] = \
             frc_df['total_fuel_cost'] / frc_df['total_heat_content_mmbtu']
         frc_df['heat_content_mmbtu_per_unit'] = \
-            frc_df['total_heat_content_mmbtu'] / frc_df['fuel_quantity']
+            frc_df['total_heat_content_mmbtu'] / frc_df['fuel_qty_units']
         frc_df['sulfur_content_pct'] = \
-            frc_df['total_sulfur_content'] / frc_df['fuel_quantity']
+            frc_df['total_sulfur_content'] / frc_df['fuel_qty_units']
         frc_df['ash_content_pct'] = \
-            frc_df['total_ash_content'] / frc_df['fuel_quantity']
+            frc_df['total_ash_content'] / frc_df['fuel_qty_units']
         frc_df['mercury_content_ppm'] = \
-            frc_df['total_mercury_content'] / frc_df['fuel_quantity']
+            frc_df['total_mercury_content'] / frc_df['fuel_qty_units']
         frc_df = frc_df.reset_index()
         frc_df = frc_df.drop(['total_ash_content',
                               'total_sulfur_content',
@@ -246,7 +246,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
 
     if freq is None:
         # There are a couple of invalid records with no specified fuel.
-        out_df = out_df.dropna(subset=['fuel_group'])
+        out_df = out_df.dropna(subset=['fuel_group_code'])
 
     first_cols = ['report_date',
                   'plant_id_eia',

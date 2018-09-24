@@ -192,15 +192,15 @@ class GenerationFuelEIA923(pudl.models.entities.PUDLBase):
     fuel_type = Column(String,
                        ForeignKey('fuel_type_eia923.abbr'),
                        nullable=False)
-    fuel_type_pudl = Column(String)
-    aer_fuel_type = Column(String, ForeignKey('fuel_type_aer_eia923.abbr'))
+    fuel_type_code_pudl = Column(String)
+    fuel_type_code_aer = Column(String, ForeignKey('fuel_type_aer_eia923.abbr'))
     prime_mover_code = Column(String,
                          ForeignKey('prime_movers_eia923.abbr'),
                          nullable=False)
-    fuel_consumed_total = Column(Float)
-    fuel_consumed_for_electricity = Column(Float)
+    fuel_consumed_units = Column(Float)
+    fuel_consumed_for_electricity_units = Column(Float)
     fuel_mmbtu_per_unit = Column(Float)
-    fuel_consumed_total_mmbtu = Column(Float)
+    fuel_consumed_mmbtu = Column(Float)
     fuel_consumed_for_electricity_mmbtu = Column(Float)
     net_generation_mwh = Column(Float)
 
@@ -266,27 +266,27 @@ class FuelReceiptsCostsEIA923(pudl.models.entities.PUDLBase):
                           ForeignKey('plants_entity_eia.plant_id_eia'),
                           nullable=False)
     report_date = Column(Date, nullable=False)
-    contract_type = Column(String, ForeignKey('contract_type_eia923.abbr'))
+    contract_type_code = Column(String, ForeignKey('contract_type_eia923.abbr'))
     contract_expiration_date = Column(Date)
-    energy_source = Column(String, ForeignKey('energy_source_eia923.abbr'))
-    fuel_type_pudl = Column(String)
-    fuel_group = Column(String, ForeignKey('fuel_group_eia923.group'))
-    fuel_group_simple = Column(String)
+    energy_source_code = Column(String, ForeignKey('energy_source_eia923.abbr'))
+    fuel_type_code_pudl = Column(String)
+    fuel_group_code = Column(String, ForeignKey('fuel_group_eia923.group'))
+    fuel_group_code_simple = Column(String)
     mine_id_pudl = Column(Integer, ForeignKey('coalmine_eia923.id'))
-    supplier = Column(String, nullable=False)  # TODO FK new table?
-    fuel_quantity = Column(Float, nullable=False)
+    supplier_name = Column(String, nullable=False)  # TODO FK new table?
+    fuel_qty_units = Column(Float, nullable=False)
     heat_content_mmbtu_per_unit = Column(Float, nullable=False)
     sulfur_content_pct = Column(Float, nullable=False)
     ash_content_pct = Column(Float, nullable=False)
     mercury_content_ppm = Column(Float)
     fuel_cost_per_mmbtu = Column(Float)
-    primary_transportation_mode = Column(
+    primary_transportation_mode_code = Column(
         String,
         ForeignKey('transport_modes_eia923.abbr'))
-    secondary_transportation_mode = Column(
+    secondary_transportation_mode_code = Column(
         String,
         ForeignKey('transport_modes_eia923.abbr'))
-    natural_gas_transport = Column(
+    natural_gas_transport_code = Column(
         String,
         ForeignKey('natural_gas_transport_eia923.abbr'))
-    natural_gas_delivery_contract_type = Column(String)
+    natural_gas_delivery_contract_type_code = Column(String)

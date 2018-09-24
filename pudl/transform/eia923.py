@@ -216,7 +216,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     # any particular plant (they have plant_id_eia == operator_id == 99999)
     gf_df = gf_df[gf_df.plant_id_eia != 99999]
 
-    gf_df['fuel_type_pudl'] = \
+    gf_df['fuel_type_code_pudl'] = \
         pudl.transform.pudl.cleanstrings(
             gf_df.fuel_type,
             pc.fuel_type_eia923_gen_fuel_simple_map)
@@ -524,14 +524,14 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
     frc_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
 
     # These come in ALL CAPS from EIA...
-    frc_df['supplier'] = frc_df['supplier'].astype(str).str.strip()
-    frc_df['supplier'] = frc_df['supplier'].astype(str).str.title()
+    frc_df['supplier_name'] = frc_df['supplier_name'].astype(str).str.strip()
+    frc_df['supplier_name'] = frc_df['supplier_name'].astype(str).str.title()
 
     # Standardize case on transportaion codes -- all upper case!
-    frc_df['primary_transportation_mode'] = \
-        frc_df['primary_transportation_mode'].str.upper()
-    frc_df['secondary_transportation_mode'] = \
-        frc_df['secondary_transportation_mode'].str.upper()
+    frc_df['primary_transportation_mode_code'] = \
+        frc_df['primary_transportation_mode_code'].str.upper()
+    frc_df['secondary_transportation_mode_code'] = \
+        frc_df['secondary_transportation_mode_code'].str.upper()
 
     frc_df['contract_expiration_date'] = \
         pudl.transform.pudl.fix_int_na(frc_df['contract_expiration_date'],
@@ -563,11 +563,11 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
 
     frc_df['fuel_cost_per_mmbtu'] = frc_df['fuel_cost_per_mmbtu'] / 100
 
-    frc_df['fuel_type_pudl'] = \
-        pudl.transform.pudl.cleanstrings(frc_df.energy_source,
+    frc_df['fuel_type_code_pudl'] = \
+        pudl.transform.pudl.cleanstrings(frc_df.energy_source_code,
                                          pc.energy_source_eia_simple_map)
-    frc_df['fuel_group_simple'] = \
-        pudl.transform.pudl.cleanstrings(frc_df.fuel_group,
+    frc_df['fuel_group_code_simple'] = \
+        pudl.transform.pudl.cleanstrings(frc_df.fuel_group_code,
                                          pc.fuel_group_eia923_simple_map)
 
     eia923_transformed_dfs['fuel_receipts_costs_eia923'] = frc_df
