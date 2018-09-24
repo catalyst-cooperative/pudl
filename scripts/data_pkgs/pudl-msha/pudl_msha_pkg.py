@@ -20,7 +20,7 @@ sys.path.append(os.path.abspath(os.path.join('..', '..', '..')))
 
 def main(arguments):
     """The main function."""
-    from config import SETTINGS
+    from pudl.settings import SETTINGS
     from pudl.transform.pudl import fix_int_na
     import pudl.constants as pc
 
@@ -112,7 +112,8 @@ def main(arguments):
                 shutil.copyfile(src_file, dst_file)
 
     for res in resources:
-        # Create dataframes from input data & definition files (local or remote):
+        # Create dataframes from input data & definition files (local or
+        # remote):
         for d in ['data', 'defs']:
             resources[res][f"{d}_df"] = \
                 pd.read_csv(f"{archive_dir}/{resources[res][d]}",
@@ -136,7 +137,8 @@ def main(arguments):
         field_desc = resources[res]["defs_df"].set_index(
             'COLUMN_NAME').to_dict()['FIELD_DESCRIPTION']
 
-        # Set the description attribute of the fields in the schema using field descriptions.
+        # Set the description attribute of the fields in the schema using field
+        # descriptions.
         for field in resources[res]["json"]["schema"]["fields"]:
             field['description'] = field_desc[field['name']]
         resources[res]["resource"] = datapackage.Resource(
@@ -205,7 +207,8 @@ def main(arguments):
     # Timestamp indicating when packaging occured
     pkg.descriptor['created'] = datetime.datetime.utcnow().replace(
         microsecond=0).isoformat() + 'Z'
-    # Have to set this to 'data-package' rather than 'tabular-data-package' due to a DataHub.io bug
+    # Have to set this to 'data-package' rather than 'tabular-data-package'
+    # due to a DataHub.io bug
     pkg.descriptor['profile'] = 'data-package'
     pkg.commit()
 
