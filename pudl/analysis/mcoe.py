@@ -84,10 +84,11 @@ def heat_rate_by_gen(pudl_out, verbose=False):
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
     assert pudl_out.freq is not None,\
-        "pudl_out must inclue a frequency for mcoe"
+        "pudl_out must include a frequency for mcoe"
 
     gens_simple = pudl_out.gens_eia860()[['report_date', 'plant_id_eia',
-                                          'generator_id', 'fuel_type_pudl']]
+                                          'generator_id',
+                                          'fuel_type_code_pudl']]
     bga_gens = pudl_out.bga()[['report_date',
                                'plant_id_eia',
                                'unit_id_pudl',
@@ -107,7 +108,7 @@ def heat_rate_by_gen(pudl_out, verbose=False):
     hr_by_gen = helpers.merge_on_date_year(
         hr_by_gen,
         pudl_out.gens_eia860()[['report_date', 'plant_id_eia', 'generator_id',
-                                'fuel_type_pudl', 'fuel_type_count']],
+                                'fuel_type_code_pudl', 'fuel_type_count']],
         on=['plant_id_eia', 'generator_id']
     )
     return hr_by_gen
@@ -121,7 +122,7 @@ def fuel_cost(pudl_out, verbose=False):
     at the generator level. This is complicated by the fact that some plants
     have several different types of generators, using different fuels. We have
     fuel costs broken out by type of fuel (coal, oil, gas), and we know which
-    generators use which fuel based on their energy_source code and reported
+    generators use which fuel based on their energy_source_code and reported
     prime_mover. Coal plants use a little bit of natural gas or diesel to get
     started, but based on our analysis of the "pure" coal plants, this amounts
     to only a fraction of a percent of their overal fuel consumption on a
@@ -133,13 +134,14 @@ def fuel_cost(pudl_out, verbose=False):
 
     For plants with more than one type of generator energy source, we need to
     split out the fuel costs according to fuel type -- so the gas fuel costs
-    are associated with generators that have energy_source gas, and the coal
-    fuel costs are associated with the generators that have energy_source coal.
+    are associated with generators that have energy_source_code gas, and the
+    coal fuel costs are associated with the generators that have
+    energy_source_code coal.
     """
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
     assert pudl_out.freq is not None,\
-        "pudl_out must inclue a frequency for mcoe"
+        "pudl_out must include a frequency for mcoe"
 
     # Split up the plants on the basis of how many different primary energy
     # sources the component generators have:
@@ -147,7 +149,7 @@ def fuel_cost(pudl_out, verbose=False):
                         pudl_out.heat_rate_by_gen()[['plant_id_eia',
                                                      'report_date',
                                                      'generator_id',
-                                                     'fuel_type_pudl',
+                                                     'fuel_type_code_pudl',
                                                      'fuel_type_count',
                                                      'heat_rate_mmbtu_mwh']],
                         how='inner',
@@ -162,16 +164,16 @@ def fuel_cost(pudl_out, verbose=False):
                         pudl_out.frc_eia923()[['plant_id_eia',
                                                'report_date',
                                                'fuel_cost_per_mmbtu',
-                                               'fuel_type_pudl',
+                                               'fuel_type_code_pudl',
                                                'total_fuel_cost',
                                                'total_heat_content_mmbtu']],
                         how='left', on=['plant_id_eia', 'report_date'])
-    # We need to retain the different energy_source information from the
+    # We need to retain the different energy_source_code information from the
     # generators (primary for the generator) and the fuel receipts (which is
     # per-delivery), and in the one_fuel case, there will only be a single
     # generator getting all of the fuels:
-    one_fuel.rename(columns={'fuel_type_pudl_x': 'ftp_gen',
-                             'fuel_type_pudl_y': 'ftp_frc'},
+    one_fuel.rename(columns={'fuel_type_code_pudl_x': 'ftp_gen',
+                             'fuel_type_code_pudl_y': 'ftp_frc'},
                     inplace=True)
 
     # Do the same thing for the multi fuel plants, but also merge based on
@@ -181,9 +183,9 @@ def fuel_cost(pudl_out, verbose=False):
                           pudl_out.frc_eia923()[['plant_id_eia',
                                                  'report_date',
                                                  'fuel_cost_per_mmbtu',
-                                                 'fuel_type_pudl']],
+                                                 'fuel_type_code_pudl']],
                           how='left', on=['plant_id_eia', 'report_date',
-                                          'fuel_type_pudl'])
+                                          'fuel_type_code_pudl'])
 
     # At this point, within each plant, we should have one record per
     # combination of generator & fuel type, which includes the heat rate of
@@ -369,7 +371,7 @@ def mcoe(pudl_out,
         'util_id_pudl',
         'operator_name',
         'fuel_type_count',
-        'fuel_type_pudl'
+        'fuel_type_code_pudl'
     ], axis=1)
     mcoe_out = helpers.merge_on_date_year(mcoe_out, simplified_gens_eia860,
                                           on=['plant_id_eia',

@@ -163,9 +163,9 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
     #########################################################################
     fuel_ferc1_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
-        'respondent_id':'utility_id_ferc',
+        'respondent_id': 'utility_id_ferc',
         'fuel': 'fuel_type_code_pudl',
-        'fuel_avg_mmbtu_per_unit':'fuel_mmbtu_per_unit',
+        'fuel_avg_mmbtu_per_unit': 'fuel_mmbtu_per_unit',
         'fuel_quantity': 'fuel_qty_burned',
         'fuel_cost_burned': 'fuel_cost_per_unit_burned',
         'fuel_cost_delvd': 'fuel_cost_per_unit_delivered',
@@ -296,9 +296,9 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_steam_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
-        'respondent_id':'utility_id_ferc',
+        'respondent_id': 'utility_id_ferc',
         'yr_const': 'construction_year',
-        'plant_kind':'plant_type',
+        'plant_kind': 'plant_type',
         'type_const': 'construction_type',
         'asset_retire_cost': 'asset_retirement_cost',
         'yr_installed': 'installation_year',
@@ -448,10 +448,10 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_small_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
-        'respondent_id':'utility_id_ferc',
-        'plant_name':'plant_name_original',
-        'plant_name_clean':'plant_name',
-        'ferc_license':'ferc_license_id',
+        'respondent_id': 'utility_id_ferc',
+        'plant_name': 'plant_name_original',
+        'plant_name_clean': 'plant_name',
+        'ferc_license': 'ferc_license_id',
         'yr_constructed': 'construction_year',
         'capacity_rating': 'capacity_mw',
         'net_demand': 'peak_demand_mw',
@@ -459,9 +459,9 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
         'plant_cost': 'total_cost_of_plant',
         'plant_cost_mw': 'capex_per_mw',
         'operation': 'opex_total',
-        'expns_fuel':'opex_fuel',
+        'expns_fuel': 'opex_fuel',
         'expns_maint': 'opex_maintenance',
-        'kind_of_fuel':'fuel_type',
+        'kind_of_fuel': 'fuel_type',
         'fuel_cost': 'fuel_cost_per_mmbtu'},
         inplace=True)
 
@@ -516,10 +516,10 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
     ferc1_hydro_df.dropna(inplace=True)
     ferc1_hydro_df.rename(columns={
         # FERC1 DB          PUDL DB
-        'respondent_id':'utility_id_ferc',
+        'respondent_id': 'utility_id_ferc',
         'project_no': 'project_num',
         'yr_const': 'construction_year',
-        'plant_kind':'plant_type',
+        'plant_kind': 'plant_type',
         'plant_const': 'plant_construction_type',
         'yr_installed': 'installation_year',
         'tot_capacity': 'capacity_mw',
@@ -529,28 +529,28 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
         'adverse_cond': 'net_capacity_adverse_conditions_mw',
         'avg_num_of_emp': 'avg_num_employees',
         'cost_of_land': 'capex_land',
-        'cost_structure':'capex_structure',
-        'cost_facilities':'capex_facilities',
-        'cost_equipment':'capex_equipment',
-        'cost_roads':'capex_roads',
-        'cost_plant_total':'capex_total',
-        'cost_per_mw':'capex_per_mw',
-        'expns_operations':'opex_operations',
-        'expns_water_pwr':'opex_water_pwr',
-        'expns_hydraulic':'opex_hydraulic',
-        'expns_electric':'opex_electric',
-        'expns_generation':'opex_generation',
-        'expns_rents':'opex_rents',
-        'expns_engineering':'opex_engineering',
-        'expns_structures':'opex_structures',
-        'expns_dams':'opex_dams',
-        'expns_plant':'opex_plant',
-        'expns_misc_plant':'opex_misc_plant',
-        'expns_per_mwh':'opex_per_mwh',
+        'cost_structure': 'capex_structure',
+        'cost_facilities': 'capex_facilities',
+        'cost_equipment': 'capex_equipment',
+        'cost_roads': 'capex_roads',
+        'cost_plant_total': 'capex_total',
+        'cost_per_mw': 'capex_per_mw',
+        'expns_operations': 'opex_operations',
+        'expns_water_pwr': 'opex_water_pwr',
+        'expns_hydraulic': 'opex_hydraulic',
+        'expns_electric': 'opex_electric',
+        'expns_generation': 'opex_generation',
+        'expns_rents': 'opex_rents',
+        'expns_engineering': 'opex_engineering',
+        'expns_structures': 'opex_structures',
+        'expns_dams': 'opex_dams',
+        'expns_plant': 'opex_plant',
+        'expns_misc_plant': 'opex_misc_plant',
+        'expns_per_mwh': 'opex_per_mwh',
         'expns_engnr': 'opex_engineering',
         'expns_total': 'opex_total',
         'asset_retire_cost': 'asset_retirement_cost',
-        '':'',
+        '': '',
 
     }, inplace=True)
 
@@ -625,8 +625,8 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_pumped_storage_df.rename(columns={
         # FERC1 DB          PUDL DB
-        'respondent_id':'utility_id_ferc',
-        'project_number':'project_num',
+        'respondent_id': 'utility_id_ferc',
+        'project_number': 'project_num',
         'tot_capacity': 'capacity_mw',
         'project_no': 'project_num',
         'peak_demand': 'peak_demand_mw',
@@ -636,31 +636,31 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
         'plant_capability': 'plant_capability_mw',
         'avg_num_of_emp': 'avg_num_employees',
         'cost_wheels': 'capex_wheels_turbines_generators',
-        'cost_land':'capex_land',
-        'cost_structures':'capex_structures',
-        'cost_facilties':'capex_facilities',
-        'cost_wheels_turbines_generators':'capex_wheels_turbines_generators',
+        'cost_land': 'capex_land',
+        'cost_structures': 'capex_structures',
+        'cost_facilties': 'capex_facilities',
+        'cost_wheels_turbines_generators': 'capex_wheels_turbines_generators',
         'cost_electric': 'capex_equipment_electric',
         'cost_misc_eqpmnt': 'capex_equipment_misc',
-        'cost_roads':'capex_roads',
-        'asset_retire_cost':'asset_retirement_cost',
+        'cost_roads': 'capex_roads',
+        'asset_retire_cost': 'asset_retirement_cost',
         'cost_of_plant': 'capex_plant_total',
-        'cost_per_mw':'capex_per_mw',
-        'expns_operations':'opex_operations',
+        'cost_per_mw': 'capex_per_mw',
+        'expns_operations': 'opex_operations',
         'expns_water_pwr': 'opex_water_for_power',
         'expns_pump_strg': 'opex_pumped_storage',
-        'expns_electric':'opex_electric',
+        'expns_electric': 'opex_electric',
         'expns_misc_power': 'opex_generation_misc',
-        'expns_rents':'opex_rents',
-        'expns_engneering':'opex_engineering',
-        'expns_structures':'opex_structures',
-        'expns_dams':'opex_dams',
-        'expns_plant':'opex_plant',
+        'expns_rents': 'opex_rents',
+        'expns_engneering': 'opex_engineering',
+        'expns_structures': 'opex_structures',
+        'expns_dams': 'opex_dams',
+        'expns_plant': 'opex_plant',
         'expns_misc_plnt': 'opex_plant_misc',
         'expns_producton': 'opex_production_before_pumping',
-        'pumping_expenses':'opex_pumping',
+        'pumping_expenses': 'opex_pumping',
         'tot_prdctn_exns': 'opex_total',
-        'expns_per_mwh':'opex_per_mwh'},
+        'expns_per_mwh': 'opex_per_mwh'},
         inplace=True)
 
     ferc1_transformed_dfs['plants_pumped_storage_ferc1'] = \
@@ -708,7 +708,7 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_pis_df.rename(columns={
         # FERC 1 DB Name  PUDL DB Name
-        'respondent_id':'utility_id_ferc',
+        'respondent_id': 'utility_id_ferc',
         'begin_yr_bal': 'beginning_year_balance',
         'addition': 'additions',
         'yr_end_bal': 'year_end_balance'},
@@ -750,14 +750,14 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_purchased_pwr_df.rename(columns={
         # FERC 1 DB Name  PUDL DB Name
-        'respondent_id':'utility_id_ferc',
+        'respondent_id': 'utility_id_ferc',
         'athrty_co_name': 'authority_company_name',
         'sttstcl_clssfctn': 'statistical_classification',
         'rtsched_trffnbr': 'rate_schedule_tariff_num',
         'avgmth_bill_dmnd': 'avg_billing_demand_mw',
         'avgmth_ncp_dmnd': 'avg_monthly_ncp_demand_mw',
         'avgmth_cp_dmnd': 'avg_monthly_cp_demand_mw',
-        'mwh_purchased':'purchased_mwh',
+        'mwh_purchased': 'purchased_mwh',
         'mwh_recv': 'received_mwh',
         'mwh_delvd': 'delivered_mwh',
         'dmnd_charges': 'demand_charges',
@@ -806,7 +806,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_accumdepr_prvsn_df.rename(columns={
         # FERC1 DB   PUDL DB
-        'respondent_id':'utility_id_ferc',
+        'respondent_id': 'utility_id_ferc',
         'total_cde': 'total'},
         inplace=True)
 

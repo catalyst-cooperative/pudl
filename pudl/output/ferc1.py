@@ -100,10 +100,10 @@ def fuel_ferc1(testing=False):
     # We have two different ways of assessing the total cost of fuel given cost
     # per unit delivered and cost per mmbtu. They *should* be the same, but we
     # know they aren't always. Calculate both so we can compare both.
-    fuel_df['fuel_consumed_total_mmbtu'] = \
+    fuel_df['fuel_consumed_mmbtu'] = \
         fuel_df['fuel_qty_burned'] * fuel_df['fuel_mmbtu_per_unit']
     fuel_df['fuel_consumed_total_cost_mmbtu'] = \
-        fuel_df['fuel_cost_per_mmbtu'] * fuel_df['fuel_consumed_total_mmbtu']
+        fuel_df['fuel_cost_per_mmbtu'] * fuel_df['fuel_consumed_mmbtu']
     fuel_df['fuel_consumed_total_cost_unit'] = \
         fuel_df['fuel_cost_per_unit_burned'] * fuel_df['fuel_qty_burned']
 
