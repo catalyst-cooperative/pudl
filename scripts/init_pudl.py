@@ -40,29 +40,31 @@ def main():
     import pudl.models.ferc1
 
     args = parse_command_line(sys.argv)
-    from config import SETTINGS
+    from pudl.settings import SETTINGS
+    settings_init = pudl.settings.settings_init(
+        settings_file=args.settings_file)
 
     extract.ferc1.init_db(ferc1_tables=constants.ferc1_default_tables,
-                          refyear=SETTINGS['ferc1_ref_year'],
-                          years=SETTINGS['ferc1_years'],
+                          refyear=settings_init['ferc1_ref_year'],
+                          years=settings_init['ferc1_years'],
                           def_db=True,
-                          verbose=SETTINGS['verbose'],
-                          testing=SETTINGS['ferc1_testing'])
+                          verbose=settings_init['verbose'],
+                          testing=settings_init['ferc1_testing'])
 
-    init.init_db(ferc1_tables=SETTINGS['ferc1_tables'],
-                 ferc1_years=SETTINGS['ferc1_years'],
-                 eia923_tables=SETTINGS['eia923_tables'],
-                 eia923_years=SETTINGS['eia923_years'],
-                 eia860_tables=SETTINGS['eia860_tables'],
-                 eia860_years=SETTINGS['eia860_years'],
-                 epacems_years=SETTINGS['epacems_years'],
-                 epacems_states=SETTINGS['epacems_states'],
-                 verbose=SETTINGS['verbose'], debug=SETTINGS['debug'],
-                 pudl_testing=SETTINGS['pudl_testing'],
-                 ferc1_testing=SETTINGS['ferc1_testing'],
+    init.init_db(ferc1_tables=settings_init['ferc1_tables'],
+                 ferc1_years=settings_init['ferc1_years'],
+                 eia923_tables=settings_init['eia923_tables'],
+                 eia923_years=settings_init['eia923_years'],
+                 eia860_tables=settings_init['eia860_tables'],
+                 eia860_years=settings_init['eia860_years'],
+                 epacems_years=settings_init['epacems_years'],
+                 epacems_states=settings_init['epacems_states'],
+                 verbose=settings_init['verbose'],
+                 debug=settings_init['debug'],
+                 pudl_testing=settings_init['pudl_testing'],
+                 ferc1_testing=settings_init['ferc1_testing'],
                  csvdir=SETTINGS['csvdir'],
-                 keep_csv=SETTINGS['keep_csv'])
-    print("Settings arg is {}".format(args.settings_file))
+                 keep_csv=settings_init['keep_csv'])
 
 
 if __name__ == '__main__':

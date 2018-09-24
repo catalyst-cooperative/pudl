@@ -25,7 +25,7 @@ import pudl.constants as pc
 import pudl.models.ferc1
 import pudl.extract.ferc1
 import pudl.transform.pudl
-from config import SETTINGS
+from pudl.settings import SETTINGS
 
 ##############################################################################
 # HELPER FUNCTIONS ###########################################################

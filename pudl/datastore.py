@@ -14,7 +14,7 @@ Emissions Monitoring System dataset will be added in the future.
 import os
 import urllib
 import pudl.constants as pc
-from config import SETTINGS
+from settings import SETTINGS
 
 
 def assert_valid_param(source, year, month=None, state=None, check_month=None):

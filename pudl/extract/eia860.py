@@ -9,7 +9,7 @@ This code is for use analyzing EIA Form 860 data.
 import pandas as pd
 import os.path
 import glob
-from config import SETTINGS
+from pudl.settings import SETTINGS
 import pudl.constants as pc
 
 ###########################################################################

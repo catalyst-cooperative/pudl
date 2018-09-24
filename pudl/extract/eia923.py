@@ -10,7 +10,7 @@ years 2009-2016 work, as they share nearly identical file formatting.
 import pandas as pd
 import os.path
 import glob
-from config import SETTINGS
+from pudl.settings import SETTINGS
 import pudl.constants as pc
 
 ###########################################################################

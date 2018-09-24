@@ -6,7 +6,7 @@ import datetime
 import pandas as pd
 import sqlalchemy as sa
 import dbfread
-from config import SETTINGS
+from pudl.settings import SETTINGS
 import pudl.constants as pc
 
 # MetaData object will contain the ferc1 database schema.
@@ -19,7 +19,7 @@ ferc1_meta = sa.MetaData()
 
 def connect_db(testing=False):
     """
-    Connect to the FERC Form 1 DB using global settings from config.py.
+    Connect to the FERC Form 1 DB using global settings from settings.py.
 
     Returns sqlalchemy engine instance.
     """
@@ -263,19 +263,6 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
         if verbose:
             print("Not ingesting mirrored ferc db.")
         return None
-
-    # if the refyear (particular if it came directly from settings.yml) is set
-    # to none, but there
-    if not refyear:
-        refyear = max(SETTINGS['ferc1_years'])
-        if verbose:
-            print("Changed ferc1 refyear to {}".format(refyear))
-    elif isinstance(refyear, list):
-        # yaml processing gives lists, so extract a single year value here
-        # don't worry about length 0: empty lists are caught by 'if not'
-        if len(refyear) > 1:
-            print(f"ferc1 refyear must have length 1. Changed to {refyear[0]}")
-        refyear = refyear[0]
 
     ferc1_engine = connect_db(testing=testing)
 
