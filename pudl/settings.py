@@ -16,10 +16,11 @@ def settings_init(settings_file="settings.yml"):
     with open(os.path.join(PUDL_DIR, 'scripts', settings_file), "r") as f:
         settings_init = yaml.load(f)
 
-    # if the refyear (particular if it came directly from settings.yml) is set
-    # to none, but there
-    if not settings_init['ferc1_ref_year']:
-        settings_init['ferc1_ref_year'] = max(settings_init['ferc1_years'])
+    # if the refyear is set to none, but there are ferc1_years, set the refyear
+    # to be the max of ferc1_years
+    if settings_init['ferc1_years']:
+        if not settings_init['ferc1_ref_year']:
+            settings_init['ferc1_ref_year'] = max(settings_init['ferc1_years'])
 
     return(settings_init)
 
