@@ -11,7 +11,6 @@ assert sys.version_info >= (3, 5)  # require modern python
 # Python typically searches.  When we have some real installation/packaging
 # happening, this will no longer be necessary.
 sys.path.append(os.path.abspath('..'))
-from config import SETTINGS
 
 
 def parse_command_line(argv):
@@ -21,8 +20,12 @@ def parse_command_line(argv):
     :param argv: arguments on the command line must include caller file name.
     """
     from pudl import constants
-    # parser = argparse.ArgumentParser()
-    # return arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--settings_file', dest='settings_file', type=str,
+                        help="Specify a YAML settings file.",
+                        default='settings.yml')
+    arguments = parser.parse_args(argv[1:])
+    return arguments
 
 
 def main():
@@ -36,6 +39,7 @@ def main():
     import pudl.models.ferc1
 
     args = parse_command_line(sys.argv)
+    from config import SETTINGS
 
     extract.ferc1.init_db(ferc1_tables=constants.ferc1_default_tables,
                           refyear=SETTINGS['ferc1_ref_year'],
@@ -57,6 +61,7 @@ def main():
                  ferc1_testing=SETTINGS['ferc1_testing'],
                  csvdir=SETTINGS['csvdir'],
                  keep_csv=SETTINGS['keep_csv'])
+    print("Settings arg is {}".format(args.settings_file))
 
 
 if __name__ == '__main__':

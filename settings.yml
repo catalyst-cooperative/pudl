@@ -113,3 +113,5 @@ db_pudl_test:
   host: 127.0.0.1
   username: catalyst
   database: pudl_test
+
+csvdir: csvdump

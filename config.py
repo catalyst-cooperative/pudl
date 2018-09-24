@@ -28,6 +28,5 @@ SETTINGS['epacems_data_dir'] = os.path.join(
 SETTINGS['test_dir'] = os.path.join(SETTINGS['pudl_dir'], 'test')
 SETTINGS['docs_dir'] = os.path.join(SETTINGS['pudl_dir'], 'docs')
 
-
-# TODO: probably should move this into settings.yml
-SETTINGS['csvdir'] = os.path.join(SETTINGS['pudl_dir'], 'results', 'csvdump')
+SETTINGS['csvdir'] = os.path.join(SETTINGS['pudl_dir'],
+                                  'results', SETTINGS['csvdir'])
