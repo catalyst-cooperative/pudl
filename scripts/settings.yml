@@ -28,8 +28,7 @@ ferc1_years:
 # if you are ingesting ferc1, you need a reference year which dictates which
 # year's database structure to use. If one is not defined, the default will be
 # the most recent year in ferc1_years
-ferc1_ref_year:
-  #- 2016
+ferc1_ref_year: #2016
 
 # for list of working eia923 years see eia923_pudl_tables in constants
 eia923_tables:
@@ -84,32 +83,3 @@ debug: False
 pudl_testing: False
 ferc1_testing: False
 keep_csv: False
-
-# These DB connection dictionaries are used by sqlalchemy.URL()
-# (Using 127.0.0.1, the numeric equivalent of localhost, to make postgres use
-# the `.pgpass` file without fussing around in the config.)
-# sqlalchemy.URL will make a URL missing post (therefore using the default),
-# and missing a password (which will make the system look for .pgpass)
-db_ferc1:
- drivername: postgresql
- host: 127.0.0.1
- username: catalyst
- database: ferc1
-
-db_pudl:
-  drivername: postgresql
-  host: 127.0.0.1
-  username: catalyst
-  database: pudl
-
-db_ferc1_test:
-  drivername: postgresql
-  host: 127.0.0.1
-  username: catalyst
-  database: ferc1_test
-
-db_pudl_test:
-  drivername: postgresql
-  host: 127.0.0.1
-  username: catalyst
-  database: pudl_test

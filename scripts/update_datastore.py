@@ -17,7 +17,7 @@ def parse_command_line(argv):
 
     :param argv: arguments on the command line must include caller file name.
     """
-    from config import SETTINGS
+    from pudl.settings import SETTINGS
     from pudl import constants
     parser = argparse.ArgumentParser()
 

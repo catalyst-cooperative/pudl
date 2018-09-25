@@ -7,7 +7,7 @@ import glob
 import os
 import pandas as pd
 import numpy as np
-from config import SETTINGS
+from pudl.settings import SETTINGS
 import pudl.constants as pc
 
 

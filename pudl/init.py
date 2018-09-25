@@ -44,7 +44,7 @@ import pudl.transform.pudl
 import pudl.load
 
 import pudl.constants as pc
-from config import SETTINGS
+from pudl.settings import SETTINGS
 
 ###############################################################################
 ###############################################################################
@@ -600,20 +600,20 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
         print(time_message)
 
 
-def init_db(ferc1_tables=SETTINGS['ferc1_tables'],
-            ferc1_years=SETTINGS['ferc1_years'],
-            eia923_tables=SETTINGS['eia923_tables'],
-            eia923_years=SETTINGS['eia923_years'],
-            eia860_tables=SETTINGS['eia860_tables'],
-            eia860_years=SETTINGS['eia860_years'],
-            epacems_years=SETTINGS['epacems_years'],
-            epacems_states=SETTINGS['epacems_states'],
-            verbose=SETTINGS['verbose'],
-            debug=SETTINGS['debug'],
-            pudl_testing=SETTINGS['pudl_testing'],
-            ferc1_testing=SETTINGS['ferc1_testing'],
-            csvdir=SETTINGS['csvdir'],
-            keep_csv=SETTINGS['keep_csv']):
+def init_db(ferc1_tables=None,
+            ferc1_years=None,
+            eia923_tables=None,
+            eia923_years=None,
+            eia860_tables=None,
+            eia860_years=None,
+            epacems_years=None,
+            epacems_states=None,
+            verbose=None,
+            debug=None,
+            pudl_testing=None,
+            ferc1_testing=None,
+            csvdir=None,
+            keep_csv=None):
     """
     Create the PUDL database and fill it up with data.
 
