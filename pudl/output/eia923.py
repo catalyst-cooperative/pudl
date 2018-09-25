@@ -97,25 +97,25 @@ def generation_fuel_eia923(freq=None, testing=False,
         'plant_id_eia',
         'plant_id_pudl',
         'plant_name',
-        'operator_id',
+        'utility_id_eia',
         'util_id_pudl',
-        'operator_name',
+        'utility_name',
     ])
 
     first_cols = ['report_date',
                   'plant_id_eia',
                   'plant_id_pudl',
                   'plant_name',
-                  'operator_id',
+                  'utility_id_eia',
                   'util_id_pudl',
-                  'operator_name', ]
+                  'utility_name', ]
 
     out_df = helpers.organize_cols(out_df, first_cols)
 
     # Clean up the types of a few columns...
     out_df['plant_id_eia'] = out_df.plant_id_eia.astype(int)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
-    out_df['operator_id'] = out_df.operator_id.astype(int)
+    out_df['utility_id_eia'] = out_df.utility_id_eia.astype(int)
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
 
     return out_df
@@ -242,7 +242,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
     out_df = helpers.merge_on_date_year(frc_df, pu_eia, on=['plant_id_eia'])
 
     # Drop any records where we've failed to get the 860 data merged in...
-    out_df = out_df.dropna(subset=['operator_id', 'operator_name'])
+    out_df = out_df.dropna(subset=['utility_id_eia', 'utility_name'])
 
     if freq is None:
         # There are a couple of invalid records with no specified fuel.
@@ -252,9 +252,9 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
                   'plant_id_eia',
                   'plant_id_pudl',
                   'plant_name',
-                  'operator_id',
+                  'utility_id_eia',
                   'util_id_pudl',
-                  'operator_name', ]
+                  'utility_name', ]
 
     # Re-arrange the columns for easier readability:
     out_df = helpers.organize_cols(out_df, first_cols)
@@ -262,7 +262,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
     # Clean up the types of a few columns...
     out_df['plant_id_eia'] = out_df.plant_id_eia.astype(int)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
-    out_df['operator_id'] = out_df.operator_id.astype(int)
+    out_df['utility_id_eia'] = out_df.utility_id_eia.astype(int)
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
 
     return out_df
@@ -367,7 +367,7 @@ def boiler_fuel_eia923(freq=None, testing=False,
     out_df = out_df.dropna(subset=[
         'plant_id_eia',
         'plant_id_pudl',
-        'operator_id',
+        'utility_id_eia',
         'util_id_pudl',
         'boiler_id',
     ])
@@ -377,16 +377,16 @@ def boiler_fuel_eia923(freq=None, testing=False,
         'plant_id_eia',
         'plant_id_pudl',
         'plant_name',
-        'operator_id',
+        'utility_id_eia',
         'util_id_pudl',
-        'operator_name',
+        'utility_name',
         'boiler_id',
     ]
 
     # Re-arrange the columns for easier readability:
     out_df = helpers.organize_cols(out_df, first_cols)
 
-    out_df['operator_id'] = out_df.operator_id.astype(int)
+    out_df['utility_id_eia'] = out_df.utility_id_eia.astype(int)
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
 
@@ -451,7 +451,7 @@ def generation_eia923(freq=None, testing=False,
     out_df = out_df.dropna(subset=[
         'plant_id_eia',
         'plant_id_pudl',
-        'operator_id',
+        'utility_id_eia',
         'util_id_pudl',
         'generator_id',
     ])
@@ -461,16 +461,16 @@ def generation_eia923(freq=None, testing=False,
         'plant_id_eia',
         'plant_id_pudl',
         'plant_name',
-        'operator_id',
+        'utility_id_eia',
         'util_id_pudl',
-        'operator_name',
+        'utility_name',
         'generator_id',
     ]
 
     # Re-arrange the columns for easier readability:
     out_df = helpers.organize_cols(out_df, first_cols)
 
-    out_df['operator_id'] = out_df.operator_id.astype(int)
+    out_df['utility_id_eia'] = out_df.utility_id_eia.astype(int)
     out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
 

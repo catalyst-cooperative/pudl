@@ -30,20 +30,20 @@ def utilities_eia860(start_date=None, end_date=None, testing=False):
 
     utils_eia_tbl = pt['utilities_eia']
     utils_eia_select = sa.sql.select([
-        utils_eia_tbl.c.operator_id,
+        utils_eia_tbl.c.utility_id_eia,
         utils_eia_tbl.c.util_id_pudl,
     ])
     utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
     out_df = pd.merge(utils_eia860_df, utils_eia_df,
-                      how='left', on=['operator_id', ])
+                      how='left', on=['utility_id_eia', ])
 
     out_df = out_df.drop(['id'], axis=1)
     first_cols = [
         'report_date',
-        'operator_id',
+        'utility_id_eia',
         'util_id_pudl',
-        'operator_name',
+        'utility_name',
     ]
 
     out_df = helpers.organize_cols(out_df, first_cols)
@@ -81,20 +81,20 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
 
     utils_eia_tbl = pt['utilities_eia']
     utils_eia_select = sa.sql.select([
-        utils_eia_tbl.c.operator_id,
+        utils_eia_tbl.c.utility_id_eia,
         utils_eia_tbl.c.util_id_pudl,
     ])
     utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
     out_df = pd.merge(out_df, utils_eia_df,
-                      how='left', on=['operator_id', ])
+                      how='left', on=['utility_id_eia', ])
 
     out_df = out_df.drop(['id'], axis=1)
     first_cols = [
         'report_date',
-        'operator_id',
+        'utility_id_eia',
         'util_id_pudl',
-        'operator_name',
+        'utility_name',
         'plant_id_eia',
         'plant_id_pudl',
         'plant_name',
@@ -116,8 +116,8 @@ def plants_utils_eia860(start_date=None, end_date=None, testing=False):
     - plant_name (from EIA860)
     - plant_id_eia (from EIA860)
     - plant_id_pudl
-    - operator_id (from EIA860)
-    - operator_name (from EIA860)
+    - utility_id_eia (from EIA860)
+    - utility_name (from EIA860)
     - util_id_pudl
 
     Note: EIA 860 data has only been integrated for 2011-2016. If earlier or
@@ -133,16 +133,16 @@ def plants_utils_eia860(start_date=None, end_date=None, testing=False):
                                  end_date=end_date,
                                  testing=testing)
     # to avoid duplicate columns on the merge...
-    plants_eia = plants_eia.drop(['util_id_pudl', 'operator_name'], axis=1)
+    plants_eia = plants_eia.drop(['util_id_pudl', 'utility_name'], axis=1)
     out_df = pd.merge(plants_eia, utils_eia,
-                      how='left', on=['report_date', 'operator_id'])
+                      how='left', on=['report_date', 'utility_id_eia'])
 
     cols_to_keep = ['report_date',
                     'plant_id_eia',
                     'plant_name',
                     'plant_id_pudl',
-                    'operator_id',
-                    'operator_name',
+                    'utility_id_eia',
+                    'utility_name',
                     'util_id_pudl']
 
     out_df = out_df[cols_to_keep]
@@ -262,9 +262,9 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
         'plant_id_eia',
         'plant_id_pudl',
         'plant_name',
-        'operator_id',
+        'utility_id_eia',
         'util_id_pudl',
-        'operator_name',
+        'utility_name',
         'generator_id',
     ]
 

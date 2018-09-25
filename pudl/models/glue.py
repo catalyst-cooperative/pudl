@@ -154,17 +154,17 @@ class UtilityEIA923(pudl.models.entities.PUDLBase):
     """
 
     __tablename__ = 'utilities_eia'
-    operator_id = Column(Integer, primary_key=True)
-    operator_name = Column(String, nullable=False)
+    utility_id_eia = Column(Integer, primary_key=True)
+    utility_name = Column(String, nullable=False)
     util_id_pudl = Column(Integer, ForeignKey('utilities.id'), nullable=False)
 
     util_pudl = relationship("Utility", back_populates="operators")
 
     def __repr__(self):
         """Print out a string representation of the UtiityEIA923."""
-        return "<UtilityEIA923(operator_id={}, operator_name='{}', \
-util_id_pudl={})>".format(self.operator_id,
-                          self.operator_name,
+        return "<UtilityEIA923(utility_id_eia={}, utility_name='{}', \
+util_id_pudl={})>".format(self.utility_id_eia,
+                          self.utility_name,
                           self.util_id_pudl)
 
 

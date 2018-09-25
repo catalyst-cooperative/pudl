@@ -30,7 +30,7 @@ def live_pudl_db(request):
 @pytest.fixture(scope='session')
 def ferc1_engine(live_ferc_db):
     """
-    Grab a conneciton to the FERC Form 1 DB clone.
+    Grab a connection to the FERC Form 1 DB clone.
 
     If we are using the test database, we initialize it from scratch first.
     If we're using the live database, then we just yield a conneciton to it.
@@ -64,7 +64,7 @@ def ferc1_engine(live_ferc_db):
 @pytest.fixture(scope='session')
 def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
     """
-    Grab a conneciton to the PUDL Database.
+    Grab a connection to the PUDL Database.
 
     If we are using the test database, we initialize the PUDL DB from scratch.
     If we're using the live database, then we just make a conneciton to it.
@@ -103,7 +103,7 @@ def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
 @pytest.fixture(scope='session')
 def ferc1_engine_travis_ci():
     """
-    Grab a conneciton to the FERC Form 1 DB clone.
+    Grab a connection to the FERC Form 1 DB clone.
 
     If we are using the test database, we initialize it from scratch first.
     If we're using the live database, then we just yield a conneciton to it.
@@ -129,7 +129,7 @@ def ferc1_engine_travis_ci():
 @pytest.fixture(scope='session')
 def pudl_engine_travis_ci(ferc1_engine_travis_ci):
     """
-    Grab a conneciton to the PUDL Database, with a limited amount of data.
+    Grab a connection to the PUDL Database, with a limited amount of data.
 
     This fixture always initializes the DB from scratch, and only does a small
     subset of the data ETL, for structural testing within Travis CI.

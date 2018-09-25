@@ -259,7 +259,7 @@ def plants(eia860_dfs, eia860_transformed_dfs):
 
     # Ensure plant & operator IDs are integers.
     p_df['plant_id_eia'] = p_df['plant_id_eia'].astype(int)
-    p_df['operator_id'] = p_df['operator_id'].astype(int)
+    p_df['utility_id_eia'] = p_df['utility_id_eia'].astype(int)
 
     # # Backfill 'latitude' & 'longitude' fields if zip code is constant across
     # # data set and more than 2 lat/long values exist
@@ -283,9 +283,7 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     #    ['plant_id_eia']).longitude.bfill()
     # p_df.update(backfill_df)
 
-# Ensure plant & operator IDs are integers.
-    p_df['plant_id_eia'] = p_df['plant_id_eia'].astype(int)
-    p_df['operator_id'] = p_df['operator_id'].astype(int)
+
     p_df['primary_purpose_naics'] = p_df['primary_purpose_naics'].astype(int)
 
     p_df = pudl.transform.pudl.convert_to_date(p_df)

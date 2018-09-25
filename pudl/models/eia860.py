@@ -28,8 +28,8 @@ class UtilitiesEIA860(pudl.models.entities.PUDLBase):
     __tablename__ = 'utilities_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
     report_date = Column(Date, nullable=False)
-    operator_id = Column(Integer, nullable=False)  # FK
-    operator_name = Column(String, nullable=False)  # FK
+    utility_id_eia = Column(Integer, nullable=False)  # FK
+    utility_name = Column(String, nullable=False)  # FK
     street_address = Column(String)
     city = Column(String)
     state = Column(String)
@@ -47,8 +47,8 @@ class PlantsEIA860(pudl.models.entities.PUDLBase):
     __tablename__ = 'plants_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
     report_date = Column(Date, nullable=False)
-    operator_id = Column(Integer)  # FK
-    operator_name = Column(String)  # FK
+    utility_id_eia = Column(Integer)  # FK
+    utility_name = Column(String)  # FK
     plant_id_eia = Column(Integer, nullable=False)  # FK
     plant_name = Column(String)  # FK
     street_address = Column(String)

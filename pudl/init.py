@@ -458,14 +458,14 @@ def _ingest_glue_eia_ferc1(engine,
 
     # when either eia form is being ingested, include the eia tables as well.
     if eia860_years or eia923_years:
-        utilities_eia.rename(columns={'operator_id_eia': 'operator_id',
-                                      'operator_name_eia': 'operator_name',
+        utilities_eia.rename(columns={'operator_id_eia': 'utility_id_eia',
+                                      'operator_name_eia': 'utility_name',
                                       'utility_id': 'util_id_pudl'},
                              inplace=True)
         utilities_eia.to_sql(name='utilities_eia',
                              con=engine, index=False, if_exists='append',
-                             dtype={'operator_id': sa.Integer,
-                                    'operator_name': sa.String,
+                             dtype={'utility_id_eia': sa.Integer,
+                                    'utility_name': sa.String,
                                     'util_id_pudl': sa.Integer})
         plants_eia.rename(columns={'plant_name_eia': 'plant_name',
                                    'plant_id': 'plant_id_pudl'},
