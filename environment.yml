@@ -17,7 +17,7 @@ dependencies:
   - pytest-cov
   - python =3.6.*
   - pyyaml
-  - scikit-learn =0.19.*
+# - scikit-learn =0.19.*
   - scipy =1.1.*
   - sqlalchemy =1.2.*
   - xlrd =1.1.*
@@ -25,5 +25,5 @@ dependencies:
   - pip:
     - datapackage
     - goodtables
-    - sklearn-pandas
     - sqlalchemy-postgres-copy
+    - scikit-learn==0.20rc1 
