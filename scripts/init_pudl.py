@@ -22,7 +22,7 @@ def parse_command_line(argv):
     """
     from pudl import constants
     parser = argparse.ArgumentParser()
-    parser.add_argument('--settings_file', dest='settings_file', type=str,
+    parser.add_argument('-f', '--settings_file', dest='settings_file', type=str,
                         help="Specify a YAML settings file.",
                         default='settings.yml')
     arguments = parser.parse_args(argv[1:])
