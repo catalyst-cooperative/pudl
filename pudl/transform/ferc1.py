@@ -816,6 +816,35 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
+def transform(ferc1_raw_dfs,
+              ferc1_tables=pc.ferc1_pudl_tables,
+              verbose=True):
+    """Transform FERC 1."""
+    ferc1_transform_functions = {
+        'fuel_ferc1': fuel,
+        'plants_steam_ferc1': plants_steam,
+        'plants_small_ferc1': plants_small,
+        'plants_hydro_ferc1': plants_hydro,
+        'plants_pumped_storage_ferc1': plants_pumped_storage,
+        'plant_in_service_ferc1': plant_in_service,
+        'purchased_power_ferc1': purchased_power,
+        'accumulated_depreciation_ferc1': accumulated_depreciation
+    }
+    # create an empty ditctionary to fill up through the transform fuctions
+    ferc1_transformed_dfs = {}
+
+    # for each ferc table,
+    if verbose:
+        print("Transforming dataframes from FERC 1:")
+    for table in ferc1_transform_functions:
+        if table in ferc1_tables:
+            if verbose:
+                print("    {}...".format(table))
+            ferc1_transform_functions[table](ferc1_raw_dfs,
+                                             ferc1_transformed_dfs)
+
+    return ferc1_transformed_dfs
+
 ###############################################################################
 # Identifying FERC Plants
 ###############################################################################
@@ -826,6 +855,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
 # to create a continuous time series. However, we want to do that
 # programmatically, which means using some clustering / categorization tools
 # from scikit-learn
+
 
 # These sets of strings allow us to simplify the plant_kind field. They came
 # from Uday & Laura at CPI. We may change/replace them, and they'll need to go
@@ -1066,41 +1096,21 @@ def best_matches(match_idx, best_of_df):
 #    match_idx = best_of_df[best_of_df.record_id == match_id][years]
 
 
-def vectorize_plants(
+def clean_plants_ferc1(
         ferc1_steam,
-        categorical_features=[
-            'plant_kind_clean',
-            'respondent_id',
-            'yr_const',
-            'row_number',
-            'spplmnt_num'],
-        string_features=['plant_name'],
-        numerical_features=['tot_capacity'],
-        ngram_range=(2, 5),
         plant_kind_map=cpi_plant_kind_map,
-        drop_if_null=['net_generation', 'expns_fuel', 'tot_prdctn_expns']):
+        type_const_map=pc.ferc1_construction_type_strings,
+        drop_if_null=['net_generation']):
     """
     Prepare raw FERC Form 1 plant records for use with sklearn.
-
-    Machine learning algorithms need numerical inputs, not text or flags, so
-    we need to prepare the FERC plant dataframe before handing it off to the
-    sklearn classifier. This involves decomposing the dataframe into several
-    different feature arrays, making sure they all have the same indices, and
-    applying different vectorization methods to each of them.
 
     Args:
     -----
         ferc1_steam : pandas dataframe, containing FERC large plants records,
             as pulled from the pre-ETL ferc1 database.
-        categorical_features : dataframe columns to vectorize as one hot
-            features using LabelBinarizer().
-        string_features : dataframe columns to vectorize using
-            TfidfVectorizer() and ngram_range.
-        numerical_features : dataframe columns to treat as continously varying
-            numerical values, scaled using MinMaxScaler().
-        ngram_range : tuple (min, max) number of characters to include in
-            ngrams extracted from FERC plant names.
         plant_kind_map : stringmap for categorizing freeform plant_kind as
+            reported to FERC.
+        type_const_map : stringmap for categorizing freeform type_const as
             reported to FERC.
         drop_if_null : list of ferc1_steam column names. If any of them are
             zero or null, then the record they appear in is assumed to be bad
@@ -1108,11 +1118,7 @@ def vectorize_plants(
 
     Returns:
     --------
-        ferc1_steam : The input dataframe as prepared for vectorization, with
-            the same indices as the vectorized features (for later retrieval
-            of the real plant information, based on index)
-        feature_dict : a dictionary of feature arrays, each of which has the
-            same number of rows/samples, sharing a common index.
+        ferc1_steam : The input dataframe as prepared for vectorization.
 
     """
 
@@ -1121,6 +1127,10 @@ def vectorize_plants(
         pudl.transform.pudl.cleanstrings(ferc1_steam.plant_kind,
                                          plant_kind_map,
                                          unmapped='')
+    ferc1_steam['type_const_clean'] = \
+        pudl.transform.pudl.cleanstrings(ferc1_steam.type_const,
+                                         type_const_map,
+                                         unmapped='')
     # Create a unique inter-year FERC table record ID:
     ferc1_steam['record_id'] = \
         ferc1_steam.report_year.astype(str) + '_' + \
@@ -1128,120 +1138,19 @@ def vectorize_plants(
         ferc1_steam.spplmnt_num.astype(str) + '_' + \
         ferc1_steam.row_number.astype(str)
 
-    # If there's no generation, no fuel expenses, and no total expenses...
-    # probably the record is not relevant. However, there are sometimes
-    # aggregate numbers (e.g. total plant employment) that are reported
-    # on a separate line, and those may also be interesting to pull out
-    # as separate time series. But for now we'll focus on the records
-    # that have generation and expense data associated with them.
     mask = False
-    for col in drop_if_null:
-        mask = mask | (ferc1_steam[col] == 0)
-        mask = mask | (ferc1_steam[col].isnull())
-    ferc1_steam = ferc1_steam[~mask].reset_index().drop('index', axis=1)
+    if drop_if_null:
+        for col in drop_if_null:
+            mask = mask | (ferc1_steam[col] == 0)
+            mask = mask | (ferc1_steam[col].isnull())
+        ferc1_steam = ferc1_steam[~mask].reset_index().drop('index', axis=1)
 
     # Simplify the plant names for matching purposes.
     # May also want to remove non-alphanumeric characters
     ferc1_steam['plant_name'] = \
         ferc1_steam.plant_name.str.strip().str.lower().str.replace('\s+', ' ')
 
-    # These are the columns containing the features we will match on.
-    feature_cols = list(set(['record_id', 'report_year', 'respondent_id'] +
-                            string_features +
-                            categorical_features +
-                            numerical_features))
-
-    # Aesthetic reorganization for debugging
-    ferc1_features = ferc1_steam[feature_cols]
-    ferc1_steam = ferc1_steam.drop(feature_cols, axis=1)
-    ferc1_steam = pd.merge(ferc1_features, ferc1_steam,
-                           left_index=True, right_index=True)
-
-    feature_dict = {}
-    # Vectorize categorical features
-    for feature in categorical_features:
-        lb = LabelBinarizer()
-        feature_dict[feature] = \
-            scipy.sparse.csr_matrix(lb.fit_transform(ferc1_steam[feature]))
-
-    # Scale numerical features
-    for feature in numerical_features:
-        scaler = MinMaxScaler()
-        feature_dict[feature] = \
-            scaler.fit_transform(ferc1_steam[feature].values.reshape(-1, 1))
-
-    # Vectorize any string features
-    for feature in string_features:
-        tfidf = TfidfVectorizer(analyzer='char',
-                                ngram_range=ngram_range)
-        feature_dict[feature] = tfidf.fit_transform(ferc1_steam[feature])
-
-    # Not doing the weighting in here.... I don't think.
-    # plant_vectors = normalize(scipy.sparse.hstack([
-    #   plant_name_vectors * self.plant_name_wt,
-    #   yr_const_vectors * self.yr_const_wt,
-    #   respondent_vectors * self.respondent_wt,
-    #   plant_kind_vectors * self.plant_kind_wt,
-    #   capacity_vectors * self.capacity_wt,
-    #   sup_num_vectors * self.sup_num_wt,
-    #   row_num_vectors * self.row_num_wt
-    # )
-
-    return ferc1_steam, feature_dict
-
-
-def reshape_a_feature_column(series):
-    return np.reshape(np.asarray(series), (len(series), 1))
-
-
-def pipelinize_feature(function, active=True):
-    def list_comprehend_a_function(list_or_series, active=True):
-        if active:
-            processed = [function(i) for i in list_or_series]
-            processed = reshape_a_feature_column(processed)
-            return processed
-        # This is incredibly stupid and hacky, but we need it to do a grid
-        # search with # activation/deactivation. If a feature is deactivated,
-        # we're going to just # return a column of zeroes. Zeroes shouldn't
-        # affect the regression, but other # values may. If you really want
-        # brownie points, consider pulling out that # feature column later in
-        # the pipeline.
-        else:
-            return reshape_a_feature_column(np.zeros(len(list_or_series)))
-
-
-class ColumnSelector(BaseEstimator, TransformerMixin):
-    """Grab a column from a dataframe to turn into an sklearn-able feature.
-
-    Parameters
-    ----------
-    key : hashable, required
-        The key corresponding to the desired value in a mappable.
-    """
-
-    def __init__(self, key):
-        """Grab the Key"""
-        self.key = key
-
-    def fit(self, x, y=None):
-        """Return Self"""
-        return self
-
-    def transform(self, df):
-        """Return just one column"""
-        return df[self.key]
-
-
-class LabelBinarizerPipelineFriendly(LabelBinarizer):
-    def fit(self, X, y=None):
-        """this would allow us to fit the model based on the X input."""
-        super().fit(X)
-
-    def transform(self, X, y=None):
-        return super().transform(X)
-
-    def fit_transform(self, X, y=None):
-        return super().fit(X).transform(X)
+    return ferc1_steam
 
 
 class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
@@ -1377,76 +1286,5 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         input records are successfully associated with the same group ID as is
         indicated in the training/test set y.
 
-        For now, this just returns the proportion of records that were
-        correctly categorized.
-
         """
         return 1.0
-        scaler = MinMaxScaler()
-        capacity_vectors = scaler.fit_transform(
-            X.tot_capacity.values.reshape(-1, 1))
-
-        lb_yr_const = LabelBinarizer()
-        yr_const_vectors = scipy.sparse.csr_matrix(
-            lb_yr_const.fit_transform(X.yr_const))
-
-        lb_sup_num = LabelBinarizer()
-        sup_num_vectors = scipy.sparse.csr_matrix(
-            lb_sup_num.fit_transform(X.spplmnt_num))
-
-        lb_row_num = LabelBinarizer()
-        row_num_vectors = scipy.sparse.csr_matrix(
-            lb_row_num.fit_transform(X.row_number))
-
-        lb_respondent = LabelBinarizer()
-        respondent_vectors = scipy.sparse.csr_matrix(
-            lb_respondent.fit_transform(X.respondent_id))
-
-        lb_plantkind = LabelBinarizer()
-        plant_kind_vectors = scipy.sparse.csr_matrix(
-            lb_plantkind.fit_transform(X.plant_kind_cpi))
-
-        self._plant_vectors = normalize(scipy.sparse.hstack([
-            plant_name_vectors * self.plant_name_wt,
-            yr_const_vectors * self.yr_const_wt,
-            respondent_vectors * self.respondent_wt,
-            plant_kind_vectors * self.plant_kind_wt,
-            capacity_vectors * self.capacity_wt,
-            sup_num_vectors * self.sup_num_wt,
-            row_num_vectors * self.row_num_wt
-        ]))
-
-    def _meaning(self, x):
-        # returns True/False according to fitted classifier
-        # notice underscore on the beginning
-        return bool(x >= self.threshold_)
-
-
-def transform(ferc1_raw_dfs,
-              ferc1_tables=pc.ferc1_pudl_tables,
-              verbose=True):
-    """Transform FERC 1."""
-    ferc1_transform_functions = {
-        'fuel_ferc1': fuel,
-        'plants_steam_ferc1': plants_steam,
-        'plants_small_ferc1': plants_small,
-        'plants_hydro_ferc1': plants_hydro,
-        'plants_pumped_storage_ferc1': plants_pumped_storage,
-        'plant_in_service_ferc1': plant_in_service,
-        'purchased_power_ferc1': purchased_power,
-        'accumulated_depreciation_ferc1': accumulated_depreciation
-    }
-    # create an empty ditctionary to fill up through the transform fuctions
-    ferc1_transformed_dfs = {}
-
-    # for each ferc table,
-    if verbose:
-        print("Transforming dataframes from FERC 1:")
-    for table in ferc1_transform_functions:
-        if table in ferc1_tables:
-            if verbose:
-                print("    {}...".format(table))
-            ferc1_transform_functions[table](ferc1_raw_dfs,
-                                             ferc1_transformed_dfs)
-
-    return ferc1_transformed_dfs
