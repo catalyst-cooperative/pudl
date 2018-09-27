@@ -63,6 +63,6 @@ class BoilerGeneratorAssociationEIA(pudl.models.entities.PUDLBase):
     report_date = Column(Date, nullable=False)
     generator_id = Column(String)
     boiler_id = Column(String)
-    unit_code = Column(String)
+    unit_id_eia = Column(String)
     unit_id_pudl = Column(Integer, nullable=False)
     bga_source = Column(String)

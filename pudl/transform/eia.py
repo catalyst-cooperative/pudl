@@ -169,15 +169,15 @@ def boiler_generator_assn(eia_transformed_dfs,
     portion of combined cycle power plants in those earlier years were not
     reporting their fuel consumption, or existence as part of the plants.
 
-    For years 2014 and on, EIA860 contains a unit_code value, allowing the
+    For years 2014 and on, EIA860 contains a unit_id_eia value, allowing the
     combined cycle plant compoents to be associated with each other. For many
     plants not listed in the reported boiler generator associations, it is
     nonetheless possible to associate boilers and generators on a one-to-one
     basis, as they use identical strings to describe the units.
 
     In the end, between the reported BGA table, the string matching, and the
-    unit_code values, it's possible to create a nearly complete mapping of the
-    generation units, at least for 2014 and later.
+    unit_id_eia values, it's possible to create a nearly complete mapping of
+    the generation units, at least for 2014 and later.
 
     Args:
     -----
@@ -241,7 +241,7 @@ def boiler_generator_assn(eia_transformed_dfs,
     gens = gens[['plant_id_eia',
                  'report_date',
                  'generator_id',
-                 'unit_code',
+                 'unit_id_eia',
                  'net_generation_mwh',
                  'missing_from_923']].drop_duplicates()
 
@@ -313,12 +313,12 @@ def boiler_generator_assn(eia_transformed_dfs,
 
     # Connect the gens and boilers in units
     bga_compiled_units = bga_compiled_2.loc[
-        bga_compiled_2['unit_code'].notnull()]
+        bga_compiled_2['unit_id_eia'].notnull()]
     bga_gen_units = bga_compiled_units.drop(['boiler_id'], axis=1)
     bga_boil_units = bga_compiled_units[['plant_id_eia',
                                          'report_date',
                                          'boiler_id',
-                                         'unit_code']].copy()
+                                         'unit_id_eia']].copy()
     bga_boil_units.dropna(subset=['boiler_id'], inplace=True)
 
     # merge the units with the boilers
@@ -326,14 +326,14 @@ def boiler_generator_assn(eia_transformed_dfs,
                                                how='outer',
                                                on=['plant_id_eia',
                                                    'report_date',
-                                                   'unit_code'],
+                                                   'unit_id_eia'],
                                                indicator=True)
     # label the bga_source
     bga_unit_compilation. \
         loc[bga_unit_compilation['bga_source'].isnull(),
             'bga_source'] = 'unit_connection'
     bga_unit_compilation.drop(['_merge'], axis=1, inplace=True)
-    bga_non_units = bga_compiled_2[bga_compiled_2['unit_code'].isnull()]
+    bga_non_units = bga_compiled_2[bga_compiled_2['unit_id_eia'].isnull()]
 
     # combine the unit compilation and the non units
     bga_compiled_3 = bga_non_units.append(bga_unit_compilation)
@@ -344,7 +344,7 @@ def boiler_generator_assn(eia_transformed_dfs,
                                      'report_date',
                                      'generator_id',
                                      'boiler_id',
-                                     'unit_code',
+                                     'unit_id_eia',
                                      'bga_source',
                                      'net_generation_mwh',
                                      'missing_from_923']]
@@ -385,10 +385,10 @@ def boiler_generator_assn(eia_transformed_dfs,
                                           True,
                                           False)
     bga_out = bga_compiled_3.drop('net_generation_mwh', axis=1)
-    bga_out.loc[bga_out.unit_code.isnull(), 'unit_code'] = None
+    bga_out.loc[bga_out.unit_id_eia.isnull(), 'unit_id_eia'] = None
 
     bga_for_nx = bga_out[['plant_id_eia', 'report_date', 'generator_id',
-                          'boiler_id', 'unit_code']]
+                          'boiler_id', 'unit_id_eia']]
     # If there's no boiler... there's no boiler-generator association
     bga_for_nx = bga_for_nx.dropna(subset=['boiler_id']).drop_duplicates()
 
@@ -437,23 +437,23 @@ def boiler_generator_assn(eia_transformed_dfs,
     bga_w_units = bga_w_units.drop(['source', 'target'], axis=1)
 
     # Check whether the PUDL unit_id values we've inferred conflict with
-    # the unit_code values that were reported to EIA. Are there any PUDL
-    # unit_id values that have more than 1 EIA unit_code within them?
-    bga_unit_code_counts = \
-        bga_w_units.groupby(['plant_id_eia', 'unit_id_pudl'])['unit_code'].\
+    # the unit_id_eia values that were reported to EIA. Are there any PUDL
+    # unit_id values that have more than 1 EIA unit_id_eia within them?
+    bga_unit_id_eia_counts = \
+        bga_w_units.groupby(['plant_id_eia', 'unit_id_pudl'])['unit_id_eia'].\
         nunique().to_frame().reset_index()
-    bga_unit_code_counts = bga_unit_code_counts.rename(
-        columns={'unit_code': 'unit_code_count'})
-    bga_unit_code_counts = pd.merge(bga_w_units, bga_unit_code_counts,
+    bga_unit_id_eia_counts = bga_unit_id_eia_counts.rename(
+        columns={'unit_id_eia': 'unit_id_eia_count'})
+    bga_unit_id_eia_counts = pd.merge(bga_w_units, bga_unit_id_eia_counts,
                                     on=['plant_id_eia', 'unit_id_pudl'])
     too_many_codes = \
-        bga_unit_code_counts[bga_unit_code_counts.unit_code_count > 1]
+        bga_unit_id_eia_counts[bga_unit_id_eia_counts.unit_id_eia_count > 1]
     too_many_codes = \
-        too_many_codes[~too_many_codes.unit_code.isnull()].\
-        groupby(['plant_id_eia', 'unit_id_pudl'])['unit_code'].unique()
+        too_many_codes[~too_many_codes.unit_id_eia.isnull()].\
+        groupby(['plant_id_eia', 'unit_id_pudl'])['unit_id_eia'].unique()
     print('WARNING: multiple EIA unit codes found in these PUDL units:')
     print(too_many_codes)
-    bga_w_units = bga_w_units.drop('unit_code', axis=1)
+    bga_w_units = bga_w_units.drop('unit_id_eia', axis=1)
 
     # These assertions test that all boilers and generators ended up in the
     # same unit_id across all the years of reporting:

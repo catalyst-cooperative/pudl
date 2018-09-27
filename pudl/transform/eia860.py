@@ -67,9 +67,9 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     gp_df = eia860_dfs['generator_proposed'].copy()
     ge_df = eia860_dfs['generator_existing'].copy()
     gr_df = eia860_dfs['generator_retired'].copy()
-    gp_df['status'] = 'proposed'
-    ge_df['status'] = 'existing'
-    gr_df['status'] = 'retired'
+    gp_df['operational_status_code'] = 'proposed'
+    ge_df['operational_status_code'] = 'existing'
+    gr_df['operational_status_code'] = 'retired'
 
     gens_df = pd.concat([ge_df, gp_df, gr_df], sort=True)
 
@@ -97,7 +97,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         'planned_net_summer_capacity_uprate_mw',
         'planned_net_winter_capacity_derate_mw',
         'planned_net_winter_capacity_uprate_mw',
-        'planned_new_nameplate_capacity_mw',
+        'planned_new_capacity_mw',
         'nameplate_power_factor',
         'minimum_load_mw',
         'winter_capacity_mw',
@@ -170,7 +170,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     gens_df = pudl.transform.pudl.month_year_to_date(gens_df)
 
     gens_df['fuel_type_code_pudl'] = \
-        pudl.transform.pudl.cleanstrings(gens_df['energy_source_1'],
+        pudl.transform.pudl.cleanstrings(gens_df['energy_source_code_1'],
                                          pc.fuel_type_eia860_simple_map)
     # String-ify a bunch of fields for output.
     # fix_int_na_columns = ['sector', 'turbines']
@@ -219,7 +219,7 @@ def plants(eia860_dfs, eia860_transformed_dfs):
 
     # Cast integer values in sector to floats to avoid type errors
 
-    p_df['sector'] = p_df['sector'].astype(float)
+    p_df['sector_id'] = p_df['sector_id'].astype(float)
 
     # Cast various types in transmission_distribution_owner_id to str
 
@@ -284,7 +284,8 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     # p_df.update(backfill_df)
 
 
-    p_df['primary_purpose_naics'] = p_df['primary_purpose_naics'].astype(int)
+    p_df['primary_purpose_naics_id'] = \
+        p_df['primary_purpose_naics_id'].astype(int)
 
     p_df = pudl.transform.pudl.convert_to_date(p_df)
 
