@@ -243,7 +243,7 @@ def get_eia860_plants(years, eia860_xlsx):
     pf = pd.DataFrame(columns=['plant_id', 'plant_state',
                                'combined_heat_power',
                                'eia_sector', 'naics_code',
-                               'reporting_frequency', 'nameplate_capacity_mw',
+                               'reporting_frequency', 'capacity_mw',
                                'report_year'])
     if len(recent_years) > 0:
         pf = get_eia860_page('boiler_generator_assn_eia860', eia860_xlsx,

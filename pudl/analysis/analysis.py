@@ -541,7 +541,7 @@ def generator_proportion_eia923(g, id_col='plant_id_eia'):
 
 
 def capacity_proportion_eia923(g, id_col='plant_id_eia',
-                               capacity='nameplate_capacity_mw'):
+                               capacity='capacity_mw'):
     """
     Generate dataframe with proportion of plant capacity for each generator.
 
@@ -549,10 +549,10 @@ def capacity_proportion_eia923(g, id_col='plant_id_eia',
         g: a dataframe from either all of generation_eia923 or some subset of
         records from generation_eia923. The dataframe needs the following
         columns to be present:
-            generator_id, report_date, nameplate_capacity_mw
+            generator_id, report_date, capacity_mw
 
         id_col: either plant_id_eia (default) or plant_id_pudl
-        capacity: nameplate_capacity_mw (default), summer_capacity_mw,
+        capacity: capacity_mw (default), summer_capacity_mw,
             or winter_capacity_mw
 
     Returns: a dataframe with:
@@ -562,7 +562,7 @@ def capacity_proportion_eia923(g, id_col='plant_id_eia',
     g_net_capacity_per_plant = g.groupby(['report_year', id_col])
     # sum net_gen by year by plant and convert to datafram
     g_net_capacity_per_plant = pd.DataFrame(
-        g_net_capacity_per_plant.nameplate_capacity_mw.sum())
+        g_net_capacity_per_plant.capacity_mw.sum())
     g_net_capacity_per_plant.reset_index(inplace=True)
 
     # Merge the summed net generation by generator with the summed net
@@ -570,12 +570,12 @@ def capacity_proportion_eia923(g, id_col='plant_id_eia',
     g_capacity_proportion = g.merge(
         g_net_capacity_per_plant, on=[id_col, 'report_year'], how="left")
     g_capacity_proportion['proportion_of_plant_capacity'] = (
-        g_capacity_proportion.nameplate_capacity_mw_x /
-        g_capacity_proportion.nameplate_capacity_mw_y)
+        g_capacity_proportion.capacity_mw_x /
+        g_capacity_proportion.capacity_mw_y)
     # Remove the net generation columns
     g_capacity_proportion = g_capacity_proportion.rename(
-        columns={'nameplate_capacity_mw_x': 'nameplate_capacity_gen_mw',
-                 'nameplate_capacity_mw_y': 'nameplate_capacity_plant_mw'})
+        columns={'capacity_mw_x': 'capacity_gen_mw',
+                 'capacity_mw_y': 'capacity_plant_mw'})
 
     return g_capacity_proportion
 

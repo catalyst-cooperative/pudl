@@ -259,7 +259,7 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5, verbose=False):
     gens_eia860 = pudl_out.gens_eia860()[['plant_id_eia',
                                           'report_date',
                                           'generator_id',
-                                          'nameplate_capacity_mw']]
+                                          'capacity_mw']]
     gen_eia923 = pudl_out.gen_eia923()[['plant_id_eia',
                                         'report_date',
                                         'generator_id',
@@ -287,7 +287,7 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5, verbose=False):
     # actually calculate capacity factor wooo!
     capacity_factor['capacity_factor'] = \
         capacity_factor['net_generation_mwh'] / \
-        (capacity_factor['nameplate_capacity_mw'] * capacity_factor['hours'])
+        (capacity_factor['capacity_mw'] * capacity_factor['hours'])
 
     # Replace unrealistic capacity factors with NaN
     capacity_factor.loc[capacity_factor['capacity_factor']
@@ -367,7 +367,7 @@ def mcoe(pudl_out,
     simplified_gens_eia860 = pudl_out.gens_eia860().drop([
         'plant_id_pudl',
         'plant_name',
-        'operator_id',
+        'utility_id_eia',
         'util_id_pudl',
         'operator_name',
         'fuel_type_count',

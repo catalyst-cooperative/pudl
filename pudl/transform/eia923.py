@@ -145,7 +145,7 @@ def plants(eia923_dfs, eia923_transformed_dfs):
 
     # There are other fields being compiled in the plant_info_df from all of
     # the various EIA923 spreadsheet pages. Do we want to add them to the
-    # database model too? E.g. nameplate_capacity_mw, operator_name, etc.
+    # database model too? E.g. capacity_mw, operator_name, etc.
     plant_info_df = plant_info_df[['plant_id_eia',
                                    'combined_heat_power',
                                    'plant_state',
@@ -154,7 +154,7 @@ def plants(eia923_dfs, eia923_transformed_dfs):
                                    'reporting_frequency',
                                    'census_region',
                                    'nerc_region',
-                                   'nameplate_capacity_mw',
+                                   'capacity_mw',
                                    'report_year']]
 
     # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
@@ -178,10 +178,10 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     Transform the generation_fuel_eia923 table.
 
     Args:
-        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        eia860_transformed_dfs (dictionary of DataFrames)
+            EIA923 form, as reported in the Excel spreadsheets they distribute.
+        eia923_transformed_dfs (dictionary of DataFrames)
 
     Returns: transformed dataframe.
     """
@@ -316,10 +316,10 @@ def generation(eia923_dfs, eia923_transformed_dfs):
     Transform the generation_eia923 table.
 
     Args:
-        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
             EIA860 form, as reported in the Excel spreadsheets they distribute.
-        eia860_transformed_dfs (dictionary of DataFrames)
+        eia923_transformed_dfs (dictionary of DataFrames)
 
     Returns: transformed dataframe.
     """
