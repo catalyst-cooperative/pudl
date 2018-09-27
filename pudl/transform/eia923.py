@@ -134,10 +134,11 @@ def plants(eia923_dfs, eia923_transformed_dfs):
     use for uniformity.
 
     Args:
-        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
-            dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        eia860_transformed_dfs (dictionary of DataFrames)
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the EIA
+            923 form, as reported in the Excel spreadsheets they distribute.
+
+        eia923_transformed_dfs (dictionary of DataFrames)
 
     Returns: transformed dataframe.
     """
