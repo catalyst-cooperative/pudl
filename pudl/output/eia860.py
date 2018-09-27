@@ -225,8 +225,8 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
 
     gens_eia860 = pd.read_sql(gens_eia860_select, pudl_engine)
     # Canonical sources for these fields are elsewhere. We will merge them in.
-    gens_eia860 = gens_eia860.drop(['operator_id',
-                                    'operator_name',
+    gens_eia860 = gens_eia860.drop(['utility_id_eia',
+                                    'utility_name',
                                     'plant_name'], axis=1)
     plants_eia860_df = pd.read_sql(plants_eia860_select, pudl_engine)
     out_df = pd.merge(gens_eia860, plants_eia860_df,
