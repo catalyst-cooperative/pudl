@@ -4,26 +4,25 @@ channels:
 dependencies:
   - coverage
   - coveralls
-  - cython =0.28.*
+  - cython
   - dbfread
   - jupyter
   - jupyterlab
   - matplotlib
-  - networkx =2.1.*
-  - numpy =1.14.*
-  - pandas =0.23.*
-  - psycopg2 =2.7.*
-  - pytest =3.5.*
+  - networkx
+  - numpy
+  - pandas
+  - psycopg2
+  - pytest
   - pytest-cov
-  - python =3.6.*
+  - python #=3.6.*
   - pyyaml
-  - scikit-learn =0.19.*
-  - scipy =1.1.*
-  - sqlalchemy =1.2.*
-  - xlrd =1.1.*
-  - xlsxwriter =1.0.*
+  - scikit-learn
+  - scipy
+  - sqlalchemy
+  - xlrd
+  - xlsxwriter
   - pip:
     - datapackage
     - goodtables
-    - sklearn-pandas
     - sqlalchemy-postgres-copy

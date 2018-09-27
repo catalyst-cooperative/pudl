@@ -416,7 +416,8 @@ def boiler_generator_assn(eia_transformed_dfs,
                                             create_using=nx.MultiGraph())
 
         # Each connected sub-graph is a generation unit:
-        gen_units = list(nx.connected_component_subgraphs(bga_graph))
+        gen_units = [bga_graph.subgraph(c).copy()
+                     for c in nx.connected_components(bga_graph)]
 
         # Assign a unit_id to each subgraph, and extract edges into a dataframe
         for unit_id, unit in zip(range(len(gen_units)), gen_units):
