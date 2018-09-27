@@ -3038,11 +3038,11 @@ natural_gas_transport_eia923 = {
 
 epacems_rename_dict = {
     "STATE": "state",
-    "FACILITY_NAME": "facility_name",
-    "ORISPL_CODE": "orispl_code",
+    "FACILITY_NAME": "plant_name",
+    "ORISPL_CODE": "plant_id_eia",
     "UNITID": "unitid",
     # These op_date, op_hour, and op_time variables get converted to
-    # operating_date, operating_datetime and operating_interval in
+    # operating_date, operating_datetime and operating_time_interval in
     # transform/epacems.py
     "OP_DATE": "op_date",
     "OP_HOUR": "op_hour",
@@ -3054,26 +3054,26 @@ epacems_rename_dict = {
     "SLOAD": "steam_load_1000_lbs",
     "SO2_MASS (lbs)": "so2_mass_lbs",
     "SO2_MASS": "so2_mass_lbs",
-    "SO2_MASS_MEASURE_FLG": "so2_mass_measure_flg",
+    "SO2_MASS_MEASURE_FLG": "so2_mass_measurement_code",
     "SO2_RATE (lbs/mmBtu)": "so2_rate_lbs_mmbtu",
     "SO2_RATE": "so2_rate_lbs_mmbtu",
     "SO2_RATE_MEASURE_FLG": "so2_rate_measure_flg",
     "NOX_RATE (lbs/mmBtu)": "nox_rate_lbs_mmbtu",
     "NOX_RATE": "nox_rate_lbs_mmbtu",
-    "NOX_RATE_MEASURE_FLG": "nox_rate_measure_flg",
+    "NOX_RATE_MEASURE_FLG": "nox_rate_measurement_code",
     "NOX_MASS (lbs)": "nox_mass_lbs",
     "NOX_MASS": "nox_mass_lbs",
-    "NOX_MASS_MEASURE_FLG": "nox_mass_measure_flg",
+    "NOX_MASS_MEASURE_FLG": "nox_mass_measurement_code",
     "CO2_MASS (tons)": "co2_mass_tons",
     "CO2_MASS": "co2_mass_tons",
-    "CO2_MASS_MEASURE_FLG": "co2_mass_measure_flg",
+    "CO2_MASS_MEASURE_FLG": "co2_mass_measurement_code",
     "CO2_RATE (tons/mmBtu)": "co2_rate_tons_mmbtu",
     "CO2_RATE": "co2_rate_tons_mmbtu",
     "CO2_RATE_MEASURE_FLG": "co2_rate_measure_flg",
-    "HEAT_INPUT (mmBtu)": "heat_input_mmbtu",
-    "HEAT_INPUT": "heat_input_mmbtu",
-    "FAC_ID": "fac_id",
-    "UNIT_ID": "unit_id",
+    "HEAT_INPUT (mmBtu)": "heat_content_mmbtu",
+    "HEAT_INPUT": "heat_content_mmbtu",
+    "FAC_ID": "facility_id",
+    "UNIT_ID": "unit_id_epa",
 }
 
 epacems_tables = ["hourly_emissions_epacems"]
@@ -3144,5 +3144,5 @@ need_fix_inting = {'generators_eia860': ['sector_id', 'turbines_num'],
                                           'installation_year'],
                    'plants_pumped_storage_ferc1': ['construction_year',
                                                    'installation_year'],
-                   'hourly_emissions_epacems': ['fac_id', 'unit_id'],
+                   'hourly_emissions_epacems': ['facility_id', 'unit_id_epa'],
                    }

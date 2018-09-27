@@ -9,14 +9,14 @@ import pudl.constants as pc
 # Three types of Enum here, one for things that are sort of measured, one for
 # things that are only calculated, and a special case for NOx rate and mass.
 # Measured:
-# - so2_mass_measure_flg
-# - co2_mass_measure_flg
+# - so2_mass_measurement_code
+# - co2_mass_measurement_code
 # Calculated:
 # - so2_rate_measure_flg
 # - co2_rate_measure_flg
 # NOx:
-# - nox_rate_measure_flg
-# - nox_mass_measure_flg
+# - nox_rate_measurement_code
+# - nox_mass_measurement_code
 
 ENUM_FLAG_MEASUREMENT = Enum(
     "LME",
@@ -52,7 +52,7 @@ class HourlyEmissions(pudl.models.entities.PUDLBase):
     """Hourly emissions data by month as reported to EPA CEMS."""
 
     # TODO(low priority):
-    # - Make a view that divides heat_input_mmbtu / gload_mwh to get heatrate
+    # - Make a view that divides heat_content_mmbtu / gload_mwh to get heatrate
     #   And also has a bad_heatrate flag.
     # - Make a view that multiplies op_time and gload_mw to get gload_mwh
     # - And has an operating_date
@@ -60,30 +60,30 @@ class HourlyEmissions(pudl.models.entities.PUDLBase):
     __table_args__ = {"prefixes": ["UNLOGGED"]}
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     state = Column(ENUM_STATES, nullable=False)
-    facility_name = Column(String, nullable=False)
+    plant_name = Column(String, nullable=False)
     # TODO: Link to EIA plant ID
-    orispl_code = Column(Integer, nullable=False)
+    plant_id_eia = Column(Integer, nullable=False)
     unitid = Column(String, nullable=False)
     # operating_date = Column(Date, nullable=False)
     operating_datetime = Column(DateTime, nullable=False)
-    operating_interval = Column(Interval)
+    operating_time_interval = Column(Interval)
     gross_load_mw = Column(REAL)
     steam_load_1000_lbs = Column(REAL)
     so2_mass_lbs = Column(REAL)
-    so2_mass_measure_flg = Column(ENUM_FLAG_MEASUREMENT)
+    so2_mass_measurement_code = Column(ENUM_FLAG_MEASUREMENT)
     # so2_rate_lbs_mmbtu = Column(REAL)
     # so2_rate_measure_flg = Column(ENUM_FLAG_CALCULATED)
     nox_rate_lbs_mmbtu = Column(REAL)
-    nox_rate_measure_flg = Column(ENUM_NOX)
+    nox_rate_measurement_code = Column(ENUM_NOX)
     nox_mass_lbs = Column(REAL)
-    nox_mass_measure_flg = Column(ENUM_NOX)
+    nox_mass_measurement_code = Column(ENUM_NOX)
     co2_mass_tons = Column(REAL)
-    co2_mass_measure_flg = Column(ENUM_FLAG_MEASUREMENT)
+    co2_mass_measurement_code = Column(ENUM_FLAG_MEASUREMENT)
     # co2_rate_tons_mmbtu = Column(REAL)
     # co2_rate_measure_flg = Column(ENUM_FLAG_CALCULATED)
-    heat_input_mmbtu = Column(REAL)
-    fac_id = Column(SmallInteger)  # max value is 8421
-    unit_id = Column(Integer)
+    heat_content_mmbtu = Column(REAL)
+    facility_id = Column(SmallInteger)  # max value is 8421
+    unit_id_epa = Column(Integer)
 
 DROP_VIEWS = ["DROP VIEW IF EXISTS hourly_emissions_epacems_view"]
 CREATE_VIEWS = ["""
@@ -91,27 +91,27 @@ CREATE_VIEWS = ["""
     SELECT
         id,
         state,
-        facility_name,
-        orispl_code,
+        plant_name,
+        plant_id_eia,
         unitid,
         operating_datetime,
         operating_datetime::date AS operating_date,
-        operating_interval,
+        operating_time_interval,
         gross_load_mw,
         steam_load_1000_lbs,
         so2_mass_lbs,
-        so2_mass_measure_flg,
-        so2_mass_lbs / heat_input_mmbtu AS so2_rate_lbs_mmbtu,
+        so2_mass_measurement_code,
+        so2_mass_lbs / heat_content_mmbtu AS so2_rate_lbs_mmbtu,
         nox_rate_lbs_mmbtu,
-        nox_rate_measure_flg,
+        nox_rate_measurement_code,
         nox_mass_lbs,
-        nox_mass_measure_flg,
+        nox_mass_measurement_code,
         co2_mass_tons,
-        co2_mass_measure_flg,
-        co2_mass_tons / heat_input_mmbtu AS co2_rate_tons_mmbtu,
-        heat_input_mmbtu,
-        fac_id,
-        unit_id
+        co2_mass_measurement_code,
+        co2_mass_tons / heat_content_mmbtu AS co2_rate_tons_mmbtu,
+        heat_content_mmbtu,
+        facility_id,
+        unit_id_epa
     FROM hourly_emissions_epacems
     """,
     ]
@@ -124,10 +124,10 @@ def finalize(engine):
 
     This function does a few things after all the data have been written because
     it's faster to do these after the fact.
-    1. Add individual indexes for operating_datetime, orispl_code, and
+    1. Add individual indexes for operating_datetime, plant_id_eia, and
        the date part of operating_datetime,
     2. Add a unique index for the combination of operating_datetime,
-       orispl_code, and unitid.
+       plant_id_eia, and unitid.
     3. Run ALTER TABLE hourly_emissions_epacems SET LOGGED to make the table
        robust to unclean shutdowns.
     """
@@ -139,15 +139,15 @@ def finalize(engine):
     indexes_to_create = [
         sa.Index("ix_hourly_emissions_epacems_operating_datetime",
                  HourlyEmissions.operating_datetime),
-        sa.Index("ix_hourly_emissions_epacems_orispl_code",
-                 HourlyEmissions.orispl_code),
+        sa.Index("ix_hourly_emissions_epacems_plant_id_eia",
+                 HourlyEmissions.plant_id_eia),
         sa.Index("ix_hourly_emissions_epacems_opperating_date_part",
                  sa.cast(HourlyEmissions.operating_datetime, sa.Date)),
         # The name that follows the pattern would be
-        # ix_hourly_emissions_epacems_orispl_code_unitid_operating_datetime
+        # ix_hourly_emissions_epacems_plant_id_eia_unitid_operating_datetime
         # But that's too long.
-        sa.Index("ix_orispl_code_unitid_operating_datetime",
-                 HourlyEmissions.orispl_code,
+        sa.Index("ix_plant_id_eia_unitid_operating_datetime",
+                 HourlyEmissions.plant_id_eia,
                  HourlyEmissions.unitid,
                  HourlyEmissions.operating_datetime,
                  unique=True),

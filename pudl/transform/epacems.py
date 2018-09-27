@@ -41,7 +41,7 @@ def fix_up_dates(df):
     del df["op_hour"], df["op_date"]
 
     # Make op_time into an time delta (called interval in postgres)
-    df["operating_interval"] = pd.to_timedelta(df["op_time"], unit="h")
+    df["operating_time_interval"] = pd.to_timedelta(df["op_time"], unit="h")
     del df["op_time"]
 
     # Add UTC timestamp ... not done.
