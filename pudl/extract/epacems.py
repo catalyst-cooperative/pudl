@@ -48,7 +48,7 @@ def get_epacems_file(year, month, state):
     return full_path
 
 
-def add_fac_id_unit_id(df):
+def add_facility_id_unit_id_epa(df):
     """Harmonize columns that are added later
 
     The load into Postgres checks for consistent column names, and these
@@ -57,12 +57,12 @@ def add_fac_id_unit_id(df):
     Args:
         df (pd.DataFrame): A CEMS dataframe
     Returns:
-        The same DataFrame, guaranteed to have fac_id and unit_id cols.
+        The same DataFrame, guaranteed to have facility_id and unit_id_epa cols.
     """
-    if "fac_id" not in df.columns:
-        df["fac_id"] = np.NaN
-    if "unit_id" not in df.columns:
-        df["unit_id"] = np.NaN
+    if "facility_id" not in df.columns:
+        df["facility_id"] = np.NaN
+    if "unit_id_epa" not in df.columns:
+        df["unit_id_epa"] = np.NaN
     return df
 
 
@@ -95,8 +95,8 @@ def drop_calculated_rates(df):
 
     If you want these, you can just use a view.
 
-    It's always true that so2_rate_lbs_mmbtu == so2_mass_lbs / heat_input_mmbtu
-    and co2_rate_tons_mmbtu == co2_mass_tons / heat_input_mmbtu,
+    It's always true that so2_rate_lbs_mmbtu == so2_mass_lbs / heat_content_mmbtu
+    and co2_rate_tons_mmbtu == co2_mass_tons / heat_content_mmbtu,
     but the same does not hold for NOx.
 
     Args:
@@ -141,7 +141,7 @@ def extract(epacems_years, states, verbose):
                 df = (
                     pd.read_csv(filename, low_memory=False)
                     .rename(columns=pc.epacems_rename_dict)
-                    .pipe(add_fac_id_unit_id)
+                    .pipe(add_facility_id_unit_id_epa)
                     .pipe(drop_calculated_rates)
                 )
                 yield {(year, month, state): df}
