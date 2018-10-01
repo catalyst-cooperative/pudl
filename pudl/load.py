@@ -108,6 +108,7 @@ class BulkCopy(contextlib.AbstractContextManager):
         for df in df_generator:
             p.add(df)
     """
+
     def __init__(self, table_name, engine, buffer=1024**3,
                  csvdir='', keep_csv=False):
         self.table_name = table_name
@@ -136,11 +137,13 @@ class BulkCopy(contextlib.AbstractContextManager):
         expected_colnames = set(self.accumulated_dfs[0].columns.values)
         for df in self.accumulated_dfs:
             colnames = set(df.columns.values)
-            assert colnames == expected_colnames, ("Column names weren't " +
-                "constant. BulkCopy should only be used with one table at a " +
-                "time, and all columns should be present. Symmetric difference " +
-                "between actual and expected:\n" +
-                str(colnames.symmetric_difference(expected_colnames))
+            assert colnames == expected_colnames, (
+                "Column names weren't " +
+                "constant. BulkCopy should only be used with one table at " +
+                "a time, and all columns should be present. Symmetric " +
+                "difference between actual and expected:\n" +
+                str(colnames.symmetric_difference(
+                    expected_colnames))
             )
 
     def _fix_inting(self, df):
