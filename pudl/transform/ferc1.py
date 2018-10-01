@@ -1046,13 +1046,9 @@ def best_by_year(plants_df, sim_df, min_sim=0.8):
             # For each record specified by seed_idx, obtain the index of
             # the record within match_idx that that is the most similar.
             best_idx = sim_df.iloc[seed_idx, match_idx].idxmax(axis=1)
-            out_df[best_of_yr].iloc[seed_idx] = best_idx
+            out_df.iloc[seed_idx,
+                        out_df.columns.get_loc(best_of_yr)] = best_idx
 
-        # out_df = pd.merge(
-        #    out_df,
-        #    sim_df.iloc[yr_idx, y_idx].\
-        #    idxmax(axis=1).to_frame(), left_index=True, right_index=True
-        # )
     return out_df
 
 
@@ -1064,8 +1060,8 @@ def where_matches(match_idx, best_of_df):
 
     """
     years = best_of_df.report_year.unique()
-    out_idx = best_of_df[years][best_of_df[years] ==
-                                match_idx].dropna(how='all').index.values
+    out_idx = best_of_df[years][best_of_df[years] == match_idx]
+    out_idx = out_idx.dropna(how='all').index.values
     return out_idx
 
 
@@ -1077,23 +1073,9 @@ def best_matches(match_idx, best_of_df):
 
     """
     years = best_of_df.report_year.unique()
-    out_idx = best_of_df.loc[match_idx, years].dropna().astype(int).values
+    out_idx = best_of_df.loc[match_idx, years]
+    out_idx = out_idx.dropna().astype(int).values
     return out_idx
-
-
-# def best_matches_byid(match_id, best_of_df):
-#    """
-#    Given a FERC plant record ID and the best_of_df, return the list of record
-#    IDs that make up the best time series containing that record ID, sorted by
-#    report_year. If the record id isn't included in any of the time
-#    """
-#    # Get the index of the record corresponding to match_id:
-#    match_idx = best_of_df.loc[]
-#    # use that index to get the indices of all the records that are part of
-#    best(matches(match_idx))
-#
-#    years = best_of_df.report_year.unique()
-#    match_idx = best_of_df[best_of_df.record_id == match_id][years]
 
 
 def clean_plants_ferc1(
@@ -1249,11 +1231,14 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         scoring the model, based on how the plant records were grouped in the
         fit() step.
 
-        Questions:
+        TODO:
         ----------
-        * How does predict work? Do we need to accept a y value to specify the
-          expected output for the test dataset? Does it have to take full
-          records, or can it take just the record_id values?
+        * where_matches and best_matches are vectorized, but they aren't being
+          called that way.
+        * Need to efficiently generate a whole array of index values to hand
+          off to them directly, based on the record_id values that are passed
+          in here.
+        * Should integreate _get_match_group in here directly.
 
         """
         try:
@@ -1281,10 +1266,28 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
 
     def score(self, X, y=None):
         """
-        Given an input set of FERC plant records X and a corresponding set of
-        training/test records y, score the model based on what fraction of the
-        input records are successfully associated with the same group ID as is
-        indicated in the training/test set y.
+        Score a collection of FERC plant categorizations.
 
+        Given:
+            X: an n_samples x 1 pandas dataframe of FERC Form 1 record IDs.
+            y: a dataframe of "ground truth" FERC Form 1 record groups,
+               corresponding to the list record IDs in X
+
+            - for every record ID in X, predict its record group and calculate
+              a metric of similarity between the prediction and the "ground
+              truth" group that was passed in for that value of X.
+            - Return the average of all those similarity metrics as the score.
         """
-        return 1.0
+        import difflib
+
+        scores = []
+        for true_group in y:
+            true_group = str.split(true_group, sep=',')
+            true_group = [s for s in true_group if s != '']
+            for record_id in true_group:
+                predicted_group = self.predict([record_id])[0]
+                sm = difflib.SequenceMatcher(
+                    None, true_group, predicted_group)
+                scores = scores + [sm.ratio()]
+
+        return(np.mean(scores))
