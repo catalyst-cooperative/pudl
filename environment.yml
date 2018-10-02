@@ -15,7 +15,7 @@ dependencies:
   - psycopg2
   - pytest
   - pytest-cov
-  - python #=3.6.*
+  - python
   - pyyaml
   - scikit-learn
   - scipy
