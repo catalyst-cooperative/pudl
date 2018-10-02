@@ -16,10 +16,13 @@ import numpy as np
 
 # These modules are required for the FERC Form 1 Plant ID & Time Series
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.preprocessing import LabelBinarizer
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
+from sklearn.preprocessing import Normalizer, RobustScaler
+from sklearn.preprocessing import OneHotEncoder
 
 import pudl.constants as pc
 import pudl.models.ferc1
@@ -1020,64 +1023,6 @@ cpi_plant_kind_map = {
 }
 
 
-def best_by_year(plants_df, sim_df, min_sim=0.8):
-    """Find the best match for each plant record in each other year."""
-    out_df = plants_df.copy()
-
-    # only keep similarity matrix entries above our minimum threshold:
-    sim_df = sim_df[sim_df >= min_sim]
-
-    # Add a column for each of the years, in which we will store indices of the
-    # records which best match the record in question:
-    years = plants_df.report_year.unique()
-    for yr in years:
-        newcol = yr
-        out_df[newcol] = -1
-
-    # seed_yr is the year we are matching *from* -- we do the entire matching
-    # process from each year, since it may not be symmetric:
-    for seed_yr in years:
-        seed_idx = plants_df.index[plants_df.report_year == seed_yr]
-        # match_yr is all the other years, in which we are finding the best
-        # match
-        for match_yr in years:
-            best_of_yr = match_yr
-            match_idx = plants_df.index[plants_df.report_year == match_yr]
-            # For each record specified by seed_idx, obtain the index of
-            # the record within match_idx that that is the most similar.
-            best_idx = sim_df.iloc[seed_idx, match_idx].idxmax(axis=1)
-            out_df.iloc[seed_idx,
-                        out_df.columns.get_loc(best_of_yr)] = best_idx
-
-    return out_df
-
-
-def where_matches(match_idx, best_of_df):
-    """
-    Given the index of a plant record in the best_by_year dataframe, return the
-    indices of the other records where the input index shows up as part of the
-    most likely time series group.
-
-    """
-    years = best_of_df.report_year.unique()
-    out_idx = best_of_df[years][best_of_df[years] == match_idx]
-    out_idx = out_idx.dropna(how='all').index.values
-    return out_idx
-
-
-def best_matches(match_idx, best_of_df):
-    """
-    Given an index value for a plant record in the best_by_year dataframe,
-    Return the indices of the other records in that record's identified time
-    series group.
-
-    """
-    years = best_of_df.report_year.unique()
-    out_idx = best_of_df.loc[match_idx, years]
-    out_idx = out_idx.dropna().astype(int).values
-    return out_idx
-
-
 def clean_plants_ferc1(
         ferc1_steam,
         plant_kind_map=cpi_plant_kind_map,
@@ -1170,7 +1115,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
 
     """
 
-    def __init__(self, min_sim=0.9, plants_df=None):
+    def __init__(self, min_sim=0.75, plants_df=None):
         """
         Initialize the classifier.
 
@@ -1189,6 +1134,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         """
         self.min_sim = min_sim
         self.plants_df = plants_df
+        self._years = self.plants_df.report_year.unique()
 
     def fit(self, X, y=None):
         """
@@ -1209,13 +1155,11 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
             self
 
         """
-        self.cossim_df_ = pd.DataFrame(cosine_similarity(X))
-        self.best_of_ = best_by_year(self.plants_df,
-                                     self.cossim_df_,
-                                     min_sim=self.min_sim)
+        self._cossim_df = pd.DataFrame(cosine_similarity(X))
+        self._best_of = self._best_by_year()
         # Make the best match indices integers rather than floats w/ NA values.
-        years = self.best_of_.report_year.unique()
-        self.best_of_[years] = self.best_of_[years].fillna(-1).astype(int)
+        self._best_of[self._years] = \
+            self._best_of[self._years].fillna(-1).astype(int)
 
         return self
 
@@ -1224,45 +1168,78 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
 
     def predict(self, X, y=None):
         """
-        Given a list of FERC plant records (or record IDs? Not sure on what
-        form it needs to take given the Pipeline API), return a dataframe
-        containing record IDs of the records which make up the best time series
-        for each of the input records, in columns organized by year. For use in
-        scoring the model, based on how the plant records were grouped in the
-        fit() step.
+        Given a one-dimensional dataframe X, containing FERC record IDs,
+        return a dataframe in which each row corresponds to one of the input
+        record_id values (ordered as the input was ordered), with each column
+        corresponding to one of the years worth of data. Values in the returned
+        dataframe are the FERC record_ids of the record most similar to the
+        input record within that year. Some of them may be null, if there was
+        no sufficiently good match.
+
+        Row index is the seed record IDs. Column index is years.
 
         TODO:
         ----------
-        * where_matches and best_matches are vectorized, but they aren't being
-          called that way.
-        * Need to efficiently generate a whole array of index values to hand
-          off to them directly, based on the record_id values that are passed
-          in here.
-        * Should integreate _get_match_group in here directly.
+        * This method is hideously inefficient. It should be vectorized.
+        * There's a line that throws a FutureWarning that needs to be fixed.
 
         """
         try:
-            getattr(self, "cossim_df_")
+            getattr(self, "_cossim_df")
         except AttributeError:
             raise RuntimeError(
                 "You must train classifer before predicting data!")
 
-        return [self._get_match_group(x) for x in X]
+        out_df = pd.DataFrame(columns=self._years)
+        out_idx = []
+        # For each record_id we've been given:
+        for x in X:
+            # Find the index associated with the record IDs:
+            idx = self._best_of[self._best_of.record_id == x].index.values[0]
 
-    def _get_match_group(self, record_id):
-        idx = self.best_of_[self.best_of_.record_id ==
-                            record_id].index.values[0]
-        w_m = list(where_matches(idx, self.best_of_))
-        b_m = [x for x in best_matches(idx, self.best_of_) if x != -1]
+            # Lookup which rows contain matches to that index:
+            w_m = self._best_of[self._years][
+                self._best_of[self._years] == idx]
+            w_m = w_m.dropna(how='all').index.values
+            b_m = self._best_of.loc[idx, self._years].astype(int)
 
-        if w_m != b_m:
-            return []
+            # Make sure that w_m and b_m satisfy whatever constraints we want
+            # to impose on them. Some options include:
+            # - Impose no constraints. (allow records to be used more than once
+            #   (sometimes appropriate given ownership changes in plants)
+            # - Require them to be identical, which means requiring that
+            #   each record only appears in a single time series. Results in
+            #   loss of some otherwise valid time series, but means the
+            #   selection of best fits is deterministic.
+            # - Once a record is used, remove it from the pool so it can't be
+            #   used again, which means the next-most-similar record takes its
+            #   place.
+            if np.array_equiv(w_m, b_m[b_m >= 0].values):
+                # This line is causing a warning. In cases where there are
+                # some years no sufficiently good match exists, and so b_m
+                # doesn't contain an index. Instead, it has a -1 sentinel
+                # value, which isn't a label for which a record exists, which
+                # upsets .loc. Need to find some way around this... but for
+                # now it does what we want. We could use .iloc instead, but
+                # then the -1 sentinel value maps to the last entry in the
+                # dataframe, which also isn't what we want.  Blargh.
+                new_grp = self._best_of.loc[b_m, 'record_id']
 
-        years = self.best_of_.report_year.unique()
-        group_idx = self.best_of_.loc[idx, years].values.astype(int).flatten()
-        group_idx = [x for x in group_idx if x != -1]
-        return list(self.best_of_.loc[group_idx, 'record_id'].
-                    sort_values().values)
+                # reshape into row, rather than column,
+                new_grp = new_grp.values.reshape(1, 13)
+
+                # Stack the new list of record_ids on our output DataFrame:
+                new_grp = pd.DataFrame(new_grp, columns=self._years)
+
+                out_df = pd.concat([out_df, new_grp])
+
+                # Save the seed record_id for use in indexing the output:
+                out_idx = out_idx + [self._best_of.loc[idx, 'record_id']]
+
+        out_df['seed_id'] = out_idx
+        out_df = out_df.set_index('seed_id')
+        out_df = out_df.fillna('')
+        return out_df
 
     def score(self, X, y=None):
         """
@@ -1277,6 +1254,11 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
               a metric of similarity between the prediction and the "ground
               truth" group that was passed in for that value of X.
             - Return the average of all those similarity metrics as the score.
+
+        TODO:
+        -----
+        * method needs to be re-written to work with the new predict() method
+          which returns a dataframe.
         """
         import difflib
 
@@ -1284,10 +1266,100 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         for true_group in y:
             true_group = str.split(true_group, sep=',')
             true_group = [s for s in true_group if s != '']
-            for record_id in true_group:
-                predicted_group = self.predict([record_id])[0]
-                sm = difflib.SequenceMatcher(
-                    None, true_group, predicted_group)
+            predicted_groups = self.new_predict(pd.DataFrame(true_group))
+            for rec_id in true_group:
+                sm = difflib.SequenceMatcher(None, true_group,
+                                             predicted_groups.loc[rec_id])
                 scores = scores + [sm.ratio()]
 
         return(np.mean(scores))
+
+    def _best_by_year(self):
+        """Find the best match for each plant record in each other year."""
+        # only keep similarity matrix entries above our minimum threshold:
+        out_df = self.plants_df.copy()
+        sim_df = self._cossim_df[self._cossim_df >= self.min_sim]
+
+        # Add a column for each of the years, in which we will store indices
+        # of the records which best match the record in question:
+        for yr in self._years:
+            newcol = yr
+            out_df[newcol] = -1
+
+        # seed_yr is the year we are matching *from* -- we do the entire
+        # matching process from each year, since it may not be symmetric:
+        for seed_yr in self._years:
+            seed_idx = self.plants_df.index[
+                self.plants_df.report_year == seed_yr]
+            # match_yr is all the other years, in which we are finding the best
+            # match
+            for match_yr in self._years:
+                best_of_yr = match_yr
+                match_idx = self.plants_df.index[
+                    self.plants_df.report_year == match_yr]
+                # For each record specified by seed_idx, obtain the index of
+                # the record within match_idx that that is the most similar.
+                best_idx = sim_df.iloc[seed_idx, match_idx].idxmax(axis=1)
+                out_df.iloc[seed_idx,
+                            out_df.columns.get_loc(best_of_yr)] = best_idx
+
+        return out_df
+
+
+def make_ferc_clf(plants_df,
+                  ngram_min=2,
+                  ngram_max=10,
+                  min_sim=0.75,
+                  plant_name_wt=2.0,
+                  plant_kind_wt=2.0,
+                  type_const_wt=1.0,
+                  tot_capacity_wt=1.0,
+                  yr_const_wt=1.0,
+                  respondent_id_wt=1.0):
+    """Create a boilerplate FERC Plant Classifier."""
+
+    ferc_pipe = Pipeline([
+        ('preprocessor', ColumnTransformer(
+            transformers=[
+                ('plant_name', Pipeline([
+                    ('tfidf', TfidfVectorizer(analyzer='char',
+                                              ngram_range=(ngram_min,
+                                                           ngram_max))),
+                ]), 'plant_name'),
+
+                ('plant_kind_clean', Pipeline([
+                    ('onehot', OneHotEncoder()),
+                ]), ['plant_kind_clean']),
+
+                ('type_const_clean', Pipeline([
+                    ('onehot', OneHotEncoder()),
+                ]), ['type_const_clean']),
+
+                ('tot_capacity', Pipeline([
+                    ('scaler', RobustScaler()),
+                    ('norm', Normalizer())
+                ]), ['tot_capacity']),
+
+                ('yr_const', Pipeline([
+                    ('onehot', OneHotEncoder(categories='auto')),
+                ]), ['yr_const']),
+
+                ('respondent_id', Pipeline([
+                    ('onehot', OneHotEncoder(categories='auto')),
+                ]), ['respondent_id'])
+            ],
+
+            transformer_weights={
+                'plant_name': plant_name_wt,
+                'plant_kind_clean': plant_kind_wt,
+                'type_const_clean': type_const_wt,
+                'tot_capacity': tot_capacity_wt,
+                'yr_const': yr_const_wt,
+                'respondent_id': respondent_id_wt,
+            })
+         ),
+        ('classifier', pudl.transform.ferc1.FERCPlantClassifier(
+            min_sim=min_sim, plants_df=plants_df))
+    ])
+    ferc_clf = ferc_pipe.fit_transform(plants_df)
+    return ferc_clf
