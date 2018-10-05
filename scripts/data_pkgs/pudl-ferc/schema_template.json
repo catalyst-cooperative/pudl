@@ -1,0 +1,20 @@
+{
+    "name": "boiler_fuel_eia923",
+    "schema" : {
+        "fields": [
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+      ]
+    }
+}
