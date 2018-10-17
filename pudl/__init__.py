@@ -22,3 +22,33 @@ and its impacts on climate.
 __pythonrequiredversion__ = "3.6"
 __projecturl__ = "https://github.com/catalyst-cooperative/pudl/"
 __downloadurl__ = "https://github.com/catalyst-cooperative/pudl/"
+
+# Top level modules
+import pudl.settings
+import pudl.constants
+import pudl.helpers
+import pudl.init
+import pudl.load
+
+# Extraction functions, by data source:
+import pudl.extract.ferc1
+import pudl.extract.eia860
+import pudl.extract.eia923
+import pudl.extract.epacems
+
+# Transformation function, by data source:
+import pudl.transform.pudl
+import pudl.transform.eia
+import pudl.transform.ferc1
+import pudl.transform.eia860
+import pudl.transform.eia923
+import pudl.transform.epacems
+
+# Ready to use analysis modules:
+import pudl.analysis.mcoe
+
+# Output modules by data source:
+import pudl.output.ferc1
+import pudl.output.eia860
+import pudl.output.eia923
+import pudl.output.pudltabl
