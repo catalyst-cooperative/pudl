@@ -3091,14 +3091,12 @@ data_sources = [
 
 # All the years for which we ought to be able to download these data sources
 data_years = {
-    'eia860': range(2001, 2017),
+    'eia860': range(2001, 2018),
     'eia861': range(1990, 2016),
-    'eia923': range(2001, 2017),
-    'epacems': range(1995, 2017),
+    'eia923': range(2001, 2018),
+    'epacems': range(1995, 2018),
     'ferc1': range(1994, 2018),
-    'mshamines': range(2000, 2018),
-    'mshaops': range(2000, 2018),
-    'mshaprod': range(2000, 2018),
+    'msha': range(2000, 2018),
 }
 
 # The full set of years we currently expect to be able to ingest, per source:
@@ -3108,9 +3106,7 @@ working_years = {
     'eia923': range(2009, 2017),
     'epacems': range(1995, 2017),
     'ferc1': range(2004, 2017),
-    'mshamines': [],
-    'mshaops': [],
-    'mshaprod': [],
+    'msha': [],
 }
 
 pudl_tables = {
