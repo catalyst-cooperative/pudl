@@ -10,7 +10,6 @@ with the appropriate NA values.
 """
 
 import os.path
-import scipy
 import pandas as pd
 import numpy as np
 
@@ -19,10 +18,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
-from sklearn.impute import SimpleImputer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import Normalizer, RobustScaler
 from sklearn.preprocessing import OneHotEncoder
+from difflib import SequenceMatcher
 
 import pudl.constants as pc
 import pudl.models.ferc1
@@ -1027,7 +1026,7 @@ def clean_plants_ferc1(
         ferc1_steam,
         plant_kind_map=cpi_plant_kind_map,
         type_const_map=pc.ferc1_construction_type_strings,
-        drop_if_null=['net_generation']):
+        drop_if_null=['tot_capacity']):
     """
     Prepare raw FERC Form 1 plant records for use with sklearn.
 
@@ -1260,16 +1259,15 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         * method needs to be re-written to work with the new predict() method
           which returns a dataframe.
         """
-        import difflib
 
         scores = []
         for true_group in y:
             true_group = str.split(true_group, sep=',')
             true_group = [s for s in true_group if s != '']
-            predicted_groups = self.new_predict(pd.DataFrame(true_group))
+            predicted_groups = self.predict(pd.DataFrame(true_group))
             for rec_id in true_group:
-                sm = difflib.SequenceMatcher(None, true_group,
-                                             predicted_groups.loc[rec_id])
+                sm = SequenceMatcher(None, true_group,
+                                     predicted_groups.loc[rec_id])
                 scores = scores + [sm.ratio()]
 
         return(np.mean(scores))
