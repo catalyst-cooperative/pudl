@@ -362,7 +362,7 @@ def plants_steam(ferc1_raw_dfs,
     """ """
     f1_steam = ferc1_meta.tables[ferc1_table]
     f1_steam_select = sa.sql.select([f1_steam]).\
-        where(f1_steam.c.net_generation > 0).\
+        where(f1_steam.c.tot_capacity > 0).\
         where(f1_steam.c.plant_name != '').\
         where(f1_steam.c.report_year.in_(ferc1_years))
 
