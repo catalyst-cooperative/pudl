@@ -13,12 +13,12 @@ uses information from the Federal Energy Regulatory Commission (FERC), the
 Energy Information Administration (EIA), and the Environmental Protection
 Agency (EPA), among others.
 
-https://github.com/catalyst-cooperative/pudl
 
-For more information, get in touch with:
- - Catalyst Cooperative
- - https://catalyst.coop
- - hello@catalyst.coop
+For more information, get in touch with the members of
+[Catalyst Cooperative](https://catalyst.coop):
+ - Email: [hello@catalyst.coop](mailto:hello@catalyst.coop)
+ - Chat: https://gitter.im/catalyst-cooperative/pudl
+ - Twitter: [@CatalystCoop](https://twitter.com/CatalystCoop)
 
 # Quickstart
 Just want to get started building a database? Read the setup guide for your
