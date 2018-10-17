@@ -25,6 +25,7 @@ class FuelFERC1(pudl.models.entities.PUDLBase):
     # be recorded multiple times for multiple utilities that have a stake in
     # the plant... Primary key fields: utility, plant, fuel and year.
     id = Column(Integer, autoincrement=True, primary_key=True)
+    record_id = Column(String, nullable=False)
     utility_id_ferc = Column(Integer, nullable=False)
     plant_name = Column(String, nullable=False)  # Also ForeignKeyConstraint
     report_year = Column(Integer, nullable=False)
@@ -49,6 +50,7 @@ class PlantSteamFERC1(pudl.models.entities.PUDLBase):
         ['plants_ferc.utility_id_ferc', 'plants_ferc.plant_name']),)
 
     id = Column(Integer, autoincrement=True, primary_key=True)
+    record_id = Column(String, nullable=False)
     utility_id_ferc = Column(Integer, nullable=False)
     plant_name = Column(String, nullable=False)
     report_year = Column(Integer, nullable=False)
@@ -105,13 +107,14 @@ class PlantInServiceFERC1(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'plant_in_service_ferc1'
     utility_id_ferc = Column(Integer,
-                           ForeignKey('utilities_ferc.utility_id_ferc'),
-                           primary_key=True)
+                             ForeignKey('utilities_ferc.utility_id_ferc'),
+                             primary_key=True)
     report_year = Column(Integer,
                          primary_key=True)
     ferc_account_id = Column(String,
                              ForeignKey('ferc_accounts.id'),
                              primary_key=True)
+    record_id = Column(String, nullable=False)
     beginning_year_balance = Column(Numeric(14, 2))
     additions = Column(Numeric(14, 2))
     retirements = Column(Numeric(14, 2))
@@ -129,13 +132,14 @@ class AccumulatedDepreciationFERC1(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'accumulated_depreciation_ferc1'
     utility_id_ferc = Column(Integer,
-                           ForeignKey('utilities_ferc.utility_id_ferc'),
-                           primary_key=True)
+                             ForeignKey('utilities_ferc.utility_id_ferc'),
+                             primary_key=True)
     report_year = Column(Integer,
                          primary_key=True)
     line_id = Column(String,
                      ForeignKey('ferc_depreciation_lines.id'),
                      primary_key=True)
+    record_id = Column(String, nullable=False)
     total = Column(Numeric(14, 2))
     electric_plant = Column(Numeric(14, 2))
     future_plant = Column(Numeric(14, 2))
@@ -148,8 +152,9 @@ class PurchasedPowerFERC1(pudl.models.entities.PUDLBase):
     __tablename__ = 'purchased_power_ferc1'
     id = Column(Integer, autoincrement=True, primary_key=True)
     utility_id_ferc = Column(Integer,
-                           ForeignKey('utilities_ferc.utility_id_ferc'),
-                           nullable=False)
+                             ForeignKey('utilities_ferc.utility_id_ferc'),
+                             nullable=False)
+    record_id = Column(String, nullable=False)
     report_year = Column(Integer, nullable=False)
     authority_company_name = Column(String)
     statistical_classification = Column(String)
@@ -181,6 +186,7 @@ class PlantSmallFERC1(pudl.models.entities.PUDLBase):
         ['plants_ferc.utility_id_ferc', 'plants_ferc.plant_name']),)
 
     id = Column(Integer, autoincrement=True, primary_key=True)
+    record_id = Column(String, nullable=False)
     utility_id_ferc = Column(Integer, nullable=False)
     report_year = Column(Integer, nullable=False)
     plant_name_original = Column(String, nullable=False)
@@ -209,6 +215,7 @@ class PlantHydroFERC1(pudl.models.entities.PUDLBase):
         ['plants_ferc.utility_id_ferc', 'plants_ferc.plant_name']),)
 
     id = Column(Integer, autoincrement=True, primary_key=True)
+    record_id = Column(String, nullable=False)
     utility_id_ferc = Column(Integer, nullable=False)
     plant_name = Column(String, nullable=False)
     report_year = Column(Integer, nullable=False)
@@ -288,6 +295,7 @@ class PlantsPumpedStorage(pudl.models.entities.PUDLBase):
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     utility_id_ferc = Column(Integer, nullable=False)
+    record_id = Column(String, nullable=False)
     report_year = Column(Integer, nullable=False)
     project_num = Column(Integer)
     plant_name = Column(String, nullable=False)

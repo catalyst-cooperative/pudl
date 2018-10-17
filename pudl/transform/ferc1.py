@@ -34,6 +34,70 @@ from pudl.settings import SETTINGS
 ##############################################################################
 
 
+def strip_lower(df, columns=None):
+    """Strip whitespace, apply title case to the listed DataFrame columns."""
+    for col in columns:
+        if col in df.columns:
+            df[col] = df[col].str.strip().str.lower()
+
+    return df
+
+
+def clean_cols(df):
+    """
+    Add a FERC record ID and drop FERC columns not to be loaded into PUDL.
+
+    It is often useful to be able to tell exactly which record in the FERC Form
+    1 database a given record within the PUDL database came from. Within each
+    FERC Form 1 table, each record is uniquely identified by the combination
+    of:
+      - report_year
+      - respondent_id
+      - spplmnt_num
+      - row_number
+
+    So this function takes a dataframe, checks to make sure it contains each of
+    those columns and that none of them are NULL, and adds a new column to the
+    dataframe containing a string of the format:
+
+    {report_year}_{respondent_id}_{spplmnt_num}_{row_number}
+
+    In addition there are some columns which are not meaningful or useful in
+    the context of PUDL, but which show up in virtually every FERC table, and
+    this function drops them if they are present. These columns include:
+     - spplmnt_num (which goes into the record ID)
+     - row_number (which goes into the record_ ID)
+     - row_prvlg
+     - row_seq
+     - item
+     - report_prd
+     - record_number (temp column used in plants_small)
+    """
+    assert ~df.report_year.isnull().any()
+    assert ~df.respondent_id.isnull().any()
+    assert ~df.spplmnt_num.isnull().any()
+    assert ~df.row_number.isnull().any()
+    # Create a unique inter-year FERC table record ID:
+    df['record_id'] = \
+        df.report_year.astype(str) + '_' + \
+        df.respondent_id.astype(str) + '_' + \
+        df.spplmnt_num.astype(str) + '_' + \
+        df.row_number.astype(str)
+
+    unused_cols = [
+        'spplmnt_num',
+        'row_number',
+        'row_prvlg',
+        'row_seq',
+        'report_prd',
+        'item',
+        'record_number'
+    ]
+    df = df.drop([col for col in unused_cols if col in df.columns], axis=1)
+
+    return df
+
+
 def multiplicative_error_correction(tofix, mask, minval, maxval, mults):
     """
     Correct data entry errors resulting in data being multiplied by a factor.
@@ -114,13 +178,8 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     Returns: transformed dataframe.
     """
-    # grab table from dictionary of dfs
-    fuel_ferc1_df = ferc1_raw_dfs['fuel_ferc1']
-    #########################################################################
-    # PRUNE IRRELEVANT COLUMNS ##############################################
-    #########################################################################
-    fuel_ferc1_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
-                        'report_prd'], axis=1, inplace=True)
+    # grab table from dictionary of dfs, clean it up a bit
+    fuel_ferc1_df = clean_cols(ferc1_raw_dfs['fuel_ferc1'])
 
     #########################################################################
     # STANDARDIZE NAMES AND CODES ###########################################
@@ -156,8 +215,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
     fuel_ferc1_df.drop('fuel_generaton', axis=1, inplace=True)
 
     # Convert from BTU/unit of fuel to 1e6 BTU/unit.
-    fuel_ferc1_df['fuel_avg_mmbtu_per_unit'] = \
-        fuel_ferc1_df['fuel_avg_heat'] / 1e6
+    fuel_ferc1_df['fuel_avg_mmbtu_per_unit'] = fuel_ferc1_df['fuel_avg_heat'] / 1e6
     fuel_ferc1_df.drop('fuel_avg_heat', axis=1, inplace=True)
 
     #########################################################################
@@ -254,11 +312,7 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
     Returns: transformed dataframe.
     """
     # grab table from dictionary of dfs
-    ferc1_steam_df = ferc1_raw_dfs['plants_steam_ferc1']
-
-    # Discard DataFrame columns that we aren't pulling into PUDL:
-    ferc1_steam_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
-                         'report_prd'], axis=1, inplace=True)
+    ferc1_steam_df = clean_cols(ferc1_raw_dfs['plants_steam_ferc1'])
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space -- necesary b/c plant_name is part of many foreign keys.
@@ -422,10 +476,8 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
                                   'respondent_id',
                                   'record_number'])
 
-    # We don't need to pull these columns into PUDL, so drop them:
-    ferc1_small_df.drop(['row_seq', 'row_prvlg', 'report_prd',
-                         'row_number', 'spplmnt_num', 'record_number'],
-                        axis=1, inplace=True)
+    # Remove extraneous columns and add a record ID
+    ferc1_small_df = clean_cols(ferc1_small_df)
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space, so that plant_name matches formatting of plant_name_raw
@@ -488,10 +540,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
     Returns: transformed dataframe.
     """
     # grab table from dictionary of dfs
-    ferc1_hydro_df = ferc1_raw_dfs['plants_hydro_ferc1']
-
-    ferc1_hydro_df.drop(['spplmnt_num', 'row_number', 'row_seq', 'row_prvlg',
-                         'report_prd'], axis=1, inplace=True)
+    ferc1_hydro_df = clean_cols(ferc1_raw_dfs['plants_hydro_ferc1'])
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space -- necesary b/c plant_name is part of many foreign keys.
@@ -581,11 +630,8 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     """
     # grab table from dictionary of dfs
-    ferc1_pumped_storage_df = ferc1_raw_dfs['plants_pumped_storage_ferc1']
-
-    ferc1_pumped_storage_df.drop(['spplmnt_num', 'row_number', 'row_seq',
-                                  'row_prvlg', 'report_prd'],
-                                 axis=1, inplace=True)
+    ferc1_pumped_storage_df = clean_cols(
+        ferc1_raw_dfs['plants_pumped_storage_ferc1'])
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space -- necesary b/c plant_name is part of many foreign keys.
@@ -691,11 +737,6 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     # grab table from dictionary of dfs
     ferc1_pis_df = ferc1_raw_dfs['plant_in_service_ferc1']
-    # Discard DataFrame columns that we aren't pulling into PUDL. For the
-    # Plant In Service table, we need to hold on to the row_number because it
-    # corresponds to a FERC account number.
-    ferc1_pis_df.drop(['spplmnt_num', 'row_seq', 'row_prvlg', 'report_prd'],
-                      axis=1, inplace=True)
 
     # Now we need to add a column to the DataFrame that has the FERC account
     # IDs corresponding to the row_number that's already in there...
@@ -706,7 +747,7 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_pis_df = pd.merge(ferc1_pis_df, ferc_accts_df,
                             how='left', on='row_number')
-    ferc1_pis_df.drop('row_number', axis=1, inplace=True)
+    ferc1_pis_df = clean_cols(ferc1_pis_df)
 
     ferc1_pis_df.rename(columns={
         # FERC 1 DB Name  PUDL DB Name
@@ -741,11 +782,8 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
     Returns: transformed dataframe.
     """
     # grab table from dictionary of dfs
-    ferc1_purchased_pwr_df = ferc1_raw_dfs['purchased_power_ferc1']
+    ferc1_purchased_pwr_df = clean_cols(ferc1_raw_dfs['purchased_power_ferc1'])
 
-    ferc1_purchased_pwr_df.drop(['spplmnt_num', 'row_number', 'row_seq',
-                                 'row_prvlg', 'report_prd'],
-                                axis=1, inplace=True)
     ferc1_purchased_pwr_df.replace(to_replace='', value=np.nan, inplace=True)
     ferc1_purchased_pwr_df.dropna(subset=['sttstcl_clssfctn',
                                           'rtsched_trffnbr'], inplace=True)
@@ -792,11 +830,6 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     # grab table from dictionary of dfs
     ferc1_apd_df = ferc1_raw_dfs['accumulated_depreciation_ferc1']
 
-    # Discard DataFrame columns that we aren't pulling into PUDL. For
-    ferc1_apd_df.drop(['spplmnt_num', 'row_seq',
-                       'row_prvlg', 'item', 'report_prd'],
-                      axis=1, inplace=True)
-
     ferc1_acct_apd = pc.ferc_accumulated_depreciation.drop(
         ['ferc_account_description'], axis=1)
     ferc1_acct_apd.dropna(inplace=True)
@@ -804,7 +837,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_accumdepr_prvsn_df = pd.merge(ferc1_apd_df, ferc1_acct_apd,
                                         how='left', on='row_number')
-    ferc1_accumdepr_prvsn_df.drop('row_number', axis=1, inplace=True)
+    ferc1_accumdepr_prvsn_df = clean_cols(ferc1_accumdepr_prvsn_df)
 
     ferc1_accumdepr_prvsn_df.rename(columns={
         # FERC1 DB   PUDL DB
