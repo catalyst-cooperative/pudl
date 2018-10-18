@@ -42,6 +42,7 @@ import pudl.transform.epacems
 import pudl.transform.eia
 import pudl.transform.pudl
 import pudl.load
+import pudl.helpers
 
 import pudl.constants as pc
 from pudl.settings import SETTINGS
@@ -337,8 +338,7 @@ def _ingest_glue_eia_ferc1(engine,
     # or trailing white space... since this field is being used as a key in
     # many cases. This also needs to be done any time plant_name is pulled in
     # from other tables.
-    plant_map['plant_name_ferc'] = plant_map['plant_name_ferc'].str.strip()
-    plant_map['plant_name_ferc'] = plant_map['plant_name_ferc'].str.title()
+    plant_map = pudl.helpers.strip_lower(plant_map, ['plant_name_ferc'])
 
     plants = plant_map[['plant_id', 'plant_name']]
     plants = plants.drop_duplicates('plant_id')

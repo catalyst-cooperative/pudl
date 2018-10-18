@@ -10,6 +10,7 @@ with the appropriate NA values.
 """
 
 import os.path
+from difflib import SequenceMatcher
 import pandas as pd
 import numpy as np
 
@@ -21,29 +22,20 @@ from sklearn.compose import ColumnTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import Normalizer, RobustScaler
 from sklearn.preprocessing import OneHotEncoder
-from difflib import SequenceMatcher
 
 import pudl.constants as pc
-import pudl.models.ferc1
-import pudl.extract.ferc1
+#import pudl.models.ferc1
+#import pudl.extract.ferc1
 import pudl.transform.pudl
+import pudl.helpers
 from pudl.settings import SETTINGS
 
 ##############################################################################
-# HELPER FUNCTIONS ###########################################################
+# FERC TRANSFORM HELPER FUNCTIONS ############################################
 ##############################################################################
 
 
-def strip_lower(df, columns=None):
-    """Strip whitespace, apply title case to the listed DataFrame columns."""
-    for col in columns:
-        if col in df.columns:
-            df[col] = df[col].str.strip().str.lower()
-
-    return df
-
-
-def clean_cols(df):
+def _clean_cols(df):
     """
     Add a FERC record ID and drop FERC columns not to be loaded into PUDL.
 
@@ -179,15 +171,14 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
     Returns: transformed dataframe.
     """
     # grab table from dictionary of dfs, clean it up a bit
-    fuel_ferc1_df = clean_cols(ferc1_raw_dfs['fuel_ferc1'])
+    fuel_ferc1_df = _clean_cols(ferc1_raw_dfs['fuel_ferc1'])
 
     #########################################################################
     # STANDARDIZE NAMES AND CODES ###########################################
     #########################################################################
     # Standardize plant_name capitalization and remove leading/trailing white
     # space -- necesary b/c plant_name is part of many foreign keys.
-    fuel_ferc1_df['plant_name'] = fuel_ferc1_df['plant_name'].str.strip()
-    fuel_ferc1_df['plant_name'] = fuel_ferc1_df['plant_name'].str.title()
+    fuel_ferc1_df = pudl.helpers.strip_lower(fuel_ferc1_df, ['plant_name'])
 
     # Take the messy free-form fuel & fuel_unit fields, and do our best to
     # map them to some canonical categories... this is necessarily imperfect:
@@ -312,12 +303,11 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
     Returns: transformed dataframe.
     """
     # grab table from dictionary of dfs
-    ferc1_steam_df = clean_cols(ferc1_raw_dfs['plants_steam_ferc1'])
+    ferc1_steam_df = _clean_cols(ferc1_raw_dfs['plants_steam_ferc1'])
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space -- necesary b/c plant_name is part of many foreign keys.
-    ferc1_steam_df['plant_name'] = ferc1_steam_df['plant_name'].str.strip()
-    ferc1_steam_df['plant_name'] = ferc1_steam_df['plant_name'].str.title()
+    ferc1_steam_df = pudl.helpers.strip_lower(ferc1_steam_df, ['plant_name'])
 
     # Take the messy free-form construction_type and plant_kind fields, and do
     # our best to map them to some canonical categories...
@@ -425,13 +415,12 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     ferc1_small_df = ferc1_raw_dfs['plants_small_ferc1']
     # Standardize plant_name_raw capitalization and remove leading/trailing
     # white space -- necesary b/c plant_name_raw is part of many foreign keys.
-    ferc1_small_df['plant_name'] = \
-        ferc1_small_df['plant_name'].str.strip()
-    ferc1_small_df['plant_name'] = \
-        ferc1_small_df['plant_name'].str.title()
+    ferc1_small_df = pudl.helpers.strip_lower(
+        ferc1_small_df, ['plant_name', 'kind_of_fuel']
+    )
 
-    ferc1_small_df['kind_of_fuel'] = ferc1_small_df['kind_of_fuel'].str.strip()
-    ferc1_small_df['kind_of_fuel'] = ferc1_small_df['kind_of_fuel'].str.title()
+    #ferc1_small_df['kind_of_fuel'] = ferc1_small_df['kind_of_fuel'].str.strip()
+    #ferc1_small_df['kind_of_fuel'] = ferc1_small_df['kind_of_fuel'].str.title()
 
     # Force the construction and installation years to be numeric values, and
     # set them to NA if they can't be converted. (table has some junk values)
@@ -477,14 +466,13 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
                                   'record_number'])
 
     # Remove extraneous columns and add a record ID
-    ferc1_small_df = clean_cols(ferc1_small_df)
+    ferc1_small_df = _clean_cols(ferc1_small_df)
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space, so that plant_name matches formatting of plant_name_raw
-    ferc1_small_df['plant_name_clean'] = \
-        ferc1_small_df['plant_name_clean'].str.strip()
-    ferc1_small_df['plant_name_clean'] = \
-        ferc1_small_df['plant_name_clean'].str.title()
+    ferc1_small_df = pudl.helpers.strip_lower(
+        ferc1_small_df, ['plant_name_clean']
+    )
 
     # in order to create one complete column of plant names, we have to use the
     # cleaned plant names when available and the orignial plant names when the
@@ -540,12 +528,11 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
     Returns: transformed dataframe.
     """
     # grab table from dictionary of dfs
-    ferc1_hydro_df = clean_cols(ferc1_raw_dfs['plants_hydro_ferc1'])
+    ferc1_hydro_df = _clean_cols(ferc1_raw_dfs['plants_hydro_ferc1'])
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space -- necesary b/c plant_name is part of many foreign keys.
-    ferc1_hydro_df['plant_name'] = ferc1_hydro_df['plant_name'].str.strip()
-    ferc1_hydro_df['plant_name'] = ferc1_hydro_df['plant_name'].str.title()
+    ferc1_hydro_df = pudl.helpers.strip_lower(ferc1_hydro_df, ['plant_name'])
 
     # Converting kWh to MWh
     ferc1_hydro_df['net_generation_mwh'] = \
@@ -630,15 +617,14 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     """
     # grab table from dictionary of dfs
-    ferc1_pumped_storage_df = clean_cols(
+    ferc1_pumped_storage_df = _clean_cols(
         ferc1_raw_dfs['plants_pumped_storage_ferc1'])
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space -- necesary b/c plant_name is part of many foreign keys.
-    ferc1_pumped_storage_df['plant_name'] = \
-        ferc1_pumped_storage_df['plant_name'].str.strip()
-    ferc1_pumped_storage_df['plant_name'] = \
-        ferc1_pumped_storage_df['plant_name'].str.title()
+    ferc1_pumped_storage_df = pudl.helpers.strip_lower(
+        ferc1_pumped_storage_df, ['plant_name']
+    )
 
     # Converting kWh to MWh
     ferc1_pumped_storage_df['net_generation_mwh'] = \
@@ -747,7 +733,7 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_pis_df = pd.merge(ferc1_pis_df, ferc_accts_df,
                             how='left', on='row_number')
-    ferc1_pis_df = clean_cols(ferc1_pis_df)
+    ferc1_pis_df = _clean_cols(ferc1_pis_df)
 
     ferc1_pis_df.rename(columns={
         # FERC 1 DB Name  PUDL DB Name
@@ -782,7 +768,8 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
     Returns: transformed dataframe.
     """
     # grab table from dictionary of dfs
-    ferc1_purchased_pwr_df = clean_cols(ferc1_raw_dfs['purchased_power_ferc1'])
+    ferc1_purchased_pwr_df = _clean_cols(
+        ferc1_raw_dfs['purchased_power_ferc1'])
 
     ferc1_purchased_pwr_df.replace(to_replace='', value=np.nan, inplace=True)
     ferc1_purchased_pwr_df.dropna(subset=['sttstcl_clssfctn',
@@ -837,7 +824,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_accumdepr_prvsn_df = pd.merge(ferc1_apd_df, ferc1_acct_apd,
                                         how='left', on='row_number')
-    ferc1_accumdepr_prvsn_df = clean_cols(ferc1_accumdepr_prvsn_df)
+    ferc1_accumdepr_prvsn_df = _clean_cols(ferc1_accumdepr_prvsn_df)
 
     ferc1_accumdepr_prvsn_df.rename(columns={
         # FERC1 DB   PUDL DB

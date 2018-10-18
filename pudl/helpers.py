@@ -173,3 +173,12 @@ def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
 
     df[date_col] = pd.to_datetime(df[date_col])
     return df
+
+
+def strip_lower(df, columns=None):
+    """Strip whitespace, apply title case to the listed DataFrame columns."""
+    for col in columns:
+        if col in df.columns:
+            df[col] = df[col].str.strip().str.lower()
+
+    return df
