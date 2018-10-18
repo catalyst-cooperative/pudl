@@ -183,12 +183,12 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
     fuel_ferc1_df.fuel = \
         pudl.transform.pudl.cleanstrings(fuel_ferc1_df.fuel,
                                          pc.ferc1_fuel_strings,
-                                         unmapped=np.nan)
+                                         unmapped='')
 
     fuel_ferc1_df.fuel_unit = \
         pudl.transform.pudl.cleanstrings(fuel_ferc1_df.fuel_unit,
                                          pc.ferc1_fuel_unit_strings,
-                                         unmapped=np.nan)
+                                         unmapped='')
 
     #########################################################################
     # PERFORM UNIT CONVERSIONS ##############################################
@@ -314,11 +314,12 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
     ferc1_steam_df.type_const = \
         pudl.transform.pudl.cleanstrings(ferc1_steam_df.type_const,
                                          pc.ferc1_construction_type_strings,
-                                         unmapped=np.nan)
+                                         unmapped='')
+
     ferc1_steam_df.plant_kind = \
         pudl.transform.pudl.cleanstrings(ferc1_steam_df.plant_kind,
                                          pc.ferc1_plant_kind_strings,
-                                         unmapped=np.nan)
+                                         unmapped='')
 
     # Force the construction and installation years to be numeric values, and
     # set them to NA if they can't be converted. (table has some junk values)
@@ -874,226 +875,6 @@ def transform(ferc1_raw_dfs,
 # from scikit-learn
 
 
-# These sets of strings allow us to simplify the plant_kind field. They came
-# from Uday & Laura at CPI. We may change/replace them, and they'll need to go
-# into the constants module eventually. But for now they're here for coziness.
-diesel_strings = [
-    'DIESEL',
-    'Diesel Engine',
-    'Diesel Turbine',
-]
-geothermal_strings = [
-    'Steam - Geothermal',
-]
-natural_gas_strings = [
-    'Combined Cycle',
-    'Combustion Turbine',
-    'GT',
-    'GAS TURBINE',
-    'Comb. Turbine',
-    'Gas Turbine #1',
-    'Combine Cycle Oper',
-    'Combustion',
-    'Combined',
-    'Gas Turbine/Steam',
-    'Gas Turbine Peaker',
-    'Gas Turbine - Note 1',
-    'Resp Share Gas Note3',
-    'Gas Turbines',
-    'Simple Cycle',
-    'Gas / Steam',
-    'GasTurbine',
-    'Combine Cycle',
-    'CTG/Steam-Gas',
-    'GTG/Gas',
-    'CTG/Steam -Gas',
-    'Steam/Gas Turbine',
-    'CombustionTurbine',
-    'Gas Turbine-Simple',
-    'STEAM & GAS TURBINE',
-    'Gas & Steam Turbine',
-    'Gas',
-    'Gas Turbine (2)',
-    'COMBUSTION AND GAS',
-    'Com Turbine Peaking',
-    'Gas Turbine Peaking',
-    'Comb Turb Peaking',
-    'JET ENGINE',
-    'Comb. Cyc',
-    'Com. Cyc',
-    'Com. Cycle',
-    'GAS TURB-COMBINED CY',
-    'Gas Turb',
-    'Combined Cycle - 40%',
-    'IGCC/Gas Turbine',
-    'CC',
-    'Combined Cycle Oper',
-    'Simple Cycle Turbine',
-    'Steam and CC',
-    'Com Cycle Gas Turb',
-    'I.C.E/  Gas Turbine',
-    'Combined Cycle CTG',
-    'GAS-TURBINE',
-    'Gas Expander Turbine',
-    'Gas Turbine (Leased)',
-    'Gas Turbine # 1',
-    'Gas Turbine (Note 1)',
-    'COMBUSTINE TURBINE',
-    'Gas Turb, Int. Comb.',
-    'Combined Turbine',
-    'Comb Turb Peak Units',
-    'Combustion Tubine',
-    'Comb. Cycle',
-    'COMB.TURB.PEAK.UNITS',
-    'Steam  and  CC',
-    'I.C.E. /Gas Turbine',
-    'Conbustion Turbine',
-    'Gas Turbine/Int Comb',
-    'Steam & CC',
-    'GAS TURB. & HEAT REC',
-    'Gas Turb/Comb. Cyc',
-    'Comb. Turine',
-]
-nuclear_strings = [
-    'Nuclear',
-    'Nuclear (3)',
-]
-other_strings = [
-    'IC',
-    'Internal Combustion',
-    'Int Combust - Note 1',
-    'Resp. Share - Note 2',
-    'Int. Combust - Note1',
-    'Resp. Share - Note 4',
-    'Resp Share - Note 5',
-    'Resp. Share - Note 7',
-    'Internal Comb Recip',
-    'Reciprocating Engine',
-    'Internal Comb',
-    'Resp. Share - Note 8',
-    'Resp. Share - Note 9',
-    'Resp Share - Note 11',
-    'Resp. Share - Note 6',
-    'INT.COMBUSTINE',
-    'Steam (Incl I.C.)',
-    'Other',
-    'Int Combust (Note 1)',
-    'Resp. Share (Note 2)',
-    'Int. Combust (Note1)',
-    'Resp. Share (Note 8)',
-    'Resp. Share (Note 9)',
-    'Resp Share (Note 11)',
-    'Resp. Share (Note 4)',
-    'Resp. Share (Note 6)',
-    'Plant retired- 2013',
-    'Retired - 2013',
-]
-steam_strings = [
-    'Steam',
-    'Steam Units 1, 2, 3',
-    'Resp Share St Note 3',
-    'Steam Turbine',
-    'Steam-Internal Comb',
-    'IGCC',
-    'Steam- 72%',
-    'Steam (1)',
-    'Steam (1)',
-    'Steam Units 1,2,3',
-    'Steam/Fossil',
-    'Steams',
-    'Steam - 72%',
-    'Steam - 100%',
-    'Stream',
-    'Steam Units 4, 5',
-    'Steam - 64%',
-    'Common',
-    'Steam (A)',
-    'Coal',
-    'Steam;Retired - 2013',
-    'Steam Units 4 & 6',
-]
-wind_strings = [
-    'Wind',
-    'Wind Turbine',
-    'Wind - Turbine',
-    'Wind Energy',
-]
-solar_strings = [
-    'Solar Photovoltaic',
-    'Solar Thermal',
-    'SOLAR PROJECT',
-    'Solar',
-    'Photovoltaic',
-]
-cpi_plant_kind_map = {
-    'natural_gas': natural_gas_strings,
-    'diesel': diesel_strings,
-    'geothermal': geothermal_strings,
-    'nuclear': nuclear_strings,
-    'steam': steam_strings,
-    'wind': wind_strings,
-    'solar': solar_strings,
-    'other': other_strings,
-}
-
-
-def clean_plants_ferc1(
-        ferc1_steam,
-        plant_kind_map=cpi_plant_kind_map,
-        type_const_map=pc.ferc1_construction_type_strings,
-        drop_if_null=['tot_capacity']):
-    """
-    Prepare raw FERC Form 1 plant records for use with sklearn.
-
-    Args:
-    -----
-        ferc1_steam : pandas dataframe, containing FERC large plants records,
-            as pulled from the pre-ETL ferc1 database.
-        plant_kind_map : stringmap for categorizing freeform plant_kind as
-            reported to FERC.
-        type_const_map : stringmap for categorizing freeform type_const as
-            reported to FERC.
-        drop_if_null : list of ferc1_steam column names. If any of them are
-            zero or null, then the record they appear in is assumed to be bad
-            data and it is dropped prior to vectorization.
-
-    Returns:
-    --------
-        ferc1_steam : The input dataframe as prepared for vectorization.
-
-    """
-
-    ferc1_steam = ferc1_steam.copy()
-    ferc1_steam['plant_kind_clean'] = \
-        pudl.transform.pudl.cleanstrings(ferc1_steam.plant_kind,
-                                         plant_kind_map,
-                                         unmapped='')
-    ferc1_steam['type_const_clean'] = \
-        pudl.transform.pudl.cleanstrings(ferc1_steam.type_const,
-                                         type_const_map,
-                                         unmapped='')
-    # Create a unique inter-year FERC table record ID:
-    ferc1_steam['record_id'] = \
-        ferc1_steam.report_year.astype(str) + '_' + \
-        ferc1_steam.respondent_id.astype(str) + '_' + \
-        ferc1_steam.spplmnt_num.astype(str) + '_' + \
-        ferc1_steam.row_number.astype(str)
-
-    mask = False
-    if drop_if_null:
-        for col in drop_if_null:
-            mask = mask | (ferc1_steam[col] == 0)
-            mask = mask | (ferc1_steam[col].isnull())
-        ferc1_steam = ferc1_steam[~mask].reset_index().drop('index', axis=1)
-
-    # Simplify the plant names for matching purposes.
-    # May also want to remove non-alphanumeric characters
-    ferc1_steam['plant_name'] = \
-        ferc1_steam.plant_name.str.strip().str.lower().str.replace('\s+', ' ')
-
-    return ferc1_steam
-
-
 class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
     """
     A classifier for identifying FERC plant time series in FERC Form 1 data.
@@ -1324,11 +1105,11 @@ def make_ferc_clf(plants_df,
                   ngram_max=10,
                   min_sim=0.75,
                   plant_name_wt=2.0,
-                  plant_kind_wt=2.0,
-                  type_const_wt=1.0,
-                  tot_capacity_wt=1.0,
-                  yr_const_wt=1.0,
-                  respondent_id_wt=1.0):
+                  plant_type_wt=2.0,
+                  construction_type_wt=1.0,
+                  capacity_mw_wt=1.0,
+                  construction_year_wt=1.0,
+                  utility_id_ferc_wt=1.0):
     """Create a boilerplate FERC Plant Classifier."""
 
     ferc_pipe = Pipeline([
@@ -1340,35 +1121,35 @@ def make_ferc_clf(plants_df,
                                                            ngram_max))),
                 ]), 'plant_name'),
 
-                ('plant_kind_clean', Pipeline([
+                ('plant_type', Pipeline([
                     ('onehot', OneHotEncoder()),
-                ]), ['plant_kind_clean']),
+                ]), ['plant_type']),
 
-                ('type_const_clean', Pipeline([
+                ('construction_type', Pipeline([
                     ('onehot', OneHotEncoder()),
-                ]), ['type_const_clean']),
+                ]), ['construction_type']),
 
-                ('tot_capacity', Pipeline([
+                ('capacity_mw', Pipeline([
                     ('scaler', RobustScaler()),
                     ('norm', Normalizer())
-                ]), ['tot_capacity']),
+                ]), ['capacity_mw']),
 
-                ('yr_const', Pipeline([
+                ('construction_year', Pipeline([
                     ('onehot', OneHotEncoder(categories='auto')),
-                ]), ['yr_const']),
+                ]), ['construction_year']),
 
-                ('respondent_id', Pipeline([
+                ('utility_id_ferc', Pipeline([
                     ('onehot', OneHotEncoder(categories='auto')),
-                ]), ['respondent_id'])
+                ]), ['utility_id_ferc'])
             ],
 
             transformer_weights={
                 'plant_name': plant_name_wt,
-                'plant_kind_clean': plant_kind_wt,
-                'type_const_clean': type_const_wt,
-                'tot_capacity': tot_capacity_wt,
-                'yr_const': yr_const_wt,
-                'respondent_id': respondent_id_wt,
+                'plant_type': plant_type_wt,
+                'construction_type': construction_type_wt,
+                'capacity_mw': capacity_mw_wt,
+                'construction_year': construction_year_wt,
+                'utility_id_ferc': utility_id_ferc_wt,
             })
          ),
         ('classifier', pudl.transform.ferc1.FERCPlantClassifier(

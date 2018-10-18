@@ -31,7 +31,7 @@ class FuelFERC1(pudl.models.entities.PUDLBase):
     report_year = Column(Integer, nullable=False)
     # fuel_type_code_pudl field was formerly fuels.name and was called 'fuel'
     fuel_type_code_pudl = Column(String)
-    fuel_unit = Column(String, ForeignKey('fuel_units.unit'), nullable=False)
+    fuel_unit = Column(String, ForeignKey('fuel_units.unit'))
     fuel_qty_burned = Column(Float, nullable=False)
     fuel_mmbtu_per_unit = Column(Float, nullable=False)
     fuel_cost_per_unit_burned = Column(Float, nullable=False)

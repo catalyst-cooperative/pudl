@@ -176,9 +176,9 @@ def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
 
 
 def strip_lower(df, columns=None):
-    """Strip whitespace, apply title case to the listed DataFrame columns."""
+    """Strip & compact whitespace, lowercase listed DataFrame columns."""
     for col in columns:
         if col in df.columns:
-            df[col] = df[col].str.strip().str.lower()
+            df[col] = df[col].str.strip().str.lower().str.replace(r'\s+', ' ')
 
     return df

@@ -255,7 +255,7 @@ ferc1_plant_kind_combined_cycle = \
      'steam and cc', 'steam cc', 'gas steam', 'ctg steam gas',
      'steam comb cycle', ]
 
-ferc1_plant_kind_nuke = ['nuclear', 'nuclear', 'nuclear (3)']
+ferc1_plant_kind_nuke = ['nuclear', 'nuclear (3)']
 
 ferc1_plant_kind_geothermal = ['steam - geothermal', 'steam_geothermal']
 
@@ -288,6 +288,68 @@ ferc1_plant_kind_strings = {
     'solar_thermal': ferc1_plant_kind_solar_thermal
 }
 
+# This is an alternative set of strings for simplifying the plant kind field
+# from Uday & Laura at CPI. For the moment we have reverted to using our own
+# categorizations which are more detailed, but these are preserved here for
+# comparison and testing, if need be.
+cpi_diesel_strings = ['DIESEL', 'Diesel Engine', 'Diesel Turbine', ]
+cpi_geothermal_strings = ['Steam - Geothermal', ]
+cpi_natural_gas_strings = [
+    'Combined Cycle', 'Combustion Turbine', 'GT',
+    'GAS TURBINE', 'Comb. Turbine', 'Gas Turbine #1', 'Combine Cycle Oper',
+    'Combustion', 'Combined', 'Gas Turbine/Steam', 'Gas Turbine Peaker',
+    'Gas Turbine - Note 1', 'Resp Share Gas Note3', 'Gas Turbines',
+    'Simple Cycle', 'Gas / Steam', 'GasTurbine', 'Combine Cycle',
+    'CTG/Steam-Gas', 'GTG/Gas', 'CTG/Steam -Gas', 'Steam/Gas Turbine',
+    'CombustionTurbine', 'Gas Turbine-Simple', 'STEAM & GAS TURBINE',
+    'Gas & Steam Turbine', 'Gas', 'Gas Turbine (2)', 'COMBUSTION AND GAS',
+    'Com Turbine Peaking', 'Gas Turbine Peaking', 'Comb Turb Peaking',
+    'JET ENGINE', 'Comb. Cyc', 'Com. Cyc', 'Com. Cycle',
+    'GAS TURB-COMBINED CY', 'Gas Turb', 'Combined Cycle - 40%',
+    'IGCC/Gas Turbine', 'CC', 'Combined Cycle Oper', 'Simple Cycle Turbine',
+    'Steam and CC', 'Com Cycle Gas Turb', 'I.C.E/  Gas Turbine',
+    'Combined Cycle CTG', 'GAS-TURBINE', 'Gas Expander Turbine',
+    'Gas Turbine (Leased)', 'Gas Turbine # 1', 'Gas Turbine (Note 1)',
+    'COMBUSTINE TURBINE', 'Gas Turb, Int. Comb.', 'Combined Turbine',
+    'Comb Turb Peak Units', 'Combustion Tubine', 'Comb. Cycle',
+    'COMB.TURB.PEAK.UNITS', 'Steam  and  CC', 'I.C.E. /Gas Turbine',
+    'Conbustion Turbine', 'Gas Turbine/Int Comb', 'Steam & CC',
+    'GAS TURB. & HEAT REC', 'Gas Turb/Comb. Cyc', 'Comb. Turine',
+]
+cpi_nuclear_strings = ['Nuclear', 'Nuclear (3)', ]
+cpi_other_strings = [
+    'IC', 'Internal Combustion', 'Int Combust - Note 1',
+    'Resp. Share - Note 2', 'Int. Combust - Note1', 'Resp. Share - Note 4',
+    'Resp Share - Note 5', 'Resp. Share - Note 7', 'Internal Comb Recip',
+    'Reciprocating Engine', 'Internal Comb', 'Resp. Share - Note 8',
+    'Resp. Share - Note 9', 'Resp Share - Note 11', 'Resp. Share - Note 6',
+    'INT.COMBUSTINE', 'Steam (Incl I.C.)', 'Other', 'Int Combust (Note 1)',
+    'Resp. Share (Note 2)', 'Int. Combust (Note1)', 'Resp. Share (Note 8)',
+    'Resp. Share (Note 9)', 'Resp Share (Note 11)', 'Resp. Share (Note 4)',
+    'Resp. Share (Note 6)', 'Plant retired- 2013', 'Retired - 2013',
+]
+cpi_steam_strings = [
+    'Steam', 'Steam Units 1, 2, 3', 'Resp Share St Note 3',
+    'Steam Turbine', 'Steam-Internal Comb', 'IGCC', 'Steam- 72%', 'Steam (1)',
+    'Steam (1)', 'Steam Units 1,2,3', 'Steam/Fossil', 'Steams', 'Steam - 72%',
+    'Steam - 100%', 'Stream', 'Steam Units 4, 5', 'Steam - 64%', 'Common',
+    'Steam (A)', 'Coal', 'Steam;Retired - 2013', 'Steam Units 4 & 6',
+]
+cpi_wind_strings = ['Wind', 'Wind Turbine', 'Wind - Turbine', 'Wind Energy', ]
+cpi_solar_strings = [
+    'Solar Photovoltaic', 'Solar Thermal', 'SOLAR PROJECT', 'Solar',
+    'Photovoltaic',
+]
+cpi_plant_kind_strings = {
+    'natural_gas': cpi_natural_gas_strings,
+    'diesel': cpi_diesel_strings,
+    'geothermal': cpi_geothermal_strings,
+    'nuclear': cpi_nuclear_strings,
+    'steam': cpi_steam_strings,
+    'wind': cpi_wind_strings,
+    'solar': cpi_solar_strings,
+    'other': cpi_other_strings,
+}
 # Categorizing the strings from the FERC Form 1 Type of Plant Construction
 # (construction_type) field into lists.
 # There are many strings that weren't categorized, including crosses between
