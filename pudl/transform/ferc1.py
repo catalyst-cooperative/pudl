@@ -24,8 +24,6 @@ from sklearn.preprocessing import Normalizer, RobustScaler
 from sklearn.preprocessing import OneHotEncoder
 
 import pudl.constants as pc
-#import pudl.models.ferc1
-#import pudl.extract.ferc1
 import pudl.transform.pudl
 import pudl.helpers
 from pudl.settings import SETTINGS
@@ -418,9 +416,6 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     ferc1_small_df = pudl.helpers.strip_lower(
         ferc1_small_df, ['plant_name', 'kind_of_fuel']
     )
-
-    #ferc1_small_df['kind_of_fuel'] = ferc1_small_df['kind_of_fuel'].str.strip()
-    #ferc1_small_df['kind_of_fuel'] = ferc1_small_df['kind_of_fuel'].str.title()
 
     # Force the construction and installation years to be numeric values, and
     # set them to NA if they can't be converted. (table has some junk values)
