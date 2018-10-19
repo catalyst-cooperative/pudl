@@ -290,7 +290,7 @@ def _ingest_glue_eia_ferc1(engine,
           associated with a PUDL plant ID. This is necessary because FERC does
           not provide plant ids, so the unique plant identifier is a
           combination of the respondent id and plant name.
-        - util_plant_assn: An association table which describes which plants
+        - utility_plant_assn: An association table which describes which plants
           have relationships with what utilities. If a record exists in this
           table then combination of PUDL utility id & PUDL plant id does have
           an association of some kind. The nature of that association is
@@ -431,27 +431,27 @@ def _ingest_glue_eia_ferc1(engine,
                      con=engine, index=False, if_exists='append',
                      dtype={'id': sa.Integer, 'name': sa.String})
 
-    utilities_ferc.rename(columns={'respondent_id_ferc': 'utility_id_ferc',
-                                   'respondent_name_ferc': 'utility_name_ferc',
-                                   'utility_id': 'util_id_pudl'},
+    utilities_ferc.rename(columns={'respondent_id_ferc': 'utility_id_ferc1',
+                                   'respondent_name_ferc': 'utility_name_ferc1',
+                                   'utility_id': 'utility_id_pudl'},
                           inplace=True)
     utilities_ferc.to_sql(name='utilities_ferc',
                           con=engine, index=False, if_exists='append',
-                          dtype={'utility_id_ferc': sa.Integer,
-                                 'utility_name_ferc': sa.String,
-                                 'util_id_pudl': sa.Integer})
+                          dtype={'utility_id_ferc1': sa.Integer,
+                                 'utility_name_ferc1': sa.String,
+                                 'utility_id_pudl': sa.Integer})
 
-    plants_ferc.rename(columns={'respondent_id_ferc': 'utility_id_ferc',
+    plants_ferc.rename(columns={'respondent_id_ferc': 'utility_id_ferc1',
                                 'plant_name_ferc': 'plant_name',
                                 'plant_id': 'plant_id_pudl'},
                        inplace=True)
     plants_ferc.to_sql(name='plants_ferc',
                        con=engine, index=False, if_exists='append',
-                       dtype={'utility_id_ferc': sa.Integer,
+                       dtype={'utility_id_ferc1': sa.Integer,
                               'plant_name': sa.String,
                               'plant_id_pudl': sa.Integer})
 
-    utility_plant_assn.to_sql(name='util_plant_assn',
+    utility_plant_assn.to_sql(name='utility_plant_assn',
                               con=engine, index=False, if_exists='append',
                               dtype={'plant_id': sa.Integer,
                                      'utility_id': sa.Integer})
@@ -460,13 +460,13 @@ def _ingest_glue_eia_ferc1(engine,
     if eia860_years or eia923_years:
         utilities_eia.rename(columns={'operator_id_eia': 'utility_id_eia',
                                       'operator_name_eia': 'utility_name',
-                                      'utility_id': 'util_id_pudl'},
+                                      'utility_id': 'utility_id_pudl'},
                              inplace=True)
         utilities_eia.to_sql(name='utilities_eia',
                              con=engine, index=False, if_exists='append',
                              dtype={'utility_id_eia': sa.Integer,
                                     'utility_name': sa.String,
-                                    'util_id_pudl': sa.Integer})
+                                    'utility_id_pudl': sa.Integer})
         plants_eia.rename(columns={'plant_name_eia': 'plant_name',
                                    'plant_id': 'plant_id_pudl'},
                           inplace=True)

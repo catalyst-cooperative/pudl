@@ -206,7 +206,7 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
 
     ferc1_steam_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
-        'respondent_id': 'utility_id_ferc',
+        'respondent_id': 'utility_id_ferc1',
         'yr_const': 'construction_year',
         'plant_kind': 'plant_type',
         'type_const': 'construction_type',
@@ -266,7 +266,7 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
         construction_type_wt=1.0,
         capacity_mw_wt=1.0,
         construction_year_wt=1.0,
-        utility_id_ferc_wt=1.0)
+        utility_id_ferc1_wt=1.0)
     ferc_clf = ferc_clf.fit_transform(ferc1_steam_df)
 
     # Use the classifier to generate groupings of similar records:
@@ -363,7 +363,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     #########################################################################
     fuel_ferc1_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
-        'respondent_id': 'utility_id_ferc',
+        'respondent_id': 'utility_id_ferc1',
         'fuel': 'fuel_type_code_pudl',
         'fuel_avg_mmbtu_per_unit': 'fuel_mmbtu_per_unit',
         'fuel_quantity': 'fuel_qty_burned',
@@ -434,7 +434,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     # Merge in the plant_id_ferc1 values that were previously assigned in
     # the plants_steam transformation step.
     plant_ids_ferc1 = ferc1_transformed_dfs['plants_steam_ferc1'][[
-        'utility_id_ferc',
+        'utility_id_ferc1',
         'report_year',
         'plant_name',
         'plant_id_ferc1'
@@ -548,7 +548,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
 
     ferc1_small_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
-        'respondent_id': 'utility_id_ferc',
+        'respondent_id': 'utility_id_ferc1',
         'plant_name': 'plant_name_original',
         'plant_name_clean': 'plant_name',
         'ferc_license': 'ferc_license_id',
@@ -611,7 +611,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     ferc1_hydro_df.dropna(inplace=True)
     ferc1_hydro_df.rename(columns={
         # FERC1 DB          PUDL DB
-        'respondent_id': 'utility_id_ferc',
+        'respondent_id': 'utility_id_ferc1',
         'project_no': 'project_num',
         'yr_const': 'construction_year',
         'plant_kind': 'plant_type',
@@ -711,7 +711,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
 
     ferc1_pumped_storage_df.rename(columns={
         # FERC1 DB          PUDL DB
-        'respondent_id': 'utility_id_ferc',
+        'respondent_id': 'utility_id_ferc1',
         'project_number': 'project_num',
         'tot_capacity': 'capacity_mw',
         'project_no': 'project_num',
@@ -788,7 +788,7 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
 
     ferc1_pis_df.rename(columns={
         # FERC 1 DB Name  PUDL DB Name
-        'respondent_id': 'utility_id_ferc',
+        'respondent_id': 'utility_id_ferc1',
         'begin_yr_bal': 'beginning_year_balance',
         'addition': 'additions',
         'yr_end_bal': 'year_end_balance'},
@@ -828,7 +828,7 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
 
     ferc1_purchased_pwr_df.rename(columns={
         # FERC 1 DB Name  PUDL DB Name
-        'respondent_id': 'utility_id_ferc',
+        'respondent_id': 'utility_id_ferc1',
         'athrty_co_name': 'authority_company_name',
         'sttstcl_clssfctn': 'statistical_classification',
         'rtsched_trffnbr': 'rate_schedule_tariff_num',
@@ -879,7 +879,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True)
 
     ferc1_accumdepr_prvsn_df.rename(columns={
         # FERC1 DB   PUDL DB
-        'respondent_id': 'utility_id_ferc',
+        'respondent_id': 'utility_id_ferc1',
         'total_cde': 'total'},
         inplace=True)
 
@@ -1160,7 +1160,7 @@ def make_ferc_clf(plants_df,
                   construction_type_wt=1.0,
                   capacity_mw_wt=1.0,
                   construction_year_wt=1.0,
-                  utility_id_ferc_wt=1.0):
+                  utility_id_ferc1_wt=1.0):
     """Create a boilerplate FERC Plant Classifier."""
 
     ferc_pipe = Pipeline([
@@ -1189,9 +1189,9 @@ def make_ferc_clf(plants_df,
                     ('onehot', OneHotEncoder(categories='auto')),
                 ]), ['construction_year']),
 
-                ('utility_id_ferc', Pipeline([
+                ('utility_id_ferc1', Pipeline([
                     ('onehot', OneHotEncoder(categories='auto')),
-                ]), ['utility_id_ferc'])
+                ]), ['utility_id_ferc1'])
             ],
 
             transformer_weights={
@@ -1200,7 +1200,7 @@ def make_ferc_clf(plants_df,
                 'construction_type': construction_type_wt,
                 'capacity_mw': capacity_mw_wt,
                 'construction_year': construction_year_wt,
-                'utility_id_ferc': utility_id_ferc_wt,
+                'utility_id_ferc1': utility_id_ferc1_wt,
             })
          ),
         ('classifier', pudl.transform.ferc1.FERCPlantClassifier(

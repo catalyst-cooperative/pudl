@@ -31,7 +31,7 @@ def utilities_eia860(start_date=None, end_date=None, testing=False):
     utils_eia_tbl = pt['utilities_eia']
     utils_eia_select = sa.sql.select([
         utils_eia_tbl.c.utility_id_eia,
-        utils_eia_tbl.c.util_id_pudl,
+        utils_eia_tbl.c.utility_id_pudl,
     ])
     utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
@@ -42,7 +42,7 @@ def utilities_eia860(start_date=None, end_date=None, testing=False):
     first_cols = [
         'report_date',
         'utility_id_eia',
-        'util_id_pudl',
+        'utility_id_pudl',
         'utility_name',
     ]
 
@@ -82,7 +82,7 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
     utils_eia_tbl = pt['utilities_eia']
     utils_eia_select = sa.sql.select([
         utils_eia_tbl.c.utility_id_eia,
-        utils_eia_tbl.c.util_id_pudl,
+        utils_eia_tbl.c.utility_id_pudl,
     ])
     utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
@@ -93,7 +93,7 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
     first_cols = [
         'report_date',
         'utility_id_eia',
-        'util_id_pudl',
+        'utility_id_pudl',
         'utility_name',
         'plant_id_eia',
         'plant_id_pudl',
@@ -118,7 +118,7 @@ def plants_utils_eia860(start_date=None, end_date=None, testing=False):
     - plant_id_pudl
     - utility_id_eia (from EIA860)
     - utility_name (from EIA860)
-    - util_id_pudl
+    - utility_id_pudl
 
     Note: EIA 860 data has only been integrated for 2011-2016. If earlier or
           later years are requested, they will be filled in with data from the
@@ -133,7 +133,7 @@ def plants_utils_eia860(start_date=None, end_date=None, testing=False):
                                  end_date=end_date,
                                  testing=testing)
     # to avoid duplicate columns on the merge...
-    plants_eia = plants_eia.drop(['util_id_pudl', 'utility_name'], axis=1)
+    plants_eia = plants_eia.drop(['utility_id_pudl', 'utility_name'], axis=1)
     out_df = pd.merge(plants_eia, utils_eia,
                       how='left', on=['report_date', 'utility_id_eia'])
 
@@ -143,12 +143,12 @@ def plants_utils_eia860(start_date=None, end_date=None, testing=False):
                     'plant_id_pudl',
                     'utility_id_eia',
                     'utility_name',
-                    'util_id_pudl']
+                    'utility_id_pudl']
 
     out_df = out_df[cols_to_keep]
     out_df = out_df.dropna()
     out_df.plant_id_pudl = out_df.plant_id_pudl.astype(int)
-    out_df.util_id_pudl = out_df.util_id_pudl.astype(int)
+    out_df.utility_id_pudl = out_df.utility_id_pudl.astype(int)
     return out_df
 
 
@@ -263,7 +263,7 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
         'plant_id_pudl',
         'plant_name',
         'utility_id_eia',
-        'util_id_pudl',
+        'utility_id_pudl',
         'utility_name',
         'generator_id',
     ]
@@ -325,7 +325,7 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
     pu_eia = plants_utils_eia860(start_date=start_date,
                                  end_date=end_date,
                                  testing=testing)
-    pu_eia = pu_eia[['plant_id_eia', 'plant_id_pudl', 'util_id_pudl',
+    pu_eia = pu_eia[['plant_id_eia', 'plant_id_pudl', 'utility_id_pudl',
                      'report_date']]
 
     o_df['report_date'] = pd.to_datetime(o_df.report_date)
@@ -338,7 +338,7 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
         'plant_id_eia',
         'plant_id_pudl',
         'utility_id_eia',
-        'util_id_pudl',
+        'utility_id_pudl',
         'generator_id',
         'owner_utility_id_eia',
     ])
@@ -349,7 +349,7 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
         'plant_id_pudl',
         'plant_name',
         'utility_id_eia',
-        'util_id_pudl',
+        'utility_id_pudl',
         'utility_name',
         'generator_id',
         'owner_utility_id_eia',
@@ -359,7 +359,7 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
     # Re-arrange the columns for easier readability:
     out_df = helpers.organize_cols(out_df, first_cols)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
-    out_df['util_id_pudl'] = out_df.util_id_pudl.astype(int)
+    out_df['utility_id_pudl'] = out_df.utility_id_pudl.astype(int)
     out_df = helpers.extend_annual(
         out_df, start_date=start_date, end_date=end_date)
 

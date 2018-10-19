@@ -104,18 +104,19 @@ class UtilityFERC1(pudl.models.entities.PUDLBase):
     """A FERC respondent -- typically this is a utility company."""
 
     __tablename__ = 'utilities_ferc'
-    utility_id_ferc = Column(Integer, primary_key=True)
-    utility_name_ferc = Column(String, nullable=False)
-    util_id_pudl = Column(Integer, ForeignKey('utilities.id'), nullable=False)
+    utility_id_ferc1 = Column(Integer, primary_key=True)
+    utility_name_ferc1 = Column(String, nullable=False)
+    utility_id_pudl = Column(Integer, ForeignKey(
+        'utilities.id'), nullable=False)
 
-    util_pudl = relationship("Utility", back_populates="respondents")
+    utility_pudl = relationship("Utility", back_populates="respondents")
 
     def __repr__(self):
         """Print out a string representation of the UtilityFERC1."""
-        return "<UtilityFERC1(utility_id_ferc={}, utility_name_ferc='{}', \
-util_id_pudl='{}')>".format(self.utility_id_ferc,
-                            self.utility_name_ferc,
-                            self.util_id_pudl)
+        return "<UtilityFERC1(utility_id_ferc1={}, utility_name_ferc1='{}', \
+utility_id_pudl='{}')>".format(self.utility_id_ferc1,
+                               self.utility_name_ferc1,
+                               self.utility_id_pudl)
 
 
 class PlantFERC1(pudl.models.entities.PUDLBase):
@@ -130,9 +131,9 @@ class PlantFERC1(pudl.models.entities.PUDLBase):
     """
 
     __tablename__ = 'plants_ferc'
-    utility_id_ferc = Column(Integer,
-                             ForeignKey('utilities_ferc.utility_id_ferc'),
-                             primary_key=True)
+    utility_id_ferc1 = Column(Integer,
+                              ForeignKey('utilities_ferc.utility_id_ferc1'),
+                              primary_key=True)
     plant_name = Column(String, primary_key=True, nullable=False)
     plant_id_pudl = Column(Integer, ForeignKey('plants.id'), nullable=False)
 
@@ -156,16 +157,17 @@ class UtilityEIA923(pudl.models.entities.PUDLBase):
     __tablename__ = 'utilities_eia'
     utility_id_eia = Column(Integer, primary_key=True)
     utility_name = Column(String, nullable=False)
-    util_id_pudl = Column(Integer, ForeignKey('utilities.id'), nullable=False)
+    utility_id_pudl = Column(Integer, ForeignKey(
+        'utilities.id'), nullable=False)
 
-    util_pudl = relationship("Utility", back_populates="operators")
+    utility_pudl = relationship("Utility", back_populates="operators")
 
     def __repr__(self):
         """Print out a string representation of the UtiityEIA923."""
         return "<UtilityEIA923(utility_id_eia={}, utility_name='{}', \
-util_id_pudl={})>".format(self.utility_id_eia,
-                          self.utility_name,
-                          self.util_id_pudl)
+utility_id_pudl={})>".format(self.utility_id_eia,
+                             self.utility_name,
+                             self.utility_id_pudl)
 
 
 class PlantEIA923(pudl.models.entities.PUDLBase):
@@ -207,9 +209,9 @@ class Utility(pudl.models.entities.PUDLBase):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
 
-    operators = relationship("UtilityEIA923", back_populates="util_pudl")
-    respondents = relationship("UtilityFERC1", back_populates="util_pudl")
-    plants = relationship("UtilPlantAssn", back_populates="utilities")
+    operators = relationship("UtilityEIA923", back_populates="utility_pudl")
+    respondents = relationship("UtilityFERC1", back_populates="utility_pudl")
+    plants = relationship("UtilityPlantAssn", back_populates="utilities")
 
     def __repr__(self):
         """Print out a string representation of the Utility."""
@@ -232,17 +234,17 @@ class Plant(pudl.models.entities.PUDLBase):
 
     plants_eia = relationship("PlantEIA923", back_populates="plants_pudl")
     plants_ferc = relationship("PlantFERC1", back_populates="plants_pudl")
-    utilities = relationship("UtilPlantAssn", back_populates="plants")
+    utilities = relationship("UtilityPlantAssn", back_populates="plants")
 
     def __repr__(self):
         """Print out a string representation of the Plant."""
         return "<Plant(id={}, name='{}')>".format(self.id, self.name)
 
 
-class UtilPlantAssn(pudl.models.entities.PUDLBase):
+class UtilityPlantAssn(pudl.models.entities.PUDLBase):
     """Enumerates existence of relationships between plants and utilities."""
 
-    __tablename__ = 'util_plant_assn'
+    __tablename__ = 'utility_plant_assn'
     utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
     plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
 
@@ -250,6 +252,6 @@ class UtilPlantAssn(pudl.models.entities.PUDLBase):
     utilities = relationship("Utility", back_populates="plants")
 
     def __repr__(self):
-        """Print out a string representation of the UtilPlantAssn."""
-        return "<UtilPlantAssn(utiity_id={}, plant_id={})>".\
+        """Print out a string representation of the UtilityPlantAssn."""
+        return "<UtilityPlantAssn(utiity_id={}, plant_id={})>".\
             format(self.utility_id, self.plant_id)

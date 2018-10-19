@@ -368,7 +368,7 @@ def mcoe(pudl_out,
         'plant_id_pudl',
         'plant_name',
         'utility_id_eia',
-        'util_id_pudl',
+        'utility_id_pudl',
         'utility_name',
         'fuel_type_count',
         'fuel_type_code_pudl'
@@ -384,7 +384,7 @@ def mcoe(pudl_out,
                   'generator_id',
                   'plant_name',
                   'utility_id_eia',
-                  'util_id_pudl',
+                  'utility_id_pudl',
                   'utility_name']
     mcoe_out = helpers.organize_cols(mcoe_out, first_cols)
     mcoe_out = mcoe_out.sort_values(

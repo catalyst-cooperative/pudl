@@ -21,7 +21,7 @@ def plants_utils_ferc1(testing=False):
     plants_ferc_select = sa.sql.select([plants_ferc_tbl, ])
     plants_ferc = pd.read_sql(plants_ferc_select, pudl_engine)
 
-    out_df = pd.merge(plants_ferc, utils_ferc, on='utility_id_ferc')
+    out_df = pd.merge(plants_ferc, utils_ferc, on='utility_id_ferc1')
     return out_df
 
 
@@ -50,14 +50,15 @@ def plants_steam_ferc1(testing=False):
 
     pu_ferc = plants_utils_ferc1(testing=testing)
 
-    out_df = pd.merge(steam_df, pu_ferc, on=['utility_id_ferc', 'plant_name'])
+    out_df = pd.merge(steam_df, pu_ferc, on=['utility_id_ferc1', 'plant_name'])
 
     first_cols = [
         'report_year',
-        'utility_id_ferc',
-        'util_id_pudl',
-        'utility_name_ferc',
+        'utility_id_ferc1',
+        'utility_id_pudl',
+        'utility_name_ferc1',
         'plant_id_pudl',
+        'plant_id_ferc1',
         'plant_name'
     ]
 
@@ -109,15 +110,16 @@ def fuel_ferc1(testing=False):
 
     pu_ferc = plants_utils_ferc1(testing=testing)
 
-    out_df = pd.merge(fuel_df, pu_ferc, on=['utility_id_ferc', 'plant_name'])
+    out_df = pd.merge(fuel_df, pu_ferc, on=['utility_id_ferc1', 'plant_name'])
     out_df = out_df.drop('id', axis=1)
 
     first_cols = [
         'report_year',
-        'utility_id_ferc',
-        'util_id_pudl',
-        'utility_name_ferc',
+        'utility_id_ferc1',
+        'utility_id_pudl',
+        'utility_name_ferc1',
         'plant_id_pudl',
+        'plant_id_ferc1',
         'plant_name'
     ]
 
