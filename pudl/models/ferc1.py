@@ -52,6 +52,7 @@ class PlantSteamFERC1(pudl.models.entities.PUDLBase):
     id = Column(Integer, autoincrement=True, primary_key=True)
     record_id = Column(String, nullable=False)
     utility_id_ferc = Column(Integer, nullable=False)
+    plant_id_ferc1 = Column(Integer)
     plant_name = Column(String, nullable=False)
     report_year = Column(Integer, nullable=False)
     plant_type = Column(String)  # FK New, needs cleaning

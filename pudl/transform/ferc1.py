@@ -88,7 +88,7 @@ def _clean_cols(df):
     return df
 
 
-def multiplicative_error_correction(tofix, mask, minval, maxval, mults):
+def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
     """
     Correct data entry errors resulting in data being multiplied by a factor.
 
@@ -150,7 +150,7 @@ def multiplicative_error_correction(tofix, mask, minval, maxval, mults):
 ##############################################################################
 # DATABASE TABLE SPECIFIC PROCEDURES ##########################################
 ##############################################################################
-def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
+def fuel(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     """
     Transform FERC Form 1 fuel data for loading into PUDL Database.
 
@@ -269,8 +269,8 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     for (coltofix, mask, minval, maxval, mults) in corrections:
         fuel_ferc1_df[coltofix] = \
-            multiplicative_error_correction(fuel_ferc1_df[coltofix],
-                                            mask, minval, maxval, mults)
+            _multiplicative_error_correction(fuel_ferc1_df[coltofix],
+                                             mask, minval, maxval, mults)
 
     #########################################################################
     # REMOVE BAD DATA #######################################################
@@ -285,7 +285,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
+def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     """
     Transform FERC Form 1 plant_steam data for loading into PUDL Database.
 
@@ -379,12 +379,64 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
         'expns_per_mwh': 'opex_per_mwh'},
         inplace=True)
 
+    # Now we need to assign IDs to the large steam plants, since FERC doesn't
+    # do this for us.
+    if verbose:
+        print("        Identifying distinct large FERC plants.")
+
+    # scikit-learn still doesn't deal well with NA values (this will be fixed
+    # eventually) We need to massage the type and missing data for the
+    # Classifier to work.
+    ferc1_steam_df['construction_year'] = \
+        pudl.transform.pudl.fix_int_na(ferc1_steam_df.construction_year)
+
+    # Train the classifier
+    ferc_clf = pudl.transform.ferc1.make_ferc_clf(
+        ferc1_steam_df,
+        ngram_min=2,
+        ngram_max=10,
+        min_sim=0.75,
+        plant_name_wt=2.0,
+        plant_type_wt=2.0,
+        construction_type_wt=1.0,
+        capacity_mw_wt=1.0,
+        construction_year_wt=1.0,
+        utility_id_ferc_wt=1.0)
+    ferc_clf = ferc_clf.fit_transform(ferc1_steam_df)
+
+    # Use the classifier to generate groupings of similar records:
+    record_groups = ferc_clf.predict(ferc1_steam_df.record_id)
+    n_tot = len(ferc1_steam_df)
+    n_grp = len(record_groups)
+    pct_grp = n_grp / n_tot
+
+    # We only need one copy of each record group:
+    record_groups = record_groups.drop_duplicates()
+    record_groups = record_groups.reset_index(drop=True)
+    if verbose:
+        print(f"        {len(record_groups)} large FERC plants identified.")
+        print(f"        {n_grp} of {n_tot} records ({pct_grp}) categorized.")
+    record_groups = record_groups.stack().reset_index(level=1, drop=True)
+
+    # Get rid of empty records
+    record_groups = record_groups[record_groups != '']
+
+    # Merge the plant IDs into the plants table on record_id
+    record_groups.name = 'record_id'
+    record_groups.index.name = 'plant_id_ferc1'
+    ferc_plant_ids = record_groups.reset_index()
+    ferc1_steam_df = pd.merge(ferc1_steam_df, ferc_plant_ids, on='record_id')
+
+    # Set the construction year back to numeric because it is.
+    ferc1_steam_df['construction_year'] = pd.to_numeric(
+        ferc1_steam_df['construction_year'], errors='coerce')
+
     ferc1_transformed_dfs['plants_steam_ferc1'] = ferc1_steam_df
 
     return ferc1_transformed_dfs
 
 
-def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
+def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     """
     Transform FERC Form 1 plant_small data for loading into PUDL Database.
 
@@ -508,7 +560,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
+def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     """
     Transform FERC Form 1 plant_hydro data for loading into PUDL Database.
 
@@ -593,7 +645,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
+def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     """
     Transform FERC Form 1 pumped storage data for loading into PUDL Database.
 
@@ -699,7 +751,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
+def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     """
     Transform FERC Form 1 plant_in_service data for loading into PUDL Database.
 
@@ -744,7 +796,7 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
+def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     """
     Transform FERC Form 1 pumped storage data for loading into PUDL Database.
 
@@ -794,7 +846,7 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
+def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     """
     Transform FERC Form 1 depreciation data for loading into PUDL Database.
 
@@ -859,7 +911,8 @@ def transform(ferc1_raw_dfs,
             if verbose:
                 print("    {}...".format(table))
             ferc1_transform_functions[table](ferc1_raw_dfs,
-                                             ferc1_transformed_dfs)
+                                             ferc1_transformed_dfs,
+                                             verbose=verbose)
 
     return ferc1_transformed_dfs
 
@@ -1021,7 +1074,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
                 new_grp = self._best_of.loc[b_m, 'record_id']
 
                 # reshape into row, rather than column,
-                new_grp = new_grp.values.reshape(1, 13)
+                new_grp = new_grp.values.reshape(1, len(self._years))
 
                 # Stack the new list of record_ids on our output DataFrame:
                 new_grp = pd.DataFrame(new_grp, columns=self._years)
@@ -1049,11 +1102,6 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
               a metric of similarity between the prediction and the "ground
               truth" group that was passed in for that value of X.
             - Return the average of all those similarity metrics as the score.
-
-        TODO:
-        -----
-        * method needs to be re-written to work with the new predict() method
-          which returns a dataframe.
         """
 
         scores = []
@@ -1066,7 +1114,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
                                      predicted_groups.loc[rec_id])
                 scores = scores + [sm.ratio()]
 
-        return(np.mean(scores))
+        return np.mean(scores)
 
     def _best_by_year(self):
         """Find the best match for each plant record in each other year."""
@@ -1155,5 +1203,4 @@ def make_ferc_clf(plants_df,
         ('classifier', pudl.transform.ferc1.FERCPlantClassifier(
             min_sim=min_sim, plants_df=plants_df))
     ])
-    ferc_clf = ferc_pipe.fit_transform(plants_df)
-    return ferc_clf
+    return ferc_pipe
