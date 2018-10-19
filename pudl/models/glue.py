@@ -105,16 +105,16 @@ class UtilityFERC1(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'utilities_ferc'
     utility_id_ferc = Column(Integer, primary_key=True)
-    respondent_name = Column(String, nullable=False)
+    utility_name_ferc = Column(String, nullable=False)
     util_id_pudl = Column(Integer, ForeignKey('utilities.id'), nullable=False)
 
     util_pudl = relationship("Utility", back_populates="respondents")
 
     def __repr__(self):
         """Print out a string representation of the UtilityFERC1."""
-        return "<UtilityFERC1(respondent_id={}, respondent_name='{}', \
+        return "<UtilityFERC1(utility_id_ferc={}, utility_name_ferc='{}', \
 util_id_pudl='{}')>".format(self.utility_id_ferc,
-                            self.respondent_name,
+                            self.utility_name_ferc,
                             self.util_id_pudl)
 
 
@@ -131,8 +131,8 @@ class PlantFERC1(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'plants_ferc'
     utility_id_ferc = Column(Integer,
-                           ForeignKey('utilities_ferc.utility_id_ferc'),
-                           primary_key=True)
+                             ForeignKey('utilities_ferc.utility_id_ferc'),
+                             primary_key=True)
     plant_name = Column(String, primary_key=True, nullable=False)
     plant_id_pudl = Column(Integer, ForeignKey('plants.id'), nullable=False)
 

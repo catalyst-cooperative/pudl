@@ -432,13 +432,13 @@ def _ingest_glue_eia_ferc1(engine,
                      dtype={'id': sa.Integer, 'name': sa.String})
 
     utilities_ferc.rename(columns={'respondent_id_ferc': 'utility_id_ferc',
-                                   'respondent_name_ferc': 'respondent_name',
+                                   'respondent_name_ferc': 'utility_name_ferc',
                                    'utility_id': 'util_id_pudl'},
                           inplace=True)
     utilities_ferc.to_sql(name='utilities_ferc',
                           con=engine, index=False, if_exists='append',
                           dtype={'utility_id_ferc': sa.Integer,
-                                 'respondent_name': sa.String,
+                                 'utility_name_ferc': sa.String,
                                  'util_id_pudl': sa.Integer})
 
     plants_ferc.rename(columns={'respondent_id_ferc': 'utility_id_ferc',

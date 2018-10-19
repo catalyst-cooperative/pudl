@@ -56,7 +56,7 @@ def plants_steam_ferc1(testing=False):
         'report_year',
         'utility_id_ferc',
         'util_id_pudl',
-        'respondent_name',
+        'utility_name_ferc',
         'plant_id_pudl',
         'plant_name'
     ]
@@ -116,7 +116,7 @@ def fuel_ferc1(testing=False):
         'report_year',
         'utility_id_ferc',
         'util_id_pudl',
-        'respondent_name',
+        'utility_name_ferc',
         'plant_id_pudl',
         'plant_name'
     ]
