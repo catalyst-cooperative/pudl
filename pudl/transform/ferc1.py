@@ -150,141 +150,6 @@ def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
 ##############################################################################
 # DATABASE TABLE SPECIFIC PROCEDURES ##########################################
 ##############################################################################
-def fuel(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
-    """
-    Transform FERC Form 1 fuel data for loading into PUDL Database.
-
-    This process includes converting some columns to be in terms of our
-    preferred units, like MWh and mmbtu instead of kWh and btu. Plant names are
-    also standardized (stripped & Title Case). Fuel and fuel unit strings are
-    also standardized using our cleanstrings() function and string cleaning
-    dictionaries found in pudl.constants.
-
-    Args:
-        ferc1_raw_dfs (dictionary of pandas.DataFrame): Each entry in this
-            dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        ferc1_transformed_dfs (dictionary of DataFrames)
-
-    Returns: transformed dataframe.
-    """
-    # grab table from dictionary of dfs, clean it up a bit
-    fuel_ferc1_df = _clean_cols(ferc1_raw_dfs['fuel_ferc1'])
-
-    #########################################################################
-    # STANDARDIZE NAMES AND CODES ###########################################
-    #########################################################################
-    # Standardize plant_name capitalization and remove leading/trailing white
-    # space -- necesary b/c plant_name is part of many foreign keys.
-    fuel_ferc1_df = pudl.helpers.strip_lower(fuel_ferc1_df, ['plant_name'])
-
-    # Take the messy free-form fuel & fuel_unit fields, and do our best to
-    # map them to some canonical categories... this is necessarily imperfect:
-    fuel_ferc1_df.fuel = \
-        pudl.transform.pudl.cleanstrings(fuel_ferc1_df.fuel,
-                                         pc.ferc1_fuel_strings,
-                                         unmapped='')
-
-    fuel_ferc1_df.fuel_unit = \
-        pudl.transform.pudl.cleanstrings(fuel_ferc1_df.fuel_unit,
-                                         pc.ferc1_fuel_unit_strings,
-                                         unmapped='')
-
-    #########################################################################
-    # PERFORM UNIT CONVERSIONS ##############################################
-    #########################################################################
-
-    # Replace fuel cost per kWh with fuel cost per MWh
-    fuel_ferc1_df['fuel_cost_per_mwh'] = 1000 * fuel_ferc1_df['fuel_cost_kwh']
-    fuel_ferc1_df.drop('fuel_cost_kwh', axis=1, inplace=True)
-
-    # Replace BTU/kWh with millions of BTU/MWh
-    fuel_ferc1_df['fuel_mmbtu_per_mwh'] = (1e3 / 1e6) * \
-        fuel_ferc1_df['fuel_generaton']
-    fuel_ferc1_df.drop('fuel_generaton', axis=1, inplace=True)
-
-    # Convert from BTU/unit of fuel to 1e6 BTU/unit.
-    fuel_ferc1_df['fuel_avg_mmbtu_per_unit'] = fuel_ferc1_df['fuel_avg_heat'] / 1e6
-    fuel_ferc1_df.drop('fuel_avg_heat', axis=1, inplace=True)
-
-    #########################################################################
-    # RENAME COLUMNS TO MATCH PUDL DB #######################################
-    #########################################################################
-    fuel_ferc1_df.rename(columns={
-        # FERC 1 DB Name      PUDL DB Name
-        'respondent_id': 'utility_id_ferc',
-        'fuel': 'fuel_type_code_pudl',
-        'fuel_avg_mmbtu_per_unit': 'fuel_mmbtu_per_unit',
-        'fuel_quantity': 'fuel_qty_burned',
-        'fuel_cost_burned': 'fuel_cost_per_unit_burned',
-        'fuel_cost_delvd': 'fuel_cost_per_unit_delivered',
-        'fuel_cost_btu': 'fuel_cost_per_mmbtu'},
-        inplace=True)
-
-    #########################################################################
-    # CORRECT DATA ENTRY ERRORS #############################################
-    #########################################################################
-    coal_mask = fuel_ferc1_df['fuel_type_code_pudl'] == 'coal'
-    gas_mask = fuel_ferc1_df['fuel_type_code_pudl'] == 'gas'
-    oil_mask = fuel_ferc1_df['fuel_type_code_pudl'] == 'oil'
-
-    corrections = [
-        # mult = 2000: reported in units of lbs instead of short tons
-        # mult = 1e6:  reported BTUs instead of mmBTUs
-        # minval and maxval of 10 and 29 mmBTUs are the range of values
-        # specified by EIA 923 instructions at:
-        # https://www.eia.gov/survey/form/eia_923/instructions.pdf
-        ['fuel_mmbtu_per_unit', coal_mask, 10.0, 29.0, (2e3, 1e6)],
-
-        # mult = 1e-2: reported cents/mmBTU instead of USD/mmBTU
-        # minval and maxval of .5 and 7.5 dollars per mmBTUs are the
-        # end points of the primary distribution of EIA 923 fuel receipts
-        # and cost per mmBTU data weighted by quantity delivered
-        ['fuel_cost_per_mmbtu', coal_mask, 0.5, 7.5, (1e-2, )],
-
-        # mult = 1e3: reported fuel quantity in cubic feet, not mcf
-        # mult = 1e6: reported fuel quantity in BTU, not mmBTU
-        # minval and maxval of .8 and 1.2 mmBTUs are the range of values
-        # specified by EIA 923 instructions
-        ['fuel_mmbtu_per_unit', gas_mask, 0.8, 1.2, (1e3, 1e6)],
-
-        # mult = 1e-2: reported in cents/mmBTU instead of USD/mmBTU
-        # minval and maxval of 1 and 35 dollars per mmBTUs are the
-        # end points of the primary distribution of EIA 923 fuel receipts
-        # and cost per mmBTU data weighted by quantity delivered
-        ['fuel_cost_per_mmbtu', gas_mask, 1, 35, (1e-2, )],
-
-        # mult = 42: reported fuel quantity in gallons, not barrels
-        # mult = 1e6: reported fuel quantity in BTU, not mmBTU
-        # minval and maxval of 3 and 6.9 mmBTUs are the range of values
-        # specified by EIA 923 instructions
-        ['fuel_mmbtu_per_unit', oil_mask, 3, 6.9, (42, )],
-
-        # mult = 1e-2: reported in cents/mmBTU instead of USD/mmBTU
-        # minval and maxval of 5 and 33 dollars per mmBTUs are the
-        # end points of the primary distribution of EIA 923 fuel receipts
-        # and cost per mmBTU data weighted by quantity delivered
-        ['fuel_cost_per_mmbtu', oil_mask, 5, 33, (1e-2, )]
-    ]
-
-    for (coltofix, mask, minval, maxval, mults) in corrections:
-        fuel_ferc1_df[coltofix] = \
-            _multiplicative_error_correction(fuel_ferc1_df[coltofix],
-                                             mask, minval, maxval, mults)
-
-    #########################################################################
-    # REMOVE BAD DATA #######################################################
-    #########################################################################
-    # Drop any records that are missing data. This is a blunt instrument, to
-    # be sure. In some cases we lose data here, because some utilities have
-    # (for example) a "Total" line w/ only fuel_mmbtu_per_kwh on it. Grr.
-    fuel_ferc1_df.dropna(inplace=True)
-
-    ferc1_transformed_dfs['fuel_ferc1'] = fuel_ferc1_df
-
-    return ferc1_transformed_dfs
-
-
 def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     """
     Transform FERC Form 1 plant_steam data for loading into PUDL Database.
@@ -436,6 +301,151 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     return ferc1_transformed_dfs
 
 
+def fuel(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
+    """
+    Transform FERC Form 1 fuel data for loading into PUDL Database.
+
+    This process includes converting some columns to be in terms of our
+    preferred units, like MWh and mmbtu instead of kWh and btu. Plant names are
+    also standardized (stripped & Title Case). Fuel and fuel unit strings are
+    also standardized using our cleanstrings() function and string cleaning
+    dictionaries found in pudl.constants.
+
+    Args:
+        ferc1_raw_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the
+            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        ferc1_transformed_dfs (dictionary of DataFrames)
+
+    Returns: transformed dataframe.
+    """
+    # grab table from dictionary of dfs, clean it up a bit
+    fuel_ferc1_df = _clean_cols(ferc1_raw_dfs['fuel_ferc1'])
+
+    #########################################################################
+    # STANDARDIZE NAMES AND CODES ###########################################
+    #########################################################################
+    # Standardize plant_name capitalization and remove leading/trailing white
+    # space -- necesary b/c plant_name is part of many foreign keys.
+    fuel_ferc1_df = pudl.helpers.strip_lower(fuel_ferc1_df, ['plant_name'])
+
+    # Take the messy free-form fuel & fuel_unit fields, and do our best to
+    # map them to some canonical categories... this is necessarily imperfect:
+    fuel_ferc1_df.fuel = \
+        pudl.transform.pudl.cleanstrings(fuel_ferc1_df.fuel,
+                                         pc.ferc1_fuel_strings,
+                                         unmapped='')
+
+    fuel_ferc1_df.fuel_unit = \
+        pudl.transform.pudl.cleanstrings(fuel_ferc1_df.fuel_unit,
+                                         pc.ferc1_fuel_unit_strings,
+                                         unmapped='')
+
+    #########################################################################
+    # PERFORM UNIT CONVERSIONS ##############################################
+    #########################################################################
+
+    # Replace fuel cost per kWh with fuel cost per MWh
+    fuel_ferc1_df['fuel_cost_per_mwh'] = 1000 * fuel_ferc1_df['fuel_cost_kwh']
+    fuel_ferc1_df.drop('fuel_cost_kwh', axis=1, inplace=True)
+
+    # Replace BTU/kWh with millions of BTU/MWh
+    fuel_ferc1_df['fuel_mmbtu_per_mwh'] = (1e3 / 1e6) * \
+        fuel_ferc1_df['fuel_generaton']
+    fuel_ferc1_df.drop('fuel_generaton', axis=1, inplace=True)
+
+    # Convert from BTU/unit of fuel to 1e6 BTU/unit.
+    fuel_ferc1_df['fuel_avg_mmbtu_per_unit'] = fuel_ferc1_df['fuel_avg_heat'] / 1e6
+    fuel_ferc1_df.drop('fuel_avg_heat', axis=1, inplace=True)
+
+    #########################################################################
+    # RENAME COLUMNS TO MATCH PUDL DB #######################################
+    #########################################################################
+    fuel_ferc1_df.rename(columns={
+        # FERC 1 DB Name      PUDL DB Name
+        'respondent_id': 'utility_id_ferc',
+        'fuel': 'fuel_type_code_pudl',
+        'fuel_avg_mmbtu_per_unit': 'fuel_mmbtu_per_unit',
+        'fuel_quantity': 'fuel_qty_burned',
+        'fuel_cost_burned': 'fuel_cost_per_unit_burned',
+        'fuel_cost_delvd': 'fuel_cost_per_unit_delivered',
+        'fuel_cost_btu': 'fuel_cost_per_mmbtu'},
+        inplace=True)
+
+    #########################################################################
+    # CORRECT DATA ENTRY ERRORS #############################################
+    #########################################################################
+    coal_mask = fuel_ferc1_df['fuel_type_code_pudl'] == 'coal'
+    gas_mask = fuel_ferc1_df['fuel_type_code_pudl'] == 'gas'
+    oil_mask = fuel_ferc1_df['fuel_type_code_pudl'] == 'oil'
+
+    corrections = [
+        # mult = 2000: reported in units of lbs instead of short tons
+        # mult = 1e6:  reported BTUs instead of mmBTUs
+        # minval and maxval of 10 and 29 mmBTUs are the range of values
+        # specified by EIA 923 instructions at:
+        # https://www.eia.gov/survey/form/eia_923/instructions.pdf
+        ['fuel_mmbtu_per_unit', coal_mask, 10.0, 29.0, (2e3, 1e6)],
+
+        # mult = 1e-2: reported cents/mmBTU instead of USD/mmBTU
+        # minval and maxval of .5 and 7.5 dollars per mmBTUs are the
+        # end points of the primary distribution of EIA 923 fuel receipts
+        # and cost per mmBTU data weighted by quantity delivered
+        ['fuel_cost_per_mmbtu', coal_mask, 0.5, 7.5, (1e-2, )],
+
+        # mult = 1e3: reported fuel quantity in cubic feet, not mcf
+        # mult = 1e6: reported fuel quantity in BTU, not mmBTU
+        # minval and maxval of .8 and 1.2 mmBTUs are the range of values
+        # specified by EIA 923 instructions
+        ['fuel_mmbtu_per_unit', gas_mask, 0.8, 1.2, (1e3, 1e6)],
+
+        # mult = 1e-2: reported in cents/mmBTU instead of USD/mmBTU
+        # minval and maxval of 1 and 35 dollars per mmBTUs are the
+        # end points of the primary distribution of EIA 923 fuel receipts
+        # and cost per mmBTU data weighted by quantity delivered
+        ['fuel_cost_per_mmbtu', gas_mask, 1, 35, (1e-2, )],
+
+        # mult = 42: reported fuel quantity in gallons, not barrels
+        # mult = 1e6: reported fuel quantity in BTU, not mmBTU
+        # minval and maxval of 3 and 6.9 mmBTUs are the range of values
+        # specified by EIA 923 instructions
+        ['fuel_mmbtu_per_unit', oil_mask, 3, 6.9, (42, )],
+
+        # mult = 1e-2: reported in cents/mmBTU instead of USD/mmBTU
+        # minval and maxval of 5 and 33 dollars per mmBTUs are the
+        # end points of the primary distribution of EIA 923 fuel receipts
+        # and cost per mmBTU data weighted by quantity delivered
+        ['fuel_cost_per_mmbtu', oil_mask, 5, 33, (1e-2, )]
+    ]
+
+    for (coltofix, mask, minval, maxval, mults) in corrections:
+        fuel_ferc1_df[coltofix] = \
+            _multiplicative_error_correction(fuel_ferc1_df[coltofix],
+                                             mask, minval, maxval, mults)
+
+    #########################################################################
+    # REMOVE BAD DATA #######################################################
+    #########################################################################
+    # Drop any records that are missing data. This is a blunt instrument, to
+    # be sure. In some cases we lose data here, because some utilities have
+    # (for example) a "Total" line w/ only fuel_mmbtu_per_kwh on it. Grr.
+    fuel_ferc1_df.dropna(inplace=True)
+
+    # Merge in the plant_id_ferc1 values that were previously assigned in
+    # the plants_steam transformation step.
+    plant_ids_ferc1 = ferc1_transformed_dfs['plants_steam_ferc1'][[
+        'utility_id_ferc',
+        'report_year',
+        'plant_name',
+        'plant_id_ferc1'
+    ]]
+    fuel_ferc1_df = pd.merge(fuel_ferc1_df, plant_ids_ferc1)
+
+    ferc1_transformed_dfs['fuel_ferc1'] = fuel_ferc1_df
+
+    return ferc1_transformed_dfs
+
+
 def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     """
     Transform FERC Form 1 plant_small data for loading into PUDL Database.
@@ -583,8 +593,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     ferc1_hydro_df = pudl.helpers.strip_lower(ferc1_hydro_df, ['plant_name'])
 
     # Converting kWh to MWh
-    ferc1_hydro_df['net_generation_mwh'] = \
-        ferc1_hydro_df['net_generation'] / 1000.0
+    ferc1_hydro_df['net_generation_mwh'] = ferc1_hydro_df['net_generation'] / 1000.0
     ferc1_hydro_df.drop('net_generation', axis=1, inplace=True)
     # Converting cost per kW installed to cost per MW installed:
     ferc1_hydro_df['cost_per_mw'] = ferc1_hydro_df['cost_per_kw'] * 1000.0
@@ -675,25 +684,20 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     )
 
     # Converting kWh to MWh
-    ferc1_pumped_storage_df['net_generation_mwh'] = \
-        ferc1_pumped_storage_df['net_generation'] / 1000.0
+    ferc1_pumped_storage_df['net_generation_mwh'] = ferc1_pumped_storage_df['net_generation'] / 1000.0
     ferc1_pumped_storage_df.drop('net_generation', axis=1, inplace=True)
 
-    ferc1_pumped_storage_df['energy_used_for_pumping_mwh'] = \
-        ferc1_pumped_storage_df['energy_used'] / 1000.0
+    ferc1_pumped_storage_df['energy_used_for_pumping_mwh'] = ferc1_pumped_storage_df['energy_used'] / 1000.0
     ferc1_pumped_storage_df.drop('energy_used', axis=1, inplace=True)
 
-    ferc1_pumped_storage_df['net_load_mwh'] = \
-        ferc1_pumped_storage_df['net_load'] / 1000.0
+    ferc1_pumped_storage_df['net_load_mwh'] = ferc1_pumped_storage_df['net_load'] / 1000.0
     ferc1_pumped_storage_df.drop('net_load', axis=1, inplace=True)
 
     # Converting cost per kW installed to cost per MW installed:
-    ferc1_pumped_storage_df['cost_per_mw'] = \
-        ferc1_pumped_storage_df['cost_per_kw'] * 1000.0
+    ferc1_pumped_storage_df['cost_per_mw'] = ferc1_pumped_storage_df['cost_per_kw'] * 1000.0
     ferc1_pumped_storage_df.drop('cost_per_kw', axis=1, inplace=True)
 
-    ferc1_pumped_storage_df['expns_per_mwh'] = \
-        ferc1_pumped_storage_df['expns_kwh'] * 1000.0
+    ferc1_pumped_storage_df['expns_per_mwh'] = ferc1_pumped_storage_df['expns_kwh'] * 1000.0
     ferc1_pumped_storage_df.drop('expns_kwh', axis=1, inplace=True)
 
     ferc1_pumped_storage_df['yr_const'] = pd.to_numeric(
@@ -745,8 +749,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
         'expns_per_mwh': 'opex_per_mwh'},
         inplace=True)
 
-    ferc1_transformed_dfs['plants_pumped_storage_ferc1'] = \
-        ferc1_pumped_storage_df
+    ferc1_transformed_dfs['plants_pumped_storage_ferc1'] = ferc1_pumped_storage_df
 
     return ferc1_transformed_dfs
 
@@ -880,8 +883,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True)
         'total_cde': 'total'},
         inplace=True)
 
-    ferc1_transformed_dfs['accumulated_depreciation_ferc1'] = \
-        ferc1_accumdepr_prvsn_df
+    ferc1_transformed_dfs['accumulated_depreciation_ferc1'] = ferc1_accumdepr_prvsn_df
 
     return ferc1_transformed_dfs
 
@@ -891,8 +893,9 @@ def transform(ferc1_raw_dfs,
               verbose=True):
     """Transform FERC 1."""
     ferc1_transform_functions = {
-        'fuel_ferc1': fuel,
+        # plants must come before fuel b/c of plant_id_ferc1 assignment
         'plants_steam_ferc1': plants_steam,
+        'fuel_ferc1': fuel,
         'plants_small_ferc1': plants_small,
         'plants_hydro_ferc1': plants_hydro,
         'plants_pumped_storage_ferc1': plants_pumped_storage,
@@ -1006,8 +1009,8 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         self._cossim_df = pd.DataFrame(cosine_similarity(X))
         self._best_of = self._best_by_year()
         # Make the best match indices integers rather than floats w/ NA values.
-        self._best_of[self._years] = \
-            self._best_of[self._years].fillna(-1).astype(int)
+        self._best_of[self._years] = self._best_of[self._years].fillna(
+            -1).astype(int)
 
         return self
 
