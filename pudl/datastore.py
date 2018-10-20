@@ -72,7 +72,10 @@ def source_url(source, year, month=None, state=None):
     base_url = pc.base_data_urls[source]
 
     if source == 'eia860':
-        download_url = '{}/eia860{}.zip'.format(base_url, year)
+        if year < 2017:
+            download_url = f'{base_url}/archive/xls/eia860{year}.zip'
+        else:
+            download_url = f'{base_url}/xls/eia860{year}.zip'
     elif source == 'eia861':
         if year < 2012:
             # Before 2012 they used 2 digit years. Y2K12 FTW!
@@ -84,7 +87,11 @@ def source_url(source, year, month=None, state=None):
             prefix = 'f906920_'
         else:
             prefix = 'f923_'
-        download_url = '{}/{}{}.zip'.format(base_url, prefix, year)
+        if year < 2017:
+            arch_path = 'archive/xls'
+        else:
+            arch_path = 'xls'
+        download_url = f'{base_url}/{arch_path}/{prefix}{year}.zip'
     elif source == 'ferc1':
         download_url = '{}/f1_{}.zip'.format(base_url, year)
     elif source == 'mshamines':

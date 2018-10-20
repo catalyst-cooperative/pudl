@@ -1,9 +1,11 @@
-#/usr/bin/env python
+#!/usr/bin/env python
 """A script for fetching public utility data from reporting agency servers."""
 
 import os
 import sys
 import argparse
+
+assert sys.version_info >= (3, 5)  # require modern python
 
 # This is a hack to make the pudl package importable from within this script,
 # even though it isn't in one of the normal site-packages directories where

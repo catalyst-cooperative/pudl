@@ -27,6 +27,7 @@ __downloadurl__ = "https://github.com/catalyst-cooperative/pudl/"
 import pudl.settings
 import pudl.constants
 import pudl.helpers
+import pudl.datastore
 import pudl.init
 import pudl.load
 

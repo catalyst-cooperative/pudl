@@ -3353,7 +3353,7 @@ data_sources = [
 # All the years for which we ought to be able to download these data sources
 data_years = {
     'eia860': range(2001, 2018),
-    'eia861': range(1990, 2016),
+    'eia861': range(1990, 2018),
     'eia923': range(2001, 2018),
     'epacems': range(1995, 2018),
     'ferc1': range(1994, 2018),
@@ -3365,7 +3365,7 @@ working_years = {
     'eia860': range(2011, 2018),
     'eia861': [],
     'eia923': range(2009, 2018),
-    'epacems': range(1995, 2017),
+    'epacems': range(1995, 2018),
     'ferc1': range(2004, 2017),
     'msha': [],
 }
@@ -3378,9 +3378,9 @@ pudl_tables = {
 }
 
 base_data_urls = {
-    'eia860': 'https://www.eia.gov/electricity/data/eia860/archive/xls',
+    'eia860': 'https://www.eia.gov/electricity/data/eia860',
     'eia861': 'https://www.eia.gov/electricity/data/eia861/zip',
-    'eia923': 'https://www.eia.gov/electricity/data/eia923/archive/xls',
+    'eia923': 'https://www.eia.gov/electricity/data/eia923',
     'epacems': 'ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly',
     'ferc1': 'ftp://eforms1.ferc.gov/f1allyears',
     'mshaprod': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
