@@ -635,6 +635,8 @@ def init_db(ferc1_tables=None,
             data.
         epacems_years (iterable): The list of years from which to pull EPA CEMS
             data. Note that there's only one EPA CEMS table.
+        epacems_states (iterable): The list of states for which we are to pull
+            EPA CEMS data. With all states, ETL takes ~8 hours.
         debug (bool): You can tell init_db to ingest whatever list of tables
             you want, but if your desired table is not in the list of known to
             be working tables, you need to set debug=True (otherwise init_db
@@ -646,15 +648,17 @@ def init_db(ferc1_tables=None,
         print("Start ingest at {}".format(datetime.datetime.now().
                                           strftime("%A, %d. %B %Y %I:%M%p")))
 
-    if not debug:
-        if ferc1_tables:
-            for table in ferc1_tables:
-                assert table in pc.ferc1_pudl_tables
+    if (not debug) and (ferc1_tables):
+        for table in ferc1_tables:
+            assert table in pc.ferc1_pudl_tables
 
-    if not debug:
-        if eia923_tables:
-            for table in eia923_tables:
-                assert table in pc.eia923_pudl_tables
+    if (not debug) and (eia860_tables):
+        for table in eia860_tables:
+            assert table in pc.eia860_pudl_tables
+
+    if (not debug) and (eia923_tables):
+        for table in eia923_tables:
+            assert table in pc.eia923_pudl_tables
 
     # Connect to the PUDL DB, wipe out & re-create tables:
     pudl_engine = connect_db(testing=pudl_testing)
