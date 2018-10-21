@@ -203,13 +203,13 @@ def zippertestdata(gens=50, max_group_size=6, samples=10,
         eia_new['eia_gen_id'] = eia_gen_id
         ferc_new['year'] = years
         ferc_new['ferc_gen_id'] = ferc_gen_id
-        for N in range(0, len(noise)):
-            series_label = 'series{}'.format(N)
+        for n, noise_scale in enumerate(noise):
+            series_label = f'series{n}'
             # Create a pair of logarithmically distributed correlated
             # randomized data series:
             eia_data = 10**(np.random.uniform(low=3, high=9, size=samples))
             ferc_data = eia_data * np.random.normal(loc=1,
-                                                    scale=noise[N],
+                                                    scale=noise_scale,
                                                     size=samples)
             eia_new[series_label] = eia_data
             ferc_new[series_label] = ferc_data
@@ -478,7 +478,7 @@ def score_all(df, corr_cols, verbose=False):
     candidates_df['candidate_id'] = []
     candidates_df.drop(['test_group_id', ], axis=1, inplace=True)
 
-    for ppid in candidates.keys():
+    for ppid in candidates:
         cid = 0
         for c in candidates[ppid]:
             candidate = pd.DataFrame(columns=candidates_df.columns)

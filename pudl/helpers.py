@@ -226,7 +226,7 @@ def cleanstrings(field, stringmap, unmapped=None, simplify=True):
         for k, v in stringmap.items():
             stringmap[k] = [re.sub(r'\s+', ' ', s.lower().strip()) for s in v]
 
-    for k in stringmap.keys():
+    for k in stringmap:
         if len(stringmap[k]) > 0:
             field = field.replace(stringmap[k], k)
 
@@ -390,7 +390,7 @@ def convert_to_date(df,
 
 
 def fix_eia_na(df):
-    """Replace common ill-posed EIA NA spreadsheet values with np.nan"""
+    """Replace common ill-posed EIA NA spreadsheet values with np.nan."""
     df = df.replace(to_replace=r'^\.$', value=np.nan, regex=True)
     df = df.replace(to_replace=r'^\s$', value=np.nan, regex=True)
     df = df.replace(to_replace=r'^$', value=np.nan, regex=True)

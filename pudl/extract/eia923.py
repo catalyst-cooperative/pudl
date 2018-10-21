@@ -235,7 +235,7 @@ def yearly_to_monthly_eia923(df, md):
     yearly = df.copy()
     monthly = pd.DataFrame()
 
-    for m in md.keys():
+    for m in md:
         # Grab just the columns for the month we're working on.
         this_month = yearly.filter(regex=md[m])
         # Drop this month's data from the yearly data frame.
