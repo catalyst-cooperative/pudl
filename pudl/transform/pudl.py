@@ -59,7 +59,11 @@ def cleanstrings(field, stringmap, unmapped=None, simplify=True):
 
     if unmapped is not None:
         badstrings = setdiff1d(field.unique(), list(stringmap.keys()))
-        field = field.replace(badstrings, unmapped)
+        # This call to replace can only work if there are actually some
+        # leftover strings to fix -- otherwise it runs forever because we
+        # are replacing nothing with nothing.
+        if badstrings.size > 0:
+            field = field.replace(badstrings, unmapped)
 
     return field
 
