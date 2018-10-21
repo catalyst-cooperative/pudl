@@ -5,24 +5,24 @@ Whenever using any of the settings in the configuration file in a module,
 import this module as `from config import settings`
 """
 
+import os.path
 import yaml
 from pudl import __file__ as pudl_pkg_file
-import os.path
 
 PUDL_DIR = os.path.dirname(os.path.dirname(pudl_pkg_file))
 
 
 def settings_init(settings_file="settings.yml"):
     with open(os.path.join(PUDL_DIR, 'scripts', settings_file), "r") as f:
-        settings_init = yaml.load(f)
+        settings_out = yaml.safe_load(f)
 
     # if the refyear is set to none, but there are ferc1_years, set the refyear
     # to be the max of ferc1_years
-    if settings_init['ferc1_years']:
-        if not settings_init['ferc1_ref_year']:
-            settings_init['ferc1_ref_year'] = max(settings_init['ferc1_years'])
+    if settings_out['ferc1_years']:
+        if not settings_out['ferc1_ref_year']:
+            settings_out['ferc1_ref_year'] = max(settings_out['ferc1_years'])
 
-    return(settings_init)
+    return settings_out
 
 
 SETTINGS = {}
