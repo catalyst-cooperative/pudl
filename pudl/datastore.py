@@ -13,6 +13,10 @@ Emissions Monitoring System dataset will be added in the future.
 
 import os
 import urllib
+import ftplib
+import zipfile
+import shutil
+import warnings
 import pudl.constants as pc
 from pudl.settings import SETTINGS
 
@@ -302,7 +306,6 @@ def download(source, year, states, datadir=SETTINGS['data_dir'], verbose=True):
 
 def _download_FTP(src_urls, tmp_files, allow_retry=True):
     assert len(src_urls) == len(tmp_files) > 0
-    import ftplib
     parsed_urls = [urllib.parse.urlparse(url) for url in src_urls]
     domains = {url.netloc for url in parsed_urls}
     within_domain_paths = [url.path for url in parsed_urls]
@@ -350,7 +353,6 @@ def _download_FTP(src_urls, tmp_files, allow_retry=True):
                 "Here are the failure messages:\n " +
                 " \n".join(error_messages)
             )
-        import warnings  # Use warnings so this gets printed to stderr
         warnings.warn(err_msg)
 
 
@@ -391,7 +393,6 @@ def _download_default(src_urls, tmp_files, allow_retry=True):
             err_msg = f"ERROR: Download failed for all {num_failed} URLs. Maybe the server is down?"
         if not allow_retry:
             err_msg = f"ERROR: Download failed for {num_failed} URLs and no more retries are allowed"
-        import warnings  # Use warnings so this gets printed to stderr
         warnings.warn(err_msg)
 
 
@@ -419,8 +420,6 @@ def organize(source, year, states, unzip=True,
 
     Returns: nothing
     """
-    import zipfile
-    import shutil
     assert source in pc.data_sources, \
         "Source '{}' not found in valid data sources.".format(source)
     assert source in pc.data_years, \

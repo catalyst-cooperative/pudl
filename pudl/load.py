@@ -1,9 +1,13 @@
 """A module with functions for loading the pudl database tables."""
 
-import pandas as pd
+import shutil
+import os
+import io
 import contextlib
+import pandas as pd
+import postgres_copy
+import pudl
 import pudl.models.entities
-import pudl.transform.pudl
 import pudl.constants as pc
 
 
@@ -40,8 +44,6 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
             the last will be retained by keep_csv, which may be unsatisfying.
     Returns: Nothing.
     """
-    import postgres_copy
-    import io
 
     tbl = pudl.models.entities.PUDLBase.metadata.tables[table_name]
     with io.StringIO() as f:
@@ -51,8 +53,6 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
                                 format='csv', header=True, delimiter=',')
         if keep_csv:
             print(f"DEBUG: writing CSV")
-            import shutil
-            import os
             f.seek(0)
             outfile = os.path.join(csvdir, table_name + '.csv')
             shutil.copyfileobj(f, outfile)
@@ -77,7 +77,7 @@ def _fix_int_cols(table_to_fix,
         if verbose:
             print("        fixing {} column".format(column))
         transformed_dct[table_to_fix][column] = \
-            pudl.transform.pudl.fix_int_na(
+            pudl.helpers.fix_int_na(
                 transformed_dct[table_to_fix][column])
 
 
@@ -147,10 +147,10 @@ class BulkCopy(contextlib.AbstractContextManager):
             )
 
     def _fix_inting(self, df):
-        """Fix integers for columns with NA. See pudl.transform.pudl.fix_int_na"""
+        """Fix integers for columns with NA. See pudl.helpers.fix_int_na"""
         try:
             for column in pc.need_fix_inting[self.table_name]:
-                df[column] = pudl.transform.pudl.fix_int_na(df[column])
+                df[column] = pudl.helpers.fix_int_na(df[column])
         except KeyError:
             pass
         return df

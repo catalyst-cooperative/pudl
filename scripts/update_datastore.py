@@ -21,7 +21,7 @@ def parse_command_line(argv):
     :param argv: arguments on the command line must include caller file name.
     """
     from pudl.settings import SETTINGS
-    from pudl import constants
+    import pudl.constants as pc
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -59,10 +59,10 @@ def parse_command_line(argv):
         '-s',
         '--sources',
         nargs='+',
-        choices=constants.data_sources,
+        choices=pc.data_sources,
         help="""List of data sources which should be downloaded.
         (default: %(default)s).""",
-        default=constants.data_sources
+        default=pc.data_sources
     )
     parser.add_argument(
         '-y',
@@ -88,11 +88,11 @@ def parse_command_line(argv):
         '-t',
         '--states',
         nargs='+',
-        choices=constants.cems_states.keys(),
+        choices=pc.cems_states.keys(),
         help="""List of two letter US state abbreviations indicating which
         states data should be downloaded. Currently only applicable to the EPA's
         CEMS dataset.""",
-        default=constants.cems_states.keys()
+        default=pc.cems_states.keys()
     )
 
     arguments = parser.parse_args(argv[1:])
@@ -101,9 +101,9 @@ def parse_command_line(argv):
 
 def main():
     """Main function controlling flow of the script."""
-    from pudl import datastore
-    from pudl import constants
     import concurrent.futures
+    import pudl
+    import pudl.constants as pc
 
     args = parse_command_line(sys.argv)
 
@@ -114,20 +114,20 @@ def main():
     # being ignored because they aren't valid.
     yrs_by_src = {}
     for src in args.sources:
-        if len(args.year) == 0:
-            yrs_by_src[src] = constants.data_years[src]
+        if not args.year:
+            yrs_by_src[src] = pc.data_years[src]
         else:
             yrs_by_src[src] = [int(yr) for yr in args.year
-                               if int(yr) in constants.data_years[src]]
+                               if int(yr) in pc.data_years[src]]
             bad_yrs = [int(yr) for yr in args.year
-                       if int(yr) not in constants.data_years[src]]
-            if args.verbose and len(bad_yrs) > 0:
+                       if int(yr) not in pc.data_years[src]]
+            if args.verbose and bad_yrs:
                 print("Invalid {} years ignored: {}.".format(src, bad_yrs))
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for src in args.sources:
             for yr in yrs_by_src[src]:
-                executor.submit(datastore.update, src, yr, args.states,
+                executor.submit(pudl.datastore.update, src, yr, args.states,
                                 clobber=args.clobber,
                                 unzip=args.unzip,
                                 verbose=args.verbose,

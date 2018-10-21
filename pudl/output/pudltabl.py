@@ -27,15 +27,9 @@ carte.
 # Useful high-level external modules.
 import pandas as pd
 
-# Need the models so we can grab table structures. Need some helpers from the
-# analysis module
-import pudl.analysis.mcoe
+import pudl
 import pudl.models.entities
-import pudl.output.glue
-import pudl.output.ferc1
-import pudl.output.eia860
-import pudl.output.eia923
-from pudl import constants as pc
+import pudl.constants as pc
 # Shorthand for easier table referecnes:
 pt = pudl.models.entities.PUDLBase.metadata.tables
 

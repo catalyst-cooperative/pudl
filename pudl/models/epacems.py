@@ -1,8 +1,8 @@
 """Database models for PUDL tables derived from EPA CEMS Data."""
 
 import sqlalchemy as sa
-from sqlalchemy import Integer, SmallInteger, String, REAL, DateTime, Column, Enum, Interval, Date
-from sqlalchemy.dialects.postgresql import TSRANGE
+from sqlalchemy import Integer, SmallInteger, String, REAL, DateTime, Column
+from sqlalchemy import Enum, Interval
 import pudl.models.entities
 import pudl.constants as pc
 
@@ -85,6 +85,7 @@ class HourlyEmissions(pudl.models.entities.PUDLBase):
     facility_id = Column(SmallInteger)  # max value is 8421
     unit_id_epa = Column(Integer)
 
+
 DROP_VIEWS = ["DROP VIEW IF EXISTS hourly_emissions_epacems_view"]
 CREATE_VIEWS = ["""
     CREATE VIEW hourly_emissions_epacems_view AS
@@ -114,7 +115,7 @@ CREATE_VIEWS = ["""
         unit_id_epa
     FROM hourly_emissions_epacems
     """,
-    ]
+                ]
 
 
 def finalize(engine):
@@ -158,7 +159,7 @@ def finalize(engine):
         except sa.exc.ProgrammingError as e:
             from warnings import warn
             warn(f"Failed to add index/constraint '{index.name}'\n" +
-                "Details:\n" + str(e))
+                 "Details:\n" + str(e))
 
     alter_table_sql = f"ALTER TABLE {HourlyEmissions.__tablename__} SET LOGGED"
     try:
@@ -166,5 +167,5 @@ def finalize(engine):
     except sa.exc.SQLAlchemyError as e:  # Any kind of SQLAlchemy error
         # Note that ALTER TABLE ... SET LOGGGED requires postgres >= 9.5
         print("Failed to set EPA CEMS table to LOGGED! If you shut down " +
-            "postgres abruptly, the table will be empty.")
+              "postgres abruptly, the table will be empty.")
         print(e)

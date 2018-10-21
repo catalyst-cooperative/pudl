@@ -3,7 +3,6 @@
 
 import pandas as pd
 import numpy as np
-import pudl.transform.pudl
 import pudl.constants as pc
 
 ###############################################################################
@@ -37,7 +36,7 @@ def fix_up_dates(df):
     df["operating_datetime"] = (
         pd.to_datetime(df["op_date"], format=r"%m-%d-%Y", exact=True, cache=True) +
         pd.to_timedelta(df["op_hour"], unit="h")
-        )
+    )
     del df["op_hour"], df["op_date"]
 
     # Make op_time into an time delta (called interval in postgres)
@@ -61,8 +60,8 @@ def convert_time_to_interval(df):
         pandas.DataFrame: The same data, with an op_interval column added.
     """
     raise NotImplementedError("This op_interval isn't included in the " +
-        "SQLAlchemy model yet. Figure out what you want to do with interval " +
-        "data first.")
+                              "SQLAlchemy model yet. Figure out what you want to do with interval " +
+                              "data first.")
     df['op_interval'] = pd.to_datetime(
         df['op_date'].str.cat(df['op_hour'].astype(str), sep='-'),
         format="%m-%d-%Y-%H",

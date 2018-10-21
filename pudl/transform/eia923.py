@@ -3,7 +3,7 @@
 
 import pandas as pd
 import numpy as np
-import pudl.transform.pudl
+import pudl
 import pudl.constants as pc
 
 ###############################################################################
@@ -209,21 +209,20 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     gf_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    gf_df = yearly_to_monthly_eia923(
-        gf_df, pc.month_dict_eia923)
+    gf_df = yearly_to_monthly_eia923(gf_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
-    gf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
+    gf_df = pudl.helpers.fix_eia_na(gf_df)
     # Remove "State fuel-level increment" records... which don't pertain to
     # any particular plant (they have plant_id_eia == operator_id == 99999)
     gf_df = gf_df[gf_df.plant_id_eia != 99999]
 
     gf_df['fuel_type_code_pudl'] = \
-        pudl.transform.pudl.cleanstrings(
+        pudl.helpers.cleanstrings(
             gf_df.fuel_type,
             pc.fuel_type_eia923_gen_fuel_simple_map)
 
     # Convert Year/Month columns into a single Date column...
-    gf_df = pudl.transform.pudl.convert_to_date(gf_df)
+    gf_df = pudl.helpers.convert_to_date(gf_df)
 
     eia923_transformed_dfs['generation_fuel_eia923'] = gf_df
 
@@ -298,14 +297,14 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     bf_df = yearly_to_monthly_eia923(
         bf_df, pc.month_dict_eia923)
     bf_df['fuel_type_code_pudl'] = \
-        pudl.transform.pudl.cleanstrings(
+        pudl.helpers.cleanstrings(
             bf_df.fuel_type_code,
             pc.fuel_type_eia923_boiler_fuel_simple_map)
     # Replace the EIA923 NA value ('.') with a real NA value.
-    bf_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
+    bf_df = pudl.helpers.fix_eia_na(bf_df)
 
     # Convert Year/Month columns into a single Date column...
-    bf_df = pudl.transform.pudl.convert_to_date(bf_df)
+    bf_df = pudl.helpers.convert_to_date(bf_df)
 
     eia923_transformed_dfs['boiler_fuel_eia923'] = bf_df
 
@@ -349,11 +348,10 @@ def generation(eia923_dfs, eia923_transformed_dfs):
     generation_df = yearly_to_monthly_eia923(
         generation_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
-    generation_df.replace(to_replace='^\.$', value=np.nan,
-                          regex=True, inplace=True)
+    generation_df = pudl.helpers.fix_eia_na(generation_df)
 
     # Convert Year/Month columns into a single Date column...
-    generation_df = pudl.transform.pudl.convert_to_date(generation_df)
+    generation_df = pudl.helpers.convert_to_date(generation_df)
 
     eia923_transformed_dfs['generation_eia923'] = generation_df
 
@@ -522,7 +520,7 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
     frc_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Replace the EIA923 NA value ('.') with a real NA value.
-    frc_df.replace(to_replace='^\.$', value=np.nan, regex=True, inplace=True)
+    frc_df = pudl.helpers.fix_eia_na(frc_df)
 
     # These come in ALL CAPS from EIA...
     frc_df['supplier_name'] = frc_df['supplier_name'].astype(str).str.strip()
@@ -535,10 +533,10 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
         frc_df['secondary_transportation_mode_code'].str.upper()
 
     frc_df['contract_expiration_date'] = \
-        pudl.transform.pudl.fix_int_na(frc_df['contract_expiration_date'],
-                                       float_na=np.nan,
-                                       int_na=-1,
-                                       str_na='')
+        pudl.helpers.fix_int_na(frc_df['contract_expiration_date'],
+                                float_na=np.nan,
+                                int_na=-1,
+                                str_na='')
     # Convert the 3-4 digit (MYY|MMYY) date of contract expiration to
     # two fields MM and YYYY for easier analysis later.
     frc_df['contract_expiration_month'] = \
@@ -553,23 +551,23 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
         apply(lambda x: '20' + x[-2:] if x != '' else x)
 
     frc_df = frc_df.drop('contract_expiration_date', axis=1)
-    frc_df = pudl.transform.pudl.convert_to_date(
+    frc_df = pudl.helpers.convert_to_date(
         frc_df,
         date_col='contract_expiration_date',
         year_col='contract_expiration_year',
         month_col='contract_expiration_month'
     )
 
-    frc_df = pudl.transform.pudl.convert_to_date(frc_df)
+    frc_df = pudl.helpers.convert_to_date(frc_df)
 
     frc_df['fuel_cost_per_mmbtu'] = frc_df['fuel_cost_per_mmbtu'] / 100
 
     frc_df['fuel_type_code_pudl'] = \
-        pudl.transform.pudl.cleanstrings(frc_df.energy_source_code,
-                                         pc.energy_source_eia_simple_map)
+        pudl.helpers.cleanstrings(frc_df.energy_source_code,
+                                  pc.energy_source_eia_simple_map)
     frc_df['fuel_group_code_simple'] = \
-        pudl.transform.pudl.cleanstrings(frc_df.fuel_group_code,
-                                         pc.fuel_group_eia923_simple_map)
+        pudl.helpers.cleanstrings(frc_df.fuel_group_code,
+                                  pc.fuel_group_eia923_simple_map)
 
     eia923_transformed_dfs['fuel_receipts_costs_eia923'] = frc_df
 

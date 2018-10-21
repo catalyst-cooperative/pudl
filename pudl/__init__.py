@@ -38,7 +38,6 @@ import pudl.extract.eia923
 import pudl.extract.epacems
 
 # Transformation functions, organized by data source:
-import pudl.transform.pudl
 import pudl.transform.eia
 import pudl.transform.ferc1
 import pudl.transform.eia860
@@ -49,6 +48,7 @@ import pudl.transform.epacems
 import pudl.analysis.mcoe
 
 # Output modules by data source:
+import pudl.output.glue
 import pudl.output.ferc1
 import pudl.output.eia860
 import pudl.output.eia923

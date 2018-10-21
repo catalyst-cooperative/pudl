@@ -3,7 +3,8 @@
 import sqlalchemy as sa
 import pandas as pd
 
-from pudl import init, helpers, constants
+import pudl
+import pudl.constants as pc
 import pudl.models.entities
 
 # Shorthand for easier table referecnes:
@@ -12,7 +13,7 @@ pt = pudl.models.entities.PUDLBase.metadata.tables
 
 def utilities_eia860(start_date=None, end_date=None, testing=False):
     """Pull all fields from the EIA860 Utilities table."""
-    pudl_engine = init.connect_db(testing=testing)
+    pudl_engine = pudl.init.connect_db(testing=testing)
     utils_eia860_tbl = pt['utilities_eia860']
     utils_eia860_select = sa.sql.select([utils_eia860_tbl])
 
@@ -46,15 +47,15 @@ def utilities_eia860(start_date=None, end_date=None, testing=False):
         'utility_name',
     ]
 
-    out_df = helpers.organize_cols(out_df, first_cols)
-    out_df = helpers.extend_annual(
+    out_df = pudl.helpers.organize_cols(out_df, first_cols)
+    out_df = pudl.helpers.extend_annual(
         out_df, start_date=start_date, end_date=end_date)
     return out_df
 
 
 def plants_eia860(start_date=None, end_date=None, testing=False):
     """Pull all fields from the EIA860 Plants table."""
-    pudl_engine = init.connect_db(testing=testing)
+    pudl_engine = pudl.init.connect_db(testing=testing)
     plants_eia860_tbl = pt['plants_eia860']
     plants_eia860_select = sa.sql.select([plants_eia860_tbl])
     if start_date is not None:
@@ -100,10 +101,10 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
         'plant_name',
     ]
 
-    out_df = helpers.organize_cols(out_df, first_cols)
-    out_df = helpers.extend_annual(out_df,
-                                   start_date=start_date,
-                                   end_date=end_date)
+    out_df = pudl.helpers.organize_cols(out_df, first_cols)
+    out_df = pudl.helpers.extend_annual(out_df,
+                                        start_date=start_date,
+                                        end_date=end_date)
     return out_df
 
 
@@ -175,7 +176,7 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
         A pandas dataframe.
 
     """
-    pudl_engine = init.connect_db(testing=testing)
+    pudl_engine = pudl.init.connect_db(testing=testing)
     # Almost all the info we need will come from here.
     gens_eia860_tbl = pt['generators_eia860']
     gens_eia860_select = sa.sql.select([gens_eia860_tbl, ])
@@ -199,7 +200,7 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
         # EIA 923
         eia923_start_date = \
             pd.to_datetime('{}-01-01'.format(
-                min(constants.working_years['eia923'])))
+                min(pc.working_years['eia923'])))
         assert start_date >= eia923_start_date
         gens_eia860_select = gens_eia860_select.where(
             gens_eia860_tbl.c.report_date >= start_date
@@ -214,7 +215,7 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
         # year for which we have EIA 860 data:
         eia860_end_date = \
             pd.to_datetime('{}-12-31'.format(
-                max(constants.working_years['eia860'])))
+                max(pc.working_years['eia860'])))
         assert end_date <= eia860_end_date + pd.DateOffset(years=1)
         gens_eia860_select = gens_eia860_select.where(
             gens_eia860_tbl.c.report_date <= end_date
@@ -269,8 +270,8 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
     ]
 
     # Re-arrange the columns for easier readability:
-    out_df = helpers.organize_cols(out_df, first_cols)
-    out_df = helpers.extend_annual(
+    out_df = pudl.helpers.organize_cols(out_df, first_cols)
+    out_df = pudl.helpers.extend_annual(
         out_df, start_date=start_date, end_date=end_date)
     out_df = out_df.sort_values(['report_date',
                                  'plant_id_eia',
@@ -282,7 +283,7 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
 def boiler_generator_assn_eia860(start_date=None, end_date=None,
                                  testing=False):
     """Pull all fields from the EIA 860 boiler generator association table."""
-    pudl_engine = init.connect_db(testing=testing)
+    pudl_engine = pudl.init.connect_db(testing=testing)
     bga_eia860_tbl = pt['boiler_generator_assn_eia860']
     bga_eia860_select = sa.sql.select([bga_eia860_tbl])
 
@@ -297,8 +298,8 @@ def boiler_generator_assn_eia860(start_date=None, end_date=None,
             bga_eia860_tbl.c.report_date <= end_date
         )
     bga_eia860_df = pd.read_sql(bga_eia860_select, pudl_engine)
-    out_df = helpers.extend_annual(bga_eia860_df,
-                                   start_date=start_date, end_date=end_date)
+    out_df = pudl.helpers.extend_annual(bga_eia860_df,
+                                        start_date=start_date, end_date=end_date)
     return out_df
 
 
@@ -357,10 +358,10 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
     ]
 
     # Re-arrange the columns for easier readability:
-    out_df = helpers.organize_cols(out_df, first_cols)
+    out_df = pudl.helpers.organize_cols(out_df, first_cols)
     out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
     out_df['utility_id_pudl'] = out_df.utility_id_pudl.astype(int)
-    out_df = helpers.extend_annual(
+    out_df = pudl.helpers.extend_annual(
         out_df, start_date=start_date, end_date=end_date)
 
     return out_df

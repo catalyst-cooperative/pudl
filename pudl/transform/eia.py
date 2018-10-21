@@ -3,8 +3,8 @@
 import numpy as np
 import networkx as nx
 import pandas as pd
+import pudl
 import pudl.constants as pc
-from pudl import helpers
 
 
 def plants(eia_transformed_dfs,
@@ -275,7 +275,7 @@ def boiler_generator_assn(eia_transformed_dfs,
     bf_eia923_gb = bf_eia923.groupby(
         [pd.Grouper(freq='AS'), 'plant_id_eia', 'boiler_id'])
     bf_eia923 = bf_eia923_gb.agg({
-        'total_heat_content_mmbtu': helpers.sum_na,
+        'total_heat_content_mmbtu': pudl.helpers.sum_na,
     }).reset_index()
 
     bf_eia923.drop_duplicates(
@@ -445,7 +445,7 @@ def boiler_generator_assn(eia_transformed_dfs,
     bga_unit_id_eia_counts = bga_unit_id_eia_counts.rename(
         columns={'unit_id_eia': 'unit_id_eia_count'})
     bga_unit_id_eia_counts = pd.merge(bga_w_units, bga_unit_id_eia_counts,
-                                    on=['plant_id_eia', 'unit_id_pudl'])
+                                      on=['plant_id_eia', 'unit_id_pudl'])
     too_many_codes = \
         bga_unit_id_eia_counts[bga_unit_id_eia_counts.unit_id_eia_count > 1]
     too_many_codes = \

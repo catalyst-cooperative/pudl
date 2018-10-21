@@ -3,15 +3,15 @@
 import sqlalchemy as sa
 import pandas as pd
 
+import pudl
 import pudl.models.entities
-from pudl import init, helpers
 
 pt = pudl.models.entities.PUDLBase.metadata.tables
 
 
 def plants_utils_ferc1(testing=False):
     """Build a dataframe of useful FERC Plant & Utility information."""
-    pudl_engine = init.connect_db(testing=testing)
+    pudl_engine = pudl.init.connect_db(testing=testing)
 
     utils_ferc_tbl = pt['utilities_ferc']
     utils_ferc_select = sa.sql.select([utils_ferc_tbl, ])
@@ -43,7 +43,7 @@ def plants_steam_ferc1(testing=False):
     steam_df : a pandas dataframe.
 
     """
-    pudl_engine = init.connect_db(testing=testing)
+    pudl_engine = pudl.init.connect_db(testing=testing)
     steam_ferc1_tbl = pt['plants_steam_ferc1']
     steam_ferc1_select = sa.sql.select([steam_ferc1_tbl, ])
     steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
@@ -62,7 +62,7 @@ def plants_steam_ferc1(testing=False):
         'plant_name'
     ]
 
-    out_df = helpers.organize_cols(out_df, first_cols)
+    out_df = pudl.helpers.organize_cols(out_df, first_cols)
 
     return out_df
 
@@ -93,7 +93,7 @@ def fuel_ferc1(testing=False):
         fuel_df: a pandas dataframe.
 
     """
-    pudl_engine = init.connect_db(testing=testing)
+    pudl_engine = pudl.init.connect_db(testing=testing)
     fuel_ferc1_tbl = pt['fuel_ferc1']
     fuel_ferc1_select = sa.sql.select([fuel_ferc1_tbl, ])
     fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)
@@ -123,6 +123,6 @@ def fuel_ferc1(testing=False):
         'plant_name'
     ]
 
-    out_df = helpers.organize_cols(out_df, first_cols)
+    out_df = pudl.helpers.organize_cols(out_df, first_cols)
 
     return out_df

@@ -6,14 +6,13 @@ import pandas as pd
 import sqlalchemy as sa
 
 # Our own code...
-from pudl import init, constants
-import pudl.extract.ferc1
+import pudl
+import pudl.constants as pc
 
+# However, models aren't imported by default.
 import pudl.models.ferc1
 import pudl.models.entities
 import pudl.models.eia923
-
-import pudl.output.ferc1
 
 
 def simple_select(table_name, pudl_engine):
@@ -839,7 +838,7 @@ def fercplants(plant_tables=['f1_steam',
                              'f1_gnrt_plant',
                              'f1_hydro',
                              'f1_pumped_storage'],
-               years=constants.working_years['ferc1'],
+               years=pc.working_years['ferc1'],
                new=True,
                min_capacity=5.0):
     """
@@ -887,7 +886,7 @@ def fercplants(plant_tables=['f1_steam',
     # to get new plant ID info...
     if not new:
         for yr in years:
-            assert yr in constants.working_years['ferc1']
+            assert yr in pc.working_years['ferc1']
 
     okay_tbls = ['f1_steam',
                  'f1_gnrt_plant',
@@ -902,8 +901,8 @@ def fercplants(plant_tables=['f1_steam',
 
     # Need to make sure we have a populated metadata object, which isn't
     # always the case, since folks often are not initializing the FERC DB.
-    pudl.extract.ferc1.define_db(max(constants.working_years['ferc1']),
-                                 constants.ferc1_working_tables,
+    pudl.extract.ferc1.define_db(max(pc.working_years['ferc1']),
+                                 pc.ferc1_working_tables,
                                  pudl.extract.ferc1.ferc1_meta)
     f1_tbls = pudl.extract.ferc1.ferc1_meta.tables
 
@@ -948,7 +947,7 @@ def fercplants(plant_tables=['f1_steam',
         ferc1_plants_all = ferc1_plants_all.set_index(
             ['respondent_id', 'plant_name'])
 
-        pudl_engine = init.connect_db()
+        pudl_engine = pudl.init.connect_db()
         pudl_tbls = pudl.models.entities.PUDLBase.metadata.tables
 
         ferc1_plants_tbl = pudl_tbls['plants_ferc']

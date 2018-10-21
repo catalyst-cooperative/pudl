@@ -3,8 +3,7 @@
 import sqlalchemy as sa
 import pandas as pd
 
-from pudl import init, helpers
-
+import pudl
 import pudl.models.entities
 pt = pudl.models.entities.PUDLBase.metadata.tables
 
@@ -51,7 +50,7 @@ def generation_fuel_eia923(freq=None, testing=False,
         gf_df: a pandas dataframe.
 
     """
-    pudl_engine = init.connect_db(testing=testing)
+    pudl_engine = pudl.init.connect_db(testing=testing)
     gf_tbl = pt['generation_fuel_eia923']
     gf_select = sa.sql.select([gf_tbl, ])
     if start_date is not None:
@@ -76,11 +75,11 @@ def generation_fuel_eia923(freq=None, testing=False,
         # Sum up these values so we can calculate quantity weighted averages
         gf_gb = gf_df.groupby(by=by)
         gf_df = gf_gb.agg({
-            'fuel_consumed_units': helpers.sum_na,
-            'fuel_consumed_for_electricity_units': helpers.sum_na,
-            'fuel_consumed_mmbtu': helpers.sum_na,
-            'fuel_consumed_for_electricity_mmbtu': helpers.sum_na,
-            'net_generation_mwh': helpers.sum_na,
+            'fuel_consumed_units': pudl.helpers.sum_na,
+            'fuel_consumed_for_electricity_units': pudl.helpers.sum_na,
+            'fuel_consumed_mmbtu': pudl.helpers.sum_na,
+            'fuel_consumed_for_electricity_mmbtu': pudl.helpers.sum_na,
+            'net_generation_mwh': pudl.helpers.sum_na,
         })
         gf_df['fuel_mmbtu_per_unit'] = \
             gf_df['fuel_consumed_mmbtu'] / gf_df['fuel_consumed_units']
@@ -91,7 +90,8 @@ def generation_fuel_eia923(freq=None, testing=False,
     pu_eia = pudl.output.eia860.plants_utils_eia860(start_date=start_date,
                                                     end_date=end_date,
                                                     testing=testing)
-    out_df = helpers.merge_on_date_year(gf_df, pu_eia, on=['plant_id_eia'])
+    out_df = pudl.helpers.merge_on_date_year(
+        gf_df, pu_eia, on=['plant_id_eia'])
     # Drop any records where we've failed to get the 860 data merged in...
     out_df = out_df.dropna(subset=[
         'plant_id_eia',
@@ -110,7 +110,7 @@ def generation_fuel_eia923(freq=None, testing=False,
                   'utility_id_pudl',
                   'utility_name', ]
 
-    out_df = helpers.organize_cols(out_df, first_cols)
+    out_df = pudl.helpers.organize_cols(out_df, first_cols)
 
     # Clean up the types of a few columns...
     out_df['plant_id_eia'] = out_df.plant_id_eia.astype(int)
@@ -166,7 +166,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
         frc_df: a pandas dataframe.
 
     """
-    pudl_engine = init.connect_db(testing=testing)
+    pudl_engine = pudl.init.connect_db(testing=testing)
     # Most of the fields we want come direclty from Fuel Receipts & Costs
     frc_tbl = pt['fuel_receipts_costs_eia923']
     frc_select = sa.sql.select([frc_tbl, ])
@@ -213,12 +213,12 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
 
         frc_gb = frc_df.groupby(by=by)
         frc_df = frc_gb.agg({
-            'fuel_qty_units': helpers.sum_na,
-            'total_heat_content_mmbtu': helpers.sum_na,
-            'total_fuel_cost': helpers.sum_na,
-            'total_sulfur_content': helpers.sum_na,
-            'total_ash_content': helpers.sum_na,
-            'total_mercury_content': helpers.sum_na,
+            'fuel_qty_units': pudl.helpers.sum_na,
+            'total_heat_content_mmbtu': pudl.helpers.sum_na,
+            'total_fuel_cost': pudl.helpers.sum_na,
+            'total_sulfur_content': pudl.helpers.sum_na,
+            'total_ash_content': pudl.helpers.sum_na,
+            'total_mercury_content': pudl.helpers.sum_na,
         })
         frc_df['fuel_cost_per_mmbtu'] = \
             frc_df['total_fuel_cost'] / frc_df['total_heat_content_mmbtu']
@@ -239,7 +239,8 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
     pu_eia = pudl.output.eia860.plants_utils_eia860(start_date=start_date,
                                                     end_date=end_date,
                                                     testing=testing)
-    out_df = helpers.merge_on_date_year(frc_df, pu_eia, on=['plant_id_eia'])
+    out_df = pudl.helpers.merge_on_date_year(
+        frc_df, pu_eia, on=['plant_id_eia'])
 
     # Drop any records where we've failed to get the 860 data merged in...
     out_df = out_df.dropna(subset=['utility_id_eia', 'utility_name'])
@@ -257,7 +258,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
                   'utility_name', ]
 
     # Re-arrange the columns for easier readability:
-    out_df = helpers.organize_cols(out_df, first_cols)
+    out_df = pudl.helpers.organize_cols(out_df, first_cols)
 
     # Clean up the types of a few columns...
     out_df['plant_id_eia'] = out_df.plant_id_eia.astype(int)
@@ -306,7 +307,7 @@ def boiler_fuel_eia923(freq=None, testing=False,
         bf_df: a pandas dataframe.
 
     """
-    pudl_engine = init.connect_db(testing=testing)
+    pudl_engine = pudl.init.connect_db(testing=testing)
     bf_eia923_tbl = pt['boiler_fuel_eia923']
     bf_eia923_select = sa.sql.select([bf_eia923_tbl, ])
     if start_date is not None:
@@ -340,10 +341,10 @@ def boiler_fuel_eia923(freq=None, testing=False,
         # Sum up these totals within each group, and recalculate the per-unit
         # values (weighted in this case by fuel_consumed_units)
         bf_df = bf_gb.agg({
-            'total_heat_content_mmbtu': helpers.sum_na,
-            'fuel_consumed_units': helpers.sum_na,
-            'total_sulfur_content': helpers.sum_na,
-            'total_ash_content': helpers.sum_na,
+            'total_heat_content_mmbtu': pudl.helpers.sum_na,
+            'fuel_consumed_units': pudl.helpers.sum_na,
+            'total_sulfur_content': pudl.helpers.sum_na,
+            'total_ash_content': pudl.helpers.sum_na,
         })
 
         bf_df['fuel_mmbtu_per_unit'] = \
@@ -360,7 +361,8 @@ def boiler_fuel_eia923(freq=None, testing=False,
     pu_eia = pudl.output.eia860.plants_utils_eia860(start_date=start_date,
                                                     end_date=end_date,
                                                     testing=False)
-    out_df = helpers.merge_on_date_year(bf_df, pu_eia, on=['plant_id_eia'])
+    out_df = pudl.helpers.merge_on_date_year(
+        bf_df, pu_eia, on=['plant_id_eia'])
     if freq is None:
         out_df = out_df.drop(['id'], axis=1)
 
@@ -384,7 +386,7 @@ def boiler_fuel_eia923(freq=None, testing=False,
     ]
 
     # Re-arrange the columns for easier readability:
-    out_df = helpers.organize_cols(out_df, first_cols)
+    out_df = pudl.helpers.organize_cols(out_df, first_cols)
 
     out_df['utility_id_eia'] = out_df.utility_id_eia.astype(int)
     out_df['utility_id_pudl'] = out_df.utility_id_pudl.astype(int)
@@ -414,7 +416,7 @@ def generation_eia923(freq=None, testing=False,
         out_df: a pandas dataframe.
 
     """
-    pudl_engine = init.connect_db(testing=testing)
+    pudl_engine = pudl.init.connect_db(testing=testing)
     g_eia923_tbl = pt['generation_eia923']
     g_eia923_select = sa.sql.select([g_eia923_tbl, ])
     if start_date is not None:
@@ -434,7 +436,8 @@ def generation_eia923(freq=None, testing=False,
         g_df = g_df.set_index(pd.DatetimeIndex(g_df.report_date))
         by = by + [pd.Grouper(freq=freq)]
         g_gb = g_df.groupby(by=by)
-        g_df = g_gb.agg({'net_generation_mwh': helpers.sum_na}).reset_index()
+        g_df = g_gb.agg(
+            {'net_generation_mwh': pudl.helpers.sum_na}).reset_index()
 
     # Grab EIA 860 plant and utility specific information:
     pu_eia = pudl.output.eia860.plants_utils_eia860(start_date=start_date,
@@ -442,7 +445,7 @@ def generation_eia923(freq=None, testing=False,
                                                     testing=testing)
 
     # Merge annual plant/utility data in with the more granular dataframe
-    out_df = helpers.merge_on_date_year(g_df, pu_eia, on=['plant_id_eia'])
+    out_df = pudl.helpers.merge_on_date_year(g_df, pu_eia, on=['plant_id_eia'])
 
     if freq is None:
         out_df = out_df.drop(['id'], axis=1)
@@ -468,7 +471,7 @@ def generation_eia923(freq=None, testing=False,
     ]
 
     # Re-arrange the columns for easier readability:
-    out_df = helpers.organize_cols(out_df, first_cols)
+    out_df = pudl.helpers.organize_cols(out_df, first_cols)
 
     out_df['utility_id_eia'] = out_df.utility_id_eia.astype(int)
     out_df['utility_id_pudl'] = out_df.utility_id_pudl.astype(int)

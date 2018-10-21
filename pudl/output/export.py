@@ -5,7 +5,7 @@ exported (e.g. CSV, Excel spreadsheets, parquet files, HDF5).
 """
 
 import pandas as pd
-from pudl import helpers
+from pudl
 
 
 def annotated_xlsx(df, notes_dict, tags_dict, first_cols, sheet_name,
@@ -38,7 +38,7 @@ def annotated_xlsx(df, notes_dict, tags_dict, first_cols, sheet_name,
 
     """
     first_cols = [c for c in first_cols if c in df.columns]
-    df = helpers.organize_cols(df, first_cols)
+    df = pudl.helpers.organize_cols(df, first_cols)
 
     # Transpose the original dataframe to easily add and map tags as columns
     dfnew = df.transpose()

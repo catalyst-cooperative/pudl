@@ -2,8 +2,8 @@
 
 import pandas as pd
 import numpy as np
-from pudl import constants as pc
-import pudl.transform.pudl
+import pudl
+import pudl.constants as pc
 
 
 def ownership(eia860_dfs, eia860_transformed_dfs):
@@ -22,11 +22,9 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     o_df = eia860_dfs['ownership'].copy()
 
     # Replace '.' and ' ' with NaN in order to read in integer values
-    o_df.replace(to_replace=r'^\.$', value=np.nan, regex=True, inplace=True)
-    o_df.replace(to_replace=r'^\s$', value=np.nan, regex=True, inplace=True)
-    o_df.replace(to_replace=r'^$', value=np.nan, regex=True, inplace=True)
+    o_df = pudl.helpers.fix_eia_na(o_df)
 
-    o_df = pudl.transform.pudl.convert_to_date(o_df)
+    o_df = pudl.helpers.convert_to_date(o_df)
 
     # The fix we're making here is only known to be valid for 2011 -- if we
     # get older data... then we need to to revisit the cleaning function and
@@ -81,9 +79,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     gens_df.dropna(subset=['generator_id', 'plant_id_eia'], inplace=True)
 
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    gens_df.replace(to_replace=r'^\.$', value=np.nan, regex=True, inplace=True)
-    gens_df.replace(to_replace=r'^\s$', value=np.nan, regex=True, inplace=True)
-    gens_df.replace(to_replace=r'^$', value=np.nan, regex=True, inplace=True)
+    gens_df = pudl.helpers.fix_eia_na(gens_df)
 
     # A subset of the columns have zero values, where NA is appropriate:
     columns_to_fix = [
@@ -160,17 +156,17 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         gens_df[column] = gens_df[column].replace(
             to_replace=["Y", "N"], value=[True, False])
 
-    gens_df = pudl.transform.pudl.month_year_to_date(gens_df)
+    gens_df = pudl.helpers.month_year_to_date(gens_df)
 
     gens_df['fuel_type_code_pudl'] = \
-        pudl.transform.pudl.cleanstrings(gens_df['energy_source_code_1'],
-                                         pc.fuel_type_eia860_simple_map)
+        pudl.helpers.cleanstrings(gens_df['energy_source_code_1'],
+                                  pc.fuel_type_eia860_simple_map)
 
     # Ensure plant IDs are integers.
     gens_df['plant_id_eia'] = gens_df['plant_id_eia'].astype(int)
     gens_df['utility_id_eia'] = gens_df['utility_id_eia'].astype(int)
 
-    gens_df = pudl.transform.pudl.convert_to_date(gens_df)
+    gens_df = pudl.helpers.convert_to_date(gens_df)
 
     eia860_transformed_dfs['generators_eia860'] = gens_df
 
@@ -200,16 +196,7 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     p_df = eia860_dfs['plant'].copy()
 
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    p_df.replace(to_replace=r'^\.$', value=np.nan, regex=True, inplace=True)
-    p_df.replace(to_replace=r'^\s$', value=np.nan, regex=True, inplace=True)
-    p_df.replace(to_replace=r'^$', value=np.nan, regex=True, inplace=True)
-
-    # Cast integer values in sector to floats to avoid type errors
-    #p_df['sector_id'] = p_df['sector_id'].astype(float)
-
-    # Cast various types in transmission_distribution_owner_id to int
-    # p_df['transmission_distribution_owner_id'] = \
-    #    p_df['transmission_distribution_owner_id'].astype(int)
+    p_df = pudl.helpers.fix_eia_na(p_df)
 
     # Cast values in zip_code to strings to avoid type errors
     p_df['zip_code'] = p_df['zip_code'].astype(str)
@@ -247,7 +234,7 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     p_df['primary_purpose_naics_id'] = \
         p_df['primary_purpose_naics_id'].astype(int)
 
-    p_df = pudl.transform.pudl.convert_to_date(p_df)
+    p_df = pudl.helpers.convert_to_date(p_df)
 
     eia860_transformed_dfs['plants_eia860'] = p_df
 
@@ -294,7 +281,7 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     # This drop_duplicates isn't removing all duplicates
     b_g_df = b_g_df.drop_duplicates().dropna()
 
-    b_g_df = pudl.transform.pudl.convert_to_date(b_g_df)
+    b_g_df = pudl.helpers.convert_to_date(b_g_df)
 
     eia860_transformed_dfs['boiler_generator_assn_eia860'] = b_g_df
 
@@ -318,9 +305,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
     u_df = eia860_dfs['utility'].copy()
 
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    u_df.replace(to_replace=r'^\.$', value=np.nan, regex=True, inplace=True)
-    u_df.replace(to_replace=r'^\s$', value=np.nan, regex=True, inplace=True)
-    u_df.replace(to_replace=r'^$', value=np.nan, regex=True, inplace=True)
+    u_df = pudl.helpers.fix_eia_na(u_df)
 
     boolean_columns_to_fix = [
         'plants_reported_owner',
@@ -334,7 +319,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
         u_df[column] = u_df[column].replace(
             to_replace=["Y", "N"], value=[True, False])
 
-    u_df = pudl.transform.pudl.convert_to_date(u_df)
+    u_df = pudl.helpers.convert_to_date(u_df)
 
     u_df['utility_id_eia'] = u_df['utility_id_eia'].astype(int)
 

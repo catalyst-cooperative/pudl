@@ -23,9 +23,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import Normalizer, RobustScaler
 from sklearn.preprocessing import OneHotEncoder
 
+import pudl
 import pudl.constants as pc
-import pudl.transform.pudl
-import pudl.helpers
 from pudl.settings import SETTINGS
 
 ##############################################################################
@@ -177,14 +176,14 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     # this is necessarily imperfect:
 
     ferc1_steam_df.type_const = \
-        pudl.transform.pudl.cleanstrings(ferc1_steam_df.type_const,
-                                         pc.ferc1_construction_type_strings,
-                                         unmapped='')
+        pudl.helpers.cleanstrings(ferc1_steam_df.type_const,
+                                  pc.ferc1_construction_type_strings,
+                                  unmapped='')
 
     ferc1_steam_df.plant_kind = \
-        pudl.transform.pudl.cleanstrings(ferc1_steam_df.plant_kind,
-                                         pc.ferc1_plant_kind_strings,
-                                         unmapped='')
+        pudl.helpers.cleanstrings(ferc1_steam_df.plant_kind,
+                                  pc.ferc1_plant_kind_strings,
+                                  unmapped='')
 
     # Force the construction and installation years to be numeric values, and
     # set them to NA if they can't be converted. (table has some junk values)
@@ -253,7 +252,7 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     # eventually) We need to massage the type and missing data for the
     # Classifier to work.
     ferc1_steam_df['construction_year'] = \
-        pudl.transform.pudl.fix_int_na(ferc1_steam_df.construction_year)
+        pudl.helpers.fix_int_na(ferc1_steam_df.construction_year)
 
     # Train the classifier
     ferc_clf = pudl.transform.ferc1.make_ferc_clf(
@@ -332,14 +331,14 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     # Take the messy free-form fuel & fuel_unit fields, and do our best to
     # map them to some canonical categories... this is necessarily imperfect:
     fuel_ferc1_df.fuel = \
-        pudl.transform.pudl.cleanstrings(fuel_ferc1_df.fuel,
-                                         pc.ferc1_fuel_strings,
-                                         unmapped='')
+        pudl.helpers.cleanstrings(fuel_ferc1_df.fuel,
+                                  pc.ferc1_fuel_strings,
+                                  unmapped='')
 
     fuel_ferc1_df.fuel_unit = \
-        pudl.transform.pudl.cleanstrings(fuel_ferc1_df.fuel_unit,
-                                         pc.ferc1_fuel_unit_strings,
-                                         unmapped='')
+        pudl.helpers.cleanstrings(fuel_ferc1_df.fuel_unit,
+                                  pc.ferc1_fuel_unit_strings,
+                                  unmapped='')
 
     #########################################################################
     # PERFORM UNIT CONVERSIONS ##############################################
