@@ -1,10 +1,7 @@
 """Database models for PUDL tables derived from EIA Data."""
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Float
-from sqlalchemy import Boolean, Integer, String, Float, Numeric, Date
+from sqlalchemy import Column, ForeignKey, Integer, String, Date
 from sqlalchemy import ForeignKeyConstraint
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 import pudl.models.entities
 
 

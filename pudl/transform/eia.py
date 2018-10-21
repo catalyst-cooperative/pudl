@@ -222,12 +222,13 @@ def boiler_generator_assn(eia_transformed_dfs,
     gen_eia923 = gen_eia923_gb['net_generation_mwh'].sum().reset_index()
     gen_eia923['missing_from_923'] = False
 
-    # The generator records that are missing from 860 but appear in 923
-    # I created issue no. 128 to deal with this at a later date
-    merged = pd.merge(eia_transformed_dfs['generators_eia860'].copy(),
-                      gen_eia923,
-                      on=['plant_id_eia', 'report_date', 'generator_id'],
-                      indicator=True, how='outer')
+    # This code calls out the generator records that are missing from 860 but
+    # which appear in EIA 923. See Issue #128 for more details. Still needs to
+    # be addressed: https://github.com/catalyst-cooperative/pudl/issues/128
+    # merged = pd.merge(eia_transformed_dfs['generators_eia860'].copy(),
+    #                  gen_eia923,
+    #                  on=['plant_id_eia', 'report_date', 'generator_id'],
+    #                  indicator=True, how='outer')
     # missing = merged[merged['_merge'] == 'right_only']
 
     # compile all of the generators

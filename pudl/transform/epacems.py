@@ -2,8 +2,6 @@
 """Routines specific to cleaning up EPA CEMS hourly data."""
 
 import pandas as pd
-import numpy as np
-import pudl.constants as pc
 
 ###############################################################################
 ###############################################################################
@@ -59,9 +57,11 @@ def convert_time_to_interval(df):
     Output:
         pandas.DataFrame: The same data, with an op_interval column added.
     """
-    raise NotImplementedError("This op_interval isn't included in the " +
-                              "SQLAlchemy model yet. Figure out what you want to do with interval " +
-                              "data first.")
+    raise NotImplementedError(
+        "This op_interval isn't included in the " +
+        "SQLAlchemy model yet. Figure out what you want to do with interval " +
+        "data first."
+    )
     df['op_interval'] = pd.to_datetime(
         df['op_date'].str.cat(df['op_hour'].astype(str), sep='-'),
         format="%m-%d-%Y-%H",

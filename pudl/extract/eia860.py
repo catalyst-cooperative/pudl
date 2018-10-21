@@ -28,8 +28,12 @@ def datadir(year):
         path to appropriate EIA 860 data directory.
     """
     # These are the only years we've got...
-    assert year in range(min(pc.data_years['eia860']),
-                         max(pc.data_years['eia860']) + 1)
+    if year not in pc.data_years['eia860']:
+        raise AssertionError(
+            f"EIA 860 data requested for unavailable year: {year}.\n"
+            f"EIA 860 data is available for {pc.working_years['eia860']}\n"
+        )
+
     return(os.path.join(SETTINGS['eia860_data_dir'],
                         'eia860{}'.format(year)))
 
@@ -43,7 +47,12 @@ def get_eia860_file(yr, file):
     Returns:
         path to EIA 860 spreadsheets corresponding to a given year.
     """
-    assert(yr > 2010), "EIA860 file selection only works for 2010 & later."
+    if yr not in pc.working_years['eia860']:
+        raise AssertionError(
+            f"Requested non-working EIA 860 year: {yr}.\n"
+            f"EIA 860 is only working for: {pc.working_years['eia860']}\n"
+        )
+
     return glob.glob(os.path.join(datadir(yr), file))[0]
 
 
@@ -160,17 +169,22 @@ def get_eia860_page(page, eia860_xlsx,
         pandas.DataFrame: A dataframe containing the data from the selected
             page and selected years from EIA 860.
     """
-    if years:
-        assert min(years) >= min(pc.working_years['eia860']),\
-            "EIA860 works for 2011 and later. {} requested.".format(min(years))
-        assert page in pc.tab_map_eia860.columns and page != 'year_index',\
-            "Unrecognized EIA 860 page: {}".format(page)
+    if page not in pc.tab_map_eia860.columns and page != 'year_index':
+        raise AssertionError(
+            f"Unrecognized EIA 860 page: {page}\n"
+            f"Acceptable EIA 860 pages: {pc.tab_map_eia860.columns}\n"
+        )
 
     if verbose:
-        print('Converting EIA 860 {} to DataFrame...'.format(page))
+        print(f'Converting EIA 860 {page} to DataFrame...')
 
     df = pd.DataFrame()
     for yr in years:
+        if yr not in pc.working_years['eia860']:
+            raise AssertionError(
+                f"Requested non-working EIA 860 year: {yr}.\n"
+                f"EIA 860 works for {pc.working_years['eia860']}\n"
+            )
         sheet_name, skiprows, column_map, all_columns = \
             get_eia860_column_map(page, yr)
         newdata = pd.read_excel(eia860_xlsx[yr],
@@ -230,42 +244,7 @@ def create_dfs_eia860(files=pc.files_eia860,
     return eia860_dfs
 
 
-def get_eia860_plants(years, eia860_xlsx):
-    """
-    Generate an exhaustive list of EIA 860 plants.
-
-    # Most plants are listed in the 'Plant Frame' tabs for each year. 'Plant
-    # Frame' tab does not exist before 2011 and there is plant specific
-    # information that is not included in the 'Plant Frame' tab that will be
-    # pulled into the plant info table. For years before 2011 it will be used
-    # to generate the exhaustive list of plants.
-
-    This function will be used in two ways: to populate the plant info table
-    and to check the plant mapping to find missing plants.
-
-    Args:
-        years: The year that we're trying to read data for.
-        eia860_xlsx: required and should not be modified
-    Returns:
-        Data frame that populates the plant info table
-        A check of plant mapping to identify missing plants
-    """
-    recent_years = [y for y in years if y >= 2011]
-
-    df_all_years = pd.DataFrame(columns=['plant_id'])
-
-    pf = pd.DataFrame(columns=['plant_id', 'plant_state',
-                               'combined_heat_power',
-                               'eia_sector', 'naics_code',
-                               'reporting_frequency', 'capacity_mw',
-                               'report_year'])
-    if len(recent_years) > 0:
-        pf = get_eia860_page('boiler_generator_assn_eia860', eia860_xlsx,
-                             years=recent_years)
-
-
-def extract(eia860_years=pc.working_years['eia860'],
-            verbose=True):
+def extract(eia860_years=pc.working_years['eia860'], verbose=True):
     # Prep for ingesting EIA860
     # create raw 860 dfs from spreadsheets
     eia860_raw_dfs = {}

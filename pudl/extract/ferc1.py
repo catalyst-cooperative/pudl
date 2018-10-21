@@ -50,7 +50,7 @@ def dbc_filename(year, basedir=SETTINGS['ferc1_data_dir']):
     return os.path.join(datadir(year, basedir), 'F1_PUB.DBC')
 
 
-def get_strings(filename, min=4):
+def get_strings(filename, min_length=4):
     """
     Extract printable strings from a binary and return them as a generator.
 
@@ -64,14 +64,14 @@ def get_strings(filename, min=4):
             if c in string.printable:
                 result += c
                 continue
-            if len(result) >= min:
+            if len(result) >= min_length:
                 yield result
             result = ""
-        if len(result) >= min:  # catch result at EOF
+        if len(result) >= min_length:  # catch result at EOF
             yield result
 
 
-def extract_dbc_tables(year, minstring=4, basedir=SETTINGS['ferc1_data_dir']):
+def extract_dbc_tables(year, min_length=4, basedir=SETTINGS['ferc1_data_dir']):
     """Extract the names of all the tables and fields from FERC Form 1 DB.
 
     This function reads all the strings in the given DBC database file for the
@@ -94,7 +94,7 @@ def extract_dbc_tables(year, minstring=4, basedir=SETTINGS['ferc1_data_dir']):
     from the 2015 Form 1 database.
     """
     # Extract all the strings longer than "min" from the DBC file
-    dbc_strs = list(get_strings(dbc_filename(year), min=minstring))
+    dbc_strs = list(get_strings(dbc_filename(year), min_length=min_length))
 
     # Get rid of leading & trailing whitespace in the strings:
     dbc_strs = [s.strip() for s in dbc_strs]
@@ -103,7 +103,7 @@ def extract_dbc_tables(year, minstring=4, basedir=SETTINGS['ferc1_data_dir']):
     dbc_strs = [s for s in dbc_strs if s is not '']
 
     # Collapse all whitespace to a single space:
-    dbc_strs = [re.sub('\s+', ' ', s) for s in dbc_strs]
+    dbc_strs = [re.sub(r'\s+', ' ', s) for s in dbc_strs]
 
     # Pull out only strings that begin with Table or Field
     dbc_strs = [s for s in dbc_strs if re.match('(^Table|^Field)', s)]
@@ -133,20 +133,20 @@ def extract_dbc_tables(year, minstring=4, basedir=SETTINGS['ferc1_data_dir']):
         tf_dict[x[0]] = x[1:]
 
     tf_doubledict = {}
-    for dbf in pc.ferc1_dbf2tbl.keys():
+    for dbf in pc.ferc1_dbf2tbl:
         filename = os.path.join(datadir(year, basedir), '{}.DBF'.format(dbf))
         if os.path.isfile(filename):
             dbf_fields = dbfread.DBF(filename).field_names
             dbf_fields = [f for f in dbf_fields if f != '_NullFlags']
             tf_doubledict[pc.ferc1_dbf2tbl[dbf]] = \
                 {k: v for k, v in
-                    zip(dbf_fields, tf_dict[pc.ferc1_dbf2tbl[dbf]])}
-            assert(len(tf_dict[pc.ferc1_dbf2tbl[dbf]]) == len(dbf_fields))
+                 zip(dbf_fields, tf_dict[pc.ferc1_dbf2tbl[dbf]])}
+            assert len(tf_dict[pc.ferc1_dbf2tbl[dbf]]) == len(dbf_fields)
 
     # Insofar as we are able, make sure that the fields match each other
-    for k in tf_doubledict.keys():
+    for k in tf_doubledict:
         for sn, ln in zip(tf_doubledict[k].keys(), tf_doubledict[k].values()):
-            assert(ln[:8] == sn.lower()[:8])
+            assert ln[:8] == sn.lower()[:8]
 
     return tf_doubledict
 

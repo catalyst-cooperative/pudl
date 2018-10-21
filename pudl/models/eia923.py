@@ -1,6 +1,6 @@
 """Database models for PUDL tables derived from EIA Form 923 Data."""
 
-from sqlalchemy import Boolean, Integer, String, Float, Date
+from sqlalchemy import Integer, String, Float, Date
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint
 import pudl.models.entities
 
@@ -36,8 +36,8 @@ class BoilersEIA923(pudl.models.entities.PUDLBase):
                           primary_key=True)
     boiler_id = Column(String, primary_key=True)
     prime_mover_code = Column(String,
-                         ForeignKey('prime_movers_eia923.abbr'),
-                         nullable=False)
+                              ForeignKey('prime_movers_eia923.abbr'),
+                              nullable=False)
 
 
 class GeneratorEIA923(pudl.models.entities.PUDLBase):
@@ -52,8 +52,8 @@ class GeneratorEIA923(pudl.models.entities.PUDLBase):
     plant_id_eia = Column(Integer, primary_key=True)
     generator_id = Column(String, primary_key=True)
     prime_mover_code = Column(String,
-                         ForeignKey('prime_movers_eia923.abbr'),
-                         nullable=False)
+                              ForeignKey('prime_movers_eia923.abbr'),
+                              nullable=False)
 
 
 class FuelUnitEIA923(pudl.models.entities.PUDLBase):
@@ -193,10 +193,11 @@ class GenerationFuelEIA923(pudl.models.entities.PUDLBase):
                        ForeignKey('fuel_type_eia923.abbr'),
                        nullable=False)
     fuel_type_code_pudl = Column(String)
-    fuel_type_code_aer = Column(String, ForeignKey('fuel_type_aer_eia923.abbr'))
+    fuel_type_code_aer = Column(
+        String, ForeignKey('fuel_type_aer_eia923.abbr'))
     prime_mover_code = Column(String,
-                         ForeignKey('prime_movers_eia923.abbr'),
-                         nullable=False)
+                              ForeignKey('prime_movers_eia923.abbr'),
+                              nullable=False)
     fuel_consumed_units = Column(Float)
     fuel_consumed_for_electricity_units = Column(Float)
     fuel_mmbtu_per_unit = Column(Float)
@@ -221,9 +222,9 @@ class BoilerFuelEIA923(pudl.models.entities.PUDLBase):
     plant_id_eia = Column(Integer, nullable=False)
     boiler_id = Column(String, nullable=False)
     prime_mover_code = Column(String, ForeignKey('prime_movers_eia923.abbr'),
-                         nullable=False)
+                              nullable=False)
     fuel_type_code = Column(String, ForeignKey('fuel_type_eia923.abbr'),
-                       nullable=False)
+                            nullable=False)
     fuel_type_code_pudl = Column(String)
     report_date = Column(Date, nullable=False)
     fuel_consumed_units = Column(Float)
@@ -247,7 +248,7 @@ class GenerationEIA923(pudl.models.entities.PUDLBase):
     plant_id_eia = Column(Integer, nullable=False)
     # TODO remove prime_mover since it's specific to generator_id?
     prime_mover_code = Column(String, ForeignKey('prime_movers_eia923.abbr'),
-                         nullable=False)
+                              nullable=False)
     # TODO: Add FK constraint refering to (plant_id, generator_id) in the
     # generators_eia923 table.  Or at least give it a shot.
     generator_id = Column(String, nullable=False)
@@ -266,9 +267,11 @@ class FuelReceiptsCostsEIA923(pudl.models.entities.PUDLBase):
                           ForeignKey('plants_entity_eia.plant_id_eia'),
                           nullable=False)
     report_date = Column(Date, nullable=False)
-    contract_type_code = Column(String, ForeignKey('contract_type_eia923.abbr'))
+    contract_type_code = Column(
+        String, ForeignKey('contract_type_eia923.abbr'))
     contract_expiration_date = Column(Date)
-    energy_source_code = Column(String, ForeignKey('energy_source_eia923.abbr'))
+    energy_source_code = Column(
+        String, ForeignKey('energy_source_eia923.abbr'))
     fuel_type_code_pudl = Column(String)
     fuel_group_code = Column(String, ForeignKey('fuel_group_eia923.group'))
     fuel_group_code_simple = Column(String)

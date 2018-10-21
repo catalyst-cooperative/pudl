@@ -1,9 +1,7 @@
 """PyTest configuration module. Defines useful fixtures, command line args."""
 
 import pytest
-import pandas as pd
-import pudl.extract.ferc1
-from pudl import init
+import pudl
 from pudl import constants as pc
 
 
@@ -70,30 +68,30 @@ def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
     If we're using the live database, then we just make a conneciton to it.
     """
     if not live_pudl_db:
-        init.init_db(ferc1_tables=pc.ferc1_pudl_tables,
-                     ferc1_years=pc.working_years['ferc1'],
-                     eia923_tables=pc.eia923_pudl_tables,
-                     eia923_years=pc.working_years['eia923'],
-                     eia860_tables=pc.eia860_pudl_tables,
-                     eia860_years=pc.working_years['eia860'],
-                     # Full EPA CEMS ingest takes 8 hours, so using an
-                     # abbreviated list here
-                     epacems_years=pc.travis_ci_epacems_years,
-                     epacems_states=pc.travis_ci_epacems_states,
-                     verbose=True,
-                     debug=False,
-                     pudl_testing=True,
-                     ferc1_testing=(not live_ferc_db))
+        pudl.init.init_db(ferc1_tables=pc.ferc1_pudl_tables,
+                          ferc1_years=pc.working_years['ferc1'],
+                          eia923_tables=pc.eia923_pudl_tables,
+                          eia923_years=pc.working_years['eia923'],
+                          eia860_tables=pc.eia860_pudl_tables,
+                          eia860_years=pc.working_years['eia860'],
+                          # Full EPA CEMS ingest takes 8 hours, so using an
+                          # abbreviated list here
+                          epacems_years=pc.travis_ci_epacems_years,
+                          epacems_states=pc.travis_ci_epacems_states,
+                          verbose=True,
+                          debug=False,
+                          pudl_testing=True,
+                          ferc1_testing=(not live_ferc_db))
 
         # Grab a connection to the freshly populated PUDL DB, and hand it off.
-        pudl_engine = init.connect_db(testing=True)
+        pudl_engine = pudl.init.connect_db(testing=True)
         yield pudl_engine
 
         # Clean up after ourselves by dropping the test DB tables.
-        init.drop_tables(pudl_engine)
+        pudl.init.drop_tables(pudl_engine)
     else:
         print("Connecting to the live PUDL database.")
-        yield init.connect_db(testing=False)
+        yield pudl.init.connect_db(testing=False)
 
 
 @pytest.fixture(scope='session')
@@ -140,26 +138,26 @@ def pudl_engine_travis_ci(ferc1_engine_travis_ci, live_pudl_db, live_ferc_db):
     subset of the data ETL, for structural testing within Travis CI.
     """
     if not live_pudl_db:
-        init.init_db(ferc1_tables=pc.ferc1_pudl_tables,
-                     ferc1_years=pc.travis_ci_ferc1_years,
-                     eia923_tables=pc.eia923_pudl_tables,
-                     eia923_years=pc.travis_ci_eia923_years,
-                     eia860_tables=pc.eia860_pudl_tables,
-                     eia860_years=pc.travis_ci_eia860_years,
-                     epacems_years=pc.travis_ci_epacems_years,
-                     epacems_states=pc.travis_ci_epacems_states,
-                     verbose=True,
-                     debug=False,
-                     pudl_testing=True,
-                     ferc1_testing=(not live_ferc_db))
+        pudl.init.init_db(ferc1_tables=pc.ferc1_pudl_tables,
+                          ferc1_years=pc.travis_ci_ferc1_years,
+                          eia923_tables=pc.eia923_pudl_tables,
+                          eia923_years=pc.travis_ci_eia923_years,
+                          eia860_tables=pc.eia860_pudl_tables,
+                          eia860_years=pc.travis_ci_eia860_years,
+                          epacems_years=pc.travis_ci_epacems_years,
+                          epacems_states=pc.travis_ci_epacems_states,
+                          verbose=True,
+                          debug=False,
+                          pudl_testing=True,
+                          ferc1_testing=(not live_ferc_db))
 
         # Grab a connection to the freshly populated PUDL DB, and hand it off.
-        pudl_engine = init.connect_db(testing=True)
+        pudl_engine = pudl.init.connect_db(testing=True)
         yield pudl_engine
 
         # Clean up after ourselves by dropping the test DB tables.
-        init.drop_tables(pudl_engine)
+        pudl.init.drop_tables(pudl_engine)
 
     else:
         print("Connecting to the live PUDL database.")
-        yield init.connect_db(testing=False)
+        yield pudl.init.connect_db(testing=False)
