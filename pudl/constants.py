@@ -100,10 +100,10 @@ cems_states = {k: v for k, v in us_states.items() if v not in
                 'Virgin Islands'}
                }
 
-travis_ci_ferc1_years = [2012, 2016, ]
-travis_ci_eia860_years = [2012, 2016, ]
-travis_ci_eia923_years = [2016, ]
-travis_ci_epacems_years = [2016, ]
+travis_ci_ferc1_years = [2015, ]
+travis_ci_eia860_years = [2015, ]
+travis_ci_eia923_years = [2015, ]
+travis_ci_epacems_years = [2015, ]
 travis_ci_epacems_states = ['CO', ]
 # Construct a dictionary mapping a canonical fuel name to a list of strings
 # which are used to represent that fuel in the FERC Form 1 Reporting. Case is
@@ -3345,9 +3345,7 @@ data_sources = [
     'eia923',
     'epacems',
     'ferc1',
-    # 'mshamines',
-    # 'mshaops',
-    # 'mshaprod',
+    # 'msha
 ]
 
 # All the years for which we ought to be able to download these data sources
@@ -3383,14 +3381,13 @@ base_data_urls = {
     'eia923': 'https://www.eia.gov/electricity/data/eia923',
     'epacems': 'ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly',
     'ferc1': 'ftp://eforms1.ferc.gov/f1allyears',
-    'mshaprod': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
-    'mshamines': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
-    'mshaops': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
+    'msha': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
 }
 
 
 need_fix_inting = {
     'generators_eia860': ['sector_id', 'turbines_num'],
+    'plants_eia860': ['sector_id', 'transmission_distribution_owner_id'],
     'coalmine_eia923': ['mine_id_msha', 'county_id_fips'],
     'fuel_receipts_costs_eia923': ['mine_id_pudl'],
     'generation_fuel_eia923': ['nuclear_unit_id'],

@@ -49,9 +49,9 @@ def cleanstrings(field, stringmap, unmapped=None, simplify=True):
         # Transform strings to lower case, strip leading/trailing whitespace
         field = field.str.lower().str.strip()
         # remove duplicate internal whitespace
-        field = field.replace('[\s+]', ' ', regex=True)
+        field = field.replace(r'[\s+]', ' ', regex=True)
         for k, v in stringmap.items():
-            stringmap[k] = [re.sub('\s+', ' ', s.lower().strip()) for s in v]
+            stringmap[k] = [re.sub(r'\s+', ' ', s.lower().strip()) for s in v]
 
     for k in stringmap.keys():
         if len(stringmap[k]) > 0:
@@ -93,9 +93,9 @@ def fix_int_na(col, float_na=np.nan, int_na=-1, str_na=''):
             compatible with the postgresql COPY FROM command.
     """
     return (col.replace(float_na, int_na).
-           astype(int).
-           astype(str).
-           replace(str(int_na), str_na))
+            astype(int).
+            astype(str).
+            replace(str(int_na), str_na))
 
 
 def month_year_to_date(df):

@@ -111,6 +111,12 @@ def get_eia860_column_map(page, year):
             canonmical column names.  All should be stripped of leading and
             trailing whitespace, converted to lower case, and have internal
             non-alphanumeric characters replaced with underscores.
+        all_columns (pd.Index): The column Index associated with the column
+            map -- it includes all of the columns which might be present in
+            all of the years of data, for use in setting the column index of
+            the raw dataframe which is ultimately extracted, so we can ensure
+            that they all have the same columns, even if we're only loading a
+            limited number of years.
     """
     sheet_name = pc.tab_map_eia860.at[year, page]
     skiprows = pc.skiprows_eia860.at[year, page]
@@ -131,7 +137,9 @@ def get_eia860_column_map(page, year):
     for k, v in d.items():
         column_map[v] = k
 
-    return (sheet_name, skiprows, column_map)
+    all_columns = page_to_df[page].columns
+
+    return (sheet_name, skiprows, column_map, all_columns)
 
 
 def get_eia860_page(page, eia860_xlsx,
@@ -157,16 +165,14 @@ def get_eia860_page(page, eia860_xlsx,
             "EIA860 works for 2011 and later. {} requested.".format(min(years))
         assert page in pc.tab_map_eia860.columns and page != 'year_index',\
             "Unrecognized EIA 860 page: {}".format(page)
-        assert min(years) <= 2013,\
-            "The generators_eia860 table only works when years include 2012 and\
-            before."
 
     if verbose:
         print('Converting EIA 860 {} to DataFrame...'.format(page))
 
     df = pd.DataFrame()
     for yr in years:
-        sheet_name, skiprows, column_map = get_eia860_column_map(page, yr)
+        sheet_name, skiprows, column_map, all_columns = \
+            get_eia860_column_map(page, yr)
         newdata = pd.read_excel(eia860_xlsx[yr],
                                 sheet_name=sheet_name,
                                 skiprows=skiprows)
@@ -183,6 +189,14 @@ def get_eia860_page(page, eia860_xlsx,
         newdata = newdata.rename(columns=column_map)
 
         df = df.append(newdata)
+
+    # We need to ensure that ALL possible columns show up in the dataframe
+    # that's being returned, even if they are empty, so that we know we have a
+    # consistent set of columns to work with in the transform step of ETL, and
+    # the columns match up with the database definition.
+    missing_cols = all_columns.difference(df.columns)
+    empty_cols = pd.DataFrame(columns=missing_cols)
+    df = pd.concat([df, empty_cols], sort=True)
     return df
 
 
