@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 
 import pudl
-import pudl.constants as pc
 
 
 def heat_rate_by_unit(pudl_out, verbose=False):

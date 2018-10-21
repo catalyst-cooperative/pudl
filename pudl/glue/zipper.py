@@ -76,10 +76,6 @@ import pandas as pd
 import itertools
 import random
 
-# Our own code...
-import pudl
-from pudl import constants as pc
-
 
 def partition(collection):
     """

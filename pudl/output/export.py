@@ -5,7 +5,7 @@ exported (e.g. CSV, Excel spreadsheets, parquet files, HDF5).
 """
 
 import pandas as pd
-from pudl
+import pudl
 
 
 def annotated_xlsx(df, notes_dict, tags_dict, first_cols, sheet_name,

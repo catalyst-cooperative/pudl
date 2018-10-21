@@ -5,7 +5,7 @@ import os
 import sys
 import argparse
 
-assert sys.version_info >= (3, 5)  # require modern python
+assert sys.version_info >= (3, 6)  # require modern python
 
 # This is a hack to make the pudl package importable from within this script,
 # even though it isn't in one of the normal site-packages directories where
