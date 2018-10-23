@@ -3353,7 +3353,7 @@ data_years = {
     'eia860': range(2001, 2018),
     'eia861': range(1990, 2018),
     'eia923': range(2001, 2018),
-    'epacems': range(1995, 2018),
+    'epacems': range(1995, 2017),
     'ferc1': range(1994, 2018),
     'msha': range(2000, 2018),
 }
@@ -3363,7 +3363,7 @@ working_years = {
     'eia860': range(2011, 2018),
     'eia861': [],
     'eia923': range(2009, 2018),
-    'epacems': range(1995, 2018),
+    'epacems': range(1995, 2017),
     'ferc1': range(2004, 2017),
     'msha': [],
 }
