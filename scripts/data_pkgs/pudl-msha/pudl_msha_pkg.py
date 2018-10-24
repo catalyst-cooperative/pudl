@@ -21,7 +21,7 @@ sys.path.append(os.path.abspath(os.path.join('..', '..', '..')))
 def main(arguments):
     """The main function."""
     from pudl.settings import SETTINGS
-    from pudl.transform.pudl import fix_int_na
+    from pudl.helpers import fix_int_na
     import pudl.constants as pc
 
     parser = argparse.ArgumentParser(
@@ -86,12 +86,12 @@ def main(arguments):
 
     if args.download:
         # Get the data directly from MSHA
-        data_path = pc.base_data_urls["mshamines"]
+        data_path = pc.base_data_urls["msha"]
         for res in resources:
             for d in ["data", "defs"]:
                 # Construct the full URL
                 url_parts = urllib.parse.urlparse(
-                    pc.base_data_urls['mshamines'])
+                    pc.base_data_urls['msha'])
                 new_path = url_parts.path + '/' + resources[res][d]
                 res_url = urllib.parse.urlunparse(
                     list(url_parts[0:2]) + [new_path, '', '', ''])
