@@ -9,6 +9,7 @@ This code is for use analyzing EIA Form 860 data.
 import os.path
 import glob
 import pandas as pd
+import pudl
 from pudl.settings import SETTINGS
 import pudl.constants as pc
 
@@ -190,11 +191,7 @@ def get_eia860_page(page, eia860_xlsx,
         newdata = pd.read_excel(eia860_xlsx[yr],
                                 sheet_name=sheet_name,
                                 skiprows=skiprows)
-        # Clean column names: lowercase, underscores instead of white space,
-        # no non-alphanumeric characters
-        newdata.columns = newdata.columns.str.replace('[^0-9a-zA-Z]+', ' ')
-        newdata.columns = newdata.columns.str.strip().str.lower()
-        newdata.columns = newdata.columns.str.replace(' ', '_')
+        newdata = pudl.helpers.simplify_columns(newdata)
 
         # boiler_generator_assn tab is missing a YEAR column. Add it!
         if 'report_year' not in newdata.columns:

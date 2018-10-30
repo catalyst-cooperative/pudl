@@ -7,9 +7,10 @@ This code is for use analyzing EIA Form 923 data. Currenly only
 years 2009-2016 work, as they share nearly identical file formatting.
 """
 
-import pandas as pd
 import os.path
 import glob
+import pandas as pd
+import pudl
 from pudl.settings import SETTINGS
 import pudl.constants as pc
 
@@ -33,8 +34,7 @@ def datadir(year, basedir=SETTINGS['eia923_data_dir']):
     assert year in pc.data_years['eia923']
     if year < 2008:
         return os.path.join(basedir, 'f906920_{}'.format(year))
-    else:
-        return os.path.join(basedir, 'f923_{}'.format(year))
+    return os.path.join(basedir, 'f923_{}'.format(year))
 
 
 def get_eia923_file(yr, basedir=SETTINGS['eia923_data_dir']):
@@ -152,12 +152,7 @@ def get_eia923_page(page, eia923_xlsx,
         newdata = pd.read_excel(eia923_xlsx[yr],
                                 sheet_name=sheet_name,
                                 skiprows=skiprows)
-
-        # Clean column names: lowercase, underscores instead of white space,
-        # no non-alphanumeric characters
-        newdata.columns = newdata.columns.str.replace('[^0-9a-zA-Z]+', ' ')
-        newdata.columns = newdata.columns.str.strip().str.lower()
-        newdata.columns = newdata.columns.str.replace(' ', '_')
+        newdata = pudl.helpers.simplify_columns(newdata)
 
         # Drop columns that start with "reserved" because they are empty
         to_drop = [c for c in newdata.columns if c[:8] == 'reserved']
