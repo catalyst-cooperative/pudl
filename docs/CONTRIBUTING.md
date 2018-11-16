@@ -2,45 +2,34 @@
 
 **Welcome electricity data nerds!**
 
-The Public Utility Data Liberation (PUDL) project grew out of our frustration
-with how difficult it is to actually make use of public data about the US
-electricity system. In our own climate activism and policy work we found that
-many non-profit organizations, academic researchers, grassroots climate
-activists, and smaller businesses were scraping together the same data over and
-over again, for one campaign or project at a time, without accumulating many
-shared, reusable resources. So we decided to try and create a platform that
-would serve the many folks who have a stake in our electricity and climate
-policies, but may not have the financial resources to obtain commercially
-integrated data.
-
-We hope that by working together we can create a useful, comprehensive open
-platform that allows many different kinds of stakeholders to understand the US
-electricity system, and bring quantitative analyses to bear in their policy and
-advocacy work at state legislatures, utility commissions, and other places
-where decisions about our energy future are made.
-
-We're trying to keep as much of the code as possible written in pure Python 3,
-with the intent that the whole system should work on both Unix-like (Linux &
-Mac OS X) and Windows platforms.
-
 We want to make the PUDL project welcoming to contributors with different
 levels of experience and diverse personal backgrounds. If you're considering
-contributing please read our [Code of Conduct](CODE_OF_CONDUCT.md),
-which is based on the
-[Contributor Covenant](https://www.contributor-covenant.org/).
+contributing please read our [Code of Conduct](CODE_OF_CONDUCT.md), which is
+based on the [Contributor Covenant](https://www.contributor-covenant.org/).
+
+### Where to Start?
+* **Issues:** We coordinate PUDL project tasks using [GitHub's issue tracker](https://github.com/catalyst-cooperative/pudl/issues). Take a look and see if there's anything that looks interesting. Feel free to report bugs or comment on existing issues there.
+* **Slack:** If you're actively using PUDL or are interested in contributing, we'd also be happy to invite you to our [join our Slack](https://catalystcooperative.slack.com/).
+* **Email:** If you just want occasional updates about the project, you can [join our email list](https://catalyst.coop/updates/).
+* **Gitter:** We've also set up a [Gitter channel](https://gitter.im/catalyst-cooperative/pudl), if you want to chat, though it hasn't yet gotten a lot of traffic.
+
+### Platform Independent, Python 3
+We're trying to keep as much of the code as possible written in pure **Python
+3**, with the intent that the whole system should work on both Unix-like (Linux
+& Mac OS X) and Windows platforms.
 
 ---
-
-## The Nature of the PUDL DB
+## The Nature of the PUDL Database
 Our intention is for the PUDL database to provide programmatic access to public
 data reported to various US public agencies, which is not otherwise easily
 accessible. The data stored in the database itself is minimally altered from
-what is reported in order to standardize units, data types, and NA values, to
+what is reported in order to standardize units, data types, and `NA` values, to
 create linkages between and within the datasets which have been integrated, to
 create well normalized database tables with minimal duplication of data, and in
 some cases to categorize free-form strings into well defined taxonomies of
 categorical values.
 
+### Original vs. Derived Values
 More complicated derived values and analysis can then be performed on top of
 this underlying archive of structured data, but it not our intention to store
 that kind of information within the database. Instead, we provide an output
@@ -49,52 +38,62 @@ export or interactive analysis, as well as compiling the results of common
 analyses (e.g. calculating the marginal cost of electricity at the generator
 level).
 
-There's a huge variety of data relevant to our electric utility system
-available to the public. We've just begun to pull it together! Currently PUDL
-contains data from FERC Form 1, EIA Forms 923 and 860, and the EPA's hourly
-CEMS dataset. Other data we're interested in includes:
-* ISO/RTO locational electricity pricing (from MISO, CAISO, NEISO, PJM, etc.)
-* MSHA coal mines & production
-* The FERC Electricity Quarterly Report (EQR)
-* FERC Form 714
-* EIA Form 861
-
 ---
-
 ## Adding a New Data Source
-Here's a general overview of the process for adding a new dataset to the
-database.
+If you're already working with US energy system data in Python, or have been
+thinking about doing so, and would like to have the added benefit of access to
+all the other information that's already part of PUDL, you might consider
+adding a new data source. That way other people can use the data too, and we
+can all share the responsibility for ensuring that the code continues to work,
+and improves over time.
+
+In general the process for adding a new data source looks like this:
+
+ 1. Add the new data source to the `datastore.py` module and the `update_datastore.py` script.
+ 2. Define well normalized database tables for the new data source in the `models` subpackage.
+ 3. Add a module to the `extract` subpackage that generates raw dataframes containing the new data source's information from whatever its original format was.
+ 4. Add a module to the `transform` subpackage that takes those raw dataframes, cleans them up, and re-organizes them to match the new database table definitions.
+ 5. If necessary add a module to the `load` subpackage that takes these clean, transformed dataframes and pushes their contents into the postgres database.
+ 6. Create linkages between the new database tables and other existing data in the database, so they can be used together, if appropriate. Often this means creating some skinny "glue" tables that link one set of unique entity IDs to another.
+ 7. Update the `init.py` module so that it includes your new data source as part of the ETL (Extract, Transform, Load) process, and add the necessary code to the `init_pudl.py` script.
+ 8. Add an output module for the new data source to the `output` subpackage.
+ 9. Write some unit tests for the new data source, and add them to the `pytest` suite in the `test` directory.
 
 ### Add the new data source to the datastore
+#### Scripts
 This means editing the `datastore.py` module and the datastore update script
 (`scripts/update_datastore.py`) so that they can acquire the data from the
-reporting agencies, and organize it locally in advance of the ETL process. New
-data sources should be organized under `data/<agency>/<source>/` e.g.
-`data/ferc/form1` or `data/eia/form923`.
-
+reporting agencies, and organize it locally in advance of the ETL (Extract,
+Transform, and Load) process. New data sources should be organized under
+`data/<agency>/<source>/` e.g. `data/ferc/form1` or `data/eia/form923`.
 Larger data sources that are available as compressed zipfiles can be left
-zipped to save local disk space. Organization of a data source beneath the
-source directory may depend on the source. For data which is compiled annually,
-we typically make one subdirectory for each year, but some data sources provide
-all the data in one file for all years (e.g. the MSHA mine info). The datastore
-update script can be run at the command line to pull down new data, or to
-refresh old data if it’s been updated. The user should be able to specify
-subsets of the data to pull or refresh -- e.g. a set of years, or a set of
-states -- especially in the case of large datasets. In some cases, opening
-several download connections in parallel may dramatically reduce the time it
-takes to acquire the data (e.g. pulling don the EPA CEMS dataset over FTP). The
-`constants.py` module contains several dictionaries which define what years etc.
-are available for each data source.
+zipped to save local disk space, since `pandas` can read zipfiles directly.
+
+#### Organization
+The exact organization of data within the source directory may vary, but should
+be as uniform as possible. For data which is compiled annually, we typically
+make one subdirectory for each year, but some data sources provide all the data
+in one file for all years (e.g. the MSHA mine info).
+
+#### User Options
+The datastore update script can be run at the command line to pull down new
+data, or to refresh old data if it’s been updated. Someone running the script
+should be able to specify subsets of the data to pull or refresh -- e.g. a set
+of years, or a set of states -- especially in the case of large datasets. In
+some cases, opening several download connections in parallel may dramatically
+reduce the time it takes to acquire the data (e.g. pulling don the EPA CEMS
+dataset over FTP). The `constants.py` module contains several dictionaries
+which define what years etc. are available for each data source.
 
 ### Define the database tables.
 Create a new module in the models subpackage. The name of the module should be
-the datasource name. New modules need to import the entities module (“import
-pudl.models.entities”) and must be imported in the init.py module (“import
-pudl.models.datasource”). This way the database schema will include this module
+the datasource name. New modules need to import the entities module (`import
+pudl.models.entities`) and must be imported in the init.py module (`import
+pudl.models.datasource`). This way the database schema will include this module
 when it is first initialized. PUDL uses SQLAlchemy. Each datatable must have a
 class definition (see the `PlantAnnualEIA` class in `pudl.models.eia` for a
-simple example). Make sure your tables are normalized -- see the Database
-Design Guidelines.
+simple example). Make sure your tables are normalized -- see Design Guidelines
+below.
 
 ### Extract the data from its original format.
 The raw inputs to the extract step should be the pointers to the datastore and
@@ -156,12 +155,12 @@ helper function named `fix_int_na()`.
 ### Glue the new data to existing data
 We refer to the links between different data sources as the "glue". The glue
 The glue should be able to be thoroughly independent from the ingest of the
-dataset (there should be no PULD glue id’s in any of the datasource tables and
+dataset (there should be no PUDL glue id’s in any of the datasource tables and
 there should be no foreign key relationships from any of the glue tables to the
 datasource specific tables). These connector keys can be added in the output
 functions but having them be integral to the database ingestion would make the
 glue a dependency for adding new datasources, which we want to avoid. The
-process for adding glue will be very different depending on the datasets your
+process for adding glue will be very different depending on the datasets you're
 trying to glue together. The EIA and FERC plants and utilities are currently
 mapped by hand in a spreadsheet and pulled into tables. The FERC and EIA units
 ids that will end up living in a glue table will be created through the
