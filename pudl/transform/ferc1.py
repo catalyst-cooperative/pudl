@@ -23,6 +23,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import Normalizer, RobustScaler
 from sklearn.preprocessing import OneHotEncoder
 
+# NetworkX is used to knit incomplete ferc plant time series together.
+import networkx as nx
+
 import pudl
 import pudl.constants as pc
 from pudl.settings import SETTINGS
@@ -162,7 +165,10 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
             EIA860 form, as reported in the Excel spreadsheets they distribute.
         ferc1_transformed_dfs (dictionary of DataFrames)
 
-    Returns: transformed dataframe.
+    Returns:
+        Dictionary of transformed dataframes, including the newly transformed
+            plants_steam_ferc1 dataframe.
+
     """
     # grab table from dictionary of dfs
     ferc1_steam_df = _clean_cols(ferc1_raw_dfs['plants_steam_ferc1'])
@@ -188,11 +194,9 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     # Force the construction and installation years to be numeric values, and
     # set them to NA if they can't be converted. (table has some junk values)
     ferc1_steam_df['yr_const'] = pd.to_numeric(
-        ferc1_steam_df['yr_const'],
-        errors='coerce')
+        ferc1_steam_df['yr_const'], errors='coerce')
     ferc1_steam_df['yr_installed'] = pd.to_numeric(
-        ferc1_steam_df['yr_installed'],
-        errors='coerce')
+        ferc1_steam_df['yr_installed'], errors='coerce')
 
     # Converting everything to per MW and MWh units...
     ferc1_steam_df['cost_per_mw'] = 1000 * ferc1_steam_df['cost_per_kw']
@@ -240,8 +244,7 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
         'expns_plants': 'opex_plants',
         'expns_misc_steam': 'opex_misc_steam',
         'tot_prdctn_expns': 'opex_production_total',
-        'expns_per_mwh': 'opex_per_mwh'},
-        inplace=True)
+        'expns_per_mwh': 'opex_per_mwh'}, inplace=True)
 
     # Now we need to assign IDs to the large steam plants, since FERC doesn't
     # do this for us.
@@ -273,23 +276,74 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     n_tot = len(ferc1_steam_df)
     n_grp = len(record_groups)
     pct_grp = n_grp / n_tot
-
-    # We only need one copy of each record group:
-    record_groups = record_groups.drop_duplicates()
-    record_groups = record_groups.reset_index(drop=True)
     if verbose:
-        print(f"        {len(record_groups)} large FERC plants identified.")
-        print(f"        {n_grp} of {n_tot} records ({pct_grp}) categorized.")
-    record_groups = record_groups.stack().reset_index(level=1, drop=True)
+        print(
+            f"        Categorized {n_grp} of {n_tot} ({pct_grp*100:.2f}%) plant records.")
 
-    # Get rid of empty records
-    record_groups = record_groups[record_groups != '']
+    record_groups.columns = record_groups.columns.astype(str)
+    cols = record_groups.columns
+    record_groups = record_groups.reset_index()
 
-    # Merge the plant IDs into the plants table on record_id
-    record_groups.name = 'record_id'
-    record_groups.index.name = 'plant_id_ferc1'
-    ferc_plant_ids = record_groups.reset_index()
-    ferc1_steam_df = pd.merge(ferc1_steam_df, ferc_plant_ids, on='record_id')
+    # Now we are going to create a graph (network) that describes all of the
+    # binary relationships between a seed_id and the record_ids that it has
+    # been associated with in any other year. Each connected component of that
+    # graph is a ferc plant time series / plant_id
+    if verbose:
+        print("        Assigning FERC Plant IDs.")
+    edges_df = pd.DataFrame(columns=['source', 'target'])
+    for col in cols:
+        new_edges = record_groups[['seed_id', col]]
+        new_edges = new_edges.rename(
+            {'seed_id': 'source', col: 'target'}, axis=1)
+        edges_df = pd.concat([edges_df, new_edges], sort=True)
+
+    # Drop any records where there's no target ID (no match in a year)
+    edges_df = edges_df[edges_df.target != '']
+
+    # We still have to deal with the orphaned records -- any record which
+    # wasn't place in a time series but is still valid should be included as
+    # its own independent "plant" for completeness, and use in aggregate
+    # analysis.
+    orphan_record_ids = np.setdiff1d(ferc1_steam_df.record_id.unique(),
+                                     record_groups.values.flatten())
+    if verbose:
+        print(
+            f"        Found {len(orphan_record_ids)} orphaned plant records.")
+    orphan_df = pd.DataFrame({'source': orphan_record_ids,
+                              'target': orphan_record_ids})
+    edges_df = pd.concat([edges_df, orphan_df], sort=True)
+
+    # Use the data frame we've compiled to create a graph
+    G = nx.from_pandas_edgelist(edges_df, source='source', target='target')
+    # Find the connected components of the graph
+    ferc_plants = (G.subgraph(c) for c in nx.connected_components(G))
+
+    # Now we'll iterate through the connected components and assign each of
+    # them a FERC Plant ID, and pull the results back out into a dataframe:
+    plants_w_ids = pd.DataFrame()
+    for plant_id_ferc1, plant in enumerate(ferc_plants):
+        nx.set_edge_attributes(plant, plant_id_ferc1 +
+                               1, name='plant_id_ferc1')
+        new_plant_df = nx.to_pandas_edgelist(plant)
+        plants_w_ids = plants_w_ids.append(new_plant_df)
+    if verbose:
+        print(
+            f"        Found {plant_id_ferc1+1-len(orphan_record_ids)} non-orphaned plant groups.")
+
+    # Ultimately we just want a record_id to plant_id_ferc1 mapping, so we can
+    # ignore the target record_id now:
+    plants_w_ids = plants_w_ids.drop('target', axis=1).drop_duplicates()
+    plants_w_ids = plants_w_ids.rename({'source': 'record_id'}, axis=1)
+    # This is just so we can look at the results easily.
+    plants_w_ids = plants_w_ids.sort_values(['plant_id_ferc1', 'record_id'])
+
+    ferc1_steam_df = pd.merge(ferc1_steam_df, plants_w_ids, on='record_id')
+
+    raw_len = len(ferc1_raw_dfs['plants_steam_ferc1'])
+    tfr_len = len(ferc1_steam_df)
+    if verbose:
+        print(f"        Began with {raw_len} raw steam plant records.")
+        print(f"        Ended with {tfr_len} transformed steam plant records.")
 
     # Set the construction year back to numeric because it is.
     ferc1_steam_df['construction_year'] = pd.to_numeric(
@@ -1044,26 +1098,33 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         out_idx = []
         # For each record_id we've been given:
         for x in X:
-            # Find the index associated with the record IDs:
+            # Find the index associated with the record ID we are predicting
+            # a grouping for:
             idx = self._best_of[self._best_of.record_id == x].index.values[0]
 
-            # Lookup which rows contain matches to that index:
-            w_m = self._best_of[self._years][
-                self._best_of[self._years] == idx]
+            # Mask the best_of dataframe, keeping only those entries where
+            # the index of the chosen record_id appears -- this results in a
+            # huge dataframe almost full of NaN values.
+            w_m = self._best_of[self._years][self._best_of[self._years] == idx]
+            # Grab the index values of the rows in the masked dataframe which
+            # are NOT all NaN -- these are the indices of the *other* records
+            # which found the record x to be one of their best matches.
             w_m = w_m.dropna(how='all').index.values
+
+            # Now look up the indices of the records which were found to be
+            # best matches to the record x.
             b_m = self._best_of.loc[idx, self._years].astype(int)
 
-            # Make sure that w_m and b_m satisfy whatever constraints we want
-            # to impose on them. Some options include:
-            # - Impose no constraints. (allow records to be used more than once
-            #   (sometimes appropriate given ownership changes in plants)
-            # - Require them to be identical, which means requiring that
-            #   each record only appears in a single time series. Results in
-            #   loss of some otherwise valid time series, but means the
-            #   selection of best fits is deterministic.
-            # - Once a record is used, remove it from the pool so it can't be
-            #   used again, which means the next-most-similar record takes its
-            #   place.
+            # Here we require that there is no conflict between the two sets
+            # of indices -- that every time a record shows up in a grouping,
+            # that grouping is either the same, or a subset of the other
+            # groupings that it appears in. When no sufficiently good match
+            # is found the "index" in the _best_of array is set to -1, so
+            # requiring that the b_m value be >=0 screens out those no-match
+            # cases. This is okay -- we're just trying to require that the
+            # groupings be internally self-consistent, not that they are
+            # completely identical. Being flexible on this dramatically
+            # increases the number of records that get assigned a plant ID.
             if np.array_equiv(w_m, b_m[b_m >= 0].values):
                 # This line is causing a warning. In cases where there are
                 # some years no sufficiently good match exists, and so b_m

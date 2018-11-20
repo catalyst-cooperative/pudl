@@ -7,9 +7,10 @@ This code is for use analyzing EIA Form 923 data. Currenly only
 years 2009-2016 work, as they share nearly identical file formatting.
 """
 
-import pandas as pd
 import os.path
 import glob
+import pandas as pd
+import pudl
 from pudl.settings import SETTINGS
 import pudl.constants as pc
 
@@ -33,8 +34,7 @@ def datadir(year, basedir=SETTINGS['eia923_data_dir']):
     assert year in pc.data_years['eia923']
     if year < 2008:
         return os.path.join(basedir, 'f906920_{}'.format(year))
-    else:
-        return os.path.join(basedir, 'f923_{}'.format(year))
+    return os.path.join(basedir, 'f923_{}'.format(year))
 
 
 def get_eia923_file(yr, basedir=SETTINGS['eia923_data_dir']):
@@ -152,12 +152,7 @@ def get_eia923_page(page, eia923_xlsx,
         newdata = pd.read_excel(eia923_xlsx[yr],
                                 sheet_name=sheet_name,
                                 skiprows=skiprows)
-
-        # Clean column names: lowercase, underscores instead of white space,
-        # no non-alphanumeric characters
-        newdata.columns = newdata.columns.str.replace('[^0-9a-zA-Z]+', ' ')
-        newdata.columns = newdata.columns.str.strip().str.lower()
-        newdata.columns = newdata.columns.str.replace(' ', '_')
+        newdata = pudl.helpers.simplify_columns(newdata)
 
         # Drop columns that start with "reserved" because they are empty
         to_drop = [c for c in newdata.columns if c[:8] == 'reserved']
@@ -203,55 +198,6 @@ def get_eia923_xlsx(years, verbose=True):
             print("    {}...".format(yr))
         eia923_xlsx[yr] = pd.ExcelFile(get_eia923_file(yr))
     return eia923_xlsx
-
-
-def yearly_to_monthly_eia923(df, md):
-    """
-    Convert an EIA 923 record with 12 months of data into 12 monthly records.
-
-    Much of the data reported in EIA 923 is monthly, but all 12 months worth of
-    data is reported in a single record, with one field for each of the 12
-    months.  This function converts these annualized composite records into a
-    set of 12 monthly records containing the same information, by parsing the
-    field names for months, and adding a month field.  Non - time series data
-    is retained in the same format.
-
-    Args:
-        df(pandas.DataFrame): A pandas DataFrame containing the annual
-            data to be converted into monthly records.
-        md(dict): a dictionary with the numbers 1 - 12 as keys, and the
-            patterns used to match field names for each of the months as
-            values. These patterns are also used to re - name the columns in
-            the dataframe which is returned, so they need to match the entire
-            portion of the column name that is month - specific.
-
-    Returns:
-        pandas.DataFrame: A dataframe containing the same data as was passed in
-            via df, but with monthly records instead of annual records.
-    """
-    # Pull out each month's worth of data, merge it with the common columns,
-    # rename columns to match the PUDL DB, add an appropriate month column,
-    # and insert it into the PUDL DB.
-    yearly = df.copy()
-    monthly = pd.DataFrame()
-
-    for m in md:
-        # Grab just the columns for the month we're working on.
-        this_month = yearly.filter(regex=md[m])
-        # Drop this month's data from the yearly data frame.
-        yearly.drop(this_month.columns, axis=1, inplace=True)
-        # Rename this month's columns to get rid of the month reference.
-        this_month.columns = this_month.columns.str.replace(md[m], '')
-        # Add a numerical month column corresponding to this month.
-        this_month['month'] = m
-        # Add this month's data to the monthly DataFrame we're building.
-        monthly = pd.concat([monthly, this_month], sort=True)
-
-    # Merge the monthly data we've built up with the remaining fields in the
-    # data frame we started with -- all of which should be independent of the
-    # month, and apply across all 12 of the monthly records created from each
-    # of the # initial annual records.
-    return yearly.merge(monthly, left_index=True, right_index=True)
 
 
 def extract(eia923_years=pc.working_years['eia923'],

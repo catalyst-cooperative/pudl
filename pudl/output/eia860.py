@@ -318,7 +318,7 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
         out_df (pandas dataframe)
 
     """
-    pudl_engine = init.connect_db(testing=testing)
+    pudl_engine = pudl.init.connect_db(testing=testing)
     o_eia860_tbl = pt['ownership_eia860']
     o_eia860_select = sa.sql.select([o_eia860_tbl, ])
     o_df = pd.read_sql(o_eia860_select, pudl_engine)

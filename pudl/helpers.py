@@ -395,3 +395,19 @@ def fix_eia_na(df):
     df = df.replace(to_replace=r'^\s$', value=np.nan, regex=True)
     df = df.replace(to_replace=r'^$', value=np.nan, regex=True)
     return df
+
+
+def simplify_columns(df):
+    """
+    Simplify column labels for use as database fields.
+
+    This transformation includes:
+     - Replacing all non-alphanumeric characters with spaces.
+     - Forcing all letters to be lower case.
+     - Compacting internal whitespace.
+     - Stripping leading and trailing whitespace.
+    """
+    df.columns = df.columns.str.replace('[^0-9a-zA-Z]+', ' ')
+    df.columns = df.columns.str.strip().str.lower().str.replace(r'\s+', ' ')
+    df.columns = df.columns.str.replace(' ', '_')
+    return df

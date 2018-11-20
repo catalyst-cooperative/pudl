@@ -13,7 +13,7 @@ import pudl.constants as pc
 ###############################################################################
 
 
-def yearly_to_monthly_eia923(df, md):
+def _yearly_to_monthly_records(df, md):
     """
     Convert an EIA 923 record with 12 months of data into 12 monthly records.
 
@@ -27,11 +27,11 @@ def yearly_to_monthly_eia923(df, md):
     Args:
         df(pandas.DataFrame): A pandas DataFrame containing the annual
             data to be converted into monthly records.
-        md(dict): a dictionary with the numbers 1 - 12 as keys, and the
+        md(dict): a dictionary with the integers 1-12 as keys, and the
             patterns used to match field names for each of the months as
-            values. These patterns are also used to re - name the columns in
+            values. These patterns are also used to rename the columns in
             the dataframe which is returned, so they need to match the entire
-            portion of the column name that is month - specific.
+            portion of the column name that is month specific.
 
     Returns:
         pandas.DataFrame: A dataframe containing the same data as was passed in
@@ -66,7 +66,7 @@ def yearly_to_monthly_eia923(df, md):
     return all_years
 
 
-def coalmine_cleanup(cmi_df):
+def _coalmine_cleanup(cmi_df):
     """
     """
     cmi_df = cmi_df.copy()
@@ -90,12 +90,8 @@ def coalmine_cleanup(cmi_df):
 
     # Transform coalmine names to a canonical form to reduce duplicates:
     # No leading or trailing whitespace:
-    cmi_df['mine_name'] = cmi_df['mine_name'].str.strip()
-    # Let's use Title Case:
-    cmi_df['mine_name'] = cmi_df['mine_name'].str.title()
-    # compact internal whitespace:
-    cmi_df['mine_name'] = \
-        cmi_df['mine_name'].replace('[\s+]', ' ', regex=True)
+    cmi_df['mine_name'] = pudl.helpers.strip_lower(cmi_df,
+                                                   columns=['mine_name'])
     # remove all internal non-alphanumeric characters:
     cmi_df['mine_name'] = \
         cmi_df['mine_name'].replace('[^a-zA-Z0-9 -]', '', regex=True)
@@ -205,7 +201,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     gf_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    gf_df = yearly_to_monthly_eia923(gf_df, pc.month_dict_eia923)
+    gf_df = _yearly_to_monthly_records(gf_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     gf_df = pudl.helpers.fix_eia_na(gf_df)
     # Remove "State fuel-level increment" records... which don't pertain to
@@ -290,7 +286,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     bf_df.dropna(subset=['boiler_id', 'plant_id_eia'], inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    bf_df = yearly_to_monthly_eia923(
+    bf_df = _yearly_to_monthly_records(
         bf_df, pc.month_dict_eia923)
     bf_df['fuel_type_code_pudl'] = \
         pudl.helpers.cleanstrings(
@@ -341,7 +337,7 @@ def generation(eia923_dfs, eia923_transformed_dfs):
     generation_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    generation_df = yearly_to_monthly_eia923(
+    generation_df = _yearly_to_monthly_records(
         generation_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
     generation_df = pudl.helpers.fix_eia_na(generation_df)
@@ -415,7 +411,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     # to use again for populating the FRC table (see below)
     cmi_df = eia923_dfs['fuel_receipts_costs'].copy()
     # Keep only the columns listed above:
-    cmi_df = pudl.transform.eia923.coalmine_cleanup(cmi_df)
+    cmi_df = _coalmine_cleanup(cmi_df)
 
     cmi_df = cmi_df[coalmine_cols]
 
@@ -505,7 +501,7 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
     # sure it is applied exactly the same both when the coalmine_eia923 table
     # is populated, and here (since we need them to be identical for the
     # following merge)
-    frc_df = pudl.transform.eia923.coalmine_cleanup(frc_df)
+    frc_df = _coalmine_cleanup(frc_df)
     frc_df = frc_df.merge(cmi_df, how='left',
                           on=['mine_name',
                               'state',
@@ -519,8 +515,8 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
     frc_df = pudl.helpers.fix_eia_na(frc_df)
 
     # These come in ALL CAPS from EIA...
-    frc_df['supplier_name'] = frc_df['supplier_name'].astype(str).str.strip()
-    frc_df['supplier_name'] = frc_df['supplier_name'].astype(str).str.title()
+    frc_df['supplier_name'] = pudl.helpers.strip_lower(
+        frc_df, columns=['supplier_name'])
 
     # Standardize case on transportaion codes -- all upper case!
     frc_df['primary_transportation_mode_code'] = \
