@@ -100,7 +100,7 @@ cems_states = {k: v for k, v in us_states.items() if v not in
                 'Virgin Islands'}
                }
 
-travis_ci_ferc1_years = [2016, ]
+travis_ci_ferc1_years = [2017, ]
 travis_ci_eia860_years = [2016, ]
 travis_ci_eia923_years = [2016, ]
 travis_ci_epacems_years = [2016, ]
@@ -509,6 +509,18 @@ ferc1_dbf2tbl = {
 }
 # Invert the map above so we can go either way as needed
 ferc1_tbl2dbf = {v: k for k, v in ferc1_dbf2tbl.items()}
+
+# This is a dictionary of respondents (respondent_id: respondent_name) that are
+# missing from the ferc respondent table but show up in other tables. We are
+# inserting them into the respondent table and hope to go back to determine
+# what the real names of the respondents are to insert them.
+missing_respondents_ferc1 = {514: 'respondent_514',
+                             515: 'respondent_515',
+                             516: 'respondent_516',
+                             517: 'respondent_517',
+                             518: 'respondent_518',
+                             519: 'respondent_519',
+                             522: 'respondent_522'}
 
 # This dictionary maps the strings which are used to denote field types in the
 # DBF objects to the corresponding generic SQLAlchemy Column types:
@@ -3364,7 +3376,7 @@ working_years = {
     'eia861': [],
     'eia923': range(2009, 2018),
     'epacems': range(1995, 2018),
-    'ferc1': range(2004, 2017),
+    'ferc1': range(2004, 2018),
     'msha': [],
 }
 

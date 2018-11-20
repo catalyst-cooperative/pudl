@@ -306,7 +306,7 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
             # the keys are the field names, and the values are the values for
             # that field.
             sql_records = []
-            bad_respondents = [515, ]
+            bad_respondents = [514, 515, 516, 517, 518, 519, 522]
             for dbf_rec in dbf_table.records:
                 sql_rec = {}
                 for d, s in ferc1_tblmap[sql_table_name].items():
@@ -320,6 +320,18 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
             # this table:
             if dbf == 'F1_1':
                 sql_stmt = sql_stmt.on_conflict_do_nothing()
+
+                for resp_id, resp_name in pc.missing_respondents_ferc1.items():
+                    sql_records.append(
+                        {'respondent_id': resp_id,
+                         'respondent_name': resp_name,
+                         'respondent_alias': '',
+                         'status': '',
+                         'form_type': 0,
+                         # the status date needs to be an actual date
+                         'status_date': datetime.date(2017, 12, 31),
+                         'sort_name': '',
+                         'pswd_gen': ''})
 
             # insert the new records!
             conn.execute(sql_stmt, sql_records)
