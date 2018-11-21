@@ -101,9 +101,9 @@ cems_states = {k: v for k, v in us_states.items() if v not in
                }
 
 travis_ci_ferc1_years = [2017, ]
-travis_ci_eia860_years = [2016, ]
-travis_ci_eia923_years = [2016, ]
-travis_ci_epacems_years = [2016, ]
+travis_ci_eia860_years = [2017, ]
+travis_ci_eia923_years = [2017, ]
+travis_ci_epacems_years = [2017, ]
 travis_ci_epacems_states = ['CO', ]
 # Construct a dictionary mapping a canonical fuel name to a list of strings
 # which are used to represent that fuel in the FERC Form 1 Reporting. Case is
