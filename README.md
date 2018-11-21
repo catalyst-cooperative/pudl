@@ -65,8 +65,7 @@ A subset of the FERC Form 1 data, mostly pertaining to power plants, their
 capital & operating expenses, and fuel consumption. This data is available for
 the years 2004-2017. Earlier data is available from FERC, but the structure
 of their database differs slightly from the present version somewhat before
-2004, and so more work will be required to integrate that information. The 2017
-data has been released, but is not yet integrated into PUDL.
+2004, and so more work will be required to integrate that information.
 
 ### [EIA Form 923 (2009-2017)](https://www.eia.gov/electricity/data/eia923/)
 Nearly all of EIA Form 923 is being pulled into the PUDL database, for years
