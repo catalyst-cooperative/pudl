@@ -8,6 +8,7 @@ import sqlalchemy as sa
 # Our own code...
 import pudl
 import pudl.constants as pc
+import pudl.helpers
 
 # However, models aren't imported by default.
 import pudl.models.ferc1
@@ -702,7 +703,8 @@ def plant_fuel_proportions_frc_eia923(frc_df, id_col='plant_id_eia'):
     # Add a column with total fuel heat content per delivery
     frc_df['total_mmbtu'] = frc_df.fuel_qty_units * frc_df.average_heat_content
 
-    # Drop everything but report_date, plant_id_eia, fuel_group_code, total_mmbtu
+    # Drop everything but report_date, plant_id_eia, fuel_group_code,
+    # total_mmbtu
     frc_df = frc_df[['report_date', 'plant_id_eia',
                      'plant_id_pudl', 'fuel_group_code', 'total_mmbtu']]
 
@@ -930,34 +932,35 @@ def fercplants(plant_tables=['f1_steam',
         )
         # Add all the plants from the current table to our bigger list:
         new_plants = pd.read_sql(plant_select, f1_engine)
-        new_plants.respondent_name = new_plants.respondent_name.str.strip()
-        new_plants.respondent_name = new_plants.respondent_name.str.title()
-        new_plants.plant_name = new_plants.plant_name.str.strip().str.title()
+        new_plants = new_plants.rename(
+            columns={'respondent_id': 'utility_id_ferc1',
+                     'respondent_name': 'utility_name_ferc1'})
+        new_plants = pudl.helpers.strip_lower(
+            new_plants, columns=['plant_name', 'utility_name_ferc1'])
         new_plants['plant_table'] = tbl
+
         ferc1_plants_all = ferc1_plants_all.append(
-            new_plants[['respondent_id',
-                        'respondent_name',
+            new_plants[['utility_id_ferc1',
+                        'utility_name_ferc1',
                         'plant_name',
-                        'plant_table']]
-        )
+                        'plant_table']])
 
     # If we're only trying to get the NEW plants, then we need to see which
     # ones we've already got in the PUDL DB, and look at what's different.
     if new:
         ferc1_plants_all = ferc1_plants_all.set_index(
-            ['respondent_id', 'plant_name'])
+            ['utility_id_ferc1', 'plant_name'])
 
         pudl_engine = pudl.init.connect_db()
-        pudl_tbls = pudl.models.entities.PUDLBase.metadata.tables
-
-        ferc1_plants_tbl = pudl_tbls['plants_ferc']
+        pt = pudl.models.entities.PUDLBase.metadata.tables
+        ferc1_plants_tbl = pt['plants_ferc']
         ferc1_plants_select = sa.sql.select([
-            ferc1_plants_tbl.c.respondent_id,
+            ferc1_plants_tbl.c.utility_id_ferc1,
             ferc1_plants_tbl.c.plant_name
         ]).distinct()
         ferc1_plants_old = pd.read_sql(ferc1_plants_select, pudl_engine)
         ferc1_plants_old = ferc1_plants_old.set_index(
-            ['respondent_id', 'plant_name'])
+            ['utility_id_ferc1', 'plant_name'])
 
         # Take the difference between the two table indexes -- I.e. get a
         # list of just the index values that appear in the FERC index, but
