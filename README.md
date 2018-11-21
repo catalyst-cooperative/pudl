@@ -57,48 +57,44 @@ at an academic audience:
  * [Good enough practices in scientific computing](https://doi.org/10.1371/journal.pcbi.1005510) (PLOS Computational Biology, 2017)
 
 ---
-# Status (as of 2018-10-20)
+# Status (as of 2018-11-21)
 
 ## Available Data
-### [FERC Form 1](https://www.ferc.gov/docs-filing/forms/form-1/data.asp)
+### [FERC Form 1 (2004-2017)](https://www.ferc.gov/docs-filing/forms/form-1/data.asp)
 A subset of the FERC Form 1 data, mostly pertaining to power plants, their
 capital & operating expenses, and fuel consumption. This data is available for
-the years **2004-2016**. Earlier data is available from FERC, but the structure
+the years 2004-2017. Earlier data is available from FERC, but the structure
 of their database differs slightly from the present version somewhat before
 2004, and so more work will be required to integrate that information. The 2017
 data has been released, but is not yet integrated into PUDL.
 
-### [EIA Form 923](https://www.eia.gov/electricity/data/eia923/)
+### [EIA Form 923 (2009-2017)](https://www.eia.gov/electricity/data/eia923/)
 Nearly all of EIA Form 923 is being pulled into the PUDL database, for years
-**2009-2017**. Earlier data is available from EIA, but the reporting format for
+2009-2017. Earlier data is available from EIA, but the reporting format for
 earlier years is substantially different from the present day, and will require
 more work to integrate. Monthly year to date releases are not yet being
 integrated.
 
-### [EIA Form 860](https://www.eia.gov/electricity/data/eia860/)
+### [EIA Form 860 (2011-2017)](https://www.eia.gov/electricity/data/eia860/)
 Nearly all of the data reported to the EIA on Form 860 is being pulled into the
-PUDL database, for the years **2011-2017**. Earlier years use a different
+PUDL database, for the years 2011-2017. Earlier years use a different
 reporting format, and will require more work to integrate. Monthly year to date
 releases are not yet being integrated.
 
-### [EPA CEMS](https://ampd.epa.gov/ampd/)
+### [EPA CEMS (1995-2017)](https://ampd.epa.gov/ampd/)
 The EPA's hourly Continuous Emissions Monitoring System (CEMS) data is in the
 process of being integrated. However, it is a much larger dataset than the FERC
 or EIA data we've already brought in, and so has required some changes to the
-overall ETL process. Data from **1995-2017** can be loaded, but it has not yet
+overall ETL process. Data from 1995-2017 can be loaded, but it has not yet
 been fully integrated. The ETL process for all states and all years takes about
 8 hours on a fast laptop.
 
 ## Current Work:
 Our present focus is on:
-* Automating the creation of human and machine readable [tabular data
-packages](https://frictionlessdata.io) containing all of the above data for
-platform independent redistribution. See issue #221.
-* Automatically assigning unique IDs to plants reported in FERC Form 1 so that
-time series can be extracted from the multi-year data. See issue #144.
-* Performing regressions on the non-fuel expenses reported by plants in FERC Form 1, to estimate the fixed vs. variable costs for different categories of plants. This
-will allow us to estimate the overall marginal cost of electricity for a plant at a given capacity factor and fuel price. See issue #204.
-* Generally cleaning up some of the data integration and adding more complete test cases, as well as some curated Jupyter notebooks that automaticlaly provide both quantitative and visual sanity checks on the data as it's loaded into the database.
+* **[Issue #144](https://github.com/catalyst-cooperative/pudl/issues/144)** Automatically assigning unique IDs to plants reported in FERC Form 1 so that time series can be extracted from the multi-year data, and integrating FERC non-fuel operating expenses with EIA fuel expenses to estimate per-generator MCOE.
+* **[Issue #204](https://github.com/catalyst-cooperative/pudl/issues/204)** Performing regressions on the non-fuel expenses reported by plants in FERC Form 1, to estimate the fixed vs. variable costs for different categories of plants. This will allow us to estimate the overall marginal cost of electricity for a plant at a given capacity factor and fuel price.
+* **[Issue #221](https://github.com/catalyst-cooperative/pudl/issues/221)** Automating the creation of human and machine readable [tabular data packages](https://frictionlessdata.io) containing all of the above data for platform independent redistribution.
+* Generally cleaning up some of the data integration and adding more complete test cases, as well as some curated Jupyter notebooks that automatically provide both quantitative and visual sanity checks on the data as it's loaded into the database.
 
 ## Future Work:
 PUDL is mostly a volunteer effort at the moment, but if we are able to secure some stable support for the project, or build up a larger community of contributors, there's a lot of interesting work we could do!
