@@ -3355,6 +3355,7 @@ data_years = {
     'eia923': range(2001, 2018),
     'epacems': range(1995, 2018),
     'ferc1': range(1994, 2018),
+    'ferc714': range(2006, 2018),
     'msha': range(2000, 2018),
 }
 
@@ -3381,6 +3382,8 @@ base_data_urls = {
     'eia923': 'https://www.eia.gov/electricity/data/eia923',
     'epacems': 'ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly',
     'ferc1': 'ftp://eforms1.ferc.gov/f1allyears',
+    'ferc714': 'https://www.ferc.gov/docs-filing/forms/form-714/data',
+    'ferceqr': 'ftp://eqrdownload.ferc.gov/DownloadRepositoryProd/BulkNew/CSV',
     'msha': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
 }
 
