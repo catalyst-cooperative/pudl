@@ -4,6 +4,8 @@ channels:
 dependencies:
   - coverage
   - coveralls
+  - dask
+  - fastparquet
   - cython
   - dbfread
   - jupyter
@@ -13,12 +15,16 @@ dependencies:
   - numpy
   - pandas
   - psycopg2
+  - pyarrow
+  - pylint
   - pytest
   - pytest-cov
   - python>=3.6
+  - python-snappy
   - pyyaml
   - scikit-learn
   - scipy
+  - snappy
   - sqlalchemy
   - xlrd
   - xlsxwriter
@@ -26,3 +32,4 @@ dependencies:
     - datapackage
     - goodtables
     - sqlalchemy-postgres-copy
+    - tableschema

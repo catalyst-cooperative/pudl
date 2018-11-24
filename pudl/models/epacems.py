@@ -64,9 +64,8 @@ class HourlyEmissions(pudl.models.entities.PUDLBase):
     # TODO: Link to EIA plant ID
     plant_id_eia = Column(Integer, nullable=False)
     unitid = Column(String, nullable=False)
-    # operating_date = Column(Date, nullable=False)
     operating_datetime = Column(DateTime, nullable=False)
-    operating_time_interval = Column(Interval)
+    operating_time_hours = Column(REAL)
     gross_load_mw = Column(REAL)
     steam_load_1000_lbs = Column(REAL)
     so2_mass_lbs = Column(REAL)
@@ -97,7 +96,7 @@ CREATE_VIEWS = ["""
         unitid,
         operating_datetime,
         operating_datetime::date AS operating_date,
-        operating_time_interval,
+        operating_time_hours,
         gross_load_mw,
         steam_load_1000_lbs,
         so2_mass_lbs,

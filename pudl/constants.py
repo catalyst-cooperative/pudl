@@ -3319,7 +3319,7 @@ epacems_rename_dict = {
     # transform/epacems.py
     "OP_DATE": "op_date",
     "OP_HOUR": "op_hour",
-    "OP_TIME": "op_time",
+    "OP_TIME": "operating_time_hours",
     "GLOAD (MW)": "gross_load_mw",
     "GLOAD": "gross_load_mw",
     "SLOAD (1000 lbs)": "steam_load_1000_lbs",

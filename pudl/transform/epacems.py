@@ -2,6 +2,7 @@
 """Routines specific to cleaning up EPA CEMS hourly data."""
 
 import pandas as pd
+import numpy as np
 
 ###############################################################################
 ###############################################################################
@@ -36,10 +37,6 @@ def fix_up_dates(df):
         pd.to_timedelta(df["op_hour"], unit="h")
     )
     del df["op_hour"], df["op_date"]
-
-    # Make op_time into an time delta (called interval in postgres)
-    df["operating_time_interval"] = pd.to_timedelta(df["op_time"], unit="h")
-    del df["op_time"]
 
     # Add UTC timestamp ... not done.
     return df
@@ -89,6 +86,71 @@ def harmonize_eia_epa_orispl(df):
     return df
 
 
+def add_facility_id_unit_id_epa(df):
+    """Harmonize columns that are added later
+
+    The load into Postgres checks for consistent column names, and these
+    two columns aren't present before August 2008, so add them in.
+
+    Args:
+        df (pd.DataFrame): A CEMS dataframe
+    Returns:
+        The same DataFrame, guaranteed to have facility_id and unit_id_epa cols.
+    """
+    if "facility_id" not in df.columns:
+        df["facility_id"] = np.NaN
+    if "unit_id_epa" not in df.columns:
+        df["unit_id_epa"] = np.NaN
+    return df
+
+
+def _all_na_or_values(series, values):
+    """Test whether every element in the series is either missing or in values
+
+    This is fiddly because isin() changes behavior if the series is totally NaN
+    (because of type issues)
+    Demo: x = pd.DataFrame({'a': ['x', np.NaN], 'b': [np.NaN, np.NaN]})
+    x.isin({'x', np.NaN})
+
+    Args:
+        series (pd.Series): A data column
+        values (set): A set of values
+    Returns:
+        True or False
+    """
+    series_excl_na = series[series.notna()]
+    if not len(series_excl_na):
+        out = True
+    elif series_excl_na.isin(values).all():
+        out = True
+    else:
+        out = False
+    return out
+
+
+def drop_calculated_rates(df):
+    """Drop these calculated rates because they don't provide any information.
+
+    If you want these, you can just use a view.
+
+    It's always true that so2_rate_lbs_mmbtu == so2_mass_lbs / heat_content_mmbtu
+    and co2_rate_tons_mmbtu == co2_mass_tons / heat_content_mmbtu,
+    but the same does not hold for NOx.
+
+    Args:
+        df (pd.DataFrame): A CEMS dataframe
+    Returns:
+        The same DataFrame, without the variables so2_rate_measure_flg,
+        so2_rate_lbs_mmbtu, co2_rate_measure_flg, or co2_rate_tons_mmbtu
+    """
+
+    assert _all_na_or_values(df["so2_rate_measure_flg"], {"Calculated"})
+    assert _all_na_or_values(df["co2_rate_measure_flg"], {"Calculated"})
+    del df["so2_rate_measure_flg"], df["so2_rate_lbs_mmbtu"]
+    del df["co2_rate_measure_flg"], df["co2_rate_tons_mmbtu"]
+    return df
+
+
 def transform(epacems_raw_dfs, verbose=True):
     """Transform EPA CEMS hourly"""
     if verbose:
@@ -98,9 +160,12 @@ def transform(epacems_raw_dfs, verbose=True):
     for raw_df_dict in epacems_raw_dfs:
         # There's currently only one dataframe in this dict at a time, but
         # that could be changed if you want.
-        for yr_mo_st, raw_df in raw_df_dict.items():
+        for yr_st, raw_df in raw_df_dict.items():
             df = (
-                raw_df.pipe(fix_up_dates)
+                raw_df.pipe(add_facility_id_unit_id_epa)
+                .pipe(drop_calculated_rates)
+                .pipe(fix_up_dates)
                 .pipe(harmonize_eia_epa_orispl)
+                .pipe(add_facility_id_unit_id_epa)
             )
-            yield {yr_mo_st: df}
+            yield {yr_st: df}
