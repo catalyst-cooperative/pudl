@@ -61,11 +61,9 @@ def extract(epacems_years, states, verbose=True):
             print(f"    {year}:")
         # The keys of the us_states dictionary are the state abbrevs
         for state in states:
-            dfs = []
             if verbose:
                 print(f"        {state}:", end=" ")
-            yr_mo_st = [(year, month, state) for month in range(1, 13)]
-
+            dfs = []
             for month in range(1, 13):
                 filename = get_epacems_file(year, month, state)
 

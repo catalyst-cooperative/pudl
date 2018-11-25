@@ -144,10 +144,14 @@ def drop_calculated_rates(df):
         so2_rate_lbs_mmbtu, co2_rate_measure_flg, or co2_rate_tons_mmbtu
     """
 
-    assert _all_na_or_values(df["so2_rate_measure_flg"], {"Calculated"})
-    assert _all_na_or_values(df["co2_rate_measure_flg"], {"Calculated"})
+    if not _all_na_or_values(df["so2_rate_measure_flg"], {"Calculated"}):
+        raise AssertionError()
+    if not _all_na_or_values(df["co2_rate_measure_flg"], {"Calculated"}):
+        raise AssertionError()
+
     del df["so2_rate_measure_flg"], df["so2_rate_lbs_mmbtu"]
     del df["co2_rate_measure_flg"], df["co2_rate_tons_mmbtu"]
+
     return df
 
 
