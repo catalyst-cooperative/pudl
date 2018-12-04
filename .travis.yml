@@ -1,5 +1,4 @@
-sudo: required
-dist: xenial
+sudo: false
 language: python
 python: 3.6
 services:
