@@ -1,8 +1,6 @@
 """Limited testing of the PUDL DB ETL for use with Travis CI."""
 import pytest
 import pandas as pd
-import pudl.analysis.mcoe
-from pudl.output.pudltabl import PudlTabl
 from pudl import constants as pc
 
 START_DATE_CI = pd.to_datetime(

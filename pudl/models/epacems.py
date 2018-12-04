@@ -1,8 +1,8 @@
 """Database models for PUDL tables derived from EPA CEMS Data."""
 
 import sqlalchemy as sa
-from sqlalchemy import Integer, SmallInteger, String, REAL, DateTime, Column
-from sqlalchemy import Enum, Interval
+from sqlalchemy import Integer, SmallInteger, String
+from sqlalchemy import REAL, DateTime, Column, Enum
 import pudl.models.entities
 import pudl.constants as pc
 

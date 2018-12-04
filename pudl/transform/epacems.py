@@ -95,7 +95,7 @@ def add_facility_id_unit_id_epa(df):
     Args:
         df (pd.DataFrame): A CEMS dataframe
     Returns:
-        The same DataFrame, guaranteed to have facility_id and unit_id_epa cols.
+        The same DataFrame guaranteed to have facility_id and unit_id_epa cols.
     """
     if "facility_id" not in df.columns:
         df["facility_id"] = np.NaN
@@ -133,8 +133,12 @@ def drop_calculated_rates(df):
 
     If you want these, you can just use a view.
 
-    It's always true that so2_rate_lbs_mmbtu == so2_mass_lbs / heat_content_mmbtu
-    and co2_rate_tons_mmbtu == co2_mass_tons / heat_content_mmbtu,
+    It's always true that:
+      so2_rate_lbs_mmbtu == so2_mass_lbs / heat_content_mmbtu
+
+    and:
+      co2_rate_tons_mmbtu == co2_mass_tons / heat_content_mmbtu,
+
     but the same does not hold for NOx.
 
     Args:
