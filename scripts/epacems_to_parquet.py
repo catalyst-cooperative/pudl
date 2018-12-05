@@ -31,7 +31,11 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-assert sys.version_info >= (3, 6)  # require modern python
+# require modern python
+if not sys.version_info >= (3, 6):
+    raise AssertionError(
+        f"PUDL requires Python 3.6 or later. {sys.version_info} found."
+    )
 
 # This is a hack to make the pudl package importable from within this script,
 # even though it isn't in one of the normal site-packages directories where
@@ -109,7 +113,8 @@ def parse_command_line(argv):
         nargs='+',
         type=int,
         help="""Which years of EPA CEMS data should be converted to Apache
-        Parquet format. Default is all years from 1995 to the present.""",
+        Parquet format. Default is all available years, ranging from 1995 to
+        the present. Note that data is typically incomplete before ~2000.""",
         default=pc.data_years['epacems']
     )
     parser.add_argument(
@@ -118,7 +123,7 @@ def parse_command_line(argv):
         nargs='+',
         help="""Which states EPA CEMS data should be converted to Apache
         Parquet format, as a list of two letter US state abbreviations. Default
-        is all 50 US states.""",
+        is everything: all 48 continental US states plus Washington DC.""",
         default=pc.cems_states.keys()
     )
     parser.add_argument(

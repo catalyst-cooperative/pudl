@@ -5,7 +5,11 @@ import os
 import sys
 import argparse
 
-assert sys.version_info >= (3, 6)  # require modern python
+# require modern python
+if not sys.version_info >= (3, 6):
+    raise AssertionError(
+        f"PUDL requires Python 3.6 or later. {sys.version_info} found."
+    )
 
 # This is a hack to make the pudl package importable from within this script,
 # even though it isn't in one of the normal site-packages directories where
