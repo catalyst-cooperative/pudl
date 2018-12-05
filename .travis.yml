@@ -28,6 +28,7 @@ install:
 - python update_datastore.py --source ferc1 eia860 eia923 --years 2017
 - python update_datastore.py --source epacems --states ID --years 2017
 - cd ..
+- find data -type f
 script:
 - pytest -sv --cov=pudl -m travis_ci
 after_success:
