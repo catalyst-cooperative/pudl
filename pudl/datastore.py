@@ -316,12 +316,14 @@ def _download_FTP(src_urls, tmp_files, allow_retry=True):
     domain = domains.pop()
     ftp = ftplib.FTP(domain)
     login_result = ftp.login()
+    print(f"    {login_result}")
     assert login_result.startswith("230"), \
         f"Failed to login to {domain}: {login_result}"
     url_to_retry = []
     tmp_to_retry = []
     error_messages = []
     for path, tmp_file, src_url in zip(within_domain_paths, tmp_files, src_urls):
+        print(f"    {src_url}")
         with open(tmp_file, "wb") as f:
             try:
                 ftp.retrbinary(f"RETR {path}", f.write)
@@ -374,6 +376,7 @@ def _download_default(src_urls, tmp_files, allow_retry=True):
     url_to_retry = []
     tmp_to_retry = []
     for src_url, tmp_file in zip(src_urls, tmp_files):
+        print(f"    {src_url}")
         try:
             outfile, _ = urllib.request.urlretrieve(src_url, filename=tmp_file)
         except urllib.error.URLError:
