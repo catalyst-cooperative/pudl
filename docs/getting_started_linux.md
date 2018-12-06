@@ -67,7 +67,23 @@ chmod 0600 ~/.pgpass
 echo "127.0.0.1:*:*:catalyst:the_password_you_picked" >> ~/.pgpass
 ```
 
-4. Now we need to make a few databases to store the data.
+4. Before the `catalyst` user can log in to the database, you will need to tell postgres how
+to authenticate the user. You do this by editing the postgres 'host based authentication' settings file like using `nano` or whatever your favorite text editor is as the super user:
+```
+sudo nano /etc/postgresql/<version>/pg_hba.conf
+```
+where `<version>` is the version of postgres (e.g. 9.6, 10). Edit the lines near the end of the file for the `local` sockets and the localhost connections (127.0.0.1 and localhost):
+```
+# "local" is for Unix domain socket connections only
+local   all             all                                     password
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            password
+host    all             all             localhost               password
+# IPv6 local connections:
+host    all             all             ::1/128                 password
+```
+
+5. Now we need to make a few databases to store the data.
 Start by logging in as the catalyst user.
 ```sh
 psql -U catalyst -d postgres -h 127.0.0.1
@@ -102,7 +118,10 @@ python init_pudl.py
 ```
 This script will load all of the data that is currently working (see [README.md](https://github.com/catalyst-cooperative/pudl/#project-status) for details), except the CEMS dataset, which is really big.
 5. This process will take tens of minutes to download the data and about 20 minutes to several hours run the initialization script (depending if the CEMS is being processed). The unzipped data folder will be about 18 GB and the postgres database will take up about 1 GB without CEMS data or 135 GB with all of it.
-If you want to just do a small subset of the data to test whether the setup is working, check out the help message on the script by calling python `init_pudl.py -h`.
+If you want to just do a small subset of the data to test whether the setup is working, check out the help message on the script by calling:
+```sh
+python init_pudl.py --help
+```
 
 ### 6. Playing with the data
 
