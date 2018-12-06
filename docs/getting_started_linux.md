@@ -1,35 +1,25 @@
 
-## Here’s a step-by-step guide to getting the PUDL database up and running on Linux:
+## Step-by-step guide to setting up the PUDL database Linux:
 
-The directions below were written for Ubuntu 17.10.
-They may work on other operating systems too.
+The directions below were most recently tested on [https://wiki.ubuntu.com/CosmicCuttlefish/ReleaseNotes](Ubuntu 18.10) (cosmic cuttlefish). They should also work on other Debian based Linux distributions.
 
 ### 0. Short Version
-- Install conda and python dependencies
-- Create postgres user and databases
-- Run PUDL setup scripts to download data and load into postgres
+- Install conda and PUDL's Python dependencies.
+- Create a postgres user and required databases.
+- Run PUDL setup scripts to download data and load it into postgres.
 
 
-### 1. Reviewing requirements
+### 1. Review the requirements
 For the full list of requirements to install, review [REQUIREMENTS.md](REQUIREMENTS.md) in the PUDL GitHub repository.
 
-### 2. Setting up the PUDL repository
-1. [Clone](https://help.github.com/articles/cloning-a-repository/) the PUDL repository.
-
-#### Option A: Github Desktop
-
-1. If you don’t have a GitHub account, you’ll need to create one at [github.com](https://github.com). Since the database is a public repository, you’ll want to select a free public account (the option reads “Unlimited public repositories for free.”).
-2. Once you’ve created an account and confirmed your email address, you’ll want to download and install the GitHub desktop client at [desktop.github.com](https://desktop.github.com/).
-3. Use your new account credentials to log into the GitHub desktop client and select the option to clone a repository. Then, enter the URL `https://github.com/catalyst-cooperative/pudl`.
-4. Once you've cloned the repository you can use the `Repository -> Show In Finder` option in the desktop Github app to obtain the location of the repository directory so that you find it using Terminal.
-
-#### Option B: Command line
+### 2. [Cloning the PUDL repository](https://help.github.com/articles/cloning-a-repository/)
+If you don’t have a GitHub account, you’ll want to create one at [github.com](https://github.com). Since PUDL is a public, open source repository, you can select a free public account (the option reads “Unlimited public repositories for free.”). Then, pull down the most recent version of the PUDL software, using this command:
 ```sh
-git clone git@github.com:catalyst-cooperative/pudl.git
+git clone https://github.com/catalyst-cooperative/pudl.git
 ```
 
 ### 3. Installing Anaconda and Python packages
-1. Anaconda is a package manager, environment manager and Python distribution that contains many of the packages we’ll need to get the PUDL database up and running. Please select the Python 3.6 version on this [page](https://www.anaconda.com/download/#linux). You can follow a step by step guide to completing the installation on the Graphical Installer [here](https://docs.anaconda.com/anaconda/install/linux).
+1. Anaconda is a package manager, environment manager and Python distribution that contains many of the packages we’ll need to get the PUDL database up and running. Please select the most recent Python 3 version on [this page](https://www.anaconda.com/download/#linux). You can follow a step by step guide to completing the installation on the Graphical Installer [here](https://docs.anaconda.com/anaconda/install/linux).
     - If you prefer a more minimal install, [miniconda](https://conda.io/miniconda.html) is also acceptable.
 2. Install the required packages in a new conda environment called `pudl`. In a terminal window type:
 ```sh
@@ -42,7 +32,6 @@ conda activate pudl
 ```
 
 For more on conda environments see [here](https://conda.io/docs/user-guide/tasks/manage-environments.html).
-
 
 ### 4. Setting up PostgreSQL
 
@@ -68,7 +57,7 @@ echo "127.0.0.1:*:*:catalyst:the_password_you_picked" >> ~/.pgpass
 ```
 
 4. Before the `catalyst` user can log in to the database, you will need to tell postgres how
-to authenticate the user. You do this by editing the postgres 'host based authentication' settings file like using `nano` or whatever your favorite text editor is as the super user:
+to authenticate the user. You do this by editing the postgres 'host based authentication' settings file using `nano` or whatever your favorite text editor is as the superuser:
 ```
 sudo nano /etc/postgresql/<version>/pg_hba.conf
 ```
@@ -100,30 +89,35 @@ CREATE DATABASE pudl_test;
 ```
 
 
-### 5. Initializing the database
+### 5. Download the raw data
 
 Now we’re ready to download the data that we’ll use to populate the database.
 
 1. In your Terminal window, use `cd` to navigate to the directory containing the clone of the PUDL repository.
 2. Within the PUDL repository, use `cd` to navigate to the `pudl/scripts` directory.
-3. In the `pudl/scripts` directory, there’s a file called `update_datastore.py`. Run this with
+3. In the `pudl/scripts` directory, there’s a script named `update_datastore.py`. To see information on how to use it, run
 ```sh
-python update_datastore.py
+python update_datastore.py --help
 ```
-This will bring data from the web into the `pudl/data/eia`, `pudl/data/eia`, and `pudl/data/eia` directories.
-If the download fails (e.g. the FTP server times out), this command can be run repeatedly until all the files are downloaded.
-4.  Once the datasets are downloaded and unzipped by `update_datastore.py`, begin the initialization script with
+For example, if you wanted to obtain the FERC Form 1, EIA 923, and EIA 860 data for 2014-2017, you would say:
 ```sh
-python init_pudl.py
+python update_datastore.py --sources ferc1 eia923 eia860 --years 2014 2015 2016 2017
 ```
-This script will load all of the data that is currently working (see [README.md](https://github.com/catalyst-cooperative/pudl/#project-status) for details), except the CEMS dataset, which is really big.
-5. This process will take tens of minutes to download the data and about 20 minutes to several hours run the initialization script (depending if the CEMS is being processed). The unzipped data folder will be about 18 GB and the postgres database will take up about 1 GB without CEMS data or 135 GB with all of it.
-If you want to just do a small subset of the data to test whether the setup is working, check out the help message on the script by calling:
-```sh
-python init_pudl.py --help
-```
+This will download data from the web and populate a well organized data store in `pudl/data/ferc/form1`, `pudl/data/eia/form923`, and `pudl/data/eia/form860` directories.
+If the download fails (e.g. the FTP server times out), this command can be run repeatedly until all the files are downloaded. It will not try and re-download data which is already present locally, unless you use the `--clobber` option. Depending on which data sources, how many years or states you have requested data for, and the speed of your internet connection, this may take minutes to hours to complete, and can consume several GB of disk space.
 
-### 6. Playing with the data
+### 6. Load data into the PUDL database
+Once the original raw data have been downloaded and organized by the `update_datastore.py` script, you can populate your database with the PUDL initialization script. Its behavior is controlled by a configuration file.  By default, it looks for a file named `settings.yml` in the same directory as the script, but you may copy that default file and rename it to specify your own database initialization parameters. See the default settings file for more information on the configuration options available. You will need to edit the configuration file to specify the data you want to load -- by default it has everything commented out.
 
-In your Terminal window use cd to navigate to the `pudl/docs/notebooks/tutorials directory`. Then run `jupyter notebook pudl_intro.ipynb` to fire up the introductory notebook. There you’ll find more information on how to begin to play with the data.
-(If you installed miniconda in step 2, you may have to `conda install jupyter`.)
+If you created a new configuration file named `local_settings.yml` you would initialize the database with the command:
+```sh
+python init_pudl.py -f local_settings.yml
+```
+For information about what data is currently available and working, see the [project status section in the README](https://github.com/catalyst-cooperative/pudl/#project-status).
+
+Depending on which data sources and how many years of data you have requested, the database initialization process will take between tens of minutes and several hours complete. The EPA CEMS dataset in particular is enormous, and loading all available data may require the better part of a day. Compressed on disk CEMS is only about 7 GB, but the database files will take up more than 100 GB of space.
+
+### 7. Playing with the data
+
+At the command line, navigate into the `pudl/docs/notebooks/tutorials` directory. Then run `jupyter notebook pudl_intro.ipynb` to fire up the introductory notebook. There you’ll find more information on how to begin to play with the data. If you
+installed miniconda in step 3 above, you may need to `conda install jupyter`. **NOTE: this tutorial notebook is out of date and not yet part of our continuous integration, so it is currently unlikely to work.**
