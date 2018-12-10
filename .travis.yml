@@ -30,6 +30,7 @@ install:
 - cp -r ../test/data/epa/cems/* ../data/epa/cems/
 - cd ..
 - find data -type f
+- ls -l data/tmp/
 script:
 - pytest -sv --cov=pudl -m travis_ci
 after_success:
