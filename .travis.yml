@@ -30,9 +30,9 @@ install:
 - cp -r ../test/data/ferc/form1/* ../data/ferc/form1/
 - cd ..
 - find data -type f
-- cd data/ferc/form1/
+- cd data/ferc/form1/f1_2017/
 - unzip f1_2017.zip
-- cd ../../../
+- cd ../../../../
 - find data -type f
 script:
 - pytest -sv --cov=pudl -m travis_ci
