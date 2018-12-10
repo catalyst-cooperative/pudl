@@ -28,7 +28,9 @@ install:
 - python update_datastore.py -s eia860 -y 2017
 - cp -r ../test/data/epa/cems/* ../data/epa/cems/
 - cp -r ../test/data/ferc/form1/* ../data/ferc/form1/
-- cd ../data/ferc/form1/
+- cd ..
+- find data -type f
+- cd data/ferc/form1/
 - unzip f1_2017.zip
 - cd ../../../
 - find data -type f
