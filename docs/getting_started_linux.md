@@ -1,7 +1,9 @@
 
 ## Step-by-step guide to setting up the PUDL database Linux:
 
-The directions below were most recently tested on [https://wiki.ubuntu.com/CosmicCuttlefish/ReleaseNotes](Ubuntu 18.10) (cosmic cuttlefish). They should also work on other Debian based Linux distributions.
+The directions below were most recently tested on [Ubuntu 18.10 Cosmic
+Cuttlefish](https://wiki.ubuntu.com/CosmicCuttlefish/ReleaseNotes). They should
+also work on other Debian based Linux distributions.
 
 ### 0. Short Version
 - Install conda and PUDL's Python dependencies.
