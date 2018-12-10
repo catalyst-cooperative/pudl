@@ -3,19 +3,15 @@ The Public Utility Data Liberation (PUDL) project core module.
 
 The PUDL project integrates several different public data sets into one well
 normalized database allowing easier access and interaction between all of them.
-This module defines database tables using the SQLAlchemy Object Relational
-Mapper (ORM) and initializes the database from several sources:
+This module defines database tables and initializes them with data from:
 
  - US Energy Information Agency (EIA):
    - Form 860 (eia860)
-   - Form 861 (eia861)
    - Form 923 (eia923)
  - US Federal Energy Regulatory Commission (FERC):
    - Form 1 (ferc1)
-   - Form 714 (ferc714)
  - US Environmental Protection Agency (EPA):
-   - Air Market Program Data (epaampd)
-   - Greenhouse Gas Reporting Program (epaghgrp)
+   - Continuous Emissions Monitory System (epacems)
 """
 
 import os.path
