@@ -26,7 +26,7 @@ install:
 - ci/setup_postgres.sh
 - cd scripts
 - python update_datastore.py --source ferc1 eia860 eia923 --years 2017
-- python update_datastore.py --source epacems --states ID --years 2017
+- cp -r ../test/data/epa/cems/* ../data/epa/cems/
 - cd ..
 - find data -type f
 script:
