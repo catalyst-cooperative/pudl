@@ -10,14 +10,13 @@ setup(
     author='Catalyst Cooperative',
     author_email='pudl@catalyst.coop',
     url='https://github.com/catalyst-cooperative/pudl',
-    license_files='LICENSE.md',
     packages=['pudl'],
     scripts=[
         'scripts/init_pudl.py',
         'scripts/update_datastore.py',
         'scripts/epacems_to_parquet.py',
     ],
-    include_package_data=True,
+    include_package_data=False,
     python_requires='~=3.6',
     install_requires=[
         'datapackage',
@@ -35,7 +34,23 @@ setup(
         'scipy',
         'sqlalchemy',
         'sqlalchemy-postgres-copy',
-        'tableschema'
-        'xlswriter',
+        'tableschema',
+        'xlsxwriter',
+    ],
+    classifiers=[
+        # How mature is this project? Common values are
+        #   3 - Alpha
+        #   4 - Beta
+        #   5 - Production/Stable
+        'Development Status :: 3 - Alpha',
+        'Environment :: Console',
+        'Intended Audience :: Science/Research',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Natural Language :: English',
+        'Operating System :: OS Independent',
+        'Topic :: Scientific/Engineering',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ]
 )
