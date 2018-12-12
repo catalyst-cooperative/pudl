@@ -20,7 +20,7 @@ before_install:
 install:
 - ci/install_travis.sh
 - source activate pudl
-- pip install -v .
+- pip install -v -e .
 - conda list
 - which python
 - ci/setup_postgres.sh
