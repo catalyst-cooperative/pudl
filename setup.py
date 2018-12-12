@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Setup script to make PUDL directly installable with pip."""
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='pudl',
@@ -10,13 +10,13 @@ setup(
     author='Catalyst Cooperative',
     author_email='pudl@catalyst.coop',
     url='https://github.com/catalyst-cooperative/pudl',
-    packages=['pudl'],
+    packages=find_packages(where='.', include=['pudl*']),
     scripts=[
         'scripts/init_pudl.py',
         'scripts/update_datastore.py',
         'scripts/epacems_to_parquet.py',
     ],
-    include_package_data=False,
+    include_package_data=True,
     python_requires='~=3.6',
     install_requires=[
         'datapackage',
