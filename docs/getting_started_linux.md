@@ -32,6 +32,11 @@ If you get an error `No such file or directory: environment.yml`, make sure you'
 ```sh
 conda activate pudl
 ```
+4. Now install the pudl package from the local directory, using `pip`. This allows you to use the software as if it were a normal package installed from the Python Package Index. Make sure you're in the top level directory of the repository, and run:
+```sh
+pip install --editable .
+```
+The `--editable` option keeps `pip` from copying files off to the `site-packages` directory, and just creates references to the current directory.
 
 For more on conda environments see [here](https://conda.io/docs/user-guide/tasks/manage-environments.html).
 
