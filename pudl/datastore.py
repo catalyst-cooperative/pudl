@@ -314,7 +314,7 @@ def _download_FTP(src_urls, tmp_files, allow_retry=True):
         raise NotImplementedError(
             "I don't yet know how to download from multiple domains")
     domain = domains.pop()
-    ftp = ftplib.FTP(domain)
+    ftp = ftplib.FTP(domain, timeout=10)  # timeout after 10 seconds
     login_result = ftp.login()
     assert login_result.startswith("230"), \
         f"Failed to login to {domain}: {login_result}"
