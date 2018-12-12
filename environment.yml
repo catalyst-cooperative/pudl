@@ -4,10 +4,10 @@ channels:
 dependencies:
   - coverage
   - coveralls
-  - dask
-  - fastparquet
   - cython
+  - dask
   - dbfread
+  - fastparquet
   - jupyter
   - jupyterlab
   - matplotlib
@@ -24,7 +24,6 @@ dependencies:
   - pyyaml
   - scikit-learn
   - scipy
-  - snappy
   - sqlalchemy
   - xlrd
   - xlsxwriter

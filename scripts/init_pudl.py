@@ -4,14 +4,20 @@
 import os
 import sys
 import argparse
+import pudl
+import pudl.constants as pc
+from pudl.settings import SETTINGS
+import pudl.models.glue
+import pudl.models.eia860
+import pudl.models.eia923
+import pudl.models.eia
+import pudl.models.ferc1
 
-assert sys.version_info >= (3, 6)  # require modern python
-
-# This is a hack to make the pudl package importable from within this script,
-# even though it isn't in one of the normal site-packages directories where
-# Python typically searches.  When we have some real installation/packaging
-# happening, this will no longer be necessary.
-sys.path.append(os.path.abspath('..'))
+# require modern python
+if not sys.version_info >= (3, 6):
+    raise AssertionError(
+        f"PUDL requires Python 3.6 or later. {sys.version_info} found."
+    )
 
 
 def parse_command_line(argv):
@@ -21,8 +27,8 @@ def parse_command_line(argv):
     :param argv: arguments on the command line must include caller file name.
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--settings_file', dest='settings_file', type=str,
-                        help="Specify a YAML settings file.",
+    parser.add_argument('-f', '--settings_file', dest='settings_file',
+                        type=str, help="Specify a YAML settings file.",
                         default='settings.yml')
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -30,14 +36,6 @@ def parse_command_line(argv):
 
 def main():
     """The main function."""
-    import pudl
-    import pudl.constants as pc
-    from pudl.settings import SETTINGS
-    import pudl.models.glue
-    import pudl.models.eia860
-    import pudl.models.eia923
-    import pudl.models.eia
-    import pudl.models.ferc1
 
     args = parse_command_line(sys.argv)
     settings_init = pudl.settings.settings_init(
