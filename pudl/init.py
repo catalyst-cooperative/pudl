@@ -384,17 +384,13 @@ def _ingest_glue_eia_ferc1(engine,
     # exist in EIA, and while they will have PUDL IDs, they may not have
     # FERC/EIA info (and it'll get pulled in as NaN)
 
-    for df, df_n in zip([plants_eia,
-                         plants_ferc,
-                         utilities_eia,
-                         utilities_ferc],
-                        ['plants_eia',
-                         'plants_ferc',
-                         'utilities_eia',
-                         'utilities_ferc']):
+    for df, df_n in zip([plants_eia, plants_ferc,
+                         utilities_eia, utilities_ferc],
+                        ['plants_eia', 'plants_ferc',
+                         'utilities_eia', 'utilities_ferc']):
         if df[pd.isnull(df).any(axis=1)].shape[0] > 1:
             raise AssertionError(f"FERC to EIA glue breaking in {df_n}")
-        df = df.dropna()
+        df.dropna(inplace=True)
 
     # Before we start inserting records into the database, let's do some basic
     # sanity checks to ensure that it's (at least kind of) clean.
