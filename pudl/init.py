@@ -392,9 +392,9 @@ def _ingest_glue_eia_ferc1(engine,
                          'plants_ferc',
                          'utilities_eia',
                          'utilities_ferc']):
-        assert df[pd.isnull(df).any(axis=1)].shape[0] <= 1,\
-            print("breaks on {}".format(df_n))
-        df.dropna(inplace=True)
+        if df[pd.isnull(df).any(axis=1)].shape[0] > 1:
+            raise AssertionError(f"FERC to EIA glue breaking in {df_n}")
+        df = df.dropna()
 
     # Before we start inserting records into the database, let's do some basic
     # sanity checks to ensure that it's (at least kind of) clean.
@@ -635,15 +635,24 @@ def init_db(ferc1_tables=None,
 
     if (not debug) and (ferc1_tables):
         for table in ferc1_tables:
-            assert table in pc.ferc1_pudl_tables
+            if table not in pc.ferc1_pudl_tables:
+                raise AssertionError(
+                    f"Unrecognized FERC table: {table}."
+                )
 
     if (not debug) and (eia860_tables):
         for table in eia860_tables:
-            assert table in pc.eia860_pudl_tables
+            if table not in pc.eia860_pudl_tables:
+                raise AssertionError(
+                    f"Unrecognized EIA 860 table: {table}"
+                )
 
     if (not debug) and (eia923_tables):
         for table in eia923_tables:
-            assert table in pc.eia923_pudl_tables
+            if table not in pc.eia923_pudl_tables:
+                raise AssertionError(
+                    f"Unrecogized EIA 923 table: {table}"
+                )
 
     # Connect to the PUDL DB, wipe out & re-create tables:
     pudl_engine = connect_db(testing=pudl_testing)
