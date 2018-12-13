@@ -9,7 +9,30 @@ setup(
     version='0.1.0',
     author='Catalyst Cooperative',
     author_email='pudl@catalyst.coop',
+    maintainer='Zane A. Selvans',
+    maintainer_email='zane.selvans@catalyst.coop',
     url='https://github.com/catalyst-cooperative/pudl',
+    project_urls={
+        'Background': 'https://catalyst.coop/public-utility-data-liberation',
+    },
+    license='MIT',
+    keywords=[
+        'electricity',
+        'energy',
+        'data',
+        'analysis',
+        'mcoe',
+        'climate change',
+        'finance',
+        'eia 923',
+        'eia 860',
+        'ferc',
+        'form 1',
+        'epa ampd',
+        'epa cems',
+        'coal',
+        'natural gas',
+    ],
     packages=find_packages(where='.', include=['pudl*']),
     scripts=[
         'scripts/init_pudl.py',
@@ -38,10 +61,6 @@ setup(
         'xlsxwriter',
     ],
     classifiers=[
-        # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Intended Audience :: Science/Research',
