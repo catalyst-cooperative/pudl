@@ -86,39 +86,72 @@ def _drop_views(engine):
         engine.execute(s)
 
 
-def _verify_input_files(ferc1_years,
-                        eia923_years,
-                        eia860_years,
-                        epacems_years,
-                        epacems_states):
-    """Verify that all the files we're about to ingest exist"""
+def verify_input_files(ferc1_years,
+                       eia923_years,
+                       eia860_years,
+                       epacems_years,
+                       epacems_states):
+    """Verify that all the files exist before starting the ingest
+
+    :param ferc1_years: Years of FERC1 data we're going to import (iterable)
+    :param eia923_years: Years of EIA923 data we're going to import (iterable)
+    :param eia860_years: Years of EIA860 data we're going to import (iterable)
+    :param epacems_years: Years of CEMS data we're going to import (iterable)
+    :param epacems_states: States of CEMS data we're going to import (iterable)
+    """
 
     # NOTE that these filename functions take other arguments, like BASEDIR.
     # Here, we're assuming that the default arguments (as defined in SETTINGS)
     # are what we want.
-    missing_eia860_years = {y for y in eia860_years for f in pc.files_eia860
-        if not os.path.isfile(extract.eia860.get_eia860_file(y, f))}
-    missing_eia923_years = {y for y in eia923_years
-        if not os.path.isfile(extract.eia923.get_eia923_file(y))}
-    missing_ferc1_years = {y for y in ferc1_years
-        if not os.path.isfile(extract.ferc1.dbc_filename(y))}
-    missing_cems_year_states = {(y, s) for y in epacems_years
-        for m in range(1, 13)
-        for s in epacems_states
-        if not os.path.isfile(extract.epacems.get_epacems_file(y, m, s))}
+    missing_ferc1_years = {str(y) for y in ferc1_years
+        if not os.path.isfile(pudl.extract.ferc1.dbc_filename(y))}
+
+    missing_eia860_years = set()
+    for y in eia860_years:
+        for pattern in pc.files_eia860:
+            f = pc.files_dict_eia860[pattern]
+            try:
+                # This function already looks for the file, and raises an
+                # IndexError if missi
+                pudl.extract.eia860.get_eia860_file(y, f)
+            except IndexError:
+                missing_eia860_years.add(str(y))
+
+    missing_eia923_years = set()
+    for y in eia923_years:
+        try:
+            f = pudl.extract.eia923.get_eia923_file(y)
+        except AssertionError:
+            missing_eia923_years.add(str(y))
+        if not os.path.isfile(f):
+            missing_eia923_years.add(str(y))
+
+    if epacems_states and epacems_states[0].lower() == 'all':
+        epacems_states = list(pc.cems_states.keys())
+    missing_epacems_year_states = set()
+    for y in epacems_years:
+        for s in epacems_states:
+            for m in range(1, 13):
+                try:
+                    f = pudl.extract.epacems.get_epacems_file(y, m, s)
+                except AssertionError:
+                    missing_epacems_year_states.add((str(y), s))
+                if not os.path.isfile(f):
+                    missing_epacems_year_states.add((str(y), s))
+
     any_missing = (missing_eia860_years or missing_eia923_years or
-        missing_ferc1_years or missing_cems_year_states)
+        missing_ferc1_years or missing_epacems_year_states)
     if any_missing:
         err_msg = ["Missing data files for the following sources and years:"]
         if missing_ferc1_years:
-            err_msg += ["  FERC 1: " + ", ".join(missing_ferc1_years)]
+            err_msg += ["  FERC 1:  " + ", ".join(missing_ferc1_years)]
         if missing_eia860_years:
             err_msg += ["  EIA 860: " + ", ".join(missing_eia860_years)]
         if missing_eia923_years:
             err_msg += ["  EIA 923: " + ", ".join(missing_eia923_years)]
         if missing_epacems_year_states:
-            missing_yr_str = ", ".join({yr_st[0] for yr_st in missing_cems_year_states})
-            missing_st_str = ", ".join({yr_st[1] for yr_st in missing_cems_year_states})
+            missing_yr_str = ", ".join({yr_st[0] for yr_st in missing_epacems_year_states})
+            missing_st_str = ", ".join({yr_st[1] for yr_st in missing_epacems_year_states})
             err_msg += ["  EPA CEMS:"]
             err_msg += ["    Years:  " + missing_yr_str]
             err_msg += ["    States: " + missing_st_str]
@@ -688,11 +721,6 @@ def init_db(ferc1_tables=None,
                 raise AssertionError(
                     f"Unrecogized EIA 923 table: {table}"
                 )
-    _verify_input_files(ferc1_years=ferc1_years,
-                        eia923_years=eia923_years,
-                        eia860_years=eia860_years,
-                        epacems_years=epacems_years,
-                        epacems_states=epacems_states)
 
     # Connect to the PUDL DB, wipe out & re-create tables:
     pudl_engine = connect_db(testing=pudl_testing)
