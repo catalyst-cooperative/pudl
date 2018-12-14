@@ -85,6 +85,45 @@ def _drop_views(engine):
     for s in views_sql_commands:
         engine.execute(s)
 
+
+def _verify_input_files(ferc1_years,
+                        eia923_years,
+                        eia860_years,
+                        epacems_years,
+                        epacems_states):
+    """Verify that all the files we're about to ingest exist"""
+
+    # NOTE that these filename functions take other arguments, like BASEDIR.
+    # Here, we're assuming that the default arguments (as defined in SETTINGS)
+    # are what we want.
+    missing_eia860_years = {y for y in eia860_years for f in pc.files_eia860
+        if not os.path.isfile(extract.eia860.get_eia860_file(y, f))}
+    missing_eia923_years = {y for y in eia923_years
+        if not os.path.isfile(extract.eia923.get_eia923_file(y))}
+    missing_ferc1_years = {y for y in ferc1_years
+        if not os.path.isfile(extract.ferc1.dbc_filename(y))}
+    missing_cems_year_states = {(y, s) for y in epacems_years
+        for m in range(1, 13)
+        for s in epacems_states
+        if not os.path.isfile(extract.epacems.get_epacems_file(y, m, s))}
+    any_missing = (missing_eia860_years or missing_eia923_years or
+        missing_ferc1_years or missing_cems_year_states)
+    if any_missing:
+        err_msg = ["Missing data files for the following sources and years:"]
+        if missing_ferc1_years:
+            err_msg += ["  FERC 1: " + ", ".join(missing_ferc1_years)]
+        if missing_eia860_years:
+            err_msg += ["  EIA 860: " + ", ".join(missing_eia860_years)]
+        if missing_eia923_years:
+            err_msg += ["  EIA 923: " + ", ".join(missing_eia923_years)]
+        if missing_epacems_year_states:
+            missing_yr_str = ", ".join({yr_st[0] for yr_st in missing_cems_year_states})
+            missing_st_str = ", ".join({yr_st[1] for yr_st in missing_cems_year_states})
+            err_msg += ["  EPA CEMS:"]
+            err_msg += ["    Years:  " + missing_yr_str]
+            err_msg += ["    States: " + missing_st_str]
+        raise FileNotFoundError("\n".join(err_msg))
+
 ###############################################################################
 ###############################################################################
 #   BEGIN INGESTING STATIC & INFRASTRUCTURE TABLES
@@ -649,6 +688,11 @@ def init_db(ferc1_tables=None,
                 raise AssertionError(
                     f"Unrecogized EIA 923 table: {table}"
                 )
+    _verify_input_files(ferc1_years=ferc1_years,
+                        eia923_years=eia923_years,
+                        eia860_years=eia860_years,
+                        epacems_years=epacems_years,
+                        epacems_states=epacems_states)
 
     # Connect to the PUDL DB, wipe out & re-create tables:
     pudl_engine = connect_db(testing=pudl_testing)
