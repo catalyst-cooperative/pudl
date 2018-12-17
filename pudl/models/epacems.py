@@ -55,9 +55,7 @@ class HourlyEmissions(pudl.models.entities.PUDLBase):
     # - Make a view that divides heat_content_mmbtu / gload_mwh to get heatrate
     #   And also has a bad_heatrate flag.
     # - Make a view that multiplies op_time and gload_mw to get gload_mwh
-    # - And has an operating_date
     __tablename__ = "hourly_emissions_epacems"
-    __table_args__ = {"prefixes": ["UNLOGGED"]}
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     state = Column(ENUM_STATES, nullable=False)
     plant_name = Column(String, nullable=False)
@@ -128,8 +126,6 @@ def finalize(engine):
        the date part of operating_datetime,
     2. Add a unique index for the combination of operating_datetime,
        plant_id_eia, and unitid.
-    3. Run ALTER TABLE hourly_emissions_epacems SET LOGGED to make the table
-       robust to unclean shutdowns.
     """
 
     # List of indexes and constraints we need to create later, after loading
@@ -160,11 +156,3 @@ def finalize(engine):
             warn(f"Failed to add index/constraint '{index.name}'\n" +
                  "Details:\n" + str(e))
 
-    alter_table_sql = f"ALTER TABLE {HourlyEmissions.__tablename__} SET LOGGED"
-    try:
-        engine.execute(alter_table_sql)
-    except sa.exc.SQLAlchemyError as e:  # Any kind of SQLAlchemy error
-        # Note that ALTER TABLE ... SET LOGGGED requires postgres >= 9.5
-        print("Failed to set EPA CEMS table to LOGGED! If you shut down " +
-              "postgres abruptly, the table will be empty.")
-        print(e)

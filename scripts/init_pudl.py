@@ -40,6 +40,14 @@ def main():
     settings_init = pudl.settings.settings_init(
         settings_file=args.settings_file)
 
+    pudl.init.verify_input_files(
+        ferc1_years=settings_init['ferc1_years'],
+        eia923_years=settings_init['eia923_years'],
+        eia860_years=settings_init['eia860_years'],
+        epacems_years=settings_init['epacems_years'],
+        epacems_states=settings_init['epacems_states']
+    )
+
     pudl.extract.ferc1.init_db(ferc1_tables=pc.ferc1_default_tables,
                                refyear=settings_init['ferc1_ref_year'],
                                years=settings_init['ferc1_years'],
