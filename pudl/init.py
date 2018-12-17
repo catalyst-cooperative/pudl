@@ -400,62 +400,60 @@ def _ingest_glue_eia_ferc1(engine,
     # utilities_ferc:
     # INSERT MORE SANITY HERE
 
-    plants.rename(columns={'plant_id': 'id', 'plant_name': 'name'},
-                  inplace=True)
-    plants.to_sql(name='plants',
-                  con=engine, index=False, if_exists='append',
-                  dtype={'id': sa.Integer, 'name': sa.String})
+    (plants.
+     rename(columns={'plant_id': 'id', 'plant_name': 'name'}).
+     to_sql(name='plants', con=engine, index=False, if_exists='append',
+            dtype={'id': sa.Integer, 'name': sa.String}))
 
-    utilities.rename(columns={'utility_id': 'id', 'utility_name': 'name'},
-                     inplace=True)
-    utilities.to_sql(name='utilities',
-                     con=engine, index=False, if_exists='append',
-                     dtype={'id': sa.Integer, 'name': sa.String})
+    (utilities.
+     rename(columns={'utility_id': 'id', 'utility_name': 'name'}).
+     to_sql(name='utilities', con=engine, index=False, if_exists='append',
+            dtype={'id': sa.Integer, 'name': sa.String}))
 
-    utilities_ferc.rename(columns={'respondent_id_ferc': 'utility_id_ferc1',
-                                   'respondent_name_ferc': 'utility_name_ferc1',
-                                   'utility_id': 'utility_id_pudl'},
-                          inplace=True)
-    utilities_ferc.to_sql(name='utilities_ferc',
-                          con=engine, index=False, if_exists='append',
-                          dtype={'utility_id_ferc1': sa.Integer,
-                                 'utility_name_ferc1': sa.String,
-                                 'utility_id_pudl': sa.Integer})
+    (utilities_ferc.
+     rename(columns={'respondent_id_ferc': 'utility_id_ferc1',
+                     'respondent_name_ferc': 'utility_name_ferc1',
+                     'utility_id': 'utility_id_pudl'}).
+     to_sql(name='utilities_ferc', con=engine, index=False, if_exists='append',
+            dtype={'utility_id_ferc1': sa.Integer,
+                   'utility_name_ferc1': sa.String,
+                   'utility_id_pudl': sa.Integer}))
 
-    plants_ferc.rename(columns={'respondent_id_ferc': 'utility_id_ferc1',
-                                'plant_name_ferc': 'plant_name',
-                                'plant_id': 'plant_id_pudl'},
-                       inplace=True)
-    plants_ferc.to_sql(name='plants_ferc',
-                       con=engine, index=False, if_exists='append',
-                       dtype={'utility_id_ferc1': sa.Integer,
-                              'plant_name': sa.String,
-                              'plant_id_pudl': sa.Integer})
+    (plants_ferc.
+     rename(columns={'respondent_id_ferc': 'utility_id_ferc1',
+                     'plant_name_ferc': 'plant_name',
+                     'plant_id': 'plant_id_pudl'}).
+     to_sql(name='plants_ferc', con=engine, index=False, if_exists='append',
+            dtype={'utility_id_ferc1': sa.Integer,
+                   'plant_name': sa.String,
+                   'plant_id_pudl': sa.Integer}))
 
-    utility_plant_assn.to_sql(name='utility_plant_assn',
-                              con=engine, index=False, if_exists='append',
-                              dtype={'plant_id': sa.Integer,
-                                     'utility_id': sa.Integer})
+    (utility_plant_assn.
+     to_sql(name='utility_plant_assn', con=engine,
+            index=False, if_exists='append',
+            dtype={'plant_id': sa.Integer,
+                   'utility_id': sa.Integer}))
 
     # when either eia form is being ingested, include the eia tables as well.
     if eia860_years or eia923_years:
-        utilities_eia.rename(columns={'operator_id_eia': 'utility_id_eia',
-                                      'operator_name_eia': 'utility_name',
-                                      'utility_id': 'utility_id_pudl'},
-                             inplace=True)
-        utilities_eia.to_sql(name='utilities_eia',
-                             con=engine, index=False, if_exists='append',
-                             dtype={'utility_id_eia': sa.Integer,
-                                    'utility_name': sa.String,
-                                    'utility_id_pudl': sa.Integer})
-        plants_eia.rename(columns={'plant_name_eia': 'plant_name',
-                                   'plant_id': 'plant_id_pudl'},
-                          inplace=True)
-        plants_eia.to_sql(name='plants_eia',
-                          con=engine, index=False, if_exists='append',
-                          dtype={'plant_id_eia': sa.Integer,
-                                 'plant_name': sa.String,
-                                 'plant_id_pudl': sa.Integer})
+        (utilities_eia.
+            rename(columns={'operator_id_eia': 'utility_id_eia',
+                            'operator_name_eia': 'utility_name',
+                            'utility_id': 'utility_id_pudl'}).
+            to_sql(name='utilities_eia', con=engine,
+                   index=False, if_exists='append',
+                   dtype={'utility_id_eia': sa.Integer,
+                          'utility_name': sa.String,
+                          'utility_id_pudl': sa.Integer}))
+
+        (plants_eia.
+            rename(columns={'plant_name_eia': 'plant_name',
+                            'plant_id': 'plant_id_pudl'}).
+            to_sql(name='plants_eia', con=engine,
+                   index=False, if_exists='append',
+                   dtype={'plant_id_eia': sa.Integer,
+                          'plant_name': sa.String,
+                          'plant_id_pudl': sa.Integer}))
 
 
 ###############################################################################
