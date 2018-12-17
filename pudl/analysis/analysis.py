@@ -966,6 +966,8 @@ def fercplants(plant_tables=['f1_steam',
         # list of just the index values that appear in the FERC index, but
         # not in the PUDL index.
         new_index = ferc1_plants_all.index.difference(ferc1_plants_old.index)
+        if new_index.size == 0:
+            return(print('No new plants found.'))
         ferc1_plants = ferc1_plants_all.loc[new_index].reset_index()
     else:
         ferc1_plants = ferc1_plants_all

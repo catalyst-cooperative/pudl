@@ -7,6 +7,51 @@ import pudl
 import pudl.constants as pc
 
 
+def utilities(eia_transformed_dfs,
+              entities_dfs,
+              verbose=True):
+    # create empty df with columns we want
+    utilities_compiled = pd.DataFrame(
+        columns=['utility_id_eia', 'report_date'])
+
+    if verbose:
+        print("    compiling utilities for entity tables from:")
+    # for each df in the dtc of transformed dfs
+    for table_name, transformed_df in eia_transformed_dfs.items():
+        # create a copy of the df to muck with
+        df = transformed_df.copy()
+        # if the if contains the desired columns the grab those columns
+        if (df.columns.contains('report_date') &
+                df.columns.contains('utility_id_eia')):
+            if verbose:
+                print("        {}...".format(table_name))
+            df = df[['utility_id_eia', 'report_date']]
+            # add those records to the compliation
+            utilities_compiled = utilities_compiled.append(df)
+    # strip the month and day from the date so we can have annual records
+    utilities_compiled['report_date'] = utilities_compiled['report_date'].dt.year
+    utilities_compiled = utilities_compiled.drop_duplicates()
+    utilities_compiled.sort_values(['report_date', 'utility_id_eia'],
+                                   inplace=True, ascending=False)
+    # convert the year back into a date_time object
+    year = utilities_compiled['report_date']
+    utilities_compiled['report_date'] = \
+        pd.to_datetime({'year': year,
+                        'month': 1,
+                        'day': 1})
+
+    # create the annual and entity dfs
+    utilities_annual = utilities_compiled.copy()
+    utilities_df = utilities_compiled.drop(['report_date'], axis=1)
+    utilities_df = utilities_df.astype(int)
+    utilities_df = utilities_df.drop_duplicates(subset=['utility_id_eia'])
+    # insert the annual and entity dfs to their respective dtc
+    eia_transformed_dfs['utilities_annual_eia'] = utilities_annual
+    entities_dfs['utilities_entity_eia'] = utilities_df
+
+    return entities_dfs, eia_transformed_dfs
+
+
 def plants(eia_transformed_dfs,
            entities_dfs,
            verbose=True):
@@ -508,6 +553,7 @@ def transform(eia_transformed_dfs,
               verbose=True):
     """Creates dfs for EIA Entity tables"""
     eia_transform_functions = {
+        'utilities_entity_eia': utilities,
         'plants_entity_eia': plants,
         'generators_entity_eia': generators,
         'boilers_entity_eia': boilers,

@@ -22,9 +22,9 @@ ferc1_tables:
  - purchased_power_ferc1
  - accumulated_depreciation_ferc1
 
-ferc1_years: []
-# ferc1_years: [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
-#              2013, 2014, 2015, 2016, 2017]
+#ferc1_years: []
+ferc1_years: [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
+              2013, 2014, 2015, 2016, 2017]
 
 # if you are loading ferc1, you need to specify a reference year. This is the
 # year whose database structure is used as a template. If unspecified
@@ -47,8 +47,8 @@ eia923_tables:
   - coalmine_eia923 # coalmine_eia923 REQUIRES fuel_receipts_costs_eia923
   - fuel_receipts_costs_eia923
 
-eia923_years: []
-# eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
+#eia923_years: [2011,2017]
+eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
 
 # See notes above about the entanglement between EIA 923 and EIA 860. It's best
 # to load all the tables from both of them, or neither of them.
@@ -59,18 +59,18 @@ eia860_tables:
   - generators_eia860
   - ownership_eia860
 
-eia860_years: []
-# eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017]
+#eia860_years: [2011,2017]
+eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017]
 
 # The EPA CEMS data goes back as far as 1995, but before 2000 it is not as
 # complete.  Note that the EPA CEMS data set is much larger than any of the
 # other data sets here.  Pulling in all the years of data for all of the
 # states requires ~100GB of free disk space and takes around 8 hours on a
 # reasonably fast laptop.
-epacems_years: [2016]
-#epacems_years: [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+epacems_years: [2015]
+# epacems_years: [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
 #                2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
-#epacems_states: []
+# epacems_states: []
 epacems_states: [CO]
 #epacems_states: [ALL]
 

@@ -18,6 +18,18 @@ class DataSets(PUDLBase):
     active = Column(Boolean)
 
 
+class UtilityEntityEIA(PUDLBase):
+    """
+    An EIA Utility, listed in 923 or 860.
+
+    A compilation of all EIA utilities ids and static info.
+    """
+
+    __tablename__ = 'utilities_entity_eia'
+    utility_id_eia = Column(Integer, primary_key=True, nullable=False)
+    # TODO: Add static utility info
+
+
 class PlantEntityEIA(PUDLBase):
     """
     An EIA Plant, listed in 923 or 860.
