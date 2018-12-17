@@ -459,6 +459,7 @@ def organize(source, year, states, unzip=True,
     if(unzip and source != 'epacems'):
         # Unzip the downloaded file in its new home:
         zip_ref = zipfile.ZipFile(destfile, 'r')
+        print(f"unzipping {destfile}")
         zip_ref.extractall(destdir)
         zip_ref.close()
         # Most of the data sources can just be unzipped in place and be done

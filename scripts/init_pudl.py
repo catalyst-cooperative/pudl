@@ -1,17 +1,22 @@
 #!/usr/bin/env python
 """This is a script for initializing the PUDL database locally."""
 
-import os
 import sys
 import argparse
+import pudl
+import pudl.constants as pc
+from pudl.settings import SETTINGS
+import pudl.models.glue
+import pudl.models.eia860
+import pudl.models.eia923
+import pudl.models.eia
+import pudl.models.ferc1
 
-assert sys.version_info >= (3, 6)  # require modern python
-
-# This is a hack to make the pudl package importable from within this script,
-# even though it isn't in one of the normal site-packages directories where
-# Python typically searches.  When we have some real installation/packaging
-# happening, this will no longer be necessary.
-sys.path.append(os.path.abspath('..'))
+# require modern python
+if not sys.version_info >= (3, 6):
+    raise AssertionError(
+        f"PUDL requires Python 3.6 or later. {sys.version_info} found."
+    )
 
 
 def parse_command_line(argv):
@@ -21,8 +26,8 @@ def parse_command_line(argv):
     :param argv: arguments on the command line must include caller file name.
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--settings_file', dest='settings_file', type=str,
-                        help="Specify a YAML settings file.",
+    parser.add_argument('-f', '--settings_file', dest='settings_file',
+                        type=str, help="Specify a YAML settings file.",
                         default='settings.yml')
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -30,18 +35,18 @@ def parse_command_line(argv):
 
 def main():
     """The main function."""
-    import pudl
-    import pudl.constants as pc
-    from pudl.settings import SETTINGS
-    import pudl.models.glue
-    import pudl.models.eia860
-    import pudl.models.eia923
-    import pudl.models.eia
-    import pudl.models.ferc1
 
     args = parse_command_line(sys.argv)
     settings_init = pudl.settings.settings_init(
         settings_file=args.settings_file)
+
+    pudl.init.verify_input_files(
+        ferc1_years=settings_init['ferc1_years'],
+        eia923_years=settings_init['eia923_years'],
+        eia860_years=settings_init['eia860_years'],
+        epacems_years=settings_init['epacems_years'],
+        epacems_states=settings_init['epacems_states']
+    )
 
     pudl.extract.ferc1.init_db(ferc1_tables=pc.ferc1_default_tables,
                                refyear=settings_init['ferc1_ref_year'],

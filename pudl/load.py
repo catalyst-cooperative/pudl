@@ -122,7 +122,10 @@ class BulkCopy(contextlib.AbstractContextManager):
 
     def add(self, df):
         """Add a DataFrame to the accumulated list"""
-        assert isinstance(df, pd.DataFrame)
+        if not isinstance(df, pd.DataFrame):
+            raise AssertionError(
+                "Expected dataframe as input."
+            )
         df = self._fix_inting(df)
         # Note: append to a list here, then do a concat when we spill
         self.accumulated_dfs.append(df)
@@ -137,14 +140,14 @@ class BulkCopy(contextlib.AbstractContextManager):
         expected_colnames = set(self.accumulated_dfs[0].columns.values)
         for df in self.accumulated_dfs:
             colnames = set(df.columns.values)
-            assert colnames == expected_colnames, (
-                "Column names weren't " +
-                "constant. BulkCopy should only be used with one table at " +
-                "a time, and all columns should be present. Symmetric " +
-                "difference between actual and expected:\n" +
-                str(colnames.symmetric_difference(
-                    expected_colnames))
-            )
+            if colnames != expected_colnames:
+                raise AssertionError(f"""
+Column names changed between dataframes. BulkCopy should only be used
+with one table at a time, and all columns must be present in all dataframes.
+making up the table to be loaded. Symmetric difference between actual and
+expected:
+{str(colnames.symmetric_difference(expected_colnames))}
+            """)
 
     def _fix_inting(self, df):
         """Fix integers for columns with NA. See pudl.helpers.fix_int_na"""

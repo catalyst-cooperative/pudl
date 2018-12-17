@@ -1,8 +1,8 @@
 """Database models for PUDL tables derived from EPA CEMS Data."""
 
 import sqlalchemy as sa
-from sqlalchemy import Integer, SmallInteger, String, REAL, DateTime, Column
-from sqlalchemy import Enum, Interval
+from sqlalchemy import Integer, SmallInteger, String
+from sqlalchemy import REAL, DateTime, Column, Enum
 import pudl.models.entities
 import pudl.constants as pc
 
@@ -55,18 +55,15 @@ class HourlyEmissions(pudl.models.entities.PUDLBase):
     # - Make a view that divides heat_content_mmbtu / gload_mwh to get heatrate
     #   And also has a bad_heatrate flag.
     # - Make a view that multiplies op_time and gload_mw to get gload_mwh
-    # - And has an operating_date
     __tablename__ = "hourly_emissions_epacems"
-    __table_args__ = {"prefixes": ["UNLOGGED"]}
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     state = Column(ENUM_STATES, nullable=False)
     plant_name = Column(String, nullable=False)
     # TODO: Link to EIA plant ID
     plant_id_eia = Column(Integer, nullable=False)
     unitid = Column(String, nullable=False)
-    # operating_date = Column(Date, nullable=False)
     operating_datetime = Column(DateTime, nullable=False)
-    operating_time_interval = Column(Interval)
+    operating_time_hours = Column(REAL)
     gross_load_mw = Column(REAL)
     steam_load_1000_lbs = Column(REAL)
     so2_mass_lbs = Column(REAL)
@@ -97,7 +94,7 @@ CREATE_VIEWS = ["""
         unitid,
         operating_datetime,
         operating_datetime::date AS operating_date,
-        operating_time_interval,
+        operating_time_hours,
         gross_load_mw,
         steam_load_1000_lbs,
         so2_mass_lbs,
@@ -129,8 +126,6 @@ def finalize(engine):
        the date part of operating_datetime,
     2. Add a unique index for the combination of operating_datetime,
        plant_id_eia, and unitid.
-    3. Run ALTER TABLE hourly_emissions_epacems SET LOGGED to make the table
-       robust to unclean shutdowns.
     """
 
     # List of indexes and constraints we need to create later, after loading
@@ -161,11 +156,3 @@ def finalize(engine):
             warn(f"Failed to add index/constraint '{index.name}'\n" +
                  "Details:\n" + str(e))
 
-    alter_table_sql = f"ALTER TABLE {HourlyEmissions.__tablename__} SET LOGGED"
-    try:
-        engine.execute(alter_table_sql)
-    except sa.exc.SQLAlchemyError as e:  # Any kind of SQLAlchemy error
-        # Note that ALTER TABLE ... SET LOGGGED requires postgres >= 9.5
-        print("Failed to set EPA CEMS table to LOGGED! If you shut down " +
-              "postgres abruptly, the table will be empty.")
-        print(e)

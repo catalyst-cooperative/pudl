@@ -201,7 +201,11 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
         eia923_start_date = \
             pd.to_datetime('{}-01-01'.format(
                 min(pc.working_years['eia923'])))
-        assert start_date >= eia923_start_date
+        if start_date < eia923_start_date:
+            raise AssertionError(f"""
+EIA 860 generators start_date ({start_date}) is before the
+earliest EIA 923 data is available ({eia923_start_date}).
+That's too much backfilling.""")
         gens_eia860_select = gens_eia860_select.where(
             gens_eia860_tbl.c.report_date >= start_date
         )
@@ -216,7 +220,11 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
         eia860_end_date = \
             pd.to_datetime('{}-12-31'.format(
                 max(pc.working_years['eia860'])))
-        assert end_date <= eia860_end_date + pd.DateOffset(years=1)
+        if end_date > eia860_end_date + pd.DateOffset(years=1):
+            raise AssertionError(f"""
+EIA 860 end_date ({end_date}) is more than a year after the
+most recent EIA 860 data available ({eia860_end_date}).
+That's too much forward filling.""")
         gens_eia860_select = gens_eia860_select.where(
             gens_eia860_tbl.c.report_date <= end_date
         )

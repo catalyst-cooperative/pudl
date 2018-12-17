@@ -3,19 +3,15 @@ The Public Utility Data Liberation (PUDL) project core module.
 
 The PUDL project integrates several different public data sets into one well
 normalized database allowing easier access and interaction between all of them.
-This module defines database tables using the SQLAlchemy Object Relational
-Mapper (ORM) and initializes the database from several sources:
+This module defines database tables and initializes them with data from:
 
  - US Energy Information Agency (EIA):
    - Form 860 (eia860)
-   - Form 861 (eia861)
    - Form 923 (eia923)
  - US Federal Energy Regulatory Commission (FERC):
    - Form 1 (ferc1)
-   - Form 714 (ferc714)
  - US Environmental Protection Agency (EPA):
-   - Air Market Program Data (epaampd)
-   - Greenhouse Gas Reporting Program (epaghgrp)
+   - Continuous Emissions Monitory System (epacems)
 """
 
 import os.path
@@ -88,6 +84,78 @@ def _drop_views(engine):
     views_sql_commands = pudl.models.epacems.DROP_VIEWS
     for s in views_sql_commands:
         engine.execute(s)
+
+
+def verify_input_files(ferc1_years,
+                       eia923_years,
+                       eia860_years,
+                       epacems_years,
+                       epacems_states):
+    """Verify that all the files exist before starting the ingest
+
+    :param ferc1_years: Years of FERC1 data we're going to import (iterable)
+    :param eia923_years: Years of EIA923 data we're going to import (iterable)
+    :param eia860_years: Years of EIA860 data we're going to import (iterable)
+    :param epacems_years: Years of CEMS data we're going to import (iterable)
+    :param epacems_states: States of CEMS data we're going to import (iterable)
+    """
+
+    # NOTE that these filename functions take other arguments, like BASEDIR.
+    # Here, we're assuming that the default arguments (as defined in SETTINGS)
+    # are what we want.
+    missing_ferc1_years = {str(y) for y in ferc1_years
+        if not os.path.isfile(pudl.extract.ferc1.dbc_filename(y))}
+
+    missing_eia860_years = set()
+    for y in eia860_years:
+        for pattern in pc.files_eia860:
+            f = pc.files_dict_eia860[pattern]
+            try:
+                # This function already looks for the file, and raises an
+                # IndexError if missi
+                pudl.extract.eia860.get_eia860_file(y, f)
+            except IndexError:
+                missing_eia860_years.add(str(y))
+
+    missing_eia923_years = set()
+    for y in eia923_years:
+        try:
+            f = pudl.extract.eia923.get_eia923_file(y)
+        except AssertionError:
+            missing_eia923_years.add(str(y))
+        if not os.path.isfile(f):
+            missing_eia923_years.add(str(y))
+
+    if epacems_states and epacems_states[0].lower() == 'all':
+        epacems_states = list(pc.cems_states.keys())
+    missing_epacems_year_states = set()
+    for y in epacems_years:
+        for s in epacems_states:
+            for m in range(1, 13):
+                try:
+                    f = pudl.extract.epacems.get_epacems_file(y, m, s)
+                except AssertionError:
+                    missing_epacems_year_states.add((str(y), s))
+                if not os.path.isfile(f):
+                    missing_epacems_year_states.add((str(y), s))
+
+    any_missing = (missing_eia860_years or missing_eia923_years or
+        missing_ferc1_years or missing_epacems_year_states)
+    if any_missing:
+        err_msg = ["Missing data files for the following sources and years:"]
+        if missing_ferc1_years:
+            err_msg += ["  FERC 1:  " + ", ".join(missing_ferc1_years)]
+        if missing_eia860_years:
+            err_msg += ["  EIA 860: " + ", ".join(missing_eia860_years)]
+        if missing_eia923_years:
+            err_msg += ["  EIA 923: " + ", ".join(missing_eia923_years)]
+        if missing_epacems_year_states:
+            missing_yr_str = ", ".join({yr_st[0] for yr_st in missing_epacems_year_states})
+            missing_st_str = ", ".join({yr_st[1] for yr_st in missing_epacems_year_states})
+            err_msg += ["  EPA CEMS:"]
+            err_msg += ["    Years:  " + missing_yr_str]
+            err_msg += ["    States: " + missing_st_str]
+        raise FileNotFoundError("\n".join(err_msg))
 
 ###############################################################################
 ###############################################################################
@@ -388,16 +456,12 @@ def _ingest_glue_eia_ferc1(engine,
     # exist in EIA, and while they will have PUDL IDs, they may not have
     # FERC/EIA info (and it'll get pulled in as NaN)
 
-    for df, df_n in zip([plants_eia,
-                         plants_ferc,
-                         utilities_eia,
-                         utilities_ferc],
-                        ['plants_eia',
-                         'plants_ferc',
-                         'utilities_eia',
-                         'utilities_ferc']):
-        assert df[pd.isnull(df).any(axis=1)].shape[0] <= 1,\
-            print("breaks on {}".format(df_n))
+    for df, df_n in zip([plants_eia, plants_ferc,
+                         utilities_eia, utilities_ferc],
+                        ['plants_eia', 'plants_ferc',
+                         'utilities_eia', 'utilities_ferc']):
+        if df[pd.isnull(df).any(axis=1)].shape[0] > 1:
+            raise AssertionError(f"FERC to EIA glue breaking in {df_n}")
         df.dropna(inplace=True)
 
     # Before we start inserting records into the database, let's do some basic
@@ -408,62 +472,60 @@ def _ingest_glue_eia_ferc1(engine,
     # utilities_ferc:
     # INSERT MORE SANITY HERE
 
-    plants.rename(columns={'plant_id': 'id', 'plant_name': 'name'},
-                  inplace=True)
-    plants.to_sql(name='plants',
-                  con=engine, index=False, if_exists='append',
-                  dtype={'id': sa.Integer, 'name': sa.String})
+    (plants.
+     rename(columns={'plant_id': 'id', 'plant_name': 'name'}).
+     to_sql(name='plants', con=engine, index=False, if_exists='append',
+            dtype={'id': sa.Integer, 'name': sa.String}))
 
-    utilities.rename(columns={'utility_id': 'id', 'utility_name': 'name'},
-                     inplace=True)
-    utilities.to_sql(name='utilities',
-                     con=engine, index=False, if_exists='append',
-                     dtype={'id': sa.Integer, 'name': sa.String})
+    (utilities.
+     rename(columns={'utility_id': 'id', 'utility_name': 'name'}).
+     to_sql(name='utilities', con=engine, index=False, if_exists='append',
+            dtype={'id': sa.Integer, 'name': sa.String}))
 
-    utilities_ferc.rename(columns={'respondent_id_ferc': 'utility_id_ferc1',
-                                   'respondent_name_ferc': 'utility_name_ferc1',
-                                   'utility_id': 'utility_id_pudl'},
-                          inplace=True)
-    utilities_ferc.to_sql(name='utilities_ferc',
-                          con=engine, index=False, if_exists='append',
-                          dtype={'utility_id_ferc1': sa.Integer,
-                                 'utility_name_ferc1': sa.String,
-                                 'utility_id_pudl': sa.Integer})
+    (utilities_ferc.
+     rename(columns={'respondent_id_ferc': 'utility_id_ferc1',
+                     'respondent_name_ferc': 'utility_name_ferc1',
+                     'utility_id': 'utility_id_pudl'}).
+     to_sql(name='utilities_ferc', con=engine, index=False, if_exists='append',
+            dtype={'utility_id_ferc1': sa.Integer,
+                   'utility_name_ferc1': sa.String,
+                   'utility_id_pudl': sa.Integer}))
 
-    plants_ferc.rename(columns={'respondent_id_ferc': 'utility_id_ferc1',
-                                'plant_name_ferc': 'plant_name',
-                                'plant_id': 'plant_id_pudl'},
-                       inplace=True)
-    plants_ferc.to_sql(name='plants_ferc',
-                       con=engine, index=False, if_exists='append',
-                       dtype={'utility_id_ferc1': sa.Integer,
-                              'plant_name': sa.String,
-                              'plant_id_pudl': sa.Integer})
+    (plants_ferc.
+     rename(columns={'respondent_id_ferc': 'utility_id_ferc1',
+                     'plant_name_ferc': 'plant_name',
+                     'plant_id': 'plant_id_pudl'}).
+     to_sql(name='plants_ferc', con=engine, index=False, if_exists='append',
+            dtype={'utility_id_ferc1': sa.Integer,
+                   'plant_name': sa.String,
+                   'plant_id_pudl': sa.Integer}))
 
-    utility_plant_assn.to_sql(name='utility_plant_assn',
-                              con=engine, index=False, if_exists='append',
-                              dtype={'plant_id': sa.Integer,
-                                     'utility_id': sa.Integer})
+    (utility_plant_assn.
+     to_sql(name='utility_plant_assn', con=engine,
+            index=False, if_exists='append',
+            dtype={'plant_id': sa.Integer,
+                   'utility_id': sa.Integer}))
 
     # when either eia form is being ingested, include the eia tables as well.
     if eia860_years or eia923_years:
-        utilities_eia.rename(columns={'operator_id_eia': 'utility_id_eia',
-                                      'operator_name_eia': 'utility_name',
-                                      'utility_id': 'utility_id_pudl'},
-                             inplace=True)
-        utilities_eia.to_sql(name='utilities_eia',
-                             con=engine, index=False, if_exists='append',
-                             dtype={'utility_id_eia': sa.Integer,
-                                    'utility_name': sa.String,
-                                    'utility_id_pudl': sa.Integer})
-        plants_eia.rename(columns={'plant_name_eia': 'plant_name',
-                                   'plant_id': 'plant_id_pudl'},
-                          inplace=True)
-        plants_eia.to_sql(name='plants_eia',
-                          con=engine, index=False, if_exists='append',
-                          dtype={'plant_id_eia': sa.Integer,
-                                 'plant_name': sa.String,
-                                 'plant_id_pudl': sa.Integer})
+        (utilities_eia.
+            rename(columns={'operator_id_eia': 'utility_id_eia',
+                            'operator_name_eia': 'utility_name',
+                            'utility_id': 'utility_id_pudl'}).
+            to_sql(name='utilities_eia', con=engine,
+                   index=False, if_exists='append',
+                   dtype={'utility_id_eia': sa.Integer,
+                          'utility_name': sa.String,
+                          'utility_id_pudl': sa.Integer}))
+
+        (plants_eia.
+            rename(columns={'plant_name_eia': 'plant_name',
+                            'plant_id': 'plant_id_pudl'}).
+            to_sql(name='plants_eia', con=engine,
+                   index=False, if_exists='append',
+                   dtype={'plant_id_eia': sa.Integer,
+                          'plant_name': sa.String,
+                          'plant_id_pudl': sa.Integer}))
 
 
 ###############################################################################
@@ -639,15 +701,24 @@ def init_db(ferc1_tables=None,
 
     if (not debug) and (ferc1_tables):
         for table in ferc1_tables:
-            assert table in pc.ferc1_pudl_tables
+            if table not in pc.ferc1_pudl_tables:
+                raise AssertionError(
+                    f"Unrecognized FERC table: {table}."
+                )
 
     if (not debug) and (eia860_tables):
         for table in eia860_tables:
-            assert table in pc.eia860_pudl_tables
+            if table not in pc.eia860_pudl_tables:
+                raise AssertionError(
+                    f"Unrecognized EIA 860 table: {table}"
+                )
 
     if (not debug) and (eia923_tables):
         for table in eia923_tables:
-            assert table in pc.eia923_pudl_tables
+            if table not in pc.eia923_pudl_tables:
+                raise AssertionError(
+                    f"Unrecogized EIA 923 table: {table}"
+                )
 
     # Connect to the PUDL DB, wipe out & re-create tables:
     pudl_engine = connect_db(testing=pudl_testing)

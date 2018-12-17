@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 """A script for fetching public utility data from reporting agency servers."""
 
-import os
 import sys
 import argparse
+import pudl
+from pudl.settings import SETTINGS
+import pudl.constants as pc
 
-assert sys.version_info >= (3, 6)  # require modern python
-
-# This is a hack to make the pudl package importable from within this script,
-# even though it isn't in one of the normal site-packages directories where
-# Python typically searches.  When we have some real installation/packaging
-# happening, this will no longer be necessary.
-sys.path.append(os.path.abspath('..'))
+# require modern python
+if not sys.version_info >= (3, 6):
+    raise AssertionError(
+        f"PUDL requires Python 3.6 or later. {sys.version_info} found."
+    )
 
 
 def parse_command_line(argv):
@@ -20,8 +20,6 @@ def parse_command_line(argv):
 
     :param argv: arguments on the command line must include caller file name.
     """
-    from pudl.settings import SETTINGS
-    import pudl.constants as pc
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -102,8 +100,6 @@ def parse_command_line(argv):
 def main():
     """Main function controlling flow of the script."""
     import concurrent.futures
-    import pudl
-    import pudl.constants as pc
 
     args = parse_command_line(sys.argv)
 

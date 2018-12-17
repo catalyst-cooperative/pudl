@@ -1,0 +1,2 @@
+include scripts/settings.yml
+include results/id_mapping/mapping_eia923_ferc1.xlsx

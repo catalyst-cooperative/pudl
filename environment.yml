@@ -5,7 +5,9 @@ dependencies:
   - coverage
   - coveralls
   - cython
+  - dask
   - dbfread
+  - fastparquet
   - jupyter
   - jupyterlab
   - matplotlib
@@ -13,9 +15,12 @@ dependencies:
   - numpy
   - pandas
   - psycopg2
+  - pyarrow
+  - pylint
   - pytest
   - pytest-cov
   - python>=3.6
+  - python-snappy
   - pyyaml
   - scikit-learn
   - scipy
@@ -26,3 +31,4 @@ dependencies:
     - datapackage
     - goodtables
     - sqlalchemy-postgres-copy
+    - tableschema

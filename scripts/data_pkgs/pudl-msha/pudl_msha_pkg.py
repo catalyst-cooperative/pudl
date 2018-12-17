@@ -15,14 +15,13 @@ import datapackage
 import goodtables
 import pandas as pd
 
-sys.path.append(os.path.abspath(os.path.join('..', '..', '..')))
+from pudl.settings import SETTINGS
+from pudl.helpers import fix_int_na
+import pudl.constants as pc
 
 
 def main(arguments):
     """The main function."""
-    from pudl.settings import SETTINGS
-    from pudl.helpers import fix_int_na
-    import pudl.constants as pc
 
     parser = argparse.ArgumentParser(
         description=__doc__,

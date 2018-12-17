@@ -104,7 +104,7 @@ travis_ci_ferc1_years = [2017, ]
 travis_ci_eia860_years = [2017, ]
 travis_ci_eia923_years = [2017, ]
 travis_ci_epacems_years = [2017, ]
-travis_ci_epacems_states = ['CO', ]
+travis_ci_epacems_states = ['ID', ]
 # Construct a dictionary mapping a canonical fuel name to a list of strings
 # which are used to represent that fuel in the FERC Form 1 Reporting. Case is
 # ignored, as all fuel strings can be converted to a lower case in the data
@@ -3320,7 +3320,7 @@ epacems_rename_dict = {
     # transform/epacems.py
     "OP_DATE": "op_date",
     "OP_HOUR": "op_hour",
-    "OP_TIME": "op_time",
+    "OP_TIME": "operating_time_hours",
     "GLOAD (MW)": "gross_load_mw",
     "GLOAD": "gross_load_mw",
     "SLOAD (1000 lbs)": "steam_load_1000_lbs",

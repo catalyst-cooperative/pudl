@@ -15,9 +15,9 @@ related to electric utilities in the United States. These data sets are
 often collected by state and federal agencies, but are publicized in ways
 that are not well standardized, or intended for interoperability. PUDL
 seeks to allow more transparent and useful access to this important public
-data, with the goal of enabling small companies, non-profit organizations,
-and public policy advocates to better understand the electricity system
-and its impacts on climate.
+data, with the goal of enabling climate advocates, academic researchers, and
+data journalists to better understand the electricity system and its impacts
+on climate.
 """
 __pythonrequiredversion__ = "3.6"
 __projecturl__ = "https://github.com/catalyst-cooperative/pudl/"
