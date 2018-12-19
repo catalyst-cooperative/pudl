@@ -34,11 +34,11 @@ setup(
         'natural gas',
     ],
     packages=find_packages(where='.', include=['pudl*']),
-    scripts=[
-        'scripts/init_pudl.py',
-        'scripts/update_datastore.py',
-        'scripts/epacems_to_parquet.py',
-    ],
+    # scripts=[
+    #    'scripts/init_pudl.py',
+    #    'scripts/update_datastore.py',
+    #    'scripts/epacems_to_parquet.py',
+    # ],
     include_package_data=True,
     python_requires='~=3.6',
     install_requires=[
@@ -55,7 +55,7 @@ setup(
         'pyyaml',
         'scikit-learn>=0.20',
         'scipy',
-        'sqlalchemy',
+        'sqlalchemy>=1.2',
         'sqlalchemy-postgres-copy',
         'tableschema',
         'xlsxwriter',
