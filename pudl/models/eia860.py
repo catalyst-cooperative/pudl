@@ -32,7 +32,10 @@ class UtilitiesEIA860(pudl.models.entities.PUDLBase):
     utility_name = Column(String, nullable=False)  # FK
     street_address = Column(String)
     city = Column(String)
-    state = Column(String)
+    state = Column(
+        pudl.models.glue.us_states_canada_prov_terr,  # ENUM
+        comment="Two letter US state and territory abbreviations."
+    )
     zip_code = Column(String)
     plants_reported_owner = Column(String)
     plants_reported_operator = Column(String)
@@ -54,14 +57,20 @@ class PlantsEIA860(pudl.models.entities.PUDLBase):
     street_address = Column(String)
     city = Column(String)
     county = Column(String)
-    state = Column(String)
+    state = Column(
+        pudl.models.glue.us_states_territories,  # ENUM
+        comment="Two letter US state and territory abbreviations."
+    )
     zip_code = Column(String)
     water_source = Column(String)
     nerc_region = Column(String)
     primary_purpose_naics_id = Column(Integer)
     transmission_distribution_owner_name = Column(String)
     transmission_distribution_owner_id = Column(String)
-    transmission_distribution_owner_state = Column(String)
+    transmission_distribution_owner_state = Column(
+        pudl.models.glue.us_states_territories,  # ENUM
+        comment="Two letter abbreviations for US and Canadian states, provinces, and territories."
+    )
     regulatory_status_code = Column(String)
     sector_name = Column(String)
     sector_id = Column(Float)
@@ -109,12 +118,18 @@ class OwnershipEIA860(pudl.models.entities.PUDLBase):
     utility_name = Column(String, nullable=False)  # FK
     plant_id_eia = Column(Integer, nullable=False)  # FK
     plant_name = Column(String, nullable=False)  # FK
-    state = Column(String)  # FK?
+    state = Column(
+        pudl.models.glue.us_states_territories,  # ENUM
+        comment="Two letter US state and territory abbreviations."
+    )
     generator_id = Column(String, nullable=False,)
     operational_status_code = Column(String)
     owner_utility_id_eia = Column(Integer, nullable=False)  # FK utility_id_eia
     owner_name = Column(String)
-    owner_state = Column(String)
+    owner_state = Column(
+        pudl.models.glue.us_states_canada_prov_terr,  # ENUM
+        comment="Two letter US state and territory abbreviations."
+    )
     owner_city = Column(String)
     owner_street_address = Column(String)
     owner_zip_code = Column(String)
@@ -136,7 +151,10 @@ class GeneratorsEIA860(pudl.models.entities.PUDLBase):
     utility_name = Column(String)  # FK
     plant_id_eia = Column(Integer)
     plant_name = Column(String)  # FK
-    state = Column(String)  # FK
+    state = Column(
+        pudl.models.glue.us_states_territories,  # ENUM
+        comment="Two letter US state and territory abbreviations."
+    )
     county = Column(String)  # FK
     generator_id = Column(String)
     prime_mover_code = Column(String)  # FK?

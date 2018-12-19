@@ -104,7 +104,7 @@ def verify_input_files(ferc1_years,
     # Here, we're assuming that the default arguments (as defined in SETTINGS)
     # are what we want.
     missing_ferc1_years = {str(y) for y in ferc1_years
-        if not os.path.isfile(pudl.extract.ferc1.dbc_filename(y))}
+                           if not os.path.isfile(pudl.extract.ferc1.dbc_filename(y))}
 
     missing_eia860_years = set()
     for y in eia860_years:
@@ -139,8 +139,8 @@ def verify_input_files(ferc1_years,
                 if not os.path.isfile(f):
                     missing_epacems_year_states.add((str(y), s))
 
-    any_missing = (missing_eia860_years or missing_eia923_years or
-        missing_ferc1_years or missing_epacems_year_states)
+    any_missing = (missing_eia860_years or missing_eia923_years
+                   or missing_ferc1_years or missing_epacems_year_states)
     if any_missing:
         err_msg = ["Missing data files for the following sources and years:"]
         if missing_ferc1_years:
@@ -150,8 +150,10 @@ def verify_input_files(ferc1_years,
         if missing_eia923_years:
             err_msg += ["  EIA 923: " + ", ".join(missing_eia923_years)]
         if missing_epacems_year_states:
-            missing_yr_str = ", ".join({yr_st[0] for yr_st in missing_epacems_year_states})
-            missing_st_str = ", ".join({yr_st[1] for yr_st in missing_epacems_year_states})
+            missing_yr_str = ", ".join(
+                {yr_st[0] for yr_st in missing_epacems_year_states})
+            missing_st_str = ", ".join(
+                {yr_st[1] for yr_st in missing_epacems_year_states})
             err_msg += ["  EPA CEMS:"]
             err_msg += ["    Years:  " + missing_yr_str]
             err_msg += ["    States: " + missing_st_str]
@@ -211,67 +213,20 @@ def ingest_static_tables(engine):
 
     # Populate tables with static data from above.
     pudl_session.add_all(
-        [pudl.models.glue.FuelUnit(unit=u)for u in pc.ferc1_fuel_unit_strings])
-    pudl_session.add_all([pudl.models.glue.Month(month=i + 1)
-                          for i in range(12)])
-    pudl_session.add_all(
-        [pudl.models.glue.Quarter(
-            q=i + 1, end_month=3 * (i + 1)) for i in range(4)])
-    pudl_session.add_all(
-        [pudl.models.glue.PrimeMover(
-            prime_mover=pm) for pm in pc.prime_movers])
-    pudl_session.add_all(
-        [pudl.models.glue.RTOISO(
-            abbr=k, name=v) for k, v in pc.rto_iso.items()])
-    pudl_session.add_all([pudl.models.glue.CensusRegion(abbr=k, name=v)
-                          for k, v in pc.census_region.items()])
-    pudl_session.add_all(
-        [pudl.models.glue.NERCRegion(
-            abbr=k, name=v) for k, v in pc.nerc_region.items()])
-    pudl_session.add_all(
-        [pudl.models.eia923.RespondentFrequencyEIA923(abbr=k, unit=v)
-         for k, v in pc.respondent_frequency_eia923.items()])
-    pudl_session.add_all(
-        [pudl.models.eia923.SectorEIA(sector_id=k, sector_name=v)
-         for k, v in pc.sector_eia.items()])
-    pudl_session.add_all(
-        [pudl.models.eia923.ContractTypeEIA923(abbr=k, contract_type=v)
-         for k, v in pc.contract_type_eia923.items()])
-    pudl_session.add_all(
         [pudl.models.eia923.FuelTypeEIA923(abbr=k, fuel_type=v)
          for k, v in pc.fuel_type_eia923.items()])
     pudl_session.add_all(
         [pudl.models.eia923.PrimeMoverEIA923(abbr=k, prime_mover=v)
          for k, v in pc.prime_movers_eia923.items()])
     pudl_session.add_all(
-        [pudl.models.eia923.FuelUnitEIA923(abbr=k, unit=v)
-         for k, v in pc.fuel_units_eia923.items()])
-    pudl_session.add_all(
         [pudl.models.eia923.FuelTypeAER(abbr=k, fuel_type=v)
          for k, v in pc.fuel_type_aer_eia923.items()])
-    pudl_session.add_all(
-        [pudl.models.eia923.FuelGroupEIA923(group=gr)
-         for gr in pc.fuel_group_eia923])
     pudl_session.add_all(
         [pudl.models.eia923.EnergySourceEIA923(abbr=k, source=v)
          for k, v in pc.energy_source_eia923.items()])
     pudl_session.add_all(
-        [pudl.models.eia923.CoalMineTypeEIA923(abbr=k, name=v)
-         for k, v in pc.coalmine_type_eia923.items()])
-    pudl_session.add_all(
-        [pudl.models.eia923.CoalMineStateEIA923(abbr=k, state=v)
-         for k, v in pc.coalmine_state_eia923.items()])
-    pudl_session.add_all(
-        [pudl.models.eia923.CoalMineStateEIA923(abbr=k, state=v)
-         for k, v in pc.us_states.items()])  # is this right way to add these?
-    pudl_session.add_all(
         [pudl.models.eia923.TransportModeEIA923(abbr=k, mode=v)
          for k, v in pc.transport_modes_eia923.items()])
-    pudl_session.add_all(
-        [pudl.models.eia923.NaturalGasTransportEIA923(abbr=k, status=v)
-         for k, v in pc.natural_gas_transport_eia923.items()])
-    pudl_session.add_all([pudl.models.glue.State(abbr=k, name=v)
-                          for k, v in pc.us_states.items()])
 
     # Commit the changes to the DB and close down the session.
     pudl_session.commit()
@@ -281,7 +236,7 @@ def ingest_static_tables(engine):
     ferc_accts_df = pc.ferc_electric_plant_accounts.drop('row_number', axis=1)
     # Get rid of excessive whitespace introduced to break long lines (ugh)
     ferc_accts_df.ferc_account_description = \
-        ferc_accts_df.ferc_account_description.str.replace('\s+', ' ')
+        ferc_accts_df.ferc_account_description.str.replace(r'\s+', ' ')
 
     ferc_accts_df.rename(columns={'ferc_account_id': 'id',
                                   'ferc_account_description': 'description'},

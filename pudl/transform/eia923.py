@@ -68,6 +68,21 @@ def _yearly_to_monthly_records(df, md):
 
 def _coalmine_cleanup(cmi_df):
     """
+    This function does most of the coalmine_eia923 table transformation. It is
+    separate from the coalmine() transform function because of the peculiar
+    way that we are normalizing the fuel_receipts_costs_eia923() table.
+
+    All of the coalmine information is originally coming from the EIA
+    fuel_receipts_costs spreadsheet, but it really belongs in its own table.
+    We strip it out of FRC, and create that separate table, but then we need
+    to refer to that table through a foreign key. To do so, we actually merge
+    the entire contents of the coalmine table into FRC, including the surrogate
+    key, and then drop the data fields.
+
+    For this to work, we need to have exactly the same coalmine data fields in
+    both the new coalmine table, and the FRC table. To ensure that's true, we
+    isolate the transformations here in this function, and apply them to the
+    coalmine columns in both the FRC table and the coalmine table.
     """
     cmi_df = cmi_df.copy()
     # Map mine type codes, which have changed over the years, to a few
@@ -75,6 +90,7 @@ def _coalmine_cleanup(cmi_df):
     cmi_df['mine_type_code'].replace(
         {'[pP]': 'P', 'U/S': 'US', 'S/U': 'SU', 'Su': 'S'},
         inplace=True, regex=True)
+    cmi_df['state'] = cmi_df.state.replace(pc.coalmine_country_eia923)
 
     # Because we need to pull the mine_id_msha field into the FRC table,
     # but we don't know what that ID is going to be until we've populated
@@ -150,6 +166,9 @@ def plants(eia923_dfs, eia923_transformed_dfs):
                                    'capacity_mw',
                                    'report_year']]
 
+    plant_info_df['reporting_frequency'] = \
+        plant_info_df.reporting_frequency.replace({'M': 'monthly',
+                                                   'A': 'annual'})
     # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
     plant_info_df.combined_heat_power.replace({'N': False, 'Y': True},
                                               inplace=True)
@@ -464,10 +483,10 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
 
     Args:
     -----
-        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        eia860_transformed_dfs (dictionary of DataFrames)
+            EIA923 form, as reported in the Excel spreadsheets they distribute.
+        eia923_transformed_dfs (dictionary of DataFrames)
 
     Returns:
     --------
@@ -554,6 +573,10 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
 
     frc_df['fuel_cost_per_mmbtu'] = frc_df['fuel_cost_per_mmbtu'] / 100
 
+    frc_df['fuel_group_code'] = (frc_df.fuel_group_code.
+                                 str.lower().
+                                 str.replace(' ', '_'))
+
     frc_df['fuel_type_code_pudl'] = \
         pudl.helpers.cleanstrings(frc_df.energy_source_code,
                                   pc.energy_source_eia_simple_map)
@@ -561,6 +584,15 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
         pudl.helpers.cleanstrings(frc_df.fuel_group_code,
                                   pc.fuel_group_eia923_simple_map)
 
+    frc_df['natural_gas_transport_code'] = pudl.helpers.cleanstrings(
+        frc_df.natural_gas_transport_code,
+        {'firm': ['F'], 'interruptible': ['I']}
+    )
+    frc_df['natural_gas_delivery_contract_type_code'] = \
+        pudl.helpers.cleanstrings(
+            frc_df.natural_gas_delivery_contract_type_code,
+            {'firm': ['F'], 'interruptible': ['I']}
+    )
     eia923_transformed_dfs['fuel_receipts_costs_eia923'] = frc_df
 
     return eia923_transformed_dfs

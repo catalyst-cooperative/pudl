@@ -4,7 +4,6 @@ import sqlalchemy as sa
 from sqlalchemy import Integer, SmallInteger, String
 from sqlalchemy import REAL, DateTime, Column, Enum
 import pudl.models.entities
-import pudl.constants as pc
 
 # Three types of Enum here, one for things that are sort of measured, one for
 # things that are only calculated, and a special case for NOx rate and mass.
@@ -45,8 +44,6 @@ ENUM_NOX = Enum(
     name="enum_nox",
 )
 
-ENUM_STATES = Enum(*pc.cems_states.keys(), name="enum_states")
-
 
 class HourlyEmissions(pudl.models.entities.PUDLBase):
     """Hourly emissions data by month as reported to EPA CEMS."""
@@ -57,7 +54,10 @@ class HourlyEmissions(pudl.models.entities.PUDLBase):
     # - Make a view that multiplies op_time and gload_mw to get gload_mwh
     __tablename__ = "hourly_emissions_epacems"
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
-    state = Column(ENUM_STATES, nullable=False)
+    state = Column(
+        pudl.models.glue.us_states_lower48,  # ENUM
+        comment="Two letter US state and territory abbreviations."
+    )
     plant_name = Column(String, nullable=False)
     # TODO: Link to EIA plant ID
     plant_id_eia = Column(Integer, nullable=False)
@@ -155,4 +155,3 @@ def finalize(engine):
             from warnings import warn
             warn(f"Failed to add index/constraint '{index.name}'\n" +
                  "Details:\n" + str(e))
-

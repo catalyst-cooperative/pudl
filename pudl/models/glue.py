@@ -5,59 +5,25 @@ These tables include many lists of static values, as well as the "glue" that
 is required to relate information from different data sources to each other.
 """
 
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, Enum
 from sqlalchemy.orm import relationship
 import pudl.models.entities
+import pudl.constants
 
 
 ###########################################################################
-# Tables which represent static lists. E.g. all the US States.
+# Tables and Enum objects representing static lists. E.g. US states.
 ###########################################################################
 
-
-class State(pudl.models.entities.PUDLBase):
-    """A static list of US states."""
-
-    __tablename__ = 'us_states'
-    abbr = Column(String, primary_key=True)
-    name = Column(String)
-
-
-class Month(pudl.models.entities.PUDLBase):
-    """A list of valid data months."""
-
-    __tablename__ = 'months'
-    month = Column(Integer, primary_key=True)
-
-
-class Quarter(pudl.models.entities.PUDLBase):
-    """A list of fiscal/calendar quarters."""
-
-    __tablename__ = 'quarters'
-    q = Column(Integer, primary_key=True)  # 1, 2, 3, 4
-    end_month = Column(Integer, nullable=False)  # 3, 6, 9, 12
-
-
-class RTOISO(pudl.models.entities.PUDLBase):
-    """Valid Regional Transmission Orgs and Independent System Operators."""
-
-    __tablename__ = 'rto_iso'
-    abbr = Column(String, primary_key=True)
-    name = Column(String, nullable=False)
-
-
-class FuelUnit(pudl.models.entities.PUDLBase):
-    """A list of strings denoting possible fuel units of measure."""
-
-    __tablename__ = 'fuel_units'
-    unit = Column(String, primary_key=True)
-
-
-class PrimeMover(pudl.models.entities.PUDLBase):
-    """A list of strings denoting different types of prime movers."""
-
-    __tablename__ = 'prime_movers'
-    prime_mover = Column(String, primary_key="True")
+us_states_territories = Enum(*pudl.constants.us_states.keys(),
+                             name="us_states_territories")
+us_states_lower48 = Enum(*pudl.constants.cems_states.keys(),
+                         name="us_states_lower48")
+us_states_canada_prov_terr = Enum(
+    *pudl.constants.us_states.keys(),
+    *pudl.constants.canada_prov_terr.keys(),
+    name='us_states_canada_prov_terr'
+)
 
 
 class FERCAccount(pudl.models.entities.PUDLBase):
@@ -74,26 +40,6 @@ class FERCDepreciationLine(pudl.models.entities.PUDLBase):
     __tablename__ = 'ferc_depreciation_lines'
     id = Column(String, primary_key=True)
     description = Column(String, nullable=False)
-
-
-class CensusRegion(pudl.models.entities.PUDLBase):
-    """Static list of census regions used by EIA."""
-
-    __tablename__ = 'census_regions'
-    abbr = Column(String, primary_key=True)
-    name = Column(String, nullable=False)
-
-
-class NERCRegion(pudl.models.entities.PUDLBase):
-    """
-    Valid NERC (North American Electric Reliability Corporation) regions.
-
-    As found in the EIA 923 reporting... plus HICC & ASCC for HI & AK.
-    """
-
-    __tablename__ = 'nerc_region'
-    abbr = Column(String, primary_key=True)
-    name = Column(String, nullable=False)
 
 
 ###########################################################################

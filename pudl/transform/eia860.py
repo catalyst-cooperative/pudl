@@ -306,6 +306,11 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
 
     # Replace empty strings, whitespace, and '.' fields with real NA values
     u_df = pudl.helpers.fix_eia_na(u_df)
+    u_df['state'] = u_df.state.str.upper()
+    u_df['state'] = u_df.state.replace({
+        'QB': 'QC',  # wrong abbreviation for Quebec
+        'Y': 'NY',  # Typo
+    })
 
     boolean_columns_to_fix = [
         'plants_reported_owner',
