@@ -16,8 +16,14 @@ import pandas as pd
 ######################################################################
 # Constants used within the init.py module.
 ######################################################################
-prime_movers = ['steam_turbine', 'gas_turbine', 'hydro', 'internal_combustion',
-                'solar_pv', 'wind_turbine']
+prime_movers = [
+    'steam_turbine',
+    'gas_turbine',
+    'hydro',
+    'internal_combustion',
+    'solar_pv',
+    'wind_turbine'
+]
 
 rto_iso = {
     'CAISO': 'California ISO',
@@ -87,6 +93,22 @@ us_states = {
     'WI': 'Wisconsin',
     'WV': 'West Virginia',
     'WY': 'Wyoming'
+}
+canada_prov_terr = {
+    'AB': 'Alberta',
+    'BC': 'British Columbia',
+    'CN': 'Canada',
+    'MB': 'Manitoba',
+    'NB': 'New Brunswick',
+    'NS': 'Nova Scotia',
+    'NL': 'Newfoundland and Labrador',
+    'NT': 'Northwest Territories',
+    'NU': 'Nunavut',
+    'ON': 'Ontario',
+    'PE': 'Prince Edwards Island',
+    'QC': 'Quebec',
+    'SK': 'Saskatchewan',
+    'YT': 'Yukon Territory',
 }
 
 cems_states = {k: v for k, v in us_states.items() if v not in
@@ -1537,6 +1559,7 @@ fuel_receipts_costs_map_eia923 = pd.DataFrame.from_records([
      'operator_id', 'reporting_frequency', 'primary_transportation_mode',
      'secondary_transportation_mode', 'natural_gas_supply_contract_type',
      'natural_gas_delivery_contract_type'),
+
     (2017, 'year', 'month', 'plant_id', 'plant_name', 'plant_state',
      'purchase_type', 'contract_expiration_date', 'energy_source',
      'fuel_group', 'coalmine_type', 'coalmine_state', 'coalmine_county',
@@ -2912,13 +2935,11 @@ sector_eia = {
 # EIA 923: EIA Type of prime mover:
 prime_movers_eia923 = {
     'BA': 'Energy Storage, Battery',
-    'BT': 'Turbines Used in a Binary Cycle. \
-        Including those used for geothermal applications',
+    'BT': 'Turbines Used in a Binary Cycle. Including those used for geothermal applications',
     'CA': 'Combined-Cycle -- Steam Part',
     'CE': 'Energy Storage, Compressed Air',
     'CP': 'Energy Storage, Concentrated Solar Power',
-    'CS': 'Combined-Cycle Single-Shaft Combustion \
-        Turbine and Steam Turbine share of single',
+    'CS': 'Combined-Cycle Single-Shaft Combustion Turbine and Steam Turbine share of single',
     'CT': 'Combined-Cycle Combustion Turbine Part',
     'ES': 'Energy Storage, Other (Specify on Schedule 9, Comments)',
     'FC': 'Fuel Cell',
@@ -2927,13 +2948,11 @@ prime_movers_eia923 = {
     'HA': 'Hydrokinetic, Axial Flow Turbine',
     'HB': 'Hydrokinetic, Wave Buoy',
     'HK': 'Hydrokinetic, Other',
-    'HY': 'Hydraulic Turbine. Including turbines associated \
-        with delivery of water by pipeline.',
+    'HY': 'Hydraulic Turbine. Including turbines associated with delivery of water by pipeline.',
     'IC': 'Internal Combustion (diesel, piston, reciprocating) Engine',
     'PS': 'Energy Storage, Reversible Hydraulic Turbine (Pumped Storage)',
     'OT': 'Other',
-    'ST': 'Steam Turbine. Including Nuclear, Geothermal, and \
-        Solar Steam (does not include Combined Cycle).',
+    'ST': 'Steam Turbine. Including Nuclear, Geothermal, and Solar Steam (does not include Combined Cycle).',
     'PV': 'Photovoltaic',
     'WT': 'Wind Turbine, Onshore',
     'WS': 'Wind Turbine, Offshore'
@@ -2947,8 +2966,7 @@ fuel_type_eia923 = {
     'BIT': 'Bituminous Coal',
     'BLQ': 'Black Liquor',
     'CBL': 'Coal, Blended',
-    'DFO': 'Distillate Fuel Oil. Including diesel, No. 1, No. 2, and No. 4 \
-            fuel oils.',
+    'DFO': 'Distillate Fuel Oil. Including diesel, No. 1, No. 2, and No. 4 fuel oils.',
     'GEO': 'Geothermal',
     'JF': 'Jet Fuel',
     'KER': 'Kerosene',
@@ -2960,8 +2978,7 @@ fuel_type_eia923 = {
     'MWH': 'Electricity used for energy storage',
     'NG': 'Natural Gas',
     'NUC': 'Nuclear. Including Uranium, Plutonium, and Thorium.',
-    'OBG': 'Other Biomass Gas. Including digester gas, methane, and other \
-            biomass gases.',
+    'OBG': 'Other Biomass Gas. Including digester gas, methane, and other biomass gases.',
     'OBL': 'Other Biomass Liquids',
     'OBS': 'Other Biomass Solids',
     'OG': 'Other Gas',
@@ -2970,34 +2987,21 @@ fuel_type_eia923 = {
     'PG': 'Gaseous Propane',
     'PUR': 'Purchased Steam',
     'RC': 'Refined Coal',
-    'RFO': 'Residual Fuel Oil. Including No. 5 & 6 fuel oils and \
-         bunker C fuel oil.',
-    'SC': 'Coal-based Synfuel. Including briquettes, pellets, or \
-        extrusions, which are formed by binding materials or \
-        processes that recycle materials.',
+    'RFO': 'Residual Fuel Oil. Including No. 5 & 6 fuel oils and bunker C fuel oil.',
+    'SC': 'Coal-based Synfuel. Including briquettes, pellets, or extrusions, which are formed by binding materials or processes that recycle materials.',
     'SGC': 'Coal-Derived Synthesis Gas',
     'SGP': 'Synthesis Gas from Petroleum Coke',
     'SLW': 'Sludge Waste',
     'SUB': 'Subbituminous Coal',
     'SUN': 'Solar',
     'TDF': 'Tire-derived Fuels',
-    'WAT': 'Water at a Conventional Hydroelectric Turbine and \
-         water used in Wave Buoy Hydrokinetic Technology, \
-         current Hydrokinetic Technology, Tidal Hydrokinetic Technology, and \
-         Pumping Energy for Reversible (Pumped Storage) Hydroelectric \
-         Turbines.',
-    'WC': 'Waste/Other Coal. Including anthracite culm, bituminous gob, \
-        fine coal, lignite waste, waste coal.',
-    'WDL': 'Wood Waste Liquids, excluding Black Liquor. Including red liquor, \
-         sludge wood, spent sulfite liquor, and other wood-based liquids.',
-    'WDS': 'Wood/Wood Waste Solids. Including paper pellets, \
-         railroad ties, utility polies, wood chips, bark, and \
-         other wood waste solids.',
+    'WAT': 'Water at a Conventional Hydroelectric Turbine and water used in Wave Buoy Hydrokinetic Technology, current Hydrokinetic Technology, Tidal Hydrokinetic Technology, and Pumping Energy for Reversible (Pumped Storage) Hydroelectric Turbines.',
+    'WC': 'Waste/Other Coal. Including anthracite culm, bituminous gob, fine coal, lignite waste, waste coal.',
+    'WDL': 'Wood Waste Liquids, excluding Black Liquor. Including red liquor, sludge wood, spent sulfite liquor, and other wood-based liquids.',
+    'WDS': 'Wood/Wood Waste Solids. Including paper pellets, railroad ties, utility polies, wood chips, bark, and other wood waste solids.',
     'WH': 'Waste Heat not directly attributed to a fuel source',
     'WND': 'Wind',
-    'WO': 'Waste/Other Oil. Including crude oil, liquid butane, \
-        liquid propane, naphtha, oil waste, re-refined moto oil, \
-        sludge oil, tar oil, or other petroleum-based liquid wastes.'
+    'WO': 'Waste/Other Oil. Including crude oil, liquid butane, liquid propane, naphtha, oil waste, re-refined moto oil, sludge oil, tar oil, or other petroleum-based liquid wastes.'
 }
 
 # Fuel type strings for EIA 923 generator fuel table
@@ -3165,16 +3169,10 @@ fuel_units_eia923 = {
 # EIA 923: Designates the purchase type under which receipts occurred
 # in the reporting month. One or two character alphanumeric:
 contract_type_eia923 = {
-    'C': 'Contract - Fuel received under a purchase order or contract \
-        with a term of one year or longer.  Contracts with a shorter term \
-        are considered spot purchases ',
-    'NC': 'New Contract - Fuel received under a purchase order or contract \
-        with duration of one year or longer, under which deliveries were \
-        first made during the reporting month',
+    'C': 'Contract - Fuel received under a purchase order or contract with a term of one year or longer.  Contracts with a shorter term are considered spot purchases ',
+    'NC': 'New Contract - Fuel received under a purchase order or contract with duration of one year or longer, under which deliveries were first made during the reporting month',
     'S': 'Spot Purchase',
-    'T': 'Tolling Agreement – \
-        Fuel received under a tolling agreement \
-        (bartering arrangement of fuel for generation)'
+    'T': 'Tolling Agreement – Fuel received under a tolling agreement (bartering arrangement of fuel for generation)'
 }
 
 # EIA 923: The fuel code associated with the fuel receipt.
@@ -3185,8 +3183,7 @@ energy_source_eia923 = {
     'BFG': 'Blast Furnace Gas',
     'BM': 'Biomass',
     'BIT': 'Bituminous Coal',
-    'DFO': 'Distillate Fuel Oil. Including diesel,\
-           No. 1, No. 2, and No. 4 fuel oils.',
+    'DFO': 'Distillate Fuel Oil. Including diesel, No. 1, No. 2, and No. 4 fuel oils.',
     'JF': 'Jet Fuel',
     'KER': 'Kerosene',
     'LIG': 'Lignite Coal',
@@ -3195,61 +3192,51 @@ energy_source_eia923 = {
     'PG': 'Gaseous Propone',
     'OG': 'Other Gas',
     'RC': 'Refined Coal',
-    'RFO': 'Residual Fuel Oil. Including \
-           No. 5 & 6 fuel oils and bunker C fuel oil.',
+    'RFO': 'Residual Fuel Oil. Including No. 5 & 6 fuel oils and bunker C fuel oil.',
     'SG': 'Synhtesis Gas from Petroleum Coke',
     'SGP': 'Petroleum Coke Derived Synthesis Gas',
-    'SC': 'Coal-based Synfuel. Including briquettes, pellets, or \
-          extrusions, which are formed by binding materials or \
-          processes that recycle materials.',
+    'SC': 'Coal-based Synfuel. Including briquettes, pellets, or extrusions, which are formed by binding materials or processes that recycle materials.',
     'SUB': 'Subbituminous Coal',
-    'WC': 'Waste/Other Coal. Including anthracite culm, bituminous gob, fine\
-          coal, lignite waste, waste coal.',
-    'WO': 'Waste/Other Oil. Including crude oil, liquid butane, liquid propane,\
-          naphtha, oil waste, re-refined moto oil, sludge oil, tar oil, or\
-          other petroleum-based liquid wastes.',
+    'WC': 'Waste/Other Coal. Including anthracite culm, bituminous gob, fine coal, lignite waste, waste coal.',
+    'WO': 'Waste/Other Oil. Including crude oil, liquid butane, liquid propane, naphtha, oil waste, re-refined moto oil, sludge oil, tar oil, or other petroleum-based liquid wastes.',
 }
 
 # EIA 923 Fuel Group, from Page 7 EIA Form 923
 # Groups fossil fuel energy sources into fuel groups that are located in the
 # Electric Power Monthly:  Coal, Natural Gas, Petroleum, Petroleum Coke.
-fuel_group_eia923 = ['Coal', 'Natural Gas',
-                     'Petroleum', 'Petroleum Coke', 'Other Gas']
+fuel_group_eia923 = [
+    'coal',
+    'natural_gas',
+    'petroleum',
+    'petroleum_coke',
+    'other_gas'
+]
 
 # EIA 923: Type of Coal Mine as defined on Page 7 of EIA Form 923
 coalmine_type_eia923 = {
     'P': 'Preparation Plant',
     'S': 'Surface',
     'U': 'Underground',
-    'U/S': 'Both an underground and surface mine with \
-  most coal extracted from underground',
-    'S/U': 'Both an underground and surface mine with \
-  most coal extracted from surface',
-    'SU': 'Both an underground and surface mine with \
-  most coal extracted from surface',
+    'US': 'Both an underground and surface mine with most coal extracted from underground',
+    'SU': 'Both an underground and surface mine with most coal extracted from surface',
 }
 
 # EIA 923: State abbreviation related to coal mine location.
-# Country abbreviations are also listed under this category and are as follows:
-
-coalmine_state_eia923 = {
-    'AU': 'Australia',
-    'CL': 'Columbia',
-    'CN': 'Canada',
-    'IS': 'Indonesia',
-    'PL': 'Poland',
-    'RS': 'Russia',
-    'UK': 'United Kingdom',
-    'VZ': 'Venezula',
-    'OC': 'Other Country',
-    'IM': 'Unknown'
-}
-
-# EIA 923: One character designates the reporting
-# frequency for the plant. Alphanumeric:
-respondent_frequency_eia923 = {
-    'M': 'Monthly respondent',
-    'A': 'Annual respondent'
+# Country abbreviations are also used in this category, but they are
+# non-standard because of collisions with US state names. Instead of using
+# the provided non-standard names, we convert to ISO-3166-1 three letter
+# country codes https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
+coalmine_country_eia923 = {
+    'AU': 'AUS',  # Australia
+    'CL': 'COL',  # Colombia
+    'CN': 'CAN',  # Canada
+    'IS': 'IDN',  # Indonesia
+    'PL': 'POL',  # Poland
+    'RS': 'RUS',  # Russia
+    'UK': 'GBR',  # United Kingdom of Great Britain
+    'VZ': 'VEN',  # Venezuela
+    'OC': 'other_country',
+    'IM': 'unknown'
 }
 
 # EIA 923: Mode for the longest / second longest distance.
@@ -3298,17 +3285,7 @@ transport_modes_eia923 = {
     'PL': 'Pipeline: Shipments of fuel moved to consumers by pipeline'
 }
 
-# EIA 923: Contract type for natural gas capacity service:
-natural_gas_transport_eia923 = {
-    '2': 'Unknown',
-    '3': 'Unknown',
-    '8': 'Unknown',
-    'F': 'Firm',
-    'I': 'Interruptible'
-}
-
-
-##### EPA CEMS constants #####
+# EPA CEMS constants #####
 
 epacems_rename_dict = {
     "STATE": "state",

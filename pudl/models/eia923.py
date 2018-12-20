@@ -1,8 +1,12 @@
 """Database models for PUDL tables derived from EIA Form 923 Data."""
 
-from sqlalchemy import Integer, String, Float, Date
+from sqlalchemy import Integer, String, Float, Date, Enum
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint
 import pudl.models.entities
+import pudl.models.glue
+import pudl.constants
+
+firm_interrupt = Enum('firm', 'interruptible', name='firm_interrupt')
 
 ###########################################################################
 # EIA Form 923 tables which represent constants or metadata
@@ -16,11 +20,18 @@ class CoalMineEIA923(pudl.models.entities.PUDLBase):
     __tablename__ = 'coalmine_eia923'
     id = Column(Integer, primary_key=True)  # surrogate key
     mine_name = Column(String)
-    mine_type_code = Column(String, ForeignKey('coalmine_type_eia923.abbr'))
-    state = Column(String, ForeignKey('coalmine_state_eia923.abbr'))
-    # TODO check feasibility t add FK/constants or map to FIPS code used by EIA
+    mine_type_code = Column(
+        Enum(*pudl.constants.coalmine_type_eia923.keys(),
+             name='coalmine_type_eia923'),
+        comment="Type of mine. P: Preparation plant, U: Underground, S: Surface, SU: Mostly Surface with some Underground, US: Mostly Underground with some Surface."
+    )
+    state = Column(
+        Enum(*pudl.constants.coalmine_country_eia923.values(),
+             *pudl.constants.us_states.keys(),
+             name="coalmine_location_eia923"),
+        comment="Two letter US state abbreviations and three letter ISO-3166-1 country codes for international mines."
+    )
     county_id_fips = Column(Integer)
-    # TODO check feasibility to add FK/constants or map to MSHA ID# used by EIA
     mine_id_msha = Column(Integer)
 
 
@@ -56,14 +67,6 @@ class GeneratorEIA923(pudl.models.entities.PUDLBase):
                               nullable=False)
 
 
-class FuelUnitEIA923(pudl.models.entities.PUDLBase):
-    """Static list of physical unit labels used by EIA in Form 923."""
-
-    __tablename__ = 'fuel_units_eia923'
-    abbr = Column(String, primary_key=True)
-    unit = Column(String)
-
-
 class FuelTypeEIA923(pudl.models.entities.PUDLBase):
     """
     Static list of fuel types used by EIA in Form 923.
@@ -74,42 +77,11 @@ class FuelTypeEIA923(pudl.models.entities.PUDLBase):
     __tablename__ = 'fuel_type_eia923'
     abbr = Column(String, primary_key=True)
     fuel_type = Column(String, nullable=False)
-    fuel_unit = Column(String, ForeignKey('fuel_units_eia923.abbr'))
-
-
-class FuelGroupEIA923(pudl.models.entities.PUDLBase):
-    """Grouping of energy sources into fuel groups, used in EIA Form 923."""
-
-    __tablename__ = 'fuel_group_eia923'
-    group = Column(String, primary_key=True)
-
-
-class RespondentFrequencyEIA923(pudl.models.entities.PUDLBase):
-    """
-    Plant reporting frequency in EIA Form 923.
-
-    Used by EIA in Form 923, Page 5: Fuel Receipts and Costs
-    """
-
-    __tablename__ = 'respondent_frequency_eia923'
-    abbr = Column(String, primary_key=True)
-    unit = Column(String, nullable=False)
-
-
-class ContractTypeEIA923(pudl.models.entities.PUDLBase):
-    """Type of contract under which fuel receipt occured."""
-
-    __tablename__ = 'contract_type_eia923'
-    abbr = Column(String, primary_key=True)
-    contract_type = Column(String, nullable=False)
-
-
-class SectorEIA(pudl.models.entities.PUDLBase):
-    """EIA’s internal consolidated NAICS sectors."""
-
-    __tablename__ = 'sector_eia'
-    sector_id = Column(Integer, primary_key=True)
-    sector_name = Column(String, nullable=False)
+    fuel_unit = Column(
+        Enum(*pudl.constants.fuel_units_eia923,
+             name="fuel_units_eia923"),
+        comment="The type of physical units fuel consumption is reported in. All consumption is reported in either short tons for solids, thousands of cubic feet for gases, or barrels for liquids. "
+    )
 
 
 class FuelTypeAER(pudl.models.entities.PUDLBase):
@@ -134,22 +106,6 @@ class EnergySourceEIA923(pudl.models.entities.PUDLBase):
     __tablename__ = 'energy_source_eia923'
     abbr = Column(String, primary_key=True)
     source = Column(String, nullable=False)
-
-
-class CoalMineTypeEIA923(pudl.models.entities.PUDLBase):
-    """Type of coal mine, as used in EIA Form 923."""
-
-    __tablename__ = 'coalmine_type_eia923'
-    abbr = Column(String, primary_key=True)
-    name = Column(String, nullable=False)
-
-
-class CoalMineStateEIA923(pudl.models.entities.PUDLBase):
-    """State and country abbreviations for coal mine locations."""
-
-    __tablename__ = 'coalmine_state_eia923'
-    abbr = Column(String, primary_key=True)
-    state = Column(String, nullable=False)
 
 
 class NaturalGasTransportEIA923(pudl.models.entities.PUDLBase):
@@ -268,15 +224,21 @@ class FuelReceiptsCostsEIA923(pudl.models.entities.PUDLBase):
                           nullable=False)
     report_date = Column(Date, nullable=False)
     contract_type_code = Column(
-        String, ForeignKey('contract_type_eia923.abbr'))
+        Enum(*pudl.constants.contract_type_eia923.keys(),
+             name="contract_type_eia923"),
+        comment="Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement."
+    )
     contract_expiration_date = Column(Date)
     energy_source_code = Column(
         String, ForeignKey('energy_source_eia923.abbr'))
     fuel_type_code_pudl = Column(String)
-    fuel_group_code = Column(String, ForeignKey('fuel_group_eia923.group'))
+    fuel_group_code = Column(
+        Enum(*pudl.constants.fuel_group_eia923, name="fuel_group_eia923"),
+        comment="EIA 923 Fuel Group, from Page 7 of EIA Form 923"
+    )
     fuel_group_code_simple = Column(String)
     mine_id_pudl = Column(Integer, ForeignKey('coalmine_eia923.id'))
-    supplier_name = Column(String, nullable=False)  # TODO FK new table?
+    supplier_name = Column(String, nullable=False)
     fuel_qty_units = Column(Float, nullable=False)
     heat_content_mmbtu_per_unit = Column(Float, nullable=False)
     sulfur_content_pct = Column(Float, nullable=False)
@@ -289,7 +251,5 @@ class FuelReceiptsCostsEIA923(pudl.models.entities.PUDLBase):
     secondary_transportation_mode_code = Column(
         String,
         ForeignKey('transport_modes_eia923.abbr'))
-    natural_gas_transport_code = Column(
-        String,
-        ForeignKey('natural_gas_transport_eia923.abbr'))
-    natural_gas_delivery_contract_type_code = Column(String)
+    natural_gas_transport_code = Column(firm_interrupt)  # Enum
+    natural_gas_delivery_contract_type_code = Column(firm_interrupt)  # Enum
