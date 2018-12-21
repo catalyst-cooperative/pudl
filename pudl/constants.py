@@ -122,11 +122,11 @@ cems_states = {k: v for k, v in us_states.items() if v not in
                 'Virgin Islands'}
                }
 
-travis_ci_ferc1_years = [2017, ]
-travis_ci_eia860_years = [2017, ]
-travis_ci_eia923_years = [2017, ]
-travis_ci_epacems_years = [2017, ]
-travis_ci_epacems_states = ['ID', ]
+travis_ci_ferc1_years = (2017, )
+travis_ci_eia860_years = (2017, )
+travis_ci_eia923_years = (2017, )
+travis_ci_epacems_years = (2017, )
+travis_ci_epacems_states = ('ID', )
 # Construct a dictionary mapping a canonical fuel name to a list of strings
 # which are used to represent that fuel in the FERC Form 1 Reporting. Case is
 # ignored, as all fuel strings can be converted to a lower case in the data
@@ -569,10 +569,10 @@ dbf_typemap = {
 
 # We still don't understand the primary keys for these tables, and so they
 # can't be inserted yet...
-dbfs_bad_pk = ['F1_84', 'F1_S0_FILING_LOG']
+dbfs_bad_pk = ('F1_84', 'F1_S0_FILING_LOG')
 
 # These are the FERC Form 1 DB tables that we're focusing on initially.
-ferc1_default_tables = ['f1_respondent_id',
+ferc1_default_tables = ('f1_respondent_id',
                         'f1_fuel',
                         'f1_steam',
                         'f1_gnrt_plant',
@@ -580,21 +580,21 @@ ferc1_default_tables = ['f1_respondent_id',
                         'f1_pumped_storage',
                         'f1_plant_in_srvce',
                         'f1_purchased_pwr',
-                        'f1_accumdepr_prvsn']
+                        'f1_accumdepr_prvsn')
 
 # This is the set of tables which have been successfully integrated into PUDL:
-ferc1_pudl_tables = ['fuel_ferc1',
+ferc1_pudl_tables = ('fuel_ferc1',
                      'plants_steam_ferc1',
                      'plants_small_ferc1',
                      'plants_hydro_ferc1',
                      'plants_pumped_storage_ferc1',
                      'plant_in_service_ferc1',
                      'purchased_power_ferc1',
-                     'accumulated_depreciation_ferc1']
+                     'accumulated_depreciation_ferc1')
 
 
 # This is the full set of tables that currently ingestible by the ferc1 DB:
-ferc1_working_tables = ['f1_respondent_id',
+ferc1_working_tables = ('f1_respondent_id',
                         'f1_fuel',
                         'f1_steam',
                         'f1_gnrt_plant',
@@ -602,7 +602,7 @@ ferc1_working_tables = ['f1_respondent_id',
                         'f1_pumped_storage',
                         'f1_plant_in_srvce',
                         'f1_purchased_pwr',
-                        'f1_accumdepr_prvsn']
+                        'f1_accumdepr_prvsn')
 
 table_map_ferc1_pudl = {'fuel_ferc1': 'f1_fuel',
                         'plants_steam_ferc1': 'f1_steam',
@@ -615,7 +615,7 @@ table_map_ferc1_pudl = {'fuel_ferc1': 'f1_fuel',
 
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
-eia923_pudl_tables = ['plants_eia923',
+eia923_pudl_tables = ('plants_eia923',
                       'generation_fuel_eia923',
                       'plant_ownership_eia923',
                       'boiler_fuel_eia923',
@@ -623,12 +623,12 @@ eia923_pudl_tables = ['plants_eia923',
                       'generators_eia923',
                       'generation_eia923',
                       'coalmine_eia923',
-                      'fuel_receipts_costs_eia923']
+                      'fuel_receipts_costs_eia923')
 
 # List of entity tables
-entity_tables = ['plants_entity_eia',
+entity_tables = ('plants_entity_eia',
                  'generators_entity_eia',
-                 'boilers_entity_eia']
+                 'boilers_entity_eia')
 
 # 'stocks_eia923'
 
@@ -1635,8 +1635,8 @@ month_dict_eia923 = {1: '_january$',
 
 
 # list of eia860 file names
-files_eia860 = ['enviro_assn', 'utilities',
-                'plants', 'generators', 'ownership']
+files_eia860 = ('enviro_assn', 'utilities',
+                'plants', 'generators', 'ownership')
 
 # file names to glob file pattern (used in get_eia860_file)
 files_dict_eia860 = {'utilities': '*Utility*',
@@ -1658,8 +1658,8 @@ file_pages_eia860 = {'enviro_assn': ['boiler_generator_assn', ],
                      'ownership': ['ownership', ]}
 
 # This is the list of EIA860 tables that can be successfully pulled into PUDL
-eia860_pudl_tables = ['boiler_generator_assn_eia860', 'utilities_eia860',
-                      'plants_eia860', 'generators_eia860', 'ownership_eia860']
+eia860_pudl_tables = ('boiler_generator_assn_eia860', 'utilities_eia860',
+                      'plants_eia860', 'generators_eia860', 'ownership_eia860')
 
 tab_map_eia860 = pd.DataFrame.from_records([
     (2009, 0, 0, 0, 0, 0, 1, 2),
@@ -2656,7 +2656,7 @@ generator_retired_assn_map_eia860 = pd.DataFrame.from_records([
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].
 # TODO: THIS ONLY PERTAINS TO 2015 AND MAY NEED TO BE ADJUSTED BY YEAR...
-ferc1_data_tables = [
+ferc1_data_tables = (
     'f1_acb_epda', 'f1_accumdepr_prvsn', 'f1_accumdfrrdtaxcr',
     'f1_adit_190_detail', 'f1_adit_190_notes', 'f1_adit_amrt_prop',
     'f1_adit_other', 'f1_adit_other_prop', 'f1_allowances', 'f1_bal_sheet_cr',
@@ -2687,7 +2687,7 @@ ferc1_data_tables = [
     'f1_397_isorto_stl', 'f1_398_ancl_ps', 'f1_399_mth_peak',
     'f1_400_sys_peak', 'f1_400a_iso_peak', 'f1_429_trans_aff',
     'f1_allowances_nox', 'f1_cmpinc_hedge_a', 'f1_cmpinc_hedge', 'f1_freeze',
-    'f1_rg_trn_srv_rev']
+    'f1_rg_trn_srv_rev')
 
 # Line numbers, and corresponding FERC account number
 # from FERC Form 1 pages 204-207, Electric Plant in Service.
@@ -3203,13 +3203,13 @@ energy_source_eia923 = {
 # EIA 923 Fuel Group, from Page 7 EIA Form 923
 # Groups fossil fuel energy sources into fuel groups that are located in the
 # Electric Power Monthly:  Coal, Natural Gas, Petroleum, Petroleum Coke.
-fuel_group_eia923 = [
+fuel_group_eia923 = (
     'coal',
     'natural_gas',
     'petroleum',
     'petroleum_coke',
     'other_gas'
-]
+)
 
 # EIA 923: Type of Coal Mine as defined on Page 7 of EIA Form 923
 coalmine_type_eia923 = {
@@ -3326,36 +3326,36 @@ epacems_rename_dict = {
     "UNIT_ID": "unit_id_epa",
 }
 
-epacems_tables = ["hourly_emissions_epacems"]
+epacems_tables = ("hourly_emissions_epacems")
 
-data_sources = [
+data_sources = (
     'eia860',
     # 'eia861',
     'eia923',
     'epacems',
     'ferc1',
     # 'msha
-]
+)
 
 # All the years for which we ought to be able to download these data sources
 data_years = {
-    'eia860': range(2001, 2018),
-    'eia861': range(1990, 2018),
-    'eia923': range(2001, 2018),
-    'epacems': range(1995, 2018),
-    'ferc1': range(1994, 2018),
-    'ferc714': range(2006, 2018),
-    'msha': range(2000, 2018),
+    'eia860': tuple(range(2001, 2018)),
+    'eia861': tuple(range(1990, 2018)),
+    'eia923': tuple(range(2001, 2018)),
+    'epacems': tuple(range(1995, 2018)),
+    'ferc1': tuple(range(1994, 2018)),
+    'ferc714': tuple(range(2006, 2018)),
+    'msha': tuple(range(2000, 2018)),
 }
 
 # The full set of years we currently expect to be able to ingest, per source:
 working_years = {
-    'eia860': range(2011, 2018),
-    'eia861': [],
-    'eia923': range(2009, 2018),
-    'epacems': range(1995, 2018),
-    'ferc1': range(2004, 2018),
-    'msha': [],
+    'eia860': tuple(range(2011, 2018)),
+    'eia861': (),
+    'eia923': tuple(range(2009, 2018)),
+    'epacems': tuple(range(1995, 2018)),
+    'ferc1': tuple(range(2004, 2018)),
+    'msha': (),
 }
 
 pudl_tables = {
@@ -3378,14 +3378,14 @@ base_data_urls = {
 
 
 need_fix_inting = {
-    'generators_eia860': ['sector_id', 'turbines_num'],
-    'plants_eia860': ['sector_id', 'transmission_distribution_owner_id'],
-    'coalmine_eia923': ['mine_id_msha', 'county_id_fips'],
-    'fuel_receipts_costs_eia923': ['mine_id_pudl'],
-    'generation_fuel_eia923': ['nuclear_unit_id'],
-    'plants_steam_ferc1': ['construction_year', 'installation_year'],
-    'plants_small_ferc1': ['construction_year', 'ferc_license_id'],
-    'plants_hydro_ferc1': ['construction_year', 'installation_year'],
-    'plants_pumped_storage_ferc1': ['construction_year', 'installation_year'],
-    'hourly_emissions_epacems': ['facility_id', 'unit_id_epa'],
+    'generators_eia860': ('sector_id', 'turbines_num'),
+    'plants_eia860': ('sector_id', 'transmission_distribution_owner_id'),
+    'coalmine_eia923': ('mine_id_msha', 'county_id_fips'),
+    'fuel_receipts_costs_eia923': ('mine_id_pudl',),
+    'generation_fuel_eia923': ('nuclear_unit_id',),
+    'plants_steam_ferc1': ('construction_year', 'installation_year'),
+    'plants_small_ferc1': ('construction_year', 'ferc_license_id'),
+    'plants_hydro_ferc1': ('construction_year', 'installation_year'),
+    'plants_pumped_storage_ferc1': ('construction_year', 'installation_year'),
+    'hourly_emissions_epacems': ('facility_id', 'unit_id_epa'),
 }
