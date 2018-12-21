@@ -16,13 +16,16 @@ class FuelFERC1(pudl.models.entities.PUDLBase):
     Annual fuel consumed by plant, as reported to FERC in Form 1.
 
     This information comes from the f1_fuel table in the FERC DB, which is
-    populated from page 402 of the paper FERC For 1.
+    populated from page 402 of the paper FERC Form 1.
     """
 
     __tablename__ = 'fuel_ferc1'
-    __table_args__ = (ForeignKeyConstraint(
-        ['utility_id_ferc1', 'plant_name'],
-        ['plants_ferc.utility_id_ferc1', 'plants_ferc.plant_name']),)
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ['utility_id_ferc1', 'plant_name'],
+            ['plants_ferc.utility_id_ferc1', 'plants_ferc.plant_name']),
+        {'comment': "Annual fuel consumed by large thermal generating plants. As reported on page 402 of FERC Form 1."}
+    )
     # Each year, for each fuel, there's one report for each plant, which may
     # be recorded multiple times for multiple utilities that have a stake in
     # the plant... Primary key fields: utility, plant, fuel and year.
@@ -95,13 +98,13 @@ class FuelFERC1(pudl.models.entities.PUDLBase):
     fuel_cost_per_mwh = Column(
         Float,
         nullable=False,
-        comment="Average cost of fuel burned per MWh of net generation in the report year."
+        comment="Average cost of fuel burned per MWh of net generation in the report year. In plants burning multiple fuels, this may not be indicative of overall fuel cost per MWh."
     )
     # Is this a useful number for any fuel that's not overwhelmingly dominant?
     fuel_mmbtu_per_mwh = Column(
         Float,
         nullable=False,
-        comment="Average heat content in mmBTU of fuel consumed per MWh of net generation in the report year."
+        comment="Average heat content in mmBTU of fuel consumed per MWh of net generation in the report year. In plants burning multiple fuels this may not be indicative of overall plant heat rate."
     )
 
 
@@ -109,9 +112,12 @@ class PlantSteamFERC1(pudl.models.entities.PUDLBase):
     """A large thermal generating plant, as reported to FERC on Form 1."""
 
     __tablename__ = 'plants_steam_ferc1'
-    __table_args__ = (ForeignKeyConstraint(
-        ['utility_id_ferc1', 'plant_name'],
-        ['plants_ferc.utility_id_ferc1', 'plants_ferc.plant_name']),)
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ['utility_id_ferc1', 'plant_name'],
+            ['plants_ferc.utility_id_ferc1', 'plants_ferc.plant_name']),
+        {'comment': "Large thermal generating plants, as reported on page 402 of FERC Form 1."}
+    )
 
     id = Column(
         Integer,
