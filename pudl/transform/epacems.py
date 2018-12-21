@@ -170,7 +170,8 @@ def transform(epacems_raw_dfs, verbose=True):
         # that could be changed if you want.
         for yr_st, raw_df in raw_df_dict.items():
             df = (
-                raw_df.pipe(add_facility_id_unit_id_epa)
+                raw_df.fillna({'gross_load_mw': 0.0})
+                .pipe(add_facility_id_unit_id_epa)
                 .pipe(drop_calculated_rates)
                 .pipe(fix_up_dates)
                 .pipe(harmonize_eia_epa_orispl)
