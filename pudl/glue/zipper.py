@@ -134,7 +134,7 @@ def random_chunk(li, min_chunk=1, max_chunk=3):
 
 
 def zippertestdata(gens=50, max_group_size=6, samples=10,
-                   noise=[0.10, 0.10, 0.10]):
+                   noise=(0.10, 0.10, 0.10)):
     """Generate a test dataset for the datazipper, with known solutions.
 
     Args:

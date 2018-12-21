@@ -36,7 +36,7 @@ def is_annual(df_year, year_col='report_date'):
     return True
 
 
-def merge_on_date_year(df_date, df_year, on=[], how='inner',
+def merge_on_date_year(df_date, df_year, on=(), how='inner',
                        date_col='report_date',
                        year_col='report_date'):
     """
