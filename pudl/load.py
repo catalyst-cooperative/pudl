@@ -153,7 +153,7 @@ expected:
         """Fix integers for columns with NA. See pudl.helpers.fix_int_na"""
         try:
             for column in pc.need_fix_inting[self.table_name]:
-                df[column] = pudl.helpers.fix_int_na(df[column])
+                df = pudl.helpers.fix_int_na(df, columns=[column, ])
         except KeyError:
             pass
         return df
@@ -187,15 +187,14 @@ def dict_dump_load(transformed_dfs,
     Wrapper for _csv_dump_load for each data source.
     """
     if verbose:
-        print("Loading tables from {} into PUDL:".format(data_source))
+        print(f"Loading tables from {data_source} into PUDL:")
     for table_name, df in transformed_dfs.items():
         if verbose and table_name != "hourly_emissions_epacems":
-            print("    {}...".format(table_name))
+            print(f"    {table_name}...")
         if table_name in list(need_fix_inting.keys()):
-            _fix_int_cols(table_name,
-                          transformed_dfs,
-                          need_fix_inting=pc.need_fix_inting,
-                          verbose=verbose)
+            df = pudl.helpers.fix_int_na(
+                df, columns=pc.need_fix_inting[table_name])
+
         _csv_dump_load(df,
                        table_name,
                        pudl_engine,

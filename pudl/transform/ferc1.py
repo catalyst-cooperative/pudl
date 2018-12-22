@@ -254,8 +254,8 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     # scikit-learn still doesn't deal well with NA values (this will be fixed
     # eventually) We need to massage the type and missing data for the
     # Classifier to work.
-    ferc1_steam_df['construction_year'] = \
-        pudl.helpers.fix_int_na(ferc1_steam_df.construction_year)
+    ferc1_steam_df = pudl.helpers.fix_int_na(ferc1_steam_df,
+                                             columns=['construction_year', ])
 
     # Train the classifier
     ferc_clf = pudl.transform.ferc1.make_ferc_clf(
