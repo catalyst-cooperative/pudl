@@ -55,20 +55,20 @@ def extract(epacems_years, states, verbose=True):
     """
     # TODO: this is really slow. Can we do some parallel processing?
     if verbose:
-        print("Extracting EPA CEMS data...")
+        print("Extracting EPA CEMS data...", flush=True)
     for year in epacems_years:
         if verbose:
-            print(f"    {year}:")
+            print(f"    {year}:", flush=True)
         # The keys of the us_states dictionary are the state abbrevs
         for state in states:
             if verbose:
-                print(f"        {state}:", end=" ")
+                print(f"        {state}:", end=" ", flush=True)
             dfs = []
             for month in range(1, 13):
                 filename = get_epacems_file(year, month, state)
 
                 if verbose:
-                    print(f"{month}", end=" ")
+                    print(f"{month}", end=" ", flush=True)
             # Return a dictionary where the key identifies this dataset
             # (just like the other extract functions), but unlike the
             # others, this is yielded as a generator (and it's a one-item
@@ -79,5 +79,5 @@ def extract(epacems_years, states, verbose=True):
                     .rename(columns=pc.epacems_rename_dict)
                 )
                 dfs.append(df)
-            print(" ")  # newline...
+            print(" ", flush=True)  # newline...
             yield {(year, state): pd.concat(dfs, sort=True)}

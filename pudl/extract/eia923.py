@@ -140,14 +140,17 @@ def get_eia923_page(page, eia923_xlsx,
             page and selected years from EIA 923.
     """
     assert min(years) >= min(pc.working_years['eia923']),\
-        "EIA923 works for 2009 and later. {} requested.".format(min(years))
+        f"EIA923 works for 2009 and later. {min(years)} requested."
     assert page in pc.tab_map_eia923.columns and page != 'year_index',\
-        "Unrecognized EIA 923 page: {}".format(page)
+        f"Unrecognized EIA 923 page: {page}"
 
     if verbose:
-        print('Converting EIA 923 {} to DataFrame...'.format(page))
+        print(f'Converting EIA 923 {page} to DataFrame...', flush=True)
+        print(f'    ', end='', flush=True)
     df = pd.DataFrame()
     for yr in years:
+        if verbose:
+            print(f'{yr} ', end='', flush=True)
         sheet_name, skiprows, column_map = get_eia923_column_map(page, yr)
         newdata = pd.read_excel(eia923_xlsx[yr],
                                 sheet_name=sheet_name,
@@ -173,7 +176,7 @@ def get_eia923_page(page, eia923_xlsx,
             newdata = newdata[~newdata.plant_id_eia.isin([99999, 999999])]
 
         df = df.append(newdata)
-
+    print("\n", end="", flush=True)
     return df
 
 
@@ -192,11 +195,15 @@ def get_eia923_xlsx(years, verbose=True):
     """
     eia923_xlsx = {}
     if verbose:
-        print("Reading EIA 923 spreadsheet data")
+        print(" ")
+        print("=============================================================")
+        print("Extracting EIA 923 data from spreadsheets...", flush=True)
+        print("    ", end='', flush=True)
     for yr in years:
         if verbose:
-            print("    {}...".format(yr))
+            print(f"{yr} ", end='', flush=True)
         eia923_xlsx[yr] = pd.ExcelFile(get_eia923_file(yr))
+    print(f"\n", end='', flush=True)
     return eia923_xlsx
 
 

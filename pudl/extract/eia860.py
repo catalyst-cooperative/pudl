@@ -75,11 +75,13 @@ def get_eia860_xlsx(years, filename, verbose=True):
     eia860_xlsx = {}
     pattern = pc.files_dict_eia860[filename]
     if verbose:
-        print("Reading EIA 860 {} data...".format(filename))
+        print(f"Extracting EIA 860 {filename} data...", flush=True)
+        print(f"    ", end='', flush=True)
     for yr in years:
         if verbose:
-            print("    {}...".format(yr))
+            print(f"{yr} ", end='', flush=True)
         eia860_xlsx[yr] = pd.ExcelFile(get_eia860_file(yr, pattern))
+    print(f"\n", end='', flush=True)
     return eia860_xlsx
 
 
@@ -178,6 +180,7 @@ def get_eia860_page(page, eia860_xlsx,
 
     if verbose:
         print(f'Converting EIA 860 {page} to DataFrame...')
+        print('    ', end='')
 
     df = pd.DataFrame()
     for yr in years:
@@ -186,6 +189,7 @@ def get_eia860_page(page, eia860_xlsx,
                 f"Requested non-working EIA 860 year: {yr}.\n"
                 f"EIA 860 works for {pc.working_years['eia860']}\n"
             )
+        print(f"{yr} ", end='')
         sheet_name, skiprows, column_map, all_columns = \
             get_eia860_column_map(page, yr)
         newdata = pd.read_excel(eia860_xlsx[yr],
@@ -200,6 +204,7 @@ def get_eia860_page(page, eia860_xlsx,
         newdata = newdata.rename(columns=column_map)
 
         df = df.append(newdata)
+    print("\n", end='')
 
     # We need to ensure that ALL possible columns show up in the dataframe
     # that's being returned, even if they are empty, so that we know we have a
@@ -250,6 +255,8 @@ def extract(eia860_years=pc.working_years['eia860'], verbose=True):
             print('Not extracting EIA 860.')
         return eia860_raw_dfs
 
+    print('============================================================')
+    print('Extracting EIA 860 data from spreadsheets.')
     eia860_raw_dfs = create_dfs_eia860(files=pc.files_eia860,
                                        eia860_years=eia860_years,
                                        verbose=verbose)
