@@ -92,7 +92,7 @@ been fully integrated. The ETL process for all states and all years takes about
 Our present focus is on:
 * **[Issue #144](https://github.com/catalyst-cooperative/pudl/issues/144)** Automatically assigning unique IDs to plants reported in FERC Form 1 so that time series can be extracted from the multi-year data, and integrating FERC non-fuel operating expenses with EIA fuel expenses to estimate per-generator MCOE.
 * **[Issue #204](https://github.com/catalyst-cooperative/pudl/issues/204)** Performing regressions on the non-fuel expenses reported by plants in FERC Form 1, to estimate the fixed vs. variable costs for different categories of plants. This will allow us to estimate the overall marginal cost of electricity for a plant at a given capacity factor and fuel price.
-* **[Issue #221](https://github.com/catalyst-cooperative/pudl/issues/221)** Automating the creation of human and machine readable [tabular data packages](https://frictionlessdata.io) containing all of the above data for platform independent redistribution.
+* **[Issue #221](https://github.com/catalyst-cooperative/pudl/issues/211)** Automating the creation of human and machine readable [tabular data packages](https://frictionlessdata.io) containing all of the above data for platform independent redistribution.
 * Generally cleaning up some of the data integration and adding more complete test cases, as well as some curated Jupyter notebooks that automatically provide both quantitative and visual sanity checks on the data as it's loaded into the database.
 
 ## Future Work:
