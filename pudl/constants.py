@@ -3389,3 +3389,143 @@ need_fix_inting = {
     'plants_pumped_storage_ferc1': ('construction_year', 'installation_year'),
     'hourly_emissions_epacems': ('facility_id', 'unit_id_epa'),
 }
+
+contributors = {
+    "zane-selvans": {
+        "title": "Zane Selvans",
+        "email": "zane.selvans@catalyst.coop",
+        "path": "https://amateurearthling.org/",
+        "role": "wrangler",
+        "organization": "Catalyst Cooperative"
+    },
+    "christina-gosnell": {
+        "title": "Christina Gosnell",
+        "email": "christina.gosnell@catalyst.coop",
+        "role": "contributor",
+        "organization": "Catalyst Cooperative",
+    },
+    "steven-winter": {
+        "title": "Steven Winter",
+        "email": "steven.winter@catalyst.coop",
+        "role": "contributor",
+        "organization": "Catalyst Cooperative",
+    },
+    "alana-wilson": {
+        "title": "Alana Wilson",
+        "email": "alana.wilson@catalyst.coop",
+        "role": "contributor",
+        "organization": "Catalyst Cooperative",
+    },
+    "karl-dunkle-werner": {
+        "title": "Karl Dunkle Werner",
+        "email": "karldw@berkeley.edu",
+        "path": "https://karldw.org/",
+        "role": "contributor",
+        "organization": "UC Berkeley",
+    },
+    "catalyst-cooperative": {
+        "title": "Catalyst Cooperative",
+        "path": "https://catalyst.coop/",
+        "role": "publisher",
+        "email": "pudl@catalyst.coop",
+        "organization": "Catalyst Cooperative",
+    },
+    "climate-policy-initiative": {
+        "title": "Climate Policy Initiative",
+        "path": "https://climatepolicyinitiative.org/",
+        "role": "contributor",
+        "organization": "Climate Policy Initiative",
+    }
+}
+
+data_sources = {
+    "pudl": {
+        "title": "Public Utility Data Liberation Project (PUDL)",
+        "path": "https://catalyst.coop/pudl/",
+        "email": "pudl@catalyst.coop",
+    },
+    "eia923": {
+        "title": "EIA Form 923",
+        "path": "https://www.eia.gov/electricity/data/eia923/",
+    },
+    "eia860": {
+        "title": "EIA Form 860",
+        "path": "https://www.eia.gov/electricity/data/eia860/",
+    },
+    "eia861": {
+        "title": "EIA Form 861",
+    },
+    "eiawater": {
+        "title": "EIA Water Use for Power",
+    },
+    "ferc1": {
+        "title": "FERC Form 1",
+        "path": "https://www.ferc.gov/docs-filing/forms/form-1/data.asp",
+    },
+    "epacems": {
+        "title": "EPA Air Markets Program Data",
+        "path": "https://ampd.epa.gov/ampd/",
+    },
+    "msha": {
+        "title": "Mining Safety and Health Administration",
+    },
+    "phmsa": {
+        "title": "Pipelines and Hazardous Materials Safety Administration",
+    },
+    "ferceqr": {
+        "title": "FERC Electric Quarterly Report",
+    },
+    "ferc714": {
+        "title": "FERC Form 714",
+    }
+}
+
+contributors_by_source = {
+    "pudl": [
+        "zane-selvans",
+        "christina-gosnell",
+        "steven-winter",
+        "alana-wilson",
+        "karl-dunkle-werner",
+        "climate-policy-initiative",
+        "catalyst-cooperative",
+    ],
+    "eia923": [
+        "zane-selvans",
+        "christina-gosnell",
+        "steven-winter",
+        "catalyst-cooperative",
+    ],
+    "eia860": [
+        "zane-selvans",
+        "christina-gosnell",
+        "steven-winter",
+        "alana-wilson",
+        "catalyst-cooperative",
+    ],
+    "ferc1": [
+        "zane-selvans",
+        "christina-gosnell",
+        "steven-winter",
+        "alana-wilson",
+        "catalyst-cooperative",
+    ],
+    "epacems": [
+        "zane-selvans",
+        "karl-dunkle-werner"
+        "catalyst-cooperative",
+    ],
+}
+
+licenses = {
+    "cc-by-4.0": {
+        "name": "CC-BY-4.0",
+        "title": "Creative Commons Attribution 4.0",
+        "path": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    "us-govt": {
+        "name": "other-pd",
+        "title": "U.S. Government Work",
+        "path": "http://www.usa.gov/publicdomain/label/1.0/",
+    }
+}

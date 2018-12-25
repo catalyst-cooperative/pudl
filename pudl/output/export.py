@@ -7,11 +7,16 @@ exported (e.g. CSV, Excel spreadsheets, parquet files, HDF5).
 import os
 import re
 import hashlib
+import datetime
+import logging
 import sqlalchemy as sa
 import tableschema
 import datapackage
+import goodtables
 import pandas as pd
 import pudl
+
+logger = logging.getLogger(__name__)
 
 
 def simplify_sql_type(sql_type, field_name=""):
@@ -85,7 +90,8 @@ def get_fields(table):
         newfield['type'] = simplify_sql_type(table.c[col].type, field_name=col)
         if isinstance(table.c[col].type, sa.sql.sqltypes.Enum):
             newfield['constraints'] = {'enum': table.c[col].type.enums}
-        newfield['description'] = table.c[col].comment
+        if table.c[col].comment:
+            newfield['description'] = table.c[col].comment
 
         fields.append(newfield)
     return fields
@@ -136,14 +142,16 @@ def get_table_schema(table):
     descriptor = {}
     descriptor['fields'] = get_fields(table)
     descriptor['primaryKey'] = get_primary_key(table)
-    descriptor['foreignKeys'] = get_foreign_keys(table)
+    fkeys = get_foreign_keys(table)
+    if fkeys:
+        descriptor['foreignKeys'] = fkeys
     descriptor['missingValues'] = get_missing_values(table)
 
     schema = tableschema.Schema(descriptor)
     if not schema.valid:
         raise AssertionError(
             f"""
-            Invalid table schema.
+            Invalid table schema for {table}
 
             Errors:
             {schema.errors}
@@ -185,7 +193,8 @@ def get_tabular_data_resource(tablename, pkg_dir, testing=False):
     descriptor['name'] = tablename
     descriptor['path'] = csv_relpath
     descriptor['title'] = tablename  # maybe we should make this pretty...
-    descriptor['description'] = table.comment
+    if table.comment:
+        descriptor['description'] = table.comment
     descriptor['encoding'] = "utf-8"
     descriptor['mediatype'] = "text/csv"
     descriptor['format'] = "csv"
@@ -193,27 +202,21 @@ def get_tabular_data_resource(tablename, pkg_dir, testing=False):
         "delimiter": ",",
         "header": True,
         "quoteChar": "\"",
-        # "doubleQuote": true,
-        # "lineTerminator": "\r\n",
-        # "skipInitialSpace": true,
+        "doubleQuote": True,
+        "lineTerminator": "\r\n",
+        "skipInitialSpace": True,
     }
     descriptor['schema'] = get_table_schema(table)
     descriptor['bytes'] = os.path.getsize(csv_abspath)
     descriptor['hash'] = hash_csv(csv_abspath)
 
     # If omitted, icenses are inherited from the containing data package.
-    descriptor["licenses"] = [{
-        "name": "CC-BY-4.0",
-        "title": "Creative Commons Attribution 4.0",
-        "path": "https://creativecommons.org/licenses/by/4.0/"
-    }]
+    descriptor["licenses"] = [pudl.constants.licenses['cc-by-4.0'], ]
 
-    # This should also include the table specific data sources.
-    descriptor["sources"] = [{
-        "title": "Public Utility Data Liberation Project (PUDL)",
-        "path": "https://catalyst.coop/public-utility-data-liberation/",
-        "email": "pudl@catalyst.coop",
-    }]
+    data_sources = \
+        pudl.helpers.data_sources_from_tables([table.name, ], table.metadata)
+    descriptor["sources"] = \
+        [pudl.constants.data_sources[src] for src in data_sources]
 
     resource = datapackage.Resource(descriptor)
     if not resource.valid:
@@ -244,6 +247,109 @@ def hash_csv(csv_path):
             buf = afile.read(blocksize)
 
     return f"sha1:{hasher.hexdigest()}"
+
+
+def data_package(pkg_tables, pkg_skeleton,
+                 out_dir=os.path.join(pudl.settings.PUDL_DIR,
+                                      "results", "data_pkgs"),
+                 testing=False):
+    """
+    Create a data package of requested tables and their dependencies.
+    See Frictionless Data for the tabular data package specification:
+
+    http://frictionlessdata.io/specs/tabular-data-package/
+
+    Args:
+        pkg_skeleton (dict): A python dictionary containing several
+            top level elements of the data package JSON descriptor
+            specific to the data package, including:
+              * name: pudl-<datasource> e.g. pudl-eia923, pudl-ferc1
+              * title: One line human readable description.
+              * description: A paragraph long description.
+              * keywords: For search purposes.
+        pkg_tables (iterable): The names of database tables to include.
+            Each one will be converted into a tabular data resource.
+            Dependent tables will also be added to the data package.
+        out_dir (path-like): The location of the packaging directory.
+            The data package will be created in a subdirectory in
+            this directory, according to the name of the package.
+
+    Returns:
+        data_pkg (Package): an object representing the data package,
+            as defined by the datapackage library.
+    """
+    # A few paths we are going to need repeatedly:
+    # out_dir is the packaging directory -- the place where packages end up
+    # pkg_dir is the top level directory of this package:
+    pkg_dir = os.path.abspath(os.path.join(out_dir, pkg_skeleton["name"]))
+    # data_dir is the data directory within the package directory:
+    data_dir = os.path.join(pkg_dir, "data")
+    # pkg_json is the datapackage.json that we ultimately output:
+    pkg_json = os.path.join(pkg_dir, "datapackage.json")
+
+    # Given the list of target tables, find all dependent tables.
+    all_tables = pudl.helpers.get_dependent_tables_from_list(
+        pkg_tables, testing=testing)
+
+    # Extract the target tables and save them as CSV files.
+    # We have to do this before creating the data resources
+    # because the files are necessary in order to calculate
+    # the file sizes and hashes.
+    for t in all_tables:
+        csv_out = os.path.join(data_dir, f"{t}.csv")
+        os.makedirs(os.path.dirname(csv_out), exist_ok=True)
+        df = pd.read_sql_table(t, pudl.init.connect_db(testing=testing))
+        if t in pudl.constants.need_fix_inting:
+            df = pudl.helpers.fix_int_na(df, pudl.constants.need_fix_inting[t])
+        logger.info(f"Exporting {t} to {csv_out}")
+        df.to_csv(csv_out, index=False)
+
+    # Create a tabular data resource for each of the tables.
+    resources = []
+    for t in all_tables:
+        resources.append(
+            pudl.output.export.get_tabular_data_resource(t, pkg_dir=pkg_dir))
+
+    data_sources = pudl.helpers.data_sources_from_tables(
+        all_tables, testing=testing)
+
+    contributors = set()
+    for src in data_sources:
+        for c in pudl.constants.contributors_by_source[src]:
+            contributors.add(c)
+
+    pkg_descriptor = {
+        "name": pkg_skeleton["name"],
+        "profile": "tabular-data-package",
+        "title": pkg_skeleton["title"],
+        "description": pkg_skeleton["description"],
+        "keywords": pkg_skeleton["keywords"],
+        "homepage": "https://catalyst.coop/pudl/",
+        "created": (datetime.datetime.utcnow().
+                    replace(microsecond=0).isoformat() + 'Z'),
+        "contributors": [pudl.constants.contributors[c] for c in contributors],
+        "sources": [pudl.constants.data_sources[src] for src in data_sources],
+        "licenses": [pudl.constants.licenses["cc-by-4.0"]],
+        "resources": resources,
+    }
+
+    # Use that descriptor to instantiate a Package object
+    data_pkg = datapackage.Package(pkg_descriptor)
+
+    # Validate the data package descriptor before we go to
+    if not data_pkg.valid:
+        logger.warning(f"""
+            Invalid tabular data package: {data_pkg.descriptor["name"]}
+            Errors: {data_pkg.errors}""")
+
+    data_pkg.save(pkg_json)
+
+    # Validate the data within the package using goodtables:
+    report = goodtables.validate(pkg_json, row_limit=100_000)
+    if not report['valid']:
+        logger.warning("Data package data validation failed.")
+
+    return data_pkg
 
 
 def annotated_xlsx(df, notes_dict, tags_dict, first_cols, sheet_name,

@@ -4,6 +4,8 @@ import re
 from functools import partial
 import pandas as pd
 import numpy as np
+import sqlalchemy as sa
+import pudl
 
 # This is a little abbreviated function that allows us to propagate the NA
 # values through groupby aggregations, rather than using inefficient lambda
@@ -11,7 +13,7 @@ import numpy as np
 sum_na = partial(pd.Series.sum, skipna=False)
 
 
-def get_dependent_tables_from_list(table_names, md):
+def get_dependent_tables_from_list(table_names, testing=False):
     """
     Given a list of tables, find all the other tables they depend on.
 
@@ -29,6 +31,8 @@ def get_dependent_tables_from_list(table_names, md):
         all_the_tables (set): The set of all the tables which any of the input
             tables depends on, via ForeignKey constraints.
     """
+    md = sa.MetaData(bind=pudl.init.connect_db(testing=testing))
+    md.reflect()
     all_the_tables = set()
     for t in table_names:
         for x in get_dependent_tables(t, md):
@@ -67,12 +71,26 @@ def get_dependent_tables(table_name, md):
 
     # Recursively call this function on the tables our initial
     # table depends on:
-    for t in new_table_names:
-        dependent_tables.add(t)
-        for t in get_dependent_tables(t, md):
+    for table_name in new_table_names:
+        dependent_tables.add(table_name)
+        for t in get_dependent_tables(table_name, md):
             dependent_tables.add(t)
 
     return dependent_tables
+
+
+def data_sources_from_tables(table_names, testing=False):
+    """Based on a list of PUDL DB tables, look up data sources."""
+    all_tables = get_dependent_tables_from_list(table_names, testing=testing)
+    table_sources = set()
+    # All tables get PUDL:
+    table_sources.add('pudl')
+    for t in all_tables:
+        for src in pudl.constants.data_sources:
+            if re.match(f".*_{src}$", t):
+                table_sources.add(src)
+
+    return table_sources
 
 
 def is_annual(df_year, year_col='report_date'):
