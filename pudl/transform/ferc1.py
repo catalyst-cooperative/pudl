@@ -197,6 +197,9 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
         ferc1_steam_df['yr_const'], errors='coerce')
     ferc1_steam_df['yr_installed'] = pd.to_numeric(
         ferc1_steam_df['yr_installed'], errors='coerce')
+    # There are also a few zeroes... which are not valid years for us:
+    ferc1_steam_df = ferc1_steam_df.replace(
+        {"yr_const": 0, "yr_installed": 0}, np.nan)
 
     # Converting everything to per MW and MWh units...
     ferc1_steam_df['cost_per_mw'] = 1000 * ferc1_steam_df['cost_per_kw']
