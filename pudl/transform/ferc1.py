@@ -134,15 +134,15 @@ def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
     # Iterate over the multipliers, applying fixes to outlying populations
     for mult in mults:
         records_to_fix = records_to_fix.apply(lambda x: x * mult
-                                              if x > minval / mult
-                                              and x < maxval / mult
+                                              if x > minval / mult and
+                                              x < maxval / mult
                                               else x)
     # Set any record that wasn't inside one of our identified populations to
     # NA -- we are saying that these are true outliers, which can't be part
     # of the population of values we are examining.
     records_to_fix = records_to_fix.apply(lambda x: np.nan
-                                          if x < minval
-                                          or x > maxval
+                                          if x < minval or
+                                          x > maxval
                                           else x)
     # Add our fixed records back to the complete data series and return it
     fixed = fixed.append(records_to_fix)
@@ -227,7 +227,7 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
         'avg_num_of_emp': 'avg_num_employees',
         'net_generation': 'net_generation_mwh',
         'cost_land': 'capex_land',
-        'cost_structure': 'capex_structure',
+        'cost_structure': 'capex_structures',
         'cost_equipment': 'capex_equipment',
         'cost_of_plant_to': 'capex_total',
         'cost_per_mw': 'capex_per_mw',
@@ -325,8 +325,8 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     # them a FERC Plant ID, and pull the results back out into a dataframe:
     plants_w_ids = pd.DataFrame()
     for plant_id_ferc1, plant in enumerate(ferc_plants):
-        nx.set_edge_attributes(plant, plant_id_ferc1 +
-                               1, name='plant_id_ferc1')
+        nx.set_edge_attributes(plant, plant_id_ferc1
+                               + 1, name='plant_id_ferc1')
         new_plant_df = nx.to_pandas_edgelist(plant)
         plants_w_ids = plants_w_ids.append(new_plant_df)
     if verbose:
@@ -680,17 +680,17 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
         'adverse_cond': 'net_capacity_adverse_conditions_mw',
         'avg_num_of_emp': 'avg_num_employees',
         'cost_of_land': 'capex_land',
-        'cost_structure': 'capex_structure',
+        'cost_structure': 'capex_structures',
         'cost_facilities': 'capex_facilities',
         'cost_equipment': 'capex_equipment',
         'cost_roads': 'capex_roads',
         'cost_plant_total': 'capex_total',
         'cost_per_mw': 'capex_per_mw',
         'expns_operations': 'opex_operations',
-        'expns_water_pwr': 'opex_water_pwr',
+        'expns_water_pwr': 'opex_water_for_power',
         'expns_hydraulic': 'opex_hydraulic',
         'expns_electric': 'opex_electric',
-        'expns_generation': 'opex_generation',
+        'expns_generation': 'opex_generation_misc',
         'expns_rents': 'opex_rents',
         'expns_engineering': 'opex_engineering',
         'expns_structures': 'opex_structures',
@@ -771,6 +771,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
         'project_number': 'project_num',
         'tot_capacity': 'capacity_mw',
         'project_no': 'project_num',
+        'plant_kind': 'plant_construction_type',
         'peak_demand': 'peak_demand_mw',
         'yr_const': 'construction_year',
         'yr_installed': 'installation_year',
@@ -786,7 +787,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
         'cost_misc_eqpmnt': 'capex_equipment_misc',
         'cost_roads': 'capex_roads',
         'asset_retire_cost': 'asset_retirement_cost',
-        'cost_of_plant': 'capex_plant_total',
+        'cost_of_plant': 'capex_total',
         'cost_per_mw': 'capex_per_mw',
         'expns_operations': 'opex_operations',
         'expns_water_pwr': 'opex_water_for_power',
@@ -798,7 +799,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
         'expns_structures': 'opex_structures',
         'expns_dams': 'opex_dams',
         'expns_plant': 'opex_plant',
-        'expns_misc_plnt': 'opex_plant_misc',
+        'expns_misc_plnt': 'opex_misc_plant',
         'expns_producton': 'opex_production_before_pumping',
         'pumping_expenses': 'opex_pumping',
         'tot_prdctn_exns': 'opex_total',
@@ -859,7 +860,7 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     """
     Transform FERC Form 1 pumped storage data for loading into PUDL Database.
 
-    This table has data about inter-untility power purchases into the PUDL DB.
+    This table has data about inter-utility power purchases into the PUDL DB.
     This includes how much electricty was purchased, how much it cost, and who
     it was purchased from. Unfortunately the field describing which other
     utility the power was being bought from is poorly standardized, making it
@@ -875,32 +876,50 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     Returns: transformed dataframe.
     """
     # grab table from dictionary of dfs
-    ferc1_purchased_pwr_df = _clean_cols(
-        ferc1_raw_dfs['purchased_power_ferc1'])
+    df = (_clean_cols(ferc1_raw_dfs['purchased_power_ferc1'])
+          .replace({"": "NA"}, "")
+          .replace(to_replace='', value=np.nan)
+          .rename(columns={
+              'respondent_id': 'utility_id_ferc1',
+              'athrty_co_name': 'seller_name',
+              'sttstcl_clssfctn': 'purchase_type',
+              'rtsched_trffnbr': 'tariff',
+              'avgmth_bill_dmnd': 'avg_billing_demand_mw',
+              'avgmth_ncp_dmnd': 'avg_monthly_ncp_demand_mw',
+              'avgmth_cp_dmnd': 'avg_monthly_cp_demand_mw',
+              'mwh_purchased': 'purchased_mwh',
+              'mwh_recv': 'received_mwh',
+              'mwh_delvd': 'delivered_mwh',
+              'dmnd_charges': 'demand_charges',
+              'erg_charges': 'energy_charges',
+              'othr_charges': 'other_charges',
+              'settlement_tot': 'total_settlement'})
+          .replace({  # Remove all non-numeric characters from these columns
+              "avg_billing_demand_mw": r"[^0-9\.]",
+              "avg_monthly_ncp_demand_mw": r"[^0-9\.]",
+              "avg_monthly_cp_demand_mw": r"[^0-9\.]"}, '', regex=True)
+          .replace({  # If all that's left is a period, set to NaN.
+              "avg_billing_demand_mw": ".",
+              "avg_monthly_ncp_demand_mw": ".",
+              "avg_monthly_cp_demand_mw": "."}, np.nan)
+          .replace({  # Replace empty fields with NaN
+              "avg_billing_demand_mw": "",
+              "avg_monthly_ncp_demand_mw": "",
+              "avg_monthly_cp_demand_mw": ""}, np.nan)
+          .astype({  # Whatever is left can be cast to a float.
+              "avg_billing_demand_mw": float,
+              "avg_monthly_ncp_demand_mw": float,
+              "avg_monthly_cp_demand_mw": float}))
 
-    ferc1_purchased_pwr_df.replace(to_replace='', value=np.nan, inplace=True)
-    ferc1_purchased_pwr_df.dropna(subset=['sttstcl_clssfctn',
-                                          'rtsched_trffnbr'], inplace=True)
+    # Replace any invalid purchase types with ""
+    bad_rows = (~df.purchase_type.isin(pc.ferc1_power_purchase_type.keys()))
+    df.loc[bad_rows, 'purchase_type'] = ""
 
-    ferc1_purchased_pwr_df.rename(columns={
-        # FERC 1 DB Name  PUDL DB Name
-        'respondent_id': 'utility_id_ferc1',
-        'athrty_co_name': 'authority_company_name',
-        'sttstcl_clssfctn': 'statistical_classification',
-        'rtsched_trffnbr': 'rate_schedule_tariff_num',
-        'avgmth_bill_dmnd': 'avg_billing_demand_mw',
-        'avgmth_ncp_dmnd': 'avg_monthly_ncp_demand_mw',
-        'avgmth_cp_dmnd': 'avg_monthly_cp_demand_mw',
-        'mwh_purchased': 'purchased_mwh',
-        'mwh_recv': 'received_mwh',
-        'mwh_delvd': 'delivered_mwh',
-        'dmnd_charges': 'demand_charges',
-        'erg_charges': 'energy_charges',
-        'othr_charges': 'other_charges',
-        'settlement_tot': 'total_settlement'},
-        inplace=True)
+    # Replace inscrutable two letter codes with descriptive codes:
+    df['purchase_type'] = df.purchase_type.replace(
+        pc.ferc1_power_purchase_type)
 
-    ferc1_transformed_dfs['purchased_power_ferc1'] = ferc1_purchased_pwr_df
+    ferc1_transformed_dfs['purchased_power_ferc1'] = df
 
     return ferc1_transformed_dfs
 

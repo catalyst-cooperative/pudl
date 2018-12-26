@@ -29,16 +29,34 @@ class FERCAccount(pudl.models.entities.PUDLBase):
     """Static list of all the FERC account numbers and descriptions."""
 
     __tablename__ = 'ferc_accounts'
-    id = Column(String, primary_key=True)
-    description = Column(String, nullable=False)
+    __table_args__ = ({'comment': "Account numbers from the FERC Uniform System of Accounts for Electric Plant, which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g. https://www.law.cornell.edu/cfr/text/18/part-101)."})
+    id = Column(
+        String,
+        primary_key=True,
+        comment="Account number, from FERC's Uniform System of Accounts for Electric Plant. Also includes higher level labeled categories."
+    )
+    description = Column(
+        String,
+        nullable=False,
+        comment="Long description of the FERC Account."
+    )
 
 
 class FERCDepreciationLine(pudl.models.entities.PUDLBase):
     """Static list of all the FERC account numbers and descriptions."""
 
     __tablename__ = 'ferc_depreciation_lines'
-    id = Column(String, primary_key=True)
-    description = Column(String, nullable=False)
+    __table_args__ = ({"comment": "PUDL assigned FERC Form 1 line identifiers and long descriptions from FERC Form 1 page 219, Accumulated Provision for Depreciation of Electric Utility Plant (Account 108)."})
+    id = Column(
+        String,
+        primary_key=True,
+        comment="A human readable string uniquely identifying the FERC depreciation account. Used in lieu of the actual line number, as those numbers are not guaranteed to be consistent from year to year."
+    )
+    description = Column(
+        String,
+        nullable=False,
+        comment="Description of the FERC depreciation account, as listed on FERC Form 1, Page 219."
+    )
 
 
 ###########################################################################

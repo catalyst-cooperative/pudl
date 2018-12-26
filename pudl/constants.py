@@ -408,6 +408,18 @@ ferc1_construction_type_strings = {
     'conventional': ferc1_construction_type_conventional
 }
 
+ferc1_power_purchase_type = {
+    'RQ': 'requirement',
+    'LF': 'long_firm',
+    'IF': 'intermediate_firm',
+    'SF': 'short_firm',
+    'LU': 'long_unit',
+    'IU': 'intermediate_unit',
+    'EX': 'electricity_exchange',
+    'OS': 'other_service',
+    'AD': 'adjustment'
+}
+
 # Dictionary mapping DBF files (w/o .DBF file extension) to DB table names
 ferc1_dbf2tbl = {
     'F1_1':  'f1_respondent_id',    # GET THIS ONE
