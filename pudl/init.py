@@ -208,58 +208,50 @@ def ingest_static_tables(engine):
     Returns: Nothing.
 
     """
-    PUDL_Session = sa.orm.sessionmaker(bind=engine)
-    pudl_session = PUDL_Session()
-
     # Populate tables with static data from above.
-    pudl_session.add_all(
-        [pudl.models.eia923.FuelTypeEIA923(abbr=k, fuel_type=v)
-         for k, v in pc.fuel_type_eia923.items()])
-    pudl_session.add_all(
-        [pudl.models.eia923.PrimeMoverEIA923(abbr=k, prime_mover=v)
-         for k, v in pc.prime_movers_eia923.items()])
-    pudl_session.add_all(
-        [pudl.models.eia923.FuelTypeAER(abbr=k, fuel_type=v)
-         for k, v in pc.fuel_type_aer_eia923.items()])
-    pudl_session.add_all(
-        [pudl.models.eia923.EnergySourceEIA923(abbr=k, source=v)
-         for k, v in pc.energy_source_eia923.items()])
-    pudl_session.add_all(
-        [pudl.models.eia923.TransportModeEIA923(abbr=k, mode=v)
-         for k, v in pc.transport_modes_eia923.items()])
+    (pd.DataFrame({'abbr': list(pc.fuel_type_eia923.keys()),
+                   'fuel_type': list(pc.fuel_type_eia923.values())})
+     .to_sql('fuel_type_eia923',
+             con=engine, index=False, if_exists='append'))
 
-    # Commit the changes to the DB and close down the session.
-    pudl_session.commit()
-    pudl_session.close_all()
+    (pd.DataFrame({'abbr': list(pc.prime_movers_eia923.keys()),
+                   'prime_mover': list(pc.prime_movers_eia923.values())})
+     .to_sql('prime_movers_eia923',
+             con=engine, index=False, if_exists='append'))
 
-    # We aren't bringing row_number in to the PUDL DB:
-    ferc_accts_df = pc.ferc_electric_plant_accounts.drop('row_number', axis=1)
-    # Get rid of excessive whitespace introduced to break long lines (ugh)
-    ferc_accts_df.ferc_account_description = \
-        ferc_accts_df.ferc_account_description.str.replace(r'\s+', ' ')
+    (pd.DataFrame({'abbr': list(pc.fuel_type_aer_eia923.keys()),
+                   'fuel_type': list(pc.fuel_type_aer_eia923.values())})
+     .to_sql('fuel_type_aer_eia923',
+             con=engine, index=False, if_exists='append'))
 
-    ferc_accts_df.rename(columns={'ferc_account_id': 'id',
-                                  'ferc_account_description': 'description'},
-                         inplace=True)
+    (pd.DataFrame({'abbr': list(pc.energy_source_eia923.keys()),
+                   'source': list(pc.energy_source_eia923.values())})
+     .to_sql('energy_source_eia923',
+             con=engine, index=False, if_exists='append'))
 
-    ferc_accts_df.to_sql('ferc_accounts',
-                         con=engine, index=False, if_exists='append',
-                         dtype={'id': sa.String,
-                                'description': sa.String})
+    (pd.DataFrame({'abbr': list(pc.transport_modes_eia923.keys()),
+                   'mode': list(pc.transport_modes_eia923.values())})
+     .to_sql('transport_modes_eia923',
+             con=engine, index=False, if_exists='append'))
 
-    ferc_depreciation_lines_df = \
-        pc.ferc_accumulated_depreciation.drop('row_number', axis=1)
+    (pc.ferc_electric_plant_accounts
+     .drop('row_number', axis=1)
+     .replace({'ferc_account_description': r'\s+'}, ' ', regex=True)
+     .rename(columns={'ferc_account_id': 'id',
+                      'ferc_account_description': 'description'})
+     .to_sql('ferc_accounts',
+             con=engine, index=False, if_exists='append',
+             dtype={'id': sa.String,
+                    'description': sa.String}))
 
-    ferc_depreciation_lines_df.\
-        rename(columns={'line_id': 'id',
-                        'ferc_account_description': 'description'},
-               inplace=True)
-
-    ferc_depreciation_lines_df.\
-        to_sql('ferc_depreciation_lines',
-               con=engine, index=False, if_exists='append',
-               dtype={'id': sa.String,
-                      'description': sa.String})
+    (pc.ferc_accumulated_depreciation
+     .drop('row_number', axis=1)
+     .rename(columns={'line_id': 'id',
+                      'ferc_account_description': 'description'})
+     .to_sql('ferc_depreciation_lines',
+             con=engine, index=False, if_exists='append',
+             dtype={'id': sa.String,
+                    'description': sa.String}))
 
 
 def _ingest_glue(engine,
