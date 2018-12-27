@@ -134,15 +134,15 @@ def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
     # Iterate over the multipliers, applying fixes to outlying populations
     for mult in mults:
         records_to_fix = records_to_fix.apply(lambda x: x * mult
-                                              if x > minval / mult and
-                                              x < maxval / mult
+                                              if x > minval / mult
+                                              and x < maxval / mult
                                               else x)
     # Set any record that wasn't inside one of our identified populations to
     # NA -- we are saying that these are true outliers, which can't be part
     # of the population of values we are examining.
     records_to_fix = records_to_fix.apply(lambda x: np.nan
-                                          if x < minval or
-                                          x > maxval
+                                          if x < minval
+                                          or x > maxval
                                           else x)
     # Add our fixed records back to the complete data series and return it
     fixed = fixed.append(records_to_fix)
@@ -325,8 +325,8 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     # them a FERC Plant ID, and pull the results back out into a dataframe:
     plants_w_ids = pd.DataFrame()
     for plant_id_ferc1, plant in enumerate(ferc_plants):
-        nx.set_edge_attributes(plant, plant_id_ferc1
-                               + 1, name='plant_id_ferc1')
+        nx.set_edge_attributes(plant, plant_id_ferc1 +
+                               1, name='plant_id_ferc1')
         new_plant_df = nx.to_pandas_edgelist(plant)
         plants_w_ids = plants_w_ids.append(new_plant_df)
     if verbose:
@@ -648,6 +648,11 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     # space -- necesary b/c plant_name is part of many foreign keys.
     ferc1_hydro_df = pudl.helpers.strip_lower(ferc1_hydro_df, ['plant_name'])
 
+    ferc1_hydro_df.plant_const = \
+        pudl.helpers.cleanstrings(ferc1_hydro_df.plant_const,
+                                  pc.ferc1_construction_type_strings,
+                                  unmapped='')
+
     # Converting kWh to MWh
     ferc1_hydro_df['net_generation_mwh'] = ferc1_hydro_df['net_generation'] / 1000.0
     ferc1_hydro_df.drop('net_generation', axis=1, inplace=True)
@@ -730,42 +735,48 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
 
     """
     # grab table from dictionary of dfs
-    ferc1_pumped_storage_df = _clean_cols(
+    ferc1_pump_df = _clean_cols(
         ferc1_raw_dfs['plants_pumped_storage_ferc1'])
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space -- necesary b/c plant_name is part of many foreign keys.
-    ferc1_pumped_storage_df = pudl.helpers.strip_lower(
-        ferc1_pumped_storage_df, ['plant_name']
+    ferc1_pump_df = pudl.helpers.strip_lower(
+        ferc1_pump_df, ['plant_name']
     )
 
+    # Clean up the messy plant construction type column:
+    ferc1_pump_df.plant_kind = \
+        pudl.helpers.cleanstrings(ferc1_pump_df.plant_kind,
+                                  pc.ferc1_construction_type_strings,
+                                  unmapped='')
+
     # Converting kWh to MWh
-    ferc1_pumped_storage_df['net_generation_mwh'] = ferc1_pumped_storage_df['net_generation'] / 1000.0
-    ferc1_pumped_storage_df.drop('net_generation', axis=1, inplace=True)
+    ferc1_pump_df['net_generation_mwh'] = ferc1_pump_df['net_generation'] / 1000.0
+    ferc1_pump_df.drop('net_generation', axis=1, inplace=True)
 
-    ferc1_pumped_storage_df['energy_used_for_pumping_mwh'] = ferc1_pumped_storage_df['energy_used'] / 1000.0
-    ferc1_pumped_storage_df.drop('energy_used', axis=1, inplace=True)
+    ferc1_pump_df['energy_used_for_pumping_mwh'] = ferc1_pump_df['energy_used'] / 1000.0
+    ferc1_pump_df.drop('energy_used', axis=1, inplace=True)
 
-    ferc1_pumped_storage_df['net_load_mwh'] = ferc1_pumped_storage_df['net_load'] / 1000.0
-    ferc1_pumped_storage_df.drop('net_load', axis=1, inplace=True)
+    ferc1_pump_df['net_load_mwh'] = ferc1_pump_df['net_load'] / 1000.0
+    ferc1_pump_df.drop('net_load', axis=1, inplace=True)
 
     # Converting cost per kW installed to cost per MW installed:
-    ferc1_pumped_storage_df['cost_per_mw'] = ferc1_pumped_storage_df['cost_per_kw'] * 1000.0
-    ferc1_pumped_storage_df.drop('cost_per_kw', axis=1, inplace=True)
+    ferc1_pump_df['cost_per_mw'] = ferc1_pump_df['cost_per_kw'] * 1000.0
+    ferc1_pump_df.drop('cost_per_kw', axis=1, inplace=True)
 
-    ferc1_pumped_storage_df['expns_per_mwh'] = ferc1_pumped_storage_df['expns_kwh'] * 1000.0
-    ferc1_pumped_storage_df.drop('expns_kwh', axis=1, inplace=True)
+    ferc1_pump_df['expns_per_mwh'] = ferc1_pump_df['expns_kwh'] * 1000.0
+    ferc1_pump_df.drop('expns_kwh', axis=1, inplace=True)
 
-    ferc1_pumped_storage_df['yr_const'] = pd.to_numeric(
-        ferc1_pumped_storage_df['yr_const'],
+    ferc1_pump_df['yr_const'] = pd.to_numeric(
+        ferc1_pump_df['yr_const'],
         errors='coerce')
-    ferc1_pumped_storage_df['yr_installed'] = pd.to_numeric(
-        ferc1_pumped_storage_df['yr_installed'],
+    ferc1_pump_df['yr_installed'] = pd.to_numeric(
+        ferc1_pump_df['yr_installed'],
         errors='coerce')
 
-    ferc1_pumped_storage_df.dropna(inplace=True)
+    ferc1_pump_df.dropna(inplace=True)
 
-    ferc1_pumped_storage_df.rename(columns={
+    ferc1_pump_df.rename(columns={
         # FERC1 DB          PUDL DB
         'respondent_id': 'utility_id_ferc1',
         'project_number': 'project_num',
@@ -806,7 +817,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
         'expns_per_mwh': 'opex_per_mwh'},
         inplace=True)
 
-    ferc1_transformed_dfs['plants_pumped_storage_ferc1'] = ferc1_pumped_storage_df
+    ferc1_transformed_dfs['plants_pumped_storage_ferc1'] = ferc1_pump_df
 
     return ferc1_transformed_dfs
 
@@ -884,9 +895,9 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
               'athrty_co_name': 'seller_name',
               'sttstcl_clssfctn': 'purchase_type',
               'rtsched_trffnbr': 'tariff',
-              'avgmth_bill_dmnd': 'avg_billing_demand_mw',
-              'avgmth_ncp_dmnd': 'avg_monthly_ncp_demand_mw',
-              'avgmth_cp_dmnd': 'avg_monthly_cp_demand_mw',
+              'avgmth_bill_dmnd': 'billing_demand_mw',
+              'avgmth_ncp_dmnd': 'non_coincident_peak_demand_mw',
+              'avgmth_cp_dmnd': 'coincident_peak_demand_mw',
               'mwh_purchased': 'purchased_mwh',
               'mwh_recv': 'received_mwh',
               'mwh_delvd': 'delivered_mwh',
@@ -895,29 +906,46 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
               'othr_charges': 'other_charges',
               'settlement_tot': 'total_settlement'})
           .replace({  # Remove all non-numeric characters from these columns
-              "avg_billing_demand_mw": r"[^0-9\.]",
-              "avg_monthly_ncp_demand_mw": r"[^0-9\.]",
-              "avg_monthly_cp_demand_mw": r"[^0-9\.]"}, '', regex=True)
+              "billing_demand_mw": r"[^0-9\.]",
+              "non_coincident_peak_demand_mw": r"[^0-9\.]",
+              "coincident_peak_demand_mw": r"[^0-9\.]"}, '', regex=True)
           .replace({  # If all that's left is a period, set to NaN.
-              "avg_billing_demand_mw": ".",
-              "avg_monthly_ncp_demand_mw": ".",
-              "avg_monthly_cp_demand_mw": "."}, np.nan)
+              "billing_demand_mw": ".",
+              "non_coincident_peak_demand_mw": ".",
+              "coincident_peak_demand_mw": "."}, np.nan)
           .replace({  # Replace empty fields with NaN
-              "avg_billing_demand_mw": "",
-              "avg_monthly_ncp_demand_mw": "",
-              "avg_monthly_cp_demand_mw": ""}, np.nan)
+              "billing_demand_mw": "",
+              "non_coincident_peak_demand_mw": "",
+              "coincident_peak_demand_mw": ""}, np.nan)
           .astype({  # Whatever is left can be cast to a float.
-              "avg_billing_demand_mw": float,
-              "avg_monthly_ncp_demand_mw": float,
-              "avg_monthly_cp_demand_mw": float}))
+              "billing_demand_mw": float,
+              "non_coincident_peak_demand_mw": float,
+              "coincident_peak_demand_mw": float})
+          .fillna({  # Replace blanks w/ 0.0 in data columns.
+              "purchased_mwh": 0.0,
+              "received_mwh": 0.0,
+              "delivered_mwh": 0.0,
+              "demand_charges": 0.0,
+              "energy_charges": 0.0,
+              "other_charges": 0.0,
+              "total_settlement": 0.0}))
 
-    # Replace any invalid purchase types with ""
+    # Replace any invalid purchase types with the empty string
     bad_rows = (~df.purchase_type.isin(pc.ferc1_power_purchase_type.keys()))
     df.loc[bad_rows, 'purchase_type'] = ""
 
     # Replace inscrutable two letter codes with descriptive codes:
     df['purchase_type'] = df.purchase_type.replace(
         pc.ferc1_power_purchase_type)
+
+    # Drop records containing no useful data.
+    df = df.drop(df.loc[((df.purchased_mwh == 0) &
+                         (df.received_mwh == 0)
+                         & (df.delivered_mwh == 0)
+                         & (df.demand_charges == 0)
+                         & (df.energy_charges == 0)
+                         & (df.other_charges == 0)
+                         & (df.total_settlement == 0)), :].index)
 
     ferc1_transformed_dfs['purchased_power_ferc1'] = df
 

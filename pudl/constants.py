@@ -381,24 +381,28 @@ cpi_plant_kind_strings = {
 # conventional (e.g. "conventional full") and outdoor (e.g. "outdoor full"
 # and "outdoor hrsg") are included.
 
-ferc1_construction_type_outdoor = \
-    ['outdoor', 'outdoor boiler', 'full outdoor', 'outdoor boiler',
-     'outdoor boilers', 'outboilers', 'fuel outdoor', 'full outdoor',
-     'outdoors', 'outdoor', 'boiler outdoor& full', 'boiler outdoor&full',
-     'outdoor boiler& full', 'full -outdoor', 'outdoor steam',
-     'outdoor boiler', 'ob', 'outdoor automatic', 'outdoor repower',
-     'full outdoor boiler', 'fo', 'outdoor boiler & ful', 'full-outdoor',
-     'fuel outdoor', 'outoor', 'outdoor', 'outdoor  boiler&full',
-     'boiler outdoor &full', 'outdoor boiler &full', 'boiler outdoor & ful',
-     'outdoor-boiler', 'outdoor - boiler', 'outdoor const.',
-     '4 outdoor boilers', '3 outdoor boilers', 'full outdoor', 'full outdoors',
-     'full oudoors', 'outdoor (auto oper)', 'outside boiler',
-     'outdoor boiler&full', 'outdoor hrsg', 'outdoor hrsg']
+ferc1_construction_type_outdoor = [
+    'outdoor', 'outdoor boiler', 'full outdoor', 'outdoor boiler',
+    'outdoor boilers', 'outboilers', 'fuel outdoor', 'full outdoor',
+    'outdoors', 'outdoor', 'boiler outdoor& full', 'boiler outdoor&full',
+    'outdoor boiler& full', 'full -outdoor', 'outdoor steam',
+    'outdoor boiler', 'ob', 'outdoor automatic', 'outdoor repower',
+    'full outdoor boiler', 'fo', 'outdoor boiler & ful', 'full-outdoor',
+    'fuel outdoor', 'outoor', 'outdoor', 'outdoor  boiler&full',
+    'boiler outdoor &full', 'outdoor boiler &full', 'boiler outdoor & ful',
+    'outdoor-boiler', 'outdoor - boiler', 'outdoor const.',
+    '4 outdoor boilers', '3 outdoor boilers', 'full outdoor', 'full outdoors',
+    'full oudoors', 'outdoor (auto oper)', 'outside boiler',
+    'outdoor boiler&full', 'outdoor hrsg', 'outdoor hrsg', 'semi-outdoor',
+    'semi - outdoor'
+]
 
-ferc1_construction_type_conventional = \
-    ['conventional', 'conventional', 'conventional boiler', 'conv-b',
-     'conventionall', 'convention', 'conventional', 'coventional',
-     'conven full boiler', 'c0nventional', 'conventtional', 'convential']
+ferc1_construction_type_conventional = [
+    'conventional', 'conventional', 'conventional boiler', 'conv-b',
+    'conventionall', 'convention', 'conventional', 'coventional',
+    'conven full boiler', 'c0nventional', 'conventtional', 'convential'
+    'underground', 'conventional bulb', 'conventrional'
+]
 
 # Making a dictionary of lists from the lists of construction_type strings to
 # create a dictionary of construction type lists.

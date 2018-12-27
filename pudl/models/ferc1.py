@@ -439,23 +439,23 @@ class PurchasedPowerFERC1(pudl.models.entities.PUDLBase):
     purchase_type = Column(
         Enum(*pc.ferc1_power_purchase_type.values(),
              name="ferc1_power_purchase_type"),
-        comment="Categorization based on the original contractual terms and conditions of the service. Must be one of 'requirements', 'long_firm', 'intermediate_firm', 'short_firm', 'long_unit', 'intermediate_unit', 'exchange', 'other_service', or 'adjustment'. Requirements service is ongoing high reliability service, with load integrated into system resource planning. 'Long term' means 5+ years. 'Intermediate term' is 1-5 years. 'Short term' is less than 1 year. 'Firm' means not interruptible for economic reasons. 'unit' indicates service from a particular designated generating unit. 'exchange' is an in-kind transaction."
+        comment="Categorization based on the original contractual terms and conditions of the service. Must be one of 'requirements', 'long_firm', 'intermediate_firm', 'short_firm', 'long_unit', 'intermediate_unit', 'electricity_exchange', 'other_service', or 'adjustment'. Requirements service is ongoing high reliability service, with load integrated into system resource planning. 'Long term' means 5+ years. 'Intermediate term' is 1-5 years. 'Short term' is less than 1 year. 'Firm' means not interruptible for economic reasons. 'unit' indicates service from a particular designated generating unit. 'exchange' is an in-kind transaction."
     )
     tariff = Column(
         String,
         comment="FERC Rate Schedule Number or Tariff. (Note: may be incomplete if originally reported on multiple lines.)"
     )
-    avg_billing_demand_mw = Column(
+    billing_demand_mw = Column(
         Float,
-        comment="Monthly average billing demand (for RQ purchases, and any transactions involving demand charges). In megawatts."
+        comment="Monthly average billing demand (for requirements purchases, and any transactions involving demand charges). In megawatts."
     )
-    avg_monthly_ncp_demand_mw = Column(
+    non_coincident_peak_demand_mw = Column(
         Float,
-        comment="Average monthly non-coincident peak (NCP) demand (for RQ purhcases, and any transactions involving demand charges). Monthly NCP demand is the maximum metered hourly (60-minute integration) demand in a month. In megawatts."
+        comment="Average monthly non-coincident peak (NCP) demand (for requirements purhcases, and any transactions involving demand charges). Monthly NCP demand is the maximum metered hourly (60-minute integration) demand in a month. In megawatts."
     )
-    avg_monthly_cp_demand_mw = Column(
+    coincident_peak_demand_mw = Column(
         Float,
-        comment="Average monthly coincident peak (CP) demand (for RQ purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts."
+        comment="Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts."
     )
     purchased_mwh = Column(
         Float,
