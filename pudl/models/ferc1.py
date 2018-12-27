@@ -15,7 +15,7 @@ construction_type_enum = Enum(*pc.ferc1_construction_type_strings.keys(),
 
 id_comment = "PUDL issued surrogate key."
 record_id_comment = "Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table."
-utility_id_ferc1_comment = "FERC assinged respondent_id, identifying the reporting entity. Stable from year to year."
+utility_id_ferc1_comment = "FERC assigned respondent_id, identifying the reporting entity. Stable from year to year."
 report_year_comment = "Four-digit year in which the data was reported."
 plant_id_ferc1_comment = "Algorithmically assigned PUDL FERC Plant ID. WARNING: NOT STABLE BETWEEN PUDL DB INITIALIZATIONS."
 plant_name_comment = "Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant."
