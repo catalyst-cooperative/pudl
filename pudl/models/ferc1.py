@@ -10,6 +10,17 @@ import pudl.constants as pc
 # Tables comprising data from the FERC f1_steam & f1_fuel tables
 ###########################################################################
 
+construction_type_enum = Enum(*pc.ferc1_construction_type_strings.keys(),
+                              name='ferc1_construction_type')
+
+id_comment = "PUDL issued surrogate key."
+record_id_comment = "Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table."
+utility_id_ferc1_comment = "FERC assinged respondent_id, identifying the reporting entity. Stable from year to year."
+report_year_comment = "Four-digit year in which the data was reported."
+plant_id_ferc1_comment = "Algorithmically assigned PUDL FERC Plant ID. WARNING: NOT STABLE BETWEEN PUDL DB INITIALIZATIONS."
+plant_name_comment = "Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant."
+construction_type_comment = "Type of plant construction ('outdoor' or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings."
+
 
 class FuelFERC1(pudl.models.entities.PUDLBase):
     """
@@ -29,36 +40,16 @@ class FuelFERC1(pudl.models.entities.PUDLBase):
     # Each year, for each fuel, there's one report for each plant, which may
     # be recorded multiple times for multiple utilities that have a stake in
     # the plant... Primary key fields: utility, plant, fuel and year.
-    id = Column(
-        Integer,
-        autoincrement=True,
-        primary_key=True,
-        comment='PUDL issued surrogate key.'
-    )
-    record_id = Column(
-        String,
-        nullable=False,
-        comment="Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table."
-    )
-    utility_id_ferc1 = Column(
-        Integer,
-        nullable=False,
-        comment="FERC assinged respondent_id, identifying the reporting entity. Stable from year to year."
-    )
-    plant_id_ferc1 = Column(
-        Integer,
-        comment='PUDL issued FERC Plant ID. Not stable between sessions.'
-    )
-    plant_name = Column(
-        String,
-        nullable=False,
-        comment="Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant"
-    )
-    report_year = Column(
-        Integer,
-        nullable=False,
-        comment="Four-digit year in which the data was reported."
-    )
+    id = Column(Integer, autoincrement=True,
+                primary_key=True, comment=id_comment)
+    record_id = Column(String, nullable=False, comment=record_id_comment)
+    utility_id_ferc1 = Column(Integer, nullable=False,
+                              comment=utility_id_ferc1_comment)
+    report_year = Column(Integer, nullable=False, comment=report_year_comment)
+
+    plant_id_ferc1 = Column(Integer, comment=plant_id_ferc1_comment)
+    plant_name = Column(String, nullable=False, comment=plant_name_comment)
+
     fuel_type_code_pudl = Column(
         Enum(*pc.ferc1_fuel_strings.keys(),
              name='ferc1_pudl_fuel_codes'),
@@ -119,44 +110,23 @@ class PlantSteamFERC1(pudl.models.entities.PUDLBase):
         {'comment': "Large thermal generating plants, as reported on page 402 of FERC Form 1."}
     )
 
-    id = Column(
-        Integer,
-        autoincrement=True,
-        primary_key=True,
-        comment="PUDL generated surrogate key."
-    )
-    record_id = Column(
-        String,
-        nullable=False,
-        comment="Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table."
-    )
-    utility_id_ferc1 = Column(
-        Integer,
-        nullable=False,
-        comment="FERC assinged respondent_id, identifying the reporting entity. Stable from year to year."
-    )
-    plant_id_ferc1 = Column(
-        Integer,
-        comment='PUDL issued FERC Plant ID. Not stable between sessions.'
-    )
-    plant_name = Column(
-        String,
-        nullable=False,
-        comment="Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant"
-    )
-    report_year = Column(
-        Integer,
-        nullable=False,
-        comment="Year in which the data was reported."
-    )
+    id = Column(Integer, autoincrement=True,
+                primary_key=True, comment=id_comment)
+    record_id = Column(String, nullable=False, comment=record_id_comment)
+    utility_id_ferc1 = Column(Integer, nullable=False,
+                              comment=utility_id_ferc1_comment)
+    report_year = Column(Integer, nullable=False, comment=report_year_comment)
+
+    plant_id_ferc1 = Column(Integer, comment=plant_id_ferc1_comment)
+    plant_name = Column(String, nullable=False, comment=plant_name_comment)
+
     plant_type = Column(
         Enum(*pc.ferc1_plant_kind_strings, name='ferc1_plant_kind'),
         comment="Simplified plant type, categorized by PUDL based on our best guess of what was intended based on freeform string reported to FERC. Unidentifiable types are null."
     )
     construction_type = Column(
-        Enum(*pc.ferc1_construction_type_strings,
-             name='ferc1_construction_type'),
-        comment="Type of plant construction. Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings."
+        construction_type_enum,  # Enum, see top of this file
+        comment=construction_type_comment
     )
     construction_year = Column(
         Integer,
@@ -312,12 +282,12 @@ class PlantInServiceFERC1(pudl.models.entities.PUDLBase):
         Integer,
         ForeignKey('utilities_ferc.utility_id_ferc1'),
         primary_key=True,
-        comment="FERC assinged respondent_id, identifying the reporting entity. Stable from year to year."
+        comment=utility_id_ferc1_comment
     )
     report_year = Column(
         Integer,
         primary_key=True,
-        comment="Four-digit year in which the data was reported."
+        comment=report_year_comment
     )
     ferc_account_id = Column(
         String,
@@ -325,11 +295,7 @@ class PlantInServiceFERC1(pudl.models.entities.PUDLBase):
         primary_key=True,
         comment="Identification number associated with each FERC account, as described in the FERC Uniform System of Accounts for Electric Plant."
     )
-    record_id = Column(
-        String,
-        nullable=False,
-        comment="Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table."
-    )
+    record_id = Column(String, nullable=False, comment=record_id_comment)
     beginning_year_balance = Column(
         Numeric(14, 2),
         comment="Balance in the associated account at the beginning of the year. Nominal USD."
@@ -411,27 +377,14 @@ class PurchasedPowerFERC1(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'purchased_power_ferc1'
     __table_args__ = ({"comment": "Purchased Power (Account 555) including power exchanges (i.e. transactions involving a balancing of debits and credits for energy, capacity, etc.) and any settlements for imbalanced exchanges. Reported on pages 326-327 of FERC Form 1. Extracted from the f1_purchased_pwr table in FERC's FoxPro database. "})
-    id = Column(
-        Integer,
-        autoincrement=True,
-        primary_key=True,
-        comment='PUDL issued surrogate key.'
-    )
-    record_id = Column(
-        String,
-        nullable=False,
-        comment="Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table."
-    )
-    utility_id_ferc1 = Column(
-        Integer,
-        nullable=False,
-        comment="FERC assinged respondent_id, identifying the reporting entity. Stable from year to year."
-    )
-    report_year = Column(
-        Integer,
-        nullable=False,
-        comment="Four-digit year in which the data was reported."
-    )
+
+    id = Column(Integer, autoincrement=True,
+                primary_key=True, comment=id_comment)
+    record_id = Column(String, nullable=False, comment=record_id_comment)
+    utility_id_ferc1 = Column(Integer, nullable=False,
+                              comment=utility_id_ferc1_comment)
+    report_year = Column(Integer, nullable=False, comment=report_year_comment)
+
     seller_name = Column(
         String,
         comment="Name of the seller, or the other party in an exchange transaction."
@@ -503,28 +456,13 @@ class PlantSmallFERC1(pudl.models.entities.PUDLBase):
             ['plants_ferc.utility_id_ferc1', 'plants_ferc.plant_name']),
         {"comment": "Generating plant statistics for small plants, as reported on FERC Form 1 pages 410-411, and extracted from the FERC FoxPro database table f1_gnrt_plant. Small generating plants are defined by having nameplate capacity of less than 25MW for steam plants, and less than 10MW for internal combustion, conventional hydro, and pumped storage plants."}
     )
+    id = Column(Integer, autoincrement=True,
+                primary_key=True, comment=id_comment)
+    record_id = Column(String, nullable=False, comment=record_id_comment)
+    utility_id_ferc1 = Column(Integer, nullable=False,
+                              comment=utility_id_ferc1_comment)
+    report_year = Column(Integer, nullable=False, comment=report_year_comment)
 
-    id = Column(
-        Integer,
-        autoincrement=True,
-        primary_key=True,
-        comment='PUDL issued surrogate key.'
-    )
-    record_id = Column(
-        String,
-        nullable=False,
-        comment="Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table."
-    )
-    utility_id_ferc1 = Column(
-        Integer,
-        nullable=False,
-        comment="FERC assinged respondent_id, identifying the reporting entity. Stable from year to year."
-    )
-    report_year = Column(
-        Integer,
-        nullable=False,
-        comment="Four-digit year in which the data was reported."
-    )
     plant_name_original = Column(
         String,
         nullable=False,
@@ -599,31 +537,17 @@ class PlantHydroFERC1(pudl.models.entities.PUDLBase):
         {"comment": "Hydroelectric generating plant statistics for large plants. Large plants have an installed nameplate capacity of more than 10 MW. As reported on FERC Form 1, pages 406-407, and extracted from the f1_hydro table in FERC's FoxPro database."}
     )
 
-    id = Column(
-        Integer,
-        autoincrement=True,
-        primary_key=True,
-        comment='PUDL issued surrogate key.'
-    )
-    record_id = Column(
-        String,
-        nullable=False,
-        comment="Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table."
-    )
-    utility_id_ferc1 = Column(
-        Integer,
-        nullable=False,
-        comment="FERC assinged respondent_id, identifying the reporting entity. Stable from year to year."
-    )
-    report_year = Column(
-        Integer,
-        nullable=False,
-        comment="Four-digit year in which the data was reported."
-    )
+    id = Column(Integer, autoincrement=True,
+                primary_key=True, comment=id_comment)
+    record_id = Column(String, nullable=False, comment=record_id_comment)
+    utility_id_ferc1 = Column(Integer, nullable=False,
+                              comment=utility_id_ferc1_comment)
+    report_year = Column(Integer, nullable=False, comment=report_year_comment)
+
     plant_name = Column(
         String,
         nullable=False,
-        comment="Plant name, as reported on FERC Form 1."
+        comment=plant_name_comment
     )
     project_num = Column(
         Integer,
@@ -633,9 +557,9 @@ class PlantHydroFERC1(pudl.models.entities.PUDLBase):
         String,
         comment="Kind of plant (Run-of-River or Storage)."
     )
-    plant_construction_type = Column(
-        String,
-        comment="Plant construction type (Conventional or Outdoor)"
+    construction_type = Column(
+        construction_type_enum,  # Enum, see top of this file
+        comment=construction_type_comment
     )
     construction_year = Column(
         Integer,
@@ -759,7 +683,7 @@ class PlantHydroFERC1(pudl.models.entities.PUDLBase):
     )
 
 
-class PlantsPumpedStorage(pudl.models.entities.PUDLBase):
+class PlantPumpedStorage(pudl.models.entities.PUDLBase):
     """Annual data on pumped storage from the f1_pumped_storage table."""
 
     __tablename__ = 'plants_pumped_storage_ferc1'
@@ -770,39 +694,25 @@ class PlantsPumpedStorage(pudl.models.entities.PUDLBase):
         {"comment": ""}
     )
 
-    id = Column(
-        Integer,
-        autoincrement=True,
-        primary_key=True,
-        comment='PUDL issued surrogate key.'
-    )
-    record_id = Column(
-        String,
-        nullable=False,
-        comment="Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table."
-    )
-    utility_id_ferc1 = Column(
-        Integer,
-        nullable=False,
-        comment="FERC assinged respondent_id, identifying the reporting entity. Stable from year to year."
-    )
-    report_year = Column(
-        Integer,
-        nullable=False,
-        comment="Four-digit year in which the data was reported."
-    )
+    id = Column(Integer, autoincrement=True,
+                primary_key=True, comment=id_comment)
+    record_id = Column(String, nullable=False, comment=record_id_comment)
+    utility_id_ferc1 = Column(Integer, nullable=False,
+                              comment=utility_id_ferc1_comment)
+    report_year = Column(Integer, nullable=False, comment=report_year_comment)
+
     plant_name = Column(
         String,
         nullable=False,
-        comment="Plant name, as reported on FERC Form 1."
+        comment=plant_name_comment
     )
     project_num = Column(
         Integer,
         comment="FERC Licensed Project Number."
     )
-    plant_construction_type = Column(
-        String,
-        comment="Plant construction type (Conventional or Outdoor)"
+    construction_type = Column(
+        construction_type_enum,  # Enum, see top of this file
+        comment=construction_type_comment
     )
     construction_year = Column(
         Integer,
