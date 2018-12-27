@@ -3407,6 +3407,13 @@ need_fix_inting = {
 }
 
 contributors = {
+    "catalyst-cooperative": {
+        "title": "Catalyst Cooperative",
+        "path": "https://catalyst.coop/",
+        "role": "publisher",
+        "email": "pudl@catalyst.coop",
+        "organization": "Catalyst Cooperative",
+    },
     "zane-selvans": {
         "title": "Zane Selvans",
         "email": "zane.selvans@catalyst.coop",
@@ -3438,13 +3445,6 @@ contributors = {
         "path": "https://karldw.org/",
         "role": "contributor",
         "organization": "UC Berkeley",
-    },
-    "catalyst-cooperative": {
-        "title": "Catalyst Cooperative",
-        "path": "https://catalyst.coop/",
-        "role": "publisher",
-        "email": "pudl@catalyst.coop",
-        "organization": "Catalyst Cooperative",
     },
     "climate-policy-initiative": {
         "title": "Climate Policy Initiative",
@@ -3498,38 +3498,38 @@ data_sources = {
 
 contributors_by_source = {
     "pudl": [
+        "catalyst-cooperative",
         "zane-selvans",
         "christina-gosnell",
         "steven-winter",
         "alana-wilson",
         "karl-dunkle-werner",
         "climate-policy-initiative",
-        "catalyst-cooperative",
     ],
     "eia923": [
+        "catalyst-cooperative",
         "zane-selvans",
         "christina-gosnell",
         "steven-winter",
-        "catalyst-cooperative",
     ],
     "eia860": [
+        "catalyst-cooperative",
         "zane-selvans",
         "christina-gosnell",
         "steven-winter",
         "alana-wilson",
-        "catalyst-cooperative",
     ],
     "ferc1": [
+        "catalyst-cooperative",
         "zane-selvans",
         "christina-gosnell",
         "steven-winter",
         "alana-wilson",
-        "catalyst-cooperative",
     ],
     "epacems": [
-        "zane-selvans",
-        "karl-dunkle-werner"
         "catalyst-cooperative",
+        "karl-dunkle-werner",
+        "zane-selvans",
     ],
 }
 
