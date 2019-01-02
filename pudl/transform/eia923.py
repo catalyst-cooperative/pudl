@@ -543,11 +543,8 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
     frc_df['secondary_transportation_mode_code'] = \
         frc_df['secondary_transportation_mode_code'].str.upper()
 
-    frc_df['contract_expiration_date'] = \
-        pudl.helpers.fix_int_na(frc_df['contract_expiration_date'],
-                                float_na=np.nan,
-                                int_na=-1,
-                                str_na='')
+    frc_df = pudl.helpers.fix_int_na(frc_df,
+                                     columns=['contract_expiration_date', ])
     # Convert the 3-4 digit (MYY|MMYY) date of contract expiration to
     # two fields MM and YYYY for easier analysis later.
     frc_df['contract_expiration_month'] = \

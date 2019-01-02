@@ -10,52 +10,46 @@ import pudl.constants as pc
 # Tables comprising data from the FERC f1_steam & f1_fuel tables
 ###########################################################################
 
+construction_type_enum = Enum(*pc.ferc1_construction_type_strings.keys(),
+                              name='ferc1_construction_type')
+
+id_comment = "PUDL issued surrogate key."
+record_id_comment = "Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table."
+utility_id_ferc1_comment = "FERC assigned respondent_id, identifying the reporting entity. Stable from year to year."
+report_year_comment = "Four-digit year in which the data was reported."
+plant_id_ferc1_comment = "Algorithmically assigned PUDL FERC Plant ID. WARNING: NOT STABLE BETWEEN PUDL DB INITIALIZATIONS."
+plant_name_comment = "Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant."
+construction_type_comment = "Type of plant construction ('outdoor' or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings."
+
 
 class FuelFERC1(pudl.models.entities.PUDLBase):
     """
     Annual fuel consumed by plant, as reported to FERC in Form 1.
 
     This information comes from the f1_fuel table in the FERC DB, which is
-    populated from page 402 of the paper FERC For 1.
+    populated from page 402 of the paper FERC Form 1.
     """
 
     __tablename__ = 'fuel_ferc1'
-    __table_args__ = (ForeignKeyConstraint(
-        ['utility_id_ferc1', 'plant_name'],
-        ['plants_ferc.utility_id_ferc1', 'plants_ferc.plant_name']),)
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ['utility_id_ferc1', 'plant_name'],
+            ['plants_ferc.utility_id_ferc1', 'plants_ferc.plant_name']),
+        {'comment': "Annual fuel consumed by large thermal generating plants. As reported on page 402 of FERC Form 1."}
+    )
     # Each year, for each fuel, there's one report for each plant, which may
     # be recorded multiple times for multiple utilities that have a stake in
     # the plant... Primary key fields: utility, plant, fuel and year.
-    id = Column(
-        Integer,
-        autoincrement=True,
-        primary_key=True,
-        comment='PUDL issued surrogate key.'
-    )
-    plant_id_ferc1 = Column(
-        Integer,
-        comment='PUDL issued FERC Plant ID. Not stable between sessions.'
-    )
-    record_id = Column(
-        String,
-        nullable=False,
-        comment="Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table."
-    )
-    utility_id_ferc1 = Column(
-        Integer,
-        nullable=False,
-        comment="FERC assinged respondent_id, identifying the reporting entity. Stable from year to year."
-    )
-    plant_name = Column(
-        String,
-        nullable=False,
-        comment="Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant"
-    )
-    report_year = Column(
-        Integer,
-        nullable=False,
-        comment="Year in which the data was reported."
-    )
+    id = Column(Integer, autoincrement=True,
+                primary_key=True, comment=id_comment)
+    record_id = Column(String, nullable=False, comment=record_id_comment)
+    utility_id_ferc1 = Column(Integer, nullable=False,
+                              comment=utility_id_ferc1_comment)
+    report_year = Column(Integer, nullable=False, comment=report_year_comment)
+
+    plant_id_ferc1 = Column(Integer, comment=plant_id_ferc1_comment)
+    plant_name = Column(String, nullable=False, comment=plant_name_comment)
+
     fuel_type_code_pudl = Column(
         Enum(*pc.ferc1_fuel_strings.keys(),
              name='ferc1_pudl_fuel_codes'),
@@ -95,13 +89,13 @@ class FuelFERC1(pudl.models.entities.PUDLBase):
     fuel_cost_per_mwh = Column(
         Float,
         nullable=False,
-        comment="Average cost of fuel burned per MWh of net generation in the report year."
+        comment="Average cost of fuel burned per MWh of net generation in the report year. In plants burning multiple fuels, this may not be indicative of overall fuel cost per MWh."
     )
     # Is this a useful number for any fuel that's not overwhelmingly dominant?
     fuel_mmbtu_per_mwh = Column(
         Float,
         nullable=False,
-        comment="Average heat content in mmBTU of fuel consumed per MWh of net generation in the report year."
+        comment="Average heat content in mmBTU of fuel consumed per MWh of net generation in the report year. In plants burning multiple fuels this may not be indicative of overall plant heat rate."
     )
 
 
@@ -109,48 +103,30 @@ class PlantSteamFERC1(pudl.models.entities.PUDLBase):
     """A large thermal generating plant, as reported to FERC on Form 1."""
 
     __tablename__ = 'plants_steam_ferc1'
-    __table_args__ = (ForeignKeyConstraint(
-        ['utility_id_ferc1', 'plant_name'],
-        ['plants_ferc.utility_id_ferc1', 'plants_ferc.plant_name']),)
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ['utility_id_ferc1', 'plant_name'],
+            ['plants_ferc.utility_id_ferc1', 'plants_ferc.plant_name']),
+        {'comment': "Large thermal generating plants, as reported on page 402 of FERC Form 1."}
+    )
 
-    id = Column(
-        Integer,
-        autoincrement=True,
-        primary_key=True,
-        comment="PUDL generated surrogate key."
-    )
-    record_id = Column(
-        String,
-        nullable=False,
-        comment="Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table."
-    )
-    utility_id_ferc1 = Column(
-        Integer,
-        nullable=False,
-        comment="FERC assinged respondent_id, identifying the reporting entity. Stable from year to year."
-    )
-    plant_id_ferc1 = Column(
-        Integer,
-        comment='PUDL issued FERC Plant ID. Not stable between sessions.'
-    )
-    plant_name = Column(
-        String,
-        nullable=False,
-        comment="Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant"
-    )
-    report_year = Column(
-        Integer,
-        nullable=False,
-        comment="Year in which the data was reported."
-    )
+    id = Column(Integer, autoincrement=True,
+                primary_key=True, comment=id_comment)
+    record_id = Column(String, nullable=False, comment=record_id_comment)
+    utility_id_ferc1 = Column(Integer, nullable=False,
+                              comment=utility_id_ferc1_comment)
+    report_year = Column(Integer, nullable=False, comment=report_year_comment)
+
+    plant_id_ferc1 = Column(Integer, comment=plant_id_ferc1_comment)
+    plant_name = Column(String, nullable=False, comment=plant_name_comment)
+
     plant_type = Column(
         Enum(*pc.ferc1_plant_kind_strings, name='ferc1_plant_kind'),
         comment="Simplified plant type, categorized by PUDL based on our best guess of what was intended based on freeform string reported to FERC. Unidentifiable types are null."
     )
     construction_type = Column(
-        Enum(*pc.ferc1_construction_type_strings,
-             name='ferc1_construction_type'),
-        comment="Type of plant construction. Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings."
+        construction_type_enum,  # Enum, see top of this file
+        comment=construction_type_comment
     )
     construction_year = Column(
         Integer,
@@ -196,7 +172,7 @@ class PlantSteamFERC1(pudl.models.entities.PUDLBase):
         Numeric(14, 2),
         comment="Capital expense for land and land rights."
     )
-    capex_structure = Column(
+    capex_structures = Column(
         Numeric(14, 2),
         comment="Capital expense for structures and improvements."
     )
@@ -301,21 +277,49 @@ class PlantInServiceFERC1(pudl.models.entities.PUDLBase):
     """
 
     __tablename__ = 'plant_in_service_ferc1'
-    utility_id_ferc1 = Column(Integer,
-                              ForeignKey('utilities_ferc.utility_id_ferc1'),
-                              primary_key=True)
-    report_year = Column(Integer,
-                         primary_key=True)
-    ferc_account_id = Column(String,
-                             ForeignKey('ferc_accounts.id'),
-                             primary_key=True)
-    record_id = Column(String, nullable=False)
-    beginning_year_balance = Column(Numeric(14, 2))
-    additions = Column(Numeric(14, 2))
-    retirements = Column(Numeric(14, 2))
-    adjustments = Column(Numeric(14, 2))
-    transfers = Column(Numeric(14, 2))
-    year_end_balance = Column(Numeric(14, 2))
+    __table_args__ = ({'comment': "Balances and changes to FERC Electric Plant in Service accounts, as reported on FERC Form 1. Data originally from the f1_plant_in_srvce table in FERC's FoxPro database. Account numbers correspond to the FERC Uniform System of Accounts for Electric Plant, which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g. https://www.law.cornell.edu/cfr/text/18/part-101). Each FERC respondent reports starting and ending balances for each account annually. Balances are organization wide, and are not broken down on a per-plant basis. End of year balance should equal beginning year balance plus the sum of additions, retirements, adjustments, and transfers."})
+    utility_id_ferc1 = Column(
+        Integer,
+        ForeignKey('utilities_ferc.utility_id_ferc1'),
+        primary_key=True,
+        comment=utility_id_ferc1_comment
+    )
+    report_year = Column(
+        Integer,
+        primary_key=True,
+        comment=report_year_comment
+    )
+    ferc_account_id = Column(
+        String,
+        ForeignKey('ferc_accounts.id'),
+        primary_key=True,
+        comment="Identification number associated with each FERC account, as described in the FERC Uniform System of Accounts for Electric Plant."
+    )
+    record_id = Column(String, nullable=False, comment=record_id_comment)
+    beginning_year_balance = Column(
+        Numeric(14, 2),
+        comment="Balance in the associated account at the beginning of the year. Nominal USD."
+    )
+    additions = Column(
+        Numeric(14, 2),
+        comment="Change in account balance during the year due to additions. Nominal USD."
+    )
+    retirements = Column(
+        Numeric(14, 2),
+        comment="Change in account balance during the year due to retirements. Nominal USD."
+    )
+    adjustments = Column(
+        Numeric(14, 2),
+        comment="Change in account balance during the year due to adjustments. Nominal USD."
+    )
+    transfers = Column(
+        Numeric(14, 2),
+        comment="Change in account balance during the year due to transfers. Nominal USD."
+    )
+    year_end_balance = Column(
+        Numeric(14, 2),
+        comment="Balance in the associated account at the end of the year. Nominal USD."
+    )
 
 
 class AccumulatedDepreciationFERC1(pudl.models.entities.PUDLBase):
@@ -326,44 +330,114 @@ class AccumulatedDepreciationFERC1(pudl.models.entities.PUDLBase):
     """
 
     __tablename__ = 'accumulated_depreciation_ferc1'
-    utility_id_ferc1 = Column(Integer,
-                              ForeignKey('utilities_ferc.utility_id_ferc1'),
-                              primary_key=True)
-    report_year = Column(Integer,
-                         primary_key=True)
-    line_id = Column(String,
-                     ForeignKey('ferc_depreciation_lines.id'),
-                     primary_key=True)
-    record_id = Column(String, nullable=False)
-    total = Column(Numeric(14, 2))
-    electric_plant = Column(Numeric(14, 2))
-    future_plant = Column(Numeric(14, 2))
-    leased_plant = Column(Numeric(14, 2))
+    __table_args__ = (
+        {'comment': "Balances and changes to FERC Accumulated Provision for Depreciation."})
+    utility_id_ferc1 = Column(
+        Integer,
+        ForeignKey('utilities_ferc.utility_id_ferc1'),
+        primary_key=True,
+        comment="FERC assinged respondent_id, identifying the reporting entity. Stable from year to year."
+    )
+    report_year = Column(
+        Integer,
+        primary_key=True,
+        comment="Four-digit year in which the data was reported."
+    )
+    record_id = Column(
+        String,
+        nullable=False,
+        comment="Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table."
+    )
+    line_id = Column(
+        String,
+        ForeignKey('ferc_depreciation_lines.id'),
+        primary_key=True,
+        comment="Line numbers, and corresponding FERC account number from FERC Form 1, page 2019, Accumulated Provision for Depreciation of Electric Utility Plant (Account 108)."
+    )
+    total = Column(
+        Numeric(14, 2),
+        comment="Total of Electric Plant In Service, Electric Plant Held for Future Use, and Electric Plant Leased to Others. Nominal USD."
+    )
+    electric_plant = Column(
+        Numeric(14, 2),
+        comment="Electric Plant In Service. Nominal USD."
+    )
+    future_plant = Column(
+        Numeric(14, 2),
+        comment="Electric Plant Held for Future Use. Nominal USD."
+    )
+    leased_plant = Column(
+        Numeric(14, 2),
+        comment="Electric Plant Leased to Others. Nominal USD."
+    )
 
 
 class PurchasedPowerFERC1(pudl.models.entities.PUDLBase):
     """Utility power purchase data, from FERC1 DB f1_purchased_pwr table."""
 
     __tablename__ = 'purchased_power_ferc1'
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    utility_id_ferc1 = Column(Integer,
-                              ForeignKey('utilities_ferc.utility_id_ferc1'),
-                              nullable=False)
-    record_id = Column(String, nullable=False)
-    report_year = Column(Integer, nullable=False)
-    authority_company_name = Column(String)
-    statistical_classification = Column(String)
-    rate_schedule_tariff_num = Column(String)
-    avg_billing_demand_mw = Column(String)
-    avg_monthly_ncp_demand_mw = Column(String)
-    avg_monthly_cp_demand_mw = Column(String)
-    purchased_mwh = Column(Numeric(14, 2))
-    received_mwh = Column(Numeric(14, 2))
-    delivered_mwh = Column(Numeric(14, 2))
-    demand_charges = Column(Numeric(14, 2))
-    energy_charges = Column(Numeric(14, 2))
-    other_charges = Column(Numeric(14, 2))
-    total_settlement = Column(Numeric(14, 2))
+    __table_args__ = ({"comment": "Purchased Power (Account 555) including power exchanges (i.e. transactions involving a balancing of debits and credits for energy, capacity, etc.) and any settlements for imbalanced exchanges. Reported on pages 326-327 of FERC Form 1. Extracted from the f1_purchased_pwr table in FERC's FoxPro database. "})
+
+    id = Column(Integer, autoincrement=True,
+                primary_key=True, comment=id_comment)
+    record_id = Column(String, nullable=False, comment=record_id_comment)
+    utility_id_ferc1 = Column(Integer, nullable=False,
+                              comment=utility_id_ferc1_comment)
+    report_year = Column(Integer, nullable=False, comment=report_year_comment)
+
+    seller_name = Column(
+        String,
+        comment="Name of the seller, or the other party in an exchange transaction."
+    )
+    purchase_type = Column(
+        Enum(*pc.ferc1_power_purchase_type.values(),
+             name="ferc1_power_purchase_type"),
+        comment="Categorization based on the original contractual terms and conditions of the service. Must be one of 'requirements', 'long_firm', 'intermediate_firm', 'short_firm', 'long_unit', 'intermediate_unit', 'electricity_exchange', 'other_service', or 'adjustment'. Requirements service is ongoing high reliability service, with load integrated into system resource planning. 'Long term' means 5+ years. 'Intermediate term' is 1-5 years. 'Short term' is less than 1 year. 'Firm' means not interruptible for economic reasons. 'unit' indicates service from a particular designated generating unit. 'exchange' is an in-kind transaction."
+    )
+    tariff = Column(
+        String,
+        comment="FERC Rate Schedule Number or Tariff. (Note: may be incomplete if originally reported on multiple lines.)"
+    )
+    billing_demand_mw = Column(
+        Float,
+        comment="Monthly average billing demand (for requirements purchases, and any transactions involving demand charges). In megawatts."
+    )
+    non_coincident_peak_demand_mw = Column(
+        Float,
+        comment="Average monthly non-coincident peak (NCP) demand (for requirements purhcases, and any transactions involving demand charges). Monthly NCP demand is the maximum metered hourly (60-minute integration) demand in a month. In megawatts."
+    )
+    coincident_peak_demand_mw = Column(
+        Float,
+        comment="Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts."
+    )
+    purchased_mwh = Column(
+        Float,
+        comment="Megawatt-hours shown on bills rendered to the respondent."
+    )
+    received_mwh = Column(
+        Float,
+        comment="Gross megawatt-hours received in power exchanges and used as the basis for settlement."
+    )
+    delivered_mwh = Column(
+        Float,
+        comment="Gross megawatt-hours delivered in power exchanges and used as the basis for settlement."
+    )
+    demand_charges = Column(
+        Numeric(14, 2),
+        comment="Demand charges. Nominal USD."
+    )
+    energy_charges = Column(
+        Numeric(14, 2),
+        comment="Energy charges. Nominal USD."
+    )
+    other_charges = Column(
+        Numeric(14, 2),
+        comment="Other charges, including out-of-period adjustments. Nominal USD."
+    )
+    total_settlement = Column(
+        Numeric(14, 2),
+        comment="Sum of demand, energy, and other charges. For power exchanges, the settlement amount for the net receipt of energy. If more energy was delivered than received, this amount is negative. Nominal USD."
+    )
 
 
 class PlantSmallFERC1(pudl.models.entities.PUDLBase):
@@ -376,190 +450,407 @@ class PlantSmallFERC1(pudl.models.entities.PUDLBase):
     """
 
     __tablename__ = 'plants_small_ferc1'
-    __table_args__ = (ForeignKeyConstraint(
-        ['utility_id_ferc1', 'plant_name_original'],
-        ['plants_ferc.utility_id_ferc1', 'plants_ferc.plant_name']),)
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ['utility_id_ferc1', 'plant_name_original'],
+            ['plants_ferc.utility_id_ferc1', 'plants_ferc.plant_name']),
+        {"comment": "Generating plant statistics for small plants, as reported on FERC Form 1 pages 410-411, and extracted from the FERC FoxPro database table f1_gnrt_plant. Small generating plants are defined by having nameplate capacity of less than 25MW for steam plants, and less than 10MW for internal combustion, conventional hydro, and pumped storage plants."}
+    )
+    id = Column(Integer, autoincrement=True,
+                primary_key=True, comment=id_comment)
+    record_id = Column(String, nullable=False, comment=record_id_comment)
+    utility_id_ferc1 = Column(Integer, nullable=False,
+                              comment=utility_id_ferc1_comment)
+    report_year = Column(Integer, nullable=False, comment=report_year_comment)
 
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    record_id = Column(String, nullable=False)
-    utility_id_ferc1 = Column(Integer, nullable=False)
-    report_year = Column(Integer, nullable=False)
-    plant_name_original = Column(String, nullable=False)
-    plant_name = Column(String)
-    plant_type = Column(String)
-    ferc_license_id = Column(Integer)
-    construction_year = Column(Integer)
-    capacity_mw = Column(Float)
-    peak_demand_mw = Column(Float)
-    net_generation_mwh = Column(Float)
-    total_cost_of_plant = Column(Numeric(14, 2))
-    capex_per_mw = Column(Numeric(14, 2))
-    opex_total = Column(Numeric(14, 2))  # No idea what this field is.
-    opex_fuel = Column(Numeric(14, 2))
-    opex_maintenance = Column(Numeric(14, 2))
-    fuel_type = Column(String)
-    fuel_cost_per_mmbtu = Column(Numeric(14, 2))
+    plant_name_original = Column(
+        String,
+        nullable=False,
+        comment="Original plant name in the FERC Form 1 FoxPro database.",
+    )
+    plant_name = Column(
+        String,
+        comment="PUDL assigned simplified plant name.",
+    )
+    plant_type = Column(
+        String,
+        comment="PUDL assigned plant type. This is a best guess based on the fuel type, plant name, and other attributes.",
+    )
+    ferc_license_id = Column(
+        Integer,
+        comment="FERC issued operating license ID for the facility, if available. This value is extracted from the original plant name where possible.",
+    )
+    construction_year = Column(
+        Integer,
+        comment="Original year of plant construction.",
+    )
+    capacity_mw = Column(
+        Float,
+        comment="Name plate capacity in megawatts.",
+    )
+    peak_demand_mw = Column(
+        Float,
+        comment="Net peak demand for 60 minutes. Note: in some cases peak demand for other time periods may have been reported instead, if hourly peak demand was unavailable.",
+    )
+    net_generation_mwh = Column(
+        Float,
+        comment="Net generation excluding plant use, in megawatt-hours.",
+    )
+    total_cost_of_plant = Column(
+        Numeric(14, 2),
+        comment="Total cost of plant. Nominal USD.",
+    )
+    capex_per_mw = Column(
+        Numeric(14, 2),
+        comment="Plant costs (including asset retirement costs) per megawatt. Nominal USD. ",
+    )
+    opex_total = Column(
+        Numeric(14, 2),
+        comment="Total plant operating expenses, excluding fuel. Nominal USD.",
+    )
+    opex_fuel = Column(
+        Numeric(14, 2),
+        comment="Production expenses: Fuel. Nominal USD.",
+    )
+    opex_maintenance = Column(
+        Numeric(14, 2),
+        comment="Production expenses: Maintenance. Nominal USD.",
+    )
+    fuel_type = Column(
+        String,
+        comment="Kind of fuel. Originally reported to FERC as a freeform string. Assigned a canonical value by PUDL based on our best guess.",
+    )
+    fuel_cost_per_mmbtu = Column(
+        Numeric(14, 2),
+        comment="Average fuel cost per mmBTU (if applicable). Nominal USD.",
+    )
 
 
 class PlantHydroFERC1(pudl.models.entities.PUDLBase):
     """Annual data on hydro plants from FERC form 1."""
 
     __tablename__ = 'plants_hydro_ferc1'
-    __table_args__ = (ForeignKeyConstraint(
-        ['utility_id_ferc1', 'plant_name'],
-        ['plants_ferc.utility_id_ferc1', 'plants_ferc.plant_name']),)
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ['utility_id_ferc1', 'plant_name'],
+            ['plants_ferc.utility_id_ferc1', 'plants_ferc.plant_name']),
+        {"comment": "Hydroelectric generating plant statistics for large plants. Large plants have an installed nameplate capacity of more than 10 MW. As reported on FERC Form 1, pages 406-407, and extracted from the f1_hydro table in FERC's FoxPro database."}
+    )
 
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    record_id = Column(String, nullable=False)
-    utility_id_ferc1 = Column(Integer, nullable=False)
-    plant_name = Column(String, nullable=False)
-    report_year = Column(Integer, nullable=False)
-    project_num = Column(Integer)
-    plant_type = Column(String)  # FK
-    plant_construction_type = Column(String)
-    construction_year = Column(Integer)
-    installation_year = Column(Integer)
-    # name plate capacity
-    capacity_mw = Column(Float)
-    # Net Peak Demand on Plant-Megawatts (60 minutes)
-    peak_demand_mw = Column(Float)
-    # Plant Hours Connect to Load
-    plant_hours_connected_while_generating = Column(Float)
-    # Net Plant Capability (in megawatts)
-    # (a) Under Most Favorable Oper Conditions
-    net_capacity_favorable_conditions_mw = Column(Float)
-    # Net Plant Capability (in megawatts)
-    # (b) Under the Most Adverse Oper Conditions
-    net_capacity_adverse_conditions_mw = Column(Float)
-    # Average Number of Employees
-    avg_num_employees = Column(Float)
-    # Net Generation, Exclusive of Plant Use - kWh in FERC, converted to MWh
-    net_generation_mwh = Column(Float)
-    # Land and Land Rights
-    capex_land = Column(Numeric(14, 2))
-    # Structures and Improvements
-    capex_structure = Column(Numeric(14, 2))
-    # Reservoirs, Dams, and Waterways
-    capex_facilities = Column(Numeric(14, 2))
-    # Equipment Costs
-    capex_equipment = Column(Numeric(14, 2))
-    # Roads, Railroads, and Bridges
-    capex_roads = Column(Numeric(14, 2))
-    # Asset Retirement Costs
-    asset_retirement_cost = Column(Numeric(14, 2))
-    # TOTAL cost (Total of 14 thru 19)
-    capex_total = Column(Numeric(14, 2))
-    # Cost per KW of Installed Capacity (line 20 / 5)
-    # Converted to MW installed...
-    capex_per_mw = Column(Numeric(14, 2))
-    # O peration Supervision and Engineering
-    opex_operations = Column(Numeric(14, 2))
-    # Water for Power
-    opex_water_pwr = Column(Numeric(14, 2))
-    # Hydraulic Expenses
-    opex_hydraulic = Column(Numeric(14, 2))
-    # Electric Expenses
-    opex_electric = Column(Numeric(14, 2))
-    # Misc Hydraulic Power Generation Expenses
-    opex_generation = Column(Numeric(14, 2))
-    # Rents
-    opex_rents = Column(Numeric(14, 2))
-    # Maintenance Supervision and Engineering
-    opex_engineering = Column(Numeric(14, 2))
-    # Maintenance of Structures
-    opex_structures = Column(Numeric(14, 2))
-    # Maintenance of Reservoirs, Dams, and Waterways
-    opex_dams = Column(Numeric(14, 2))
-    # Maintenance of Electric Plant
-    opex_plant = Column(Numeric(14, 2))
-    # Maintenance of Misc Hydraulic Plant
-    opex_misc_plant = Column(Numeric(14, 2))
-    # Total Production Expenses (total 23 thru 33)
-    opex_total = Column(Numeric(14, 2))
-    # Expenses per net KWh in FERC, converted to MWh in PUDL
-    opex_per_mwh = Column(Numeric(14, 2))
+    id = Column(Integer, autoincrement=True,
+                primary_key=True, comment=id_comment)
+    record_id = Column(String, nullable=False, comment=record_id_comment)
+    utility_id_ferc1 = Column(Integer, nullable=False,
+                              comment=utility_id_ferc1_comment)
+    report_year = Column(Integer, nullable=False, comment=report_year_comment)
+
+    plant_name = Column(
+        String,
+        nullable=False,
+        comment=plant_name_comment
+    )
+    project_num = Column(
+        Integer,
+        comment="FERC Licensed Project Number."
+    )
+    plant_type = Column(
+        String,
+        comment="Kind of plant (Run-of-River or Storage)."
+    )
+    construction_type = Column(
+        construction_type_enum,  # Enum, see top of this file
+        comment=construction_type_comment
+    )
+    construction_year = Column(
+        Integer,
+        comment="Four digit year of the plant's original construction."
+    )
+    installation_year = Column(
+        Integer,
+        comment="Four digit year in which the last unit was installed."
+    )
+    capacity_mw = Column(
+        Float,
+        comment="Total installed (nameplate) capacity, in megawatts."
+    )
+    peak_demand_mw = Column(
+        Float,
+        comment="Net peak demand on the plant (60-minute integration), in megawatts."
+    )
+    plant_hours_connected_while_generating = Column(
+        Float,
+        comment="Hours the plant was connected to load while generating."
+    )
+    net_capacity_favorable_conditions_mw = Column(
+        Float,
+        comment="Net plant capability under the most favorable operating conditions, in megawatts."
+    )
+    net_capacity_adverse_conditions_mw = Column(
+        Float,
+        comment="Net plant capability under the least favorable operating conditions, in megawatts."
+    )
+    avg_num_employees = Column(
+        Float,
+        comment="Average number of employees."
+    )
+    net_generation_mwh = Column(
+        Float,
+        comment="Net generation, exclusive of plant use, in megawatt hours."
+    )
+    capex_land = Column(
+        Numeric(14, 2),
+        comment="Cost of plant: land and land rights. Nominal USD."
+    )
+    capex_structures = Column(
+        Numeric(14, 2),
+        comment="Cost of plant: structures and improvements. Nominal USD."
+    )
+    capex_facilities = Column(
+        Numeric(14, 2),
+        comment="Cost of plant: reservoirs, dams, and waterways. Nominal USD."
+    )
+    capex_equipment = Column(
+        Numeric(14, 2),
+        comment="Cost of plant: equipment. Nominal USD."
+    )
+    capex_roads = Column(
+        Numeric(14, 2),
+        comment="Cost of plant: roads, railroads, and bridges. Nominal USD."
+    )
+    asset_retirement_cost = Column(
+        Numeric(14, 2),
+        comment="Cost of plant: asset retirement costs. Nominal USD."
+    )
+    capex_total = Column(
+        Numeric(14, 2),
+        comment="Total cost of plant. Nominal USD."
+    )
+    capex_per_mw = Column(
+        Numeric(14, 2),
+        comment="Cost of plant per megawatt of installed (nameplate) capacity. Nominal USD."
+    )
+    opex_operations = Column(
+        Numeric(14, 2),
+        comment="Production expenses: operation, supervision, and engineering. Nominal USD."
+    )
+    opex_water_for_power = Column(
+        Numeric(14, 2),
+        comment="Production expenses: water for power. Nominal USD."
+    )
+    opex_hydraulic = Column(
+        Numeric(14, 2),
+        comment="Production expenses: hydraulic expenses. Nominal USD."
+    )
+    opex_electric = Column(
+        Numeric(14, 2),
+        comment="Production expenses: electric expenses. Nominal USD."
+    )
+    opex_generation_misc = Column(
+        Numeric(14, 2),
+        comment="Production expenses: miscellaneous hydraulic power generation expenses. Nominal USD."
+    )
+    opex_rents = Column(
+        Numeric(14, 2),
+        comment="Production expenses: rent. Nominal USD."
+    )
+    opex_engineering = Column(
+        Numeric(14, 2),
+        comment="Production expenses: maintenance, supervision, and engineering. Nominal USD."
+    )
+    opex_structures = Column(
+        Numeric(14, 2),
+        comment="Production expenses: maintenance of structures. Nominal USD."
+    )
+    opex_dams = Column(
+        Numeric(14, 2),
+        comment="Production expenses: maintenance of reservoirs, dams, and waterways. Nominal USD."
+    )
+    opex_plant = Column(
+        Numeric(14, 2),
+        comment="Production expenses: maintenance of electric plant. Nominal USD."
+    )
+    opex_misc_plant = Column(
+        Numeric(14, 2),
+        comment="Production expenses: maintenance of miscellaneous hydraulic plant. Nominal USD."
+    )
+    opex_total = Column(
+        Numeric(14, 2),
+        comment="Total production expenses. Nominal USD."
+    )
+    opex_per_mwh = Column(
+        Numeric(14, 2),
+        comment="Production expenses per net megawatt hour generated. Nominal USD."
+    )
 
 
-class PlantsPumpedStorage(pudl.models.entities.PUDLBase):
+class PlantPumpedStorage(pudl.models.entities.PUDLBase):
     """Annual data on pumped storage from the f1_pumped_storage table."""
 
     __tablename__ = 'plants_pumped_storage_ferc1'
-    __table_args__ = (ForeignKeyConstraint(
-        ['utility_id_ferc1', 'plant_name'],
-        ['plants_ferc.utility_id_ferc1', 'plants_ferc.plant_name']),)
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ['utility_id_ferc1', 'plant_name'],
+            ['plants_ferc.utility_id_ferc1', 'plants_ferc.plant_name']),
+        {"comment": ""}
+    )
 
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    utility_id_ferc1 = Column(Integer, nullable=False)
-    record_id = Column(String, nullable=False)
-    report_year = Column(Integer, nullable=False)
-    project_num = Column(Integer)
-    plant_name = Column(String, nullable=False)
-    plant_kind = Column(String)
-    construction_year = Column(Integer)
-    installation_year = Column(Integer)
-    # Total installed cap (Gen name plate Rating in MW)
-    capacity_mw = Column(Float)
-    # Net Peak Demaind on Plant-Megawatts (60 minutes)
-    peak_demand_mw = Column(Float)
-    # Plant Hours Connect to Load While Generating
-    plant_hours_connected_while_generating = Column(Float)
-    # Net Plant Capability (in megawatts)
-    plant_capability_mw = Column(Float)
-    # Average Number of Employees
-    avg_num_employees = Column(Float)
-    # Generation, Exclusive of Plant Use - Kwh, converted to mwh
-    net_generation_mwh = Column(Float)
-    # Energy Used for Pumping, converted from kwh to MWh
-    energy_used_for_pumping_mwh = Column(Float)
-    # Net Output for Load (line 9 - line 10) - Kwh, converted to MWh
-    net_load_mwh = Column(Float)
-    # Land and Land Rights
-    capex_land = Column(Numeric(14, 2))
-    # Structures and Improvements
-    capex_structures = Column(Numeric(14, 2))
-    # Reservoirs, Dams, and Waterways
-    capex_facilities = Column(Numeric(14, 2))
-    # Water Wheels, Turbines, and Generators
-    capex_wheels_turbines_generators = Column(Numeric(14, 2))
-    # Accessory Electric Equipment
-    capex_equipment_electric = Column(Numeric(14, 2))
-    # Miscellaneous Powerplant Equipment
-    capex_equipment_misc = Column(Numeric(14, 2))
-    # Roads, Railroads, and Bridges
-    capex_roads = Column(Numeric(14, 2))
-    # Asset Retirement Costs
-    asset_retirement_cost = Column(Numeric(14, 2))
-    # Total cost (total 13 thru 20)
-    capex_plant_total = Column(Numeric(14, 2))
-    # Cost per KW of installed cap (line 21 / 4), converted to MW
-    capex_per_mw = Column(Numeric(14, 2))
-    # Operation Supervision and Engineering
-    opex_operations = Column(Numeric(14, 2))
-    # Water for Power
-    opex_water_for_power = Column(Numeric(14, 2))
-    # Pumped Storage Expenses
-    opex_pumped_storage = Column(Numeric(14, 2))
-    # Electric Expenses
-    opex_electric = Column(Numeric(14, 2))
-    # Misc Pumped Storage Power generation Expenses
-    opex_generation_misc = Column(Numeric(14, 2))
-    # Rents
-    opex_rents = Column(Numeric(14, 2))
-    # Maintenance Supervision and Engineering
-    opex_engineering = Column(Numeric(14, 2))
-    # Maintenance of Structures
-    opex_structures = Column(Numeric(14, 2))
-    # Maintenance of Reservoirs, Dams, and Waterways
-    opex_dams = Column(Numeric(14, 2))
-    # Maintenance of Electric Plant
-    opex_plant = Column(Numeric(14, 2))
-    # Maintenance of Misc Pumped Storage Plant
-    opex_plant_misc = Column(Numeric(14, 2))
-    # Production Exp Before Pumping Exp (24 thru 34)
-    opex_production_before_pumping = Column(Numeric(14, 2))
-    # Pumping Expenses
-    opex_pumping = Column(Numeric(14, 2))
-    # Total Production Exp (total 35 and 36)
-    opex_total = Column(Numeric(14, 2))
-    # Expenses per KWh (line 37 / 9), converted to mwh
-    opex_per_mwh = Column(Numeric(14, 2))
+    id = Column(Integer, autoincrement=True,
+                primary_key=True, comment=id_comment)
+    record_id = Column(String, nullable=False, comment=record_id_comment)
+    utility_id_ferc1 = Column(Integer, nullable=False,
+                              comment=utility_id_ferc1_comment)
+    report_year = Column(Integer, nullable=False, comment=report_year_comment)
+
+    plant_name = Column(
+        String,
+        nullable=False,
+        comment=plant_name_comment
+    )
+    project_num = Column(
+        Integer,
+        comment="FERC Licensed Project Number."
+    )
+    construction_type = Column(
+        construction_type_enum,  # Enum, see top of this file
+        comment=construction_type_comment
+    )
+    construction_year = Column(
+        Integer,
+        comment="Four digit year of the plant's original construction."
+    )
+    installation_year = Column(
+        Integer,
+        comment="Four digit year in which the last unit was installed."
+    )
+    capacity_mw = Column(
+        Float,
+        comment="Total installed (nameplate) capacity, in megawatts."
+    )
+    peak_demand_mw = Column(
+        Float,
+        comment="Net peak demand on the plant (60-minute integration), in megawatts."
+    )
+    plant_hours_connected_while_generating = Column(
+        Float,
+        comment="Hours the plant was connected to load while generating."
+    )
+    plant_capability_mw = Column(
+        Float,
+        comment="Net plant capability in megawatts."
+    )
+    avg_num_employees = Column(
+        Float,
+        comment="Average number of employees."
+    )
+    net_generation_mwh = Column(
+        Float,
+        comment="Net generation, exclusive of plant use, in megawatt hours."
+    )
+    energy_used_for_pumping_mwh = Column(
+        Float,
+        comment="Energy used for pumping, in megawatt-hours."
+    )
+    net_load_mwh = Column(
+        Float,
+        comment="Net output for load (net generation - energy used for pumping) in megawatt-hours."
+    )
+    capex_land = Column(
+        Numeric(14, 2),
+        comment="Cost of plant: land and land rights. Nominal USD."
+    )
+    capex_structures = Column(
+        Numeric(14, 2),
+        comment="Cost of plant: structures and improvements. Nominal USD."
+    )
+    capex_facilities = Column(
+        Numeric(14, 2),
+        comment="Cost of plant: reservoirs, dams, and waterways. Nominal USD."
+    )
+    capex_wheels_turbines_generators = Column(
+        Numeric(14, 2),
+        comment="Cost of plant: water wheels, turbines, and generators. Nominal USD."
+    )
+    capex_equipment_electric = Column(
+        Numeric(14, 2),
+        comment="Cost of plant: accessory electric equipment. Nominal USD."
+    )
+    capex_equipment_misc = Column(
+        Numeric(14, 2),
+        comment="Cost of plant: miscellaneous power plant equipment. Nominal USD."
+    )
+    capex_roads = Column(
+        Numeric(14, 2),
+        comment="Cost of plant: roads, railroads, and bridges. Nominal USD."
+    )
+    asset_retirement_cost = Column(
+        Numeric(14, 2),
+        comment="Cost of plant: asset retirement costs. Nominal USD."
+    )
+    capex_total = Column(
+        Numeric(14, 2),
+        comment="Total cost of plant. Nominal USD."
+    )
+    capex_per_mw = Column(
+        Numeric(14, 2),
+        comment="Cost of plant per megawatt of installed (nameplate) capacity. Nominal USD."
+    )
+    opex_operations = Column(
+        Numeric(14, 2),
+        comment="Production expenses: operation, supervision, and engineering. Nominal USD."
+    )
+    opex_water_for_power = Column(
+        Numeric(14, 2),
+        comment="Production expenses: water for power. Nominal USD."
+    )
+    opex_pumped_storage = Column(
+        Numeric(14, 2),
+        comment="Production expenses: pumped storage. Nominal USD."
+    )
+    opex_electric = Column(
+        Numeric(14, 2),
+        comment="Production expenses: electric expenses. Nominal USD."
+    )
+    opex_generation_misc = Column(
+        Numeric(14, 2),
+        comment="Production expenses: miscellaneous pumped storage power generation expenses. Nominal USD."
+    )
+    opex_rents = Column(
+        Numeric(14, 2),
+        comment="Production expenses: rent. Nominal USD."
+    )
+    opex_engineering = Column(
+        Numeric(14, 2),
+        comment="Production expenses: maintenance, supervision, and engineering. Nominal USD."
+    )
+    opex_structures = Column(
+        Numeric(14, 2),
+        comment="Production expenses: maintenance of structures. Nominal USD."
+    )
+    opex_dams = Column(
+        Numeric(14, 2),
+        comment="Production expenses: maintenance of reservoirs, dams, and waterways. Nominal USD."
+    )
+    opex_plant = Column(
+        Numeric(14, 2),
+        comment="Production expenses: maintenance of electric plant. Nominal USD."
+    )
+    opex_misc_plant = Column(
+        Numeric(14, 2),
+        comment="Production expenses: maintenance of miscellaneous hydraulic plant. Nominal USD."
+    )
+    opex_production_before_pumping = Column(
+        Numeric(14, 2),
+        comment="Total production expenses before pumping. Nominal USD."
+    )
+    opex_pumping = Column(
+        Numeric(14, 2),
+        comment="Production expenses: We are here to PUMP YOU UP! Nominal USD."
+    )
+    opex_total = Column(
+        Numeric(14, 2),
+        comment="Total production expenses. Nominal USD."
+    )
+    opex_per_mwh = Column(
+        Numeric(14, 2),
+        comment="Production expenses per net megawatt hour generated. Nominal USD."
+    )

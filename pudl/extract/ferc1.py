@@ -287,9 +287,12 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
     # been passed in into a list of DBF files prefixes:
     dbfs = [pc.ferc1_tbl2dbf[table] for table in ferc1_tables]
 
+    if verbose:
+        print("Cloning FERC Form 1 FoxPro DB to Postgreql:", flush=True)
+        print("    ", end='', flush=True)
     for year in years:
         if verbose:
-            print("Ingesting FERC Form 1 Data from {}...".format(year))
+            print(f"{year} ", end="", flush=True)
         for dbf in dbfs:
             dbf_filename = os.path.join(datadir(year, basedir),
                                         '{}.DBF'.format(dbf))
@@ -336,6 +339,8 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
             # insert the new records!
             conn.execute(sql_stmt, sql_records)
 
+    if(verbose):
+        print("\n", end='')
     conn.close()
 
 
@@ -547,7 +552,8 @@ def extract(ferc1_tables=pc.ferc1_pudl_tables,
                   verbose=verbose)
 
     if verbose:
-        print("Extracting tables from FERC 1:")
+        print("============================================================")
+        print("Extracting tables from cloned FERC Form 1 database.")
     for table in ferc1_extract_functions:
         if ferc1_tables:
             if table in ferc1_tables:

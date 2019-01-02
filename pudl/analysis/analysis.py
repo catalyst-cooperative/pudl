@@ -109,7 +109,7 @@ def eia_pudl_plant_ids(pudl_engine):
     return eia_plant_ids
 
 
-def yearly_sum_eia(df, sum_by, columns=['plant_id_eia', 'generator_id']):
+def yearly_sum_eia(df, sum_by, columns=('plant_id_eia', 'generator_id')):
     """
     Group an input dataframe by several columns, and calculate annual sums.
 
@@ -248,7 +248,7 @@ def ferc1_expns_corr(steam_df, min_capfac=0.6):
     return expns_corr
 
 
-def ferc_expenses(pudl_engine, pudl_plant_ids=[], require_eia=True,
+def ferc_expenses(pudl_engine, pudl_plant_ids=(), require_eia=True,
                   min_capfac=0.6, min_corr=0.5):
     """
     Gather operating expense data for a selection of FERC plants by PUDL ID.
@@ -308,10 +308,10 @@ def ferc_expenses(pudl_engine, pudl_plant_ids=[], require_eia=True,
 
 
 def fuel_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
-                       fuels=['gas', 'oil', 'coal'],
-                       cols=['fuel_consumed_total_mmbtu',
+                       fuels=('gas', 'oil', 'coal'),
+                       cols=('fuel_consumed_total_mmbtu',
                              'fuel_consumed_total_cost_mmbtu',
-                             'fuel_consumed_total_cost_unit']):
+                             'fuel_consumed_total_cost_unit')):
     """
     Aggregate FERC Form 1 fuel data by PUDL plant id and, optionally, fuel.
 
@@ -350,7 +350,7 @@ def fuel_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
 
 
 def steam_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
-                        cols=['net_generation_mwh', ]):
+                        cols=('net_generation_mwh', )):
     """
     Aggregate and return data from the steam_ferc1 table by pudl_plant_id.
 
@@ -374,8 +374,8 @@ def steam_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
 
 
 def frc_by_pudl(pudl_plant_ids, pudl_engine,
-                fuels=['gas', 'oil', 'coal'],
-                cols=['total_fuel_cost', ]):
+                fuels=('gas', 'oil', 'coal'),
+                cols=('total_fuel_cost', )):
     """
     Aggregate fuel_receipts_costs_eia923 table for comparison with FERC Form 1.
 
@@ -434,9 +434,9 @@ def frc_by_pudl(pudl_plant_ids, pudl_engine,
 
 
 def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
-                     fuels=['gas', 'oil', 'coal'],
-                     cols=['fuel_consumed_mmbtu',
-                           'net_generation_mwh']):
+                     fuels=('gas', 'oil', 'coal'),
+                     cols=('fuel_consumed_mmbtu',
+                           'net_generation_mwh')):
     """
     Aggregate generation_fuel_eia923 table for comparison with FERC Form 1.
 
@@ -836,10 +836,10 @@ def primary_fuel_gf_eia923(gf_df, id_col='plant_id_eia', fuel_thresh=0.5):
     return gf_by_heat[['primary_fuel', ]].reset_index()
 
 
-def fercplants(plant_tables=['f1_steam',
+def fercplants(plant_tables=('f1_steam',
                              'f1_gnrt_plant',
                              'f1_hydro',
-                             'f1_pumped_storage'],
+                             'f1_pumped_storage'),
                years=pc.working_years['ferc1'],
                new=True,
                min_capacity=5.0):

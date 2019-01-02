@@ -20,7 +20,7 @@ data journalists to better understand the electricity system and its impacts
 on climate.
 """
 __pythonrequiredversion__ = "3.6"
-__projecturl__ = "https://github.com/catalyst-cooperative/pudl/"
+__projecturl__ = "https://catalyst.coop/pudl/"
 __downloadurl__ = "https://github.com/catalyst-cooperative/pudl/"
 
 # Top level modules used across the board:
@@ -53,3 +53,8 @@ import pudl.output.ferc1
 import pudl.output.eia860
 import pudl.output.eia923
 import pudl.output.pudltabl
+import pudl.output.export
+
+# Create a parent logger for all PUDL loggers to inherit from
+import logging
+logging.getLogger(__name__).addHandler(logging.NullHandler())

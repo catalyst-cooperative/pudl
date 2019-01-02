@@ -65,7 +65,7 @@ def parse_command_line(argv):
     parser.add_argument(
         '-y',
         '--years',
-        dest='year',
+        dest='years',
         nargs='+',
         help="""List of years for which data should be downloaded. Different
         data sources have differet valid years. If data is not available for a
@@ -105,17 +105,17 @@ def main():
 
     # Generate a list of valid years of data to download for each data source.
     # If no years were specified, use the full set of valid years.
-    # If years were specified, keep only the years which are valid for that
+    # If years were specified, keep only th years which are valid for that
     # data source, and optionally output a message saying which years are
     # being ignored because they aren't valid.
     yrs_by_src = {}
     for src in args.sources:
-        if not args.year:
+        if not args.years:
             yrs_by_src[src] = pc.data_years[src]
         else:
-            yrs_by_src[src] = [int(yr) for yr in args.year
+            yrs_by_src[src] = [int(yr) for yr in args.years
                                if int(yr) in pc.data_years[src]]
-            bad_yrs = [int(yr) for yr in args.year
+            bad_yrs = [int(yr) for yr in args.years
                        if int(yr) not in pc.data_years[src]]
             if args.verbose and bad_yrs:
                 print("Invalid {} years ignored: {}.".format(src, bad_yrs))

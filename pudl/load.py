@@ -58,29 +58,6 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
             shutil.copyfileobj(f, outfile)
 
 
-def _fix_int_cols(table_to_fix,
-                  transformed_dct,
-                  need_fix_inting=pc.need_fix_inting,
-                  verbose=True):
-    """
-    Run fix_int_na on multiple columns per table.
-
-    There are some tables that have one table that needs fix_int_naing, while
-    some tables have a few columns.
-
-    Args:
-        table_to_fix: the name of the table that needs fixing.
-        transformed_dct: dictionary of tables with transformed dfs.
-        need_fix_inting: dictionary of tables with columns that need fixing.
-    """
-    for column in need_fix_inting[table_to_fix]:
-        if verbose:
-            print("        fixing {} column".format(column))
-        transformed_dct[table_to_fix][column] = \
-            pudl.helpers.fix_int_na(
-                transformed_dct[table_to_fix][column])
-
-
 class BulkCopy(contextlib.AbstractContextManager):
     """Accumulate several DataFrames, then COPY FROM python to postgresql
 
@@ -126,7 +103,9 @@ class BulkCopy(contextlib.AbstractContextManager):
             raise AssertionError(
                 "Expected dataframe as input."
             )
-        df = self._fix_inting(df)
+        df = pudl.helpers.fix_int_na(
+            df, columns=pc.need_fix_inting[self.table_name]
+        )
         # Note: append to a list here, then do a concat when we spill
         self.accumulated_dfs.append(df)
         self.accumulated_size += sum(df.memory_usage())
@@ -149,23 +128,19 @@ expected:
 {str(colnames.symmetric_difference(expected_colnames))}
             """)
 
-    def _fix_inting(self, df):
-        """Fix integers for columns with NA. See pudl.helpers.fix_int_na"""
-        try:
-            for column in pc.need_fix_inting[self.table_name]:
-                df[column] = pudl.helpers.fix_int_na(df[column])
-        except KeyError:
-            pass
-        return df
-
     def spill(self):
         """Spill the accumulated dataframes into postgresql"""
         if self.accumulated_dfs:
             self._check_names()
             all_dfs = pd.concat(self.accumulated_dfs,
                                 copy=False, ignore_index=True, sort=False)
+            print(f"===================== Dramatic Pause ====================")
+            print(
+                f"    Loading {len(all_dfs):,} records ({round(self.accumulated_size/1024**2)} MB) into PUDL.", flush=True)
             _csv_dump_load(all_dfs, table_name=self.table_name, engine=self.engine,
                            csvdir=self.csvdir, keep_csv=self.keep_csv)
+            print(f"================ Resume Number Crunching ================",
+                  flush=True)
         self.accumulated_dfs = []
         self.accumulated_size = 0
 
@@ -187,15 +162,14 @@ def dict_dump_load(transformed_dfs,
     Wrapper for _csv_dump_load for each data source.
     """
     if verbose:
-        print("Loading tables from {} into PUDL:".format(data_source))
+        print(f"Loading tables from {data_source} into PUDL:")
     for table_name, df in transformed_dfs.items():
         if verbose and table_name != "hourly_emissions_epacems":
-            print("    {}...".format(table_name))
+            print(f"    {table_name}...")
         if table_name in list(need_fix_inting.keys()):
-            _fix_int_cols(table_name,
-                          transformed_dfs,
-                          need_fix_inting=pc.need_fix_inting,
-                          verbose=verbose)
+            df = pudl.helpers.fix_int_na(
+                df, columns=pc.need_fix_inting[table_name])
+
         _csv_dump_load(df,
                        table_name,
                        pudl_engine,

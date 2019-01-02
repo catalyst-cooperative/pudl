@@ -4,11 +4,93 @@ import re
 from functools import partial
 import pandas as pd
 import numpy as np
+import sqlalchemy as sa
+import pudl
 
 # This is a little abbreviated function that allows us to propagate the NA
 # values through groupby aggregations, rather than using inefficient lambda
 # functions in each one.
 sum_na = partial(pd.Series.sum, skipna=False)
+
+
+def get_dependent_tables_from_list(table_names, testing=False):
+    """
+    Given a list of tables, find all the other tables they depend on.
+
+    Iterate over a list of input tables, adding them and all of their dependent
+    tables to a set, and return that set. Useful for determining which tables
+    need to be exported together to yield a self-contained subset of the PUDL
+    database.
+
+    Args:
+        table_names (iterable): a list of names of 'seed' tables, whose
+            dependencies we are seeking to find.
+        md (sa.MetaData): A SQL Alchemy MetaData object describing the
+            structure of the database the input tables are part of.
+    Returns:
+        all_the_tables (set): The set of all the tables which any of the input
+            tables depends on, via ForeignKey constraints.
+    """
+    md = sa.MetaData(bind=pudl.init.connect_db(testing=testing))
+    md.reflect()
+    all_the_tables = set()
+    for t in table_names:
+        for x in get_dependent_tables(t, md):
+            all_the_tables.add(x)
+
+    return all_the_tables
+
+
+def get_dependent_tables(table_name, md):
+    """
+    Given a table name, get the names of all tables it depends on.
+
+    This recursive function gets a list of all the foreign keys that exist in
+    the input table, and then all of the foreign keys that exist in the tables
+    those foreign keys refer to, and so on, until it has a full list of all
+    the tables that are required to constrain the input table.
+
+    Args:
+        table_name (str): The name of the 'seed' table that we start searching
+            from to find dependent tables.
+        md (sa.MetaData): A SQL Alchemy MetaData object describing the
+        structure of the database the input table is part of.
+
+    Returns:
+        dependent_tables (set): The set of dependent table names, as strings.
+
+    """
+    # Add the initial table
+    dependent_tables = set()
+    dependent_tables.add(table_name)
+
+    # Get the list of tables this table depends on:
+    new_table_names = set()
+    for fkey in md.tables[table_name].foreign_keys:
+        new_table_names.add(fkey.column.table.name)
+
+    # Recursively call this function on the tables our initial
+    # table depends on:
+    for table_name in new_table_names:
+        dependent_tables.add(table_name)
+        for t in get_dependent_tables(table_name, md):
+            dependent_tables.add(t)
+
+    return dependent_tables
+
+
+def data_sources_from_tables(table_names, testing=False):
+    """Based on a list of PUDL DB tables, look up data sources."""
+    all_tables = get_dependent_tables_from_list(table_names, testing=testing)
+    table_sources = set()
+    # All tables get PUDL:
+    table_sources.add('pudl')
+    for t in all_tables:
+        for src in pudl.constants.data_sources:
+            if re.match(f".*_{src}$", t):
+                table_sources.add(src)
+
+    return table_sources
 
 
 def is_annual(df_year, year_col='report_date'):
@@ -36,7 +118,7 @@ def is_annual(df_year, year_col='report_date'):
     return True
 
 
-def merge_on_date_year(df_date, df_year, on=[], how='inner',
+def merge_on_date_year(df_date, df_year, on=(), how='inner',
                        date_col='report_date',
                        year_col='report_date'):
     """
@@ -241,9 +323,9 @@ def cleanstrings(field, stringmap, unmapped=None, simplify=True):
     return field
 
 
-def fix_int_na(col, float_na=np.nan, int_na=-1, str_na=''):
+def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=''):
     """
-    Convert a dataframe column from float to string for CSV export.
+    Convert NA containing integer columns from float to string for CSV export.
 
     Numpy doesn't have a real NA value for integers. When pandas stores integer
     data which has NA values, it thus upcasts integers to floating point
@@ -251,12 +333,14 @@ def fix_int_na(col, float_na=np.nan, int_na=-1, str_na=''):
     dataframes to CSV files that are suitable for loading into postgres
     directly, we need to write out integer formatted numbers, with empty
     strings as the NA value. This function replaces np.nan values with a
-    sentiel value, converts the column to integers, and then to strings,
+    sentinel value, converts the column to integers, and then to strings,
     finally replacing the sentinel value with the desired NA string.
 
     Args:
-        col (pandas.Series): The DataFrame column that needs to be
-            reformatted for output.
+        df (pandas.DataFrame): The dataframe to be fixed. This argument allows
+            method chaining with the pipe() method.
+        columns (iterable of strings): A list of DataFrame column labels
+            indicating which columns need to be reformatted for output.
         float_na (float): The floating point value to be interpreted as NA and
             replaced in col.
         int_na (int): Sentinel value to substitute for float_na prior to
@@ -265,14 +349,16 @@ def fix_int_na(col, float_na=np.nan, int_na=-1, str_na=''):
             has been converted to strings.
 
     Returns:
-        str_col (pandas.Series): a column containing the same values and lack
-            of values as the col argument, but stored as strings that are
-            compatible with the postgresql COPY FROM command.
+        df (pandas.DataFrame): a new DataFrame, with the selected columns
+            converted to strings that look like integers, compatible with
+            the postgresql COPY FROM command.
     """
-    return (col.replace(float_na, int_na).
-            astype(int).
-            astype(str).
-            replace(str(int_na), str_na))
+    return (
+        df.replace({c: float_na for c in columns}, int_na)
+          .astype({c: int for c in columns})
+          .astype({c: str for c in columns})
+          .replace({c: str(int_na) for c in columns}, str_na)
+    )
 
 
 def month_year_to_date(df):
@@ -315,18 +401,19 @@ def month_year_to_date(df):
     for base in date_base:
         base_month_regex = '^{}{}'.format(base, month_regex)
         month_col = list(df.filter(regex=base_month_regex).columns)
-        assert(len(month_col) == 1)
+        if not len(month_col) == 1:
+            raise AssertionError()
         month_col = month_col[0]
         base_year_regex = '^{}{}'.format(base, year_regex)
         year_col = list(df.filter(regex=base_year_regex).columns)
-        assert(len(year_col) == 1)
+        if not len(year_col) == 1:
+            raise AssertionError()
         year_col = year_col[0]
         date_col = '{}_date'.format(base)
         month_year_date.append((month_col, year_col, date_col))
 
     for month_col, year_col, date_col in month_year_date:
-        df[year_col] = fix_int_na(df[year_col])
-        df[month_col] = fix_int_na(df[month_col])
+        df = fix_int_na(df, columns=[year_col, month_col])
 
         date_mask = (df[year_col] != '') & (df[month_col] != '')
         years = df.loc[date_mask, year_col]
@@ -391,10 +478,8 @@ def convert_to_date(df,
 
 def fix_eia_na(df):
     """Replace common ill-posed EIA NA spreadsheet values with np.nan."""
-    df = df.replace(to_replace=r'^\.$', value=np.nan, regex=True)
-    df = df.replace(to_replace=r'^\s$', value=np.nan, regex=True)
-    df = df.replace(to_replace=r'^$', value=np.nan, regex=True)
-    return df
+    return df.replace(to_replace=[r'^\.$', r'^\s$', r'^$'],
+                      value=np.nan, regex=True)
 
 
 def simplify_columns(df):
@@ -407,7 +492,12 @@ def simplify_columns(df):
      - Compacting internal whitespace.
      - Stripping leading and trailing whitespace.
     """
-    df.columns = df.columns.str.replace('[^0-9a-zA-Z]+', ' ')
-    df.columns = df.columns.str.strip().str.lower().str.replace(r'\s+', ' ')
-    df.columns = df.columns.str.replace(' ', '_')
+    df.columns = (
+        df.columns.str
+          .replace('[^0-9a-zA-Z]+', ' ').str
+          .strip().str
+          .lower().str
+          .replace(r'\s+', ' ').str
+          .replace(' ', '_')
+    )
     return df
