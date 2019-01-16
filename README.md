@@ -18,7 +18,7 @@ Just want to get started building a database? Read the setup guide for your
 operating system: **[Linux](/docs/getting_started_linux.md)**, **[Mac OS X](/docs/getting_started_mac.md)**, or **[Windows](/docs/getting_started_pc.md)**.
 
 ### Contact [Catalyst Cooperative](https://catalyst.coop):
- - Email: [hello@catalyst.coop](mailto:hello@catalyst.coop)
+ - Email: [pudl@catalyst.coop](mailto:pudl@catalyst.coop)
  - Chat: https://gitter.im/catalyst-cooperative/pudl
  - Twitter: [@CatalystCoop](https://twitter.com/CatalystCoop)
 
@@ -39,19 +39,17 @@ Our energy systems affect everyone, and they are changing rapidly. We hope this
 shared resource will improve the efficiency, quality, accessibility and
 transparency of research & analysis related to US energy systems.
 
-These ideas have been explored in more depth in these papers from Stefan
+These ideas have been explored in more depth in papers from Stefan
 Pfenninger at ETH Zürich and some of the other organizers of the European [Open
 Energy Modeling Initiative](https://openmod-initiative.org/) and [Open Power
 System Data](https://open-power-system-data.org/) project:
 
- * [The importance of open data and software: Is energy research lagging behind?](https://doi.org/10.1016/j.enpol.2016.11.046) (Energy Policy, 2017)
- * [Opening the black box of energy modeling: Strategies and lessons learned](https://doi.org/10.1016/j.esr.2017.12.002) (Energy Strategy Reviews, 2018)
+ * [The importance of open data and software: Is energy research lagging behind?](https://doi.org/10.1016/j.enpol.2016.11.046) (Energy Policy, 2017) Open community modeling frameworks have become common in many scientific disciplines, but not yet in energy. Why is that, and what are the consequences?
+ * [Opening the black box of energy modeling: Strategies and lessons learned](https://doi.org/10.1016/j.esr.2017.12.002) (Energy Strategy Reviews, 2018). A closer look at the benefits available from using shared, open energy system models, including less duplicated effort, more transparency, and better research reproducibility.
+ * [Open Power System Data: Frictionless Data for Open Power System Modeling](https://doi.org/10.1016/j.apenergy.2018.11.097) (Applied Energy, 2019). An explanation of the motivation and process behind the European OPSD project, which is analogous to our PUDL project, also making use of Frictionless Data Packages.
+ * [Open Data for Electricity Modeling](https://www.bmwi.de/Redaktion/EN/Publikationen/Studien/open-Data-for-electricity-modeling.html) (BWMi, 2018). A white paper exploring the legal and technical issues surrounding the use of public data for academic energy system modeling. Primarily focused on the EU, but more generally applicable. Based on a BWMi hosted workshop Catalyst took part in during September, 2018.
 
-We also want to bring best practices from the world of software engineering and
-data science to energy research and advocacy communities. These papers by Greg
-Wilson and some of the other organizers of the [Software and Data
-Carpentries](https://carpetries.org) are good accessible introductions, aimed
-at an academic audience:
+We also want to bring best practices from the world of software engineering and data science to energy research and advocacy communities. These papers by Greg Wilson and some of the other organizers of the [Software and Data Carpentries](https://carpetries.org) are good accessible introductions, aimed primarily at an academic audience:
 
  * [Best practices for scientific computing](https://doi.org/10.1371/journal.pbio.1001745) (PLOS Biology, 2014)
  * [Good enough practices in scientific computing](https://doi.org/10.1371/journal.pcbi.1005510) (PLOS Computational Biology, 2017)
@@ -92,7 +90,7 @@ been fully integrated. The ETL process for all states and all years takes about
 Our present focus is on:
 * **[Issue #144](https://github.com/catalyst-cooperative/pudl/issues/144)** Automatically assigning unique IDs to plants reported in FERC Form 1 so that time series can be extracted from the multi-year data, and integrating FERC non-fuel operating expenses with EIA fuel expenses to estimate per-generator MCOE.
 * **[Issue #204](https://github.com/catalyst-cooperative/pudl/issues/204)** Performing regressions on the non-fuel expenses reported by plants in FERC Form 1, to estimate the fixed vs. variable costs for different categories of plants. This will allow us to estimate the overall marginal cost of electricity for a plant at a given capacity factor and fuel price.
-* **[Issue #221](https://github.com/catalyst-cooperative/pudl/issues/211)** Automating the creation of human and machine readable [tabular data packages](https://frictionlessdata.io) containing all of the above data for platform independent redistribution.
+* **[Issue #211](https://github.com/catalyst-cooperative/pudl/issues/211)** Automating the creation of human and machine readable [tabular data packages](https://frictionlessdata.io) containing all of the above data for platform independent redistribution.
 * Generally cleaning up some of the data integration and adding more complete test cases, as well as some curated Jupyter notebooks that automatically provide both quantitative and visual sanity checks on the data as it's loaded into the database.
 
 ## Future Work:
@@ -132,27 +130,13 @@ specific data repository. If there's interest from potential users, we'd like
 to set up this kind of open and collaborative analysis platform.
 
 ---
-# Repository Organization
-A explanation of the files and directories in this repository (modeled on
-suggestions from [Good enough practices in scientific computing](https://doi.org/10.1371/journal.pcbi.1005510))
-
-### ci/
-Scripts used for continuous integration with [Travis CI](https://travis-ci.org/catalyst-cooperative/pudl).
+# Project Organization
+The PUDL repository is organized generally around the recommendations from [Good enough practices in scientific computing](https://doi.org/10.1371/journal.pcbi.1005510))
 
 ### data/
-A data store containing the original data from FERC, EIA, EPA and other
-agencies. It's organized first by agency, then by form, and (in most cases)
-finally year. For example, the FERC Form 1 data from 2014 would be found in
-`./data/ferc/form1/f1_2014` and the EIA data from 2010 can be found in
-`./data/eia/form923/f923_2010`. The year-by-year directory structure is
-determined by the reporting agency, based on what is provided for download.
+A data store containing the original data from FERC, EIA, EPA and other agencies. It's organized first by agency, then by form, and (in most cases) finally year. For example, the FERC Form 1 data from 2014 would be found in `./data/ferc/form1/f1_2014` and the EIA data from 2010 can be found in `./data/eia/form923/f923_2010`. The year-by-year directory structure is determined by the reporting agency, based on what is provided for download.
 
-The data itself is too large to be conveniently stored within the git
-repository, so we use [a datastore management
-script](/scripts/update_datastore.py) that can pull down the most recent
-version of all the data that's needed to build the PUDL database, and organize
-it so that the software knows where to find it. Run `python
-./scripts/update_datastore.py --help` for more info.
+The data itself is too large to be conveniently stored within the git repository, so we use [a datastore management script](/scripts/update_datastore.py) that can pull down the most recent version of all the data that's needed to build the PUDL database, and organize it so that the software knows where to find it. Run `python ./scripts/update_datastore.py --help` for more info.
 
 ### docs/
 Documentation related to the data sources, our results, and how to go about
@@ -162,30 +146,18 @@ sources are also stored under here, in a hierarchy similar to the data store.
 E.g. a blank copy of the FERC Form 1 is available in `./docs/ferc/form1/` as a
 PDF.
 
-### environment.yml
-A specification of the [conda](https://conda.io/docs/) python environment
-required by PUDL.
-
 ### pudl/
-The PUDL python package, where all of our actual code ends up. The modules and
-packages are organized by data source, as well as by what step of the database
-initialization process (extract, transform, load) they pertain to. For example:
+The PUDL python package, where all of our actual code ends up. The modules and packages are organized by data source, as well as by what step of the database initialization process (extract, transform, load) they pertain to. For example:
  - [`./pudl/extract/eia923.py`](/pudl/extract/eia923.py)
  - [`./pudl/transform/ferc1.py`](/pudl/transform/ferc1.py)
 
-The load step is currently very simple, and so it just has a single top level
-module dedicated to it.
+The load step is currently very simple, and so it just has a single top level module dedicated to it.
 
-The database models (table definitions) are also organized by data source, and
-are kept in the models subpackage. E.g.:
+The database models (table definitions) are also organized by data source, and are kept in the models subpackage. E.g.:
  - [`./pudl/models/eia923.py`](/pudl/models/eia923.py)
  - [`./pudl/models/eia860.py`](/pudl/models/eia860.py)
 
-We are beginning to accumulate analytical functionality in the [analysis
-subpackage](/pudl/analysis/), like calculation of the marginal cost of
-electricity (MCOE) on a per generator basis. The [output
-subpackage](/pudl/output/) contains data source specific output routines and an
-[output class definition](/pudl/output/pudltabl.py).
+We are beginning to accumulate analytical functionality in the [analysis subpackage](/pudl/analysis/), like calculation of the marginal cost of electricity (MCOE) on a per generator basis. The [output subpackage](/pudl/output/) contains data source specific output routines and an [output class definition](/pudl/output/pudltabl.py).
 
 ### Other miscellaneous bits:
  - [`./pudl/constants.py`](/pudl/constants.py) stores a variety of static
@@ -198,16 +170,9 @@ subpackage](/pudl/output/) contains data source specific output routines and an
    helper functions that are used throughout the project.
 
 ### results/
-The results directory contains derived data products. These are outputs from
-our manipulation and combination of the original data, that are necessary for
-the integration of those data sets into the central database. It also
-contains outputs we've generated for others.
+The results directory contains derived data products. These are outputs from our manipulation and combination of the original data, that are necessary for the integration of those data sets into the central database. It also contains outputs we've generated for others.
 
-The results directory also contains [a collection of Jupyter
-notebooks](/pudl/results/notebooks) (which desperately needs organizing)
-presenting various data processing or analysis tasks, such as pulling the
-required IDs from the cloned FERC database to use in matching up plants and
-utilities between FERC and EIA datasets.
+The results directory also contains [a collection of Jupyter notebooks](/pudl/results/notebooks) (which desperately needs organizing) presenting various data processing or analysis tasks, such as pulling the required IDs from the cloned FERC database to use in matching up plants and utilities between FERC and EIA datasets.
 
 ### scripts/
 A collection of command line tools written in Python and used for high level
