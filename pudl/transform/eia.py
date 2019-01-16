@@ -52,15 +52,62 @@ def utilities(eia_transformed_dfs,
     return entities_dfs, eia_transformed_dfs
 
 
+def _occurrence_consistency(entity_df, col):
+    """Find the occurance of plants & the consistency of records"""
+    # select only the colums you want and drop the NaNs
+    col_df = entity_df[['plant_id_eia', 'report_date', col]].copy().dropna()
+    # determine how many times each plant occurs
+    occur = col_df['plant_id_eia'].value_counts().to_frame().reset_index()
+    # that creates a series which I converted back into a df
+    occur = occur.rename(columns={'plant_id_eia': 'occurances',
+                                  'index': 'plant_id_eia'})
+    col_df = col_df.merge(occur, on=['plant_id_eia'])
+
+    consist_df = pd.DataFrame()
+    consist_gb = col_df.groupby(by=['plant_id_eia', col])
+    consist_df = consist_gb.agg({
+        'report_date': "count"}).reset_index()
+    consist_df = consist_df.rename(
+        columns={'report_date': '{}_consistent'.format(col)})
+    col_df = col_df.merge(consist_df, how='outer')
+    # change all of the fully consistent records to True
+    col_df.loc[(col_df['{}_consistent'.format(col)] /
+                col_df['occurances'] > .7),
+               '{}_consistent'.format(col)] = True
+    return(col_df)
+
+
+def _lat_long(dirty_df, clean_df, plants_df, col, round_to=2):
+    """Special case haveresting for lat/long """
+    # grab the dirty plant records, round and get a new consistency
+    ll_df = dirty_df.round(decimals=round_to)
+    ll_df = _occurrence_consistency(ll_df, col)
+    # grab the clean plants
+    ll_clean_df = clean_df.dropna()
+    # find the new clean plant records
+    ll_df = ll_df[ll_df['{}_consistent'.format(col)] == True].drop_duplicates(
+        subset=['plant_id_eia'])
+    # add the newly cleaned records
+    ll_clean_df = ll_clean_df.append(ll_df,)
+    # merge onto the plants df w/ all plant ids
+    ll_clean_df = plants_df.merge(ll_clean_df, how='outer')
+    return(ll_clean_df)
+
+
 def plants(eia_transformed_dfs,
            entities_dfs,
            verbose=True):
     """Compiling plant entities."""
+    # we know these columns must be in the dfs
+    base_cols = ['plant_id_eia', 'report_date']
+    static_cols = pc.static_plant_cols
     # create empty df with columns we want
-    plants_compiled = pd.DataFrame(columns=['plant_id_eia', 'report_date'])
+    plants_compiled = pd.DataFrame(columns=(static_cols + base_cols))
 
     if verbose:
         print("    compiling plants for entity tables from:")
+    # empty list for dfs to be added to for each table below
+    dfs = []
     # for each df in the dtc of transformed dfs
     for table_name, transformed_df in eia_transformed_dfs.items():
         # create a copy of the df to muck with
@@ -70,14 +117,25 @@ def plants(eia_transformed_dfs,
                 df.columns.contains('plant_id_eia')):
             if verbose:
                 print("        {}...".format(table_name))
-            df = df[['plant_id_eia', 'report_date']]
-            # add those records to the compliation
-            plants_compiled = plants_compiled.append(df)
+            # we know these columns must be in the dfs
+            cols = []
+            # check whether the columns are in the specific table
+            for column in static_cols:
+                if column in df.columns:
+                    cols.append(column)
+            df = df[(base_cols + cols)]
+            # add a column with the table name so we know its origin
+            df['table'] = table_name
+            dfs.append(df)
+
+            # remove the static columns
+            transformed_df = transformed_df.drop(columns=cols)
+            eia_transformed_dfs[table_name] = transformed_df
+
+    # add those records to the compliation
+    plants_compiled = pd.concat(dfs, axis=0, ignore_index=True, sort=True)
     # strip the month and day from the date so we can have annual records
     plants_compiled['report_date'] = plants_compiled['report_date'].dt.year
-    plants_compiled = plants_compiled.drop_duplicates()
-    plants_compiled.sort_values(['report_date', 'plant_id_eia'],
-                                inplace=True, ascending=False)
     # convert the year back into a date_time object
     year = plants_compiled['report_date']
     plants_compiled['report_date'] = \
@@ -85,14 +143,59 @@ def plants(eia_transformed_dfs,
                         'month': 1,
                         'day': 1})
 
+    if verbose:
+        print('    forcing the correct types')
+    # most columns become objects (ack!), so assign types
+    plants_compiled = \
+        plants_compiled.astype({'plant_id_eia': 'int64',
+                                'grid_voltage_2_kv': 'float64',
+                                'grid_voltage_3_kv': 'float64',
+                                'grid_voltage_kv': 'float64',
+                                'longitude': 'float64',
+                                'latitude': 'float64',
+                                'primary_purpose_naics_id': 'float64',
+                                'sector_id': 'float64',
+                                'zip_code': 'float64'})
+
+    # compile annual ids
+    plants_annual = plants_compiled[[
+        'report_date', 'plant_id_eia']].copy().drop_duplicates()
+    plants_annual.sort_values(['report_date', 'plant_id_eia'],
+                              inplace=True, ascending=False)
+
     # create the annual and entity dfs
-    plants_annual = plants_compiled.copy()
-    plants_df = plants_compiled.drop(['report_date'], axis=1)
-    plants_df = plants_df.astype(int)
+    plants_df = plants_annual.drop(['report_date'], axis=1)
     plants_df = plants_df.drop_duplicates(subset=['plant_id_eia'])
-    # insert the annual and entity dfs to their respective dtc
+
+    plants_entity = plants_df.copy()
+    special_case_cols = {'latitude': [_lat_long, 1],
+                         'longitude': [_lat_long, 1]}
+
+    # determine how many times each of the columns occur
+    for col in static_cols:
+        col_df = _occurrence_consistency(plants_compiled, col)
+
+        # pull the correct values out of the df and merge w/ the plant ids
+        col_correct_df = col_df[col_df['{}_consistent'.format(col)] == True]\
+            .drop_duplicates(subset=['plant_id_eia',
+                                     '{}_consistent'.format(col)])
+        clean_df = plants_df.merge(
+            col_correct_df, on=['plant_id_eia'], how='left')
+        # get the still dirty records by using the cleaned ids w/null values
+        # we need the plants that have no 'correct' value so
+        # we can't just use the col_df records when the consistency is not True
+        dirty_df = col_df.merge(
+            clean_df[clean_df[col].isnull()][['plant_id_eia']])
+
+        if col in special_case_cols.keys():
+            clean_df = special_case_cols[col][0](
+                dirty_df, clean_df, plants_df, col, special_case_cols[col][1])
+
+        clean_df = clean_df[['plant_id_eia', col]]
+        plants_entity = plants_entity.merge(clean_df, on='plant_id_eia')
+
     eia_transformed_dfs['plants_annual_eia'] = plants_annual
-    entities_dfs['plants_entity_eia'] = plants_df
+    entities_dfs['plants_entity_eia'] = plants_entity
 
     return entities_dfs, eia_transformed_dfs
 
