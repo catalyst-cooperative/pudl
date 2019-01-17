@@ -658,7 +658,7 @@ tab_map_eia923 = pd.DataFrame.from_records([
     (2014, 0, 1, 5, 6, 7, 8),
     (2015, 0, 1, 5, 6, 7, 8),
     (2016, 0, 1, 5, 6, 7, 8),
-    (2017, 0, 2, 4, 5, 6, 7)],
+    (2017, 0, 2, 6, 7, 8, 9)],
     columns=['year_index', 'generation_fuel', 'stocks', 'boiler_fuel',
              'generator', 'fuel_receipts_costs', 'plant_frame'],
     index='year_index')
