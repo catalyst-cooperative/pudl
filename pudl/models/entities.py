@@ -2,7 +2,7 @@
 
 from sqlalchemy import Column, ForeignKey, Integer, Float, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
-import pudl
+#import pudl
 #import pudl.models.glue
 
 PUDLBase = declarative_base()
