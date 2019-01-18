@@ -658,7 +658,7 @@ tab_map_eia923 = pd.DataFrame.from_records([
     (2014, 0, 1, 5, 6, 7, 8),
     (2015, 0, 1, 5, 6, 7, 8),
     (2016, 0, 1, 5, 6, 7, 8),
-    (2017, 0, 2, 4, 5, 6, 7)],
+    (2017, 0, 2, 6, 7, 8, 9)],
     columns=['year_index', 'generation_fuel', 'stocks', 'boiler_fuel',
              'generator', 'fuel_receipts_costs', 'plant_frame'],
     index='year_index')
@@ -3301,6 +3301,20 @@ transport_modes_eia923 = {
     'PL': 'Pipeline: Shipments of fuel moved to consumers by pipeline'
 }
 
+# we need to include all of the columns which we want to keep for either the
+# entity or annual tables.
+static_plant_cols = ['balancing_authority_code', 'balancing_authority_name',
+                     'city', 'county', 'ferc_cogen_status',
+                     'ferc_exempt_wholesale_generator',
+                     'ferc_small_power_producer',
+                     'grid_voltage_2_kv', 'grid_voltage_3_kv',
+                     'grid_voltage_kv', 'iso_rto_code', 'iso_rto_name',
+                     'latitude', 'longitude', 'nerc_region',
+                     'plant_name', 'primary_purpose_naics_id',
+                     'sector_id', 'sector_name', 'state',
+                     'street_address', 'zip_code']
+
+
 # EPA CEMS constants #####
 
 epacems_rename_dict = {
@@ -3395,8 +3409,8 @@ base_data_urls = {
 
 
 need_fix_inting = {
-    'generators_eia860': ('sector_id', 'turbines_num'),
-    'plants_eia860': ('sector_id', 'transmission_distribution_owner_id'),
+    'generators_eia860': ('turbines_num',),
+    'plants_eia860': ('transmission_distribution_owner_id',),
     'coalmine_eia923': ('mine_id_msha', 'county_id_fips'),
     'fuel_receipts_costs_eia923': ('mine_id_pudl',),
     'generation_fuel_eia923': ('nuclear_unit_id',),

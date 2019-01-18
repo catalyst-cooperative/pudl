@@ -59,18 +59,7 @@ class PlantsEIA860(pudl.models.entities.PUDLBase):
                             nullable=False)
     utility_name = Column(String)  # FK
     plant_id_eia = Column(Integer, nullable=False)  # FK
-    plant_name = Column(String)  # FK
-    street_address = Column(String)
-    city = Column(String)
-    county = Column(String)
-    state = Column(
-        pudl.models.glue.us_states_territories,  # ENUM
-        comment="Two letter US state and territory abbreviations."
-    )
-    zip_code = Column(String)
     water_source = Column(String)
-    nerc_region = Column(String)
-    primary_purpose_naics_id = Column(Integer)
     transmission_distribution_owner_name = Column(String)
     transmission_distribution_owner_id = Column(String)
     transmission_distribution_owner_state = Column(
@@ -78,24 +67,10 @@ class PlantsEIA860(pudl.models.entities.PUDLBase):
         comment="Two letter abbreviations for US and Canadian states, provinces, and territories."
     )
     regulatory_status_code = Column(String)
-    sector_name = Column(String)
-    sector_id = Column(Float)
-    ferc_cogen_status = Column(String)
     ferc_cogen_docket_no = Column(String)
     net_metering = Column(String)
-    ferc_small_power_producer = Column(String)
     ferc_small_power_producer_docket_no = Column(String)
-    ferc_exempt_wholesale_generator = Column(String)
     ferc_exempt_wholesale_generator_docket_no = Column(String)
-    iso_rto_name = Column(String)
-    iso_rto_code = Column(String)
-    latitude = Column(Float)
-    longitude = Column(Float)
-    balancing_authority_code = Column(String)
-    balancing_authority_name = Column(String)
-    grid_voltage_kv = Column(Float)
-    grid_voltage_2_kv = Column(Float)
-    grid_voltage_3_kv = Column(Float)
     ash_impoundment = Column(String)
     ash_impoundment_lined = Column(String)
     ash_impoundment_status = Column(String)
@@ -125,11 +100,11 @@ class OwnershipEIA860(pudl.models.entities.PUDLBase):
                             nullable=False)
     utility_name = Column(String, nullable=False)  # FK
     plant_id_eia = Column(Integer, nullable=False)  # FK
-    plant_name = Column(String, nullable=False)  # FK
-    state = Column(
-        pudl.models.glue.us_states_territories,  # ENUM
-        comment="Two letter US state and territory abbreviations."
-    )
+    # plant_name = Column(String, nullable=False)  # FK
+    # state = Column(
+    #    pudl.models.glue.us_states_territories,  # ENUM
+    #    comment="Two letter US state and territory abbreviations."
+    # )
     generator_id = Column(String, nullable=False,)
     operational_status_code = Column(String)
     owner_utility_id_eia = Column(Integer, nullable=False)  # FK utility_id_eia
@@ -158,12 +133,12 @@ class GeneratorsEIA860(pudl.models.entities.PUDLBase):
     utility_id_eia = Column(Integer)  # FK
     utility_name = Column(String)  # FK
     plant_id_eia = Column(Integer)
-    plant_name = Column(String)  # FK
-    state = Column(
-        pudl.models.glue.us_states_territories,  # ENUM
-        comment="Two letter US state and territory abbreviations."
-    )
-    county = Column(String)  # FK
+    # plant_name = Column(String)  # FK
+    # state = Column(
+    #    pudl.models.glue.us_states_territories,  # ENUM
+    #    comment="Two letter US state and territory abbreviations."
+    #)
+    # county = Column(String)  # FK
     generator_id = Column(String)
     prime_mover_code = Column(String)  # FK?
     unit_id_eia = Column(String)
@@ -185,8 +160,8 @@ class GeneratorsEIA860(pudl.models.entities.PUDLBase):
     deliver_power_transgrid = Column(Boolean)
     syncronized_transmission_grid = Column(Boolean)
     turbines_num = Column(Integer)
-    sector_name = Column(String)
-    sector_id = Column(Integer)
+    # sector_name = Column(String)
+    # sector_id = Column(Integer)
     topping_bottoming_code = Column(String)
     planned_modifications = Column(Boolean)
     planned_net_summer_capacity_uprate_mw = Column(Float)

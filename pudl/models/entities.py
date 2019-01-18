@@ -1,7 +1,9 @@
 """Database models for PUDL tables for ."""
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, Float, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
+#import pudl
+#import pudl.models.glue
 
 PUDLBase = declarative_base()
 
@@ -40,6 +42,29 @@ class PlantEntityEIA(PUDLBase):
     __tablename__ = 'plants_entity_eia'
     plant_id_eia = Column(Integer, primary_key=True, nullable=False)
     # TODO: Add static plant info
+    plant_name = Column(String)
+    balancing_authority_code = Column(String)
+    balancing_authority_name = Column(String)
+    city = Column(String)
+    county = Column(String)
+    ferc_cogen_status = Column(String)
+    ferc_exempt_wholesale_generator = Column(String)
+    ferc_small_power_producer = Column(String)
+    grid_voltage_kv = Column(Float)
+    grid_voltage_2_kv = Column(Float)
+    grid_voltage_3_kv = Column(Float)
+    iso_rto_name = Column(String)
+    iso_rto_code = Column(String)
+    latitude = Column(Float)
+    longitude = Column(Float)
+    nerc_region = Column(String)
+    primary_purpose_naics_id = Column(Float)
+    sector_name = Column(String)
+    sector_id = Column(Float)
+    state = Column(String,  # pudl.models.glue.us_states_territories,  # ENUM
+                   comment="Two letter US state and territory abbreviations.")
+    street_address = Column(String)
+    zip_code = Column(String)
 
 
 class GeneratorEntityEIA(PUDLBase):
