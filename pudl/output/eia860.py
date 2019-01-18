@@ -190,6 +190,7 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
         plants_entity_eia_tbl.c.plant_name,
         plants_entity_eia_tbl.c.latitude,
         plants_entity_eia_tbl.c.longitude,
+        plants_entity_eia_tbl.c.state,
         plants_entity_eia_tbl.c.balancing_authority_code,
         plants_entity_eia_tbl.c.balancing_authority_name,
         plants_entity_eia_tbl.c.iso_rto_name,
