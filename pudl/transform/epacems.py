@@ -3,6 +3,8 @@
 
 import pandas as pd
 import numpy as np
+import sqlalchemy as sa
+import pudl
 
 ###############################################################################
 ###############################################################################
@@ -11,61 +13,59 @@ import numpy as np
 ###############################################################################
 
 
-def fix_up_dates(df):
+def fix_up_dates(df, plant_timezones):
     """Fix the dates for the CEMS data
-
-    Three date/datetime changes (not all implemented)
-    - Make op_date a DATE type
-    - Make an appropriate INTERVAL type (not implemented)
-    - Add a UTC timestamp (not implemented)
-
     Args:
         df(pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
+        plant_timezones(pandas.DataFrame): A dataframe of plants' timezones
     Output:
-        pandas.DataFrame: The same data, with an op_datetime column added and
-        the op_date and op_hour columns removed
+        pandas.DataFrame: The same data, with an op_datetime_utc column added
+        and the op_date and op_hour columns removed
     """
-    # Convert to interval:
-    # df = convert_time_to_interval(df)
-
+    df = pd.merge(df, plant_timezones, how="left", on="plant_id_eia", sort=False)
     # Convert op_date and op_hour from string and integer to datetime:
     # Note that doing this conversion, rather than reading the CSV with
-    # `parse_dates=True` is >10x faster.
-    # Make an operating timestamp
-    df["operating_datetime"] = (
-        pd.to_datetime(df["op_date"], format=r"%m-%d-%Y", exact=True, cache=True) +
-        pd.to_timedelta(df["op_hour"], unit="h")
+    # `parse_dates=True`, is >10x faster.
+    df["datetime"] = pd.to_datetime(
+        df["op_date"], format=r"%m-%d-%Y", exact=True, cache=True
+    ) + pd.to_timedelta(df["op_hour"], unit="h")
+    # TODO: check performance here.
+    df["operating_datetime_utc"] = df.apply(
+        lambda x: pudl.helpers.make_utc(x["datetime"], x["timezone"]), axis=1
     )
-    del df["op_hour"], df["op_date"]
-
-    # Add UTC timestamp ... not done.
+    del df["op_hour"], df["op_date"], df["datetime"]
     return df
 
 
-def convert_time_to_interval(df):
+def _load_plant_timezones(pudl_engine):
+    """Load the IANA timezone for each plant
+    :param: pudl_engine A connection to the sqlalchemy database
+    :return: A pandas series, indexed by plant_id_eia, with values of timezone.
     """
-    Reframe the CEMS hourly time as an interval -- NOT YET IMPLEMENTED
-
-    NOTE: this function is currently written to be called *before* converting
-    op_date to a Date.
-
-    Args:
-        df(pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
-    Output:
-        pandas.DataFrame: The same data, with an op_interval column added.
-    """
-    raise NotImplementedError(
-        "This op_interval isn't included in the " +
-        "SQLAlchemy model yet. Figure out what you want to do with interval " +
-        "data first."
+    pass
+    # 1. Load data from SQLA (selecting plant_id_eia, lat, lon, state)
+    # 2. Calculate timezones
+    # 3. Keep plant_id_eia and timezone cols
+    # 4. Sort
+    # pudl.helpers.find_timezone()
+    plants_eia_entity_select = sa.sql.select(
+        [pudl.models.entities.PUDLBase.metadata.tables["plants_entity_eia"]]
     )
-    df['op_interval'] = pd.to_datetime(
-        df['op_date'].str.cat(df['op_hour'].astype(str), sep='-'),
-        format="%m-%d-%Y-%H",
-        box=False,
-        exact=True,
-        cache=True).dt.to_period("H")
-    return df
+    plants_location_df = pd.read_sql(
+        plants_eia_entity_select,
+        pudl_engine,
+        columns=["plant_id_eia", "longitude", "latitude", "state"],
+        index_col="plant_id_eia",
+    )
+    # Find the timezone for the lon/lat. state is only used if lon/lat are NA
+    # The function isn't vectorized, so use apply to each row.
+    plants_location_df = plants_location_df.apply(
+        lambda row: pudl.helpers.find_timezone(
+            lng=row["longitude"], lat=row["latitude"], state=row["state"]
+        ),
+        axis=1,
+    )
+    return plants_location_df["timezone"]
 
 
 def harmonize_eia_epa_orispl(df):
@@ -81,6 +81,9 @@ def harmonize_eia_epa_orispl(df):
     The EIA plant IDs and CEMS ORISPL codes almost match, but not quite. See
     https://www.epa.gov/sites/production/files/2018-02/documents/egrid2016_technicalsupportdocument_0.pdf#page=104
     for an example.
+
+    Note that this transformation needs to be run *before* fix_up_dates, because
+    fix_up_dates uses the plant ID to look up timezones.
     """
     # TODO: implement this.
     return df
@@ -159,22 +162,23 @@ def drop_calculated_rates(df):
     return df
 
 
-def transform(epacems_raw_dfs, verbose=True):
+def transform(pudl_engine, epacems_raw_dfs, verbose=True):
     """Transform EPA CEMS hourly"""
     if verbose:
         print("Transforming tables from EPA CEMS:")
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
     # a transformation pipeline, and yield it back as another generator.
+    plant_timezones = _load_plant_timezones(pudl_engine)
     for raw_df_dict in epacems_raw_dfs:
         # There's currently only one dataframe in this dict at a time, but
         # that could be changed if you want.
         for yr_st, raw_df in raw_df_dict.items():
             df = (
-                raw_df.fillna({'gross_load_mw': 0.0})
+                raw_df.fillna({"gross_load_mw": 0.0})
                 .pipe(add_facility_id_unit_id_epa)
                 .pipe(drop_calculated_rates)
-                .pipe(fix_up_dates)
                 .pipe(harmonize_eia_epa_orispl)
+                .pipe(fix_up_dates, plant_timezones=plant_timezones)
                 .pipe(add_facility_id_unit_id_epa)
             )
             yield {yr_st: df}
