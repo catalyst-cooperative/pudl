@@ -3469,7 +3469,7 @@ contributors = {
     }
 }
 
-data_sources = {
+data_source_info = {
     "pudl": {
         "title": "Public Utility Data Liberation Project (PUDL)",
         "path": "https://catalyst.coop/pudl/",
