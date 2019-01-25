@@ -37,6 +37,28 @@ class PlantAnnualEIA(pudl.models.entities.PUDLBase):
                           nullable=False)
     report_date = Column(Date, nullable=False)
     # TODO: Add plant info that varies per year
+    ash_impoundment = Column(String)
+    ash_impoundment_lined = Column(String)
+    ash_impoundment_status = Column(String)
+    energy_storage = Column(String)
+    ferc_cogen_docket_no = Column(String)
+    ferc_exempt_wholesale_generator_docket_no = Column(String)
+    ferc_small_power_producer_docket_no = Column(String)
+    liquefied_natural_gas_storage = Column(String)
+    natural_gas_local_distribution_company = Column(String)
+    natural_gas_storage = Column(String)
+    natural_gas_pipeline_name_1 = Column(String)
+    natural_gas_pipeline_name_2 = Column(String)
+    natural_gas_pipeline_name_3 = Column(String)
+    net_metering = Column(String)
+    pipeline_notes = Column(String)
+    regulatory_status_code = Column(String)
+    transmission_distribution_owner_id = Column(String)
+    transmission_distribution_owner_name = Column(String)
+    transmission_distribution_owner_state = Column(String)
+    utility_id_eia = Column(Integer)
+    #utility_name = Column(String)
+    water_source = Column(String)
 
 
 class GeneratorAnnualEIA(pudl.models.entities.PUDLBase):

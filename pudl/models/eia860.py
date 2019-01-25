@@ -16,9 +16,9 @@ class BoilerGeneratorAssnEIA860(pudl.models.entities.PUDLBase):
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     report_date = Column(Date, nullable=False)
-    utility_id_eia = Column(Integer,
-                            ForeignKey('utilities_entity_eia.utility_id_eia'),
-                            nullable=False)
+    # utility_id_eia = Column(Integer,
+    #                        ForeignKey('utilities_entity_eia.utility_id_eia'),
+    #                        nullable=False)
     plant_id_eia = Column(Integer, nullable=False)  # FK?
     boiler_id = Column(String, nullable=False)  # FK?
     generator_id = Column(String, nullable=False)
@@ -54,34 +54,34 @@ class PlantsEIA860(pudl.models.entities.PUDLBase):
     __tablename__ = 'plants_eia860'
     id = Column(Integer, autoincrement=True, primary_key=True)
     report_date = Column(Date, nullable=False)
-    utility_id_eia = Column(Integer,
-                            ForeignKey('utilities_entity_eia.utility_id_eia'),
-                            nullable=False)
+    # utility_id_eia = Column(Integer,
+    #                        ForeignKey('utilities_entity_eia.utility_id_eia'),
+    #                        nullable = False)
     utility_name = Column(String)  # FK
     plant_id_eia = Column(Integer, nullable=False)  # FK
-    water_source = Column(String)
-    transmission_distribution_owner_name = Column(String)
-    transmission_distribution_owner_id = Column(String)
-    transmission_distribution_owner_state = Column(
-        pudl.models.glue.us_states_territories,  # ENUM
-        comment="Two letter abbreviations for US and Canadian states, provinces, and territories."
-    )
-    regulatory_status_code = Column(String)
-    ferc_cogen_docket_no = Column(String)
-    net_metering = Column(String)
-    ferc_small_power_producer_docket_no = Column(String)
-    ferc_exempt_wholesale_generator_docket_no = Column(String)
-    ash_impoundment = Column(String)
-    ash_impoundment_lined = Column(String)
-    ash_impoundment_status = Column(String)
-    energy_storage = Column(String)
-    natural_gas_pipeline_name_1 = Column(String)
-    natural_gas_pipeline_name_2 = Column(String)
-    natural_gas_pipeline_name_3 = Column(String)
-    pipeline_notes = Column(String)
-    natural_gas_local_distribution_company = Column(String)
-    natural_gas_storage = Column(String)
-    liquefied_natural_gas_storage = Column(String)
+    # water_source = Column(String)
+    # transmission_distribution_owner_name = Column(String)
+    # transmission_distribution_owner_id = Column(String)
+    # transmission_distribution_owner_state = Column(
+    #    pudl.models.glue.us_states_territories,  # ENUM
+    #    comment="Two letter abbreviations for US and Canadian states, provinces, and territories."
+    # )
+    # regulatory_status_code = Column(String)
+    # ferc_cogen_docket_no = Column(String)
+    # net_metering = Column(String)
+    # ferc_small_power_producer_docket_no = Column(String)
+    # ferc_exempt_wholesale_generator_docket_no = Column(String)
+    # ash_impoundment = Column(String)
+    # ash_impoundment_lined = Column(String)
+    # ash_impoundment_status = Column(String)
+    # energy_storage = Column(String)
+    # natural_gas_pipeline_name_1 = Column(String)
+    # natural_gas_pipeline_name_2 = Column(String)
+    # natural_gas_pipeline_name_3 = Column(String)
+    # pipeline_notes = Column(String)
+    # natural_gas_local_distribution_company = Column(String)
+    # natural_gas_storage = Column(String)
+    # liquefied_natural_gas_storage = Column(String)
 
 
 class OwnershipEIA860(pudl.models.entities.PUDLBase):
@@ -130,14 +130,14 @@ class GeneratorsEIA860(pudl.models.entities.PUDLBase):
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     report_date = Column(Date, nullable=False)
-    utility_id_eia = Column(Integer)  # FK
+    # utility_id_eia = Column(Integer)  # FK
     utility_name = Column(String)  # FK
     plant_id_eia = Column(Integer)
     # plant_name = Column(String)  # FK
     # state = Column(
     #    pudl.models.glue.us_states_territories,  # ENUM
     #    comment="Two letter US state and territory abbreviations."
-    #)
+    # )
     # county = Column(String)  # FK
     generator_id = Column(String)
     prime_mover_code = Column(String)  # FK?

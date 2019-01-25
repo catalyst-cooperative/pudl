@@ -3303,17 +3303,36 @@ transport_modes_eia923 = {
 
 # we need to include all of the columns which we want to keep for either the
 # entity or annual tables.
-static_plant_cols = ['balancing_authority_code', 'balancing_authority_name',
-                     'city', 'county', 'ferc_cogen_status',
-                     'ferc_exempt_wholesale_generator',
-                     'ferc_small_power_producer',
-                     'grid_voltage_2_kv', 'grid_voltage_3_kv',
-                     'grid_voltage_kv', 'iso_rto_code', 'iso_rto_name',
-                     'latitude', 'longitude', 'nerc_region',
-                     'plant_name', 'primary_purpose_naics_id',
-                     'sector_id', 'sector_name', 'state',
-                     'street_address', 'zip_code']
-
+static_cols = {'plant': ['balancing_authority_code', 'balancing_authority_name',
+                         'city', 'county', 'ferc_cogen_status',
+                         'ferc_exempt_wholesale_generator',
+                         'ferc_small_power_producer',
+                         'grid_voltage_2_kv', 'grid_voltage_3_kv',
+                         'grid_voltage_kv', 'iso_rto_code', 'iso_rto_name',
+                         'latitude', 'longitude', 'nerc_region',
+                         'plant_name', 'primary_purpose_naics_id',
+                         'sector_id', 'sector_name', 'state',
+                         'street_address', 'zip_code'],
+               'generator': [],
+               'utility': [],
+               }
+annual_cols = {'plant':
+               ['ash_impoundment', 'ash_impoundment_lined',
+                'ash_impoundment_status', 'energy_storage',
+                'ferc_cogen_docket_no',
+                'ferc_exempt_wholesale_generator_docket_no',
+                'ferc_small_power_producer_docket_no',
+                'liquefied_natural_gas_storage',
+                'natural_gas_local_distribution_company', 'natural_gas_storage',
+                'natural_gas_pipeline_name_1', 'natural_gas_pipeline_name_2',
+                'natural_gas_pipeline_name_3', 'net_metering', 'pipeline_notes',
+                'regulatory_status_code', 'transmission_distribution_owner_id',
+                'transmission_distribution_owner_name',
+                'transmission_distribution_owner_state', 'utility_id_eia',
+                'water_source'],
+               'generator': [],
+               'utility': [],
+               }
 
 # EPA CEMS constants #####
 
@@ -3410,7 +3429,6 @@ base_data_urls = {
 
 need_fix_inting = {
     'generators_eia860': ('turbines_num',),
-    'plants_eia860': ('transmission_distribution_owner_id',),
     'coalmine_eia923': ('mine_id_msha', 'county_id_fips'),
     'fuel_receipts_costs_eia923': ('mine_id_pudl',),
     'generation_fuel_eia923': ('nuclear_unit_id',),
@@ -3419,6 +3437,7 @@ need_fix_inting = {
     'plants_hydro_ferc1': ('construction_year', 'installation_year'),
     'plants_pumped_storage_ferc1': ('construction_year', 'installation_year'),
     'hourly_emissions_epacems': ('facility_id', 'unit_id_epa'),
+    'plants_annual_eia': ('utility_id_eia',),
 }
 
 contributors = {
