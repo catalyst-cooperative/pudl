@@ -509,39 +509,56 @@ def simplify_columns(df):
     return df
 
 
-def make_utc(naive_datetime, timezone_name):
+def make_utc(datetime_col, timezone_col):
     """Convert a naive datetime and its timezone to timezone-aware UTC
-    param: naive_datetime A single datetime, without timezone information
-    param: timezone_name (str) An IANA timezone name (see pytz.common_timezones)
+    param: datetime_col
+    param: timezone_col
     returns: The datetime, converted to UTC and tagged as UTC
 
-    Borrowed and simplified from timezonefinder's example.py
+    For the code to do this with a single datetime and single timezone, see:
     https://github.com/MrMinimal64/timezonefinder/blob/master/example.py
+    Using pandas' vectorized version here.
+
+    Example:
+    df = pd.DataFrame({
+        "timezone": ["US/Eastern", "US/Mountain"], "time": pd.to_datetime([1, 2]),
+        }
+    )
+    utc_timestamps = make_utc(df["time"], df["timezone"])
     """
-    import pytz
-    # Note: this will raise pytz.exceptions.UnknownTimeZoneError if given a bad
-    # timezone. That's probably what we want.
-    tz = pytz.timezone(timezone_name)
-    aware_datetime = naive_datetime.replace(tzinfo=tz)
-    aware_datetime_in_utc = aware_datetime.astimezone(pytz.utc)
-    return aware_datetime_in_utc
+    # tz_localize can only handle one timezone at a time. Could either `apply`
+    # over rows, or groupby and work with the grouping values. Doing groupby,
+    # but we should benchmark (TODO)
+
+    # TODO: Fix this
+    df = (pd.DataFrame({"datetime": datetime_col, "timezone": timezone_col])
+        .groupby("timezone", as_index=False, sort=False, group_keys=True)
+        .transform(x["datetime"].dt.tz_localize(x["timezone"][0]))
+        )
+    #
+    # import pytz
+    # # Note: this will raise pytz.exceptions.UnknownTimeZoneError if given a bad
+    # # timezone. That's probably what we want.
+    # tz = pytz.timezone(timezone_name)
+    # aware_datetime = naive_datetime.replace(tzinfo=tz)
+    # aware_datetime_in_utc = aware_datetime.astimezone(pytz.utc)
+    # return aware_datetime_in_utc
 
 
-def find_timezone(*, lng=None, lat=None, state=None):
+def find_timezone(*, lng=None, lat=None, state=None, strict=True):
     """Find the timezone of a location
     param: lng (int or float in [-180,180]) Longitude, in decimal degrees
     param: lat (int or float in [-90, 90]) Latitude, in decimal degrees
     param: state (str) Abbreviation for US state or Canadian province
-
-    returns: The timezone (as an IANA string) for that location. Raises an error
-    if no timezone can be found.
+    param: strict (bool) Raise an error if no timezone is found?
+    returns: The timezone (as an IANA string) for that location.
 
     Note that this function requires named arguments. The names are lng, lat,
     and state.  lng and lat must be provided, but they may be NA. state isn't
     required, and isn't used unless lng/lat are NA or timezonefinder can't find
     a corresponding timezone.
-    Timezones based on states are imprecise, so it's far
-    better to use lng/lat if possible.
+    Timezones based on states are imprecise, so it's far better to use lng/lat
+    if possible. If `strict` is True, state will not be used.
     More on state-to-timezone conversion here:
     https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
     """
@@ -551,14 +568,15 @@ def find_timezone(*, lng=None, lat=None, state=None):
             # Could change the search radius as well
             tz = tz_finder.closest_timezone_at(lng=lng, lat=lat)
     except ValueError:
+        # If we're being strict, only use lng/lat, not state
+        if strict:
+            raise ValueError(
+                f"Can't find timezone for: lng={lng}, lat={lat}, state={state}"
+            )
         # If, e.g., the coordinates are missing, try looking in the
         # state_tz_approx dictionary.
         try:
             tz = pudl.constants.state_tz_approx[state]
         except KeyError:
             tz = None
-    if tz is None:
-        raise ValueError(
-            f"Can't find timezone for: lng={lng}, lat={lat}, state={state}"
-        )
     return tz

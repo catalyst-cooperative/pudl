@@ -93,6 +93,17 @@ def _lat_long(dirty_df, clean_df, plants_df, col, round_to=2):
     ll_clean_df = plants_df.merge(ll_clean_df, how='outer')
     return(ll_clean_df)
 
+def _add_timezone(plants_entity):
+    """Add plants' IANA timezones from lat/lon"""
+    # TODO: fix this!
+    plants_entity["timezone"] = ""
+    # plants_entity_with_timezone = plants_entity.apply(
+    #     lambda row: pudl.helpers.find_timezone(
+    #         lng=row["longitude"], lat=row["latitude"], state=row["state"]
+    #     ),
+    #     axis=1,
+    # )
+    # return plants_entity_with_timezone
 
 def plants(eia_transformed_dfs,
            entities_dfs,
@@ -194,6 +205,7 @@ def plants(eia_transformed_dfs,
         clean_df = clean_df[['plant_id_eia', col]]
         plants_entity = plants_entity.merge(clean_df, on='plant_id_eia')
 
+    plants_entity = _add_timezone(plants_entity)
     eia_transformed_dfs['plants_annual_eia'] = plants_annual
     entities_dfs['plants_entity_eia'] = plants_entity
 
