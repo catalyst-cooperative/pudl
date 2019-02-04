@@ -94,16 +94,19 @@ def _lat_long(dirty_df, clean_df, plants_df, col, round_to=2):
     return(ll_clean_df)
 
 def _add_timezone(plants_entity):
-    """Add plants' IANA timezones from lat/lon"""
-    # TODO: fix this!
-    plants_entity["timezone"] = ""
-    # plants_entity_with_timezone = plants_entity.apply(
-    #     lambda row: pudl.helpers.find_timezone(
-    #         lng=row["longitude"], lat=row["latitude"], state=row["state"]
-    #     ),
-    #     axis=1,
-    # )
-    # return plants_entity_with_timezone
+    """Add plants' IANA timezones from lat/lon
+    param: plants_entity Plant entity table, including columns named "latitude",
+        "longitude", and optionally "state"
+    Returns the same table, with a "timezone" column added. Timezone may be
+    missing if lat/lon is missing or invalid.
+    """
+    plants_entity["timezone"] = plants_entity.apply(
+        lambda row: pudl.helpers.find_timezone(
+            lng=row["longitude"], lat=row["latitude"], state=row["state"], strict=False
+        ),
+        axis=1,
+    )
+    return plants_entity
 
 def plants(eia_transformed_dfs,
            entities_dfs,
