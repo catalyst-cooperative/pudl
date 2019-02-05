@@ -534,7 +534,7 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
     frc_df = pudl.helpers.fix_eia_na(frc_df)
 
     # These come in ALL CAPS from EIA...
-    frc_df['supplier_name'] = pudl.helpers.strip_lower(
+    frc_df = pudl.helpers.strip_lower(
         frc_df, columns=['supplier_name'])
 
     # Standardize case on transportaion codes -- all upper case!
