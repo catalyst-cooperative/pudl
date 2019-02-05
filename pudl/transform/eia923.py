@@ -534,6 +534,9 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
     frc_df = pudl.helpers.fix_eia_na(frc_df)
 
     # These come in ALL CAPS from EIA...
+    # Integers and strings are mixed in together, cast everything to string
+    # Without this step, strip_lower converts the ints to nulls
+    frc_df['supplier_name'] = [str(x) for x in frc_df['supplier_name']]
     frc_df = pudl.helpers.strip_lower(
         frc_df, columns=['supplier_name'])
 
