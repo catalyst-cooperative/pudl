@@ -1460,7 +1460,7 @@ data_years = {
     'eia860': tuple(range(2001, 2018)),
     'eia861': tuple(range(1990, 2018)),
     'eia923': tuple(range(2001, 2018)),
-    'epacems': tuple(range(1995, 2018)),
+    'epacems': tuple(range(1995, 2019)),
     'ferc1': tuple(range(1994, 2018)),
     'ferc714': tuple(range(2006, 2018)),
     'msha': tuple(range(2000, 2018)),
@@ -1471,7 +1471,7 @@ working_years = {
     'eia860': tuple(range(2011, 2018)),
     'eia861': (),
     'eia923': tuple(range(2009, 2018)),
-    'epacems': tuple(range(1995, 2018)),
+    'epacems': tuple(range(1995, 2019)),
     'ferc1': tuple(range(2004, 2018)),
     'msha': (),
 }
