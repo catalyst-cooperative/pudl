@@ -48,8 +48,8 @@ IN_DTYPES = {
 
 OUT_DTYPES = {
     'year': 'uint16',
-    'state': 'category',
-    'plant_name': 'category',
+    # 'state': 'category',
+    # 'plant_name': 'category',
     'plant_id_eia': 'uint16',
     'unitid': 'category',
     'gross_load_mw': 'float32',
@@ -178,8 +178,7 @@ def cems_to_parquet(transformed_df_dicts, outdir=None, schema=None,
         raise AssertionError("Required output directory not specified.")
 
     for df_dict in transformed_df_dicts:
-        for yr_st in df_dict:
-            df = df_dict[yr_st]
+        for yr_st, df in df_dict.items():
             print(f'            {yr_st}: {len(df)} records')
             if not df.empty:
                 df = (
@@ -193,6 +192,9 @@ def cems_to_parquet(transformed_df_dicts, outdir=None, schema=None,
                     .pipe(year_from_operating_datetime)
                     .astype(OUT_DTYPES)
                 )
+                # Removed state from the df for better database aesthetics,
+                # but it's useful for the parquet partitions, so bring it back
+                df["state"] = yr_st[1].toupper()
                 pq.write_to_dataset(
                     pa.Table.from_pandas(
                         df, preserve_index=False, schema=schema),
