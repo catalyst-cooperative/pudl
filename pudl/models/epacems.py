@@ -63,7 +63,7 @@ class HourlyEmissions(pudl.models.entities.PUDLBase):
     plant_id_eia = Column(Integer, nullable=False)
     unitid = Column(String, nullable=False)
     operating_datetime = Column(DateTime, nullable=False)
-    operating_time_hours = Column(REAL, nullable=False)
+    operating_time_hours = Column(REAL)
     gross_load_mw = Column(REAL, nullable=False)
     steam_load_1000_lbs = Column(REAL)
     so2_mass_lbs = Column(REAL)
