@@ -5,9 +5,8 @@ from functools import partial
 import pandas as pd
 import numpy as np
 import sqlalchemy as sa
-import pudl
 import timezonefinder
-import pytz
+import pudl
 
 # This is a little abbreviated function that allows us to propagate the NA
 # values through groupby aggregations, rather than using inefficient lambda
@@ -511,8 +510,8 @@ def simplify_columns(df):
 
 def make_utc(datetime_col, timezone_col):
     """Convert a naive datetime and its timezone to timezone-aware UTC
-    param: datetime_col
-    param: timezone_col
+    param: datetime_col Series of datetime values
+    param: timezone_col Series of timezone values
     returns: The datetime, converted to UTC and tagged as UTC
 
     For the code to do this with a single datetime and single timezone, see:
@@ -524,25 +523,33 @@ def make_utc(datetime_col, timezone_col):
         "timezone": ["US/Eastern", "US/Mountain"], "time": pd.to_datetime([1, 2]),
         }
     )
-    utc_timestamps = make_utc(df["time"], df["timezone"])
+    df["utc_timestamps"] = make_utc(df["time"], df["timezone"])
     """
     # tz_localize can only handle one timezone at a time. Could either `apply`
-    # over rows, or groupby and work with the grouping values. Doing groupby,
-    # but we should benchmark (TODO)
+    # over rows, or groupby and work with the grouping values. The following
+    # does groupby.
+    # TODO: benchmark this
 
-    # TODO: Fix this
-    df = (pd.DataFrame({"datetime": datetime_col, "timezone": timezone_col])
-        .groupby("timezone", as_index=False, sort=False, group_keys=True)
-        .transform(x["datetime"].dt.tz_localize(x["timezone"][0]))
-        )
-    #
-    # import pytz
-    # # Note: this will raise pytz.exceptions.UnknownTimeZoneError if given a bad
-    # # timezone. That's probably what we want.
-    # tz = pytz.timezone(timezone_name)
-    # aware_datetime = naive_datetime.replace(tzinfo=tz)
-    # aware_datetime_in_utc = aware_datetime.astimezone(pytz.utc)
-    # return aware_datetime_in_utc
+    # Bind the two series together, then group by timezone
+    # We could pd.concat or just construct a new dataframe here. Names are
+    # easier with a new dataframe
+    assert datetime_col.shape == timezone_col.shape
+    grouped = pd.concat(
+        {
+            # Pandas is fussy about concat indexes
+            "datetime": datetime_col.reset_index(drop=True),
+            "timezone": timezone_col.reset_index(drop=True),
+        },
+        axis="columns",
+        sort=False,
+        copy=False,
+    ).groupby("timezone", as_index=False, sort=False, group_keys=True)
+    # Iterate over groups, which each have exactly one timezone, and concatenate
+    localized = pd.concat(
+        [d["datetime"].dt.tz_localize(tz) for tz, d in grouped],
+        copy=False
+    )
+    return localized.dt.tz_convert("UTC")
 
 
 def find_timezone(*, lng=None, lat=None, state=None, strict=True):

@@ -132,8 +132,12 @@ expected:
         """Spill the accumulated dataframes into postgresql"""
         if self.accumulated_dfs:
             self._check_names()
-            all_dfs = pd.concat(self.accumulated_dfs,
-                                copy=False, ignore_index=True, sort=False)
+            if len(self.accumulated_dfs) > 1:
+                # Work around https://github.com/pandas-dev/pandas/issues/25257
+                all_dfs = pd.concat(self.accumulated_dfs,
+                                    copy=False, ignore_index=True, sort=False)
+            else:
+                all_dfs = self.accumulated_dfs[0]
             print(f"===================== Dramatic Pause ====================")
             print(
                 f"    Loading {len(all_dfs):,} records ({round(self.accumulated_size/1024**2)} MB) into PUDL.", flush=True)

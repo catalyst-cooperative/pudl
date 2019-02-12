@@ -22,18 +22,27 @@ def fix_up_dates(df, plant_timezones):
         pandas.DataFrame: The same data, with an op_datetime_utc column added
         and the op_date and op_hour columns removed
     """
-    df = pd.merge(df, plant_timezones, how="left", on="plant_id_eia", sort=False)
+    # Get the vector of timezones for these particular plants
+    timezones = pd.merge(df["plant_id_eia"], plant_timezones,
+        how="left", on="plant_id_eia", sort=False)["timezone"]
+    # Some of the timezones in the plants_entity_eia table may be missing,
+    # but none of the CEMS plants should be.
+    assert pd.notna(timezones).all()
     # Convert op_date and op_hour from string and integer to datetime:
     # Note that doing this conversion, rather than reading the CSV with
     # `parse_dates=True`, is >10x faster.
-    df["datetime"] = pd.to_datetime(
+    op_datetime = pd.to_datetime(
         df["op_date"], format=r"%m-%d-%Y", exact=True, cache=True
-    ) + pd.to_timedelta(df["op_hour"], unit="h")
-    # TODO: check performance here.
-    df["operating_datetime_utc"] = df.apply(
-        lambda x: pudl.helpers.make_utc(x["datetime"], x["timezone"]), axis=1
-    )
-    del df["op_hour"], df["op_date"], df["datetime"]
+    ) + pd.to_timedelta(df["op_hour"], unit="h", box=False)
+    # op_hour = pd.to_timedelta(df["op_hour"], unit="h", box=False).reset_index(drop=True)
+
+    # TODO: fix DST changes. Pandas' tz_localize(..., ambiguous='infer') is
+    # meant for the opposite case of what we have -- they deal with times like:
+    # ['11/06/2011 00:00', '11/06/2011 01:00', '11/06/2011 01:00',
+    #  '11/06/2011 02:00', '11/06/2011 03:00'].
+    # Instead the CEMS has day and hour of day, which should be good enough.
+    df["operating_datetime_utc"] = pudl.helpers.make_utc(op_datetime, timezones)
+    del df["op_hour"], df["op_date"]
     return df
 
 
@@ -42,28 +51,14 @@ def _load_plant_timezones(pudl_engine):
     :param: pudl_engine A connection to the sqlalchemy database
     :return: A pandas series, indexed by plant_id_eia, with values of timezone.
     """
-    pass
-    # 1. Load data from SQLA (selecting plant_id_eia, lat, lon, state)
-    # 2. Calculate timezones
-    # 3. Keep plant_id_eia and timezone cols
-    # 4. Sort
-    # pudl.helpers.find_timezone()
     plants_eia_entity_select = sa.sql.select(
         [pudl.models.entities.PUDLBase.metadata.tables["plants_entity_eia"]]
     )
+    # TODO: that this reads all the columns. It would be better to select a subset.
     plants_location_df = pd.read_sql(
         plants_eia_entity_select,
         pudl_engine,
-        columns=["plant_id_eia", "longitude", "latitude", "state"],
         index_col="plant_id_eia",
-    )
-    # Find the timezone for the lon/lat. state is only used if lon/lat are NA
-    # The function isn't vectorized, so use apply to each row.
-    plants_location_df = plants_location_df.apply(
-        lambda row: pudl.helpers.find_timezone(
-            lng=row["longitude"], lat=row["latitude"], state=row["state"]
-        ),
-        axis=1,
     )
     return plants_location_df["timezone"]
 

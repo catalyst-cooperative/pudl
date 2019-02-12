@@ -65,7 +65,7 @@ class PlantEntityEIA(PUDLBase):
                    comment="Two letter US state and territory abbreviations.")
     street_address = Column(String)
     zip_code = Column(String)
-    timezone = Column(String, nullable=False)
+    timezone = Column(String, comment="IANA timezone name")
 
 
 class GeneratorEntityEIA(PUDLBase):
