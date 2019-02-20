@@ -114,7 +114,7 @@ def correct_gross_load_mw(df):
     # This is rare, so don't bother most of the time.
     bad = df["gross_load_mw"] > 2000
     if bad.any():
-        df["gross_load_mw"][bad] = df["gross_load_mw"][bad] / 1000
+        df.loc[bad, "gross_load_mw"] = df.loc[bad, "gross_load_mw"] / 1000
     return df
 
 
