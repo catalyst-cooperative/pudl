@@ -1405,7 +1405,7 @@ static_plant_cols = ['balancing_authority_code', 'balancing_authority_name',
 # EPA CEMS constants #####
 
 epacems_rename_dict = {
-    # "STATE": "state",  # Not reading from CSV
+    "STATE": "state",
     # "FACILITY_NAME": "plant_name",  # Not reading from CSV
     "ORISPL_CODE": "plant_id_eia",
     "UNITID": "unitid",
@@ -1445,7 +1445,6 @@ epacems_rename_dict = {
 }
 # Any column that exactly matches one of these won't be read
 epacems_columns_to_ignore = {
-    "STATE",
     "FACILITY_NAME",
     "SO2_RATE (lbs/mmBtu)",
     "SO2_RATE",
@@ -1456,7 +1455,7 @@ epacems_columns_to_ignore = {
 }
 # Specify dtypes to for reading the CEMS CSVs
 epacems_csv_dtypes = {
-    # "STATE": str,  # Not reading from CSV
+    "STATE": str,
     # "FACILITY_NAME": str,  # Not reading from CSV
     "ORISPL_CODE": int,
     "UNITID": str,

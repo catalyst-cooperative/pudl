@@ -48,7 +48,7 @@ IN_DTYPES = {
 
 OUT_DTYPES = {
     'year': 'uint16',
-    # 'state': 'category',
+    'state': 'category',
     # 'plant_name': 'category',
     'plant_id_eia': 'uint16',
     'unitid': 'category',
@@ -192,9 +192,6 @@ def cems_to_parquet(transformed_df_dicts, outdir=None, schema=None,
                     .pipe(year_from_operating_datetime)
                     .astype(OUT_DTYPES)
                 )
-                # Removed state from the df for better database aesthetics,
-                # but it's useful for the parquet partitions, so bring it back
-                df["state"] = yr_st[1].upper()
                 pq.write_to_dataset(
                     pa.Table.from_pandas(
                         df, preserve_index=False, schema=schema),
