@@ -58,13 +58,13 @@ class HourlyEmissions(pudl.models.entities.PUDLBase):
         pudl.models.glue.us_states_lower48,  # ENUM
         comment="Two letter US state and territory abbreviations."
     )
-    plant_name = Column(String, nullable=False)
-    # TODO: Link to EIA plant ID
+    # plant_name = Column(String, nullable=False)
+    # TODO: Set up foreign-key link to EIA plant ID
     plant_id_eia = Column(Integer, nullable=False)
     unitid = Column(String, nullable=False)
     operating_datetime = Column(DateTime, nullable=False)
     operating_time_hours = Column(REAL)
-    gross_load_mw = Column(REAL)
+    gross_load_mw = Column(REAL, nullable=False)
     steam_load_1000_lbs = Column(REAL)
     so2_mass_lbs = Column(REAL)
     so2_mass_measurement_code = Column(ENUM_FLAG_MEASUREMENT)
@@ -78,7 +78,7 @@ class HourlyEmissions(pudl.models.entities.PUDLBase):
     co2_mass_measurement_code = Column(ENUM_FLAG_MEASUREMENT)
     # co2_rate_tons_mmbtu = Column(REAL)
     # co2_rate_measure_flg = Column(ENUM_FLAG_CALCULATED)
-    heat_content_mmbtu = Column(REAL)
+    heat_content_mmbtu = Column(REAL, nullable=False)
     facility_id = Column(SmallInteger)  # max value is 8421
     unit_id_epa = Column(Integer)
 
@@ -88,8 +88,6 @@ CREATE_VIEWS = ["""
     CREATE VIEW hourly_emissions_epacems_view AS
     SELECT
         id,
-        state,
-        plant_name,
         plant_id_eia,
         unitid,
         operating_datetime,
