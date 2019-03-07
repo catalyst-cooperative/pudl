@@ -1,4 +1,3 @@
-
 """Routines specific to cleaning up EPA CEMS hourly data."""
 
 import pandas as pd
@@ -13,54 +12,65 @@ import pudl
 ###############################################################################
 
 
-def fix_up_dates(df, plant_timezones):
+def fix_up_dates(df, plant_utc_offset):
     """Fix the dates for the CEMS data
     Args:
         df(pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
-        plant_timezones(pandas.DataFrame): A dataframe of plants' timezones
+        plant_utc_offset(pandas.DataFrame): A dataframe of plants' timezones
     Output:
         pandas.DataFrame: The same data, with an op_datetime_utc column added
         and the op_date and op_hour columns removed
     """
-    # Get the vector of timezones for these particular plants
-    timezones = pd.merge(df["plant_id_eia"], plant_timezones,
-        how="left", on="plant_id_eia", sort=False)["timezone"]
-    # Some of the timezones in the plants_entity_eia table may be missing,
-    # but none of the CEMS plants should be.
-    assert pd.notna(timezones).all()
     # Convert op_date and op_hour from string and integer to datetime:
     # Note that doing this conversion, rather than reading the CSV with
     # `parse_dates=True`, is >10x faster.
-    op_datetime = pd.to_datetime(
-        df["op_date"], format=r"%m-%d-%Y", exact=True, cache=True
-    ) + pd.to_timedelta(df["op_hour"], unit="h", box=False)
-    # op_hour = pd.to_timedelta(df["op_hour"], unit="h", box=False).reset_index(drop=True)
-
-    # TODO: fix DST changes. Pandas' tz_localize(..., ambiguous='infer') is
-    # meant for the opposite case of what we have -- they deal with times like:
-    # ['11/06/2011 00:00', '11/06/2011 01:00', '11/06/2011 01:00',
-    #  '11/06/2011 02:00', '11/06/2011 03:00'].
-    # Instead the CEMS has day and hour of day, which should be good enough.
-    df["operating_datetime_utc"] = pudl.helpers.make_utc(op_datetime, timezones)
-    del df["op_hour"], df["op_date"]
+    df["op_datetime_naive"] = (
+        # Read the date as a datetime, so all the dates are midnight
+        # Mark as UTC (it's not true yet, but it will be once we add
+        # utc_offsets, and it's easier to do here)
+        pd.to_datetime(
+            df["op_date"], format=r"%m-%d-%Y", exact=True, cache=True, utc=True
+        )
+        +
+        # Add the hour
+        pd.to_timedelta(df["op_hour"], unit="h", box=False)
+    )
+    df = df.merge(plant_utc_offset, how="left", on="plant_id_eia")
+    # Some of the timezones in the plants_entity_eia table may be missing,
+    # but none of the CEMS plants should be.
+    assert df["utc_offset"].notna().all()
+    # Add the offset from UTC. CEMS data don't have DST, so the offset is
+    # always the same for a given plant.
+    df["operating_datetime_utc"] = df["op_datetime_naive"] + df["utc_offset"]
+    del df["op_date"], df["op_hour"], df["op_datetime_naive"], df["utc_offset"]
     return df
 
 
-def _load_plant_timezones(pudl_engine):
-    """Load the IANA timezone for each plant
+def _load_plant_utc_offset(pudl_engine):
+    """Load the UTC offset each plant
     :param: pudl_engine A connection to the sqlalchemy database
-    :return: A pandas series, indexed by plant_id_eia, with values of timezone.
+    :return: A pandas DataFrame, with columns plant_id_eia and utc_offset
+
+    CEMS times don't change for DST, so we get get the UTC offset by using the
+    offset for the plants' timezones in January.
     """
+    import pytz
+
     plants_eia_entity_select = sa.sql.select(
         [pudl.models.entities.PUDLBase.metadata.tables["plants_entity_eia"]]
     )
     # TODO: that this reads all the columns. It would be better to select a subset.
-    plants_location_df = pd.read_sql(
-        plants_eia_entity_select,
-        pudl_engine,
-        index_col="plant_id_eia",
+    timezones = pd.read_sql(plants_eia_entity_select, pudl_engine)[
+        ["plant_id_eia", "timezone"]
+    ]
+    # Some plants lack the info to get a timezone. None of these plants are in CEMS.
+    timezones = timezones[pd.notna(timezones)]
+    jan1 = pd.datetime(2011, 1, 1)  # year doesn't matter
+    timezones["utc_offset"] = timezones["timezone"].apply(
+        lambda tz: pytz.timezone(tz).localize(jan1).utcoffset()
     )
-    return plants_location_df["timezone"]
+    del timezones["timezone"]
+    return timezones
 
 
 def harmonize_eia_epa_orispl(df):
@@ -163,7 +173,7 @@ def transform(pudl_engine, epacems_raw_dfs, verbose=True):
         print("Transforming tables from EPA CEMS:")
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
     # a transformation pipeline, and yield it back as another generator.
-    plant_timezones = _load_plant_timezones(pudl_engine)
+    plant_utc_offset = _load_plant_utc_offset(pudl_engine)
     for raw_df_dict in epacems_raw_dfs:
         # There's currently only one dataframe in this dict at a time, but
         # that could be changed if you want.
@@ -173,7 +183,7 @@ def transform(pudl_engine, epacems_raw_dfs, verbose=True):
                 .pipe(add_facility_id_unit_id_epa)
                 .pipe(drop_calculated_rates)
                 .pipe(harmonize_eia_epa_orispl)
-                .pipe(fix_up_dates, plant_timezones=plant_timezones)
+                .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
                 .pipe(add_facility_id_unit_id_epa)
             )
             yield {yr_st: df}
