@@ -138,8 +138,6 @@ def finalize(engine):
                  HourlyEmissions.operating_datetime_utc),
         sa.Index("ix_hourly_emissions_epacems_plant_id_eia",
                  HourlyEmissions.plant_id_eia),
-        sa.Index("ix_hourly_emissions_epacems_opperating_date_part",
-                 sa.cast(HourlyEmissions.operating_datetime_utc, sa.Date)),
         # The name that follows the pattern would be
         # ix_hourly_emissions_epacems_plant_id_eia_unitid_operating_datetime_utc
         # But that's too long.
