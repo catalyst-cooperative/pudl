@@ -264,12 +264,33 @@ def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
 
 
 def strip_lower(df, columns=None):
-    """Strip & compact whitespace, lowercase listed DataFrame columns."""
-    for col in columns:
-        if col in df.columns:
-            df[col] = df[col].str.strip().str.lower().str.replace(r'\s+', ' ')
+    """
+    Strip & compact whitespace, lowercase listed DataFrame columns.
 
-    return df
+    First converts all listed columns (if present in df) to string type, then
+    applies the str.strip() and str.lower() methods to them, and replaces all
+    internal whitespace to a single space. The columns are assigned in place.
+
+    Args:
+        df (pandas.DataFrame): DataFrame whose columns are being cleaned up.
+        columns (iterable): The labels of the columns to be stripped and
+            converted to lowercase.
+
+    Returns:
+        df (pandas.DataFrame): The whole DataFrame that was passed in, with
+            the columns cleaned up in place, allowing method chaining.
+    """
+    out_df = df.copy()
+    for col in columns:
+        if col in out_df.columns:
+            out_df.loc[:, col] = (
+                out_df[col].astype(str).
+                str.strip().
+                str.lower().
+                str.replace(r'\s+', ' ')
+            )
+
+    return out_df
 
 
 def cleanstrings(field, stringmap, unmapped=None, simplify=True):

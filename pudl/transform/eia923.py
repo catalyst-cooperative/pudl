@@ -106,8 +106,7 @@ def _coalmine_cleanup(cmi_df):
 
     # Transform coalmine names to a canonical form to reduce duplicates:
     # No leading or trailing whitespace:
-    cmi_df['mine_name'] = pudl.helpers.strip_lower(cmi_df,
-                                                   columns=['mine_name'])
+    cmi_df = pudl.helpers.strip_lower(cmi_df, columns=['mine_name'])
     # remove all internal non-alphanumeric characters:
     cmi_df['mine_name'] = \
         cmi_df['mine_name'].replace('[^a-zA-Z0-9 -]', '', regex=True)
@@ -534,8 +533,7 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
     frc_df = pudl.helpers.fix_eia_na(frc_df)
 
     # These come in ALL CAPS from EIA...
-    frc_df['supplier_name'] = pudl.helpers.strip_lower(
-        frc_df, columns=['supplier_name'])
+    frc_df = pudl.helpers.strip_lower(frc_df, columns=['supplier_name'])
 
     # Standardize case on transportaion codes -- all upper case!
     frc_df['primary_transportation_mode_code'] = \
