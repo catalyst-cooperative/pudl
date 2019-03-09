@@ -39,7 +39,8 @@ def fix_up_dates(df, plant_utc_offset):
     df = df.merge(plant_utc_offset, how="left", on="plant_id_eia")
     # Some of the timezones in the plants_entity_eia table may be missing,
     # but none of the CEMS plants should be.
-    assert df["utc_offset"].notna().all()
+    if not df["utc_offset"].notna().all():
+        raise ValueError("utc_offset should never be missing for CEMS plants")
     # Add the offset from UTC. CEMS data don't have DST, so the offset is
     # always the same for a given plant.
     df["operating_datetime_utc"] = df["op_datetime_naive"] + df["utc_offset"]

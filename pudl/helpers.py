@@ -554,7 +554,8 @@ def make_utc(datetime_col, timezone_col):
     # Bind the two series together, then group by timezone
     # We could pd.concat or just construct a new dataframe here. Names are
     # easier with a new dataframe
-    assert datetime_col.shape == timezone_col.shape
+    if datetime_col.shape != timezone_col.shape:
+        raise ValueError("Unmatched shapes between datetime_col and timezone_col")
     grouped = pd.concat(
         {
             # Pandas is fussy about concat indexes
