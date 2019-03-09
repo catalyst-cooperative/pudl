@@ -529,51 +529,6 @@ def simplify_columns(df):
     return df
 
 
-def make_utc(datetime_col, timezone_col):
-    """Convert a naive datetime and its timezone to timezone-aware UTC
-    param: datetime_col Series of datetime values
-    param: timezone_col Series of timezone values
-    returns: The datetime, converted to UTC and tagged as UTC
-
-    For the code to do this with a single datetime and single timezone, see:
-    https://github.com/MrMinimal64/timezonefinder/blob/master/example.py
-    Using pandas' vectorized version here.
-
-    Example:
-    df = pd.DataFrame({
-        "timezone": ["US/Eastern", "US/Mountain"], "time": pd.to_datetime([1, 2]),
-        }
-    )
-    df["utc_timestamps"] = make_utc(df["time"], df["timezone"])
-    """
-    # tz_localize can only handle one timezone at a time. Could either `apply`
-    # over rows, or groupby and work with the grouping values. The following
-    # does groupby.
-    # TODO: benchmark this
-
-    # Bind the two series together, then group by timezone
-    # We could pd.concat or just construct a new dataframe here. Names are
-    # easier with a new dataframe
-    if datetime_col.shape != timezone_col.shape:
-        raise ValueError("Unmatched shapes between datetime_col and timezone_col")
-    grouped = pd.concat(
-        {
-            # Pandas is fussy about concat indexes
-            "datetime": datetime_col.reset_index(drop=True),
-            "timezone": timezone_col.reset_index(drop=True),
-        },
-        axis="columns",
-        sort=False,
-        copy=False,
-    ).groupby("timezone", as_index=False, sort=False, group_keys=True)
-    # Iterate over groups, which each have exactly one timezone, and concatenate
-    localized = pd.concat(
-        [d["datetime"].dt.tz_localize(tz) for tz, d in grouped],
-        copy=False
-    )
-    return localized.dt.tz_convert("UTC")
-
-
 def find_timezone(*, lng=None, lat=None, state=None, strict=True):
     """Find the timezone of a location
     param: lng (int or float in [-180,180]) Longitude, in decimal degrees
