@@ -64,6 +64,7 @@ plant_id_eia,plant_name,last_date,state,latitude,longitude,fill_data_source_note
 55703,Memphis Refinery,2017-09-30,TN,35.0836,-90.0825,EPA CAMD web query
 55858,Desert Power Plant,2007-09-30,UT,40.9131,-112.7342,EPA CAMD web query
 56186,Sheboygan Falls Energy Facility,2007-06-30,WI,43.7507,-87.88063,Manual lookup: FSR EZ lookup
+58235,Clayville,2018-12-31,NJ,39.4245,-75.0201,EPA CAMD web query
 70454,Hartwell Energy Facility,2017-12-31,GA,34.3387,-82.8207,EPA CAMD web query
 880004,GSA Central Heating,2017-12-31,DC,38.8856,-77.0244,EPA CAMD web query
 880006,Trigen Energy Corporation-Edison St,2017-12-31,PA,39.949,-75.1557,EPA CAMD web query
@@ -123,3 +124,4 @@ plant_id_eia,plant_name,last_date,state,latitude,longitude,fill_data_source_note
 880100,Ravenswood Steam Plant,2017-12-31,NY,40.76,-73.75,EPA CAMD web query
 880101,RockTenn CP LLC Stevenson Mill,2017-09-30,AL,34.838,-85.7865,EPA CAMD web query
 880107,SPMT Marcus Hook Industrial Complex,2017-12-31,PA,39.8076,-75.4239,EPA CAMD web query
+880108,Grain Processing Corporation,2018-12-31,IN,38.6552,-87.1814,EPA CAMD web query
