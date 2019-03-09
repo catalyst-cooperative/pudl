@@ -63,9 +63,8 @@ def _load_plant_utc_offset(pudl_engine):
     # TODO: that this reads all the columns. It would be better to select a subset.
     timezones = pd.read_sql(plants_eia_entity_select, pudl_engine)[
         ["plant_id_eia", "timezone"]
-    ]
+    ].dropna()
     # Some plants lack the info to get a timezone. None of these plants are in CEMS.
-    timezones = timezones[pd.notna(timezones)]
     jan1 = pd.datetime(2011, 1, 1)  # year doesn't matter
     timezones["utc_offset"] = timezones["timezone"].apply(
         lambda tz: pytz.timezone(tz).localize(jan1).utcoffset()
