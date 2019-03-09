@@ -93,6 +93,7 @@ def _lat_long(dirty_df, clean_df, plants_df, col, round_to=2):
     ll_clean_df = plants_df.merge(ll_clean_df, how='outer')
     return(ll_clean_df)
 
+
 def _add_timezone(plants_entity):
     """Add plants' IANA timezones from lat/lon
     param: plants_entity Plant entity table, including columns named "latitude",
@@ -107,6 +108,42 @@ def _add_timezone(plants_entity):
         axis=1,
     )
     return plants_entity
+
+
+def _add_additional_epacems_plants(plants_entity):
+    """Add the info for plants that have IDs in the CEMS data but not EIA data
+
+    param: plants_entity Plant entity table that will be appended to
+    returns: The same plants_entity table, with the addition of some missing EPA
+    CEMS plants
+
+    The columns loaded are plant_id_eia, name, state, latitude, and longitude
+
+    Note that some of these plants disappear from the CEMS before the earliest
+    EIA data PUDL processes, so if PUDL eventually ingests older data, these
+    may be redundant.
+    The set of additional plants is every plant that appears in the hourly CEMS
+    data (1995-2017) that never appears in the EIA 923 or 860 data (2009-2017
+    for EIA 923, 2011-2017 for EIA 860).
+    """
+    cems_df = pd.read_csv(
+        pc.epacems_additional_plant_info_file,
+        usecols=["plant_id_eia", "plant_name", "state", "latitude", "longitude"]
+    )
+    # Only add the plant IDs that are missing
+    # At the time of writing, this is all of them, but that could change in the
+    # future.
+    # SQL would call this first step an anti-join
+    cems_to_add = cems_df.merge(
+        plants_entity[["plant_id_eia"]],
+        on="plant_id_eia",
+        how="left",
+        indicator=True
+    )
+    cems_to_add = cems_to_add.loc[cems_to_add["_merge"] == "left_only"]
+    del cems_to_add["_merge"]
+    return plants_entity.append(cems_to_add, ignore_index=True, sort=False)
+
 
 def plants(eia_transformed_dfs,
            entities_dfs,
@@ -208,6 +245,7 @@ def plants(eia_transformed_dfs,
         clean_df = clean_df[['plant_id_eia', col]]
         plants_entity = plants_entity.merge(clean_df, on='plant_id_eia')
 
+    plants_entity = _add_additional_epacems_plants(plants_entity)
     plants_entity = _add_timezone(plants_entity)
     eia_transformed_dfs['plants_annual_eia'] = plants_annual
     entities_dfs['plants_entity_eia'] = plants_entity

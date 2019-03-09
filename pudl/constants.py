@@ -1578,6 +1578,12 @@ epacems_columns_fill_na_dict = {
 
 epacems_tables = ("hourly_emissions_epacems")
 
+epacems_additional_plant_info_file = os.path.join(
+    os.path.dirname(pudl.__file__),
+    "metadata",
+    "plant_info_for_additional_cems_plants.csv"
+)
+
 data_sources = (
     'eia860',
     # 'eia861',
