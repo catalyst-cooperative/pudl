@@ -520,7 +520,7 @@ def _boiler_generator_assn(eia_transformed_dfs,
                                                   'boiler_id',
                                                   'generator_id'])
 
-    eia_transformed_dfs['boiler_generator_assn_eia'] = bga_out
+    eia_transformed_dfs['boiler_generator_assn_eia860'] = bga_out
 
     return eia_transformed_dfs
 
@@ -548,13 +548,19 @@ def main(eia_transformed_dfs,
         print('harvesting {}'.format(entity))
         _harvesting(entity, eia_transformed_dfs, entities_dfs,
                     debug=debug, verbose=verbose)
-    # remove the boilers annual table bc it has no columns
-    eia_transformed_dfs.pop('boilers_annual_eia',)
 
     _boiler_generator_assn(eia_transformed_dfs,
                            eia923_years=eia923_years,
                            eia860_years=eia860_years,
                            debug=debug,
                            verbose=verbose)
+
+    remove = ['generators', 'plants', 'utilities']
+    for entity in remove:
+        eia_transformed_dfs['{}_eia860'.format(entity)] = \
+            eia_transformed_dfs.pop('{}_annual_eia'.format(entity),
+                                    '{}_annual_eia'.format(entity))
+    # remove the boilers annual table bc it has no columns
+    eia_transformed_dfs.pop('boilers_annual_eia',)
 
     return entities_dfs, eia_transformed_dfs

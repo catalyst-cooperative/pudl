@@ -2,8 +2,6 @@
 
 from sqlalchemy import Column, ForeignKey, Integer, Float, String, Boolean, Date
 from sqlalchemy.ext.declarative import declarative_base
-#import pudl
-#import pudl.models.glue
 
 PUDLBase = declarative_base()
 
@@ -73,7 +71,7 @@ class PlantEntityEIA(PUDLBase):
     state = Column(String,  # pudl.models.glue.us_states_territories,  # ENUM
                    comment="Two letter US state and territory abbreviations.")
     street_address = Column(String)
-    zip_code = Column(String)
+    zip_code = Column(Integer)
 
 
 class GeneratorEntityEIA(PUDLBase):

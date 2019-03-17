@@ -3489,11 +3489,12 @@ need_fix_inting = {
     'generation_fuel_eia923': ('nuclear_unit_id',),
     'plants_steam_ferc1': ('construction_year', 'installation_year'),
     'plants_small_ferc1': ('construction_year', 'ferc_license_id'),
-    'plants_hydro_ferc1': ('construction_year', 'installation_year'),
-    'plants_pumped_storage_ferc1': ('construction_year', 'installation_year'),
-    'hourly_emissions_epacems': ('facility_id', 'unit_id_epa'),
-    'plants_annual_eia': ('utility_id_eia',),
-    'generators_annual_eia': ('turbines_num',)
+    'plants_hydro_ferc1': ('construction_year', 'installation_year',),
+    'plants_pumped_storage_ferc1': ('construction_year', 'installation_year',),
+    'hourly_emissions_epacems': ('facility_id', 'unit_id_epa',),
+    'plants_eia860': ('utility_id_eia',),
+    'generators_eia860': ('turbines_num',),
+    'plants_entity_eia': ('zip_code',),
 }
 
 contributors = {

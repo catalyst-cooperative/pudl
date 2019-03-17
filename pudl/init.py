@@ -26,7 +26,6 @@ import pudl.models.glue
 import pudl.models.eia923
 import pudl.models.eia860
 import pudl.models.ferc1
-import pudl.models.eia
 import pudl.models.epacems
 
 import pudl.constants as pc
