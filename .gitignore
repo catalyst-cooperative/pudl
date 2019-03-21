@@ -8,3 +8,7 @@
 .cache/
 .pytest_cache/*
 .DS_Store
+.coverage
+build/
+pudl.egg-info/
+dist/

@@ -1,12 +1,13 @@
 """A module to clone the FERC Form 1 Database from FoxPro to Postgres."""
 import os.path
-from pudl import settings
-import pudl.constants as pc
+import string
+import re
+import datetime
 import pandas as pd
 import sqlalchemy as sa
 import dbfread
-import string
-import re
+from pudl.settings import SETTINGS
+import pudl.constants as pc
 
 # MetaData object will contain the ferc1 database schema.
 ferc1_meta = sa.MetaData()
@@ -23,9 +24,9 @@ def connect_db(testing=False):
     Returns sqlalchemy engine instance.
     """
     if testing:
-        return sa.create_engine(sa.engine.url.URL(**settings.DB_FERC1_TEST))
-    else:
-        return sa.create_engine(sa.engine.url.URL(**settings.DB_FERC1))
+        return sa.create_engine(sa.engine.url.URL(**SETTINGS['db_ferc1_test']))
+
+    return sa.create_engine(sa.engine.url.URL(**SETTINGS['db_ferc1']))
 
 
 def _create_tables(engine):
@@ -38,18 +39,18 @@ def drop_tables(engine):
     ferc1_meta.drop_all(engine)
 
 
-def datadir(year, basedir=settings.FERC1_DATA_DIR):
+def datadir(year, basedir=SETTINGS['ferc1_data_dir']):
     """Given a year, return path to appropriate FERC Form 1 data directory."""
     assert year in pc.data_years['ferc1']
     return os.path.join(basedir, 'f1_{}'.format(year))
 
 
-def dbc_filename(year, basedir=settings.FERC1_DATA_DIR):
+def dbc_filename(year, basedir=SETTINGS['ferc1_data_dir']):
     """Given a year, return path to the master FERC Form 1 .DBC file."""
     return os.path.join(datadir(year, basedir), 'F1_PUB.DBC')
 
 
-def get_strings(filename, min=4):
+def get_strings(filename, min_length=4):
     """
     Extract printable strings from a binary and return them as a generator.
 
@@ -63,14 +64,14 @@ def get_strings(filename, min=4):
             if c in string.printable:
                 result += c
                 continue
-            if len(result) >= min:
+            if len(result) >= min_length:
                 yield result
             result = ""
-        if len(result) >= min:  # catch result at EOF
+        if len(result) >= min_length:  # catch result at EOF
             yield result
 
 
-def extract_dbc_tables(year, minstring=4, basedir=settings.FERC1_DATA_DIR):
+def extract_dbc_tables(year, min_length=4, basedir=SETTINGS['ferc1_data_dir']):
     """Extract the names of all the tables and fields from FERC Form 1 DB.
 
     This function reads all the strings in the given DBC database file for the
@@ -93,7 +94,7 @@ def extract_dbc_tables(year, minstring=4, basedir=settings.FERC1_DATA_DIR):
     from the 2015 Form 1 database.
     """
     # Extract all the strings longer than "min" from the DBC file
-    dbc_strs = list(get_strings(dbc_filename(year), min=minstring))
+    dbc_strs = list(get_strings(dbc_filename(year), min_length=min_length))
 
     # Get rid of leading & trailing whitespace in the strings:
     dbc_strs = [s.strip() for s in dbc_strs]
@@ -102,7 +103,7 @@ def extract_dbc_tables(year, minstring=4, basedir=settings.FERC1_DATA_DIR):
     dbc_strs = [s for s in dbc_strs if s is not '']
 
     # Collapse all whitespace to a single space:
-    dbc_strs = [re.sub('\s+', ' ', s) for s in dbc_strs]
+    dbc_strs = [re.sub(r'\s+', ' ', s) for s in dbc_strs]
 
     # Pull out only strings that begin with Table or Field
     dbc_strs = [s for s in dbc_strs if re.match('(^Table|^Field)', s)]
@@ -132,26 +133,26 @@ def extract_dbc_tables(year, minstring=4, basedir=settings.FERC1_DATA_DIR):
         tf_dict[x[0]] = x[1:]
 
     tf_doubledict = {}
-    for dbf in pc.ferc1_dbf2tbl.keys():
+    for dbf in pc.ferc1_dbf2tbl:
         filename = os.path.join(datadir(year, basedir), '{}.DBF'.format(dbf))
         if os.path.isfile(filename):
             dbf_fields = dbfread.DBF(filename).field_names
             dbf_fields = [f for f in dbf_fields if f != '_NullFlags']
             tf_doubledict[pc.ferc1_dbf2tbl[dbf]] = \
                 {k: v for k, v in
-                    zip(dbf_fields, tf_dict[pc.ferc1_dbf2tbl[dbf]])}
-            assert(len(tf_dict[pc.ferc1_dbf2tbl[dbf]]) == len(dbf_fields))
+                 zip(dbf_fields, tf_dict[pc.ferc1_dbf2tbl[dbf]])}
+            assert len(tf_dict[pc.ferc1_dbf2tbl[dbf]]) == len(dbf_fields)
 
     # Insofar as we are able, make sure that the fields match each other
-    for k in tf_doubledict.keys():
+    for k in tf_doubledict:
         for sn, ln in zip(tf_doubledict[k].keys(), tf_doubledict[k].values()):
-            assert(ln[:8] == sn.lower()[:8])
+            assert ln[:8] == sn.lower()[:8]
 
     return tf_doubledict
 
 
 def define_db(refyear, ferc1_tables, ferc1_meta,
-              basedir=settings.FERC1_DATA_DIR,
+              basedir=SETTINGS['ferc1_data_dir'],
               verbose=True):
     """
     Given a list of FERC Form 1 DBF files, create analogous database tables.
@@ -236,7 +237,7 @@ def define_db(refyear, ferc1_tables, ferc1_meta,
 def init_db(ferc1_tables=pc.ferc1_default_tables,
             refyear=max(pc.working_years['ferc1']),
             years=pc.working_years['ferc1'],
-            basedir=settings.FERC1_DATA_DIR,
+            basedir=SETTINGS['ferc1_data_dir'],
             def_db=True,
             verbose=True,
             testing=False):
@@ -254,6 +255,15 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
         years (list): The set of years to read from FERC Form 1 dbf database
             into the FERC Form 1 DB.
     """
+    if verbose:
+        print("Start ferc mirror db ingest at {}".format(datetime.datetime.now().
+                                                         strftime("%A, %d. %B %Y %I:%M%p")))
+
+    if not ferc1_tables or not years:
+        if verbose:
+            print("Not ingesting mirrored ferc db.")
+        return None
+
     ferc1_engine = connect_db(testing=testing)
 
     # This function (see below) uses metadata from the DBF files to define a
@@ -277,9 +287,12 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
     # been passed in into a list of DBF files prefixes:
     dbfs = [pc.ferc1_tbl2dbf[table] for table in ferc1_tables]
 
+    if verbose:
+        print("Cloning FERC Form 1 FoxPro DB to Postgreql:", flush=True)
+        print("    ", end='', flush=True)
     for year in years:
         if verbose:
-            print("Ingesting FERC Form 1 Data from {}...".format(year))
+            print(f"{year} ", end="", flush=True)
         for dbf in dbfs:
             dbf_filename = os.path.join(datadir(year, basedir),
                                         '{}.DBF'.format(dbf))
@@ -296,7 +309,7 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
             # the keys are the field names, and the values are the values for
             # that field.
             sql_records = []
-            bad_respondents = [515, ]
+            bad_respondents = [514, 515, 516, 517, 518, 519, 522]
             for dbf_rec in dbf_table.records:
                 sql_rec = {}
                 for d, s in ferc1_tblmap[sql_table_name].items():
@@ -311,9 +324,23 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
             if dbf == 'F1_1':
                 sql_stmt = sql_stmt.on_conflict_do_nothing()
 
+                for resp_id, resp_name in pc.missing_respondents_ferc1.items():
+                    sql_records.append(
+                        {'respondent_id': resp_id,
+                         'respondent_name': resp_name,
+                         'respondent_alias': '',
+                         'status': '',
+                         'form_type': 0,
+                         # the status date needs to be an actual date
+                         'status_date': datetime.date(2017, 12, 31),
+                         'sort_name': '',
+                         'pswd_gen': ''})
+
             # insert the new records!
             conn.execute(sql_stmt, sql_records)
 
+    if(verbose):
+        print("\n", end='')
     conn.close()
 
 
@@ -352,7 +379,7 @@ def plants_steam(ferc1_raw_dfs,
     """ """
     f1_steam = ferc1_meta.tables[ferc1_table]
     f1_steam_select = sa.sql.select([f1_steam]).\
-        where(f1_steam.c.net_generation > 0).\
+        where(f1_steam.c.tot_capacity > 0).\
         where(f1_steam.c.plant_name != '').\
         where(f1_steam.c.report_year.in_(ferc1_years))
 
@@ -490,5 +517,53 @@ def accumulated_depreciation(ferc1_raw_dfs,
     ferc1_apd_df = pd.read_sql(f1_accumdepr_prvsn_select, ferc1_engine)
 
     ferc1_raw_dfs[pudl_table] = ferc1_apd_df
+
+    return ferc1_raw_dfs
+
+
+def extract(ferc1_tables=pc.ferc1_pudl_tables,
+            ferc1_years=pc.working_years['ferc1'],
+            testing=False,
+            verbose=True):
+    """Extract FERC 1."""
+    # BEGIN INGESTING FERC FORM 1 DATA:
+    ferc1_engine = connect_db(testing=testing)
+
+    ferc1_raw_dfs = {}
+    ferc1_extract_functions = {
+        'fuel_ferc1': fuel,
+        'plants_steam_ferc1': plants_steam,
+        'plants_small_ferc1': plants_small,
+        'plants_hydro_ferc1': plants_hydro,
+        'plants_pumped_storage_ferc1': plants_pumped_storage,
+        'plant_in_service_ferc1': plant_in_service,
+        'purchased_power_ferc1': purchased_power,
+        'accumulated_depreciation_ferc1': accumulated_depreciation}
+
+    # define the ferc 1 metadata object
+    # this is here because if ferc wasn't ingested in the same session, there
+    # will not be a defined metadata object to use to find and grab the tables
+    # from the ferc1 mirror db
+    if len(ferc1_meta.tables) == 0:
+        define_db(max(pc.working_years['ferc1']),
+                  pc.ferc1_default_tables,
+                  ferc1_meta,
+                  basedir=SETTINGS['ferc1_data_dir'],
+                  verbose=verbose)
+
+    if verbose:
+        print("============================================================")
+        print("Extracting tables from cloned FERC Form 1 database.")
+    for table in ferc1_extract_functions:
+        if ferc1_tables:
+            if table in ferc1_tables:
+                if verbose:
+                    print("    {}...".format(table))
+                ferc1_extract_functions[table](
+                    ferc1_raw_dfs,
+                    ferc1_engine,
+                    ferc1_table=pc.table_map_ferc1_pudl[table],
+                    pudl_table=table,
+                    ferc1_years=ferc1_years)
 
     return ferc1_raw_dfs

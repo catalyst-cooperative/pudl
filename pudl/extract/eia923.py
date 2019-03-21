@@ -7,10 +7,11 @@ This code is for use analyzing EIA Form 923 data. Currenly only
 years 2009-2016 work, as they share nearly identical file formatting.
 """
 
-import pandas as pd
 import os.path
 import glob
-from pudl import settings
+import pandas as pd
+import pudl
+from pudl.settings import SETTINGS
 import pudl.constants as pc
 
 ###########################################################################
@@ -19,7 +20,7 @@ import pudl.constants as pc
 ###########################################################################
 
 
-def datadir(year, basedir=settings.EIA923_DATA_DIR):
+def datadir(year, basedir=SETTINGS['eia923_data_dir']):
     """
     Data directory search for EIA Form 923.
 
@@ -33,11 +34,10 @@ def datadir(year, basedir=settings.EIA923_DATA_DIR):
     assert year in pc.data_years['eia923']
     if year < 2008:
         return os.path.join(basedir, 'f906920_{}'.format(year))
-    else:
-        return os.path.join(basedir, 'f923_{}'.format(year))
+    return os.path.join(basedir, 'f923_{}'.format(year))
 
 
-def get_eia923_file(yr, basedir=settings.EIA923_DATA_DIR):
+def get_eia923_file(yr, basedir=SETTINGS['eia923_data_dir']):
     """
     Given a year, return the appopriate EIA923 excel file.
 
@@ -117,7 +117,7 @@ def get_eia923_column_map(page, year):
 
 
 def get_eia923_page(page, eia923_xlsx,
-                    years=[2011, 2012, 2013, 2014, 2015, 2016],
+                    years=pc.working_years['eia923'],
                     verbose=True):
     """
     Read a single table from several years of EIA923 data. Return a DataFrame.
@@ -140,24 +140,22 @@ def get_eia923_page(page, eia923_xlsx,
             page and selected years from EIA 923.
     """
     assert min(years) >= min(pc.working_years['eia923']),\
-        "EIA923 works for 2009 and later. {} requested.".format(min(years))
+        f"EIA923 works for 2009 and later. {min(years)} requested."
     assert page in pc.tab_map_eia923.columns and page != 'year_index',\
-        "Unrecognized EIA 923 page: {}".format(page)
+        f"Unrecognized EIA 923 page: {page}"
 
     if verbose:
-        print('Converting EIA 923 {} to DataFrame...'.format(page))
+        print(f'Converting EIA 923 {page} to DataFrame...', flush=True)
+        print(f'    ', end='', flush=True)
     df = pd.DataFrame()
     for yr in years:
+        if verbose:
+            print(f'{yr} ', end='', flush=True)
         sheet_name, skiprows, column_map = get_eia923_column_map(page, yr)
         newdata = pd.read_excel(eia923_xlsx[yr],
                                 sheet_name=sheet_name,
                                 skiprows=skiprows)
-
-        # Clean column names: lowercase, underscores instead of white space,
-        # no non-alphanumeric characters
-        newdata.columns = newdata.columns.str.replace('[^0-9a-zA-Z]+', ' ')
-        newdata.columns = newdata.columns.str.strip().str.lower()
-        newdata.columns = newdata.columns.str.replace(' ', '_')
+        newdata = pudl.helpers.simplify_columns(newdata)
 
         # Drop columns that start with "reserved" because they are empty
         to_drop = [c for c in newdata.columns if c[:8] == 'reserved']
@@ -178,11 +176,11 @@ def get_eia923_page(page, eia923_xlsx,
             newdata = newdata[~newdata.plant_id_eia.isin([99999, 999999])]
 
         df = df.append(newdata)
-
+    print("\n", end="", flush=True)
     return df
 
 
-def get_eia923_xlsx(years):
+def get_eia923_xlsx(years, verbose=True):
     """
     Read in Excel files to create Excel objects.
 
@@ -196,147 +194,38 @@ def get_eia923_xlsx(years):
         xlsx file of EIA Form 923 for input year(s)
     """
     eia923_xlsx = {}
-    print("Reading EIA 923 spreadsheet data")
+    if verbose:
+        print(" ")
+        print("=============================================================")
+        print("Extracting EIA 923 data from spreadsheets...", flush=True)
+        print("    ", end='', flush=True)
     for yr in years:
-        print("    {}...".format(yr))
+        if verbose:
+            print(f"{yr} ", end='', flush=True)
         eia923_xlsx[yr] = pd.ExcelFile(get_eia923_file(yr))
+    print(f"\n", end='', flush=True)
     return eia923_xlsx
 
 
-def get_eia923_plants(years, eia923_xlsx):
-    """
-    Generate an exhaustive list of EIA 923 plants.
+def extract(eia923_years=pc.working_years['eia923'],
+            verbose=True):
+    """Extract all EIA 923 tables."""
+    eia923_raw_dfs = {}
+    if not eia923_years:
+        if verbose:
+            print('Not extracting EIA 923.')
+        return eia923_raw_dfs
 
-    Most plants are listed in the 'Plant Frame' tabs for each year. The 'Plant
-    Frame' tab does not exist before 2011 and there is plant specific
-    information that is not included in the 'Plant Frame' tab that will be
-    pulled into the plant info table. For years before 2011, it will be used to
-    generate the exhaustive list of plants.
+    # Prep for ingesting EIA923
+    # Create excel objects
+    eia923_xlsx = get_eia923_xlsx(eia923_years,
+                                  verbose=verbose)
 
-    This function will be used in two ways: to populate the plant info table
-    and to check the plant mapping to find missing plants.
+    # Create DataFrames
+    for page in pc.tab_map_eia923.columns:
+        if page != 'plant_frame':
+            eia923_raw_dfs[page] = get_eia923_page(page, eia923_xlsx,
+                                                   years=eia923_years,
+                                                   verbose=verbose)
 
-    Args:
-        years: The year that we're trying to read data for.
-        eia923_xlsx: required and should not be modified
-    Returns:
-        Data frame that populates the plant info table
-        A check of plant mapping to identify missing plants
-    """
-    recent_years = [y for y in years if y >= 2011]
-
-    df_all_years = pd.DataFrame(columns=['plant_id_eia'])
-
-    pf = pd.DataFrame(columns=['plant_id_eia', 'plant_state',
-                               'combined_heat_power',
-                               'eia_sector', 'naics_code',
-                               'reporting_frequency', 'nameplate_capacity_mw',
-                               'report_year'])
-    if len(recent_years) > 0:
-        pf = get_eia923_page('plant_frame', eia923_xlsx, years=recent_years)
-        pf_mw = pd.DataFrame(columns=['plant_id_eia', 'nameplate_capacity_mw',
-                                      'report_year'])
-        if 2011 in recent_years:
-            pf_mw = pf[['plant_id_eia', 'nameplate_capacity_mw',
-                        'report_year']]
-            pf_mw = pf_mw[pf_mw['nameplate_capacity_mw'] > 0]
-        pf = pf[['plant_id_eia', 'plant_name', 'plant_state',
-                 'combined_heat_power',
-                 'eia_sector', 'naics_code',
-                 'reporting_frequency', 'report_year']]
-
-    gf = get_eia923_page('generation_fuel', eia923_xlsx, years=years)
-    gf = gf[['plant_id_eia', 'plant_name',
-             'operator_name', 'operator_id', 'plant_state',
-             'combined_heat_power', 'census_region', 'nerc_region',
-             'report_year']]
-
-    bf = get_eia923_page('boiler_fuel', eia923_xlsx, years=years)
-    bf = bf[['plant_id_eia', 'plant_state',
-             'combined_heat_power',
-             'naics_code',
-             'eia_sector', 'census_region', 'nerc_region', 'operator_name',
-             'operator_id', 'report_year']]
-
-    g = get_eia923_page('generator', eia923_xlsx, years=years)
-    g = g[['plant_id_eia', 'plant_state', 'combined_heat_power',
-           'census_region', 'nerc_region', 'naics_code', 'eia_sector',
-           'operator_name', 'operator_id', 'report_year']]
-
-    frc = get_eia923_page('fuel_receipts_costs', eia923_xlsx, years=years)
-    frc = frc[['plant_id_eia', 'plant_state', 'report_year']]
-
-    plant_ids = pd.concat(
-        [pf.plant_id_eia, gf.plant_id_eia, bf.plant_id_eia, g.plant_id_eia,
-            frc.plant_id_eia],)
-    plant_ids = plant_ids.unique()
-
-    plant_info_compiled = pd.DataFrame(columns=['plant_id_eia'])
-    plant_info_compiled['plant_id_eia'] = plant_ids
-    for tab in [pf, pf_mw, gf, bf, g, frc]:
-        tab = tab.sort_values(['report_year', ], ascending=False)
-        tab = tab.drop_duplicates(subset='plant_id_eia')
-        plant_info_compiled = plant_info_compiled.merge(tab, on='plant_id_eia',
-                                                        how='left')
-        plant_info_compiled_x = plant_info_compiled.filter(regex='_x$')
-        cols_x = plant_info_compiled_x.columns
-        if len(cols_x) > 0:
-            cols_y = plant_info_compiled_x.columns.str.replace('_x$', '_y')
-            for col_x, col_y in zip(cols_x, cols_y):
-                plant_info_compiled[col_x].fillna(plant_info_compiled[col_y],
-                                                  inplace=True, axis=0)
-            plant_info_compiled.drop(cols_y, axis=1, inplace=True)
-            plant_info_compiled.columns = \
-                plant_info_compiled.columns.str.replace('_x$', '')
-    plant_info_compiled = plant_info_compiled.drop_duplicates('plant_id_eia')
-    plant_info_compiled = plant_info_compiled.drop(['report_year'], axis=1)
-    return plant_info_compiled
-
-
-def yearly_to_monthly_eia923(df, md):
-    """
-    Convert an EIA 923 record with 12 months of data into 12 monthly records.
-
-    Much of the data reported in EIA 923 is monthly, but all 12 months worth of
-    data is reported in a single record, with one field for each of the 12
-    months.  This function converts these annualized composite records into a
-    set of 12 monthly records containing the same information, by parsing the
-    field names for months, and adding a month field.  Non - time series data
-    is retained in the same format.
-
-    Args:
-        df(pandas.DataFrame): A pandas DataFrame containing the annual
-            data to be converted into monthly records.
-        md(dict): a dictionary with the numbers 1 - 12 as keys, and the
-            patterns used to match field names for each of the months as
-            values. These patterns are also used to re - name the columns in
-            the dataframe which is returned, so they need to match the entire
-            portion of the column name that is month - specific.
-
-    Returns:
-        pandas.DataFrame: A dataframe containing the same data as was passed in
-            via df, but with monthly records instead of annual records.
-    """
-    # Pull out each month's worth of data, merge it with the common columns,
-    # rename columns to match the PUDL DB, add an appropriate month column,
-    # and insert it into the PUDL DB.
-    yearly = df.copy()
-    monthly = pd.DataFrame()
-
-    for m in md.keys():
-        # Grab just the columns for the month we're working on.
-        this_month = yearly.filter(regex=md[m])
-        # Drop this month's data from the yearly data frame.
-        yearly.drop(this_month.columns, axis=1, inplace=True)
-        # Rename this month's columns to get rid of the month reference.
-        this_month.columns = this_month.columns.str.replace(md[m], '')
-        # Add a numerical month column corresponding to this month.
-        this_month['month'] = m
-        # Add this month's data to the monthly DataFrame we're building.
-        monthly = pd.concat([monthly, this_month])
-
-    # Merge the monthly data we've built up with the remaining fields in the
-    # data frame we started with -- all of which should be independent of the
-    # month, and apply across all 12 of the monthly records created from each
-    # of the # initial annual records.
-    return yearly.merge(monthly, left_index=True, right_index=True)
+    return eia923_raw_dfs

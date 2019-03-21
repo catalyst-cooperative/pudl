@@ -1,11 +1,25 @@
 """Database models for PUDL tables derived from EIA Data."""
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Float
-from sqlalchemy import Boolean, Integer, String, Float, Numeric, Date
+from sqlalchemy import Column, ForeignKey, Integer, String, Date
 from sqlalchemy import ForeignKeyConstraint
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 import pudl.models.entities
+
+
+class UtilityAnnualEIA(pudl.models.entities.PUDLBase):
+    """
+    EIA Plants per year, listed in 923 or 860.
+
+    A compliation of yearly plant info.
+    """
+
+    __tablename__ = 'utilities_annual_eia'
+
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    utility_id_eia = Column(Integer,
+                            ForeignKey('utilities_entity_eia.utility_id_eia'),
+                            nullable=False)
+    report_date = Column(Date, nullable=False)
+    # TODO: Add utility info that varies per year
 
 
 class PlantAnnualEIA(pudl.models.entities.PUDLBase):
@@ -63,6 +77,6 @@ class BoilerGeneratorAssociationEIA(pudl.models.entities.PUDLBase):
     report_date = Column(Date, nullable=False)
     generator_id = Column(String)
     boiler_id = Column(String)
-    unit_code = Column(String)
+    unit_id_eia = Column(String)
     unit_id_pudl = Column(Integer, nullable=False)
     bga_source = Column(String)

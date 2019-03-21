@@ -1,0 +1,20 @@
+{
+    "name": "name_of_table",
+    "schema" : {
+        "fields": [
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""},
+            {"name": "", "description": ""}
+        ]
+    }
+}

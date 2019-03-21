@@ -1,12 +1,17 @@
 """A module with functions for loading the pudl database tables."""
 
+import shutil
+import os
+import io
+import contextlib
+import pandas as pd
+import postgres_copy
+import pudl
 import pudl.models.entities
-import pudl.transform.pudl
 import pudl.constants as pc
-import numpy as np
 
 
-def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
+def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
     """
     Write a dataframe to CSV and load it into postgresql using COPY FROM.
 
@@ -14,6 +19,9 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
     text file copy function.  This function dumps a given dataframe out to a
     CSV file, and then loads it into the specified table using a sqlalchemy
     wrapper around the postgresql COPY FROM command, called postgres_copy.
+
+    Note that this creates an additional in-memory representation of the data,
+    which takes slightly less memory than the DataFrame itself.
 
     Args:
         df (pandas.DataFrame): The DataFrame which is to be dumped to CSV and
@@ -28,47 +36,119 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=True):
             object, and to name the CSV file.
         engine (sqlalchemy.engine): SQLAlchemy database engine, which will be
             used to pull the CSV output into the database.
-        csvdir (str): Path to the directory into which the CSV files should be
-            output (and saved, if they are being kept).
+        csvdir (str): Path to the directory into which the CSV file should be
+            saved, if it's being kept.
         keep_csv (bool): True if the CSV output should be saved after the data
             has been loaded into the database. False if they should be deleted.
-
+            NOTE: If multiple COPYs are done for the same table_name, only
+            the last will be retained by keep_csv, which may be unsatisfying.
     Returns: Nothing.
     """
-    import postgres_copy
-    import os
 
-    csvfile = os.path.join(csvdir, table_name + '.csv')
-    df.to_csv(csvfile, index=False)
     tbl = pudl.models.entities.PUDLBase.metadata.tables[table_name]
-    with open(csvfile, 'r', encoding='utf8') as f:
+    with io.StringIO() as f:
+        df.to_csv(f, index=False)
+        f.seek(0)
         postgres_copy.copy_from(f, tbl, engine, columns=tuple(df.columns),
                                 format='csv', header=True, delimiter=',')
-    if not keep_csv:
-        os.remove(csvfile)
+        if keep_csv:
+            print(f"DEBUG: writing CSV")
+            f.seek(0)
+            outfile = os.path.join(csvdir, table_name + '.csv')
+            shutil.copyfileobj(f, outfile)
 
 
-def _fix_int_cols(table_to_fix,
-                  transformed_dct,
-                  need_fix_inting=pc.need_fix_inting,
-                  verbose=True):
-    """
-    Run fix_int_na on multiple columns per table.
+class BulkCopy(contextlib.AbstractContextManager):
+    """Accumulate several DataFrames, then COPY FROM python to postgresql
 
-    There are some tables that have one table that needs fix_int_naing, while
-    some tables have a few columns.
+    NOTE: You shoud use this class to load one table at a time. To load
+    different tables, use different instances of BulkCopy.
 
     Args:
-        table_to_fix: the name of the table that needs fixing.
-        transformed_dct: dictionary of tables with transformed dfs.
-        need_fix_inting: dictionary of tables with columns that need fixing.
+        table_name (str): The exact name of the database table which the
+            DataFrame df is going to be used to populate. It will be used both
+            to look up an SQLAlchemy table object in the PUDLBase metadata
+            object, and to name the CSV file.
+        engine (sqlalchemy.engine): SQLAlchemy database engine, which will be
+            used to pull the CSV output into the database.
+        buffer (int): Size of data to accumulate (in bytes) before actually
+            writing the data into postgresql. (Approximate, because we don't
+            introspect memory usage 'deeply'). Default 1 GB.
+        csvdir (str): Path to the directory into which the CSV file should be
+            saved, if it's being kept.
+        keep_csv (bool): True if the CSV output should be saved after the data
+            has been loaded into the database. False if they should be deleted.
+            NOTE: If multiple COPYs are done for the same table_name, only
+            the last will be retained by keep_csv, which may be unsatisfying.
+    Example:
+    with BulkCopy(my_table, my_engine) as p:
+        for df in df_generator:
+            p.add(df)
     """
-    for column in need_fix_inting[table_to_fix]:
-        if verbose:
-            print("        fixing {} column".format(column))
-        transformed_dct[table_to_fix][column] = \
-            pudl.transform.pudl.fix_int_na(
-                transformed_dct[table_to_fix][column])
+
+    def __init__(self, table_name, engine, buffer=1024**3,
+                 csvdir='', keep_csv=False):
+        self.table_name = table_name
+        self.engine = engine
+        self.buffer = buffer
+        self.keep_csv = keep_csv
+        self.csvdir = csvdir
+        # Initialize a list to keep the dataframes
+        self.accumulated_dfs = []
+        self.accumulated_size = 0
+
+    def add(self, df):
+        """Add a DataFrame to the accumulated list"""
+        if not isinstance(df, pd.DataFrame):
+            raise AssertionError(
+                "Expected dataframe as input."
+            )
+        df = pudl.helpers.fix_int_na(
+            df, columns=pc.need_fix_inting[self.table_name]
+        )
+        # Note: append to a list here, then do a concat when we spill
+        self.accumulated_dfs.append(df)
+        self.accumulated_size += sum(df.memory_usage())
+        if self.accumulated_size > self.buffer:
+            # Debugging:
+            # print(f"DEBUG: Copying {len(self.accumulated_dfs)} accumulated dataframes, " +
+            #       f"totalling {round(self.accumulated_size / 1024**2)} MB")
+            self.spill()
+
+    def _check_names(self):
+        expected_colnames = set(self.accumulated_dfs[0].columns.values)
+        for df in self.accumulated_dfs:
+            colnames = set(df.columns.values)
+            if colnames != expected_colnames:
+                raise AssertionError(f"""
+Column names changed between dataframes. BulkCopy should only be used
+with one table at a time, and all columns must be present in all dataframes.
+making up the table to be loaded. Symmetric difference between actual and
+expected:
+{str(colnames.symmetric_difference(expected_colnames))}
+            """)
+
+    def spill(self):
+        """Spill the accumulated dataframes into postgresql"""
+        if self.accumulated_dfs:
+            self._check_names()
+            all_dfs = pd.concat(self.accumulated_dfs,
+                                copy=False, ignore_index=True, sort=False)
+            print(f"===================== Dramatic Pause ====================")
+            print(
+                f"    Loading {len(all_dfs):,} records ({round(self.accumulated_size/1024**2)} MB) into PUDL.", flush=True)
+            _csv_dump_load(all_dfs, table_name=self.table_name, engine=self.engine,
+                           csvdir=self.csvdir, keep_csv=self.keep_csv)
+            print(f"================ Resume Number Crunching ================",
+                  flush=True)
+        self.accumulated_dfs = []
+        self.accumulated_size = 0
+
+    def close(self):
+        self.spill()
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        self.close()
 
 
 def dict_dump_load(transformed_dfs,
@@ -77,20 +157,19 @@ def dict_dump_load(transformed_dfs,
                    need_fix_inting=pc.need_fix_inting,
                    verbose=True,
                    csvdir='',
-                   keep_csv=True):
+                   keep_csv=False):
     """
     Wrapper for _csv_dump_load for each data source.
     """
     if verbose:
-        print("Loading tables from {} into PUDL:".format(data_source))
+        print(f"Loading tables from {data_source} into PUDL:")
     for table_name, df in transformed_dfs.items():
-        if verbose:
-            print("    {}...".format(table_name))
+        if verbose and table_name != "hourly_emissions_epacems":
+            print(f"    {table_name}...")
         if table_name in list(need_fix_inting.keys()):
-            _fix_int_cols(table_name,
-                          transformed_dfs,
-                          need_fix_inting=pc.need_fix_inting,
-                          verbose=verbose)
+            df = pudl.helpers.fix_int_na(
+                df, columns=pc.need_fix_inting[table_name])
+
         _csv_dump_load(df,
                        table_name,
                        pudl_engine,
