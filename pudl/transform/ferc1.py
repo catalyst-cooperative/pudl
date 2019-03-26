@@ -402,12 +402,12 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     #########################################################################
 
     # Replace fuel cost per kWh with fuel cost per MWh
-    fuel_ferc1_df['fuel_cost_per_mwh'] = 1000 * fuel_ferc1_df['fuel_cost_kwh']
+    #fuel_ferc1_df['fuel_cost_per_mwh'] = 1000 * fuel_ferc1_df['fuel_cost_kwh']
     fuel_ferc1_df.drop('fuel_cost_kwh', axis=1, inplace=True)
 
     # Replace BTU/kWh with millions of BTU/MWh
-    fuel_ferc1_df['fuel_mmbtu_per_mwh'] = (1e3 / 1e6) * \
-        fuel_ferc1_df['fuel_generaton']
+    # fuel_ferc1_df['fuel_mmbtu_per_mwh'] = (1e3 / 1e6) * \
+    #    fuel_ferc1_df['fuel_generaton']
     fuel_ferc1_df.drop('fuel_generaton', axis=1, inplace=True)
 
     # Convert from BTU/unit of fuel to 1e6 BTU/unit.
