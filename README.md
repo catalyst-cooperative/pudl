@@ -55,7 +55,7 @@ We also want to bring best practices from the world of software engineering and 
  * [Good enough practices in scientific computing](https://doi.org/10.1371/journal.pcbi.1005510) (PLOS Computational Biology, 2017)
 
 ---
-# Status (as of 2018-11-21)
+# Status (as of 2019-02-10)
 
 ## Available Data
 ### [FERC Form 1 (2004-2017)](https://www.ferc.gov/docs-filing/forms/form-1/data.asp)
@@ -78,7 +78,7 @@ PUDL database, for the years 2011-2017. Earlier years use a different
 reporting format, and will require more work to integrate. Monthly year to date
 releases are not yet being integrated.
 
-### [EPA CEMS (1995-2017)](https://ampd.epa.gov/ampd/)
+### [EPA CEMS (1995-2018)](https://ampd.epa.gov/ampd/)
 The EPA's hourly Continuous Emissions Monitoring System (CEMS) data is in the
 process of being integrated. However, it is a much larger dataset than the FERC
 or EIA data we've already brought in, and so has required some changes to the

@@ -136,6 +136,7 @@ def verify_input_files(ferc1_years,
                     f = pudl.extract.epacems.get_epacems_file(y, m, s)
                 except AssertionError:
                     missing_epacems_year_states.add((str(y), s))
+                    continue
                 if not os.path.isfile(f):
                     missing_epacems_year_states.add((str(y), s))
 

@@ -46,6 +46,19 @@ def get_epacems_file(year, month, state):
     return full_path
 
 
+def read_cems_csv(filename):
+    """Read one CEMS CSV file
+    Note that some columns are not read. See epacems_columns_to_ignores.
+    """
+    df = pd.read_csv(
+        filename,
+        index_col=False,
+        usecols=lambda col: col not in pc.epacems_columns_to_ignore,
+        dtype=pc.epacems_csv_dtypes,
+    ).rename(columns=pc.epacems_rename_dict)
+    return df
+
+
 def extract(epacems_years, states, verbose=True):
     """
     Extract the EPA CEMS hourly data.
@@ -69,15 +82,12 @@ def extract(epacems_years, states, verbose=True):
 
                 if verbose:
                     print(f"{month}", end=" ", flush=True)
+                dfs.append(read_cems_csv(filename))
             # Return a dictionary where the key identifies this dataset
             # (just like the other extract functions), but unlike the
             # others, this is yielded as a generator (and it's a one-item
             # dictionary).
-            # TODO: set types explicitly
-                df = (
-                    pd.read_csv(filename, low_memory=False)
-                    .rename(columns=pc.epacems_rename_dict)
-                )
-                dfs.append(df)
             print(" ", flush=True)  # newline...
-            yield {(year, state): pd.concat(dfs, sort=True)}
+            yield {
+                (year, state): pd.concat(dfs, sort=True, copy=False, ignore_index=True)
+            }

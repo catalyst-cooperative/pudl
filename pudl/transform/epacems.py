@@ -3,6 +3,7 @@
 
 import pandas as pd
 import numpy as np
+import pudl.constants as pc
 
 ###############################################################################
 ###############################################################################
@@ -25,9 +26,6 @@ def fix_up_dates(df):
         pandas.DataFrame: The same data, with an op_datetime column added and
         the op_date and op_hour columns removed
     """
-    # Convert to interval:
-    # df = convert_time_to_interval(df)
-
     # Convert op_date and op_hour from string and integer to datetime:
     # Note that doing this conversion, rather than reading the CSV with
     # `parse_dates=True` is >10x faster.
@@ -39,32 +37,6 @@ def fix_up_dates(df):
     del df["op_hour"], df["op_date"]
 
     # Add UTC timestamp ... not done.
-    return df
-
-
-def convert_time_to_interval(df):
-    """
-    Reframe the CEMS hourly time as an interval -- NOT YET IMPLEMENTED
-
-    NOTE: this function is currently written to be called *before* converting
-    op_date to a Date.
-
-    Args:
-        df(pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
-    Output:
-        pandas.DataFrame: The same data, with an op_interval column added.
-    """
-    raise NotImplementedError(
-        "This op_interval isn't included in the " +
-        "SQLAlchemy model yet. Figure out what you want to do with interval " +
-        "data first."
-    )
-    df['op_interval'] = pd.to_datetime(
-        df['op_date'].str.cat(df['op_hour'].astype(str), sep='-'),
-        format="%m-%d-%Y-%H",
-        box=False,
-        exact=True,
-        cache=True).dt.to_period("H")
     return df
 
 
@@ -95,12 +67,16 @@ def add_facility_id_unit_id_epa(df):
     Args:
         df (pd.DataFrame): A CEMS dataframe
     Returns:
-        The same DataFrame guaranteed to have facility_id and unit_id_epa cols.
+        The same DataFrame guaranteed to have int facility_id and unit_id_epa cols
     """
-    if "facility_id" not in df.columns:
-        df["facility_id"] = np.NaN
-    if "unit_id_epa" not in df.columns:
-        df["unit_id_epa"] = np.NaN
+    if ("facility_id" not in df.columns) or ("unit_id_epa" not in df.columns):
+        # Can't just assign np.NaN and get an integer NaN, so make a new array
+        # with the right shape:
+        na_col = pd.array(np.full(df.shape[0], np.NaN), dtype="Int64")
+        if "facility_id" not in df.columns:
+            df["facility_id"] = na_col
+        if "unit_id_epa" not in df.columns:
+            df["unit_id_epa"] = na_col
     return df
 
 
@@ -128,34 +104,17 @@ def _all_na_or_values(series, values):
     return out
 
 
-def drop_calculated_rates(df):
-    """Drop these calculated rates because they don't provide any information.
-
-    If you want these, you can just use a view.
-
-    It's always true that:
-      so2_rate_lbs_mmbtu == so2_mass_lbs / heat_content_mmbtu
-
-    and:
-      co2_rate_tons_mmbtu == co2_mass_tons / heat_content_mmbtu,
-
-    but the same does not hold for NOx.
-
-    Args:
-        df (pd.DataFrame): A CEMS dataframe
-    Returns:
-        The same DataFrame, without the variables so2_rate_measure_flg,
-        so2_rate_lbs_mmbtu, co2_rate_measure_flg, or co2_rate_tons_mmbtu
-    """
-
-    if not _all_na_or_values(df["so2_rate_measure_flg"], {"Calculated"}):
-        raise AssertionError()
-    if not _all_na_or_values(df["co2_rate_measure_flg"], {"Calculated"}):
-        raise AssertionError()
-
-    del df["so2_rate_measure_flg"], df["so2_rate_lbs_mmbtu"]
-    del df["co2_rate_measure_flg"], df["co2_rate_tons_mmbtu"]
-
+def correct_gross_load_mw(df):
+    """Fix values of gross load that are wrong by orders of magnitude"""
+    # Largest fossil plant is something like 3500 MW, and the largest unit
+    # in the EIA 860 is less than 1500. Therefore, assume they've done it
+    # wrong (by writing KWh) if they report more.
+    # (There is a cogen unit, 54634 unit 1, that regularly reports around
+    # 1700 MW. I'm assuming they're correct.)
+    # This is rare, so don't bother most of the time.
+    bad = df["gross_load_mw"] > 2000
+    if bad.any():
+        df.loc[bad, "gross_load_mw"] = df.loc[bad, "gross_load_mw"] / 1000
     return df
 
 
@@ -170,11 +129,11 @@ def transform(epacems_raw_dfs, verbose=True):
         # that could be changed if you want.
         for yr_st, raw_df in raw_df_dict.items():
             df = (
-                raw_df.fillna({'gross_load_mw': 0.0})
+                raw_df.fillna(pc.epacems_columns_fill_na_dict)
                 .pipe(add_facility_id_unit_id_epa)
-                .pipe(drop_calculated_rates)
                 .pipe(fix_up_dates)
                 .pipe(harmonize_eia_epa_orispl)
                 .pipe(add_facility_id_unit_id_epa)
+                .pipe(correct_gross_load_mw)
             )
             yield {yr_st: df}
