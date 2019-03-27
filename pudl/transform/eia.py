@@ -116,8 +116,10 @@ def _add_additional_epacems_plants(plants_entity):
     param: plants_entity Plant entity table that will be appended to
     returns: The same plants_entity table, with the addition of some missing EPA
     CEMS plants
+    Note that a side effect will be resetting the index on plants_entity, if one
+    exists. If that's a problem, modify the code below.
 
-    The columns loaded are plant_id_eia, name, state, latitude, and longitude
+    The columns loaded are plant_id_eia, plant_name, state, latitude, and longitude
 
     Note that some of these plants disappear from the CEMS before the earliest
     EIA data PUDL processes, so if PUDL eventually ingests older data, these
@@ -126,24 +128,22 @@ def _add_additional_epacems_plants(plants_entity):
     data (1995-2017) that never appears in the EIA 923 or 860 data (2009-2017
     for EIA 923, 2011-2017 for EIA 860).
     """
+    # Add the plant IDs that are missing and update the values for the others
+    # The data we're reading is a CSV in pudl/metadata/
+    # SQL would call this whole process an upsert
+    # See also: https://github.com/pandas-dev/pandas/issues/22812
     cems_df = pd.read_csv(
         pc.epacems_additional_plant_info_file,
-        usecols=["plant_id_eia", "plant_name", "state", "latitude", "longitude"]
+        index_col=["plant_id_eia"],
+        usecols=["plant_id_eia", "plant_name", "state", "latitude", "longitude"],
     )
-    # Only add the plant IDs that are missing
-    # At the time of writing, this is all of them, but that could change in the
-    # future.
-    # SQL would call this first step an anti-join
-    cems_to_add = cems_df.merge(
-        plants_entity[["plant_id_eia"]],
-        on="plant_id_eia",
-        how="left",
-        indicator=True
-    )
-    cems_to_add = cems_to_add.loc[cems_to_add["_merge"] == "left_only"]
-    del cems_to_add["_merge"]
-    return plants_entity.append(cems_to_add, ignore_index=True, sort=False)
-
+    plants_entity = plants_entity.set_index("plant_id_eia")
+    cems_unmatched = cems_df.loc[~cems_df.index.isin(plants_entity.index)]
+    # update will replace columns and index values that add rows or affect
+    # non-matching columns. It also requires an index, so we set and reset the
+    # index as necessary. Also, it only works in-place, so we can't chain.
+    plants_entity.update(cems_df, overwrite=True)
+    return plants_entity.append(cems_unmatched).reset_index()
 
 def plants(eia_transformed_dfs,
            entities_dfs,
