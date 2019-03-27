@@ -1,0 +1,127 @@
+plant_id_eia,plant_name,last_date,state,latitude,longitude,fill_data_source_notes
+5,Chickasaw,2002-09-30,AL,30.7633,-88.0606,EPA CAMD web query
+334,Riverside Canal Power Company,2002-12-31,CA,34.0225,-117.3325,EPA CAMD web query
+569,English Station,1999-03-31,CT,41.3075,-72.9072,EPA CAMD web query
+596,Madison Street,2005-09-30,DE,39.7339,-75.5644,EPA CAMD web query
+1372,Henderson I,2008-09-30,KY,37.8453,-87.5912,EPA CAMD web query
+1450,Natchitoches,2010-06-30,LA,31.7705,-93.0952,EPA CAMD web query
+1458,Ruston,2007-12-31,LA,32.5286,-92.6131,EPA CAMD web query
+1470,Graham Station,1998-09-30,ME,44.8208,-68.7228,EPA CAMD web query
+1496,Mason Steam,2004-03-31,ME,43.9083,-69.6667,EPA CAMD web query
+1594,Blackstone,2017-12-31,MA,42.3636,-71.1161,EPA CAMD web query
+2440,AbiBow US Inc. - Catawba Operations,2017-09-30,SC,34.8456,-80.8942,EPA CAMD web query
+2473,North Lovington,2000-03-31,NM,32.7853,-103.43,EPA CAMD web query
+2529,AES Hickling,2007-12-31,NY,42.1231,-76.9831,EPA CAMD web query
+2531,AES Jennison,2007-12-31,NY,42.2768,-75.4792,EPA CAMD web query
+2858,Gorge,1999-06-30,OH,41.1197,-81.4906,EPA CAMD web query
+3451,Dallas,1998-12-31,TX,32.7878,-96.8092,EPA CAMD web query
+3461,"AES Western Power, LLC",2008-12-31,TX,29.7239,-95.2258,EPA CAMD web query
+3480,Denver City,1999-09-30,TX,33.173,-102.8278,EPA CAMD web query
+3523,Oak Creek Power Station,2006-12-31,TX,32.0469,-100.2922,EPA CAMD web query
+3524,Paint Creek Power Station,2008-03-31,TX,33.0794,-99.5817,EPA CAMD web query
+3526,Rio Pecos Power Station,2007-12-31,TX,31.0847,-102.3656,EPA CAMD web query
+3527,San Angelo Power Station,2007-12-31,TX,31.3933,-100.4933,EPA CAMD web query
+4036,Commerce,2000-03-31,WI,43.0173,-87.9139,EPA CAMD web query
+4233,Buchanan Substation,2001-09-30,NY,41.2689,-73.9442,EPA CAMD web query
+4938,Fort Phantom Power Station,2007-12-31,TX,32.5825,-99.6825,EPA CAMD web query
+7254,Reedy Creek,2017-12-31,FL,28.4272,-81.5803,EPA CAMD web query
+7258,48th Street Peaking Station,2017-12-31,MI,42.7553,-86.0853,EPA CAMD web query
+7762,Calpine Hidalgo Energy Center,2017-12-31,TX,26.3389,-98.1708,EPA CAMD web query
+7765,Dahlberg (Jackson County),2017-12-31,GA,34.0386,-83.3972,EPA CAMD web query
+7945,Finley Combustion Turbine,2007-03-31,WA,46.1572,-119.0094,EPA CAMD web query
+7996,Jasper County Generating Facility,2005-03-31,SC,32.359454,-81.123987,Manual lookup: FSR EZ lookup
+8058,Donald Von Raesfeld,2005-12-31,CA,37.377235,-121.950002,Manual lookup: FSR EZ lookup
+10114,Goodyear Tire & Rubber Company,2007-03-31,OH,41.0489,-81.4736,EPA CAMD web query
+10321,Liberty Fibers Corporation,2005-09-30,TN,36.1542,-83.2042,EPA CAMD web query
+10522,Indeck-Pepperell,2006-12-31,MA,42.6692,-71.5774,EPA CAMD web query
+10616,Milford Power (10616),2004-09-30,NJ,40.5592,-75.085,EPA CAMD web query
+10618,South Glens Falls Energy,2006-12-31,NY,43.2933,-73.6353,EPA CAMD web query
+10619,Allegany Station No. 133,2017-12-31,NY,42.5083,-78.0661,EPA CAMD web query
+10628,"International Paper, Erie Mill",2002-03-31,PA,42.145,-80.055,EPA CAMD web query
+13213,BTEC New Albany LLC,2008-12-31,MS,34.5411,-88.9422,EPA CAMD web query
+14013,The Ohio State University,2005-09-30,OH,40.001764,-83.016848,Manual lookup: google maps for McCracken plant
+50030,Nelson Industrial Steam Company,2017-12-31,LA,30.2861,-93.2917,EPA CAMD web query
+50044,The Ohio State University,2017-09-30,OH,40.0008,-83.0158,EPA CAMD web query
+50459,Ilion Energy Center,2006-12-31,NY,43.0128,-75.0354,EPA CAMD web query
+50607,Trigen Energy - Schuylkill,2017-12-31,PA,39.9422,-75.1875,EPA CAMD web query
+50797,Calpine Newark Cogeneration,2008-06-30,NJ,40.7364,-74.1286,EPA CAMD web query
+50855,Onondaga Cogeneration,2008-06-30,NY,43.065,-76.2164,EPA CAMD web query
+50954,Dan River Inc - Schoolfield Complex,2005-09-30,VA,36.5708,-79.4286,EPA CAMD web query
+54088,International Paper-Hudson River,2005-09-30,NY,43.25,-73.8144,EPA CAMD web query
+54089,International Paper-Lock Haven Mill,2002-03-31,PA,41.1239,-77.4567,EPA CAMD web query
+54138,Fulton Cogeneration Associates,2008-09-30,NY,43.3134,-76.4029,EPA CAMD web query
+54344,"ArcelorMittal Weirton,Inc.",2014-09-30,WV,40.422,-80.5955,EPA CAMD web query
+54416,"DSM Nutritional Products, Inc",2008-06-30,NJ,40.8419,-75.0675,EPA CAMD web query
+54425,Project Orange Facility,2010-12-31,NY,43.0393,-76.143,EPA CAMD web query
+54532,Shenango Incorporated,2008-09-30,PA,40.4967,-80.0756,EPA CAMD web query
+54571,North East Cogeneration Plant,2017-12-31,PA,42.202,-79.8425,EPA CAMD web query
+54807,Vineland Cogeneration,2004-03-31,NJ,39.4591,-75.0382,EPA CAMD web query
+55082,"Caledonia Power I, LLC",2007-12-31,MS,33.6489,-88.3129,EPA CAMD web query
+55209,Brush 4,2008-03-31,CO,40.246894,-103.623201,Manual lookup: FSR EZ lookup
+55219,"BTEC Southaven, LLC",2008-12-31,MS,34.98,-90.0406,EPA CAMD web query
+55303,Warren Peaking Power Facility,2008-12-31,MS,32.2831,-90.9306,EPA CAMD web query
+55683,Boardman Power Holdings LLC,2008-06-30,OR,45.8464,-119.6536,EPA CAMD web query
+55703,Memphis Refinery,2017-09-30,TN,35.0836,-90.0825,EPA CAMD web query
+55858,Desert Power Plant,2007-09-30,UT,40.9131,-112.7342,EPA CAMD web query
+56186,Sheboygan Falls Energy Facility,2007-06-30,WI,43.7507,-87.88063,Manual lookup: FSR EZ lookup
+58235,Clayville,2018-12-31,NJ,39.4245,-75.0201,EPA CAMD web query
+70454,Hartwell Energy Facility,2017-12-31,GA,34.3387,-82.8207,EPA CAMD web query
+880004,GSA Central Heating,2017-12-31,DC,38.8856,-77.0244,EPA CAMD web query
+880006,Trigen Energy Corporation-Edison St,2017-12-31,PA,39.949,-75.1557,EPA CAMD web query
+880007,Honeywell Resins & Chemicals LLC,2017-12-31,PA,40.0067,-75.0686,EPA CAMD web query
+880009,Naval Surface Warfare Center,2002-12-31,PA,39.8908,-75.1789,EPA CAMD web query
+880013,Solar Turbines,1999-12-31,PA,39.9199,-76.7266,EPA CAMD web query
+880016,Bayway Refinery,2008-12-31,NJ,40.6333,-74.2028,EPA CAMD web query
+880020,Sunoco (R&M) - Marcus Hook,2005-06-30,PA,39.8119,-75.424,EPA CAMD web query
+880021,Pratt & Whitney Willgoos Lab,2003-09-30,CT,41.7394,-72.6386,EPA CAMD web query
+880022,Norwich,2006-09-30,CT,41.525679,-72.083445,"Manual lookup: FSR EZ lookup (went with waste water plant diesel generator, unclear if this is correct)"
+880023,Kneeland Station,2017-12-31,MA,42.35,-71.0583,EPA CAMD web query
+880024,Momentive Performance Materials,2017-12-31,NY,42.8158,-73.6728,EPA CAMD web query
+880025,"ConocoPhillips Co., Trainer Refinery",2017-12-31,PA,39.8228,-75.4033,EPA CAMD web query
+880026,UCC South Charleston Plant,2006-06-30,WV,38.3693,-81.6831,Manual lookup: FSR EZ lookup
+880028,Procter & Gamble Company - Ivorydale,2017-09-30,OH,39.1756,-84.5022,EPA CAMD web query
+880029,Marathon Petroleum Company LP,2017-09-30,MI,42.165,-83.091,EPA CAMD web query
+880030,BP Husky Refining LLC,2017-09-30,OH,41.6786,-83.4539,EPA CAMD web query
+880031,The Dow Chemical Company,2017-09-30,MI,43.6025,-84.2404,EPA CAMD web query
+880033,"Cognis Oleochemicals, LLC",2013-09-30,OH,39.1792,-84.5053,EPA CAMD web query
+880038,"Catlettsburg Refining, LLC",2009-09-30,KY,38.375,-82.6042,EPA CAMD web query
+880039,Cargill Incorporated,2017-09-30,OH,39.8242,-84.1747,EPA CAMD web query
+880041,Ascend (Decatur Plant),2017-12-31,AL,34.6339,-87.0244,EPA CAMD web query
+880042,AK Steel Corporation - Middletown,2017-09-30,OH,39.4968,-84.3901,EPA CAMD web query
+880043,Holcim US Inc,2012-12-31,NY,42.1631,-73.9003,EPA CAMD web query
+880044,"Lafarge Building Materials, Inc.",2016-06-30,NY,42.4833,-73.8167,EPA CAMD web query
+880045,University of Michigan,2017-09-30,MI,42.2808,-83.7342,EPA CAMD web query
+880049,Bernville Station,2017-09-30,PA,40.4092,-76.1511,EPA CAMD web query
+880050,Shermans Dale Station,2017-09-30,PA,40.3439,-77.1628,EPA CAMD web query
+880052,Lehigh Northeast Cement Company,2017-09-30,NY,43.3064,-73.6208,EPA CAMD web query
+880053,Bayer,2017-09-30,WV,38.3844,-81.7764,EPA CAMD web query
+880055,DOE Oak Ridge Y-12,2009-09-30,TN,35.9822,-84.2614,EPA CAMD web query
+880057,INVISTA S.a.r.l. Camden Plant,2017-09-30,SC,34.2337,-80.658,EPA CAMD web query
+880065,Wickliffe Paper Company,2017-09-30,KY,36.9461,-89.0792,EPA CAMD web query
+880066,Voridian Columbia Operations,2005-09-30,SC,33.8658,-81.0114,EPA CAMD web query
+880067,Wood River Refinery,2017-12-31,IL,38.8375,-90.0675,EPA CAMD web query
+880068,Springs Global US - Grace Facility,2008-09-30,SC,34.7103,-80.8515,EPA CAMD web query
+880070,Sunoco Inc (R&M) Haverhill Plant,2005-12-31,OH,38.5917,-82.8194,EPA CAMD web query
+880071,Armagh Compressor Station,2017-09-30,PA,40.4319,-79.085,EPA CAMD web query
+880072,Entriken Compressor Station,2017-09-30,PA,40.3086,-78.1389,EPA CAMD web query
+880074,Marlboro Paper Mill,2017-09-30,SC,34.605,-79.785,EPA CAMD web query
+880075,BP Amoco Chemical Company,2017-09-30,AL,34.64,-87.0583,EPA CAMD web query
+880076,Lemont Refinery,2017-09-30,IL,41.6439,-88.0467,EPA CAMD web query
+880077,Republic Engineered Products-Lorain,2008-09-30,OH,41.4486,-82.1464,EPA CAMD web query
+880078,Sonoco Products Company,2013-09-30,SC,34.387,-80.0663,EPA CAMD web query
+880079,Tate & Lyle-Loudon,2017-12-31,TN,35.7433,-84.3208,EPA CAMD web query
+880081,DTE Pontiac North LLC,2007-09-30,MI,42.660624,-83.297627,Manual lookup: FSR EZ lookup
+880083,Lima Refinery,2017-09-30,OH,40.7234,-84.1133,EPA CAMD web query
+880086,"Aventine Renewable Energy, Inc.",2016-09-30,IL,40.555,-89.6628,EPA CAMD web query
+880087,New Energy Corp,2014-09-30,IN,41.6552,-86.2962,EPA CAMD web query
+880088,Marathon Ashland Petroleum LLC,2017-09-30,IL,39,-87.7222,EPA CAMD web query
+880089,"Flint Hills Resources, - Joliet Plant",2017-09-30,IL,41.4417,-88.1728,EPA CAMD web query
+880091,Naval Station Great Lakes,2008-09-30,IL,42.3135,-87.8316,EPA CAMD web query
+880092,BP Amoco Chemical Company CR Plant,2017-09-30,SC,32.9701,-79.8905,EPA CAMD web query
+880093,"Honeywell Intl, Inc Hopewell Plant",2010-09-30,VA,37.1815,-77.1621,EPA CAMD web query
+880094,Trigen St. Louis Energy,2008-09-30,MO,38.6347,-90.1853,EPA CAMD web query
+880096,"Chicago Coke Co., Inc.",2008-12-31,IL,41.6914,-87.5475,EPA CAMD web query
+880100,Ravenswood Steam Plant,2017-12-31,NY,40.76,-73.75,EPA CAMD web query
+880101,RockTenn CP LLC Stevenson Mill,2017-09-30,AL,34.838,-85.7865,EPA CAMD web query
+880107,SPMT Marcus Hook Industrial Complex,2017-12-31,PA,39.8076,-75.4239,EPA CAMD web query
+880108,Grain Processing Corporation,2018-12-31,IN,38.6552,-87.1814,EPA CAMD web query

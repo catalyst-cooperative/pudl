@@ -553,21 +553,19 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
     # "Reading EPA CEMS data...", which could be confusing.
     # if states[0].lower() == 'none':
     #    return None
-    if not states:
+    if not states or not epacems_years:
         if verbose:
             print('Not ingesting EPA CEMS.')
         return None
     if states[0].lower() == 'all':
         states = list(pc.cems_states.keys())
-    if not epacems_years:
-        return
 
     # NOTE: This a generator for raw dataframes
     epacems_raw_dfs = pudl.extract.epacems.extract(
         epacems_years=epacems_years, states=states, verbose=verbose)
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform(
-        epacems_raw_dfs, verbose=verbose
+        pudl_engine=pudl_engine, epacems_raw_dfs=epacems_raw_dfs, verbose=verbose
     )
     if verbose:
         print("Loading tables from EPA CEMS into PUDL:")
