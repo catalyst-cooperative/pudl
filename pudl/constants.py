@@ -124,6 +124,84 @@ cems_states = {k: v for k, v in us_states.items() if v not in
                 'Virgin Islands'}
                }
 
+# This is imperfect for states that have split timezones. See:
+# https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
+# For states that are split, I went with where there seem to be more people
+# List of timezones in pytz.common_timezones
+# Canada: https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
+state_tz_approx = {
+    "AK": "US/Alaska",            # Alaska; Not in CEMS
+    "AL": "US/Central",           # Alabama
+    "AR": "US/Central",           # Arkansas
+    "AS": "Pacific/Pago_Pago",    # American Samoa; Not in CEMS
+    "AZ": "US/Arizona",           # Arizona
+    "CA": "US/Pacific",           # California
+    "CO": "US/Mountain",          # Colorado
+    "CT": "US/Eastern",           # Connecticut
+    "DC": "US/Eastern",           # District of Columbia
+    "DE": "US/Eastern",           # Delaware
+    "FL": "US/Eastern",           # Florida (split state)
+    "GA": "US/Eastern",           # Georgia
+    "GU": "Pacific/Guam",         # Guam; Not in CEMS
+    "HI": "US/Hawaii",            # Hawaii; Not in CEMS
+    "IA": "US/Central",           # Iowa
+    "ID": "US/Mountain",          # Idaho (split state)
+    "IL": "US/Central",           # Illinois
+    "IN": "US/Eastern",           # Indiana (split state)
+    "KS": "US/Central",           # Kansas (split state)
+    "KY": "US/Eastern",           # Kentucky (split state)
+    "LA": "US/Central",           # Louisiana
+    "MA": "US/Eastern",           # Massachusetts
+    "MD": "US/Eastern",           # Maryland
+    "ME": "US/Eastern",           # Maine
+    "MI": "America/Detroit",      # Michigan (split state)
+    "MN": "US/Central",           # Minnesota
+    "MO": "US/Central",           # Missouri
+    "MP": "Pacific/Saipan",       # Northern Mariana Islands; Not in CEMS
+    "MS": "US/Central",           # Mississippi
+    "MT": "US/Mountain",          # Montana
+    "NC": "US/Eastern",           # North Carolina
+    "ND": "US/Central",           # North Dakota (split state)
+    "NE": "US/Central",           # Nebraska (split state)
+    "NH": "US/Eastern",           # New Hampshire
+    "NJ": "US/Eastern",           # New Jersey
+    "NM": "US/Mountain",          # New Mexico
+    "NV": "US/Pacific",           # Nevada
+    "NY": "US/Eastern",           # New York
+    "OH": "US/Eastern",           # Ohio
+    "OK": "US/Central",           # Oklahoma
+    "OR": "US/Pacific",           # Oregon (split state)
+    "PA": "US/Eastern",           # Pennsylvania
+    "PR": "America/Puerto_Rico",  # Puerto Rico; Not in CEMS
+    "RI": "US/Eastern",           # Rhode Island
+    "SC": "US/Eastern",           # South Carolina
+    "SD": "US/Central",           # South Dakota (split state)
+    "TN": "US/Central",           # Tennessee
+    "TX": "US/Central",           # Texas
+    "UT": "US/Mountain",          # Utah
+    "VA": "US/Eastern",           # Virginia
+    "VI": "America/Puerto_Rico",  # Virgin Islands; Not in CEMS
+    "VT": "US/Eastern",           # Vermont
+    "WA": "US/Pacific",           # Washington
+    "WI": "US/Central",           # Wisconsin
+    "WV": "US/Eastern",           # West Virginia
+    "WY": "US/Mountain",          # Wyoming
+    # Canada (none of these are in CEMS)
+    "AB": "America/Edmonton",     # Alberta
+    "BC": "America/Vancouver",    # British Columbia (split province)
+    "MB": "America/Winnipeg",     # Manitoba
+    "NB": "America/Moncton",      # New Brunswick
+    "NS": "America/Halifax",      # Nova Scotia
+    "NL": "America/St_Johns",     # Newfoundland and Labrador  (split province)
+    "NT": "America/Yellowknife",  # Northwest Territories (split province)
+    "NU": "America/Iqaluit",      # Nunavut (split province)
+    "ON": "America/Toronto",      # Ontario (split province)
+    "PE": "America/Halifax",      # Prince Edwards Island
+    "QC": "America/Montreal",     # Quebec (split province)
+    "SK": "America/Regina",       # Saskatchewan  (split province)
+    "YT": "America/Whitehorse",   # Yukon Territory
+}
+
 travis_ci_ferc1_years = (2017, )
 travis_ci_eia860_years = (2017, )
 travis_ci_eia923_years = (2017, )
@@ -1499,6 +1577,12 @@ epacems_columns_fill_na_dict = {
 }
 
 epacems_tables = ("hourly_emissions_epacems")
+
+epacems_additional_plant_info_file = os.path.join(
+    os.path.dirname(pudl.__file__),
+    "metadata",
+    "plant_info_for_additional_cems_plants.csv"
+)
 
 data_sources = (
     'eia860',

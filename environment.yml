@@ -1,6 +1,7 @@
 name: pudl
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - coverage
   - coveralls
@@ -27,8 +28,10 @@ dependencies:
   - sqlalchemy>=1.2
   - xlrd
   - xlsxwriter
+  # conda-forge only:
+  - datapackage
+  - tableschema
+  - timezonefinder
   - pip:
-    - datapackage
     - goodtables
     - sqlalchemy-postgres-copy
-    - tableschema
