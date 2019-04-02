@@ -76,7 +76,7 @@ def source_url(source, year, month=None, state=None):
     base_url = pc.base_data_urls[source]
 
     if source == 'eia860':
-        if year < 2017:
+        if year < max(pc.data_years['eia860']):
             download_url = f'{base_url}/archive/xls/eia860{year}.zip'
         else:
             download_url = f'{base_url}/xls/eia860{year}.zip'
@@ -91,7 +91,7 @@ def source_url(source, year, month=None, state=None):
             prefix = 'f906920_'
         else:
             prefix = 'f923_'
-        if year < 2017:
+        if year < max(pc.data_years['eia923']):
             arch_path = 'archive/xls'
         else:
             arch_path = 'xls'

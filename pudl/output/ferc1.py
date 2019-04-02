@@ -98,15 +98,23 @@ def fuel_ferc1(testing=False):
     fuel_ferc1_select = sa.sql.select([fuel_ferc1_tbl, ])
     fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)
 
-    # We have two different ways of assessing the total cost of fuel given cost
-    # per unit delivered and cost per mmbtu. They *should* be the same, but we
-    # know they aren't always. Calculate both so we can compare both.
+    # In theory there are two different ways that we can figure out the total
+    # cost of the fuel:
+    #  * based on the cost per unit (e.g. ton) burned, and the total number
+    #    of units burned,
+    #  * based on the cost per mmbtu, the mmbtu per unit, and the total
+    #    number of units burned.
+    # In theory, these two unmbers should be the same, and they should both be
+    # the same as the opex_fuel cost that is reported in the steam table, when
+    # all the fuel costs for a given plant are added up across the different
+    # fuels.  However, in practice, the simpler calculation based only on the
+    # number of units burned and the cost per unit, gives a value that is more
+    # consistent with the steam table value, so we will only calculate that
+    # value for the outputs.
     fuel_df['fuel_consumed_mmbtu'] = \
         fuel_df['fuel_qty_burned'] * fuel_df['fuel_mmbtu_per_unit']
-    fuel_df['fuel_consumed_total_cost_mmbtu'] = \
-        fuel_df['fuel_cost_per_mmbtu'] * fuel_df['fuel_consumed_mmbtu']
-    fuel_df['fuel_consumed_total_cost_unit'] = \
-        fuel_df['fuel_cost_per_unit_burned'] * fuel_df['fuel_qty_burned']
+    fuel_df['fuel_consumed_total_cost'] = \
+        fuel_df['fuel_qty_burned'] * fuel_df['fuel_cost_per_unit_burned']
 
     pu_ferc = plants_utils_ferc1(testing=testing)
 
@@ -126,3 +134,69 @@ def fuel_ferc1(testing=False):
     out_df = pudl.helpers.organize_cols(out_df, first_cols)
 
     return out_df
+
+
+def merge_ferc_fuel_steam():
+    """
+    FERC Form 1 reports various plant-level costs and other attributes in one
+    table, and the associated fuel consumption in another table. In many cases
+    it is very useful to have all of this information in a single table. For
+    example:
+     * The proportion of various fuels used by a plant is a strong indicator
+       of which plant records should be associated with each other in the FERC
+       data across years, so having that information available to the FERC
+       plant ID generation algorithm is valuable.
+     * Being able to filter plants based on the primary fuel that they consume
+       for an analysis of, e.g., only coal or only gas plants.
+
+    Fields we're working with in Fuel or both Steam/Fuel
+
+    KEYS:
+     * utility_id_ferc1 (KEY)
+     * report_year (KEY)
+     * plant_name (KEY)
+
+    DROP:
+     * record_id (DROP)
+       - only for bookkeeping purposes
+     * fuel_unit (DROP?)
+
+    KEEP:
+     * plant_id_ferc1 (KEEP but do not use)
+       - eventually needs to be generated w/ contents of the merge in ETL
+
+    CALCULATE PER-FUEL BEFORE PIVOT:
+     * total fuel cost (for each fuel)
+     * total fuel heat content (for each fuel)
+
+    PIVOT on fuel_type_code_pudl
+
+    CALCULATE AFTER PIVOT:
+     * total fuel cost (for all fuels)
+     * total fuel heat content (for all fuels)
+
+    MERGE with steam on KEYS
+
+    CALCULATE AFTER MERGE WITH STEAM:
+     * total fuel cost per MWh (USE ONLY STEAM VALUES)
+     * total fuel heat rate in MMBTU/MWh
+
+    STEAM FIELDS:
+     * opex_fuel (for comparison w/ fuel table costs)
+     * net_generation_mwh (for heat rates, cost per MWh)
+     * key fields as above
+
+    ===========================
+    What do we want in the end?
+    ===========================
+    ALL FUELS:
+    * TOTAL heat content of fuel consumed
+    * TOTAL cost of fuel consumed (check for consistency w/ steam table)
+    * Overall heat rate (MMBTU/MWh)
+    * Overall fuel cost per MWh
+
+    BY FUEL:
+    * Share of heat content
+    * Share of fuel cost
+    * Cost per MMBTU consumed
+    """
