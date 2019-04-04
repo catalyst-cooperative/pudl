@@ -7,7 +7,7 @@
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/catalyst-cooperative/pudl/master)
 
 The [Public Utility Data Liberation (PUDL)
-project](https://catalyst.coop/public-utility-data-liberation/) aims to provide
+project](https://catalyst.coop/pudl/) aims to provide
 a useful interface to publicly available electric utility data in the US.  It
 uses information from the Federal Energy Regulatory Commission (FERC), the
 Energy Information Administration (EIA), and the Environmental Protection
