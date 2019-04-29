@@ -47,7 +47,6 @@ class FuelFERC1(pudl.models.entities.PUDLBase):
                               comment=utility_id_ferc1_comment)
     report_year = Column(Integer, nullable=False, comment=report_year_comment)
 
-    plant_id_ferc1 = Column(Integer, comment=plant_id_ferc1_comment)
     plant_name = Column(String, nullable=False, comment=plant_name_comment)
 
     fuel_type_code_pudl = Column(
