@@ -127,7 +127,6 @@ def fuel_ferc1(testing=False):
         'utility_id_pudl',
         'utility_name_ferc1',
         'plant_id_pudl',
-        'plant_id_ferc1',
         'plant_name'
     ]
 
