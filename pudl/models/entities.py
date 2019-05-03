@@ -48,7 +48,6 @@ class PlantEntityEIA(PUDLBase):
 
     __tablename__ = 'plants_entity_eia'
     plant_id_eia = Column(Integer, primary_key=True, nullable=False)
-    # TODO: Add static plant info
     plant_name = Column(String)
     balancing_authority_code = Column(String)
     balancing_authority_name = Column(String)

@@ -11,7 +11,7 @@ import pudl.models.entities
 pt = pudl.models.entities.PUDLBase.metadata.tables
 
 
-def utilities_eia(start_date=None, end_date=None, testing=False):
+def utilities_eia860(start_date=None, end_date=None, testing=False):
     """Pull all fields from the EIA860 Utilities table."""
     pudl_engine = pudl.init.connect_db(testing=testing)
     # grab the entity table
@@ -20,20 +20,20 @@ def utilities_eia(start_date=None, end_date=None, testing=False):
     utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
     # grab the annual eia entity table
-    utils_an_eia_tbl = pt['utilities_annual_eia']
-    utils_an_eia_select = sa.sql.select([utils_an_eia_tbl])
+    utils_eia860_tbl = pt['utilities_eia860']
+    utils_eia860_select = sa.sql.select([utils_eia860_tbl])
 
     if start_date is not None:
         start_date = pd.to_datetime(start_date)
-        utils_an_eia_select = utils_an_eia_select.where(
-            utils_an_eia_tbl.c.report_date >= start_date
+        utils_eia860_select = utils_eia860_select.where(
+            utils_eia860_tbl.c.report_date >= start_date
         )
     if end_date is not None:
         end_date = pd.to_datetime(end_date)
-        utils_an_eia_select = utils_an_eia_select.where(
-            utils_an_eia_tbl.c.report_date <= end_date
+        utils_eia860_select = utils_eia860_select.where(
+            utils_eia860_tbl.c.report_date <= end_date
         )
-    utils_an_eia_df = pd.read_sql(utils_an_eia_select, pudl_engine)
+    utils_eia860_df = pd.read_sql(utils_eia860_select, pudl_engine)
 
     # grab the glue table for the utility_id_pudl
     utils_g_eia_tbl = pt['utilities_eia']
@@ -43,7 +43,7 @@ def utilities_eia(start_date=None, end_date=None, testing=False):
     ])
     utils_g_eia_df = pd.read_sql(utils_g_eia_select, pudl_engine)
 
-    out_df = pd.merge(utils_eia_df, utils_an_eia_df,
+    out_df = pd.merge(utils_eia_df, utils_eia860_df,
                       how='left', on=['utility_id_eia', ])
     out_df = pd.merge(out_df, utils_g_eia_df,
                       how='left', on=['utility_id_eia', ])
@@ -62,7 +62,7 @@ def utilities_eia(start_date=None, end_date=None, testing=False):
     return out_df
 
 
-def plants_eia(start_date=None, end_date=None, testing=False):
+def plants_eia860(start_date=None, end_date=None, testing=False):
     """Pull all fields from the EIA Plants tables."""
     pudl_engine = pudl.init.connect_db(testing=testing)
 
@@ -71,22 +71,27 @@ def plants_eia(start_date=None, end_date=None, testing=False):
     plants_eia_select = sa.sql.select([plants_eia_tbl])
     plants_eia_df = pd.read_sql(plants_eia_select, pudl_engine)
 
+    # grab the glue table
+    plants_eia_tbl = pt['plants_entity_eia']
+    plants_eia_select = sa.sql.select([plants_eia_tbl])
+    plants_glue_df = pd.read_sql(plants_eia_select, pudl_engine)
+
     # grab the annual table select
-    plants_an_eia_tbl = pt['plants_annual_eia']
-    plants_an_eia_select = sa.sql.select([plants_an_eia_tbl])
+    plants_eia860_tbl = pt['plants_eia860']
+    plants_eia860_select = sa.sql.select([plants_eia860_tbl])
     if start_date is not None:
         start_date = pd.to_datetime(start_date)
-        plants_an_eia_select = plants_an_eia_select.where(
-            plants_an_eia_tbl.c.report_date >= start_date
+        plants_eia860_select = plants_eia860_select.where(
+            plants_eia860_tbl.c.report_date >= start_date
         )
     if end_date is not None:
         end_date = pd.to_datetime(end_date)
-        plants_an_eia_select = plants_an_eia_select.where(
-            plants_an_eia_tbl.c.report_date <= end_date
+        plants_eia860_select = plants_eia860_select.where(
+            plants_eia860_tbl.c.report_date <= end_date
         )
-    plants_an_eia_df = pd.read_sql(plants_an_eia_select, pudl_engine)
-    plants_an_eia_df['report_date'] = \
-        pd.to_datetime(plants_an_eia_df['report_date'])
+    plants_eia860_df = pd.read_sql(plants_eia860_select, pudl_engine)
+    plants_eia860_df['report_date'] = \
+        pd.to_datetime(plants_eia860_df['report_date'])
 
     # plant glue table
     plants_g_eia_tbl = pt['plants_eia']
@@ -96,7 +101,7 @@ def plants_eia(start_date=None, end_date=None, testing=False):
     ])
     plants_g_eia_df = pd.read_sql(plants_g_eia_select, pudl_engine)
 
-    out_df = pd.merge(plants_eia_df, plants_an_eia_df,
+    out_df = pd.merge(plants_eia_df, plants_eia860_df,
                       how='left', on=['plant_id_eia', ])
 
     out_df = pd.merge(out_df, plants_g_eia_df,
@@ -136,12 +141,12 @@ def plants_utils_eia860(start_date=None, end_date=None, testing=False):
     plants_eia = plants_eia860(start_date=start_date,
                                end_date=end_date,
                                testing=testing)
-    utils_eia = utilities_eia(start_date=start_date,
-                              end_date=end_date,
-                              testing=testing)
+    utils_eia = utilities_eia860(start_date=start_date,
+                                 end_date=end_date,
+                                 testing=testing)
 
     # to avoid duplicate columns on the merge...
-    plants_eia = plants_eia.drop(['utility_id_pudl', 'utility_name', 'city',
+    plants_eia = plants_eia.drop(['utility_id_pudl', 'city',
                                   'state', 'zip_code', 'street_address'],
                                  axis=1)
     out_df = pd.merge(plants_eia, utils_eia,
@@ -153,11 +158,13 @@ def plants_utils_eia860(start_date=None, end_date=None, testing=False):
                     'plant_id_pudl',
                     'utility_id_eia',
                     'utility_name',
-                    'utility_id_pudl']
+                    'utility_id_pudl'
+                    ]
 
     out_df = out_df[cols_to_keep]
     out_df = out_df.dropna()
     out_df.plant_id_pudl = out_df.plant_id_pudl.astype(int)
+    out_df.utility_id_eia = out_df.utility_id_eia.astype(int)
     out_df.utility_id_pudl = out_df.utility_id_pudl.astype(int)
     return out_df
 
@@ -239,8 +246,8 @@ That's too much forward filling.""")
 
     gens_eia860 = pd.read_sql(gens_eia860_select, pudl_engine)
     # Canonical sources for these fields are elsewhere. We will merge them in.
-    gens_eia860 = gens_eia860.drop(['utility_id_eia',
-                                    'utility_name'], axis=1)
+    # gens_eia860 = gens_eia860.drop(['utility_id_eia',
+    #                                'utility_name'], axis=1)
     plants_entity_eia_df = pd.read_sql(plants_entity_eia_select, pudl_engine)
     out_df = pd.merge(gens_eia860, plants_entity_eia_df,
                       how='left', on=['plant_id_eia'])
@@ -340,7 +347,7 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
                                  end_date=end_date,
                                  testing=testing)
     pu_eia = pu_eia[['plant_id_eia', 'plant_id_pudl', 'plant_name',
-                     'utility_id_pudl', 'report_date']]
+                     'utility_name', 'utility_id_pudl', 'report_date']]
 
     o_df['report_date'] = pd.to_datetime(o_df.report_date)
     out_df = pd.merge(o_df, pu_eia,

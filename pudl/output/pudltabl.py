@@ -86,9 +86,9 @@ class PudlTabl(object):
             'pu_eia': None,
             'pu_ferc1': None,
 
-            'utils_eia': None,
+            'utils_eia860': None,
             'bga_eia860': None,
-            'plants_eia': None,
+            'plants_eia860': None,
             'gens_eia860': None,
             'own_eia860': None,
 
@@ -108,7 +108,7 @@ class PudlTabl(object):
             'mcoe': None,
         }
 
-    def pu_eia(self, update=False):
+    def pu_eia860(self, update=False):
         """Pull a dataframe of EIA plant-utility associations."""
         if update or self._dfs['pu_eia'] is None:
             self._dfs['pu_eia'] = pudl.output.eia860.plants_utils_eia860(
@@ -124,14 +124,14 @@ class PudlTabl(object):
                 testing=self.testing)
         return self._dfs['pu_ferc1']
 
-    def utils_eia(self, update=False):
+    def utils_eia860(self, update=False):
         """Pull a dataframe describing utilities reported in EIA 860."""
-        if update or self._dfs['utils_eia'] is None:
-            self._dfs['utils_eia'] = pudl.output.eia860.utilities_eia(
+        if update or self._dfs['utils_eia860'] is None:
+            self._dfs['utils_eia860'] = pudl.output.eia860.utilities_eia860(
                 start_date=self.start_date,
                 end_date=self.end_date,
                 testing=self.testing)
-        return self._dfs['utils_eia']
+        return self._dfs['utils_eia860']
 
     def bga_eia860(self, update=False):
         """Pull a dataframe of boiler-generator associations from EIA 860."""
@@ -143,14 +143,14 @@ class PudlTabl(object):
                     testing=self.testing)
         return self._dfs['bga_eia860']
 
-    def plants_eia(self, update=False):
+    def plants_eia860(self, update=False):
         """Pull a dataframe of plant level info reported in EIA 860."""
-        if update or self._dfs['plants_eia'] is None:
-            self._dfs['plants_eia'] = pudl.output.eia860.plants_eia(
+        if update or self._dfs['plants_eia860'] is None:
+            self._dfs['plants_eia860'] = pudl.output.eia860.plants_eia860(
                 start_date=self.start_date,
                 end_date=self.end_date,
                 testing=self.testing)
-        return self._dfs['plants_eia']
+        return self._dfs['plants_eia860']
 
     def gens_eia860(self, update=False):
         """Pull a dataframe describing generators, as reported in EIA 860."""

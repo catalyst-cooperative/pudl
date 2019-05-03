@@ -94,7 +94,13 @@ def data_sources_from_tables(table_names, testing=False):
 
 
 def is_annual(df_year, year_col='report_date'):
-    """Determine whether dataframe is consistent with yearly reporting."""
+    """
+    Determine whether dataframe is consistent with yearly reporting.
+
+    Some processed will only work with consistent yearly reporting. This means
+    if you have two non-contiguous years of data or the datetime reporting is
+    inconsistent, the process will break.
+    """
     year_index = pd.DatetimeIndex(df_year[year_col].unique()).sort_values()
     if len(year_index) >= 3:
         date_freq = pd.infer_freq(year_index)
