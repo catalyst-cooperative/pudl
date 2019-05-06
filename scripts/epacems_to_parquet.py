@@ -49,7 +49,7 @@ IN_DTYPES = {
 OUT_DTYPES = {
     'year': 'uint16',
     'state': 'category',
-    'plant_name': 'category',
+    # 'plant_name': 'category',
     'plant_id_eia': 'uint16',
     'unitid': 'category',
     'gross_load_mw': 'float32',
@@ -65,7 +65,7 @@ OUT_DTYPES = {
     'heat_content_mmbtu': 'float32',
     'facility_id': 'category',
     'unit_id_epa': 'category',
-    'operating_datetime': 'datetime64',
+    'operating_datetime_utc': pd.DatetimeTZDtype(tz="UTC"),
     'operating_time_hours': 'float32'
 }
 
@@ -141,7 +141,14 @@ def parse_command_line(argv):
         dataset? (default: %(default)s)""",
         default='snappy'
     )
-
+    parser.add_argument(
+        "--testing",
+        action="store_true",
+        help="""Which database should be used for plant metadata? Default is
+        the production pudl database. Specifying --testing connects to the
+        pudl_test database instead.""",
+        default=False
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -156,7 +163,7 @@ def downcast_numeric(df, from_dtype, to_dtype):
 
 def year_from_operating_datetime(df):
     """Add a 'year' column based on the year in the operating_datetime."""
-    df['year'] = df.operating_datetime.dt.year
+    df['year'] = df.operating_datetime_utc.dt.year
     return df
 
 
@@ -178,8 +185,7 @@ def cems_to_parquet(transformed_df_dicts, outdir=None, schema=None,
         raise AssertionError("Required output directory not specified.")
 
     for df_dict in transformed_df_dicts:
-        for yr_st in df_dict:
-            df = df_dict[yr_st]
+        for yr_st, df in df_dict.items():
             print(f'            {yr_st}: {len(df)} records')
             if not df.empty:
                 df = (
@@ -210,6 +216,9 @@ def main():
     cems_df_template = pd.DataFrame(columns=OUT_DTYPES.keys())
     cems_df_template = cems_df_template.astype(OUT_DTYPES)
     cems_table = pa.Table.from_pandas(cems_df_template)
+    # transform.epacems needs to reach into the database to get timezones, so
+    # get a database connection here
+    pudl_engine = pudl.init.connect_db(testing=args.testing)
 
     # Use the PUDL EPA CEMS Extract / Transform pipelines to process the
     # original raw data from EPA as needed.
@@ -219,7 +228,8 @@ def main():
         verbose=args.verbose
     )
     transformed_dfs = pudl.transform.epacems.transform(
-        raw_dfs, verbose=args.verbose)
+        pudl_engine=pudl_engine, epacems_raw_dfs=raw_dfs, verbose=args.verbose
+    )
 
     # Do a few additional manipulations specific to the Apache Parquet output,
     # and write the resulting files to disk.

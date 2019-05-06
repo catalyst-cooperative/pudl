@@ -5,6 +5,7 @@ from functools import partial
 import pandas as pd
 import numpy as np
 import sqlalchemy as sa
+import timezonefinder
 import pudl
 
 # This is a little abbreviated function that allows us to propagate the NA
@@ -12,6 +13,10 @@ import pudl
 # functions in each one.
 sum_na = partial(pd.Series.sum, skipna=False)
 
+# Initializing this TimezoneFinder opens a bunch of geography files and holds
+# them open for efficiency. I want to avoid doing that for every call to find
+# the timezone, so this is global.
+tz_finder = timezonefinder.TimezoneFinder()
 
 def get_dependent_tables_from_list(table_names, testing=False):
     """
@@ -265,12 +270,33 @@ def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
 
 
 def strip_lower(df, columns=None):
-    """Strip & compact whitespace, lowercase listed DataFrame columns."""
-    for col in columns:
-        if col in df.columns:
-            df[col] = df[col].str.strip().str.lower().str.replace(r'\s+', ' ')
+    """
+    Strip & compact whitespace, lowercase listed DataFrame columns.
 
-    return df
+    First converts all listed columns (if present in df) to string type, then
+    applies the str.strip() and str.lower() methods to them, and replaces all
+    internal whitespace to a single space. The columns are assigned in place.
+
+    Args:
+        df (pandas.DataFrame): DataFrame whose columns are being cleaned up.
+        columns (iterable): The labels of the columns to be stripped and
+            converted to lowercase.
+
+    Returns:
+        df (pandas.DataFrame): The whole DataFrame that was passed in, with
+            the columns cleaned up in place, allowing method chaining.
+    """
+    out_df = df.copy()
+    for col in columns:
+        if col in out_df.columns:
+            out_df.loc[:, col] = (
+                out_df[col].astype(str).
+                str.strip().
+                str.lower().
+                str.replace(r'\s+', ' ')
+            )
+
+    return out_df
 
 
 def cleanstrings(field, stringmap, unmapped=None, simplify=True):
@@ -507,3 +533,40 @@ def simplify_columns(df):
           .replace(' ', '_')
     )
     return df
+
+
+def find_timezone(*, lng=None, lat=None, state=None, strict=True):
+    """Find the timezone of a location
+    param: lng (int or float in [-180,180]) Longitude, in decimal degrees
+    param: lat (int or float in [-90, 90]) Latitude, in decimal degrees
+    param: state (str) Abbreviation for US state or Canadian province
+    param: strict (bool) Raise an error if no timezone is found?
+    returns: The timezone (as an IANA string) for that location.
+
+    Note that this function requires named arguments. The names are lng, lat,
+    and state.  lng and lat must be provided, but they may be NA. state isn't
+    required, and isn't used unless lng/lat are NA or timezonefinder can't find
+    a corresponding timezone.
+    Timezones based on states are imprecise, so it's far better to use lng/lat
+    if possible. If `strict` is True, state will not be used.
+    More on state-to-timezone conversion here:
+    https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
+    """
+    try:
+        tz = tz_finder.timezone_at(lng=lng, lat=lat)
+        if tz is None:  # Try harder
+            # Could change the search radius as well
+            tz = tz_finder.closest_timezone_at(lng=lng, lat=lat)
+    except ValueError:
+        # If we're being strict, only use lng/lat, not state
+        if strict:
+            raise ValueError(
+                f"Can't find timezone for: lng={lng}, lat={lat}, state={state}"
+            )
+        # If, e.g., the coordinates are missing, try looking in the
+        # state_tz_approx dictionary.
+        try:
+            tz = pudl.constants.state_tz_approx[state]
+        except KeyError:
+            tz = None
+    return tz

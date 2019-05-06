@@ -1,6 +1,7 @@
 name: pudl
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - coverage
   - coveralls
@@ -12,8 +13,10 @@ dependencies:
   - jupyterlab
   - matplotlib
   - networkx
+  - nbval
   - numpy
   - pandas
+  - pip
   - psycopg2
   - pyarrow
   - pylint
@@ -24,11 +27,13 @@ dependencies:
   - pyyaml
   - scikit-learn>=0.20
   - scipy
-  - sqlalchemy>=1.2
+  - sqlalchemy>=1.3.0
   - xlrd
   - xlsxwriter
+  # conda-forge only:
+  - datapackage
+  - tableschema
+  - timezonefinder
   - pip:
-    - datapackage
     - goodtables
     - sqlalchemy-postgres-copy
-    - tableschema

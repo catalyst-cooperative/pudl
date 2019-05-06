@@ -20,7 +20,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.preprocessing import Normalizer, RobustScaler
+from sklearn.preprocessing import Normalizer, RobustScaler, MinMaxScaler
 from sklearn.preprocessing import OneHotEncoder
 
 # NetworkX is used to knit incomplete ferc plant time series together.
@@ -260,18 +260,21 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     ferc1_steam_df = pudl.helpers.fix_int_na(ferc1_steam_df,
                                              columns=['construction_year', ])
 
-    # Train the classifier
-    ferc_clf = pudl.transform.ferc1.make_ferc_clf(
-        ferc1_steam_df,
-        ngram_min=2,
-        ngram_max=10,
-        min_sim=0.75,
-        plant_name_wt=2.0,
-        plant_type_wt=2.0,
-        construction_type_wt=1.0,
-        capacity_mw_wt=1.0,
-        construction_year_wt=1.0,
-        utility_id_ferc1_wt=1.0)
+    # Grab fuel consumption proportions for use in assigning plant IDs:
+    fuel_fractions = fuel_by_plant_ferc1(ferc1_transformed_dfs['fuel_ferc1'])
+    ffc = list(fuel_fractions.filter(regex='.*_fraction_mmbtu$').columns)
+
+    ferc1_steam_df = (
+        ferc1_steam_df.merge(fuel_fractions[
+            ['utility_id_ferc1', 'plant_name', 'report_year'] + ffc],
+            on=['utility_id_ferc1', 'plant_name', 'report_year'],
+            how='left'
+        )
+    )
+    ferc1_steam_df[ffc] = ferc1_steam_df[ffc].fillna(value=0.0)
+
+    # Train the classifier using DEFAULT weights, parameters not listed here.
+    ferc_clf = pudl.transform.ferc1.make_ferc_clf(ferc1_steam_df)
     ferc_clf = ferc_clf.fit_transform(ferc1_steam_df)
 
     # Use the classifier to generate groupings of similar records:
@@ -352,6 +355,9 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     ferc1_steam_df['construction_year'] = pd.to_numeric(
         ferc1_steam_df['construction_year'], errors='coerce')
 
+    # We don't actually want to save the fuel fractions in this table... they
+    # were only here to help us match up the plants.
+    ferc1_steam_df = ferc1_steam_df.drop(ffc, axis=1)
     ferc1_transformed_dfs['plants_steam_ferc1'] = ferc1_steam_df
 
     return ferc1_transformed_dfs
@@ -401,13 +407,13 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     # PERFORM UNIT CONVERSIONS ##############################################
     #########################################################################
 
-    # Replace fuel cost per kWh with fuel cost per MWh
-    fuel_ferc1_df['fuel_cost_per_mwh'] = 1000 * fuel_ferc1_df['fuel_cost_kwh']
+    # Fuel cost per kWh is a per-unit value that doesn't make sense to report
+    # for a single fuel that may be only a small part of the fuel consumed.
     fuel_ferc1_df.drop('fuel_cost_kwh', axis=1, inplace=True)
 
-    # Replace BTU/kWh with millions of BTU/MWh
-    fuel_ferc1_df['fuel_mmbtu_per_mwh'] = (1e3 / 1e6) * \
-        fuel_ferc1_df['fuel_generaton']
+    # This is heat rate, but as it's based only on the heat content of a given
+    # fuel which may only be a small portion of the overall fuel consumption,
+    # it doesn't make any sense here.  Drop it.
     fuel_ferc1_df.drop('fuel_generaton', axis=1, inplace=True)
 
     # Convert from BTU/unit of fuel to 1e6 BTU/unit.
@@ -486,16 +492,6 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     # be sure. In some cases we lose data here, because some utilities have
     # (for example) a "Total" line w/ only fuel_mmbtu_per_kwh on it. Grr.
     fuel_ferc1_df.dropna(inplace=True)
-
-    # Merge in the plant_id_ferc1 values that were previously assigned in
-    # the plants_steam transformation step.
-    plant_ids_ferc1 = ferc1_transformed_dfs['plants_steam_ferc1'][[
-        'utility_id_ferc1',
-        'report_year',
-        'plant_name',
-        'plant_id_ferc1'
-    ]]
-    fuel_ferc1_df = pd.merge(fuel_ferc1_df, plant_ids_ferc1)
 
     ferc1_transformed_dfs['fuel_ferc1'] = fuel_ferc1_df
 
@@ -996,9 +992,10 @@ def transform(ferc1_raw_dfs,
               verbose=True):
     """Transform FERC 1."""
     ferc1_transform_functions = {
-        # plants must come before fuel b/c of plant_id_ferc1 assignment
-        'plants_steam_ferc1': plants_steam,
+        # fuel must come before steam b/c fuel proportions are used to aid in
+        # plant # ID assignment.
         'fuel_ferc1': fuel,
+        'plants_steam_ferc1': plants_steam,
         'plants_small_ferc1': plants_small,
         'plants_hydro_ferc1': plants_hydro,
         'plants_pumped_storage_ferc1': plants_pumped_storage,
@@ -1270,38 +1267,69 @@ def make_ferc_clf(plants_df,
                   construction_type_wt=1.0,
                   capacity_mw_wt=1.0,
                   construction_year_wt=1.0,
-                  utility_id_ferc1_wt=1.0):
-    """Create a boilerplate FERC Plant Classifier."""
+                  utility_id_ferc1_wt=1.0,
+                  fuel_fraction_wt=1.0):
+    """
+    Create a FERC Plant Classifier using several weighted features.
+
+    Given a FERC steam plants dataframe plants_df, which also includes fuel
+    consumption information, transform a selection of useful columns into
+    features suitable for use in calculating inter-record cosine similarities.
+    Individual features are weighted according to the keyword arguments.
+
+    Features include:
+      * plant_name (via TF-IDF, with ngram_min and ngram_max as parameters)
+      * plant_type (OneHot encoded categorical feature)
+      * construction_type (OneHot encoded categorical feature)
+      * capacity_mw (MinMax scaled numerical feature)
+      * construction year (OneHot encoded categorical feature)
+      * utility_id_ferc1 (OneHot encoded categorical feature)
+      * fuel_fraction_mmbtu (several MinMax scaled numerical columns, which
+        are normalized and treated as a single feature.)
+
+    This feature matrix is then used to instantiate a FERCPlantClassifier.
+
+    The combination of the ColumnTransformer and FERCPlantClassifier are
+    combined in a sklearn Pipeline, which is returned by the function.
+
+    Arguments:
+        ngram_min, ngram_max (int): the minimum and maximum n-gram lengths to
+            consider in the vectorization of the plant_name feature.
+        min_sim (float): the minimum cosine similarity between two records that
+            can be considered a "match" (a number between 0.0 and 1.0).
+        plant_name_wt, plant_type_wt, construction_type_wt, capacity_mw_wt,
+        construction_year_wt, utility_id_ferc1_wt, fuel_fraction_wt (float):
+            these weights determine the relative importance of each of the
+            features in the feature matrix used to calculate the cosine
+            similarity between records. They're used to scale each individual
+            feature before the vectors are normalized.
+
+    Returns:
+        ferc_pipe: a sklearn Pipeline that performs preprocessing and
+            classification with a FERCPlantClassifier object.
+    """
+
+    # Make a list of all the fuel fraction columns for use as one feature.
+    fuel_cols = list(plants_df.filter(regex='.*_fraction_mmbtu$').columns)
 
     ferc_pipe = Pipeline([
         ('preprocessor', ColumnTransformer(
             transformers=[
-                ('plant_name', Pipeline([
-                    ('tfidf', TfidfVectorizer(analyzer='char',
-                                              ngram_range=(ngram_min,
-                                                           ngram_max))),
-                ]), 'plant_name'),
-
-                ('plant_type', Pipeline([
-                    ('onehot', OneHotEncoder()),
-                ]), ['plant_type']),
-
-                ('construction_type', Pipeline([
-                    ('onehot', OneHotEncoder()),
-                ]), ['construction_type']),
-
-                ('capacity_mw', Pipeline([
-                    ('scaler', RobustScaler()),
+                ('plant_name', TfidfVectorizer(analyzer='char',
+                                               ngram_range=(ngram_min, ngram_max)), 'plant_name'),
+                ('plant_type', OneHotEncoder(
+                    categories='auto'), ['plant_type']),
+                ('construction_type', OneHotEncoder(
+                    categories='auto'), ['construction_type']),
+                ('capacity_mw', MinMaxScaler(), ['capacity_mw']),
+                ('construction_year', OneHotEncoder(
+                    categories='auto'), ['construction_year']),
+                ('utility_id_ferc1', OneHotEncoder(
+                    categories='auto'), ['utility_id_ferc1']),
+                ('fuel_fraction_mmbtu', Pipeline([
+                    ('scaler', MinMaxScaler()),
                     ('norm', Normalizer())
-                ]), ['capacity_mw']),
-
-                ('construction_year', Pipeline([
-                    ('onehot', OneHotEncoder(categories='auto')),
-                ]), ['construction_year']),
-
-                ('utility_id_ferc1', Pipeline([
-                    ('onehot', OneHotEncoder(categories='auto')),
-                ]), ['utility_id_ferc1'])
+                ]), fuel_cols),
             ],
 
             transformer_weights={
@@ -1311,9 +1339,142 @@ def make_ferc_clf(plants_df,
                 'capacity_mw': capacity_mw_wt,
                 'construction_year': construction_year_wt,
                 'utility_id_ferc1': utility_id_ferc1_wt,
+                'fuel_fraction_mmbtu': fuel_fraction_wt,
             })
          ),
         ('classifier', pudl.transform.ferc1.FERCPlantClassifier(
             min_sim=min_sim, plants_df=plants_df))
     ])
     return ferc_pipe
+
+
+def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
+    """
+    Calculate useful FERC Form 1 fuel metrics on a per plant-year basis.
+
+    Each record in the FERC Form 1 corresponds to a particular type of fuel.
+    Many plants -- especially coal plants -- use more than one fuel, with gas
+    and/or diesel serving as startup fuels. In order to be able to classify
+    the type of plant based on relative proportions of fuel consumed or
+    fuel costs it is useful to aggregate these per-fuel records into a single
+    record for each plant.
+
+    Fuel cost (in nominal dollars) and fuel heat content (in mmBTU) are
+    calculated for each fuel based on the cost and heat content per unit, and
+    the number of units consumed, and then summed by fuel type (there can be
+    more than one record for a given type of fuel in each plant because we
+    are simplifying the fuel categories). The per-fuel records are then
+    pivoted to create one column per fuel type. The total is summed and
+    stored separately, and the individual fuel costs & heat contents are
+    divided by that total, to yield fuel proportions.  Based on those
+    proportions and a minimum threshold that's passed in, a "primary" fuel
+    type is then assigned to the plant-year record and given a string label.
+
+    Arguments:
+    ----------
+        fuel_df (DataFrame): Pandas DataFrame resembling the post-transform
+            result for the fuel_ferc1 table.
+        thresh (float): A value between 0.5 and 1.0 indicating the minimum
+            fraction of overall heat content that must have been provided by a
+            fuel in a plant-year for it to be considered the "primary" fuel for
+            the plant in that year. Default value: 0.5.
+
+    Returns:
+    --------
+        df (DataFrame): Pandas DataFrame with a single record for each
+            plant-year, including the columns required to merge it with the
+            plants_steam_ferc1 table/DataFrame (report_year, utility_id_ferc1,
+            and plant_name) as well as totals for fuel mmbtu consumed in that
+            plant-year, and the cost of fuel in that year, the proportions of
+            heat content and fuel costs for each fuel in that year, and a
+            column that labels the plant's primary fuel for that year.
+    """
+    import re
+
+    keep_cols = [
+        'report_year',  # key
+        'utility_id_ferc1',  # key
+        'plant_name',  # key
+        'fuel_type_code_pudl',  # pivot
+        'fuel_qty_burned',  # value
+        'fuel_mmbtu_per_unit',  # value
+        'fuel_cost_per_unit_burned',  # value
+    ]
+
+    # Ensure that the dataframe we've gotten has all the information we need:
+    for col in keep_cols:
+        if col not in fuel_df.columns:
+            raise AssertionError(
+                f"Required column {col} not found in input fuel_df."
+            )
+
+    # Calculate per-fuel derived values and add them to the DataFrame
+    df = (
+        # Really there should *not* be any duplicates here but... there's a
+        # bug somewhere that introduces them into the fuel_ferc1 table.
+        fuel_df[keep_cols].drop_duplicates().
+        # Calculate totals for each record based on per-unit values:
+        assign(fuel_mmbtu=lambda x: x.fuel_qty_burned * x.fuel_mmbtu_per_unit).
+        assign(fuel_cost=lambda x: x.fuel_qty_burned * x.fuel_cost_per_unit_burned).
+        # Drop the ratios and heterogeneous fuel "units"
+        drop(['fuel_mmbtu_per_unit', 'fuel_cost_per_unit_burned', 'fuel_qty_burned'], axis=1).
+        # Group by the keys and fuel type, and sum:
+        groupby(['utility_id_ferc1', 'plant_name', 'report_year', 'fuel_type_code_pudl']).
+        agg(sum).reset_index().
+        # Set the index to the keys, and pivot to get per-fuel columns:
+        set_index(['utility_id_ferc1', 'plant_name', 'report_year']).
+        pivot(columns='fuel_type_code_pudl').fillna(0.0)
+    )
+
+    # Calculate total heat content burned for each plant, and divide it out
+    mmbtu_group = (
+        pd.merge(
+            # Sum up all the fuel heat content, and divide the individual fuel
+            # heat contents by it (they are all contained in single higher
+            # level group of columns laeled fuel_mmbtu)
+            df.loc[:, 'fuel_mmbtu'].div(
+                df.loc[:, 'fuel_mmbtu'].sum(axis=1), axis='rows'),
+            # Merge that same total into the datafram separately as well.
+            df.sum(level=0, axis=1).loc[:, 'fuel_mmbtu'],
+            right_index=True, left_index=True).
+        rename(columns=lambda x: re.sub(r'$', '_fraction_mmbtu', x)).
+        rename(columns=lambda x: re.sub(r'_mmbtu_fraction_mmbtu$', '_mmbtu', x))
+    )
+
+    # Calculate total fuel cost for each plant, and divide it out
+    cost_group = (
+        pd.merge(
+            # Sum up all the fuel costs, and divide the individual fuel
+            # heat contents by it (they are all contained in single higher
+            # level group of columns labled fuel_cost)
+            df.loc[:, 'fuel_cost'].div(
+                df.loc[:, 'fuel_cost'].sum(axis=1), axis='rows'),
+            # Merge that same total into the datafram separately as well.
+            df.sum(level=0, axis=1).loc[:, 'fuel_cost'],
+            right_index=True, left_index=True).
+        rename(columns=lambda x: re.sub(r'$', '_fraction_cost', x)).
+        rename(columns=lambda x: re.sub(r'_cost_fraction_cost$', '_cost', x))
+    )
+
+    # Re-unify the cost and heat content information:
+    df = pd.merge(mmbtu_group, cost_group,
+                  left_index=True, right_index=True).reset_index()
+
+    # Label each plant-year record by primary fuel:
+    for fuel_str in pc.ferc1_fuel_strings.keys():
+        try:
+            mmbtu_mask = df[f'{fuel_str}_fraction_mmbtu'] > thresh
+            df.loc[mmbtu_mask, 'primary_fuel_by_mmbtu'] = fuel_str
+        except KeyError:
+            pass
+
+        try:
+            cost_mask = df[f'{fuel_str}_fraction_cost'] > thresh
+            df.loc[cost_mask, 'primary_fuel_by_cost'] = fuel_str
+        except KeyError:
+            pass
+
+    df[['primary_fuel_by_cost', 'primary_fuel_by_mmbtu']] = \
+        df[['primary_fuel_by_cost', 'primary_fuel_by_mmbtu']].fillna('')
+
+    return df

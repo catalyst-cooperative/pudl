@@ -1,0 +1,10 @@
+year_index,report_year,report_month,plant_id_eia,plant_state,eia_sector,naics_code,plant_name,combined_heat_power,reporting_frequency,nameplate_capacity_mw
+2009,,,,,,,,,,
+2010,,,,,,,,,,
+2011,year,,eia_plant_id,plant_state,sector,north_american_industiral_classification_system_naics_code,plant_name,combined_heat_and_power_status_y_chp_n_non_chp,reporting_frequency_annual_or_monthly,nameplate_capacity_mw
+2012,year,,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,reporting_frequency,
+2013,year,,eia_plant_id,plant_state,sector,north_american_industrial_classification_system_naics_code,plant_name,combined_heat_and_power_status_y_chp_n_non_chp,reporting_frequency_annual_or_monthly,
+2014,year,month,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,reporting_frequency,
+2015,year,month,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,reporting_frequency,
+2016,year,month,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,reporting_frequency,
+2017,year,month,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,reporting_frequency,

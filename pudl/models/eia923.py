@@ -221,3 +221,5 @@ class FuelReceiptsCostsEIA923(pudl.models.entities.PUDLBase):
         ForeignKey('transport_modes_eia923.abbr'))
     natural_gas_transport_code = Column(firm_interrupt)  # Enum
     natural_gas_delivery_contract_type_code = Column(firm_interrupt)  # Enum
+    moisture_content_pct = Column(Float)
+    chlorine_content_ppm = Column(Float)

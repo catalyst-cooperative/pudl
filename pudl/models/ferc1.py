@@ -47,7 +47,6 @@ class FuelFERC1(pudl.models.entities.PUDLBase):
                               comment=utility_id_ferc1_comment)
     report_year = Column(Integer, nullable=False, comment=report_year_comment)
 
-    plant_id_ferc1 = Column(Integer, comment=plant_id_ferc1_comment)
     plant_name = Column(String, nullable=False, comment=plant_name_comment)
 
     fuel_type_code_pudl = Column(
@@ -86,17 +85,18 @@ class FuelFERC1(pudl.models.entities.PUDLBase):
         comment="Average cost of fuel consumed in the report year, in nominal USD per mmBTU of fuel heat content."
     )
     # Is this a useful number for any fuel that's not overwhelmingly dominant?
-    fuel_cost_per_mwh = Column(
-        Float,
-        nullable=False,
-        comment="Average cost of fuel burned per MWh of net generation in the report year. In plants burning multiple fuels, this may not be indicative of overall fuel cost per MWh."
-    )
+    # fuel_cost_per_mwh = Column(
+    #    Float,
+    #    nullable=False,
+    #    comment="Average cost of fuel burned per MWh of net generation in the report year. In plants burning multiple fuels, this may not be indicative of overall fuel cost per MWh."
+    # )
     # Is this a useful number for any fuel that's not overwhelmingly dominant?
-    fuel_mmbtu_per_mwh = Column(
-        Float,
-        nullable=False,
-        comment="Average heat content in mmBTU of fuel consumed per MWh of net generation in the report year. In plants burning multiple fuels this may not be indicative of overall plant heat rate."
-    )
+    # fuel_mmbtu_per_mwh = Column(
+    #    Float,
+    #    nullable=False,
+    #    comment="Average heat content in mmBTU of fuel consumed per MWh of net generation in the report year. In plants burning multiple fuels this may not be indicative of overall plant heat rate."
+    # )
+#
 
 
 class PlantSteamFERC1(pudl.models.entities.PUDLBase):

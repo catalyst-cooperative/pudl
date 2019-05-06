@@ -9,7 +9,7 @@ from pudl.settings import SETTINGS
 import pudl.models.glue
 import pudl.models.eia860
 import pudl.models.eia923
-import pudl.models.eia
+import pudl.models.entities
 import pudl.models.ferc1
 
 # require modern python

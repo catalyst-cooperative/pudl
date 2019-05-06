@@ -9,7 +9,22 @@ import pudl.constants as pc
 
 def _occurrence_consistency(entity_id, compiled_df, col,
                             cols_to_consit, strictness=.7):
-    """Find the occurance of plants & the consistency of records"""
+    """
+    Find the occurance of plants & the consistency of records
+
+    We need to determine how consistent a reported value is in the records
+    across all of the years or tables that the value is being reported, so we
+    want to compile two key
+
+    Args:
+        entity_id (int): the earliest EIA 860 data to retrieve or synthesize
+        compiled_df (dataframe): the latest EIA 860 data to retrieve or synthesize
+        col (string): Connect to the live PUDL DB or the testing DB?
+        cols_to_consit
+
+    Returns:
+        A pandas dataframe.
+    """
     # select only the colums you want and drop the NaNs
     col_df = compiled_df[entity_id + ['report_date',
                                       col, 'table']].copy().dropna()
@@ -57,12 +72,65 @@ def _lat_long(dirty_df, clean_df, entity_id_df, entity_id, col, cols_to_consit,
     return(ll_clean_df)
 
 
+def _add_timezone(plants_entity):
+    """Add plants' IANA timezones from lat/lon
+    param: plants_entity Plant entity table, including columns named "latitude",
+        "longitude", and optionally "state"
+    Returns the same table, with a "timezone" column added. Timezone may be
+    missing if lat/lon is missing or invalid.
+    """
+    plants_entity["timezone"] = plants_entity.apply(
+        lambda row: pudl.helpers.find_timezone(
+            lng=row["longitude"], lat=row["latitude"], state=row["state"], strict=False
+        ),
+        axis=1,
+    )
+    return plants_entity
+
+
+def _add_additional_epacems_plants(plants_entity):
+    """Add the info for plants that have IDs in the CEMS data but not EIA data
+
+    param: plants_entity Plant entity table that will be appended to
+    returns: The same plants_entity table, with the addition of some missing EPA
+    CEMS plants
+    Note that a side effect will be resetting the index on plants_entity, if one
+    exists. If that's a problem, modify the code below.
+
+    The columns loaded are plant_id_eia, plant_name, state, latitude, and longitude
+
+    Note that some of these plants disappear from the CEMS before the earliest
+    EIA data PUDL processes, so if PUDL eventually ingests older data, these
+    may be redundant.
+    The set of additional plants is every plant that appears in the hourly CEMS
+    data (1995-2017) that never appears in the EIA 923 or 860 data (2009-2017
+    for EIA 923, 2011-2017 for EIA 860).
+    """
+    # Add the plant IDs that are missing and update the values for the others
+    # The data we're reading is a CSV in pudl/metadata/
+    # SQL would call this whole process an upsert
+    # See also: https://github.com/pandas-dev/pandas/issues/22812
+    cems_df = pd.read_csv(
+        pc.epacems_additional_plant_info_file,
+        index_col=["plant_id_eia"],
+        usecols=["plant_id_eia", "plant_name",
+                 "state", "latitude", "longitude"],
+    )
+    plants_entity = plants_entity.set_index("plant_id_eia")
+    cems_unmatched = cems_df.loc[~cems_df.index.isin(plants_entity.index)]
+    # update will replace columns and index values that add rows or affect
+    # non-matching columns. It also requires an index, so we set and reset the
+    # index as necessary. Also, it only works in-place, so we can't chain.
+    plants_entity.update(cems_df, overwrite=True)
+    return plants_entity.append(cems_unmatched).reset_index()
+
+
 def _harvesting(entity,
                 eia_transformed_dfs,
                 entities_dfs,
                 debug=False,
                 verbose=True):
-    """Compiling plant entities."""
+    """Compiling entities."""
     # we know these columns must be in the dfs
     entity_id = pc.entities[entity][0]
     base_cols = pc.entities[entity][0] + ['report_date']
@@ -184,6 +252,11 @@ def _harvesting(entity,
                 print('       Percent: {:.3}'.format(percent,),
                       '   Wrongos: {:.5}'.format(wrongos),
                       '   Total: {}   '.format(total), col)
+
+    if entity is "plants":
+        entity_df = _add_additional_epacems_plants(entity_df)
+        entity_df = _add_timezone(entity_df)
+
     eia_transformed_dfs['{}_annual_eia'.format(entity)] = annual_df
     entities_dfs['{}_entity_eia'.format(entity)] = entity_df
 
