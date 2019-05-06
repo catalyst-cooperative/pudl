@@ -1,9 +1,7 @@
 """Database models for PUDL tables for ."""
 
-from sqlalchemy import Column, ForeignKey, Integer, Float, String, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, Float, String, Boolean, Date
 from sqlalchemy.ext.declarative import declarative_base
-#import pudl
-#import pudl.models.glue
 
 PUDLBase = declarative_base()
 
@@ -31,6 +29,15 @@ class UtilityEntityEIA(PUDLBase):
     utility_id_eia = Column(Integer, primary_key=True, nullable=False)
     # TODO: Add static utility info
 
+    utility_name = Column(String)  # FK
+    street_address = Column(String)
+    city = Column(String)
+    state = Column(String,  # ENUM
+                   # pudl.models.glue.us_states_canada_prov_terr,  # ENUM
+                   comment="Two letter US state and territory abbreviations.")
+    zip_code = Column(String)
+    entity_type = Column(String)
+
 
 class PlantEntityEIA(PUDLBase):
     """
@@ -41,7 +48,6 @@ class PlantEntityEIA(PUDLBase):
 
     __tablename__ = 'plants_entity_eia'
     plant_id_eia = Column(Integer, primary_key=True, nullable=False)
-    # TODO: Add static plant info
     plant_name = Column(String)
     balancing_authority_code = Column(String)
     balancing_authority_name = Column(String)
@@ -81,6 +87,26 @@ class GeneratorEntityEIA(PUDLBase):
                           primary_key=True, nullable=False)
     generator_id = Column(String, primary_key=True, nullable=False)
     # TODO: Add static plant info
+    # ForeignKey('prime_movers_eia923.abbr'),
+    prime_mover_code = Column(String)
+    duct_burners = Column(Boolean)
+    operating_date = Column(Date)
+    topping_bottoming_code = Column(String)  # ENUM
+    solid_fuel_gasification = Column(Boolean)
+    pulverized_coal_tech = Column(Boolean)
+    fluidized_bed_tech = Column(Boolean)
+    subcritical_tech = Column(Boolean)
+    supercritical_tech = Column(Boolean)
+    ultrasupercritical_tech = Column(Boolean)
+    stoker_tech = Column(Boolean)
+    other_combustion_tech = Column(Boolean)
+    heat_bypass_recovery = Column(Boolean)
+    rto_iso_lmp_node_id = Column(String)
+    rto_iso_location_wholesale_reporting_id = Column(String)
+    associated_combined_heat_power = Column(Boolean)
+    original_planned_operating_date = Column(Date)
+    operating_switch = Column(String)
+    previously_canceled = Column(Boolean)
 
 
 class BoilerEntityEIA(PUDLBase):
@@ -96,3 +122,4 @@ class BoilerEntityEIA(PUDLBase):
                           primary_key=True, nullable=False)
     boiler_id = Column(String, primary_key=True, nullable=False)
     # TODO: Add static boiler info (if necessary?)
+    prime_mover_code = Column(String)

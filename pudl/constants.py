@@ -1468,17 +1468,99 @@ transport_modes_eia923 = {
 
 # we need to include all of the columns which we want to keep for either the
 # entity or annual tables.
-static_plant_cols = ['balancing_authority_code', 'balancing_authority_name',
-                     'city', 'county', 'ferc_cogen_status',
-                     'ferc_exempt_wholesale_generator',
-                     'ferc_small_power_producer',
-                     'grid_voltage_2_kv', 'grid_voltage_3_kv',
-                     'grid_voltage_kv', 'iso_rto_code', 'iso_rto_name',
-                     'latitude', 'longitude', 'nerc_region',
-                     'plant_name', 'primary_purpose_naics_id',
-                     'sector_id', 'sector_name', 'state',
-                     'street_address', 'zip_code']
-
+entities = {
+    'plants': [  # base cols
+        ['plant_id_eia'],
+        # static cols
+        ['balancing_authority_code', 'balancing_authority_name',
+         'city', 'county', 'ferc_cogen_status',
+         'ferc_exempt_wholesale_generator', 'ferc_small_power_producer',
+         'grid_voltage_2_kv', 'grid_voltage_3_kv', 'grid_voltage_kv',
+         'iso_rto_code', 'iso_rto_name', 'latitude', 'longitude',
+         'nerc_region', 'plant_name', 'primary_purpose_naics_id', 'sector_id',
+         'sector_name', 'state', 'street_address', 'zip_code'],
+        # annual cols
+        ['ash_impoundment', 'ash_impoundment_lined', 'ash_impoundment_status',
+         'energy_storage', 'ferc_cogen_docket_no', 'water_source',
+         'ferc_exempt_wholesale_generator_docket_no',
+         'ferc_small_power_producer_docket_no',
+         'liquefied_natural_gas_storage',
+         'natural_gas_local_distribution_company', 'natural_gas_storage',
+         'natural_gas_pipeline_name_1', 'natural_gas_pipeline_name_2',
+         'natural_gas_pipeline_name_3', 'net_metering', 'pipeline_notes',
+         'regulatory_status_code', 'transmission_distribution_owner_id',
+         'transmission_distribution_owner_name',
+         'transmission_distribution_owner_state', 'utility_id_eia'],
+        # need type fixing
+        {'plant_id_eia': 'int64',
+         'grid_voltage_2_kv': 'float64',
+         'grid_voltage_3_kv': 'float64',
+         'grid_voltage_kv': 'float64',
+         'longitude': 'float64',
+         'latitude': 'float64',
+         'primary_purpose_naics_id': 'float64',
+         'sector_id': 'float64',
+         'zip_code': 'float64',
+         'utility_id_eia': 'float64'}, ],
+    'generators': [  # base cols
+        ['plant_id_eia', 'generator_id'],
+        # static cols
+        ['prime_mover_code', 'duct_burners', 'operating_date',
+         'topping_bottoming_code', 'solid_fuel_gasification',
+         'pulverized_coal_tech', 'fluidized_bed_tech', 'subcritical_tech',
+         'supercritical_tech', 'ultrasupercritical_tech', 'stoker_tech',
+         'other_combustion_tech', 'heat_bypass_recovery',
+         'rto_iso_lmp_node_id', 'rto_iso_location_wholesale_reporting_id',
+         'associated_combined_heat_power', 'original_planned_operating_date',
+         'operating_switch', 'previously_canceled'],
+        # annual cols
+        ['capacity_mw', 'fuel_type_code_pudl', 'multiple_fuels',
+         'ownership_code', 'deliver_power_transgrid', 'summer_capacity_mw',
+         'winter_capacity_mw', 'minimum_load_mw', 'technology_description',
+         'energy_source_code_1', 'energy_source_code_2',
+         'energy_source_code_3', 'energy_source_code_4',
+         'energy_source_code_5', 'energy_source_code_6',
+         'startup_source_code_1', 'startup_source_code_2',
+         'startup_source_code_3', 'startup_source_code_4',
+         'time_cold_shutdown_full_load_code', 'syncronized_transmission_grid',
+         'turbines_num', 'operational_status_code', 'planned_modifications',
+         'planned_net_summer_capacity_uprate_mw',
+         'planned_net_winter_capacity_uprate_mw', 'planned_new_capacity_mw',
+         'planned_uprate_date', 'planned_net_summer_capacity_derate_mw',
+         'planned_net_winter_capacity_derate_mw', 'planned_derate_date',
+         'planned_new_prime_mover_code', 'planned_energy_source_code_1',
+         'planned_repower_date', 'other_planned_modifications',
+         'other_modifications_date', 'planned_retirement_date',
+         'carbon_capture', 'cofire_fuels', 'switch_oil_gas',
+         'turbines_inverters_hydrokinetics', 'nameplate_power_factor',
+         'uprate_derate_during_year', 'uprate_derate_completed_date',
+         'current_planned_operating_date', 'summer_estimated_capability_mw',
+         'winter_estimated_capability_mw', 'retirement_date'],
+        # need type fixing
+        {'plant_id_eia': 'int64',
+         'generator_id': 'str'}, ],
+    # utilities must come after plants. plant location needs to be
+    # removed before the utility locations are compiled
+    'utilities': [  # base cols
+        ['utility_id_eia'],
+        # static cols
+        ['utility_name', 'street_address', 'city', 'state', 'zip_code',
+         'entity_type'],
+        # annual cols
+        ['plants_reported_owner', 'plants_reported_operator',
+         'plants_reported_asset_manager', 'plants_reported_other_relationship',
+         ],
+        # need type fixing
+        {'utility_id_eia': 'int64', }, ],
+    'boilers': [  # base cols
+        ['plant_id_eia', 'boiler_id'],
+        # static cols
+        ['prime_mover_code'],
+        # annual cols
+        [],
+        # need type fixing
+        {'plant_id_eia': 'int64',
+         'boiler_id': 'str', }, ]}
 
 # EPA CEMS constants #####
 
@@ -1634,16 +1716,18 @@ base_data_urls = {
 
 
 need_fix_inting = {
-    'generators_eia860': ('turbines_num',),
-    'plants_eia860': ('transmission_distribution_owner_id',),
+    # 'generators_eia860': ('turbines_num',),
     'coalmine_eia923': ('mine_id_msha', 'county_id_fips'),
     'fuel_receipts_costs_eia923': ('mine_id_pudl',),
     'generation_fuel_eia923': ('nuclear_unit_id',),
     'plants_steam_ferc1': ('construction_year', 'installation_year'),
     'plants_small_ferc1': ('construction_year', 'ferc_license_id'),
-    'plants_hydro_ferc1': ('construction_year', 'installation_year'),
-    'plants_pumped_storage_ferc1': ('construction_year', 'installation_year'),
-    'hourly_emissions_epacems': ('facility_id', 'unit_id_epa'),
+    'plants_hydro_ferc1': ('construction_year', 'installation_year',),
+    'plants_pumped_storage_ferc1': ('construction_year', 'installation_year',),
+    'hourly_emissions_epacems': ('facility_id', 'unit_id_epa',),
+    'plants_eia860': ('utility_id_eia',),
+    'generators_eia860': ('turbines_num',),
+    'plants_entity_eia': ('zip_code',),
 }
 
 contributors = {

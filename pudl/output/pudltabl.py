@@ -108,7 +108,7 @@ class PudlTabl(object):
             'mcoe': None,
         }
 
-    def pu_eia(self, update=False):
+    def pu_eia860(self, update=False):
         """Pull a dataframe of EIA plant-utility associations."""
         if update or self._dfs['pu_eia'] is None:
             self._dfs['pu_eia'] = pudl.output.eia860.plants_utils_eia860(

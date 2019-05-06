@@ -26,7 +26,6 @@ import pudl.models.glue
 import pudl.models.eia923
 import pudl.models.eia860
 import pudl.models.ferc1
-import pudl.models.eia
 import pudl.models.epacems
 
 import pudl.constants as pc
@@ -530,10 +529,10 @@ def _ETL_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables,
     eia_transformed_dfs.update(eia923_transformed_dfs.copy())
 
     entities_dfs, eia_transformed_dfs = \
-        pudl.transform.eia.transform(eia_transformed_dfs,
-                                     eia923_years=eia923_years,
-                                     eia860_years=eia860_years,
-                                     verbose=verbose)
+        pudl.transform.eia.main(eia_transformed_dfs,
+                                eia923_years=eia923_years,
+                                eia860_years=eia860_years,
+                                verbose=verbose)
     # Compile transformed dfs for loading...
     transformed_dfs = {"Entities": entities_dfs, "EIA": eia_transformed_dfs}
     # Load step

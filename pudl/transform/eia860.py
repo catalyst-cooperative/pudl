@@ -162,8 +162,16 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         pudl.helpers.cleanstrings(gens_df['energy_source_code_1'],
                                   pc.fuel_type_eia860_simple_map)
 
+    # Transform columns to a canonical form to reduce duplicates:
+    # No leading or trailing whitespace:
+    gens_df = \
+        pudl.helpers.strip_lower(gens_df,
+                                 columns=['rto_iso_lmp_node_id',
+                                          'rto_iso_location_wholesale_reporting_id'])
+
     # Ensure plant IDs are integers.
     gens_df['plant_id_eia'] = gens_df['plant_id_eia'].astype(int)
+    gens_df['generator_id'] = gens_df['generator_id'].astype(str)
     gens_df['utility_id_eia'] = gens_df['utility_id_eia'].astype(int)
 
     gens_df = pudl.helpers.convert_to_date(gens_df)
@@ -205,12 +213,12 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     # have "N" values. Replacing these values with "N" will make for uniform
     # values that can be converted to Boolean True and False pairs.
 
-    p_df.ash_impoundment_lined = \
-        p_df.ash_impoundment_lined.replace(to_replace='X', value='N')
-    p_df.natural_gas_storage = \
-        p_df.natural_gas_storage.replace(to_replace='X', value='N')
-    p_df.liquefied_natural_gas_storage = \
-        p_df.liquefied_natural_gas_storage.replace(to_replace='X', value='N')
+    p_df.ash_impoundment_lined = p_df.ash_impoundment_lined.replace(
+        to_replace='X', value='N')
+    p_df.natural_gas_storage = p_df.natural_gas_storage.replace(
+        to_replace='X', value='N')
+    p_df.liquefied_natural_gas_storage = p_df.liquefied_natural_gas_storage.replace(
+        to_replace='X', value='N')
 
     boolean_columns_to_fix = [
         'ferc_cogen_status',
@@ -231,8 +239,8 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     # Ensure plant & operator IDs are integers.
     p_df['plant_id_eia'] = p_df['plant_id_eia'].astype(int)
     p_df['utility_id_eia'] = p_df['utility_id_eia'].astype(int)
-    p_df['primary_purpose_naics_id'] = \
-        p_df['primary_purpose_naics_id'].astype(int)
+    p_df['primary_purpose_naics_id'] = p_df['primary_purpose_naics_id'].astype(
+        int)
 
     p_df = pudl.helpers.convert_to_date(p_df)
 
