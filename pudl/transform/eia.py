@@ -130,7 +130,26 @@ def _harvesting(entity,
                 entities_dfs,
                 debug=False,
                 verbose=True):
-    """Compiling entities."""
+    """
+    Compiling entities.
+
+    For each entity (plants, generators, boilers, utilties), this function
+    goes and finds all the harvestable columns from any table that they show up
+    in. It then determines how consistent the records are and keeps the values
+    that are mostly consistent. Then we compile those consistent records intro
+    one normalized table.
+
+    Args:
+        entity (str) : plants, generators, boilers, utilties
+        eia_transformed_dfs (dict) : dictionary of tbl names (keys) and
+            transformed dfs (values)
+        debug (bool)
+        verbose (bool)
+    Returns:
+        eia_transformed_dfs (dict)
+        entity_dfs (dict): dictionary of entity table names (keys) and entiy
+            dfs (values)
+    """
     # we know these columns must be in the dfs
     entity_id = pc.entities[entity][0]
     base_cols = pc.entities[entity][0] + ['report_date']
@@ -143,8 +162,10 @@ def _harvesting(entity,
     dfs = []
     # for each df in the dtc of transformed dfs
     for table_name, transformed_df in eia_transformed_dfs.items():
+        # inside of main() we are going to be adding items into
+        # eia_transformed_dfs with the name 'annaul'. We don't want to harvert
+        # from our newly harvested tables.
         if 'annual' not in table_name:
-
             # if the if contains the desired columns the grab those columns
             if set(base_cols).issubset(transformed_df.columns):
                 if verbose:
@@ -200,6 +221,8 @@ def _harvesting(entity,
     annual_df = annual_id_df.copy()
     special_case_cols = {'latitude': [_lat_long, 1],
                          'longitude': [_lat_long, 1]}
+    consistency = pd.DataFrame(columns=['column', 'consistent_ratio',
+                                        'wrongos', 'total'])
 
     # determine how many times each of the columns occur
     for col in (static_cols + annual_cols):
@@ -240,18 +263,44 @@ def _harvesting(entity,
                 dirty_df, clean_df, entity_id_df, entity_id, col,
                 cols_to_consit, special_case_cols[col][1])
 
-        if debug:
-            # print out stuff about the column...
-            total = len(col_df.drop_duplicates(subset=cols_to_consit))
-            if total == 0:
+        # this next section is used to print and test whether the harvested
+        # records are consistent enough
+        total = len(col_df.drop_duplicates(subset=cols_to_consit))
+        # if the total is 0, the ratio will error, so assign null values.
+        if total == 0:
+            ratio = np.NaN
+            wrongos = np.NaN
+            if debug:
                 print('       Zero records for {}'.format(col))
-            if total > 0:
-                percent = (len(col_df[(col_df['{}_consistent'.format(col)] == True)]
-                               .drop_duplicates(subset=cols_to_consit)) / total)
-                wrongos = (1 - percent) * total
-                print('       Percent: {:.3}'.format(percent,),
+        if total > 0:
+            ratio = (len(col_df[(col_df['{}_consistent'.format(col)] == True)]
+                         .drop_duplicates(subset=cols_to_consit)) / total)
+            wrongos = (1 - ratio) * total
+            if debug:
+                print('       Ratio: {:.3}'.format(ratio,),
                       '   Wrongos: {:.5}'.format(wrongos),
                       '   Total: {}   '.format(total), col)
+            # the following assertions are here to ensure that the harvesting
+            # process is producing enough consistent records. When every year
+            # is being imported the lowest consistency ratio should be .97,
+            # with the exception of the latitude and longitude, which has a
+            # ratio of ~.94. The ratios are better with less years imported.
+            if col is "latitude" or "longitude":
+                if ratio < .92:
+                    raise AssertionError(
+                        'Harvesting of {} is too inconsistent.'.format(col))
+            elif ratio < .95:
+                raise AssertionError(
+                    'Harvesting of {} is too inconsistent.'.format(col))
+        # add to a small df to be used in order to print out the ratio of
+        # consistent records
+        consistency = consistency.append({'column': col,
+                                          'consistent_ratio': ratio,
+                                          'wrongos': wrongos,
+                                          'total': total}, ignore_index=True)
+    if verbose:
+        print('    average consistency of {0} is {1}'.format(
+            entity, consistency['consistent_ratio'].mean().round(2)))
 
     if entity is "plants":
         entity_df = _add_additional_epacems_plants(entity_df)
@@ -616,7 +665,8 @@ def main(eia_transformed_dfs,
     # create the empty entities df to fill up
     entities_dfs = {}
 
-    # for each of the entities, harvest the static and annual columns
+    # for each of the entities, harvest the static and annual columns.
+    # the order of the entities matter! the
     for entity in pc.entities.keys():
         print('harvesting {}'.format(entity))
         _harvesting(entity, eia_transformed_dfs, entities_dfs,
@@ -628,6 +678,7 @@ def main(eia_transformed_dfs,
                            debug=debug,
                            verbose=verbose)
 
+    # get rid of the original annual dfs in the transformed dict
     remove = ['generators', 'plants', 'utilities']
     for entity in remove:
         eia_transformed_dfs['{}_eia860'.format(entity)] = \

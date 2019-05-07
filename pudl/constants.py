@@ -1467,7 +1467,8 @@ transport_modes_eia923 = {
 }
 
 # we need to include all of the columns which we want to keep for either the
-# entity or annual tables.
+# entity or annual tables. The order here matters. We need to harvest the plant
+# location before harvesting the location of the utilites for example.
 entities = {
     'plants': [  # base cols
         ['plant_id_eia'],
