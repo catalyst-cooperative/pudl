@@ -99,6 +99,7 @@ class PudlTabl(object):
 
             'plants_steam_ferc1': None,
             'fuel_ferc1': None,
+            'fbp_ferc1': None,
 
             'bga': None,
             'hr_by_unit': None,
@@ -225,6 +226,13 @@ class PudlTabl(object):
             self._dfs['fuel_ferc1'] = pudl.output.ferc1.fuel_ferc1(
                 testing=self.testing)
         return self._dfs['fuel_ferc1']
+
+    def fbp_ferc1(self, update=False):
+        """Summarize FERC Form 1 fuel usage by plant."""
+        if update or self._dfs['fbp_ferc1'] is None:
+            self._dfs['fbp_ferc1'] = pudl.output.ferc1.fuel_by_plant_ferc1(
+                testing=self.testing)
+        return self._dfs['fbp_ferc1']
 
     def bga(self, update=False):
         """Pull the more complete EIA/PUDL boiler-generator associations."""
