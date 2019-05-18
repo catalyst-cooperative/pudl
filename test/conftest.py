@@ -1,8 +1,16 @@
 """PyTest configuration module. Defines useful fixtures, command line args."""
 
 import pytest
+import pandas as pd
 import pudl
+from pudl.output.pudltabl import PudlTabl
 from pudl import constants as pc
+
+
+START_DATE_EIA = pd.to_datetime(f"{min(pc.working_years['eia923'])}-01-01")
+END_DATE_EIA = pd.to_datetime(f"{max(pc.working_years['eia923'])}-12-31")
+START_DATE_FERC1 = pd.to_datetime(f"{min(pc.working_years['ferc1'])}-01-01")
+END_DATE_FERC1 = pd.to_datetime(f"{max(pc.working_years['ferc1'])}-12-31")
 
 
 def pytest_addoption(parser):
@@ -23,6 +31,39 @@ def live_ferc_db(request):
 def live_pudl_db(request):
     """Fixture that tells use which PUDL DB to use (live vs. testing)."""
     return request.config.getoption("--live_pudl_db")
+
+
+@pytest.fixture(
+    scope='session',
+    params=[
+        PudlTabl(start_date=START_DATE_FERC1,
+                 end_date=END_DATE_FERC1,
+                 freq='AS', testing=False),
+    ],
+    ids=['ferc1_annual']
+)
+def pudl_out_ferc1(live_pudl_db, request):
+    if not live_pudl_db:
+        raise AssertionError("Output tests only work with a live PUDL DB.")
+    return request.param
+
+
+@pytest.fixture(
+    scope='session',
+    params=[
+        PudlTabl(start_date=START_DATE_EIA,
+                 end_date=END_DATE_EIA,
+                 freq='AS', testing=False),
+        PudlTabl(start_date=START_DATE_EIA,
+                 end_date=END_DATE_EIA,
+                 freq='MS', testing=False)
+    ],
+    ids=['eia_annual', 'eia_monthly']
+)
+def pudl_out_eia(live_pudl_db, request):
+    if not live_pudl_db:
+        raise AssertionError("Output tests only work with a live PUDL DB.")
+    return request.param
 
 
 @pytest.fixture(scope='session')
