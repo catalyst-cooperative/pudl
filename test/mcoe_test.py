@@ -13,42 +13,31 @@ non-fuel production costs have yet to be integrated.
 import pytest
 import pandas as pd
 import pudl.analysis.mcoe as mcoe
-from pudl.output.pudltabl import PudlTabl
 from pudl import constants as pc
-
-START_DATE = pd.to_datetime(str(min(pc.working_years['eia923'])))
-END_DATE = pd.to_datetime('{}-12-31'.format(max(pc.working_years['eia923'])))
-
-
-@pytest.fixture(scope='module', params=['MS', 'AS'])
-def output_byfreq(live_pudl_db, request):
-    pudl_out = PudlTabl(
-        freq=request.param, testing=(not live_pudl_db),
-        start_date=START_DATE, end_date=END_DATE
-    )
-    return pudl_out
 
 
 @pytest.mark.eia860
 @pytest.mark.eia923
 @pytest.mark.post_etl
 @pytest.mark.mcoe
-def test_capacity_factor(output_byfreq):
+def test_capacity_factor(pudl_out_eia):
     """Test the capacity factor calculation."""
-    cf = mcoe.capacity_factor(output_byfreq)
-    print("capacity_factor: {} records found".format(len(cf)))
+    print("\nCalculating generator capacity factors...")
+    cf = pudl_out_eia.capacity_factor()
+    print(f"    capacity_factor: {len(cf)} records")
 
 
 @pytest.mark.eia860
 @pytest.mark.mcoe
 @pytest.mark.post_etl
-def test_bga(output_byfreq):
+def test_bga(pudl_out_eia):
     """Test the boiler generator associations."""
-    bga = output_byfreq.bga()
-    gens_simple = output_byfreq.gens_eia860()[['report_date',
-                                               'plant_id_eia',
-                                               'generator_id',
-                                               'fuel_type_code_pudl']]
+    print("\nInferring complete boiler-generator associations...")
+    bga = pudl_out_eia.bga()
+    gens_simple = pudl_out_eia.gens_eia860()[['report_date',
+                                              'plant_id_eia',
+                                              'generator_id',
+                                              'fuel_type_code_pudl']]
     bga_gens = bga[['report_date', 'plant_id_eia',
                     'unit_id_pudl', 'generator_id']].drop_duplicates()
 
@@ -67,42 +56,43 @@ def test_bga(output_byfreq):
                             on=['report_date', 'plant_id_eia', 'unit_id_pudl'])
     num_multi_fuel_units = len(units_simple[units_simple.fuel_type_count > 1])
     multi_fuel_unit_fraction = num_multi_fuel_units / len(units_simple)
-    print('''NOTE: {:.0%} of generation units contain generators with\
-differing primary fuels.'''.format(multi_fuel_unit_fraction))
+    print("""    NOTE: {:.0%} of generation units contain generators with
+    differing primary fuels.""".format(multi_fuel_unit_fraction))
 
 
 @pytest.mark.eia860
 @pytest.mark.eia923
 @pytest.mark.post_etl
 @pytest.mark.mcoe
-def test_heat_rate(output_byfreq):
+def test_heat_rate(pudl_out_eia):
     """Run heat rate calculation."""
-    print("Calculating heat rates by generation unit...")
-    hr_by_unit = mcoe.heat_rate_by_unit(output_byfreq)
-    print("    heat_rate: {} unit records found".format(len(hr_by_unit)))
-    assert single_records(
-        hr_by_unit,
-        key_cols=['report_date', 'plant_id_eia', 'unit_id_pudl']),\
-        "Found non-unique unit heat rates!"
+    print("\nCalculating heat rates by generation unit...")
+    hr_by_unit = pudl_out_eia.hr_by_unit()
+    print(f"    heat_rate_by_unit: {len(hr_by_unit)} records found")
 
-    print("Re-calculating heat rates by individual generator...")
-    hr_by_gen = mcoe.heat_rate_by_gen(output_byfreq)
-    print("    heat_rate: {} generator records found".format(len(hr_by_gen)))
-    assert single_records(hr_by_gen),\
-        "Found non-unique generator heat rates!"
+    key_cols = ['report_date', 'plant_id_eia', 'unit_id_pudl']
+    if not single_records(hr_by_unit, key_cols=key_cols):
+        raise AssertionError("Found non-unique unit heat rates!")
+
+    print("Re-calculating heat rates for individual generators...")
+    hr_by_gen = pudl_out_eia.hr_by_gen()
+    print(f"    heat_rate_by_gen: {len(hr_by_gen)} records found")
+
+    if not single_records(hr_by_gen):
+        raise AssertionError("Found non-unique generator heat rates!")
 
 
 @pytest.mark.eia860
 @pytest.mark.eia923
 @pytest.mark.post_etl
 @pytest.mark.mcoe
-def test_fuel_cost(output_byfreq):
+def test_fuel_cost(pudl_out_eia):
     """Run fuel cost calculation."""
-    print("Calculating fuel costs by individual generator...")
-    fc = output_byfreq.fuel_cost()
+    print("\nCalculating fuel costs by individual generator...")
+    fc = pudl_out_eia.fuel_cost()
     print("    fuel_cost: {} records found".format(len(fc)))
-    assert single_records(fc),\
-        "Found non-unique generator fuel cost records!"
+    if not single_records(fc):
+        raise AssertionError("Found non-unique generator fuel cost records!")
 
 
 def single_records(df,

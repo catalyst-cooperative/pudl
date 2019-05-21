@@ -99,8 +99,8 @@ def heat_rate_by_gen(pudl_out, verbose=False):
     # Associate those heat rates with individual generators. This also means
     # losing the net generation and fuel consumption information for now.
     hr_by_gen = pudl.helpers.merge_on_date_year(
-        pudl_out.heat_rate_by_unit()[['report_date', 'plant_id_eia',
-                                      'unit_id_pudl', 'heat_rate_mmbtu_mwh']],
+        pudl_out.hr_by_unit()[['report_date', 'plant_id_eia',
+                               'unit_id_pudl', 'heat_rate_mmbtu_mwh']],
         bga_gens, on=['plant_id_eia', 'unit_id_pudl']
     )
     hr_by_gen = hr_by_gen.drop('unit_id_pudl', axis=1)
@@ -146,12 +146,12 @@ def fuel_cost(pudl_out, verbose=False):
     # Split up the plants on the basis of how many different primary energy
     # sources the component generators have:
     gen_w_ft = pd.merge(pudl_out.gen_eia923(),
-                        pudl_out.heat_rate_by_gen()[['plant_id_eia',
-                                                     'report_date',
-                                                     'generator_id',
-                                                     'fuel_type_code_pudl',
-                                                     'fuel_type_count',
-                                                     'heat_rate_mmbtu_mwh']],
+                        pudl_out.hr_by_gen()[['plant_id_eia',
+                                              'report_date',
+                                              'generator_id',
+                                              'fuel_type_code_pudl',
+                                              'fuel_type_count',
+                                              'heat_rate_mmbtu_mwh']],
                         how='inner',
                         on=['plant_id_eia', 'report_date', 'generator_id'])
 
