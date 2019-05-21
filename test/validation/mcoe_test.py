@@ -10,10 +10,13 @@ per plant basis to individual generators.
 For now, these calculations are only using the EIA fuel cost data. FERC Form 1
 non-fuel production costs have yet to be integrated.
 """
+import logging
 import pytest
 import pandas as pd
 import pudl.analysis.mcoe as mcoe
 from pudl import constants as pc
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.mark.eia860
@@ -22,9 +25,9 @@ from pudl import constants as pc
 @pytest.mark.mcoe
 def test_capacity_factor(pudl_out_eia):
     """Test the capacity factor calculation."""
-    print("\nCalculating generator capacity factors...")
+    logger.info("Calculating generator capacity factors...")
     cf = pudl_out_eia.capacity_factor()
-    print(f"    capacity_factor: {len(cf)} records")
+    logger.info(f"Successfully pulled {len(cf)} records")
 
 
 @pytest.mark.eia860
@@ -32,7 +35,7 @@ def test_capacity_factor(pudl_out_eia):
 @pytest.mark.post_etl
 def test_bga(pudl_out_eia):
     """Test the boiler generator associations."""
-    print("\nInferring complete boiler-generator associations...")
+    logger.info("Inferring complete boiler-generator associations...")
     bga = pudl_out_eia.bga()
     gens_simple = pudl_out_eia.gens_eia860()[['report_date',
                                               'plant_id_eia',
@@ -56,27 +59,34 @@ def test_bga(pudl_out_eia):
                             on=['report_date', 'plant_id_eia', 'unit_id_pudl'])
     num_multi_fuel_units = len(units_simple[units_simple.fuel_type_count > 1])
     multi_fuel_unit_fraction = num_multi_fuel_units / len(units_simple)
-    print("""    NOTE: {:.0%} of generation units contain generators with
-    differing primary fuels.""".format(multi_fuel_unit_fraction))
+    logger.warning(
+        f"{multi_fuel_unit_fraction:.0%} of generation units contain generators with differing primary fuels.")
 
 
 @pytest.mark.eia860
 @pytest.mark.eia923
 @pytest.mark.post_etl
 @pytest.mark.mcoe
-def test_heat_rate(pudl_out_eia):
-    """Run heat rate calculation."""
-    print("\nCalculating heat rates by generation unit...")
+def test_hr_by_unit(pudl_out_eia):
+    """Calculate heat rates on a per generation unit basis."""
+    logger.info("Calculating heat rates by generation unit...")
     hr_by_unit = pudl_out_eia.hr_by_unit()
-    print(f"    heat_rate_by_unit: {len(hr_by_unit)} records found")
+    logger.info(f"{len(hr_by_unit)} generation unit heat rates calculated.")
 
     key_cols = ['report_date', 'plant_id_eia', 'unit_id_pudl']
     if not single_records(hr_by_unit, key_cols=key_cols):
         raise AssertionError("Found non-unique unit heat rates!")
 
-    print("Re-calculating heat rates for individual generators...")
+
+@pytest.mark.eia860
+@pytest.mark.eia923
+@pytest.mark.post_etl
+@pytest.mark.mcoe
+def test_hr_by_gen(pudl_out_eia):
+    """Calculate heat reates on a per-generator basis."""
+    logger.info("Calculating heat rates for individual generators...")
     hr_by_gen = pudl_out_eia.hr_by_gen()
-    print(f"    heat_rate_by_gen: {len(hr_by_gen)} records found")
+    logger.info(f"{len(hr_by_gen)} generator heat rates calculated.")
 
     if not single_records(hr_by_gen):
         raise AssertionError("Found non-unique generator heat rates!")
@@ -87,10 +97,10 @@ def test_heat_rate(pudl_out_eia):
 @pytest.mark.post_etl
 @pytest.mark.mcoe
 def test_fuel_cost(pudl_out_eia):
-    """Run fuel cost calculation."""
-    print("\nCalculating fuel costs by individual generator...")
+    """Calculate fuel costs on a per-generator basis, and sanity check."""
+    logger.info("Calculating fuel costs by individual generator...")
     fc = pudl_out_eia.fuel_cost()
-    print("    fuel_cost: {} records found".format(len(fc)))
+    logger.info(f"{len(fc)} per-generator fuel costs calculated.")
     if not single_records(fc):
         raise AssertionError("Found non-unique generator fuel cost records!")
 
