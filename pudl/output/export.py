@@ -214,9 +214,14 @@ def get_tabular_data_resource(tablename, pkg_dir, testing=False):
     descriptor["licenses"] = [pudl.constants.licenses['cc-by-4.0'], ]
 
     data_sources = \
-        pudl.helpers.data_sources_from_tables([table.name, ], table.metadata)
-    descriptor["sources"] = \
-        [pudl.constants.data_sources[src] for src in data_sources]
+        pudl.helpers.data_sources_from_tables([table.name, ])
+    # descriptor["sources"] = \
+    #    [pudl.constants.data_sources[src] for src in data_sources]
+    descriptor["sources"] = []
+    for src in data_sources:
+        if src in pudl.constants.data_sources:
+            descriptor["sources"].append({"title": src,
+                                          "path": "idfk"})
 
     resource = datapackage.Resource(descriptor)
     if not resource.valid:
@@ -312,6 +317,11 @@ def data_package(pkg_tables, pkg_skeleton,
 
     data_sources = pudl.helpers.data_sources_from_tables(
         all_tables, testing=testing)
+    sources = []
+    for src in data_sources:
+        if src in pudl.constants.data_sources:
+            sources.append({"title": src,
+                            "path": "idfk"})
 
     contributors = set()
     for src in data_sources:
@@ -328,7 +338,7 @@ def data_package(pkg_tables, pkg_skeleton,
         "created": (datetime.datetime.utcnow().
                     replace(microsecond=0).isoformat() + 'Z'),
         "contributors": [pudl.constants.contributors[c] for c in contributors],
-        "sources": [pudl.constants.data_sources[src] for src in data_sources],
+        "sources": sources,
         "licenses": [pudl.constants.licenses["cc-by-4.0"]],
         "resources": resources,
     }
