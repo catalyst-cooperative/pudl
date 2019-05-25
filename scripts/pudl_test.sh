@@ -21,5 +21,4 @@ pytest --disable-warnings --live_pudl_db test/validation/
 # The --nbval-lax flag tells pytest only to check for a lack of errors in the
 # notebook cells, rather than exact output matching -- unless a cell has been
 # specifically marked with # NBVAL_CHECK_OUTPUT
-pytest --disable-warnings --nbval-lax test/notebooks/
-pytest --disable-warnings --nbval-lax docs/notebooks/
+pytest --disable-warnings --nbval-lax test/notebooks docs/notebooks
