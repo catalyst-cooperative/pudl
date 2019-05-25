@@ -23,7 +23,7 @@ from pudl.settings import SETTINGS
 import pudl.constants as pc
 
 # Create a logger to output any messages we might have...
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(pudl.__name__)
 logger.setLevel(logging.INFO)
 handler = logging.StreamHandler()
 formatter = logging.Formatter('%(message)s')
@@ -122,7 +122,8 @@ def main():
 
             if src == 'ferc1':
                 files_to_move = [f"{pc.ferc1_tbl2dbf[f]}.DBF" for f in
-                                 pc.ferc1_default_tables] + ['F1_PUB.DBC']
+                                 pc.ferc1_default_tables]
+                files_to_move = files_to_move + ['F1_PUB.DBC', 'F1_32.FPT']
             elif src == 'epacems':
                 files_to_move = [
                     pudl.datastore.path('epacems', year=yr, state=st, month=mo)
