@@ -310,7 +310,7 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
             # tables have some years with import errors that we have not yet
             # taken the time to debug.
             if year not in pc.ferc1_working_table_years[table] and not force_tables:
-                logger.debug(
+                logger.info(
                     f"    Skipping {table} due to known errors in {year}.")
                 continue
 

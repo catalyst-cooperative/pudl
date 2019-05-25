@@ -294,7 +294,7 @@ def _harvesting(entity,
                                           'consistent_ratio': ratio,
                                           'wrongos': wrongos,
                                           'total': total}, ignore_index=True)
-    mcs = consistency['consistent_ratio'].mean().round(2)
+    mcs = consistency['consistent_ratio'].mean().round(4)
     logger.info(
         f"Average consistency of static {entity} values is {mcs:.2%}")
 
