@@ -1,4 +1,5 @@
 """A module to clone the FERC Form 1 Database from FoxPro to Postgres."""
+import logging
 import os.path
 import string
 import re
@@ -9,6 +10,7 @@ import dbfread
 from pudl.settings import SETTINGS
 import pudl.constants as pc
 
+logger = logging.getLogger(__name__)
 # MetaData object will contain the ferc1 database schema.
 ferc1_meta = sa.MetaData()
 
@@ -152,8 +154,7 @@ def extract_dbc_tables(year, min_length=4, basedir=SETTINGS['ferc1_data_dir']):
 
 
 def define_db(refyear, ferc1_tables, ferc1_meta,
-              basedir=SETTINGS['ferc1_data_dir'],
-              verbose=True):
+              basedir=SETTINGS['ferc1_data_dir']):
     """
     Given a list of FERC Form 1 DBF files, create analogous database tables.
 
@@ -170,68 +171,72 @@ def define_db(refyear, ferc1_tables, ferc1_meta,
         ferc1_meta (SQLAlchemy MetaData): SQLAlchemy MetaData object
             to store the schema in.
     """
+    logger.info("Inferring structure of original FERC Form 1 FoxPro DB.")
     ferc1_tblmap = extract_dbc_tables(refyear)
-    # Translate the list of FERC Form 1 database tables that has
-    # been passed in into a list of DBF files prefixes:
-    dbfs = [pc.ferc1_tbl2dbf[table] for table in ferc1_tables]
 
-    if verbose:
-        print("Defining new FERC Form 1 DB based on {}...".format(refyear))
-
-    if verbose:
-        print("Clearing any existing FERC Form 1 database MetaData...")
+    logger.info("Clearing any existing FERC Form 1 database MetaData.")
     # This keeps us from having collisions when re-initializing the DB.
     ferc1_meta.clear()
 
-    for dbf in dbfs:
-        dbf_filename = os.path.join(datadir(refyear, basedir),
-                                    '{}.DBF'.format(dbf))
-        ferc1_dbf = dbfread.DBF(dbf_filename)
+    logger.info(f"Defining new FERC Form 1 DB based on {refyear}.")
+    for table in ferc1_tables:
+        if pc.ferc1_working_table_years[table]:
+            logger.info(f"    Defining cloned {table} table.")
+            # Translate the list of FERC Form 1 database tables that has
+            # been passed in into a list of DBF files prefixes:
+            dbf = pc.ferc1_tbl2dbf[table]
+            dbf_filename = os.path.join(datadir(refyear, basedir),
+                                        '{}.DBF'.format(dbf))
+            ferc1_dbf = dbfread.DBF(dbf_filename)
 
-        # And the corresponding SQLAlchemy Table object:
-        table_name = pc.ferc1_dbf2tbl[dbf]
-        ferc1_sql = sa.Table(table_name, ferc1_meta)
+            # And the corresponding SQLAlchemy Table object:
+            table_name = pc.ferc1_dbf2tbl[dbf]
+            ferc1_sql = sa.Table(table_name, ferc1_meta)
 
-        # _NullFlags isn't a "real" data field... remove it.
-        fields = [f for f in ferc1_dbf.fields if not re.match(
-            '_NullFlags', f.name)]
+            # _NullFlags isn't a "real" data field... remove it.
+            fields = [f for f in ferc1_dbf.fields if not re.match(
+                '_NullFlags', f.name)]
 
-        for field in fields:
-            col_name = ferc1_tblmap[pc.ferc1_dbf2tbl[dbf]][field.name]
-            col_type = pc.dbf_typemap[field.type]
+            for field in fields:
+                col_name = ferc1_tblmap[pc.ferc1_dbf2tbl[dbf]][field.name]
+                col_type = pc.dbf_typemap[field.type]
+                logger.debug(
+                    f"        defining {field.name} to {col_name} as sa.{col_type.__name__}")
 
-            # String/VarChar is the only type that really NEEDS a length
-            if col_type == sa.String:
-                col_type = col_type(length=field.length)
+                # String/VarChar is the only type that really NEEDS a length
+                if col_type == sa.String:
+                    col_type = col_type(length=field.length)
 
-            # This eliminates the "footnote" fields which all mirror database
-            # fields, but end with _f. We have not yet integrated the footnotes
-            # into the rest of the DB, and so why clutter it up?
-            if not re.match('(.*_f$)', col_name):
-                ferc1_sql.append_column(sa.Column(col_name, col_type))
+                # This eliminates the "footnote" fields which all mirror database
+                # fields, but end with _f. We have not yet integrated the footnotes
+                # into the rest of the DB, and so why clutter it up?
+                if not re.match('(.*_f$)', col_name):
+                    ferc1_sql.append_column(sa.Column(col_name, col_type))
 
-        # Append primary key constraints to the table:
-        if table_name == 'f1_respondent_id':
-            ferc1_sql.append_constraint(
-                sa.PrimaryKeyConstraint('respondent_id'))
+            # Append primary key constraints to the table:
+            if table_name == 'f1_respondent_id':
+                ferc1_sql.append_constraint(
+                    sa.PrimaryKeyConstraint('respondent_id'))
 
-        if table_name in pc.ferc1_data_tables:
-            # All the "real" data tables use the same 5 fields as a composite
-            # primary key: [ respondent_id, report_year, report_prd,
-            # row_number, spplmnt_num ]
-            ferc1_sql.append_constraint(sa.PrimaryKeyConstraint(
-                'respondent_id',
-                'report_year',
-                'report_prd',
-                'row_number',
-                'spplmnt_num')
-            )
+            if table_name in pc.ferc1_data_tables:
+                # All the "real" data tables use the same 5 fields as a composite
+                # primary key: [ respondent_id, report_year, report_prd,
+                # row_number, spplmnt_num ]
+                ferc1_sql.append_constraint(
+                    sa.PrimaryKeyConstraint(
+                        'respondent_id',
+                        'report_year',
+                        'report_prd',
+                        'row_number',
+                        'spplmnt_num')
+                )
 
-            # They also all have respondent_id as their foreign key:
-            ferc1_sql.append_constraint(sa.ForeignKeyConstraint(
-                columns=['respondent_id', ],
-                refcolumns=['f1_respondent_id.respondent_id'])
-            )
+                # They also all have respondent_id as their foreign key:
+                ferc1_sql.append_constraint(
+                    sa.ForeignKeyConstraint(
+                        columns=['respondent_id', ],
+                        refcolumns=['f1_respondent_id.respondent_id'])
+                )
 
 
 def init_db(ferc1_tables=pc.ferc1_default_tables,
@@ -239,7 +244,6 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
             years=pc.working_years['ferc1'],
             basedir=SETTINGS['ferc1_data_dir'],
             def_db=True,
-            verbose=True,
             testing=False):
     """Assuming an empty FERC Form 1 DB, create tables and insert data.
 
@@ -255,14 +259,12 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
         years (list): The set of years to read from FERC Form 1 dbf database
             into the FERC Form 1 DB.
     """
-    if verbose:
-        print("Start ferc mirror db ingest at {}".format(datetime.datetime.now().
-                                                         strftime("%A, %d. %B %Y %I:%M%p")))
-
     if not ferc1_tables or not years:
-        if verbose:
-            print("Not ingesting mirrored ferc db.")
+        logger.info(
+            "No FERC years or tables specified; not cloning FERC Form 1 DB."
+        )
         return None
+    logger.info("Starting cloning process for FERC Form 1 FoxPro database.")
 
     ferc1_engine = connect_db(testing=testing)
 
@@ -275,27 +277,27 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
     drop_tables(ferc1_engine)
     _create_tables(ferc1_engine)
 
-    # Create a DB connection to use for the record insertions below:
-    conn = ferc1_engine.connect()
-
     # This awkward dictionary of dictionaries lets us map from a DBF file
     # to a couple of lists -- one of the short field names from the DBF file,
     # and the other the full names that we want to have the SQL database...
     ferc1_tblmap = extract_dbc_tables(refyear)
 
-    # Translate the list of FERC Form 1 database tables that has
-    # been passed in into a list of DBF files prefixes:
-    dbfs = [pc.ferc1_tbl2dbf[table] for table in ferc1_tables]
-
-    if verbose:
-        print("Cloning FERC Form 1 FoxPro DB to Postgreql:", flush=True)
-        print("    ", end='', flush=True)
     for year in years:
-        if verbose:
-            print(f"{year} ", end="", flush=True)
-        for dbf in dbfs:
-            dbf_filename = os.path.join(datadir(year, basedir),
-                                        '{}.DBF'.format(dbf))
+        logger.info(
+            f"Extracting FERC Form 1 FoxPro DB tables "
+            f"from cloned DB for {year}")
+        for table in ferc1_tables:
+            # this checks whether the requested year is expected to work. Many
+            # tables have some years with import errors that we have not yet
+            # taken the time to debug.
+            if year not in pc.ferc1_working_table_years[table]:
+                logger.info(f"    Skipping {table} due to errors in {year}.")
+                continue
+
+            logger.info(f"    Cloning {table}")
+            dbf = pc.ferc1_tbl2dbf[table]
+            dbf_filename = os.path.join(
+                datadir(year, basedir), f"{dbf}.DBF")
             dbf_table = dbfread.DBF(dbf_filename, load=True)
 
             # pc.ferc1_dbf2tbl is a dictionary mapping DBF files to SQL table
@@ -309,12 +311,11 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
             # the keys are the field names, and the values are the values for
             # that field.
             sql_records = []
-            bad_respondents = [514, 515, 516, 517, 518, 519, 522]
             for dbf_rec in dbf_table.records:
                 sql_rec = {}
                 for d, s in ferc1_tblmap[sql_table_name].items():
                     sql_rec[s] = dbf_rec[d]
-                if sql_rec['respondent_id'] not in bad_respondents:
+                if sql_rec['respondent_id'] not in pc.missing_respondents_ferc1.keys():
                     sql_records.append(sql_rec)
 
             # If we're reading in multiple years of FERC Form 1 data, we
@@ -337,11 +338,15 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
                          'pswd_gen': ''})
 
             # insert the new records!
-            conn.execute(sql_stmt, sql_records)
-
-    if(verbose):
-        print("\n", end='')
-    conn.close()
+            # Create a DB connection to use for the record insertions
+            conn = ferc1_engine.connect()
+            try:
+                conn.execute(sql_stmt, sql_records)
+            except:
+                conn.close()
+                ferc1_engine.dispose()
+                raise
+            conn.close()
 
 
 ###########################################################################
@@ -523,8 +528,7 @@ def accumulated_depreciation(ferc1_raw_dfs,
 
 def extract(ferc1_tables=pc.ferc1_pudl_tables,
             ferc1_years=pc.working_years['ferc1'],
-            testing=False,
-            verbose=True):
+            testing=False):
     """Extract FERC 1."""
     # BEGIN INGESTING FERC FORM 1 DATA:
     ferc1_engine = connect_db(testing=testing)
@@ -548,17 +552,14 @@ def extract(ferc1_tables=pc.ferc1_pudl_tables,
         define_db(max(pc.working_years['ferc1']),
                   pc.ferc1_default_tables,
                   ferc1_meta,
-                  basedir=SETTINGS['ferc1_data_dir'],
-                  verbose=verbose)
+                  basedir=SETTINGS['ferc1_data_dir'])
 
-    if verbose:
-        print("============================================================")
-        print("Extracting tables from cloned FERC Form 1 database.")
     for table in ferc1_extract_functions:
         if ferc1_tables:
             if table in ferc1_tables:
-                if verbose:
-                    print("    {}...".format(table))
+                logger.info(
+                    f"Converting extracted FERC Form 1 table {table} into a "
+                    f"pandas DataFrame.")
                 ferc1_extract_functions[table](
                     ferc1_raw_dfs,
                     ferc1_engine,

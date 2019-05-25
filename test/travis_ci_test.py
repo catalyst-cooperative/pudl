@@ -1,7 +1,10 @@
 """Limited testing of the PUDL DB ETL for use with Travis CI."""
+import logging
 import pytest
 import pandas as pd
 from pudl import constants as pc
+
+logger = logging.getLogger(__name__)
 
 START_DATE_CI = pd.to_datetime(
     '{}-01-01'.format(max(pc.working_years['eia923'])))
@@ -37,21 +40,3 @@ def test_pudl_init_db(pudl_engine_travis_ci):
     connections are created by the fixtures defined in conftest.py
     """
     pass
-
-
-# @pytest.fixture(scope='module')
-# def output_monthly_minimal(live_pudl_db):
-#    pudl_out = PudlTabl(
-#        freq='MS', testing=(not live_pudl_db),
-#        start_date=START_DATE_CI, end_date=END_DATE_CI
-#    )
-#    return pudl_out
-#
-#
-# @pytest.mark.travis_ci
-# @pytest.mark.post_etl
-# @pytest.mark.skip(reason="Still debuting the post-ETL Travis CI tests.")
-# def test_capacity_factor(output_monthly_minimal):
-#    """Test the capacity factor calculation."""
-#    cf = pudl.analysis.mcoe.capacity_factor(output_monthly_minimal)
-#    print("capacity_factor: {} records found".format(len(cf)))

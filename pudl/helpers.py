@@ -1,5 +1,6 @@
 """General utility functions that are used in a variety of contexts."""
 
+import logging
 import re
 from functools import partial
 import pandas as pd
@@ -7,6 +8,8 @@ import numpy as np
 import sqlalchemy as sa
 import timezonefinder
 import pudl
+
+logger = logging.getLogger(__name__)
 
 # This is a little abbreviated function that allows us to propagate the NA
 # values through groupby aggregations, rather than using inefficient lambda
@@ -17,6 +20,7 @@ sum_na = partial(pd.Series.sum, skipna=False)
 # them open for efficiency. I want to avoid doing that for every call to find
 # the timezone, so this is global.
 tz_finder = timezonefinder.TimezoneFinder()
+
 
 def get_dependent_tables_from_list(table_names, testing=False):
     """
@@ -77,6 +81,7 @@ def get_dependent_tables(table_name, md):
     # Recursively call this function on the tables our initial
     # table depends on:
     for table_name in new_table_names:
+        logger.error(f"Finding dependent tables for {table_name}")
         dependent_tables.add(table_name)
         for t in get_dependent_tables(table_name, md):
             dependent_tables.add(t)

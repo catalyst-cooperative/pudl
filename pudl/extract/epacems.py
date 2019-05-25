@@ -3,10 +3,13 @@ Retrieve data from EPA CEMS hourly zipped CSVs.
 
 This modules pulls data from EPA's published CSV files.
 """
+import logging
 import os
 import pandas as pd
 from pudl.settings import SETTINGS
 import pudl.constants as pc
+
+logger = logging.getLogger(__name__)
 
 
 def get_epacems_dir(year):
@@ -41,8 +44,8 @@ def get_epacems_file(year, month, state):
     filename = f'epacems{year}{state}{month}.zip'
     full_path = os.path.join(get_epacems_dir(year), filename)
     assert os.path.isfile(full_path), (
-        f"ERROR: Failed to find EPA CEMS file for {state}, {year}-{month}.\n" +
-        f"Expected it here: {full_path}")
+        f"ERROR: Failed to find EPA CEMS file for {state}, {year}-{month}.\n"
+        + f"Expected it here: {full_path}")
     return full_path
 
 
@@ -59,7 +62,7 @@ def read_cems_csv(filename):
     return df
 
 
-def extract(epacems_years, states, verbose=True):
+def extract(epacems_years, states):
     """
     Extract the EPA CEMS hourly data.
 
@@ -67,27 +70,20 @@ def extract(epacems_years, states, verbose=True):
     for extracted DataFrames.
     """
     # TODO: this is really slow. Can we do some parallel processing?
-    if verbose:
-        print("Extracting EPA CEMS data...", flush=True)
     for year in epacems_years:
-        if verbose:
-            print(f"    {year}:", flush=True)
         # The keys of the us_states dictionary are the state abbrevs
         for state in states:
-            if verbose:
-                print(f"        {state}:", end=" ", flush=True)
             dfs = []
             for month in range(1, 13):
                 filename = get_epacems_file(year, month, state)
-
-                if verbose:
-                    print(f"{month}", end=" ", flush=True)
+                logger.info(
+                    f"Performing ETL for EPA CEMS hourly "
+                    f"{state}-{year}-{month:02}")
                 dfs.append(read_cems_csv(filename))
             # Return a dictionary where the key identifies this dataset
             # (just like the other extract functions), but unlike the
             # others, this is yielded as a generator (and it's a one-item
             # dictionary).
-            print(" ", flush=True)  # newline...
             yield {
                 (year, state): pd.concat(dfs, sort=True, copy=False, ignore_index=True)
             }

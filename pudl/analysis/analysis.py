@@ -1,5 +1,7 @@
 """A module with functions to aid in data analysis using the PUDL database."""
 
+import logging
+
 # Useful high-level external modules.
 import numpy as np
 import pandas as pd
@@ -14,6 +16,8 @@ import pudl.helpers
 import pudl.models.ferc1
 import pudl.models.entities
 import pudl.models.eia923
+
+logger = logging.getLogger(__name__)
 
 
 def simple_select(table_name, pudl_engine):
@@ -967,7 +971,8 @@ def fercplants(plant_tables=('f1_steam',
         # not in the PUDL index.
         new_index = ferc1_plants_all.index.difference(ferc1_plants_old.index)
         if new_index.size == 0:
-            return(print('No new plants found.'))
+            logger.info("No new plants found.")
+            return
         ferc1_plants = ferc1_plants_all.loc[new_index].reset_index()
     else:
         ferc1_plants = ferc1_plants_all

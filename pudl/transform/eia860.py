@@ -1,9 +1,12 @@
 """Module to perform data cleaning functions on EIA860 data tables."""
 
+import logging
 import pandas as pd
 import numpy as np
 import pudl
 import pudl.constants as pc
+
+logger = logging.getLogger(__name__)
 
 
 def ownership(eia860_dfs, eia860_transformed_dfs):
@@ -341,9 +344,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
     return eia860_transformed_dfs
 
 
-def transform(eia860_raw_dfs,
-              eia860_tables=pc.eia860_pudl_tables,
-              verbose=True):
+def transform(eia860_raw_dfs, eia860_tables=pc.eia860_pudl_tables):
     """Transform EIA 860 dfs."""
     eia860_transform_functions = {
         'ownership_eia860': ownership,
@@ -354,16 +355,14 @@ def transform(eia860_raw_dfs,
     eia860_transformed_dfs = {}
 
     if not eia860_raw_dfs:
-        if verbose:
-            print('Not transforming EIA 860.')
+        logger.info("No raw EIA 860 dataframes found. "
+                    "Not transforming EIA 860.")
         return eia860_transformed_dfs
 
-    if verbose:
-        print("Transforming tables from EIA 860:")
     for table in eia860_transform_functions:
         if table in eia860_tables:
-            if verbose:
-                print("    {}...".format(table))
+            logger.info(f"Transforming raw EIA 860 DataFrames for {table} "
+                        f"concatenated across all years.")
             eia860_transform_functions[table](eia860_raw_dfs,
                                               eia860_transformed_dfs)
 

@@ -6,7 +6,10 @@ or to the test databases, which are created from scratch and dropped after the
 tests have completed.  See the --live_ferc_db and --live_pudl_db
 command line options by running pytest --help.
 """
+import logging
 import pytest
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.mark.etl

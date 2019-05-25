@@ -12,6 +12,7 @@ In addition, we
 
 """
 
+import logging
 import os
 import sys
 import argparse
@@ -20,6 +21,14 @@ import zipfile
 import pudl
 from pudl.settings import SETTINGS
 import pudl.constants as pc
+
+# Create a logger to output any messages we might have...
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 # require modern python
 if not sys.version_info >= (3, 6):
@@ -103,7 +112,7 @@ def main():
             bad_yrs = [int(yr) for yr in args.year
                        if int(yr) not in pc.data_years[src]]
             if bad_yrs:
-                print("Invalid {} years ignored: {}.".format(src, bad_yrs))
+                logger.warning(f"Invalid {src} years ignored: {bad_yrs}.")
 
     test_datadir = os.path.join(pudl.settings.SETTINGS['test_dir'], 'data')
     for src in args.sources:
@@ -125,8 +134,8 @@ def main():
 
             if not os.path.exists(tmp_dir):
                 os.makedirs(tmp_dir)
-            print(f"src: {src_dir}")
-            print(f"tmp: {tmp_dir}")
+            logger.info(f"src: {src_dir}")
+            logger.info(f"tmp: {tmp_dir}")
             src_files = [os.path.join(src_dir, f) for f in files_to_move]
             dst_files = [os.path.join(tmp_dir, f) for f in files_to_move]
 
@@ -142,13 +151,13 @@ def main():
                 for root, dirs, files in os.walk(tmp_dir):
                     for filename in files:
                         z.write(os.path.join(root, filename), arcname=filename)
-                print(f"closing {ferc1_test_zipfile}")
+                logger.info(f"closing {ferc1_test_zipfile}")
                 z.close()
                 shutil.move(ferc1_test_zipfile, tmp_dir)
                 for f in dst_files:
                     os.remove(f)
 
-            print(f"organizing datastore for {src} {yr}")
+            logger.info(f"organizing datastore for {src} {yr}")
             pudl.datastore.organize(src, yr, states=args.states,
                                     datadir=test_datadir, unzip=False)
 

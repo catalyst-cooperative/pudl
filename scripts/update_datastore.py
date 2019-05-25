@@ -1,11 +1,22 @@
 #!/usr/bin/env python
 """A script for fetching public utility data from reporting agency servers."""
 
+import logging
 import sys
 import argparse
+import warnings
+import concurrent.futures
 import pudl
 from pudl.settings import SETTINGS
 import pudl.constants as pc
+
+# Create a logger to output any messages we might have...
+logger = logging.getLogger(pudl.__name__)
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 # require modern python
 if not sys.version_info >= (3, 6):
@@ -99,7 +110,6 @@ def parse_command_line(argv):
 
 def main():
     """Main function controlling flow of the script."""
-    import concurrent.futures
 
     args = parse_command_line(sys.argv)
 
@@ -118,7 +128,7 @@ def main():
             bad_yrs = [int(yr) for yr in args.years
                        if int(yr) not in pc.data_years[src]]
             if args.verbose and bad_yrs:
-                print("Invalid {} years ignored: {}.".format(src, bad_yrs))
+                warnings.warn(f"Invalid {src} years ignored: {bad_yrs}.")
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for src in args.sources:
@@ -126,7 +136,6 @@ def main():
                 executor.submit(pudl.datastore.update, src, yr, args.states,
                                 clobber=args.clobber,
                                 unzip=args.unzip,
-                                verbose=args.verbose,
                                 datadir=args.datadir,
                                 no_download=args.no_download)
 

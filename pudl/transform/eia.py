@@ -1,10 +1,13 @@
 """Routines specific to cleaning up EIA Form 923 data."""
 
+import logging
 import numpy as np
 import networkx as nx
 import pandas as pd
 import pudl
 import pudl.constants as pc
+
+logger = logging.getLogger(__name__)
 
 
 def _occurrence_consistency(entity_id, compiled_df, col,
@@ -46,8 +49,8 @@ def _occurrence_consistency(entity_id, compiled_df, col,
 
     col_df = col_df.merge(consist_df, how='outer').drop(columns=['table'])
     # change all of the fully consistent records to True
-    col_df.loc[(col_df['{}_consistent'.format(col)] /
-                col_df['occurances'] > strictness),
+    col_df.loc[(col_df['{}_consistent'.format(col)]
+                / col_df['occurances'] > strictness),
                '{}_consistent'.format(col)] = True
     return(col_df)
 
@@ -128,8 +131,7 @@ def _add_additional_epacems_plants(plants_entity):
 def _harvesting(entity,
                 eia_transformed_dfs,
                 entities_dfs,
-                debug=False,
-                verbose=True):
+                debug=False):
     """
     Compiling entities.
 
@@ -144,7 +146,6 @@ def _harvesting(entity,
         eia_transformed_dfs (dict) : dictionary of tbl names (keys) and
             transformed dfs (values)
         debug (bool)
-        verbose (bool)
     Returns:
         eia_transformed_dfs (dict)
         entity_dfs (dict): dictionary of entity table names (keys) and entiy
@@ -156,8 +157,7 @@ def _harvesting(entity,
     static_cols = pc.entities[entity][1]
     annual_cols = pc.entities[entity][2]
 
-    if verbose:
-        print("    compiling plants for entity tables from:")
+    logger.debug("    compiling plants for entity tables from:")
     # empty list for dfs to be added to for each table below
     dfs = []
     # for each df in the dtc of transformed dfs
@@ -168,8 +168,7 @@ def _harvesting(entity,
         if 'annual' not in table_name:
             # if the if contains the desired columns the grab those columns
             if set(base_cols).issubset(transformed_df.columns):
-                if verbose:
-                    print("        {}...".format(table_name))
+                logger.debug(f"        {table_name}...")
                 # create a copy of the df to muck with
                 df = transformed_df.copy()
                 # we know these columns must be in the dfs
@@ -184,8 +183,8 @@ def _harvesting(entity,
                 dfs.append(df)
 
                 # remove the static columns, with an exception
-                if entity == 'plants' and table_name is ('ownership_eia860' or
-                                                         'utilities_eia860'):
+                if entity == 'plants' and table_name is ('ownership_eia860'
+                                                         or 'utilities_eia860'):
                     cols.remove('utility_id_eia')
                 transformed_df = transformed_df.drop(columns=cols)
                 eia_transformed_dfs[table_name] = transformed_df
@@ -201,8 +200,7 @@ def _harvesting(entity,
                         'month': 1,
                         'day': 1})
 
-    if verbose:
-        print('    forcing the correct types')
+    logger.debug('    Casting harvested IDs to correct data types')
     # most columns become objects (ack!), so assign types
     compiled_df = \
         compiled_df.astype(pc.entities[entity][3])
@@ -236,8 +234,8 @@ def _harvesting(entity,
 
         # pull the correct values out of the df and merge w/ the plant ids
         col_correct_df = col_df[col_df['{}_consistent'.format(col)] == True]\
-            .drop_duplicates(subset=(cols_to_consit +
-                                     ['{}_consistent'.format(col)]))
+            .drop_duplicates(subset=(cols_to_consit
+                                     + ['{}_consistent'.format(col)]))
 
         if col in static_cols:
             clean_df = entity_id_df.merge(
@@ -270,16 +268,14 @@ def _harvesting(entity,
         if total == 0:
             ratio = np.NaN
             wrongos = np.NaN
-            if debug:
-                print('       Zero records for {}'.format(col))
+            logger.debug(f"       Zero records found for {col}")
         if total > 0:
             ratio = (len(col_df[(col_df['{}_consistent'.format(col)] == True)]
                          .drop_duplicates(subset=cols_to_consit)) / total)
             wrongos = (1 - ratio) * total
-            if debug:
-                print('       Ratio: {:.3}'.format(ratio,),
-                      '   Wrongos: {:.5}'.format(wrongos),
-                      '   Total: {}   '.format(total), col)
+            logger.debug(f"       Ratio: {ratio:.3}")
+            logger.debug(f"   Wrongos: {wrongos:.5}")
+            logger.debug(f"   Total: {total}   {col}")
             # the following assertions are here to ensure that the harvesting
             # process is producing enough consistent records. When every year
             # is being imported the lowest consistency ratio should be .97,
@@ -298,9 +294,9 @@ def _harvesting(entity,
                                           'consistent_ratio': ratio,
                                           'wrongos': wrongos,
                                           'total': total}, ignore_index=True)
-    if verbose:
-        print('    average consistency of {0} is {1}'.format(
-            entity, consistency['consistent_ratio'].mean().round(2)))
+    mcs = consistency['consistent_ratio'].mean().round(2)
+    logger.info(
+        f"Average consistency of static {entity} values is {mcs:.2%}")
 
     if entity is "plants":
         entity_df = _add_additional_epacems_plants(entity_df)
@@ -315,7 +311,7 @@ def _harvesting(entity,
 def _boiler_generator_assn(eia_transformed_dfs,
                            eia923_years=pc.working_years['eia923'],
                            eia860_years=pc.working_years['eia860'],
-                           debug=False, verbose=False):
+                           debug=False):
     """
     Create more complete boiler generator associations.
 
@@ -349,7 +345,6 @@ def _boiler_generator_assn(eia_transformed_dfs,
         debug (bool): If True, include columns in the returned dataframe
             indicating by what method the individual boiler generator
             associations were inferred.
-        verbose (bool): If True, provide additional output. False by default.
 
     Returns:
     --------
@@ -363,6 +358,7 @@ def _boiler_generator_assn(eia_transformed_dfs,
     if not (eia860_years and eia923_years):
         return
     # compile and scrub all the parts
+    logger.info("Inferring complete EIA boiler-generator associations.")
     bga_eia860 = eia_transformed_dfs['boiler_generator_assn_eia860'].copy()
     bga_eia860 = _restrict_years(bga_eia860, eia923_years, eia860_years)
     bga_eia860['generator_id'] = bga_eia860.generator_id.astype(str)
@@ -378,15 +374,6 @@ def _boiler_generator_assn(eia_transformed_dfs,
         [pd.Grouper(freq='AS'), 'plant_id_eia', 'generator_id'])
     gen_eia923 = gen_eia923_gb['net_generation_mwh'].sum().reset_index()
     gen_eia923['missing_from_923'] = False
-
-    # This code calls out the generator records that are missing from 860 but
-    # which appear in EIA 923. See Issue #128 for more details. Still needs to
-    # be addressed: https://github.com/catalyst-cooperative/pudl/issues/128
-    # merged = pd.merge(eia_transformed_dfs['generators_eia860'].copy(),
-    #                  gen_eia923,
-    #                  on=['plant_id_eia', 'report_date', 'generator_id'],
-    #                  indicator=True, how='outer')
-    # missing = merged[merged['_merge'] == 'right_only']
 
     # compile all of the generators
     gens_eia860 = eia_transformed_dfs['generators_eia860'].copy()
@@ -510,8 +497,8 @@ def _boiler_generator_assn(eia_transformed_dfs,
     # label plants that have 'bad' generator records (generators that have MWhs
     # in gens9 but don't have connected boilers) create a df with just the bad
     # plants by searching for the 'bad' generators
-    bad_plants = bga_compiled_3[(bga_compiled_3['boiler_id'].isnull()) &
-                                (bga_compiled_3['net_generation_mwh'] > 0)].\
+    bad_plants = bga_compiled_3[(bga_compiled_3['boiler_id'].isnull())
+                                & (bga_compiled_3['net_generation_mwh'] > 0)].\
         drop_duplicates(subset=['plant_id_eia', 'report_date'])
     bad_plants = bad_plants[['plant_id_eia', 'report_date']]
 
@@ -532,9 +519,9 @@ def _boiler_generator_assn(eia_transformed_dfs,
 
     # create a label for generators that are unmapped but in 923
     bga_compiled_3['unmapped_but_in_923'] = \
-        np.where((bga_compiled_3.boiler_id.isnull()) &
-                 ~bga_compiled_3.missing_from_923 &
-                 (bga_compiled_3.net_generation_mwh == 0),
+        np.where((bga_compiled_3.boiler_id.isnull())
+                 & ~bga_compiled_3.missing_from_923
+                 & (bga_compiled_3.net_generation_mwh == 0),
                  True,
                  False)
 
@@ -609,8 +596,11 @@ def _boiler_generator_assn(eia_transformed_dfs,
     too_many_codes = \
         too_many_codes[~too_many_codes.unit_id_eia.isnull()].\
         groupby(['plant_id_eia', 'unit_id_pudl'])['unit_id_eia'].unique()
-    print('WARNING: multiple EIA unit codes found in these PUDL units:')
-    print(too_many_codes)
+    for row in too_many_codes.iteritems():
+        logger.warning(f"Multiple EIA unit codes:"
+                       f"plant_id_eia={row[0][0]}, "
+                       f"unit_id_pudl={row[0][1]}, "
+                       f"unit_id_eia={row[1]}")
     bga_w_units = bga_w_units.drop('unit_id_eia', axis=1)
 
     # These assertions test that all boilers and generators ended up in the
@@ -628,10 +618,10 @@ def _boiler_generator_assn(eia_transformed_dfs,
         bga_out['unit_id_pudl'].fillna(value=0).astype(int)
 
     if not debug:
-        bga_out = bga_out[~bga_out.missing_from_923 &
-                          ~bga_out.plant_w_bad_generator &
-                          ~bga_out.unmapped_but_in_923 &
-                          ~bga_out.unmapped]
+        bga_out = bga_out[~bga_out.missing_from_923
+                          & ~bga_out.plant_w_bad_generator
+                          & ~bga_out.unmapped_but_in_923
+                          & ~bga_out.unmapped]
 
         bga_out = bga_out.drop(['missing_from_923',
                                 'plant_w_bad_generator',
@@ -659,8 +649,7 @@ def _restrict_years(df,
 def main(eia_transformed_dfs,
          eia923_years=pc.working_years['eia923'],
          eia860_years=pc.working_years['eia860'],
-         debug=False,
-         verbose=True):
+         debug=False):
     """Create dfs for EIA Entity tables."""
     # create the empty entities df to fill up
     entities_dfs = {}
@@ -668,15 +657,15 @@ def main(eia_transformed_dfs,
     # for each of the entities, harvest the static and annual columns.
     # the order of the entities matter! the
     for entity in pc.entities.keys():
-        print('harvesting {}'.format(entity))
+        logger.info(f"Harvesting IDs & consistently static attributes "
+                    f"for EIA {entity}")
         _harvesting(entity, eia_transformed_dfs, entities_dfs,
-                    debug=debug, verbose=verbose)
+                    debug=debug)
 
     _boiler_generator_assn(eia_transformed_dfs,
                            eia923_years=eia923_years,
                            eia860_years=eia860_years,
-                           debug=debug,
-                           verbose=verbose)
+                           debug=debug)
 
     # get rid of the original annual dfs in the transformed dict
     remove = ['generators', 'plants', 'utilities']

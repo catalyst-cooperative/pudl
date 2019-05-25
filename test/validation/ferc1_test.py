@@ -18,8 +18,7 @@ def test_pu_ferc1(pudl_out_ferc1):
     """Test output routines for tables from FERC Form 1."""
     logger.info("Compiling FERC Form 1 plants & utilities table...")
     logger.info(f"{len(pudl_out_ferc1.pu_ferc1())} plant & utility "
-                f"records found.",
-                )
+                f"records found.")
 
 
 @pytest.mark.ferc1
@@ -28,8 +27,7 @@ def test_steam_ferc1(pudl_out_ferc1):
     """Test output routines for tables from FERC Form 1."""
     logger.info("Compiling FERC Form 1 steam plants table...")
     logger.info(f"{len(pudl_out_ferc1.plants_steam_ferc1())} "
-                f"steam plant records found.",
-                )
+                f"steam plant records found.")
 
 
 @pytest.mark.ferc1
@@ -58,8 +56,7 @@ def test_fbp_ferc1_missing_mmbtu(pudl_out_ferc1):
     # content proportions add up to less than 0.999999
     if missing_mmbtu_pct > 2.0:
         raise AssertionError(
-            f"Too many records ({missing_mmbtu_pct:.2}%) missing mmBTU."
-        )
+            f"Too many records ({missing_mmbtu_pct:.2}%) missing mmBTU.")
 
 
 @pytest.mark.ferc1
@@ -75,8 +72,7 @@ def test_fbp_ferc1_missing_cost(pudl_out_ferc1):
     # cost proportions add up to less than 0.999999
     if missing_cost_pct > 1.0:
         raise AssertionError(
-            f"Too many records ({missing_cost_pct:.2}%) missing fuel costs."
-        )
+            f"Too many records ({missing_cost_pct:.2}%) missing fuel costs.")
 
 
 @pytest.mark.ferc1
@@ -92,8 +88,7 @@ def test_fbp_ferc1_mismatched_fuels(pudl_out_ferc1):
     if mismatched_fuels > 0.05:
         raise AssertionError(
             f"Too many records ({mismatched_fuels:.2%}) have mismatched "
-            f"primary fuel types."
-        )
+            f"primary fuel types.")
 
 
 @pytest.mark.ferc1

@@ -9,6 +9,7 @@ the existing data. It may also include removing bad data, or replacing it
 with the appropriate NA values.
 """
 
+import logging
 import os.path
 from difflib import SequenceMatcher
 import pandas as pd
@@ -29,6 +30,8 @@ import networkx as nx
 import pudl
 import pudl.constants as pc
 from pudl.settings import SETTINGS
+
+logger = logging.getLogger(__name__)
 
 ##############################################################################
 # FERC TRANSFORM HELPER FUNCTIONS ############################################
@@ -152,7 +155,7 @@ def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
 ##############################################################################
 # DATABASE TABLE SPECIFIC PROCEDURES ##########################################
 ##############################################################################
-def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
+def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     Transform FERC Form 1 plant_steam data for loading into PUDL Database.
 
@@ -251,8 +254,7 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
 
     # Now we need to assign IDs to the large steam plants, since FERC doesn't
     # do this for us.
-    if verbose:
-        print("        Identifying distinct large FERC plants.")
+    logger.info("Identifying distinct large FERC plants for ID assignment.")
 
     # scikit-learn still doesn't deal well with NA values (this will be fixed
     # eventually) We need to massage the type and missing data for the
@@ -282,9 +284,9 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     n_tot = len(ferc1_steam_df)
     n_grp = len(record_groups)
     pct_grp = n_grp / n_tot
-    if verbose:
-        print(
-            f"        Categorized {n_grp} of {n_tot} ({pct_grp*100:.2f}%) plant records.")
+    logger.info(
+        f"Successfully associated {n_grp} of {n_tot} ({pct_grp:.2%}) "
+        f"FERC Form 1 plant records with multi-year plant entities.")
 
     record_groups.columns = record_groups.columns.astype(str)
     cols = record_groups.columns
@@ -294,8 +296,7 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     # binary relationships between a seed_id and the record_ids that it has
     # been associated with in any other year. Each connected component of that
     # graph is a ferc plant time series / plant_id
-    if verbose:
-        print("        Assigning FERC Plant IDs.")
+    logger.info("Assigning IDs to multi-year FERC plant entities.")
     edges_df = pd.DataFrame(columns=['source', 'target'])
     for col in cols:
         new_edges = record_groups[['seed_id', col]]
@@ -312,9 +313,9 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     # analysis.
     orphan_record_ids = np.setdiff1d(ferc1_steam_df.record_id.unique(),
                                      record_groups.values.flatten())
-    if verbose:
-        print(
-            f"        Found {len(orphan_record_ids)} orphaned plant records.")
+    logger.info(
+        f"Identified {len(orphan_record_ids)} orphaned FERC plant records. "
+        f"Adding orphans to list of plant entities.")
     orphan_df = pd.DataFrame({'source': orphan_record_ids,
                               'target': orphan_record_ids})
     edges_df = pd.concat([edges_df, orphan_df], sort=True)
@@ -332,9 +333,9 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
                                1, name='plant_id_ferc1')
         new_plant_df = nx.to_pandas_edgelist(plant)
         plants_w_ids = plants_w_ids.append(new_plant_df)
-    if verbose:
-        print(
-            f"        Found {plant_id_ferc1+1-len(orphan_record_ids)} non-orphaned plant groups.")
+    logger.info(
+        f"Successfully Identified {plant_id_ferc1+1-len(orphan_record_ids)} "
+        f"multi-year plant entities.")
 
     # Ultimately we just want a record_id to plant_id_ferc1 mapping, so we can
     # ignore the target record_id now:
@@ -347,9 +348,9 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
 
     raw_len = len(ferc1_raw_dfs['plants_steam_ferc1'])
     tfr_len = len(ferc1_steam_df)
-    if verbose:
-        print(f"        Began with {raw_len} raw steam plant records.")
-        print(f"        Ended with {tfr_len} transformed steam plant records.")
+    logger.info(
+        f"FERC Form 1 transform step began with {raw_len} raw steam plant "
+        f"records and ended with {tfr_len} transformed steam plant records.")
 
     # Set the construction year back to numeric because it is.
     ferc1_steam_df['construction_year'] = pd.to_numeric(
@@ -363,7 +364,7 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     return ferc1_transformed_dfs
 
 
-def fuel(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
+def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     Transform FERC Form 1 fuel data for loading into PUDL Database.
 
@@ -498,7 +499,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     return ferc1_transformed_dfs
 
 
-def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
+def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     Transform FERC Form 1 plant_small data for loading into PUDL Database.
 
@@ -622,7 +623,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     return ferc1_transformed_dfs
 
 
-def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
+def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     Transform FERC Form 1 plant_hydro data for loading into PUDL Database.
 
@@ -711,7 +712,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     return ferc1_transformed_dfs
 
 
-def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
+def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     Transform FERC Form 1 pumped storage data for loading into PUDL Database.
 
@@ -818,7 +819,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     return ferc1_transformed_dfs
 
 
-def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
+def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     Transform FERC Form 1 plant_in_service data for loading into PUDL Database.
 
@@ -863,7 +864,7 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     return ferc1_transformed_dfs
 
 
-def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
+def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     Transform FERC Form 1 pumped storage data for loading into PUDL Database.
 
@@ -948,7 +949,7 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
     return ferc1_transformed_dfs
 
 
-def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True):
+def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     Transform FERC Form 1 depreciation data for loading into PUDL Database.
 
@@ -987,9 +988,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs, verbose=True)
     return ferc1_transformed_dfs
 
 
-def transform(ferc1_raw_dfs,
-              ferc1_tables=pc.ferc1_pudl_tables,
-              verbose=True):
+def transform(ferc1_raw_dfs, ferc1_tables=pc.ferc1_pudl_tables):
     """Transform FERC 1."""
     ferc1_transform_functions = {
         # fuel must come before steam b/c fuel proportions are used to aid in
@@ -1007,15 +1006,13 @@ def transform(ferc1_raw_dfs,
     ferc1_transformed_dfs = {}
 
     # for each ferc table,
-    if verbose:
-        print("Transforming dataframes from FERC 1:")
     for table in ferc1_transform_functions:
         if table in ferc1_tables:
-            if verbose:
-                print("    {}...".format(table))
+            logger.info(
+                f"Transforming raw FERC Form 1 dataframe for "
+                f"loading into {table}")
             ferc1_transform_functions[table](ferc1_raw_dfs,
-                                             ferc1_transformed_dfs,
-                                             verbose=verbose)
+                                             ferc1_transformed_dfs)
 
     return ferc1_transformed_dfs
 

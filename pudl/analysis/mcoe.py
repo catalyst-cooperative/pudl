@@ -6,7 +6,7 @@ import pandas as pd
 import pudl
 
 
-def heat_rate_by_unit(pudl_out, verbose=False):
+def heat_rate_by_unit(pudl_out):
     """Calculate heat rates (mmBTU/MWh) within separable generation units.
 
     Assumes a "good" Boiler Generator Association (bga) i.e. one that only
@@ -79,7 +79,7 @@ def heat_rate_by_unit(pudl_out, verbose=False):
     return hr_by_unit
 
 
-def heat_rate_by_gen(pudl_out, verbose=False):
+def heat_rate_by_gen(pudl_out):
     """Convert by-unit heat rate to by-generator, adding fuel type & count."""
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
@@ -114,7 +114,7 @@ def heat_rate_by_gen(pudl_out, verbose=False):
     return hr_by_gen
 
 
-def fuel_cost(pudl_out, verbose=False):
+def fuel_cost(pudl_out):
     """
     Calculate fuel costs per MWh on a per generator basis for MCOE.
 
@@ -234,7 +234,7 @@ def fuel_cost(pudl_out, verbose=False):
     return out_df
 
 
-def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5, verbose=False):
+def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
     """
     Calculate the capacity factor for each generator.
 
@@ -303,7 +303,7 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5, verbose=False):
 
 def mcoe(pudl_out,
          min_heat_rate=5.5, min_fuel_cost_per_mwh=0.0,
-         min_cap_fact=0.0, max_cap_fact=1.5, verbose=False):
+         min_cap_fact=0.0, max_cap_fact=1.5):
     """
     Compile marginal cost of electricity (MCOE) at the generator level.
 
@@ -337,8 +337,8 @@ def mcoe(pudl_out,
     """
     # Bring together the fuel cost and capacity factor dataframes, which
     # also include heat rate information.
-    mcoe_out = pd.merge(pudl_out.fuel_cost(verbose=verbose),
-                        pudl_out.capacity_factor(verbose=verbose)[
+    mcoe_out = pd.merge(pudl_out.fuel_cost(),
+                        pudl_out.capacity_factor()[
                             ['report_date', 'plant_id_eia',
                              'generator_id', 'capacity_factor']],
                         on=['report_date', 'plant_id_eia', 'generator_id'],

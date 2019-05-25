@@ -24,6 +24,7 @@ For more information on working with these systems check out:
  * https://pangio.io
 """
 
+import logging
 import os
 import sys
 import argparse
@@ -33,6 +34,14 @@ import pyarrow.parquet as pq
 import pudl
 from pudl.settings import SETTINGS
 import pudl.constants as pc
+
+# Create a logger to output any messages we might have...
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 # require modern python
 if not sys.version_info >= (3, 6):
@@ -186,7 +195,7 @@ def cems_to_parquet(transformed_df_dicts, outdir=None, schema=None,
 
     for df_dict in transformed_df_dicts:
         for yr_st, df in df_dict.items():
-            print(f'            {yr_st}: {len(df)} records')
+            logger.info(f"            {yr_st}: {len(df)} records")
             if not df.empty:
                 df = (
                     df.astype(IN_DTYPES)

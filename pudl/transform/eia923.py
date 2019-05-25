@@ -1,11 +1,13 @@
 
 """Routines specific to cleaning up EIA Form 923 data."""
 
+import logging
 import pandas as pd
 import numpy as np
 import pudl
 import pudl.constants as pc
 
+logger = logging.getLogger(__name__)
 ###############################################################################
 ###############################################################################
 # HELPER FUNCTIONS
@@ -593,9 +595,7 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
-def transform(eia923_raw_dfs,
-              eia923_tables=pc.eia923_pudl_tables,
-              verbose=True):
+def transform(eia923_raw_dfs, eia923_tables=pc.eia923_pudl_tables):
     """Transform all EIA 923 tables."""
     eia923_transform_functions = {
         'generation_fuel_eia923': generation_fuel,
@@ -609,16 +609,15 @@ def transform(eia923_raw_dfs,
     eia923_transformed_dfs = {}
 
     if not eia923_raw_dfs:
-        if verbose:
-            print('Not transforming EIA 923.')
+        logger.info("No raw EIA 923 DataFrames found. "
+                    "Not transforming EIA 923.")
         return eia923_transformed_dfs
 
-    if verbose:
-        print("Transforming tables from EIA 923:")
     for table in eia923_transform_functions:
         if table in eia923_tables:
-            if verbose:
-                print("    {}...".format(table))
+            logger.info(
+                f"Transforming raw EIA 923 DataFrames for {table} "
+                f"concatenated across all years.")
             eia923_transform_functions[table](eia923_raw_dfs,
                                               eia923_transformed_dfs)
     return eia923_transformed_dfs
