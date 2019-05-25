@@ -23,12 +23,12 @@ def connect_db(testing=False):
     """
     Connect to the FERC Form 1 DB using global settings from settings.py.
 
-    Returns sqlalchemy engine instance.
+    Returns sqlalchemy engine instance. Uses the new SQLite FERC 1 DB.
     """
     if testing:
-        return sa.create_engine(sa.engine.url.URL(**SETTINGS['db_ferc1_test']))
+        return sa.create_engine(SETTINGS['ferc1_test_sqlite_url'])
 
-    return sa.create_engine(sa.engine.url.URL(**SETTINGS['db_ferc1']))
+    return sa.create_engine(SETTINGS['ferc1_sqlite_url'])
 
 
 def _create_tables(engine):
@@ -154,22 +154,30 @@ def extract_dbc_tables(year, min_length=4, basedir=SETTINGS['ferc1_data_dir']):
 
 
 def define_db(refyear, ferc1_tables, ferc1_meta,
-              basedir=SETTINGS['ferc1_data_dir']):
+              basedir=SETTINGS['ferc1_data_dir'], force_tables=False):
     """
     Given a list of FERC Form 1 DBF files, create analogous database tables.
 
     Based on strings extracted from the master F1_PUB.DBC file corresponding to
     the year indicated by refyear, and the list of DBF files specified in dbfs
-    recreate a subset of the FERC Form 1 database as a Postgres database using
+    recreate a subset of the FERC Form 1 database as a SQLite database using
     SQLAlchemy.
 
     Args:
-
+    -----
         refyear (int): Year of FERC Form 1 data to use as the database
             template.
         ferc1_tables (list): List of FERC Form 1 tables to ingest.
         ferc1_meta (SQLAlchemy MetaData): SQLAlchemy MetaData object
             to store the schema in.
+        basedir (path-like): Top level FERC Form 1 data directory in the
+            datastore, in which to search for DBF files.
+        force_tables (bool): If True, try to define every possible table even
+            if it is not in the list of known to be working tables.
+
+    Returns:
+    ---------
+        None: Effects of the function are reflected in ferc1_meta.
     """
     logger.info("Inferring structure of original FERC Form 1 FoxPro DB.")
     ferc1_tblmap = extract_dbc_tables(refyear)
@@ -180,7 +188,7 @@ def define_db(refyear, ferc1_tables, ferc1_meta,
 
     logger.info(f"Defining new FERC Form 1 DB based on {refyear}.")
     for table in ferc1_tables:
-        if pc.ferc1_working_table_years[table]:
+        if pc.ferc1_working_table_years[table] or force_tables:
             logger.info(f"    Defining cloned {table} table.")
             # Translate the list of FERC Form 1 database tables that has
             # been passed in into a list of DBF files prefixes:
@@ -216,7 +224,8 @@ def define_db(refyear, ferc1_tables, ferc1_meta,
             # Append primary key constraints to the table:
             if table_name == 'f1_respondent_id':
                 ferc1_sql.append_constraint(
-                    sa.PrimaryKeyConstraint('respondent_id'))
+                    sa.PrimaryKeyConstraint(
+                        'respondent_id', sqlite_on_conflict='IGNORE'))
 
             if table_name in pc.ferc1_data_tables:
                 # All the "real" data tables use the same 5 fields as a composite
@@ -244,20 +253,29 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
             years=pc.working_years['ferc1'],
             basedir=SETTINGS['ferc1_data_dir'],
             def_db=True,
-            testing=False):
+            testing=False,
+            force_tables=False):
     """Assuming an empty FERC Form 1 DB, create tables and insert data.
 
     This function uses dbfread and SQLAlchemy to migrate a set of FERC Form 1
     database tables from the provided DBF format into a postgres database.
 
     Args:
-
+    -----
         ferc1_tables (list): The set of tables to read from the FERC Form 1 dbf
             database into the FERC Form 1 DB.
         refyear (int): Year of FERC Form 1 data to use as the database
             template.
         years (list): The set of years to read from FERC Form 1 dbf database
             into the FERC Form 1 DB.
+        basedir (path-like): Top level FERC Form 1 data directory in the
+            datastore, in which to search for DBF files.
+        def_db (bool): If True, define a database scema baesd on refyear.
+        testing (bool): If True, use the ferc1_test database instead of the
+            live database.
+        force_tables (bool): If True, attempt to initialize tables even in
+            years with known errors. This is only useful for debugging those
+            tables.
     """
     if not ferc1_tables or not years:
         logger.info(
@@ -271,7 +289,8 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
     # This function (see below) uses metadata from the DBF files to define a
     # postgres database structure suitable for accepting the FERC Form 1 data
     if def_db:
-        define_db(refyear, ferc1_tables, ferc1_meta)
+        define_db(refyear, ferc1_tables, ferc1_meta,
+                  basedir=basedir, force_tables=force_tables)
 
     # Wipe the DB and start over...
     drop_tables(ferc1_engine)
@@ -285,16 +304,17 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
     for year in years:
         logger.info(
             f"Extracting FERC Form 1 FoxPro DB tables "
-            f"from cloned DB for {year}")
+            f"into a cloned SQLite DB for {year}")
         for table in ferc1_tables:
             # this checks whether the requested year is expected to work. Many
             # tables have some years with import errors that we have not yet
             # taken the time to debug.
-            if year not in pc.ferc1_working_table_years[table]:
-                logger.info(f"    Skipping {table} due to errors in {year}.")
+            if year not in pc.ferc1_working_table_years[table] and not force_tables:
+                logger.debug(
+                    f"    Skipping {table} due to known errors in {year}.")
                 continue
 
-            logger.info(f"    Cloning {table}")
+            logger.debug(f"    Cloning {table} for {year}")
             dbf = pc.ferc1_tbl2dbf[table]
             dbf_filename = os.path.join(
                 datadir(year, basedir), f"{dbf}.DBF")
@@ -303,7 +323,7 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
             # pc.ferc1_dbf2tbl is a dictionary mapping DBF files to SQL table
             # names
             sql_table_name = pc.ferc1_dbf2tbl[dbf]
-            sql_stmt = sa.dialects.postgresql.insert(
+            sql_stmt = sa.sql.expression.insert(
                 ferc1_meta.tables[sql_table_name])
 
             # Build up a list of dictionaries to INSERT into the postgres
@@ -323,8 +343,6 @@ def init_db(ferc1_tables=pc.ferc1_default_tables,
             # does not have a year field... F1_1 is the DBF file that stores
             # this table:
             if dbf == 'F1_1':
-                sql_stmt = sql_stmt.on_conflict_do_nothing()
-
                 for resp_id, resp_name in pc.missing_respondents_ferc1.items():
                     sql_records.append(
                         {'respondent_id': resp_id,

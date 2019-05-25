@@ -47,25 +47,11 @@ SETTINGS['csvdir'] = os.path.join(SETTINGS['pudl_dir'], 'results', 'csvdump')
 # the `.pgpass` file without fussing around in the config.)
 # sqlalchemy.URL will make a URL missing post (therefore using the default),
 # and missing a password (which will make the system look for .pgpass)
-SETTINGS['db_ferc1'] = {
-    'drivername': 'postgresql',
-    'host': '127.0.0.1',
-    'username': 'catalyst',
-    'database': 'ferc1'
-}
-
 SETTINGS['db_pudl'] = {
     'drivername': 'postgresql',
     'host': '127.0.0.1',
     'username': 'catalyst',
     'database': 'pudl'
-}
-
-SETTINGS['db_ferc1_test'] = {
-    'drivername': 'postgresql',
-    'host': '127.0.0.1',
-    'username': 'catalyst',
-    'database': 'ferc1_test'
 }
 
 SETTINGS['db_pudl_test'] = {
@@ -74,3 +60,11 @@ SETTINGS['db_pudl_test'] = {
     'username': 'catalyst',
     'database': 'pudl_test'
 }
+
+SETTINGS['ferc1_sqlite_url'] = "sqlite:///" + os.path.join(
+    SETTINGS['pudl_dir'], 'results', 'sqlite', 'ferc1.db'
+)
+
+SETTINGS['ferc1_test_sqlite_url'] = "sqlite:///" + os.path.join(
+    SETTINGS['pudl_dir'], 'results', 'sqlite', 'ferc1_test.db'
+)
