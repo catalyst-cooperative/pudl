@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """This is a script for initializing the PUDL database locally."""
 
+import logging
 import sys
 import argparse
 import pudl
@@ -11,6 +12,14 @@ import pudl.models.eia860
 import pudl.models.eia923
 import pudl.models.entities
 import pudl.models.ferc1
+
+# Create a logger to output any messages we might have...
+logger = logging.getLogger(pudl.__name__)
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 # require modern python
 if not sys.version_info >= (3, 6):
@@ -52,7 +61,6 @@ def main():
                                refyear=settings_init['ferc1_ref_year'],
                                years=settings_init['ferc1_years'],
                                def_db=True,
-                               verbose=settings_init['verbose'],
                                testing=settings_init['ferc1_testing'])
 
     pudl.init.init_db(ferc1_tables=settings_init['ferc1_tables'],
@@ -63,8 +71,6 @@ def main():
                       eia860_years=settings_init['eia860_years'],
                       epacems_years=settings_init['epacems_years'],
                       epacems_states=settings_init['epacems_states'],
-                      verbose=settings_init['verbose'],
-                      debug=settings_init['debug'],
                       pudl_testing=settings_init['pudl_testing'],
                       ferc1_testing=settings_init['ferc1_testing'],
                       csvdir=SETTINGS['csvdir'],

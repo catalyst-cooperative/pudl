@@ -37,12 +37,8 @@ ferc1_ref_year: 2017
 # are many relationships between the EIA 923 and EIA 860 tables, and in general
 # they should be imported together.
 eia923_tables:
-  - plants_eia923
   - generation_fuel_eia923
-  - plant_ownership_eia923
   - boiler_fuel_eia923
-  - boilers_eia923
-  - generators_eia923
   - generation_eia923
   - coalmine_eia923 # coalmine_eia923 REQUIRES fuel_receipts_costs_eia923
   - fuel_receipts_costs_eia923
@@ -74,9 +70,6 @@ epacems_years: [2016, 2017, 2018]
 # epacems_states: []
 epacems_states: [NJ]
 # epacems_states: [ALL]
-
-# If verbose is True, the script will print out a progress report as it runs
-verbose: True
 
 # These settings are mostly used for development work, testing the ETL process.
 # If you set pudl_testing or ferc1_testing to true, then instead of populating
