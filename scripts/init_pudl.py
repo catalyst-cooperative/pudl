@@ -5,13 +5,6 @@ import logging
 import sys
 import argparse
 import pudl
-import pudl.constants as pc
-from pudl.settings import SETTINGS
-import pudl.models.glue
-import pudl.models.eia860
-import pudl.models.eia923
-import pudl.models.entities
-import pudl.models.ferc1
 
 # Create a logger to output any messages we might have...
 logger = logging.getLogger(pudl.__name__)
@@ -35,9 +28,8 @@ def parse_command_line(argv):
     :param argv: arguments on the command line must include caller file name.
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--settings_file', dest='settings_file',
-                        type=str, help="Specify a YAML settings file.",
-                        default='settings.yml')
+    parser.add_argument(dest='settings_file', type=str, default='',
+                        help="Specify a YAML settings file.")
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -57,12 +49,6 @@ def main():
         epacems_states=settings_init['epacems_states']
     )
 
-    pudl.extract.ferc1.init_db(ferc1_tables=pc.ferc1_default_tables,
-                               refyear=settings_init['ferc1_ref_year'],
-                               years=settings_init['ferc1_years'],
-                               def_db=True,
-                               testing=settings_init['ferc1_testing'])
-
     pudl.init.init_db(ferc1_tables=settings_init['ferc1_tables'],
                       ferc1_years=settings_init['ferc1_years'],
                       eia923_tables=settings_init['eia923_tables'],
@@ -73,7 +59,7 @@ def main():
                       epacems_states=settings_init['epacems_states'],
                       pudl_testing=settings_init['pudl_testing'],
                       ferc1_testing=settings_init['ferc1_testing'],
-                      csvdir=SETTINGS['csvdir'],
+                      csvdir=settings_init['csvdir'],
                       keep_csv=settings_init['keep_csv'])
 
 

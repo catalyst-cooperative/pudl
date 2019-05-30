@@ -544,8 +544,6 @@ def _ETL_cems(pudl_engine, epacems_years, csvdir, keep_csv, states):
     """"""
     # If we're not doing CEMS, just stop here to avoid printing messages like
     # "Reading EPA CEMS data...", which could be confusing.
-    # if states[0].lower() == 'none':
-    #    return None
     if not states or not epacems_years:
         logger.info('Not ingesting EPA CEMS.')
         return None

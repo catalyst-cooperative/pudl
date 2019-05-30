@@ -76,30 +76,27 @@ def ferc1_engine(live_ferc_db):
     If we are using the test database, we initialize it from scratch first.
     If we're using the live database, then we just yield a conneciton to it.
     """
-    ferc1_tables = pc.ferc1_default_tables
-    ferc1_refyear = max(pc.working_years['ferc1'])
+    # Avoid the 6.5 GB of binary garbage in these tables for testing....
+    tables = [
+        tbl for tbl in pc.ferc1_tbl2dbf if tbl not in pc.ferc1_huge_tables
+    ]
+    refyear = max(pc.working_years['ferc1'])
+    testing = not live_ferc_db
 
-    if not live_ferc_db:
-        pudl.extract.ferc1.init_db(ferc1_tables=ferc1_tables,
-                                   refyear=ferc1_refyear,
-                                   # years=pc.working_years['ferc1'],
-                                   years=pc.data_years['ferc1'],
-                                   def_db=True,
-                                   testing=True)
+    if testing:
+        pudl.extract.ferc1.dbf2sqlite(
+            tables=tables,
+            years=pc.data_years['ferc1'],
+            refyear=refyear,
+            testing=testing)
 
-        # Grab a connection to the freshly populated database, and hand it off.
-        ferc1_engine = pudl.extract.ferc1.connect_db(testing=True)
-        yield ferc1_engine
+    # Grab a connection to the freshly populated database, and hand it off.
+    engine = pudl.extract.ferc1.connect_db(testing=testing)
+    yield engine
 
+    if testing:
         # Clean up after ourselves by dropping the test DB tables.
-        pudl.extract.ferc1.drop_tables(ferc1_engine)
-    else:
-        logger.info("Constructing FERC1 DB MetaData based on refyear {}".
-                    format(ferc1_refyear))
-        pudl.extract.ferc1.define_db(
-            ferc1_refyear, ferc1_tables, pudl.extract.ferc1.ferc1_meta)
-        logger.info("Connecting to the live FERC1 database.")
-        yield pudl.extract.ferc1.connect_db(testing=False)
+        pudl.extract.ferc1.drop_tables(engine)
 
 
 @pytest.fixture(scope='session')
@@ -143,31 +140,24 @@ def ferc1_engine_travis_ci(live_ferc_db):
     If we are using the test database, we initialize it from scratch first.
     If we're using the live database, then we just yield a conneciton to it.
     """
-    ferc1_tables = pc.ferc1_default_tables
-    #ferc1_tables = list(pc.ferc1_working_table_years.keys())
-    ferc1_refyear = max(pc.travis_ci_ferc1_years)
-    ferc1_testing = (not live_ferc_db)
+    tables = pc.ferc1_default_tables
+    refyear = max(pc.travis_ci_ferc1_years)
+    testing = (not live_ferc_db)
 
-    if ferc1_testing:
-        pudl.extract.ferc1.init_db(
-            ferc1_tables=ferc1_tables,
-            refyear=ferc1_refyear,
+    if testing:
+        pudl.extract.ferc1.dbf2sqlite(
+            tables=tables,
             years=pc.travis_ci_ferc1_years,
-            def_db=True,
-            testing=True)
+            refyear=refyear,
+            testing=testing)
 
-        # Grab a connection to the freshly populated database, and hand it off.
-        ferc1_engine = pudl.extract.ferc1.connect_db(testing=ferc1_testing)
-        yield ferc1_engine
+    # Grab a connection to the approbriate SQLite database, and hand it off.
+    engine = pudl.extract.ferc1.connect_db(testing=testing)
+    yield engine
+
+    if testing:
         # Clean up after ourselves by dropping the test DB tables.
-        pudl.extract.ferc1.drop_tables(ferc1_engine)
-    else:
-        logger.info("Constructing FERC1 DB MetaData based on refyear {}".
-                    format(ferc1_refyear))
-        pudl.extract.ferc1.define_db(
-            ferc1_refyear, ferc1_tables, pudl.extract.ferc1.ferc1_meta)
-        logger.info("Connecting to the live FERC1 database.")
-        yield pudl.extract.ferc1.connect_db(testing=ferc1_testing)
+        pudl.extract.ferc1.drop_tables(engine)
 
 
 @pytest.fixture(scope='session')

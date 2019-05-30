@@ -14,6 +14,7 @@ import os.path
 from difflib import SequenceMatcher
 import pandas as pd
 import numpy as np
+import re
 
 # These modules are required for the FERC Form 1 Plant ID & Time Series
 from sklearn.metrics.pairwise import cosine_similarity
@@ -21,7 +22,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.preprocessing import Normalizer, RobustScaler, MinMaxScaler
+from sklearn.preprocessing import Normalizer, MinMaxScaler
 from sklearn.preprocessing import OneHotEncoder
 
 # NetworkX is used to knit incomplete ferc plant time series together.
@@ -38,7 +39,7 @@ logger = logging.getLogger(__name__)
 ##############################################################################
 
 
-def _clean_cols(df):
+def _clean_cols(df, table_name):
     """
     Add a FERC record ID and drop FERC columns not to be loaded into PUDL.
 
@@ -67,17 +68,20 @@ def _clean_cols(df):
      - item
      - report_prd
      - record_number (temp column used in plants_small)
+     - *_f (all footnote columns)
     """
     assert ~df.report_year.isnull().any()
     assert ~df.respondent_id.isnull().any()
     assert ~df.spplmnt_num.isnull().any()
     assert ~df.row_number.isnull().any()
     # Create a unique inter-year FERC table record ID:
-    df['record_id'] = \
-        df.report_year.astype(str) + '_' + \
-        df.respondent_id.astype(str) + '_' + \
-        df.spplmnt_num.astype(str) + '_' + \
+    df['record_id'] = (
+        table_name + '_' +
+        df.report_year.astype(str) + '_' +
+        df.respondent_id.astype(str) + '_' +
+        df.spplmnt_num.astype(str) + '_' +
         df.row_number.astype(str)
+    )
 
     unused_cols = [
         'spplmnt_num',
@@ -88,7 +92,11 @@ def _clean_cols(df):
         'item',
         'record_number'
     ]
-    df = df.drop([col for col in unused_cols if col in df.columns], axis=1)
+
+    # Drop any _f columns... since we're not using the FERC Footnotes...
+    footnote_cols = [col for col in df.columns if re.match('.*_f$', col)]
+
+    df = df.drop(unused_cols + footnote_cols, errors='ignore', axis=1)
 
     return df
 
@@ -174,7 +182,8 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     """
     # grab table from dictionary of dfs
-    ferc1_steam_df = _clean_cols(ferc1_raw_dfs['plants_steam_ferc1'])
+    ferc1_steam_df = _clean_cols(
+        ferc1_raw_dfs['plants_steam_ferc1'], 'f1_steam')
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space -- necesary b/c plant_name is part of many foreign keys.
@@ -383,7 +392,8 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
     Returns: transformed dataframe.
     """
     # grab table from dictionary of dfs, clean it up a bit
-    fuel_ferc1_df = _clean_cols(ferc1_raw_dfs['fuel_ferc1'])
+    fuel_ferc1_df = _clean_cols(
+        ferc1_raw_dfs['fuel_ferc1'], 'f1_fuel')
 
     #########################################################################
     # STANDARDIZE NAMES AND CODES ###########################################
@@ -577,7 +587,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
                                   'record_number'])
 
     # Remove extraneous columns and add a record ID
-    ferc1_small_df = _clean_cols(ferc1_small_df)
+    ferc1_small_df = _clean_cols(ferc1_small_df, 'f1_gnrt_plant')
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space, so that plant_name matches formatting of plant_name_raw
@@ -639,7 +649,8 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
     Returns: transformed dataframe.
     """
     # grab table from dictionary of dfs
-    ferc1_hydro_df = _clean_cols(ferc1_raw_dfs['plants_hydro_ferc1'])
+    ferc1_hydro_df = _clean_cols(
+        ferc1_raw_dfs['plants_hydro_ferc1'], 'f1_hydro')
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space -- necesary b/c plant_name is part of many foreign keys.
@@ -733,7 +744,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     # grab table from dictionary of dfs
     ferc1_pump_df = _clean_cols(
-        ferc1_raw_dfs['plants_pumped_storage_ferc1'])
+        ferc1_raw_dfs['plants_pumped_storage_ferc1'], 'f1_pumped_storage')
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space -- necesary b/c plant_name is part of many foreign keys.
@@ -849,7 +860,7 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_pis_df = pd.merge(ferc1_pis_df, ferc_accts_df,
                             how='left', on='row_number')
-    ferc1_pis_df = _clean_cols(ferc1_pis_df)
+    ferc1_pis_df = _clean_cols(ferc1_pis_df, 'f1_plant_in_srvce')
 
     ferc1_pis_df.rename(columns={
         # FERC 1 DB Name  PUDL DB Name
@@ -884,7 +895,8 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
     Returns: transformed dataframe.
     """
     # grab table from dictionary of dfs
-    df = (_clean_cols(ferc1_raw_dfs['purchased_power_ferc1'])
+    df = (_clean_cols(ferc1_raw_dfs['purchased_power_ferc1'],
+                      'f1_purchased_pwr')
           .replace({"": "NA"}, "")
           .replace(to_replace='', value=np.nan)
           .rename(columns={
@@ -975,7 +987,8 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_accumdepr_prvsn_df = pd.merge(ferc1_apd_df, ferc1_acct_apd,
                                         how='left', on='row_number')
-    ferc1_accumdepr_prvsn_df = _clean_cols(ferc1_accumdepr_prvsn_df)
+    ferc1_accumdepr_prvsn_df = _clean_cols(
+        ferc1_accumdepr_prvsn_df, 'f1_accumdepr_prvsn')
 
     ferc1_accumdepr_prvsn_df.rename(columns={
         # FERC1 DB   PUDL DB
