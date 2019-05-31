@@ -651,6 +651,9 @@ def main(eia_transformed_dfs,
          eia860_years=pc.working_years['eia860'],
          debug=False):
     """Create dfs for EIA Entity tables."""
+    if not eia923_years or not eia860_years:
+        logger.info('Not ingesting EIA')
+        return None
     # create the empty entities df to fill up
     entities_dfs = {}
 
