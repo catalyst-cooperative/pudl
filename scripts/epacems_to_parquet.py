@@ -57,11 +57,13 @@ IN_DTYPES = {
 
 # Note that parquet's internal representation doesn't use unsigned numbers or
 # 16-bit ints, so just keep things simple here and always use int32 and float32.
+# Fields that may be NaN have to be float32, not int32 or pandas' Int32
+# (float32 can accurately hold integers up to 16,777,216 so no need for float64)
 OUT_DTYPES = {
-    'year': 'int32',
+    'year': 'int32', # never missing; note that this is UTC year
     'state': 'category',
     # 'plant_name': 'category',
-    'plant_id_eia': 'int32',
+    'plant_id_eia': 'int32', # never missing
     'unitid': 'str',
     'gross_load_mw': 'float32',
     'steam_load_1000_lbs': 'float32',
@@ -74,8 +76,8 @@ OUT_DTYPES = {
     'co2_mass_tons': 'float32',
     'co2_mass_measurement_code': 'category',
     'heat_content_mmbtu': 'float32',
-    'facility_id': 'int32',
-    'unit_id_epa': 'int32',
+    'facility_id': 'float32', # sometimes missing, max value  8,421
+    'unit_id_epa': 'float32', # sometimes missing, max value 91,294
     'operating_datetime_utc': pd.DatetimeTZDtype(tz="UTC"),
     'operating_time_hours': 'float32'
 }
