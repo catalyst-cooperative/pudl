@@ -21,7 +21,7 @@ ferc1_to_sqlite.py settings_ferc1_to_sqlite_full.yml
 
 # Load the real PUDL DB. Note that you will need to edit the settings
 # file to choose which data you want to load.
-#init_pudl.py settings_init_pudl_custom.yml
+init_pudl.py settings_init_pudl_custom.yml
 
 # Now run some tests that access the PUDL database and sanity check the data:
 pytest --disable-warnings --live_pudl_db test/validation/

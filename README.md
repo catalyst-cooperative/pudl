@@ -13,13 +13,14 @@ uses information from the Federal Energy Regulatory Commission (FERC), the
 Energy Information Administration (EIA), and the Environmental Protection
 Agency (EPA), among others.
 
-### Quickstart
-Just want to get started building a database? Read the setup guide for your
-operating system: **[Linux](/docs/getting_started_linux.md)**, **[Mac OS X](/docs/getting_started_mac.md)**, or **[Windows](/docs/getting_started_pc.md)**.
+### Quickstart:
+Just want to liberate your own copy of the data? Read our
+[getting started guide](/docs/getting_started.md).
 
-### Contact [Catalyst Cooperative](https://catalyst.coop):
+### Contact Catalyst Cooperative:
+ - Web: [https://catalyst.coop](https://catalyst.coop)
  - Email: [pudl@catalyst.coop](mailto:pudl@catalyst.coop)
- - Chat: https://gitter.im/catalyst-cooperative/pudl
+ - Gitter: https://gitter.im/catalyst-cooperative/pudl
  - Twitter: [@CatalystCoop](https://twitter.com/CatalystCoop)
 
 ---
@@ -55,15 +56,16 @@ We also want to bring best practices from the world of software engineering and 
  * [Good enough practices in scientific computing](https://doi.org/10.1371/journal.pcbi.1005510) (PLOS Computational Biology, 2017)
 
 ---
-# Status (as of 2019-02-10)
+# Project Status (as of 2019-06-03)
 
 ## Available Data
 ### [FERC Form 1 (2004-2017)](https://www.ferc.gov/docs-filing/forms/form-1/data.asp)
 A subset of the FERC Form 1 data, mostly pertaining to power plants, their
-capital & operating expenses, and fuel consumption. This data is available for
-the years 2004-2017. Earlier data is available from FERC, but the structure
-of their database differs slightly from the present version somewhat before
-2004, and so more work will be required to integrate that information.
+capital & operating expenses, and fuel consumption. This data has been
+integrated into PUDL for the years 2004-2017. More work will be required to
+integrate the rest of the years and data. However we make *all* of the FERC
+Form 1 data available (7.2 GB of data in 116 tables, going back to 1994) in its
+raw form via an SQLite database.
 
 ### [EIA Form 923 (2009-2017)](https://www.eia.gov/electricity/data/eia923/)
 Nearly all of EIA Form 923 is being pulled into the PUDL database, for years
@@ -84,53 +86,73 @@ process of being integrated. However, it is a much larger dataset than the FERC
 or EIA data we've already brought in, and so has required some changes to the
 overall ETL process. Data from 1995-2017 can be loaded, but it has not yet
 been fully integrated. The ETL process for all states and all years takes about
-8 hours on a fast laptop.
+8 hours on a fast laptop. Many thanks to [Karl Dunkle Werner](https://github.com/karldw) for contributing much of the EPA CEMS Hourly ETL code.
 
 ## Current Work:
-Our present focus is on:
-* **[Issue #144](https://github.com/catalyst-cooperative/pudl/issues/144)** Automatically assigning unique IDs to plants reported in FERC Form 1 so that time series can be extracted from the multi-year data, and integrating FERC non-fuel operating expenses with EIA fuel expenses to estimate per-generator MCOE.
-* **[Issue #204](https://github.com/catalyst-cooperative/pudl/issues/204)** Performing regressions on the non-fuel expenses reported by plants in FERC Form 1, to estimate the fixed vs. variable costs for different categories of plants. This will allow us to estimate the overall marginal cost of electricity for a plant at a given capacity factor and fuel price.
-* **[Issue #211](https://github.com/catalyst-cooperative/pudl/issues/211)** Automating the creation of human and machine readable [tabular data packages](https://frictionlessdata.io) containing all of the above data for platform independent redistribution.
-* Generally cleaning up some of the data integration and adding more complete test cases, as well as some curated Jupyter notebooks that automatically provide both quantitative and visual sanity checks on the data as it's loaded into the database.
+For the remainder of Q2 2019 we are focusing on:
+* **[Publishing the data](https://github.com/catalyst-cooperative/pudl/projects/5)**
+using platform independent CSV/JSON based [Tabular Data Packages](https://frictionlessdata.io/specs/tabular-data-package/) that can populate a relational database, or be accessed directly via spreadsheets and other tools, while removing the requirement that users set up a local PostgreSQL database. This work has been generously supported by the [Flora Family Foundation](https://www.florafamily.org/) and the [Frictionless Data](https://frictionlessdata.io) program of the [Open Knowledge Foundation](https://okfn.org).
+* **[Finalizing FERC Form 1](https://github.com/catalyst-cooperative/pudl/projects/3)**
+with at least a "good enough" integration of the plant and fuel data, so that the non-fuel operating costs can be used to estimate the marginal cost of electricity on a per-generator basis, in combination with the fuel costs from EIA 923.
+* **[Packaging PUDL for release on PyPI](https://github.com/catalyst-cooperative/pudl/projects/12)** rather than requiring users to clone the repository, we want to make it available via familiar Python package management systems, with a goal of making quarterly releases... starting at the end of June 2019!
+* **[Finalizing the EPA CEMS Hourly](https://github.com/catalyst-cooperative/pudl/projects/9)** data integration with at least "good enough" timezone cleanup, linkages to the EIA860 plants and generators, and the most accessible output we can manage for a dataset with 800,000,000 records.
 
-## Future Work:
-PUDL is mostly a volunteer effort at the moment, but if we are able to secure some stable support for the project, or build up a larger community of contributors, there's a lot of interesting work we could do!
+## Funded Work:
+Thanks to the generous support of the [Alfred P. Sloan Foundation Energy & Environment Program](https://sloan.org/programs/energy-and-environment), we are
+funded to work on PUDL through the spring of 2020! You can follow along on the
+adventure in our [GitHub
+Projects](https://github.com/catalyst-cooperative/pudl/projects), and get
+involved if you feel so inclined! Here's a brief summary of what we have
+planned.
 
-### Additional Data:
-There's a huge variety and quantity of data about the US electric utility system
-available to the public. The data listed above is just the beginning! Other data we've heard demand for are listed below. If you're interested in using one of them, and would like to add it to PUDL, check out [our page on contributing](/docs/CONTRIBUTING.md)
-* **FERC Form 714:** which includes hourly loads, reported by load balancing
-  authorities annually. This is a modestly sized dataset, in the 100s of MB, distributed as Microsoft Excel spreadsheets.
-* **FERC EQR:** Aka the Electricity Quarterly Report, this includes the details of many transactions between different utilities, and between utilities and merchant generators. It covers ancillary services as well as energy and capacity, time and location of delivery, prices, contract length, etc. It's one of the few public sources of information about renewable energy power purchase agreements (PPAs). This is a large (~100s of GB) dataset, composed of a very large number of relatively clean CSV files, but it requires fuzzy processing to get at some of the interesting  and only indirectly reported attributes.
-* **EIA Form 861:** Includes information about utility demand side management programs, distribution systems, total sales by customer class, net generation, ultimate disposition of power, and other information. This is a smaller dataset (~100s of MB) distributed as Microsoft Excel spreadsheets.
-* **ISO/RTO LMP:** Locational marginal electricity pricing information from the various grid operators (e.g. MISO, CAISO, NEISO, PJM, ERCOT...). At high time resolution, with many different delivery nodes, this can become a very large dataset (100s of GB). The format for the data is different for each of the ISOs. Physical location of the delivery nodes is not always publicly available.
-* **MSHA Mines & Production:** Describes coal production by mine and operating company, along with statistics about labor productivity and safety. This is a smaller dataset (100s of MB) available as relatively clean and well structured CSV files.
-* **PHMSA Natural Gas Pipelines:** the Pipeline and Hazardous Materials Safety Administration (which is part of the US Dept. of Transportation) collects data about the natural gas transmission and distribution system, including their age, length, diameter, materials, and carrying capacity.
-* **US Grid Models:** In order to run electricity system operations models and cost optimizations, you need some kind of model of the interconnections between generation and loads. There doesn't appear to be a generally accepted, publicly available set of these network descriptions (yet!).
+### More & Better Data
+ * Fully integrating **EPA CEMS Hourly**
+ * More years and tables from **FERC Form 1**
+ * **EIA Form 860 for 2009-2011**
+ * **EIA Form 861** This includes information about utility demand side management programs, distribution systems, total sales by customer class, net generation, ultimate disposition of power, and other information. This is a smaller dataset (~100s of MB) distributed as Microsoft Excel spreadsheets.
+ * **ISO/RTO LMP** Locational marginal electricity pricing information from the various grid operators (e.g. MISO, CAISO, NEISO, PJM, ERCOT...). At high time resolution, with many different delivery nodes, this can become a very large dataset (100s of GB). The format for the data is different for each of the ISOs. Physical location of the delivery nodes is not always publicly available.
+ * **Year-to-date updates** with monthly frequency for more frequently released datasets.
 
-### Other Data?
-If there are other valuable public datasets related to the US energy system that aren't already easily accessible for use in programmatic analysis, you can [create a a new issue](https://github.com/catalyst-cooperative/pudl/issues/new/choose) describing the data, explaining why it's interesting, and linking to it. Tag it [new data](https://github.com/catalyst-cooperative/pudl/issues?q=is%3Aissue+is%3Aopen+label%3A%22new+data%22).
 
-### PUDL in the Cloud
-As the volume of data integrated into PUDL increases, the idea of distributing
-the data by asking users to either run the processing pipeline themselves, or
-to increasingly large collections of data packages to do their own analyses
-becomes less and less practical. One alternative is to deploy our ready to use
-data alongside other publicly available data of interest in a cloud computing
-platform that also offers computational resources for working with the data.
-This way there could be a single copy of the data shared by many people, which
-is updated frequently, minimizing the administrative overhead required to work
-with it.
+### Improved Accessibility
+In addition to integrating more data we are working on making these resources more easily usable, with an initial focus on research applications.
 
+#### Making PUDL Citeable
+Reproducibility and citeability are key requirements for research applications. We will be archiving the published data and [associated released code](https://guides.github.com/activities/citable-code/) with digital object identifiers (DOIs) on [Zenodo](https://zenodo.org/)
+
+#### Putting PUDL in the Cloud
+As the volume of data integrated into PUDL increases, distributing the data by
+asking users to either run the processing pipeline themselves, or to download
+hundreds of GB of data packages to do their own analyses becomes less and less
+practical. One alternative is to deploy our ready to use data alongside other
+publicly available data of interest in a cloud computing environment that also
+offers computational resources for working with the data. This way a single
+copy of the data can be shared by many people and updated frequently,
+minimizing the technical and administrative overhead required to work with it.
 The [Pangeo](https://pangeo.io) platform does exactly this for various
 communities of Earth scientists, using a
 [JupyterHub](https://jupyterhub.readthedocs.io/en/stable/) deployment that
 includes commonly used scientific software packages and a shared domain
-specific data repository. If there's interest from potential users, we'd like
-to set up this kind of open and collaborative analysis platform.
+specific data repository.
+
+
+## Potential Future Work:
+There's a huge variety and quantity of data about the US electric utility system
+available to the public. The data listed above is just the beginning! Other data we've heard demand for are listed below. If you're interested in using one of them, and would like to add it to PUDL, check out [our page on contributing](/docs/CONTRIBUTING.md)
+* **[EIA Water](https://www.eia.gov/electricity/data/water/):** which records water use by thermal generating stations in the US.
+* **[FERC Form 714](https://www.ferc.gov/docs-filing/forms/form-714/data.asp):** which includes hourly loads, reported by load balancing
+  authorities annually. This is a modestly sized dataset, in the 100s of MB, distributed as Microsoft Excel spreadsheets.
+* **[FERC EQR](https://www.ferc.gov/docs-filing/eqr/q2-2013/data/database.asp):** Aka the Electricity Quarterly Report, this includes the details of many transactions between different utilities, and between utilities and merchant generators. It covers ancillary services as well as energy and capacity, time and location of delivery, prices, contract length, etc. It's one of the few public sources of information about renewable energy power purchase agreements (PPAs). This is a large (~100s of GB) dataset, composed of a very large number of relatively clean CSV files, but it requires fuzzy processing to get at some of the interesting  and only indirectly reported attributes.
+* **[MSHA Mines & Production](https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp):** Describes coal production by mine and operating company, along with statistics about labor productivity and safety. This is a smaller dataset (100s of MB) available as relatively clean and well structured CSV files.
+* **[PHMSA Natural Gas Pipelines](https://cms.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids):** the Pipeline and Hazardous Materials Safety Administration (which is part of the US Dept. of Transportation) collects data about the natural gas transmission and distribution system, including their age, length, diameter, materials, and carrying capacity.
+* **US Grid Models:** In order to run electricity system operations models and cost optimizations, you need some kind of model of the interconnections between generation and loads. There doesn't appear to be a generally accepted, publicly available set of these network descriptions (yet!).
+
+### What are we forgetting?
+If there are other valuable public datasets related to the US energy system that aren't already easily accessible for use in programmatic analysis, you can [create a a new issue](https://github.com/catalyst-cooperative/pudl/issues/new/choose) describing the data, explaining why it's interesting, and linking to it. Tag it [new data](https://github.com/catalyst-cooperative/pudl/issues?q=is%3Aissue+is%3Aopen+label%3A%22new+data%22).
+
 
 ---
-# Project Organization
+# Repository Organization
 The PUDL repository is organized generally around the recommendations from [Good enough practices in scientific computing](https://doi.org/10.1371/journal.pcbi.1005510))
 
 ### data/
@@ -183,13 +205,34 @@ the PUDL database.  These scripts are generally meant to be run from within the
 usage. Run `python script_name.py --help` to for more information.
 
 ### test/
-The test directory holds test cases which are run with `pytest`. To run a
-complete suite of tests that ingests all of the available and working data, and
-performs some post-ingest analysis, you simply run `pytest` from the top level
-PUDL directory. You can choose to run the post-analysis tests using an
-existing, live (rather than test) database by adding `--live_pudl_db` and
-`--live_ferc_db` to the command line. Populating the test database from scratch
-can take ~20 minutes. After the tests have completed, the test database is
-dropped. See `pytest --help` for more information.
+The test directory holds test cases that we use to ensure that `pudl` is in good working order before we make commits. The tests are run with `pytest`.  For more information on how to run all of the tests, check read through the [test_pudl.sh](../scripts/test_pudl.sh) script. To test pretty much everything looks like:
+
+```sh
+# Make sure that the datastore management routines work:
+pytest test/datastore_test.py
+
+# Then actually update your datastore, if need be.
+# This may take hours if you pull down everything over a slow connection:
+python scripts/update_datastore.py --sources eia860 eia923 ferc1 epacems
+
+# Do a small subset of the ETL to ensure nothing is horrible b0rken:
+pytest test/travis_ci_test.py
+
+# Do a full test of the ETL process:
+pytest test/etl_test.py
+
+# If that worked, actually run the ETL process
+# First clone the FERC 1 database:
+python scripts/ferc1_to_sqlite.py scripts/settings_ferc1_to_sqlite_full.yml
+
+# Now run the PUDL DB initialization script:
+python scripts/init_pudl.py scripts/settings_init_pudl_custom.yml
+
+# Do some basic validation of the data now in the database:
+pytest --live_pudl_db test/validation
+
+# Validate the testing and documentation Jupyter Notebooks:
+pytest --nbval-lax test/notebooks docs/notebooks
+```
 
 More information on PyTest can be found at: http://docs.pytest.org/en/latest/
