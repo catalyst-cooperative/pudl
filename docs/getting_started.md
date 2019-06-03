@@ -9,8 +9,8 @@ also work on other Debian based Linux distributions.
  * Clone the PUDL repo.
  * Install PUDL's Python dependencies using some flavor of conda.
  * Create a postgres user and the required `pudl` and `pudl_test` databases.
- * Use the [`update_datastore.py`](../scripts/update_datastore.py) script to download the public data you're interested in.
- * Use the [`init_ferc1.py`](../scripts/init_ferc1.py) and [`init_pudl.py`](../scripts/init_pudl.py) scripts to process the raw data and load it into the database you just created..
+ * Use the [`update_datastore.py`](/scripts/update_datastore.py) script to download the public data you're interested in.
+ * Use the [`ferc1_to_sqlite.py`](/scripts/ferc1_to_sqlite.py) and [`init_pudl.py`](/scripts/init_pudl.py) scripts to process the raw data and load it into the database you just created..
 
 ---
 ## 1. Review the Requirements
@@ -19,7 +19,7 @@ PUDL depends on other open source tools as well as public data sources.
 ### Python 3.6+
 We use the [Anaconda](https://www.anaconda.com/download/) Python 3 distribution, and
 manage package dependencies using conda environments. See the PUDL
-[`environment.yml`](../environment.yml) file at the top level of the repository
+[`environment.yml`](/environment.yml) file at the top level of the repository
 for the most up to date list of required Python packages and their versions.
 
 ### A Relational Database
@@ -27,7 +27,7 @@ PUDL is currently designed to populate a local [Postgres](https://www.postgresql
 
 ### The Glorious Public Data
 All that software isn't any good without some data! The raw data comes from the
-US government.  The [update_datastore.py](../scripts/update_datastore.py)
+US government.  The [update_datastore.py](/scripts/update_datastore.py)
 script efficiently downloads and organizes this data for you, so that PUDL
 knows where to find it. Currently the data PUDL can ingest includes:
  - **[EIA Form 860](https://www.eia.gov/electricity/data/eia860/)** (2011-2017) All available data is **~400 MB** on disk and about **half a million** records in the database.
@@ -253,12 +253,12 @@ This will create a file-based SQLite database that you can find at `results/sqli
 
 Note that this script pulls *all* the data into a single database, rather than keeping it split out by year, as in the original data as distributed. Virtually all the database tables contain a `report_year` column that indicates which year they came from. One notable exception is the `f1_respondent_id` table, which maps `respondent_id`'s to the names of the respondents. For that table, we have allowed the most recently reported record to take precedence.
 
-The FERC Form 1 database is not particularly... relational. The only foreign key relationships that exist map `respondent_id` fields in the individual data tables back to `f1_respondent_id`. In theory, most of the data tables use `report_year`, `respondent_id`, `row_number`, `spplmnt_num` and `report_prd` as a composite primary key (at least, according to [this design document we found](ferc/form1/FERC_Form1_Database_Design_Diagram_2015.pdf)). However in practice, there are several thousand records (out of ~12 million), including some in almost every database table, that violate the uniqueness constraint on those primary keys (which are apparently not strictly enforced by FoxPro?). Given the lack of meaningful foreign key relationships, we chose to preserve all of the records and use surrogate autoincrementing primary keys in the cloned SQLite database.
+The FERC Form 1 database is not particularly... relational. The only foreign key relationships that exist map `respondent_id` fields in the individual data tables back to `f1_respondent_id`. In theory, most of the data tables use `report_year`, `respondent_id`, `row_number`, `spplmnt_num` and `report_prd` as a composite primary key (at least, according to [this design document we found](/docs/ferc/form1/FERC_Form1_Database_Design_Diagram_2015.pdf)). However in practice, there are several thousand records (out of ~12 million), including some in almost every database table, that violate the uniqueness constraint on those primary keys (which are apparently not strictly enforced by FoxPro?). Given the lack of meaningful foreign key relationships, we chose to preserve all of the records and use surrogate autoincrementing primary keys in the cloned SQLite database.
 
 ### Initialize the PUDL Database
 Once the FERC Form 1 database has been cloned, you can use another script to pull all the data together in the PUDL PostgreSQL database.
 
-The script is controlled by a human readable configuration file written in YAML. We provide an example in `scripts/settings_init_pudl_default.yml`. You should make a copy of the file, maybe called something like `settings_init_pudl_local.yml` and modify it to suit your purposes -- including the years and data sources that you need to work with.  Or, if you have plenty of time and space, you can just tell it to pull in everything. However, be warned that the EPA CEMS Hourly dataset is ~100 GB uncompressed, and will typically take hours to load.
+The script is controlled by a human readable configuration file written in YAML. We provide an example in `[scripts/settings_init_pudl_default.yml](/scripts/settings_init_pudl_default.yml)`. You should make a copy of the file, maybe called something like `settings_init_pudl_local.yml` and modify it to suit your purposes -- including the years and data sources that you need to work with.  Or, if you have plenty of time and space, you can just tell it to pull in everything. However, be warned that the EPA CEMS Hourly dataset is ~100 GB uncompressed, and will typically take hours to load.
 
 To initalize the PUDL database, go into the `scripts` directory and type:
 
@@ -274,8 +274,8 @@ Depending on which data sources and how many years of data you have requested, t
 ## 7. Accessing the Data
 
 Once `init_pudl.py` finishes running, you have a live PostgreSQL database named `pudl` which you can access as the `catalyst` user that you set up above, via whatever tools you're most familiar with. We primarily use interactive [Jupyter notebooks](https://jupyter.org/), and there are several example notebooks included in the repository that should be tested and working. Any notebook found in either of these directories should work:
- * `docs/notebooks/`
- * `test/notebooks/`
+ * `[docs/notebooks/](/docs/notebooks)`
+ * `[test/notebooks/](/test/notebooks)`
 
 At the command line, you can start a local Jupyter Notebook server and access these notebooks. Make sure that you have the `pudl` conda environment activated in the top level of the repository and then launch one of the notebooks like this:
 
@@ -287,15 +287,15 @@ or, if you would rather use the newer JupyterLab interface you can do:
 jupyter-lab
 ```
 and then use the file browser on the left hand side to navigate down into the
-`docs/notebooks` or `test/notbooks` directories to pick a notebook to play
-with or create your own notebook, using one of ours as a template. In addition
-to accessing the data within the PUDL database, these notebooks show you how to
-access some of analyses that we've built on top of the PUDL database, such as
-estimating the marginal cost of electricity from fuel on a per-generator basis.
+`[docs/notebooks](/docs/notebooks)` or `[test/notbooks](/test/notebooks)` directories to pick a notebook to play with or create your own notebook,
+using one of ours as a template. In addition to accessing the data within the
+PUDL database, these notebooks show you how to access some of analyses that
+we've built on top of the PUDL database, such as estimating the marginal cost
+of electricity from fuel on a per-generator basis.
 
 ## 8. Contributing
 If you've made it this far, congratulations! Hopefully you've now got gigabytes of US energy system data at your fingertips! We would love to get your suggestions and feedback. For instance you could...
- * Check out our [Code of Conduct](CODE_OF_CONDUCT.md)
+ * Check out our [Code of Conduct](/docs/CODE_OF_CONDUCT.md)
  * File a [bug report](https://github.com/catalyst-cooperative/pudl/issues/new?template=bug_report.md) if you find something that's broken.
  * Make a [feature request](https://github.com/catalyst-cooperative/pudl/issues/new?template=feature_request.md) if you think there's something we should add.
  * Email us at [pudl@catalyst.coop](mailto:pudl@catalyst.coop)

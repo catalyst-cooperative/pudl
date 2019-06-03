@@ -188,13 +188,13 @@ We are beginning to accumulate analytical functionality in the [analysis subpack
    spreadsheet columns to database column names over the years, or the list of
    codes describing fuel types in EIA923.
 
- - [`./pudl/helpers.py`](/pudl/constants.py) contains a collection of
+ - [`./pudl/helpers.py`](/pudl/helpers.py) contains a collection of
    helper functions that are used throughout the project.
 
 ### results/
 The results directory contains derived data products. These are outputs from our manipulation and combination of the original data, that are necessary for the integration of those data sets into the central database. It also contains outputs we've generated for others.
 
-The results directory also contains [a collection of Jupyter notebooks](/pudl/results/notebooks) (which desperately needs organizing) presenting various data processing or analysis tasks, such as pulling the required IDs from the cloned FERC database to use in matching up plants and utilities between FERC and EIA datasets.
+The results directory also contains [a collection of Jupyter notebooks](/results/notebooks) (which desperately needs organizing) presenting various data processing or analysis tasks, such as pulling the required IDs from the cloned FERC database to use in matching up plants and utilities between FERC and EIA datasets.
 
 ### scripts/
 A collection of command line tools written in Python and used for high level
@@ -205,7 +205,7 @@ the PUDL database.  These scripts are generally meant to be run from within the
 usage. Run `python script_name.py --help` to for more information.
 
 ### test/
-The test directory holds test cases that we use to ensure that `pudl` is in good working order before we make commits. The tests are run with `pytest`.  For more information on how to run all of the tests, check read through the [test_pudl.sh](../scripts/test_pudl.sh) script. To test pretty much everything looks like:
+The test directory holds test cases that we use to ensure that `pudl` is in good working order before we make commits. The tests are run with `pytest`.  For more information on how to run all of the tests, check read through the [test_pudl.sh](/scripts/test_pudl.sh) script. To test pretty much everything looks like:
 
 ```sh
 # Make sure that the datastore management routines work:
