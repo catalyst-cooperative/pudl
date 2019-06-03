@@ -52,15 +52,11 @@ For more on conda environments see [here](https://conda.io/docs/user-guide/tasks
 1. [Download](https://www.postgresql.org/download/windows/) the Postgres installer.
 The EnterpriseDB version is fine; you don't need the extras included in BigSQL.
 Install the latest PostgreSQL version (currently 10.2) for Windows (32- or 64-bit).
-
 2. The installer requires you to set a password for the `postgres` user.
 Remember this.
 In the installation, do install you should install PostgreSQL server and pgAdmin 4.
 The installer offers other things, like Stack Builder, that aren't necessary.
-
 3. We can now set up our PostgreSQL databases. Open the pgAdmin 4 program.
-
-
 4. In pgAdmin 4, log into the `postgres` account.
 5. Right click "Login/Group Roles" and add a new user called `catalyst`. Set a password for the `catalyst` user.
     - Grant the catalyst users permissions to login and create databases.

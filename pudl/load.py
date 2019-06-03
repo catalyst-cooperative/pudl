@@ -27,6 +27,7 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
     which takes slightly less memory than the DataFrame itself.
 
     Args:
+    -----
         df (pandas.DataFrame): The DataFrame which is to be dumped to CSV and
             loaded into the database. All DataFrame columns must have exactly
             the same names as the database fields they are meant to populate,
@@ -45,7 +46,11 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
             has been loaded into the database. False if they should be deleted.
             NOTE: If multiple COPYs are done for the same table_name, only
             the last will be retained by keep_csv, which may be unsatisfying.
-    Returns: Nothing.
+
+    Returns:
+    --------
+        None
+
     """
 
     tbl = pudl.models.entities.PUDLBase.metadata.tables[table_name]
