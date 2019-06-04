@@ -8,8 +8,25 @@ a parameterized fixture that has session scope.
 import logging
 import pytest
 from scipy import stats
+import pudl.constants as pc
+import pandas as pd
 
 logger = logging.getLogger(__name__)
+
+@pytest.mark.ferc1
+@pytest.mark.post_etl
+@pytest.mark.parametrize("table_name", pc.pudl_tables["ferc1"])
+def test_record_id_dupes(pudl_engine, table_name):
+    """Verify that the generated ferc1 record_ids are unique."""
+    table = pd.read_sql(table_name, pudl_engine)
+    n_dupes = table.record_id.duplicated().values.sum()
+    logger.info(f"{n_dupes} duplicate record_ids found in {table_name}")
+
+    if n_dupes:
+        dupe_ids = (table.record_id[table.record_id.duplicated()].values)
+        raise AssertionError(
+            f"{n_dupes} duplicate record_ids found in {table_name}: {dupe_ids}."
+        )
 
 
 @pytest.mark.ferc1

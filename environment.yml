@@ -12,8 +12,8 @@ dependencies:
   - jupyter
   - jupyterlab
   - matplotlib
-  - networkx
   - nbval
+  - networkx
   - numpy
   - pandas
   - pip

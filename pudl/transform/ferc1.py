@@ -56,7 +56,7 @@ def _clean_cols(df, table_name):
     those columns and that none of them are NULL, and adds a new column to the
     dataframe containing a string of the format:
 
-    {report_year}_{respondent_id}_{spplmnt_num}_{row_number}
+    {table_name}_{report_year}_{respondent_id}_{spplmnt_num}_{row_number}
 
     In addition there are some columns which are not meaningful or useful in
     the context of PUDL, but which show up in virtually every FERC table, and
@@ -67,13 +67,16 @@ def _clean_cols(df, table_name):
      - row_seq
      - item
      - report_prd
-     - record_number (temp column used in plants_small)
+     - record_number (a temporary column used in plants_small)
      - *_f (all footnote columns)
     """
-    assert ~df.report_year.isnull().any()
-    assert ~df.respondent_id.isnull().any()
-    assert ~df.spplmnt_num.isnull().any()
-    assert ~df.row_number.isnull().any()
+    # Make sure that *all* of these columns exist in the proffered table:
+    for field in ['report_year', 'respondent_id', 'spplmnt_num', 'row_number']:
+        if df[field].isnull().any():
+            raise AssertionError(
+                f"Null field {field} found in ferc1 table {table_name}."
+            )
+
     # Create a unique inter-year FERC table record ID:
     df['record_id'] = (
         table_name + '_' +
@@ -82,6 +85,17 @@ def _clean_cols(df, table_name):
         df.spplmnt_num.astype(str) + '_' +
         df.row_number.astype(str)
     )
+
+    # Check to make sure that the generated record_id is unique... since that's
+    # kind of the whole point. There are couple of genuine bad records here
+    # that are taken care of in the transform step, so just print a warning:
+    n_dupes = df.record_id.duplicated().values.sum()
+    if n_dupes:
+        dupe_ids = df.record_id[df.record_id.duplicated()].values
+        logger.warning(
+            f"{n_dupes} duplicate record_id values found "
+            f"in pre-transform table {table_name}: {dupe_ids}."
+        )
 
     unused_cols = [
         'spplmnt_num',
@@ -95,7 +109,7 @@ def _clean_cols(df, table_name):
 
     # Drop any _f columns... since we're not using the FERC Footnotes...
     footnote_cols = [col for col in df.columns if re.match('.*_f$', col)]
-
+    # Drop these columns and don't complain about it if they don't exist:
     df = df.drop(unused_cols + footnote_cols, errors='ignore', axis=1)
 
     return df
@@ -1001,7 +1015,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def transform(ferc1_raw_dfs, ferc1_tables=pc.ferc1_pudl_tables):
+def transform(ferc1_raw_dfs, ferc1_tables=pc.pudl_tables['ferc1']):
     """Transform FERC 1."""
     ferc1_transform_functions = {
         # fuel must come before steam b/c fuel proportions are used to aid in
