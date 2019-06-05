@@ -24,7 +24,7 @@ ferc1_to_sqlite.py settings_ferc1_to_sqlite_full.yml
 init_pudl.py settings_init_pudl_custom.yml
 
 # Now run some tests that access the PUDL database and sanity check the data:
-pytest --disable-warnings --live_pudl_db test/validation/
+pytest --disable-warnings --live_ferc_db --live_pudl_db test/validation/
 
 # Attempt to run some notebooks which also exercise the data,
 # The --nbval-lax flag tells pytest only to check for a lack of errors in the
