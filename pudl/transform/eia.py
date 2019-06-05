@@ -569,9 +569,11 @@ def _boiler_generator_assn(eia_transformed_dfs,
             # All the boiler-generator association graphs should be bi-partite,
             # meaning generators only connect to boilers, and boilers only
             # connect to generators.
-            assert nx.algorithms.bipartite.is_bipartite(unit), \
-                """Non-bipartite generation unit graph found.
-    plant_id_eia={}, unit_id_pudl={}.""".format(pid, unit_id)
+            if not nx.algorithms.bipartite.is_bipartite(unit):
+                raise AssertionError(
+                    f"Non-bipartite generation unit graph found."
+                    f"plant_id_eia={pid}, unit_id_pudl={unit_id}."
+                )
             nx.set_edge_attributes(
                 unit, name='unit_id_pudl', values=unit_id + 1)
             new_unit_df = nx.to_pandas_edgelist(unit)
@@ -605,17 +607,25 @@ def _boiler_generator_assn(eia_transformed_dfs,
 
     # These assertions test that all boilers and generators ended up in the
     # same unit_id across all the years of reporting:
-    assert (bga_w_units.groupby(
-        ['plant_id_eia', 'generator_id'])['unit_id_pudl'].nunique() == 1).all()
-    assert (bga_w_units.groupby(
-        ['plant_id_eia', 'boiler_id'])['unit_id_pudl'].nunique() == 1).all()
+    pgu_gb = bga_w_units.groupby(
+        ['plant_id_eia', 'generator_id'])['unit_id_pudl']
+    if not (pgu_gb.nunique() == 1).all():
+        raise AssertionError("Inconsistent inter-annual BGA assignment!")
+    pbu_gb = bga_w_units.groupby(
+        ['plant_id_eia', 'boiler_id'])['unit_id_pudl']
+    if not (bpu_gb.nunique() == 1).all():
+        raise AssertionError("Inconsistent inter-annual BGA assignment!")
+
     bga_w_units = bga_w_units.drop('report_date', axis=1)
     bga_w_units = bga_w_units[['plant_id_eia', 'unit_id_pudl',
                                'generator_id', 'boiler_id']].drop_duplicates()
     bga_out = pd.merge(bga_out, bga_w_units, how='left',
                        on=['plant_id_eia', 'generator_id', 'boiler_id'])
-    bga_out['unit_id_pudl'] = \
-        bga_out['unit_id_pudl'].fillna(value=0).astype(int)
+    bga_out['unit_id_pudl'] = (
+        bga_out['unit_id_pudl'].
+        fillna(value=0).
+        astype(int)
+    )
 
     if not debug:
         bga_out = bga_out[~bga_out.missing_from_923
@@ -670,9 +680,8 @@ def main(eia_transformed_dfs,
     # get rid of the original annual dfs in the transformed dict
     remove = ['generators', 'plants', 'utilities']
     for entity in remove:
-        eia_transformed_dfs['{}_eia860'.format(entity)] = \
-            eia_transformed_dfs.pop('{}_annual_eia'.format(entity),
-                                    '{}_annual_eia'.format(entity))
+        eia_transformed_dfs[f'{entity}_eia860'] = \
+            eia_transformed_dfs.pop(f'{entity}_annual_eia',
     # remove the boilers annual table bc it has no columns
     eia_transformed_dfs.pop('boilers_annual_eia',)
 
