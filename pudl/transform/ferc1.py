@@ -198,7 +198,6 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
     # grab table from dictionary of dfs
     ferc1_steam_df = _clean_cols(
         ferc1_raw_dfs['plants_steam_ferc1'], 'f1_steam')
-
     # Standardize plant_name capitalization and remove leading/trailing white
     # space -- necesary b/c plant_name is part of many foreign keys.
     ferc1_steam_df = pudl.helpers.strip_lower(ferc1_steam_df, ['plant_name'])
@@ -230,8 +229,7 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
     # Converting everything to per MW and MWh units...
     ferc1_steam_df['cost_per_mw'] = 1000 * ferc1_steam_df['cost_per_kw']
     ferc1_steam_df.drop('cost_per_kw', axis=1, inplace=True)
-    ferc1_steam_df['net_generation_mwh'] = \
-        ferc1_steam_df['net_generation'] / 1000
+    ferc1_steam_df['net_generation_mwh'] = ferc1_steam_df['net_generation'] / 1000
     ferc1_steam_df.drop('net_generation', axis=1, inplace=True)
     ferc1_steam_df['expns_per_mwh'] = 1000 * ferc1_steam_df['expns_kwh']
     ferc1_steam_df.drop('expns_kwh', axis=1, inplace=True)
@@ -352,28 +350,44 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
     # them a FERC Plant ID, and pull the results back out into a dataframe:
     plants_w_ids = pd.DataFrame()
     for plant_id_ferc1, plant in enumerate(ferc_plants):
-        nx.set_edge_attributes(plant, plant_id_ferc1 +
-                               1, name='plant_id_ferc1')
+        nx.set_edge_attributes(plant,
+                               plant_id_ferc1 + 1,
+                               name='plant_id_ferc1')
         new_plant_df = nx.to_pandas_edgelist(plant)
         plants_w_ids = plants_w_ids.append(new_plant_df)
     logger.info(
         f"Successfully Identified {plant_id_ferc1+1-len(orphan_record_ids)} "
         f"multi-year plant entities.")
-
-    # Ultimately we just want a record_id to plant_id_ferc1 mapping, so we can
-    # ignore the target record_id now:
-    plants_w_ids = plants_w_ids.drop('target', axis=1).drop_duplicates()
-    plants_w_ids = plants_w_ids.rename({'source': 'record_id'}, axis=1)
-    # This is just so we can look at the results easily.
-    plants_w_ids = plants_w_ids.sort_values(['plant_id_ferc1', 'record_id'])
-
+    # Now we need a list of all the record IDs, with their associated
+    # FERC 1 plant IDs. However, the source-target listing isn't
+    # guaranteed to list every one of the nodes in either list, so we
+    # need to compile them together to ensure that we get every single
+    sources = (
+        plants_w_ids.
+        drop('target', axis=1).
+        drop_duplicates().
+        rename({'source': 'record_id'}, axis=1)
+    )
+    targets = (
+        plants_w_ids.
+        drop('source', axis=1).
+        drop_duplicates().
+        rename({'target': 'record_id'}, axis=1)
+    )
+    plants_w_ids = (
+        pd.concat([sources, targets]).
+        drop_duplicates().
+        sort_values(['plant_id_ferc1', 'record_id'])
+    )
+    steam_rids = ferc1_steam_df.record_id.values
+    pwids_rids = plants_w_ids.record_id.values
+    missing_ids = [id for id in steam_rids if id not in pwids_rids]
+    if missing_ids:
+        raise AssertionError(
+            f"Uh oh, we lost {abs(len(steam_rids)-len(pwids_rids))} FERC "
+            f"steam plant record IDs: {missing_ids}"
+        )
     ferc1_steam_df = pd.merge(ferc1_steam_df, plants_w_ids, on='record_id')
-
-    raw_len = len(ferc1_raw_dfs['plants_steam_ferc1'])
-    tfr_len = len(ferc1_steam_df)
-    logger.info(
-        f"FERC Form 1 transform step began with {raw_len} raw steam plant "
-        f"records and ended with {tfr_len} transformed steam plant records.")
 
     # Set the construction year back to numeric because it is.
     ferc1_steam_df['construction_year'] = pd.to_numeric(
@@ -418,10 +432,9 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     # Take the messy free-form fuel & fuel_unit fields, and do our best to
     # map them to some canonical categories... this is necessarily imperfect:
-    fuel_ferc1_df.fuel = \
-        pudl.helpers.cleanstrings(fuel_ferc1_df.fuel,
-                                  pc.ferc1_fuel_strings,
-                                  unmapped='')
+    fuel_ferc1_df.fuel = pudl.helpers.cleanstrings(fuel_ferc1_df.fuel,
+                                                   pc.ferc1_fuel_strings,
+                                                   unmapped='')
 
     fuel_ferc1_df.fuel_unit = \
         pudl.helpers.cleanstrings(fuel_ferc1_df.fuel_unit,
