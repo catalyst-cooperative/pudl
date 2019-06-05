@@ -682,6 +682,7 @@ def main(eia_transformed_dfs,
     for entity in remove:
         eia_transformed_dfs[f'{entity}_eia860'] = \
             eia_transformed_dfs.pop(f'{entity}_annual_eia',
+                                    f'{entity}_annual_eia')
     # remove the boilers annual table bc it has no columns
     eia_transformed_dfs.pop('boilers_annual_eia',)
 
