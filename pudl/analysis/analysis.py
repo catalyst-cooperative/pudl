@@ -1,5 +1,7 @@
 """A module with functions to aid in data analysis using the PUDL database."""
 
+import logging
+
 # Useful high-level external modules.
 import numpy as np
 import pandas as pd
@@ -14,6 +16,8 @@ import pudl.helpers
 import pudl.models.ferc1
 import pudl.models.entities
 import pudl.models.eia923
+
+logger = logging.getLogger(__name__)
 
 
 def simple_select(table_name, pudl_engine):
@@ -967,9 +971,44 @@ def fercplants(plant_tables=('f1_steam',
         # not in the PUDL index.
         new_index = ferc1_plants_all.index.difference(ferc1_plants_old.index)
         if new_index.size == 0:
-            return(print('No new plants found.'))
+            logger.info("No new plants found.")
+            return
         ferc1_plants = ferc1_plants_all.loc[new_index].reset_index()
     else:
         ferc1_plants = ferc1_plants_all
 
     return ferc1_plants
+
+
+def check_ferc1_tables(refyear=2017):
+    """
+    Test whether each possible combination of FERC Form 1 table and year are
+    compatible with the database schema associated with the reference year.
+    """
+    good_table_years = {}
+    tables = list(pc.ferc1_dbf2tbl.values())
+    # This is a special table, to which every other table refers, it will be
+    # loaded alongside every table we test.
+    tables.remove('f1_respondent_id')
+    for table in tables:
+        good_years = []
+        print(f"'{table}': [", end="", flush=True)
+        for yr in pc.data_years['ferc1']:
+            try:
+                pudl.extract.ferc1.init_db(
+                    ferc1_tables=['f1_respondent_id', table],
+                    refyear=refyear,
+                    years=[yr, ],
+                    def_db=True,
+                    testing=True,
+                    force_tables=True)
+                good_years = good_years + [yr, ]
+                print(f"{yr},", end=" ", flush=True)
+            except:
+                continue
+            ferc1_engine = pudl.extract.ferc1.connect_db(testing=True)
+            pudl.extract.ferc1.drop_tables(ferc1_engine)
+        good_table_years[table] = good_years
+        print("],", flush=True)
+
+    return good_table_years

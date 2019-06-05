@@ -16,12 +16,6 @@ def settings_init(settings_file="settings.yml"):
     with open(os.path.join(PUDL_DIR, 'scripts', settings_file), "r") as f:
         settings_out = yaml.safe_load(f)
 
-    # if the refyear is set to none, but there are ferc1_years, set the refyear
-    # to be the max of ferc1_years
-    if settings_out['ferc1_years']:
-        if not settings_out['ferc1_ref_year']:
-            settings_out['ferc1_ref_year'] = max(settings_out['ferc1_years'])
-
     return settings_out
 
 
@@ -47,25 +41,11 @@ SETTINGS['csvdir'] = os.path.join(SETTINGS['pudl_dir'], 'results', 'csvdump')
 # the `.pgpass` file without fussing around in the config.)
 # sqlalchemy.URL will make a URL missing post (therefore using the default),
 # and missing a password (which will make the system look for .pgpass)
-SETTINGS['db_ferc1'] = {
-    'drivername': 'postgresql',
-    'host': '127.0.0.1',
-    'username': 'catalyst',
-    'database': 'ferc1'
-}
-
 SETTINGS['db_pudl'] = {
     'drivername': 'postgresql',
     'host': '127.0.0.1',
     'username': 'catalyst',
     'database': 'pudl'
-}
-
-SETTINGS['db_ferc1_test'] = {
-    'drivername': 'postgresql',
-    'host': '127.0.0.1',
-    'username': 'catalyst',
-    'database': 'ferc1_test'
 }
 
 SETTINGS['db_pudl_test'] = {
@@ -74,3 +54,11 @@ SETTINGS['db_pudl_test'] = {
     'username': 'catalyst',
     'database': 'pudl_test'
 }
+
+SETTINGS['ferc1_sqlite_url'] = "sqlite:///" + os.path.join(
+    SETTINGS['pudl_dir'], 'results', 'sqlite', 'ferc1.sqlite'
+)
+
+SETTINGS['ferc1_test_sqlite_url'] = "sqlite:///" + os.path.join(
+    SETTINGS['pudl_dir'], 'results', 'sqlite', 'ferc1_test.sqlite'
+)

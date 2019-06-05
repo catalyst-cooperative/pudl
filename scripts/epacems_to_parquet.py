@@ -24,6 +24,7 @@ For more information on working with these systems check out:
  * https://pangio.io
 """
 
+import logging
 import os
 import sys
 import argparse
@@ -33,6 +34,14 @@ import pyarrow.parquet as pq
 import pudl
 from pudl.settings import SETTINGS
 import pudl.constants as pc
+
+# Create a logger to output any messages we might have...
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 # require modern python
 if not sys.version_info >= (3, 6):
@@ -46,12 +55,16 @@ IN_DTYPES = {
     'unit_id_epa': str,
 }
 
+# Note that parquet's internal representation doesn't use unsigned numbers or
+# 16-bit ints, so just keep things simple here and always use int32 and float32.
+# Fields that may be NaN have to be float32, not int32 or pandas' Int32
+# (float32 can accurately hold integers up to 16,777,216 so no need for float64)
 OUT_DTYPES = {
-    'year': 'uint16',
+    'year': 'int32', # never missing; note that this is UTC year
     'state': 'category',
     # 'plant_name': 'category',
-    'plant_id_eia': 'uint16',
-    'unitid': 'category',
+    'plant_id_eia': 'int32', # never missing
+    'unitid': 'str',
     'gross_load_mw': 'float32',
     'steam_load_1000_lbs': 'float32',
     'so2_mass_lbs': 'float32',
@@ -63,8 +76,8 @@ OUT_DTYPES = {
     'co2_mass_tons': 'float32',
     'co2_mass_measurement_code': 'category',
     'heat_content_mmbtu': 'float32',
-    'facility_id': 'category',
-    'unit_id_epa': 'category',
+    'facility_id': 'float32', # sometimes missing, max value  8,421
+    'unit_id_epa': 'float32', # sometimes missing, max value 91,294
     'operating_datetime_utc': pd.DatetimeTZDtype(tz="UTC"),
     'operating_time_hours': 'float32'
 }
@@ -77,15 +90,6 @@ def parse_command_line(argv):
     :param argv: arguments on the command line must include caller file name.
     """
     parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        '-q',
-        '--quiet',
-        dest='verbose',
-        action='store_false',
-        help="Quiet mode. Suppress download progress indicators and warnings.",
-        default=True
-    )
     parser.add_argument(
         '-d',
         '--datadir',
@@ -153,14 +157,6 @@ def parse_command_line(argv):
     return arguments
 
 
-def downcast_numeric(df, from_dtype, to_dtype):
-    """Downcast columns from_dtype to_dtype to save space."""
-    to_downcast = df.select_dtypes(include=[from_dtype])
-    for col in to_downcast.columns:
-        df[col] = pd.to_numeric(to_downcast[col], downcast=to_dtype)
-    return df
-
-
 def year_from_operating_datetime(df):
     """Add a 'year' column based on the year in the operating_datetime."""
     df['year'] = df.operating_datetime_utc.dt.year
@@ -186,16 +182,10 @@ def cems_to_parquet(transformed_df_dicts, outdir=None, schema=None,
 
     for df_dict in transformed_df_dicts:
         for yr_st, df in df_dict.items():
-            print(f'            {yr_st}: {len(df)} records')
+            logger.info(f"            {yr_st}: {len(df)} records")
             if not df.empty:
                 df = (
                     df.astype(IN_DTYPES)
-                    .pipe(downcast_numeric,
-                          from_dtype='float',
-                          to_dtype='float')
-                    .pipe(downcast_numeric,
-                          from_dtype='int',
-                          to_dtype='unsigned')
                     .pipe(year_from_operating_datetime)
                     .astype(OUT_DTYPES)
                 )
@@ -224,11 +214,10 @@ def main():
     # original raw data from EPA as needed.
     raw_dfs = pudl.extract.epacems.extract(
         epacems_years=args.years,
-        states=args.states,
-        verbose=args.verbose
+        states=args.states
     )
     transformed_dfs = pudl.transform.epacems.transform(
-        pudl_engine=pudl_engine, epacems_raw_dfs=raw_dfs, verbose=args.verbose
+        pudl_engine=pudl_engine, epacems_raw_dfs=raw_dfs
     )
 
     # Do a few additional manipulations specific to the Apache Parquet output,

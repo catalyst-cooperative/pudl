@@ -1,11 +1,13 @@
 """Routines specific to cleaning up EPA CEMS hourly data."""
 
+import logging
 import pandas as pd
 import numpy as np
 import sqlalchemy as sa
 import pudl
 import pudl.constants as pc
 
+logger = logging.getLogger(__name__)
 ###############################################################################
 ###############################################################################
 # DATATABLE TRANSFORM FUNCTIONS
@@ -32,19 +34,20 @@ def fix_up_dates(df, plant_utc_offset):
         pd.to_datetime(
             df["op_date"], format=r"%m-%d-%Y", exact=True, cache=True, utc=True
         )
-        +
-        # Add the hour
-        pd.to_timedelta(df["op_hour"], unit="h", box=False)
+
+ # Add the hour
+        + pd.to_timedelta(df["op_hour"], unit="h", box=False)
     )
     df = df.merge(plant_utc_offset, how="left", on="plant_id_eia")
     # Some of the timezones in the plants_entity_eia table may be missing,
     # but none of the CEMS plants should be.
     if not df["utc_offset"].notna().all():
-        missing_plants = df.loc[df["utc_offset"].isna(), "plant_id_eia"].unique()
+        missing_plants = df.loc[df["utc_offset"].isna(),
+                                "plant_id_eia"].unique()
         raise ValueError(
             "utc_offset should never be missing for CEMS plants, but was missing " +
             "for these: " + str(list(missing_plants))
-            )
+        )
     # Add the offset from UTC. CEMS data don't have DST, so the offset is
     # always the same for a given plant.
     df["operating_datetime_utc"] = df["op_datetime_naive"] + df["utc_offset"]
@@ -83,8 +86,10 @@ def harmonize_eia_epa_orispl(df):
     Harmonize the ORISPL code to match the EIA data -- NOT YET IMPLEMENTED
 
     Args:
+    -----
         df(pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
-    Output:
+    Returns:
+    --------
         pandas.DataFrame: The same data, with the ORISPL plant codes corrected
         to  match the EIA.
 
@@ -94,6 +99,7 @@ def harmonize_eia_epa_orispl(df):
 
     Note that this transformation needs to be run *before* fix_up_dates, because
     fix_up_dates uses the plant ID to look up timezones.
+
     """
     # TODO: implement this.
     return df
@@ -106,9 +112,12 @@ def add_facility_id_unit_id_epa(df):
     two columns aren't present before August 2008, so add them in.
 
     Args:
+    -----
         df (pd.DataFrame): A CEMS dataframe
     Returns:
+    --------
         The same DataFrame guaranteed to have int facility_id and unit_id_epa cols
+
     """
     if ("facility_id" not in df.columns) or ("unit_id_epa" not in df.columns):
         # Can't just assign np.NaN and get an integer NaN, so make a new array
@@ -159,10 +168,8 @@ def correct_gross_load_mw(df):
     return df
 
 
-def transform(pudl_engine, epacems_raw_dfs, verbose=True):
+def transform(pudl_engine, epacems_raw_dfs):
     """Transform EPA CEMS hourly"""
-    if verbose:
-        print("Transforming tables from EPA CEMS:")
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
     # a transformation pipeline, and yield it back as another generator.
     plant_utc_offset = _load_plant_utc_offset(pudl_engine)

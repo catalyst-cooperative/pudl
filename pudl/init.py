@@ -14,6 +14,7 @@ This module defines database tables and initializes them with data from:
    - Continuous Emissions Monitory System (epacems)
 """
 
+import logging
 import os.path
 import datetime
 import time
@@ -26,11 +27,12 @@ import pudl.models.glue
 import pudl.models.eia923
 import pudl.models.eia860
 import pudl.models.ferc1
-import pudl.models.eia
 import pudl.models.epacems
 
 import pudl.constants as pc
 from pudl.settings import SETTINGS
+
+logger = logging.getLogger(__name__)
 
 ###############################################################################
 ###############################################################################
@@ -60,10 +62,11 @@ def drop_tables(engine):
         _drop_views(engine)
         pudl.models.entities.PUDLBase.metadata.drop_all(engine)
     except sa.exc.DBAPIError as e:
-        print("""Error dropping and the existing tables. This sometimes
-        happens when the database organization has changed. The easiest fix
-        is to reset the databases. Instructions here:
-        https://github.com/catalyst-cooperative/pudl/blob/master/docs/reset_instructions.md""")
+        logger.error(
+            """Failed to drop and re-create the existing tables. This sometimes
+happens when the database organization has changed. The easiest fix
+is to reset the databases. Instructions here:
+https://github.com/catalyst-cooperative/pudl/blob/master/docs/reset_instructions.md""")
         raise e
 
 
@@ -483,57 +486,48 @@ def _ingest_glue_eia_ferc1(engine,
 ###############################################################################
 
 
-def _ETL_ferc1(pudl_engine, ferc1_tables, ferc1_years, verbose, ferc1_testing,
+def _ETL_ferc1(pudl_engine, ferc1_tables, ferc1_years, ferc1_testing,
                csvdir, keep_csv):
     if not ferc1_years or not ferc1_tables:
-        if verbose:
-            print('Not ingesting FERC1')
+        logger.info('Not ingesting FERC1')
         return None
 
     # Extract FERC form 1
     ferc1_raw_dfs = pudl.extract.ferc1.extract(ferc1_tables=ferc1_tables,
                                                ferc1_years=ferc1_years,
-                                               testing=ferc1_testing,
-                                               verbose=verbose)
+                                               testing=ferc1_testing)
     # Transform FERC form 1
-    ferc1_transformed_dfs = pudl.transform.ferc1.transform(ferc1_raw_dfs,
-                                                           ferc1_tables=ferc1_tables,
-                                                           verbose=verbose)
+    ferc1_transformed_dfs = pudl.transform.ferc1.transform(
+        ferc1_raw_dfs, ferc1_tables=ferc1_tables)
     # Load FERC form 1
     pudl.load.dict_dump_load(ferc1_transformed_dfs,
                              "FERC 1",
                              pudl_engine,
                              need_fix_inting=pc.need_fix_inting,
-                             verbose=verbose,
                              csvdir=csvdir,
                              keep_csv=keep_csv)
 
 
 def _ETL_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables,
-             eia860_years, verbose, csvdir, keep_csv):
+             eia860_years, csvdir, keep_csv):
     # Extract EIA forms 923, 860
-    eia923_raw_dfs = pudl.extract.eia923.extract(eia923_years=eia923_years,
-                                                 verbose=verbose)
-    eia860_raw_dfs = pudl.extract.eia860.extract(eia860_years=eia860_years,
-                                                 verbose=verbose)
+    eia923_raw_dfs = pudl.extract.eia923.extract(eia923_years=eia923_years)
+    eia860_raw_dfs = pudl.extract.eia860.extract(eia860_years=eia860_years)
     # Transform EIA forms 923, 860
     eia923_transformed_dfs = \
         pudl.transform.eia923.transform(eia923_raw_dfs,
-                                        eia923_tables=eia923_tables,
-                                        verbose=verbose)
+                                        eia923_tables=eia923_tables)
     eia860_transformed_dfs = \
         pudl.transform.eia860.transform(eia860_raw_dfs,
-                                        eia860_tables=eia860_tables,
-                                        verbose=verbose)
+                                        eia860_tables=eia860_tables)
     # create an eia transformed dfs dictionary
     eia_transformed_dfs = eia860_transformed_dfs.copy()
     eia_transformed_dfs.update(eia923_transformed_dfs.copy())
 
     entities_dfs, eia_transformed_dfs = \
-        pudl.transform.eia.transform(eia_transformed_dfs,
-                                     eia923_years=eia923_years,
-                                     eia860_years=eia860_years,
-                                     verbose=verbose)
+        pudl.transform.eia.main(eia_transformed_dfs,
+                                eia923_years=eia923_years,
+                                eia860_years=eia860_years)
     # Compile transformed dfs for loading...
     transformed_dfs = {"Entities": entities_dfs, "EIA": eia_transformed_dfs}
     # Load step
@@ -542,33 +536,28 @@ def _ETL_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables,
                                  data_source,
                                  pudl_engine,
                                  need_fix_inting=pc.need_fix_inting,
-                                 verbose=verbose,
                                  csvdir=csvdir,
                                  keep_csv=keep_csv)
 
 
-def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
+def _ETL_cems(pudl_engine, epacems_years, csvdir, keep_csv, states):
     """"""
     # If we're not doing CEMS, just stop here to avoid printing messages like
     # "Reading EPA CEMS data...", which could be confusing.
-    # if states[0].lower() == 'none':
-    #    return None
     if not states or not epacems_years:
-        if verbose:
-            print('Not ingesting EPA CEMS.')
+        logger.info('Not ingesting EPA CEMS.')
         return None
     if states[0].lower() == 'all':
         states = list(pc.cems_states.keys())
 
     # NOTE: This a generator for raw dataframes
     epacems_raw_dfs = pudl.extract.epacems.extract(
-        epacems_years=epacems_years, states=states, verbose=verbose)
+        epacems_years=epacems_years, states=states)
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform(
-        pudl_engine=pudl_engine, epacems_raw_dfs=epacems_raw_dfs, verbose=verbose
-    )
-    if verbose:
-        print("Loading tables from EPA CEMS into PUDL:")
+        pudl_engine=pudl_engine, epacems_raw_dfs=epacems_raw_dfs)
+    logger.info("Loading tables from EPA CEMS into PUDL:")
+    if logger.isEnabledFor(logging.INFO):
         start_time = time.monotonic()
     with pudl.load.BulkCopy(
             table_name="hourly_emissions_epacems",
@@ -582,19 +571,19 @@ def _ETL_cems(pudl_engine, epacems_years, verbose, csvdir, keep_csv, states):
             # The keys to the dict are a tuple (year, month, state)
             for transformed_df in transformed_df_dict.values():
                 loader.add(transformed_df)
-    if verbose:
+    if logger.isEnabledFor(logging.INFO):
         time_message = "    Loading    EPA CEMS took {}".format(
             time.strftime("%H:%M:%S",
                           time.gmtime(time.monotonic() - start_time)))
-        print(time_message)
+        logger.info(time_message)
         start_time = time.monotonic()
     pudl.models.epacems.finalize(pudl_engine)
-    if verbose:
+    if logger.isEnabledFor(logging.INFO):
         time_message = "    Finalizing EPA CEMS took {}".format(
             time.strftime("%H:%M:%S", time.gmtime(
                 time.monotonic() - start_time))
         )
-        print(time_message)
+        logger.info(time_message)
 
 
 def init_db(ferc1_tables=None,
@@ -605,10 +594,9 @@ def init_db(ferc1_tables=None,
             eia860_years=None,
             epacems_years=None,
             epacems_states=None,
-            verbose=None,
-            debug=None,
             pudl_testing=None,
             ferc1_testing=None,
+            debug=None,
             csvdir=None,
             keep_csv=None):
     """
@@ -641,9 +629,7 @@ def init_db(ferc1_tables=None,
     """
     # Make sure that the tables we're being asked to ingest can actually be
     # pulled into both the FERC Form 1 DB, and the PUDL DB...
-    if verbose:
-        print("Start ingest at {}".format(datetime.datetime.now().
-                                          strftime("%A, %d. %B %Y %I:%M%p")))
+    logger.info("Beginning PUDL DB ETL process.")
 
     if (not debug) and (ferc1_tables):
         for table in ferc1_tables:
@@ -678,12 +664,10 @@ def init_db(ferc1_tables=None,
                            engine=pudl_engine)
 
     # Populate all the static tables:
-    if verbose:
-        print("Ingesting static PUDL tables...")
+    logger.info("Ingesting static PUDL tables...")
     ingest_static_tables(pudl_engine)
     # Populate tables that relate FERC1 & EIA923 data to each other.
-    if verbose:
-        print("Sniffing EIA923/FERC1 glue tables...")
+    logger.info("Sniffing EIA923/FERC1 glue tables...")
     _ingest_glue(engine=pudl_engine,
                  eia923_years=eia923_years,
                  eia860_years=eia860_years,
@@ -697,7 +681,6 @@ def init_db(ferc1_tables=None,
     _ETL_ferc1(pudl_engine=pudl_engine,
                ferc1_tables=ferc1_tables,
                ferc1_years=ferc1_years,
-               verbose=verbose,
                ferc1_testing=ferc1_testing,
                csvdir=csvdir,
                keep_csv=keep_csv)
@@ -707,14 +690,12 @@ def init_db(ferc1_tables=None,
              eia923_years=eia923_years,
              eia860_tables=eia860_tables,
              eia860_years=eia860_years,
-             verbose=verbose,
              csvdir=csvdir,
              keep_csv=keep_csv)
     # ETL for EPA CEMS
     _ETL_cems(pudl_engine=pudl_engine,
               epacems_years=epacems_years,
               states=epacems_states,
-              verbose=verbose,
               csvdir=csvdir,
               keep_csv=keep_csv)
 

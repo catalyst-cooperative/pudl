@@ -7,6 +7,7 @@ This code is for use analyzing EIA Form 923 data. Currenly only
 years 2009-2016 work, as they share nearly identical file formatting.
 """
 
+import logging
 import os.path
 import glob
 import pandas as pd
@@ -14,6 +15,7 @@ import pudl
 from pudl.settings import SETTINGS
 import pudl.constants as pc
 
+logger = logging.getLogger(__name__)
 ###########################################################################
 # Helper functions & other objects to ingest & process Energy Information
 # Administration (EIA) Form 923 data.
@@ -117,8 +119,7 @@ def get_eia923_column_map(page, year):
 
 
 def get_eia923_page(page, eia923_xlsx,
-                    years=pc.working_years['eia923'],
-                    verbose=True):
+                    years=pc.working_years['eia923']):
     """
     Read a single table from several years of EIA923 data. Return a DataFrame.
 
@@ -144,13 +145,10 @@ def get_eia923_page(page, eia923_xlsx,
     assert page in pc.tab_map_eia923.columns and page != 'year_index',\
         f"Unrecognized EIA 923 page: {page}"
 
-    if verbose:
-        print(f'Converting EIA 923 {page} to DataFrame...', flush=True)
-        print(f'    ', end='', flush=True)
     df = pd.DataFrame()
     for yr in years:
-        if verbose:
-            print(f'{yr} ', end='', flush=True)
+        logger.info(f"Converting EIA 923 {page} spreadsheet tab from {yr} "
+                    f"into a pandas DataFrame")
         sheet_name, skiprows, column_map = get_eia923_column_map(page, yr)
         newdata = pd.read_excel(eia923_xlsx[yr],
                                 sheet_name=sheet_name,
@@ -176,11 +174,10 @@ def get_eia923_page(page, eia923_xlsx,
             newdata = newdata[~newdata.plant_id_eia.isin([99999, 999999])]
 
         df = df.append(newdata)
-    print("\n", end="", flush=True)
     return df
 
 
-def get_eia923_xlsx(years, verbose=True):
+def get_eia923_xlsx(years):
     """
     Read in Excel files to create Excel objects.
 
@@ -194,38 +191,27 @@ def get_eia923_xlsx(years, verbose=True):
         xlsx file of EIA Form 923 for input year(s)
     """
     eia923_xlsx = {}
-    if verbose:
-        print(" ")
-        print("=============================================================")
-        print("Extracting EIA 923 data from spreadsheets...", flush=True)
-        print("    ", end='', flush=True)
     for yr in years:
-        if verbose:
-            print(f"{yr} ", end='', flush=True)
+        logger.info(f"Extracting EIA 923 spreadsheets for {yr}.")
         eia923_xlsx[yr] = pd.ExcelFile(get_eia923_file(yr))
-    print(f"\n", end='', flush=True)
     return eia923_xlsx
 
 
-def extract(eia923_years=pc.working_years['eia923'],
-            verbose=True):
+def extract(eia923_years=pc.working_years['eia923']):
     """Extract all EIA 923 tables."""
     eia923_raw_dfs = {}
     if not eia923_years:
-        if verbose:
-            print('Not extracting EIA 923.')
+        logger.info('No years given. Not extracting EIA 923 spreadsheet data.')
         return eia923_raw_dfs
 
     # Prep for ingesting EIA923
     # Create excel objects
-    eia923_xlsx = get_eia923_xlsx(eia923_years,
-                                  verbose=verbose)
+    eia923_xlsx = get_eia923_xlsx(eia923_years)
 
     # Create DataFrames
     for page in pc.tab_map_eia923.columns:
         if page != 'plant_frame':
             eia923_raw_dfs[page] = get_eia923_page(page, eia923_xlsx,
-                                                   years=eia923_years,
-                                                   verbose=verbose)
+                                                   years=eia923_years)
 
     return eia923_raw_dfs

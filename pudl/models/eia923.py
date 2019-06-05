@@ -35,38 +35,6 @@ class CoalMineEIA923(pudl.models.entities.PUDLBase):
     mine_id_msha = Column(Integer)
 
 
-class BoilersEIA923(pudl.models.entities.PUDLBase):
-    """List of Boiler IDs specific to each plant in EIA Form 923 Page 3."""
-
-    __tablename__ = 'boilers_eia923'
-    # __table_args__ = (ForeignKeyConstraint(
-    #    ['plant_id_eia', 'boiler_id'],
-    #    ['boilers_entity_eia.plant_id_eia',
-    #     'boilers_entity_eia.boiler_id']),)
-    plant_id_eia = Column(Integer,
-                          primary_key=True)
-    boiler_id = Column(String, primary_key=True)
-    prime_mover_code = Column(String,
-                              ForeignKey('prime_movers_eia923.abbr'),
-                              nullable=False)
-
-
-class GeneratorEIA923(pudl.models.entities.PUDLBase):
-    """List of Generator IDs specific to each plant in EIA Form 923 Page 4."""
-
-    __tablename__ = 'generators_eia923'
-    __table_args__ = (ForeignKeyConstraint(
-        ['plant_id_eia', 'generator_id'],
-        ['generators_entity_eia.plant_id_eia',
-         'generators_entity_eia.generator_id']),)
-
-    plant_id_eia = Column(Integer, primary_key=True)
-    generator_id = Column(String, primary_key=True)
-    prime_mover_code = Column(String,
-                              ForeignKey('prime_movers_eia923.abbr'),
-                              nullable=False)
-
-
 class FuelTypeEIA923(pudl.models.entities.PUDLBase):
     """
     Static list of fuel types used by EIA in Form 923.
@@ -177,8 +145,8 @@ class BoilerFuelEIA923(pudl.models.entities.PUDLBase):
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     plant_id_eia = Column(Integer, nullable=False)
     boiler_id = Column(String, nullable=False)
-    prime_mover_code = Column(String, ForeignKey('prime_movers_eia923.abbr'),
-                              nullable=False)
+    # prime_mover_code = Column(String, ForeignKey('prime_movers_eia923.abbr'),
+    #                          nullable=False)
     fuel_type_code = Column(String, ForeignKey('fuel_type_eia923.abbr'),
                             nullable=False)
     fuel_type_code_pudl = Column(String)
@@ -203,8 +171,8 @@ class GenerationEIA923(pudl.models.entities.PUDLBase):
     id = Column(Integer, autoincrement=True, primary_key=True)  # surrogate key
     plant_id_eia = Column(Integer, nullable=False)
     # TODO remove prime_mover since it's specific to generator_id?
-    prime_mover_code = Column(String, ForeignKey('prime_movers_eia923.abbr'),
-                              nullable=False)
+    # prime_mover_code = Column(String, ForeignKey('prime_movers_eia923.abbr'),
+    #                          nullable=False)
     # TODO: Add FK constraint refering to (plant_id, generator_id) in the
     # generators_eia923 table.  Or at least give it a shot.
     generator_id = Column(String, nullable=False)

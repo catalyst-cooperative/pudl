@@ -6,12 +6,15 @@ This modules pulls data from EIA's published Excel spreadsheets.
 This code is for use analyzing EIA Form 860 data.
 """
 
+import logging
 import os.path
 import glob
 import pandas as pd
 import pudl
 from pudl.settings import SETTINGS
 import pudl.constants as pc
+
+logger = logging.getLogger(__name__)
 
 ###########################################################################
 # Helper functions & other objects to ingest & process Energy Information
@@ -57,7 +60,7 @@ def get_eia860_file(yr, file):
     return glob.glob(os.path.join(datadir(yr), file))[0]
 
 
-def get_eia860_xlsx(years, filename, verbose=True):
+def get_eia860_xlsx(years, filename):
     """
     Read in Excel files to create Excel objects.
 
@@ -74,14 +77,10 @@ def get_eia860_xlsx(years, filename, verbose=True):
     """
     eia860_xlsx = {}
     pattern = pc.files_dict_eia860[filename]
-    if verbose:
-        print(f"Extracting EIA 860 {filename} data...", flush=True)
-        print(f"    ", end='', flush=True)
     for yr in years:
-        if verbose:
-            print(f"{yr} ", end='', flush=True)
+        logger.info(
+            f"Extracting data from EIA 860 {filename} spreadsheet for {yr}.")
         eia860_xlsx[yr] = pd.ExcelFile(get_eia860_file(yr, pattern))
-    print(f"\n", end='', flush=True)
     return eia860_xlsx
 
 
@@ -155,8 +154,7 @@ def get_eia860_column_map(page, year):
 
 
 def get_eia860_page(page, eia860_xlsx,
-                    years=pc.working_years['eia860'],
-                    verbose=True):
+                    years=pc.working_years['eia860']):
     """
     Read a single table from several years of EIA860 data. Return a DataFrame.
 
@@ -178,10 +176,6 @@ def get_eia860_page(page, eia860_xlsx,
             f"Acceptable EIA 860 pages: {pc.tab_map_eia860.columns}\n"
         )
 
-    if verbose:
-        print(f'Converting EIA 860 {page} to DataFrame...')
-        print('    ', end='')
-
     df = pd.DataFrame()
     for yr in years:
         if yr not in pc.working_years['eia860']:
@@ -189,9 +183,10 @@ def get_eia860_page(page, eia860_xlsx,
                 f"Requested non-working EIA 860 year: {yr}.\n"
                 f"EIA 860 works for {pc.working_years['eia860']}\n"
             )
-        print(f"{yr} ", end='')
-        sheet_name, skiprows, column_map, all_columns = \
-            get_eia860_column_map(page, yr)
+        logger.info(f"Converting EIA 860 spreadsheet tab {page} to pandas "
+                    f"DataFrame for {yr}.")
+        sheet_name, skiprows, column_map, all_columns = get_eia860_column_map(
+            page, yr)
         newdata = pd.read_excel(eia860_xlsx[yr],
                                 sheet_name=sheet_name,
                                 skiprows=skiprows)
@@ -204,7 +199,6 @@ def get_eia860_page(page, eia860_xlsx,
         newdata = newdata.rename(columns=column_map)
 
         df = df.append(newdata)
-    print("\n", end='')
 
     # We need to ensure that ALL possible columns show up in the dataframe
     # that's being returned, even if they are empty, so that we know we have a
@@ -217,8 +211,7 @@ def get_eia860_page(page, eia860_xlsx,
 
 
 def create_dfs_eia860(files=pc.files_eia860,
-                      eia860_years=pc.working_years['eia860'],
-                      verbose=True):
+                      eia860_years=pc.working_years['eia860']):
     """
     Create a dictionary of pages (keys) to dataframes (values) from eia860
     tabs.
@@ -235,29 +228,25 @@ def create_dfs_eia860(files=pc.files_eia860,
     # Create excel objects
     eia860_dfs = {}
     for f in files:
-        eia860_xlsx = get_eia860_xlsx(eia860_years, f, verbose=verbose)
+        eia860_xlsx = get_eia860_xlsx(eia860_years, f)
         # Create DataFrames
         pages = pc.file_pages_eia860[f]
 
         for page in pages:
             eia860_dfs[page] = get_eia860_page(page, eia860_xlsx,
-                                               years=eia860_years,
-                                               verbose=verbose)
+                                               years=eia860_years)
     return eia860_dfs
 
 
-def extract(eia860_years=pc.working_years['eia860'], verbose=True):
+def extract(eia860_years=pc.working_years['eia860']):
     # Prep for ingesting EIA860
     # create raw 860 dfs from spreadsheets
     eia860_raw_dfs = {}
     if not eia860_years:
-        if verbose:
-            print('Not extracting EIA 860.')
+        logger.info('Not performing ETL for EIA 860.')
         return eia860_raw_dfs
 
-    print('============================================================')
-    print('Extracting EIA 860 data from spreadsheets.')
+    logger.info('Beginning ETL for EIA 860.')
     eia860_raw_dfs = create_dfs_eia860(files=pc.files_eia860,
-                                       eia860_years=eia860_years,
-                                       verbose=verbose)
+                                       eia860_years=eia860_years)
     return eia860_raw_dfs

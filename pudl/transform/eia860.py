@@ -1,9 +1,12 @@
 """Module to perform data cleaning functions on EIA860 data tables."""
 
+import logging
 import pandas as pd
 import numpy as np
 import pudl
 import pudl.constants as pc
+
+logger = logging.getLogger(__name__)
 
 
 def ownership(eia860_dfs, eia860_transformed_dfs):
@@ -162,8 +165,16 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         pudl.helpers.cleanstrings(gens_df['energy_source_code_1'],
                                   pc.fuel_type_eia860_simple_map)
 
+    # Transform columns to a canonical form to reduce duplicates:
+    # No leading or trailing whitespace:
+    gens_df = \
+        pudl.helpers.strip_lower(gens_df,
+                                 columns=['rto_iso_lmp_node_id',
+                                          'rto_iso_location_wholesale_reporting_id'])
+
     # Ensure plant IDs are integers.
     gens_df['plant_id_eia'] = gens_df['plant_id_eia'].astype(int)
+    gens_df['generator_id'] = gens_df['generator_id'].astype(str)
     gens_df['utility_id_eia'] = gens_df['utility_id_eia'].astype(int)
 
     gens_df = pudl.helpers.convert_to_date(gens_df)
@@ -205,12 +216,12 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     # have "N" values. Replacing these values with "N" will make for uniform
     # values that can be converted to Boolean True and False pairs.
 
-    p_df.ash_impoundment_lined = \
-        p_df.ash_impoundment_lined.replace(to_replace='X', value='N')
-    p_df.natural_gas_storage = \
-        p_df.natural_gas_storage.replace(to_replace='X', value='N')
-    p_df.liquefied_natural_gas_storage = \
-        p_df.liquefied_natural_gas_storage.replace(to_replace='X', value='N')
+    p_df.ash_impoundment_lined = p_df.ash_impoundment_lined.replace(
+        to_replace='X', value='N')
+    p_df.natural_gas_storage = p_df.natural_gas_storage.replace(
+        to_replace='X', value='N')
+    p_df.liquefied_natural_gas_storage = p_df.liquefied_natural_gas_storage.replace(
+        to_replace='X', value='N')
 
     boolean_columns_to_fix = [
         'ferc_cogen_status',
@@ -231,8 +242,8 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     # Ensure plant & operator IDs are integers.
     p_df['plant_id_eia'] = p_df['plant_id_eia'].astype(int)
     p_df['utility_id_eia'] = p_df['utility_id_eia'].astype(int)
-    p_df['primary_purpose_naics_id'] = \
-        p_df['primary_purpose_naics_id'].astype(int)
+    p_df['primary_purpose_naics_id'] = p_df['primary_purpose_naics_id'].astype(
+        int)
 
     p_df = pudl.helpers.convert_to_date(p_df)
 
@@ -333,9 +344,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
     return eia860_transformed_dfs
 
 
-def transform(eia860_raw_dfs,
-              eia860_tables=pc.eia860_pudl_tables,
-              verbose=True):
+def transform(eia860_raw_dfs, eia860_tables=pc.eia860_pudl_tables):
     """Transform EIA 860 dfs."""
     eia860_transform_functions = {
         'ownership_eia860': ownership,
@@ -346,16 +355,14 @@ def transform(eia860_raw_dfs,
     eia860_transformed_dfs = {}
 
     if not eia860_raw_dfs:
-        if verbose:
-            print('Not transforming EIA 860.')
+        logger.info("No raw EIA 860 dataframes found. "
+                    "Not transforming EIA 860.")
         return eia860_transformed_dfs
 
-    if verbose:
-        print("Transforming tables from EIA 860:")
     for table in eia860_transform_functions:
         if table in eia860_tables:
-            if verbose:
-                print("    {}...".format(table))
+            logger.info(f"Transforming raw EIA 860 DataFrames for {table} "
+                        f"concatenated across all years.")
             eia860_transform_functions[table](eia860_raw_dfs,
                                               eia860_transformed_dfs)
 
