@@ -11,6 +11,7 @@ Support for selectively downloading portions of the EPA's large Continuous
 Emissions Monitoring System dataset will be added in the future.
 """
 
+import logging
 import os
 import urllib
 import ftplib
@@ -20,16 +21,22 @@ import warnings
 import pudl.constants as pc
 from pudl.settings import SETTINGS
 
+logger = logging.getLogger(__name__)
+
 
 def assert_valid_param(source, year, month=None, state=None, check_month=None):
-    assert source in pc.data_sources, \
-        f"Source '{source}' not found in valid data sources."
-    assert source in pc.data_years, \
-        f"Source '{source}' not found in valid data years."
-    assert source in pc.base_data_urls, \
-        f"Source '{source}' not found in valid base download URLs."
-    assert year in pc.data_years[source], \
-        f"Year {year} is not valid for source {source}."
+    if source not in pc.data_sources:
+        raise AssertionError(
+            f"Source '{source}' not found in valid data sources.")
+    if source not in pc.data_years:
+        raise AssertionError(
+            f"Source '{source}' not found in valid data years.")
+    if source not in pc.base_data_urls:
+        raise AssertionError(
+            f"Source '{source}' not found in valid base download URLs.")
+    if year not in pc.data_years[source]:
+        raise AssertionError(
+            f"Year {year} is not valid for source {source}.")
     if check_month is None:
         check_month = source == 'epacems'
 
@@ -39,10 +46,11 @@ def assert_valid_param(source, year, month=None, state=None, check_month=None):
         valid_states = pc.us_states.keys()
 
     if check_month:
-        assert month in range(1, 13), \
-            f"Month {month} is not valid (must be 1-12)"
-        assert state.upper() in valid_states, \
-            f"State '{state}' is not valid. It must be a US state abbreviation."
+        if month not in range(1, 13):
+            raise AssertionError(f"Month {month} is not valid (must be 1-12)")
+        if state.upper() not in valid_states:
+            raise AssertionError(
+                f"Invalid state '{state}'. Must use US state abbreviations.")
 
 
 def source_url(source, year, month=None, state=None):
@@ -83,9 +91,9 @@ def source_url(source, year, month=None, state=None):
     elif source == 'eia861':
         if year < 2012:
             # Before 2012 they used 2 digit years. Y2K12 FTW!
-            download_url = '{}/f861{}.zip'.format(base_url, str(year)[2:])
+            download_url = f"{base_url}/f861{str(year)[2:]}.zip"
         else:
-            download_url = '{}/f861{}.zip'.format(base_url, year)
+            download_url = f"{base_url}/f861{year}.zip"
     elif source == 'eia923':
         if year < 2008:
             prefix = 'f906920_'
@@ -95,25 +103,22 @@ def source_url(source, year, month=None, state=None):
             arch_path = 'archive/xls'
         else:
             arch_path = 'xls'
-        download_url = f'{base_url}/{arch_path}/{prefix}{year}.zip'
+        download_url = f"{base_url}/{arch_path}/{prefix}{year}.zip"
     elif source == 'ferc1':
-        download_url = '{}/f1_{}.zip'.format(base_url, year)
+        download_url = f"{base_url}/f1_{year}.zip"
     elif source == 'mshamines':
-        download_url = '{}/Mines.zip'.format(base_url)
+        download_url = f"{base_url}/Mines.zip"
     elif source == 'mshaops':
-        download_url = '{}/ControllerOperatorHistory.zip'.format(base_url)
+        download_url = f"{base_url}/ControllerOperatorHistory.zip"
     elif source == 'mshaprod':
-        download_url = '{}/MinesProdQuarterly.zip'.format(base_url)
+        download_url = f"{base_url}/MinesProdQuarterly.zip"
     elif (source == 'epacems'):
         # lowercase the state and zero-pad the month
-        download_url = '{base_url}/{year}/{year}{state}{month}.zip'.format(
-            base_url=base_url, year=year,
-            state=state.lower(), month=str(month).zfill(2)
-        )
+        download_url = f"{base_url}/{year}/{year}{state.lower()}{str(month).zfill(2)}.zip"
     else:
         # we should never ever get here because of the assert statement.
         assert False, \
-            "Bad data source '{}' requested.".format(source)
+            f"Bad data source '{source}' requested."
 
     return download_url
 
@@ -157,18 +162,18 @@ def path(source, year=0, month=None, state=None, file=True, datadir=SETTINGS['da
     assert_valid_param(source=source, year=year, month=month, state=state,
                        check_month=False)
 
-    if file:
-        assert year != 0, \
-            "Non-zero year required to generate full datastore file path."
+    if file and year == 0:
+        raise AssertionError(
+            "Non-zero year required to generate full datastore file path.")
 
     if source == 'eia860':
         dstore_path = os.path.join(datadir, 'eia', 'form860')
         if year != 0:
-            dstore_path = os.path.join(dstore_path, 'eia860{}'.format(year))
+            dstore_path = os.path.join(dstore_path, f"eia860{year}")
     elif source == 'eia861':
         dstore_path = os.path.join(datadir, 'eia', 'form861')
         if year != 0:
-            dstore_path = os.path.join(dstore_path, 'eia861{}'.format(year))
+            dstore_path = os.path.join(dstore_path, f"eia861{year}")
     elif source == 'eia923':
         dstore_path = os.path.join(datadir, 'eia', 'form923')
         if year != 0:
@@ -176,12 +181,11 @@ def path(source, year=0, month=None, state=None, file=True, datadir=SETTINGS['da
                 prefix = 'f906920_'
             else:
                 prefix = 'f923_'
-            dstore_path = os.path.join(dstore_path,
-                                       '{}{}'.format(prefix, year))
+            dstore_path = os.path.join(dstore_path, f"{prefix}{year}")
     elif source == 'ferc1':
         dstore_path = os.path.join(datadir, 'ferc', 'form1')
         if year != 0:
-            dstore_path = os.path.join(dstore_path, 'f1_{}'.format(year))
+            dstore_path = os.path.join(dstore_path, f"f1_{year}")
     elif source == 'mshamines' and file:
         dstore_path = os.path.join(datadir, 'msha')
         if year != 0:
@@ -198,11 +202,10 @@ def path(source, year=0, month=None, state=None, file=True, datadir=SETTINGS['da
     elif (source == 'epacems'):
         dstore_path = os.path.join(datadir, 'epa', 'cems')
         if(year != 0):
-            dstore_path = os.path.join(dstore_path, 'epacems{}'.format(year))
+            dstore_path = os.path.join(dstore_path, f"epacems{year}")
     else:
         # we should never ever get here because of the assert statement.
-        assert False, \
-            "Bad data source '{}' requested.".format(source)
+        assert False, f"Bad data source '{source}' requested."
 
     # Handle month and state, if they're provided
     if month is None:
@@ -243,7 +246,7 @@ def paths_for_year(source, year=0, states=pc.cems_states.keys(),
     return paths
 
 
-def download(source, year, states, datadir=SETTINGS['data_dir'], verbose=True):
+def download(source, year, states, datadir=SETTINGS['data_dir']):
     """
     Download the original data for the specified data source and year.
 
@@ -263,7 +266,6 @@ def download(source, year, states, datadir=SETTINGS['data_dir'], verbose=True):
             data (like EPA CEMS) that have multiple datasets per year, this
             function will download all the files for the specified year.
         datadir (str): path to the top level directory of the datastore.
-        verbose (bool): If True, print messages about what's happening.
     Returns:
         outfile (str): path to the local downloaded file.
     """
@@ -287,12 +289,10 @@ def download(source, year, states, datadir=SETTINGS['data_dir'], verbose=True):
         src_urls = [source_url(source, year)]
         tmp_files = [os.path.join(
             tmp_dir, os.path.basename(path(source, year)))]
-    if(verbose):
-        if source != 'epacems':
-            print(
-                f"Downloading {source} data for {year}...\n    {src_urls[0]}")
-        else:
-            print(f"Downloading {source} data for {year}...")
+    if source == 'epacems':
+        logger.info(f"Downloading {source} data for {year}.")
+    else:
+        logger.info(f"Downloading {source} data for {year} from {src_urls[0]}")
     url_schemes = {urllib.parse.urlparse(url).scheme for url in src_urls}
     # Pass all the URLs at once, rather than looping here, because that way
     # we can use the same FTP connection for all of the src_urls
@@ -398,7 +398,7 @@ def _download_default(src_urls, tmp_files, allow_retry=True):
 
 def organize(source, year, states, unzip=True,
              datadir=SETTINGS['data_dir'],
-             verbose=False, no_download=False):
+             no_download=False):
     """
     Put a downloaded original data file where it belongs in the datastore.
 
@@ -415,19 +415,18 @@ def organize(source, year, states, unzip=True,
         unzip (bool): If true, unzip the file once downloaded, and place the
             resulting data files where they ought to be in the datastore.
         datadir (str): path to the top level directory of the datastore.
-        verbose (bool): If True, print messages about what's happening.
         no_download (bool): If True, the files were not downloaded in this run
 
     Returns: nothing
     """
     assert source in pc.data_sources, \
-        "Source '{}' not found in valid data sources.".format(source)
+        f"Source '{source}' not found in valid data sources."
     assert source in pc.data_years, \
-        "Source '{}' not found in valid data years.".format(source)
+        f"Source '{source}' not found in valid data years."
     assert source in pc.base_data_urls, \
-        "Source '{}' not found in valid base download URLs.".format(source)
+        f"Source '{source}' not found in valid base download URLs."
     assert year in pc.data_years[source], \
-        "Year {} is not valid for source {}.".format(year, source)
+        f"Year {year} is not valid for source {source}."
     assert_valid_param(source=source, year=year, check_month=False)
 
     tmpdir = os.path.join(datadir, 'tmp')
@@ -459,7 +458,7 @@ def organize(source, year, states, unzip=True,
     if(unzip and source != 'epacems'):
         # Unzip the downloaded file in its new home:
         zip_ref = zipfile.ZipFile(destfile, 'r')
-        print(f"unzipping {destfile}")
+        logger.info(f"unzipping {destfile}")
         zip_ref.extractall(destdir)
         zip_ref.close()
         # Most of the data sources can just be unzipped in place and be done
@@ -477,7 +476,7 @@ def organize(source, year, states, unzip=True,
                     shutil.rmtree(td)
 
 
-def check_if_need_update(source, year, states, datadir, clobber, verbose):
+def check_if_need_update(source, year, states, datadir, clobber):
     """
     Do we really need to download the requested data? Only case in which
     we don't have to do anything is when the downloaded file already exists
@@ -495,14 +494,13 @@ def check_if_need_update(source, year, states, datadir, clobber, verbose):
             else:
                 message = f'{source} data for {year} already present, skipping.'
         else:
-            message = ''
             need_update = True
-    if verbose and message is not None:
-        print(message)
+    if message is not None:
+        logger.info(message)
     return need_update
 
 
-def update(source, year, states, clobber=False, unzip=True, verbose=True,
+def update(source, year, states, clobber=False, unzip=True,
            datadir=SETTINGS['data_dir'], no_download=False):
     """
     Update the local datastore for the given source and year.
@@ -526,7 +524,6 @@ def update(source, year, states, clobber=False, unzip=True, verbose=True,
         clobber (bool): If true, replace existing copy of the requested data
             if we have it, with freshly downloaded data.
         datadir (str): path to the top level directory of the datastore.
-        verbose (bool): If True, print messages about what's happening.
         no_download (bool): If True, don't download the files, only unzip ones
             that are already present. If False, do download the files. Either
             way, still obey the unzip and clobber settings. (unzip=False and
@@ -535,10 +532,10 @@ def update(source, year, states, clobber=False, unzip=True, verbose=True,
     Returns: nothing
     """
     need_update = check_if_need_update(source=source, year=year, states=states,
-                                       datadir=datadir, clobber=clobber, verbose=verbose)
+                                       datadir=datadir, clobber=clobber)
     if need_update:
         # Otherwise we're downloading:
         if not no_download:
-            download(source, year, states, datadir=datadir, verbose=verbose)
+            download(source, year, states, datadir=datadir)
         organize(source, year, states, unzip=unzip, datadir=datadir,
-                 verbose=verbose, no_download=no_download)
+                 no_download=no_download)

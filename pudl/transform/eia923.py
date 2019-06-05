@@ -1,11 +1,13 @@
 
 """Routines specific to cleaning up EIA Form 923 data."""
 
+import logging
 import pandas as pd
 import numpy as np
 import pudl
 import pudl.constants as pc
 
+logger = logging.getLogger(__name__)
 ###############################################################################
 ###############################################################################
 # HELPER FUNCTIONS
@@ -239,37 +241,37 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
-def boilers(eia923_dfs, eia923_transformed_dfs):
-    """
-    Transform the boiler_eia923 table.
-
-    Args:
-        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
-            dictionary of DataFrame objects corresponds to a page from the
-            EIA923 form, as reported in the Excel spreadsheets they distribute.
-        eia923_transformed_dfs (dictionary of DataFrames)
-
-    Returns: transformed dataframe.
-    """
-    boilers_df = eia923_dfs['boiler_fuel'].copy()
-    # Populate 'boilers_eia923' table
-    boiler_cols = ['plant_id_eia',
-                   'boiler_id',
-                   'prime_mover_code']
-    boilers_df = boilers_df[boiler_cols]
-
-    # drop null values from foreign key fields
-    boilers_df.dropna(subset=['boiler_id', 'plant_id_eia'], inplace=True)
-
-    # We need to cast the boiler_id column as type str because sometimes
-    # it is heterogeneous int/str which make drop_duplicates fail.
-    boilers_df['boiler_id'] = boilers_df['boiler_id'].astype(str)
-    boilers_df = boilers_df.drop_duplicates(
-        subset=['plant_id_eia', 'boiler_id'])
-
-    eia923_transformed_dfs['boilers_eia923'] = boilers_df
-
-    return eia923_transformed_dfs
+# def boilers(eia923_dfs, eia923_transformed_dfs):
+#    """
+#    Transform the boiler_eia923 table.
+#
+#    Args:
+#        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
+#            dictionary of DataFrame objects corresponds to a page from the
+#            EIA923 form, as reported in the Excel spreadsheets they distribute.
+#        eia923_transformed_dfs (dictionary of DataFrames)
+#
+#    Returns: transformed dataframe.
+#    """
+#    boilers_df = eia923_dfs['boiler_fuel'].copy()
+#    # Populate 'boilers_eia923' table
+#    boiler_cols = ['plant_id_eia',
+#                   'boiler_id',
+#                   'prime_mover_code']
+#    boilers_df = boilers_df[boiler_cols]
+#
+#    # drop null values from foreign key fields
+#    boilers_df.dropna(subset=['boiler_id', 'plant_id_eia'], inplace=True)
+#
+#    # We need to cast the boiler_id column as type str because sometimes
+#    # it is heterogeneous int/str which make drop_duplicates fail.
+#    boilers_df['boiler_id'] = boilers_df['boiler_id'].astype(str)
+#    boilers_df = boilers_df.drop_duplicates(
+#        subset=['plant_id_eia', 'boiler_id'])
+#
+#    eia923_transformed_dfs['boilers_eia923'] = boilers_df
+#
+#    return eia923_transformed_dfs
 
 
 def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
@@ -368,37 +370,37 @@ def generation(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
-def generators(eia923_dfs, eia923_transformed_dfs):
-    """
-    Transform the generators_eia923 table.
-
-    Args:
-        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
-            dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        eia860_transformed_dfs (dictionary of DataFrames)
-
-    Returns: transformed dataframe.
-    """
-    # Populating the 'generators_eia923' table
-    generators_df = eia923_dfs['generator'].copy()
-    generator_cols = ['plant_id_eia',
-                      'generator_id',
-                      'prime_mover_code']
-    generators_df = generators_df[generator_cols]
-
+# def generators(eia923_dfs, eia923_transformed_dfs):
+#    """
+#    Transform the generators_eia923 table.
+#
+#    Args:
+#        eia860_dfs (dictionary of pandas.DataFrame): Each entry in this
+#            dictionary of DataFrame objects corresponds to a page from the
+#            EIA860 form, as reported in the Excel spreadsheets they distribute.
+#        eia860_transformed_dfs (dictionary of DataFrames)
+#
+#    Returns: transformed dataframe.
+#    """
+#    # Populating the 'generators_eia923' table
+#    generators_df = eia923_dfs['generator'].copy()
+#    generator_cols = ['plant_id_eia',
+#                      'generator_id',
+#                      'prime_mover_code']
+#    generators_df = generators_df[generator_cols]
+#
     # drop null values from foreign key fields
-    generators_df.dropna(subset=['generator_id', 'plant_id_eia'], inplace=True)
+#    generators_df.dropna(subset=['generator_id', 'plant_id_eia'], inplace=True)
 
     # We need to cast the generator_id column as type str because sometimes
     # it is heterogeneous int/str which make drop_duplicates fail.
-    generators_df['generator_id'] = generators_df['generator_id'].astype(str)
-    generators_df = generators_df.drop_duplicates(
-        subset=['plant_id_eia', 'generator_id'])
+#    generators_df['generator_id'] = generators_df['generator_id'].astype(str)
+#    generators_df = generators_df.drop_duplicates(
+#        subset=['plant_id_eia', 'generator_id'])
 
-    eia923_transformed_dfs['generators_eia923'] = generators_df
+#    eia923_transformed_dfs['generators_eia923'] = generators_df
 
-    return eia923_transformed_dfs
+#    return eia923_transformed_dfs
 
 
 def coalmine(eia923_dfs, eia923_transformed_dfs):
@@ -593,32 +595,29 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
-def transform(eia923_raw_dfs,
-              eia923_tables=pc.eia923_pudl_tables,
-              verbose=True):
+def transform(eia923_raw_dfs, eia923_tables=pc.eia923_pudl_tables):
     """Transform all EIA 923 tables."""
     eia923_transform_functions = {
         'generation_fuel_eia923': generation_fuel,
-        'boilers_eia923': boilers,
+        # 'boilers_eia923': boilers,
         'boiler_fuel_eia923': boiler_fuel,
         'generation_eia923': generation,
-        'generators_eia923': generators,
+        # 'generators_eia923': generators,
         'coalmine_eia923': coalmine,
         'fuel_receipts_costs_eia923': fuel_reciepts_costs
     }
     eia923_transformed_dfs = {}
 
     if not eia923_raw_dfs:
-        if verbose:
-            print('Not transforming EIA 923.')
+        logger.info("No raw EIA 923 DataFrames found. "
+                    "Not transforming EIA 923.")
         return eia923_transformed_dfs
 
-    if verbose:
-        print("Transforming tables from EIA 923:")
     for table in eia923_transform_functions:
         if table in eia923_tables:
-            if verbose:
-                print("    {}...".format(table))
+            logger.info(
+                f"Transforming raw EIA 923 DataFrames for {table} "
+                f"concatenated across all years.")
             eia923_transform_functions[table](eia923_raw_dfs,
                                               eia923_transformed_dfs)
     return eia923_transformed_dfs

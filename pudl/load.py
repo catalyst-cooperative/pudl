@@ -1,5 +1,6 @@
 """A module with functions for loading the pudl database tables."""
 
+import logging
 import shutil
 import os
 import io
@@ -9,6 +10,8 @@ import postgres_copy
 import pudl
 import pudl.models.entities
 import pudl.constants as pc
+
+logger = logging.getLogger(__name__)
 
 
 def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
@@ -24,6 +27,7 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
     which takes slightly less memory than the DataFrame itself.
 
     Args:
+    -----
         df (pandas.DataFrame): The DataFrame which is to be dumped to CSV and
             loaded into the database. All DataFrame columns must have exactly
             the same names as the database fields they are meant to populate,
@@ -42,7 +46,11 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
             has been loaded into the database. False if they should be deleted.
             NOTE: If multiple COPYs are done for the same table_name, only
             the last will be retained by keep_csv, which may be unsatisfying.
-    Returns: Nothing.
+
+    Returns:
+    --------
+        None
+
     """
 
     tbl = pudl.models.entities.PUDLBase.metadata.tables[table_name]
@@ -52,7 +60,7 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
         postgres_copy.copy_from(f, tbl, engine, columns=tuple(df.columns),
                                 format='csv', header=True, delimiter=',')
         if keep_csv:
-            print(f"DEBUG: writing CSV")
+            logger.debug(f"Writing out pre-load CSV file.")
             f.seek(0)
             outfile = os.path.join(csvdir, table_name + '.csv')
             shutil.copyfileobj(f, outfile)
@@ -110,9 +118,9 @@ class BulkCopy(contextlib.AbstractContextManager):
         self.accumulated_dfs.append(df)
         self.accumulated_size += sum(df.memory_usage())
         if self.accumulated_size > self.buffer:
-            # Debugging:
-            # print(f"DEBUG: Copying {len(self.accumulated_dfs)} accumulated dataframes, " +
-            #       f"totalling {round(self.accumulated_size / 1024**2)} MB")
+            logger.debug(
+                f"Copying {len(self.accumulated_dfs)} accumulated dataframes, "
+                f"totalling {round(self.accumulated_size / 1024**2)} MB")
             self.spill()
 
     def _check_names(self):
@@ -138,13 +146,14 @@ expected:
                                     copy=False, ignore_index=True, sort=False)
             else:
                 all_dfs = self.accumulated_dfs[0]
-            print(f"===================== Dramatic Pause ====================")
-            print(
-                f"    Loading {len(all_dfs):,} records ({round(self.accumulated_size/1024**2)} MB) into PUDL.", flush=True)
+            logger.info(
+                "===================== Dramatic Pause ====================")
+            logger.info(
+                f"    Loading {len(all_dfs):,} records ({round(self.accumulated_size/1024**2)} MB) into PUDL.")
             _csv_dump_load(all_dfs, table_name=self.table_name, engine=self.engine,
                            csvdir=self.csvdir, keep_csv=self.keep_csv)
-            print(f"================ Resume Number Crunching ================",
-                  flush=True)
+            logger.info(
+                "================ Resume Number Crunching ================")
         self.accumulated_dfs = []
         self.accumulated_size = 0
 
@@ -159,17 +168,15 @@ def dict_dump_load(transformed_dfs,
                    data_source,
                    pudl_engine,
                    need_fix_inting=pc.need_fix_inting,
-                   verbose=True,
                    csvdir='',
                    keep_csv=False):
     """
     Wrapper for _csv_dump_load for each data source.
     """
-    if verbose:
-        print(f"Loading tables from {data_source} into PUDL:")
     for table_name, df in transformed_dfs.items():
-        if verbose and table_name != "hourly_emissions_epacems":
-            print(f"    {table_name}...")
+        if table_name != "hourly_emissions_epacems":
+            logger.info(
+                f"Loading {data_source} {table_name} dataframe into PUDL DB")
         if table_name in list(need_fix_inting.keys()):
             df = pudl.helpers.fix_int_na(
                 df, columns=pc.need_fix_inting[table_name])

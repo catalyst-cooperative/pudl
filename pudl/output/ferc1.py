@@ -127,7 +127,6 @@ def fuel_ferc1(testing=False):
         'utility_id_pudl',
         'utility_name_ferc1',
         'plant_id_pudl',
-        'plant_id_ferc1',
         'plant_name'
     ]
 
@@ -136,67 +135,42 @@ def fuel_ferc1(testing=False):
     return out_df
 
 
-def merge_ferc_fuel_steam():
+def fuel_by_plant_ferc1(testing=False, thresh=0.5):
     """
-    FERC Form 1 reports various plant-level costs and other attributes in one
-    table, and the associated fuel consumption in another table. In many cases
-    it is very useful to have all of this information in a single table. For
-    example:
-     * The proportion of various fuels used by a plant is a strong indicator
-       of which plant records should be associated with each other in the FERC
-       data across years, so having that information available to the FERC
-       plant ID generation algorithm is valuable.
-     * Being able to filter plants based on the primary fuel that they consume
-       for an analysis of, e.g., only coal or only gas plants.
+    Summarize FERC fuel data by plant for output.
 
-    Fields we're working with in Fuel or both Steam/Fuel
+    This is mostly a wrapper around pudl.transform.ferc1.fuel_by_plant_ferc1
+    which calculates some summary values on a per-plant basis (as indicated
+    by utility_id_ferc1 and plant_name) related to fuel consumption.
 
-    KEYS:
-     * utility_id_ferc1 (KEY)
-     * report_year (KEY)
-     * plant_name (KEY)
+    Args:
+    -----
+    testing (bool): True if we're using the pudl_test DB, False if we're
+        using the live PUDL DB.  False by default.
+    thresh (float): Minimum fraction of fuel (cost and mmbtu) required in order
+        for a plant to be assigned a primary fuel. Must be between 0.5 and 1.0.
+        default value is 0.5.
 
-    DROP:
-     * record_id (DROP)
-       - only for bookkeeping purposes
-     * fuel_unit (DROP?)
+    Returns:
+    --------
+        fbp_df: a pandas dataframe with fuel use summarized by plant.
 
-    KEEP:
-     * plant_id_ferc1 (KEEP but do not use)
-       - eventually needs to be generated w/ contents of the merge in ETL
-
-    CALCULATE PER-FUEL BEFORE PIVOT:
-     * total fuel cost (for each fuel)
-     * total fuel heat content (for each fuel)
-
-    PIVOT on fuel_type_code_pudl
-
-    CALCULATE AFTER PIVOT:
-     * total fuel cost (for all fuels)
-     * total fuel heat content (for all fuels)
-
-    MERGE with steam on KEYS
-
-    CALCULATE AFTER MERGE WITH STEAM:
-     * total fuel cost per MWh (USE ONLY STEAM VALUES)
-     * total fuel heat rate in MMBTU/MWh
-
-    STEAM FIELDS:
-     * opex_fuel (for comparison w/ fuel table costs)
-     * net_generation_mwh (for heat rates, cost per MWh)
-     * key fields as above
-
-    ===========================
-    What do we want in the end?
-    ===========================
-    ALL FUELS:
-    * TOTAL heat content of fuel consumed
-    * TOTAL cost of fuel consumed (check for consistency w/ steam table)
-    * Overall heat rate (MMBTU/MWh)
-    * Overall fuel cost per MWh
-
-    BY FUEL:
-    * Share of heat content
-    * Share of fuel cost
-    * Cost per MMBTU consumed
     """
+    first_cols = [
+        'report_year',
+        'utility_id_ferc1',
+        'utility_id_pudl',
+        'utility_name_ferc1',
+        'plant_id_pudl',
+        'plant_name'
+    ]
+
+    fbp_df = (
+        pd.read_sql_table('fuel_ferc1', pudl.init.connect_db(testing=testing)).
+        drop(['id'], axis=1).
+        pipe(pudl.transform.ferc1.fuel_by_plant_ferc1, thresh=thresh).
+        merge(plants_utils_ferc1(testing=testing),
+              on=['utility_id_ferc1', 'plant_name']).
+        pipe(pudl.helpers.organize_cols, first_cols)
+    )
+    return fbp_df

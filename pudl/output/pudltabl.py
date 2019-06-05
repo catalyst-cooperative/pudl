@@ -99,6 +99,7 @@ class PudlTabl(object):
 
             'plants_steam_ferc1': None,
             'fuel_ferc1': None,
+            'fbp_ferc1': None,
 
             'bga': None,
             'hr_by_unit': None,
@@ -108,7 +109,7 @@ class PudlTabl(object):
             'mcoe': None,
         }
 
-    def pu_eia(self, update=False):
+    def pu_eia860(self, update=False):
         """Pull a dataframe of EIA plant-utility associations."""
         if update or self._dfs['pu_eia'] is None:
             self._dfs['pu_eia'] = pudl.output.eia860.plants_utils_eia860(
@@ -226,6 +227,13 @@ class PudlTabl(object):
                 testing=self.testing)
         return self._dfs['fuel_ferc1']
 
+    def fbp_ferc1(self, update=False):
+        """Summarize FERC Form 1 fuel usage by plant."""
+        if update or self._dfs['fbp_ferc1'] is None:
+            self._dfs['fbp_ferc1'] = pudl.output.ferc1.fuel_by_plant_ferc1(
+                testing=self.testing)
+        return self._dfs['fbp_ferc1']
+
     def bga(self, update=False):
         """Pull the more complete EIA/PUDL boiler-generator associations."""
         if update or self._dfs['bga'] is None:
@@ -235,37 +243,36 @@ class PudlTabl(object):
                 testing=self.testing)
         return self._dfs['bga']
 
-    def heat_rate_by_gen(self, update=False, verbose=False):
+    def hr_by_gen(self, update=False):
         """Calculate and return generator level heat rates (mmBTU/MWh)."""
         if update or self._dfs['hr_by_gen'] is None:
             self._dfs['hr_by_gen'] = pudl.analysis.mcoe.heat_rate_by_gen(
-                self, verbose=verbose)
+                self)
         return self._dfs['hr_by_gen']
 
-    def heat_rate_by_unit(self, update=False, verbose=False):
+    def hr_by_unit(self, update=False):
         """Calculate and return generation unit level heat rates."""
         if update or self._dfs['hr_by_unit'] is None:
             self._dfs['hr_by_unit'] = pudl.analysis.mcoe.heat_rate_by_unit(
-                self, verbose=verbose)
+                self)
         return self._dfs['hr_by_unit']
 
-    def fuel_cost(self, update=False, verbose=False):
+    def fuel_cost(self, update=False):
         """Calculate and return generator level fuel costs per MWh."""
         if update or self._dfs['fuel_cost'] is None:
-            self._dfs['fuel_cost'] = pudl.analysis.mcoe.fuel_cost(
-                self, verbose=verbose)
+            self._dfs['fuel_cost'] = pudl.analysis.mcoe.fuel_cost(self)
         return self._dfs['fuel_cost']
 
-    def capacity_factor(self, update=False, verbose=False):
+    def capacity_factor(self, update=False):
         """Calculate and return generator level capacity factors."""
         if update or self._dfs['capacity_factor'] is None:
             self._dfs['capacity_factor'] = pudl.analysis.mcoe.capacity_factor(
-                self, verbose=verbose)
+                self)
         return self._dfs['capacity_factor']
 
     def mcoe(self, update=False,
              min_heat_rate=5.5, min_fuel_cost_per_mwh=0.0,
-             min_cap_fact=0.0, max_cap_fact=1.5, verbose=False):
+             min_cap_fact=0.0, max_cap_fact=1.5):
         """Calculate and return generator level MCOE based on EIA data.
 
         Eventually this calculation will include non-fuel operating expenses
@@ -276,7 +283,6 @@ class PudlTabl(object):
         if update or self._dfs['mcoe'] is None:
             self._dfs['mcoe'] = pudl.analysis.mcoe.mcoe(
                 self,
-                verbose=verbose,
                 min_heat_rate=min_heat_rate,
                 min_fuel_cost_per_mwh=min_fuel_cost_per_mwh,
                 min_cap_fact=min_cap_fact,

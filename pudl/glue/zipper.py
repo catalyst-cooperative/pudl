@@ -71,10 +71,13 @@ to be joined together. On the
 """
 
 # Useful high-level external modules.
+import logging
 import numpy as np
 import pandas as pd
 import itertools
 import random
+
+logger = logging.getLogger(__name__)
 
 
 def partition(collection):
@@ -402,7 +405,7 @@ def correlate_by_generators(agg_df, eia_cols, ferc_cols, corr_cols):
     return corrs
 
 
-def score_all(df, corr_cols, verbose=False):
+def score_all(df, corr_cols):
     """Score candidate ensembles of EIA generators based on match to FERC.
 
     Given a datafram output from correlate_by_generators() above, containing
@@ -490,9 +493,9 @@ def score_all(df, corr_cols, verbose=False):
             candidates_df = candidates_df.append(candidate)
             cid = cid + 1
 
-    if verbose:
-        print('{} candidate generator ensembles identified.'.
-              format(len(candidates_df)))
+    logger.info(
+        f"{len(candidates_df)} candidate generator ensembles identified.")
+
     candidates_df.candidate_id = candidates_df.candidate_id.astype(int)
     candidates_df = candidates_df.drop('test_group_id', axis=1)
     cand_gb = candidates_df.groupby(['pudl_plant_id', 'candidate_id'])

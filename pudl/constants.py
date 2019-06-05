@@ -506,15 +506,15 @@ ferc1_power_purchase_type = {
 
 # Dictionary mapping DBF files (w/o .DBF file extension) to DB table names
 ferc1_dbf2tbl = {
-    'F1_1':  'f1_respondent_id',    # GET THIS ONE
-    'F1_2':  'f1_acb_epda',
-    'F1_3':  'f1_accumdepr_prvsn',
-    'F1_4':  'f1_accumdfrrdtaxcr',
-    'F1_5':  'f1_adit_190_detail',
-    'F1_6':  'f1_adit_190_notes',
-    'F1_7':  'f1_adit_amrt_prop',
-    'F1_8':  'f1_adit_other',
-    'F1_9':  'f1_adit_other_prop',
+    'F1_1': 'f1_respondent_id',
+    'F1_2': 'f1_acb_epda',
+    'F1_3': 'f1_accumdepr_prvsn',
+    'F1_4': 'f1_accumdfrrdtaxcr',
+    'F1_5': 'f1_adit_190_detail',
+    'F1_6': 'f1_adit_190_notes',
+    'F1_7': 'f1_adit_amrt_prop',
+    'F1_8': 'f1_adit_other',
+    'F1_9': 'f1_adit_other_prop',
     'F1_10': 'f1_allowances',
     'F1_11': 'f1_bal_sheet_cr',
     'F1_12': 'f1_capital_stock',
@@ -536,9 +536,9 @@ ferc1_dbf2tbl = {
     'F1_28': 'f1_electric',
     'F1_29': 'f1_envrnmntl_expns',
     'F1_30': 'f1_envrnmntl_fclty',
-    'F1_31': 'f1_fuel',            # GET THIS ONE
+    'F1_31': 'f1_fuel',
     'F1_32': 'f1_general_info',
-    'F1_33': 'f1_gnrt_plant',      # GET THIS ONE
+    'F1_33': 'f1_gnrt_plant',
     'F1_34': 'f1_important_chg',
     'F1_35': 'f1_incm_stmnt_2',
     'F1_36': 'f1_income_stmnt',
@@ -548,7 +548,7 @@ ferc1_dbf2tbl = {
     'F1_40': 'f1_mtrl_spply',
     'F1_41': 'f1_nbr_elc_deptemp',
     'F1_42': 'f1_nonutility_prop',
-    'F1_43': 'f1_note_fin_stmnt',
+    'F1_43': 'f1_note_fin_stmnt',  # 37% of DB
     'F1_44': 'f1_nuclear_fuel',
     'F1_45': 'f1_officers_co',
     'F1_46': 'f1_othr_dfrrd_cr',
@@ -557,9 +557,9 @@ ferc1_dbf2tbl = {
     'F1_49': 'f1_othr_reg_liab',
     'F1_50': 'f1_overhead',
     'F1_51': 'f1_pccidica',
-    'F1_52': 'f1_plant_in_srvce',  # GET THIS ONE
-    'F1_53': 'f1_pumped_storage',  # GET THIS ONE
-    'F1_54': 'f1_purchased_pwr',  # GET THIS ONE
+    'F1_52': 'f1_plant_in_srvce',
+    'F1_53': 'f1_pumped_storage',
+    'F1_54': 'f1_purchased_pwr',
     'F1_55': 'f1_reconrpt_netinc',
     'F1_56': 'f1_reg_comm_expn',
     'F1_57': 'f1_respdnt_control',
@@ -575,26 +575,26 @@ ferc1_dbf2tbl = {
     'F1_67': 'f1_taxacc_ppchrgyr',
     'F1_68': 'f1_unrcvrd_cost',
     'F1_69': 'f1_utltyplnt_smmry',
-    'F1_70': 'f1_work',            # GET THIS ONE
-    'F1_71': 'f1_xmssn_adds',      # GET THIS ONE
+    'F1_70': 'f1_work',
+    'F1_71': 'f1_xmssn_adds',
     'F1_72': 'f1_xmssn_elc_bothr',
     'F1_73': 'f1_xmssn_elc_fothr',
     'F1_74': 'f1_xmssn_line',
     'F1_75': 'f1_xtraordnry_loss',
     'F1_76': 'f1_codes_val',
-    'F1_77': 'f1_sched_lit_tbl',  # GET THIS ONE
+    'F1_77': 'f1_sched_lit_tbl',
     'F1_78': 'f1_audit_log',
-    'F1_79': 'f1_col_lit_tbl',    # GET THIS ONE
+    'F1_79': 'f1_col_lit_tbl',
     'F1_80': 'f1_load_file_names',
     'F1_81': 'f1_privilege',
     'F1_82': 'f1_sys_error_log',
     'F1_83': 'f1_unique_num_val',
-    'F1_84': 'f1_row_lit_tbl',    # GET THIS ONE
+    'F1_84': 'f1_row_lit_tbl',
     'F1_85': 'f1_footnote_data',
-    'F1_86': 'f1_hydro',          # GET THIS ONE
-    'F1_87': 'f1_footnote_tbl',
+    'F1_86': 'f1_hydro',
+    'F1_87': 'f1_footnote_tbl',  # 52% of DB
     'F1_88': 'f1_ident_attsttn',
-    'F1_89': 'f1_steam',          # GET THIS ONE
+    'F1_89': 'f1_steam',
     'F1_90': 'f1_leased',
     'F1_91': 'f1_sbsdry_detail',
     'F1_92': 'f1_plant',
@@ -609,7 +609,7 @@ ferc1_dbf2tbl = {
     'F1_331_TRANSISO': 'f1_331_transiso',
     'F1_338_DEP_DEPL': 'f1_338_dep_depl',
     'F1_397_ISORTO_STL': 'f1_397_isorto_stl',
-    'F1_398_ANCL_PS': 'f1_398_ancl_ps',  # GET THIS ONE
+    'F1_398_ANCL_PS': 'f1_398_ancl_ps',
     'F1_399_MTH_PEAK': 'f1_399_mth_peak',
     'F1_400_SYS_PEAK': 'f1_400_sys_peak',
     'F1_400A_ISO_PEAK': 'f1_400a_iso_peak',
@@ -618,13 +618,20 @@ ferc1_dbf2tbl = {
     'F1_CMPINC_HEDGE_A': 'f1_cmpinc_hedge_a',
     'F1_CMPINC_HEDGE': 'f1_cmpinc_hedge',
     'F1_EMAIL': 'f1_email',
-    'F1_FREEZE': 'f1_freeze',
-    'F1_PINS': 'f1_pins',
     'F1_RG_TRN_SRV_REV': 'f1_rg_trn_srv_rev',
     'F1_S0_CHECKS': 'f1_s0_checks',
-    'F1_S0_FILING_LOG': 'f1_s0_filing_log',  # GET THIS ONE
+    'F1_S0_FILING_LOG': 'f1_s0_filing_log',
     'F1_SECURITY': 'f1_security'
+    # 'F1_PINS': 'f1_pins',  # private data, not publicized.
+    # 'F1_FREEZE': 'f1_freeze', # private data, not publicized
 }
+
+ferc1_huge_tables = {
+    'f1_footnote_tbl',
+    'f1_footnote_data',
+    'f1_note_fin_stmnt',
+}
+
 # Invert the map above so we can go either way as needed
 ferc1_tbl2dbf = {v: k for k, v in ferc1_dbf2tbl.items()}
 
@@ -655,28 +662,43 @@ dbf_typemap = {
     'M': sa.Text,  # 10 digit .DBT block number, stored as a string...
     'N': sa.Float,
     'T': sa.DateTime,
+    '0': sa.Integer,  # based on dbf2sqlite mapping
     'B': 'XXX',  # .DBT block number, binary string
     '@': 'XXX',  # Timestamp... Date = Julian Day, Time is in milliseconds?
     '+': 'XXX',  # Autoincrement (e.g. for IDs)
     'O': 'XXX',  # Double, 8 bytes
     'G': 'XXX',  # OLE 10 digit/byte number of a .DBT block, stored as string
-    '0': 'XXX'  # sa.Integer? based on dbf2sqlite mapping
 }
 
-# We still don't understand the primary keys for these tables, and so they
-# can't be inserted yet...
-dbfs_bad_pk = ('F1_84', 'F1_S0_FILING_LOG')
-
 # These are the FERC Form 1 DB tables that we're focusing on initially.
-ferc1_default_tables = ('f1_respondent_id',
-                        'f1_fuel',
-                        'f1_steam',
-                        'f1_gnrt_plant',
-                        'f1_hydro',
-                        'f1_pumped_storage',
-                        'f1_plant_in_srvce',
-                        'f1_purchased_pwr',
-                        'f1_accumdepr_prvsn')
+ferc1_default_tables = (
+    'f1_respondent_id',
+    'f1_fuel',
+    'f1_steam',
+    'f1_gnrt_plant',
+    'f1_hydro',
+    'f1_pumped_storage',
+    'f1_plant_in_srvce',
+    'f1_purchased_pwr',
+    'f1_accumdepr_prvsn',
+    'f1_general_info',  # For Uday Varadarajan / RMI
+    'f1_row_lit_tbl',  # For Uday Varadarajan / RMI
+    'f1_edcfu_epda',  # For Uday Varadarajan / RMI
+    'f1_dacs_epda',  # For Uday Varadarajan / RMI
+    'f1_sales_by_sched',  # For Uday Varadarajan / RMI
+    'f1_sale_for_resale',  # For Uday Varadarajan / RMI
+    'f1_elctrc_oper_rev',  # For Uday Varadarajan / RMI
+    'f1_elctrc_erg_acct',  # For Uday Varadarajan / RMI
+    'f1_elc_op_mnt_expn',  # For Uday Varadarajan / RMI
+    'f1_slry_wg_dstrbtn',  # For Uday Varadarajan / RMI
+    'f1_utltyplnt_smmry',  # For Uday Varadarajan / RMI
+    'f1_399_mth_peak',  # For Uday Varadarajan / RMI
+    'f1_398_ancl_ps',  # For Uday Varadarajan / RMI
+    'f1_325_elc_cust',  # For Uday Varadarajan / RMI
+    'f1_400_sys_peak',  # For Uday Varadarajan / RMI
+    'f1_400a_iso_peak',  # For Uday Varadarajan / RMI
+    'f1_397_isorto_stl',  # For Uday Varadarajan / RMI
+)
 
 # This is the set of tables which have been successfully integrated into PUDL:
 ferc1_pudl_tables = ('fuel_ferc1',
@@ -687,18 +709,6 @@ ferc1_pudl_tables = ('fuel_ferc1',
                      'plant_in_service_ferc1',
                      'purchased_power_ferc1',
                      'accumulated_depreciation_ferc1')
-
-
-# This is the full set of tables that currently ingestible by the ferc1 DB:
-ferc1_working_tables = ('f1_respondent_id',
-                        'f1_fuel',
-                        'f1_steam',
-                        'f1_gnrt_plant',
-                        'f1_hydro',
-                        'f1_pumped_storage',
-                        'f1_plant_in_srvce',
-                        'f1_purchased_pwr',
-                        'f1_accumdepr_prvsn')
 
 table_map_ferc1_pudl = {'fuel_ferc1': 'f1_fuel',
                         'plants_steam_ferc1': 'f1_steam',
@@ -711,12 +721,8 @@ table_map_ferc1_pudl = {'fuel_ferc1': 'f1_fuel',
 
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
-eia923_pudl_tables = ('plants_eia923',
-                      'generation_fuel_eia923',
-                      'plant_ownership_eia923',
+eia923_pudl_tables = ('generation_fuel_eia923',
                       'boiler_fuel_eia923',
-                      'boilers_eia923',
-                      'generators_eia923',
                       'generation_eia923',
                       'coalmine_eia923',
                       'fuel_receipts_costs_eia923')
@@ -804,8 +810,13 @@ file_pages_eia860 = {'enviro_assn': ['boiler_generator_assn', ],
                      'ownership': ['ownership', ]}
 
 # This is the list of EIA860 tables that can be successfully pulled into PUDL
-eia860_pudl_tables = ('boiler_generator_assn_eia860', 'utilities_eia860',
-                      'plants_eia860', 'generators_eia860', 'ownership_eia860')
+eia860_pudl_tables = (
+    'boiler_generator_assn_eia860',
+    'utilities_eia860',
+    'plants_eia860',
+    'generators_eia860',
+    'ownership_eia860'
+)
 
 tab_map_eia860 = pd.read_csv(
     os.path.join(xlsx_map_dir, 'tab_map_eia860.csv'),
@@ -861,14 +872,14 @@ ferc1_data_tables = (
     'f1_security_holder', 'f1_slry_wg_dstrbtn', 'f1_substations',
     'f1_taxacc_ppchrgyr', 'f1_unrcvrd_cost', 'f1_utltyplnt_smmry', 'f1_work',
     'f1_xmssn_adds', 'f1_xmssn_elc_bothr', 'f1_xmssn_elc_fothr',
-    'f1_xmssn_line', 'f1_xtraordnry_loss', 'f1_audit_log', 'f1_privilege',
-    'f1_hydro', 'f1_footnote_tbl', 'f1_steam', 'f1_leased', 'f1_sbsdry_detail',
+    'f1_xmssn_line', 'f1_xtraordnry_loss',
+    'f1_hydro', 'f1_steam', 'f1_leased', 'f1_sbsdry_detail',
     'f1_plant', 'f1_long_term_debt', 'f1_106_2009', 'f1_106a_2009',
     'f1_106b_2009', 'f1_208_elc_dep', 'f1_231_trn_stdycst', 'f1_324_elc_expns',
     'f1_325_elc_cust', 'f1_331_transiso', 'f1_338_dep_depl',
     'f1_397_isorto_stl', 'f1_398_ancl_ps', 'f1_399_mth_peak',
     'f1_400_sys_peak', 'f1_400a_iso_peak', 'f1_429_trans_aff',
-    'f1_allowances_nox', 'f1_cmpinc_hedge_a', 'f1_cmpinc_hedge', 'f1_freeze',
+    'f1_allowances_nox', 'f1_cmpinc_hedge_a', 'f1_cmpinc_hedge',
     'f1_rg_trn_srv_rev')
 
 # Line numbers, and corresponding FERC account number
@@ -1467,18 +1478,101 @@ transport_modes_eia923 = {
 }
 
 # we need to include all of the columns which we want to keep for either the
-# entity or annual tables.
-static_plant_cols = ['balancing_authority_code', 'balancing_authority_name',
-                     'city', 'county', 'ferc_cogen_status',
-                     'ferc_exempt_wholesale_generator',
-                     'ferc_small_power_producer',
-                     'grid_voltage_2_kv', 'grid_voltage_3_kv',
-                     'grid_voltage_kv', 'iso_rto_code', 'iso_rto_name',
-                     'latitude', 'longitude', 'nerc_region',
-                     'plant_name', 'primary_purpose_naics_id',
-                     'sector_id', 'sector_name', 'state',
-                     'street_address', 'zip_code']
-
+# entity or annual tables. The order here matters. We need to harvest the plant
+# location before harvesting the location of the utilites for example.
+entities = {
+    'plants': [  # base cols
+        ['plant_id_eia'],
+        # static cols
+        ['balancing_authority_code', 'balancing_authority_name',
+         'city', 'county', 'ferc_cogen_status',
+         'ferc_exempt_wholesale_generator', 'ferc_small_power_producer',
+         'grid_voltage_2_kv', 'grid_voltage_3_kv', 'grid_voltage_kv',
+         'iso_rto_code', 'iso_rto_name', 'latitude', 'longitude',
+         'nerc_region', 'plant_name', 'primary_purpose_naics_id', 'sector_id',
+         'sector_name', 'state', 'street_address', 'zip_code'],
+        # annual cols
+        ['ash_impoundment', 'ash_impoundment_lined', 'ash_impoundment_status',
+         'energy_storage', 'ferc_cogen_docket_no', 'water_source',
+         'ferc_exempt_wholesale_generator_docket_no',
+         'ferc_small_power_producer_docket_no',
+         'liquefied_natural_gas_storage',
+         'natural_gas_local_distribution_company', 'natural_gas_storage',
+         'natural_gas_pipeline_name_1', 'natural_gas_pipeline_name_2',
+         'natural_gas_pipeline_name_3', 'net_metering', 'pipeline_notes',
+         'regulatory_status_code', 'transmission_distribution_owner_id',
+         'transmission_distribution_owner_name',
+         'transmission_distribution_owner_state', 'utility_id_eia'],
+        # need type fixing
+        {'plant_id_eia': 'int64',
+         'grid_voltage_2_kv': 'float64',
+         'grid_voltage_3_kv': 'float64',
+         'grid_voltage_kv': 'float64',
+         'longitude': 'float64',
+         'latitude': 'float64',
+         'primary_purpose_naics_id': 'float64',
+         'sector_id': 'float64',
+         'zip_code': 'float64',
+         'utility_id_eia': 'float64'}, ],
+    'generators': [  # base cols
+        ['plant_id_eia', 'generator_id'],
+        # static cols
+        ['prime_mover_code', 'duct_burners', 'operating_date',
+         'topping_bottoming_code', 'solid_fuel_gasification',
+         'pulverized_coal_tech', 'fluidized_bed_tech', 'subcritical_tech',
+         'supercritical_tech', 'ultrasupercritical_tech', 'stoker_tech',
+         'other_combustion_tech', 'heat_bypass_recovery',
+         'rto_iso_lmp_node_id', 'rto_iso_location_wholesale_reporting_id',
+         'associated_combined_heat_power', 'original_planned_operating_date',
+         'operating_switch', 'previously_canceled'],
+        # annual cols
+        ['capacity_mw', 'fuel_type_code_pudl', 'multiple_fuels',
+         'ownership_code', 'deliver_power_transgrid', 'summer_capacity_mw',
+         'winter_capacity_mw', 'minimum_load_mw', 'technology_description',
+         'energy_source_code_1', 'energy_source_code_2',
+         'energy_source_code_3', 'energy_source_code_4',
+         'energy_source_code_5', 'energy_source_code_6',
+         'startup_source_code_1', 'startup_source_code_2',
+         'startup_source_code_3', 'startup_source_code_4',
+         'time_cold_shutdown_full_load_code', 'syncronized_transmission_grid',
+         'turbines_num', 'operational_status_code', 'planned_modifications',
+         'planned_net_summer_capacity_uprate_mw',
+         'planned_net_winter_capacity_uprate_mw', 'planned_new_capacity_mw',
+         'planned_uprate_date', 'planned_net_summer_capacity_derate_mw',
+         'planned_net_winter_capacity_derate_mw', 'planned_derate_date',
+         'planned_new_prime_mover_code', 'planned_energy_source_code_1',
+         'planned_repower_date', 'other_planned_modifications',
+         'other_modifications_date', 'planned_retirement_date',
+         'carbon_capture', 'cofire_fuels', 'switch_oil_gas',
+         'turbines_inverters_hydrokinetics', 'nameplate_power_factor',
+         'uprate_derate_during_year', 'uprate_derate_completed_date',
+         'current_planned_operating_date', 'summer_estimated_capability_mw',
+         'winter_estimated_capability_mw', 'retirement_date'],
+        # need type fixing
+        {'plant_id_eia': 'int64',
+         'generator_id': 'str'}, ],
+    # utilities must come after plants. plant location needs to be
+    # removed before the utility locations are compiled
+    'utilities': [  # base cols
+        ['utility_id_eia'],
+        # static cols
+        ['utility_name', 'street_address', 'city', 'state', 'zip_code',
+         'entity_type'],
+        # annual cols
+        ['plants_reported_owner', 'plants_reported_operator',
+         'plants_reported_asset_manager', 'plants_reported_other_relationship',
+         ],
+        # need type fixing
+        {'utility_id_eia': 'int64', }, ],
+    'boilers': [  # base cols
+        ['plant_id_eia', 'boiler_id'],
+        # static cols
+        ['prime_mover_code'],
+        # annual cols
+        [],
+        # need type fixing
+        {'plant_id_eia': 'int64',
+         'boiler_id': 'str', }, ]}
 
 # EPA CEMS constants #####
 
@@ -1634,16 +1728,18 @@ base_data_urls = {
 
 
 need_fix_inting = {
-    'generators_eia860': ('turbines_num',),
-    'plants_eia860': ('transmission_distribution_owner_id',),
+    # 'generators_eia860': ('turbines_num',),
     'coalmine_eia923': ('mine_id_msha', 'county_id_fips'),
     'fuel_receipts_costs_eia923': ('mine_id_pudl',),
     'generation_fuel_eia923': ('nuclear_unit_id',),
     'plants_steam_ferc1': ('construction_year', 'installation_year'),
     'plants_small_ferc1': ('construction_year', 'ferc_license_id'),
-    'plants_hydro_ferc1': ('construction_year', 'installation_year'),
-    'plants_pumped_storage_ferc1': ('construction_year', 'installation_year'),
-    'hourly_emissions_epacems': ('facility_id', 'unit_id_epa'),
+    'plants_hydro_ferc1': ('construction_year', 'installation_year',),
+    'plants_pumped_storage_ferc1': ('construction_year', 'installation_year',),
+    'hourly_emissions_epacems': ('facility_id', 'unit_id_epa',),
+    'plants_eia860': ('utility_id_eia',),
+    'generators_eia860': ('turbines_num',),
+    'plants_entity_eia': ('zip_code',),
 }
 
 contributors = {
