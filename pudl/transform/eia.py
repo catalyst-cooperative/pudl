@@ -613,7 +613,7 @@ def _boiler_generator_assn(eia_transformed_dfs,
         raise AssertionError("Inconsistent inter-annual BGA assignment!")
     pbu_gb = bga_w_units.groupby(
         ['plant_id_eia', 'boiler_id'])['unit_id_pudl']
-    if not (bpu_gb.nunique() == 1).all():
+    if not (pbu_gb.nunique() == 1).all():
         raise AssertionError("Inconsistent inter-annual BGA assignment!")
 
     bga_w_units = bga_w_units.drop('report_date', axis=1)
