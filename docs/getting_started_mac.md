@@ -43,6 +43,15 @@ conda activate pudl
 ```
 For more on conda environments see [here](https://conda.io/docs/user-guide/tasks/manage-environments.html).
 
+4. Finally, perform a local install of PUDL. From the same terminal prompt type:
+```sh
+pip install .
+```
+For developers who will be modifying the python code, type:
+```sh
+pip install -e .
+```
+
 
 ### 4. Setting up PostgreSQL
 
