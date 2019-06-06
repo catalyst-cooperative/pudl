@@ -86,8 +86,10 @@ def harmonize_eia_epa_orispl(df):
     Harmonize the ORISPL code to match the EIA data -- NOT YET IMPLEMENTED
 
     Args:
+    -----
         df(pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
-    Output:
+    Returns:
+    --------
         pandas.DataFrame: The same data, with the ORISPL plant codes corrected
         to  match the EIA.
 
@@ -97,6 +99,7 @@ def harmonize_eia_epa_orispl(df):
 
     Note that this transformation needs to be run *before* fix_up_dates, because
     fix_up_dates uses the plant ID to look up timezones.
+
     """
     # TODO: implement this.
     return df
@@ -109,9 +112,12 @@ def add_facility_id_unit_id_epa(df):
     two columns aren't present before August 2008, so add them in.
 
     Args:
+    -----
         df (pd.DataFrame): A CEMS dataframe
     Returns:
+    --------
         The same DataFrame guaranteed to have int facility_id and unit_id_epa cols
+
     """
     if ("facility_id" not in df.columns) or ("unit_id_epa" not in df.columns):
         # Can't just assign np.NaN and get an integer NaN, so make a new array

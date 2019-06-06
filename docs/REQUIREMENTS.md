@@ -12,10 +12,10 @@ so you'll need to install the database server software:
 
 ## Public Data:
 All that software isn't any good without some data! The raw data comes from the
-US government.  The [update_datastore.py](../scripts/update_datastore.py)
+US government. The [update_datastore.py](../scripts/update_datastore.py)
 script efficiently downloads and organizes this data for you, so that PUDL
 knows where to find it. Currently the data PUDL can ingest includes:
- - [FERC Form 1](https://www.ferc.gov/docs-filing/forms/form-1/data.asp)
- - [EIA Form 923](https://www.eia.gov/electricity/data/eia923/)
  - [EIA Form 860](https://www.eia.gov/electricity/data/eia860/)
- - [EPA Hourly CEMS](https://ampd.epa.gov/ampd/)
+ - [EIA Form 923](https://www.eia.gov/electricity/data/eia923/)
+ - [EPA CEMS Hourly](https://ampd.epa.gov/ampd/)
+ - [FERC Form 1](https://www.ferc.gov/docs-filing/forms/form-1/data.asp)
