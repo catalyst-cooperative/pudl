@@ -288,8 +288,9 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
     ffc = list(fuel_fractions.filter(regex='.*_fraction_mmbtu$').columns)
 
     ferc1_steam_df = (
-        ferc1_steam_df.merge(fuel_fractions[
-            ['utility_id_ferc1', 'plant_name', 'report_year'] + ffc],
+        ferc1_steam_df.merge(
+            fuel_fractions[
+                ['utility_id_ferc1', 'plant_name', 'report_year'] + ffc],
             on=['utility_id_ferc1', 'plant_name', 'report_year'],
             how='left'
         )

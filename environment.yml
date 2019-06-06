@@ -19,7 +19,6 @@ dependencies:
   - pip
   - psycopg2
   - pyarrow
-  - pylint
   - pytest
   - pytest-cov
   - python>=3.6
