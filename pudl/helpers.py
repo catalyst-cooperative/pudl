@@ -7,6 +7,9 @@ import pandas as pd
 import numpy as np
 import sqlalchemy as sa
 import timezonefinder
+import os.path
+import datapackage
+import json
 import pudl
 
 logger = logging.getLogger(__name__)
@@ -575,3 +578,99 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
         except KeyError:
             tz = None
     return tz
+
+
+##############################################################################
+# The next few functions propbably will end up in some packaging or load module
+###############################################################################
+
+def get_foreign_key_relash_from_pkg(pkg_name='pudl-test',
+                                    out_dir=os.path.join(
+                                        pudl.settings.PUDL_DIR,
+                                        "results", "data_pkgs")):
+    """
+    Generate a dictionary of foreign key relationships from pkging metadata
+
+    This function helps us pull all of the foreign key relationships of all
+    of the tables in the metadata.
+
+    Args:
+        pkg_name : the name of the package needed to go find the right file
+        out_dir
+    Returns:
+        dict : table names (keys) : list of foreign key tables
+    """
+    # we'll probably eventually need to pull these directories into settings
+    # out_dir is the packaging directory -- the place where packages end up
+    # pkg_dir is the top level directory of this package:
+    pkg_dir = os.path.abspath(os.path.join(out_dir, pkg_name))
+    # pkg_json is the datapackage.json that we ultimately output:
+    pkg_json = os.path.join(pkg_dir, "datapackage.json")
+
+    with open(pkg_json) as md:
+        metadata = json.load(md)
+
+    fk_relash = {}
+    for tbl in metadata['resources']:
+        fk_relash[tbl['name']] = []
+        if 'foreignKeys' in tbl['schema']:
+            fk_tables = []
+            for fk in tbl['schema']['foreignKeys']:
+                fk_tables.append(fk['reference']['resource'])
+            fk_relash[tbl['name']] = fk_tables
+    return(fk_relash)
+
+
+def get_dependent_tables_pkg(table_name, fk_relash):
+    """"""
+    # Add the initial table
+    dependent_tables = set()
+    dependent_tables.add(table_name)
+
+    # Get the list of tables this table depends on:
+    new_table_names = set()
+    new_table_names.update(fk_relash[table_name])
+
+    # Recursively call this function on the tables our initial
+    # table depends on:
+    for table_name in new_table_names:
+        logger.error(f"Finding dependent tables for {table_name}")
+        dependent_tables.add(table_name)
+        for t in get_dependent_tables_pkg(table_name, fk_relash):
+            dependent_tables.add(t)
+
+    return dependent_tables
+
+
+def get_dependent_tables_from_list_pkg(table_names,
+                                       pkg_name='pudl-test',
+                                       out_dir=os.path.join(
+                                           pudl.settings.PUDL_DIR,
+                                           "results", "data_pkgs"),
+                                       testing=False):
+    """
+    Given a list of tables, find all the other tables they depend on.
+
+    Iterate over a list of input tables, adding them and all of their dependent
+    tables to a set, and return that set. Useful for determining which tables
+    need to be exported together to yield a self-contained subset of the PUDL
+    database.
+
+    Args:
+        table_names (iterable): a list of names of 'seed' tables, whose
+            dependencies we are seeking to find.
+        md (sa.MetaData): A SQL Alchemy MetaData object describing the
+            structure of the database the input tables are part of.
+    Returns:
+        all_the_tables (set): The set of all the tables which any of the input
+            tables depends on, via ForeignKey constraints.
+    """
+    fk_relash = get_foreign_key_relash_from_pkg(
+        pkg_name=pkg_name, out_dir=out_dir)
+
+    all_the_tables = set()
+    for t in table_names:
+        for x in get_dependent_tables_pkg(t, fk_relash):
+            all_the_tables.add(x)
+
+    return all_the_tables
