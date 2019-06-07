@@ -12,7 +12,7 @@ from pudl import __file__ as pudl_pkg_file
 PUDL_DIR = os.path.dirname(os.path.dirname(pudl_pkg_file))
 
 
-def settings_init(settings_file="settings.yml"):
+def settings_init(settings_file="settings_init_pudl_default.yml"):
     with open(os.path.join(PUDL_DIR, 'scripts', settings_file), "r") as f:
         settings_out = yaml.safe_load(f)
 
