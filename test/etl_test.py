@@ -9,6 +9,7 @@ command line options by running pytest --help.
 import logging
 import pytest
 import pudl
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 
@@ -90,3 +91,18 @@ def test_ferc1_lost_data():
                         f"Long lost FERC1 field '{field}' found in table "
                         f"'{table}' from year {yr}. Refyear: {refyear}"
                     )
+
+
+@pytest.mark.etl
+@pytest.mark.ferc1
+def test_only_ferc1_pudl_init_db():
+    pudl.init.init_db(ferc1_tables=['plants_steam_ferc1', 'fuel_ferc1'],
+                      ferc1_years=[max(pc.working_years['ferc1'])],
+                      eia923_tables=[],
+                      eia923_years=[],
+                      eia860_tables=[],
+                      eia860_years=[],
+                      epacems_years=[],
+                      epacems_states=[],
+                      pudl_testing=True,
+                      ferc1_testing=False)

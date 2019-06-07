@@ -646,12 +646,12 @@ def _restrict_years(df,
     return df
 
 
-def main(eia_transformed_dfs,
-         eia923_years=pc.working_years['eia923'],
-         eia860_years=pc.working_years['eia860'],
-         debug=False):
+def transform(eia_transformed_dfs,
+              eia923_years=pc.working_years['eia923'],
+              eia860_years=pc.working_years['eia860'],
+              debug=False):
     """Create dfs for EIA Entity tables."""
-    if not eia923_years or not eia860_years:
+    if not eia923_years and not eia860_years:
         logger.info('Not ingesting EIA')
         return None
     # create the empty entities df to fill up
