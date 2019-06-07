@@ -8,7 +8,6 @@ import numpy as np
 import sqlalchemy as sa
 import timezonefinder
 import os.path
-import datapackage
 import json
 import pudl
 
