@@ -510,6 +510,10 @@ def _ETL_ferc1(pudl_engine, ferc1_tables, ferc1_years, ferc1_testing,
 
 def _ETL_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables,
              eia860_years, csvdir, keep_csv):
+    if (not eia923_tables or not eia923_years) and (not eia860_tables or not eia860_years):
+        logger.info('Not ingesting EIA.')
+        return None
+
     # Extract EIA forms 923, 860
     eia923_raw_dfs = pudl.extract.eia923.extract(eia923_years=eia923_years)
     eia860_raw_dfs = pudl.extract.eia860.extract(eia860_years=eia860_years)
@@ -525,9 +529,9 @@ def _ETL_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables,
     eia_transformed_dfs.update(eia923_transformed_dfs.copy())
 
     entities_dfs, eia_transformed_dfs = \
-        pudl.transform.eia.main(eia_transformed_dfs,
-                                eia923_years=eia923_years,
-                                eia860_years=eia860_years)
+        pudl.transform.eia.transform(eia_transformed_dfs,
+                                     eia923_years=eia923_years,
+                                     eia860_years=eia860_years)
     # Compile transformed dfs for loading...
     transformed_dfs = {"Entities": entities_dfs, "EIA": eia_transformed_dfs}
     # Load step
