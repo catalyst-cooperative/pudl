@@ -13,6 +13,7 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
+
 @pytest.mark.ferc1
 @pytest.mark.post_etl
 @pytest.mark.parametrize("table_name", pc.pudl_tables["ferc1"])
@@ -56,7 +57,7 @@ def test_steam_ferc1_plant_id_clash(pudl_out_ferc1):
     """Test output routines for tables from FERC Form 1."""
     steam_df = pudl_out_ferc1.plants_steam_ferc1()
     bad_plant_ids_ferc1 = (
-        steam_df[['plant_id_pudl','plant_id_ferc1']].
+        steam_df[['plant_id_pudl', 'plant_id_ferc1']].
         drop_duplicates().
         groupby('plant_id_ferc1').
         count().
@@ -75,7 +76,6 @@ def test_steam_ferc1_plant_id_clash(pudl_out_ferc1):
             f"plant_id_pudl values.\nplant_id_ferc1: {bad_plant_ids_ferc1}\n"
             f"plant_id_pudl: {bad_plant_ids_pudl}."
         )
-
 
 
 @pytest.mark.ferc1
