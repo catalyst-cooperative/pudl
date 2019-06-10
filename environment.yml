@@ -12,14 +12,13 @@ dependencies:
   - jupyter
   - jupyterlab
   - matplotlib
-  - networkx
   - nbval
+  - networkx
   - numpy
   - pandas
   - pip
   - psycopg2
   - pyarrow
-  - pylint
   - pytest
   - pytest-cov
   - python>=3.6
