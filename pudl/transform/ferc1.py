@@ -390,6 +390,29 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
         )
     ferc1_steam_df = pd.merge(ferc1_steam_df, plants_w_ids, on='record_id')
 
+    # Test to make sure that we don't have any plant_id_ferc1 time series
+    # which include more than one record from a given year. Warn the user
+    # if we find such cases (which... we do, as of writing)
+    year_dupes = (
+        ferc1_steam_df.
+        groupby(['plant_id_ferc1', 'report_year'])['utility_id_ferc1'].
+        count().
+        reset_index().
+        rename(columns={'utility_id_ferc1': 'year_dupes'}).
+        query('year_dupes>1')
+    )
+    if len(year_dupes) > 0:
+        for dupe in year_dupes.itertuples():
+            logger.error(
+                f"Found report_year={dupe.report_year} "
+                f"{dupe.year_dupes} times in "
+                f"plant_id_ferc1={dupe.plant_id_ferc1}"
+            )
+    else:
+        logger.info(
+            f"No duplicate years found in any plant_id_ferc1. Hooray!"
+        )
+
     # Set the construction year back to numeric because it is.
     ferc1_steam_df['construction_year'] = pd.to_numeric(
         ferc1_steam_df['construction_year'], errors='coerce')
