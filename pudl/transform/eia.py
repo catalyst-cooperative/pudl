@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def _occurrence_consistency(entity_id, compiled_df, col,
                             cols_to_consit, strictness=.7):
     """
-    Find the occurance of plants & the consistency of records
+    Find the occurence of plants & the consistency of records
 
     We need to determine how consistent a reported value is in the records
     across all of the years or tables that the value is being reported, so we
@@ -32,47 +32,53 @@ def _occurrence_consistency(entity_id, compiled_df, col,
     col_df = compiled_df[entity_id + ['report_date',
                                       col, 'table']].copy().dropna()
     if len(col_df) == 0:
-        col_df['{}_consistent'.format(col)] = np.NaN
-        col_df['occurances'] = np.NaN
+        col_df[f'{col}_consistent'] = np.NaN
+        col_df['occurences'] = np.NaN
         col_df = col_df.drop(columns=['table'])
-        return(col_df)
+        return col_df
     # determine how many times each plant occurs
-    occur = col_df.groupby(by=cols_to_consit).agg({'table': "count"}).\
-        reset_index().rename(columns={'table': 'occurances'})
+    occur = (
+        col_df.
+        groupby(by=cols_to_consit).
+        agg({'table': "count"}).
+        reset_index().
+        rename(columns={'table': 'occurences'})
+    )
 
     col_df = col_df.merge(occur, on=cols_to_consit)
 
-    consist_df = pd.DataFrame()
-    consist_df = col_df.groupby(by=cols_to_consit + [col]).agg({
-        'table': 'count'}).reset_index().rename(
-        columns={'table': '{}_consistent'.format(col)})
+    consist_df = (
+        col_df.
+        groupby(by=cols_to_consit + [col]).
+        agg({'table': 'count'}).
+        reset_index().
+        rename(columns={'table': f'{col}_consistent'})
+    )
 
     col_df = col_df.merge(consist_df, how='outer').drop(columns=['table'])
     # change all of the fully consistent records to True
-    col_df.loc[(col_df['{}_consistent'.format(col)]
-                / col_df['occurances'] > strictness),
-               '{}_consistent'.format(col)] = True
-    return(col_df)
+    col_df.loc[
+        (col_df[f'{col}_consistent'] / col_df['occurences'] > strictness),
+        f'{col}_consistent'] = True
+    return col_df
 
 
-def _lat_long(dirty_df, clean_df, entity_id_df, entity_id, col, cols_to_consit,
-              round_to=2):
+def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
+              col, cols_to_consit, round_to=2):
     """Special case haveresting for lat/long """
     # grab the dirty plant records, round and get a new consistency
     ll_df = dirty_df.round(decimals=round_to)
     ll_df['table'] = 'special_case'
-    ll_df = _occurrence_consistency(
-        entity_id, ll_df, col, cols_to_consit)
+    ll_df = _occurrence_consistency(entity_id, ll_df, col, cols_to_consit)
     # grab the clean plants
     ll_clean_df = clean_df.dropna()
     # find the new clean plant records
-    ll_df = ll_df[ll_df['{}_consistent'.format(col)] == True].drop_duplicates(
-        subset=entity_id)
+    ll_df = ll_df[ll_df[f'{col}_consistent']].drop_duplicates(subset=entity_id)
     # add the newly cleaned records
     ll_clean_df = ll_clean_df.append(ll_df,)
     # merge onto the plants df w/ all plant ids
     ll_clean_df = entity_id_df.merge(ll_clean_df, how='outer')
-    return(ll_clean_df)
+    return ll_clean_df
 
 
 def _add_timezone(plants_entity):
@@ -84,7 +90,8 @@ def _add_timezone(plants_entity):
     """
     plants_entity["timezone"] = plants_entity.apply(
         lambda row: pudl.helpers.find_timezone(
-            lng=row["longitude"], lat=row["latitude"], state=row["state"], strict=False
+            lng=row["longitude"], lat=row["latitude"],
+            state=row["state"], strict=False
         ),
         axis=1,
     )
@@ -174,7 +181,7 @@ def _harvesting(entity,
                 # we know these columns must be in the dfs
                 cols = []
                 # check whether the columns are in the specific table
-                for column in (static_cols + annual_cols):
+                for column in static_cols + annual_cols:
                     if column in df.columns:
                         cols.append(column)
                 df = df[(base_cols + cols)]
@@ -183,8 +190,8 @@ def _harvesting(entity,
                 dfs.append(df)
 
                 # remove the static columns, with an exception
-                if entity == 'plants' and table_name is ('ownership_eia860'
-                                                         or 'utilities_eia860'):
+                if entity == 'plants' and table_name in ('ownership_eia860',
+                                                         'utilities_eia860'):
                     cols.remove('utility_id_eia')
                 transformed_df = transformed_df.drop(columns=cols)
                 eia_transformed_dfs[table_name] = transformed_df
@@ -223,7 +230,7 @@ def _harvesting(entity,
                                         'wrongos', 'total'])
 
     # determine how many times each of the columns occur
-    for col in (static_cols + annual_cols):
+    for col in static_cols + annual_cols:
         if col in annual_cols:
             cols_to_consit = entity_id + ['report_date']
         if col in static_cols:
@@ -233,9 +240,10 @@ def _harvesting(entity,
             entity_id, compiled_df, col, cols_to_consit, strictness=.7)
 
         # pull the correct values out of the df and merge w/ the plant ids
-        col_correct_df = col_df[col_df['{}_consistent'.format(col)] == True]\
-            .drop_duplicates(subset=(cols_to_consit
-                                     + ['{}_consistent'.format(col)]))
+        col_correct_df = (
+            col_df[col_df[f'{col}_consistent'] == True].
+            drop_duplicates(subset=(cols_to_consit + [f'{col}_consistent']))
+        )
 
         if col in static_cols:
             clean_df = entity_id_df.merge(
@@ -270,8 +278,10 @@ def _harvesting(entity,
             wrongos = np.NaN
             logger.debug(f"       Zero records found for {col}")
         if total > 0:
-            ratio = (len(col_df[(col_df['{}_consistent'.format(col)] == True)]
-                         .drop_duplicates(subset=cols_to_consit)) / total)
+            ratio = (
+                len(col_df[(col_df[f'{col}_consistent'] == True)].
+                    drop_duplicates(subset=cols_to_consit)) / total
+            )
             wrongos = (1 - ratio) * total
             logger.debug(f"       Ratio: {ratio:.3}")
             logger.debug(f"   Wrongos: {wrongos:.5}")
@@ -281,29 +291,29 @@ def _harvesting(entity,
             # is being imported the lowest consistency ratio should be .97,
             # with the exception of the latitude and longitude, which has a
             # ratio of ~.94. The ratios are better with less years imported.
-            if col is "latitude" or "longitude":
+            if col in ("latitude", "longitude"):
                 if ratio < .92:
                     raise AssertionError(
-                        'Harvesting of {} is too inconsistent.'.format(col))
+                        f'Harvesting of {col} is too inconsistent.')
             elif ratio < .95:
                 raise AssertionError(
-                    'Harvesting of {} is too inconsistent.'.format(col))
+                    f'Harvesting of {col} is too inconsistent.')
         # add to a small df to be used in order to print out the ratio of
         # consistent records
         consistency = consistency.append({'column': col,
                                           'consistent_ratio': ratio,
                                           'wrongos': wrongos,
                                           'total': total}, ignore_index=True)
-    mcs = consistency['consistent_ratio'].mean().round(4)
+    mcs = consistency['consistent_ratio'].mean()
     logger.info(
         f"Average consistency of static {entity} values is {mcs:.2%}")
 
-    if entity is "plants":
+    if entity == "plants":
         entity_df = _add_additional_epacems_plants(entity_df)
         entity_df = _add_timezone(entity_df)
 
-    eia_transformed_dfs['{}_annual_eia'.format(entity)] = annual_df
-    entities_dfs['{}_entity_eia'.format(entity)] = entity_df
+    eia_transformed_dfs[f'{entity}_annual_eia'] = annual_df
+    entities_dfs[f'{entity}_entity_eia'] = entity_df
 
     return entities_dfs, eia_transformed_dfs
 
@@ -497,8 +507,8 @@ def _boiler_generator_assn(eia_transformed_dfs,
     # label plants that have 'bad' generator records (generators that have MWhs
     # in gens9 but don't have connected boilers) create a df with just the bad
     # plants by searching for the 'bad' generators
-    bad_plants = bga_compiled_3[(bga_compiled_3['boiler_id'].isnull())
-                                & (bga_compiled_3['net_generation_mwh'] > 0)].\
+    bad_plants = bga_compiled_3[(bga_compiled_3['boiler_id'].isnull()) &
+                                (bga_compiled_3['net_generation_mwh'] > 0)].\
         drop_duplicates(subset=['plant_id_eia', 'report_date'])
     bad_plants = bad_plants[['plant_id_eia', 'report_date']]
 
@@ -519,9 +529,9 @@ def _boiler_generator_assn(eia_transformed_dfs,
 
     # create a label for generators that are unmapped but in 923
     bga_compiled_3['unmapped_but_in_923'] = \
-        np.where((bga_compiled_3.boiler_id.isnull())
-                 & ~bga_compiled_3.missing_from_923
-                 & (bga_compiled_3.net_generation_mwh == 0),
+        np.where((bga_compiled_3.boiler_id.isnull()) &
+                 ~bga_compiled_3.missing_from_923 &
+                 (bga_compiled_3.net_generation_mwh == 0),
                  True,
                  False)
 
@@ -628,10 +638,10 @@ def _boiler_generator_assn(eia_transformed_dfs,
     )
 
     if not debug:
-        bga_out = bga_out[~bga_out.missing_from_923
-                          & ~bga_out.plant_w_bad_generator
-                          & ~bga_out.unmapped_but_in_923
-                          & ~bga_out.unmapped]
+        bga_out = bga_out[~bga_out.missing_from_923 &
+                          ~bga_out.plant_w_bad_generator &
+                          ~bga_out.unmapped_but_in_923 &
+                          ~bga_out.unmapped]
 
         bga_out = bga_out.drop(['missing_from_923',
                                 'plant_w_bad_generator',

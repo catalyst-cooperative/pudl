@@ -27,9 +27,10 @@ ferc1_tables:
 
 # The ferc1 dataset goes back as far as 1994, but more cleaning and integration
 # needs to be done to bring in that data.
-ferc1_years: []
+
 #ferc1_years: [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
 #              2013, 2014, 2015, 2016, 2017]
+ferc1_years: []
 
 ###########################################################################
 # EIA FORM 923 SETTINGS
