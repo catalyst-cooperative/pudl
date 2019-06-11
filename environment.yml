@@ -30,9 +30,9 @@ dependencies:
   - xlrd
   - xlsxwriter
   # conda-forge only:
-  - datapackage
-  - tableschema
   - timezonefinder
   - pip:
+    - datapackage
     - goodtables
     - sqlalchemy-postgres-copy
+    - tableschema
