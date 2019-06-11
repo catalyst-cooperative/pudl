@@ -123,3 +123,13 @@ class BoilerEntityEIA(PUDLBase):
     boiler_id = Column(String, primary_key=True, nullable=False)
     # TODO: Add static boiler info (if necessary?)
     prime_mover_code = Column(String)
+
+
+class RegionEntityIPM(PUDLBase):
+    """
+    A region in EPA's Integrated Planning Model.
+    """
+
+    __tablename__ = 'regions_entity_ipm'
+
+    region_id_ipm = Column(String, primary_key=True, nullable=False)
