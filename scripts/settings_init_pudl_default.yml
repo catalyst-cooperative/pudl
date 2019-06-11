@@ -28,8 +28,9 @@ ferc1_tables:
 # The ferc1 dataset goes back as far as 1994, but more cleaning and integration
 # needs to be done to bring in that data.
 
-ferc1_years: [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
-              2013, 2014, 2015, 2016, 2017]
+#ferc1_years: [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
+#              2013, 2014, 2015, 2016, 2017]
+ferc1_years: []
 
 ###########################################################################
 # EIA FORM 923 SETTINGS
@@ -47,7 +48,7 @@ eia923_tables:
   - fuel_receipts_costs_eia923
 
 #eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
-eia923_years: [2017]
+eia923_years: []
 
 ###########################################################################
 # EIA FORM 860 SETTINGS
@@ -62,7 +63,7 @@ eia860_tables:
   - ownership_eia860
 
 #eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017]
-eia860_years: [2017]
+eia860_years: []
 
 ###########################################################################
 # EPA CEMS HOURLY SETTINGS
