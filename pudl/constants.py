@@ -1725,6 +1725,7 @@ data_sources = (
     'eia923',
     'epacems',
     'ferc1',
+    'epaipm',
     # 'msha
 )
 
@@ -1765,6 +1766,7 @@ base_data_urls = {
     'ferc714': 'https://www.ferc.gov/docs-filing/forms/form-714/data',
     'ferceqr': 'ftp://eqrdownload.ferc.gov/DownloadRepositoryProd/BulkNew/CSV',
     'msha': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
+    'epaipm': 'https://www.epa.gov/sites/production/files/2019-03/'
 }
 
 
