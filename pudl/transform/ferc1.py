@@ -12,9 +12,9 @@ with the appropriate NA values.
 import logging
 import os.path
 from difflib import SequenceMatcher
+import re
 import pandas as pd
 import numpy as np
-import re
 
 # These modules are required for the FERC Form 1 Plant ID & Time Series
 from sklearn.metrics.pairwise import cosine_similarity
@@ -1450,8 +1450,6 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
             heat content and fuel costs for each fuel in that year, and a
             column that labels the plant's primary fuel for that year.
     """
-    import re
-
     keep_cols = [
         'report_year',  # key
         'utility_id_ferc1',  # key
@@ -1492,10 +1490,10 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
         pd.merge(
             # Sum up all the fuel heat content, and divide the individual fuel
             # heat contents by it (they are all contained in single higher
-            # level group of columns laeled fuel_mmbtu)
+            # level group of columns labeled fuel_mmbtu)
             df.loc[:, 'fuel_mmbtu'].div(
                 df.loc[:, 'fuel_mmbtu'].sum(axis=1), axis='rows'),
-            # Merge that same total into the datafram separately as well.
+            # Merge that same total into the dataframe separately as well.
             df.sum(level=0, axis=1).loc[:, 'fuel_mmbtu'],
             right_index=True, left_index=True).
         rename(columns=lambda x: re.sub(r'$', '_fraction_mmbtu', x)).
@@ -1506,11 +1504,11 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
     cost_group = (
         pd.merge(
             # Sum up all the fuel costs, and divide the individual fuel
-            # heat contents by it (they are all contained in single higher
-            # level group of columns labled fuel_cost)
+            # costs by it (they are all contained in single higher
+            # level group of columns labeled fuel_cost)
             df.loc[:, 'fuel_cost'].div(
                 df.loc[:, 'fuel_cost'].sum(axis=1), axis='rows'),
-            # Merge that same total into the datafram separately as well.
+            # Merge that same total into the dataframe separately as well.
             df.sum(level=0, axis=1).loc[:, 'fuel_cost'],
             right_index=True, left_index=True).
         rename(columns=lambda x: re.sub(r'$', '_fraction_cost', x)).

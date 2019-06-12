@@ -71,7 +71,7 @@ def test_steam_ferc1_duplicate_years_in_plant_id_ferc1(pudl_out_ferc1):
         query('year_dupes>1')
     )
     for dupe in year_dupes.itertuples():
-        logger.info(
+        logger.error(
             f"Found report_year={dupe.report_year} "
             f"{dupe.year_dupes} times in "
             f"plant_id_ferc1={dupe.plant_id_ferc1}"
