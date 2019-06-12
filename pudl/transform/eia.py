@@ -73,7 +73,8 @@ def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
     # grab the clean plants
     ll_clean_df = clean_df.dropna()
     # find the new clean plant records
-    ll_df = ll_df[ll_df[f'{col}_consistent']].drop_duplicates(subset=entity_id)
+    ll_df = ll_df[ll_df[f'{col}_consistent'] ==
+                  True].drop_duplicates(subset=entity_id)
     # add the newly cleaned records
     ll_clean_df = ll_clean_df.append(ll_df,)
     # merge onto the plants df w/ all plant ids
