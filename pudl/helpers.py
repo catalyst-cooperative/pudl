@@ -306,9 +306,41 @@ def strip_lower(df, columns=None):
     return out_df
 
 
-def cleanstrings(field, stringmap, unmapped=None, simplify=True):
+def cleanstrings_series(col, map, unmapped=None, simplify=True):
+    """
+    Clean up the strings in a single column/Series.
+    TODO: Make a real dockstring here man. C'mon.
+    """
+    if simplify:
+        col = (
+            col.astype(str).
+            str.strip().
+            str.lower().
+            str.replace(r'\s+', ' ')
+        )
+        for k in map:
+            map[k] = [re.sub(r'\s+', ' ', s.lower().strip())
+                      for s in map[k]]
+
+    for k in map:
+        if map[k]:
+            col = col.replace(map[k], k)
+
+    if unmapped is not None:
+        badstrings = np.setdiff1d(col.unique(), list(map.keys()))
+        # This call to replace can only work if there are actually some
+        # leftover strings to fix -- otherwise it runs forever because we
+        # are replacing nothing with nothing.
+        if len(badstrings) > 0:
+            col = col.replace(badstrings, unmapped)
+
+    return col
+
+
+def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
     """
     Consolidate freeform strings in dataframe column to canonical codes.
+    TODO: Fix this docstring here man. C'mon.
 
     This function maps many different strings meant to represent the same value
     or category to a single value. In addition, white space is stripped and
@@ -317,6 +349,7 @@ def cleanstrings(field, stringmap, unmapped=None, simplify=True):
     is uncategorized or confusing.
 
     Args:
+    -----
         field (pandas.DataFrame column): A pandas DataFrame column
             (e.g. f1_fuel["FUEL"]) whose strings will be matched, where
             possible, to categorical values from the stringmap dictionary.
@@ -332,34 +365,16 @@ def cleanstrings(field, stringmap, unmapped=None, simplify=True):
             field values.
 
     Returns:
+    --------
         pandas.Series: The function returns a new pandas series/column that can
             be used to set the values of the original data.
     """
+    out_df = df.copy()
+    for col, map in zip(columns, stringmaps):
+        out_df[col] = cleanstrings_series(
+            out_df[col], map, unmapped=unmapped, simplify=simplify)
 
-    # Simplify the strings we're working with, to reduce the number of strings
-    # we need to enumerate in the maps
-
-    if simplify:
-        # Transform strings to lower case, strip leading/trailing whitespace
-        field = field.str.lower().str.strip()
-        # remove duplicate internal whitespace
-        field = field.replace(r'[\s+]', ' ', regex=True)
-        for k, v in stringmap.items():
-            stringmap[k] = [re.sub(r'\s+', ' ', s.lower().strip()) for s in v]
-
-    for k in stringmap:
-        if len(stringmap[k]) > 0:
-            field = field.replace(stringmap[k], k)
-
-    if unmapped is not None:
-        badstrings = np.setdiff1d(field.unique(), list(stringmap.keys()))
-        # This call to replace can only work if there are actually some
-        # leftover strings to fix -- otherwise it runs forever because we
-        # are replacing nothing with nothing.
-        if badstrings.size > 0:
-            field = field.replace(badstrings, unmapped)
-
-    return field
+    return out_df
 
 
 def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=''):

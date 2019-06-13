@@ -10,7 +10,7 @@ import pudl.constants as pc
 # Tables comprising data from the FERC f1_steam & f1_fuel tables
 ###########################################################################
 
-construction_type_enum = Enum(*pc.ferc1_construction_type_strings.keys(),
+construction_type_enum = Enum(*pc.ferc1_const_type_strings.keys(),
                               name='ferc1_construction_type')
 
 id_comment = "PUDL issued surrogate key."
