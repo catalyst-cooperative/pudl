@@ -72,9 +72,9 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     gp_df = eia860_dfs['generator_proposed'].copy()
     ge_df = eia860_dfs['generator_existing'].copy()
     gr_df = eia860_dfs['generator_retired'].copy()
-    gp_df['operational_status_code'] = 'proposed'
-    ge_df['operational_status_code'] = 'existing'
-    gr_df['operational_status_code'] = 'retired'
+    gp_df['operational_status'] = 'proposed'
+    ge_df['operational_status'] = 'existing'
+    gr_df['operational_status'] = 'retired'
 
     gens_df = pd.concat([ge_df, gp_df, gr_df], sort=True)
 

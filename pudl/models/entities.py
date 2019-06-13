@@ -27,15 +27,7 @@ class UtilityEntityEIA(PUDLBase):
 
     __tablename__ = 'utilities_entity_eia'
     utility_id_eia = Column(Integer, primary_key=True, nullable=False)
-    # TODO: Add static utility info
-
-    utility_name = Column(String)  # FK
-    street_address = Column(String)
-    city = Column(String)
-    state = Column(String,  # ENUM
-                   # pudl.models.glue.us_states_canada_prov_terr,  # ENUM
-                   comment="Two letter US state and territory abbreviations.")
-    zip_code = Column(String)
+    utility_name = Column(String)
     entity_type = Column(String)
 
 
