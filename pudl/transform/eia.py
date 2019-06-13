@@ -52,13 +52,17 @@ def _occurrence_consistency(entity_id, compiled_df, col,
         groupby(by=cols_to_consit + [col]).
         agg({'table': 'count'}).
         reset_index().
-        rename(columns={'table': f'{col}_consistent'})
+        rename(columns={'table': 'consistency'})
+        #rename(columns={'table': f'{col}_consistent'})
     )
 
     col_df = col_df.merge(consist_df, how='outer').drop(columns=['table'])
     # change all of the fully consistent records to True
-    col_df.loc[:, f'{col}_consistent'] = (col_df[f'{col}_consistent'] /
-                                          col_df['occurences'] > strictness)
+    col_df[f'{col}_consistent'] = (col_df['consistency'] /
+                                   col_df['occurences'] > strictness)
+
+    # col_df.loc[:, f'{col}_consistent'] = (col_df[f'{col}_consistent'] /
+    #                                      col_df['occurences'] > strictness)
     return col_df
 
 
@@ -228,7 +232,7 @@ def _harvesting(entity,
                          'longitude': [_lat_long, 1]}
     consistency = pd.DataFrame(columns=['column', 'consistent_ratio',
                                         'wrongos', 'total'])
-
+    col_dfs = {}
     # determine how many times each of the columns occur
     for col in static_cols + annual_cols:
         if col in annual_cols:
@@ -273,6 +277,8 @@ def _harvesting(entity,
                 dirty_df, clean_df, entity_id_df, entity_id, col,
                 cols_to_consit, special_case_cols[col][1])
 
+        if debug:
+            col_dfs[col] = col_df
         # this next section is used to print and test whether the harvested
         # records are consistent enough
         total = len(col_df.drop_duplicates(subset=cols_to_consit))
@@ -294,13 +300,13 @@ def _harvesting(entity,
             # is being imported the lowest consistency ratio should be .97,
             # with the exception of the latitude and longitude, which has a
             # ratio of ~.94. The ratios are better with less years imported.
-            if col in ("latitude", "longitude"):
+            if col in ('latitude', 'longitude'):
                 if ratio < .92:
                     raise AssertionError(
                         f'Harvesting of {col} is too inconsistent.')
             elif ratio < .95:
                 raise AssertionError(
-                    f'Harvesting of {col} is too inconsistent.')
+                    f'Harvesting of {col} is too inconsistent at {ratio:.3}.')
         # add to a small df to be used in order to print out the ratio of
         # consistent records
         consistency = consistency.append({'column': col,
@@ -317,7 +323,8 @@ def _harvesting(entity,
 
     eia_transformed_dfs[f'{entity}_annual_eia'] = annual_df
     entities_dfs[f'{entity}_entity_eia'] = entity_df
-
+    if debug:
+        return entities_dfs, eia_transformed_dfs, col_dfs
     return entities_dfs, eia_transformed_dfs
 
 

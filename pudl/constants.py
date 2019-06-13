@@ -1535,8 +1535,8 @@ entities = {
          'startup_source_code_1', 'startup_source_code_2',
          'startup_source_code_3', 'startup_source_code_4',
          'time_cold_shutdown_full_load_code', 'syncronized_transmission_grid',
-         'turbines_num', 'operational_status_code', 'planned_modifications',
-         'planned_net_summer_capacity_uprate_mw',
+         'turbines_num', 'operational_status_code', 'operational_status',
+         'planned_modifications', 'planned_net_summer_capacity_uprate_mw',
          'planned_net_winter_capacity_uprate_mw', 'planned_new_capacity_mw',
          'planned_uprate_date', 'planned_net_summer_capacity_derate_mw',
          'planned_net_winter_capacity_derate_mw', 'planned_derate_date',
@@ -1556,10 +1556,11 @@ entities = {
     'utilities': [  # base cols
         ['utility_id_eia'],
         # static cols
-        ['utility_name', 'street_address', 'city', 'state', 'zip_code',
+        ['utility_name',
          'entity_type'],
         # annual cols
-        ['plants_reported_owner', 'plants_reported_operator',
+        ['street_address', 'city', 'state', 'zip_code',
+         'plants_reported_owner', 'plants_reported_operator',
          'plants_reported_asset_manager', 'plants_reported_other_relationship',
          ],
         # need type fixing
