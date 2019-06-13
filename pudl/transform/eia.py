@@ -57,9 +57,8 @@ def _occurrence_consistency(entity_id, compiled_df, col,
 
     col_df = col_df.merge(consist_df, how='outer').drop(columns=['table'])
     # change all of the fully consistent records to True
-    col_df.loc[
-        (col_df[f'{col}_consistent'] / col_df['occurences'] > strictness),
-        f'{col}_consistent'] = True
+    col_df.loc[:, f'{col}_consistent'] = (col_df[f'{col}_consistent'] /
+                                          col_df['occurences'] > strictness)
     return col_df
 
 
@@ -242,9 +241,13 @@ def _harvesting(entity,
 
         # pull the correct values out of the df and merge w/ the plant ids
         col_correct_df = (
-            col_df[col_df[f'{col}_consistent'] == True].
+            col_df[col_df[f'{col}_consistent']].
             drop_duplicates(subset=(cols_to_consit + [f'{col}_consistent']))
         )
+
+        # we need this to be an empty df w/ columns bc we are going to use it
+        if col_correct_df.empty:
+            col_correct_df = pd.DataFrame(columns=col_df.columns)
 
         if col in static_cols:
             clean_df = entity_id_df.merge(
@@ -280,13 +283,12 @@ def _harvesting(entity,
             logger.debug(f"       Zero records found for {col}")
         if total > 0:
             ratio = (
-                len(col_df[(col_df[f'{col}_consistent'] == True)].
+                len(col_df[(col_df[f'{col}_consistent'])].
                     drop_duplicates(subset=cols_to_consit)) / total
             )
             wrongos = (1 - ratio) * total
-            logger.debug(f"       Ratio: {ratio:.3}")
-            logger.debug(f"   Wrongos: {wrongos:.5}")
-            logger.debug(f"   Total: {total}   {col}")
+            logger.debug(
+                f"       Ratio: {ratio:.3}  Wrongos: {wrongos:.5}  Total: {total}   {col}")
             # the following assertions are here to ensure that the harvesting
             # process is producing enough consistent records. When every year
             # is being imported the lowest consistency ratio should be .97,
