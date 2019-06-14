@@ -77,8 +77,6 @@ def create_dfs_epaipm(files=pc.files_epaipm):
             pc.read_excel_epaipm_dict[f]
         )
 
-        epaipm_dfs[f] = epaipm_dfs[f].rename(pc.epaipm_rename_dict, axis=1)
-
     return epaipm_dfs
 
 
