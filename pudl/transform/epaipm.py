@@ -49,6 +49,9 @@ def load_curves(epaipm_dfs, epaipm_transformed_dfs):
         df_list.append(df)
 
     tidy_load_curves = pd.concat(df_list)
+    tidy_load_curves = tidy_load_curves.rename(
+        columns=pc.epaipm_rename_dict['load_curves_ipm']
+    )
 
     epaipm_transformed_dfs['load_curves_ipm'] = tidy_load_curves
 
