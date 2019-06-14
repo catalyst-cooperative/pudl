@@ -27,6 +27,7 @@ install:
 - cd scripts
 - python update_datastore.py -s eia923 -y 2017
 - python update_datastore.py -s eia860 -y 2017
+- pythong update_datastore.py -s epaipm
 - cp -r ../test/data/epa/cems/* ../data/epa/cems/
 - cp -r ../test/data/ferc/form1/* ../data/ferc/form1/
 - cd ..
