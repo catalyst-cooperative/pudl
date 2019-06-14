@@ -57,6 +57,7 @@ def main():
                       eia860_years=settings_init['eia860_years'],
                       epacems_years=settings_init['epacems_years'],
                       epacems_states=settings_init['epacems_states'],
+                      epaipm_tables=settings_init['epaipm_tables'],
                       pudl_testing=settings_init['pudl_testing'],
                       ferc1_testing=settings_init['ferc1_testing'],
                       csvdir=settings_init['csvdir'],

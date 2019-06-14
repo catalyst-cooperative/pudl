@@ -28,6 +28,7 @@ import pudl.models.eia923
 import pudl.models.eia860
 import pudl.models.ferc1
 import pudl.models.epacems
+import pudl.models.epaipm
 
 import pudl.constants as pc
 from pudl.settings import SETTINGS
@@ -256,6 +257,17 @@ def ingest_static_tables(engine):
              con=engine, index=False, if_exists='append',
              dtype={'id': sa.String,
                     'description': sa.String}))
+
+    (
+        pd.DataFrame(
+            {'region_id_ipm': pc.epaipm_region_names}
+        ).to_sql(
+            'regions_entity_ipm',
+            con=engine,
+            index=False,
+            if_exists='append'
+        )
+    )
 
 
 def _ingest_glue(engine,
@@ -586,6 +598,42 @@ def _ETL_cems(pudl_engine, epacems_years, csvdir, keep_csv, states):
         logger.info(time_message)
 
 
+def _ETL_ipm(pudl_engine, epaipm_tables, csvdir, keep_csv):
+    """
+    Extract, transform, and load tables from EPA IPM.
+
+    Args:
+        pudl_engine (sqlalchemy.engine): SQLAlchemy database engine, which will be
+            used to pull the CSV output into the database.
+        epaipm_tables (list): Names of tables to process.
+        csvdir (str): Path to the directory into which the CSV file should be
+            saved, if it's being kept.
+        keep_csv (bool): True if the CSV output should be saved after the data
+            has been loaded into the database. False if they should be deleted.
+            NOTE: If multiple COPYs are done for the same table_name, only
+            the last will be retained by keep_csv, which may be unsatisfying.
+
+    Returns:
+        None
+    """
+
+    # Extract IPM tables
+    epaipm_raw_dfs = pudl.extract.epaipm.extract()
+
+    epaipm_transformed_dfs = pudl.transform.epaipm.transform(
+        epaipm_raw_dfs, epaipm_tables
+    )
+
+    pudl.load.dict_dump_load(
+        epaipm_transformed_dfs,
+        "EPA IPM",
+        pudl_engine,
+        need_fix_inting=pc.need_fix_inting,
+        csvdir=csvdir,
+        keep_csv=keep_csv
+    )
+
+
 def init_db(ferc1_tables=None,
             ferc1_years=None,
             eia923_tables=None,
@@ -594,6 +642,7 @@ def init_db(ferc1_tables=None,
             eia860_years=None,
             epacems_years=None,
             epacems_states=None,
+            epaipm_tables=None,
             pudl_testing=None,
             ferc1_testing=None,
             debug=None,
@@ -622,6 +671,9 @@ def init_db(ferc1_tables=None,
             data. Note that there's only one EPA CEMS table.
         epacems_states (iterable): The list of states for which we are to pull
             EPA CEMS data. With all states, ETL takes ~8 hours.
+        epaipm_tables (list): The list of tables that will be created and
+            ingested. By default only known to be working tables are ingested.
+            That list of tables is defined in pudl.constants.
         debug (bool): You can tell init_db to ingest whatever list of tables
             you want, but if your desired table is not in the list of known to
             be working tables, you need to set debug=True (otherwise init_db
@@ -650,6 +702,13 @@ def init_db(ferc1_tables=None,
             if table not in pc.eia923_pudl_tables:
                 raise AssertionError(
                     f"Unrecogized EIA 923 table: {table}"
+                )
+
+    if (not debug) and (epaipm_tables):
+        for table in epaipm_tables:
+            if table not in pc.epaipm_pudl_tables:
+                raise AssertionError(
+                    f"Unrecogized EPA IPM table: {table}"
                 )
 
     # Connect to the PUDL DB, wipe out & re-create tables:
@@ -698,5 +757,12 @@ def init_db(ferc1_tables=None,
               states=epacems_states,
               csvdir=csvdir,
               keep_csv=keep_csv)
+
+    _ETL_ipm(
+        pudl_engine=pudl_engine,
+        epaipm_tables=epaipm_tables,
+        csvdir=csvdir,
+        keep_csv=keep_csv
+    )
 
     pudl_engine.execute("ANALYZE")
