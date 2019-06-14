@@ -28,15 +28,17 @@ def assert_valid_param(source, year, month=None, state=None, check_month=None):
     if source not in pc.data_sources:
         raise AssertionError(
             f"Source '{source}' not found in valid data sources.")
-    if year is not None and source not in pc.data_years:
-        raise AssertionError(
-            f"Source '{source}' not found in valid data years.")
+    if year is not None:
+        if source not in pc.data_years:
+            raise AssertionError(
+                f"Source '{source}' not found in valid data years.")
+        if year not in pc.data_years[source]:
+            raise AssertionError(
+                f"Year {year} is not valid for source {source}.")
     if source not in pc.base_data_urls:
         raise AssertionError(
             f"Source '{source}' not found in valid base download URLs.")
-    if year is not None and year not in pc.data_years[source]:
-        raise AssertionError(
-            f"Year {year} is not valid for source {source}.")
+
     if check_month is None:
         check_month = source == 'epacems'
 
@@ -53,7 +55,7 @@ def assert_valid_param(source, year, month=None, state=None, check_month=None):
                 f"Invalid state '{state}'. Must use US state abbreviations.")
 
 
-def source_url(source, year, month=None, state=None):
+def source_url(source, year, month=None, state=None, table=None):
     """
     Construct a download URL for the specified federal data source and year.
 
@@ -76,6 +78,8 @@ def source_url(source, year, month=None, state=None):
             Only used for EPA CEMS.
         state (str): the state for which data should be downloaded.
             Only used for EPA CEMS.
+        table (str): the table for which data should be downloaded. Only
+            usedd for EPA IPM.
     Returns:
         download_url (string): a full URL from which the requested
             data may be obtained
@@ -116,6 +120,9 @@ def source_url(source, year, month=None, state=None):
     elif (source == 'epacems'):
         # lowercase the state and zero-pad the month
         download_url = f"{base_url}/{year}/{year}{state.lower()}{str(month).zfill(2)}.zip"
+    elif source == 'epaipm':
+        table_url_ext = pc.epaipm_url_ext[table]
+        download_url = f"{base_url}/{table_url_ext}"
     else:
         # we should never ever get here because of the assert statement.
         assert False, \
@@ -205,6 +212,8 @@ def path(source, year=0, month=None, state=None, file=True, datadir=SETTINGS['da
         dstore_path = os.path.join(datadir, 'epa', 'cems')
         if(year != 0):
             dstore_path = os.path.join(dstore_path, f"epacems{year}")
+    elif source == 'epaipm':
+        dstore_path = os.path.join(datadir, 'epa', 'ipm')
     else:
         # we should never ever get here because of the assert statement.
         assert False, f"Bad data source '{source}' requested."
@@ -288,12 +297,25 @@ def download(source, year, states, datadir=SETTINGS['data_dir']):
                     for month in range(1, 13)]
         tmp_files = [os.path.join(tmp_dir, os.path.basename(f))
                      for f in paths_for_year(source, year, states=states)]
+    elif source == 'epaipm':
+        # This is going to download all of the IPM tables listed in
+        # pudl.constants.epaipm_pudl_tables and pc.epaipm_url_ext.
+        # I'm finding it easier to
+        # code the url and temp files than use provided functions.
+        fns = pc.epaipm_url_ext.values()
+        base_url = pc.base_data_urls['epaipm']
+
+        src_urls = [f'{base_url}/{f}' for f in fns]
+        tmp_files = [os.path.join(tmp_dir, f)
+                     for f in fns]
     else:
         src_urls = [source_url(source, year)]
         tmp_files = [os.path.join(
             tmp_dir, os.path.basename(path(source, year)))]
     if source == 'epacems':
         logger.info(f"Downloading {source} data for {year}.")
+    elif year is None:
+        logger.info(f"Downloading {source} data.")
     else:
         logger.info(f"Downloading {source} data for {year} from {src_urls[0]}")
     url_schemes = {urllib.parse.urlparse(url).scheme for url in src_urls}
@@ -425,20 +447,36 @@ def organize(source, year, states, unzip=True,
     """
     assert source in pc.data_sources, \
         f"Source '{source}' not found in valid data sources."
-    assert source in pc.data_years, \
-        f"Source '{source}' not found in valid data years."
+    if year is not None:
+        assert source in pc.data_years, \
+            f"Source '{source}' not found in valid data years."
+        assert year in pc.data_years[source], \
+            f"Year {year} is not valid for source {source}."
     assert source in pc.base_data_urls, \
         f"Source '{source}' not found in valid base download URLs."
-    assert year in pc.data_years[source], \
-        f"Year {year} is not valid for source {source}."
+
     assert_valid_param(source=source, year=year, check_month=False)
 
     tmpdir = os.path.join(datadir, 'tmp')
     # For non-CEMS, the newfiles and destfiles lists will have length 1.
-    newfiles = [os.path.join(tmpdir, os.path.basename(f))
-                for f in paths_for_year(source, year, states)]
-    destfiles = paths_for_year(
-        source, year, states, file=True, datadir=datadir)
+    if source == 'epaipm':
+        # downloading .xlsx files, not zip files.
+        unzip = False
+
+        fns = list(pc.epaipm_url_ext.values())
+        newfiles = [
+            os.path.join(tmpdir, f)
+            for f in fns
+        ]
+        destfiles = [
+            os.path.join(SETTINGS['epaipm_data_dir'], f)
+            for f in fns
+        ]
+    else:
+        newfiles = [os.path.join(tmpdir, os.path.basename(f))
+                    for f in paths_for_year(source, year, states)]
+        destfiles = paths_for_year(
+            source, year, states, file=True, datadir=datadir)
 
     # If we've gotten to this point, we're wiping out the previous version of
     # the data for this source and year... so lets wipe it! Scary!
