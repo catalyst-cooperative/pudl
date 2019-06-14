@@ -28,13 +28,13 @@ def assert_valid_param(source, year, month=None, state=None, check_month=None):
     if source not in pc.data_sources:
         raise AssertionError(
             f"Source '{source}' not found in valid data sources.")
-    if source not in pc.data_years:
+    if year is not None and source not in pc.data_years:
         raise AssertionError(
             f"Source '{source}' not found in valid data years.")
     if source not in pc.base_data_urls:
         raise AssertionError(
             f"Source '{source}' not found in valid base download URLs.")
-    if year not in pc.data_years[source]:
+    if year is not None and year not in pc.data_years[source]:
         raise AssertionError(
             f"Year {year} is not valid for source {source}.")
     if check_month is None:
@@ -68,9 +68,10 @@ def source_url(source, year, month=None, state=None):
             - 'mshaops'
             - 'mshaprod'
             - 'epacems'
-        year (int): the year for which data should be downloaded. Must be
+        year (int or None): the year for which data should be downloaded. Must be
             within the range of valid data years, which is specified for
-            each data source in the pudl.constants module.
+            each data source in the pudl.constants module. Use None for data
+            sources that do not have multiple years.
         month (int): the month for which data should be downloaded.
             Only used for EPA CEMS.
         state (str): the state for which data should be downloaded.
@@ -143,11 +144,12 @@ def path(source, year=0, month=None, state=None, file=True, datadir=SETTINGS['da
             - 'eia923'
             - 'eia860'
             - 'epacems'
-        year (int): the year of data that the returned path should pertain to.
+        year (int or None): the year of data that the returned path should pertain to.
             Must be within the range of valid data years, which is specified
             for each data source in pudl.constants.data_years, unless year is
             set to zero, in which case only the top level directory for the
-            data source specified in source is returned.
+            data source specified in source is returned. If None, no subdirectory
+            is used for the data source.
         file (bool): If True, return the full path to the originally
             downloaded file specified by the data source and year.
             If file is true, year must not be set to zero, as a year is
@@ -260,11 +262,12 @@ def download(source, year, states, datadir=SETTINGS['data_dir']):
     Args:
         source (str): the data source to retrieve. Must be one of: 'eia860',
             'eia923', 'ferc1', or 'epacems'.
-        year (int): the year of data that the returned path should pertain to.
+        year (int or None): the year of data that the returned path should pertain to.
             Must be within the range of valid data years, which is specified
             for each data source in pudl.constants.data_years. Note that for
             data (like EPA CEMS) that have multiple datasets per year, this
-            function will download all the files for the specified year.
+            function will download all the files for the specified year. Use
+            None for data sources that do not have multiple years.
         datadir (str): path to the top level directory of the datastore.
     Returns:
         outfile (str): path to the local downloaded file.
@@ -409,9 +412,10 @@ def organize(source, year, states, unzip=True,
     Args:
         source (str): the data source to retrieve. Must be one of: 'eia860',
             'eia923', 'ferc1', or 'epacems'.
-        year (int): the year of data that the returned path should pertain to.
+        year (int or None): the year of data that the returned path should pertain to.
             Must be within the range of valid data years, which is specified
-            for each data source in pudl.constants.data_years.
+            for each data source in pudl.constants.data_years. Use None for data
+            sources that do not have multiple years.
         unzip (bool): If true, unzip the file once downloaded, and place the
             resulting data files where they ought to be in the datastore.
         datadir (str): path to the top level directory of the datastore.
