@@ -1694,6 +1694,11 @@ files_dict_epaipm = {
     'load_curves_ipm': '*table_2-2_*'
 }
 
+epaipm_url_ext = {
+    'transmission_single_ipm': 'table_3-21_annual_transmission_capabilities_of_u.s._model_regions_in_epa_platform_v6_-_2021.xlsx',
+    'load_curves_ipm': 'table_2-2_load_duration_curves_used_in_epa_platform_v6.xlsx',
+}
+
 read_excel_epaipm_dict = {
     'transmission_single_ipm': dict(
         skiprows=3,
@@ -1755,6 +1760,7 @@ data_years = {
     'ferc1': tuple(range(1994, 2018)),
     'ferc714': tuple(range(2006, 2018)),
     'msha': tuple(range(2000, 2018)),
+    'epaipm': [None],
 }
 
 # The full set of years we currently expect to be able to ingest, per source:
@@ -1772,6 +1778,7 @@ pudl_tables = {
     'eia923': eia923_pudl_tables,
     'ferc1': ferc1_pudl_tables,
     'epacems': epacems_tables,
+    'epaipm': epaipm_pudl_tables,
 }
 
 base_data_urls = {
@@ -1783,7 +1790,7 @@ base_data_urls = {
     'ferc714': 'https://www.ferc.gov/docs-filing/forms/form-714/data',
     'ferceqr': 'ftp://eqrdownload.ferc.gov/DownloadRepositoryProd/BulkNew/CSV',
     'msha': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
-    'epaipm': 'https://www.epa.gov/sites/production/files/2019-03/'
+    'epaipm': 'https://www.epa.gov/sites/production/files/2019-03'
 }
 
 
