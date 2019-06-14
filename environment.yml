@@ -26,6 +26,8 @@ dependencies:
   - pyyaml
   - scikit-learn>=0.20
   - scipy
+  - sphinx
+  - sphinx_rtd_theme
   - sqlalchemy>=1.3.0
   - xlrd
   - xlsxwriter
