@@ -1,7 +1,7 @@
 """Database models for PUDL tables derived from EPA IPM Data."""
 
-from sqlalchemy import Boolean, Integer, String, Float, Date
-from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint
+from sqlalchemy import Integer, String, Float
+from sqlalchemy import Column, ForeignKey
 import pudl.models.entities
 
 

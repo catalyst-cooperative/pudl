@@ -9,7 +9,6 @@ of files.
 import logging
 from pathlib import Path
 import pandas as pd
-import pudl
 from pudl.settings import SETTINGS
 import pudl.constants as pc
 

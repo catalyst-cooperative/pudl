@@ -2,8 +2,6 @@
 
 import logging
 import pandas as pd
-import numpy as np
-import pudl
 import pudl.constants as pc
 from pudl.helpers import simplify_columns
 
