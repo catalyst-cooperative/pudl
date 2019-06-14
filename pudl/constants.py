@@ -727,11 +727,17 @@ eia923_pudl_tables = ('generation_fuel_eia923',
                       'coalmine_eia923',
                       'fuel_receipts_costs_eia923')
 
+epaipm_pudl_tables = (
+    'transmission_single_ipm',
+    'load_curves_ipm',
+)
+
 # List of entity tables
 entity_tables = ['utilities_entity_eia',
                  'plants_entity_eia',
                  'generators_entity_eia',
-                 'boilers_entity_eia']
+                 'boilers_entity_eia',
+                 'regions_entity_ipm',]
 
 # 'stocks_eia923'
 
@@ -1679,18 +1685,24 @@ epacems_additional_plant_info_file = os.path.join(
 )
 
 files_epaipm = (
-    'transmission_single',
+    'transmission_single_ipm',
+    'load_curves_ipm',
 )
 
 files_dict_epaipm = {
-    'transmission_single': '*table_3-21*',
+    'transmission_single_ipm': '*table_3-21*',
+    'load_curves_ipm': '*table_2-2_*'
 }
 
 read_excel_epaipm_dict = {
-    'transmission_single': dict(
+    'transmission_single_ipm': dict(
         skiprows=3,
         usecols='B:F',
-        index_col=[0,1],
+        index_col=[0, 1],
+    ),
+    'load_curves_ipm': dict(
+        skiprows=3,
+        usecols='B:AB',
     )
 }
 
@@ -1712,11 +1724,16 @@ epaipm_region_names = [
 ]
 
 epaipm_rename_dict = {
-    'From': 'from',
-    'To': 'to',
-    'Capacity TTC (MW)': 'firm_capacity_mw',
-    'Energy TTC (MW)': 'nonfirm_capacity_mw',
-    'Transmission Tariff (2016 mills/kWh)': 'tariff_mills_kwh',
+    'transmission_single_ipm': {
+        'From': 'from_region',
+        'To': 'to_region',
+        'Capacity TTC (MW)': 'firm_ttc_mw',
+        'Energy TTC (MW)': 'nonfirm_ttc_mw',
+        'Transmission Tariff (2016 mills/kWh)': 'tariff_mills_kwh',
+    },
+    'load_curves_ipm': {
+        'day': 'day_of_year',
+    }
 }
 
 data_sources = (
