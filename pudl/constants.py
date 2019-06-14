@@ -1725,8 +1725,8 @@ epaipm_region_names = [
 
 epaipm_rename_dict = {
     'transmission_single_ipm': {
-        'From': 'from_region',
-        'To': 'to_region',
+        'From': 'region_from',
+        'To': 'region_to',
         'Capacity TTC (MW)': 'firm_ttc_mw',
         'Energy TTC (MW)': 'nonfirm_ttc_mw',
         'Transmission Tariff (2016 mills/kWh)': 'tariff_mills_kwh',
