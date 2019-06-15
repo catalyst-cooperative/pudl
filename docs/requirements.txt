@@ -1,6 +1,6 @@
 dbfread
 sqlalchemy
-sphinx
+sphinx>=2.0
 # scipy
 # numpy
 # matplotlib
