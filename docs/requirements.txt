@@ -1,5 +1,6 @@
 dbfread
 sqlalchemy
+sphinx
 # scipy
 # numpy
 # matplotlib
