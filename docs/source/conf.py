@@ -40,9 +40,6 @@ extensions = [
     'sphinx.ext.viewcode',
 ]
 
-# Modules that cause issues for the remote build:
-autodoc_mock_imports = ['python-snappy']
-
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
