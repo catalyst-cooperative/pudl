@@ -14,7 +14,8 @@ formats: html
 
 # Set the version of Python and requirements required to build your docs
 python:
-    version: 3.7
-    system_packages: True
-        install:
-            - requirements: docs/requirements.txt
+  version: 3.7
+    install:
+      - requirements: docs/requirements.txt
+      - method: pip
+        system_packages: True
