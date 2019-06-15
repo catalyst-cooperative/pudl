@@ -1,6 +1,7 @@
 dbfread
 sqlalchemy
 sphinx>=2.0<3
+# from read-the-docs system python:
 # scipy
 # numpy
 # matplotlib
