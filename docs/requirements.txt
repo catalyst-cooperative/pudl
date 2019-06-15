@@ -1,0 +1,6 @@
+dbfread
+sqlalchemy
+# scipy
+# numpy
+# matplotlib
+# pandas
