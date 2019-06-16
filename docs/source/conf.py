@@ -54,6 +54,7 @@ exclude_patterns = ['../build']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
+master_doc = 'index'
 html_theme = 'sphinx_rtd_theme'
 html_logo = '_static/catalyst_logo-200x200.png'
 html_icon = '_static/favicon.ico'
