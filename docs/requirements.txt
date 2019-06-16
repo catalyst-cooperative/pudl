@@ -1,6 +1,8 @@
 pyyaml
 dbfread
 sqlalchemy
+timezonefinder
+
 #sphinx==2.1.1
 # From system python we get...
 # scipy
