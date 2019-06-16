@@ -1,8 +1,8 @@
 pyyaml
 dbfread
 sqlalchemy
-sphinx==2.1.1
-# No longer pulling these in...
+#sphinx==2.1.1
+# From system python we get...
 # scipy
 # numpy
 # matplotlib
