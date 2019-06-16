@@ -14,9 +14,8 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
-sys.path.insert(0, os.path.abspath('../../'))
-sys.path.insert(0, os.path.abspath('../../pudl/'))
-sys.path.insert(0, os.path.abspath('../../scripts/'))
+sys.path.insert(0, os.path.abspath('../pudl/'))
+sys.path.insert(0, os.path.abspath('../scripts/'))
 
 # -- Project information -----------------------------------------------------
 
@@ -47,14 +46,14 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['../build']
+exclude_patterns = ['_build']
 
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
+
 master_doc = 'index'
 html_theme = 'sphinx_rtd_theme'
 html_logo = '_static/catalyst_logo-200x200.png'

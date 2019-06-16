@@ -1,7 +1,8 @@
+pyyaml
 dbfread
 sqlalchemy
 sphinx==2.1.1
-# from read-the-docs system python:
+# No longer pulling these in...
 # scipy
 # numpy
 # matplotlib
