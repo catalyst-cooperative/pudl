@@ -10,7 +10,12 @@ import pudl
 logger = logging.getLogger(pudl.__name__)
 logger.setLevel(logging.INFO)
 handler = logging.StreamHandler()
-formatter = logging.Formatter('%(message)s')
+formatter = logging.Formatter(
+    # More extensive test-like formatter...
+    '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s',
+    # This is the datetime format string.
+    "%Y-%m-%d %H:%M:%S"
+)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 

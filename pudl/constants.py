@@ -461,7 +461,7 @@ cpi_plant_kind_strings = {
 # conventional (e.g. "conventional full") and outdoor (e.g. "outdoor full"
 # and "outdoor hrsg") are included.
 
-ferc1_construction_type_outdoor = [
+ferc1_const_type_outdoor = [
     'outdoor', 'outdoor boiler', 'full outdoor', 'outdoor boiler',
     'outdoor boilers', 'outboilers', 'fuel outdoor', 'full outdoor',
     'outdoors', 'outdoor', 'boiler outdoor& full', 'boiler outdoor&full',
@@ -477,7 +477,7 @@ ferc1_construction_type_outdoor = [
     'semi - outdoor'
 ]
 
-ferc1_construction_type_conventional = [
+ferc1_const_type_conventional = [
     'conventional', 'conventional', 'conventional boiler', 'conv-b',
     'conventionall', 'convention', 'conventional', 'coventional',
     'conven full boiler', 'c0nventional', 'conventtional', 'convential'
@@ -487,9 +487,9 @@ ferc1_construction_type_conventional = [
 # Making a dictionary of lists from the lists of construction_type strings to
 # create a dictionary of construction type lists.
 
-ferc1_construction_type_strings = {
-    'outdoor': ferc1_construction_type_outdoor,
-    'conventional': ferc1_construction_type_conventional
+ferc1_const_type_strings = {
+    'outdoor': ferc1_const_type_outdoor,
+    'conventional': ferc1_const_type_conventional
 }
 
 ferc1_power_purchase_type = {
