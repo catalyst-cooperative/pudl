@@ -37,7 +37,7 @@ knows where to find it. Currently the data PUDL can ingest includes:
 
 ---
 ## 2. [Clone the PUDL repository](https://help.github.com/articles/cloning-a-repository/)
-PUDL has not yet been released via one of the common Python package systems, so you have to download the code directly from GitHub by [cloning the repository](https://help.github.com/articles/cloning-a-repository/cloning) to your own computer. Depending on your platform (Linux, OSX, Windows...) and the way you access GitHub, the exact process will differe. If you don’t have a GitHub account, you’ll probably want to create one at [github.com](https://github.com). PUDL is a public, open source repository, so a free account is all you need.
+PUDL has not yet been released via one of the common Python package systems, so you have to download the code directly from GitHub by [cloning the repository](https://help.github.com/articles/cloning-a-repository/) to your own computer. Depending on your platform (Linux, OSX, Windows...) and the way you access GitHub, the exact process will differe. If you don’t have a GitHub account, you’ll probably want to create one at [github.com](https://github.com). PUDL is a public, open source repository, so a free account is all you need.
 
 If you're using a UNIX-like terminal, the command will look like this:
 ```sh
