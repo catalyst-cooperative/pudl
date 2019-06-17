@@ -22,12 +22,12 @@ pytest --disable-warnings test/etl_test.py
 
 # If that all worked, go ahead and populate the real FERC form 1 DB
 # Run this from within the scripts directory:
-ferc1_to_sqlite.py settings_ferc1_to_sqlite_full.yml
+ferc1_to_sqlite.py settings_ferc1_to_sqlite_default.yml
 
 # Load the real PUDL DB. Note that you will need to edit the settings
 # file to choose which data you want to load.
 # Run this from within the scripts directory:
-init_pudl.py settings_init_pudl_custom.yml
+init_pudl.py settings_init_pudl_YOUR-EDITED-FILENAME.yml
 
 # Now run some tests that access the PUDL database and sanity check the data:
 # Run this from within the top level repository directory:
