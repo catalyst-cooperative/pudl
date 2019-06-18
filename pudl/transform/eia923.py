@@ -6,8 +6,6 @@ import pandas as pd
 import numpy as np
 import pudl
 import pudl.constants as pc
-from pudl.helpers import fix_int_na, fix_eia_na, cleanstrings, strip_lower
-from pudl.helpers import convert_to_date, cleanstrings_series
 
 logger = logging.getLogger(__name__)
 ###############################################################################
@@ -112,7 +110,7 @@ def _coalmine_cleanup(cmi_df):
 
     # Transform coalmine names to a canonical form to reduce duplicates:
     # No leading or trailing whitespace:
-    cmi_df = strip_lower(cmi_df, columns=['mine_name'])
+    cmi_df = pudl.helpers.strip_lower(cmi_df, columns=['mine_name'])
     # remove all internal non-alphanumeric characters:
     cmi_df['mine_name'] = \
         cmi_df['mine_name'].replace('[^a-zA-Z0-9 -]', '', regex=True)
@@ -227,17 +225,17 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     # Convert the EIA923 DataFrame from yearly to monthly records.
     gf_df = _yearly_to_monthly_records(gf_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
-    gf_df = fix_eia_na(gf_df)
+    gf_df = pudl.helpers.fix_eia_na(gf_df)
     # Remove "State fuel-level increment" records... which don't pertain to
     # any particular plant (they have plant_id_eia == operator_id == 99999)
     gf_df = gf_df[gf_df.plant_id_eia != 99999]
 
     gf_df['fuel_type_code_pudl'] = \
-        cleanstrings_series(gf_df.fuel_type,
-                            pc.fuel_type_eia923_gen_fuel_simple_map)
+        pudl.helpers.cleanstrings_series(gf_df.fuel_type,
+                                         pc.fuel_type_eia923_gen_fuel_simple_map)
 
     # Convert Year/Month columns into a single Date column...
-    gf_df = convert_to_date(gf_df)
+    gf_df = pudl.helpers.convert_to_date(gf_df)
 
     eia923_transformed_dfs['generation_fuel_eia923'] = gf_df
 
@@ -279,14 +277,14 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     bf_df = _yearly_to_monthly_records(
         bf_df, pc.month_dict_eia923)
     bf_df['fuel_type_code_pudl'] = \
-        cleanstrings_series(
+        pudl.helpers.cleanstrings_series(
             bf_df.fuel_type_code,
             pc.fuel_type_eia923_boiler_fuel_simple_map)
     # Replace the EIA923 NA value ('.') with a real NA value.
-    bf_df = fix_eia_na(bf_df)
+    bf_df = pudl.helpers.fix_eia_na(bf_df)
 
     # Convert Year/Month columns into a single Date column...
-    bf_df = convert_to_date(bf_df)
+    bf_df = pudl.helpers.convert_to_date(bf_df)
 
     eia923_transformed_dfs['boiler_fuel_eia923'] = bf_df
 
@@ -330,10 +328,10 @@ def generation(eia923_dfs, eia923_transformed_dfs):
     generation_df = _yearly_to_monthly_records(
         generation_df, pc.month_dict_eia923)
     # Replace the EIA923 NA value ('.') with a real NA value.
-    generation_df = fix_eia_na(generation_df)
+    generation_df = pudl.helpers.fix_eia_na(generation_df)
 
     # Convert Year/Month columns into a single Date column...
-    generation_df = convert_to_date(generation_df)
+    generation_df = pudl.helpers.convert_to_date(generation_df)
 
     eia923_transformed_dfs['generation_eia923'] = generation_df
 
@@ -500,19 +498,19 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
                   'mine_type_code', 'county_id_fips']).
         drop(cols_to_drop, axis=1).
         # Replace the EIA923 NA value ('.') with a real NA value.
-        pipe(fix_eia_na).
+        pipe(pudl.helpers.fix_eia_na).
         # These come in ALL CAPS from EIA...
-        pipe(strip_lower, columns=['supplier_name']).
-        pipe(fix_int_na, columns=['contract_expiration_date', ]).
+        pipe(pudl.helpers.strip_lower, columns=['supplier_name']).
+        pipe(pudl.helpers.fix_int_na, columns=['contract_expiration_date', ]).
         assign(
             # Standardize case on transportaion codes -- all upper case!
             primary_transportation_mode_code=lambda x: x.primary_transportation_mode_code.str.upper(),
             secondary_transportation_mode_code=lambda x: x.secondary_transportation_mode_code.str.upper(),
             fuel_cost_per_mmbtu=lambda x: x.fuel_cost_per_mmbtu / 100,
             fuel_group_code=lambda x: x.fuel_group_code.str.lower().str.replace(' ', '_'),
-            fuel_type_code_pudl=lambda x: cleanstrings_series(
+            fuel_type_code_pudl=lambda x: pudl.helpers.cleanstrings_series(
                 x.energy_source_code, pc.energy_source_eia_simple_map),
-            fuel_group_code_simple=lambda x: cleanstrings_series(
+            fuel_group_code_simple=lambda x: pudl.helpers.cleanstrings_series(
                 x.fuel_group_code, pc.fuel_group_eia923_simple_map),
             contract_expiration_month=lambda x: x.contract_expiration_date.apply(
                 lambda y: y[:-2] if y != '' else y)).
@@ -524,12 +522,12 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
                 lambda y: '20' + y[-2:] if y != '' else y)).
         # Now that we will create our own real date field, so chuck this one.
         drop('contract_expiration_date', axis=1).
-        pipe(convert_to_date,
+        pipe(pudl.helpers.convert_to_date,
              date_col='contract_expiration_date',
              year_col='contract_expiration_year',
              month_col='contract_expiration_month').
-        pipe(convert_to_date).
-        pipe(cleanstrings,
+        pipe(pudl.helpers.convert_to_date).
+        pipe(pudl.helpers.cleanstrings,
              ['natural_gas_transport_code',
               'natural_gas_delivery_contract_type_code'],
              [{'firm': ['F'], 'interruptible': ['I']},

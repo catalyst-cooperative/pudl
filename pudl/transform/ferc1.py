@@ -31,7 +31,6 @@ import networkx as nx
 import pudl
 import pudl.constants as pc
 from pudl.settings import SETTINGS
-from pudl.helpers import strip_lower, cleanstrings, fix_int_na
 
 logger = logging.getLogger(__name__)
 
@@ -212,11 +211,11 @@ def _plants_steam_clean(ferc1_steam_df):
     ferc1_steam_df = (
         ferc1_steam_df.
         pipe(_clean_cols, 'f1_steam').
-        pipe(strip_lower, ['plant_name']).
+        pipe(pudl.helpers.strip_lower, ['plant_name']).
         # Take the messy free-form construction_type and plant_kind fields, and
         # do our best to map them to some canonical categories... this is
         # necessarily imperfect:
-        pipe(cleanstrings, ['type_const', 'plant_kind'],
+        pipe(pudl.helpers.cleanstrings, ['type_const', 'plant_kind'],
              [pc.ferc1_const_type_strings, pc.ferc1_plant_kind_strings],
              unmapped='')
     )
@@ -292,7 +291,8 @@ def _plants_steam_assign_plant_ids(ferc1_steam_df, ferc1_fuel_df):
     # scikit-learn still doesn't deal well with NA values (this will be fixed
     # eventually) We need to massage the type and missing data for the
     # Classifier to work.
-    ferc1_steam_df = fix_int_na(ferc1_steam_df, columns=['construction_year'])
+    ferc1_steam_df = pudl.helpers.fix_int_na(
+        ferc1_steam_df, columns=['construction_year'])
 
     # Grab fuel consumption proportions for use in assigning plant IDs:
     fuel_fractions = fuel_by_plant_ferc1(ferc1_fuel_df)
@@ -467,11 +467,11 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
         _clean_cols(ferc1_raw_dfs['fuel_ferc1'], 'f1_fuel').
         # Standardize plant_name capitalization and remove leading/trailing
         # white space -- necesary b/c plant_name is part of many foreign keys.
-        pipe(strip_lower, ['plant_name']).
+        pipe(pudl.helpers.strip_lower, ['plant_name']).
         # Take the messy free-form fuel & fuel_unit fields, and do our best to
         # map them to some canonical categories... this is necessarily
         # imperfect:
-        pipe(cleanstrings, ['fuel', 'fuel_unit'],
+        pipe(pudl.helpers.cleanstrings, ['fuel', 'fuel_unit'],
              [pc.ferc1_fuel_strings, pc.ferc1_fuel_unit_strings],
              unmapped='').
         # Fuel cost per kWh is a per-unit value that doesn't make sense to
@@ -594,7 +594,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     ferc1_small_df = ferc1_raw_dfs['plants_small_ferc1']
     # Standardize plant_name_raw capitalization and remove leading/trailing
     # white space -- necesary b/c plant_name_raw is part of many foreign keys.
-    ferc1_small_df = strip_lower(
+    ferc1_small_df = pudl.helpers.strip_lower(
         ferc1_small_df, ['plant_name', 'kind_of_fuel']
     )
 
@@ -646,7 +646,8 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space, so that plant_name matches formatting of plant_name_raw
-    ferc1_small_df = strip_lower(ferc1_small_df, ['plant_name_clean'])
+    ferc1_small_df = pudl.helpers.strip_lower(
+        ferc1_small_df, ['plant_name_clean'])
 
     # in order to create one complete column of plant names, we have to use the
     # cleaned plant names when available and the orignial plant names when the
@@ -708,8 +709,8 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
         _clean_cols(ferc1_raw_dfs['plants_hydro_ferc1'], 'f1_hydro').
         # Standardize plant_name capitalization and remove leading/trailing
         # white space -- necesary b/c plant_name is part of many foreign keys.
-        pipe(strip_lower, ['plant_name']).
-        pipe(cleanstrings, ['plant_const'], [pc.ferc1_const_type_strings],
+        pipe(pudl.helpers.strip_lower, ['plant_name']).
+        pipe(pudl.helpers.cleanstrings, ['plant_const'], [pc.ferc1_const_type_strings],
              unmapped='').
         assign(
             # Converting kWh to MWh
@@ -793,9 +794,9 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
                     'f1_pumped_storage').
         # Standardize plant_name capitalization and remove leading/trailing
         # white space -- necesary b/c plant_name is part of many foreign keys.
-        pipe(strip_lower, ['plant_name']).
+        pipe(pudl.helpers.strip_lower, ['plant_name']).
         # Clean up the messy plant construction type column:
-        pipe(cleanstrings, ['plant_kind'], [pc.ferc1_const_type_strings],
+        pipe(pudl.helpers.cleanstrings, ['plant_kind'], [pc.ferc1_const_type_strings],
              unmapped='').
         assign(
             # Converting from kW/kWh to MW/MWh
