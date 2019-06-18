@@ -27,6 +27,7 @@ def _yearly_to_monthly_records(df, md):
     is retained in the same format.
 
     Args:
+    -----
         df(pandas.DataFrame): A pandas DataFrame containing the annual
             data to be converted into monthly records.
         md(dict): a dictionary with the integers 1-12 as keys, and the
@@ -36,6 +37,7 @@ def _yearly_to_monthly_records(df, md):
             portion of the column name that is month specific.
 
     Returns:
+    --------
         pandas.DataFrame: A dataframe containing the same data as was passed in
             via df, but with monthly records instead of annual records.
     """
@@ -229,9 +231,8 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     gf_df = gf_df[gf_df.plant_id_eia != 99999]
 
     gf_df['fuel_type_code_pudl'] = \
-        pudl.helpers.cleanstrings(
-            gf_df.fuel_type,
-            pc.fuel_type_eia923_gen_fuel_simple_map)
+        pudl.helpers.cleanstrings_series(gf_df.fuel_type,
+                                         pc.fuel_type_eia923_gen_fuel_simple_map)
 
     # Convert Year/Month columns into a single Date column...
     gf_df = pudl.helpers.convert_to_date(gf_df)
@@ -239,39 +240,6 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     eia923_transformed_dfs['generation_fuel_eia923'] = gf_df
 
     return eia923_transformed_dfs
-
-
-# def boilers(eia923_dfs, eia923_transformed_dfs):
-#    """
-#    Transform the boiler_eia923 table.
-#
-#    Args:
-#        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
-#            dictionary of DataFrame objects corresponds to a page from the
-#            EIA923 form, as reported in the Excel spreadsheets they distribute.
-#        eia923_transformed_dfs (dictionary of DataFrames)
-#
-#    Returns: transformed dataframe.
-#    """
-#    boilers_df = eia923_dfs['boiler_fuel'].copy()
-#    # Populate 'boilers_eia923' table
-#    boiler_cols = ['plant_id_eia',
-#                   'boiler_id',
-#                   'prime_mover_code']
-#    boilers_df = boilers_df[boiler_cols]
-#
-#    # drop null values from foreign key fields
-#    boilers_df.dropna(subset=['boiler_id', 'plant_id_eia'], inplace=True)
-#
-#    # We need to cast the boiler_id column as type str because sometimes
-#    # it is heterogeneous int/str which make drop_duplicates fail.
-#    boilers_df['boiler_id'] = boilers_df['boiler_id'].astype(str)
-#    boilers_df = boilers_df.drop_duplicates(
-#        subset=['plant_id_eia', 'boiler_id'])
-#
-#    eia923_transformed_dfs['boilers_eia923'] = boilers_df
-#
-#    return eia923_transformed_dfs
 
 
 def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
@@ -309,7 +277,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     bf_df = _yearly_to_monthly_records(
         bf_df, pc.month_dict_eia923)
     bf_df['fuel_type_code_pudl'] = \
-        pudl.helpers.cleanstrings(
+        pudl.helpers.cleanstrings_series(
             bf_df.fuel_type_code,
             pc.fuel_type_eia923_boiler_fuel_simple_map)
     # Replace the EIA923 NA value ('.') with a real NA value.
@@ -510,86 +478,63 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
                     'regulated',
                     'reporting_frequency']
 
-    cmi_df = eia923_transformed_dfs['coalmine_eia923'].copy()
-
-    # In order for the merge to work, we need to get the county_id_fips field
-    # back into ready-to-dump form... so it matches the types of the
-    # county_id_fips field that we are going to be merging on in the frc_df.
-    cmi_df = cmi_df.rename(columns={'id': 'mine_id_pudl'})
+    cmi_df = (
+        eia923_transformed_dfs['coalmine_eia923'].copy().
+        # In order for the merge to work, we need to get the county_id_fips
+        # field back into ready-to-dump form... so it matches the types of the
+        # county_id_fips field that we are going to be merging on in the
+        # frc_df.
+        rename(columns={'id': 'mine_id_pudl'})
+    )
 
     # This type/naming cleanup function is separated out so that we can be
     # sure it is applied exactly the same both when the coalmine_eia923 table
     # is populated, and here (since we need them to be identical for the
     # following merge)
-    frc_df = _coalmine_cleanup(frc_df)
-    frc_df = frc_df.merge(cmi_df, how='left',
-                          on=['mine_name',
-                              'state',
-                              'mine_id_msha',
-                              'mine_type_code',
-                              'county_id_fips'])
-
-    frc_df.drop(cols_to_drop, axis=1, inplace=True)
-
-    # Replace the EIA923 NA value ('.') with a real NA value.
-    frc_df = pudl.helpers.fix_eia_na(frc_df)
-
-    # These come in ALL CAPS from EIA...
-    frc_df = pudl.helpers.strip_lower(frc_df, columns=['supplier_name'])
-
-    # Standardize case on transportaion codes -- all upper case!
-    frc_df['primary_transportation_mode_code'] = \
-        frc_df['primary_transportation_mode_code'].str.upper()
-    frc_df['secondary_transportation_mode_code'] = \
-        frc_df['secondary_transportation_mode_code'].str.upper()
-
-    frc_df = pudl.helpers.fix_int_na(frc_df,
-                                     columns=['contract_expiration_date', ])
-    # Convert the 3-4 digit (MYY|MMYY) date of contract expiration to
-    # two fields MM and YYYY for easier analysis later.
-    frc_df['contract_expiration_month'] = \
-        frc_df.contract_expiration_date. \
-        apply(lambda x: x[:-2] if x != '' else x)
-    # This gets rid of some bad data that's not in (MYY|MMYY) format.
-    frc_df['contract_expiration_month'] = \
-        frc_df.contract_expiration_month. \
-        apply(lambda x: x if x != '' and int(x) <= 12 else '')
-
-    frc_df['contract_expiration_year'] = frc_df.contract_expiration_date. \
-        apply(lambda x: '20' + x[-2:] if x != '' else x)
-
-    frc_df = frc_df.drop('contract_expiration_date', axis=1)
-    frc_df = pudl.helpers.convert_to_date(
-        frc_df,
-        date_col='contract_expiration_date',
-        year_col='contract_expiration_year',
-        month_col='contract_expiration_month'
+    frc_df = (
+        frc_df.pipe(_coalmine_cleanup).
+        merge(cmi_df, how='left',
+              on=['mine_name', 'state', 'mine_id_msha',
+                  'mine_type_code', 'county_id_fips']).
+        drop(cols_to_drop, axis=1).
+        # Replace the EIA923 NA value ('.') with a real NA value.
+        pipe(pudl.helpers.fix_eia_na).
+        # These come in ALL CAPS from EIA...
+        pipe(pudl.helpers.strip_lower, columns=['supplier_name']).
+        pipe(pudl.helpers.fix_int_na, columns=['contract_expiration_date', ]).
+        assign(
+            # Standardize case on transportaion codes -- all upper case!
+            primary_transportation_mode_code=lambda x: x.primary_transportation_mode_code.str.upper(),
+            secondary_transportation_mode_code=lambda x: x.secondary_transportation_mode_code.str.upper(),
+            fuel_cost_per_mmbtu=lambda x: x.fuel_cost_per_mmbtu / 100,
+            fuel_group_code=lambda x: x.fuel_group_code.str.lower().str.replace(' ', '_'),
+            fuel_type_code_pudl=lambda x: pudl.helpers.cleanstrings_series(
+                x.energy_source_code, pc.energy_source_eia_simple_map),
+            fuel_group_code_simple=lambda x: pudl.helpers.cleanstrings_series(
+                x.fuel_group_code, pc.fuel_group_eia923_simple_map),
+            contract_expiration_month=lambda x: x.contract_expiration_date.apply(
+                lambda y: y[:-2] if y != '' else y)).
+        assign(
+            # These assignments are separate b/c they exp_month is altered 2x
+            contract_expiration_month=lambda x: x.contract_expiration_month.apply(
+                lambda y: y if y != '' and int(y) <= 12 else ''),
+            contract_expiration_year=lambda x: x.contract_expiration_date.apply(
+                lambda y: '20' + y[-2:] if y != '' else y)).
+        # Now that we will create our own real date field, so chuck this one.
+        drop('contract_expiration_date', axis=1).
+        pipe(pudl.helpers.convert_to_date,
+             date_col='contract_expiration_date',
+             year_col='contract_expiration_year',
+             month_col='contract_expiration_month').
+        pipe(pudl.helpers.convert_to_date).
+        pipe(pudl.helpers.cleanstrings,
+             ['natural_gas_transport_code',
+              'natural_gas_delivery_contract_type_code'],
+             [{'firm': ['F'], 'interruptible': ['I']},
+              {'firm': ['F'], 'interruptible': ['I']}],
+             unmapped='')
     )
 
-    frc_df = pudl.helpers.convert_to_date(frc_df)
-
-    frc_df['fuel_cost_per_mmbtu'] = frc_df['fuel_cost_per_mmbtu'] / 100
-
-    frc_df['fuel_group_code'] = (frc_df.fuel_group_code.
-                                 str.lower().
-                                 str.replace(' ', '_'))
-
-    frc_df['fuel_type_code_pudl'] = \
-        pudl.helpers.cleanstrings(frc_df.energy_source_code,
-                                  pc.energy_source_eia_simple_map)
-    frc_df['fuel_group_code_simple'] = \
-        pudl.helpers.cleanstrings(frc_df.fuel_group_code,
-                                  pc.fuel_group_eia923_simple_map)
-
-    frc_df['natural_gas_transport_code'] = pudl.helpers.cleanstrings(
-        frc_df.natural_gas_transport_code,
-        {'firm': ['F'], 'interruptible': ['I']}
-    )
-    frc_df['natural_gas_delivery_contract_type_code'] = \
-        pudl.helpers.cleanstrings(
-            frc_df.natural_gas_delivery_contract_type_code,
-            {'firm': ['F'], 'interruptible': ['I']}
-    )
     eia923_transformed_dfs['fuel_receipts_costs_eia923'] = frc_df
 
     return eia923_transformed_dfs

@@ -17,10 +17,11 @@ also work on other Debian based Linux distributions.
 PUDL depends on other open source tools as well as public data sources.
 
 ### Python 3.6+
-We use the [Anaconda](https://www.anaconda.com/download/) Python 3 distribution, and
-manage package dependencies using conda environments. See the PUDL
-[`environment.yml`](/environment.yml) file at the top level of the repository
-for the most up to date list of required Python packages and their versions.
+We use the [Anaconda](https://www.anaconda.com/download/) Python 3
+distribution, and manage package dependencies using conda environments. See the
+PUDL [`environment.yml`](/environment.yml) file at the top level of the
+repository for the most up to date list of required Python packages and their
+versions. Python 3.6 or later is required.
 
 ### A Relational Database
 PUDL is currently designed to populate a local [Postgres](https://www.postgresql.org/) relational database (v9.6 or later). However, in the near future (mid-2019) we will be transitioning [away from the database](https://github.com/catalyst-cooperative/pudl/issues/258) as the canonical output, and will begin generating and distributing CSV/JSON based [Tabular Data Packages](https://github.com/catalyst-cooperative/pudl/projects/5) instead.
@@ -37,7 +38,7 @@ knows where to find it. Currently the data PUDL can ingest includes:
 
 ---
 ## 2. [Clone the PUDL repository](https://help.github.com/articles/cloning-a-repository/)
-PUDL has not yet been released via one of the common Python package systems, so you have to download the code directly from GitHub by [cloning the repository](https://help.github.com/articles/cloning-a-repository/cloning) to your own computer. Depending on your platform (Linux, OSX, Windows...) and the way you access GitHub, the exact process will differe. If you don’t have a GitHub account, you’ll probably want to create one at [github.com](https://github.com). PUDL is a public, open source repository, so a free account is all you need.
+PUDL has not yet been released via one of the common Python package systems, so you have to download the code directly from GitHub by [cloning the repository](https://help.github.com/articles/cloning-a-repository/) to your own computer. Depending on your platform (Linux, OSX, Windows...) and the way you access GitHub, the exact process will differe. If you don’t have a GitHub account, you’ll probably want to create one at [github.com](https://github.com). PUDL is a public, open source repository, so a free account is all you need.
 
 If you're using a UNIX-like terminal, the command will look like this:
 ```sh
@@ -174,15 +175,15 @@ Create a `pgpass.conf` file with the password you set using the following proces
   - See if there's already a file called `pgpass.conf`.
   - If there is, open it. If not, use Notepad to create a text file called `pgpass.conf` in that folder.
   - Whether it previously existed or not, you're going to add a new line. The contents of that line will be:
-  ```
-  127.0.0.1:*:*:catalyst:the_password_you_picked
-  ```
-  substituting in the password you actually picked for the catalyst user.
-  - The line above says "whenever you try to connect to the local machine over IPv4 with the username `catalyst`, use the password <password_you_picked>.
+```
+127.0.0.1:*:*:catalyst:the_password_you_picked
+```
+  (substituting in the password you actually picked for the catalyst user).
+  - The line above says "whenever you try to connect to the local machine over IPv4 with the username `catalyst`, use the password &lt;the_password_you_picked&gt;.
   - Save and close.
+
 ---
 ## 5. Download the Raw Public Data.
-
 Now you’re ready to download the raw data that gets fed into the PUDL data processing pipeline, and used to populate the database you just created.
 
 In your Terminal window, use `cd` to navigate to top level directory of the cloned PUDL repository. If you `ls` there you should see directories named `ci`, `data`, `docs`, `pudl`, `results`, `test` the `environment.yml` file, etc.
@@ -206,16 +207,23 @@ If you want to obtain the FERC Form 1, EIA 923, and EIA 860 data for 2014-2017, 
 ```sh
 python update_datastore.py --sources ferc1 eia923 eia860 --years 2014 2015 2016 2017
 ```
+Or you can update one data source and year at a time if you prefer:
+```sh
+python update_datastore.py -s eia923 -y 2016
+python update_datastore.py -s eia860 -y 2016
+python update_datastore.py -s eia923 -y 2017
+python update_datastore.py -s eia860 -y 2017
+```
 
 To get all the available years of EPA CEMS Hourly data for the western US you'd say:
 ```sh
 python update_datastore.py --sources epacems --states CA OR WA AZ NV ID UT NM CO WY MT
 ```
 The downloaded data will be used by the script to populate a data store under the `data` directory, organized by data source, form, and date:
-  * `pudl/data/eia/form860`
-  * `pudl/data/eia/form923`
-  * `pudl/data/epa/cems`
-  * `pudl/data/ferc/form1`
+  * `pudl/data/eia/form860/`
+  * `pudl/data/eia/form923/`
+  * `pudl/data/epa/cems/`
+  * `pudl/data/ferc/form1/`
 
 
 If you download all of the available data, it may take a long time, especially the EPA CEMS Hourly. Approximate sizes for the various datasets when compressed for download, stored uncompressed on disk, and in terms of the approximate number of records pulled in to PUDL:

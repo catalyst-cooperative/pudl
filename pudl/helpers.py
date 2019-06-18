@@ -306,60 +306,99 @@ def strip_lower(df, columns=None):
     return out_df
 
 
-def cleanstrings(field, stringmap, unmapped=None, simplify=True):
+def cleanstrings_series(col, map, unmapped=None, simplify=True):
     """
-    Consolidate freeform strings in dataframe column to canonical codes.
-
-    This function maps many different strings meant to represent the same value
-    or category to a single value. In addition, white space is stripped and
-    values are translated to lower case.  Optionally replace all unmapped
-    values in the original field with a value (like NaN) to indicate data which
-    is uncategorized or confusing.
+    Clean up the strings in a single column/Series.
 
     Args:
-        field (pandas.DataFrame column): A pandas DataFrame column
-            (e.g. f1_fuel["FUEL"]) whose strings will be matched, where
-            possible, to categorical values from the stringmap dictionary.
-
-        stringmap (dict): A dictionary whose keys are the strings we're mapping
-            to, and whose values are the strings that get mapped.
-
-        unmapped (str, None, NaN) is the value which strings not found in the
-            stringmap dictionary should be replaced by.
-
-        simplify (bool): If true, strip whitespace, remove duplicate
-            whitespace, and force lower-case on both the string map and the
-            field values.
+        col (pd.Series): A pandas Series, typically a single column of a
+            dataframe, containing the freeform strings that are to be cleaned.
+        map (dict): A dictionary of lists of strings, in which the keys are the
+            simplified canonical strings, witch which each string found in the
+            corresponding list will be replaced.
+        unmapped (str): A value with which to replace any string found in col
+            that is not found in one of the lists of strings in map. Typically
+            the null string ''. If None, these strings will not be replaced.
+        simplify (bool): If True, strip and compact whitespace, and lowercase
+            all strings in both the list of values to be replaced, and the
+            values found in col. This can reduce the number of strings that
+            need to be kept track of.
 
     Returns:
-        pandas.Series: The function returns a new pandas series/column that can
-            be used to set the values of the original data.
+        pd.Series: The cleaned up Series / column, suitable for replacng the
+            original messy column in a pd.Dataframe.
     """
-
-    # Simplify the strings we're working with, to reduce the number of strings
-    # we need to enumerate in the maps
-
     if simplify:
-        # Transform strings to lower case, strip leading/trailing whitespace
-        field = field.str.lower().str.strip()
-        # remove duplicate internal whitespace
-        field = field.replace(r'[\s+]', ' ', regex=True)
-        for k, v in stringmap.items():
-            stringmap[k] = [re.sub(r'\s+', ' ', s.lower().strip()) for s in v]
+        col = (
+            col.astype(str).
+            str.strip().
+            str.lower().
+            str.replace(r'\s+', ' ')
+        )
+        for k in map:
+            map[k] = [re.sub(r'\s+', ' ', s.lower().strip())
+                      for s in map[k]]
 
-    for k in stringmap:
-        if len(stringmap[k]) > 0:
-            field = field.replace(stringmap[k], k)
+    for k in map:
+        if map[k]:
+            col = col.replace(map[k], k)
 
     if unmapped is not None:
-        badstrings = np.setdiff1d(field.unique(), list(stringmap.keys()))
+        badstrings = np.setdiff1d(col.unique(), list(map.keys()))
         # This call to replace can only work if there are actually some
         # leftover strings to fix -- otherwise it runs forever because we
         # are replacing nothing with nothing.
-        if badstrings.size > 0:
-            field = field.replace(badstrings, unmapped)
+        if len(badstrings) > 0:
+            col = col.replace(badstrings, unmapped)
 
-    return field
+    return col
+
+
+def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
+    """
+    Consolidate freeform strings in several dataframe columns.
+
+    This function will consolidate freeform strings found in `columns` into
+    simplified categories, as defined by `stringmaps`. This is useful when
+    a field contains many different strings that are really meant to represent
+    a finite number of categories, e.g. a type of fuel. It can also be used to
+    create simplified categories that apply to similar attributes that are
+    reported in various data sources from different agencies that use their own
+    taxonomies.
+
+    The function takes and returns a pandas.DataFrame, making it suitable for
+    use with the pd.DataFrame.pipe() method in a chain.
+
+    Args:
+        df (pd.DataFrame): the DataFrame containing the string columns to be
+            cleaned up.
+        columns (list): a list of string column labels found in the column
+            index of df. These are the columns that will be cleaned.
+        stringmaps (list): a list of dictionaries. The keys of these
+            dictionaries are strings, and the values are lists of strings. Each
+            dictionary in the list corresponds to a column in columns. The
+            keys of the dictionaries are the values with which every string in
+            the list of values will be replaced.
+        unmapped (str, None): the value with which strings not found in the
+            stringmap dictionary will be replaced. Typically the null string
+            ''. If None, then strings found in the columns but not in the
+            stringmap will be left unchanged.
+        simplify (bool): If true, strip whitespace, remove duplicate
+            whitespace, and force lower-case on both the string map and the
+            values found in the columns to be cleaned. This can reduce the
+            overall number of string values that need to be tracked.
+
+    Returns:
+    --------
+        pandas.Series: The function returns a new pandas series/column that can
+            be used to set the values of the original data.
+    """
+    out_df = df.copy()
+    for col, map in zip(columns, stringmaps):
+        out_df[col] = cleanstrings_series(
+            out_df[col], map, unmapped=unmapped, simplify=simplify)
+
+    return out_df
 
 
 def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=''):
