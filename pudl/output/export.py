@@ -243,14 +243,18 @@ def hash_csv(csv_path):
 
     Returns the hexdigest of the hash, with a sha1: prefix as a string.
     """
+    # how big of a bit should I take?
     blocksize = 65536
+    # sha1 is a function of hashlib, not super accurate but its fast
     hasher = hashlib.sha1()
+    # opening the file and eat it for lunch
     with open(csv_path, 'rb') as afile:
         buf = afile.read(blocksize)
         while len(buf) > 0:
             hasher.update(buf)
             buf = afile.read(blocksize)
 
+    # returns the hash
     return f"sha1:{hasher.hexdigest()}"
 
 

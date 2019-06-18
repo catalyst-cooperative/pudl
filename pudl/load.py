@@ -186,3 +186,63 @@ def dict_dump_load(transformed_dfs,
                        pudl_engine,
                        csvdir=csvdir,
                        keep_csv=keep_csv)
+
+
+###############################################################################
+# Packaging specific load step
+###############################################################################
+
+def csv_dump(df, table_name, csvdir):
+    """
+    Write a dataframe to CSV and load it into postgresql using COPY FROM.
+
+    The fastest way to load a bunch of records is using the database's native
+    text file copy function.  This function dumps a given dataframe out to a
+    CSV file, and then loads it into the specified table using a sqlalchemy
+    wrapper around the postgresql COPY FROM command, called postgres_copy.
+
+    Note that this creates an additional in-memory representation of the data,
+    which takes slightly less memory than the DataFrame itself.
+
+    Args:
+    -----
+        df (pandas.DataFrame): The DataFrame which is to be dumped to CSV and
+            loaded into the database. All DataFrame columns must have exactly
+            the same names as the database fields they are meant to populate,
+            and all column data types must be directly compatible with the
+            database fields they are meant to populate. Do any cleanup before
+            you call this function.
+        table_name (str): The exact name of the database table which the
+            DataFrame df is going to be used to populate. It will be used both
+            to look up an SQLAlchemy table object in the PUDLBase metadata
+            object, and to name the CSV file.
+        csvdir (str): Path to the directory into which the CSV file should be
+            saved, if it's being kept.
+
+    Returns:
+    --------
+        None
+
+    """
+    outfile = os.path.join(csvdir, table_name + '.csv')
+    df.to_csv(path_or_buf=outfile, index=False)
+
+
+def dict_dump(transformed_dfs,
+              data_source,
+              need_fix_inting=pc.need_fix_inting,
+              csvdir=''):
+    """
+    Wrapper for _csv_dump for each data source.
+    """
+    for table_name, df in transformed_dfs.items():
+        if table_name != "hourly_emissions_epacems":
+            logger.info(
+                f"Loading {data_source} {table_name} dataframe into CSV")
+        if table_name in list(need_fix_inting.keys()):
+            df = pudl.helpers.fix_int_na(
+                df, columns=pc.need_fix_inting[table_name])
+
+        csv_dump(df,
+                 table_name,
+                 csvdir=csvdir)
