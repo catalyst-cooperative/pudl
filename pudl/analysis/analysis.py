@@ -21,15 +21,17 @@ logger = logging.getLogger(__name__)
 
 
 def simple_select(table_name, pudl_engine):
-    """
-    Simple select statement.
+    """Generates a DataFrame of the specified table.
+
+    Generates a DataFrame of the specified table, including EIA plant IDs where
+    they are available.
 
     Args:
-        table_name: pudl table name
-        pudl_engine
+        table_name (str): A PUDL table name
+        pudl_engine (str): A PUDL database connection
 
     Returns:
-        DataFrame from table
+        A DataFrame of the specified table.
     """
     # Pull in the table
     tbl = pudl.models.entities.PUDLBase.metadata.tables[table_name]
@@ -62,7 +64,15 @@ def simple_select(table_name, pudl_engine):
 
 
 def simple_ferc1_plant_ids(pudl_engine):
-    """Generate list of all PUDL plant IDs which map to a single FERC plant."""
+    """Generates a list of all PUDL plant IDs which map to a single FERC plant.
+
+    Args:
+        pudl_engine (str): A PUDL database connection.
+
+    Returns:
+        A DataFrame containing all the PUDL plant IDs that map to a single
+        FERC plant.
+    """
     ferc1_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_ferc''',
                                   pudl_engine)
     ferc1_simple_plant_ids = ferc1_plant_ids.drop_duplicates('plant_id_pudl',
@@ -71,7 +81,15 @@ def simple_ferc1_plant_ids(pudl_engine):
 
 
 def simple_eia_plant_ids(pudl_engine):
-    """Generate list of all PUDL plant IDs which map to a single EIA plant."""
+    """Generates a list of all PUDL plant IDs that map to a single EIA plant.
+
+    Args:
+        pudl_engine (str): A PUDL database connection.
+
+    Returns:
+        A DataFrame containing all the PUDL plant IDs that map to a single
+        EIA plant.
+    """
     eia_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_eia''',
                                 pudl_engine)
     eia_simple_plant_ids = eia_plant_ids.drop_duplicates('plant_id_pudl',
@@ -80,7 +98,16 @@ def simple_eia_plant_ids(pudl_engine):
 
 
 def simple_pudl_plant_ids(pudl_engine):
-    """Get all PUDL plant IDs that map to single EIA & single FERC plant ID."""
+    """Retrieves all PUDL plant IDs that map to single EIA and single FERC
+    plant ID.
+
+    Args:
+        pudl_engine (str): A PUDL database connection.
+
+    Returns:
+        A DataFrame containing all the PUDL plant IDs that map to a single EIA
+        and single FERC plant ID.
+    """
     ferc1_simple = simple_ferc1_plant_ids(pudl_engine)
     eia_simple = simple_eia_plant_ids(pudl_engine)
     pudl_simple = np.intersect1d(ferc1_simple['plant_id_pudl'],
