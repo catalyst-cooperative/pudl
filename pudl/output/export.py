@@ -6,6 +6,7 @@ exported (e.g. CSV, Excel spreadsheets, parquet files, HDF5).
 
 import os
 import re
+import pathlib
 import hashlib
 import datetime
 import logging
@@ -261,7 +262,7 @@ def hash_csv(csv_path):
 def data_package(pkg_tables, pkg_skeleton,
                  out_dir=os.path.join(pudl.settings.PUDL_DIR,
                                       "results", "data_pkgs"),
-                 testing=False):
+                 testing=False, dry_run=False):
     """
     Create a data package of requested tables and their dependencies.
     See Frictionless Data for the tabular data package specification:
@@ -307,11 +308,16 @@ def data_package(pkg_tables, pkg_skeleton,
     for t in all_tables:
         csv_out = os.path.join(data_dir, f"{t}.csv")
         os.makedirs(os.path.dirname(csv_out), exist_ok=True)
-        df = pd.read_sql_table(t, pudl.init.connect_db(testing=testing))
-        if t in pudl.constants.need_fix_inting:
-            df = pudl.helpers.fix_int_na(df, pudl.constants.need_fix_inting[t])
-        logger.info(f"Exporting {t} to {csv_out}")
-        df.to_csv(csv_out, index=False)
+        if dry_run is True:
+            logger.info(f"Skipping export of {t} to {csv_out}")
+            pathlib.Path(csv_out).touch()
+        else:
+            df = pd.read_sql_table(t, pudl.init.connect_db(testing=testing))
+            if t in pudl.constants.need_fix_inting:
+                df = pudl.helpers.fix_int_na(
+                    df, pudl.constants.need_fix_inting[t])
+                logger.info(f"Exporting {t} to {csv_out}")
+                df.to_csv(csv_out, index=False)
 
     # Create a tabular data resource for each of the tables.
     resources = []
@@ -358,10 +364,11 @@ def data_package(pkg_tables, pkg_skeleton,
 
     data_pkg.save(pkg_json)
 
-    # Validate the data within the package using goodtables:
-    report = goodtables.validate(pkg_json, row_limit=100_000)
-    if not report['valid']:
-        logger.warning("Data package data validation failed.")
+    if not dry_run:
+        # Validate the data within the package using goodtables:
+        report = goodtables.validate(pkg_json, row_limit=100_000)
+        if not report['valid']:
+            logger.warning("Data package data validation failed.")
 
     return data_pkg
 
