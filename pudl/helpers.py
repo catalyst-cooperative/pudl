@@ -309,7 +309,24 @@ def strip_lower(df, columns=None):
 def cleanstrings_series(col, map, unmapped=None, simplify=True):
     """
     Clean up the strings in a single column/Series.
-    TODO: Make a real dockstring here man. C'mon.
+
+    Args:
+        col (pd.Series): A pandas Series, typically a single column of a
+            dataframe, containing the freeform strings that are to be cleaned.
+        map (dict): A dictionary of lists of strings, in which the keys are the
+            simplified canonical strings, witch which each string found in the
+            corresponding list will be replaced.
+        unmapped (str): A value with which to replace any string found in col
+            that is not found in one of the lists of strings in map. Typically
+            the null string ''. If None, these strings will not be replaced.
+        simplify (bool): If True, strip and compact whitespace, and lowercase
+            all strings in both the list of values to be replaced, and the
+            values found in col. This can reduce the number of strings that
+            need to be kept track of.
+
+    Returns:
+        pd.Series: The cleaned up Series / column, suitable for replacng the
+            original messy column in a pd.Dataframe.
     """
     if simplify:
         col = (
@@ -339,30 +356,37 @@ def cleanstrings_series(col, map, unmapped=None, simplify=True):
 
 def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
     """
-    Consolidate freeform strings in dataframe column to canonical codes.
-    TODO: Fix this docstring here man. C'mon.
+    Consolidate freeform strings in several dataframe columns.
 
-    This function maps many different strings meant to represent the same value
-    or category to a single value. In addition, white space is stripped and
-    values are translated to lower case.  Optionally replace all unmapped
-    values in the original field with a value (like NaN) to indicate data which
-    is uncategorized or confusing.
+    This function will consolidate freeform strings found in `columns` into
+    simplified categories, as defined by `stringmaps`. This is useful when
+    a field contains many different strings that are really meant to represent
+    a finite number of categories, e.g. a type of fuel. It can also be used to
+    create simplified categories that apply to similar attributes that are
+    reported in various data sources from different agencies that use their own
+    taxonomies.
+
+    The function takes and returns a pandas.DataFrame, making it suitable for
+    use with the pd.DataFrame.pipe() method in a chain.
 
     Args:
-    -----
-        field (pandas.DataFrame column): A pandas DataFrame column
-            (e.g. f1_fuel["FUEL"]) whose strings will be matched, where
-            possible, to categorical values from the stringmap dictionary.
-
-        stringmap (dict): A dictionary whose keys are the strings we're mapping
-            to, and whose values are the strings that get mapped.
-
-        unmapped (str, None, NaN) is the value which strings not found in the
-            stringmap dictionary should be replaced by.
-
+        df (pd.DataFrame): the DataFrame containing the string columns to be
+            cleaned up.
+        columns (list): a list of string column labels found in the column
+            index of df. These are the columns that will be cleaned.
+        stringmaps (list): a list of dictionaries. The keys of these
+            dictionaries are strings, and the values are lists of strings. Each
+            dictionary in the list corresponds to a column in columns. The
+            keys of the dictionaries are the values with which every string in
+            the list of values will be replaced.
+        unmapped (str, None): the value with which strings not found in the
+            stringmap dictionary will be replaced. Typically the null string
+            ''. If None, then strings found in the columns but not in the
+            stringmap will be left unchanged.
         simplify (bool): If true, strip whitespace, remove duplicate
             whitespace, and force lower-case on both the string map and the
-            field values.
+            values found in the columns to be cleaned. This can reduce the
+            overall number of string values that need to be tracked.
 
     Returns:
     --------
