@@ -1,4 +1,7 @@
-"""A module with functions to aid in data analysis using the PUDL database."""
+"""A module with functions to aid in data analysis using the PUDL database.
+
+    TODO: Delete old useless cruft.
+"""
 
 import logging
 
