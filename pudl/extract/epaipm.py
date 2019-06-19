@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 datadir = Path(SETTINGS['epaipm_data_dir'])
 
 
-def get_epaipm_file(file):
+def get_epaipm_name(file):
     """
     Return the appopriate EPA IPM excel file.
 
@@ -30,29 +30,39 @@ def get_epaipm_file(file):
     return sorted(datadir.glob(file))[0]
 
 
-def get_epaipm_xlsx(filename, read_excel_args):
+def get_epaipm_file(filename, read_file_args):
     """
-    Read in Excel files to create dataframes. No need to use ExcelFile
+    Read in files to create dataframes. No need to use ExcelFile
     objects with the IPM files because each file is only a single sheet.
 
     Args:
         filename: ['single_transmission', 'joint_transmission']
-        read_excel_args: dictionary of arguments for pandas read_excel
+        read_file_args: dictionary of arguments for pandas read_*
 
     Returns:
         xlsx file of EPA IPM data
     """
-    epaipm_xlsx = {}
+    epaipm_file = {}
     pattern = pc.files_dict_epaipm[filename]
     logger.info(
         f"Extracting data from EPA IPM {filename} spreadsheet.")
-    epaipm_xlsx = pd.read_excel(
-        get_epaipm_file(pattern),
-        **read_excel_args
-    )
-    if filename == 'transmission_single':
-        epaipm_xlsx = epaipm_xlsx.reset_index()
-    return epaipm_xlsx
+
+    full_filename = get_epaipm_name(pattern)
+    suffix = full_filename.suffix
+
+    if suffix == '.xlsx':
+        epaipm_file = pd.read_excel(
+            full_filename,
+            **read_file_args
+        )
+    elif suffix == '.csv':
+        epaipm_file = pd.read_csv(
+            full_filename,
+            **read_file_args
+        )
+    # if filename == 'transmission_single':
+    #     epaipm_xlsx = epaipm_xlsx.reset_index()
+    return epaipm_file
 
 
 def create_dfs_epaipm(files=pc.files_epaipm):
@@ -71,10 +81,23 @@ def create_dfs_epaipm(files=pc.files_epaipm):
     # Create excel objects
     epaipm_dfs = {}
     for f in files:
-        epaipm_dfs[f] = get_epaipm_xlsx(
-            f,
-            pc.read_excel_epaipm_dict[f]
-        )
+        # NEEDS is the only IPM data file with multiple sheets. Keeping the overall
+        # code simpler but adding this if statement to read both sheets (active and
+        # retired by 2021).
+        if f == 'needs_plant_map':
+            epaipm_dfs['needs_active_plant_map'] = get_epaipm_file(
+                f,
+                pc.read_excel_epaipm_dict['needs_active_plant_map']
+            )
+            epaipm_dfs['needs_retired_plant_map'] = get_epaipm_file(
+                f,
+                pc.read_excel_epaipm_dict['needs_retired_plant_map']
+            )
+        else:
+            epaipm_dfs[f] = get_epaipm_file(
+                f,
+                pc.read_excel_epaipm_dict[f]
+            )
 
     return epaipm_dfs
 

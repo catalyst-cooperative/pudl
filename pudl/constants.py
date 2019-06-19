@@ -729,7 +729,9 @@ eia923_pudl_tables = ('generation_fuel_eia923',
 
 epaipm_pudl_tables = (
     'transmission_single_ipm',
+    'transmission_joint_ipm',
     'load_curves_ipm',
+    'plant_region_map_ipm',
 )
 
 # List of entity tables
@@ -1686,17 +1688,22 @@ epacems_additional_plant_info_file = os.path.join(
 
 files_epaipm = (
     'transmission_single_ipm',
+    'transmission_joint_ipm'
     'load_curves_ipm',
+    'needs_plant_map',
 )
 
 files_dict_epaipm = {
     'transmission_single_ipm': '*table_3-21*',
-    'load_curves_ipm': '*table_2-2_*'
+    'transmission_joint_ipm': 'transmission_joint_ipm*',
+    'load_curves_ipm': '*table_2-2_*',
+    'needs_plant_map': '*needs_v6*',
 }
 
 epaipm_url_ext = {
     'transmission_single_ipm': 'table_3-21_annual_transmission_capabilities_of_u.s._model_regions_in_epa_platform_v6_-_2021.xlsx',
     'load_curves_ipm': 'table_2-2_load_duration_curves_used_in_epa_platform_v6.xlsx',
+    'needs_plant_map': 'needs_v6_november_2018_reference_case_0.xlsx',
 }
 
 read_excel_epaipm_dict = {
@@ -1705,10 +1712,19 @@ read_excel_epaipm_dict = {
         usecols='B:F',
         index_col=[0, 1],
     ),
+    'transmission_joint_ipm': {},
     'load_curves_ipm': dict(
         skiprows=3,
         usecols='B:AB',
-    )
+    ),
+    'needs_active_plant_map': dict(
+        sheet_name='NEEDS v6_Active',
+        usecols='C,I',
+    ),
+    'needs_retired_plant_map': dict(
+        sheet_name='NEEDS v6_Retired_Through2021',
+        usecols='C,I',
+    ),
 }
 
 epaipm_region_names = [
@@ -1738,7 +1754,12 @@ epaipm_rename_dict = {
     },
     'load_curves_ipm': {
         'day': 'day_of_year',
-    }
+        'region': 'region_id_ipm',
+    },
+    'plant_region_map_ipm': {
+        'ORIS Plant Code': 'plant_id_eia',
+        'Region Name': 'region',
+    },
 }
 
 data_sources = (

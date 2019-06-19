@@ -80,11 +80,59 @@ def transmission_single(epaipm_dfs, epaipm_transformed_dfs):
     return epaipm_transformed_dfs
 
 
+def transmission_joint(epaipm_dfs, epaipm_transformed_dfs):
+
+    trans_df = epaipm_dfs['transmission_joint_ipm'].copy()
+    epaipm_transformed_dfs['transmission_joint_ipm'] = trans_df
+
+    return epaipm_transformed_dfs
+
+
+def plant_region_map(epaipm_dfs, epaipm_transformed_dfs):
+    """
+    Pull and transform the map of plant ids to IPM regions for both active and
+    retiring plants.
+
+    Args:
+        epaipm_dfs (dictionary of pandas.DataFrame): Each entry in this
+            dictionary of DataFrame objects corresponds to a table from
+            EPA's IPM, as reported in the Excel spreadsheets they distribute.
+        epa_ipm_transformed_dfs (dictionary of DataFrames)
+
+    Returns: transformed dataframe.
+
+    """
+    trans_df = pd.concat(
+        [
+            epaipm_dfs['needs_active_plant_map'],
+            epaipm_dfs['needs_retired_plant_map']
+        ]
+    )
+    trans_df = trans_df.drop_duplicates()
+    trans_df = trans_df.reset_index(drop=True)
+    trans_df = trans_df.rename(
+        columns=pc.epaipm_rename_dict['plant_region_map_ipm']
+    )
+
+    # Plants that are in IPM but appear to be retired or not listed in EIA files
+    missing_plants = [
+        7939, 56892, 59089, 59397, 59398, 59399, 83001,
+        83002, 83003, 83004, 83005, 83006, 83007,
+    ]
+    trans_df = trans_df.loc[~trans_df['plant_id_eia'].isin(missing_plants), :]
+
+    epaipm_transformed_dfs['plant_region_map_ipm'] = trans_df
+
+    return epaipm_transformed_dfs
+
+
 def transform(epaipm_raw_dfs, epaipm_tables=pc.epaipm_pudl_tables):
     """Transform EPA IPM dfs."""
     epaipm_transform_functions = {
         'transmission_single_ipm': transmission_single,
+        'transmission_joint_ipm': transmission_joint,
         'load_curves_ipm': load_curves,
+        'plant_region_map_ipm': plant_region_map,
     }
     epaipm_transformed_dfs = {}
 

@@ -39,12 +39,47 @@ class TransmissionSingleIPM(pudl.models.entities.PUDLBase):
     )
 
 
+class TransmissionJointIPM(pudl.models.entities.PUDLBase):
+    """
+    Transmission limits between groups of IPM regions
+    """
+
+    __tablename__ = 'transmission_joint_ipm'
+
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    joint_constraint_id = Column(
+        Integer,
+        nullable=False,
+        comment='Identification of groups that make up a single joint constraint'
+    )
+    region_from = Column(
+        String,
+        ForeignKey('regions_entity_ipm.region_id_ipm'),
+        nullable=False,
+        comment='Name of the IPM region sending electricity'
+    )
+    region_to = Column(
+        String,
+        ForeignKey('regions_entity_ipm.region_id_ipm'),
+        nullable=False,
+        comment='Name of the IPM region receiving electricity'
+    )
+    firm_ttc_mw = Column(
+        Float,
+        comment='Transfer capacity with N-1 lines (used for reserve margins)'
+    )
+    nonfirm_ttc_mw = Column(
+        Float,
+        comment='Transfer capacity with N-0 lines (used for energy sales)'
+    )
+
+
 class LoadCurveIPM(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'load_curves_ipm'
 
     id = Column(Integer, autoincrement=True, primary_key=True)
-    region = Column(
+    region_id_ipm = Column(
         String,
         ForeignKey('regions_entity_ipm.region_id_ipm'),
         nullable=False,
@@ -74,4 +109,23 @@ class LoadCurveIPM(pudl.models.entities.PUDLBase):
         Float,
         nullable=False,
         comment='Load (MW) in an hour of the day for the IPM region'
+    )
+
+
+class PlantRegionIPM(pudl.models.entities.PUDLBase):
+
+    __tablename__ = 'plant_region_map_ipm'
+
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    plant_id_eia = Column(
+        Integer,
+        ForeignKey('plants_entity_eia.plant_id_eia'),
+        nullable=False,
+        comment='EIA ORIS plant id'
+    )
+    region = Column(
+        String,
+        ForeignKey('regions_entity_ipm.region_id_ipm'),
+        nullable=False,
+        comment='Name of the IPM region'
     )
