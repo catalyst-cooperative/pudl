@@ -618,7 +618,7 @@ def _ETL_ipm(pudl_engine, epaipm_tables, csvdir, keep_csv):
     """
 
     # Extract IPM tables
-    epaipm_raw_dfs = pudl.extract.epaipm.extract()
+    epaipm_raw_dfs = pudl.extract.epaipm.extract(epaipm_tables)
 
     epaipm_transformed_dfs = pudl.transform.epaipm.transform(
         epaipm_raw_dfs, epaipm_tables

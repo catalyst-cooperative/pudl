@@ -102,12 +102,31 @@ def create_dfs_epaipm(files=pc.files_epaipm):
     return epaipm_dfs
 
 
-def extract():
+def extract(epaipm_tables=pc.epaipm_pudl_tables):
+    """
+    Extract data from IPM files.
+
+    arga
+    ----------
+    epaipm_tables (iterable): A tuple or list of table names to extract
+
+    Returns:
+    -------
+    dict
+        dictionary of dataframes with extracted (but not yet transformed) data
+        from each file.
+    """
     # Prep for ingesting EPA IPM
     # create raw ipm dfs from spreadsheets
 
     logger.info('Beginning ETL for EPA IPM.')
+
+    files = {
+        table: pattern for table, pattern in pc.files_dict_epaipm.items()
+        if table in epaipm_tables
+    }
+
     epaipm_raw_dfs = create_dfs_epaipm(
-        files=pc.files_dict_epaipm
+        files=files
     )
     return epaipm_raw_dfs
