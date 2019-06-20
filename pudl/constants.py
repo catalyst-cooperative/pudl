@@ -1690,20 +1690,20 @@ files_epaipm = (
     'transmission_single_ipm',
     'transmission_joint_ipm'
     'load_curves_ipm',
-    'needs_plant_map',
+    'plant_region_map_ipm',
 )
 
 files_dict_epaipm = {
     'transmission_single_ipm': '*table_3-21*',
     'transmission_joint_ipm': 'transmission_joint_ipm*',
     'load_curves_ipm': '*table_2-2_*',
-    'needs_plant_map': '*needs_v6*',
+    'plant_region_map_ipm': '*needs_v6*',
 }
 
 epaipm_url_ext = {
     'transmission_single_ipm': 'table_3-21_annual_transmission_capabilities_of_u.s._model_regions_in_epa_platform_v6_-_2021.xlsx',
     'load_curves_ipm': 'table_2-2_load_duration_curves_used_in_epa_platform_v6.xlsx',
-    'needs_plant_map': 'needs_v6_november_2018_reference_case_0.xlsx',
+    'plant_region_map_ipm': 'needs_v6_november_2018_reference_case_0.xlsx',
 }
 
 read_excel_epaipm_dict = {
@@ -1717,11 +1717,11 @@ read_excel_epaipm_dict = {
         skiprows=3,
         usecols='B:AB',
     ),
-    'needs_active_plant_map': dict(
+    'plant_region_map_ipm_active': dict(
         sheet_name='NEEDS v6_Active',
         usecols='C,I',
     ),
-    'needs_retired_plant_map': dict(
+    'plant_region_map_ipm_retired': dict(
         sheet_name='NEEDS v6_Retired_Through2021',
         usecols='C,I',
     ),
@@ -1743,6 +1743,31 @@ epaipm_region_names = [
     'WECC_WY', 'CN_AB', 'CN_BC', 'CN_NL', 'CN_MB', 'CN_NB', 'CN_NF',
     'CN_NS', 'CN_ON', 'CN_PE', 'CN_PQ', 'CN_SK',
 ]
+
+epaipm_region_aggregations = {
+    'PJM': [
+        'PJM_AP', 'PJM_ATSI', 'PJM_COMD', 'PJM_Dom',
+        'PJM_EMAC', 'PJM_PENE', 'PJM_SMAC', 'PJM_WMAC'
+    ],
+    'NYISO': [
+        'NY_Z_A', 'NY_Z_B', 'NY_Z_C&E', 'NY_Z_D',
+        'NY_Z_F', 'NY_Z_G-I', 'NY_Z_J', 'NY_Z_K'
+    ],
+    'ISONE': ['NENG_CT', 'NENGREST', 'NENG_ME'],
+    'MISO': [
+        'MIS_AR', 'MIS_IL', 'MIS_INKY', 'MIS_IA',
+        'MIS_MIDA', 'MIS_LA', 'MIS_LMI', 'MIS_MNWI', 'MIS_D_MS',
+        'MIS_MO', 'MIS_MAPP', 'MIS_AMSO', 'MIS_WOTA', 'MIS_WUMS'
+    ],
+    'SPP': [
+        'SPP_NEBR', 'SPP_N', 'SPP_SPS', 'SPP_WEST', 'SPP_KIAM', 'SPP_WAUE'
+    ],
+    'WECC_NW': [
+        'WECC_CO', 'WECC_ID', 'WECC_MT', 'WECC_NNV',
+        'WECC_PNW', 'WECC_UT', 'WECC_WY'
+    ]
+
+}
 
 epaipm_rename_dict = {
     'transmission_single_ipm': {

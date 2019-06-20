@@ -104,8 +104,8 @@ def plant_region_map(epaipm_dfs, epaipm_transformed_dfs):
     """
     trans_df = pd.concat(
         [
-            epaipm_dfs['needs_active_plant_map'],
-            epaipm_dfs['needs_retired_plant_map']
+            epaipm_dfs['plant_region_map_ipm_active'],
+            epaipm_dfs['plant_region_map_ipm_retired']
         ]
     )
     trans_df = trans_df.drop_duplicates()

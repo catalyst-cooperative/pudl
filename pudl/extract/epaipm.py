@@ -84,14 +84,14 @@ def create_dfs_epaipm(files=pc.files_epaipm):
         # NEEDS is the only IPM data file with multiple sheets. Keeping the overall
         # code simpler but adding this if statement to read both sheets (active and
         # retired by 2021).
-        if f == 'needs_plant_map':
-            epaipm_dfs['needs_active_plant_map'] = get_epaipm_file(
+        if f == 'plant_region_map_ipm':
+            epaipm_dfs['plant_region_map_ipm_active'] = get_epaipm_file(
                 f,
-                pc.read_excel_epaipm_dict['needs_active_plant_map']
+                pc.read_excel_epaipm_dict['plant_region_map_ipm_active']
             )
-            epaipm_dfs['needs_retired_plant_map'] = get_epaipm_file(
+            epaipm_dfs['plant_region_map_ipm_retired'] = get_epaipm_file(
                 f,
-                pc.read_excel_epaipm_dict['needs_retired_plant_map']
+                pc.read_excel_epaipm_dict['plant_region_map_ipm_retired']
             )
         else:
             epaipm_dfs[f] = get_epaipm_file(
