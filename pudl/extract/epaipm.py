@@ -15,6 +15,7 @@ import pudl.constants as pc
 logger = logging.getLogger(__name__)
 
 datadir = Path(SETTINGS['epaipm_data_dir'])
+pudl_datadir = Path(SETTINGS['pudl_data_dir'])
 
 
 def get_epaipm_name(file):
@@ -26,8 +27,16 @@ def get_epaipm_name(file):
     Returns:
         path to EPA IPM spreadsheet.
     """
+    if sorted(datadir.glob(file)):
+        name = sorted(datadir.glob(file))[0]
+    elif sorted(pudl_datadir.glob(file)):
+        name = name = sorted(pudl_datadir.glob(file))[0]
+    else:
+        raise FileNotFoundError(
+            f'No files matching the pattern "{file}" were found.'
+        )
 
-    return sorted(datadir.glob(file))[0]
+    return name
 
 
 def get_epaipm_file(filename, read_file_args):
