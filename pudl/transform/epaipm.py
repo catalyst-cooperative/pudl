@@ -115,11 +115,11 @@ def plant_region_map(epaipm_dfs, epaipm_transformed_dfs):
     )
 
     # Plants that are in IPM but appear to be retired or not listed in EIA files
-    missing_plants = [
-        7939, 56892, 59089, 59397, 59398, 59399, 83001,
-        83002, 83003, 83004, 83005, 83006, 83007,
-    ]
-    trans_df = trans_df.loc[~trans_df['plant_id_eia'].isin(missing_plants), :]
+    # missing_plants = [
+    #     7939, 56892, 57717, 59089, 59397, 59398, 59399, 83001,
+    #     83002, 83003, 83004, 83005, 83006, 83007,
+    # ]
+    # trans_df = trans_df.loc[~trans_df['plant_id_eia'].isin(missing_plants), :]
 
     epaipm_transformed_dfs['plant_region_map_ipm'] = trans_df
 

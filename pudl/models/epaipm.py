@@ -119,7 +119,7 @@ class PlantRegionIPM(pudl.models.entities.PUDLBase):
     id = Column(Integer, autoincrement=True, primary_key=True)
     plant_id_eia = Column(
         Integer,
-        ForeignKey('plants_entity_eia.plant_id_eia'),
+        # ForeignKey('plants_entity_eia.plant_id_eia'),
         nullable=False,
         comment='EIA ORIS plant id'
     )
