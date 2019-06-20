@@ -30,7 +30,7 @@ def get_epaipm_name(file):
     if sorted(datadir.glob(file)):
         name = sorted(datadir.glob(file))[0]
     elif sorted(pudl_datadir.glob(file)):
-        name = name = sorted(pudl_datadir.glob(file))[0]
+        name = sorted(pudl_datadir.glob(file))[0]
     else:
         raise FileNotFoundError(
             f'No files matching the pattern "{file}" were found.'
