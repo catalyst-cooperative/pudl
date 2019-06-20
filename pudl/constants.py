@@ -1695,7 +1695,7 @@ files_epaipm = (
 
 files_dict_epaipm = {
     'transmission_single_ipm': '*table_3-21*',
-    'transmission_joint_ipm': 'transmission_joint_ipm*',
+    'transmission_joint_ipm': '*transmission_joint_ipm*',
     'load_curves_ipm': '*table_2-2_*',
     'plant_region_map_ipm': '*needs_v6*',
 }
