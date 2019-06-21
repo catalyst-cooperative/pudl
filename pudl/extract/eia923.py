@@ -30,6 +30,8 @@ def datadir(year, basedir=SETTINGS['eia923_data_dir']):
         basedir (str): Directory in which EIA923 data resides.
     Returns:
         str: path to appropriate EIA 923 data directory.
+
+    Todo: assert statement
     """
     # These are the only years we've got...
     assert year in pc.data_years['eia923']
@@ -46,6 +48,8 @@ def get_eia923_file(yr, basedir=SETTINGS['eia923_data_dir']):
         basedir (str): Directory in which EIA923 data resides.
     Returns:
         str: path to EIA 923 spreadsheets corresponding to a given year.
+
+    Todo: 2 assert statements
     """
     assert(yr >= min(pc.working_years['eia923'])),\
         "EIA923 file selection only works for 2009 & later."
@@ -121,7 +125,7 @@ def get_eia923_page(page, eia923_xlsx,
         DataFrame.
 
     Args:
-        page (str): The string label indicating which page of the EIA923 we
+        page (str): The string label indicating which page of the EIA923 we 
         are attempting to read in. The page argument must be exactly one of the
         following strings:
             - 'generation_fuel'
@@ -136,7 +140,9 @@ def get_eia923_page(page, eia923_xlsx,
 
     Returns:
         pandas.DataFrame: A dataframe containing the data from the selected
-            page and selected years from EIA 923.
+        page and selected years from EIA 923.
+
+    Todo: 2 assert statements
     """
     assert min(years) >= min(pc.working_years['eia923']),\
         f"EIA923 works for 2009 and later. {min(years)} requested."
