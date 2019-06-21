@@ -1,5 +1,5 @@
 """
-Retrieve data from EIA Form 923 spreadsheets for analysis.
+Retrieves data from EIA Form 923 spreadsheets for analysis.
 
 This modules pulls data from EIA's published Excel spreadsheets.
 
@@ -83,21 +83,28 @@ def get_eia923_column_map(page, year):
         year (int): The year that we're trying to read data for.
 
     Returns:
-        int: sheet_name (int): An integer indicating which page in the worksheet
-            the data should be pulled from. 0 is the first page, 1 is the
-            second page, etc. For use by pandas.read_excel()
-        int: skiprows, an integer indicating how many rows should be skipped
-            at the top of the sheet being read in, before the header row that
-            contains the strings which will be converted into column names in
-            the dataframe which is created by pandas.read_excel()
-        dict: column_map, a dictionary that maps the names of the columns
-            in the year being read in, to the canonical EIA923 column names
-            (i.e. the column names as they are in 2014-2016). This dictionary
-            will be used by DataFrame.rename(). The keys are the column names
-            in the dataframe as read from older years, and the values are the
-            canonmical column names.  All should be stripped of leading and
-            trailing whitespace, converted to lower case, and have internal
-            non-alphanumeric characters replaced with underscores.
+        tuple: A tuple containing:
+            int: sheet_name (int): An integer indicating which page in the
+                worksheet the data should be pulled from. 0 is the first page,
+                1 is the second page, etc. For use by pandas.read_excel()
+                int: skiprows, an integer indicating how many rows should be
+                skipped at the top of the sheet being read in, before the
+                header row that contains the strings which will be converted
+                into column names in the dataframe which is created by
+                pandas.read_excel()
+            int: skiprows, an integer indicating how many rows should be skipped
+                at the top of the sheet being read in, before the header row
+                that contains the strings which will be converted into column
+                names in the dataframe which is created by pandas.read_excel()
+            dict: column_map, a dictionary that maps the names of the columns
+                in the year being read in, to the canonical EIA923 column names
+                (i.e. the column names as they are in 2014-2016). This
+                dictionary will be used by DataFrame.rename(). The keys are the
+                column names in the dataframe as read from older years, and the
+                values are the canonmical column names.  All should be stripped
+                of leading and trailing whitespace, converted to lower case,
+                and have internal non-alphanumeric characters replaced with
+                underscores.
     """
     sheet_name = pc.tab_map_eia923.at[year, page]
     skiprows = pc.skiprows_eia923.at[year, page]
@@ -121,11 +128,10 @@ def get_eia923_column_map(page, year):
 
 def get_eia923_page(page, eia923_xlsx,
                     years=pc.working_years['eia923']):
-    """Reads a single table from several years of EIA923 data and returns a
-        DataFrame.
+    """Reads a table from given years of EIA923 data, returns a DataFrame.
 
     Args:
-        page (str): The string label indicating which page of the EIA923 we 
+        page (str): The string label indicating which page of the EIA923 we
         are attempting to read in. The page argument must be exactly one of the
         following strings:
             - 'generation_fuel'
@@ -207,8 +213,7 @@ def extract(eia923_years=pc.working_years['eia923']):
         eia860_years (list): a list of data_years
 
     Returns:
-        dict: A dictionary containing EIA 860 pages (keys) and DataFrames
-            (values)
+        dict: A dictionary containing EIA 860 pages (keys), DataFrames (values)
     """
     eia923_raw_dfs = {}
     if not eia923_years:

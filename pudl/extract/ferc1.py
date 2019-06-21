@@ -232,8 +232,7 @@ def define_sqlite_db(sqlite_meta, dbc_map,
                      tables=pc.ferc1_tbl2dbf,
                      refyear=max(pc.working_years['ferc1']),
                      bad_cols=()):
-    """Defines a FERC Form 1 DB structure in the given SQLAlchemy MetaData
-        object.
+    """Defines a FERC Form 1 DB structure in a given SQLAlchemy MetaData object.
 
     Given a template from an existing year of FERC data, and a list of target
     tables to be cloned, convert that information into table and column names,
@@ -519,8 +518,7 @@ def extract(ferc1_tables=pc.ferc1_pudl_tables,
 
 
 def fuel(ferc1_meta, ferc1_table, ferc1_years):
-    """Creates a DataFrame containing all the fields of the f1_fuel table for
-        records that have plant names and non-zero fuel amounts.
+    """Creates a DataFrame of f1_fuel table records with plant names, >0 fuel.
 
     Args:
         ferc1_meta (sa.MetaData):
@@ -549,8 +547,7 @@ def fuel(ferc1_meta, ferc1_table, ferc1_years):
 
 
 def plants_steam(ferc1_meta, ferc1_table, ferc1_years):
-    """Creates a DataFrame containing all of the fields of f1_steam for records
-        that have plant names and non zero capacities.
+    """Creates a DataFrame of f1_steam records with plant names, capacities > 0.
 
     Args:
         ferc1_meta (sa.MetaData):
@@ -575,9 +572,7 @@ def plants_steam(ferc1_meta, ferc1_table, ferc1_years):
 
 
 def plants_small(ferc1_meta, ferc1_table, ferc1_years):
-    """Creates a DataFrame containing all of the fields of f1_small for records
-        that have plant names and non zero demand, generation, operations,
-        maintenance, and fuel costs.
+    """Creates a DataFrame of f1_small for records with minimum data criteria.
 
     Args:
         ferc1_meta (sa.MetaData):
@@ -613,8 +608,7 @@ def plants_small(ferc1_meta, ferc1_table, ferc1_years):
 
 
 def plants_hydro(ferc1_meta, ferc1_table, ferc1_years):
-    """Creates a DataFrame containing all of the fields of f1_hydro for records
-        that have plant names.
+    """Creates a DataFrame of f1_hydro for records that have plant names.
 
     Args:
         ferc1_meta (sa.MetaData):
@@ -639,8 +633,7 @@ def plants_hydro(ferc1_meta, ferc1_table, ferc1_years):
 
 
 def plants_pumped_storage(ferc1_meta, ferc1_table, ferc1_years):
-    """Creates a DataFrame containing all of the fields of
-        f1_plants_pumped_storage for records that have plant names.
+    """Creates a DataFrame of f1_plants_pumped_storage records with plant names.
 
     Args:
         ferc1_meta (sa.MetaData):
@@ -668,8 +661,7 @@ def plants_pumped_storage(ferc1_meta, ferc1_table, ferc1_years):
 
 
 def plant_in_service(ferc1_meta, ferc1_table, ferc1_years):
-    """Creates a DataFrame containing all of the fields of
-        plant_in_service_ferc1.
+    """Creates a DataFrame of the fields of plant_in_service_ferc1.
 
     Args:
         ferc1_meta (sa.MetaData):
@@ -695,8 +687,7 @@ def plant_in_service(ferc1_meta, ferc1_table, ferc1_years):
 
 
 def purchased_power(ferc1_meta, ferc1_table, ferc1_years):
-    """Creates a DataFrame containing all of the fields of
-        purchased_power_ferc1.
+    """Creates a DataFrame the fields of purchased_power_ferc1.
 
     Args:
         ferc1_meta (sa.MetaData):
@@ -720,8 +711,7 @@ def purchased_power(ferc1_meta, ferc1_table, ferc1_years):
 
 
 def accumulated_depreciation(ferc1_meta, ferc1_table, ferc1_years):
-    """Creates a DataFrame containing all of the fields of
-        accumulated_depreciation_ferc1.
+    """Creates a DataFrame of the fields of accumulated_depreciation_ferc1.
 
     Args:
         ferc1_meta (sa.MetaData):
