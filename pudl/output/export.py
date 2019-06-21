@@ -16,6 +16,7 @@ import datapackage
 import goodtables
 import pandas as pd
 import pudl
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 
@@ -222,7 +223,7 @@ def get_tabular_data_resource(tablename, pkg_dir, testing=False):
     for src in data_sources:
         if src in pudl.constants.data_sources:
             descriptor["sources"].append({"title": src,
-                                          "path": "idfk"})
+                                          "path": pc.base_data_urls[src]})
 
     resource = datapackage.Resource(descriptor)
     if not resource.valid:

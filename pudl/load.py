@@ -192,7 +192,7 @@ def dict_dump_load(transformed_dfs,
 # Packaging specific load step
 ###############################################################################
 
-def csv_dump(df, table_name, csvdir):
+def csv_dump(df, table_name, pkg_dir):
     """
     Write a dataframe to CSV and load it into postgresql using COPY FROM.
 
@@ -224,14 +224,14 @@ def csv_dump(df, table_name, csvdir):
         None
 
     """
-    outfile = os.path.join(csvdir, table_name + '.csv')
+    outfile = os.path.join(pkg_dir, 'data', table_name + '.csv')
     df.to_csv(path_or_buf=outfile, index=False)
 
 
 def dict_dump(transformed_dfs,
               data_source,
               need_fix_inting=pc.need_fix_inting,
-              csvdir=''):
+              pkg_dir=''):
     """
     Wrapper for _csv_dump for each data source.
     """
@@ -245,4 +245,4 @@ def dict_dump(transformed_dfs,
 
         csv_dump(df,
                  table_name,
-                 csvdir=csvdir)
+                 pkg_dir=pkg_dir)
