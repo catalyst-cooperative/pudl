@@ -36,6 +36,7 @@ import pudl.extract.ferc1
 import pudl.extract.eia860
 import pudl.extract.eia923
 import pudl.extract.epacems
+import pudl.extract.epaipm
 
 # Transformation functions, organized by data source:
 import pudl.transform.eia
@@ -43,6 +44,7 @@ import pudl.transform.ferc1
 import pudl.transform.eia860
 import pudl.transform.eia923
 import pudl.transform.epacems
+import pudl.transform.epaipm
 
 # Relatively usable analysis modules.  We need more of these.
 import pudl.analysis.mcoe
