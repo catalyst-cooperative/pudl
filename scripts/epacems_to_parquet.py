@@ -135,17 +135,6 @@ def parse_command_line(argv):
         default=['year', 'state']
     )
     parser.add_argument(
-        '-c',
-        '--compression',
-        type=str,
-        choices=['gzip', 'snappy'],
-        help="""What compression algorithm should be used in the Apache Parquet
-        file output? gzip is slower but will result in smaller files. snappy
-        is faster but results in larger files.
-        dataset? (default: %(default)s)""",
-        default='snappy'
-    )
-    parser.add_argument(
         "--testing",
         action="store_true",
         help="""Which database should be used for plant metadata? Default is
@@ -164,7 +153,7 @@ def year_from_operating_datetime(df):
 
 
 def cems_to_parquet(transformed_df_dicts, outdir=None, schema=None,
-                    compression='snappy', partition_cols=('year', 'state')):
+                    partition_cols=('year', 'state')):
     """
     Take transformed EPA CEMS dataframes and output them as Parquet files.
 
@@ -193,7 +182,7 @@ def cems_to_parquet(transformed_df_dicts, outdir=None, schema=None,
                     pa.Table.from_pandas(
                         df, preserve_index=False, schema=schema),
                     root_path=outdir, partition_cols=partition_cols,
-                    compression=compression)
+                    compression='gzip')
 
 
 def main():
@@ -225,7 +214,6 @@ def main():
     cems_to_parquet(transformed_dfs,
                     outdir=args.outdir,
                     schema=cems_table.schema,
-                    compression=args.compression,
                     partition_cols=args.partition_cols)
 
 

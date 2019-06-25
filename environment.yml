@@ -13,14 +13,13 @@ dependencies:
   - nbval
   - networkx
   - numpy
-  - pandas
+  - pandas>=0.21
   - pip
   - psycopg2
   - pyarrow
   - pytest
   - pytest-cov
-  - python>=3.6
-  - python-snappy
+  - python>=3.6 # Remove for tox.ini & setup.py
   - pyyaml
   - scikit-learn>=0.20
   - scipy

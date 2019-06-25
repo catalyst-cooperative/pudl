@@ -7,9 +7,9 @@ import this module as `from config import settings`
 
 import os.path
 import yaml
-from pudl import __file__ as pudl_pkg_file
 
-PUDL_DIR = os.path.dirname(os.path.dirname(pudl_pkg_file))
+# THIS IS A TEMPORARY HACK DO NOT COMMIT LIKE THIS!!!!!!!
+PUDL_DIR = '/home/zane/code/catalyst/pudl/'
 
 
 def settings_init(settings_file="settings_init_pudl_default.yml"):

@@ -1,6 +1,8 @@
 dist: xenial
 language: python
-python: 3.7
+python:
+    - "3.6"
+    - "3.7"
 services:
 - postgresql
 addons:
@@ -12,9 +14,8 @@ git:
   depth: 1
 branches:
   except:
-    - doc-setup
+    - docstrings-cleanup
 before_install:
-- export PATH="$HOME/miniconda3/bin:$PATH"
 - df -h
 - pwd
 - ls -a
@@ -22,25 +23,10 @@ before_install:
 - git --version
 - git tag
 install:
-- ci/install_travis.sh
-- source activate pudl
-- pip install -v -e .
-- conda list
-- which python
 - ci/setup_postgres.sh
-- cd scripts
-- python update_datastore.py -s eia923 -y 2017
-- python update_datastore.py -s eia860 -y 2017
-- cp -r ../test/data/epa/cems/* ../data/epa/cems/
-- cp -r ../test/data/ferc/form1/* ../data/ferc/form1/
-- cd ..
-- find data -type f
-- cd data/ferc/form1/f1_2017/
-- unzip f1_2017.zip
-- cd ../../../../
-- find data -type f
+- pip install tox
 script:
-- pytest --log-cli-level=info --log-cli-format="%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s" --log-date-format="%Y-%m-%d %H:%M:%S" --cov=pudl test/travis_ci_test.py
+- tox -vv -e travis
 after_success:
 - coveralls
 notifications:

@@ -1,11 +1,13 @@
 """The Public Utility Data Liberation (PUDL) Project."""
 
+import pkg_resources
+
 __author__ = "Catalyst Cooperative"
 __contact__ = "zane.selvans@catalyst.coop"
 __maintainer__ = "Catalyst Cooperative"
 __license__ = "MIT License"
 __maintainer_email__ = "zane.selvans@catalyst.coop"
-__version__ = '0.1.0'
+__version__ = pkg_resources.get_distribution(__name__).version
 __docformat__ = ""
 __description__ = "Tools for liberating public US electric utility data."
 __long_description__ = """
