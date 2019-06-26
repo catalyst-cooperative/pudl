@@ -3,6 +3,7 @@ language: python
 python:
     - "3.6"
     - "3.7"
+    - "3.8-dev"
 services:
     - postgresql
 addons:
@@ -25,13 +26,6 @@ before_install:
 install:
     - ci/setup_postgres.sh
     - pip install tox
-before_script:
-    - cp -r test/data/epa/cems/* data/epa/cems/
-    - cp -r test/data/ferc/form1/* data/ferc/form1/
-    - find data -type f
-    - cd data/ferc/form1/f1_2017
-    - unzip f1_2017.zip
-    - cd ../../../../
 script:
     - tox -vv -e travis
 after_success:

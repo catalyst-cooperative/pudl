@@ -29,9 +29,12 @@ __downloadurl__ = "https://github.com/catalyst-cooperative/pudl/"
 import pudl.settings
 import pudl.constants
 import pudl.helpers
-import pudl.datastore
 import pudl.init
 import pudl.load
+
+# Data management package that provides a command line interface:
+import pudl.datastore.datastore
+import pudl.datastore.cli
 
 # Extraction functions, organized by data source:
 import pudl.extract.ferc1

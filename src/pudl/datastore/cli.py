@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-"""A script for fetching public utility data from reporting agency servers."""
+"""A CLI for fetching public utility data from reporting agency servers."""
 
 import logging
 import sys

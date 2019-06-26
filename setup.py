@@ -66,12 +66,14 @@ setup(
     # package_data is data that is deployed within the python package on the
     # user's system. setuptools will get whatever is listed in MANIFEST.in
     include_package_data=True,
-    # The "right way" to deploy scripts so that they work on Windows as well is
-    # with entry_points and console_scripts, but that will require some
-    # additional re-organization. See issue #327:
+    # This defines the interfaces to the command line scripts we're including:
     # https://github.com/catalyst-cooperative/pudl/issues/327
+    entry_points={
+        'console_scripts': [
+            'update_datastore = pudl.datastore.cli:main'
+        ]
+    },
     scripts=[
-        'scripts/update_datastore.py',
         'scripts/ferc1_to_sqlite.py',
         'scripts/init_pudl.py',
         'scripts/epacems_to_parquet.py',
