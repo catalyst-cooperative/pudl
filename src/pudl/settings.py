@@ -31,9 +31,14 @@ SETTINGS['eia860_data_dir'] = os.path.join(
     SETTINGS['data_dir'], 'eia', 'form860')
 SETTINGS['epacems_data_dir'] = os.path.join(
     SETTINGS['data_dir'], 'epa', 'cems')
+SETTINGS['epaipm_data_dir'] = os.path.join(
+    SETTINGS['data_dir'], 'epa', 'ipm')
 SETTINGS['test_dir'] = os.path.join(SETTINGS['pudl_dir'], 'test')
 SETTINGS['docs_dir'] = os.path.join(SETTINGS['pudl_dir'], 'docs')
 SETTINGS['csvdir'] = os.path.join(SETTINGS['pudl_dir'], 'results', 'csvdump')
+
+# Location of small data files that are not easy to download (e.g. from a PDF)
+SETTINGS['pudl_data_dir'] = os.path.join(SETTINGS['data_dir'], 'pudl')
 
 
 # These DB connection dictionaries are used by sqlalchemy.URL()
