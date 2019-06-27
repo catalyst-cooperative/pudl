@@ -23,13 +23,16 @@ logger = logging.getLogger(__name__)
 
 
 def datadir(year):
-    """
-    Data directory search for EIA Form 860.
+    """Searches data directory for EIA Form 860.
 
     Args:
         year (int): The year that we're trying to read data for.
+
     Returns:
-        path to appropriate EIA 860 data directory.
+        str: path to appropriate EIA 860 data directory.
+
+    Raises:
+        AssertionError: If EIA 860 data requested is unavailable for the year.
     """
     # These are the only years we've got...
     if year not in pc.data_years['eia860']:
@@ -43,13 +46,19 @@ def datadir(year):
 
 
 def get_eia860_file(yr, file):
-    """
-    Given a year, return the appopriate EIA860 excel file.
+    """Given a year, returns the appopriate path for a given EIA860 excel file.
 
     Args:
         year (int): The year that we're trying to read data for.
+        file (str): A string containing part of the file name for a given EIA
+            860 file (e.g. '*Generat*')
+
     Returns:
-        path to EIA 860 spreadsheets corresponding to a given year.
+        str: Path to EIA 860 spreadsheets corresponding to a given year.
+
+    Raises:
+        AssertionError: If the requested year is not in the list of working
+            years for EIA 860.
     """
     if yr not in pc.working_years['eia860']:
         raise AssertionError(
@@ -61,19 +70,18 @@ def get_eia860_file(yr, file):
 
 
 def get_eia860_xlsx(years, filename):
-    """
-    Read in Excel files to create Excel objects.
+    """Reads in Excel files to create Excel objects.
 
     Rather than reading in the same Excel files several times, we can just
     read them each in once (one per year) and use the ExcelFile object to
     refer back to the data in memory.
 
     Args:
-        years: The years that we're trying to read data for.
-        files: ['enviro_assn', 'utilities', 'plants', 'generators']
+        years (list): The years that we're trying to read data for.
+        filename (str): ['enviro_assn', 'utilities', 'plants', 'generators']
 
     Returns:
-        xlsx file of EIA Form 860 for input year(s)
+        pandas.io.excel.ExcelFile: xlsx file of EIA Form 860 for input year(s)
     """
     eia860_xlsx = {}
     pattern = pc.files_dict_eia860[filename]
@@ -85,8 +93,7 @@ def get_eia860_xlsx(years, filename):
 
 
 def get_eia860_column_map(page, year):
-    """
-    Given a year and EIA860 page, return info required to slurp it from Excel.
+    """Given a year and EIA860 page, returns info needed to slurp it from Excel.
 
     The format of the EIA860 has changed slightly over the years, and so it
     is not completely straightforward to pull information from the spreadsheets
@@ -107,14 +114,14 @@ def get_eia860_column_map(page, year):
         year (int): The year that we're trying to read data for.
 
     Returns:
-        sheet_name (int): An integer indicating which page in the worksheet
+        int: sheet_name, an integer indicating which page in the worksheet
             the data should be pulled from. 0 is the first page, 1 is the
             second page, etc. For use by pandas.read_excel()
-        skiprows (int): An integer indicating how many rows should be skipped
+        int: skiprows, an integer indicating how many rows should be skipped
             at the top of the sheet being read in, before the header row that
             contains the strings which will be converted into column names in
             the dataframe which is created by pandas.read_excel()
-        column_map (dict): A dictionary that maps the names of the columns
+        dict: column_map, a dictionary that maps the names of the columns
             in the year being read in, to the canonical EIA923 column names
             (i.e. the column names as they are in 2014-2016). This dictionary
             will be used by DataFrame.rename(). The keys are the column names
@@ -122,7 +129,7 @@ def get_eia860_column_map(page, year):
             canonmical column names.  All should be stripped of leading and
             trailing whitespace, converted to lower case, and have internal
             non-alphanumeric characters replaced with underscores.
-        all_columns (pd.Index): The column Index associated with the column
+        pd.Index: all_columns, the column Index associated with the column
             map -- it includes all of the columns which might be present in
             all of the years of data, for use in setting the column index of
             the raw dataframe which is ultimately extracted, so we can ensure
@@ -155,20 +162,33 @@ def get_eia860_column_map(page, year):
 
 def get_eia860_page(page, eia860_xlsx,
                     years=pc.working_years['eia860']):
-    """
-    Read a single table from several years of EIA860 data. Return a DataFrame.
+    """Reads a single table from several years of EIA860 data and return a
+           DataFrame.
 
     Args:
         page (str): The string label indicating which page of the EIA860 we
         are attempting to read in. The page argument must be exactly one of the
         following strings:
             - 'boiler_generator_assn'
-
-      years (list): The set of years to read into the dataframe.
+            - 'utility'
+            - 'plant'
+            - 'generator_existing'
+            - 'generator_proposed'
+            - 'generator_retired'
+            - 'ownership'
+        eia860_xlsx (pandas.io.excel.ExcelFile): xlsx file of EIA Form 860 for
+        input year(s)
+        years (list): The set of years to read into the DataFrame.
 
     Returns:
         pandas.DataFrame: A dataframe containing the data from the selected
             page and selected years from EIA 860.
+
+    Raises:
+        AssertionError: If the page string is not among the list of recognized
+        EIA 860 page strings.
+        AssertionError: If the year is not in the list of years that work for
+        EIA 860.
     """
     if page not in pc.tab_map_eia860.columns and page != 'year_index':
         raise AssertionError(
@@ -212,16 +232,15 @@ def get_eia860_page(page, eia860_xlsx,
 
 def create_dfs_eia860(files=pc.files_eia860,
                       eia860_years=pc.working_years['eia860']):
-    """
-    Create a dictionary of pages (keys) to dataframes (values) from eia860
+    """Creates a dictionary of pages (keys) to DataDrames (values) from EIA 860
     tabs.
 
     Args:
-        a list of eia860 files
-        a list of years
+        files (list): a list of eia860 files
+        eia860_years (list): a list of years
 
     Returns:
-        dictionary of pages (key) to dataframes (values)
+        dict: A dictionary of pages (key) to DataFrames (values)
 
     """
     # Prep for ingesting EIA860
@@ -239,6 +258,15 @@ def create_dfs_eia860(files=pc.files_eia860,
 
 
 def extract(eia860_years=pc.working_years['eia860']):
+    """Creates a dictionary of DataFrames containing all the EIA 860 tables.
+
+    Args:
+        eia860_years (list): a list of data_years
+
+    Returns:
+        dict: A dictionary containing EIA 860 pages (keys) and DataFrames
+            (values)
+    """
     # Prep for ingesting EIA860
     # create raw 860 dfs from spreadsheets
     eia860_raw_dfs = {}
