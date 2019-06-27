@@ -28,7 +28,7 @@ install:
 script:
     - tox -vv -e travis
 after_success:
-    - coveralls
+    - codecov
 notifications:
     webhooks:
         urls:

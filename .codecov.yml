@@ -1,0 +1,7 @@
+coverage:
+    range: 0..100
+    round: nearest
+    precision: 2
+ignore:
+    - "pudl/glue/zipper.py"
+    - "pudl/analysis/analysis.py"
