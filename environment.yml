@@ -29,8 +29,5 @@ dependencies:
   - goodtables
   - tableschema
   - timezonefinder
-  - datapackage
-  - goodtables
-  - tableschema
   - pip:
     - sqlalchemy-postgres-copy
