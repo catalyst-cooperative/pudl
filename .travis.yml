@@ -1,6 +1,8 @@
 dist: xenial
 language: python
-python: 3.7
+python:
+    - 3.7
+    - 3.8-dev
 services:
 - postgresql
 addons:
@@ -44,6 +46,7 @@ script:
 - pytest --log-cli-level=info --log-cli-format="%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s" --log-date-format="%Y-%m-%d %H:%M:%S" --cov=pudl test/travis_ci_test.py
 after_success:
 - coveralls
+- codecov
 notifications:
   webhooks:
     urls:
