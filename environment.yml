@@ -5,7 +5,6 @@ channels:
 dependencies:
   - codecov
   - coverage
-  - coveralls
   - dbfread
   - fastparquet
   - jupyter
