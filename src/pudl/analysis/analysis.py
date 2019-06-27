@@ -1,4 +1,7 @@
-"""A module with functions to aid in data analysis using the PUDL database."""
+"""A module with functions to aid in data analysis using the PUDL database.
+
+    TODO: Delete old useless cruft.
+"""
 
 import logging
 
@@ -21,15 +24,17 @@ logger = logging.getLogger(__name__)
 
 
 def simple_select(table_name, pudl_engine):
-    """
-    Simple select statement.
+    """Generates a DataFrame of the specified table.
+
+    Generates a DataFrame of the specified table, including EIA plant IDs where
+    they are available.
 
     Args:
-        table_name: pudl table name
-        pudl_engine
+        table_name (str): A PUDL table name
+        pudl_engine (str): A PUDL database connection
 
     Returns:
-        DataFrame from table
+        table: A DataFrame of the specified table.
     """
     # Pull in the table
     tbl = pudl.models.entities.PUDLBase.metadata.tables[table_name]
@@ -62,7 +67,15 @@ def simple_select(table_name, pudl_engine):
 
 
 def simple_ferc1_plant_ids(pudl_engine):
-    """Generate list of all PUDL plant IDs which map to a single FERC plant."""
+    """Generates a list of all PUDL plant IDs which map to a single FERC plant.
+
+    Args:
+        pudl_engine (str): A PUDL database connection.
+
+    Returns:
+        ferc1_simple_plant_ids: A DataFrame containing all the PUDL plant IDs
+        that map to a single FERC plant.
+    """
     ferc1_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_ferc''',
                                   pudl_engine)
     ferc1_simple_plant_ids = ferc1_plant_ids.drop_duplicates('plant_id_pudl',
@@ -71,7 +84,15 @@ def simple_ferc1_plant_ids(pudl_engine):
 
 
 def simple_eia_plant_ids(pudl_engine):
-    """Generate list of all PUDL plant IDs which map to a single EIA plant."""
+    """Generates a list of all PUDL plant IDs that map to a single EIA plant.
+
+    Args:
+        pudl_engine (str): A PUDL database connection.
+
+    Returns:
+        eia_simple_plant_ids: A DataFrame containing all the PUDL plant IDs that
+        map to a single EIA plant.
+    """
     eia_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_eia''',
                                 pudl_engine)
     eia_simple_plant_ids = eia_plant_ids.drop_duplicates('plant_id_pudl',
@@ -80,7 +101,16 @@ def simple_eia_plant_ids(pudl_engine):
 
 
 def simple_pudl_plant_ids(pudl_engine):
-    """Get all PUDL plant IDs that map to single EIA & single FERC plant ID."""
+    """Retrieves all PUDL plant IDs that map to single EIA and single FERC
+    plant ID.
+
+    Args:
+        pudl_engine (str): A PUDL database connection.
+
+    Returns:
+        pudl_simple: A DataFrame containing all the PUDL plant IDs that map to a
+        single EIA and single FERC plant ID.
+    """
     ferc1_simple = simple_ferc1_plant_ids(pudl_engine)
     eia_simple = simple_eia_plant_ids(pudl_engine)
     pudl_simple = np.intersect1d(ferc1_simple['plant_id_pudl'],
@@ -89,7 +119,15 @@ def simple_pudl_plant_ids(pudl_engine):
 
 
 def ferc_eia_shared_plant_ids(pudl_engine):
-    """Generate a list of PUDL plant IDs that appear in both FERC and EIA."""
+    """Generates a list of PUDL plant IDs that appear in both FERC and EIA.
+
+    Args:
+        pudl_engine (str): A PUDL database connection.
+
+    Returns:
+        shared_plant_ids: A DataFrame containing all of the PUDL plant IDs that
+        appear in both FERC and EIA.
+    """
     ferc_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_ferc''',
                                  pudl_engine)
     eia_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_eia''',
@@ -100,22 +138,39 @@ def ferc_eia_shared_plant_ids(pudl_engine):
 
 
 def ferc_pudl_plant_ids(pudl_engine):
-    """Generate a list of PUDL plant IDs that correspond to FERC plants."""
+    """Generates a list of PUDL plant IDs that correspond to FERC plants.
+
+    Args:
+        pudl_engine (str): A PUDL database connection.
+
+    Returns:
+        ferc_plant_ids: A DataFrame containing all of the PUDL plant IDs that
+        correspond to FERC plants.
+    """
     ferc_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_ferc''',
                                  pudl_engine)
     return ferc_plant_ids
 
 
 def eia_pudl_plant_ids(pudl_engine):
-    """Generate a list of PUDL plant IDs that correspond to EIA plants."""
+    """Generates a list of PUDL plant IDs that correspond to EIA plants.
+
+    Args:
+        pudl_engine (str): A PUDL database connection.
+
+    Returns:
+        eia_plant_ids: A DataFrame containing all the PUDL plant IDs that
+        correspond to EIA plants.
+    """
     eia_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_eia''',
                                 pudl_engine)
     return eia_plant_ids
 
 
 def yearly_sum_eia(df, sum_by, columns=('plant_id_eia', 'generator_id')):
-    """
-    Group an input dataframe by several columns, and calculate annual sums.
+    """Groups an input dataframe by several columns, and calculates annual sums.
+
+    TODO: Zane revisit
 
     The dataframe to group and sum is 'table'. The column to sum on an annual
     basis is 'sum_by' and 'columns' is the set of fields to group the dataframe
@@ -146,7 +201,8 @@ def yearly_sum_eia(df, sum_by, columns=('plant_id_eia', 'generator_id')):
 
 def consolidate_ferc1_expns(steam_df, min_capfac=0.6, min_corr=0.5):
     """
-    Calculate non-fuel production & nonproduction costs from a steam DataFrame.
+    Calculates non-fuel production and nonproduction costs from a steam
+    DataFrame.
 
     Takes a DataFrame containing information from the plants_steam_ferc1 table
     and add columns representing the non-production costs, and non-fuel
@@ -156,7 +212,6 @@ def consolidate_ferc1_expns(steam_df, min_capfac=0.6, min_corr=0.5):
     for the entire steam_df DataFrame.
 
     Args:
-    -----
         steam_df (DataFrame): Data selected from the PUDL plants_steam_ferc1
             table, containing expense columns, prefixed with expns_
         min_capfac (float): Minimum capacity factor required for a plant's
@@ -167,10 +222,9 @@ def consolidate_ferc1_expns(steam_df, min_capfac=0.6, min_corr=0.5):
             "production" cost.
 
     Returns:
-    --------
-        DataFrame containing all the same information as the original steam_df,
-            but with two additional columns consolidating the non-fuel
-            production and non-production costs for ease of calculation.
+        steam_df: A DataFrame containing all the same information as the
+        original steam_df, but with two additional columns consolidating the
+        non-fuel production and non-production costs for ease of calculation.
 
     """
     steam_df = steam_df.copy()
@@ -198,8 +252,7 @@ def consolidate_ferc1_expns(steam_df, min_capfac=0.6, min_corr=0.5):
 
 
 def ferc1_expns_corr(steam_df, min_capfac=0.6):
-    """
-    Calculate generation vs. expense correlation for FERC Form 1 plants.
+    """Calculates generation vs. expense correlation for FERC Form 1 plants.
 
     This function helped us identify which of the expns_* fields in the FERC
     Form 1 dataset represent production costs, and which are non-production
@@ -211,13 +264,20 @@ def ferc1_expns_corr(steam_df, min_capfac=0.6):
     allow a capacity_factor threshold to be set -- analysis is only done for
     those plants with capacity factors larger than the threshold.
 
-    Additionaly, some types of plants simply do not have some types of
+    Additionally, some types of plants simply do not have some types of
     expenses, so to keep those plants from dragging down otherwise meaningful
     correlations, any zero expense values are dropped before calculating the
     correlations.
 
-    Returns a dictionary with expns_ field names as the keys, and correlations
-    as the values.
+    Args:
+        steam_df (DataFrame): Data selected from the PUDL plants_steam_ferc1
+            table, containing expense columns, prefixed with expns_
+        min_capfac (float): Minimum capacity factor required for a plant's
+            data to be used in determining generation vs expense correlations.
+
+    Returns:
+        expns_corr: A dictionary with expns_ field names as the keys, and
+        correlations as the values.
     """
     steam_df = steam_df.copy()
     steam_df['capacity_factor'] = \
@@ -255,10 +315,9 @@ def ferc1_expns_corr(steam_df, min_capfac=0.6):
 def ferc_expenses(pudl_engine, pudl_plant_ids=(), require_eia=True,
                   min_capfac=0.6, min_corr=0.5):
     """
-    Gather operating expense data for a selection of FERC plants by PUDL ID.
+    Gathers operating expense data for a selection of FERC plants by PUDL ID.
 
     Args:
-    -----
         pudl_engine: a connection to the PUDL database.
         pudl_plant_ids: list of PUDL plant IDs for which to pull expenses out
             of the FERC dataset. If it's an empty list, get all the plants.
@@ -274,13 +333,11 @@ def ferc_expenses(pudl_engine, pudl_plant_ids=(), require_eia=True,
             to this threshold, it is categorized as a production expense.
 
     Returns:
-    --------
         ferc1_expns_corr: A dictionary of expense categories
             and their correlations to the plant's net electricity
             generation.
-        steam_df: a dataframe with all the operating expenses
+        steam_df: a DataFrame with all the operating expenses
             broken out for each simple FERC PUDL plant.
-
     """
     # All of the large steam plants from FERC:
     steam_df = pudl.output.ferc1.plants_steam_ferc1(pudl_engine)
@@ -823,7 +880,13 @@ def plant_fuel_proportions_gf_eia923(gf_df):
 
 
 def primary_fuel_gf_eia923(gf_df, id_col='plant_id_eia', fuel_thresh=0.5):
-    """Determine a plant's primary fuel from EIA923 generation fuel table."""
+    """Determines a plant's primary fuel from EIA923 generation fuel table.
+
+    Args:
+        gf_df (DataFrame):
+        id_col ()
+    Returns:
+    """
     gf_df = gf_df.copy()
 
     # Figure out the heat content proportions of each fuel received:
@@ -847,8 +910,7 @@ def fercplants(plant_tables=('f1_steam',
                years=pc.working_years['ferc1'],
                new=True,
                min_capacity=5.0):
-    """
-    Generate a list of FERC plants for matching with EIA plants.
+    """Generates a list of FERC plants for matching with EIA plants.
 
     There are several kinds of FERC plants, with different information stored
     in different FERC database tables. FERC doesn't provide any kind of
@@ -870,9 +932,8 @@ def fercplants(plant_tables=('f1_steam',
     out.
 
     Args:
-    -----
         f1_tables (list): A list of tables in the FERC Form 1 DB whose plants
-            you want to get information about.  Can include any of: f1_steam,
+            you want to get information about. Can include any of: f1_steam,
             f1_gnrt_plant, f1_hydro, and f1_pumped_storage.
         years (list): The set of years for which you wish to obtain plant by
             plant information.
@@ -883,10 +944,8 @@ def fercplants(plant_tables=('f1_steam',
             included in the output. This avoids most of the plants being tiny.
 
     Returns:
-    --------
-        DataFrame: with four columns: respondent_id, respondent_name,
+        A DataFrame with four columns: respondent_id, respondent_name,
             plant_name, and plant_table.
-
     """
     # Need to be able to use years outside the "valid" range if we're trying
     # to get new plant ID info...
@@ -981,9 +1040,17 @@ def fercplants(plant_tables=('f1_steam',
 
 
 def check_ferc1_tables(refyear=2017):
-    """
-    Test whether each possible combination of FERC Form 1 table and year are
+    """Tests whether each possible combination of FERC Form 1 table and year are
     compatible with the database schema associated with the reference year.
+
+    TODO: Zane revisit
+
+    Args:
+        refyear (int): The reference year for testing compatibility of the
+            database schema with a FERC Form 1 table and year.
+
+    Returns:
+        A dictionary containing
     """
     good_table_years = {}
     tables = list(pc.ferc1_dbf2tbl.values())
