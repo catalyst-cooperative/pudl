@@ -134,7 +134,52 @@ def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
 
 
 @pytest.fixture(scope='session')
-def ferc1_engine_travis_ci(live_ferc_db):
+def datastore_travis_ci(tmpdir_factory):
+    """
+    Populate a minimal PUDL datastore for the Travis CI tests to access.
+
+    Downloads from FERC & EPA have been... throttled or something, so we
+    apparently can't pull the data from them directly any more. To deal with
+    that we have checked a small amount of FERC Form 1 and EPA CEMS data into
+    the PUDL repository.
+
+    For the EIA 860 and EIA 923 data, we can use the datastore management
+    library directly. It's important that we do this from within the tests,
+    and not by using the update_datstore script during setup for the Travis
+    tests, for two reasons:
+     * the pudl module is not installed and importable until after the tox
+       run has begun, so unless we import pudl from the filesystem, we can't
+       use the script beforehand... and doing so would contaminate the
+       environment.
+     * Calling the datastore management functions from within the tests will
+       add that code to our measurement of test coverage, which is good!
+    """
+    from pudl.datastore import datastore
+    # In an ideal world it would work like this...
+    inputs = [
+        {'source': 'epaipm', 'year': None, 'states': None},
+        {'source': 'eia860', 'year': 2017, 'states': None},
+        {'source': 'ferc1', 'year': 2017, 'states': None},
+        {'source': 'eia923', 'year': 2017, 'states': None},
+        {'source': 'epacems', 'year': 2017, 'states': ['ID']},
+    ]
+    # Create a session scoped temporary directory.
+    datadir = tmpdir_factory.mktemp('data')
+    # Download the test year for each dataset
+    for input in inputs:
+        logger.info(f"Downloading {input.source} test data.")
+        datastore.update(
+            source=input.source,
+            year=input.year,
+            states=input.states,
+            datadir=datadir
+        )
+    # Return the path to the datadir
+    return datadir
+
+
+@pytest.fixture(scope='session')
+def ferc1_engine_travis_ci(live_ferc_db, datastore_travis_ci):
     """
     Grab a connection to the FERC Form 1 DB clone.
 
@@ -162,7 +207,8 @@ def ferc1_engine_travis_ci(live_ferc_db):
 
 
 @pytest.fixture(scope='session')
-def pudl_engine_travis_ci(ferc1_engine_travis_ci, live_pudl_db, live_ferc_db):
+def pudl_engine_travis_ci(ferc1_engine_travis_ci, datastore_travis_ci,
+                          live_pudl_db, live_ferc_db):
     """
     Grab a connection to the PUDL Database, with a limited amount of data.
 

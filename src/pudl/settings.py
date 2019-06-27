@@ -6,23 +6,31 @@ import this module as `from config import settings`
 """
 
 import os.path
+import pathlib
 import yaml
 
-# THIS IS A TEMPORARY HACK DO NOT COMMIT LIKE THIS!!!!!!!
-PUDL_DIR = '/home/zane/code/catalyst/pudl/'
 
+def get_user_settings(settings_file=None):
+    if settings_file is None:
+        settings_file = os.path.join(pathlib.Path.home(), '.pudl.yml')
 
-def settings_init(settings_file="settings_init_pudl_default.yml"):
-    with open(os.path.join(PUDL_DIR, 'scripts', settings_file), "r") as f:
-        settings_out = yaml.safe_load(f)
+    if not os.path.exists(settings_file):
+        raise FileNotFoundError(settings_file)
 
-    return settings_out
+    with open(settings_file, "r") as f:
+        user_settings = yaml.safe_load(f)
+
+    if not os.path.isdir(user_settings['input_dir']):
+        raise FileNotFoundError(user_settings['input_dir'])
+    if not os.path.isdir(user_settings['output_dir']):
+        raise FileNotFoundError(user_settings['output_dir'])
+
+    return user_settings
 
 
 SETTINGS = {}
 # ALL_CAPS indicates global variables that pertain to the entire project.
-SETTINGS['pudl_dir'] = PUDL_DIR
-SETTINGS['data_dir'] = os.path.join(SETTINGS['pudl_dir'], 'data')
+SETTINGS['data_dir'] = os.path.join(SETTINGS['pudl_indir'], 'data')
 SETTINGS['ferc1_data_dir'] = os.path.join(
     SETTINGS['data_dir'], 'ferc', 'form1')
 SETTINGS['eia923_data_dir'] = os.path.join(

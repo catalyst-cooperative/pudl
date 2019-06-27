@@ -109,6 +109,7 @@ def parse_command_line(argv):
 
 def main():
     """Main function controlling flow of the script."""
+    from pudl.datastore import datastore
 
     args = parse_command_line(sys.argv)
 
@@ -132,7 +133,7 @@ def main():
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for src in args.sources:
             for yr in yrs_by_src[src]:
-                executor.submit(pudl.datastore.update, src, yr, args.states,
+                executor.submit(datastore.update, src, yr, args.states,
                                 clobber=args.clobber,
                                 unzip=args.unzip,
                                 datadir=args.datadir,

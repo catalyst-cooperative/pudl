@@ -16,16 +16,23 @@ logger = logging.getLogger(__name__)
 ###########################################################################
 # Functions for cloning the FoxPor DB into SQLite
 ###########################################################################
-def connect_db(testing=False):
+def connect_db(sqlite_file):
     """
-    Connect to the FERC Form 1 DB using global settings from settings.py.
+    Create an SQL Alchemy engine for the FERC Form 1 SQLite database.
 
-    Returns sqlalchemy engine instance.
+    By convention we have been storing two versions of this database:
+      * for testing: PUDL_OUTDIR/sqlite/ferc1_test.sqlite
+      * for live use: PUDL_OUTDIR/sqlite/ferc1.sqlite
+
+    Args:
+        sqlite_file (str): A string representation of the absolute path to the
+            FERC Form 1 SQLite database file you want to access or create.
+
+    Returns:
+        sa.engine: An SQL Alchemy database engine.
+
     """
-    if testing:
-        return sa.create_engine(SETTINGS['ferc1_test_sqlite_url'])
-
-    return sa.create_engine(SETTINGS['ferc1_sqlite_url'])
+    return sa.create_engine(f'sqlite:///{sqlite_file}')
 
 
 def _create_tables(engine, md):

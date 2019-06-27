@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
         ("eia923", max(pc.data_years["eia923"])),
         ("epacems", min(pc.data_years["epacems"])),
         ("epacems", max(pc.data_years["epacems"])),
+        ("epaipm", None),
         ("ferc1", min(pc.data_years["ferc1"])),
         ("ferc1", max(pc.data_years["ferc1"]))
     ]
@@ -36,9 +37,9 @@ def test_datastore(tmpdir, source, year):
     """Attempt to download the most recent year of FERC Form 1 data."""
     states = ["id"]  # Idaho has the least data of any CEMS state.
     # Attempt to update our temporary/test datastore:
-    pudl.datastore.update(source, year, states, datadir=tmpdir)
+    pudl.datastore.datastore.update(source, year, states, datadir=tmpdir)
     # Generate a list of paths where we think there should be files now:
-    paths_to_check = pudl.datastore.paths_for_year(
+    paths_to_check = pudl.datastore.datastore.paths_for_year(
         source=source, year=year, states=states, datadir=tmpdir)
     # Loop over those paths and poke at the files a bit:
     for path in paths_to_check:
