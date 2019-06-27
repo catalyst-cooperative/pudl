@@ -16,11 +16,13 @@ logger = logging.getLogger(__name__)
 
 
 def fix_up_dates(df, plant_utc_offset):
-    """Fix the dates for the CEMS data
+    """Fixes the dates for the CEMS data.
+
     Args:
         df(pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
         plant_utc_offset(pandas.DataFrame): A dataframe of plants' timezones
-    Output:
+
+    Returns:
         pandas.DataFrame: The same data, with an op_datetime_utc column added
         and the op_date and op_hour columns removed
     """
@@ -56,12 +58,18 @@ def fix_up_dates(df, plant_utc_offset):
 
 
 def _load_plant_utc_offset(pudl_engine):
-    """Load the UTC offset each plant
-    :param: pudl_engine A connection to the sqlalchemy database
-    :return: A pandas DataFrame, with columns plant_id_eia and utc_offset
+    """Loads the UTC offset for each plant.
 
-    CEMS times don't change for DST, so we get get the UTC offset by using the
-    offset for the plants' timezones in January.
+        CEMS times don't change for DST, so we get get the UTC offset by using
+        the offset for the plants' timezones in January.
+
+    Args:
+        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+
+    Returns:
+        pandas.DataFrame: A DataFrame including columns plant_id_eia and
+            utc_offset
+
     """
     import pytz
 
@@ -82,16 +90,7 @@ def _load_plant_utc_offset(pudl_engine):
 
 
 def harmonize_eia_epa_orispl(df):
-    """
-    Harmonize the ORISPL code to match the EIA data -- NOT YET IMPLEMENTED
-
-    Args:
-    -----
-        df(pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
-    Returns:
-    --------
-        pandas.DataFrame: The same data, with the ORISPL plant codes corrected
-        to  match the EIA.
+    """Harmonizes the ORISPL code to match the EIA data -- NOT YET IMPLEMENTED
 
     The EIA plant IDs and CEMS ORISPL codes almost match, but not quite. See
     https://www.epa.gov/sites/production/files/2018-02/documents/egrid2016_technicalsupportdocument_0.pdf#page=104
@@ -100,24 +99,29 @@ def harmonize_eia_epa_orispl(df):
     Note that this transformation needs to be run *before* fix_up_dates, because
     fix_up_dates uses the plant ID to look up timezones.
 
+    Args:
+        df(pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
+
+    Returns:
+        pandas.DataFrame: The same data, with the ORISPL plant codes corrected
+        to  match the EIA.
     """
     # TODO: implement this.
     return df
 
 
 def add_facility_id_unit_id_epa(df):
-    """Harmonize columns that are added later
+    """Harmonizes columns that are added later.
 
     The load into Postgres checks for consistent column names, and these
-    two columns aren't present before August 2008, so add them in.
+    two columns aren't present before August 2008, so this adds them in.
 
     Args:
-    -----
         df (pd.DataFrame): A CEMS dataframe
-    Returns:
-    --------
-        The same DataFrame guaranteed to have int facility_id and unit_id_epa cols
 
+    Returns:
+        The same DataFrame guaranteed to have int facility_id and unit_id_epa
+            cols
     """
     if ("facility_id" not in df.columns) or ("unit_id_epa" not in df.columns):
         # Can't just assign np.NaN and get an integer NaN, so make a new array
@@ -131,18 +135,20 @@ def add_facility_id_unit_id_epa(df):
 
 
 def _all_na_or_values(series, values):
-    """Test whether every element in the series is either missing or in values
+    """Tests whether every element in the series is either missing or in values.
 
     This is fiddly because isin() changes behavior if the series is totally NaN
     (because of type issues)
-    Demo: x = pd.DataFrame({'a': ['x', np.NaN], 'b': [np.NaN, np.NaN]})
-    x.isin({'x', np.NaN})
+
+    Example: x = pd.DataFrame({'a': ['x', np.NaN], 'b': [np.NaN, np.NaN]})
+        x.isin({'x', np.NaN})
 
     Args:
         series (pd.Series): A data column
         values (set): A set of values
+
     Returns:
-        True or False
+        bool: True or False, whether the elements are missing or in values
     """
     series_excl_na = series[series.notna()]
     if not len(series_excl_na):
@@ -155,7 +161,14 @@ def _all_na_or_values(series, values):
 
 
 def correct_gross_load_mw(df):
-    """Fix values of gross load that are wrong by orders of magnitude"""
+    """Fixes values of gross load that are wrong by orders of magnitude.
+
+    Args:
+        df (pd.DataFrame): A CEMS dataframe
+
+    Returns:
+        df: The same DataFrame with corrected gross load values.
+    """
     # Largest fossil plant is something like 3500 MW, and the largest unit
     # in the EIA 860 is less than 1500. Therefore, assume they've done it
     # wrong (by writing KWh) if they report more.
@@ -169,7 +182,17 @@ def correct_gross_load_mw(df):
 
 
 def transform(pudl_engine, epacems_raw_dfs):
-    """Transform EPA CEMS hourly"""
+    """Transforms EPA CEMS hourly.
+
+    Args:
+        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        epacems_raw_dfs ():
+
+    Yields:
+        dict:
+
+    Todo: Zane revisit
+        """
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
     # a transformation pipeline, and yield it back as another generator.
     plant_utc_offset = _load_plant_utc_offset(pudl_engine)

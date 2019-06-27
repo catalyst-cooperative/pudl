@@ -12,8 +12,7 @@ logger = logging.getLogger(__name__)
 
 def _occurrence_consistency(entity_id, compiled_df, col,
                             cols_to_consit, strictness=.7):
-    """
-    Find the occurence of plants & the consistency of records
+    """Finds the occurence of plants & the consistency of records
 
     We need to determine how consistent a reported value is in the records
     across all of the years or tables that the value is being reported, so we
@@ -21,12 +20,16 @@ def _occurrence_consistency(entity_id, compiled_df, col,
 
     Args:
         entity_id (int): the earliest EIA 860 data to retrieve or synthesize
-        compiled_df (dataframe): the latest EIA 860 data to retrieve or synthesize
+        compiled_df (pandas.DataFrame): the latest EIA 860 data to retrieve or
+            synthesize
         col (string): Connect to the live PUDL DB or the testing DB?
-        cols_to_consit
+        cols_to_consit ():
+        strictness (float):
 
     Returns:
-        A pandas dataframe.
+        pandas.DataFrame:
+
+    Todo: Zane revisit.
     """
     # select only the colums you want and drop the NaNs
     col_df = compiled_df[entity_id + ['report_date',
@@ -68,7 +71,21 @@ def _occurrence_consistency(entity_id, compiled_df, col,
 
 def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
               col, cols_to_consit, round_to=2):
-    """Special case haveresting for lat/long """
+    """Harvests lat/long in special cases.
+
+    Args:
+        dirty_df (pandas.DataFrame):
+        clean_df (pandas.DataFrame):
+        entity_id_df (pandas.DataFrame):
+        entity_id (int):
+        col (str):
+        cols_to_consit (list):
+        round_to (integer):
+    Returns:
+        pandas.DataFrame:
+
+    To do: Return to
+    """
     # grab the dirty plant records, round and get a new consistency
     ll_df = dirty_df.round(decimals=round_to)
     ll_df['table'] = 'special_case'
@@ -86,11 +103,15 @@ def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
 
 
 def _add_timezone(plants_entity):
-    """Add plants' IANA timezones from lat/lon
-    param: plants_entity Plant entity table, including columns named "latitude",
-        "longitude", and optionally "state"
-    Returns the same table, with a "timezone" column added. Timezone may be
-    missing if lat/lon is missing or invalid.
+    """Adds plants' IANA timezones from lat/lon.]
+
+        Args:
+            plants_entity (pandas.DataFrame): Plant entity table, including columns
+                named "latitude", "longitude", and optionally "state"
+        Returns:
+            pandas.DataFrame: A DataFrom containing the same table, with a
+                "timezone" column added. Timezone may be missing if lat/lon is
+                missing or invalid.
     """
     plants_entity["timezone"] = plants_entity.apply(
         lambda row: pudl.helpers.find_timezone(
@@ -103,22 +124,27 @@ def _add_timezone(plants_entity):
 
 
 def _add_additional_epacems_plants(plants_entity):
-    """Add the info for plants that have IDs in the CEMS data but not EIA data
+    """Adds the info for plants that have IDs in the CEMS data but not EIA data.
 
-    param: plants_entity Plant entity table that will be appended to
-    returns: The same plants_entity table, with the addition of some missing EPA
-    CEMS plants
-    Note that a side effect will be resetting the index on plants_entity, if one
-    exists. If that's a problem, modify the code below.
+        The columns loaded are plant_id_eia, plant_name, state, latitude, and
+        longitude. Note that a side effect will be resetting the index on
+        plants_entity, if onecexists. If that's a problem, modify the code
+        below.
 
-    The columns loaded are plant_id_eia, plant_name, state, latitude, and longitude
+        Note that some of these plants disappear from the CEMS before the
+        earliest EIA data PUDL processes, so if PUDL eventually ingests older
+        data, these may be redundant.
 
-    Note that some of these plants disappear from the CEMS before the earliest
-    EIA data PUDL processes, so if PUDL eventually ingests older data, these
-    may be redundant.
-    The set of additional plants is every plant that appears in the hourly CEMS
-    data (1995-2017) that never appears in the EIA 923 or 860 data (2009-2017
-    for EIA 923, 2011-2017 for EIA 860).
+        The set of additional plants is every plant that appears in the hourly CEMS
+        data (1995-2017) that never appears in the EIA 923 or 860 data (2009-2017
+        for EIA 923, 2011-2017 for EIA 860).
+
+    Args:
+        plants_entity (pandas.DataFrame) The plant entity table that will be
+            appended to
+    Returns:
+        pandas.DataFrame: The same plants_entity table, with the addition of some
+        missing EPA CEMS plants.
     """
     # Add the plant IDs that are missing and update the values for the others
     # The data we're reading is a CSV in pudl/metadata/
@@ -143,24 +169,36 @@ def _harvesting(entity,
                 eia_transformed_dfs,
                 entities_dfs,
                 debug=False):
-    """
-    Compiling entities.
+    """Compiles consistent records for various entities.
 
     For each entity (plants, generators, boilers, utilties), this function
-    goes and finds all the harvestable columns from any table that they show up
+    finds all the harvestable columns from any table that they show up
     in. It then determines how consistent the records are and keeps the values
-    that are mostly consistent. Then we compile those consistent records intro
+    that are mostly consistent. It compiles those consistent records into
     one normalized table.
 
     Args:
-        entity (str) : plants, generators, boilers, utilties
-        eia_transformed_dfs (dict) : dictionary of tbl names (keys) and
+        entity (str): plants, generators, boilers, utilties
+        eia_transformed_dfs (dict): A dictionary of tbl names (keys) and
             transformed dfs (values)
-        debug (bool)
+        entities_dfs (dict): A dictionary of entity table names (keys) and
+            entity dfs (values)
+        debug (bool):
+
     Returns:
-        eia_transformed_dfs (dict)
-        entity_dfs (dict): dictionary of entity table names (keys) and entiy
-            dfs (values)
+        tuple: A tuple containing
+            tuple: A tuple containing:
+                eia_transformed_dfs (dict): dictionary of tbl names (keys) and
+                    transformed dfs (values)
+                entity_dfs (dict): dictionary of entity table names (keys) and
+                    entity dfs (values)
+    Raises:
+        AssertionError: If the consistency of latitude and longitude of the
+            records is less than 92%
+        AssertionError: If the consistency of other values of the records is
+            less than 95%
+
+    Todo: Return to for role of debug
     """
     # we know these columns must be in the dfs
     entity_id = pc.entities[entity][0]
@@ -174,10 +212,10 @@ def _harvesting(entity,
     # for each df in the dtc of transformed dfs
     for table_name, transformed_df in eia_transformed_dfs.items():
         # inside of main() we are going to be adding items into
-        # eia_transformed_dfs with the name 'annaul'. We don't want to harvert
+        # eia_transformed_dfs with the name 'annual'. We don't want to harvest
         # from our newly harvested tables.
         if 'annual' not in table_name:
-            # if the if contains the desired columns the grab those columns
+            # if the df contains the desired columns the grab those columns
             if set(base_cols).issubset(transformed_df.columns):
                 logger.debug(f"        {table_name}...")
                 # create a copy of the df to muck with
@@ -297,9 +335,9 @@ def _harvesting(entity,
                 f"       Ratio: {ratio:.3}  Wrongos: {wrongos:.5}  Total: {total}   {col}")
             # the following assertions are here to ensure that the harvesting
             # process is producing enough consistent records. When every year
-            # is being imported the lowest consistency ratio should be .97,
+            # is being imported the lowest consistency ratio should be .95,
             # with the exception of the latitude and longitude, which has a
-            # ratio of ~.94. The ratios are better with less years imported.
+            # ratio of ~.92. The ratios are better with less years imported.
             if col in ('latitude', 'longitude'):
                 if ratio < .92:
                     raise AssertionError(
@@ -325,15 +363,14 @@ def _harvesting(entity,
     entities_dfs[f'{entity}_entity_eia'] = entity_df
     if debug:
         return entities_dfs, eia_transformed_dfs, col_dfs
-    return entities_dfs, eia_transformed_dfs
+    return (entities_dfs, eia_transformed_dfs)
 
 
 def _boiler_generator_assn(eia_transformed_dfs,
                            eia923_years=pc.working_years['eia923'],
                            eia860_years=pc.working_years['eia860'],
                            debug=False):
-    """
-    Create more complete boiler generator associations.
+    """Creates a set of more complete boiler generator associations.
 
     Creates a unique unit_id_pudl for each collection of boilers and generators
     within a plant that have ever been associated with each other, based on
@@ -353,7 +390,6 @@ def _boiler_generator_assn(eia_transformed_dfs,
     the generation units, at least for 2014 and later.
 
     Args:
-    -----
         eia_transformed_dfs (dict): a dictionary of post-transform dataframes
             representing the EIA database tables.
         eia923_years (list-like): a list of the years of EIA 923 data that
@@ -367,12 +403,19 @@ def _boiler_generator_assn(eia_transformed_dfs,
             associations were inferred.
 
     Returns:
-    --------
         eia_transformed_dfs (dict): Returns the same dictionary of dataframes
             that was passed in, and adds a new dataframe to it representing
             the boiler-generator associations as records containing
             plant_id_eia, generator_id, boiler_id, and unit_id_pudl
 
+    Raises:
+        AssertionError: If the boiler-generator association graphs are not
+            bi-partite,meaning generators only connect to boilers, and boilers
+            only connect to generators.
+        AssertionError: If all the boilers do not end up with the same unit_id
+            each year.
+        AssertionError: If all the generators do not end up with the same
+            unit_id each year.
     """
     # if you're not ingesting both 860 and 923, the bga is not compilable
     if not (eia860_years and eia923_years):
@@ -670,7 +713,7 @@ def _boiler_generator_assn(eia_transformed_dfs,
 def _restrict_years(df,
                     eia923_years=pc.working_years['eia923'],
                     eia860_years=pc.working_years['eia860']):
-    """Restrict eia years for boiler generator association."""
+    """Restricts eia years for boiler generator association."""
     bga_years = set(eia860_years) & set(eia923_years)
     df = df[df.report_date.dt.year.isin(bga_years)]
     return df
@@ -680,7 +723,7 @@ def transform(eia_transformed_dfs,
               eia923_years=pc.working_years['eia923'],
               eia860_years=pc.working_years['eia860'],
               debug=False):
-    """Create dfs for EIA Entity tables."""
+    """Creates dfs for EIA Entity tables."""
     if not eia923_years and not eia860_years:
         logger.info('Not ingesting EIA')
         return None

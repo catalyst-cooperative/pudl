@@ -105,12 +105,12 @@ def get_eia860_column_map(page, year):
     Args:
         page (str): The string label indicating which page of the EIA860 we
             are attempting to read in. Must be one of the following:
-                - 'generation_fuel'
-                - 'stocks'
-                - 'boiler_fuel'
-                - 'generator'
-                - 'fuel_receipts_costs'
-                - 'plant_frame'
+            - 'generation_fuel'
+            - 'stocks'
+            - 'boiler_fuel'
+            - 'generator'
+            - 'fuel_receipts_costs'
+            - 'plant_frame'
         year (int): The year that we're trying to read data for.
 
     Returns:
