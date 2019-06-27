@@ -18,7 +18,7 @@ import logging
 import os.path
 import datetime
 import time
-import pkg_resources
+import importlib.resources
 import pandas as pd
 import sqlalchemy as sa
 
@@ -329,7 +329,7 @@ def _ingest_glue_eia_ferc1(engine,
     # when only ferc is ingested into the database.
     if not ferc1_years:
         return
-    map_eia_ferc_file = pkg_resources.resource_stream(
+    map_eia_ferc_file = importlib.resources.open_binary(
         pudl.__name__, 'data/glue/mapping_eia923_ferc1.xlsx')
 
     plant_map = pd.read_excel(map_eia_ferc_file, 'plants_output',
