@@ -1,10 +1,11 @@
 """Database models for PUDL tables derived from EIA Form 923 Data."""
 
-from sqlalchemy import Integer, String, Float, Date, Enum
-from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint
+from sqlalchemy import (Column, Date, Enum, Float, ForeignKey,
+                        ForeignKeyConstraint, Integer, String)
+
+import pudl.constants
 import pudl.models.entities
 import pudl.models.glue
-import pudl.constants
 
 firm_interrupt = Enum('firm', 'interruptible', name='firm_interrupt')
 
@@ -104,7 +105,8 @@ class GenerationFuelEIA923(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'generation_fuel_eia923'
 
-    id = Column(Integer, autoincrement=True, primary_key=True, comment="PUDL issued surrogate key.")  # surrogate key
+    id = Column(Integer, autoincrement=True, primary_key=True,
+                comment="PUDL issued surrogate key.")  # surrogate key
     plant_id_eia = Column(Integer,
                           ForeignKey('plants_entity_eia.plant_id_eia'),
                           nullable=False, comment="EIA Plant Identification number. One to five digit numeric.")
@@ -112,21 +114,28 @@ class GenerationFuelEIA923(pudl.models.entities.PUDLBase):
     # TODO: Should nuclear_unit_id really be here? It's kind of part of the
     # plant_id... but also unit_id.  Seems weird but necessary to uniquely
     # identify the records as reported.
-    nuclear_unit_id = Column(Integer, comment="For nuclear plants only, the unit number .One digit numeric. Nuclear plants are the only type of plants for which data are shown explicitly at the generating unit level.")
+    nuclear_unit_id = Column(
+        Integer, comment="For nuclear plants only, the unit number .One digit numeric. Nuclear plants are the only type of plants for which data are shown explicitly at the generating unit level.")
     fuel_type = Column(String,
                        ForeignKey('fuel_type_eia923.abbr'),
                        nullable=False, comment="The fuel code reported to EIA. Two or three letter alphanumeric.")
-    fuel_type_code_pudl = Column(String, comment="Standardized fuel codes in PUDL.")
+    fuel_type_code_pudl = Column(
+        String, comment="Standardized fuel codes in PUDL.")
     fuel_type_code_aer = Column(
         String, ForeignKey('fuel_type_aer_eia923.abbr'), comment="A partial aggregation of the reported fuel type codes into larger categories used by EIA in, for example, the Annual Energy Review (AER).Two or three letter alphanumeric.")
     prime_mover_code = Column(String,
                               ForeignKey('prime_movers_eia923.abbr'),
                               nullable=False, comment="Type of prime mover.")
-    fuel_consumed_units = Column(Float, comment="Consumption of the fuel type in physical units. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.")
-    fuel_consumed_for_electricity_units = Column(Float, comment="Consumption for electric generation of the fuel type in physical units.")
-    fuel_mmbtu_per_unit = Column(Float, comment="Heat content of the fuel in millions of Btus per physical unit.")
-    fuel_consumed_mmbtu = Column(Float, comment="Total consumption of fuel in physical units, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.")
-    fuel_consumed_for_electricity_mmbtu = Column(Float, comment="Total consumption of fuel to produce electricity, in physical units, year to date.")
+    fuel_consumed_units = Column(
+        Float, comment="Consumption of the fuel type in physical units. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.")
+    fuel_consumed_for_electricity_units = Column(
+        Float, comment="Consumption for electric generation of the fuel type in physical units.")
+    fuel_mmbtu_per_unit = Column(
+        Float, comment="Heat content of the fuel in millions of Btus per physical unit.")
+    fuel_consumed_mmbtu = Column(
+        Float, comment="Total consumption of fuel in physical units, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.")
+    fuel_consumed_for_electricity_mmbtu = Column(
+        Float, comment="Total consumption of fuel to produce electricity, in physical units, year to date.")
     net_generation_mwh = Column(Float, comment="Net generation, year to date in megawatthours (MWh). This is total electrical output net of station service.  In the case of combined heat and power plants, this value is intended to include internal consumption of electricity for the purposes of a production process, as well as power put on the grid.")
 
 
@@ -147,10 +156,11 @@ class BoilerFuelEIA923(pudl.models.entities.PUDLBase):
     plant_id_eia = Column(Integer, nullable=False,
                           comment="EIA Plant Identification number. \
                           One to five digit numeric.")
-    boiler_id = Column(String, nullable=False, comment=
-                       "Boiler identification code. Alphanumeric.")
-    # prime_mover_code = Column(String, ForeignKey('prime_movers_eia923.abbr'),
-    #                          nullable=False, comment="Type of prime mover.")
+    boiler_id = Column(
+        String,
+        nullable=False,
+        comment="Boiler identification code. Alphanumeric."
+    )
     fuel_type_code = Column(String, ForeignKey('fuel_type_eia923.abbr'),
                             nullable=False, comment="The fuel code reported \
                             to EIA. Two or three letter alphanumeric.")
@@ -181,16 +191,20 @@ class GenerationEIA923(pudl.models.entities.PUDLBase):
 
     # Each month, for each unique combination of generator id and prime mover
     # and fuel,there is one report for each generator unit in each plant.
-    id = Column(Integer, autoincrement=True, primary_key=True, comment="PUDL issued surrogate key.")  # surrogate key
-    plant_id_eia = Column(Integer, nullable=False, comment="EIA Plant Identification number. One to five digit numeric.")
+    id = Column(Integer, autoincrement=True, primary_key=True,
+                comment="PUDL issued surrogate key.")  # surrogate key
+    plant_id_eia = Column(Integer, nullable=False,
+                          comment="EIA Plant Identification number. One to five digit numeric.")
     # TODO remove prime_mover since it's specific to generator_id?
     # prime_mover_code = Column(String, ForeignKey('prime_movers_eia923.abbr'),
     #                          nullable=False, comment="Type of prime mover.")
     # TODO: Add FK constraint refering to (plant_id, generator_id) in the
     # generators_eia923 table.  Or at least give it a shot.
-    generator_id = Column(String, nullable=False, comment="Generator identification code. Alphanumeric")
+    generator_id = Column(String, nullable=False,
+                          comment="Generator identification code. Alphanumeric")
     report_date = Column(Date, nullable=False, comment="Date reported.")
-    net_generation_mwh = Column(Float, comment="Net generation for specified period in megawatthours (MWh).")
+    net_generation_mwh = Column(
+        Float, comment="Net generation for specified period in megawatthours (MWh).")
 
 
 class FuelReceiptsCostsEIA923(pudl.models.entities.PUDLBase):
@@ -242,10 +256,14 @@ class FuelReceiptsCostsEIA923(pudl.models.entities.PUDLBase):
                                          comment="Heat content of the fuel in \
                                          millions of Btus per physical unit to \
                                          the nearest 0.01 percent.")
-    sulfur_content_pct = Column(Float, nullable=False, comment="Sulfur content percentage by weight to the nearest 0.01 percent.")
-    ash_content_pct = Column(Float, nullable=False, comment="Ash content percentage by weight to the nearest 0.1 percent.")
-    mercury_content_ppm = Column(Float, comment="Mercury content in parts per million (ppm) to the nearest 0.001 ppm.")
-    fuel_cost_per_mmbtu = Column(Float, comment="All costs incurred in the purchase and delivery of the fuel to the plant in cents per million Btu(MMBtu) to the nearest 0.1 cent.")
+    sulfur_content_pct = Column(
+        Float, nullable=False, comment="Sulfur content percentage by weight to the nearest 0.01 percent.")
+    ash_content_pct = Column(
+        Float, nullable=False, comment="Ash content percentage by weight to the nearest 0.1 percent.")
+    mercury_content_ppm = Column(
+        Float, comment="Mercury content in parts per million (ppm) to the nearest 0.001 ppm.")
+    fuel_cost_per_mmbtu = Column(
+        Float, comment="All costs incurred in the purchase and delivery of the fuel to the plant in cents per million Btu(MMBtu) to the nearest 0.1 cent.")
     primary_transportation_mode_code = Column(
         String,
         ForeignKey('transport_modes_eia923.abbr'),
@@ -254,7 +272,9 @@ class FuelReceiptsCostsEIA923(pudl.models.entities.PUDLBase):
         String,
         ForeignKey('transport_modes_eia923.abbr'),
         comment="Transportation mode for the second longest distance transported.")
-    natural_gas_transport_code = Column(firm_interrupt, comment="Contract type for natural gas transportation service.")  # Enum
-    natural_gas_delivery_contract_type_code = Column(firm_interrupt, comment="Contract type for natrual gas delivery service:")  # Enum
+    natural_gas_transport_code = Column(
+        firm_interrupt, comment="Contract type for natural gas transportation service.")  # Enum
+    natural_gas_delivery_contract_type_code = Column(
+        firm_interrupt, comment="Contract type for natrual gas delivery service:")  # Enum
     moisture_content_pct = Column(Float)
     chlorine_content_ppm = Column(Float)
