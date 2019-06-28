@@ -1,11 +1,13 @@
 """PyTest configuration module. Defines useful fixtures, command line args."""
 
 import logging
-import pytest
+
 import pandas as pd
+import pytest
+
 import pudl
-from pudl.output.pudltabl import PudlTabl
 from pudl import constants as pc
+from pudl.output.pudltabl import PudlTabl
 
 logger = logging.getLogger(__name__)
 
@@ -108,17 +110,17 @@ def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
     If we're using the live database, then we just make a conneciton to it.
     """
     if not live_pudl_db:
-        pudl.init.init_db(ferc1_tables=pc.ferc1_pudl_tables,
+        pudl.init.init_db(ferc1_tables=pc.pudl_tables['ferc1'],
                           ferc1_years=pc.working_years['ferc1'],
-                          eia923_tables=pc.eia923_pudl_tables,
+                          eia923_tables=pc.pudl_tables['eia923'],
                           eia923_years=pc.working_years['eia923'],
-                          eia860_tables=pc.eia860_pudl_tables,
+                          eia860_tables=pc.pudl_tables['eia860'],
                           eia860_years=pc.working_years['eia860'],
                           # Full EPA CEMS ingest takes 8 hours, so using an
                           # abbreviated list here
                           epacems_years=pc.travis_ci_epacems_years,
                           epacems_states=pc.travis_ci_epacems_states,
-                          epaipm_tables=pc.epaipm_pudl_tables,
+                          epaipm_tables=pc.pudl_tables['epaipm'],
                           pudl_testing=True,
                           ferc1_testing=(not live_ferc_db))
 
