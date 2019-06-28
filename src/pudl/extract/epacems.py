@@ -13,13 +13,15 @@ logger = logging.getLogger(__name__)
 
 
 def get_epacems_dir(year):
-    """
-    Data directory search for EPA CEMS hourly
+    """Searches data directory for EPA CEMS hourly.
 
     Args:
         year (int): The year that we're trying to read data for.
+
     Returns:
-        path to appropriate EPA CEMS data directory.
+        str: path to appropriate EPA CEMS data directory.
+
+    Todo: assert statement
     """
     # These are the only years we've got...
     assert year in range(min(pc.data_years['epacems']),
@@ -29,15 +31,16 @@ def get_epacems_dir(year):
 
 
 def get_epacems_file(year, month, state):
-    """
-    Given a year, month, and state, return the appropriate EPA CEMS zipfile.
+    """Given a year, month, and state, returns the appropriate EPA CEMS zipfile.
 
     Args:
         year (int): The year that we're trying to read data for.
         month (int): The month we're trying to read data for.
         state (str): The state we're trying to read data for.
     Returns:
-        path to EPA CEMS zipfiles for that year, month, and state.
+        str: path to EPA CEMS zipfiles for that year, month, and state.
+
+    Todo: assert statement
     """
     state = state.lower()
     month = str(month).zfill(2)
@@ -50,8 +53,16 @@ def get_epacems_file(year, month, state):
 
 
 def read_cems_csv(filename):
-    """Read one CEMS CSV file
+    """Reads one CEMS CSV file.
+
     Note that some columns are not read. See epacems_columns_to_ignores.
+
+    Args:
+        filename (str):
+
+    Returns:
+        pandas.DataFrame: df, a DataFrame containing the contents of the CSV
+            file.
     """
     df = pd.read_csv(
         filename,
@@ -63,11 +74,20 @@ def read_cems_csv(filename):
 
 
 def extract(epacems_years, states):
-    """
-    Extract the EPA CEMS hourly data.
+    """Extracts the EPA CEMS hourly data.
 
     This function is the main function of this file. It returns a generator
     for extracted DataFrames.
+
+    Args:
+        epacems_years (list): list of years from which we are trying to read
+            CEMs data
+        states (list): list of states from which we are trying to read
+            CEMs data
+
+    Yields:
+        dict: a dictionary containing US States (keys) and DataFrames of CEMS
+            data (values)
     """
     # TODO: this is really slow. Can we do some parallel processing?
     for year in epacems_years:

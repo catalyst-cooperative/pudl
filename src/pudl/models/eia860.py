@@ -6,8 +6,7 @@ import pudl.models.entities
 
 
 class UtilityEIA860(pudl.models.entities.PUDLBase):
-    """
-    EIA Plants per year, listed in 923 or 860.
+    """EIA Plants per year, listed in 923 or 860.
 
     A compliation of yearly plant info.
     """
@@ -20,12 +19,14 @@ class UtilityEIA860(pudl.models.entities.PUDLBase):
                             ForeignKey('utilities_entity_eia.utility_id_eia'),
                             nullable=False, comment="EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.")
     report_date = Column(Date, nullable=False, comment="Date reported.")
-    street_address = Column(String)
-    city = Column(String)
+    street_address = Column(
+        String, comment="Street address of the operator/owner")
+    city = Column(
+        String, comment="Name of the city in which operator/owner is located")
     state = Column(String,  # ENUM
                    # pudl.models.glue.us_states_canada_prov_terr,  # ENUM
-                   comment="Two letter US state and territory abbreviations.")
-    zip_code = Column(String)
+                   comment="State of the operator/owner")
+    zip_code = Column(String, comment="Zip code of the operator/owner")
     plants_reported_owner = Column(
         String, comment="Is the reporting entity an owner of power plants reported on Schedule 2 of the form?")
     plants_reported_operator = Column(
@@ -37,8 +38,7 @@ class UtilityEIA860(pudl.models.entities.PUDLBase):
 
 
 class PlantEIA860(pudl.models.entities.PUDLBase):
-    """
-    EIA Plants per year, listed in 923 or 860.
+    """EIA Plants per year, listed in 923 or 860.
 
     A compliation of yearly plant info.
     """
@@ -96,8 +96,7 @@ class PlantEIA860(pudl.models.entities.PUDLBase):
 
 
 class GeneratorEIA860(pudl.models.entities.PUDLBase):
-    """
-    EIA generators per year, listed in 923 or 860.
+    """EIA generators per year, listed in 923 or 860.
 
     A compilation of EIA generators ids and yearly info.
     """
@@ -217,8 +216,7 @@ class GeneratorEIA860(pudl.models.entities.PUDLBase):
 
 
 class BoilerGeneratorAssociationEIA860(pudl.models.entities.PUDLBase):
-    """
-    EIA boiler generator associations.
+    """EIA boiler generator associations.
 
     Compiled from 860 and 923.
     """

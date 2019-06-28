@@ -23,8 +23,7 @@ construction_type_comment = "Type of plant construction ('outdoor' or 'conventio
 
 
 class FuelFERC1(pudl.models.entities.PUDLBase):
-    """
-    Annual fuel consumed by plant, as reported to FERC in Form 1.
+    """Annual fuel consumed by plant, as reported to FERC in Form 1.
 
     This information comes from the f1_fuel table in the FERC DB, which is
     populated from page 402 of the paper FERC Form 1.
@@ -263,8 +262,7 @@ class PlantSteamFERC1(pudl.models.entities.PUDLBase):
 
 
 class PlantInServiceFERC1(pudl.models.entities.PUDLBase):
-    """
-    Balances and changes to FERC Electric Plant In Service accounts.
+    """Balances and changes to FERC Electric Plant In Service accounts.
 
     This data comes from f1_plant_in_srvce in the ferc1 DB. It corresponds to
     the balances of the FERC Uniform System of Accounts for Electric Plant
@@ -323,8 +321,7 @@ class PlantInServiceFERC1(pudl.models.entities.PUDLBase):
 
 
 class AccumulatedDepreciationFERC1(pudl.models.entities.PUDLBase):
-    """
-    Balances and changes to FERC Accumulated Provision for Depreciation.
+    """Balances and changes to FERC Accumulated Provision for Depreciation.
 
     This data comes from the f1_accumdepr_prvsn table in the ferc1 DB.
     """
@@ -336,7 +333,7 @@ class AccumulatedDepreciationFERC1(pudl.models.entities.PUDLBase):
         Integer,
         ForeignKey('utilities_ferc.utility_id_ferc1'),
         primary_key=True,
-        comment="FERC assinged respondent_id, identifying the reporting entity. Stable from year to year."
+        comment="FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year."
     )
     report_year = Column(
         Integer,

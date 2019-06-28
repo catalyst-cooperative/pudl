@@ -19,8 +19,9 @@ class CoalMineEIA923(pudl.models.entities.PUDLBase):
     """Information pertaining to individual coal mines listed in EIA 923."""
 
     __tablename__ = 'coalmine_eia923'
-    id = Column(Integer, primary_key=True)  # surrogate key
-    mine_name = Column(String)
+    id = Column(Integer, primary_key=True,
+                comment="PUDL issued surrogate key.")  # surrogate key
+    mine_name = Column(String, comment="Coal mine name.")
     mine_type_code = Column(
         Enum(*pudl.constants.coalmine_type_eia923.keys(),
              name='coalmine_type_eia923'),
@@ -32,13 +33,13 @@ class CoalMineEIA923(pudl.models.entities.PUDLBase):
              name="coalmine_location_eia923"),
         comment="Two letter US state abbreviations and three letter ISO-3166-1 country codes for international mines."
     )
-    county_id_fips = Column(Integer)
-    mine_id_msha = Column(Integer)
+    county_id_fips = Column(
+        Integer, comment="County ID from the Federal Information Processing Standard Publication 6-4.")
+    mine_id_msha = Column(Integer, comment="MSHA issued mine identifier.")
 
 
 class FuelTypeEIA923(pudl.models.entities.PUDLBase):
-    """
-    Static list of fuel types used by EIA in Form 923.
+    """Static list of fuel types used by EIA in Form 923.
 
     Enumerated on Page 7 of EIA Form 923.
     """
@@ -97,8 +98,7 @@ class TransportModeEIA923(pudl.models.entities.PUDLBase):
 # Tables which represent EIA Form 923 data. E.g. Fuel Receipts.
 ###########################################################################
 class GenerationFuelEIA923(pudl.models.entities.PUDLBase):
-    """
-    Monthly fuel consumption and electricity generation by plant.
+    """Monthly fuel consumption and electricity generation by plant.
 
     Reported on Page 1 of EIA Form 923.
     """
