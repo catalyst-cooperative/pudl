@@ -1,9 +1,11 @@
 """Routines specific to cleaning up EIA Form 923 data."""
 
 import logging
-import numpy as np
+
 import networkx as nx
+import numpy as np
 import pandas as pd
+
 import pudl
 import pudl.constants as pc
 
@@ -21,7 +23,8 @@ def _occurrence_consistency(entity_id, compiled_df, col,
 
     Args:
         entity_id (int): the earliest EIA 860 data to retrieve or synthesize
-        compiled_df (dataframe): the latest EIA 860 data to retrieve or synthesize
+        compiled_df (dataframe): the latest EIA 860 data to retrieve or
+            synthesize
         col (string): Connect to the live PUDL DB or the testing DB?
         cols_to_consit
 
@@ -53,7 +56,6 @@ def _occurrence_consistency(entity_id, compiled_df, col,
         agg({'table': 'count'}).
         reset_index().
         rename(columns={'table': 'consistency'})
-        #rename(columns={'table': f'{col}_consistent'})
     )
 
     col_df = col_df.merge(consist_df, how='outer').drop(columns=['table'])
@@ -61,8 +63,6 @@ def _occurrence_consistency(entity_id, compiled_df, col,
     col_df[f'{col}_consistent'] = (col_df['consistency'] /
                                    col_df['occurences'] > strictness)
 
-    # col_df.loc[:, f'{col}_consistent'] = (col_df[f'{col}_consistent'] /
-    #                                      col_df['occurences'] > strictness)
     return col_df
 
 
@@ -87,8 +87,8 @@ def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
 
 def _add_timezone(plants_entity):
     """Add plants' IANA timezones from lat/lon
-    param: plants_entity Plant entity table, including columns named "latitude",
-        "longitude", and optionally "state"
+    param: plants_entity Plant entity table, including columns named
+        "latitude", "longitude", and optionally "state"
     Returns the same table, with a "timezone" column added. Timezone may be
     missing if lat/lon is missing or invalid.
     """
@@ -106,16 +106,19 @@ def _add_additional_epacems_plants(plants_entity):
     """Add the info for plants that have IDs in the CEMS data but not EIA data
 
     param: plants_entity Plant entity table that will be appended to
-    returns: The same plants_entity table, with the addition of some missing EPA
-    CEMS plants
-    Note that a side effect will be resetting the index on plants_entity, if one
-    exists. If that's a problem, modify the code below.
+    returns: The same plants_entity table, with the addition of some missing
+        EPA CEMS plants
 
-    The columns loaded are plant_id_eia, plant_name, state, latitude, and longitude
+    Note that a side effect will be resetting the index on plants_entity, if
+    one exists. If that's a problem, modify the code below.
+
+    The columns loaded are plant_id_eia, plant_name, state, latitude, and
+    longitude
 
     Note that some of these plants disappear from the CEMS before the earliest
     EIA data PUDL processes, so if PUDL eventually ingests older data, these
     may be redundant.
+
     The set of additional plants is every plant that appears in the hourly CEMS
     data (1995-2017) that never appears in the EIA 923 or 860 data (2009-2017
     for EIA 923, 2011-2017 for EIA 860).
@@ -294,7 +297,10 @@ def _harvesting(entity,
             )
             wrongos = (1 - ratio) * total
             logger.debug(
-                f"       Ratio: {ratio:.3}  Wrongos: {wrongos:.5}  Total: {total}   {col}")
+                f"       Ratio: {ratio:.3}  "
+                f"Wrongos: {wrongos:.5}  "
+                f"Total: {total}   {col}"
+            )
             # the following assertions are here to ensure that the harvesting
             # process is producing enough consistent records. When every year
             # is being imported the lowest consistency ratio should be .97,
@@ -434,8 +440,8 @@ def _boiler_generator_assn(eia_transformed_dfs,
     bf_eia923 = eia_transformed_dfs['boiler_fuel_eia923'].copy()
     bf_eia923 = _restrict_years(bf_eia923, eia923_years, eia860_years)
     bf_eia923['boiler_id'] = bf_eia923.boiler_id.astype(str)
-    bf_eia923['total_heat_content_mmbtu'] = bf_eia923['fuel_consumed_units'] * \
-        bf_eia923['fuel_mmbtu_per_unit']
+    bf_eia923['total_heat_content_mmbtu'] = \
+        bf_eia923['fuel_consumed_units'] * bf_eia923['fuel_mmbtu_per_unit']
     bf_eia923 = bf_eia923.set_index(pd.DatetimeIndex(bf_eia923.report_date))
     bf_eia923_gb = bf_eia923.groupby(
         [pd.Grouper(freq='AS'), 'plant_id_eia', 'boiler_id'])

@@ -11,7 +11,6 @@ http://frictionlessdata.io/guides/data-package/
 """
 
 import importlib.resources
-import os.path
 import sqlalchemy as sa
 import pandas as pd
 import pudl

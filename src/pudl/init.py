@@ -14,24 +14,23 @@ This module defines database tables and initializes them with data from:
    - Continuous Emissions Monitory System (epacems)
 """
 
+import importlib.resources
 import logging
 import os.path
-import datetime
 import time
-import importlib.resources
+
 import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-import pudl.models.entities
-import pudl.models.glue
-import pudl.models.eia923
+import pudl.constants as pc
 import pudl.models.eia860
-import pudl.models.ferc1
+import pudl.models.eia923
+import pudl.models.entities
 import pudl.models.epacems
 import pudl.models.epaipm
-
-import pudl.constants as pc
+import pudl.models.ferc1
+import pudl.models.glue
 from pudl.settings import SETTINGS
 
 logger = logging.getLogger(__name__)
