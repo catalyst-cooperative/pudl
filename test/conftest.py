@@ -118,6 +118,7 @@ def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
                           # abbreviated list here
                           epacems_years=pc.travis_ci_epacems_years,
                           epacems_states=pc.travis_ci_epacems_states,
+                          epaipm_tables=pc.epaipm_pudl_tables,
                           pudl_testing=True,
                           ferc1_testing=(not live_ferc_db))
 
@@ -177,6 +178,7 @@ def pudl_engine_travis_ci(ferc1_engine_travis_ci, live_pudl_db, live_ferc_db):
                           eia860_years=pc.travis_ci_eia860_years,
                           epacems_years=pc.travis_ci_epacems_years,
                           epacems_states=pc.travis_ci_epacems_states,
+                          epaipm_tables=pc.epaipm_pudl_tables,
                           pudl_testing=True,
                           ferc1_testing=(not live_ferc_db))
 
