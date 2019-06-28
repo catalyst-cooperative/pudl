@@ -4,15 +4,13 @@ A warehouse for constant values required to initilize the PUDL Database.
 This constants module stores and organizes a bunch of constant values which are
 used throughout PUDL to populate static lists within the DB or for data
 cleaning purposes.
-
-We may want to migrate these values into a Data Package as specified by:
-
-http://frictionlessdata.io/guides/data-package/
 """
 
 import importlib.resources
-import sqlalchemy as sa
+
 import pandas as pd
+import sqlalchemy as sa
+
 import pudl
 
 ######################################################################

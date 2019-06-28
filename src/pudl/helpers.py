@@ -1,14 +1,16 @@
 """General utility functions that are used in a variety of contexts."""
 
+import json
 import logging
+import os.path
 import re
 from functools import partial
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 import sqlalchemy as sa
 import timezonefinder
-import os.path
-import json
+
 import pudl
 
 logger = logging.getLogger(__name__)

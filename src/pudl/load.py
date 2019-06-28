@@ -1,15 +1,17 @@
 """A module with functions for loading the pudl database tables."""
 
-import logging
-import shutil
-import os
-import io
 import contextlib
+import io
+import logging
+import os
+import shutil
+
 import pandas as pd
 import postgres_copy
+
 import pudl
-import pudl.models.entities
 import pudl.constants as pc
+import pudl.models.entities
 
 logger = logging.getLogger(__name__)
 
@@ -149,9 +151,11 @@ expected:
             logger.info(
                 "===================== Dramatic Pause ====================")
             logger.info(
-                f"    Loading {len(all_dfs):,} records ({round(self.accumulated_size/1024**2)} MB) into PUDL.")
-            _csv_dump_load(all_dfs, table_name=self.table_name, engine=self.engine,
-                           csvdir=self.csvdir, keep_csv=self.keep_csv)
+                f"    Loading {len(all_dfs):,} records "
+                f"({round(self.accumulated_size/1024**2)} MB) into PUDL.")
+            _csv_dump_load(all_dfs, table_name=self.table_name,
+                           engine=self.engine, csvdir=self.csvdir,
+                           keep_csv=self.keep_csv)
             logger.info(
                 "================ Resume Number Crunching ================")
         self.accumulated_dfs = []
