@@ -1,13 +1,14 @@
 """A module for extracting the FERC Form 1 FoxPro Database for use in PUDL."""
 import logging
 import os.path
-import string
 import re
+import string
+
+import dbfread
 import pandas as pd
 import sqlalchemy as sa
-import dbfread
+
 import pudl
-from pudl.settings import SETTINGS
 import pudl.constants as pc
 
 logger = logging.getLogger(__name__)
@@ -609,10 +610,11 @@ def accumulated_depreciation(ferc1_meta, ferc1_table, ferc1_years):
 
 
 def show_dupes(table, dbc_map, years=pc.data_years['ferc1'],
-               pk=['respondent_id', 'report_year', 'report_prd', 'row_number', 'spplmnt_num']):
+               pk=['respondent_id', 'report_year', 'report_prd',
+                   'row_number', 'spplmnt_num']):
     print(f"{table}:")
     for yr in years:
-        raw_df = get_raw(table, dbc_map, years=[yr, ])
+        raw_df = get_raw_df(table, dbc_map, years=[yr, ])
         if not set(pk).difference(set(raw_df.columns)):
             n_dupes = len(raw_df) - len(raw_df.drop_duplicates(subset=pk))
             if n_dupes > 0:
@@ -624,7 +626,7 @@ def show_dupes(table, dbc_map, years=pc.data_years['ferc1'],
 def add_sqlite_records(ferc1_engine, sqlite_meta,
                        tables=pc.ferc1_default_tables,
                        years=pc.data_years['ferc1'],
-                       bad_cols=()):
+                       bad_cols=(), refyear=max(pc.data_years['ferc1'])):
     dbc_map = get_dbc_map(refyear)
     conn = ferc1_engine.connect()
     for table in tables:
