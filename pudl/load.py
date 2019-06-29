@@ -10,6 +10,7 @@ import postgres_copy
 import pudl
 import pudl.models.entities
 import pudl.constants as pc
+from pudl.settings import SETTINGS
 
 logger = logging.getLogger(__name__)
 
@@ -192,7 +193,7 @@ def dict_dump_load(transformed_dfs,
 # Packaging specific load step
 ###############################################################################
 
-def csv_dump(df, table_name, pkg_dir):
+def csv_dump(df, table_name, keep_index, pkg_dir):
     """
     Write a dataframe to CSV and load it into postgresql using COPY FROM.
 
@@ -224,8 +225,18 @@ def csv_dump(df, table_name, pkg_dir):
         None
 
     """
+    no_index_ids = ['boilers_entity_eia',
+                    'ferc_accounts', 'ferc_depreciation_lines']
     outfile = os.path.join(pkg_dir, 'data', table_name + '.csv')
-    df.to_csv(path_or_buf=outfile, index=False)
+    if keep_index:
+        if table_name is 'fuel_receipts_costs_eia923':
+            df.to_csv(path_or_buf=outfile, index=True,
+                      index_label='fuel_receipt_id')
+        else:
+            df.to_csv(path_or_buf=outfile, index=True, index_label='id')
+
+    else:
+        df.to_csv(path_or_buf=outfile, index=False)
 
 
 def dict_dump(transformed_dfs,
@@ -235,6 +246,8 @@ def dict_dump(transformed_dfs,
     """
     Wrapper for _csv_dump for each data source.
     """
+    ids_matter_tables = ['coalmine_eia923', 'ferc_accounts',
+                         'ferc_depreciation_lines', 'plants', 'utilities']
     for table_name, df in transformed_dfs.items():
         if table_name != "hourly_emissions_epacems":
             logger.info(
@@ -242,7 +255,36 @@ def dict_dump(transformed_dfs,
         if table_name in list(need_fix_inting.keys()):
             df = pudl.helpers.fix_int_na(
                 df, columns=pc.need_fix_inting[table_name])
-
-        csv_dump(df,
-                 table_name,
-                 pkg_dir=pkg_dir)
+        # fix the order of the columns based on the metadata:
+        resource = pudl.helpers.pull_resource_from_megadata(
+            table_name, os.path.join(SETTINGS['meta_dir'], 'pudl-test'))
+        columns = [x['name'] for x in resource['schema']['fields']]
+        if 'id' not in columns:
+            if 'fuel_receipt_id' in columns:
+                columns.remove('fuel_receipt_id')
+                df = df.reindex(columns=columns)
+                csv_dump(df,
+                         table_name,
+                         keep_index=True,
+                         pkg_dir=pkg_dir)
+            else:
+                df = df.reindex(columns=columns)
+                csv_dump(df,
+                         table_name,
+                         keep_index=False,
+                         pkg_dir=pkg_dir)
+        else:
+            if table_name not in ids_matter_tables:
+                columns.remove('id')
+                df = df.reset_index(drop=True)
+                df = df.reindex(columns=columns)
+                csv_dump(df,
+                         table_name,
+                         keep_index=True,
+                         pkg_dir=pkg_dir)
+            else:
+                df = df.reindex(columns=columns)
+                csv_dump(df,
+                         table_name,
+                         keep_index=False,
+                         pkg_dir=pkg_dir)

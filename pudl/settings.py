@@ -36,6 +36,7 @@ SETTINGS['docs_dir'] = os.path.join(SETTINGS['pudl_dir'], 'docs')
 SETTINGS['csvdir'] = os.path.join(SETTINGS['pudl_dir'], 'results', 'csvdump')
 SETTINGS['out_dir'] = os.path.join(
     SETTINGS['pudl_dir'], 'results', 'data_pkgs')
+SETTINGS['meta_dir'] = os.path.join(SETTINGS['pudl_dir'], 'pudl', 'metadata')
 
 
 # These DB connection dictionaries are used by sqlalchemy.URL()

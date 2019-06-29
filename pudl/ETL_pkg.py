@@ -3,6 +3,7 @@ import os.path
 import datetime
 import time
 import pandas as pd
+import shutil
 
 import pudl
 
@@ -16,51 +17,59 @@ logger = logging.getLogger(__name__)
 # EIA EXPORT FUNCTIONS
 ###############################################################################
 
-def _input_extract_eia(inputs):
+def _input_validate_eia(inputs):
+    # extract all of the inputs for the EIA ETL function
+    # empty dictionary to compile inputs
+    eia_input_dict = {}
+    # when nothing is set in the settings file, the years will default as none
     try:
-        eia860_years = inputs['eia860_years']
+        eia_input_dict['eia860_years'] = inputs['eia860_years']
     except KeyError:
-        eia860_years = []
+        eia_input_dict['eia860_years'] = []
 
     # the tables will default to all of the tables if nothing is given
     try:
-        eia860_tables = inputs['eia860_tables']
+        eia_input_dict['eia860_tables'] = inputs['eia860_tables']
     except KeyError:
-        eia860_tables = pc.pudl_tables['eia860']
+        eia_input_dict['eia860_tables'] = pc.pudl_tables['eia860']
 
     try:
-        eia923_years = inputs['eia923_years']
+        eia_input_dict['eia923_years'] = inputs['eia923_years']
     except KeyError:
-        eia923_years = []
+        eia_input_dict['eia923_years'] = []
 
     try:
-        eia923_tables = inputs['eia923_tables']
+        eia_input_dict['eia923_tables'] = inputs['eia923_tables']
     except KeyError:
-        eia923_tables = pc.pudl_tables['eia923']
+        eia_input_dict['eia923_tables'] = pc.pudl_tables['eia923']
 
-    return(eia860_years, eia860_tables, eia923_years, eia923_tables)
-
-
-def _input_validate_eia(inputs):
-    eia860_years, eia860_tables, eia923_years, eia923_tables = _input_extract_eia(
-        inputs)
-
-    if eia860_tables:
-        for table in eia860_tables:
+    # Validate the inputs
+    if eia_input_dict['eia860_tables']:
+        for table in eia_input_dict['eia860_tables']:
             if table not in pc.eia860_pudl_tables:
                 raise AssertionError(
                     f"Unrecognized EIA 860 table: {table}"
                 )
 
-    if eia923_tables:
-        for table in eia923_tables:
+    if eia_input_dict['eia923_tables']:
+        for table in eia_input_dict['eia923_tables']:
             if table not in pc.eia923_pudl_tables:
                 raise AssertionError(
                     f"Unrecogized EIA 923 table: {table}"
                 )
 
+    for year in eia_input_dict['eia860_years']:
+        if year not in pc.working_years['eia860']:
+            raise AssertionError(f"Unrecognized EIA 860 year: {year}")
 
-def _ingest_static_tables_eia(eia923_tables, eia923_years, pkg_dir):
+    for year in eia_input_dict['eia923_years']:
+        if year not in pc.working_years['eia923']:
+            raise AssertionError(f"Unrecognized EIA 923 year: {year}")
+
+    return eia_input_dict
+
+
+def _load_static_tables_eia(pkg_dir):
     """
     Populate static EIA tables with constants for use as foreign keys.
 
@@ -111,18 +120,20 @@ def _ingest_static_tables_eia(eia923_tables, eia923_years, pkg_dir):
     return list(static_dfs.keys())
 
 
-def _ETL_eia_pkg(pkg_dir, inputs):
-    _input_validate_eia(inputs)
-    eia860_years, eia860_tables, eia923_years, eia923_tables = \
-        _input_extract_eia(inputs)
+def _ETL_eia_pkg(inputs, pkg_dir):
+    eia_inputs = _input_validate_eia(inputs)
+    eia923_tables = eia_inputs['eia923_tables']
+    eia923_years = eia_inputs['eia923_years']
+    eia860_tables = eia_inputs['eia860_tables']
+    eia860_years = eia_inputs['eia860_years']
 
-    if (not eia923_tables or not eia923_years) and (not eia860_tables or not eia860_years):
-        logger.info('Not ingesting EIA.')
+    if (not eia923_tables or not eia923_years) and \
+            (not eia860_tables or not eia860_years):
+        logger.info('Not loading EIA.')
         return []
 
     # generate CSVs for the static EIA tables, return the list of tables
-    static_tables = _ingest_static_tables_eia(
-        eia923_tables, eia923_years, pkg_dir)
+    static_tables = _load_static_tables_eia(pkg_dir)
 
     # Extract EIA forms 923, 860
     eia923_raw_dfs = pudl.extract.eia923.extract(eia923_years=eia923_years)
@@ -152,51 +163,47 @@ def _ETL_eia_pkg(pkg_dir, inputs):
                             need_fix_inting=pc.need_fix_inting,
                             pkg_dir=pkg_dir)
 
-    return list(transformed_df.keys()) + static_tables
+    return list(eia_transformed_dfs.keys()) + list(entities_dfs.keys()) + static_tables
 
 ###############################################################################
 # FERC1 EXPORT FUNCTIONS
 ###############################################################################
 
 
-def _input_extract_ferc1(inputs):
+def _input_validate_ferc1(inputs):
+    ferc1_dict = {}
     # pull out the inputs from the dictionary passed into this function
     try:
-        ferc1_years = inputs['ferc1_years']
+        ferc1_dict['ferc1_years'] = inputs['ferc1_years']
     except KeyError:
-        ferc1_years = []
+        ferc1_dict['ferc1_years'] = [None]
     # the tables will default to all of the tables if nothing is given
     try:
-        ferc1_tables = inputs['ferc1_tables']
+        ferc1_dict['ferc1_tables'] = inputs['ferc1_tables']
     except KeyError:
-        ferc1_tables = pc.pudl_tables['ferc1']
+        ferc1_dict['ferc1_tables'] = pc.pudl_tables['ferc1']
     # if nothing is passed in, assume that we're not testing
     try:
-        ferc1_testing = inputs['ferc1_testing']
+        ferc1_dict['ferc1_testing'] = inputs['ferc1_testing']
     except KeyError:
-        ferc1_testing = False
+        ferc1_dict['ferc1_testing'] = False
 
     try:
-        debug = inputs['debug']
+        ferc1_dict['debug'] = inputs['debug']
     except KeyError:
-        debug = False
+        ferc1_dict['debug'] = False
 
-    return(ferc1_years, ferc1_tables, ferc1_testing, debug)
-
-
-def _input_validate_ferc1(inputs):
-    ferc1_years, ferc1_tables, ferc1_testing, debug = _input_extract_ferc1(
-        inputs)
-
-    if (not debug) and (ferc1_tables):
-        for table in ferc1_tables:
+    if (not ferc1_dict['debug']) and (ferc1_dict['ferc1_tables']):
+        for table in ferc1_dict['ferc1_tables']:
             if table not in pc.ferc1_pudl_tables:
                 raise AssertionError(
                     f"Unrecognized FERC table: {table}."
                 )
 
+    return (ferc1_dict)
 
-def _ingest_static_tables_ferc(pkg_dir):
+
+def _load_static_tables_ferc(pkg_dir):
     """
     Populate static PUDL tables with constants for use as foreign keys.
 
@@ -234,20 +241,21 @@ def _ingest_static_tables_ferc(pkg_dir):
     return list(static_dfs.keys())
 
 
-def _ETL_ferc1_pkg(pkg_dir, inputs):
-    _input_validate_ferc1(inputs)
-    ferc1_years, ferc1_tables, ferc1_testing, debug = \
-        _input_extract_ferc1(inputs)
+def _ETL_ferc1_pkg(inputs, pkg_dir):
+    ferc1_inputs = _input_validate_ferc1(inputs)
+
+    ferc1_years = ferc1_inputs['ferc1_years']
+    ferc1_tables = ferc1_inputs['ferc1_tables']
 
     if not ferc1_years or not ferc1_tables:
-        logger.info('Not ingesting FERC1')
+        logger.info('Not loading FERC1')
         return []
 
-    static_tables = _ingest_static_tables_ferc(pkg_dir)
+    static_tables = _load_static_tables_ferc(pkg_dir)
     # Extract FERC form 1
     ferc1_raw_dfs = pudl.extract.ferc1.extract(ferc1_tables=ferc1_tables,
                                                ferc1_years=ferc1_years,
-                                               testing=ferc1_testing)
+                                               testing=ferc1_inputs['ferc1_testing'])
     # Transform FERC form 1
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
         ferc1_raw_dfs, ferc1_tables=ferc1_tables)
@@ -264,11 +272,13 @@ def _ETL_ferc1_pkg(pkg_dir, inputs):
 
 
 def _input_validate_epacems(inputs):
+    fake_dict = {}
     print("no CEMS for now...")
+    return fake_dict
 
 
-def _ETL_EPACEMS_pkg(pkg_dir, inputs):
-    print("you've made it this far, but still no cems")
+def _ETL_cems_pkg(inputs, pkg_dir):
+    print("you've made it this far ()!), but still no cems")
     return []
 
 ###############################################################################
@@ -296,16 +306,88 @@ def _ETL_glue(eia923_years, eia860_years, ferc1_years, out_dir):
 
 
 ###############################################################################
-# FERC1 EXPORT FUNCTIONS
+# Coordinating functions
 ###############################################################################
 
-def _input_validation(settings_init):
-    logger.info('Validating inputs.')
+def _prep_directories(pkg_dir):
+    """
+    Prep dictionaries for CSVs.
+    """
+    # delete package directories if they exist
+    if os.path.exists(pkg_dir):
+        shutil.rmtree(pkg_dir)
+
+    # create the main package directory
+    os.mkdir(pkg_dir)
+    # also create the data directory for the CSVs to live in
+    os.mkdir(os.path.join(pkg_dir, 'data'))
+
+
+def _input_validate(settings_init):
+    """
+    Extract and validate the inputs from a settings file
+
+    Args:
+        settings_init (iterable) : a list of inputs for
+            datapackages typically imported from settings like:
+            pudl.settings.settings_init(settings_file='settings_init_pudl_package.yml')
+            with different file name depending on your setting yml file.
+    Returns:
+        validated_settings (iterable) : validated list of inputs
+    """
     input_validation_functions = {'eia': _input_validate_eia,
                                   'ferc1': _input_validate_ferc1,
                                   'epacems': _input_validate_epacems
                                   }
+    # where we are going to compile the new validated settings
+    validated_settings = []
+
     for pkg in settings_init:
-        for dataset_dct in pkg['datasets']:
-            for dataset in dataset_dct:
-                input_validation_functions[dataset](dataset_dct[dataset])
+        validated_pkg_settings = {}
+        validated_pkg_settings.update({'name': pkg['name'],
+                                       'title': pkg['title'],
+                                       'description': pkg['description']
+                                       })
+        dataset_dicts = []
+        for settings_dataset_dict in pkg['datasets']:
+            for dataset in settings_dataset_dict:
+                validacted_dataset_dict = {
+                    dataset: input_validation_functions[dataset](settings_dataset_dict[dataset])}
+                dataset_dicts.extend([validacted_dataset_dict])
+        validated_pkg_settings['datasets'] = dataset_dicts
+        validated_settings.extend([validated_pkg_settings])
+    return validated_settings
+
+
+def ETL_pkg(pkg_settings, out_dir=SETTINGS['out_dir']):
+    """
+    Extract, transform and load CSVs.
+
+    Args:
+        pkg_settings (dict) : a dictionary of inputs for a
+            datapackage
+    Returns:
+        tables_dict (dict) : dictionary with datapackpackages (keys) and
+            lists of tables (values)
+    """
+    ETL_functions = {'eia': _ETL_eia_pkg,
+                     'ferc1': _ETL_ferc1_pkg,
+                     'epacems': _ETL_cems_pkg,
+                     'glue': _ETL_glue,
+                     }
+
+    # a dictionary to compile the list of tables being loaded for each package
+    print(pkg_settings['name'])
+    # define the package directory
+    pkg_dir = os.path.join(out_dir, pkg_settings['name'])
+    # prepping the directories where the pkges will live
+    _prep_directories(pkg_dir)
+    # compile a list of tables in each dataset
+    tables = []
+    for dataset_dict in pkg_settings['datasets']:
+        for dataset in dataset_dict:
+            tbls = ETL_functions[dataset](dataset_dict[dataset], pkg_dir)
+            tables.extend(tbls)
+    # Add an assertion that tables =
+    # os.listdir(os.path.join(pkg_dir,"data"))
+    return tables

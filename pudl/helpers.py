@@ -9,7 +9,10 @@ import sqlalchemy as sa
 import timezonefinder
 import os.path
 import json
+from collections import namedtuple
 import pudl
+
+from pudl.settings import SETTINGS
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +25,19 @@ sum_na = partial(pd.Series.sum, skipna=False)
 # them open for efficiency. I want to avoid doing that for every call to find
 # the timezone, so this is global.
 tz_finder = timezonefinder.TimezoneFinder()
+
+
+def convert_dict_to_namedtuple(dictionary, dict_name):
+    """"
+    Converts a dictionary to a namedtuple
+
+    args:
+        dictionary (dict) : a Dictionary
+        dict_name (string) : a string of the dictionary name
+    returns:
+        namedtuple
+    """
+    return namedtuple(dict_name, dictionary.keys())(**dictionary)
 
 
 def get_dependent_tables_from_list(table_names, testing=False):
@@ -627,10 +643,23 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
 # The next few functions propbably will end up in some packaging or load module
 ###############################################################################
 
+def data_sources_from_tables_pkg(table_names, testing=False):
+    """Based on a list of PUDL DB tables, look up data sources."""
+    all_tables = get_dependent_tables_from_list_pkg(
+        table_names, testing=testing)
+    table_sources = set()
+    # All tables get PUDL:
+    table_sources.add('pudl')
+    for t in all_tables:
+        for src in pudl.constants.data_sources:
+            if re.match(f".*_{src}$", t):
+                table_sources.add(src)
+
+    return table_sources
+
+
 def get_foreign_key_relash_from_pkg(pkg_name='pudl-test',
-                                    out_dir=os.path.join(
-                                        pudl.settings.PUDL_DIR,
-                                        "results", "data_pkgs")):
+                                    meta_dir=SETTINGS['meta_dir']):
     """
     Generate a dictionary of foreign key relationships from pkging metadata
 
@@ -646,7 +675,7 @@ def get_foreign_key_relash_from_pkg(pkg_name='pudl-test',
     # we'll probably eventually need to pull these directories into settings
     # out_dir is the packaging directory -- the place where packages end up
     # pkg_dir is the top level directory of this package:
-    pkg_dir = os.path.abspath(os.path.join(out_dir, pkg_name))
+    pkg_dir = os.path.abspath(os.path.join(meta_dir, pkg_name))
     # pkg_json is the datapackage.json that we ultimately output:
     pkg_json = os.path.join(pkg_dir, "datapackage.json")
 
@@ -677,7 +706,7 @@ def get_dependent_tables_pkg(table_name, fk_relash):
     # Recursively call this function on the tables our initial
     # table depends on:
     for table_name in new_table_names:
-        logger.error(f"Finding dependent tables for {table_name}")
+        logger.debug(f"Finding dependent tables for {table_name}")
         dependent_tables.add(table_name)
         for t in get_dependent_tables_pkg(table_name, fk_relash):
             dependent_tables.add(t)
@@ -687,9 +716,7 @@ def get_dependent_tables_pkg(table_name, fk_relash):
 
 def get_dependent_tables_from_list_pkg(table_names,
                                        pkg_name='pudl-test',
-                                       out_dir=os.path.join(
-                                           pudl.settings.PUDL_DIR,
-                                           "results", "data_pkgs"),
+                                       meta_dir=SETTINGS['meta_dir'],
                                        testing=False):
     """
     Given a list of tables, find all the other tables they depend on.
@@ -709,7 +736,7 @@ def get_dependent_tables_from_list_pkg(table_names,
             tables depends on, via ForeignKey constraints.
     """
     fk_relash = get_foreign_key_relash_from_pkg(
-        pkg_name=pkg_name, out_dir=out_dir)
+        pkg_name=pkg_name, meta_dir=meta_dir)
 
     all_the_tables = set()
     for t in table_names:
@@ -717,3 +744,21 @@ def get_dependent_tables_from_list_pkg(table_names,
             all_the_tables.add(x)
 
     return all_the_tables
+
+
+def pull_resource_from_megadata(tbl_name, mega_pkg_dir):
+    # wherever the mega package descriptor lives
+    meta_json = os.path.join(mega_pkg_dir, "datapackage.json")
+
+    with open(meta_json) as md:
+        metadata_mega = json.load(md)
+
+    tbl_resource = [x for x in metadata_mega['resources']
+                    if x['name'] == tbl_name]
+
+    if len(tbl_resource) == 0:
+        raise AssertionError(f"{table_name} not found in stored metadata")
+    if len(tbl_resource) > 1:
+        raise AssertionError(f"{table_name} found multiple times in metadata")
+    tbl_resource = tbl_resource[0]
+    return(tbl_resource)

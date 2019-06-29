@@ -14,9 +14,11 @@ import sqlalchemy as sa
 import tableschema
 import datapackage
 import goodtables
+import json
 import pandas as pd
 import pudl
 from pudl import constants as pc
+from pudl.settings import SETTINGS
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +96,6 @@ def get_fields(table):
             newfield['constraints'] = {'enum': table.c[col].type.enums}
         if table.c[col].comment:
             newfield['description'] = table.c[col].comment
-
         fields.append(newfield)
     return fields
 
@@ -439,3 +440,191 @@ def annotated_xlsx(df, notes_dict, tags_dict, first_cols, sheet_name,
     # Return the xlsx_writer object, which can be written out, outside of
     # function, with 'xlsx_writer.save()'
     return xlsx_writer
+
+###############################################################################
+# CREATING PACKAGES AND METADATA
+###############################################################################
+
+
+def pull_resource_from_megadata(tbl_name, mega_pkg_dir):
+    # wherever the mega package descriptor lives
+    meta_json = os.path.join(mega_pkg_dir, "datapackage.json")
+
+    with open(meta_json) as md:
+        metadata_mega = json.load(md)
+
+    tbl_resource = [x for x in metadata_mega['resources']
+                    if x['name'] == tbl_name]
+
+    if len(tbl_resource) == 0:
+        raise AssertionError(f"{tbl_name} not found in stored metadata")
+    if len(tbl_resource) > 1:
+        raise AssertionError(f"{tbl_name} found multiple times in metadata")
+    tbl_resource = tbl_resource[0]
+    return(tbl_resource)
+
+
+def test_file_consistency(pkg_name, tables, out_dir=SETTINGS['out_dir']):
+    """
+    Testing the consistency of tables for packaging
+
+    The purpose of this function is to test that we have the correct list of
+    tables.There are three different ways we could determine which tables are
+    being dumped into packages: a list of the tabels being generated through
+    the ETL functions, the list of dependent tables and the list of CSVs in
+    package directory.
+    """
+    file_tbls = [x.replace(".csv", "") for x in os.listdir(
+        os.path.join(out_dir, pkg_name, 'data'))]
+    dependent_tbls = pudl.helpers.get_dependent_tables_from_list_pkg(
+        tables, meta_dir=SETTINGS['meta_dir'])
+    etl_tbls = tables
+
+    if (file_tbls.sort() == etl_tbls.sort()) & (list(dependent_tbls).sort() == etl_tbls.sort()):
+        print(f"Tables are consistent for {pkg_name} package")
+    else:
+        inconsistent_tbls = []
+        for tbl in file_tbls:
+            if tbl not in etl_tbls:
+                inconsistent_tbls.extend(tbl)
+                raise AssertionError(f"{tbl} from CSVs not in ETL tables")
+
+        for tbl in dependent_tbls:
+            if tbl not in etl_tbls:
+                inconsistent_tbls.extend(tbl)
+                raise AssertionError(
+                    f"{tbl} from forgien key relationships not in ETL tables")
+        # this is here for now just in case the previous two asserts don't work..
+        # we should probably just stick to one.
+        raise AssertionError(
+            f"Tables are inconsistent. Missing tables include: {inconsistent_tbls}")
+
+
+def get_tabular_data_resource_2(table_name, pkg_dir, testing=False):
+    """
+    Create a Tabular Data Resource descriptor for a PUDL table.
+
+    Based on the information in the database, and some additional metadata,
+    stored elsewhere (Where?!?!) this function will generate a valid Tabular
+    Data Resource descriptor, according to the Frictionless Data specification,
+    which can be found here:
+
+    https://frictionlessdata.io/specs/tabular-data-resource/
+    """
+    # Where the CSV file holding the data is, relative to datapackage.json
+    # This is the value that has to be embedded in the data package.
+    csv_relpath = os.path.join('data', f'{table_name}.csv')
+    # We need to access the file to calculate hash and size too:
+    csv_abspath = os.path.join(os.path.abspath(pkg_dir), csv_relpath)
+
+    # pull the skeleton of the descriptor from the megadata file
+    descriptor = pull_resource_from_megadata(
+        table_name, mega_pkg_dir=os.path.join(SETTINGS['meta_dir'], 'pudl-test'))
+    descriptor['path'] = csv_relpath
+    descriptor['bytes'] = os.path.getsize(csv_abspath)
+    descriptor['hash'] = pudl.output.export.hash_csv(csv_abspath)
+
+    resource = datapackage.Resource(descriptor)
+    if resource.valid:
+        print("yay you made a valid resource")
+    if not resource.valid:
+        raise AssertionError(
+            f"""
+            Invalid tabular data resource: {resource.name}
+
+            Errors:
+            {resource.errors}
+            """
+        )
+
+    return descriptor
+
+
+def generate_metadata(pkg_settings, tables, pkg_dir):
+    # pkg_json is the datapackage.json that we ultimately output:
+    pkg_json = os.path.join(pkg_dir, "datapackage.json")
+    # Create a tabular data resource for each of the tables.
+    resources = []
+    for t in tables:
+        resources.append(
+            get_tabular_data_resource_2(t, pkg_dir=pkg_dir))
+
+    data_sources = pudl.helpers.data_sources_from_tables_pkg(
+        tables)
+    sources = []
+    for src in data_sources:
+        if src in pudl.constants.data_sources:
+            sources.append({"title": src,
+                            "path": pc.base_data_urls[src]})
+
+    contributors = set()
+    for src in data_sources:
+        for c in pudl.constants.contributors_by_source[src]:
+            contributors.add(c)
+
+    pkg_descriptor = {
+        "name": pkg_settings["name"],
+        "profile": "tabular-data-package",
+        "title": pkg_settings["title"],
+        "description": pkg_settings["description"],
+        # "keywords": pkg_settings["keywords"],
+        "homepage": "https://catalyst.coop/pudl/",
+        "created": (datetime.datetime.utcnow().
+                    replace(microsecond=0).isoformat() + 'Z'),
+        "contributors": [pudl.constants.contributors[c] for c in contributors],
+        "sources": sources,
+        "licenses": [pudl.constants.licenses["cc-by-4.0"]],
+        "resources": resources,
+    }
+
+    # Use that descriptor to instantiate a Package object
+    data_pkg = datapackage.Package(pkg_descriptor)
+
+    # Validate the data package descriptor before we go to
+    if not data_pkg.valid:
+        logger.warning(f"""
+            Invalid tabular data package: {data_pkg.descriptor["name"]}
+            Errors: {data_pkg.errors}""")
+
+    data_pkg.save(pkg_json)
+    # Validate the data within the package using goodtables:
+    report = goodtables.validate(pkg_json, row_limit=100_000)
+    if not report['valid']:
+        logger.warning("Data package data validation failed.")
+
+    return data_pkg, report
+
+
+def generate_data_packages(settings,
+                           out_dir=SETTINGS['out_dir'],
+                           debug=False):
+    """
+    Cordinate the generation of data packages.
+
+    Args:
+        settings (iterable) : a list of dictionaries. Each item in the list
+            corresponds to a data package. Each data package's dictionary
+            contains the arguements for its ETL function.
+        out_dir (path-like): The location of the packaging directory.
+            The data package will be created in a subdirectory in
+            this directory, according to the name of the package.
+        debug (boolean)
+    """
+    # validate the settings from the settings file.
+    validated_settings = pudl.ETL_pkg._input_validate(settings)
+    metas = {}
+    for pkg in validated_settings:
+        # run the ETL functions for this pkg and return the list of tables
+        # dumped to CSV
+        pkg_tbls = pudl.ETL_pkg.ETL_pkg(pkg, out_dir)
+        # assure that the list of tables from ETL match up with the CVSs and
+        # dependent tables
+        test_file_consistency(pkg['name'], pkg_tbls, out_dir=out_dir)
+        # generate the metadata for the package and validate
+        # TODO: we'll probably want to remove this double return... but having
+        # the report and the metadata while debugging is very useful.
+        meta, report = generate_metadata(
+            pkg, pkg_tbls, os.path.join(out_dir, pkg['name']))
+        metas[pkg['name']] = [meta, report]
+    if debug:
+        return (metas)
