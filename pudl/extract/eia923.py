@@ -23,14 +23,13 @@ logger = logging.getLogger(__name__)
 
 
 def datadir(year, basedir=SETTINGS['eia923_data_dir']):
-    """
-    Data directory search for EIA Form 923.
+    """Searches data directory for EIA Form 923.
 
     Args:
         year (int): The year that we're trying to read data for.
-        basedir (os.path): Directory in which EIA923 data resides.
+        basedir (str): Directory in which EIA923 data resides.
     Returns:
-        path to appropriate EIA 923 data directory.
+        str: path to appropriate EIA 923 data directory.
     """
     # These are the only years we've got...
     assert year in pc.data_years['eia923']
@@ -40,14 +39,13 @@ def datadir(year, basedir=SETTINGS['eia923_data_dir']):
 
 
 def get_eia923_file(yr, basedir=SETTINGS['eia923_data_dir']):
-    """
-    Given a year, return the appopriate EIA923 excel file.
+    """Given a year, returns the appopriate EIA923 excel file.
 
     Args:
         year (int): The year that we're trying to read data for.
-        basedir (os.path): Directory in which EIA923 data resides.
+        basedir (str): Directory in which EIA923 data resides.
     Returns:
-        path to EIA 923 spreadsheets corresponding to a given year.
+        str: path to EIA 923 spreadsheets corresponding to a given year.
     """
     assert(yr >= min(pc.working_years['eia923'])),\
         "EIA923 file selection only works for 2009 & later."
@@ -60,8 +58,7 @@ def get_eia923_file(yr, basedir=SETTINGS['eia923_data_dir']):
 
 
 def get_eia923_column_map(page, year):
-    """
-    Given a year and EIA923 page, return info required to slurp it from Excel.
+    """Given a year and EIA923 page, returns info needed to slurp it from Excel.
 
     The format of the EIA923 has changed slightly over the years, and so it
     is not completely straightforward to pull information from the spreadsheets
@@ -82,14 +79,14 @@ def get_eia923_column_map(page, year):
         year (int): The year that we're trying to read data for.
 
     Returns:
-        sheet_name (int): An integer indicating which page in the worksheet
+        int: sheet_name (int): An integer indicating which page in the worksheet
             the data should be pulled from. 0 is the first page, 1 is the
             second page, etc. For use by pandas.read_excel()
-        skiprows (int): An integer indicating how many rows should be skipped
+        int: skiprows, an integer indicating how many rows should be skipped
             at the top of the sheet being read in, before the header row that
             contains the strings which will be converted into column names in
             the dataframe which is created by pandas.read_excel()
-        column_map (dict): A dictionary that maps the names of the columns
+        dict: column_map, a dictionary that maps the names of the columns
             in the year being read in, to the canonical EIA923 column names
             (i.e. the column names as they are in 2014-2016). This dictionary
             will be used by DataFrame.rename(). The keys are the column names
@@ -120,8 +117,8 @@ def get_eia923_column_map(page, year):
 
 def get_eia923_page(page, eia923_xlsx,
                     years=pc.working_years['eia923']):
-    """
-    Read a single table from several years of EIA923 data. Return a DataFrame.
+    """Reads a single table from several years of EIA923 data and returns a
+        DataFrame.
 
     Args:
         page (str): The string label indicating which page of the EIA923 we
@@ -133,8 +130,9 @@ def get_eia923_page(page, eia923_xlsx,
             - 'generator'
             - 'fuel_receipts_costs'
             - 'plant_frame'
-
-      years (list): The set of years to read into the dataframe.
+        eia923_xlsx (pandas.io.excel.ExcelFile): xlsx file of EIA Form 923 for
+        input year(s)
+        years (list): The set of years to read into the dataframe.
 
     Returns:
         pandas.DataFrame: A dataframe containing the data from the selected
@@ -178,8 +176,7 @@ def get_eia923_page(page, eia923_xlsx,
 
 
 def get_eia923_xlsx(years):
-    """
-    Read in Excel files to create Excel objects.
+    """Reads in Excel files to create Excel objects.
 
     Rather than reading in the same Excel files several times, we can just
     read them each in once (one per year) and use the ExcelFile object to
@@ -188,7 +185,7 @@ def get_eia923_xlsx(years):
     Args:
         years: The years that we're trying to read data for.
     Returns:
-        xlsx file of EIA Form 923 for input year(s)
+        pandas.io.excel.ExcelFile: xlsx file of EIA Form 923 for input year(s)
     """
     eia923_xlsx = {}
     for yr in years:
@@ -198,7 +195,15 @@ def get_eia923_xlsx(years):
 
 
 def extract(eia923_years=pc.working_years['eia923']):
-    """Extract all EIA 923 tables."""
+    """Creates a dictionary of DataFrames containing all the EIA 923 tables.
+
+    Args:
+        eia860_years (list): a list of data_years
+
+    Returns:
+        dict: A dictionary containing EIA 860 pages (keys) and DataFrames
+            (values)
+    """
     eia923_raw_dfs = {}
     if not eia923_years:
         logger.info('No years given. Not extracting EIA 923 spreadsheet data.')

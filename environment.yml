@@ -3,32 +3,32 @@ channels:
   - defaults
   - conda-forge
 dependencies:
+  - codecov
   - coverage
-  - coveralls
   - dbfread
   - fastparquet
   - jupyter
   - jupyterlab
   - matplotlib
   - nbval
-  - networkx
+  - networkx>=2.2
   - numpy
-  - pandas
+  - pandas>=0.24
   - pip
   - psycopg2
   - pyarrow
   - pytest
   - pytest-cov
-  - python>=3.6
+  - python>=3.7
   - python-snappy
   - pyyaml
   - scikit-learn>=0.20
   - scipy
   - sqlalchemy>=1.3.0
   # conda-forge only:
+  - datapackage
+  - goodtables
+  - tableschema
   - timezonefinder
   - pip:
-    - datapackage
-    - goodtables
     - sqlalchemy-postgres-copy
-    - tableschema

@@ -1,6 +1,8 @@
 dist: xenial
 language: python
-python: 3.7
+python:
+    - 3.7
+    - 3.8-dev
 services:
 - postgresql
 addons:
@@ -31,6 +33,7 @@ install:
 - cd scripts
 - python update_datastore.py -s eia923 -y 2017
 - python update_datastore.py -s eia860 -y 2017
+- python update_datastore.py -s epaipm
 - cp -r ../test/data/epa/cems/* ../data/epa/cems/
 - cp -r ../test/data/ferc/form1/* ../data/ferc/form1/
 - cd ..
@@ -42,7 +45,7 @@ install:
 script:
 - pytest --log-cli-level=info --log-cli-format="%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s" --log-date-format="%Y-%m-%d %H:%M:%S" --cov=pudl test/travis_ci_test.py
 after_success:
-- coveralls
+- codecov
 notifications:
   webhooks:
     urls:
