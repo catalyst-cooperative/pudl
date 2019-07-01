@@ -30,7 +30,7 @@ class FERCAccount(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'ferc_accounts'
     __table_args__ = ({'comment': "Account numbers from the FERC Uniform System of Accounts for Electric Plant, which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g. https://www.law.cornell.edu/cfr/text/18/part-101)."})
-    id = Column(
+    ferc_account_id = Column(
         String,
         primary_key=True,
         comment="Account number, from FERC's Uniform System of Accounts for Electric Plant. Also includes higher level labeled categories."
@@ -47,7 +47,7 @@ class FERCDepreciationLine(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'ferc_depreciation_lines'
     __table_args__ = ({"comment": "PUDL assigned FERC Form 1 line identifiers and long descriptions from FERC Form 1 page 219, Accumulated Provision for Depreciation of Electric Utility Plant (Account 108)."})
-    id = Column(
+    line_id = Column(
         String,
         primary_key=True,
         comment="A human readable string uniquely identifying the FERC depreciation account. Used in lieu of the actual line number, as those numbers are not guaranteed to be consistent from year to year."
@@ -88,7 +88,7 @@ class UtilityFERC1(pudl.models.entities.PUDLBase):
     )
     utility_id_pudl = Column(
         Integer,
-        ForeignKey('utilities.id'),
+        ForeignKey('utilities.utility_id_pudl'),
         nullable=False,
         comment="A manually assigned PUDL utility ID. Should probably be constant over time."
     )
@@ -119,7 +119,7 @@ class PlantFERC1(pudl.models.entities.PUDLBase):
     )
     plant_id_pudl = Column(
         Integer,
-        ForeignKey('plants.id'),
+        ForeignKey('plants.plant_id_pudl'),
         nullable=False,
         comment="A manually assigned PUDL plant ID. Should probably be constant over time."
     )
@@ -136,7 +136,7 @@ class UtilityEIA923(pudl.models.entities.PUDLBase):
     utility_id_eia = Column(Integer, primary_key=True)
     utility_name = Column(String, nullable=False)
     utility_id_pudl = Column(Integer, ForeignKey(
-        'utilities.id'), nullable=False)
+        'utilities.utility_id_pudl'), nullable=False)
 
 
 class PlantEIA923(pudl.models.entities.PUDLBase):
@@ -151,7 +151,8 @@ class PlantEIA923(pudl.models.entities.PUDLBase):
     __tablename__ = 'plants_eia'
     plant_id_eia = Column(Integer, primary_key=True)
     plant_name = Column(String, nullable=False)
-    plant_id_pudl = Column(Integer, ForeignKey('plants.id'), nullable=False)
+    plant_id_pudl = Column(Integer, ForeignKey(
+        'plants.plant_id_pudl'), nullable=False)
 
 
 class Utility(pudl.models.entities.PUDLBase):
@@ -169,7 +170,7 @@ class Utility(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'utilities'
     __table_args__ = ({"comment": "Home table for PUDL assigned utility IDs. These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly found utilities are added to the list with a new ID. Each ID maps to a power plant owning or operating entity which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: results/id_mapping/mapping_eia923_ferc1.xlsx"})
-    id = Column(
+    utility_id_pudl = Column(
         Integer,
         primary_key=True,
         comment="A manually assigned PUDL utility ID. Should probably be constant over time."
@@ -201,7 +202,7 @@ class Plant(pudl.models.entities.PUDLBase):
 
     __tablename__ = 'plants'
     __table_args__ = ({"comment": "Home table for PUDL assigned plant IDs. These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly identified plants are added to the list with a new ID. Each ID maps to a power plant which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: results/id_mapping/mapping_eia923_ferc1.xlsx"})
-    id = Column(
+    plant_id_pudl = Column(
         Integer,
         primary_key=True,
         comment="A manually assigned PUDL plant ID. Should probably be constant over time."
@@ -216,5 +217,7 @@ class UtilityPlantAssn(pudl.models.entities.PUDLBase):
     """Enumerates existence of relationships between plants and utilities."""
 
     __tablename__ = 'utility_plant_assn'
-    utility_id = Column(Integer, ForeignKey('utilities.id'), primary_key=True)
-    plant_id = Column(Integer, ForeignKey('plants.id'), primary_key=True)
+    utility_id_pudl = Column(Integer, ForeignKey(
+        'utilities.utility_id_pudl'), primary_key=True)
+    plant_id_pudl = Column(Integer, ForeignKey(
+        'plants.plant_id_pudl'), primary_key=True)

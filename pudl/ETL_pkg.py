@@ -219,12 +219,10 @@ def _load_static_tables_ferc(pkg_dir):
     # create dfs for tables with static data from constants.
     ferc_accounts = pc.ferc_electric_plant_accounts.drop('row_number', axis=1).\
         replace({'ferc_account_description': r'\s+'}, ' ', regex=True).\
-        rename(columns={'ferc_account_id': 'id',
-                        'ferc_account_description': 'description'})
+        rename(columns={'ferc_account_description': 'description'})
 
     ferc_depreciation_lines = pc.ferc_accumulated_depreciation.drop('row_number', axis=1).\
-        rename(columns={'line_id': 'id',
-                        'ferc_account_description': 'description'})
+        rename(columns={'ferc_account_description': 'description'})
 
     # compile the dfs in a dictionary, prep for dict_dump
     static_dfs = {'ferc_accounts': ferc_accounts,

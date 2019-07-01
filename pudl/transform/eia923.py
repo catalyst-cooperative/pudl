@@ -435,7 +435,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     # then we get rid of the old index
     cmi_df = cmi_df.drop(labels=['index'], axis=1)
     # then name the index id
-    cmi_df.index.name = 'id'
+    cmi_df.index.name = 'mine_id_pudl'
     # then make the id index a column for simpler transferability
     cmi_df = cmi_df.reset_index()
 
@@ -479,12 +479,12 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
                     'reporting_frequency']
 
     cmi_df = (
-        eia923_transformed_dfs['coalmine_eia923'].copy().
+        eia923_transformed_dfs['coalmine_eia923'].copy()
         # In order for the merge to work, we need to get the county_id_fips
         # field back into ready-to-dump form... so it matches the types of the
         # county_id_fips field that we are going to be merging on in the
         # frc_df.
-        rename(columns={'id': 'mine_id_pudl'})
+        # rename(columns={'id': 'mine_id_pudl'})
     )
 
     # This type/naming cleanup function is separated out so that we can be

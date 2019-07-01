@@ -291,7 +291,7 @@ class PlantInServiceFERC1(pudl.models.entities.PUDLBase):
     )
     ferc_account_id = Column(
         String,
-        ForeignKey('ferc_accounts.id'),
+        ForeignKey('ferc_accounts.ferc_account_id'),
         primary_key=True,
         comment="Identification number associated with each FERC account, as described in the FERC Uniform System of Accounts for Electric Plant."
     )
@@ -350,7 +350,7 @@ class AccumulatedDepreciationFERC1(pudl.models.entities.PUDLBase):
     )
     line_id = Column(
         String,
-        ForeignKey('ferc_depreciation_lines.id'),
+        ForeignKey('ferc_depreciation_lines.line_id'),
         primary_key=True,
         comment="Line numbers, and corresponding FERC account number from FERC Form 1, page 2019, Accumulated Provision for Depreciation of Electric Utility Plant (Account 108)."
     )

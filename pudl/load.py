@@ -229,12 +229,7 @@ def csv_dump(df, table_name, keep_index, pkg_dir):
                     'ferc_accounts', 'ferc_depreciation_lines']
     outfile = os.path.join(pkg_dir, 'data', table_name + '.csv')
     if keep_index:
-        if table_name is 'fuel_receipts_costs_eia923':
-            df.to_csv(path_or_buf=outfile, index=True,
-                      index_label='fuel_receipt_id')
-        else:
-            df.to_csv(path_or_buf=outfile, index=True, index_label='id')
-
+        df.to_csv(path_or_buf=outfile, index=True, index_label='id')
     else:
         df.to_csv(path_or_buf=outfile, index=False)
 
@@ -246,8 +241,6 @@ def dict_dump(transformed_dfs,
     """
     Wrapper for _csv_dump for each data source.
     """
-    ids_matter_tables = ['coalmine_eia923', 'ferc_accounts',
-                         'ferc_depreciation_lines', 'plants', 'utilities']
     for table_name, df in transformed_dfs.items():
         if table_name != "hourly_emissions_epacems":
             logger.info(
@@ -255,36 +248,32 @@ def dict_dump(transformed_dfs,
         if table_name in list(need_fix_inting.keys()):
             df = pudl.helpers.fix_int_na(
                 df, columns=pc.need_fix_inting[table_name])
-        # fix the order of the columns based on the metadata:
+        # fix the order of the columns based on the metadata..
+        # grab the table metadata from the mega metadata
         resource = pudl.helpers.pull_resource_from_megadata(
             table_name, os.path.join(SETTINGS['meta_dir'], 'pudl-test'))
+        # pull the columns from the table schema
         columns = [x['name'] for x in resource['schema']['fields']]
+        # there are two types of tables when it comes to indexes and ids...
+        # first there are tons of tables that don't use the index as a column
+        # these tables don't have an `id` column and we don't want to keept the
+        # index when doing df.to_csv()
         if 'id' not in columns:
-            if 'fuel_receipt_id' in columns:
-                columns.remove('fuel_receipt_id')
-                df = df.reindex(columns=columns)
-                csv_dump(df,
-                         table_name,
-                         keep_index=True,
-                         pkg_dir=pkg_dir)
-            else:
-                df = df.reindex(columns=columns)
-                csv_dump(df,
-                         table_name,
-                         keep_index=False,
-                         pkg_dir=pkg_dir)
+            df = df.reindex(columns=columns)
+            csv_dump(df,
+                     table_name,
+                     keep_index=False,
+                     pkg_dir=pkg_dir)
+        # there are also a ton of tables that use the `id` column as an auto-
+        # autoincrement id/primary key. For these tables, the index will end up
+        # as the id column so we want to remove the `id` in the list of columns
+        # because while the id column exists in the metadata it isn't in the df
+        # We also want to reindex in order to ensure the index is clean
         else:
-            if table_name not in ids_matter_tables:
-                columns.remove('id')
-                df = df.reset_index(drop=True)
-                df = df.reindex(columns=columns)
-                csv_dump(df,
-                         table_name,
-                         keep_index=True,
-                         pkg_dir=pkg_dir)
-            else:
-                df = df.reindex(columns=columns)
-                csv_dump(df,
-                         table_name,
-                         keep_index=False,
-                         pkg_dir=pkg_dir)
+            columns.remove('id')
+            df = df.reset_index(drop=True)
+            df = df.reindex(columns=columns)
+            csv_dump(df,
+                     table_name,
+                     keep_index=True,
+                     pkg_dir=pkg_dir)

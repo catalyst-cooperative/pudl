@@ -87,32 +87,31 @@ def glue(eia923_years,
         plant_map, columns=['plant_name_ferc'])
 
     plants = plant_map[['plant_id', 'plant_name']].drop_duplicates('plant_id')\
-        .rename(columns={'plant_id': 'id', 'plant_name': 'name'})
+        .rename(columns={'plant_id': 'plant_id_pudl', 'plant_name': 'name'})
 
     plants_eia = plant_map[['plant_id_eia',
                             'plant_name_eia',
-                            'plant_id']].drop_duplicates('plant_id_eia').\
-        rename(columns={'plant_name_eia': 'plant_name',
-                        'plant_id': 'plant_id_pudl'})
+                            'plant_id_pudl']].drop_duplicates('plant_id_eia').\
+        rename(columns={'plant_name_eia': 'plant_name'})
     plants_ferc = plant_map[['plant_name_ferc',
                              'respondent_id_ferc',
-                             'plant_id']].drop_duplicates(
+                             'plant_id_pudl']].drop_duplicates(
         ['plant_name_ferc', 'respondent_id_ferc']).\
         rename(columns={'respondent_id_ferc': 'utility_id_ferc1',
-                        'plant_name_ferc': 'plant_name',
-                        'plant_id': 'plant_id_pudl'})
+                        'plant_name_ferc': 'plant_name'})
 
     utilities = utility_map[['utility_id', 'utility_name']].\
-        drop_duplicates('utility_id').rename(columns={'utility_id': 'id',
-                                                      'utility_name': 'name'})
+        drop_duplicates('utility_id').rename(
+            columns={'utility_id': 'utility_id_pudl',
+                     'utility_name': 'name'})
     utilities_eia = utility_map[['operator_id_eia',
                                  'operator_name_eia',
-                                 'utility_id']].\
+                                 'utility_id_pudl']].\
         drop_duplicates('operator_id_eia').dropna(subset=['operator_id_eia'])
 
     utilities_ferc = utility_map[['respondent_id_ferc',
                                   'respondent_name_ferc',
-                                  'utility_id']].drop_duplicates(
+                                  'utility_id_pudl']].drop_duplicates(
         'respondent_id_ferc').dropna(subset=['respondent_id_ferc'])
 
     # Now we need to create a table that indicates which plants are associated
@@ -120,8 +119,8 @@ def glue(eia923_years,
 
     # These dataframes map our plant_id to FERC respondents and EIA
     # operators -- the equivalents of our "utilities"
-    plants_respondents = plant_map[['plant_id', 'respondent_id_ferc']].dropna(
-        subset=['respondent_id_ferc'])
+    plants_respondents = plant_map[['plant_id_pudl', 'respondent_id_ferc']].\
+        dropna(subset=['respondent_id_ferc'])
     plants_operators = plant_map[['plant_id', 'operator_id_eia']].\
         dropna(subset=['operator_id_eia'])
 
@@ -134,20 +133,18 @@ def glue(eia923_years,
                                     plants_operators,
                                     on='operator_id_eia')
     # Now we can concatenate the two dataframes, and get rid of all the columns
-    # except for plant_id and utility_id (which determine the  utility to plant
-    # association), and get rid of any duplicates or lingering NaN values...
-    utility_plant_assn = pd.concat([utility_plant_eia923, utility_plant_ferc1],
-                                   sort=True)[['plant_id', 'utility_id']].\
-        dropna().drop_duplicates()
+    # except for plant_id and utility_id_pudl (which determine the  utility to
+    # plant association), and get rid of any duplicates or lingering NaN values
+    utility_plant_assn = pd.concat(
+        [utility_plant_eia923, utility_plant_ferc1],
+        sort=True)[['plant_id', 'utility_id_pudl']].dropna().drop_duplicates()
 
     utilities_ferc = utilities_ferc.rename(
         columns={'respondent_id_ferc': 'utility_id_ferc1',
-                 'respondent_name_ferc': 'utility_name_ferc1',
-                 'utility_id': 'utility_id_pudl'})
+                 'respondent_name_ferc': 'utility_name_ferc1'})
 
     utilities_eia.rename(columns={'operator_id_eia': 'utility_id_eia',
-                                  'operator_name_eia': 'utility_name',
-                                  'utility_id': 'utility_id_pudl'})
+                                  'operator_name_eia': 'utility_name'})
 
     # At this point there should be at most one row in each of these data
     # frames with NaN values after we drop_duplicates in each. This is because

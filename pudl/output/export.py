@@ -481,7 +481,7 @@ def test_file_consistency(pkg_name, tables, out_dir=SETTINGS['out_dir']):
     etl_tbls = tables
 
     if (file_tbls.sort() == etl_tbls.sort()) & (list(dependent_tbls).sort() == etl_tbls.sort()):
-        print(f"Tables are consistent for {pkg_name} package")
+        logger.info(f"Tables are consistent for {pkg_name} package")
     else:
         inconsistent_tbls = []
         for tbl in file_tbls:
@@ -526,7 +526,7 @@ def get_tabular_data_resource_2(table_name, pkg_dir, testing=False):
 
     resource = datapackage.Resource(descriptor)
     if resource.valid:
-        print("yay you made a valid resource")
+        logger.debug(f"{table_name} is a valid resource")
     if not resource.valid:
         raise AssertionError(
             f"""

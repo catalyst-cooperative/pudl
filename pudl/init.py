@@ -242,20 +242,18 @@ def ingest_static_tables(engine):
     (pc.ferc_electric_plant_accounts
      .drop('row_number', axis=1)
      .replace({'ferc_account_description': r'\s+'}, ' ', regex=True)
-     .rename(columns={'ferc_account_id': 'id',
-                      'ferc_account_description': 'description'})
+     .rename(columns={'ferc_account_description': 'description'})
      .to_sql('ferc_accounts',
              con=engine, index=False, if_exists='append',
-             dtype={'id': sa.String,
+             dtype={'ferc_account_id': sa.String,
                     'description': sa.String}))
 
     (pc.ferc_accumulated_depreciation
      .drop('row_number', axis=1)
-     .rename(columns={'line_id': 'id',
-                      'ferc_account_description': 'description'})
+     .rename(columns={'ferc_account_description': 'description'})
      .to_sql('ferc_depreciation_lines',
              con=engine, index=False, if_exists='append',
-             dtype={'id': sa.String,
+             dtype={'line_id': sa.String,
                     'description': sa.String}))
 
     (
@@ -323,11 +321,6 @@ def _ingest_glue_eia_ferc1(engine,
     relationships between data from different sources are looser than we had
     originally anticipated.
     """
-    # ferc glue tables are structurally entity tables w/ forigen key
-    # relationships to ferc datatables, so we need some of the eia/ferc 'glue'
-    # when only ferc is ingested into the database.
-    if not ferc1_years:
-        return
     map_eia_ferc_file = os.path.join(SETTINGS['pudl_dir'],
                                      'results',
                                      'id_mapping',
@@ -335,7 +328,7 @@ def _ingest_glue_eia_ferc1(engine,
 
     plant_map = pd.read_excel(map_eia_ferc_file, 'plants_output',
                               na_values='', keep_default_na=False,
-                              converters={'plant_id': int,
+                              converters={'plant_id_pudl': int,
                                           'plant_name': str,
                                           'respondent_id_ferc': int,
                                           'respondent_name_ferc': str,
@@ -347,7 +340,7 @@ def _ingest_glue_eia_ferc1(engine,
 
     utility_map = pd.read_excel(map_eia_ferc_file, 'utilities_output',
                                 na_values='', keep_default_na=False,
-                                converters={'utility_id': int,
+                                converters={'utility_id_pudl': int,
                                             'utility_name': str,
                                             'respondent_id_ferc': int,
                                             'respondent_name_ferc': str,
@@ -360,29 +353,29 @@ def _ingest_glue_eia_ferc1(engine,
     # from other tables.
     plant_map = pudl.helpers.strip_lower(plant_map, ['plant_name_ferc'])
 
-    plants = plant_map[['plant_id', 'plant_name']]
-    plants = plants.drop_duplicates('plant_id')
+    plants = plant_map[['plant_id_pudl', 'plant_name']]
+    plants = plants.drop_duplicates('plant_id_pudl')
 
     plants_eia = plant_map[['plant_id_eia',
                             'plant_name_eia',
-                            'plant_id']]
+                            'plant_id_pudl']]
     plants_eia = plants_eia.drop_duplicates('plant_id_eia')
     plants_ferc = plant_map[['plant_name_ferc',
                              'respondent_id_ferc',
-                             'plant_id']]
+                             'plant_id_pudl']]
     plants_ferc = plants_ferc.drop_duplicates(['plant_name_ferc',
                                                'respondent_id_ferc'])
-    utilities = utility_map[['utility_id', 'utility_name']]
-    utilities = utilities.drop_duplicates('utility_id')
+    utilities = utility_map[['utility_id_pudl', 'utility_name']]
+    utilities = utilities.drop_duplicates('utility_id_pudl')
     utilities_eia = utility_map[['operator_id_eia',
                                  'operator_name_eia',
-                                 'utility_id']]
+                                 'utility_id_pudl']]
     utilities_eia = utilities_eia.drop_duplicates('operator_id_eia')
     utilities_eia = utilities_eia.dropna(subset=['operator_id_eia'])
 
     utilities_ferc = utility_map[['respondent_id_ferc',
                                   'respondent_name_ferc',
-                                  'utility_id']]
+                                  'utility_id_pudl']]
     utilities_ferc = utilities_ferc.drop_duplicates('respondent_id_ferc')
     utilities_ferc = utilities_ferc.dropna(subset=['respondent_id_ferc'])
 
@@ -391,10 +384,10 @@ def _ingest_glue_eia_ferc1(engine,
 
     # These dataframes map our plant_id to FERC respondents and EIA
     # operators -- the equivalents of our "utilities"
-    plants_respondents = plant_map[['plant_id', 'respondent_id_ferc']]
+    plants_respondents = plant_map[['plant_id_pudl', 'respondent_id_ferc']]
     plants_respondents = plants_respondents.dropna(
         subset=['respondent_id_ferc'])
-    plants_operators = plant_map[['plant_id', 'operator_id_eia']]
+    plants_operators = plant_map[['plant_id_pudl', 'operator_id_eia']]
     plants_operators = plants_operators.dropna(subset=['operator_id_eia'])
 
     # Here we treat the dataframes like database tables, and join on the
@@ -410,7 +403,7 @@ def _ingest_glue_eia_ferc1(engine,
     # association), and get rid of any duplicates or lingering NaN values...
     utility_plant_assn = pd.concat([utility_plant_eia923, utility_plant_ferc1],
                                    sort=True)
-    utility_plant_assn = utility_plant_assn[['plant_id', 'utility_id']].\
+    utility_plant_assn = utility_plant_assn[['plant_id_pudl', 'utility_id_pudl']].\
         dropna().drop_duplicates()
 
     # At this point there should be at most one row in each of these data
@@ -436,19 +429,18 @@ def _ingest_glue_eia_ferc1(engine,
     # INSERT MORE SANITY HERE
 
     (plants.
-     rename(columns={'plant_id': 'id', 'plant_name': 'name'}).
+     rename(columns={'plant_name': 'name'}).
      to_sql(name='plants', con=engine, index=False, if_exists='append',
-            dtype={'id': sa.Integer, 'name': sa.String}))
+            dtype={'plant_id_pudl': sa.Integer, 'name': sa.String}))
 
     (utilities.
-     rename(columns={'utility_id': 'id', 'utility_name': 'name'}).
+     rename(columns={'utility_name': 'name'}).
      to_sql(name='utilities', con=engine, index=False, if_exists='append',
-            dtype={'id': sa.Integer, 'name': sa.String}))
+            dtype={'utility_id_pudl': sa.Integer, 'name': sa.String}))
 
     (utilities_ferc.
      rename(columns={'respondent_id_ferc': 'utility_id_ferc1',
-                     'respondent_name_ferc': 'utility_name_ferc1',
-                     'utility_id': 'utility_id_pudl'}).
+                     'respondent_name_ferc': 'utility_name_ferc1'}).
      to_sql(name='utilities_ferc', con=engine, index=False, if_exists='append',
             dtype={'utility_id_ferc1': sa.Integer,
                    'utility_name_ferc1': sa.String,
@@ -456,8 +448,7 @@ def _ingest_glue_eia_ferc1(engine,
 
     (plants_ferc.
      rename(columns={'respondent_id_ferc': 'utility_id_ferc1',
-                     'plant_name_ferc': 'plant_name',
-                     'plant_id': 'plant_id_pudl'}).
+                     'plant_name_ferc': 'plant_name'}).
      to_sql(name='plants_ferc', con=engine, index=False, if_exists='append',
             dtype={'utility_id_ferc1': sa.Integer,
                    'plant_name': sa.String,
@@ -473,8 +464,7 @@ def _ingest_glue_eia_ferc1(engine,
     if eia860_years or eia923_years:
         (utilities_eia.
             rename(columns={'operator_id_eia': 'utility_id_eia',
-                            'operator_name_eia': 'utility_name',
-                            'utility_id': 'utility_id_pudl'}).
+                            'operator_name_eia': 'utility_name'}).
             to_sql(name='utilities_eia', con=engine,
                    index=False, if_exists='append',
                    dtype={'utility_id_eia': sa.Integer,
@@ -482,8 +472,7 @@ def _ingest_glue_eia_ferc1(engine,
                           'utility_id_pudl': sa.Integer}))
 
         (plants_eia.
-            rename(columns={'plant_name_eia': 'plant_name',
-                            'plant_id': 'plant_id_pudl'}).
+            rename(columns={'plant_name_eia': 'plant_name'}).
             to_sql(name='plants_eia', con=engine,
                    index=False, if_exists='append',
                    dtype={'plant_id_eia': sa.Integer,
