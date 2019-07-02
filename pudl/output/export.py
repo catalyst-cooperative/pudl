@@ -15,6 +15,7 @@ import tableschema
 import datapackage
 import goodtables
 import json
+import uuid
 import pandas as pd
 import pudl
 from pudl import constants as pc
@@ -476,11 +477,17 @@ def test_file_consistency(pkg_name, tables, out_dir=SETTINGS['out_dir']):
     """
     file_tbls = [x.replace(".csv", "") for x in os.listdir(
         os.path.join(out_dir, pkg_name, 'data'))]
-    dependent_tbls = pudl.helpers.get_dependent_tables_from_list_pkg(
-        tables, meta_dir=SETTINGS['meta_dir'])
+    dependent_tbls = list(pudl.helpers.get_dependent_tables_from_list_pkg(
+        tables, meta_dir=SETTINGS['meta_dir']))
     etl_tbls = tables
 
-    if (file_tbls.sort() == etl_tbls.sort()) & (list(dependent_tbls).sort() == etl_tbls.sort()):
+    dependent_tbls.sort()
+    file_tbls.sort()
+    etl_tbls.sort()
+    # TODO: determine what to do about the dependent_tbls... right now the
+    # dependent tables include some glue tables for FERC in particular, but
+    # we are imagining the glue tables will be
+    if ((file_tbls == etl_tbls)):  # & (dependent_tbls == etl_tbls)):
         logger.info(f"Tables are consistent for {pkg_name} package")
     else:
         inconsistent_tbls = []
@@ -489,11 +496,11 @@ def test_file_consistency(pkg_name, tables, out_dir=SETTINGS['out_dir']):
                 inconsistent_tbls.extend(tbl)
                 raise AssertionError(f"{tbl} from CSVs not in ETL tables")
 
-        for tbl in dependent_tbls:
-            if tbl not in etl_tbls:
-                inconsistent_tbls.extend(tbl)
-                raise AssertionError(
-                    f"{tbl} from forgien key relationships not in ETL tables")
+        # for tbl in dependent_tbls:
+        #    if tbl not in etl_tbls:
+        #        inconsistent_tbls.extend(tbl)
+        #        raise AssertionError(
+        #            f"{tbl} from forgien key relationships not in ETL tables")
         # this is here for now just in case the previous two asserts don't work..
         # we should probably just stick to one.
         raise AssertionError(
@@ -523,6 +530,8 @@ def get_tabular_data_resource_2(table_name, pkg_dir, testing=False):
     descriptor['path'] = csv_relpath
     descriptor['bytes'] = os.path.getsize(csv_abspath)
     descriptor['hash'] = pudl.output.export.hash_csv(csv_abspath)
+    descriptor['created'] = (datetime.datetime.utcnow().
+                             replace(microsecond=0).isoformat() + 'Z'),
 
     resource = datapackage.Resource(descriptor)
     if resource.valid:
@@ -540,7 +549,8 @@ def get_tabular_data_resource_2(table_name, pkg_dir, testing=False):
     return descriptor
 
 
-def generate_metadata(pkg_settings, tables, pkg_dir):
+def generate_metadata(pkg_settings, tables, pkg_dir,
+                      uuid_pkgs=uuid.uuid4()):
     # pkg_json is the datapackage.json that we ultimately output:
     pkg_json = os.path.join(pkg_dir, "datapackage.json")
     # Create a tabular data resource for each of the tables.
@@ -566,6 +576,7 @@ def generate_metadata(pkg_settings, tables, pkg_dir):
         "name": pkg_settings["name"],
         "profile": "tabular-data-package",
         "title": pkg_settings["title"],
+        "id": uuid_pkgs,
         "description": pkg_settings["description"],
         # "keywords": pkg_settings["keywords"],
         "homepage": "https://catalyst.coop/pudl/",
@@ -612,6 +623,7 @@ def generate_data_packages(settings,
     """
     # validate the settings from the settings file.
     validated_settings = pudl.ETL_pkg._input_validate(settings)
+    uuid_pkgs = str(uuid.uuid4())
     metas = {}
     for pkg in validated_settings:
         # run the ETL functions for this pkg and return the list of tables
@@ -623,8 +635,10 @@ def generate_data_packages(settings,
         # generate the metadata for the package and validate
         # TODO: we'll probably want to remove this double return... but having
         # the report and the metadata while debugging is very useful.
-        meta, report = generate_metadata(
-            pkg, pkg_tbls, os.path.join(out_dir, pkg['name']))
+        meta, report = generate_metadata(pkg,
+                                         pkg_tbls,
+                                         os.path.join(out_dir, pkg['name']),
+                                         uuid_pkgs=uuid_pkgs)
         metas[pkg['name']] = [meta, report]
     if debug:
         return (metas)

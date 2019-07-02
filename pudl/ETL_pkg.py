@@ -284,22 +284,37 @@ def _ETL_cems_pkg(inputs, pkg_dir):
 ###############################################################################
 
 
-def _ETL_glue(eia923_years, eia860_years, ferc1_years, out_dir):
+def _input_validate_glue(inputs):
+    glue_dict = {}
+    # pull out the inputs from the dictionary passed into this function
+    try:
+        glue_dict['ferc1'] = inputs['ferc1']
+    except KeyError:
+        glue_dict['ferc1'] = False
+    try:
+        glue_dict['eia'] = inputs['eia']
+    except KeyError:
+        glue_dict['eia'] = False
+    return(glue_dict)
+
+
+def _ETL_glue(inputs, pkg_dir):
     """
     Grab the glue tables and generates CSVs.
 
     Right now, this function only generates the glue between EIA and FERC
 
     """
+    glue_dict = _input_validate_glue(inputs)
+    ferc1 = glue_dict['ferc1']
+    eia = glue_dict['eia']
     # grab the glue tables for ferc1 & eia
-    glue_dfs = pudl.glue.ferc1_eia.glue(eia923_years,
-                                        eia860_years,
-                                        ferc1_years)
+    glue_dfs = pudl.glue.ferc1_eia.glue(ferc1=ferc1, eia=eia)
 
     pudl.load.dict_dump(glue_dfs,
                         "Glue",
                         need_fix_inting=pc.need_fix_inting,
-                        out_dir=out_dir)
+                        pkg_dir=pkg_dir)
     return list(glue_dfs.keys())
 
 
@@ -335,7 +350,8 @@ def _input_validate(settings_init):
     """
     input_validation_functions = {'eia': _input_validate_eia,
                                   'ferc1': _input_validate_ferc1,
-                                  'epacems': _input_validate_epacems
+                                  'epacems': _input_validate_epacems,
+                                  'glue': _input_validate_glue,
                                   }
     # where we are going to compile the new validated settings
     validated_settings = []
