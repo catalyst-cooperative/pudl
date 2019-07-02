@@ -229,12 +229,12 @@ class BoilerGeneratorAssociationEIA860(pudl.models.entities.PUDLBase):
                 comment="PUDL issued surrogate key.")
     plant_id_eia = Column(Integer, nullable=False,
                           comment="EIA Plant Identification number. One to five digit numeric.")
-    report_date = Column(Date, nullable=False)
-    generator_id = Column(String)
-    boiler_id = Column(String)
-    unit_id_eia = Column(String)
-    unit_id_pudl = Column(Integer, nullable=False)
-    bga_source = Column(String)
+    report_date = Column(Date, nullable=False, comment="Date reported.")
+    generator_id = Column(String, comment="")
+    boiler_id = Column(String, comment="")
+    unit_id_eia = Column(String, comment="EIA-assigned unit identification number.")
+    unit_id_pudl = Column(Integer, nullable=False, comment="PUDL-assigned unit identification number.")
+    bga_source = Column(String, comment="")
 
 
 class OwnershipEIA860(pudl.models.entities.PUDLBase):
