@@ -599,7 +599,7 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
 
     data_pkg.save(pkg_json)
     # Validate the data within the package using goodtables:
-    report = goodtables.validate(pkg_json, row_limit=100_000)
+    report = goodtables.validate(pkg_json, row_limit=1000)
     if not report['valid']:
         logger.warning("Data package data validation failed.")
 

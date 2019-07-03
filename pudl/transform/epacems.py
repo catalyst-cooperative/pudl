@@ -35,7 +35,7 @@ def fix_up_dates(df, plant_utc_offset):
             df["op_date"], format=r"%m-%d-%Y", exact=True, cache=True, utc=True
         )
 
- # Add the hour
+        # Add the hour
         + pd.to_timedelta(df["op_hour"], unit="h", box=False)
     )
     df = df.merge(plant_utc_offset, how="left", on="plant_id_eia")
@@ -68,11 +68,43 @@ def _load_plant_utc_offset(pudl_engine):
     plants_eia_entity_select = sa.sql.select(
         [pudl.models.entities.PUDLBase.metadata.tables["plants_entity_eia"]]
     )
-    # TODO: that this reads all the columns. It would be better to select a subset.
+    # TODO: that this reads all the columns. It would be better to select a
+    # subset.
     timezones = pd.read_sql(plants_eia_entity_select, pudl_engine)[
         ["plant_id_eia", "timezone"]
     ].dropna()
-    # Some plants lack the info to get a timezone. None of these plants are in CEMS.
+    # Some plants lack the info to get a timezone. None of these plants are in
+    # CEMS.
+    jan1 = pd.datetime(2011, 1, 1)  # year doesn't matter
+    timezones["utc_offset"] = timezones["timezone"].apply(
+        lambda tz: pytz.timezone(tz).localize(jan1).utcoffset()
+    )
+    del timezones["timezone"]
+    return timezones
+
+
+def _load_plant_utc_offset_pkg():
+    """
+    Load the UTC offset each plant
+
+    CEMS times don't change for DST, so we get get the UTC offset by using the
+    offset for the plants' timezones in January.
+
+    Args:
+        none
+    Return:
+        dataframe: A pandas DataFrame, with columns plant_id_eia and utc_offset
+    """
+    import pytz
+
+    # from the package directory, find the "plants_entity_eia" table
+    # and pull the ["plant_id_eia", "timezone"] columns
+    timezones = pd.read_csv(
+        os.path.join(pkg_dir, 'data', 'plants_entity_eia.csv'))[
+            ["plant_id_eia", "timezone"]].dropna()
+
+    # Some plants lack the info to get a timezone. None of these plants are in
+    # CEMS.
     jan1 = pd.datetime(2011, 1, 1)  # year doesn't matter
     timezones["utc_offset"] = timezones["timezone"].apply(
         lambda tz: pytz.timezone(tz).localize(jan1).utcoffset()
@@ -173,6 +205,25 @@ def transform(pudl_engine, epacems_raw_dfs):
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
     # a transformation pipeline, and yield it back as another generator.
     plant_utc_offset = _load_plant_utc_offset(pudl_engine)
+    for raw_df_dict in epacems_raw_dfs:
+        # There's currently only one dataframe in this dict at a time, but
+        # that could be changed if you want.
+        for yr_st, raw_df in raw_df_dict.items():
+            df = (
+                raw_df.fillna(pc.epacems_columns_fill_na_dict)
+                .pipe(harmonize_eia_epa_orispl)
+                .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
+                .pipe(add_facility_id_unit_id_epa)
+                .pipe(correct_gross_load_mw)
+            )
+            yield {yr_st: df}
+
+
+def transform(epacems_raw_dfs):
+    """Transform EPA CEMS hourly"""
+    # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
+    # a transformation pipeline, and yield it back as another generator.
+    plant_utc_offset = _load_plant_utc_offset_pkg()
     for raw_df_dict in epacems_raw_dfs:
         # There's currently only one dataframe in this dict at a time, but
         # that could be changed if you want.
