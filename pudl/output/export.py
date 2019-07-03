@@ -19,6 +19,7 @@ import uuid
 import pandas as pd
 import pudl
 from pudl import constants as pc
+from pudl import ETL_pkg
 from pudl.settings import SETTINGS
 
 logger = logging.getLogger(__name__)

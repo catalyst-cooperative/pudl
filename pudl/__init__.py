@@ -30,6 +30,7 @@ import pudl.helpers
 import pudl.datastore
 import pudl.init
 import pudl.load
+import pudl.ETL_pkg
 
 # Extraction functions, organized by data source:
 import pudl.extract.ferc1
@@ -37,6 +38,9 @@ import pudl.extract.eia860
 import pudl.extract.eia923
 import pudl.extract.epacems
 import pudl.extract.epaipm
+
+# glue module (rn only ferc<>eia)
+import pudl.glue.ferc1_eia
 
 # Transformation functions, organized by data source:
 import pudl.transform.eia

@@ -219,7 +219,7 @@ def transform(pudl_engine, epacems_raw_dfs):
             yield {yr_st: df}
 
 
-def transform(epacems_raw_dfs):
+def transform_pkg(epacems_raw_dfs):
     """Transform EPA CEMS hourly"""
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
     # a transformation pipeline, and yield it back as another generator.
