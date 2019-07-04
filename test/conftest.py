@@ -216,12 +216,12 @@ def datastore_fixture(pudl_settings_fixture):
     ]
     # Sadly, FERC & EPA have blocked downloads from Travis, so their data has
     # to be hacked in locally if we're running there:
-    if os.environ['TRAVIS']:
+    if os.getenv('TRAVIS'):
         # Simulate having downloaded the data...
         dl_dir = pathlib.Path(pudl_settings_fixture['data_dir'], 'tmp')
 
         epacems_files = (
-            pathlib.Path(os.environ['TRAVIS_BUILD_DIR'],
+            pathlib.Path(os.getenv('TRAVIS_BUILD_DIR'),
                          'test/data/epa/cems/epacems2017/').
             glob('*.zip')
         )
@@ -240,7 +240,7 @@ def datastore_fixture(pudl_settings_fixture):
         )
 
         ferc1_files = (
-            pathlib.Path(os.environ['TRAVIS_BUILD_DIR'],
+            pathlib.Path(os.getenv('TRAVIS_BUILD_DIR'),
                          'test/data/ferc/form1/f1_2017/').
             glob('*.zip')
         )
