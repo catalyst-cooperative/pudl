@@ -1,6 +1,9 @@
 """PyTest configuration module. Defines useful fixtures, command line args."""
 
 import logging
+import os
+import pathlib
+import shutil
 
 import pandas as pd
 import pytest
@@ -209,12 +212,58 @@ def datastore_fixture(pudl_settings_fixture):
     inputs = [
         {'source': 'epaipm', 'year': None, 'states': None},
         {'source': 'eia860', 'year': 2017, 'states': None},
-        {'source': 'ferc1', 'year': 2017, 'states': None},
         {'source': 'eia923', 'year': 2017, 'states': None},
-        {'source': 'epacems', 'year': 2017, 'states': ['ID']},
     ]
+    # Sadly, FERC & EPA have blocked downloads from Travis, so their data has
+    # to be hacked in locally if we're running there:
+    if os.environ['TRAVIS']:
+        # Simulate having downloaded the data...
+        dl_dir = pathlib.Path(pudl_settings_fixture['data_dir'], 'tmp')
 
-    # Download the test year for each dataset
+        epacems_files = (
+            pathlib.Path(os.environ['TRAVIS_BUILD_DIR'],
+                         'test/data/epa/cems/epacems2017/').
+            glob('*.zip')
+        )
+        # Copy the files over to the test-run proto-datastore:
+        for file in epacems_files:
+            logger.info(f"Faking the download of {file} to {dl_dir}")
+            shutil.copy(file, dl_dir)
+
+        # The datastore knows what to do with a file it finds in this dir:
+        datastore.organize(
+            source='epacems',
+            year=2017,
+            states=['ID'],
+            data_dir=pudl_settings_fixture['data_dir'],
+            unzip=True
+        )
+
+        ferc1_files = (
+            pathlib.Path(os.environ['TRAVIS_BUILD_DIR'],
+                         'test/data/ferc/form1/f1_2017/').
+            glob('*.zip')
+        )
+        # Copy the files over to the test-run proto-datastore:
+        for file in ferc1_files:
+            logger.info(f"Faking the download of {file} to {dl_dir}")
+            shutil.copy(file, dl_dir)
+
+        # The datastore knows what to do with a file it finds in this dir:
+        datastore.organize(
+            source='ferc1',
+            year=2017,
+            states=None,
+            data_dir=pudl_settings_fixture['data_dir'],
+            unzip=True
+        )
+    else:
+        inputs.extend([
+            {'source': 'ferc1', 'year': 2017, 'states': None},
+            {'source': 'epacems', 'year': 2017, 'states': ['ID']},
+        ])
+
+    # Download the test year for each dataset that we're downloading...
     for input in inputs:
         datastore.update(
             source=input['source'],
