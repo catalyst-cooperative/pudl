@@ -217,6 +217,7 @@ def datastore_fixture(pudl_settings_fixture):
     # Sadly, FERC & EPA have blocked downloads from Travis, so their data has
     # to be hacked in locally if we're running there:
     if os.getenv('TRAVIS'):
+        logger.info(f"Building a PUDL datastore for Travis CI.")
         # Simulate having downloaded the data...
         dl_dir = pathlib.Path(pudl_settings_fixture['data_dir'], 'tmp')
 
