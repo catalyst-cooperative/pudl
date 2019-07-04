@@ -21,9 +21,9 @@ before_install:
     - uname -a
     - git --version
     - git tag
-    - env
 install:
     - ci/setup_postgres.sh
+    - pip install codecov
     - pip install tox
 script:
     - tox -v -e travis
