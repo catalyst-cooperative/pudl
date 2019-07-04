@@ -148,14 +148,15 @@ def pudl_engine(ferc1_engine,
 
 @pytest.fixture(scope='session')
 def pudl_settings_fixture(request, tmpdir_factory):
-    """
-    Determine some settings (mostly paths) for the test session.
-    """
+    """Determine some settings (mostly paths) for the test session."""
     # Create a session scoped temporary directory.
     pudl_dir = tmpdir_factory.mktemp('pudl')
 
     # Grab the user configuration, if it exists:
-    pudl_auto = pudl.settings.init()
+    try:
+        pudl_auto = pudl.settings.init()
+    except FileNotFoundError:
+        pass
 
     # Grab the input / output dirs specified on the command line, if any:
     pudl_in = request.config.getoption("--pudl_in")
