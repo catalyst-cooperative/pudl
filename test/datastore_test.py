@@ -12,9 +12,12 @@ continuosly exercising this functionality.
 
 import logging
 import os.path
+
 import pytest
+
 import pudl
 import pudl.constants as pc
+import pudl.datastore.datastore as datastore
 
 logger = logging.getLogger(__name__)
 
@@ -28,19 +31,29 @@ logger = logging.getLogger(__name__)
         ("eia923", max(pc.data_years["eia923"])),
         ("epacems", min(pc.data_years["epacems"])),
         ("epacems", max(pc.data_years["epacems"])),
-        ("epaipm", None),
+        # datastore.path does not work for EPA IPM ("epaipm", None),
         ("ferc1", min(pc.data_years["ferc1"])),
         ("ferc1", max(pc.data_years["ferc1"]))
     ]
 )
 def test_datastore(tmpdir, source, year):
     """Attempt to download the most recent year of FERC Form 1 data."""
-    states = ["id"]  # Idaho has the least data of any CEMS state.
+    states = ['id']  # Idaho has the least data of any CEMS state.
     # Attempt to update our temporary/test datastore:
-    pudl.datastore.datastore.update(source, year, states, datadir=tmpdir)
+    pudl_settings = pudl.settings.init(pudl_in=tmpdir, pudl_out=tmpdir)
+    datastore.update(
+        source=source,
+        year=year,
+        states=states,
+        pudl_settings=pudl_settings
+    )
     # Generate a list of paths where we think there should be files now:
-    paths_to_check = pudl.datastore.datastore.paths_for_year(
-        source=source, year=year, states=states, datadir=tmpdir)
+    paths_to_check = datastore.paths_for_year(
+        source=source,
+        year=year,
+        states=states,
+        data_dir=pudl_settings['data_dir'],
+    )
     # Loop over those paths and poke at the files a bit:
     for path in paths_to_check:
         # Check that the path exists at all:

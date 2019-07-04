@@ -5,10 +5,10 @@ These tables include many lists of static values, as well as the "glue" that
 is required to relate information from different data sources to each other.
 """
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Enum
-import pudl.models.entities
-import pudl.constants
+from sqlalchemy import Column, Enum, ForeignKey, Integer, String
 
+import pudl.constants
+import pudl.models.entities
 
 ###########################################################################
 # Tables and Enum objects representing static lists. E.g. US states.

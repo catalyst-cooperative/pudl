@@ -7,13 +7,15 @@ This code is for use analyzing EIA Form 923 data. Currenly only
 years 2009-2016 work, as they share nearly identical file formatting.
 """
 
+import glob
 import logging
 import os.path
-import glob
+
 import pandas as pd
+
 import pudl
-from pudl.settings import SETTINGS
 import pudl.constants as pc
+import pudl.datastore.datastore as datastore
 
 logger = logging.getLogger(__name__)
 ###########################################################################
@@ -22,43 +24,34 @@ logger = logging.getLogger(__name__)
 ###########################################################################
 
 
-def datadir(year, basedir=SETTINGS['eia923_data_dir']):
-    """Searches data directory for EIA Form 923.
+def get_eia923_file(yr, data_dir):
+    """Construct the appopriate path for a given year's EIA923 Excel file.
 
     Args:
         year (int): The year that we're trying to read data for.
-        basedir (str): Directory in which EIA923 data resides.
-    Returns:
-        str: path to appropriate EIA 923 data directory.
+        data_dir (str): Top level datastore directory.
 
-    Todo: assert statement
-    """
-    # These are the only years we've got...
-    assert year in pc.data_years['eia923']
-    if year < 2008:
-        return os.path.join(basedir, 'f906920_{}'.format(year))
-    return os.path.join(basedir, 'f923_{}'.format(year))
-
-
-def get_eia923_file(yr, basedir=SETTINGS['eia923_data_dir']):
-    """Given a year, returns the appopriate EIA923 excel file.
-
-    Args:
-        year (int): The year that we're trying to read data for.
-        basedir (str): Directory in which EIA923 data resides.
     Returns:
         str: path to EIA 923 spreadsheets corresponding to a given year.
 
-    Todo: 2 assert statements
     """
-    assert(yr >= min(pc.working_years['eia923'])),\
-        "EIA923 file selection only works for 2009 & later."
-    eia923_filematch = glob.glob(os.path.join(
-        datadir(yr, basedir=basedir), '*2_3_4*'))
+    if yr < min(pc.working_years['eia923']):
+        raise ValueError(
+            f"EIA923 file selection only works for 2009 & later "
+            f"but file for {yr} was requested."
+        )
+
+    eia923_dir = datastore.path('eia923', year=yr, file=False,
+                                data_dir=data_dir)
+    eia923_globs = glob.glob(os.path.join(eia923_dir, '*2_3_4*'))
+
     # There can only be one!
-    assert len(eia923_filematch) == 1, \
-        'Multiple matching EIA923 spreadsheets found for {}'.format(yr)
-    return eia923_filematch[0]
+    if len(eia923_globs) > 1:
+        raise AssertionError(
+            f'Multiple matching EIA923 spreadsheets found for {yr}!'
+        )
+
+    return eia923_globs[0]
 
 
 def get_eia923_column_map(page, year):
@@ -187,7 +180,7 @@ def get_eia923_page(page, eia923_xlsx,
     return df
 
 
-def get_eia923_xlsx(years):
+def get_eia923_xlsx(years, data_dir):
     """Reads in Excel files to create Excel objects.
 
     Rather than reading in the same Excel files several times, we can just
@@ -202,11 +195,11 @@ def get_eia923_xlsx(years):
     eia923_xlsx = {}
     for yr in years:
         logger.info(f"Extracting EIA 923 spreadsheets for {yr}.")
-        eia923_xlsx[yr] = pd.ExcelFile(get_eia923_file(yr))
+        eia923_xlsx[yr] = pd.ExcelFile(get_eia923_file(yr, data_dir))
     return eia923_xlsx
 
 
-def extract(eia923_years=pc.working_years['eia923']):
+def extract(eia923_years, data_dir):
     """Creates a dictionary of DataFrames containing all the EIA 923 tables.
 
     Args:
@@ -222,7 +215,7 @@ def extract(eia923_years=pc.working_years['eia923']):
 
     # Prep for ingesting EIA923
     # Create excel objects
-    eia923_xlsx = get_eia923_xlsx(eia923_years)
+    eia923_xlsx = get_eia923_xlsx(eia923_years, data_dir)
 
     # Create DataFrames
     for page in pc.tab_map_eia923.columns:

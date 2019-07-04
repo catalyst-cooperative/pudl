@@ -4,16 +4,18 @@ Function names should be indicative of the format of the thing that's being
 exported (e.g. CSV, Excel spreadsheets, parquet files, HDF5).
 """
 
+import datetime
+import hashlib
+import logging
 import os
 import re
-import hashlib
-import datetime
-import logging
-import sqlalchemy as sa
-import tableschema
+
 import datapackage
 import goodtables
 import pandas as pd
+import sqlalchemy as sa
+import tableschema
+
 import pudl
 
 logger = logging.getLogger(__name__)
@@ -254,12 +256,10 @@ def hash_csv(csv_path):
     return f"sha1:{hasher.hexdigest()}"
 
 
-def data_package(pkg_tables, pkg_skeleton,
-                 out_dir=os.path.join(pudl.settings.PUDL_DIR,
-                                      "results", "data_pkgs"),
-                 testing=False):
+def data_package(pkg_tables, pkg_skeleton, pudl_settings=None, testing=False):
     """
     Create a data package of requested tables and their dependencies.
+
     See Frictionless Data for the tabular data package specification:
 
     http://frictionlessdata.io/specs/tabular-data-package/
@@ -282,11 +282,15 @@ def data_package(pkg_tables, pkg_skeleton,
     Returns:
         data_pkg (Package): an object representing the data package,
             as defined by the datapackage library.
+
     """
+    if pudl_settings is None:
+        pudl_settings = pudl.settings.init()
     # A few paths we are going to need repeatedly:
     # out_dir is the packaging directory -- the place where packages end up
     # pkg_dir is the top level directory of this package:
-    pkg_dir = os.path.abspath(os.path.join(out_dir, pkg_skeleton["name"]))
+    pkg_dir = os.path.abspath(os.path.join(
+        pudl_settings['datapackage_dir'], pkg_skeleton["name"]))
     # data_dir is the data directory within the package directory:
     data_dir = os.path.join(pkg_dir, "data")
     # pkg_json is the datapackage.json that we ultimately output:

@@ -31,7 +31,7 @@ import pudl.models.epacems
 import pudl.models.epaipm
 import pudl.models.ferc1
 import pudl.models.glue
-from pudl.settings import SETTINGS
+import pudl.settings
 
 logger = logging.getLogger(__name__)
 
@@ -42,11 +42,15 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 
 
-def connect_db(testing=False):
+def connect_db(pudl_settings=None, testing=False):
     """Connect to the PUDL database using global settings from settings.py."""
+    if pudl_settings is None:
+        pudl_settings = pudl.settings.init()
     if testing:
-        return sa.create_engine(sa.engine.url.URL(**SETTINGS['db_pudl_test']))
-    return sa.create_engine(sa.engine.url.URL(**SETTINGS['db_pudl']))
+        return sa.create_engine(
+            sa.engine.url.URL(**pudl_settings['db_pudl_test']))
+    return sa.create_engine(
+        sa.engine.url.URL(**pudl_settings['db_pudl']))
 
 
 def _create_tables(engine):
@@ -329,7 +333,7 @@ def _ingest_glue_eia_ferc1(engine,
     if not ferc1_years:
         return
     map_eia_ferc_file = importlib.resources.open_binary(
-        pudl.__name__, 'data/glue/mapping_eia923_ferc1.xlsx')
+        'pudl.package_data.glue', 'mapping_eia923_ferc1.xlsx')
 
     plant_map = pd.read_excel(map_eia_ferc_file, 'plants_output',
                               na_values='', keep_default_na=False,
@@ -496,8 +500,8 @@ def _ingest_glue_eia_ferc1(engine,
 ###############################################################################
 
 
-def _ETL_ferc1(pudl_engine, ferc1_tables, ferc1_years, ferc1_testing,
-               csvdir, keep_csv):
+def _etl_ferc1(pudl_engine, ferc1_tables, ferc1_years, ferc1_testing,
+               csvdir, keep_csv, pudl_settings):
     if not ferc1_years or not ferc1_tables:
         logger.info('Not ingesting FERC1')
         return None
@@ -505,7 +509,8 @@ def _ETL_ferc1(pudl_engine, ferc1_tables, ferc1_years, ferc1_testing,
     # Extract FERC form 1
     ferc1_raw_dfs = pudl.extract.ferc1.extract(ferc1_tables=ferc1_tables,
                                                ferc1_years=ferc1_years,
-                                               testing=ferc1_testing)
+                                               testing=ferc1_testing,
+                                               pudl_settings=pudl_settings)
     # Transform FERC form 1
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
         ferc1_raw_dfs, ferc1_tables=ferc1_tables)
@@ -518,15 +523,17 @@ def _ETL_ferc1(pudl_engine, ferc1_tables, ferc1_years, ferc1_testing,
                              keep_csv=keep_csv)
 
 
-def _ETL_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables,
-             eia860_years, csvdir, keep_csv):
+def _etl_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables,
+             eia860_years, csvdir, keep_csv, pudl_settings):
     if (not eia923_tables or not eia923_years) and (not eia860_tables or not eia860_years):
         logger.info('Not ingesting EIA.')
         return None
 
     # Extract EIA forms 923, 860
-    eia923_raw_dfs = pudl.extract.eia923.extract(eia923_years=eia923_years)
-    eia860_raw_dfs = pudl.extract.eia860.extract(eia860_years=eia860_years)
+    eia923_raw_dfs = pudl.extract.eia923.extract(
+        eia923_years=eia923_years, data_dir=pudl_settings['data_dir'])
+    eia860_raw_dfs = pudl.extract.eia860.extract(
+        eia860_years=eia860_years, data_dir=pudl_settings['data_dir'])
     # Transform EIA forms 923, 860
     eia923_transformed_dfs = \
         pudl.transform.eia923.transform(eia923_raw_dfs,
@@ -554,7 +561,12 @@ def _ETL_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables,
                                  keep_csv=keep_csv)
 
 
-def _ETL_cems(pudl_engine, epacems_years, csvdir, keep_csv, states):
+def _etl_epacems(pudl_engine,
+                 epacems_years,
+                 csvdir,
+                 keep_csv,
+                 states,
+                 pudl_settings):
     """"""
     # If we're not doing CEMS, just stop here to avoid printing messages like
     # "Reading EPA CEMS data...", which could be confusing.
@@ -566,7 +578,10 @@ def _ETL_cems(pudl_engine, epacems_years, csvdir, keep_csv, states):
 
     # NOTE: This a generator for raw dataframes
     epacems_raw_dfs = pudl.extract.epacems.extract(
-        epacems_years=epacems_years, states=states)
+        epacems_years=epacems_years,
+        states=states,
+        data_dir=pudl_settings['data_dir']
+    )
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform(
         pudl_engine=pudl_engine, epacems_raw_dfs=epacems_raw_dfs)
@@ -600,7 +615,7 @@ def _ETL_cems(pudl_engine, epacems_years, csvdir, keep_csv, states):
         logger.info(time_message)
 
 
-def _ETL_ipm(pudl_engine, epaipm_tables, csvdir, keep_csv):
+def _etl_epaipm(pudl_engine, epaipm_tables, csvdir, keep_csv, pudl_settings):
     """
     Extract, transform, and load tables from EPA IPM.
 
@@ -620,7 +635,8 @@ def _ETL_ipm(pudl_engine, epaipm_tables, csvdir, keep_csv):
     """
 
     # Extract IPM tables
-    epaipm_raw_dfs = pudl.extract.epaipm.extract(epaipm_tables)
+    epaipm_raw_dfs = pudl.extract.epaipm.extract(
+        epaipm_tables, data_dir=pudl_settings['data_dir'])
 
     epaipm_transformed_dfs = pudl.transform.epaipm.transform(
         epaipm_raw_dfs, epaipm_tables
@@ -647,6 +663,7 @@ def init_db(ferc1_tables=None,
             epaipm_tables=None,
             pudl_testing=None,
             ferc1_testing=None,
+            pudl_settings=None,
             debug=None,
             csvdir=None,
             keep_csv=None):
@@ -713,8 +730,11 @@ def init_db(ferc1_tables=None,
                     f"Unrecogized EPA IPM table: {table}"
                 )
 
+    if pudl_settings is None:
+        pudl_settings = pudl.settings.init()
+
     # Connect to the PUDL DB, wipe out & re-create tables:
-    pudl_engine = connect_db(testing=pudl_testing)
+    pudl_engine = connect_db(pudl_settings=pudl_settings, testing=pudl_testing)
     drop_tables(pudl_engine)
     _create_tables(pudl_engine)
 
@@ -739,32 +759,44 @@ def init_db(ferc1_tables=None,
     # in memory at the same time.
 
     # ETL for FERC form 1
-    _ETL_ferc1(pudl_engine=pudl_engine,
-               ferc1_tables=ferc1_tables,
-               ferc1_years=ferc1_years,
-               ferc1_testing=ferc1_testing,
-               csvdir=csvdir,
-               keep_csv=keep_csv)
-    # ETL for EIA forms 860, 923
-    _ETL_eia(pudl_engine=pudl_engine,
-             eia923_tables=eia923_tables,
-             eia923_years=eia923_years,
-             eia860_tables=eia860_tables,
-             eia860_years=eia860_years,
-             csvdir=csvdir,
-             keep_csv=keep_csv)
-    # ETL for EPA CEMS
-    _ETL_cems(pudl_engine=pudl_engine,
-              epacems_years=epacems_years,
-              states=epacems_states,
-              csvdir=csvdir,
-              keep_csv=keep_csv)
+    _etl_ferc1(
+        pudl_engine=pudl_engine,
+        ferc1_tables=ferc1_tables,
+        ferc1_years=ferc1_years,
+        ferc1_testing=ferc1_testing,
+        csvdir=csvdir,
+        keep_csv=keep_csv,
+        pudl_settings=pudl_settings
+    )
 
-    _ETL_ipm(
+    # ETL for EIA forms 860, 923
+    _etl_eia(
+        pudl_engine=pudl_engine,
+        eia923_tables=eia923_tables,
+        eia923_years=eia923_years,
+        eia860_tables=eia860_tables,
+        eia860_years=eia860_years,
+        csvdir=csvdir,
+        keep_csv=keep_csv,
+        pudl_settings=pudl_settings
+    )
+
+    # ETL for EPA CEMS
+    _etl_epacems(
+        pudl_engine=pudl_engine,
+        epacems_years=epacems_years,
+        states=epacems_states,
+        csvdir=csvdir,
+        keep_csv=keep_csv,
+        pudl_settings=pudl_settings
+    )
+
+    _etl_epaipm(
         pudl_engine=pudl_engine,
         epaipm_tables=epaipm_tables,
         csvdir=csvdir,
-        keep_csv=keep_csv
+        keep_csv=keep_csv,
+        pudl_settings=pudl_settings
     )
 
     pudl_engine.execute("ANALYZE")

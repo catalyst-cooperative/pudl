@@ -10,6 +10,7 @@ import sqlalchemy as sa
 
 import pudl
 import pudl.constants as pc
+import pudl.datastore.datastore as datastore
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 ###########################################################################
 # Functions for cloning the FoxPor DB into SQLite
 ###########################################################################
-def connect_db(sqlite_file):
+def connect_db(pudl_settings=None, testing=False):
     """
     Create an SQL Alchemy engine for the FERC Form 1 SQLite database.
 
@@ -33,7 +34,13 @@ def connect_db(sqlite_file):
         sa.engine: An SQL Alchemy database engine.
 
     """
-    return sa.create_engine(f'sqlite:///{sqlite_file}')
+    if pudl_settings is None:
+        pudl_settings = pudl.settings.init()
+
+    if testing:
+        return sa.create_engine(pudl_settings['ferc1_test_sqlite_url'])
+
+    return sa.create_engine(pudl_settings['ferc1_sqlite_url'])
 
 
 def _create_tables(engine, md):
@@ -51,7 +58,7 @@ def drop_tables(engine):
     conn.close()
 
 
-def add_sqlite_table(table_name, sqlite_meta, dbc_map,
+def add_sqlite_table(table_name, sqlite_meta, dbc_map, data_dir,
                      refyear=max(pc.working_years['ferc1']),
                      bad_cols=()):
     """Creates a new Table to receive FERC Form 1 data.
@@ -62,12 +69,14 @@ def add_sqlite_table(table_name, sqlite_meta, dbc_map,
         dbc_map ():
         bad_cols ():
 
-    Todo: Zane revisit
+    Todo:
+        Zane revisit
 
     """
     # Create the new table object
     new_table = sa.Table(table_name, sqlite_meta)
-    ferc1_dbf = dbfread.DBF(get_dbf_path(table_name, refyear))
+    ferc1_dbf = dbfread.DBF(
+        get_dbf_path(table_name, refyear, data_dir=data_dir))
 
     # Add Columns to the table
     for field in ferc1_dbf.fields:
@@ -99,7 +108,7 @@ def add_sqlite_table(table_name, sqlite_meta, dbc_map,
         )
 
 
-def dbc_filename(year):
+def dbc_filename(year, data_dir):
     """Given a year, returns the path to the master FERC Form 1 .DBC file.
 
     Args:
@@ -108,12 +117,14 @@ def dbc_filename(year):
     Returns:
         str: the file path to the master FERC Form 1 .DBC file for the year
     """
-    return os.path.join(
-        pudl.datastore.path('ferc1', year, file=False), 'F1_PUB.DBC')
+    ferc1_path = datastore.path('ferc1', data_dir=data_dir,
+                                year=year, file=False)
+    return os.path.join(ferc1_path, 'F1_PUB.DBC')
 
 
 def get_strings(filename, min_length=4):
-    """Extracts printable strings from a binary and return them as a generator.
+    """
+    Extract printable strings from a binary and return them as a generator.
 
     This is meant to emulate the Unix "strings" command, for the purposes of
     grabbing database table and column names from the F1_PUB.DBC file that is
@@ -128,7 +139,9 @@ def get_strings(filename, min_length=4):
     Yields:
         str: result
 
-    Todo: Zane revisit
+    Todo:
+        Zane revisit
+
     """
     with open(filename, errors="ignore") as f:
         result = ""
@@ -143,7 +156,7 @@ def get_strings(filename, min_length=4):
             yield result
 
 
-def get_dbc_map(year, min_length=4):
+def get_dbc_map(year, data_dir, min_length=4):
     """Extracts the names of all the tables and fields from FERC Form 1 DB.
 
     This function reads all the strings in the given DBC database file for the
@@ -168,7 +181,7 @@ def get_dbc_map(year, min_length=4):
             extracted.
 
     Returns:
-        dict: dbc_map, a dictionary whose keys are the long table names extracted
+        dict: a dictionary whose keys are the long table names extracted
             from the DBC file, and whose values are lists of pairs of values,
             the first of which is the full name of each field in the table with
             the same name as the key, and the second of which is the truncated
@@ -176,7 +189,8 @@ def get_dbc_map(year, min_length=4):
     """
     # Extract all the strings longer than "min" from the DBC file
     dbc_strings = list(
-        get_strings(dbc_filename(year), min_length=min_length))
+        get_strings(dbc_filename(year, data_dir), min_length=min_length)
+    )
 
     # Get rid of leading & trailing whitespace in the strings:
     dbc_strings = [s.strip() for s in dbc_strings]
@@ -216,7 +230,7 @@ def get_dbc_map(year, min_length=4):
 
     dbc_map = {}
     for table in pc.ferc1_tbl2dbf:
-        dbf_path = get_dbf_path(table, year)
+        dbf_path = get_dbf_path(table, year, data_dir=data_dir)
         if os.path.isfile(dbf_path):
             dbf_fields = dbfread.DBF(dbf_path).field_names
             dbf_fields = [f for f in dbf_fields if f != '_NullFlags']
@@ -232,7 +246,7 @@ def get_dbc_map(year, min_length=4):
     return dbc_map
 
 
-def define_sqlite_db(sqlite_meta, dbc_map,
+def define_sqlite_db(sqlite_meta, dbc_map, data_dir,
                      tables=pc.ferc1_tbl2dbf,
                      refyear=max(pc.working_years['ferc1']),
                      bad_cols=()):
@@ -266,12 +280,13 @@ def define_sqlite_db(sqlite_meta, dbc_map,
     for table in tables:
         add_sqlite_table(table, sqlite_meta, dbc_map,
                          refyear=refyear,
-                         bad_cols=bad_cols)
+                         bad_cols=bad_cols,
+                         data_dir=data_dir)
 
     sqlite_meta.create_all()
 
 
-def get_dbf_path(table, year):
+def get_dbf_path(table, year, data_dir):
     """Given a year and table name, returns the path to its datastore DBF file.
 
     Args:
@@ -285,7 +300,8 @@ def get_dbf_path(table, year):
             table name.
     """
     dbf_name = pc.ferc1_tbl2dbf[table]
-    ferc1_dir = pudl.datastore.path("ferc1", year=year, file=False)
+    ferc1_dir = datastore.path(
+        'ferc1', year=year, file=False, data_dir=data_dir)
     dbf_path = os.path.join(ferc1_dir, f"{dbf_name}.DBF")
     return dbf_path
 
@@ -319,7 +335,8 @@ class FERC1FieldParser(dbfread.FieldParser):
         return super(FERC1FieldParser, self).parseN(field, data)
 
 
-def get_raw_df(table, dbc_map, years=pc.data_years['ferc1']):
+def get_raw_df(table, dbc_map, data_dir,
+               years=pc.data_years['ferc1']):
     """Combines several years of a given FERC Form 1 DBF table into a dataframe.
 
     Args:
@@ -338,7 +355,8 @@ def get_raw_df(table, dbc_map, years=pc.data_years['ferc1']):
 
     raw_dfs = []
     for yr in years:
-        ferc1_dir = pudl.datastore.path("ferc1", year=yr, file=False)
+        ferc1_dir = datastore.path(
+            'ferc1', year=yr, file=False, data_dir=data_dir)
         dbf_path = os.path.join(ferc1_dir, f"{dbf_name}.DBF")
 
         if os.path.exists(dbf_path):
@@ -359,9 +377,11 @@ def get_raw_df(table, dbc_map, years=pc.data_years['ferc1']):
 def dbf2sqlite(tables=pc.ferc1_tbl2dbf,
                years=pc.data_years['ferc1'],
                refyear=max(pc.working_years['ferc1']),
+               pudl_settings=None,
                testing=False,
                bad_cols=()):
-    """Coordinates the cloning of the FERC DB.
+    """
+    Clone the FERC Form 1 Databsae to SQLite
 
     Args:
         testing (bool): Determines whether the live or testing database is
@@ -374,27 +394,39 @@ def dbf2sqlite(tables=pc.ferc1_tbl2dbf,
             indicating columns that should be skipped during the cloning
             process. Both table and column are strings in this case, the
             names of their respective entities within the database metadata.
+
     Returns:
         None
+
     """
+    if pudl_settings is None:
+        pudl_settings = pudl.settings.init()
     # Read in the structure of the DB, if it exists
     logger.info("Dropping the old FERC Form 1 SQLite DB if it exists.")
-    sqlite_engine = connect_db(testing=testing)
-    # So that we can wipe it out
-    drop_tables(sqlite_engine)
+    sqlite_engine = connect_db(pudl_settings=pudl_settings,
+                               testing=testing)
+    try:
+        # So that we can wipe it out
+        drop_tables(sqlite_engine)
+    except sa.exc.OperationalError:
+        pass
+
     # And start anew
-    sqlite_engine = connect_db(testing=testing)
+    sqlite_engine = connect_db(pudl_settings=pudl_settings,
+                               testing=testing)
     sqlite_meta = sa.MetaData(bind=sqlite_engine)
 
     # Get the mapping of filenames to table names and fields
     logger.info(f"Creating a new database schema based on {refyear}.")
-    dbc_map = get_dbc_map(refyear)
+    dbc_map = get_dbc_map(refyear, data_dir=pudl_settings['data_dir'])
     define_sqlite_db(sqlite_meta, dbc_map, tables=tables,
-                     refyear=refyear, bad_cols=bad_cols)
+                     refyear=refyear, bad_cols=bad_cols,
+                     data_dir=pudl_settings['data_dir'])
 
     for table in tables:
         logger.info(f"Pandas: reading {table} into a DataFrame.")
-        new_df = get_raw_df(table, dbc_map, years=years)
+        new_df = get_raw_df(table, dbc_map, years=years,
+                            data_dir=pudl_settings['data_dir'])
         # Because this table has no year in it, there would be multiple
         # definitions of respondents if we didn't drop duplicates.
         if table == 'f1_respondent_id':
@@ -425,7 +457,7 @@ def dbf2sqlite(tables=pc.ferc1_tbl2dbf,
 
 def extract(ferc1_tables=pc.ferc1_pudl_tables,
             ferc1_years=pc.working_years['ferc1'],
-            testing=False):
+            pudl_settings=None, testing=False):
     """Coordinates the extraction of all FERC Form 1 tables into PUDL.
 
     Args:
@@ -486,7 +518,8 @@ def extract(ferc1_tables=pc.ferc1_pudl_tables,
             )
 
     # Connect to the local SQLite DB and read its structure.
-    ferc1_engine = connect_db(testing=testing)
+    ferc1_engine = connect_db(pudl_settings=pudl_settings,
+                              testing=testing)
     ferc1_meta = sa.MetaData(bind=ferc1_engine)
     ferc1_meta.reflect()
     if not ferc1_meta.tables:
@@ -758,36 +791,3 @@ def show_dupes(table, dbc_map, years=pc.data_years['ferc1'],
             if n_dupes > 0:
                 print(f"    {yr}: {n_dupes}")
     # return raw_df[raw_df.duplicated(subset=pk, keep=False)]
-
-
-# DEPRECATED: used in the structured DB oriented exctration:
-def add_sqlite_records(ferc1_engine, sqlite_meta,
-                       tables=pc.ferc1_default_tables,
-                       years=pc.data_years['ferc1'],
-                       bad_cols=(), refyear=max(pc.data_years['ferc1'])):
-    """
-    Todo:
-        Zane revisit.
-    """
-    dbc_map = get_dbc_map(refyear)
-    conn = ferc1_engine.connect()
-    for table in tables:
-        print(f"{table: <20}:", end=" ")
-        for year in years:
-            print(f"{year},", end=" ")
-            sql_statement = sa.sql.expression.insert(sqlite_meta.tables[table])
-            sql_records = []
-            dbf_path = get_dbf_path(table, year)
-            if not os.path.exists(dbf_path):
-                continue
-            ferc1_dbf = dbfread.DBF(dbf_path,
-                                    encoding='latin1',
-                                    parserclass=FERC1FieldParser)
-            for dbf_rec in ferc1_dbf.records:
-                sql_rec = {}
-                for d, s in dbc_map[table].items():
-                    if not (table, s) in bad_cols:
-                        sql_rec[s] = dbf_rec[d]
-                sql_records.append(sql_rec)
-            conn.execute(sql_statement, sql_records)
-        print("")

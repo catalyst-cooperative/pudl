@@ -8,19 +8,18 @@ compartmentalize the code testing and continuous integration, it seems like a
 good idea to set up a standalone dataset for testing. We'll still need a
 separate locally run test for the datastore management.
 
-In addition, we
-
 """
 
+import argparse
 import logging
 import os
-import sys
-import argparse
 import shutil
+import sys
 import zipfile
+
 import pudl
-from pudl.settings import SETTINGS
 import pudl.constants as pc
+import pudl.datastore.datastore as datastore
 
 # Create a logger to output any messages we might have...
 logger = logging.getLogger(pudl.__name__)
@@ -29,12 +28,6 @@ handler = logging.StreamHandler()
 formatter = logging.Formatter('%(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-
-# require modern python
-if not sys.version_info >= (3, 6):
-    raise AssertionError(
-        f"PUDL requires Python 3.6 or later. {sys.version_info} found."
-    )
 
 
 def parse_command_line(argv):
@@ -47,11 +40,11 @@ def parse_command_line(argv):
 
     parser.add_argument(
         '-d',
-        '--datadir',
+        '--out_dir',
         type=str,
-        help="""Path to the test data directory. (default:
-        %(default)s).""",
-        default=os.path.join(SETTINGS['pudl_dir'], 'test', 'data')
+        help=f"""Directory to which generated test data should be written.
+        (default: current working directory {os.getcwd()})""",
+        default=os.getcwd()
     )
     parser.add_argument(
         '-s',
@@ -114,11 +107,14 @@ def main():
             if bad_yrs:
                 logger.warning(f"Invalid {src} years ignored: {bad_yrs}.")
 
-    test_datadir = os.path.join(pudl.settings.SETTINGS['test_dir'], 'data')
+    pudl_settings = pudl.settings.init(pudl_in=args['out_dir'],
+                                       pudl_out=args['out_dir'])
+
     for src in args.sources:
         for yr in yrs_by_src[src]:
-            src_dir = pudl.datastore.path(src, year=yr, file=False)
-            tmp_dir = os.path.join(test_datadir, 'tmp')
+            src_dir = datastore.path(src, year=yr, file=False,
+                                     pudl_settings=pudl_settings)
+            tmp_dir = os.path.join(args['data_dir'], 'tmp')
 
             if src == 'ferc1':
                 files_to_move = [f"{pc.ferc1_tbl2dbf[f]}.DBF" for f in
@@ -126,7 +122,7 @@ def main():
                 files_to_move = files_to_move + ['F1_PUB.DBC', 'F1_32.FPT']
             elif src == 'epacems':
                 files_to_move = [
-                    pudl.datastore.path('epacems', year=yr, state=st, month=mo)
+                    datastore.path('epacems', year=yr, state=st, month=mo)
                     for mo in range(1, 13) for st in args.states
                 ]
                 files_to_move = [os.path.basename(f) for f in files_to_move]
@@ -146,7 +142,8 @@ def main():
                 shutil.copy(src_file, dst_file)
 
             if src == 'ferc1':
-                ferc1_test_zipfile = os.path.join(test_datadir, f"f1_{yr}.zip")
+                ferc1_test_zipfile = os.path.join(
+                    args['data_dir'], f"f1_{yr}.zip")
                 z = zipfile.ZipFile(ferc1_test_zipfile, mode='w',
                                     compression=zipfile.ZIP_DEFLATED)
                 for root, dirs, files in os.walk(tmp_dir):
@@ -159,8 +156,8 @@ def main():
                     os.remove(f)
 
             logger.info(f"organizing datastore for {src} {yr}")
-            pudl.datastore.organize(src, yr, states=args.states,
-                                    datadir=test_datadir, unzip=False)
+            datastore.organize(src, yr, states=args.states,
+                               data_dir=args['data_dir'], unzip=False)
 
 
 if __name__ == '__main__':

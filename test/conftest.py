@@ -7,6 +7,7 @@ import pytest
 
 import pudl
 from pudl import constants as pc
+from pudl.datastore import datastore
 from pudl.output.pudltabl import PudlTabl
 
 logger = logging.getLogger(__name__)
@@ -23,6 +24,10 @@ def pytest_addoption(parser):
                      help="Use live FERC DB rather than test DB.")
     parser.addoption("--live_pudl_db", action="store_true", default=False,
                      help="Use live PUDL DB rather than test DB.")
+    parser.addoption("--pudl_in", action="store", default=False,
+                     help="Path to the top level PUDL inputs directory.")
+    parser.addoption("--pudl_out", action="store", default=False,
+                     help="Path to the top level PUDL outputs directory.")
 
 
 @pytest.fixture(scope='session')
@@ -71,7 +76,7 @@ def pudl_out_eia(live_pudl_db, request):
 
 
 @pytest.fixture(scope='session')
-def ferc1_engine(live_ferc_db):
+def ferc1_engine(live_ferc_db, pudl_settings_fixture):
     """
     Grab a connection to the FERC Form 1 DB clone.
 
@@ -82,27 +87,31 @@ def ferc1_engine(live_ferc_db):
     tables = [
         tbl for tbl in pc.ferc1_tbl2dbf if tbl not in pc.ferc1_huge_tables
     ]
-    refyear = max(pc.working_years['ferc1'])
-    testing = not live_ferc_db
 
-    if testing:
+    if not live_ferc_db:
         pudl.extract.ferc1.dbf2sqlite(
             tables=tables,
             years=pc.data_years['ferc1'],
-            refyear=refyear,
-            testing=testing)
+            refyear=max(pc.working_years['ferc1']),
+            pudl_settings=pudl_settings_fixture,
+            testing=(not live_ferc_db))
 
     # Grab a connection to the freshly populated database, and hand it off.
-    engine = pudl.extract.ferc1.connect_db(testing=testing)
+    engine = pudl.extract.ferc1.connect_db(
+        pudl_settings=pudl_settings_fixture,
+        testing=(not live_ferc_db)
+    )
     yield engine
 
-    if testing:
+    if not live_ferc_db:
         # Clean up after ourselves by dropping the test DB tables.
         pudl.extract.ferc1.drop_tables(engine)
 
 
 @pytest.fixture(scope='session')
-def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
+def pudl_engine(ferc1_engine,
+                live_pudl_db, live_ferc_db,
+                pudl_settings_fixture):
     """
     Grab a connection to the PUDL Database.
 
@@ -121,22 +130,61 @@ def pudl_engine(ferc1_engine, live_pudl_db, live_ferc_db):
                           epacems_years=pc.travis_ci_epacems_years,
                           epacems_states=pc.travis_ci_epacems_states,
                           epaipm_tables=pc.pudl_tables['epaipm'],
-                          pudl_testing=True,
+                          pudl_settings=pudl_settings_fixture,
+                          pudl_testing=(not live_pudl_db),
                           ferc1_testing=(not live_ferc_db))
 
-        # Grab a connection to the freshly populated PUDL DB, and hand it off.
-        pudl_engine = pudl.init.connect_db(testing=True)
-        yield pudl_engine
+    # Grab a connection to the freshly populated PUDL DB, and hand it off.
+    pudl_engine = pudl.init.connect_db(
+        pudl_settings=pudl_settings_fixture,
+        testing=(not live_pudl_db)
+    )
+    yield pudl_engine
 
+    if not live_pudl_db:
         # Clean up after ourselves by dropping the test DB tables.
         pudl.init.drop_tables(pudl_engine)
-    else:
-        logger.info("Connecting to the live PUDL database.")
-        yield pudl.init.connect_db(testing=False)
 
 
 @pytest.fixture(scope='session')
-def datastore_travis_ci(tmpdir_factory):
+def pudl_settings_fixture(request, tmpdir_factory):
+    """
+    Determine some settings (mostly paths) for the test session.
+    """
+    # Create a session scoped temporary directory.
+    pudl_dir = tmpdir_factory.mktemp('pudl')
+
+    # Grab the user configuration, if it exists:
+    pudl_auto = pudl.settings.init()
+
+    # Grab the input / output dirs specified on the command line, if any:
+    pudl_in = request.config.getoption("--pudl_in")
+    pudl_out = request.config.getoption("--pudl_out")
+
+    # By default, we use the command line option. If that is left False, then
+    # we use a temporary directory. If the command_line option is AUTO, then
+    # we use whatever the user has configured in their $HOME/.pudl.yml file.
+    if pudl_in is False:
+        pudl_in = pudl_dir
+    elif pudl_in == 'AUTO':
+        pudl_in = pudl_auto['pudl_in']
+
+    if pudl_out is False:
+        pudl_out = pudl_dir
+    elif pudl_out == 'AUTO':
+        pudl_out = pudl_auto['pudl_out']
+
+    logger.info(f"Using PUDL_IN={pudl_in}")
+    logger.info(f"Using PUDL_OUT={pudl_out}")
+
+    pudl_settings = pudl.settings.init(pudl_in=pudl_in, pudl_out=pudl_out)
+    pudl.settings.setup(pudl_settings)
+
+    return pudl_settings
+
+
+@pytest.fixture(scope='session')
+def datastore_fixture(pudl_settings_fixture):
     """
     Populate a minimal PUDL datastore for the Travis CI tests to access.
 
@@ -156,7 +204,6 @@ def datastore_travis_ci(tmpdir_factory):
      * Calling the datastore management functions from within the tests will
        add that code to our measurement of test coverage, which is good!
     """
-    from pudl.datastore import datastore
     # In an ideal world it would work like this...
     inputs = [
         {'source': 'epaipm', 'year': None, 'states': None},
@@ -165,23 +212,21 @@ def datastore_travis_ci(tmpdir_factory):
         {'source': 'eia923', 'year': 2017, 'states': None},
         {'source': 'epacems', 'year': 2017, 'states': ['ID']},
     ]
-    # Create a session scoped temporary directory.
-    datadir = tmpdir_factory.mktemp('data')
+
     # Download the test year for each dataset
     for input in inputs:
-        logger.info(f"Downloading {input.source} test data.")
         datastore.update(
-            source=input.source,
-            year=input.year,
-            states=input.states,
-            datadir=datadir
+            source=input['source'],
+            year=input['year'],
+            states=input['states'],
+            pudl_settings=pudl_settings_fixture
         )
-    # Return the path to the datadir
-    return datadir
 
 
 @pytest.fixture(scope='session')
-def ferc1_engine_travis_ci(live_ferc_db, datastore_travis_ci):
+def ferc1_engine_travis_ci(live_ferc_db,
+                           datastore_fixture,
+                           pudl_settings_fixture):
     """
     Grab a connection to the FERC Form 1 DB clone.
 
@@ -197,10 +242,12 @@ def ferc1_engine_travis_ci(live_ferc_db, datastore_travis_ci):
             tables=tables,
             years=pc.travis_ci_ferc1_years,
             refyear=refyear,
+            pudl_settings=pudl_settings_fixture,
             testing=testing)
 
     # Grab a connection to the approbriate SQLite database, and hand it off.
-    engine = pudl.extract.ferc1.connect_db(testing=testing)
+    engine = pudl.extract.ferc1.connect_db(
+        pudl_settings=pudl_settings_fixture, testing=testing)
     yield engine
 
     if testing:
@@ -209,7 +256,9 @@ def ferc1_engine_travis_ci(live_ferc_db, datastore_travis_ci):
 
 
 @pytest.fixture(scope='session')
-def pudl_engine_travis_ci(ferc1_engine_travis_ci, datastore_travis_ci,
+def pudl_engine_travis_ci(ferc1_engine_travis_ci,
+                          datastore_fixture,
+                          pudl_settings_fixture,
                           live_pudl_db, live_ferc_db):
     """
     Grab a connection to the PUDL Database, with a limited amount of data.
@@ -227,16 +276,17 @@ def pudl_engine_travis_ci(ferc1_engine_travis_ci, datastore_travis_ci,
                           epacems_years=pc.travis_ci_epacems_years,
                           epacems_states=pc.travis_ci_epacems_states,
                           epaipm_tables=pc.epaipm_pudl_tables,
-                          pudl_testing=True,
+                          pudl_settings=pudl_settings_fixture,
+                          pudl_testing=(not live_pudl_db),
                           ferc1_testing=(not live_ferc_db))
 
-        # Grab a connection to the freshly populated PUDL DB, and hand it off.
-        pudl_engine = pudl.init.connect_db(testing=True)
-        yield pudl_engine
+    # Grab a connection to the freshly populated PUDL DB, and hand it off.
+    pudl_engine = pudl.init.connect_db(
+        pudl_settings=pudl_settings_fixture,
+        testing=(not live_pudl_db)
+    )
+    yield pudl_engine
 
+    if not live_pudl_db:
         # Clean up after ourselves by dropping the test DB tables.
         pudl.init.drop_tables(pudl_engine)
-
-    else:
-        logger.info("Connecting to the live PUDL database.")
-        yield pudl.init.connect_db(testing=False)

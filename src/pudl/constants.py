@@ -11,8 +11,6 @@ import importlib.resources
 import pandas as pd
 import sqlalchemy as sa
 
-import pudl
-
 ######################################################################
 # Constants used within the init.py module.
 ######################################################################
@@ -740,46 +738,36 @@ entity_tables = ['utilities_entity_eia',
                  'regions_entity_ipm', ]
 
 # 'stocks_eia923'
-xlsx_map_dir = 'data/meta/xlsx_maps'
+xlsx_maps_pkg = 'pudl.package_data.meta.xlsx_maps'
 
 ##############################################################################
 # EIA 923 Spreadsheet Metadata
 ##############################################################################
 tab_map_eia923 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__, xlsx_map_dir + '/' + 'tab_map_eia923.csv'),
+    importlib.resources.open_text(xlsx_maps_pkg, 'tab_map_eia923.csv'),
     index_col=0, comment='#')
 skiprows_eia923 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__, xlsx_map_dir + '/' + 'skiprows_eia923.csv'),
+    importlib.resources.open_text(xlsx_maps_pkg, 'skiprows_eia923.csv'),
     index_col=0, comment='#')
 generation_fuel_map_eia923 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__,
-              xlsx_map_dir + '/' + 'generation_fuel_map_eia923.csv'),
+    importlib.resources.open_text(
+        xlsx_maps_pkg, 'generation_fuel_map_eia923.csv'),
     index_col=0, comment='#')
 stocks_map_eia923 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__, xlsx_map_dir + '/' + 'stocks_map_eia923.csv'),
+    importlib.resources.open_text(xlsx_maps_pkg, 'stocks_map_eia923.csv'),
     index_col=0, comment='#')
 boiler_fuel_map_eia923 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__,
-              xlsx_map_dir + '/' + 'boiler_fuel_map_eia923.csv'),
+    importlib.resources.open_text(xlsx_maps_pkg, 'boiler_fuel_map_eia923.csv'),
     index_col=0, comment='#')
 generator_map_eia923 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__, xlsx_map_dir + '/' + 'generator_map_eia923.csv'),
+    importlib.resources.open_text(xlsx_maps_pkg, 'generator_map_eia923.csv'),
     index_col=0, comment='#')
 fuel_receipts_costs_map_eia923 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__,
-              xlsx_map_dir + '/' + 'fuel_receipts_costs_map_eia923.csv'),
+    importlib.resources.open_text(
+        xlsx_maps_pkg, 'fuel_receipts_costs_map_eia923.csv'),
     index_col=0, comment='#')
 plant_frame_map_eia923 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__,
-              xlsx_map_dir + '/' + 'plant_frame_map_eia923.csv'),
+    importlib.resources.open_text(xlsx_maps_pkg, 'plant_frame_map_eia923.csv'),
     index_col=0, comment='#')
 
 # patterns for matching columns to months:
@@ -833,46 +821,37 @@ eia860_pudl_tables = (
 )
 
 tab_map_eia860 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__, xlsx_map_dir + '/' + 'tab_map_eia860.csv'),
+    importlib.resources.open_text(xlsx_maps_pkg, 'tab_map_eia860.csv'),
     index_col=0, comment='#')
 skiprows_eia860 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__, xlsx_map_dir + '/' + 'skiprows_eia860.csv'),
+    importlib.resources.open_text(xlsx_maps_pkg, 'skiprows_eia860.csv'),
     index_col=0, comment='#')
 boiler_generator_assn_map_eia860 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__,
-              xlsx_map_dir + '/' + 'boiler_generator_assn_map_eia860.csv'),
+    importlib.resources.open_text(
+        xlsx_maps_pkg, 'boiler_generator_assn_map_eia860.csv'),
     index_col=0, comment='#')
 utility_assn_map_eia860 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__,
-              xlsx_map_dir + '/' + 'utility_assn_map_eia860.csv'),
+    importlib.resources.open_text(
+        xlsx_maps_pkg, 'utility_assn_map_eia860.csv'),
     index_col=0, comment='#')
 ownership_assn_map_eia860 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__,
-              xlsx_map_dir + '/' + 'ownership_assn_map_eia860.csv'),
+    importlib.resources.open_text(
+        xlsx_maps_pkg, 'ownership_assn_map_eia860.csv'),
     index_col=0, comment='#')
 plant_assn_map_eia860 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__, xlsx_map_dir + '/' + 'plant_assn_map_eia860.csv'),
+    importlib.resources.open_text(xlsx_maps_pkg, 'plant_assn_map_eia860.csv'),
     index_col=0, comment='#')
 generator_assn_map_eia860 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__,
-              xlsx_map_dir + '/' + 'generator_assn_map_eia860.csv'),
+    importlib.resources.open_text(
+        xlsx_maps_pkg, 'generator_assn_map_eia860.csv'),
     index_col=0, comment='#')
 generator_proposed_assn_map_eia860 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__,
-              xlsx_map_dir + '/' + 'generator_proposed_assn_map_eia860.csv'),
+    importlib.resources.open_text(
+        xlsx_maps_pkg, 'generator_proposed_assn_map_eia860.csv'),
     index_col=0, comment='#')
 generator_retired_assn_map_eia860 = pd.read_csv(
-    importlib.resources.
-    read_text(pudl.__name__,
-              xlsx_map_dir + '/' + 'generator_retired_assn_map_eia860.csv'),
+    importlib.resources.open_text(
+        xlsx_maps_pkg, 'generator_retired_assn_map_eia860.csv'),
     index_col=0, comment='#')
 
 # The set of FERC Form 1 tables that have the same composite primary keys: [
@@ -1702,19 +1681,12 @@ epacems_columns_fill_na_dict = {
 
 epacems_tables = ("hourly_emissions_epacems")
 
-epacems_additional_plant_info_file = importlib.resources.read_text(
-    pudl.__name__, 'data/epa/cems/plant_info_for_additional_cems_plants.csv')
-
-files_epaipm = (
-    'transmission_single_ipm',
-    'transmission_joint_ipm'
-    'load_curves_ipm',
-    'plant_region_map_ipm',
-)
+epacems_additional_plant_info_file = importlib.resources.open_text(
+    'pudl.package_data.epa.cems', 'plant_info_for_additional_cems_plants.csv')
 
 files_dict_epaipm = {
     'transmission_single_ipm': '*table_3-21*',
-    'transmission_joint_ipm': '*transmission_joint_ipm*',
+    # 'transmission_joint_ipm': '*transmission_joint_ipm*',
     'load_curves_ipm': '*table_2-2_*',
     'plant_region_map_ipm': '*needs_v6*',
 }

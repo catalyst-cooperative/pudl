@@ -1,14 +1,47 @@
 """The Public Utility Data Liberation (PUDL) Project."""
 
+# Create a parent logger for all PUDL loggers to inherit from
+import logging
+
 import pkg_resources
 
+import pudl.analysis.mcoe
+import pudl.constants
+# Data management package that provides a command line interface:
+import pudl.datastore.cli
+import pudl.datastore.datastore
+# Extraction functions, organized by data source:
+import pudl.extract.eia860
+import pudl.extract.eia923
+import pudl.extract.epacems
+import pudl.extract.epaipm
+import pudl.extract.ferc1
+import pudl.helpers
+import pudl.init
+import pudl.load
+# Output modules by data source:
+import pudl.output.eia860
+import pudl.output.eia923
+import pudl.output.export
+import pudl.output.ferc1
+import pudl.output.glue
+import pudl.output.pudltabl
+import pudl.settings
+# Transformation functions, organized by data source:
+import pudl.transform.eia
+import pudl.transform.eia860
+import pudl.transform.eia923
+import pudl.transform.epacems
+import pudl.transform.epaipm
+import pudl.transform.ferc1
+
 __author__ = "Catalyst Cooperative"
-__contact__ = "zane.selvans@catalyst.coop"
+__contact__ = "pudl@catalyst.coop"
 __maintainer__ = "Catalyst Cooperative"
 __license__ = "MIT License"
 __maintainer_email__ = "zane.selvans@catalyst.coop"
 __version__ = pkg_resources.get_distribution(__name__).version
-__docformat__ = ""
+__docformat__ = "restructuredtext en"
 __description__ = "Tools for liberating public US electric utility data."
 __long_description__ = """
 This Public Utility Data Liberation (PUDL) project is a collection of tools
@@ -21,47 +54,8 @@ data, with the goal of enabling climate advocates, academic researchers, and
 data journalists to better understand the electricity system and its impacts
 on climate.
 """
-__pythonrequiredversion__ = "3.6"
+__pythonrequiredversion__ = "3.7"
 __projecturl__ = "https://catalyst.coop/pudl/"
 __downloadurl__ = "https://github.com/catalyst-cooperative/pudl/"
 
-# Top level modules used across the board:
-import pudl.settings
-import pudl.constants
-import pudl.helpers
-import pudl.init
-import pudl.load
-
-# Data management package that provides a command line interface:
-import pudl.datastore.datastore
-import pudl.datastore.cli
-
-# Extraction functions, organized by data source:
-import pudl.extract.ferc1
-import pudl.extract.eia860
-import pudl.extract.eia923
-import pudl.extract.epacems
-import pudl.extract.epaipm
-
-# Transformation functions, organized by data source:
-import pudl.transform.eia
-import pudl.transform.ferc1
-import pudl.transform.eia860
-import pudl.transform.eia923
-import pudl.transform.epacems
-import pudl.transform.epaipm
-
-# Relatively usable analysis modules.  We need more of these.
-import pudl.analysis.mcoe
-
-# Output modules by data source:
-import pudl.output.glue
-import pudl.output.ferc1
-import pudl.output.eia860
-import pudl.output.eia923
-import pudl.output.pudltabl
-import pudl.output.export
-
-# Create a parent logger for all PUDL loggers to inherit from
-import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())

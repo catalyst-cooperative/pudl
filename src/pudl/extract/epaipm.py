@@ -1,45 +1,51 @@
 """
-Retrieve data from EPA's Integrated Planning Model (IPM) v6
+Retrieve data from EPA's Integrated Planning Model (IPM) v6.
 
-Unlike most of the PUDL data sources, IPM is not an annual timeseries. This file
-assumes that only v6 will be used as an input, so there are a limited number
-of files.
+Unlike most of the PUDL data sources, IPM is not an annual timeseries. This
+file assumes that only v6 will be used as an input, so there are a limited
+number of files.
 """
 
+import importlib
 import logging
 from pathlib import Path
+
 import pandas as pd
-from pudl.settings import SETTINGS
+
 import pudl.constants as pc
+import pudl.datastore.datastore as datastore
 
 logger = logging.getLogger(__name__)
 
-datadir = Path(SETTINGS['epaipm_data_dir'])
-pudl_datadir = Path(SETTINGS['pudl_data_dir'])
 
-
-def get_epaipm_name(file):
+def get_epaipm_name(file, data_dir):
     """
-    Return the appopriate EPA IPM excel file.
+    Return the appropriate EPA IPM excel file.
 
     Args:
         file (str): The file that we're trying to read data for.
+        data_dir (path-like): Path to the top directory of the PUDL datastore.
+
     Returns:
         path to EPA IPM spreadsheet.
+
     """
-    if sorted(datadir.glob(file)):
-        name = sorted(datadir.glob(file))[0]
-    elif sorted(pudl_datadir.glob(file)):
-        name = sorted(pudl_datadir.glob(file))[0]
+    # Access the CSV scraped from a PDF & distributed with PUDL:
+    if file == 'transmission_joint_ipm':
+        with importlib.resources.path(
+            'pudl.package_data.epa.ipm', 'table_3-5_transmission_joint_ipm.csv'
+        ) as p:
+            name = p
     else:
-        raise FileNotFoundError(
-            f'No files matching the pattern "{file}" were found.'
-        )
+        epaipm_dir = Path(datastore.path(
+            'epaipm', file=False, year=None, data_dir=data_dir))
+        pattern = pc.files_dict_epaipm[file]
+        name = sorted(epaipm_dir.glob(pattern))[0]
 
     return name
 
 
-def get_epaipm_file(filename, read_file_args):
+def get_epaipm_file(filename, read_file_args, data_dir):
     """
     Read in files to create dataframes. No need to use ExcelFile
     objects with the IPM files because each file is only a single sheet.
@@ -50,13 +56,13 @@ def get_epaipm_file(filename, read_file_args):
 
     Returns:
         xlsx file of EPA IPM data
+
     """
     epaipm_file = {}
-    pattern = pc.files_dict_epaipm[filename]
     logger.info(
         f"Extracting data from EPA IPM {filename} spreadsheet.")
 
-    full_filename = get_epaipm_name(pattern)
+    full_filename = get_epaipm_name(filename, data_dir)
     suffix = full_filename.suffix
 
     if suffix == '.xlsx':
@@ -69,12 +75,11 @@ def get_epaipm_file(filename, read_file_args):
             full_filename,
             **read_file_args
         )
-    # if filename == 'transmission_single':
-    #     epaipm_xlsx = epaipm_xlsx.reset_index()
+
     return epaipm_file
 
 
-def create_dfs_epaipm(files=pc.files_epaipm):
+def create_dfs_epaipm(files, data_dir):
     """
     Create a dictionary of pages (keys) to dataframes (values) from epaipm
     tabs.
@@ -96,46 +101,45 @@ def create_dfs_epaipm(files=pc.files_epaipm):
         if f == 'plant_region_map_ipm':
             epaipm_dfs['plant_region_map_ipm_active'] = get_epaipm_file(
                 f,
-                pc.read_excel_epaipm_dict['plant_region_map_ipm_active']
+                pc.read_excel_epaipm_dict['plant_region_map_ipm_active'],
+                data_dir
             )
             epaipm_dfs['plant_region_map_ipm_retired'] = get_epaipm_file(
                 f,
-                pc.read_excel_epaipm_dict['plant_region_map_ipm_retired']
+                pc.read_excel_epaipm_dict['plant_region_map_ipm_retired'],
+                data_dir
             )
         else:
             epaipm_dfs[f] = get_epaipm_file(
                 f,
-                pc.read_excel_epaipm_dict[f]
+                pc.read_excel_epaipm_dict[f],
+                data_dir
             )
 
     return epaipm_dfs
 
 
-def extract(epaipm_tables=pc.epaipm_pudl_tables):
+def extract(epaipm_tables, data_dir):
     """
     Extract data from IPM files.
 
-    arga
-    ----------
-    epaipm_tables (iterable): A tuple or list of table names to extract
+    Args:
+        epaipm_tables (iterable): A tuple or list of table names to extract
 
     Returns:
-    -------
-    dict
-        dictionary of dataframes with extracted (but not yet transformed) data
-        from each file.
+        dict: dictionary of dataframes with extracted (but not yet transformed)
+            data from each file.
+
     """
     # Prep for ingesting EPA IPM
     # create raw ipm dfs from spreadsheets
 
     logger.info('Beginning ETL for EPA IPM.')
 
-    files = {
-        table: pattern for table, pattern in pc.files_dict_epaipm.items()
-        if table in epaipm_tables
-    }
+    # files = {
+    #    table: pattern for table, pattern in pc.files_dict_epaipm.items()
+    #    if table in epaipm_tables
+    # }
 
-    epaipm_raw_dfs = create_dfs_epaipm(
-        files=files
-    )
+    epaipm_raw_dfs = create_dfs_epaipm(files=epaipm_tables, data_dir=data_dir)
     return epaipm_raw_dfs

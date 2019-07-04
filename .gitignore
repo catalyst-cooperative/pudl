@@ -14,3 +14,4 @@ pudl.egg-info/
 dist/
 .eggs/
 .tox/
+settings/

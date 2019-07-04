@@ -4,52 +4,13 @@ Retrieve data from EPA CEMS hourly zipped CSVs.
 This modules pulls data from EPA's published CSV files.
 """
 import logging
-import os
+
 import pandas as pd
-from pudl.settings import SETTINGS
+
 import pudl.constants as pc
+import pudl.datastore.datastore as datastore
 
 logger = logging.getLogger(__name__)
-
-
-def get_epacems_dir(year):
-    """Searches data directory for EPA CEMS hourly.
-
-    Args:
-        year (int): The year that we're trying to read data for.
-
-    Returns:
-        str: path to appropriate EPA CEMS data directory.
-
-    Todo: assert statement
-    """
-    # These are the only years we've got...
-    assert year in range(min(pc.data_years['epacems']),
-                         max(pc.data_years['epacems']) + 1)
-
-    return os.path.join(SETTINGS['epacems_data_dir'], 'epacems{}'.format(year))
-
-
-def get_epacems_file(year, month, state):
-    """Given a year, month, and state, returns the appropriate EPA CEMS zipfile.
-
-    Args:
-        year (int): The year that we're trying to read data for.
-        month (int): The month we're trying to read data for.
-        state (str): The state we're trying to read data for.
-    Returns:
-        str: path to EPA CEMS zipfiles for that year, month, and state.
-
-    Todo: assert statement
-    """
-    state = state.lower()
-    month = str(month).zfill(2)
-    filename = f'epacems{year}{state}{month}.zip'
-    full_path = os.path.join(get_epacems_dir(year), filename)
-    assert os.path.isfile(full_path), (
-        f"ERROR: Failed to find EPA CEMS file for {state}, {year}-{month}.\n"
-        + f"Expected it here: {full_path}")
-    return full_path
 
 
 def read_cems_csv(filename):
@@ -63,6 +24,7 @@ def read_cems_csv(filename):
     Returns:
         pandas.DataFrame: df, a DataFrame containing the contents of the CSV
             file.
+
     """
     df = pd.read_csv(
         filename,
@@ -73,7 +35,7 @@ def read_cems_csv(filename):
     return df
 
 
-def extract(epacems_years, states):
+def extract(epacems_years, states, data_dir):
     """Extracts the EPA CEMS hourly data.
 
     This function is the main function of this file. It returns a generator
@@ -95,7 +57,9 @@ def extract(epacems_years, states):
         for state in states:
             dfs = []
             for month in range(1, 13):
-                filename = get_epacems_file(year, month, state)
+                filename = datastore.path('epacems',
+                                          year=year, month=month, state=state,
+                                          data_dir=data_dir)
                 logger.info(
                     f"Performing ETL for EPA CEMS hourly "
                     f"{state}-{year}-{month:02}")
@@ -105,5 +69,6 @@ def extract(epacems_years, states):
             # others, this is yielded as a generator (and it's a one-item
             # dictionary).
             yield {
-                (year, state): pd.concat(dfs, sort=True, copy=False, ignore_index=True)
+                (year, state):
+                    pd.concat(dfs, sort=True, copy=False, ignore_index=True)
             }

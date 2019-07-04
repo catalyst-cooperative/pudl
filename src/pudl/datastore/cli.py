@@ -1,12 +1,12 @@
 """A CLI for fetching public utility data from reporting agency servers."""
 
+import argparse
+import concurrent.futures
 import logging
 import sys
-import argparse
 import warnings
-import concurrent.futures
+
 import pudl
-from pudl.settings import SETTINGS
 import pudl.constants as pc
 
 # Create a logger to output any messages we might have...
@@ -16,12 +16,6 @@ handler = logging.StreamHandler()
 formatter = logging.Formatter('%(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-
-# require modern python
-if not sys.version_info >= (3, 6):
-    raise AssertionError(
-        f"PUDL requires Python 3.6 or later. {sys.version_info} found."
-    )
 
 
 def parse_command_line(argv):
@@ -57,11 +51,11 @@ def parse_command_line(argv):
     )
     parser.add_argument(
         '-d',
-        '--datadir',
+        '--datastore_dir',
         type=str,
-        help="""Path to the top level datastore directory. (default:
+        help="""Directory where the datastore should be located. (default:
         %(default)s).""",
-        default=SETTINGS['data_dir']
+        default=pudl.settings.init()['pudl_in']
     )
     parser.add_argument(
         '-s',
@@ -85,23 +79,14 @@ def parse_command_line(argv):
         default=[]
     )
     parser.add_argument(
+        '--no_download',
         '-n',
-        '--no-download',
-        dest='no_download',
-        action='store_true',
-        help="Do not download data files, only unzip ones that are already present.",
-        default=False
-    )
-    parser.add_argument(
-        '-t',
-        '--states',
-        nargs='+',
-        choices=pc.cems_states.keys(),
-        help="""List of two letter US state abbreviations indicating which
-        states data should be downloaded. Currently only applicable to the EPA's
-        CEMS dataset.""",
-        default=pc.cems_states.keys()
-    )
+        action='store_false',
+        dest='download',
+        help="""Do not attempt to download fresh data from the original
+        sources. Instead assume that the zipfiles or other original data is
+        already present, and organize it locally.""",
+        default=True)
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -109,8 +94,6 @@ def parse_command_line(argv):
 
 def main():
     """Main function controlling flow of the script."""
-    from pudl.datastore import datastore
-
     args = parse_command_line(sys.argv)
 
     # Generate a list of valid years of data to download for each data source.
@@ -130,14 +113,16 @@ def main():
             if args.verbose and bad_yrs:
                 warnings.warn(f"Invalid {src} years ignored: {bad_yrs}.")
 
+    pudl_settings = pudl.settings.init(pudl_in=args.datastore_dir)
+
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for src in args.sources:
             for yr in yrs_by_src[src]:
-                executor.submit(datastore.update, src, yr, args.states,
+                executor.submit(pudl.datastore.update, src, yr, args.states,
                                 clobber=args.clobber,
                                 unzip=args.unzip,
-                                datadir=args.datadir,
-                                no_download=args.no_download)
+                                pudl_settings=pudl_settings,
+                                download=args.download)
 
 
 if __name__ == '__main__':

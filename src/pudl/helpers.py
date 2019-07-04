@@ -629,10 +629,7 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
 # The next few functions propbably will end up in some packaging or load module
 ###############################################################################
 
-def get_foreign_key_relash_from_pkg(pkg_name='pudl-test',
-                                    out_dir=os.path.join(
-                                        pudl.settings.PUDL_DIR,
-                                        "results", "data_pkgs")):
+def get_foreign_key_relash_from_pkg(pkg_name='pudl-test', out_dir=None):
     """
     Generate a dictionary of foreign key relationships from pkging metadata
 
@@ -640,14 +637,19 @@ def get_foreign_key_relash_from_pkg(pkg_name='pudl-test',
     of the tables in the metadata.
 
     Args:
-        pkg_name : the name of the package needed to go find the right file
-        out_dir
+        pkg_name (str): Name of the package needed to go find the right file
+        out_dir (path-like): Directory to output data packages into.
+
     Returns:
-        dict : table names (keys) : list of foreign key tables
+        dict: list of foreign key tables
+
     """
     # we'll probably eventually need to pull these directories into settings
     # out_dir is the packaging directory -- the place where packages end up
     # pkg_dir is the top level directory of this package:
+    if out_dir is None:
+        out_dir = os.path.join(pudl.settings.init()['pudl_out'], 'datapackage')
+
     pkg_dir = os.path.abspath(os.path.join(out_dir, pkg_name))
     # pkg_json is the datapackage.json that we ultimately output:
     pkg_json = os.path.join(pkg_dir, "datapackage.json")
@@ -689,10 +691,7 @@ def get_dependent_tables_pkg(table_name, fk_relash):
 
 def get_dependent_tables_from_list_pkg(table_names,
                                        pkg_name='pudl-test',
-                                       out_dir=os.path.join(
-                                           pudl.settings.PUDL_DIR,
-                                           "results", "data_pkgs"),
-                                       testing=False):
+                                       out_dir=None):
     """
     Given a list of tables, find all the other tables they depend on.
 
@@ -704,12 +703,14 @@ def get_dependent_tables_from_list_pkg(table_names,
     Args:
         table_names (iterable): a list of names of 'seed' tables, whose
             dependencies we are seeking to find.
-        md (sa.MetaData): A SQL Alchemy MetaData object describing the
-            structure of the database the input tables are part of.
+
     Returns:
         all_the_tables (set): The set of all the tables which any of the input
             tables depends on, via ForeignKey constraints.
+
     """
+    if out_dir is None:
+        out_dir = os.path.join(pudl.settings.init()['pudl_out'], 'datapackage')
     fk_relash = get_foreign_key_relash_from_pkg(
         pkg_name=pkg_name, out_dir=out_dir)
 

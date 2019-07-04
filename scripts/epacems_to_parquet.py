@@ -24,16 +24,18 @@ For more information on working with these systems check out:
  * https://pangio.io
 """
 
+import argparse
 import logging
 import os
 import sys
-import argparse
+
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+
 import pudl
-from pudl.settings import SETTINGS
 import pudl.constants as pc
+from pudl.settings import SETTINGS
 
 # Create a logger to output any messages we might have...
 logger = logging.getLogger(__name__)
@@ -43,12 +45,6 @@ formatter = logging.Formatter('%(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-# require modern python
-if not sys.version_info >= (3, 6):
-    raise AssertionError(
-        f"PUDL requires Python 3.6 or later. {sys.version_info} found."
-    )
-
 IN_DTYPES = {
     'unitid': str,
     'facility_id': str,
@@ -56,14 +52,15 @@ IN_DTYPES = {
 }
 
 # Note that parquet's internal representation doesn't use unsigned numbers or
-# 16-bit ints, so just keep things simple here and always use int32 and float32.
-# Fields that may be NaN have to be float32, not int32 or pandas' Int32
-# (float32 can accurately hold integers up to 16,777,216 so no need for float64)
+# 16-bit ints, so just keep things simple here and always use int32 and
+# float32. Fields that may be NaN have to be float32, not int32 or pandas'
+# Int32 (float32 can accurately hold integers up to 16,777,216 so no need for
+# float64)
 OUT_DTYPES = {
-    'year': 'int32', # never missing; note that this is UTC year
+    'year': 'int32',  # never missing; note that this is UTC year
     'state': 'category',
     # 'plant_name': 'category',
-    'plant_id_eia': 'int32', # never missing
+    'plant_id_eia': 'int32',  # never missing
     'unitid': 'str',
     'gross_load_mw': 'float32',
     'steam_load_1000_lbs': 'float32',
@@ -76,8 +73,8 @@ OUT_DTYPES = {
     'co2_mass_tons': 'float32',
     'co2_mass_measurement_code': 'category',
     'heat_content_mmbtu': 'float32',
-    'facility_id': 'float32', # sometimes missing, max value  8,421
-    'unit_id_epa': 'float32', # sometimes missing, max value 91,294
+    'facility_id': 'float32',  # sometimes missing, max value  8,421
+    'unit_id_epa': 'float32',  # sometimes missing, max value 91,294
     'operating_datetime_utc': pd.DatetimeTZDtype(tz="UTC"),
     'operating_time_hours': 'float32'
 }

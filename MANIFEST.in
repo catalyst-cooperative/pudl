@@ -1,4 +1,4 @@
-graft src/pudl/data
+graft src/pudl/package_data
 
 prune ci
 prune data
@@ -9,4 +9,3 @@ prune scripts/data_pkgs
 prune test/data
 global-exclude .gitignore __pycache__ *.py[cod] *checkpoint.ipynb
 global-exclude .gitattributes .readthedocs.yml .travis.yml
-

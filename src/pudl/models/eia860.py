@@ -1,8 +1,10 @@
 """Database models for PUDL tables derived from EIA Form 860 Data."""
 
-from sqlalchemy import Boolean, Integer, String, Float, Date
-from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint
+from sqlalchemy import (Boolean, Column, Date, Float, ForeignKey,
+                        ForeignKeyConstraint, Integer, String)
+
 import pudl.models.entities
+import pudl.models.glue
 
 
 class UtilityEIA860(pudl.models.entities.PUDLBase):

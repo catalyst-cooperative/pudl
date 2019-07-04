@@ -8,8 +8,8 @@ the existing data. It may also include removing bad data, or replacing it
 with the appropriate NA values.
 """
 
+import importlib.resources
 import logging
-import os.path
 import re
 from difflib import SequenceMatcher
 
@@ -27,7 +27,6 @@ from sklearn.preprocessing import MinMaxScaler, Normalizer, OneHotEncoder
 
 import pudl
 import pudl.constants as pc
-from pudl.settings import SETTINGS
 
 logger = logging.getLogger(__name__)
 
@@ -630,10 +629,8 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     # Unforunately the plant types were not able to be parsed automatically
     # in this table. It's been done manually for 2004-2015, and the results
     # get merged in in the following section.
-    small_types_file = os.path.join(SETTINGS['pudl_dir'],
-                                    'results',
-                                    'ferc1_small_plants',
-                                    'small_plants_2004-2016.xlsx')
+    small_types_file = importlib.resources.open_binary(
+        'pudl.package_data.ferc.form1', 'small_plants_2004-2016.xlsx')
     small_types_df = pd.read_excel(small_types_file)
 
     # Only rows with plant_type set will give us novel information.
