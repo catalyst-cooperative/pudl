@@ -1,17 +1,17 @@
-dist: xenial
-language: python
+dist:               xenial
+language:           python
 python:
     - "3.7"
     - "3.8-dev"
 services:
     - postgresql
 addons:
-    postgresql: "9.6"
+    postgresql:     "9.6"
 env:
     global:
-        - secure: IAQoyAqW1pccRx1fqdnjJjh3iRe9l+rxU+OlQojvAqo4lcxdv6DkuVp4Rhvx2eiBXfdsZl7XrI2zCXHbVrUSbKL4RNnjv9ouJN/m29cUME+uwuTWOO+jY5g7bNdKOpeWvUZyhUR3FUdPdeh2sN7odsLF8XybV5uOdHdQSzK7R/Nf4XSYRgMsKLTNSq/MIBOD4goCpHT2etTe4P02HJxZ+a/ksv3DGI3cVgAcAzF8EDF0SFXauBZVYeffTl82lGSPRPVlUXdC7nBh8W9p49zJQEOhKq7rDMf5A3P8ZfoOVDBlsMGpqHJejezvR1c/GTDkenEWE8har4xwxvP/pJDfUrNKWjI79hdEpKcN2xOxAeobNAPJP4Ee33XCD6Q0spf7LePv3fNlERavqz0hNSIBrX4w2ueXBGh/hJr9fKtfDbcD7myRFe17X2vHEeiwzTGKkVVPqmaXRMg/1RgTHVFqhy2ayQpldvM+2d2Y9GO46CVr+Xf+CUdkOvNRd5tD9ur5s4L76GTJZlotGvZp0AIzgSa//wiX/ZGPTgN41NcDGnumbmfJ9nK11aCpq5elOaYunEKkiYzo1JSzNHxnoaa6lKLF3koRb7BUudHVxGsIUGMGTaXXjrMd1JF+RcISjija3YbzF//iheiTBJDbkl9TrMxVx0NFRG7SkG6jO0oHtcQ=
+        - secure:   IAQoyAqW1pccRx1fqdnjJjh3iRe9l+rxU+OlQojvAqo4lcxdv6DkuVp4Rhvx2eiBXfdsZl7XrI2zCXHbVrUSbKL4RNnjv9ouJN/m29cUME+uwuTWOO+jY5g7bNdKOpeWvUZyhUR3FUdPdeh2sN7odsLF8XybV5uOdHdQSzK7R/Nf4XSYRgMsKLTNSq/MIBOD4goCpHT2etTe4P02HJxZ+a/ksv3DGI3cVgAcAzF8EDF0SFXauBZVYeffTl82lGSPRPVlUXdC7nBh8W9p49zJQEOhKq7rDMf5A3P8ZfoOVDBlsMGpqHJejezvR1c/GTDkenEWE8har4xwxvP/pJDfUrNKWjI79hdEpKcN2xOxAeobNAPJP4Ee33XCD6Q0spf7LePv3fNlERavqz0hNSIBrX4w2ueXBGh/hJr9fKtfDbcD7myRFe17X2vHEeiwzTGKkVVPqmaXRMg/1RgTHVFqhy2ayQpldvM+2d2Y9GO46CVr+Xf+CUdkOvNRd5tD9ur5s4L76GTJZlotGvZp0AIzgSa//wiX/ZGPTgN41NcDGnumbmfJ9nK11aCpq5elOaYunEKkiYzo1JSzNHxnoaa6lKLF3koRb7BUudHVxGsIUGMGTaXXjrMd1JF+RcISjija3YbzF//iheiTBJDbkl9TrMxVx0NFRG7SkG6jO0oHtcQ=
 git:
-    depth: 1
+    depth:          1
 branches:
     except:
         - docstrings-cleanup
@@ -22,11 +22,12 @@ before_install:
     - uname -a
     - git --version
     - git tag
+    - env
 install:
     - ci/setup_postgres.sh
     - pip install tox
 script:
-    - tox -vv -e travis
+    - tox -v -e travis
 after_success:
     - codecov
 notifications:
@@ -37,4 +38,4 @@ notifications:
         on_failure: always  # options: [always|never|change] default: always
         on_start: never     # options: [always|never|change] default: always
     slack:
-        secure: WuYtc2adpwG+EKxqIL2Hz1W8AL67/5HaILvQzEs7RM2+qUR+dvLroTdUl3nFTMYdvfaa6X+T4Loptjcpke3/0ZESynXegI3HL+KKOcDG6uoln6yEHM96WJ6uBjAR9Irkdx9NOBi1Py7SEDJ1LAOaxR1Z7re5UB6cZRQdCzsEIdcGmfb4aKAVLrowZiZmQKMlJXvd3LgSpGVhsCBV2msqBg0zz4ic5RYrCNNek/LN435sYgfzo2PN9wuVMarkR7plp925BVletqLcbL+0yrvLLxIAQrbWtF5vg0vlt8btps5PVf7DHkZYTBgjGHeayBcNGMgPHP3c4NAeU6t6VhwCY7rTHEI9HLwp8Qcd/pxLiDNq5csMz6yZ/1xmOreiHNAN48jxJefKGbeLUl9q9KLXuqrl+UuwEDJEcFFkpPKeCg0X2q3fk3mIighk0cfttAn42XXapd+TCplkwR7jiAnLr5S4F8nUpWirxCZeyO3YUS79RdtD1CZjdO/dB8bdzzp52puIq4GbkG8fVAQ5ZDGvWviEj5I194vylG0JQU5ohhDEM+alb8dc32euWbmsucjIiHH2Tr05UasLQbujEQaokVaHyBQEdSAvVyz1vScoKIJ4fxquGR0t5T0CbCvXumPxi8KmVK46oYo+23HJeHGIgzRD8XSoLsRW5DvnsXnQAdM=
+        secure:     WuYtc2adpwG+EKxqIL2Hz1W8AL67/5HaILvQzEs7RM2+qUR+dvLroTdUl3nFTMYdvfaa6X+T4Loptjcpke3/0ZESynXegI3HL+KKOcDG6uoln6yEHM96WJ6uBjAR9Irkdx9NOBi1Py7SEDJ1LAOaxR1Z7re5UB6cZRQdCzsEIdcGmfb4aKAVLrowZiZmQKMlJXvd3LgSpGVhsCBV2msqBg0zz4ic5RYrCNNek/LN435sYgfzo2PN9wuVMarkR7plp925BVletqLcbL+0yrvLLxIAQrbWtF5vg0vlt8btps5PVf7DHkZYTBgjGHeayBcNGMgPHP3c4NAeU6t6VhwCY7rTHEI9HLwp8Qcd/pxLiDNq5csMz6yZ/1xmOreiHNAN48jxJefKGbeLUl9q9KLXuqrl+UuwEDJEcFFkpPKeCg0X2q3fk3mIighk0cfttAn42XXapd+TCplkwR7jiAnLr5S4F8nUpWirxCZeyO3YUS79RdtD1CZjdO/dB8bdzzp52puIq4GbkG8fVAQ5ZDGvWviEj5I194vylG0JQU5ohhDEM+alb8dc32euWbmsucjIiHH2Tr05UasLQbujEQaokVaHyBQEdSAvVyz1vScoKIJ4fxquGR0t5T0CbCvXumPxi8KmVK46oYo+23HJeHGIgzRD8XSoLsRW5DvnsXnQAdM=
