@@ -23,12 +23,9 @@ before_install:
     - git tag
 install:
     - ci/setup_postgres.sh
-    - pip install codecov
     - pip install tox
 script:
     - tox -v -e travis
-after_success:
-    - codecov
 notifications:
     webhooks:
         urls:
