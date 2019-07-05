@@ -1,9 +1,7 @@
 [run]
-source =
-    src/pudl/
 omit =
-    src/pudl/glue/zipper.py
-    src/pudl/analysis/analysis.py
+    *glue/zipper.py
+    *analysis/analysis.py
     *__main__.py
     *__init__.py
 
