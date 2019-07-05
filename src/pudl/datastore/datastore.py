@@ -11,6 +11,7 @@ Support for selectively downloading portions of the EPA's large Continuous
 Emissions Monitoring System dataset will be added in the future.
 """
 
+import concurrent.futures
 import ftplib
 import logging
 import os
@@ -554,11 +555,14 @@ def update(source, year, states, clobber=False, unzip=True,
         year (int): the year of data that the returned path should pertain to.
             Must be within the range of valid data years, which is specified
             for each data source in pudl.constants.data_years.
+        states (iterable): List of two letter US state abbreviations indicating
+            which states data should be downloaded for. Currently only affects
+            the epacems dataset.
+        clobber (bool): If true, replace existing copy of the requested data
+            if we have it, with freshly downloaded data.
         unzip (bool): If true, unzip the file once downloaded, and place the
             resulting data files where they ought to be in the datastore.
             EPA CEMS files will never be unzipped.
-        clobber (bool): If true, replace existing copy of the requested data
-            if we have it, with freshly downloaded data.
         pudl_settings (dict):
         dl (bool): If False, don't download the files, only unzip ones
             that are already present. If True, do download the files. Either
@@ -583,3 +587,20 @@ def update(source, year, states, clobber=False, unzip=True,
                      data_dir=pudl_settings['data_dir'])
         organize(source=source, year=year, states=states, unzip=unzip,
                  data_dir=pudl_settings['data_dir'], dl=dl)
+
+
+def parallel_update(sources,
+                    years_by_source,
+                    states,
+                    pudl_settings,
+                    clobber=False,
+                    unzip=True,
+                    dl=True):
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        for source in sources:
+            for year in years_by_source[source]:
+                executor.submit(update, source, year, states,
+                                clobber=clobber,
+                                unzip=unzip,
+                                pudl_settings=pudl_settings,
+                                dl=download)

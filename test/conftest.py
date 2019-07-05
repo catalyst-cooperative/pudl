@@ -209,11 +209,12 @@ def datastore_fixture(pudl_settings_fixture):
        add that code to our measurement of test coverage, which is good!
     """
     # In an ideal world it would work like this...
-    inputs = [
-        {'source': 'epaipm', 'year': None, 'states': None},
-        {'source': 'eia860', 'year': 2017, 'states': None},
-        {'source': 'eia923', 'year': 2017, 'states': None},
-    ]
+    sources = ['epaipm', 'eia860', 'eia923']
+    years_by_source = {
+        'epaipm': [None],
+        'eia860': [2017],
+        'eia923': [2017],
+    }
     # Sadly, FERC & EPA have blocked downloads from Travis, so their data has
     # to be hacked in locally if we're running there:
     if os.getenv('TRAVIS'):
@@ -258,20 +259,20 @@ def datastore_fixture(pudl_settings_fixture):
             data_dir=pudl_settings_fixture['data_dir'],
             unzip=True
         )
+        states = []
     else:
-        inputs.extend([
-            {'source': 'ferc1', 'year': 2017, 'states': None},
-            {'source': 'epacems', 'year': 2017, 'states': ['ID']},
-        ])
+        sources.extend(['ferc1', 'epacems'])
+        years_by_source['ferc1'] = [2017]
+        years_by_source['epacems'] = [2017]
+        states = ['ID']
 
     # Download the test year for each dataset that we're downloading...
-    for input in inputs:
-        datastore.update(
-            source=input['source'],
-            year=input['year'],
-            states=input['states'],
-            pudl_settings=pudl_settings_fixture
-        )
+    datastore.parallel_update(
+        sources=sources,
+        years_by_source=years_by_source,
+        states=states,
+        pudl_settings=pudl_settings_fixture,
+    )
 
 
 @pytest.fixture(scope='session')

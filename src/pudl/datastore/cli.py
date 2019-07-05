@@ -1,13 +1,13 @@
 """A CLI for fetching public utility data from reporting agency servers."""
 
 import argparse
-import concurrent.futures
 import logging
 import sys
 import warnings
 
 import pudl
 import pudl.constants as pc
+from pudl.datastore import datastore
 
 # Create a logger to output any messages we might have...
 logger = logging.getLogger(pudl.__name__)
@@ -101,28 +101,29 @@ def main():
     # If years were specified, keep only th years which are valid for that
     # data source, and optionally output a message saying which years are
     # being ignored because they aren't valid.
-    yrs_by_src = {}
-    for src in args.sources:
+    years_by_source = {}
+    for source in args.sources:
         if not args.years:
-            yrs_by_src[src] = pc.data_years[src]
+            years_by_source[source] = pc.data_years[source]
         else:
-            yrs_by_src[src] = [int(yr) for yr in args.years
-                               if int(yr) in pc.data_years[src]]
-            bad_yrs = [int(yr) for yr in args.years
-                       if int(yr) not in pc.data_years[src]]
-            if args.verbose and bad_yrs:
-                warnings.warn(f"Invalid {src} years ignored: {bad_yrs}.")
+            years_by_source[source] = [int(year) for year in args.years
+                                       if int(year) in pc.data_years[source]]
+            bad_years = [int(year) for year in args.years
+                         if int(year) not in pc.data_years[source]]
+            if args.verbose and bad_years:
+                warnings.warn(f"Invalid {source} years ignored: {bad_years}.")
 
     pudl_settings = pudl.settings.init(pudl_in=args.datastore_dir)
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        for src in args.sources:
-            for yr in yrs_by_src[src]:
-                executor.submit(pudl.datastore.update, src, yr, args.states,
-                                clobber=args.clobber,
-                                unzip=args.unzip,
-                                pudl_settings=pudl_settings,
-                                download=args.download)
+    datastore.parallel_update(
+        sources=args.sources,
+        years_by_source=years_by_source,
+        states=args.states,
+        pudl_settings=pudl_settings,
+        clobber=args.clobber,
+        unzip=args.unzip,
+        dl=args.download,
+    )
 
 
 if __name__ == '__main__':
