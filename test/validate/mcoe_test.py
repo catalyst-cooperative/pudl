@@ -11,10 +11,9 @@ For now, these calculations are only using the EIA fuel cost data. FERC Form 1
 non-fuel production costs have yet to be integrated.
 """
 import logging
-import pytest
+
 import pandas as pd
-import pudl.analysis.mcoe as mcoe
-from pudl import constants as pc
+import pytest
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +59,8 @@ def test_bga(pudl_out_eia):
     num_multi_fuel_units = len(units_simple[units_simple.fuel_type_count > 1])
     multi_fuel_unit_fraction = num_multi_fuel_units / len(units_simple)
     logger.warning(
-        f"{multi_fuel_unit_fraction:.0%} of generation units contain generators with differing primary fuels.")
+        f"{multi_fuel_unit_fraction:.0%} of generation units contain "
+        f"generators with differing primary fuels.")
 
 
 @pytest.mark.eia860

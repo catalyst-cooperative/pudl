@@ -59,4 +59,4 @@ def test_datazipper(gens=100, max_group_size=5, n_series=10, n_samples=100):
     # candidate is the best match.
     logger.info('Scoring cantidate ensembles based on mean correlations.')
     winners = analysis.score_all(corr_df, corr_cols)
-    assert len(winners.success == True) / len(winners) == 1.0
+    assert len(winners.success is True) / len(winners) == 1.0

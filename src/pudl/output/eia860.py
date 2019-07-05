@@ -1,7 +1,7 @@
 """Functions for pulling data primarily from the EIA's Form 860."""
 
-import sqlalchemy as sa
 import pandas as pd
+import sqlalchemy as sa
 
 import pudl
 import pudl.constants as pc
@@ -70,11 +70,6 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
     plants_eia_tbl = pt['plants_entity_eia']
     plants_eia_select = sa.sql.select([plants_eia_tbl])
     plants_eia_df = pd.read_sql(plants_eia_select, pudl_engine)
-
-    # grab the glue table
-    plants_eia_tbl = pt['plants_entity_eia']
-    plants_eia_select = sa.sql.select([plants_eia_tbl])
-    plants_glue_df = pd.read_sql(plants_eia_select, pudl_engine)
 
     # grab the annual table select
     plants_eia860_tbl = pt['plants_eia860']
