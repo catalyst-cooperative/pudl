@@ -208,7 +208,6 @@ def datastore_fixture(pudl_settings_fixture):
      * Calling the datastore management functions from within the tests will
        add that code to our measurement of test coverage, which is good!
     """
-    # In an ideal world it would work like this...
     sources = ['epaipm', 'eia860', 'eia923']
     years_by_source = {
         'ferc1': [],

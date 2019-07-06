@@ -11,7 +11,6 @@ continuosly exercising this functionality.
 """
 
 import logging
-import os.path
 
 import pytest
 
