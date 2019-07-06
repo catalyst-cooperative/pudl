@@ -1,10 +1,7 @@
 """Limited testing of the PUDL DB ETL for use with Travis CI."""
 import logging
 
-import pandas as pd
 import pytest
-
-import pudl
 
 logger = logging.getLogger(__name__)
 

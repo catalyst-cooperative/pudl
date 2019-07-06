@@ -16,7 +16,6 @@ This module defines database tables and initializes them with data from:
 
 import importlib.resources
 import logging
-import os.path
 import time
 
 import pandas as pd
