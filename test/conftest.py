@@ -211,6 +211,8 @@ def datastore_fixture(pudl_settings_fixture):
     # In an ideal world it would work like this...
     sources = ['epaipm', 'eia860', 'eia923']
     years_by_source = {
+        'ferc1': [],
+        'epacems': [],
         'epaipm': [None],
         'eia860': [2017],
         'eia923': [2017],
