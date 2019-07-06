@@ -264,7 +264,7 @@ def datastore_fixture(pudl_settings_fixture):
         sources.extend(['ferc1', 'epacems'])
         years_by_source['ferc1'] = [2017]
         years_by_source['epacems'] = [2017]
-        states = ['ID']
+        states = ['id']
 
     # Download the test year for each dataset that we're downloading...
     datastore.parallel_update(
@@ -272,6 +272,15 @@ def datastore_fixture(pudl_settings_fixture):
         years_by_source=years_by_source,
         states=states,
         pudl_settings=pudl_settings_fixture,
+    )
+
+    pudl.helpers.verify_input_files(
+        ferc1_years=years_by_source['ferc1'],
+        eia923_years=years_by_source['eia923'],
+        eia860_years=years_by_source['eia860'],
+        epacems_years=years_by_source['epacems'],
+        epacems_states=states,
+        data_dir=pudl_settings_fixture['data_dir'],
     )
 
 

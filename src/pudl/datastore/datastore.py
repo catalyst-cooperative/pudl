@@ -112,12 +112,6 @@ def source_url(source, year, month=None, state=None, table=None):
         download_url = f"{base_url}/{arch_path}/{prefix}{year}.zip"
     elif source == 'ferc1':
         download_url = f"{base_url}/f1_{year}.zip"
-    elif source == 'mshamines':
-        download_url = f"{base_url}/Mines.zip"
-    elif source == 'mshaops':
-        download_url = f"{base_url}/ControllerOperatorHistory.zip"
-    elif source == 'mshaprod':
-        download_url = f"{base_url}/MinesProdQuarterly.zip"
     elif (source == 'epacems'):
         # lowercase the state and zero-pad the month
         download_url = f"{base_url}/{year}/{year}{state.lower()}{str(month).zfill(2)}.zip"
@@ -126,8 +120,7 @@ def source_url(source, year, month=None, state=None, table=None):
         download_url = f"{base_url}/{table_url_ext}"
     else:
         # we should never ever get here because of the assert statement.
-        assert False, \
-            f"Bad data source '{source}' requested."
+        raise AssertionError(f"Bad data source '{source}' requested.")
 
     return download_url
 
@@ -181,10 +174,6 @@ def path(source, data_dir, year=None, month=None, state=None, file=True):
         dstore_path = os.path.join(data_dir, 'eia', 'form860')
         if year is not None:
             dstore_path = os.path.join(dstore_path, f"eia860{year}")
-    elif source == 'eia861':
-        dstore_path = os.path.join(data_dir, 'eia', 'form861')
-        if year is not None:
-            dstore_path = os.path.join(dstore_path, f"eia861{year}")
     elif source == 'eia923':
         dstore_path = os.path.join(data_dir, 'eia', 'form923')
         if year is not None:
@@ -205,7 +194,7 @@ def path(source, data_dir, year=None, month=None, state=None, file=True):
         dstore_path = os.path.join(data_dir, 'epa', 'ipm')
     else:
         # we should never ever get here because of the assert statement.
-        assert False, f"Bad data source '{source}' requested."
+        raise AssertionError(f"Bad data source '{source}' requested.")
 
     # Handle month and state, if they're provided
     if month is None:

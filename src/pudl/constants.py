@@ -1780,34 +1780,28 @@ epaipm_rename_dict = {
 
 data_sources = (
     'eia860',
-    # 'eia861',
     'eia923',
     'epacems',
     'ferc1',
     'epaipm',
-    # 'msha
 )
 
 # All the years for which we ought to be able to download these data sources
 data_years = {
     'eia860': tuple(range(2001, 2018)),
-    'eia861': tuple(range(1990, 2018)),
     'eia923': tuple(range(2001, 2019)),
     'epacems': tuple(range(1995, 2019)),
-    'ferc1': tuple(range(1994, 2018)),
-    'ferc714': tuple(range(2006, 2018)),
-    'msha': tuple(range(2000, 2018)),
-    'epaipm': [None],
+    'ferc1': tuple(range(1994, 2019)),
+    'epaipm': (None, ),
 }
 
 # The full set of years we currently expect to be able to ingest, per source:
 working_years = {
     'eia860': tuple(range(2011, 2018)),
-    'eia861': (),
     'eia923': tuple(range(2009, 2018)),
     'epacems': tuple(range(1995, 2019)),
     'ferc1': tuple(range(2004, 2018)),
-    'msha': (),
+    'epaipm': (None, ),
 }
 
 pudl_tables = {

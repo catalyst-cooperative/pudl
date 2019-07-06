@@ -12,6 +12,7 @@ import sqlalchemy as sa
 import timezonefinder
 
 import pudl
+import pudl.constants as pc
 
 logger = logging.getLogger(__name__)
 
@@ -720,3 +721,94 @@ def get_dependent_tables_from_list_pkg(table_names,
             all_the_tables.add(x)
 
     return all_the_tables
+
+
+def verify_input_files(ferc1_years,
+                       eia923_years,
+                       eia860_years,
+                       epacems_years,
+                       epacems_states,
+                       data_dir):
+    """
+    Verify that all required data files exist before beginning the ETL process.
+
+    Args:
+        ferc1_years (iterable): Years of FERC1 data we're going to import.
+        eia923_years (iterable): Years of EIA923 data we're going to import.
+        eia860_years (iterable): Years of EIA860 data we're going to import.
+        epacems_years (iterable): Years of CEMS data we're going to import.
+        epacems_states (iterable): States of CEMS data we're going to import.
+
+    Raises:
+        FileNotFoundError: If any of the requested data is missing.
+
+    """
+    # NOTE that these filename functions take other arguments, like BASEDIR.
+    # Here, we're assuming that the default arguments (as defined in SETTINGS)
+    # are what we want.
+    missing_ferc1_years = {
+        str(y) for y in ferc1_years if not os.path.isfile(
+            pudl.extract.ferc1.dbc_filename(y, data_dir=data_dir))
+    }
+
+    missing_eia860_years = set()
+    for y in eia860_years:
+        for pattern in pc.files_eia860:
+            f = pc.files_dict_eia860[pattern]
+            try:
+                # This function already looks for the file, and raises an
+                # IndexError if missing
+                pudl.extract.eia860.get_eia860_file(y, f, data_dir=data_dir)
+            except IndexError:
+                missing_eia860_years.add(str(y))
+
+    missing_eia923_years = set()
+    for y in eia923_years:
+        try:
+            f = pudl.extract.eia923.get_eia923_file(y, data_dir=data_dir)
+        except AssertionError:
+            missing_eia923_years.add(str(y))
+        if not os.path.isfile(f):
+            missing_eia923_years.add(str(y))
+
+    if epacems_states and epacems_states[0].lower() == 'all':
+        epacems_states = list(pc.cems_states.keys())
+    missing_epacems_year_states = set()
+    for y in epacems_years:
+        for s in epacems_states:
+            for m in range(1, 13):
+                try:
+                    f = os.path.isfile(
+                        pudl.datastore.datastore.path(
+                            source='epacems',
+                            year=y,
+                            month=m,
+                            state=s,
+                            data_dir=data_dir
+                        )
+                    )
+                except AssertionError:
+                    missing_epacems_year_states.add((str(y), s))
+                    continue
+                if not os.path.isfile(f):
+                    missing_epacems_year_states.add((str(y), s))
+
+    any_missing = (missing_eia860_years or missing_eia923_years
+                   or missing_ferc1_years or missing_epacems_year_states)
+    if any_missing:
+        err_msg = ["Missing data files for the following sources and years:"]
+        if missing_ferc1_years:
+            err_msg += ["  FERC 1:  " + ", ".join(missing_ferc1_years)]
+        if missing_eia860_years:
+            err_msg += ["  EIA 860: " + ", ".join(missing_eia860_years)]
+        if missing_eia923_years:
+            err_msg += ["  EIA 923: " + ", ".join(missing_eia923_years)]
+        if missing_epacems_year_states:
+            missing_yr_str = ", ".join(
+                {yr_st[0] for yr_st in missing_epacems_year_states})
+            missing_st_str = ", ".join(
+                {yr_st[1] for yr_st in missing_epacems_year_states})
+            err_msg += ["  EPA CEMS:"]
+            err_msg += ["    Years:  " + missing_yr_str]
+            err_msg += ["    States: " + missing_st_str]
+        raise FileNotFoundError("\n".join(err_msg))
