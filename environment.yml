@@ -6,7 +6,6 @@ dependencies:
   - codecov
   - coverage
   - dbfread
-  - fastparquet
   - jupyter
   - jupyterlab
   - matplotlib
@@ -16,7 +15,7 @@ dependencies:
   - pandas>=0.24
   - pip
   - psycopg2
-  - pyarrow
+  - pyarrow>=0.14.0
   - pytest
   - pytest-cov
   - python>=3.7
