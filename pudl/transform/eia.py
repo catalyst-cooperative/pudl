@@ -31,6 +31,7 @@ def _occurrence_consistency(entity_id, compiled_df, col,
     # select only the colums you want and drop the NaNs
     col_df = compiled_df[entity_id + ['report_date',
                                       col, 'table']].copy().dropna()
+
     if len(col_df) == 0:
         col_df[f'{col}_consistent'] = np.NaN
         col_df['occurences'] = np.NaN
@@ -239,6 +240,8 @@ def _harvesting(entity,
             cols_to_consit = entity_id + ['report_date']
         if col in static_cols:
             cols_to_consit = entity_id
+        # if col not in compiled_df.columns:
+        #    compiled_df[col] = np.nan
 
         col_df = _occurrence_consistency(
             entity_id, compiled_df, col, cols_to_consit, strictness=.7)

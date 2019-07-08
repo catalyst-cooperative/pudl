@@ -329,6 +329,9 @@ def data_package(pkg_tables, pkg_skeleton,
         resources.append(
             pudl.output.export.get_tabular_data_resource(t, pkg_dir=pkg_dir))
 
+    # resource.iter(relations=True)
+    # resource.check_relations()
+
     data_sources = pudl.helpers.data_sources_from_tables(
         all_tables, testing=testing)
     sources = []
@@ -623,7 +626,7 @@ def generate_data_packages(settings,
         debug (boolean)
     """
     # validate the settings from the settings file.
-    validated_settings = pudl.ETL_pkg._input_validate(settings)
+    validated_settings = pudl.ETL_pkg.input_validate(settings)
     uuid_pkgs = str(uuid.uuid4())
     metas = {}
     for pkg in validated_settings:
@@ -633,13 +636,17 @@ def generate_data_packages(settings,
         # assure that the list of tables from ETL match up with the CVSs and
         # dependent tables
         test_file_consistency(pkg['name'], pkg_tbls, out_dir=out_dir)
-        # generate the metadata for the package and validate
-        # TODO: we'll probably want to remove this double return... but having
-        # the report and the metadata while debugging is very useful.
-        meta, report = generate_metadata(pkg,
-                                         pkg_tbls,
-                                         os.path.join(out_dir, pkg['name']),
-                                         uuid_pkgs=uuid_pkgs)
-        metas[pkg['name']] = [meta, report]
+        if pkg_tbls:
+            # generate the metadata for the package and validate
+            # TODO: we'll probably want to remove this double return... but having
+            # the report and the metadata while debugging is very useful.
+            meta, report = generate_metadata(pkg,
+                                             pkg_tbls,
+                                             os.path.join(
+                                                 out_dir, pkg['name']),
+                                             uuid_pkgs=uuid_pkgs)
+            metas[pkg['name']] = [meta, report]
+        else:
+            logger.info(f"Not generating metadata for {pkg['name']}")
     if debug:
         return (metas)

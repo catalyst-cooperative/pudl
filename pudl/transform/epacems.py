@@ -4,6 +4,7 @@ import logging
 import pandas as pd
 import numpy as np
 import sqlalchemy as sa
+import os
 import pudl
 import pudl.constants as pc
 
@@ -83,7 +84,7 @@ def _load_plant_utc_offset(pudl_engine):
     return timezones
 
 
-def _load_plant_utc_offset_pkg():
+def _load_plant_utc_offset_pkg(pkg_dir):
     """
     Load the UTC offset each plant
 
@@ -219,11 +220,11 @@ def transform(pudl_engine, epacems_raw_dfs):
             yield {yr_st: df}
 
 
-def transform_pkg(epacems_raw_dfs):
+def transform_pkg(epacems_raw_dfs, pkg_dir):
     """Transform EPA CEMS hourly"""
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
     # a transformation pipeline, and yield it back as another generator.
-    plant_utc_offset = _load_plant_utc_offset_pkg()
+    plant_utc_offset = _load_plant_utc_offset_pkg(pkg_dir)
     for raw_df_dict in epacems_raw_dfs:
         # There's currently only one dataframe in this dict at a time, but
         # that could be changed if you want.

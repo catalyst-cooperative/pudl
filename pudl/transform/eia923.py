@@ -540,14 +540,12 @@ def fuel_reciepts_costs(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
-def transform(eia923_raw_dfs, eia923_tables=pc.eia923_pudl_tables):
+def transform(eia923_raw_dfs, eia923_tables=[]):
     """Transform all EIA 923 tables."""
     eia923_transform_functions = {
         'generation_fuel_eia923': generation_fuel,
-        # 'boilers_eia923': boilers,
         'boiler_fuel_eia923': boiler_fuel,
         'generation_eia923': generation,
-        # 'generators_eia923': generators,
         'coalmine_eia923': coalmine,
         'fuel_receipts_costs_eia923': fuel_reciepts_costs
     }
@@ -558,11 +556,13 @@ def transform(eia923_raw_dfs, eia923_tables=pc.eia923_pudl_tables):
                     "Not transforming EIA 923.")
         return eia923_transformed_dfs
 
-    for table in eia923_transform_functions:
+    for table in eia923_transform_functions.keys():
         if table in eia923_tables:
             logger.info(
                 f"Transforming raw EIA 923 DataFrames for {table} "
                 f"concatenated across all years.")
             eia923_transform_functions[table](eia923_raw_dfs,
                                               eia923_transformed_dfs)
+        else:
+            logger.info(f'Not transforming {table}')
     return eia923_transformed_dfs

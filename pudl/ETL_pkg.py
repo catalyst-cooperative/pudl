@@ -43,6 +43,14 @@ def _input_validate_eia(inputs):
     except KeyError:
         eia_input_dict['eia923_tables'] = pc.pudl_tables['eia923']
 
+    # if we are only extracting 860, we also need to pull in the
+    # boiler_fuel_eia923 table. this is for harvessting and also for the boiler
+    # generator association
+    if not eia_input_dict['eia923_years'] and eia_input_dict['eia860_years']:
+        eia_input_dict['eia923_years'] = eia_input_dict['eia860_years']
+        eia_input_dict['eia923_tables'] = [
+            'boiler_fuel_eia923', 'generation_eia923']
+
     # Validate the inputs
     if eia_input_dict['eia860_tables']:
         for table in eia_input_dict['eia860_tables']:
@@ -270,14 +278,69 @@ def _ETL_ferc1_pkg(inputs, pkg_dir):
 
 
 def _input_validate_epacems(inputs):
-    fake_dict = {}
-    print("no CEMS for now...")
-    return fake_dict
+    epacems_dict = {}
+    # pull out the inputs from the dictionary passed into this function
+    try:
+        epacems_dict['epacems_years'] = inputs['epacems_years']
+    except KeyError:
+        epacems_dict['epacems_years'] = [None]
+    # the states will default to all of the states if nothing is given
+    try:
+        epacems_dict['epacems_states'] = inputs['epacems_states']
+    except KeyError:
+        epacems_dict['epacems_states'] = []
+    # if states are All, then we grab all of the states from constants
+    if epacems_dict['epacems_states']:
+        if epacems_dict['epacems_states'][0].lower() == 'all':
+            epacems_dict['epacems_states'] = list(pc.cems_states.keys())
+
+    return epacems_dict
 
 
 def _ETL_cems_pkg(inputs, pkg_dir):
-    print("you've made it this far ()!), but still no cems")
-    return []
+    """"""
+    epacems_dict = _input_validate_epacems(inputs)
+    epacems_years = epacems_dict['epacems_years']
+    epacems_states = epacems_dict['epacems_states']
+    # If we're not doing CEMS, just stop here to avoid printing messages like
+    # "Reading EPA CEMS data...", which could be confusing.
+    if not epacems_states or not epacems_years:
+        logger.info('Not ingesting EPA CEMS.')
+        return []
+
+    # NOTE: This a generator for raw dataframes
+    epacems_raw_dfs = pudl.extract.epacems.extract(
+        epacems_years=epacems_years, states=epacems_states)
+    # NOTE: This is a generator for transformed dataframes
+    epacems_transformed_dfs = pudl.transform.epacems.transform_pkg(
+        epacems_raw_dfs=epacems_raw_dfs, pkg_dir=pkg_dir)
+    logger.info("Loading tables from EPA CEMS into PUDL:")
+    if logger.isEnabledFor(logging.INFO):
+        start_time = time.monotonic()
+    with pudl.load.BulkCopyPkg(
+            table_name="hourly_emissions_epacems",
+            pkg_dir=pkg_dir) as loader:
+
+        for transformed_df_dict in epacems_transformed_dfs:
+            # There's currently only one dataframe in this dict at a time,
+            # but that could be changed if useful.
+            # The keys to the dict are a tuple (year, month, state)
+            for transformed_df in transformed_df_dict.values():
+                loader.add(transformed_df)
+    if logger.isEnabledFor(logging.INFO):
+        time_message = "    Loading    EPA CEMS took {}".format(
+            time.strftime("%H:%M:%S",
+                          time.gmtime(time.monotonic() - start_time)))
+        logger.info(time_message)
+        start_time = time.monotonic()
+    # pudl.models.epacems.finalize(pudl_engine)
+    # if logger.isEnabledFor(logging.INFO):
+    #    time_message = "    Finalizing EPA CEMS took {}".format(
+    #        time.strftime("%H:%M:%S", time.gmtime(
+    #            time.monotonic() - start_time))
+    #    )
+    #    logger.info(time_message)
+    return ['hourly_emissions_epacems']
 
 ###############################################################################
 # GLUE EXPORT FUNCTIONS
@@ -308,6 +371,8 @@ def _ETL_glue(inputs, pkg_dir):
     glue_dict = _input_validate_glue(inputs)
     ferc1 = glue_dict['ferc1']
     eia = glue_dict['eia']
+    if not eia and not ferc1:
+        return []
     # grab the glue tables for ferc1 & eia
     glue_dfs = pudl.glue.ferc1_eia.glue(ferc1=ferc1, eia=eia)
 
@@ -336,7 +401,7 @@ def _prep_directories(pkg_dir):
     os.mkdir(os.path.join(pkg_dir, 'data'))
 
 
-def _input_validate(settings_init):
+def input_validate(settings_init):
     """
     Extract and validate the inputs from a settings file
 
