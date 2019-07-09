@@ -187,10 +187,9 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
 
     frc_df = pd.merge(frc_df, cmi_df,
                       how='left',
-                      left_on='mine_id_pudl',
-                      right_on='id')
+                      on='mine_id_pudl')
 
-    cols_to_drop = ['fuel_receipt_id', 'mine_id_pudl', 'id']
+    cols_to_drop = ['id', 'mine_id_pudl']
     frc_df = frc_df.drop(cols_to_drop, axis=1)
 
     # Calculate a few totals that are commonly needed:

@@ -190,3 +190,88 @@ def dict_dump_load(transformed_dfs,
                        pudl_engine,
                        csvdir=csvdir,
                        keep_csv=keep_csv)
+
+
+###############################################################################
+# Packaging specific load step
+###############################################################################
+
+def csv_dump(df, table_name, keep_index, pkg_dir):
+    """
+    Write a dataframe to CSV and load it into postgresql using COPY FROM.
+
+    The fastest way to load a bunch of records is using the database's native
+    text file copy function.  This function dumps a given dataframe out to a
+    CSV file, and then loads it into the specified table using a sqlalchemy
+    wrapper around the postgresql COPY FROM command, called postgres_copy.
+
+    Note that this creates an additional in-memory representation of the data,
+    which takes slightly less memory than the DataFrame itself.
+
+    Args:
+    -----
+        df (pandas.DataFrame): The DataFrame which is to be dumped to CSV and
+            loaded into the database. All DataFrame columns must have exactly
+            the same names as the database fields they are meant to populate,
+            and all column data types must be directly compatible with the
+            database fields they are meant to populate. Do any cleanup before
+            you call this function.
+        table_name (str): The exact name of the database table which the
+            DataFrame df is going to be used to populate. It will be used both
+            to look up an SQLAlchemy table object in the PUDLBase metadata
+            object, and to name the CSV file.
+        csvdir (str): Path to the directory into which the CSV file should be
+            saved, if it's being kept.
+
+    Returns:
+    --------
+        None
+
+    """
+    outfile = os.path.join(pkg_dir, 'data', table_name + '.csv')
+    if keep_index:
+        df.to_csv(path_or_buf=outfile, index=True, index_label='id')
+    else:
+        df.to_csv(path_or_buf=outfile, index=False)
+
+
+def dict_dump(transformed_dfs,
+              data_source,
+              need_fix_inting=pc.need_fix_inting,
+              pkg_dir=''):
+    """Wrapper for _csv_dump for each data source."""
+    for table_name, df in transformed_dfs.items():
+        if table_name != "hourly_emissions_epacems":
+            logger.info(
+                f"Loading {data_source} {table_name} dataframe into CSV")
+        if table_name in list(need_fix_inting.keys()):
+            df = pudl.helpers.fix_int_na(
+                df, columns=pc.need_fix_inting[table_name])
+        # fix the order of the columns based on the metadata..
+        # grab the table metadata from the mega metadata
+        resource = pudl.helpers.pull_resource_from_megadata(table_name)
+        # pull the columns from the table schema
+        columns = [x['name'] for x in resource['schema']['fields']]
+        # there are two types of tables when it comes to indexes and ids...
+        # first there are tons of tables that don't use the index as a column
+        # these tables don't have an `id` column and we don't want to keept the
+        # index when doing df.to_csv()
+        if 'id' not in columns:
+            df = df.reindex(columns=columns)
+            csv_dump(df,
+                     table_name,
+                     keep_index=False,
+                     pkg_dir=pkg_dir)
+        # there are also a ton of tables that use the `id` column as an auto-
+        # autoincrement id/primary key. For these tables, the index will end up
+        # as the id column so we want to remove the `id` in the list of columns
+        # because while the id column exists in the metadata it isn't in the df
+        # We also want to reindex in order to ensure the index is clean
+        else:
+            columns.remove('id')
+            df = df.reset_index(drop=True)
+            df = df.reindex(columns=columns)
+            csv_dump(df,
+                     table_name,
+                     keep_index=True,
+                     pkg_dir=pkg_dir)

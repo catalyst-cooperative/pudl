@@ -1979,3 +1979,9 @@ licenses = {
         "path": "http://www.usa.gov/publicdomain/label/1.0/",
     }
 }
+
+output_formats = [
+    'sqlite',
+    'parquet',
+    'datapackage'
+]

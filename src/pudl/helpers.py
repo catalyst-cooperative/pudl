@@ -1,9 +1,11 @@
 """General utility functions that are used in a variety of contexts."""
 
+import importlib.resources
 import json
 import logging
 import os.path
 import re
+from collections import namedtuple
 from functools import partial
 
 import numpy as np
@@ -25,6 +27,19 @@ sum_na = partial(pd.Series.sum, skipna=False)
 # them open for efficiency. I want to avoid doing that for every call to find
 # the timezone, so this is global.
 tz_finder = timezonefinder.TimezoneFinder()
+
+
+def convert_dict_to_namedtuple(dictionary, dict_name):
+    """"
+    Converts a dictionary to a namedtuple
+
+    args:
+        dictionary (dict) : a Dictionary
+        dict_name (string) : a string of the dictionary name
+    returns:
+        namedtuple
+    """
+    return namedtuple(dict_name, dictionary.keys())(**dictionary)
 
 
 def get_dependent_tables_from_list(table_names, testing=False):
@@ -629,32 +644,37 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
 ##############################################################################
 # The next few functions propbably will end up in some packaging or load module
 ###############################################################################
+def data_sources_from_tables_pkg(table_names, testing=False):
+    """Based on a list of PUDL DB tables, look up data sources."""
+    all_tables = get_dependent_tables_from_list_pkg(
+        table_names, testing=testing)
+    table_sources = set()
+    # All tables get PUDL:
+    table_sources.add('pudl')
+    for t in all_tables:
+        for src in pudl.constants.data_sources:
+            if re.match(f".*_{src}$", t):
+                table_sources.add(src)
 
-def get_foreign_key_relash_from_pkg(pkg_name='pudl-test', out_dir=None):
+    return table_sources
+
+
+def get_foreign_key_relash_from_pkg(pkg_json):
     """
-    Generate a dictionary of foreign key relationships from pkging metadata
+    Generate a dictionary of foreign key relationships from pkging metadata.
 
     This function helps us pull all of the foreign key relationships of all
     of the tables in the metadata.
 
     Args:
-        pkg_name (str): Name of the package needed to go find the right file
-        out_dir (path-like): Directory to output data packages into.
+        datapackage_json_path (path-like): Path to the datapackage.json
+            containing the schema from which the foreign key relationships
+            will be read
 
     Returns:
         dict: list of foreign key tables
 
     """
-    # we'll probably eventually need to pull these directories into settings
-    # out_dir is the packaging directory -- the place where packages end up
-    # pkg_dir is the top level directory of this package:
-    if out_dir is None:
-        out_dir = os.path.join(pudl.settings.init()['pudl_out'], 'datapackage')
-
-    pkg_dir = os.path.abspath(os.path.join(out_dir, pkg_name))
-    # pkg_json is the datapackage.json that we ultimately output:
-    pkg_json = os.path.join(pkg_dir, "datapackage.json")
-
     with open(pkg_json) as md:
         metadata = json.load(md)
 
@@ -682,7 +702,7 @@ def get_dependent_tables_pkg(table_name, fk_relash):
     # Recursively call this function on the tables our initial
     # table depends on:
     for table_name in new_table_names:
-        logger.error(f"Finding dependent tables for {table_name}")
+        logger.debug(f"Finding dependent tables for {table_name}")
         dependent_tables.add(table_name)
         for t in get_dependent_tables_pkg(table_name, fk_relash):
             dependent_tables.add(t)
@@ -690,9 +710,7 @@ def get_dependent_tables_pkg(table_name, fk_relash):
     return dependent_tables
 
 
-def get_dependent_tables_from_list_pkg(table_names,
-                                       pkg_name='pudl-test',
-                                       out_dir=None):
+def get_dependent_tables_from_list_pkg(table_names, testing=False):
     """
     Given a list of tables, find all the other tables they depend on.
 
@@ -710,15 +728,14 @@ def get_dependent_tables_from_list_pkg(table_names,
             tables depends on, via ForeignKey constraints.
 
     """
-    if out_dir is None:
-        out_dir = os.path.join(pudl.settings.init()['pudl_out'], 'datapackage')
-    fk_relash = get_foreign_key_relash_from_pkg(
-        pkg_name=pkg_name, out_dir=out_dir)
+    with importlib.resources.path('pudl.package_data.meta.datapackage',
+                                  'datapackage.json') as md:
+        fk_relash = get_foreign_key_relash_from_pkg(md)
 
-    all_the_tables = set()
-    for t in table_names:
-        for x in get_dependent_tables_pkg(t, fk_relash):
-            all_the_tables.add(x)
+        all_the_tables = set()
+        for t in table_names:
+            for x in get_dependent_tables_pkg(t, fk_relash):
+                all_the_tables.add(x)
 
     return all_the_tables
 
@@ -743,9 +760,6 @@ def verify_input_files(ferc1_years,
         FileNotFoundError: If any of the requested data is missing.
 
     """
-    # NOTE that these filename functions take other arguments, like BASEDIR.
-    # Here, we're assuming that the default arguments (as defined in SETTINGS)
-    # are what we want.
     missing_ferc1_years = {
         str(y) for y in ferc1_years if not os.path.isfile(
             pudl.extract.ferc1.dbc_filename(y, data_dir=data_dir))
@@ -812,3 +826,20 @@ def verify_input_files(ferc1_years,
             err_msg += ["    Years:  " + missing_yr_str]
             err_msg += ["    States: " + missing_st_str]
         raise FileNotFoundError("\n".join(err_msg))
+
+
+def pull_resource_from_megadata(table_name):
+    with importlib.resources.open_text('pudl.package_data.meta.datapackage',
+                                       'datapackage.json') as md:
+        metadata_mega = json.load(md)
+
+    table_resource = [
+        x for x in metadata_mega['resources'] if x['name'] == table_name
+    ]
+
+    if len(table_resource) == 0:
+        raise AssertionError(f"{table_name} not found in stored metadata")
+    if len(table_resource) > 1:
+        raise AssertionError(f"{table_name} found multiple times in metadata")
+    table_resource = table_resource[0]
+    return(table_resource)

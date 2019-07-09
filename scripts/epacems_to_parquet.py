@@ -46,38 +46,65 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 IN_DTYPES = {
-    'unitid': str,
-    'facility_id': str,
-    'unit_id_epa': str,
+    "co2_mass_measurement_code": "category",
+    "nox_mass_measurement_code": "category",
+    "nox_rate_measurement_code": "category",
+    "so2_mass_measurement_code": "category",
+    "state": "category",
+    "unitid": "str",
+    # Note: it'd be better to use pandas' nullable integers once this issue is
+    # resolved: https://issues.apache.org/jira/browse/ARROW-5379
+    # 'facility_id': "Int32",
+    # 'unit_id_epa': "Int32",
+    'facility_id': "float32",
+    'unit_id_epa': "float32",
 }
 
-# Note that parquet's internal representation doesn't use unsigned numbers or
-# 16-bit ints, so just keep things simple here and always use int32 and
-# float32. Fields that may be NaN have to be float32, not int32 or pandas'
-# Int32 (float32 can accurately hold integers up to 16,777,216 so no need for
-# float64)
-OUT_DTYPES = {
-    'year': 'int32',  # never missing; note that this is UTC year
-    'state': 'category',
-    # 'plant_name': 'category',
-    'plant_id_eia': 'int32',  # never missing
-    'unitid': 'str',
-    'gross_load_mw': 'float32',
-    'steam_load_1000_lbs': 'float32',
-    'so2_mass_lbs': 'float32',
-    'so2_mass_measurement_code': 'category',
-    'nox_rate_lbs_mmbtu': 'float32',
-    'nox_rate_measurement_code': 'category',
-    'nox_mass_lbs': 'float32',
-    'nox_mass_measurement_code': 'category',
-    'co2_mass_tons': 'float32',
-    'co2_mass_measurement_code': 'category',
-    'heat_content_mmbtu': 'float32',
-    'facility_id': 'float32',  # sometimes missing, max value  8,421
-    'unit_id_epa': 'float32',  # sometimes missing, max value 91,294
-    'operating_datetime_utc': pd.DatetimeTZDtype(tz="UTC"),
-    'operating_time_hours': 'float32'
-}
+
+def create_cems_schema():
+    """Make an Arrow schema for the EPA CEMS data
+
+    Make changes in the types of the generated parquet files by editing this function
+
+    Note that parquet's internal representation doesn't use unsigned numbers or
+    16-bit ints, so just keep things simple here and always use int32 and float32.
+    """
+    from functools import partial
+    int_nullable = partial(pa.field, type=pa.int32(), nullable=True)
+    int_not_null = partial(pa.field, type=pa.int32(), nullable=False)
+    str_not_null = partial(pa.field, type=pa.string(), nullable=False)
+    # Timestamp resolution is hourly, but millisecond is the largest allowed.
+    timestamp = partial(pa.field, type=pa.timestamp(
+        "ms", tz="utc"), nullable=False)
+    float_nullable = partial(pa.field, type=pa.float32(), nullable=True)
+    float_not_null = partial(pa.field, type=pa.float32(), nullable=False)
+    # (float32 can accurately hold integers up to 16,777,216 so no need for float64)
+    dict_nullable = partial(
+        pa.field,
+        type=pa.dictionary(pa.int8(), pa.string(), ordered=False),
+        nullable=True
+    )
+    return pa.schema([
+        int_not_null("year"),
+        dict_nullable("state"),
+        int_not_null("plant_id_eia"),
+        str_not_null("unitid"),
+        timestamp("operating_datetime_utc"),
+        float_nullable("operating_time_hours"),
+        float_not_null("gross_load_mw"),
+        float_nullable("steam_load_1000_lbs"),
+        float_nullable("so2_mass_lbs"),
+        dict_nullable("so2_mass_measurement_code"),
+        float_nullable("nox_rate_lbs_mmbtu"),
+        dict_nullable("nox_rate_measurement_code"),
+        float_nullable("nox_mass_lbs"),
+        dict_nullable("nox_mass_measurement_code"),
+        float_nullable("co2_mass_tons"),
+        dict_nullable("co2_mass_measurement_code"),
+        float_not_null("heat_content_mmbtu"),
+        int_nullable("facility_id"),
+        int_nullable("unit_id_epa"),
+    ])
 
 
 def parse_command_line(argv):
@@ -149,8 +176,8 @@ def year_from_operating_datetime(df):
     return df
 
 
-def cems_to_parquet(transformed_df_dicts, outdir=None, schema=None,
-                    partition_cols=('year', 'state')):
+def cems_to_parquet(transformed_df_dicts, outdir=None,
+                    compression='snappy', partition_cols=('year', 'state')):
     """
     Take transformed EPA CEMS dataframes and output them as Parquet files.
 
@@ -161,25 +188,22 @@ def cems_to_parquet(transformed_df_dicts, outdir=None, schema=None,
     type possible for each of them. We also add a 'year' column so that we can
     partition the datset on disk by year as well as state.
     """
-    if not schema:
-        raise AssertionError("Required Parquet table schema not specified.")
     if not outdir:
         raise AssertionError("Required output directory not specified.")
 
+    schema = create_cems_schema()
     for df_dict in transformed_df_dicts:
         for yr_st, df in df_dict.items():
             logger.info(f"            {yr_st}: {len(df)} records")
-            if not df.empty:
-                df = (
-                    df.astype(IN_DTYPES)
-                    .pipe(year_from_operating_datetime)
-                    .astype(OUT_DTYPES)
-                )
-                pq.write_to_dataset(
-                    pa.Table.from_pandas(
-                        df, preserve_index=False, schema=schema),
-                    root_path=outdir, partition_cols=partition_cols,
-                    compression='gzip')
+            if df.empty:
+                continue
+
+            df = year_from_operating_datetime(df).astype(IN_DTYPES)
+            pq.write_to_dataset(
+                pa.Table.from_pandas(
+                    df, preserve_index=False, schema=schema),
+                root_path=outdir, partition_cols=partition_cols,
+                compression=compression)
 
 
 def main():
@@ -187,11 +211,6 @@ def main():
 
     args = parse_command_line(sys.argv)
 
-    # Create a pandas dataframe that has the appropriate column types for our
-    # Parquet output, so we can use it as a template / schema.
-    cems_df_template = pd.DataFrame(columns=OUT_DTYPES.keys())
-    cems_df_template = cems_df_template.astype(OUT_DTYPES)
-    cems_table = pa.Table.from_pandas(cems_df_template)
     # transform.epacems needs to reach into the database to get timezones, so
     # get a database connection here
     pudl_engine = pudl.init.connect_db(testing=args.testing)
@@ -210,7 +229,7 @@ def main():
     # and write the resulting files to disk.
     cems_to_parquet(transformed_dfs,
                     outdir=args.outdir,
-                    schema=cems_table.schema,
+                    compression=args.compression,
                     partition_cols=args.partition_cols)
 
 

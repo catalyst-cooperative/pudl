@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Setup script to make PUDL directly installable with pip."""
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name='pudl',
@@ -30,17 +30,16 @@ setup(
     install_requires=[
         'datapackage',
         'dbfread',
-        'fastparquet',
         'goodtables',
         'jupyter',
         'jupyterlab',
         'matplotlib',
         'nbval',
-        'networkx',
+        'networkx>=2.2',
         'numpy',
-        'pandas>=0.21',
+        'pandas>=0.24',
         'psycopg2',
-        'pyarrow',
+        'pyarrow>=0.14.0',
         'pyyaml',
         'scikit-learn>=0.20',
         'scipy',
@@ -57,7 +56,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Topic :: Scientific/Engineering',
     ],

@@ -19,8 +19,8 @@ class CoalMineEIA923(pudl.models.entities.PUDLBase):
     """Information pertaining to individual coal mines listed in EIA 923."""
 
     __tablename__ = 'coalmine_eia923'
-    id = Column(Integer, primary_key=True,
-                comment="PUDL issued surrogate key.")  # surrogate key
+    mine_id_pudl = Column(Integer, primary_key=True,
+                          comment="PUDL issued surrogate key.")  # surrogate key
     mine_name = Column(String, comment="Coal mine name.")
     mine_type_code = Column(
         Enum(*pudl.constants.coalmine_type_eia923.keys(),
@@ -154,30 +154,24 @@ class BoilerFuelEIA923(pudl.models.entities.PUDLBase):
     id = Column(Integer, autoincrement=True, primary_key=True,
                 comment="PUDL issued surrogate key.")  # surrogate key
     plant_id_eia = Column(Integer, nullable=False,
-                          comment="EIA Plant Identification number. \
-                          One to five digit numeric.")
-    boiler_id = Column(
-        String,
-        nullable=False,
-        comment="Boiler identification code. Alphanumeric."
-    )
+                          comment="EIA Plant Identification number. One to five digit numeric.")
+    boiler_id = Column(String, nullable=False,
+                       comment="Boiler identification code. Alphanumeric.")
+    # prime_mover_code = Column(String, ForeignKey('prime_movers_eia923.abbr'),
+    #                          nullable=False, comment="Type of prime mover.")
     fuel_type_code = Column(String, ForeignKey('fuel_type_eia923.abbr'),
-                            nullable=False, comment="The fuel code reported \
-                            to EIA. Two or three letter alphanumeric.")
-    fuel_type_code_pudl = Column(String, comment="Standardized fuel codes \
-                                 in PUDL.")
+                            nullable=False, comment="The fuel code reported to EIA. Two or three letter alphanumeric.")
+    fuel_type_code_pudl = Column(
+        String, comment="Standardized fuel codes in PUDL.")
     report_date = Column(Date, nullable=False, comment="Date reported.")
-    fuel_consumed_units = Column(Float, comment="Consumption of the fuel type \
-                                 in physical units. Note: this is the total \
-                                 quantity consumed for both electricity and, \
-                                 in the case of combined heat and power \
-                                 plants, process steam production.")
-    fuel_mmbtu_per_unit = Column(Float, comment="Heat content of the fuel in \
-                                 millions of Btus per physical unit.")
-    sulfur_content_pct = Column(Float, comment="Sulfur content percentage by \
-                                weight to the nearest 0.01 percent.")
-    ash_content_pct = Column(Float, comment="Ash content percentage by weight \
-                             to the nearest 0.1 percent.")
+    fuel_consumed_units = Column(
+        Float, comment="Consumption of the fuel type in physical units. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.")
+    fuel_mmbtu_per_unit = Column(
+        Float, comment="Heat content of the fuel in millions of Btus per physical unit.")
+    sulfur_content_pct = Column(
+        Float, comment="Sulfur content percentage by weight to the nearest 0.01 percent.")
+    ash_content_pct = Column(
+        Float, comment="Ash content percentage by weight to the nearest 0.1 percent.")
 
 
 class GenerationEIA923(pudl.models.entities.PUDLBase):
@@ -213,49 +207,37 @@ class FuelReceiptsCostsEIA923(pudl.models.entities.PUDLBase):
     __tablename__ = 'fuel_receipts_costs_eia923'
 
     # surrogate key
-    fuel_receipt_id = Column(Integer, primary_key=True, autoincrement=True,
-                             comment="PUDL fuel receipt identification number.")
+    id = Column(Integer, primary_key=True, autoincrement=True,
+                comment="PUDL fuel receipt identification number.")
     plant_id_eia = Column(Integer,
                           ForeignKey('plants_entity_eia.plant_id_eia'),
                           nullable=False,
-                          comment="EIA Plant Identification number. One to \
-                          five digit numeric.")
+                          comment="EIA Plant Identification number. One to five digit numeric.")
     report_date = Column(Date, nullable=False, comment="Date reported.")
     contract_type_code = Column(
         Enum(*pudl.constants.contract_type_eia923.keys(),
              name="contract_type_eia923"),
-        comment="Purchase type under which receipts occurred in the reporting \
-        month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling \
-        Agreement."
+        comment="Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement."
     )
-    contract_expiration_date = Column(Date, comment="Date contract expires. \
-                                      Format:  MMYY.")
+    contract_expiration_date = Column(
+        Date, comment="Date contract expires.Format:  MMYY.")
     energy_source_code = Column(
-        String, ForeignKey('energy_source_eia923.abbr'), comment="The fuel \
-                               code associated with the fuel receipt. \
-                               Two or three character alphanumeric.")
-    fuel_type_code_pudl = Column(String, comment="Standardized fuel codes in \
-                                 PUDL.")
+        String, ForeignKey('energy_source_eia923.abbr'), comment="The fuel code associated with the fuel receipt. Two or three character alphanumeric.")
+    fuel_type_code_pudl = Column(
+        String, comment="Standardized fuel codes in PUDL.")
     fuel_group_code = Column(
         Enum(*pudl.constants.fuel_group_eia923, name="fuel_group_eia923"),
-        comment="Groups the energy sources into fuel groups that are located \
-                in the Electric Power Monthly:  Coal, Natural Gas, Petroleum, \
-                Petroleum Coke.")
-    fuel_group_code_simple = Column(String, comment="Simplified grouping of \
-                                    fuel_group_code, with Coal and Petroluem \
-                                    Coke as well as Natural Gas and Other Gas \
-                                    grouped together.")
-    mine_id_pudl = Column(Integer, ForeignKey('coalmine_eia923.id'),
+        comment="Groups the energy sources into fuel groups that are located in the Electric Power Monthly:  Coal, Natural Gas, Petroleum, Petroleum Coke.")
+    fuel_group_code_simple = Column(
+        String, comment="Simplified grouping of fuel_group_code, with Coal and Petroluem Coke as well as Natural Gas and Other Gas grouped together.")
+    mine_id_pudl = Column(Integer, ForeignKey('coalmine_eia923.mine_id_pudl'),
                           comment="PUDL mine identification number.")
-    supplier_name = Column(String, nullable=False, comment="Company that sold \
-                           the fuel to the plant or, in the case of Natural \
-                           Gas, pipline owner.")
-    fuel_qty_units = Column(Float, nullable=False, comment="Quanity of fuel \
-                            received in tons, barrel, or Mcf.")
+    supplier_name = Column(
+        String, nullable=False, comment="Company that sold the fuel to the plant or, in the case of Natural Gas, pipline owner.")
+    fuel_qty_units = Column(
+        Float, nullable=False, comment="Quanity of fuel received in tons, barrel, or Mcf.")
     heat_content_mmbtu_per_unit = Column(Float, nullable=False,
-                                         comment="Heat content of the fuel in \
-                                         millions of Btus per physical unit to \
-                                         the nearest 0.01 percent.")
+                                         comment="Heat content of the fuel in millions of Btus per physical unit to the nearest 0.01 percent.")
     sulfur_content_pct = Column(
         Float, nullable=False, comment="Sulfur content percentage by weight to the nearest 0.01 percent.")
     ash_content_pct = Column(

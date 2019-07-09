@@ -1,10 +1,10 @@
 """Database models for PUDL tables derived from FERC Form 1 data."""
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Float, Numeric
-from sqlalchemy import Enum
-from sqlalchemy import ForeignKeyConstraint
-import pudl.models.entities
+from sqlalchemy import (Column, Enum, Float, ForeignKey, ForeignKeyConstraint,
+                        Integer, Numeric, String)
+
 import pudl.constants as pc
+import pudl.models.entities
 
 ###########################################################################
 # Tables comprising data from the FERC f1_steam & f1_fuel tables
@@ -83,19 +83,6 @@ class FuelFERC1(pudl.models.entities.PUDLBase):
         nullable=False,
         comment="Average cost of fuel consumed in the report year, in nominal USD per mmBTU of fuel heat content."
     )
-    # Is this a useful number for any fuel that's not overwhelmingly dominant?
-    # fuel_cost_per_mwh = Column(
-    #    Float,
-    #    nullable=False,
-    #    comment="Average cost of fuel burned per MWh of net generation in the report year. In plants burning multiple fuels, this may not be indicative of overall fuel cost per MWh."
-    # )
-    # Is this a useful number for any fuel that's not overwhelmingly dominant?
-    # fuel_mmbtu_per_mwh = Column(
-    #    Float,
-    #    nullable=False,
-    #    comment="Average heat content in mmBTU of fuel consumed per MWh of net generation in the report year. In plants burning multiple fuels this may not be indicative of overall plant heat rate."
-    # )
-#
 
 
 class PlantSteamFERC1(pudl.models.entities.PUDLBase):
@@ -289,7 +276,7 @@ class PlantInServiceFERC1(pudl.models.entities.PUDLBase):
     )
     ferc_account_id = Column(
         String,
-        ForeignKey('ferc_accounts.id'),
+        ForeignKey('ferc_accounts.ferc_account_id'),
         primary_key=True,
         comment="Identification number associated with each FERC account, as described in the FERC Uniform System of Accounts for Electric Plant."
     )
@@ -347,7 +334,7 @@ class AccumulatedDepreciationFERC1(pudl.models.entities.PUDLBase):
     )
     line_id = Column(
         String,
-        ForeignKey('ferc_depreciation_lines.id'),
+        ForeignKey('ferc_depreciation_lines.line_id'),
         primary_key=True,
         comment="Line numbers, and corresponding FERC account number from FERC Form 1, page 2019, Accumulated Provision for Depreciation of Electric Utility Plant (Account 108)."
     )

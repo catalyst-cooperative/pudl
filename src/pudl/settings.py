@@ -9,6 +9,7 @@ import importlib
 import logging
 import os
 import os.path
+import pathlib
 import shutil
 
 import yaml
@@ -16,15 +17,20 @@ import yaml
 import pudl.constants as pc
 import pudl.datastore.datastore as datastore
 
-# from pudl import __file__ as pudl_pkg_file
-
 logger = logging.getLogger(__name__)
+
+
+def settings_init(settings_file):
+    with pathlib.Path(settings_file).open() as f:
+        settings_out = yaml.safe_load(f)
+
+    return settings_out
 
 
 def read_user_settings(settings_file=None):
     """Read the most basic PUDL settings from a user supplied file."""
     if settings_file is None:
-        settings_file = os.path.join(os.path.expanduser('~'), '.pudl.yml')
+        settings_file = pathlib.Path.home() / '.pudl.yml'
 
     with open(settings_file, 'r') as f:
         pudl_settings = yaml.safe_load(f)
@@ -67,9 +73,13 @@ def init(pudl_in=None, pudl_out=None, settings_file=None):
     pudl_settings['data_dir'] = os.path.join(pudl_settings['pudl_in'], 'data')
     pudl_settings['settings_dir'] = \
         os.path.join(pudl_settings['pudl_in'], 'settings')
-    pudl_settings['nb_dir'] = \
+    pudl_settings['notebook_dir'] = \
         os.path.join(pudl_settings['pudl_out'], 'notebooks')
 
+    # Now the output directories:
+    for format in pc.output_formats:
+        format_dir = os.path.join(pudl_settings['pudl_out'], format)
+        pudl_settings[f'{format}_dir'] = format_dir
     # We don't need to create the other data directories because they are more
     # complicated, and that task is best done by the datastore module.
 
@@ -117,8 +127,9 @@ def setup(pudl_settings=None):
     # Now the settings files:
     os.makedirs(pudl_settings['settings_dir'], exist_ok=True)
     settings_files = [
-        'settings_init_pudl_default.yml',
-        'settings_ferc1_to_sqlite_default.yml'
+        fn for fn in importlib.resources.contents('pudl.package_data.settings')
+        if importlib.resources.is_resource('pudl.package_data.settings', fn)
+        and fn != '__init__.py'
     ]
     for fn in settings_files:
         with importlib.resources.path('pudl.package_data.settings', fn) as f:
@@ -127,15 +138,20 @@ def setup(pudl_settings=None):
                 shutil.copy(f, dest_file)
 
     # Now the output directories:
-    for format in ['sqlite', 'parquet', 'datapackage']:
+    for format in pc.output_formats:
         format_dir = os.path.join(pudl_settings['pudl_out'], format)
         os.makedirs(format_dir, exist_ok=True)
-        pudl_settings[f'{format}_dir'] = format_dir
 
     # Copy over the example notebooks:
-    os.makedirs(pudl_settings['nb_dir'], exist_ok=True)
-    for nb in ['pudl_intro.ipynb', 'pudl_output_to_csv.ipynb']:
+    os.makedirs(pudl_settings['notebook_dir'], exist_ok=True)
+    notebooks = [
+        nb for nb in
+        importlib.resources.contents('pudl.package_data.notebooks')
+        if importlib.resources.is_resource('pudl.package_data.notebooks', nb)
+        and fn != '__init__.py'
+    ]
+    for nb in notebooks:
         with importlib.resources.path('pudl.package_data.notebooks', nb) as f:
-            dest_file = os.path.join(pudl_settings['nb_dir'], nb)
+            dest_file = os.path.join(pudl_settings['notebook_dir'], nb)
             if not os.path.exists(dest_file):
                 shutil.copy(f, dest_file)
