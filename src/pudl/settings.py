@@ -148,7 +148,7 @@ def setup(pudl_settings=None):
         nb for nb in
         importlib.resources.contents('pudl.package_data.notebooks')
         if importlib.resources.is_resource('pudl.package_data.notebooks', nb)
-        and fn != '__init__.py'
+        and nb != '__init__.py'
     ]
     for nb in notebooks:
         with importlib.resources.path('pudl.package_data.notebooks', nb) as f:
