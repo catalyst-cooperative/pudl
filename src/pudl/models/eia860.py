@@ -234,11 +234,11 @@ class BoilerGeneratorAssociationEIA860(pudl.models.entities.PUDLBase):
     plant_id_eia = Column(Integer, nullable=False,
                           comment="EIA Plant Identification number. One to five digit numeric.")
     report_date = Column(Date, nullable=False, comment="Date reported.")
-    generator_id = Column(String, comment="")
-    boiler_id = Column(String, comment="")
-    unit_id_eia = Column(String, comment="EIA-assigned unit identification number.")
+    generator_id = Column(String, comment="EIA-assigned generator identification code.")
+    boiler_id = Column(String, comment="EIA-assigned boiler identification code.")
+    unit_id_eia = Column(String, comment="EIA-assigned unit identification code.")
     unit_id_pudl = Column(Integer, nullable=False, comment="PUDL-assigned unit identification number.")
-    bga_source = Column(String, comment="")
+    bga_source = Column(String, comment="The source from where the unit_id_pudl is compiled. The unit_id_pudl comes directly from EIA 860, or string association (which looks at all the boilers and generators that are not associated with a unit and tries to find a matching string in the respective collection of boilers or generator), or from a unit connection (where the unit_id_eia is employed to find additional boiler generator connections).")
 
 
 class OwnershipEIA860(pudl.models.entities.PUDLBase):
