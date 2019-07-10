@@ -70,12 +70,13 @@ to be joined together. On the
 
 """
 
+import itertools
 # Useful high-level external modules.
 import logging
+import random
+
 import numpy as np
 import pandas as pd
-import itertools
-import random
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +130,9 @@ def random_chunk(li, min_chunk=1, max_chunk=3):
     """
     it = iter(li)
     while True:
-        nxt = list(itertools.islice(it, random.randint(min_chunk, max_chunk)))
+        nxt = list(itertools.islice(
+            # This is not a cryptographic application so random is fiiiine.
+            it, random.randint(min_chunk, max_chunk)))  # nosec: B311
         if nxt:
             yield nxt
         else:

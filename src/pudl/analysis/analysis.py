@@ -14,11 +14,10 @@ import sqlalchemy as sa
 import pudl
 import pudl.constants as pc
 import pudl.helpers
-
+import pudl.models.eia923
+import pudl.models.entities
 # However, models aren't imported by default.
 import pudl.models.ferc1
-import pudl.models.entities
-import pudl.models.eia923
 
 logger = logging.getLogger(__name__)
 
@@ -1040,17 +1039,19 @@ def fercplants(plant_tables=('f1_steam',
 
 
 def check_ferc1_tables(refyear=2017):
-    """Tests whether each possible combination of FERC Form 1 table and year are
-    compatible with the database schema associated with the reference year.
+    """
+    Test each FERC1 data year for compatibility with references year schema.
 
-    TODO: Zane revisit
 
     Args:
         refyear (int): The reference year for testing compatibility of the
             database schema with a FERC Form 1 table and year.
 
     Returns:
-        A dictionary containing
+        dict: A dictionary having database table names as keys, and lists of
+            which years that table was compatible with the refernce year as
+            values.
+
     """
     good_table_years = {}
     tables = list(pc.ferc1_dbf2tbl.values())
@@ -1071,7 +1072,10 @@ def check_ferc1_tables(refyear=2017):
                     force_tables=True)
                 good_years = good_years + [yr, ]
                 print(f"{yr},", end=" ", flush=True)
-            except:
+            # generally bare except: statements are bad, but here we're really
+            # just trying to test whether the ferc1 extraction fails for *any*
+            # reason, and if not, mark that year as good, thus the # nosec
+            except:  # noqa: E722  # nosec
                 continue
             ferc1_engine = pudl.extract.ferc1.connect_db(testing=True)
             pudl.extract.ferc1.drop_tables(ferc1_engine)

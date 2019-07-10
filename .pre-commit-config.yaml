@@ -8,6 +8,7 @@ repos:
   rev: 1.6.2
   hooks:
   - id: bandit
+    args: [-c, bandit.yml]
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v2.2.3

@@ -12,7 +12,7 @@ Emissions Monitoring System dataset will be added in the future.
 """
 
 import concurrent.futures
-import ftplib
+import ftplib  # nosec: B402 We sadly need ftplib for ferc1 & epacems. :-(
 import logging
 import os
 import shutil
@@ -324,7 +324,7 @@ def _download_FTP(src_urls, tmp_files, allow_retry=True):
         raise NotImplementedError(
             "I don't yet know how to download from multiple domains")
     domain = domains.pop()
-    ftp = ftplib.FTP(domain)
+    ftp = ftplib.FTP(domain)  # nosec: B321 Sadly required for ferc1 & epacems
     login_result = ftp.login()
     assert login_result.startswith("230"), \
         f"Failed to login to {domain}: {login_result}"
@@ -385,7 +385,12 @@ def _download_default(src_urls, tmp_files, allow_retry=True):
     tmp_to_retry = []
     for src_url, tmp_file in zip(src_urls, tmp_files):
         try:
-            outfile, _ = urllib.request.urlretrieve(src_url, filename=tmp_file)
+            # While we aren't auditing the url to ensure it's http/https, the
+            # URLs are hard-coded in pudl.constants, so we ought to know what
+            # we are connecting to. Thus the # nosec comment to avoid the
+            # security linter (bandit) from complaining.
+            outfile, _ = urllib.request.urlretrieve(  # nosec
+                src_url, filename=tmp_file)
         except urllib.error.URLError:
             url_to_retry.append(src_url)
             tmp_to_retry.append(tmp_to_retry)

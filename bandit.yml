@@ -1,4 +1,1 @@
-skips:
-    - 'B402' # FTP-related module being imported (req'd for ferc1, epacems).
-    - 'B321' # FTP-related functions called (req'd for ferc1, epacems).
-    - 'B311' # Use of insecure pseudo-random numbers (but not for crypto).
+skips: ['B101'] # Yes we are working on the assert statements!
