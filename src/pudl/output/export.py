@@ -243,14 +243,19 @@ def get_tabular_data_resource(tablename, pkg_dir, testing=False):
 
 def hash_csv(csv_path):
     """
-    Calculate a SHA-1 hash of the CSV file for integrity checking.
+    Calculate a SHA-i256 hash of the CSV file for data integrity checking.
 
-    Returns the hexdigest of the hash, with a sha1: prefix as a string.
+    Args:
+        csv_path (path-like) : Path the CSV file to hash.
+
+    Returns:
+        str: the hexdigest of the hash, with a 'sha256:' prefix.
+
     """
     # how big of a bit should I take?
     blocksize = 65536
-    # sha1 is a function of hashlib, not super accurate but its fast
-    hasher = hashlib.sha1()
+    # sha256 is the fastest relatively secure hashing algorith.
+    hasher = hashlib.sha256()
     # opening the file and eat it for lunch
     with open(csv_path, 'rb') as afile:
         buf = afile.read(blocksize)
@@ -259,7 +264,7 @@ def hash_csv(csv_path):
             buf = afile.read(blocksize)
 
     # returns the hash
-    return f"sha1:{hasher.hexdigest()}"
+    return f"sha256:{hasher.hexdigest()}"
 
 
 def data_package(pkg_tables, pkg_skeleton, pudl_settings=None,

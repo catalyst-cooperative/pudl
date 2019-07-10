@@ -1,0 +1,3 @@
+skips:
+    - 'B402' # FTP-related module being imported (req'd for ferc1, epacems)
+    - 'B321' # FTP-related functions called (req'd for ferc1, epacems)
