@@ -38,4 +38,4 @@ pytest --disable-warnings --live_ferc_db --live_pudl_db test/validation/
 # notebook cells, rather than exact output matching -- unless a cell has been
 # specifically marked with # NBVAL_CHECK_OUTPUT
 # Run this from within the top level repository directory:
-pytest --disable-warnings --nbval-lax test/notebooks docs/notebooks
+pytest --disable-warnings --nbval-lax test/notebooks src/pudl/data/notebooks

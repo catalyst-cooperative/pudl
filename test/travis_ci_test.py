@@ -1,15 +1,9 @@
 """Limited testing of the PUDL DB ETL for use with Travis CI."""
 import logging
+
 import pytest
-import pandas as pd
-from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
-
-START_DATE_CI = pd.to_datetime(
-    '{}-01-01'.format(max(pc.working_years['eia923'])))
-END_DATE_CI = pd.to_datetime(
-    '{}-12-31'.format(max(pc.working_years['eia923'])))
 
 
 @pytest.mark.travis_ci

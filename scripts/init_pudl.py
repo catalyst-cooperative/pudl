@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 """This is a script for initializing the PUDL database locally."""
 
+import argparse
 import logging
 import sys
-import argparse
+
 import pudl
 
 # Create a logger to output any messages we might have...
@@ -18,12 +19,6 @@ formatter = logging.Formatter(
 )
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-
-# require modern python
-if not sys.version_info >= (3, 6):
-    raise AssertionError(
-        f"PUDL requires Python 3.6 or later. {sys.version_info} found."
-    )
 
 
 def parse_command_line(argv):

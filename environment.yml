@@ -1,26 +1,24 @@
 name: pudl
 channels:
-  - defaults
   - conda-forge
+  - defaults
 dependencies:
   - codecov
   - coverage
   - dbfread
-  - fastparquet
   - jupyter
   - jupyterlab
   - matplotlib
   - nbval
   - networkx>=2.2
   - numpy
-  - pandas>=0.24
+  - pandas>=0.21
   - pip
   - psycopg2
-  - pyarrow
+  - pyarrow>=0.14.0
   - pytest
   - pytest-cov
-  - python>=3.7
-  - python-snappy
+  - python>=3.7 # Remove for tox.ini & setup.py
   - pyyaml
   - scikit-learn>=0.20
   - scipy

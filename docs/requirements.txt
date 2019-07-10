@@ -100,7 +100,6 @@ PySocks==1.7.0
 pytest==4.6.2
 pytest-cov==2.7.1
 python-dateutil==2.8.0
-#python-snappy==0.5.4
 pytz==2019.1
 PyYAML==5.1
 pyzmq==18.0.0

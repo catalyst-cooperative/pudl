@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 """A script for cloning the FERC Form 1 database into SQLite."""
 
+import argparse
 import logging
 import sys
-import argparse
+
 import pudl
 import pudl.constants as pc
 
@@ -14,12 +15,6 @@ handler = logging.StreamHandler()
 formatter = logging.Formatter('%(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-
-# require modern python
-if not sys.version_info >= (3, 6):
-    raise AssertionError(
-        f"fPUDL requires Python 3.6 or later. {sys.version_info} found."
-    )
 
 
 def parse_command_line(argv):
