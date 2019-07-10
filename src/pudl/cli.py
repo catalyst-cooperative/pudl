@@ -1,24 +1,10 @@
-#!/usr/bin/env python
-"""This is a script for initializing the PUDL database locally."""
+"""A command line interface (CLI) to the main PUDL ETL functionality."""
 
 import argparse
 import logging
 import sys
 
 import pudl
-
-# Create a logger to output any messages we might have...
-logger = logging.getLogger(pudl.__name__)
-logger.setLevel(logging.INFO)
-handler = logging.StreamHandler()
-formatter = logging.Formatter(
-    # More extensive test-like formatter...
-    '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s',
-    # This is the datetime format string.
-    "%Y-%m-%d %H:%M:%S"
-)
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 
 def parse_command_line(argv):
@@ -36,17 +22,45 @@ def parse_command_line(argv):
 
 def main():
     """The main function."""
+    # Create a logger to output any messages we might have...
+    logger = logging.getLogger(pudl.__name__)
+    logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        # More extensive test-like formatter...
+        '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s',
+        # This is the datetime format string.
+        "%Y-%m-%d %H:%M:%S"
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
     args = parse_command_line(sys.argv)
     settings_init = pudl.settings.settings_init(
         settings_file=args.settings_file)
 
-    pudl.init.verify_input_files(
+    # Give pudl_in and pudl_out from settings file priority, if found:
+    # Otherwise fall back to user default pudl config file
+    try:
+        pudl_in = settings_init['pudl_in']
+    except KeyError:
+        pudl_in = pudl.settings.read_user_settings()['pudl_in']
+
+    try:
+        pudl_out = settings_init['pudl_out']
+    except KeyError:
+        pudl_out = pudl.settings.read_user_settings()['pudl_out']
+
+    pudl_settings = pudl.settings.init(pudl_in=pudl_in, pudl_out=pudl_out)
+
+    logger.info(f"Verifying input files in {pudl_settings['data_dir']}")
+    pudl.helpers.verify_input_files(
         ferc1_years=settings_init['ferc1_years'],
         eia923_years=settings_init['eia923_years'],
         eia860_years=settings_init['eia860_years'],
         epacems_years=settings_init['epacems_years'],
-        epacems_states=settings_init['epacems_states']
+        epacems_states=settings_init['epacems_states'],
+        data_dir=pudl_settings['data_dir'],
     )
 
     pudl.init.init_db(ferc1_tables=settings_init['ferc1_tables'],
@@ -60,6 +74,8 @@ def main():
                       epaipm_tables=settings_init['epaipm_tables'],
                       pudl_testing=settings_init['pudl_testing'],
                       ferc1_testing=settings_init['ferc1_testing'],
+                      pudl_settings=pudl_settings,
+                      debug=settings_init['debug'],
                       csvdir=settings_init['csvdir'],
                       keep_csv=settings_init['keep_csv'])
 

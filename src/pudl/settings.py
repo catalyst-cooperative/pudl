@@ -33,9 +33,9 @@ def read_user_settings(settings_file=None):
         settings_file = pathlib.Path.home() / '.pudl.yml'
 
     with open(settings_file, 'r') as f:
-        pudl_settings = yaml.safe_load(f)
+        user_settings = yaml.safe_load(f)
 
-    return pudl_settings
+    return user_settings
 
 
 def init(pudl_in=None, pudl_out=None, settings_file=None):

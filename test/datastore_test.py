@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.pre_etl
-def test_datastore(tmp_path, pudl_settings_fixture):
+def test_datastore(pudl_settings_fixture):
     """Attempt to download the most recent year of FERC Form 1 data."""
     sources = ['eia860', 'eia923', 'epacems', 'ferc1', 'epaipm']
     years_by_source = {

@@ -30,14 +30,16 @@ tz_finder = timezonefinder.TimezoneFinder()
 
 
 def convert_dict_to_namedtuple(dictionary, dict_name):
-    """"
-    Converts a dictionary to a namedtuple
+    """
+    Convert a dictionary to a namedtuple
 
-    args:
+    Args:
         dictionary (dict) : a Dictionary
         dict_name (string) : a string of the dictionary name
-    returns:
+
+    Returns:
         namedtuple
+
     """
     return namedtuple(dict_name, dictionary.keys())(**dictionary)
 
@@ -56,9 +58,11 @@ def get_dependent_tables_from_list(table_names, testing=False):
             dependencies we are seeking to find.
         md (sa.MetaData): A SQL Alchemy MetaData object describing the
             structure of the database the input tables are part of.
+
     Returns:
         all_the_tables (set): The set of all the tables which any of the input
             tables depends on, via ForeignKey constraints.
+
     """
     md = sa.MetaData(bind=pudl.init.connect_db(testing=testing))
     md.reflect()
@@ -174,7 +178,6 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
     bringing together EIA860 and EIA923 data.
 
     Args:
-    -----
         df_date: the dataframe with a more granular date column, the label of
             which is specified by date_col (report_date by default)
         df_year: the dataframe with a column containing annual dates, the label
@@ -187,7 +190,6 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
             column with annual resolution.
 
     Returns:
-    --------
         merged: a dataframe with a date column, but no year columns, and only
             one copy of any shared columns that were not part of the list of
             columns to be merged on.  The values from df1 are the ones which
@@ -244,6 +246,12 @@ def organize_cols(df, cols):
     Args:
         df: The DataFrame to be re-organized.
         cols: The columns to put first, in their desired output ordering.
+
+    Returns:
+        pandas.DataFrame: A dataframe with the same columns as the input
+            DataFrame df, but with cols first, in the same order as they
+            were passed in, and the remaining columns sorted alphabetically.
+
     """
     # Generate a list of all the columns in the dataframe that are not
     # included in cols
@@ -308,8 +316,9 @@ def strip_lower(df, columns=None):
             converted to lowercase.
 
     Returns:
-        df (pandas.DataFrame): The whole DataFrame that was passed in, with
+        pandas.DataFrame: The whole DataFrame that was passed in, with
             the columns cleaned up in place, allowing method chaining.
+
     """
     out_df = df.copy()
     for col in columns:
@@ -755,6 +764,7 @@ def verify_input_files(ferc1_years,
         eia860_years (iterable): Years of EIA860 data we're going to import.
         epacems_years (iterable): Years of CEMS data we're going to import.
         epacems_states (iterable): States of CEMS data we're going to import.
+        data_dir (path-like): Path to the top level of the PUDL datastore.
 
     Raises:
         FileNotFoundError: If any of the requested data is missing.
@@ -792,19 +802,17 @@ def verify_input_files(ferc1_years,
         for s in epacems_states:
             for m in range(1, 13):
                 try:
-                    f = os.path.isfile(
-                        pudl.datastore.datastore.path(
-                            source='epacems',
-                            year=y,
-                            month=m,
-                            state=s,
-                            data_dir=data_dir
-                        )
+                    p = pudl.datastore.datastore.path(
+                        source='epacems',
+                        year=y,
+                        month=m,
+                        state=s,
+                        data_dir=data_dir
                     )
                 except AssertionError:
                     missing_epacems_year_states.add((str(y), s))
                     continue
-                if not os.path.isfile(f):
+                if not os.path.isfile(p):
                     missing_epacems_year_states.add((str(y), s))
 
     any_missing = (missing_eia860_years or missing_eia923_years

@@ -68,12 +68,12 @@ setup(
     # https://github.com/catalyst-cooperative/pudl/issues/327
     entry_points={
         'console_scripts': [
-            'update_datastore = pudl.datastore.cli:main'
+            'pudl_datastore = pudl.datastore.cli:main'
+            'pudl_etl = pudl.cli:main'
         ]
     },
     scripts=[
         'scripts/ferc1_to_sqlite.py',
-        'scripts/init_pudl.py',
         'scripts/epacems_to_parquet.py',
     ],
 )
