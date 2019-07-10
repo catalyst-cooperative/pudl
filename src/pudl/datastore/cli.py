@@ -5,6 +5,8 @@ import logging
 import sys
 import warnings
 
+import coloredlogs
+
 import pudl
 import pudl.constants as pc
 from pudl.datastore import datastore
@@ -86,18 +88,11 @@ def parse_command_line(argv):
 
 def main():
     """Main function controlling flow of the script."""
-    # Create a logger to output any messages we might have...
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        # More extensive test-like formatter...
-        '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s',
-        # This is the datetime format string.
-        "%Y-%m-%d %H:%M:%S"
-    )
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    # Display logged output from the PUDL package:
+    logger = logging.getLogger(pudl.__name__)
+    log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
+    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
+
     args = parse_command_line(sys.argv)
 
     # Generate a list of valid years of data to download for each data source.

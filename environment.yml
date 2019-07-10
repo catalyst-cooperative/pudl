@@ -4,6 +4,7 @@ channels:
   - defaults
 dependencies:
   - codecov
+  - coloredlogs
   - coverage
   - dbfread
   - jupyter

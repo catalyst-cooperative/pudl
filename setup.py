@@ -68,7 +68,7 @@ setup(
     # https://github.com/catalyst-cooperative/pudl/issues/327
     entry_points={
         'console_scripts': [
-            'pudl_datastore = pudl.datastore.cli:main'
+            'pudl_datastore = pudl.datastore.cli:main',
             'pudl_etl = pudl.cli:main'
         ]
     },

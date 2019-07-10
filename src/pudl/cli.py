@@ -4,6 +4,8 @@ import argparse
 import logging
 import sys
 
+import coloredlogs
+
 import pudl
 
 
@@ -22,18 +24,10 @@ def parse_command_line(argv):
 
 def main():
     """The main function."""
-    # Create a logger to output any messages we might have...
+    # Display logged output from the PUDL package:
     logger = logging.getLogger(pudl.__name__)
-    logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        # More extensive test-like formatter...
-        '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s',
-        # This is the datetime format string.
-        "%Y-%m-%d %H:%M:%S"
-    )
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
+    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
 
     args = parse_command_line(sys.argv)
     settings_init = pudl.settings.settings_init(
@@ -53,7 +47,7 @@ def main():
 
     pudl_settings = pudl.settings.init(pudl_in=pudl_in, pudl_out=pudl_out)
 
-    logger.info(f"Verifying input files in {pudl_settings['data_dir']}")
+    logger.info(f"Checking for input files in {pudl_settings['data_dir']}")
     pudl.helpers.verify_input_files(
         ferc1_years=settings_init['ferc1_years'],
         eia923_years=settings_init['eia923_years'],
