@@ -26,6 +26,9 @@ install:
     - pip install tox
 script:
     - tox -v -e etl
+after_success:
+    - /usr/bin/curl -s https://codecov.io/bash -o codecov.sh
+    - /bin/bash codecov.sh
 notifications:
     webhooks:
         urls:
