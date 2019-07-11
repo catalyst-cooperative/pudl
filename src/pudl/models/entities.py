@@ -43,10 +43,7 @@ class PlantEntityEIA(PUDLBase):
     """
 
     __tablename__ = 'plants_entity_eia'
-    plant_id_eia = Column(Integer, primary_key=True, nullable=False,
-                          comment="plant_id_eia = Column(Integer,
-                                                ForeignKey('plants_entity_eia.plant_id_eia'),
-                                                primary_key=True, nullable=False, comment="EIA Plant Identification number. One to five digit numeric.")
+    plant_id_eia = Column(Integer, primary_key=True, nullable=False, comment="EIA Plant Identification number. One to five digit numeric.")
     plant_name = Column(String, comment="Plant name.")
     balancing_authority_code = Column(
         String, comment="The plant's balancing authority code.")
