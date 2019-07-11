@@ -123,10 +123,10 @@ def test_only_ferc1_pudl_init_db(data_scope,
 
 
 @pytest.mark.etl
-@pytest.mark.xfail
 def test_epacems_to_parquet(pudl_engine, pudl_settings_fixture, data_scope):
     """Attempt to convert a small amount of EPA CEMS data to parquet format."""
     from pudl.convert.epacems_to_parquet import epacems_to_parquet
+    logger.info(f"data_scope={data_scope}")
     epacems_to_parquet(
         epacems_years=data_scope['epacems_working_years'],
         epacems_states=data_scope['epacems_states'],

@@ -149,6 +149,7 @@ def epacems_to_parquet(epacems_years,
                 f"Converted {len(df)} records for {yr_st[1]} in {yr_st[0]}."
             )
             if df.empty:
+                logger.info(f"Found an empty epacems DataFrame for {yr_st}.")
                 continue
 
             df = year_from_operating_datetime(df).astype(IN_DTYPES)
