@@ -17,8 +17,8 @@
   description: we stick things together
   datasets:
     - glue:
-        eia: False
-        ferc1: False
+        eia: True
+        ferc1: True
 
 ###########################################################################
 # FERC FORM 1 SETTINGS
@@ -78,7 +78,7 @@
           - generators_eia860
           - ownership_eia860
         #eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017]
-        eia860_years: [2017]
+        eia860_years: []
 
 ###########################################################################
 # EPA CEMS HOURLY SETTINGS

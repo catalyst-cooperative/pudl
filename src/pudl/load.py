@@ -103,7 +103,6 @@ class BulkCopy(contextlib.AbstractContextManager):
         self.buffer = buffer
         self.keep_csv = keep_csv
         self.csvdir = csvdir
-        self.pkg_dir = pkg_dir
         # Initialize a list to keep the dataframes
         self.accumulated_dfs = []
         self.accumulated_size = 0
@@ -251,7 +250,8 @@ expected:
             logger.info(
                 f"    Loading {len(all_dfs):,} records ({round(self.accumulated_size/1024**2)} MB) into PUDL.")
 
-            csv_dump(all_dfs, self.table_name, True, self.pkg_dir)
+            #csv_dump(all_dfs, self.table_name, True, self.pkg_dir)
+            clean_columns_dump(self.table_name, self.pkg_dir, all_dfs)
             logger.info(
                 "================ Resume Number Crunching ================")
         self.accumulated_dfs = []
@@ -325,10 +325,45 @@ def csv_dump(df, table_name, keep_index, pkg_dir):
 
     """
     outfile = os.path.join(pkg_dir, 'data', table_name + '.csv')
+    if table_name == 'hourly_emissions_epacems':
+        df.to_csv(path_or_buf=outfile, index=True, index_label='id',
+                  date_format='%Y-%m-%dT%H:%M:%S')
+        return
     if keep_index:
         df.to_csv(path_or_buf=outfile, index=True, index_label='id')
     else:
         df.to_csv(path_or_buf=outfile, index=False)
+
+
+def clean_columns_dump(table_name, pkg_dir, df):
+    # fix the order of the columns based on the metadata..
+    # grab the table metadata from the mega metadata
+    resource = pudl.helpers.pull_resource_from_megadata(table_name)
+    # pull the columns from the table schema
+    columns = [x['name'] for x in resource['schema']['fields']]
+    # there are two types of tables when it comes to indexes and ids...
+    # first there are tons of tables that don't use the index as a column
+    # these tables don't have an `id` column and we don't want to keept the
+    # index when doing df.to_csv()
+    if 'id' not in columns:
+        df = df.reindex(columns=columns)
+        csv_dump(df,
+                 table_name,
+                 keep_index=False,
+                 pkg_dir=pkg_dir)
+    # there are also a ton of tables that use the `id` column as an auto-
+    # autoincrement id/primary key. For these tables, the index will end up
+    # as the id column so we want to remove the `id` in the list of columns
+    # because while the id column exists in the metadata it isn't in the df
+    # We also want to reindex in order to ensure the index is clean
+    else:
+        columns.remove('id')
+        df = df.reset_index(drop=True)
+        df = df.reindex(columns=columns)
+        csv_dump(df,
+                 table_name,
+                 keep_index=True,
+                 pkg_dir=pkg_dir)
 
 
 def dict_dump(transformed_dfs,
@@ -343,31 +378,4 @@ def dict_dump(transformed_dfs,
         if table_name in list(need_fix_inting.keys()):
             df = pudl.helpers.fix_int_na(
                 df, columns=pc.need_fix_inting[table_name])
-        # fix the order of the columns based on the metadata..
-        # grab the table metadata from the mega metadata
-        resource = pudl.helpers.pull_resource_from_megadata(table_name)
-        # pull the columns from the table schema
-        columns = [x['name'] for x in resource['schema']['fields']]
-        # there are two types of tables when it comes to indexes and ids...
-        # first there are tons of tables that don't use the index as a column
-        # these tables don't have an `id` column and we don't want to keept the
-        # index when doing df.to_csv()
-        if 'id' not in columns:
-            df = df.reindex(columns=columns)
-            csv_dump(df,
-                     table_name,
-                     keep_index=False,
-                     pkg_dir=pkg_dir)
-        # there are also a ton of tables that use the `id` column as an auto-
-        # autoincrement id/primary key. For these tables, the index will end up
-        # as the id column so we want to remove the `id` in the list of columns
-        # because while the id column exists in the metadata it isn't in the df
-        # We also want to reindex in order to ensure the index is clean
-        else:
-            columns.remove('id')
-            df = df.reset_index(drop=True)
-            df = df.reindex(columns=columns)
-            csv_dump(df,
-                     table_name,
-                     keep_index=True,
-                     pkg_dir=pkg_dir)
+        clean_columns_dump(table_name, pkg_dir, df)

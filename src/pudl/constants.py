@@ -1681,9 +1681,6 @@ epacems_columns_fill_na_dict = {
 
 epacems_tables = ("hourly_emissions_epacems")
 
-epacems_additional_plant_info_file = importlib.resources.open_text(
-    'pudl.package_data.epa.cems', 'plant_info_for_additional_cems_plants.csv')
-
 files_dict_epaipm = {
     'transmission_single_ipm': '*table_3-21*',
     # 'transmission_joint_ipm': '*transmission_joint_ipm*',

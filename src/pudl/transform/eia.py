@@ -5,6 +5,7 @@ import logging
 import networkx as nx
 import numpy as np
 import pandas as pd
+import importlib.resources
 
 import pudl
 import pudl.constants as pc
@@ -156,7 +157,9 @@ def _add_additional_epacems_plants(plants_entity):
     # SQL would call this whole process an upsert
     # See also: https://github.com/pandas-dev/pandas/issues/22812
     cems_df = pd.read_csv(
-        pc.epacems_additional_plant_info_file,
+        importlib.resources.open_text(
+            'pudl.package_data.epa.cems',
+            'plant_info_for_additional_cems_plants.csv'),
         index_col=["plant_id_eia"],
         usecols=["plant_id_eia", "plant_name",
                  "state", "latitude", "longitude"],

@@ -1,6 +1,7 @@
 import logging
 import os.path
 import shutil
+import time
 
 import pandas as pd
 
@@ -278,7 +279,7 @@ def _etl_ferc1_pkg(inputs, pudl_settings, pkg_dir):
 ###############################################################################
 
 
-def _input_validate_epacems(inputs):
+def _validate_input_epacems(inputs):
     epacems_dict = {}
     # pull out the inputs from the dictionary passed into this function
     try:
@@ -298,9 +299,9 @@ def _input_validate_epacems(inputs):
     return epacems_dict
 
 
-def _ETL_cems_pkg(inputs, pkg_dir):
+def _etl_epacems_pkg(inputs, data_dir, pkg_dir):
     """"""
-    epacems_dict = _input_validate_epacems(inputs)
+    epacems_dict = _validate_input_epacems(inputs)
     epacems_years = epacems_dict['epacems_years']
     epacems_states = epacems_dict['epacems_states']
     # If we're not doing CEMS, just stop here to avoid printing messages like
@@ -311,7 +312,7 @@ def _ETL_cems_pkg(inputs, pkg_dir):
 
     # NOTE: This a generator for raw dataframes
     epacems_raw_dfs = pudl.extract.epacems.extract(
-        epacems_years=epacems_years, states=epacems_states)
+        epacems_years=epacems_years, states=epacems_states, data_dir=data_dir)
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform_pkg(
         epacems_raw_dfs=epacems_raw_dfs, pkg_dir=pkg_dir)
@@ -459,8 +460,6 @@ def etl_pkg(pkg_settings, pudl_settings):
             lists of tables (values)
 
     """
-    # a dictionary to compile the list of tables being loaded for each package
-    print(pkg_settings['name'])
     # define the package directory
     pkg_dir = os.path.join(pudl_settings['datapackage_dir'],
                            pkg_settings['name'])
