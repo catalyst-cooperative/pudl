@@ -24,13 +24,6 @@ END_DATE_FERC1 = pd.to_datetime(f"{max(pc.working_years['ferc1'])}-12-31")
 @pytest.fixture(scope='session')
 def data_scope(fast_tests):
     """Define data scope for tests for CI vs. local use."""
-    # If we're in a CI environment, we definitely want to do the fast tests,
-    # but we also often want to do them when we're testing locally, so we need
-    # to be able to set the fast_tests independently of whether we're on CI
-    if os.getenv('CI'):
-        logger.info("We're testing on CI platform, using minimal data.")
-        fast_tests = True
-
     data_scope = {}
     data_scope['epacems_states'] = ['ID', ]
     data_scope['refyear'] = 2017
@@ -87,8 +80,28 @@ def live_pudl_db(request):
 
 @pytest.fixture(scope='session')
 def fast_tests(request):
-    """Fixture that tells use which PUDL DB to use (live vs. testing)."""
-    return request.config.getoption("--fast")
+    """
+    Set a boolean flag indicating whether we are doing full or fast tests.
+
+    We sometimes want to do a quick sanity check while testing locally, and
+    that can be accomplished by setting the --fast flag on the command line.
+    if fast_tests is true, then we only use 1 year of data, otherwise we use
+    all available data (all the working_years for each dataset).
+
+    Additionally, if we are on a CI platform, we *always* want to use the fast
+    tests, regardless of what has been passed in on the command line with the
+    --fast arguement.
+
+    Returns:
+        boolean
+
+    """
+    fast_tests = request.config.getoption("--fast")
+    if os.getenv('CI'):
+        logger.info("We're testing on CI platform, using minimal data.")
+        fast_tests = True
+
+    return fast_tests
 
 
 @pytest.fixture(
@@ -275,7 +288,8 @@ def datastore_fixture(pudl_settings_fixture, data_scope):
         )
         # Copy the files over to the test-run proto-datastore:
         for file in epacems_files:
-            logger.info(f"Faking the download of {file} to {dl_dir}")
+            logger.info(
+                f"Faking download of {os.path.basename(file)} to {dl_dir}")
             shutil.copy(file, dl_dir)
 
         # The datastore knows what to do with a file it finds in this dir:

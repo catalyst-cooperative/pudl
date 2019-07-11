@@ -110,6 +110,7 @@ def test_only_ferc1_pudl_init_db(data_scope,
                                  pudl_settings_fixture,
                                  live_ferc_db,
                                  live_pudl_db):
+    """Verify that a minimal FERC Form 1 can be loaded without other data."""
     pudl.init.init_db(ferc1_tables=['plants_steam_ferc1', 'fuel_ferc1'],
                       ferc1_years=data_scope['ferc1_working_years'],
                       eia923_tables=[],
