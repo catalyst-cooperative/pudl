@@ -104,7 +104,10 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
 
 @pytest.mark.etl
 @pytest.mark.ferc1
-def test_only_ferc1_pudl_init_db(data_scope, pudl_settings_fixture):
+def test_only_ferc1_pudl_init_db(data_scope,
+                                 pudl_settings_fixture,
+                                 live_ferc_db,
+                                 live_pudl_db):
     pudl.init.init_db(ferc1_tables=['plants_steam_ferc1', 'fuel_ferc1'],
                       ferc1_years=data_scope['ferc1_working_years'],
                       eia923_tables=[],
@@ -115,8 +118,8 @@ def test_only_ferc1_pudl_init_db(data_scope, pudl_settings_fixture):
                       epacems_states=[],
                       epaipm_tables=[],
                       pudl_settings=pudl_settings_fixture,
-                      pudl_testing=True,
-                      ferc1_testing=False)
+                      pudl_testing=(not live_pudl_db),
+                      ferc1_testing=(not live_ferc_db))
 
 
 @pytest.mark.etl
