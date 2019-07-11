@@ -168,6 +168,102 @@ expected:
         self.close()
 
 
+class BulkCopyPkg(contextlib.AbstractContextManager):
+    """Accumulate several DataFrames, then COPY FROM python to postgresql
+
+    NOTE: You shoud use this class to load one table at a time. To load
+    different tables, use different instances of BulkCopy.
+
+    Args:
+        table_name (str): The exact name of the database table which the
+            DataFrame df is going to be used to populate. It will be used both
+            to look up an SQLAlchemy table object in the PUDLBase metadata
+            object, and to name the CSV file.
+        engine (sqlalchemy.engine): SQLAlchemy database engine, which will be
+            used to pull the CSV output into the database.
+        buffer (int): Size of data to accumulate (in bytes) before actually
+            writing the data into postgresql. (Approximate, because we don't
+            introspect memory usage 'deeply'). Default 1 GB.
+        csvdir (str): Path to the directory into which the CSV file should be
+            saved, if it's being kept.
+        keep_csv (bool): True if the CSV output should be saved after the data
+            has been loaded into the database. False if they should be deleted.
+            NOTE: If multiple COPYs are done for the same table_name, only
+            the last will be retained by keep_csv, which may be unsatisfying.
+    Example:
+    with BulkCopy(my_table, my_engine) as p:
+        for df in df_generator:
+            p.add(df)
+    """
+
+    def __init__(self, table_name, pkg_dir, buffer=1024**3):
+        self.table_name = table_name
+        self.buffer = buffer
+        self.pkg_dir = pkg_dir
+        # Initialize a list to keep the dataframes
+        self.accumulated_dfs = []
+        self.accumulated_size = 0
+
+    def add(self, df):
+        """Add a DataFrame to the accumulated list"""
+        if not isinstance(df, pd.DataFrame):
+            raise AssertionError(
+                "Expected dataframe as input."
+            )
+        df = pudl.helpers.fix_int_na(
+            df, columns=pc.need_fix_inting[self.table_name]
+        )
+        # Note: append to a list here, then do a concat when we spill
+        self.accumulated_dfs.append(df)
+        self.accumulated_size += sum(df.memory_usage())
+        if self.accumulated_size > self.buffer:
+            logger.debug(
+                f"Copying {len(self.accumulated_dfs)} accumulated dataframes, "
+                f"totalling {round(self.accumulated_size / 1024**2)} MB")
+            self.spill()
+
+    def _check_names(self):
+        expected_colnames = set(self.accumulated_dfs[0].columns.values)
+        for df in self.accumulated_dfs:
+            colnames = set(df.columns.values)
+            if colnames != expected_colnames:
+                raise AssertionError(f"""
+Column names changed between dataframes. BulkCopy should only be used
+with one table at a time, and all columns must be present in all dataframes.
+making up the table to be loaded. Symmetric difference between actual and
+expected:
+{str(colnames.symmetric_difference(expected_colnames))}
+            """)
+
+    def spill(self):
+        """Spill the accumulated dataframes into postgresql"""
+        if self.accumulated_dfs:
+            self._check_names()
+            if len(self.accumulated_dfs) > 1:
+                # Work around https://github.com/pandas-dev/pandas/issues/25257
+                all_dfs = pd.concat(self.accumulated_dfs,
+                                    copy=False, ignore_index=True, sort=False)
+            else:
+                all_dfs = self.accumulated_dfs[0]
+            logger.info(
+                "===================== Dramatic Pause ====================")
+            logger.info(
+                f"    Loading {len(all_dfs):,} records ({round(self.accumulated_size/1024**2)} MB) into PUDL.")
+
+            #csv_dump(all_dfs, self.table_name, True, self.pkg_dir)
+            clean_columns_dump(self.table_name, self.pkg_dir, all_dfs)
+            logger.info(
+                "================ Resume Number Crunching ================")
+        self.accumulated_dfs = []
+        self.accumulated_size = 0
+
+    def close(self):
+        self.spill()
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        self.close()
+
+
 def dict_dump_load(transformed_dfs,
                    data_source,
                    pudl_engine,
@@ -229,10 +325,45 @@ def csv_dump(df, table_name, keep_index, pkg_dir):
 
     """
     outfile = os.path.join(pkg_dir, 'data', table_name + '.csv')
+    if table_name == 'hourly_emissions_epacems':
+        df.to_csv(path_or_buf=outfile, index=True, index_label='id',
+                  date_format='%Y-%m-%dT%H:%M:%S')
+        return
     if keep_index:
         df.to_csv(path_or_buf=outfile, index=True, index_label='id')
     else:
         df.to_csv(path_or_buf=outfile, index=False)
+
+
+def clean_columns_dump(table_name, pkg_dir, df):
+    # fix the order of the columns based on the metadata..
+    # grab the table metadata from the mega metadata
+    resource = pudl.helpers.pull_resource_from_megadata(table_name)
+    # pull the columns from the table schema
+    columns = [x['name'] for x in resource['schema']['fields']]
+    # there are two types of tables when it comes to indexes and ids...
+    # first there are tons of tables that don't use the index as a column
+    # these tables don't have an `id` column and we don't want to keept the
+    # index when doing df.to_csv()
+    if 'id' not in columns:
+        df = df.reindex(columns=columns)
+        csv_dump(df,
+                 table_name,
+                 keep_index=False,
+                 pkg_dir=pkg_dir)
+    # there are also a ton of tables that use the `id` column as an auto-
+    # autoincrement id/primary key. For these tables, the index will end up
+    # as the id column so we want to remove the `id` in the list of columns
+    # because while the id column exists in the metadata it isn't in the df
+    # We also want to reindex in order to ensure the index is clean
+    else:
+        columns.remove('id')
+        df = df.reset_index(drop=True)
+        df = df.reindex(columns=columns)
+        csv_dump(df,
+                 table_name,
+                 keep_index=True,
+                 pkg_dir=pkg_dir)
 
 
 def dict_dump(transformed_dfs,
@@ -247,31 +378,4 @@ def dict_dump(transformed_dfs,
         if table_name in list(need_fix_inting.keys()):
             df = pudl.helpers.fix_int_na(
                 df, columns=pc.need_fix_inting[table_name])
-        # fix the order of the columns based on the metadata..
-        # grab the table metadata from the mega metadata
-        resource = pudl.helpers.pull_resource_from_megadata(table_name)
-        # pull the columns from the table schema
-        columns = [x['name'] for x in resource['schema']['fields']]
-        # there are two types of tables when it comes to indexes and ids...
-        # first there are tons of tables that don't use the index as a column
-        # these tables don't have an `id` column and we don't want to keept the
-        # index when doing df.to_csv()
-        if 'id' not in columns:
-            df = df.reindex(columns=columns)
-            csv_dump(df,
-                     table_name,
-                     keep_index=False,
-                     pkg_dir=pkg_dir)
-        # there are also a ton of tables that use the `id` column as an auto-
-        # autoincrement id/primary key. For these tables, the index will end up
-        # as the id column so we want to remove the `id` in the list of columns
-        # because while the id column exists in the metadata it isn't in the df
-        # We also want to reindex in order to ensure the index is clean
-        else:
-            columns.remove('id')
-            df = df.reset_index(drop=True)
-            df = df.reindex(columns=columns)
-            csv_dump(df,
-                     table_name,
-                     keep_index=True,
-                     pkg_dir=pkg_dir)
+        clean_columns_dump(table_name, pkg_dir, df)

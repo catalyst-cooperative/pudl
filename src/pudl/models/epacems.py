@@ -62,7 +62,7 @@ class HourlyEmissions(pudl.models.entities.PUDLBase):
     # plant_name = Column(String, nullable=False, comment="Name of the plant")
     # TODO: Set up foreign-key link to EIA plant ID
     plant_id_eia = Column(Integer, nullable=False,
-                          comment="EIA Office of the Regulatory Information System Plant Identification number. One to five digit numeric.")
+                          comment="EIA Plant Identification number. One to five digit numeric.")
     unitid = Column(String, nullable=False,
                     comment="Facility-specific unit id (e.g. Unit 4)")
     # SQLA recommends TIMESTAMP over DateTime when dealing with timezones

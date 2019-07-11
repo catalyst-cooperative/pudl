@@ -44,7 +44,7 @@ class PlantEntityEIA(PUDLBase):
 
     __tablename__ = 'plants_entity_eia'
     plant_id_eia = Column(Integer, primary_key=True, nullable=False,
-                          comment="The EIA-assigned plant identification number.")
+                          comment="EIA Plant Identification number. One to five digit numeric.")
     plant_name = Column(String, comment="Plant name.")
     balancing_authority_code = Column(
         String, comment="The plant's balancing authority code.")
@@ -95,7 +95,7 @@ class GeneratorEntityEIA(PUDLBase):
     __tablename__ = 'generators_entity_eia'
     plant_id_eia = Column(Integer,
                           ForeignKey('plants_entity_eia.plant_id_eia'),
-                          primary_key=True, nullable=False, comment="The EIA-assigned plant identification number")
+                          primary_key=True, nullable=False, comment="EIA Plant Identification number. One to five digit numeric.")
     generator_id = Column(String, primary_key=True, nullable=False,
                           comment="Generator identification number")
     # TODO: Add static plant info
@@ -150,7 +150,7 @@ class BoilerEntityEIA(PUDLBase):
     __tablename__ = 'boilers_entity_eia'
     plant_id_eia = Column(Integer,
                           ForeignKey('plants_entity_eia.plant_id_eia'),
-                          primary_key=True, nullable=False, comment="")
+                          primary_key=True, nullable=False, comment="EIA Plant Identification number. One to five digit numeric.")
     boiler_id = Column(String, primary_key=True, nullable=False,
                        comment="The EIA-assigned boiler identification code. Alphanumeric.")
     # TODO: Add static boiler info (if necessary?)

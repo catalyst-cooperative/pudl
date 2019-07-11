@@ -116,7 +116,7 @@ def _load_plant_utc_offset_pkg(pkg_dir):
     # from the package directory, find the "plants_entity_eia" table
     # and pull the ["plant_id_eia", "timezone"] columns
     timezones = pd.read_csv(
-        pathlib.Path(pkg_dir / 'data/plants_entity_eia.csv'))[
+        pathlib.Path(pkg_dir, 'data/plants_entity_eia.csv'))[
             ["plant_id_eia", "timezone"]].dropna()
 
     # Some plants lack the info to get a timezone. None of these plants are in
@@ -261,11 +261,11 @@ def transform(pudl_engine, epacems_raw_dfs):
             yield {yr_st: df}
 
 
-def transform_pkg(epacems_raw_dfs):
+def transform_pkg(epacems_raw_dfs, pkg_dir):
     """Transform EPA CEMS hourly"""
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
     # a transformation pipeline, and yield it back as another generator.
-    plant_utc_offset = _load_plant_utc_offset_pkg()
+    plant_utc_offset = _load_plant_utc_offset_pkg(pkg_dir)
     for raw_df_dict in epacems_raw_dfs:
         # There's currently only one dataframe in this dict at a time, but
         # that could be changed if you want.

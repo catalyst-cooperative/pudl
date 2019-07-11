@@ -576,11 +576,13 @@ def transform(eia923_raw_dfs, eia923_tables=pc.eia923_pudl_tables):
                     "Not transforming EIA 923.")
         return eia923_transformed_dfs
 
-    for table in eia923_transform_functions:
+    for table in eia923_transform_functions.keys():
         if table in eia923_tables:
             logger.info(
                 f"Transforming raw EIA 923 DataFrames for {table} "
                 f"concatenated across all years.")
             eia923_transform_functions[table](eia923_raw_dfs,
                                               eia923_transformed_dfs)
+        else:
+            logger.info(f'Not transforming {table}')
     return eia923_transformed_dfs

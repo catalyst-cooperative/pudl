@@ -336,6 +336,9 @@ def data_package(pkg_tables, pkg_skeleton, pudl_settings=None,
         resources.append(
             pudl.output.export.get_tabular_data_resource(t, pkg_dir=pkg_dir))
 
+    # resource.iter(relations=True)
+    # resource.check_relations()
+
     data_sources = pudl.helpers.data_sources_from_tables(
         all_tables, testing=testing)
     sources = []
@@ -620,18 +623,21 @@ def generate_data_packages(settings, pudl_settings, debug=False):
         pkg_tbls = pudl.etl_pkg.etl_pkg(pkg, pudl_settings)
         # assure that the list of tables from ETL match up with the CVSs and
         # dependent tables
-        test_file_consistency(pkg['name'],
-                              pkg_tbls,
-                              out_dir=pudl_settings['datapackage_dir'])
-        # generate the metadata for the package and validate
-        # TODO: we'll probably want to remove this double return... but having
-        # the report and the metadata while debugging is very useful.
-        meta, report = generate_metadata(
-            pkg,
+        test_file_consistency(
+            pkg['name'],
             pkg_tbls,
-            os.path.join(pudl_settings['datapackage_dir'], pkg['name']),
-            uuid_pkgs=uuid_pkgs
-        )
-        metas[pkg['name']] = [meta, report]
+            out_dir=os.path.join(pudl_settings['pudl_out'], 'datapackage'))
+        if pkg_tbls:
+            # generate the metadata for the package and validate
+            # TODO: we'll probably want to remove this double return... but having
+            # the report and the metadata while debugging is very useful.
+            meta, report = generate_metadata(
+                pkg,
+                pkg_tbls,
+                os.path.join(pudl_settings['datapackage_dir'], pkg['name']),
+                uuid_pkgs=uuid_pkgs)
+            metas[pkg['name']] = [meta, report]
+        else:
+            logger.info(f"Not generating metadata for {pkg['name']}")
     if debug:
         return (metas)
