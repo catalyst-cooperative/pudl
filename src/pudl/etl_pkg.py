@@ -344,6 +344,7 @@ def _etl_epacems_pkg(inputs, data_dir, pkg_dir):
     #    logger.info(time_message)
     return ['hourly_emissions_epacems']
 
+
 ###############################################################################
 # GLUE EXPORT FUNCTIONS
 ###############################################################################
@@ -371,11 +372,12 @@ def _etl_glue(inputs, pkg_dir):
 
     """
     glue_dict = _validate_input_glue(inputs)
+
     ferc1 = glue_dict['ferc1']
     eia = glue_dict['eia']
     if not eia and not ferc1:
         return []
-    # grab the glue tables for ferc1 & eia
+        # grab the glue tables for ferc1 & eia
     glue_dfs = pudl.glue.ferc1_eia.glue(
         ferc1=glue_dict['ferc1'],
         eia=glue_dict['eia']
@@ -460,6 +462,7 @@ def etl_pkg(pkg_settings, pudl_settings):
             lists of tables (values)
 
     """
+    # a dictionary to compile the list of tables being loaded for each package
     # define the package directory
     pkg_dir = os.path.join(pudl_settings['datapackage_dir'],
                            pkg_settings['name'])

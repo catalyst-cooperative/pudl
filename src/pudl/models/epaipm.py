@@ -121,7 +121,7 @@ class PlantRegionIPM(pudl.models.entities.PUDLBase):
         Integer,
         # ForeignKey('plants_entity_eia.plant_id_eia'),
         nullable=False,
-        comment='EIA ORIS plant id'
+        comment='EIA Plant Identification number. One to five digit numeric.'
     )
     region = Column(
         String,
