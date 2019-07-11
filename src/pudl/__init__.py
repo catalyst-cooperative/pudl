@@ -7,10 +7,9 @@ import pkg_resources
 
 import pudl.analysis.mcoe
 import pudl.constants
-# Data management package that provides a command line interface:
-import pudl.datastore.cli
+import pudl.convert.epacems_to_parquet
+import pudl.convert.ferc1_to_sqlite
 import pudl.datastore.datastore
-# Extraction functions, organized by data source:
 import pudl.etl_pkg
 import pudl.extract.eia860
 import pudl.extract.eia923
@@ -35,7 +34,7 @@ import pudl.transform.eia860
 import pudl.transform.eia923
 import pudl.transform.epacems
 import pudl.transform.epaipm
-import pudl.transform.ferc1
+import pudl.transform.ferc1  # noqa: F401 WTF is this showing up as unused?
 
 __author__ = "Catalyst Cooperative"
 __contact__ = "pudl@catalyst.coop"
