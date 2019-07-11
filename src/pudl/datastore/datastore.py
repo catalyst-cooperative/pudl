@@ -114,7 +114,10 @@ def source_url(source, year, month=None, state=None, table=None):
         download_url = f"{base_url}/f1_{year}.zip"
     elif (source == 'epacems'):
         # lowercase the state and zero-pad the month
-        download_url = f"{base_url}/{year}/{year}{state.lower()}{str(month).zfill(2)}.zip"
+        download_url = (
+            f"{base_url}/{year}/"
+            f"{year}{state.lower()}{str(month).zfill(2)}.zip"
+        )
     elif source == 'epaipm':
         table_url_ext = pc.epaipm_url_ext[table]
         download_url = f"{base_url}/{table_url_ext}"
@@ -188,10 +191,10 @@ def path(source, data_dir, year=None, month=None, state=None, file=True):
             dstore_path = os.path.join(dstore_path, f"f1_{year}")
     elif (source == 'epacems'):
         dstore_path = os.path.join(data_dir, 'epa', 'cems')
-        if(year is not None):
+        if year is not None:
             dstore_path = os.path.join(dstore_path, f"epacems{year}")
     elif source == 'epaipm':
-        dstore_path = os.path.join(data_dir, 'epa', 'ipm')
+        dstore_path = os.path.join(data_dir, 'epa', 'ipm', 'epaipm')
     else:
         # we should never ever get here because of the assert statement.
         raise AssertionError(f"Bad data source '{source}' requested.")
@@ -450,22 +453,24 @@ def organize(source, year, states, data_dir, unzip=True, dl=True):
     tmpdir = os.path.join(data_dir, 'tmp')
     # For non-CEMS, the newfiles and destfiles lists will have length 1.
     if source == 'epaipm':
-        # downloading .xlsx files, not zip files.
-        unzip = False
-
         fns = list(pc.epaipm_url_ext.values())
-        newfiles = [os.path.join(tmpdir, f) for f in fns]
-        destfiles = [os.path.join(data_dir, 'epa', 'ipm', f) for f in fns]
-    else:
-        newfiles = [os.path.join(tmpdir, os.path.basename(f))
-                    for f in paths_for_year(source=source,
-                                            year=year,
-                                            states=states,
-                                            data_dir=data_dir)]
-        destfiles = paths_for_year(source=source,
-                                   year=year,
-                                   states=states,
-                                   file=True, data_dir=data_dir)
+        epaipm_files = [os.path.join(tmpdir, f) for f in fns]
+        # Create a ZIP file for epaipm so that it can behave more like the
+        # other sources, including having a well defined "path" to check
+        # whether it exists in the datastore.
+        zip_path = os.path.join(tmpdir, 'epaipm.zip')
+        with zipfile.ZipFile(zip_path, mode='w') as epaipm_zip:
+            for f in epaipm_files:
+                epaipm_zip.write(f, arcname=os.path.basename(f))
+    newfiles = [os.path.join(tmpdir, os.path.basename(f))
+                for f in paths_for_year(source=source,
+                                        year=year,
+                                        states=states,
+                                        data_dir=data_dir)]
+    destfiles = paths_for_year(source=source,
+                               year=year,
+                               states=states,
+                               file=True, data_dir=data_dir)
 
     # If we've gotten to this point, we're wiping out the previous version of
     # the data for this source and year... so lets wipe it! Scary!

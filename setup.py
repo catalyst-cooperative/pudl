@@ -40,6 +40,7 @@ setup(
         'pandas>=0.24',
         'psycopg2',
         'pyarrow>=0.14.0',
+        'python-snappy',
         'pyyaml',
         'scikit-learn>=0.20',
         'scipy',
@@ -47,6 +48,7 @@ setup(
         'sqlalchemy-postgres-copy',
         'tableschema',
         'timezonefinder',
+        'xlsxwriter',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

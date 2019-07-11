@@ -39,8 +39,8 @@ def test_datastore(pudl_settings_fixture, data_scope):
     else:
         states = ['ID']  # Idaho has the least data of any CEMS state.
         sources_to_update.extend(['ferc1', 'epacems'])
-        years_by_source['ferc1'] = data_scope['refyear']
-        years_by_source['epacems'] = data_scope['refyear']
+        years_by_source['ferc1'] = [data_scope['refyear'], ]
+        years_by_source['epacems'] = [data_scope['refyear'], ]
 
     datastore.parallel_update(
         sources=sources_to_update,

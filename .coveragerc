@@ -4,6 +4,7 @@ omit =
     *analysis/analysis.py
     *__main__.py
     *__init__.py
+    *cli.py
 
 [report]
 precision = 2

@@ -117,6 +117,7 @@ def epacems_to_parquet(epacems_years,
                        data_dir,
                        out_dir,
                        pudl_engine,
+                       compression='snappy',
                        partition_cols=('year', 'state')):
     """
     Take transformed EPA CEMS dataframes and output them as Parquet files.
@@ -157,7 +158,7 @@ def epacems_to_parquet(epacems_years,
                 pa.Table.from_pandas(
                     df, preserve_index=False, schema=schema),
                 root_path=out_dir, partition_cols=list(partition_cols),
-                compression='gzip')
+                compression=compression)
 
 
 def parse_command_line(argv):
@@ -167,6 +168,15 @@ def parse_command_line(argv):
     :param argv: arguments on the command line must include caller file name.
     """
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-c',
+        '--compression',
+        type=str,
+        help="""Compression algorithm to use for Parquet files. Can be either
+        'snappy' (much faster but larger files) or 'gzip' (slower but better
+        compression). (default: %(default)s).""",
+        default='snappy'
+    )
     parser.add_argument(
         '-d',
         '--datadir',
@@ -261,6 +271,7 @@ def main():
         data_dir=pudl_settings['data_dir'],
         out_dir=args.out_dir,
         pudl_engine=pudl_engine,
+        compression=args.compression,
         partition_cols=list(args.partition_cols),
     )
 
