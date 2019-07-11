@@ -8,6 +8,8 @@ import coloredlogs
 
 import pudl
 
+logger = logging.getLogger(__name__)
+
 
 def parse_command_line(argv):
     """
@@ -17,7 +19,7 @@ def parse_command_line(argv):
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(dest='settings_file', type=str, default='',
-                        help="Specify a YAML settings file.")
+                        help="path to YAML settings file.")
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -30,48 +32,36 @@ def main():
     coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
 
     args = parse_command_line(sys.argv)
-    settings_init = pudl.settings.settings_init(
-        settings_file=args.settings_file)
-
-    # Give pudl_in and pudl_out from settings file priority, if found:
-    # Otherwise fall back to user default pudl config file
-    try:
-        pudl_in = settings_init['pudl_in']
-    except KeyError:
-        pudl_in = pudl.settings.read_user_settings()['pudl_in']
-
-    try:
-        pudl_out = settings_init['pudl_out']
-    except KeyError:
-        pudl_out = pudl.settings.read_user_settings()['pudl_out']
-
-    pudl_settings = pudl.settings.init(pudl_in=pudl_in, pudl_out=pudl_out)
-
+    script_settings = pudl.settings.read_script_settings(args.settings_file)
+    pudl_settings = pudl.settings.init(
+        pudl_in=script_settings['pudl_in'],
+        pudl_out=script_settings['pudl_out']
+    )
     logger.info(f"Checking for input files in {pudl_settings['data_dir']}")
     pudl.helpers.verify_input_files(
-        ferc1_years=settings_init['ferc1_years'],
-        eia923_years=settings_init['eia923_years'],
-        eia860_years=settings_init['eia860_years'],
-        epacems_years=settings_init['epacems_years'],
-        epacems_states=settings_init['epacems_states'],
+        ferc1_years=script_settings['ferc1_years'],
+        eia923_years=script_settings['eia923_years'],
+        eia860_years=script_settings['eia860_years'],
+        epacems_years=script_settings['epacems_years'],
+        epacems_states=script_settings['epacems_states'],
         data_dir=pudl_settings['data_dir'],
     )
 
-    pudl.init.init_db(ferc1_tables=settings_init['ferc1_tables'],
-                      ferc1_years=settings_init['ferc1_years'],
-                      eia923_tables=settings_init['eia923_tables'],
-                      eia923_years=settings_init['eia923_years'],
-                      eia860_tables=settings_init['eia860_tables'],
-                      eia860_years=settings_init['eia860_years'],
-                      epacems_years=settings_init['epacems_years'],
-                      epacems_states=settings_init['epacems_states'],
-                      epaipm_tables=settings_init['epaipm_tables'],
-                      pudl_testing=settings_init['pudl_testing'],
-                      ferc1_testing=settings_init['ferc1_testing'],
+    pudl.init.init_db(ferc1_tables=script_settings['ferc1_tables'],
+                      ferc1_years=script_settings['ferc1_years'],
+                      eia923_tables=script_settings['eia923_tables'],
+                      eia923_years=script_settings['eia923_years'],
+                      eia860_tables=script_settings['eia860_tables'],
+                      eia860_years=script_settings['eia860_years'],
+                      epacems_years=script_settings['epacems_years'],
+                      epacems_states=script_settings['epacems_states'],
+                      epaipm_tables=script_settings['epaipm_tables'],
+                      pudl_testing=script_settings['pudl_testing'],
+                      ferc1_testing=script_settings['ferc1_testing'],
                       pudl_settings=pudl_settings,
-                      debug=settings_init['debug'],
-                      csvdir=settings_init['csvdir'],
-                      keep_csv=settings_init['keep_csv'])
+                      debug=script_settings['debug'],
+                      csvdir=script_settings['csvdir'],
+                      keep_csv=script_settings['keep_csv'])
 
 
 if __name__ == '__main__':

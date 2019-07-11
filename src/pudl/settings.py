@@ -20,11 +20,30 @@ import pudl.datastore.datastore as datastore
 logger = logging.getLogger(__name__)
 
 
-def settings_init(settings_file):
-    with pathlib.Path(settings_file).open() as f:
-        settings_out = yaml.safe_load(f)
+def read_script_settings(settings_file=None):
+    """Read in generic YAML settings for one of the PUDL scripts."""
+    if settings_file is None:
+        settings_file = pathlib.Path.home() / '.pudl.yml'
 
-    return settings_out
+    # If we don't get a settings file, then read in the extremely basic
+    # user settings file, which determines PUDL_IN and PUDL_OUT, and can
+    # be used to generate the rest of the pudl_settings paths.
+    with pathlib.Path(settings_file).open() as f:
+        script_settings = yaml.safe_load(f)
+
+    # Give pudl_in and pudl_out from settings file priority, if present.
+    # Otherwise fall back to user default pudl config file
+    try:
+        script_settings['pudl_in'] = script_settings['pudl_in']
+    except KeyError:
+        script_settings['pudl_in'] = read_user_settings()['pudl_in']
+
+    try:
+        script_settings['pudl_out'] = script_settings['pudl_out']
+    except KeyError:
+        script_settings['pudl_out'] = read_user_settings()['pudl_out']
+
+    return script_settings
 
 
 def read_user_settings(settings_file=None):
@@ -32,7 +51,7 @@ def read_user_settings(settings_file=None):
     if settings_file is None:
         settings_file = pathlib.Path.home() / '.pudl.yml'
 
-    with open(settings_file, 'r') as f:
+    with pathlib.Path(settings_file).open() as f:
         user_settings = yaml.safe_load(f)
 
     return user_settings

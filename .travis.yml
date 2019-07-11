@@ -25,7 +25,7 @@ install:
     - ci/setup_postgres.sh
     - pip install tox
 script:
-    - tox -v -e travis
+    - tox -v -e etl
 notifications:
     webhooks:
         urls:

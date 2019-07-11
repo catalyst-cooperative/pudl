@@ -21,6 +21,44 @@ START_DATE_FERC1 = pd.to_datetime(f"{min(pc.working_years['ferc1'])}-01-01")
 END_DATE_FERC1 = pd.to_datetime(f"{max(pc.working_years['ferc1'])}-12-31")
 
 
+@pytest.fixture(scope='session')
+def data_scope(fast_tests):
+    """Define data scope for tests for CI vs. local use."""
+    # If we're in a CI environment, we definitely want to do the fast tests,
+    # but we also often want to do them when we're testing locally, so we need
+    # to be able to set the fast_tests independently of whether we're on CI
+    if os.getenv('CI'):
+        logger.info("We're testing on CI platform, using minimal data.")
+        fast_tests = True
+
+    data_scope = {}
+    data_scope['epacems_states'] = ['ID', ]
+    data_scope['refyear'] = 2017
+    if fast_tests:
+        data_scope['eia860_working_years'] = [data_scope['refyear']]
+        data_scope['eia923_working_years'] = [data_scope['refyear']]
+        data_scope['ferc1_working_years'] = [data_scope['refyear']]
+        data_scope['epacems_working_years'] = [data_scope['refyear']]
+        data_scope['eia860_data_years'] = [data_scope['refyear']]
+        data_scope['eia923_data_years'] = [data_scope['refyear']]
+        data_scope['ferc1_data_years'] = [data_scope['refyear']]
+        data_scope['epacems_data_years'] = [data_scope['refyear']]
+        data_scope['ferc1_tables'] = pudl.constants.ferc1_default_tables
+    else:
+        data_scope['eia860_working_years'] = pc.working_years['eia860']
+        data_scope['eia923_working_years'] = pc.working_years['eia923']
+        data_scope['ferc1_working_years'] = pc.working_years['ferc1']
+        data_scope['epacems_working_years'] = pc.working_years['epacems']
+        data_scope['eia860_data_years'] = pc.data_years['eia860']
+        data_scope['eia923_data_years'] = pc.data_years['eia923']
+        data_scope['ferc1_data_years'] = pc.data_years['ferc1']
+        data_scope['epacems_data_years'] = pc.data_years['epacems']
+        data_scope['ferc1_tables'] = [
+            tbl for tbl in pc.ferc1_tbl2dbf if tbl not in pc.ferc1_huge_tables
+        ]
+    return data_scope
+
+
 def pytest_addoption(parser):
     """Add a command line option for using the live FERC/PUDL DB."""
     parser.addoption("--live_ferc_db", action="store_true", default=False,
@@ -31,6 +69,8 @@ def pytest_addoption(parser):
                      help="Path to the top level PUDL inputs directory.")
     parser.addoption("--pudl_out", action="store", default=False,
                      help="Path to the top level PUDL outputs directory.")
+    parser.addoption("--fast", action="store_true", default=False,
+                     help="Use minimal test data to speed up the tests.")
 
 
 @pytest.fixture(scope='session')
@@ -43,6 +83,12 @@ def live_ferc_db(request):
 def live_pudl_db(request):
     """Fixture that tells use which PUDL DB to use (live vs. testing)."""
     return request.config.getoption("--live_pudl_db")
+
+
+@pytest.fixture(scope='session')
+def fast_tests(request):
+    """Fixture that tells use which PUDL DB to use (live vs. testing)."""
+    return request.config.getoption("--fast")
 
 
 @pytest.fixture(
@@ -79,23 +125,19 @@ def pudl_out_eia(live_pudl_db, request):
 
 
 @pytest.fixture(scope='session')
-def ferc1_engine(live_ferc_db, pudl_settings_fixture):
+def ferc1_engine(live_ferc_db, pudl_settings_fixture,
+                 datastore_fixture, data_scope):
     """
     Grab a connection to the FERC Form 1 DB clone.
 
     If we are using the test database, we initialize it from scratch first.
     If we're using the live database, then we just yield a conneciton to it.
     """
-    # Avoid the 6.5 GB of binary garbage in these tables for testing....
-    tables = [
-        tbl for tbl in pc.ferc1_tbl2dbf if tbl not in pc.ferc1_huge_tables
-    ]
-
     if not live_ferc_db:
         pudl.extract.ferc1.dbf2sqlite(
-            tables=tables,
-            years=pc.data_years['ferc1'],
-            refyear=max(pc.working_years['ferc1']),
+            tables=data_scope['ferc1_tables'],
+            years=data_scope['ferc1_working_years'],
+            refyear=data_scope['refyear'],
             pudl_settings=pudl_settings_fixture,
             testing=(not live_ferc_db))
 
@@ -114,7 +156,8 @@ def ferc1_engine(live_ferc_db, pudl_settings_fixture):
 @pytest.fixture(scope='session')
 def pudl_engine(ferc1_engine,
                 live_pudl_db, live_ferc_db,
-                pudl_settings_fixture):
+                pudl_settings_fixture,
+                datastore_fixture, data_scope):
     """
     Grab a connection to the PUDL Database.
 
@@ -123,15 +166,13 @@ def pudl_engine(ferc1_engine,
     """
     if not live_pudl_db:
         pudl.init.init_db(ferc1_tables=pc.pudl_tables['ferc1'],
-                          ferc1_years=pc.working_years['ferc1'],
+                          ferc1_years=data_scope['ferc1_working_years'],
                           eia923_tables=pc.pudl_tables['eia923'],
-                          eia923_years=pc.working_years['eia923'],
+                          eia923_years=data_scope['eia923_working_years'],
                           eia860_tables=pc.pudl_tables['eia860'],
-                          eia860_years=pc.working_years['eia860'],
-                          # Full EPA CEMS ingest takes 8 hours, so using an
-                          # abbreviated list here
-                          epacems_years=pc.travis_ci_epacems_years,
-                          epacems_states=pc.travis_ci_epacems_states,
+                          eia860_years=data_scope['eia860_working_years'],
+                          epacems_years=data_scope['epacems_working_years'],
+                          epacems_states=data_scope['epacems_states'],
                           epaipm_tables=pc.pudl_tables['epaipm'],
                           pudl_settings=pudl_settings_fixture,
                           pudl_testing=(not live_pudl_db),
@@ -188,7 +229,7 @@ def pudl_settings_fixture(request, tmpdir_factory):
 
 
 @pytest.fixture(scope='session')
-def datastore_fixture(pudl_settings_fixture):
+def datastore_fixture(pudl_settings_fixture, data_scope):
     """
     Populate a minimal PUDL datastore for the Travis CI tests to access.
 
@@ -208,18 +249,18 @@ def datastore_fixture(pudl_settings_fixture):
      * Calling the datastore management functions from within the tests will
        add that code to our measurement of test coverage, which is good!
     """
-    sources = ['epaipm', 'eia860', 'eia923']
+    sources_to_update = ['epaipm', 'eia860', 'eia923']
     years_by_source = {
-        'ferc1': [],
+        'eia860': [data_scope['refyear'], ],
+        'eia923': [data_scope['refyear'], ],
         'epacems': [],
-        'epaipm': [None],
-        'eia860': [2017],
-        'eia923': [2017],
+        'epaipm': [None, ],
+        'ferc1': [],
     }
-    # Sadly, FERC & EPA have blocked downloads from Travis, so their data has
-    # to be hacked in locally if we're running there:
+    # Sadly, FERC & EPA only provide access to their data via FTP, and it's
+    # not possible to use FTP from within the Travis CI environment:
     if os.getenv('TRAVIS'):
-        logger.info(f"Building a PUDL datastore for Travis CI.")
+        logger.info(f"Building a special Travis CI datastore for PUDL.")
         # Simulate having downloaded the data...
         dl_dir = pathlib.Path(pudl_settings_fixture['data_dir'], 'tmp')
 
@@ -262,14 +303,14 @@ def datastore_fixture(pudl_settings_fixture):
         )
         states = []
     else:
-        sources.extend(['ferc1', 'epacems'])
-        years_by_source['ferc1'] = [2017]
-        years_by_source['epacems'] = [2017]
+        sources_to_update.extend(['ferc1', 'epacems'])
+        years_by_source['ferc1'] = [data_scope['refyear'], ]
+        years_by_source['epacems'] = [data_scope['refyear'], ]
         states = ['id']
 
     # Download the test year for each dataset that we're downloading...
     datastore.parallel_update(
-        sources=sources,
+        sources=sources_to_update,
         years_by_source=years_by_source,
         states=states,
         pudl_settings=pudl_settings_fixture,
@@ -283,72 +324,3 @@ def datastore_fixture(pudl_settings_fixture):
         epacems_states=states,
         data_dir=pudl_settings_fixture['data_dir'],
     )
-
-
-@pytest.fixture(scope='session')
-def ferc1_engine_travis_ci(live_ferc_db,
-                           datastore_fixture,
-                           pudl_settings_fixture):
-    """
-    Grab a connection to the FERC Form 1 DB clone.
-
-    If we are using the test database, we initialize it from scratch first.
-    If we're using the live database, then we just yield a conneciton to it.
-    """
-    tables = pc.ferc1_default_tables
-    refyear = max(pc.travis_ci_ferc1_years)
-    testing = (not live_ferc_db)
-
-    if testing:
-        pudl.extract.ferc1.dbf2sqlite(
-            tables=tables,
-            years=pc.travis_ci_ferc1_years,
-            refyear=refyear,
-            pudl_settings=pudl_settings_fixture,
-            testing=testing)
-
-    # Grab a connection to the approbriate SQLite database, and hand it off.
-    engine = pudl.extract.ferc1.connect_db(
-        pudl_settings=pudl_settings_fixture, testing=testing)
-    yield engine
-
-    if testing:
-        # Clean up after ourselves by dropping the test DB tables.
-        pudl.extract.ferc1.drop_tables(engine)
-
-
-@pytest.fixture(scope='session')
-def pudl_engine_travis_ci(ferc1_engine_travis_ci,
-                          datastore_fixture,
-                          pudl_settings_fixture,
-                          live_pudl_db, live_ferc_db):
-    """
-    Grab a connection to the PUDL Database, with a limited amount of data.
-
-    This fixture always initializes the DB from scratch, and only does a small
-    subset of the data ETL, for structural testing within Travis CI.
-    """
-    if not live_pudl_db:
-        pudl.init.init_db(ferc1_tables=pc.ferc1_pudl_tables,
-                          ferc1_years=pc.travis_ci_ferc1_years,
-                          eia923_tables=pc.eia923_pudl_tables,
-                          eia923_years=pc.travis_ci_eia923_years,
-                          eia860_tables=pc.eia860_pudl_tables,
-                          eia860_years=pc.travis_ci_eia860_years,
-                          epacems_years=pc.travis_ci_epacems_years,
-                          epacems_states=pc.travis_ci_epacems_states,
-                          epaipm_tables=pc.epaipm_pudl_tables,
-                          pudl_settings=pudl_settings_fixture,
-                          pudl_testing=(not live_pudl_db),
-                          ferc1_testing=(not live_ferc_db))
-
-    # Grab a connection to the freshly populated PUDL DB, and hand it off.
-    pudl_engine = pudl.init.connect_db(
-        pudl_settings=pudl_settings_fixture,
-        testing=(not live_pudl_db)
-    )
-    yield pudl_engine
-
-    if not live_pudl_db:
-        # Clean up after ourselves by dropping the test DB tables.
-        pudl.init.drop_tables(pudl_engine)

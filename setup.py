@@ -69,11 +69,9 @@ setup(
     entry_points={
         'console_scripts': [
             'pudl_datastore = pudl.datastore.cli:main',
-            'pudl_etl = pudl.cli:main'
+            'pudl_etl = pudl.cli:main',
+            'ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main',
+            'epacems_to_parquet = pudl.convert.epacems_to_parquet:main',
         ]
     },
-    scripts=[
-        'scripts/ferc1_to_sqlite.py',
-        'scripts/epacems_to_parquet.py',
-    ],
 )

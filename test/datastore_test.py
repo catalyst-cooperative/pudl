@@ -11,31 +11,39 @@ continuosly exercising this functionality.
 """
 
 import logging
+import os
 
 import pytest
 
 import pudl
-import pudl.constants as pc
 import pudl.datastore.datastore as datastore
 
 logger = logging.getLogger(__name__)
 
 
 @pytest.mark.pre_etl
-def test_datastore(pudl_settings_fixture):
-    """Attempt to download the most recent year of FERC Form 1 data."""
-    sources = ['eia860', 'eia923', 'epacems', 'ferc1', 'epaipm']
+def test_datastore(pudl_settings_fixture, data_scope):
+    """Download sample data for each available data source."""
+    sources_to_update = ['eia860', 'eia923', 'epaipm']
     years_by_source = {
-        'eia860': [min(pc.working_years['eia860']), 2017],
-        'eia923': [min(pc.working_years['eia923']), 2017],
-        'epacems': [min(pc.working_years['epacems']), 2017],
-        'ferc1': [min(pc.working_years['ferc1']), 2017],
+        'eia860': [data_scope['refyear'], ],
+        'eia923': [data_scope['refyear'], ],
+        'epacems': [],
         'epaipm': [None, ],
+        'ferc1': [],
     }
-    states = ['id']  # Idaho has the least data of any CEMS state.
+    # Sadly, FERC & EPA only provide access to their data via FTP, and it's
+    # not possible to use FTP from within the Travis CI environment:
+    if os.getenv('TRAVIS'):
+        states = []
+    else:
+        states = ['ID']  # Idaho has the least data of any CEMS state.
+        sources_to_update.extend(['ferc1', 'epacems'])
+        years_by_source['ferc1'] = data_scope['refyear']
+        years_by_source['epacems'] = data_scope['refyear']
 
     datastore.parallel_update(
-        sources=sources,
+        sources=sources_to_update,
         years_by_source=years_by_source,
         states=states,
         pudl_settings=pudl_settings_fixture,
@@ -47,5 +55,6 @@ def test_datastore(pudl_settings_fixture):
         eia860_years=years_by_source['eia860'],
         epacems_years=years_by_source['epacems'],
         epacems_states=states,
+        # Currently no mechanism for automatically verifying EPA IPM files...
         data_dir=pudl_settings_fixture['data_dir'],
     )
