@@ -53,6 +53,29 @@ def test_pudl_init_db(ferc1_engine, pudl_engine):
 
 
 @pytest.mark.etl
+def test_epacems_to_parquet(pudl_engine,
+                            pudl_settings_fixture,
+                            data_scope,
+                            fast_tests):
+    """Attempt to convert a small amount of EPA CEMS data to parquet format."""
+    try:
+        epacems_to_parquet(
+            epacems_years=data_scope['epacems_working_years'],
+            epacems_states=data_scope['epacems_states'],
+            data_dir=pudl_settings_fixture['data_dir'],
+            out_dir=os.path.join(
+                pudl_settings_fixture['parquet_dir'], 'epacems'),
+            compression='snappy',
+            pudl_engine=pudl_engine,
+        )
+    except ValueError:
+        if fast_tests:
+            pytest.xfail(
+                "epacems_to_parquet requires more than 1 year of data."
+            )
+
+
+@pytest.mark.etl
 @pytest.mark.ferc1
 def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
     """
@@ -108,8 +131,7 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
 @pytest.mark.ferc1
 def test_only_ferc1_pudl_init_db(data_scope,
                                  pudl_settings_fixture,
-                                 live_ferc_db,
-                                 live_pudl_db):
+                                 live_ferc_db):
     """Verify that a minimal FERC Form 1 can be loaded without other data."""
     pudl.init.init_db(ferc1_tables=['plants_steam_ferc1', 'fuel_ferc1'],
                       ferc1_years=data_scope['ferc1_working_years'],
@@ -121,28 +143,5 @@ def test_only_ferc1_pudl_init_db(data_scope,
                       epacems_states=[],
                       epaipm_tables=[],
                       pudl_settings=pudl_settings_fixture,
-                      pudl_testing=(not live_pudl_db),
+                      pudl_testing=True,
                       ferc1_testing=(not live_ferc_db))
-
-
-@pytest.mark.etl
-def test_epacems_to_parquet(pudl_engine,
-                            pudl_settings_fixture,
-                            data_scope,
-                            fast_tests):
-    """Attempt to convert a small amount of EPA CEMS data to parquet format."""
-    try:
-        epacems_to_parquet(
-            epacems_years=data_scope['epacems_working_years'],
-            epacems_states=data_scope['epacems_states'],
-            data_dir=pudl_settings_fixture['data_dir'],
-            out_dir=os.path.join(
-                pudl_settings_fixture['parquet_dir'], 'epacems'),
-            compression='snappy',
-            pudl_engine=pudl_engine,
-        )
-    except ValueError:
-        if fast_tests:
-            pytest.xfail(
-                "epacems_to_parquet requires more than 1 year of data."
-            )
