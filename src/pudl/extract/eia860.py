@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_eia860_file(yr, file, data_dir):
-    """Constructs the appopriate path for a given EIA860 Excel file.
+    """ Construct the appopriate path for a given EIA860 Excel file.
 
     Args:
         year (int): The year that we're trying to read data for.
@@ -55,7 +55,7 @@ def get_eia860_file(yr, file, data_dir):
 
 
 def get_eia860_xlsx(years, filename, data_dir):
-    """Reads in Excel files to create Excel objects.
+    """Read in Excel files to create Excel objects.
 
     Rather than reading in the same Excel files several times, we can just
     read them each in once (one per year) and use the ExcelFile object to
@@ -156,15 +156,15 @@ def get_eia860_page(page, eia860_xlsx,
 
     Args:
         page (str): The string label indicating which page of the EIA860 we
-        are attempting to read in. The page argument must be exactly one of the
-        following strings:
-            - 'boiler_generator_assn'
-            - 'utility'
-            - 'plant'
-            - 'generator_existing'
-            - 'generator_proposed'
-            - 'generator_retired'
-            - 'ownership'
+            are attempting to read in. The page argument must be exactly one of
+            the following strings:
+                - 'boiler_generator_assn'
+                - 'utility'
+                - 'plant'
+                - 'generator_existing'
+                - 'generator_proposed'
+                - 'generator_retired'
+                - 'ownership'
         eia860_xlsx (pandas.io.excel.ExcelFile): xlsx file of EIA Form 860 for
         input year(s)
         years (list): The set of years to read into the DataFrame.
@@ -219,12 +219,13 @@ def get_eia860_page(page, eia860_xlsx,
     return df
 
 
-def create_dfs_eia860(files, eia860_years, data_dir):
+def _create_dfs_eia860(files, eia860_years, data_dir):
     """Create a dict of pages (keys) to DataDrames (values) from EIA 860 tabs.
 
     Args:
         files (list): a list of eia860 files
         eia860_years (list): a list of years
+        data_dir (str): Top level datastore directory.
 
     Returns:
         dict: A dictionary of pages (key) to DataFrames (values)
@@ -249,6 +250,7 @@ def extract(eia860_years, data_dir):
 
     Args:
         eia860_years (list): a list of data_years
+        data_dir (str): Top level datastore directory.
 
     Returns:
         dict: A dictionary containing EIA 860 pages (keys) and DataFrames
@@ -262,7 +264,7 @@ def extract(eia860_years, data_dir):
         return eia860_raw_dfs
 
     logger.info('Beginning ETL for EIA 860.')
-    eia860_raw_dfs = create_dfs_eia860(
+    eia860_raw_dfs = _create_dfs_eia860(
         files=pc.files_eia860,
         eia860_years=eia860_years,
         data_dir=data_dir)

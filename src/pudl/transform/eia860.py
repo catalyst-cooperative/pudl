@@ -62,6 +62,10 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     """
     Pull and transform the generators table.
 
+    There are three tabs that the generator records come from (proposed,
+    existing, and retired). We pull each tab into one dataframe and include
+    an 'operational_status' to indicate which tab the record came from.
+
     Args:
         eia860_dfs (dict): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
@@ -273,9 +277,9 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     Pull and transform the boilder generator association table.
 
     Args:
-        eia860_dfs (dict): Each entry in this
-            dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
+        eia860_dfs (dict): Each entry in this dictionary of DataFrame objects
+            corresponds to a page from the EIA860 form, as reported in the
+            Excel spreadsheets they distribute.
         eia860_transformed_dfs (dict): A dictionary of DataFrame objects in
             which pages from EIA860 form (keys) correspond to normalized
             DataFrames of values from that page (values)
@@ -375,7 +379,8 @@ def transform(eia860_raw_dfs, eia860_tables=pc.eia860_pudl_tables):
     Transform EIA 860 DataFrames.
 
     Args:
-        eia860_raw_dfs (dict):
+        eia860_raw_dfs (dict): a dictionary of tab names (keys) and DataFrames
+            (values). This can be generate by pudl.
         eia860_tables (tuple): A tuple containing the names of the EIA 860
             tables that can be pulled into PUDL
 
@@ -388,6 +393,7 @@ def transform(eia860_raw_dfs, eia860_tables=pc.eia860_pudl_tables):
         Revisit for eia860_raw_dfs
 
     """
+    # these are the tables that we have transform functions for...
     eia860_transform_functions = {
         'ownership_eia860': ownership,
         'generators_eia860': generators,
@@ -400,7 +406,7 @@ def transform(eia860_raw_dfs, eia860_tables=pc.eia860_pudl_tables):
         logger.info("No raw EIA 860 dataframes found. "
                     "Not transforming EIA 860.")
         return eia860_transformed_dfs
-
+    # for each of the tables, run the respective transform funtction
     for table in eia860_transform_functions:
         if table in eia860_tables:
             logger.info(f"Transforming raw EIA 860 DataFrames for {table} "
