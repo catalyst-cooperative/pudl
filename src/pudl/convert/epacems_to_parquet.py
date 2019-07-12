@@ -57,16 +57,17 @@ IN_DTYPES = {
 
 
 def create_cems_schema():
-    """
-    Make an explicit Arrow schema for the EPA CEMS data.
+    """Makes an explicit Arrow schema for the EPA CEMS data.
 
-    Make changes in the types of the generated parquet files by editing this
+    Makes changes in the types of the generated parquet files by editing this
     function
 
     Note that parquet's internal representation doesn't use unsigned numbers or
     16-bit ints, so just keep things simple here and always use int32 and
     float32.
 
+    Returns:
+        pyarrow.schema: An Arrow schema for the EPA CEMS data.
     """
     int_nullable = partial(pa.field, type=pa.int32(), nullable=True)
     int_not_null = partial(pa.field, type=pa.int32(), nullable=False)
@@ -107,7 +108,15 @@ def create_cems_schema():
 
 
 def year_from_operating_datetime(df):
-    """Add a 'year' column based on the year in the operating_datetime."""
+    """Adds a 'year' column based on the year in the operating_datetime.
+
+    Args:
+        df (pandas.DataFrame): A DataFrame containing EPA CEMS data.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containg EPA CEMS data with a 'year'
+            column.
+    """
     df['year'] = df.operating_datetime_utc.dt.year
     return df
 
@@ -119,8 +128,7 @@ def epacems_to_parquet(epacems_years,
                        pudl_engine,
                        compression='snappy',
                        partition_cols=('year', 'state')):
-    """
-    Take transformed EPA CEMS dataframes and output them as Parquet files.
+    """Takes transformed EPA CEMS dataframes and output them as Parquet files.
 
     We need to do a few additional manipulations of the dataframes after they
     have been transformed by PUDL to get them ready for output to the Apache
@@ -128,6 +136,20 @@ def epacems_to_parquet(epacems_years,
     across all of the dataframes, and downcasting to the most efficient data
     type possible for each of them. We also add a 'year' column so that we can
     partition the datset on disk by year as well as state.
+
+    Args:
+        epacems_years (list): list of years from which we are trying to read
+            CEMs data
+        epacems_states (list): list of years from which we are trying to read
+            CEMs data
+        data_dir (str):
+        out_dir (str):
+        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        compression ():
+        partition_cols ():
+
+    Todo:
+        Return to
     """
     if not out_dir:
         raise AssertionError("Required output directory not specified.")
@@ -162,10 +184,13 @@ def epacems_to_parquet(epacems_years,
 
 
 def parse_command_line(argv):
-    """
-    Parse command line arguments. See the -h option.
+    """Parses command line arguments. See the -h option.
 
-    :param argv: arguments on the command line must include caller file name.
+    Args:
+        argv (str): Command line arguments, which must include caller file name
+
+    Returns:
+        TODO: Return to
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -233,7 +258,7 @@ def parse_command_line(argv):
 
 
 def main():
-    """Convert zipped EPA CEMS Hourly data to Apache Parquet format."""
+    """Converts zipped EPA CEMS Hourly data to Apache Parquet format."""
     # Display logged output from the PUDL package:
     logger = logging.getLogger(pudl.__name__)
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'

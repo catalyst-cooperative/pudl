@@ -11,8 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def glue(ferc1=False, eia=False):
-    """
-    Generate a dictionary of dataframes for glue tables between FERC1 and EIA.
+    """Generates a dictionary of dataframes for glue tables between FERC1, EIA.
 
     That data is primarily stored in the plant_output and
     utility_output tabs of results/id_mapping/mapping_eia923_ferc1.xlsx in the
@@ -40,8 +39,15 @@ def glue(ferc1=False, eia=False):
     Presently, the 'glue' tables are a very basic piece of infrastructure for
     the PUDL DB, because they contain the primary key fields for utilities and
     plants in FERC1.
+
+    Args:
+        ferc1 (bool): Are we ingesting FERC Form 1 data?
+        eia (bool): Are we ingesting EIA data?
+
+    Returns:
+        dict: a dictionary of glue table DataFrames
     """
-    # ferc glue tables are structurally entity tables w/ forigen key
+    # ferc glue tables are structurally entity tables w/ foreign key
     # relationships to ferc datatables, so we need some of the eia/ferc 'glue'
     # even when only ferc is ingested into the database.
     if not ferc1:

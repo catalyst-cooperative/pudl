@@ -52,14 +52,13 @@ class PudlTabl(object):
         Some methods (e.g mcoe) will take a while to run, since they need to
         pull substantial data and do a bunch of calculations.
 
-        Parameters:
-        -----------
-        freq : String describing time frequency at which to aggregate the
-               reported data. E.g. 'MS' (monthly start).
-        testing : Whether to use the live or testing PUDL DB.
-        start_date : Beginning date for data to pull from the PUDL DB.
-        end_date : End date for data to pull from the PUDL DB.
-
+        Args:
+            freq (str): String describing time frequency at which to aggregate the
+                reported data. E.g. 'MS' (monthly start).
+                testing (bool): Whether to use the live or testing PUDL DB.
+                start_date (date): Beginning date for data to pull from the
+                    PUDL DB.
+                end_date (date): End date for data to pull from the PUDL DB.
         """
         self.freq = freq
         self.testing = testing
