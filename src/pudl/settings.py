@@ -155,6 +155,11 @@ def setup(pudl_settings=None):
             dest_file = os.path.join(pudl_settings['settings_dir'], fn)
             if not os.path.exists(dest_file):
                 shutil.copy(f, dest_file)
+            else:
+                logger.warning(
+                    f"Found existing settings file at {dest_file}, "
+                    f"not clobbering it."
+                )
 
     # Now the output directories:
     for format in pc.output_formats:
@@ -174,3 +179,8 @@ def setup(pudl_settings=None):
             dest_file = os.path.join(pudl_settings['notebook_dir'], nb)
             if not os.path.exists(dest_file):
                 shutil.copy(f, dest_file)
+            else:
+                logger.warning(
+                    f"Found existing notebook at {dest_file}, "
+                    f"not clobbering it."
+                )
