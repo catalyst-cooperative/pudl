@@ -25,8 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 def simplify_sql_type(sql_type, field_name=""):
-    """
-    Convert an SQL Alchemy Type into a string type for use in a Table Schema.
+    """Converts an SQL Alchemy Type into a string type for use in Table Schema.
 
     See: https://frictionlessdata.io/specs/table-schema/
 
@@ -39,7 +38,7 @@ def simplify_sql_type(sql_type, field_name=""):
             more context as to the nature of the field (e.g. an integer field
             whose name ends in _year is a year).
     Returns:
-        simple_type (string): A string representing a simple data type, allowed
+        string: A string representing a simple data type, allowed
             in the Table Schema standard.
     """
 
@@ -67,8 +66,7 @@ def simplify_sql_type(sql_type, field_name=""):
 
 
 def get_fields(table):
-    """
-    Generate table schema compatible list of fields from database table.
+    """Generates table schema compatible list of fields from database table.
 
     See: https://frictionlessdata.io/specs/table-schema/
 
@@ -84,8 +82,8 @@ def get_fields(table):
     Args:
         table (SQL Alchemy Table): The Table object to generate fields from.
     Returns:
-        fields (list): A list of 'field' JSON objects, conforming to the
-            Frictionless Data Table Schema standard.
+        list: A list of 'field' JSON objects, conforming to the Frictionless
+            Data Table Schema standard.
     """
 
     fields = []
@@ -102,12 +100,31 @@ def get_fields(table):
 
 
 def get_primary_key(table):
-    """Create a primaryKey object based on an SQLAlchemy Table"""
+    """Creates a primaryKey object based on an SQLAlchemy Table.
+
+    Args:
+        SQL Alchemy Table: The Table object to generate primaryKey from.
+
+    Returns:
+
+    Todo:
+    Return to
+    """
     return table.primary_key.columns.keys()
 
 
 def get_foreign_keys(table):
-    """Get a list of foreignKey objects from an SQLAlchemy Table"""
+    """Gets a list of foreignKey objects from an SQLAlchemy Table
+
+    Args:
+        table (SQL Alchemy Table): The Table object to generate list of
+            foreignKey objects from.
+
+    Returns:
+
+    Todo:
+    Return to
+    """
     fkeys = []
     for col in table.columns:
         if col.foreign_keys:
@@ -121,11 +138,17 @@ def get_foreign_keys(table):
 
 
 def get_missing_values(table):
-    """
-    Get a list of missing values from an SQLAlchemy Table.
+    """Gets a list of missing values from an SQLAlchemy Table.
 
     We'll only really be able to see how this works with some data. For now it
     just returns the default value: [""].
+
+    Args:
+        table (SQL Alchemy Table): The Table object to generate a list of
+            missing values from.
+
+    Returns:
+        list: a list of missing values from the SQLAlchemy Table.
     """
     return [""]
 
@@ -397,7 +420,6 @@ def annotated_xlsx(df, notes_dict, tags_dict, first_cols, sheet_name,
     sheets and associated annotations to be compiled in the same Excel file
 
     Args:
-    -----
         df: The dataframe for which annotations are being created
         notes_dict: dictionary with column names as keys and long annotations
             as values
@@ -411,7 +433,6 @@ def annotated_xlsx(df, notes_dict, tags_dict, first_cols, sheet_name,
             first time e.g. "xlsx_writer = pd.ExcelWriter('outfile.xlsx')"
 
     Returns:
-    --------
         xlsx_writer : which must be called outside the function, after final
         use of function, for writing out to excel: "xlsx_writer.save()"
 
@@ -601,8 +622,7 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
 
 
 def generate_data_packages(settings, pudl_settings, debug=False):
-    """
-    Cordinate the generation of data packages.
+    """Coordinates the generation of data packages.
 
     Args:
         settings (iterable) : a list of dictionaries. Each item in the list

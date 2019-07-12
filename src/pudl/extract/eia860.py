@@ -25,8 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_eia860_file(yr, file, data_dir):
-    """
-    Construct the appopriate path for a given EIA860 Excel file.
+    """Constructs the appopriate path for a given EIA860 Excel file.
 
     Args:
         year (int): The year that we're trying to read data for.
@@ -56,8 +55,7 @@ def get_eia860_file(yr, file, data_dir):
 
 
 def get_eia860_xlsx(years, filename, data_dir):
-    """
-    Read in Excel files to create Excel objects.
+    """Reads in Excel files to create Excel objects.
 
     Rather than reading in the same Excel files several times, we can just
     read them each in once (one per year) and use the ExcelFile object to

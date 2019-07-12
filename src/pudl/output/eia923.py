@@ -10,8 +10,7 @@ pt = pudl.models.entities.PUDLBase.metadata.tables
 
 def generation_fuel_eia923(freq=None, testing=False,
                            start_date=None, end_date=None):
-    """
-    Pull records from the generation_fuel_eia923 table, in a given date range.
+    """Pulls records from the generation_fuel_eia923 table in given date range.
 
     Optionally, aggregate the records over some timescale -- monthly, yearly,
     quarterly, etc. as well as by fuel type within a plant.
@@ -35,19 +34,21 @@ def generation_fuel_eia923(freq=None, testing=False,
     860 tables.
 
     Args:
-    -----
         testing (bool): True if we are connecting to the pudl_test DB, False
             if we're using the live DB.  False by default.
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are
             probably month start (freq='MS') and year start (freq='YS').
-        start_date & end_date: date-like objects, including strings of the
+        start_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+        end_date (date-like): date-like object, including a string of the
             form 'YYYY-MM-DD' which will be used to specify the date range of
             records to be pulled.  Dates are inclusive.
 
     Returns:
-    --------
-        gf_df: a pandas dataframe.
+        pandas.DataFrame: A DataFrame containing all records from the EIA 923
+            Generation Fuel table.
 
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
@@ -123,8 +124,7 @@ def generation_fuel_eia923(freq=None, testing=False,
 
 def fuel_receipts_costs_eia923(freq=None, testing=False,
                                start_date=None, end_date=None):
-    """
-    Pull records from fuel_receipts_costs_eia923 table, in a given date range.
+    """Pulls records from fuel_receipts_costs_eia923 table in given date range.
 
     Optionally, aggregate the records at a monthly or longer timescale, as well
     as by fuel type within a plant, by setting freq to something other than
@@ -151,20 +151,21 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
     860 tables.
 
     Args:
-    -----
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are
             probably month start (freq='MS') and year start (freq='YS').
-        start_date & end_date: date-like objects, including strings of the
+        start_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+        end_date (date-like): date-like object, including a string of the
             form 'YYYY-MM-DD' which will be used to specify the date range of
             records to be pulled.  Dates are inclusive.
         testing (bool): True if we're using the pudl_test DB, False if we're
             using the live PUDL DB. False by default.
 
     Returns:
-    --------
-        frc_df: a pandas dataframe.
-
+        pandas.DataFrame: A DataFrame containing all records from the EIA 923
+            Fuel Receipts and Costs table.
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
     # Most of the fields we want come direclty from Fuel Receipts & Costs
@@ -270,8 +271,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
 
 def boiler_fuel_eia923(freq=None, testing=False,
                        start_date=None, end_date=None):
-    """
-    Pull records from the boiler_fuel_eia923 table, in a given data range.
+    """Pulls records from the boiler_fuel_eia923 table in a given data range.
 
     Optionally, aggregate the records over some timescale -- monthly, yearly,
     quarterly, etc. as well as by fuel type within a plant.
@@ -291,20 +291,21 @@ def boiler_fuel_eia923(freq=None, testing=False,
     860 tables.
 
     Args:
-    -----
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are
             probably month start (freq='MS') and year start (freq='YS').
-        start_date & end_date: date-like objects, including strings of the
+        start_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+        end_date (date-like): date-like object, including a string of the
             form 'YYYY-MM-DD' which will be used to specify the date range of
             records to be pulled.  Dates are inclusive.
         testing (bool): True if we're using the pudl_test DB, False if we're
             using the live PUDL DB.  False by default.
 
     Returns:
-    --------
-        bf_df: a pandas dataframe.
-
+        pandas.DataFrame: A DataFrame containing all records from the EIA 923
+            Boiler Fuel table.
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
     bf_eia923_tbl = pt['boiler_fuel_eia923']
@@ -396,24 +397,24 @@ def boiler_fuel_eia923(freq=None, testing=False,
 
 def generation_eia923(freq=None, testing=False,
                       start_date=None, end_date=None):
-    """
-    Sum net generation by generator at the specified frequency.
-
-    In addition, some human readable plant and utility names, as well as some
-    ID values for joining with other dataframes is added back in to the
-    dataframe before it is returned.
+    """Pulls records from the boiler_fuel_eia923 table in a given data range.
 
     Args:
-    -----
-        pudl_engine: An SQLAlchemy DB connection engine.
-        freq: A string used to specify a time grouping frequency.
+        freq (str): a pandas timeseries offset alias. The original data is
+            reported monthly, so the best time frequencies to use here are
+            probably month start (freq='MS') and year start (freq='YS').
+        start_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+        end_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
         testing (bool): True if we're using the pudl_test DB, False if we're
-                        using the live PUDL DB.  False by default.
+            using the live PUDL DB.  False by default.
 
     Returns:
-    --------
-        out_df: a pandas dataframe.
-
+        pandas.DataFrame: A DataFrame containing all records from the EIA 923
+            Generation table.
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
     g_eia923_tbl = pt['generation_eia923']
