@@ -81,6 +81,16 @@ def parse_command_line(argv):
         sources. Instead assume that the zipfiles or other original data is
         already present, and organize it locally.""",
         default=True)
+    parser.add_argument(
+        '-t',
+        '--states',
+        nargs='+',
+        choices=pc.cems_states.keys(),
+        help="""List of two letter US state abbreviations indicating which
+        states data should be downloaded. Currently only applicable to the EPA's
+        CEMS dataset.""",
+        default=pc.cems_states.keys()
+    )
 
     arguments = parser.parse_args(argv[1:])
     return arguments

@@ -41,6 +41,8 @@ def simplify_sql_type(sql_type, field_name=""):
     Returns:
         simple_type (string): A string representing a simple data type, allowed
             in the Table Schema standard.
+    Todo:
+      * Remove upon removal of pudl_db
     """
 
     type_map = {
@@ -86,6 +88,8 @@ def get_fields(table):
     Returns:
         fields (list): A list of 'field' JSON objects, conforming to the
             Frictionless Data Table Schema standard.
+    Todo:
+      * Remove upon removal of pudl_db
     """
 
     fields = []
@@ -102,12 +106,20 @@ def get_fields(table):
 
 
 def get_primary_key(table):
-    """Create a primaryKey object based on an SQLAlchemy Table"""
+    """Create a primaryKey object based on an SQLAlchemy Table
+
+    Todo:
+      * Remove upon removal of pudl_db
+    """
     return table.primary_key.columns.keys()
 
 
 def get_foreign_keys(table):
-    """Get a list of foreignKey objects from an SQLAlchemy Table"""
+    """Get a list of foreignKey objects from an SQLAlchemy Table
+
+    Todo:
+      * Remove upon removal of pudl_db
+    """
     fkeys = []
     for col in table.columns:
         if col.foreign_keys:
@@ -142,6 +154,8 @@ def get_table_schema(table):
       * foreignKeys (an array of foreignKey objects)
       * missingValues (an array of strings to be interpreted as null)
 
+    Todo:
+      * Remove upon removal of pudl_db
     """
     descriptor = {}
     descriptor['fields'] = get_fields(table)
@@ -167,13 +181,16 @@ def get_table_schema(table):
 def get_table(tablename, testing=False):
     """
     Retrieve SQLAlchemy Table object corresponding to a PUDL DB table name.
+
+    Todo:
+        * remove upon removal of pudl_db
     """
     md = sa.MetaData(bind=pudl.init.connect_db(testing=testing))
     md.reflect()
     return md.tables[tablename]
 
 
-def get_tabular_data_resource(tablename, pkg_dir, testing=False):
+def get_tabular_data_resource_og(tablename, pkg_dir, testing=False):
     """
     Create a Tabular Data Resource descriptor for a PUDL DB table.
 
@@ -183,6 +200,9 @@ def get_tabular_data_resource(tablename, pkg_dir, testing=False):
     which can be found here:
 
     https://frictionlessdata.io/specs/tabular-data-resource/
+
+    Todo:
+        * remove upon removal of pudl_db
     """
     table = get_table(tablename, testing=testing)
 
@@ -295,14 +315,18 @@ def data_package(pkg_tables, pkg_skeleton, pudl_settings=None,
         data_pkg (Package): an object representing the data package,
             as defined by the datapackage library.
 
+    Todo:
+        * remove upon removal of pudl_db
     """
     if pudl_settings is None:
         pudl_settings = pudl.settings.init()
     # A few paths we are going to need repeatedly:
     # out_dir is the packaging directory -- the place where packages end up
     # pkg_dir is the top level directory of this package:
-    pkg_dir = os.path.abspath(os.path.join(
-        pudl_settings['datapackage_dir'], pkg_skeleton["name"]))
+    pkg_dir = os.path.abspath(os.path.join(pudl_settings['pudl_in'],
+                                           'package_data', 'meta',
+                                           'datapackage',
+                                           pkg_skeleton["name"]))
     # data_dir is the data directory within the package directory:
     data_dir = os.path.join(pkg_dir, "data")
     # pkg_json is the datapackage.json that we ultimately output:
@@ -334,7 +358,7 @@ def data_package(pkg_tables, pkg_skeleton, pudl_settings=None,
     resources = []
     for t in all_tables:
         resources.append(
-            pudl.output.export.get_tabular_data_resource(t, pkg_dir=pkg_dir))
+            pudl.output.export.get_tabular_data_resource_og(t, pkg_dir=pkg_dir))
 
     # resource.iter(relations=True)
     # resource.check_relations()
@@ -397,23 +421,25 @@ def annotated_xlsx(df, notes_dict, tags_dict, first_cols, sheet_name,
     sheets and associated annotations to be compiled in the same Excel file
 
     Args:
-    -----
-        df: The dataframe for which annotations are being created
-        notes_dict: dictionary with column names as keys and long annotations
-            as values
-        tags_dict: dictionary of dictionaries with tag categories as keys for
-            outer dictionary and values are dictionaries with column names as
-            keys and values are tag within the tag category
-        first_cols: ordered list of columns that should come first in outfile
-        sheet_name: name of data sheet in output spreadsheet
-        xlsx_writer: this is an ExcelWriter object used to accumulate multiple
-            tabs, which must be created outside of function, before calling the
-            first time e.g. "xlsx_writer = pd.ExcelWriter('outfile.xlsx')"
+        df (pandas.DataFrame): The dataframe for which annotations are being
+            created
+        notes_dict (dict): dictionary with column names as keys and long
+            annotations as values
+        tags_dict (dict): dictionary of dictionaries with tag categories as
+            keys for outer dictionary and values are dictionaries with column
+            names as keys and values are tag within the tag category
+        first_cols (list): ordered list of columns that should come first in
+            outfile
+        sheet_name (string): name of data sheet in output spreadsheet
+        xlsx_writer (pandas.ExcelWriter): this is an ExcelWriter object used to
+            accumulate multiple tabs, which must be created outside of
+            function, before calling the first time e.g.
+            "xlsx_writer = pd.ExcelWriter('outfile.xlsx')"
 
     Returns:
-    --------
-        xlsx_writer : which must be called outside the function, after final
-        use of function, for writing out to excel: "xlsx_writer.save()"
+        xlsx_writer (pandas.ExcelWriter): which must be called outside the
+            function, after final use of function, for writing out to excel:
+            "xlsx_writer.save()"
 
     """
     first_cols = [c for c in first_cols if c in df.columns]
@@ -463,10 +489,22 @@ def test_file_consistency(pkg_name, tables, out_dir):
     Testing the consistency of tables for packaging
 
     The purpose of this function is to test that we have the correct list of
-    tables.There are three different ways we could determine which tables are
+    tables. There are three different ways we could determine which tables are
     being dumped into packages: a list of the tabels being generated through
     the ETL functions, the list of dependent tables and the list of CSVs in
     package directory.
+
+    Currently, this function is supposed to be fed the ETL function tables
+    which are tested against the CSVs present in the package directory.
+
+    Args:
+        pkg_name (string): the name of the data package.
+        tables (list): a list of table names to be tested.
+    Raises:
+        AssertionError: If the tables in the CSVs and the ETL tables are not
+            exactly the same list of tables.
+    Todo:
+        * Determine what to do with the dependent tables check..
     """
     file_tbls = [x.replace(".csv", "") for x in os.listdir(
         os.path.join(out_dir, pkg_name, 'data'))]
@@ -480,7 +518,7 @@ def test_file_consistency(pkg_name, tables, out_dir):
     etl_tbls.sort()
     # TODO: determine what to do about the dependent_tbls... right now the
     # dependent tables include some glue tables for FERC in particular, but
-    # we are imagining the glue tables will be
+    # we are imagining the glue tables will be in another data package...
     if ((file_tbls == etl_tbls)):  # & (dependent_tbls == etl_tbls)):
         logger.info(f"Tables are consistent for {pkg_name} package")
     else:
@@ -502,16 +540,25 @@ def test_file_consistency(pkg_name, tables, out_dir):
             f"Missing tables include: {inconsistent_tbls}")
 
 
-def get_tabular_data_resource_2(table_name, pkg_dir, testing=False):
+def get_tabular_data_resource(table_name, pkg_dir):
     """
     Create a Tabular Data Resource descriptor for a PUDL table.
 
     Based on the information in the database, and some additional metadata,
-    stored elsewhere (Where?!?!) this function will generate a valid Tabular
-    Data Resource descriptor, according to the Frictionless Data specification,
-    which can be found here:
-
+    stored  this function will generate a valid Tabular Data Resource
+    descriptor, according to the Frictionless Data specification, which can be
+    found here:
     https://frictionlessdata.io/specs/tabular-data-resource/
+
+    Args:
+        table_name (string): table name for which you want to generate a
+            Tabular Data Resource descriptor
+        pkg_dir (path-like): The location of the directory for this package.
+            The data package directory will be a subdirectory in the
+            `datapackage_dir` directory, with the name of the package as the
+            name of the subdirectory.
+    Returns:
+        Tabular Data Resource descriptor
     """
     # Where the CSV file holding the data is, relative to datapackage.json
     # This is the value that has to be embedded in the data package.
@@ -545,13 +592,42 @@ def get_tabular_data_resource_2(table_name, pkg_dir, testing=False):
 
 def generate_metadata(pkg_settings, tables, pkg_dir,
                       uuid_pkgs=uuid.uuid4()):
+    """Generate metadata for package tables and validate package.
+
+    The metadata for this package is compiled from the pkg_settings and from
+    the "megadata", which is a json file containing the schema for all of the
+    possible pudl tables. Given a set of tables, this function compiles
+    metadata and validates the metadata and the package. This function assumes
+    datapackage CSVs have already been generated.
+
+    See Frictionless Data for the tabular data package specification:
+    http://frictionlessdata.io/specs/tabular-data-package/
+
+    Args:
+        pkg_settings (dict): a dictionary containing package settings
+            containing top level elements of the data package JSON descriptor
+            specific to the data package including:
+              * name: short package name e.g. pudl-eia923, ferc1-test, cems_pkg
+              * title: One line human readable description.
+              * description: A paragraph long description.
+              * keywords: For search purposes.
+        tables (list): a list of tables that are included in this data package.
+        pkg_dir (path-like): The location of the directory for this package.
+            The data package directory will be a subdirectory in the
+            `datapackage_dir` directory, with the name of the package as the
+            name of the subdirectory.
+    Returns:
+        datapackage.package.Package: a datapackage. See frictionlessdata specs.
+        dict: a valition dictionary containing validity of package and any
+            errors that were generated during packaing.
+    """
     # pkg_json is the datapackage.json that we ultimately output:
     pkg_json = os.path.join(pkg_dir, "datapackage.json")
     # Create a tabular data resource for each of the tables.
     resources = []
     for t in tables:
         resources.append(
-            get_tabular_data_resource_2(t, pkg_dir=pkg_dir))
+            get_tabular_data_resource(t, pkg_dir=pkg_dir))
 
     data_sources = pudl.helpers.data_sources_from_tables_pkg(
         tables)
@@ -600,18 +676,25 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
     return data_pkg, report
 
 
-def generate_data_packages(settings, pudl_settings, debug=False):
-    """
-    Cordinate the generation of data packages.
+def generate_data_packages(package_settings, pudl_settings, debug=False):
+    """Cordinate the generation of data packages.
+
+    For each bundle of packages laid out in the package_settings, this function
+    generates data packages. First, the settings are validated (which runs
+    through each of the settings listed in the package_settings). Then for
+    each of the packages, run through the etl (extract, transform, load)
+    functions, which generates CSVs. Then the metadata for the packages is
+    generated by pulling from the megadata (which is a json file containing
+    the schema for all of the possible pudl tables).
 
     Args:
-        settings (iterable) : a list of dictionaries. Each item in the list
-            corresponds to a data package. Each data package's dictionary
+        package_settings (iterable) : a list of dictionaries. Each item in the
+            list corresponds to a data package. Each data package's dictionary
             contains the arguements for its ETL function.
-        out_dir (path-like): The location of the packaging directory.
-            The data package will be created in a subdirectory in
-            this directory, according to the name of the package.
-        debug (boolean)
+        pudl_settings (dict) : a dictionary filled with settings that mostly
+            describe paths to various resources and outputs.
+        debug (boolean): If True, return a dictionary with package names (keys)
+            and a list with the data package metadata and report (values).
     """
     # validate the settings from the settings file.
     validated_settings = pudl.etl_pkg.validate_input(settings)
