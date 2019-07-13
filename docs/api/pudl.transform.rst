@@ -11,6 +11,7 @@ pudl.transform.eia module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.transform.eia860 module
 ----------------------------
 
@@ -18,6 +19,7 @@ pudl.transform.eia860 module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.transform.eia923 module
 ----------------------------
 
@@ -25,6 +27,7 @@ pudl.transform.eia923 module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.transform.epacems module
 -----------------------------
 
@@ -32,6 +35,15 @@ pudl.transform.epacems module
    :members:
    :undoc-members:
    :show-inheritance:
+
+pudl.transform.epaipm module
+----------------------------
+
+.. automodule:: pudl.transform.epaipm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pudl.transform.ferc1 module
 ---------------------------
 

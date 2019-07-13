@@ -11,6 +11,7 @@ pudl.output.eia860 module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.output.eia923 module
 -------------------------
 
@@ -18,6 +19,7 @@ pudl.output.eia923 module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.output.export module
 -------------------------
 
@@ -25,6 +27,7 @@ pudl.output.export module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.output.ferc1 module
 ------------------------
 
@@ -32,6 +35,7 @@ pudl.output.ferc1 module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.output.glue module
 -----------------------
 
@@ -39,6 +43,7 @@ pudl.output.glue module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.output.pudltabl module
 ---------------------------
 

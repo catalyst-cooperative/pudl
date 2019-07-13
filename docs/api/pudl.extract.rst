@@ -11,6 +11,7 @@ pudl.extract.eia860 module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.extract.eia923 module
 --------------------------
 
@@ -18,6 +19,7 @@ pudl.extract.eia923 module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.extract.epacems module
 ---------------------------
 
@@ -25,6 +27,15 @@ pudl.extract.epacems module
    :members:
    :undoc-members:
    :show-inheritance:
+
+pudl.extract.epaipm module
+--------------------------
+
+.. automodule:: pudl.extract.epaipm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pudl.extract.ferc1 module
 -------------------------
 

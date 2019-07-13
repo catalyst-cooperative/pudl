@@ -12,9 +12,12 @@
 #
 import os
 import sys
+
+import pkg_resources
+
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
-sys.path.insert(0, os.path.abspath('../pudl/'))
+sys.path.insert(0, os.path.abspath('../pudl/src/'))
 sys.path.insert(0, os.path.abspath('../scripts/'))
 
 # -- Project information -----------------------------------------------------
@@ -24,7 +27,7 @@ copyright = '2019, Catalyst Cooperative'
 author = 'Catalyst Cooperative'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = pkg_resources.get_distribution('pudl').version
 
 
 # -- General configuration ---------------------------------------------------
@@ -47,6 +50,11 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build']
+
+# List of packages that should not really be installed, because they are
+# written in C or have C extensions. Instead they should be mocked for import
+# purposes only to prevent the doc build from failing.
+autodoc_mock_imports = ['numpy', 'scipy', 'python-snappy', 'pyarrow']
 
 
 # -- Options for HTML output -------------------------------------------------

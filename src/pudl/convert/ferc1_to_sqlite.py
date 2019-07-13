@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """A script for cloning the FERC Form 1 database into SQLite."""
 
 import argparse
