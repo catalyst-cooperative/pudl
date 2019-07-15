@@ -57,6 +57,12 @@ def read_user_settings(settings_file=None):
     return user_settings
 
 
+def grab_package_settings(pudl_settings, settings_file):
+    with open(os.path.join(pudl_settings['settings_dir'], settings_file), "r") as f:
+        pkg_settings = yaml.safe_load(f)
+    return pkg_settings
+
+
 def init(pudl_in=None, pudl_out=None, settings_file=None):
     """
     Generate commonly used PUDL settings based on a user settings file.

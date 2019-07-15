@@ -175,7 +175,7 @@ class Utility(pudl.models.entities.PUDLBase):
         primary_key=True,
         comment="A manually assigned PUDL utility ID. Should probably be constant over time."
     )
-    name = Column(
+    utility_name = Column(
         String,
         nullable=False,
         comment="Utility name, chosen arbitrarily from the several possible utility names available in the utility matching process. Included for human readability only."
@@ -207,7 +207,7 @@ class Plant(pudl.models.entities.PUDLBase):
         primary_key=True,
         comment="A manually assigned PUDL plant ID. Should probably be constant over time."
     )
-    name = Column(
+    plant_name = Column(
         String,
         comment="Plant name, chosen arbitrarily from the several possible plant names available in the plant matching process. Included for human readability only."
     )

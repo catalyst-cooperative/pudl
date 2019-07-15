@@ -408,14 +408,14 @@ def _prep_directories(pkg_dir):
     os.mkdir(os.path.join(pkg_dir, 'data'))
 
 
-def validate_input(settings_init):
+def validate_input(pkg_settings):
     """
     Extract and validate the inputs from a settings file
 
     Args:
-        settings_init (iterable) : a list of inputs for
+        pkg_settings (iterable) : a list of inputs for
             datapackages typically imported from settings like:
-            pudl.settings.settings_init(settings_file='settings_init_pudl_package.yml')
+            pudl.settings.pkg_settings(settings_file='settings_init_pudl_package.yml')
             with different file name depending on your setting yml file.
     Returns:
         validated_settings (iterable) : validated list of inputs
@@ -428,7 +428,7 @@ def validate_input(settings_init):
     # where we are going to compile the new validated settings
     validated_settings = []
 
-    for pkg in settings_init:
+    for pkg in pkg_settings:
         validated_pkg_settings = {}
         validated_pkg_settings.update({'name': pkg['name'],
                                        'title': pkg['title'],

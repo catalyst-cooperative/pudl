@@ -60,22 +60,22 @@ def glue(ferc1=False, eia=False):
                               na_values='', keep_default_na=False,
                               converters={'plant_id_pudl': int,
                                           'plant_name': str,
-                                          'respondent_id_ferc': int,
-                                          'respondent_name_ferc': str,
+                                          'utility_id_ferc1': int,
+                                          'utility_name_ferc1': str,
                                           'plant_name_ferc': str,
                                           'plant_id_eia': int,
                                           'plant_name_eia': str,
-                                          'operator_name_eia': str,
-                                          'operator_id_eia': int})
+                                          'utility_name_eia': str,
+                                          'utility_id_eia': int})
 
     utility_map = pd.read_excel(map_eia_ferc_file, 'utilities_output',
                                 na_values='', keep_default_na=False,
                                 converters={'utility_id_pudl': int,
                                             'utility_name': str,
-                                            'respondent_id_ferc': int,
-                                            'respondent_name_ferc': str,
-                                            'operator_id_eia': int,
-                                            'operator_name_eia': str})
+                                            'utility_id_ferc1': int,
+                                            'utility_name_ferc1': str,
+                                            'utility_id_eia': int,
+                                            'utility_name_eia': str})
 
     # We need to standardize plant names -- same capitalization and no leading
     # or trailing white space... since this field is being used as a key in
@@ -89,45 +89,49 @@ def glue(ferc1=False, eia=False):
     plants_eia = plant_map[['plant_id_eia',
                             'plant_name_eia',
                             'plant_id_pudl']]
-    plants_eia = plants_eia.drop_duplicates('plant_id_eia')
+    plants_eia = plants_eia.drop_duplicates(
+        'plant_id_eia').rename(columns={'plant_name_eia': 'plant_name', })
     plants_ferc = plant_map[['plant_name_ferc',
-                             'respondent_id_ferc',
+                             'utility_id_ferc1',
                              'plant_id_pudl']]
     plants_ferc = plants_ferc.drop_duplicates(['plant_name_ferc',
-                                               'respondent_id_ferc'])
+                                               'utility_id_ferc1']).\
+        rename(columns={'plant_name_ferc': 'plant_name'})
+
     utilities = utility_map[['utility_id_pudl', 'utility_name']]
     utilities = utilities.drop_duplicates('utility_id_pudl')
-    utilities_eia = utility_map[['operator_id_eia',
-                                 'operator_name_eia',
+    utilities_eia = utility_map[['utility_id_eia',
+                                 'utility_name_eia',
                                  'utility_id_pudl']]
-    utilities_eia = utilities_eia.drop_duplicates('operator_id_eia')
-    utilities_eia = utilities_eia.dropna(subset=['operator_id_eia'])
+    utilities_eia = utilities_eia.drop_duplicates('utility_id_eia').dropna(
+        subset=['utility_id_eia']).rename(columns={'utility_name_eia': 'utility_name'})
 
-    utilities_ferc = utility_map[['respondent_id_ferc',
-                                  'respondent_name_ferc',
+    utilities_ferc = utility_map[['utility_id_ferc1',
+                                  'utility_name_ferc1',
                                   'utility_id_pudl']]
-    utilities_ferc = utilities_ferc.drop_duplicates('respondent_id_ferc')
-    utilities_ferc = utilities_ferc.dropna(subset=['respondent_id_ferc'])
+    utilities_ferc = utilities_ferc.drop_duplicates(
+        'utility_id_ferc1').dropna(subset=['utility_id_ferc1']).\
+        rename(columns={'utility_name_ferc1': 'utility_name'})
 
     # Now we need to create a table that indicates which plants are associated
     # with every utility.
 
     # These dataframes map our plant_id to FERC respondents and EIA
     # operators -- the equivalents of our "utilities"
-    plants_respondents = plant_map[['plant_id_pudl', 'respondent_id_ferc']]
+    plants_respondents = plant_map[['plant_id_pudl', 'utility_id_ferc1']]
     plants_respondents = plants_respondents.dropna(
-        subset=['respondent_id_ferc'])
-    plants_operators = plant_map[['plant_id_pudl', 'operator_id_eia']]
-    plants_operators = plants_operators.dropna(subset=['operator_id_eia'])
+        subset=['utility_id_ferc1'])
+    plants_operators = plant_map[['plant_id_pudl', 'utility_id_eia']]
+    plants_operators = plants_operators.dropna(subset=['utility_id_eia'])
 
     # Here we treat the dataframes like database tables, and join on the
     # FERC respondent_id and EIA operator_id, respectively.
     utility_plant_ferc1 = pd.merge(utilities_ferc,
                                    plants_respondents,
-                                   on='respondent_id_ferc')
+                                   on='utility_id_ferc1')
     utility_plant_eia923 = pd.merge(utilities_eia,
                                     plants_operators,
-                                    on='operator_id_eia')
+                                    on='utility_id_eia')
     # Now we can concatenate the two dataframes, and get rid of all the columns
     # except for plant_id and utility_id (which determine the  utility to plant
     # association), and get rid of any duplicates or lingering NaN values...
@@ -135,13 +139,6 @@ def glue(ferc1=False, eia=False):
                                    sort=True)
     utility_plant_assn = utility_plant_assn[
         ['plant_id_pudl', 'utility_id_pudl']].dropna().drop_duplicates()
-
-    utilities_ferc = utilities_ferc.rename(
-        columns={'respondent_id_ferc': 'utility_id_ferc1',
-                 'respondent_name_ferc': 'utility_name_ferc1'})
-
-    utilities_eia.rename(columns={'operator_id_eia': 'utility_id_eia',
-                                  'operator_name_eia': 'utility_name'})
 
     # At this point there should be at most one row in each of these data
     # frames with NaN values after we drop_duplicates in each. This is because

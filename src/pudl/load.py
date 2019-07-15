@@ -327,7 +327,7 @@ def csv_dump(df, table_name, keep_index, pkg_dir):
     outfile = os.path.join(pkg_dir, 'data', table_name + '.csv')
     if table_name == 'hourly_emissions_epacems':
         df.to_csv(path_or_buf=outfile, index=True, index_label='id',
-                  date_format='%Y-%m-%dT%H:%M:%S')
+                  date_format='%Y-%m-%dT%H:%M:%SZ')
         return
     if keep_index:
         df.to_csv(path_or_buf=outfile, index=True, index_label='id')
