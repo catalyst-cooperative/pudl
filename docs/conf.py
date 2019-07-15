@@ -4,18 +4,17 @@
 # list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
-# -- Path setup --------------------------------------------------------------
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
 import os
 import sys
-sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('../'))
-sys.path.insert(0, os.path.abspath('../pudl/'))
-sys.path.insert(0, os.path.abspath('../scripts/'))
+
+import pkg_resources
+
+# -- Path setup --------------------------------------------------------------
+
+sys.path.insert(0, os.path.abspath('../src/pudl/'))
 
 # -- Project information -----------------------------------------------------
 
@@ -24,7 +23,7 @@ copyright = '2019, Catalyst Cooperative'
 author = 'Catalyst Cooperative'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = pkg_resources.get_distribution('pudl').version
 
 
 # -- General configuration ---------------------------------------------------
@@ -39,6 +38,8 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.todo',
 ]
+
+autodoc_mock_imports = ['snappy']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

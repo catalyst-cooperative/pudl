@@ -71,7 +71,7 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
 class BulkCopy(contextlib.AbstractContextManager):
     """Accumulate several DataFrames, then COPY FROM python to postgresql
 
-    NOTE: You shoud use this class to load one table at a time. To load
+    NOTE: You should use this class to load one table at a time. To load
     different tables, use different instances of BulkCopy.
 
     Args:
@@ -90,10 +90,12 @@ class BulkCopy(contextlib.AbstractContextManager):
             has been loaded into the database. False if they should be deleted.
             NOTE: If multiple COPYs are done for the same table_name, only
             the last will be retained by keep_csv, which may be unsatisfying.
+
     Example:
-    with BulkCopy(my_table, my_engine) as p:
-        for df in df_generator:
-            p.add(df)
+        with BulkCopy(my_table, my_engine) as p:
+            for df in df_generator:
+                p.add(df)
+
     """
 
     def __init__(self, table_name, engine, buffer=1024**3,
@@ -108,7 +110,7 @@ class BulkCopy(contextlib.AbstractContextManager):
         self.accumulated_size = 0
 
     def add(self, df):
-        """Add a DataFrame to the accumulated list"""
+        """Add a DataFrame to the accumulated list."""
         if not isinstance(df, pd.DataFrame):
             raise AssertionError(
                 "Expected dataframe as input."

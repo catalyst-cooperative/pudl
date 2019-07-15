@@ -28,6 +28,7 @@ setup(
     python_requires='>=3.7, <4',
     setup_requires=['setuptools_scm'],
     install_requires=[
+        'coloredlogs',
         'datapackage',
         'dbfread',
         'goodtables',
