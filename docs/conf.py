@@ -15,7 +15,6 @@ import pkg_resources
 # -- Path setup --------------------------------------------------------------
 
 sys.path.insert(0, os.path.abspath('../src/'))
-#sys.path.insert(0, os.path.abspath('../src/pudl/'))
 
 # -- Project information -----------------------------------------------------
 
@@ -24,8 +23,7 @@ copyright = '2019, Catalyst Cooperative'
 author = 'Catalyst Cooperative'
 
 # The full version, including alpha/beta/rc tags
-#release = pkg_resources.get_distribution('pudl').version
-release = 'v0.1.0pre1'
+release = pkg_resources.get_distribution('pudl').version
 
 
 # -- General configuration ---------------------------------------------------

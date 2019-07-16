@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Setup script to make PUDL directly installable with pip."""
 
-#import os
+import os
 
 from setuptools import find_packages, setup
 
@@ -19,7 +19,6 @@ install_requires = [
     'pandas>=0.24',
     'psycopg2',
     'pyarrow>=0.14.0',
-    'python-snappy',
     'pyyaml',
     'scikit-learn>=0.20',
     'scipy',
@@ -30,8 +29,8 @@ install_requires = [
     'xlsxwriter',
 ]
 
-# if not os.getenv('READTHEDOCS'):
-# install_requires.append('python-snappy')
+if not os.getenv('READTHEDOCS'):
+    install_requires.append('python-snappy')
 
 setup(
     name='pudl',
