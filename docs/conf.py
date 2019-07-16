@@ -14,7 +14,8 @@ import pkg_resources
 
 # -- Path setup --------------------------------------------------------------
 
-sys.path.insert(0, os.path.abspath('../src/pudl/'))
+sys.path.insert(0, os.path.abspath('../src/'))
+#sys.path.insert(0, os.path.abspath('../src/pudl/'))
 
 # -- Project information -----------------------------------------------------
 
