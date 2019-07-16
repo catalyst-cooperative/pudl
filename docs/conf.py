@@ -7,14 +7,14 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#import os
-#import sys
 
 import pkg_resources
 
 # -- Path setup --------------------------------------------------------------
-
-#sys.path.insert(0, os.path.abspath('../src/'))
+# We are building and installing the pudl package in order to get access to
+# the distribution metadata, including an automatically generated version
+# number via pkg_resources.get_distribution() so we need more than just an
+# importable path.
 
 # -- Project information -----------------------------------------------------
 
