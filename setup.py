@@ -29,6 +29,10 @@ install_requires = [
     'xlsxwriter',
 ]
 
+# We are installing the PUDL module to build the docs, but the C libraries
+# required to build snappy aren't available on RTD, so we need to exclude it
+# from the installed dependencies here, and mock it for import in docs/conf.py
+# using the autodoc_mock_imports parameter:
 if not os.getenv('READTHEDOCS'):
     install_requires.append('python-snappy')
 
