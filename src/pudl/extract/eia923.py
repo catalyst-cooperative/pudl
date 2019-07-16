@@ -125,16 +125,16 @@ def get_eia923_page(page, eia923_xlsx,
 
     Args:
         page (str): The string label indicating which page of the EIA923 we
-        are attempting to read in. The page argument must be exactly one of the
-        following strings:
-            - 'generation_fuel'
-            - 'stocks'
-            - 'boiler_fuel'
-            - 'generator'
-            - 'fuel_receipts_costs'
-            - 'plant_frame'
+            are attempting to read in. The page argument must be exactly one of
+            the following strings:
+                - 'generation_fuel'
+                - 'stocks'
+                - 'boiler_fuel'
+                - 'generator'
+                - 'fuel_receipts_costs'
+                - 'plant_frame'
         eia923_xlsx (pandas.io.excel.ExcelFile): xlsx file of EIA Form 923 for
-        input year(s)
+            input year(s)
         years (list): The set of years to read into the dataframe.
 
     Returns:
@@ -189,6 +189,7 @@ def get_eia923_xlsx(years, data_dir):
 
     Args:
         years: The years that we're trying to read data for.
+        data_dir (str): Top level datastore directory.
     Returns:
         pandas.io.excel.ExcelFile: xlsx file of EIA Form 923 for input year(s)
     """
@@ -204,6 +205,7 @@ def extract(eia923_years, data_dir):
 
     Args:
         eia860_years (list): a list of data_years
+        data_dir (str): Top level datastore directory.
 
     Returns:
         dict: A dictionary containing EIA 860 pages (keys), DataFrames (values)

@@ -58,8 +58,7 @@ def assert_valid_param(source, year, month=None, state=None, check_month=None):
 
 
 def source_url(source, year, month=None, state=None, table=None):
-    """
-    Construct a download URL for the specified federal data source and year.
+    """Constructs a download URL for the specified federal data source and year.
 
     Args:
         source (str): A string indicating which data source we are going to be
@@ -81,8 +80,8 @@ def source_url(source, year, month=None, state=None, table=None):
             for EPA IPM.
 
     Returns:
-        download_url (string): a full URL from which the requested
-            data may be obtained
+        download_url (str): a full URL from which the requested data may be
+            obtained
 
     """
     assert_valid_param(source=source, year=year, month=month, state=state)
@@ -129,8 +128,7 @@ def source_url(source, year, month=None, state=None, table=None):
 
 
 def path(source, data_dir, year=None, month=None, state=None, file=True):
-    """
-    Construct a variety of local datastore paths for a given data source.
+    """Constructs a variety of local datastore paths for a given data source.
 
     PUDL expects the original data it ingests to be organized in a particular
     way. This function allows you to easily construct useful paths that refer
@@ -139,8 +137,10 @@ def path(source, data_dir, year=None, month=None, state=None, file=True):
     whether you want the originally downloaded files for that year, or the
     directory in which a given year's worth of data for a particular data
     source can be found.
+
     Note: if you change the default arguments here, you should also change them
     for paths_for_year()
+
     Args:
         source (str): A string indicating which data source we are going to be
             downloading. Currently it must be one of the following:
@@ -165,6 +165,8 @@ def path(source, data_dir, year=None, month=None, state=None, file=True):
     Returns:
         str: the path to requested resource within the local PUDL datastore.
 
+    Todo:
+        Return to
     """
     assert_valid_param(source=source, year=year, month=month, state=state,
                        check_month=False)
@@ -223,7 +225,35 @@ def path(source, data_dir, year=None, month=None, state=None, file=True):
 
 
 def paths_for_year(source, data_dir, year=None, states=None, file=True):
-    """Get all paths for a given source and year. See path() for details."""
+    """Gets all paths for a given source and year. See path() for details.
+
+    Args:
+        source (str): A string indicating which data source we are going to be
+            downloading. Currently it must be one of the following:
+            - 'ferc1'
+            - 'eia923'
+            - 'eia860'
+            - 'epacems'
+        data_dir (path-like):
+        year (int or None): the year of data that the returned path should
+            pertain to. Must be within the range of valid data years, which is
+            specified for each data source in pudl.constants.data_years, unless
+            year is set to zero, in which case only the top level directory for
+            the data source specified in source is returned. If None, no
+            subdirectory is used for the data source.
+        month (int): Month of year (1-12). Only applies to epacems.
+        state (str): Two letter US state abbreviation. Only applies to epacems.
+        file (bool): If True, return the full path to the originally downloaded
+            file specified by the data source and year. If file is true, year
+            must not be set to zero, as a year is required to specify a
+            particular downloaded file.
+
+    Returns:
+        str: the path to requested resource within the local PUDL datastore.
+
+    Todo:
+        Return to
+    """
     # TODO: I'm not sure this is the best construction, since it relies on
     # the order being the same here as in the url list comprehension
     if states is None:
@@ -243,8 +273,7 @@ def paths_for_year(source, data_dir, year=None, states=None, file=True):
 
 
 def download(source, year, states, data_dir):
-    """
-    Download the original data for the specified data source and year.
+    """Downloads the original data for the specified data source and year.
 
     Given a data source and the desired year of data, download the original
     data files from the appropriate federal website, and place them in a
@@ -268,6 +297,8 @@ def download(source, year, states, data_dir):
     Returns:
         path-like: The path to the local downloaded file.
 
+    Todo:
+        Return to
     """
     assert_valid_param(source=source, year=year, check_month=False)
 
@@ -370,7 +401,7 @@ def _download_FTP(src_urls, tmp_files, allow_retry=True):
 
 
 def _download_default(src_urls, tmp_files, allow_retry=True):
-    """Download URLs to files. Designed to be called by `download` function.
+    """Downloads URLs to files. Designed to be called by `download` function.
 
     Args:
         src_urls (list of str): the source URLs to download.
@@ -415,8 +446,7 @@ def _download_default(src_urls, tmp_files, allow_retry=True):
 
 
 def organize(source, year, states, data_dir, unzip=True, dl=True):
-    """
-    Put a downloaded original data file where it belongs in the datastore.
+    """Puts a downloaded original data file where it belongs in the datastore.
 
     Once we've downloaded an original file from the public website it lives on
     we need to put it where it belongs in the datastore. Optionally, we also
@@ -430,9 +460,9 @@ def organize(source, year, states, data_dir, unzip=True, dl=True):
             specified for each data source in pudl.constants.data_years. Use
             None for data sources that do not have multiple years.
         data_dir (path-like): Path to the top level datastore directory.
-        dl (bool): If False, the files were not downloaded in this run.
         unzip (bool): If True, unzip the file once downloaded, and place the
             resulting data files where they ought to be in the datastore.
+        dl (bool): If False, the files were not downloaded in this run.
 
     Returns:
         None
@@ -513,10 +543,28 @@ def organize(source, year, states, data_dir, unzip=True, dl=True):
 
 
 def check_if_need_update(source, year, states, data_dir, clobber=False):
-    """
+    """Checks to see if the file is already downloaded and clobber is False.
+
     Do we really need to download the requested data? Only case in which
     we don't have to do anything is when the downloaded file already exists
     and clobber is False.
+
+    Args:
+    source (str): the data source to retrieve. Must be one of: 'eia860',
+        'eia923', 'ferc1', or 'epacems'.
+    year (int or None): the year of data that the returned path should
+        pertain to. Must be within the range of valid data years, which is
+        specified for each data source in pudl.constants.data_years. Note
+        that for data (like EPA CEMS) that have multiple datasets per year,
+        this function will download all the files for the specified year.
+        Use None for data sources that do not have multiple years.
+    states (iterable):
+    data_dir (path-like):
+    clobber (bool): If True, clobber the existing file and note that the file
+        will need to be replaced with an updated file.
+
+    Todo:
+        Return to
     """
     paths = paths_for_year(source=source, year=year, states=states,
                            data_dir=data_dir)
@@ -538,8 +586,7 @@ def check_if_need_update(source, year, states, data_dir, clobber=False):
 
 def update(source, year, states, clobber=False, unzip=True,
            pudl_settings=None, dl=True):
-    """
-    Update the local datastore for the given source and year.
+    """Updates the local datastore for the given source and year.
 
     If necessary, pull down a new copy of the data for the specified data
     source and year. If we already have the requested data, do nothing,
@@ -571,6 +618,8 @@ def update(source, year, states, clobber=False, unzip=True,
     Returns:
         None
 
+    Todo:
+        Return to
     """
     if pudl_settings is None:
         pudl_settings = pudl.settings.init()

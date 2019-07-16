@@ -10,7 +10,15 @@ pt = pudl.models.entities.PUDLBase.metadata.tables
 
 
 def plants_utils_ferc1(testing=False):
-    """Build a dataframe of useful FERC Plant & Utility information."""
+    """Builds a dataframe of useful FERC Plant & Utility information.
+
+    Args:
+        testing (bool) : True if we're using the pudl_test DB, False if we're
+                         using the live PUDL DB.  False by default.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing useful FERC Form 1 Plant and
+            Utility information."""
     pudl_engine = pudl.init.connect_db(testing=testing)
 
     utils_ferc_tbl = pt['utilities_ferc']
@@ -26,22 +34,19 @@ def plants_utils_ferc1(testing=False):
 
 
 def plants_steam_ferc1(testing=False):
-    """
-    Select and join some useful fields from the FERC Form 1 steam table.
+    """Selects and joins some useful fields from the FERC Form 1 steam table.
 
     Select the FERC Form 1 steam plant table entries, add in the reporting
     utility's name, and the PUDL ID for the plant and utility for readability
     and integration with other tables that have PUDL IDs.
 
     Args:
-    -----
     testing (bool) : True if we're using the pudl_test DB, False if we're
                      using the live PUDL DB.  False by default.
 
     Returns:
-    --------
-    steam_df : a pandas dataframe.
-
+        pandas.DataFrame: A DataFrame containing useful fields from the FERC
+            Form 1 steam table.
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
     steam_ferc1_tbl = pt['plants_steam_ferc1']
@@ -68,8 +73,7 @@ def plants_steam_ferc1(testing=False):
 
 
 def fuel_ferc1(testing=False):
-    """
-    Pull a useful dataframe related to FERC Form 1 fuel information.
+    """Pulls a useful dataframe related to FERC Form 1 fuel information.
 
     This function pulls the FERC Form 1 fuel data, and joins in the name of the
     reporting utility, as well as the PUDL IDs for that utility and the plant,
@@ -84,14 +88,12 @@ def fuel_ferc1(testing=False):
     TODO: Check whether this includes all of the fuel_ferc1 fields...
 
     Args:
-    -----
     testing (bool): True if we're using the pudl_test DB, False if we're
                     using the live PUDL DB.  False by default.
 
     Returns:
-    --------
-        fuel_df: a pandas dataframe.
-
+        pandas.DataFrame: A DataFrame containing useful FERC Form 1 fuel
+            information.
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
     fuel_ferc1_tbl = pt['fuel_ferc1']
@@ -136,15 +138,13 @@ def fuel_ferc1(testing=False):
 
 
 def fuel_by_plant_ferc1(testing=False, thresh=0.5):
-    """
-    Summarize FERC fuel data by plant for output.
+    """Summarizes FERC fuel data by plant for output.
 
     This is mostly a wrapper around pudl.transform.ferc1.fuel_by_plant_ferc1
     which calculates some summary values on a per-plant basis (as indicated
     by utility_id_ferc1 and plant_name) related to fuel consumption.
 
     Args:
-    -----
     testing (bool): True if we're using the pudl_test DB, False if we're
         using the live PUDL DB.  False by default.
     thresh (float): Minimum fraction of fuel (cost and mmbtu) required in order
@@ -152,9 +152,7 @@ def fuel_by_plant_ferc1(testing=False, thresh=0.5):
         default value is 0.5.
 
     Returns:
-    --------
-        fbp_df: a pandas dataframe with fuel use summarized by plant.
-
+        pandas.DataFrame: A DataFrame with fuel use summarized by plant.
     """
     first_cols = [
         'report_year',

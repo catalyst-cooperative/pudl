@@ -46,10 +46,13 @@ def extract(epacems_years, states, data_dir):
             CEMs data
         states (list): list of states from which we are trying to read
             CEMs data
+        data_dir (str):
 
     Yields:
         dict: a dictionary containing US States (keys) and DataFrames of CEMS
             data (values)
+
+    Todo: Return to
     """
     # TODO: this is really slow. Can we do some parallel processing?
     for year in epacems_years:

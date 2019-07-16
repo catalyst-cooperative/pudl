@@ -13,10 +13,16 @@ from pudl.datastore import datastore
 
 
 def parse_command_line(argv):
-    """
-    Parse command line arguments. See the -h option.
+    """Parses command line arguments. See the -h option.
 
-    :param argv: arguments on the command line must include caller file name.
+    Args:
+        argv (str): Command line arguments, which must include caller file name
+
+    Returns:
+
+
+    Todo:
+        Return to
     """
     parser = argparse.ArgumentParser()
 

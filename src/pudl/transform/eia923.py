@@ -18,8 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 def _yearly_to_monthly_records(df, md):
-    """
-    Convert an EIA 923 record of 12 months of data into 12 monthly records.
+    """Convert an EIA 923 record of 12 months of data into 12 monthly records.
 
     Much of the data reported in EIA 923 is monthly, but all 12 months worth of
     data is reported in a single record, with one field for each of the 12
@@ -72,8 +71,7 @@ def _yearly_to_monthly_records(df, md):
 
 
 def _coalmine_cleanup(cmi_df):
-    """
-    Clean up the coalmine_eia923 table.
+    """Clean up the coalmine_eia923 table.
 
     This function does most of the coalmine_eia923 table transformation. It is
     separate from the coalmine() transform function because of the peculiar
@@ -146,8 +144,7 @@ def _coalmine_cleanup(cmi_df):
 
 
 def plants(eia923_dfs, eia923_transformed_dfs):
-    """
-    Transform the plants_eia923 table.
+    """Transform the plants_eia923 table.
 
     Much of the static plant information is reported repeatedly, and scattered
     across several different pages of EIA 923. The data frame which this
@@ -205,8 +202,7 @@ def plants(eia923_dfs, eia923_transformed_dfs):
 
 
 def generation_fuel(eia923_dfs, eia923_transformed_dfs):
-    """
-    Transform the generation_fuel_eia923 table.
+    """Transform the generation_fuel_eia923 table.
 
     Args:
         eia923_dfs (dict): Each entry in this
@@ -265,8 +261,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
 
 
 def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
-    """
-    Transform the boiler_fuel_eia923 table.
+    """Transform the boiler_fuel_eia923 table.
 
     Args:
         eia923_dfs (dict): Each entry in this
@@ -372,8 +367,7 @@ def generation(eia923_dfs, eia923_transformed_dfs):
 
 
 def coalmine(eia923_dfs, eia923_transformed_dfs):
-    """
-    Transform the coalmine_eia923 table.
+    """Transform the coalmine_eia923 table.
 
     Args:
         eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
@@ -447,8 +441,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
 
 
 def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
-    """
-    Transform the fuel_receipts_costs_eia923 dataframe.
+    """Transform the fuel_receipts_costs_eia923 dataframe.
 
     Fuel cost is reported in cents per mmbtu. Convert cents to dollars.
 
@@ -545,21 +538,18 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
 
 
 def transform(eia923_raw_dfs, eia923_tables=pc.eia923_pudl_tables):
-    """
-    Transform all the EIA 923 tables.
+    """Transform all the EIA 923 tables.
 
     Args:
-        eia923_raw_dfs ():
+        eia923_raw_dfs (dict): a dictionary of tab names (keys) and DataFrames
+            (values). Generated from `pudl.extract.eia923.extract()`.
         eia923_tables (tuple): A tuple containing the EIA923 tables that can be
-            pulled into PUDL
+            pulled into PUDL.
 
     Returns:
         dict: A dictionary of DataFrame objects in
             which pages from EIA923 form (keys) corresponds to a normalized
             DataFrame of values from that page (values)
-
-    Todo:
-        Revisit for eia923_raw_dfs
 
     """
     eia923_transform_functions = {

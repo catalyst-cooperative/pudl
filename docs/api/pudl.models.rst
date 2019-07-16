@@ -11,6 +11,7 @@ pudl.models.eia860 module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.models.eia923 module
 -------------------------
 
@@ -18,6 +19,7 @@ pudl.models.eia923 module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.models.entities module
 ---------------------------
 
@@ -25,6 +27,7 @@ pudl.models.entities module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.models.epacems module
 --------------------------
 
@@ -32,6 +35,15 @@ pudl.models.epacems module
    :members:
    :undoc-members:
    :show-inheritance:
+
+pudl.models.epaipm module
+-------------------------
+
+.. automodule:: pudl.models.epaipm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pudl.models.ferc1 module
 ------------------------
 
@@ -39,6 +51,7 @@ pudl.models.ferc1 module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.models.glue module
 -----------------------
 

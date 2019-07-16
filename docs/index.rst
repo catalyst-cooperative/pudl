@@ -1,7 +1,7 @@
 Welcome to Public Utility Data Liberation's documentation!
 ==========================================================
 
-.. automodule:: pudl.init
+.. automodule:: pudl.extract.eia860
     :members:
 
 .. toctree::

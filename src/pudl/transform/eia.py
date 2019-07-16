@@ -19,73 +19,104 @@ def _occurrence_consistency(entity_id, compiled_df, col,
 
     We need to determine how consistent a reported value is in the records
     across all of the years or tables that the value is being reported, so we
-    want to compile two key
+    want to compile two key numbers: the number of occurances of the entity and
+    the number of occurances of each reported record for each entity. With that
+    information we can determine if the reported records are strict enough.
 
     Args:
-        entity_id (int): the earliest EIA 860 data to retrieve or synthesize
-        compiled_df (pandas.DataFrame): the latest EIA 860 data to retrieve or
-            synthesize
-        col (string): Connect to the live PUDL DB or the testing DB?
-        cols_to_consit ():
-        strictness (float):
+        entity_id (list): a list of the id(s) for the entity. Ex: for a plant
+            entity, the entity_id is ['plant_id_eia']. For a generator entity,
+            the entity_id is ['plant_id_eia', 'generator_id'].
+        compiled_df (pandas.DataFrame): a dataframe with every instance of the
+            column we are trying to harvest.
+        col (string): the column name of the column we are trying to harvest.
+        cols_to_consit (list): a list of the columns to determine consistency.
+            This either the [entity_id] or the [entity_id, 'report_date'],
+            depending on whether the entity is static or annual.
+        strictness (float): How consistent do you want the column records to
+            be? The default setting is .7 (so 70% of the records need to be
+            consistent in order to accept harvest the record).
 
     Returns:
-        pandas.DataFrame:
+        pandas.DataFrame: this dataframe will be a transformed version of
+            compiled_df with NaNs removed and with new columns with information
+            about the consistency of the reported values.
 
     Todo: Zane revisit.
     """
     # select only the colums you want and drop the NaNs
+    # we want to drop the NaNs because
     col_df = compiled_df[entity_id + ['report_date',
                                       col, 'table']].copy().dropna()
 
     if len(col_df) == 0:
         col_df[f'{col}_consistent'] = np.NaN
-        col_df['occurences'] = np.NaN
+        col_df['entity_occurences'] = np.NaN
         col_df = col_df.drop(columns=['table'])
         return col_df
-    # determine how many times each plant occurs
+    # determine how many times each entity occurs in col_df
     occur = (
         col_df.
         groupby(by=cols_to_consit).
         agg({'table': "count"}).
         reset_index().
-        rename(columns={'table': 'occurences'})
+        rename(columns={'table': 'entity_occurences'})
     )
 
+    # add the occurances into the main dataframe
     col_df = col_df.merge(occur, on=cols_to_consit)
 
+    # determine how many instances of each of the records in col exist
     consist_df = (
         col_df.
         groupby(by=cols_to_consit + [col]).
         agg({'table': 'count'}).
         reset_index().
-        rename(columns={'table': 'consistency'})
+        rename(columns={'table': 'record_occurences'})
     )
-
+    # now in col_df we have # of times an entity occurred accross the tables
+    # and we are going to merge in the # of times each value occured for each
+    # entity record. When we merge the consistency in with the occurances, we
+    # can determine if the records are more than 70% consistent across the
+    # occurances of the entities.
     col_df = col_df.merge(consist_df, how='outer').drop(columns=['table'])
     # change all of the fully consistent records to True
-    col_df[f'{col}_consistent'] = (col_df['consistency'] /
-                                   col_df['occurences'] > strictness)
+    col_df[f'{col}_consistent'] = (col_df['record_occurences'] /
+                                   col_df['entity_occurences'] > strictness)
 
     return col_df
 
 
 def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
               col, cols_to_consit, round_to=2):
-    """Harvests lat/long in special cases.
+    """Harvests more complete lat/long in special cases.
+
+    For all of the entities were there is not a consistent enough reported
+    record for latitude and longitude, this function reduces the precision of
+    the reported lat/long by rounding down the reported records in order to get
+    more complete set of consistent records.
 
     Args:
-        dirty_df (pandas.DataFrame):
-        clean_df (pandas.DataFrame):
-        entity_id_df (pandas.DataFrame):
-        entity_id (int):
-        col (str):
-        cols_to_consit (list):
-        round_to (integer):
+        dirty_df (pandas.DataFrame): a dataframe with entity records that have
+            inconsistently reported lat/long.
+        clean_df (pandas.DataFrame): a dataframe with entity records that have
+            consistently reported lat/long.
+        entity_id_df (pandas.DataFrame): a dataframe with a complete set of
+            possible entity ids
+        entity_id (list): a list of the id(s) for the entity. Ex: for a plant
+            entity, the entity_id is ['plant_id_eia']. For a generator entity,
+            the entity_id is ['plant_id_eia', 'generator_id'].
+        col (string): the column name of the column we are trying to harvest.
+        cols_to_consit (list): a list of the columns to determine consistency.
+            This either the [entity_id] or the [entity_id, 'report_date'],
+            depending on whether the entity is static or annual.
+        round_to (integer): This is the number of decimals places we want to
+            preserve while rounding down.
     Returns:
-        pandas.DataFrame:
-
-    To do: Return to
+        pandas.DataFrame: a dataframe with all of the entity ids. some will
+            have harvested records from the clean_df. some will have harvested
+            records that were found after rounding. some will have NaNs if no
+            consistently reported records were found.
     """
     # grab the dirty plant records, round and get a new consistency
     ll_df = dirty_df.round(decimals=round_to)
@@ -93,8 +124,7 @@ def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
     ll_df = _occurrence_consistency(entity_id, ll_df, col, cols_to_consit)
     # grab the clean plants
     ll_clean_df = clean_df.dropna()
-    # find the new clean plant records
-    # XXX Zane switching == True to is boolean mask here. Is this correct?
+    # find the new clean plant records by selecting the True consistent records
     ll_df = ll_df[ll_df[f'{col}_consistent']].drop_duplicates(subset=entity_id)
     # add the newly cleaned records
     ll_clean_df = ll_clean_df.append(ll_df,)
@@ -112,7 +142,7 @@ def _add_timezone(plants_entity):
             named "latitude", "longitude", and optionally "state"
 
     Returns:
-        pandas.DataFrame: A DataFrom containing the same table, with a
+        pandas.DataFrame: A DataFrame containing the same table, with a
             "timezone" column added. Timezone may be missing if lat / lon is
             missing or invalid.
 
@@ -133,8 +163,7 @@ def _add_additional_epacems_plants(plants_entity):
 
     The columns loaded are plant_id_eia, plant_name, state, latitude, and
     longitude. Note that a side effect will be resetting the index on
-    plants_entity, if onecexists. If that's a problem, modify the code
-    below.
+    plants_entity, if onecexists. If that's a problem, modify the code below.
 
     Note that some of these plants disappear from the CEMS before the
     earliest EIA data PUDL processes, so if PUDL eventually ingests older
@@ -186,29 +215,51 @@ def _harvesting(entity,
     that are mostly consistent. It compiles those consistent records into
     one normalized table.
 
+    There are a few things to note here. First being that we are not expecting
+    the outcome here to be perfect! We choose to pull the most consistent
+    record as reported across all the EIA tables and years, but we also
+    required a "strictness" level of 70% (this is currently a hard coded
+    argument for _occurrence_consistency). That means at least 70% of the
+    records must be the same for us to use that value. So if values for an
+    entity haven't been reported 70% consistently, then it will show up as a
+    null value. We built in the ability to add special cases for columns where
+    we want to apply a different method to, but the only ones we added was for
+    latitude and longitude because they are by far the dirtiest.
+
+    We have determined which columns should be considered "static" or "annual".
+    These can be found in constants in the `entities` dictionary. Static means
+    That is should not change over time. Annual means there is annual
+    variablity. This distinction was made in part by testing the consistency
+    and in part by an understanding of how the entities and columns relate in
+    the real world.
+
     Args:
         entity (str): plants, generators, boilers, utilties
         eia_transformed_dfs (dict): A dictionary of tbl names (keys) and
             transformed dfs (values)
         entities_dfs(dict): A dictionary of entity table names (keys) and
             entity dfs (values)
-        debug (bool):
+        debug (bool): If True, this function will also return an additional
+            dictionary of dataframes that includes the pre-deduplicated
+            compiled records with the number of occurances of the entity and
+            the record to see consistency of reported values.
 
     Returns:
         tuple: A tuple containing:
             eia_transformed_dfs (dict): dictionary of tbl names (keys) and
-            transformed dfs (values)
+                transformed dfs (values)
             entity_dfs (dict): dictionary of entity table names (keys) and
-            entity dfs (values)
+                entity dfs (values)
     Raises:
         AssertionError: If the consistency of latitude and longitude of the
-            records is less than 92 %
+            records is less than 92 %.
         AssertionError: If the consistency of other values of the records is
-            less than 95 %
+            less than 95 %.
 
     Todo:
-        Return to for role of debug
-
+        * Return to role of debug.
+        * Determine what to do with null records
+        * Determine how to treat mostly static records
     """
     # we know these columns must be in the dfs
     entity_id = pc.entities[entity][0]
@@ -738,7 +789,29 @@ def transform(eia_transformed_dfs,
               eia923_years=pc.working_years['eia923'],
               eia860_years=pc.working_years['eia860'],
               debug=False):
-    """Create dfs for EIA Entity tables."""
+    """
+    Create dfs for EIA Entity tables and modifies EIA tables.
+
+    This function coordinates two main actions: generating the entity tables
+    via `_harvesting()` and generating the boiler generator associations via
+    `_boiler_generator_assn()`.
+
+    There is also some removal of tables that are no longer needed after the
+    entity harvesting is finished.
+
+    Args:
+        eia_transformed_dfs (dict): a dictionary of table names (kays) and
+            transformed dataframes (values).
+        eia923_years (list): a list of years for EIA 923
+        eia860_years (list): a list of years for EIA 860
+        debug (bool): if true, informational columns will be added into
+            boiler_generator_assn
+    Returns:
+        entities_dfs (dict): a dictionary of table names (keys) and dataframes
+            (values) for the entity tables.
+        eia_transformed_dfs (dict): a dictionary of table names (keys) and
+            dataframes (values) for the rest of the EIA tables.
+    """
     if not eia923_years and not eia860_years:
         logger.info('Not ingesting EIA')
         return None
@@ -766,5 +839,4 @@ def transform(eia_transformed_dfs,
                                     f'{entity}_annual_eia')
     # remove the boilers annual table bc it has no columns
     eia_transformed_dfs.pop('boilers_annual_eia',)
-
     return entities_dfs, eia_transformed_dfs

@@ -7,14 +7,33 @@ Subpackages
 .. toctree::
 
    pudl.analysis
+   pudl.convert
+   pudl.datastore
    pudl.extract
    pudl.glue
    pudl.models
    pudl.output
+   pudl.package_data
    pudl.transform
 
 Submodules
 ----------
+
+pudl.\_\_main\_\_ module
+------------------------
+
+.. automodule:: pudl.__main__
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pudl.cli module
+---------------
+
+.. automodule:: pudl.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 pudl.constants module
 ---------------------
@@ -23,13 +42,15 @@ pudl.constants module
    :members:
    :undoc-members:
    :show-inheritance:
-pudl.datastore module
----------------------
 
-.. automodule:: pudl.datastore
+pudl.etl\_pkg module
+--------------------
+
+.. automodule:: pudl.etl_pkg
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.helpers module
 -------------------
 
@@ -37,6 +58,7 @@ pudl.helpers module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.init module
 ----------------
 
@@ -44,6 +66,7 @@ pudl.init module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.load module
 ----------------
 
@@ -51,6 +74,7 @@ pudl.load module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.settings module
 --------------------
 

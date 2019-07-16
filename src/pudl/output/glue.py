@@ -17,7 +17,18 @@ pt = pudl.models.entities.PUDLBase.metadata.tables
 
 def boiler_generator_assn(start_date=None, end_date=None,
                           testing=False):
-    """Pull the more complete PUDL/EIA boiler generator associations."""
+    """Pulls the more complete PUDL/EIA boiler generator associations.
+
+    Args:
+        start_date (date): Date to begin retrieving data.
+        end_date (date): Date to end retrieving data.
+        testing (bool): If true, utilize data from the test database. If false,
+            connect to the live PUDL database.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing the more complete PUDL/EIA
+            boiler generator associations.
+    """
     pudl_engine = pudl.init.connect_db(testing=testing)
     bga_eia_tbl = pt['boiler_generator_assn_eia860']
     bga_eia_select = sa.sql.select([bga_eia_tbl])

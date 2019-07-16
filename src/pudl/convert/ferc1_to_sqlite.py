@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """A script for cloning the FERC Form 1 database into SQLite."""
 
 import argparse
@@ -15,10 +14,15 @@ logger = logging.getLogger(__name__)
 
 
 def parse_command_line(argv):
-    """
-    Parse command line arguments. See the -h option.
+    """Parses command line arguments. See the -h option.
 
-    :param argv: arguments on the command line must include caller file name.
+    Args:
+        argv (str): Command line arguments, which must include caller file name
+
+    Returns:
+
+    Todo:
+        Return to
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("settings_file", type=str, default='',

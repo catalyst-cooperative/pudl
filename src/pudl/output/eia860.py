@@ -12,7 +12,18 @@ pt = pudl.models.entities.PUDLBase.metadata.tables
 
 
 def utilities_eia860(start_date=None, end_date=None, testing=False):
-    """Pull all fields from the EIA860 Utilities table."""
+    """Pulls all fields from the EIA860 Utilities table.
+
+    Args:
+        start_date (date): Date to begin retrieving EIA 860 data.
+        end_date (date): Date to end retrieving EIA 860 data.
+        testing (bool): If true, utilize data from the test database. If false,
+            connect to the live PUDL database.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
+            Utilities table.
+    """
     pudl_engine = pudl.init.connect_db(testing=testing)
     # grab the entity table
     utils_eia_tbl = pt['utilities_entity_eia']
@@ -63,7 +74,18 @@ def utilities_eia860(start_date=None, end_date=None, testing=False):
 
 
 def plants_eia860(start_date=None, end_date=None, testing=False):
-    """Pull all fields from the EIA Plants tables."""
+    """Pulls all fields from the EIA Plants tables.
+
+    Args:
+        start_date (date): Date to begin retrieving EIA 860 data.
+        end_date (date): Date to end retrieving EIA 860 data.
+        testing (bool): If true, utilize data from the test database. If false,
+            connect to the live PUDL database.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
+                Plants table.
+    """
     pudl_engine = pudl.init.connect_db(testing=testing)
 
     # grab the entity table
@@ -115,8 +137,7 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
 
 
 def plants_utils_eia860(start_date=None, end_date=None, testing=False):
-    """
-    Create a dataframe of plant and utility IDs and names from EIA.
+    """Creates a dataframe of plant and utility IDs and names from EIA 860.
 
     Returns a pandas dataframe with the following columns:
     - report_date (in which data was reported)
@@ -130,6 +151,16 @@ def plants_utils_eia860(start_date=None, end_date=None, testing=False):
     Note: EIA 860 data has only been integrated for 2011-2016. If earlier or
           later years are requested, they will be filled in with data from the
           first or last years.
+
+    Args:
+        start_date (date): Date to begin retrieving EIA 860 data.
+        end_date (date): Date to end retrieving EIA 860 data.
+        testing (bool): If true, utilize data from the test database. If false,
+            connect to the live PUDL database.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing plant and utility IDs and
+            names from EIA 860.
     """
     # Contains the one-to-one mapping of EIA plants to their operators, but
     # we only have the 860 data integrated for 2011 forward right now.
@@ -165,8 +196,7 @@ def plants_utils_eia860(start_date=None, end_date=None, testing=False):
 
 
 def generators_eia860(start_date=None, end_date=None, testing=False):
-    """
-    Pull all fields reported in the generators_eia860 table.
+    """Pulls all fields reported in the generators_eia860 table.
 
     Merge in other useful fields including the latitude & longitude of the
     plant that the generators are part of, canonical plant & operator names and
@@ -184,7 +214,8 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
         testing (bool): Connect to the live PUDL DB or the testing DB?
 
     Returns:
-        A pandas dataframe.
+        pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
+            Generators table.
 
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
@@ -297,7 +328,20 @@ That's too much forward filling.""")
 
 def boiler_generator_assn_eia860(start_date=None, end_date=None,
                                  testing=False):
-    """Pull all fields from the EIA 860 boiler generator association table."""
+    """Pulls all fields from the EIA 860 boiler generator association table.
+
+    Args:
+        start_date (date): Date to begin retrieving EIA 860 data.
+        end_date (date): Date to end retrieving EIA 860 data.
+        testing (bool): If true, utilize data from the test database. If false,
+            connect to the live PUDL database.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing all the fields from the EIA
+            860 boiler generator association table.
+
+
+    """
     pudl_engine = pudl.init.connect_db(testing=testing)
     bga_eia860_tbl = pt['boiler_generator_assn_eia860']
     bga_eia860_select = sa.sql.select([bga_eia860_tbl])
@@ -319,18 +363,16 @@ def boiler_generator_assn_eia860(start_date=None, end_date=None,
 
 
 def ownership_eia860(start_date=None, end_date=None, testing=False):
-    """
-    Pull a useful set of fields related to ownership_eia860 table.
+    """Pulls a useful set of fields related to ownership_eia860 table.
 
     Args:
-    -----
         start_date (date): date of the earliest data to retrieve
         end_date (date): date of the latest data to retrieve
         testing (bool): True if we're connecting to the pudl_test DB, False
             if we're connecting to the live PUDL DB. False by default.
     Returns:
-    --------
-        out_df (pandas dataframe)
+        pandas.DataFrame: A DataFrame containing a useful set of fields related
+            to the EIA 860 Ownership table.
 
     """
     pudl_engine = pudl.init.connect_db(testing=testing)

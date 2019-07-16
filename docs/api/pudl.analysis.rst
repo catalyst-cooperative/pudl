@@ -11,6 +11,7 @@ pudl.analysis.analysis module
    :members:
    :undoc-members:
    :show-inheritance:
+
 pudl.analysis.mcoe module
 -------------------------
 
