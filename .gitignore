@@ -18,3 +18,4 @@ coverage.xml
 results/notebooks/pudl_intro.ipynb
 results/notebooks/pudl_output_to_csv.ipynb
 codecov.sh
+.env_pudl/
