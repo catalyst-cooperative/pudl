@@ -313,7 +313,6 @@ def mcoe(pudl_out,
     that is passed in.
 
     Args:
-    -----
         pudl_out: a PudlTabl object, specifying the time resolution and
             date range for which the calculations should be performed.
         min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any MCOE
@@ -329,7 +328,6 @@ def mcoe(pudl_out,
             previously would have been NaN.
 
     Returns:
-    --------
         mcoe_out: a dataframe organized by date and generator, with lots of
             juicy information about the generators -- including fuel cost on a
             per MWh and MMBTU basis, heat rates, and neg generation.

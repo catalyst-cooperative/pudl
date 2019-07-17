@@ -1,12 +1,14 @@
-Welcome to Public Utility Data Liberation's documentation!
-==========================================================
-
-.. automodule:: pudl.extract.eia860
-    :members:
+.. include:: README.rst
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+   getting_started
+   naming_conventions
+   reset_instructions
+   build_and_testing
+   api/modules
 
 
 Indices and tables
