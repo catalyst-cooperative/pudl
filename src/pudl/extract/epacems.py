@@ -19,11 +19,10 @@ def read_cems_csv(filename):
     Note that some columns are not read. See epacems_columns_to_ignores.
 
     Args:
-        filename (str):
+        filename (str): The name of the file to be read
 
     Returns:
-        pandas.DataFrame: df, a DataFrame containing the contents of the CSV
-            file.
+        pandas.DataFrame: A DataFrame containing the contents of the CSV file.
 
     """
     df = pd.read_csv(
@@ -46,15 +45,15 @@ def extract(epacems_years, states, data_dir):
             CEMs data
         states (list): list of states from which we are trying to read
             CEMs data
-        data_dir (str):
+        data_dir (path-like): Path to the top directory of the PUDL datastore.
 
     Yields:
-        dict: a dictionary containing US States (keys) and DataFrames of CEMS
-            data (values)
+        dict: a dictionary of States (keys) and DataFrames of CEMS data (values)
 
-    Todo: Return to
+    -- Todo:
+        This is really slow. Can we do some parallel processing?
     """
-    # TODO: this is really slow. Can we do some parallel processing?
+
     for year in epacems_years:
         # The keys of the us_states dictionary are the state abbrevs
         for state in states:

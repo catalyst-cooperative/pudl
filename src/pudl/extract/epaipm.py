@@ -19,15 +19,14 @@ logger = logging.getLogger(__name__)
 
 
 def get_epaipm_name(file, data_dir):
-    """
-    Return the appropriate EPA IPM excel file.
+    """Returns the appropriate EPA IPM excel file.
 
     Args:
         file (str): The file that we're trying to read data for.
         data_dir (path-like): Path to the top directory of the PUDL datastore.
 
     Returns:
-        path to EPA IPM spreadsheet.
+        str: The path to EPA IPM spreadsheet.
 
     """
     # Access the CSV scraped from a PDF & distributed with PUDL:
@@ -46,16 +45,18 @@ def get_epaipm_name(file, data_dir):
 
 
 def get_epaipm_file(filename, read_file_args, data_dir):
-    """
-    Read in files to create dataframes. No need to use ExcelFile
-    objects with the IPM files because each file is only a single sheet.
+    """Reads in files to create dataframes.
+
+    No need to use ExcelFile objects with the IPM files because each file
+    is only a single sheet.
 
     Args:
-        filename: ['single_transmission', 'joint_transmission']
-        read_file_args: dictionary of arguments for pandas read_*
+        filename (str): ['single_transmission', 'joint_transmission']
+        read_file_args (dict): dictionary of arguments for pandas read_*
+        data_dir (path-like): Path to the top directory of the PUDL datastore.
 
     Returns:
-        xlsx file of EPA IPM data
+        pandas.io.excel.ExcelFile: an xlsx file of EPA IPM data
 
     """
     epaipm_file = {}
@@ -80,15 +81,13 @@ def get_epaipm_file(filename, read_file_args, data_dir):
 
 
 def create_dfs_epaipm(files, data_dir):
-    """
-    Create a dictionary of pages (keys) to dataframes (values) from epaipm
-    tabs.
+    """Makes dictionary of pages (keys) to dataframes (values) for epaipm tabs.
 
     Args:
-        a list of epaipm files
-
+        files (list): a list of epaipm files
+        data_dir (path-like): Path to the top directory of the PUDL datastore.
     Returns:
-        dictionary of pages (key) to dataframes (values)
+        dict: dictionary of pages (key) to dataframes (values)
 
     """
     # Prep for ingesting epaipm
@@ -120,15 +119,15 @@ def create_dfs_epaipm(files, data_dir):
 
 
 def extract(epaipm_tables, data_dir):
-    """
-    Extract data from IPM files.
+    """Extracts data from IPM files.
 
     Args:
         epaipm_tables (iterable): A tuple or list of table names to extract
+        data_dir (path-like): Path to the top directory of the PUDL datastore.
 
     Returns:
-        dict: dictionary of dataframes with extracted (but not yet transformed)
-            data from each file.
+        dict: dictionary of DataFrames with extracted (but not yet transformed)
+        data from each file.
 
     """
     # Prep for ingesting EPA IPM

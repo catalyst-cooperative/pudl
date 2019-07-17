@@ -1164,12 +1164,11 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
             X (): a sparse matrix of size n_samples x n_features.
             y ():
 
+            TODO: Zane revisit
+
         Returns:
             pandas.DataFrame:
-
-        Todo:
-            Zane revisit
-
+            TODO: Zane revisit
         """
         self._cossim_df = pd.DataFrame(cosine_similarity(X))
         self._best_of = self._best_by_year()
