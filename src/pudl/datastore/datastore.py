@@ -630,7 +630,7 @@ def update(source, year, states, clobber=False, unzip=True,
 
     Note that update_datastore.py runs this function in parallel, so files
     multiple sources and years may be in progress simultaneously.
-    
+
     Args:
         source (str): the data source to retrieve. Must be one of: 'eia860',
             'eia923', 'ferc1', or 'epacems'.
