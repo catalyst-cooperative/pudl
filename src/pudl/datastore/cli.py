@@ -19,8 +19,7 @@ def parse_command_line(argv):
         argv (str): Command line arguments, which must include caller file name
 
     Returns:
-
-
+    
     Todo:
         Return to
     """

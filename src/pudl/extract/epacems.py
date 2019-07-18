@@ -50,7 +50,7 @@ def extract(epacems_years, states, data_dir):
     Yields:
         dict: a dictionary of States (keys) and DataFrames of CEMS data (values)
 
-    -- Todo:
+    Todo:
         This is really slow. Can we do some parallel processing?
     """
 

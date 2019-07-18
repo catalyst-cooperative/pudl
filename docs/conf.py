@@ -39,6 +39,8 @@ extensions = [
     'sphinx.ext.todo',
 ]
 
+todo_include_todos = True
+
 # List of packages that should not really be installed, because they are
 # written in C or have C extensions. Instead they should be mocked for import
 # purposes only to prevent the doc build from failing.
