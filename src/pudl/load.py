@@ -29,7 +29,6 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
     which takes slightly less memory than the DataFrame itself.
 
     Args:
-    -----
         df (pandas.DataFrame): The DataFrame which is to be dumped to CSV and
             loaded into the database. All DataFrame columns must have exactly
             the same names as the database fields they are meant to populate,
@@ -50,7 +49,6 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
             the last will be retained by keep_csv, which may be unsatisfying.
 
     Returns:
-    --------
         None
 
     """
@@ -250,9 +248,11 @@ expected:
             logger.info(
                 "===================== Dramatic Pause ====================")
             logger.info(
-                f"    Loading {len(all_dfs):,} records ({round(self.accumulated_size/1024**2)} MB) into PUDL.")
+                f"    Loading {len(all_dfs):,} records "
+                f"({round(self.accumulated_size/1024**2)} MB) into PUDL."
+            )
 
-            #csv_dump(all_dfs, self.table_name, True, self.pkg_dir)
+            # csv_dump(all_dfs, self.table_name, True, self.pkg_dir)
             clean_columns_dump(self.table_name, self.pkg_dir, all_dfs)
             logger.info(
                 "================ Resume Number Crunching ================")
@@ -307,7 +307,6 @@ def csv_dump(df, table_name, keep_index, pkg_dir):
     which takes slightly less memory than the DataFrame itself.
 
     Args:
-    -----
         df (pandas.DataFrame): The DataFrame which is to be dumped to CSV and
             loaded into the database. All DataFrame columns must have exactly
             the same names as the database fields they are meant to populate,
@@ -322,7 +321,6 @@ def csv_dump(df, table_name, keep_index, pkg_dir):
             saved, if it's being kept.
 
     Returns:
-    --------
         None
 
     """

@@ -416,9 +416,9 @@ def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
             overall number of string values that need to be tracked.
 
     Returns:
-    --------
         pandas.Series: The function returns a new pandas series/column that can
             be used to set the values of the original data.
+
     """
     out_df = df.copy()
     for col, map in zip(columns, stringmaps):

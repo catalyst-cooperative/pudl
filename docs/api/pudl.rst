@@ -13,7 +13,6 @@ Subpackages
    pudl.glue
    pudl.models
    pudl.output
-   pudl.package_data
    pudl.transform
 
 Submodules
