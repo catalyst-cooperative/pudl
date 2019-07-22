@@ -27,6 +27,37 @@ logger = logging.getLogger(__name__)
 
 
 def assert_valid_param(source, year, month=None, state=None, check_month=None):
+    """Checks whether parameters used in various datastore functions are valid.
+
+    Args:
+        source (str): A string indicating which data source we are going to be
+            downloading. Currently it must be one of the following:
+            - 'eia860'
+            - 'eia861'
+            - 'eia923'
+            - 'ferc1'
+            - 'epacems'
+        year (int or None): the year for which data should be downloaded. Must
+            be within the range of valid data years, which is specified for
+            each data source in the pudl.constants module. Use None for data
+            sources that do not have multiple years.
+        month (int): the month for which data should be downloaded. Only used
+            for EPA CEMS.
+        state (str): the state for which data should be downloaded. Only used
+            for EPA CEMS.
+        check_month
+
+    Todo:
+        Return to - what is check_month?
+
+    Raises:
+        AssertionError: If the source is not among the list of valid sources.
+        AssertionError: If the source is not found in the valid data years.
+        AssertionError: If the year is not valid for the specified source.
+        AssertionError: If the source is not found in valid base download URLs.
+        AssertionError: If the month is not valid (1-12).
+        AssertionError: If the state is not a valid US state abbreviation.
+    """
     if source not in pc.data_sources:
         raise AssertionError(
             f"Source '{source}' not found in valid data sources.")
@@ -81,8 +112,7 @@ def source_url(source, year, month=None, state=None, table=None):
 
     Returns:
         download_url (str): a full URL from which the requested data may be
-            obtained
-
+        obtained
     """
     assert_valid_param(source=source, year=year, month=month, state=state)
 
@@ -148,7 +178,7 @@ def path(source, data_dir, year=None, month=None, state=None, file=True):
             - 'eia923'
             - 'eia860'
             - 'epacems'
-        data_dir (path-like):
+        data_dir (path-like): Path to the top level datastore directory.
         year (int or None): the year of data that the returned path should
             pertain to. Must be within the range of valid data years, which is
             specified for each data source in pudl.constants.data_years, unless
@@ -164,9 +194,6 @@ def path(source, data_dir, year=None, month=None, state=None, file=True):
 
     Returns:
         str: the path to requested resource within the local PUDL datastore.
-
-    Todo:
-        Return to
     """
     assert_valid_param(source=source, year=year, month=month, state=state,
                        check_month=False)
@@ -234,7 +261,7 @@ def paths_for_year(source, data_dir, year=None, states=None, file=True):
             - 'eia923'
             - 'eia860'
             - 'epacems'
-        data_dir (path-like):
+        data_dir (path-like): Path to the top level datastore directory.
         year (int or None): the year of data that the returned path should
             pertain to. Must be within the range of valid data years, which is
             specified for each data source in pudl.constants.data_years, unless
@@ -250,9 +277,6 @@ def paths_for_year(source, data_dir, year=None, states=None, file=True):
 
     Returns:
         str: the path to requested resource within the local PUDL datastore.
-
-    Todo:
-        Return to
     """
     # TODO: I'm not sure this is the best construction, since it relies on
     # the order being the same here as in the url list comprehension
@@ -291,8 +315,9 @@ def download(source, year, states, data_dir):
             that for data (like EPA CEMS) that have multiple datasets per year,
             this function will download all the files for the specified year.
             Use None for data sources that do not have multiple years.
-        states (iterable):
-        data_dir (path-like):
+        states (iterable): List of two letter US state abbreviations indicating
+            which states data should be downloaded for.
+        data_dir (path-like): Path to the top level datastore directory.
 
     Returns:
         path-like: The path to the local downloaded file.
@@ -349,6 +374,10 @@ def download(source, year, states, data_dir):
 
 
 def _download_FTP(src_urls, tmp_files, allow_retry=True):
+    """
+    Todo:
+        Replace 2 assert statements
+    """
     assert len(src_urls) == len(tmp_files) > 0
     parsed_urls = [urllib.parse.urlparse(url) for url in src_urls]
     domains = {url.netloc for url in parsed_urls}
@@ -412,6 +441,9 @@ def _download_default(src_urls, tmp_files, allow_retry=True):
     Returns:
         None
 
+    Todo:
+        Replace assert statement
+
     If the file cannot be downloaded, the program will issue a warning.
     """
     assert len(src_urls) == len(tmp_files) > 0
@@ -467,6 +499,8 @@ def organize(source, year, states, data_dir, unzip=True, dl=True):
     Returns:
         None
 
+    Todo:
+        Replace 4 assert statements
     """
     assert source in pc.data_sources, \
         f"Source '{source}' not found in valid data sources."
@@ -550,21 +584,22 @@ def check_if_need_update(source, year, states, data_dir, clobber=False):
     and clobber is False.
 
     Args:
-    source (str): the data source to retrieve. Must be one of: 'eia860',
-        'eia923', 'ferc1', or 'epacems'.
-    year (int or None): the year of data that the returned path should
-        pertain to. Must be within the range of valid data years, which is
-        specified for each data source in pudl.constants.data_years. Note
-        that for data (like EPA CEMS) that have multiple datasets per year,
-        this function will download all the files for the specified year.
-        Use None for data sources that do not have multiple years.
-    states (iterable):
-    data_dir (path-like):
-    clobber (bool): If True, clobber the existing file and note that the file
-        will need to be replaced with an updated file.
+        source (str): the data source to retrieve. Must be one of: 'eia860',
+            'eia923', 'ferc1', or 'epacems'.
+        year (int or None): the year of data that the returned path should
+            pertain to. Must be within the range of valid data years, which is
+            specified for each data source in pudl.constants.data_years. Note
+            that for data (like EPA CEMS) that have multiple datasets per year,
+            this function will download all the files for the specified year.
+            Use None for data sources that do not have multiple years.
+        states (iterable): List of two letter US state abbreviations indicating
+            which states data should be downloaded for.
+        data_dir (path-like): Path to the top level datastore directory.
+        clobber (bool): If True, clobber the existing file and note that the
+            file will need to be replaced with an updated file.
 
-    Todo:
-        Return to
+    Returns:
+        bool: Whether an update is needed (True) or not (False)
     """
     paths = paths_for_year(source=source, year=year, states=states,
                            data_dir=data_dir)
@@ -595,6 +630,7 @@ def update(source, year, states, clobber=False, unzip=True,
 
     Note that update_datastore.py runs this function in parallel, so files
     multiple sources and years may be in progress simultaneously.
+
     Args:
         source (str): the data source to retrieve. Must be one of: 'eia860',
             'eia923', 'ferc1', or 'epacems'.
@@ -609,7 +645,9 @@ def update(source, year, states, clobber=False, unzip=True,
         unzip (bool): If true, unzip the file once downloaded, and place the
             resulting data files where they ought to be in the datastore.
             EPA CEMS files will never be unzipped.
-        pudl_settings (dict):
+        pudl_settings (dict): By default, a dictionary containing common PUDL
+            settings, derived from those read out of the YAML file. Otherwise,
+            settings could be specified.
         dl (bool): If False, don't download the files, only unzip ones
             that are already present. If True, do download the files. Either
             way, still obey the unzip and clobber settings. (unzip=False and
@@ -617,9 +655,6 @@ def update(source, year, states, clobber=False, unzip=True,
 
     Returns:
         None
-
-    Todo:
-        Return to
     """
     if pudl_settings is None:
         pudl_settings = pudl.settings.init()
@@ -644,6 +679,10 @@ def parallel_update(sources,
                     clobber=False,
                     unzip=True,
                     dl=True):
+    """
+    Todo:
+        Return to
+    """
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for source in sources:
             for year in years_by_source[source]:

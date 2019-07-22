@@ -20,7 +20,6 @@ def parse_command_line(argv):
 
     Returns:
 
-
     Todo:
         Return to
     """

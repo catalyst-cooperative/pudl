@@ -128,7 +128,7 @@ def drop_tables(engine):
     database that the passed in ``engine`` refers to, and uses that schema to
     drop all existing tables.
 
-    -- Todo:
+    Todo:
         Treat DB connection as a context manager (with/as).
 
     Args:
@@ -237,7 +237,7 @@ def get_strings(filename, min_length=4):
     Yields:
         str: result
 
-    -- Todo:
+    Todo:
         Zane revisit
 
     """
@@ -267,7 +267,7 @@ def get_dbc_map(year, data_dir, min_length=4):
 
     For more info see: https://github.com/catalyst-cooperative/pudl/issues/288
 
-    -- Todo:
+    Todo:
         Ideally this routine shouldn't refer to any particular year of data,
         but right now it depends on the ferc1_dbf2tbl dictionary, which was
         generated from the 2015 Form 1 database.
@@ -433,7 +433,7 @@ class FERC1FieldParser(dbfread.FieldParser):
             field ():
             data ():
 
-        -- Todo:
+        Todo:
             Zane revisit
         """
         # Strip whitespace, null characters, and zeroes
@@ -899,7 +899,7 @@ def show_dupes(table, dbc_map, years=pc.data_years['ferc1'],
                pk=['respondent_id', 'report_year', 'report_prd',
                    'row_number', 'spplmnt_num']):
     """
-    -- Todo:
+    Todo:
         Zane revisit.
     """
     print(f"{table}:")

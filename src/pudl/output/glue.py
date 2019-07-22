@@ -27,7 +27,7 @@ def boiler_generator_assn(start_date=None, end_date=None,
 
     Returns:
         pandas.DataFrame: A DataFrame containing the more complete PUDL/EIA
-            boiler generator associations.
+        boiler generator associations.
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
     bga_eia_tbl = pt['boiler_generator_assn_eia860']
