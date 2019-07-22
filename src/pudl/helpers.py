@@ -30,8 +30,7 @@ tz_finder = timezonefinder.TimezoneFinder()
 
 
 def convert_dict_to_namedtuple(dictionary, dict_name):
-    """
-    Convert a dictionary to a namedtuple
+    """Converts a dictionary to a namedtuple
 
     Args:
         dictionary (dict) : a Dictionary
@@ -45,8 +44,7 @@ def convert_dict_to_namedtuple(dictionary, dict_name):
 
 
 def get_dependent_tables_from_list(table_names, testing=False):
-    """
-    Given a list of tables, find all the other tables they depend on.
+    """Given a list of tables, finds all the other tables they depend on.
 
     Iterate over a list of input tables, adding them and all of their dependent
     tables to a set, and return that set. Useful for determining which tables
@@ -61,7 +59,7 @@ def get_dependent_tables_from_list(table_names, testing=False):
 
     Returns:
         all_the_tables (set): The set of all the tables which any of the input
-            tables depends on, via ForeignKey constraints.
+        tables depends on, via ForeignKey constraints.
 
     """
     md = sa.MetaData(bind=pudl.init.connect_db(testing=testing))
@@ -75,8 +73,7 @@ def get_dependent_tables_from_list(table_names, testing=False):
 
 
 def get_dependent_tables(table_name, md):
-    """
-    Given a table name, get the names of all tables it depends on.
+    """Given a table name, gets the names of all tables it depends on.
 
     This recursive function gets a list of all the foreign keys that exist in
     the input table, and then all of the foreign keys that exist in the tables
@@ -114,7 +111,17 @@ def get_dependent_tables(table_name, md):
 
 
 def data_sources_from_tables(table_names, testing=False):
-    """Based on a list of PUDL DB tables, look up data sources."""
+    """Based on a list of PUDL DB tables, look up data sources.
+
+    Args:
+        table_names (iterable): a list of names of 'seed' tables, whose
+            dependencies we are seeking to find.
+        testing (bool): Connected to the test database (True) or live PUDl
+            database (False)?
+
+    Returns:
+        set: a set of the data sources of the specified tables
+    """
     all_tables = get_dependent_tables_from_list(table_names, testing=testing)
     table_sources = set()
     # All tables get PUDL:
@@ -128,12 +135,22 @@ def data_sources_from_tables(table_names, testing=False):
 
 
 def is_annual(df_year, year_col='report_date'):
-    """
-    Determine whether dataframe is consistent with yearly reporting.
+    """Determines whether dataframe is consistent with yearly reporting.
 
-    Some processed will only work with consistent yearly reporting. This means
+    Some processes will only work with consistent yearly reporting. This means
     if you have two non-contiguous years of data or the datetime reporting is
     inconsistent, the process will break.
+
+    Args:
+        df_year ():
+        year_col (str): The column of the DataFrame in which the year is
+            reported.
+
+    Returns:
+        bool:
+
+    Todo:
+        Return to for df_year, Returns, assert statements
     """
     year_index = pd.DatetimeIndex(df_year[year_col].unique()).sort_values()
     if len(year_index) >= 3:
@@ -162,7 +179,7 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
                        date_col='report_date',
                        year_col='report_date'):
     """
-    Merge two dataframes based on a shared year.
+    Merges two dataframes based on a shared year.
 
     Some of our data is annual, and has an integer year column (e.g. FERC 1).
     Some of our data is annual, and uses a Date column (e.g. EIA 860), and
@@ -191,10 +208,9 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
 
     Returns:
         merged: a dataframe with a date column, but no year columns, and only
-            one copy of any shared columns that were not part of the list of
-            columns to be merged on.  The values from df1 are the ones which
-            are retained for any shared, non-merging columns.
-
+        one copy of any shared columns that were not part of the list of
+        columns to be merged on.  The values from df1 are the ones which
+        are retained for any shared, non-merging columns
     """
     assert date_col in df_date.columns.tolist()
     assert year_col in df_year.columns.tolist()
@@ -249,8 +265,8 @@ def organize_cols(df, cols):
 
     Returns:
         pandas.DataFrame: A dataframe with the same columns as the input
-            DataFrame df, but with cols first, in the same order as they
-            were passed in, and the remaining columns sorted alphabetically.
+        DataFrame df, but with cols first, in the same order as they
+        were passed in, and the remaining columns sorted alphabetically.
 
     """
     # Generate a list of all the columns in the dataframe that are not
@@ -262,8 +278,7 @@ def organize_cols(df, cols):
 
 
 def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
-    """
-    Extend the time range in a dataframe by duplicating first and last years.
+    """Extends time range in a DataFrame by duplicating first and last years.
 
     Takes the earliest year's worth of annual data and uses it to create
     earlier years by duplicating it, and changing the year.  Similarly,
@@ -273,6 +288,18 @@ def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
     and generators, so that we can analyze a larger set of EIA923 data. EIA923
     data has been integrated a bit further back, and the EIA860 data has a year
     long lag in being released.
+
+    Args:
+        df (pandas.DataFrame):
+        date_col (str):
+        start_date (date):
+        end_date (date):
+
+    Returns:
+        pandas.DataFrame:
+
+    Todo:
+        Return to
     """
     # assert that df time resolution really is annual
     assert is_annual(df, year_col=date_col)
@@ -303,8 +330,7 @@ def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
 
 
 def strip_lower(df, columns=None):
-    """
-    Strip & compact whitespace, lowercase listed DataFrame columns.
+    """Strips and compact whitespace, lowercase listed DataFrame columns.
 
     First converts all listed columns (if present in df) to string type, then
     applies the str.strip() and str.lower() methods to them, and replaces all
@@ -317,8 +343,7 @@ def strip_lower(df, columns=None):
 
     Returns:
         pandas.DataFrame: The whole DataFrame that was passed in, with
-            the columns cleaned up in place, allowing method chaining.
-
+        the columns cleaned up in place, allowing method chaining.
     """
     out_df = df.copy()
     for col in columns:
@@ -334,8 +359,7 @@ def strip_lower(df, columns=None):
 
 
 def cleanstrings_series(col, map, unmapped=None, simplify=True):
-    """
-    Clean up the strings in a single column/Series.
+    """Cleans up the strings in a single column/Series.
 
     Args:
         col (pd.Series): A pandas Series, typically a single column of a
@@ -353,7 +377,7 @@ def cleanstrings_series(col, map, unmapped=None, simplify=True):
 
     Returns:
         pd.Series: The cleaned up Series / column, suitable for replacng the
-            original messy column in a pd.Dataframe.
+        original messy column in a pd.Dataframe.
     """
     if simplify:
         col = (
@@ -382,8 +406,7 @@ def cleanstrings_series(col, map, unmapped=None, simplify=True):
 
 
 def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
-    """
-    Consolidate freeform strings in several dataframe columns.
+    """Consolidates freeform strings in several dataframe columns.
 
     This function will consolidate freeform strings found in `columns` into
     simplified categories, as defined by `stringmaps`. This is useful when
@@ -417,7 +440,7 @@ def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
 
     Returns:
         pandas.Series: The function returns a new pandas series/column that can
-            be used to set the values of the original data.
+        be used to set the values of the original data.
 
     """
     out_df = df.copy()
@@ -429,8 +452,7 @@ def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
 
 
 def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=''):
-    """
-    Convert NA containing integer columns from float to string for CSV export.
+    """Converts NA containing integer columns from float to strin.
 
     Numpy doesn't have a real NA value for integers. When pandas stores integer
     data which has NA values, it thus upcasts integers to floating point
@@ -455,8 +477,8 @@ def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=''):
 
     Returns:
         df (pandas.DataFrame): a new DataFrame, with the selected columns
-            converted to strings that look like integers, compatible with
-            the postgresql COPY FROM command.
+        converted to strings that look like integers, compatible with
+        the postgresql COPY FROM command.
     """
     return (
         df.replace({c: float_na for c in columns}, int_na)
@@ -467,7 +489,7 @@ def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=''):
 
 
 def month_year_to_date(df):
-    """Convert all pairs of year/month fields in a dataframe into Date fields.
+    """Converts all pairs of year/month fields in a dataframe into Date fields.
 
     This function finds all column names within a dataframe that match the
     regular expression '_month$' and '_year$', and looks for pairs that have
@@ -482,6 +504,14 @@ def month_year_to_date(df):
      - allow specification of lists of year, month, and day columns to be
        combined, rather than automataically finding all the matching ones.
      - Do the Right Thing when invalid or NA values are encountered.
+
+    Args:
+        df (pandas.DataFrame): The DataFrame in which to convert year/months
+            fields to Date fields.
+
+    Returns:
+        pandas.DataFrame: A DataFrame in which the year/month fields have been
+        converted into Date fields.
     """
     df = df.copy()
     month_regex = "_month$"
@@ -542,17 +572,20 @@ def convert_to_date(df,
                     day_col='report_day',
                     month_value=1,
                     day_value=1):
-    """
-    Convert specified year, month or day columns into a datetime object.
+    """Converts specified year, month or day columns into a datetime object.
 
     Args:
-        df: dataframe to convert
-        date_col: the name of the column you want in the output.
-        year_col: the name of the year column in the original table.
-        month_col: the name of the month column in the original table.
+        df (pandas.DataFrame): dataframe to convert
+        date_col (str): the name of the column you want in the output.
+        year_col (str): the name of the year column in the original table.
+        month_col (str): the name of the month column in the original table.
         day_col: the name of the day column in the original table.
-        month_value: generated month if no month exists.
-        day_value: generated day if no month exists.
+        month_value (int): generated month if no month exists.
+        day_value (int): generated day if no month exists.
+
+    Returns:
+        pandas.DataFrame: A DataFrame in which the year, month, day columns
+        values have been converted into datetime objects.
     """
     df = df.copy()
     if date_col in df.columns:
@@ -582,20 +615,32 @@ def convert_to_date(df,
 
 
 def fix_eia_na(df):
-    """Replace common ill-posed EIA NA spreadsheet values with np.nan."""
+    """Replace common ill-posed EIA NA spreadsheet values with np.nan.
+
+    Args:
+        df (pandas.DataFrame): The DataFrame to clean.
+
+    Returns:
+        pandas.DataFrame: The cleaned DataFrame.
+    """
     return df.replace(to_replace=[r'^\.$', r'^\s$', r'^$'],
                       value=np.nan, regex=True)
 
 
 def simplify_columns(df):
-    """
-    Simplify column labels for use as database fields.
+    """Simplify column labels for use as database fields.
 
     This transformation includes:
      - Replacing all non-alphanumeric characters with spaces.
      - Forcing all letters to be lower case.
      - Compacting internal whitespace.
      - Stripping leading and trailing whitespace.
+
+    Args:
+        df (pandas.DataFrame): The DataFrame to clean.
+
+    Returns:
+        pandas.DataFrame: The cleaned DataFrame.
     """
     df.columns = (
         df.columns.
@@ -609,24 +654,26 @@ def simplify_columns(df):
 
 
 def find_timezone(*, lng=None, lat=None, state=None, strict=True):
-    """
-    Find the timezone associated with the a specified input location.
-
-    param: lng (int or float in [-180,180]) Longitude, in decimal degrees
-    param: lat (int or float in [-90, 90]) Latitude, in decimal degrees
-    param: state (str) Abbreviation for US state or Canadian province
-    param: strict (bool) Raise an error if no timezone is found?
-    returns: The timezone (as an IANA string) for that location.
+    """Finds the timezone associated with the a specified input location.
 
     Note that this function requires named arguments. The names are lng, lat,
     and state.  lng and lat must be provided, but they may be NA. state isn't
     required, and isn't used unless lng/lat are NA or timezonefinder can't find
     a corresponding timezone.
+
     Timezones based on states are imprecise, so it's far better to use lng/lat
     if possible. If `strict` is True, state will not be used.
     More on state-to-timezone conversion here:
     https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
 
+    Args:
+        lng (int or float in [-180,180]): Longitude, in decimal degrees
+        lat (int or float in [-90, 90]): Latitude, in decimal degrees
+        state (str): Abbreviation for US state or Canadian province
+        strict (bool): Raise an error if no timezone is found?
+
+    Returns:
+        str: The timezone (as an IANA string) for that location.
     """
     try:
         tz = tz_finder.timezone_at(lng=lng, lat=lat)
@@ -654,7 +701,16 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
 # The next few functions propbably will end up in some packaging or load module
 ###############################################################################
 def data_sources_from_tables_pkg(table_names, testing=False):
-    """Based on a list of PUDL DB tables, look up data sources."""
+    """Based on a list of PUDL DB tables, look up data sources.
+
+    Args:
+        tables_names (iterable): a list of names of 'seed' tables, whose
+            dependencies we are seeking to find.
+        testing (bool): Connected to the test database (True) or live PUDl
+            database (False)?
+
+    Returns:
+        set: The set of data sources for the list of PUDL table names."""
     all_tables = get_dependent_tables_from_list_pkg(
         table_names, testing=testing)
     table_sources = set()
@@ -669,8 +725,7 @@ def data_sources_from_tables_pkg(table_names, testing=False):
 
 
 def get_foreign_key_relash_from_pkg(pkg_json):
-    """
-    Generate a dictionary of foreign key relationships from pkging metadata.
+    """Generates a dictionary of foreign key relationships from pkging metadata.
 
     This function helps us pull all of the foreign key relationships of all
     of the tables in the metadata.
@@ -682,7 +737,6 @@ def get_foreign_key_relash_from_pkg(pkg_json):
 
     Returns:
         dict: list of foreign key tables
-
     """
     with open(pkg_json) as md:
         metadata = json.load(md)
@@ -699,7 +753,17 @@ def get_foreign_key_relash_from_pkg(pkg_json):
 
 
 def get_dependent_tables_pkg(table_name, fk_relash):
-    """"""
+    """Get the set of tables that the specified table depends on.
+    Args:
+        table_name (str): The table whose dependencies we are looking for.
+        fk_relash ():
+
+    Todo:
+        Return to
+
+    Returns:
+        set: the set of all the tables the specified table depends upon.
+    """
     # Add the initial table
     dependent_tables = set()
     dependent_tables.add(table_name)
@@ -720,8 +784,7 @@ def get_dependent_tables_pkg(table_name, fk_relash):
 
 
 def get_dependent_tables_from_list_pkg(table_names, testing=False):
-    """
-    Given a list of tables, find all the other tables they depend on.
+    """Given a list of tables, find all the other tables they depend on.
 
     Iterate over a list of input tables, adding them and all of their dependent
     tables to a set, and return that set. Useful for determining which tables
@@ -731,10 +794,12 @@ def get_dependent_tables_from_list_pkg(table_names, testing=False):
     Args:
         table_names (iterable): a list of names of 'seed' tables, whose
             dependencies we are seeking to find.
+        testing (bool): Connected to the test database (True) or live PUDl
+            database (False)?
 
     Returns:
         all_the_tables (set): The set of all the tables which any of the input
-            tables depends on, via ForeignKey constraints.
+        tables depends on, via ForeignKey constraints.
 
     """
     with importlib.resources.path('pudl.package_data.meta.datapackage',
@@ -755,8 +820,7 @@ def verify_input_files(ferc1_years,
                        epacems_years,
                        epacems_states,
                        data_dir):
-    """
-    Verify that all required data files exist before beginning the ETL process.
+    """Verifies that all required data files exist prior to the ETL process.
 
     Args:
         ferc1_years (iterable): Years of FERC1 data we're going to import.
@@ -768,7 +832,6 @@ def verify_input_files(ferc1_years,
 
     Raises:
         FileNotFoundError: If any of the requested data is missing.
-
     """
     missing_ferc1_years = {
         str(y) for y in ferc1_years if not os.path.isfile(
@@ -837,6 +900,9 @@ def verify_input_files(ferc1_years,
 
 
 def pull_resource_from_megadata(table_name):
+    """Todo:
+        Return to
+    """
     with importlib.resources.open_text('pudl.package_data.meta.datapackage',
                                        'datapackage.json') as md:
         metadata_mega = json.load(md)

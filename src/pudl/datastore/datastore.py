@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 def assert_valid_param(source, year, month=None, state=None, check_month=None):
-    """Check whether parameters used in various datastore functions are valid.
+    """Checks whether parameters used in various datastore functions are valid.
 
     Args:
         source (str): A string indicating which data source we are going to be
@@ -679,6 +679,10 @@ def parallel_update(sources,
                     clobber=False,
                     unzip=True,
                     dl=True):
+    """
+    Todo:
+        Return to
+    """
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for source in sources:
             for year in years_by_source[source]:

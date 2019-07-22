@@ -22,7 +22,7 @@ def utilities_eia860(start_date=None, end_date=None, testing=False):
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
-            Utilities table.
+        Utilities table.
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
     # grab the entity table
@@ -84,7 +84,7 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
-                Plants table.
+        Plants table.
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
 
@@ -149,8 +149,8 @@ def plants_utils_eia860(start_date=None, end_date=None, testing=False):
     - utility_id_pudl
 
     Note: EIA 860 data has only been integrated for 2011-2016. If earlier or
-          later years are requested, they will be filled in with data from the
-          first or last years.
+    later years are requested, they will be filled in with data from the
+    first or last years.
 
     Args:
         start_date (date): Date to begin retrieving EIA 860 data.
@@ -160,7 +160,7 @@ def plants_utils_eia860(start_date=None, end_date=None, testing=False):
 
     Returns:
         pandas.DataFrame: A DataFrame containing plant and utility IDs and
-            names from EIA 860.
+        names from EIA 860.
     """
     # Contains the one-to-one mapping of EIA plants to their operators, but
     # we only have the 860 data integrated for 2011 forward right now.
@@ -215,7 +215,7 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
-            Generators table.
+        Generators table.
 
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
@@ -338,7 +338,7 @@ def boiler_generator_assn_eia860(start_date=None, end_date=None,
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields from the EIA
-            860 boiler generator association table.
+        860 boiler generator association table.
 
 
     """
@@ -372,7 +372,7 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
             if we're connecting to the live PUDL DB. False by default.
     Returns:
         pandas.DataFrame: A DataFrame containing a useful set of fields related
-            to the EIA 860 Ownership table.
+        to the EIA 860 Ownership table.
 
     """
     pudl_engine = pudl.init.connect_db(testing=testing)

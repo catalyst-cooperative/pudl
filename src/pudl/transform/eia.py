@@ -39,8 +39,8 @@ def _occurrence_consistency(entity_id, compiled_df, col,
 
     Returns:
         pandas.DataFrame: this dataframe will be a transformed version of
-            compiled_df with NaNs removed and with new columns with information
-            about the consistency of the reported values.
+        compiled_df with NaNs removed and with new columns with information
+        about the consistency of the reported values.
 
     Todo: Zane revisit.
     """
@@ -114,9 +114,9 @@ def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
             preserve while rounding down.
     Returns:
         pandas.DataFrame: a dataframe with all of the entity ids. some will
-            have harvested records from the clean_df. some will have harvested
-            records that were found after rounding. some will have NaNs if no
-            consistently reported records were found.
+        have harvested records from the clean_df. some will have harvested
+        records that were found after rounding. some will have NaNs if no
+        consistently reported records were found.
     """
     # grab the dirty plant records, round and get a new consistency
     ll_df = dirty_df.round(decimals=round_to)
@@ -134,8 +134,7 @@ def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
 
 
 def _add_timezone(plants_entity):
-    """
-    Add plant IANA timezones from lat / lon.
+    """Adds plant IANA timezones from lat / lon.
 
     Args:
         plants_entity (pandas.DataFrame): Plant entity table, including columns
@@ -143,8 +142,8 @@ def _add_timezone(plants_entity):
 
     Returns:
         pandas.DataFrame: A DataFrame containing the same table, with a
-            "timezone" column added. Timezone may be missing if lat / lon is
-            missing or invalid.
+        "timezone" column added. Timezone may be missing if lat / lon is
+        missing or invalid.
 
     """
     plants_entity["timezone"] = plants_entity.apply(
@@ -158,8 +157,7 @@ def _add_timezone(plants_entity):
 
 
 def _add_additional_epacems_plants(plants_entity):
-    """
-    Add the info for plants that have IDs in the CEMS data but not EIA data.
+    """Adds the info for plants that have IDs in the CEMS data but not EIA data.
 
     The columns loaded are plant_id_eia, plant_name, state, latitude, and
     longitude. Note that a side effect will be resetting the index on
@@ -178,7 +176,7 @@ def _add_additional_epacems_plants(plants_entity):
             appended to
     Returns:
         pandas.DataFrame: The same plants_entity table, with the addition of
-            some missing EPA CEMS plants.
+        some missing EPA CEMS plants.
 
     """
     # Add the plant IDs that are missing and update the values for the others
@@ -206,8 +204,7 @@ def _harvesting(entity,
                 eia_transformed_dfs,
                 entities_dfs,
                 debug=False):
-    """
-    Compile consistent records for various entities.
+    """Compiles consistent records for various entities.
 
     For each entity(plants, generators, boilers, utilties), this function
     finds all the harvestable columns from any table that they show up
@@ -247,9 +244,9 @@ def _harvesting(entity,
     Returns:
         tuple: A tuple containing:
             eia_transformed_dfs (dict): dictionary of tbl names (keys) and
-                transformed dfs (values)
+            transformed dfs (values)
             entity_dfs (dict): dictionary of entity table names (keys) and
-                entity dfs (values)
+            entity dfs (values)
     Raises:
         AssertionError: If the consistency of latitude and longitude of the
             records is less than 92 %.
@@ -435,7 +432,7 @@ def _boiler_generator_assn(eia_transformed_dfs,
                            eia860_years=pc.working_years['eia860'],
                            debug=False):
     """
-    Create a set of more complete boiler generator associations.
+    Creates a set of more complete boiler generator associations.
 
     Creates a unique unit_id_pudl for each collection of boilers and generators
     within a plant that have ever been associated with each other, based on
@@ -469,9 +466,9 @@ def _boiler_generator_assn(eia_transformed_dfs,
 
     Returns:
         eia_transformed_dfs (dict): Returns the same dictionary of dataframes
-            that was passed in, and adds a new dataframe to it representing
-            the boiler-generator associations as records containing
-            plant_id_eia, generator_id, boiler_id, and unit_id_pudl
+        that was passed in, and adds a new dataframe to it representing
+        the boiler-generator associations as records containing
+        plant_id_eia, generator_id, boiler_id, and unit_id_pudl
 
     Raises:
         AssertionError: If the boiler - generator association graphs are not
@@ -779,7 +776,7 @@ def _boiler_generator_assn(eia_transformed_dfs,
 def _restrict_years(df,
                     eia923_years=pc.working_years['eia923'],
                     eia860_years=pc.working_years['eia860']):
-    """Restrict eia years for boiler generator association."""
+    """Restricts eia years for boiler generator association."""
     bga_years = set(eia860_years) & set(eia923_years)
     df = df[df.report_date.dt.year.isin(bga_years)]
     return df
@@ -789,8 +786,7 @@ def transform(eia_transformed_dfs,
               eia923_years=pc.working_years['eia923'],
               eia860_years=pc.working_years['eia860'],
               debug=False):
-    """
-    Create dfs for EIA Entity tables and modifies EIA tables.
+    """Creates DataFrames for EIA Entity tables and modifies EIA tables.
 
     This function coordinates two main actions: generating the entity tables
     via `_harvesting()` and generating the boiler generator associations via
@@ -808,9 +804,10 @@ def transform(eia_transformed_dfs,
             boiler_generator_assn
     Returns:
         entities_dfs (dict): a dictionary of table names (keys) and dataframes
-            (values) for the entity tables.
+        (values) for the entity tables.
+
         eia_transformed_dfs (dict): a dictionary of table names (keys) and
-            dataframes (values) for the rest of the EIA tables.
+        dataframes (values) for the rest of the EIA tables.
     """
     if not eia923_years and not eia860_years:
         logger.info('Not ingesting EIA')

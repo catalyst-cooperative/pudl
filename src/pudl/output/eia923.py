@@ -48,7 +48,7 @@ def generation_fuel_eia923(freq=None, testing=False,
 
     Returns:
         pandas.DataFrame: A DataFrame containing all records from the EIA 923
-            Generation Fuel table.
+        Generation Fuel table.
 
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
@@ -165,7 +165,7 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
 
     Returns:
         pandas.DataFrame: A DataFrame containing all records from the EIA 923
-            Fuel Receipts and Costs table.
+        Fuel Receipts and Costs table.
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
     # Most of the fields we want come direclty from Fuel Receipts & Costs
@@ -305,7 +305,7 @@ def boiler_fuel_eia923(freq=None, testing=False,
 
     Returns:
         pandas.DataFrame: A DataFrame containing all records from the EIA 923
-            Boiler Fuel table.
+        Boiler Fuel table.
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
     bf_eia923_tbl = pt['boiler_fuel_eia923']
@@ -414,7 +414,7 @@ def generation_eia923(freq=None, testing=False,
 
     Returns:
         pandas.DataFrame: A DataFrame containing all records from the EIA 923
-            Generation table.
+        Generation table.
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
     g_eia923_tbl = pt['generation_eia923']

@@ -39,9 +39,10 @@ def simplify_sql_type(sql_type, field_name=""):
             whose name ends in _year is a year).
     Returns:
         string: A string representing a simple data type, allowed
-            in the Table Schema standard.
+        in the Table Schema standard.
+
     Todo:
-      * Remove upon removal of pudl_db
+        Remove upon removal of pudl_db
     """
 
     type_map = {
@@ -71,23 +72,23 @@ def get_fields(table):
     """Generates table schema compatible list of fields from database table.
 
     See: https://frictionlessdata.io/specs/table-schema/
-
     Field attributes which are currently set by the function:
       * name (same as the database column)
       * description (taken from the database column 'comment' field.)
       * type (simplified from the SQL Alchemy Column data type)
       * constraints (only for Enum types)
 
-    Still to be implemented:
-      * constraints other than Enum
+    Todo:
+        constraints other than Enum
 
     Args:
         table (SQL Alchemy Table): The Table object to generate fields from.
     Returns:
-        fields (list): A list of 'field' JSON objects, conforming to the
-            Frictionless Data Table Schema standard.
+        list: A list of 'field' JSON objects, conforming to the
+        Frictionless Data Table Schema standard.
+
     Todo:
-      * Remove upon removal of pudl_db
+        Remove upon removal of pudl_db
     """
 
     fields = []
@@ -104,19 +105,32 @@ def get_fields(table):
 
 
 def get_primary_key(table):
-    """Create a primaryKey object based on an SQLAlchemy Table
+    """Creates a primaryKey object based on an SQLAlchemy Table.
+
+    Args:
+        table (SQL Alchemy Table): The Table object to generate fields from.
+
+    Returns:
+        A primaryKey object based on the selected SQLAlchemy Table.
 
     Todo:
-      * Remove upon removal of pudl_db
+        Remove upon removal of pudl_db
     """
     return table.primary_key.columns.keys()
 
 
 def get_foreign_keys(table):
-    """Get a list of foreignKey objects from an SQLAlchemy Table
+    """Gets a list of foreignKey objects from an SQLAlchemy Table.
+
+    Args:
+        table (SQL Alchemy Table): The Table object to generate a list of
+            missing values from.
+
+    Returns:
+        A list of foreignKey object based on the selected SQLAlchemy Table.
 
     Todo:
-      * Remove upon removal of pudl_db
+        Remove upon removal of pudl_db
     """
     fkeys = []
     for col in table.columns:
@@ -141,25 +155,34 @@ def get_missing_values(table):
             missing values from.
 
     Returns:
-        list: a list of missing values from the SQLAlchemy Table.
+        list: a list containing the default value ""
+
+    Todo:
+        Remove upon removal of pudl_db
     """
     return [""]
 
 
 def get_table_schema(table):
-    """
-    Create a Table Schema descriptor from an SQL Alchemy table.
+    """Creates a Table Schema descriptor from an SQL Alchemy table.
 
     See: https://frictionlessdata.io/specs/table-schema/
-
     There are four possible elements in the Table Schema:
       * fields (an array of field descriptors)
       * primaryKey
       * foreignKeys (an array of foreignKey objects)
       * missingValues (an array of strings to be interpreted as null)
 
+    Args:
+        table (SQL Alchemy Table): The Table object to generate a list of
+            missing values from.
+
+    Returns:
+        dict: a dictionary containing the fields, primary keys, foreign keys,
+        and missing values of the table schema
+
     Todo:
-      * Remove upon removal of pudl_db
+        Remove upon removal of pudl_db
     """
     descriptor = {}
     descriptor['fields'] = get_fields(table)
@@ -183,11 +206,19 @@ def get_table_schema(table):
 
 
 def get_table(tablename, testing=False):
-    """
-    Retrieve SQLAlchemy Table object corresponding to a PUDL DB table name.
+    """Retrieves SQLAlchemy Table object corresponding to a PUDL DB table name.
+
+    Args:
+        tablename (str): the name of the PUDL database table to retrieve
+        testing (bool): Use the test database (True) or the live database
+            (False)?
+
+    Returns:
+        The SQLAlchemy Table object corresponding to the PUDL database tables
+        name selected.
 
     Todo:
-        * remove upon removal of pudl_db
+        remove upon removal of pudl_db
     """
     md = sa.MetaData(bind=pudl.init.connect_db(testing=testing))
     md.reflect()
@@ -195,8 +226,16 @@ def get_table(tablename, testing=False):
 
 
 def get_tabular_data_resource_og(tablename, pkg_dir, testing=False):
-    """
-    Create a Tabular Data Resource descriptor for a PUDL DB table.
+    """Creates a Tabular Data Resource descriptor for a PUDL DB table.
+
+    Args:
+        tablename (str): the name of the PUDL database table to retrieve
+        pkg_dir (path-like): The location of the directory for this package.
+            The data package directory will be a subdirectory in the
+            `datapackage_dir` directory, with the name of the package as the
+            name of the subdirectory.
+        testing (bool): Use the test database (True) or the live database
+            (False)?
 
     Based on the information in the database, and some additional metadata,
     stored elsewhere (Where?!?!) this function will generate a valid Tabular
@@ -205,8 +244,11 @@ def get_tabular_data_resource_og(tablename, pkg_dir, testing=False):
 
     https://frictionlessdata.io/specs/tabular-data-resource/
 
+    Returns: a Tabular Data Resource descriptor describing the contents of the
+    selected table
+
     Todo:
-        * remove upon removal of pudl_db
+        remove upon removal of pudl_db
     """
     table = get_table(tablename, testing=testing)
 
@@ -266,8 +308,7 @@ def get_tabular_data_resource_og(tablename, pkg_dir, testing=False):
 
 
 def hash_csv(csv_path):
-    """
-    Calculate a SHA-i256 hash of the CSV file for data integrity checking.
+    """Calculates a SHA-i256 hash of the CSV file for data integrity checking.
 
     Args:
         csv_path (path-like) : Path the CSV file to hash.
@@ -293,14 +334,15 @@ def hash_csv(csv_path):
 
 def data_package(pkg_tables, pkg_skeleton, pudl_settings=None,
                  testing=False, dry_run=False):
-    """
-    Create a data package of requested tables and their dependencies.
+    """Creates a data package of requested tables and their dependencies.
 
     See Frictionless Data for the tabular data package specification:
-
     http://frictionlessdata.io/specs/tabular-data-package/
 
     Args:
+        pkg_tables (iterable): The names of database tables to include.
+            Each one will be converted into a tabular data resource.
+            Dependent tables will also be added to the data package.
         pkg_skeleton (dict): A python dictionary containing several
             top level elements of the data package JSON descriptor
             specific to the data package, including:
@@ -308,19 +350,18 @@ def data_package(pkg_tables, pkg_skeleton, pudl_settings=None,
               * title: One line human readable description.
               * description: A paragraph long description.
               * keywords: For search purposes.
-        pkg_tables (iterable): The names of database tables to include.
-            Each one will be converted into a tabular data resource.
-            Dependent tables will also be added to the data package.
-        out_dir (path-like): The location of the packaging directory.
-            The data package will be created in a subdirectory in
-            this directory, according to the name of the package.
+        pudl_settings (dict) : a dictionary filled with settings that mostly
+            describe paths to various resources and outputs.
+        testing (bool): Connect to the test database or live PUDL database?
+        dry_run (bool): Should the function validate tables using goodtables?
+            If True, do no validate; if false, validate.
 
     Returns:
         data_pkg (Package): an object representing the data package,
-            as defined by the datapackage library.
+        as defined by the datapackage library.
 
     Todo:
-        * remove upon removal of pudl_db
+        remove upon removal of pudl_db
     """
     if pudl_settings is None:
         pudl_settings = pudl.settings.init()
@@ -417,12 +458,12 @@ def data_package(pkg_tables, pkg_skeleton, pudl_settings=None,
 
 def annotated_xlsx(df, notes_dict, tags_dict, first_cols, sheet_name,
                    xlsx_writer):
-    """Output an annotated spreadsheet workbook based on compiled dataframes.
+    """Outputs an annotated spreadsheet workbook based on compiled dataframes.
 
-    Create annotation tab and header rows for EIA 860, EIA 923, and FERC 1
+    Creates annotation tab and header rows for EIA 860, EIA 923, and FERC 1
     fields in a dataframe. This is done using an Excel Writer object, which
     must be created and saved outside the function, thereby allowing multiple
-    sheets and associated annotations to be compiled in the same Excel file
+    sheets and associated annotations to be compiled in the same Excel file.
 
     Args:
         df (pandas.DataFrame): The dataframe for which annotations are being
@@ -442,8 +483,8 @@ def annotated_xlsx(df, notes_dict, tags_dict, first_cols, sheet_name,
 
     Returns:
         xlsx_writer (pandas.ExcelWriter): which must be called outside the
-            function, after final use of function, for writing out to excel:
-            "xlsx_writer.save()"
+        function, after final use of function, for writing out to excel:
+        "xlsx_writer.save()"
 
     """
     first_cols = [c for c in first_cols if c in df.columns]
@@ -489,12 +530,11 @@ def annotated_xlsx(df, notes_dict, tags_dict, first_cols, sheet_name,
 
 
 def test_file_consistency(pkg_name, tables, out_dir):
-    """
-    Testing the consistency of tables for packaging
+    """Tests the consistency of tables for packaging.
 
     The purpose of this function is to test that we have the correct list of
     tables. There are three different ways we could determine which tables are
-    being dumped into packages: a list of the tabels being generated through
+    being dumped into packages: a list of the tables being generated through
     the ETL functions, the list of dependent tables and the list of CSVs in
     package directory.
 
@@ -504,11 +544,13 @@ def test_file_consistency(pkg_name, tables, out_dir):
     Args:
         pkg_name (string): the name of the data package.
         tables (list): a list of table names to be tested.
+        out_dir (path-like): the directory in which to check the consistency of
+            table files
     Raises:
         AssertionError: If the tables in the CSVs and the ETL tables are not
             exactly the same list of tables.
     Todo:
-        * Determine what to do with the dependent tables check..
+        Determine what to do with the dependent tables check.
     """
     file_tbls = [x.replace(".csv", "") for x in os.listdir(
         os.path.join(out_dir, pkg_name, 'data'))]
@@ -545,13 +587,11 @@ def test_file_consistency(pkg_name, tables, out_dir):
 
 
 def get_tabular_data_resource(table_name, pkg_dir):
-    """
-    Create a Tabular Data Resource descriptor for a PUDL table.
+    """Creates a Tabular Data Resource descriptor for a PUDL table.
 
-    Based on the information in the database, and some additional metadata,
-    stored  this function will generate a valid Tabular Data Resource
-    descriptor, according to the Frictionless Data specification, which can be
-    found here:
+    Based on the information in the database, and some additional metadata this
+    function will generate a valid Tabular Data Resource descriptor, according
+    to the Frictionless Data specification, which can be found here:
     https://frictionlessdata.io/specs/tabular-data-resource/
 
     Args:
@@ -562,7 +602,8 @@ def get_tabular_data_resource(table_name, pkg_dir):
             `datapackage_dir` directory, with the name of the package as the
             name of the subdirectory.
     Returns:
-        Tabular Data Resource descriptor
+        Tabular Data Resource descriptor: A JSON object containing key
+        information about the selected table
     """
     # Where the CSV file holding the data is, relative to datapackage.json
     # This is the value that has to be embedded in the data package.
@@ -596,7 +637,7 @@ def get_tabular_data_resource(table_name, pkg_dir):
 
 def generate_metadata(pkg_settings, tables, pkg_dir,
                       uuid_pkgs=uuid.uuid4()):
-    """Generate metadata for package tables and validate package.
+    """Generates metadata for package tables and validate package.
 
     The metadata for this package is compiled from the pkg_settings and from
     the "megadata", which is a json file containing the schema for all of the
@@ -620,10 +661,15 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
             The data package directory will be a subdirectory in the
             `datapackage_dir` directory, with the name of the package as the
             name of the subdirectory.
+        uuid_pkgs:
+
+    Todo:
+        Return to (uuid_pkgs)
+
     Returns:
         datapackage.package.Package: a datapackage. See frictionlessdata specs.
         dict: a valition dictionary containing validity of package and any
-            errors that were generated during packaing.
+        errors that were generated during packaing.
     """
     # pkg_json is the datapackage.json that we ultimately output:
     pkg_json = os.path.join(pkg_dir, "datapackage.json")
@@ -681,14 +727,14 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
 
 
 def generate_data_packages(package_settings, pudl_settings, debug=False):
-    """Cordinate the generation of data packages.
+    """Coordinates the generation of data packages.
 
     For each bundle of packages laid out in the package_settings, this function
     generates data packages. First, the settings are validated (which runs
     through each of the settings listed in the package_settings). Then for
     each of the packages, run through the etl (extract, transform, load)
     functions, which generates CSVs. Then the metadata for the packages is
-    generated by pulling from the megadata (which is a json file containing
+    generated by pulling from the metadata (which is a json file containing
     the schema for all of the possible pudl tables).
 
     Args:
@@ -697,8 +743,12 @@ def generate_data_packages(package_settings, pudl_settings, debug=False):
             contains the arguements for its ETL function.
         pudl_settings (dict) : a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
-        debug (boolean): If True, return a dictionary with package names (keys)
+        debug (bool): If True, return a dictionary with package names (keys)
             and a list with the data package metadata and report (values).
+
+    Returns:
+        tuple: A tuple containing generated metadata for the packages laid out
+        in the package_settings.
     """
     # validate the settings from the settings file.
     validated_settings = pudl.etl_pkg.validate_input(settings)
