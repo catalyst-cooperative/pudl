@@ -1,19 +1,18 @@
+The Public Utility Data Liberation Project
+============================================
+
+.. contents::
+
 .. include:: README.rst
+  :start-after: readme-intro
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :hidden:
 
-   getting_started
-   naming_conventions
-   reset_instructions
-   build_and_testing
-   api/modules
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   install
+   usage
+   data
+   background
+   Contributing <CONTRIBUTING>
+   acknowledgments
+   Module Index <api/modules>

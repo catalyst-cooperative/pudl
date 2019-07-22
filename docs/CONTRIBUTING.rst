@@ -1,56 +1,201 @@
-
 Contributing to PUDL
 ====================
 
-**Welcome electricity data nerds!**
+PUDL is an open source project that has been supported by a combination of
+:doc:`volunteer contributors and grant funding <acknowledgments>`. The work is
+currently being coordinated by the members of `Catalyst Cooperative
+<https://catalyst.coop>`_. PUDL is meant to serve a wide variety of public
+interests including academic research, climate advocacy, data journalism, and
+public policy making.
+
+For more on the origins and philosophy of the project, have a look at
+:doc:`this background info <background>`.
+
+Code of Conduct
+^^^^^^^^^^^^^^^
 
 We want to make the PUDL project welcoming to contributors with different
 levels of experience and diverse personal backgrounds. If you're considering
-contributing please read our `Code of Conduct <CODE_OF_CONDUCT.md>`_\ , which is
-based on the `Contributor Covenant <https://www.contributor-covenant.org/>`_.
+contributing please read our :doc:`Code of Conduct <CODE_OF_CONDUCT>`, which
+is based on the `Contributor Covenant
+<https://www.contributor-covenant.org/>`_.
 
-Where to Start?
-^^^^^^^^^^^^^^^
+Development Setup
+^^^^^^^^^^^^^^^^^
+
+If you want to contribute code or documentation, you'll need to create your own
+fork of the project on Github, set up the :doc:`build and testing
+<testing>` environment on your local system, and make pull requests.
+If you're new to git and Github, you may want to check out `this article on
+collaborative development models
+<https://help.github.com/en/articles/about-collaborative-development-models>`_
+and `this one on the Github workflow
+<https://guides.github.com/introduction/flow/>`_
+
+In brief, the setup process ought to look something like this...
+
+.. todo::
+
+    Update to reflect the exact details of a real setup.
+
+.. code-block:: console
+
+    $ git clone git@github.com:catalyst-cooperative/pudl.git pudl
+    $ cd pudl
+    $ conda env create --name pudl --file environment.yml
+    $ pip install -e ./
+    $ pudl_setup --pudl_dir=../pudl_workspace
+    $ tox -e etl -- --fast --pudl_in=AUTO --pudl_out=AUTO
 
 
-* **Issues:** We coordinate PUDL project tasks using `GitHub's issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`_. Take a look and see if there's anything that looks interesting. Feel free to report bugs or comment on existing issues there.
-* **Slack:** If you're actively using PUDL or are interested in contributing, we'd also be happy to invite you to our `join our Slack <https://catalystcooperative.slack.com/>`_.
-* **Email:** If you just want occasional updates about the project, you can `join our email list <https://catalyst.coop/updates/>`_.
-* **Gitter:** We've also set up a `Gitter channel <https://gitter.im/catalyst-cooperative/pudl>`_\ , if you want to chat, though it hasn't yet gotten a lot of traffic.
+Clone the PUDL Repository
+--------------------------
 
-Platform Independent, Python 3
+PUDL has not yet been released via one of the common Python package systems, so you have to download the code directly from GitHub by `cloning the repository <https://help.github.com/articles/cloning-a-repository/>`_ to your own computer. Depending on your platform (Linux, OSX, Windows...) and the way you access GitHub, the exact process will differe. If you don’t have a GitHub account, you’ll probably want to create one at `github.com <https://github.com>`_. PUDL is a public, open source repository, so a free account is all you need.
+
+If you're using a UNIX-like terminal, the command will look like this:
+
+.. code-block:: console
+
+   $ git clone https://github.com/catalyst-cooperative/pudl.git
+
+
+Create a PUDL conda environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+From the top level of your cloned PUDL repository, in a terminal window type:
+
+.. code-block:: console
+
+   $ conda env create --name=pudl --file=environment.yml
+
+If you get an error ``No such file or directory: environment.yml``\ , make sure
+you're in the ``pudl`` repository downloaded in step 2. See the ``conda``
+documentation for more on
+`managing environments <https://conda.io/docs/user-guide/tasks/manage-environments.html>`__.
+
+Activate the PUDL environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-We're trying to keep as much of the code as possible written in pure **Python
-3**\ , with the intent that the whole system should work on both Unix-like (Linux
-& Mac OS X) and Windows platforms.
+From within a UNIX-like shell, use the command:
 
-----
+.. code-block:: console
 
-The Nature of the PUDL Database
--------------------------------
+   $ conda activate pudl
 
-Our intention is for the PUDL database to provide programmatic access to public
-data reported to various US public agencies, which is not otherwise easily
-accessible. The data stored in the database itself is minimally altered from
-what is reported in order to standardize units, data types, and ``NA`` values, to
-create linkages between and within the datasets which have been integrated, to
-create well normalized database tables with minimal duplication of data, and in
-some cases to categorize free-form strings into well defined taxonomies of
-categorical values.
+Now you should probably see ``(pudl)`` to the left of your command line prompt, indicating that the environment is active.
+
+Install the PUDL package for development
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The above commands installed the packages that ``pudl`` depends on, but not ``pudl`` itself. Until we've released the package to PyPI, you need to install it manually from your clone of the repository. This will allow you to use the PUDL library as if it were a normal package installed from the Python Package Index. Make sure you're in the top level directory of the repository, and run:
+
+.. code-block:: sh
+
+   pip install --editable ./
+
+The ``--editable`` option keeps ``pip`` from copying files into to the
+``site-packages`` directory, and just creates references directly to the
+current directory (aka ``./``\ ).
+
+Project Management
+^^^^^^^^^^^^^^^^^^
+
+The people working on PUDL are distributed all over North America.
+Collaboration takes place online. We make extensive use of Github's project
+management tools.
+
+Issues and Project Tracking
+----------------------------
+
+We use `Github issues <https://github.com/catalyst-cooperative/pudl/issues>`_
+to track bugs, enhancements, support requests, and just about any other work
+that goes into the project. The issues are organized into several different
+streams of work, using `Github projects
+<https://github.com/catalyst-cooperative/pudl/projects>`_
+
+We are happy to accept pull requests that improve our existing code, expand the
+data that's available via PUDL, and and make our documentation more readable
+and complete. Feel free to report bugs, comment on existing issues, suggest
+other data sources that might be worth integrating, or ask questions about how
+to use PUDL if you can't find the answer in our documentation.
+
+Release Management
+------------------
+
+We are developing and releasing software, but we're also using that software to
+process and publish data. Our goal is to make the data pipeline as easily and
+reliably replicable as possible.
+
+Whenever we tag a release on Github, the repository is archived on `Zenodo
+<https://zenodo.org>`_ and issued a DOI. Then the package is uploaded to the
+Python Package Index for distribution. Our goal is to make a software release
+at least once a quarter.
+
+Data releases will also be archived on Zenodo, and consist of a software
+release, a collection of input files, and the resulting data packages. The goal
+is to make the data package output reproducible given the archived input files
+and software release, with a single command. Our goal is to make data releases
+quarterly as well.
+
+User Support
+------------
+
+We don't (yet) have funding to do user support, so it's currently all community
+and volunteer based. In order to ensure that others can find the answers to
+questions that have already been asked, we try to do all support in public
+using Github issues.
+
+Coding Guidelines
+^^^^^^^^^^^^^^^^^
+
+* Pure Python 3.7+ that will work on Linux, Mac OS, or Windows
+* Ensure the full tests pass locally
+* Don't decrease test coverage
+* All the code has to be open source!
+* Use Flake8 for linting / formatting.
+* Write good docstrings, using Google docstring format.
+
+.. todo::
+
+    Flesh out the code style / quality guidelines based on examples from other
+    projects.
+
+Data Integration Guidelines
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* To the extent possible, it should be possible to process each data source
+  independent of the others (e.g. FERC Form 1 can be processed without EIA
+  923).
+* In some cases this isn't practical because the data is so intertwined (e.g.
+  EIA 860 and EIA 923).
+* If the data is a time series, it should be possible to load any continuous
+  subset of the time series, at it's natural frequency (e.g. EIA 923 is annual
+  so it should be possible to load the data for 2017, or 2015-2017, or
+  2009-2012, but not necessarily the individual years 2009, 2012, and 2017 or
+  the last half of 2016 and the first half of 2017).
+* Relationships that connect distinct data sets (which we call "glue") should
+  be an optional part of the relational structure.
+* Data types must be compatible with the Frictionless Data `Table Schema
+  specification <https://frictionlessdata.io/specs/table-schema/>`_
+* Data should be minimally altered from what is reported, for instance to
+  standardize units, data types, and ``NA`` values, to create linkages between
+  and within the datasets which have been integrated, to create well normalized
+  database tables with minimal duplication of data, and in some cases to
+  categorize free-form strings into well defined taxonomies of categorical
+  values.
+
 
 Original vs. Derived Values
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-More complicated derived values and analysis can then be performed on top of
-this underlying archive of structured data, but it not our intention to store
-that kind of information within the database. Instead, we provide an output
-layer that can pull easy to use tabular summaries of the database tables for
-export or interactive analysis, as well as compiling the results of common
-analyses (e.g. calculating the marginal cost of electricity at the generator
-level).
+Much more complex and interesting analysis can be performed on top of this
+underlying archive of structured data, but at this point it not our intention
+to store and distribute the results of such analyses, or to integrate them into
+the ETL process. Instead, we provide analytical routines that take the
+processed data as inputs. (e.g. calculating the marginal cost of electricity at
+the generator level).
 
-----
 
 Adding a New Data Source
 ------------------------
@@ -341,3 +486,35 @@ models, output, datastore…), containing a module for each data source. Each
 data source has a short name that is used everywhere throughout the project,
 composed of the reporting agency and the form number or another identifying
 abbreviation: ferc1, epacems, eia923, mshamines, etc.
+
+Have suggestions?
+^^^^^^^^^^^^^^^^^^^^^
+If there are other valuable public datasets related to the US energy system that aren't already easily accessible for use in programmatic analysis, you can `create a a new issue <https://github.com/catalyst-cooperative/pudl/issues/new/choose>`_ describing the data, explaining why it's interesting, and linking to it. Tag it `new data <https://github.com/catalyst-cooperative/pudl/issues?q=is%3Aissue+is%3Aopen+label%3A%22new+data%22>`_.
+
+.. todo::
+
+    Integrate contact info and Github issue templates into contributing docs.
+
+If you've made it this far, congratulations! Hopefully you've now got gigabytes
+of US energy system data at your fingertips! We would love to get your
+suggestions and feedback. For instance you could...
+
+* Check out our `Code of Conduct </docs/CODE_OF_CONDUCT.md>`_
+* File a `bug report <https://github.com/catalyst-cooperative/pudl/issues/new?template=bug_report.md>`_ if you find something that's broken.
+* Make a `feature request <https://github.com/catalyst-cooperative/pudl/issues/new?template=feature_request.md>`_ if you think there's something we should add.
+* Email us at `pudl@catalyst.coop <mailto:pudl@catalyst.coop>`_
+* Chat with us on `Gitter <https://gitter.im/catalyst-cooperative/pudl>`_.
+* Ask for an invite to `our Slack <https://catalystcooperative.slack.com/>`_.
+* Sign up for our (irregular, infrequently published) `e-mail newsletter <https://catalyst.coop/updates/>`_.
+* Follow `@CatalystCoop on Twitter <https://twitter.com/CatalystCoop>`_
+
+
+
+.. toctree::
+    :hidden:
+
+    testing
+    naming_conventions
+    repo_layout
+    CODE_OF_CONDUCT
+    LICENSE

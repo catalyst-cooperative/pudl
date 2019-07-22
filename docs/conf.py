@@ -32,12 +32,28 @@ release = pkg_resources.get_distribution('pudl').version
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.napoleon',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
-    'sphinx.ext.viewcode',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.napoleon',
     'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
 ]
+
+todo_include_todos = True
+
+# In order to be able to link directly to documentation for other projects,
+# we need to define these package to URL mappings:
+intersphinx_mapping = {
+    'dask': ('https://docs.dask.org/en/latest/', None),
+    'networkx': ('https://networkx.github.io/documentation/stable/', None),
+    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+    'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None),
+    'python': ('https://docs.python.org/3', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
+    'sklearn': ('https://scikit-learn.org/stable', None),
+    'sqlalchemy': ('https://docs.sqlalchemy.org/en/latest/', None),
+}
 
 # List of packages that should not really be installed, because they are
 # written in C or have C extensions. Instead they should be mocked for import
