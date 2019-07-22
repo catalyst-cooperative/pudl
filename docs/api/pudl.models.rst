@@ -4,62 +4,15 @@ pudl.models package
 Submodules
 ----------
 
-pudl.models.eia860 module
--------------------------
+.. toctree::
 
-.. automodule:: pudl.models.eia860
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pudl.models.eia923 module
--------------------------
-
-.. automodule:: pudl.models.eia923
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pudl.models.entities module
----------------------------
-
-.. automodule:: pudl.models.entities
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pudl.models.epacems module
---------------------------
-
-.. automodule:: pudl.models.epacems
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pudl.models.epaipm module
--------------------------
-
-.. automodule:: pudl.models.epaipm
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pudl.models.ferc1 module
-------------------------
-
-.. automodule:: pudl.models.ferc1
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pudl.models.glue module
------------------------
-
-.. automodule:: pudl.models.glue
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
+   pudl.models.eia860
+   pudl.models.eia923
+   pudl.models.entities
+   pudl.models.epacems
+   pudl.models.epaipm
+   pudl.models.ferc1
+   pudl.models.glue
 
 Module contents
 ---------------
