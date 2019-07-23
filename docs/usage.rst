@@ -90,9 +90,10 @@ the :doc:`Data Catalog <data>`.
 
 .. todo::
 
-    Should we allow / require ``pudl_datastore`` to read its options from a settings file for the sake of consistency? And also to be able to put all
-    these settings explicitly in the ``pudl_etl_example.yml`` input file? Or
-    do we want the obtaining of data to be **only** implicit / automatic?
+    Should we allow / require ``pudl_datastore`` to read its options from a
+    settings file for the sake of consistency? And also to be able to put all
+    these settings explicitly in the ``pudl_etl_example.yml`` input file? Or do
+    we want the obtaining of data to be **only** implicit / automatic?
 
 For example, if you wanted to download the 2018 :ref:`data-epacems` data for
 Colorado:
@@ -206,7 +207,8 @@ foreign key relationships that exist map ``respondent_id`` fields in the
 individual data tables back to ``f1_respondent_id``. In theory, most of the
 data tables use ``report_year``, ``respondent_id``, ``row_number``,
 ``spplmnt_num`` and ``report_prd`` as a composite primary key (According to
-:download:`this FERC Form 1 database schema from 2015 <ferc/form1/FERC_Form1_Database_Design_Diagram_2015.pdf>`.
+:download:`this FERC Form 1 database schema from 2015
+<ferc/form1/FERC_Form1_Database_Design_Diagram_2015.pdf>`.
 
 In practice, there are several thousand records (out of ~12 million), including
 some in almost every database table, that violate the uniqueness constraint on
@@ -328,11 +330,17 @@ as well as computational resources required to work with that data. We hope
 that this will minimize the technical and administrative overhead associated
 with using PUDL.
 
+Pangeo
+^^^^^^^
+
 Our focus right now is on the `Pangeo <https://pangeo.io>`__ platform, which
 solves a similar problem for within the Earth science research community.
 Pangeo uses a `JupyterHub <https://jupyterhub.readthedocs.io/en/stable/>`__
 deployment, and includes commonly used scientific software packages and a
 shared domain specific data repository, which users may access via JupyterLab.
+
+BigQuery
+^^^^^^^^^
 
 We are also looking at making the published data packages available for live
 querying by inserting them into Google's

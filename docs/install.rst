@@ -4,29 +4,29 @@ Installation and Setup
 System Requirements
 -------------------
 
-Hardware
-^^^^^^^^
+.. note::
 
-The ETL pipeline does a lot of processing with :class:`pandas.DataFrame` in
-memory, and the full :ref:`data-epacems` dataset is nearly 100 GB uncompressed.
-To handle all of the data that is available via PUDL your system would need:
+    The ETL pipeline does a lot of processing with :class:`pandas.DataFrame` in
+    memory, and the full :ref:`data-epacems` dataset is nearly 100 GB
+    uncompressed. To handle all of the data that is available via PUDL your
+    system would need:
 
-* **8 GB of memory**
-* **100 GB of free disk space**
+    * **8 GB of memory**
+    * **100 GB of free disk space**
 
 Python 3.7+
 ^^^^^^^^^^^
 
-PUDL requires Python 3.7 or later. While not strictly necessary, we **highly**
-recommend using the most recent version of the
-`Anaconda Python distribution <https://www.anaconda.com/distribution/>`__, or
-its smaller cousin `miniconda <https://conda.io/miniconda.html>`__
-(if you are fond of the command line and want a lightweight install).
+PUDL requires Python 3.7 or later. In addition, while not strictly necessary,
+we **highly** recommend using the most recent version of the `Anaconda Python
+distribution <https://www.anaconda.com/distribution/>`__, or its smaller cousin
+`miniconda <https://conda.io/miniconda.html>`__ (if you are fond of the command
+line and want a lightweight install).
 
 Both Anaconda and miniconda provide ``conda``, a command-line tool that helps
 you manage your Python software environment, packages, and their dependencies.
 PUDL provides an ``environment.yml`` file defining a software environment that
-should work well for most users.
+should work well for most users in conjunction with ``conda``.
 
 .. _install-pip:
 
@@ -73,11 +73,11 @@ workspace for future reference.
 
 The workspace is laid out like this:
 
-* data
-* settings
-* notebooks
-* datapackage
-* sqlite
+  * data
+  * settings
+  * notebooks
+  * datapackage
+  * sqlite
 
 .. todo::
 

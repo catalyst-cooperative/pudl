@@ -39,11 +39,11 @@ and many other data analysis tools.
 
 PUDL brings together information from the following sources:
 
- * `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`_
- * `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`_
- * `The EPA Continuous Emissions Monitoring System (CEMS) <https://ampd.epa.gov/ampd/>`_
- * `The EPA Integrated Planning Model (IPM) <https://www.epa.gov/airmarkets/national-electric-energy-data-system-needs-v6>`_
- * `FERC Form 1 <https://www.ferc.gov/docs-filing/forms/form-1/data.asp>`_
+  * `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`_
+  * `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`_
+  * `The EPA Continuous Emissions Monitoring System (CEMS) <https://ampd.epa.gov/ampd/>`_
+  * `The EPA Integrated Planning Model (IPM) <https://www.epa.gov/airmarkets/national-electric-energy-data-system-needs-v6>`_
+  * `FERC Form 1 <https://www.ferc.gov/docs-filing/forms/form-1/data.asp>`_
 
 The project aims especially to serve researchers, activists, journalists, and
 policy makers that might not otherwise have easy access to this kind of data
@@ -85,17 +85,6 @@ examples showing how to work with that data.
 For more details, see `the full PUDL documentation
 <https://catalyst-cooperative-pudl.readthedocs.io/>`_.
 
-Published Data Packages
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Currently you have to download the original data and run the Python based data
-processing pipeline yourself, as outlined above. But for users who want to just
-grab the processed data and use it with their own analytical tools, we will
-soon be publishing datapackages in several forms:
-
-* Via `Zenodo <https://zenodo.org/>`_, where they can be referenced with a DOI for research use, alongside an archived version of the software and input files that were used to generate them.
-* On `Datahub.io <https://datahub.io/catalystcooperative>`_, a datapackage native open data portal that can also provide semantically aware live access to the data.
-* Through a `Pangeo <https://pangeo.io>`_ instance running `BinderHub <https://binderhub.readthedocs.io/en/latest/>`_, providing live access via `Jupyter Notebooks <https://jupyter.org/>`_ to the data as well as software and computational resources required to work with it.
 
 Contributing to PUDL
 ^^^^^^^^^^^^^^^^^^^^
@@ -103,11 +92,11 @@ Contributing to PUDL
 Find PUDL useful? Want to help make it better? There are lots of ways to
 contribute!
 
-* Please be sure to read our :doc:`Code of Conduct <CODE_OF_CONDUCT>`
-* You can file a bug report, make a feature request, or ask questions in the `Github issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`_.
-* Feel free to fork the project and make a pull request with new code, better documentation, or example notebooks.
-* Make a donation to support our work liberating public energy data.
-* For more information checkout our :doc:`Contribution Guidelines <CONTRIBUTING>`
+  * Please be sure to read our :doc:`Code of Conduct <CODE_OF_CONDUCT>`
+  * You can file a bug report, make a feature request, or ask questions in the `Github issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`_.
+  * Feel free to fork the project and make a pull request with new code, better documentation, or example notebooks.
+  * Make a donation to support our work liberating public energy data.
+  * For more information checkout our :doc:`Contribution Guidelines <CONTRIBUTING>`
 
 Licensing
 ^^^^^^^^^
@@ -121,12 +110,13 @@ The PUDL software is released under the `MIT License
 Contact Us
 ^^^^^^^^^^
 
-For usage questions, bug reports, support requests, suggestions to make PUDL better and anything else that could conceivably be of use to the broader
+For usage questions, bug reports, support requests, suggestions to make PUDL
+better and anything else that could conceivably be of use to the broader
 community of users, we ask you to please use the `Github issue tracker
 <https://github.com/catalyst-cooperative/pudl/issues>`_.
 
-* Project Email: `pudl@catalyst.coop <mailto:pudl@catalyst.coop>`_
-* Gitter Chat: https://gitter.im/catalyst-cooperative/pudl
+  * Project Email: `pudl@catalyst.coop <mailto:pudl@catalyst.coop>`_
+  * Gitter Chat: https://gitter.im/catalyst-cooperative/pudl
 
 
 About Catalyst Cooperative
@@ -146,6 +136,6 @@ information together reliably and automatically so you can focus on your real
 work instead — whether that’s political advocacy, energy journalism, academic
 research, or public policy making.
 
-* Website: https://catalyst.coop
-* Newsletter: https://catalyst.coop/updates/
-* Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`_
+  * Website: https://catalyst.coop
+  * Newsletter: https://catalyst.coop/updates/
+  * Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`_
