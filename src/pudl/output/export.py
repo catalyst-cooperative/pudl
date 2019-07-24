@@ -17,6 +17,7 @@ import goodtables
 import pandas as pd
 import sqlalchemy as sa
 import tableschema
+import itertools
 
 import pudl
 from pudl import constants as pc
@@ -488,7 +489,44 @@ def annotated_xlsx(df, notes_dict, tags_dict, first_cols, sheet_name,
 ###############################################################################
 
 
-def test_file_consistency(pkg_name, tables, out_dir):
+def compile_partitions(pkg_settings):
+    partitions = {}
+    for dataset in pkg_settings['datasets']:
+        for dataset_name in dataset:
+            try:
+                partitions.update(dataset[dataset_name]['partition'])
+            except KeyError:
+                print(f'adding no partitions for {dataset_name}')
+    return(partitions)
+
+
+def package_files_from_table(table, pkg_settings):
+    """
+    We want to convert the datapackage tables and any information about package
+    partitioning into a list of expected files. For each table that is
+    partitioned, we want to add the partitions to the end of the table name.
+    """
+    partitions = pudl.output.export.compile_partitions(pkg_settings)
+    files = []
+    for dataset in pkg_settings['datasets']:
+        try:
+            partitions[table]
+        except KeyError:
+            if table not in files:
+                files.append(table)
+            continue
+        try:
+            for dataset_name in dataset:
+                if dataset[dataset_name]['partition']:
+                    for part in dataset[dataset_name][partitions[table]]:
+                        file = table + "_" + str(part)
+                        files.append(file)
+        except KeyError:
+            pass
+    return(files)
+
+
+def test_file_consistency(tables, pkg_settings, out_dir):
     """
     Testing the consistency of tables for packaging
 
@@ -510,25 +548,34 @@ def test_file_consistency(pkg_name, tables, out_dir):
     Todo:
         * Determine what to do with the dependent tables check..
     """
-    file_tbls = [x.replace(".csv", "") for x in os.listdir(
+    pkg_name = pkg_settings['name']
+    # tables = list(itertools.chain.from_iterable(tables_dict.values()))
+    # remove the '.csv' or the '.csv.gz' from the file names
+    file_tbls = [re.sub('(\.csv.*$)', '', x) for x in os.listdir(
         os.path.join(out_dir, pkg_name, 'data'))]
+    # given list of table names and partitions, generate list of expected files
+    pkg_files = []
+    for table in tables:
+        pkg_file = package_files_from_table(table, pkg_settings)
+        pkg_files.extend(pkg_file)
+
     dependent_tbls = list(
-        pudl.helpers.get_dependent_tables_from_list_pkg(tables)
-    )
+        pudl.helpers.get_dependent_tables_from_list_pkg(tables))
     etl_tbls = tables
 
     dependent_tbls.sort()
     file_tbls.sort()
+    pkg_files.sort()
     etl_tbls.sort()
     # TODO: determine what to do about the dependent_tbls... right now the
     # dependent tables include some glue tables for FERC in particular, but
     # we are imagining the glue tables will be in another data package...
-    if ((file_tbls == etl_tbls)):  # & (dependent_tbls == etl_tbls)):
+    if (file_tbls == pkg_files):  # & (dependent_tbls == etl_tbls)):
         logger.info(f"Tables are consistent for {pkg_name} package")
     else:
         inconsistent_tbls = []
         for tbl in file_tbls:
-            if tbl not in etl_tbls:
+            if tbl not in pkg_files:
                 inconsistent_tbls.extend(tbl)
                 raise AssertionError(f"{tbl} from CSVs not in ETL tables")
 
@@ -544,7 +591,7 @@ def test_file_consistency(pkg_name, tables, out_dir):
             f"Missing tables include: {inconsistent_tbls}")
 
 
-def get_tabular_data_resource(table_name, pkg_dir):
+def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
     """
     Create a Tabular Data Resource descriptor for a PUDL table.
 
@@ -564,19 +611,34 @@ def get_tabular_data_resource(table_name, pkg_dir):
     Returns:
         Tabular Data Resource descriptor
     """
-    # Where the CSV file holding the data is, relative to datapackage.json
-    # This is the value that has to be embedded in the data package.
-    csv_relpath = os.path.join('data', f'{table_name}.csv')
-    # We need to access the file to calculate hash and size too:
-    csv_abspath = os.path.join(os.path.abspath(pkg_dir), csv_relpath)
-
+    if partitions:
+        abs_paths = [f for f in pathlib.Path(
+            pkg_dir, 'data').glob(f'{table_name}*')]
+    else:
+        abs_paths = [pathlib.Path(pkg_dir, 'data', f'{table_name}.csv')]
+    csv_relpaths = []
+    bytes = []
+    hashes = []
+    for abs_path in abs_paths:
+        csv_relpaths.extend(
+            [str(abs_path.relative_to(abs_path.parent.parent))])
+        # assuming bytes needs to be the total size of the related files
+        bytes.extend([abs_path.stat().st_size])
+        # assuming hash needs to be a list of hashes.. probs not true
+        hashes.extend([pudl.output.export.hash_csv(abs_path)])
+        if len(abs_paths) == 1:
+            csv_relpaths = csv_relpaths[0]
+            hashes = hashes[0]
     # pull the skeleton of the descriptor from the megadata file
     descriptor = pudl.helpers.pull_resource_from_megadata(table_name)
-    descriptor['path'] = csv_relpath
-    descriptor['bytes'] = os.path.getsize(csv_abspath)
-    descriptor['hash'] = pudl.output.export.hash_csv(csv_abspath)
+    descriptor['path'] = csv_relpaths
+    descriptor['bytes'] = sum(bytes)
+    if partitions:
+        pass
+    else:
+        descriptor['hash'] = hashes
     descriptor['created'] = (datetime.datetime.utcnow().
-                             replace(microsecond=0).isoformat() + 'Z'),
+                             replace(microsecond=0).isoformat() + 'Z')
 
     resource = datapackage.Resource(descriptor)
     if resource.valid:
@@ -629,10 +691,16 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
     pkg_json = os.path.join(pkg_dir, "datapackage.json")
     # Create a tabular data resource for each of the tables.
     resources = []
-    for t in tables:
-        resources.append(
-            get_tabular_data_resource(t, pkg_dir=pkg_dir))
-
+    partitions = compile_partitions(pkg_settings)
+    # tables = list(itertools.chain.from_iterable(tables_dict.values()))
+    for table in tables:
+        if table in partitions.keys():
+            resources.append(get_tabular_data_resource(table,
+                                                       pkg_dir=pkg_dir,
+                                                       partitions=partitions[table]))
+        else:
+            resources.append(get_tabular_data_resource(table,
+                                                       pkg_dir=pkg_dir))
     data_sources = pudl.helpers.data_sources_from_tables_pkg(
         tables)
     sources = []
@@ -680,7 +748,7 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
     return data_pkg, report
 
 
-def generate_data_packages(package_settings, pudl_settings, debug=False):
+def generate_data_packages(pkg_bundle_settings, pudl_settings, debug=False):
     """Cordinate the generation of data packages.
 
     For each bundle of packages laid out in the package_settings, this function
@@ -692,39 +760,48 @@ def generate_data_packages(package_settings, pudl_settings, debug=False):
     the schema for all of the possible pudl tables).
 
     Args:
-        package_settings (iterable) : a list of dictionaries. Each item in the
-            list corresponds to a data package. Each data package's dictionary
-            contains the arguements for its ETL function.
+        pkg_bundle_settings (iterable) : a list of dictionaries. Each item in
+            the list corresponds to a data package. Each data package's
+            dictionary contains the arguements for its ETL function.
         pudl_settings (dict) : a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
         debug (boolean): If True, return a dictionary with package names (keys)
             and a list with the data package metadata and report (values).
     """
     # validate the settings from the settings file.
-    validated_settings = pudl.etl_pkg.validate_input(package_settings)
+    print('validating settings')
+    validated_bundle_settings = pudl.etl_pkg.validate_input(
+        pkg_bundle_settings)
     uuid_pkgs = str(uuid.uuid4())
     metas = {}
-    for pkg in validated_settings:
+    for pkg_settings in validated_bundle_settings:
         # run the ETL functions for this pkg and return the list of tables
         # dumped to CSV
-        pkg_tbls = pudl.etl_pkg.etl_pkg(pkg, pudl_settings)
+        print()
+        pkg_tables = pudl.etl_pkg.etl_pkg(pkg_settings, pudl_settings)
+
+        # TODO: muck with dataset partitioning.. pull it into pkg level
+        # if there are no tables, we are not generating metadata...
+        partitions = compile_partitions(pkg_settings)
         # assure that the list of tables from ETL match up with the CVSs and
         # dependent tables
         test_file_consistency(
-            pkg['name'],
-            pkg_tbls,
+            pkg_tables,
+            pkg_settings,
             out_dir=os.path.join(pudl_settings['pudl_out'], 'datapackage'))
-        if pkg_tbls:
+
+        if pkg_tables:
             # generate the metadata for the package and validate
             # TODO: we'll probably want to remove this double return... but having
             # the report and the metadata while debugging is very useful.
             meta, report = generate_metadata(
-                pkg,
-                pkg_tbls,
-                os.path.join(pudl_settings['datapackage_dir'], pkg['name']),
+                pkg_settings,
+                pkg_tables,
+                os.path.join(
+                    pudl_settings['datapackage_dir'], pkg_settings['name']),
                 uuid_pkgs=uuid_pkgs)
-            metas[pkg['name']] = [meta, report]
+            metas[pkg_settings['name']] = [meta, report]
         else:
-            logger.info(f"Not generating metadata for {pkg['name']}")
+            logger.info(f"Not generating metadata for {pkg_settings['name']}")
     if debug:
         return (metas)

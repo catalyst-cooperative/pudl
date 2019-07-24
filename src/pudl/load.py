@@ -113,6 +113,7 @@ class BulkCopy(contextlib.AbstractContextManager):
             raise AssertionError(
                 "Expected dataframe as input."
             )
+
         df = pudl.helpers.fix_int_na(
             df, columns=pc.need_fix_inting[self.table_name]
         )
@@ -179,17 +180,11 @@ class BulkCopyPkg(contextlib.AbstractContextManager):
             DataFrame df is going to be used to populate. It will be used both
             to look up an SQLAlchemy table object in the PUDLBase metadata
             object, and to name the CSV file.
-        engine (sqlalchemy.engine): SQLAlchemy database engine, which will be
-            used to pull the CSV output into the database.
         buffer (int): Size of data to accumulate (in bytes) before actually
             writing the data into postgresql. (Approximate, because we don't
             introspect memory usage 'deeply'). Default 1 GB.
-        csvdir (str): Path to the directory into which the CSV file should be
+        pkg_dir (str): Path to the directory into which the CSV file should be
             saved, if it's being kept.
-        keep_csv (bool): True if the CSV output should be saved after the data
-            has been loaded into the database. False if they should be deleted.
-            NOTE: If multiple COPYs are done for the same table_name, only
-            the last will be retained by keep_csv, which may be unsatisfying.
     Example:
     with BulkCopy(my_table, my_engine) as p:
         for df in df_generator:
@@ -211,7 +206,7 @@ class BulkCopyPkg(contextlib.AbstractContextManager):
                 "Expected dataframe as input."
             )
         df = pudl.helpers.fix_int_na(
-            df, columns=pc.need_fix_inting[self.table_name]
+            df, columns=pc.need_fix_inting[self.table_name[:-5]]
         )
         # Note: append to a list here, then do a concat when we spill
         self.accumulated_dfs.append(df)
@@ -325,8 +320,12 @@ def csv_dump(df, table_name, keep_index, pkg_dir):
 
     """
     outfile = os.path.join(pkg_dir, 'data', table_name + '.csv')
-    if table_name == 'hourly_emissions_epacems':
-        df.to_csv(path_or_buf=outfile, index=True, index_label='id',
+    if 'hourly_emissions_epacems' in table_name:
+        #outfile = os.path.join(pkg_dir, 'data', table_name + '.csv.gz')
+        outfile = os.path.join(pkg_dir, 'data', table_name + '.csv')
+        df.to_csv(path_or_buf=outfile, mode='a',
+                  # compression='gzip',
+                  index=True, index_label='id',
                   date_format='%Y-%m-%dT%H:%M:%SZ')
         return
     if keep_index:

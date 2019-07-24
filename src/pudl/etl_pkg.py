@@ -1,3 +1,5 @@
+"""This module does lots of stuff
+"""
 import logging
 import os.path
 import shutil
@@ -11,33 +13,49 @@ import pudl.constants as pc
 logger = logging.getLogger(__name__)
 
 
+def _validate_input_partition(etl_inputs_og, tables):
+    # if there is a `partition` in the package settings..
+    partition_dict = {}
+    try:
+        partition_dict = etl_inputs_og['partition']
+        # it should be a dictionary with tables (keys) and partitions (values)
+        # so for each table, grab the list of the corresponding partition.
+        for table in tables:
+            if partition_dict[table] not in etl_inputs_og.keys():
+                raise AssertionError('Partion not recognized')
+    except KeyError:
+        partition_dict['partition'] = None
+    return(partition_dict)
+
+
 ###############################################################################
 # EIA EXPORT FUNCTIONS
 ###############################################################################
 
-def _validate_input_eia(inputs):
-    # extract all of the inputs for the EIA ETL function
-    # empty dictionary to compile inputs
+
+def _validate_input_eia(etl_inputs):
+    # extract all of the etl_inputs for the EIA ETL function
+    # empty dictionary to compile etl_inputs
     eia_input_dict = {}
     # when nothing is set in the settings file, the years will default as none
     try:
-        eia_input_dict['eia860_years'] = inputs['eia860_years']
+        eia_input_dict['eia860_years'] = etl_inputs['eia860_years']
     except KeyError:
         eia_input_dict['eia860_years'] = []
 
     # the tables will default to all of the tables if nothing is given
     try:
-        eia_input_dict['eia860_tables'] = inputs['eia860_tables']
+        eia_input_dict['eia860_tables'] = etl_inputs['eia860_tables']
     except KeyError:
         eia_input_dict['eia860_tables'] = pc.pudl_tables['eia860']
 
     try:
-        eia_input_dict['eia923_years'] = inputs['eia923_years']
+        eia_input_dict['eia923_years'] = etl_inputs['eia923_years']
     except KeyError:
         eia_input_dict['eia923_years'] = []
 
     try:
-        eia_input_dict['eia923_tables'] = inputs['eia923_tables']
+        eia_input_dict['eia923_tables'] = etl_inputs['eia923_tables']
     except KeyError:
         eia_input_dict['eia923_tables'] = pc.pudl_tables['eia923']
 
@@ -49,7 +67,7 @@ def _validate_input_eia(inputs):
         eia_input_dict['eia923_tables'] = [
             'boiler_fuel_eia923', 'generation_eia923']
 
-    # Validate the inputs
+    # Validate the etl_inputs
     if eia_input_dict['eia860_tables']:
         for table in eia_input_dict['eia860_tables']:
             if table not in pc.eia860_pudl_tables:
@@ -126,8 +144,8 @@ def _load_static_tables_eia(pkg_dir):
     return list(static_dfs.keys())
 
 
-def _etl_eia_pkg(inputs, data_dir, pkg_dir):
-    eia_inputs = _validate_input_eia(inputs)
+def _etl_eia_pkg(etl_inputs, data_dir, pkg_dir):
+    eia_inputs = _validate_input_eia(etl_inputs)
     eia923_tables = eia_inputs['eia923_tables']
     eia923_years = eia_inputs['eia923_years']
     eia860_tables = eia_inputs['eia860_tables']
@@ -178,28 +196,33 @@ def _etl_eia_pkg(inputs, data_dir, pkg_dir):
 ###############################################################################
 
 
-def _validate_input_ferc1(inputs):
+def _validate_input_ferc1(etl_inputs):
     ferc1_dict = {}
-    # pull out the inputs from the dictionary passed into this function
+    # pull out the etl_inputs from the dictionary passed into this function
     try:
-        ferc1_dict['ferc1_years'] = inputs['ferc1_years']
+        ferc1_dict['ferc1_years'] = etl_inputs['ferc1_years']
     except KeyError:
         ferc1_dict['ferc1_years'] = [None]
     # the tables will default to all of the tables if nothing is given
     try:
-        ferc1_dict['ferc1_tables'] = inputs['ferc1_tables']
+        ferc1_dict['ferc1_tables'] = etl_inputs['ferc1_tables']
     except KeyError:
         ferc1_dict['ferc1_tables'] = pc.pudl_tables['ferc1']
     # if nothing is passed in, assume that we're not testing
     try:
-        ferc1_dict['ferc1_testing'] = inputs['ferc1_testing']
+        ferc1_dict['ferc1_testing'] = etl_inputs['ferc1_testing']
     except KeyError:
         ferc1_dict['ferc1_testing'] = False
 
     try:
-        ferc1_dict['debug'] = inputs['debug']
+        ferc1_dict['debug'] = etl_inputs['debug']
     except KeyError:
         ferc1_dict['debug'] = False
+
+    # try:
+    #    ferc1_dict['partition'] = etl_inputs['partition']
+    # except KeyError:
+    #    ferc1_dict['partition'] = None
 
     if (not ferc1_dict['debug']) and (ferc1_dict['ferc1_tables']):
         for table in ferc1_dict['ferc1_tables']:
@@ -247,8 +270,8 @@ def _load_static_tables_ferc(pkg_dir):
     return list(static_dfs.keys())
 
 
-def _etl_ferc1_pkg(inputs, pudl_settings, pkg_dir):
-    ferc1_inputs = _validate_input_ferc1(inputs)
+def _etl_ferc1_pkg(etl_inputs, pudl_settings, pkg_dir):
+    ferc1_inputs = _validate_input_ferc1(etl_inputs)
 
     ferc1_years = ferc1_inputs['ferc1_years']
     ferc1_tables = ferc1_inputs['ferc1_tables']
@@ -279,16 +302,16 @@ def _etl_ferc1_pkg(inputs, pudl_settings, pkg_dir):
 ###############################################################################
 
 
-def _validate_input_epacems(inputs):
+def _validate_input_epacems(etl_inputs):
     epacems_dict = {}
-    # pull out the inputs from the dictionary passed into this function
+    # pull out the etl_inputs from the dictionary passed into this function
     try:
-        epacems_dict['epacems_years'] = inputs['epacems_years']
+        epacems_dict['epacems_years'] = etl_inputs['epacems_years']
     except KeyError:
         epacems_dict['epacems_years'] = [None]
     # the states will default to all of the states if nothing is given
     try:
-        epacems_dict['epacems_states'] = inputs['epacems_states']
+        epacems_dict['epacems_states'] = etl_inputs['epacems_states']
     except KeyError:
         epacems_dict['epacems_states'] = []
     # if states are All, then we grab all of the states from constants
@@ -296,31 +319,29 @@ def _validate_input_epacems(inputs):
         if epacems_dict['epacems_states'][0].lower() == 'all':
             epacems_dict['epacems_states'] = list(pc.cems_states.keys())
 
+    epacems_dict['partition'] = _validate_input_partition(
+        etl_inputs, [pc.epacems_tables])
+    # if not epacems_dict['partition']:
+    #    raise AssertionError('No partition found for EPA CEMS.'
+    #                         'EPA CEMS requires either states or years as a partion'
+    #                         )
+
     return epacems_dict
 
 
-def _etl_epacems_pkg(inputs, data_dir, pkg_dir):
-    """"""
-    epacems_dict = _validate_input_epacems(inputs)
-    epacems_years = epacems_dict['epacems_years']
-    epacems_states = epacems_dict['epacems_states']
-    # If we're not doing CEMS, just stop here to avoid printing messages like
-    # "Reading EPA CEMS data...", which could be confusing.
-    if not epacems_states or not epacems_years:
-        logger.info('Not ingesting EPA CEMS.')
-        return []
-
+def _etl_epacems_part(part, epacems_years, epacems_states, data_dir, pkg_dir):
     # NOTE: This a generator for raw dataframes
     epacems_raw_dfs = pudl.extract.epacems.extract(
-        epacems_years=epacems_years, states=epacems_states, data_dir=data_dir)
+        epacems_years=[part], states=epacems_states, data_dir=data_dir)
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform_pkg(
         epacems_raw_dfs=epacems_raw_dfs, pkg_dir=pkg_dir)
     logger.info("Loading tables from EPA CEMS into PUDL:")
     if logger.isEnabledFor(logging.INFO):
         start_time = time.monotonic()
+    table_name = f"hourly_emissions_epacems_{part}"
     with pudl.load.BulkCopyPkg(
-            table_name="hourly_emissions_epacems",
+            table_name=table_name,
             pkg_dir=pkg_dir) as loader:
 
         for transformed_df_dict in epacems_transformed_dfs:
@@ -335,6 +356,30 @@ def _etl_epacems_pkg(inputs, data_dir, pkg_dir):
                           time.gmtime(time.monotonic() - start_time)))
         logger.info(time_message)
         start_time = time.monotonic()
+    return(table_name)
+
+
+def _etl_epacems_pkg(etl_inputs, data_dir, pkg_dir):
+    """"""
+    epacems_dict = _validate_input_epacems(etl_inputs)
+    epacems_years = epacems_dict['epacems_years']
+    epacems_states = epacems_dict['epacems_states']
+    epacems_partition = epacems_dict['partition']
+    # If we're not doing CEMS, just stop here to avoid printing messages like
+    # "Reading EPA CEMS data...", which could be confusing.
+    if not epacems_states or not epacems_years:
+        logger.info('Not ingesting EPA CEMS.')
+        return []
+
+    for part in epacems_dict[epacems_partition[pc.epacems_tables]]:
+        if part in epacems_years:
+            epacems_years = [part]
+        if part in epacems_states:
+            epacems_states = [part]
+
+        _etl_epacems_part(part, epacems_years,
+                          epacems_states, data_dir, pkg_dir)
+
     # pudl.models.epacems.finalize(pudl_engine)
     # if logger.isEnabledFor(logging.INFO):
     #    time_message = "    Finalizing EPA CEMS took {}".format(
@@ -342,7 +387,7 @@ def _etl_epacems_pkg(inputs, data_dir, pkg_dir):
     #            time.monotonic() - start_time))
     #    )
     #    logger.info(time_message)
-    return ['hourly_emissions_epacems']
+    return(['hourly_emissions_epacems'])
 
 
 ###############################################################################
@@ -350,33 +395,33 @@ def _etl_epacems_pkg(inputs, data_dir, pkg_dir):
 ###############################################################################
 
 
-def _validate_input_glue(inputs):
+def _validate_input_glue(etl_inputs):
     glue_dict = {}
-    # pull out the inputs from the dictionary passed into this function
+    # pull out the etl_inputs from the dictionary passed into this function
     try:
-        glue_dict['ferc1'] = inputs['ferc1']
+        glue_dict['ferc1'] = etl_inputs['ferc1']
     except KeyError:
         glue_dict['ferc1'] = False
     try:
-        glue_dict['eia'] = inputs['eia']
+        glue_dict['eia'] = etl_inputs['eia']
     except KeyError:
         glue_dict['eia'] = False
+    #glue_dict['partition'] = None
     return(glue_dict)
 
 
-def _etl_glue(inputs, pkg_dir):
+def _etl_glue(etl_inputs, pkg_dir):
     """
     Grab the glue tables and generate CSVs.
 
     Right now, this function only generates the glue between EIA and FERC
 
     """
-    glue_dict = _validate_input_glue(inputs)
-
+    glue_dict = _validate_input_glue(etl_inputs)
     ferc1 = glue_dict['ferc1']
     eia = glue_dict['eia']
     if not eia and not ferc1:
-        return []
+        return ('ahhhh this is not werking')  # [False]
         # grab the glue tables for ferc1 & eia
     glue_dfs = pudl.glue.ferc1_eia.glue(
         ferc1=glue_dict['ferc1'],
@@ -408,17 +453,17 @@ def _prep_directories(pkg_dir):
     os.mkdir(os.path.join(pkg_dir, 'data'))
 
 
-def validate_input(pkg_settings):
+def validate_input(pkg_bundle_settings):
     """
-    Extract and validate the inputs from a settings file
+    Extract and validate the etl_inputs from a settings file
 
     Args:
-        pkg_settings (iterable) : a list of inputs for
+        pkg_bundle_settings (iterable) : a list of etl_inputs for
             datapackages typically imported from settings like:
             pudl.settings.pkg_settings(settings_file='settings_init_pudl_package.yml')
             with different file name depending on your setting yml file.
     Returns:
-        validated_settings (iterable) : validated list of inputs
+        validated_settings (iterable) : validated list of etl_inputs
     """
     input_validation_functions = {'eia': _validate_input_eia,
                                   'ferc1': _validate_input_ferc1,
@@ -428,7 +473,7 @@ def validate_input(pkg_settings):
     # where we are going to compile the new validated settings
     validated_settings = []
 
-    for pkg in pkg_settings:
+    for pkg in pkg_bundle_settings:
         validated_pkg_settings = {}
         validated_pkg_settings.update({'name': pkg['name'],
                                        'title': pkg['title'],
@@ -453,7 +498,7 @@ def etl_pkg(pkg_settings, pudl_settings):
     Extract, transform and load CSVs.
 
     Args:
-        pkg_settings (dict) : a dictionary of inputs for a datapackage.
+        pkg_settings (dict) : a dictionary of etl_inputs for a datapackage.
         pudl_settings (dict) : a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
 
@@ -499,7 +544,9 @@ def etl_pkg(pkg_settings, pudl_settings):
                 raise AssertionError(
                     f'Invalid dataset {dataset} found in input.'
                 )
-            tables.extend(tbls)
-    # Add an assertion that tables =
+            if tbls:
+                tables.extend(tbls)
+            # tables.extend(tbls)
+    # Add an assertion that tables = ...
     # os.listdir(os.path.join(pkg_dir,"data"))
     return tables

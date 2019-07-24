@@ -840,7 +840,11 @@ def pull_resource_from_megadata(table_name):
     with importlib.resources.open_text('pudl.package_data.meta.datapackage',
                                        'datapackage.json') as md:
         metadata_mega = json.load(md)
-
+    # bc we partition the CEMS output, the CEMS table name includes the state,
+    # year or other partition.. therefor we need to assume for the sake of
+    # grabing metadata that any table name that includes the table name is cems
+    if "hourly_emissions_epacems" in table_name:
+        table_name = "hourly_emissions_epacems"
     table_resource = [
         x for x in metadata_mega['resources'] if x['name'] == table_name
     ]
