@@ -5,7 +5,6 @@ import json
 import logging
 import os.path
 import re
-from collections import namedtuple
 from functools import partial
 
 import numpy as np
@@ -29,20 +28,6 @@ sum_na = partial(pd.Series.sum, skipna=False)
 tz_finder = timezonefinder.TimezoneFinder()
 
 
-def convert_dict_to_namedtuple(dictionary, dict_name):
-    """Converts a dictionary to a namedtuple
-
-    Args:
-        dictionary (dict) : a Dictionary
-        dict_name (string) : a string of the dictionary name
-
-    Returns:
-        namedtuple
-
-    """
-    return namedtuple(dict_name, dictionary.keys())(**dictionary)
-
-
 def get_dependent_tables_from_list(table_names, testing=False):
     """Given a list of tables, finds all the other tables they depend on.
 
@@ -60,6 +45,9 @@ def get_dependent_tables_from_list(table_names, testing=False):
     Returns:
         all_the_tables (set): The set of all the tables which any of the input
         tables depends on, via ForeignKey constraints.
+
+    Todo:
+        Remove when postgres is deprecated
 
     """
     md = sa.MetaData(bind=pudl.init.connect_db(testing=testing))
@@ -88,6 +76,9 @@ def get_dependent_tables(table_name, md):
 
     Returns:
         dependent_tables (set): The set of dependent table names, as strings.
+
+    Todo:
+        Remove when postgresql is deprecated.
 
     """
     # Add the initial table
@@ -121,6 +112,10 @@ def data_sources_from_tables(table_names, testing=False):
 
     Returns:
         set: a set of the data sources of the specified tables
+
+    Todo:
+        Remove when postgresql is deprecated.
+
     """
     all_tables = get_dependent_tables_from_list(table_names, testing=testing)
     table_sources = set()
@@ -267,6 +262,9 @@ def organize_cols(df, cols):
         pandas.DataFrame: A dataframe with the same columns as the input
         DataFrame df, but with cols first, in the same order as they
         were passed in, and the remaining columns sorted alphabetically.
+
+    Todo:
+        Update docstring.
 
     """
     # Generate a list of all the columns in the dataframe that are not
@@ -442,6 +440,9 @@ def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
         pandas.Series: The function returns a new pandas series/column that can
         be used to set the values of the original data.
 
+    Todo:
+        Update docstring.
+
     """
     out_df = df.copy()
     for col, map in zip(columns, stringmaps):
@@ -479,6 +480,10 @@ def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=''):
         df (pandas.DataFrame): a new DataFrame, with the selected columns
         converted to strings that look like integers, compatible with
         the postgresql COPY FROM command.
+
+    Todo:
+        Update docstring.
+
     """
     return (
         df.replace({c: float_na for c in columns}, int_na)
@@ -512,6 +517,10 @@ def month_year_to_date(df):
     Returns:
         pandas.DataFrame: A DataFrame in which the year/month fields have been
         converted into Date fields.
+
+    Todo:
+        Update docstring.
+
     """
     df = df.copy()
     month_regex = "_month$"
@@ -586,6 +595,10 @@ def convert_to_date(df,
     Returns:
         pandas.DataFrame: A DataFrame in which the year, month, day columns
         values have been converted into datetime objects.
+
+    Todo:
+        Update docstring.
+
     """
     df = df.copy()
     if date_col in df.columns:
@@ -622,6 +635,10 @@ def fix_eia_na(df):
 
     Returns:
         pandas.DataFrame: The cleaned DataFrame.
+
+    Todo:
+        Update docstring.
+
     """
     return df.replace(to_replace=[r'^\.$', r'^\s$', r'^$'],
                       value=np.nan, regex=True)
@@ -641,6 +658,10 @@ def simplify_columns(df):
 
     Returns:
         pandas.DataFrame: The cleaned DataFrame.
+
+    Todo:
+        Update docstring.
+
     """
     df.columns = (
         df.columns.
@@ -674,6 +695,10 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
 
     Returns:
         str: The timezone (as an IANA string) for that location.
+
+    Todo:
+        Update docstring.
+
     """
     try:
         tz = tz_finder.timezone_at(lng=lng, lat=lat)
@@ -832,6 +857,10 @@ def verify_input_files(ferc1_years,
 
     Raises:
         FileNotFoundError: If any of the requested data is missing.
+
+    Todo:
+        Check Docstring.
+
     """
     missing_ferc1_years = {
         str(y) for y in ferc1_years if not os.path.isfile(
@@ -900,8 +929,10 @@ def verify_input_files(ferc1_years,
 
 
 def pull_resource_from_megadata(table_name):
-    """Todo:
+    """
+    Todo:
         Return to
+
     """
     with importlib.resources.open_text('pudl.package_data.meta.datapackage',
                                        'datapackage.json') as md:

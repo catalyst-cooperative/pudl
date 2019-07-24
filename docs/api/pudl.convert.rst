@@ -4,22 +4,10 @@ pudl.convert package
 Submodules
 ----------
 
-pudl.convert.epacems\_to\_parquet module
-----------------------------------------
+.. toctree::
 
-.. automodule:: pudl.convert.epacems_to_parquet
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pudl.convert.ferc1\_to\_sqlite module
--------------------------------------
-
-.. automodule:: pudl.convert.ferc1_to_sqlite
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
+   pudl.convert.epacems_to_parquet
+   pudl.convert.ferc1_to_sqlite
 
 Module contents
 ---------------
