@@ -17,7 +17,6 @@ import goodtables
 import pandas as pd
 import sqlalchemy as sa
 import tableschema
-import itertools
 
 import pudl
 from pudl import constants as pc
@@ -496,7 +495,7 @@ def compile_partitions(pkg_settings):
             try:
                 partitions.update(dataset[dataset_name]['partition'])
             except KeyError:
-                print(f'adding no partitions for {dataset_name}')
+                pass
     return(partitions)
 
 
@@ -617,13 +616,13 @@ def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
     else:
         abs_paths = [pathlib.Path(pkg_dir, 'data', f'{table_name}.csv')]
     csv_relpaths = []
-    bytes = []
+    file_bytes = []
     hashes = []
     for abs_path in abs_paths:
         csv_relpaths.extend(
             [str(abs_path.relative_to(abs_path.parent.parent))])
         # assuming bytes needs to be the total size of the related files
-        bytes.extend([abs_path.stat().st_size])
+        file_bytes.extend([abs_path.stat().st_size])
         # assuming hash needs to be a list of hashes.. probs not true
         hashes.extend([pudl.output.export.hash_csv(abs_path)])
         if len(abs_paths) == 1:
@@ -632,7 +631,7 @@ def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
     # pull the skeleton of the descriptor from the megadata file
     descriptor = pudl.helpers.pull_resource_from_megadata(table_name)
     descriptor['path'] = csv_relpaths
-    descriptor['bytes'] = sum(bytes)
+    descriptor['bytes'] = sum(file_bytes)
     if partitions:
         pass
     else:
@@ -769,7 +768,7 @@ def generate_data_packages(pkg_bundle_settings, pudl_settings, debug=False):
             and a list with the data package metadata and report (values).
     """
     # validate the settings from the settings file.
-    print('validating settings')
+    logger.info('validating settings')
     validated_bundle_settings = pudl.etl_pkg.validate_input(
         pkg_bundle_settings)
     uuid_pkgs = str(uuid.uuid4())
@@ -777,12 +776,8 @@ def generate_data_packages(pkg_bundle_settings, pudl_settings, debug=False):
     for pkg_settings in validated_bundle_settings:
         # run the ETL functions for this pkg and return the list of tables
         # dumped to CSV
-        print()
         pkg_tables = pudl.etl_pkg.etl_pkg(pkg_settings, pudl_settings)
 
-        # TODO: muck with dataset partitioning.. pull it into pkg level
-        # if there are no tables, we are not generating metadata...
-        partitions = compile_partitions(pkg_settings)
         # assure that the list of tables from ETL match up with the CVSs and
         # dependent tables
         test_file_consistency(
