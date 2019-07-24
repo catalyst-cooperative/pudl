@@ -330,10 +330,10 @@ def _validate_input_epacems(etl_params):
 
     epacems_dict['partition'] = _validate_input_partition(
         etl_params, [pc.epacems_tables])
-    # if not epacems_dict['partition']:
-    #    raise AssertionError('No partition found for EPA CEMS.'
-    #                         'EPA CEMS requires either states or years as a partion'
-    #                         )
+    if not epacems_dict['partition']:
+        raise AssertionError('No partition found for EPA CEMS. '
+                             'EPA CEMS requires either states or years as a partion'
+                             )
 
     if not epacems_dict['epacems_years'] or not epacems_dict['epacems_states']:
         return None

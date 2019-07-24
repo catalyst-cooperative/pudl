@@ -52,6 +52,7 @@ def test_pudl_init_db(ferc1_engine, pudl_engine):
     pass
 
 
+@pytest.mark.data_package
 @pytest.mark.etl
 @pytest.mark.ferc1
 def test_ferc1_lost_data(pudl_settings_fixture, data_scope):

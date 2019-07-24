@@ -34,26 +34,26 @@
         ferc1_tables:
          - fuel_ferc1 # fuel_ferc1 requires plants_steam_ferc1 to load properly
          - plants_steam_ferc1
-         #- plants_small_ferc1
-         #- plants_hydro_ferc1
-         #- plants_pumped_storage_ferc1
-         #- plant_in_service_ferc1
-         #- purchased_power_ferc1
-         #- accumulated_depreciation_ferc1
+         - plants_small_ferc1
+         - plants_hydro_ferc1
+         - plants_pumped_storage_ferc1
+         - plant_in_service_ferc1
+         - purchased_power_ferc1
+         - accumulated_depreciation_ferc1
         # The ferc1 dataset goes back as far as 1994, but more cleaning and integration
         # needs to be done to bring in that data.
-        #ferc1_years: [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
-        #              2013, 2014, 2015, 2016, 2017]
-        ferc1_years: [2017]
+        ferc1_years: [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
+                      2013, 2014, 2015, 2016, 2017]
+        #ferc1_years: [2017]
         ferc1_testing: False
 
 ###########################################################################
 # EIA FORM 923 & 860 SETTINGS
 ###########################################################################
 
-- name: "eia-test"
-  title: ""
-  description: "whatever eia things.. ya know 860, 923.. all the things"
+- name: eia-test
+  title: eia 923 and 860.
+  description: whatever eia things.. ya know 860, 923.. all the things
   datasets:
     - eia:
         # This is the full list of EIA 923 tables.  Many of them are interdependent,
@@ -67,8 +67,8 @@
           - generation_eia923
           - coalmine_eia923 # coalmine_eia923 REQUIRES fuel_receipts_costs_eia923
           - fuel_receipts_costs_eia923
-          #eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
-        eia923_years: [2017]
+        eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
+        # eia923_years: [2017]
         # See notes above about the entanglement between EIA 923 and EIA 860. It's best
         # to load all the tables from both of them, or neither of them.
         eia860_tables:
@@ -77,8 +77,8 @@
           - plants_eia860
           - generators_eia860
           - ownership_eia860
-        #eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017]
-        eia860_years: [2017]
+        eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017]
+        #eia860_years: [2017]
 
 ###########################################################################
 # EPA CEMS HOURLY SETTINGS
@@ -90,22 +90,10 @@
 # reasonably fast laptop.
 
 
-- name: epacems_eia860
+- name: epacems_eia860_test
   title: CEMS stuff
   description: stuff about cems
   datasets:
-    - epacems:
-        # Note that the CEMS data relies on EIA 860 data for plant locations, so if
-        # you're loading CEMS data for a particular year, you should also load the
-        # EIA 860 data for that year (2011-2017 only)
-        #epacems_years: [1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-        #                2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
-        #                2015, 2016, 2017, 2018]
-        epacems_years: [2017]
-        epacems_states: [ID]
-        # Just Colorado, for nostalgia:
-        #epacems_states: [CO]
-        #epacems_states: [ALL]
     - eia:
         eia860_tables:
           - boiler_generator_assn_eia860
@@ -115,6 +103,22 @@
           - ownership_eia860
         #eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017]
         eia860_years: [2017]
+    - epacems:
+        # Note that the CEMS data relies on EIA 860 data for plant locations, so if
+        # you're loading CEMS data for a particular year, you should also load the
+        # EIA 860 data for that year (2011-2017 only)
+        #epacems_years: [1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
+        #                2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
+        #                2015, 2016, 2017, 2018]
+        epacems_years: [2017]
+        epacems_states: [ID]
+        partition:
+          hourly_emissions_epacems: epacems_years
+        # Just Colorado, for nostalgia:
+        #epacems_states: [CO]
+        #epacems_states: [ALL]
+
+
 
 
 ###########################################################################

@@ -7,6 +7,7 @@ import shutil
 
 import pandas as pd
 import pytest
+import yaml
 
 import pudl
 from pudl import constants as pc
@@ -22,22 +23,31 @@ END_DATE_FERC1 = pd.to_datetime(f"{max(pc.working_years['ferc1'])}-12-31")
 
 
 @pytest.fixture(scope='session')
-def data_scope(fast_tests):
+def data_scope(fast_tests, pudl_settings_fixture):
     """Define data scope for tests for CI vs. local use."""
     data_scope = {}
     data_scope['epacems_states'] = ['ID', ]
     data_scope['refyear'] = 2017
+    test_dir = pathlib.Path(__file__).parent
     if fast_tests:
-        data_scope['eia860_working_years'] = [data_scope['refyear']]
-        data_scope['eia923_working_years'] = [data_scope['refyear']]
+        with open(os.path.join(test_dir, 'settings',
+                               'settings_datapackage_fast.yml'),
+                  "r") as f:
+            pkg_settings = yaml.safe_load(f)
+        data_scope['pkg_bundle_settings'] = pkg_settings
         data_scope['ferc1_working_years'] = [data_scope['refyear']]
-        data_scope['epacems_working_years'] = [data_scope['refyear']]
         data_scope['eia860_data_years'] = [data_scope['refyear']]
         data_scope['eia923_data_years'] = [data_scope['refyear']]
         data_scope['ferc1_data_years'] = [data_scope['refyear']]
         data_scope['epacems_data_years'] = [data_scope['refyear']]
         data_scope['ferc1_tables'] = pudl.constants.ferc1_default_tables
     else:
+
+        with open(os.path.join(test_dir, 'settings',
+                               'settings_datapackage_test.yml'),
+                  "r") as f:
+            pkg_settings = yaml.safe_load(f)
+        data_scope['pkg_bundle_settings'] = pkg_settings
         data_scope['eia860_working_years'] = pc.working_years['eia860']
         data_scope['eia923_working_years'] = pc.working_years['eia923']
         data_scope['ferc1_working_years'] = pc.working_years['ferc1']
