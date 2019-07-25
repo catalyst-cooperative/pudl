@@ -22,6 +22,8 @@ prime_movers = [
     'solar_pv',
     'wind_turbine'
 ]
+"""list: A list of the types of prime movers
+"""
 
 rto_iso = {
     'CAISO': 'California ISO',
@@ -32,6 +34,8 @@ rto_iso = {
     'PJM': 'PJM Interconnection',
     'SPP': 'Southwest Power Pool'
 }
+"""dict: A dictionary containing ISO/RTO abbreviations (keys) and names (values)
+"""
 
 us_states = {
     'AK': 'Alaska',
@@ -92,6 +96,9 @@ us_states = {
     'WV': 'West Virginia',
     'WY': 'Wyoming'
 }
+"""dict: A dictionary containing US state abbreviations (keys) and names
+    (values)
+"""
 canada_prov_terr = {
     'AB': 'Alberta',
     'BC': 'British Columbia',
@@ -108,6 +115,9 @@ canada_prov_terr = {
     'SK': 'Saskatchewan',
     'YT': 'Yukon Territory',
 }
+"""dict: A dictionary containing Canadian provinces' and territories'
+    abbreviations (keys) and names (values)
+"""
 
 cems_states = {k: v for k, v in us_states.items() if v not in
                {'Alaska',
@@ -119,6 +129,9 @@ cems_states = {k: v for k, v in us_states.items() if v not in
                 'Puerto Rico',
                 'Virgin Islands'}
                }
+"""dict: A dictionary containing US state abbreviations (keys) and names
+    (values) that are present in the CEMS dataset
+"""
 
 # This is imperfect for states that have split timezones. See:
 # https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
@@ -197,12 +210,30 @@ state_tz_approx = {
     "SK": "America/Regina",       # Saskatchewan  (split province)
     "YT": "America/Whitehorse",   # Yukon Territory
 }
+"""dict: A dictionary containing US and Canadian state/territory abbreviations
+    (keys) and timezones (values)
+"""
 
 travis_ci_ferc1_years = (2017, )
+"""tuple: A tuple containing years of FERC1 data to use with Travis continous
+    integration.
+"""
 travis_ci_eia860_years = (2017, )
+"""tuple: A tuple containing years of EIA 860 data to use with Travis continuous
+    integration.
+"""
 travis_ci_eia923_years = (2017, )
+"""tuple: A tuple containing years of EIA 923 data to use with Travis continuous
+    integration.
+"""
 travis_ci_epacems_years = (2017, )
+"""tuple: A tuple containing years of EPA CEMS data to use with Travis
+    continuous integration.
+"""
 travis_ci_epacems_states = ('ID', )
+"""tuple: A tuple containing states whose EPA CEMS data are used with Travis
+    continuous integration.
+"""
 # Construct a dictionary mapping a canonical fuel name to a list of strings
 # which are used to represent that fuel in the FERC Form 1 Reporting. Case is
 # ignored, as all fuel strings can be converted to a lower case in the data
@@ -215,6 +246,9 @@ ferc1_coal_strings = \
     ['coal', 'coal-subbit', 'lignite', 'coal(sb)', 'coal (sb)', 'coal-lignite',
      'coke', 'coa', 'lignite/coal', 'coal - subbit', 'coal-subb', 'coal-sub',
      'coal-lig', 'coal-sub bit', 'coals', 'ciak', 'petcoke']
+"""list: A list of strings which are used to represent coal fuel in FERC Form 1
+    reporting.
+"""
 
 ferc1_oil_strings = \
     ['oil', '#6 oil', '#2 oil', 'fuel oil', 'jet', 'no. 2 oil', 'no.2 oil',
@@ -228,12 +262,18 @@ ferc1_oil_strings = \
      'no. 2  oil', 'blended oil', 'no 2. oil', '# 6 oil', 'nno. 2 oil',
      '#2 fuel', 'oill', 'oils', 'gas/oil', 'no.2 oil gas', '#2 fuel oil',
      'oli', 'oil (#6)', 'oil/diesel', '2 Oil']
+"""list: A list of strings which are used to represent oil fuel in FERC Form 1
+    reporting.
+"""
 
 ferc1_gas_strings = \
     ['gas', 'gass', 'methane', 'natural gas', 'blast gas', 'gas mcf',
      'propane', 'prop', 'natural  gas', 'nat.gas', 'nat gas',
      'nat. gas', 'natl gas', 'ga', 'gas`', 'syngas', 'ng', 'mcf',
      'blast gaa', 'nat  gas', 'gac', 'syngass', 'prop.', 'natural', 'coal.gas']
+"""list: A list of strings which are used to represent gas fuel in FERC Form 1
+    reporting.
+"""
 
 ferc1_solar_strings = []
 
@@ -244,15 +284,23 @@ ferc1_hydro_strings = []
 ferc1_nuke_strings = \
     ['nuclear', 'grams of uran', 'grams of', 'grams of  ura',
      'grams', 'nucleur', 'nulear', 'nucl', 'nucleart']
+"""list: A list of strings which are used to represent nuclear fuel in FERC Form
+    1 reporting.
+"""
 
 ferc1_waste_strings = ['tires', 'tire', 'refuse', 'switchgrass',
                        'wood waste', 'woodchips', 'biomass', 'wood',
                        'wood chips', 'rdf']
+"""list: A list of strings which are used to represent waste fuel in FERC Form 1
+    reporting.
+"""
 
 ferc1_other_strings = ['steam', 'purch steam',
                        'purch. steam', 'other', 'composite', 'composit',
                        'mbtus']
-
+"""list: A list of strings which are used to represent other fuels in FERC Form
+    1 reporting.
+"""
 
 # There are also a bunch of other weird and hard to categorize strings
 # that I don't know what to do with... hopefully they constitute only a
@@ -268,15 +316,22 @@ ferc1_fuel_strings = {'coal': ferc1_coal_strings,
                       'waste': ferc1_waste_strings,
                       'other': ferc1_other_strings
                       }
+"""dict: A dictionary linking fuel types (keys) to lists of various strings
+    representing that fuel (values)
+"""
 # Similarly, dictionary for cleaning up fuel unit strings
 ferc1_ton_strings = ['toms', 'taons', 'tones', 'col-tons', 'toncoaleq', 'coal',
                      'tons coal eq', 'coal-tons', 'ton', 'tons', 'tons coal',
                      'coal-ton', 'tires-tons']
+"""list: A list of fuel unit strings for tons.
+"""
 
 ferc1_mcf_strings = \
     ['mcf', "mcf's", 'mcfs', 'mcf.', 'gas mcf', '"gas" mcf', 'gas-mcf',
      'mfc', 'mct', ' mcf', 'msfs', 'mlf', 'mscf', 'mci', 'mcl', 'mcg',
      'm.cu.ft.']
+"""list: A list of fuel unit strings for thousand cubic feet.
+"""
 
 ferc1_bbl_strings = \
     ['barrel', 'bbls', 'bbl', 'barrels', 'bbrl', 'bbl.', 'bbls.',
@@ -284,28 +339,44 @@ ferc1_bbl_strings = \
      'oil-barrel', 'bb.', 'barrells', 'bar', 'bbld', 'oil- barrel',
      'barrels    .', 'bbl .', 'barels', 'barrell', 'berrels', 'bb',
      'bbl.s', 'oil-bbl', 'bls', 'bbl:', 'barrles', 'blb', 'propane-bbl']
+"""list: A list of fuel unit strings for barrels.
+"""
 
 ferc1_gal_strings = ['gallons', 'gal.', 'gals', 'gals.', 'gallon', 'gal']
+"""list: A list of fuel unit strings for gallons.
+"""
 
 ferc1_1kgal_strings = ['oil(1000 gal)', 'oil(1000)', 'oil (1000)', 'oil(1000']
+"""list: A list of fuel unit strings for thousand gallons.
+"""
 
 ferc1_gramsU_strings = ['gram', 'grams', 'gm u', 'grams u235', 'grams u-235',
                         'grams of uran', 'grams: u-235', 'grams:u-235',
                         'grams:u235', 'grams u308', 'grams: u235', 'grams of']
+"""list: A list of fuel unit strings for grams.
+"""
 
 ferc1_kgU_strings = \
     ['kg of uranium', 'kg uranium', 'kilg. u-235', 'kg u-235',
      'kilograms-u23', 'kg', 'kilograms u-2', 'kilograms', 'kg of']
+"""list: A list of fuel unit strings for thousand grams.
+"""
 
 ferc1_mmbtu_strings = ['mmbtu', 'mmbtus',
                        "mmbtu's", 'nuclear-mmbtu', 'nuclear-mmbt']
+"""list: A list of fuel unit strings for million British Thermal Units.
+"""
 
 ferc1_mwdth_strings = \
     ['mwd therman', 'mw days-therm', 'mwd thrml', 'mwd thermal',
      'mwd/mtu', 'mw days', 'mwdth', 'mwd', 'mw day']
+"""list: A list of fuel unit strings for megawatt days thermal.
+"""
 
 ferc1_mwhth_strings = ['mwh them', 'mwh threm',
                        'nwh therm', 'mwhth', 'mwh therm', 'mwh']
+"""list: A list of fuel unit strings for megawatt hours thermal.
+"""
 
 ferc1_fuel_unit_strings = {'ton': ferc1_ton_strings,
                            'mcf': ferc1_mcf_strings,
@@ -318,6 +389,9 @@ ferc1_fuel_unit_strings = {'ton': ferc1_ton_strings,
                            'mwdth': ferc1_mwdth_strings,
                            'mwhth': ferc1_mwhth_strings
                            }
+"""dict: A dictionary linking fuel units (keys) to lists of various strings
+    representing those fuel units (values)
+"""
 
 # Categorizing the strings from the FERC Form 1 Plant Kind (plant_kind) field
 # into lists. There are many strings that weren't categorized,
@@ -330,6 +404,8 @@ ferc1_plant_kind_steam_turbine = \
     ['coal', 'steam', 'steam units 1 2 3', 'steam units 4 5',
      'steam fossil', 'steam turbine', 'steam a', 'steam 100',
      'steam units 1 2 3', 'steams', 'steam 1', 'steam retired 2013', 'stream']
+"""list: A list of strings from FERC Form 1 for the steam turbine plant kind.
+"""
 
 ferc1_plant_kind_combustion_turbine = \
     ['combustion turbine', 'gt', 'gas turbine',
@@ -343,6 +419,9 @@ ferc1_plant_kind_combustion_turbine = \
      'gas-turbine', 'gas turbine-simple', 'gas turbine - note 1',
      'gas turbine #1', 'simple cycle', 'gasturbine', 'combustionturbine',
      'gas turbine (2)', 'comb turb peak units', 'jet engine']
+"""list: A list of strings from FERC Form 1 for the combustion turbine plant
+    kind.
+"""
 
 ferc1_plant_kind_combined_cycle = \
     ['Combined cycle', 'combined cycle', 'combined',
@@ -352,10 +431,16 @@ ferc1_plant_kind_combined_cycle = \
      'combine cycle', 'cc', 'comb. cycle', 'gas turb-combined cy',
      'steam and cc', 'steam cc', 'gas steam', 'ctg steam gas',
      'steam comb cycle', ]
+"""list: A list of strings from FERC Form 1 for the combined cycle plant kind.
+"""
 
 ferc1_plant_kind_nuke = ['nuclear', 'nuclear (3)']
+"""list: A list of strings from FERC Form 1 for the nuclear plant kind.
+"""
 
 ferc1_plant_kind_geothermal = ['steam - geothermal', 'steam_geothermal']
+"""list: A list of strings from FERC Form 1 for the geothermal plant kind.
+"""
 
 ferc_1_plant_kind_internal_combustion = \
     ['ic', 'internal combustion',
@@ -363,13 +448,22 @@ ferc_1_plant_kind_internal_combustion = \
      'int.combustine', 'comb. cyc', 'internal comb', 'diesel', 'diesel engine',
      'internal combustion', 'int combust - note 1', 'int. combust - note1',
      'internal comb recip', 'reciprocating engine', 'comb. turbine']
+"""list: A list of strings from FERC Form 1 for the internal combustion plant
+    kind.
+"""
 
 ferc1_plant_kind_wind = ['wind', 'wind energy',
                          'wind turbine', 'wind - turbine']
+"""list: A list of strings from FERC Form 1 for the wind plant kind.
+"""
 
 ferc1_plant_kind_photovoltaic = ['solar photovoltaic', 'photovoltaic']
+"""list: A list of strings from FERC Form 1 for the photovoltaic plant kind.
+"""
 
 ferc1_plant_kind_solar_thermal = ['solar thermal']
+"""list: A list of strings from FERC Form 1 for the solar thermal plant kind.
+"""
 
 # Making a dictionary of lists from the lists of plant_fuel strings to create
 # a dictionary of plant fuel lists.
@@ -385,13 +479,22 @@ ferc1_plant_kind_strings = {
     'photovoltaic': ferc1_plant_kind_photovoltaic,
     'solar_thermal': ferc1_plant_kind_solar_thermal
 }
+"""dict: A dictionary of plant kinds (keys) and associated lists of plant_fuel
+    strings (values).
+"""
 
 # This is an alternative set of strings for simplifying the plant kind field
 # from Uday & Laura at CPI. For the moment we have reverted to using our own
 # categorizations which are more detailed, but these are preserved here for
 # comparison and testing, if need be.
 cpi_diesel_strings = ['DIESEL', 'Diesel Engine', 'Diesel Turbine', ]
+"""list: A list of strings for fuel type diesel compiled by Climate Policy
+    Initiative.
+"""
 cpi_geothermal_strings = ['Steam - Geothermal', ]
+"""list: A list of strings for fuel type geothermal compiled by Climate Policy
+    Initiative.
+"""
 cpi_natural_gas_strings = [
     'Combined Cycle', 'Combustion Turbine', 'GT',
     'GAS TURBINE', 'Comb. Turbine', 'Gas Turbine #1', 'Combine Cycle Oper',
@@ -414,7 +517,13 @@ cpi_natural_gas_strings = [
     'Conbustion Turbine', 'Gas Turbine/Int Comb', 'Steam & CC',
     'GAS TURB. & HEAT REC', 'Gas Turb/Comb. Cyc', 'Comb. Turine',
 ]
+"""list: A list of strings for fuel type gas compiled by Climate Policy
+    Initiative.
+"""
 cpi_nuclear_strings = ['Nuclear', 'Nuclear (3)', ]
+"""list: A list of strings for fuel type nuclear compiled by Climate Policy
+    Initiative.
+"""
 cpi_other_strings = [
     'IC', 'Internal Combustion', 'Int Combust - Note 1',
     'Resp. Share - Note 2', 'Int. Combust - Note1', 'Resp. Share - Note 4',
@@ -426,6 +535,9 @@ cpi_other_strings = [
     'Resp. Share (Note 9)', 'Resp Share (Note 11)', 'Resp. Share (Note 4)',
     'Resp. Share (Note 6)', 'Plant retired- 2013', 'Retired - 2013',
 ]
+"""list: A list of strings for fuel type other compiled by Climate Policy
+    Initiative.
+"""
 cpi_steam_strings = [
     'Steam', 'Steam Units 1, 2, 3', 'Resp Share St Note 3',
     'Steam Turbine', 'Steam-Internal Comb', 'IGCC', 'Steam- 72%', 'Steam (1)',
@@ -433,11 +545,20 @@ cpi_steam_strings = [
     'Steam - 100%', 'Stream', 'Steam Units 4, 5', 'Steam - 64%', 'Common',
     'Steam (A)', 'Coal', 'Steam;Retired - 2013', 'Steam Units 4 & 6',
 ]
+"""list: A list of strings for fuel type steam compiled by Climate Policy
+    Initiative.
+"""
 cpi_wind_strings = ['Wind', 'Wind Turbine', 'Wind - Turbine', 'Wind Energy', ]
+"""list: A list of strings for fuel type wind compiled by Climate Policy
+    Initiative.
+"""
 cpi_solar_strings = [
     'Solar Photovoltaic', 'Solar Thermal', 'SOLAR PROJECT', 'Solar',
     'Photovoltaic',
 ]
+"""list: A list of strings for fuel type photovoltaic compiled by Climate Policy
+    Initiative.
+"""
 cpi_plant_kind_strings = {
     'natural_gas': cpi_natural_gas_strings,
     'diesel': cpi_diesel_strings,
@@ -448,6 +569,9 @@ cpi_plant_kind_strings = {
     'solar': cpi_solar_strings,
     'other': cpi_other_strings,
 }
+"""dict: A dictionary linking fuel types (keys) to lists of strings associated
+    by Climate Policy Institute with those fuel types (values).
+"""
 # Categorizing the strings from the FERC Form 1 Type of Plant Construction
 # (construction_type) field into lists.
 # There are many strings that weren't categorized, including crosses between
@@ -472,6 +596,9 @@ ferc1_const_type_outdoor = [
     'outdoor boiler&full', 'outdoor hrsg', 'outdoor hrsg', 'semi-outdoor',
     'semi - outdoor'
 ]
+"""list: A list of strings from FERC Form 1 associated with the outdoor
+    construction type.
+"""
 
 ferc1_const_type_conventional = [
     'conventional', 'conventional', 'conventional boiler', 'conv-b',
@@ -479,6 +606,9 @@ ferc1_const_type_conventional = [
     'conven full boiler', 'c0nventional', 'conventtional', 'convential'
     'underground', 'conventional bulb', 'conventrional'
 ]
+"""list: A list of strings from FERC Form 1 associated with the conventional
+    construction type.
+"""
 
 # Making a dictionary of lists from the lists of construction_type strings to
 # create a dictionary of construction type lists.
@@ -487,6 +617,9 @@ ferc1_const_type_strings = {
     'outdoor': ferc1_const_type_outdoor,
     'conventional': ferc1_const_type_conventional
 }
+"""dict: A dictionary of construction types (keys) and lists of construction
+    type strings associated with each type (values) from FERC Form 1.
+"""
 
 ferc1_power_purchase_type = {
     'RQ': 'requirement',
@@ -499,6 +632,9 @@ ferc1_power_purchase_type = {
     'OS': 'other_service',
     'AD': 'adjustment'
 }
+"""dict: A dictionary of abbreviations (keys) and types (values) for power
+    purchase agreements from FERC Form 1.
+"""
 
 # Dictionary mapping DBF files (w/o .DBF file extension) to DB table names
 ferc1_dbf2tbl = {
@@ -621,16 +757,24 @@ ferc1_dbf2tbl = {
     # 'F1_PINS': 'f1_pins',  # private data, not publicized.
     # 'F1_FREEZE': 'f1_freeze', # private data, not publicized
 }
+"""dict: A dictionary mapping FERC Form 1 DBF files (w/o .DBF file extension)
+    (keys) to database table names (values).
+"""
 
 ferc1_huge_tables = {
     'f1_footnote_tbl',
     'f1_footnote_data',
     'f1_note_fin_stmnt',
 }
+"""set: A set containing large FERC Form 1 tables.
+"""
 
 # Invert the map above so we can go either way as needed
 ferc1_tbl2dbf = {v: k for k, v in ferc1_dbf2tbl.items()}
 
+"""dict: A dictionary mapping database table names (keys) to FERC Form 1 DBF
+    files (w/o .DBF file extension) (values).
+"""
 # This is a dictionary of respondents (respondent_id: respondent_name) that are
 # missing from the ferc respondent table but show up in other tables. We are
 # inserting them into the respondent table and hope to go back to determine
@@ -642,6 +786,9 @@ missing_respondents_ferc1 = {514: 'respondent_514',
                              518: 'respondent_518',
                              519: 'respondent_519',
                              522: 'respondent_522'}
+"""dict: A dictionary of missing FERC Form 1 respondent IDs (keys) and names
+    (values).
+"""
 
 # This dictionary maps the strings which are used to denote field types in the
 # DBF objects to the corresponding generic SQLAlchemy Column types:
@@ -665,7 +812,9 @@ dbf_typemap = {
     'O': 'XXX',  # Double, 8 bytes
     'G': 'XXX',  # OLE 10 digit/byte number of a .DBT block, stored as string
 }
-
+"""dict: A dictionary mapping field types in the DBF objects (keys) to the
+    corresponding generic SQLAlchemy Column types.
+"""
 # These are the FERC Form 1 DB tables that we're focusing on initially.
 ferc1_default_tables = (
     'f1_respondent_id',
@@ -695,6 +844,9 @@ ferc1_default_tables = (
     'f1_400a_iso_peak',  # For Uday Varadarajan / RMI
     'f1_397_isorto_stl',  # For Uday Varadarajan / RMI
 )
+"""tuple: A tuple containing the FERC Form 1 columns PUDL is initially focused
+    on.
+"""
 
 # This is the set of tables which have been successfully integrated into PUDL:
 ferc1_pudl_tables = ('fuel_ferc1',
@@ -705,6 +857,9 @@ ferc1_pudl_tables = ('fuel_ferc1',
                      'plant_in_service_ferc1',
                      'purchased_power_ferc1',
                      'accumulated_depreciation_ferc1')
+"""tuple: A tuple containing the FERC Form 1 tables that can be successfully
+    integrated into PUDL.
+"""
 
 table_map_ferc1_pudl = {'fuel_ferc1': 'f1_fuel',
                         'plants_steam_ferc1': 'f1_steam',
@@ -714,7 +869,9 @@ table_map_ferc1_pudl = {'fuel_ferc1': 'f1_fuel',
                         'plant_in_service_ferc1': 'f1_plant_in_srvce',
                         'purchased_power_ferc1': 'f1_purchased_pwr',
                         'accumulated_depreciation_ferc1': 'f1_accumdepr_prvsn'}
-
+"""dict: A dictionary mapping PUDL table names (keys) to the corresponding FERC
+    Form 1 DBF table names.
+"""
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
 eia923_pudl_tables = ('generation_fuel_eia923',
@@ -722,6 +879,9 @@ eia923_pudl_tables = ('generation_fuel_eia923',
                       'generation_eia923',
                       'coalmine_eia923',
                       'fuel_receipts_costs_eia923')
+"""tuple: A tuple containing the EIA923 tables that can be successfully
+    integrated into PUDL.
+"""
 
 epaipm_pudl_tables = (
     'transmission_single_ipm',
@@ -729,6 +889,9 @@ epaipm_pudl_tables = (
     'load_curves_ipm',
     'plant_region_map_ipm',
 )
+"""tuple: A tuple containing the EPA IPM tables that can be successfully
+    integrated into PUDL.
+"""
 
 # List of entity tables
 entity_tables = ['utilities_entity_eia',
@@ -736,9 +899,16 @@ entity_tables = ['utilities_entity_eia',
                  'generators_entity_eia',
                  'boilers_entity_eia',
                  'regions_entity_ipm', ]
+"""list: A list of PUDL entity tables.
+"""
 
 # 'stocks_eia923'
 xlsx_maps_pkg = 'pudl.package_data.meta.xlsx_maps'
+"""type?:
+
+    Todo:
+        Return to
+"""
 
 ##############################################################################
 # EIA 923 Spreadsheet Metadata
@@ -746,29 +916,46 @@ xlsx_maps_pkg = 'pudl.package_data.meta.xlsx_maps'
 tab_map_eia923 = pd.read_csv(
     importlib.resources.open_text(xlsx_maps_pkg, 'tab_map_eia923.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from the EIA 923 tab map.
+"""
 skiprows_eia923 = pd.read_csv(
     importlib.resources.open_text(xlsx_maps_pkg, 'skiprows_eia923.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from the EIA 923 skiprows map.
+"""
 generation_fuel_map_eia923 = pd.read_csv(
     importlib.resources.open_text(
         xlsx_maps_pkg, 'generation_fuel_map_eia923.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from EIA 923 Generation Fuel.
+"""
 stocks_map_eia923 = pd.read_csv(
     importlib.resources.open_text(xlsx_maps_pkg, 'stocks_map_eia923.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from EIA 923 Stocks.
+"""
 boiler_fuel_map_eia923 = pd.read_csv(
     importlib.resources.open_text(xlsx_maps_pkg, 'boiler_fuel_map_eia923.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from EIA 923 Boiler Fuel.
+"""
 generator_map_eia923 = pd.read_csv(
     importlib.resources.open_text(xlsx_maps_pkg, 'generator_map_eia923.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from EIA 923 Generators.
+"""
 fuel_receipts_costs_map_eia923 = pd.read_csv(
     importlib.resources.open_text(
         xlsx_maps_pkg, 'fuel_receipts_costs_map_eia923.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from EIA 923 Fuel Receipts and
+    Costs.
+"""
 plant_frame_map_eia923 = pd.read_csv(
     importlib.resources.open_text(xlsx_maps_pkg, 'plant_frame_map_eia923.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from EIA 923 Plant Frame.
+"""
 
 # patterns for matching columns to months:
 month_dict_eia923 = {1: '_january$',
@@ -783,6 +970,8 @@ month_dict_eia923 = {1: '_january$',
                      10: '_october$',
                      11: '_november$',
                      12: '_december$'}
+"""dict: A dictionary mapping column numbers (keys) to months (values).
+"""
 
 ##############################################################################
 # EIA 860 Spreadsheet Metadata
@@ -791,6 +980,8 @@ month_dict_eia923 = {1: '_january$',
 # list of eia860 file names
 files_eia860 = ('enviro_assn', 'utilities',
                 'plants', 'generators', 'ownership')
+"""tuple: A tuple containing EIA 860 file names.
+"""
 
 # file names to glob file pattern (used in get_eia860_file)
 files_dict_eia860 = {'utilities': '*Utility*',
@@ -802,6 +993,9 @@ files_dict_eia860 = {'utilities': '*Utility*',
                      'ownership': '*Owner*',
                      'enviro_assn': '*EnviroAssoc*',
                      'envrio_equipment': '*EnviroEquip*'}
+"""dict: A dictionary containing file names (keys) and file name patterns to
+    glob (values) for EIA 860.
+"""
 
 # files to list of tabs
 file_pages_eia860 = {'enviro_assn': ['boiler_generator_assn', ],
@@ -810,6 +1004,9 @@ file_pages_eia860 = {'enviro_assn': ['boiler_generator_assn', ],
                      'generators': ['generator_existing', 'generator_proposed',
                                     'generator_retired'],
                      'ownership': ['ownership', ]}
+"""dict: A dictionary containing file names (keys) and lists of tab names to
+    read (values) for EIA 860.
+"""
 
 # This is the list of EIA860 tables that can be successfully pulled into PUDL
 eia860_pudl_tables = (
@@ -819,40 +1016,70 @@ eia860_pudl_tables = (
     'generators_eia860',
     'ownership_eia860'
 )
+"""tuple: A tuple containing the list of EIA 860 tables that can be successfully
+    pulled into PUDL.
+"""
 
 tab_map_eia860 = pd.read_csv(
     importlib.resources.open_text(xlsx_maps_pkg, 'tab_map_eia860.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from EIA 860 tab map.
+"""
+
 skiprows_eia860 = pd.read_csv(
     importlib.resources.open_text(xlsx_maps_pkg, 'skiprows_eia860.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from EIA 860 skiprows map.
+"""
+
 boiler_generator_assn_map_eia860 = pd.read_csv(
     importlib.resources.open_text(
         xlsx_maps_pkg, 'boiler_generator_assn_map_eia860.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from EIA 860 Boiler Generator
+    Association.
+"""
+
 utility_assn_map_eia860 = pd.read_csv(
     importlib.resources.open_text(
         xlsx_maps_pkg, 'utility_assn_map_eia860.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from EIA 860 Utility.
+"""
+
 ownership_assn_map_eia860 = pd.read_csv(
     importlib.resources.open_text(
         xlsx_maps_pkg, 'ownership_assn_map_eia860.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from EIA 860 Ownership.
+"""
+
 plant_assn_map_eia860 = pd.read_csv(
     importlib.resources.open_text(xlsx_maps_pkg, 'plant_assn_map_eia860.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from EIA 860 Plant.
+"""
+
 generator_assn_map_eia860 = pd.read_csv(
     importlib.resources.open_text(
         xlsx_maps_pkg, 'generator_assn_map_eia860.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from EIA 860 Generator.
+"""
+
 generator_proposed_assn_map_eia860 = pd.read_csv(
     importlib.resources.open_text(
         xlsx_maps_pkg, 'generator_proposed_assn_map_eia860.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from EIA 860 Generator Proposed.
+"""
+
 generator_retired_assn_map_eia860 = pd.read_csv(
     importlib.resources.open_text(
         xlsx_maps_pkg, 'generator_retired_assn_map_eia860.csv'),
     index_col=0, comment='#')
+"""pandas.DataFrame: A DataFrame of metadata from EIA 860 Generator Retired.
+"""
 
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].
@@ -889,7 +1116,10 @@ ferc1_data_tables = (
     'f1_400_sys_peak', 'f1_400a_iso_peak', 'f1_429_trans_aff',
     'f1_allowances_nox', 'f1_cmpinc_hedge_a', 'f1_cmpinc_hedge',
     'f1_rg_trn_srv_rev')
-
+"""tuple: A tuple containing the FERC Form 1 tables that have the same composite
+    primary keys: [respondent_id, report_year, report_prd, row_number,
+    spplmnt_num ].
+"""
 # Line numbers, and corresponding FERC account number
 # from FERC Form 1 pages 204-207, Electric Plant in Service.
 # Descriptions from: https://www.law.cornell.edu/cfr/text/18/part-101
@@ -1015,6 +1245,10 @@ ferc_electric_plant_accounts = pd.DataFrame.from_records([
     (103, '103', 'Experimental plant unclassified'),
     (104, 'total_electric_plant', 'TOTAL Electric Plant in Service')],
     columns=['row_number', 'ferc_account_id', 'ferc_account_description'])
+"""list: A list of tuples containing row numbers, FERC account IDs, and FERC
+    account descriptions from FERC Form 1 pages 204-207, Electric Plant in
+    Service.
+"""
 
 # Line numbers, and corresponding FERC account number
 # from FERC Form 1 page 219, ACCUMULATED PROVISION FOR DEPRECIATION
@@ -1067,7 +1301,10 @@ ferc_accumulated_depreciation = pd.DataFrame.from_records([
     (29, 'total', 'TOTAL (Enter Total of lines 20 thru 28)')],
 
     columns=['row_number', 'line_id', 'ferc_account_description'])
-
+"""list: A list of tuples containing row numbers, FERC account IDs, and FERC
+    account descriptions from FERC Form 1 page 219, Accumulated Provision for
+    Depreciation of electric utility plant (Account 108).
+"""
 ######################################################################
 # Constants from EIA From 923 used within init.py module
 ######################################################################
@@ -1085,6 +1322,9 @@ census_region = {
     'PACC': 'Pacific Contiguous (OR, WA, CA)',
     'PACN': 'Pacific Non-Contiguous (AK, HI)',
 }
+"""dict: A dictionary mapping Census Region abbreviations (keys) to Census
+    Region names (values).
+"""
 
 # From Page 7 of EIA Form923
 # Static list of NERC (North American Electric Reliability Corporation)
@@ -1101,6 +1341,9 @@ nerc_region = {
     'FRCC': 'Florida Reliability Coordinating Council',
     'WECC': 'Western Electricity Coordinating Council'
 }
+"""dict: A dictionary mapping NERC Region abbreviations (keys) to NERC
+    Region names (values).
+"""
 
 # From Page 7 of EIA Form 923 EIA’s internal consolidated NAICS sectors.
 # For internal purposes, EIA consolidates NAICS categories into seven groups.
@@ -1131,6 +1374,9 @@ sector_eia = {
     # connected to the gird, and can sell power to the public
     '7': 'Industrial NAICS Cogen'
 }
+"""dict: A dictionary mapping EIA numeric codes (keys) to EIA’s internal
+    consolidated NAICS sectors (values).
+"""
 
 # EIA 923: EIA Type of prime mover:
 prime_movers_eia923 = {
@@ -1157,6 +1403,9 @@ prime_movers_eia923 = {
     'WT': 'Wind Turbine, Onshore',
     'WS': 'Wind Turbine, Offshore'
 }
+"""dict: A dictionary mapping EIA 923 prime mover codes (keys) and prime mover
+    names/descriptions (values).
+"""
 
 # EIA 923: The fuel code reported to EIA.Two or three letter alphanumeric:
 fuel_type_eia923 = {
@@ -1203,22 +1452,53 @@ fuel_type_eia923 = {
     'WND': 'Wind',
     'WO': 'Waste/Other Oil. Including crude oil, liquid butane, liquid propane, naphtha, oil waste, re-refined moto oil, sludge oil, tar oil, or other petroleum-based liquid wastes.'
 }
+"""dict: A dictionary mapping EIA 923 fuel type codes (keys) and fuel type
+    names/descriptions (values).
+"""
 
 # Fuel type strings for EIA 923 generator fuel table
 
 fuel_type_eia923_gen_fuel_coal_strings = [
     'ant', 'bit', 'cbl', 'lig', 'pc', 'rc', 'sc', 'sub', 'wc', ]
+"""list: The list of EIA 923 Generation Fuel strings associated with coal fuel.
+"""
+
 fuel_type_eia923_gen_fuel_oil_strings = [
     'blq', 'dfo', 'rfo', 'wo', 'jf', 'ker', ]
+"""list: The list of EIA 923 Generation Fuel strings associated with oil fuel.
+"""
+
 fuel_type_eia923_gen_fuel_gas_strings = [
     'bfg', 'lfg', 'ng', 'og', 'obg', 'pg', 'sgc', 'sgp', ]
+"""list: The list of EIA 923 Generation Fuel strings associated with gas fuel.
+"""
+
 fuel_type_eia923_gen_fuel_solar_strings = ['sun', ]
+"""list: The list of EIA 923 Generation Fuel strings associated with solar
+    power.
+"""
+
 fuel_type_eia923_gen_fuel_wind_strings = ['wnd', ]
+"""list: The list of EIA 923 Generation Fuel strings associated with wind
+    power.
+"""
 fuel_type_eia923_gen_fuel_hydro_strings = ['wat', ]
+"""list: The list of EIA 923 Generation Fuel strings associated with hydro
+    power.
+"""
 fuel_type_eia923_gen_fuel_nuclear_strings = ['nuc', ]
+"""list: The list of EIA 923 Generation Fuel strings associated with nuclear
+    power.
+"""
 fuel_type_eia923_gen_fuel_waste_strings = [
     'ab', 'msb', 'msn', 'msw', 'obl', 'obs', 'slw', 'tdf', 'wdl', 'wds', ]
+"""list: The list of EIA 923 Generation Fuel strings associated with solid waste
+    fuel.
+"""
 fuel_type_eia923_gen_fuel_other_strings = ['geo', 'mwh', 'oth', 'pur', 'wh', ]
+"""list: The list of EIA 923 Generation Fuel strings associated with geothermal
+    power.
+"""
 
 
 fuel_type_eia923_gen_fuel_simple_map = {
@@ -1232,19 +1512,37 @@ fuel_type_eia923_gen_fuel_simple_map = {
     'waste': fuel_type_eia923_gen_fuel_waste_strings,
     'other': fuel_type_eia923_gen_fuel_other_strings,
 }
-
+"""dict: A dictionary mapping EIA 923 Generation Fuel fuel types (keys) to lists
+    of strings associated with that fuel type (values).
+"""
 
 # Fuel type strings for EIA 923 boiler fuel table
 
 fuel_type_eia923_boiler_fuel_coal_strings = [
     'ant', 'bit', 'lig', 'pc', 'rc', 'sc', 'sub', 'wc', ]
+"""list: A list of strings from EIA 923 Boiler Fuel associated with fuel type
+    coal.
+"""
+
 fuel_type_eia923_boiler_fuel_oil_strings = [
     'blq', 'dfo', 'rfo', 'wo', 'jf', 'ker', ]
+"""list: A list of strings from EIA 923 Boiler Fuel associated with fuel type
+    oil.
+"""
 fuel_type_eia923_boiler_fuel_gas_strings = [
     'bfg', 'lfg', 'ng', 'og', 'obg', 'pg', 'sgc', 'sgp', ]
+"""list: A list of strings from EIA 923 Boiler Fuel associated with fuel type
+    gas.
+"""
 fuel_type_eia923_boiler_fuel_waste_strings = ['ab', 'msb', 'msn', 'obl', 'obs',
                                               'slw', 'tdf', 'wdl', 'wds', ]
+"""list: A list of strings from EIA 923 Boiler Fuel associated with fuel type
+    waste.
+"""
 fuel_type_eia923_boiler_fuel_other_strings = ['oth', 'pur', 'wh', ]
+"""list: A list of strings from EIA 923 Boiler Fuel associated with fuel type
+    other.
+"""
 
 fuel_type_eia923_boiler_fuel_simple_map = {
     'coal': fuel_type_eia923_boiler_fuel_coal_strings,
@@ -1253,6 +1551,9 @@ fuel_type_eia923_boiler_fuel_simple_map = {
     'waste': fuel_type_eia923_boiler_fuel_waste_strings,
     'other': fuel_type_eia923_boiler_fuel_other_strings,
 }
+"""dict: A dictionary mapping EIA 923 Boiler Fuel fuel types (keys) to lists
+    of strings associated with that fuel type (values).
+"""
 
 # PUDL consolidation of EIA923 AER fuel type strings into same categories as
 # 'energy_source_eia923' plus additional renewable and nuclear categories.
@@ -1260,14 +1561,40 @@ fuel_type_eia923_boiler_fuel_simple_map = {
 # source designations provide more detailed information.
 
 aer_coal_strings = ['col', 'woc', 'pc']
+"""list: A list of EIA 923 AER fuel type strings associated with coal.
+"""
+
 aer_gas_strings = ['mlg', 'ng', 'oog']
+"""list: A list of EIA 923 AER fuel type strings associated with gas.
+"""
+
 aer_oil_strings = ['dfo', 'rfo', 'woo']
+"""list: A list of EIA 923 AER fuel type strings associated with oil.
+"""
+
 aer_solar_strings = ['sun']
+"""list: A list of EIA 923 AER fuel type strings associated with solar power.
+"""
+
 aer_wind_strings = ['wnd']
+"""list: A list of EIA 923 AER fuel type strings associated with wind power.
+"""
+
 aer_hydro_strings = ['hps', 'hyc']
+"""list: A list of EIA 923 AER fuel type strings associated with hydro power.
+"""
+
 aer_nuclear_strings = ['nuc']
+"""list:  A list of EIA 923 AER fuel type strings associated with nuclear power.
+"""
+
 aer_waste_strings = ['www']
+"""list: A list of EIA 923 AER fuel type strings associated with waste.
+"""
+
 aer_other_strings = ['geo', 'orw', 'oth']
+"""list: A list of EIA 923 AER fuel type strings associated with other fuel.
+"""
 
 aer_fuel_type_strings = {
     'coal': aer_coal_strings,
@@ -1280,6 +1607,9 @@ aer_fuel_type_strings = {
     'waste': aer_waste_strings,
     'other': aer_other_strings
 }
+"""dict: A dictionary mapping EIA 923 AER fuel types (keys) to lists
+    of strings associated with that fuel type (values).
+"""
 
 
 # EIA 923: A partial aggregation of the reported fuel type codes into
@@ -1306,24 +1636,53 @@ fuel_type_aer_eia923 = {
     'WOO': 'Waste Oil',
     'WWW': 'Wood and Wood Waste'
 }
+"""dict: A dictionary mapping EIA 923 AER fuel types (keys) to lists
+    of strings associated with that fuel type (values).
+"""
 
 fuel_type_eia860_coal_strings = ['ant', 'bit', 'cbl', 'lig', 'pc', 'rc', 'sc',
                                  'sub', 'wc', 'coal', 'petroleum coke', 'col',
                                  'woc']
+"""list: A list of strings from EIA 860 associated with fuel type coal.
+"""
+
 fuel_type_eia860_oil_strings = ['blq', 'dfo', 'jf', 'ker', 'rfo', 'wo', 'woo',
                                 'petroleum']
+"""list: A list of strings from EIA 860 associated with fuel type oil.
+"""
+
 fuel_type_eia860_gas_strings = ['bfg', 'lfg', 'mlg', 'ng', 'obg', 'og', 'pg',
                                 'sgc', 'sgp', 'natural gas', 'other gas',
                                 'oog', 'sg']
+"""list: A list of strings from EIA 860 associated with fuel type gas.
+"""
+
 fuel_type_eia860_solar_strings = ['sun', 'solar']
+"""list: A list of strings from EIA 860 associated with solar power.
+"""
+
 fuel_type_eia860_wind_strings = ['wnd', 'wind', 'wt']
+"""list: A list of strings from EIA 860 associated with wind power.
+"""
+
 fuel_type_eia860_hydro_strings = ['wat', 'hyc', 'hps', 'hydro']
+"""list: A list of strings from EIA 860 associated with hydro power.
+"""
+
 fuel_type_eia860_nuclear_strings = ['nuc', 'nuclear']
+"""list:  A list of strings from EIA 860 associated with nuclear power.
+"""
+
 fuel_type_eia860_waste_strings = ['ab', 'bm', 'msb', 'msn', 'obl',
                                   'obs', 'slw', 'tdf', 'wdl', 'wds', 'biomass',
                                   'msw', 'www']
+"""list: A list of strings from EIA 860 associated with fuel type waste.
+"""
+
 fuel_type_eia860_other_strings = ['mwh', 'oth', 'pur', 'wh', 'geo', 'none',
                                   'orw', 'other']
+"""list:  A list of strings from EIA 860 associated with fuel type other.
+"""
 
 fuel_type_eia860_simple_map = {
     'coal': fuel_type_eia860_coal_strings,
@@ -1336,7 +1695,9 @@ fuel_type_eia860_simple_map = {
     'waste': fuel_type_eia860_waste_strings,
     'other': fuel_type_eia860_other_strings,
 }
-
+"""dict: A dictionary mapping EIA 860 fuel types (keys) to lists
+    of strings associated with that fuel type (values).
+"""
 
 # EIA 923/860: Lumping of energy source categories.
 energy_source_eia_simple_map = {
@@ -1350,12 +1711,17 @@ energy_source_eia_simple_map = {
     'waste': ['AB', 'MSW', 'OBL', 'OBS', 'SLW', 'TDF', 'WDL', 'WDS'],
     'other': ['GEO', 'MWH', 'OTH', 'PUR', 'WH']
 }
+"""dict: A dictionary mapping EIA fuel types (keys) to fuel codes (values).
+"""
 
 fuel_group_eia923_simple_map = {
     'coal': ['coal', 'petroleum coke'],
     'oil': ['petroleum'],
     'gas': ['natural gas', 'other gas']
 }
+"""dict: A dictionary mapping EIA 923 simple fuel types ("oil", "coal", "gas")
+    (keys) to fuel types (values).
+"""
 
 # EIA 923: The type of physical units fuel consumption is reported in.
 # All consumption is reported in either short tons for solids,
@@ -1365,6 +1731,9 @@ fuel_units_eia923 = {
     'short_tons': 'Short tons (for solids)',
     'barrels': 'Barrels (for liquids)'
 }
+"""dict: A dictionary mapping EIA 923 fuel units (keys) to fuel unit
+    descriptions (values).
+"""
 
 # EIA 923: Designates the purchase type under which receipts occurred
 # in the reporting month. One or two character alphanumeric:
@@ -1374,6 +1743,9 @@ contract_type_eia923 = {
     'S': 'Spot Purchase',
     'T': 'Tolling Agreement – Fuel received under a tolling agreement (bartering arrangement of fuel for generation)'
 }
+"""dict: A dictionary mapping EIA 923 contract codes (keys) to contract
+    descriptions (values) for each month in the Fuel Receipts and Costs table.
+"""
 
 # EIA 923: The fuel code associated with the fuel receipt.
 # Defined on Page 7 of EIA Form 923
@@ -1400,6 +1772,9 @@ energy_source_eia923 = {
     'WC': 'Waste/Other Coal. Including anthracite culm, bituminous gob, fine coal, lignite waste, waste coal.',
     'WO': 'Waste/Other Oil. Including crude oil, liquid butane, liquid propane, naphtha, oil waste, re-refined moto oil, sludge oil, tar oil, or other petroleum-based liquid wastes.',
 }
+"""dict: A dictionary mapping fuel codes (keys) to fuel descriptions (values)
+    for each fuel receipt from the EIA 923 Fuel Receipts and Costs table.
+"""
 
 # EIA 923 Fuel Group, from Page 7 EIA Form 923
 # Groups fossil fuel energy sources into fuel groups that are located in the
@@ -1411,6 +1786,8 @@ fuel_group_eia923 = (
     'petroleum_coke',
     'other_gas'
 )
+"""tuple: A tuple containing EIA 923 fuel groups.
+"""
 
 # EIA 923: Type of Coal Mine as defined on Page 7 of EIA Form 923
 coalmine_type_eia923 = {
@@ -1420,6 +1797,9 @@ coalmine_type_eia923 = {
     'US': 'Both an underground and surface mine with most coal extracted from underground',
     'SU': 'Both an underground and surface mine with most coal extracted from surface',
 }
+"""dict: A dictionary mapping EIA 923 coal mine type codes (keys) to
+    descriptions (values).
+"""
 
 # EIA 923: State abbreviation related to coal mine location.
 # Country abbreviations are also used in this category, but they are
@@ -1438,6 +1818,9 @@ coalmine_country_eia923 = {
     'OC': 'other_country',
     'IM': 'unknown'
 }
+"""dict: A dictionary mapping coal mine country codes (keys) to ISO-3166-1 three
+    letter country codes (values).
+"""
 
 # EIA 923: Mode for the longest / second longest distance.
 transport_modes_eia923 = {
@@ -1484,6 +1867,9 @@ transport_modes_eia923 = {
         by slurry pipeline.',
     'PL': 'Pipeline: Shipments of fuel moved to consumers by pipeline'
 }
+"""dict: A dictionary mapping primary and secondary transportation mode codes
+    (keys) to descriptions (values).
+"""
 
 # we need to include all of the columns which we want to keep for either the
 # entity or annual tables. The order here matters. We need to harvest the plant
@@ -1582,6 +1968,9 @@ entities = {
         # need type fixing
         {'plant_id_eia': 'int64',
          'boiler_id': 'str', }, ]}
+"""dict: A dictionary containing table name strings (keys) and lists of columns
+    to keep for those tables (values).
+"""
 
 # EPA CEMS constants #####
 
@@ -1624,6 +2013,9 @@ epacems_rename_dict = {
     "FAC_ID": "facility_id",
     "UNIT_ID": "unit_id_epa",
 }
+"""dict: A dictionary containing EPA CEMS column names (keys) and replacement
+    names to use when reading those columns into PUDL (values).
+"""
 # Any column that exactly matches one of these won't be read
 epacems_columns_to_ignore = {
     "FACILITY_NAME",
@@ -1634,6 +2026,8 @@ epacems_columns_to_ignore = {
     "CO2_RATE",
     "CO2_RATE_MEASURE_FLG",
 }
+"""set: The set of EPA CEMS columns to ignore when reading data.
+"""
 # Specify dtypes to for reading the CEMS CSVs
 epacems_csv_dtypes = {
     "STATE": str,
@@ -1674,15 +2068,30 @@ epacems_csv_dtypes = {
     "FAC_ID": int,
     "UNIT_ID": int,
 }
+"""dict: A dictionary containing column names (keys) and data types (values) for
+    EPA CEMS.
+"""
 epacems_columns_fill_na_dict = {
     "gross_load_mw": 0.0,
     "heat_content_mmbtu": 0.0
 }
+"""set: the set of EPA CEMS columns to
+
+    Todo:
+        Return to
+"""
 
 epacems_tables = ("hourly_emissions_epacems")
+"""tuple: A tuple containing tables of EPA CEMS data to pull into PUDL.
+"""
 
 epacems_additional_plant_info_file = importlib.resources.open_text(
     'pudl.package_data.epa.cems', 'plant_info_for_additional_cems_plants.csv')
+"""typing.TextIO:
+
+    Todo:
+        Return to
+"""
 
 files_dict_epaipm = {
     'transmission_single_ipm': '*table_3-21*',
@@ -1690,12 +2099,18 @@ files_dict_epaipm = {
     'load_curves_ipm': '*table_2-2_*',
     'plant_region_map_ipm': '*needs_v6*',
 }
+"""dict: A dictionary of EPA IPM tables and strings that files of those tables
+    contain.
+"""
 
 epaipm_url_ext = {
     'transmission_single_ipm': 'table_3-21_annual_transmission_capabilities_of_u.s._model_regions_in_epa_platform_v6_-_2021.xlsx',
     'load_curves_ipm': 'table_2-2_load_duration_curves_used_in_epa_platform_v6.xlsx',
     'plant_region_map_ipm': 'needs_v6_november_2018_reference_case_0.xlsx',
 }
+"""dict: A dictionary of EPA IPM tables and associated URLs extensions for
+    downloading that table's data.
+"""
 
 read_excel_epaipm_dict = {
     'transmission_single_ipm': dict(
@@ -1717,6 +2132,9 @@ read_excel_epaipm_dict = {
         usecols='C,I',
     ),
 }
+"""dict: A dictionary of dictionaries containing EPA IPM tables and associated
+    information for reading those tables into PUDL (values).
+"""
 
 epaipm_region_names = [
     'ERC_PHDL', 'ERC_REST', 'ERC_FRNT', 'ERC_GWAY', 'ERC_WEST',
@@ -1734,6 +2152,8 @@ epaipm_region_names = [
     'WECC_WY', 'CN_AB', 'CN_BC', 'CN_NL', 'CN_MB', 'CN_NB', 'CN_NF',
     'CN_NS', 'CN_ON', 'CN_PE', 'CN_PQ', 'CN_SK',
 ]
+"""list: A list of EPA IPM region names.
+"""
 
 epaipm_region_aggregations = {
     'PJM': [
@@ -1759,6 +2179,9 @@ epaipm_region_aggregations = {
     ]
 
 }
+"""dict: A dictionary containing EPA IPM regions (keys) and lists of their
+    associated abbreviations (values).
+"""
 
 epaipm_rename_dict = {
     'transmission_single_ipm': {
@@ -1777,6 +2200,9 @@ epaipm_rename_dict = {
         'Region Name': 'region',
     },
 }
+"""dict: A dictionary of dictionaries containing EPA IPM tables (keys) and items
+    for each table to be renamed along with the replacement name (values).
+"""
 
 data_sources = (
     'eia860',
@@ -1785,6 +2211,8 @@ data_sources = (
     'ferc1',
     'epaipm',
 )
+"""tuple: A tuple containing the data sources we are able to pull into PUDL.
+"""
 
 # All the years for which we ought to be able to download these data sources
 data_years = {
@@ -1794,6 +2222,9 @@ data_years = {
     'ferc1': tuple(range(1994, 2019)),
     'epaipm': (None, ),
 }
+"""dict: A dictionary of data sources (keys) and tuples containing the years
+    that we expect to be able to download for each data source (values).
+"""
 
 # The full set of years we currently expect to be able to ingest, per source:
 working_years = {
@@ -1803,6 +2234,9 @@ working_years = {
     'ferc1': tuple(range(2004, 2018)),
     'epaipm': (None, ),
 }
+"""dict: A dictionary of data sources (keys) and tuples containing the years for
+    each data source that are able to be ingested into PUDL.
+"""
 
 pudl_tables = {
     'eia860': eia860_pudl_tables,
@@ -1811,6 +2245,9 @@ pudl_tables = {
     'epacems': epacems_tables,
     'epaipm': epaipm_pudl_tables,
 }
+"""dict: A dictionary containing data sources (keys) and the list of associated
+    tables from that datasource that can be pulled into PUDL (values).
+"""
 
 base_data_urls = {
     'eia860': 'https://www.eia.gov/electricity/data/eia860',
@@ -1823,7 +2260,9 @@ base_data_urls = {
     'msha': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
     'epaipm': 'https://www.epa.gov/sites/production/files/2019-03'
 }
-
+"""dict: A dictionary containing data sources (keys) and their base data URLs
+    (values).
+"""
 
 need_fix_inting = {
     # 'generators_eia860': ('turbines_num',),
@@ -1839,6 +2278,9 @@ need_fix_inting = {
     'generators_eia860': ('turbines_num',),
     'plants_entity_eia': ('zip_code',),
 }
+"""dict: A dictionary containing tables (keys) and column names (values)
+    containing integer-type columns whose null values need fixing.
+"""
 
 contributors = {
     "catalyst-cooperative": {
@@ -1888,6 +2330,10 @@ contributors = {
     }
 }
 
+"""dict: A dictionary of dictionaries containing organization names (keys) and
+    their attributes (values).
+"""
+
 data_source_info = {
     "pudl": {
         "title": "Public Utility Data Liberation Project (PUDL)",
@@ -1929,6 +2375,9 @@ data_source_info = {
         "title": "FERC Form 714",
     }
 }
+"""dict: A dictionary of dictionaries containing datasources (keys) and
+    associated attributes (values)
+"""
 
 contributors_by_source = {
     "pudl": [
@@ -1966,6 +2415,8 @@ contributors_by_source = {
         "zane-selvans",
     ],
 }
+"""dict: A dictionary of data sources (keys) and lists of contributors (values).
+"""
 
 licenses = {
     "cc-by-4.0": {
@@ -1979,9 +2430,14 @@ licenses = {
         "path": "http://www.usa.gov/publicdomain/label/1.0/",
     }
 }
+"""dict: A dictionary of dictionaries containing license types and their
+    attributes.
+"""
 
 output_formats = [
     'sqlite',
     'parquet',
     'datapackage'
 ]
+"""list: A list of types of PUDL output formats.
+"""

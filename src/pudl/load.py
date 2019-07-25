@@ -17,8 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
-    """
-    Write a dataframe to CSV and load it into postgresql using COPY FROM.
+    """Writes a dataframe to CSV and load it into postgresql using COPY FROM.
 
     The fastest way to load a bunch of records is using the database's native
     text file copy function.  This function dumps a given dataframe out to a
@@ -41,8 +40,8 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
             object, and to name the CSV file.
         engine (sqlalchemy.engine): SQLAlchemy database engine, which will be
             used to pull the CSV output into the database.
-        csvdir (str): Path to the directory into which the CSV file should be
-            saved, if it's being kept.
+        csvdir (path-like): Path to the directory into which the CSV file should
+            be saved, if it's being kept.
         keep_csv (bool): True if the CSV output should be saved after the data
             has been loaded into the database. False if they should be deleted.
             NOTE: If multiple COPYs are done for the same table_name, only
@@ -50,7 +49,6 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
 
     Returns:
         None
-
     """
 
     tbl = pudl.models.entities.PUDLBase.metadata.tables[table_name]
@@ -67,7 +65,7 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
 
 
 class BulkCopy(contextlib.AbstractContextManager):
-    """Accumulate several DataFrames, then COPY FROM python to postgresql
+    """Accumulates several DataFrames, then COPY FROM python to postgresql.
 
     NOTE: You should use this class to load one table at a time. To load
     different tables, use different instances of BulkCopy.
@@ -90,9 +88,9 @@ class BulkCopy(contextlib.AbstractContextManager):
             the last will be retained by keep_csv, which may be unsatisfying.
 
     Example:
-        with BulkCopy(my_table, my_engine) as p:
-            for df in df_generator:
-                p.add(df)
+        >>> with BulkCopy(my_table, my_engine) as p:
+                for df in df_generator:
+                    p.add(df)
 
     """
 
@@ -108,7 +106,14 @@ class BulkCopy(contextlib.AbstractContextManager):
         self.accumulated_size = 0
 
     def add(self, df):
-        """Add a DataFrame to the accumulated list."""
+        """Adds a DataFrame to the accumulated list.
+
+        Args:
+            df (pandas.DataFrame): The DataFrame to add to the accumulated list.
+
+        Returns:
+            None
+        """
         if not isinstance(df, pd.DataFrame):
             raise AssertionError(
                 "Expected dataframe as input."
@@ -139,7 +144,7 @@ expected:
             """)
 
     def spill(self):
-        """Spill the accumulated dataframes into postgresql"""
+        """Spills the accumulated dataframes into postgresql."""
         if self.accumulated_dfs:
             self._check_names()
             if len(self.accumulated_dfs) > 1:
@@ -162,6 +167,10 @@ expected:
         self.accumulated_size = 0
 
     def close(self):
+        """
+        Todo:
+            Return to
+        """
         self.spill()
 
     def __exit__(self, exception_type, exception_value, traceback):
@@ -169,7 +178,7 @@ expected:
 
 
 class BulkCopyPkg(contextlib.AbstractContextManager):
-    """Accumulate several DataFrames, then COPY FROM python to postgresql
+    """Accumulates several DataFrames, then COPY FROM python to postgresql
 
     NOTE: You shoud use this class to load one table at a time. To load
     different tables, use different instances of BulkCopy.
@@ -190,10 +199,11 @@ class BulkCopyPkg(contextlib.AbstractContextManager):
             has been loaded into the database. False if they should be deleted.
             NOTE: If multiple COPYs are done for the same table_name, only
             the last will be retained by keep_csv, which may be unsatisfying.
+
     Example:
-    with BulkCopy(my_table, my_engine) as p:
-        for df in df_generator:
-            p.add(df)
+        >>> with BulkCopy(my_table, my_engine) as p:
+                for df in df_generator:
+                    p.add(df)
     """
 
     def __init__(self, table_name, pkg_dir, buffer=1024**3):
@@ -205,7 +215,14 @@ class BulkCopyPkg(contextlib.AbstractContextManager):
         self.accumulated_size = 0
 
     def add(self, df):
-        """Add a DataFrame to the accumulated list"""
+        """Adds a DataFrame to the accumulated list.
+
+        Args:
+            df (pandas.DataFrame): The DataFrame to add to the accumulated list.
+
+        Returns:
+            None
+        """
         if not isinstance(df, pd.DataFrame):
             raise AssertionError(
                 "Expected dataframe as input."
@@ -236,7 +253,7 @@ expected:
             """)
 
     def spill(self):
-        """Spill the accumulated dataframes into postgresql"""
+        """Spills the accumulated dataframes into postgresql"""
         if self.accumulated_dfs:
             self._check_names()
             if len(self.accumulated_dfs) > 1:
@@ -260,6 +277,10 @@ expected:
         self.accumulated_size = 0
 
     def close(self):
+        """
+        Todo:
+            Return to
+        """
         self.spill()
 
     def __exit__(self, exception_type, exception_value, traceback):
@@ -272,8 +293,27 @@ def dict_dump_load(transformed_dfs,
                    need_fix_inting=pc.need_fix_inting,
                    csvdir='',
                    keep_csv=False):
-    """
-    Wrapper for _csv_dump_load for each data source.
+    """Wrapper for _csv_dump_load for each data source.
+
+    Args:
+        transformed_dfs (dict): A dictionary of DataFrame objects in which
+            tables from datasets (keys) correspond to normalized DataFrames of
+            values from that table (values)
+        data_source (str): The name of the datasource we are working with.
+        pudl_engine (sqlalchemy.engine): SQLAlchemy database engine, which will
+            be used to pull the CSV output into the database.
+        need_fix_inting (dict): A dictionary containing table names (keys) and
+            column names for each table that need their null values cleaned up
+            (values).
+        csvdir (path-like): Path to the directory into which the CSV file should
+            be saved, if it's being kept.
+        keep_csv (bool): True if the CSV output should be saved after the data
+            has been loaded into the database. False if they should be deleted.
+            NOTE: If multiple COPYs are done for the same table_name, only
+            the last will be retained by keep_csv, which may be unsatisfying.
+
+    Returns:
+        None
     """
     for table_name, df in transformed_dfs.items():
         if table_name != "hourly_emissions_epacems":
@@ -295,8 +335,7 @@ def dict_dump_load(transformed_dfs,
 ###############################################################################
 
 def csv_dump(df, table_name, keep_index, pkg_dir):
-    """
-    Write a dataframe to CSV and load it into postgresql using COPY FROM.
+    """Writes a dataframe to CSV and loads it into postgresql using COPY FROM.
 
     The fastest way to load a bunch of records is using the database's native
     text file copy function.  This function dumps a given dataframe out to a
@@ -317,8 +356,9 @@ def csv_dump(df, table_name, keep_index, pkg_dir):
             DataFrame df is going to be used to populate. It will be used both
             to look up an SQLAlchemy table object in the PUDLBase metadata
             object, and to name the CSV file.
-        csvdir (str): Path to the directory into which the CSV file should be
-            saved, if it's being kept.
+        keep_index (bool): Should the output CSV file contain an index?
+        pkg_dir (path-like): Path to the directory into which the CSV file
+            should be saved, if it's being kept.
 
     Returns:
         None
@@ -336,6 +376,19 @@ def csv_dump(df, table_name, keep_index, pkg_dir):
 
 
 def clean_columns_dump(table_name, pkg_dir, df):
+    """For a given table,
+
+    Args:
+        table_name (str):
+        pkg_dir (path-like):
+        df (pandas.DataFrame):
+
+    Returns:
+        None
+
+    Todo:
+        Return to
+    """
     # fix the order of the columns based on the metadata..
     # grab the table metadata from the mega metadata
     resource = pudl.helpers.pull_resource_from_megadata(table_name)
@@ -370,7 +423,22 @@ def dict_dump(transformed_dfs,
               data_source,
               need_fix_inting=pc.need_fix_inting,
               pkg_dir=''):
-    """Wrapper for _csv_dump for each data source."""
+    """Wrapper for _csv_dump for each data source.
+
+    Args:
+        transformed_dfs (dict): A dictionary of DataFrame objects in which
+            tables from datasets (keys) correspond to normalized DataFrames of
+            values from that table (values)
+        datasource (str): The name of the datasource we are working with.
+        need_fix_inting (dict): A dictionary containing table names (keys) and
+            column names for each table that need their null values cleaned up
+            (values).
+        pkg_dir (path-like): Path to the directory into which the CSV file
+            should be saved, if it's being kept.
+
+    Returns:
+        None
+    """
     for table_name, df in transformed_dfs.items():
         if table_name != "hourly_emissions_epacems":
             logger.info(
