@@ -1,5 +1,6 @@
-Developers Guide
-=======================
+===============================================================================
+Repository Organization
+===============================================================================
 
 The PUDL repository is organized generally around the recommendations from `Good enough practices in scientific computing <https://doi.org/10.1371/journal.pcbi.1005510>`_\ )
 
@@ -25,7 +26,6 @@ pudl/
 
 The PUDL python package, where all of our actual code ends up. The modules and packages are organized by data source, as well as by what step of the database initialization process (extract, transform, load) they pertain to. For example:
 
-
 * `\ ``./pudl/extract/eia923.py`` </pudl/extract/eia923.py>`_
 * `\ ``./pudl/transform/ferc1.py`` </pudl/transform/ferc1.py>`_
 
@@ -42,16 +42,12 @@ We are beginning to accumulate analytical functionality in the `analysis subpack
 Other miscellaneous bits:
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
-*
-  `\ ``./pudl/constants.py`` </pudl/constants.py>`_ stores a variety of static
+* `\ ``./pudl/constants.py`` </pudl/constants.py>`_ stores a variety of static
   data for loading, like the mapping of FERC Form 1 line numbers to FERC
   account numbers in the plant in service table, or the mapping of EIA923
   spreadsheet columns to database column names over the years, or the list of
   codes describing fuel types in EIA923.
-
-*
-  `\ ``./pudl/helpers.py`` </pudl/helpers.py>`_ contains a collection of
+* `\ ``./pudl/helpers.py`` </pudl/helpers.py>`_ contains a collection of
   helper functions that are used throughout the project.
 
 results/

@@ -1,6 +1,6 @@
-
-Buiding and Testing PUDL
-========================
+===============================================================================
+Building and Testing PUDL
+===============================================================================
 
 There are now several different variables to consider when building and testing
 the PUDL package.
@@ -140,7 +140,6 @@ creation and virtual environment installation.
 
 Running ``pytest``
 ^^^^^^^^^^^^^^^^^^^^^^
-
 
 * Location of the datastore and other inputs.
 * Test coverage generation.

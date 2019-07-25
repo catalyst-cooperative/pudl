@@ -148,6 +148,8 @@ which would be good since the two datasets are so tightly integrated. Currently
 we are extending the EIA 860 data back to 2009 when necessary to integrate with
 EIA 923.
 
+.. _data-eia861:
+
 EIA Form 861
 ^^^^^^^^^^^^
 
@@ -155,6 +157,8 @@ This form includes information about utility demand side management programs,
 distribution systems, total sales by customer class, net generation, ultimate
 disposition of power, and other information. This is a smaller dataset (~100s
 of MB) distributed as Microsoft Excel spreadsheets.
+
+.. _data-tmolmp:
 
 ISO/RTO LMP
 ^^^^^^^^^^^
@@ -179,11 +183,15 @@ we should be looking at integration, don't hesitate to `open an issue on Github
 <https://github.com/catalyst-cooperative/pudl/issues>`_ requesting the data and
 explaining why it would be useful.
 
+.. _data-eiah20:
+
 EIA Water Usage
 ^^^^^^^^^^^^^^^
 
 `EIA Water <https://www.eia.gov/electricity/data/water/>`_ records water use by
 thermal generating stations in the US.
+
+.. _data-ferc714:
 
 FERC Form 714
 ^^^^^^^^^^^^^
@@ -192,6 +200,8 @@ FERC Form 714
 includes hourly loads, reported by load balancing authorities annually. This is
 a modestly sized dataset, in the 100s of MB, distributed as Microsoft Excel
 spreadsheets.
+
+.. _data-ferceqr:
 
 FERC EQR
 ^^^^^^^^^

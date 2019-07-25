@@ -1,37 +1,19 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
+===============================================================================
+Naming Conventions
+===============================================================================
 
-
-Functions, General Information
-==============================
-
-
-*
-  Imperative verbs (.e.g connect) should precede the object being acted upon (e.g. connect_db), unless the function returns a simple value (e.g. datadir).
-
-*
-  No duplication of information (e.g. form names)
-
-*
-  lowercase, underscores separate words
-
-*
-  Helper functions (functions used within a single module only) should be preceded by an underscore
-
-*
-  When we are segmenting data by a value or list of values, the name should appears as "\ :raw-html-m2r:`<data to be sorted>`\ _" + “by_” + “\ :raw-html-m2r:`<values to sort on>`\ ” (e.g. “eia_plants_by_operator”.
-
-*
-  When the object is a table, use the full table name (e.g. ingest_fuel_ferc1)
-
-*
-  When dataframe outputs are built from multiple tables, identify the type of information being pulled (e.g. "plants_") and the source of the tables (e.g. “eia”or “ferc1”). When outputs are built from a single table, simply use the table name (e.g. “boiler_fuel_eia923”).
+* Imperative verbs (.e.g connect) should precede the object being acted upon (e.g. connect_db), unless the function returns a simple value (e.g. datadir).
+* No duplication of information (e.g. form names)
+* lowercase, underscores separate words
+* Helper functions (functions used within a single module only) should be preceded by an underscore
+* When we are segmenting data by a value or list of values, the name should appears as "\ `<data to be sorted>`\ _" + “by_” + “\ `<values to sort on>`\ ” (e.g. “eia_plants_by_operator”.
+* When the object is a table, use the full table name (e.g. ingest_fuel_ferc1)
+* When dataframe outputs are built from multiple tables, identify the type of information being pulled (e.g. "plants_") and the source of the tables (e.g. “eia”or “ferc1”). When outputs are built from a single table, simply use the table name (e.g. “boiler_fuel_eia923”).
 
 Applicable abbreviations: "db" for database, “info” for information, “assn” for association, “dir” for directory, “dfs” for dataframes, “int” for integer
 
 Database Connection and Helper Functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 
 * The lower level namespace uses an imperative verb to identify the action the function performs while the upper level namespace identifies the database that the user is interacting with.
 
@@ -40,14 +22,12 @@ Applicable abbreviations: "db" for database
 Data Extraction Functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
 * The lower level namespace uses an imperative verb to identify the action the function performs followed by the object of extraction (e.g. get_eia860_file). The upper level namespace identifies the dataset where extraction is occurring.
 
 Applicable abbreviations: "dir" for directory, “dfs” for dataframes
 
 Outputs Functions
 ^^^^^^^^^^^^^^^^^
-
 
 * When dataframe outputs are built from multiple tables, identify the type of information being pulled (e.g. "plants_") and the source of the tables (e.g. “eia”or “ferc1”). When outputs are built from a single table, simply use the table name (e.g. “boiler_fuel_eia923”).
 
@@ -56,7 +36,7 @@ Applicable abbreviations: "utils" for utilities
 Analysis Functions (WIP)
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-When segmenting data by a value or list of values, the name should appears as "\ :raw-html-m2r:`<data to be sorted>`\ _" + “by_” + “\ :raw-html-m2r:`<values to sort on>`\ ” (e.g. “eia_plants_by_operator”). Where possible, the :raw-html-m2r:`<data to be sorted>` should be the table name.
+When segmenting data by a value or list of values, the name should appears as "\ `<data to be sorted>`\ _" + “by_” + “\ `<values to sort on>`\ ” (e.g. “eia_plants_by_operator”). Where possible, the `<data to be sorted>` should be the table name.
 
 Applicable abbreviations: "expns" for expenses, “corr” for correlation, “frc” for fuel receipts and costs, “gf” for generation fuel
 
@@ -65,33 +45,23 @@ Database Tables
 
 See this `article <http://www.vertabelo.com/blog/technical-articles/naming-conventions-in-database-modeling>`_ on database naming conventions.
 
+* Table names in snake_case
 
-*
-  Table names in snake_case
-
-*
-  The data source or label (e.g. "plant_id_pudl") should follow the thing it is describing
+* The data source or label (e.g. "plant_id_pudl") should follow the thing it is describing
 
 In column names:
 
+* "total" should come at the beginning of the name (e.g. “total_expns_production”)
 
-*
-  "total" should come at the beginning of the name (e.g. “total_expns_production”)
+* "plant_id" should specify data source (e.g. “plant_id_eia”)
 
-*
-  "plant_id" should specify data source (e.g. “plant_id_eia”)
+* The data source or label (e.g. "plant_id_pudl") should follow the thing it is describing
 
-*
-  The data source or label (e.g. "plant_id_pudl") should follow the thing it is describing
+* Units (including percentage ("pct" and per unit (“per unit)) should be used wherever possible and come at the end of the name (e.g. “net_generation_mwh”)
 
-*
-  Units (including percentage ("pct" and per unit (“per unit)) should be used wherever possible and come at the end of the name (e.g. “net_generation_mwh”)
+* It is implied that costs are in dollars
 
-*
-  It is implied that costs are in dollars
-
-*
-  _code indicates the field contains a readable abbreviation from a finite list of values.
+* _code indicates the field contains a readable abbreviation from a finite list of values.
 
 * _id indicates the field contains a usually numerical reference to another table, which will not be intelligible without looking up the value in that other table.
 * _name indicates a longer human readable name.
