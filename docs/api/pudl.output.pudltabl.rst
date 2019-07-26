@@ -1,7 +1,7 @@
-epacems\_to\_parquet module
+pudl.output.pudltabl module
 ===========================
 
-.. automodule:: epacems_to_parquet
+.. automodule:: pudl.output.pudltabl
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,7 +1,7 @@
-ferc1\_to\_sqlite module
+pudl.output.ferc1 module
 ========================
 
-.. automodule:: ferc1_to_sqlite
+.. automodule:: pudl.output.ferc1
    :members:
    :undoc-members:
    :show-inheritance:

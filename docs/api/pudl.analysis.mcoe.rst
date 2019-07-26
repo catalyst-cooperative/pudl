@@ -1,7 +1,7 @@
-create\_test\_data module
+pudl.analysis.mcoe module
 =========================
 
-.. automodule:: create_test_data
+.. automodule:: pudl.analysis.mcoe
    :members:
    :undoc-members:
    :show-inheritance:

@@ -468,8 +468,7 @@ def _prep_directories(pkg_dir):
 
 
 def validate_input(pkg_bundle_settings):
-    """
-    Extract and validate the etl_params from a settings file
+    """Extract and validate the etl_params from a settings file
 
     Args:
         pkg_bundle_settings (iterable) : a list of etl_params for
@@ -477,7 +476,7 @@ def validate_input(pkg_bundle_settings):
             pudl.settings.pkg_settings(settings_file='settings_init_pudl_package.yml')
             with different file name depending on your setting yml file.
     Returns:
-        validated_settings (iterable) : validated list of etl_params
+        iterable: validated list of inputs
     """
     input_validation_functions = {'eia': _validate_input_eia,
                                   'ferc1': _validate_input_ferc1,
@@ -508,8 +507,7 @@ def validate_input(pkg_bundle_settings):
 
 
 def etl_pkg(pkg_settings, pudl_settings):
-    """
-    Extract, transform and load CSVs.
+    """Extracts, transforms and loads CSVs.
 
     Args:
         pkg_settings (dict) : a dictionary of etl_params for a datapackage.
@@ -517,8 +515,8 @@ def etl_pkg(pkg_settings, pudl_settings):
             describe paths to various resources and outputs.
 
     Returns:
-        tables_dict (dict) : dictionary with datapackpackages (keys) and
-            lists of tables (values)
+        dict: dictionary with datapackpackages (keys) and
+        lists of tables (values)
 
     """
     # a dictionary to compile the list of tables being loaded for each package

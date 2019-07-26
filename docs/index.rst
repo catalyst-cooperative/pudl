@@ -1,17 +1,28 @@
-Welcome to Public Utility Data Liberation's documentation!
-==========================================================
+The Public Utility Data Liberation Project
+============================================
 
-.. automodule:: pudl.extract.eia860
-    :members:
+.. contents::
+
+.. include:: README.rst
+  :start-after: readme-intro
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+  :hidden:
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+  install
+  usage
+  data_catalog
+  Contributing <CONTRIBUTING>
+  repo_layout
+  dev_setup
+  testing
+  data_guidelines
+  code_guidelines
+  project_management
+  new_dataset
+  naming_conventions
+  background
+  acknowledgments
+  License <LICENSE>
+  Code of Conduct <CODE_OF_CONDUCT>
+  Module Index <api/modules>

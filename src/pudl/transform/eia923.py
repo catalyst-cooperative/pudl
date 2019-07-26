@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 def _yearly_to_monthly_records(df, md):
-    """Convert an EIA 923 record of 12 months of data into 12 monthly records.
+    """Converts an EIA 923 record of 12 months of data into 12 monthly records.
 
     Much of the data reported in EIA 923 is monthly, but all 12 months worth of
     data is reported in a single record, with one field for each of the 12
@@ -38,7 +38,7 @@ def _yearly_to_monthly_records(df, md):
 
     Returns:
         pandas.DataFrame: A dataframe containing the same data as was passed in
-            via df, but with monthly records instead of annual records.
+        via df, but with monthly records instead of annual records.
 
     """
     yearly = df.copy()
@@ -71,7 +71,7 @@ def _yearly_to_monthly_records(df, md):
 
 
 def _coalmine_cleanup(cmi_df):
-    """Clean up the coalmine_eia923 table.
+    """Cleans up the coalmine_eia923 table.
 
     This function does most of the coalmine_eia923 table transformation. It is
     separate from the coalmine() transform function because of the peculiar
@@ -144,10 +144,10 @@ def _coalmine_cleanup(cmi_df):
 
 
 def plants(eia923_dfs, eia923_transformed_dfs):
-    """Transform the plants_eia923 table.
+    """Transforms the plants_eia923 table.
 
     Much of the static plant information is reported repeatedly, and scattered
-    across several different pages of EIA 923. The data frame which this
+    across several different pages of EIA 923. The data frame that this
     function uses is assembled from those many different pages, and passed in
     via the same dictionary of dataframes that all the other ingest functions
     use for uniformity.
@@ -162,8 +162,8 @@ def plants(eia923_dfs, eia923_transformed_dfs):
 
     Returns:
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in
-            which pages from EIA923 form (keys) correspond to normalized
-            DataFrames of values from that page (values)
+        which pages from EIA923 form (keys) correspond to normalized
+        DataFrames of values from that page (values)
 
     """
     plant_info_df = eia923_dfs['plant_frame'].copy()
@@ -202,7 +202,7 @@ def plants(eia923_dfs, eia923_transformed_dfs):
 
 
 def generation_fuel(eia923_dfs, eia923_transformed_dfs):
-    """Transform the generation_fuel_eia923 table.
+    """Transforms the generation_fuel_eia923 table.
 
     Args:
         eia923_dfs (dict): Each entry in this
@@ -214,8 +214,8 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
 
     Returns:
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in
-          which pages from EIA923 form (keys) correspond to normalized
-          DataFrames of values from that page (values).
+        which pages from EIA923 form (keys) correspond to normalized
+        DataFrames of values from that page (values).
 
     """
     # This needs to be a copy of what we're passed in so we can edit it.
@@ -261,7 +261,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
 
 
 def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
-    """Transform the boiler_fuel_eia923 table.
+    """Transforms the boiler_fuel_eia923 table.
 
     Args:
         eia923_dfs (dict): Each entry in this
@@ -273,8 +273,8 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
 
     Returns:
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in
-          which pages from EIA923 form (keys) correspond to normalized
-          DataFrames of values from that page (values).
+        which pages from EIA923 form (keys) correspond to normalized
+        DataFrames of values from that page (values).
 
     """
     bf_df = eia923_dfs['boiler_fuel'].copy()
@@ -315,7 +315,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
 
 
 def generation(eia923_dfs, eia923_transformed_dfs):
-    """Transform the generation_eia923 table.
+    """Transforms the generation_eia923 table.
 
     Args:
         eia923_dfs (dict): Each entry in this
@@ -327,8 +327,8 @@ def generation(eia923_dfs, eia923_transformed_dfs):
 
     Returns:
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in
-          which pages from EIA923 form (keys) correspond to normalized
-          DataFrames of values from that page (values).
+        which pages from EIA923 form (keys) correspond to normalized
+        DataFrames of values from that page (values).
 
     """
     # This needs to be a copy of what we're passed in so we can edit it.
@@ -367,7 +367,7 @@ def generation(eia923_dfs, eia923_transformed_dfs):
 
 
 def coalmine(eia923_dfs, eia923_transformed_dfs):
-    """Transform the coalmine_eia923 table.
+    """Transforms the coalmine_eia923 table.
 
     Args:
         eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
@@ -379,8 +379,8 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
 
     Returns:
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in
-          which pages from EIA923 form (keys) correspond to normalized
-          DataFrames of values from that page (values).
+        which pages from EIA923 form (keys) correspond to normalized
+        DataFrames of values from that page (values).
 
     """
     # These are the columns that we want to keep from FRC for the
@@ -441,9 +441,9 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
 
 
 def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
-    """Transform the fuel_receipts_costs_eia923 dataframe.
+    """Transforms the fuel_receipts_costs_eia923 dataframe.
 
-    Fuel cost is reported in cents per mmbtu. Convert cents to dollars.
+    Fuel cost is reported in cents per mmbtu. Converts cents to dollars.
 
     Args:
         eia923_dfs (dict): Each entry in this
@@ -455,8 +455,8 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
 
     Returns:
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in
-            which pages from EIA923 form (keys) correspond to normalized
-            DataFrames of values from that page (values)
+        which pages from EIA923 form (keys) correspond to normalized
+        DataFrames of values from that page (values)
 
     """
     frc_df = eia923_dfs['fuel_receipts_costs'].copy()
@@ -538,7 +538,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
 
 
 def transform(eia923_raw_dfs, eia923_tables=pc.eia923_pudl_tables):
-    """Transform all the EIA 923 tables.
+    """Transforms all the EIA 923 tables.
 
     Args:
         eia923_raw_dfs (dict): a dictionary of tab names (keys) and DataFrames
@@ -548,8 +548,8 @@ def transform(eia923_raw_dfs, eia923_tables=pc.eia923_pudl_tables):
 
     Returns:
         dict: A dictionary of DataFrame objects in
-            which pages from EIA923 form (keys) corresponds to a normalized
-            DataFrame of values from that page (values)
+        which pages from EIA923 form (keys) corresponds to a normalized
+        DataFrame of values from that page (values)
 
     """
     eia923_transform_functions = {

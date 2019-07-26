@@ -1,7 +1,7 @@
-update\_datastore module
+pudl.models.ferc1 module
 ========================
 
-.. automodule:: update_datastore
+.. automodule:: pudl.models.ferc1
    :members:
    :undoc-members:
    :show-inheritance:

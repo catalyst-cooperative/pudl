@@ -103,28 +103,28 @@ def get_eia860_column_map(page, year):
 
     Returns:
         tuple: A tuple containing:
-            int: sheet_name, an integer indicating which page in the worksheet
-                the data should be pulled from. 0 is the first page, 1 is the
-                second page, etc. For use by pandas.read_excel()
-            int: skiprows, an integer indicating how many rows should be skipped
-                at the top of the sheet being read in, before the header row
-                that contains the strings which will be converted into column
-                names in the dataframe which is created by pandas.read_excel()
-            dict: column_map, a dictionary that maps the names of the columns
-                in the year being read in, to the canonical EIA923 column names
-                (i.e. the column names as they are in 2014-2016). This
-                dictionary will be used by DataFrame.rename(). The keys are the
-                column names in the dataframe as read from older years, and the
-                values are the canonmical column names.  All should be stripped
-                of leading and trailing whitespace, converted to lower case,
-                and have internal non-alphanumeric characters replaced with
-                underscores.
-            pd.Index: all_columns, the column Index associated with the column
-                map -- it includes all of the columns which might be present in
-                all of the years of data, for use in setting the column index of
-                the raw dataframe which is ultimately extracted, so we can
-                ensure that they all have the same columns, even if we're only
-                loading a limited number of years.
+            - int: sheet_name, an integer indicating which page in the worksheet
+              the data should be pulled from. 0 is the first page, 1 is the
+              second page, etc. For use by pandas.read_excel()
+            - int: skiprows, an integer indicating how many rows should be skipped
+              at the top of the sheet being read in, before the header row
+              that contains the strings which will be converted into column
+              names in the dataframe which is created by pandas.read_excel()
+            - dict: column_map, a dictionary that maps the names of the columns
+              in the year being read in, to the canonical EIA923 column names
+              (i.e. the column names as they are in 2014-2016). This
+              dictionary will be used by DataFrame.rename(). The keys are the
+              column names in the dataframe as read from older years, and the
+              values are the canonmical column names.  All should be stripped
+              of leading and trailing whitespace, converted to lower case,
+              and have internal non-alphanumeric characters replaced with
+              underscores.
+            - pd.Index: all_columns, the column Index associated with the column
+              map -- it includes all of the columns which might be present in
+              all of the years of data, for use in setting the column index of
+              the raw dataframe which is ultimately extracted, so we can
+              ensure that they all have the same columns, even if we're only
+              loading a limited number of years.
     """
     sheet_name = pc.tab_map_eia860.at[year, page]
     skiprows = pc.skiprows_eia860.at[year, page]
@@ -158,6 +158,7 @@ def get_eia860_page(page, eia860_xlsx,
         page (str): The string label indicating which page of the EIA860 we
             are attempting to read in. The page argument must be exactly one of
             the following strings:
+
                 - 'boiler_generator_assn'
                 - 'utility'
                 - 'plant'
@@ -166,18 +167,17 @@ def get_eia860_page(page, eia860_xlsx,
                 - 'generator_retired'
                 - 'ownership'
         eia860_xlsx (pandas.io.excel.ExcelFile): xlsx file of EIA Form 860 for
-        input year(s)
+            input year or years
         years (list): The set of years to read into the DataFrame.
 
     Returns:
-        pandas.DataFrame: A dataframe containing the data from the selected
-            page and selected years from EIA 860.
+        pandas.DataFrame: A DataFrame of EIA 860 data from selected page, years.
 
     Raises:
         AssertionError: If the page string is not among the list of recognized
-        EIA 860 page strings.
+            EIA 860 page strings.
         AssertionError: If the year is not in the list of years that work for
-        EIA 860.
+            EIA 860.
     """
     if page not in pc.tab_map_eia860.columns and page != 'year_index':
         raise AssertionError(
@@ -253,8 +253,7 @@ def extract(eia860_years, data_dir):
         data_dir (str): Top level datastore directory.
 
     Returns:
-        dict: A dictionary containing EIA 860 pages (keys) and DataFrames
-            (values)
+        dict: A dictionary of EIA 860 pages (keys) and DataFrames (values)
     """
     # Prep for ingesting EIA860
     # create raw 860 dfs from spreadsheets

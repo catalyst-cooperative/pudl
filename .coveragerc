@@ -1,7 +1,6 @@
 [run]
 omit =
     *glue/zipper.py
-    *analysis/analysis.py
     *__main__.py
     *__init__.py
     *cli.py

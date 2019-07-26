@@ -59,8 +59,8 @@ IN_DTYPES = {
 def create_cems_schema():
     """Makes an explicit Arrow schema for the EPA CEMS data.
 
-    Makes changes in the types of the generated parquet files by editing this
-    function
+    Make changes in the types of the generated parquet files by editing this
+    function.
 
     Note that parquet's internal representation doesn't use unsigned numbers or
     16-bit ints, so just keep things simple here and always use int32 and
@@ -114,8 +114,8 @@ def year_from_operating_datetime(df):
         df (pandas.DataFrame): A DataFrame containing EPA CEMS data.
 
     Returns:
-        pandas.DataFrame: A DataFrame containg EPA CEMS data with a 'year'
-            column.
+        pandas.DataFrame: A DataFrame containing EPA CEMS data with a 'year'
+        column.
     """
     df['year'] = df.operating_datetime_utc.dt.year
     return df
@@ -142,11 +142,14 @@ def epacems_to_parquet(epacems_years,
             CEMs data
         epacems_states (list): list of years from which we are trying to read
             CEMs data
-        data_dir (str):
-        out_dir (str):
+        data_dir (path-like): Path to the top directory of the PUDL datastore.
+        out_dir (path-like): The directory in which to output the Parquet files
         pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
-        compression ():
-        partition_cols ():
+        compression (type?):
+        partition_cols (type?):
+
+    Raises:
+        AssertionError: Raised if an output directory is not specified.
 
     Todo:
         Return to
@@ -190,7 +193,9 @@ def parse_command_line(argv):
         argv (str): Command line arguments, which must include caller file name
 
     Returns:
-        TODO: Return to
+
+    Todo:
+        Return to
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(

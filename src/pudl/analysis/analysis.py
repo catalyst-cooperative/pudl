@@ -23,7 +23,8 @@ logger = logging.getLogger(__name__)
 
 
 def simple_select(table_name, pudl_engine):
-    """Generates a DataFrame of the specified table.
+    """
+    Generate a DataFrame of the specified table.
 
     Generates a DataFrame of the specified table, including EIA plant IDs where
     they are available.
@@ -376,7 +377,6 @@ def fuel_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
     Aggregate FERC Form 1 fuel data by PUDL plant id and, optionally, fuel.
 
     Args:
-    -----
         pudl_plant_ids: which PUDL plants should we retain for aggregation?
         fuels: Should the columns listed in cols be broken out by each
             individual fuel? If so, which fuels do we want totals for? If
@@ -384,7 +384,6 @@ def fuel_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
         cols: which columns from the fuel_ferc1 table should be summed.
 
     Returns:
-    --------
         fuel_df: a dataframe with pudl_plant_id, year, and the summed values
             specified in cols. If fuels is not 'all' then it also has a column
             specifying fuel type.
@@ -415,12 +414,10 @@ def steam_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
     Aggregate and return data from the steam_ferc1 table by pudl_plant_id.
 
     Args:
-    -----
         pudl_plant_ids: A list of ids to include in the output.
         cols: The data columns that you want to aggregate and return.
 
     Returns:
-    --------
         steam_df: A dataframe with columns for report_year, pudl_plant_id and
             cols, with the values in cols aggregated by plant and year.
 
@@ -446,14 +443,12 @@ def frc_by_pudl(pudl_plant_ids, pudl_engine,
     with the totals by pudl_plant_id, fuel, and year.
 
     Args:
-    -----
         pudl_plant_ids: list of plant IDs to keep.
         fuels: list of fuel strings that we want to group by. Alternatively,
             this can be set to 'all' in which case fuel is not grouped by.
         cols: List of data columns which we are summing.
 
     Returns:
-    --------
         A dataframe with the sums of cols, as grouped by pudl ID, year, and
             (optionally) fuel.
 

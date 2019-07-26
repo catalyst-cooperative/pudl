@@ -36,8 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 def _clean_cols(df, table_name):
-    """
-    Add a FERC record ID and drop FERC columns not to be loaded into PUDL.
+    """Adds a FERC record ID and drop FERC columns not to be loaded into PUDL.
 
     It is often useful to be able to tell exactly which record in the FERC Form
     1 database a given record within the PUDL database came from. Within each
@@ -70,7 +69,7 @@ def _clean_cols(df, table_name):
         df (pandas.DataFrame): The DataFrame in which the function looks for
             columns for the unique identification of FERC records, and ensures
             that those columns are not NULL.
-        table_name (str):
+        table_name (str): The name of the table that we are cleaning.
 
     Returns:
         pandas.DataFrame: The same DataFrame with a column appended containing
@@ -79,10 +78,6 @@ def _clean_cols(df, table_name):
 
     Raises:
         AssertionError: If the table input contains NULL columns
-
-    Todo:
-        Zane revisit
-
     """
     # Make sure that *all* of these columns exist in the proffered table:
     for field in ['report_year', 'respondent_id', 'spplmnt_num', 'row_number']:
@@ -130,8 +125,7 @@ def _clean_cols(df, table_name):
 
 
 def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
-    """
-    Correct data entry errors where data being multiplied by a factor.
+    """Corrects data entry errors where data being multiplied by a factor.
 
     In many cases we know that a particular column in the database should have
     a value in a particular rage (e.g. the heat content of a ton of coal is a
@@ -193,20 +187,20 @@ def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
 # DATABASE TABLE SPECIFIC PROCEDURES ##########################################
 ##############################################################################
 def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
-    """
-    Transform FERC Form 1 plant_steam data for loading into PUDL Database.
+    """Transforms FERC Form 1 plant_steam data for loading into PUDL Database.
 
     This includes converting to our preferred units of MWh and MW, as well as
     standardizing the strings describing the kind of plant and construction.
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
-        objects corresponds to a table from the  FERC Form 1 DBC database.
-        ferc1_transformed_dfs (dictionary of DataFrames)
+            objects corresponds to a table from the  FERC Form 1 DBC database.
+        ferc1_transformed_dfs (dict): A dictionary of DataFrames to be
+            transformed.
 
     Returns:
         dict: of transformed dataframes, including the newly transformed
-            plants_steam_ferc1 dataframe.
+        plants_steam_ferc1 dataframe.
 
     """
     ferc1_steam_df = (
@@ -427,7 +421,15 @@ def _plants_steam_assign_plant_ids(ferc1_steam_df, ferc1_fuel_df):
 
 
 def plants_steam_validate_ids(ferc1_steam_df):
-    """Test that plant_id_ferc1 times series includes one record per year."""
+    """Tests that plant_id_ferc1 times series includes one record per year.
+
+    Args:
+        ferc1_steam_df (pandas.DataFrame): A DataFrame of the data from the
+            FERC 1 Steam table.
+
+    Returns:
+        None
+    """
     ##########################################################################
     # FERC PLANT ID ERROR CHECKING STUFF
     ##########################################################################
@@ -457,8 +459,7 @@ def plants_steam_validate_ids(ferc1_steam_df):
 
 
 def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
-    """
-    Transform FERC Form 1 fuel data for loading into PUDL Database.
+    """Transforms FERC Form 1 fuel data for loading into PUDL Database.
 
     This process includes converting some columns to be in terms of our
     preferred units, like MWh and mmbtu instead of kWh and btu. Plant names are
@@ -468,13 +469,12 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
-        objects corresponds to a table from the  FERC Form 1 DBC database.
+            objects corresponds to a table from the  FERC Form 1 DBC database.
         ferc1_transformed_dfs (dict): A dictionary of DataFrames to be
             transformed.
 
     Returns:
         dict: The dictionary of transformed dataframes.
-
     """
     # grab table from dictionary of dfs, clean it up a bit
     fuel_ferc1_df = (
@@ -575,8 +575,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
 
 
 def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
-    """
-    Transform FERC Form 1 plant_small data for loading into PUDL Database.
+    """Transforms FERC Form 1 plant_small data for loading into PUDL Database.
 
     This FERC Form 1 table contains information about a large number of small
     plants, including many small hydroelectric and other renewable generation
@@ -594,13 +593,12 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
-        objects corresponds to a table from the  FERC Form 1 DBC database.
+            objects corresponds to a table from the  FERC Form 1 DBC database.
         ferc1_transformed_dfs (dict): A dictionary of DataFrames to be
             transformed.
 
     Returns:
         dict: The dictionary of transformed dataframes.
-
     """
     # grab table from dictionary of dfs
     ferc1_small_df = ferc1_raw_dfs['plants_small_ferc1']
@@ -697,21 +695,19 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
 
 def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
-    """
-    Transform FERC Form 1 plant_hydro data for loading into PUDL Database.
+    """Transforms FERC Form 1 plant_hydro data for loading into PUDL Database.
 
     Standardizes plant names (stripping whitespace and Using Title Case). Also
     converts into our preferred units of MW and MWh.
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
-        objects corresponds to a table from the  FERC Form 1 DBC database.
+            objects corresponds to a table from the  FERC Form 1 DBC database.
         ferc1_transformed_dfs (dict): A dictionary of DataFrames to be
             transformed.
 
     Returns:
         dict: The dictionary of transformed dataframes.
-
     """
     # grab table from dictionary of dfs
     ferc1_hydro_df = (
@@ -779,21 +775,19 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
 
 
 def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
-    """
-    Transform FERC Form 1 pumped storage data for loading into PUDL.
+    """Transforms FERC Form 1 pumped storage data for loading into PUDL.
 
     Standardizes plant names (stripping whitespace and Using Title Case). Also
     converts into our preferred units of MW and MWh.
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
-        objects corresponds to a table from the  FERC Form 1 DBC database.
+            objects corresponds to a table from the  FERC Form 1 DBC database.
         ferc1_transformed_dfs (dict): A dictionary of DataFrames to be
             transformed.
 
     Returns:
         dict: The dictionary of transformed dataframes.
-
     """
     # grab table from dictionary of dfs
     ferc1_pump_df = (
@@ -868,8 +862,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
 
 
 def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
-    """
-    Transform FERC Form 1 plant_in_service data for loading into PUDL.
+    """Transforms FERC Form 1 plant_in_service data for loading into PUDL.
 
     This information is organized by FERC account, with each line of the FERC
     Form 1 having a different FERC account id (most are numeric and correspond
@@ -879,13 +872,12 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
-        objects corresponds to a table from the  FERC Form 1 DBC database.
+            objects corresponds to a table from the  FERC Form 1 DBC database.
         ferc1_transformed_dfs (dict): A dictionary of DataFrames to be
             transformed.
 
     Returns:
         dict: The dictionary of the transformed DataFrames.
-
     """
     # grab table from dictionary of dfs
     ferc1_pis_df = ferc1_raw_dfs['plant_in_service_ferc1']
@@ -915,8 +907,7 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
 
 
 def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
-    """
-    Transform FERC Form 1 pumped storage data for loading into PUDL.
+    """Transforms FERC Form 1 pumped storage data for loading into PUDL.
 
     This table has data about inter-utility power purchases into the PUDL DB.
     This includes how much electricty was purchased, how much it cost, and who
@@ -927,13 +918,12 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
-        objects corresponds to a table from the  FERC Form 1 DBC database.
+            objects corresponds to a table from the  FERC Form 1 DBC database.
         ferc1_transformed_dfs (dict): A dictionary of DataFrames to be
             transformed.
 
     Returns:
         dict: The dictionary of the transformed DataFrames.
-
     """
     # grab table from dictionary of dfs
     df = (_clean_cols(ferc1_raw_dfs['purchased_power_ferc1'],
@@ -1003,8 +993,7 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
 
 
 def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
-    """
-    Transform FERC Form 1 depreciation data for loading into PUDL.
+    """Transforms FERC Form 1 depreciation data for loading into PUDL.
 
     This information is organized by FERC account, with each line of the FERC
     Form 1 having a different descriptive identifier like 'balance_end_of_year'
@@ -1012,13 +1001,12 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
-        objects corresponds to a table from the  FERC Form 1 DBC database.
+            objects corresponds to a table from the  FERC Form 1 DBC database.
         ferc1_transformed_dfs (dict): A dictionary of DataFrames to be
             transformed.
 
     Returns:
         dict: The dictionary of the transformed DataFrames.
-
     """
     # grab table from dictionary of dfs
     ferc1_apd_df = ferc1_raw_dfs['accumulated_depreciation_ferc1']
@@ -1047,14 +1035,15 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
 def transform(ferc1_raw_dfs, ferc1_tables=pc.pudl_tables['ferc1']):
     """Transforms FERC 1.
 
-        Args:
-            ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
+    Args:
+        ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
             objects corresponds to a table from the FERC Form 1 DBC database
-            ferc1_tables (tuple): A tuple containing the set of tables which
+        ferc1_tables (tuple): A tuple containing the set of tables which
                 have been successfully integrated into PUDL
 
-        Returns:
-            dict: A dictionary of the transformed DataFrames."""
+    Returns:
+        dict: A dictionary of the transformed DataFrames.
+    """
     ferc1_transform_functions = {
         # fuel must come before steam b/c fuel proportions are used to aid in
         # plant # ID assignment.
@@ -1094,8 +1083,7 @@ def transform(ferc1_raw_dfs, ferc1_tables=pc.pudl_tables['ferc1']):
 
 
 class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
-    """
-    A classifier for identifying FERC plant time series in FERC Form 1 data.
+    """A classifier for identifying FERC plant time series in FERC Form 1 data.
 
     We want to be able to give the classifier a FERC plant record, and get back
     the group of records(or the ID of the group of records) that it ought to
@@ -1143,6 +1131,9 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
                 of the records so we can group the plants in the fit() step, so
                 we can check how well they are categorized later...
 
+        Todo:
+            Zane revisit plants_df
+
         """
         self.min_sim = min_sim
         self.plants_df = plants_df
@@ -1167,9 +1158,8 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         Returns:
             pandas.DataFrame:
 
-        Todo:
-            Zane revisit
-
+        TODO:
+            Zane revisit args and returns
         """
         self._cossim_df = pd.DataFrame(cosine_similarity(X))
         self._best_of = self._best_by_year()
@@ -1180,7 +1170,9 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         return self
 
     def transform(self, X, y=None):
-        """Zane revisit this function
+        """
+        Todo:
+            Zane revisit this function
         """
 
         return self
@@ -1200,7 +1192,8 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         * This method is hideously inefficient. It should be vectorized.
         * There's a line that throws a FutureWarning that needs to be fixed.
 
-        TODO: Zane revisit
+        TODO:
+            Zane revisit
         """
         try:
             getattr(self, "_cossim_df")
@@ -1267,8 +1260,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         return out_df
 
     def score(self, X, y=None):
-        """
-        Score a collection of FERC plant categorizations.
+        """Scores a collection of FERC plant categorizations.
 
         For every record ID in X, predict its record group and calculate
         a metric of similarity between the prediction and the "ground
@@ -1282,8 +1274,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
 
         Returns:
             numpy.ndarray: The average of all the similarity metrics as the
-                score.
-
+            score.
         """
         scores = []
         for true_group in y:
@@ -1298,7 +1289,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         return np.mean(scores)
 
     def _best_by_year(self):
-        """Find the best match for each plant record in each other year."""
+        """Finds the best match for each plant record in each other year."""
         # only keep similarity matrix entries above our minimum threshold:
         out_df = self.plants_df.copy()
         sim_df = self._cossim_df[self._cossim_df >= self.min_sim]
@@ -1340,8 +1331,7 @@ def make_ferc_clf(plants_df,
                   construction_year_wt=1.0,
                   utility_id_ferc1_wt=1.0,
                   fuel_fraction_wt=1.0):
-    """
-    Create a FERC Plant Classifier using several weighted features.
+    """Creates a FERC Plant Classifier using several weighted features.
 
     Given a FERC steam plants dataframe plants_df, which also includes fuel
     consumption information, transform a selection of useful columns into
@@ -1401,8 +1391,7 @@ def make_ferc_clf(plants_df,
 
     Returns:
         sklearn.pipeline.Pipeline: an sklearn Pipeline that performs
-            reprocessing and classification with a FERCPlantClassifier object.
-
+        reprocessing and classification with a FERCPlantClassifier object.
     """
 
     # Make a list of all the fuel fraction columns for use as one feature.
@@ -1447,8 +1436,7 @@ def make_ferc_clf(plants_df,
 
 
 def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
-    """
-    Calculate useful FERC Form 1 fuel metrics on a per plant-year basis.
+    """Calculates useful FERC Form 1 fuel metrics on a per plant-year basis.
 
     Each record in the FERC Form 1 corresponds to a particular type of fuel.
     Many plants -- especially coal plants -- use more than one fuel, with gas
@@ -1478,12 +1466,12 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
 
     Returns:
         pandas.DataFrame: A DataFrame with a single record for each
-            plant-year, including the columns required to merge it with the
-            plants_steam_ferc1 table/DataFrame (report_year, utility_id_ferc1,
-            and plant_name) as well as totals for fuel mmbtu consumed in that
-            plant-year, and the cost of fuel in that year, the proportions of
-            heat content and fuel costs for each fuel in that year, and a
-            column that labels the plant's primary fuel for that year.
+    plant-year, including the columns required to merge it with the
+    plants_steam_ferc1 table/DataFrame (report_year, utility_id_ferc1,
+    and plant_name) as well as totals for fuel mmbtu consumed in that
+    plant-year, and the cost of fuel in that year, the proportions of
+    heat content and fuel costs for each fuel in that year, and a
+    column that labels the plant's primary fuel for that year.
 
     Raises:
         AssertionError: If the DataFrame input does not have the columns

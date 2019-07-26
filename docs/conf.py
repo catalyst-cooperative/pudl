@@ -4,21 +4,17 @@
 # list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
-# -- Path setup --------------------------------------------------------------
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-import os
-import sys
 
 import pkg_resources
 
-sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('../'))
-sys.path.insert(0, os.path.abspath('../pudl/src/'))
-sys.path.insert(0, os.path.abspath('../scripts/'))
+# -- Path setup --------------------------------------------------------------
+# We are building and installing the pudl package in order to get access to
+# the distribution metadata, including an automatically generated version
+# number via pkg_resources.get_distribution() so we need more than just an
+# importable path.
 
 # -- Project information -----------------------------------------------------
 
@@ -36,12 +32,33 @@ release = pkg_resources.get_distribution('pudl').version
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.napoleon',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
-    'sphinx.ext.viewcode',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.napoleon',
     'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
 ]
+
+todo_include_todos = True
+
+# In order to be able to link directly to documentation for other projects,
+# we need to define these package to URL mappings:
+intersphinx_mapping = {
+    'dask': ('https://docs.dask.org/en/latest/', None),
+    'networkx': ('https://networkx.github.io/documentation/stable/', None),
+    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+    'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None),
+    'python': ('https://docs.python.org/3', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
+    'sklearn': ('https://scikit-learn.org/stable', None),
+    'sqlalchemy': ('https://docs.sqlalchemy.org/en/latest/', None),
+}
+
+# List of packages that should not really be installed, because they are
+# written in C or have C extensions. Instead they should be mocked for import
+# purposes only to prevent the doc build from failing.
+autodoc_mock_imports = ['snappy']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -50,12 +67,6 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build']
-
-# List of packages that should not really be installed, because they are
-# written in C or have C extensions. Instead they should be mocked for import
-# purposes only to prevent the doc build from failing.
-autodoc_mock_imports = ['numpy', 'scipy', 'python-snappy', 'pyarrow']
-
 
 # -- Options for HTML output -------------------------------------------------
 

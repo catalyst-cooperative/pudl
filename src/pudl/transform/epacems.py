@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 def fix_up_dates(df, plant_utc_offset):
     """
-    Fix the dates for the CEMS data.
+    Fixes the dates for the CEMS data.
 
     Args:
         df (pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
@@ -63,7 +63,7 @@ def fix_up_dates(df, plant_utc_offset):
 
 def _load_plant_utc_offset(pudl_engine):
     """
-    Load the UTC offset for each plant.
+    Loads the UTC offset for each plant.
 
     CEMS times don't change for DST, so we get get the UTC offset by using
     the offset for the plants' timezones in January.
@@ -73,7 +73,7 @@ def _load_plant_utc_offset(pudl_engine):
 
     Returns:
         pandas.DataFrame: A DataFrame including columns plant_id_eia and
-            utc_offset
+        utc_offset
 
     """
     import pytz
@@ -98,7 +98,7 @@ def _load_plant_utc_offset(pudl_engine):
 
 def _load_plant_utc_offset_pkg(pkg_dir):
     """
-    Load the UTC offset each EIA plant.
+    Loads the UTC offset each EIA plant.
 
     CEMS times don't change for DST, so we get get the UTC offset by using the
     offset for the plants' timezones in January.
@@ -131,7 +131,7 @@ def _load_plant_utc_offset_pkg(pkg_dir):
 
 def harmonize_eia_epa_orispl(df):
     """
-    Harmonize the ORISPL code to match the EIA data -- NOT YET IMPLEMENTED
+    Harmonizes the ORISPL code to match the EIA data -- NOT YET IMPLEMENTED
 
     The EIA plant IDs and CEMS ORISPL codes almost match, but not quite. See
     https://www.epa.gov/sites/production/files/2018-02/documents/egrid2016_technicalsupportdocument_0.pdf#page=104
@@ -154,7 +154,7 @@ def harmonize_eia_epa_orispl(df):
 
 def add_facility_id_unit_id_epa(df):
     """
-    Harmonize columns that are added later.
+    Harmonizes columns that are added later.
 
     The load into Postgres checks for consistent column names, and these
     two columns aren't present before August 2008, so this adds them in.
@@ -164,7 +164,7 @@ def add_facility_id_unit_id_epa(df):
 
     Returns:
         The same DataFrame guaranteed to have int facility_id and unit_id_epa
-            cols
+        cols
 
     """
     if ("facility_id" not in df.columns) or ("unit_id_epa" not in df.columns):
@@ -180,7 +180,7 @@ def add_facility_id_unit_id_epa(df):
 
 def _all_na_or_values(series, values):
     """
-    Test whether every element in the series is either missing or in values.
+    Tests whether every element in the series is either missing or in values.
 
     This is fiddly because isin() changes behavior if the series is totally NaN
     (because of type issues)
@@ -208,7 +208,7 @@ def _all_na_or_values(series, values):
 
 def correct_gross_load_mw(df):
     """
-    Fix values of gross load that are wrong by orders of magnitude.
+    Fixes values of gross load that are wrong by orders of magnitude.
 
     Args:
         df (pd.DataFrame): A CEMS dataframe
@@ -231,7 +231,7 @@ def correct_gross_load_mw(df):
 
 def transform(pudl_engine, epacems_raw_dfs):
     """
-    Transform EPA CEMS hourly.
+    Transforms EPA CEMS hourly data.
 
     Args:
         pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
@@ -241,7 +241,7 @@ def transform(pudl_engine, epacems_raw_dfs):
         dict:
 
     Todo:
-        Zane revisit
+        Revisit (epacems_raw_dfs), yields statement
 
     """
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
@@ -262,7 +262,10 @@ def transform(pudl_engine, epacems_raw_dfs):
 
 
 def transform_pkg(epacems_raw_dfs, pkg_dir):
-    """Transform EPA CEMS hourly"""
+    """Transforms EPA CEMS hourly data.
+
+    To Do:
+        Revisit"""
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
     # a transformation pipeline, and yield it back as another generator.
     plant_utc_offset = _load_plant_utc_offset_pkg(pkg_dir)

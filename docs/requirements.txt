@@ -22,7 +22,7 @@ coloredlogs==10.0
 coverage==4.5.3
 cryptography==2.7
 cycler==0.10.0
-cytoolz==0.9.0.1
+cytoolz==0.10.0
 dask==2.1.0
 datapackage==1.6.2
 dbfread==2.0.7
@@ -56,7 +56,7 @@ ipywidgets==7.5.0
 isodate==0.6.0
 isort==4.3.21
 jdcal==1.4.1
-jedi==0.14.0
+jedi==0.14.1
 Jinja2==2.10.1
 joblib==0.13.2
 json5==0.8.5
@@ -74,7 +74,7 @@ linear-tsv==1.1.0
 llvmlite==0.29.0
 locket==0.2.0
 MarkupSafe==1.1.1
-matplotlib==3.1.1
+#matplotlib==3.1.1 # RTD system package
 mccabe==0.6.1
 mistune==0.8.4
 more-itertools==7.1.0
@@ -86,13 +86,13 @@ networkx==2.3
 nodeenv==1.3.3
 notebook==5.7.8
 numba==0.44.1
-numpy==1.16.4
+#numpy==1.16.4 # RTD system package
 olefile==0.46
 openpyxl==2.4.11
 packaging==19.0
-pandas==0.24.2
+#pandas==0.24.2 RTD system package
 pandocfilters==1.4.2
-parso==0.5.0
+parso==0.5.1
 partd==1.0.0
 pbr==5.3.0
 pdbpp==0.10.0
@@ -120,7 +120,7 @@ PySocks==1.7.0
 pytest==5.0.1
 pytest-cov==2.7.1
 python-dateutil==2.8.0
-python-snappy==0.5.4
+#python-snappy=0.5.4 # Mocked package because of compilation issues.
 pytz==2019.1
 PyYAML==5.1.1
 pyzmq==18.0.2
@@ -129,7 +129,7 @@ qtconsole==4.5.1
 requests==2.22.0
 rfc3986==1.3.2
 scikit-learn==0.21.2
-scipy==1.3.0
+#scipy==1.3.0 # RTD system package
 Send2Trash==1.5.0
 setuptools-scm==3.3.3
 simpleeval==0.9.8
@@ -157,12 +157,12 @@ testpath==0.4.2
 thrift==0.11.0
 timezonefinder==4.1.0
 toml==0.10.0
-toolz==0.9.0
+toolz==0.10.0
 tornado==6.0.3
 tox==3.12.1
 traitlets==4.3.2
 unicodecsv==0.14.1
-urllib3==1.24.3
+urllib3==1.25.3
 virtualenv==16.6.1
 wcwidth==0.1.7
 webencodings==0.5.1

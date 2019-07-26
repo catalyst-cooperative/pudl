@@ -21,7 +21,18 @@ logger = logging.getLogger(__name__)
 
 
 def read_script_settings(settings_file=None):
-    """Read in generic YAML settings for one of the PUDL scripts."""
+    """Read in generic YAML settings for one of the PUDL scripts.
+
+    Args:
+        settings_file (path-like): A string or path like object that can be
+            used to open a file containing the configuration. Defaults to
+            $HOME/.pudl.yml
+
+    Returns:
+
+    Todo:
+        Return to (Returns type)
+    """
     if settings_file is None:
         settings_file = pathlib.Path.home() / '.pudl.yml'
 
@@ -47,7 +58,18 @@ def read_script_settings(settings_file=None):
 
 
 def read_user_settings(settings_file=None):
-    """Read the most basic PUDL settings from a user supplied file."""
+    """Read the most basic PUDL settings from a user supplied file.
+
+    Args:
+        settings_file (path-like): A string or path like object that can be
+            used to open a file containing the configuration. Defaults to
+            $HOME/.pudl.yml
+
+    Returns:
+
+    Todo:
+        Return to (Returns type)
+    """
     if settings_file is None:
         settings_file = pathlib.Path.home() / '.pudl.yml'
 
@@ -64,8 +86,7 @@ def grab_package_settings(pudl_settings, settings_file):
 
 
 def init(pudl_in=None, pudl_out=None, settings_file=None):
-    """
-    Generate commonly used PUDL settings based on a user settings file.
+    """Generates commonly used PUDL settings based on a user settings file.
 
     If no configuration file path is provided, attempt to read in the user
     configuration from a file called .pudl.yml in the user's HOME directory.
@@ -73,6 +94,8 @@ def init(pudl_in=None, pudl_out=None, settings_file=None):
     that store files that PUDL either depends on that rely on PUDL.
 
     Args:
+        pudl_in ():
+        pudl_out ():
         settings_file (path-like): A string or path like object that can be
             used to open a file containing the configuration. Defaults to
             $HOME/.pudl.yml
@@ -81,6 +104,8 @@ def init(pudl_in=None, pudl_out=None, settings_file=None):
         dict: A dictionary containing common PUDL settings, derived from those
             read out of the YAML file.
 
+    Todo:
+        Return to (pudl_in, pudl_out)
     """
     # If we are missing either of the PUDL directories, try and read settings:
     if pudl_in is None or pudl_out is None:
@@ -137,7 +162,17 @@ def init(pudl_in=None, pudl_out=None, settings_file=None):
 
 
 def setup(pudl_settings=None):
-    """Set up a new PUDL working environment based on the user settings."""
+    """Set up a new PUDL working environment based on the user settings.
+
+    Args:
+        pudl_settings ():
+
+    Returns:
+        None
+
+    Todo:
+        Return to (pudl_settings and Returns type)
+    """
     # If we aren't given settings, try and generate them.
     if pudl_settings is None:
         pudl_settings = init()
@@ -161,6 +196,11 @@ def setup(pudl_settings=None):
             dest_file = os.path.join(pudl_settings['settings_dir'], fn)
             if not os.path.exists(dest_file):
                 shutil.copy(f, dest_file)
+            else:
+                logger.warning(
+                    f"Found existing settings file at {dest_file}, "
+                    f"not clobbering it."
+                )
 
     # Now the output directories:
     for format in pc.output_formats:
@@ -180,3 +220,8 @@ def setup(pudl_settings=None):
             dest_file = os.path.join(pudl_settings['notebook_dir'], nb)
             if not os.path.exists(dest_file):
                 shutil.copy(f, dest_file)
+            else:
+                logger.warning(
+                    f"Found existing notebook at {dest_file}, "
+                    f"not clobbering it."
+                )
