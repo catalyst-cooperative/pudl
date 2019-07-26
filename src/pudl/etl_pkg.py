@@ -401,6 +401,54 @@ def _etl_epacems_pkg(etl_params, data_dir, pkg_dir):
     #    logger.info(time_message)
     return(['hourly_emissions_epacems'])
 
+###############################################################################
+# EPA IPM ETL FUNCTIONS
+###############################################################################
+
+def _validate_input_epaipm(etl_params):
+    epaipm_dict = {}
+    # pull out the etl_params from the dictionary passed into this function
+    try:
+        epaipm_dict['epaipm_tables'] = etl_params['epaipm_tables']
+    except KeyError:
+        epaipm_dict['epaipm_tables'] = [None]
+    return(epaipm_dict)
+
+def _load_static_tables_epaipm(pkg_dir):
+    # compile the dfs in a dictionary, prep for dict_dump
+    static_dfs = {'region_id_ipm': pc.epaipm_region_names}
+
+    # run the dictionary of prepped static tables through dict_dump to make
+    # CSVs
+    pudl.load.dict_dump(static_dfs,
+                        "Static IPM Tables",
+                        need_fix_inting=pc.need_fix_inting,
+                        pkg_dir=pkg_dir)
+
+    return list(static_dfs.keys())
+
+def _etl_epaipm(etl_params,data_dir, pkg_dir):
+    epaipm_dict = _validate_input_epaipm(etl_params)
+    epaipm_tables = epaipm_dict['epaipm_tables']
+    static_tables = _load_static_tables_epaipm(pkg_dir)
+
+    # Extract IPM tables
+    epaipm_raw_dfs = pudl.extract.epaipm.extract(
+        epaipm_tables, data_dir=data_dir)
+
+    epaipm_transformed_dfs = pudl.transform.epaipm.transform(
+        epaipm_raw_dfs, epaipm_tables
+    )
+
+    pudl.load.dict_dump(
+        epaipm_transformed_dfs,
+        "EPA IPM",
+        need_fix_inting=pc.need_fix_inting,
+        pkg_dir=pkg_dir
+    )
+
+    return list(epaipm_transformed_dfs.keys()) + tables
+
 
 ###############################################################################
 # GLUE EXPORT FUNCTIONS
@@ -482,6 +530,7 @@ def validate_input(pkg_bundle_settings):
                                   'ferc1': _validate_input_ferc1,
                                   'epacems': _validate_input_epacems,
                                   'glue': _validate_input_glue,
+                                  'epaipm': _validate_input_epaipm
                                   }
     # where we are going to compile the new validated settings
     validated_settings = []
@@ -550,6 +599,12 @@ def etl_pkg(pkg_settings, pudl_settings):
             elif dataset == 'glue':
                 tbls = _etl_glue(
                     dataset_dict['glue'],
+                    pkg_dir=pkg_dir
+                )
+            elif dataset == 'epaipm':
+                tbls = _etl_epaipm(
+                    dataset_dict['epaipm'],
+                    data_dir=pudl_settings['data_dir'],
                     pkg_dir=pkg_dir
                 )
             else:
