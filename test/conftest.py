@@ -171,7 +171,7 @@ def ferc1_engine(live_ferc_db, pudl_settings_fixture,
     )
     yield engine
 
-    logger.INFO(f'Engine: {engine}')
+    logger.info(f'Engine: {engine}')
 
     if not live_ferc_db:
         # Clean up after ourselves by dropping the test DB tables.
