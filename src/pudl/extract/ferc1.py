@@ -633,6 +633,7 @@ def extract(ferc1_tables=pc.ferc1_pudl_tables,
     # Connect to the local SQLite DB and read its structure.
     ferc1_engine = connect_db(pudl_settings=pudl_settings,
                               testing=testing)
+    logger.INFO(f'Engine: {ferc1_engine}')
     ferc1_meta = sa.MetaData(bind=ferc1_engine)
     ferc1_meta.reflect()
     if not ferc1_meta.tables:
