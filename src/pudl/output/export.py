@@ -751,7 +751,7 @@ def generate_data_packages(package_settings, pudl_settings, debug=False):
         in the package_settings.
     """
     # validate the settings from the settings file.
-    validated_settings = pudl.etl_pkg.validate_input(settings)
+    validated_settings = pudl.etl_pkg.validate_input(package_settings)
     uuid_pkgs = str(uuid.uuid4())
     metas = {}
     for pkg in validated_settings:

@@ -4,17 +4,31 @@ repos:
   hooks:
   - id: autopep8
 
+- repo: https://github.com/PyCQA/doc8
+  rev: a4740d8f4f41ce4e1e1d1b7dedc8f928f365b862
+  hooks:
+  - id: doc8
+    args: [--ignore-path, docs/_build, docs]
+
 - repo: https://github.com/PyCQA/bandit
   rev: 1.6.2
   hooks:
   - id: bandit
     args: [-c, .bandit.yml]
 
-# Too restrictive... doesn't understand a bunch of Sphinx stuff:
-#- repo: https://github.com/Lucas-C/pre-commit-hooks-markup
-#  rev: v1.0.0
-#  hooks:
-#  - id: rst-linter
+- repo: https://gitlab.com/pycqa/flake8
+  rev: 3.7.8
+  hooks:
+  - id: flake8
+
+- repo: https://github.com/pre-commit/pygrep-hooks
+  rev: v1.4.1
+  hooks:
+  - id: python-use-type-annotations
+  - id: python-check-blanket-noqa
+  - id: python-no-eval
+  - id: python-no-log-warn
+  - id: python-use-type-annotations
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v2.2.3
@@ -27,5 +41,6 @@ repos:
   - id: end-of-file-fixer
   - id: mixed-line-ending
   - id: trailing-whitespace
-# Sadly doesn't work because of the anaconda python interpreter strings
-#- id: flake8
+  - id: name-tests-test
+  - id: no-commit-to-branch
+    args: [--branch, master]

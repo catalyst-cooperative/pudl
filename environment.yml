@@ -11,6 +11,7 @@ dependencies:
   - dask                # user
   - datapackage         # base
   - dbfread             # base
+  - doc8                # dev
   - flake8              # dev
   - goodtables          # base
   - ipdb                # dev
