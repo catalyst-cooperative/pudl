@@ -26,4 +26,4 @@ Tue Dec 20 12:56:33 MST 2016
   ids added between 2013 and 2014: {448, 321, 450, 451, 449, 452, 453, 447}
 
 - f1_row_lit_tbl: primary key definition is wrong... non-unique values.
-- f1_s0_filing_log: primary key definition is wrong... non-unique values. 
+- f1_s0_filing_log: primary key definition is wrong... non-unique values.

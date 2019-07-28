@@ -74,7 +74,7 @@ The plants selected by Catalyst had the following attributes:
     capacity factor that we get from the FERC reporting.
 
 ### Colstrip:
-  - The FERC data for **colstrip** has unusually low heat rate in 2004 and 2008. In both years this appears to be because the **colstrip_nwc** reporting of total_mmbtu is too low by several orders of magnitude, but it's not clear what kid of error is involved.   
+  - The FERC data for **colstrip** has unusually low heat rate in 2004 and 2008. In both years this appears to be because the **colstrip_nwc** reporting of total_mmbtu is too low by several orders of magnitude, but it's not clear what kid of error is involved.
   - All **colstrip** units are absent from the EIA 923 data. Probably because of NA value contamination.
 
 ### Comanche:
