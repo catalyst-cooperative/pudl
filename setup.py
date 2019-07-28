@@ -24,12 +24,12 @@ install_requires = [
     'xlsxwriter',
 ]
 
-docs_require = [
+doc_requires = [
     'sphinx',
     'sphinx_rtd_theme',
 ]
 
-tests_require = [
+test_requires = [
     'coverage',
     'pytest',
     'pytest-cov',
@@ -69,13 +69,13 @@ setup(
         'electricity', 'energy', 'data', 'analysis', 'mcoe', 'climate change',
         'finance', 'eia 923', 'eia 860', 'ferc', 'form 1', 'epa ampd',
         'epa cems', 'coal', 'natural gas', ],
-    python_requires='>=3.7, <4',
+    python_requires='>=3.7, <3.8.0a0',
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
     extras_require={
-        "docs": docs_require,
+        "doc": doc_requires,
         "parquet": parquet_requires,
-        "tests": tests_require,
+        "test": test_requires,
         "validate": validate_requires,
     },
     classifiers=[
