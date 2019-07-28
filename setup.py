@@ -9,7 +9,6 @@ install_requires = [
     'coloredlogs',
     'datapackage',
     'dbfread',
-    'fastparquet',
     'goodtables',
     'networkx>=2.2',
     'numpy',
