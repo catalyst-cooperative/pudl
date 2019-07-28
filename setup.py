@@ -26,6 +26,11 @@ install_requires = [
     'xlsxwriter',
 ]
 
+docs_require = [
+    'sphinx',
+    'sphinx_rtd_theme',
+]
+
 # We are installing the PUDL module to build the docs, but the C libraries
 # required to build snappy aren't available on RTD, so we need to exclude it
 # from the installed dependencies here, and mock it for import in docs/conf.py
@@ -58,6 +63,9 @@ setup(
     python_requires='>=3.7, <4',
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
+    extras_require={
+        "docs": docs_require,
+    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',

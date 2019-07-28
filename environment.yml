@@ -1,7 +1,7 @@
 name: pudl
 channels:
   - conda-forge
-  - defaults
+  - nodefaults
 dependencies:
   - codecov
   - coloredlogs
@@ -19,7 +19,7 @@ dependencies:
   - pyarrow>=0.14.0
   - pytest
   - pytest-cov
-  - python>=3.7 # Remove for tox.ini & setup.py
+  - python>=3.7
   - python-snappy
   - pyyaml
   - scikit-learn>=0.20
@@ -27,7 +27,6 @@ dependencies:
   - sqlalchemy>=1.3.0
   - tox
   - xlsxwriter
-  # conda-forge only:
   - datapackage
   - goodtables
   - tableschema
