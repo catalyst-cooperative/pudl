@@ -9,8 +9,8 @@ install_requires = [
     'coloredlogs',
     'datapackage',
     'dbfread',
+    'fastparquet',
     'goodtables',
-    'nbval',
     'networkx>=2.2',
     'numpy',
     'pandas>=0.24',
@@ -29,6 +29,14 @@ install_requires = [
 docs_require = [
     'sphinx',
     'sphinx_rtd_theme',
+]
+
+tests_require = [
+    'coverage',
+    'matplotlib',
+    'nbval',
+    'pytest',
+    'pytest-cov',
 ]
 
 # We are installing the PUDL module to build the docs, but the C libraries
@@ -65,6 +73,7 @@ setup(
     install_requires=install_requires,
     extras_require={
         "docs": docs_require,
+        "tests": tests_require,
     },
     classifiers=[
         'Development Status :: 3 - Alpha',
