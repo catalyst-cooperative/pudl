@@ -14,11 +14,10 @@ install_requires = [
     'numpy',
     'pandas>=0.24',
     'psycopg2',
-    'pyarrow>=0.14.0',
     'pyyaml',
     'scikit-learn>=0.20',
     'scipy',
-    'sqlalchemy>=1.3',
+    'sqlalchemy>=1.3.0',
     'sqlalchemy-postgres-copy',
     'tableschema',
     'timezonefinder',
@@ -32,18 +31,21 @@ docs_require = [
 
 tests_require = [
     'coverage',
-    'matplotlib',
-    'nbval',
     'pytest',
     'pytest-cov',
 ]
 
-# We are installing the PUDL module to build the docs, but the C libraries
-# required to build snappy aren't available on RTD, so we need to exclude it
-# from the installed dependencies here, and mock it for import in docs/conf.py
-# using the autodoc_mock_imports parameter:
+validate_requires = [
+    'matplotlib',
+    'nbval',
+]
+
+parquet_requires = [
+    'pyarrow>=0.14.0',
+]
+# Snappy uses C libraries that aren't on RTD. So we mock it there.
 if not os.getenv('READTHEDOCS'):
-    install_requires.append('python-snappy')
+    parquet_requires.append('python-snappy')
 
 setup(
     name='pudl',
@@ -72,7 +74,9 @@ setup(
     install_requires=install_requires,
     extras_require={
         "docs": docs_require,
+        "parquet": parquet_requires,
         "tests": tests_require,
+        "validate": validate_requires,
     },
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -97,7 +101,7 @@ setup(
             'pudl_datastore = pudl.datastore.cli:main',
             'pudl_etl = pudl.cli:main',
             'ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main',
-            'epacems_to_parquet = pudl.convert.epacems_to_parquet:main',
+            'epacems_to_parquet = pudl.convert.epacems_to_parquet:main [parquet]',
         ]
     },
 )
