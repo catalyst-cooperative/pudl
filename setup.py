@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Setup script to make PUDL directly installable with pip."""
 
-import os
-
 from setuptools import find_packages, setup
 
 install_requires = [
@@ -42,10 +40,11 @@ validate_requires = [
 
 parquet_requires = [
     'pyarrow>=0.14.0',
+    'python-snappy'
 ]
 # Snappy uses C libraries that aren't on RTD. So we mock it there.
-if not os.getenv('READTHEDOCS'):
-    parquet_requires.append('python-snappy')
+# if not os.getenv('READTHEDOCS'):
+#    parquet_requires.append('python-snappy')
 
 setup(
     name='pudl',
