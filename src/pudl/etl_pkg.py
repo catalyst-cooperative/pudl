@@ -585,13 +585,14 @@ def validate_input(pkg_bundle_settings):
     return validated_settings
 
 
-def etl_pkg(pkg_settings, pudl_settings):
+def etl_pkg(pkg_settings, pudl_settings, uuid_pkgs):
     """Extracts, transforms and loads CSVs.
 
     Args:
         pkg_settings (dict) : a dictionary of etl_params for a datapackage.
         pudl_settings (dict) : a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
+        uuid_pkgs (uuid)
 
     Returns:
         dict: dictionary with datapackpackages (keys) and
@@ -601,6 +602,7 @@ def etl_pkg(pkg_settings, pudl_settings):
     # a dictionary to compile the list of tables being loaded for each package
     # define the package directory
     pkg_dir = os.path.join(pudl_settings['datapackage_dir'],
+                           uuid_pkgs,
                            pkg_settings['name'])
     # prepping the directories where the pkges will live
     _prep_directories(pkg_dir)
@@ -643,7 +645,4 @@ def etl_pkg(pkg_settings, pudl_settings):
                 )
             if tbls:
                 tables.extend(tbls)
-            # tables.extend(tbls)
-    # Add an assertion that tables = ...
-    # os.listdir(os.path.join(pkg_dir,"data"))
     return tables

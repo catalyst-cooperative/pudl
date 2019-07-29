@@ -822,12 +822,16 @@ def generate_data_packages(pkg_bundle_settings, pudl_settings, debug=False):
     validated_bundle_settings = pudl.etl_pkg.validate_input(
         pkg_bundle_settings)
     uuid_pkgs = str(uuid.uuid4())
+
+    # make a subdirectory for the package bundles...
+    pkg_bundle_dir = os.path.join(pudl_settings['datapackage_dir'], uuid_pkgs)
+    os.mkdir(pkg_bundle_dir)
+
     metas = {}
     for pkg_settings in validated_bundle_settings:
         # run the ETL functions for this pkg and return the list of tables
         # dumped to CSV
-        pkg_tables = pudl.etl_pkg.etl_pkg(pkg_settings, pudl_settings)
-
+        pkg_tables = pudl.etl_pkg.etl_pkg(pkg_settings, pudl_settings, uuid_pkgs)
         # assure that the list of tables from ETL match up with the CVSs and
         # dependent tables
         test_file_consistency(
