@@ -42,9 +42,6 @@ parquet_requires = [
     'pyarrow>=0.14.0',
     'python-snappy'
 ]
-# Snappy uses C libraries that aren't on RTD. So we mock it there.
-# if not os.getenv('READTHEDOCS'):
-#    parquet_requires.append('python-snappy')
 
 setup(
     name='pudl',
