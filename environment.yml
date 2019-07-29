@@ -25,7 +25,7 @@ dependencies:
   - pandas>=0.24        # base
   - pandoc              # dev
   - pdbpp               # dev
-  - pip                 # N/A
+  - pip                 # N/A pip>=19.0 can do non-setuptools build
   - pre_commit          # dev
   - psycopg2            # base
   - pyarrow>=0.14.0     # base

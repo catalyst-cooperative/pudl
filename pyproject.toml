@@ -1,2 +1,4 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools", "wheel", "setuptools_scm"]
+# setuptools>=40.8.0 allows config here rather than setup.py.
+# pip>=19.0 allows use of other build systems.
