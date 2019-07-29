@@ -62,7 +62,7 @@ def simplify_sql_type(sql_type, field_name=""):
         if isinstance(sql_type, type_map[dtype]):
             simple_type = dtype
 
-    if (simple_type == 'integer' and re.match('.*_year$', field_name)):
+    if (simple_type == 'integer' and re.match('.*_year$', field_name) and (field_name != "day_of_year")):
         simple_type = 'year'
 
     return simple_type

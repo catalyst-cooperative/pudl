@@ -101,8 +101,7 @@ def _validate_input_eia(etl_params):
 
 
 def _load_static_tables_eia(pkg_dir):
-    """
-    Populate static EIA tables with constants for use as foreign keys.
+    """Populate static EIA tables with constants for use as foreign keys.
 
     There are many values specified within the data that are essentially
     constant, but which we need to store for data validation purposes, for use
@@ -244,8 +243,7 @@ def _validate_input_ferc1(etl_params):
 
 
 def _load_static_tables_ferc(pkg_dir):
-    """
-    Populate static PUDL tables with constants for use as foreign keys.
+    """Populate static PUDL tables with constants for use as foreign keys.
 
     There are many values specified within the data that are essentially
     constant, but which we need to store for data validation purposes, for use
@@ -406,6 +404,14 @@ def _etl_epacems_pkg(etl_params, data_dir, pkg_dir):
 ###############################################################################
 
 def _validate_input_epaipm(etl_params):
+    """Validate the etl parameters for EPA IPM.
+
+    Args:
+        etl_params (iterable): dictionary of inputs
+
+    Returns:
+        iterable: validated dictionary of inputs
+    """
     epaipm_dict = {}
     # pull out the etl_params from the dictionary passed into this function
     try:
@@ -415,8 +421,23 @@ def _validate_input_epaipm(etl_params):
     return(epaipm_dict)
 
 def _load_static_tables_epaipm(pkg_dir):
+    """Populate static PUDL tables with constants for use as foreign keys.
+
+    For IPM, there is only one list of regional id's stored in constants that
+    we want to load as a tabular resource because many of the other tabular
+    resources in IPM rely on the regional_id_ipm as a foreign key.
+
+    Args:
+        pkg_dir (path-like): The location of the directory for this package.
+            The data package directory will be a subdirectory in the
+            `datapackage_dir` directory, with the name of the package as the
+            name of the subdirectory.
+    Returns:
+        iterable: list of tables
+    """
     # compile the dfs in a dictionary, prep for dict_dump
-    static_dfs = {'region_id_ipm': pc.epaipm_region_names}
+    static_dfs = {'regions_entity_ipm':
+        pd.DataFrame(pc.epaipm_region_names,columns=['region_id_ipm'])}
 
     # run the dictionary of prepped static tables through dict_dump to make
     # CSVs
@@ -428,6 +449,18 @@ def _load_static_tables_epaipm(pkg_dir):
     return list(static_dfs.keys())
 
 def _etl_epaipm(etl_params,data_dir, pkg_dir):
+    """Extracts, transforms and loads CSVs for EPA IPM.
+
+    Args:
+        etl_params (iterable): dictionary of parameters for etl
+        data_dir (path-like): The location of the directory for the data store.
+        pkg_dir (path-like): The location of the directory for this package.
+            The data package directory will be a subdirectory in the
+            `datapackage_dir` directory, with the name of the package as the
+            name of the subdirectory.
+    Returns:
+        iterable: list of tables
+    """
     epaipm_dict = _validate_input_epaipm(etl_params)
     epaipm_tables = epaipm_dict['epaipm_tables']
     static_tables = _load_static_tables_epaipm(pkg_dir)
@@ -447,7 +480,7 @@ def _etl_epaipm(etl_params,data_dir, pkg_dir):
         pkg_dir=pkg_dir
     )
 
-    return list(epaipm_transformed_dfs.keys()) + tables
+    return list(epaipm_transformed_dfs.keys()) + static_tables
 
 
 ###############################################################################
@@ -473,11 +506,9 @@ def _validate_input_glue(etl_params):
 
 
 def _etl_glue(etl_params, pkg_dir):
-    """
-    Grab the glue tables and generate CSVs.
+    """Grab the glue tables and generate CSVs.
 
-    Right now, this function only generates the glue between EIA and FERC
-
+    Right now, this function only generates the glue between EIA and FERC.
     """
     glue_dict = _validate_input_glue(etl_params)
     ferc1 = glue_dict['ferc1']
@@ -502,8 +533,7 @@ def _etl_glue(etl_params, pkg_dir):
 ###############################################################################
 
 def _prep_directories(pkg_dir):
-    """
-    Prep dictionaries for CSVs.
+    """Prep dictionaries for CSVs.
     """
     # delete package directories if they exist
     if os.path.exists(pkg_dir):

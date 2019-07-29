@@ -288,7 +288,7 @@
                     },
                     {
                         "name": "day_of_year",
-                        "type": "year",
+                        "type": "integer",
                         "description": "Day of the year",
                         "format": "default"
                     },

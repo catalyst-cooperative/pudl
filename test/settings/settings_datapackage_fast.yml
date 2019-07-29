@@ -21,6 +21,20 @@
         ferc1: True
 
 ###########################################################################
+# EPA IMP SETTINGS
+###########################################################################
+- name: epaipm-test
+  title: EPA Integrated Planning Model transmission data
+  description: transmission something something
+  datasets:
+    - epaipm:
+        epaipm_tables:
+          - transmission_single_ipm
+          - transmission_joint_ipm
+          - load_curves_ipm
+          - plant_region_map_ipm
+
+###########################################################################
 # FERC FORM 1 SETTINGS
 ###########################################################################
 - name: ferc1-test-fast
