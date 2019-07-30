@@ -12,6 +12,8 @@ dependencies:
   - dbfread             # base
   - doc8                # dev
   - flake8              # dev
+  - flake8-docstrings   # dev
+  - flake8-import-order # dev
   - goodtables          # base
   - ipdb                # dev
   - isort               # dev

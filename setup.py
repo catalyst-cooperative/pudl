@@ -34,6 +34,8 @@ test_requires = [
     'coverage',
     'doc8',
     'flake8',
+    'flake8-docstrings',
+    'flake8-import-order',
     'pre-commit',
     'pydocstyle',
     'pytest',
@@ -50,7 +52,7 @@ parquet_requires = [
     'python-snappy'
 ]
 
-readme_path = pathlib.Path(__file__).parent() / "docs" / "README.rst"
+readme_path = pathlib.Path(__file__).parent / "docs" / "README.rst"
 long_description = readme_path.read_text()
 
 
@@ -59,7 +61,7 @@ setup(
     description='Tools for liberating public US electric utility data.',
     long_description=long_description,
     long_description_content_type='text/x-rst',
-    version='v0.1.0a1',
+    version='0.1.0a2',
     # use_scm_version=True,
     author='Catalyst Cooperative',
     author_email='pudl@catalyst.coop',

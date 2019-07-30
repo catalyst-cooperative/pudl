@@ -1,7 +1,9 @@
 """Tests excercising FERC/EIA correlation merge for use with PyTest."""
 
 import logging
+
 import pytest
+
 from pudl import analysis
 
 logger = logging.getLogger(__name__)
