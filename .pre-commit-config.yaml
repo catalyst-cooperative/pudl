@@ -44,11 +44,11 @@ repos:
   - id: pydocstyle
 
 # Check for errors in reST files under the doc hierarchy
-- repo: https://github.com/PyCQA/doc8
-  rev: a4740d8f4f41ce4e1e1d1b7dedc8f928f365b862
-  hooks:
-  - id: doc8
-    args: [--ignore-path, docs/_build]
+#- repo: https://github.com/PyCQA/doc8
+#  rev: a4740d8f4f41ce4e1e1d1b7dedc8f928f365b862
+#  hooks:
+#  - id: doc8
+#    args: [--ignore-path, docs/_build]
 
 # Check for known security vulnerabilities:
 - repo: https://github.com/PyCQA/bandit

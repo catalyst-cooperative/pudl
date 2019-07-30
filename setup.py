@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """Setup script to make PUDL directly installable with pip."""
 
+import pathlib
+
 from setuptools import find_packages, setup
 
 install_requires = [
@@ -28,7 +30,12 @@ doc_requires = [
 ]
 
 test_requires = [
+    'bandit',
     'coverage',
+    'doc8',
+    'flake8',
+    'pre-commit',
+    'pydocstyle',
     'pytest',
     'pytest-cov',
 ]
@@ -43,10 +50,17 @@ parquet_requires = [
     'python-snappy'
 ]
 
+readme_path = pathlib.Path(__file__).parent() / "docs" / "README.rst"
+long_description = readme_path.read_text()
+
+
 setup(
-    name='pudl',
+    name='pudl-zaneselvans',
     description='Tools for liberating public US electric utility data.',
-    use_scm_version=True,
+    long_description=long_description,
+    long_description_content_type='text/x-rst',
+    version='v0.1.0a1',
+    # use_scm_version=True,
     author='Catalyst Cooperative',
     author_email='pudl@catalyst.coop',
     maintainer='Zane A. Selvans',
@@ -91,13 +105,12 @@ setup(
     # user's system. setuptools will get whatever is listed in MANIFEST.in
     include_package_data=True,
     # This defines the interfaces to the command line scripts we're including:
-    # https://github.com/catalyst-cooperative/pudl/issues/327
     entry_points={
         'console_scripts': [
             'pudl_datastore = pudl.datastore.cli:main',
             'pudl_etl = pudl.cli:main',
             'ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main',
-            'epacems_to_parquet = pudl.convert.epacems_to_parquet:main [parquet]',
+            'epacems_to_parquet = pudl.convert.epacems_to_parquet:main [parquet]',  # noqa: E501
         ]
     },
 )
