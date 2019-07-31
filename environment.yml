@@ -12,8 +12,9 @@ dependencies:
   - dbfread             # base
   - doc8                # dev
   - flake8              # dev
+  - flake8-colors       # dev
   - flake8-docstrings   # dev
-  - flake8-import-order # dev
+  - flake8-builtins     # dev
   - goodtables          # base
   - ipdb                # dev
   - isort               # dev
@@ -25,6 +26,7 @@ dependencies:
   - pandas>=0.24        # base
   - pandoc              # dev
   - pdbpp               # dev
+  - pep8-naming         # dev
   - pip                 # N/A pip>=19.0 can do non-setuptools build
   - pre_commit          # dev
   - psycopg2            # base

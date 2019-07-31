@@ -99,6 +99,7 @@ def partition(collection):
         collection (list of items): the set to partition.
     Returns:
         A list of all valid set partitions.
+
     """
     if len(collection) == 1:
         yield [collection]

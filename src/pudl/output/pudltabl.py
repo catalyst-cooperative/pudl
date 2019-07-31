@@ -31,8 +31,9 @@ Todo:
 import pandas as pd
 
 import pudl
-import pudl.models.entities
 import pudl.constants as pc
+import pudl.models.entities
+
 # Shorthand for easier table referecnes:
 pt = pudl.models.entities.PUDLBase.metadata.tables
 

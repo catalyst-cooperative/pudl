@@ -40,13 +40,14 @@ repos:
 # Check for PEP8 non-compliance, code complexity, and syntax errors:
 # Make sure the following plugins are installed as well:
 # - flake8-docstrings
+# - flake8-builtins
 # - pep8-naming
 - repo: https://github.com/PyCQA/flake8
   rev: 3.7.8
   hooks:
   - id: flake8
 
-# Check for errors in reST files under the doc hierarchy
+# Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8
   rev: 4331c3a7a10b9bb76906901987bac9691e29c2ab
   hooks:
