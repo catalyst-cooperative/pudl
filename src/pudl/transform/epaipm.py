@@ -16,7 +16,7 @@ def load_curves(epaipm_dfs, epaipm_transformed_dfs):
         epaipm_dfs (dict): Each entry in this dictionary of DataFrame objects
             corresponds to a table from EPA's IPM, as reported in the Excel
             spreadsheets they distribute.
-        epa_ipm_transformed_dfs (dict): A dictionary of DataFrame objects in
+        epa_epaipm_transformed_dfs (dict): A dictionary of DataFrame objects in
             which tables from EPA IPM (keys) correspond to normalized DataFrames
             of values from that table (values)
 
@@ -25,7 +25,7 @@ def load_curves(epaipm_dfs, epaipm_transformed_dfs):
         IPM (keys) correspond to normalized DataFrames of values from
         that table (values)
     """
-    lc = epaipm_dfs['load_curves_ipm'].copy()
+    lc = epaipm_dfs['load_curves_epaipm'].copy()
     lc = simplify_columns(lc)
     # Melt the load curves
     melt_lc = lc.melt(
@@ -52,10 +52,10 @@ def load_curves(epaipm_dfs, epaipm_transformed_dfs):
 
     tidy_load_curves = pd.concat(df_list)
     tidy_load_curves = tidy_load_curves.rename(
-        columns=pc.epaipm_rename_dict['load_curves_ipm']
+        columns=pc.epaipm_rename_dict['load_curves_epaipm']
     )
 
-    epaipm_transformed_dfs['load_curves_ipm'] = tidy_load_curves
+    epaipm_transformed_dfs['load_curves_epaipm'] = tidy_load_curves
 
     return epaipm_transformed_dfs
 
@@ -67,7 +67,7 @@ def transmission_single(epaipm_dfs, epaipm_transformed_dfs):
         epaipm_dfs (dict): Each entry in this dictionary of DataFrame objects
             corresponds to a table from EPA's IPM, as reported in the Excel
             spreadsheets they distribute.
-        epa_ipm_transformed_dfs (dict): A dictionary of DataFrame objects in
+        epa_epaipm_transformed_dfs (dict): A dictionary of DataFrame objects in
             which tables from EPA IPM (keys) correspond to normalized DataFrames
             of values from that table (values)
 
@@ -76,12 +76,12 @@ def transmission_single(epaipm_dfs, epaipm_transformed_dfs):
         IPM (keys) correspond to normalized DataFrames of values from
         that table (values)
     """
-    trans_df = epaipm_dfs['transmission_single_ipm'].copy()
+    trans_df = epaipm_dfs['transmission_single_epaipm'].copy()
     trans_df = trans_df.reset_index()
     trans_df = trans_df.rename(
-        columns=pc.epaipm_rename_dict['transmission_single_ipm']
+        columns=pc.epaipm_rename_dict['transmission_single_epaipm']
     )
-    epaipm_transformed_dfs['transmission_single_ipm'] = trans_df
+    epaipm_transformed_dfs['transmission_single_epaipm'] = trans_df
 
     return epaipm_transformed_dfs
 
@@ -93,7 +93,7 @@ def transmission_joint(epaipm_dfs, epaipm_transformed_dfs):
         epaipm_dfs (dict): Each entry in this
             dictionary of DataFrame objects corresponds to a table from
             EPA's IPM, as reported in the Excel spreadsheets they distribute.
-        epa_ipm_transformed_dfs (dict): A dictionary of DataFrame objects in
+        epa_epaipm_transformed_dfs (dict): A dictionary of DataFrame objects in
             which tables from EPA IPM (keys) correspond to normalized DataFrames
             of values from that table (values)
 
@@ -103,8 +103,8 @@ def transmission_joint(epaipm_dfs, epaipm_transformed_dfs):
         that table (values)
 """
 
-    trans_df = epaipm_dfs['transmission_joint_ipm'].copy()
-    epaipm_transformed_dfs['transmission_joint_ipm'] = trans_df
+    trans_df = epaipm_dfs['transmission_joint_epaipm'].copy()
+    epaipm_transformed_dfs['transmission_joint_epaipm'] = trans_df
 
     return epaipm_transformed_dfs
 
@@ -116,7 +116,7 @@ def plant_region_map(epaipm_dfs, epaipm_transformed_dfs):
         epaipm_dfs (dict): Each entry in this
             dictionary of DataFrame objects corresponds to a table from
             EPA's IPM, as reported in the Excel spreadsheets they distribute.
-        epa_ipm_transformed_dfs (dict): A dictionary of DataFrame objects in
+        epaipm_transformed_dfs (dict): A dictionary of DataFrame objects in
             which tables from EPA IPM (keys) correspond to normalized DataFrames
             of values from that table (values)
 
@@ -127,14 +127,14 @@ def plant_region_map(epaipm_dfs, epaipm_transformed_dfs):
     """
     trans_df = pd.concat(
         [
-            epaipm_dfs['plant_region_map_ipm_active'],
-            epaipm_dfs['plant_region_map_ipm_retired']
+            epaipm_dfs['plant_region_map_epaipm_active'],
+            epaipm_dfs['plant_region_map_epaipm_retired']
         ]
     )
     trans_df = trans_df.drop_duplicates()
     trans_df = trans_df.reset_index(drop=True)
     trans_df = trans_df.rename(
-        columns=pc.epaipm_rename_dict['plant_region_map_ipm']
+        columns=pc.epaipm_rename_dict['plant_region_map_epaipm']
     )
 
     # Plants that are in IPM but appear to be retired or not listed in EIA files
@@ -144,7 +144,7 @@ def plant_region_map(epaipm_dfs, epaipm_transformed_dfs):
     # ]
     # trans_df = trans_df.loc[~trans_df['plant_id_eia'].isin(missing_plants), :]
 
-    epaipm_transformed_dfs['plant_region_map_ipm'] = trans_df
+    epaipm_transformed_dfs['plant_region_map_epaipm'] = trans_df
 
     return epaipm_transformed_dfs
 
@@ -164,10 +164,10 @@ def transform(epaipm_raw_dfs, epaipm_tables=pc.epaipm_pudl_tables):
             that table (values)
         """
     epaipm_transform_functions = {
-        'transmission_single_ipm': transmission_single,
-        'transmission_joint_ipm': transmission_joint,
-        'load_curves_ipm': load_curves,
-        'plant_region_map_ipm': plant_region_map,
+        'transmission_single_epaipm': transmission_single,
+        'transmission_joint_epaipm': transmission_joint,
+        'load_curves_epaipm': load_curves,
+        'plant_region_map_epaipm': plant_region_map,
     }
     epaipm_transformed_dfs = {}
 

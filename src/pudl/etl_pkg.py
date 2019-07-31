@@ -425,7 +425,7 @@ def _load_static_tables_epaipm(pkg_dir):
 
     For IPM, there is only one list of regional id's stored in constants that
     we want to load as a tabular resource because many of the other tabular
-    resources in IPM rely on the regional_id_ipm as a foreign key.
+    resources in IPM rely on the regional_id_epaipm as a foreign key.
 
     Args:
         pkg_dir (path-like): The location of the directory for this package.
@@ -436,8 +436,8 @@ def _load_static_tables_epaipm(pkg_dir):
         iterable: list of tables
     """
     # compile the dfs in a dictionary, prep for dict_dump
-    static_dfs = {'regions_entity_ipm':
-        pd.DataFrame(pc.epaipm_region_names,columns=['region_id_ipm'])}
+    static_dfs = {'regions_entity_epaipm':
+        pd.DataFrame(pc.epaipm_region_names,columns=['region_id_epaipm'])}
 
     # run the dictionary of prepped static tables through dict_dump to make
     # CSVs
@@ -585,7 +585,7 @@ def validate_input(pkg_bundle_settings):
     return validated_settings
 
 
-def etl_pkg(pkg_settings, pudl_settings, uuid_pkgs):
+def etl_pkg(pkg_settings, pudl_settings, pkg_bundle_dir):
     """Extracts, transforms and loads CSVs.
 
     Args:
@@ -601,8 +601,7 @@ def etl_pkg(pkg_settings, pudl_settings, uuid_pkgs):
     """
     # a dictionary to compile the list of tables being loaded for each package
     # define the package directory
-    pkg_dir = os.path.join(pudl_settings['datapackage_dir'],
-                           uuid_pkgs,
+    pkg_dir = os.path.join(pkg_bundle_dir,
                            pkg_settings['name'])
     # prepping the directories where the pkges will live
     _prep_directories(pkg_dir)

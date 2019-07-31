@@ -10,18 +10,18 @@ class TransmissionSingleIPM(pudl.models.entities.PUDLBase):
     Transmission limits between individual IPM regions
     """
 
-    __tablename__ = 'transmission_single_ipm'
+    __tablename__ = 'transmission_single_epaipm'
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     region_from = Column(
         String,
-        ForeignKey('regions_entity_ipm.region_id_ipm'),
+        ForeignKey('regions_entity_epaipm.region_id_epaipm'),
         nullable=False,
         comment='Name of the IPM region sending electricity'
     )
     region_to = Column(
         String,
-        ForeignKey('regions_entity_ipm.region_id_ipm'),
+        ForeignKey('regions_entity_epaipm.region_id_epaipm'),
         nullable=False,
         comment='Name of the IPM region receiving electricity'
     )
@@ -44,7 +44,7 @@ class TransmissionJointIPM(pudl.models.entities.PUDLBase):
     Transmission limits between groups of IPM regions
     """
 
-    __tablename__ = 'transmission_joint_ipm'
+    __tablename__ = 'transmission_joint_epaipm'
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     joint_constraint_id = Column(
@@ -54,13 +54,13 @@ class TransmissionJointIPM(pudl.models.entities.PUDLBase):
     )
     region_from = Column(
         String,
-        ForeignKey('regions_entity_ipm.region_id_ipm'),
+        ForeignKey('regions_entity_epaipm.region_id_epaipm'),
         nullable=False,
         comment='Name of the IPM region sending electricity'
     )
     region_to = Column(
         String,
-        ForeignKey('regions_entity_ipm.region_id_ipm'),
+        ForeignKey('regions_entity_epaipm.region_id_epaipm'),
         nullable=False,
         comment='Name of the IPM region receiving electricity'
     )
@@ -76,12 +76,12 @@ class TransmissionJointIPM(pudl.models.entities.PUDLBase):
 
 class LoadCurveIPM(pudl.models.entities.PUDLBase):
 
-    __tablename__ = 'load_curves_ipm'
+    __tablename__ = 'load_curves_epaipm'
 
     id = Column(Integer, autoincrement=True, primary_key=True)
-    region_id_ipm = Column(
+    region_id_epaipm = Column(
         String,
-        ForeignKey('regions_entity_ipm.region_id_ipm'),
+        ForeignKey('regions_entity_epaipm.region_id_epaipm'),
         nullable=False,
         comment='Name of the IPM region'
     )
@@ -114,7 +114,7 @@ class LoadCurveIPM(pudl.models.entities.PUDLBase):
 
 class PlantRegionIPM(pudl.models.entities.PUDLBase):
 
-    __tablename__ = 'plant_region_map_ipm'
+    __tablename__ = 'plant_region_map_epaipm'
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     plant_id_eia = Column(
@@ -125,7 +125,7 @@ class PlantRegionIPM(pudl.models.entities.PUDLBase):
     )
     region = Column(
         String,
-        ForeignKey('regions_entity_ipm.region_id_ipm'),
+        ForeignKey('regions_entity_epaipm.region_id_epaipm'),
         nullable=False,
         comment='Name of the IPM region'
     )

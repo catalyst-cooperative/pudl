@@ -252,9 +252,9 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "load_curves_ipm",
-            "path": "data/load_curves_ipm.csv",
-            "title": "load_curves_ipm",
+            "name": "load_curves_epaipm",
+            "path": "data/load_curves_epaipm.csv",
+            "title": "load_curves_epaipm",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -275,7 +275,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "region_id_ipm",
+                        "name": "region_id_epaipm",
                         "type": "string",
                         "description": "Name of the IPM region",
                         "format": "default"
@@ -316,10 +316,10 @@
                 ],
                 "foreignKeys": [
                     {
-                        "fields": "region_id_ipm",
+                        "fields": "region_id_epaipm",
                         "reference": {
-                            "resource": "regions_entity_ipm",
-                            "fields": "region_id_ipm"
+                            "resource": "regions_entity_epaipm",
+                            "fields": "region_id_epaipm"
                         }
                     }
                 ],
@@ -340,9 +340,9 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "plant_region_map_ipm",
-            "path": "data/plant_region_map_ipm.csv",
-            "title": "plant_region_map_ipm",
+            "name": "plant_region_map_epaipm",
+            "path": "data/plant_region_map_epaipm.csv",
+            "title": "plant_region_map_epaipm",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -382,8 +382,8 @@
                     {
                         "fields": "region",
                         "reference": {
-                            "resource": "regions_entity_ipm",
-                            "fields": "region_id_ipm"
+                            "resource": "regions_entity_epaipm",
+                            "fields": "region_id_epaipm"
                         }
                     }
                 ],
@@ -1129,9 +1129,9 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "regions_entity_ipm",
-            "path": "data/regions_entity_ipm.csv",
-            "title": "regions_entity_ipm",
+            "name": "regions_entity_epaipm",
+            "path": "data/regions_entity_epaipm.csv",
+            "title": "regions_entity_epaipm",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -1147,13 +1147,13 @@
             "schema": {
                 "fields": [
                     {
-                        "name": "region_id_ipm",
+                        "name": "region_id_epaipm",
                         "type": "string",
                         "format": "default"
                     }
                 ],
                 "primaryKey": [
-                    "region_id_ipm"
+                    "region_id_epaipm"
                 ],
                 "missingValues": [
                     ""
@@ -4695,9 +4695,9 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "transmission_single_ipm",
-            "path": "data/transmission_single_ipm.csv",
-            "title": "transmission_single_ipm",
+            "name": "transmission_single_epaipm",
+            "path": "data/transmission_single_epaipm.csv",
+            "title": "transmission_single_epaipm",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -4755,15 +4755,15 @@
                     {
                         "fields": "region_from",
                         "reference": {
-                            "resource": "regions_entity_ipm",
-                            "fields": "region_id_ipm"
+                            "resource": "regions_entity_epaipm",
+                            "fields": "region_id_epaipm"
                         }
                     },
                     {
                         "fields": "region_to",
                         "reference": {
-                            "resource": "regions_entity_ipm",
-                            "fields": "region_id_ipm"
+                            "resource": "regions_entity_epaipm",
+                            "fields": "region_id_epaipm"
                         }
                     }
                 ],
@@ -5475,9 +5475,9 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "transmission_joint_ipm",
-            "path": "data/transmission_joint_ipm.csv",
-            "title": "transmission_joint_ipm",
+            "name": "transmission_joint_epaipm",
+            "path": "data/transmission_joint_epaipm.csv",
+            "title": "transmission_joint_epaipm",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -5535,15 +5535,15 @@
                     {
                         "fields": "region_from",
                         "reference": {
-                            "resource": "regions_entity_ipm",
-                            "fields": "region_id_ipm"
+                            "resource": "regions_entity_epaipm",
+                            "fields": "region_id_epaipm"
                         }
                     },
                     {
                         "fields": "region_to",
                         "reference": {
-                            "resource": "regions_entity_ipm",
-                            "fields": "region_id_ipm"
+                            "resource": "regions_entity_epaipm",
+                            "fields": "region_id_epaipm"
                         }
                     }
                 ],

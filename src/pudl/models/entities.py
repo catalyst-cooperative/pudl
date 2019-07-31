@@ -161,6 +161,6 @@ class BoilerEntityEIA(PUDLBase):
 class RegionEntityIPM(PUDLBase):
     """A region in EPA's Integrated Planning Model."""
 
-    __tablename__ = 'regions_entity_ipm'
+    __tablename__ = 'regions_entity_epaipm'
 
-    region_id_ipm = Column(String, primary_key=True, nullable=False)
+    region_id_epaipm = Column(String, primary_key=True, nullable=False)

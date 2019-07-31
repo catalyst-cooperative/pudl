@@ -30,7 +30,7 @@ def get_epaipm_name(file, data_dir):
 
     """
     # Access the CSV scraped from a PDF & distributed with PUDL:
-    if file == 'transmission_joint_ipm':
+    if file == 'transmission_joint_epaipm':
         with importlib.resources.path(
             'pudl.package_data.epa.ipm', 'table_3-5_transmission_joint_ipm.csv'
         ) as p:
@@ -97,15 +97,15 @@ def create_dfs_epaipm(files, data_dir):
         # NEEDS is the only IPM data file with multiple sheets. Keeping the overall
         # code simpler but adding this if statement to read both sheets (active and
         # retired by 2021).
-        if f == 'plant_region_map_ipm':
-            epaipm_dfs['plant_region_map_ipm_active'] = get_epaipm_file(
+        if f == 'plant_region_map_epaipm':
+            epaipm_dfs['plant_region_map_epaipm_active'] = get_epaipm_file(
                 f,
-                pc.read_excel_epaipm_dict['plant_region_map_ipm_active'],
+                pc.read_excel_epaipm_dict['plant_region_map_epaipm_active'],
                 data_dir
             )
-            epaipm_dfs['plant_region_map_ipm_retired'] = get_epaipm_file(
+            epaipm_dfs['plant_region_map_epaipm_retired'] = get_epaipm_file(
                 f,
-                pc.read_excel_epaipm_dict['plant_region_map_ipm_retired'],
+                pc.read_excel_epaipm_dict['plant_region_map_epaipm_retired'],
                 data_dir
             )
         else:

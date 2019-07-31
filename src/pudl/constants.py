@@ -884,10 +884,10 @@ eia923_pudl_tables = ('generation_fuel_eia923',
 """
 
 epaipm_pudl_tables = (
-    'transmission_single_ipm',
-    'transmission_joint_ipm',
-    'load_curves_ipm',
-    'plant_region_map_ipm',
+    'transmission_single_epaipm',
+    'transmission_joint_epaipm',
+    'load_curves_epaipm',
+    'plant_region_map_epaipm',
 )
 """tuple: A tuple containing the EPA IPM tables that can be successfully
     integrated into PUDL.
@@ -898,7 +898,7 @@ entity_tables = ['utilities_entity_eia',
                  'plants_entity_eia',
                  'generators_entity_eia',
                  'boilers_entity_eia',
-                 'regions_entity_ipm', ]
+                 'regions_entity_epaipm', ]
 """list: A list of PUDL entity tables.
 """
 
@@ -2094,40 +2094,40 @@ epacems_additional_plant_info_file = importlib.resources.open_text(
 """
 
 files_dict_epaipm = {
-    'transmission_single_ipm': '*table_3-21*',
-    # 'transmission_joint_ipm': '*transmission_joint_ipm*',
-    'load_curves_ipm': '*table_2-2_*',
-    'plant_region_map_ipm': '*needs_v6*',
+    'transmission_single_epaipm': '*table_3-21*',
+    'transmission_joint_epaipm': '*transmission_joint_ipm*',
+    'load_curves_epaipm': '*table_2-2_*',
+    'plant_region_map_epaipm': '*needs_v6*',
 }
 """dict: A dictionary of EPA IPM tables and strings that files of those tables
     contain.
 """
 
 epaipm_url_ext = {
-    'transmission_single_ipm': 'table_3-21_annual_transmission_capabilities_of_u.s._model_regions_in_epa_platform_v6_-_2021.xlsx',
-    'load_curves_ipm': 'table_2-2_load_duration_curves_used_in_epa_platform_v6.xlsx',
-    'plant_region_map_ipm': 'needs_v6_november_2018_reference_case_0.xlsx',
+    'transmission_single_epaipm': 'table_3-21_annual_transmission_capabilities_of_u.s._model_regions_in_epa_platform_v6_-_2021.xlsx',
+    'load_curves_epaipm': 'table_2-2_load_duration_curves_used_in_epa_platform_v6.xlsx',
+    'plant_region_map_epaipm': 'needs_v6_november_2018_reference_case_0.xlsx',
 }
 """dict: A dictionary of EPA IPM tables and associated URLs extensions for
     downloading that table's data.
 """
 
 read_excel_epaipm_dict = {
-    'transmission_single_ipm': dict(
+    'transmission_single_epaipm': dict(
         skiprows=3,
         usecols='B:F',
         index_col=[0, 1],
     ),
-    'transmission_joint_ipm': {},
-    'load_curves_ipm': dict(
+    'transmission_joint_epaipm': {},
+    'load_curves_epaipm': dict(
         skiprows=3,
         usecols='B:AB',
     ),
-    'plant_region_map_ipm_active': dict(
+    'plant_region_map_epaipm_active': dict(
         sheet_name='NEEDS v6_Active',
         usecols='C,I',
     ),
-    'plant_region_map_ipm_retired': dict(
+    'plant_region_map_epaipm_retired': dict(
         sheet_name='NEEDS v6_Retired_Through2021',
         usecols='C,I',
     ),
@@ -2184,18 +2184,18 @@ epaipm_region_aggregations = {
 """
 
 epaipm_rename_dict = {
-    'transmission_single_ipm': {
+    'transmission_single_epaipm': {
         'From': 'region_from',
         'To': 'region_to',
         'Capacity TTC (MW)': 'firm_ttc_mw',
         'Energy TTC (MW)': 'nonfirm_ttc_mw',
         'Transmission Tariff (2016 mills/kWh)': 'tariff_mills_kwh',
     },
-    'load_curves_ipm': {
+    'load_curves_epaipm': {
         'day': 'day_of_year',
-        'region': 'region_id_ipm',
+        'region': 'region_id_epaipm',
     },
-    'plant_region_map_ipm': {
+    'plant_region_map_epaipm': {
         'ORIS Plant Code': 'plant_id_eia',
         'Region Name': 'region',
     },
@@ -2258,7 +2258,8 @@ base_data_urls = {
     'ferc714': 'https://www.ferc.gov/docs-filing/forms/form-714/data',
     'ferceqr': 'ftp://eqrdownload.ferc.gov/DownloadRepositoryProd/BulkNew/CSV',
     'msha': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
-    'epaipm': 'https://www.epa.gov/sites/production/files/2019-03'
+    'epaipm': 'https://www.epa.gov/sites/production/files/2019-03',
+    'pudl': 'https://catalyst.coop/pudl/'
 }
 """dict: A dictionary containing data sources (keys) and their base data URLs
     (values).
@@ -2327,7 +2328,11 @@ contributors = {
         "path": "https://climatepolicyinitiative.org/",
         "role": "contributor",
         "organization": "Climate Policy Initiative",
-    }
+    },
+    'greg-schivley': {
+        "title": "Greg Schivley",
+        "role": "contributor",
+    },
 }
 
 """dict: A dictionary of dictionaries containing organization names (keys) and
@@ -2413,6 +2418,9 @@ contributors_by_source = {
         "catalyst-cooperative",
         "karl-dunkle-werner",
         "zane-selvans",
+    ],
+    "epaipm": [
+        "greg-schivley",
     ],
 }
 """dict: A dictionary of data sources (keys) and lists of contributors (values).
