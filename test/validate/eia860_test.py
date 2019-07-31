@@ -1,8 +1,10 @@
 """Validate post-ETL EIA 860 data and the associated derived outputs."""
 
 import logging
+
 import pytest
 from scipy import stats
+
 from pudl import helpers
 
 logger = logging.getLogger(__name__)

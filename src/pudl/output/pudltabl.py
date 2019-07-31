@@ -31,8 +31,9 @@ Todo:
 import pandas as pd
 
 import pudl
-import pudl.models.entities
 import pudl.constants as pc
+import pudl.models.entities
+
 # Shorthand for easier table referecnes:
 pt = pudl.models.entities.PUDLBase.metadata.tables
 
@@ -46,7 +47,8 @@ class PudlTabl(object):
 
     def __init__(self, freq=None, testing=False,
                  start_date=None, end_date=None):
-        """Initialize the PUDL output object.
+        """
+        Initialize the PUDL output object.
 
         Private data members are not initialized until they are requested.
         They are then cached within the object unless they get re-initialized
@@ -62,6 +64,7 @@ class PudlTabl(object):
             start_date (date): Beginning date for data to pull from the
                 PUDL DB.
             end_date (date): End date for data to pull from the PUDL DB.
+
         """
         self.freq = freq
         self.testing = testing
@@ -112,7 +115,8 @@ class PudlTabl(object):
         }
 
     def pu_eia860(self, update=False):
-        """Pull a dataframe of EIA plant-utility associations.
+        """
+        Pull a dataframe of EIA plant-utility associations.
 
         Args:
             update (bool):
@@ -128,7 +132,8 @@ class PudlTabl(object):
         return self._dfs['pu_eia']
 
     def pu_ferc1(self, update=False):
-        """Pull a dataframe of FERC plant-utility associations.
+        """
+        Pull a dataframe of FERC plant-utility associations.
 
         Args:
             update (bool):
@@ -142,7 +147,8 @@ class PudlTabl(object):
         return self._dfs['pu_ferc1']
 
     def utils_eia860(self, update=False):
-        """Pull a dataframe describing utilities reported in EIA 860.
+        """
+        Pull a dataframe describing utilities reported in EIA 860.
 
         Args:
             update (bool):
@@ -158,7 +164,8 @@ class PudlTabl(object):
         return self._dfs['utils_eia860']
 
     def bga_eia860(self, update=False):
-        """Pull a dataframe of boiler-generator associations from EIA 860.
+        """
+        Pull a dataframe of boiler-generator associations from EIA 860.
 
         Args:
             update (bool):
@@ -175,12 +182,14 @@ class PudlTabl(object):
         return self._dfs['bga_eia860']
 
     def plants_eia860(self, update=False):
-        """Pull a dataframe of plant level info reported in EIA 860.
+        """
+        Pull a dataframe of plant level info reported in EIA 860.
 
         Args:
             update (bool):
 
         Returns:
+
         """
         if update or self._dfs['plants_eia860'] is None:
             self._dfs['plants_eia860'] = pudl.output.eia860.plants_eia860(
@@ -190,12 +199,14 @@ class PudlTabl(object):
         return self._dfs['plants_eia860']
 
     def gens_eia860(self, update=False):
-        """Pull a dataframe describing generators, as reported in EIA 860.
+        """
+        Pull a dataframe describing generators, as reported in EIA 860.
 
         Args:
             update (bool):
 
         Returns:
+
         """
         if update or self._dfs['gens_eia860'] is None:
             self._dfs['gens_eia860'] = pudl.output.eia860.generators_eia860(
@@ -205,12 +216,14 @@ class PudlTabl(object):
         return self._dfs['gens_eia860']
 
     def own_eia860(self, update=False):
-        """Pull a dataframe of generator level ownership data from EIA 860.
+        """
+        Pull a dataframe of generator level ownership data from EIA 860.
 
         Args:
             update (bool):
 
         Returns:
+
         """
         if update or self._dfs['own_eia860'] is None:
             self._dfs['own_eia860'] = pudl.output.eia860.ownership_eia860(
@@ -220,12 +233,14 @@ class PudlTabl(object):
         return self._dfs['own_eia860']
 
     def gf_eia923(self, update=False):
-        """Pull EIA 923 generation and fuel consumption data.
+        """
+        Pull EIA 923 generation and fuel consumption data.
 
         Args:
             update (bool):
 
         Returns:
+
         """
         if update or self._dfs['gf_eia923'] is None:
             self._dfs['gf_eia923'] = \
@@ -237,12 +252,14 @@ class PudlTabl(object):
         return self._dfs['gf_eia923']
 
     def frc_eia923(self, update=False):
-        """Pull EIA 923 fuel receipts and costs data.
+        """
+        Pull EIA 923 fuel receipts and costs data.
 
         Args:
             update (bool):
 
         Returns:
+
         """
         if update or self._dfs['frc_eia923'] is None:
             self._dfs['frc_eia923'] = \
@@ -254,12 +271,14 @@ class PudlTabl(object):
         return self._dfs['frc_eia923']
 
     def bf_eia923(self, update=False):
-        """Pull EIA 923 boiler fuel consumption data.
+        """
+        Pull EIA 923 boiler fuel consumption data.
 
         Args:
             update (bool):
 
         Returns:
+
         """
         if update or self._dfs['bf_eia923'] is None:
             self._dfs['bf_eia923'] = pudl.output.eia923.boiler_fuel_eia923(
@@ -270,12 +289,14 @@ class PudlTabl(object):
         return self._dfs['bf_eia923']
 
     def gen_eia923(self, update=False):
-        """Pull EIA 923 net generation data by generator.
+        """
+        Pull EIA 923 net generation data by generator.
 
         Args:
             update (bool):
 
         Returns:
+
         """
         if update or self._dfs['gen_eia923'] is None:
             self._dfs['gen_eia923'] = pudl.output.eia923.generation_eia923(
@@ -286,12 +307,14 @@ class PudlTabl(object):
         return self._dfs['gen_eia923']
 
     def plants_steam_ferc1(self, update=False):
-        """Pull the FERC Form 1 steam plants data.
+        """
+        Pull the FERC Form 1 steam plants data.
 
         Args:
             update (bool):
 
         Returns:
+
         """
         if update or self._dfs['plants_steam_ferc1'] is None:
             self._dfs['plants_steam_ferc1'] = \
@@ -299,12 +322,14 @@ class PudlTabl(object):
         return self._dfs['plants_steam_ferc1']
 
     def fuel_ferc1(self, update=False):
-        """Pull the FERC Form 1 steam plants fuel consumption data.
+        """
+        Pull the FERC Form 1 steam plants fuel consumption data.
 
         Args:
             update (bool):
 
         Returns:
+
         """
         if update or self._dfs['fuel_ferc1'] is None:
             self._dfs['fuel_ferc1'] = pudl.output.ferc1.fuel_ferc1(
@@ -312,12 +337,14 @@ class PudlTabl(object):
         return self._dfs['fuel_ferc1']
 
     def fbp_ferc1(self, update=False):
-        """Summarize FERC Form 1 fuel usage by plant.
+        """
+        Summarize FERC Form 1 fuel usage by plant.
 
         Args:
             update (bool):
 
         Returns:
+
         """
         if update or self._dfs['fbp_ferc1'] is None:
             self._dfs['fbp_ferc1'] = pudl.output.ferc1.fuel_by_plant_ferc1(
@@ -325,12 +352,14 @@ class PudlTabl(object):
         return self._dfs['fbp_ferc1']
 
     def bga(self, update=False):
-        """Pull the more complete EIA/PUDL boiler-generator associations.
+        """
+        Pull the more complete EIA/PUDL boiler-generator associations.
 
         Args:
             update (bool):
 
         Returns:
+
         """
         if update or self._dfs['bga'] is None:
             self._dfs['bga'] = pudl.output.glue.boiler_generator_assn(
@@ -340,12 +369,14 @@ class PudlTabl(object):
         return self._dfs['bga']
 
     def hr_by_gen(self, update=False):
-        """Calculate and return generator level heat rates (mmBTU/MWh).
+        """
+        Calculate and return generator level heat rates (mmBTU/MWh).
 
         Args:
             update (bool):
 
         Returns:
+
         """
         if update or self._dfs['hr_by_gen'] is None:
             self._dfs['hr_by_gen'] = pudl.analysis.mcoe.heat_rate_by_gen(
@@ -353,12 +384,14 @@ class PudlTabl(object):
         return self._dfs['hr_by_gen']
 
     def hr_by_unit(self, update=False):
-        """Calculate and return generation unit level heat rates.
+        """
+        Calculate and return generation unit level heat rates.
 
         Args:
             update (bool):
 
         Returns:
+
         """
         if update or self._dfs['hr_by_unit'] is None:
             self._dfs['hr_by_unit'] = pudl.analysis.mcoe.heat_rate_by_unit(
@@ -366,24 +399,28 @@ class PudlTabl(object):
         return self._dfs['hr_by_unit']
 
     def fuel_cost(self, update=False):
-        """Calculate and return generator level fuel costs per MWh.
+        """
+        Calculate and return generator level fuel costs per MWh.
 
         Args:
             update (bool):
 
         Returns:
+
         """
         if update or self._dfs['fuel_cost'] is None:
             self._dfs['fuel_cost'] = pudl.analysis.mcoe.fuel_cost(self)
         return self._dfs['fuel_cost']
 
     def capacity_factor(self, update=False):
-        """Calculate and return generator level capacity factors.
+        """
+        Calculate and return generator level capacity factors.
 
         Args:
             update (bool):
 
         Returns:
+
         """
         if update or self._dfs['capacity_factor'] is None:
             self._dfs['capacity_factor'] = pudl.analysis.mcoe.capacity_factor(
@@ -393,7 +430,8 @@ class PudlTabl(object):
     def mcoe(self, update=False,
              min_heat_rate=5.5, min_fuel_cost_per_mwh=0.0,
              min_cap_fact=0.0, max_cap_fact=1.5):
-        """Calculate and return generator level MCOE based on EIA data.
+        """
+        Calculate and return generator level MCOE based on EIA data.
 
         Eventually this calculation will include non-fuel operating expenses
         as reported in FERC Form 1, but for now only the fuel costs reported

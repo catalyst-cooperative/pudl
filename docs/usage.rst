@@ -65,8 +65,10 @@ in the example settings file explain the available parameters.
 
 .. todo::
 
-    * Create updated example settings file, ensure it explains all available options.
-    * Integrate datastore management and ferc1 DB cloning into ``pudl_etl`` script.
+    * Create updated example settings file, ensure it explains all available
+      options.
+    * Integrate datastore management and ferc1 DB cloning into ``pudl_etl``
+      script.
 
 It's sometimes useful to update the datastore or clone the :ref:`FERC Form 1
 <data-ferc1>` database independent of running the full ETL pipeline. Those
@@ -86,7 +88,7 @@ and makes them available via a script called ``pudl_datastore``. The script can
 download the original data from EIA, FERC, and EPA, and organize it on your
 system so that the rest of the software knows how to find it. For details on
 what data is available, for what time periods, and how much of it there is, see
-the :doc:`Data Catalog <data>`.
+the :doc:`data_catalog`.
 
 .. todo::
 
@@ -260,10 +262,11 @@ Python, Pandas, and Jupyter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can read the datapackages into :mod:`pandas.DataFrame` for interactive
-in-memory use within `JupyterLab <https://jupyterlab.readthedocs.io/en/stable/
->`__, or for programmatic use in your own Python modules. Several example
-Jupyter notebooks are deployed into your PUDL workspace ``notebooks`` directory
-by the ``pudl_setup`` script.
+in-memory use within
+`JupyterLab <https://jupyterlab.readthedocs.io/en/stable/>`__,
+or for programmatic use in your own Python modules. Several example Jupyter
+notebooks are deployed into your PUDL workspace ``notebooks`` directory by the
+``pudl_setup`` script.
 
 With the ``pudl`` conda environment activated you can start up a notebook
 server and experiment with those notebooks by running:

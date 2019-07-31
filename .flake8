@@ -1,0 +1,6 @@
+[flake8]
+ignore = E501,W504,W503,D413,D401
+exclude = package_data,analysis.py
+# We should really be using max_complexity of ~10. We have some messes.
+max_complexity = -1
+format = ${cyan}%(path)40s${reset}:${green}%(row)-4d${reset} ${red_bold}%(code)s${reset} %(text)s

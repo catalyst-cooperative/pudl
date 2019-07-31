@@ -6,10 +6,12 @@ a parameterized fixture that has session scope.
 """
 
 import logging
+
+import pandas as pd
 import pytest
 from scipy import stats
+
 import pudl.constants as pc
-import pandas as pd
 
 logger = logging.getLogger(__name__)
 

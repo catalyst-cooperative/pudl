@@ -11,15 +11,28 @@ and improves over time.
 
 In general the process for adding a new data source looks like this:
 
-#. Add the new data source to the ``datastore.py`` module and the ``update_datastore.py`` script.
-#. Define well normalized database tables for the new data source in the ``models`` subpackage.
-#. Add a module to the ``extract`` subpackage that generates raw dataframes containing the new data source's information from whatever its original format was.
-#. Add a module to the ``transform`` subpackage that takes those raw dataframes, cleans them up, and re-organizes them to match the new database table definitions.
-#. If necessary add a module to the ``load`` subpackage that takes these clean, transformed dataframes and pushes their contents into the postgres database.
-#. Create linkages between the new database tables and other existing data in the database, so they can be used together, if appropriate. Often this means creating some skinny "glue" tables that link one set of unique entity IDs to another.
-#. Update the ``init.py`` module so that it includes your new data source as part of the ETL (Extract, Transform, Load) process, and add the necessary code to the ``init_pudl.py`` script.
+#. Add the new data source to the ``datastore.py`` module and the
+   ``update_datastore.py`` script.
+#. Define well normalized database tables for the new data source in the
+   ``models`` subpackage.
+#. Add a module to the ``extract`` subpackage that generates raw dataframes
+   containing the new data source's information from whatever its original
+   format was.
+#. Add a module to the ``transform`` subpackage that takes those raw
+   dataframes, cleans them up, and re-organizes them to match the new database
+   table definitions.
+#. If necessary add a module to the ``load`` subpackage that takes these clean,
+   transformed dataframes and pushes their contents into the postgres database.
+#. Create linkages between the new database tables and other existing data in
+   the database, so they can be used together, if appropriate. Often this means
+   creating some skinny "glue" tables that link one set of unique entity IDs to
+   another.
+#. Update the ``init.py`` module so that it includes your new data source as
+   part of the ETL (Extract, Transform, Load) process, and add the necessary
+   code to the ``init_pudl.py`` script.
 #. Add an output module for the new data source to the ``output`` subpackage.
-#. Write some unit tests for the new data source, and add them to the ``pytest`` suite in the ``test`` directory.
+#. Write some unit tests for the new data source, and add them to the
+   ``pytest`` suite in the ``test`` directory.
 
 -------------------------------------------------------------------------------
 Add dataset to the datastore
@@ -29,7 +42,7 @@ Scripts
 ^^^^^^^
 
 This means editing the ``datastore.py`` module and the datastore update script
-(\ ``scripts/update_datastore.py``\ ) so that they can acquire the data from the
+(``scripts/update_datastore.py``) so that they can acquire the data from the
 reporting agencies, and organize it locally in advance of the ETL (Extract,
 Transform, and Load) process. New data sources should be organized under
 ``data/<agency>/<source>/`` e.g. ``data/ferc/form1`` or ``data/eia/form923``.
@@ -60,13 +73,13 @@ Describe Table Metadata
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Create a new module in the models subpackage. The name of the module should be
-the datasource name. New modules need to import the entities module (\ ``import
-pudl.models.entities``\ ) and must be imported in the init.py module (\ ``import
-pudl.models.datasource``\ ). This way the database schema will include this module
-when it is first initialized. PUDL uses SQLAlchemy. Each datatable must have a
-class definition (see the ``PlantAnnualEIA`` class in ``pudl.models.eia`` for a
-simple example). Make sure your tables are normalized -- see Design Guidelines
-below.
+the datasource name. New modules need to import the entities module (``import
+pudl.models.entities``) and must be imported in the :mod:`pudl.init` module
+(``import pudl.models.datasource``). This way the database schema will include
+this module when it is first initialized. PUDL uses SQLAlchemy. Each datatable
+must have a class definition (see the ``PlantAnnualEIA`` class in
+``pudl.models.eia`` for a simple example). Make sure your tables are normalized
+-- see Design Guidelines below.
 
 Extract the data from its original format.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -95,11 +108,11 @@ The inputs to the transform step should be the dictionary of raw dataframes and
 any dataset constraints (i.e. working years, tables, and geographical
 constraints). The output should be a dictionary of transformed dataframes which
 look exactly like what you want to end up in the database tables. The key of
-the dictionary should be the name of the database tables as defined in the models.
-Largely, there is one function per data table. If one database table needs any
-information such as the index from another table (see
-``fuel_receipts_costs_eia923`` and ``coalmine_eia923`` for an example), this will
-require the transform functions to be called in a particular order but the
+the dictionary should be the name of the database tables as defined in the
+models. Largely, there is one function per data table. If one database table
+needs any information such as the index from another table (see
+``fuel_receipts_costs_eia923`` and ``coalmine_eia923`` for an example), this
+will require the transform functions to be called in a particular order but the
 process is largely the same. All the organization of the data into normalized
 tables happens in the transform step.
 
@@ -120,18 +133,18 @@ Load the data into the database
 
 Each of the dataframes that comes out of the transform step represents a
 database table that needs to be loaded into the database. Pandas has a native
-``DataFrame.to_sql()`` method for inserting records from a dataframe into a
-atabase , but it’s extremely slow. Instead, we use postgres’ native ``COPY_FROM``
-function, which is designed for loading large CSV files directly into the
-database very efficiently. Instead of writing the dataframe out to a file on
-disk, we create an in-memory file-like object, and read directly from that. For
-this to work, the corresponding dataframe and database columns need to be named
-identically, and the strings that are read by postgres from the in-memory CSV
-file need to be readily interpretable as the data type that is associated with
-the column in the table definition. Because Python doesn’t have a native NA
-value for integers, but postgres does, just before the dataframes are loaded
-into the database we convert any integer NA sentinel values using a little
-helper function named ``fix_int_na()``.
+:meth:`pandas.DataFrame.to_sql` method for inserting records from a dataframe
+into a atabase, but it’s extremely slow. Instead, we use postgres’ native
+``COPY_FROM`` function, which is designed for loading large CSV files directly
+into the database very efficiently. Instead of writing the dataframe out to a
+file on disk, we create an in-memory file-like object, and read directly from
+that. For this to work, the corresponding dataframe and database columns need
+to be named identically, and the strings that are read by postgres from the
+in-memory CSV file need to be readily interpretable as the data type that is
+associated with the column in the table definition. Because Python doesn’t have
+a native NA value for integers, but postgres does, just before the dataframes
+are loaded into the database we convert any integer NA sentinel values using a
+little helper function :func:`pudl.helpers.fix_int_na`.
 
 Glue the new data to existing data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -157,19 +170,20 @@ refer to the underlying dataset.
 Create an output module
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``pudl.output`` subpackage compiles interesting information from the database
-in tabular form for interactive use in dataframes, or for export. Each data
-source should have its own module in the output subpackage, and within that
-module there should be a function allowing the output of each of the core
+The :mod:`pudl.output` subpackage compiles interesting information from the
+database in tabular form for interactive use in dataframes, or for export. Each
+data source should have its own module in the output subpackage, and within
+that module there should be a function allowing the output of each of the core
 tables in the database which come from that data source.  These tabular outputs
 can and should be denormalized, and include additional information a user might
 commonly want to work with -- for example including the names of plants and
 utilities rather than just their IDs. In addition to those data source specific
-tabular output modules, there’s also a tabular output class PudlTabl defined in
-pudltabl.py. This class can be used to pull and store subsets of the data from
-the database, and can also use modules within the analysis subpackage to
-calculate interesting derived quantities, and provide it as a tabular output.
-See the analysis.mcoe module as an example for how this works.
+tabular output modules, there’s also :class:`pudl.output.pudltabl.PudlTabl`, a
+tabular output class. This class can be used to pull and store subsets of the
+data from the database, and can also use modules within the analysis subpackage
+to calculate interesting derived quantities, and provide it as a tabular
+output. See the :mod:`pudl.analysis.mcoe` module as an example for how this
+works.
 
 Write some tests
 ^^^^^^^^^^^^^^^^

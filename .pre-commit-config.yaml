@@ -1,31 +1,63 @@
 repos:
+
+# Quick content checks based on grepping for python specific patterns:
+- repo: https://github.com/pre-commit/pygrep-hooks
+  rev: v1.4.1
+  hooks:
+  - id: python-use-type-annotations # Use new-style type hints, not comments.
+  - id: python-check-blanket-noqa   # Prohibit overly broad QA exclusions.
+  - id: python-no-eval              # Never use eval() it's dangerous.
+  - id: python-no-log-warn          # logger.warning(), not old .warn()
+
+# Other file formatting, plus common Git mistakes & text file standardization:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.2.3
+  hooks:
+  - id: check-added-large-files # Don't accidentally commit giant files.
+  - id: check-merge-conflict    # Watch for lingering merge markers.
+  - id: check-yaml              # Validate all YAML files.
+  - id: check-case-conflict     # Avoid case sensitivity in file names.
+  - id: debug-statements        # Watch for lingering debugger calls.
+  - id: end-of-file-fixer       # Ensure there's a newline at EOF.
+  - id: mixed-line-ending       # Only newlines, no line-feeds.
+  - id: trailing-whitespace     # Remove trailing whitespace.
+  - id: name-tests-test         # Follow PyTest naming convention.
+  - id: no-commit-to-branch     # Only commit to master via merge.
+    args: [--branch, master]
+
+# Attempt to enforce standardized PEP8 style formatting:
 - repo: https://github.com/pre-commit/mirrors-autopep8
   rev: v1.4.4
   hooks:
   - id: autopep8
 
+# Make sure import statements are sorted uniformly.
+- repo: https://github.com/pre-commit/mirrors-isort
+  rev: v4.3.21
+  hooks:
+  - id: isort
+
+# Check for PEP8 non-compliance, code complexity, and syntax errors:
+# Make sure the following plugins are installed as well:
+# - flake8-docstrings
+# - flake8-builtins
+# - pep8-naming
+- repo: https://github.com/PyCQA/flake8
+  rev: 3.7.8
+  hooks:
+  - id: flake8
+    args: [--format, "%(path)40s:%(row)-4d %(code)s %(text)s"]
+
+# Check for errors in restructuredtext (.rst) files under the doc hierarchy
+- repo: https://github.com/PyCQA/doc8
+  rev: 4331c3a7a10b9bb76906901987bac9691e29c2ab
+  hooks:
+  - id: doc8
+    args: [--ignore-path, docs/_build]
+
+# Check for known security vulnerabilities:
 - repo: https://github.com/PyCQA/bandit
   rev: 1.6.2
   hooks:
   - id: bandit
-    args: [-c, bandit.yml]
-
-# Too restrictive... doesn't understand a bunch of Sphinx stuff:
-#- repo: https://github.com/Lucas-C/pre-commit-hooks-markup
-#  rev: v1.0.0
-#  hooks:
-#  - id: rst-linter
-
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.2.3
-  hooks:
-  - id: check-added-large-files
-  - id: check-merge-conflict
-  - id: check-yaml
-  - id: check-case-conflict
-  - id: debug-statements
-  - id: end-of-file-fixer
-  - id: mixed-line-ending
-  - id: trailing-whitespace
-# Sadly doesn't work because of the anaconda python interpreter strings
-#  - id: flake8
+    args: [-c, .bandit.yml]

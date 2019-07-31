@@ -9,7 +9,7 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce the behavior -- ideally including a code snippet that causes the error to appear.
- - Is the bug related to the software / database? If so, please attach the `settings.yml` file you're using to specify which data to load, and make a note of where in the ETL process the error is happening. 
+ - Is the bug related to the software / database? If so, please attach the `settings.yml` file you're using to specify which data to load, and make a note of where in the ETL process the error is happening.
  - Have you found an error or inconsistency in the data that PUDL brings together? If so, what is the data source, year, plant_id, etc -- how can we find the data you're looking at, and what is the nature of the error or inconsistency.
  - Does the problem happen when you're starting up the database (importing data) or does it happen later when you're trying to use the database?
 

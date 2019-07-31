@@ -25,7 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 def simplify_sql_type(sql_type, field_name=""):
-    """Converts an SQL Alchemy Type into a string type for use in Table Schema.
+    """
+    Convert an SQL Alchemy Type into a string type for use in Table Schema.
 
     See: https://frictionlessdata.io/specs/table-schema/
 
@@ -43,8 +44,8 @@ def simplify_sql_type(sql_type, field_name=""):
 
     Todo:
         Remove upon removal of pudl_db
-    """
 
+    """
     type_map = {
         'integer': (sa.Integer,),
         'number': (sa.Float, sa.Numeric),
@@ -69,14 +70,16 @@ def simplify_sql_type(sql_type, field_name=""):
 
 
 def get_fields(table):
-    """Generates table schema compatible list of fields from database table.
+    """
+    Generate table schema compatible list of fields from database table.
 
     See: https://frictionlessdata.io/specs/table-schema/
+
     Field attributes which are currently set by the function:
-      * name (same as the database column)
-      * description (taken from the database column 'comment' field.)
-      * type (simplified from the SQL Alchemy Column data type)
-      * constraints (only for Enum types)
+    * name (same as the database column)
+    * description (taken from the database column 'comment' field.)
+    * type (simplified from the SQL Alchemy Column data type)
+    * constraints (only for Enum types)
 
     Todo:
         constraints other than Enum
@@ -89,8 +92,8 @@ def get_fields(table):
 
     Todo:
         Remove upon removal of pudl_db
-    """
 
+    """
     fields = []
     for col in table.columns.keys():
         newfield = {}
@@ -145,7 +148,8 @@ def get_foreign_keys(table):
 
 
 def get_missing_values(table):
-    """Gets a list of missing values from an SQLAlchemy Table.
+    """
+    Get a list of missing values from an SQLAlchemy Table.
 
     We'll only really be able to see how this works with some data. For now it
     just returns the default value: [""].
@@ -159,19 +163,22 @@ def get_missing_values(table):
 
     Todo:
         Remove upon removal of pudl_db
+
     """
     return [""]
 
 
 def get_table_schema(table):
-    """Creates a Table Schema descriptor from an SQL Alchemy table.
+    """
+    Create a Table Schema descriptor from an SQL Alchemy table.
 
     See: https://frictionlessdata.io/specs/table-schema/
+
     There are four possible elements in the Table Schema:
-      * fields (an array of field descriptors)
-      * primaryKey
-      * foreignKeys (an array of foreignKey objects)
-      * missingValues (an array of strings to be interpreted as null)
+    * fields (an array of field descriptors)
+    * primaryKey
+    * foreignKeys (an array of foreignKey objects)
+    * missingValues (an array of strings to be interpreted as null)
 
     Args:
         table (SQL Alchemy Table): The Table object to generate a list of
@@ -183,6 +190,7 @@ def get_table_schema(table):
 
     Todo:
         Remove upon removal of pudl_db
+
     """
     descriptor = {}
     descriptor['fields'] = get_fields(table)
@@ -346,10 +354,10 @@ def data_package(pkg_tables, pkg_skeleton, pudl_settings=None,
         pkg_skeleton (dict): A python dictionary containing several
             top level elements of the data package JSON descriptor
             specific to the data package, including:
-              * name: pudl-<datasource> e.g. pudl-eia923, pudl-ferc1
-              * title: One line human readable description.
-              * description: A paragraph long description.
-              * keywords: For search purposes.
+            * name: pudl-<datasource> e.g. pudl-eia923, pudl-ferc1
+            * title: One line human readable description.
+            * description: A paragraph long description.
+            * keywords: For search purposes.
         pudl_settings (dict) : a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
         testing (bool): Connect to the test database or live PUDL database?
@@ -698,7 +706,8 @@ def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
 
 def generate_metadata(pkg_settings, tables, pkg_dir,
                       uuid_pkgs=uuid.uuid4()):
-    """Generates metadata for package tables and validate package.
+    """
+    Generate metadata for package tables and validate package.
 
     The metadata for this package is compiled from the pkg_settings and from
     the "megadata", which is a json file containing the schema for all of the
@@ -713,10 +722,10 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
         pkg_settings (dict): a dictionary containing package settings
             containing top level elements of the data package JSON descriptor
             specific to the data package including:
-              * name: short package name e.g. pudl-eia923, ferc1-test, cems_pkg
-              * title: One line human readable description.
-              * description: A paragraph long description.
-              * keywords: For search purposes.
+            * name: short package name e.g. pudl-eia923, ferc1-test, cems_pkg
+            * title: One line human readable description.
+            * description: A paragraph long description.
+            * keywords: For search purposes.
         tables (list): a list of tables that are included in this data package.
         pkg_dir (path-like): The location of the directory for this package.
             The data package directory will be a subdirectory in the
@@ -731,6 +740,7 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
         datapackage.package.Package: a datapackage. See frictionlessdata specs.
         dict: a valition dictionary containing validity of package and any
         errors that were generated during packaing.
+
     """
     # pkg_json is the datapackage.json that we ultimately output:
     pkg_json = os.path.join(pkg_dir, "datapackage.json")
@@ -818,9 +828,7 @@ def generate_data_packages(pkg_bundle_settings, pudl_settings, debug=False):
         in the package_settings.
     """
     # validate the settings from the settings file.
-    logger.info('validating settings')
-    validated_bundle_settings = pudl.etl_pkg.validate_input(
-        pkg_bundle_settings)
+    validated_settings = pudl.etl_pkg.validate_input(pkg_bundle_settings)
     uuid_pkgs = str(uuid.uuid4())
 
     # make a subdirectory for the package bundles...

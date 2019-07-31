@@ -22,14 +22,14 @@ the docs) that the data was gathered from, as well as a diagram of the
 structure of the database as it existed in 2015 (add link/embed image).
 
 Using this inferred structure PUDL creates an SQLite database mirroring the
-FERC database using **SQLAlchemy** (link). Then we use a python package called
-**dbfread**_ (link) to extract the data from the DBF tables, and insert it
-virtually unchanged into the SQLite database. However, we do compile a master
-table of the all the respondent IDs and respondent names, which all the other
-tables refer to. Unlike the other tables, this table has no ``report_year``
-and so it represents a merge of all the years of data. In the event that the
-name associated with a given respondent ID has changed over time, we retain
-the most recently reported name.
+FERC database using :mod:`sqlalchemy`. Then we use a python package called
+`dbfread <https://dbfread.readthedocs.io/en/latest/>` to extract the data from
+the DBF tables, and insert it virtually unchanged into the SQLite database.
+However, we do compile a master table of the all the respondent IDs and
+respondent names, which all the other tables refer to. Unlike the other tables,
+this table has no ``report_year`` and so it represents a merge of all the years
+of data. In the event that the name associated with a given respondent ID has
+changed over time, we retain the most recently reported name.
 
 Ths SQLite based compilation of the original FERC Form 1 databases can
 accommodate all 100+ tables from all the published years of data (beginning in
@@ -39,16 +39,15 @@ in two tables. If those tables are excluded, the database is less than 800MB
 in size.
 
 The process of cloning the FERC Form 1 database(s) is coordinated by a script
-called ``ferc1_to_sqlite`` which is implemented in the
-``pudl.convert.ferc1_to_sqlite`` module (RST link!), which is controlled by a
-YAML file. See the example file distributed with the package **here** (link!).
+called ``ferc1_to_sqlite`` implemented in :mod:`pudl.convert.ferc1_to_sqlite`
+which is controlled by a YAML file. See the example file distributed with the
+package **here** (link!).
 
 Once the cloned SQLite database has been created, we use it as an input into
 the PUDL ETL pipeline, and we extract a small subset of the available tables
 for further processing and integration with other data sources like the EIA 860
 and EIA 923.
 
-.. https://dbfread.readthedocs.io/en/latest/
 """
 import logging
 import os.path

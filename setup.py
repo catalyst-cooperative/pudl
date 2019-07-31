@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Setup script to make PUDL directly installable with pip."""
 
-import os
+import pathlib
 
 from setuptools import find_packages, setup
 
@@ -10,32 +10,61 @@ install_requires = [
     'datapackage',
     'dbfread',
     'goodtables',
-    'nbval',
     'networkx>=2.2',
     'numpy',
     'pandas>=0.24',
     'psycopg2',
-    'pyarrow>=0.14.0',
     'pyyaml',
     'scikit-learn>=0.20',
     'scipy',
-    'sqlalchemy>=1.3',
+    'sqlalchemy>=1.3.0',
     'sqlalchemy-postgres-copy',
     'tableschema',
     'timezonefinder',
     'xlsxwriter',
 ]
 
-# We are installing the PUDL module to build the docs, but the C libraries
-# required to build snappy aren't available on RTD, so we need to exclude it
-# from the installed dependencies here, and mock it for import in docs/conf.py
-# using the autodoc_mock_imports parameter:
-if not os.getenv('READTHEDOCS'):
-    install_requires.append('python-snappy')
+doc_requires = [
+    'doc8',
+    'sphinx',
+    'sphinx_rtd_theme',
+]
+
+test_requires = [
+    'bandit',
+    'coverage',
+    'doc8',
+    'flake8',
+    'flake8-docstrings',
+    'flake8-builtins',
+    'pep8-naming',
+    'pre-commit',
+    'pydocstyle==3.0.0',
+    'pytest',
+    'pytest-cov',
+]
+
+validate_requires = [
+    'matplotlib',
+    'nbval',
+]
+
+parquet_requires = [
+    'pyarrow>=0.14.0',
+    'python-snappy'
+]
+
+readme_path = pathlib.Path(__file__).parent / "docs" / "README.rst"
+long_description = readme_path.read_text()
+
 
 setup(
     name='pudl',
+    # name='pudl-zaneselvans',
     description='Tools for liberating public US electric utility data.',
+    long_description=long_description,
+    long_description_content_type='text/x-rst',
+    # version='0.1.0a2',
     use_scm_version=True,
     author='Catalyst Cooperative',
     author_email='pudl@catalyst.coop',
@@ -55,9 +84,15 @@ setup(
         'electricity', 'energy', 'data', 'analysis', 'mcoe', 'climate change',
         'finance', 'eia 923', 'eia 860', 'ferc', 'form 1', 'epa ampd',
         'epa cems', 'coal', 'natural gas', ],
-    python_requires='>=3.7, <4',
+    python_requires='>=3.7, <3.8.0a0',
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
+    extras_require={
+        "doc": doc_requires,
+        "parquet": parquet_requires,
+        "test": test_requires,
+        "validate": validate_requires,
+    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
@@ -75,13 +110,12 @@ setup(
     # user's system. setuptools will get whatever is listed in MANIFEST.in
     include_package_data=True,
     # This defines the interfaces to the command line scripts we're including:
-    # https://github.com/catalyst-cooperative/pudl/issues/327
     entry_points={
         'console_scripts': [
             'pudl_datastore = pudl.datastore.cli:main',
             'pudl_etl = pudl.cli:main',
             'ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main',
-            'epacems_to_parquet = pudl.convert.epacems_to_parquet:main',
+            'epacems_to_parquet = pudl.convert.epacems_to_parquet:main [parquet]',  # noqa: E501
         ]
     },
 )

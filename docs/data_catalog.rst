@@ -70,16 +70,18 @@ Records Liberated   ~1 billion
 The EPA's hourly Continuous Emissions Monitoring System (CEMS) data is in the
 process of being integrated. However, it is a much larger dataset than the FERC
 or EIA data we've already brought in, and so has required some changes to the
-overall ETL process. Data from 1995-2017 can be loaded, but it has not yet
-been fully integrated. The ETL process for all states and all years takes about
-8 hours on a fast laptop. Many thanks to `Karl Dunkle Werner <https://github.com/karldw>`_ for contributing much of the EPA CEMS Hourly ETL code.
+overall ETL process. Data from 1995-2017 can be loaded, but it has not yet been
+fully integrated. The ETL process for all states and all years takes about 8
+hours on a fast laptop. Many thanks to
+`Karl Dunkle Werner <https://github.com/karldw>`_
+for contributing much of the EPA CEMS Hourly ETL code.
 
 .. _data-epaipm:
 
 EPA IPM
 ^^^^^^^
 
-=================== ============================================================================
+=================== ==========================================================
 Source URL          https://www.epa.gov/airmarkets/national-electric-energy-data-system-needs-v6
 Source Format       Microsoft Excel (.xlsx)
 Source Years        N/A
@@ -88,7 +90,7 @@ Size (Uncompressed) 14 MB
 PUDL Code           ``epaipm``
 Years Liberated     N/A
 Records Liberated   ~650,000
-=================== ============================================================================
+=================== ==========================================================
 
 .. todo::
 

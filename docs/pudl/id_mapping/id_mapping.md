@@ -137,7 +137,7 @@ possibilities:
 
 ## Ingesting Utilities Without Plants
 
-- When ingesting a new year's worth of FERC Form 1 data,  
+- When ingesting a new year's worth of FERC Form 1 data,
 
 # Plant Mapping
 Most plant mapping will have taken place during the utility mapping processes

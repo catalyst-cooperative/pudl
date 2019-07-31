@@ -1,37 +1,51 @@
 """Validate post-ETL EIA 923 data and associated derived outputs."""
 
 import logging
-import pytest
 from decimal import Decimal
+
+import pytest
 
 logger = logging.getLogger(__name__)
 
 
 @pytest.mark.eia923
 @pytest.mark.post_etl
-def test_frc_eia923(pudl_out_eia, max_unit_fuel_cost = 35, max_unit_heat_content = 32):
+def test_frc_eia923(pudl_out_eia,
+                    max_unit_fuel_cost=35,
+                    max_unit_heat_content=32):
     """Sanity checks for EIA 923 Fuel Recepts and Costs output."""
     logger.info("Reading EIA 923 Fuel Receipts and Costs data...")
 
     frc_eia923 = pudl_out_eia.frc_eia923()
 
-    fuel_unit_cost_outlier = len(frc_eia923.loc[(frc_eia923.fuel_cost_per_mmbtu > max_unit_fuel_cost) |
-                                        (frc_eia923.fuel_cost_per_mmbtu < 0)])
+    fuel_unit_cost_outlier = len(
+        frc_eia923.loc[(frc_eia923.fuel_cost_per_mmbtu > max_unit_fuel_cost) |
+                       (frc_eia923.fuel_cost_per_mmbtu < 0)]
+    )
 
-    decimal = Decimal((fuel_unit_cost_outlier/(len(frc_eia923)))*100)
+    decimal = Decimal((fuel_unit_cost_outlier / (len(frc_eia923))) * 100)
     proportion = round(decimal, 2)
 
     logger.info(
-        f"{fuel_unit_cost_outlier} records, {proportion}% of the total, have fuel unit costs ($/mmbtu) less than 0 or greater than {max_unit_fuel_cost}.")
+        f"{fuel_unit_cost_outlier} records, {proportion}% of the total, "
+        f"have fuel unit costs ($/mmbtu) less than 0 or greater than "
+        f"{max_unit_fuel_cost}."
+    )
 
-    heat_content_outlier = len(frc_eia923.loc[(frc_eia923.heat_content_mmbtu_per_unit > max_unit_heat_content) |
-                                           (frc_eia923.heat_content_mmbtu_per_unit < 0)])
-    decimal = Decimal((heat_content_outlier/(len(frc_eia923)))*100)
+    heat_content_outlier = len(
+        frc_eia923.loc[
+            (frc_eia923.heat_content_mmbtu_per_unit > max_unit_heat_content) |
+            (frc_eia923.heat_content_mmbtu_per_unit < 0)
+        ]
+    )
+    decimal = Decimal((heat_content_outlier / (len(frc_eia923))) * 100)
     proportion = round(decimal, 2)
 
-
     logger.info(
-        f"{heat_content_outlier} records, {proportion}% of the total, have fuel heat content (mmbtu/unit) less than 0 or greater than {max_unit_heat_content}.")
+        f"{heat_content_outlier} records, {proportion}% of the total, have "
+        f"fuel heat content (mmbtu/unit) less than 0 or greater than "
+        f"{max_unit_heat_content}."
+    )
 
 
 @pytest.mark.eia923

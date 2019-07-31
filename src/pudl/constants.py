@@ -22,8 +22,7 @@ prime_movers = [
     'solar_pv',
     'wind_turbine'
 ]
-"""list: A list of the types of prime movers
-"""
+"""list: A list of the types of prime movers"""
 
 rto_iso = {
     'CAISO': 'California ISO',
@@ -223,7 +222,8 @@ travis_ci_eia860_years = (2017, )
     integration.
 """
 travis_ci_eia923_years = (2017, )
-"""tuple: A tuple containing years of EIA 923 data to use with Travis continuous
+"""
+tuple: A tuple containing years of EIA 923 data to use with Travis continuous
     integration.
 """
 travis_ci_epacems_years = (2017, )
@@ -246,7 +246,8 @@ ferc1_coal_strings = \
     ['coal', 'coal-subbit', 'lignite', 'coal(sb)', 'coal (sb)', 'coal-lignite',
      'coke', 'coa', 'lignite/coal', 'coal - subbit', 'coal-subb', 'coal-sub',
      'coal-lig', 'coal-sub bit', 'coals', 'ciak', 'petcoke']
-"""list: A list of strings which are used to represent coal fuel in FERC Form 1
+"""
+list: A list of strings which are used to represent coal fuel in FERC Form 1
     reporting.
 """
 
@@ -262,7 +263,8 @@ ferc1_oil_strings = \
      'no. 2  oil', 'blended oil', 'no 2. oil', '# 6 oil', 'nno. 2 oil',
      '#2 fuel', 'oill', 'oils', 'gas/oil', 'no.2 oil gas', '#2 fuel oil',
      'oli', 'oil (#6)', 'oil/diesel', '2 Oil']
-"""list: A list of strings which are used to represent oil fuel in FERC Form 1
+"""
+list: A list of strings which are used to represent oil fuel in FERC Form 1
     reporting.
 """
 
@@ -271,7 +273,8 @@ ferc1_gas_strings = \
      'propane', 'prop', 'natural  gas', 'nat.gas', 'nat gas',
      'nat. gas', 'natl gas', 'ga', 'gas`', 'syngas', 'ng', 'mcf',
      'blast gaa', 'nat  gas', 'gac', 'syngass', 'prop.', 'natural', 'coal.gas']
-"""list: A list of strings which are used to represent gas fuel in FERC Form 1
+"""
+list: A list of strings which are used to represent gas fuel in FERC Form 1
     reporting.
 """
 
@@ -284,14 +287,16 @@ ferc1_hydro_strings = []
 ferc1_nuke_strings = \
     ['nuclear', 'grams of uran', 'grams of', 'grams of  ura',
      'grams', 'nucleur', 'nulear', 'nucl', 'nucleart']
-"""list: A list of strings which are used to represent nuclear fuel in FERC Form
+"""
+list: A list of strings which are used to represent nuclear fuel in FERC Form
     1 reporting.
 """
 
 ferc1_waste_strings = ['tires', 'tire', 'refuse', 'switchgrass',
                        'wood waste', 'woodchips', 'biomass', 'wood',
                        'wood chips', 'rdf']
-"""list: A list of strings which are used to represent waste fuel in FERC Form 1
+"""
+list: A list of strings which are used to represent waste fuel in FERC Form 1
     reporting.
 """
 
@@ -323,15 +328,13 @@ ferc1_fuel_strings = {'coal': ferc1_coal_strings,
 ferc1_ton_strings = ['toms', 'taons', 'tones', 'col-tons', 'toncoaleq', 'coal',
                      'tons coal eq', 'coal-tons', 'ton', 'tons', 'tons coal',
                      'coal-ton', 'tires-tons']
-"""list: A list of fuel unit strings for tons.
-"""
+"""list: A list of fuel unit strings for tons."""
 
 ferc1_mcf_strings = \
     ['mcf', "mcf's", 'mcfs', 'mcf.', 'gas mcf', '"gas" mcf', 'gas-mcf',
      'mfc', 'mct', ' mcf', 'msfs', 'mlf', 'mscf', 'mci', 'mcl', 'mcg',
      'm.cu.ft.']
-"""list: A list of fuel unit strings for thousand cubic feet.
-"""
+"""list: A list of fuel unit strings for thousand cubic feet."""
 
 ferc1_bbl_strings = \
     ['barrel', 'bbls', 'bbl', 'barrels', 'bbrl', 'bbl.', 'bbls.',
@@ -339,44 +342,36 @@ ferc1_bbl_strings = \
      'oil-barrel', 'bb.', 'barrells', 'bar', 'bbld', 'oil- barrel',
      'barrels    .', 'bbl .', 'barels', 'barrell', 'berrels', 'bb',
      'bbl.s', 'oil-bbl', 'bls', 'bbl:', 'barrles', 'blb', 'propane-bbl']
-"""list: A list of fuel unit strings for barrels.
-"""
+"""list: A list of fuel unit strings for barrels."""
 
 ferc1_gal_strings = ['gallons', 'gal.', 'gals', 'gals.', 'gallon', 'gal']
-"""list: A list of fuel unit strings for gallons.
-"""
+"""list: A list of fuel unit strings for gallons."""
 
 ferc1_1kgal_strings = ['oil(1000 gal)', 'oil(1000)', 'oil (1000)', 'oil(1000']
-"""list: A list of fuel unit strings for thousand gallons.
-"""
+"""list: A list of fuel unit strings for thousand gallons."""
 
 ferc1_gramsU_strings = ['gram', 'grams', 'gm u', 'grams u235', 'grams u-235',
                         'grams of uran', 'grams: u-235', 'grams:u-235',
                         'grams:u235', 'grams u308', 'grams: u235', 'grams of']
-"""list: A list of fuel unit strings for grams.
-"""
+"""list: A list of fuel unit strings for grams."""
 
-ferc1_kgU_strings = \
-    ['kg of uranium', 'kg uranium', 'kilg. u-235', 'kg u-235',
-     'kilograms-u23', 'kg', 'kilograms u-2', 'kilograms', 'kg of']
-"""list: A list of fuel unit strings for thousand grams.
-"""
+ferc1_kgU_strings = ['kg of uranium', 'kg uranium', 'kilg. u-235',
+                     'kg u-235', 'kilograms-u23', 'kg', 'kilograms u-2',
+                     'kilograms', 'kg of']
+"""list: A list of fuel unit strings for thousand grams."""
 
 ferc1_mmbtu_strings = ['mmbtu', 'mmbtus',
                        "mmbtu's", 'nuclear-mmbtu', 'nuclear-mmbt']
-"""list: A list of fuel unit strings for million British Thermal Units.
-"""
+"""list: A list of fuel unit strings for million British Thermal Units."""
 
 ferc1_mwdth_strings = \
     ['mwd therman', 'mw days-therm', 'mwd thrml', 'mwd thermal',
      'mwd/mtu', 'mw days', 'mwdth', 'mwd', 'mw day']
-"""list: A list of fuel unit strings for megawatt days thermal.
-"""
+"""list: A list of fuel unit strings for megawatt days thermal."""
 
 ferc1_mwhth_strings = ['mwh them', 'mwh threm',
                        'nwh therm', 'mwhth', 'mwh therm', 'mwh']
-"""list: A list of fuel unit strings for megawatt hours thermal.
-"""
+"""list: A list of fuel unit strings for megawatt hours thermal."""
 
 ferc1_fuel_unit_strings = {'ton': ferc1_ton_strings,
                            'mcf': ferc1_mcf_strings,
@@ -389,7 +384,8 @@ ferc1_fuel_unit_strings = {'ton': ferc1_ton_strings,
                            'mwdth': ferc1_mwdth_strings,
                            'mwhth': ferc1_mwhth_strings
                            }
-"""dict: A dictionary linking fuel units (keys) to lists of various strings
+"""
+dict: A dictionary linking fuel units (keys) to lists of various strings
     representing those fuel units (values)
 """
 
@@ -404,7 +400,8 @@ ferc1_plant_kind_steam_turbine = \
     ['coal', 'steam', 'steam units 1 2 3', 'steam units 4 5',
      'steam fossil', 'steam turbine', 'steam a', 'steam 100',
      'steam units 1 2 3', 'steams', 'steam 1', 'steam retired 2013', 'stream']
-"""list: A list of strings from FERC Form 1 for the steam turbine plant kind.
+"""
+list: A list of strings from FERC Form 1 for the steam turbine plant kind.
 """
 
 ferc1_plant_kind_combustion_turbine = \
@@ -431,16 +428,15 @@ ferc1_plant_kind_combined_cycle = \
      'combine cycle', 'cc', 'comb. cycle', 'gas turb-combined cy',
      'steam and cc', 'steam cc', 'gas steam', 'ctg steam gas',
      'steam comb cycle', ]
-"""list: A list of strings from FERC Form 1 for the combined cycle plant kind.
+"""
+list: A list of strings from FERC Form 1 for the combined cycle plant kind.
 """
 
 ferc1_plant_kind_nuke = ['nuclear', 'nuclear (3)']
-"""list: A list of strings from FERC Form 1 for the nuclear plant kind.
-"""
+"""list: A list of strings from FERC Form 1 for the nuclear plant kind."""
 
 ferc1_plant_kind_geothermal = ['steam - geothermal', 'steam_geothermal']
-"""list: A list of strings from FERC Form 1 for the geothermal plant kind.
-"""
+"""list: A list of strings from FERC Form 1 for the geothermal plant kind."""
 
 ferc_1_plant_kind_internal_combustion = \
     ['ic', 'internal combustion',
@@ -448,21 +444,21 @@ ferc_1_plant_kind_internal_combustion = \
      'int.combustine', 'comb. cyc', 'internal comb', 'diesel', 'diesel engine',
      'internal combustion', 'int combust - note 1', 'int. combust - note1',
      'internal comb recip', 'reciprocating engine', 'comb. turbine']
-"""list: A list of strings from FERC Form 1 for the internal combustion plant
+"""
+list: A list of strings from FERC Form 1 for the internal combustion plant
     kind.
 """
 
 ferc1_plant_kind_wind = ['wind', 'wind energy',
                          'wind turbine', 'wind - turbine']
-"""list: A list of strings from FERC Form 1 for the wind plant kind.
-"""
+"""list: A list of strings from FERC Form 1 for the wind plant kind."""
 
 ferc1_plant_kind_photovoltaic = ['solar photovoltaic', 'photovoltaic']
-"""list: A list of strings from FERC Form 1 for the photovoltaic plant kind.
-"""
+"""list: A list of strings from FERC Form 1 for the photovoltaic plant kind."""
 
 ferc1_plant_kind_solar_thermal = ['solar thermal']
-"""list: A list of strings from FERC Form 1 for the solar thermal plant kind.
+"""
+list: A list of strings from FERC Form 1 for the solar thermal plant kind.
 """
 
 # Making a dictionary of lists from the lists of plant_fuel strings to create
@@ -479,7 +475,8 @@ ferc1_plant_kind_strings = {
     'photovoltaic': ferc1_plant_kind_photovoltaic,
     'solar_thermal': ferc1_plant_kind_solar_thermal
 }
-"""dict: A dictionary of plant kinds (keys) and associated lists of plant_fuel
+"""
+dict: A dictionary of plant kinds (keys) and associated lists of plant_fuel
     strings (values).
 """
 
@@ -488,11 +485,13 @@ ferc1_plant_kind_strings = {
 # categorizations which are more detailed, but these are preserved here for
 # comparison and testing, if need be.
 cpi_diesel_strings = ['DIESEL', 'Diesel Engine', 'Diesel Turbine', ]
-"""list: A list of strings for fuel type diesel compiled by Climate Policy
+"""
+list: A list of strings for fuel type diesel compiled by Climate Policy
     Initiative.
 """
 cpi_geothermal_strings = ['Steam - Geothermal', ]
-"""list: A list of strings for fuel type geothermal compiled by Climate Policy
+"""
+list: A list of strings for fuel type geothermal compiled by Climate Policy
     Initiative.
 """
 cpi_natural_gas_strings = [
@@ -2132,7 +2131,8 @@ read_excel_epaipm_dict = {
         usecols='C,I',
     ),
 }
-"""dict: A dictionary of dictionaries containing EPA IPM tables and associated
+"""
+dict: A dictionary of dictionaries containing EPA IPM tables and associated
     information for reading those tables into PUDL (values).
 """
 
@@ -2152,8 +2152,7 @@ epaipm_region_names = [
     'WECC_WY', 'CN_AB', 'CN_BC', 'CN_NL', 'CN_MB', 'CN_NB', 'CN_NF',
     'CN_NS', 'CN_ON', 'CN_PE', 'CN_PQ', 'CN_SK',
 ]
-"""list: A list of EPA IPM region names.
-"""
+"""list: A list of EPA IPM region names."""
 
 epaipm_region_aggregations = {
     'PJM': [
@@ -2179,7 +2178,8 @@ epaipm_region_aggregations = {
     ]
 
 }
-"""dict: A dictionary containing EPA IPM regions (keys) and lists of their
+"""
+dict: A dictionary containing EPA IPM regions (keys) and lists of their
     associated abbreviations (values).
 """
 
@@ -2200,7 +2200,8 @@ epaipm_rename_dict = {
         'Region Name': 'region',
     },
 }
-"""dict: A dictionary of dictionaries containing EPA IPM tables (keys) and items
+"""
+dict: A dictionary of dictionaries containing EPA IPM tables (keys) and items
     for each table to be renamed along with the replacement name (values).
 """
 
@@ -2211,8 +2212,7 @@ data_sources = (
     'ferc1',
     'epaipm',
 )
-"""tuple: A tuple containing the data sources we are able to pull into PUDL.
-"""
+"""tuple: A tuple containing the data sources we are able to pull into PUDL."""
 
 # All the years for which we ought to be able to download these data sources
 data_years = {
@@ -2222,7 +2222,8 @@ data_years = {
     'ferc1': tuple(range(1994, 2019)),
     'epaipm': (None, ),
 }
-"""dict: A dictionary of data sources (keys) and tuples containing the years
+"""
+dict: A dictionary of data sources (keys) and tuples containing the years
     that we expect to be able to download for each data source (values).
 """
 
@@ -2234,7 +2235,8 @@ working_years = {
     'ferc1': tuple(range(2004, 2018)),
     'epaipm': (None, ),
 }
-"""dict: A dictionary of data sources (keys) and tuples containing the years for
+"""
+dict: A dictionary of data sources (keys) and tuples containing the years for
     each data source that are able to be ingested into PUDL.
 """
 
@@ -2245,7 +2247,8 @@ pudl_tables = {
     'epacems': epacems_tables,
     'epaipm': epaipm_pudl_tables,
 }
-"""dict: A dictionary containing data sources (keys) and the list of associated
+"""
+dict: A dictionary containing data sources (keys) and the list of associated
     tables from that datasource that can be pulled into PUDL (values).
 """
 
@@ -2261,7 +2264,8 @@ base_data_urls = {
     'epaipm': 'https://www.epa.gov/sites/production/files/2019-03',
     'pudl': 'https://catalyst.coop/pudl/'
 }
-"""dict: A dictionary containing data sources (keys) and their base data URLs
+"""
+dict: A dictionary containing data sources (keys) and their base data URLs
     (values).
 """
 
@@ -2279,7 +2283,8 @@ need_fix_inting = {
     'generators_eia860': ('turbines_num',),
     'plants_entity_eia': ('zip_code',),
 }
-"""dict: A dictionary containing tables (keys) and column names (values)
+"""
+dict: A dictionary containing tables (keys) and column names (values)
     containing integer-type columns whose null values need fixing.
 """
 
@@ -2334,8 +2339,8 @@ contributors = {
         "role": "contributor",
     },
 }
-
-"""dict: A dictionary of dictionaries containing organization names (keys) and
+"""
+dict: A dictionary of dictionaries containing organization names (keys) and
     their attributes (values).
 """
 
@@ -2380,7 +2385,8 @@ data_source_info = {
         "title": "FERC Form 714",
     }
 }
-"""dict: A dictionary of dictionaries containing datasources (keys) and
+"""
+dict: A dictionary of dictionaries containing datasources (keys) and
     associated attributes (values)
 """
 
@@ -2423,7 +2429,8 @@ contributors_by_source = {
         "greg-schivley",
     ],
 }
-"""dict: A dictionary of data sources (keys) and lists of contributors (values).
+"""
+dict: A dictionary of data sources (keys) and lists of contributors (values).
 """
 
 licenses = {
@@ -2438,7 +2445,8 @@ licenses = {
         "path": "http://www.usa.gov/publicdomain/label/1.0/",
     }
 }
-"""dict: A dictionary of dictionaries containing license types and their
+"""
+dict: A dictionary of dictionaries containing license types and their
     attributes.
 """
 
@@ -2447,5 +2455,4 @@ output_formats = [
     'parquet',
     'datapackage'
 ]
-"""list: A list of types of PUDL output formats.
-"""
+"""list: A list of types of PUDL output formats."""

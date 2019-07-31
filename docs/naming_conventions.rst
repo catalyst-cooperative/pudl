@@ -2,96 +2,133 @@
 Naming Conventions
 ===============================================================================
 
-* Imperative verbs (.e.g connect) should precede the object being acted upon (e.g. connect_db), unless the function returns a simple value (e.g. datadir).
-* No duplication of information (e.g. form names)
-* lowercase, underscores separate words
-* Helper functions (functions used within a single module only) should be preceded by an underscore
-* When we are segmenting data by a value or list of values, the name should appears as "\ `<data to be sorted>`\ _" + “by_” + “\ `<values to sort on>`\ ” (e.g. “eia_plants_by_operator”.
-* When the object is a table, use the full table name (e.g. ingest_fuel_ferc1)
-* When dataframe outputs are built from multiple tables, identify the type of information being pulled (e.g. "plants_") and the source of the tables (e.g. “eia”or “ferc1”). When outputs are built from a single table, simply use the table name (e.g. “boiler_fuel_eia923”).
+In the PUDL codebase, we aspire to follow the naming and other conventions
+detailed in :pep:`8`.
 
-Applicable abbreviations: "db" for database, “info” for information, “assn” for association, “dir” for directory, “dfs” for dataframes, “int” for integer
+* Imperative verbs (.e.g connect) should precede the object being acted upon
+  (e.g. connect_db), unless the function returns a simple value (e.g. datadir).
+* No duplication of information (e.g. form names).
+* lowercase, underscores separate words.
+* Helper functions (functions used within a single module only) should be
+  preceded by an underscore.
+* When the object is a table, use the full table name (e.g. ingest_fuel_ferc1).
+* When dataframe outputs are built from multiple tables, identify the type of
+  information being pulled (e.g. "plants") and the source of the tables (e.g.
+  ``eia`` or ``ferc1``). When outputs are built from a single table, simply use
+  the table name (e.g. ``boiler_fuel_eia923``).
 
-Database Connection and Helper Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _glossary:
 
-* The lower level namespace uses an imperative verb to identify the action the function performs while the upper level namespace identifies the database that the user is interacting with.
+Glossary of Abbreviations
+-------------------------
 
-Applicable abbreviations: "db" for database
-
-Data Extraction Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* The lower level namespace uses an imperative verb to identify the action the function performs followed by the object of extraction (e.g. get_eia860_file). The upper level namespace identifies the dataset where extraction is occurring.
-
-Applicable abbreviations: "dir" for directory, “dfs” for dataframes
-
-Outputs Functions
-^^^^^^^^^^^^^^^^^
-
-* When dataframe outputs are built from multiple tables, identify the type of information being pulled (e.g. "plants_") and the source of the tables (e.g. “eia”or “ferc1”). When outputs are built from a single table, simply use the table name (e.g. “boiler_fuel_eia923”).
-
-Applicable abbreviations: "utils" for utilities
-
-Analysis Functions (WIP)
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-When segmenting data by a value or list of values, the name should appears as "\ `<data to be sorted>`\ _" + “by_” + “\ `<values to sort on>`\ ” (e.g. “eia_plants_by_operator”). Where possible, the `<data to be sorted>` should be the table name.
-
-Applicable abbreviations: "expns" for expenses, “corr” for correlation, “frc” for fuel receipts and costs, “gf” for generation fuel
-
-Database Tables
-===============
-
-See this `article <http://www.vertabelo.com/blog/technical-articles/naming-conventions-in-database-modeling>`_ on database naming conventions.
-
-* Table names in snake_case
-
-* The data source or label (e.g. "plant_id_pudl") should follow the thing it is describing
-
-In column names:
-
-* "total" should come at the beginning of the name (e.g. “total_expns_production”)
-
-* "plant_id" should specify data source (e.g. “plant_id_eia”)
-
-* The data source or label (e.g. "plant_id_pudl") should follow the thing it is describing
-
-* Units (including percentage ("pct" and per unit (“per unit)) should be used wherever possible and come at the end of the name (e.g. “net_generation_mwh”)
-
-* It is implied that costs are in dollars
-
-* _code indicates the field contains a readable abbreviation from a finite list of values.
-
-* _id indicates the field contains a usually numerical reference to another table, which will not be intelligible without looking up the value in that other table.
-* _name indicates a longer human readable name.
-* _date indicates the field contains a Date type.
-* _type indicates the field contains a short but complete human readable description (usually 1-3 words) from a list of finite valid values.
-* capacity refers to nameplate capacity -- other more specific types of capacity are annotated.
-* Regardless of what label utilities are given in the original data source (e.g. operator in EIA or respondent in FERC) we refer to them as utilities in all tables.
-
-Applicable table name abbreviations: "util" for utility, “assn” for association, “info” for information
-
-Applicable column name abbreviations: "us" for United States, “abbr” for abbreviation, “q” for
-quarter, “ferc” for FERC form 1, “util” for utility, “qty” for quantity, “avg”
-for average, “num” for number, "opex" for operating expenses, "capex" for capital expenses, “pct” for
-percentage, ppm for parts per million
-
-Constants Tables
-^^^^^^^^^^^^^^^^
-
-Constants table names are snake_case and plural because these tables represent existing, mostly static, collections of information (e.g. the list of U.S. states). The data source or label (e.g. "plant_id_pudl") should follow the thing it is describing.
-
-Applicable column abbreviations: "us" for United States, “abbr” for abbreviation, “q” for quarter, “ferc” for FERC form 1
-
-Glue Tables
-^^^^^^^^^^^
-
-When constructed from a single data source "object type_" + “source of information”. When constructed from multiple data sources “object type”.
-
-Applicable table abbreviations: "util" for utility, “assn” for association
-
-Tables About Entities
+General Abbreviations
 ^^^^^^^^^^^^^^^^^^^^^
 
-Where a FERC Form 1 or EIA tab/page name exists, "page name_" + “data source” (e.g. “fuel\ *ferc1”). Without a page name, “general subject\*\ ” + “data source” (e.g. “coalmine_eia923”).
+======================= ======================================================
+Abbreviation            Definition
+======================= ======================================================
+``abbr``                abbreviation
+``assn``                association
+``avg``                 average (mean)
+``bbl``                 barrel (quantity of liquid fuel)
+``capex``               capital expense
+``corr``                correlation
+``db``                  database
+``df`` & ``dfs``        dataframe & dataframes
+``dir``                 directory
+``epxns``               expenses
+``info``                information
+``mcf``                 thousand cubic feet (volume of gas)
+``mmbtu``               million British Thermal Units
+``mw``                  Megawatt
+``mwh``                 Megawatt Hours
+``num``                 number
+``opex``                operating expense
+``pct``                 percent
+``ppm``                 parts per million
+``ppb``                 parts per billion
+``q``                   (fiscal) quarter
+``qty``                 quantity
+``util`` & ``utils``    utility & utilities
+``us``                  United States
+``usd``                 US Dollars
+======================= ======================================================
+
+Data Source Specific Abbreviations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+======================= ======================================================
+Abbreviation            Definition
+======================= ======================================================
+``frc_eia923``          Fuel Receipts and Costs (:ref:`data-eia923`)
+``gen_eia923``          Generation (:ref:`data-eia923`)
+``gf_eia923``           Generation Fuel (:ref:`data-eia923`)
+``gens_eia923``         Generators (:ref:`data-eia923`)
+``utils_eia860``        Utilities (:ref:`data-eia860`)
+``own_eia860``          Ownership (:ref:`data-eia860`)
+======================= ======================================================
+
+
+Data Extraction Functions
+-------------------------
+
+The lower level namespace uses an imperative verb to identify the action the
+function performs followed by the object of extraction (e.g.
+``get_eia860_file``). The upper level namespace identifies the dataset where
+extraction is occurring.
+
+Output Functions
+-----------------
+
+When dataframe outputs are built from multiple tables, identify the type of
+information being pulled (e.g. ``plants``) and the source of the tables (e.g.
+``eia`` or ``ferc1``). When outputs are built from a single table, simply use
+the table name (e.g. ``boiler_fuel_eia923``).
+
+Table Names
+-----------
+
+See `this article
+<http://www.vertabelo.com/blog/technical-articles/naming-conventions-in-database-modeling>`__
+on database naming conventions.
+
+* Table names in snake_case
+* The data source or label (e.g. "plant_id_pudl") should follow the thing it is
+  describing
+
+Columns and Field Names
+-----------------------
+
+* ``total`` should come at the beginning of the name (e.g.
+  ``total_expns_production``)
+* Identifiers should be structured ``type`` + ``_id_`` + ``source`` where
+  ``source`` is the agency or organization that has assigned the ID. (e.g.
+  ``plant_id_eia``)
+* The data source or label (e.g. ``plant_id_pudl``) should follow the thing it
+  is describing
+* Units should be appended to field names where applicable (e.g.
+  ``net_generation_mwh``). This includes "per unit" signifiers (e.g. ``_pct``
+  for percent, ``_ppm`` for parts per million, or a generic ``_per_unit`` when
+  the type of unit varies, as in columns containing a heterogeneous collection
+  of fuels)
+* Financial values are assumed to be in US Dollars.
+* ``_id`` indicates the field contains a usually numerical reference to
+  another table, which will not be intelligible without looking up the value in
+  that other table.
+* The suffix ``_code`` indicates the field contains a short abbreviation from
+  a well defined list of values, that probably needs to be looked up if you
+  want to understand what it means.
+* The suffix ``_type`` (e.g. ``fuel_type``) indicates a human readable category
+  from a well defined list of values. Whenever possible we try to use these
+  longer descriptive names rather than codes.
+* ``_name`` indicates a longer human readable name, that is likely not well
+  categorized into a small set of acceptable values.
+* ``_date`` indicates the field contains a :class:`Date` object.
+* ``_datetime`` indicates the field contains a full :class:`Datetime` object.
+* ``_year`` indicates the field contains an :class:`integer` 4-digit year.
+* ``capacity`` refers to nameplate capacity (e.g. ``capacity_mw``)-- other
+  specific types of capacity are annotated.
+* Regardless of what label utilities are given in the original data source
+  (e.g. ``operator`` in EIA or ``respondent`` in FERC) we refer to them as
+  ``utilities`` in PUDL.

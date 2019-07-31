@@ -19,54 +19,55 @@ We want to extract the plant-level non-fuel operating costs from the FERC
 plant tables, especially the plants_steam_ferc1 table. The data we have at the
 FERC plant level and also in the EIA data (at either the plant or generator
 level) includes:
- - Net electricity generated (generator)
- - Heat content of fuel consumed, by fuel (oil, gas, coal) (boiler/generator)
- - Cost of fuel consumed, by fuel (oil, gas, coal) (EIA plant)
+
+* Net electricity generated (generator)
+* Heat content of fuel consumed, by fuel (oil, gas, coal) (boiler/generator)
+* Cost of fuel consumed, by fuel (oil, gas, coal) (EIA plant)
 
 There are a couple of pre-filters we can (and probably need to) apply before we
 jump into the brute force combinatorics:
- - We can use the PUDL plant IDs to narrow down the search space, by only
-   attempting to match FERC plants & EIA generators that have been associated
-   with the same PUDL plant.
- - Within each PUDL plant ID, we can often categorize individual FERC plants
-   as coal or gas plants, based on their fuel consumption (e.g. if more than
-   95% of all fuel is of one type). Similarly, individual EIA generators are
-   typically clearly either gas or coal fired. There's no point in trying to
-   match gas generators to coal plants, or coal generators to gas plants -- any
-   combination of generators that does so can be automatically eliminated.
+
+* We can use the PUDL plant IDs to narrow down the search space, by only
+  attempting to match FERC plants & EIA generators that have been associated
+  with the same PUDL plant.
+* Within each PUDL plant ID, we can often categorize individual FERC plants
+  as coal or gas plants, based on their fuel consumption (e.g. if more than
+  95% of all fuel is of one type). Similarly, individual EIA generators are
+  typically clearly either gas or coal fired. There's no point in trying to
+  match gas generators to coal plants, or coal generators to gas plants -- any
+  combination of generators that does so can be automatically eliminated.
 
 So the inputs into the datazipper are going to be two dataframes, one for
 FERC and one for EIA, with the following fields:
 
 FERC:
- - respondent_id
- - plant_name
- - plant_id_pudl
- - report_year
- - net_generation_mwh
- - gas_total_heat_mmbtu
- - oil_total_heat_mmbtu
- - coal_total_heat_mmbtu
- - gas_total_cost
- - oil_total_cost
- - coal_total_cost
+* respondent_id
+* plant_name
+* plant_id_pudl
+* report_year
+* net_generation_mwh
+* gas_total_heat_mmbtu
+* oil_total_heat_mmbtu
+* coal_total_heat_mmbtu
+* gas_total_cost
+* oil_total_cost
+* coal_total_cost
 
 EIA:
- - plant_id_eia
- - generator_id
- - plant_id_pudl
- - report_year
- - net_generation_mwh (by generator)
- - gas_total_heat_mmbtu (by generator via boiler)
- - oil_total_heat_mmbtu (by generator via boiler)
- - coal_total_heat_mmbtu (by generator via boiler)
- - gas_total_cost (by generator via plant)
- - oil_total_cost (by generator via plant)
- - coal_total_cost (by generator via plant)
+* plant_id_eia
+* generator_id
+* plant_id_pudl
+* report_year
+* net_generation_mwh (by generator)
+* gas_total_heat_mmbtu (by generator via boiler)
+* oil_total_heat_mmbtu (by generator via boiler)
+* coal_total_heat_mmbtu (by generator via boiler)
+* gas_total_cost (by generator via plant)
+* oil_total_cost (by generator via plant)
+* coal_total_cost (by generator via plant)
 
 The output is a set of IDs that allow the FERC plants & EIA generators tables
-to be joined together. On the
-
+to be joined together.
 
 """
 
@@ -99,6 +100,7 @@ def partition(collection):
         collection (list of items): the set to partition.
     Returns:
         A list of all valid set partitions.
+
     """
     if len(collection) == 1:
         yield [collection]
@@ -409,7 +411,8 @@ def correlate_by_generators(agg_df, eia_cols, ferc_cols, corr_cols):
 
 
 def score_all(df, corr_cols):
-    """Score candidate ensembles of EIA generators based on match to FERC.
+    """
+    Score candidate ensembles of EIA generators based on match to FERC.
 
     Given a datafram output from correlate_by_generators() above, containing
     correlations between potential EIA generator lumpings and the original
@@ -425,35 +428,41 @@ def score_all(df, corr_cols):
     the mapping between the two data sources.
 
     Potential improvements:
-      - Might need to be able to use a more general scoring function, rather
-        than just taking the mean of all the correlations across all the data
-        columns within a given candidate grouping. Is there a way to pass in
-        an arbitrary number of columns associated with a group in a groupby
-        object for array application? Doing two rounds of aggretation and
-        mean() calculation seems dumb.
-      - The generation of all the candidate groupings of generator ensembles
-        is hella kludgy, and also slow -- it seems like there must be a less
-        iterative, more vectorized way of doing the same thing. Depending on
-        the number of permutations that need to be generated and tested in the
-        real data, this may or may not be functional from a speed perspective.
-      - Just for scale, assuming 100 generators, 10 data series, and 100
-        samples in each data series, as we change the maximum group size
-        (which determines both how large a PUDL plant can be, and how large the
-        lumpings within a PUDL plant can be), the time to complete the tests
-        increased as follows:
-          - 5 => 20 seconds
-          - 6 => 60 seconds
-          - 7 => 150 seconds
-          - 8 => 5000 seconds
-      - Can this whole process be made more general, so that it can be used
-        to zip together other more arbitrary datasets based on shared data
-        fields? What would that look like? What additional parameters would
-        we need to pass in?
-      - Is there a good reason to keep this chain of functions separate, or
-        should they be concatenated into one longer function? Are there more
-        sensible ways to break the pipeline up?
-    """
 
+    * Might need to be able to use a more general scoring function, rather
+      than just taking the mean of all the correlations across all the data
+      columns within a given candidate grouping. Is there a way to pass in
+      an arbitrary number of columns associated with a group in a groupby
+      object for array application? Doing two rounds of aggretation and
+      mean() calculation seems dumb.
+
+    * The generation of all the candidate groupings of generator ensembles
+      is hella kludgy, and also slow -- it seems like there must be a less
+      iterative, more vectorized way of doing the same thing. Depending on
+      the number of permutations that need to be generated and tested in the
+      real data, this may or may not be functional from a speed perspective.
+
+    * Just for scale, assuming 100 generators, 10 data series, and 100
+      samples in each data series, as we change the maximum group size
+      (which determines both how large a PUDL plant can be, and how large the
+      lumpings within a PUDL plant can be), the time to complete the tests
+      increased as follows:
+
+      * 5 => 20 seconds
+      * 6 => 60 seconds
+      * 7 => 150 seconds
+      * 8 => 5000 seconds
+
+    * Can this whole process be made more general, so that it can be used
+      to zip together other more arbitrary datasets based on shared data
+      fields? What would that look like? What additional parameters would
+      we need to pass in?
+
+    * Is there a good reason to keep this chain of functions separate, or
+      should they be concatenated into one longer function? Are there more
+      sensible ways to break the pipeline up?
+
+    """
     candidates = {}
     # Iterate through each PUDL Plant ID
     for ppid in df.pudl_plant_id.unique():
