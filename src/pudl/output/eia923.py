@@ -1,16 +1,18 @@
 """Functions for pulling EIA 923 data out of the PUDl DB."""
 
-import sqlalchemy as sa
 import pandas as pd
+import sqlalchemy as sa
 
 import pudl
 import pudl.models.entities
+
 pt = pudl.models.entities.PUDLBase.metadata.tables
 
 
 def generation_fuel_eia923(freq=None, testing=False,
                            start_date=None, end_date=None):
-    """Pulls records from the generation_fuel_eia923 table in given date range.
+    """
+    Pull records from the generation_fuel_eia923 table in given date range.
 
     Optionally, aggregate the records over some timescale -- monthly, yearly,
     quarterly, etc. as well as by fuel type within a plant.
@@ -20,15 +22,15 @@ def generation_fuel_eia923(freq=None, testing=False,
     fields. Per-unit values are re-calculated based on the aggregated totals.
     Totals are summed across whatever time range is being used, within a
     given plant and fuel type.
-     - plant_id_eia
-     - report_date
-     - fuel_type_code_pudl
-     - fuel_consumed_units
-     - fuel_consumed_for_electricity_units
-     - fuel_mmbtu_per_unit
-     - fuel_consumed_mmbtu
-     - fuel_consumed_for_electricity_mmbtu
-     - net_generation_mwh
+    * ``plant_id_eia``
+    * ``report_date``
+    * ``fuel_type_code_pudl``
+    * ``fuel_consumed_units``
+    * ``fuel_consumed_for_electricity_units``
+    * ``fuel_mmbtu_per_unit``
+    * ``fuel_consumed_mmbtu``
+    * ``fuel_consumed_for_electricity_mmbtu``
+    * ``net_generation_mwh``
 
     In addition, plant and utility names and IDs are pulled in from the EIA
     860 tables.
@@ -124,7 +126,8 @@ def generation_fuel_eia923(freq=None, testing=False,
 
 def fuel_receipts_costs_eia923(freq=None, testing=False,
                                start_date=None, end_date=None):
-    """Pulls records from fuel_receipts_costs_eia923 table in given date range.
+    """
+    Pull records from ``fuel_receipts_costs_eia923`` table in given date range.
 
     Optionally, aggregate the records at a monthly or longer timescale, as well
     as by fuel type within a plant, by setting freq to something other than
@@ -135,17 +138,17 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
     following fields are preserved, and appropriately summed or re-calculated
     based on the specified aggregation. In both cases, new total values are
     calculated, for total fuel heat content and total fuel cost.
-     - plant_id_eia
-     - report_date
-     - fuel_type_code_pudl (formerly energy_source_simple)
-     - fuel_qty_units (sum)
-     - fuel_cost_per_mmbtu (weighted average)
-     - total_fuel_cost (sum)
-     - total_heat_content_mmbtu (sum)
-     - heat_content_mmbtu_per_unit (weighted average)
-     - sulfur_content_pct (weighted average)
-     - ash_content_pct (weighted average)
-     - mercury_content_ppm (weighted average)
+    * ``plant_id_eia``
+    * ``report_date``
+    * ``fuel_type_code_pudl`` (formerly energy_source_simple)
+    * ``fuel_qty_units`` (sum)
+    * ``fuel_cost_per_mmbtu`` (weighted average)
+    * ``total_fuel_cost`` (sum)
+    * ``total_heat_content_mmbtu`` (sum)
+    * ``heat_content_mmbtu_per_unit`` (weighted average)
+    * ``sulfur_content_pct`` (weighted average)
+    * ``ash_content_pct`` (weighted average)
+    * ``mercury_content_ppm`` (weighted average)
 
     In addition, plant and utility names and IDs are pulled in from the EIA
     860 tables.
@@ -271,7 +274,8 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
 
 def boiler_fuel_eia923(freq=None, testing=False,
                        start_date=None, end_date=None):
-    """Pulls records from the boiler_fuel_eia923 table in a given data range.
+    """
+    Pull records from the boiler_fuel_eia923 table in a given data range.
 
     Optionally, aggregate the records over some timescale -- monthly, yearly,
     quarterly, etc. as well as by fuel type within a plant.
@@ -281,11 +285,11 @@ def boiler_fuel_eia923(freq=None, testing=False,
     fields. Per-unit values are re-calculated based on the aggregated totals.
     Totals are summed across whatever time range is being used, within a
     given plant and fuel type.
-     - fuel_consumed_units (sum)
-     - fuel_mmbtu_per_unit (weighted average)
-     - total_heat_content_mmbtu (sum)
-     - sulfur_content_pct (weighted average)
-     - ash_content_pct (weighted average)
+    * ``fuel_consumed_units`` (sum)
+    * ``fuel_mmbtu_per_unit`` (weighted average)
+    * ``total_heat_content_mmbtu`` (sum)
+    * ``sulfur_content_pct`` (weighted average)
+    * ``ash_content_pct`` (weighted average)
 
     In addition, plant and utility names and IDs are pulled in from the EIA
     860 tables.
@@ -306,6 +310,7 @@ def boiler_fuel_eia923(freq=None, testing=False,
     Returns:
         pandas.DataFrame: A DataFrame containing all records from the EIA 923
         Boiler Fuel table.
+
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
     bf_eia923_tbl = pt['boiler_fuel_eia923']
@@ -397,7 +402,8 @@ def boiler_fuel_eia923(freq=None, testing=False,
 
 def generation_eia923(freq=None, testing=False,
                       start_date=None, end_date=None):
-    """Pulls records from the boiler_fuel_eia923 table in a given data range.
+    """
+    Pull records from the boiler_fuel_eia923 table in a given data range.
 
     Args:
         freq (str): a pandas timeseries offset alias. The original data is
@@ -415,6 +421,7 @@ def generation_eia923(freq=None, testing=False,
     Returns:
         pandas.DataFrame: A DataFrame containing all records from the EIA 923
         Generation table.
+
     """
     pudl_engine = pudl.init.connect_db(testing=testing)
     g_eia923_tbl = pt['generation_eia923']

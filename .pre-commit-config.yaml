@@ -46,6 +46,7 @@ repos:
   rev: 3.7.8
   hooks:
   - id: flake8
+    args: [--format, "%(path)40s:%(row)-4d %(code)s %(text)s"]
 
 # Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8

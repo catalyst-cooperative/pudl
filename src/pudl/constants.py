@@ -2131,7 +2131,8 @@ read_excel_epaipm_dict = {
         usecols='C,I',
     ),
 }
-"""dict: A dictionary of dictionaries containing EPA IPM tables and associated
+"""
+dict: A dictionary of dictionaries containing EPA IPM tables and associated
     information for reading those tables into PUDL (values).
 """
 
@@ -2151,8 +2152,7 @@ epaipm_region_names = [
     'WECC_WY', 'CN_AB', 'CN_BC', 'CN_NL', 'CN_MB', 'CN_NB', 'CN_NF',
     'CN_NS', 'CN_ON', 'CN_PE', 'CN_PQ', 'CN_SK',
 ]
-"""list: A list of EPA IPM region names.
-"""
+"""list: A list of EPA IPM region names."""
 
 epaipm_region_aggregations = {
     'PJM': [
@@ -2178,7 +2178,8 @@ epaipm_region_aggregations = {
     ]
 
 }
-"""dict: A dictionary containing EPA IPM regions (keys) and lists of their
+"""
+dict: A dictionary containing EPA IPM regions (keys) and lists of their
     associated abbreviations (values).
 """
 
@@ -2199,7 +2200,8 @@ epaipm_rename_dict = {
         'Region Name': 'region',
     },
 }
-"""dict: A dictionary of dictionaries containing EPA IPM tables (keys) and items
+"""
+dict: A dictionary of dictionaries containing EPA IPM tables (keys) and items
     for each table to be renamed along with the replacement name (values).
 """
 
@@ -2210,8 +2212,7 @@ data_sources = (
     'ferc1',
     'epaipm',
 )
-"""tuple: A tuple containing the data sources we are able to pull into PUDL.
-"""
+"""tuple: A tuple containing the data sources we are able to pull into PUDL."""
 
 # All the years for which we ought to be able to download these data sources
 data_years = {
@@ -2221,7 +2222,8 @@ data_years = {
     'ferc1': tuple(range(1994, 2019)),
     'epaipm': (None, ),
 }
-"""dict: A dictionary of data sources (keys) and tuples containing the years
+"""
+dict: A dictionary of data sources (keys) and tuples containing the years
     that we expect to be able to download for each data source (values).
 """
 
@@ -2233,7 +2235,8 @@ working_years = {
     'ferc1': tuple(range(2004, 2018)),
     'epaipm': (None, ),
 }
-"""dict: A dictionary of data sources (keys) and tuples containing the years for
+"""
+dict: A dictionary of data sources (keys) and tuples containing the years for
     each data source that are able to be ingested into PUDL.
 """
 
@@ -2244,7 +2247,8 @@ pudl_tables = {
     'epacems': epacems_tables,
     'epaipm': epaipm_pudl_tables,
 }
-"""dict: A dictionary containing data sources (keys) and the list of associated
+"""
+dict: A dictionary containing data sources (keys) and the list of associated
     tables from that datasource that can be pulled into PUDL (values).
 """
 
@@ -2259,7 +2263,8 @@ base_data_urls = {
     'msha': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
     'epaipm': 'https://www.epa.gov/sites/production/files/2019-03'
 }
-"""dict: A dictionary containing data sources (keys) and their base data URLs
+"""
+dict: A dictionary containing data sources (keys) and their base data URLs
     (values).
 """
 
@@ -2277,7 +2282,8 @@ need_fix_inting = {
     'generators_eia860': ('turbines_num',),
     'plants_entity_eia': ('zip_code',),
 }
-"""dict: A dictionary containing tables (keys) and column names (values)
+"""
+dict: A dictionary containing tables (keys) and column names (values)
     containing integer-type columns whose null values need fixing.
 """
 
@@ -2328,8 +2334,8 @@ contributors = {
         "organization": "Climate Policy Initiative",
     }
 }
-
-"""dict: A dictionary of dictionaries containing organization names (keys) and
+"""
+dict: A dictionary of dictionaries containing organization names (keys) and
     their attributes (values).
 """
 
@@ -2374,7 +2380,8 @@ data_source_info = {
         "title": "FERC Form 714",
     }
 }
-"""dict: A dictionary of dictionaries containing datasources (keys) and
+"""
+dict: A dictionary of dictionaries containing datasources (keys) and
     associated attributes (values)
 """
 
@@ -2414,7 +2421,8 @@ contributors_by_source = {
         "zane-selvans",
     ],
 }
-"""dict: A dictionary of data sources (keys) and lists of contributors (values).
+"""
+dict: A dictionary of data sources (keys) and lists of contributors (values).
 """
 
 licenses = {
@@ -2429,7 +2437,8 @@ licenses = {
         "path": "http://www.usa.gov/publicdomain/label/1.0/",
     }
 }
-"""dict: A dictionary of dictionaries containing license types and their
+"""
+dict: A dictionary of dictionaries containing license types and their
     attributes.
 """
 
@@ -2438,5 +2447,4 @@ output_formats = [
     'parquet',
     'datapackage'
 ]
-"""list: A list of types of PUDL output formats.
-"""
+"""list: A list of types of PUDL output formats."""

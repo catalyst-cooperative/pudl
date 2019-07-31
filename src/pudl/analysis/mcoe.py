@@ -7,18 +7,19 @@ import pudl
 
 
 def heat_rate_by_unit(pudl_out):
-    """Calculate heat rates (mmBTU/MWh) within separable generation units.
+    """
+    Calculate heat rates (mmBTU/MWh) within separable generation units.
 
     Assumes a "good" Boiler Generator Association (bga) i.e. one that only
     contains boilers and generators which have been completely associated at
     some point in the past.
 
     The BGA dataframe needs to have the following columns:
-     - report_date (annual)
-     - plant_id_eia
-     - unit_id_pudl
-     - generator_id
-     - boiler_id
+    - report_date (annual)
+    - plant_id_eia
+    - unit_id_pudl
+    - generator_id
+    - boiler_id
 
     The unit_id is associated with generation records based on report_date,
     plant_id_eia, and generator_id. Analogously, the unit_id is associtated
@@ -28,12 +29,13 @@ def heat_rate_by_unit(pudl_out):
     Then the total net generation and fuel consumption per unit per time period
     are calculated, allowing the calculation of a per unit heat rate. That
     per unit heat rate is returned in a dataframe containing:
-     - report_date
-     - plant_id_eia
-     - unit_id_pudl
-     - net_generation_mwh
-     - total_heat_content_mmbtu
-     - heat_rate_mmbtu_mwh
+    - report_date
+    - plant_id_eia
+    - unit_id_pudl
+    - net_generation_mwh
+    - total_heat_content_mmbtu
+    - heat_rate_mmbtu_mwh
+
     """
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
