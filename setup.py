@@ -25,6 +25,7 @@ install_requires = [
 ]
 
 doc_requires = [
+    'doc8',
     'sphinx',
     'sphinx_rtd_theme',
 ]
@@ -35,9 +36,10 @@ test_requires = [
     'doc8',
     'flake8',
     'flake8-docstrings',
-    'flake8-import-order',
+    'flake8-builtins',
+    'pep8-naming',
     'pre-commit',
-    'pydocstyle',
+    'pydocstyle==3.0.0',
     'pytest',
     'pytest-cov',
 ]
@@ -57,12 +59,13 @@ long_description = readme_path.read_text()
 
 
 setup(
-    name='pudl-zaneselvans',
+    name='pudl',
+    # name='pudl-zaneselvans',
     description='Tools for liberating public US electric utility data.',
     long_description=long_description,
     long_description_content_type='text/x-rst',
-    version='0.1.0a2',
-    # use_scm_version=True,
+    # version='0.1.0a2',
+    use_scm_version=True,
     author='Catalyst Cooperative',
     author_email='pudl@catalyst.coop',
     maintainer='Zane A. Selvans',
