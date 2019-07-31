@@ -2,6 +2,9 @@
 Naming Conventions
 ===============================================================================
 
+In the PUDL codebase, we aspire to follow the naming and other conventions
+detailed in :pep:`8`.
+
 * Imperative verbs (.e.g connect) should precede the object being acted upon
   (e.g. connect_db), unless the function returns a simple value (e.g. datadir).
 * No duplication of information (e.g. form names).
