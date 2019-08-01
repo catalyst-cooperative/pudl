@@ -4,8 +4,6 @@
 [![codecov](https://codecov.io/gh/catalyst-cooperative/pudl/branch/master/graph/badge.svg)](https://codecov.io/gh/catalyst-cooperative/pudl)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2fead07adef249c08288d0bafae7cbb5)](https://app.codacy.com/app/zaneselvans/pudl?utm_source=github.com&utm_medium=referral&utm_content=catalyst-cooperative/pudl&utm_campaign=Badge_Grade_Dashboard)
 [![Documentation Status](https://readthedocs.org/projects/catalyst-cooperative-pudl/badge/?version=latest)](https://catalyst-cooperative-pudl.readthedocs.io/en/latest/?badge=latest)
-[![Join the chat at https://gitter.im/catalyst-cooperative/pudl](https://badges.gitter.im/catalyst-cooperative/pudl.svg)](https://gitter.im/catalyst-cooperative/pudl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/catalyst-cooperative/pudl/master)
 
 The [Public Utility Data Liberation (PUDL)
 project](https://catalyst.coop/pudl/) aims to provide
@@ -21,7 +19,6 @@ Just want to liberate your own copy of the data? Read our
 ### Contact Catalyst Cooperative:
  - Web: [https://catalyst.coop](https://catalyst.coop)
  - Email: [pudl@catalyst.coop](mailto:pudl@catalyst.coop)
- - Gitter: https://gitter.im/catalyst-cooperative/pudl
  - Twitter: [@CatalystCoop](https://twitter.com/CatalystCoop)
 
 ---
