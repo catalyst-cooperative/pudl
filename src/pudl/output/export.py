@@ -936,19 +936,26 @@ def flatten_data_packages_csvs(pkg_bundle_dir, pkg_name='pudl-all'):
     """
     # set where the flattened datapackage is going to live
     all_dir = pathlib.Path(pkg_bundle_dir, pkg_name)
+    # delete the subdirectory if it exists
     if os.path.exists(all_dir):
         shutil.rmtree(all_dir)
+    # make the subdirectory..
     os.mkdir(all_dir)
+    # we also need the sub-subdirectory for the data
     all_data_dir = pathlib.Path(pkg_bundle_dir, pkg_name, 'data')
     os.mkdir(all_data_dir)
+    # for each of the package directories, copy over the csv's
     for pkg_dir in pkg_bundle_dir.iterdir():
-        if pkg_dir != all_dir:
-            [shutil.copy(csv, all_data_dir) for csv in
-             pathlib.Path(pkg_dir, 'data').iterdir() if pkg_dir.name != 'epacems_eia860']
-            [shutil.copy(csv, all_data_dir) for csv in
-             pathlib.Path(pkg_dir, 'data').iterdir()
-             if pkg_dir.name == 'epacems_eia860'
-             and 'hourly_emissions_epacems' in csv.name]
+        # copy all the csv's except not from all_dir - would make duplicates or
+        # from the epacems package (because it has CEMS and EIA files).
+        if pkg_dir != all_dir and pkg_dir.name != 'epacems_eia860':
+            for csv in pathlib.Path(pkg_dir, 'data').iterdir():
+                shutil.copy(csv, all_data_dir)
+        # for the CEMS pacakge, only pull the actual CEMS tables.
+        elif pkg_dir.name == 'epacems_eia860':
+            for csv in pathlib.Path(pkg_dir, 'data').iterdir():
+                if 'hourly_emissions_epacems' in csv.name:
+                    shutil.copy(csv, all_data_dir)
 
 
 def compile_data_packages_metadata(pkg_bundle_dir,

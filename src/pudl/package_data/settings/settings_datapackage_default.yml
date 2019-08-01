@@ -65,9 +65,9 @@
 # EIA FORM 923 & 860 SETTINGS
 ###########################################################################
 
-- name: "eia-test"
-  title: ""
-  description: "whatever eia things.. ya know 860, 923.. all the things"
+- name: eia-test
+  title: EIA 860 and 923
+  description: whatever eia things.. ya know 860, 923.. all the things
   datasets:
     - eia:
         # This is the full list of EIA 923 tables.  Many of them are interdependent,
@@ -81,7 +81,7 @@
           - generation_eia923
           - coalmine_eia923 # coalmine_eia923 REQUIRES fuel_receipts_costs_eia923
           - fuel_receipts_costs_eia923
-          eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
+        eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
         #eia923_years: []
         # See notes above about the entanglement between EIA 923 and EIA 860. It's best
         # to load all the tables from both of them, or neither of them.
