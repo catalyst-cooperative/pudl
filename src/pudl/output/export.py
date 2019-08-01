@@ -6,15 +6,18 @@ exported (e.g. CSV, Excel spreadsheets, parquet files, HDF5).
 
 import datetime
 import hashlib
+import json
 import logging
 import os
 import pathlib
 import re
+import shutil
 import uuid
 
 import datapackage
 import goodtables
 import pandas as pd
+import pkg_resources
 import sqlalchemy as sa
 import tableschema
 
@@ -538,6 +541,15 @@ def annotated_xlsx(df, notes_dict, tags_dict, first_cols, sheet_name,
 
 
 def compile_partitions(pkg_settings):
+    """Pull out the partitions from data package settings.
+
+    Args:
+        pkg_settings (dict): a dictionary containing package settings
+            containing top level elements of the data package JSON descriptor
+            specific to the data package
+    Returns:
+        dict:
+    """
     partitions = {}
     for dataset in pkg_settings['datasets']:
         for dataset_name in dataset:
@@ -549,7 +561,8 @@ def compile_partitions(pkg_settings):
 
 
 def package_files_from_table(table, pkg_settings):
-    """
+    """Determine which files should exist in a package cooresponding to a table.
+
     We want to convert the datapackage tables and any information about package
     partitioning into a list of expected files. For each table that is
     partitioned, we want to add the partitions to the end of the table name.
@@ -574,8 +587,8 @@ def package_files_from_table(table, pkg_settings):
     return(files)
 
 
-def test_file_consistency(tables, pkg_settings, out_dir):
-    """Testing the consistency of tables for packaging
+def test_file_consistency(tables, pkg_settings, pkg_dir):
+    """Testing the consistency of tables for packaging.
 
     The purpose of this function is to test that we have the correct list of
     tables. There are three different ways we could determine which tables are
@@ -589,7 +602,7 @@ def test_file_consistency(tables, pkg_settings, out_dir):
     Args:
         pkg_name (string): the name of the data package.
         tables (list): a list of table names to be tested.
-        out_dir (path-like): the directory in which to check the consistency of
+        pkg_dir (path-like): the directory in which to check the consistency of
             table files
     Raises:
         AssertionError: If the tables in the CSVs and the ETL tables are not
@@ -600,8 +613,8 @@ def test_file_consistency(tables, pkg_settings, out_dir):
     pkg_name = pkg_settings['name']
     # tables = list(itertools.chain.from_iterable(tables_dict.values()))
     # remove the '.csv' or the '.csv.gz' from the file names
-    file_tbls = [re.sub('(\.csv.*$)', '', x) for x in os.listdir(
-        os.path.join(out_dir, pkg_name, 'data'))]
+    file_tbls = [re.sub(r'(\.csv.*$)', '', x) for x in os.listdir(
+        os.path.join(pkg_dir, 'data'))]
     # given list of table names and partitions, generate list of expected files
     pkg_files = []
     for table in tables:
@@ -704,6 +717,34 @@ def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
     return descriptor
 
 
+def validate_save_pkg(pkg_descriptor, pkg_dir):
+    """Validate a data package descriptor and save it to a json file.
+
+    Args:
+        pkg_descriptor (dict):
+        pkg_dir (path-like):
+    Returns:
+        report
+    """
+    # Use that descriptor to instantiate a Package object
+    data_pkg = datapackage.Package(pkg_descriptor)
+
+    # Validate the data package descriptor before we go to
+    if not data_pkg.valid:
+        logger.warning(f"""
+            Invalid tabular data package: {data_pkg.descriptor["name"]}
+            Errors: {data_pkg.errors}""")
+
+    # pkg_json is the datapackage.json that we ultimately output:
+    pkg_json = os.path.join(pkg_dir, "datapackage.json")
+    data_pkg.save(pkg_json)
+    # Validate the data within the package using goodtables:
+    report = goodtables.validate(pkg_json, row_limit=1000)
+    if not report['valid']:
+        logger.warning("Data package data validation failed.")
+    return report
+
+
 def generate_metadata(pkg_settings, tables, pkg_dir,
                       uuid_pkgs=uuid.uuid4()):
     """
@@ -742,8 +783,6 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
         errors that were generated during packaing.
 
     """
-    # pkg_json is the datapackage.json that we ultimately output:
-    pkg_json = os.path.join(pkg_dir, "datapackage.json")
     # Create a tabular data resource for each of the tables.
     resources = []
     partitions = compile_partitions(pkg_settings)
@@ -785,25 +824,40 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
         "resources": resources,
     }
 
-    # Use that descriptor to instantiate a Package object
-    data_pkg = datapackage.Package(pkg_descriptor)
-
-    # Validate the data package descriptor before we go to
-    if not data_pkg.valid:
-        logger.warning(f"""
-            Invalid tabular data package: {data_pkg.descriptor["name"]}
-            Errors: {data_pkg.errors}""")
-
-    data_pkg.save(pkg_json)
-    # Validate the data within the package using goodtables:
-    report = goodtables.validate(pkg_json, row_limit=1000)
-    if not report['valid']:
-        logger.warning("Data package data validation failed.")
-
-    return data_pkg, report
+    report = validate_save_pkg(pkg_descriptor, pkg_dir)
+    return report
 
 
-def generate_data_packages(pkg_bundle_settings, pudl_settings, debug=False):
+def prep_pkg_bundle_directory(pudl_settings, pkg_bundle_dir_name):
+    """Create (or delete and create) data package directory.
+
+    Args:
+        pudl_settings (dict) : a dictionary filled with settings that mostly
+            describe paths to various resources and outputs.
+        debug (bool): If True, return a dictionary with package names (keys)
+            and a list with the data package metadata and report (values).
+        pkg_bundle_dir_name (string): name of directory you want the bundle of
+            data packages to live. If this is set to None, the name will be
+            defaulted to be the pudl packge version.
+    Returns:
+        path-like
+    """
+    # make a subdirectory for the package bundles...
+    if pkg_bundle_dir_name:
+        pkg_bundle_dir = os.path.join(
+            pudl_settings['datapackage_dir'], pkg_bundle_dir_name)
+    else:
+        version = pkg_resources.get_distribution('pudl').version
+        pkg_bundle_dir = os.path.join(
+            pudl_settings['datapackage_dir'], version)
+    if os.path.exists(pkg_bundle_dir):
+        shutil.rmtree(pkg_bundle_dir)
+    os.mkdir(pkg_bundle_dir)
+    return(pkg_bundle_dir)
+
+
+def generate_data_packages(pkg_bundle_settings, pudl_settings,
+                           debug=False, pkg_bundle_dir_name=None):
     """Cordinate the generation of data packages.
 
     For each bundle of packages laid out in the package_settings, this function
@@ -822,43 +876,192 @@ def generate_data_packages(pkg_bundle_settings, pudl_settings, debug=False):
             describe paths to various resources and outputs.
         debug (bool): If True, return a dictionary with package names (keys)
             and a list with the data package metadata and report (values).
+        pkg_bundle_dir_name (string): name of directory you want the bundle of
+            data packages to live. If this is set to None, the name will be
+            defaulted to be the pudl packge version.
 
     Returns:
         tuple: A tuple containing generated metadata for the packages laid out
         in the package_settings.
     """
     # validate the settings from the settings file.
-    validated_settings = pudl.etl_pkg.validate_input(pkg_bundle_settings)
+    validated_bundle_settings = pudl.etl_pkg.validate_input(
+        pkg_bundle_settings)
     uuid_pkgs = str(uuid.uuid4())
 
-    # make a subdirectory for the package bundles...
-    pkg_bundle_dir = os.path.join(pudl_settings['datapackage_dir'], uuid_pkgs)
-    os.mkdir(pkg_bundle_dir)
+    pkg_bundle_dir = prep_pkg_bundle_directory(
+        pudl_settings, pkg_bundle_dir_name)
 
     metas = {}
     for pkg_settings in validated_bundle_settings:
+        pkg_dir = os.path.join(pkg_bundle_dir, pkg_settings['name'])
         # run the ETL functions for this pkg and return the list of tables
         # dumped to CSV
-        pkg_tables = pudl.etl_pkg.etl_pkg(pkg_settings, pudl_settings, uuid_pkgs)
+        pkg_tables = pudl.etl_pkg.etl_pkg(
+            pkg_settings, pudl_settings, pkg_bundle_dir)
         # assure that the list of tables from ETL match up with the CVSs and
         # dependent tables
         test_file_consistency(
             pkg_tables,
             pkg_settings,
-            out_dir=os.path.join(pudl_settings['pudl_out'], 'datapackage'))
+            pkg_dir=pkg_dir)
 
         if pkg_tables:
             # generate the metadata for the package and validate
             # TODO: we'll probably want to remove this double return... but having
             # the report and the metadata while debugging is very useful.
-            meta, report = generate_metadata(
+            report = generate_metadata(
                 pkg_settings,
                 pkg_tables,
-                os.path.join(
-                    pudl_settings['datapackage_dir'], pkg_settings['name']),
+                pkg_dir,
                 uuid_pkgs=uuid_pkgs)
-            metas[pkg_settings['name']] = [meta, report]
+            metas[pkg_settings['name']] = report
         else:
             logger.info(f"Not generating metadata for {pkg_settings['name']}")
     if debug:
         return (metas)
+
+##############################################################################
+# Flattening PUDL Data Packages
+###############################################################################
+
+
+def flatten_data_packages_csvs(pkg_bundle_dir, pkg_name='pudl-all'):
+    """Copy the csv's into a new data package directory.
+
+    Arg:
+        pkg_bundle_dir (path-like): the subdirectory where the bundle of data
+            packages live
+        pkg_name (str): the name you choose for the flattened data package.
+    """
+    # set where the flattened datapackage is going to live
+    all_dir = pathlib.Path(pkg_bundle_dir, pkg_name)
+    if os.path.exists(all_dir):
+        shutil.rmtree(all_dir)
+    os.mkdir(all_dir)
+    all_data_dir = pathlib.Path(pkg_bundle_dir, pkg_name, 'data')
+    os.mkdir(all_data_dir)
+    for pkg_dir in pkg_bundle_dir.iterdir():
+        if pkg_dir != all_dir:
+            [shutil.copy(csv, all_data_dir) for csv in
+             pathlib.Path(pkg_dir, 'data').iterdir() if pkg_dir.name != 'epacems_eia860']
+            [shutil.copy(csv, all_data_dir) for csv in
+             pathlib.Path(pkg_dir, 'data').iterdir()
+             if pkg_dir.name == 'epacems_eia860'
+             and 'hourly_emissions_epacems' in csv.name]
+
+
+def compile_data_packages_metadata(pkg_bundle_dir,
+                                   pkg_name='pudl-all'):
+    """Grab the metadata from each of your dp's.
+
+    Arg:
+        pkg_bundle_dir (path-like): the subdirectory where the bundle of data
+            packages live
+        pkg_name (str): the name you choose for the flattened data package.
+    Returns:
+        dict: pkg_descriptor_elements
+    """
+    resources = []
+    pkg_descriptor_elements = {}
+    for pkg_dir in pkg_bundle_dir.iterdir():
+        if pkg_dir.name != pkg_name:
+            with open(pathlib.Path(pkg_dir, "datapackage.json")) as md:
+                metadata = json.load(md)
+            if pkg_dir.name != 'epacems_eia860':
+                resources.extend(metadata['resources'])
+            if pkg_dir.name == 'epacems_eia860':
+                resources.extend(
+                    [r for r in metadata['resources']
+                     if 'hourly_emissions_epacems' in r['name']])
+            for thing in ['id', 'licenses', 'homepage', 'profile',
+                          'created', 'sources', 'contributors']:
+                try:
+                    pkg_descriptor_elements[thing].append(metadata[thing])
+                except KeyError:
+                    pkg_descriptor_elements[thing] = [metadata[thing]]
+    pkg_descriptor_elements['resources'] = resources
+    return(pkg_descriptor_elements)
+
+
+def flatten_data_package_metadata(pkg_bundle_dir,
+                                  pkg_name='pudl-all'):
+    """Convert a bundle of PULD data package metadata into one file.
+
+    Arg:
+        pkg_bundle_dir (path-like): the subdirectory where the bundle of data
+            packages live
+        pkg_name (str): the name you choose for the flattened data package.
+
+    Returns:
+        dict: pkg_descriptor
+    """
+    # grab the peices of metadata from each of the data packages
+    pkg_descriptor_elements = compile_data_packages_metadata(pkg_bundle_dir)
+    # the beginning of the data package descriptor
+    pkg_descriptor = {
+        'name': pkg_name,
+        'title': 'flattened bundle of pudl data packages',
+    }
+    # the uuid for the individual data packages should be exactly the same
+    if not len(set(pkg_descriptor_elements['id'])) == 1:
+        raise AssertionError(
+            'too many ids found in data packages metadata')
+    # for these pkg_descriptor items, they should all be the same, so we are
+    # just going to grab the first item for the flattened metadata
+    for item in ['id', 'licenses', 'homepage']:
+        pkg_descriptor[item] = pkg_descriptor_elements[item][0]
+    # we're gonna grab the first 'created' timestap (each dp generates it's own
+    # timestamp, which are slightly different)
+    pkg_descriptor['created'] = min(pkg_descriptor_elements['created'])
+    # these elements are dictionaries that have different items inside of them
+    # we want to grab all of the elements and have no duplicates
+    for item in ['sources', 'contributors']:
+        # flatten the list of dictionaries
+        list_of_dicts = \
+            [item for sublist in pkg_descriptor_elements[item]
+                for item in sublist]
+        # turn the dict elements into tuple/sets to de-dupliate it
+        pkg_descriptor[item] = [dict(y) for y in set(
+            tuple(x.items()) for x in list_of_dicts)]
+    # we've already flattened the resources so just use that
+    pkg_descriptor['resources'] = pkg_descriptor_elements['resources']
+    return(pkg_descriptor)
+
+
+def flatten_pudl_datapackages(pudl_settings,
+                              pkg_bundle_dir_name=None,
+                              pkg_name='pudl-all'):
+    """Combindes a collection of PUDL data packages into one.
+
+    Args:
+        pkg_bundle_name (str): the name of the subdirectory where the bundle of
+            data packages live. Normally, this name will have been generated in
+            `generate_data_packages`.
+        pudl_settings (dict) : a dictionary filled with settings that mostly
+            describe paths to various resources and outputs.
+        pkg_name (str): the name you choose for the flattened data package.
+    Returns:
+        dict: a dictionary of the data package validation report.
+    """
+    # make a subdirectory for the package bundles...
+    if pkg_bundle_dir_name:
+        pkg_bundle_dir = pathlib.Path(pudl_settings['datapackage_dir'],
+                                      pkg_bundle_dir_name)
+    else:
+        version = pkg_resources.get_distribution('pudl').version
+        pkg_bundle_dir = pathlib.Path(
+            pudl_settings['datapackage_dir'], version)
+
+    # which subdirectory do the bundle of data packages live?
+
+    # copy the csv's into a new data package directory
+    flatten_data_packages_csvs(pkg_bundle_dir,
+                               pkg_name=pkg_name)
+    # generate a flattened dp metadata descriptor
+    pkg_descriptor = flatten_data_package_metadata(pkg_bundle_dir,
+                                                   pkg_name=pkg_name)
+    # using the pkg_descriptor, validate and save the data package metadata
+    report = validate_save_pkg(pkg_descriptor,
+                               pkg_dir=pathlib.Path(pkg_bundle_dir, pkg_name))
+    return(report)

@@ -403,6 +403,7 @@ def _etl_epacems_pkg(etl_params, data_dir, pkg_dir):
 # EPA IPM ETL FUNCTIONS
 ###############################################################################
 
+
 def _validate_input_epaipm(etl_params):
     """Validate the etl parameters for EPA IPM.
 
@@ -419,6 +420,7 @@ def _validate_input_epaipm(etl_params):
     except KeyError:
         epaipm_dict['epaipm_tables'] = [None]
     return(epaipm_dict)
+
 
 def _load_static_tables_epaipm(pkg_dir):
     """Populate static PUDL tables with constants for use as foreign keys.
@@ -437,7 +439,7 @@ def _load_static_tables_epaipm(pkg_dir):
     """
     # compile the dfs in a dictionary, prep for dict_dump
     static_dfs = {'regions_entity_epaipm':
-        pd.DataFrame(pc.epaipm_region_names,columns=['region_id_epaipm'])}
+                  pd.DataFrame(pc.epaipm_region_names, columns=['region_id_epaipm'])}
 
     # run the dictionary of prepped static tables through dict_dump to make
     # CSVs
@@ -448,7 +450,8 @@ def _load_static_tables_epaipm(pkg_dir):
 
     return list(static_dfs.keys())
 
-def _etl_epaipm(etl_params,data_dir, pkg_dir):
+
+def _etl_epaipm(etl_params, data_dir, pkg_dir):
     """Extracts, transforms and loads CSVs for EPA IPM.
 
     Args:
@@ -533,8 +536,7 @@ def _etl_glue(etl_params, pkg_dir):
 ###############################################################################
 
 def _prep_directories(pkg_dir):
-    """Prep dictionaries for CSVs.
-    """
+    """Prep dictionaries for CSVs."""
     # delete package directories if they exist
     if os.path.exists(pkg_dir):
         shutil.rmtree(pkg_dir)
