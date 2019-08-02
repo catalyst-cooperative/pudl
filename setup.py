@@ -26,7 +26,6 @@ install_requires = [
 
 doc_requires = [
     'doc8',
-    'Pygments',
     'sphinx',
     'sphinx_rtd_theme',
 ]
