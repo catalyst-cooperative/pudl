@@ -28,9 +28,7 @@ install:
 - ci/setup_postgres.sh
 - pip install tox
 script:
-- tox -v -e pre-commit
-- tox -v -e doc8
-- tox -v -e bandit
+- tox -v -e linters
 - tox -v -e etl
 after_success:
 - /usr/bin/curl -s https://codecov.io/bash -o codecov.sh

@@ -1,50 +1,83 @@
 Installation and Setup
 =======================
 
+.. _install-requirements:
+
 System Requirements
 -------------------
 
 .. note::
 
-    The ETL pipeline does a lot of processing with :class:`pandas.DataFrame` in
-    memory, and the full :ref:`data-epacems` dataset is nearly 100 GB
-    uncompressed. To handle all of the data that is available via PUDL your
-    system would need:
+    The PUDL data processing pipeline does a lot of work in-memory with
+    :class:`pandas.DataFrame` objects. The full :ref:`data-epacems` dataset is
+    nearly 100 GB uncompressed. To handle all of the data that is available via
+    PUDL we recommend that your system have at least:
 
     * **8 GB of memory**
     * **100 GB of free disk space**
 
-Python 3.7+
-^^^^^^^^^^^
+Python 3.7+ (and conda)
+^^^^^^^^^^^^^^^^^^^^^^^
 
 PUDL requires Python 3.7 or later. In addition, while not strictly necessary,
 we **highly** recommend using the most recent version of the `Anaconda Python
 distribution <https://www.anaconda.com/distribution/>`__, or its smaller cousin
-`miniconda <https://conda.io/miniconda.html>`__ (if you are fond of the command
-line and want a lightweight install).
+`miniconda <https://conda.io/miniconda.html>`__ (miniconda is nice if you
+are fond of the command line and want a lightweight install).
 
 Both Anaconda and miniconda provide ``conda``, a command-line tool that helps
 you manage your Python software environment, packages, and their dependencies.
 PUDL provides an ``environment.yml`` file defining a software environment that
 should work well for most users in conjunction with ``conda``.
 
-.. _install-pip:
+We recommend using ``conda`` because while PUDL is written entirely in Python,
+it makes heavy use of Python's open data science stack including packages like
+:mod:`numpy`, :mod:`scipy`, :mod:`pandas`, and :mod:`sklearn` which depend on
+extensions written in C and C++. These extensions can be difficult to build
+locally when installed with ``pip``, but ``conda`` provides pre-compiled
+platform specific binaries.
 
-Installing PUDL
-----------------
+.. _install-pudl:
 
-PUDL is available via the `Python Package Index <https://pypi.org>`_ (PyPI) and
-be installed with ``pip``:
+Installing the Package
+-----------------------
+
+PUDL is available via ``conda`` on the community manged `conda-forge <https://conda-forge.org/>`__
+channel. This is the recommended way to install PUDL:
+
+.. code-block::
+
+    $ conda config --add channels conda-forge
+    $ conda config --set channel_priority strict
+    $ conda install PUDL_PACKAGE
+
+PUDL is also available via the official
+`Python Package Index <https://pypi.org>`_ (PyPI) and be installed with
+``pip``:
 
 .. code-block:: console
 
-    $ pip install catalyst.pudl
+    $ pip install PUDL_PACKAGE
 
 .. note::
 
-    If you are interested in contributing to the PUDL project, and want to
-    check out the source code for development purposes, see the section on
-    :doc:`contributing <CONTRIBUTING>`.
+    ``pip`` will only install the dependencies required for PUDL to work as a
+    development library and command line tool. If you want to check out the
+    source code from Github for development purposes, see the
+    :doc:`dev_setup` documentation.
+
+In addition to making the :mod:`pudl` package available for import in Python,
+installing PUDL_PACKAGE installs the following command line tools:
+
+* ``epacems_to_parquet``
+* ``ferc1_to_sqlite``
+* ``pudl_data``
+* ``pudl_etl``
+* ``pudl_setup``
+
+For information on how to use them, run them with the ``--help`` option. Most
+of them are configured using settings files. Examples are provided with the
+PUDL_PACKAGE, and made available by running ``pudl_setup`` as described below.
 
 .. todo::
 
@@ -53,41 +86,51 @@ be installed with ``pip``:
 
 .. _install-workspace:
 
-Creating a PUDL Workspace
---------------------------
+Creating a Workspace
+---------------------
 
-PUDL manages a bunch of input and output data, and needs to know where to store
-it. In addition the package provides some example configuration files and
-`Jupyter notebooks <https://jupyter.org>`__. To tell it where to put this stuff
-run the ``pudl_setup`` script:
+PUDL needs to know where to store its big pile of input and output data. It
+also provides some example configuration files and
+`Jupyter <https://jupyter.org>`__ notebooks. The ``pudl_setup`` script lets
+PUDL know where all this stuff should go. We call this a "PUDL workspace":
 
 .. code-block:: console
 
     $ pudl_setup <PUDL_DIR>
 
-where <PUDL_DIR> is the path to the directory in which you want PUDL to do its
+Here <PUDL_DIR> is the path to the directory where you want PUDL to do its
 business -- this is where the datastore will be located, and any outputs that
-are generated will end up. This command will also put a configuration file in
+are generated will end up. The script will also put a configuration file in
 your home directory, called ``.pudl.yml`` that records the location of this
-workspace for future reference.
+workspace and uses it by default in the future.
 
 The workspace is laid out like this:
 
-  * data
-  * settings
-  * notebooks
-  * datapackage
-  * sqlite
-
-.. todo::
-
-    Flesh out description of PUDL workspace layout/contents
+==================== ==========================================================
+**Directory / File**      **Contents**
+``data/``            Raw data, automatically organized by source, year, etc.
+``datapackage/``     `Tabular data packages <https://frictionlessdata.io/specs/tabular-data-package/>`__ generated by PUDL.
+``environment.yml``  A file describing the PUDL `conda environment <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`__.
+``notebooks/``       Interactive `Jupyter <https://jupyter.org>`__ notebooks that use PUDL.
+``parquet/``         `Apache Parquet <https://parquet.apache.org/>`__ files generated by PUDL.
+``settings/``        Example configuration files for controlling PUDL scripts.
+``sqlite/``          :mod:`sqlite3` databases generated by PUDL.
+==================== ==========================================================
 
 .. _install-conda-env:
 
-The PUDL conda Environment
---------------------------
+Activating the ``conda`` Environment
+--------------------------------------
 
-.. todo::
+If you are using ``conda`` to manage the software that PUDL requires, now you
+can create and activate that environment. From within the workspace you
+created above:
 
-    Describe creation and activation of PUDL conda environment.
+.. code-block::
+
+    $ conda env create --name pudl --file environment.yml
+    $ conda activate pudl
+
+It may take a little while for the software to download and install the
+required packages. Once it's done, you're ready to start liberating some
+utility data!

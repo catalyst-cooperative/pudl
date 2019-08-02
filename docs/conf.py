@@ -45,6 +45,7 @@ todo_include_todos = True
 # In order to be able to link directly to documentation for other projects,
 # we need to define these package to URL mappings:
 intersphinx_mapping = {
+    'arrow': ('https://arrow.apache.org/docs/', None),
     'dask': ('https://docs.dask.org/en/latest/', None),
     'networkx': ('https://networkx.github.io/documentation/stable/', None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
