@@ -6,7 +6,6 @@ dependencies:
   - autopep8            # dev
   - bandit              # dev
   - coloredlogs         # base
-  - conda>=4.7          # base conda 4.7 has universal "conda activate"
   - coverage            # dev
   - dask                # user
   - datapackage         # base
@@ -28,7 +27,7 @@ dependencies:
   - pandoc              # dev
   - pdbpp               # dev
   - pep8-naming         # dev
-  - pip>=19.0           # N/A pip>=19.0 can do non-setuptools build
+  - pip                 # N/A
   - pre_commit          # dev
   - psycopg2            # base
   - pyarrow>=0.14.0     # base compilation issues below 0.14.0
