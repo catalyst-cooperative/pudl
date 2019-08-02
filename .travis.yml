@@ -29,8 +29,8 @@ install:
 - pip install tox
 script:
 - tox -v -e linters
-- tox -v -e docs
 - tox -v -e etl
+- tox -v -e docs
 after_success:
 - /usr/bin/curl -s https://codecov.io/bash -o codecov.sh
 - /bin/bash codecov.sh
