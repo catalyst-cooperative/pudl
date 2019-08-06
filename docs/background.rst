@@ -20,10 +20,10 @@ at ETH Zürich and some of the other organizers of the European `Open Energy
 Modeling Initiative <https://openmod-initiative.org/>`__ and `Open Power System
 Data <https://open-power-system-data.org/>`__ project.
 
-.. _background_reading:
+.. _bg-reading:
 
-Background Reading
-------------------
+Reading
+-------
 
 * `The importance of open data and software: Is energy research lagging behind?
   <https://doi.org/10.1016/j.enpol.2016.11.046>`__ (Energy Policy, 2017) Open
@@ -49,12 +49,10 @@ Background Reading
 
 We also want to bring best practices from the world of software engineering and
 data science to energy research and advocacy communities. These papers by Greg
-Wilson and some of the other organizers of the `Software and Data Carpentries
-<https://carpetries.org>`__ are good accessible introductions, aimed primarily
-at an academic audience:
+Wilson and some of the other organizers of the
+`Software and Data Carpentries <https://carpetries.org>`__ are good accessible
+introductions, aimed primarily at an academic audience:
 
-* `Best practices for scientific computing
-  <https://doi.org/10.1371/journal.pbio.1001745>`__ (PLOS Biology, 2014)
-* `Good enough practices in scientific computing
-  <https://doi.org/10.1371/journal.pcbi.1005510>`__ (PLOS Computational
+* `Best practices for scientific computing <https://doi.org/10.1371/journal.pbio.1001745>`__ (PLOS Biology, 2014)
+* `Good enough practices in scientific computing <https://doi.org/10.1371/journal.pcbi.1005510>`__ (PLOS Computational
   Biology, 2017)

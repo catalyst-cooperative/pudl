@@ -13,7 +13,7 @@ In general the process for adding a new data source looks like this:
 
 #. Add the new data source to the ``datastore.py`` module and the
    ``update_datastore.py`` script.
-#. Define well normalized database tables for the new data source in the
+#. Define well normalized data tables for the new data source in the
    ``models`` subpackage.
 #. Add a module to the ``extract`` subpackage that generates raw dataframes
    containing the new data source's information from whatever its original

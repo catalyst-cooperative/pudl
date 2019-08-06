@@ -19,9 +19,8 @@ The Public Utility Data Liberation Project
   dev_setup
   testing
   data_guidelines
-  code_guidelines
+  code_standards
   project_management
-  new_dataset
   naming_conventions
   background
   acknowledgments

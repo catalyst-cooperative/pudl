@@ -29,7 +29,7 @@ There are lots of ways to contribute -- it's not all about code!
   * Help expand and improve the documentation, or write usage examples.
   * Give us feedback on overall usability -- what's confusing?
   * Tell us a story about how you're using of the data.
-  * Point us at :ref:`interesting publications <background_reading>` about
+  * Point us at :ref:`interesting publications <bg-reading>` about
     energy data, or energy system modeling.
   * Cite PUDL if you use the software or data in your own work.
   * Share your Jupyter notebooks and other analyses that use PUDL.

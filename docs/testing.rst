@@ -69,7 +69,7 @@ behavior), you would run:
     $ pytest test/etl_test.py --fast
 
 To use an already downloaded copy of the input data, in your default
-:ref:`install-workspace <PUDL workspace>` (which is specified in
+:ref:`PUDL workspace <install-workspace>` (which is specified in
 ``$HOME/.pudl.yml``) you would run:
 
 .. code-block:: console
@@ -310,6 +310,10 @@ under, search keywords, etc. -- but a few are more arcane:
 * ``extras_require``: a dictionary describing optional packages that can
   be conditionally installed depending on the expected usage of the install.
 
+.. todo::
+
+    Explain the contents of ``extras_require``
+
 * ``packages=find_packages('src')``: The ``packages`` parameter takes a list of
   all the python packages to be included in the distribution that is being
   packaged. The :mod:`setuptools.find_packages`  function automatically
@@ -341,8 +345,14 @@ repository and every other random file sitting in the working repository
 directory into the distribution. This is... not what we want. ``MANIFEST.in``
 allows us to specify in more detail which files should be included and
 excluded. Mostly we are just including the python package and supporting data,
-which exist under the ``src/pudl`` directory, as well as the ``test`` modules
-and the curated content under ``docs``.
+which exist under the ``src/pudl`` directory.
 
 ``pyproject.toml``
 ^^^^^^^^^^^^^^^^^^
+The adoption of :pep:`517` and :pep:`518` has opened up the possibility of
+using build and packaging systems besides :mod:`setuptools`. The new system
+uses ``pyproject.toml`` to specify the build system requirements. Other tools
+related to the project can also store their settings in this file making it
+easier to see how everything is set up, and avoiding the proliferation of
+different configuration files for e.g. PyTest, Tox, Flake8, Travis,
+ReadTheDocs, bandit...
