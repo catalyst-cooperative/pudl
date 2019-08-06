@@ -50,10 +50,13 @@ intersphinx_mapping = {
     'networkx': ('https://networkx.github.io/documentation/stable/', None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None),
+    'pytest': ('https://docs.pytest.org/en/latest/', None),
     'python': ('https://docs.python.org/3', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
+    'setuptools': ('https://setuptools.readthedocs.io/en/latest/', None),
     'sklearn': ('https://scikit-learn.org/stable', None),
     'sqlalchemy': ('https://docs.sqlalchemy.org/en/latest/', None),
+    'tox': ('https://tox.readthedocs.io/en/latest/', None),
 }
 
 # List of packages that should not really be installed, because they are
