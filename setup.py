@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Setup script to make PUDL directly installable with pip."""
 
-import pathlib
+from pathlib import Path
 
 from setuptools import find_packages, setup
 
@@ -55,7 +55,7 @@ parquet_requires = [
     'python-snappy'
 ]
 
-readme_path = pathlib.Path(__file__).parent / "docs" / "README.rst"
+readme_path = Path(__file__).parent / "docs" / "README.rst"
 long_description = readme_path.read_text()
 
 
@@ -71,14 +71,11 @@ setup(
     author_email='pudl@catalyst.coop',
     maintainer='Zane A. Selvans',
     maintainer_email='zane.selvans@catalyst.coop',
-    url='https://github.com/catalyst-cooperative/pudl',
+    url="https://catalyst.coop/pudl",
     project_urls={
-        "Background": "https://catalyst.coop/pudl",
-        "Documentation": "https://catalyst-cooperative-pudl.readthedocs.io",
         "Source": "https://github.com/catalyst-cooperative/pudl",
+        "Documentation": "https://catalyst-cooperative-pudl.readthedocs.io",
         "Issue Tracker": "https://github.com/catalyst-cooperative/pudl/issues",
-        "Gitter Chat": "https://gitter.im/catalyst-cooperative/pudl",
-        "Slack": "https://catalystcooperative.slack.com",
     },
     license='MIT',
     keywords=[

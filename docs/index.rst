@@ -1,7 +1,6 @@
+===============================================================================
 The Public Utility Data Liberation Project
-============================================
-
-.. contents::
+===============================================================================
 
 .. include:: README.rst
   :start-after: readme-intro
@@ -11,15 +10,17 @@ The Public Utility Data Liberation Project
 
   install
   usage
+  datastore
+  clone_ferc1
+  datapackages
+  cloud_access
   data_catalog
   Contributing <CONTRIBUTING>
-  repo_layout
   dev_setup
   testing
   data_guidelines
-  code_guidelines
+  code_standards
   project_management
-  new_dataset
   naming_conventions
   background
   acknowledgments

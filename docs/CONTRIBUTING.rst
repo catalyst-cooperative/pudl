@@ -7,32 +7,34 @@ combination of :doc:`volunteer efforts and grant funding <acknowledgments>`.
 The work is currently being coordinated by the members of `Catalyst Cooperative
 <https://catalyst.coop>`_. PUDL is meant to serve a wide variety of public
 interests including academic research, climate advocacy, data journalism, and
-public policy. For more on the motivation and history of the project, have a
-look at :doc:`this background info <background>`. Please also review our
-:doc:`code of conduct <CODE_OF_CONDUCT>`.
+public policymaking.
+
+For more on the motivation and history of the project, have a look at
+:doc:`this background info <background>`. Please also review our :doc:`code of
+conduct <CODE_OF_CONDUCT>`.
 
 -------------------------------------------------------------------------------
 How to Get Involved
 -------------------------------------------------------------------------------
 
-We welcome just about any kind of contribution to the project. Alone we will
+We welcome just about any kind of contribution to the project. Alone we'll
 never be able to understand every use case or integrate all the available data.
 The project will serve the community better if other folks get involved.
 
-Not all contributions need to be code!
+There are lots of ways to contribute -- it's not all about code!
 
   * :ref:`Ask questions on Github <aq_on_gh>` using the `issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`__.
-  * `Suggest new data and features <https://github.com/catalyst-cooperative/pudl/issues/new?template=feature_request.md>`__ that would be useful to integrate into PUDL.
+  * `Suggest new data and features <https://github.com/catalyst-cooperative/pudl/issues/new?template=feature_request.md>`__ that would be useful.
   * `File bug reports <https://github.com/catalyst-cooperative/pudl/issues/new?template=bug_report.md>`__ on Github.
   * Help expand and improve the documentation, or write usage examples.
   * Give us feedback on overall usability -- what's confusing?
   * Tell us a story about how you're using of the data.
-  * Point us at :ref:`interesting publications <background_reading>` about
+  * Point us at :ref:`interesting publications <bg-reading>` about
     energy data, or energy system modeling.
   * Cite PUDL if you use the software or data in your own work.
   * Share your Jupyter notebooks and other analyses that use PUDL.
   * Hire Catalyst to do analysis for your organization based on the PUDL data.
-  * Of course... we would also *love* for you to contribute code via `pull requests <https://help.github.com/en/articles/about-pull-requests>`__. See the :doc:`developer setup <dev_setup>` for more details.
+  * Contribute code via `pull requests <https://help.github.com/en/articles/about-pull-requests>`__. See the :doc:`developer setup <dev_setup>` for more details.
 
 -------------------------------------------------------------------------------
 Code of Conduct
@@ -52,8 +54,7 @@ contributions, write and publish documentation, answer user questions, automate
 testing & deployment, etc. `Signing up for a Github account
 <https://github.com/join>`__ (even if you don't intend to write code) will
 allow you to participate in online discussions and track projects that you're
-interested in (and who knows, maybe you'll find yourself making pull requests
-someday after all).
+interested in.
 
 .. _aq_on_gh:
 
@@ -69,13 +70,13 @@ users and contributors who are having the same problem can find answers without
 having to re-ask the same question. The forum we're using is our `Github issues
 <https://github.com/catalyst-cooperative/pudl/issues>`__.
 
-Please know that even if you feel like you have a basic question, we want you
-to feel comfortable asking for help in public -- we (Catalyst) only recently
-came to this work as activists and policy wonks -- so it's easy to remember
-when it all seemed frustrating and alien! Sometimes it still does. We want
-people to use the software and data to do good things in the world. We want you
-to be able to access it. Using a public forum also enables the community of
-users to help each other!
+Even if you feel like you have a basic question, we want you to feel
+comfortable asking for help in public -- we (Catalyst) only recently came to
+this work as activists and policy wonks -- so it's easy to remember when it all
+seemed frustrating and alien! Sometimes it still does. We want people to use
+the software and data to do good things in the world. We want you to be able to
+access it. Using a public forum also enables the community of users to help
+each other!
 
 .. _suggest_on_gh:
 

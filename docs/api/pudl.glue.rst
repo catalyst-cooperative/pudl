@@ -7,7 +7,6 @@ Submodules
 .. toctree::
 
    pudl.glue.ferc1_eia
-   pudl.glue.zipper
 
 Module contents
 ---------------

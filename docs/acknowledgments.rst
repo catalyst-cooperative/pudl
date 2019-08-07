@@ -1,42 +1,81 @@
 Acknowledgments
 ==================
 
-Support for the PUDL project has come from many different sources.
+Thanks to everyone who has helped make this project a reality!
 
+-------------------------------------------------------------------------------
 Open Source Contributions
---------------------------
+-------------------------------------------------------------------------------
+We've been lucky to have some financial support for PUDL over the last 3+
+years, but a lot of the work has still been done on a volunteer basis, both
+by members of Catalyst Cooperative and open source contributors, including:
 
-A lot of the work that has gone into PUDl has been volunteer open source
-contributions, both from the members of Catalyst Cooperative and from other
-users, especially graduate students and post-docs including:
+* `Karl Dunkle Werner <https://karldw.org/>`__, a PhD student at UC Berkeley,
+  who did a lot of the integration work for :ref:`data-epacems`.
+* `Greg Schivley <https://gschivley.github.io/>`__, a recently minted PhD from
+  Carnegie Mellon University, who has pointed us at lots of great open data
+  resources, and integrated the :ref:`data-epaipm` data.
+* `Priya Donti <https://priyadonti.com/>`__, a PhD student at Carnegie Mellon
+  University, for user experience and documentation feedback.
+* `Josh Rhodes <https://sites.google.com/site/joshdr83/>`__,
+  Brianna Cote, and `Vibrant Clean Energy <https://vibrantcleanenergy.com>`__
+  for submitting Github issues and offering valuable user feedback.
 
-* Karl Dunkle Werner (EPA CEMS)
-* Greg Schivley (EPA IPM)
-
+-------------------------------------------------------------------------------
 Grant Funding
---------------
+-------------------------------------------------------------------------------
+The `Alfred P. Sloan Foundation Energy & Environment Program <https://sloan.org/programs/energy-and-environment>`__ has funded one year of concerted work on
+PUDL aimed at serving the academic research community (May 2019 - April 2020).
+Many thanks to Will Driscoll for providing feedback on and edits to our Sloan
+proposal.
 
-Thanks to the generous support of the `Alfred P. Sloan Foundation Energy & Environment Program <https://sloan.org/programs/energy-and-environment>`_\ ,
-we are funded to work on PUDL through the spring of 2020! You can follow along
-on the adventure in our
-`GitHub Projects <https://github.com/catalyst-cooperative/pudl/projects>`_\ ,
-and get involved if you feel so inclined!
+The PUDL project has also received support from
+`The Flora Family Foundation <https://www.florafamily.org/>`__ to make the
+processed data available in :doc:`datapackages`.
 
-The project also received a $5000 grant from the Flora Family Fund to make the
-data available in platform independent data packages.
-
+-------------------------------------------------------------------------------
 Partnerships
--------------
-Pilot project with Frictionless Data and the Open Knowledge Foundation. Also
-received support to attend CSV,Conf,v4 in Portland.
+-------------------------------------------------------------------------------
+We wouldn't be here today without a long list of partners who have helped us
+along the way.
 
-Our original work organizing data related to Xcel Energy in Colorado was done
-as part of Clean Energy Action.
+We're thankful for the opportunity to participate as a pilot project in the
+`Frictionless Data Reproducible Research <https://frictionlessdata.io/reproducible-research/>`__
+program of the `Open Knowledge Foundation <https://okfn.org>`__. Open Knowledge
+also supported Catalyst to attend `CSV,Conf,v4 <https://csvconf.com/2019>`__ in
+Portland, Oregon.
 
-First funded work as Catalyst done under a subcontract on a grant to the
-Climate Policy Initiative.
+Our initial 2017 work on PUDL was done as part of a project to enable
+refinancing and early retirement of uneconomic coal plants, in collaboration
+with `The Climate Policy Initiative Climate Finance Program <https://climatepolicyinitiative.org/climate-finance/>`__.
+(See `these white papers <https://energyinnovation.org/publication/managing-the-utility-financial-transition-from-coal-to-clean-2>`__ for some of the results.)
 
-Open Energy Modeling Initiative (OpenMod) and Open Poewr System Data (OPSD).
+The EU based
+`Open Energy Modeling Initiative <https://openmod-initiative.org/>`__ and
+`Open Power System Data <https://open-power-system-data.org/>`__ projects have
+taught us a lot about how to wrangle this data for research purposes, and the
+importance of the legal and licensing dimension of the work.
 
-Bug reports and user feedback from Josh Rhodes, Brianna and others at Vibrant
-Clean Energy.
+Thanks to Matt Wassen and Jeff Deal at
+`Appalachian Voices <http://appvoices.org/>`__ for giving us a copy of their
+archive of FERC Form 1 data that's no longer available online.
+
+`Clean Energy Action <http://cleanenergyaction.org>`__ in
+Boulder, Colorado gave several of us our first chance to get paid to do energy
+policy and data analysis work, organizing around Xcel Energy's Colorado coal
+plants.
+
+The `Rocky Mountain Farmers Union <https://rmfu.org>`__ and their
+`Cooperative Development Center <https://www.rmfu.org/what-we-do/cooperation/>`__
+helped us incorporate as a worker cooperative in Colorado, and continue to
+offer us affordable legal support.
+
+-------------------------------------------------------------------------------
+Networking and Moral Support
+-------------------------------------------------------------------------------
+* Harriet Moyer-Aptekar
+* Uday Varadarajan
+* Ron Lehr
+* Eric Gimon
+* Leslie Glustrom
+* Bill Stevenson

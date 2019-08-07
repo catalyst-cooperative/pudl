@@ -45,20 +45,24 @@ todo_include_todos = True
 # In order to be able to link directly to documentation for other projects,
 # we need to define these package to URL mappings:
 intersphinx_mapping = {
+    'arrow': ('https://arrow.apache.org/docs/', None),
     'dask': ('https://docs.dask.org/en/latest/', None),
     'networkx': ('https://networkx.github.io/documentation/stable/', None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None),
+    'pytest': ('https://docs.pytest.org/en/latest/', None),
     'python': ('https://docs.python.org/3', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
+    'setuptools': ('https://setuptools.readthedocs.io/en/latest/', None),
     'sklearn': ('https://scikit-learn.org/stable', None),
     'sqlalchemy': ('https://docs.sqlalchemy.org/en/latest/', None),
+    'tox': ('https://tox.readthedocs.io/en/latest/', None),
 }
 
 # List of packages that should not really be installed, because they are
 # written in C or have C extensions. Instead they should be mocked for import
 # purposes only to prevent the doc build from failing.
-autodoc_mock_imports = ['snappy']
+autodoc_mock_imports = ['snappy', 'pyarrow']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -77,6 +81,14 @@ master_doc = 'index'
 html_theme = 'sphinx_rtd_theme'
 html_logo = '_static/catalyst_logo-200x200.png'
 html_icon = '_static/favicon.ico'
+
+html_context = {
+    "display_github": True,  # Integrate GitHub
+    "github_user": "catalyst-cooperative",  # Username
+    "github_repo": "pudl",  # Repo name
+    "github_version": "master",  # Version
+    "conf_py_path": "/docs/",  # Path in the checkout to the docs root
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
