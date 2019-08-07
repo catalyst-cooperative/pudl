@@ -4,9 +4,6 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-import pudl.models.entities
-
-pt = pudl.models.entities.PUDLBase.metadata.tables
 
 
 def generation_fuel_eia923(freq=None, testing=False,
@@ -53,7 +50,8 @@ def generation_fuel_eia923(freq=None, testing=False,
         Generation Fuel table.
 
     """
-    pudl_engine = pudl.init.connect_db(testing=testing)
+    pudl_engine = pudl.output.export.connect_db(testing=testing)
+    pt = pudl.output.pudltabl.get_table_meta()
     gf_tbl = pt['generation_fuel_eia923']
     gf_select = sa.sql.select([gf_tbl, ])
     if start_date is not None:
@@ -170,7 +168,8 @@ def fuel_receipts_costs_eia923(freq=None, testing=False,
         pandas.DataFrame: A DataFrame containing all records from the EIA 923
         Fuel Receipts and Costs table.
     """
-    pudl_engine = pudl.init.connect_db(testing=testing)
+    pudl_engine = pudl.output.export.connect_db(testing=testing)
+    pt = pudl.output.pudltabl.get_table_meta()
     # Most of the fields we want come direclty from Fuel Receipts & Costs
     frc_tbl = pt['fuel_receipts_costs_eia923']
     frc_select = sa.sql.select([frc_tbl, ])
@@ -312,7 +311,8 @@ def boiler_fuel_eia923(freq=None, testing=False,
         Boiler Fuel table.
 
     """
-    pudl_engine = pudl.init.connect_db(testing=testing)
+    pudl_engine = pudl.output.export.connect_db(testing=testing)
+    pt = pudl.output.pudltabl.get_table_meta()
     bf_eia923_tbl = pt['boiler_fuel_eia923']
     bf_eia923_select = sa.sql.select([bf_eia923_tbl, ])
     if start_date is not None:
@@ -423,7 +423,8 @@ def generation_eia923(freq=None, testing=False,
         Generation table.
 
     """
-    pudl_engine = pudl.init.connect_db(testing=testing)
+    pudl_engine = pudl.output.export.connect_db(testing=testing)
+    pt = pudl.output.pudltabl.get_table_meta()
     g_eia923_tbl = pt['generation_eia923']
     g_eia923_select = sa.sql.select([g_eia923_tbl, ])
     if start_date is not None:

@@ -5,10 +5,6 @@ import sqlalchemy as sa
 
 import pudl
 import pudl.constants as pc
-import pudl.models.entities
-
-# Shorthand for easier table referecnes:
-pt = pudl.models.entities.PUDLBase.metadata.tables
 
 
 def utilities_eia860(start_date=None, end_date=None, testing=False):
@@ -24,7 +20,8 @@ def utilities_eia860(start_date=None, end_date=None, testing=False):
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
         Utilities table.
     """
-    pudl_engine = pudl.init.connect_db(testing=testing)
+    pudl_engine = pudl.output.export.connect_db(testing=testing)
+    pt = pudl.output.pudltabl.get_table_meta()
     # grab the entity table
     utils_eia_tbl = pt['utilities_entity_eia']
     utils_eia_select = sa.sql.select([utils_eia_tbl])
@@ -86,7 +83,8 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
         Plants table.
     """
-    pudl_engine = pudl.init.connect_db(testing=testing)
+    pudl_engine = pudl.output.export.connect_db(testing=testing)
+    pt = pudl.output.pudltabl.get_table_meta()
 
     # grab the entity table
     plants_eia_tbl = pt['plants_entity_eia']
@@ -218,7 +216,8 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
         Generators table.
 
     """
-    pudl_engine = pudl.init.connect_db(testing=testing)
+    pudl_engine = pudl.output.export.connect_db(testing=testing)
+    pt = pudl.output.pudltabl.get_table_meta()
     # Almost all the info we need will come from here.
     gens_eia860_tbl = pt['generators_eia860']
     gens_eia860_select = sa.sql.select([gens_eia860_tbl, ])
@@ -342,7 +341,8 @@ def boiler_generator_assn_eia860(start_date=None, end_date=None,
 
 
     """
-    pudl_engine = pudl.init.connect_db(testing=testing)
+    pudl_engine = pudl.output.export.connect_db(testing=testing)
+    pt = pudl.output.pudltabl.get_table_meta()
     bga_eia860_tbl = pt['boiler_generator_assn_eia860']
     bga_eia860_select = sa.sql.select([bga_eia860_tbl])
 
@@ -375,7 +375,8 @@ def ownership_eia860(start_date=None, end_date=None, testing=False):
         to the EIA 860 Ownership table.
 
     """
-    pudl_engine = pudl.init.connect_db(testing=testing)
+    pudl_engine = pudl.output.export.connect_db(testing=testing)
+    pt = pudl.output.pudltabl.get_table_meta()
     o_eia860_tbl = pt['ownership_eia860']
     o_eia860_select = sa.sql.select([o_eia860_tbl, ])
     o_df = pd.read_sql(o_eia860_select, pudl_engine)

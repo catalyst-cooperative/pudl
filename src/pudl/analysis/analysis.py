@@ -1073,7 +1073,7 @@ def check_ferc1_tables(refyear=2017):
             except:  # noqa: E722  # nosec
                 continue
             ferc1_engine = pudl.extract.ferc1.connect_db(testing=True)
-            pudl.extract.ferc1.drop_tables(ferc1_engine)
+            pudl.extract.helpers.drop_tables(ferc1_engine)
         good_table_years[table] = good_years
         print("],", flush=True)
 

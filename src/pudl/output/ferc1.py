@@ -1,12 +1,9 @@
 """Functions for pulling FERC Form 1 data out of the PUDL DB."""
 
-import sqlalchemy as sa
 import pandas as pd
+import sqlalchemy as sa
 
 import pudl
-import pudl.models.entities
-
-pt = pudl.models.entities.PUDLBase.metadata.tables
 
 
 def plants_utils_ferc1(testing=False):
@@ -18,8 +15,10 @@ def plants_utils_ferc1(testing=False):
 
     Returns:
         pandas.DataFrame: A DataFrame containing useful FERC Form 1 Plant and
-        Utility information."""
-    pudl_engine = pudl.init.connect_db(testing=testing)
+        Utility information.
+    """
+    pudl_engine = pudl.output.export.connect_db(testing=testing)
+    pt = pudl.output.pudltabl.get_table_meta()
 
     utils_ferc_tbl = pt['utilities_ferc']
     utils_ferc_select = sa.sql.select([utils_ferc_tbl, ])
@@ -48,7 +47,8 @@ def plants_steam_ferc1(testing=False):
         pandas.DataFrame: A DataFrame containing useful fields from the FERC
         Form 1 steam table.
     """
-    pudl_engine = pudl.init.connect_db(testing=testing)
+    pudl_engine = pudl.output.export.connect_db(testing=testing)
+    pt = pudl.output.pudltabl.get_table_meta()
     steam_ferc1_tbl = pt['plants_steam_ferc1']
     steam_ferc1_select = sa.sql.select([steam_ferc1_tbl, ])
     steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
@@ -96,7 +96,8 @@ def fuel_ferc1(testing=False):
         pandas.DataFrame: A DataFrame containing useful FERC Form 1 fuel
         information.
     """
-    pudl_engine = pudl.init.connect_db(testing=testing)
+    pudl_engine = pudl.output.export.connect_db(testing=testing)
+    pt = pudl.output.pudltabl.get_table_meta()
     fuel_ferc1_tbl = pt['fuel_ferc1']
     fuel_ferc1_select = sa.sql.select([fuel_ferc1_tbl, ])
     fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)
@@ -165,7 +166,8 @@ def fuel_by_plant_ferc1(testing=False, thresh=0.5):
     ]
 
     fbp_df = (
-        pd.read_sql_table('fuel_ferc1', pudl.init.connect_db(testing=testing)).
+        pd.read_sql_table('fuel_ferc1',
+                          pudl.output.export.connect_db(testing=testing)).
         drop(['id'], axis=1).
         pipe(pudl.transform.ferc1.fuel_by_plant_ferc1, thresh=thresh).
         merge(plants_utils_ferc1(testing=testing),

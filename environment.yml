@@ -50,3 +50,4 @@ dependencies:
   - xlsxwriter          # base
   - pip:
     - sqlalchemy-postgres-copy # base
+    - tableschema-sql==1.0.1     # base

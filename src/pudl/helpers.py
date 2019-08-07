@@ -952,3 +952,28 @@ def pull_resource_from_megadata(table_name):
         raise AssertionError(f"{table_name} found multiple times in metadata")
     table_resource = table_resource[0]
     return(table_resource)
+
+
+def drop_tables(engine):
+    """Drops all tables from a SQLite database.
+
+    Creates an sa.schema.MetaData object reflecting the structure of the
+    database that the passed in ``engine`` refers to, and uses that schema to
+    drop all existing tables.
+
+    Todo:
+        Treat DB connection as a context manager (with/as).
+
+    Args:
+        engine (sa.engine.Engine): An SQL Alchemy SQLite database Engine
+            pointing at an exising SQLite database to be deleted.
+
+    Returns:
+        None
+    """
+    md = sa.MetaData()
+    md.reflect(engine)
+    md.drop_all(engine)
+    conn = engine.connect()
+    conn.execute("VACUUM")
+    conn.close()

@@ -29,13 +29,10 @@ Todo:
 
 # Useful high-level external modules.
 import pandas as pd
+import sqlalchemy as sa
 
 import pudl
 import pudl.constants as pc
-import pudl.models.entities
-
-# Shorthand for easier table referecnes:
-pt = pudl.models.entities.PUDLBase.metadata.tables
 
 ###############################################################################
 #   Output Class, that can pull all the below tables with similar parameters
@@ -468,3 +465,12 @@ class PudlTabl(object):
                 min_cap_fact=min_cap_fact,
                 max_cap_fact=max_cap_fact)
         return self._dfs['mcoe']
+
+
+def get_table_meta():
+    """Grab the pudl sqlitie database table metadata."""
+    pudl_engine = pudl.output.export.connect_db()
+    md = sa.MetaData()
+    md.reflect(pudl_engine)
+    pt = md.tables
+    return(pt)

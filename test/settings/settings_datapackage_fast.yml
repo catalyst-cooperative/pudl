@@ -63,6 +63,41 @@
 
 
 ###########################################################################
+# EIA FORM 923 & 860 SETTINGS
+###########################################################################
+
+- name: eia-test
+  title: eia 923 and 860.
+  description: whatever eia things.. ya know 860, 923.. all the things
+  datasets:
+    - eia:
+        # This is the full list of EIA 923 tables.  Many of them are interdependent,
+        # and are used in the definition of the overall database, so it is recommended
+        # that you import either all of them or none of them. Additionally, there
+        # are many relationships between the EIA 923 and EIA 860 tables, and in general
+        # they should be imported together.
+        eia923_tables:
+          - generation_fuel_eia923
+          - boiler_fuel_eia923
+          - generation_eia923
+          - coalmine_eia923 # coalmine_eia923 REQUIRES fuel_receipts_costs_eia923
+          - fuel_receipts_costs_eia923
+        # eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
+        eia923_years: [2017]
+        # See notes above about the entanglement between EIA 923 and EIA 860. It's best
+        # to load all the tables from both of them, or neither of them.
+        eia860_tables:
+          - boiler_generator_assn_eia860
+          - utilities_eia860
+          - plants_eia860
+          - generators_eia860
+          - ownership_eia860
+        # eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017]
+        eia860_years: [2017]
+
+
+
+###########################################################################
 # EPA CEMS AND EIA SETTINGS
 ###########################################################################
 # The EPA CEMS data goes back as far as 1995, but before 2000 it is not as
@@ -72,7 +107,7 @@
 # reasonably fast laptop.
 
 
-- name: epacems-eia-test
+- name: epacems_eia860
   title: CEMS stuff
   description: stuff about cems
   datasets:
@@ -90,14 +125,6 @@
         # that you import either all of them or none of them. Additionally, there
         # are many relationships between the EIA 923 and EIA 860 tables, and in general
         # they should be imported together.
-        eia923_tables:
-          - generation_fuel_eia923
-          - boiler_fuel_eia923
-          - generation_eia923
-          - coalmine_eia923 # coalmine_eia923 REQUIRES fuel_receipts_costs_eia923
-          - fuel_receipts_costs_eia923
-          #eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
-        eia923_years: [2017]
     - epacems:
         # Note that the CEMS data relies on EIA 860 data for plant locations, so if
         # you're loading CEMS data for a particular year, you should also load the
@@ -112,19 +139,3 @@
         #epacems_states: [ALL]
         partition:
           hourly_emissions_epacems: epacems_years
-
-
-
-
-###########################################################################
-# TESTING / DEVELOPMENT SETTINGS
-###########################################################################
-# These settings are mostly used for development work, testing the ETL process.
-# If you set pudl_testing or ferc1_testing to true, then instead of populating
-# the live pudl and ferc1 databases in postgresql, the initialization script
-# will attempt to populate pudl_test and ferc1_test.  This is useful if you
-# have a working database and don't want to clobber it while testing.
-#ferc1_testing: False
-#pudl_testing: False
-#keep_csv: False
-#debug: False

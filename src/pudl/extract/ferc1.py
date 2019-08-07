@@ -120,31 +120,6 @@ def _create_tables(engine, md):
     md.create_all(engine)
 
 
-def drop_tables(engine):
-    """Drops all FERC Form 1 tables from the SQLite database.
-
-    Creates an sa.schema.MetaData object reflecting the structure of the
-    database that the passed in ``engine`` refers to, and uses that schema to
-    drop all existing tables.
-
-    Todo:
-        Treat DB connection as a context manager (with/as).
-
-    Args:
-        engine (sa.engine.Engine): An SQL Alchemy SQLite database Engine
-            pointing at an exising SQLite database to be deleted.
-
-    Returns:
-        None
-    """
-    md = sa.MetaData(bind=engine)
-    md.reflect(engine)
-    md.drop_all(engine)
-    conn = engine.connect()
-    conn.execute("VACUUM")
-    conn.close()
-
-
 def add_sqlite_table(table_name, sqlite_meta, dbc_map, data_dir,
                      refyear=max(pc.working_years['ferc1']),
                      bad_cols=()):
@@ -517,7 +492,7 @@ def dbf2sqlite(tables=pc.ferc1_tbl2dbf,
                                testing=testing)
     try:
         # So that we can wipe it out
-        drop_tables(sqlite_engine)
+        pudl.helpers.drop_tables(sqlite_engine)
     except sa.exc.OperationalError:
         pass
 

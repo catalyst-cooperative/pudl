@@ -175,7 +175,7 @@ def ferc1_engine(live_ferc_db, pudl_settings_fixture,
 
     if not live_ferc_db:
         # Clean up after ourselves by dropping the test DB tables.
-        pudl.extract.ferc1.drop_tables(engine)
+        pudl.helpers.drop_tables(engine)
 
 
 @pytest.fixture(scope='session')

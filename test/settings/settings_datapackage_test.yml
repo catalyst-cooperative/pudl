@@ -104,7 +104,7 @@
 # reasonably fast laptop.
 
 
-- name: epacems_eia860_test
+- name: epacems_eia860
   title: CEMS stuff
   description: stuff about cems
   datasets:
@@ -131,19 +131,3 @@
         # Just Colorado, for nostalgia:
         #epacems_states: [CO]
         #epacems_states: [ALL]
-
-
-
-
-###########################################################################
-# TESTING / DEVELOPMENT SETTINGS
-###########################################################################
-# These settings are mostly used for development work, testing the ETL process.
-# If you set pudl_testing or ferc1_testing to true, then instead of populating
-# the live pudl and ferc1 databases in postgresql, the initialization script
-# will attempt to populate pudl_test and ferc1_test.  This is useful if you
-# have a working database and don't want to clobber it while testing.
-#ferc1_testing: False
-#pudl_testing: False
-#keep_csv: False
-#debug: False

@@ -158,6 +158,16 @@ def init(pudl_in=None, pudl_out=None, settings_file=None):
     pudl_settings['ferc1_test_sqlite_url'] = "sqlite:///" + os.path.join(
         pudl_settings['pudl_out'], 'sqlite', 'ferc1_test.sqlite')
 
+    pudl_settings['pudl_sqlite_url'] = "sqlite:///" + os.path.join(
+        pudl_settings['pudl_out'], 'sqlite', 'pudl.sqlite')
+
+    pudl_settings['db_pkg_pudl'] = {
+        'drivername': 'postgresql',
+        'host': '127.0.0.1',
+        'username': 'catalyst',
+        'database': 'pudl_pkg'
+    }
+
     return pudl_settings
 
 

@@ -6,13 +6,10 @@ boilers to EIA generators, or EPA smokestacks to EIA generators.
 
 """
 
-import sqlalchemy as sa
 import pandas as pd
+import sqlalchemy as sa
 
 import pudl
-import pudl.models.entities
-# Shorthand for easier table references:
-pt = pudl.models.entities.PUDLBase.metadata.tables
 
 
 def boiler_generator_assn(start_date=None, end_date=None,
@@ -29,7 +26,8 @@ def boiler_generator_assn(start_date=None, end_date=None,
         pandas.DataFrame: A DataFrame containing the more complete PUDL/EIA
         boiler generator associations.
     """
-    pudl_engine = pudl.init.connect_db(testing=testing)
+    pudl_engine = pudl.output.export.connect_db(testing=testing)
+    pt = pudl.output.pudltabl.get_table_meta()
     bga_eia_tbl = pt['boiler_generator_assn_eia860']
     bga_eia_select = sa.sql.select([bga_eia_tbl])
 
