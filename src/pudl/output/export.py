@@ -744,7 +744,7 @@ def validate_save_pkg(pkg_descriptor, pkg_dir):
     report = goodtables.validate(pkg_json, row_limit=1000)
     if not report['valid']:
         logger.warning("Data package data validation failed.")
-    return data_pkg, report
+    return report
 
 
 def generate_metadata(pkg_settings, tables, pkg_dir,
@@ -826,7 +826,7 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
         "resources": resources,
     }
 
-    data_pkg, report = validate_save_pkg(pkg_descriptor, pkg_dir)
+    report = validate_save_pkg(pkg_descriptor, pkg_dir)
     return report
 
 
@@ -1071,9 +1071,9 @@ def flatten_pudl_datapackages(pudl_settings,
     pkg_descriptor = flatten_data_package_metadata(pkg_bundle_dir,
                                                    pkg_name=pkg_name)
     # using the pkg_descriptor, validate and save the data package metadata
-    data_pkg, report = validate_save_pkg(pkg_descriptor,
-                                         pkg_dir=pathlib.Path(pkg_bundle_dir, pkg_name))
-    return(data_pkg, report)
+    report = validate_save_pkg(pkg_descriptor,
+                               pkg_dir=pathlib.Path(pkg_bundle_dir, pkg_name))
+    return(report)
 
 
 def connect_db(pudl_settings=None, testing=False):
