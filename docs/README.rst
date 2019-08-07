@@ -58,11 +58,9 @@ commands in your terminal:
 
     $ conda install PUDL_PACKAGE
     $ pudl_setup --pudl_dir=pudl_workspace
-    $ cd pudl_workspace
-    $ conda env create --name pudl --file environment.yml
     $ conda activate pudl
-    $ pudl_etl settings/pudl_etl_example.yml
-    $ jupyter-lab --notebook-dir=notebooks
+    $ pudl_etl pudl_workspace/settings/pudl_etl_example.yml
+    $ jupyter-lab --notebook-dir=pudl_workspace/notebooks
 
 This will install the PUDL Python packages, create some local directories
 inside a directory called ``pudl_workspace``, download the most recent year of
