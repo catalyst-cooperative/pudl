@@ -43,6 +43,7 @@ def simplify_sql_type(sql_type, field_name=""):
         field_name (string, optional): The name of the field, which may offer
             more context as to the nature of the field (e.g. an integer field
             whose name ends in _year is a year).
+
     Returns:
         string: A string representing a simple data type, allowed
         in the Table Schema standard.
@@ -91,6 +92,7 @@ def get_fields(table):
 
     Args:
         table (SQL Alchemy Table): The Table object to generate fields from.
+
     Returns:
         list: A list of 'field' JSON objects, conforming to the
         Frictionless Data Table Schema standard.
@@ -123,6 +125,7 @@ def get_primary_key(table):
 
     Todo:
         Remove upon removal of pudl_db
+
     """
     return table.primary_key.columns.keys()
 
@@ -139,6 +142,7 @@ def get_foreign_keys(table):
 
     Todo:
         Remove upon removal of pudl_db
+
     """
     fkeys = []
     for col in table.columns:
@@ -219,7 +223,7 @@ def get_table_schema(table):
 
 
 def get_table(tablename, testing=False):
-    """Retrieves SQLAlchemy Table object corresponding to a PUDL DB table name.
+    """Retrieve SQLAlchemy Table object corresponding to a PUDL DB table name.
 
     Args:
         tablename (str): the name of the PUDL database table to retrieve
@@ -232,6 +236,7 @@ def get_table(tablename, testing=False):
 
     Todo:
         remove upon removal of pudl_db
+
     """
     md = sa.MetaData(bind=pudl.init.connect_db(testing=testing))
     md.reflect()
@@ -257,8 +262,9 @@ def get_tabular_data_resource_og(tablename, pkg_dir, testing=False):
 
     https://frictionlessdata.io/specs/tabular-data-resource/
 
-    Returns: a Tabular Data Resource descriptor describing the contents of the
-    selected table
+    Returns:
+        Tabular Data Resource descriptor describing the contents of the
+        selected table
 
     Todo:
         remove upon removal of pudl_db
@@ -347,7 +353,8 @@ def hash_csv(csv_path):
 
 def data_package(pkg_tables, pkg_skeleton, pudl_settings=None,
                  testing=False, dry_run=False):
-    """Creates a data package of requested tables and their dependencies.
+    """
+    Create a data package of requested tables and their dependencies.
 
     See Frictionless Data for the tabular data package specification:
     http://frictionlessdata.io/specs/tabular-data-package/
@@ -537,20 +544,23 @@ def annotated_xlsx(df, notes_dict, tags_dict, first_cols, sheet_name,
     # function, with 'xlsx_writer.save()'
     return xlsx_writer
 
-###############################################################################
+##############################################################################
 # CREATING PACKAGES AND METADATA
-###############################################################################
+##############################################################################
 
 
 def compile_partitions(pkg_settings):
-    """Pull out the partitions from data package settings.
+    """
+    Pull out the partitions from data package settings.
 
     Args:
         pkg_settings (dict): a dictionary containing package settings
             containing top level elements of the data package JSON descriptor
             specific to the data package
+
     Returns:
         dict:
+
     """
     partitions = {}
     for dataset in pkg_settings['datasets']:
@@ -568,6 +578,7 @@ def package_files_from_table(table, pkg_settings):
     We want to convert the datapackage tables and any information about package
     partitioning into a list of expected files. For each table that is
     partitioned, we want to add the partitions to the end of the table name.
+
     """
     partitions = pudl.output.export.compile_partitions(pkg_settings)
     files = []
@@ -590,7 +601,8 @@ def package_files_from_table(table, pkg_settings):
 
 
 def test_file_consistency(tables, pkg_settings, pkg_dir):
-    """Testing the consistency of tables for packaging.
+    """
+    Test the consistency of tables for packaging.
 
     The purpose of this function is to test that we have the correct list of
     tables. There are three different ways we could determine which tables are
@@ -604,13 +616,16 @@ def test_file_consistency(tables, pkg_settings, pkg_dir):
     Args:
         pkg_name (string): the name of the data package.
         tables (list): a list of table names to be tested.
-        pkg_dir (path-like): the directory in which to check the consistency of
-            table files
+        pkg_dir (path-like): the directory in which to check the consistency
+            of table files
+
     Raises:
         AssertionError: If the tables in the CSVs and the ETL tables are not
             exactly the same list of tables.
+
     Todo:
         Determine what to do with the dependent tables check.
+
     """
     pkg_name = pkg_settings['name']
     # tables = list(itertools.chain.from_iterable(tables_dict.values()))
@@ -656,7 +671,8 @@ def test_file_consistency(tables, pkg_settings, pkg_dir):
 
 
 def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
-    """Create a Tabular Data Resource descriptor for a PUDL table.
+    """
+    Create a Tabular Data Resource descriptor for a PUDL table.
 
     Based on the information in the database, and some additional metadata this
     function will generate a valid Tabular Data Resource descriptor, according
@@ -670,9 +686,11 @@ def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
             The data package directory will be a subdirectory in the
             `datapackage_dir` directory, with the name of the package as the
             name of the subdirectory.
+
     Returns:
         Tabular Data Resource descriptor: A JSON object containing key
         information about the selected table
+
     """
     if partitions:
         abs_paths = [f for f in pathlib.Path(
@@ -720,13 +738,16 @@ def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
 
 
 def validate_save_pkg(pkg_descriptor, pkg_dir):
-    """Validate a data package descriptor and save it to a json file.
+    """
+    Validate a data package descriptor and save it to a json file.
 
     Args:
         pkg_descriptor (dict):
         pkg_dir (path-like):
+
     Returns:
         report
+
     """
     # Use that descriptor to instantiate a Package object
     data_pkg = datapackage.Package(pkg_descriptor)
@@ -831,7 +852,8 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
 
 
 def prep_pkg_bundle_directory(pudl_settings, pkg_bundle_dir_name):
-    """Create (or delete and create) data package directory.
+    """
+    Create (or delete and create) data package directory.
 
     Args:
         pudl_settings (dict) : a dictionary filled with settings that mostly
@@ -843,6 +865,7 @@ def prep_pkg_bundle_directory(pudl_settings, pkg_bundle_dir_name):
             defaulted to be the pudl packge version.
     Returns:
         path-like
+
     """
     # make a subdirectory for the package bundles...
     if pkg_bundle_dir_name:
@@ -860,7 +883,8 @@ def prep_pkg_bundle_directory(pudl_settings, pkg_bundle_dir_name):
 
 def generate_data_packages(pkg_bundle_settings, pudl_settings,
                            debug=False, pkg_bundle_dir_name=None):
-    """Cordinate the generation of data packages.
+    """
+    Coordinate the generation of data packages.
 
     For each bundle of packages laid out in the package_settings, this function
     generates data packages. First, the settings are validated (which runs
@@ -885,6 +909,7 @@ def generate_data_packages(pkg_bundle_settings, pudl_settings,
     Returns:
         tuple: A tuple containing generated metadata for the packages laid out
         in the package_settings.
+
     """
     # validate the settings from the settings file.
     validated_bundle_settings = pudl.etl_pkg.validate_input(
@@ -925,16 +950,18 @@ def generate_data_packages(pkg_bundle_settings, pudl_settings,
 
 ##############################################################################
 # Flattening PUDL Data Packages
-###############################################################################
+##############################################################################
 
 
 def flatten_data_packages_csvs(pkg_bundle_dir, pkg_name='pudl-all'):
-    """Copy the csv's into a new data package directory.
+    """
+    Copy the CSVs into a new data package directory.
 
-    Arg:
+    Args:
         pkg_bundle_dir (path-like): the subdirectory where the bundle of data
             packages live
         pkg_name (str): the name you choose for the flattened data package.
+
     """
     # set where the flattened datapackage is going to live
     all_dir = pathlib.Path(pkg_bundle_dir, pkg_name)
@@ -962,14 +989,17 @@ def flatten_data_packages_csvs(pkg_bundle_dir, pkg_name='pudl-all'):
 
 def compile_data_packages_metadata(pkg_bundle_dir,
                                    pkg_name='pudl-all'):
-    """Grab the metadata from each of your dp's.
+    """
+    Grab the metadata from each of your dp's.
 
-    Arg:
+    Args:
         pkg_bundle_dir (path-like): the subdirectory where the bundle of data
             packages live
         pkg_name (str): the name you choose for the flattened data package.
+
     Returns:
         dict: pkg_descriptor_elements
+
     """
     resources = []
     pkg_descriptor_elements = {}
@@ -997,13 +1027,14 @@ def flatten_data_package_metadata(pkg_bundle_dir,
                                   pkg_name='pudl-all'):
     """Convert a bundle of PULD data package metadata into one file.
 
-    Arg:
+    Args:
         pkg_bundle_dir (path-like): the subdirectory where the bundle of data
             packages live
         pkg_name (str): the name you choose for the flattened data package.
 
     Returns:
         dict: pkg_descriptor
+
     """
     # grab the peices of metadata from each of the data packages
     pkg_descriptor_elements = compile_data_packages_metadata(pkg_bundle_dir)
@@ -1041,7 +1072,8 @@ def flatten_data_package_metadata(pkg_bundle_dir,
 def flatten_pudl_datapackages(pudl_settings,
                               pkg_bundle_dir_name=None,
                               pkg_name='pudl-all'):
-    """Combindes a collection of PUDL data packages into one.
+    """
+    Combines a collection of PUDL data packages into one.
 
     Args:
         pkg_bundle_name (str): the name of the subdirectory where the bundle of
@@ -1050,8 +1082,10 @@ def flatten_pudl_datapackages(pudl_settings,
         pudl_settings (dict) : a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
         pkg_name (str): the name you choose for the flattened data package.
+
     Returns:
         dict: a dictionary of the data package validation report.
+
     """
     # make a subdirectory for the package bundles...
     if pkg_bundle_dir_name:
@@ -1116,13 +1150,15 @@ def pkg_to_sqlite_db(pudl_settings,
                      pkg_name=None,
                      pkg_bundle_dir_name=None,
                      testing=False):
-    """Turn a data package into a sqlite database.
+    """
+    Turn a data package into a sqlite database.
 
     Args:
         pudl_settings (dict) : a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
         pkg_name (str): name of data package
-        pkg_bundle_dir_name (str)
+        pkg_bundle_dir_name (str):
+
     """
     # we can assume the bundle of packages live in a directory named
     # after the python package version.
