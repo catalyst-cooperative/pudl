@@ -350,14 +350,17 @@ ferc1_gal_strings = ['gallons', 'gal.', 'gals', 'gals.', 'gallon', 'gal']
 ferc1_1kgal_strings = ['oil(1000 gal)', 'oil(1000)', 'oil (1000)', 'oil(1000']
 """list: A list of fuel unit strings for thousand gallons."""
 
-ferc1_gramsU_strings = ['gram', 'grams', 'gm u', 'grams u235', 'grams u-235',
-                        'grams of uran', 'grams: u-235', 'grams:u-235',
-                        'grams:u235', 'grams u308', 'grams: u235', 'grams of']
+ferc1_gramsU_strings = [  # noqa: N816 (U-ranium is capitalized...)
+    'gram', 'grams', 'gm u', 'grams u235', 'grams u-235', 'grams of uran',
+    'grams: u-235', 'grams:u-235', 'grams:u235', 'grams u308', 'grams: u235',
+    'grams of'
+]
 """list: A list of fuel unit strings for grams."""
 
-ferc1_kgU_strings = ['kg of uranium', 'kg uranium', 'kilg. u-235',
-                     'kg u-235', 'kilograms-u23', 'kg', 'kilograms u-2',
-                     'kilograms', 'kg of']
+ferc1_kgU_strings = [  # noqa: N816 (U-ranium is capitalized...)
+    'kg of uranium', 'kg uranium', 'kilg. u-235', 'kg u-235', 'kilograms-u23',
+    'kg', 'kilograms u-2', 'kilograms', 'kg of'
+]
 """list: A list of fuel unit strings for thousand grams."""
 
 ferc1_mmbtu_strings = ['mmbtu', 'mmbtus',

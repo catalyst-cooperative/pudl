@@ -235,7 +235,7 @@ def zippertestdata(gens=50, max_group_size=6, samples=10,
                                                   min_chunk=1,
                                                   max_chunk=max_group_size)]
 
-    ferc_groups = [[id.upper() for id in group] for group in eia_groups]
+    ferc_groups = [[gid.upper() for gid in group] for group in eia_groups]
 
     # Then within each of these groups, we need to randomly aggregate the data
     # series on the FERC side, to represent the non-atomic FERC plants, which
