@@ -131,7 +131,7 @@ def init(pudl_in=None, pudl_out=None, settings_file=None):
     # Now the output directories:
     for fmt in pc.output_formats:
         format_dir = os.path.join(pudl_settings['pudl_out'], fmt)
-        pudl_settings[f'{format}_dir'] = format_dir
+        pudl_settings[f'{fmt}_dir'] = format_dir
     # We don't need to create the other data directories because they are more
     # complicated, and that task is best done by the datastore module.
 
