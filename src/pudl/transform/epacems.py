@@ -131,7 +131,7 @@ def _load_plant_utc_offset_pkg(pkg_dir):
 
 def harmonize_eia_epa_orispl(df):
     """
-    Harmonizes the ORISPL code to match the EIA data -- NOT YET IMPLEMENTED
+    Harmonize the ORISPL code to match the EIA data -- NOT YET IMPLEMENTED.
 
     The EIA plant IDs and CEMS ORISPL codes almost match, but not quite. See
     https://www.epa.gov/sites/production/files/2018-02/documents/egrid2016_technicalsupportdocument_0.pdf#page=104
@@ -141,14 +141,17 @@ def harmonize_eia_epa_orispl(df):
     because fix_up_dates uses the plant ID to look up timezones.
 
     Args:
-        df (pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
+        df (:mod:`pandas.DataFrame`): A CEMS hourly dataframe for one
+            year-month-state
 
     Returns:
-        pandas.DataFrame: The same data, with the ORISPL plant codes corrected
-        to  match the EIA.
+        :mod:`pandas.DataFrame`: The same data, with the ORISPL plant codes
+        corrected to match the EIA plant IDs.
+
+    Todo:
+        Ctually implement the function...
 
     """
-    # TODO: implement this.
     return df
 
 
@@ -262,10 +265,13 @@ def transform(pudl_engine, epacems_raw_dfs):
 
 
 def transform_pkg(epacems_raw_dfs, pkg_dir):
-    """Transforms EPA CEMS hourly data.
+    """
+    Transform EPA CEMS hourly data for use in datapackage export.
 
     To Do:
-        Revisit"""
+        Incomplete docstring.
+
+    """
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
     # a transformation pipeline, and yield it back as another generator.
     plant_utc_offset = _load_plant_utc_offset_pkg(pkg_dir)

@@ -12,15 +12,15 @@ logger = logging.getLogger(__name__)
 
 
 def parse_command_line(argv):
-    """Parses command line arguments. See the -h option.
+    """
+    Parse script command line arguments. See the -h option.
 
     Args:
-        argv (): arguments on the command line must include caller file name.
+        argv (list): command line arguments including caller file name.
 
     Returns:
+        dict: A dictionary mapping command line arguments to their values.
 
-    Todo:
-        Return to
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(dest='settings_file', type=str, default='',
@@ -62,7 +62,6 @@ def main():
                       epacems_states=script_settings['epacems_states'],
                       epaipm_tables=script_settings['epaipm_tables'],
                       pudl_testing=script_settings['pudl_testing'],
-                      ferc1_testing=script_settings['ferc1_testing'],
                       pudl_settings=pudl_settings,
                       debug=script_settings['debug'],
                       csvdir=script_settings['csvdir'],

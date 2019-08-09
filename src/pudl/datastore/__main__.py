@@ -1,9 +1,7 @@
-"""
-Entrypoint module for PUDL datastore management.
-
-"""
+"""Entrypoint module for PUDL datastore management."""
 
 import sys
+
 import pudl
 
 if __name__ == "__main__":

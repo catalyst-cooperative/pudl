@@ -187,15 +187,15 @@ def epacems_to_parquet(epacems_years,
 
 
 def parse_command_line(argv):
-    """Parses command line arguments. See the -h option.
+    """
+    Parse command line arguments. See the -h option.
 
     Args:
-        argv (str): Command line arguments, which must include caller file name
+        argv (str): Command line arguments, including caller filename.
 
     Returns:
+        dict: Dictionary of command line arguments and their parsed values.
 
-    Todo:
-        Return to
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(

@@ -367,18 +367,32 @@ def download(source, year, states, data_dir):
     # we can use the same FTP connection for all of the src_urls
     # (without going all the way to a global FTP cache)
     if url_schemes == {"ftp"}:
-        _download_FTP(src_urls, tmp_files)
+        _download_ftp(src_urls, tmp_files)
     else:
         _download_default(src_urls, tmp_files)
     return tmp_files
 
 
-def _download_FTP(src_urls, tmp_files, allow_retry=True):
+def _download_ftp(src_urls, tmp_files, allow_retry=True):
     """
-    Todo:
-        Replace 2 assert statements
+    Download a source data using FTP, retrying as necessary.
+
+    Args:
+        src_urls (list): A list of complete source URLs for the files to be
+            downloaded.
+        tmp_files (list): A corresponding list of local temporary files to
+            which the downloaded files should be saved.
+        allow_retry (bool): If True, retry on errors. Otherwise do not retry.
+
+    Returns:
+        None
+
     """
-    assert len(src_urls) == len(tmp_files) > 0
+    if len(src_urls) != len(tmp_files):
+        raise ValueError(
+            "The number of source URLs and temporary files are not equal.")
+    if len(src_urls) == 0:
+        raise ValueError("Got zero source URLs!")
     parsed_urls = [urllib.parse.urlparse(url) for url in src_urls]
     domains = {url.netloc for url in parsed_urls}
     within_domain_paths = [url.path for url in parsed_urls]
@@ -407,11 +421,11 @@ def _download_FTP(src_urls, tmp_files, allow_retry=True):
     if num_failed > 0:
         if allow_retry and len(src_urls) == 1:
             # If there was only one URL and it failed, retry once.
-            return _download_FTP(url_to_retry, tmp_to_retry, allow_retry=False)
+            return _download_ftp(url_to_retry, tmp_to_retry, allow_retry=False)
         elif allow_retry and src_urls != url_to_retry:
             # If there were multiple URLs and at least one didn't fail,
             # keep retrying until all fail or all succeed.
-            return _download_FTP(url_to_retry, tmp_to_retry, allow_retry=allow_retry)
+            return _download_ftp(url_to_retry, tmp_to_retry, allow_retry=allow_retry)
         if url_to_retry == src_urls:
             err_msg = (
                 f"Download failed for all {num_failed} URLs. " +
@@ -679,10 +693,7 @@ def parallel_update(sources,
                     clobber=False,
                     unzip=True,
                     dl=True):
-    """
-    Todo:
-        Return to
-    """
+    """Download many original source data files in parallel using threads."""
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for source in sources:
             for year in years_by_source[source]:

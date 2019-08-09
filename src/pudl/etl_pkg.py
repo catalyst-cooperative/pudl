@@ -1,3 +1,5 @@
+"""Module coordinating the PUDL ETL pipeline, generating data packages."""
+
 import logging
 import os.path
 import shutil
@@ -190,11 +192,6 @@ def _validate_input_ferc1(inputs):
         ferc1_dict['ferc1_tables'] = inputs['ferc1_tables']
     except KeyError:
         ferc1_dict['ferc1_tables'] = pc.pudl_tables['ferc1']
-    # if nothing is passed in, assume that we're not testing
-    try:
-        ferc1_dict['ferc1_testing'] = inputs['ferc1_testing']
-    except KeyError:
-        ferc1_dict['ferc1_testing'] = False
 
     try:
         ferc1_dict['debug'] = inputs['debug']
@@ -262,8 +259,7 @@ def _etl_ferc1_pkg(inputs, pudl_settings, pkg_dir):
     ferc1_raw_dfs = pudl.extract.ferc1.extract(
         ferc1_tables=ferc1_tables,
         ferc1_years=ferc1_years,
-        pudl_settings=pudl_settings,
-        testing=ferc1_inputs['ferc1_testing'])
+        pudl_settings=pudl_settings)
     # Transform FERC form 1
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
         ferc1_raw_dfs, ferc1_tables=ferc1_tables)
@@ -300,7 +296,6 @@ def _validate_input_epacems(inputs):
 
 
 def _etl_epacems_pkg(inputs, data_dir, pkg_dir):
-    """"""
     epacems_dict = _validate_input_epacems(inputs)
     epacems_years = epacems_dict['epacems_years']
     epacems_states = epacems_dict['epacems_states']
@@ -395,9 +390,7 @@ def _etl_glue(inputs, pkg_dir):
 ###############################################################################
 
 def _prep_directories(pkg_dir):
-    """
-    Prep dictionaries for CSVs.
-    """
+    """Prepare data package directories to receive CSVs."""
     # delete package directories if they exist
     if os.path.exists(pkg_dir):
         shutil.rmtree(pkg_dir)
@@ -409,30 +402,34 @@ def _prep_directories(pkg_dir):
 
 
 def validate_input(settings_init):
-    """Extracts and validates the inputs from a settings file
+    """
+    Read and validate the inputs from a settings file.
 
     Args:
-        settings_init (iterable) : a list of inputs for
-            datapackages typically imported from settings like:
-            pudl.settings.settings_init(settings_file='settings_init_pudl_package.yml')
-            with different file name depending on your setting yml file.
+        settings_init (iterable): a list of data package parameters,
+            with each element of the list being a dictionary specifying
+            the data to be packaged.
+
     Returns:
         iterable: validated list of inputs
+
     """
-    input_validation_functions = {'eia': _validate_input_eia,
-                                  'ferc1': _validate_input_ferc1,
-                                  'epacems': _validate_input_epacems,
-                                  'glue': _validate_input_glue,
-                                  }
+    input_validation_functions = {
+        'eia': _validate_input_eia,
+        'ferc1': _validate_input_ferc1,
+        'epacems': _validate_input_epacems,
+        'glue': _validate_input_glue,
+    }
     # where we are going to compile the new validated settings
     validated_settings = []
 
     for pkg in settings_init:
         validated_pkg_settings = {}
-        validated_pkg_settings.update({'name': pkg['name'],
-                                       'title': pkg['title'],
-                                       'description': pkg['description']
-                                       })
+        validated_pkg_settings.update({
+            'name': pkg['name'],
+            'title': pkg['title'],
+            'description': pkg['description']
+        })
         dataset_dicts = []
         for settings_dataset_dict in pkg['datasets']:
             for dataset in settings_dataset_dict:

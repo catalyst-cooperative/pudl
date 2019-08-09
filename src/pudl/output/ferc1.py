@@ -1,7 +1,7 @@
 """Functions for pulling FERC Form 1 data out of the PUDL DB."""
 
-import sqlalchemy as sa
 import pandas as pd
+import sqlalchemy as sa
 
 import pudl
 import pudl.models.entities
@@ -10,7 +10,8 @@ pt = pudl.models.entities.PUDLBase.metadata.tables
 
 
 def plants_utils_ferc1(testing=False):
-    """Builds a dataframe of useful FERC Plant & Utility information.
+    """
+    Build a dataframe of useful FERC Plant & Utility information.
 
     Args:
         testing (bool) : True if we're using the pudl_test DB, False if we're
@@ -18,7 +19,9 @@ def plants_utils_ferc1(testing=False):
 
     Returns:
         pandas.DataFrame: A DataFrame containing useful FERC Form 1 Plant and
-        Utility information."""
+        Utility information.
+
+    """
     pudl_engine = pudl.init.connect_db(testing=testing)
 
     utils_ferc_tbl = pt['utilities_ferc']

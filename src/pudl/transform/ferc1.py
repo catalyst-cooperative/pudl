@@ -363,7 +363,9 @@ def _plants_steam_assign_plant_ids(ferc1_steam_df, ferc1_fuel_df):
     edges_df = pd.concat([edges_df, orphan_df], sort=True)
 
     # Use the data frame we've compiled to create a graph
-    G = nx.from_pandas_edgelist(edges_df, source='source', target='target')
+    G = nx.from_pandas_edgelist(edges_df,  # noqa: N806
+                                source='source',
+                                target='target')
     # Find the connected components of the graph
     ferc_plants = (G.subgraph(c) for c in nx.connected_components(G))
 
@@ -410,7 +412,7 @@ def _plants_steam_assign_plant_ids(ferc1_steam_df, ferc1_fuel_df):
     )
     steam_rids = ferc1_steam_df.record_id.values
     pwids_rids = plants_w_ids.record_id.values
-    missing_ids = [id for id in steam_rids if id not in pwids_rids]
+    missing_ids = [rid for rid in steam_rids if rid not in pwids_rids]
     if missing_ids:
         raise AssertionError(
             f"Uh oh, we lost {abs(len(steam_rids)-len(pwids_rids))} FERC "
@@ -1139,7 +1141,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         self.plants_df = plants_df
         self._years = self.plants_df.report_year.unique()
 
-    def fit(self, X, y=None):
+    def fit(self, X, y=None):  # noqa: N803 Canonical capital letter...
         """
         Use weighted FERC plant features to group records into time series.
 
@@ -1169,19 +1171,17 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
 
         return self
 
-    def transform(self, X, y=None):
-        """
-        Todo:
-            Zane revisit this function
-        """
-
+    def transform(self, X, y=None):  # noqa: N803
+        """Passthrough transform method -- just returns self."""
         return self
 
-    def predict(self, X, y=None):
+    def predict(self, X, y=None):  # noqa: N803
         """
-        Given a one-dimensional dataframe X, containing FERC record IDs,
-        return a dataframe in which each row corresponds to one of the input
-        record_id values (ordered as the input was ordered), with each column
+        Identify time series of similar records to input record_ids.
+
+        Given a one-dimensional dataframe X, containing FERC record IDs, return
+        a dataframe in which each row corresponds to one of the input record_id
+        values (ordered as the input was ordered), with each column
         corresponding to one of the years worth of data. Values in the returned
         dataframe are the FERC record_ids of the record most similar to the
         input record within that year. Some of them may be null, if there was
@@ -1189,11 +1189,10 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
 
         Row index is the seed record IDs. Column index is years.
 
+        TODO:
         * This method is hideously inefficient. It should be vectorized.
         * There's a line that throws a FutureWarning that needs to be fixed.
 
-        TODO:
-            Zane revisit
         """
         try:
             getattr(self, "_cossim_df")
@@ -1259,7 +1258,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         out_df = out_df.fillna('')
         return out_df
 
-    def score(self, X, y=None):
+    def score(self, X, y=None):  # noqa: N803
         """Scores a collection of FERC plant categorizations.
 
         For every record ID in X, predict its record group and calculate
@@ -1331,7 +1330,8 @@ def make_ferc_clf(plants_df,
                   construction_year_wt=1.0,
                   utility_id_ferc1_wt=1.0,
                   fuel_fraction_wt=1.0):
-    """Creates a FERC Plant Classifier using several weighted features.
+    """
+    Create a FERC Plant Classifier using several weighted features.
 
     Given a FERC steam plants dataframe plants_df, which also includes fuel
     consumption information, transform a selection of useful columns into
@@ -1392,8 +1392,8 @@ def make_ferc_clf(plants_df,
     Returns:
         sklearn.pipeline.Pipeline: an sklearn Pipeline that performs
         reprocessing and classification with a FERCPlantClassifier object.
-    """
 
+    """
     # Make a list of all the fuel fraction columns for use as one feature.
     fuel_cols = list(plants_df.filter(regex='.*_fraction_mmbtu$').columns)
 

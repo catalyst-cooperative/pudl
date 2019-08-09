@@ -158,7 +158,3 @@ ferc1_to_sqlite_bad_cols: []
 #    [bad_table_1, bad_column_1],
 #    [bad_table_2, bad_column_2],
 #]
-
-# If True, this tells the script to populate a different SQLite database
-# so you don't overwrite your existing live DB.
-ferc1_to_sqlite_testing: False

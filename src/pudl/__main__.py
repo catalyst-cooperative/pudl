@@ -1,9 +1,7 @@
-"""
-Entrypoint module for the PUDL ETL script.
-
-"""
+"""Entrypoint module for the PUDL ETL script."""
 
 import sys
+
 import pudl
 
 if __name__ == "__main__":

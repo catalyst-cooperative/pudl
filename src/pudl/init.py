@@ -75,11 +75,13 @@ https://github.com/catalyst-cooperative/pudl/blob/master/docs/reset_instructions
 
 
 def _create_views(engine):
-    """Create views on the PUDL tables
+    """
+    Create views on the PUDL tables.
 
     stackoverflow doesn't know how to create views with declarative_base, so I
     don't either.
     https://stackoverflow.com/questions/40083753/sqlalchemy-creating-view-with-orm
+
     """
     views_sql_list = pudl.models.epacems.CREATE_VIEWS
     for s in views_sql_list:
@@ -201,9 +203,7 @@ def _ingest_glue(engine,
                  eia923_years,
                  eia860_years,
                  ferc1_years):
-    """
-    Populate glue tables depending on which datasources are being ingested.
-    """
+    """Populate glue tables depending on which dat is being ingested."""
     # currently we only have on set of glue between datasets...
     _ingest_glue_eia_ferc1(engine,
                            eia923_years,
@@ -419,7 +419,7 @@ def _ingest_glue_eia_ferc1(engine,
 ###############################################################################
 
 
-def _etl_ferc1(pudl_engine, ferc1_tables, ferc1_years, ferc1_testing,
+def _etl_ferc1(pudl_engine, ferc1_tables, ferc1_years,
                csvdir, keep_csv, pudl_settings):
     if not ferc1_years or not ferc1_tables:
         logger.info('Not ingesting FERC1')
@@ -428,7 +428,6 @@ def _etl_ferc1(pudl_engine, ferc1_tables, ferc1_years, ferc1_testing,
     # Extract FERC form 1
     ferc1_raw_dfs = pudl.extract.ferc1.extract(ferc1_tables=ferc1_tables,
                                                ferc1_years=ferc1_years,
-                                               testing=ferc1_testing,
                                                pudl_settings=pudl_settings)
     # Transform FERC form 1
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
@@ -486,7 +485,6 @@ def _etl_epacems(pudl_engine,
                  keep_csv,
                  states,
                  pudl_settings):
-    """"""
     # If we're not doing CEMS, just stop here to avoid printing messages like
     # "Reading EPA CEMS data...", which could be confusing.
     if not states or not epacems_years:
@@ -553,7 +551,6 @@ def _etl_epaipm(pudl_engine, epaipm_tables, csvdir, keep_csv, pudl_settings):
         None
 
     """
-
     # Extract IPM tables
     epaipm_raw_dfs = pudl.extract.epaipm.extract(
         epaipm_tables, data_dir=pudl_settings['data_dir'])
@@ -582,7 +579,6 @@ def init_db(ferc1_tables=None,
             epacems_states=None,
             epaipm_tables=None,
             pudl_testing=None,
-            ferc1_testing=None,
             pudl_settings=None,
             debug=None,
             csvdir=None,
@@ -683,7 +679,6 @@ def init_db(ferc1_tables=None,
         pudl_engine=pudl_engine,
         ferc1_tables=ferc1_tables,
         ferc1_years=ferc1_years,
-        ferc1_testing=ferc1_testing,
         csvdir=csvdir,
         keep_csv=keep_csv,
         pudl_settings=pudl_settings

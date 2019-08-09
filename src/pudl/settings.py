@@ -21,7 +21,8 @@ logger = logging.getLogger(__name__)
 
 
 def read_script_settings(settings_file=None):
-    """Read in generic YAML settings for one of the PUDL scripts.
+    """
+    Read in generic YAML settings for one of the PUDL scripts.
 
     Args:
         settings_file (path-like): A string or path like object that can be
@@ -29,9 +30,12 @@ def read_script_settings(settings_file=None):
             $HOME/.pudl.yml
 
     Returns:
+        dict: A dictionary reprentation of the parameters defined in
+        settings_file.
 
     Todo:
-        Return to (Returns type)
+        Incomplete docstring.
+
     """
     if settings_file is None:
         settings_file = pathlib.Path.home() / '.pudl.yml'
@@ -58,7 +62,8 @@ def read_script_settings(settings_file=None):
 
 
 def read_user_settings(settings_file=None):
-    """Read the most basic PUDL settings from a user supplied file.
+    """
+    Read the most basic PUDL settings from a user supplied file.
 
     Args:
         settings_file (path-like): A string or path like object that can be
@@ -66,9 +71,12 @@ def read_user_settings(settings_file=None):
             $HOME/.pudl.yml
 
     Returns:
+        dict: The content of the user's PUDL settings file, defining
+        ``pudl_in`` and ``pudl_out`` as required for their PUDL workspace.
 
     Todo:
         Return to (Returns type)
+
     """
     if settings_file is None:
         settings_file = pathlib.Path.home() / '.pudl.yml'
@@ -121,8 +129,8 @@ def init(pudl_in=None, pudl_out=None, settings_file=None):
         os.path.join(pudl_settings['pudl_out'], 'notebooks')
 
     # Now the output directories:
-    for format in pc.output_formats:
-        format_dir = os.path.join(pudl_settings['pudl_out'], format)
+    for fmt in pc.output_formats:
+        format_dir = os.path.join(pudl_settings['pudl_out'], fmt)
         pudl_settings[f'{format}_dir'] = format_dir
     # We don't need to create the other data directories because they are more
     # complicated, and that task is best done by the datastore module.
@@ -197,8 +205,8 @@ def setup(pudl_settings=None):
                 )
 
     # Now the output directories:
-    for format in pc.output_formats:
-        format_dir = os.path.join(pudl_settings['pudl_out'], format)
+    for fmt in pc.output_formats:
+        format_dir = os.path.join(pudl_settings['pudl_out'], fmt)
         os.makedirs(format_dir, exist_ok=True)
 
     # Copy over the example notebooks:

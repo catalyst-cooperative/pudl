@@ -726,7 +726,8 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
 # The next few functions propbably will end up in some packaging or load module
 ###############################################################################
 def data_sources_from_tables_pkg(table_names, testing=False):
-    """Based on a list of PUDL DB tables, look up data sources.
+    """
+    Look up data sources based on a list of PUDL DB tables.
 
     Args:
         tables_names (iterable): a list of names of 'seed' tables, whose
@@ -735,7 +736,9 @@ def data_sources_from_tables_pkg(table_names, testing=False):
             database (False)?
 
     Returns:
-        set: The set of data sources for the list of PUDL table names."""
+        set: The set of data sources for the list of PUDL table names.
+
+    """
     all_tables = get_dependent_tables_from_list_pkg(
         table_names, testing=testing)
     table_sources = set()
@@ -778,16 +781,19 @@ def get_foreign_key_relash_from_pkg(pkg_json):
 
 
 def get_dependent_tables_pkg(table_name, fk_relash):
-    """Get the set of tables that the specified table depends on.
+    """
+    For a given table, get the list of all the other tables it depends on.
+
     Args:
         table_name (str): The table whose dependencies we are looking for.
         fk_relash ():
 
     Todo:
-        Return to
+        Incomplete docstring.
 
     Returns:
         set: the set of all the tables the specified table depends upon.
+
     """
     # Add the initial table
     dependent_tables = set()
@@ -930,8 +936,18 @@ def verify_input_files(ferc1_years,
 
 def pull_resource_from_megadata(table_name):
     """
-    Todo:
-        Return to
+    Read a single data resource from the PUDL metadata library.
+
+    Args:
+        table_name (str): the name of the table / data resource whose JSON
+            descriptor we are reading.
+
+    Returns:
+        json: a Tabular Data Resource Descriptor, as a JSON object.
+
+    Raises:
+        ValueError: If table_name is not found exactly one time in the PUDL
+            metadata library.
 
     """
     with importlib.resources.open_text('pudl.package_data.meta.datapackage',
@@ -943,8 +959,8 @@ def pull_resource_from_megadata(table_name):
     ]
 
     if len(table_resource) == 0:
-        raise AssertionError(f"{table_name} not found in stored metadata")
+        raise ValueError(f"{table_name} not found in stored metadata.")
     if len(table_resource) > 1:
-        raise AssertionError(f"{table_name} found multiple times in metadata")
+        raise ValueError(f"{table_name} found multiple times in metadata.")
     table_resource = table_resource[0]
     return(table_resource)
