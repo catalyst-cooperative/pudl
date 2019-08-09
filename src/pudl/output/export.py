@@ -872,7 +872,7 @@ def prep_pkg_bundle_directory(pudl_settings, pkg_bundle_dir_name):
         pkg_bundle_dir = os.path.join(
             pudl_settings['datapackage_dir'], pkg_bundle_dir_name)
     else:
-        version = pkg_resources.get_distribution('pudl').version
+        version = pkg_resources.get_distribution('catalystcoop.pudl').version
         pkg_bundle_dir = os.path.join(
             pudl_settings['datapackage_dir'], version)
     if os.path.exists(pkg_bundle_dir):
@@ -1092,7 +1092,7 @@ def flatten_pudl_datapackages(pudl_settings,
         pkg_bundle_dir = pathlib.Path(pudl_settings['datapackage_dir'],
                                       pkg_bundle_dir_name)
     else:
-        version = pkg_resources.get_distribution('pudl').version
+        version = pkg_resources.get_distribution('catalystcoop.pudl').version
         pkg_bundle_dir = pathlib.Path(
             pudl_settings['datapackage_dir'], version)
 
@@ -1163,7 +1163,8 @@ def pkg_to_sqlite_db(pudl_settings,
     # we can assume the bundle of packages live in a directory named
     # after the python package version.
     if not pkg_bundle_dir_name:
-        pkg_bundle_dir_name = pkg_resources.get_distribution('pudl').version
+        pkg_bundle_dir_name = pkg_resources.get_distribution(
+            'catalystcoop.pudl').version
     # we can also assume the flattened package's name
     if not pkg_name:
         pkg_name = 'pudl-all'

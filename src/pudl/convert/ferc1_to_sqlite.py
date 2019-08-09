@@ -14,15 +14,15 @@ logger = logging.getLogger(__name__)
 
 
 def parse_command_line(argv):
-    """Parses command line arguments. See the -h option.
+    """
+    Parse command line arguments. See the -h option.
 
     Args:
-        argv (str): Command line arguments, which must include caller file name
+        argv (str): Command line arguments, including caller filename.
 
     Returns:
+        dict: Dictionary of command line arguments and their parsed values.
 
-    Todo:
-        Return to
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("settings_file", type=str, default='',
@@ -82,7 +82,6 @@ def main():
         tables=script_settings['ferc1_to_sqlite_tables'],
         years=script_settings['ferc1_to_sqlite_years'],
         refyear=script_settings['ferc1_to_sqlite_refyear'],
-        testing=script_settings['ferc1_to_sqlite_testing'],
         bad_cols=script_settings['ferc1_to_sqlite_bad_cols'])
 
 

@@ -65,7 +65,7 @@ def data_scope(fast_tests, pudl_settings_fixture):
 def pytest_addoption(parser):
     """Add a command line option for using the live FERC/PUDL DB."""
     parser.addoption("--live_ferc_db", action="store_true", default=False,
-                     help="Use live FERC DB rather than test DB.")
+                     help="Use live rather than temporary FERC DB.")
     parser.addoption("--live_pudl_db", action="store_true", default=False,
                      help="Use live PUDL DB rather than test DB.")
     parser.addoption("--pudl_in", action="store", default=False,
@@ -78,7 +78,7 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope='session')
 def live_ferc_db(request):
-    """Fixture that tells use which FERC DB to use (live vs. testing)."""
+    """Use the live FERC DB or make a temporary one."""
     return request.config.getoption("--live_ferc_db")
 
 
@@ -161,13 +161,11 @@ def ferc1_engine(live_ferc_db, pudl_settings_fixture,
             tables=data_scope['ferc1_tables'],
             years=data_scope['ferc1_working_years'],
             refyear=data_scope['refyear'],
-            pudl_settings=pudl_settings_fixture,
-            testing=(not live_ferc_db))
+            pudl_settings=pudl_settings_fixture)
 
     # Grab a connection to the freshly populated database, and hand it off.
     engine = pudl.extract.ferc1.connect_db(
-        pudl_settings=pudl_settings_fixture,
-        testing=(not live_ferc_db)
+        pudl_settings=pudl_settings_fixture
     )
     yield engine
 
@@ -179,8 +177,7 @@ def ferc1_engine(live_ferc_db, pudl_settings_fixture,
 
 
 @pytest.fixture(scope='session')
-def pudl_engine(ferc1_engine,
-                live_pudl_db, live_ferc_db,
+def pudl_engine(ferc1_engine, live_pudl_db,
                 pudl_settings_fixture,
                 datastore_fixture, data_scope):
     """
@@ -200,8 +197,7 @@ def pudl_engine(ferc1_engine,
                           epacems_states=data_scope['epacems_states'],
                           epaipm_tables=pc.pudl_tables['epaipm'],
                           pudl_settings=pudl_settings_fixture,
-                          pudl_testing=(not live_pudl_db),
-                          ferc1_testing=(not live_ferc_db))
+                          pudl_testing=(not live_pudl_db))
 
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
     pudl_engine = pudl.init.connect_db(

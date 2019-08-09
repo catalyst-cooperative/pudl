@@ -1,10 +1,12 @@
 """PyTest based testing of the FERC & PUDL Database initializations.
 
 This module also contains fixtures for returning connections to the databases.
-These connections can be either to the live databases (for post-ETL testing)
-or to the test databases, which are created from scratch and dropped after the
-tests have completed.  See the --live_ferc_db and --live_pudl_db
-command line options by running pytest --help.
+These connections can be either to the live databases for post-ETL testing or
+to new temporary databases, which are created from scratch and dropped after
+the tests have completed. See the --live_ferc_db and --live_pudl_db command
+line options by running pytest --help. If you are using live databases, you
+will need to tell PUDL where to find them with --pudl_in=<PUDL_IN>.
+
 """
 import logging
 import os
@@ -137,8 +139,7 @@ def test_only_ferc1_pudl_init_db(data_scope,
                       epacems_states=[],
                       epaipm_tables=[],
                       pudl_settings=pudl_settings_fixture,
-                      pudl_testing=True,
-                      ferc1_testing=(not live_ferc_db))
+                      pudl_testing=True)
 
     # Grab a connection to the freshly populated PUDL DB
     pudl_engine = pudl.init.connect_db(

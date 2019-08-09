@@ -17,7 +17,8 @@ logger = logging.getLogger(__name__)
 
 
 def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
-    """Writes a dataframe to CSV and load it into postgresql using COPY FROM.
+    """
+    Write a dataframe to CSV and load it into postgresql using COPY FROM.
 
     The fastest way to load a bunch of records is using the database's native
     text file copy function.  This function dumps a given dataframe out to a
@@ -49,8 +50,8 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
 
     Returns:
         None
-    """
 
+    """
     tbl = pudl.models.entities.PUDLBase.metadata.tables[table_name]
     with io.StringIO() as f:
         df.to_csv(f, index=False)
@@ -65,7 +66,8 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
 
 
 class BulkCopy(contextlib.AbstractContextManager):
-    """Accumulates several DataFrames, then COPY FROM python to postgresql.
+    """
+    Accumulate several DataFrames, then COPY FROM python to postgresql.
 
     NOTE: You should use this class to load one table at a time. To load
     different tables, use different instances of BulkCopy.
@@ -96,6 +98,7 @@ class BulkCopy(contextlib.AbstractContextManager):
 
     def __init__(self, table_name, engine, buffer=1024**3,
                  csvdir='', keep_csv=False):
+        """Initialize the BulkCopy context manager."""
         self.table_name = table_name
         self.engine = engine
         self.buffer = buffer
@@ -106,13 +109,16 @@ class BulkCopy(contextlib.AbstractContextManager):
         self.accumulated_size = 0
 
     def add(self, df):
-        """Adds a DataFrame to the accumulated list.
+        """
+        Add a DataFrame to the accumulated list.
 
         Args:
-            df (pandas.DataFrame): The DataFrame to add to the accumulated list.
+            df (:mod:`pandas.DataFrame`): The DataFrame to add to the
+                accumulated list.
 
         Returns:
             None
+
         """
         if not isinstance(df, pd.DataFrame):
             raise AssertionError(
@@ -169,17 +175,22 @@ expected:
 
     def close(self):
         """
+        Output the accumulated tabular data to disk.
+
         Todo:
-            Return to
+            Incomplete docstring.
+
         """
         self.spill()
 
     def __exit__(self, exception_type, exception_value, traceback):
+        """Attempt to exit cleanly, writing any accumulated data to disk."""
         self.close()
 
 
 class BulkCopyPkg(contextlib.AbstractContextManager):
-    """Accumulates several DataFrames, then COPY FROM python to postgresql
+    """
+    Accumulate several DataFrames, then COPY FROM pandas to a CSV.
 
     NOTE: You shoud use this class to load one table at a time. To load
     different tables, use different instances of BulkCopy.
@@ -198,9 +209,11 @@ class BulkCopyPkg(contextlib.AbstractContextManager):
         >>> with BulkCopy(my_table, my_engine) as p:
                 for df in df_generator:
                     p.add(df)
+
     """
 
     def __init__(self, table_name, pkg_dir, buffer=1024**3):
+        """Initialize the BulkCopy context manager."""
         self.table_name = table_name
         self.buffer = buffer
         self.pkg_dir = pkg_dir
@@ -247,7 +260,7 @@ expected:
             """)
 
     def spill(self):
-        """Spills the accumulated dataframes into postgresql"""
+        """Spill the accumulated dataframes into the datapackage."""
         if self.accumulated_dfs:
             self._check_names()
             if len(self.accumulated_dfs) > 1:
@@ -272,12 +285,16 @@ expected:
 
     def close(self):
         """
+        Output the accumulated tabular data to disk.
+
         Todo:
             Return to
+
         """
         self.spill()
 
     def __exit__(self, exception_type, exception_value, traceback):
+        """Attempt to exit cleanly, writing any accumulated data to disk."""
         self.close()
 
 
@@ -360,7 +377,7 @@ def csv_dump(df, table_name, keep_index, pkg_dir):
     """
     outfile = os.path.join(pkg_dir, 'data', table_name + '.csv')
     if 'hourly_emissions_epacems' in table_name:
-        #outfile = os.path.join(pkg_dir, 'data', table_name + '.csv.gz')
+        # outfile = os.path.join(pkg_dir, 'data', table_name + '.csv.gz')
         outfile = os.path.join(pkg_dir, 'data', table_name + '.csv')
         df.to_csv(path_or_buf=outfile, mode='a',
                   # compression='gzip',
@@ -374,7 +391,8 @@ def csv_dump(df, table_name, keep_index, pkg_dir):
 
 
 def clean_columns_dump(table_name, pkg_dir, df):
-    """For a given table,
+    """
+    Output the cleaned columns to a CSV file.
 
     Args:
         table_name (str):
@@ -385,7 +403,8 @@ def clean_columns_dump(table_name, pkg_dir, df):
         None
 
     Todo:
-        Return to
+        Incomplete Docstring
+
     """
     # fix the order of the columns based on the metadata..
     # grab the table metadata from the mega metadata
@@ -421,7 +440,8 @@ def dict_dump(transformed_dfs,
               data_source,
               need_fix_inting=pc.need_fix_inting,
               pkg_dir=''):
-    """Wrapper for _csv_dump for each data source.
+    """
+    Wrapper for _csv_dump for each data source.
 
     Args:
         transformed_dfs (dict): A dictionary of DataFrame objects in which
@@ -436,6 +456,7 @@ def dict_dump(transformed_dfs,
 
     Returns:
         None
+
     """
     for table_name, df in transformed_dfs.items():
         if table_name != "hourly_emissions_epacems":

@@ -1,7 +1,9 @@
 """Module to perform data cleaning functions on EPA IPM data tables."""
 
 import logging
+
 import pandas as pd
+
 import pudl.constants as pc
 from pudl.helpers import simplify_columns
 
@@ -10,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def load_curves(epaipm_dfs, epaipm_transformed_dfs):
     """
-    Pulls and transforms the load curve table from wide to tidy format.
+    Transform the load curve table from wide to tidy format.
 
     Args:
         epaipm_dfs (dict): Each entry in this dictionary of DataFrame objects
@@ -24,6 +26,7 @@ def load_curves(epaipm_dfs, epaipm_transformed_dfs):
         dict: A dictionary of DataFrame objects in which tables from EPA
         IPM (keys) correspond to normalized DataFrames of values from
         that table (values)
+
     """
     lc = epaipm_dfs['load_curves_epaipm'].copy()
     lc = simplify_columns(lc)
@@ -101,8 +104,8 @@ def transmission_joint(epaipm_dfs, epaipm_transformed_dfs):
         dict: A dictionary of DataFrame objects in which tables from EPA
         IPM (keys) correspond to normalized DataFrames of values from
         that table (values)
-"""
 
+    """
     trans_df = epaipm_dfs['transmission_joint_epaipm'].copy()
     epaipm_transformed_dfs['transmission_joint_epaipm'] = trans_df
 
@@ -113,17 +116,17 @@ def plant_region_map(epaipm_dfs, epaipm_transformed_dfs):
     """Transforms the map of plant ids to IPM regions for all plants.
 
     Args:
-        epaipm_dfs (dict): Each entry in this
+        epaipm_dfs(dict): Each entry in this
             dictionary of DataFrame objects corresponds to a table from
             EPA's IPM, as reported in the Excel spreadsheets they distribute.
-        epaipm_transformed_dfs (dict): A dictionary of DataFrame objects in
-            which tables from EPA IPM (keys) correspond to normalized DataFrames
-            of values from that table (values)
+        epaipm_transformed_dfs(dict): A dictionary of DataFrame objects in
+            which tables from EPA IPM(keys) correspond to normalized DataFrames
+            of values from that table(values)
 
     Returns:
         dict: A dictionary of DataFrame objects in which tables from EPA
-        IPM (keys) correspond to normalized DataFrames of values from
-        that table (values)
+        IPM(keys) correspond to normalized DataFrames of values from
+        that table(values)
     """
     trans_df = pd.concat(
         [
@@ -150,19 +153,20 @@ def plant_region_map(epaipm_dfs, epaipm_transformed_dfs):
 
 
 def transform(epaipm_raw_dfs, epaipm_tables=pc.epaipm_pudl_tables):
-    """Transforms EPA IPM dfs.
+    """
+    Transform EPA IPM DataFrames.
 
-        Args:
-            epaipm_raw_dfs (dict): a dictionary of table names (keys) and
-                DataFrames (values)
-            epaipm_tables (list): The list of EPA IPM tables that can be
-                successfully pulled into PUDL
+    Args:
+        epaipm_raw_dfs(dict): a dictionary of table names(keys) and
+            DataFrames(values)
+        epaipm_tables(list): The list of EPA IPM tables that can be
+            successfully pulled into PUDL
 
-        Returns:
-            dict: A dictionary of DataFrame objects in which tables from EPA
-            IPM (keys) correspond to normalized DataFrames of values from
-            that table (values)
-        """
+    Returns:
+        dict: A dictionary of DataFrame objects in which tables from EPA
+        IPM(keys) correspond to normalized DataFrames of values from
+        that table(values)
+    """
     epaipm_transform_functions = {
         'transmission_single_epaipm': transmission_single,
         'transmission_joint_epaipm': transmission_joint,

@@ -8,7 +8,7 @@
 .DS_Store
 build/
 data/
-**/pudl.egg-info/
+**/*pudl.egg-info/
 dist/
 .eggs/
 .tox/
@@ -20,3 +20,4 @@ results/notebooks/pudl_intro.ipynb
 results/notebooks/pudl_output_to_csv.ipynb
 codecov.sh
 .env_pudl/
+*wheel-metadata

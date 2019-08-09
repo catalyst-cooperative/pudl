@@ -60,12 +60,10 @@ long_description = readme_path.read_text()
 
 
 setup(
-    name='pudl',
-    # name='pudl-zaneselvans',
-    description='Tools for liberating public US electric utility data.',
+    name='catalystcoop.pudl',
+    description='An open data processing pipeline for public US utility data.',
     long_description=long_description,
     long_description_content_type='text/x-rst',
-    # version='0.1.0a2',
     use_scm_version=True,
     author='Catalyst Cooperative',
     author_email='pudl@catalyst.coop',

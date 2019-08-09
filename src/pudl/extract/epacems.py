@@ -35,16 +35,14 @@ def read_cems_csv(filename):
 
 
 def extract(epacems_years, states, data_dir):
-    """Extracts the EPA CEMS hourly data.
-
-    This function is the main function of this file. It returns a generator
-    for extracted DataFrames.
+    """
+    Coordinate the extraction of EPA CEMS hourly DataFrames.
 
     Args:
         epacems_years (list): list of years from which we are trying to read
-            CEMs data
-        states (list): list of states from which we are trying to read
-            CEMs data
+            CEMS data
+        states (list): list of states from which we are trying to read CEMS
+            data
         data_dir (path-like): Path to the top directory of the PUDL datastore.
 
     Yields:
@@ -52,8 +50,8 @@ def extract(epacems_years, states, data_dir):
 
     Todo:
         This is really slow. Can we do some parallel processing?
-    """
 
+    """
     for year in epacems_years:
         # The keys of the us_states dictionary are the state abbrevs
         for state in states:

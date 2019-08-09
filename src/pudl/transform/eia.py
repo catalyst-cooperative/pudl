@@ -1,11 +1,11 @@
 """Routines specific to cleaning up EIA Form 923 data."""
 
+import importlib.resources
 import logging
 
 import networkx as nx
 import numpy as np
 import pandas as pd
-import importlib.resources
 
 import pudl
 import pudl.constants as pc
@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 
 def _occurrence_consistency(entity_id, compiled_df, col,
                             cols_to_consit, strictness=.7):
-    """Finds the occurence of plants & the consistency of records
+    """
+    Find the occurence of plants & the consistency of records.
 
     We need to determine how consistent a reported value is in the records
     across all of the years or tables that the value is being reported, so we

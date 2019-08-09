@@ -7,7 +7,8 @@ import pudl
 
 
 def plants_utils_ferc1(testing=False):
-    """Builds a dataframe of useful FERC Plant & Utility information.
+    """
+    Build a dataframe of useful FERC Plant & Utility information.
 
     Args:
         testing (bool) : True if we're using the pudl_test DB, False if we're
