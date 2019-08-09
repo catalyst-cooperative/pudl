@@ -114,6 +114,7 @@ def fast_tests(request):
     ids=['ferc1_annual']
 )
 def pudl_out_ferc1(live_pudl_db, request):
+    """Define parameterized PudlTabl output object fixture for FERC 1 tests."""
     if not live_pudl_db:
         raise AssertionError("Output tests only work with a live PUDL DB.")
     return request.param
@@ -132,6 +133,7 @@ def pudl_out_ferc1(live_pudl_db, request):
     ids=['eia_annual', 'eia_monthly']
 )
 def pudl_out_eia(live_pudl_db, request):
+    """Define parameterized PudlTabl output object fixture for EIA tests."""
     if not live_pudl_db:
         raise AssertionError("Output tests only work with a live PUDL DB.")
     return request.param

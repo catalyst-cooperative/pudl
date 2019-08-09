@@ -157,6 +157,7 @@ def test_fbp_ferc1_missing_mmbtu(pudl_out_ferc1):
 @pytest.mark.ferc1
 @pytest.mark.post_etl
 def test_fbp_ferc1_missing_cost(pudl_out_ferc1):
+    """Check whether FERC 1 fuel costs by plant appear to be complete."""
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
     missing_cost_pct = (fbp_ferc1.filter(like="fraction_cost").
                         sum(axis=1, skipna=True).
@@ -173,6 +174,7 @@ def test_fbp_ferc1_missing_cost(pudl_out_ferc1):
 @pytest.mark.ferc1
 @pytest.mark.post_etl
 def test_fbp_ferc1_mismatched_fuels(pudl_out_ferc1):
+    """Check whether FERC 1 primary fuel by cost and by heat content match."""
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
     # High proportion of primary fuel by cost and by mmbtu should be the same
     mismatched_fuels = len(fbp_ferc1[
@@ -189,6 +191,7 @@ def test_fbp_ferc1_mismatched_fuels(pudl_out_ferc1):
 @pytest.mark.ferc1
 @pytest.mark.post_etl
 def test_fbp_ferc1_no_dupes(pudl_out_ferc1):
+    """Check for duplicate primary keys in FERC 1 fuel by plant."""
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
     # No duplicate [report_year, utility_id_ferc1, plant_name] combinations
     # Should use the mcoe_test.single_records() funciton for this... but I
@@ -206,6 +209,7 @@ def test_fbp_ferc1_no_dupes(pudl_out_ferc1):
 @pytest.mark.ferc1
 @pytest.mark.post_etl
 def test_fbp_ferc1_gas_price_distribution(pudl_out_ferc1):
+    """Check whether FERC 1 gas price distribution appears reasonable."""
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
     # Pure gas plants should have a certain fuel cost ($/mmBTU) distribution.
     pure_gas = fbp_ferc1[fbp_ferc1.gas_fraction_mmbtu >= 0.95]
@@ -231,6 +235,7 @@ def test_fbp_ferc1_gas_price_distribution(pudl_out_ferc1):
 @pytest.mark.ferc1
 @pytest.mark.post_etl
 def test_fbp_ferc1_coal_price_distribution(pudl_out_ferc1):
+    """Check whether FERC 1 coal price distribution appears reasonable."""
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
     # Pure coal plants should have a certain fuel cost ($/mmBTU) distribution.
     pure_coal = fbp_ferc1[fbp_ferc1.coal_fraction_mmbtu >= 0.85]
