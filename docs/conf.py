@@ -23,7 +23,7 @@ copyright = '2019, Catalyst Cooperative'
 author = 'Catalyst Cooperative'
 
 # The full version, including alpha/beta/rc tags
-release = pkg_resources.get_distribution('pudl').version
+release = pkg_resources.get_distribution('catalystcoop.pudl').version
 
 
 # -- General configuration ---------------------------------------------------
