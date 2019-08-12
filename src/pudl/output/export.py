@@ -851,7 +851,9 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
     return report
 
 
-def prep_pkg_bundle_directory(pudl_settings, pkg_bundle_dir_name):
+def prep_pkg_bundle_directory(pudl_settings,
+                              pkg_bundle_dir_name,
+                              clobber=False):
     """
     Create (or delete and create) data package directory.
 
@@ -875,14 +877,21 @@ def prep_pkg_bundle_directory(pudl_settings, pkg_bundle_dir_name):
         version = pkg_resources.get_distribution('catalystcoop.pudl').version
         pkg_bundle_dir = os.path.join(
             pudl_settings['datapackage_dir'], version)
-    if os.path.exists(pkg_bundle_dir):
+
+    if os.path.exists(pkg_bundle_dir) and (clobber is False):
+        raise AssertionError(
+            f'{pkg_bundle_dir} already exists and clobber is set to {clobber}')
+    elif os.path.exists(pkg_bundle_dir) and (clobber is True):
         shutil.rmtree(pkg_bundle_dir)
     os.mkdir(pkg_bundle_dir)
     return(pkg_bundle_dir)
 
 
-def generate_data_packages(pkg_bundle_settings, pudl_settings,
-                           debug=False, pkg_bundle_dir_name=None):
+def generate_data_packages(pkg_bundle_settings,
+                           pudl_settings,
+                           debug=False,
+                           pkg_bundle_dir_name=None,
+                           clobber=False):
     """
     Coordinate the generation of data packages.
 
@@ -905,6 +914,7 @@ def generate_data_packages(pkg_bundle_settings, pudl_settings,
         pkg_bundle_dir_name (string): name of directory you want the bundle of
             data packages to live. If this is set to None, the name will be
             defaulted to be the pudl packge version.
+        clobber (bool):
 
     Returns:
         tuple: A tuple containing generated metadata for the packages laid out
@@ -917,7 +927,7 @@ def generate_data_packages(pkg_bundle_settings, pudl_settings,
     uuid_pkgs = str(uuid.uuid4())
 
     pkg_bundle_dir = prep_pkg_bundle_directory(
-        pudl_settings, pkg_bundle_dir_name)
+        pudl_settings, pkg_bundle_dir_name, clobber=clobber)
 
     metas = {}
     for pkg_settings in validated_bundle_settings:
