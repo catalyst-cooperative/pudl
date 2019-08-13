@@ -7,21 +7,20 @@ import pudl
 import pudl.constants as pc
 
 
-def utilities_eia860(start_date=None, end_date=None, testing=False):
+def utilities_eia860(pudl_engine, pt, start_date=None, end_date=None):
     """Pulls all fields from the EIA860 Utilities table.
 
     Args:
+        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pt (sa.util._collections.immutabledict): a sqlalchemy metadata
+            dictionary of pudl tables
         start_date (date): Date to begin retrieving EIA 860 data.
         end_date (date): Date to end retrieving EIA 860 data.
-        testing (bool): If true, utilize data from the test database. If false,
-            connect to the live PUDL database.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
         Utilities table.
     """
-    pudl_engine = pudl.output.export.connect_db(testing=testing)
-    pt = pudl.output.pudltabl.get_table_meta()
     # grab the entity table
     utils_eia_tbl = pt['utilities_entity_eia']
     utils_eia_select = sa.sql.select([utils_eia_tbl])
@@ -70,22 +69,20 @@ def utilities_eia860(start_date=None, end_date=None, testing=False):
     return out_df
 
 
-def plants_eia860(start_date=None, end_date=None, testing=False):
+def plants_eia860(pudl_engine, pt, start_date=None, end_date=None):
     """Pulls all fields from the EIA Plants tables.
 
     Args:
+        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pt (sa.util._collections.immutabledict): a sqlalchemy metadata
+            dictionary of pudl tables
         start_date (date): Date to begin retrieving EIA 860 data.
         end_date (date): Date to end retrieving EIA 860 data.
-        testing (bool): If true, utilize data from the test database. If false,
-            connect to the live PUDL database.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
         Plants table.
     """
-    pudl_engine = pudl.output.export.connect_db(testing=testing)
-    pt = pudl.output.pudltabl.get_table_meta()
-
     # grab the entity table
     plants_eia_tbl = pt['plants_entity_eia']
     plants_eia_select = sa.sql.select([plants_eia_tbl])
@@ -134,7 +131,7 @@ def plants_eia860(start_date=None, end_date=None, testing=False):
     return out_df
 
 
-def plants_utils_eia860(start_date=None, end_date=None, testing=False):
+def plants_utils_eia860(pudl_engine, pt, start_date=None, end_date=None):
     """Creates a dataframe of plant and utility IDs and names from EIA 860.
 
     Returns a pandas dataframe with the following columns:
@@ -151,10 +148,11 @@ def plants_utils_eia860(start_date=None, end_date=None, testing=False):
     first or last years.
 
     Args:
+        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pt (sa.util._collections.immutabledict): a sqlalchemy metadata
+            dictionary of pudl tables
         start_date (date): Date to begin retrieving EIA 860 data.
         end_date (date): Date to end retrieving EIA 860 data.
-        testing (bool): If true, utilize data from the test database. If false,
-            connect to the live PUDL database.
 
     Returns:
         pandas.DataFrame: A DataFrame containing plant and utility IDs and
@@ -162,12 +160,14 @@ def plants_utils_eia860(start_date=None, end_date=None, testing=False):
     """
     # Contains the one-to-one mapping of EIA plants to their operators, but
     # we only have the 860 data integrated for 2011 forward right now.
-    plants_eia = plants_eia860(start_date=start_date,
-                               end_date=end_date,
-                               testing=testing)
-    utils_eia = utilities_eia860(start_date=start_date,
-                                 end_date=end_date,
-                                 testing=testing)
+    plants_eia = plants_eia860(pudl_engine,
+                               pt,
+                               start_date=start_date,
+                               end_date=end_date)
+    utils_eia = utilities_eia860(pudl_engine,
+                                 pt,
+                                 start_date=start_date,
+                                 end_date=end_date)
 
     # to avoid duplicate columns on the merge...
     plants_eia = plants_eia.drop(['utility_id_pudl', 'city',
@@ -193,7 +193,7 @@ def plants_utils_eia860(start_date=None, end_date=None, testing=False):
     return out_df
 
 
-def generators_eia860(start_date=None, end_date=None, testing=False):
+def generators_eia860(pudl_engine, pt, start_date=None, end_date=None):
     """Pulls all fields reported in the generators_eia860 table.
 
     Merge in other useful fields including the latitude & longitude of the
@@ -207,17 +207,16 @@ def generators_eia860(start_date=None, end_date=None, testing=False):
     year lag between EIA923 and EIA860 reporting)
 
     Args:
+        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         start_date (date): the earliest EIA 860 data to retrieve or synthesize
         end_date (date): the latest EIA 860 data to retrieve or synthesize
-        testing (bool): Connect to the live PUDL DB or the testing DB?
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
         Generators table.
 
     """
-    pudl_engine = pudl.output.export.connect_db(testing=testing)
-    pt = pudl.output.pudltabl.get_table_meta()
     # Almost all the info we need will come from here.
     gens_eia860_tbl = pt['generators_eia860']
     gens_eia860_select = sa.sql.select([gens_eia860_tbl, ])
@@ -279,9 +278,10 @@ That's too much forward filling.""")
     out_df.report_date = pd.to_datetime(out_df.report_date)
 
     # Bring in some generic plant & utility information:
-    pu_eia = plants_utils_eia860(start_date=start_date,
-                                 end_date=end_date,
-                                 testing=testing)
+    pu_eia = plants_utils_eia860(pudl_engine,
+                                 pt,
+                                 start_date=start_date,
+                                 end_date=end_date)
     out_df = pd.merge(out_df, pu_eia,
                       on=['report_date', 'plant_id_eia', 'plant_name'])
 
@@ -325,15 +325,14 @@ That's too much forward filling.""")
     return out_df
 
 
-def boiler_generator_assn_eia860(start_date=None, end_date=None,
-                                 testing=False):
+def boiler_generator_assn_eia860(pudl_engine, pt, start_date=None, end_date=None):
     """Pulls all fields from the EIA 860 boiler generator association table.
 
     Args:
+        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         start_date (date): Date to begin retrieving EIA 860 data.
         end_date (date): Date to end retrieving EIA 860 data.
-        testing (bool): If true, utilize data from the test database. If false,
-            connect to the live PUDL database.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields from the EIA
@@ -341,8 +340,6 @@ def boiler_generator_assn_eia860(start_date=None, end_date=None,
 
 
     """
-    pudl_engine = pudl.output.export.connect_db(testing=testing)
-    pt = pudl.output.pudltabl.get_table_meta()
     bga_eia860_tbl = pt['boiler_generator_assn_eia860']
     bga_eia860_select = sa.sql.select([bga_eia860_tbl])
 
@@ -362,28 +359,27 @@ def boiler_generator_assn_eia860(start_date=None, end_date=None,
     return out_df
 
 
-def ownership_eia860(start_date=None, end_date=None, testing=False):
+def ownership_eia860(pudl_engine, pt, start_date=None, end_date=None):
     """Pulls a useful set of fields related to ownership_eia860 table.
 
     Args:
+        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         start_date (date): date of the earliest data to retrieve
         end_date (date): date of the latest data to retrieve
-        testing (bool): True if we're connecting to the pudl_test DB, False
-            if we're connecting to the live PUDL DB. False by default.
     Returns:
         pandas.DataFrame: A DataFrame containing a useful set of fields related
         to the EIA 860 Ownership table.
 
     """
-    pudl_engine = pudl.output.export.connect_db(testing=testing)
-    pt = pudl.output.pudltabl.get_table_meta()
     o_eia860_tbl = pt['ownership_eia860']
     o_eia860_select = sa.sql.select([o_eia860_tbl, ])
     o_df = pd.read_sql(o_eia860_select, pudl_engine)
 
-    pu_eia = plants_utils_eia860(start_date=start_date,
-                                 end_date=end_date,
-                                 testing=testing)
+    pu_eia = plants_utils_eia860(pudl_engine,
+                                 pt,
+                                 start_date=start_date,
+                                 end_date=end_date)
     pu_eia = pu_eia[['plant_id_eia', 'plant_id_pudl', 'plant_name',
                      'utility_name', 'utility_id_pudl', 'report_date']]
 

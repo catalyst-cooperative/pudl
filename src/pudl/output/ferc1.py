@@ -6,21 +6,18 @@ import sqlalchemy as sa
 import pudl
 
 
-def plants_utils_ferc1(testing=False):
+def plants_utils_ferc1(pudl_engine, pt):
     """
     Build a dataframe of useful FERC Plant & Utility information.
 
     Args:
-        testing (bool) : True if we're using the pudl_test DB, False if we're
-            using the live PUDL DB.  False by default.
+        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
 
     Returns:
         pandas.DataFrame: A DataFrame containing useful FERC Form 1 Plant and
         Utility information.
     """
-    pudl_engine = pudl.output.export.connect_db(testing=testing)
-    pt = pudl.output.pudltabl.get_table_meta()
-
     utils_ferc_tbl = pt['utilities_ferc']
     utils_ferc_select = sa.sql.select([utils_ferc_tbl, ])
     utils_ferc = pd.read_sql(utils_ferc_select, pudl_engine)
@@ -33,7 +30,7 @@ def plants_utils_ferc1(testing=False):
     return out_df
 
 
-def plants_steam_ferc1(testing=False):
+def plants_steam_ferc1(pudl_engine, pt):
     """Selects and joins some useful fields from the FERC Form 1 steam table.
 
     Select the FERC Form 1 steam plant table entries, add in the reporting
@@ -41,20 +38,18 @@ def plants_steam_ferc1(testing=False):
     and integration with other tables that have PUDL IDs.
 
     Args:
-        testing (bool) : True if we're using the pudl_test DB, False if we're
-            using the live PUDL DB.  False by default.
+        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
 
     Returns:
         pandas.DataFrame: A DataFrame containing useful fields from the FERC
         Form 1 steam table.
     """
-    pudl_engine = pudl.output.export.connect_db(testing=testing)
-    pt = pudl.output.pudltabl.get_table_meta()
     steam_ferc1_tbl = pt['plants_steam_ferc1']
     steam_ferc1_select = sa.sql.select([steam_ferc1_tbl, ])
     steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
 
-    pu_ferc = plants_utils_ferc1(testing=testing)
+    pu_ferc = plants_utils_ferc1(pudl_engine, pt)
 
     out_df = pd.merge(steam_df, pu_ferc, on=['utility_id_ferc1', 'plant_name'])
 
@@ -73,7 +68,7 @@ def plants_steam_ferc1(testing=False):
     return out_df
 
 
-def fuel_ferc1(testing=False):
+def fuel_ferc1(pudl_engine, pt):
     """Pulls a useful dataframe related to FERC Form 1 fuel information.
 
     This function pulls the FERC Form 1 fuel data, and joins in the name of the
@@ -90,15 +85,13 @@ def fuel_ferc1(testing=False):
         Check whether this includes all of the fuel_ferc1 fields...
 
     Args:
-        testing (bool): True if we're using the pudl_test DB, False if we're
-            using the live PUDL DB.  False by default.
+        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
 
     Returns:
         pandas.DataFrame: A DataFrame containing useful FERC Form 1 fuel
         information.
     """
-    pudl_engine = pudl.output.export.connect_db(testing=testing)
-    pt = pudl.output.pudltabl.get_table_meta()
     fuel_ferc1_tbl = pt['fuel_ferc1']
     fuel_ferc1_select = sa.sql.select([fuel_ferc1_tbl, ])
     fuel_df = pd.read_sql(fuel_ferc1_select, pudl_engine)
@@ -121,7 +114,7 @@ def fuel_ferc1(testing=False):
     fuel_df['fuel_consumed_total_cost'] = \
         fuel_df['fuel_qty_burned'] * fuel_df['fuel_cost_per_unit_burned']
 
-    pu_ferc = plants_utils_ferc1(testing=testing)
+    pu_ferc = plants_utils_ferc1(pudl_engine, pt)
 
     out_df = pd.merge(fuel_df, pu_ferc, on=['utility_id_ferc1', 'plant_name'])
     out_df = out_df.drop('id', axis=1)
@@ -140,7 +133,7 @@ def fuel_ferc1(testing=False):
     return out_df
 
 
-def fuel_by_plant_ferc1(testing=False, thresh=0.5):
+def fuel_by_plant_ferc1(pudl_engine, pt, thresh=0.5):
     """Summarizes FERC fuel data by plant for output.
 
     This is mostly a wrapper around pudl.transform.ferc1.fuel_by_plant_ferc1
@@ -148,8 +141,8 @@ def fuel_by_plant_ferc1(testing=False, thresh=0.5):
     by utility_id_ferc1 and plant_name) related to fuel consumption.
 
     Args:
-        testing (bool): True if we're using the pudl_test DB, False if we're
-            using the live PUDL DB.  False by default.
+        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         thresh (float): Minimum fraction of fuel (cost and mmbtu) required in order
             for a plant to be assigned a primary fuel. Must be between 0.5 and 1.0.
             default value is 0.5.
@@ -167,11 +160,10 @@ def fuel_by_plant_ferc1(testing=False, thresh=0.5):
     ]
 
     fbp_df = (
-        pd.read_sql_table('fuel_ferc1',
-                          pudl.output.export.connect_db(testing=testing)).
+        pd.read_sql_table('fuel_ferc1', pudl_engine).
         drop(['id'], axis=1).
         pipe(pudl.transform.ferc1.fuel_by_plant_ferc1, thresh=thresh).
-        merge(plants_utils_ferc1(testing=testing),
+        merge(plants_utils_ferc1(pudl_engine, pt),
               on=['utility_id_ferc1', 'plant_name']).
         pipe(pudl.helpers.organize_cols, first_cols)
     )

@@ -43,7 +43,7 @@ class PudlTabl(object):
     """A class for compiling common useful tabular outputs from the PUDL DB."""
 
     def __init__(self, freq=None, testing=False,
-                 start_date=None, end_date=None):
+                 start_date=None, end_date=None, pudl_engine=None):
         """
         Initialize the PUDL output object.
 
@@ -61,6 +61,8 @@ class PudlTabl(object):
             start_date (date): Beginning date for data to pull from the
                 PUDL DB.
             end_date (date): End date for data to pull from the PUDL DB.
+            pudl_engine (sa.engine.Engine): A connection to the sqlalchemy
+                database.
 
         """
         self.freq = freq
@@ -81,7 +83,11 @@ class PudlTabl(object):
         else:
             # Make sure it's a date... and not a string.
             self.end_date = pd.to_datetime(end_date)
-
+        if pudl_engine is None:
+            self.pudl_engine = pudl.output.export.connect_db()
+        else:
+            self.pudl_engine = pudl_engine
+        self.pt = get_table_meta(self.pudl_engine)
         # We populate this library of dataframes as they are generated, and
         # allow them to persist, in case they need to be used again.
         self._dfs = {
@@ -123,9 +129,10 @@ class PudlTabl(object):
         """
         if update or self._dfs['pu_eia'] is None:
             self._dfs['pu_eia'] = pudl.output.eia860.plants_utils_eia860(
+                self.pudl_engine,
+                self.pt,
                 start_date=self.start_date,
-                end_date=self.end_date,
-                testing=self.testing)
+                end_date=self.end_date)
         return self._dfs['pu_eia']
 
     def pu_ferc1(self, update=False):
@@ -140,7 +147,7 @@ class PudlTabl(object):
         """
         if update or self._dfs['pu_ferc1'] is None:
             self._dfs['pu_ferc1'] = pudl.output.ferc1.plants_utils_ferc1(
-                testing=self.testing)
+                self.pudl_engine, self.pt)
         return self._dfs['pu_ferc1']
 
     def utils_eia860(self, update=False):
@@ -155,9 +162,10 @@ class PudlTabl(object):
         """
         if update or self._dfs['utils_eia860'] is None:
             self._dfs['utils_eia860'] = pudl.output.eia860.utilities_eia860(
+                self.pudl_engine,
+                self.pt,
                 start_date=self.start_date,
-                end_date=self.end_date,
-                testing=self.testing)
+                end_date=self.end_date)
         return self._dfs['utils_eia860']
 
     def bga_eia860(self, update=False):
@@ -173,9 +181,10 @@ class PudlTabl(object):
         if update or self._dfs['bga_eia860'] is None:
             self._dfs['bga_eia860'] = \
                 pudl.output.eia860.boiler_generator_assn_eia860(
+                    self.pudl_engine,
+                    self.pt,
                     start_date=self.start_date,
-                    end_date=self.end_date,
-                    testing=self.testing)
+                    end_date=self.end_date)
         return self._dfs['bga_eia860']
 
     def plants_eia860(self, update=False):
@@ -190,9 +199,10 @@ class PudlTabl(object):
         """
         if update or self._dfs['plants_eia860'] is None:
             self._dfs['plants_eia860'] = pudl.output.eia860.plants_eia860(
+                self.pudl_engine,
+                self.pt,
                 start_date=self.start_date,
-                end_date=self.end_date,
-                testing=self.testing)
+                end_date=self.end_date,)
         return self._dfs['plants_eia860']
 
     def gens_eia860(self, update=False):
@@ -207,9 +217,10 @@ class PudlTabl(object):
         """
         if update or self._dfs['gens_eia860'] is None:
             self._dfs['gens_eia860'] = pudl.output.eia860.generators_eia860(
+                self.pudl_engine,
+                self.pt,
                 start_date=self.start_date,
-                end_date=self.end_date,
-                testing=self.testing)
+                end_date=self.end_date)
         return self._dfs['gens_eia860']
 
     def own_eia860(self, update=False):
@@ -224,9 +235,10 @@ class PudlTabl(object):
         """
         if update or self._dfs['own_eia860'] is None:
             self._dfs['own_eia860'] = pudl.output.eia860.ownership_eia860(
+                self.pudl_engine,
+                self.pt,
                 start_date=self.start_date,
-                end_date=self.end_date,
-                testing=self.testing)
+                end_date=self.end_date)
         return self._dfs['own_eia860']
 
     def gf_eia923(self, update=False):
@@ -242,10 +254,11 @@ class PudlTabl(object):
         if update or self._dfs['gf_eia923'] is None:
             self._dfs['gf_eia923'] = \
                 pudl.output.eia923.generation_fuel_eia923(
+                    self.pudl_engine,
+                    self.pt,
                     freq=self.freq,
                     start_date=self.start_date,
-                    end_date=self.end_date,
-                    testing=self.testing)
+                    end_date=self.end_date)
         return self._dfs['gf_eia923']
 
     def frc_eia923(self, update=False):
@@ -261,10 +274,11 @@ class PudlTabl(object):
         if update or self._dfs['frc_eia923'] is None:
             self._dfs['frc_eia923'] = \
                 pudl.output.eia923.fuel_receipts_costs_eia923(
+                    self.pudl_engine,
+                    self.pt,
                     freq=self.freq,
                     start_date=self.start_date,
-                    end_date=self.end_date,
-                    testing=self.testing)
+                    end_date=self.end_date)
         return self._dfs['frc_eia923']
 
     def bf_eia923(self, update=False):
@@ -279,10 +293,11 @@ class PudlTabl(object):
         """
         if update or self._dfs['bf_eia923'] is None:
             self._dfs['bf_eia923'] = pudl.output.eia923.boiler_fuel_eia923(
+                self.pudl_engine,
+                self.pt,
                 freq=self.freq,
                 start_date=self.start_date,
-                end_date=self.end_date,
-                testing=self.testing)
+                end_date=self.end_date)
         return self._dfs['bf_eia923']
 
     def gen_eia923(self, update=False):
@@ -297,10 +312,11 @@ class PudlTabl(object):
         """
         if update or self._dfs['gen_eia923'] is None:
             self._dfs['gen_eia923'] = pudl.output.eia923.generation_eia923(
+                self.pudl_engine,
+                self.pt,
                 freq=self.freq,
                 start_date=self.start_date,
-                end_date=self.end_date,
-                testing=self.testing)
+                end_date=self.end_date)
         return self._dfs['gen_eia923']
 
     def plants_steam_ferc1(self, update=False):
@@ -315,7 +331,7 @@ class PudlTabl(object):
         """
         if update or self._dfs['plants_steam_ferc1'] is None:
             self._dfs['plants_steam_ferc1'] = \
-                pudl.output.ferc1.plants_steam_ferc1(testing=self.testing)
+                pudl.output.ferc1.plants_steam_ferc1(self.pudl_engine, self.pt)
         return self._dfs['plants_steam_ferc1']
 
     def fuel_ferc1(self, update=False):
@@ -330,7 +346,7 @@ class PudlTabl(object):
         """
         if update or self._dfs['fuel_ferc1'] is None:
             self._dfs['fuel_ferc1'] = pudl.output.ferc1.fuel_ferc1(
-                testing=self.testing)
+                self.pudl_engine, self.pt)
         return self._dfs['fuel_ferc1']
 
     def fbp_ferc1(self, update=False):
@@ -345,7 +361,7 @@ class PudlTabl(object):
         """
         if update or self._dfs['fbp_ferc1'] is None:
             self._dfs['fbp_ferc1'] = pudl.output.ferc1.fuel_by_plant_ferc1(
-                testing=self.testing)
+                self.pudl_engine, self.pt)
         return self._dfs['fbp_ferc1']
 
     def bga(self, update=False):
@@ -360,9 +376,10 @@ class PudlTabl(object):
         """
         if update or self._dfs['bga'] is None:
             self._dfs['bga'] = pudl.output.glue.boiler_generator_assn(
+                self.pudl_engine,
+                self.pt,
                 start_date=self.start_date,
-                end_date=self.end_date,
-                testing=self.testing)
+                end_date=self.end_date)
         return self._dfs['bga']
 
     def hr_by_gen(self, update=False):
@@ -467,9 +484,8 @@ class PudlTabl(object):
         return self._dfs['mcoe']
 
 
-def get_table_meta():
+def get_table_meta(pudl_engine):
     """Grab the pudl sqlitie database table metadata."""
-    pudl_engine = pudl.output.export.connect_db()
     md = sa.MetaData()
     md.reflect(pudl_engine)
     pt = md.tables
