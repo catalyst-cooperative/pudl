@@ -45,8 +45,7 @@ pt = pudl.models.entities.PUDLBase.metadata.tables
 class PudlTabl(object):
     """A class for compiling common useful tabular outputs from the PUDL DB."""
 
-    def __init__(self, freq=None, testing=False,
-                 start_date=None, end_date=None):
+    def __init__(self, pudl_engine, freq=None, start_date=None, end_date=None):
         """
         Initialize the PUDL output object.
 
@@ -58,16 +57,16 @@ class PudlTabl(object):
         pull substantial data and do a bunch of calculations.
 
         Args:
-            freq (str): String describing time frequency at which to aggregate the
-                reported data. E.g. 'MS' (monthly start).
-            testing (bool): Whether to use the live or testing PUDL DB.
+            pudl_engine (sqlalchemy.engine.Engine):
+            freq (str): String describing time frequency at which to aggregate
+                the reported data. E.g. 'MS' (monthly start).
             start_date (date): Beginning date for data to pull from the
                 PUDL DB.
             end_date (date): End date for data to pull from the PUDL DB.
 
         """
+        self.pudl_engine = pudl_engine
         self.freq = freq
-        self.testing = testing
 
         if start_date is None:
             self.start_date = \
@@ -126,9 +125,9 @@ class PudlTabl(object):
         """
         if update or self._dfs['pu_eia'] is None:
             self._dfs['pu_eia'] = pudl.output.eia860.plants_utils_eia860(
+                pudl_engine=self.pudl_engine,
                 start_date=self.start_date,
-                end_date=self.end_date,
-                testing=self.testing)
+                end_date=self.end_date)
         return self._dfs['pu_eia']
 
     def pu_ferc1(self, update=False):
@@ -143,7 +142,7 @@ class PudlTabl(object):
         """
         if update or self._dfs['pu_ferc1'] is None:
             self._dfs['pu_ferc1'] = pudl.output.ferc1.plants_utils_ferc1(
-                testing=self.testing)
+                pudl_engine=self.pudl_engine)
         return self._dfs['pu_ferc1']
 
     def utils_eia860(self, update=False):
@@ -160,7 +159,7 @@ class PudlTabl(object):
             self._dfs['utils_eia860'] = pudl.output.eia860.utilities_eia860(
                 start_date=self.start_date,
                 end_date=self.end_date,
-                testing=self.testing)
+                pudl_engine=self.pudl_engine)
         return self._dfs['utils_eia860']
 
     def bga_eia860(self, update=False):
@@ -178,7 +177,7 @@ class PudlTabl(object):
                 pudl.output.eia860.boiler_generator_assn_eia860(
                     start_date=self.start_date,
                     end_date=self.end_date,
-                    testing=self.testing)
+                    pudl_engine=self.pudl_engine)
         return self._dfs['bga_eia860']
 
     def plants_eia860(self, update=False):
@@ -195,7 +194,7 @@ class PudlTabl(object):
             self._dfs['plants_eia860'] = pudl.output.eia860.plants_eia860(
                 start_date=self.start_date,
                 end_date=self.end_date,
-                testing=self.testing)
+                pudl_engine=self.pudl_engine)
         return self._dfs['plants_eia860']
 
     def gens_eia860(self, update=False):
@@ -212,7 +211,7 @@ class PudlTabl(object):
             self._dfs['gens_eia860'] = pudl.output.eia860.generators_eia860(
                 start_date=self.start_date,
                 end_date=self.end_date,
-                testing=self.testing)
+                pudl_engine=self.pudl_engine)
         return self._dfs['gens_eia860']
 
     def own_eia860(self, update=False):
@@ -229,7 +228,7 @@ class PudlTabl(object):
             self._dfs['own_eia860'] = pudl.output.eia860.ownership_eia860(
                 start_date=self.start_date,
                 end_date=self.end_date,
-                testing=self.testing)
+                pudl_engine=self.pudl_engine)
         return self._dfs['own_eia860']
 
     def gf_eia923(self, update=False):
@@ -248,7 +247,7 @@ class PudlTabl(object):
                     freq=self.freq,
                     start_date=self.start_date,
                     end_date=self.end_date,
-                    testing=self.testing)
+                    pudl_engine=self.pudl_engine)
         return self._dfs['gf_eia923']
 
     def frc_eia923(self, update=False):
@@ -267,7 +266,7 @@ class PudlTabl(object):
                     freq=self.freq,
                     start_date=self.start_date,
                     end_date=self.end_date,
-                    testing=self.testing)
+                    pudl_engine=self.pudl_engine)
         return self._dfs['frc_eia923']
 
     def bf_eia923(self, update=False):
@@ -285,7 +284,7 @@ class PudlTabl(object):
                 freq=self.freq,
                 start_date=self.start_date,
                 end_date=self.end_date,
-                testing=self.testing)
+                pudl_engine=self.pudl_engine)
         return self._dfs['bf_eia923']
 
     def gen_eia923(self, update=False):
@@ -303,7 +302,7 @@ class PudlTabl(object):
                 freq=self.freq,
                 start_date=self.start_date,
                 end_date=self.end_date,
-                testing=self.testing)
+                pudl_engine=self.pudl_engine)
         return self._dfs['gen_eia923']
 
     def plants_steam_ferc1(self, update=False):
@@ -318,7 +317,8 @@ class PudlTabl(object):
         """
         if update or self._dfs['plants_steam_ferc1'] is None:
             self._dfs['plants_steam_ferc1'] = \
-                pudl.output.ferc1.plants_steam_ferc1(testing=self.testing)
+                pudl.output.ferc1.plants_steam_ferc1(
+                    pudl_engine=self.pudl_engine)
         return self._dfs['plants_steam_ferc1']
 
     def fuel_ferc1(self, update=False):
@@ -333,7 +333,7 @@ class PudlTabl(object):
         """
         if update or self._dfs['fuel_ferc1'] is None:
             self._dfs['fuel_ferc1'] = pudl.output.ferc1.fuel_ferc1(
-                testing=self.testing)
+                pudl_engine=self.pudl_engine)
         return self._dfs['fuel_ferc1']
 
     def fbp_ferc1(self, update=False):
@@ -348,7 +348,7 @@ class PudlTabl(object):
         """
         if update or self._dfs['fbp_ferc1'] is None:
             self._dfs['fbp_ferc1'] = pudl.output.ferc1.fuel_by_plant_ferc1(
-                testing=self.testing)
+                pudl_engine=self.pudl_engine)
         return self._dfs['fbp_ferc1']
 
     def bga(self, update=False):
@@ -365,7 +365,7 @@ class PudlTabl(object):
             self._dfs['bga'] = pudl.output.glue.boiler_generator_assn(
                 start_date=self.start_date,
                 end_date=self.end_date,
-                testing=self.testing)
+                pudl_engine=self.pudl_engine)
         return self._dfs['bga']
 
     def hr_by_gen(self, update=False):
@@ -438,7 +438,6 @@ class PudlTabl(object):
         to EIA are included. They are attibuted based on the unit-level heat
         rates and fuel costs.
 
-
         Args:
             update (bool):
             min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any MCOE
@@ -449,15 +448,17 @@ class PudlTabl(object):
                 returning. This allows the user to exclude generators that
                 aren't being used enough to have valid.
             min_fuel_cost_per_mwh: minimum fuel cost on a per MWh basis that is
-                required for a generator record to be considered valid. For some
-                reason there are now a large number of $0 fuel cost records,
-                which previously would have been NaN.
+                required for a generator record to be considered valid. For
+                some reason there are now a large number of $0 fuel cost
+                records, which previously would have been NaN.
             max_cap_fact: maximum generator capacity factor. Generator records
                 with a lower capacity factor will be filtered out before
                 returning. This allows the user to exclude generators that
                 aren't being used enough to have valid.
 
         Returns:
+            :class:`pandas.DataFrame`: a compilation of generator attributes,
+            including fuel costs per MWh.
 
         """
         if update or self._dfs['mcoe'] is None:

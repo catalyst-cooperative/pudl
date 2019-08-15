@@ -7,11 +7,12 @@ import shutil
 
 import pandas as pd
 import pytest
+import sqlalchemy as sa
 
 import pudl
 from pudl import constants as pc
-from pudl.datastore import datastore
 from pudl.output.pudltabl import PudlTabl
+from pudl.workspace import datastore
 
 logger = logging.getLogger(__name__)
 
@@ -104,39 +105,30 @@ def fast_tests(request):
     return fast_tests
 
 
-@pytest.fixture(
-    scope='session',
-    params=[
-        PudlTabl(start_date=START_DATE_FERC1,
-                 end_date=END_DATE_FERC1,
-                 freq='AS', testing=False),
-    ],
-    ids=['ferc1_annual']
-)
-def pudl_out_ferc1(live_pudl_db, request):
+@pytest.fixture(scope='session', params=['AS'], ids=['ferc1_annual'])
+def pudl_out_ferc1(live_pudl_db, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for FERC 1 tests."""
     if not live_pudl_db:
         raise AssertionError("Output tests only work with a live PUDL DB.")
-    return request.param
+    return PudlTabl(pudl_engine=pudl_engine,
+                    start_date=START_DATE_FERC1,
+                    end_date=END_DATE_FERC1,
+                    freq=request.param)
 
 
 @pytest.fixture(
-    scope='session',
-    params=[
-        PudlTabl(start_date=START_DATE_EIA,
-                 end_date=END_DATE_EIA,
-                 freq='AS', testing=False),
-        PudlTabl(start_date=START_DATE_EIA,
-                 end_date=END_DATE_EIA,
-                 freq='MS', testing=False)
-    ],
-    ids=['eia_annual', 'eia_monthly']
+    scope="session",
+    params=["AS", "MS"],
+    ids=["eia_annual", "eia_monthly"]
 )
-def pudl_out_eia(live_pudl_db, request):
+def pudl_out_eia(live_pudl_db, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for EIA tests."""
     if not live_pudl_db:
         raise AssertionError("Output tests only work with a live PUDL DB.")
-    return request.param
+    return PudlTabl(pudl_engine=pudl_engine,
+                    start_date=START_DATE_EIA,
+                    end_date=END_DATE_EIA,
+                    freq=request.param)
 
 
 @pytest.fixture(scope='session')
@@ -156,9 +148,7 @@ def ferc1_engine(live_ferc_db, pudl_settings_fixture,
             pudl_settings=pudl_settings_fixture)
 
     # Grab a connection to the freshly populated database, and hand it off.
-    engine = pudl.extract.ferc1.connect_db(
-        pudl_settings=pudl_settings_fixture
-    )
+    engine = sa.create_engine(pudl_settings_fixture["ferc1_db"])
     yield engine
 
     if not live_ferc_db:
@@ -209,7 +199,7 @@ def pudl_settings_fixture(request, tmpdir_factory):
 
     # Grab the user configuration, if it exists:
     try:
-        pudl_auto = pudl.settings.init()
+        pudl_auto = pudl.workspace.setup.get_defaults()
     except FileNotFoundError:
         pass
 
@@ -233,8 +223,11 @@ def pudl_settings_fixture(request, tmpdir_factory):
     logger.info(f"Using PUDL_IN={pudl_in}")
     logger.info(f"Using PUDL_OUT={pudl_out}")
 
-    pudl_settings = pudl.settings.init(pudl_in=pudl_in, pudl_out=pudl_out)
-    pudl.settings.setup(pudl_settings)
+    pudl_settings = pudl.workspace.setup.derive_paths(
+        pudl_in=pudl_in,
+        pudl_out=pudl_out)
+
+    pudl.workspace.setup.init(pudl_in=pudl_in, pudl_out=pudl_out)
 
     return pudl_settings
 
@@ -319,24 +312,24 @@ def datastore_fixture(pudl_settings_fixture, data_scope):
         )
         states = []
     else:
-        sources_to_update.extend(['ferc1', 'epacems'])
-        years_by_source['ferc1'] = [data_scope['refyear'], ]
-        years_by_source['epacems'] = [data_scope['refyear'], ]
-        states = ['id']
+        sources_to_update.extend(["ferc1", "epacems"])
+        years_by_source["ferc1"] = [data_scope["refyear"], ]
+        years_by_source["epacems"] = [data_scope["refyear"], ]
+        states = ["id"]
 
     # Download the test year for each dataset that we're downloading...
     datastore.parallel_update(
         sources=sources_to_update,
         years_by_source=years_by_source,
         states=states,
-        pudl_settings=pudl_settings_fixture,
+        data_dir=pudl_settings_fixture["data_dir"],
     )
 
     pudl.helpers.verify_input_files(
-        ferc1_years=years_by_source['ferc1'],
-        eia923_years=years_by_source['eia923'],
-        eia860_years=years_by_source['eia860'],
-        epacems_years=years_by_source['epacems'],
+        ferc1_years=years_by_source["ferc1"],
+        eia923_years=years_by_source["eia923"],
+        eia860_years=years_by_source["eia860"],
+        epacems_years=years_by_source["epacems"],
         epacems_states=states,
-        data_dir=pudl_settings_fixture['data_dir'],
+        data_dir=pudl_settings_fixture["data_dir"],
     )

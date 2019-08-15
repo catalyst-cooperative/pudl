@@ -30,7 +30,6 @@ import pudl.models.epacems
 import pudl.models.epaipm
 import pudl.models.ferc1
 import pudl.models.glue
-import pudl.settings
 
 logger = logging.getLogger(__name__)
 
@@ -41,15 +40,12 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 
 
-def connect_db(pudl_settings=None, testing=False):
+def connect_db(pudl_settings, testing=False):
     """Connect to the PUDL database using global settings from settings.py."""
-    if pudl_settings is None:
-        pudl_settings = pudl.settings.init()
     if testing:
-        return sa.create_engine(
-            sa.engine.url.URL(**pudl_settings['db_pudl_test']))
-    return sa.create_engine(
-        sa.engine.url.URL(**pudl_settings['db_pudl']))
+        return sa.create_engine(pudl_settings['pudl_test_db'])
+    # else:
+    return sa.create_engine(pudl_settings['pudl_db'])
 
 
 def _create_tables(engine):
@@ -569,7 +565,8 @@ def _etl_epaipm(pudl_engine, epaipm_tables, csvdir, keep_csv, pudl_settings):
     )
 
 
-def init_db(ferc1_tables=None,
+def init_db(pudl_settings,
+            ferc1_tables=None,
             ferc1_years=None,
             eia923_tables=None,
             eia923_years=None,
@@ -579,7 +576,6 @@ def init_db(ferc1_tables=None,
             epacems_states=None,
             epaipm_tables=None,
             pudl_testing=None,
-            pudl_settings=None,
             debug=None,
             csvdir=None,
             keep_csv=None):
@@ -645,9 +641,6 @@ def init_db(ferc1_tables=None,
                 raise AssertionError(
                     f"Unrecogized EPA IPM table: {table}"
                 )
-
-    if pudl_settings is None:
-        pudl_settings = pudl.settings.init()
 
     # Connect to the PUDL DB, wipe out & re-create tables:
     pudl_engine = connect_db(pudl_settings=pudl_settings, testing=pudl_testing)

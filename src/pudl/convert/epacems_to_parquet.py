@@ -25,13 +25,14 @@ For more information on working with these systems check out:
 
 import argparse
 import logging
-import os
+import pathlib
 import sys
 from functools import partial
 
 import coloredlogs
 import pyarrow as pa
 import pyarrow.parquet as pq
+import yaml
 
 import pudl
 import pudl.constants as pc
@@ -198,6 +199,17 @@ def parse_command_line(argv):
 
     """
     parser = argparse.ArgumentParser()
+    defaults = pudl.workspace.get_defaults()
+    if defaults["pudl_in"] is None or defaults["pudl_out"] is None:
+        default_data_dir = None
+        default_parquet_dir = None
+    else:
+        default_settings = pudl.workspace.derive_paths(
+            pudl_in=defaults["pudl_in"],
+            pudl_out=defaults["pudl_out"]
+        )
+        default_data_dir = default_settings["data_dir"]
+        default_parquet_dir = default_settings["parquet_dir"]
     parser.add_argument(
         '-c',
         '--compression',
@@ -213,14 +225,14 @@ def parse_command_line(argv):
         type=str,
         help="""Path to the top level datastore directory. (default:
         %(default)s).""",
-        default=pudl.settings.init()['data_dir']
+        default=default_data_dir,
     )
     parser.add_argument(
         '-o',
         '--out_dir',
         type=str,
         help="""Path to the output directory. (default: %(default)s).""",
-        default=os.path.join(pudl.settings.init()['parquet_dir'], 'epacems')
+        default=str(pathlib.Path(default_parquet_dir, "epacems"))
     )
     parser.add_argument(
         '-y',
@@ -263,20 +275,28 @@ def parse_command_line(argv):
 
 
 def main():
-    """Converts zipped EPA CEMS Hourly data to Apache Parquet format."""
+    """Convert zipped EPA CEMS Hourly data to Apache Parquet format."""
     # Display logged output from the PUDL package:
     logger = logging.getLogger(pudl.__name__)
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
     coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
 
     args = parse_command_line(sys.argv)
-    script_settings = pudl.settings.read_script_settings()
-    logger.info(f"PUDL_IN={script_settings['pudl_in']}")
-    logger.info(f"PUDL_OUT={script_settings['pudl_out']}")
-    pudl_settings = pudl.settings.init(
-        pudl_in=script_settings['pudl_in'],
-        pudl_out=script_settings['pudl_out'],
-    )
+    with pathlib.Path(args.settings_file).open() as f:
+        script_settings = yaml.safe_load(f)
+
+    try:
+        pudl_in = script_settings["pudl_in"]
+    except KeyError:
+        pudl_in = pudl.workspace.get_defaults()["pudl_in"]
+    try:
+        pudl_out = script_settings["pudl_out"]
+    except KeyError:
+        pudl_out = pudl.workspace.get_defaults()["pudl_out"]
+
+    pudl_settings = pudl.workspace.derive_paths(
+        pudl_in=pudl_in, pudl_out=pudl_out)
+
     # Make sure the required input files are available before we go doing a
     # bunch of work cloning the database...
     logger.info("Checking for required EPA CEMS input files...")

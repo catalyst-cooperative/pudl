@@ -2,9 +2,11 @@
 
 import argparse
 import logging
+import pathlib
 import sys
 
 import coloredlogs
+import yaml
 
 import pudl
 
@@ -30,26 +32,36 @@ def parse_command_line(argv):
 
 
 def main():
-    """The main function."""
+    """Parse command line and initialize PUDL DB."""
     # Display logged output from the PUDL package:
     logger = logging.getLogger(pudl.__name__)
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
     coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
 
     args = parse_command_line(sys.argv)
-    script_settings = pudl.settings.read_script_settings(args.settings_file)
-    pudl_settings = pudl.settings.init(
-        pudl_in=script_settings['pudl_in'],
-        pudl_out=script_settings['pudl_out']
-    )
+    with pathlib.Path(args.settings_file).open() as f:
+        script_settings = yaml.safe_load(f)
+
+    try:
+        pudl_in = script_settings["pudl_in"]
+    except KeyError:
+        pudl_in = pudl.workspace.get_defaults()["pudl_in"]
+    try:
+        pudl_out = script_settings["pudl_out"]
+    except KeyError:
+        pudl_out = pudl.workspace.get_defaults()["pudl_out"]
+
+    pudl_settings = pudl.workspace.derive_paths(
+        pudl_in=pudl_in, pudl_out=pudl_out)
+
     logger.info(f"Checking for input files in {pudl_settings['data_dir']}")
     pudl.helpers.verify_input_files(
-        ferc1_years=script_settings['ferc1_years'],
-        eia923_years=script_settings['eia923_years'],
-        eia860_years=script_settings['eia860_years'],
-        epacems_years=script_settings['epacems_years'],
-        epacems_states=script_settings['epacems_states'],
-        data_dir=pudl_settings['data_dir'],
+        ferc1_years=script_settings["ferc1_years"],
+        eia923_years=script_settings["eia923_years"],
+        eia860_years=script_settings["eia860_years"],
+        epacems_years=script_settings["epacems_years"],
+        epacems_states=script_settings["epacems_states"],
+        data_dir=pudl_settings["data_dir"],
     )
 
     pudl.init.init_db(ferc1_tables=script_settings['ferc1_tables'],

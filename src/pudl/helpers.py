@@ -900,7 +900,7 @@ def verify_input_files(ferc1_years,
         for s in epacems_states:
             for m in range(1, 13):
                 try:
-                    p = pudl.datastore.datastore.path(
+                    p = pudl.workspace.datastore.path(
                         source='epacems',
                         year=y,
                         month=m,

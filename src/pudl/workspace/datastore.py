@@ -1,4 +1,5 @@
-"""Download the original public data sources used by PUDL.
+"""
+Download the original public data sources used by PUDL.
 
 This module provides programmatic, platform-independent access to the original
 data sources which are used to populate the PUDL database. Those sources
@@ -21,13 +22,13 @@ import warnings
 import zipfile
 
 import pudl.constants as pc
-import pudl.settings
 
 logger = logging.getLogger(__name__)
 
 
 def assert_valid_param(source, year, month=None, state=None, check_month=None):
-    """Checks whether parameters used in various datastore functions are valid.
+    """
+    Check whether parameters used in various datastore functions are valid.
 
     Args:
         source (str): A string indicating which data source we are going to be
@@ -57,6 +58,7 @@ def assert_valid_param(source, year, month=None, state=None, check_month=None):
         AssertionError: If the source is not found in valid base download URLs.
         AssertionError: If the month is not valid (1-12).
         AssertionError: If the state is not a valid US state abbreviation.
+
     """
     if source not in pc.data_sources:
         raise AssertionError(
@@ -89,7 +91,7 @@ def assert_valid_param(source, year, month=None, state=None, check_month=None):
 
 
 def source_url(source, year, month=None, state=None, table=None):
-    """Constructs a download URL for the specified federal data source and year.
+    """Construct a download URL for the specified federal data source and year.
 
     Args:
         source (str): A string indicating which data source we are going to be
@@ -113,6 +115,7 @@ def source_url(source, year, month=None, state=None, table=None):
     Returns:
         download_url (str): a full URL from which the requested data may be
         obtained
+
     """
     assert_valid_param(source=source, year=year, month=month, state=state)
 
@@ -158,7 +161,7 @@ def source_url(source, year, month=None, state=None, table=None):
 
 
 def path(source, data_dir, year=None, month=None, state=None, file=True):
-    """Constructs a variety of local datastore paths for a given data source.
+    """Construct a variety of local datastore paths for a given data source.
 
     PUDL expects the original data it ingests to be organized in a particular
     way. This function allows you to easily construct useful paths that refer
@@ -194,6 +197,7 @@ def path(source, data_dir, year=None, month=None, state=None, file=True):
 
     Returns:
         str: the path to requested resource within the local PUDL datastore.
+
     """
     assert_valid_param(source=source, year=year, month=month, state=state,
                        check_month=False)
@@ -252,7 +256,7 @@ def path(source, data_dir, year=None, month=None, state=None, file=True):
 
 
 def paths_for_year(source, data_dir, year=None, states=None, file=True):
-    """Gets all paths for a given source and year. See path() for details.
+    """Derive all paths for a given source and year. See path() for details.
 
     Args:
         source (str): A string indicating which data source we are going to be
@@ -277,6 +281,7 @@ def paths_for_year(source, data_dir, year=None, states=None, file=True):
 
     Returns:
         str: the path to requested resource within the local PUDL datastore.
+
     """
     # TODO: I'm not sure this is the best construction, since it relies on
     # the order being the same here as in the url list comprehension
@@ -297,7 +302,7 @@ def paths_for_year(source, data_dir, year=None, states=None, file=True):
 
 
 def download(source, year, states, data_dir):
-    """Downloads the original data for the specified data source and year.
+    """Download the original data for the specified data source and year.
 
     Given a data source and the desired year of data, download the original
     data files from the appropriate federal website, and place them in a
@@ -324,6 +329,7 @@ def download(source, year, states, data_dir):
 
     Todo:
         Return to
+
     """
     assert_valid_param(source=source, year=year, check_month=False)
 
@@ -425,7 +431,9 @@ def _download_ftp(src_urls, tmp_files, allow_retry=True):
         elif allow_retry and src_urls != url_to_retry:
             # If there were multiple URLs and at least one didn't fail,
             # keep retrying until all fail or all succeed.
-            return _download_ftp(url_to_retry, tmp_to_retry, allow_retry=allow_retry)
+            return _download_ftp(url_to_retry,
+                                 tmp_to_retry,
+                                 allow_retry=allow_retry)
         if url_to_retry == src_urls:
             err_msg = (
                 f"Download failed for all {num_failed} URLs. " +
@@ -444,7 +452,9 @@ def _download_ftp(src_urls, tmp_files, allow_retry=True):
 
 
 def _download_default(src_urls, tmp_files, allow_retry=True):
-    """Downloads URLs to files. Designed to be called by `download` function.
+    """Download URLs to files. Designed to be called by `download` function.
+
+    If the file cannot be downloaded, the program will issue a warning.
 
     Args:
         src_urls (list of str): the source URLs to download.
@@ -458,7 +468,6 @@ def _download_default(src_urls, tmp_files, allow_retry=True):
     Todo:
         Replace assert statement
 
-    If the file cannot be downloaded, the program will issue a warning.
     """
     assert len(src_urls) == len(tmp_files) > 0
     url_to_retry = []
@@ -479,20 +488,26 @@ def _download_default(src_urls, tmp_files, allow_retry=True):
     if num_failed > 0:
         if allow_retry and len(src_urls) == 1:
             # If there was only one URL and it failed, retry once.
-            return _download_default(url_to_retry, tmp_to_retry, allow_retry=False)
+            return _download_default(url_to_retry,
+                                     tmp_to_retry,
+                                     allow_retry=False)
         elif allow_retry and src_urls != url_to_retry:
             # If there were multiple URLs and at least one didn't fail,
             # keep retrying until all fail or all succeed.
-            return _download_default(url_to_retry, tmp_to_retry, allow_retry=allow_retry)
+            return _download_default(url_to_retry,
+                                     tmp_to_retry,
+                                     allow_retry=allow_retry)
         if url_to_retry == src_urls:
-            err_msg = f"ERROR: Download failed for all {num_failed} URLs. Maybe the server is down?"
+            err_msg = f"""ERROR: Download failed for all {num_failed} URLs.
+Maybe the server is down?"""
         if not allow_retry:
-            err_msg = f"ERROR: Download failed for {num_failed} URLs and no more retries are allowed"
+            err_msg = f"""ERROR: Download failed for {num_failed}
+URLs and no more retries are allowed."""
         warnings.warn(err_msg)
 
 
 def organize(source, year, states, data_dir, unzip=True, dl=True):
-    """Puts a downloaded original data file where it belongs in the datastore.
+    """Put downloaded original data file where it belongs in the datastore.
 
     Once we've downloaded an original file from the public website it lives on
     we need to put it where it belongs in the datastore. Optionally, we also
@@ -515,6 +530,7 @@ def organize(source, year, states, data_dir, unzip=True, dl=True):
 
     Todo:
         Replace 4 assert statements
+
     """
     assert source in pc.data_sources, \
         f"Source '{source}' not found in valid data sources."
@@ -591,7 +607,7 @@ def organize(source, year, states, data_dir, unzip=True, dl=True):
 
 
 def check_if_need_update(source, year, states, data_dir, clobber=False):
-    """Checks to see if the file is already downloaded and clobber is False.
+    """Check to see if the file is already downloaded and clobber is False.
 
     Do we really need to download the requested data? Only case in which
     we don't have to do anything is when the downloaded file already exists
@@ -614,28 +630,29 @@ def check_if_need_update(source, year, states, data_dir, clobber=False):
 
     Returns:
         bool: Whether an update is needed (True) or not (False)
+
     """
     paths = paths_for_year(source=source, year=year, states=states,
                            data_dir=data_dir)
     need_update = False
-    message = None
+    msg = None
     for path in paths:
         if os.path.exists(path):
             if clobber:
-                message = f'{source} data for {year} already present, CLOBBERING.'
+                msg = f"{source} data for {year} already present, CLOBBERING."
                 need_update = True
             else:
-                message = f'{source} data for {year} already present, skipping.'
+                msg = f"{source} data for {year} already present, skipping."
         else:
             need_update = True
-    if message is not None:
-        logger.info(message)
+    if msg is not None:
+        logger.info(msg)
     return need_update
 
 
-def update(source, year, states, clobber=False, unzip=True,
-           pudl_settings=None, dl=True):
-    """Updates the local datastore for the given source and year.
+def update(source, year, states, data_dir, clobber=False, unzip=True,
+           dl=True):
+    """Update the local datastore for the given source and year.
 
     If necessary, pull down a new copy of the data for the specified data
     source and year. If we already have the requested data, do nothing,
@@ -659,9 +676,7 @@ def update(source, year, states, clobber=False, unzip=True,
         unzip (bool): If true, unzip the file once downloaded, and place the
             resulting data files where they ought to be in the datastore.
             EPA CEMS files will never be unzipped.
-        pudl_settings (dict): By default, a dictionary containing common PUDL
-            settings, derived from those read out of the YAML file. Otherwise,
-            settings could be specified.
+        data_dir (str): The ``data`` directory which holds the PUDL datastore.
         dl (bool): If False, don't download the files, only unzip ones
             that are already present. If True, do download the files. Either
             way, still obey the unzip and clobber settings. (unzip=False and
@@ -669,27 +684,25 @@ def update(source, year, states, clobber=False, unzip=True,
 
     Returns:
         None
-    """
-    if pudl_settings is None:
-        pudl_settings = pudl.settings.init()
 
+    """
     need_update = check_if_need_update(
         source=source, year=year, states=states,
-        data_dir=pudl_settings['data_dir'], clobber=clobber)
+        data_dir=data_dir, clobber=clobber)
 
     if need_update:
         # Otherwise we're downloading:
         if dl:
-            download(source=source, year=year, states=states,
-                     data_dir=pudl_settings['data_dir'])
+            download(source=source, year=year,
+                     states=states, data_dir=data_dir)
         organize(source=source, year=year, states=states, unzip=unzip,
-                 data_dir=pudl_settings['data_dir'], dl=dl)
+                 data_dir=data_dir, dl=dl)
 
 
 def parallel_update(sources,
                     years_by_source,
                     states,
-                    pudl_settings,
+                    data_dir,
                     clobber=False,
                     unzip=True,
                     dl=True):
@@ -700,5 +713,5 @@ def parallel_update(sources,
                 executor.submit(update, source, year, states,
                                 clobber=clobber,
                                 unzip=unzip,
-                                pudl_settings=pudl_settings,
+                                data_dir=data_dir,
                                 dl=download)

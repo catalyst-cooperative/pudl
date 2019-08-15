@@ -2,9 +2,11 @@
 
 import argparse
 import logging
+import pathlib
 import sys
 
 import coloredlogs
+import yaml
 
 import pudl
 import pudl.constants as pc
@@ -32,18 +34,28 @@ def parse_command_line(argv):
 
 
 def main():
-    """The main function."""
+    """Clone the FERC Form 1 FoxPro database into SQLite."""
     # Display logged output from the PUDL package:
     logger = logging.getLogger(pudl.__name__)
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
     coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
 
     args = parse_command_line(sys.argv)
-    script_settings = pudl.settings.read_script_settings(args.settings_file)
-    pudl_settings = pudl.settings.init(
-        pudl_in=script_settings['pudl_in'],
-        pudl_out=script_settings['pudl_out']
-    )
+    with pathlib.Path(args.settings_file).open() as f:
+        script_settings = yaml.safe_load(f)
+
+    try:
+        pudl_in = script_settings["pudl_in"]
+    except KeyError:
+        pudl_in = pudl.workspace.get_defaults()["pudl_in"]
+    try:
+        pudl_out = script_settings["pudl_out"]
+    except KeyError:
+        pudl_out = pudl.workspace.get_defaults()["pudl_out"]
+
+    pudl_settings = pudl.workspace.derive_paths(
+        pudl_in=pudl_in, pudl_out=pudl_out)
+
     # Make sure the required input files are available before we go doing a
     # bunch of work cloning the database...
     pudl.helpers.verify_input_files(
@@ -82,6 +94,7 @@ def main():
         tables=script_settings['ferc1_to_sqlite_tables'],
         years=script_settings['ferc1_to_sqlite_years'],
         refyear=script_settings['ferc1_to_sqlite_refyear'],
+        pudl_settings=pudl_settings,
         bad_cols=script_settings['ferc1_to_sqlite_bad_cols'])
 
 

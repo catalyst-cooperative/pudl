@@ -340,9 +340,9 @@ def hash_csv(csv_path):
     return f"sha256:{hasher.hexdigest()}"
 
 
-def data_package(pkg_tables, pkg_skeleton, pudl_settings=None,
+def data_package(pkg_tables, pkg_skeleton, pudl_settings,
                  testing=False, dry_run=False):
-    """Creates a data package of requested tables and their dependencies.
+    """Create a data package of requested tables and their dependencies.
 
     See Frictionless Data for the tabular data package specification:
     http://frictionlessdata.io/specs/tabular-data-package/
@@ -370,9 +370,8 @@ def data_package(pkg_tables, pkg_skeleton, pudl_settings=None,
 
     Todo:
         remove upon removal of pudl_db
+
     """
-    if pudl_settings is None:
-        pudl_settings = pudl.settings.init()
     # A few paths we are going to need repeatedly:
     # out_dir is the packaging directory -- the place where packages end up
     # pkg_dir is the top level directory of this package:

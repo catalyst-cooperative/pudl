@@ -9,7 +9,6 @@ import pudl.analysis.mcoe
 import pudl.constants
 import pudl.convert.epacems_to_parquet
 import pudl.convert.ferc1_to_sqlite
-import pudl.datastore.datastore
 import pudl.etl_pkg
 import pudl.extract.eia860
 import pudl.extract.eia923
@@ -27,14 +26,16 @@ import pudl.output.export
 import pudl.output.ferc1
 import pudl.output.glue
 import pudl.output.pudltabl
-import pudl.settings
 # Transformation functions, organized by data source:
 import pudl.transform.eia
 import pudl.transform.eia860
 import pudl.transform.eia923
 import pudl.transform.epacems
 import pudl.transform.epaipm
-import pudl.transform.ferc1  # noqa: F401 WTF is this showing up as unused?
+import pudl.transform.ferc1
+# Deployed data & workspace management
+import pudl.workspace.datastore
+import pudl.workspace.setup  # noqa: F401 WTF is this showing up as unused?
 
 __author__ = "Catalyst Cooperative"
 __contact__ = "pudl@catalyst.coop"
