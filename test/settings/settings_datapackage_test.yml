@@ -9,16 +9,6 @@
 # out lines enumerating the full extent of the currently loadable data, which
 # you can un-comment or edit to suit your data analysis.
 
-###########################################################################
-# GLUE SETTINGS
-###########################################################################
-- name: glue-test
-  title: Glue between EIA and FERC plants and utilities
-  description: we stick things together
-  datasets:
-    - glue:
-        eia: True
-        ferc1: True
 
 ###########################################################################
 # EPA IMP SETTINGS

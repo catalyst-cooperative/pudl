@@ -823,9 +823,16 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
     sources = []
     for src in data_sources:
         if src in pudl.constants.data_sources:
-            sources.append({"title": src,
-                            "path": pc.base_data_urls[src]})
-
+            src_meta = {"title": src,
+                        "path": pc.base_data_urls[src]}
+            for dataset_dict in pkg_settings['datasets']:
+                for dataset in dataset_dict:
+                    # because we have defined eia as a dataset, but 860 and 923
+                    # are separate sources, either the dataset must be or be in
+                    # the source
+                    if dataset in src or dataset == src:
+                        src_meta['parameters'] = dataset_dict[dataset]
+            sources.append(src_meta)
     contributors = set()
     for src in data_sources:
         for c in pudl.constants.contributors_by_source[src]:
@@ -989,12 +996,16 @@ def flatten_data_packages_csvs(pkg_bundle_dir, pkg_name='pudl-all'):
         # from the epacems package (because it has CEMS and EIA files).
         if pkg_dir != all_dir and pkg_dir.name != 'epacems_eia860':
             for csv in pathlib.Path(pkg_dir, 'data').iterdir():
+                # if the csv already exists, shutil.copy will overrite. this is
+                # fine because we've already checked if the parameters are the
+                # same
                 shutil.copy(csv, all_data_dir)
         # for the CEMS pacakge, only pull the actual CEMS tables.
         elif pkg_dir.name == 'epacems_eia860':
             for csv in pathlib.Path(pkg_dir, 'data').iterdir():
-                if 'hourly_emissions_epacems' in csv.name:
-                    shutil.copy(csv, all_data_dir)
+                shutil.copy(csv, all_data_dir)
+                # if 'hourly_emissions_epacems' in csv.name:
+                #    shutil.copy(csv, all_data_dir)
 
 
 def compile_data_packages_metadata(pkg_bundle_dir,
@@ -1035,7 +1046,8 @@ def compile_data_packages_metadata(pkg_bundle_dir,
 
 def flatten_data_package_metadata(pkg_bundle_dir,
                                   pkg_name='pudl-all'):
-    """Convert a bundle of PULD data package metadata into one file.
+    """
+    Convert a bundle of PULD data package metadata into one file.
 
     Args:
         pkg_bundle_dir (path-like): the subdirectory where the bundle of data
@@ -1047,7 +1059,8 @@ def flatten_data_package_metadata(pkg_bundle_dir,
 
     """
     # grab the peices of metadata from each of the data packages
-    pkg_descriptor_elements = compile_data_packages_metadata(pkg_bundle_dir)
+    pkg_descriptor_elements = compile_data_packages_metadata(pkg_bundle_dir,
+                                                             pkg_name=pkg_name)
     # the beginning of the data package descriptor
     pkg_descriptor = {
         'name': pkg_name,
@@ -1071,12 +1084,64 @@ def flatten_data_package_metadata(pkg_bundle_dir,
         list_of_dicts = \
             [item for sublist in pkg_descriptor_elements[item]
                 for item in sublist]
-        # turn the dict elements into tuple/sets to de-dupliate it
-        pkg_descriptor[item] = [dict(y) for y in set(
-            tuple(x.items()) for x in list_of_dicts)]
+        if item == 'contributors':
+            # turn the dict elements into tuple/sets to de-dupliate it
+            pkg_descriptor[item] = [dict(y) for y in set(
+                tuple(x.items()) for x in list_of_dicts)]
+        elif item == 'sources':
+            sources_list = []
+            # pull only one of each dataset creating a dictionary with the
+            # dataset as the key
+            for s in dict([(source['title'], source)
+                           for source in list_of_dicts]).values():
+                sources_list.append(s)
+            pkg_descriptor['source'] = sources_list
     # we've already flattened the resources so just use that
     pkg_descriptor['resources'] = pkg_descriptor_elements['resources']
     return(pkg_descriptor)
+
+
+def get_all_sources(pkg_descriptor_elements):
+    """Grab list of all of the datasets in a data package bundle."""
+    titles = set()
+    for sources in pkg_descriptor_elements['sources']:
+        for source in sources:
+            titles.add(source['title'])
+    return(titles)
+
+
+def get_same_source_meta(pkg_descriptor_elements, title):
+    """Grab the the source metadata of the same dataset from all datapackages."""
+    samezies = []
+    for sources in pkg_descriptor_elements['sources']:
+        for source in sources:
+            if source['title'] == title:
+                samezies.append(source)
+    return(samezies)
+
+
+def check_for_matching_parameters(pkg_bundle_dir, pkg_name):
+    """
+    Check to see if the ETL parameters for datasets are the same across dp's.
+
+    Args:
+        pkg_bundle_dir (path-like): the subdirectory where the bundle of data
+            packages live
+        pkg_name (str): the name you choose for the flattened data package.
+    """
+    logger.info('checking for matching etl parameters across datapackages')
+    # grab all of the metadata components
+    pkg_descriptor_elements = compile_data_packages_metadata(pkg_bundle_dir,
+                                                             pkg_name=pkg_name)
+    # grab all of the "titles" (read sources)
+    titles = get_all_sources(pkg_descriptor_elements)
+    # check if
+    for title in titles:
+        samezies = get_same_source_meta(pkg_descriptor_elements, title)
+        # for each of the source dictionaries, check if they are the same
+        for source_dict in samezies:
+            if not samezies[0] == source_dict:
+                raise AssertionError(f'parameters do not match for {title}')
 
 
 def flatten_pudl_datapackages(pudl_settings,
@@ -1097,7 +1162,7 @@ def flatten_pudl_datapackages(pudl_settings,
         dict: a dictionary of the data package validation report.
 
     """
-    # make a subdirectory for the package bundles...
+    # determine the subdirectory for the package bundles...
     if pkg_bundle_dir_name:
         pkg_bundle_dir = pathlib.Path(pudl_settings['datapackage_dir'],
                                       pkg_bundle_dir_name)
@@ -1106,7 +1171,8 @@ def flatten_pudl_datapackages(pudl_settings,
         pkg_bundle_dir = pathlib.Path(
             pudl_settings['datapackage_dir'], version)
 
-    # which subdirectory do the bundle of data packages live?
+    # check that data packages that have the same sources have the same parameters
+    check_for_matching_parameters(pkg_bundle_dir, pkg_name)
 
     # copy the csv's into a new data package directory
     flatten_data_packages_csvs(pkg_bundle_dir,
@@ -1120,18 +1186,8 @@ def flatten_pudl_datapackages(pudl_settings,
     return(report)
 
 
-def connect_db(pudl_settings=None, testing=False):
+def connect_db(pudl_settings):
     """Creates an SQL Alchemy engine to connect to the PUDL SQLite DB.
-
-    Thus far we have been storing two versions of this database.
-
-    For testing: ``PUDL_OUT/sqlite/ferc1_test.sqlite``
-
-    For use: ``PUDL_OUT/sqlite/ferc1.sqlite``
-
-    where ``PUDL_OUT`` is a directory chosen by the user to contain the
-    output generated by PUDL. This is one of several values stored in the
-    ``pudl_settings`` argument.
 
     Args:
         pudl_settings (dict or None): A dictionary which defines resources used
@@ -1147,9 +1203,6 @@ def connect_db(pudl_settings=None, testing=False):
         sa.engine.Engine: An SQL Alchemy database engine allowing access to the
         relevant (live or testing) PUDL SQLite database.
     """
-    if pudl_settings is None:
-        pudl_settings = pudl.settings.init()
-
     # return sa.create_engine(
     #    sa.engine.url.URL(**pudl_settings['db_pkg_pudl']))
 
@@ -1158,8 +1211,7 @@ def connect_db(pudl_settings=None, testing=False):
 
 def pkg_to_sqlite_db(pudl_settings,
                      pkg_name=None,
-                     pkg_bundle_dir_name=None,
-                     testing=False):
+                     pkg_bundle_dir_name=None):
     """
     Turn a data package into a sqlite database.
 
@@ -1181,16 +1233,15 @@ def pkg_to_sqlite_db(pudl_settings,
     pkg = Package(str(pathlib.Path(pudl_settings['datapackage_dir'],
                                    pkg_bundle_dir_name,
                                    pkg_name, 'datapackage.json')))
-    pudl_engine = pudl.output.export.connect_db(pudl_settings, testing=testing)
+    pudl_engine = connect_db(pudl_settings)
     try:
         # So that we can wipe it out
         pudl.helpers.drop_tables(pudl_engine)
     except sa.exc.OperationalError:
         pass
     # And start anew
-    pudl_engine = pudl.output.export.connect_db(pudl_settings=pudl_settings,
-                                                testing=testing)
-
+    pudl_engine = connect_db(pudl_settings)
+    logger.info(f'Exporting the data package to sql')
     try:
         # Save the data package in SQL
         pkg.save(storage='sql', engine=pudl_engine)

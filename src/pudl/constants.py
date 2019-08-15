@@ -2200,6 +2200,8 @@ epaipm_rename_dict = {
         'Region Name': 'region',
     },
 }
+glue_pudl_tables = ('plants_eia', 'plants_ferc', 'plants', 'utilities_eia',
+                    'utilities_ferc', 'utilities', 'utility_plant_assn')
 """
 dict: A dictionary of dictionaries containing EPA IPM tables (keys) and items
     for each table to be renamed along with the replacement name (values).
@@ -2211,6 +2213,7 @@ data_sources = (
     'epacems',
     'ferc1',
     'epaipm',
+    # 'pudl'
 )
 """tuple: A tuple containing the data sources we are able to pull into PUDL."""
 
@@ -2246,6 +2249,7 @@ pudl_tables = {
     'ferc1': ferc1_pudl_tables,
     'epacems': epacems_tables,
     'epaipm': epaipm_pudl_tables,
+    'glue': glue_pudl_tables,
 }
 """
 dict: A dictionary containing data sources (keys) and the list of associated

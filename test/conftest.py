@@ -114,37 +114,30 @@ def fast_tests(request):
     return fast_tests
 
 
-@pytest.fixture(
-    scope='session',
-    params=[
-        PudlTabl(start_date=START_DATE_FERC1,
-                 end_date=END_DATE_FERC1,
-                 freq='AS', testing=False),
-    ],
-    ids=['ferc1_annual']
-)
-def pudl_out_ferc1(live_pudl_db, request):
+@pytest.fixture(scope='session', params=['AS'], ids=['ferc1_annual'])
+def pudl_out_ferc1(live_pudl_db, pudl_engine, request):
+    """Define parameterized PudlTabl output object fixture for FERC 1 tests."""
     if not live_pudl_db:
         raise AssertionError("Output tests only work with a live PUDL DB.")
-    return request.param
+    return PudlTabl(pudl_engine=pudl_engine,
+                    start_date=START_DATE_FERC1,
+                    end_date=END_DATE_FERC1,
+                    freq=request.param)
 
 
 @pytest.fixture(
-    scope='session',
-    params=[
-        PudlTabl(start_date=START_DATE_EIA,
-                 end_date=END_DATE_EIA,
-                 freq='AS', testing=False),
-        PudlTabl(start_date=START_DATE_EIA,
-                 end_date=END_DATE_EIA,
-                 freq='MS', testing=False)
-    ],
-    ids=['eia_annual', 'eia_monthly']
+    scope="session",
+    params=["AS", "MS"],
+    ids=["eia_annual", "eia_monthly"]
 )
-def pudl_out_eia(live_pudl_db, request):
+def pudl_out_eia(live_pudl_db, pudl_engine, request):
+    """Define parameterized PudlTabl output object fixture for EIA tests."""
     if not live_pudl_db:
         raise AssertionError("Output tests only work with a live PUDL DB.")
-    return request.param
+    return PudlTabl(pudl_engine=pudl_engine,
+                    start_date=START_DATE_EIA,
+                    end_date=END_DATE_EIA,
+                    freq=request.param)
 
 
 @pytest.fixture(scope='session')

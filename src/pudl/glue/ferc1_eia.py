@@ -50,7 +50,7 @@ def glue(ferc1=False, eia=False):
     # ferc glue tables are structurally entity tables w/ foreign key
     # relationships to ferc datatables, so we need some of the eia/ferc 'glue'
     # even when only ferc is ingested into the database.
-    if not ferc1:
+    if not ferc1 and not eia:
         return
 
     map_eia_ferc_file = importlib.resources.open_binary(
@@ -170,9 +170,13 @@ def glue(ferc1=False, eia=False):
                 'utilities_eia': utilities_eia,
                 'plants_eia': plants_eia}
 
-    # if we're not ingesting eia, exclude
+    # if we're not ingesting eia, exclude eia only tables
     if not eia:
         del glue_dfs['utilities_eia']
         del glue_dfs['plants_eia']
+    # if we're not ingesting ferc, exclude ferc only tables
+    if not ferc1:
+        del glue_dfs['utilities_ferc']
+        del glue_dfs['plants_ferc']
 
     return(glue_dfs)

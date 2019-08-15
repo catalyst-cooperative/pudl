@@ -83,10 +83,11 @@ class PudlTabl(object):
         else:
             # Make sure it's a date... and not a string.
             self.end_date = pd.to_datetime(end_date)
-        if pudl_engine is None:
-            self.pudl_engine = pudl.output.export.connect_db()
-        else:
-            self.pudl_engine = pudl_engine
+
+        if not pudl_engine:
+            raise AssertionError('PudlTabl object needs a pudl_engine')
+        self.pudl_engine = pudl_engine
+
         self.pt = get_table_meta(self.pudl_engine)
         # We populate this library of dataframes as they are generated, and
         # allow them to persist, in case they need to be used again.

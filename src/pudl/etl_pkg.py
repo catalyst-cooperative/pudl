@@ -540,6 +540,36 @@ def _prep_directories(pkg_dir):
     os.mkdir(os.path.join(pkg_dir, 'data'))
 
 
+def _insert_glue_settings(dataset_dicts):
+    """Add glue settings into data package settings if this is a glue-y dataset.
+
+    Args:
+        dataset_dicts (iterable): list of dictionaries with datasets (keys) and
+            dictionaries of etl paramaters (values)
+    Returns:
+        iterable: updated dataset_dicts. a dictionary with the glue dataset will
+            be added if the datasets are glue-y datasets
+    """
+    # if there are valid datasets in the settings, we need to check if any
+    # of these
+    if dataset_dicts:
+        glue_param = {'ferc1': False,
+                      'eia': False}
+        datasets_w_glue = ['ferc1', 'eia']
+        for dataset_input in dataset_dicts:
+            for dataset in dataset_input:
+                if dataset in datasets_w_glue:
+                    if dataset == 'ferc1':
+                        print('dataset is ferc..')
+                        glue_param['ferc1'] = True
+                    if dataset == 'eia':
+                        glue_param['eia'] = True
+        validated_glue_params = _validate_input_glue(glue_param)
+        if validated_glue_params:
+            dataset_dicts.extend([{'glue': validated_glue_params}])
+    return dataset_dicts
+
+
 def validate_input(pkg_bundle_settings):
     """
     Read and validate the inputs from a settings file.
@@ -551,7 +581,6 @@ def validate_input(pkg_bundle_settings):
 
     Returns:
         iterable: validated list of inputs
-
     """
     input_validation_functions = {
         'eia': _validate_input_eia,
@@ -562,7 +591,7 @@ def validate_input(pkg_bundle_settings):
     }
     # where we are going to compile the new validated settings
     validated_settings = []
-
+    # for each of the packages, rebuild the settings
     for pkg in pkg_bundle_settings:
         validated_pkg_settings = {}
         validated_pkg_settings.update({
@@ -578,10 +607,11 @@ def validate_input(pkg_bundle_settings):
                 validacted_dataset_dict = {dataset: etl_params}
                 if etl_params:
                     dataset_dicts.extend([validacted_dataset_dict])
+        dataset_dicts = _insert_glue_settings(dataset_dicts)
         if dataset_dicts:
             validated_pkg_settings['datasets'] = dataset_dicts
             validated_settings.extend([validated_pkg_settings])
-    return validated_settings
+    return(validated_settings)
 
 
 def etl_pkg(pkg_settings, pudl_settings, pkg_bundle_dir):
