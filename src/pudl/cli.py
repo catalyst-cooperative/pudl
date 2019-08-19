@@ -68,20 +68,24 @@ def main():
         debug = script_settings["debug"]
     except KeyError:
         debug = False
+    try:
+        pudl_testing = script_settings["pudl_testing"]
+    except KeyError:
+        pudl_testing = False
 
-    pudl.init.init_db(ferc1_tables=script_settings['ferc1_tables'],
-                      ferc1_years=script_settings['ferc1_years'],
-                      eia923_tables=script_settings['eia923_tables'],
-                      eia923_years=script_settings['eia923_years'],
-                      eia860_tables=script_settings['eia860_tables'],
-                      eia860_years=script_settings['eia860_years'],
-                      epacems_years=script_settings['epacems_years'],
-                      epacems_states=script_settings['epacems_states'],
-                      epaipm_tables=script_settings['epaipm_tables'],
-                      pudl_testing=script_settings['pudl_testing'],
+    pudl.init.init_db(ferc1_tables=script_settings["ferc1_tables"],
+                      ferc1_years=script_settings["ferc1_years"],
+                      eia923_tables=script_settings["eia923_tables"],
+                      eia923_years=script_settings["eia923_years"],
+                      eia860_tables=script_settings["eia860_tables"],
+                      eia860_years=script_settings["eia860_years"],
+                      epacems_years=script_settings["epacems_years"],
+                      epacems_states=script_settings["epacems_states"],
+                      epaipm_tables=script_settings["epaipm_tables"],
+                      pudl_testing=pudl_testing,
                       pudl_settings=pudl_settings,
                       debug=debug)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

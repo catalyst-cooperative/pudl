@@ -97,6 +97,6 @@ epacems_states: []
 epaipm_tables: []
 #epaipm_tables:
 #  - transmission_single_ipm
-#  - transmission_joint_ipm,
+#  - transmission_joint_ipm
 #  - load_curves_ipm
 #  - plant_region_map_ipm
