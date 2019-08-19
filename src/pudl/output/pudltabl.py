@@ -118,9 +118,11 @@ class PudlTabl(object):
         Pull a dataframe of EIA plant-utility associations.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['pu_eia'] is None:
@@ -135,9 +137,11 @@ class PudlTabl(object):
         Pull a dataframe of FERC plant-utility associations.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['pu_ferc1'] is None:
@@ -150,9 +154,11 @@ class PudlTabl(object):
         Pull a dataframe describing utilities reported in EIA 860.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['utils_eia860'] is None:
@@ -167,9 +173,11 @@ class PudlTabl(object):
         Pull a dataframe of boiler-generator associations from EIA 860.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['bga_eia860'] is None:
@@ -185,9 +193,11 @@ class PudlTabl(object):
         Pull a dataframe of plant level info reported in EIA 860.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['plants_eia860'] is None:
@@ -202,9 +212,11 @@ class PudlTabl(object):
         Pull a dataframe describing generators, as reported in EIA 860.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['gens_eia860'] is None:
@@ -219,9 +231,11 @@ class PudlTabl(object):
         Pull a dataframe of generator level ownership data from EIA 860.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['own_eia860'] is None:
@@ -236,9 +250,11 @@ class PudlTabl(object):
         Pull EIA 923 generation and fuel consumption data.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['gf_eia923'] is None:
@@ -255,9 +271,11 @@ class PudlTabl(object):
         Pull EIA 923 fuel receipts and costs data.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['frc_eia923'] is None:
@@ -274,9 +292,11 @@ class PudlTabl(object):
         Pull EIA 923 boiler fuel consumption data.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['bf_eia923'] is None:
@@ -292,9 +312,11 @@ class PudlTabl(object):
         Pull EIA 923 net generation data by generator.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['gen_eia923'] is None:
@@ -310,9 +332,11 @@ class PudlTabl(object):
         Pull the FERC Form 1 steam plants data.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['plants_steam_ferc1'] is None:
@@ -326,9 +350,11 @@ class PudlTabl(object):
         Pull the FERC Form 1 steam plants fuel consumption data.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['fuel_ferc1'] is None:
@@ -341,9 +367,11 @@ class PudlTabl(object):
         Summarize FERC Form 1 fuel usage by plant.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['fbp_ferc1'] is None:
@@ -356,9 +384,11 @@ class PudlTabl(object):
         Pull the more complete EIA/PUDL boiler-generator associations.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['bga'] is None:
@@ -373,9 +403,11 @@ class PudlTabl(object):
         Calculate and return generator level heat rates (mmBTU/MWh).
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['hr_by_gen'] is None:
@@ -388,9 +420,11 @@ class PudlTabl(object):
         Calculate and return generation unit level heat rates.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['hr_by_unit'] is None:
@@ -403,9 +437,11 @@ class PudlTabl(object):
         Calculate and return generator level fuel costs per MWh.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['fuel_cost'] is None:
@@ -417,9 +453,11 @@ class PudlTabl(object):
         Calculate and return generator level capacity factors.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
 
         Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
 
         """
         if update or self._dfs['capacity_factor'] is None:
@@ -439,7 +477,8 @@ class PudlTabl(object):
         rates and fuel costs.
 
         Args:
-            update (bool):
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
             min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any MCOE
                 records with lower heat rates are presumed to be invalid, and
                 are discarded before returning.

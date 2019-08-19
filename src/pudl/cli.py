@@ -24,7 +24,7 @@ def parse_command_line(argv):
         dict: A dictionary mapping command line arguments to their values.
 
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(dest='settings_file', type=str, default='',
                         help="path to YAML settings file.")
     arguments = parser.parse_args(argv[1:])
@@ -45,13 +45,13 @@ def main():
     try:
         pudl_in = script_settings["pudl_in"]
     except KeyError:
-        pudl_in = pudl.workspace.get_defaults()["pudl_in"]
+        pudl_in = pudl.workspace.setup.get_defaults()["pudl_in"]
     try:
         pudl_out = script_settings["pudl_out"]
     except KeyError:
-        pudl_out = pudl.workspace.get_defaults()["pudl_out"]
+        pudl_out = pudl.workspace.setup.get_defaults()["pudl_out"]
 
-    pudl_settings = pudl.workspace.derive_paths(
+    pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in, pudl_out=pudl_out)
 
     logger.info(f"Checking for input files in {pudl_settings['data_dir']}")
@@ -64,6 +64,11 @@ def main():
         data_dir=pudl_settings["data_dir"],
     )
 
+    try:
+        debug = script_settings["debug"]
+    except KeyError:
+        debug = False
+
     pudl.init.init_db(ferc1_tables=script_settings['ferc1_tables'],
                       ferc1_years=script_settings['ferc1_years'],
                       eia923_tables=script_settings['eia923_tables'],
@@ -75,9 +80,7 @@ def main():
                       epaipm_tables=script_settings['epaipm_tables'],
                       pudl_testing=script_settings['pudl_testing'],
                       pudl_settings=pudl_settings,
-                      debug=script_settings['debug'],
-                      csvdir=script_settings['csvdir'],
-                      keep_csv=script_settings['keep_csv'])
+                      debug=debug)
 
 
 if __name__ == '__main__':

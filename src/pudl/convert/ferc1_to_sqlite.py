@@ -26,7 +26,7 @@ def parse_command_line(argv):
         dict: Dictionary of command line arguments and their parsed values.
 
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("settings_file", type=str, default='',
                         help="path to YAML settings file.")
     arguments = parser.parse_args(argv[1:])
@@ -47,13 +47,13 @@ def main():
     try:
         pudl_in = script_settings["pudl_in"]
     except KeyError:
-        pudl_in = pudl.workspace.get_defaults()["pudl_in"]
+        pudl_in = pudl.workspace.setup.get_defaults()["pudl_in"]
     try:
         pudl_out = script_settings["pudl_out"]
     except KeyError:
-        pudl_out = pudl.workspace.get_defaults()["pudl_out"]
+        pudl_out = pudl.workspace.setup.get_defaults()["pudl_out"]
 
-    pudl_settings = pudl.workspace.derive_paths(
+    pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in, pudl_out=pudl_out)
 
     # Make sure the required input files are available before we go doing a
@@ -74,7 +74,8 @@ def main():
                 f"{table} was not found in the list of "
                 f"available FERC Form 1 tables."
             )
-    if script_settings['ferc1_to_sqlite_refyear'] not in pc.data_years['ferc1']:
+    if script_settings['ferc1_to_sqlite_refyear'] \
+            not in pc.data_years['ferc1']:
         raise ValueError(
             f"Reference year {script_settings['ferc1_to_sqlite_refyear']} "
             f"is outside the range of available FERC Form 1 data "

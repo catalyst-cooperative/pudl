@@ -24,7 +24,7 @@ def parse_command_line(argv):
         dict: Dictionary of command line arguments and their parsed values.
 
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
 
     parser.add_argument(
         '-q',
@@ -55,7 +55,7 @@ def parse_command_line(argv):
         type=str,
         help="""Directory where the datastore should be located. (default:
         %(default)s).""",
-        default=pudl.workspace.get_defaults()["pudl_in"]
+        default=pudl.workspace.setup.get_defaults()["pudl_in"]
     )
     parser.add_argument(
         '-s',
@@ -93,12 +93,12 @@ def parse_command_line(argv):
         '--states',
         nargs='+',
         choices=pc.cems_states.keys(),
+        type=str.upper,
         help="""List of two letter US state abbreviations indicating which
         states data should be downloaded. Currently only applicable to the
         EPA's CEMS dataset.""",
         default=pc.cems_states.keys()
     )
-
     arguments = parser.parse_args(argv[1:])
     return arguments
 

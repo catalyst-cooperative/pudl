@@ -570,7 +570,7 @@ def organize(source, year, states, data_dir, unzip=True, dl=True):
     # the data for this source and year... so lets wipe it! Scary!
     destdir = path(source=source, year=year, file=False, data_dir=data_dir)
     if dl:
-        if os.path.exists(destdir):
+        if os.path.exists(destdir) and source != 'epacems':
             shutil.rmtree(destdir)
         # move the new file from wherever it is, to its rightful home.
         if not os.path.exists(destdir):

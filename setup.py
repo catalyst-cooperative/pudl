@@ -40,7 +40,7 @@ test_requires = [
     'flake8-builtins',
     'pep8-naming',
     'pre-commit',
-    'pydocstyle==3.0.0',
+    'pydocstyle',
     'pytest',
     'pytest-cov',
 ]

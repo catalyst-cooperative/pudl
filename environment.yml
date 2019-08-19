@@ -1,7 +1,7 @@
 name: pudl
 channels:
   - conda-forge
-  - nodefaults
+  - defaults
 dependencies:
   - autopep8            # dev
   - bandit              # dev
@@ -18,7 +18,9 @@ dependencies:
   - goodtables          # base
   - ipdb                # dev
   - isort               # dev
+  - jedi                # dev
   - jupyter             # user
+  - jupyterlab          # user
   - matplotlib          # user
   - nbval               # dev
   - networkx>=2.2       # base We depend on features introduced in v2.2
@@ -31,7 +33,7 @@ dependencies:
   - pre_commit          # dev
   - psycopg2            # base
   - pyarrow>=0.14.0     # base compilation issues below 0.14.0
-  - pydocstyle=3.0.0    # dev v4.0.0 has a bug that breaks doc8 for now.
+  - pydocstyle          #
   - pytest              # dev
   - pytest-cov          # dev
   - python>=3.7         # N/A
