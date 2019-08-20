@@ -22,10 +22,11 @@ Steps to reproduce the behavior -- ideally including a code snippet that causes 
 ### Expected behavior
 A clear and concise description of what you expected to happen, or what you expected the data to look like.
 
-### Desktop (please complete the following information):**
- - OS: [e.g. Mac OS X]
- - postgresql version [e.g. 9.6]
- - Python version [e.g. 3.7]
+### Software Environment?
+ - OS: (e.g. Mac OS X)
+ - PostgreSQL version (e.g. 9.6)
+ - Python version (e.g. 3.7.3)
+ - How did you install PUDL? (e.g. `git clone`, `pip`, or `conda`)
 
 ### Additional context
 Add any other context about the problem here.
