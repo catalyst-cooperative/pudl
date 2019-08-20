@@ -1,7 +1,7 @@
-pudl.datastore.datastore module
+pudl.workspace.datastore module
 ===============================
 
-.. automodule:: pudl.datastore.datastore
+.. automodule:: pudl.workspace.datastore
    :members:
    :undoc-members:
    :show-inheritance:

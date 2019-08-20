@@ -13,7 +13,7 @@ from pathlib import Path
 import pandas as pd
 
 import pudl.constants as pc
-import pudl.datastore.datastore as datastore
+import pudl.workspace.datastore as datastore
 
 logger = logging.getLogger(__name__)
 

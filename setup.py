@@ -40,7 +40,7 @@ test_requires = [
     'flake8-builtins',
     'pep8-naming',
     'pre-commit',
-    'pydocstyle==3.0.0',
+    'pydocstyle',
     'pytest',
     'pytest-cov',
 ]
@@ -108,7 +108,8 @@ setup(
     # This defines the interfaces to the command line scripts we're including:
     entry_points={
         'console_scripts': [
-            'pudl_datastore = pudl.datastore.cli:main',
+            'pudl_data = pudl.workspace.datastore_cli:main',
+            'pudl_setup = pudl.workspace.setup_cli:main',
             'pudl_etl = pudl.cli:main',
             'ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main',
             'epacems_to_parquet = pudl.convert.epacems_to_parquet:main [parquet]',  # noqa: E501

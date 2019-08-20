@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 def fix_up_dates(df, plant_utc_offset):
     """
-    Fixes the dates for the CEMS data.
+    Fix the dates for the CEMS data.
 
     Args:
         df (pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
@@ -29,6 +29,7 @@ def fix_up_dates(df, plant_utc_offset):
     Returns:
         pandas.DataFrame: The same data, with an op_datetime_utc column added
         and the op_date and op_hour columns removed
+
     """
     # Convert op_date and op_hour from string and integer to datetime:
     # Note that doing this conversion, rather than reading the CSV with
@@ -62,8 +63,7 @@ def fix_up_dates(df, plant_utc_offset):
 
 
 def _load_plant_utc_offset(pudl_engine):
-    """
-    Loads the UTC offset for each plant.
+    """Load the UTC offset for each plant.
 
     CEMS times don't change for DST, so we get get the UTC offset by using
     the offset for the plants' timezones in January.
@@ -97,8 +97,7 @@ def _load_plant_utc_offset(pudl_engine):
 
 
 def _load_plant_utc_offset_pkg(pkg_dir):
-    """
-    Loads the UTC offset each EIA plant.
+    """Load the UTC offset each EIA plant.
 
     CEMS times don't change for DST, so we get get the UTC offset by using the
     offset for the plants' timezones in January.
@@ -157,7 +156,7 @@ def harmonize_eia_epa_orispl(df):
 
 def add_facility_id_unit_id_epa(df):
     """
-    Harmonizes columns that are added later.
+    Harmonize columns that are added later.
 
     The load into Postgres checks for consistent column names, and these
     two columns aren't present before August 2008, so this adds them in.
@@ -183,7 +182,7 @@ def add_facility_id_unit_id_epa(df):
 
 def _all_na_or_values(series, values):
     """
-    Tests whether every element in the series is either missing or in values.
+    Test whether every element in the series is either missing or in values.
 
     This is fiddly because isin() changes behavior if the series is totally NaN
     (because of type issues)
@@ -211,7 +210,7 @@ def _all_na_or_values(series, values):
 
 def correct_gross_load_mw(df):
     """
-    Fixes values of gross load that are wrong by orders of magnitude.
+    Fix values of gross load that are wrong by orders of magnitude.
 
     Args:
         df (pd.DataFrame): A CEMS dataframe
@@ -234,7 +233,7 @@ def correct_gross_load_mw(df):
 
 def transform(pudl_engine, epacems_raw_dfs):
     """
-    Transforms EPA CEMS hourly data.
+    Transform EPA CEMS hourly data.
 
     Args:
         pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database

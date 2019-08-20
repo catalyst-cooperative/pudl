@@ -356,7 +356,7 @@ def strip_lower(df, columns=None):
     return out_df
 
 
-def cleanstrings_series(col, map, unmapped=None, simplify=True):
+def cleanstrings_series(col, str_map, unmapped=None, simplify=True):
     """Cleans up the strings in a single column/Series.
 
     Args:
@@ -384,16 +384,16 @@ def cleanstrings_series(col, map, unmapped=None, simplify=True):
             str.lower().
             str.replace(r'\s+', ' ')
         )
-        for k in map:
-            map[k] = [re.sub(r'\s+', ' ', s.lower().strip())
-                      for s in map[k]]
+        for k in str_map:
+            str_map[k] = [re.sub(r'\s+', ' ', s.lower().strip())
+                          for s in str_map[k]]
 
-    for k in map:
-        if map[k]:
-            col = col.replace(map[k], k)
+    for k in str_map:
+        if str_map[k]:
+            col = col.replace(str_map[k], k)
 
     if unmapped is not None:
-        badstrings = np.setdiff1d(col.unique(), list(map.keys()))
+        badstrings = np.setdiff1d(col.unique(), list(str_map.keys()))
         # This call to replace can only work if there are actually some
         # leftover strings to fix -- otherwise it runs forever because we
         # are replacing nothing with nothing.
@@ -445,9 +445,9 @@ def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
 
     """
     out_df = df.copy()
-    for col, map in zip(columns, stringmaps):
+    for col, str_map in zip(columns, stringmaps):
         out_df[col] = cleanstrings_series(
-            out_df[col], map, unmapped=unmapped, simplify=simplify)
+            out_df[col], str_map, unmapped=unmapped, simplify=simplify)
 
     return out_df
 
@@ -900,7 +900,7 @@ def verify_input_files(ferc1_years,
         for s in epacems_states:
             for m in range(1, 13):
                 try:
-                    p = pudl.datastore.datastore.path(
+                    p = pudl.workspace.datastore.path(
                         source='epacems',
                         year=y,
                         month=m,

@@ -11,7 +11,7 @@ def plants_utils_ferc1(pudl_engine, pt):
     Build a dataframe of useful FERC Plant & Utility information.
 
     Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
 
     Returns:
@@ -38,12 +38,13 @@ def plants_steam_ferc1(pudl_engine, pt):
     and integration with other tables that have PUDL IDs.
 
     Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
 
     Returns:
         pandas.DataFrame: A DataFrame containing useful fields from the FERC
         Form 1 steam table.
+
     """
     steam_ferc1_tbl = pt['plants_steam_ferc1']
     steam_ferc1_select = sa.sql.select([steam_ferc1_tbl, ])
@@ -81,16 +82,17 @@ def fuel_ferc1(pudl_engine, pt):
     on the basis of heat content consumed. In theory these should give the
     same value for total cost, but this is not always the case.
 
-    TODO:
+    Todo:
         Check whether this includes all of the fuel_ferc1 fields...
 
     Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
 
     Returns:
         pandas.DataFrame: A DataFrame containing useful FERC Form 1 fuel
         information.
+
     """
     fuel_ferc1_tbl = pt['fuel_ferc1']
     fuel_ferc1_select = sa.sql.select([fuel_ferc1_tbl, ])
@@ -141,14 +143,16 @@ def fuel_by_plant_ferc1(pudl_engine, pt, thresh=0.5):
     by utility_id_ferc1 and plant_name) related to fuel consumption.
 
     Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy
+            database
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
-        thresh (float): Minimum fraction of fuel (cost and mmbtu) required in order
-            for a plant to be assigned a primary fuel. Must be between 0.5 and 1.0.
-            default value is 0.5.
+        thresh (float): Minimum fraction of fuel (cost and mmbtu) required in
+            order for a plant to be assigned a primary fuel. Must be between
+            0.5 and 1.0. default value is 0.5.
 
     Returns:
         pandas.DataFrame: A DataFrame with fuel use summarized by plant.
+
     """
     first_cols = [
         'report_year',

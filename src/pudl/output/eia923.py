@@ -33,7 +33,7 @@ def generation_fuel_eia923(pudl_engine, pt, freq=None,
     860 tables.
 
     Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are
@@ -150,7 +150,7 @@ def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
     860 tables.
 
     Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are
@@ -165,6 +165,7 @@ def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
     Returns:
         pandas.DataFrame: A DataFrame containing all records from the EIA 923
         Fuel Receipts and Costs table.
+
     """
     # Most of the fields we want come direclty from Fuel Receipts & Costs
     frc_tbl = pt['fuel_receipts_costs_eia923']
@@ -290,7 +291,7 @@ def boiler_fuel_eia923(pudl_engine, pt, freq=None,
     860 tables.
 
     Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are
@@ -400,7 +401,7 @@ def generation_eia923(pudl_engine, pt, freq=None,
     Pull records from the boiler_fuel_eia923 table in a given data range.
 
     Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are

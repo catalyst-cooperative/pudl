@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import pathlib
 import sys
 import warnings
 
@@ -9,7 +10,7 @@ import coloredlogs
 
 import pudl
 import pudl.constants as pc
-from pudl.datastore import datastore
+from pudl.workspace import datastore
 
 
 def parse_command_line(argv):
@@ -23,7 +24,7 @@ def parse_command_line(argv):
         dict: Dictionary of command line arguments and their parsed values.
 
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
 
     parser.add_argument(
         '-q',
@@ -54,7 +55,7 @@ def parse_command_line(argv):
         type=str,
         help="""Directory where the datastore should be located. (default:
         %(default)s).""",
-        default=pudl.settings.init()['pudl_in']
+        default=pudl.workspace.setup.get_defaults()["pudl_in"]
     )
     parser.add_argument(
         '-s',
@@ -92,18 +93,18 @@ def parse_command_line(argv):
         '--states',
         nargs='+',
         choices=pc.cems_states.keys(),
+        type=str.upper,
         help="""List of two letter US state abbreviations indicating which
         states data should be downloaded. Currently only applicable to the
         EPA's CEMS dataset.""",
         default=pc.cems_states.keys()
     )
-
     arguments = parser.parse_args(argv[1:])
     return arguments
 
 
 def main():
-    """Main function controlling flow of the script."""
+    """Manage and update the PUDL datastore."""
     # Display logged output from the PUDL package:
     logger = logging.getLogger(pudl.__name__)
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
@@ -128,13 +129,11 @@ def main():
             if args.verbose and bad_years:
                 warnings.warn(f"Invalid {source} years ignored: {bad_years}.")
 
-    pudl_settings = pudl.settings.init(pudl_in=args.datastore_dir)
-
     datastore.parallel_update(
         sources=args.sources,
         years_by_source=years_by_source,
         states=args.states,
-        pudl_settings=pudl_settings,
+        data_dir=str(pathlib.Path(args.datastore_dir, "data")),
         clobber=args.clobber,
         unzip=args.unzip,
         dl=args.download,

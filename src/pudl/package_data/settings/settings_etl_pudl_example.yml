@@ -1,9 +1,9 @@
-# The following settings determine which data is loaded by init_pudl.py
+# The following settings determine which data is loaded by the pudl_etl script.
 
 # You can create several different settings files if you wish, and specify
 # which one the initialization script uses on the command line:
 #
-# ./init_pudl.py settings_init_pudl_custom.yml
+# pudl_etl settings_etl_pudl_custom.yml
 #
 # The default settings load nothing into the database, but there are commented
 # out lines enumerating the full extent of the currently loadable data, which
@@ -28,8 +28,9 @@ ferc1_tables:
 # The ferc1 dataset goes back as far as 1994, but more cleaning and integration
 # needs to be done to bring in that data.
 
-ferc1_years: [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
-              2013, 2014, 2015, 2016, 2017]
+ferc1_years: []
+#ferc1_years: [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
+#              2013, 2014, 2015, 2016, 2017]
 #ferc1_years: [2017]
 
 ###########################################################################
@@ -47,7 +48,8 @@ eia923_tables:
   - coalmine_eia923 # coalmine_eia923 REQUIRES fuel_receipts_costs_eia923
   - fuel_receipts_costs_eia923
 
-eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
+eia923_years: []
+#eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
 #eia923_years: [2017]
 
 ###########################################################################
@@ -62,7 +64,8 @@ eia860_tables:
   - generators_eia860
   - ownership_eia860
 
-eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017]
+eia860_years: []
+#eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017]
 #eia860_years: [2017]
 
 ###########################################################################
@@ -77,30 +80,23 @@ eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017]
 # Note that the CEMS data relies on EIA 860 data for plant locations, so if
 # you're loading CEMS data for a particular year, you should also load the
 # EIA 860 data for that year (2011-2017 only)
+epacems_years: []
+epacems_states: []
 #epacems_years: [1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
 #                2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
 #                2015, 2016, 2017, 2018]
-epacems_years: [2017]
-epacems_states: [CO]
 # Just Colorado, for nostalgia:
+#epacems_years: [2017]
 #epacems_states: [CO]
 #epacems_states: [ALL]
 
-
-#epaipm_tables: []
-epaipm_tables: [transmission_single_ipm, transmission_joint_ipm,
-                load_curves_ipm, plant_region_map_ipm]
-
 ###########################################################################
-# TESTING / DEVELOPMENT SETTINGS
+# EPA IPM SETTINGS
 ###########################################################################
-# These settings are mostly used for development work, testing the ETL process.
-# If you set pudl_testing or ferc1_testing to true, then instead of populating
-# the live pudl and ferc1 databases in postgresql, the initialization script
-# will attempt to populate pudl_test and ferc1_test.  This is useful if you
-# have a working database and don't want to clobber it while testing.
-ferc1_testing: False
-pudl_testing: False
-keep_csv: False
-csvdir: "results/csvdump"
-debug: False
+# The EPA IPM data is not organized by year -- it's all or nothing.
+epaipm_tables: []
+#epaipm_tables:
+#  - transmission_single_ipm
+#  - transmission_joint_ipm,
+#  - load_curves_ipm
+#  - plant_region_map_ipm

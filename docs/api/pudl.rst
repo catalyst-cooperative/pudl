@@ -8,12 +8,12 @@ Subpackages
 
    pudl.analysis
    pudl.convert
-   pudl.datastore
    pudl.extract
    pudl.glue
    pudl.models
    pudl.output
    pudl.transform
+   pudl.workspace
 
 Submodules
 ----------
@@ -26,7 +26,6 @@ Submodules
    pudl.helpers
    pudl.init
    pudl.load
-   pudl.settings
 
 Module contents
 ---------------

@@ -60,7 +60,7 @@ import sqlalchemy as sa
 
 import pudl
 import pudl.constants as pc
-import pudl.datastore.datastore as datastore
+import pudl.workspace.datastore as datastore
 
 logger = logging.getLogger(__name__)
 
@@ -454,17 +454,15 @@ def get_raw_df(table, dbc_map, data_dir,
         )
 
 
-def dbf2sqlite(tables=pc.ferc1_tbl2dbf,
-               years=pc.data_years['ferc1'],
-               refyear=max(pc.working_years['ferc1']),
-               pudl_settings=None,
-               bad_cols=()):
-    """Clones the FERC Form 1 Databsae to SQLite.
+def dbf2sqlite(tables, years, refyear, pudl_settings, bad_cols=()):
+    """Clone the FERC Form 1 Databsae to SQLite.
 
     Args:
         tables (iterable): What tables should be cloned?
         years (iterable): Which years of data should be cloned?
         refyear (int): Which database year to use as a template.
+        pudl_settings (dict): Dictionary containing paths and database URLs
+            used by PUDL.
         bad_cols (iterable of tuples): A list of (table, column) pairs
             indicating columns that should be skipped during the cloning
             process. Both table and column are strings in this case, the
@@ -474,11 +472,9 @@ def dbf2sqlite(tables=pc.ferc1_tbl2dbf,
         None
 
     """
-    if pudl_settings is None:
-        pudl_settings = pudl.settings.init()
     # Read in the structure of the DB, if it exists
     logger.info("Dropping the old FERC Form 1 SQLite DB if it exists.")
-    sqlite_engine = connect_db(pudl_settings=pudl_settings)
+    sqlite_engine = sa.create_engine(pudl_settings["ferc1_db"])
     try:
         # So that we can wipe it out
         pudl.helpers.drop_tables(sqlite_engine)
@@ -486,8 +482,7 @@ def dbf2sqlite(tables=pc.ferc1_tbl2dbf,
         pass
 
     # And start anew
-    sqlite_engine = connect_db(pudl_settings=pudl_settings)
-    logger.info(f'Engine: {sqlite_engine}')
+    sqlite_engine = sa.create_engine(pudl_settings["ferc1_db"])
     sqlite_meta = sa.MetaData(bind=sqlite_engine)
 
     # Get the mapping of filenames to table names and fields
@@ -590,8 +585,8 @@ def extract(ferc1_tables=pc.ferc1_pudl_tables,
             )
 
     # Connect to the local SQLite DB and read its structure.
-    ferc1_engine = connect_db(pudl_settings=pudl_settings)
-    logger.info(f'Engine: {ferc1_engine}')
+    ferc1_engine = sa.create_engine(pudl_settings["ferc1_db"])
+
     ferc1_meta = sa.MetaData(bind=ferc1_engine)
     ferc1_meta.reflect()
     if not ferc1_meta.tables:
@@ -600,14 +595,14 @@ def extract(ferc1_tables=pc.ferc1_pudl_tables,
         )
 
     ferc1_extract_functions = {
-        'fuel_ferc1': fuel,
-        'plants_steam_ferc1': plants_steam,
-        'plants_small_ferc1': plants_small,
-        'plants_hydro_ferc1': plants_hydro,
-        'plants_pumped_storage_ferc1': plants_pumped_storage,
-        'plant_in_service_ferc1': plant_in_service,
-        'purchased_power_ferc1': purchased_power,
-        'accumulated_depreciation_ferc1': accumulated_depreciation}
+        "fuel_ferc1": fuel,
+        "plants_steam_ferc1": plants_steam,
+        "plants_small_ferc1": plants_small,
+        "plants_hydro_ferc1": plants_hydro,
+        "plants_pumped_storage_ferc1": plants_pumped_storage,
+        "plant_in_service_ferc1": plant_in_service,
+        "purchased_power_ferc1": purchased_power,
+        "accumulated_depreciation_ferc1": accumulated_depreciation}
 
     ferc1_raw_dfs = {}
     for pudl_table in ferc1_tables:

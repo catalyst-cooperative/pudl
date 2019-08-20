@@ -12,7 +12,7 @@ def utilities_eia860(pudl_engine, pt, start_date=None, end_date=None):
 
     Args:
         pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
-        pt (sa.util._collections.immutabledict): a sqlalchemy metadata
+        pt (sqlalchemy.util._collections.immutabledict): a sqlalchemy metadata
             dictionary of pudl tables
         start_date (date): Date to begin retrieving EIA 860 data.
         end_date (date): Date to end retrieving EIA 860 data.
@@ -20,6 +20,7 @@ def utilities_eia860(pudl_engine, pt, start_date=None, end_date=None):
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
         Utilities table.
+
     """
     # grab the entity table
     utils_eia_tbl = pt['utilities_entity_eia']
@@ -73,15 +74,15 @@ def plants_eia860(pudl_engine, pt, start_date=None, end_date=None):
     """Pulls all fields from the EIA Plants tables.
 
     Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
-        pt (sa.util._collections.immutabledict): a sqlalchemy metadata
-            dictionary of pudl tables
+        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
+        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         start_date (date): Date to begin retrieving EIA 860 data.
         end_date (date): Date to end retrieving EIA 860 data.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
         Plants table.
+
     """
     # grab the entity table
     plants_eia_tbl = pt['plants_entity_eia']
@@ -148,8 +149,9 @@ def plants_utils_eia860(pudl_engine, pt, start_date=None, end_date=None):
     first or last years.
 
     Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
-        pt (sa.util._collections.immutabledict): a sqlalchemy metadata
+        pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
+            for the PUDL DB.
+        pt (sqlalchemy.util._collections.immutabledict): a sqlalchemy metadata
             dictionary of pudl tables
         start_date (date): Date to begin retrieving EIA 860 data.
         end_date (date): Date to end retrieving EIA 860 data.
@@ -157,6 +159,7 @@ def plants_utils_eia860(pudl_engine, pt, start_date=None, end_date=None):
     Returns:
         pandas.DataFrame: A DataFrame containing plant and utility IDs and
         names from EIA 860.
+
     """
     # Contains the one-to-one mapping of EIA plants to their operators, but
     # we only have the 860 data integrated for 2011 forward right now.
@@ -207,7 +210,8 @@ def generators_eia860(pudl_engine, pt, start_date=None, end_date=None):
     year lag between EIA923 and EIA860 reporting)
 
     Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy
+            database
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         start_date (date): the earliest EIA 860 data to retrieve or synthesize
         end_date (date): the latest EIA 860 data to retrieve or synthesize
@@ -329,7 +333,7 @@ def boiler_generator_assn_eia860(pudl_engine, pt, start_date=None, end_date=None
     """Pulls all fields from the EIA 860 boiler generator association table.
 
     Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         start_date (date): Date to begin retrieving EIA 860 data.
         end_date (date): Date to end retrieving EIA 860 data.
@@ -337,7 +341,6 @@ def boiler_generator_assn_eia860(pudl_engine, pt, start_date=None, end_date=None
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields from the EIA
         860 boiler generator association table.
-
 
     """
     bga_eia860_tbl = pt['boiler_generator_assn_eia860']
@@ -355,7 +358,8 @@ def boiler_generator_assn_eia860(pudl_engine, pt, start_date=None, end_date=None
         )
     bga_eia860_df = pd.read_sql(bga_eia860_select, pudl_engine)
     out_df = pudl.helpers.extend_annual(bga_eia860_df,
-                                        start_date=start_date, end_date=end_date)
+                                        start_date=start_date,
+                                        end_date=end_date)
     return out_df
 
 
@@ -363,7 +367,7 @@ def ownership_eia860(pudl_engine, pt, start_date=None, end_date=None):
     """Pulls a useful set of fields related to ownership_eia860 table.
 
     Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         start_date (date): date of the earliest data to retrieve
         end_date (date): date of the latest data to retrieve

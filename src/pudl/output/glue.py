@@ -16,7 +16,8 @@ def boiler_generator_assn(pudl_engine, pt, start_date=None, end_date=None):
     """Pulls the more complete PUDL/EIA boiler generator associations.
 
     Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy
+            database
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         start_date (date): Date to begin retrieving data.
         end_date (date): Date to end retrieving data.
@@ -24,6 +25,7 @@ def boiler_generator_assn(pudl_engine, pt, start_date=None, end_date=None):
     Returns:
         pandas.DataFrame: A DataFrame containing the more complete PUDL/EIA
         boiler generator associations.
+
     """
     bga_eia_tbl = pt['boiler_generator_assn_eia860']
     bga_eia_select = sa.sql.select([bga_eia_tbl])
