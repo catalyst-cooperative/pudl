@@ -1,4 +1,19 @@
-"""A command line interface (CLI) to the main PUDL ETL functionality."""
+"""A command line interface (CLI) to the main PUDL ETL functionality.
+
+This script generates datapacakges based on the datapackage settings enumerated
+in the settings_file which is given as an argument to this script. If the
+settings has empty datapackage parameters (meaning there are no years or
+tables included), no datapacakges will be generated. If the settings include a
+datapackage that has empty parameters, the other valid datatpackages will be
+generated, but not the empty one. If there are invalid parameters (meaning a
+year that is not included in the pudl.constant.working_years), the build will
+fail early on in the process.
+
+The datapackages will be stored in "PUDL_OUT" in the "datapackge" subdirectory.
+Currently, this function only uses default directories for "PUDL_IN" and
+"PUDL_OUT" (meaning those stored in $HOME/.pudl.yml). To setup your default
+pudl directories see the pudl_setup script (pudl_setup --help for more details).
+"""
 
 import argparse
 import logging
@@ -30,17 +45,22 @@ def parse_command_line(argv):
     parser.add_argument(
         '--dp_bundle_name',
         default="",
-        help="Debug Mode. Set debug to True to get additional logs")
+        help="""Name for data package bundle directory. If no name is given the
+        default is the pudl python package version.""")
     parser.add_argument(
         '-d',
         '--debug',
         default=False,
-        help="Debug Mode. Set debug to True to get additional logs")
+        help="""Debug Mode. If included, metadata about the data packages will
+        be returned.""")
     parser.add_argument(
         '-c',
         '--clobber',
         action='store_true',
-        help="Clobber existing datapackages if they exist.",
+        help="""Clobber existing datapackages if they exist. If clobber is not
+        included but the datapackage bundle directory already exists the _build
+        will fail. Either the dp_bundle_name needs to be unique or you need to
+        include --clobber""",
         default=False)
     arguments = parser.parse_args(argv[1:])
     return arguments
