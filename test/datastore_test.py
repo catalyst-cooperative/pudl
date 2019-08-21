@@ -16,7 +16,7 @@ import os
 import pytest
 
 import pudl
-import pudl.datastore.datastore as datastore
+import pudl.workspace.datastore as datastore
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ def test_datastore(pudl_settings_fixture, data_scope):
         sources=sources_to_update,
         years_by_source=years_by_source,
         states=states,
-        pudl_settings=pudl_settings_fixture,
+        data_dir=pudl_settings_fixture['data_dir'],
     )
 
     pudl.helpers.verify_input_files(

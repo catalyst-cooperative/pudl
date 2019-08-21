@@ -11,7 +11,7 @@ repos:
 
 # Other file formatting, plus common Git mistakes & text file standardization:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.2.3
+  rev: v2.3.0
   hooks:
   - id: check-added-large-files # Don't accidentally commit giant files.
   - id: check-merge-conflict    # Watch for lingering merge markers.
@@ -50,7 +50,7 @@ repos:
 
 # Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8
-  rev: 4331c3a7a10b9bb76906901987bac9691e29c2ab
+  rev: 0.8.1rc1
   hooks:
   - id: doc8
     args: [--ignore-path, docs/_build]
