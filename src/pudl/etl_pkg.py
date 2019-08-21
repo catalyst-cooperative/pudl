@@ -581,7 +581,14 @@ def _add_missing_parameters(flattened_params_dict):
 
 def get_flattened_etl_parameters(pkg_bundle_settings):
     """
-    Compile
+    Compile flattened etl parameters.
+
+    Args:
+        pkg_bundle_settings (iterable): a list of data package parameters,
+            with each element of the list being a dictionary specifying
+            the data to be packaged.
+    Returns:
+        dict: dictionary of etl parameters (i.e. ferc1_years, eia923_years)
     """
     flattened_parameters = []
     for pkg in pkg_bundle_settings:
@@ -600,7 +607,7 @@ def get_flattened_etl_parameters(pkg_bundle_settings):
                         flattened_params_dict[param] = True
                     else:
                         flattened_params_dict[param] = False
-                elif type(flattened_params_dict[param]) is list:
+                elif isinstance(flattened_params_dict[param], list):
                     flattened_params_dict[param] = set(
                         flattened_params_dict[param] + dataset[param])
             except KeyError:

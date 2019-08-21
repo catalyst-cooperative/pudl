@@ -26,12 +26,7 @@ def parse_command_line(argv):
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(dest='settings_file', type=str, default='',
-                        help="path to YAML settings file.")
-    parser.add_argument(
-        '--settings_datapackage_file',
-        type=str,
-        default='settings_datapackage_default.yml',
-        help="path to YAML datapackage settings file.")
+                        help="path to YAML datapackage settings file.")
     parser.add_argument(
         '--dp_bundle_name',
         default="",
@@ -64,23 +59,18 @@ def main():
 
     try:
         pudl_in = script_settings["pudl_in"]
-    except KeyError:
+    except TypeError:
         pudl_in = pudl.workspace.setup.get_defaults()["pudl_in"]
     try:
         pudl_out = script_settings["pudl_out"]
-    except KeyError:
+    except TypeError:
         pudl_out = pudl.workspace.setup.get_defaults()["pudl_out"]
 
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in, pudl_out=pudl_out)
 
-    with open(pathlib.Path(pudl_out, 'settings',
-                           args.settings_datapackage_file),
-              "r") as f:
-        pkg_bundle_settings = yaml.safe_load(f)
-
     pudl.output.export.generate_data_packages(
-        pkg_bundle_settings,
+        script_settings,
         pudl_settings,
         debug=args.debug,
         pkg_bundle_dir_name=args.dp_bundle_name,
