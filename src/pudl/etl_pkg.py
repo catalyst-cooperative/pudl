@@ -13,7 +13,7 @@ import pudl.constants as pc
 logger = logging.getLogger(__name__)
 
 
-def _validate_input_partition(etl_params_og, tables):
+def _validate_params_partition(etl_params_og, tables):
     # if there is a `partition` in the package settings..
     partition_dict = {}
     try:
@@ -33,7 +33,7 @@ def _validate_input_partition(etl_params_og, tables):
 ###############################################################################
 
 
-def _validate_input_eia(etl_params):
+def _validate_params_eia(etl_params):
     # extract all of the etl_params for the EIA ETL function
     # empty dictionary to compile etl_params
     eia_input_dict = {}
@@ -114,25 +114,20 @@ def _load_static_tables_eia(pkg_dir):
     include EIA tables.
     """
     # create dfs for tables with static data from constants.
-    fuel_type_eia923 = \
-        pd.DataFrame({'abbr': list(pc.fuel_type_eia923.keys()),
-                      'fuel_type': list(pc.fuel_type_eia923.values())})
+    fuel_type_eia923 = pd.DataFrame({'abbr': list(pc.fuel_type_eia923.keys()),
+                                     'fuel_type': list(pc.fuel_type_eia923.values())})
 
-    prime_movers_eia923 = \
-        pd.DataFrame({'abbr': list(pc.prime_movers_eia923.keys()),
-                      'prime_mover': list(pc.prime_movers_eia923.values())})
+    prime_movers_eia923 = pd.DataFrame({'abbr': list(pc.prime_movers_eia923.keys()),
+                                        'prime_mover': list(pc.prime_movers_eia923.values())})
 
-    fuel_type_aer_eia923 = \
-        pd.DataFrame({'abbr': list(pc.fuel_type_aer_eia923.keys()),
-                      'fuel_type': list(pc.fuel_type_aer_eia923.values())})
+    fuel_type_aer_eia923 = pd.DataFrame({'abbr': list(pc.fuel_type_aer_eia923.keys()),
+                                         'fuel_type': list(pc.fuel_type_aer_eia923.values())})
 
-    energy_source_eia923 = \
-        pd.DataFrame({'abbr': list(pc.energy_source_eia923.keys()),
-                      'source': list(pc.energy_source_eia923.values())})
+    energy_source_eia923 = pd.DataFrame({'abbr': list(pc.energy_source_eia923.keys()),
+                                         'source': list(pc.energy_source_eia923.values())})
 
-    transport_modes_eia923 = \
-        pd.DataFrame({'abbr': list(pc.transport_modes_eia923.keys()),
-                      'mode': list(pc.transport_modes_eia923.values())})
+    transport_modes_eia923 = pd.DataFrame({'abbr': list(pc.transport_modes_eia923.keys()),
+                                           'mode': list(pc.transport_modes_eia923.values())})
 
     # compile the dfs in a dictionary, prep for dict_dump
     static_dfs = {'fuel_type_eia923': fuel_type_eia923,
@@ -151,7 +146,7 @@ def _load_static_tables_eia(pkg_dir):
 
 
 def _etl_eia_pkg(etl_params, data_dir, pkg_dir):
-    eia_inputs = _validate_input_eia(etl_params)
+    eia_inputs = _validate_params_eia(etl_params)
     eia923_tables = eia_inputs['eia923_tables']
     eia923_years = eia_inputs['eia923_years']
     eia860_tables = eia_inputs['eia860_tables']
@@ -202,7 +197,7 @@ def _etl_eia_pkg(etl_params, data_dir, pkg_dir):
 ###############################################################################
 
 
-def _validate_input_ferc1(etl_params):
+def _validate_params_ferc1(etl_params):
     ferc1_dict = {}
     # pull out the etl_params from the dictionary passed into this function
     try:
@@ -273,7 +268,7 @@ def _load_static_tables_ferc(pkg_dir):
 
 
 def _etl_ferc1_pkg(etl_params, pudl_settings, pkg_dir):
-    ferc1_inputs = _validate_input_ferc1(etl_params)
+    ferc1_inputs = _validate_params_ferc1(etl_params)
 
     ferc1_years = ferc1_inputs['ferc1_years']
     ferc1_tables = ferc1_inputs['ferc1_tables']
@@ -303,7 +298,7 @@ def _etl_ferc1_pkg(etl_params, pudl_settings, pkg_dir):
 ###############################################################################
 
 
-def _validate_input_epacems(etl_params):
+def _validate_params_epacems(etl_params):
     epacems_dict = {}
     # pull out the etl_params from the dictionary passed into this function
     try:
@@ -320,7 +315,7 @@ def _validate_input_epacems(etl_params):
         if epacems_dict['epacems_states'][0].lower() == 'all':
             epacems_dict['epacems_states'] = list(pc.cems_states.keys())
 
-    epacems_dict['partition'] = _validate_input_partition(
+    epacems_dict['partition'] = _validate_params_partition(
         etl_params, [pc.epacems_tables])
     if not epacems_dict['partition']:
         raise AssertionError('No partition found for EPA CEMS. '
@@ -364,7 +359,7 @@ def _etl_epacems_part(part, epacems_years, epacems_states, data_dir, pkg_dir):
 
 
 def _etl_epacems_pkg(etl_params, data_dir, pkg_dir):
-    epacems_dict = _validate_input_epacems(etl_params)
+    epacems_dict = _validate_params_epacems(etl_params)
     epacems_years = epacems_dict['epacems_years']
     epacems_states = epacems_dict['epacems_states']
     epacems_partition = epacems_dict['partition']
@@ -397,7 +392,7 @@ def _etl_epacems_pkg(etl_params, data_dir, pkg_dir):
 ###############################################################################
 
 
-def _validate_input_epaipm(etl_params):
+def _validate_params_epaipm(etl_params):
     """Validate the etl parameters for EPA IPM.
 
     Args:
@@ -457,7 +452,7 @@ def _etl_epaipm(etl_params, data_dir, pkg_dir):
     Returns:
         iterable: list of tables
     """
-    epaipm_dict = _validate_input_epaipm(etl_params)
+    epaipm_dict = _validate_params_epaipm(etl_params)
     epaipm_tables = epaipm_dict['epaipm_tables']
     static_tables = _load_static_tables_epaipm(pkg_dir)
 
@@ -484,7 +479,7 @@ def _etl_epaipm(etl_params, data_dir, pkg_dir):
 ###############################################################################
 
 
-def _validate_input_glue(etl_params):
+def _validate_params_glue(etl_params):
     glue_dict = {}
     # pull out the etl_params from the dictionary passed into this function
     try:
@@ -506,7 +501,7 @@ def _etl_glue(etl_params, pkg_dir):
 
     Right now, this function only generates the glue between EIA and FERC.
     """
-    glue_dict = _validate_input_glue(etl_params)
+    glue_dict = _validate_params_glue(etl_params)
     ferc1 = glue_dict['ferc1']
     eia = glue_dict['eia']
     if not eia and not ferc1:
@@ -560,19 +555,63 @@ def _insert_glue_settings(dataset_dicts):
             for dataset in dataset_input:
                 if dataset in datasets_w_glue:
                     if dataset == 'ferc1':
-                        print('dataset is ferc..')
                         glue_param['ferc1'] = True
                     if dataset == 'eia':
                         glue_param['eia'] = True
-        validated_glue_params = _validate_input_glue(glue_param)
+        validated_glue_params = _validate_params_glue(glue_param)
         if validated_glue_params:
             dataset_dicts.extend([{'glue': validated_glue_params}])
     return dataset_dicts
 
 
-def validate_input(pkg_bundle_settings):
+def _add_missing_parameters(flattened_params_dict):
+    """Add the standard etl parameters if they are missing."""
+    standard_params = ['ferc1_years',
+                       'eia923_years',
+                       'eia860_years',
+                       'epacems_years',
+                       'epacems_states']
+    for param in standard_params:
+        try:
+            flattened_params_dict[param]
+        except KeyError:
+            flattened_params_dict[param] = []
+    return flattened_params_dict
+
+
+def get_flattened_etl_parameters(pkg_bundle_settings):
     """
-    Read and validate the inputs from a settings file.
+    Compile
+    """
+    flattened_parameters = []
+    for pkg in pkg_bundle_settings:
+        for settings_dataset_dict in pkg['datasets']:
+            for dataset in settings_dataset_dict:
+                if settings_dataset_dict[dataset]:
+                    flattened_parameters.append(settings_dataset_dict[dataset])
+    flattened_params_dict = {}
+    for dataset in flattened_parameters:
+        for param in dataset:
+            try:
+                flattened_params_dict[param]
+                logger.debug(f'{param} is already present present')
+                if flattened_params_dict[param] is True or False:
+                    if flattened_params_dict[param] or dataset[param] is True:
+                        flattened_params_dict[param] = True
+                    else:
+                        flattened_params_dict[param] = False
+                elif type(flattened_params_dict[param]) is list:
+                    flattened_params_dict[param] = set(
+                        flattened_params_dict[param] + dataset[param])
+            except KeyError:
+                flattened_params_dict[param] = dataset[param]
+    flattened_params_dict = _add_missing_parameters(flattened_params_dict)
+    return flattened_params_dict
+
+
+def validate_params(pkg_bundle_settings, data_dir):
+    """
+    Read and validate the etl inputs from a settings file.
 
     Args:
         pkg_bundle_settings (iterable): a list of data package parameters,
@@ -582,12 +621,12 @@ def validate_input(pkg_bundle_settings):
     Returns:
         iterable: validated list of inputs
     """
-    input_validation_functions = {
-        'eia': _validate_input_eia,
-        'ferc1': _validate_input_ferc1,
-        'epacems': _validate_input_epacems,
-        'glue': _validate_input_glue,
-        'epaipm': _validate_input_epaipm
+    param_validation_functions = {
+        'eia': _validate_params_eia,
+        'ferc1': _validate_params_ferc1,
+        'epacems': _validate_params_epacems,
+        'glue': _validate_params_glue,
+        'epaipm': _validate_params_epaipm
     }
     # where we are going to compile the new validated settings
     validated_settings = []
@@ -602,15 +641,23 @@ def validate_input(pkg_bundle_settings):
         dataset_dicts = []
         for settings_dataset_dict in pkg['datasets']:
             for dataset in settings_dataset_dict:
-                etl_params = input_validation_functions[dataset](
+                etl_params = param_validation_functions[dataset](
                     settings_dataset_dict[dataset])
                 validacted_dataset_dict = {dataset: etl_params}
                 if etl_params:
                     dataset_dicts.extend([validacted_dataset_dict])
-        dataset_dicts = _insert_glue_settings(dataset_dicts)
+        dataset_dicts = pudl.etl_pkg._insert_glue_settings(dataset_dicts)
         if dataset_dicts:
             validated_pkg_settings['datasets'] = dataset_dicts
             validated_settings.extend([validated_pkg_settings])
+
+    flattened_params_dict = get_flattened_etl_parameters(validated_settings)
+    pudl.helpers.verify_input_files(flattened_params_dict['ferc1_years'],
+                                    flattened_params_dict['eia923_years'],
+                                    flattened_params_dict['eia860_years'],
+                                    flattened_params_dict['epacems_years'],
+                                    flattened_params_dict['epacems_states'],
+                                    data_dir)
     return(validated_settings)
 
 

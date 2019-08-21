@@ -27,6 +27,26 @@ def parse_command_line(argv):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(dest='settings_file', type=str, default='',
                         help="path to YAML settings file.")
+    parser.add_argument(
+        '--settings_datapackage_file',
+        type=str,
+        default='settings_datapackage_default.yml',
+        help="path to YAML datapackage settings file.")
+    parser.add_argument(
+        '--dp_bundle_name',
+        default="",
+        help="Debug Mode. Set debug to True to get additional logs")
+    parser.add_argument(
+        '-d',
+        '--debug',
+        default=False,
+        help="Debug Mode. Set debug to True to get additional logs")
+    parser.add_argument(
+        '-c',
+        '--clobber',
+        action='store_true',
+        help="Clobber existing datapackages if they exist.",
+        default=False)
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -54,33 +74,17 @@ def main():
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in, pudl_out=pudl_out)
 
-    logger.info(f"Checking for input files in {pudl_settings['data_dir']}")
-    pudl.helpers.verify_input_files(
-        ferc1_years=script_settings["ferc1_years"],
-        eia923_years=script_settings["eia923_years"],
-        eia860_years=script_settings["eia860_years"],
-        epacems_years=script_settings["epacems_years"],
-        epacems_states=script_settings["epacems_states"],
-        data_dir=pudl_settings["data_dir"],
-    )
+    with open(pathlib.Path(pudl_out, 'settings',
+                           args.settings_datapackage_file),
+              "r") as f:
+        pkg_bundle_settings = yaml.safe_load(f)
 
-    try:
-        debug = script_settings["debug"]
-    except KeyError:
-        debug = False
-
-    pudl.init.init_db(ferc1_tables=script_settings['ferc1_tables'],
-                      ferc1_years=script_settings['ferc1_years'],
-                      eia923_tables=script_settings['eia923_tables'],
-                      eia923_years=script_settings['eia923_years'],
-                      eia860_tables=script_settings['eia860_tables'],
-                      eia860_years=script_settings['eia860_years'],
-                      epacems_years=script_settings['epacems_years'],
-                      epacems_states=script_settings['epacems_states'],
-                      epaipm_tables=script_settings['epaipm_tables'],
-                      pudl_testing=script_settings['pudl_testing'],
-                      pudl_settings=pudl_settings,
-                      debug=debug)
+    pudl.output.export.generate_data_packages(
+        pkg_bundle_settings,
+        pudl_settings,
+        debug=args.debug,
+        pkg_bundle_dir_name=args.dp_bundle_name,
+        clobber=args.clobber)
 
 
 if __name__ == '__main__':

@@ -14,16 +14,16 @@ import re
 import shutil
 import uuid
 
-import datapackage
 import goodtables
 import pandas as pd
 import pkg_resources
 import sqlalchemy as sa
 import tableschema
-from datapackage import Package
 from tableschema import exceptions
 
+import datapackage
 import pudl
+from datapackage import Package
 from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
@@ -928,8 +928,8 @@ def generate_data_packages(pkg_bundle_settings,
 
     """
     # validate the settings from the settings file.
-    validated_bundle_settings = pudl.etl_pkg.validate_input(
-        pkg_bundle_settings)
+    validated_bundle_settings = pudl.etl_pkg.validate_params(
+        pkg_bundle_settings, pudl_settings['data_dir'])
     uuid_pkgs = str(uuid.uuid4())
 
     pkg_bundle_dir = prep_pkg_bundle_directory(
