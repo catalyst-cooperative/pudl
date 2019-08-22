@@ -59,7 +59,7 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = pd.merge(out_df, utils_g_eia_df,
                       how='left', on=['utility_id_eia', ])
 
-    out_df = out_df.drop(['id'], axis=1)
+    out_df = out_df.drop(['id'], axis='columns')
     first_cols = [
         'report_date',
         'utility_id_eia',
@@ -132,6 +132,7 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
 
     out_df = pd.merge(out_df, utils_eia_df,
                       how='left', on=['utility_id_eia', ])
+    out_df = out_df.drop(['id'], axis='columns')
     return out_df
 
 
@@ -174,7 +175,7 @@ def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
     # to avoid duplicate columns on the merge...
     plants_eia = plants_eia.drop(['utility_id_pudl', 'city',
                                   'state', 'zip_code', 'street_address'],
-                                 axis=1)
+                                 axis='columns')
     out_df = pd.merge(plants_eia, utils_eia,
                       how='left', on=['report_date', 'utility_id_eia'])
 
@@ -271,9 +272,6 @@ That's too much forward filling.""")
         )
 
     gens_eia860 = pd.read_sql(gens_eia860_select, pudl_engine)
-    # Canonical sources for these fields are elsewhere. We will merge them in.
-    # gens_eia860 = gens_eia860.drop(['utility_id_eia',
-    #                                'utility_name'], axis=1)
     plants_entity_eia_df = pd.read_sql(plants_entity_eia_select, pudl_engine)
     out_df = pd.merge(gens_eia860, plants_entity_eia_df,
                       how='left', on=['plant_id_eia'])
@@ -287,8 +285,7 @@ That's too much forward filling.""")
                       on=['report_date', 'plant_id_eia', 'plant_name'])
 
     # Drop a few extraneous fields...
-    cols_to_drop = ['id', ]
-    out_df = out_df.drop(cols_to_drop, axis=1)
+    out_df = out_df.drop(['id'], axis='columns')
 
     # In order to be able to differentiate betweet single and multi-fuel
     # plants, we need to count how many different simple energy sources there
@@ -354,6 +351,7 @@ def boiler_generator_assn_eia860(pudl_engine, start_date=None, end_date=None):
             bga_eia860_tbl.c.report_date <= end_date
         )
     bga_eia860_df = pd.read_sql(bga_eia860_select, pudl_engine)
+    bga_eia860_df = bga_eia860_df.drop(['id'], axis='columns')
     out_df = pudl.helpers.extend_annual(bga_eia860_df,
                                         start_date=start_date,
                                         end_date=end_date)
@@ -388,7 +386,7 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = pd.merge(o_df, pu_eia,
                       how='left', on=['report_date', 'plant_id_eia'])
 
-    out_df = out_df.drop(['id'], axis=1)
+    out_df = out_df.drop(['id'], axis='columns')
 
     out_df = out_df.dropna(subset=[
         'plant_id_eia',
