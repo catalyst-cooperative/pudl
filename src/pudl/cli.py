@@ -48,12 +48,6 @@ def parse_command_line(argv):
         help="""Name for data package bundle directory. If no name is given the
         default is the pudl python package version.""")
     parser.add_argument(
-        '-d',
-        '--debug',
-        default=False,
-        help="""Debug Mode. If included, metadata about the data packages will
-        be returned.""")
-    parser.add_argument(
         '-c',
         '--clobber',
         action='store_true',
@@ -89,10 +83,10 @@ def main():
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in, pudl_out=pudl_out)
 
-    pudl.output.export.generate_data_packages(
+    pudl.etl_pkg.generate_data_packages(
         script_settings,
         pudl_settings,
-        debug=args.debug,
+        debug=False,
         pkg_bundle_dir_name=args.dp_bundle_name,
         clobber=args.clobber)
 

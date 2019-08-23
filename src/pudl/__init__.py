@@ -7,8 +7,10 @@ import pkg_resources
 
 import pudl.analysis.mcoe
 import pudl.constants
+import pudl.convert.datapkg_to_sqlite
 import pudl.convert.epacems_to_parquet
 import pudl.convert.ferc1_to_sqlite
+import pudl.convert.flatten_datapkgs
 import pudl.etl_pkg
 import pudl.extract.eia860
 import pudl.extract.eia923
@@ -18,7 +20,8 @@ import pudl.extract.ferc1
 import pudl.glue.ferc1_eia
 import pudl.helpers
 import pudl.init
-import pudl.load
+import pudl.load.csv
+import pudl.load.metadata
 # Output modules by data source:
 import pudl.output.eia860
 import pudl.output.eia923

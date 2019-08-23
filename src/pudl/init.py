@@ -429,12 +429,12 @@ def _etl_ferc1(pudl_engine, ferc1_tables, ferc1_years,
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
         ferc1_raw_dfs, ferc1_tables=ferc1_tables)
     # Load FERC form 1
-    pudl.load.dict_dump_load(ferc1_transformed_dfs,
-                             "FERC 1",
-                             pudl_engine,
-                             need_fix_inting=pc.need_fix_inting,
-                             csvdir=csvdir,
-                             keep_csv=keep_csv)
+    pudl.load.csv.dict_dump_load(ferc1_transformed_dfs,
+                                 "FERC 1",
+                                 pudl_engine,
+                                 need_fix_inting=pc.need_fix_inting,
+                                 csvdir=csvdir,
+                                 keep_csv=keep_csv)
 
 
 def _etl_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables,
@@ -467,12 +467,12 @@ def _etl_eia(pudl_engine, eia923_tables, eia923_years, eia860_tables,
     transformed_dfs = {"Entities": entities_dfs, "EIA": eia_transformed_dfs}
     # Load step
     for data_source, transformed_df in transformed_dfs.items():
-        pudl.load.dict_dump_load(transformed_df,
-                                 data_source,
-                                 pudl_engine,
-                                 need_fix_inting=pc.need_fix_inting,
-                                 csvdir=csvdir,
-                                 keep_csv=keep_csv)
+        pudl.load.csv.dict_dump_load(transformed_df,
+                                     data_source,
+                                     pudl_engine,
+                                     need_fix_inting=pc.need_fix_inting,
+                                     csvdir=csvdir,
+                                     keep_csv=keep_csv)
 
 
 def _etl_epacems(pudl_engine,
@@ -501,7 +501,7 @@ def _etl_epacems(pudl_engine,
     logger.info("Loading tables from EPA CEMS into PUDL:")
     if logger.isEnabledFor(logging.INFO):
         start_time = time.monotonic()
-    with pudl.load.BulkCopy(
+    with pudl.load.csv.BulkCopy(
             table_name="hourly_emissions_epacems",
             engine=pudl_engine,
             csvdir=csvdir,
@@ -555,7 +555,7 @@ def _etl_epaipm(pudl_engine, epaipm_tables, csvdir, keep_csv, pudl_settings):
         epaipm_raw_dfs, epaipm_tables
     )
 
-    pudl.load.dict_dump_load(
+    pudl.load.csv.dict_dump_load(
         epaipm_transformed_dfs,
         "EPA IPM",
         pudl_engine,
