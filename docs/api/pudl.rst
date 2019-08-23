@@ -10,6 +10,7 @@ Subpackages
    pudl.convert
    pudl.extract
    pudl.glue
+   pudl.load
    pudl.models
    pudl.output
    pudl.transform
@@ -25,7 +26,6 @@ Submodules
    pudl.etl_pkg
    pudl.helpers
    pudl.init
-   pudl.load
 
 Module contents
 ---------------
