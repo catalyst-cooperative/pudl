@@ -26,6 +26,7 @@ Submodules
    pudl.helpers
    pudl.init
    pudl.load
+   pudl.validate
 
 Module contents
 ---------------
