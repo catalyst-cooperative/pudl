@@ -132,6 +132,16 @@ def pudl_out_eia(live_pudl_db, pudl_engine, request):
 
 
 @pytest.fixture(scope='session')
+def pudl_out_orig(live_pudl_db, pudl_engine):
+    """Create an unaggregated PUDL output object for checking raw data."""
+    if not live_pudl_db:
+        raise AssertionError("Output tests only work with a live PUDL DB.")
+    return PudlTabl(pudl_engine=pudl_engine,
+                    start_date=START_DATE_EIA,
+                    end_date=END_DATE_EIA)
+
+
+@pytest.fixture(scope='session')
 def ferc1_engine(live_ferc_db, pudl_settings_fixture,
                  datastore_fixture, data_scope):
     """

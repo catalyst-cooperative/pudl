@@ -34,6 +34,7 @@ import pudl.transform.epacems
 import pudl.transform.epaipm
 import pudl.transform.ferc1
 # Deployed data & workspace management
+import pudl.validate
 import pudl.workspace.datastore
 import pudl.workspace.setup  # noqa: F401 WTF is this showing up as unused?
 

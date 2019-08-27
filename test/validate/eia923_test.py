@@ -1,51 +1,28 @@
 """Validate post-ETL EIA 923 data and associated derived outputs."""
 
 import logging
-from decimal import Decimal
 
 import pytest
+
+import pudl
 
 logger = logging.getLogger(__name__)
 
 
 @pytest.mark.eia923
 @pytest.mark.post_etl
-def test_frc_eia923(pudl_out_eia,
-                    max_unit_fuel_cost=35,
-                    max_unit_heat_content=32):
+def test_frc_eia923(pudl_out_orig, pudl_out_eia, live_pudl_db):
     """Sanity checks for EIA 923 Fuel Recepts and Costs output."""
-    logger.info("Reading EIA 923 Fuel Receipts and Costs data...")
+    if not live_pudl_db:
+        raise AssertionError("Output tests only work with a live PUDL DB.")
+    orig_df = pudl_out_orig.frc_eia923()
+    test_df = pudl_out_eia.frc_eia923()
 
-    frc_eia923 = pudl_out_eia.frc_eia923()
+    for args in pudl.validate.agg_test_args:
+        pudl.validate.vs_historical(orig_df, test_df, **args)
 
-    fuel_unit_cost_outlier = len(
-        frc_eia923.loc[(frc_eia923.fuel_cost_per_mmbtu > max_unit_fuel_cost) |
-                       (frc_eia923.fuel_cost_per_mmbtu < 0)]
-    )
-
-    decimal = Decimal((fuel_unit_cost_outlier / (len(frc_eia923))) * 100)
-    proportion = round(decimal, 2)
-
-    logger.info(
-        f"{fuel_unit_cost_outlier} records, {proportion}% of the total, "
-        f"have fuel unit costs ($/mmbtu) less than 0 or greater than "
-        f"{max_unit_fuel_cost}."
-    )
-
-    heat_content_outlier = len(
-        frc_eia923.loc[
-            (frc_eia923.heat_content_mmbtu_per_unit > max_unit_heat_content) |
-            (frc_eia923.heat_content_mmbtu_per_unit < 0)
-        ]
-    )
-    decimal = Decimal((heat_content_outlier / (len(frc_eia923))) * 100)
-    proportion = round(decimal, 2)
-
-    logger.info(
-        f"{heat_content_outlier} records, {proportion}% of the total, have "
-        f"fuel heat content (mmbtu/unit) less than 0 or greater than "
-        f"{max_unit_heat_content}."
-    )
+    for args in pudl.validate.abs_test_args:
+        pudl.validate.vs_historical(orig_df, orig_df, **args)
 
 
 @pytest.mark.eia923
