@@ -4,14 +4,9 @@ pudl.glue package
 Submodules
 ----------
 
-pudl.glue.zipper module
------------------------
+.. toctree::
 
-.. automodule:: pudl.glue.zipper
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
+   pudl.glue.ferc1_eia
 
 Module contents
 ---------------

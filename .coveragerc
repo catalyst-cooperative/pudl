@@ -1,0 +1,24 @@
+[run]
+omit =
+    *glue/zipper.py
+    *analysis/analysis.py
+    *__main__.py
+    *__init__.py
+    *cli.py
+
+[report]
+precision = 2
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover
+
+    # Don't complain if tests don't hit defensive assertion code:
+    raise AssertionError
+    raise NotImplementedError
+
+    # Don't complain if non-runnable code isn't run:
+    if 0:
+    if __name__ == .__main__.:
+
+    # Stuff that's not expected to run normally...
+    logger.debug

@@ -1,12 +1,14 @@
 dist: xenial
 language: python
 python:
-    - 3.7
-    - 3.8-dev
+- "3.7"
 services:
 - postgresql
 addons:
   postgresql: "9.6"
+  apt:
+    packages:
+    - libsnappy-dev
 env:
   global:
   - secure: IAQoyAqW1pccRx1fqdnjJjh3iRe9l+rxU+OlQojvAqo4lcxdv6DkuVp4Rhvx2eiBXfdsZl7XrI2zCXHbVrUSbKL4RNnjv9ouJN/m29cUME+uwuTWOO+jY5g7bNdKOpeWvUZyhUR3FUdPdeh2sN7odsLF8XybV5uOdHdQSzK7R/Nf4XSYRgMsKLTNSq/MIBOD4goCpHT2etTe4P02HJxZ+a/ksv3DGI3cVgAcAzF8EDF0SFXauBZVYeffTl82lGSPRPVlUXdC7nBh8W9p49zJQEOhKq7rDMf5A3P8ZfoOVDBlsMGpqHJejezvR1c/GTDkenEWE8har4xwxvP/pJDfUrNKWjI79hdEpKcN2xOxAeobNAPJP4Ee33XCD6Q0spf7LePv3fNlERavqz0hNSIBrX4w2ueXBGh/hJr9fKtfDbcD7myRFe17X2vHEeiwzTGKkVVPqmaXRMg/1RgTHVFqhy2ayQpldvM+2d2Y9GO46CVr+Xf+CUdkOvNRd5tD9ur5s4L76GTJZlotGvZp0AIzgSa//wiX/ZGPTgN41NcDGnumbmfJ9nK11aCpq5elOaYunEKkiYzo1JSzNHxnoaa6lKLF3koRb7BUudHVxGsIUGMGTaXXjrMd1JF+RcISjija3YbzF//iheiTBJDbkl9TrMxVx0NFRG7SkG6jO0oHtcQ=
@@ -14,9 +16,8 @@ git:
   depth: 1
 branches:
   except:
-    - doc-setup
+  - docstrings-cleanup
 before_install:
-- export PATH="$HOME/miniconda3/bin:$PATH"
 - df -h
 - pwd
 - ls -a
@@ -24,32 +25,17 @@ before_install:
 - git --version
 - git tag
 install:
-- ci/install_travis.sh
-- source activate pudl
-- pip install -v -e .
-- conda list
-- which python
 - ci/setup_postgres.sh
-- cd scripts
-- python update_datastore.py -s eia923 -y 2017
-- python update_datastore.py -s eia860 -y 2017
-- python update_datastore.py -s epaipm
-- cp -r ../test/data/epa/cems/* ../data/epa/cems/
-- cp -r ../test/data/ferc/form1/* ../data/ferc/form1/
-- cd ..
-- find data -type f
-- cd data/ferc/form1/f1_2017/
-- unzip f1_2017.zip
-- cd ../../../../
-- find data -type f
+- pip install tox
 script:
-- pytest --log-cli-level=info --log-cli-format="%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s" --log-date-format="%Y-%m-%d %H:%M:%S" --cov=pudl test/travis_ci_test.py
+- tox -v -e travis
 after_success:
-- codecov
+- /usr/bin/curl -s https://codecov.io/bash -o codecov.sh
+- /bin/bash codecov.sh
 notifications:
   webhooks:
     urls:
-      - https://webhooks.gitter.im/e/974b2fae96dbe33d3c65
+    - https://webhooks.gitter.im/e/974b2fae96dbe33d3c65
     on_success: change  # options: [always|never|change] default: always
     on_failure: always  # options: [always|never|change] default: always
     on_start: never     # options: [always|never|change] default: always

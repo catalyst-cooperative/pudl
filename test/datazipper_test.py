@@ -1,7 +1,9 @@
 """Tests excercising FERC/EIA correlation merge for use with PyTest."""
 
 import logging
+
 import pytest
+
 from pudl import analysis
 
 logger = logging.getLogger(__name__)
@@ -43,9 +45,9 @@ def test_datazipper(gens=100, max_group_size=5, n_series=10, n_samples=100):
     n_eia_groups = len(agg_df.eia_gen_subgroup.unique())
     logger.info('{} EIA subgroupings created.'.format(n_eia_groups))
 
-    eia_cols = ['series{}_eia'.format(N) for N in range(n_series)]
-    ferc_cols = ['series{}_ferc'.format(N) for N in range(n_series)]
-    corr_cols = ['series{}_corr'.format(N) for N in range(n_series)]
+    eia_cols = ['series{}_eia'.format(n) for n in range(n_series)]
+    ferc_cols = ['series{}_ferc'.format(n) for n in range(n_series)]
+    corr_cols = ['series{}_corr'.format(n) for n in range(n_series)]
 
     # Now that we have all the possible lumpings of EIA data, we can
     # calculate the correlations between each of them and their potential
@@ -59,4 +61,4 @@ def test_datazipper(gens=100, max_group_size=5, n_series=10, n_samples=100):
     # candidate is the best match.
     logger.info('Scoring cantidate ensembles based on mean correlations.')
     winners = analysis.score_all(corr_df, corr_cols)
-    assert len(winners.success == True) / len(winners) == 1.0
+    assert len(winners.success is True) / len(winners) == 1.0

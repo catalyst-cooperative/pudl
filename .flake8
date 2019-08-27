@@ -1,0 +1,11 @@
+[flake8]
+# A few linter errors and warnings that we are currently ignoring:
+# * E501: Lines more than 79 characters long.
+# * W503, W504: Line break before / after binary operator.
+# * D401, D413: imperative mood, blank line at end of docstring
+ignore = E501,W504,W503,D413,D401
+# all the models are going away, package_data isn't code, analysis is zombie
+exclude = package_data,analysis.py,models
+# We should really be using max_complexity of ~10. We have some messes.
+max_complexity = 22
+format = ${cyan}%(path)40s${reset}:${green}%(row)-4d${reset} ${red_bold}%(code)s${reset} %(text)s

@@ -11,45 +11,50 @@ continuosly exercising this functionality.
 """
 
 import logging
-import os.path
+import os
+
 import pytest
+
 import pudl
-import pudl.constants as pc
+import pudl.datastore.datastore as datastore
 
 logger = logging.getLogger(__name__)
 
 
 @pytest.mark.pre_etl
-@pytest.mark.parametrize(
-    "source,year", [
-        ("eia860", min(pc.data_years["eia860"])),
-        ("eia860", max(pc.data_years["eia860"])),
-        ("eia923", min(pc.data_years["eia923"])),
-        ("eia923", max(pc.data_years["eia923"])),
-        ("epacems", min(pc.data_years["epacems"])),
-        ("epacems", max(pc.data_years["epacems"])),
-        ("ferc1", min(pc.data_years["ferc1"])),
-        ("ferc1", max(pc.data_years["ferc1"]))
-    ]
-)
-def test_datastore(tmpdir, source, year):
-    """Attempt to download the most recent year of FERC Form 1 data."""
-    states = ["id"]  # Idaho has the least data of any CEMS state.
-    # Attempt to update our temporary/test datastore:
-    pudl.datastore.update(source, year, states, datadir=tmpdir)
-    # Generate a list of paths where we think there should be files now:
-    paths_to_check = pudl.datastore.paths_for_year(
-        source=source, year=year, states=states, datadir=tmpdir)
-    # Loop over those paths and poke at the files a bit:
-    for path in paths_to_check:
-        # Check that the path exists at all:
-        if not os.path.exists(path):
-            raise AssertionError(f"Missing expected file at {path}")
-        filesize_kb = round(os.path.getsize(path) / 1024)
-        logger.info(
-            f"Found {filesize_kb} kB file at {path}")
-        # Verify that recent files are big enough to be real:
-        if (source != 'epacems') and (filesize_kb < 10000) and (year > 2010):
-            raise AssertionError(
-                f"Suspiciously small {source} data for {year} found at {path}"
-            )
+def test_datastore(pudl_settings_fixture, data_scope):
+    """Download sample data for each available data source."""
+    sources_to_update = ['eia860', 'eia923', 'epaipm']
+    years_by_source = {
+        'eia860': [data_scope['refyear'], ],
+        'eia923': [data_scope['refyear'], ],
+        'epacems': [],
+        'epaipm': [None, ],
+        'ferc1': [],
+    }
+    # Sadly, FERC & EPA only provide access to their data via FTP, and it's
+    # not possible to use FTP from within the Travis CI environment:
+    if os.getenv('TRAVIS'):
+        states = []
+    else:
+        states = ['ID']  # Idaho has the least data of any CEMS state.
+        sources_to_update.extend(['ferc1', 'epacems'])
+        years_by_source['ferc1'] = [data_scope['refyear'], ]
+        years_by_source['epacems'] = [data_scope['refyear'], ]
+
+    datastore.parallel_update(
+        sources=sources_to_update,
+        years_by_source=years_by_source,
+        states=states,
+        pudl_settings=pudl_settings_fixture,
+    )
+
+    pudl.helpers.verify_input_files(
+        ferc1_years=years_by_source['ferc1'],
+        eia923_years=years_by_source['eia923'],
+        eia860_years=years_by_source['eia860'],
+        epacems_years=years_by_source['epacems'],
+        epacems_states=states,
+        # Currently no mechanism for automatically verifying EPA IPM files...
+        data_dir=pudl_settings_fixture['data_dir'],
+    )

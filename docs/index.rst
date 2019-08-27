@@ -1,17 +1,29 @@
-Welcome to Public Utility Data Liberation's documentation!
-==========================================================
+===============================================================================
+The Public Utility Data Liberation Project
+===============================================================================
 
-.. automodule:: pudl.init
-    :members:
+.. include:: README.rst
+  :start-after: readme-intro
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+  :hidden:
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+  install
+  usage
+  datastore
+  clone_ferc1
+  datapackages
+  cloud_access
+  data_catalog
+  Contributing <CONTRIBUTING>
+  dev_setup
+  testing
+  data_guidelines
+  code_standards
+  project_management
+  naming_conventions
+  background
+  acknowledgments
+  License <LICENSE>
+  Code of Conduct <CODE_OF_CONDUCT>
+  Module Index <api/modules>

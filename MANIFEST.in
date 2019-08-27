@@ -1,2 +1,11 @@
-include scripts/settings.yml
-include results/id_mapping/mapping_eia923_ferc1.xlsx
+graft src/pudl/package_data
+
+prune ci
+prune data
+prune docs/ferc
+prune .github
+prune results
+prune scripts
+prune test/data
+global-exclude .gitignore __pycache__ *.py[cod] *checkpoint.ipynb
+global-exclude .gitattributes .readthedocs.yml .travis.yml
