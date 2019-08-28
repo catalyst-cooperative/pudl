@@ -11,7 +11,7 @@ def utilities_eia860(pudl_engine, pt, start_date=None, end_date=None):
     """Pulls all fields from the EIA860 Utilities table.
 
     Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
         pt (sqlalchemy.util._collections.immutabledict): a sqlalchemy metadata
             dictionary of pudl tables
         start_date (date): Date to begin retrieving EIA 860 data.
@@ -133,7 +133,7 @@ def plants_eia860(pudl_engine, pt, start_date=None, end_date=None):
 
 
 def plants_utils_eia860(pudl_engine, pt, start_date=None, end_date=None):
-    """Creates a dataframe of plant and utility IDs and names from EIA 860.
+    """Create a dataframe of plant and utility IDs and names from EIA 860.
 
     Returns a pandas dataframe with the following columns:
     - report_date (in which data was reported)
@@ -197,7 +197,7 @@ def plants_utils_eia860(pudl_engine, pt, start_date=None, end_date=None):
 
 
 def generators_eia860(pudl_engine, pt, start_date=None, end_date=None):
-    """Pulls all fields reported in the generators_eia860 table.
+    """Pull all fields reported in the generators_eia860 table.
 
     Merge in other useful fields including the latitude & longitude of the
     plant that the generators are part of, canonical plant & operator names and
@@ -330,7 +330,7 @@ That's too much forward filling.""")
 
 
 def boiler_generator_assn_eia860(pudl_engine, pt, start_date=None, end_date=None):
-    """Pulls all fields from the EIA 860 boiler generator association table.
+    """Pull all fields from the EIA 860 boiler generator association table.
 
     Args:
         pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
@@ -364,7 +364,7 @@ def boiler_generator_assn_eia860(pudl_engine, pt, start_date=None, end_date=None
 
 
 def ownership_eia860(pudl_engine, pt, start_date=None, end_date=None):
-    """Pulls a useful set of fields related to ownership_eia860 table.
+    """Pull a useful set of fields related to ownership_eia860 table.
 
     Args:
         pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database

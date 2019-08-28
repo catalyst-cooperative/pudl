@@ -11,7 +11,8 @@ def plants_utils_ferc1(pudl_engine, pt):
     Build a dataframe of useful FERC Plant & Utility information.
 
     Args:
-        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): Engine for connecting to the
+            PUDL database.
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
 
     Returns:
@@ -31,14 +32,15 @@ def plants_utils_ferc1(pudl_engine, pt):
 
 
 def plants_steam_ferc1(pudl_engine, pt):
-    """Selects and joins some useful fields from the FERC Form 1 steam table.
+    """Select and joins some useful fields from the FERC Form 1 steam table.
 
     Select the FERC Form 1 steam plant table entries, add in the reporting
     utility's name, and the PUDL ID for the plant and utility for readability
     and integration with other tables that have PUDL IDs.
 
     Args:
-        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): Engine for connecting to the
+            PUDL database.
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
 
     Returns:
@@ -70,7 +72,7 @@ def plants_steam_ferc1(pudl_engine, pt):
 
 
 def fuel_ferc1(pudl_engine, pt):
-    """Pulls a useful dataframe related to FERC Form 1 fuel information.
+    """Pull a useful dataframe related to FERC Form 1 fuel information.
 
     This function pulls the FERC Form 1 fuel data, and joins in the name of the
     reporting utility, as well as the PUDL IDs for that utility and the plant,
@@ -78,7 +80,7 @@ def fuel_ferc1(pudl_engine, pt):
 
     Also calculates the total heat content consumed for each fuel, and the
     total cost for each fuel. Total cost is calculated in two different ways,
-    on the basis of fuel units consumed (e.g. tons of coal, mcf of gas) and
+    on the basis of fuel units consumed(e.g. tons of coal, mcf of gas) and
     on the basis of heat content consumed. In theory these should give the
     same value for total cost, but this is not always the case.
 
@@ -86,7 +88,8 @@ def fuel_ferc1(pudl_engine, pt):
         Check whether this includes all of the fuel_ferc1 fields...
 
     Args:
-        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): Engine for connecting to the
+            PUDL database.
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
 
     Returns:
@@ -136,15 +139,15 @@ def fuel_ferc1(pudl_engine, pt):
 
 
 def fuel_by_plant_ferc1(pudl_engine, pt, thresh=0.5):
-    """Summarizes FERC fuel data by plant for output.
+    """Summarize FERC fuel data by plant for output.
 
     This is mostly a wrapper around pudl.transform.ferc1.fuel_by_plant_ferc1
     which calculates some summary values on a per-plant basis (as indicated
     by utility_id_ferc1 and plant_name) related to fuel consumption.
 
     Args:
-        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy
-            database
+        pudl_engine (sqlalchemy.engine.Engine): Engine for connecting to the
+            PUDL database.
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         thresh (float): Minimum fraction of fuel (cost and mmbtu) required in
             order for a plant to be assigned a primary fuel. Must be between

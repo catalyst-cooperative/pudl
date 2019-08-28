@@ -33,7 +33,8 @@ def generation_fuel_eia923(pudl_engine, pt, freq=None,
     860 tables.
 
     Args:
-        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
+            for the PUDL DB.
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are
@@ -150,7 +151,8 @@ def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
     860 tables.
 
     Args:
-        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
+            for the PUDL DB.
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are
@@ -291,7 +293,8 @@ def boiler_fuel_eia923(pudl_engine, pt, freq=None,
     860 tables.
 
     Args:
-        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
+            for the PUDL DB.
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are
@@ -401,7 +404,8 @@ def generation_eia923(pudl_engine, pt, freq=None,
     Pull records from the boiler_fuel_eia923 table in a given data range.
 
     Args:
-        pudl_engine (sqlalchemy.engine.Engine): A connection to the sqlalchemy database
+        pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
+            for the PUDL DB.
         pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are

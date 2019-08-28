@@ -73,17 +73,17 @@ def get_defaults():
 
     # Ensure that no matter what the user has put in this file, we get fully
     # specified absolute paths out when we read it:
-    default_workspace["pudl_in"] = (
+    pudl_in = (
         pathlib.Path(default_workspace["pudl_in"]).
         expanduser().
         resolve()
     )
-    default_workspace["pudl_out"] = (
+    pudl_out = (
         pathlib.Path(default_workspace["pudl_out"]).
         expanduser().
         resolve()
     )
-    return default_workspace
+    return derive_paths(pudl_in, pudl_out)
 
 
 def derive_paths(pudl_in, pudl_out):

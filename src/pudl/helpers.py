@@ -130,7 +130,7 @@ def data_sources_from_tables(table_names, testing=False):
 
 
 def is_annual(df_year, year_col='report_date'):
-    """Determines whether dataframe is consistent with yearly reporting.
+    """Determine whether dataframe is consistent with yearly reporting.
 
     Some processes will only work with consistent yearly reporting. This means
     if you have two non-contiguous years of data or the datetime reporting is
@@ -146,6 +146,7 @@ def is_annual(df_year, year_col='report_date'):
 
     Todo:
         Return to for df_year, Returns, assert statements
+
     """
     year_index = pd.DatetimeIndex(df_year[year_col].unique()).sort_values()
     if len(year_index) >= 3:
@@ -173,8 +174,7 @@ def is_annual(df_year, year_col='report_date'):
 def merge_on_date_year(df_date, df_year, on=(), how='inner',
                        date_col='report_date',
                        year_col='report_date'):
-    """
-    Merges two dataframes based on a shared year.
+    """Merge two dataframes based on a shared year.
 
     Some of our data is annual, and has an integer year column (e.g. FERC 1).
     Some of our data is annual, and uses a Date column (e.g. EIA 860), and
@@ -202,10 +202,11 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
             column with annual resolution.
 
     Returns:
-        merged: a dataframe with a date column, but no year columns, and only
-        one copy of any shared columns that were not part of the list of
-        columns to be merged on.  The values from df1 are the ones which
-        are retained for any shared, non-merging columns
+        :mod:`pandas.DataFrame`: a dataframe with a date column, but no year
+        columns, and only one copy of any shared columns that were not part of
+        the list of columns to be merged on.  The values from df1 are the ones
+        which are retained for any shared, non-merging columns
+
     """
     assert date_col in df_date.columns.tolist()
     assert year_col in df_year.columns.tolist()
@@ -276,7 +277,7 @@ def organize_cols(df, cols):
 
 
 def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
-    """Extends time range in a DataFrame by duplicating first and last years.
+    """Extend time range in a DataFrame by duplicating first and last years.
 
     Takes the earliest year's worth of annual data and uses it to create
     earlier years by duplicating it, and changing the year.  Similarly,
@@ -298,6 +299,7 @@ def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
 
     Todo:
         Return to
+
     """
     # assert that df time resolution really is annual
     assert is_annual(df, year_col=date_col)
@@ -328,7 +330,7 @@ def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
 
 
 def strip_lower(df, columns=None):
-    """Strips and compact whitespace, lowercase listed DataFrame columns.
+    """Strip and compact whitespace, lowercase listed DataFrame columns.
 
     First converts all listed columns (if present in df) to string type, then
     applies the str.strip() and str.lower() methods to them, and replaces all
@@ -340,8 +342,9 @@ def strip_lower(df, columns=None):
             converted to lowercase.
 
     Returns:
-        pandas.DataFrame: The whole DataFrame that was passed in, with
+        :mod:`pandas.DataFrame`: The whole DataFrame that was passed in, with
         the columns cleaned up in place, allowing method chaining.
+
     """
     out_df = df.copy()
     for col in columns:
@@ -357,7 +360,7 @@ def strip_lower(df, columns=None):
 
 
 def cleanstrings_series(col, str_map, unmapped=None, simplify=True):
-    """Cleans up the strings in a single column/Series.
+    """Clean up the strings in a single column/Series.
 
     Args:
         col (pd.Series): A pandas Series, typically a single column of a
@@ -374,8 +377,9 @@ def cleanstrings_series(col, str_map, unmapped=None, simplify=True):
             need to be kept track of.
 
     Returns:
-        pd.Series: The cleaned up Series / column, suitable for replacng the
-        original messy column in a pd.Dataframe.
+        :mod:`pandas.Series`: The cleaned up Series / column, suitable for
+        replacng the original messy column in a pd.Dataframe.
+
     """
     if simplify:
         col = (
@@ -404,7 +408,7 @@ def cleanstrings_series(col, str_map, unmapped=None, simplify=True):
 
 
 def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
-    """Consolidates freeform strings in several dataframe columns.
+    """Consolidate freeform strings in several dataframe columns.
 
     This function will consolidate freeform strings found in `columns` into
     simplified categories, as defined by `stringmaps`. This is useful when
@@ -453,7 +457,7 @@ def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
 
 
 def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=''):
-    """Converts NA containing integer columns from float to strin.
+    """Convert NA containing integer columns from float to string.
 
     Numpy doesn't have a real NA value for integers. When pandas stores integer
     data which has NA values, it thus upcasts integers to floating point
@@ -494,7 +498,7 @@ def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=''):
 
 
 def month_year_to_date(df):
-    """Converts all pairs of year/month fields in a dataframe into Date fields.
+    """Convert all pairs of year/month fields in a dataframe into Date fields.
 
     This function finds all column names within a dataframe that match the
     regular expression '_month$' and '_year$', and looks for pairs that have
@@ -581,7 +585,7 @@ def convert_to_date(df,
                     day_col='report_day',
                     month_value=1,
                     day_value=1):
-    """Converts specified year, month or day columns into a datetime object.
+    """Convert specified year, month or day columns into a datetime object.
 
     Args:
         df (pandas.DataFrame): dataframe to convert
@@ -675,7 +679,7 @@ def simplify_columns(df):
 
 
 def find_timezone(*, lng=None, lat=None, state=None, strict=True):
-    """Finds the timezone associated with the a specified input location.
+    """Find the timezone associated with the a specified input location.
 
     Note that this function requires named arguments. The names are lng, lat,
     and state.  lng and lat must be provided, but they may be NA. state isn't
@@ -753,7 +757,7 @@ def data_sources_from_tables_pkg(table_names, testing=False):
 
 
 def get_foreign_key_relash_from_pkg(pkg_json):
-    """Generates a dictionary of foreign key relationships from pkging metadata.
+    """Generate a dictionary of foreign key relationships from pkging metadata.
 
     This function helps us pull all of the foreign key relationships of all
     of the tables in the metadata.
@@ -765,6 +769,7 @@ def get_foreign_key_relash_from_pkg(pkg_json):
 
     Returns:
         dict: list of foreign key tables
+
     """
     with open(pkg_json) as md:
         metadata = json.load(md)
@@ -851,7 +856,7 @@ def verify_input_files(ferc1_years,
                        epacems_years,
                        epacems_states,
                        data_dir):
-    """Verifies that all required data files exist prior to the ETL process.
+    """Verify that all required data files exist prior to the ETL process.
 
     Args:
         ferc1_years (iterable): Years of FERC1 data we're going to import.
@@ -893,7 +898,7 @@ def verify_input_files(ferc1_years,
         if not os.path.isfile(f):
             missing_eia923_years.add(str(y))
 
-    if epacems_states and epacems_states[0].lower() == 'all':
+    if epacems_states and list(epacems_states)[0].lower() == 'all':
         epacems_states = list(pc.cems_states.keys())
     missing_epacems_year_states = set()
     for y in epacems_years:
