@@ -62,7 +62,7 @@ def pkg_to_sqlite_db(pudl_settings,
     logger.info('Exporting the data package to sql')
     try:
         # Save the data package in SQL
-        pkg.save(storage='sql', engine=pudl_engine)
+        pkg.save(storage='sql', engine=pudl_engine, merge_groups=True)
     except exceptions.TableSchemaException as exception:
         logger.info('SQLite conversion failed. See following errors:')
         logger.info(exception.errors)

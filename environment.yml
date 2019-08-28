@@ -8,7 +8,6 @@ dependencies:
   - coloredlogs         # base
   - coverage            # dev
   - dask                # user
-  - datapackage         # base
   - dbfread             # base
   - doc8                # dev
   - flake8              # dev
@@ -51,5 +50,6 @@ dependencies:
   - twine               # dev
   - xlsxwriter          # base
   - pip:
+    - tableschema-sql==1.0.1   # base
     - sqlalchemy-postgres-copy # base
-    - tableschema-sql==1.0.1     # base
+    - datapackage==1.8.0       # base

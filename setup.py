@@ -7,7 +7,7 @@ from setuptools import find_packages, setup
 
 install_requires = [
     'coloredlogs',
-    'datapackage',
+    'datapackage==1.8.0',
     'dbfread',
     'goodtables',
     'networkx>=2.2',

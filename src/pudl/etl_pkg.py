@@ -380,8 +380,8 @@ def _etl_epacems_pkg(etl_params, data_dir, pkg_dir):
                                                 epacems_states,
                                                 data_dir,
                                                 pkg_dir))
-    # return(epacems_tables)
-    return ['hourly_emissions_epacems']
+    return epacems_tables
+    # return ['hourly_emissions_epacems']
 
 ###############################################################################
 # EPA IPM ETL FUNCTIONS
@@ -777,10 +777,10 @@ def generate_data_packages(pkg_bundle_settings,
         pkg_tables = etl_pkg(pkg_settings, pudl_settings, pkg_bundle_dir)
         # assure that the list of tables from ETL match up with the CVSs and
         # dependent tables
-        pudl.load.metadata.test_file_consistency(
-            pkg_tables,
-            pkg_settings,
-            pkg_dir=pkg_dir)
+        # pudl.load.metadata.test_file_consistency(
+        #    pkg_tables,
+        #    pkg_settings,
+        #    pkg_dir=pkg_dir)
 
         if pkg_tables:
             # generate the metadata for the package and validate

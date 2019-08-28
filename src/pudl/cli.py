@@ -40,13 +40,15 @@ def parse_command_line(argv):
 
     """
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(dest='settings_file', type=str, default='',
-                        help="path to YAML datapackage settings file.")
+    parser.add_argument(
+        dest='settings_file',
+        type=str,
+        default='',
+        help="path to YAML datapackage settings file.")
     parser.add_argument(
         '--dp_bundle_name',
         default="",
-        help="""Name for data package bundle directory. If no name is given the
-        default is the pudl python package version.""")
+        help="""Name for data package bundle directory.""")
     parser.add_argument(
         '-c',
         '--clobber',

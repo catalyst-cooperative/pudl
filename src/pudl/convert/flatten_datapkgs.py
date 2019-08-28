@@ -6,8 +6,6 @@ import os
 import pathlib
 import shutil
 
-import pkg_resources
-
 import pudl
 
 logger = logging.getLogger(__name__)
@@ -193,7 +191,7 @@ def check_for_matching_parameters(pkg_bundle_dir, pkg_name):
 
 
 def flatten_pudl_datapackages(pudl_settings,
-                              pkg_bundle_dir_name=None,
+                              pkg_bundle_dir_name,
                               pkg_name='pudl-all'):
     """
     Combines a collection of PUDL data packages into one.
@@ -211,13 +209,11 @@ def flatten_pudl_datapackages(pudl_settings,
 
     """
     # determine the subdirectory for the package bundles...
-    if pkg_bundle_dir_name:
-        pkg_bundle_dir = pathlib.Path(pudl_settings['datapackage_dir'],
-                                      pkg_bundle_dir_name)
-    else:
-        version = pkg_resources.get_distribution('catalystcoop.pudl').version
-        pkg_bundle_dir = pathlib.Path(
-            pudl_settings['datapackage_dir'], version)
+    pkg_bundle_dir = pathlib.Path(pudl_settings['datapackage_dir'],
+                                  pkg_bundle_dir_name)
+    if not os.path.exists(pkg_bundle_dir):
+        raise AssertionError(
+            "The datapackage bundle directory does not exist. ")
 
     # check that data packages that have the same sources have the same parameters
     check_for_matching_parameters(pkg_bundle_dir, pkg_name)

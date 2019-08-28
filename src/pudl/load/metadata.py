@@ -11,7 +11,6 @@ import uuid
 
 import datapackage
 import goodtables
-import pkg_resources
 
 import pudl
 from pudl import constants as pc
@@ -71,6 +70,33 @@ def compile_partitions(pkg_settings):
     return(partitions)
 
 
+def get_unpartioned_tables(tables, pkg_settings):
+    """
+    Get the tables w/out the partitions.
+
+    Because the partitioning key will always be the name of the table without
+    whatever element the table is being partitioned by, we can assume the names
+    of all of the un-partitioned tables to get a list of tables that is easier
+    to work with.
+
+    Args:
+        tables (iterable): list of tables that are included in this datapackage.
+        pkg_settings (dictionary):
+    Returns:
+        iterable: tables_unpartioned is a set of un-partitioned tables
+    """
+    partitions = compile_partitions(pkg_settings)
+    tables_unpartioned = set()
+    if partitions:
+        for table in tables:
+            for part in partitions.keys():
+                if part in table:
+                    tables_unpartioned.add(part)
+                else:
+                    tables_unpartioned.add(table)
+    return tables_unpartioned
+
+
 def package_files_from_table(table, pkg_settings):
     """Determine which files should exist in a package cooresponding to a table.
 
@@ -97,6 +123,34 @@ def package_files_from_table(table, pkg_settings):
         except KeyError:
             pass
     return(files)
+
+
+def get_repartitioned_tables(tables, partitions, pkg_settings):
+    """
+    Get the re-partitioned tables.
+
+    Args:
+        tables (list): a list of tables that are included in this data package.
+        partitions (dict)
+        pkg_settings (dict): a dictionary containing package settings
+            containing top level elements of the data package JSON descriptor
+            specific to the data package.
+    Returns:
+        list: list of tables including full groups of
+    """
+    flat_pkg_settings = pudl.etl_pkg.get_flattened_etl_parameters(
+        [pkg_settings])
+    tables_repartitioned = []
+    for table in tables:
+        if partitions:
+            for part in partitions.keys():
+                if part is table:
+                    for part_separator in flat_pkg_settings[partitions[part]]:
+                        tables_repartitioned.append(
+                            table + "_" + str(part_separator))
+                else:
+                    tables_repartitioned.append(table)
+    return tables_repartitioned
 
 
 def test_file_consistency(tables, pkg_settings, pkg_dir):
@@ -127,15 +181,15 @@ def test_file_consistency(tables, pkg_settings, pkg_dir):
 
     """
     pkg_name = pkg_settings['name']
-    # tables = list(itertools.chain.from_iterable(tables_dict.values()))
     # remove the '.csv' or the '.csv.gz' from the file names
     file_tbls = [re.sub(r'(\.csv.*$)', '', x) for x in os.listdir(
         os.path.join(pkg_dir, 'data'))]
     # given list of table names and partitions, generate list of expected files
-    pkg_files = []
-    for table in tables:
-        pkg_file = package_files_from_table(table, pkg_settings)
-        pkg_files.extend(pkg_file)
+    pkg_files = tables
+    # pkg_files = []
+    # for table in tables:
+    #    pkg_file = package_files_from_table(table, pkg_settings)
+    #    pkg_files.extend(pkg_file)
 
     dependent_tbls = list(
         pudl.helpers.get_dependent_tables_from_list_pkg(tables))
@@ -191,34 +245,20 @@ def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
         information about the selected table
 
     """
-    if partitions:
-        abs_paths = [f for f in pathlib.Path(
-            pkg_dir, 'data').glob(f'{table_name}*')]
-    else:
-        abs_paths = [pathlib.Path(pkg_dir, 'data', f'{table_name}.csv')]
-    csv_relpaths = []
-    file_bytes = []
-    hashes = []
-    for abs_path in abs_paths:
-        csv_relpaths.extend(
-            [str(abs_path.relative_to(abs_path.parent.parent))])
-        # assuming bytes needs to be the total size of the related files
-        file_bytes.extend([abs_path.stat().st_size])
-        # assuming hash needs to be a list of hashes.. probs not true
-        hashes.extend([pudl.load.metadata.hash_csv(abs_path)])
-        if len(abs_paths) == 1:
-            csv_relpaths = csv_relpaths[0]
-            hashes = hashes[0]
+    abs_path = pathlib.Path(pkg_dir, 'data', f'{table_name}.csv')
+
     # pull the skeleton of the descriptor from the megadata file
     descriptor = pudl.helpers.pull_resource_from_megadata(table_name)
-    descriptor['path'] = csv_relpaths
-    descriptor['bytes'] = sum(file_bytes)
-    if partitions:
-        pass
-    else:
-        descriptor['hash'] = hashes
+    descriptor['path'] = str(abs_path.relative_to(abs_path.parent.parent))
+    descriptor['bytes'] = abs_path.stat().st_size
+    descriptor['hash'] = pudl.output.export.hash_csv(abs_path)
     descriptor['created'] = (datetime.datetime.utcnow().
                              replace(microsecond=0).isoformat() + 'Z')
+
+    if partitions:
+        for part in partitions.keys():
+            if part in table_name:
+                descriptor['group'] = part
 
     resource = datapackage.Resource(descriptor)
     if resource.valid:
@@ -260,10 +300,13 @@ def validate_save_pkg(pkg_descriptor, pkg_dir):
     # pkg_json is the datapackage.json that we ultimately output:
     pkg_json = os.path.join(pkg_dir, "datapackage.json")
     data_pkg.save(pkg_json)
+    logger.info('Validating the datapackage..')
     # Validate the data within the package using goodtables:
     report = goodtables.validate(pkg_json, row_limit=1000)
     if not report['valid']:
-        logger.warning("Data package data validation failed.")
+        logger.warning("Datapackage validation failed.")
+    else:
+        logger.info('Congrats! You made a validated a datapackage.')
     return report
 
 
@@ -308,17 +351,23 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
     # Create a tabular data resource for each of the tables.
     resources = []
     partitions = compile_partitions(pkg_settings)
-    # tables = list(itertools.chain.from_iterable(tables_dict.values()))
     for table in tables:
-        if table in partitions.keys():
-            resources.append(get_tabular_data_resource(table,
-                                                       pkg_dir=pkg_dir,
-                                                       partitions=partitions[table]))
-        else:
-            resources.append(get_tabular_data_resource(table,
-                                                       pkg_dir=pkg_dir))
+        #    for part in partitions.keys():
+        #        if part in table:
+        #            resources.append(get_tabular_data_resource(
+        #                table,
+        #                pkg_dir=pkg_dir,
+        #                partitions=partitions[part]))
+        #    else:
+        #        resources.append(get_tabular_data_resource(table,
+        #                                                   pkg_dir=pkg_dir))
+        resources.append(get_tabular_data_resource(table,
+                                                   pkg_dir=pkg_dir,
+                                                   partitions=partitions))
+
+    unpartitioned_tables = get_unpartioned_tables(tables, pkg_settings)
     data_sources = pudl.helpers.data_sources_from_tables_pkg(
-        tables)
+        unpartitioned_tables)
     sources = []
     for src in data_sources:
         if src in pudl.constants.data_sources:
@@ -375,14 +424,8 @@ def prep_pkg_bundle_directory(pudl_settings,
         path-like
 
     """
-    # make a subdirectory for the package bundles...
-    if pkg_bundle_dir_name:
-        pkg_bundle_dir = os.path.join(
-            pudl_settings['datapackage_dir'], pkg_bundle_dir_name)
-    else:
-        version = pkg_resources.get_distribution('catalystcoop.pudl').version
-        pkg_bundle_dir = os.path.join(
-            pudl_settings['datapackage_dir'], version)
+    pkg_bundle_dir = os.path.join(
+        pudl_settings['datapackage_dir'], pkg_bundle_dir_name)
 
     if os.path.exists(pkg_bundle_dir) and (clobber is False):
         raise AssertionError(
