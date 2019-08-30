@@ -8,7 +8,7 @@ dependencies:
   - coloredlogs         # base
   - coverage            # dev
   - dask                # user
-  - datapackage         # base
+  - datapackage>=1.8.0  # base We depend on features introduced in v1.8.0
   - dbfread             # base
   - doc8                # dev
   - flake8              # dev
@@ -20,7 +20,7 @@ dependencies:
   - isort               # dev
   - jedi                # dev
   - jupyter             # user
-  - jupyterlab          # user
+  - jupyterlab<1.1      # user Extension issues exist in v1.1.0 for now.
   - matplotlib          # user
   - nbval               # dev
   - networkx>=2.2       # base We depend on features introduced in v2.2
@@ -33,7 +33,7 @@ dependencies:
   - pre_commit          # dev
   - psycopg2            # base
   - pyarrow>=0.14.0     # base compilation issues below 0.14.0
-  - pydocstyle          #
+  - pydocstyle          # dev
   - pytest              # dev
   - pytest-cov          # dev
   - python>=3.7         # N/A
@@ -46,10 +46,10 @@ dependencies:
   - sphinx_rtd_theme    # dev
   - sqlalchemy>=1.3.0   # base Security issues below v1.3.0
   - tableschema         # base
+  - tableschema-sql     # base
   - timezonefinder      # base
   - tox                 # dev
   - twine               # dev
   - xlsxwriter          # base
   - pip:
     - sqlalchemy-postgres-copy # base
-    - tableschema-sql # base
