@@ -855,7 +855,7 @@ def verify_input_files(ferc1_years,
                        eia860_years,
                        epacems_years,
                        epacems_states,
-                       data_dir):
+                       pudl_settings):
     """Verify that all required data files exist prior to the ETL process.
 
     Args:
@@ -873,6 +873,8 @@ def verify_input_files(ferc1_years,
         Check Docstring.
 
     """
+    data_dir = pudl_settings['data_dir']
+
     missing_ferc1_years = {
         str(y) for y in ferc1_years if not os.path.isfile(
             pudl.extract.ferc1.dbc_filename(y, data_dir=data_dir))

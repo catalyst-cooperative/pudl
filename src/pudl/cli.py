@@ -46,7 +46,7 @@ def parse_command_line(argv):
         default='',
         help="path to YAML datapackage settings file.")
     parser.add_argument(
-        '--dp_bundle_name',
+        '--pkg_bundle_name',
         default="",
         help="""Name for data package bundle directory.""")
     parser.add_argument(
@@ -55,7 +55,7 @@ def parse_command_line(argv):
         action='store_true',
         help="""Clobber existing datapackages if they exist. If clobber is not
         included but the datapackage bundle directory already exists the _build
-        will fail. Either the dp_bundle_name needs to be unique or you need to
+        will fail. Either the pkg_bundle_name needs to be unique or you need to
         include --clobber""",
         default=False)
     arguments = parser.parse_args(argv[1:])
@@ -85,11 +85,21 @@ def main():
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in, pudl_out=pudl_out)
 
+    logger.info('verifying that the data we need exists in the data store')
+    flattened_params_dict = pudl.etl_pkg.get_flattened_etl_parameters(
+        script_settings)
+    pudl.helpers.verify_input_files(flattened_params_dict['ferc1_years'],
+                                    flattened_params_dict['eia923_years'],
+                                    flattened_params_dict['eia860_years'],
+                                    flattened_params_dict['epacems_years'],
+                                    flattened_params_dict['epacems_states'],
+                                    pudl_settings)
+
     pudl.etl_pkg.generate_data_packages(
         script_settings,
         pudl_settings,
         debug=False,
-        pkg_bundle_dir_name=args.dp_bundle_name,
+        pkg_bundle_dir_name=args.pkg_bundle_name,
         clobber=args.clobber)
 
 

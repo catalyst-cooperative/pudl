@@ -27,37 +27,32 @@ END_DATE_FERC1 = pd.to_datetime(f"{max(pc.working_years['ferc1'])}-12-31")
 def data_scope(fast_tests, pudl_settings_fixture):
     """Define data scope for tests for CI vs. local use."""
     data_scope = {}
-    data_scope['epacems_states'] = ['ID', ]
-    data_scope['refyear'] = 2017
+    # data_scope['epacems_states'] = ['ID', ]
     test_dir = pathlib.Path(__file__).parent
+    data_scope = {}
+    # data_scope['epacems_states'] = ['ID', ]
     if fast_tests:
         with open(os.path.join(test_dir, 'settings',
                                'settings_datapackage_fast.yml'),
                   "r") as f:
             pkg_settings = yaml.safe_load(f)
-        data_scope['pkg_bundle_settings'] = pkg_settings
-        data_scope['ferc1_working_years'] = [data_scope['refyear']]
-        data_scope['eia860_data_years'] = [data_scope['refyear']]
-        data_scope['eia923_data_years'] = [data_scope['refyear']]
-        data_scope['ferc1_data_years'] = [data_scope['refyear']]
-        data_scope['epacems_data_years'] = [data_scope['refyear']]
-        data_scope['ferc1_tables'] = pudl.constants.ferc1_default_tables
+        data_scope.update(pkg_settings)
+        data_scope.update(pudl.etl_pkg.get_flattened_etl_parameters(
+            pkg_settings['pkg_bundle_settings']))
+        data_scope['ferc1_dbf_tables'] = pudl.constants.ferc1_default_tables
     else:
-
         with open(os.path.join(test_dir, 'settings',
                                'settings_datapackage_test.yml'),
                   "r") as f:
             pkg_settings = yaml.safe_load(f)
-        data_scope['pkg_bundle_settings'] = pkg_settings
-        data_scope['eia860_working_years'] = pc.working_years['eia860']
-        data_scope['eia923_working_years'] = pc.working_years['eia923']
-        data_scope['ferc1_working_years'] = pc.working_years['ferc1']
-        data_scope['epacems_working_years'] = pc.working_years['epacems']
+        data_scope.update(pkg_settings)
+        data_scope.update(pudl.etl_pkg.get_flattened_etl_parameters(
+            pkg_settings['pkg_bundle_settings']))
         data_scope['eia860_data_years'] = pc.data_years['eia860']
         data_scope['eia923_data_years'] = pc.data_years['eia923']
         data_scope['ferc1_data_years'] = pc.data_years['ferc1']
         data_scope['epacems_data_years'] = pc.data_years['epacems']
-        data_scope['ferc1_tables'] = [
+        data_scope['ferc1_dbf_tables'] = [
             tbl for tbl in pc.ferc1_tbl2dbf if tbl not in pc.ferc1_huge_tables
         ]
     return data_scope
@@ -65,7 +60,7 @@ def data_scope(fast_tests, pudl_settings_fixture):
 
 def pytest_addoption(parser):
     """Add a command line option for using the live FERC/PUDL DB."""
-    parser.addoption("--live_ferc_db", action="store_true", default=False,
+    parser.addoption("--live_ferc_db", action="store", default=False,
                      help="Use live rather than temporary FERC DB.")
     parser.addoption("--live_pudl_db", action="store_true", default=False,
                      help="Use live PUDL DB rather than test DB.")
@@ -75,6 +70,8 @@ def pytest_addoption(parser):
                      help="Path to the top level PUDL outputs directory.")
     parser.addoption("--fast", action="store_true", default=False,
                      help="Use minimal test data to speed up the tests.")
+    parser.addoption("--clobber", action="store_true", default=False,
+                     help="Clobber the existing datapackages if they exist")
 
 
 @pytest.fixture(scope='session')
@@ -152,9 +149,9 @@ def ferc1_engine(live_ferc_db, pudl_settings_fixture,
     """
     if not live_ferc_db:
         pudl.extract.ferc1.dbf2sqlite(
-            tables=data_scope['ferc1_tables'],
-            years=data_scope['ferc1_working_years'],
-            refyear=data_scope['refyear'],
+            tables=data_scope['ferc1_dbf_tables'],
+            years=data_scope['ferc1_years'],
+            refyear=max(data_scope['ferc1_years']),
             pudl_settings=pudl_settings_fixture)
 
     # Grab a connection to the freshly populated database, and hand it off.
@@ -169,33 +166,64 @@ def ferc1_engine(live_ferc_db, pudl_settings_fixture,
 
 
 @pytest.fixture(scope='session')
+def data_packaging(request, datastore_fixture, ferc1_engine,
+                   pudl_settings_fixture, data_scope):
+    """Generate limited packages for testing."""
+    logger.info('setting up the data_packaging fixture')
+    clobber = request.config.getoption("--clobber")
+    pudl.etl_pkg.generate_data_packages(
+        data_scope['pkg_bundle_settings'],
+        pudl_settings_fixture,
+        pkg_bundle_dir_name=data_scope['pkg_bundle_dir_name'],
+        clobber=clobber)
+
+
+@pytest.fixture(scope='session')
+def data_packaging_to_sqlite(pudl_settings_fixture, data_scope, data_packaging):
+    """Try flattening the data packages."""
+    logger.info('setting up the data_packaging_to_sqlite fixture')
+    pudl.convert.flatten_datapkgs.flatten_pudl_datapackages(
+        pudl_settings_fixture,
+        pkg_bundle_dir_name=data_scope['pkg_bundle_dir_name'],
+        pkg_name='pudl-all')
+
+    pudl.convert.datapkg_to_sqlite.pkg_to_sqlite_db(
+        pudl_settings_fixture,
+        pkg_bundle_dir_name=data_scope['pkg_bundle_dir_name'],
+        pkg_name='pudl-all')
+
+
+@pytest.fixture(scope='session')
 def pudl_engine(ferc1_engine, live_pudl_db,
                 pudl_settings_fixture,
-                datastore_fixture, data_scope):
+                datastore_fixture, data_scope, request):
     """
     Grab a connection to the PUDL Database.
 
     If we are using the test database, we initialize the PUDL DB from scratch.
     If we're using the live database, then we just make a conneciton to it.
     """
+    logger.info('setting up the pudl_engine fixture')
     if not live_pudl_db:
-        pudl.init.init_db(ferc1_tables=pc.pudl_tables['ferc1'],
-                          ferc1_years=data_scope['ferc1_working_years'],
-                          eia923_tables=pc.pudl_tables['eia923'],
-                          eia923_years=data_scope['eia923_working_years'],
-                          eia860_tables=pc.pudl_tables['eia860'],
-                          eia860_years=data_scope['eia860_working_years'],
-                          epacems_years=data_scope['epacems_working_years'],
-                          epacems_states=data_scope['epacems_states'],
-                          epaipm_tables=pc.pudl_tables['epaipm'],
-                          pudl_settings=pudl_settings_fixture,
-                          pudl_testing=(not live_pudl_db))
+        clobber = request.config.getoption("--clobber")
+        pudl.etl_pkg.generate_data_packages(
+            data_scope['pkg_bundle_settings'],
+            pudl_settings_fixture,
+            pkg_bundle_dir_name=data_scope['pkg_bundle_dir_name'],
+            clobber=clobber)
 
+        pudl.convert.flatten_datapkgs.flatten_pudl_datapackages(
+            pudl_settings_fixture,
+            pkg_bundle_dir_name=data_scope['pkg_bundle_dir_name'],
+            pkg_name='pudl-all')
+
+        pudl.convert.datapkg_to_sqlite.pkg_to_sqlite_db(
+            pudl_settings_fixture,
+            pkg_bundle_dir_name=data_scope['pkg_bundle_dir_name'],
+            pkg_name='pudl-all')
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
-    pudl_engine = pudl.init.connect_db(
-        pudl_settings=pudl_settings_fixture,
-        testing=(not live_pudl_db)
-    )
+    pudl_engine = sa.create_engine(pudl_settings_fixture["pudl_sqlite_url"])
+    logger.info(pudl_engine)
     yield pudl_engine
 
     if not live_pudl_db:
@@ -204,14 +232,16 @@ def pudl_engine(ferc1_engine, live_pudl_db,
 
 
 @pytest.fixture(scope='session')
-def pudl_settings_fixture(request, tmpdir_factory):
+def pudl_settings_fixture(request, tmpdir_factory, live_ferc_db):
     """Determine some settings (mostly paths) for the test session."""
+    logger.info('setting up the pudl_settings_fixture')
     # Create a session scoped temporary directory.
     pudl_dir = tmpdir_factory.mktemp('pudl')
 
     # Grab the user configuration, if it exists:
     try:
         pudl_auto = pudl.workspace.setup.get_defaults()
+        logger.info(f'pudl_auto: {pudl_auto}')
     except FileNotFoundError:
         pass
 
@@ -226,11 +256,13 @@ def pudl_settings_fixture(request, tmpdir_factory):
         pudl_in = pudl_dir
     elif pudl_in == 'AUTO':
         pudl_in = pudl_auto['pudl_in']
+    logger.info(f'pudl_in: {pudl_in}')
 
     if pudl_out is False:
         pudl_out = pudl_dir
     elif pudl_out == 'AUTO':
         pudl_out = pudl_auto['pudl_out']
+    logger.info(f'pudl_out: {pudl_out}')
 
     logger.info(f"Using PUDL_IN={pudl_in}")
     logger.info(f"Using PUDL_OUT={pudl_out}")
@@ -238,9 +270,21 @@ def pudl_settings_fixture(request, tmpdir_factory):
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in,
         pudl_out=pudl_out)
+    logger.info(f'derived_paths: {pudl_settings}')
 
     pudl.workspace.setup.init(pudl_in=pudl_in, pudl_out=pudl_out)
 
+    if live_ferc_db is False:
+        pudl_settings['ferc1_db'] = pudl_settings['ferc1_db']
+    elif live_ferc_db == 'AUTO':
+        logger.info('live_ferc_db == AUTO')
+        logger.info(pudl_auto['ferc1_db'])
+        pudl_settings['ferc1_db'] = pudl_auto['ferc1_db']
+        # for now let's check if the ferc1 database has any tables...
+        pudl.extract.ferc1.get_ferc1_meta(pudl_settings)
+    # elif live_ferc_db:
+    #    pudl_settings['ferc1_db'] = something
+    logger.info(f'post_live_ferc_db mucking : {pudl_settings}')
     return pudl_settings
 
 
@@ -270,9 +314,10 @@ def datastore_fixture(pudl_settings_fixture, data_scope):
         'eia860',
         'eia923'
     ]
+
     years_by_source = {
-        'eia860': [data_scope['refyear'], ],
-        'eia923': [data_scope['refyear'], ],
+        'eia860': data_scope['eia860_years'],
+        'eia923': data_scope['eia923_years'],
         'epacems': [],
         'epaipm': [None, ],
         'ferc1': [],
@@ -325,8 +370,8 @@ def datastore_fixture(pudl_settings_fixture, data_scope):
         states = []
     else:
         sources_to_update.extend(["ferc1", "epacems"])
-        years_by_source["ferc1"] = [data_scope["refyear"], ]
-        years_by_source["epacems"] = [data_scope["refyear"], ]
+        years_by_source["ferc1"] = data_scope["ferc1_years"]
+        years_by_source["epacems"] = data_scope["epacems_years"]
         states = ["id"]
 
     # Download the test year for each dataset that we're downloading...
@@ -343,5 +388,5 @@ def datastore_fixture(pudl_settings_fixture, data_scope):
         eia860_years=years_by_source["eia860"],
         epacems_years=years_by_source["epacems"],
         epacems_states=states,
-        data_dir=pudl_settings_fixture["data_dir"],
+        pudl_settings=pudl_settings_fixture,
     )

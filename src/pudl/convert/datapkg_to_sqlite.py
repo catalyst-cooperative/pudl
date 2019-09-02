@@ -62,7 +62,7 @@ def pkg_to_sqlite_db(pudl_settings,
     logger.info('Exporting the data package to sql')
     try:
         # Save the data package in SQL
-        pkg.save(storage='sql', engine=pudl_engine, merge_groups=True)
+        pkg.save(storage='sql', engine=pudl_engine)  # , merge_groups=True)
     except exceptions.TableSchemaException as exception:
         logger.info('SQLite conversion failed. See following errors:')
         logger.info(exception.errors)
@@ -91,8 +91,11 @@ def parse_command_line(argv):
 
 def main():
     """Convert a set of datapackages to a sqlite database."""
+    # Display logged output from the PUDL package:
+    logger = logging.getLogger(pudl.__name__)
     args = parse_command_line(sys.argv)
-
+    logger.info(
+        'prepping workspaces before flattening & converting the dps to sqlite')
     pudl_in = pudl.workspace.setup.get_defaults()["pudl_in"]
     pudl_out = pudl.workspace.setup.get_defaults()["pudl_out"]
     pudl_settings = pudl.workspace.setup.derive_paths(

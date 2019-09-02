@@ -11,8 +11,10 @@ will need to tell PUDL where to find them with --pudl_in=<PUDL_IN>.
 import logging
 import os
 import os.path
+import pathlib
 
 import pytest
+import yaml
 
 import pudl
 from pudl.convert.epacems_to_parquet import epacems_to_parquet
@@ -61,7 +63,7 @@ def test_epacems_to_parquet(pudl_engine,
                             fast_tests):
     """Attempt to convert a small amount of EPA CEMS data to parquet format."""
     epacems_to_parquet(
-        epacems_years=data_scope['epacems_working_years'],
+        epacems_years=data_scope['epacems_years'],
         epacems_states=data_scope['epacems_states'],
         data_dir=pudl_settings_fixture['data_dir'],
         out_dir=os.path.join(
@@ -82,6 +84,8 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
     definition, based on the given reference year and our compilation of the
     DBF filename to table name mapping from 2015, includes every single table
     and field that appears in the historical FERC Form 1 data.
+
+    Needs live_ferc1_db..?
 
     """
     current_dbc_map = pudl.extract.ferc1.get_dbc_map(
@@ -125,26 +129,18 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
 
 @pytest.mark.etl
 @pytest.mark.ferc1
-def test_only_ferc1_pudl_init_db(data_scope,
+def test_only_ferc1_pudl_init_db(datastore_fixture,
                                  pudl_settings_fixture,
                                  live_ferc_db):
     """Verify that a minimal FERC Form 1 can be loaded without other data."""
-    pudl.init.init_db(ferc1_tables=['plants_steam_ferc1', 'fuel_ferc1'],
-                      ferc1_years=data_scope['ferc1_working_years'],
-                      eia923_tables=[],
-                      eia923_years=[],
-                      eia860_tables=[],
-                      eia860_years=[],
-                      epacems_years=[],
-                      epacems_states=[],
-                      epaipm_tables=[],
-                      pudl_settings=pudl_settings_fixture,
-                      pudl_testing=True)
+    test_dir = pathlib.Path(__file__).parent
+    with open(os.path.join(test_dir, 'settings',
+                           'settings_datapackage_ferc1_only.yml'),
+              "r") as f:
+        pkg_settings = yaml.safe_load(f)['pkg_bundle_settings']
 
-    # Grab a connection to the freshly populated PUDL DB
-    pudl_engine = pudl.init.connect_db(
-        pudl_settings=pudl_settings_fixture,
-        testing=True
-    )
-    # So we can wipe it out before exiting the test.
-    pudl.init.drop_tables(pudl_engine)
+    pudl.etl_pkg.generate_data_packages(
+        pkg_settings,
+        pudl_settings_fixture,
+        pkg_bundle_dir_name='ferc_only_test',
+        clobber=True)

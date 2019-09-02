@@ -68,25 +68,17 @@ def compile_data_packages_metadata(pkg_bundle_dir,
         dict: pkg_descriptor_elements
 
     """
-    resources = []
     pkg_descriptor_elements = {}
     for pkg_dir in pkg_bundle_dir.iterdir():
         if pkg_dir.name != pkg_name:
             with open(pathlib.Path(pkg_dir, "datapackage.json")) as md:
                 metadata = json.load(md)
-            if pkg_dir.name != 'epacems_eia860':
-                resources.extend(metadata['resources'])
-            if pkg_dir.name == 'epacems_eia860':
-                resources.extend(
-                    [r for r in metadata['resources']
-                     if 'hourly_emissions_epacems' in r['name']])
             for thing in ['id', 'licenses', 'homepage', 'profile',
-                          'created', 'sources', 'contributors']:
+                          'created', 'sources', 'contributors', 'resources']:
                 try:
                     pkg_descriptor_elements[thing].append(metadata[thing])
                 except KeyError:
                     pkg_descriptor_elements[thing] = [metadata[thing]]
-    pkg_descriptor_elements['resources'] = resources
     return(pkg_descriptor_elements)
 
 
@@ -125,7 +117,7 @@ def flatten_data_package_metadata(pkg_bundle_dir,
     pkg_descriptor['created'] = min(pkg_descriptor_elements['created'])
     # these elements are dictionaries that have different items inside of them
     # we want to grab all of the elements and have no duplicates
-    for item in ['sources', 'contributors']:
+    for item in ['sources', 'contributors', 'resources']:
         # flatten the list of dictionaries
         list_of_dicts = \
             [item for sublist in pkg_descriptor_elements[item]
@@ -134,16 +126,14 @@ def flatten_data_package_metadata(pkg_bundle_dir,
             # turn the dict elements into tuple/sets to de-dupliate it
             pkg_descriptor[item] = [dict(y) for y in set(
                 tuple(x.items()) for x in list_of_dicts)]
-        elif item == 'sources':
-            sources_list = []
+        elif item == 'sources' or 'resources':
+            item_list = []
             # pull only one of each dataset creating a dictionary with the
             # dataset as the key
-            for s in dict([(source['title'], source)
-                           for source in list_of_dicts]).values():
-                sources_list.append(s)
-            pkg_descriptor['source'] = sources_list
-    # we've already flattened the resources so just use that
-    pkg_descriptor['resources'] = pkg_descriptor_elements['resources']
+            for i in dict([(item_dict['title'], item_dict)
+                           for item_dict in list_of_dicts]).values():
+                item_list.append(i)
+            pkg_descriptor[item] = item_list
     return(pkg_descriptor)
 
 

@@ -501,6 +501,18 @@ def dbf2sqlite(tables, years, refyear, pudl_settings, bad_cols=()):
 # Functions for extracting ferc1 tables from SQLite to PUDL
 ###########################################################################
 
+def get_ferc1_meta(pudl_settings):
+    """Grab the FERC1 db metadata and check for tables."""
+    # Connect to the local SQLite DB and read its structure.
+    ferc1_engine = sa.create_engine(pudl_settings["ferc1_db"])
+    ferc1_meta = sa.MetaData(bind=ferc1_engine)
+    ferc1_meta.reflect()
+    if not ferc1_meta.tables:
+        raise AssertionError(
+            f"No FERC Form 1 tables found. Is the SQLite DB initialized?"
+        )
+    return ferc1_meta
+
 
 def extract(ferc1_tables=pc.ferc1_pudl_tables,
             ferc1_years=pc.working_years['ferc1'],
@@ -562,14 +574,7 @@ def extract(ferc1_tables=pc.ferc1_pudl_tables,
                 f"{' '.join(pc.ferc1_pudl_tables)}"
             )
 
-    # Connect to the local SQLite DB and read its structure.
-    ferc1_engine = sa.create_engine(pudl_settings["ferc1_db"])
-    ferc1_meta = sa.MetaData(bind=ferc1_engine)
-    ferc1_meta.reflect()
-    if not ferc1_meta.tables:
-        raise AssertionError(
-            f"No FERC Form 1 tables found. Is the SQLite DB initialized?"
-        )
+    ferc1_meta = get_ferc1_meta(pudl_settings)
 
     ferc1_extract_functions = {
         "fuel_ferc1": fuel,

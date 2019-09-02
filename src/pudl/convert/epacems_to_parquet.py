@@ -288,7 +288,7 @@ def main():
         eia923_years=[],
         epacems_years=args.years,
         epacems_states=args.states,
-        data_dir=pudl_settings['data_dir'],
+        pudl_settings=pudl_settings,
     )
     # transform.epacems needs to reach into the database to get timezones, so
     # get a database connection here

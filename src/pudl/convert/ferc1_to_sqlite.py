@@ -64,7 +64,7 @@ def main():
         eia923_years=[],
         epacems_years=[],
         epacems_states=[],
-        data_dir=pudl_settings['data_dir']
+        pudl_settings=pudl_settings
     )
 
     # Check args for basic validity:

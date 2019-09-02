@@ -94,7 +94,9 @@ def get_unpartioned_tables(tables, pkg_settings):
                     tables_unpartioned.add(part)
                 else:
                     tables_unpartioned.add(table)
-    return tables_unpartioned
+        return tables_unpartioned
+    else:
+        return tables
 
 
 def package_files_from_table(table, pkg_settings):
@@ -379,6 +381,7 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
                     # are separate sources, either the dataset must be or be in
                     # the source
                     if dataset in src or dataset == src:
+                        print(f'{dataset} found')
                         src_meta['parameters'] = dataset_dict[dataset]
             sources.append(src_meta)
     contributors = set()

@@ -26,8 +26,8 @@ def test_datastore(pudl_settings_fixture, data_scope):
     """Download sample data for each available data source."""
     sources_to_update = ['eia860', 'eia923', 'epaipm']
     years_by_source = {
-        'eia860': [data_scope['refyear'], ],
-        'eia923': [data_scope['refyear'], ],
+        'eia860': data_scope['eia860_years'],
+        'eia923': data_scope['eia923_years'],
         'epacems': [],
         'epaipm': [None, ],
         'ferc1': [],
@@ -37,10 +37,11 @@ def test_datastore(pudl_settings_fixture, data_scope):
     if os.getenv('TRAVIS'):
         states = []
     else:
-        states = ['ID']  # Idaho has the least data of any CEMS state.
+        # Idaho has the least data of any CEMS state.
+        states = data_scope['epacems_states']
         sources_to_update.extend(['ferc1', 'epacems'])
-        years_by_source['ferc1'] = [data_scope['refyear'], ]
-        years_by_source['epacems'] = [data_scope['refyear'], ]
+        years_by_source['ferc1'] = data_scope['ferc1_years']
+        years_by_source['epacems'] = data_scope['epacems_years']
 
     datastore.parallel_update(
         sources=sources_to_update,
@@ -56,5 +57,5 @@ def test_datastore(pudl_settings_fixture, data_scope):
         epacems_years=years_by_source['epacems'],
         epacems_states=states,
         # Currently no mechanism for automatically verifying EPA IPM files...
-        data_dir=pudl_settings_fixture['data_dir'],
+        pudl_settings=pudl_settings_fixture,
     )

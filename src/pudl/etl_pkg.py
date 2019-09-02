@@ -612,7 +612,7 @@ def get_flattened_etl_parameters(pkg_bundle_settings):
     return flattened_params_dict
 
 
-def validate_params(pkg_bundle_settings, data_dir):
+def validate_params(pkg_bundle_settings, pudl_settings):
     """
     Read and validate the etl inputs from a settings file.
 
@@ -654,14 +654,6 @@ def validate_params(pkg_bundle_settings, data_dir):
         if dataset_dicts:
             validated_pkg_settings['datasets'] = dataset_dicts
             validated_settings.extend([validated_pkg_settings])
-    logger.info('verifying that the data we need exists in the data store')
-    flattened_params_dict = get_flattened_etl_parameters(validated_settings)
-    pudl.helpers.verify_input_files(flattened_params_dict['ferc1_years'],
-                                    flattened_params_dict['eia923_years'],
-                                    flattened_params_dict['eia860_years'],
-                                    flattened_params_dict['epacems_years'],
-                                    flattened_params_dict['epacems_states'],
-                                    data_dir)
     return(validated_settings)
 
 
@@ -729,8 +721,8 @@ def etl_pkg(pkg_settings, pudl_settings, pkg_bundle_dir):
 
 def generate_data_packages(pkg_bundle_settings,
                            pudl_settings,
+                           pkg_bundle_dir_name,
                            debug=False,
-                           pkg_bundle_dir_name=None,
                            clobber=False):
     """
     Coordinate the generation of data packages.
@@ -749,11 +741,10 @@ def generate_data_packages(pkg_bundle_settings,
             dictionary contains the arguements for its ETL function.
         pudl_settings (dict) : a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
+        pkg_bundle_dir_name (string): name of directory you want the bundle of
+            data packages to live.
         debug (bool): If True, return a dictionary with package names (keys)
             and a list with the data package metadata and report (values).
-        pkg_bundle_dir_name (string): name of directory you want the bundle of
-            data packages to live. If this is set to None, the name will be
-            defaulted to be the pudl packge version.
         clobber (bool):
 
     Returns:
@@ -763,7 +754,7 @@ def generate_data_packages(pkg_bundle_settings,
     """
     # validate the settings from the settings file.
     validated_bundle_settings = validate_params(
-        pkg_bundle_settings, pudl_settings['data_dir'])
+        pkg_bundle_settings, pudl_settings)
     uuid_pkgs = str(uuid.uuid4())
 
     pkg_bundle_dir = pudl.load.metadata.prep_pkg_bundle_directory(
