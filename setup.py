@@ -10,6 +10,7 @@ install_requires = [
     'datapackage',
     'dbfread',
     'goodtables',
+    'matplotlib',
     'networkx>=2.2',
     'numpy',
     'pandas>=0.24',
