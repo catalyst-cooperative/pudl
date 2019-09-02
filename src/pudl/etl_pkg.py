@@ -34,7 +34,7 @@ def _validate_params_partition(etl_params_og, tables):
 ###############################################################################
 
 
-def _validate_params_eia(etl_params):
+def _validate_params_eia(etl_params):  # noqa: C901
     # extract all of the etl_params for the EIA ETL function
     # empty dictionary to compile etl_params
     eia_input_dict = {}
@@ -198,7 +198,7 @@ def _etl_eia_pkg(etl_params, data_dir, pkg_dir):
 ###############################################################################
 
 
-def _validate_params_ferc1(etl_params):
+def _validate_params_ferc1(etl_params):  # noqa: C901
     ferc1_dict = {}
     # pull out the etl_params from the dictionary passed into this function
     try:
@@ -575,7 +575,7 @@ def _add_missing_parameters(flattened_params_dict):
     return flattened_params_dict
 
 
-def get_flattened_etl_parameters(pkg_bundle_settings):
+def get_flattened_etl_parameters(pkg_bundle_settings):  # noqa: C901
     """
     Compile flattened etl parameters.
 

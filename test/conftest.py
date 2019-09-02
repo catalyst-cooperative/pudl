@@ -139,6 +139,16 @@ def pudl_out_eia(live_pudl_db, pudl_engine, request):
 
 
 @pytest.fixture(scope='session')
+def pudl_out_orig(live_pudl_db, pudl_engine):
+    """Create an unaggregated PUDL output object for checking raw data."""
+    if not live_pudl_db:
+        raise AssertionError("Output tests only work with a live PUDL DB.")
+    return PudlTabl(pudl_engine=pudl_engine,
+                    start_date=START_DATE_EIA,
+                    end_date=END_DATE_EIA)
+
+
+@pytest.fixture(scope='session')
 def ferc1_engine(live_ferc_db, pudl_settings_fixture,
                  datastore_fixture, data_scope):
     """
@@ -241,7 +251,6 @@ def pudl_settings_fixture(request, tmpdir_factory, live_ferc_db):
     # Grab the user configuration, if it exists:
     try:
         pudl_auto = pudl.workspace.setup.get_defaults()
-        logger.info(f'pudl_auto: {pudl_auto}')
     except FileNotFoundError:
         pass
 
@@ -256,13 +265,11 @@ def pudl_settings_fixture(request, tmpdir_factory, live_ferc_db):
         pudl_in = pudl_dir
     elif pudl_in == 'AUTO':
         pudl_in = pudl_auto['pudl_in']
-    logger.info(f'pudl_in: {pudl_in}')
 
     if pudl_out is False:
         pudl_out = pudl_dir
     elif pudl_out == 'AUTO':
         pudl_out = pudl_auto['pudl_out']
-    logger.info(f'pudl_out: {pudl_out}')
 
     logger.info(f"Using PUDL_IN={pudl_in}")
     logger.info(f"Using PUDL_OUT={pudl_out}")
@@ -270,7 +277,6 @@ def pudl_settings_fixture(request, tmpdir_factory, live_ferc_db):
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in,
         pudl_out=pudl_out)
-    logger.info(f'derived_paths: {pudl_settings}')
 
     pudl.workspace.setup.init(pudl_in=pudl_in, pudl_out=pudl_out)
 
@@ -284,7 +290,7 @@ def pudl_settings_fixture(request, tmpdir_factory, live_ferc_db):
         pudl.extract.ferc1.get_ferc1_meta(pudl_settings)
     # elif live_ferc_db:
     #    pudl_settings['ferc1_db'] = something
-    logger.info(f'post_live_ferc_db mucking : {pudl_settings}')
+    logger.info(f'pudl_settings being used : {pudl_settings}')
     return pudl_settings
 
 

@@ -211,6 +211,10 @@ def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
             frc_df['sulfur_content_pct'] * frc_df['fuel_qty_units']
         frc_df['total_mercury_content'] = \
             frc_df['mercury_content_ppm'] * frc_df['fuel_qty_units']
+        frc_df['total_moisture_content'] = \
+            frc_df['moisture_content_pct'] * frc_df['fuel_qty_units']
+        frc_df['total_chlorine_content'] = \
+            frc_df['chlorine_content_ppm'] * frc_df['fuel_qty_units']
 
         frc_gb = frc_df.groupby(by=by)
         frc_df = frc_gb.agg({
@@ -220,6 +224,8 @@ def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
             'total_sulfur_content': pudl.helpers.sum_na,
             'total_ash_content': pudl.helpers.sum_na,
             'total_mercury_content': pudl.helpers.sum_na,
+            'total_moisture_content': pudl.helpers.sum_na,
+            'total_chlorine_content': pudl.helpers.sum_na,
         })
         frc_df['fuel_cost_per_mmbtu'] = \
             frc_df['total_fuel_cost'] / frc_df['total_heat_content_mmbtu']
@@ -231,9 +237,15 @@ def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
             frc_df['total_ash_content'] / frc_df['fuel_qty_units']
         frc_df['mercury_content_ppm'] = \
             frc_df['total_mercury_content'] / frc_df['fuel_qty_units']
+        frc_df['chlorine_content_ppm'] = \
+            frc_df['total_chlorine_content'] / frc_df['fuel_qty_units']
+        frc_df['moisture_content_pct'] = \
+            frc_df['total_moisture_content'] / frc_df['fuel_qty_units']
         frc_df = frc_df.reset_index()
         frc_df = frc_df.drop(['total_ash_content',
                               'total_sulfur_content',
+                              'total_moisture_content',
+                              'total_chlorine_content',
                               'total_mercury_content'], axis=1)
 
     # Bring in some generic plant & utility information:

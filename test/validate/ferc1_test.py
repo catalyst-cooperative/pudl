@@ -28,7 +28,8 @@ def test_record_id_dupes(pudl_engine, table_name):
     if n_dupes:
         dupe_ids = (table.record_id[table.record_id.duplicated()].values)
         raise AssertionError(
-            f"{n_dupes} duplicate record_ids found in {table_name}: {dupe_ids}."
+            f"{n_dupes} duplicate record_ids found in "
+            f"{table_name}: {dupe_ids}."
         )
 
 

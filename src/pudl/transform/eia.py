@@ -201,7 +201,7 @@ def _add_additional_epacems_plants(plants_entity):
     return plants_entity.append(cems_unmatched).reset_index()
 
 
-def _harvesting(entity,
+def _harvesting(entity,  # noqa: C901
                 eia_transformed_dfs,
                 entities_dfs,
                 debug=False):

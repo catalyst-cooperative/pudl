@@ -26,7 +26,8 @@ import pudl.constants as pc
 logger = logging.getLogger(__name__)
 
 
-def assert_valid_param(source, year, month=None, state=None, check_month=None):
+def assert_valid_param(source, year,  # noqa: 901
+                       month=None, state=None, check_month=None):
     """
     Check whether parameters used in various datastore functions are valid.
 
@@ -90,31 +91,31 @@ def assert_valid_param(source, year, month=None, state=None, check_month=None):
                 f"Invalid state '{state}'. Must use US state abbreviations.")
 
 
-def source_url(source, year, month=None, state=None, table=None):
+def source_url(source, year, month=None, state=None, table=None):  # noqa: C901
     """Construct a download URL for the specified federal data source and year.
 
     Args:
-        source (str): A string indicating which data source we are going to be
-            downloading. Currently it must be one of the following:
-            - 'eia860'
-            - 'eia861'
-            - 'eia923'
-            - 'ferc1'
-            - 'epacems'
-        year (int or None): the year for which data should be downloaded. Must
-            be within the range of valid data years, which is specified for
-            each data source in the pudl.constants module. Use None for data
-            sources that do not have multiple years.
-        month (int): the month for which data should be downloaded. Only used
-            for EPA CEMS.
-        state (str): the state for which data should be downloaded. Only used
-            for EPA CEMS.
-        table (str): the table for which data should be downloaded. Only used
-            for EPA IPM.
+       source (str): A string indicating which data source we are going to be
+           downloading. Currently it must be one of the following:
+           - 'eia860'
+           - 'eia861'
+           - 'eia923'
+           - 'ferc1'
+           - 'epacems'
+       year (int or None): the year for which data should be downloaded. Must
+           be within the range of valid data years, which is specified for
+           each data source in the pudl.constants module. Use None for data
+           sources that do not have multiple years.
+       month (int): the month for which data should be downloaded. Only used
+           for EPA CEMS.
+       state (str): the state for which data should be downloaded. Only used
+           for EPA CEMS.
+       table (str): the table for which data should be downloaded. Only used
+           for EPA IPM.
 
     Returns:
-        download_url (str): a full URL from which the requested data may be
-        obtained
+       download_url (str): a full URL from which the requested data may be
+       obtained
 
     """
     assert_valid_param(source=source, year=year, month=month, state=state)
@@ -160,7 +161,8 @@ def source_url(source, year, month=None, state=None, table=None):
     return download_url
 
 
-def path(source, data_dir, year=None, month=None, state=None, file=True):
+def path(source, data_dir,  # noqa: C901
+         year=None, month=None, state=None, file=True):
     """Construct a variety of local datastore paths for a given data source.
 
     PUDL expects the original data it ingests to be organized in a particular
@@ -379,7 +381,7 @@ def download(source, year, states, data_dir):
     return tmp_files
 
 
-def _download_ftp(src_urls, tmp_files, allow_retry=True):
+def _download_ftp(src_urls, tmp_files, allow_retry=True):  # noqa: C901
     """
     Download a source data using FTP, retrying as necessary.
 
@@ -506,7 +508,8 @@ URLs and no more retries are allowed."""
         warnings.warn(err_msg)
 
 
-def organize(source, year, states, data_dir, unzip=True, dl=True):
+def organize(source, year, states, data_dir,  # noqa: C901
+             unzip=True, dl=True):
     """Put downloaded original data file where it belongs in the datastore.
 
     Once we've downloaded an original file from the public website it lives on

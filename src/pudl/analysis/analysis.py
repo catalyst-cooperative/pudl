@@ -904,7 +904,7 @@ def fercplants(plant_tables=('f1_steam',
                years=pc.working_years['ferc1'],
                new=True,
                min_capacity=5.0):
-    """Generates a list of FERC plants for matching with EIA plants.
+    """Generate a list of FERC plants for matching with EIA plants.
 
     There are several kinds of FERC plants, with different information stored
     in different FERC database tables. FERC doesn't provide any kind of
@@ -938,8 +938,9 @@ def fercplants(plant_tables=('f1_steam',
             included in the output. This avoids most of the plants being tiny.
 
     Returns:
-        A DataFrame with four columns: respondent_id, respondent_name,
-            plant_name, and plant_table.
+        :mod:`pandas.DataFrame`: A DataFrame with four columns: respondent_id,
+            respondent_name, plant_name, and plant_table.
+
     """
     # Need to be able to use years outside the "valid" range if we're trying
     # to get new plant ID info...

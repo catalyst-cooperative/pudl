@@ -565,7 +565,7 @@ def _etl_epaipm(pudl_engine, epaipm_tables, csvdir, keep_csv, pudl_settings):
     )
 
 
-def init_db(pudl_settings,
+def init_db(pudl_settings,  # noqa: C901
             ferc1_tables=None,
             ferc1_years=None,
             eia923_tables=None,

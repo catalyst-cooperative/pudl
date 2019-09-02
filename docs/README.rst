@@ -12,8 +12,8 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://travis-ci.org/catalyst-cooperative/pudl
    :alt: Build Status
 
-.. image:: https://readthedocs.org/projects/catalyst-cooperative-pudl/badge/?version=latest
-   :target: https://catalyst-cooperative-pudl.readthedocs.io/en/latest/
+.. image:: https://readthedocs.org/projects/catalystcoop-pudl/badge/?version=latest
+   :target: https://catalystcoop-pudl.readthedocs.io/en/latest/
    :alt: Documentation Status
 
 .. image:: https://codecov.io/gh/catalyst-cooperative/pudl/branch/master/graph/badge.svg
@@ -76,7 +76,7 @@ with some examples.
     of data**. This could take a while if you have a slow internet connection.
 
 For more details, see `the full PUDL documentation
-<https://catalyst-cooperative-pudl.readthedocs.io/>`__.
+<https://catalystcoop-pudl.readthedocs.io/>`__.
 
 Contributing to PUDL
 --------------------
@@ -84,7 +84,7 @@ Contributing to PUDL
 Find PUDL useful? Want to help make it better? There are lots of ways to
 contribute!
 
-* Please be sure to read our `Code of Conduct <https://catalyst-cooperative-pudl.readthedocs.io/en/latest/CODE_OF_CONDUCT.html>`__
+* Please be sure to read our `Code of Conduct <https://catalystcoop-pudl.readthedocs.io/en/latest/CODE_OF_CONDUCT.html>`__
 * You can file a bug report, make a feature request, or ask questions in the
   `Github issue tracker
   <https://github.com/catalyst-cooperative/pudl/issues>`__.
@@ -92,13 +92,13 @@ contribute!
   better documentation, or example notebooks.
 * Make a donation to support our work liberating public energy data.
 * Hire us to do some custom analysis, and let us add the code the project.
-* For more information check out our `Contribution Guidelines <https://catalyst-cooperative-pudl.readthedocs.io/en/latest/CONTRIBUTING.html>`__
+* For more information check out our `Contribution Guidelines <https://catalystcoop-pudl.readthedocs.io/en/latest/CONTRIBUTING.html>`__
 
 Licensing
 ---------
 
 The PUDL software is released under the `MIT License <https://opensource.org/licenses/MIT>`__.
-`The PUDL documentation <https://catalyst-cooperative-pudl.readthedocs.io>`__
+`The PUDL documentation <https://catalystcoop-pudl.readthedocs.io>`__
 and the data packages we distribute are released under the `Creative Commons Attribution 4.0 License <https://creativecommons.org/licenses/by/4.0/>`__.
 
 Contact Us

@@ -345,7 +345,7 @@ def hash_csv(csv_path):
     return f"sha256:{hasher.hexdigest()}"
 
 
-def data_package(pkg_tables, pkg_skeleton, pudl_settings,
+def data_package(pkg_tables, pkg_skeleton, pudl_settings,  # noqa: C901
                  testing=False, dry_run=False):
     """
     Create a data package of requested tables and their dependencies.

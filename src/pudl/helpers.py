@@ -850,7 +850,7 @@ def get_dependent_tables_from_list_pkg(table_names, testing=False):
     return all_the_tables
 
 
-def verify_input_files(ferc1_years,
+def verify_input_files(ferc1_years,  # noqa: C901
                        eia923_years,
                        eia860_years,
                        epacems_years,
