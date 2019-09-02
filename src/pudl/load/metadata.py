@@ -293,7 +293,6 @@ def get_source_metadata(data_sources, pkg_settings):
                     # are separate sources, either the dataset must be or be in
                     # the source
                     if dataset in src or dataset == src:
-                        print(f'{dataset} found')
                         src_meta['parameters'] = dataset_dict[dataset]
             sources.append(src_meta)
     return sources
