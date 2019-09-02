@@ -73,7 +73,7 @@ setup(
     url="https://catalyst.coop/pudl",
     project_urls={
         "Source": "https://github.com/catalyst-cooperative/pudl",
-        "Documentation": "https://catalyst-cooperative-pudl.readthedocs.io",
+        "Documentation": "https://catalystcoop-pudl.readthedocs.io",
         "Issue Tracker": "https://github.com/catalyst-cooperative/pudl/issues",
     },
     license='MIT',
