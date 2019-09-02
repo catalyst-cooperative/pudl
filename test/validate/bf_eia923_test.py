@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 
 def test_coal_heat_content(pudl_out_orig, live_pudl_db):
-    """"""
+    """Check that the distribution of coal heat content per unit is valid."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
 
@@ -27,7 +27,15 @@ def test_coal_heat_content(pudl_out_orig, live_pudl_db):
 
 @pytest.mark.xfail
 def test_oil_heat_content(pudl_out_orig, live_pudl_db):
-    """"""
+    """
+    Check that the distribution of oil heat content per unit is valid.
+
+    Currently failing, due to inclusion of black liquor (BLQ) in the simplified
+    ``fuel_type_code_pudl`` lumping.
+
+    See: https://github.com/catalyst-cooperative/pudl/issues/393
+
+    """
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
 
@@ -37,7 +45,15 @@ def test_oil_heat_content(pudl_out_orig, live_pudl_db):
 
 @pytest.mark.xfail
 def test_gas_heat_content(pudl_out_orig, live_pudl_db):
-    """"""
+    """
+    Check that the distribution of gas heat content per unit is valid.
+
+    Currently failing, due to a population of gas records with 1/10th the
+    expected heat content. Reporting error? Unit conversion?
+
+    See: https://github.com/catalyst-cooperative/pudl/issues/391
+
+    """
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
 
@@ -46,7 +62,7 @@ def test_gas_heat_content(pudl_out_orig, live_pudl_db):
 
 
 def test_coal_ash_content(pudl_out_orig, live_pudl_db):
-    """"""
+    """Check that distribution of coal ash content is valid."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
 
@@ -55,7 +71,7 @@ def test_coal_ash_content(pudl_out_orig, live_pudl_db):
 
 
 def test_coal_sulfur_content(pudl_out_orig, live_pudl_db):
-    """"""
+    """Check that distribution of coal sulfur content is valid."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
 
