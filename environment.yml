@@ -20,7 +20,7 @@ dependencies:
   - isort               # dev
   - jedi                # dev
   - jupyter             # user
-  - jupyterlab<1.1      # user Extension issues exist in v1.1.0 for now.
+  - jupyterlab          # user
   - matplotlib          # user
   - nbval               # dev
   - networkx>=2.2       # base We depend on features introduced in v2.2

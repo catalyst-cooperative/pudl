@@ -12,7 +12,9 @@ What defines a data validation?
 
 """
 import logging
+import warnings
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -100,12 +102,9 @@ def vs_bounds(df, data_col, weight_col, query="", title="",
               low_q=False, low_bound=False, hi_q=False, hi_bound=False):
     """Test a distribution against an upper bound, lower bound, or both."""
     # These assignments allow 0.0 to be used as a bound...
-    low_bool = False
-    hi_bool = False
-    if low_bound is not False:
-        low_bool = True
-    if hi_bound is not False:
-        hi_bool = True
+    low_bool = low_bound is not False
+    hi_bool = hi_bound is not False
+
     if bool(low_q) ^ low_bool:
         raise ValueError(
             f"You must supply both a lower quantile and lower bound, "
@@ -198,6 +197,130 @@ def vs_historical(orig_df, test_df, data_col, weight_col, query="",
             raise ValueError(
                 f"{hi_test} above upper limit {max(hi_range)}")
 
+
+def bounds_histogram(df, data_col, weight_col, query,
+                     low_q, hi_q, low_bound, hi_bound,
+                     title=""):
+    """Plot a weighted histogram showing acceptable bounds/actual values."""
+    if query != "":
+        df = df.copy().query(query)
+    xmin = weighted_quantile(df[data_col], df[weight_col], 0.01)
+    xmax = weighted_quantile(df[data_col], df[weight_col], 0.99)
+
+    plt.hist(df[data_col], weights=df[weight_col],
+             range=(xmin, xmax), bins=50, color="black", label=data_col)
+
+    if low_bound:
+        plt.axvline(low_bound, lw=3, ls='--', color='red',
+                    label=f"lower bound for {low_q:.0%}")
+        plt.axvline(
+            weighted_quantile(df[data_col], df[weight_col], low_q),
+            lw=3, color="red", label=f"actual {low_q:.0%}")
+    if hi_bound:
+        plt.axvline(hi_bound, lw=3, ls='--', color='blue',
+                    label=f"upper bound for {hi_q:.0%}")
+        plt.axvline(weighted_quantile(df[data_col], df[weight_col], hi_q),
+                    lw=3, color="blue", label=f"actual {hi_q:.0%}")
+
+    plt.title(title)
+    plt.xlabel(data_col)
+    plt.ylabel(weight_col)
+    plt.legend()
+    plt.show()
+
+
+def historical_histogram(orig_df, test_df, data_col, weight_col, query="",
+                         low_q=0.05, mid_q=0.5, hi_q=0.95,
+                         low_bound=None, hi_bound=None,
+                         title=""):
+    """Weighted histogram comparing distribution with historical subsamples."""
+    if query != "":
+        orig_df = orig_df.copy().query(query)
+    if test_df is not None:
+        test_df = test_df.copy().query(query)
+
+    xmin = weighted_quantile(orig_df[data_col], orig_df[weight_col], 0.01)
+    xmax = weighted_quantile(orig_df[data_col], orig_df[weight_col], 0.99)
+
+    test_alpha = 1.0
+    if test_df is not None:
+        plt.hist(test_df[data_col], weights=test_df[weight_col],
+                 range=(xmin, xmax), bins=50, color="yellow", alpha=0.5,
+                 label="Test Distribution")
+        test_alpha = 0.5
+    else:
+        test_df = orig_df
+    plt.hist(orig_df[data_col], weights=orig_df[weight_col],
+             range=(xmin, xmax), bins=50, color="black", alpha=test_alpha,
+             label="Original Distribution")
+
+    if low_q:
+        low_range = historical_distribution(
+            orig_df, data_col, weight_col, low_q)
+        plt.axvspan(min(low_range), max(low_range),
+                    color="red", alpha=0.2,
+                    label=f"Historical range of {low_q:.0%}")
+        plt.axvline(
+            weighted_quantile(test_df[data_col], test_df[weight_col], low_q),
+            color="red", label=f"Tested {low_q:.0%}")
+
+    if mid_q:
+        mid_range = historical_distribution(
+            orig_df, data_col, weight_col, mid_q)
+        plt.axvspan(min(mid_range), max(mid_range), color="green",
+                    alpha=0.2, label=f"historical range of {mid_q:.0%}")
+        plt.axvline(
+            weighted_quantile(test_df[data_col], test_df[weight_col], mid_q),
+            color="green", label=f"Tested {mid_q:.0%}")
+
+    if hi_q:
+        high_range = historical_distribution(
+            orig_df, data_col, weight_col, hi_q)
+        plt.axvspan(min(high_range), max(high_range), color="blue",
+                    alpha=0.2, label=f"Historical range of {hi_q:.0%}")
+        plt.axvline(
+            weighted_quantile(test_df[data_col], test_df[weight_col], hi_q),
+            color="blue", label=f"Tested {hi_q:.0%}")
+
+    plt.title(title)
+    plt.xlabel(data_col)
+    plt.ylabel(weight_col)
+    plt.legend()
+    plt.show()
+
+
+def plot_vs_bounds(df, validation_cases):
+    """Run through a data validation based on absolute bounds."""
+    for args in validation_cases:
+        try:
+            vs_bounds(df, **args)
+        except ValueError:
+            warnings.warn("ERROR: Validation Failed")
+
+        bounds_histogram(df, **args)
+
+
+def plot_vs_self(df, validation_cases):
+    """Validate a bunch of distributions against themselves."""
+    for args in validation_cases:
+        try:
+            vs_self(df, **args)
+        except ValueError:
+            warnings.warn("ERROR: Validation Failed")
+
+        historical_histogram(df, test_df=None, **args)
+
+
+def plot_vs_agg(orig_df, agg_df, validation_cases):
+    """Validate a bunch of distributions against aggregated versions."""
+    for args in validation_cases:
+        try:
+            vs_historical(orig_df, agg_df, **args)
+        except ValueError:
+            warnings.warn("ERROR: Validation Failed")
+
+        historical_histogram(orig_df, agg_df, **args)
+
 ###############################################################################
 ###############################################################################
 # Data Validation Test Cases:
@@ -206,10 +329,345 @@ def vs_historical(orig_df, test_df, data_col, weight_col, query="",
 ###############################################################################
 ###############################################################################
 
+###############################################################################
+# EIA923 Boiler Fuel data validation against fixed values
+###############################################################################
+
+
+bf_eia923_coal_heat_content = [
+    {
+        "title": "Bituminous coal heat content (middle)",
+        "query": "fuel_type_code=='BIT'",
+        "low_q": 0.50,
+        "low_bound": 20.5,
+        "hi_q": 0.50,
+        "hi_bound": 26.5,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Bituminous coal heat content (tails)",
+        "query": "fuel_type_code=='BIT'",
+        "low_q": 0.05,
+        "low_bound": 17.0,
+        "hi_q": 0.95,
+        "hi_bound": 30.0,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Sub-bituminous coal heat content (middle)",
+        "query": "fuel_type_code=='SUB'",
+        "low_q": 0.50,
+        "low_bound": 16.5,
+        "hi_q": 0.50,
+        "hi_bound": 18.0,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Sub-bituminous coal heat content (tails)",
+        "query": "fuel_type_code=='SUB'",
+        "low_q": 0.05,
+        "low_bound": 15.0,
+        "hi_q": 0.95,
+        "hi_bound": 20.5,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Lignite heat content (middle)",
+        "query": "fuel_type_code=='LIG'",
+        "low_q": 0.50,
+        "low_bound": 12.0,
+        "hi_q": 0.50,
+        "hi_bound": 14.0,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Lignite heat content (tails)",
+        "query": "fuel_type_code=='LIG'",
+        "low_q": 0.05,
+        "low_bound": 10.0,
+        "hi_q": 0.95,
+        "hi_bound": 15.0,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "All coal heat content (middle)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.50,
+        "low_bound": 10.0,
+        "hi_q": 0.50,
+        "hi_bound": 30.0,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+]
+"""
+Valid coal (bituminous, sub-bituminous, and lignite) heat content values.
+
+Based on IEA coal grade definitions:
+https://www.iea.org/statistics/resources/balancedefinitions/
+"""
+
+bf_eia923_oil_heat_content = [
+    {
+        "title": "Diesel Fuel Oil heat content (tails)",
+        "query": "fuel_type_code=='DFO'",
+        "low_q": 0.05,
+        "low_bound": 5.5,
+        "hi_q": 0.95,
+        "hi_bound": 6.0,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Diesel Fuel Oil heat content (middle)",
+        "query": "fuel_type_code=='DFO'",
+        "low_q": 0.50,
+        "low_bound": 5.75,
+        "hi_q": 0.50,
+        "hi_bound": 5.85,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "All petroleum heat content (tails)",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.05,
+        "low_bound": 5.5,
+        "hi_q": 0.95,
+        "hi_bound": 6.5,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+]
+"""
+Valid petroleum based fuel heat content values.
+
+Based on historically reported values in EIA 923 Fuel Receipts and Costs.
+"""
+
+bf_eia923_gas_heat_content = [
+    {
+        "title": "Natural Gas heat content (middle)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "hi_q": 0.50,
+        "hi_bound": 1.036,
+        "low_q": 0.50,
+        "low_bound": 1.018,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {  # This may fail because of bad data at 0.1 mmbtu/unit
+        "title": "Natural Gas heat content (tails)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "hi_q": 0.99,
+        "hi_bound": 1.15,
+        "low_q": 0.01,
+        "low_bound": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+]
+"""
+Valid natural gas heat content values.
+
+Based on historically reported values in EIA 923 Fuel Receipts and Costs. May
+fail because of a population of bad data around 0.1 mmbtu/unit. This appears
+to be an off-by-10x error, possibly due to reporting error in units used.
+"""
+
+bf_eia923_coal_ash_content = [
+    {
+        "title": "Bituminous coal ash content (middle)",
+        "query": "fuel_type_code=='BIT'",
+        "low_q": 0.50,
+        "low_bound": 6.0,
+        "hi_q": 0.50,
+        "hi_bound": 15.0,
+        "data_col": "ash_content_pct",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Sub-bituminous coal ash content (middle)",
+        "query": "fuel_type_code=='SUB'",
+        "low_q": 0.50,
+        "low_bound": 4.5,
+        "hi_q": 0.50,
+        "hi_bound": 7.0,
+        "data_col": "ash_content_pct",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Lignite ash content (middle)",
+        "query": "fuel_type_code=='LIG'",
+        "low_q": 0.50,
+        "low_bound": 7.0,
+        "hi_q": 0.50,
+        "hi_bound": 30.0,
+        "data_col": "ash_content_pct",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "All coal ash content (middle)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.50,
+        "low_bound": 4.0,
+        "hi_q": 0.50,
+        "hi_bound": 20.0,
+        "data_col": "ash_content_pct",
+        "weight_col": "fuel_consumed_units",
+    },
+]
+"""Valid coal ash content (%). Based on historical reporting in EIA 923."""
+
+bf_eia923_coal_sulfur_content = [
+    {
+        "title": "Coal sulfur content (tails)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "hi_q": 0.95,
+        "hi_bound": 4.0,
+        "low_q": 0.05,
+        "low_bound": 0.15,
+        "data_col": "sulfur_content_pct",
+        "weight_col": "fuel_consumed_units",
+    },
+]
+"""
+Valid coal sulfur content values.
+
+Based on historically reported values in EIA 923 Fuel Receipts and Costs.
+"""
+###############################################################################
+# Validate bf_eia923 data against its historical self:
+###############################################################################
+bf_eia923_self = [
+    {
+        "title": "Bituminous coal ash content",
+        "query": "fuel_type_code=='BIT'",
+        "low_q": 0.05,
+        "mid_q": 0.25,
+        "hi_q": 0.95,
+        "data_col": "ash_content_pct",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Subbituminous coal ash content",
+        "query": "fuel_type_code=='SUB'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "ash_content_pct",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Lignite coal ash content",
+        "query": "fuel_type_code=='LIG'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "ash_content_pct",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Bituminous coal heat content",
+        "query": "fuel_type_code=='BIT'",
+        "low_q": 0.07,
+        "mid_q": 0.5,
+        "hi_q": 0.98,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Subbituminous coal heat content",
+        "query": "fuel_type_code=='SUB'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.90,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Lignite heat content",
+        "query": "fuel_type_code=='LIG'",
+        "low_q": 0.10,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Diesel Fuel Oil heat content",
+        "query": "fuel_type_code=='DFO'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+]
+"""EIA923 Boiler Fuel data validation against itself."""
+
+###############################################################################
+# EIA 923 Boiler Fuel validations against aggregated historical data.
+###############################################################################
+bf_eia923_agg = [
+    {
+        "title": "Coal ash content",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.2,
+        "mid_q": 0.7,
+        "hi_q": 0.95,
+        "data_col": "ash_content_pct",
+        "weight_col": "fuel_consumed_units",
+    },
+    {  # Coal sulfur content is one-sided. Needs an absolute test.
+        "title": "Coal sulfur content",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": False,
+        "mid_q": False,
+        "hi_q": False,
+        "data_col": "sulfur_content_pct",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Coal heat content",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Petroleum heat content",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.10,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {  # Weird little population of ~5% at 1/10th correct heat content
+        "title": "Gas heat content",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.10,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+]
+"""EIA923 Boiler Fuel data validation against aggregated data."""
 
 ###############################################################################
 # EIA923 Fuel Receipts and Costs validation against fixed values
 ###############################################################################
+
 frc_eia923_coal_heat_content = [
     {
         "title": "Bituminous coal heat content (middle)",
@@ -414,7 +872,7 @@ frc_eia923_coal_sulfur_content = [
     },
 ]
 """
-Valid petroleum based coal sulfur content values.
+Valid coal sulfur content values.
 
 Based on historically reported values in EIA 923 Fuel Receipts and Costs.
 """
@@ -668,3 +1126,18 @@ frc_eia923_agg = [
     },
 ]
 """EIA923 fuel receipts & costs data validation against aggregated data."""
+
+###############################################################################
+# Naming issues...
+###############################################################################
+# Differences between tables for *very* similar columns:
+#  * fuel_type_code (BF) vs. energy_source_code (FRC)
+#  * fuel_qty_units (FRC) vs. fuel_consumed_units (BF)
+#  * fuel_mmbtu_per_unit (BF) vs. heat_content_mmbtu_per_unit (BF)
+#
+# Codes that could be expanded for readability:
+#  * fuel_type_code (BF) => fuel_type
+#  * energy_source_code (FRC) => energy_source
+#
+# Columns that don't conform to the naming conventions:
+#  * fuel_type_code_pudl isn'ta code -- should be just fuel_type_pudl

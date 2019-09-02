@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 # EIA EXPORT FUNCTIONS
 ###############################################################################
 
-def _validate_input_eia(inputs):
+def _validate_input_eia(inputs):  # noqa: C901
     # extract all of the inputs for the EIA ETL function
     # empty dictionary to compile inputs
     eia_input_dict = {}

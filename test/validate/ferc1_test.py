@@ -28,7 +28,8 @@ def test_record_id_dupes(pudl_engine, table_name):
     if n_dupes:
         dupe_ids = (table.record_id[table.record_id.duplicated()].values)
         raise AssertionError(
-            f"{n_dupes} duplicate record_ids found in {table_name}: {dupe_ids}."
+            f"{n_dupes} duplicate record_ids found in "
+            f"{table_name}: {dupe_ids}."
         )
 
 
@@ -87,6 +88,7 @@ def test_steam_ferc1_duplicate_years_in_plant_id_ferc1(pudl_out_ferc1):
 
 @pytest.mark.ferc1
 @pytest.mark.post_etl
+@pytest.mark.xfail
 def test_steam_ferc1_plant_id_clash(pudl_out_ferc1):
     """
     Test for FERC & PUDL Plant ID consistency.

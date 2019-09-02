@@ -1704,13 +1704,13 @@ fuel_type_eia860_simple_map = {
 # EIA 923/860: Lumping of energy source categories.
 energy_source_eia_simple_map = {
     'coal': ['ANT', 'BIT', 'LIG', 'PC', 'SUB', 'WC', 'RC'],
-    'oil': ['BLQ', 'DFO', 'JF', 'KER', 'RFO', 'WO'],
+    'oil': ['DFO', 'JF', 'KER', 'RFO', 'WO'],
     'gas': ['BFG', 'LFG', 'NG', 'OBG', 'OG', 'PG', 'SG', 'SGC', 'SGP'],
     'solar': ['SUN'],
     'wind': ['WND'],
     'hydro': ['WAT'],
     'nuclear': ['NUC'],
-    'waste': ['AB', 'MSW', 'OBL', 'OBS', 'SLW', 'TDF', 'WDL', 'WDS'],
+    'waste': ['AB', 'BLQ', 'MSW', 'OBL', 'OBS', 'SLW', 'TDF', 'WDL', 'WDS'],
     'other': ['GEO', 'MWH', 'OTH', 'PUR', 'WH']
 }
 """dict: A dictionary mapping EIA fuel types (keys) to fuel codes (values).

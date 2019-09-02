@@ -13,8 +13,6 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 # Tests validating data against physically reasonable boundary values:
 ###############################################################################
-@pytest.mark.eia923
-@pytest.mark.post_etl
 @pytest.mark.xfail
 def test_coal_mercury_content_ppm(pudl_out_orig, live_pudl_db):
     """
@@ -25,12 +23,10 @@ def test_coal_mercury_content_ppm(pudl_out_orig, live_pudl_db):
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
 
-    for args in pudl.validate.frc_eia923_coal_hg:
+    for args in pudl.validate.frc_eia923_coal_mercury_content:
         pudl.validate.vs_bounds(pudl_out_orig.frc_eia923(), **args)
 
 
-@pytest.mark.eia923
-@pytest.mark.post_etl
 def test_coal_heat_content(pudl_out_orig, live_pudl_db):
     """
     Validate reported coal heat content is consistent with IEA definitions.
@@ -48,8 +44,6 @@ def test_coal_heat_content(pudl_out_orig, live_pudl_db):
         pudl.validate.vs_bounds(pudl_out_orig.frc_eia923(), **args)
 
 
-@pytest.mark.eia923
-@pytest.mark.post_etl
 def test_coal_ash_content(pudl_out_orig, live_pudl_db):
     """
     Validate reported coal ash content is realistic.
@@ -64,8 +58,6 @@ def test_coal_ash_content(pudl_out_orig, live_pudl_db):
         pudl.validate.vs_bounds(pudl_out_orig.frc_eia923(), **args)
 
 
-@pytest.mark.eia923
-@pytest.mark.post_etl
 def test_coal_moisture_content(pudl_out_orig, live_pudl_db):
     """
     Validate that reported coal moisture content is realistic.
@@ -80,8 +72,6 @@ def test_coal_moisture_content(pudl_out_orig, live_pudl_db):
         pudl.validate.vs_bounds(pudl_out_orig.frc_eia923(), **args)
 
 
-@pytest.mark.eia923
-@pytest.mark.post_etl
 def test_coal_sulfur_content(pudl_out_orig, live_pudl_db):
     """Validate that reported coal sulfur content is realistic."""
     if not live_pudl_db:
@@ -91,8 +81,6 @@ def test_coal_sulfur_content(pudl_out_orig, live_pudl_db):
         pudl.validate.vs_bounds(pudl_out_orig.frc_eia923(), **args)
 
 
-@pytest.mark.eia923
-@pytest.mark.post_etl
 def test_oil_heat_content(pudl_out_orig, live_pudl_db):
     """Validate that reported oil heat content is realistic.
 
@@ -105,8 +93,6 @@ def test_oil_heat_content(pudl_out_orig, live_pudl_db):
         pudl.validate.vs_bounds(pudl_out_orig.frc_eia923(), **args)
 
 
-@pytest.mark.eia923
-@pytest.mark.post_etl
 @pytest.mark.xfail
 def test_gas_heat_content(pudl_out_orig, live_pudl_db):
     """Validate that reported gas heat content is realistic.
@@ -124,8 +110,6 @@ def test_gas_heat_content(pudl_out_orig, live_pudl_db):
 ###############################################################################
 
 
-@pytest.mark.eia923
-@pytest.mark.post_etl
 def test_self_vs_historical(pudl_out_orig, live_pudl_db):
     """Validate the whole dataset against historical annual subsamples."""
     if not live_pudl_db:
@@ -135,8 +119,6 @@ def test_self_vs_historical(pudl_out_orig, live_pudl_db):
         pudl.validate.vs_self(pudl_out_orig.frc_eia923(), **args)
 
 
-@pytest.mark.eia923
-@pytest.mark.post_etl
 def test_agg_vs_historical(pudl_out_orig, pudl_out_eia, live_pudl_db):
     """Validate whole dataset against aggregated historical values."""
     if not live_pudl_db:
