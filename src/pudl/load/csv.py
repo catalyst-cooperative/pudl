@@ -381,7 +381,7 @@ def csv_dump(df, table_name, keep_index, pkg_dir):
         outfile = os.path.join(pkg_dir, 'data', table_name + '.csv')
         df.to_csv(path_or_buf=outfile, mode='a',
                   # compression='gzip',
-                  index=True, index_label='id',
+                  index=False,
                   date_format='%Y-%m-%dT%H:%M:%SZ')
         return
     if keep_index:
@@ -459,9 +459,7 @@ def dict_dump(transformed_dfs,
 
     """
     for table_name, df in transformed_dfs.items():
-        if table_name != "hourly_emissions_epacems":
-            logger.info(
-                f"Loading {data_source} {table_name} dataframe into CSV")
+        logger.info(f"Loading {data_source} {table_name} dataframe into CSV")
         if table_name in list(need_fix_inting.keys()):
             df = pudl.helpers.fix_int_na(
                 df, columns=pc.need_fix_inting[table_name])

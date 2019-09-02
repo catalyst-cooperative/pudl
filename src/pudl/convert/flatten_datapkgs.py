@@ -74,7 +74,8 @@ def compile_data_packages_metadata(pkg_bundle_dir,
             with open(pathlib.Path(pkg_dir, "datapackage.json")) as md:
                 metadata = json.load(md)
             for thing in ['id', 'licenses', 'homepage', 'profile',
-                          'created', 'sources', 'contributors', 'resources']:
+                          'created', 'sources', 'contributors', 'resources',
+                          'autoincrement']:
                 try:
                     pkg_descriptor_elements[thing].append(metadata[thing])
                 except KeyError:
@@ -134,6 +135,8 @@ def flatten_data_package_metadata(pkg_bundle_dir,
                            for item_dict in list_of_dicts]).values():
                 item_list.append(i)
             pkg_descriptor[item] = item_list
+    pkg_descriptor['autoincrement'] = pudl.helpers.merge_dicts(
+        pkg_descriptor_elements['autoincrement'])
     return(pkg_descriptor)
 
 

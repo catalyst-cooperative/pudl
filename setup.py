@@ -20,7 +20,7 @@ install_requires = [
     'sqlalchemy>=1.3.0',
     'sqlalchemy-postgres-copy',
     'tableschema',
-    'tableschema-sql',
+    'tableschema-sql==1.1.0',
     'timezonefinder',
     'xlsxwriter',
 ]

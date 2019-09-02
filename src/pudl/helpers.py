@@ -964,9 +964,11 @@ def pull_resource_from_megadata(table_name):
     # year or other partition.. therefor we need to assume for the sake of
     # grabing metadata that any table name that includes the table name is cems
     if "hourly_emissions_epacems" in table_name:
-        table_name = "hourly_emissions_epacems"
+        table_name_mega = "hourly_emissions_epacems"
+    else:
+        table_name_mega = table_name
     table_resource = [
-        x for x in metadata_mega['resources'] if x['name'] == table_name
+        x for x in metadata_mega['resources'] if x['name'] == table_name_mega
     ]
 
     if len(table_resource) == 0:
@@ -974,6 +976,9 @@ def pull_resource_from_megadata(table_name):
     if len(table_resource) > 1:
         raise ValueError(f"{table_name} found multiple times in metadata.")
     table_resource = table_resource[0]
+    # rename the resource name to the og table name
+    # this is important for the partitioned tables in particular
+    table_resource['name'] = table_name
     return(table_resource)
 
 
@@ -1000,3 +1005,20 @@ def drop_tables(engine):
     conn = engine.connect()
     conn.execute("VACUUM")
     conn.close()
+
+
+def merge_dicts(list_of_dicts):
+    """
+    Merge multipe dictionaries together.
+
+    Given any number of dicts, shallow copy and merge into a new dict,
+    precedence goes to key value pairs in latter dicts.
+    Args:
+        dict_args (list): a list of dictionaries.
+    Returns:
+        dictionary
+    """
+    merge_dict = {}
+    for dictionary in list_of_dicts:
+        merge_dict.update(dictionary)
+    return merge_dict

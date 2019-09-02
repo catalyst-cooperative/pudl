@@ -2,6 +2,8 @@
 
 import datetime
 import hashlib
+import importlib
+import json
 import logging
 import os
 import pathlib
@@ -107,7 +109,7 @@ def package_files_from_table(table, pkg_settings):
     partitioned, we want to add the partitions to the end of the table name.
 
     """
-    partitions = pudl.load.metadata.compile_partitions(pkg_settings)
+    partitions = compile_partitions(pkg_settings)
     files = []
     for dataset in pkg_settings['datasets']:
         try:
@@ -278,6 +280,39 @@ def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
     return descriptor
 
 
+def get_source_metadata(data_sources, pkg_settings):
+    """Grab sources for metadata."""
+    sources = []
+    for src in data_sources:
+        if src in pudl.constants.data_sources:
+            src_meta = {"title": src,
+                        "path": pc.base_data_urls[src]}
+            for dataset_dict in pkg_settings['datasets']:
+                for dataset in dataset_dict:
+                    # because we have defined eia as a dataset, but 860 and 923
+                    # are separate sources, either the dataset must be or be in
+                    # the source
+                    if dataset in src or dataset == src:
+                        print(f'{dataset} found')
+                        src_meta['parameters'] = dataset_dict[dataset]
+            sources.append(src_meta)
+    return sources
+
+
+def get_autoincrement_columns(unpartitioned_tables):
+    """Grab the autoincrement columns for pkg tables."""
+    with importlib.resources.open_text('pudl.package_data.meta.datapackage',
+                                       'datapackage.json') as md:
+        metadata_mega = json.load(md)
+    autoincrement = {}
+    for table in unpartitioned_tables:
+        try:
+            autoincrement[table] = metadata_mega['autoincrement'][table]
+        except KeyError:
+            pass
+    return autoincrement
+
+
 def validate_save_pkg(pkg_descriptor, pkg_dir):
     """
     Validate a data package descriptor and save it to a json file.
@@ -313,7 +348,7 @@ def validate_save_pkg(pkg_descriptor, pkg_dir):
 
 
 def generate_metadata(pkg_settings, tables, pkg_dir,
-                      uuid_pkgs=uuid.uuid4()):
+                      uuid_pkgs=str(uuid.uuid4())):
     """
     Generate metadata for package tables and validate package.
 
@@ -354,15 +389,6 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
     resources = []
     partitions = compile_partitions(pkg_settings)
     for table in tables:
-        #    for part in partitions.keys():
-        #        if part in table:
-        #            resources.append(get_tabular_data_resource(
-        #                table,
-        #                pkg_dir=pkg_dir,
-        #                partitions=partitions[part]))
-        #    else:
-        #        resources.append(get_tabular_data_resource(table,
-        #                                                   pkg_dir=pkg_dir))
         resources.append(get_tabular_data_resource(table,
                                                    pkg_dir=pkg_dir,
                                                    partitions=partitions))
@@ -370,20 +396,9 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
     unpartitioned_tables = get_unpartioned_tables(tables, pkg_settings)
     data_sources = pudl.helpers.data_sources_from_tables_pkg(
         unpartitioned_tables)
-    sources = []
-    for src in data_sources:
-        if src in pudl.constants.data_sources:
-            src_meta = {"title": src,
-                        "path": pc.base_data_urls[src]}
-            for dataset_dict in pkg_settings['datasets']:
-                for dataset in dataset_dict:
-                    # because we have defined eia as a dataset, but 860 and 923
-                    # are separate sources, either the dataset must be or be in
-                    # the source
-                    if dataset in src or dataset == src:
-                        print(f'{dataset} found')
-                        src_meta['parameters'] = dataset_dict[dataset]
-            sources.append(src_meta)
+    autoincrement = get_autoincrement_columns(unpartitioned_tables)
+    sources = get_source_metadata(data_sources, pkg_settings)
+
     contributors = set()
     for src in data_sources:
         for c in pudl.constants.contributors_by_source[src]:
@@ -402,6 +417,7 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
         "contributors": [pudl.constants.contributors[c] for c in contributors],
         "sources": sources,
         "licenses": [pudl.constants.licenses["cc-by-4.0"]],
+        "autoincrement": autoincrement,
         "resources": resources,
     }
 

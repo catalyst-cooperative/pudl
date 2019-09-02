@@ -90,6 +90,29 @@
             "path": "https://creativecommons.org/licenses/by/4.0/"
         }
     ],
+    "autoincrement" :
+        {
+            "fuel_ferc1": "id",
+            "load_curves_epaipm":"id",
+            "plant_region_map_epaipm":"id",
+            "generation_eia923":"id",
+            "plants_hydro_ferc1":"id",
+            "purchased_power_ferc1":"id",
+            "generators_eia860":"id",
+            "ownership_eia860":"id",
+            "fuel_receipts_costs_eia923":"id",
+            "boiler_generator_assn_eia860":"id",
+            "plants_eia860":"id",
+            "generation_fuel_eia923":"id",
+            "plants_small_ferc1":"id",
+            "plants_pumped_storage_ferc1":"id",
+            "boiler_fuel_eia923":"id",
+            "hourly_emissions_epacems":"id",
+            "transmission_single_epaipm":"id",
+            "plants_steam_ferc1":"id",
+            "utilities_eia860":"id",
+            "transmission_joint_epaipm":"id"
+          },
     "resources": [
         {
             "profile": "tabular-data-resource",
@@ -111,12 +134,6 @@
             },
             "schema": {
                 "fields": [
-                    {
-                        "name": "id",
-                        "type": "integer",
-                        "description": "PUDL issued surrogate key.",
-                        "format": "default"
-                    },
                     {
                         "name": "record_id",
                         "type": "string",
@@ -211,9 +228,6 @@
                         "format": "default"
                     }
                 ],
-                "primaryKey": [
-                    "id"
-                ],
                 "foreignKeys": [
                     {
                         "fields": "utility_id_ferc1",
@@ -270,11 +284,6 @@
             "schema": {
                 "fields": [
                     {
-                        "name": "id",
-                        "type": "integer",
-                        "format": "default"
-                    },
-                    {
                         "name": "region_id_epaipm",
                         "type": "string",
                         "description": "Name of the IPM region",
@@ -310,9 +319,6 @@
                         "description": "Load (MW) in an hour of the day for the IPM region",
                         "format": "default"
                     }
-                ],
-                "primaryKey": [
-                    "id"
                 ],
                 "foreignKeys": [
                     {
@@ -358,11 +364,6 @@
             "schema": {
                 "fields": [
                     {
-                        "name": "id",
-                        "type": "integer",
-                        "format": "default"
-                    },
-                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "EIA Plant Identification number. One to five digit numeric.",
@@ -374,9 +375,6 @@
                         "description": "Name of the IPM region",
                         "format": "default"
                     }
-                ],
-                "primaryKey": [
-                    "id"
                 ],
                 "foreignKeys": [
                     {
@@ -828,12 +826,6 @@
             "schema": {
                 "fields": [
                     {
-                        "name": "id",
-                        "type": "integer",
-                        "description": "PUDL issued surrogate key.",
-                        "format": "default"
-                    },
-                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "EIA Plant Identification number. One to five digit numeric.",
@@ -857,9 +849,6 @@
                         "description": "Net generation for specified period in megawatthours (MWh).",
                         "format": "default"
                     }
-                ],
-                "primaryKey": [
-                    "id"
                 ],
                 "foreignKeys": [
                     {
@@ -1191,12 +1180,6 @@
             "schema": {
                 "fields": [
                     {
-                        "name": "id",
-                        "type": "integer",
-                        "description": "PUDL issued surrogate key.",
-                        "format": "default"
-                    },
-                    {
                         "name": "record_id",
                         "type": "string",
                         "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
@@ -1425,9 +1408,6 @@
                         "format": "default"
                     }
                 ],
-                "primaryKey": [
-                    "id"
-                ],
                 "foreignKeys": [
                     {
                         "fields": "utility_id_ferc1",
@@ -1607,12 +1587,6 @@
             "schema": {
                 "fields": [
                     {
-                        "name": "id",
-                        "type": "integer",
-                        "description": "PUDL issued surrogate key.",
-                        "format": "default"
-                    },
-                    {
                         "name": "record_id",
                         "type": "string",
                         "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
@@ -1722,9 +1696,6 @@
                         "format": "default"
                     }
                 ],
-                "primaryKey": [
-                    "id"
-                ],
                 "missingValues": [
                     ""
                 ]
@@ -1764,12 +1735,6 @@
             },
             "schema": {
                 "fields": [
-                    {
-                        "name": "id",
-                        "type": "integer",
-                        "description": "PUDL issued surrogate key.",
-                        "format": "default"
-                    },
                     {
                         "name": "plant_id_eia",
                         "type": "integer",
@@ -2089,9 +2054,6 @@
                         "format": "default"
                     }
                 ],
-                "primaryKey": [
-                    "id"
-                ],
                 "foreignKeys": [
                     {
                         "fields": "plant_id_eia",
@@ -2147,12 +2109,6 @@
             },
             "schema": {
                 "fields": [
-                    {
-                        "name": "id",
-                        "type": "integer",
-                        "description": "PUDL issued surrogate key.",
-                        "format": "default"
-                    },
                     {
                         "name": "report_date",
                         "type": "date",
@@ -2300,9 +2256,6 @@
                         "description": "Percent of generator ownership.",
                         "format": "default"
                     }
-                ],
-                "primaryKey": [
-                    "id"
                 ],
                 "foreignKeys": [
                     {
@@ -2636,7 +2589,7 @@
                     {
                         "name": "id",
                         "type": "integer",
-                        "description": "PUDL fuel receipt identification number.",
+                        "description": "PUDL issued surrogate key.",
                         "format": "default"
                     },
                     {
@@ -2945,12 +2898,6 @@
             "schema": {
                 "fields": [
                     {
-                        "name": "id",
-                        "type": "integer",
-                        "description": "PUDL issued surrogate key.",
-                        "format": "default"
-                    },
-                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "EIA Plant Identification number. One to five digit numeric.",
@@ -2992,9 +2939,6 @@
                         "description": "The source from where the unit_id_pudl is compiled. The unit_id_pudl comes directly from EIA 860, or string association (which looks at all the boilers and generators that are not associated with a unit and tries to find a matching string in the respective collection of boilers or generator), or from a unit connection (where the unit_id_eia is employed to find additional boiler generator connections).",
                         "format": "default"
                     }
-                ],
-                "primaryKey": [
-                    "id"
                 ],
                 "foreignKeys": [
                     {
@@ -3495,12 +3439,6 @@
             "schema": {
                 "fields": [
                     {
-                        "name": "id",
-                        "type": "integer",
-                        "description": "PUDL issued surrogate key.",
-                        "format": "default"
-                    },
-                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "EIA Plant Identification number. One to five digit numeric.",
@@ -3639,9 +3577,6 @@
                         "format": "default"
                     }
                 ],
-                "primaryKey": [
-                    "id"
-                ],
                 "foreignKeys": [
                     {
                         "fields": "plant_id_eia",
@@ -3690,12 +3625,6 @@
             },
             "schema": {
                 "fields": [
-                    {
-                        "name": "id",
-                        "type": "integer",
-                        "description": "PUDL issued surrogate key.",
-                        "format": "default"
-                    },
                     {
                         "name": "plant_id_eia",
                         "type": "integer",
@@ -3775,9 +3704,6 @@
                         "format": "default"
                     }
                 ],
-                "primaryKey": [
-                    "id"
-                ],
                 "foreignKeys": [
                     {
                         "fields": "plant_id_eia",
@@ -3848,12 +3774,6 @@
             },
             "schema": {
                 "fields": [
-                    {
-                        "name": "id",
-                        "type": "integer",
-                        "description": "PUDL issued surrogate key.",
-                        "format": "default"
-                    },
                     {
                         "name": "record_id",
                         "type": "string",
@@ -3963,9 +3883,6 @@
                         "format": "default"
                     }
                 ],
-                "primaryKey": [
-                    "id"
-                ],
                 "foreignKeys": [
                     {
                         "fields": "utility_id_ferc1",
@@ -4021,12 +3938,6 @@
             },
             "schema": {
                 "fields": [
-                    {
-                        "name": "id",
-                        "type": "integer",
-                        "description": "PUDL issued surrogate key.",
-                        "format": "default"
-                    },
                     {
                         "name": "record_id",
                         "type": "string",
@@ -4280,9 +4191,6 @@
                         "format": "default"
                     }
                 ],
-                "primaryKey": [
-                    "id"
-                ],
                 "foreignKeys": [
                     {
                         "fields": "utility_id_ferc1",
@@ -4339,12 +4247,6 @@
             "schema": {
                 "fields": [
                     {
-                        "name": "id",
-                        "type": "integer",
-                        "description": "PUDL issued surrogate key.",
-                        "format": "default"
-                    },
-                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "EIA Plant Identification number. One to five digit numeric.",
@@ -4399,9 +4301,6 @@
                         "format": "default"
                     }
                 ],
-                "primaryKey": [
-                    "id"
-                ],
                 "foreignKeys": [
                     {
                         "fields": "fuel_type_code",
@@ -4450,12 +4349,6 @@
             },
             "schema": {
                 "fields": [
-                    {
-                        "name": "id",
-                        "type": "integer",
-                        "description": "PUDL-issued surrogate key.",
-                        "format": "default"
-                    },
                     {
                         "name": "state",
                         "type": "string",
@@ -4670,9 +4563,6 @@
                         "format": "default"
                     }
                 ],
-                "primaryKey": [
-                    "id"
-                ],
                 "missingValues": [
                     ""
                 ]
@@ -4713,11 +4603,6 @@
             "schema": {
                 "fields": [
                     {
-                        "name": "id",
-                        "type": "integer",
-                        "format": "default"
-                    },
-                    {
                         "name": "region_from",
                         "type": "string",
                         "description": "Name of the IPM region sending electricity",
@@ -4747,9 +4632,6 @@
                         "description": "Cost to transfer electricity between regions",
                         "format": "default"
                     }
-                ],
-                "primaryKey": [
-                    "id"
                 ],
                 "foreignKeys": [
                     {
@@ -4802,12 +4684,6 @@
             },
             "schema": {
                 "fields": [
-                    {
-                        "name": "id",
-                        "type": "integer",
-                        "description": "PUDL issued surrogate key.",
-                        "format": "default"
-                    },
                     {
                         "name": "record_id",
                         "type": "string",
@@ -5068,9 +4944,6 @@
                         "format": "default"
                     }
                 ],
-                "primaryKey": [
-                    "id"
-                ],
                 "foreignKeys": [
                     {
                         "fields": "utility_id_ferc1",
@@ -5126,12 +4999,6 @@
             },
             "schema": {
                 "fields": [
-                    {
-                        "name": "id",
-                        "type": "integer",
-                        "description": "PUDL issued surrogate key.",
-                        "format": "default"
-                    },
                     {
                         "name": "utility_id_eia",
                         "type": "integer",
@@ -5192,9 +5059,6 @@
                         "description": "Does the reporting entity have any other relationship to the power plants reported on Schedule 2 of the form?",
                         "format": "default"
                     }
-                ],
-                "primaryKey": [
-                    "id"
                 ],
                 "foreignKeys": [
                     {
@@ -5493,11 +5357,6 @@
             "schema": {
                 "fields": [
                     {
-                        "name": "id",
-                        "type": "integer",
-                        "format": "default"
-                    },
-                    {
                         "name": "joint_constraint_id",
                         "type": "integer",
                         "description": "Identification of groups that make up a single joint constraint",
@@ -5527,9 +5386,6 @@
                         "description": "Transfer capacity with N-0 lines (used for energy sales)",
                         "format": "default"
                     }
-                ],
-                "primaryKey": [
-                    "id"
                 ],
                 "foreignKeys": [
                     {

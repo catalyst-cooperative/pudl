@@ -58,11 +58,18 @@ def pkg_to_sqlite_db(pudl_settings,
     pkg = Package(str(pathlib.Path(pudl_settings['datapackage_dir'],
                                    pkg_bundle_dir_name,
                                    pkg_name, 'datapackage.json')))
+    # we want to grab the dictionary of columns that need autoincrement id cols
+    try:
+        autoincrement = pkg.descriptor['autoincrement']
+    # in case there is no autoincrement columns in the metadata..
+    except KeyError:
+        autoincrement = {}
 
     logger.info('Exporting the data package to sql')
     try:
         # Save the data package in SQL
-        pkg.save(storage='sql', engine=pudl_engine)  # , merge_groups=True)
+        pkg.save(storage='sql', engine=pudl_engine, merge_groups=True,
+                 autoincrement=autoincrement)
     except exceptions.TableSchemaException as exception:
         logger.info('SQLite conversion failed. See following errors:')
         logger.info(exception.errors)
