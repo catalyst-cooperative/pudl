@@ -45,8 +45,8 @@ We are especially interested in serving researchers, activists, journalists,
 and policy makers that might not otherwise be able to afford access to this
 data from commercial data providers.
 
-Getting Started
----------------
+Getting Started TEMPORARILY OUT OF DATE
+---------------------------------------
 
 Just want to play with some example data? Install
 `Anaconda <https://www.anaconda.com/distribution/>`__
@@ -54,26 +54,42 @@ Just want to play with some example data? Install
 if you like the command line) with at least Python 3.7. Then run the following
 commands in your terminal:
 
+**NOTE: (2019-09-02)** this next code block won't work unless you have the old
+PostgreSQL PUDL database set up. We are in the process of deprecating that
+database, and using tabular datapackages that feed into SQLite instead.
+However, the code is temporarily out of sync with the docs. The
+``getting_started`` docs from
+
+`this commit <https://github.com/catalyst-cooperative/pudl/tree/14d6fb2a1e0cb4d114434e9277a83f480861f8e8/docs>`__
+can help you get that set up in the interim if need be.
+
 .. code-block:: console
 
-    $ conda install PUDL_PACKAGE
-    $ pudl_setup --pudl_dir=pudl_workspace
+    $ git clone https://github.com/catalyst-cooperative/pudl.git
+    $ conda env create --name pudl --file pudl/environment.yml
     $ conda activate pudl
-    $ pudl_etl pudl_workspace/settings/pudl_etl_example.yml
+    $ pip install -e pudl
+    $ mkdir pudl-work
+    $ pudl_setup --pudl_in=pudl-work --pudl_out=pudl-work
+    $ pudl_data --sources eia923 eia860 ferc1 epacems epaipm --years 2017 --states id
+    $ pudl_etl pudl-work/settings/pudl_etl_example.yml
     $ jupyter-lab --notebook-dir=pudl_workspace/notebooks
 
-This will install the PUDL Python packages, create some local directories
-inside a directory called ``pudl_workspace``, download the most recent year of
-data from the public agencies, process it into
-`data packages <https://frictionlessdata.io/docs/tabular-data-package/>`__,
-and open up a `Jupyter <https://jupyter.org>`__ notebook in your web browser
-with some examples.
+This will install the PUDL Python package, create some local directories
+inside a directory called ``pudl-work``, download the most recent year of
+data from the public agencies, load it into a local PostgreSQL database,
+and open up a folder with some example `Jupyter noteboooks <https://jupyter.org>`__
+in your web browser.
 
-.. Note::
+We are transitioning to generating CSV/JSON based
+`tabular data packages <https://frictionlessdata.io/docs/tabular-data-package/>`__,
+which are then loaded into a local SQLite database to make setting up PUDL
+easier.
 
-    The example above requires a computer with at least **4 GB of RAM** and
-    **10 GB of free disk space**. You will also need to download about **500 MB
-    of data**. This could take a while if you have a slow internet connection.
+**NOTE:** The example above requires a computer with at least **4 GB of RAM**
+and **several GB of free disk space**. You will also need to download about
+**500 MB of data**. This could take a while if you have a slow internet
+connection.
 
 For more details, see `the full PUDL documentation
 <https://catalystcoop-pudl.readthedocs.io/>`__.
@@ -90,7 +106,8 @@ contribute!
   <https://github.com/catalyst-cooperative/pudl/issues>`__.
 * Feel free to fork the project and make a pull request with new code,
   better documentation, or example notebooks.
-* Make a donation to support our work liberating public energy data.
+* `Make a financial contribution <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url>`__ to support our work
+  liberating public energy data.
 * Hire us to do some custom analysis, and let us add the code the project.
 * For more information check out our `Contribution Guidelines <https://catalystcoop-pudl.readthedocs.io/en/latest/CONTRIBUTING.html>`__
 
