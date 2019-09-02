@@ -124,6 +124,9 @@ def main():
         else:
             years_by_source[source] = [int(year) for year in args.years
                                        if int(year) in pc.data_years[source]]
+            if source == "epaipm":
+                years_by_source[source] = pc.data_years[source]
+                continue
             bad_years = [int(year) for year in args.years
                          if int(year) not in pc.data_years[source]]
             if args.verbose and bad_years:

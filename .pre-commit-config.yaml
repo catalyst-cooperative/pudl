@@ -22,8 +22,8 @@ repos:
   - id: mixed-line-ending       # Only newlines, no line-feeds.
   - id: trailing-whitespace     # Remove trailing whitespace.
   - id: name-tests-test         # Follow PyTest naming convention.
-  - id: no-commit-to-branch     # Only commit to master via merge.
-    args: [--branch, master]
+#  - id: no-commit-to-branch     # Only commit to master via merge.
+#    args: [--branch, master]
 
 # Attempt to enforce standardized PEP8 style formatting:
 - repo: https://github.com/pre-commit/mirrors-autopep8
