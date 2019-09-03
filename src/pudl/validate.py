@@ -330,6 +330,136 @@ def plot_vs_agg(orig_df, agg_df, validation_cases):
 ###############################################################################
 
 ###############################################################################
+# EIA923 Generation Fuel data validation against fixed values
+###############################################################################
+
+
+gf_eia923_coal_heat_content = [
+    {
+        "title": "All coal heat content (middle)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.50,
+        "low_bound": 10.0,
+        "hi_q": 0.50,
+        "hi_bound": 30.0,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+]
+"""
+Valid coal heat content values (all coal types).
+
+The Generation Fuel table does not break different coal types out separately,
+so we can only test the validity of the entire suite of coal records.
+
+Based on IEA coal grade definitions:
+https://www.iea.org/statistics/resources/balancedefinitions/
+"""
+
+gf_eia923_oil_heat_content = [
+    {
+        "title": "Diesel Fuel Oil heat content (tails)",
+        "query": "fuel_type_code_aer=='DFO'",
+        "low_q": 0.05,
+        "low_bound": 5.5,
+        "hi_q": 0.95,
+        "hi_bound": 6.0,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Diesel Fuel Oil heat content (middle)",
+        "query": "fuel_type_code_aer=='DFO'",
+        "low_q": 0.50,
+        "low_bound": 5.75,
+        "hi_q": 0.50,
+        "hi_bound": 5.85,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "All petroleum heat content (tails)",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.05,
+        "low_bound": 5.5,
+        "hi_q": 0.95,
+        "hi_bound": 6.5,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+]
+"""
+Valid petroleum based fuel heat content values.
+
+Based on historically reported values in EIA 923 Fuel Receipts and Costs.
+"""
+
+gf_eia923_gas_heat_content = [
+    {
+        "title": "Natural Gas heat content (middle)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "hi_q": 0.50,
+        "hi_bound": 1.036,
+        "low_q": 0.50,
+        "low_bound": 1.018,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {  # This may fail because of bad data at 0.1 mmbtu/unit
+        "title": "Natural Gas heat content (tails)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "hi_q": 0.99,
+        "hi_bound": 1.15,
+        "low_q": 0.01,
+        "low_bound": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+]
+"""
+Valid natural gas heat content values.
+
+Based on historically reported values in EIA 923 Fuel Receipts and Costs. May
+fail because of a population of bad data around 0.1 mmbtu/unit. This appears
+to be an off-by-10x error, possibly due to reporting error in units used.
+"""
+
+###############################################################################
+# EIA 923 Generation Fuel validations against aggregated historical data.
+###############################################################################
+gf_eia923_agg = [
+    {
+        "title": "Coal heat content",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "Petroleum heat content",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.10,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {  # Weird little population of ~5% at 1/10th correct heat content
+        "title": "Gas heat content",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.10,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+]
+"""EIA923 Boiler Fuel data validation against aggregated data."""
+
+
+###############################################################################
 # EIA923 Boiler Fuel data validation against fixed values
 ###############################################################################
 

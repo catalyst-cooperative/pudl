@@ -21,9 +21,6 @@ def test_coal_heat_content(pudl_out_orig, live_pudl_db):
     for args in pudl.validate.bf_eia923_coal_heat_content:
         pudl.validate.vs_bounds(pudl_out_orig.bf_eia923(), **args)
 
-# Only xfail-ing until next time I update the DB... because Black Liquor.
-# @pytest.mark.xfail
-
 
 @pytest.mark.xfail
 def test_oil_heat_content(pudl_out_orig, live_pudl_db):
