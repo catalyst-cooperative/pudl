@@ -59,7 +59,6 @@ PostgreSQL PUDL database set up. We are in the process of deprecating that
 database, and using tabular datapackages that feed into SQLite instead.
 However, the code is temporarily out of sync with the docs. The
 ``getting_started`` docs from
-
 `this commit <https://github.com/catalyst-cooperative/pudl/tree/14d6fb2a1e0cb4d114434e9277a83f480861f8e8/docs>`__
 can help you get that set up in the interim if need be.
 
