@@ -17,21 +17,9 @@ def test_coal_heat_content(pudl_out_orig, live_pudl_db):
     for args in pudl.validate.gf_eia923_coal_heat_content:
         pudl.validate.vs_bounds(pudl_out_orig.gf_eia923(), **args)
 
-# Only xfail-ing until next time I update the DB... because Black Liquor.
-# @pytest.mark.xfail
 
-
-@pytest.mark.xfail
 def test_oil_heat_content(pudl_out_orig, live_pudl_db):
-    """
-    Check that the distribution of oil heat content per unit is valid.
-
-    Currently failing, due to inclusion of black liquor (BLQ) in the simplified
-    ``fuel_type_code_pudl`` lumping.
-
-    See: https://github.com/catalyst-cooperative/pudl/issues/393
-
-    """
+    """Check that the distribution of oil heat content per unit is valid."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
 
