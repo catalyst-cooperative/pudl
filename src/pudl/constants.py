@@ -2219,7 +2219,7 @@ data_sources = (
 # All the years for which we ought to be able to download these data sources
 data_years = {
     'eia860': tuple(range(2001, 2019)),
-    'eia923': tuple(range(2001, 2018)),
+    'eia923': tuple(range(2001, 2019)),
     'epacems': tuple(range(1995, 2019)),
     'ferc1': tuple(range(1994, 2019)),
     'epaipm': (None, ),
