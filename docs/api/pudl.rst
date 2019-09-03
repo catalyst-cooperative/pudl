@@ -26,6 +26,7 @@ Submodules
    pudl.etl_pkg
    pudl.helpers
    pudl.init
+   pudl.validate
 
 Module contents
 ---------------
