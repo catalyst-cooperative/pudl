@@ -88,6 +88,7 @@ def test_steam_ferc1_duplicate_years_in_plant_id_ferc1(pudl_out_ferc1):
 
 @pytest.mark.ferc1
 @pytest.mark.post_etl
+@pytest.mark.xfail
 def test_steam_ferc1_plant_id_clash(pudl_out_ferc1):
     """
     Test for FERC & PUDL Plant ID consistency.

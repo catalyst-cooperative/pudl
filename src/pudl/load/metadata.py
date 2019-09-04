@@ -249,7 +249,11 @@ def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
         information about the selected table
 
     """
-    abs_path = pathlib.Path(pkg_dir, 'data', f'{table_name}.csv')
+    # every time we want to generate the cems table, we want it compressed
+    if 'epacems' in table_name:
+        abs_path = pathlib.Path(pkg_dir, 'data', f'{table_name}.csv.gz')
+    else:
+        abs_path = pathlib.Path(pkg_dir, 'data', f'{table_name}.csv')
 
     # pull the skeleton of the descriptor from the megadata file
     descriptor = pudl.helpers.pull_resource_from_megadata(table_name)

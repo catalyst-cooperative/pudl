@@ -23,6 +23,19 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.etl
+@pytest.mark.data_package
+def test_data_packaging(data_packaging):
+    """Generate limited packages for testing."""
+    pass
+
+
+@pytest.mark.data_package
+def test_data_packaging_to_sqlite(data_packaging_to_sqlite):
+    """Try flattening the data packages."""
+    pass
+
+
+@pytest.mark.etl
 @pytest.mark.ferc1
 def test_ferc1_init_db(ferc1_engine):
     """
@@ -134,7 +147,7 @@ def test_only_ferc1_pudl_init_db(datastore_fixture,
                                  live_ferc_db):
     """Verify that a minimal FERC Form 1 can be loaded without other data."""
     test_dir = pathlib.Path(__file__).parent
-    with open(os.path.join(test_dir, 'settings',
+    with open(pathlib.Path(test_dir, 'settings',
                            'settings_datapackage_ferc1_only.yml'),
               "r") as f:
         pkg_settings = yaml.safe_load(f)['pkg_bundle_settings']
