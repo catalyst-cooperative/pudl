@@ -31,7 +31,7 @@ init_pudl.py settings_init_pudl_YOUR-EDITED-FILENAME.yml
 
 # Now run some tests that access the PUDL database and sanity check the data:
 # Run this from within the top level repository directory:
-pytest --disable-warnings --live_ferc_db --live_pudl_db test/validation/
+pytest --disable-warnings --live_ferc_db=AUTO --live_pudl_db=AUTO test/validation/
 
 # Attempt to run some notebooks which also exercise the data,
 # The --nbval-lax flag tells pytest only to check for a lack of errors in the
