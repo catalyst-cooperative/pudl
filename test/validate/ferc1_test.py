@@ -16,8 +16,6 @@ import pudl.constants as pc
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.ferc1
-@pytest.mark.post_etl
 @pytest.mark.parametrize("table_name", pc.pudl_tables["ferc1"])
 def test_record_id_dupes(pudl_engine, table_name):
     """Verify that the generated ferc1 record_ids are unique."""
@@ -33,8 +31,6 @@ def test_record_id_dupes(pudl_engine, table_name):
         )
 
 
-@pytest.mark.ferc1
-@pytest.mark.post_etl
 def test_pu_ferc1(pudl_out_ferc1):
     """Test output routines for tables from FERC Form 1."""
     logger.info("Compiling FERC Form 1 plants & utilities table...")
@@ -42,8 +38,6 @@ def test_pu_ferc1(pudl_out_ferc1):
                 f"records found.")
 
 
-@pytest.mark.ferc1
-@pytest.mark.post_etl
 def test_steam_ferc1_trivial(pudl_out_ferc1):
     """Test output routines for tables from FERC Form 1."""
     logger.info("Compiling FERC Form 1 steam plants table...")
@@ -53,8 +47,6 @@ def test_steam_ferc1_trivial(pudl_out_ferc1):
     )
 
 
-@pytest.mark.ferc1
-@pytest.mark.post_etl
 @pytest.mark.xfail
 def test_steam_ferc1_duplicate_years_in_plant_id_ferc1(pudl_out_ferc1):
     """
@@ -86,8 +78,6 @@ def test_steam_ferc1_duplicate_years_in_plant_id_ferc1(pudl_out_ferc1):
         )
 
 
-@pytest.mark.ferc1
-@pytest.mark.post_etl
 @pytest.mark.xfail
 def test_steam_ferc1_plant_id_clash(pudl_out_ferc1):
     """
@@ -120,16 +110,12 @@ def test_steam_ferc1_plant_id_clash(pudl_out_ferc1):
         )
 
 
-@pytest.mark.ferc1
-@pytest.mark.post_etl
 def test_fuel_ferc1(pudl_out_ferc1):
     """Test output routines for tables from FERC Form 1."""
     logger.info("Compiling FERC Form 1 fuel table...")
     logger.info(f"{len(pudl_out_ferc1.fuel_ferc1())} fuel records found")
 
 
-@pytest.mark.ferc1
-@pytest.mark.post_etl
 def test_fbp_ferc1_trivial(pudl_out_ferc1):
     """Test output routines for tables from FERC Form 1."""
     logger.info("Compiling FERC Form 1 Fuel by Plant table...")
@@ -137,8 +123,6 @@ def test_fbp_ferc1_trivial(pudl_out_ferc1):
     logger.info(f"{len(fbp_ferc1)} fuel by plant records found")
 
 
-@pytest.mark.ferc1
-@pytest.mark.post_etl
 def test_fbp_ferc1_missing_mmbtu(pudl_out_ferc1):
     """Test output routines for tables from FERC Form 1."""
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
@@ -155,8 +139,6 @@ def test_fbp_ferc1_missing_mmbtu(pudl_out_ferc1):
             f"Too many records ({missing_mmbtu_pct:.2}%) missing mmBTU.")
 
 
-@pytest.mark.ferc1
-@pytest.mark.post_etl
 def test_fbp_ferc1_missing_cost(pudl_out_ferc1):
     """Check whether FERC 1 fuel costs by plant appear to be complete."""
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
@@ -172,8 +154,6 @@ def test_fbp_ferc1_missing_cost(pudl_out_ferc1):
             f"Too many records ({missing_cost_pct:.2}%) missing fuel costs.")
 
 
-@pytest.mark.ferc1
-@pytest.mark.post_etl
 def test_fbp_ferc1_mismatched_fuels(pudl_out_ferc1):
     """Check whether FERC 1 primary fuel by cost and by heat content match."""
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
@@ -189,8 +169,6 @@ def test_fbp_ferc1_mismatched_fuels(pudl_out_ferc1):
             f"primary fuel types.")
 
 
-@pytest.mark.ferc1
-@pytest.mark.post_etl
 def test_fbp_ferc1_no_dupes(pudl_out_ferc1):
     """Check for duplicate primary keys in FERC 1 fuel by plant."""
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
@@ -207,8 +185,6 @@ def test_fbp_ferc1_no_dupes(pudl_out_ferc1):
         )
 
 
-@pytest.mark.ferc1
-@pytest.mark.post_etl
 def test_fbp_ferc1_gas_price_distribution(pudl_out_ferc1):
     """Check whether FERC 1 gas price distribution appears reasonable."""
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
@@ -233,8 +209,6 @@ def test_fbp_ferc1_gas_price_distribution(pudl_out_ferc1):
         )
 
 
-@pytest.mark.ferc1
-@pytest.mark.post_etl
 def test_fbp_ferc1_coal_price_distribution(pudl_out_ferc1):
     """Check whether FERC 1 coal price distribution appears reasonable."""
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()

@@ -13,15 +13,10 @@ non-fuel production costs have yet to be integrated.
 import logging
 
 import pandas as pd
-import pytest
 
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.eia860
-@pytest.mark.eia923
-@pytest.mark.post_etl
-@pytest.mark.mcoe
 def test_capacity_factor(pudl_out_eia):
     """Test the capacity factor calculation."""
     logger.info("Calculating generator capacity factors...")
@@ -29,9 +24,6 @@ def test_capacity_factor(pudl_out_eia):
     logger.info(f"Successfully pulled {len(cf)} records")
 
 
-@pytest.mark.eia860
-@pytest.mark.mcoe
-@pytest.mark.post_etl
 def test_bga(pudl_out_eia):
     """Test the boiler generator associations."""
     logger.info("Inferring complete boiler-generator associations...")
@@ -63,10 +55,6 @@ def test_bga(pudl_out_eia):
         f"generators with differing primary fuels.")
 
 
-@pytest.mark.eia860
-@pytest.mark.eia923
-@pytest.mark.post_etl
-@pytest.mark.mcoe
 def test_hr_by_unit(pudl_out_eia):
     """Calculate heat rates on a per generation unit basis."""
     logger.info("Calculating heat rates by generation unit...")
@@ -78,10 +66,6 @@ def test_hr_by_unit(pudl_out_eia):
         raise AssertionError("Found non-unique unit heat rates!")
 
 
-@pytest.mark.eia860
-@pytest.mark.eia923
-@pytest.mark.post_etl
-@pytest.mark.mcoe
 def test_hr_by_gen(pudl_out_eia):
     """Calculate heat reates on a per-generator basis."""
     logger.info("Calculating heat rates for individual generators...")
@@ -92,10 +76,6 @@ def test_hr_by_gen(pudl_out_eia):
         raise AssertionError("Found non-unique generator heat rates!")
 
 
-@pytest.mark.eia860
-@pytest.mark.eia923
-@pytest.mark.post_etl
-@pytest.mark.mcoe
 def test_fuel_cost(pudl_out_eia):
     """Calculate fuel costs on a per-generator basis, and sanity check."""
     logger.info("Calculating fuel costs by individual generator...")

@@ -147,7 +147,9 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
     * ``heat_content_mmbtu_per_unit`` (weighted average)
     * ``sulfur_content_pct`` (weighted average)
     * ``ash_content_pct`` (weighted average)
+    * ``moisture_content_pct`` (weighted average)
     * ``mercury_content_ppm`` (weighted average)
+    * ``chlorine_content_ppm`` (weighted average)
 
     In addition, plant and utility names and IDs are pulled in from the EIA
     860 tables.
