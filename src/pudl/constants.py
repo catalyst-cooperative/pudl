@@ -1466,7 +1466,7 @@ fuel_type_eia923_gen_fuel_coal_strings = [
 """
 
 fuel_type_eia923_gen_fuel_oil_strings = [
-    'blq', 'dfo', 'rfo', 'wo', 'jf', 'ker', ]
+    'dfo', 'rfo', 'wo', 'jf', 'ker', ]
 """list: The list of EIA 923 Generation Fuel strings associated with oil fuel.
 """
 
@@ -1493,7 +1493,7 @@ fuel_type_eia923_gen_fuel_nuclear_strings = ['nuc', ]
     power.
 """
 fuel_type_eia923_gen_fuel_waste_strings = [
-    'ab', 'msb', 'msn', 'msw', 'obl', 'obs', 'slw', 'tdf', 'wdl', 'wds', ]
+    'ab', 'blq', 'msb', 'msn', 'msw', 'obl', 'obs', 'slw', 'tdf', 'wdl', 'wds']
 """list: The list of EIA 923 Generation Fuel strings associated with solid waste
     fuel.
 """
@@ -1526,8 +1526,7 @@ fuel_type_eia923_boiler_fuel_coal_strings = [
     coal.
 """
 
-fuel_type_eia923_boiler_fuel_oil_strings = [
-    'blq', 'dfo', 'rfo', 'wo', 'jf', 'ker', ]
+fuel_type_eia923_boiler_fuel_oil_strings = ['dfo', 'rfo', 'wo', 'jf', 'ker', ]
 """list: A list of strings from EIA 923 Boiler Fuel associated with fuel type
     oil.
 """
@@ -1536,8 +1535,8 @@ fuel_type_eia923_boiler_fuel_gas_strings = [
 """list: A list of strings from EIA 923 Boiler Fuel associated with fuel type
     gas.
 """
-fuel_type_eia923_boiler_fuel_waste_strings = ['ab', 'msb', 'msn', 'obl', 'obs',
-                                              'slw', 'tdf', 'wdl', 'wds', ]
+fuel_type_eia923_boiler_fuel_waste_strings = [
+    'ab', 'blq', 'msb', 'msn', 'obl', 'obs', 'slw', 'tdf', 'wdl', 'wds', ]
 """list: A list of strings from EIA 923 Boiler Fuel associated with fuel type
     waste.
 """
@@ -1648,7 +1647,7 @@ fuel_type_eia860_coal_strings = ['ant', 'bit', 'cbl', 'lig', 'pc', 'rc', 'sc',
 """list: A list of strings from EIA 860 associated with fuel type coal.
 """
 
-fuel_type_eia860_oil_strings = ['blq', 'dfo', 'jf', 'ker', 'rfo', 'wo', 'woo',
+fuel_type_eia860_oil_strings = ['dfo', 'jf', 'ker', 'rfo', 'wo', 'woo',
                                 'petroleum']
 """list: A list of strings from EIA 860 associated with fuel type oil.
 """
@@ -1675,7 +1674,7 @@ fuel_type_eia860_nuclear_strings = ['nuc', 'nuclear']
 """list:  A list of strings from EIA 860 associated with nuclear power.
 """
 
-fuel_type_eia860_waste_strings = ['ab', 'bm', 'msb', 'msn', 'obl',
+fuel_type_eia860_waste_strings = ['ab', 'blq', 'bm', 'msb', 'msn', 'obl',
                                   'obs', 'slw', 'tdf', 'wdl', 'wds', 'biomass',
                                   'msw', 'www']
 """list: A list of strings from EIA 860 associated with fuel type waste.
@@ -2222,7 +2221,7 @@ data_sources = (
 
 # All the years for which we ought to be able to download these data sources
 data_years = {
-    'eia860': tuple(range(2001, 2018)),
+    'eia860': tuple(range(2001, 2019)),
     'eia923': tuple(range(2001, 2019)),
     'epacems': tuple(range(1995, 2019)),
     'ferc1': tuple(range(1994, 2019)),

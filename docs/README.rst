@@ -54,14 +54,12 @@ Just want to play with some example data? Install
 if you like the command line) with at least Python 3.7. Then run the following
 commands in your terminal:
 
-**NOTE: (2019-09-02)** this next code block won't work unless you have the old
+**NOTE: (2019-09-03)** this next code block won't work unless you have the old
 PostgreSQL PUDL database set up. We are in the process of deprecating that
 database, and using tabular datapackages that feed into SQLite instead.
-However, the code is temporarily out of sync with the docs. The
-``getting_started`` docs from
-
-`this commit <https://github.com/catalyst-cooperative/pudl/tree/14d6fb2a1e0cb4d114434e9277a83f480861f8e8/docs>`__
-can help you get that set up in the interim if need be.
+However, the code is temporarily out of sync with the docs. The last version of
+the guide to setting up the PostgreSQL database can be found in
+`this commit <https://github.com/catalyst-cooperative/pudl/blob/a8173bd78857d4a09ddf685b19fea0a83f2e5007/docs/getting_started.md#4-install-and-configure-postgresql>`__ if you need to get it set up in the interim.
 
 .. code-block:: console
 

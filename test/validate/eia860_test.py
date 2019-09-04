@@ -2,7 +2,6 @@
 
 import logging
 
-import pytest
 from scipy import stats
 
 from pudl import helpers
@@ -10,48 +9,36 @@ from pudl import helpers
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.eia860
-@pytest.mark.post_etl
 def test_plants_eia860(pudl_out_eia):
     """Sanity checks for EIA 860 plants data."""
     logger.info('Reading EIA 860 plant data...')
     logger.info(f"{len(pudl_out_eia.plants_eia860())} records found.")
 
 
-@pytest.mark.eia860
-@pytest.mark.post_etl
 def test_utils_eia860(pudl_out_eia):
     """Sanity checks for EIA 860 utility data."""
     logger.info('Reading EIA 860 utility data...')
     logger.info(f"{len(pudl_out_eia.utils_eia860())} records found.")
 
 
-@pytest.mark.eia860
-@pytest.mark.post_etl
 def test_pu_eia860(pudl_out_eia):
     """Sanity checks for EIA 860 plant & utility data."""
     logger.info('Reading EIA 860 plant & utility data...')
     logger.info(f"{len(pudl_out_eia.pu_eia860())} records found.")
 
 
-@pytest.mark.eia860
-@pytest.mark.post_etl
 def test_gens_eia860(pudl_out_eia):
     """Sanity checks for EIA 860 generator data."""
     logger.info('Reading EIA 860 generator data...')
     logger.info(f"{len(pudl_out_eia.gens_eia860())} records found.")
 
 
-@pytest.mark.eia860
-@pytest.mark.post_etl
 def test_bga_eia860(pudl_out_eia):
     """Sanity checks for EIA 860 boiler-generator associations."""
     logger.info('Reading original EIA 860 boiler-generator associations...')
     logger.info(f"{len(pudl_out_eia.bga_eia860())} records found.")
 
 
-@pytest.mark.eia860
-@pytest.mark.post_etl
 def test_own_eia860(pudl_out_eia):
     """Sanity checks for EIA 860 generator ownership data."""
     logger.info('Reading EIA 860 generator ownership data...')
