@@ -332,7 +332,7 @@ def mcoe(pudl_out,
             previously would have been NaN.
 
     Returns:
-        :mod:`pandas.DataFrame: a dataframe organized by date and generator,
+        :mod:`pandas.DataFrame`: a dataframe organized by date and generator,
         with lots of juicy information about the generators -- including fuel
         cost on a per MWh and MMBTU basis, heat rates, and net generation.
 
