@@ -39,8 +39,9 @@ def heat_rate_by_unit(pudl_out):
     """
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
-    assert pudl_out.freq is not None,\
-        "pudl_out must inclue a frequency for mcoe"
+    if pudl_out.freq is None:
+        raise ValueError(
+            "pudl_out must include a frequency for heat rate calculation")
 
     # Create a dataframe containing only the unit-generator mappings:
     bga_gens = pudl_out.bga()[['report_date',
@@ -85,8 +86,9 @@ def heat_rate_by_gen(pudl_out):
     """Convert by-unit heat rate to by-generator, adding fuel type & count."""
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
-    assert pudl_out.freq is not None,\
-        "pudl_out must include a frequency for mcoe"
+    if pudl_out.freq is None:
+        raise ValueError(
+            "pudl_out must include a frequency for heat rate calculation")
 
     gens_simple = pudl_out.gens_eia860()[['report_date', 'plant_id_eia',
                                           'generator_id',
@@ -139,11 +141,13 @@ def fuel_cost(pudl_out):
     are associated with generators that have energy_source_code gas, and the
     coal fuel costs are associated with the generators that have
     energy_source_code coal.
+
     """
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
-    assert pudl_out.freq is not None,\
-        "pudl_out must include a frequency for mcoe"
+    if pudl_out.freq is None:
+        raise ValueError(
+            "pudl_out must include a frequency for fuel cost calculation")
 
     # Split up the plants on the basis of how many different primary energy
     # sources the component generators have:
@@ -250,13 +254,11 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
     """
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
-    assert pudl_out.freq is not None,\
-        "pudl_out must inclue a frequency for mcoe"
+    if pudl_out.freq is None:
+        raise ValueError(
+            "pudl_out must include a frequency for capacity factor calculation"
+        )
 
-    # pudl_out must have a freq, otherwise capacity factor will fail and merges
-    # between tables with different frequencies will fail
-    assert pudl_out.freq is not None,\
-        "pudl_out must inclue a frequency for mcoe"
     # Only include columns to be used
     gens_eia860 = pudl_out.gens_eia860()[['plant_id_eia',
                                           'report_date',
@@ -330,19 +332,21 @@ def mcoe(pudl_out,
             previously would have been NaN.
 
     Returns:
-        mcoe_out: a dataframe organized by date and generator, with lots of
-            juicy information about the generators -- including fuel cost on a
-            per MWh and MMBTU basis, heat rates, and neg generation.
+        :mod:`pandas.DataFrame: a dataframe organized by date and generator,
+        with lots of juicy information about the generators -- including fuel
+        cost on a per MWh and MMBTU basis, heat rates, and net generation.
 
     """
     # Bring together the fuel cost and capacity factor dataframes, which
     # also include heat rate information.
-    mcoe_out = pd.merge(pudl_out.fuel_cost(),
-                        pudl_out.capacity_factor()[
-                            ['report_date', 'plant_id_eia',
-                             'generator_id', 'capacity_factor']],
-                        on=['report_date', 'plant_id_eia', 'generator_id'],
-                        how='left')
+    mcoe_out = pd.merge(
+        pudl_out.fuel_cost(),
+        pudl_out.capacity_factor(min_cap_fact=min_cap_fact,
+                                 max_cap_fact=max_cap_fact)[
+            ['report_date', 'plant_id_eia',
+             'generator_id', 'capacity_factor']],
+        on=['report_date', 'plant_id_eia', 'generator_id'],
+        how='left')
 
     # Bring the PUDL Unit IDs into the output dataframe so we can see how
     # the generators are really grouped.
