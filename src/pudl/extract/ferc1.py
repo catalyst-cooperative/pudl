@@ -383,7 +383,7 @@ class FERC1FieldParser(dbfread.FieldParser):
             Zane revisit
         """
         # Strip whitespace, null characters, and zeroes
-        data = data.strip().strip(b'*\x00').strip(b'0')
+        data = data.strip().strip(b'*\x00').lstrip(b'0')
         # Replace bare periods (which are non-numeric) with zero.
         if data == b'.':
             data = b'0'
