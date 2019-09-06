@@ -64,7 +64,7 @@ def weighted_quantile(data, weights, quantile):
     return np.nan
 
 
-def historical_distribution(df, data_col, wt_col, quantile):
+def historical_distribution(df, data_col, weight_col, quantile):
     """Calculate a historical distribution of weighted values of a column.
 
     In order to know what a "reasonable" value of a particular column is in the
@@ -77,7 +77,7 @@ def historical_distribution(df, data_col, wt_col, quantile):
         df (pandas.DataFrame): a dataframe containing historical data, with a
             column named either ``report_date`` or ``report_year``.
         data_col (string): Label of the column containing the data of interest.
-        wt_col (string): Label of the column containing the weights to be
+        weight_col (string): Label of the column containing the weights to be
             used in scaling the data.
 
     Returns:
@@ -87,12 +87,17 @@ def historical_distribution(df, data_col, wt_col, quantile):
     """
     if "report_year" not in df.columns:
         df["report_year"] = pd.to_datetime(df.report_date).dt.year
+    if weight_col is None or weight_col == "":
+        df["ones"] = 1.0
+        weight_col = "ones"
     report_years = df.report_year.unique()
     dist = []
     for year in report_years:
-        dist = dist + [weighted_quantile(df[df.report_year == year][data_col],
-                                         df[df.report_year == year][wt_col],
-                                         quantile)]
+        dist = dist + [
+            weighted_quantile(df[df.report_year == year][data_col],
+                              df[df.report_year == year][weight_col],
+                              quantile)
+        ]
     # these values can be NaN, if there were no values in that column for some
     # years in the data:
     return [d for d in dist if not np.isnan(d)]
@@ -1256,6 +1261,185 @@ frc_eia923_agg = [
     },
 ]
 """EIA923 fuel receipts & costs data validation against aggregated data."""
+
+###############################################################################
+# MCOE output validations, against fixed bounds
+###############################################################################
+mcoe_gas_capacity_factor = [
+    {
+        "title": "Natural Gas Capacity Factor (middle, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.65,
+        "low_bound": 0.40,
+        "hi_q": 0.65,
+        "hi_bound": 0.60,
+        "data_col": "capacity_factor",
+        "weight_col": "capacity_mw",
+    },
+    {
+        "title": "Natural Gas Capacity Factor (tails, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.1,
+        "low_bound": 0.01,
+        "hi_q": 0.95,
+        "hi_bound": .95,
+        "data_col": "capacity_factor",
+        "weight_col": "capacity_mw",
+    },
+]
+
+mcoe_coal_capacity_factor = [
+    {
+        "title": "Coal Capacity Factor (middle)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.6,
+        "low_bound": 0.5,
+        "hi_q": 0.6,
+        "hi_bound": 0.9,
+        "data_col": "capacity_factor",
+        "weight_col": "capacity_mw",
+    },
+    {
+        "title": "Coal Capacity Factor (tails)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "low_bound": 0.04,
+        "hi_q": 0.95,
+        "hi_bound": .95,
+        "data_col": "capacity_factor",
+        "weight_col": "capacity_mw",
+    },
+]
+
+mcoe_gas_heat_rate = [
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Natural Gas Unit Heat Rates (middle, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.50,
+        "low_bound": 7.0,
+        "hi_q": 0.50,
+        "hi_bound": 7.5,
+        "data_col": "heat_rate_mmbtu_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Natural Gas Unit Heat Rates (tails, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.05,
+        "low_bound": 6.5,
+        "hi_q": 0.95,
+        "hi_bound": 13.0,
+        "data_col": "heat_rate_mmbtu_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+]
+
+mcoe_coal_heat_rate = [
+    {
+        "title": "Coal Unit Heat Rates (middle)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.50,
+        "low_bound": 10.0,
+        "hi_q": 0.50,
+        "hi_bound": 11.0,
+        "data_col": "heat_rate_mmbtu_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Coal Unit Heat Rates (tails)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "low_bound": 9.0,
+        "hi_q": 0.95,
+        "hi_bound": 12.5,
+        "data_col": "heat_rate_mmbtu_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+]
+
+# Because of copious NA values, fuel costs are only useful at monthly
+# resolution, and we really need rolling windows and a full time series for
+# them to be most useful
+mcoe_self_fuel_cost_per_mmbtu = [
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Nautral Gas Fuel Cost (2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "total_mmbtu",
+    },
+    {
+        "title": "Coal Fuel Cost",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "total_mmbtu",
+    },
+]
+
+mcoe_self_fuel_cost_per_mwh = [
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Nautral Gas Fuel Cost (2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Coal Fuel Cost",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+]
+
+mcoe_self = [
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Nautral Gas Capacity Factor (2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.10,
+        "mid_q": 0.65,
+        "hi_q": 0.95,
+        "data_col": "capacity_factor",
+        "weight_col": "capacity_mw",
+    },
+    {
+        "title": "Coal Capacity Factor",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.60,
+        "hi_q": 0.95,
+        "data_col": "capacity_factor",
+        "weight_col": "capacity_mw",
+    },
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Nautral Gas Heat Rates (2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "heat_rate_mmbtu_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Coal Heat Rates",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "heat_rate_mmbtu_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+]
 
 ###############################################################################
 # Naming issues...
