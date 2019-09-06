@@ -50,10 +50,6 @@ def test_ferc1_init_db(ferc1_engine):
     pass
 
 
-@pytest.mark.etl
-@pytest.mark.eia860
-@pytest.mark.eia923
-@pytest.mark.ferc1
 def test_pudl_init_db(ferc1_engine, pudl_engine):
     """
     Create a fresh PUDL DB and pull in some FERC1 & EIA data.
@@ -87,8 +83,6 @@ def test_epacems_to_parquet(data_packaging,
     )
 
 
-@pytest.mark.etl
-@pytest.mark.ferc1
 def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
     """
     Check to make sure we aren't missing any old FERC Form 1 tables or fields.

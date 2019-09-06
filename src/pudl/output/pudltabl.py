@@ -463,7 +463,8 @@ class PudlTabl(object):
             self._dfs['fuel_cost'] = pudl.analysis.mcoe.fuel_cost(self)
         return self._dfs['fuel_cost']
 
-    def capacity_factor(self, update=False):
+    def capacity_factor(self, update=False,
+                        min_cap_fact=None, max_cap_fact=None):
         """
         Calculate and return generator level capacity factors.
 
@@ -477,7 +478,7 @@ class PudlTabl(object):
         """
         if update or self._dfs['capacity_factor'] is None:
             self._dfs['capacity_factor'] = pudl.analysis.mcoe.capacity_factor(
-                self)
+                self, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact)
         return self._dfs['capacity_factor']
 
     def mcoe(self, update=False,

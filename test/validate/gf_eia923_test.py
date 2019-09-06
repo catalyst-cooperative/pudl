@@ -9,6 +9,30 @@ import pudl
 logger = logging.getLogger(__name__)
 
 
+def test_fuel_for_electricity(pudl_out_orig, pudl_out_eia, live_pudl_db):
+    """Ensure fuel used for electricity is less than or equal to all fuel."""
+    if not live_pudl_db:
+        raise AssertionError("Data validation only works with a live PUDL DB.")
+
+    gf_eia923_orig = pudl_out_orig.gf_eia923()
+    gf_eia923_agg = pudl_out_eia.gf_eia923()
+
+    excess_fuel_orig = \
+        gf_eia923_orig.fuel_consumed_for_electricity_mmbtu > gf_eia923_orig.fuel_consumed_mmbtu
+
+    excess_fuel_agg = \
+        gf_eia923_agg.fuel_consumed_for_electricity_mmbtu > gf_eia923_agg.fuel_consumed_mmbtu
+
+    if excess_fuel_orig.any():
+        raise ValueError(
+            f"Fuel consumed for electricity is greater than all fuel consumed!"
+        )
+    if excess_fuel_agg.any():
+        raise ValueError(
+            f"Fuel consumed for electricity is greater than all fuel consumed!"
+        )
+
+
 def test_coal_heat_content(pudl_out_orig, live_pudl_db):
     """Check that the distribution of coal heat content per unit is valid."""
     if not live_pudl_db:

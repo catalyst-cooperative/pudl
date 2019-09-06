@@ -2,13 +2,9 @@
 
 import logging
 
-import pytest
-
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.eia923
-@pytest.mark.post_etl
 def test_gen_eia923(pudl_out_eia):
     """Sanity checks for EIA 923 Generation output."""
     logger.info("Reading EIA 923 Generation data...")

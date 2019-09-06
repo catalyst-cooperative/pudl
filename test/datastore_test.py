@@ -13,15 +13,12 @@ continuosly exercising this functionality.
 import logging
 import os
 
-import pytest
-
 import pudl
 import pudl.workspace.datastore as datastore
 
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.pre_etl
 def test_datastore(pudl_settings_fixture, data_scope):
     """Download sample data for each available data source."""
     sources_to_update = ['eia860', 'eia923', 'epaipm']

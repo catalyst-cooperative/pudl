@@ -9,7 +9,6 @@ from pudl import analysis
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.post_etl
 @pytest.mark.skip(reason="Data zipper not ready for prime time.")
 def test_datazipper(gens=100, max_group_size=5, n_series=10, n_samples=100):
     """Do a test run of the FERC/EIA correlation merge."""
