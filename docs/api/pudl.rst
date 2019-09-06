@@ -23,7 +23,7 @@ Submodules
 
    pudl.cli
    pudl.constants
-   pudl.etl_pkg
+   pudl.etl
    pudl.helpers
    pudl.init
    pudl.validate

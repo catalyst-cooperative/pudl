@@ -1,4 +1,20 @@
-"""Module coordinating the PUDL ETL pipeline, generating data packages."""
+"""
+Module coordinating the PUDL ETL pipeline, generating data packages.
+
+The PUDL project integrates several different public data sets into well
+normalized data packages allowing easier access and interaction between all each
+dataset. This module coordinates the extract/transfrom/load process of data from:
+
+ - US Energy Information Agency (EIA):
+   - Form 860 (eia860)
+   - Form 923 (eia923)
+ - US Federal Energy Regulatory Commission (FERC):
+   - Form 1 (ferc1)
+ - US Environmental Protection Agency (EPA):
+   - Continuous Emissions Monitory System (epacems)
+   - Integrated Planning Model (epaipm)
+
+"""
 
 import logging
 import os.path
@@ -650,7 +666,7 @@ def validate_params(pkg_bundle_settings, pudl_settings):
                 validated_dataset_dict = {dataset: etl_params}
                 if etl_params:
                     dataset_dicts.extend([validated_dataset_dict])
-        dataset_dicts = pudl.etl_pkg._insert_glue_settings(dataset_dicts)
+        dataset_dicts = _insert_glue_settings(dataset_dicts)
         if dataset_dicts:
             validated_pkg_settings['datasets'] = dataset_dicts
             validated_settings.extend([validated_pkg_settings])
@@ -659,6 +675,12 @@ def validate_params(pkg_bundle_settings, pudl_settings):
 
 def etl_pkg(pkg_settings, pudl_settings, pkg_bundle_dir):
     """Extracts, transforms and loads CSVs.
+
+    This is the coordinating function for generating all of the CSV's for a data
+    package. For each of the datasets enumerated in the pkg_settings, this
+    function runs the dataset specific ETL function. Along the way, we are
+    accumulating which tables have been loaded. This is useful for generating
+    the metadata associated with the package.
 
     Args:
         pkg_settings (dict) : a dictionary of etl_params for a datapackage.
@@ -721,7 +743,7 @@ def etl_pkg(pkg_settings, pudl_settings, pkg_bundle_dir):
 
 def generate_data_packages(pkg_bundle_settings,
                            pudl_settings,
-                           pkg_bundle_dir_name,
+                           pkg_bundle_name,
                            debug=False,
                            clobber=False):
     """
@@ -741,7 +763,7 @@ def generate_data_packages(pkg_bundle_settings,
             dictionary contains the arguements for its ETL function.
         pudl_settings (dict) : a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
-        pkg_bundle_dir_name (string): name of directory you want the bundle of
+        pkg_bundle_name (string): name of directory you want the bundle of
             data packages to live.
         debug (bool): If True, return a dictionary with package names (keys)
             and a list with the data package metadata and report (values).
@@ -758,7 +780,7 @@ def generate_data_packages(pkg_bundle_settings,
     uuid_pkgs = str(uuid.uuid4())
 
     pkg_bundle_dir = pudl.load.metadata.prep_pkg_bundle_directory(
-        pudl_settings, pkg_bundle_dir_name, clobber=clobber)
+        pudl_settings, pkg_bundle_name, clobber=clobber)
 
     metas = {}
     for pkg_settings in validated_bundle_settings:

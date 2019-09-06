@@ -14,7 +14,7 @@ notebook that works with PUDL data by running:
 
 .. code-block:: console
 
-    $ pudl_etl settings/pudl_etl_example.yml
+    $ pudl_etl settings/etl_example.yml --pkg_bundle_name pudl_example
     $ jupyter-lab --notebook-dir=notebooks
 
 .. note::
@@ -46,8 +46,8 @@ called "ETL" which stands for "Extract, Transform, Load."
 The PUDL python package is organized into these steps as well, with
 :mod:`pudl.extract` and :mod:`pudl.transform` subpackages that contain dataset
 specific modules like :mod:`pudl.extract.ferc1` and
-:mod:`pudl.transform.eia923`. The Load step is currently just a single module
-called :mod:`pudl.load`.
+:mod:`pudl.transform.eia923`. The Load step is currently :mod:`pudl.load`,
+which contains modules that help load CSVs and JSON metabata.
 
 The ETL pipeline is coordinated by the top-level :mod:`pudl.etl` module, which
 has a command line interface accessible via the ``pudl_etl`` script that is
@@ -60,28 +60,32 @@ would do:
 
 .. code-block:: console
 
-    $ pudl_etl settings/pudl_etl_example.yml
+    $ pudl_etl settings/etl_example.yml --pkg_bundle_name pudl_example
 
 This should result in a bunch of Python :mod:`logging` output, describing what
 the script is doing, and some outputs in the ``sqlite`` and ``datapackage``
 directories within your workspace. In particular, you should see new file at
-``sqlite/ferc1.sqlite`` and a new directory at ``datapackage/pudl-example``.
+``sqlite/ferc1.sqlite`` and a new directory at ``datapackage/pudl_example``.
 
-Under the hood, the ``pudl_etl`` script has downloaded data from the federal
-agencies and organized it into a datastore locally, cloned the original FERC
-Form 1 database into that ``ferc1.sqlite`` file, extracted a bunch of data from
-that database and a variety of Microsoft Excel spreadsheets and CSV files, and
-combined it all into the ``pudl-example`` `tabular datapackage
-<https://frictionlessdata.io/specs/tabular-data-package/>`__. The metadata
+Under the hood, the ``pudl_etl`` script has extracted a bunch of data from the
+datastore (including the FERC1 SQLite database and a variety of Microsoft Excel
+spreadsheets and CSV files), and combined it all into the ``pudl_example``
+`tabular datapackage <https://frictionlessdata.io/specs/tabular-data-package/>`__. The metadata
 describing the overall structure of the output is found in
 ``datapackage/pudl-example/datapackage.json`` and the associated data is
 stored in a bunch of CSV files (some of which may be :mod:`gzip` compressed) in
-the ``datapackage/pudl-example/data/`` directory.
+the ``datapackage/pudl_example/data/`` directory.
 
 You can use the ``pudl_etl`` script to download and process more or different
-data by copying and editing the ``settings/pudl_etl_example.yml`` file, and
-running the script again with your new settings file as an argument. Comments
-in the example settings file explain the available parameters.
+data by copying and editing the ``settings/etl_example.yml`` file, and running
+the script again with your new settings file as an argument. Comments in the
+example settings file explain the available parameters.
+
+If you want to re-run ``pudl_etl`` and replace an existing bundle of data
+packages, you can use ``--clobber``. If you want to generate a new data
+packages with a new or modified settings file, you can change the name for
+``--pkg_bundle_name`` which will generate a new ``datapackage/{your new name}``
+directory and will store your data packages there.
 
 .. todo::
 

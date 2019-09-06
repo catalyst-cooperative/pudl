@@ -38,7 +38,7 @@ Examples of Acceptable Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Converting all power plant capacities to MW, or all generation to MWh.
-* Assigning unifrm ``NA`` values.
+* Assigning uniform ``NA`` values.
 * Standardizing :mod:`datetime` types.
 * Re-naming columns to be the same across years and datasets.
 * Assigning simple fuel type codes when the original data source uses free-form

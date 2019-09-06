@@ -28,8 +28,7 @@ The Public Utility Data Liberation Project (PUDL)
 and work with. Hundreds of gigabytes of supposedly public information published
 by government agencies, but in a bunch of different formats that can be hard to
 work with and combine. PUDL takes these spreadsheets, CSV files, and databases
-and turns them into easy to parse, well-documented
-`tabular data packages <https://https://frictionlessdata.io/docs/tabular-data-package/>`__
+and turns them into easy to parse, well-documented `tabular data packages <https://https://frictionlessdata.io/docs/tabular-data-package/>`__
 that can be used to create a database, used directly with Python, R, Microsoft
 Access, and lots of other tools.
 
@@ -54,13 +53,6 @@ Just want to play with some example data? Install
 if you like the command line) with at least Python 3.7. Then run the following
 commands in your terminal:
 
-**NOTE: (2019-09-03)** this next code block won't work unless you have the old
-PostgreSQL PUDL database set up. We are in the process of deprecating that
-database, and using tabular datapackages that feed into SQLite instead.
-However, the code is temporarily out of sync with the docs. The last version of
-the guide to setting up the PostgreSQL database can be found in
-`this commit <https://github.com/catalyst-cooperative/pudl/blob/a8173bd78857d4a09ddf685b19fea0a83f2e5007/docs/getting_started.md#4-install-and-configure-postgresql>`__ if you need to get it set up in the interim.
-
 .. code-block:: console
 
     $ git clone https://github.com/catalyst-cooperative/pudl.git
@@ -70,19 +62,26 @@ the guide to setting up the PostgreSQL database can be found in
     $ mkdir pudl-work
     $ pudl_setup --pudl_in=pudl-work --pudl_out=pudl-work
     $ pudl_data --sources eia923 eia860 ferc1 epacems epaipm --years 2017 --states id
-    $ pudl_etl pudl-work/settings/pudl_etl_example.yml
-    $ jupyter-lab --notebook-dir=pudl_workspace/notebooks
+    $ pudl_etl pudl-work/settings/etl_example.yml --pkg_bundle_name pudl_example
+    $ datapkg_to_sqlite --pkg_bundle_name pudl_example
+    $ jupyter-lab --notebook-dir=pudl_work/notebooks
+
+
+**NOTE: (2019-09-03)** We deprecated the PostgreSQL PUDL database to move to
+Frictionless Data Packages that feed into SQLite. The last version of the guide
+to setting up the PostgreSQL database can be found in `this commit <https://github.com/catalyst-cooperative/pudl/blob/a8173bd78857d4a09ddf685b19fea0a83f2e5007/docs/getting_started.md#4-install-and-configure-postgresql>`__.
 
 This will install the PUDL Python package, create some local directories
 inside a directory called ``pudl-work``, download the most recent year of
-data from the public agencies, load it into a local PostgreSQL database,
-and open up a folder with some example `Jupyter noteboooks <https://jupyter.org>`__
-in your web browser.
+data from the public agencies, generate local data packages, load these into a
+local SQLite database, and open up a folder with some example `Jupyter notebooks <https://jupyter.org>`__
+in your web browser. The data packages will be generated in a sub-directory in
+``pudl_work/datapackage`` called ``pudl_example`` (you can change this by
+changing the --pkg_bundle_name argument of ``pudl_etl``).
 
-We are transitioning to generating CSV/JSON based
-`tabular data packages <https://frictionlessdata.io/docs/tabular-data-package/>`__,
-which are then loaded into a local SQLite database to make setting up PUDL
-easier.
+We have transitioned to generating CSV/JSON based `tabular data packages <https://frictionlessdata.io/docs/tabular-data-package/>`__,
+which are then loaded into a local SQLite database. This makes setting up PUDL
+easier and to make.
 
 **NOTE:** The example above requires a computer with at least **4 GB of RAM**
 and **several GB of free disk space**. You will also need to download about

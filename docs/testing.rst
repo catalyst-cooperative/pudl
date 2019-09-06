@@ -68,13 +68,13 @@ behavior), you would run:
 
     $ pytest test/etl_test.py --fast
 
-To use an already downloaded copy of the input data, in your default
-:ref:`PUDL workspace <install-workspace>` (which is specified in
-``$HOME/.pudl.yml``) you would run:
+To use an already downloaded copy of the input data, generated a ferc1
+database, in your default :ref:`PUDL workspace <install-workspace>` (which is
+specified in ``$HOME/.pudl.yml``), you would run:
 
 .. code-block:: console
 
-    $ pytest test/etl_test.py --fast --pudl_in=AUTO
+    $ pytest test/etl_test.py --fast --pudl_in=AUTO --live_ferc_db=AUTO
 
 To specify a particular ``pudl_in`` directory, containing a ``data`` directory
 and datastore, you would use:
@@ -103,15 +103,9 @@ that is output by the PUDL ETL pipeline. Currently they only work on the full
 dataset, and do not have a ``--fast`` option. While it is possible to run the
 full ETL process and output it in a temporary directory, to then be used by the
 data validation tests, that takes a long time, and you don't get to keep the
-processed data afterward. Typically we validate output that we're hoping to
-keep around.
-
-.. todo::
-
-    Revise the following to reflect datapackage only version -- can we do it
-    with only ``--pudl_in`` and ``pudl_out``? Or would we need to point it at a
-    more specific datapackage and/or sqlite database output? Which form are we
-    going to require it to be in for validation purposes?
+processed data afterward. Typically we validate outputs that we're hoping to
+keep around, so we advise running the data validation on an generated PUDL
+SQLite database.
 
 To point the tests at already processed data, use the ``--live_pudl_db`` and
 ``--live_ferc_db`` options. The ``--pudl_in`` and ``--pudl_out`` options work
@@ -119,7 +113,7 @@ the same as above. E.g.
 
 .. code-block:: console
 
-    $ pytest --live_pudl_db --live_ferc_db --pudl_in=AUTO --pudl_out=AUTO test/validate
+    $ pytest --live_pudl_db=AUTO --live_ferc_db=AUTO --pudl_in=AUTO --pudl_out=AUTO test/validate
 
 Data Validation Notebooks
 ^^^^^^^^^^^^^^^^^^^^^^^^^

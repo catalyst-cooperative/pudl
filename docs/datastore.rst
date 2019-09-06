@@ -22,9 +22,9 @@ for what time periods, and how much of it there is, see the
 
     Should we allow / require ``pudl_data`` to read its options from a
     settings file for the sake of consistency? And also to be able to put all
-    these settings explicitly in the ``pudl_etl_example.yml`` input file? Or do
-    we want the obtaining of data to be **only** implicit / automatic, based
-    on what data the user attempts to process? Zane is inclined to just make it
+    these settings explicitly in the ``etl_example.yml`` input file? Or do we
+    want the obtaining of data to be **only** implicit / automatic, based on
+    what data the user attempts to process? Zane is inclined to just make it
     something that the ETL script does automatically
 
 For example, if you wanted to download the 2018 :ref:`data-epacems` data for

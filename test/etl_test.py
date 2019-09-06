@@ -1,4 +1,5 @@
-"""PyTest based testing of the FERC & PUDL Database initializations.
+"""
+PyTest based testing of the FERC Database & PUDL data package initializations.
 
 This module also contains fixtures for returning connections to the databases.
 These connections can be either to the live databases for post-ETL testing or
@@ -9,8 +10,6 @@ will need to tell PUDL where to find them with --pudl_in=<PUDL_IN>.
 
 """
 import logging
-import os
-import os.path
 import pathlib
 
 import pytest
@@ -70,7 +69,7 @@ def test_pudl_init_db(ferc1_engine, pudl_engine):
 
 
 @pytest.mark.etl
-def test_epacems_to_parquet(pudl_engine,
+def test_epacems_to_parquet(data_packaging,
                             pudl_settings_fixture,
                             data_scope,
                             fast_tests):
@@ -79,10 +78,12 @@ def test_epacems_to_parquet(pudl_engine,
         epacems_years=data_scope['epacems_years'],
         epacems_states=data_scope['epacems_states'],
         data_dir=pudl_settings_fixture['data_dir'],
-        out_dir=os.path.join(
-            pudl_settings_fixture['parquet_dir'], 'epacems'),
-        compression='snappy',
-        pudl_engine=pudl_engine,
+        out_dir=pathlib.Path(pudl_settings_fixture['parquet_dir'], 'epacems'),
+        pkg_dir=pathlib.Path(
+            pudl_settings_fixture['datapackage_dir'],
+            data_scope['pkg_bundle_name']
+        ),
+        compression='snappy'
     )
 
 
@@ -101,23 +102,24 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
     Needs live_ferc1_db..?
 
     """
+    refyear = max(data_scope['ferc1_years'])
     current_dbc_map = pudl.extract.ferc1.get_dbc_map(
-        year=data_scope['refyear'],
+        year=refyear,
         data_dir=pudl_settings_fixture['data_dir']
     )
     current_tables = list(current_dbc_map.keys())
     logger.info(f"Checking for new, unrecognized FERC1 "
-                f"tables in {data_scope['refyear']}.")
+                f"tables in {refyear}.")
     for table in current_tables:
         # First make sure there are new tables in refyear:
         if table not in pudl.constants.ferc1_tbl2dbf:
             raise AssertionError(
-                f"New FERC Form 1 table '{table}' in {data_scope['refyear']} "
+                f"New FERC Form 1 table '{table}' in {refyear} "
                 f"does not exist in 2015 list of tables"
             )
     # Get all historical table collections...
     dbc_maps = {}
-    for yr in data_scope['ferc1_data_years']:
+    for yr in data_scope['ferc1_years']:
         logger.info(f"Searching for lost FERC1 tables and fields in {yr}.")
         dbc_maps[yr] = pudl.extract.ferc1.get_dbc_map(
             year=yr,
@@ -129,14 +131,14 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
             if table not in current_tables:
                 raise AssertionError(
                     f"Long lost FERC1 table: '{table}' found in year {yr}. "
-                    f"Refyear: {data_scope['refyear']}"
+                    f"Refyear: {refyear}"
                 )
             for field in dbc_maps[yr][table].values():
                 if field not in current_dbc_map[table].values():
                     raise AssertionError(
                         f"Long lost FERC1 field '{field}' found in table "
                         f"'{table}' from year {yr}. "
-                        f"Refyear: {data_scope['refyear']}"
+                        f"Refyear: {refyear}"
                     )
 
 
@@ -152,8 +154,8 @@ def test_only_ferc1_pudl_init_db(datastore_fixture,
               "r") as f:
         pkg_settings = yaml.safe_load(f)['pkg_bundle_settings']
 
-    pudl.etl_pkg.generate_data_packages(
+    pudl.etl.generate_data_packages(
         pkg_settings,
         pudl_settings_fixture,
-        pkg_bundle_dir_name='ferc_only_test',
+        pkg_bundle_name='ferc_only_test',
         clobber=True)

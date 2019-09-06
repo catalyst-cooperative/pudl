@@ -1,4 +1,24 @@
-"""Make me metadata!!!."""
+"""
+Make me metadata!!!.
+
+Lists of dictionaries of dictionaries of lists, forever. This module enables the
+generation and use of the metadata for tabular data packages. This module also
+saves and validates the datapackage once the metadata is compiled. The intented
+use of the module is to use it *after* generating the CSV's via `etl.py`.
+
+On a basic level, based on the settings in the pkg_settings, tables and sources
+associated with a data package, we are compiling information about the data
+package. For the table metadata, we are pulling from the megadata
+(`pudl/package_data/meta/datapackage/datapackage.json`). Most of the other
+elements of the metadata is regenerated.
+
+For most tables, this is a relatively straightforward process, but we are
+attempting to enable partioning of tables (storing parts of a table in
+individual CSVs). These partitioned tables are parts of a "group" which can be
+read by frictionlessdata tools as one table. At each step the process, this
+module needs to know whether to deal with the full partitioned table names or
+the cononical table name.
+"""
 
 import datetime
 import hashlib
@@ -142,7 +162,7 @@ def get_repartitioned_tables(tables, partitions, pkg_settings):
     Returns:
         list: list of tables including full groups of
     """
-    flat_pkg_settings = pudl.etl_pkg.get_flattened_etl_parameters(
+    flat_pkg_settings = pudl.etl.get_flattened_etl_parameters(
         [pkg_settings])
     tables_repartitioned = []
     for table in tables:
@@ -429,7 +449,7 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
 
 
 def prep_pkg_bundle_directory(pudl_settings,
-                              pkg_bundle_dir_name,
+                              pkg_bundle_name,
                               clobber=False):
     """
     Create (or delete and create) data package directory.
@@ -439,7 +459,7 @@ def prep_pkg_bundle_directory(pudl_settings,
             describe paths to various resources and outputs.
         debug (bool): If True, return a dictionary with package names (keys)
             and a list with the data package metadata and report (values).
-        pkg_bundle_dir_name (string): name of directory you want the bundle of
+        pkg_bundle_name (string): name of directory you want the bundle of
             data packages to live. If this is set to None, the name will be
             defaulted to be the pudl packge version.
     Returns:
@@ -447,7 +467,7 @@ def prep_pkg_bundle_directory(pudl_settings,
 
     """
     pkg_bundle_dir = os.path.join(
-        pudl_settings['datapackage_dir'], pkg_bundle_dir_name)
+        pudl_settings['datapackage_dir'], pkg_bundle_name)
 
     if os.path.exists(pkg_bundle_dir) and (clobber is False):
         raise AssertionError(

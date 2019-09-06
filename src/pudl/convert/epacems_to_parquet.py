@@ -127,7 +127,7 @@ def epacems_to_parquet(epacems_years,
                        epacems_states,
                        data_dir,
                        out_dir,
-                       pudl_engine,
+                       pkg_dir,
                        compression='snappy',
                        partition_cols=('year', 'state')):
     """Take transformed EPA CEMS dataframes and output them as Parquet files.
@@ -168,9 +168,9 @@ def epacems_to_parquet(epacems_years,
         states=epacems_states,
         data_dir=data_dir,
     )
-    transformed_dfs = pudl.transform.epacems.transform(
-        pudl_engine=pudl_engine,
-        epacems_raw_dfs=raw_dfs
+    transformed_dfs = pudl.transform.epacems.transform_pkg(
+        epacems_raw_dfs=raw_dfs,
+        pkg_dir=pkg_dir
     )
     for df_dict in transformed_dfs:
         for yr_st, df in df_dict.items():

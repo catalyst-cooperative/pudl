@@ -21,22 +21,21 @@ Overview
 -------------------------------------------------------------------------------
 The setup process ought to look something like this...
 
-  * Ensure you've got Python 3.7 installed, preferably via ``conda``
-  * Fork the PUDL repository to your own Github account.
-  * Clone your fork of PUDL to your local computer.
-  * Create the PUDL ``conda`` environment
-  * Use ``pip`` to install the pudl package in an editable form.
-  * Enable git pre-commit hooks.
-  * Run the PUDL setup script to create a data management environment.
-  * Try running the data processing pipeline make sure everything is working.
-  * Download whatever data you intend to work with into the PUDL datastore.
-  * Run the full data processing pipeline with all the data you downloaded.
-  * Run the packaging, ETL, data validation, and doc tests.
   * Optionally set up your editor / IDE to follow our code style guidelines.
 
 .. todo::
 
     Check that the following reflects the exact details of a real setup.
+
+Getting Software Setup
+^^^^^^^^^^^^^^^^^^^^^^
+* Fork the PUDL repository to your own Github account.
+* Ensure you've got Python 3.7 installed, preferably via ``conda``
+* Clone your fork of PUDL to your local computer.
+* Create the PUDL ``conda`` environment
+* Use ``pip`` to install the pudl package in an editable form.
+* Run the PUDL setup script to create a data management environment.
+* Enable git pre-commit hooks.
 
 .. code-block:: console
 
@@ -50,14 +49,43 @@ The setup process ought to look something like this...
     $ mkdir pudl_workspace
     $ pudl_setup --pudl_dir=pudl_workspace
     $ cd pudl_workspace
-    $ pudl_etl settings/pudl_etl_example.yml
-    $ pudl_data --sources eia923,eia860,ferc1,epacems,epaipm
-    $ tox -e linters
-    $ tox -e docs
-    $ tox -e etl -- --fast --pudl_dir=AUTO
-    $ pudl_etl settings/pudl_etl_full.yml
-    $ tox -e validate --pudl_dir=AUTO
     $ pre-commit install
+
+Get the OG Data in your Datastore
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    * Download whatever data you intend to work with into the PUDL datastore.
+
+.. code-block:: console
+
+    $ pudl_data --sources eia923,eia860,ferc1,epacems,epaipm
+
+Generate PUDL datapackages
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Once you have done everything above,
+
+* Try running the data processing pipeline make sure everything is working.
+
+.. code-block:: console
+
+    $ tox -v -e etl -- --fast --pudl_in=AUTO --live_ferc_db=AUTO
+
+* Run the full data processing pipeline with all the data you downloaded.
+
+.. code-block:: console
+
+    $ pudl_etl settings/pudl_etl_full.yml --pkg_bundle_dir pudl-full
+
+* Generate a SQLite database from the datapackages you made.
+
+.. code-block:: console
+
+    $ datapkg_to_sqlite --pkg_bundle_dir pudl-full
+
+* Validate the data in the SQLite database you made with datapkg_to_sqlite.
+
+.. code-block:: console
+
+    $ tox -e validate --pudl_dir=AUTO
 
 -------------------------------------------------------------------------------
 Fork and Clone the Repository

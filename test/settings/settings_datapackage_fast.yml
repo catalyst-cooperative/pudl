@@ -8,7 +8,7 @@
 # The default settings load nothing into the database, but there are commented
 # out lines enumerating the full extent of the currently loadable data, which
 # you can un-comment or edit to suit your data analysis.
-pkg_bundle_dir_name: pudl-fast-test
+pkg_bundle_name: pudl-fast-test
 pkg_bundle_settings:
   ###########################################################################
   # EPA IMP SETTINGS

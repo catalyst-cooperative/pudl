@@ -86,7 +86,7 @@ def main():
         pudl_in=pudl_in, pudl_out=pudl_out)
 
     logger.info('verifying that the data we need exists in the data store')
-    flattened_params_dict = pudl.etl_pkg.get_flattened_etl_parameters(
+    flattened_params_dict = pudl.etl.get_flattened_etl_parameters(
         script_settings)
     pudl.helpers.verify_input_files(flattened_params_dict['ferc1_years'],
                                     flattened_params_dict['eia923_years'],
@@ -95,11 +95,11 @@ def main():
                                     flattened_params_dict['epacems_states'],
                                     pudl_settings)
 
-    pudl.etl_pkg.generate_data_packages(
+    pudl.etl.generate_data_packages(
         script_settings,
         pudl_settings,
         debug=False,
-        pkg_bundle_dir_name=args.pkg_bundle_name,
+        pkg_bundle_name=args.pkg_bundle_name,
         clobber=args.clobber)
 
 

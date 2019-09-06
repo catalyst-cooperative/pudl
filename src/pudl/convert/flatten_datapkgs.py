@@ -1,4 +1,22 @@
-"""This module takes a bundle of datapackages and flattens them."""
+"""
+This module takes a bundle of datapackages and flattens them.
+
+Because we have enabled the generation of multiple data packages as a part of a
+data package "bundle", we need to squish the multiple data packages together in
+order to put all of the pudl data into one data package. This is especailly
+useful for converting the data package to a SQLite database or any other format.
+
+The module does two main things:
+ - squish the csv's together
+ - squish the metadata (datapackage.json) files together
+
+The CSV squishing is pretty simple and is all being done in
+`flatten_data_packages_csvs`. We are assuming and enforcing that if two data
+packages include the same dataset, that dataset has the same ETL parameters
+(years, tables, states, etc.). The metadata is slightly more complicated to
+compile because each element of the metadata is structured differently. Most of
+that work is being done in `flatten_data_package_metadata`.
+"""
 
 import json
 import logging
@@ -184,7 +202,7 @@ def check_for_matching_parameters(pkg_bundle_dir, pkg_name):
 
 
 def flatten_pudl_datapackages(pudl_settings,
-                              pkg_bundle_dir_name,
+                              pkg_bundle_name,
                               pkg_name='pudl-all'):
     """
     Combines a collection of PUDL data packages into one.
@@ -203,7 +221,7 @@ def flatten_pudl_datapackages(pudl_settings,
     """
     # determine the subdirectory for the package bundles...
     pkg_bundle_dir = pathlib.Path(pudl_settings['datapackage_dir'],
-                                  pkg_bundle_dir_name)
+                                  pkg_bundle_name)
     if not os.path.exists(pkg_bundle_dir):
         raise AssertionError(
             "The datapackage bundle directory does not exist. ")

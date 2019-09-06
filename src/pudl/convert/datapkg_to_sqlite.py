@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 def pkg_to_sqlite_db(pudl_settings,
-                     pkg_bundle_dir_name,
+                     pkg_bundle_name,
                      pkg_name=None):
     """
     Turn a data package into a sqlite database.
@@ -38,7 +38,7 @@ def pkg_to_sqlite_db(pudl_settings,
         pkg_name (str): name of data package. this can be the flattened
             datapackge (by default named 'pudl-all') or any of the sub-
             datapackages.
-        pkg_bundle_dir_name (str): the name of the directory where the bundle
+        pkg_bundle_name (str): the name of the directory where the bundle
             of datapackages live that you want to convert.
 
     """
@@ -56,7 +56,7 @@ def pkg_to_sqlite_db(pudl_settings,
         pkg_name = 'pudl-all'
     # grabbing the datapackage
     pkg = Package(str(pathlib.Path(pudl_settings['datapackage_dir'],
-                                   pkg_bundle_dir_name,
+                                   pkg_bundle_name,
                                    pkg_name, 'datapackage.json')))
     # we want to grab the dictionary of columns that need autoincrement id cols
     try:
@@ -110,11 +110,11 @@ def main():
 
     pudl.convert.flatten_datapkgs.flatten_pudl_datapackages(
         pudl_settings,
-        pkg_bundle_dir_name=args.pkg_bundle_name,
+        pkg_bundle_name=args.pkg_bundle_name,
         pkg_name='pudl-all'
     )
 
     pudl.convert.datapkg_to_sqlite.pkg_to_sqlite_db(
         pudl_settings,
-        pkg_bundle_dir_name=args.pkg_bundle_name,
+        pkg_bundle_name=args.pkg_bundle_name,
         pkg_name='pudl-all')

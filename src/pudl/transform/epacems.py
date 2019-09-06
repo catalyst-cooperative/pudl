@@ -244,6 +244,7 @@ def transform(pudl_engine, epacems_raw_dfs):
 
     Todo:
         Revisit (epacems_raw_dfs), yields statement
+        Remove upon removal of pudl_db
 
     """
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
