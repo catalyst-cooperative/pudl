@@ -19,7 +19,6 @@ install_requires = [
     'scikit-learn>=0.20',
     'scipy',
     'sqlalchemy>=1.3.0',
-    'sqlalchemy-postgres-copy',
     'tableschema',
     'tableschema-sql',
     'timezonefinder',

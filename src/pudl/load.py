@@ -4,10 +4,8 @@ import contextlib
 import io
 import logging
 import os
-import shutil
 
 import pandas as pd
-import postgres_copy
 
 import pudl
 import pudl.constants as pc
@@ -52,17 +50,19 @@ def _csv_dump_load(df, table_name, engine, csvdir='', keep_csv=False):
         None
 
     """
-    tbl = pudl.models.entities.PUDLBase.metadata.tables[table_name]
     with io.StringIO() as f:
         df.to_csv(f, index=False)
         f.seek(0)
-        postgres_copy.copy_from(f, tbl, engine, columns=tuple(df.columns),
-                                format='csv', header=True, delimiter=',')
-        if keep_csv:
-            logger.debug(f"Writing out pre-load CSV file.")
-            f.seek(0)
-            outfile = os.path.join(csvdir, table_name + '.csv')
-            shutil.copyfileobj(f, outfile)
+        sql_tbl = f'"{table_name}"'
+        sql_cols = f"({','.join(df.columns)})"
+        sql_flags = "(FORMAT 'csv', HEADER TRUE, DELIMITER ',')"
+        copy = f"COPY {sql_tbl} {sql_cols} FROM STDIN {sql_flags}"
+
+        conn = engine.raw_connection()
+        cursor = conn.cursor()
+        cursor.copy_expert(copy, f)
+        conn.commit()
+        cursor.close()
 
 
 class BulkCopy(contextlib.AbstractContextManager):
