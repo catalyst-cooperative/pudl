@@ -222,6 +222,9 @@ def bounds_histogram(df, data_col, weight_col, query,
     if weight_col is None or weight_col == "":
         df["ones"] = 1.0
         weight_col = "ones"
+    # Non-finite values screw up the plot but not the test:
+    df = df[np.isfinite(df[data_col]) & np.isfinite(df[weight_col])]
+
     xmin = weighted_quantile(df[data_col], df[weight_col], 0.01)
     xmax = weighted_quantile(df[data_col], df[weight_col], 0.99)
 
@@ -254,8 +257,17 @@ def historical_histogram(orig_df, test_df, data_col, weight_col, query="",
     """Weighted histogram comparing distribution with historical subsamples."""
     if query != "":
         orig_df = orig_df.copy().query(query)
+    orig_df = orig_df[
+        np.isfinite(orig_df[data_col]) &
+        np.isfinite(orig_df[weight_col])
+    ]
+
     if test_df is not None:
         test_df = test_df.copy().query(query)
+        test_df = test_df[
+            np.isfinite(test_df[data_col]) &
+            np.isfinite(test_df[weight_col])
+        ]
     if weight_col is None or weight_col == "":
         orig_df["ones"] = 1.0
         if test_df is not None:
@@ -1286,18 +1298,18 @@ frc_eia923_agg = [
 mcoe_gas_capacity_factor = [
     {
         "title": "Natural Gas Capacity Factor (middle, 2015+)",
-        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01' and capacity_factor!=0.0",
         "low_q": 0.65,
         "low_bound": 0.40,
         "hi_q": 0.65,
-        "hi_bound": 0.60,
+        "hi_bound": 0.70,
         "data_col": "capacity_factor",
         "weight_col": "capacity_mw",
     },
     {
         "title": "Natural Gas Capacity Factor (tails, 2015+)",
-        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
-        "low_q": 0.1,
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01' and capacity_factor!=0.0",
+        "low_q": 0.15,
         "low_bound": 0.01,
         "hi_q": 0.95,
         "hi_bound": .95,
@@ -1305,11 +1317,12 @@ mcoe_gas_capacity_factor = [
         "weight_col": "capacity_mw",
     },
 ]
+"""Static constraints on natural gas generator capacity factors."""
 
 mcoe_coal_capacity_factor = [
     {
         "title": "Coal Capacity Factor (middle)",
-        "query": "fuel_type_code_pudl=='coal'",
+        "query": "fuel_type_code_pudl=='coal' and capacity_factor!=0.0",
         "low_q": 0.6,
         "low_bound": 0.5,
         "hi_q": 0.6,
@@ -1319,8 +1332,8 @@ mcoe_coal_capacity_factor = [
     },
     {
         "title": "Coal Capacity Factor (tails)",
-        "query": "fuel_type_code_pudl=='coal'",
-        "low_q": 0.05,
+        "query": "fuel_type_code_pudl=='coal' and capacity_factor!=0.0",
+        "low_q": 0.10,
         "low_bound": 0.04,
         "hi_q": 0.95,
         "hi_bound": .95,
@@ -1328,6 +1341,7 @@ mcoe_coal_capacity_factor = [
         "weight_col": "capacity_mw",
     },
 ]
+"""Static constraints on coal fired generator capacity factors."""
 
 mcoe_gas_heat_rate = [
     {  # EIA natural gas reporting really only becomes usable in 2015.
@@ -1351,6 +1365,7 @@ mcoe_gas_heat_rate = [
         "weight_col": "net_generation_mwh",
     },
 ]
+"""Static constraints on gas fired generator heat rates."""
 
 mcoe_coal_heat_rate = [
     {
@@ -1374,6 +1389,95 @@ mcoe_coal_heat_rate = [
         "weight_col": "net_generation_mwh",
     },
 ]
+"""Static constraints on coal fired generator heat rates."""
+
+mcoe_fuel_cost_per_mwh = [
+    {
+        "title": "Coal Fuel Costs (middle)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.50,
+        "low_bound": 18.0,
+        "hi_q": 0.50,
+        "hi_bound": 27.0,
+        "data_col": "fuel_cost_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Coal Fuel Costs (tails)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "low_bound": 10.0,
+        "hi_q": 0.95,
+        "hi_bound": 50.0,
+        "data_col": "fuel_cost_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Natural Gas Fuel Costs (middle, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.50,
+        "low_bound": 20.0,
+        "hi_q": 0.50,
+        "hi_bound": 30.0,
+        "data_col": "fuel_cost_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Natural Gas Fuel Costs (tails, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.05,
+        "low_bound": 10.0,
+        "hi_q": 0.95,
+        "hi_bound": 50.0,
+        "data_col": "fuel_cost_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+]
+"""Static constraints on fuel costs per MWh net generation."""
+
+mcoe_fuel_cost_per_mmbtu = [
+    {
+        "title": "Coal Fuel Costs (middle)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.50,
+        "low_bound": 1.5,
+        "hi_q": 0.50,
+        "hi_bound": 3.0,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "total_mmbtu",
+    },
+    {
+        "title": "Coal Fuel Costs (tails)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "low_bound": 1.25,
+        "hi_q": 0.95,
+        "hi_bound": 4.5,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "total_mmbtu",
+    },
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Natural Gas Fuel Costs (middle, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.50,
+        "low_bound": 2.0,
+        "hi_q": 0.50,
+        "hi_bound": 4.0,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "total_mmbtu",
+    },
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Natural Gas Fuel Costs (tails, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.05,
+        "low_bound": 1.75,
+        "hi_q": 0.95,
+        "hi_bound": 6.0,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "total_mmbtu",
+    },
+]
+"""Static constraints on fuel costs per mmbtu of fuel consumed."""
 
 # Because of copious NA values, fuel costs are only useful at monthly
 # resolution, and we really need rolling windows and a full time series for

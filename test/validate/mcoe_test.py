@@ -20,6 +20,20 @@ import pudl
 logger = logging.getLogger(__name__)
 
 
+@pytest.fixture(scope="module")
+def pudl_out_mcoe(pudl_out_eia, live_pudl_db):
+    """A fixture to calculate MCOE appropriately for testing."""
+    logger.info("Calculating MCOE, leaving in all the nasty bits.")
+    _ = pudl_out_eia.mcoe(
+        update=True,
+        min_heat_rate=None,
+        min_fuel_cost_per_mwh=None,
+        min_cap_fact=None,
+        max_cap_fact=None
+    )
+    return pudl_out_eia
+
+
 def test_bga(pudl_out_eia, live_pudl_db):
     """Test the boiler generator associations."""
     if not live_pudl_db:
@@ -55,18 +69,10 @@ def test_bga(pudl_out_eia, live_pudl_db):
 
 
 ###############################################################################
-# Tests that look check for existence and uniqueness of MCOE outputs:
+# Tests that look check for existence and uniqueness of some MCOE outputs:
+# These tests were inspired by some bad merges that generated multiple copies
+# of some records in the past...
 ###############################################################################
-
-
-def test_capacity_factor_exists(pudl_out_eia, live_pudl_db):
-    """Test the capacity factor calculation."""
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
-
-    logger.info("Calculating generator capacity factors...")
-    cf = pudl_out_eia.capacity_factor()
-    logger.info(f"Successfully pulled {len(cf)} records")
 
 
 def test_hr_by_unit_exists(pudl_out_eia, live_pudl_db):
@@ -109,72 +115,89 @@ def test_fuel_cost_unique(pudl_out_eia, live_pudl_db):
 ###############################################################################
 
 
-def test_gas_capacity_factor(pudl_out_eia, live_pudl_db):
+@pytest.mark.parametrize("fuel,max_idle", [('gas', 0.15), ('coal', 0.075)])
+def test_idle_capacity(fuel, max_idle, pudl_out_mcoe, live_pudl_db):
+    """Validate that idle capacity isn't tooooo high."""
+    if not live_pudl_db:
+        raise AssertionError("Data validation only works with a live PUDL DB.")
+
+    mcoe_tmp = pudl_out_mcoe.mcoe().query(f"fuel_type_code_pudl=='{fuel}'")
+    nonzero_cf = mcoe_tmp[mcoe_tmp.capacity_factor != 0.0]
+    working_capacity = nonzero_cf.capacity_mw.sum()
+    total_capacity = mcoe_tmp.capacity_mw.sum()
+    idle_capacity = 1.0 - (working_capacity / total_capacity)
+    logger.info(f"Idle {fuel} capacity: {idle_capacity:.2%}")
+
+    if idle_capacity > max_idle:
+        raise AssertionError(f"Idle capacity ({idle_capacity}) is too high.")
+
+
+def test_gas_capacity_factor(pudl_out_mcoe, live_pudl_db):
     """Validate Coal Capacity Factors are within reasonable limits."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     for args in pudl.validate.mcoe_gas_capacity_factor:
-        pudl.validate.vs_bounds(pudl_out_eia.mcoe(), **args)
+        pudl.validate.vs_bounds(pudl_out_mcoe.mcoe(), **args)
 
 
-def test_coal_capacity_factor(pudl_out_eia, live_pudl_db):
+def test_coal_capacity_factor(pudl_out_mcoe, live_pudl_db):
     """Validate Coal Capacity Factors are within reasonable limits."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     for args in pudl.validate.mcoe_coal_capacity_factor:
-        pudl.validate.vs_bounds(pudl_out_eia.mcoe(), **args)
+        pudl.validate.vs_bounds(pudl_out_mcoe.mcoe(), **args)
 
 
-def test_gas_heat_rate_by_unit(pudl_out_eia, live_pudl_db):
+def test_gas_heat_rate_by_unit(pudl_out_mcoe, live_pudl_db):
     """Validate Coal Capacity Factors are within reasonable limits."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     for args in pudl.validate.mcoe_gas_heat_rate:
-        pudl.validate.vs_bounds(pudl_out_eia.mcoe(), **args)
+        pudl.validate.vs_bounds(pudl_out_mcoe.mcoe(), **args)
 
 
-def test_coal_heat_rate_by_unit(pudl_out_eia, live_pudl_db):
+def test_coal_heat_rate_by_unit(pudl_out_mcoe, live_pudl_db):
     """Validate Coal Capacity Factors are within reasonable limits."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     for args in pudl.validate.mcoe_coal_heat_rate:
-        pudl.validate.vs_bounds(pudl_out_eia.mcoe(), **args)
+        pudl.validate.vs_bounds(pudl_out_mcoe.mcoe(), **args)
 
 
-def test_fuel_cost_per_mwh(pudl_out_eia, live_pudl_db):
+def test_fuel_cost_per_mwh(pudl_out_mcoe, live_pudl_db):
     """Verify that fuel costs per MWh are reasonable for coal & gas."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     # The annual numbers for MCOE costs have too many NA values:
-    if pudl_out_eia.freq == "AS":
+    if pudl_out_mcoe.freq == "AS":
         pytest.skip()
     for args in pudl.validate.mcoe_self_fuel_cost_per_mwh:
-        pudl.validate.vs_self(pudl_out_eia.mcoe(), **args)
+        pudl.validate.vs_self(pudl_out_mcoe.mcoe(), **args)
 
-    # for args in pudl.validate.mcoe_fuel_cost_per_mwh:
-        # pudl.validate.vs_bounds(pudl_out_eia,, **args)
+    for args in pudl.validate.mcoe_fuel_cost_per_mwh:
+        pudl.validate.vs_bounds(pudl_out_mcoe.mcoe(), **args)
 
 
-def test_fuel_cost_per_mmbtu(pudl_out_eia, live_pudl_db):
+def test_fuel_cost_per_mmbtu(pudl_out_mcoe, live_pudl_db):
     """Verify that fuel costs per mmbtu are reasonable for coal & gas."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     # The annual numbers for MCOE costs have too many NA values:
-    if pudl_out_eia.freq == "AS":
+    if pudl_out_mcoe.freq == "AS":
         pytest.skip()
     for args in pudl.validate.mcoe_self_fuel_cost_per_mmbtu:
-        pudl.validate.vs_self(pudl_out_eia.mcoe(), **args)
+        pudl.validate.vs_self(pudl_out_mcoe.mcoe(), **args)
 
-    # for args in pudl.validate.mcoe_fuel_cost_per_mmbtu:
-        # pudl.validate.vs_bounds(pudl_out_eia, **args)
+    for args in pudl.validate.mcoe_fuel_cost_per_mmbtu:
+        pudl.validate.vs_bounds(pudl_out_mcoe.mcoe(), **args)
 
 
-def test_mcoe_self(pudl_out_eia, live_pudl_db):
+def test_mcoe_self(pudl_out_mcoe, live_pudl_db):
     """Test MCOE outputs against their historical selves..."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     for args in pudl.validate.mcoe_self:
-        pudl.validate.vs_self(pudl_out_eia.mcoe(), **args)
+        pudl.validate.vs_self(pudl_out_mcoe.mcoe(), **args)
 
 ###############################################################################
 # Helper functions for the above tests.
