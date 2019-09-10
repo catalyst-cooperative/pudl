@@ -125,6 +125,9 @@ def vs_bounds(df, data_col, weight_col, query="", title="",
         df = df.copy().query(query)
     if title != "":
         logger.info(title)
+    if weight_col is None or weight_col == "":
+        df["ones"] = 1.0
+        weight_col = "ones"
     if low_q and low_bool:
         low_test = weighted_quantile(df[data_col], df[weight_col], low_q)
         logger.info(f"{data_col} ({low_q:.0%}): "
@@ -154,12 +157,15 @@ def vs_self(df, data_col, weight_col, query="", title="",
     helps ensure that the test itself is valid for the given distribution.
 
     """
+    if weight_col is None or weight_col == "":
+        df["ones"] = 1.0
+        weight_col = "ones"
     vs_historical(df, df, data_col, weight_col, query=query,
                   low_q=low_q, mid_q=mid_q, hi_q=hi_q,
                   title=title)
 
 
-def vs_historical(orig_df, test_df, data_col, weight_col, query="",
+def vs_historical(orig_df, test_df, data_col, weight_col, query="",  # noqa: C901
                   low_q=0.05, mid_q=0.5, hi_q=0.95,
                   title=""):
     """Validate aggregated distributions against original data."""
@@ -168,6 +174,10 @@ def vs_historical(orig_df, test_df, data_col, weight_col, query="",
         test_df = test_df.copy().query(query)
     if title != "":
         logger.info(title)
+    if weight_col is None or weight_col == "":
+        orig_df["ones"] = 1.0
+        test_df["ones"] = 1.0
+        weight_col = "ones"
     if low_q:
         low_range = historical_distribution(
             orig_df, data_col, weight_col, low_q)
@@ -209,7 +219,9 @@ def bounds_histogram(df, data_col, weight_col, query,
     """Plot a weighted histogram showing acceptable bounds/actual values."""
     if query != "":
         df = df.copy().query(query)
-
+    if weight_col is None or weight_col == "":
+        df["ones"] = 1.0
+        weight_col = "ones"
     # Non-finite values screw up the plot but not the test:
     df = df[np.isfinite(df[data_col]) & np.isfinite(df[weight_col])]
 
@@ -256,6 +268,11 @@ def historical_histogram(orig_df, test_df, data_col, weight_col, query="",
             np.isfinite(test_df[data_col]) &
             np.isfinite(test_df[weight_col])
         ]
+    if weight_col is None or weight_col == "":
+        orig_df["ones"] = 1.0
+        if test_df is not None:
+            test_df["ones"] = 1.0
+        weight_col = "ones"
 
     xmin = weighted_quantile(orig_df[data_col], orig_df[weight_col], 0.01)
     xmax = weighted_quantile(orig_df[data_col], orig_df[weight_col], 0.99)
@@ -1544,6 +1561,98 @@ mcoe_self = [
         "data_col": "heat_rate_mmbtu_mwh",
         "weight_col": "net_generation_mwh",
     },
+]
+
+###############################################################################
+# EIA 860 output validation tests
+###############################################################################
+
+gens_eia860_vs_bound = [
+    {
+        "title": "Bituminous coal capacity (tails)",
+        "query": "energy_source_code_1=='BIT'",
+        "low_q": 0.45,
+        "low_bound": 30.0,
+        "hi_q": 0.90,
+        "hi_bound": 700.0,
+        "data_col": "capacity_mw",
+        "weight_col": "",
+    },
+    {
+        "title": "Subbituminous and Lignite Coal Capacity test...",
+        "query": "energy_source_code_1=='SUB' or energy_source_code_1=='LIG'",
+        "low_q": 0.35,
+        "low_bound": 30.0,
+        "hi_q": 0.90,
+        "hi_bound": 800.0,
+        "data_col": "capacity_mw",
+        "weight_col": "",
+    },
+    {
+        "title": "Natural Gas Capacity test",
+        "query": "energy_source_code_1=='NG'",
+        "low_q": 0.55,
+        "low_bound": 30.0,
+        "hi_q": 0.90,
+        "hi_bound": 250.0,
+        "data_col": "capacity_mw",
+        "weight_col": "",
+    }, ]
+
+gens_eia860_self = [
+    {
+        "title": "All Capacity test...",
+        "query": 'ilevel_0 in ilevel_0',
+        "low_q": 0.55,
+        "mid_q": 0.70,
+        "hi_q": 0.95,
+        "data_col": "capacity_mw",
+        "weight_col": ""
+    },
+    {
+        "title": "Nuclear Capacity test...",
+        "query": "energy_source_code_1=='NUC'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "capacity_mw",
+        "weight_col": ""
+    },
+    {
+        "title": "All Coal Capacity test...",
+        "query": "energy_source_code_1=='BIT' or energy_source_code_1=='SUB' or energy_source_code_1=='LIG'",
+        "low_q": 0.25,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "capacity_mw",
+        "weight_col": ""
+    },
+    {
+        "title": "Subbituminous and Lignite Coal Capacity test...",
+        "query": "energy_source_code_1=='SUB' or energy_source_code_1=='LIG'",
+        "low_q": 0.10,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "capacity_mw",
+        "weight_col": ""
+    },
+    {
+        "title": "Natural Gas Capacity test...",
+        "query": "energy_source_code_1=='NG'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "capacity_mw",
+        "weight_col": ""
+    },
+    {
+        "title": "Nameplate power factor",
+        "query": "energy_source_code_1=='NG'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "nameplate_power_factor",
+        "weight_col": ""}
 ]
 
 ###############################################################################
