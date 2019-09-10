@@ -22,7 +22,18 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture(scope="module")
 def pudl_out_mcoe(pudl_out_eia, live_pudl_db):
-    """A fixture to calculate MCOE appropriately for testing."""
+    """
+    A fixture to calculate MCOE appropriately for testing.
+
+    By default, the MCOE calculation drops rows with "unreasonable" values for
+    heat rate, fuel costs, and capacity factors. However, for the purposes of
+    testing, we don't want to lose those values -- that's the kind of thing
+    we're looking for.  So here we override those defaults, causing the MCOE
+    output dataframe to be cached with all the nasty details, so it is
+    available for the rest of the tests that look at MCOE results in this
+    module
+
+    """
     logger.info("Calculating MCOE, leaving in all the nasty bits.")
     _ = pudl_out_eia.mcoe(
         update=True,
