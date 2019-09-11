@@ -350,13 +350,13 @@ def _etl_epacems_part(part, epacems_years, epacems_states, data_dir, pkg_dir):
     epacems_raw_dfs = pudl.extract.epacems.extract(
         epacems_years=[part], states=epacems_states, data_dir=data_dir)
     # NOTE: This is a generator for transformed dataframes
-    epacems_transformed_dfs = pudl.transform.epacems.transform_pkg(
+    epacems_transformed_dfs = pudl.transform.epacems.transform(
         epacems_raw_dfs=epacems_raw_dfs, pkg_dir=pkg_dir)
     logger.info("Loading tables from EPA CEMS into PUDL:")
     if logger.isEnabledFor(logging.INFO):
         start_time = time.monotonic()
     table_name = f"hourly_emissions_epacems_{part}"
-    with pudl.load.csv.BulkCopyPkg(
+    with pudl.load.csv.BulkCopy(
             table_name=table_name,
             pkg_dir=pkg_dir) as loader:
 

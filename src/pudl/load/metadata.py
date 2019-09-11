@@ -279,7 +279,7 @@ def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
     descriptor = pudl.helpers.pull_resource_from_megadata(table_name)
     descriptor['path'] = str(abs_path.relative_to(abs_path.parent.parent))
     descriptor['bytes'] = abs_path.stat().st_size
-    descriptor['hash'] = pudl.output.export.hash_csv(abs_path)
+    descriptor['hash'] = hash_csv(abs_path)
     descriptor['created'] = (datetime.datetime.utcnow().
                              replace(microsecond=0).isoformat() + 'Z')
 

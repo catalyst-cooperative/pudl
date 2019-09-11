@@ -127,5 +127,4 @@
 # have a working database and don't want to clobber it while testing.
 #ferc1_testing: False
 #pudl_testing: False
-#keep_csv: False
 #debug: False

@@ -19,7 +19,6 @@ import pudl.extract.epaipm
 import pudl.extract.ferc1
 import pudl.glue.ferc1_eia
 import pudl.helpers
-import pudl.init
 import pudl.load.csv
 import pudl.load.metadata
 # Output modules by data source:

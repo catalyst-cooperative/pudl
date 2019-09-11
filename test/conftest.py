@@ -237,7 +237,7 @@ def pudl_engine(ferc1_engine, live_pudl_db,
 
     if not live_pudl_db:
         # Clean up after ourselves by dropping the test DB tables.
-        pudl.init.drop_tables(pudl_engine)
+        pudl.helpers.drop_tables(pudl_engine)
 
 
 @pytest.fixture(scope='session')  # noqa: C901

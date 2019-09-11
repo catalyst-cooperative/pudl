@@ -2,10 +2,7 @@ dist: xenial
 language: python
 python:
 - "3.7"
-services:
-- postgresql
 addons:
-  postgresql: "9.6"
   apt:
     packages:
     - libsnappy-dev
@@ -25,7 +22,6 @@ before_install:
 - git --version
 - git tag
 install:
-- ci/setup_postgres.sh
 - pip install tox
 script:
 - tox -v -e travis

@@ -53,5 +53,3 @@ dependencies:
   - xlsxwriter          # base
   - pip:
     - tableschema-sql==1.1.0   # base
-    - sqlalchemy-postgres-copy # base
-    #- datapackage==1.8.0       # base

@@ -32,6 +32,7 @@ from functools import partial
 import coloredlogs
 import pyarrow as pa
 import pyarrow.parquet as pq
+import sqlalchemy as sa
 
 import pudl
 import pudl.constants as pc
@@ -168,7 +169,7 @@ def epacems_to_parquet(epacems_years,
         states=epacems_states,
         data_dir=data_dir,
     )
-    transformed_dfs = pudl.transform.epacems.transform_pkg(
+    transformed_dfs = pudl.transform.epacems.transform(
         epacems_raw_dfs=raw_dfs,
         pkg_dir=pkg_dir
     )
@@ -255,14 +256,6 @@ def parse_command_line(argv):
         dataset? (default: %(default)s)""",
         default=['year', 'state']
     )
-    parser.add_argument(
-        "--testing",
-        action="store_true",
-        help="""Which database should be used for plant metadata? Default is
-        the production pudl database. Specifying --testing connects to the
-        pudl_test database instead.""",
-        default=False
-    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -292,10 +285,7 @@ def main():
     )
     # transform.epacems needs to reach into the database to get timezones, so
     # get a database connection here
-    pudl_engine = pudl.init.connect_db(
-        pudl_settings=pudl_settings,
-        testing=args.testing,
-    )
+    pudl_engine = sa.create_engine(pudl_settings['pudl_db'])
 
     epacems_to_parquet(
         epacems_years=args.years,

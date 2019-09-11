@@ -43,14 +43,14 @@ def pkg_to_sqlite_db(pudl_settings,
 
     """
     # prepping the sqlite engine
-    pudl_engine = sa.create_engine(pudl_settings['pudl_sqlite_url'])
+    pudl_engine = sa.create_engine(pudl_settings['pudl_db'])
     try:
         # So that we can wipe it out
         pudl.helpers.drop_tables(pudl_engine)
     except sa.exc.OperationalError:
         pass
     # And start anew
-    pudl_engine = sa.create_engine(pudl_settings['pudl_sqlite_url'])
+    pudl_engine = sa.create_engine(pudl_settings['pudl_db'])
     # we can assume the flattened package's name
     if not pkg_name:
         pkg_name = 'pudl-all'

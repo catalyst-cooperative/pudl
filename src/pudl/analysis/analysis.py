@@ -14,10 +14,6 @@ import sqlalchemy as sa
 import pudl
 import pudl.constants as pc
 import pudl.helpers
-import pudl.models.eia923
-import pudl.models.entities
-# However, models aren't imported by default.
-import pudl.models.ferc1
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +33,7 @@ def simple_select(table_name, pudl_engine):
         table: A DataFrame of the specified table.
     """
     # Pull in the table
-    tbl = pudl.models.entities.PUDLBase.metadata.tables[table_name]
+    tbl = pudl.output.pudltabl.get_table_meta(pudl_engine)[table_name]
     # Creates a sql Select object
     select = sa.sql.select([tbl, ])
     # Converts sql object to pandas dataframe
@@ -48,7 +44,7 @@ def simple_select(table_name, pudl_engine):
 
     if 'plant_id_eia' in table.columns:
         # Shorthand for readability... pt = PUDL Tables
-        pt = pudl.models.entities.PUDLBase.metadata.tables
+        pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
 
         # Pull in plants_eia which connects EIA & PUDL plant IDs
         plants_eia_tbl = pt['plants_eia']
@@ -897,7 +893,8 @@ def primary_fuel_gf_eia923(gf_df, id_col='plant_id_eia', fuel_thresh=0.5):
     return gf_by_heat[['primary_fuel', ]].reset_index()
 
 
-def fercplants(plant_tables=('f1_steam',
+def fercplants(pudl_engine,
+               plant_tables=('f1_steam',
                              'f1_gnrt_plant',
                              'f1_hydro',
                              'f1_pumped_storage'),
@@ -1009,8 +1006,8 @@ def fercplants(plant_tables=('f1_steam',
         ferc1_plants_all = ferc1_plants_all.set_index(
             ['utility_id_ferc1', 'plant_name'])
 
-        pudl_engine = pudl.init.connect_db()
-        pt = pudl.models.entities.PUDLBase.metadata.tables
+        pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
+
         ferc1_plants_tbl = pt['plants_ferc']
         ferc1_plants_select = sa.sql.select([
             ferc1_plants_tbl.c.utility_id_ferc1,
@@ -1074,7 +1071,7 @@ def check_ferc1_tables(refyear=2017):
             except:  # noqa: E722  # nosec
                 continue
             ferc1_engine = pudl.extract.ferc1.connect_db(testing=True)
-            pudl.extract.helpers.drop_tables(ferc1_engine)
+            pudl.extract.ferc1.drop_tables(ferc1_engine)
         good_table_years[table] = good_years
         print("],", flush=True)
 

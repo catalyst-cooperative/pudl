@@ -231,40 +231,7 @@ def correct_gross_load_mw(df):
     return df
 
 
-def transform(pudl_engine, epacems_raw_dfs):
-    """
-    Transform EPA CEMS hourly data.
-
-    Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
-        epacems_raw_dfs ():
-
-    Yields:
-        dict:
-
-    Todo:
-        Revisit (epacems_raw_dfs), yields statement
-        Remove upon removal of pudl_db
-
-    """
-    # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
-    # a transformation pipeline, and yield it back as another generator.
-    plant_utc_offset = _load_plant_utc_offset(pudl_engine)
-    for raw_df_dict in epacems_raw_dfs:
-        # There's currently only one dataframe in this dict at a time, but
-        # that could be changed if you want.
-        for yr_st, raw_df in raw_df_dict.items():
-            df = (
-                raw_df.fillna(pc.epacems_columns_fill_na_dict)
-                .pipe(harmonize_eia_epa_orispl)
-                .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
-                .pipe(add_facility_id_unit_id_epa)
-                .pipe(correct_gross_load_mw)
-            )
-            yield {yr_st: df}
-
-
-def transform_pkg(epacems_raw_dfs, pkg_dir):
+def transform(epacems_raw_dfs, pkg_dir):
     """
     Transform EPA CEMS hourly data for use in datapackage export.
 

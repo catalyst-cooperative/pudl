@@ -11,7 +11,6 @@ Subpackages
    pudl.extract
    pudl.glue
    pudl.load
-   pudl.models
    pudl.output
    pudl.transform
    pudl.workspace
@@ -25,7 +24,6 @@ Submodules
    pudl.constants
    pudl.etl
    pudl.helpers
-   pudl.init
    pudl.validate
 
 Module contents
