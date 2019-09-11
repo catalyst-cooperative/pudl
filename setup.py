@@ -23,6 +23,8 @@ install_requires = [
     'tableschema-sql',
     'timezonefinder',
     'xlsxwriter',
+    'pyarrow>=0.14.0',
+    'python-snappy',
 ]
 
 doc_requires = [
@@ -43,16 +45,7 @@ test_requires = [
     'pydocstyle',
     'pytest',
     'pytest-cov',
-]
-
-validate_requires = [
-    'matplotlib',
     'nbval',
-]
-
-parquet_requires = [
-    'pyarrow>=0.14.0',
-    'python-snappy'
 ]
 
 readme_path = Path(__file__).parent / "docs" / "README.rst"
@@ -85,9 +78,7 @@ setup(
     install_requires=install_requires,
     extras_require={
         "doc": doc_requires,
-        "parquet": parquet_requires,
         "test": test_requires,
-        "validate": validate_requires,
     },
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -112,7 +103,7 @@ setup(
             'pudl_setup = pudl.workspace.setup_cli:main',
             'pudl_etl = pudl.cli:main',
             'ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main',
-            'epacems_to_parquet = pudl.convert.epacems_to_parquet:main [parquet]',  # noqa: E501
+            'epacems_to_parquet = pudl.convert.epacems_to_parquet:main',
         ]
     },
 )
