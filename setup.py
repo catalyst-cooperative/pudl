@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Setup script to make PUDL directly installable with pip."""
 
+import os
 from pathlib import Path
 
 from setuptools import find_packages, setup
@@ -15,6 +16,7 @@ install_requires = [
     'numpy',
     'pandas>=0.24',
     'psycopg2',
+    'pyarrow>=0.14.0',
     'pyyaml',
     'scikit-learn>=0.20',
     'scipy',
@@ -23,9 +25,14 @@ install_requires = [
     'tableschema-sql',
     'timezonefinder',
     'xlsxwriter',
-    'pyarrow>=0.14.0',
-    'python-snappy',
 ]
+
+# We are installing the PUDL module to build the docs, but the C libraries
+# required to build snappy aren't available on RTD, so we need to exclude it
+# from the installed dependencies here, and mock it for import in docs/conf.py
+# using the autodoc_mock_imports parameter:
+if not os.getenv('READTHEDOCS'):
+    install_requires.append('python-snappy')
 
 doc_requires = [
     'doc8',
