@@ -1,4 +1,4 @@
-name: pudl
+name: pudl-dev
 channels:
   - conda-forge
   - defaults
@@ -21,7 +21,7 @@ dependencies:
   - jedi                # dev
   - jupyter             # user
   - jupyterlab          # user
-  - matplotlib          # user
+  - matplotlib          # base
   - nbval               # dev
   - networkx>=2.2       # base We depend on features introduced in v2.2
   - numpy               # base

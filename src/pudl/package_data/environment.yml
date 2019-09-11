@@ -1,0 +1,11 @@
+name: pudl
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - catalystcoop.pudl
+  - dask
+  - jupyter
+  - jupyterlab
+  - pip
+  - python>=3.7
