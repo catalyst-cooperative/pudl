@@ -26,6 +26,12 @@ def parse_command_line(argv):
     """
     parser = argparse.ArgumentParser(description=__doc__)
 
+    # This is necessary because on the Windows console "None" doesn't end up
+    # getting encoded correctly to print at the console. Somehow.
+    default_pudl_in = pudl.workspace.setup.get_defaults()["pudl_in"]
+    if default_pudl_in is None:
+        default_pudl_in = "None"
+
     parser.add_argument(
         '-q',
         '--quiet',
@@ -55,7 +61,7 @@ def parse_command_line(argv):
         type=str,
         help="""Directory where the datastore should be located. (default:
         %(default)s).""",
-        default=pudl.workspace.setup.get_defaults()["pudl_in"]
+        default=default_pudl_in,
     )
     parser.add_argument(
         '-s',
