@@ -6,6 +6,7 @@ import logging
 import pkg_resources
 
 import pudl.analysis.mcoe
+import pudl.cli
 import pudl.constants
 import pudl.convert.epacems_to_parquet
 import pudl.convert.ferc1_to_sqlite

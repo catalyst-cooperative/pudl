@@ -28,10 +28,9 @@ ferc1_tables:
 # The ferc1 dataset goes back as far as 1994, but more cleaning and integration
 # needs to be done to bring in that data.
 
-ferc1_years: []
 #ferc1_years: [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
 #              2013, 2014, 2015, 2016, 2017]
-#ferc1_years: [2017]
+ferc1_years: [2017]
 
 ###########################################################################
 # EIA FORM 923 SETTINGS
@@ -48,9 +47,8 @@ eia923_tables:
   - coalmine_eia923 # coalmine_eia923 REQUIRES fuel_receipts_costs_eia923
   - fuel_receipts_costs_eia923
 
-eia923_years: []
 #eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
-#eia923_years: [2017]
+eia923_years: [2017]
 
 ###########################################################################
 # EIA FORM 860 SETTINGS
@@ -64,9 +62,8 @@ eia860_tables:
   - generators_eia860
   - ownership_eia860
 
-eia860_years: []
 #eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017]
-#eia860_years: [2017]
+eia860_years: [2017]
 
 ###########################################################################
 # EPA CEMS HOURLY SETTINGS
@@ -80,23 +77,19 @@ eia860_years: []
 # Note that the CEMS data relies on EIA 860 data for plant locations, so if
 # you're loading CEMS data for a particular year, you should also load the
 # EIA 860 data for that year (2011-2017 only)
-epacems_years: []
-epacems_states: []
 #epacems_years: [1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
 #                2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
 #                2015, 2016, 2017, 2018]
-# Just Colorado, for nostalgia:
-#epacems_years: [2017]
-#epacems_states: [CO]
+epacems_years: [2017]
+epacems_states: [ID]
 #epacems_states: [ALL]
 
 ###########################################################################
 # EPA IPM SETTINGS
 ###########################################################################
 # The EPA IPM data is not organized by year -- it's all or nothing.
-epaipm_tables: []
-#epaipm_tables:
-#  - transmission_single_ipm
-#  - transmission_joint_ipm
-#  - load_curves_ipm
-#  - plant_region_map_ipm
+epaipm_tables:
+  - transmission_single_ipm
+  - transmission_joint_ipm
+  - load_curves_ipm
+  - plant_region_map_ipm

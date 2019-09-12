@@ -53,49 +53,52 @@ We are especially interested in serving researchers, activists, journalists,
 and policy makers that might not otherwise be able to afford access to this
 data from commercial data providers.
 
-Getting Started TEMPORARILY OUT OF DATE
----------------------------------------
+Getting Started (Legacy PostgreSQL Edition)
+-------------------------------------------
 
 Just want to play with some example data? Install
 `Anaconda <https://www.anaconda.com/distribution/>`__
 (or `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__
-if you like the command line) with at least Python 3.7. Then run the following
-commands in your terminal:
+if you like the command line) with at least Python 3.7. Set up a local
+PostgreSQL database to receive the data as explained in
+`this documentation <https://github.com/catalyst-cooperative/pudl/blob/a8173bd78857d4a09ddf685b19fea0a83f2e5007/docs/getting_started.md#4-install-and-configure-postgresql>`__.
 
-**NOTE: (2019-09-03)** this next code block won't work unless you have the old
-PostgreSQL PUDL database set up. We are in the process of deprecating that
-database, and using tabular datapackages that feed into SQLite instead.
-However, the code is temporarily out of sync with the docs. The last version of
-the guide to setting up the PostgreSQL database can be found in
-`this commit <https://github.com/catalyst-cooperative/pudl/blob/a8173bd78857d4a09ddf685b19fea0a83f2e5007/docs/getting_started.md#4-install-and-configure-postgresql>`__ if you need to get it set up in the interim.
+**NOTE:** This example requires a computer with at least **4 GB of RAM**
+and **several GB of free disk space**. You will also need to download about
+**~100 MB of data**. This could take a while if you have a slow internet
+connection.
+
+Run the following commands in your terminal:
 
 .. code-block:: console
 
-    $ git clone https://github.com/catalyst-cooperative/pudl.git
-    $ conda env create --name pudl --file pudl/environment.yml
+    $ conda create --name pudl catalystcoop.pudl jupyter jupyterlab pip python=3.7 --yes
     $ conda activate pudl
-    $ pip install -e pudl
     $ mkdir pudl-work
-    $ pudl_setup --pudl_in=pudl-work --pudl_out=pudl-work
+    $ cd pudl-work
+    $ pudl_setup
     $ pudl_data --sources eia923 eia860 ferc1 epacems epaipm --years 2017 --states id
-    $ pudl_etl pudl-work/settings/pudl_etl_example.yml
-    $ jupyter-lab --notebook-dir=pudl_workspace/notebooks
+    $ ferc1_to_sqlite settings/ferc1_to_sqlite_example.yml
+    $ pudl_etl settings/etl_example.yml
+    $ jupyter-lab --notebook-dir=notebook
 
-This will install the PUDL Python package, create some local directories
-inside a directory called ``pudl-work``, download the most recent year of
-data from the public agencies, load it into a local PostgreSQL database,
-and open up a folder with some example `Jupyter noteboooks <https://jupyter.org>`__
-in your web browser.
+This will install the PUDL Python package and its dependencies within a `conda`
+environment named ``pudl``, create some local directories inside a workspace
+directory called ``pudl-work``, download the most recent year of data from the
+public agencies, load it into a local PostgreSQL database, and open up a folder
+with some example `Jupyter noteboooks <https://jupyter.org>`__ in your web
+browser. If all of those steps are successful, you can download additional
+data, edit the settings files to suit your needs, and re-run the process to
+load more data.
 
-We are transitioning to generating CSV/JSON based
+**NOTE: (2019-09-12)** We have transitioned to generating CSV/JSON based
 `tabular data packages <https://frictionlessdata.io/docs/tabular-data-package/>`__,
 which are then loaded into a local SQLite database to make setting up PUDL
-easier.
-
-**NOTE:** The example above requires a computer with at least **4 GB of RAM**
-and **several GB of free disk space**. You will also need to download about
-**500 MB of data**. This could take a while if you have a slow internet
-connection.
+easier. This release is provided for reference purposes, in case there are
+users who depend on the PostgreSQL version. Much of the documentation here does
+not correspond to the PostgreSQL database version of PUDL, and should be
+ignored. We strongly encourage all users to install the most recent version of
+PUDL, which doesn't depend on PostgreSQL. This version will not be maintained.
 
 For more details, see `the full PUDL documentation
 <https://catalystcoop-pudl.readthedocs.io/>`__.

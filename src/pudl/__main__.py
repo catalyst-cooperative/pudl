@@ -5,4 +5,4 @@ import sys
 import pudl
 
 if __name__ == "__main__":
-    sys.exit(pudl.init.main())
+    sys.exit(pudl.cli.main())
