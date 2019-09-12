@@ -1,4 +1,5 @@
-"""Routines for transforming FERC Form 1 data before loading into the PUDL DB.
+"""
+Routines for transforming FERC Form 1 data before loading into the PUDL DB.
 
 This module provides a variety of functions that are used in cleaning up the
 FERC Form 1 data prior to loading into our database. This includes adopting

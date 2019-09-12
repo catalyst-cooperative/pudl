@@ -14,7 +14,6 @@ install_requires = [
     'networkx>=2.2',
     'numpy',
     'pandas>=0.24',
-    'psycopg2',
     'pyyaml',
     'scikit-learn>=0.20',
     'scipy',

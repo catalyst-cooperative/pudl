@@ -31,7 +31,6 @@ dependencies:
   - pep8-naming         # dev
   - pip                 # N/A
   - pre_commit          # dev
-  - psycopg2            # base
   - pyarrow>=0.14.0     # base compilation issues below 0.14.0
   - pydocstyle          # dev
   - pytest              # dev

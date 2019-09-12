@@ -177,6 +177,127 @@ def get_repartitioned_tables(tables, partitions, pkg_settings):
     return tables_repartitioned
 
 
+def data_sources_from_tables_pkg(table_names, testing=False):
+    """
+    Look up data sources based on a list of PUDL DB tables.
+
+    Args:
+        tables_names (iterable): a list of names of 'seed' tables, whose
+            dependencies we are seeking to find.
+        testing (bool): Connected to the test database (True) or live PUDl
+            database (False)?
+
+    Returns:
+        set: The set of data sources for the list of PUDL table names.
+
+    """
+    all_tables = get_dependent_tables_from_list_pkg(
+        table_names, testing=testing)
+    table_sources = set()
+    # All tables get PUDL:
+    table_sources.add('pudl')
+    for t in all_tables:
+        for src in pudl.constants.data_sources:
+            if re.match(f".*_{src}$", t):
+                table_sources.add(src)
+
+    return table_sources
+
+
+def get_foreign_key_relash_from_pkg(pkg_json):
+    """Generate a dictionary of foreign key relationships from pkging metadata.
+
+    This function helps us pull all of the foreign key relationships of all
+    of the tables in the metadata.
+
+    Args:
+        datapackage_json_path (path-like): Path to the datapackage.json
+            containing the schema from which the foreign key relationships
+            will be read
+
+    Returns:
+        dict: list of foreign key tables
+
+    """
+    with open(pkg_json) as md:
+        metadata = json.load(md)
+
+    fk_relash = {}
+    for tbl in metadata['resources']:
+        fk_relash[tbl['name']] = []
+        if 'foreignKeys' in tbl['schema']:
+            fk_tables = []
+            for fk in tbl['schema']['foreignKeys']:
+                fk_tables.append(fk['reference']['resource'])
+            fk_relash[tbl['name']] = fk_tables
+    return(fk_relash)
+
+
+def get_dependent_tables_pkg(table_name, fk_relash):
+    """
+    For a given table, get the list of all the other tables it depends on.
+
+    Args:
+        table_name (str): The table whose dependencies we are looking for.
+        fk_relash ():
+
+    Todo:
+        Incomplete docstring.
+
+    Returns:
+        set: the set of all the tables the specified table depends upon.
+
+    """
+    # Add the initial table
+    dependent_tables = set()
+    dependent_tables.add(table_name)
+
+    # Get the list of tables this table depends on:
+    new_table_names = set()
+    new_table_names.update(fk_relash[table_name])
+
+    # Recursively call this function on the tables our initial
+    # table depends on:
+    for table_name in new_table_names:
+        logger.debug(f"Finding dependent tables for {table_name}")
+        dependent_tables.add(table_name)
+        for t in get_dependent_tables_pkg(table_name, fk_relash):
+            dependent_tables.add(t)
+
+    return dependent_tables
+
+
+def get_dependent_tables_from_list_pkg(table_names, testing=False):
+    """Given a list of tables, find all the other tables they depend on.
+
+    Iterate over a list of input tables, adding them and all of their dependent
+    tables to a set, and return that set. Useful for determining which tables
+    need to be exported together to yield a self-contained subset of the PUDL
+    database.
+
+    Args:
+        table_names (iterable): a list of names of 'seed' tables, whose
+            dependencies we are seeking to find.
+        testing (bool): Connected to the test database (True) or live PUDl
+            database (False)?
+
+    Returns:
+        all_the_tables (set): The set of all the tables which any of the input
+        tables depends on, via ForeignKey constraints.
+
+    """
+    with importlib.resources.path('pudl.package_data.meta.datapackage',
+                                  'datapackage.json') as md:
+        fk_relash = get_foreign_key_relash_from_pkg(md)
+
+        all_the_tables = set()
+        for t in table_names:
+            for x in get_dependent_tables_pkg(t, fk_relash):
+                all_the_tables.add(x)
+
+    return all_the_tables
+
+
 def test_file_consistency(tables, pkg_settings, pkg_dir):
     """
     Test the consistency of tables for packaging.
@@ -215,8 +336,7 @@ def test_file_consistency(tables, pkg_settings, pkg_dir):
     #    pkg_file = package_files_from_table(table, pkg_settings)
     #    pkg_files.extend(pkg_file)
 
-    dependent_tbls = list(
-        pudl.helpers.get_dependent_tables_from_list_pkg(tables))
+    dependent_tbls = list(get_dependent_tables_from_list_pkg(tables))
     etl_tbls = tables
 
     dependent_tbls.sort()
@@ -245,6 +365,47 @@ def test_file_consistency(tables, pkg_settings, pkg_dir):
         raise AssertionError(
             f"Tables are inconsistent. "
             f"Missing tables include: {inconsistent_tbls}")
+
+
+def pull_resource_from_megadata(table_name):
+    """
+    Read a single data resource from the PUDL metadata library.
+
+    Args:
+        table_name (str): the name of the table / data resource whose JSON
+            descriptor we are reading.
+
+    Returns:
+        json: a Tabular Data Resource Descriptor, as a JSON object.
+
+    Raises:
+        ValueError: If table_name is not found exactly one time in the PUDL
+            metadata library.
+
+    """
+    with importlib.resources.open_text('pudl.package_data.meta.datapackage',
+                                       'datapackage.json') as md:
+        metadata_mega = json.load(md)
+    # bc we partition the CEMS output, the CEMS table name includes the state,
+    # year or other partition.. therefor we need to assume for the sake of
+    # grabing metadata that any table name that includes the table name is cems
+    if "hourly_emissions_epacems" in table_name:
+        table_name_mega = "hourly_emissions_epacems"
+    else:
+        table_name_mega = table_name
+    table_resource = [
+        x for x in metadata_mega['resources'] if x['name'] == table_name_mega
+    ]
+
+    if len(table_resource) == 0:
+        raise ValueError(f"{table_name} not found in stored metadata.")
+    if len(table_resource) > 1:
+        raise ValueError(f"{table_name} found multiple times in metadata.")
+    table_resource = table_resource[0]
+    # rename the resource name to the og table name
+    # this is important for the partitioned tables in particular
+    table_resource['name'] = table_name
+    return(table_resource)
 
 
 def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
@@ -276,7 +437,7 @@ def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
         abs_path = pathlib.Path(pkg_dir, 'data', f'{table_name}.csv')
 
     # pull the skeleton of the descriptor from the megadata file
-    descriptor = pudl.helpers.pull_resource_from_megadata(table_name)
+    descriptor = pull_resource_from_megadata(table_name)
     descriptor['path'] = str(abs_path.relative_to(abs_path.parent.parent))
     descriptor['bytes'] = abs_path.stat().st_size
     descriptor['hash'] = hash_csv(abs_path)
@@ -417,8 +578,7 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
                                                    partitions=partitions))
 
     unpartitioned_tables = get_unpartioned_tables(tables, pkg_settings)
-    data_sources = pudl.helpers.data_sources_from_tables_pkg(
-        unpartitioned_tables)
+    data_sources = data_sources_from_tables_pkg(unpartitioned_tables)
     autoincrement = get_autoincrement_columns(unpartitioned_tables)
     sources = get_source_metadata(data_sources, pkg_settings)
 

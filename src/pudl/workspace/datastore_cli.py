@@ -1,4 +1,13 @@
-"""A CLI for fetching public utility data from reporting agency servers."""
+"""
+A CLI for fetching public utility data from reporting agency servers.
+
+This script will generate a datastore on a datastore directory. By default, the
+directory will end up in wherever you have designated "PUDL_IN" in the settings
+file $HOME/.pudl.yml. You can use this script to specific only specific datasets
+to download, only specific years or states but by default, it will grab
+everything. A populated datastore is required to use other PUDL tools, like the
+ETL script (`pudl_etl`) and all of the post-ETL processes.
+"""
 
 import argparse
 import logging

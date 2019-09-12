@@ -3,9 +3,9 @@ This module provides a class enabling tabular compilations from the PUDL DB.
 
 Many of our potential users are comfortable using spreadsheets, not databases,
 so we are creating a collection of tabular outputs that contain the most
-useful core information from the PUDL DB, including additional keys and human
-readable names for the objects (utilities, plants, generators) being described
-in the table.
+useful core information from the PUDL data packages, including additional keys
+and human readable names for the objects (utilities, plants, generators) being
+described in the table.
 
 These tabular outputs can be joined with each other using those keys, and used
 as a data source within Microsoft Excel, Access, R Studio, or other data
@@ -55,14 +55,13 @@ class PudlTabl(object):
         pull substantial data and do a bunch of calculations.
 
         Args:
-            pudl_engine (sqlalchemy.engine.Engine):
             freq (str): String describing time frequency at which to aggregate
                 the reported data. E.g. 'MS' (monthly start).
             start_date (date): Beginning date for data to pull from the
                 PUDL DB.
             end_date (date): End date for data to pull from the PUDL DB.
-            pudl_engine (sa.engine.Engine): A connection to the sqlalchemy
-                database.
+            pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
+                for the PUDL DB.
 
         """
         self.pudl_engine = pudl_engine

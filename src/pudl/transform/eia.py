@@ -1,4 +1,14 @@
-"""Routines specific to cleaning up EIA Form 923 data."""
+"""
+Routines specific to cleaning up EIA data.
+
+This module helps with the normalization of EIA datasets and complinging
+additonal connections between EIA entities. Right now, these two tasks include
+what we call harvesting and generating a more complete set of boiler generator
+associations. The harvesting process normalizes the EIA tables - it consolidates
+the duplicated fields/records into entity and annual entity tables. The boiler
+generator associations (bga) takes the given 860 bga and expands on this through
+several methods within the `_boiler_generator_assn` function.
+"""
 
 import importlib.resources
 import logging

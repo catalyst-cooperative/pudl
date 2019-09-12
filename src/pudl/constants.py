@@ -2,8 +2,8 @@
 A warehouse for constant values required to initilize the PUDL Database.
 
 This constants module stores and organizes a bunch of constant values which are
-used throughout PUDL to populate static lists within the DB or for data
-cleaning purposes.
+used throughout PUDL to populate static lists within the data packages or for
+data cleaning purposes.
 """
 
 import importlib.resources

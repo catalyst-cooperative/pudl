@@ -1,4 +1,35 @@
-"""Extract and transform glue tables between FERC Form 1 and EIA 860/923."""
+"""
+Extract and transform glue tables between FERC Form 1 and EIA 860/923.
+
+FERC1 and EIA report on the same plants and utilities, but have no embedded
+connection. We have combed through the FERC and EIA plants and utilities to
+generate id's which can connect these datasets. The resulting fields in the PUDL
+tables are `plant_id_pudl` and `utility_id_pudl`, respectively. This was done by
+hand in a spreadsheet which is in the `package_data/glue` directory. When
+mapping plants, we considered a plant a co-located collection of electricity
+generation equipment. If a coal plant was converted to a natural gas unit, our
+aim was to consider this the same plant. This module simply reads in the mapping
+spreadsheet and converts it to a dictionary of dataframes.
+
+Because these mappings were done by hand and for every one of FERC Form 1's
+reported plants, we are fairly certain that there are probably some incorrect
+or incomplete mappings of plants. If you see a `plant_id_pudl` or
+`utility_id_pudl` mapping that you think is incorrect, poke us on github about
+it.
+
+A thing to note about using the PUDL id's is that they can change over time. The
+spreadsheet uses MAX({all cells above}) to generate the PUDL id's for the first
+instance of every plant or utility, so when an id in the spreadsheet is changed,
+every id below it is also changed.
+
+Another note about these id's: these id's map our definition of plants, which is
+not the most granular level of plant unit. The generators are typically the
+smaller, more interesting unit. FERC does not typically report in units
+(although it sometimes does), but it does often break up gas units from coal
+units. EIA reports on the generator and boiler level. When trying to use these
+PUDL id's, consider the granularity that you desire and the potential
+implications of using a co-located set of plant infrastructure as an id.
+"""
 
 import importlib
 import logging
@@ -14,7 +45,7 @@ def glue(ferc1=False, eia=False):
     """Generates a dictionary of dataframes for glue tables between FERC1, EIA.
 
     That data is primarily stored in the plant_output and
-    utility_output tabs of results/id_mapping/mapping_eia923_ferc1.xlsx in the
+    utility_output tabs of package_data/glue/mapping_eia923_ferc1.xlsx in the
     repository. There are a total of seven relations described in this data:
 
         - utilities: Unique id and name for each utility for use across the
