@@ -79,8 +79,8 @@ Run the following commands in your terminal:
     $ pudl_setup
     $ pudl_data --sources eia923 eia860 ferc1 epacems epaipm --years 2017 --states id
     $ ferc1_to_sqlite settings/ferc1_to_sqlite_example.yml
-    $ pudl_etl settings/etl_example.yml
-    $ jupyter-lab --notebook-dir=notebook
+    $ pudl_etl settings/etl_postgresql_example.yml
+    $ jupyter lab --notebook-dir=notebook
 
 This will install the PUDL Python package and its dependencies within a `conda`
 environment named ``pudl``, create some local directories inside a workspace
