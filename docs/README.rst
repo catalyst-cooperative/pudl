@@ -4,33 +4,33 @@ The Public Utility Data Liberation Project (PUDL)
 
 .. readme-intro
 
-.. image:: https://www.repostatus.org/badges/latest/wip.svg
-   :alt: Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.
-   :target: https://www.repostatus.org/#wip
+.. image:: https://www.repostatus.org/badges/latest/active.svg
+   :target: https://www.repostatus.org/#active
+   :alt: Project Status: Active – The project has reached a stable, usable state and is being actively developed.
 
-.. image:: https://travis-ci.org/catalyst-cooperative/pudl.svg?branch=master
+.. image:: https://img.shields.io/travis/catalyst-cooperative/pudl
    :target: https://travis-ci.org/catalyst-cooperative/pudl
-   :alt: Build Status
+   :alt: Travis CI Build Status
 
-.. image:: https://readthedocs.org/projects/catalystcoop-pudl/badge/?version=latest
+.. image:: https://img.shields.io/readthedocs/catalystcoop-pudl
    :target: https://catalystcoop-pudl.readthedocs.io/en/latest/
-   :alt: Documentation Status
+   :alt: Read the Docs Build Status
 
-.. image:: https://codecov.io/gh/catalyst-cooperative/pudl/branch/master/graph/badge.svg
+.. image:: https://img.shields.io/codecov/c/github/catalyst-cooperative/pudl
    :target: https://codecov.io/gh/catalyst-cooperative/pudl
-   :alt: codecov
+   :alt: Codecov Test Coverage
 
-.. image:: https://api.codacy.com/project/badge/Grade/2fead07adef249c08288d0bafae7cbb5
+.. image:: https://img.shields.io/codacy/grade/2fead07adef249c08288d0bafae7cbb5
    :target: https://app.codacy.com/app/zaneselvans/pudl
    :alt: Codacy Grade
 
 .. image:: https://img.shields.io/pypi/v/catalystcoop.pudl
    :target: https://pypi.org/project/catalystcoop.pudl/
-   :alt: PyPI version
+   :alt: PyPI Version
 
 .. image:: https://img.shields.io/conda/vn/conda-forge/catalystcoop.pudl
    :target: https://anaconda.org/conda-forge/catalystcoop.pudl
-   :alt: conda-forge version
+   :alt: conda-forge Version
 
 `PUDL <https://catalyst.coop/pudl/>`__ makes US energy data easier to access
 and work with. Hundreds of gigabytes of supposedly public information published
