@@ -72,7 +72,7 @@ Run the following commands in your terminal:
 
 .. code-block:: console
 
-    $ conda create --name pudl catalystcoop.pudl jupyter jupyterlab pip python=3.7 --yes
+    $ conda create -y -n pudl -c conda-forge --strict-channel-priority python=3.7 catalystcoop.pudl jupyter jupyterlab pip
     $ conda activate pudl
     $ mkdir pudl-work
     $ cd pudl-work

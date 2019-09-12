@@ -7,17 +7,13 @@
 .pytest_cache/*
 .DS_Store
 build/
-data/
 **/*pudl.egg-info/
 dist/
 .eggs/
 .tox/
-settings/
 coverage.xml
 .coverage
 .coverage.*
-results/notebooks/pudl_intro.ipynb
-results/notebooks/pudl_output_to_csv.ipynb
 codecov.sh
 .env_pudl/
 *wheel-metadata
