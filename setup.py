@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Setup script to make PUDL directly installable with pip."""
 
+import os
 from pathlib import Path
 
 from setuptools import find_packages, setup
@@ -14,6 +15,7 @@ install_requires = [
     'networkx>=2.2',
     'numpy',
     'pandas>=0.24',
+    'pyarrow>=0.14.0',
     'pyyaml',
     'scikit-learn>=0.20',
     'scipy',
@@ -23,6 +25,13 @@ install_requires = [
     'timezonefinder',
     'xlsxwriter',
 ]
+
+# We are installing the PUDL module to build the docs, but the C libraries
+# required to build snappy aren't available on RTD, so we need to exclude it
+# from the installed dependencies here, and mock it for import in docs/conf.py
+# using the autodoc_mock_imports parameter:
+if not os.getenv('READTHEDOCS'):
+    install_requires.append('python-snappy')
 
 doc_requires = [
     'doc8',
@@ -42,16 +51,7 @@ test_requires = [
     'pydocstyle',
     'pytest',
     'pytest-cov',
-]
-
-validate_requires = [
-    'matplotlib',
     'nbval',
-]
-
-parquet_requires = [
-    'pyarrow>=0.14.0',
-    'python-snappy'
 ]
 
 readme_path = Path(__file__).parent / "docs" / "README.rst"
@@ -84,9 +84,7 @@ setup(
     install_requires=install_requires,
     extras_require={
         "doc": doc_requires,
-        "parquet": parquet_requires,
         "test": test_requires,
-        "validate": validate_requires,
     },
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -112,7 +110,7 @@ setup(
             'pudl_etl = pudl.cli:main',
             'datapkg_to_sqlite = pudl.convert.datapkg_to_sqlite:main',
             'ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main',
-            'epacems_to_parquet = pudl.convert.epacems_to_parquet:main [parquet]',  # noqa: E501
+            'epacems_to_parquet = pudl.convert.epacems_to_parquet:main',
         ]
     },
 )

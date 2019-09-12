@@ -63,13 +63,13 @@ def get_defaults():
     """
     settings_file = pathlib.Path.home() / '.pudl.yml'
 
-    with pathlib.Path(settings_file).open() as f:
-        try:
+    try:
+        with pathlib.Path(settings_file).open() as f:
             default_workspace = yaml.safe_load(f)
-        except FileNotFoundError:
-            logger.warning("PUDL user settings file .pudl.yml not found.")
-            default_workspace = {"pudl_in": None, "pudl_out": None}
-            return default_workspace
+    except FileNotFoundError:
+        logger.warning("PUDL user settings file .pudl.yml not found.")
+        default_workspace = {"pudl_in": None, "pudl_out": None}
+        return default_workspace
 
     # Ensure that no matter what the user has put in this file, we get fully
     # specified absolute paths out when we read it:
@@ -190,6 +190,10 @@ def init(pudl_in, pudl_out, clobber=False):
     notebook_dir = pathlib.Path(ps["notebook_dir"])
     notebook_pkg = "pudl.package_data.notebooks"
     deploy(notebook_pkg, notebook_dir, ignore_files, clobber=clobber)
+
+    # Deploy the pudl user environment file.
+    environment_pkg = "pudl.package_data"
+    deploy(environment_pkg, ps["pudl_out"], ignore_files, clobber=clobber)
 
 
 def deploy(pkg_path, deploy_dir, ignore_files, clobber=False):

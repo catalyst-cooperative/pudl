@@ -64,7 +64,7 @@ def weighted_quantile(data, weights, quantile):
     return np.nan
 
 
-def historical_distribution(df, data_col, wt_col, quantile):
+def historical_distribution(df, data_col, weight_col, quantile):
     """Calculate a historical distribution of weighted values of a column.
 
     In order to know what a "reasonable" value of a particular column is in the
@@ -77,7 +77,7 @@ def historical_distribution(df, data_col, wt_col, quantile):
         df (pandas.DataFrame): a dataframe containing historical data, with a
             column named either ``report_date`` or ``report_year``.
         data_col (string): Label of the column containing the data of interest.
-        wt_col (string): Label of the column containing the weights to be
+        weight_col (string): Label of the column containing the weights to be
             used in scaling the data.
 
     Returns:
@@ -87,12 +87,17 @@ def historical_distribution(df, data_col, wt_col, quantile):
     """
     if "report_year" not in df.columns:
         df["report_year"] = pd.to_datetime(df.report_date).dt.year
+    if weight_col is None or weight_col == "":
+        df["ones"] = 1.0
+        weight_col = "ones"
     report_years = df.report_year.unique()
     dist = []
     for year in report_years:
-        dist = dist + [weighted_quantile(df[df.report_year == year][data_col],
-                                         df[df.report_year == year][wt_col],
-                                         quantile)]
+        dist = dist + [
+            weighted_quantile(df[df.report_year == year][data_col],
+                              df[df.report_year == year][weight_col],
+                              quantile)
+        ]
     # these values can be NaN, if there were no values in that column for some
     # years in the data:
     return [d for d in dist if not np.isnan(d)]
@@ -120,6 +125,9 @@ def vs_bounds(df, data_col, weight_col, query="", title="",
         df = df.copy().query(query)
     if title != "":
         logger.info(title)
+    if weight_col is None or weight_col == "":
+        df["ones"] = 1.0
+        weight_col = "ones"
     if low_q and low_bool:
         low_test = weighted_quantile(df[data_col], df[weight_col], low_q)
         logger.info(f"{data_col} ({low_q:.0%}): "
@@ -149,12 +157,15 @@ def vs_self(df, data_col, weight_col, query="", title="",
     helps ensure that the test itself is valid for the given distribution.
 
     """
+    if weight_col is None or weight_col == "":
+        df["ones"] = 1.0
+        weight_col = "ones"
     vs_historical(df, df, data_col, weight_col, query=query,
                   low_q=low_q, mid_q=mid_q, hi_q=hi_q,
                   title=title)
 
 
-def vs_historical(orig_df, test_df, data_col, weight_col, query="",
+def vs_historical(orig_df, test_df, data_col, weight_col, query="",  # noqa: C901
                   low_q=0.05, mid_q=0.5, hi_q=0.95,
                   title=""):
     """Validate aggregated distributions against original data."""
@@ -163,6 +174,10 @@ def vs_historical(orig_df, test_df, data_col, weight_col, query="",
         test_df = test_df.copy().query(query)
     if title != "":
         logger.info(title)
+    if weight_col is None or weight_col == "":
+        orig_df["ones"] = 1.0
+        test_df["ones"] = 1.0
+        weight_col = "ones"
     if low_q:
         low_range = historical_distribution(
             orig_df, data_col, weight_col, low_q)
@@ -204,6 +219,12 @@ def bounds_histogram(df, data_col, weight_col, query,
     """Plot a weighted histogram showing acceptable bounds/actual values."""
     if query != "":
         df = df.copy().query(query)
+    if weight_col is None or weight_col == "":
+        df["ones"] = 1.0
+        weight_col = "ones"
+    # Non-finite values screw up the plot but not the test:
+    df = df[np.isfinite(df[data_col]) & np.isfinite(df[weight_col])]
+
     xmin = weighted_quantile(df[data_col], df[weight_col], 0.01)
     xmax = weighted_quantile(df[data_col], df[weight_col], 0.99)
 
@@ -236,8 +257,22 @@ def historical_histogram(orig_df, test_df, data_col, weight_col, query="",
     """Weighted histogram comparing distribution with historical subsamples."""
     if query != "":
         orig_df = orig_df.copy().query(query)
+    orig_df = orig_df[
+        np.isfinite(orig_df[data_col]) &
+        np.isfinite(orig_df[weight_col])
+    ]
+
     if test_df is not None:
         test_df = test_df.copy().query(query)
+        test_df = test_df[
+            np.isfinite(test_df[data_col]) &
+            np.isfinite(test_df[weight_col])
+        ]
+    if weight_col is None or weight_col == "":
+        orig_df["ones"] = 1.0
+        if test_df is not None:
+            test_df["ones"] = 1.0
+        weight_col = "ones"
 
     xmin = weighted_quantile(orig_df[data_col], orig_df[weight_col], 0.01)
     xmax = weighted_quantile(orig_df[data_col], orig_df[weight_col], 0.99)
@@ -1256,6 +1291,369 @@ frc_eia923_agg = [
     },
 ]
 """EIA923 fuel receipts & costs data validation against aggregated data."""
+
+###############################################################################
+# MCOE output validations, against fixed bounds
+###############################################################################
+mcoe_gas_capacity_factor = [
+    {
+        "title": "Natural Gas Capacity Factor (middle, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01' and capacity_factor!=0.0",
+        "low_q": 0.65,
+        "low_bound": 0.40,
+        "hi_q": 0.65,
+        "hi_bound": 0.70,
+        "data_col": "capacity_factor",
+        "weight_col": "capacity_mw",
+    },
+    {
+        "title": "Natural Gas Capacity Factor (tails, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01' and capacity_factor!=0.0",
+        "low_q": 0.15,
+        "low_bound": 0.01,
+        "hi_q": 0.95,
+        "hi_bound": .95,
+        "data_col": "capacity_factor",
+        "weight_col": "capacity_mw",
+    },
+]
+"""Static constraints on natural gas generator capacity factors."""
+
+mcoe_coal_capacity_factor = [
+    {
+        "title": "Coal Capacity Factor (middle)",
+        "query": "fuel_type_code_pudl=='coal' and capacity_factor!=0.0",
+        "low_q": 0.6,
+        "low_bound": 0.5,
+        "hi_q": 0.6,
+        "hi_bound": 0.9,
+        "data_col": "capacity_factor",
+        "weight_col": "capacity_mw",
+    },
+    {
+        "title": "Coal Capacity Factor (tails)",
+        "query": "fuel_type_code_pudl=='coal' and capacity_factor!=0.0",
+        "low_q": 0.10,
+        "low_bound": 0.04,
+        "hi_q": 0.95,
+        "hi_bound": .95,
+        "data_col": "capacity_factor",
+        "weight_col": "capacity_mw",
+    },
+]
+"""Static constraints on coal fired generator capacity factors."""
+
+mcoe_gas_heat_rate = [
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Natural Gas Unit Heat Rates (middle, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.50,
+        "low_bound": 7.0,
+        "hi_q": 0.50,
+        "hi_bound": 7.5,
+        "data_col": "heat_rate_mmbtu_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Natural Gas Unit Heat Rates (tails, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.05,
+        "low_bound": 6.5,
+        "hi_q": 0.95,
+        "hi_bound": 13.0,
+        "data_col": "heat_rate_mmbtu_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+]
+"""Static constraints on gas fired generator heat rates."""
+
+mcoe_coal_heat_rate = [
+    {
+        "title": "Coal Unit Heat Rates (middle)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.50,
+        "low_bound": 10.0,
+        "hi_q": 0.50,
+        "hi_bound": 11.0,
+        "data_col": "heat_rate_mmbtu_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Coal Unit Heat Rates (tails)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "low_bound": 9.0,
+        "hi_q": 0.95,
+        "hi_bound": 12.5,
+        "data_col": "heat_rate_mmbtu_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+]
+"""Static constraints on coal fired generator heat rates."""
+
+mcoe_fuel_cost_per_mwh = [
+    {
+        "title": "Coal Fuel Costs (middle)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.50,
+        "low_bound": 18.0,
+        "hi_q": 0.50,
+        "hi_bound": 27.0,
+        "data_col": "fuel_cost_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Coal Fuel Costs (tails)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "low_bound": 10.0,
+        "hi_q": 0.95,
+        "hi_bound": 50.0,
+        "data_col": "fuel_cost_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Natural Gas Fuel Costs (middle, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.50,
+        "low_bound": 20.0,
+        "hi_q": 0.50,
+        "hi_bound": 30.0,
+        "data_col": "fuel_cost_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Natural Gas Fuel Costs (tails, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.05,
+        "low_bound": 10.0,
+        "hi_q": 0.95,
+        "hi_bound": 50.0,
+        "data_col": "fuel_cost_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+]
+"""Static constraints on fuel costs per MWh net generation."""
+
+mcoe_fuel_cost_per_mmbtu = [
+    {
+        "title": "Coal Fuel Costs (middle)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.50,
+        "low_bound": 1.5,
+        "hi_q": 0.50,
+        "hi_bound": 3.0,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "total_mmbtu",
+    },
+    {
+        "title": "Coal Fuel Costs (tails)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "low_bound": 1.25,
+        "hi_q": 0.95,
+        "hi_bound": 4.5,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "total_mmbtu",
+    },
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Natural Gas Fuel Costs (middle, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.50,
+        "low_bound": 2.0,
+        "hi_q": 0.50,
+        "hi_bound": 4.0,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "total_mmbtu",
+    },
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Natural Gas Fuel Costs (tails, 2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.05,
+        "low_bound": 1.75,
+        "hi_q": 0.95,
+        "hi_bound": 6.0,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "total_mmbtu",
+    },
+]
+"""Static constraints on fuel costs per mmbtu of fuel consumed."""
+
+# Because of copious NA values, fuel costs are only useful at monthly
+# resolution, and we really need rolling windows and a full time series for
+# them to be most useful
+mcoe_self_fuel_cost_per_mmbtu = [
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Nautral Gas Fuel Cost (2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "total_mmbtu",
+    },
+    {
+        "title": "Coal Fuel Cost",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "total_mmbtu",
+    },
+]
+
+mcoe_self_fuel_cost_per_mwh = [
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Nautral Gas Fuel Cost (2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Coal Fuel Cost",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+]
+
+mcoe_self = [
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Nautral Gas Capacity Factor (2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.10,
+        "mid_q": 0.65,
+        "hi_q": 0.95,
+        "data_col": "capacity_factor",
+        "weight_col": "capacity_mw",
+    },
+    {
+        "title": "Coal Capacity Factor",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.60,
+        "hi_q": 0.95,
+        "data_col": "capacity_factor",
+        "weight_col": "capacity_mw",
+    },
+    {  # EIA natural gas reporting really only becomes usable in 2015.
+        "title": "Nautral Gas Heat Rates (2015+)",
+        "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "heat_rate_mmbtu_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Coal Heat Rates",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "heat_rate_mmbtu_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+]
+
+###############################################################################
+# EIA 860 output validation tests
+###############################################################################
+
+gens_eia860_vs_bound = [
+    {
+        "title": "Bituminous coal capacity (tails)",
+        "query": "energy_source_code_1=='BIT'",
+        "low_q": 0.45,
+        "low_bound": 30.0,
+        "hi_q": 0.90,
+        "hi_bound": 700.0,
+        "data_col": "capacity_mw",
+        "weight_col": "",
+    },
+    {
+        "title": "Subbituminous and Lignite Coal Capacity test...",
+        "query": "energy_source_code_1=='SUB' or energy_source_code_1=='LIG'",
+        "low_q": 0.35,
+        "low_bound": 30.0,
+        "hi_q": 0.90,
+        "hi_bound": 800.0,
+        "data_col": "capacity_mw",
+        "weight_col": "",
+    },
+    {
+        "title": "Natural Gas Capacity test",
+        "query": "energy_source_code_1=='NG'",
+        "low_q": 0.55,
+        "low_bound": 30.0,
+        "hi_q": 0.90,
+        "hi_bound": 250.0,
+        "data_col": "capacity_mw",
+        "weight_col": "",
+    }, ]
+
+gens_eia860_self = [
+    {
+        "title": "All Capacity test...",
+        "query": 'ilevel_0 in ilevel_0',
+        "low_q": 0.55,
+        "mid_q": 0.70,
+        "hi_q": 0.95,
+        "data_col": "capacity_mw",
+        "weight_col": ""
+    },
+    {
+        "title": "Nuclear Capacity test...",
+        "query": "energy_source_code_1=='NUC'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "capacity_mw",
+        "weight_col": ""
+    },
+    {
+        "title": "All Coal Capacity test...",
+        "query": "energy_source_code_1=='BIT' or energy_source_code_1=='SUB' or energy_source_code_1=='LIG'",
+        "low_q": 0.25,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "capacity_mw",
+        "weight_col": ""
+    },
+    {
+        "title": "Subbituminous and Lignite Coal Capacity test...",
+        "query": "energy_source_code_1=='SUB' or energy_source_code_1=='LIG'",
+        "low_q": 0.10,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "capacity_mw",
+        "weight_col": ""
+    },
+    {
+        "title": "Natural Gas Capacity test...",
+        "query": "energy_source_code_1=='NG'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "capacity_mw",
+        "weight_col": ""
+    },
+    {
+        "title": "Nameplate power factor",
+        "query": "energy_source_code_1=='NG'",
+        "low_q": 0.05,
+        "mid_q": 0.50,
+        "hi_q": 0.95,
+        "data_col": "nameplate_power_factor",
+        "weight_col": ""}
+]
 
 ###############################################################################
 # Naming issues...

@@ -189,7 +189,7 @@ def clean_columns_dump(table_name, pkg_dir, df):
     """
     # fix the order of the columns based on the metadata..
     # grab the table metadata from the mega metadata
-    resource = pudl.load.metadat.pull_resource_from_megadata(table_name)
+    resource = pudl.load.metadata.pull_resource_from_megadata(table_name)
     # pull the columns from the table schema
     columns = [x['name'] for x in resource['schema']['fields']]
     # there are two types of tables when it comes to indexes and ids...

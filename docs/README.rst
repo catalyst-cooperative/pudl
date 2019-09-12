@@ -22,7 +22,15 @@ The Public Utility Data Liberation Project (PUDL)
 
 .. image:: https://api.codacy.com/project/badge/Grade/2fead07adef249c08288d0bafae7cbb5
    :target: https://app.codacy.com/app/zaneselvans/pudl
-   :alt: Codacy Badge
+   :alt: Codacy Grade
+
+.. image:: https://img.shields.io/pypi/v/catalystcoop.pudl
+   :target: https://pypi.org/project/catalystcoop.pudl/
+   :alt: PyPI version
+
+.. image:: https://img.shields.io/conda/vn/conda-forge/catalystcoop.pudl
+   :target: https://anaconda.org/conda-forge/catalystcoop.pudl
+   :alt: conda-forge version
 
 `PUDL <https://catalyst.coop/pudl/>`__ makes US energy data easier to access
 and work with. Hundreds of gigabytes of supposedly public information published

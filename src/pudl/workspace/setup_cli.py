@@ -36,6 +36,7 @@ PUDL_IN
 
 PUDL_OUT
   ├── datapackage
+  ├── environment.yml
   ├── notebook
   ├── parquet
   ├── settings
