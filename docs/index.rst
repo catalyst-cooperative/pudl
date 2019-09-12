@@ -15,6 +15,7 @@ The Public Utility Data Liberation Project
   datapackages
   cloud_access
   data_catalog
+  settings_files
   Contributing <CONTRIBUTING>
   dev_setup
   testing

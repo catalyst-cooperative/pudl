@@ -70,7 +70,7 @@ commands in your terminal:
     $ mkdir pudl-work
     $ pudl_setup --pudl_in=pudl-work --pudl_out=pudl-work
     $ pudl_data --sources eia923 eia860 ferc1 epacems epaipm --years 2017 --states id
-    $ pudl_etl pudl-work/settings/etl_example.yml --pkg_bundle_name pudl_example
+    $ pudl_etl pudl-work/settings/etl_example.yml
     $ datapkg_to_sqlite --pkg_bundle_name pudl_example
     $ jupyter-lab --notebook-dir=pudl_work/notebooks
 
@@ -84,8 +84,8 @@ inside a directory called ``pudl-work``, download the most recent year of
 data from the public agencies, generate local data packages, load these into a
 local SQLite database, and open up a folder with some example `Jupyter notebooks <https://jupyter.org>`__
 in your web browser. The data packages will be generated in a sub-directory in
-``pudl_work/datapackage`` called ``pudl_example`` (you can change this by
-changing the --pkg_bundle_name argument of ``pudl_etl``).
+``pudl_work/datapackage`` named ``pudl_example`` (you can change this by
+changing the pkg_bundle_name in ``etl_example.yml``).
 
 We have transitioned to generating CSV/JSON based `tabular data packages <https://frictionlessdata.io/docs/tabular-data-package/>`__,
 which are then loaded into a local SQLite database. This makes setting up PUDL

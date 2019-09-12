@@ -58,16 +58,16 @@ def flatten_data_packages_csvs(pkg_bundle_dir, pkg_name='pudl-all'):
     for pkg_dir in pkg_bundle_dir.iterdir():
         # copy all the csv's except not from all_dir - would make duplicates or
         # from the epacems package (because it has CEMS and EIA files).
-        if pkg_dir != all_dir and pkg_dir.name != 'epacems_eia860':
+        if pkg_dir != all_dir:  # and 'epacems' in pkg_dir.name:
             for csv in pathlib.Path(pkg_dir, 'data').iterdir():
                 # if the csv already exists, shutil.copy will overrite. this is
                 # fine because we've already checked if the parameters are the
                 # same
                 shutil.copy(csv, all_data_dir)
         # for the CEMS pacakge, only pull the actual CEMS tables.
-        elif pkg_dir.name == 'epacems_eia860':
-            for csv in pathlib.Path(pkg_dir, 'data').iterdir():
-                shutil.copy(csv, all_data_dir)
+        # elif 'epacems' in pkg_dir.name:
+        #    for csv in pathlib.Path(pkg_dir, 'data').iterdir():
+        #        shutil.copy(csv, all_data_dir)
                 # if 'hourly_emissions_epacems' in csv.name:
                 #    shutil.copy(csv, all_data_dir)
 

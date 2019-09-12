@@ -14,7 +14,7 @@ notebook that works with PUDL data by running:
 
 .. code-block:: console
 
-    $ pudl_etl settings/etl_example.yml --pkg_bundle_name pudl_example
+    $ pudl_etl settings/etl_example.yml
     $ jupyter-lab --notebook-dir=notebooks
 
 .. note::
