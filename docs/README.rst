@@ -32,6 +32,10 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://anaconda.org/conda-forge/catalystcoop.pudl
    :alt: conda-forge Version
 
+.. image:: https://zenodo.org/badge/80646423.svg
+   :target: https://zenodo.org/badge/latestdoi/80646423
+   :alt: Zenodo DOI
+
 `PUDL <https://catalyst.coop/pudl/>`__ makes US energy data easier to access
 and work with. Hundreds of gigabytes of supposedly public information published
 by government agencies, but in a bunch of different formats that can be hard to
