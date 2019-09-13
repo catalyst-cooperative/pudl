@@ -1,18 +1,28 @@
-# The following settings determine which data is loaded by init_pudl.py
+# This file controls the PUDL ETL process, and is used as input to pudl_etl
 
 # You can create several different settings files if you wish, and specify
-# which one the initialization script uses on the command line:
+# which one the ETL script uses on the command line. e.g.:
 #
-# ./init_pudl.py settings_init_pudl_custom.yml
+# pudl_etl custom_pudl_etl.yml
 
+# A "package bundle" is a collection of PUDL data packages that were created
+# together in the same ETL process. They should be mutually compatible, and
+# can be used together to create a database, or other products. Each package
+# bundle needs a name, which will also be the name of the directory into which
+# it is written. All the tabular data resources / data packages within a
+# package bundle share a unique ID that we use to ensure only compatible data
+# is combined.
 pkg_bundle_name: pudl_example
+
+# The package bundle settings are a list of individual data package
+# specifications, each of which may contain one or more data sources.
 pkg_bundle_settings:
   ###########################################################################
-  # EPA IMP SETTINGS
+  # EPA IPM SETTINGS
   ###########################################################################
   - name: epaipm-test
-    title: EPA Integrated Planning Model transmission data
-    description: transmission something something
+    title: EPA Integrated Planning Model Test Package
+    description: Transmission, load, and other data from the EPA's Integrated Planning Model.
     datasets:
       - epaipm:
           epaipm_tables:
@@ -25,8 +35,8 @@ pkg_bundle_settings:
   # FERC FORM 1 SETTINGS
   ###########################################################################
   - name: ferc1-test
-    title: FERC Form1 Testing Pakage
-    description: blahhhh
+    title: FERC Form 1 Test Package
+    description: A minimal set of FERC Form 1 data to serve as an example.
     datasets:
       - ferc1:
           # There are many more data tables in the original FERC Form 1 that have not
@@ -46,17 +56,15 @@ pkg_bundle_settings:
           #ferc1_years: [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
           #              2013, 2014, 2015, 2016, 2017]
           ferc1_years: [2017]
-          ferc1_testing: False
 
   ###########################################################################
   # EIA FORM 923 & 860 SETTINGS
   ###########################################################################
-
   # the default here is to load nothing because EIA 860 and 923 are included in
   # the epacems_eia860 datapackage.
   - name: eia-test
-    title: EIA 860 and 923
-    description: whatever eia things.. ya know 860, 923.. all the things
+    title: EIA Test Package, including EIA Forms 860 and 923.
+    description: Data pertaining primarily to US thermal plants, fuel consumption, electricity output, fuel costs, and plant and generator attributes.
     datasets:
       - eia:
           # This is the full list of EIA 923 tables.  Many of them are interdependent,
@@ -91,11 +99,9 @@ pkg_bundle_settings:
   # other data sets here.  Pulling in all the years of data for all of the
   # states requires ~100GB of free disk space and takes around 8 hours on a
   # reasonably fast laptop.
-
-
   - name: epacems_eia860_923
-    title: CEMS stuff
-    description: stuff about cems
+    title: EPA Continuous Emissions Monitoring System Hourly
+    description: Hourly emissions, power output, heat rates, and other data for most US fossil fuel plants.
     datasets:
       - eia:
           # This is the full list of EIA 923 tables.  Many of them are interdependent,
@@ -129,7 +135,7 @@ pkg_bundle_settings:
           #                2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
           #                2015, 2016, 2017, 2018]
           epacems_years: [2017]
-          # Just Colorado, for nostalgia:
+          # Just Idaho, as it is has the smallest data of any state.
           epacems_states: [ID]
           #epacems_states: [ALL]
           partition:

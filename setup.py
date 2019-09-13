@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 
 install_requires = [
     'coloredlogs',
-    'datapackage==1.8.0',
+    'datapackage>=1.9.0',
     'dbfread',
     'goodtables',
     'matplotlib',

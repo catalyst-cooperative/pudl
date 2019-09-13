@@ -8,7 +8,7 @@ dependencies:
   - coloredlogs         # base
   - coverage            # dev
   - dask                # user
-  - datapackage>=1.8.0  # base We depend on features introduced in v1.8.0
+  - datapackage>=1.9.0  # base We depend on features introduced in v1.9.0
   - dbfread             # base
   - doc8                # dev
   - flake8              # dev

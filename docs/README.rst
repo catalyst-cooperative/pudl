@@ -62,7 +62,13 @@ Getting Started
 Just want to play with some example data? Install
 `Anaconda <https://www.anaconda.com/distribution/>`__
 (or `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__
-if you like the command line) with at least Python 3.7.
+if you like the command line) with at least Python 3.7. Then work through the
+following commands in a terminal:
+
+**NOTE (2019-09-13): We are in transition to using data packages and SQLite.
+The following instructions won't work until we release version 0.2.0, which
+should happen before 2019-09-16 Until then, you'll need to clone the
+repository to use the datapackage / SQLite version of PUDL.**
 
 .. code-block:: console
 
@@ -74,7 +80,7 @@ if you like the command line) with at least Python 3.7.
     $ pudl_data --sources eia923 eia860 ferc1 epacems epaipm --years 2017 --states id
     $ pudl_etl pudl-work/settings/etl_example.yml
     $ datapkg_to_sqlite --pkg_bundle_name pudl_example
-    $ jupyter-lab --notebook-dir=pudl_work/notebooks
+    $ jupyter-lab --notebook-dir=pudl-work/notebooks
 
 
 This will install the PUDL Python package and its dependencies within a `conda`
@@ -83,12 +89,9 @@ called ``pudl-work``, download the most recent year of data from the public
 agencies, generate local data packages, load these into a local SQLite
 database, and open up a folder with some example `Jupyter notebooks <https://jupyter.org>`__
 in your web browser. The data packages will be generated in a sub-directory in
-``pudl_work/datapackage`` named ``pudl_example`` (you can change this by
-changing the pkg_bundle_name in ``etl_example.yml``).
-
-We have transitioned to generating CSV/JSON based `tabular data packages <https://frictionlessdata.io/docs/tabular-data-package/>`__,
-which are then loaded into a local SQLite database. This makes setting up PUDL
-easier and to make.
+``pudl-work/datapackage`` named ``pudl_example`` (you can change this by
+changing the value of ``pkg_bundle_name`` in the ETL settings file you're
+using.
 
 **NOTE:** The example above requires a computer with at least **4 GB of RAM**
 and **several GB of free disk space**. You will also need to download about
