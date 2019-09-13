@@ -12,7 +12,6 @@ data/
 dist/
 .eggs/
 .tox/
-settings/
 coverage.xml
 .coverage
 .coverage.*

@@ -64,6 +64,7 @@ def test_pudl_init_db(ferc1_engine, pudl_engine):
     pass
 
 
+@pytest.mark.xfail
 @pytest.mark.etl
 def test_epacems_to_parquet(data_packaging,
                             pudl_settings_fixture,
@@ -77,7 +78,7 @@ def test_epacems_to_parquet(data_packaging,
         out_dir=pathlib.Path(pudl_settings_fixture['parquet_dir'], 'epacems'),
         pkg_dir=pathlib.Path(
             pudl_settings_fixture['datapackage_dir'],
-            data_scope['pkg_bundle_name']
+            data_scope['pkg_bundle_name'], 'epacems_eia860'
         ),
         compression='snappy'
     )

@@ -32,7 +32,6 @@ from functools import partial
 import coloredlogs
 import pyarrow as pa
 import pyarrow.parquet as pq
-import sqlalchemy as sa
 
 import pudl
 import pudl.constants as pc
@@ -147,7 +146,7 @@ def epacems_to_parquet(epacems_years,
             CEMs data
         data_dir (path-like): Path to the top directory of the PUDL datastore.
         out_dir (path-like): The directory in which to output the Parquet files
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
+        pkg_dir (path-like): The directory in which to output...
         compression (type?):
         partition_cols (type?):
 
@@ -256,6 +255,13 @@ def parse_command_line(argv):
         dataset? (default: %(default)s)""",
         default=['year', 'state']
     )
+    parser.add_argument(
+        '--pkg_dir_name',
+        type=str,
+        help="""The name of the directory within the data package directory
+        where the EIA data package lives. You'll need the plants_entity_eia
+        table to exist in the `data` subdirectory for the UTC offset.""",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -283,16 +289,14 @@ def main():
         epacems_states=args.states,
         pudl_settings=pudl_settings,
     )
-    # transform.epacems needs to reach into the database to get timezones, so
-    # get a database connection here
-    pudl_engine = sa.create_engine(pudl_settings['pudl_db'])
 
     epacems_to_parquet(
         epacems_years=args.years,
         epacems_states=args.states,
         data_dir=pudl_settings['data_dir'],
         out_dir=pathlib.Path(pudl_settings['parquet_dir'], "epacems"),
-        pudl_engine=pudl_engine,
+        pkg_dir=pathlib.Path(
+            pudl_settings['datapackage_dir'], args.pkg_dir_name),
         compression=args.compression,
         partition_cols=list(args.partition_cols),
     )
