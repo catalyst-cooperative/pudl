@@ -130,7 +130,6 @@ def derive_paths(pudl_in, pudl_out):
     for fmt in pc.output_formats:
         ps[f"{fmt}_dir"] = str(pudl_out / fmt)
 
-    ps['pudl_test_db'] = "postgresql://catalyst@localhost/pudl_test"
     ferc1_db_file = pathlib.Path(ps['sqlite_dir'], 'ferc1.sqlite')
     ps['ferc1_db'] = "sqlite:///" + str(ferc1_db_file.resolve())
 

@@ -231,7 +231,7 @@ def pudl_engine(ferc1_engine, live_pudl_db,
             pkg_bundle_name=data_scope['pkg_bundle_name'],
             pkg_name='pudl-all')
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
-    pudl_engine = sa.create_engine(pudl_settings_fixture["pudl_sqlite_url"])
+    pudl_engine = sa.create_engine(pudl_settings_fixture["pudl_db"])
     logger.info(pudl_engine)
     yield pudl_engine
 
@@ -286,10 +286,10 @@ def pudl_settings_fixture(request, tmpdir_factory, live_ferc_db, live_pudl_db):
         pudl_settings['ferc1_db'] = 'sqlite:///' + str(live_ferc_db_path)
 
     if live_pudl_db == 'AUTO':
-        pudl_settings['pudl_sqlite_url'] = pudl_auto['pudl_sqlite_url']
+        pudl_settings['pudl_db'] = pudl_auto['pudl_db']
     elif live_pudl_db:
         live_pudl_db_path = pathlib.Path(live_pudl_db).expanduser().resolve()
-        pudl_settings['pudl_sqlite_url'] = 'sqlite:///' + \
+        pudl_settings['pudl_db'] = 'sqlite:///' + \
             str(live_pudl_db_path)
 
     logger.info(f'pudl_settings being used : {pudl_settings}')
