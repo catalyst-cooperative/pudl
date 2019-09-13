@@ -4,33 +4,37 @@ The Public Utility Data Liberation Project (PUDL)
 
 .. readme-intro
 
-.. image:: https://www.repostatus.org/badges/latest/wip.svg
-   :alt: Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.
-   :target: https://www.repostatus.org/#wip
+.. image:: https://www.repostatus.org/badges/latest/active.svg
+   :target: https://www.repostatus.org/#active
+   :alt: Project Status: Active – The project has reached a stable, usable state and is being actively developed.
 
-.. image:: https://travis-ci.org/catalyst-cooperative/pudl.svg?branch=master
+.. image:: https://img.shields.io/travis/catalyst-cooperative/pudl
    :target: https://travis-ci.org/catalyst-cooperative/pudl
-   :alt: Build Status
+   :alt: Travis CI Build Status
 
-.. image:: https://readthedocs.org/projects/catalystcoop-pudl/badge/?version=latest
+.. image:: https://img.shields.io/readthedocs/catalystcoop-pudl
    :target: https://catalystcoop-pudl.readthedocs.io/en/latest/
-   :alt: Documentation Status
+   :alt: Read the Docs Build Status
 
-.. image:: https://codecov.io/gh/catalyst-cooperative/pudl/branch/master/graph/badge.svg
+.. image:: https://img.shields.io/codecov/c/github/catalyst-cooperative/pudl
    :target: https://codecov.io/gh/catalyst-cooperative/pudl
-   :alt: codecov
+   :alt: Codecov Test Coverage
 
-.. image:: https://api.codacy.com/project/badge/Grade/2fead07adef249c08288d0bafae7cbb5
+.. image:: https://img.shields.io/codacy/grade/2fead07adef249c08288d0bafae7cbb5
    :target: https://app.codacy.com/app/zaneselvans/pudl
    :alt: Codacy Grade
 
 .. image:: https://img.shields.io/pypi/v/catalystcoop.pudl
    :target: https://pypi.org/project/catalystcoop.pudl/
-   :alt: PyPI version
+   :alt: PyPI Version
 
 .. image:: https://img.shields.io/conda/vn/conda-forge/catalystcoop.pudl
    :target: https://anaconda.org/conda-forge/catalystcoop.pudl
-   :alt: conda-forge version
+   :alt: conda-forge Version
+
+.. image:: https://zenodo.org/badge/80646423.svg
+   :target: https://zenodo.org/badge/latestdoi/80646423
+   :alt: Zenodo DOI
 
 `PUDL <https://catalyst.coop/pudl/>`__ makes US energy data easier to access
 and work with. Hundreds of gigabytes of supposedly public information published
@@ -52,23 +56,23 @@ We are especially interested in serving researchers, activists, journalists,
 and policy makers that might not otherwise be able to afford access to this
 data from commercial data providers.
 
-Getting Started TEMPORARILY OUT OF DATE
----------------------------------------
+Getting Started (Legacy PostgreSQL Edition)
+-------------------------------------------
 
 Just want to play with some example data? Install
 `Anaconda <https://www.anaconda.com/distribution/>`__
 (or `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__
-if you like the command line) with at least Python 3.7. Then run the following
-commands in your terminal:
+if you like the command line) with at least Python 3.7. Set up a local
+PostgreSQL database to receive the data as explained in
+`this documentation <https://github.com/catalyst-cooperative/pudl/blob/a8173bd78857d4a09ddf685b19fea0a83f2e5007/docs/getting_started.md#4-install-and-configure-postgresql>`__.
 
 .. code-block:: console
 
-    $ git clone https://github.com/catalyst-cooperative/pudl.git
-    $ conda env create --name pudl --file pudl/environment.yml
+    $ conda create -y -n pudl -c conda-forge --strict-channel-priority python=3.7 catalystcoop.pudl jupyter jupyterlab pip
     $ conda activate pudl
-    $ pip install -e pudl
     $ mkdir pudl-work
-    $ pudl_setup --pudl_in=pudl-work --pudl_out=pudl-work
+    $ cd pudl-work
+    $ pudl_setup
     $ pudl_data --sources eia923 eia860 ferc1 epacems epaipm --years 2017 --states id
     $ pudl_etl pudl-work/settings/etl_example.yml
     $ datapkg_to_sqlite --pkg_bundle_name pudl_example
@@ -79,10 +83,11 @@ commands in your terminal:
 Frictionless Data Packages that feed into SQLite. The last version of the guide
 to setting up the PostgreSQL database can be found in `this commit <https://github.com/catalyst-cooperative/pudl/blob/a8173bd78857d4a09ddf685b19fea0a83f2e5007/docs/getting_started.md#4-install-and-configure-postgresql>`__.
 
-This will install the PUDL Python package, create some local directories
-inside a directory called ``pudl-work``, download the most recent year of
-data from the public agencies, generate local data packages, load these into a
-local SQLite database, and open up a folder with some example `Jupyter notebooks <https://jupyter.org>`__
+This will install the PUDL Python package and its dependencies within a `conda`
+environment named ``pudl``, create some local directories inside a directory
+called ``pudl-work``, download the most recent year of data from the public
+agencies, generate local data packages, load these into a local SQLite
+database, and open up a folder with some example `Jupyter notebooks <https://jupyter.org>`__
 in your web browser. The data packages will be generated in a sub-directory in
 ``pudl_work/datapackage`` named ``pudl_example`` (you can change this by
 changing the pkg_bundle_name in ``etl_example.yml``).
