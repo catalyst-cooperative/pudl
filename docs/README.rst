@@ -56,15 +56,13 @@ We are especially interested in serving researchers, activists, journalists,
 and policy makers that might not otherwise be able to afford access to this
 data from commercial data providers.
 
-Getting Started (Legacy PostgreSQL Edition)
--------------------------------------------
+Getting Started
+---------------
 
 Just want to play with some example data? Install
 `Anaconda <https://www.anaconda.com/distribution/>`__
 (or `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__
-if you like the command line) with at least Python 3.7. Set up a local
-PostgreSQL database to receive the data as explained in
-`this documentation <https://github.com/catalyst-cooperative/pudl/blob/a8173bd78857d4a09ddf685b19fea0a83f2e5007/docs/getting_started.md#4-install-and-configure-postgresql>`__.
+if you like the command line) with at least Python 3.7.
 
 .. code-block:: console
 
@@ -78,10 +76,6 @@ PostgreSQL database to receive the data as explained in
     $ datapkg_to_sqlite --pkg_bundle_name pudl_example
     $ jupyter-lab --notebook-dir=pudl_work/notebooks
 
-
-**NOTE: (2019-09-03)** We deprecated the PostgreSQL PUDL database to move to
-Frictionless Data Packages that feed into SQLite. The last version of the guide
-to setting up the PostgreSQL database can be found in `this commit <https://github.com/catalyst-cooperative/pudl/blob/a8173bd78857d4a09ddf685b19fea0a83f2e5007/docs/getting_started.md#4-install-and-configure-postgresql>`__.
 
 This will install the PUDL Python package and its dependencies within a `conda`
 environment named ``pudl``, create some local directories inside a directory
