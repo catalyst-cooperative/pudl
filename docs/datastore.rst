@@ -45,9 +45,7 @@ For more detailed usage information, see:
 
 The downloaded data will be used by the script to populate a datastore under
 the ``data`` directory in your workspace, organized by data source, form, and
-date:
-
-.. code-block::
+date::
 
     data/eia/form860/
     data/eia/form923/

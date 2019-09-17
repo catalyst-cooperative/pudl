@@ -68,6 +68,8 @@ with PUDL interactively:
 
 You may also want to update your global ``conda`` settings:
 
+.. code-block:: console
+
     $ conda config --add channels conda-forge
     $ conda config --set channel_priority strict
 
@@ -87,7 +89,7 @@ PUDL is also available via the official
     :doc:`dev_setup` documentation.
 
 In addition to making the :mod:`pudl` package available for import in Python,
-installing ``catalystcoop.pudl`` installs the following command line tools:
+installing ``catalystcoop.pudl`` provides the following command line tools:
 
 * ``pudl_setup``
 * ``pudl_data``
@@ -96,10 +98,12 @@ installing ``catalystcoop.pudl`` installs the following command line tools:
 * ``datapkg_to_sqlite``
 * ``epacems_to_parquet``
 
-For information on how to use them, run them with the ``--help`` option. Most
-of them are configured using settings files. Examples are provided with the
-``catalystcoop.pudl`` package, and deployed by running ``pudl_setup`` as
-described below.
+For information on how to use these scripts, each can be run with the
+``--help`` option. ``ferc1_to_sqlite`` and ``pudl_etl`` are configured with
+YAML files. Examples are provided with the ``catalystcoop.pudl`` package, and
+deployed by running ``pudl_setup`` as described below. Additional inormation
+about the settings files can be found in our documentation on
+:ref:`settings_files`
 
 .. _install-workspace:
 
@@ -107,7 +111,7 @@ described below.
 Creating a Workspace
 -------------------------------------------------------------------------------
 
-PUDL needs to know where to store its big pile of input and output data. It
+PUDL needs to know where to store its big piles of inputs and outputs. It
 also provides some example configuration files and
 `Jupyter <https://jupyter.org>`__ notebooks. The ``pudl_setup`` script lets
 PUDL know where all this stuff should go. We call this a "PUDL workspace":
@@ -120,7 +124,8 @@ Here <PUDL_DIR> is the path to the directory where you want PUDL to do its
 business -- this is where the datastore will be located, and any outputs that
 are generated will end up. The script will also put a configuration file in
 your home directory, called ``.pudl.yml`` that records the location of this
-workspace and uses it by default in the future.
+workspace and uses it by default in the future. If you run ``pudl_setup`` with
+no arguments, it assumes you want to use the current directory.
 
 The workspace is laid out like this:
 
@@ -164,9 +169,9 @@ run:
 
 .. code-block:: console
 
-   $ conda env create --name=pudl --file=environment.yml
+   $ conda env create --name pudl --file environment.yml
 
-You should probably periodically update the packages installed as part of PUDL,
+You may want to periodically update PUDL and the packages it depends on
 by running the following commands in the directory with ``environment.yml``
 in it:
 

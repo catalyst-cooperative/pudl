@@ -76,6 +76,16 @@ the data packages to populate a local SQLite database.
 
 `Open an issue on Github <https://github.com/catalyst-cooperative/pudl/issues>`__ and let us know if you have another example we can add.
 
+SQLite
+^^^^^^
+
+If you want to access the data via SQL, we have provided a script that loads
+a bundle of data packages into a local :mod:`sqlite3` database, e.g.:
+
+.. code-block::
+
+    $ datapkg_to_sqlite --pkg_bundle_name pudl-example
+
 Python, Pandas, and Jupyter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -110,16 +120,6 @@ The R programming language
 
     Get someone who uses R to give us an example here... maybe we can get
     someone from OKFN to do it?
-
-SQLite
-^^^^^^
-
-If you'd rather access the data via SQL, we have provided a script that loads
-a bundle of the datapackages into a local :mod:`sqlite3` database, e.g.:
-
-.. code-block::
-
-    $ datapkg_to_sqlite --pkg_bundle_name pudl-example
 
 Microsoft Access / Excel
 ^^^^^^^^^^^^^^^^^^^^^^^^^

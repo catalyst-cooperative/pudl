@@ -54,12 +54,12 @@ directory at ``datapackage/pudl-example`` containing several datapackage
 directories, one for each of the ``ferc1``, ``eia`` (Forms 860 and 923),
 ``epacems-eia``, and ``epaipm`` datasets.
 
-Under the hood, these scripts are extracting a bunch of data from the
-datastore, including a bunch of spreadsheets, CSV files, and binary DBF files,
-generating a SQLite database containing the raw FERC Form 1 data, and combining
-it all into ``pudl-example``, which is a bundle of
-`tabular datapackages <https://frictionlessdata.io/specs/tabular-data-package/>`__.
-that can be used together to create a database (or other things).
+Under the hood, these scripts are extracting data from the datastore, including
+spreadsheets, CSV files, and binary DBF files, generating a SQLite database
+containing the raw FERC Form 1 data, and combining it all into
+``pudl-example``, which is a bundle of `tabular datapackages
+<https://frictionlessdata.io/specs/tabular-data-package/>`__. that can be used
+together to create a database (or other things).
 
 Each of the data packages which are part of the bundle have metadata describing
 their structure, stored in a file called ``datapackage.json`` The data itself

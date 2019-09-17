@@ -37,14 +37,15 @@ The Public Utility Data Liberation Project (PUDL)
    :alt: Zenodo DOI
 
 `PUDL <https://catalyst.coop/pudl/>`__ makes US energy data easier to access
-and work with. Hundreds of gigabytes of supposedly public information published
-by government agencies, but in a bunch of different formats that can be hard to
+and work with. Hundreds of gigabytes of public information is published
+by government agencies, but in many different formats that make it hard to
 work with and combine. PUDL takes these spreadsheets, CSV files, and databases
-and turns them into easy to parse, well-documented `tabular data packages <https://https://frictionlessdata.io/docs/tabular-data-package/>`__
-that can be used to create a database, used directly with Python, R, Microsoft
-Access, and lots of other tools.
+and turns them into easy use
+`tabular data packages <https://https://frictionlessdata.io/docs/tabular-data-package/>`__
+that can populate a database, or be used directly with Python, R, Microsoft
+Access, and many other tools.
 
-The project currently contains data from:
+The project currently integrates data from:
 
 * `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__
 * `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__
@@ -52,18 +53,17 @@ The project currently contains data from:
 * `The EPA Integrated Planning Model (IPM) <https://www.epa.gov/airmarkets/national-electric-energy-data-system-needs-v6>`__
 * `FERC Form 1 <https://www.ferc.gov/docs-filing/forms/form-1/data.asp>`__
 
-We are especially interested in serving researchers, activists, journalists,
+The project is especially meant to serve researchers, activists, journalists,
 and policy makers that might not otherwise be able to afford access to this
-data from commercial data providers.
+data from existing commercial data providers.
 
 Getting Started
 ---------------
 
 Just want to play with some example data? Install
 `Anaconda <https://www.anaconda.com/distribution/>`__
-(or `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__
-if you like the command line) with at least Python 3.7. Then work through the
-following terminal commands:
+(or `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__) with at
+least Python 3.7. Then work through the following commands.
 
 First, we create and activate conda environment named ``pudl``. All the
 required packages are available from the community maintained ``conda-forge``
@@ -78,11 +78,10 @@ interactively.
     $ conda create -y -n pudl -c conda-forge --strict-channel-priority python=3.7 catalystcoop.pudl jupyter jupyterlab pip
     $ conda activate pudl
 
-Now we create a data management workspace -- a well defined directory structure
-that PUDL will use to organize the data it downloads, processes, and outputs --
-and download the most recent year's worth of data for each of the available
-datasets. You can run ``pudl_setup --help`` and ``pudl_data --help`` for more
-information.
+Now we create a data management workspace called ``pudl-work`` and download
+some data. The workspace is a well defined directory structure that PUDL uses
+to organize the data it downloads, processes, and outputs. You can run
+``pudl_setup --help`` and ``pudl_data --help`` for more information.
 
 .. code-block:: console
 
@@ -91,12 +90,12 @@ information.
     $ pudl_data --sources eia923 eia860 ferc1 epacems epaipm --years 2017 --states id
 
 Now that we have the original data as published by the federal agencies, we can
-run the data processing (ETL = Extract, Transform, Load) pipeline, that turns
-the raw data into an well organized, standardized bundle of data packages.
-This involves a couple of steps: cloning the FERC Form 1 into an SQLite
-database, extracting data from that database and all the other sources and
-cleaning it up, outputting that data into well organized CSV/JSON based data
-packages, and finally loading those data packages into a local database.
+run the ETL (Extract, Transform, Load) pipeline, that turns the raw data into
+an well organized, standardized bundle of data packages. This involves a couple
+of steps: cloning the FERC Form 1 into an SQLite database, extracting data from
+that database and all the other sources and cleaning it up, outputting that
+data into well organized CSV/JSON based data packages, and finally loading
+those data packages into a local database.
 
 PUDL provides a script to clone the FERC Form 1 database, controlled by a YAML
 file which you can find in the settings folder. Run it like this:
@@ -119,7 +118,7 @@ using. Run the ETL pipeline with this command:
 
     $ pudl_etl pudl-work/settings/etl_example.yml
 
-The generated data packages are made up of CSV and JSON files, that are both
+The generated data packages are made up of CSV and JSON files. They're both
 easy to parse programmatically, and readable by humans. They are also well
 suited to archiving, citation, and bulk distribution. However, to make the
 data easier to query and work with interactively, we typically load it into a
@@ -138,11 +137,6 @@ Jupyter notebook server, and open a notebook of PUDL usage examples:
 .. code-block:: console
 
     $ jupyter lab pudl-work/notebook/pudl_intro.ipynb
-
-**NOTE:** The example above requires a computer with at least **4 GB of RAM**
-and **several GB of free disk space**. You will also need to download
-**100s of MB of data**. This could take a while if you have a slow internet
-connection.
 
 For more details, see `the full PUDL documentation
 <https://catalystcoop-pudl.readthedocs.io/>`__ on Read The Docs.
@@ -167,9 +161,11 @@ contribute!
 Licensing
 ---------
 
-The PUDL software is released under the `MIT License <https://opensource.org/licenses/MIT>`__.
+The PUDL software is released under the
+`MIT License <https://opensource.org/licenses/MIT>`__.
 `The PUDL documentation <https://catalystcoop-pudl.readthedocs.io>`__
-and the data packages we distribute are released under the `Creative Commons Attribution 4.0 License <https://creativecommons.org/licenses/by/4.0/>`__.
+and the data packages we distribute are released under the
+`CC-BY-4.0 <https://creativecommons.org/licenses/by/4.0/>`__ license.
 
 Contact Us
 ----------

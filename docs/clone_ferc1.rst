@@ -33,8 +33,8 @@ ETL process. This can be done with the ``ferc1_to_sqlite`` script (which is an
 entrypoint into the :mod:`pudl.convert.ferc1_to_sqlite` module) which is
 installed as part of the PUDL Python package. It takes its instructions from a
 YAML file, an example of which is included in the ``settings`` directory in
-your PUDL workspace. Once you've :ref:`created a <datastore>` you can try this
-example:
+your PUDL workspace. Once you've :ref:`created a datastore <datastore>` you can
+try this example:
 
 .. code-block:: console
 
@@ -49,14 +49,16 @@ factor of ~10 (to ~8 GB rather than 800 MB). If for some reason you need access
 to those tables, you can create your own settings file and un-comment those
 tables in the list of tables that it directs the script to load.
 
-Note that this script pulls *all* the FERC Form 1 data into a *single*
-database, while FERC distributes a *separate* database for each year. Virtually
-all the database tables contain a ``report_year`` column that indicates which
-year they came from, preventing collisions between records in the merged
-multi-year database that we create. One notable exception is the
-``f1_respondent_id`` table, which maps ``respondent_id`` to the names of the
-respondents. For that table, we have allowed the most recently reported record
-to take precedence, overwriting previous mappings if they exist.
+.. note::
+
+    This script pulls *all* of the FERC Form 1 data into a *single* database,
+    but FERC distributes a *separate* database for each year. Virtually all
+    the database tables contain a ``report_year`` column that indicates which
+    year they came from, preventing collisions between records in the merged
+    multi-year database. One notable exception is the ``f1_respondent_id``
+    table, which maps ``respondent_id`` to the names of the respondents. For
+    that table, we have allowed the most recently reported record to take
+    precedence, overwriting previous mappings if they exist.
 
 Sadly, the FERC Form 1 database is not particularly... relational. The only
 foreign key relationships that exist map ``respondent_id`` fields in the

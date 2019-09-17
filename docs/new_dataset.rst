@@ -12,27 +12,27 @@ and improves over time.
 
 In general the process for adding a new data source looks like this:
 
-#. Add the new data source to the ``datastore.py`` module and the
-   ``update_datastore.py`` script.
+#. Add the new data source to the :mod:`pudl.workspace.datastore`` module and
+   the ``pudl_data`` script.
 #. Define well normalized data tables for the new data source in the
-   metadata ``pudl/package_data/meta/datapackage/datapackage.json``.
-#. Add a module to the ``extract`` subpackage that generates raw dataframes
-   containing the new data source's information from whatever its original
-   format was.
-#. Add a module to the ``transform`` subpackage that takes those raw
+   metadata, which is stored in
+   ``src/pudl/package_data/meta/datapackage/datapackage.json``.
+#. Add a module to the :mod:`pudl.extract` subpackage that generates raw
+   dataframes containing the new data source's information from whatever its
+   original format was.
+#. Add a module to the :mod:`pudl.transform` subpackage that takes those raw
    dataframes, cleans them up, and re-organizes them to match the new database
    table definitions.
-#. If necessary, add a module to the ``load`` subpackage that takes these
-   clean, transformed dataframes and pushes their contents into the postgres
-   database.
-#. If appropriate, create linkages between the new database tables and other
-   existing data in the database, so they can be used together. Often this
-   means creating some skinny "glue" tables that link one set of unique entity
-   IDs to another.
-#. Update the ``etl.py`` module so that it includes your new data source as
-   part of the ETL (Extract, Transform, Load) process, and any necessary code
-   to the ``cli.py`` script.
-#. Add an output module for the new data source to the ``output`` subpackage.
+#. If necessary, add a module to the :mod:`pudl.load` subpackage that takes
+   these clean, transformed dataframes and exports them to data packages.
+#. If appropriate, create linkages in the table schemas between the tabular
+   resources so they can be used together. Often this means creating some
+   skinny "glue" tables that link one set of unique entity IDs to another.
+#. Update the :mod:`pudl.etl` module so that it includes your new data source
+   as part of the ETL (Extract, Transform, Load) process, and any necessary
+   code to the :mod:`pudl.cli` entrypoint module.
+#. Add an output module for the new data source to the :mod:`pudl.output`
+   subpackage.
 #. Write some unit tests for the new data source, and add them to the
    ``pytest`` suite in the ``test`` directory.
 
@@ -43,13 +43,13 @@ Add dataset to the datastore
 Scripts
 ^^^^^^^
 
-This means editing the ``datastore.py`` module and the datastore update script
-(``scripts/update_datastore.py``) so that they can acquire the data from the
-reporting agencies, and organize it locally in advance of the ETL (Extract,
-Transform, and Load) process. New data sources should be organized under
-``data/<agency>/<source>/`` e.g. ``data/ferc/form1`` or ``data/eia/form923``.
-Larger data sources that are available as compressed zipfiles can be left
-zipped to save local disk space, since ``pandas`` can read zipfiles directly.
+This means editing the :mod:`pudl.workspace.datastore` module and the
+``pudl_data`` script so that they can acquire the data from the
+reporting agencies, and organize it locally in advance of the ETL process.
+New data sources should be organized under ``data/<agency>/<source>/`` e.g.
+``data/ferc/form1`` or ``data/eia/form923``. Larger data sources that are
+available as compressed zipfiles can be left zipped to save local disk space,
+since ``pandas`` can read zipfiles directly.
 
 Organization
 ^^^^^^^^^^^^
@@ -68,19 +68,18 @@ should be able to specify subsets of the data to pull or refresh -- e.g. a set
 of years, or a set of states -- especially in the case of large datasets. In
 some cases, opening several download connections in parallel may dramatically
 reduce the time it takes to acquire the data (e.g. pulling don the EPA CEMS
-dataset over FTP). The ``constants.py`` module contains several dictionaries
-which define what years etc. are available for each data source.
+dataset over FTP). The :mod:`pudl.constants` module contains several
+dictionaries which define what years etc. are available for each data source.
 
 Describe Table Metadata
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Add table description into `resources` in the  the mega-data: the metadata file
 that contains all of the PUDL table descriptions
-(``package_data/meta/datapackage/datapackage.json``). The resource descriptions
-must conform to the `Frictionless Data specifications <https://frictionlessdata.io/specs/>`__,
+(``src/pudl/package_data/meta/datapackage/datapackage.json``). The resource
+descriptions must conform to the `Frictionless Data specifications <https://frictionlessdata.io/specs/>`__,
 specifically the specifications for a `tabular data resource <https://frictionlessdata.io/specs/tabular-data-resource/>`__.
-The `table schema specification <https://frictionlessdata.io/specs/table-schema/>__` will be
-particularly helpful.
+The `table schema specification <https://frictionlessdata.io/specs/table-schema/>`__ will be particularly helpful.
 
 There is also a dictionary in the megadata called "autoincrement", which is
 used for compiling table names that require an auto incremented id column when
@@ -142,19 +141,13 @@ Load the data into the datapackages
 
 Each of the dataframes that comes out of the transform step represents a
 resource that needs to be loaded into the datapackage. Pandas has a native
-:meth:`pandas.DataFrame.to_csv` method for exporting a dataframe to a
+:meth:`pandas.DataFrame.to_csv` method for exporting a dataframe to a CSV
+file, which is used to output the data to disk.
 
-Instead, we use postgres’ native
-``COPY_FROM`` function, which is designed for loading large CSV files directly
-into the database very efficiently. Instead of writing the dataframe out to a
-file on disk, we create an in-memory file-like object, and read directly from
-that. For this to work, the corresponding dataframe and database columns need
-to be named identically, and the strings that are read by postgres from the
-in-memory CSV file need to be readily interpretable as the data type that is
-associated with the column in the table definition. Because Python doesn’t have
-a native NA value for integers, but postgres does, just before the dataframes
-are loaded into the database we convert any integer NA sentinel values using a
-little helper function :func:`pudl.helpers.fix_int_na`.
+Because we have not yet taken advantage the new pandas extension arrays, and
+Python doesn’t have a native NA value for integers, just before the dataframes
+are written to disk we convert any integer NA sentinel values using a little
+helper function :func:`pudl.helpers.fix_int_na`.
 
 Glue the new data to existing data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -202,7 +195,5 @@ Test cases need to be created for each new dataset, verifying that the ETL
 process works, and sanity checking the data itself. This is somewhat different
 than traditional software testing, since we're not just testing our code --
 we're also trying to make sure that the data is in good shape. Those
-exhaustive tests are currently only run locally. Less extensive tests that are
-meant to just check that the code is still working correctly need to be
-integrated into the ``test/travis_ci_test.py`` module, which downloads a small
-sample of each dataset for use in testing.
+exhaustive tests are currently only run locally. See :ref:`testing` for more
+details.

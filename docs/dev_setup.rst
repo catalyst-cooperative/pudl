@@ -226,9 +226,6 @@ be hard for humans to catch but are easy for a computer.
     managing and maintaining multi-language pre-commit hooks.
 
 
-* Set up your editor / IDE to follow our code style guidelines.
-* Run ``pudl_setup`` to create a local data management environment.
-
 -------------------------------------------------------------------------------
 Install and Validate the Data
 -------------------------------------------------------------------------------
@@ -279,8 +276,7 @@ already downloaded datastore, you can point the tests at it with
 
     $ tox -v -e travis -- --fast --pudl_in=AUTO
 
-Additional details can be found in our
-:ref:`documentation on testing <testing>`.
+Additional details can be found in :ref:`testing`.
 
 -------------------------------------------------------------------------------
 Making a Pull Request

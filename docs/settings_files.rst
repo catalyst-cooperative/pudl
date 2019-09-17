@@ -1,3 +1,5 @@
+.. _settings_files:
+
 ===============================================================================
 Settings Files
 ===============================================================================
@@ -63,9 +65,7 @@ dictionaries should not be changed, but the values of those dictionaries
 should be edited. There are two high-level elements of the settings file:
 ``pkg_bundle_name`` and ``pkg_bundle_settings``. The ``pkg_bundle_name`` will
 be the directory that the bundle of packages described in the settings file.
-The elements and structure of the ``pkg_bundle_settings`` is described below:
-
-.. code-block::
+The elements and structure of the ``pkg_bundle_settings`` is described below::
 
     pkg_bundle_settings
       ├── name : name of data package
