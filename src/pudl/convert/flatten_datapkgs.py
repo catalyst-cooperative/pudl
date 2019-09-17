@@ -185,8 +185,9 @@ def check_for_matching_parameters(pkg_bundle_dir, pkg_name):
         pkg_bundle_dir (path-like): the subdirectory where the bundle of data
             packages live
         pkg_name (str): the name you choose for the flattened data package.
+
     """
-    logger.info('checking for matching etl parameters across datapackages')
+    logger.info('Checking for matching ETL parameters across data packages')
     # grab all of the metadata components
     pkg_descriptor_elements = compile_data_packages_metadata(pkg_bundle_dir,
                                                              pkg_name=pkg_name)

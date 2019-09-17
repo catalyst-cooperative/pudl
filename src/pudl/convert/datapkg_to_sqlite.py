@@ -17,6 +17,7 @@ import logging
 import pathlib
 import sys
 
+import coloredlogs
 import sqlalchemy as sa
 from datapackage import Package
 from tableschema import exceptions
@@ -44,6 +45,7 @@ def pkg_to_sqlite_db(pudl_settings,
     """
     # prepping the sqlite engine
     pudl_engine = sa.create_engine(pudl_settings['pudl_db'])
+    logger.info("Dropping the current PUDL DB, if it exists.")
     try:
         # So that we can wipe it out
         pudl.helpers.drop_tables(pudl_engine)
@@ -65,14 +67,16 @@ def pkg_to_sqlite_db(pudl_settings,
     except KeyError:
         autoincrement = {}
 
-    logger.info('Exporting the data package to sql')
+    logger.info("Loading the data package into SQLite.")
+    logger.info("If you're loading EPA CEMS, this could take a while.")
+    logger.info("It might be a good time to get lunch, or go for a bike ride.")
     try:
         # Save the data package in SQL
         pkg.save(storage='sql', engine=pudl_engine, merge_groups=True,
                  autoincrement=autoincrement)
     except exceptions.TableSchemaException as exception:
-        logger.info('SQLite conversion failed. See following errors:')
-        logger.info(exception.errors)
+        logger.error('SQLite conversion failed. See following errors:')
+        logger.error(exception.errors)
 
 
 def parse_command_line(argv):
@@ -100,21 +104,28 @@ def main():
     """Convert a set of datapackages to a sqlite database."""
     # Display logged output from the PUDL package:
     logger = logging.getLogger(pudl.__name__)
+    log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
+    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
     args = parse_command_line(sys.argv)
-    logger.info(
-        'prepping workspaces before flattening & converting the dps to sqlite')
+    logger.info("Determining PUDL data management environment.")
     pudl_in = pudl.workspace.setup.get_defaults()["pudl_in"]
     pudl_out = pudl.workspace.setup.get_defaults()["pudl_out"]
+    logger.info(f"pudl_in={pudl_in}")
+    logger.info(f"pudl_out={pudl_out}")
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in, pudl_out=pudl_out)
 
+    logger.info(f"Flattening datapackages within {args.pkg_bundle_name}.")
     pudl.convert.flatten_datapkgs.flatten_pudl_datapackages(
         pudl_settings,
         pkg_bundle_name=args.pkg_bundle_name,
         pkg_name='pudl-all'
     )
 
+    logger.info(f"Converting flattened datapackage into an SQLite database.")
     pudl.convert.datapkg_to_sqlite.pkg_to_sqlite_db(
         pudl_settings,
         pkg_bundle_name=args.pkg_bundle_name,
         pkg_name='pudl-all')
+    logger.info(f"Success! You can connect to the PUDL DB using this URL:")
+    logger.info(f"{pudl_settings['pudl_db']}")

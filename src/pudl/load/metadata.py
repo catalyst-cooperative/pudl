@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 
 
 def hash_csv(csv_path):
-    """Calculates a SHA-i256 hash of the CSV file for data integrity checking.
+    """Calculates a SHA-256 hash of the CSV file for data integrity checking.
 
     Args:
         csv_path (path-like) : Path the CSV file to hash.
@@ -514,20 +514,20 @@ def validate_save_pkg(pkg_descriptor, pkg_dir):
 
     # Validate the data package descriptor before we go to
     if not data_pkg.valid:
-        logger.warning(f"""
+        logger.error(f"""
             Invalid tabular data package: {data_pkg.descriptor["name"]}
             Errors: {data_pkg.errors}""")
 
     # pkg_json is the datapackage.json that we ultimately output:
     pkg_json = os.path.join(pkg_dir, "datapackage.json")
     data_pkg.save(pkg_json)
-    logger.info('Validating the datapackage..')
+    logger.info('Validating the data package...')
     # Validate the data within the package using goodtables:
     report = goodtables.validate(pkg_json, row_limit=1000)
     if not report['valid']:
-        logger.warning("Datapackage validation failed.")
+        logger.error("Data package validation failed.")
     else:
-        logger.info('Congrats! You made a validated a datapackage.')
+        logger.info('Congrats! You made a valid data package!')
     return report
 
 
@@ -622,6 +622,7 @@ def prep_pkg_bundle_directory(pudl_settings,
         pkg_bundle_name (string): name of directory you want the bundle of
             data packages to live. If this is set to None, the name will be
             defaulted to be the pudl packge version.
+
     Returns:
         path-like
 

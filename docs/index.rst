@@ -2,7 +2,7 @@
 The Public Utility Data Liberation Project
 ===============================================================================
 
-.. include:: README.rst
+.. include:: ../README.rst
   :start-after: readme-intro
 
 .. toctree::

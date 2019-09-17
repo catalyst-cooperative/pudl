@@ -22,33 +22,37 @@ We our hope this will allow the data to reach the widest possible audience.
 Downloading Data Packages
 -------------------------------------------------------------------------------
 
-After the initial release of the PUDL software, we will automate the creation
-of a standard bundle of data packages containing all of the currently
-integrated data. Users who aren't working with Python, or who don't want to
-set up and run the data processing pipeline themselves will be able to just
-download and use the data packages directly. We intend to publish them to the
-following locations:
+.. note::
+
+    As of ``catalystcoop.pudl v0.2.0`` we have not yet made our first data
+    release. For the moment you still need to generate your own data packages.
+    However, as soon as v0.2.0 is released, we will start working on a data
+    release, and hope to be able to include the DOI and a link to the Zenodo
+    archive here as of v0.2.1.
+
+Our intent is to automate the creation of a standard bundle of data packages
+containing all of the currently integrated data. Users who aren't working with
+Python, or who don't want to set up and run the data processing pipeline
+themselves will be able to just download and use the data packages directly.
+Each data release will be issued a DOI, and archived at Zenodo, and may be
+made available in other ways as well.
 
 Zenodo
 ^^^^^^
 
-Integration between `Zenodo <https://zenodo.org/>`__ and
-`Github <https://github.com>`__ makes it easy to automatically
-`archive and issue digital object ids (DOIs) <https://guides.github.com/activities/citable-code/>`__
-for any tagged release. On a regular basis, we will also upload a standard set
-of data packages to Zenodo alongside the PUDL release that was used to generate
-them, and the packages will also be issued citeable DOIs so they can be easily
-referenced in research and other publications. Our goal is to make replication
-of any analyses that depend on the released code and published data as easy to
+Every PUDL software release is
+automatically `archived and issued a digital object id (DOI) <https://guides.github.com/activities/citable-code/>`__ by
+`Zenodo <https://zenodo.org/>`__ through an integration with
+`Github <https://github.com>`__. The overarching DOI for the entire PUDL
+project is `10.5281/zenodo.3404014 <https://doi.org/10.5281/zenodo.3404014>`__,
+and each release will get its own (versioned) DOI.
+
+On a quarterly basis, we will also upload a standard set of data packages to
+Zenodo alongside the PUDL release that was used to generate them, and the
+packages will also be issued citeable DOIs so they can be easily referenced in
+research and other publications. Our goal is to make replication of any
+analyses that depend on the released code and published data as easy to
 replicate as possible.
-
-Datahub
-^^^^^^^
-
-We also intend to regularly publish new data packages via `Datahub.io
-<https://datahub.io/catalystcooperative>`__, a open data
-portal which natively understands data packages, parses the included metadata,
-and can help integrate the PUDL data with other open public data.
 
 Other Sites?
 ^^^^^^^^^^^^
@@ -67,7 +71,9 @@ Using Data Packages
 -------------------------------------------------------------------------------
 
 Once you've downloaded or generated your own tabular data packages you can use
-them to do analysis on almost any platform. Below are a few examples.
+them to do analysis on almost any platform. For now, we are primarily using
+the data packages to populate a local SQLite database.
+
 `Open an issue on Github <https://github.com/catalyst-cooperative/pudl/issues>`__ and let us know if you have another example we can add.
 
 Python, Pandas, and Jupyter
@@ -77,23 +83,17 @@ You can read the datapackages into :mod:`pandas.DataFrame` for interactive
 in-memory use within
 `JupyterLab <https://jupyterlab.readthedocs.io/en/stable/>`__,
 or for programmatic use in your own Python modules. Several example Jupyter
-notebooks are deployed into your PUDL workspace ``notebooks`` directory by the
+notebooks are deployed into your PUDL workspace ``notebook`` directory by the
 ``pudl_setup`` script.
-
-With the ``pudl`` conda environment activated you can start up a notebook
-server and experiment with those notebooks by running the following from within
-your PUDL workspace:
-
-.. code-block:: console
-
-    $ jupyter-lab --notebook-dir=notebooks
-
-Then select the ``pudl_intro.ipynb`` notebook from the file browser on the left
-hand side of the JupyterLab interface.
 
 .. todo::
 
-    Update ``pudl_intro.ipynb`` to read the example datapackage.
+    Update ``pudl_intro.ipynb`` to provide an example of reading the example
+    datapackages directly.
+
+.. code-block:: console
+
+    $ jupyter lab notebook/pudl_intro.ipynb
 
 If you're using Python and need to work with larger-than-memory data,
 especially the :ref:`data-epacems` dataset, we recommend checking out
@@ -114,12 +114,12 @@ The R programming language
 SQLite
 ^^^^^^
 
-If you'd rather access the data via SQL, you can easily load the datapackages
-into a local :mod:`sqlite3` database.
+If you'd rather access the data via SQL, we have provided a script that loads
+a bundle of the datapackages into a local :mod:`sqlite3` database, e.g.:
 
-.. todo::
+.. code-block::
 
-    Write and document datapackage bundle to SQLite script.
+    $ datapkg_to_sqlite --pkg_bundle_name pudl-example
 
 Microsoft Access / Excel
 ^^^^^^^^^^^^^^^^^^^^^^^^^

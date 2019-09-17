@@ -16,80 +16,20 @@ new code, documentation, or examples of use.
     * `Forking a Repository <https://help.github.com/en/articles/fork-a-repo>`__
     * `Cloning a Repository <https://help.github.com/articles/cloning-a-repository/>`__
 
--------------------------------------------------------------------------------
-Overview
--------------------------------------------------------------------------------
-The setup process ought to look something like this...
+------------------------------------------------------------------------------
+Install Python 3.7
+------------------------------------------------------------------------------
 
-  * Optionally set up your editor / IDE to follow our code style guidelines.
+We use
+`Anaconda <https://www.anaconda.com/distribution/>`__ or
+`miniconda <https://docs.conda.io/en/latest/miniconda.html>`__ to manage our
+software environments. While using ``conda`` isn't strictly required, it does
+make everything much easier to have everyone on the same platform.
 
-.. todo::
+------------------------------------------------------------------------------
+Fork and Clone the PUDL Repository
+------------------------------------------------------------------------------
 
-    Check that the following reflects the exact details of a real setup.
-
-Getting Software Setup
-^^^^^^^^^^^^^^^^^^^^^^
-* Fork the PUDL repository to your own Github account.
-* Ensure you've got Python 3.7 installed, preferably via ``conda``
-* Clone your fork of PUDL to your local computer.
-* Create the PUDL ``conda`` environment
-* Use ``pip`` to install the pudl package in an editable form.
-* Run the PUDL setup script to create a data management environment.
-* Enable git pre-commit hooks.
-
-.. code-block:: console
-
-    $ git clone https://github.com/USERNAME/pudl.git
-    $ cd pudl
-    $ conda update conda
-    $ conda env create --name pudl --file environment.yml
-    $ conda activate pudl
-    $ pip install -e ./
-    $ cd ..
-    $ mkdir pudl_workspace
-    $ pudl_setup --pudl_dir=pudl_workspace
-    $ cd pudl_workspace
-    $ pre-commit install
-
-Get the OG Data in your Datastore
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    * Download whatever data you intend to work with into the PUDL datastore.
-
-.. code-block:: console
-
-    $ pudl_data --sources eia923,eia860,ferc1,epacems,epaipm
-
-Generate PUDL datapackages
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-Once you have done everything above,
-
-* Try running the data processing pipeline make sure everything is working.
-
-.. code-block:: console
-
-    $ tox -v -e etl -- --fast --pudl_in=AUTO --live_ferc_db=AUTO
-
-* Run the full data processing pipeline with all the data you downloaded.
-
-.. code-block:: console
-
-    $ pudl_etl settings/pudl_etl_full.yml --pkg_bundle_dir pudl-full
-
-* Generate a SQLite database from the datapackages you made.
-
-.. code-block:: console
-
-    $ datapkg_to_sqlite --pkg_bundle_dir pudl-full
-
-* Validate the data in the SQLite database you made with datapkg_to_sqlite.
-
-.. code-block:: console
-
-    $ tox -e validate --pudl_dir=AUTO
-
--------------------------------------------------------------------------------
-Fork and Clone the Repository
--------------------------------------------------------------------------------
 On the `main page of the PUDL repository <https://github.com/catalyst-cooperative/pudl>`__ you should see a **Fork** button in the upper right hand corner.
 `Forking the repository <https://help.github.com/en/articles/fork-a-repo>`__
 makes a copy of it in your personal (or organizational) account on Github that
@@ -109,6 +49,7 @@ version, and put it in a local directory called ``pudl``.
 
 Repository Organization
 ^^^^^^^^^^^^^^^^^^^^^^^
+
 Inside your newly cloned local repository, you should see the following:
 
 ==================== ==========================================================
@@ -125,35 +66,38 @@ Inside your newly cloned local repository, you should see the following:
 ``tox.ini``          Configuration for the `Tox <https://tox.readthedocs.io/en/latest/>`__ build and test framework.
 ==================== ==========================================================
 
-.. todo::
-
-    Delete ``ci`` directory when postgres is deprecated.
-
 -------------------------------------------------------------------------------
-Development Environment
+Create and activate the pudl-dev conda environment
 -------------------------------------------------------------------------------
 
-Install PUDL for Development
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Cloning the PUDL repository to your computer allows you to edit the code, but
-you also need to *install* that code for use, if you want to be able to see and
-experiment with the effects of your edits. To edit and use the same code, a
-Python package needs to be installed in "editable" (aka "development") mode.
-
-From within the top level of the cloned repository (the directory which
-contains ``setup.py``), run:
+Inside the newly cloned repository, you should see an ``environment.yml`` file,
+which specifies the ``pudl-dev`` ``conda`` environment.  You can create that
+environment locally from within the main repository directory by running:
 
 .. code-block:: console
 
-   $ pip install --editable ./
+    $ conda update conda
+    $ conda config --set channel_priority strict
+    $ conda env create --name pudl-dev --file environment.yml
+    $ conda activate pudl-dev
 
-The ``--editable`` option keeps ``pip`` from copying files into to the
-``site-packages`` directory, and instead creates references to the code you'll
-be editing, which is inside the the current current directory (also known as
-``./``).
+-------------------------------------------------------------------------------
+Install PUDL for development
+-------------------------------------------------------------------------------
 
-Automated Code Checking
-^^^^^^^^^^^^^^^^^^^^^^^
+The ``catalystcoop.pudl`` package isn't part of the ``pudl-dev`` environment
+since you're going to be editing it. To install the local version that now
+exists in your cloned repository using ``pip``, from the main repository
+directory (containing ``setup.py``) run:
+
+.. code-block:: console
+
+    $ pip install --editable ./
+
+
+-------------------------------------------------------------------------------
+Install PUDL QA/QC tools
+-------------------------------------------------------------------------------
 We use automated tools to apply uniform coding style and formatting across the
 project codebase. This reduces merge conflicts, makes the code easier to read,
 and helps catch bugs before they are committed. These tools are part of the
@@ -176,7 +120,7 @@ These tools can be run at three different stages in development:
     static code analysis tools.
 
 flake8
-~~~~~~
+^^^^^^
 `Flake8 <http://flake8.pycqa.org/en/latest/>`__ is a popular Python
 `linting <https://en.wikipedia.org/wiki/Lint_(software)>`__ framework, with a
 large selection of plugins. We use it to run the following checks:
@@ -197,7 +141,7 @@ large selection of plugins. We use it to run the following checks:
   your own variables.
 
 doc8
-~~~~
+^^^^^
 `Doc8 <https://github.com/PyCQA/doc8>`__ is a lot like flake8, but for Python
 documentation written in the reStructuredText format and built by
 `Sphinx <https://www.sphinx-doc.org/en/master/>`__. This is the de-facto
@@ -206,13 +150,13 @@ other formatting issues in the documentation source files under the ``docs/``
 directory.
 
 autopep8
-~~~~~~~~
+^^^^^^^^
 Instead of just alerting you that there's a style issue in your Python code,
 `autopep8 <https://github.com/hhatto/autopep8>`__ tries to fix it
 automatically, applying consistent formatting rules based on :pep:`8`.
 
 isort
-~~~~~
+^^^^^^
 Similarly `isort <https://isort.readthedocs.io/en/latest/>`__ consistently
 groups and orders Python import statements in each module.
 
@@ -280,3 +224,82 @@ be hard for humans to catch but are easy for a computer.
 
     The `pre-commit project <https://pre-commit.com/>`__: A framework for
     managing and maintaining multi-language pre-commit hooks.
+
+
+* Set up your editor / IDE to follow our code style guidelines.
+* Run ``pudl_setup`` to create a local data management environment.
+
+-------------------------------------------------------------------------------
+Install and Validate the Data
+-------------------------------------------------------------------------------
+
+In order to work on PUDL development, you'll probably need to have a bunch of
+the data available locally. Follow the instructions in :ref:`datastore` to set
+up a local data management environment and download some data locally, then
+:doc:`run the ETL pipeline <usage>` to :doc:`generate some data packages
+<datapackages>` and use them to populate a local SQLite database with as much
+PUDL data as you can stand (for development, we typically load all of the
+available data for ``ferc1``, ``eia923``, ``eia860``, and ``epaipm``, datasets,
+but only a single state's worth of data for the much larger ``epacems``
+hourly data.)
+
+Using Tox to Validate PUDL
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you've done all of the above, you should be able to use ``tox`` to run our
+test suite, and perform data validation.  For example, to validate the data
+stored in your PUDL SQLite database, you would simply run:
+
+.. code-block:: console
+
+    $ tox -v -e validate
+
+-------------------------------------------------------------------------------
+Running the Tests
+-------------------------------------------------------------------------------
+
+We also use ``tox`` to run PyTest against a packaged and separately installed
+version of the local repository package.  Take a peek inside ``tox.ini`` to
+see what test environments are available.  To run the same tests that will be
+run on Travis CI when you make a pull request, you can run:
+
+.. code-block:: console
+
+    $ tox -v -e travis -- --fast
+
+This will run the linters and pre-commit checks on all the code, make sure that
+the docs can be built by Sphinx, and run the ETL process on a single year of
+data.  The ``--fast`` is passed through to PyTest by ``tox`` because it is
+after the ``--``.  That test will also attempt to download a year of data into
+a temporary directory.  If you want to skip the download step and use your
+already downloaded datastore, you can point the tests at it with
+``--pudl_in=AUTO``:
+
+.. code-block:: console
+
+    $ tox -v -e travis -- --fast --pudl_in=AUTO
+
+Additional details can be found in our
+:ref:`documentation on testing <testing>`.
+
+-------------------------------------------------------------------------------
+Making a Pull Request
+-------------------------------------------------------------------------------
+
+Before you make a pull request, please check that:
+
+* Your code passes all of the Travis tests by running them with ``tox``
+* You can generate a new complete bundle of data packages, including all the
+  available data (with the exception of ``epacems`` -- all the years of a
+  couple of states is sufficient for testing.)
+* Those data packages can be used to populate an SQLite database locally,
+  using the ``datapkg_to_sqlite`` script.
+* The data validation tests can be run against that SQLite database, using
+  ``tox -v -e validate`` as outlined above.
+* If you've added new data or substantial new code, please also include new
+  tests and data validation. See the modules under ``test`` and
+  ``test/validate`` for examples.
+
+Then you can push the new code to your fork of the PUDL repository on Github,
+and from there, you can make a Pull Request inviting us to review your code and
+merge your improvements in with the main repository!

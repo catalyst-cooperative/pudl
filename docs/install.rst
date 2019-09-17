@@ -44,23 +44,40 @@ platform specific binaries.
 Installing the Package
 -------------------------------------------------------------------------------
 
-PUDL is available via ``conda`` on the community manged
-`conda-forge <https://conda-forge.org/>`__ channel. This is the recommended way
-to install PUDL:
-
-.. code-block::
-
-    $ conda config --add channels conda-forge
-    $ conda config --set channel_priority strict
-    $ conda install PUDL_PACKAGE
-
-PUDL is also available via the official
-`Python Package Index <https://pypi.org>`_ (PyPI) and be installed with
-``pip``:
+PUDL and all of its dependencies are available via ``conda`` on the community
+manged `conda-forge <https://conda-forge.org/>`__ channel, and we recommend
+installing PUDL within its own ``conda`` environment like this:
 
 .. code-block:: console
 
-    $ pip install PUDL_PACKAGE
+    $ conda create -y -n pudl -c conda-forge --strict-channel-priority python=3.7 catalystcoop.pudl pip
+
+Then you activate that ``conda`` environment to use it:
+
+.. code-block:: console
+
+    $ conda activate pudl
+
+Once you've activated that environment, you may want to install additional
+software within it, for example if you want to use Jupyter notebooks to work
+with PUDL interactively:
+
+.. code-block:: console
+
+    $ conda install jupyter jupyterlab
+
+You may also want to update your global ``conda`` settings:
+
+    $ conda config --add channels conda-forge
+    $ conda config --set channel_priority strict
+
+PUDL is also available via the official
+`Python Package Index <https://pypi.org>`_ (PyPI) and be installed with
+``pip`` like this:
+
+.. code-block:: console
+
+    $ pip install catalystcoop.pudl
 
 .. note::
 
@@ -70,22 +87,19 @@ PUDL is also available via the official
     :doc:`dev_setup` documentation.
 
 In addition to making the :mod:`pudl` package available for import in Python,
-installing PUDL_PACKAGE installs the following command line tools:
+installing ``catalystcoop.pudl`` installs the following command line tools:
 
-* ``epacems_to_parquet``
-* ``ferc1_to_sqlite``
-* ``pudl_data``
-* ``pudl_etl``
 * ``pudl_setup``
+* ``pudl_data``
+* ``ferc1_to_sqlite``
+* ``pudl_etl``
+* ``datapkg_to_sqlite``
+* ``epacems_to_parquet``
 
 For information on how to use them, run them with the ``--help`` option. Most
 of them are configured using settings files. Examples are provided with the
-PUDL_PACKAGE, and made available by running ``pudl_setup`` as described below.
-
-.. todo::
-
-    Fill out the precise details of installation after we've tested it with a
-    pre-release.
+``catalystcoop.pudl`` package, and deployed by running ``pudl_setup`` as
+described below.
 
 .. _install-workspace:
 
@@ -120,7 +134,7 @@ The workspace is laid out like this:
 ``environment.yml``  A file describing the PUDL
                      `conda environment <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`__.
 -------------------- ----------------------------------------------------------
-``notebooks/``       Interactive `Jupyter <https://jupyter.org>`__
+``notebook/``        Interactive `Jupyter <https://jupyter.org>`__
                      notebooks that use PUDL.
 -------------------- ----------------------------------------------------------
 ``parquet/``         `Apache Parquet <https://parquet.apache.org/>`__ files
@@ -136,25 +150,35 @@ The workspace is laid out like this:
 -------------------------------------------------------------------------------
 The PUDL ``conda`` Environment
 -------------------------------------------------------------------------------
-To make sure all of software PUDL depends on is available, we use the ``conda``
-environment described in the ``environment.yml`` file stored in the main
-directory of the Github repository.
+In addition to creating a ``conda`` environment using the command line
+arguments referred to above you can specify an environment in a file, usually
+named ``environment.yml``. We deploy a basic version of this file into a
+PUDL workspace when it's created, as listed above.
 
 Create the Environment
 ^^^^^^^^^^^^^^^^^^^^^^
-To create the PUDL ``conda`` environment, make sure you are in the same
-directory as ``environment.yml`` and run:
+Because you won't have the ``environment.yml`` file until after you've
+installed PUDL, you will probably create your PUDL environment on the command
+line as described above. To do the same thing using an environment file, you'd
+run:
 
 .. code-block:: console
 
    $ conda env create --name=pudl --file=environment.yml
 
-This will probably download a bunch of Python packages, and might take a while.
-Future updates to the ``conda`` environment will be much faster, since only a
-couple of packages typically get updated at a time.
+You should probably periodically update the packages installed as part of PUDL,
+by running the following commands in the directory with ``environment.yml``
+in it:
+
+.. code-block:: console
+
+    $ conda update conda
+    $ conda env update pudl
 
 If you get an error ``No such file or directory: environment.yml``, it
-probably means you aren't in the ``pudl`` repository directory.
+probably means you aren't in the same directory as the ``environment.yml``
+file.
+
 
 Activate the Environment
 ^^^^^^^^^^^^^^^^^^^^^^^^

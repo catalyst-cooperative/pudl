@@ -9,8 +9,8 @@ format (proprietary binary `FoxPro database <https://en.wikipedia.org/wiki/FoxPr
 and the data itself is unclean and poorly organized. As a result, very few
 people are currently able to use it at all, and we have not yet integrated the
 vast majority of the available data into PUDL. This also means it's useful to
-just provide programmatic access to the bulk raw data, separately from the
-smaller cleaned up subset of the data within PUDL.
+just provide programmatic access to the bulk raw data, independent of the
+cleaner subset of the data included within PUDL.
 
 To provide that access, we've broken the :mod:`pudl.extract.ferc1`` process
 down into two distinct steps:
@@ -20,19 +20,21 @@ down into two distinct steps:
    with thousands of fields, covering the time period from 1994 to the
    present.
 #. Pull a subset of the data out of that database for further processing and
-   integration into the PUDL data packages.
+   integration into the PUDL data packages and :mod:`sqlite3` database.
 
 If you want direct access to the original FERC Form 1 database, you can just do
-the database cloning, and connect directly to the SQLite database. This has
+the database cloning, and connect directly to the resulting database. This has
 become especially useful since Microsoft recently discontinued the database
 driver that until late 2018 had allowed users to load the FoxPro database files
 into Microsoft Access.
 
 In any case, cloning the original FERC database is the first step in the PUDL
-ETL process. This can be done with the ``ferc1_to_sqlite`` script, which is
+ETL process. This can be done with the ``ferc1_to_sqlite`` script (which is an
+entrypoint into the :mod:`pudl.convert.ferc1_to_sqlite` module) which is
 installed as part of the PUDL Python package. It takes its instructions from a
 YAML file, an example of which is included in the ``settings`` directory in
-your PUDL workspace. To run an example, try:
+your PUDL workspace. Once you've :ref:`created a <datastore>` you can try this
+example:
 
 .. code-block:: console
 

@@ -8,24 +8,9 @@ or via FTP without really planning for programmatic access.
 
 The ``pudl_data`` script helps you obtain and organize this data locally, for
 use by the rest of the PUDL system. It uses the routines defined in the
-:mod:`pudl.datastore.datastore` module. For details on what data is available,
+:mod:`pudl.workspace.datastore` module. For details on what data is available,
 for what time periods, and how much of it there is, see the
 :doc:`data_catalog`.
-
-.. note::
-
-    You may not need to use ``pudl_data``. If you attempt to use ``pudl_etl``
-    to process data that's not already in your datastore but that is
-    available for download, it will try and download it for you automatically.
-
-.. todo::
-
-    Should we allow / require ``pudl_data`` to read its options from a
-    settings file for the sake of consistency? And also to be able to put all
-    these settings explicitly in the ``etl_example.yml`` input file? Or do we
-    want the obtaining of data to be **only** implicit / automatic, based on
-    what data the user attempts to process? Zane is inclined to just make it
-    something that the ETL script does automatically
 
 For example, if you wanted to download the 2018 :ref:`data-epacems` data for
 Colorado:

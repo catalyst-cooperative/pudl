@@ -63,43 +63,89 @@ Just want to play with some example data? Install
 `Anaconda <https://www.anaconda.com/distribution/>`__
 (or `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__
 if you like the command line) with at least Python 3.7. Then work through the
-following commands in a terminal:
+following terminal commands:
 
-**NOTE (2019-09-13): We are in transition to using data packages and SQLite.
-The following instructions won't work until we release version 0.2.0, which
-should happen before 2019-09-16 Until then, you'll need to clone the
-repository to use the datapackage / SQLite version of PUDL.**
+First, we create and activate conda environment named ``pudl``. All the
+required packages are available from the community maintained ``conda-forge``
+channel, and that channel is given priority, to simplify satisfying
+dependencies. Note that PUDL currently requires Python 3.7, the most recently
+available major version of Python. In addition to the ``catalystcoop.pudl``
+package, we'll also install JupyterLab so we can work with the PUDL data
+interactively.
 
 .. code-block:: console
 
     $ conda create -y -n pudl -c conda-forge --strict-channel-priority python=3.7 catalystcoop.pudl jupyter jupyterlab pip
     $ conda activate pudl
+
+Now we create a data management workspace -- a well defined directory structure
+that PUDL will use to organize the data it downloads, processes, and outputs --
+and download the most recent year's worth of data for each of the available
+datasets. You can run ``pudl_setup --help`` and ``pudl_data --help`` for more
+information.
+
+.. code-block:: console
+
     $ mkdir pudl-work
-    $ cd pudl-work
-    $ pudl_setup
+    $ pudl_setup pudl-work
     $ pudl_data --sources eia923 eia860 ferc1 epacems epaipm --years 2017 --states id
-    $ pudl_etl pudl-work/settings/etl_example.yml
-    $ datapkg_to_sqlite --pkg_bundle_name pudl_example
-    $ jupyter-lab --notebook-dir=pudl-work/notebooks
 
+Now that we have the original data as published by the federal agencies, we can
+run the data processing (ETL = Extract, Transform, Load) pipeline, that turns
+the raw data into an well organized, standardized bundle of data packages.
+This involves a couple of steps: cloning the FERC Form 1 into an SQLite
+database, extracting data from that database and all the other sources and
+cleaning it up, outputting that data into well organized CSV/JSON based data
+packages, and finally loading those data packages into a local database.
 
-This will install the PUDL Python package and its dependencies within a `conda`
-environment named ``pudl``, create some local directories inside a directory
-called ``pudl-work``, download the most recent year of data from the public
-agencies, generate local data packages, load these into a local SQLite
-database, and open up a folder with some example `Jupyter notebooks <https://jupyter.org>`__
-in your web browser. The data packages will be generated in a sub-directory in
-``pudl-work/datapackage`` named ``pudl_example`` (you can change this by
+PUDL provides a script to clone the FERC Form 1 database, controlled by a YAML
+file which you can find in the settings folder. Run it like this:
+
+.. code-block:: console
+
+    $ ferc1_to_sqlite pudl-work/settings/ferc1_to_sqlite_example.yml
+
+The main ETL process is controlled by the YAML file ``etl_example.yml`` which
+defines what data will be processed. It is well commented -- if you want to
+understand what the options are, open it in a text editor, and create your own
+version.
+
+The data packages will be generated in a sub-directory in
+``pudl-work/datapackage`` named ``pudl-example`` (you can change this by
 changing the value of ``pkg_bundle_name`` in the ETL settings file you're
-using.
+using. Run the ETL pipeline with this command:
+
+.. code-block:: console
+
+    $ pudl_etl pudl-work/settings/etl_example.yml
+
+The generated data packages are made up of CSV and JSON files, that are both
+easy to parse programmatically, and readable by humans. They are also well
+suited to archiving, citation, and bulk distribution. However, to make the
+data easier to query and work with interactively, we typically load it into a
+local SQLite database using this script, which combines several data packages
+from the same bundle into a single unified structure:
+
+.. code-block:: console
+
+    $ datapkg_to_sqlite --pkg_bundle_name pudl-example
+
+Now that we have a live database, we can easily work with it using a variety
+of tools, including Python, pandas dataframes, and
+`Jupyter notebooks <https://jupyter.org>`__. This command will start up a local
+Jupyter notebook server, and open a notebook of PUDL usage examples:
+
+.. code-block:: console
+
+    $ jupyter lab pudl-work/notebook/pudl_intro.ipynb
 
 **NOTE:** The example above requires a computer with at least **4 GB of RAM**
-and **several GB of free disk space**. You will also need to download about
-**500 MB of data**. This could take a while if you have a slow internet
+and **several GB of free disk space**. You will also need to download
+**100s of MB of data**. This could take a while if you have a slow internet
 connection.
 
 For more details, see `the full PUDL documentation
-<https://catalystcoop-pudl.readthedocs.io/>`__.
+<https://catalystcoop-pudl.readthedocs.io/>`__ on Read The Docs.
 
 Contributing to PUDL
 --------------------
@@ -113,8 +159,8 @@ contribute!
   <https://github.com/catalyst-cooperative/pudl/issues>`__.
 * Feel free to fork the project and make a pull request with new code,
   better documentation, or example notebooks.
-* `Make a financial contribution <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url>`__ to support our work
-  liberating public energy data.
+* `Make a recurring financial contribution <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url>`__ to support
+  our work liberating public energy data.
 * Hire us to do some custom analysis, and let us add the code the project.
 * For more information check out our `Contribution Guidelines <https://catalystcoop-pudl.readthedocs.io/en/latest/CONTRIBUTING.html>`__
 
