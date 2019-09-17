@@ -54,7 +54,7 @@ test_requires = [
     'nbval',
 ]
 
-readme_path = Path(__file__).parent / "docs" / "README.rst"
+readme_path = Path(__file__).parent / "README.rst"
 long_description = readme_path.read_text()
 
 
