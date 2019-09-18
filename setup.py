@@ -21,7 +21,7 @@ install_requires = [
     'scipy',
     'sqlalchemy>=1.3.0',
     'tableschema',
-    'tableschema-sql==1.1.0',
+    'tableschema-sql>=1.1.0',
     'timezonefinder',
     'xlsxwriter',
 ]
