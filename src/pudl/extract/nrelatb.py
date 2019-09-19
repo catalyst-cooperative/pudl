@@ -32,7 +32,7 @@ def get_nrelatb_name(file, data_dir):
     # pattern = pc.files_dict_nrelatb[file]
     # name = sorted(epaipm_dir.glob(pattern))[0]
 
-    return '/'.join(nrelatb_dir, file)
+    return '/'.join([nrelatb_dir, file])
 
 
 def get_nrelatb_file(filename, read_file_args, data_dir):
