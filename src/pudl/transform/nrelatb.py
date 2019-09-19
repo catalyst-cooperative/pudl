@@ -23,7 +23,6 @@ def transform(nrelatb_raw_dfs, nrelatb_tables=pc.nrelatb_pudl_tables):
         ATB(keys) correspond to normalized DataFrames of values from
         that table(values)
     """
-
     nrelatb_transformed_dfs = pd.DataFrame()
 
     for tablename, table in nrelatb_raw_dfs.items():
