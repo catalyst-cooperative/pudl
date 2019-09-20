@@ -1,28 +1,27 @@
 #!/usr/bin/env python
 """Script to create MSHA data package for PUDL."""
 
-import sys
-import os
-import json
-import hashlib
-import datetime
 import argparse
-import urllib
+import datetime
+import hashlib
+import json
+import os
 import shutil
+import sys
+import urllib
 from pprint import pprint
 
 import datapackage
 import goodtables
 import pandas as pd
 
-from pudl.settings import SETTINGS
-from pudl.helpers import fix_int_na
 import pudl.constants as pc
+from pudl.helpers import fix_int_na
+from pudl.settings import SETTINGS
 
 
-def main(arguments):
+def main(arguments):  # noqa: C901
     """The main function."""
-
     parser = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -97,7 +96,7 @@ def main(arguments):
 
                 # Download the data file to data_dir
                 print(f"Downloading {res_url}")
-                urllib.request.urlretrieve(
+                urllib.request.urlretrieve(  # nosec
                     res_url,
                     filename=os.path.join(archive_dir, resources[res][d])
                 )
@@ -179,15 +178,15 @@ def main(arguments):
             output_csv)
 
         # resource file hash:
-        BLOCKSIZE = 65536
-        hasher = hashlib.sha1()
+        blocksize = 65536
+        hasher = hashlib.sha256()
         with open(output_csv, 'rb') as afile:
-            buf = afile.read(BLOCKSIZE)
+            buf = afile.read(blocksize)
             while len(buf) > 0:
                 hasher.update(buf)
-                buf = afile.read(BLOCKSIZE)
+                buf = afile.read(blocksize)
 
-        resources[res]["resource"].descriptor["hash"] = f"sha1:{hasher.hexdigest()}"
+        resources[res]["resource"].descriptor["hash"] = f"sha256:{hasher.hexdigest()}"
 
         # Check our work...
         print("Validating {} tabular data resource".format(

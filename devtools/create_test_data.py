@@ -82,7 +82,7 @@ def parse_command_line(argv):
     return arguments
 
 
-def main():
+def main():  # noqa: C901
     """Main function controlling flow of the script.
 
     Assumes you have a local datastore, and need to copy a small subset of it
