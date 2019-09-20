@@ -57,9 +57,8 @@ Inside your newly cloned local repository, you should see the following:
 ``docs/``            Documentation source files for `Sphinx <https://www.sphinx-doc.org/en/master/>`__ and `Read The Docs <https://readthedocs.io>`__.
 ``src/``             Package source code, isolated to avoid unintended imports.
 ``results/``         A graveyard of old Jupyter Notebooks and outputs. Ignore!
-``scripts/``         Development scripts not distributed with the package.
+``devtools/``        Development tools not distributed with the package.
 ``test/``            Modules for use with `PyTest <http://docs.pytest.org/en/latest/>`__.
-``environment.yml``  File defining the ``pudl`` ``conda`` environment.
 ``MANIFEST.in``      Template describing files included in the python package.
 ``pyproject.toml``   Configuration for development tools used with the project.
 ``setup.py``         Python build and packaging script.
@@ -70,15 +69,16 @@ Inside your newly cloned local repository, you should see the following:
 Create and activate the pudl-dev conda environment
 -------------------------------------------------------------------------------
 
-Inside the newly cloned repository, you should see an ``environment.yml`` file,
-which specifies the ``pudl-dev`` ``conda`` environment.  You can create that
-environment locally from within the main repository directory by running:
+Inside the ``devtools`` directory of your newly cloned repository, you should
+see an ``environment.yml`` file, which specifies the ``pudl-dev`` ``conda``
+environment.  You can create that environment locally from within the main
+repository directory by running:
 
 .. code-block:: console
 
     $ conda update conda
     $ conda config --set channel_priority strict
-    $ conda env create --name pudl-dev --file environment.yml
+    $ conda env create --name pudl-dev --file devtools/environment.yml
     $ conda activate pudl-dev
 
 -------------------------------------------------------------------------------
