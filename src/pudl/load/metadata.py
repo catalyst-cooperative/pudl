@@ -620,8 +620,7 @@ def prep_pkg_bundle_directory(pudl_settings,
         debug (bool): If True, return a dictionary with package names (keys)
             and a list with the data package metadata and report (values).
         pkg_bundle_name (string): name of directory you want the bundle of
-            data packages to live. If this is set to None, the name will be
-            defaulted to be the pudl packge version.
+            data packages to live.
 
     Returns:
         path-like
