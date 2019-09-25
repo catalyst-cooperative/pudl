@@ -2275,6 +2275,20 @@ dict: A dictionary containing data sources (keys) and their base data URLs
     (values).
 """
 
+source_titles = {
+    'eia860': 'Energy Information Administration Form 860',
+    'eia861': 'Energy Information Administration Form 861',
+    'eia923': 'Energy Information Administration Form 923',
+    'epacems': 'Environmental Protection Agency Continuous Emission Monitoring Systems',
+    'ferc1': 'Federal Energy Regulatory Commission Form 1',
+    'epaipm': 'Environmental Protection Agency Integrated Planning Model',
+    'pudl': 'Public Utility Data Liberation'
+}
+"""
+dict: A dictionary containing data sources (keys) and a title (values) to be
+used in the metadata for datapackages.
+"""
+
 need_fix_inting = {
     # 'generators_eia860': ('turbines_num',),
     'coalmine_eia923': ('mine_id_msha', 'county_id_fips'),
@@ -2463,3 +2477,31 @@ output_formats = [
     'notebook',
 ]
 """list: A list of types of PUDL output formats."""
+
+
+keywords_by_datset = {
+    'pudl': [
+        'us electricity data',
+    ],
+    'eia860': [
+        'eia860',
+        'proposed retirements',
+    ],
+    'eia923': [
+        'eia923',
+        'fuel cost',
+    ],
+    'epacems': [
+        'epacems',
+        'emissions',
+    ],
+    'ferc1': [
+        'ferc1',
+        'depreciation',
+    ],
+    'epaipm': [
+        'epaipm',
+        'integrated planning',
+    ]
+}
+"""dict: A dictionary of datasets (keys) and keywords (values). """
