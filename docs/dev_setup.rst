@@ -56,7 +56,7 @@ Inside your newly cloned local repository, you should see the following:
 **Directory / File** **Contents**
 ``docs/``            Documentation source files for `Sphinx <https://www.sphinx-doc.org/en/master/>`__ and `Read The Docs <https://readthedocs.io>`__.
 ``src/``             Package source code, isolated to avoid unintended imports.
-``results/``         A graveyard of old Jupyter Notebooks and outputs. Ignore!
+``notebooks/``       Jupyter Notebooks, examples and development in progress.
 ``devtools/``        Development tools not distributed with the package.
 ``test/``            Modules for use with `PyTest <http://docs.pytest.org/en/latest/>`__.
 ``MANIFEST.in``      Template describing files included in the python package.

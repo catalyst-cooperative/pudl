@@ -17,12 +17,10 @@ repos:
   - id: check-yaml              # Validate all YAML files.
   - id: check-case-conflict     # Avoid case sensitivity in file names.
   - id: debug-statements        # Watch for lingering debugger calls.
-    #  - id: end-of-file-fixer       # Ensure there's a newline at EOF.
-    #  - id: mixed-line-ending       # Only newlines, no line-feeds.
-    #  - id: trailing-whitespace     # Remove trailing whitespace.
+  - id: end-of-file-fixer       # Ensure there's a newline at EOF.
+  - id: mixed-line-ending       # Only newlines, no line-feeds.
+  - id: trailing-whitespace     # Remove trailing whitespace.
   - id: name-tests-test         # Follow PyTest naming convention.
-#  - id: no-commit-to-branch     # Only commit to master via merge.
-#    args: [--branch, master]
 
 # Attempt to enforce standardized PEP8 style formatting:
 - repo: https://github.com/pre-commit/mirrors-autopep8
@@ -49,7 +47,7 @@ repos:
 
 # Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8
-  rev: 0.8.1rc1
+  rev: 0.8.1rc2
   hooks:
   - id: doc8
     args: [--ignore-path, docs/_build]
