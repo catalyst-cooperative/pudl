@@ -2348,12 +2348,6 @@ contributors = {
         "role": "contributor",
         "organization": "UC Berkeley",
     },
-    "climate-policy-initiative": {
-        "title": "Climate Policy Initiative",
-        "path": "https://climatepolicyinitiative.org/",
-        "role": "contributor",
-        "organization": "Climate Policy Initiative",
-    },
     'greg-schivley': {
         "title": "Greg Schivley",
         "role": "contributor",
@@ -2418,7 +2412,6 @@ contributors_by_source = {
         "steven-winter",
         "alana-wilson",
         "karl-dunkle-werner",
-        "climate-policy-initiative",
     ],
     "eia923": [
         "catalyst-cooperative",
@@ -2481,27 +2474,41 @@ output_formats = [
 
 keywords_by_datset = {
     'pudl': [
-        'us electricity data',
+        'us', 'electricity',
     ],
     'eia860': [
-        'eia860',
-        'proposed retirements',
+        'electricity', 'electric', 'boiler', 'generator', 'plant', 'utility',
+        'fuel', 'coal', 'natural gas', ' prime mover', 'eia860', 'retirement',
+        'capacity', 'planned', 'proposed', 'energy', 'hydro', 'solar', 'wind',
+        'nuclear', 'form 860', 'eia', 'annual', 'gas', 'ownership', 'steam',
+        'turbine', 'combustion', 'combined cycle', 'eia',
+        'energy information administration'
     ],
     'eia923': [
-        'eia923',
-        'fuel cost',
+        'fuel', 'boiler', 'generator', 'plant', 'utility', 'cost', 'price',
+        'natural gas', 'coal', 'eia923', 'energy', 'electricity', 'form 923',
+        'receipts', 'generation', 'net generation', 'monthly', 'annual', 'gas',
+        'fuel consumption', 'MWh', 'energy information administration', 'eia',
+        'mercury', 'sulfur', 'ash', 'lignite', 'bituminous', 'subbituminous',
+        'heat content'
     ],
     'epacems': [
-        'epacems',
-        'emissions',
+        'epa', 'us', 'emissions', 'pollution', 'ghg', 'so2', 'co2', 'sox',
+        'nox', 'load', 'utility', 'electricity', 'plant', 'generator', 'unit',
+        'generation', 'capacity', 'output', 'power', 'heat content', 'mmbtu',
+        'steam', 'cems', 'continuous emissions monitoring system', 'hourly'
+        'environmental protection agency', 'ampd', 'air markets program data',
     ],
     'ferc1': [
-        'ferc1',
-        'depreciation',
+        'electricity', 'electric', 'utility', 'plant', 'steam', 'generation',
+        'cost', 'expense', 'price', 'heat content', 'ferc', 'form 1',
+        'federal energy regulatory commission', 'capital', 'accounting',
+        'depreciation', 'finance', 'plant in service', 'hydro', 'coal',
+        'natural gas', 'gas', 'opex', 'capex', 'accounts', 'investment',
+        'capacity'
     ],
     'epaipm': [
-        'epaipm',
-        'integrated planning',
+        'epaipm', 'integrated planning',
     ]
 }
 """dict: A dictionary of datasets (keys) and keywords (values). """

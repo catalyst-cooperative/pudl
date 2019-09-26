@@ -407,7 +407,7 @@ def pull_resource_from_megadata(table_name):
 
 def get_date_from_sources(sources, date_to_grab):
     """
-    Grab the date from a the source metadata.
+    Grab the years from a source's parameters and convert to a date.
 
     Args:
         sources (iterable): this is a list of source dictionaries. should be
@@ -417,12 +417,23 @@ def get_date_from_sources(sources, date_to_grab):
     Returns:
         string : date formatted as 'YYYY-MM-DD' or None
     """
-    for source in sources:
-        try:
-            return source[date_to_grab]
-        except KeyError:
-            logger.debug(f'no start and end data in {source}')
-            return None
+    # if there are no sources, then we grab nothing
+    if len(sources) == 0:
+        return None
+    # if there are two or more sources, then we won't know which source to grab
+    # the date from so this will fail.
+    if len(sources) != 1:
+        raise AssertionError(
+            "You should only be grabbing dates from one source at a time."
+        )
+    for key, param in sources[0]['parameters_pudl'].items():
+        # grab the parameters that contains the years so we can assume
+        # start/end dates
+        if "years" in key:
+            if date_to_grab == 'start_date':
+                return str(min(param)) + "-01-01"
+            elif date_to_grab == 'end_date':
+                return str(max(param)) + "-21-31"
 
 
 def get_tabular_data_resource(table_name, pkg_dir, pkg_settings, partitions=False):
@@ -505,14 +516,6 @@ def get_source_metadata(data_sources, pkg_settings):
                     # the source
                     if dataset in src or dataset == src:
                         src_meta['parameters_pudl'] = dataset_dict[dataset]
-                        # grab the parameters that contain the years so we can
-                        # assume start/end dates
-                        for key, param in dataset_dict[dataset].items():
-                            if "years" in key:
-                                src_meta['start_date'] = str(
-                                    min(param)) + "-01-01"
-                                src_meta['end_date'] = str(
-                                    max(param)) + "-21-31"
             sources.append(src_meta)
     return sources
 
