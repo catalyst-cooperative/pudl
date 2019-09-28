@@ -41,6 +41,44 @@ import pudl
 logger = logging.getLogger(__name__)
 
 
+def get_plant_map():
+    """
+    Read in the manual FERC to EIA plant mapping data.
+    """
+    map_eia_ferc_file = importlib.resources.open_binary(
+        'pudl.package_data.glue', 'mapping_eia923_ferc1.xlsx')
+
+    return pd.read_excel(
+        map_eia_ferc_file, 'plants_output',
+        na_values='', keep_default_na=False,
+        converters={'plant_id_pudl': int,
+                    'plant_name': str,
+                    'utility_id_ferc1': int,
+                    'utility_name_ferc1': str,
+                    'plant_name_ferc': str,
+                    'plant_id_eia': int,
+                    'plant_name_eia': str,
+                    'utility_name_eia': str,
+                    'utility_id_eia': int})
+
+
+def get_utility_map():
+    """
+    Read in the manual FERC to EIA utility mapping data.
+    """
+    map_eia_ferc_file = importlib.resources.open_binary(
+        'pudl.package_data.glue', 'mapping_eia923_ferc1.xlsx')
+
+    return pd.read_excel(map_eia_ferc_file, 'utilities_output',
+                         na_values='', keep_default_na=False,
+                         converters={'utility_id_pudl': int,
+                                     'utility_name': str,
+                                     'utility_id_ferc1': int,
+                                     'utility_name_ferc1': str,
+                                     'utility_id_eia': int,
+                                     'utility_name_eia': str})
+
+
 def glue(ferc1=False, eia=False):
     """Generates a dictionary of dataframes for glue tables between FERC1, EIA.
 
@@ -84,29 +122,8 @@ def glue(ferc1=False, eia=False):
     if not ferc1 and not eia:
         return
 
-    map_eia_ferc_file = importlib.resources.open_binary(
-        'pudl.package_data.glue', 'mapping_eia923_ferc1.xlsx')
-
-    plant_map = pd.read_excel(map_eia_ferc_file, 'plants_output',
-                              na_values='', keep_default_na=False,
-                              converters={'plant_id_pudl': int,
-                                          'plant_name': str,
-                                          'utility_id_ferc1': int,
-                                          'utility_name_ferc1': str,
-                                          'plant_name_ferc': str,
-                                          'plant_id_eia': int,
-                                          'plant_name_eia': str,
-                                          'utility_name_eia': str,
-                                          'utility_id_eia': int})
-
-    utility_map = pd.read_excel(map_eia_ferc_file, 'utilities_output',
-                                na_values='', keep_default_na=False,
-                                converters={'utility_id_pudl': int,
-                                            'utility_name': str,
-                                            'utility_id_ferc1': int,
-                                            'utility_name_ferc1': str,
-                                            'utility_id_eia': int,
-                                            'utility_name_eia': str})
+    plant_map = get_plant_map()
+    utility_map = get_utility_map()
 
     # We need to standardize plant names -- same capitalization and no leading
     # or trailing white space... since this field is being used as a key in
