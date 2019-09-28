@@ -1,95 +1,4 @@
 {
-    "name": "pudl-test",
-    "profile": "tabular-data-package",
-    "title": "All tables integrated into PUDL.",
-    "description": "A full metadat description of all PUDL tables.",
-    "keywords": [
-        "ferc",
-        "form 1",
-        "energy",
-        "electricity",
-        "utility",
-        "fuel",
-        "expenses",
-        "coal",
-        "natural gas",
-        "generation",
-        "regulation"
-    ],
-    "homepage": "https://catalyst.coop/pudl/",
-    "created": "2019-07-12T20:12:49Z",
-    "contributors": [
-        {
-            "title": "Christina Gosnell",
-            "email": "christina.gosnell@catalyst.coop",
-            "role": "contributor",
-            "organization": "Catalyst Cooperative"
-        },
-        {
-            "title": "Karl Dunkle Werner",
-            "email": "karldw@berkeley.edu",
-            "path": "https://karldw.org/",
-            "role": "contributor",
-            "organization": "UC Berkeley"
-        },
-        {
-            "title": "Catalyst Cooperative",
-            "path": "https://catalyst.coop/",
-            "role": "publisher",
-            "email": "pudl@catalyst.coop",
-            "organization": "Catalyst Cooperative"
-        },
-        {
-            "title": "Climate Policy Initiative",
-            "path": "https://climatepolicyinitiative.org/",
-            "role": "contributor",
-            "organization": "Climate Policy Initiative"
-        },
-        {
-            "title": "Alana Wilson",
-            "email": "alana.wilson@catalyst.coop",
-            "role": "contributor",
-            "organization": "Catalyst Cooperative"
-        },
-        {
-            "title": "Steven Winter",
-            "email": "steven.winter@catalyst.coop",
-            "role": "contributor",
-            "organization": "Catalyst Cooperative"
-        },
-        {
-            "title": "Zane Selvans",
-            "email": "zane.selvans@catalyst.coop",
-            "path": "https://amateurearthling.org/",
-            "role": "wrangler",
-            "organization": "Catalyst Cooperative"
-        }
-    ],
-    "sources": [
-        {
-            "title": "eia923",
-            "path": "idfk"
-        },
-        {
-            "title": "eia860",
-            "path": "idfk"
-        },
-        {
-            "title": "epacems",
-            "path": "idfk"
-        },
-        {
-            "title": "ferc1",
-            "path": "idfk"
-        }
-    ],
-    "licenses": [
-        {
-            "name": "CC-BY-4.0",
-            "title": "Creative Commons Attribution 4.0",
-            "path": "https://creativecommons.org/licenses/by/4.0/"
-        }
-    ],
     "autoincrement" :
         {
             "fuel_ferc1": "id",
@@ -248,8 +157,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -333,8 +240,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -389,8 +294,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -440,8 +343,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -502,8 +403,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -550,8 +449,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -605,8 +502,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -666,8 +561,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -722,8 +615,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -795,8 +686,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -870,8 +759,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -931,8 +818,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -1105,8 +990,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -1148,8 +1031,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -1428,8 +1309,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -1550,8 +1429,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -1700,8 +1577,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -2074,8 +1949,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -2284,8 +2157,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -2340,8 +2211,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -2388,8 +2257,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -2498,8 +2365,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -2551,8 +2416,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -2796,8 +2659,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -2867,8 +2728,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -2960,8 +2819,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -3013,8 +2870,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -3066,8 +2921,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -3225,8 +3078,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -3292,8 +3143,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -3343,8 +3192,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -3408,8 +3255,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -3590,8 +3435,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -3738,8 +3581,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -3903,8 +3744,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -4211,8 +4050,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -4314,8 +4151,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -4567,8 +4402,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -4653,8 +4486,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -4964,8 +4795,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -5073,8 +4902,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -5144,8 +4971,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -5326,8 +5151,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
@@ -5407,8 +5230,6 @@
                     ""
                 ]
             },
-            "bytes": 0,
-            "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "licenses": [
                 {
                     "name": "CC-BY-4.0",
