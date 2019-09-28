@@ -410,8 +410,8 @@ def _harvesting(entity,  # noqa: C901
             # is being imported the lowest consistency ratio should be .95,
             # with the exception of the latitude and longitude, which has a
             # ratio of ~.92. The ratios are better with less years imported.
-            if col in ('latitude', 'longitude'):
-                if ratio < .92:
+            if col in ('latitude', 'longitude', 'county'):
+                if ratio < .90:
                     raise AssertionError(
                         f'Harvesting of {col} is too inconsistent.')
             elif ratio < .95:
