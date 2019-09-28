@@ -35,16 +35,16 @@ import importlib
 import logging
 
 import pandas as pd
+import sqlalchemy as sa
 
 import pudl
+import pudl.constants as pc
 
 logger = logging.getLogger(__name__)
 
 
 def get_plant_map():
-    """
-    Read in the manual FERC to EIA plant mapping data.
-    """
+    """Read in the manual FERC to EIA plant mapping data."""
     map_eia_ferc_file = importlib.resources.open_binary(
         'pudl.package_data.glue', 'mapping_eia923_ferc1.xlsx')
 
@@ -63,9 +63,7 @@ def get_plant_map():
 
 
 def get_utility_map():
-    """
-    Read in the manual FERC to EIA utility mapping data.
-    """
+    """Read in the manual FERC to EIA utility mapping data."""
     map_eia_ferc_file = importlib.resources.open_binary(
         'pudl.package_data.glue', 'mapping_eia923_ferc1.xlsx')
 
@@ -77,6 +75,249 @@ def get_utility_map():
                                      'utility_name_ferc1': str,
                                      'utility_id_eia': int,
                                      'utility_name_eia': str})
+
+
+def get_raw_ferc1_plants(pudl_settings, years):
+    """
+    Pull a dataframe of all plants in the FERC Form 1 DB for the given years.
+
+    This function looks in the f1_steam, f1_gnrt_plant, f1_hydro and
+    f1_pumped_storage tables, and generates a dataframe containing every unique
+    combination of respondent_id (utility_id_ferc1) and plant_name is finds.
+    Also included is the capacity of the plant in MW (as reported in the
+    raw FERC Form 1 DB), the respondent_name (utility_name_ferc1) and a column
+    indicating which of the plant tables the record came from.  Plant and
+    utility names are translated to lowercase, with leading and trailing
+    whitespace stripped and repeating internal whitespace compacted to a single
+    space.
+
+    This function is primarily meant for use generating inputs into the manual
+    mapping of FERC to EIA plants with PUDL IDs.
+
+    Args:
+        pudl_settings (dict): Dictionary containing various paths and database
+            URLs used by PUDL.
+        years (iterable): Years for which plants should be compiled.
+
+    Returns:
+        :class:`pandas.DataFrame`: A dataframe containing five columns:
+            utility_id_ferc1, utility_name_ferc1, plant_name, capacity_mw, and
+            plant_table. Each row is a unique combination of utility_id_ferc1
+            and plant_name.
+
+    """
+    # Need to be able to use years outside the "valid" range if we're trying
+    # to get new plant ID info...
+    for yr in years:
+        if yr not in pc.data_years['ferc1']:
+            raise ValueError(
+                f"Input year {yr} is not available in the FERC data.")
+
+    # Grab the FERC 1 DB metadata so we can query against the DB w/ SQLAlchemy:
+    ferc1_engine = sa.create_engine(pudl_settings["ferc1_db"])
+    ferc1_meta = sa.MetaData(bind=ferc1_engine)
+    ferc1_meta.reflect()
+    ferc1_tables = ferc1_meta.tables
+
+    # This table contains the utility names and IDs:
+    respondent_table = ferc1_tables['f1_respondent_id']
+    # These are all the tables we're gathering "plants" from:
+    plant_tables = ['f1_steam', 'f1_gnrt_plant',
+                    'f1_hydro', 'f1_pumped_storage']
+    # FERC doesn't use the sme column names for the same values across all of
+    # Their tables... but all of these are cpacity in MW.
+    capacity_cols = {'f1_steam': 'tot_capacity',
+                     'f1_gnrt_plant': 'capacity_rating',
+                     'f1_hydro': 'tot_capacity',
+                     'f1_pumped_storage': 'tot_capacity'}
+
+    # Generate a list of all combinations of utility ID, utility name, and
+    # plant name that currently exist inside the raw FERC Form 1 Database, by
+    # iterating over the tables that contain "plants" and grabbing those
+    # columns (along with their capacity, since that's useful for matching
+    # purposes)
+    all_plants = pd.DataFrame()
+    for tbl in plant_tables:
+        plant_select = sa.sql.select([
+            ferc1_tables[tbl].c.respondent_id,
+            ferc1_tables[tbl].c.plant_name,
+            ferc1_tables[tbl].columns[capacity_cols[tbl]],
+            respondent_table.c.respondent_name
+        ]).distinct().where(
+            sa.and_(
+                ferc1_tables[tbl].c.respondent_id == respondent_table.c.respondent_id,
+                ferc1_tables[tbl].c.plant_name != '',
+                ferc1_tables[tbl].c.report_year.in_(years)
+            )
+        )
+        # Add all the plants from the current table to our bigger list:
+        all_plants = all_plants.append(
+            pd.read_sql(plant_select, ferc1_engine).
+            rename(columns={'respondent_id': 'utility_id_ferc1',
+                            'respondent_name': 'utility_name_ferc1',
+                            capacity_cols[tbl]: "capacity_mw"}).
+            pipe(pudl.helpers.strip_lower, columns=['plant_name',
+                                                    'utility_name_ferc1']).
+            assign(plant_table=tbl).
+            loc[:, ['utility_id_ferc1',
+                    'utility_name_ferc1',
+                    'plant_name',
+                    'capacity_mw',
+                    'plant_table']]
+        )
+
+    # We don't want dupes, and sorting makes the whole thing more readable:
+    all_plants = (
+        all_plants.drop_duplicates(["utility_id_ferc1", "plant_name"]).
+        sort_values(["utility_id_ferc1", "plant_name"])
+    )
+    return all_plants
+
+
+def get_mapped_ferc1_plants():
+    """
+    Generate a dataframe containing all previously mapped FERC 1 plants.
+
+    Many plants are reported in FERC Form 1 with different versions of the same
+    name in different years. Because FERC provides no unique ID for plants,
+    these names must be used as part of their identifier. We manually curate a
+    list of all the versions of plant names which map to the same actual plant.
+    In order to identify new plants each year, we have to compare the new plant
+    names and respondent IDs against this raw mapping, not the contents of the
+    PUDL data, since within PUDL we use one canonical name for the plant. This
+    function pulls that list of various plant names and their corresponding
+    utilities (both name and ID) for use in identifying which plants have yet
+    to be mapped when we are integrating new data.
+
+    Args:
+        None
+
+    Returns:
+        :class:`pandas.DataFrame`: A DataFrame with three columns: plant_name,
+        utility_id_ferc1, and utility_name_ferc1. Each row represents a unique
+        combination of utility_id_ferc1 and plant_name.
+
+    """
+    # If we're only trying to get the NEW plants, then we need to see which
+    # ones we have already integrated into the PUDL database. However, because
+    # FERC doesn't use the same plant names from year to year, we have to rely
+    # on the full mapping of FERC plant names to PUDL IDs, which only exists
+    # in the ID mapping spreadhseet (the FERC Plant names in the PUDL DB are
+    # canonincal names we've chosen to represent all the varied plant names
+    # that exist in the raw FERC DB.
+    ferc1_mapped_plants = (
+        pudl.glue.ferc1_eia.get_plant_map().
+        loc[:, ["utility_id_ferc1", "utility_name_ferc1", "plant_name_ferc"]].
+        dropna(subset=["utility_id_ferc1"]).
+        pipe(pudl.helpers.strip_lower,
+             columns=["utility_id_ferc1",
+                      "utility_name_ferc1",
+                      "plant_name_ferc"]).
+        drop_duplicates(["utility_id_ferc1", "plant_name_ferc"]).
+        astype({"utility_id_ferc1": int}).
+        sort_values(["utility_id_ferc1", "plant_name_ferc"]).
+        rename(columns={"plant_name_ferc": "plant_name"})
+    )
+    return ferc1_mapped_plants
+
+
+def get_mapped_ferc1_utils():
+    """
+    Read in the list of manually mapped utilities for FERC Form 1.
+
+    Unless a new utility has appeared in the database, this should be identical
+    to the full list of utilities available in the FERC Form 1 database.
+    """
+    ferc1_mapped_utils = (
+        pudl.glue.ferc1_eia.get_utility_map().
+        loc[:, ["utility_id_ferc1", "utility_name_ferc1"]].
+        dropna(subset=["utility_id_ferc1"]).
+        pipe(pudl.helpers.strip_lower,
+             columns=["utility_id_ferc1", "utility_name_ferc1"]).
+        drop_duplicates("utility_id_ferc1").
+        astype({"utility_id_ferc1": int}).
+        sort_values(["utility_id_ferc1"])
+    )
+    return ferc1_mapped_utils
+
+
+def get_unmapped_ferc1_plants(pudl_settings, years):
+    """
+    Generate a DataFrame of all unmapped FERC plants in the given years.
+
+    Pulls all plants from the FERC Form 1 DB for the given years, and compares
+    that list against the already mapped plants. Any plants found in the
+    database but not in the list of mapped plants are returned.
+
+    Args:
+        pudl_settings (dict): Dictionary containing various paths and database
+            URLs used by PUDL.
+        years (iterable): Years for which plants should be compiled from the
+            raw FERC Form 1 DB.
+
+    Returns:
+        :class:`pandas.DataFrame`: A dataframe containing five columns:
+            utility_id_ferc1, utility_name_ferc1, plant_name, capacity_mw, and
+            plant_table. Each row is a unique combination of utility_id_ferc1
+            and plant_name, which appears in the FERC Form 1 DB, but not in
+            the list of manually mapped plants.
+
+    """
+    db_plants = (
+        get_raw_ferc1_plants(pudl_settings, years).
+        set_index(["utility_id_ferc1", "plant_name"])
+    )
+    mapped_plants = (
+        get_mapped_ferc1_plants().
+        set_index(["utility_id_ferc1", "plant_name"])
+    )
+    new_plants_index = db_plants.index.difference(mapped_plants.index)
+    unmapped_plants = db_plants.loc[new_plants_index].reset_index()
+    return unmapped_plants
+
+
+def get_unmapped_ferc1_utils(pudl_settings, years):
+    """
+    Generate a list of as-of-yet unmapped utilities from the FERC Form 1 DB.
+
+    Find any utilities which exist in the FERC Form 1 database for the years
+    requested, but which do not show up in the mapped plants.  Note that there
+    are many more utilities in FERC Form 1 that simply have no plants
+    associated with them that will not show up here.
+
+    Args:
+        pudl_settings (dict): Dictionary containing various paths and database
+            URLs used by PUDL.
+        years (iterable): Years for which plants should be compiled from the
+            raw FERC Form 1 DB.
+    Returns:
+        :class:`pandas.DataFrame`:
+
+    """
+    # Note: we only map the utlities that have plants associated with them.
+    # Grab the list of all utilities listed in the mapped plants:
+    mapped_utilities = get_mapped_ferc1_utils().set_index("utility_id_ferc1")
+    # Generate a list of all utilities which have unmapped plants:
+    # (Since any unmapped utility *must* have unmapped plants)
+    utils_with_unmapped_plants = (
+        get_unmapped_ferc1_plants(pudl_settings, years).
+        loc[:, ["utility_id_ferc1", "utility_name_ferc1"]].
+        drop_duplicates("utility_id_ferc1").
+        set_index("utility_id_ferc1")
+    )
+    # Find the indices of all utilities with unmapped plants that do not appear
+    # in the list of mapped utilities at all:
+    new_utilities_index = (
+        utils_with_unmapped_plants.index.
+        difference(mapped_utilities.index)
+    )
+    # Use that index to select only the previously unmapped utilities:
+    unmapped_utilities = (
+        utils_with_unmapped_plants.
+        loc[new_utilities_index].
+        reset_index()
+    )
+    return unmapped_utilities
 
 
 def glue(ferc1=False, eia=False):
