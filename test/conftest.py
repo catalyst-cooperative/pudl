@@ -175,8 +175,8 @@ def ferc1_engine(live_ferc_db, pudl_settings_fixture,
 
 
 @pytest.fixture(scope='session')
-def data_packaging(request, datastore_fixture, ferc1_engine,
-                   pudl_settings_fixture, data_scope):
+def datapkg(request, datastore_fixture, ferc1_engine,
+            pudl_settings_fixture, data_scope):
     """Generate limited packages for testing."""
     logger.info('setting up the data_packaging fixture')
     clobber = request.config.getoption("--clobber")
@@ -188,7 +188,7 @@ def data_packaging(request, datastore_fixture, ferc1_engine,
 
 
 @pytest.fixture(scope='session')
-def data_packaging_to_sqlite(pudl_settings_fixture, data_scope, data_packaging):
+def datapkg_to_sqlite(pudl_settings_fixture, data_scope, datapkg):
     """Try flattening the data packages."""
     logger.info('setting up the data_packaging_to_sqlite fixture')
     pudl.convert.flatten_datapkgs.flatten_pudl_datapackages(

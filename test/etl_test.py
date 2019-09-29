@@ -16,26 +16,24 @@ import pytest
 import yaml
 
 import pudl
+import pudl.constants as pc
 from pudl.convert.epacems_to_parquet import epacems_to_parquet
 
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.etl
 @pytest.mark.data_package
-def test_data_packaging(data_packaging):
+def test_datapkg(datapkg):
     """Generate limited packages for testing."""
     pass
 
 
 @pytest.mark.data_package
-def test_data_packaging_to_sqlite(data_packaging_to_sqlite):
+def test_datapkg_to_sqlite(datapkg_to_sqlite):
     """Try flattening the data packages."""
     pass
 
 
-@pytest.mark.etl
-@pytest.mark.ferc1
 def test_ferc1_init_db(ferc1_engine):
     """
     Create a fresh FERC Form 1 DB and attempt to access it.
@@ -50,23 +48,7 @@ def test_ferc1_init_db(ferc1_engine):
     pass
 
 
-def test_pudl_init_db(ferc1_engine, pudl_engine):
-    """
-    Create a fresh PUDL DB and pull in some FERC1 & EIA data.
-
-    If we are doing ETL (ingest) testing, then these databases are populated
-    anew, in their *_test form.  If we're doing post-ETL (post-ingest) testing
-    then we just grab a connection to the existing DB.
-
-    Nothing needs to be in the body of this "test" because the database
-    connections are created by the fixtures defined in conftest.py
-    """
-    pass
-
-
-@pytest.mark.xfail
-@pytest.mark.etl
-def test_epacems_to_parquet(data_packaging,
+def test_epacems_to_parquet(datapkg,
                             pudl_settings_fixture,
                             data_scope,
                             fast_tests):
@@ -137,8 +119,114 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
                     )
 
 
-@pytest.mark.etl
-@pytest.mark.ferc1
+def test_ferc1_unmapped_plants(pudl_settings_fixture, ferc1_engine):
+    """
+    Test that we can correctly identify unmapped FERC Form 1 DB plants.
+
+    This test replicates :func:`pudl.glue.ferc1_eia.get_unmapped_ferc1_plants`
+    but deletes a plant from the raw FERC 1 DB contents, which should then be
+    identified as "unmapped."
+
+    """
+    years = pudl.constants.working_years['ferc1']
+    # First try running et_unmapped_ferc1_plants... as is:
+    actually_unmapped_plants = (
+        pudl.glue.ferc1_eia.
+        get_unmapped_ferc1_plants(pudl_settings_fixture, years)
+    )
+    if len(actually_unmapped_plants) != 0:
+        raise AssertionError(
+            f"Expected zero unmapped FERC 1 plants but found "
+            f"{len(actually_unmapped_plants)}"
+        )
+    logger.info("Found 0 unmapped FERC 1 plants, as expected.")
+    # Get all the plants in the FERC 1 DB:
+    db_plants = (
+        pudl.glue.ferc1_eia.
+        get_raw_ferc1_plants(pudl_settings_fixture,
+                             pc.working_years['ferc1']).
+        set_index(["utility_id_ferc1", "plant_name"])
+    )
+    # Read in the mapped plants... but ditch Xcel's Comanche:
+    mapped_plants = (
+        pudl.glue.ferc1_eia.get_mapped_ferc1_plants().
+        set_index(["utility_id_ferc1", "plant_name"]).
+        drop((145, "comanche"))
+    )
+    new_plants_index = db_plants.index.difference(mapped_plants.index)
+    unmapped_plants = db_plants.loc[new_plants_index].reset_index()
+    if len(unmapped_plants) != 1:
+        raise AssertionError(
+            f"Found {len(unmapped_plants)} "
+            f"unmapped FERC 1 plants instead of 1."
+        )
+    logger.info("Found 1 unmapped FERC 1 plant, as expected.")
+
+
+def test_ferc1_unmapped_utils(pudl_settings_fixture, ferc1_engine):
+    """Test that we can identify unmapped FERC 1 utilities."""
+    years = pudl.constants.working_years['ferc1']
+    # First run the unmapped utility function as is:
+    actually_unmapped_utils = (
+        pudl.glue.ferc1_eia.
+        get_unmapped_ferc1_utils(pudl_settings_fixture, years)
+    )
+    if len(actually_unmapped_utils) != 0:
+        raise AssertionError(
+            f"Expected zero unmapped FERC 1 utilities but found "
+            f"{len(actually_unmapped_utils)}"
+        )
+    logger.info("Found 0 unmapped FERC 1 utilities, as expected.")
+
+    # Now do the smae thing... but yanking one of the mapped utils:
+    mapped_utilities = (
+        pudl.glue.ferc1_eia.
+        get_mapped_ferc1_utils().
+        set_index("utility_id_ferc1").
+        drop(145)  # Drop Xcel Energy Colorado / PSCo.
+    )
+    # Get all the plants in the FERC 1 DB:
+    db_plants = (
+        pudl.glue.ferc1_eia.
+        get_raw_ferc1_plants(pudl_settings_fixture,
+                             pc.working_years['ferc1']).
+        set_index(["utility_id_ferc1", "plant_name"])
+    )
+    # Read in the mapped plants... but ditch Xcel's Comanche:
+    mapped_plants = (
+        pudl.glue.ferc1_eia.get_mapped_ferc1_plants().
+        set_index(["utility_id_ferc1", "plant_name"]).
+        drop((145, "comanche"))
+    )
+    new_plants_index = db_plants.index.difference(mapped_plants.index)
+    unmapped_plants = db_plants.loc[new_plants_index].reset_index()
+    # Generate a list of all utilities which have unmapped plants:
+    # (Since any unmapped utility *must* have unmapped plants)
+    utils_with_unmapped_plants = (
+        unmapped_plants.loc[:, ["utility_id_ferc1", "utility_name_ferc1"]].
+        drop_duplicates("utility_id_ferc1").
+        set_index("utility_id_ferc1")
+    )
+    # Find the indices of all utilities with unmapped plants that do not appear
+    # in the list of mapped utilities at all:
+    new_utilities_index = (
+        utils_with_unmapped_plants.index.
+        difference(mapped_utilities.index)
+    )
+    # Use that index to select only the previously unmapped utilities:
+    unmapped_utilities = (
+        utils_with_unmapped_plants.
+        loc[new_utilities_index].
+        reset_index()
+    )
+    if len(unmapped_utilities) != 1:
+        raise AssertionError(
+            f"Found {len(unmapped_utilities)} "
+            f"unmapped FERC 1 utilities instead of 1."
+        )
+    logger.info("Found 1 unmapped FERC 1 utility, as expected.")
+
+
 def test_only_ferc1_pudl_init_db(datastore_fixture,
                                  pudl_settings_fixture,
                                  live_ferc_db):
