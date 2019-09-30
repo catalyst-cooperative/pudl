@@ -66,11 +66,12 @@ def simple_ferc1_plant_ids(pudl_engine):
     """Generates a list of all PUDL plant IDs which map to a single FERC plant.
 
     Args:
-        pudl_engine (str): A PUDL database connection.
+        pudl_engine: A PUDL database connection.
 
     Returns:
         ferc1_simple_plant_ids: A DataFrame containing all the PUDL plant IDs
         that map to a single FERC plant.
+
     """
     ferc1_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_ferc''',
                                   pudl_engine)
@@ -88,6 +89,7 @@ def simple_eia_plant_ids(pudl_engine):
     Returns:
         eia_simple_plant_ids: A DataFrame containing all the PUDL plant IDs that
         map to a single EIA plant.
+
     """
     eia_plant_ids = pd.read_sql('''SELECT plant_id_pudl FROM plants_eia''',
                                 pudl_engine)
@@ -891,188 +893,3 @@ def primary_fuel_gf_eia923(gf_df, id_col='plant_id_eia', fuel_thresh=0.5):
     gf_by_heat = gf_by_heat.where(mask)
     gf_by_heat['primary_fuel'] = gf_by_heat.idxmax(axis=1)
     return gf_by_heat[['primary_fuel', ]].reset_index()
-
-
-def fercplants(pudl_engine,
-               plant_tables=('f1_steam',
-                             'f1_gnrt_plant',
-                             'f1_hydro',
-                             'f1_pumped_storage'),
-               years=pc.working_years['ferc1'],
-               new=True,
-               min_capacity=5.0):
-    """Generate a list of FERC plants for matching with EIA plants.
-
-    There are several kinds of FERC plants, with different information stored
-    in different FERC database tables. FERC doesn't provide any kind of
-    plant_id like EIA, so the unique identifier that we're using is a
-    combination of the respondent_id (the utility) and plant_name.
-
-    For each table in the FERC DB that contains per-plant information, we'll
-    grab the respondent_id and plant_name, and join that with respondent_name
-    so that the utility is more readily identifiable.  We'll also add a column
-    indicating what table the plant came from, and return a DataFrame with
-    those four columns in it, for use in the matching. That matching currently
-    happens in an Excel spreadsheet, so you will likely want to output the
-    resulting DataFrame as a CSV or XLSX file.
-
-    The function can generate an exhaustive list of plants, or it can only grab
-    plants from a particular range of years. It can also optionally grab only
-    new plants i.e. those which do not appear in the existing PUDL database.
-    This is useful for finding new plants when a new year of FERC data comes
-    out.
-
-    Args:
-        f1_tables (list): A list of tables in the FERC Form 1 DB whose plants
-            you want to get information about. Can include any of: f1_steam,
-            f1_gnrt_plant, f1_hydro, and f1_pumped_storage.
-        years (list): The set of years for which you wish to obtain plant by
-            plant information.
-        new (boolean): If True (the default) then return only those plants
-            which appear in the years of FERC data being specified by years,
-            and NOT also in the currently initialized PUDL DB.
-        min_capacity (float): The smallest size plant, in MW, that should be
-            included in the output. This avoids most of the plants being tiny.
-
-    Returns:
-        :mod:`pandas.DataFrame`: A DataFrame with four columns: respondent_id,
-            respondent_name, plant_name, and plant_table.
-
-    """
-    # Need to be able to use years outside the "valid" range if we're trying
-    # to get new plant ID info...
-    if not new:
-        for yr in years:
-            assert yr in pc.working_years['ferc1']
-
-    okay_tbls = ['f1_steam',
-                 'f1_gnrt_plant',
-                 'f1_hydro',
-                 'f1_pumped_storage']
-
-    # Function only knows how to work with these tables.
-    for tbl in plant_tables:
-        assert tbl in okay_tbls
-
-    f1_engine = pudl.extract.ferc1.connect_db()
-
-    # Need to make sure we have a populated metadata object, which isn't
-    # always the case, since folks often are not initializing the FERC DB.
-    pudl.extract.ferc1.define_db(max(pc.working_years['ferc1']),
-                                 pc.ferc1_working_tables,
-                                 pudl.extract.ferc1.ferc1_meta)
-    f1_tbls = pudl.extract.ferc1.ferc1_meta.tables
-
-    # FERC doesn't use the sme column names for the same values across all of
-    # Their tables... but all of these are cpacity in MW.
-    capacity_cols = {'f1_steam': 'tot_capacity',
-                     'f1_gnrt_plant': 'capacity_rating',
-                     'f1_hydro': 'tot_capacity',
-                     'f1_pumped_storage': 'tot_capacity'}
-
-    rspndnt_tbl = f1_tbls['f1_respondent_id']
-    ferc1_plants_all = pd.DataFrame()
-    for tbl in plant_tables:
-        plant_select = sa.sql.select([
-            f1_tbls[tbl].c.respondent_id,
-            f1_tbls[tbl].c.plant_name,
-            rspndnt_tbl.c.respondent_name
-        ]).distinct().where(
-            sa.and_(
-                f1_tbls[tbl].c.respondent_id == rspndnt_tbl.c.respondent_id,
-                f1_tbls[tbl].c.plant_name != '',
-                f1_tbls[tbl].columns[capacity_cols[tbl]] >= min_capacity,
-                f1_tbls[tbl].c.report_year.in_(years)
-            )
-        )
-        # Add all the plants from the current table to our bigger list:
-        new_plants = pd.read_sql(plant_select, f1_engine)
-        new_plants = new_plants.rename(
-            columns={'respondent_id': 'utility_id_ferc1',
-                     'respondent_name': 'utility_name_ferc1'})
-        new_plants = pudl.helpers.strip_lower(
-            new_plants, columns=['plant_name', 'utility_name_ferc1'])
-        new_plants['plant_table'] = tbl
-
-        ferc1_plants_all = ferc1_plants_all.append(
-            new_plants[['utility_id_ferc1',
-                        'utility_name_ferc1',
-                        'plant_name',
-                        'plant_table']])
-
-    # If we're only trying to get the NEW plants, then we need to see which
-    # ones we've already got in the PUDL DB, and look at what's different.
-    if new:
-        ferc1_plants_all = ferc1_plants_all.set_index(
-            ['utility_id_ferc1', 'plant_name'])
-
-        pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
-
-        ferc1_plants_tbl = pt['plants_ferc']
-        ferc1_plants_select = sa.sql.select([
-            ferc1_plants_tbl.c.utility_id_ferc1,
-            ferc1_plants_tbl.c.plant_name
-        ]).distinct()
-        ferc1_plants_old = pd.read_sql(ferc1_plants_select, pudl_engine)
-        ferc1_plants_old = ferc1_plants_old.set_index(
-            ['utility_id_ferc1', 'plant_name'])
-
-        # Take the difference between the two table indexes -- I.e. get a
-        # list of just the index values that appear in the FERC index, but
-        # not in the PUDL index.
-        new_index = ferc1_plants_all.index.difference(ferc1_plants_old.index)
-        if new_index.size == 0:
-            logger.info("No new plants found.")
-            return
-        ferc1_plants = ferc1_plants_all.loc[new_index].reset_index()
-    else:
-        ferc1_plants = ferc1_plants_all
-
-    return ferc1_plants
-
-
-def check_ferc1_tables(refyear=2017):
-    """
-    Test each FERC1 data year for compatibility with references year schema.
-
-
-    Args:
-        refyear (int): The reference year for testing compatibility of the
-            database schema with a FERC Form 1 table and year.
-
-    Returns:
-        dict: A dictionary having database table names as keys, and lists of
-            which years that table was compatible with the refernce year as
-            values.
-
-    """
-    good_table_years = {}
-    tables = list(pc.ferc1_dbf2tbl.values())
-    # This is a special table, to which every other table refers, it will be
-    # loaded alongside every table we test.
-    tables.remove('f1_respondent_id')
-    for table in tables:
-        good_years = []
-        print(f"'{table}': [", end="", flush=True)
-        for yr in pc.data_years['ferc1']:
-            try:
-                pudl.extract.ferc1.init_db(
-                    ferc1_tables=['f1_respondent_id', table],
-                    refyear=refyear,
-                    years=[yr, ],
-                    def_db=True,
-                    testing=True,
-                    force_tables=True)
-                good_years = good_years + [yr, ]
-                print(f"{yr},", end=" ", flush=True)
-            # generally bare except: statements are bad, but here we're really
-            # just trying to test whether the ferc1 extraction fails for *any*
-            # reason, and if not, mark that year as good, thus the # nosec
-            except:  # noqa: E722  # nosec
-                continue
-            ferc1_engine = pudl.extract.ferc1.connect_db(testing=True)
-            pudl.extract.ferc1.drop_tables(ferc1_engine)
-        good_table_years[table] = good_years
-        print("],", flush=True)
-
-    return good_table_years

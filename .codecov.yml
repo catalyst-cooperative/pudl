@@ -1,3 +1,5 @@
 coverage:
     range:     0..100
     round:     nearest
+codecov:
+    token: fe3a326b-0b2d-4f2f-96f7-f89aef06dd91

@@ -18,6 +18,7 @@ compile because each element of the metadata is structured differently. Most of
 that work is being done in `flatten_data_package_metadata`.
 """
 
+import itertools
 import json
 import logging
 import os
@@ -91,9 +92,10 @@ def compile_data_packages_metadata(pkg_bundle_dir,
         if pkg_dir.name != pkg_name:
             with open(pathlib.Path(pkg_dir, "datapackage.json")) as md:
                 metadata = json.load(md)
-            for thing in ['id', 'licenses', 'homepage', 'profile',
+            for thing in ['bundle-id-pudl', 'licenses', 'homepage', 'profile',
                           'created', 'sources', 'contributors', 'resources',
-                          'autoincrement']:
+                          'autoincrement', 'keywords', 'python-package-name',
+                          'python-package-version', ]:
                 try:
                     pkg_descriptor_elements[thing].append(metadata[thing])
                 except KeyError:
@@ -124,12 +126,13 @@ def flatten_data_package_metadata(pkg_bundle_dir,
         'title': 'flattened bundle of pudl data packages',
     }
     # the uuid for the individual data packages should be exactly the same
-    if not len(set(pkg_descriptor_elements['id'])) == 1:
+    if not len(set(pkg_descriptor_elements['bundle-id-pudl'])) == 1:
         raise AssertionError(
             'too many ids found in data packages metadata')
     # for these pkg_descriptor items, they should all be the same, so we are
     # just going to grab the first item for the flattened metadata
-    for item in ['id', 'licenses', 'homepage']:
+    for item in ['bundle-id-pudl', 'licenses', 'homepage',
+                 'python-package-version', 'python-package-name']:
         pkg_descriptor[item] = pkg_descriptor_elements[item][0]
     # we're gonna grab the first 'created' timestap (each dp generates it's own
     # timestamp, which are slightly different)
@@ -148,31 +151,38 @@ def flatten_data_package_metadata(pkg_bundle_dir,
         elif item == 'sources' or 'resources':
             item_list = []
             # pull only one of each dataset creating a dictionary with the
-            # dataset as the key
+            # title as the key (both source and resources have titles that
+            # should never differ between data packages).
             for i in dict([(item_dict['title'], item_dict)
                            for item_dict in list_of_dicts]).values():
                 item_list.append(i)
             pkg_descriptor[item] = item_list
+    # autoincrement is a dictionary that we want merged, so there is a little
+    # function that helps for that.
     pkg_descriptor['autoincrement'] = pudl.helpers.merge_dicts(
         pkg_descriptor_elements['autoincrement'])
+    # for lists we'd like to merge, we are flattening the list of lists, then
+    # de-duplicating the elements by turning them into a set
+    pkg_descriptor['keywords'] = list(
+        set(itertools.chain.from_iterable(pkg_descriptor_elements['keywords'])))
     return(pkg_descriptor)
 
 
 def get_all_sources(pkg_descriptor_elements):
     """Grab list of all of the datasets in a data package bundle."""
-    titles = set()
+    source_codes = set()
     for sources in pkg_descriptor_elements['sources']:
         for source in sources:
-            titles.add(source['title'])
-    return(titles)
+            source_codes.add(source['source_code'])
+    return(source_codes)
 
 
-def get_same_source_meta(pkg_descriptor_elements, title):
+def get_same_source_meta(pkg_descriptor_elements, source_code):
     """Grab the the source metadata of the same dataset from all datapackages."""
     samezies = []
     for sources in pkg_descriptor_elements['sources']:
         for source in sources:
-            if source['title'] == title:
+            if source['source_code'] == source_code:
                 samezies.append(source)
     return(samezies)
 
@@ -191,15 +201,15 @@ def check_for_matching_parameters(pkg_bundle_dir, pkg_name):
     # grab all of the metadata components
     pkg_descriptor_elements = compile_data_packages_metadata(pkg_bundle_dir,
                                                              pkg_name=pkg_name)
-    # grab all of the "titles" (read sources)
-    titles = get_all_sources(pkg_descriptor_elements)
+    # grab all of the sources code
+    source_codes = get_all_sources(pkg_descriptor_elements)
     # check if
-    for title in titles:
-        samezies = get_same_source_meta(pkg_descriptor_elements, title)
+    for src in source_codes:
+        samezies = get_same_source_meta(pkg_descriptor_elements, src)
         # for each of the source dictionaries, check if they are the same
         for source_dict in samezies:
             if not samezies[0] == source_dict:
-                raise AssertionError(f'parameters do not match for {title}')
+                raise AssertionError(f'parameters do not match for {src}')
 
 
 def flatten_pudl_datapackages(pudl_settings,

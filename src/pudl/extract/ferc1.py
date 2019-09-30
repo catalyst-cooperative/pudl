@@ -327,6 +327,7 @@ def define_sqlite_db(sqlite_meta, dbc_map, data_dir,
 
     Returns:
         None: the effects of the function are stored inside sqlite_meta
+
     """
     for table in tables:
         add_sqlite_table(table, sqlite_meta, dbc_map,
@@ -829,8 +830,54 @@ def accumulated_depreciation(ferc1_meta, ferc1_table, ferc1_years):
 
 
 ###########################################################################
-# Helper functions for debugging the extract process...
+# Helper functions for debugging the extract process and facilitating the
+# manual portions of the FERC to EIA plant and utility mapping process.
 ###########################################################################
+
+def check_ferc1_tables(refyear=2017):
+    """
+    Test each FERC 1 data year for compatibility with reference year schema.
+
+    Args:
+        refyear (int): The reference year for testing compatibility of the
+            database schema with a FERC Form 1 table and year.
+
+    Returns:
+        dict: A dictionary having database table names as keys, and lists of
+            which years that table was compatible with the reference year as
+            values.
+
+    """
+    good_table_years = {}
+    tables = list(pc.ferc1_dbf2tbl.values())
+    # This is a special table, to which every other table refers, it will be
+    # loaded alongside every table we test.
+    tables.remove('f1_respondent_id')
+    for table in tables:
+        good_years = []
+        print(f"'{table}': [", end="", flush=True)
+        for yr in pc.data_years['ferc1']:
+            try:
+                pudl.extract.ferc1.init_db(
+                    ferc1_tables=['f1_respondent_id', table],
+                    refyear=refyear,
+                    years=[yr, ],
+                    def_db=True,
+                    testing=True,
+                    force_tables=True)
+                good_years = good_years + [yr, ]
+                print(f"{yr},", end=" ", flush=True)
+            # generally bare except: statements are bad, but here we're really
+            # just trying to test whether the ferc1 extraction fails for *any*
+            # reason, and if not, mark that year as good, thus the # nosec
+            except:  # noqa: E722  # nosec
+                continue
+            ferc1_engine = pudl.extract.ferc1.connect_db(testing=True)
+            pudl.extract.ferc1.drop_tables(ferc1_engine)
+        good_table_years[table] = good_years
+        print("],", flush=True)
+
+    return good_table_years
 
 
 def show_dupes(table, dbc_map, years=pc.data_years['ferc1'],

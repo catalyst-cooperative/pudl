@@ -127,30 +127,16 @@ expected:
 ###############################################################################
 
 def csv_dump(df, table_name, keep_index, pkg_dir):
-    """Writes a dataframe to CSV and loads it into postgresql using COPY FROM.
-
-    The fastest way to load a bunch of records is using the database's native
-    text file copy function.  This function dumps a given dataframe out to a
-    CSV file, and then loads it into the specified table using a sqlalchemy
-    wrapper around the postgresql COPY FROM command, called postgres_copy.
+    """Writes a dataframe to CSV, appending to the file if it already exists.
 
     Note that this creates an additional in-memory representation of the data,
     which takes slightly less memory than the DataFrame itself.
 
     Args:
-        df (pandas.DataFrame): The DataFrame which is to be dumped to CSV and
-            loaded into the database. All DataFrame columns must have exactly
-            the same names as the database fields they are meant to populate,
-            and all column data types must be directly compatible with the
-            database fields they are meant to populate. Do any cleanup before
-            you call this function.
-        table_name (str): The exact name of the database table which the
-            DataFrame df is going to be used to populate. It will be used both
-            to look up an SQLAlchemy table object in the PUDLBase metadata
-            object, and to name the CSV file.
-        keep_index (bool): Should the output CSV file contain an index?
-        pkg_dir (path-like): Path to the directory into which the CSV file
-            should be saved, if it's being kept.
+        df (:mod:`pandas.DataFrame`): The DataFrame to be dumped to CSV.
+        table_name (str): Used to name the CSV file.
+        keep_index (bool): Should the output CSV file contain an index (id)?
+        pkg_dir (path-like): Path to the top level datapackage directory.
 
     Returns:
         None

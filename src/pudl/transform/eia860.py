@@ -232,6 +232,18 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     # Cast values in zip_code to strings to avoid type errors
     p_df['zip_code'] = p_df['zip_code'].astype(str)
 
+    # Spelling, punctuation, and capitalization of county names can vary from
+    # year to year. We homogenize them here to facilitate correct value
+    # harvesting.
+    p_df['county'] = (
+        p_df.county.
+        str.replace(r'[^a-z,A-Z]+', ' ').
+        str.strip().
+        str.lower().
+        str.replace(r'\s+', ' ').
+        str.title()
+    )
+
     # A subset of the columns have "X" values, where other columns_to_fix
     # have "N" values. Replacing these values with "N" will make for uniform
     # values that can be converted to Boolean True and False pairs.

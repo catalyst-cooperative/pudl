@@ -767,7 +767,9 @@ def generate_data_packages(pkg_bundle_settings,
             data packages to live.
         debug (bool): If True, return a dictionary with package names (keys)
             and a list with the data package metadata and report (values).
-        clobber (bool):
+        clobber (bool): If True and there is already a directory with data
+            packages with the pkg_bundle_name, the existing data packages will
+            be deleted and new data packages will be generated in their place.
 
     Returns:
         tuple: A tuple containing generated metadata for the packages laid out

@@ -33,6 +33,7 @@ import uuid
 
 import datapackage
 import goodtables
+import pkg_resources
 
 import pudl
 from pudl import constants as pc
@@ -177,22 +178,20 @@ def get_repartitioned_tables(tables, partitions, pkg_settings):
     return tables_repartitioned
 
 
-def data_sources_from_tables_pkg(table_names, testing=False):
+def data_sources_from_tables(table_names):
     """
     Look up data sources based on a list of PUDL DB tables.
 
     Args:
         tables_names (iterable): a list of names of 'seed' tables, whose
             dependencies we are seeking to find.
-        testing (bool): Connected to the test database (True) or live PUDl
-            database (False)?
 
     Returns:
         set: The set of data sources for the list of PUDL table names.
 
     """
-    all_tables = get_dependent_tables_from_list_pkg(
-        table_names, testing=testing)
+    all_tables = get_dependent_tables_from_list(
+        table_names)
     table_sources = set()
     # All tables get PUDL:
     table_sources.add('pudl')
@@ -267,7 +266,7 @@ def get_dependent_tables_pkg(table_name, fk_relash):
     return dependent_tables
 
 
-def get_dependent_tables_from_list_pkg(table_names, testing=False):
+def get_dependent_tables_from_list(table_names):
     """Given a list of tables, find all the other tables they depend on.
 
     Iterate over a list of input tables, adding them and all of their dependent
@@ -278,8 +277,6 @@ def get_dependent_tables_from_list_pkg(table_names, testing=False):
     Args:
         table_names (iterable): a list of names of 'seed' tables, whose
             dependencies we are seeking to find.
-        testing (bool): Connected to the test database (True) or live PUDl
-            database (False)?
 
     Returns:
         all_the_tables (set): The set of all the tables which any of the input
@@ -336,7 +333,7 @@ def test_file_consistency(tables, pkg_settings, pkg_dir):
     #    pkg_file = package_files_from_table(table, pkg_settings)
     #    pkg_files.extend(pkg_file)
 
-    dependent_tbls = list(get_dependent_tables_from_list_pkg(tables))
+    dependent_tbls = list(get_dependent_tables_from_list(tables))
     etl_tbls = tables
 
     dependent_tbls.sort()
@@ -408,7 +405,38 @@ def pull_resource_from_megadata(table_name):
     return(table_resource)
 
 
-def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
+def get_date_from_sources(sources, date_to_grab):
+    """
+    Grab the years from a source's parameters and convert to a date.
+
+    Args:
+        sources (iterable): this is a list of source dictionaries. should be
+            the result of the get_source_metadata() function.
+        date_to_grab (string): the name of the date metadata to extract.
+            Currently, this is only either 'start_date' or 'end_date'.
+    Returns:
+        string : date formatted as 'YYYY-MM-DD' or None
+    """
+    # if there are no sources, then we grab nothing
+    if len(sources) == 0:
+        return None
+    # if there are two or more sources, then we won't know which source to grab
+    # the date from so this will fail.
+    if len(sources) != 1:
+        raise AssertionError(
+            "You should only be grabbing dates from one source at a time."
+        )
+    for key, param in sources[0]['parameters_pudl'].items():
+        # grab the parameters that contains the years so we can assume
+        # start/end dates
+        if "years" in key:
+            if date_to_grab == 'start_date':
+                return str(min(param)) + "-01-01"
+            elif date_to_grab == 'end_date':
+                return str(max(param)) + "-21-31"
+
+
+def get_tabular_data_resource(table_name, pkg_dir, pkg_settings, partitions=False):
     """
     Create a Tabular Data Resource descriptor for a PUDL table.
 
@@ -444,6 +472,14 @@ def get_tabular_data_resource(table_name, pkg_dir, partitions=False):
     descriptor['created'] = (datetime.datetime.utcnow().
                              replace(microsecond=0).isoformat() + 'Z')
 
+    unpartitioned_tables = get_unpartioned_tables([table_name], pkg_settings)
+    data_sources = data_sources_from_tables(unpartitioned_tables)
+    descriptor['sources'] = get_source_metadata(data_sources, pkg_settings)
+    descriptor['start_date'] = \
+        get_date_from_sources(descriptor['sources'], 'start_date')
+    descriptor['end_date'] = \
+        get_date_from_sources(descriptor['sources'], 'end_date')
+
     if partitions:
         for part in partitions.keys():
             if part in table_name:
@@ -470,17 +506,26 @@ def get_source_metadata(data_sources, pkg_settings):
     sources = []
     for src in data_sources:
         if src in pudl.constants.data_sources:
-            src_meta = {"title": src,
-                        "path": pc.base_data_urls[src]}
+            src_meta = {"title": pc.source_titles[src],
+                        "path": pc.base_data_urls[src],
+                        "source_code": src}
             for dataset_dict in pkg_settings['datasets']:
                 for dataset in dataset_dict:
                     # because we have defined eia as a dataset, but 860 and 923
                     # are separate sources, either the dataset must be or be in
                     # the source
                     if dataset in src or dataset == src:
-                        src_meta['parameters'] = dataset_dict[dataset]
+                        src_meta['parameters_pudl'] = dataset_dict[dataset]
             sources.append(src_meta)
     return sources
+
+
+def get_keywords_from_sources(data_sources):
+    """Grab keywords for the metadata based on data sources."""
+    keywords = set()
+    for src in data_sources:
+        keywords.update(pc.keywords_by_datset[src])
+    return list(keywords)
 
 
 def get_autoincrement_columns(unpartitioned_tables):
@@ -575,10 +620,11 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
     for table in tables:
         resources.append(get_tabular_data_resource(table,
                                                    pkg_dir=pkg_dir,
+                                                   pkg_settings=pkg_settings,
                                                    partitions=partitions))
 
     unpartitioned_tables = get_unpartioned_tables(tables, pkg_settings)
-    data_sources = data_sources_from_tables_pkg(unpartitioned_tables)
+    data_sources = data_sources_from_tables(unpartitioned_tables)
     autoincrement = get_autoincrement_columns(unpartitioned_tables)
     sources = get_source_metadata(data_sources, pkg_settings)
 
@@ -591,9 +637,9 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
         "name": pkg_settings["name"],
         "profile": "tabular-data-package",
         "title": pkg_settings["title"],
-        "id": uuid_pkgs,
+        "bundle-id-pudl": uuid_pkgs,
         "description": pkg_settings["description"],
-        # "keywords": pkg_settings["keywords"],
+        "keywords": get_keywords_from_sources(data_sources),
         "homepage": "https://catalyst.coop/pudl/",
         "created": (datetime.datetime.utcnow().
                     replace(microsecond=0).isoformat() + 'Z'),
@@ -602,6 +648,9 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
         "licenses": [pudl.constants.licenses["cc-by-4.0"]],
         "autoincrement": autoincrement,
         "resources": resources,
+        "python-package-name": "catalystcoop.pudl",
+        "python-package-version":
+            pkg_resources.get_distribution('catalystcoop.pudl').version
     }
 
     report = validate_save_pkg(pkg_descriptor, pkg_dir)
@@ -620,8 +669,7 @@ def prep_pkg_bundle_directory(pudl_settings,
         debug (bool): If True, return a dictionary with package names (keys)
             and a list with the data package metadata and report (values).
         pkg_bundle_name (string): name of directory you want the bundle of
-            data packages to live. If this is set to None, the name will be
-            defaulted to be the pudl packge version.
+            data packages to live.
 
     Returns:
         path-like
