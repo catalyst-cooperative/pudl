@@ -489,6 +489,7 @@ def get_tabular_data_resource(table_name, pkg_dir, pkg_settings, partitions=Fals
     if resource.valid:
         logger.debug(f"{table_name} is a valid resource")
     if not resource.valid:
+        logger.info(resource)
         raise AssertionError(
             f"""
             Invalid tabular data resource: {resource.name}

@@ -38,8 +38,12 @@ def _validate_params_partition(etl_params_og, tables):
         # it should be a dictionary with tables (keys) and partitions (values)
         # so for each table, grab the list of the corresponding partition.
         for table in tables:
-            if partition_dict[table] not in etl_params_og.keys():
-                raise AssertionError('Partion not recognized')
+            try:
+                for part in partition_dict[table]:
+                    if part not in etl_params_og.keys():
+                        raise AssertionError('Partion not recognized')
+            except KeyError:
+                pass
     except KeyError:
         partition_dict['partition'] = None
     return(partition_dict)
@@ -332,10 +336,19 @@ def _validate_params_epacems(etl_params):
         if epacems_dict['epacems_states'][0].lower() == 'all':
             epacems_dict['epacems_states'] = list(pc.cems_states.keys())
 
+    # CEMS is ALWAYS going to be partitioned by year and state. This means we
+    # are functinoally removing the option to not partition or partition another
+    # way. Nonetheless, we are adding it in here because we still need to know
+    # what the partitioning is like for the metadata generation (it treats
+    # partitioned tables differently).
+    epacems_dict['partition'] = {'hourly_emissions_epacems':
+                                 ['epacems_years', 'epacems_states']}
+    # this is maybe unnecessary because we are hardcoding the partitions, but
+    # we are still going to validate that the partitioning is
     epacems_dict['partition'] = _validate_params_partition(
-        etl_params, [pc.epacems_tables])
+        epacems_dict, [pc.epacems_tables])
     if not epacems_dict['partition']:
-        raise AssertionError('No partition found for EPA CEMS. '
+        raise AssertionError('No partition found for EPA CEMS.'
                              'EPA CEMS requires either states or years as a partion'
                              )
 
@@ -376,28 +389,40 @@ def _etl_epacems_part(part, epacems_years, epacems_states, data_dir, pkg_dir):
 
 
 def _etl_epacems_pkg(etl_params, data_dir, pkg_dir):
-    epacems_dict = _validate_params_epacems(etl_params)
+    epacems_dict = pudl.etl._validate_params_epacems(etl_params)
     epacems_years = epacems_dict['epacems_years']
     epacems_states = epacems_dict['epacems_states']
-    epacems_partition = epacems_dict['partition']
     # If we're not doing CEMS, just stop here to avoid printing messages like
     # "Reading EPA CEMS data...", which could be confusing.
     if not epacems_states or not epacems_years:
         logger.info('Not ingesting EPA CEMS.')
-        return []
-    epacems_tables = []
-    for part in epacems_dict[epacems_partition[pc.epacems_tables]]:
-        if part in epacems_years:
-            epacems_years = [part]
-        if part in epacems_states:
-            epacems_states = [part]
 
-        epacems_tables.append(_etl_epacems_part(part, epacems_years,
-                                                epacems_states,
-                                                data_dir,
-                                                pkg_dir))
+    # NOTE: This a generator for raw dataframes
+    epacems_raw_dfs = pudl.extract.epacems.extract(
+        epacems_years=epacems_years, states=epacems_states, data_dir=data_dir)
+    # NOTE: This is a generator for transformed dataframes
+    epacems_transformed_dfs = pudl.transform.epacems.transform(
+        epacems_raw_dfs=epacems_raw_dfs, pkg_dir=pkg_dir)
+
+    logger.info("Loading tables from EPA CEMS into PUDL:")
+    if logger.isEnabledFor(logging.INFO):
+        start_time = time.monotonic()
+    epacems_tables = []
+    # run the cems generator dfs through the load step
+    for transformed_df_dict in epacems_transformed_dfs:
+        pudl.load.csv.dict_dump(transformed_df_dict,
+                                "EPA CEMS",
+                                need_fix_inting=pc.need_fix_inting,
+                                pkg_dir=pkg_dir)
+        epacems_tables.append(list(transformed_df_dict.keys())[0])
+    if logger.isEnabledFor(logging.INFO):
+        time_message = "    Loading    EPA CEMS took {}".format(
+            time.strftime("%H:%M:%S",
+                          time.gmtime(time.monotonic() - start_time)))
+        logger.info(time_message)
+        start_time = time.monotonic()
+
     return epacems_tables
-    # return ['hourly_emissions_epacems']
 
 ###############################################################################
 # EPA IPM ETL FUNCTIONS
