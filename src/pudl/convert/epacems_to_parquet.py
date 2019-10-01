@@ -133,7 +133,6 @@ def _verify_cems_args(data_path, epacems_years, epacems_states):
             df_name = file.name[:file.name.find(".")]
             years.add(int(df_name[25:29]))
             states.add(df_name[30:])
-    logger.info(f' CEMS package has {years} and {states}')
     for arg_year in epacems_years:
         if arg_year not in years:
             raise AssertionError(
