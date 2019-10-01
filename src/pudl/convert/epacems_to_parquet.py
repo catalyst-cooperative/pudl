@@ -128,6 +128,7 @@ def _verify_cems_args(data_path, epacems_years, epacems_states):
     """Check that the data packaage has all years and states you want."""
     years = set()
     states = set()
+    # compile all of the years and states
     for file in data_path.iterdir():
         if "epacems" in file.name:
             df_name = file.name[:file.name.find(".")]
@@ -150,7 +151,8 @@ def epacems_to_parquet(pkg_dir,
                        epacems_states,
                        out_dir,
                        compression='snappy',
-                       partition_cols=('year', 'state')):
+                       partition_cols=('year', 'state'),
+                       clobber=False):
     """Take transformed EPA CEMS dataframes and output them as Parquet files.
 
     We need to do a few additional manipulations of the dataframes after they
@@ -169,8 +171,11 @@ def epacems_to_parquet(pkg_dir,
         epacems_states (list): list of years from which we are trying to read
             CEMs data
         out_dir (path-like): The directory in which to output the Parquet files
-        compression (type?):
+        compression (string):
         partition_cols (tuple):
+        clobber (bool): If True and there is already a directory with out_dirs
+            name, the existing parquet files will be deleted and new ones will
+            be generated in their place.
 
     Raises:
         AssertionError: Raised if an output directory is not specified.
@@ -181,7 +186,7 @@ def epacems_to_parquet(pkg_dir,
     """
     if not out_dir:
         raise AssertionError("Required output directory not specified.")
-
+    out_dir = pudl.load.metadata.prep_directory(out_dir, clobber=clobber)
     schema = create_cems_schema()
     data_path = pathlib.Path(pkg_dir, 'data')
     # double check that all of the years you are asking for are actually in
@@ -192,10 +197,10 @@ def epacems_to_parquet(pkg_dir,
             year = df_name[25:29]
             state = df_name[30:]
             # only convert the years and states that you actually want
-            if int(year) in epacems_years and state in epacems_states:
+            if int(year) in epacems_years and state.upper() in epacems_states:
                 df = pd.read_csv(file, parse_dates=['operating_datetime_utc'])
                 logger.info(
-                    f"Converted {len(df)} records for {df_name}."
+                    f"Converted {len(df)} records for {year} and {state}."
                 )
                 df = year_from_operating_datetime(df).astype(IN_DTYPES)
                 pq.write_to_dataset(
@@ -226,7 +231,6 @@ def parse_command_line(argv):
             subdirectory containing CSVs.""",
     )
     parser.add_argument(
-        '-c',
         '--compression',
         type=str,
         help="""Compression algorithm to use for Parquet files. Can be either
@@ -269,6 +273,14 @@ def parse_command_line(argv):
         is everything: all 48 continental US states plus Washington DC.""",
         default=pc.cems_states.keys()
     )
+    parser.add_argument(
+        '-c',
+        '--clobber',
+        action='store_true',
+        help="""Clobber existing parquet files if they exist. If clobber is not
+        included but the parquet directory already exists the _build will
+        fail.""",
+        default=False)
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -303,7 +315,8 @@ def main():
                        out_dir=pathlib.Path(
                            pudl_settings['parquet_dir'], "epacems"),
                        compression=args.compression,
-                       partition_cols=('year', 'state'))
+                       partition_cols=('year', 'state'),
+                       clobber=args.clobber)
 
 
 if __name__ == '__main__':
