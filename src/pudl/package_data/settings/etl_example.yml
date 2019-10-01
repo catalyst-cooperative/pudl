@@ -147,4 +147,6 @@ pkg_bundle_settings:
           # This will load all 50 states:
           #epacems_states: [ALL]
           partition:
-            hourly_emissions_epacems: epacems_years
+            hourly_emissions_epacems:
+              - epacems_years
+              - epacems_states
