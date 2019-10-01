@@ -94,7 +94,7 @@ pkg_bundle_settings:
   # reasonably fast laptop.
 
 
-  - name: epacems_eia860
+  - name: epacems_eia860_923
     title: CEMS stuff
     description: stuff about cems
     datasets:
