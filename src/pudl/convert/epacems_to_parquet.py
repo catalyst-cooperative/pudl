@@ -30,6 +30,7 @@ import sys
 from functools import partial
 
 import coloredlogs
+import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
@@ -123,11 +124,31 @@ def year_from_operating_datetime(df):
     return df
 
 
-def epacems_to_parquet(epacems_years,
+def _verify_cems_args(data_path, epacems_years, epacems_states):
+    """Check that the data packaage has all years and states you want."""
+    years = set()
+    states = set()
+    for file in data_path.iterdir():
+        if "epacems" in file.name:
+            df_name = file.name[:file.name.find(".")]
+            years.add(int(df_name[25:29]))
+            states.add(df_name[30:])
+    for arg_year in epacems_years:
+        if arg_year not in years:
+            raise AssertionError(
+                f'The data packages do not include the requested year: {arg_year}'
+            )
+    for arg_state in epacems_states:
+        if arg_state.lower() not in states:
+            raise AssertionError(
+                f'The data packages do not include the requested state: {arg_state}'
+            )
+
+
+def epacems_to_parquet(pkg_dir,
+                       epacems_years,
                        epacems_states,
-                       data_dir,
                        out_dir,
-                       pkg_dir,
                        compression='snappy',
                        partition_cols=('year', 'state')):
     """Take transformed EPA CEMS dataframes and output them as Parquet files.
@@ -140,15 +161,16 @@ def epacems_to_parquet(epacems_years,
     partition the datset on disk by year as well as state.
 
     Args:
+        pkg_dir (path-like): Path to the directory of the data package which
+            contains EPA CEMS. This directory should have a json metadata file
+            and a `data` subdirectory containing CSVs.
         epacems_years (list): list of years from which we are trying to read
             CEMs data
         epacems_states (list): list of years from which we are trying to read
             CEMs data
-        data_dir (path-like): Path to the top directory of the PUDL datastore.
         out_dir (path-like): The directory in which to output the Parquet files
-        pkg_dir (path-like): The directory in which to output...
         compression (type?):
-        partition_cols (type?):
+        partition_cols (tuple):
 
     Raises:
         AssertionError: Raised if an output directory is not specified.
@@ -161,32 +183,26 @@ def epacems_to_parquet(epacems_years,
         raise AssertionError("Required output directory not specified.")
 
     schema = create_cems_schema()
-    # Use the PUDL EPA CEMS Extract / Transform pipelines to process the
-    # original raw data from EPA as needed.
-    raw_dfs = pudl.extract.epacems.extract(
-        epacems_years=epacems_years,
-        states=epacems_states,
-        data_dir=data_dir,
-    )
-    transformed_dfs = pudl.transform.epacems.transform(
-        epacems_raw_dfs=raw_dfs,
-        pkg_dir=pkg_dir
-    )
-    for df_dict in transformed_dfs:
-        for yr_st, df in df_dict.items():
-            logger.info(
-                f"Converted {len(df)} records for {yr_st[1]} in {yr_st[0]}."
-            )
-            if df.empty:
-                logger.info(f"Found an empty epacems DataFrame for {yr_st}.")
-                continue
-
-            df = year_from_operating_datetime(df).astype(IN_DTYPES)
-            pq.write_to_dataset(
-                pa.Table.from_pandas(
-                    df, preserve_index=False, schema=schema),
-                root_path=str(out_dir), partition_cols=list(partition_cols),
-                compression=compression)
+    data_path = pathlib.Path(pkg_dir, 'data')
+    # double check that all of the years you are asking for are actually in
+    _verify_cems_args(data_path, epacems_years, epacems_states)
+    for file in data_path.iterdir():
+        if "epacems" in file.name:
+            df_name = file.name[:file.name.find(".")]
+            year = df_name[25:29]
+            state = df_name[30:]
+            # only convert the years and states that you actually want
+            if int(year) in epacems_years and state in epacems_states:
+                df = pd.read_csv(file, parse_dates=['operating_datetime_utc'])
+                logger.info(
+                    f"Converted {len(df)} records for {df_name}."
+                )
+                df = year_from_operating_datetime(df).astype(IN_DTYPES)
+                pq.write_to_dataset(
+                    pa.Table.from_pandas(
+                        df, preserve_index=False, schema=schema),
+                    root_path=str(out_dir), partition_cols=list(partition_cols),
+                    compression=compression)
 
 
 def parse_command_line(argv):
@@ -202,6 +218,13 @@ def parse_command_line(argv):
     """
     parser = argparse.ArgumentParser(description=__doc__)
     defaults = pudl.workspace.setup.get_defaults()
+    parser.add_argument(
+        '--pkg_dir',
+        type=str,
+        help="""Path to the directory of the data package which contains EPA
+            CEMS. This directory should have a json metadata file and a `data`
+            subdirectory containing CSVs.""",
+    )
     parser.add_argument(
         '-c',
         '--compression',
@@ -246,22 +269,6 @@ def parse_command_line(argv):
         is everything: all 48 continental US states plus Washington DC.""",
         default=pc.cems_states.keys()
     )
-    parser.add_argument(
-        '-p',
-        '--partition_cols',
-        nargs='+',
-        choices=['year', 'state'],
-        help="""Which columns should be used to partition the Apache Parquet
-        dataset? (default: %(default)s)""",
-        default=['year', 'state']
-    )
-    parser.add_argument(
-        '--pkg_dir_name',
-        type=str,
-        help="""The name of the directory within the data package directory
-        where the EIA data package lives. You'll need the plants_entity_eia
-        table to exist in the `data` subdirectory for the UTC offset.""",
-    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -290,16 +297,13 @@ def main():
         pudl_settings=pudl_settings,
     )
 
-    epacems_to_parquet(
-        epacems_years=args.years,
-        epacems_states=args.states,
-        data_dir=pudl_settings['data_dir'],
-        out_dir=pathlib.Path(pudl_settings['parquet_dir'], "epacems"),
-        pkg_dir=pathlib.Path(
-            pudl_settings['datapackage_dir'], args.pkg_dir_name),
-        compression=args.compression,
-        partition_cols=list(args.partition_cols),
-    )
+    epacems_to_parquet(pkg_dir=args.pkg_dir,
+                       epacems_years=args.years,
+                       epacems_states=args.states,
+                       out_dir=pathlib.Path(
+                           pudl_settings['parquet_dir'], "epacems"),
+                       compression=args.compression,
+                       partition_cols=('year', 'state'))
 
 
 if __name__ == '__main__':

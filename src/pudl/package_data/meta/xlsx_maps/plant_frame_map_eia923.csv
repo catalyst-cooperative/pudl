@@ -8,3 +8,4 @@ year_index,report_year,report_month,plant_id_eia,plant_state,eia_sector,naics_co
 2015,year,month,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,reporting_frequency,
 2016,year,month,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,reporting_frequency,
 2017,year,month,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,reporting_frequency,
+2018,year,month,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,reporting_frequency,

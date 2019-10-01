@@ -53,17 +53,18 @@ def test_epacems_to_parquet(datapkg,
                             data_scope,
                             fast_tests):
     """Attempt to convert a small amount of EPA CEMS data to parquet format."""
+    logger.info(pathlib.Path(
+        pudl_settings_fixture['datapackage_dir'],
+        data_scope['pkg_bundle_name'], 'epacems_eia860_923'))
     epacems_to_parquet(
-        epacems_years=data_scope['epacems_years'],
-        epacems_states=data_scope['epacems_states'],
-        data_dir=pudl_settings_fixture['data_dir'],
-        out_dir=pathlib.Path(pudl_settings_fixture['parquet_dir'], 'epacems'),
         pkg_dir=pathlib.Path(
             pudl_settings_fixture['datapackage_dir'],
-            data_scope['pkg_bundle_name'], 'epacems_eia860'
-        ),
-        compression='snappy'
-    )
+            data_scope['pkg_bundle_name'], 'epacems_eia860_923'),
+        epacems_years=data_scope['epacems_years'],
+        epacems_states=data_scope['epacems_states'],
+        out_dir=pathlib.Path(
+            pudl_settings_fixture['parquet_dir'], 'epacems'),
+        compression='snappy')
 
 
 def test_ferc1_lost_data(pudl_settings_fixture, data_scope):

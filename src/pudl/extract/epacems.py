@@ -69,6 +69,6 @@ def extract(epacems_years, states, data_dir):
             # others, this is yielded as a generator (and it's a one-item
             # dictionary).
             yield {
-                (year, state):
+                ("hourly_emissions_epacems_" + str(year) + "_" + state.lower()):
                     pd.concat(dfs, sort=True, copy=False, ignore_index=True)
             }

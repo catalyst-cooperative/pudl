@@ -2234,8 +2234,8 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 
 # The full set of years we currently expect to be able to ingest, per source:
 working_years = {
-    'eia860': tuple(range(2011, 2018)),
-    'eia923': tuple(range(2009, 2018)),
+    'eia860': tuple(range(2011, 2019)),
+    'eia923': tuple(range(2009, 2019)),
     'epacems': tuple(range(1995, 2019)),
     'ferc1': tuple(range(2004, 2018)),
     'epaipm': (None, ),
