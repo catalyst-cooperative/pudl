@@ -29,13 +29,13 @@ def data_scope(fast_tests, pudl_settings_fixture):
     data_scope = {}
     test_dir = pathlib.Path(__file__).parent
     if fast_tests:
-        settings_file = 'settings_datapackage_fast.yml'
+        settings_file = 'fast-test.yml'
         # the ferc1_dbf_tables are for the ferc1_engine. they refer to ferc1
         # dbf table names, not pudl table names. for the fast test, we only pull
         # in tables we need for pudl.
         data_scope['ferc1_dbf_tables'] = pc.ferc1_default_tables
     else:
-        settings_file = 'settings_datapackage_test.yml'
+        settings_file = 'full-test.yml'
         data_scope['ferc1_dbf_tables'] = [
             tbl for tbl in pc.ferc1_tbl2dbf if tbl not in pc.ferc1_huge_tables
         ]

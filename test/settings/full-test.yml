@@ -1,0 +1,79 @@
+pkg_bundle_name: pudl-test
+pkg_bundle_settings:
+  ###########################################################################
+  # EPA IPM SETTINGS
+  ###########################################################################
+  - name: epaipm-test
+    title: EPA Integrated Planning Model transmission data
+    description: All of the EPA IPM data, since it's small and not organized into annual chunks.
+    datasets:
+      - epaipm:
+          epaipm_tables:
+            - transmission_single_epaipm
+            - transmission_joint_epaipm
+            - load_curves_epaipm
+            - plant_region_map_epaipm
+
+  ###########################################################################
+  # FERC FORM 1 SETTINGS
+  ###########################################################################
+  - name: ferc1-test
+    title: FERC Form 1 Test package
+    description: All available and integrated years of FERC Form 1 data.
+    datasets:
+      - ferc1:
+          ferc1_tables:
+           - fuel_ferc1 # requires plants_steam_ferc1 to load properly
+           - plants_steam_ferc1
+           - plants_small_ferc1
+           - plants_hydro_ferc1
+           - plants_pumped_storage_ferc1
+           - plant_in_service_ferc1
+           - purchased_power_ferc1
+           - accumulated_depreciation_ferc1
+          ferc1_years: [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
+                        2013, 2014, 2015, 2016, 2017]
+
+  ###########################################################################
+  # EIA FORM 923 & 860 SETTINGS
+  ###########################################################################
+  - name: eia-test
+    title: Standalone data package containing all available EIA 860/923 data.
+    description: whatever eia things.. ya know 860, 923.. all the things
+    datasets:
+      - eia:
+          eia923_tables:
+            - generation_fuel_eia923
+            - boiler_fuel_eia923
+            - generation_eia923
+            - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
+            - fuel_receipts_costs_eia923
+          eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+                         2018]
+          eia860_tables:
+            - boiler_generator_assn_eia860
+            - utilities_eia860
+            - plants_eia860
+            - generators_eia860
+            - ownership_eia860
+          eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018]
+
+  ###########################################################################
+  # EPA CEMS HOURLY SETTINGS
+  ###########################################################################
+  - name: epacems-eia-test
+    title: EPA CEMS Hourly Emissions and EIA 860 for one year and state.
+    description: A minimal test run for EPA CEMS, including one year of data for Idaho and whatever is required of the EIA 860 to map to the entities in the EPA CEMS tables.
+    datasets:
+      - eia:
+          eia860_tables:
+            - boiler_generator_assn_eia860
+            - utilities_eia860
+            - plants_eia860
+            - generators_eia860
+            - ownership_eia860
+          eia860_years: [2018]
+      - epacems:
+          # Just Idaho, because it is tiny:
+          epacems_states: [ID]
+          epacems_years: [2018]

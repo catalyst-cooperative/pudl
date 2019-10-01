@@ -22,13 +22,13 @@ from pudl.convert.epacems_to_parquet import epacems_to_parquet
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.data_package
+@pytest.mark.datapkg
 def test_datapkg(datapkg):
     """Generate limited packages for testing."""
     pass
 
 
-@pytest.mark.data_package
+@pytest.mark.datapkg
 def test_datapkg_to_sqlite(datapkg_to_sqlite):
     """Try flattening the data packages."""
     pass
@@ -55,11 +55,11 @@ def test_epacems_to_parquet(datapkg,
     """Attempt to convert a small amount of EPA CEMS data to parquet format."""
     logger.info(pathlib.Path(
         pudl_settings_fixture['datapackage_dir'],
-        data_scope['pkg_bundle_name'], 'epacems_eia860_923'))
+        data_scope['pkg_bundle_name'], 'epacems-eia-test'))
     epacems_to_parquet(
         pkg_dir=pathlib.Path(
             pudl_settings_fixture['datapackage_dir'],
-            data_scope['pkg_bundle_name'], 'epacems_eia860_923'),
+            data_scope['pkg_bundle_name'], 'epacems-eia-test'),
         epacems_years=data_scope['epacems_years'],
         epacems_states=data_scope['epacems_states'],
         out_dir=pathlib.Path(
@@ -234,7 +234,7 @@ def test_only_ferc1_pudl_init_db(datastore_fixture,
     """Verify that a minimal FERC Form 1 can be loaded without other data."""
     test_dir = pathlib.Path(__file__).parent
     with open(pathlib.Path(test_dir, 'settings',
-                           'settings_datapackage_ferc1_only.yml'),
+                           'ferc1-solo.yml'),
               "r") as f:
         pkg_settings = yaml.safe_load(f)['pkg_bundle_settings']
 
