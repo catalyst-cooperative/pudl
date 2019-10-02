@@ -147,19 +147,21 @@ def pudl_out_orig(live_pudl_db, pudl_engine):
 
 @pytest.fixture(scope='session')
 def ferc1_engine(live_ferc_db, pudl_settings_fixture,
-                 datastore_fixture, data_scope):
+                 datastore_fixture, data_scope, request):
     """
     Grab a connection to the FERC Form 1 DB clone.
 
     If we are using the test database, we initialize it from scratch first.
     If we're using the live database, then we just yield a conneciton to it.
     """
+    clobber = request.config.getoption("--clobber")
     if not live_ferc_db:
         pudl.extract.ferc1.dbf2sqlite(
             tables=data_scope['ferc1_dbf_tables'],
             years=data_scope['ferc1_years'],
             refyear=max(data_scope['ferc1_years']),
-            pudl_settings=pudl_settings_fixture)
+            pudl_settings=pudl_settings_fixture,
+            clobber=clobber)
     # for now let's check if the ferc1 database has any tables...
     pudl.extract.ferc1.get_ferc1_meta(pudl_settings_fixture)
 
@@ -171,7 +173,7 @@ def ferc1_engine(live_ferc_db, pudl_settings_fixture,
 
     if not live_ferc_db:
         # Clean up after ourselves by dropping the test DB tables.
-        pudl.helpers.drop_tables(engine)
+        pudl.helpers.drop_tables(engine, clobber=True)
 
 
 @pytest.fixture(scope='session')
@@ -237,7 +239,7 @@ def pudl_engine(ferc1_engine, live_pudl_db,
 
     if not live_pudl_db:
         # Clean up after ourselves by dropping the test DB tables.
-        pudl.helpers.drop_tables(pudl_engine)
+        pudl.helpers.drop_tables(pudl_engine, clobber=True)
 
 
 @pytest.fixture(scope='session')  # noqa: C901

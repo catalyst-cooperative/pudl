@@ -29,7 +29,8 @@ logger = logging.getLogger(__name__)
 
 def pkg_to_sqlite_db(pudl_settings,
                      pkg_bundle_name,
-                     pkg_name=None):
+                     pkg_name=None,
+                     clobber=False):
     """
     Turn a data package into a sqlite database.
 
@@ -48,7 +49,7 @@ def pkg_to_sqlite_db(pudl_settings,
     logger.info("Dropping the current PUDL DB, if it exists.")
     try:
         # So that we can wipe it out
-        pudl.helpers.drop_tables(pudl_engine)
+        pudl.helpers.drop_tables(pudl_engine, clobber=clobber)
     except sa.exc.OperationalError:
         pass
     # And start anew
@@ -96,6 +97,14 @@ def parse_command_line(argv):
         default="",
         help="""Name for data package bundle directory. If no name is given the
         default is the pudl python package version.""")
+    parser.add_argument(
+        '-c',
+        '--clobber',
+        action='store_true',
+        help="""Clobber existing sqlite database if it exists. If clobber is
+        not included but the sqlite databse already exists the _build will
+        fail.""",
+        default=False)
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -123,9 +132,10 @@ def main():
     )
 
     logger.info(f"Converting flattened datapackage into an SQLite database.")
-    pudl.convert.datapkg_to_sqlite.pkg_to_sqlite_db(
+    pkg_to_sqlite_db(
         pudl_settings,
         pkg_bundle_name=args.pkg_bundle_name,
-        pkg_name='pudl-all')
+        pkg_name='pudl-all',
+        clobber=args.clobber)
     logger.info(f"Success! You can connect to the PUDL DB using this URL:")
     logger.info(f"{pudl_settings['pudl_db']}")
