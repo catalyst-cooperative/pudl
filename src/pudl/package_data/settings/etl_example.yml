@@ -30,6 +30,10 @@ pkg_bundle_settings:
             - transmission_joint_epaipm
             - load_curves_epaipm
             - plant_region_map_epaipm
+          # if you don't want to download ipm, either delete this entire package
+          # settings or comment out the epaipm_tables above and include the
+          # empty list below.
+          # epaipm_tables: []
 
   ###########################################################################
   # FERC FORM 1 SETTINGS
