@@ -25,7 +25,7 @@ dependencies:
   - nbval               # dev
   - networkx>=2.2       # base We depend on features introduced in v2.2
   - numpy               # base
-  - pandas>=0.24        # base We depend on features introduced in 0.24
+  - pandas>=0.25        # base We use nullable integers!
   - pandoc              # dev
   - pdbpp               # dev
   - pep8-naming         # dev

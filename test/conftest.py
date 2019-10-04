@@ -53,9 +53,9 @@ def data_scope(fast_tests, pudl_settings_fixture):
 
 def pytest_addoption(parser):
     """Add a command line option for using the live FERC/PUDL DB."""
-    parser.addoption("--live_ferc_db", action="store", default=False,
+    parser.addoption("--live_ferc1_db", action="store", default=False,
                      help="""Path to a live rather than temporary FERC DB.
-                          Use --live_ferc_db=AUTO if FERC DB location concurs
+                          Use --live_ferc1_db=AUTO if FERC DB location concurs
                           with derived pudl_out.""")
     parser.addoption("--live_pudl_db", action="store", default=False,
                      help="""Path to a live rather than temporary PUDL DB.
@@ -72,9 +72,9 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture(scope='session')
-def live_ferc_db(request):
+def live_ferc1_db(request):
     """Use the live FERC DB or make a temporary one."""
-    return request.config.getoption("--live_ferc_db")
+    return request.config.getoption("--live_ferc1_db")
 
 
 @pytest.fixture(scope='session')
@@ -146,7 +146,7 @@ def pudl_out_orig(live_pudl_db, pudl_engine):
 
 
 @pytest.fixture(scope='session')
-def ferc1_engine(live_ferc_db, pudl_settings_fixture,
+def ferc1_engine(live_ferc1_db, pudl_settings_fixture,
                  datastore_fixture, data_scope):
     """
     Grab a connection to the FERC Form 1 DB clone.
@@ -154,7 +154,7 @@ def ferc1_engine(live_ferc_db, pudl_settings_fixture,
     If we are using the test database, we initialize it from scratch first.
     If we're using the live database, then we just yield a conneciton to it.
     """
-    if not live_ferc_db:
+    if not live_ferc1_db:
         pudl.extract.ferc1.dbf2sqlite(
             tables=data_scope['ferc1_dbf_tables'],
             years=data_scope['ferc1_years'],
@@ -169,7 +169,7 @@ def ferc1_engine(live_ferc_db, pudl_settings_fixture,
 
     logger.info(f'Engine: {engine}')
 
-    if not live_ferc_db:
+    if not live_ferc1_db:
         # Clean up after ourselves by dropping the test DB tables.
         pudl.helpers.drop_tables(engine)
 
@@ -241,7 +241,7 @@ def pudl_engine(ferc1_engine, live_pudl_db,
 
 
 @pytest.fixture(scope='session')  # noqa: C901
-def pudl_settings_fixture(request, tmpdir_factory, live_ferc_db, live_pudl_db):
+def pudl_settings_fixture(request, tmpdir_factory, live_ferc1_db, live_pudl_db):
     """Determine some settings (mostly paths) for the test session."""
     logger.info('setting up the pudl_settings_fixture')
     # Create a session scoped temporary directory.
@@ -279,11 +279,11 @@ def pudl_settings_fixture(request, tmpdir_factory, live_ferc_db, live_pudl_db):
 
     pudl.workspace.setup.init(pudl_in=pudl_in, pudl_out=pudl_out)
 
-    if live_ferc_db == 'AUTO':
+    if live_ferc1_db == 'AUTO':
         pudl_settings['ferc1_db'] = pudl_auto['ferc1_db']
-    elif live_ferc_db:
-        live_ferc_db_path = pathlib.Path(live_ferc_db).expanduser().resolve()
-        pudl_settings['ferc1_db'] = 'sqlite:///' + str(live_ferc_db_path)
+    elif live_ferc1_db:
+        live_ferc1_db_path = pathlib.Path(live_ferc1_db).expanduser().resolve()
+        pudl_settings['ferc1_db'] = 'sqlite:///' + str(live_ferc1_db_path)
 
     if live_pudl_db == 'AUTO':
         pudl_settings['pudl_db'] = pudl_auto['pudl_db']

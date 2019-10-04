@@ -48,7 +48,7 @@ pkg_bundle_settings:
             - generation_eia923
             - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
             - fuel_receipts_costs_eia923
-          eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+          eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017,
                          2018]
           eia860_tables:
             - boiler_generator_assn_eia860

@@ -245,7 +245,9 @@ travis_ci_epacems_states = ('ID', )
 ferc1_coal_strings = \
     ['coal', 'coal-subbit', 'lignite', 'coal(sb)', 'coal (sb)', 'coal-lignite',
      'coke', 'coa', 'lignite/coal', 'coal - subbit', 'coal-subb', 'coal-sub',
-     'coal-lig', 'coal-sub bit', 'coals', 'ciak', 'petcoke']
+     'coal-lig', 'coal-sub bit', 'coals', 'ciak', 'petcoke', 'coal.oil',
+     'coal/gas', 'bit coal', 'coal-unit #3', 'coal-subbitum', 'coal tons',
+     'coal mcf', 'coal unit #3', 'pet. coke', 'coal-u3', 'coal&coke', 'tons']
 """
 list: A list of strings which are used to represent coal fuel in FERC Form 1
     reporting.
@@ -262,7 +264,11 @@ ferc1_oil_strings = \
      'oil-kero', 'oil bbl', 'biofuel', 'no 2', 'kero', '#1 fuel oil',
      'no. 2  oil', 'blended oil', 'no 2. oil', '# 6 oil', 'nno. 2 oil',
      '#2 fuel', 'oill', 'oils', 'gas/oil', 'no.2 oil gas', '#2 fuel oil',
-     'oli', 'oil (#6)', 'oil/diesel', '2 Oil']
+     'oli', 'oil (#6)', 'oil/diesel', '2 oil', '#6 hvy oil', 'jet fuel',
+     'diesel/compos', 'oil-8', 'oil {6}', 'oil-unit #1', 'bbl.', 'oil.',
+     'oil #6', 'oil (6)', 'oil(#2)', 'oil-unit1&2', 'oil-6', '#2 fue oil',
+     'dielel oil', 'dielsel oil', '#6 & used', 'barrels', 'oil un 1 & 2',
+     'jet oil', 'oil-u1&2', 'oiul', 'pil', 'oil - 2', '#6 & used', 'oial']
 """
 list: A list of strings which are used to represent oil fuel in FERC Form 1
     reporting.
@@ -272,7 +278,10 @@ ferc1_gas_strings = \
     ['gas', 'gass', 'methane', 'natural gas', 'blast gas', 'gas mcf',
      'propane', 'prop', 'natural  gas', 'nat.gas', 'nat gas',
      'nat. gas', 'natl gas', 'ga', 'gas`', 'syngas', 'ng', 'mcf',
-     'blast gaa', 'nat  gas', 'gac', 'syngass', 'prop.', 'natural', 'coal.gas']
+     'blast gaa', 'nat  gas', 'gac', 'syngass', 'prop.', 'natural', 'coal.gas',
+     'n. gas', 'lp gas', 'natuaral gas', 'coke gas', 'gas #2016', 'propane**',
+     '* propane', 'propane **', 'gas expander', 'gas ct', '# 6 gas', '#6 gas',
+     'coke oven gas']
 """
 list: A list of strings which are used to represent gas fuel in FERC Form 1
     reporting.
@@ -286,7 +295,9 @@ ferc1_hydro_strings = []
 
 ferc1_nuke_strings = \
     ['nuclear', 'grams of uran', 'grams of', 'grams of  ura',
-     'grams', 'nucleur', 'nulear', 'nucl', 'nucleart']
+     'grams', 'nucleur', 'nulear', 'nucl', 'nucleart', 'nucelar',
+     'gr.uranium', 'grams of urm', 'nuclear (9)', 'nulcear', 'nuc',
+     'gr. uranium', 'nuclear mw da', 'grams of ura']
 """
 list: A list of strings which are used to represent nuclear fuel in FERC Form
     1 reporting.
@@ -294,15 +305,25 @@ list: A list of strings which are used to represent nuclear fuel in FERC Form
 
 ferc1_waste_strings = ['tires', 'tire', 'refuse', 'switchgrass',
                        'wood waste', 'woodchips', 'biomass', 'wood',
-                       'wood chips', 'rdf']
+                       'wood chips', 'rdf', 'tires/refuse', 'tire refuse',
+                       'waste oil', 'waste', 'woodships', 'tire chips']
 """
 list: A list of strings which are used to represent waste fuel in FERC Form 1
     reporting.
 """
 
-ferc1_other_strings = ['steam', 'purch steam',
-                       'purch. steam', 'other', 'composite', 'composit',
-                       'mbtus']
+ferc1_other_strings = [
+    'steam', 'purch steam', 'all', 'tdf', 'n/a', 'purch. steam', 'other',
+    'composite', 'composit', 'mbtus', 'total', 'avg', 'avg.', 'blo',
+    'all fuel', 'comb.', 'alt. fuels', 'na', 'comb', '/#=2\x80â\x91?',
+    'kã\xadgv¸\x9d?', "mbtu's", 'gas, oil', 'rrm', '3\x9c', 'average',
+    'furfural', '0', 'watson bng', 'toal', 'bng', '# 6 & used', 'combined',
+    'blo bls', 'compsite', '*', 'compos.', 'gas / oil', 'mw days', 'g', 'c',
+    'lime', 'all fuels', 'at right', '20', '1', 'comp oil/gas', 'all fuels to',
+    'the right are', 'c omposite', 'all fuels are', 'total pr crk',
+    'all fuels =', 'total pc', 'comp', 'alternative', 'alt. fuel', 'bio fuel',
+    'total prairie', ''
+]
 """list: A list of strings which are used to represent other fuels in FERC Form
     1 reporting.
 """
@@ -327,13 +348,15 @@ ferc1_fuel_strings = {'coal': ferc1_coal_strings,
 # Similarly, dictionary for cleaning up fuel unit strings
 ferc1_ton_strings = ['toms', 'taons', 'tones', 'col-tons', 'toncoaleq', 'coal',
                      'tons coal eq', 'coal-tons', 'ton', 'tons', 'tons coal',
-                     'coal-ton', 'tires-tons']
+                     'coal-ton', 'tires-tons', 'coal tons -2 ',
+                     'coal tons 200', 'ton-2000', 'coal tons -2', 'coal tons',
+                     'coal-tone', 'tire-ton', 'tire-tons', 'ton coal eqv']
 """list: A list of fuel unit strings for tons."""
 
 ferc1_mcf_strings = \
     ['mcf', "mcf's", 'mcfs', 'mcf.', 'gas mcf', '"gas" mcf', 'gas-mcf',
      'mfc', 'mct', ' mcf', 'msfs', 'mlf', 'mscf', 'mci', 'mcl', 'mcg',
-     'm.cu.ft.']
+     'm.cu.ft.', 'kcf', '(mcf)', 'mcf *(4)', 'mcf00', 'm.cu.ft..']
 """list: A list of fuel unit strings for thousand cubic feet."""
 
 ferc1_bbl_strings = \
@@ -341,39 +364,54 @@ ferc1_bbl_strings = \
      'oil 42 gal', 'oil-barrels', 'barrrels', 'bbl-42 gal',
      'oil-barrel', 'bb.', 'barrells', 'bar', 'bbld', 'oil- barrel',
      'barrels    .', 'bbl .', 'barels', 'barrell', 'berrels', 'bb',
-     'bbl.s', 'oil-bbl', 'bls', 'bbl:', 'barrles', 'blb', 'propane-bbl']
+     'bbl.s', 'oil-bbl', 'bls', 'bbl:', 'barrles', 'blb', 'propane-bbl',
+     'barriel', 'berriel', 'barrile', '(bbl.)', 'barrel *(4)', '(4) barrel',
+     'bbf', 'blb.', '(bbl)', 'bb1', 'bbsl', 'barrrel', 'barrels 100%',
+     'bsrrels', "bbl's", '*barrels', 'oil - barrels', 'oil 42 gal ba', 'bll',
+     'boiler barrel', 'gas barrel', '"boiler" barr', '"gas" barrel',
+     '"boiler"barre', '"boiler barre', 'barrels .']
 """list: A list of fuel unit strings for barrels."""
 
-ferc1_gal_strings = ['gallons', 'gal.', 'gals', 'gals.', 'gallon', 'gal']
+ferc1_gal_strings = ['gallons', 'gal.', 'gals', 'gals.', 'gallon', 'gal',
+                     'galllons']
 """list: A list of fuel unit strings for gallons."""
 
-ferc1_1kgal_strings = ['oil(1000 gal)', 'oil(1000)', 'oil (1000)', 'oil(1000']
+ferc1_1kgal_strings = ['oil(1000 gal)', 'oil(1000)', 'oil (1000)', 'oil(1000',
+                       'oil(1000ga)']
 """list: A list of fuel unit strings for thousand gallons."""
 
 ferc1_gramsU_strings = [  # noqa: N816 (U-ranium is capitalized...)
     'gram', 'grams', 'gm u', 'grams u235', 'grams u-235', 'grams of uran',
     'grams: u-235', 'grams:u-235', 'grams:u235', 'grams u308', 'grams: u235',
-    'grams of'
+    'grams of', 'grams - n/a', 'gms uran', 's e uo2 grams', 'gms uranium',
+    'grams of urm', 'gms. of uran', 'grams (100%)', 'grams v-235',
+    'se uo2 grams'
 ]
 """list: A list of fuel unit strings for grams."""
 
 ferc1_kgU_strings = [  # noqa: N816 (U-ranium is capitalized...)
     'kg of uranium', 'kg uranium', 'kilg. u-235', 'kg u-235', 'kilograms-u23',
-    'kg', 'kilograms u-2', 'kilograms', 'kg of'
+    'kg', 'kilograms u-2', 'kilograms', 'kg of', 'kg-u-235', 'kilgrams',
+    'kilogr. u235', 'uranium kg', 'kg uranium25', 'kilogr. u-235',
+    'kg uranium 25', 'kilgr. u-235', 'kguranium 25', 'kg-u235'
 ]
 """list: A list of fuel unit strings for thousand grams."""
 
-ferc1_mmbtu_strings = ['mmbtu', 'mmbtus',
+ferc1_mmbtu_strings = ['mmbtu', 'mmbtus', 'mbtus', '(mmbtu)',
                        "mmbtu's", 'nuclear-mmbtu', 'nuclear-mmbt']
 """list: A list of fuel unit strings for million British Thermal Units."""
 
 ferc1_mwdth_strings = \
     ['mwd therman', 'mw days-therm', 'mwd thrml', 'mwd thermal',
-     'mwd/mtu', 'mw days', 'mwdth', 'mwd', 'mw day']
+     'mwd/mtu', 'mw days', 'mwdth', 'mwd', 'mw day', 'dth', 'mwdaysthermal',
+     'mw day therml', 'mw days thrml', 'nuclear mwd', 'mmwd', 'mw day/therml'
+     'mw days/therm', 'mw days (th', 'ermal)']
 """list: A list of fuel unit strings for megawatt days thermal."""
 
-ferc1_mwhth_strings = ['mwh them', 'mwh threm',
-                       'nwh therm', 'mwhth', 'mwh therm', 'mwh']
+ferc1_mwhth_strings = ['mwh them', 'mwh threm', 'nwh therm', 'mwhth',
+                       'mwh therm', 'mwh', 'mwh therms.', 'mwh term.uts',
+                       'mwh thermal', 'mwh thermals', 'mw hr therm',
+                       'mwh therma', 'mwh therm.uts']
 """list: A list of fuel unit strings for megawatt hours thermal."""
 
 ferc1_fuel_unit_strings = {'ton': ferc1_ton_strings,
@@ -399,64 +437,134 @@ dict: A dictionary linking fuel units (keys) to lists of various strings
 # "steam and gas") were classified based on additional research of the plants
 # on the Internet.
 
-ferc1_plant_kind_steam_turbine = \
-    ['coal', 'steam', 'steam units 1 2 3', 'steam units 4 5',
-     'steam fossil', 'steam turbine', 'steam a', 'steam 100',
-     'steam units 1 2 3', 'steams', 'steam 1', 'steam retired 2013', 'stream']
+ferc1_plant_kind_steam_turbine = [
+    'coal', 'steam', 'steam units 1 2 3', 'steam units 4 5',
+    'steam fossil', 'steam turbine', 'steam a', 'steam 100',
+    'steam units 1 2 3', 'steams', 'steam 1', 'steam retired 2013', 'stream',
+    'steam units 1,2,3', 'steam units 4&5', 'steam units 4&6',
+    'steam conventional', 'unit total-steam', 'unit total steam',
+    '*resp. share steam', 'resp. share steam', 'steam (see note 1,',
+    'steam (see note 3)', 'mpc 50%share steam', '40% share steam'
+    'steam (2)', 'steam (3)', 'steam (4)', 'steam (5)', 'steam (6)',
+    'steam (7)', 'steam (8)', 'steam units 1 and 2', 'steam units 3 and 4',
+    'steam (note 1)', 'steam (retired)', 'steam (leased)', 'coal-fired steam',
+    'oil-fired steam', 'steam/fossil', 'steam (a,b)', 'steam (a)', 'stean',
+    'steam-internal comb', 'steam (see notes)', 'steam units 4 & 6',
+    'resp share stm note3' 'mpc50% share steam', 'mpc40%share steam',
+    'steam - 64%', 'steam - 100%', 'steam (1) & (2)', 'resp share st note3',
+    'mpc 50% shares steam', 'steam-64%', 'steam-100%', 'steam (see note 1)',
+    'mpc 50% share steam', 'steam units 1, 2, 3', 'steam units 4, 5',
+    'steam (2)', 'steam (1)', 'steam 4, 5', 'steam - 72%', 'steam (incl i.c.)',
+    'steam- 72%', 'steam;retired - 2013', "respondent's sh.-st.",
+    "respondent's sh-st", '40% share steam', 'resp share stm note3',
+    'mpc50% share steam', 'resp share st note 3', '\x02steam (1)',
+]
 """
 list: A list of strings from FERC Form 1 for the steam turbine plant kind.
 """
 
-ferc1_plant_kind_combustion_turbine = \
-    ['combustion turbine', 'gt', 'gas turbine',
-     'gas turbine # 1', 'gas turbine', 'gas turbine (note 1)',
-     'gas turbines', 'simple cycle', 'combustion turbine',
-     'comb.turb.peak.units', 'gas turbine', 'combustion turbine',
-     'com turbine peaking', 'gas turbine peaking', 'comb turb peaking',
-     'combustine turbine', 'comb. turine', 'conbustion turbine',
-     'combustine turbine', 'gas turbine (leased)', 'combustion tubine',
-     'gas turb', 'gas turbine peaker', 'gtg/gas', 'simple cycle turbine',
-     'gas-turbine', 'gas turbine-simple', 'gas turbine - note 1',
-     'gas turbine #1', 'simple cycle', 'gasturbine', 'combustionturbine',
-     'gas turbine (2)', 'comb turb peak units', 'jet engine']
+ferc1_plant_kind_combustion_turbine = [
+    'combustion turbine', 'gt', 'gas turbine',
+    'gas turbine # 1', 'gas turbine', 'gas turbine (note 1)',
+    'gas turbines', 'simple cycle', 'combustion turbine',
+    'comb.turb.peak.units', 'gas turbine', 'combustion turbine',
+    'com turbine peaking', 'gas turbine peaking', 'comb turb peaking',
+    'combustine turbine', 'comb. turine', 'conbustion turbine',
+    'combustine turbine', 'gas turbine (leased)', 'combustion tubine',
+    'gas turb', 'gas turbine peaker', 'gtg/gas', 'simple cycle turbine',
+    'gas-turbine', 'gas turbine-simple', 'gas turbine - note 1',
+    'gas turbine #1', 'simple cycle', 'gasturbine', 'combustionturbine',
+    'gas turbine (2)', 'comb turb peak units', 'jet engine',
+    'jet powered turbine', '*gas turbine', 'gas turb.(see note5)',
+    'gas turb. (see note', 'combutsion turbine', 'combustion turbin',
+    'gas turbine-unit 2', 'gas - turbine', 'comb turbine peaking',
+    'gas expander turbine', 'jet turbine', 'gas turbin (lease',
+    'gas turbine (leased', 'gas turbine/int. cm', 'comb.turb-gas oper.',
+    'comb.turb.gas/oil op', 'comb.turb.oil oper.', 'jet', 'comb. turbine (a)',
+    'gas turb.(see notes)', 'gas turb(see notes)', 'comb. turb-gas oper',
+    'comb.turb.oil oper', 'gas turbin (leasd)', 'gas turbne/int comb',
+    'gas turbine (note1)', 'combution turbin', '* gas turbine',
+    'add to gas turbine', 'gas turbine (a)', 'gas turbinint comb',
+    'gas turbine (note 3)', 'resp share gas note3', 'gas trubine',
+    '*gas turbine(note3)', 'gas turbine note 3,6', 'gas turbine note 4,6',
+    'gas turbine peakload', 'combusition turbine', 'gas turbine (lease)',
+    'comb. turb-gas oper.', 'combution turbine', 'combusion turbine',
+    'comb. turb. oil oper', 'combustion burbine', 'combustion and gas',
+    'comb. turb.', 'gas turbine (lease', 'gas turbine (leasd)',
+    'gas turbine/int comb', '*gas turbine(note 3)', 'gas turbine (see nos',
+    'i.c.e./gas turbine', 'gas turbine/intcomb', 'cumbustion turbine',
+    'gas turb, int. comb.', 'gas turb, diesel', 'gas turb, int. comb',
+    'i.c.e/gas turbine', 'diesel turbine', 'comubstion turbine',
+    'i.c.e. /gas turbine', 'i.c.e/ gas turbine', 'i.c.e./gas tubine',
+]
 """list: A list of strings from FERC Form 1 for the combustion turbine plant
     kind.
 """
 
-ferc1_plant_kind_combined_cycle = \
-    ['Combined cycle', 'combined cycle', 'combined',
-     'gas turb. & heat rec', 'combined cycle', 'com. cyc', 'com. cycle',
-     'gas turb-combined cy', 'combined cycle ctg', 'combined cycle - 40%',
-     'com cycle gas turb', 'combined cycle oper', 'gas turb/comb. cyc',
-     'combine cycle', 'cc', 'comb. cycle', 'gas turb-combined cy',
-     'steam and cc', 'steam cc', 'gas steam', 'ctg steam gas',
-     'steam comb cycle', ]
+ferc1_plant_kind_combined_cycle = [
+    'Combined cycle', 'combined cycle', 'combined', 'gas & steam turbine',
+    'gas turb. & heat rec', 'combined cycle', 'com. cyc', 'com. cycle',
+    'gas turb-combined cy', 'combined cycle ctg', 'combined cycle - 40%',
+    'com cycle gas turb', 'combined cycle oper', 'gas turb/comb. cyc',
+    'combine cycle', 'cc', 'comb. cycle', 'gas turb-combined cy',
+    'steam and cc', 'steam cc', 'gas steam', 'ctg steam gas',
+    'steam comb cycle', 'gas/steam comb. cycl', 'steam (comb. cycle)'
+    'gas turbine/steam', 'steam & gas turbine', 'gas trb & heat rec',
+    'steam & combined ce', 'st/gas turb comb cyc', 'gas tur & comb cycl',
+    'combined cycle (a,b)', 'gas turbine/ steam', 'steam/gas turb.',
+    'steam & comb cycle', 'gas/steam comb cycle', 'comb cycle (a,b)', 'igcc',
+    'steam/gas turbine', 'gas turbine / steam', 'gas tur & comb cyc',
+    'comb cyc (a) (b)', 'comb cycle', 'comb cyc', 'combined turbine',
+    'combine cycle oper', 'comb cycle/steam tur', 'cc / gas turb',
+    'steam (comb. cycle)', 'steam & cc', 'gas turbine/steam',
+    'gas turb/cumbus cycl', 'gas turb/comb cycle', 'gasturb/comb cycle',
+    'gas turb/cumb. cyc', 'igcc/gas turbine', 'gas / steam', 'ctg/steam-gas',
+    'ctg/steam -gas'
+]
 """
 list: A list of strings from FERC Form 1 for the combined cycle plant kind.
 """
 
-ferc1_plant_kind_nuke = ['nuclear', 'nuclear (3)']
+ferc1_plant_kind_nuke = [
+    'nuclear', 'nuclear (3)', 'steam(nuclear)', 'nuclear(see note4)'
+    'nuclear steam', 'nuclear turbine', 'nuclear - steam',
+    'nuclear (a)(b)(c)', 'nuclear (b)(c)', '* nuclear', 'nuclear (b) (c)',
+    'nuclear (see notes)', 'steam (nuclear)', '* nuclear (note 2)',
+    'nuclear (note 2)', 'nuclear (see note 2)', 'nuclear(see note4)',
+    'nuclear steam', 'nuclear(see notes)', 'nuclear-steam',
+    'nuclear (see note 3)'
+]
 """list: A list of strings from FERC Form 1 for the nuclear plant kind."""
 
-ferc1_plant_kind_geothermal = ['steam - geothermal', 'steam_geothermal']
+ferc1_plant_kind_geothermal = [
+    'steam - geothermal', 'steam_geothermal', 'geothermal'
+]
 """list: A list of strings from FERC Form 1 for the geothermal plant kind."""
 
-ferc_1_plant_kind_internal_combustion = \
-    ['ic', 'internal combustion',
-     'diesel turbine', 'int combust (note 1)', 'int. combust (note1)',
-     'int.combustine', 'comb. cyc', 'internal comb', 'diesel', 'diesel engine',
-     'internal combustion', 'int combust - note 1', 'int. combust - note1',
-     'internal comb recip', 'reciprocating engine', 'comb. turbine']
+ferc_1_plant_kind_internal_combustion = [
+    'ic', 'internal combustion', 'internal comb.', 'internl combustion'
+    'diesel turbine', 'int combust (note 1)', 'int. combust (note1)',
+    'int.combustine', 'comb. cyc', 'internal comb', 'diesel', 'diesel engine',
+    'internal combustion', 'int combust - note 1', 'int. combust - note1',
+    'internal comb recip', 'reciprocating engine', 'comb. turbine',
+    'internal combust.', 'int. combustion (1)', '*int combustion (1)',
+    "*internal combust'n", 'internal', 'internal comb.', 'steam internal comb',
+    'combustion', 'int. combustion', 'int combust (note1)', 'int. combustine',
+    'internl combustion', '*int. combustion (1)'
+]
 """
 list: A list of strings from FERC Form 1 for the internal combustion plant
     kind.
 """
 
-ferc1_plant_kind_wind = ['wind', 'wind energy',
-                         'wind turbine', 'wind - turbine']
+ferc1_plant_kind_wind = [
+    'wind', 'wind energy', 'wind turbine', 'wind - turbine', 'wind generation'
+]
 """list: A list of strings from FERC Form 1 for the wind plant kind."""
 
-ferc1_plant_kind_photovoltaic = ['solar photovoltaic', 'photovoltaic']
+ferc1_plant_kind_photovoltaic = [
+    'solar photovoltaic', 'photovoltaic', 'solar', 'solar project'
+]
 """list: A list of strings from FERC Form 1 for the photovoltaic plant kind."""
 
 ferc1_plant_kind_solar_thermal = ['solar thermal']
@@ -595,18 +703,82 @@ ferc1_const_type_outdoor = [
     'outdoor-boiler', 'outdoor - boiler', 'outdoor const.',
     '4 outdoor boilers', '3 outdoor boilers', 'full outdoor', 'full outdoors',
     'full oudoors', 'outdoor (auto oper)', 'outside boiler',
-    'outdoor boiler&full', 'outdoor hrsg', 'outdoor hrsg', 'semi-outdoor',
-    'semi - outdoor'
+    'outdoor boiler&full', 'outdoor hrsg', 'outdoor hrsg',
+    'outdoor-steel encl.', 'boiler-outdr & full',
+    'con.& full outdoor', 'partial outdoor', 'outdoor (auto. oper)',
+    'outdoor (auto.oper)', 'outdoor construction', '1 outdoor boiler',
+    '2 outdoor boilers', 'outdoor enclosure', '2 outoor boilers',
+    'boiler outdr.& full', 'boiler outdr. & full', 'ful outdoor',
+    'outdoor-steel enclos', 'outdoor (auto oper.)', 'con. & full outdoor',
+    'outdore', 'boiler & full outdor', 'full & outdr boilers',
+    'outodoor (auto oper)', 'outdoor steel encl.', 'full outoor',
+    'boiler & outdoor ful', 'otdr. blr. & f. otdr', 'f.otdr & otdr.blr.',
+    'oudoor (auto oper)', 'outdoor constructin', 'f. otdr. & otdr. blr',
+
 ]
 """list: A list of strings from FERC Form 1 associated with the outdoor
     construction type.
+"""
+
+ferc1_const_type_semioutdoor = [
+    'more than 50% outdoo', 'more than 50% outdos', 'over 50% outdoor',
+    'over 50% outdoors', 'semi-outdoor', 'semi - outdoor', 'semi outdoor',
+    'semi-enclosed', 'semi-outdoor boiler', 'semi outdoor boiler',
+    'semi- outdoor', 'semi - outdoors', 'semi -outdoor'
+    'conven & semi-outdr', 'conv & semi-outdoor', 'conv & semi- outdoor',
+    'convent. semi-outdr', 'conv. semi outdoor', 'conv(u1)/semiod(u2)',
+    'conv u1/semi-od u2', 'conv-one blr-semi-od', 'convent semioutdoor',
+    'conv. u1/semi-od u2', 'conv - 1 blr semi od', 'conv. ui/semi-od u2',
+    'conv-1 blr semi-od', 'conven. semi-outdoor', 'conv semi-outdoor',
+    'u1-conv./u2-semi-od', 'u1-conv./u2-semi -od', 'convent. semi-outdoo',
+    'u1-conv. / u2-semi', 'conven & semi-outdr', 'semi -outdoor',
+    'outdr & conventnl', 'conven. full outdoor', 'conv. & outdoor blr',
+    'conv. & outdoor blr.', 'conv. & outdoor boil', 'conv. & outdr boiler',
+    'conv. & out. boiler', 'convntl,outdoor blr', 'outdoor & conv.',
+    '2 conv., 1 out. boil', 'outdoor/conventional', 'conv. boiler outdoor',
+    'conv-one boiler-outd', 'conventional outdoor', 'conventional outdor',
+    'conv. outdoor boiler', 'conv.outdoor boiler', 'conventional outdr.',
+    'conven,outdoorboiler', 'conven full outdoor', 'conven,full outdoor',
+    '1 out boil, 2 conv', 'conv. & full outdoor', 'conv. & outdr. boilr',
+    'conv outdoor boiler', 'convention. outdoor', 'conv. sem. outdoor',
+    'convntl, outdoor blr', 'conv & outdoor boil', 'conv & outdoor boil.',
+    'outdoor & conv', 'conv. broiler outdor', '1 out boilr, 2 conv',
+    'conv.& outdoor boil.', 'conven,outdr.boiler', 'conven,outdr boiler',
+    'outdoor & conventil', '1 out boilr 2 conv', 'conv & outdr. boilr',
+    'conven, full outdoor', 'conven full outdr.', 'conven, full outdr.',
+    'conv/outdoor boiler', "convnt'l outdr boilr", '1 out boil 2 conv',
+    'conv full outdoor', 'conven, outdr boiler', 'conventional/outdoor',
+    'conv&outdoor boiler', 'outdoor & convention', 'conv & outdoor boilr',
+    'conv & full outdoor', 'convntl. outdoor blr', 'conv - ob',
+    "1conv'l/2odboilers", "2conv'l/1odboiler", 'conv-ob', 'conv.-ob',
+    '1 conv/ 2odboilers', '2 conv /1 odboilers', 'conv- ob', 'conv -ob',
+    'con sem outdoor', 'cnvntl, outdr, boilr', 'less than 50% outdoo',
+    'under 50% outdoor', 'under 50% outdoors', '1cnvntnl/2odboilers',
+    '2cnvntnl1/1odboiler', 'con & ob', 'combination (b)', 'indoor & outdoor',
+    'conven. blr. & full', 'conv. & otdr. blr.', 'combination',
+    'indoor and outdoor', 'conven boiler & full', "2conv'l/10dboiler",
+    '4 indor/outdr boiler', '4 indr/outdr boilerr', '4 indr/outdr boiler',
+    'indoor & outdoof',
+]
+"""list: A list of strings from FERC Form 1 associated with the semi-outdoor
+    construction type, or a mix of conventional and outdoor construction.
 """
 
 ferc1_const_type_conventional = [
     'conventional', 'conventional', 'conventional boiler', 'conv-b',
     'conventionall', 'convention', 'conventional', 'coventional',
     'conven full boiler', 'c0nventional', 'conventtional', 'convential'
-    'underground', 'conventional bulb', 'conventrional'
+    'underground', 'conventional bulb', 'conventrional',
+    '*conventional', 'convential', 'convetional', 'conventioanl',
+    'conventioinal', 'conventaional', 'indoor construction', 'convenional',
+    'conventional steam', 'conventinal', 'convntional', 'conventionl',
+    'conventionsl', 'conventiional', 'convntl steam plants', 'indoor const.',
+    'full indoor', 'indoor', 'indoor automatic', 'indoor boiler',
+    '(peak load) indoor', 'conventionl,indoor', 'conventionl, indoor',
+    'conventional, indoor', 'comb. cycle indoor', '3 indoor boiler',
+    '2 indoor boilers', '1 indoor boiler', '2 indoor boiler',
+    '3 indoor boilers', 'fully contained', 'conv - b', 'conventional/boiler',
+    'cnventional', 'comb. cycle indooor', 'sonventional',
 ]
 """list: A list of strings from FERC Form 1 associated with the conventional
     construction type.
@@ -617,7 +789,8 @@ ferc1_const_type_conventional = [
 
 ferc1_const_type_strings = {
     'outdoor': ferc1_const_type_outdoor,
-    'conventional': ferc1_const_type_conventional
+    'semioutdoor': ferc1_const_type_semioutdoor,
+    'conventional': ferc1_const_type_conventional,
 }
 """dict: A dictionary of construction types (keys) and lists of construction
     type strings associated with each type (values) from FERC Form 1.

@@ -62,7 +62,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "plant_name",
+                        "name": "plant_name_ferc1",
                         "type": "string",
                         "description": "Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.",
                         "format": "default"
@@ -141,15 +141,15 @@
                     {
                         "fields": "utility_id_ferc1",
                         "reference": {
-                            "resource": "plants_ferc",
+                            "resource": "plants_ferc1",
                             "fields": "utility_id_ferc1"
                         }
                     },
                     {
-                        "fields": "plant_name",
+                        "fields": "plant_name_ferc1",
                         "reference": {
-                            "resource": "plants_ferc",
-                            "fields": "plant_name"
+                            "resource": "plants_ferc1",
+                            "fields": "plant_name_ferc1"
                         }
                     }
                 ],
@@ -377,7 +377,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "utility_name",
+                        "name": "utility_name_eia",
                         "type": "string",
                         "format": "default"
                     },
@@ -394,7 +394,7 @@
                     {
                         "fields": "utility_id_pudl",
                         "reference": {
-                            "resource": "utilities",
+                            "resource": "utilities_pudl",
                             "fields": "utility_id_pudl"
                         }
                     }
@@ -577,10 +577,10 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "utilities",
-            "path": "data/utilities.csv",
-            "title": "utilities",
-            "description": "Home table for PUDL assigned utility IDs. These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly found utilities are added to the list with a new ID. Each ID maps to a power plant owning or operating entity which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: results/id_mapping/mapping_eia923_ferc1.xlsx",
+            "name": "utilities_pudl",
+            "path": "data/utilities_pudl.csv",
+            "title": "PUDL Utilities",
+            "description": "Home table for PUDL assigned utility IDs. These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly found utilities are added to the list with a new ID. Each ID maps to a power plant owning or operating entity which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/mapping_eia923_ferc1.xlsx",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -602,7 +602,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "utility_name",
+                        "name": "utility_name_pudl",
                         "type": "string",
                         "description": "Utility name, chosen arbitrarily from the several possible utility names available in the utility matching process. Included for human readability only.",
                         "format": "default"
@@ -626,9 +626,9 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "plants_ferc",
-            "path": "data/plants_ferc.csv",
-            "title": "plants_ferc",
+            "name": "plants_ferc1",
+            "path": "data/plants_ferc1.csv",
+            "title": "FERC 1 Plants",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -650,7 +650,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "plant_name",
+                        "name": "plant_name_ferc1",
                         "type": "string",
                         "description": "Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.",
                         "format": "default"
@@ -664,20 +664,20 @@
                 ],
                 "primaryKey": [
                     "utility_id_ferc1",
-                    "plant_name"
+                    "plant_name_ferc1"
                 ],
                 "foreignKeys": [
                     {
                         "fields": "utility_id_ferc1",
                         "reference": {
-                            "resource": "utilities_ferc",
+                            "resource": "utilities_ferc1",
                             "fields": "utility_id_ferc1"
                         }
                     },
                     {
                         "fields": "plant_id_pudl",
                         "reference": {
-                            "resource": "plants",
+                            "resource": "plants_pudl",
                             "fields": "plant_id_pudl"
                         }
                     }
@@ -799,7 +799,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "utility_name",
+                        "name": "utility_name_eia",
                         "type": "string",
                         "description": "The name of the utility.",
                         "format": "default"
@@ -1079,7 +1079,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "plant_name",
+                        "name": "plant_name_ferc1",
                         "type": "string",
                         "description": "Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.",
                         "format": "default"
@@ -1102,10 +1102,11 @@
                         "constraints": {
                             "enum": [
                                 "outdoor",
+                                "semioutdoor",
                                 "conventional"
                             ]
                         },
-                        "description": "Type of plant construction ('outdoor' or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.",
+                        "description": "Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.",
                         "format": "default"
                     },
                     {
@@ -1293,15 +1294,15 @@
                     {
                         "fields": "utility_id_ferc1",
                         "reference": {
-                            "resource": "plants_ferc",
+                            "resource": "plants_ferc1",
                             "fields": "utility_id_ferc1"
                         }
                     },
                     {
-                        "fields": "plant_name",
+                        "fields": "plant_name_ferc1",
                         "reference": {
-                            "resource": "plants_ferc",
-                            "fields": "plant_name"
+                            "resource": "plants_ferc1",
+                            "fields": "plant_name_ferc1"
                         }
                     }
                 ],
@@ -1413,7 +1414,7 @@
                     {
                         "fields": "utility_id_ferc1",
                         "reference": {
-                            "resource": "utilities_ferc",
+                            "resource": "utilities_ferc1",
                             "fields": "utility_id_ferc1"
                         }
                     },
@@ -2173,10 +2174,10 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "plants",
-            "path": "data/plants.csv",
-            "title": "plants",
-            "description": "Home table for PUDL assigned plant IDs. These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly identified plants are added to the list with a new ID. Each ID maps to a power plant which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: results/id_mapping/mapping_eia923_ferc1.xlsx",
+            "name": "plants_pudl",
+            "path": "data/plants_pudl.csv",
+            "title": "PUDL Plants",
+            "description": "Home table for PUDL assigned plant IDs. These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly identified plants are added to the list with a new ID. Each ID maps to a power plant which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/mapping_eia923_ferc1.xlsx",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -2198,7 +2199,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "plant_name",
+                        "name": "plant_name_pudl",
                         "type": "string",
                         "description": "Plant name, chosen arbitrarily from the several possible plant names available in the plant matching process. Included for human readability only.",
                         "format": "default"
@@ -2349,7 +2350,7 @@
                     {
                         "fields": "utility_id_ferc1",
                         "reference": {
-                            "resource": "utilities_ferc",
+                            "resource": "utilities_ferc1",
                             "fields": "utility_id_ferc1"
                         }
                     },
@@ -2675,9 +2676,9 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "utilities_ferc",
-            "path": "data/utilities_ferc.csv",
-            "title": "utilities_ferc",
+            "name": "utilities_ferc1",
+            "path": "data/utilities_ferc1.csv",
+            "title": "utilities_ferc1",
             "description": "This table maps the manually assigned PUDL utility ID to a FERC respondent ID, enabling a connection between the FERC and EIA data sets. It also stores the utility name associated with the FERC respondent ID. Those values originate in the f1_respondent_id table in FERC's FoxPro database, which is stored in a file called F1_1.DBF. This table is generated from a spreadsheet stored in the PUDL repository: results/id_mapping/mapping_eia923_ferc1.xlsx",
             "encoding": "utf-8",
             "mediatype": "text/csv",
@@ -2719,7 +2720,7 @@
                     {
                         "fields": "utility_id_pudl",
                         "reference": {
-                            "resource": "utilities",
+                            "resource": "utilities_pudl",
                             "fields": "utility_id_pudl"
                         }
                     }
@@ -3117,7 +3118,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "plant_name",
+                        "name": "plant_name_eia",
                         "type": "string",
                         "format": "default"
                     },
@@ -3134,7 +3135,7 @@
                     {
                         "fields": "plant_id_pudl",
                         "reference": {
-                            "resource": "plants",
+                            "resource": "plants_pudl",
                             "fields": "plant_id_pudl"
                         }
                     }
@@ -3239,14 +3240,14 @@
                     {
                         "fields": "utility_id_pudl",
                         "reference": {
-                            "resource": "utilities",
+                            "resource": "utilities_pudl",
                             "fields": "utility_id_pudl"
                         }
                     },
                     {
                         "fields": "plant_id_pudl",
                         "reference": {
-                            "resource": "plants",
+                            "resource": "plants_pudl",
                             "fields": "plant_id_pudl"
                         }
                     }
@@ -3640,7 +3641,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "plant_name",
+                        "name": "plant_name_ferc1",
                         "type": "string",
                         "description": "PUDL assigned simplified plant name.",
                         "format": "default"
@@ -3728,15 +3729,15 @@
                     {
                         "fields": "utility_id_ferc1",
                         "reference": {
-                            "resource": "plants_ferc",
+                            "resource": "plants_ferc1",
                             "fields": "utility_id_ferc1"
                         }
                     },
                     {
                         "fields": "plant_name_original",
                         "reference": {
-                            "resource": "plants_ferc",
-                            "fields": "plant_name"
+                            "resource": "plants_ferc1",
+                            "fields": "plant_name_ferc1"
                         }
                     }
                 ],
@@ -3796,7 +3797,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "plant_name",
+                        "name": "plant_name_ferc1",
                         "type": "string",
                         "description": "Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.",
                         "format": "default"
@@ -3813,10 +3814,11 @@
                         "constraints": {
                             "enum": [
                                 "outdoor",
+                                "semioutdoor",
                                 "conventional"
                             ]
                         },
-                        "description": "Type of plant construction ('outdoor' or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.",
+                        "description": "Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.",
                         "format": "default"
                     },
                     {
@@ -4034,15 +4036,15 @@
                     {
                         "fields": "utility_id_ferc1",
                         "reference": {
-                            "resource": "plants_ferc",
+                            "resource": "plants_ferc1",
                             "fields": "utility_id_ferc1"
                         }
                     },
                     {
-                        "fields": "plant_name",
+                        "fields": "plant_name_ferc1",
                         "reference": {
-                            "resource": "plants_ferc",
-                            "fields": "plant_name"
+                            "resource": "plants_ferc1",
+                            "fields": "plant_name_ferc1"
                         }
                     }
                 ],
@@ -4540,7 +4542,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "plant_name",
+                        "name": "plant_name_ferc1",
                         "type": "string",
                         "description": "Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.",
                         "format": "default"
@@ -4570,10 +4572,11 @@
                         "constraints": {
                             "enum": [
                                 "outdoor",
+                                "semioutdoor",
                                 "conventional"
                             ]
                         },
-                        "description": "Type of plant construction ('outdoor' or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.",
+                        "description": "Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.",
                         "format": "default"
                     },
                     {
@@ -4779,15 +4782,15 @@
                     {
                         "fields": "utility_id_ferc1",
                         "reference": {
-                            "resource": "plants_ferc",
+                            "resource": "plants_ferc1",
                             "fields": "utility_id_ferc1"
                         }
                     },
                     {
-                        "fields": "plant_name",
+                        "fields": "plant_name_ferc1",
                         "reference": {
-                            "resource": "plants_ferc",
-                            "fields": "plant_name"
+                            "resource": "plants_ferc1",
+                            "fields": "plant_name_ferc1"
                         }
                     }
                 ],
@@ -5006,7 +5009,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "plant_name",
+                        "name": "plant_name_eia",
                         "type": "string",
                         "description": "Plant name.",
                         "format": "default"

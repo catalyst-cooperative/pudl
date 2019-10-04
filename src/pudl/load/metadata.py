@@ -559,21 +559,34 @@ def validate_save_pkg(pkg_descriptor, pkg_dir):
     data_pkg = datapackage.Package(pkg_descriptor)
 
     # Validate the data package descriptor before we go to
+    logger.info(
+        f"Validating JSON descriptor for {data_pkg.descriptor['name']} "
+        f"tabular data package...")
     if not data_pkg.valid:
-        logger.error(f"""
-            Invalid tabular data package: {data_pkg.descriptor["name"]}
-            Errors: {data_pkg.errors}""")
+        raise ValueError(
+            f"Invalid tabular data package: {data_pkg.descriptor['name']} "
+            f"Errors: {data_pkg.errors}")
+    logger.info('JSON descriptor appears valid!')
 
     # pkg_json is the datapackage.json that we ultimately output:
     pkg_json = os.path.join(pkg_dir, "datapackage.json")
     data_pkg.save(pkg_json)
-    logger.info('Validating the data package...')
+    logger.info(
+        f"Validating a sample of data from {data_pkg.descriptor['name']} "
+        f"tabular data package using goodtables...")
     # Validate the data within the package using goodtables:
     report = goodtables.validate(pkg_json, row_limit=1000)
-    if not report['valid']:
-        logger.error("Data package validation failed.")
-    else:
-        logger.info('Congrats! You made a valid data package!')
+    if not report["valid"]:
+        goodtables_errors = ""
+        for table in report["tables"]:
+            if not table["valid"]:
+                goodtables_errors += str(table["source"])
+                goodtables_errors += str(table["errors"])
+        raise ValueError(
+            f"Data package data validation failed with goodtables. "
+            f"Errors: {goodtables_errors}"
+        )
+    logger.info('Congrats! You made a valid data package!')
     return report
 
 
