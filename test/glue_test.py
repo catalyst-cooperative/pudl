@@ -114,21 +114,21 @@ def test_unmapped_utils_ferc1(pudl_settings_fixture, ferc1_engine):
     logger.info("Found 1 unmapped FERC 1 utility, as expected.")
 
 
-def test_unmapped_utils_eia(pudl_settings_fixture, pudl_engine):
-    """Check for unmapped EIA Utilities."""
-    pass
+# def test_unmapped_utils_eia(pudl_settings_fixture, pudl_engine):
+#    """Check for unmapped EIA Utilities."""
+#    pass
 
 
-def test_unmapped_plants_eia(pudl_settings_fixture, pudl_engine):
-    """Check for unmapped EIA Plants."""
-    pass
+# def test_unmapped_plants_eia(pudl_settings_fixture, pudl_engine):
+#    """Check for unmapped EIA Plants."""
+#    pass
 
 
-def test_lost_utils_eia(pudl_settings_fixture, pudl_engine):
-    """Check for "lost" EIA Utilities."""
-    pass
+# def test_lost_utils_eia(pudl_settings_fixture, pudl_engine):
+#    """Check for "lost" EIA Utilities."""
+#    pass
 
 
-def test_lost_plants_eia(pudl_settings_fixture, pudl_engine):
-    """Check for "lost" EIA Plants."""
-    pass
+# def test_lost_plants_eia(pudl_settings_fixture, pudl_engine):
+#    """Check for "lost" EIA Plants."""
+#    pass
