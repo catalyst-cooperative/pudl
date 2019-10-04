@@ -19,7 +19,7 @@ import zipfile
 
 import pudl
 import pudl.constants as pc
-import pudl.datastore.datastore as datastore
+import pudl.workspace.datastore as datastore
 
 # Create a logger to output any messages we might have...
 logger = logging.getLogger(pudl.__name__)
@@ -61,7 +61,7 @@ def parse_command_line(argv):
         dest='year',
         nargs='+',
         help="""List of years for which data should be downloaded. Different
-        data sources have differet valid years. If data is not available for a
+        data sources have different valid years. If data is not available for a
         specified year and data source, it will be ignored. If no years are
         specified, all available data will be downloaded for all requested data
         sources.""",
@@ -107,14 +107,16 @@ def main():  # noqa: C901
             if bad_yrs:
                 logger.warning(f"Invalid {src} years ignored: {bad_yrs}.")
 
-    pudl_settings = pudl.settings.init(pudl_in=args['out_dir'],
-                                       pudl_out=args['out_dir'])
+    logger.info(f"out_dir: {args.out_dir}")
+    pudl_settings = pudl.workspace.setup.derive_paths(
+        pudl_in=pudl.workspace.setup.get_defaults()["pudl_in"],
+        pudl_out=pudl.workspace.setup.get_defaults()["pudl_in"])
 
     for src in args.sources:
         for yr in yrs_by_src[src]:
-            src_dir = datastore.path(src, year=yr, file=False,
-                                     pudl_settings=pudl_settings)
-            tmp_dir = os.path.join(args['data_dir'], 'tmp')
+            src_dir = datastore.path(src, pudl_settings["data_dir"],
+                                     year=yr, file=False)
+            tmp_dir = os.path.join(args.out_dir, 'tmp')
 
             if src == 'ferc1':
                 files_to_move = [f"{pc.ferc1_tbl2dbf[f]}.DBF" for f in
@@ -122,7 +124,8 @@ def main():  # noqa: C901
                 files_to_move = files_to_move + ['F1_PUB.DBC', 'F1_32.FPT']
             elif src == 'epacems':
                 files_to_move = [
-                    datastore.path('epacems', year=yr, state=st, month=mo)
+                    datastore.path('epacems', pudl_settings["data_dir"],
+                                   year=yr, state=st, month=mo)
                     for mo in range(1, 13) for st in args.states
                 ]
                 files_to_move = [os.path.basename(f) for f in files_to_move]
@@ -143,7 +146,7 @@ def main():  # noqa: C901
 
             if src == 'ferc1':
                 ferc1_test_zipfile = os.path.join(
-                    args['data_dir'], f"f1_{yr}.zip")
+                    pudl_settings['data_dir'], f"f1_{yr}.zip")
                 z = zipfile.ZipFile(ferc1_test_zipfile, mode='w',
                                     compression=zipfile.ZIP_DEFLATED)
                 for root, dirs, files in os.walk(tmp_dir):
@@ -157,7 +160,7 @@ def main():  # noqa: C901
 
             logger.info(f"organizing datastore for {src} {yr}")
             datastore.organize(src, yr, states=args.states,
-                               data_dir=args['data_dir'], unzip=False)
+                               data_dir=pudl_settings['data_dir'], unzip=False)
 
 
 if __name__ == '__main__':

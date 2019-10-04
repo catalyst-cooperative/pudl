@@ -341,7 +341,7 @@ def datastore_fixture(pudl_settings_fixture, data_scope):
 
         epacems_files = (
             pathlib.Path(os.getenv('TRAVIS_BUILD_DIR'),
-                         'test/data/epa/cems/epacems2017/').
+                         'test/data/epa/cems/epacems2018/').
             glob('*.zip')
         )
         # Copy the files over to the test-run proto-datastore:
@@ -353,7 +353,7 @@ def datastore_fixture(pudl_settings_fixture, data_scope):
         # The datastore knows what to do with a file it finds in this dir:
         datastore.organize(
             source='epacems',
-            year=2017,
+            year=2018,
             states=['ID'],
             data_dir=pudl_settings_fixture['data_dir'],
             unzip=True
