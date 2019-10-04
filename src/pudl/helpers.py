@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 import sqlalchemy as sa
 import timezonefinder
+from sqlalchemy.engine import reflection
 
 import pudl
 import pudl.constants as pc
@@ -722,7 +723,8 @@ def verify_input_files(ferc1_years,  # noqa: C901
         raise FileNotFoundError("\n".join(err_msg))
 
 
-def drop_tables(engine):
+def drop_tables(engine,
+                clobber=False):
     """Drops all tables from a SQLite database.
 
     Creates an sa.schema.MetaData object reflecting the structure of the
@@ -741,6 +743,10 @@ def drop_tables(engine):
     """
     md = sa.MetaData()
     md.reflect(engine)
+    insp = reflection.Inspector.from_engine(engine)
+    if len(insp.get_table_names()) > 0 and not clobber:
+        raise AssertionError(
+            f'You are attempting to drop your database without setting clobber to {clobber}')
     md.drop_all(engine)
     conn = engine.connect()
     conn.execute("VACUUM")

@@ -36,6 +36,14 @@ def parse_command_line(argv):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("settings_file", type=str, default='',
                         help="path to YAML settings file.")
+    parser.add_argument(
+        '-c',
+        '--clobber',
+        action='store_true',
+        help="""Clobber existing sqlite database if it exists. If clobber is
+        not included but the sqlite databse already exists the _build will
+        fail.""",
+        default=False)
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -103,7 +111,8 @@ def main():
         years=script_settings['ferc1_to_sqlite_years'],
         refyear=script_settings['ferc1_to_sqlite_refyear'],
         pudl_settings=pudl_settings,
-        bad_cols=script_settings['ferc1_to_sqlite_bad_cols'])
+        bad_cols=script_settings['ferc1_to_sqlite_bad_cols'],
+        clobber=args.clobber)
 
 
 if __name__ == '__main__':

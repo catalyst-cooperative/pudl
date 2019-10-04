@@ -46,8 +46,10 @@ def test_ferc1_etl(ferc1_engine):
 def test_epacems_to_parquet(datapkg,
                             pudl_settings_fixture,
                             data_scope,
-                            fast_tests):
+                            fast_tests,
+                            request):
     """Attempt to convert a small amount of EPA CEMS data to parquet format."""
+    clobber = request.config.getoption("--clobber")
     logger.info(pathlib.Path(
         pudl_settings_fixture['datapackage_dir'],
         data_scope['pkg_bundle_name'], 'epacems-eia-test'))
@@ -59,7 +61,8 @@ def test_epacems_to_parquet(datapkg,
         epacems_states=data_scope['epacems_states'],
         out_dir=pathlib.Path(
             pudl_settings_fixture['parquet_dir'], 'epacems'),
-        compression='snappy')
+        compression='snappy',
+        clobber=clobber)
 
 
 def test_ferc1_lost_data(pudl_settings_fixture, data_scope):

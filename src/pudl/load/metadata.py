@@ -671,31 +671,25 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
     return report
 
 
-def prep_pkg_bundle_directory(pudl_settings,
-                              pkg_bundle_name,
-                              clobber=False):
+def prep_directory(dir_path,
+                   clobber=False):
     """
     Create (or delete and create) data package directory.
 
     Args:
-        pudl_settings (dict) : a dictionary filled with settings that mostly
-            describe paths to various resources and outputs.
+        dir_path (path-like): path to the directory that you are trying to
+            clean and prepare.
         debug (bool): If True, return a dictionary with package names (keys)
             and a list with the data package metadata and report (values).
-        pkg_bundle_name (string): name of directory you want the bundle of
-            data packages to live.
 
     Returns:
         path-like
 
     """
-    pkg_bundle_dir = os.path.join(
-        pudl_settings['datapackage_dir'], pkg_bundle_name)
-
-    if os.path.exists(pkg_bundle_dir) and (clobber is False):
+    if os.path.exists(dir_path) and (clobber is False):
         raise AssertionError(
-            f'{pkg_bundle_dir} already exists and clobber is set to {clobber}')
-    elif os.path.exists(pkg_bundle_dir) and (clobber is True):
-        shutil.rmtree(pkg_bundle_dir)
-    os.mkdir(pkg_bundle_dir)
-    return(pkg_bundle_dir)
+            f'{dir_path} already exists and clobber is set to {clobber}')
+    elif os.path.exists(dir_path) and (clobber is True):
+        shutil.rmtree(dir_path)
+    os.mkdir(dir_path)
+    return(dir_path)

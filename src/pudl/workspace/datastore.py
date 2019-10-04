@@ -559,6 +559,8 @@ def organize(source, year, states, data_dir,  # noqa: C901
         with zipfile.ZipFile(zip_path, mode='w') as epaipm_zip:
             for f in epaipm_files:
                 epaipm_zip.write(f, arcname=os.path.basename(f))
+        for file in epaipm_files:
+            os.remove(file)
     newfiles = [os.path.join(tmpdir, os.path.basename(f))
                 for f in paths_for_year(source=source,
                                         year=year,

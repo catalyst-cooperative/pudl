@@ -18,6 +18,7 @@ dataset. This module coordinates the extract/transfrom/load process of data from
 
 import logging
 import os.path
+import pathlib
 import shutil
 import time
 import uuid
@@ -806,12 +807,13 @@ def generate_data_packages(pkg_bundle_settings,
         pkg_bundle_settings, pudl_settings)
     uuid_pkgs = str(uuid.uuid4())
 
-    pkg_bundle_dir = pudl.load.metadata.prep_pkg_bundle_directory(
-        pudl_settings, pkg_bundle_name, clobber=clobber)
+    pkg_bundle_dir = pudl.load.metadata.prep_directory(
+        pathlib.Path(pudl_settings['datapackage_dir'], pkg_bundle_name),
+        clobber=clobber)
 
     metas = {}
     for pkg_settings in validated_bundle_settings:
-        pkg_dir = os.path.join(pkg_bundle_dir, pkg_settings['name'])
+        pkg_dir = pathlib.Path(pkg_bundle_dir, pkg_settings['name'])
         # run the ETL functions for this pkg and return the list of tables
         # dumped to CSV
         pkg_tables = etl_pkg(pkg_settings, pudl_settings, pkg_bundle_dir)

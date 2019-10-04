@@ -433,7 +433,8 @@ def get_raw_df(table, dbc_map, data_dir,
         )
 
 
-def dbf2sqlite(tables, years, refyear, pudl_settings, bad_cols=()):
+def dbf2sqlite(tables, years, refyear, pudl_settings,
+               bad_cols=(), clobber=False):
     """Clone the FERC Form 1 Databsae to SQLite.
 
     Args:
@@ -456,7 +457,7 @@ def dbf2sqlite(tables, years, refyear, pudl_settings, bad_cols=()):
     sqlite_engine = sa.create_engine(pudl_settings["ferc1_db"])
     try:
         # So that we can wipe it out
-        pudl.helpers.drop_tables(sqlite_engine)
+        pudl.helpers.drop_tables(sqlite_engine, clobber=clobber)
     except sa.exc.OperationalError:
         pass
 
