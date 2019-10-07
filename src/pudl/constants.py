@@ -213,27 +213,6 @@ state_tz_approx = {
     (keys) and timezones (values)
 """
 
-travis_ci_ferc1_years = (2017, )
-"""tuple: A tuple containing years of FERC1 data to use with Travis continous
-    integration.
-"""
-travis_ci_eia860_years = (2017, )
-"""tuple: A tuple containing years of EIA 860 data to use with Travis continuous
-    integration.
-"""
-travis_ci_eia923_years = (2017, )
-"""
-tuple: A tuple containing years of EIA 923 data to use with Travis continuous
-    integration.
-"""
-travis_ci_epacems_years = (2017, )
-"""tuple: A tuple containing years of EPA CEMS data to use with Travis
-    continuous integration.
-"""
-travis_ci_epacems_states = ('ID', )
-"""tuple: A tuple containing states whose EPA CEMS data are used with Travis
-    continuous integration.
-"""
 # Construct a dictionary mapping a canonical fuel name to a list of strings
 # which are used to represent that fuel in the FERC Form 1 Reporting. Case is
 # ignored, as all fuel strings can be converted to a lower case in the data
@@ -242,46 +221,49 @@ travis_ci_epacems_states = ('ID', )
 # been deleted and their contents redistributed to ferc1_waste_strings and
 # ferc1_other_strings
 
-ferc1_coal_strings = \
-    ['coal', 'coal-subbit', 'lignite', 'coal(sb)', 'coal (sb)', 'coal-lignite',
-     'coke', 'coa', 'lignite/coal', 'coal - subbit', 'coal-subb', 'coal-sub',
-     'coal-lig', 'coal-sub bit', 'coals', 'ciak', 'petcoke', 'coal.oil',
-     'coal/gas', 'bit coal', 'coal-unit #3', 'coal-subbitum', 'coal tons',
-     'coal mcf', 'coal unit #3', 'pet. coke', 'coal-u3', 'coal&coke', 'tons']
+ferc1_coal_strings = [
+    'coal', 'coal-subbit', 'lignite', 'coal(sb)', 'coal (sb)', 'coal-lignite',
+    'coke', 'coa', 'lignite/coal', 'coal - subbit', 'coal-subb', 'coal-sub',
+    'coal-lig', 'coal-sub bit', 'coals', 'ciak', 'petcoke', 'coal.oil',
+    'coal/gas', 'bit coal', 'coal-unit #3', 'coal-subbitum', 'coal tons',
+    'coal mcf', 'coal unit #3', 'pet. coke', 'coal-u3', 'coal&coke', 'tons'
+]
 """
 list: A list of strings which are used to represent coal fuel in FERC Form 1
     reporting.
 """
 
-ferc1_oil_strings = \
-    ['oil', '#6 oil', '#2 oil', 'fuel oil', 'jet', 'no. 2 oil', 'no.2 oil',
-     'no.6& used', 'used oil', 'oil-2', 'oil (#2)', 'diesel oil',
-     'residual oil', '# 2 oil', 'resid. oil', 'tall oil', 'oil/gas',
-     'no.6 oil', 'oil-fuel', 'oil-diesel', 'oil / gas', 'oil bbls', 'oil bls',
-     'no. 6 oil', '#1 kerosene', 'diesel', 'no. 2 oils', 'blend oil',
-     '#2oil diesel', '#2 oil-diesel', '# 2  oil', 'light oil', 'heavy oil',
-     'gas.oil', '#2', '2', '6', 'bbl', 'no 2 oil', 'no 6 oil', '#1 oil', '#6',
-     'oil-kero', 'oil bbl', 'biofuel', 'no 2', 'kero', '#1 fuel oil',
-     'no. 2  oil', 'blended oil', 'no 2. oil', '# 6 oil', 'nno. 2 oil',
-     '#2 fuel', 'oill', 'oils', 'gas/oil', 'no.2 oil gas', '#2 fuel oil',
-     'oli', 'oil (#6)', 'oil/diesel', '2 oil', '#6 hvy oil', 'jet fuel',
-     'diesel/compos', 'oil-8', 'oil {6}', 'oil-unit #1', 'bbl.', 'oil.',
-     'oil #6', 'oil (6)', 'oil(#2)', 'oil-unit1&2', 'oil-6', '#2 fue oil',
-     'dielel oil', 'dielsel oil', '#6 & used', 'barrels', 'oil un 1 & 2',
-     'jet oil', 'oil-u1&2', 'oiul', 'pil', 'oil - 2', '#6 & used', 'oial']
+ferc1_oil_strings = [
+    'oil', '#6 oil', '#2 oil', 'fuel oil', 'jet', 'no. 2 oil', 'no.2 oil',
+    'no.6& used', 'used oil', 'oil-2', 'oil (#2)', 'diesel oil',
+    'residual oil', '# 2 oil', 'resid. oil', 'tall oil', 'oil/gas',
+    'no.6 oil', 'oil-fuel', 'oil-diesel', 'oil / gas', 'oil bbls', 'oil bls',
+    'no. 6 oil', '#1 kerosene', 'diesel', 'no. 2 oils', 'blend oil',
+    '#2oil diesel', '#2 oil-diesel', '# 2  oil', 'light oil', 'heavy oil',
+    'gas.oil', '#2', '2', '6', 'bbl', 'no 2 oil', 'no 6 oil', '#1 oil', '#6',
+    'oil-kero', 'oil bbl', 'biofuel', 'no 2', 'kero', '#1 fuel oil',
+    'no. 2  oil', 'blended oil', 'no 2. oil', '# 6 oil', 'nno. 2 oil',
+    '#2 fuel', 'oill', 'oils', 'gas/oil', 'no.2 oil gas', '#2 fuel oil',
+    'oli', 'oil (#6)', 'oil/diesel', '2 oil', '#6 hvy oil', 'jet fuel',
+    'diesel/compos', 'oil-8', 'oil {6}', 'oil-unit #1', 'bbl.', 'oil.',
+    'oil #6', 'oil (6)', 'oil(#2)', 'oil-unit1&2', 'oil-6', '#2 fue oil',
+    'dielel oil', 'dielsel oil', '#6 & used', 'barrels', 'oil un 1 & 2',
+    'jet oil', 'oil-u1&2', 'oiul', 'pil', 'oil - 2', '#6 & used', 'oial'
+]
 """
 list: A list of strings which are used to represent oil fuel in FERC Form 1
     reporting.
 """
 
-ferc1_gas_strings = \
-    ['gas', 'gass', 'methane', 'natural gas', 'blast gas', 'gas mcf',
-     'propane', 'prop', 'natural  gas', 'nat.gas', 'nat gas',
-     'nat. gas', 'natl gas', 'ga', 'gas`', 'syngas', 'ng', 'mcf',
-     'blast gaa', 'nat  gas', 'gac', 'syngass', 'prop.', 'natural', 'coal.gas',
-     'n. gas', 'lp gas', 'natuaral gas', 'coke gas', 'gas #2016', 'propane**',
-     '* propane', 'propane **', 'gas expander', 'gas ct', '# 6 gas', '#6 gas',
-     'coke oven gas']
+ferc1_gas_strings = [
+    'gas', 'gass', 'methane', 'natural gas', 'blast gas', 'gas mcf',
+    'propane', 'prop', 'natural  gas', 'nat.gas', 'nat gas',
+    'nat. gas', 'natl gas', 'ga', 'gas`', 'syngas', 'ng', 'mcf',
+    'blast gaa', 'nat  gas', 'gac', 'syngass', 'prop.', 'natural', 'coal.gas',
+    'n. gas', 'lp gas', 'natuaral gas', 'coke gas', 'gas #2016', 'propane**',
+    '* propane', 'propane **', 'gas expander', 'gas ct', '# 6 gas', '#6 gas',
+    'coke oven gas'
+]
 """
 list: A list of strings which are used to represent gas fuel in FERC Form 1
     reporting.
@@ -293,20 +275,22 @@ ferc1_wind_strings = []
 
 ferc1_hydro_strings = []
 
-ferc1_nuke_strings = \
-    ['nuclear', 'grams of uran', 'grams of', 'grams of  ura',
-     'grams', 'nucleur', 'nulear', 'nucl', 'nucleart', 'nucelar',
-     'gr.uranium', 'grams of urm', 'nuclear (9)', 'nulcear', 'nuc',
-     'gr. uranium', 'nuclear mw da', 'grams of ura']
+ferc1_nuke_strings = [
+    'nuclear', 'grams of uran', 'grams of', 'grams of  ura',
+    'grams', 'nucleur', 'nulear', 'nucl', 'nucleart', 'nucelar',
+    'gr.uranium', 'grams of urm', 'nuclear (9)', 'nulcear', 'nuc',
+    'gr. uranium', 'nuclear mw da', 'grams of ura'
+]
 """
 list: A list of strings which are used to represent nuclear fuel in FERC Form
     1 reporting.
 """
 
-ferc1_waste_strings = ['tires', 'tire', 'refuse', 'switchgrass',
-                       'wood waste', 'woodchips', 'biomass', 'wood',
-                       'wood chips', 'rdf', 'tires/refuse', 'tire refuse',
-                       'waste oil', 'waste', 'woodships', 'tire chips']
+ferc1_waste_strings = [
+    'tires', 'tire', 'refuse', 'switchgrass', 'wood waste', 'woodchips',
+    'biomass', 'wood', 'wood chips', 'rdf', 'tires/refuse', 'tire refuse',
+    'waste oil', 'waste', 'woodships', 'tire chips'
+]
 """
 list: A list of strings which are used to represent waste fuel in FERC Form 1
     reporting.
@@ -666,8 +650,8 @@ cpi_solar_strings = [
     'Solar Photovoltaic', 'Solar Thermal', 'SOLAR PROJECT', 'Solar',
     'Photovoltaic',
 ]
-"""list: A list of strings for fuel type photovoltaic compiled by Climate Policy
-    Initiative.
+"""list: A list of strings for fuel type photovoltaic compiled by Climate
+Policy Initiative.
 """
 cpi_plant_kind_strings = {
     'natural_gas': cpi_natural_gas_strings,
@@ -760,7 +744,7 @@ ferc1_const_type_semioutdoor = [
     '4 indor/outdr boiler', '4 indr/outdr boilerr', '4 indr/outdr boiler',
     'indoor & outdoof',
 ]
-"""list: A list of strings from FERC Form 1 associated with the semi-outdoor
+"""list: A list of strings from FERC Form 1 associated with the semi - outdoor
     construction type, or a mix of conventional and outdoor construction.
 """
 
@@ -932,8 +916,8 @@ ferc1_dbf2tbl = {
     # 'F1_PINS': 'f1_pins',  # private data, not publicized.
     # 'F1_FREEZE': 'f1_freeze', # private data, not publicized
 }
-"""dict: A dictionary mapping FERC Form 1 DBF files (w/o .DBF file extension)
-    (keys) to database table names (values).
+"""dict: A dictionary mapping FERC Form 1 DBF files(w / o .DBF file extension)
+   (keys) to database table names (values).
 """
 
 ferc1_huge_tables = {
@@ -948,7 +932,7 @@ ferc1_huge_tables = {
 ferc1_tbl2dbf = {v: k for k, v in ferc1_dbf2tbl.items()}
 
 """dict: A dictionary mapping database table names (keys) to FERC Form 1 DBF
-    files (w/o .DBF file extension) (values).
+    files(w / o .DBF file extension) (values).
 """
 # This is a dictionary of respondents (respondent_id: respondent_name) that are
 # missing from the ferc respondent table but show up in other tables. We are
@@ -1293,7 +1277,7 @@ ferc1_data_tables = (
     'f1_rg_trn_srv_rev')
 """tuple: A tuple containing the FERC Form 1 tables that have the same composite
     primary keys: [respondent_id, report_year, report_prd, row_number,
-    spplmnt_num ].
+    spplmnt_num].
 """
 # Line numbers, and corresponding FERC account number
 # from FERC Form 1 pages 204-207, Electric Plant in Service.
@@ -1421,7 +1405,7 @@ ferc_electric_plant_accounts = pd.DataFrame.from_records([
     (104, 'total_electric_plant', 'TOTAL Electric Plant in Service')],
     columns=['row_number', 'ferc_account_id', 'ferc_account_description'])
 """list: A list of tuples containing row numbers, FERC account IDs, and FERC
-    account descriptions from FERC Form 1 pages 204-207, Electric Plant in
+    account descriptions from FERC Form 1 pages 204 - 207, Electric Plant in
     Service.
 """
 
@@ -1478,7 +1462,7 @@ ferc_accumulated_depreciation = pd.DataFrame.from_records([
     columns=['row_number', 'line_id', 'ferc_account_description'])
 """list: A list of tuples containing row numbers, FERC account IDs, and FERC
     account descriptions from FERC Form 1 page 219, Accumulated Provision for
-    Depreciation of electric utility plant (Account 108).
+    Depreciation of electric utility plant(Account 108).
 """
 ######################################################################
 # Constants from EIA From 923 used within init.py module
@@ -1579,7 +1563,7 @@ prime_movers_eia923 = {
     'WS': 'Wind Turbine, Offshore'
 }
 """dict: A dictionary mapping EIA 923 prime mover codes (keys) and prime mover
-    names/descriptions (values).
+    names / descriptions (values).
 """
 
 # EIA 923: The fuel code reported to EIA.Two or three letter alphanumeric:
@@ -1628,7 +1612,7 @@ fuel_type_eia923 = {
     'WO': 'Waste/Other Oil. Including crude oil, liquid butane, liquid propane, naphtha, oil waste, re-refined moto oil, sludge oil, tar oil, or other petroleum-based liquid wastes.'
 }
 """dict: A dictionary mapping EIA 923 fuel type codes (keys) and fuel type
-    names/descriptions (values).
+    names / descriptions (values).
 """
 
 # Fuel type strings for EIA 923 generator fuel table
@@ -1893,7 +1877,7 @@ fuel_group_eia923_simple_map = {
     'oil': ['petroleum'],
     'gas': ['natural gas', 'other gas']
 }
-"""dict: A dictionary mapping EIA 923 simple fuel types ("oil", "coal", "gas")
+"""dict: A dictionary mapping EIA 923 simple fuel types("oil", "coal", "gas")
     (keys) to fuel types (values).
 """
 
@@ -2057,8 +2041,8 @@ entities = {
          'ferc_exempt_wholesale_generator', 'ferc_small_power_producer',
          'grid_voltage_2_kv', 'grid_voltage_3_kv', 'grid_voltage_kv',
          'iso_rto_code', 'iso_rto_name', 'latitude', 'longitude',
-         'nerc_region', 'plant_name', 'primary_purpose_naics_id', 'sector_id',
-         'sector_name', 'state', 'street_address', 'zip_code'],
+         'nerc_region', 'plant_name_eia', 'primary_purpose_naics_id',
+         'sector_id', 'sector_name', 'state', 'street_address', 'zip_code'],
         # annual cols
         ['ash_impoundment', 'ash_impoundment_lined', 'ash_impoundment_status',
          'energy_storage', 'ferc_cogen_docket_no', 'water_source',
@@ -2124,7 +2108,7 @@ entities = {
     'utilities': [  # base cols
         ['utility_id_eia'],
         # static cols
-        ['utility_name',
+        ['utility_name_eia',
          'entity_type'],
         # annual cols
         ['street_address', 'city', 'state', 'zip_code',
@@ -2242,8 +2226,8 @@ epacems_csv_dtypes = {
     "FAC_ID": int,
     "UNIT_ID": int,
 }
-"""dict: A dictionary containing column names (keys) and data types (values) for
-    EPA CEMS.
+"""dict: A dictionary containing column names (keys) and data types (values)
+for EPA CEMS.
 """
 epacems_columns_fill_na_dict = {
     "gross_load_mw": 0.0,
@@ -2478,7 +2462,7 @@ need_fix_inting = {
 }
 """
 dict: A dictionary containing tables (keys) and column names (values)
-    containing integer-type columns whose null values need fixing.
+    containing integer - type columns whose null values need fixing.
 """
 
 contributors = {

@@ -539,19 +539,6 @@
                         "name": "fuel_type",
                         "type": "string",
                         "format": "default"
-                    },
-                    {
-                        "name": "fuel_unit",
-                        "type": "string",
-                        "constraints": {
-                            "enum": [
-                                "mcf",
-                                "short_tons",
-                                "barrels"
-                            ]
-                        },
-                        "description": "The type of physical units fuel consumption is reported in. All consumption is reported in either short tons for solids, thousands of cubic feet for gases, or barrels for liquids. ",
-                        "format": "default"
                     }
                 ],
                 "primaryKey": [

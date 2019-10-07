@@ -1,4 +1,4 @@
-plant_id_eia,plant_name,last_date,state,latitude,longitude,fill_data_source_notes
+plant_id_eia,plant_name_eia,last_date,state,latitude,longitude,fill_data_source_notes
 5,Chickasaw,2002-09-30,AL,30.7633,-88.0606,EPA CAMD web query
 334,Riverside Canal Power Company,2002-12-31,CA,34.0225,-117.3325,EPA CAMD web query
 569,English Station,1999-03-31,CT,41.3075,-72.9072,EPA CAMD web query

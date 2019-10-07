@@ -62,8 +62,9 @@ Getting Started
 
 Just want to play with some example data? Install
 `Anaconda <https://www.anaconda.com/distribution/>`__
-(or `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__) with at
-least Python 3.7. Then work through the following commands.
+or `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__ (see
+`this detailed setup guide <https://www.mrdbourke.com/get-your-computer-ready-for-machine-learning-using-anaconda-miniconda-and-conda/>`__
+if you need help) and then work through the following commands.
 
 First, we create and activate conda environment named ``pudl``. All the
 required packages are available from the community maintained ``conda-forge``

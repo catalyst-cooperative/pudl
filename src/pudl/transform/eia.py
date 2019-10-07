@@ -199,7 +199,7 @@ def _add_additional_epacems_plants(plants_entity):
             'pudl.package_data.epa.cems',
             'plant_info_for_additional_cems_plants.csv'),
         index_col=["plant_id_eia"],
-        usecols=["plant_id_eia", "plant_name",
+        usecols=["plant_id_eia", "plant_name_eia",
                  "state", "latitude", "longitude"],
     )
     plants_entity = plants_entity.set_index("plant_id_eia")

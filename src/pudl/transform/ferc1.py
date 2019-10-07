@@ -250,6 +250,7 @@ def _plants_steam_clean(ferc1_steam_df):
     ferc1_steam_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
         'respondent_id': 'utility_id_ferc1',
+        "plant_name": "plant_name_ferc1",
         'yr_const': 'construction_year',
         'plant_kind': 'plant_type',
         'type_const': 'construction_type',
@@ -311,19 +312,19 @@ def _plants_steam_assign_plant_ids(ferc1_steam_df, ferc1_fuel_df):
     ferc1_steam_df = (
         ferc1_steam_df.merge(
             fuel_fractions[
-                ['utility_id_ferc1', 'plant_name', 'report_year'] + ffc],
-            on=['utility_id_ferc1', 'plant_name', 'report_year'],
+                ['utility_id_ferc1', 'plant_name_ferc1', 'report_year'] + ffc],
+            on=['utility_id_ferc1', 'plant_name_ferc1', 'report_year'],
             how='left'
         )
     )
     ferc1_steam_df[ffc] = ferc1_steam_df[ffc].fillna(value=0.0)
 
     # Train the classifier using DEFAULT weights, parameters not listed here.
-    ferc_clf = pudl.transform.ferc1.make_ferc_clf(ferc1_steam_df)
-    ferc_clf = ferc_clf.fit_transform(ferc1_steam_df)
+    ferc1_clf = pudl.transform.ferc1.make_ferc1_clf(ferc1_steam_df)
+    ferc1_clf = ferc1_clf.fit_transform(ferc1_steam_df)
 
     # Use the classifier to generate groupings of similar records:
-    record_groups = ferc_clf.predict(ferc1_steam_df.record_id)
+    record_groups = ferc1_clf.predict(ferc1_steam_df.record_id)
     n_tot = len(ferc1_steam_df)
     n_grp = len(record_groups)
     pct_grp = n_grp / n_tot
@@ -368,12 +369,12 @@ def _plants_steam_assign_plant_ids(ferc1_steam_df, ferc1_fuel_df):
                                 source='source',
                                 target='target')
     # Find the connected components of the graph
-    ferc_plants = (G.subgraph(c) for c in nx.connected_components(G))
+    ferc1_plants = (G.subgraph(c) for c in nx.connected_components(G))
 
     # Now we'll iterate through the connected components and assign each of
     # them a FERC Plant ID, and pull the results back out into a dataframe:
     plants_w_ids = pd.DataFrame()
-    for plant_id_ferc1, plant in enumerate(ferc_plants):
+    for plant_id_ferc1, plant in enumerate(ferc1_plants):
         nx.set_edge_attributes(plant,
                                plant_id_ferc1 + 1,
                                name='plant_id_ferc1')
@@ -505,6 +506,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
         rename(columns={
             # FERC 1 DB Name      PUDL DB Name
             'respondent_id': 'utility_id_ferc1',
+            "plant_name": "plant_name_ferc1",
             'fuel': 'fuel_type_code_pudl',
             'fuel_avg_mmbtu_per_unit': 'fuel_mmbtu_per_unit',
             'fuel_quantity': 'fuel_qty_burned',
@@ -678,7 +680,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
         # FERC 1 DB Name      PUDL DB Name
         'respondent_id': 'utility_id_ferc1',
         'plant_name': 'plant_name_original',
-        'plant_name_clean': 'plant_name',
+        'plant_name_clean': 'plant_name_ferc1',
         'ferc_license': 'ferc_license_id',
         'yr_constructed': 'construction_year',
         'capacity_rating': 'capacity_mw',
@@ -736,6 +738,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
         rename(columns={
             # FERC1 DB          PUDL DB
             'respondent_id': 'utility_id_ferc1',
+            "plant_name": "plant_name_ferc1",
             'project_no': 'project_num',
             'yr_const': 'construction_year',
             'plant_kind': 'plant_type',
@@ -821,6 +824,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
         rename(columns={
             # FERC1 DB          PUDL DB
             'respondent_id': 'utility_id_ferc1',
+            "plant_name": "plant_name_ferc1",
             'project_number': 'project_num',
             'tot_capacity': 'capacity_mw',
             'project_no': 'project_num',
@@ -1320,17 +1324,17 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         return out_df
 
 
-def make_ferc_clf(plants_df,
-                  ngram_min=2,
-                  ngram_max=10,
-                  min_sim=0.75,
-                  plant_name_wt=2.0,
-                  plant_type_wt=2.0,
-                  construction_type_wt=1.0,
-                  capacity_mw_wt=1.0,
-                  construction_year_wt=1.0,
-                  utility_id_ferc1_wt=1.0,
-                  fuel_fraction_wt=1.0):
+def make_ferc1_clf(plants_df,
+                   ngram_min=2,
+                   ngram_max=10,
+                   min_sim=0.75,
+                   plant_name_ferc1_wt=2.0,
+                   plant_type_wt=2.0,
+                   construction_type_wt=1.0,
+                   capacity_mw_wt=1.0,
+                   construction_year_wt=1.0,
+                   utility_id_ferc1_wt=1.0,
+                   fuel_fraction_wt=1.0):
     """
     Create a FERC Plant Classifier using several weighted features.
 
@@ -1361,7 +1365,7 @@ def make_ferc_clf(plants_df,
             vectorization of the plant_name feature.
         min_sim (float): the minimum cosine similarity between two records that
             can be considered a "match" (a number between 0.0 and 1.0).
-        plant_name_wt (float): weight used to determine the relative
+        plant_name_ferc1_wt (float): weight used to determine the relative
             importance of each of the features in the feature matrix used to
             calculate the cosine similarity between records. Used to scale each
             individual feature before the vectors are normalized.
@@ -1398,13 +1402,13 @@ def make_ferc_clf(plants_df,
     # Make a list of all the fuel fraction columns for use as one feature.
     fuel_cols = list(plants_df.filter(regex='.*_fraction_mmbtu$').columns)
 
-    ferc_pipe = Pipeline([
+    ferc1_pipe = Pipeline([
         ('preprocessor', ColumnTransformer(
             transformers=[
-                ('plant_name', TfidfVectorizer(
+                ('plant_name_ferc1', TfidfVectorizer(
                     analyzer='char',
                     ngram_range=(ngram_min, ngram_max)),
-                 'plant_name'),
+                 'plant_name_ferc1'),
                 ('plant_type', OneHotEncoder(
                     categories='auto'), ['plant_type']),
                 ('construction_type', OneHotEncoder(
@@ -1421,7 +1425,7 @@ def make_ferc_clf(plants_df,
             ],
 
             transformer_weights={
-                'plant_name': plant_name_wt,
+                'plant_name_ferc1': plant_name_ferc1_wt,
                 'plant_type': plant_type_wt,
                 'construction_type': construction_type_wt,
                 'capacity_mw': capacity_mw_wt,
@@ -1433,7 +1437,7 @@ def make_ferc_clf(plants_df,
         ('classifier', pudl.transform.ferc1.FERCPlantClassifier(
             min_sim=min_sim, plants_df=plants_df))
     ])
-    return ferc_pipe
+    return ferc1_pipe
 
 
 def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
@@ -1482,7 +1486,7 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
     keep_cols = [
         'report_year',  # key
         'utility_id_ferc1',  # key
-        'plant_name',  # key
+        'plant_name_ferc1',  # key
         'fuel_type_code_pudl',  # pivot
         'fuel_qty_burned',  # value
         'fuel_mmbtu_per_unit',  # value
@@ -1507,10 +1511,10 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
         # Drop the ratios and heterogeneous fuel "units"
         drop(['fuel_mmbtu_per_unit', 'fuel_cost_per_unit_burned', 'fuel_qty_burned'], axis=1).
         # Group by the keys and fuel type, and sum:
-        groupby(['utility_id_ferc1', 'plant_name', 'report_year', 'fuel_type_code_pudl']).
+        groupby(['utility_id_ferc1', 'plant_name_ferc1', 'report_year', 'fuel_type_code_pudl']).
         agg(sum).reset_index().
         # Set the index to the keys, and pivot to get per-fuel columns:
-        set_index(['utility_id_ferc1', 'plant_name', 'report_year']).
+        set_index(['utility_id_ferc1', 'plant_name_ferc1', 'report_year']).
         pivot(columns='fuel_type_code_pudl').fillna(0.0)
     )
 

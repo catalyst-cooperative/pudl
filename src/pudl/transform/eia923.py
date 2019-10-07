@@ -223,7 +223,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
 
     # Drop fields we're not inserting into the generation_fuel_eia923 table.
     cols_to_drop = ['combined_heat_power',
-                    'plant_name',
+                    'plant_name_eia',
                     'operator_name',
                     'operator_id',
                     'plant_state',
@@ -281,7 +281,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
 
     # Drop fields we're not inserting into the boiler_fuel_eia923 table.
     cols_to_drop = ['combined_heat_power',
-                    'plant_name',
+                    'plant_name_eia',
                     'operator_name',
                     'operator_id',
                     'plant_state',
@@ -337,7 +337,7 @@ def generation(eia923_dfs, eia923_transformed_dfs):
     # Drop fields we're not inserting into the generation_eia923_fuel_eia923
     # table.
     cols_to_drop = ['combined_heat_power',
-                    'plant_name',
+                    'plant_name_eia',
                     'operator_name',
                     'operator_id',
                     'plant_state',
@@ -463,7 +463,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
 
     # Drop fields we're not inserting into the fuel_receipts_costs_eia923
     # table.
-    cols_to_drop = ['plant_name',
+    cols_to_drop = ['plant_name_eia',
                     'plant_state',
                     'operator_name',
                     'operator_id',

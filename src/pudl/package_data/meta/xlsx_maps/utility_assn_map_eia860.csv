@@ -1,4 +1,4 @@
-year_index,utility_id_eia,utility_name,street_address,city,state,zip_code,plants_reported_owner,plants_reported_operator,plants_reported_asset_manager,plants_reported_other_relationship,entity_type
+year_index,utility_id_eia,utility_name_eia,street_address,city,state,zip_code,plants_reported_owner,plants_reported_operator,plants_reported_asset_manager,plants_reported_other_relationship,entity_type
 2009,utility_id,utility_name,utility_street_address,utility_city,utility_state,utility_zip5,,,,,
 2010,utility_id,utility_name,utility_street_address,utility_city,utility_state,utility_zip5,,,,,
 2011,utility_id,utility_name,street_address,city,state,zip5,,,,,

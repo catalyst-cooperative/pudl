@@ -342,8 +342,7 @@ def get_db_plants_eia(pudl_engine):
     """
     db_plants_eia = (
         pd.read_sql("plants_entity_eia", pudl_engine).
-        loc[:, ["plant_id_eia", "plant_name", "state"]].
-        rename(columns={"plant_name": "plant_name_eia"}).
+        loc[:, ["plant_id_eia", "plant_name_eia", "state"]].
         pipe(pudl.helpers.strip_lower, columns=["plant_name_eia"]).
         astype({"plant_id_eia": int}).
         drop_duplicates("plant_id_eia").
@@ -409,7 +408,7 @@ def get_unmapped_plants_eia(pudl_engine):
         merge(plants_utils_eia, how="left", on="plant_id_eia").
         merge(plant_capacity_mw, how="left", on="plant_id_eia").
         loc[:, ["plant_id_eia", "plant_name_eia",
-                "utility_id_eia", "utility_name",
+                "utility_id_eia", "utility_name_eia",
                 "state", "capacity_mw"]].
         astype({"utility_id_eia": "Int32"})  # Woo! Nullable Integers FTW!
     )
@@ -429,9 +428,9 @@ def get_lost_plants_eia(pudl_engine):
 def get_db_utils_eia(pudl_engine):
     """Get a list of all EIA Utilities appearing in the PUDL DB."""
     db_utils_eia = (
-        pd.read_sql("utilities_entity_eia", pudl_engine).
-        loc[:, ["utility_id_eia", "utility_name"]].
-        pipe(pudl.helpers.strip_lower, columns=["utility_name"]).
+        pd.read_sql("utilities_eia", pudl_engine).
+        loc[:, ["utility_id_eia", "utility_name_eia"]].
+        pipe(pudl.helpers.strip_lower, columns=["utility_name_eia"]).
         astype({"utility_id_eia": int}).
         drop_duplicates("utility_id_eia").
         sort_values("utility_id_eia").
