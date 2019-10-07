@@ -1905,12 +1905,6 @@
                         "format": "default"
                     },
                     {
-                        "name": "operating_switch",
-                        "type": "string",
-                        "description": "Indicates whether the proposed unit will be able to switch fuels while operating.",
-                        "format": "default"
-                    },
-                    {
                         "name": "retirement_date",
                         "type": "date",
                         "description": "Date of the scheduled or effected retirement of the generator.",
@@ -1992,12 +1986,6 @@
                         "name": "generator_id",
                         "type": "string",
                         "description": "Generator identification number.",
-                        "format": "default"
-                    },
-                    {
-                        "name": "operational_status_code",
-                        "type": "string",
-                        "description": "The operating status of the generator.",
                         "format": "default"
                     },
                     {
