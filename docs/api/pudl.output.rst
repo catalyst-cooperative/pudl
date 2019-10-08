@@ -8,7 +8,6 @@ Submodules
 
    pudl.output.eia860
    pudl.output.eia923
-   pudl.output.export
    pudl.output.ferc1
    pudl.output.glue
    pudl.output.pudltabl
