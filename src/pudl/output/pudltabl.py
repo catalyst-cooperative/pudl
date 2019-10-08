@@ -42,8 +42,7 @@ import pudl.constants as pc
 class PudlTabl(object):
     """A class for compiling common useful tabular outputs from the PUDL DB."""
 
-    def __init__(self, freq=None, start_date=None, end_date=None,
-                 pudl_engine=None):
+    def __init__(self, pudl_engine, freq=None, start_date=None, end_date=None):
         """
         Initialize the PUDL output object.
 

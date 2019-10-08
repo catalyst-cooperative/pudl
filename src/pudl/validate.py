@@ -257,6 +257,13 @@ def historical_histogram(orig_df, test_df, data_col, weight_col, query="",
     """Weighted histogram comparing distribution with historical subsamples."""
     if query != "":
         orig_df = orig_df.copy().query(query)
+
+    if weight_col is None or weight_col == "":
+        orig_df["ones"] = 1.0
+        if test_df is not None:
+            test_df["ones"] = 1.0
+        weight_col = "ones"
+
     orig_df = orig_df[
         np.isfinite(orig_df[data_col]) &
         np.isfinite(orig_df[weight_col])
@@ -268,11 +275,6 @@ def historical_histogram(orig_df, test_df, data_col, weight_col, query="",
             np.isfinite(test_df[data_col]) &
             np.isfinite(test_df[weight_col])
         ]
-    if weight_col is None or weight_col == "":
-        orig_df["ones"] = 1.0
-        if test_df is not None:
-            test_df["ones"] = 1.0
-        weight_col = "ones"
 
     xmin = weighted_quantile(orig_df[data_col], orig_df[weight_col], 0.01)
     xmax = weighted_quantile(orig_df[data_col], orig_df[weight_col], 0.99)
