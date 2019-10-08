@@ -62,7 +62,7 @@ def utilities_eia860(pudl_engine, pt, start_date=None, end_date=None):
         'report_date',
         'utility_id_eia',
         'utility_id_pudl',
-        'utility_name',
+        'utility_name_eia',
     ]
 
     out_df = pudl.helpers.organize_cols(out_df, first_cols)
@@ -140,11 +140,11 @@ def plants_utils_eia860(pudl_engine, pt, start_date=None, end_date=None):
 
     Returns a pandas dataframe with the following columns:
     - report_date (in which data was reported)
-    - plant_name (from EIA entity)
+    - plant_name_eia (from EIA entity)
     - plant_id_eia (from EIA entity)
     - plant_id_pudl
     - utility_id_eia (from EIA860)
-    - utility_name (from EIA860)
+    - utility_name_eia (from EIA860)
     - utility_id_pudl
 
     Note: EIA 860 data has only been integrated for 2011-2016. If earlier or
@@ -184,10 +184,10 @@ def plants_utils_eia860(pudl_engine, pt, start_date=None, end_date=None):
 
     cols_to_keep = ['report_date',
                     'plant_id_eia',
-                    'plant_name',
+                    'plant_name_eia',
                     'plant_id_pudl',
                     'utility_id_eia',
-                    'utility_name',
+                    'utility_name_eia',
                     'utility_id_pudl'
                     ]
 
@@ -232,7 +232,7 @@ def generators_eia860(pudl_engine, pt, start_date=None, end_date=None):
     plants_entity_eia_select = sa.sql.select([
         # plants_eia860_tbl.c.report_date, # remove?
         plants_entity_eia_tbl.c.plant_id_eia,
-        plants_entity_eia_tbl.c.plant_name,
+        plants_entity_eia_tbl.c.plant_name_eia,
         plants_entity_eia_tbl.c.latitude,
         plants_entity_eia_tbl.c.longitude,
         plants_entity_eia_tbl.c.state,
@@ -287,7 +287,7 @@ That's too much forward filling.""")
                                  start_date=start_date,
                                  end_date=end_date)
     out_df = pd.merge(out_df, pu_eia,
-                      on=['report_date', 'plant_id_eia', 'plant_name'])
+                      on=['report_date', 'plant_id_eia', 'plant_name_eia'])
 
     # Drop a few extraneous fields...
     out_df = out_df.drop(['id'], axis='columns')
@@ -310,10 +310,10 @@ That's too much forward filling.""")
         'report_date',
         'plant_id_eia',
         'plant_id_pudl',
-        'plant_name',
+        'plant_name_eia',
         'utility_id_eia',
         'utility_id_pudl',
-        'utility_name',
+        'utility_name_eia',
         'generator_id',
     ]
 
@@ -386,8 +386,8 @@ def ownership_eia860(pudl_engine, pt, start_date=None, end_date=None):
                                  pt,
                                  start_date=start_date,
                                  end_date=end_date)
-    pu_eia = pu_eia[['plant_id_eia', 'plant_id_pudl', 'plant_name',
-                     'utility_name', 'utility_id_pudl', 'report_date']]
+    pu_eia = pu_eia[['plant_id_eia', 'plant_id_pudl', 'plant_name_eia',
+                     'utility_name_eia', 'utility_id_pudl', 'report_date']]
 
     o_df['report_date'] = pd.to_datetime(o_df.report_date)
     out_df = pd.merge(o_df, pu_eia,
@@ -408,10 +408,10 @@ def ownership_eia860(pudl_engine, pt, start_date=None, end_date=None):
         'report_date',
         'plant_id_eia',
         'plant_id_pudl',
-        'plant_name',
+        'plant_name_eia',
         'utility_id_eia',
         'utility_id_pudl',
-        'utility_name',
+        'utility_name_eia',
         'generator_id',
         'owner_utility_id_eia',
         'owner_name',

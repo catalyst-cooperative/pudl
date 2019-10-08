@@ -370,10 +370,10 @@ def mcoe(pudl_out,
 
     simplified_gens_eia860 = pudl_out.gens_eia860().drop([
         'plant_id_pudl',
-        'plant_name',
+        'plant_name_eia',
         'utility_id_eia',
         'utility_id_pudl',
-        'utility_name',
+        'utility_name_eia',
         'fuel_type_count',
         'fuel_type_code_pudl'
     ], axis=1)
@@ -386,10 +386,10 @@ def mcoe(pudl_out,
                   'plant_id_pudl',
                   'unit_id_pudl',
                   'generator_id',
-                  'plant_name',
+                  'plant_name_eia',
                   'utility_id_eia',
                   'utility_id_pudl',
-                  'utility_name']
+                  'utility_name_eia']
     mcoe_out = pudl.helpers.organize_cols(mcoe_out, first_cols)
     mcoe_out = mcoe_out.sort_values(
         ['plant_id_eia', 'unit_id_pudl', 'generator_id', 'report_date']

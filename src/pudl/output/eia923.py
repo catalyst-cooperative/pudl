@@ -96,19 +96,19 @@ def generation_fuel_eia923(pudl_engine, pt, freq=None,
     out_df = out_df.dropna(subset=[
         'plant_id_eia',
         'plant_id_pudl',
-        'plant_name',
+        'plant_name_eia',
         'utility_id_eia',
         'utility_id_pudl',
-        'utility_name',
+        'utility_name_eia',
     ])
 
     first_cols = ['report_date',
                   'plant_id_eia',
                   'plant_id_pudl',
-                  'plant_name',
+                  'plant_name_eia',
                   'utility_id_eia',
                   'utility_id_pudl',
-                  'utility_name', ]
+                  'utility_name_eia', ]
 
     out_df = pudl.helpers.organize_cols(out_df, first_cols)
 
@@ -258,7 +258,7 @@ def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
         frc_df, pu_eia, on=['plant_id_eia'])
 
     # Drop any records where we've failed to get the 860 data merged in...
-    out_df = out_df.dropna(subset=['utility_id_eia', 'utility_name'])
+    out_df = out_df.dropna(subset=['utility_id_eia', 'utility_name_eia'])
 
     if freq is None:
         # There are a couple of invalid records with no specified fuel.
@@ -267,10 +267,10 @@ def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
     first_cols = ['report_date',
                   'plant_id_eia',
                   'plant_id_pudl',
-                  'plant_name',
+                  'plant_name_eia',
                   'utility_id_eia',
                   'utility_id_pudl',
-                  'utility_name', ]
+                  'utility_name_eia', ]
 
     # Re-arrange the columns for easier readability:
     out_df = pudl.helpers.organize_cols(out_df, first_cols)
@@ -395,10 +395,10 @@ def boiler_fuel_eia923(pudl_engine, pt, freq=None,
         'report_date',
         'plant_id_eia',
         'plant_id_pudl',
-        'plant_name',
+        'plant_name_eia',
         'utility_id_eia',
         'utility_id_pudl',
-        'utility_name',
+        'utility_name_eia',
         'boiler_id',
     ]
 
@@ -482,10 +482,10 @@ def generation_eia923(pudl_engine, pt, freq=None,
         'report_date',
         'plant_id_eia',
         'plant_id_pudl',
-        'plant_name',
+        'plant_name_eia',
         'utility_id_eia',
         'utility_id_pudl',
-        'utility_name',
+        'utility_name_eia',
         'generator_id',
     ]
 
