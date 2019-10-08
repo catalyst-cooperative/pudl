@@ -175,7 +175,7 @@ def test_fbp_ferc1_no_dupes(pudl_out_ferc1):
     # No duplicate [report_year, utility_id_ferc1, plant_name] combinations
     # Should use the mcoe_test.single_records() funciton for this... but I
     # guess we need to create a module just of data validity functions.
-    key_cols = ['report_year', 'utility_id_ferc1', 'plant_name']
+    key_cols = ['report_year', 'utility_id_ferc1', 'plant_name_ferc1']
     len1 = len(fbp_ferc1)
     len2 = len(fbp_ferc1.drop_duplicates(subset=key_cols))
     logger.info(f"{len1-len2} duplicate records found.")
