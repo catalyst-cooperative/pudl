@@ -25,7 +25,6 @@ import pudl.load.metadata
 # Output modules by data source:
 import pudl.output.eia860
 import pudl.output.eia923
-import pudl.output.export
 import pudl.output.ferc1
 import pudl.output.glue
 import pudl.output.pudltabl

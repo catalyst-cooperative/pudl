@@ -19,15 +19,15 @@ def plants_utils_ferc1(pudl_engine, pt):
         pandas.DataFrame: A DataFrame containing useful FERC Form 1 Plant and
         Utility information.
     """
-    utils_ferc_tbl = pt['utilities_ferc']
-    utils_ferc_select = sa.sql.select([utils_ferc_tbl, ])
-    utils_ferc = pd.read_sql(utils_ferc_select, pudl_engine)
+    utils_ferc1_tbl = pt['utilities_ferc1']
+    utils_ferc1_select = sa.sql.select([utils_ferc1_tbl, ])
+    utils_ferc1 = pd.read_sql(utils_ferc1_select, pudl_engine)
 
-    plants_ferc_tbl = pt['plants_ferc']
-    plants_ferc_select = sa.sql.select([plants_ferc_tbl, ])
-    plants_ferc = pd.read_sql(plants_ferc_select, pudl_engine)
+    plants_ferc1_tbl = pt['plants_ferc1']
+    plants_ferc1_select = sa.sql.select([plants_ferc1_tbl, ])
+    plants_ferc1 = pd.read_sql(plants_ferc1_select, pudl_engine)
 
-    out_df = pd.merge(plants_ferc, utils_ferc, on='utility_id_ferc1')
+    out_df = pd.merge(plants_ferc1, utils_ferc1, on='utility_id_ferc1')
     return out_df
 
 
@@ -52,9 +52,10 @@ def plants_steam_ferc1(pudl_engine, pt):
     steam_ferc1_select = sa.sql.select([steam_ferc1_tbl, ])
     steam_df = pd.read_sql(steam_ferc1_select, pudl_engine)
 
-    pu_ferc = plants_utils_ferc1(pudl_engine, pt)
+    pu_ferc1 = plants_utils_ferc1(pudl_engine, pt)
 
-    out_df = pd.merge(steam_df, pu_ferc, on=['utility_id_ferc1', 'plant_name'])
+    out_df = pd.merge(steam_df, pu_ferc1, on=['utility_id_ferc1',
+                                              'plant_name_ferc1'])
 
     first_cols = [
         'report_year',
@@ -63,7 +64,7 @@ def plants_steam_ferc1(pudl_engine, pt):
         'utility_name_ferc1',
         'plant_id_pudl',
         'plant_id_ferc1',
-        'plant_name'
+        'plant_name_ferc1'
     ]
 
     out_df = pudl.helpers.organize_cols(out_df, first_cols)
@@ -119,9 +120,10 @@ def fuel_ferc1(pudl_engine, pt):
     fuel_df['fuel_consumed_total_cost'] = \
         fuel_df['fuel_qty_burned'] * fuel_df['fuel_cost_per_unit_burned']
 
-    pu_ferc = plants_utils_ferc1(pudl_engine, pt)
+    pu_ferc1 = plants_utils_ferc1(pudl_engine, pt)
 
-    out_df = pd.merge(fuel_df, pu_ferc, on=['utility_id_ferc1', 'plant_name'])
+    out_df = pd.merge(fuel_df, pu_ferc1, on=['utility_id_ferc1',
+                                             'plant_name_ferc1'])
     out_df = out_df.drop('id', axis=1)
 
     first_cols = [
@@ -130,7 +132,7 @@ def fuel_ferc1(pudl_engine, pt):
         'utility_id_pudl',
         'utility_name_ferc1',
         'plant_id_pudl',
-        'plant_name'
+        'plant_name_ferc1'
     ]
 
     out_df = pudl.helpers.organize_cols(out_df, first_cols)
@@ -163,7 +165,7 @@ def fuel_by_plant_ferc1(pudl_engine, pt, thresh=0.5):
         'utility_id_pudl',
         'utility_name_ferc1',
         'plant_id_pudl',
-        'plant_name'
+        'plant_name_ferc1'
     ]
 
     fbp_df = (
@@ -171,7 +173,7 @@ def fuel_by_plant_ferc1(pudl_engine, pt, thresh=0.5):
         drop(['id'], axis=1).
         pipe(pudl.transform.ferc1.fuel_by_plant_ferc1, thresh=thresh).
         merge(plants_utils_ferc1(pudl_engine, pt),
-              on=['utility_id_ferc1', 'plant_name']).
+              on=['utility_id_ferc1', 'plant_name_ferc1']).
         pipe(pudl.helpers.organize_cols, first_cols)
     )
     return fbp_df
