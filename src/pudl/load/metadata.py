@@ -180,7 +180,7 @@ def get_repartitioned_tables(tables, partitions, pkg_settings):
 
 def data_sources_from_tables(table_names):
     """
-    Look up data sources based on a list of PUDL DB tables.
+    Look up data sources based on a list of PUDL tables.
 
     Args:
         tables_names (iterable): a list of names of 'seed' tables, whose

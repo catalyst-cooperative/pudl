@@ -3352,7 +3352,7 @@
                     {
                         "name": "net_metering",
                         "type": "string",
-                        "description": "Did this plant have a net metering agreement in effect during the reporting year?  (Only displayed for facilities that report the sun or wind as an energy source).",
+                        "description": "Did this plant have a net metering agreement in effect during the reporting year?  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015",
                         "format": "default"
                     },
                     {

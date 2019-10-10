@@ -278,7 +278,7 @@ def _harvesting(entity,  # noqa: C901
     logger.debug("    compiling plants for entity tables from:")
     # empty list for dfs to be added to for each table below
     dfs = []
-    # for each df in the dtc of transformed dfs
+    # for each df in the dict of transformed dfs
     for table_name, transformed_df in eia_transformed_dfs.items():
         # inside of main() we are going to be adding items into
         # eia_transformed_dfs with the name 'annual'. We don't want to harvest
@@ -296,6 +296,7 @@ def _harvesting(entity,  # noqa: C901
                     if column in df.columns:
                         cols.append(column)
                 df = df[(base_cols + cols)]
+                df = df.dropna()
                 # add a column with the table name so we know its origin
                 df['table'] = table_name
                 dfs.append(df)
@@ -412,11 +413,19 @@ def _harvesting(entity,  # noqa: C901
             # ratio of ~.92. The ratios are better with less years imported.
             if col in ('latitude', 'longitude', 'county', 'previously_canceled'):
                 if ratio < .90:
-                    raise AssertionError(
-                        f'Harvesting of {col} is too inconsistent.')
+                    if debug:
+                        logger.info(
+                            f'ERROR: Harvesting of {col} is too inconsistent.')
+                    else:
+                        raise AssertionError(
+                            f'Harvesting of {col} is too inconsistent.')
             elif ratio < .95:
-                raise AssertionError(
-                    f'Harvesting of {col} is too inconsistent at {ratio:.3}.')
+                if debug:
+                    logger.info(
+                        f'ERROR: Harvesting of {col} is too inconsistent.')
+                else:
+                    raise AssertionError(
+                        f'Harvesting of {col} is too inconsistent at {ratio:.3}.')
         # add to a small df to be used in order to print out the ratio of
         # consistent records
         consistency = consistency.append({'column': col,
@@ -831,6 +840,7 @@ def transform(eia_transformed_dfs,
     for entity in pc.entities.keys():
         logger.info(f"Harvesting IDs & consistently static attributes "
                     f"for EIA {entity}")
+
         _harvesting(entity, eia_transformed_dfs, entities_dfs,
                     debug=debug)
 

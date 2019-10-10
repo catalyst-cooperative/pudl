@@ -197,11 +197,16 @@ def _etl_eia_pkg(etl_params, data_dir, pkg_dir):
     # create an eia transformed dfs dictionary
     eia_transformed_dfs = eia860_transformed_dfs.copy()
     eia_transformed_dfs.update(eia923_transformed_dfs.copy())
+    # convert types..
+    eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
+        eia_transformed_dfs, 'eia')
 
     entities_dfs, eia_transformed_dfs = \
         pudl.transform.eia.transform(eia_transformed_dfs,
                                      eia923_years=eia923_years,
                                      eia860_years=eia860_years)
+    # convert types..
+    entities_dfs = pudl.helpers.convert_dfs_dict_dtypes(entities_dfs, 'eia')
 
     # Compile transformed dfs for loading...
     transformed_dfs = {"Entities": entities_dfs, "EIA": eia_transformed_dfs}
@@ -444,7 +449,9 @@ def _validate_params_epaipm(etl_params):
     try:
         epaipm_dict['epaipm_tables'] = etl_params['epaipm_tables']
     except KeyError:
-        epaipm_dict['epaipm_tables'] = [None]
+        epaipm_dict['epaipm_tables'] = []
+    if not epaipm_dict['epaipm_tables']:
+        return {}
     return(epaipm_dict)
 
 
@@ -492,6 +499,9 @@ def _etl_epaipm(etl_params, data_dir, pkg_dir):
     """
     epaipm_dict = _validate_params_epaipm(etl_params)
     epaipm_tables = epaipm_dict['epaipm_tables']
+    if not epaipm_tables:
+        logger.info('Not ingesting EPA IPM.')
+        return []
     static_tables = _load_static_tables_epaipm(pkg_dir)
 
     # Extract IPM tables

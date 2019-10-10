@@ -768,3 +768,81 @@ def merge_dicts(list_of_dicts):
     for dictionary in list_of_dicts:
         merge_dict.update(dictionary)
     return merge_dict
+
+
+def convert_cols_dtypes(df, data_source, name=None):
+    """
+    Convert the data types for a dataframe.
+
+    This function will convert a PUDL dataframe's columns to the correct data
+    type. It uses a dictionary in constants.py called column_dtypes to asign
+    the right type.
+
+    Boolean type conversions created a special problem, because null values in
+    boolean columns get converted to True (which is bonkers!)... we generally
+    want to preserve the null values and definitely don't want them to be
+    True, so we are keeping those columns as objects and preforming a simple
+    mask for the boolean columns.
+
+    The other exception in here is with the `utility_id_eia` column. It is often
+    an object column of strings. All of the strings are numbers, so it should be
+    possible to convert to pd.Int32Dtype() directly, but it is requiring us to
+    convert to int first. There will probably be other columns that have this
+    problem... and hopefully pandas just enables this direct conversion.
+
+    Args:
+        df (pandas.Dataframe): dataframe with columns that appear in the PUDL
+            tables.
+        data_source (str): the name of the datasource
+        name (str): name of the table (for logging only!)
+    Returns:
+        pandas.DataFrame : a dataframe that has been fully converted to data
+        types as outlined in pc.
+    """
+    # get me all of the columns for the table in the constants dtype dict
+    column_types_table = {key: value for key, value
+                          in pc.column_dtypes[data_source].items()
+                          if key in list(df.columns)}
+    # grab only the boolean columns (we only need their names)
+    bool_cols = {key for key, value
+                 in column_types_table.items()
+                 if value == bool}
+    # grab all of the non boolean columns
+    non_bool_cols = {key: value for key, value
+                     in column_types_table.items()
+                     if value != bool}
+
+    for col in bool_cols:
+        # Bc the og bool values were sometimes coming across as actual bools or
+        # strings, for some reason we need to map both types (I'm not sure
+        # why!). We use na_action to preserve the og NaN's. I've also added in
+        # the string version of a null value bc I am sure it will exist.
+        df[col] = df[col].map({'False': False,
+                               'True': True,
+                               False: False,
+                               True: True,
+                               'nan': np.NaN},
+                              na_action='ignore')
+
+    logger.info(f'Converting the dtypes of: {name}')
+    # unfortunately, the pd.Int32Dtype() doesn't allow a conversion from object
+    # columns to this nullable int type column. `utility_id_eia` shows up as a
+    # column of strings (!) of numbers so it is an object column, and therefor
+    # needs to be converted beforehand.
+    if 'utility_id_eia' in df.columns:
+        df = df.astype({'utility_id_eia': int}, skipna=True)
+    # we need the skipna in here for now... it looks like this is
+    # going to become standard, but for now it is important because
+    # without it, the integer cols (even the new nullable Int cols)
+    # will keep the trailing .0 decimal
+    # https://github.com/pandas-dev/pandas/pull/28176
+    df = df.astype(non_bool_cols, skipna=True)
+    return df
+
+
+def convert_dfs_dict_dtypes(dfs_dict, data_source):
+    """Convert the data types of a dictionary of dataframes."""
+    cleaned_dfs_dict = {}
+    for name, df in dfs_dict.items():
+        cleaned_dfs_dict[name] = convert_cols_dtypes(df, data_source, name)
+    return cleaned_dfs_dict

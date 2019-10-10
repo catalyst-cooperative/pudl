@@ -76,7 +76,7 @@ specified in ``$HOME/.pudl.yml``), you would run:
 
 .. code-block:: console
 
-    $ pytest test/etl_test.py --fast --pudl_in=AUTO --live_ferc_db=AUTO
+    $ pytest test/etl_test.py --fast --pudl_in=AUTO --live_ferc1_db=AUTO
 
 To specify a particular ``pudl_in`` directory, containing a ``data`` directory
 and datastore, you would use:
@@ -110,12 +110,12 @@ keep around, so we advise running the data validation on an generated PUDL
 SQLite database.
 
 To point the tests at already processed data, use the ``--live_pudl_db`` and
-``--live_ferc_db`` options. The ``--pudl_in`` and ``--pudl_out`` options work
+``--live_ferc1_db`` options. The ``--pudl_in`` and ``--pudl_out`` options work
 the same as above. E.g.
 
 .. code-block:: console
 
-    $ pytest --live_pudl_db=AUTO --live_ferc_db=AUTO --pudl_in=AUTO --pudl_out=AUTO test/validate
+    $ pytest --live_pudl_db=AUTO --live_ferc1_db=AUTO --pudl_in=AUTO --pudl_out=AUTO test/validate
 
 Data Validation Notebooks
 ^^^^^^^^^^^^^^^^^^^^^^^^^
