@@ -211,6 +211,67 @@ def _add_additional_epacems_plants(plants_entity):
     return plants_entity.append(cems_unmatched).reset_index()
 
 
+def _compile_all_entity_records(entity, eia_transformed_dfs):
+    """
+    Compile all of the entity records from each table they appear in.
+
+    Comb through each of the dataframes in the eia_transformed_dfs dictionary
+    to pull out ever instance of the entity id.
+    """
+    # we know these columns must be in the dfs
+    entity_id = pc.entities[entity][0]
+    static_cols = pc.entities[entity][1]
+    annual_cols = pc.entities[entity][2]
+    base_cols = pc.entities[entity][0] + ['report_date']
+
+    # empty list for dfs to be added to for each table below
+    dfs = []
+    # for each df in the dict of transformed dfs
+    for table_name, transformed_df in eia_transformed_dfs.items():
+        # inside of main() we are going to be adding items into
+        # eia_transformed_dfs with the name 'annual'. We don't want to harvest
+        # from our newly harvested tables.
+        if 'annual' not in table_name:
+            # if the df contains the desired columns the grab those columns
+            if set(base_cols).issubset(transformed_df.columns):
+                logger.debug(f"        {table_name}...")
+                # create a copy of the df to muck with
+                df = transformed_df.copy()
+                # we know these columns must be in the dfs
+                cols = []
+                # check whether the columns are in the specific table
+                for column in static_cols + annual_cols:
+                    if column in df.columns:
+                        cols.append(column)
+                df = df[(base_cols + cols)]
+                df = df.dropna(subset=entity_id)
+                # add a column with the table name so we know its origin
+                df['table'] = table_name
+                dfs.append(df)
+
+                # remove the static columns, with an exception
+                if entity == 'plants' and table_name in ('ownership_eia860',
+                                                         'utilities_eia860'):
+                    cols.remove('utility_id_eia')
+                transformed_df = transformed_df.drop(columns=cols)
+                eia_transformed_dfs[table_name] = transformed_df
+
+    # add those records to the compliation
+    compiled_df = pd.concat(dfs, axis=0, ignore_index=True, sort=True)
+    # strip the month and day from the date so we can have annual records
+    compiled_df['report_date'] = compiled_df['report_date'].dt.year
+    # convert the year back into a date_time object
+    year = compiled_df['report_date']
+    compiled_df['report_date'] = pd.to_datetime({'year': year,
+                                                 'month': 1,
+                                                 'day': 1})
+
+    logger.debug('    Casting harvested IDs to correct data types')
+    # most columns become objects (ack!), so assign types
+    compiled_df = compiled_df.astype(pc.entities[entity][3])
+    return compiled_df
+
+
 def _harvesting(entity,  # noqa: C901
                 eia_transformed_dfs,
                 entities_dfs,
@@ -271,56 +332,12 @@ def _harvesting(entity,  # noqa: C901
     """
     # we know these columns must be in the dfs
     entity_id = pc.entities[entity][0]
-    base_cols = pc.entities[entity][0] + ['report_date']
     static_cols = pc.entities[entity][1]
     annual_cols = pc.entities[entity][2]
 
     logger.debug("    compiling plants for entity tables from:")
-    # empty list for dfs to be added to for each table below
-    dfs = []
-    # for each df in the dict of transformed dfs
-    for table_name, transformed_df in eia_transformed_dfs.items():
-        # inside of main() we are going to be adding items into
-        # eia_transformed_dfs with the name 'annual'. We don't want to harvest
-        # from our newly harvested tables.
-        if 'annual' not in table_name:
-            # if the df contains the desired columns the grab those columns
-            if set(base_cols).issubset(transformed_df.columns):
-                logger.debug(f"        {table_name}...")
-                # create a copy of the df to muck with
-                df = transformed_df.copy()
-                # we know these columns must be in the dfs
-                cols = []
-                # check whether the columns are in the specific table
-                for column in static_cols + annual_cols:
-                    if column in df.columns:
-                        cols.append(column)
-                df = df[(base_cols + cols)]
-                df = df.dropna()
-                # add a column with the table name so we know its origin
-                df['table'] = table_name
-                dfs.append(df)
 
-                # remove the static columns, with an exception
-                if entity == 'plants' and table_name in ('ownership_eia860',
-                                                         'utilities_eia860'):
-                    cols.remove('utility_id_eia')
-                transformed_df = transformed_df.drop(columns=cols)
-                eia_transformed_dfs[table_name] = transformed_df
-
-    # add those records to the compliation
-    compiled_df = pd.concat(dfs, axis=0, ignore_index=True, sort=True)
-    # strip the month and day from the date so we can have annual records
-    compiled_df['report_date'] = compiled_df['report_date'].dt.year
-    # convert the year back into a date_time object
-    year = compiled_df['report_date']
-    compiled_df['report_date'] = pd.to_datetime({'year': year,
-                                                 'month': 1,
-                                                 'day': 1})
-
-    logger.debug('    Casting harvested IDs to correct data types')
-    # most columns become objects (ack!), so assign types
-    compiled_df = compiled_df.astype(pc.entities[entity][3])
+    compiled_df = _compile_all_entity_records(entity, eia_transformed_dfs)
 
     # compile annual ids
     annual_id_df = compiled_df[
