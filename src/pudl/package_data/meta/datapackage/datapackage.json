@@ -4223,7 +4223,7 @@
                     {
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "description": "EIA Plant Identification number. One to five digit numeric.",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
                     {
@@ -4235,7 +4235,7 @@
                     {
                         "name": "operating_datetime_utc",
                         "type": "datetime",
-                        "description": "Date and time measurement began.",
+                        "description": "Date and time measurement began (UTC).",
                         "format": "default"
                     },
                     {
@@ -4247,7 +4247,7 @@
                     {
                         "name": "gross_load_mw",
                         "type": "number",
-                        "description": "Power delivered during time interval measured.",
+                        "description": "Average power in megawatts produced during time interval measured.",
                         "format": "default"
                     },
                     {
@@ -4309,7 +4309,7 @@
                     {
                         "name": "nox_mass_lbs",
                         "type": "number",
-                        "description": "Nitrogen oxide emissions in pounds.",
+                        "description": "NOx emissions in pounds.",
                         "format": "default"
                     },
                     {
@@ -4359,19 +4359,19 @@
                     {
                         "name": "heat_content_mmbtu",
                         "type": "number",
-                        "description": "The measure of utilization that is calculated by multiplying the quantity of fuel by the fuel's heat content.",
+                        "description": "The energy contained in fuel burned, measured in million BTU.",
                         "format": "default"
                     },
                     {
                         "name": "facility_id",
                         "type": "integer",
-                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
+                        "description": "Plant ID, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
                     {
                         "name": "unit_id_epa",
                         "type": "integer",
-                        "description": "Unique EPA identifier for each unit at a facility.",
+                        "description": "Unit ID for each unit at a facility, assigned by the Energy Information Administration.",
                         "format": "default"
                     }
                 ],
