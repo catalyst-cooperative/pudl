@@ -41,7 +41,7 @@ and work with. Hundreds of gigabytes of public information is published
 by government agencies, but in many different formats that make it hard to
 work with and combine. PUDL takes these spreadsheets, CSV files, and databases
 and turns them into easy use
-`tabular data packages <https://https://frictionlessdata.io/docs/tabular-data-package/>`__
+`tabular data packages <https://frictionlessdata.io/docs/tabular-data-package/>`__
 that can populate a database, or be used directly with Python, R, Microsoft
 Access, and many other tools.
 
