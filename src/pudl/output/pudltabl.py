@@ -150,7 +150,7 @@ class PudlTabl(object):
         """
         if update or self._dfs['pu_ferc1'] is None:
             self._dfs['pu_ferc1'] = pudl.output.ferc1.plants_utils_ferc1(
-                self.pudl_engine, self.pt)
+                self.pudl_engine)
         return self._dfs['pu_ferc1']
 
     def utils_eia860(self, update=False):
