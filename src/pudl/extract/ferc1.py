@@ -497,6 +497,31 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
         new_df.to_sql(table, sqlite_engine,
                       if_exists='append', chunksize=100000,
                       dtype=coltypes, index=False)
+        # add the missing respondents into the respondent_id table.
+        if table == 'f1_respondent_id':
+            logger.debug(f'inserting missing respondents into {table}')
+            sa.insert(sqlite_meta.tables['f1_respondent_id'],
+                      # we can insert info info into any of the columns for this
+                      # table through the following dictionary, but each of the
+                      # records need to have all of the same columns (you can't
+                      # add a column for one respondent without adding it to all).
+                      values=[
+                      {'respondent_id': 514,
+                       'respondent_name': 'AEP, Texas (PUDL determined)'},
+                      {'respondent_id': 515,
+                       'respondent_name': 'respondent_515'},
+                      {'respondent_id': 516,
+                       'respondent_name': 'respondent_516'},
+                      {'respondent_id': 517,
+                       'respondent_name': 'respondent_517'},
+                      {'respondent_id': 518,
+                       'respondent_name': 'respondent_518'},
+                      {'respondent_id': 519,
+                       'respondent_name': 'respondent_519'},
+                      {'respondent_id': 522,
+                       'respondent_name':
+                       'Luning Energy Holdings LLC, Invenergy Investments (PUDL determined)'},
+            ]).execute()
 
 
 ###########################################################################

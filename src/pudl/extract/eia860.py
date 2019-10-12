@@ -197,9 +197,17 @@ def get_eia860_page(page, eia860_xlsx,
                     f"DataFrame for {yr}.")
         sheet_name, skiprows, column_map, all_columns = get_eia860_column_map(
             page, yr)
+
+        dtype = {'plant_id_eia': pd.Int64Dtype()}
+        if 'zip_code' in list(all_columns):
+            dtype['zip_code'] = pc.column_dtypes['eia']['zip_code']
+
         newdata = pd.read_excel(eia860_xlsx[yr],
                                 sheet_name=sheet_name,
-                                skiprows=skiprows)
+                                skiprows=skiprows,
+                                # dtype=column_types_table,
+                                dtype=dtype,
+                                )
         newdata = pudl.helpers.simplify_columns(newdata)
 
         # boiler_generator_assn tab is missing a YEAR column. Add it!

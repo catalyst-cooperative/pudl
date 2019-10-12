@@ -1,12 +1,15 @@
 """PyTest cases related to the integration between FERC1 & EIA 860/923."""
 import logging
 
+import pytest
+
 import pudl
 import pudl.constants as pc
 
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.xfail
 def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_engine):
     """
     Test that we can correctly identify unmapped FERC Form 1 DB plants.
@@ -50,6 +53,7 @@ def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_engine):
     logger.info("Found 1 unmapped FERC 1 plant, as expected.")
 
 
+@pytest.mark.xfail
 def test_unmapped_utils_ferc1(pudl_settings_fixture, ferc1_engine):
     """Test that we can identify unmapped FERC 1 utilities."""
     years = pudl.constants.working_years['ferc1']

@@ -180,7 +180,7 @@ def get_repartitioned_tables(tables, partitions, pkg_settings):
 
 def data_sources_from_tables(table_names):
     """
-    Look up data sources based on a list of PUDL DB tables.
+    Look up data sources based on a list of PUDL tables.
 
     Args:
         tables_names (iterable): a list of names of 'seed' tables, whose
@@ -575,7 +575,12 @@ def validate_save_pkg(pkg_descriptor, pkg_dir):
         f"Validating a sample of data from {data_pkg.descriptor['name']} "
         f"tabular data package using goodtables...")
     # Validate the data within the package using goodtables:
-    report = goodtables.validate(pkg_json, row_limit=1000)
+    report = goodtables.validate(
+        pkg_json,
+        # TODO: check which checks are applied... and uncomment out the line
+        # below when the checks are integrated
+        # checks=['structure', 'schema', 'foreign-key'],
+        row_limit=1000)
     if not report["valid"]:
         goodtables_errors = ""
         for table in report["tables"]:
