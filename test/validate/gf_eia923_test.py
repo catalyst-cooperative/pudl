@@ -5,6 +5,7 @@ import logging
 import pytest
 
 import pudl
+import pudl.validate as pv
 
 logger = logging.getLogger(__name__)
 
@@ -33,39 +34,23 @@ def test_fuel_for_electricity(pudl_out_orig, pudl_out_eia, live_pudl_db):
         )
 
 
-def test_coal_heat_content(pudl_out_orig, live_pudl_db):
-    """Check that the distribution of coal heat content per unit is valid."""
+@pytest.mark.parametrize(
+    "cases", [
+        pytest.param(pv.gf_eia923_coal_heat_content, id="coal_heat_content"),
+        pytest.param(pv.gf_eia923_oil_heat_content, id="oil_heat_content"),
+        pytest.param(
+            pv.gf_eia923_gas_heat_content,
+            id="gas_heat_content",
+            marks=pytest.mark.xfail(reason="EIA 923 reporting errors?")
+        ),
+    ]
+)
+def test_vs_bounds(pudl_out_orig, live_pudl_db, cases):
+    """Verify that report fuel heat content per unit is reasonable."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
 
-    for args in pudl.validate.gf_eia923_coal_heat_content:
-        pudl.validate.vs_bounds(pudl_out_orig.gf_eia923(), **args)
-
-
-def test_oil_heat_content(pudl_out_orig, live_pudl_db):
-    """Check that the distribution of oil heat content per unit is valid."""
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
-
-    for args in pudl.validate.gf_eia923_oil_heat_content:
-        pudl.validate.vs_bounds(pudl_out_orig.gf_eia923(), **args)
-
-
-@pytest.mark.xfail
-def test_gas_heat_content(pudl_out_orig, live_pudl_db):
-    """
-    Check that the distribution of gas heat content per unit is valid.
-
-    Currently failing, due to populations of gas records with 0.1x, 0.25x and
-    0.5x the expected heat content. Reporting error? Unit conversion?
-
-    See: https://github.com/catalyst-cooperative/pudl/issues/391
-
-    """
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
-
-    for args in pudl.validate.gf_eia923_gas_heat_content:
+    for args in cases:
         pudl.validate.vs_bounds(pudl_out_orig.gf_eia923(), **args)
 
 

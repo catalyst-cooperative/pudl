@@ -354,7 +354,7 @@ class PudlTabl(object):
         """
         if update or self._dfs['plants_steam_ferc1'] is None:
             self._dfs['plants_steam_ferc1'] = \
-                pudl.output.ferc1.plants_steam_ferc1(self.pudl_engine, self.pt)
+                pudl.output.ferc1.plants_steam_ferc1(self.pudl_engine)
         return self._dfs['plants_steam_ferc1']
 
     def fuel_ferc1(self, update=False):
@@ -371,7 +371,7 @@ class PudlTabl(object):
         """
         if update or self._dfs['fuel_ferc1'] is None:
             self._dfs['fuel_ferc1'] = pudl.output.ferc1.fuel_ferc1(
-                self.pudl_engine, self.pt)
+                self.pudl_engine)
         return self._dfs['fuel_ferc1']
 
     def fbp_ferc1(self, update=False):
@@ -388,7 +388,7 @@ class PudlTabl(object):
         """
         if update or self._dfs['fbp_ferc1'] is None:
             self._dfs['fbp_ferc1'] = pudl.output.ferc1.fuel_by_plant_ferc1(
-                self.pudl_engine, self.pt)
+                self.pudl_engine)
         return self._dfs['fbp_ferc1']
 
     def bga(self, update=False):

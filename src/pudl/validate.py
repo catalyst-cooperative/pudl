@@ -110,15 +110,17 @@ def vs_bounds(df, data_col, weight_col, query="", title="",
     low_bool = low_bound is not False
     hi_bool = hi_bound is not False
 
-    if bool(low_q) ^ low_bool:
+    if bool(low_q) ^ low_bool and low_q != 0:
         raise ValueError(
             f"You must supply both a lower quantile and lower bound, "
-            f"or neither. Got: low_q={low_q}, low_bound={low_bound}."
+            f"or neither. Got: low_q={low_q}, low_bound={low_bound} "
+            f"for validation entitled {title}"
         )
     if bool(hi_q) ^ hi_bool:
         raise ValueError(
             f"You must supply both a lower quantile and lower bound, "
-            f"or neither. Got: low_q={hi_q}, low_bound={hi_bound}."
+            f"or neither. Got: low_q={hi_q}, low_bound={hi_bound} "
+            f"for validation entitled {title}"
         )
 
     if query != "":
@@ -128,22 +130,24 @@ def vs_bounds(df, data_col, weight_col, query="", title="",
     if weight_col is None or weight_col == "":
         df["ones"] = 1.0
         weight_col = "ones"
-    if low_q and low_bool:
+    if low_q >= 0 and low_bool:
         low_test = weighted_quantile(df[data_col], df[weight_col], low_q)
         logger.info(f"{data_col} ({low_q:.0%}): "
                     f"{low_test:.6} >= {low_bound:.6}")
         if low_test < low_bound:
             raise ValueError(
                 f"{low_q:.0%} quantile ({low_test}) "
-                f"is below lower bound ({low_bound})."
+                f"is below lower bound ({low_bound}) "
+                f"in validation entitled {title}"
             )
-    if hi_q and hi_bool:
+    if hi_q <= 1 and hi_bool:
         hi_test = weighted_quantile(df[data_col], df[weight_col], hi_q)
         logger.info(f"{data_col} ({hi_q:.0%}): {hi_test:.6} <= {hi_bound:.6}")
         if weighted_quantile(df[data_col], df[weight_col], hi_q) > hi_bound:
             raise ValueError(
                 f"{hi_q:.0%} quantile ({hi_test}) "
-                f"is above upper bound ({hi_bound})."
+                f"is above upper bound ({hi_bound}) "
+                f"in validation entitled {title}"
             )
 
 
@@ -186,7 +190,10 @@ def vs_historical(orig_df, test_df, data_col, weight_col, query="",  # noqa: C90
         logger.info(
             f"{data_col} ({low_q:.0%}): {low_test:.6} >= {min(low_range):.6}")
         if low_test < min(low_range):
-            raise ValueError(f"{low_test} below lower limit {min(low_range)}.")
+            raise ValueError(
+                f"Lower value {low_test} below lower limit {min(low_range)} "
+                f"in validation of {data_col}"
+            )
 
     if mid_q:
         mid_range = historical_distribution(
@@ -197,9 +204,15 @@ def vs_historical(orig_df, test_df, data_col, weight_col, query="",  # noqa: C90
             f"{data_col} ({mid_q:.0%}): {min(mid_range):.6} <= {mid_test:.6} "
             f"<= {max(mid_range):.6}")
         if mid_test < min(mid_range):
-            raise ValueError(f"{mid_test} below lower limit {min(mid_range)}.")
+            raise ValueError(
+                f"Middle value {mid_test} below lower limit {min(mid_range)} "
+                f"in validation of {data_col}"
+            )
         if mid_test > max(mid_range):
-            raise ValueError(f"{mid_test} above upper limit {max(mid_range)}.")
+            raise ValueError(
+                f"Middle value {mid_test} above upper limit {max(mid_range)} "
+                f"in validation of {data_col}"
+            )
 
     if hi_q:
         hi_range = historical_distribution(
@@ -210,7 +223,9 @@ def vs_historical(orig_df, test_df, data_col, weight_col, query="",  # noqa: C90
             f"{data_col} ({hi_q:.0%}): {hi_test:.6} <= {max(hi_range):.6}.")
         if hi_test > max(hi_range):
             raise ValueError(
-                f"{hi_test} above upper limit {max(hi_range)}")
+                f"Upper value {hi_test} above upper limit {max(hi_range)} "
+                f"in validation of {data_col}"
+            )
 
 
 def bounds_histogram(df, data_col, weight_col, query,
@@ -331,7 +346,8 @@ def plot_vs_bounds(df, validation_cases):
     for args in validation_cases:
         try:
             vs_bounds(df, **args)
-        except ValueError:
+        except ValueError as e:
+            logger.error(str(e))
             warnings.warn("ERROR: Validation Failed")
 
         bounds_histogram(df, **args)
@@ -342,7 +358,8 @@ def plot_vs_self(df, validation_cases):
     for args in validation_cases:
         try:
             vs_self(df, **args)
-        except ValueError:
+        except ValueError as e:
+            logger.error(str(e))
             warnings.warn("ERROR: Validation Failed")
 
         historical_histogram(df, test_df=None, **args)
@@ -353,7 +370,8 @@ def plot_vs_agg(orig_df, agg_df, validation_cases):
     for args in validation_cases:
         try:
             vs_historical(orig_df, agg_df, **args)
-        except ValueError:
+        except ValueError as e:
+            logger.error(str(e))
             warnings.warn("ERROR: Validation Failed")
 
         historical_histogram(orig_df, agg_df, **args)
@@ -365,6 +383,333 @@ def plot_vs_agg(orig_df, agg_df, validation_cases):
 # nnotebooks, so they are stored here where they can be imported from anywhere.
 ###############################################################################
 ###############################################################################
+
+###############################################################################
+# FERC 1 Steam Plants
+###############################################################################
+
+
+plants_steam_ferc1_capacity = [
+    {
+        "title": "All Plant Capacity",
+        "query": "",
+        "low_q": False,
+        "low_bound": False,
+        "hi_q": 0.95,
+        "hi_bound": 2000.0,
+        "data_col": "capacity_mw",
+        "weight_col": "",
+    },
+    {
+        "title": "Steam Plant Capacity",
+        "query": "plant_type=='steam'",
+        "low_q": False,
+        "low_bound": False,
+        "hi_q": 0.95,
+        "hi_bound": 2500.0,
+        "data_col": "capacity_mw",
+        "weight_col": "",
+    },
+]
+
+plants_steam_ferc1_expenses = [
+    {
+        "title": "Capital Expenses (median)",
+        "query": "",
+        "low_q": 0.5,
+        "low_bound": 4e5,
+        "hi_q": 0.5,
+        "hi_bound": 7e5,
+        "data_col": "capex_per_mw",
+        "weight_col": "capacity_mw",
+    },
+    {
+        "title": "Capital Expenses (upper tail)",
+        "query": "",
+        "low_q": False,
+        "low_bound": False,
+        "hi_q": 0.95,
+        "hi_bound": 2.2e6,
+        "data_col": "capex_per_mw",
+        "weight_col": "capacity_mw",
+    },
+    {
+        "title": "OpEx Fuel (median)",
+        "query": "opex_fuel_per_mwh>0",
+        "low_q": 0.5,
+        "low_bound": 13.0,
+        "hi_q": 0.5,
+        "hi_bound": 27.0,
+        "data_col": "opex_fuel_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "OpEx Fuel (upper tail)",
+        "query": "opex_fuel_per_mwh>0",
+        "low_q": False,
+        "low_bound": False,
+        "hi_q": 0.95,
+        "hi_bound": 86.0,
+        "data_col": "opex_fuel_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Nonfuel OpEx (central)",
+        "query": "opex_nonfuel_per_mwh>0",
+        "low_q": 0.3,
+        "low_bound": 3.75,
+        "hi_q": 0.3,
+        "hi_bound": 5.8,
+        "data_col": "opex_nonfuel_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Nonfuel OpEx (upper tail)",
+        "query": "opex_nonfuel_per_mwh>0",
+        "low_q": 0.05,
+        "low_bound": 1.2,
+        "hi_q": 0.95,
+        "hi_bound": 21.0,
+        "data_col": "opex_nonfuel_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+]
+
+plants_steam_ferc1_capacity_ratios = [
+    {
+        "title": "Capacity Factor (Tails)",
+        "query": "capacity_factor>0.05",
+        "low_q": 0.5,
+        "low_bound": 0.5,
+        "hi_q": 0.95,
+        "hi_bound": 0.9,
+        "data_col": "capacity_factor",
+        "weight_col": "",
+    },
+    {
+        "title": "Capacity Factor (Central)",
+        "query": "capacity_factor>0.05",
+        "low_q": 0.7,
+        "low_bound": 0.6,
+        "hi_q": 0.7,
+        "hi_bound": 0.8,
+        "data_col": "capacity_factor",
+        "weight_col": "",
+    },
+    {
+        "title": "Peak Demand Ratio (median)",
+        "query": "",
+        "low_q": 0.5,
+        "low_bound": 0.91,
+        "hi_q": 0.5,
+        "hi_bound": 0.96,
+        "data_col": "peak_demand_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Peak Demand Ratio (tails)",
+        "query": "",
+        "low_q": 0.05,
+        "low_bound": 0.4,
+        "hi_q": 0.95,
+        "hi_bound": 1.25,
+        "data_col": "peak_demand_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Water Limited Ratio (median)",
+        "query": "",
+        "low_q": 0.5,
+        "low_bound": 0.89,
+        "hi_q": 0.5,
+        "hi_bound": 0.92,
+        "data_col": "water_limited_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Water Limited Ratio (tails)",
+        "query": "",
+        "low_q": 0.05,
+        "low_bound": 0.63,
+        "hi_q": 0.95,
+        "hi_bound": 1.09,
+        "data_col": "water_limited_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Not Water Limited Ratio (median)",
+        "query": "",
+        "low_q": 0.5,
+        "low_bound": 0.92,
+        "hi_q": 0.5,
+        "hi_bound": 0.96,
+        "data_col": "not_water_limited_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Not Water Limited Ratio (tails)",
+        "query": "",
+        "low_q": 0.05,
+        "low_bound": 0.73,
+        "hi_q": 0.95,
+        "hi_bound": 1.16,
+        "data_col": "not_water_limited_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Capability Ratio (median)",
+        "query": "",
+        "low_q": 0.5,
+        "low_bound": 0.9,
+        "hi_q": 0.5,
+        "hi_bound": 0.98,
+        "data_col": "capability_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Capability Ratio (tails)",
+        "query": "",
+        "low_q": 0.05,
+        "low_bound": 0.64,
+        "hi_q": 0.95,
+        "hi_bound": 1.18,
+        "data_col": "capability_ratio",
+        "weight_col": "",
+    },
+]
+
+plants_steam_ferc1_connected_hours = [
+    {  # Currently failing b/c ~10% of plants have way more than 8760 hours...
+        "title": "Plant Hours Connected (min/max)",
+        "query": "",
+        "low_q": 0.0,
+        "low_bound": 0.0,
+        "hi_q": 1.0,
+        "hi_bound": 8760.0,
+        "data_col": "plant_hours_connected_while_generating",
+        "weight_col": "capacity_mw",
+    },
+]
+
+plants_steam_ferc1_self = [
+    {
+        "title": "All Plant Capacity",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "capacity_mw",
+        "weight_col": "",
+    },
+    {
+        "title": "Capacity Factor",
+        "query": "capacity_factor>0.05",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "capacity_factor",
+        "weight_col": "",
+    },
+    {
+        "title": "OpEx per MWh",
+        "query": "opex_per_mwh>0",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "opex_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Fuel OpEx per MWh",
+        "query": "opex_fuel_per_mwh>0",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "opex_fuel_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Nonfuel OpEx per MWh",
+        "query": "opex_nonfuel_per_mwh>0",
+        "low_q": 0.05,
+        "mid_q": 0.3,
+        "hi_q": 0.95,
+        "data_col": "opex_nonfuel_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "CapEx per MW",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "capex_per_mw",
+        "weight_col": "capacity_mw",
+    },
+    {
+        "title": "Installation Year",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "installation_year",
+        "weight_col": "",
+    },
+    {
+        "title": "Construction Year",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "construction_year",
+        "weight_col": "",
+    },
+    {
+        "title": "Water Limited Capacity ratio",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "water_limited_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Not Water Limited Capacity ratio",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "not_water_limited_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Capability Ratio",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "capability_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Peak Demand Ratio",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "peak_demand_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Plant Hours Connected",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.9,
+        "data_col": "plant_hours_connected_while_generating",
+        "weight_col": "capacity_mw",
+    },
+]
 
 ###############################################################################
 # EIA923 Generation Fuel data validation against fixed values
