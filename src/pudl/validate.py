@@ -711,6 +711,197 @@ plants_steam_ferc1_self = [
     },
 ]
 
+fuel_ferc1_self = [
+    {
+        "title": "mmbtu per unit (Coal)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_qty_burned",
+    },
+    {
+        "title": "mmbtu per unit (Oil)",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_qty_burned",
+    },
+    {
+        "title": "mmbtu per unit (Gas)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_qty_burned",
+    },
+    {
+        "title": "Cost per mmbtu (Coal)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "fuel_consumed_mmbtu",
+    },
+    {
+        "title": "Cost per mmbtu (Oil)",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "fuel_consumed_mmbtu",
+    },
+    {
+        "title": "Cost per mmbtu (Gas)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "fuel_consumed_mmbtu",
+    },
+    {
+        "title": "Cost per unit burned (Coal)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_unit_burned",
+        "weight_col": "fuel_qty_burned",
+    },
+    {
+        "title": "Cost per unit burned (Oil)",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_unit_burned",
+        "weight_col": "fuel_qty_burned",
+    },
+    {
+        "title": "Cost per unit burned (Gas)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_unit_burned",
+        "weight_col": "fuel_qty_burned",
+    },
+]
+fuel_ferc1_coal_mmbtu_per_unit_bounds = [
+    {
+        "title": "Coal heat content (tails)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "low_bound": 16.0,
+        "hi_q": 0.95,
+        "hi_bound": 26.0,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_qty_burned",
+    },
+]
+fuel_ferc1_oil_mmbtu_per_unit_bounds = [
+    {
+        "title": "mmbtu per unit (Oil)",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.05,
+        "low_bound": 5.5,
+        "hi_q": 0.95,
+        "hi_bound": 6.8,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_qty_burned",
+    },
+]
+fuel_ferc1_gas_mmbtu_per_unit_bounds = [
+    {
+        "title": "mmbtu per unit (Gas)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.05,
+        "low_bound": 0.98,
+        "hi_q": 0.95,
+        "hi_bound": 1.08,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_qty_burned",
+    },
+]
+fuel_ferc1_coal_cost_per_mmbtu_bounds = [
+    {
+        "title": "Cost per mmbtu (Coal)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "low_bound": 0.85,
+        "hi_q": 0.95,
+        "hi_bound": 4.2,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "fuel_consumed_mmbtu",
+    },
+]
+fuel_ferc1_oil_cost_per_mmbtu_bounds = [
+    {
+        "title": "Cost per mmbtu (Oil)",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.05,
+        "low_bound": 5.0,
+        "hi_q": 0.95,
+        "hi_bound": 25.0,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "fuel_consumed_mmbtu",
+    },
+]
+fuel_ferc1_gas_cost_per_mmbtu_bounds = [
+    {
+        "title": "Cost per mmbtu (Gas)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.05,
+        "low_bound": 2.0,
+        "hi_q": 0.95,
+        "hi_bound": 12.0,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "fuel_consumed_mmbtu",
+    },
+]
+fuel_ferc1_coal_cost_per_unit_bounds = [
+    {
+        "title": "Cost per unit burned (Coal)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "low_bound": 7.0,
+        "hi_q": 0.95,
+        "hi_bound": 100.0,
+        "data_col": "fuel_cost_per_unit_burned",
+        "weight_col": "fuel_qty_burned",
+    },
+]
+fuel_ferc1_oil_cost_per_unit_bounds = [
+    {
+        "title": "Cost per unit burned (Oil)",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.05,
+        "low_bound": 25.0,
+        "hi_q": 0.95,
+        "hi_bound": 140.0,
+        "data_col": "fuel_cost_per_unit_burned",
+        "weight_col": "fuel_qty_burned",
+    },
+]
+fuel_ferc1_gas_cost_per_unit_bounds = [
+    {
+        "title": "Cost per unit burned (Gas)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.05,
+        "low_bound": 2.5,
+        "hi_q": 0.95,
+        "hi_bound": 12.0,
+        "data_col": "fuel_cost_per_unit_burned",
+        "weight_col": "fuel_qty_burned",
+    },
+]
 ###############################################################################
 # EIA923 Generation Fuel data validation against fixed values
 ###############################################################################
