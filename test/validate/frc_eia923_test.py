@@ -12,11 +12,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.parametrize(
     "cases", [
-        pytest.param(
-            pv.frc_eia923_coal_mercury_content,
-            id="coal_mercury",
-            marks=pytest.mark.xfail(reason="FERC 1 data reporting errors.")
-        ),
+        pytest.param(pv.frc_eia923_coal_mercury_content, id="coal_mercury"),
         pytest.param(pv.frc_eia923_coal_heat_content, id="coal_heat_content"),
         pytest.param(pv.frc_eia923_coal_ash_content, id="coal_ash_content"),
         pytest.param(
