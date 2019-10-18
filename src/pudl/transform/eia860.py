@@ -28,9 +28,6 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
         which pages from EIA860 form (keys) correspond to normalized
         DataFrames of values from that page (values)
 
-    Todo:
-        Convert assert statement to AssertionError
-
     """
     o_df = eia860_dfs['ownership'].copy()
 
@@ -42,7 +39,12 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     # The fix we're making here is only known to be valid for 2011 -- if we
     # get older data... then we need to to revisit the cleaning function and
     # make sure it also applies to those earlier years.
-    assert min(o_df.report_date.dt.year) >= 2011
+    if min(o_df.report_date.dt.year) < min(pc.working_years["eia860"]):
+        raise ValueError(
+            f"EIA 860 transform step is only known to work for "
+            f"year {min(pc.working_years['eia860'])} and later, but found data "
+            f"from year {min(o_df.report_date.dt.year)}."
+        )
 
     # Prior to 2012, ownership was reported as a percentage, rather than
     # as a proportion, so we need to divide those values by 100.

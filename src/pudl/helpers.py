@@ -114,15 +114,17 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
         which are retained for any shared, non-merging columns
 
     """
-    assert date_col in df_date.columns.tolist()
-    assert year_col in df_year.columns.tolist()
-    # assert that the annual data is in fact annual:
-    assert is_annual(df_year, year_col=year_col)
+    if date_col not in df_date.columns.tolist():
+        raise ValueError(f"Date column {date_col} not found in df_date.")
+    if year_col not in df_year.columns.tolist():
+        raise ValueError(f"Year column {year_col} not found in df_year.")
+    if not is_annual(df_year, year_col=year_col):
+        raise ValueError(f"df_year is not annual, based on column {year_col}.")
 
-    # assert that df_date has annual or finer time resolution.
     first_date = pd.to_datetime(df_date[date_col].min())
     all_dates = pd.DatetimeIndex(df_date[date_col]).unique().sort_values()
-    assert len(all_dates) > 0
+    if not len(all_dates) > 0:
+        raise ValueError("Didn't find any dates in DatetimeIndex.")
     if len(all_dates) > 1:
         if len(all_dates) == 2:
             second_date = all_dates.max()
@@ -130,7 +132,8 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
             date_freq = pd.infer_freq(all_dates)
             rng = pd.date_range(start=first_date, periods=2, freq=date_freq)
             second_date = rng[1]
-            assert (second_date - first_date) / pd.Timedelta(days=366) <= 1.0
+            if (second_date - first_date) / pd.Timedelta(days=366) > 1.0:
+                raise ValueError("Consecutive annual dates >1 year apart.")
 
     # Create a temporary column in each dataframe with the year
     df_year = df_year.copy()
@@ -207,8 +210,8 @@ def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
         Return to
 
     """
-    # assert that df time resolution really is annual
-    assert is_annual(df, year_col=date_col)
+    if not is_annual(df, year_col=date_col):
+        raise ValueError(f"DataFrame not annual, based on column {date_col}.")
 
     earliest_date = pd.to_datetime(df[date_col].min())
     if start_date is not None:

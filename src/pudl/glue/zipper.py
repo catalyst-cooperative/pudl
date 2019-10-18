@@ -314,7 +314,13 @@ def aggregate_by_pudl_plant(eia_df, ferc_df):
     eia_test_df = pd.DataFrame(columns=eia_df.columns)
     eia_pudl_ids = eia_df.pudl_plant_id.unique()
     ferc_pudl_ids = ferc_df.pudl_plant_id.unique()
-    assert set(eia_pudl_ids) == set(ferc_pudl_ids)
+    diff_ids = set(eia_pudl_ids).symmetric_difference(set(ferc_pudl_ids))
+    if diff_ids:
+        raise ValueError(
+            f"EIA and FERC1 PUDL ID sets are not identical."
+            f"Symmetric difference: {diff_ids}"
+        )
+
     pudl_plant_ids = eia_pudl_ids
 
     for pudl_plant_id in pudl_plant_ids:

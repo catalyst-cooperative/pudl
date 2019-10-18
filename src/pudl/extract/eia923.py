@@ -142,13 +142,13 @@ def get_eia923_page(page, eia923_xlsx,
         pandas.DataFrame: A dataframe containing the data from the selected
         page and selected years from EIA 923.
 
-    Todo:
-        Convert 2 assert statements to AssertionError
     """
-    assert min(years) >= min(pc.working_years['eia923']),\
-        f"EIA923 works for 2009 and later. {min(years)} requested."
-    assert page in pc.tab_map_eia923.columns and page != 'year_index',\
-        f"Unrecognized EIA 923 page: {page}"
+    if min(years) < min(pc.working_years['eia923']):
+        raise ValueError(
+            f"EIA923 only works for 2009 and later. {min(years)} requested."
+        )
+    if (page not in pc.tab_map_eia923.columns) or (page == 'year_index'):
+        raise ValueError(f"Unrecognized EIA 923 page: {page}")
 
     df = pd.DataFrame()
     for yr in years:
