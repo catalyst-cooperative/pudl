@@ -993,8 +993,9 @@ gf_eia923_gas_heat_content = [
 Valid natural gas heat content values.
 
 Based on historically reported values in EIA 923 Fuel Receipts and Costs. May
-fail because of a population of bad data around 0.1 mmbtu/unit. This appears
-to be an off-by-10x error, possibly due to reporting error in units used.
+fail because non-methane gaseous fuels have been lumped in with "gas" here and
+some of them have substantially lower heat content.
+
 """
 
 ###############################################################################
