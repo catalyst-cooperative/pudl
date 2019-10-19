@@ -1372,7 +1372,36 @@ bf_eia923_agg = [
 # EIA923 Fuel Receipts and Costs validation against fixed values
 ###############################################################################
 
-frc_eia923_coal_heat_content = [
+frc_eia923_coal_ant_heat_content = [
+    {
+        "title": "Anthracite coal heat content (middle)",
+        "query": "energy_source_code=='ANT'",
+        "low_q": 0.50,
+        "low_bound": 20.5,
+        "hi_q": 0.50,
+        "hi_bound": 26.5,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+    {
+        "title": "Anthracite coal heat content (tails)",
+        "query": "energy_source_code=='ANT'",
+        "low_q": 0.05,
+        "low_bound": 22.0,
+        "hi_q": 0.95,
+        "hi_bound": 29.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable anthracite coal heat content.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_coal_bit_heat_content = [
     {
         "title": "Bituminous coal heat content (middle)",
         "query": "energy_source_code=='BIT'",
@@ -1387,12 +1416,21 @@ frc_eia923_coal_heat_content = [
         "title": "Bituminous coal heat content (tails)",
         "query": "energy_source_code=='BIT'",
         "low_q": 0.05,
-        "low_bound": 17.0,
+        "low_bound": 18.0,
         "hi_q": 0.95,
-        "hi_bound": 30.0,
+        "hi_bound": 29.0,
         "data_col": "heat_content_mmbtu_per_unit",
         "weight_col": "fuel_qty_units",
     },
+]
+"""
+Check for reasonable bituminous coal heat content.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_coal_sub_heat_content = [
     {
         "title": "Sub-bituminous coal heat content (middle)",
         "query": "energy_source_code=='SUB'",
@@ -1409,10 +1447,19 @@ frc_eia923_coal_heat_content = [
         "low_q": 0.05,
         "low_bound": 15.0,
         "hi_q": 0.95,
-        "hi_bound": 20.5,
+        "hi_bound": 20.0,
         "data_col": "heat_content_mmbtu_per_unit",
         "weight_col": "fuel_qty_units",
     },
+]
+"""
+Check for reasonable Sub-bituminous coal heat content.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_coal_lig_heat_content = [
     {
         "title": "Lignite heat content (middle)",
         "query": "energy_source_code=='LIG'",
@@ -1433,25 +1480,53 @@ frc_eia923_coal_heat_content = [
         "data_col": "heat_content_mmbtu_per_unit",
         "weight_col": "fuel_qty_units",
     },
+]
+"""
+Check for reasonable lignite coal heat content.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_coal_cc_heat_content = [
     {
-        "title": "All coal heat content (middle)",
-        "query": "fuel_type_code_pudl=='coal'",
-        "low_q": 0.50,
-        "low_bound": 10.0,
-        "hi_q": 0.50,
-        "hi_bound": 30.0,
+        "title": "Refined coal heat content (tails)",
+        "query": "energy_source_code=='RC'",
+        "low_q": 0.05,
+        "low_bound": 6.5,
+        "hi_q": 0.95,
+        "hi_bound": 16.0,
         "data_col": "heat_content_mmbtu_per_unit",
         "weight_col": "fuel_qty_units",
     },
 ]
 """
-Valid coal (bituminous, sub-bituminous, and lignite) heat content values.
+Check for reasonable refined coal heat content.
 
-Based on IEA coal grade definitions:
-https://www.iea.org/statistics/resources/balancedefinitions/
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
 """
 
-frc_eia923_oil_heat_content = [
+frc_eia923_coal_wc_heat_content = [
+    {
+        "title": "Waste coal heat content (tails)",
+        "query": "energy_source_code=='WC'",
+        "low_q": 0.05,
+        "low_bound": 6.5,
+        "hi_q": 0.95,
+        "hi_bound": 16.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable waste coal heat content.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_oil_dfo_heat_content = [
     {
         "title": "Diesel Fuel Oil heat content (tails)",
         "query": "energy_source_code=='DFO'",
@@ -1472,51 +1547,413 @@ frc_eia923_oil_heat_content = [
         "data_col": "heat_content_mmbtu_per_unit",
         "weight_col": "fuel_qty_units",
     },
+]
+"""
+Check for reasonable diesel fuel oil heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_gas_sgc_heat_content = [
     {
-        "title": "All petroleum heat content (tails)",
-        "query": "fuel_type_code_pudl=='oil'",
+        "title": "Coal syngas heat content (tails)",
+        "query": "energy_source_code=='SGC'",
+        "low_q": 0.05,
+        "low_bound": 0.2,
+        "hi_q": 0.95,
+        "hi_bound": 0.3,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable coal syngas heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_oil_jf_heat_content = [
+    {
+        "title": "Jet fuel heat content (tails)",
+        "query": "energy_source_code=='JF'",
         "low_q": 0.05,
         "low_bound": 5.0,
         "hi_q": 0.95,
-        "hi_bound": 6.5,
+        "hi_bound": 6.0,
         "data_col": "heat_content_mmbtu_per_unit",
         "weight_col": "fuel_qty_units",
     },
 ]
 """
-Valid petroleum based fuel heat content values.
+Check for reasonable jet fuel heat contents.
 
-Based on historically reported values in EIA 923 Fuel Receipts and Costs.
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
 """
 
-frc_eia923_gas_heat_content = [
+frc_eia923_oil_ker_heat_content = [
     {
-        "title": "Natural Gas heat content (middle)",
-        "query": "fuel_type_code_pudl=='gas'",
-        "hi_q": 0.50,
-        "hi_bound": 1.036,
-        "low_q": 0.50,
-        "low_bound": 1.018,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
-    },
-    {  # This may fail because of bad data at 0.1 mmbtu/unit
-        "title": "Natural Gas heat content (tails)",
-        "query": "fuel_type_code_pudl=='gas'",
-        "hi_q": 0.99,
-        "hi_bound": 1.15,
-        "low_q": 0.01,
-        "low_bound": 0.95,
+        "title": "Kerosene heat content (tails)",
+        "query": "energy_source_code=='KER'",
+        "low_q": 0.05,
+        "low_bound": 5.6,
+        "hi_q": 0.95,
+        "hi_bound": 6.1,
         "data_col": "heat_content_mmbtu_per_unit",
         "weight_col": "fuel_qty_units",
     },
 ]
 """
-Valid natural gas heat content values.
+Check for reasonable kerosene heat contents.
 
-Based on historically reported values in EIA 923 Fuel Receipts and Costs. May
-fail because of a population of bad data around 0.1 mmbtu/unit. This appears
-to be an off-by-10x error, possibly due to reporting error in units used.
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_petcoke_heat_content = [
+    {
+        "title": "Petroleum coke heat content (tails)",
+        "query": "energy_source_code=='PC'",
+        "low_q": 0.05,
+        "low_bound": 24.0,
+        "hi_q": 0.95,
+        "hi_bound": 30.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable petroleum coke heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_rfo_heat_content = [
+    {
+        "title": "Residual fuel oil heat content (tails)",
+        "query": "energy_source_code=='RFO'",
+        "low_q": 0.05,
+        "low_bound": 5.7,
+        "hi_q": 0.95,
+        "hi_bound": 6.9,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable residual fuel oil heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_propane_heat_content = [
+    {
+        "title": "Propane heat content (tails)",
+        "query": "energy_source_code=='PG'",
+        "low_q": 0.05,
+        "low_bound": 2.5,
+        "hi_q": 0.95,
+        "hi_bound": 2.75,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable propane heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_petcoke_syngas_heat_content = [
+    {
+        "title": "Petcoke syngas heat content (tails)",
+        "query": "energy_source_code=='SGP'",
+        "low_q": 0.05,
+        "low_bound": 0.2,
+        "hi_q": 0.95,
+        "hi_bound": 1.1,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable petcoke syngas heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_waste_oil_heat_content = [
+    {
+        "title": "Waste oil heat content (tails)",
+        "query": "energy_source_code=='WO'",
+        "low_q": 0.05,
+        "low_bound": 3.0,
+        "hi_q": 0.95,
+        "hi_bound": 5.8,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable waste oil heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_blast_furnace_gas_heat_content = [
+    {
+        "title": "Blast furnace gas heat content (tails)",
+        "query": "energy_source_code=='BFG'",
+        "low_q": 0.05,
+        "low_bound": 0.07,
+        "hi_q": 0.95,
+        "hi_bound": 0.12,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable blast furnace gas heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_natural_gas_heat_content = [
+    {
+        "title": "Natural gas heat content (tails)",
+        "query": "energy_source_code=='NG'",
+        "low_q": 0.05,
+        "low_bound": 0.8,
+        "hi_q": 0.95,
+        "hi_bound": 1.2,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable natural gas heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_other_gas_heat_content = [
+    {
+        "title": "Other gas heat content (tails)",
+        "query": "energy_source_code=='OG'",
+        "low_q": 0.05,
+        "low_bound": 0.07,
+        "hi_q": 0.95,
+        "hi_bound": 3.3,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable other gas heat contents.
+
+Based on values given in the EIA 923 instructions, but with the lower bound
+set by the expected lower bound of heat content on blast furnace gas (since
+there were "other" gasses with bounds lower than the expected 0.32 in the data)
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_ag_byproduct_heat_content = [
+    {
+        "title": "Agricultural byproduct heat content (tails)",
+        "query": "energy_source_code=='AB'",
+        "low_q": 0.05,
+        "low_bound": 7.0,
+        "hi_q": 0.95,
+        "hi_bound": 18.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable agricultural byproduct heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_muni_solids_heat_content = [
+    {
+        "title": "Municipal solid waste heat content (tails)",
+        "query": "energy_source_code=='MSW'",
+        "low_q": 0.05,
+        "low_bound": 9.0,
+        "hi_q": 0.95,
+        "hi_bound": 12.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable municipal solid waste heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_biomass_solids_heat_content = [
+    {
+        "title": "Other biomass solids heat content (tails)",
+        "query": "energy_source_code=='OBS'",
+        "low_q": 0.05,
+        "low_bound": 8.0,
+        "hi_q": 0.95,
+        "hi_bound": 25.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable other biomass solids heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_wood_solids_heat_content = [
+    {
+        "title": "Wood solids heat content (tails)",
+        "query": "energy_source_code=='WDS'",
+        "low_q": 0.05,
+        "low_bound": 7.0,
+        "hi_q": 0.95,
+        "hi_bound": 18.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable wood solids heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_biomass_liquids_heat_content = [
+    {
+        "title": "Other biomass liquids heat content (tails)",
+        "query": "energy_source_code=='OBL'",
+        "low_q": 0.05,
+        "low_bound": 3.5,
+        "hi_q": 0.95,
+        "hi_bound": 4.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable other biomass liquids heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_sludge_heat_content = [
+    {
+        "title": "Sludge waste heat content (tails)",
+        "query": "energy_source_code=='SLW'",
+        "low_q": 0.05,
+        "low_bound": 10.0,
+        "hi_q": 0.95,
+        "hi_bound": 16.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable sludget waste heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_black_liquor_heat_content = [
+    {
+        "title": "Black liquor heat content (tails)",
+        "query": "energy_source_code=='BLQ'",
+        "low_q": 0.05,
+        "low_bound": 10.0,
+        "hi_q": 0.95,
+        "hi_bound": 14.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable black liquor heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_wood_liquids_heat_content = [
+    {
+        "title": "Wood waste liquids heat content (tails)",
+        "query": "energy_source_code=='WDL'",
+        "low_q": 0.05,
+        "low_bound": 8.0,
+        "hi_q": 0.95,
+        "hi_bound": 14.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable wood waste liquids heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_landfill_gas_heat_content = [
+    {
+        "title": "Landfill gas heat content (tails)",
+        "query": "energy_source_code=='LFG'",
+        "low_q": 0.05,
+        "low_bound": 0.3,
+        "hi_q": 0.95,
+        "hi_bound": 0.6,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable landfill gas heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_biomass_gas_heat_content = [
+    {
+        "title": "Other biomass gas heat content (tails)",
+        "query": "energy_source_code=='OBG'",
+        "low_q": 0.05,
+        "low_bound": 0.36,
+        "hi_q": 0.95,
+        "hi_bound": 1.6,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable other biomass gas heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
 """
 
 frc_eia923_coal_ash_content = [
@@ -1588,7 +2025,7 @@ frc_eia923_coal_mercury_content = [
         "low_q": False,
         "low_bound": False,
         "hi_q": 0.95,
-        "hi_bound": 1.0,
+        "hi_bound": 0.125,
         "data_col": "mercury_content_ppm",
         "weight_col": "fuel_qty_units",
     },
@@ -1596,9 +2033,9 @@ frc_eia923_coal_mercury_content = [
         "title": "Coal mercury content (middle)",
         "query": "fuel_type_code_pudl=='coal'",
         "low_q": 0.50,
-        "low_bound": 0.04,
+        "low_bound": 0.00,
         "hi_q": 0.50,
-        "hi_bound": 0.19,
+        "hi_bound": 0.1,
         "data_col": "mercury_content_ppm",
         "weight_col": "fuel_qty_units",
     },
