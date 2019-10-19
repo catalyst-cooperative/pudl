@@ -125,15 +125,8 @@ def get_eia923_page(page, eia923_xlsx,
 
     Args:
         page (str): The string label indicating which page of the EIA923 we
-            are attempting to read in. The page argument must be exactly one of
-            the following strings:
-
-                - 'generation_fuel'
-                - 'stocks'
-                - 'boiler_fuel'
-                - 'generator'
-                - 'fuel_receipts_costs'
-                - 'plant_frame'
+            are attempting to read in. The page argument must be one of the
+            strings listed in pudl.constants.working_pages_eia923.
         eia923_xlsx (pandas.io.excel.ExcelFile): xlsx file of EIA Form 923 for
             input year(s)
         years (list): The set of years to read into the dataframe.
@@ -223,9 +216,10 @@ def extract(eia923_years, data_dir):
     eia923_xlsx = get_eia923_xlsx(eia923_years, data_dir)
 
     # Create DataFrames
-    for page in pc.tab_map_eia923.columns:
-        if page != 'plant_frame':
-            eia923_raw_dfs[page] = get_eia923_page(page, eia923_xlsx,
+    for page in pc.working_pages_eia923:
+        if page != "plant_frame":
+            eia923_raw_dfs[page] = get_eia923_page(page,
+                                                   eia923_xlsx,
                                                    years=eia923_years)
 
     return eia923_raw_dfs

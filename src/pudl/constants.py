@@ -1072,6 +1072,19 @@ xlsx_maps_pkg = 'pudl.package_data.meta.xlsx_maps'
 ##############################################################################
 # EIA 923 Spreadsheet Metadata
 ##############################################################################
+working_pages_eia923 = [
+    "generation_fuel",
+    # "puerto_rico",  # See Github issue #457
+    "stocks",
+    # "oil_stocks",
+    # "coal_stocks",
+    # "petcoke_stocks",
+    # "energy_storage",  # See Github issue #458
+    "boiler_fuel",
+    "fuel_receipts_costs",
+    "generator",
+    "plant_frame",
+]
 tab_map_eia923 = pd.read_csv(
     importlib.resources.open_text(xlsx_maps_pkg, 'tab_map_eia923.csv'),
     index_col=0, comment='#')
