@@ -41,20 +41,44 @@ import pudl.constants as pc
 # pudl output, not just from this module, hence the pudl.__name__
 logger = logging.getLogger(__name__)
 
-IN_DTYPES = {
-    "co2_mass_measurement_code": "category",
-    "nox_mass_measurement_code": "category",
-    "nox_rate_measurement_code": "category",
-    "so2_mass_measurement_code": "category",
-    "state": "category",
-    "unitid": "str",
-    # Note: it'd be better to use pandas' nullable integers once this issue is
-    # resolved: https://issues.apache.org/jira/browse/ARROW-5379
-    # 'facility_id': "Int32",
-    # 'unit_id_epa': "Int32",
-    'facility_id': "float32",
-    'unit_id_epa': "float32",
-}
+
+def create_in_dtypes():
+    """Create a dictionary of input data types.
+
+    This specifies the dtypes of the input columns, which is necessary for some
+    cases where, e.g., a column is always NaN.
+    """
+    # These measurement codes are used by all four of our measurement variables
+    common_codes = (
+        "LME",
+        "Measured",
+        "Measured and Substitute",
+        "Other",
+        "Substitute",
+        "Undetermined",
+        "Unknown Code",
+        "",
+    )
+    co2_so2_cats = pd.CategoricalDtype(categories=common_codes, ordered=False)
+    nox_cats = pd.CategoricalDtype(
+        categories=common_codes + ("Calculated",), ordered=False
+    )
+    state_cats = pd.CategoricalDtype(categories=pc.cems_states.keys(), ordered=False)
+    in_dtypes = {
+        "co2_mass_measurement_code": co2_so2_cats,
+        "nox_mass_measurement_code": nox_cats,
+        "nox_rate_measurement_code": nox_cats,
+        "so2_mass_measurement_code": co2_so2_cats,
+        "state": state_cats,
+        "unitid": "str",
+        # Note: it'd be better to use pandas' nullable integers once this issue
+        # is resolved: https://issues.apache.org/jira/browse/ARROW-5379
+        # "facility_id": "Int32",
+        # "unit_id_epa": "Int32",
+        "facility_id": "float32",
+        "unit_id_epa": "float32",
+    }
+    return in_dtypes
 
 
 def create_cems_schema():
@@ -187,6 +211,7 @@ def epacems_to_parquet(pkg_dir,
     if not out_dir:
         raise AssertionError("Required output directory not specified.")
     out_dir = pudl.load.metadata.prep_directory(out_dir, clobber=clobber)
+    in_dtypes = create_in_dtypes()
     schema = create_cems_schema()
     data_path = pathlib.Path(pkg_dir, 'data')
     # double check that all of the years you are asking for are actually in
@@ -202,7 +227,7 @@ def epacems_to_parquet(pkg_dir,
                 logger.info(
                     f"Converted {len(df)} records for {year} and {state}."
                 )
-                df = year_from_operating_datetime(df).astype(IN_DTYPES)
+                df = year_from_operating_datetime(df).astype(in_dtypes)
                 pq.write_to_dataset(
                     pa.Table.from_pandas(
                         df, preserve_index=False, schema=schema),
@@ -229,6 +254,7 @@ def parse_command_line(argv):
         help="""Path to the directory of the data package which contains EPA
             CEMS. This directory should have a json metadata file and a `data`
             subdirectory containing CSVs.""",
+        required=True,
     )
     parser.add_argument(
         '--compression',
