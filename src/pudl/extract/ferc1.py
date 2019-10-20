@@ -914,8 +914,8 @@ def check_ferc1_tables(refyear=2017):
 
 
 def show_dupes(table, dbc_map, data_dir, years=pc.data_years['ferc1'],
-               pk=['respondent_id', 'report_year', 'report_prd',
-                   'row_number', 'spplmnt_num']):
+               pk=('respondent_id', 'report_year', 'report_prd',
+                   'row_number', 'spplmnt_num')):
     """
     Identify duplicate primary keys by year within a given FERC Form 1 table.
 

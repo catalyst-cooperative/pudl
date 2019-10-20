@@ -11,6 +11,7 @@ import logging
 # Useful high-level external modules.
 import numpy as np
 import pandas as pd
+import sqlalchemy as sa
 
 # Our own code...
 import pudl
@@ -104,8 +105,11 @@ def frc_by_pudl(pudl_plant_ids, pudl_engine,
             (optionally) fuel.
 
     """
+    md = sa.MetaData(bind=pudl_engine)
+    md.reflect()
     # Get all the EIA info from generation_fuel_eia923
-    frc_df = pudl.output.eia923.fuel_receipts_costs_eia923(pudl_engine)
+    frc_df = pudl.output.eia923.fuel_receipts_costs_eia923(pudl_engine,
+                                                           md.tables)
     # Limit just to the plants we're looking at
     frc_df = frc_df[frc_df.plant_id_pudl.isin(pudl_plant_ids)]
     # Just keep the columns we need for output:
@@ -162,8 +166,10 @@ def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
             (optionally) fuel.
 
     """
+    md = sa.MetaData(bind=pudl_engine)
+    md.reflect()
     # Get all the EIA info from generation_fuel_eia923
-    gf_df = pudl.output.eia923.generation_fuel_eia923(pudl_engine)
+    gf_df = pudl.output.eia923.generation_fuel_eia923(pudl_engine, md.tables)
 
     # Standardize the fuel codes (need to fix this in the DB!!!!)
     gf_df = gf_df.rename(columns={'fuel_type_code_pudl': 'fuel'})
