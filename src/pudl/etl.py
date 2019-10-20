@@ -621,7 +621,7 @@ def _add_missing_parameters(flattened_params_dict):
                        'epacems_states']
     for param in standard_params:
         try:
-            flattened_params_dict[param]
+            _ = flattened_params_dict[param]
         except KeyError:
             flattened_params_dict[param] = []
     return flattened_params_dict

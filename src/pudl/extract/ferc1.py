@@ -913,7 +913,7 @@ def check_ferc1_tables(refyear=2017):
     return good_table_years
 
 
-def show_dupes(table, dbc_map, years=pc.data_years['ferc1'],
+def show_dupes(table, dbc_map, data_dir, years=pc.data_years['ferc1'],
                pk=['respondent_id', 'report_year', 'report_prd',
                    'row_number', 'spplmnt_num']):
     """
@@ -936,7 +936,7 @@ def show_dupes(table, dbc_map, years=pc.data_years['ferc1'],
     """
     logger.info(f"{table}:")
     for yr in years:
-        raw_df = get_raw_df(table, dbc_map, years=[yr, ])
+        raw_df = get_raw_df(table, dbc_map, data_dir=data_dir, years=[yr, ])
         if not set(pk).difference(set(raw_df.columns)):
             n_dupes = len(raw_df) - len(raw_df.drop_duplicates(subset=pk))
             if n_dupes > 0:

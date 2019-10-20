@@ -11,11 +11,9 @@ import logging
 # Useful high-level external modules.
 import numpy as np
 import pandas as pd
-import sqlalchemy as sa
 
 # Our own code...
 import pudl
-import pudl.constants as pc
 import pudl.helpers
 
 logger = logging.getLogger(__name__)
@@ -162,6 +160,7 @@ def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
     Returns:
         A dataframe with the sums of cols, as grouped by pudl ID, year, and
             (optionally) fuel.
+
     """
     # Get all the EIA info from generation_fuel_eia923
     gf_df = pudl.output.eia923.generation_fuel_eia923(pudl_engine)
@@ -527,13 +526,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
 
 
 def primary_fuel_gf_eia923(gf_df, id_col='plant_id_eia', fuel_thresh=0.5):
-    """Determines a plant's primary fuel from EIA923 generation fuel table.
-
-    Args:
-        gf_df (DataFrame):
-        id_col ()
-    Returns:
-    """
+    """Determines a plant's primary fuel from EIA923 generation fuel table."""
     gf_df = gf_df.copy()
 
     # Figure out the heat content proportions of each fuel received:
