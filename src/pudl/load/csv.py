@@ -209,10 +209,7 @@ def clean_columns_dump(table_name, pkg_dir, df):
         csv_dump(df, table_name, keep_index=True, pkg_dir=pkg_dir)
 
 
-def dict_dump(transformed_dfs,
-              data_source,
-              need_fix_inting=pc.need_fix_inting,
-              pkg_dir=''):
+def dict_dump(transformed_dfs, data_source, pkg_dir=''):
     """
     Wrapper for _csv_dump for each data source.
 
@@ -233,7 +230,7 @@ def dict_dump(transformed_dfs,
     """
     for table_name, df in transformed_dfs.items():
         logger.info(f"Loading {data_source} {table_name} dataframe into CSV")
-        if table_name in list(need_fix_inting.keys()):
+        if table_name in pc.need_fix_inting:
             df = pudl.helpers.fix_int_na(
                 df, columns=pc.need_fix_inting[table_name])
         clean_columns_dump(table_name, pkg_dir, df)

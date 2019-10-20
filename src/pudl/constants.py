@@ -2465,18 +2465,11 @@ used in the metadata for datapackages.
 """
 
 need_fix_inting = {
-    # 'generators_eia860': ('turbines_num',),
-    # 'coalmine_eia923': ('mine_id_msha', 'county_id_fips'),
-    # 'fuel_receipts_costs_eia923': ('mine_id_pudl',),
-    # 'generation_fuel_eia923': ('nuclear_unit_id',),
     'plants_steam_ferc1': ('construction_year', 'installation_year'),
     'plants_small_ferc1': ('construction_year', 'ferc_license_id'),
     'plants_hydro_ferc1': ('construction_year', 'installation_year',),
     'plants_pumped_storage_ferc1': ('construction_year', 'installation_year',),
     'hourly_emissions_epacems': ('facility_id', 'unit_id_epa',),
-    # 'plants_eia860': ('utility_id_eia',),
-    # 'generators_eia860': ('turbines_num',),
-    # 'plants_entity_eia': ('zip_code',),
 }
 """
 dict: A dictionary containing tables (keys) and column names (values)

@@ -160,10 +160,7 @@ def _load_static_tables_eia(pkg_dir):
 
     # run the dictionary of prepped static tables through dict_dump to make
     # CSVs
-    pudl.load.csv.dict_dump(static_dfs,
-                            "Static EIA Tables",
-                            need_fix_inting=pc.need_fix_inting,
-                            pkg_dir=pkg_dir)
+    pudl.load.csv.dict_dump(static_dfs, "Static EIA Tables", pkg_dir=pkg_dir)
     return list(static_dfs.keys())
 
 
@@ -212,10 +209,7 @@ def _etl_eia_pkg(etl_params, data_dir, pkg_dir):
     transformed_dfs = {"Entities": entities_dfs, "EIA": eia_transformed_dfs}
     # Load step
     for data_source, transformed_df in transformed_dfs.items():
-        pudl.load.csv.dict_dump(transformed_df,
-                                data_source,
-                                need_fix_inting=pc.need_fix_inting,
-                                pkg_dir=pkg_dir)
+        pudl.load.csv.dict_dump(transformed_df, data_source, pkg_dir=pkg_dir)
 
     return list(eia_transformed_dfs.keys()) + list(entities_dfs.keys()) + static_tables
 
@@ -286,10 +280,7 @@ def _load_static_tables_ferc(pkg_dir):
 
     # run the dictionary of prepped static tables through dict_dump to make
     # CSVs
-    pudl.load.csv.dict_dump(static_dfs,
-                            "Static FERC Tables",
-                            need_fix_inting=pc.need_fix_inting,
-                            pkg_dir=pkg_dir)
+    pudl.load.csv.dict_dump(static_dfs, "Static FERC Tables", pkg_dir=pkg_dir)
 
     return list(static_dfs.keys())
 
@@ -314,10 +305,7 @@ def _etl_ferc1_pkg(etl_params, pudl_settings, pkg_dir):
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
         ferc1_raw_dfs, ferc1_tables=ferc1_tables)
     # Load FERC form 1
-    pudl.load.csv.dict_dump(ferc1_transformed_dfs,
-                            "FERC 1",
-                            need_fix_inting=pc.need_fix_inting,
-                            pkg_dir=pkg_dir)
+    pudl.load.csv.dict_dump(ferc1_transformed_dfs, "FERC 1", pkg_dir=pkg_dir)
     return list(ferc1_transformed_dfs.keys()) + static_tables
 
 ###############################################################################
@@ -418,7 +406,6 @@ def _etl_epacems_pkg(etl_params, data_dir, pkg_dir):
     for transformed_df_dict in epacems_transformed_dfs:
         pudl.load.csv.dict_dump(transformed_df_dict,
                                 "EPA CEMS",
-                                need_fix_inting=pc.need_fix_inting,
                                 pkg_dir=pkg_dir)
         epacems_tables.append(list(transformed_df_dict.keys())[0])
     if logger.isEnabledFor(logging.INFO):
@@ -476,10 +463,7 @@ def _load_static_tables_epaipm(pkg_dir):
 
     # run the dictionary of prepped static tables through dict_dump to make
     # CSVs
-    pudl.load.csv.dict_dump(static_dfs,
-                            "Static IPM Tables",
-                            need_fix_inting=pc.need_fix_inting,
-                            pkg_dir=pkg_dir)
+    pudl.load.csv.dict_dump(static_dfs, "Static IPM Tables", pkg_dir=pkg_dir)
 
     return list(static_dfs.keys())
 
@@ -512,12 +496,7 @@ def _etl_epaipm(etl_params, data_dir, pkg_dir):
         epaipm_raw_dfs, epaipm_tables
     )
 
-    pudl.load.csv.dict_dump(
-        epaipm_transformed_dfs,
-        "EPA IPM",
-        need_fix_inting=pc.need_fix_inting,
-        pkg_dir=pkg_dir
-    )
+    pudl.load.csv.dict_dump(epaipm_transformed_dfs, "EPA IPM", pkg_dir=pkg_dir)
 
     return list(epaipm_transformed_dfs.keys()) + static_tables
 
@@ -560,10 +539,7 @@ def _etl_glue(etl_params, pkg_dir):
         eia=glue_dict['eia']
     )
 
-    pudl.load.csv.dict_dump(glue_dfs,
-                            "Glue",
-                            need_fix_inting=pc.need_fix_inting,
-                            pkg_dir=pkg_dir)
+    pudl.load.csv.dict_dump(glue_dfs, "Glue", pkg_dir=pkg_dir)
     return list(glue_dfs.keys())
 
 
