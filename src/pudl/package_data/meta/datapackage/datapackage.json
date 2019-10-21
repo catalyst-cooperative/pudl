@@ -139,17 +139,10 @@
                 ],
                 "foreignKeys": [
                     {
-                        "fields": "utility_id_ferc1",
+                        "fields": ["plant_name_ferc1", "utility_id_ferc1"],
                         "reference": {
                             "resource": "plants_ferc1",
-                            "fields": "utility_id_ferc1"
-                        }
-                    },
-                    {
-                        "fields": "plant_name_ferc1",
-                        "reference": {
-                            "resource": "plants_ferc1",
-                            "fields": "plant_name_ferc1"
+                            "fields": ["plant_name_ferc1", "utility_id_ferc1"]
                         }
                     }
                 ],
@@ -728,17 +721,10 @@
                 ],
                 "foreignKeys": [
                     {
-                        "fields": "plant_id_eia",
+                        "fields": ["plant_id_eia", "generator_id"],
                         "reference": {
                             "resource": "generators_entity_eia",
-                            "fields": "plant_id_eia"
-                        }
-                    },
-                    {
-                        "fields": "generator_id",
-                        "reference": {
-                            "resource": "generators_entity_eia",
-                            "fields": "generator_id"
+                            "fields": ["plant_id_eia", "generator_id"]
                         }
                     }
                 ],
@@ -1279,17 +1265,10 @@
                 ],
                 "foreignKeys": [
                     {
-                        "fields": "utility_id_ferc1",
+                        "fields": ["utility_id_ferc1", "plant_name_ferc1"],
                         "reference": {
                             "resource": "plants_ferc1",
-                            "fields": "utility_id_ferc1"
-                        }
-                    },
-                    {
-                        "fields": "plant_name_ferc1",
-                        "reference": {
-                            "resource": "plants_ferc1",
-                            "fields": "plant_name_ferc1"
+                            "fields": ["utility_id_ferc1", "plant_name_ferc1"]
                         }
                     }
                 ],
@@ -1913,17 +1892,10 @@
                 ],
                 "foreignKeys": [
                     {
-                        "fields": "plant_id_eia",
+                        "fields": ["plant_id_eia", "generator_id"],
                         "reference": {
                             "resource": "generators_entity_eia",
-                            "fields": "plant_id_eia"
-                        }
-                    },
-                    {
-                        "fields": "generator_id",
-                        "reference": {
-                            "resource": "generators_entity_eia",
-                            "fields": "generator_id"
+                            "fields": ["plant_id_eia", "generator_id"]
                         }
                     }
                 ],
@@ -2115,17 +2087,10 @@
                         }
                     },
                     {
-                        "fields": "plant_id_eia",
+                        "fields": ["plant_id_eia", "generator_id"],
                         "reference": {
                             "resource": "generators_entity_eia",
-                            "fields": "plant_id_eia"
-                        }
-                    },
-                    {
-                        "fields": "generator_id",
-                        "reference": {
-                            "resource": "generators_entity_eia",
-                            "fields": "generator_id"
+                            "fields": ["plant_id_eia", "generator_id"]
                         }
                     }
                 ],
@@ -2777,17 +2742,10 @@
                 ],
                 "foreignKeys": [
                     {
-                        "fields": "plant_id_eia",
+                        "fields": ["plant_id_eia", "generator_id"],
                         "reference": {
                             "resource": "generators_entity_eia",
-                            "fields": "plant_id_eia"
-                        }
-                    },
-                    {
-                        "fields": "generator_id",
-                        "reference": {
-                            "resource": "generators_entity_eia",
-                            "fields": "generator_id"
+                            "fields": ["plant_id_eia", "generator_id"]
                         }
                     }
                 ],
@@ -3702,17 +3660,10 @@
                 ],
                 "foreignKeys": [
                     {
-                        "fields": "utility_id_ferc1",
+                        "fields": ["plant_name_original", "utility_id_ferc1"],
                         "reference": {
                             "resource": "plants_ferc1",
-                            "fields": "utility_id_ferc1"
-                        }
-                    },
-                    {
-                        "fields": "plant_name_original",
-                        "reference": {
-                            "resource": "plants_ferc1",
-                            "fields": "plant_name_ferc1"
+                            "fields": ["plant_name_original", "utility_id_ferc1"]
                         }
                     }
                 ],
@@ -4009,17 +3960,10 @@
                 ],
                 "foreignKeys": [
                     {
-                        "fields": "utility_id_ferc1",
+                        "fields": ["plant_name_ferc1", "utility_id_ferc1"],
                         "reference": {
                             "resource": "plants_ferc1",
-                            "fields": "utility_id_ferc1"
-                        }
-                    },
-                    {
-                        "fields": "plant_name_ferc1",
-                        "reference": {
-                            "resource": "plants_ferc1",
-                            "fields": "plant_name_ferc1"
+                            "fields": ["plant_name_ferc1", "utility_id_ferc1"]
                         }
                     }
                 ],
@@ -4445,14 +4389,14 @@
                 ],
                 "foreignKeys": [
                     {
-                        "fields": "region_from",
+                        "fields": "region_to",
                         "reference": {
                             "resource": "regions_entity_epaipm",
                             "fields": "region_id_epaipm"
                         }
                     },
                     {
-                        "fields": "region_to",
+                        "fields": "region_from",
                         "reference": {
                             "resource": "regions_entity_epaipm",
                             "fields": "region_id_epaipm"
@@ -4755,17 +4699,10 @@
                 ],
                 "foreignKeys": [
                     {
-                        "fields": "utility_id_ferc1",
+                        "fields": ["plant_name_ferc1", "utility_id_ferc1"],
                         "reference": {
                             "resource": "plants_ferc1",
-                            "fields": "utility_id_ferc1"
-                        }
-                    },
-                    {
-                        "fields": "plant_name_ferc1",
-                        "reference": {
-                            "resource": "plants_ferc1",
-                            "fields": "plant_name_ferc1"
+                            "fields": ["plant_name_ferc1", "utility_id_ferc1"]
                         }
                     }
                 ],
@@ -5190,14 +5127,14 @@
                 ],
                 "foreignKeys": [
                     {
-                        "fields": "region_from",
+                        "fields": "region_to",
                         "reference": {
                             "resource": "regions_entity_epaipm",
                             "fields": "region_id_epaipm"
                         }
                     },
                     {
-                        "fields": "region_to",
+                        "fields": "region_from",
                         "reference": {
                             "resource": "regions_entity_epaipm",
                             "fields": "region_id_epaipm"
