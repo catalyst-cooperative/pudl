@@ -3663,7 +3663,7 @@
                         "fields": ["plant_name_original", "utility_id_ferc1"],
                         "reference": {
                             "resource": "plants_ferc1",
-                            "fields": ["plant_name_original", "utility_id_ferc1"]
+                            "fields": ["plant_name_ferc1", "utility_id_ferc1"]
                         }
                     }
                 ],
