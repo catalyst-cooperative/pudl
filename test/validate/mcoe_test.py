@@ -216,7 +216,7 @@ def test_mcoe_self(pudl_out_mcoe, live_pudl_db):
 
 
 def single_records(df,
-                   key_cols=['report_date', 'plant_id_eia', 'generator_id']):
+                   key_cols=('report_date', 'plant_id_eia', 'generator_id')):
     """Test whether dataframe has a single record per generator."""
     len_1 = len(df)
     len_2 = len(df.drop_duplicates(subset=key_cols))
@@ -224,7 +224,7 @@ def single_records(df,
 
 
 def nonunique_gens(df,
-                   key_cols=['plant_id_eia', 'generator_id', 'report_date']):
+                   key_cols=('plant_id_eia', 'generator_id', 'report_date')):
     """Generate a list of all the non-unique generator records for testing."""
     unique_gens = df.drop_duplicates(subset=key_cols)
     dupes = df[~df.isin(unique_gens)].dropna()

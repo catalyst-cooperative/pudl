@@ -15,7 +15,6 @@ import sqlalchemy as sa
 
 # Our own code...
 import pudl
-import pudl.constants as pc
 import pudl.helpers
 
 logger = logging.getLogger(__name__)
@@ -106,8 +105,11 @@ def frc_by_pudl(pudl_plant_ids, pudl_engine,
             (optionally) fuel.
 
     """
+    md = sa.MetaData(bind=pudl_engine)
+    md.reflect()
     # Get all the EIA info from generation_fuel_eia923
-    frc_df = pudl.output.eia923.fuel_receipts_costs_eia923(pudl_engine)
+    frc_df = pudl.output.eia923.fuel_receipts_costs_eia923(pudl_engine,
+                                                           md.tables)
     # Limit just to the plants we're looking at
     frc_df = frc_df[frc_df.plant_id_pudl.isin(pudl_plant_ids)]
     # Just keep the columns we need for output:
@@ -162,9 +164,12 @@ def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
     Returns:
         A dataframe with the sums of cols, as grouped by pudl ID, year, and
             (optionally) fuel.
+
     """
+    md = sa.MetaData(bind=pudl_engine)
+    md.reflect()
     # Get all the EIA info from generation_fuel_eia923
-    gf_df = pudl.output.eia923.generation_fuel_eia923(pudl_engine)
+    gf_df = pudl.output.eia923.generation_fuel_eia923(pudl_engine, md.tables)
 
     # Standardize the fuel codes (need to fix this in the DB!!!!)
     gf_df = gf_df.rename(columns={'fuel_type_code_pudl': 'fuel'})
@@ -527,13 +532,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
 
 
 def primary_fuel_gf_eia923(gf_df, id_col='plant_id_eia', fuel_thresh=0.5):
-    """Determines a plant's primary fuel from EIA923 generation fuel table.
-
-    Args:
-        gf_df (DataFrame):
-        id_col ()
-    Returns:
-    """
+    """Determines a plant's primary fuel from EIA923 generation fuel table."""
     gf_df = gf_df.copy()
 
     # Figure out the heat content proportions of each fuel received:

@@ -83,12 +83,12 @@ def parse_command_line(argv):
 
 
 def main():  # noqa: C901
-    """Main function controlling flow of the script.
+    """
+    Main function controlling flow of the script.
 
     Assumes you have a local datastore, and need to copy a small subset of it
     over into the Travis CI test data directory.
     """
-
     args = parse_command_line(sys.argv)
 
     # If no years were specified, use the most recent year of data.
@@ -149,7 +149,7 @@ def main():  # noqa: C901
                     pudl_settings['data_dir'], f"f1_{yr}.zip")
                 z = zipfile.ZipFile(ferc1_test_zipfile, mode='w',
                                     compression=zipfile.ZIP_DEFLATED)
-                for root, dirs, files in os.walk(tmp_dir):
+                for root, _, files in os.walk(tmp_dir):
                     for filename in files:
                         z.write(os.path.join(root, filename), arcname=filename)
                 logger.info(f"closing {ferc1_test_zipfile}")

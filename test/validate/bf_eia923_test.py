@@ -5,6 +5,7 @@ import logging
 import pytest
 
 import pudl
+import pudl.validate as pv
 
 logger = logging.getLogger(__name__)
 
@@ -13,57 +14,25 @@ logger = logging.getLogger(__name__)
 # Tests validating data against physically reasonable boundary values:
 ###############################################################################
 
-def test_coal_heat_content(pudl_out_orig, live_pudl_db):
-    """Check that the distribution of coal heat content per unit is valid."""
+@pytest.mark.parametrize(
+    "cases", [
+        pytest.param(pv.bf_eia923_coal_heat_content, id="coal_heat_content"),
+        pytest.param(pv.bf_eia923_oil_heat_content, id="oil_heat_content"),
+        pytest.param(
+            pv.bf_eia923_gas_heat_content,
+            id="gas_heat_content",
+            marks=pytest.mark.xfail(reason="EIA 923 Reporting Errors?")
+        ),
+        pytest.param(pv.bf_eia923_coal_ash_content, id="coal_ash_content"),
+        pytest.param(
+            pv.bf_eia923_coal_sulfur_content, id="coal_sulfur_content")
+    ]
+)
+def test_vs_bounds(pudl_out_orig, live_pudl_db, cases):
+    """Validate data reported in bf_eia923 against static boundaries."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
-
-    for args in pudl.validate.bf_eia923_coal_heat_content:
-        pudl.validate.vs_bounds(pudl_out_orig.bf_eia923(), **args)
-
-
-def test_oil_heat_content(pudl_out_orig, live_pudl_db):
-    """Check that the distribution of oil heat content per unit is valid."""
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
-
-    for args in pudl.validate.bf_eia923_oil_heat_content:
-        pudl.validate.vs_bounds(pudl_out_orig.bf_eia923(), **args)
-
-
-@pytest.mark.xfail
-def test_gas_heat_content(pudl_out_orig, live_pudl_db):
-    """
-    Check that the distribution of gas heat content per unit is valid.
-
-    Currently failing, due to a population of gas records with 1/10th the
-    expected heat content. Reporting error? Unit conversion?
-
-    See: https://github.com/catalyst-cooperative/pudl/issues/391
-
-    """
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
-
-    for args in pudl.validate.bf_eia923_gas_heat_content:
-        pudl.validate.vs_bounds(pudl_out_orig.bf_eia923(), **args)
-
-
-def test_coal_ash_content(pudl_out_orig, live_pudl_db):
-    """Check that distribution of coal ash content is valid."""
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
-
-    for args in pudl.validate.bf_eia923_coal_ash_content:
-        pudl.validate.vs_bounds(pudl_out_orig.bf_eia923(), **args)
-
-
-def test_coal_sulfur_content(pudl_out_orig, live_pudl_db):
-    """Check that distribution of coal sulfur content is valid."""
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
-
-    for args in pudl.validate.bf_eia923_coal_sulfur_content:
+    for args in cases:
         pudl.validate.vs_bounds(pudl_out_orig.bf_eia923(), **args)
 
 

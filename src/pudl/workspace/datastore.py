@@ -480,7 +480,7 @@ def _download_default(src_urls, tmp_files, allow_retry=True):
             # URLs are hard-coded in pudl.constants, so we ought to know what
             # we are connecting to. Thus the # nosec comment to avoid the
             # security linter (bandit) from complaining.
-            outfile, _ = urllib.request.urlretrieve(  # nosec
+            _ = urllib.request.urlretrieve(  # nosec
                 src_url, filename=tmp_file)
         except urllib.error.URLError:
             url_to_retry.append(src_url)

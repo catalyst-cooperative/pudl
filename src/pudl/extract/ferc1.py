@@ -285,12 +285,19 @@ def get_dbc_map(year, data_dir, min_length=4):
             dbf_fields = [f for f in dbf_fields if f != '_NullFlags']
             dbc_map[table] = \
                 {k: v for k, v in zip(dbf_fields, tf_dict[table])}
-            assert len(tf_dict[table]) == len(dbf_fields)
+            if len(tf_dict[table]) != len(dbf_fields):
+                raise ValueError(
+                    f"Number of DBF fields in {table} does not match what was "
+                    f"found in the FERC Form 1 DBC index file for {year}."
+                )
 
     # Insofar as we are able, make sure that the fields match each other
     for k in dbc_map:
         for sn, ln in zip(dbc_map[k].keys(), dbc_map[k].values()):
-            assert ln[:8] == sn.lower()[:8]
+            if ln[:8] != sn.lower()[:8]:
+                raise ValueError(
+                    f"DBF field name mismatch: {ln[:8]} != {sn.lower()[:8]}"
+                )
 
     return dbc_map
 
@@ -906,9 +913,9 @@ def check_ferc1_tables(refyear=2017):
     return good_table_years
 
 
-def show_dupes(table, dbc_map, years=pc.data_years['ferc1'],
-               pk=['respondent_id', 'report_year', 'report_prd',
-                   'row_number', 'spplmnt_num']):
+def show_dupes(table, dbc_map, data_dir, years=pc.data_years['ferc1'],
+               pk=('respondent_id', 'report_year', 'report_prd',
+                   'row_number', 'spplmnt_num')):
     """
     Identify duplicate primary keys by year within a given FERC Form 1 table.
 
@@ -929,7 +936,7 @@ def show_dupes(table, dbc_map, years=pc.data_years['ferc1'],
     """
     logger.info(f"{table}:")
     for yr in years:
-        raw_df = get_raw_df(table, dbc_map, years=[yr, ])
+        raw_df = get_raw_df(table, dbc_map, data_dir=data_dir, years=[yr, ])
         if not set(pk).difference(set(raw_df.columns)):
             n_dupes = len(raw_df) - len(raw_df.drop_duplicates(subset=pk))
             if n_dupes > 0:

@@ -110,15 +110,17 @@ def vs_bounds(df, data_col, weight_col, query="", title="",
     low_bool = low_bound is not False
     hi_bool = hi_bound is not False
 
-    if bool(low_q) ^ low_bool:
+    if bool(low_q) ^ low_bool and low_q != 0:
         raise ValueError(
             f"You must supply both a lower quantile and lower bound, "
-            f"or neither. Got: low_q={low_q}, low_bound={low_bound}."
+            f"or neither. Got: low_q={low_q}, low_bound={low_bound} "
+            f"for validation entitled {title}"
         )
     if bool(hi_q) ^ hi_bool:
         raise ValueError(
             f"You must supply both a lower quantile and lower bound, "
-            f"or neither. Got: low_q={hi_q}, low_bound={hi_bound}."
+            f"or neither. Got: low_q={hi_q}, low_bound={hi_bound} "
+            f"for validation entitled {title}"
         )
 
     if query != "":
@@ -128,22 +130,24 @@ def vs_bounds(df, data_col, weight_col, query="", title="",
     if weight_col is None or weight_col == "":
         df["ones"] = 1.0
         weight_col = "ones"
-    if low_q and low_bool:
+    if low_q >= 0 and low_bool:
         low_test = weighted_quantile(df[data_col], df[weight_col], low_q)
         logger.info(f"{data_col} ({low_q:.0%}): "
                     f"{low_test:.6} >= {low_bound:.6}")
         if low_test < low_bound:
             raise ValueError(
                 f"{low_q:.0%} quantile ({low_test}) "
-                f"is below lower bound ({low_bound})."
+                f"is below lower bound ({low_bound}) "
+                f"in validation entitled {title}"
             )
-    if hi_q and hi_bool:
+    if hi_q <= 1 and hi_bool:
         hi_test = weighted_quantile(df[data_col], df[weight_col], hi_q)
         logger.info(f"{data_col} ({hi_q:.0%}): {hi_test:.6} <= {hi_bound:.6}")
         if weighted_quantile(df[data_col], df[weight_col], hi_q) > hi_bound:
             raise ValueError(
                 f"{hi_q:.0%} quantile ({hi_test}) "
-                f"is above upper bound ({hi_bound})."
+                f"is above upper bound ({hi_bound}) "
+                f"in validation entitled {title}"
             )
 
 
@@ -186,7 +190,10 @@ def vs_historical(orig_df, test_df, data_col, weight_col, query="",  # noqa: C90
         logger.info(
             f"{data_col} ({low_q:.0%}): {low_test:.6} >= {min(low_range):.6}")
         if low_test < min(low_range):
-            raise ValueError(f"{low_test} below lower limit {min(low_range)}.")
+            raise ValueError(
+                f"Lower value {low_test} below lower limit {min(low_range)} "
+                f"in validation of {data_col}"
+            )
 
     if mid_q:
         mid_range = historical_distribution(
@@ -197,9 +204,15 @@ def vs_historical(orig_df, test_df, data_col, weight_col, query="",  # noqa: C90
             f"{data_col} ({mid_q:.0%}): {min(mid_range):.6} <= {mid_test:.6} "
             f"<= {max(mid_range):.6}")
         if mid_test < min(mid_range):
-            raise ValueError(f"{mid_test} below lower limit {min(mid_range)}.")
+            raise ValueError(
+                f"Middle value {mid_test} below lower limit {min(mid_range)} "
+                f"in validation of {data_col}"
+            )
         if mid_test > max(mid_range):
-            raise ValueError(f"{mid_test} above upper limit {max(mid_range)}.")
+            raise ValueError(
+                f"Middle value {mid_test} above upper limit {max(mid_range)} "
+                f"in validation of {data_col}"
+            )
 
     if hi_q:
         hi_range = historical_distribution(
@@ -210,7 +223,9 @@ def vs_historical(orig_df, test_df, data_col, weight_col, query="",  # noqa: C90
             f"{data_col} ({hi_q:.0%}): {hi_test:.6} <= {max(hi_range):.6}.")
         if hi_test > max(hi_range):
             raise ValueError(
-                f"{hi_test} above upper limit {max(hi_range)}")
+                f"Upper value {hi_test} above upper limit {max(hi_range)} "
+                f"in validation of {data_col}"
+            )
 
 
 def bounds_histogram(df, data_col, weight_col, query,
@@ -331,7 +346,8 @@ def plot_vs_bounds(df, validation_cases):
     for args in validation_cases:
         try:
             vs_bounds(df, **args)
-        except ValueError:
+        except ValueError as e:
+            logger.error(str(e))
             warnings.warn("ERROR: Validation Failed")
 
         bounds_histogram(df, **args)
@@ -342,7 +358,8 @@ def plot_vs_self(df, validation_cases):
     for args in validation_cases:
         try:
             vs_self(df, **args)
-        except ValueError:
+        except ValueError as e:
+            logger.error(str(e))
             warnings.warn("ERROR: Validation Failed")
 
         historical_histogram(df, test_df=None, **args)
@@ -353,7 +370,8 @@ def plot_vs_agg(orig_df, agg_df, validation_cases):
     for args in validation_cases:
         try:
             vs_historical(orig_df, agg_df, **args)
-        except ValueError:
+        except ValueError as e:
+            logger.error(str(e))
             warnings.warn("ERROR: Validation Failed")
 
         historical_histogram(orig_df, agg_df, **args)
@@ -366,6 +384,524 @@ def plot_vs_agg(orig_df, agg_df, validation_cases):
 ###############################################################################
 ###############################################################################
 
+###############################################################################
+# FERC 1 Steam Plants
+###############################################################################
+
+
+plants_steam_ferc1_capacity = [
+    {
+        "title": "All Plant Capacity",
+        "query": "",
+        "low_q": False,
+        "low_bound": False,
+        "hi_q": 0.95,
+        "hi_bound": 2000.0,
+        "data_col": "capacity_mw",
+        "weight_col": "",
+    },
+    {
+        "title": "Steam Plant Capacity",
+        "query": "plant_type=='steam'",
+        "low_q": False,
+        "low_bound": False,
+        "hi_q": 0.95,
+        "hi_bound": 2500.0,
+        "data_col": "capacity_mw",
+        "weight_col": "",
+    },
+]
+
+plants_steam_ferc1_expenses = [
+    {
+        "title": "Capital Expenses (median)",
+        "query": "",
+        "low_q": 0.5,
+        "low_bound": 4e5,
+        "hi_q": 0.5,
+        "hi_bound": 7e5,
+        "data_col": "capex_per_mw",
+        "weight_col": "capacity_mw",
+    },
+    {
+        "title": "Capital Expenses (upper tail)",
+        "query": "",
+        "low_q": False,
+        "low_bound": False,
+        "hi_q": 0.95,
+        "hi_bound": 2.2e6,
+        "data_col": "capex_per_mw",
+        "weight_col": "capacity_mw",
+    },
+    {
+        "title": "OpEx Fuel (median)",
+        "query": "opex_fuel_per_mwh>0",
+        "low_q": 0.5,
+        "low_bound": 13.0,
+        "hi_q": 0.5,
+        "hi_bound": 27.0,
+        "data_col": "opex_fuel_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "OpEx Fuel (upper tail)",
+        "query": "opex_fuel_per_mwh>0",
+        "low_q": False,
+        "low_bound": False,
+        "hi_q": 0.95,
+        "hi_bound": 86.0,
+        "data_col": "opex_fuel_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Nonfuel OpEx (central)",
+        "query": "opex_nonfuel_per_mwh>0",
+        "low_q": 0.3,
+        "low_bound": 3.75,
+        "hi_q": 0.3,
+        "hi_bound": 5.8,
+        "data_col": "opex_nonfuel_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Nonfuel OpEx (upper tail)",
+        "query": "opex_nonfuel_per_mwh>0",
+        "low_q": 0.05,
+        "low_bound": 1.2,
+        "hi_q": 0.95,
+        "hi_bound": 21.0,
+        "data_col": "opex_nonfuel_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+]
+
+plants_steam_ferc1_capacity_ratios = [
+    {
+        "title": "Capacity Factor (Tails)",
+        "query": "capacity_factor>0.05",
+        "low_q": 0.5,
+        "low_bound": 0.5,
+        "hi_q": 0.95,
+        "hi_bound": 0.9,
+        "data_col": "capacity_factor",
+        "weight_col": "",
+    },
+    {
+        "title": "Capacity Factor (Central)",
+        "query": "capacity_factor>0.05",
+        "low_q": 0.7,
+        "low_bound": 0.6,
+        "hi_q": 0.7,
+        "hi_bound": 0.8,
+        "data_col": "capacity_factor",
+        "weight_col": "",
+    },
+    {
+        "title": "Peak Demand Ratio (median)",
+        "query": "",
+        "low_q": 0.5,
+        "low_bound": 0.91,
+        "hi_q": 0.5,
+        "hi_bound": 0.96,
+        "data_col": "peak_demand_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Peak Demand Ratio (tails)",
+        "query": "",
+        "low_q": 0.05,
+        "low_bound": 0.4,
+        "hi_q": 0.95,
+        "hi_bound": 1.25,
+        "data_col": "peak_demand_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Water Limited Ratio (median)",
+        "query": "",
+        "low_q": 0.5,
+        "low_bound": 0.89,
+        "hi_q": 0.5,
+        "hi_bound": 0.92,
+        "data_col": "water_limited_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Water Limited Ratio (tails)",
+        "query": "",
+        "low_q": 0.05,
+        "low_bound": 0.63,
+        "hi_q": 0.95,
+        "hi_bound": 1.09,
+        "data_col": "water_limited_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Not Water Limited Ratio (median)",
+        "query": "",
+        "low_q": 0.5,
+        "low_bound": 0.92,
+        "hi_q": 0.5,
+        "hi_bound": 0.96,
+        "data_col": "not_water_limited_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Not Water Limited Ratio (tails)",
+        "query": "",
+        "low_q": 0.05,
+        "low_bound": 0.73,
+        "hi_q": 0.95,
+        "hi_bound": 1.16,
+        "data_col": "not_water_limited_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Capability Ratio (median)",
+        "query": "",
+        "low_q": 0.5,
+        "low_bound": 0.9,
+        "hi_q": 0.5,
+        "hi_bound": 0.98,
+        "data_col": "capability_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Capability Ratio (tails)",
+        "query": "",
+        "low_q": 0.05,
+        "low_bound": 0.64,
+        "hi_q": 0.95,
+        "hi_bound": 1.18,
+        "data_col": "capability_ratio",
+        "weight_col": "",
+    },
+]
+
+plants_steam_ferc1_connected_hours = [
+    {  # Currently failing b/c ~10% of plants have way more than 8760 hours...
+        "title": "Plant Hours Connected (min/max)",
+        "query": "",
+        "low_q": 0.0,
+        "low_bound": 0.0,
+        "hi_q": 1.0,
+        "hi_bound": 8760.0,
+        "data_col": "plant_hours_connected_while_generating",
+        "weight_col": "capacity_mw",
+    },
+]
+
+plants_steam_ferc1_self = [
+    {
+        "title": "All Plant Capacity",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "capacity_mw",
+        "weight_col": "",
+    },
+    {
+        "title": "Capacity Factor",
+        "query": "capacity_factor>0.05",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "capacity_factor",
+        "weight_col": "",
+    },
+    {
+        "title": "OpEx per MWh",
+        "query": "opex_per_mwh>0",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "opex_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Fuel OpEx per MWh",
+        "query": "opex_fuel_per_mwh>0",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "opex_fuel_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "Nonfuel OpEx per MWh",
+        "query": "opex_nonfuel_per_mwh>0",
+        "low_q": 0.05,
+        "mid_q": 0.3,
+        "hi_q": 0.95,
+        "data_col": "opex_nonfuel_per_mwh",
+        "weight_col": "net_generation_mwh",
+    },
+    {
+        "title": "CapEx per MW",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "capex_per_mw",
+        "weight_col": "capacity_mw",
+    },
+    {
+        "title": "Installation Year",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "installation_year",
+        "weight_col": "",
+    },
+    {
+        "title": "Construction Year",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "construction_year",
+        "weight_col": "",
+    },
+    {
+        "title": "Water Limited Capacity ratio",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "water_limited_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Not Water Limited Capacity ratio",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "not_water_limited_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Capability Ratio",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "capability_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Peak Demand Ratio",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "peak_demand_ratio",
+        "weight_col": "",
+    },
+    {
+        "title": "Plant Hours Connected",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.9,
+        "data_col": "plant_hours_connected_while_generating",
+        "weight_col": "capacity_mw",
+    },
+]
+
+fuel_ferc1_self = [
+    {
+        "title": "mmbtu per unit (Coal)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_qty_burned",
+    },
+    {
+        "title": "mmbtu per unit (Oil)",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_qty_burned",
+    },
+    {
+        "title": "mmbtu per unit (Gas)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_qty_burned",
+    },
+    {
+        "title": "Cost per mmbtu (Coal)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "fuel_consumed_mmbtu",
+    },
+    {
+        "title": "Cost per mmbtu (Oil)",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "fuel_consumed_mmbtu",
+    },
+    {
+        "title": "Cost per mmbtu (Gas)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "fuel_consumed_mmbtu",
+    },
+    {
+        "title": "Cost per unit burned (Coal)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_unit_burned",
+        "weight_col": "fuel_qty_burned",
+    },
+    {
+        "title": "Cost per unit burned (Oil)",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_unit_burned",
+        "weight_col": "fuel_qty_burned",
+    },
+    {
+        "title": "Cost per unit burned (Gas)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "fuel_cost_per_unit_burned",
+        "weight_col": "fuel_qty_burned",
+    },
+]
+fuel_ferc1_coal_mmbtu_per_unit_bounds = [
+    {
+        "title": "Coal heat content (tails)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "low_bound": 16.0,
+        "hi_q": 0.95,
+        "hi_bound": 26.0,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_qty_burned",
+    },
+]
+fuel_ferc1_oil_mmbtu_per_unit_bounds = [
+    {
+        "title": "mmbtu per unit (Oil)",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.05,
+        "low_bound": 5.5,
+        "hi_q": 0.95,
+        "hi_bound": 6.8,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_qty_burned",
+    },
+]
+fuel_ferc1_gas_mmbtu_per_unit_bounds = [
+    {
+        "title": "mmbtu per unit (Gas)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.05,
+        "low_bound": 0.98,
+        "hi_q": 0.95,
+        "hi_bound": 1.08,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_qty_burned",
+    },
+]
+fuel_ferc1_coal_cost_per_mmbtu_bounds = [
+    {
+        "title": "Cost per mmbtu (Coal)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "low_bound": 0.85,
+        "hi_q": 0.95,
+        "hi_bound": 4.2,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "fuel_consumed_mmbtu",
+    },
+]
+fuel_ferc1_oil_cost_per_mmbtu_bounds = [
+    {
+        "title": "Cost per mmbtu (Oil)",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.05,
+        "low_bound": 5.0,
+        "hi_q": 0.95,
+        "hi_bound": 25.0,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "fuel_consumed_mmbtu",
+    },
+]
+fuel_ferc1_gas_cost_per_mmbtu_bounds = [
+    {
+        "title": "Cost per mmbtu (Gas)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.05,
+        "low_bound": 2.0,
+        "hi_q": 0.95,
+        "hi_bound": 12.0,
+        "data_col": "fuel_cost_per_mmbtu",
+        "weight_col": "fuel_consumed_mmbtu",
+    },
+]
+fuel_ferc1_coal_cost_per_unit_bounds = [
+    {
+        "title": "Cost per unit burned (Coal)",
+        "query": "fuel_type_code_pudl=='coal'",
+        "low_q": 0.05,
+        "low_bound": 7.0,
+        "hi_q": 0.95,
+        "hi_bound": 100.0,
+        "data_col": "fuel_cost_per_unit_burned",
+        "weight_col": "fuel_qty_burned",
+    },
+]
+fuel_ferc1_oil_cost_per_unit_bounds = [
+    {
+        "title": "Cost per unit burned (Oil)",
+        "query": "fuel_type_code_pudl=='oil'",
+        "low_q": 0.05,
+        "low_bound": 25.0,
+        "hi_q": 0.95,
+        "hi_bound": 140.0,
+        "data_col": "fuel_cost_per_unit_burned",
+        "weight_col": "fuel_qty_burned",
+    },
+]
+fuel_ferc1_gas_cost_per_unit_bounds = [
+    {
+        "title": "Cost per unit burned (Gas)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.05,
+        "low_bound": 2.5,
+        "hi_q": 0.95,
+        "hi_bound": 12.0,
+        "data_col": "fuel_cost_per_unit_burned",
+        "weight_col": "fuel_qty_burned",
+    },
+]
 ###############################################################################
 # EIA923 Generation Fuel data validation against fixed values
 ###############################################################################
@@ -457,8 +993,9 @@ gf_eia923_gas_heat_content = [
 Valid natural gas heat content values.
 
 Based on historically reported values in EIA 923 Fuel Receipts and Costs. May
-fail because of a population of bad data around 0.1 mmbtu/unit. This appears
-to be an off-by-10x error, possibly due to reporting error in units used.
+fail because non-methane gaseous fuels have been lumped in with "gas" here and
+some of them have substantially lower heat content.
+
 """
 
 ###############################################################################
@@ -835,7 +1372,36 @@ bf_eia923_agg = [
 # EIA923 Fuel Receipts and Costs validation against fixed values
 ###############################################################################
 
-frc_eia923_coal_heat_content = [
+frc_eia923_coal_ant_heat_content = [
+    {
+        "title": "Anthracite coal heat content (middle)",
+        "query": "energy_source_code=='ANT'",
+        "low_q": 0.50,
+        "low_bound": 20.5,
+        "hi_q": 0.50,
+        "hi_bound": 26.5,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+    {
+        "title": "Anthracite coal heat content (tails)",
+        "query": "energy_source_code=='ANT'",
+        "low_q": 0.05,
+        "low_bound": 22.0,
+        "hi_q": 0.95,
+        "hi_bound": 29.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable anthracite coal heat content.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_coal_bit_heat_content = [
     {
         "title": "Bituminous coal heat content (middle)",
         "query": "energy_source_code=='BIT'",
@@ -850,12 +1416,21 @@ frc_eia923_coal_heat_content = [
         "title": "Bituminous coal heat content (tails)",
         "query": "energy_source_code=='BIT'",
         "low_q": 0.05,
-        "low_bound": 17.0,
+        "low_bound": 18.0,
         "hi_q": 0.95,
-        "hi_bound": 30.0,
+        "hi_bound": 29.0,
         "data_col": "heat_content_mmbtu_per_unit",
         "weight_col": "fuel_qty_units",
     },
+]
+"""
+Check for reasonable bituminous coal heat content.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_coal_sub_heat_content = [
     {
         "title": "Sub-bituminous coal heat content (middle)",
         "query": "energy_source_code=='SUB'",
@@ -872,10 +1447,19 @@ frc_eia923_coal_heat_content = [
         "low_q": 0.05,
         "low_bound": 15.0,
         "hi_q": 0.95,
-        "hi_bound": 20.5,
+        "hi_bound": 20.0,
         "data_col": "heat_content_mmbtu_per_unit",
         "weight_col": "fuel_qty_units",
     },
+]
+"""
+Check for reasonable Sub-bituminous coal heat content.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_coal_lig_heat_content = [
     {
         "title": "Lignite heat content (middle)",
         "query": "energy_source_code=='LIG'",
@@ -896,25 +1480,53 @@ frc_eia923_coal_heat_content = [
         "data_col": "heat_content_mmbtu_per_unit",
         "weight_col": "fuel_qty_units",
     },
+]
+"""
+Check for reasonable lignite coal heat content.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_coal_cc_heat_content = [
     {
-        "title": "All coal heat content (middle)",
-        "query": "fuel_type_code_pudl=='coal'",
-        "low_q": 0.50,
-        "low_bound": 10.0,
-        "hi_q": 0.50,
-        "hi_bound": 30.0,
+        "title": "Refined coal heat content (tails)",
+        "query": "energy_source_code=='RC'",
+        "low_q": 0.05,
+        "low_bound": 6.5,
+        "hi_q": 0.95,
+        "hi_bound": 16.0,
         "data_col": "heat_content_mmbtu_per_unit",
         "weight_col": "fuel_qty_units",
     },
 ]
 """
-Valid coal (bituminous, sub-bituminous, and lignite) heat content values.
+Check for reasonable refined coal heat content.
 
-Based on IEA coal grade definitions:
-https://www.iea.org/statistics/resources/balancedefinitions/
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
 """
 
-frc_eia923_oil_heat_content = [
+frc_eia923_coal_wc_heat_content = [
+    {
+        "title": "Waste coal heat content (tails)",
+        "query": "energy_source_code=='WC'",
+        "low_q": 0.05,
+        "low_bound": 6.5,
+        "hi_q": 0.95,
+        "hi_bound": 16.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable waste coal heat content.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_oil_dfo_heat_content = [
     {
         "title": "Diesel Fuel Oil heat content (tails)",
         "query": "energy_source_code=='DFO'",
@@ -935,51 +1547,413 @@ frc_eia923_oil_heat_content = [
         "data_col": "heat_content_mmbtu_per_unit",
         "weight_col": "fuel_qty_units",
     },
+]
+"""
+Check for reasonable diesel fuel oil heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_gas_sgc_heat_content = [
     {
-        "title": "All petroleum heat content (tails)",
-        "query": "fuel_type_code_pudl=='oil'",
+        "title": "Coal syngas heat content (tails)",
+        "query": "energy_source_code=='SGC'",
+        "low_q": 0.05,
+        "low_bound": 0.2,
+        "hi_q": 0.95,
+        "hi_bound": 0.3,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable coal syngas heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_oil_jf_heat_content = [
+    {
+        "title": "Jet fuel heat content (tails)",
+        "query": "energy_source_code=='JF'",
         "low_q": 0.05,
         "low_bound": 5.0,
         "hi_q": 0.95,
-        "hi_bound": 6.5,
+        "hi_bound": 6.0,
         "data_col": "heat_content_mmbtu_per_unit",
         "weight_col": "fuel_qty_units",
     },
 ]
 """
-Valid petroleum based fuel heat content values.
+Check for reasonable jet fuel heat contents.
 
-Based on historically reported values in EIA 923 Fuel Receipts and Costs.
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
 """
 
-frc_eia923_gas_heat_content = [
+frc_eia923_oil_ker_heat_content = [
     {
-        "title": "Natural Gas heat content (middle)",
-        "query": "fuel_type_code_pudl=='gas'",
-        "hi_q": 0.50,
-        "hi_bound": 1.036,
-        "low_q": 0.50,
-        "low_bound": 1.018,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
-    },
-    {  # This may fail because of bad data at 0.1 mmbtu/unit
-        "title": "Natural Gas heat content (tails)",
-        "query": "fuel_type_code_pudl=='gas'",
-        "hi_q": 0.99,
-        "hi_bound": 1.15,
-        "low_q": 0.01,
-        "low_bound": 0.95,
+        "title": "Kerosene heat content (tails)",
+        "query": "energy_source_code=='KER'",
+        "low_q": 0.05,
+        "low_bound": 5.6,
+        "hi_q": 0.95,
+        "hi_bound": 6.1,
         "data_col": "heat_content_mmbtu_per_unit",
         "weight_col": "fuel_qty_units",
     },
 ]
 """
-Valid natural gas heat content values.
+Check for reasonable kerosene heat contents.
 
-Based on historically reported values in EIA 923 Fuel Receipts and Costs. May
-fail because of a population of bad data around 0.1 mmbtu/unit. This appears
-to be an off-by-10x error, possibly due to reporting error in units used.
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_petcoke_heat_content = [
+    {
+        "title": "Petroleum coke heat content (tails)",
+        "query": "energy_source_code=='PC'",
+        "low_q": 0.05,
+        "low_bound": 24.0,
+        "hi_q": 0.95,
+        "hi_bound": 30.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable petroleum coke heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_rfo_heat_content = [
+    {
+        "title": "Residual fuel oil heat content (tails)",
+        "query": "energy_source_code=='RFO'",
+        "low_q": 0.05,
+        "low_bound": 5.7,
+        "hi_q": 0.95,
+        "hi_bound": 6.9,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable residual fuel oil heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_propane_heat_content = [
+    {
+        "title": "Propane heat content (tails)",
+        "query": "energy_source_code=='PG'",
+        "low_q": 0.05,
+        "low_bound": 2.5,
+        "hi_q": 0.95,
+        "hi_bound": 2.75,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable propane heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_petcoke_syngas_heat_content = [
+    {
+        "title": "Petcoke syngas heat content (tails)",
+        "query": "energy_source_code=='SGP'",
+        "low_q": 0.05,
+        "low_bound": 0.2,
+        "hi_q": 0.95,
+        "hi_bound": 1.1,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable petcoke syngas heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_waste_oil_heat_content = [
+    {
+        "title": "Waste oil heat content (tails)",
+        "query": "energy_source_code=='WO'",
+        "low_q": 0.05,
+        "low_bound": 3.0,
+        "hi_q": 0.95,
+        "hi_bound": 5.8,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable waste oil heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_blast_furnace_gas_heat_content = [
+    {
+        "title": "Blast furnace gas heat content (tails)",
+        "query": "energy_source_code=='BFG'",
+        "low_q": 0.05,
+        "low_bound": 0.07,
+        "hi_q": 0.95,
+        "hi_bound": 0.12,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable blast furnace gas heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_natural_gas_heat_content = [
+    {
+        "title": "Natural gas heat content (tails)",
+        "query": "energy_source_code=='NG'",
+        "low_q": 0.05,
+        "low_bound": 0.8,
+        "hi_q": 0.95,
+        "hi_bound": 1.2,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable natural gas heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_other_gas_heat_content = [
+    {
+        "title": "Other gas heat content (tails)",
+        "query": "energy_source_code=='OG'",
+        "low_q": 0.05,
+        "low_bound": 0.07,
+        "hi_q": 0.95,
+        "hi_bound": 3.3,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable other gas heat contents.
+
+Based on values given in the EIA 923 instructions, but with the lower bound
+set by the expected lower bound of heat content on blast furnace gas (since
+there were "other" gasses with bounds lower than the expected 0.32 in the data)
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_ag_byproduct_heat_content = [
+    {
+        "title": "Agricultural byproduct heat content (tails)",
+        "query": "energy_source_code=='AB'",
+        "low_q": 0.05,
+        "low_bound": 7.0,
+        "hi_q": 0.95,
+        "hi_bound": 18.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable agricultural byproduct heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_muni_solids_heat_content = [
+    {
+        "title": "Municipal solid waste heat content (tails)",
+        "query": "energy_source_code=='MSW'",
+        "low_q": 0.05,
+        "low_bound": 9.0,
+        "hi_q": 0.95,
+        "hi_bound": 12.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable municipal solid waste heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_biomass_solids_heat_content = [
+    {
+        "title": "Other biomass solids heat content (tails)",
+        "query": "energy_source_code=='OBS'",
+        "low_q": 0.05,
+        "low_bound": 8.0,
+        "hi_q": 0.95,
+        "hi_bound": 25.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable other biomass solids heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_wood_solids_heat_content = [
+    {
+        "title": "Wood solids heat content (tails)",
+        "query": "energy_source_code=='WDS'",
+        "low_q": 0.05,
+        "low_bound": 7.0,
+        "hi_q": 0.95,
+        "hi_bound": 18.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable wood solids heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_biomass_liquids_heat_content = [
+    {
+        "title": "Other biomass liquids heat content (tails)",
+        "query": "energy_source_code=='OBL'",
+        "low_q": 0.05,
+        "low_bound": 3.5,
+        "hi_q": 0.95,
+        "hi_bound": 4.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable other biomass liquids heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_sludge_heat_content = [
+    {
+        "title": "Sludge waste heat content (tails)",
+        "query": "energy_source_code=='SLW'",
+        "low_q": 0.05,
+        "low_bound": 10.0,
+        "hi_q": 0.95,
+        "hi_bound": 16.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable sludget waste heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_black_liquor_heat_content = [
+    {
+        "title": "Black liquor heat content (tails)",
+        "query": "energy_source_code=='BLQ'",
+        "low_q": 0.05,
+        "low_bound": 10.0,
+        "hi_q": 0.95,
+        "hi_bound": 14.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable black liquor heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_wood_liquids_heat_content = [
+    {
+        "title": "Wood waste liquids heat content (tails)",
+        "query": "energy_source_code=='WDL'",
+        "low_q": 0.05,
+        "low_bound": 8.0,
+        "hi_q": 0.95,
+        "hi_bound": 14.0,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable wood waste liquids heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_landfill_gas_heat_content = [
+    {
+        "title": "Landfill gas heat content (tails)",
+        "query": "energy_source_code=='LFG'",
+        "low_q": 0.05,
+        "low_bound": 0.3,
+        "hi_q": 0.95,
+        "hi_bound": 0.6,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable landfill gas heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
+"""
+
+frc_eia923_biomass_gas_heat_content = [
+    {
+        "title": "Other biomass gas heat content (tails)",
+        "query": "energy_source_code=='OBG'",
+        "low_q": 0.05,
+        "low_bound": 0.36,
+        "hi_q": 0.95,
+        "hi_bound": 1.6,
+        "data_col": "heat_content_mmbtu_per_unit",
+        "weight_col": "fuel_qty_units",
+    },
+]
+"""
+Check for reasonable other biomass gas heat contents.
+
+Based on values given in the EIA 923 instructions:
+https://www.eia.gov/survey/form/eia_923/instructions.pdf
 """
 
 frc_eia923_coal_ash_content = [
@@ -1051,7 +2025,7 @@ frc_eia923_coal_mercury_content = [
         "low_q": False,
         "low_bound": False,
         "hi_q": 0.95,
-        "hi_bound": 1.0,
+        "hi_bound": 0.125,
         "data_col": "mercury_content_ppm",
         "weight_col": "fuel_qty_units",
     },
@@ -1059,9 +2033,9 @@ frc_eia923_coal_mercury_content = [
         "title": "Coal mercury content (middle)",
         "query": "fuel_type_code_pudl=='coal'",
         "low_q": 0.50,
-        "low_bound": 0.04,
+        "low_bound": 0.00,
         "hi_q": 0.50,
-        "hi_bound": 0.19,
+        "hi_bound": 0.1,
         "data_col": "mercury_content_ppm",
         "weight_col": "fuel_qty_units",
     },

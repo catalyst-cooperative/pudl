@@ -532,6 +532,11 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
              unmapped='')
     )
 
+    # Remove known to be invalid mercury content values. Almost all of these
+    # occur in the 2012 data. Real values should be <0.25ppm.
+    bad_hg_idx = frc_df.mercury_content_ppm >= 7.0
+    frc_df.loc[bad_hg_idx, "mercury_content_ppm"] = np.nan
+
     eia923_transformed_dfs['fuel_receipts_costs_eia923'] = frc_df
 
     return eia923_transformed_dfs

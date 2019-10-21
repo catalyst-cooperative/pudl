@@ -621,7 +621,7 @@ def _add_missing_parameters(flattened_params_dict):
                        'epacems_states']
     for param in standard_params:
         try:
-            flattened_params_dict[param]
+            _ = flattened_params_dict[param]
         except KeyError:
             flattened_params_dict[param] = []
     return flattened_params_dict
@@ -648,7 +648,7 @@ def get_flattened_etl_parameters(pkg_bundle_settings):  # noqa: C901
     for dataset in flattened_parameters:
         for param in dataset:
             try:
-                flattened_params_dict[param]
+                _ = flattened_params_dict[param]
                 logger.debug(f'{param} is already present present')
                 if flattened_params_dict[param] is True or False:
                     if flattened_params_dict[param] or dataset[param] is True:
