@@ -41,13 +41,13 @@ def data_scope(fast_tests, pudl_settings_fixture):
         ]
     with open(pathlib.Path(test_dir, 'settings', settings_file),
               "r") as f:
-        pkg_settings = yaml.safe_load(f)
+        datapkg_settings = yaml.safe_load(f)
     # put the whole settings dictionary
-    data_scope.update(pkg_settings)
-    # copy the etl parameters (years, tables, states) from the pkg dataset
+    data_scope.update(datapkg_settings)
+    # copy the etl parameters (years, tables, states) from the datapkg dataset
     # settings into the data_scope so they are more easily available
     data_scope.update(pudl.etl.get_flattened_etl_parameters(
-        pkg_settings['pkg_bundle_settings']))
+        datapkg_settings['datapkg_bundle_settings']))
     return data_scope
 
 
@@ -182,10 +182,10 @@ def datapkg(request, datastore_fixture, ferc1_engine,
     """Generate limited packages for testing."""
     logger.info('setting up the data_packaging fixture')
     clobber = request.config.getoption("--clobber")
-    pudl.etl.generate_data_packages(
-        data_scope['pkg_bundle_settings'],
+    pudl.etl.generate_datapkg_bundle(
+        data_scope['datapkg_bundle_settings'],
         pudl_settings_fixture,
-        pkg_bundle_name=data_scope['pkg_bundle_name'],
+        datapkg_bundle_name=data_scope['datapkg_bundle_name'],
         clobber=clobber)
 
 
@@ -193,15 +193,15 @@ def datapkg(request, datastore_fixture, ferc1_engine,
 def datapkg_to_sqlite(pudl_settings_fixture, data_scope, datapkg):
     """Try flattening the data packages."""
     logger.info('setting up the data_packaging_to_sqlite fixture')
-    pudl.convert.flatten_datapkgs.flatten_pudl_datapackages(
+    pudl.convert.flatten_datapkgs.flatten_datapkg_bundle(
         pudl_settings_fixture,
-        pkg_bundle_name=data_scope['pkg_bundle_name'],
-        pkg_name='pudl-all')
+        datapkg_bundle_name=data_scope['datapkg_bundle_name'],
+        datapkg_name='pudl-all')
 
-    pudl.convert.datapkg_to_sqlite.pkg_to_sqlite_db(
+    pudl.convert.datapkg_to_sqlite.datapkg_to_sqlite_db(
         pudl_settings_fixture,
-        pkg_bundle_name=data_scope['pkg_bundle_name'],
-        pkg_name='pudl-all')
+        datapkg_bundle_name=data_scope['datapkg_bundle_name'],
+        datapkg_name='pudl-all')
 
 
 @pytest.fixture(scope='session')
@@ -217,21 +217,21 @@ def pudl_engine(ferc1_engine, live_pudl_db,
     logger.info('setting up the pudl_engine fixture')
     if not live_pudl_db:
         clobber = request.config.getoption("--clobber")
-        pudl.etl.generate_data_packages(
-            data_scope['pkg_bundle_settings'],
+        pudl.etl.generate_datapkg_bundle(
+            data_scope['datapkg_bundle_settings'],
             pudl_settings_fixture,
-            pkg_bundle_name=data_scope['pkg_bundle_name'],
+            datapkg_bundle_name=data_scope['datapkg_bundle_name'],
             clobber=clobber)
 
-        pudl.convert.flatten_datapkgs.flatten_pudl_datapackages(
+        pudl.convert.flatten_datapkgs.flatten_datapkg_bundle(
             pudl_settings_fixture,
-            pkg_bundle_name=data_scope['pkg_bundle_name'],
-            pkg_name='pudl-all')
+            datapkg_bundle_name=data_scope['datapkg_bundle_name'],
+            datapkg_name='pudl-all')
 
-        pudl.convert.datapkg_to_sqlite.pkg_to_sqlite_db(
+        pudl.convert.datapkg_to_sqlite.datapkg_to_sqlite_db(
             pudl_settings_fixture,
-            pkg_bundle_name=data_scope['pkg_bundle_name'],
-            pkg_name='pudl-all')
+            datapkg_bundle_name=data_scope['datapkg_bundle_name'],
+            datapkg_name='pudl-all')
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
     pudl_engine = sa.create_engine(pudl_settings_fixture["pudl_db"])
     logger.info(pudl_engine)

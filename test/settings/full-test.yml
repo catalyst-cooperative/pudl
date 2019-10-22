@@ -1,11 +1,12 @@
-pkg_bundle_name: pudl-test
-pkg_bundle_settings:
+datapkg_bundle_name: pudl-test
+datapkg_bundle_settings:
   ###########################################################################
   # EPA IPM SETTINGS
   ###########################################################################
   - name: epaipm-test
     title: EPA Integrated Planning Model transmission data
     description: All of the EPA IPM data, since it's small and not organized into annual chunks.
+    version: 0.1.0
     datasets:
       - epaipm:
           epaipm_tables:
@@ -20,6 +21,7 @@ pkg_bundle_settings:
   - name: ferc1-test
     title: FERC Form 1 Test package
     description: All available and integrated years of FERC Form 1 data.
+    version: 0.1.0
     datasets:
       - ferc1:
           ferc1_tables:
@@ -40,6 +42,7 @@ pkg_bundle_settings:
   - name: eia-test
     title: Standalone data package containing all available EIA 860/923 data.
     description: whatever eia things.. ya know 860, 923.. all the things
+    version: 0.1.0
     datasets:
       - eia:
           eia923_tables:
@@ -64,6 +67,7 @@ pkg_bundle_settings:
   - name: epacems-eia-test
     title: EPA CEMS Hourly Emissions and EIA 860 for one year and state.
     description: A minimal test run for EPA CEMS, including one year of data for Idaho and whatever is required of the EIA 860 to map to the entities in the EPA CEMS tables.
+    version: 0.1.0
     datasets:
       - eia:
           eia860_tables:

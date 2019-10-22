@@ -2634,7 +2634,7 @@ dict: A dictionary of dictionaries containing license types and their
 output_formats = [
     'sqlite',
     'parquet',
-    'datapackage',
+    'datapkg',
     'notebook',
 ]
 """list: A list of types of PUDL output formats."""

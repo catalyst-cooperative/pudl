@@ -27,20 +27,20 @@ import pudl
 logger = logging.getLogger(__name__)
 
 
-def pkg_to_sqlite_db(pudl_settings,
-                     pkg_bundle_name,
-                     pkg_name=None,
-                     clobber=False):
+def datapkg_to_sqlite_db(pudl_settings,
+                         datapkg_bundle_name,
+                         datapkg_name=None,
+                         clobber=False):
     """
     Turn a data package into a sqlite database.
 
     Args:
-        pudl_settings (dict) : a dictionary filled with settings that mostly
+        pudl_settings (dict) : A dictionary filled with settings that mostly
             describe paths to various resources and outputs.
-        pkg_name (str): name of data package. this can be the flattened
-            datapackge (by default named 'pudl-all') or any of the sub-
+        datapkg_name (str): Name of data package. This can be the flattened
+            datapackage (by default named 'pudl-all') or any of the sub-
             datapackages.
-        pkg_bundle_name (str): the name of the directory where the bundle
+        datapkg_bundle_name (str): the name of the directory where the bundle
             of datapackages live that you want to convert.
 
     """
@@ -55,12 +55,12 @@ def pkg_to_sqlite_db(pudl_settings,
     # And start anew
     pudl_engine = sa.create_engine(pudl_settings['pudl_db'])
     # we can assume the flattened package's name
-    if not pkg_name:
-        pkg_name = 'pudl-all'
+    if not datapkg_name:
+        datapkg_name = 'pudl-all'
     # grabbing the datapackage
-    pkg = Package(str(pathlib.Path(pudl_settings['datapackage_dir'],
-                                   pkg_bundle_name,
-                                   pkg_name, 'datapackage.json')))
+    pkg = Package(str(pathlib.Path(pudl_settings['datapkg_dir'],
+                                   datapkg_bundle_name,
+                                   datapkg_name, 'datapackage.json')))
     # we want to grab the dictionary of columns that need autoincrement id cols
     try:
         autoincrement = pkg.descriptor['autoincrement']
@@ -125,17 +125,17 @@ def main():
         pudl_in=pudl_in, pudl_out=pudl_out)
 
     logger.info(f"Flattening datapackages within {args.pkg_bundle_name}.")
-    pudl.convert.flatten_datapkgs.flatten_pudl_datapackages(
+    pudl.convert.flatten_datapkg_bundle.flatten_datapkg_bundle(
         pudl_settings,
-        pkg_bundle_name=args.pkg_bundle_name,
-        pkg_name='pudl-all'
+        datapkg_bundle_name=args.pkg_bundle_name,
+        datapkg_name='pudl-all'
     )
 
     logger.info(f"Converting flattened datapackage into an SQLite database.")
-    pkg_to_sqlite_db(
+    datapkg_to_sqlite_db(
         pudl_settings,
-        pkg_bundle_name=args.pkg_bundle_name,
-        pkg_name='pudl-all',
+        datapkg_bundle_name=args.pkg_bundle_name,
+        datapkg_name='pudl-all',
         clobber=args.clobber)
     logger.info(f"Success! You can connect to the PUDL DB using this URL:")
     logger.info(f"{pudl_settings['pudl_db']}")

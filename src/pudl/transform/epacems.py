@@ -231,7 +231,7 @@ def correct_gross_load_mw(df):
     return df
 
 
-def transform(epacems_raw_dfs, pkg_dir):
+def transform(epacems_raw_dfs, datapkg_dir):
     """
     Transform EPA CEMS hourly data for use in datapackage export.
 
@@ -241,7 +241,7 @@ def transform(epacems_raw_dfs, pkg_dir):
     """
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
     # a transformation pipeline, and yield it back as another generator.
-    plant_utc_offset = _load_plant_utc_offset_pkg(pkg_dir)
+    plant_utc_offset = _load_plant_utc_offset_pkg(datapkg_dir)
     for raw_df_dict in epacems_raw_dfs:
         # There's currently only one dataframe in this dict at a time, but
         # that could be changed if you want.

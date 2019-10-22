@@ -146,7 +146,7 @@ def _verify_cems_args(data_path, epacems_years, epacems_states):
             )
 
 
-def epacems_to_parquet(pkg_dir,
+def epacems_to_parquet(datapkg_dir,
                        epacems_years,
                        epacems_states,
                        out_dir,
@@ -163,9 +163,9 @@ def epacems_to_parquet(pkg_dir,
     partition the datset on disk by year as well as state.
 
     Args:
-        pkg_dir (path-like): Path to the directory of the data package which
-            contains EPA CEMS. This directory should have a json metadata file
-            and a `data` subdirectory containing CSVs.
+        datapkg_dir (path-like): Path to the directory of the data package
+            which contains EPA CEMS. This directory should have a json metadata
+            file and a `data` subdirectory containing CSVs.
         epacems_years (list): list of years from which we are trying to read
             CEMs data
         epacems_states (list): list of years from which we are trying to read
@@ -188,7 +188,7 @@ def epacems_to_parquet(pkg_dir,
         raise AssertionError("Required output directory not specified.")
     out_dir = pudl.load.metadata.prep_directory(out_dir, clobber=clobber)
     schema = create_cems_schema()
-    data_path = pathlib.Path(pkg_dir, 'data')
+    data_path = pathlib.Path(datapkg_dir, 'data')
     # double check that all of the years you are asking for are actually in
     _verify_cems_args(data_path, epacems_years, epacems_states)
     for file in data_path.iterdir():
@@ -224,7 +224,7 @@ def parse_command_line(argv):
     parser = argparse.ArgumentParser(description=__doc__)
     defaults = pudl.workspace.setup.get_defaults()
     parser.add_argument(
-        '--pkg_dir',
+        '--datapkg_dir',
         type=str,
         help="""Path to the directory of the data package which contains EPA
             CEMS. This directory should have a json metadata file and a `data`
@@ -309,7 +309,7 @@ def main():
         pudl_settings=pudl_settings,
     )
 
-    epacems_to_parquet(pkg_dir=args.pkg_dir,
+    epacems_to_parquet(datapkg_dir=args.datapkg_dir,
                        epacems_years=args.years,
                        epacems_states=args.states,
                        out_dir=pathlib.Path(

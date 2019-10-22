@@ -48,9 +48,9 @@ SQLite database, respectively:
 
 These commands should result in a bunch of Python :mod:`logging` output,
 describing what the script is doing, and some outputs in the ``sqlite`` and
-``datapackage`` directories within your workspace. In particular, you should
+``datapkg`` directories within your workspace. In particular, you should
 see new files at ``sqlite/ferc1.sqlite`` and ``sqlite/pudl.sqlite``, and a new
-directory at ``datapackage/pudl-example`` containing several datapackage
+directory at ``datapkg/pudl-example`` containing several datapackage
 directories, one for each of the ``ferc1``, ``eia`` (Forms 860 and 923),
 ``epacems-eia``, and ``epaipm`` datasets.
 
@@ -74,5 +74,5 @@ example settings file explain the available parameters.
 If you want to re-run ``pudl_etl`` and replace an existing bundle of data
 packages, you can use ``--clobber``. If you want to generate a new data
 packages with a new or modified settings file, you can change the name for
-``--pkg_bundle_name`` which will generate a new ``datapackage/{your new name}``
+``--pkg_bundle_name`` which will generate a new ``datapkg/{your new name}``
 directory and will store your data packages there.
