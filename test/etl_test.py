@@ -46,7 +46,6 @@ def test_ferc1_etl(ferc1_engine):
 def test_epacems_to_parquet(datapkg_bundle,
                             pudl_settings_fixture,
                             data_scope,
-                            fast_tests,
                             request):
     """Attempt to convert a small amount of EPA CEMS data to parquet format."""
     clobber = request.config.getoption("--clobber")
