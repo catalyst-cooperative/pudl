@@ -22,14 +22,14 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.datapkg
-def test_datapkg(datapkg):
+def test_datapkg_bundle(datapkg_bundle):
     """Generate limited packages for testing."""
     pass
 
 
 @pytest.mark.datapkg
-def test_datapkg_to_sqlite(datapkg_to_sqlite):
-    """Try flattening the data packages."""
+def test_pudl_engine(pudl_engine):
+    """Try creating a pudl_engine...."""
     pass
 
 
@@ -43,7 +43,7 @@ def test_ferc1_etl(ferc1_engine):
     pass
 
 
-def test_epacems_to_parquet(datapkg,
+def test_epacems_to_parquet(datapkg_bundle,
                             pudl_settings_fixture,
                             data_scope,
                             fast_tests,
