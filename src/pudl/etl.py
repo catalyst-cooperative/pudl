@@ -782,6 +782,7 @@ def etl_datapkg(datapkg_settings, pudl_settings, datapkg_bundle_dir):
 def generate_datapkg_bundle(datapkg_bundle_settings,
                             pudl_settings,
                             datapkg_bundle_name,
+                            datapkg_bundle_doi=None,
                             debug=False,
                             clobber=False):
     """
@@ -844,7 +845,8 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
                 datapkg_settings,
                 datapkg_tables,
                 datapkg_dir,
-                datapkg_bundle_uuid=datapkg_bundle_uuid)
+                datapkg_bundle_uuid=datapkg_bundle_uuid,
+                datapkg_bundle_doi=datapkg_bundle_doi)
             metas[datapkg_settings['name']] = report
         else:
             logger.info(
