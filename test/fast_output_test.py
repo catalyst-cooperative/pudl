@@ -15,7 +15,7 @@ def fast_out(pudl_engine):
 
 
 def test_mcoe(fast_out):
-    """Calculate MCOE"""
+    """Calculate MCOE."""
     logger.info("Calculating MCOE.")
     mcoe_df = fast_out.mcoe()
     logger.info(f"Generated {len(mcoe_df)} MCOE records.")
