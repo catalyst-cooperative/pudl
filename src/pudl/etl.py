@@ -664,9 +664,11 @@ def validate_params(datapkg_bundle_settings, pudl_settings):
         datapkg_bundle_settings (iterable): a list of data package parameters,
             with each element of the list being a dictionary specifying
             the data to be packaged.
+        pudl_settings (dict):
 
     Returns:
         iterable: validated list of inputs
+
     """
     logger.info('reading and validating etl settings')
     param_validation_functions = {
@@ -681,12 +683,19 @@ def validate_params(datapkg_bundle_settings, pudl_settings):
     # for each of the packages, rebuild the settings
     for datapkg in datapkg_bundle_settings:
         validated_datapkg_settings = {}
+        # Required fields:
         validated_datapkg_settings.update({
             'name': datapkg['name'],
             'title': datapkg['title'],
             'description': datapkg['description'],
-            'version': datapkg['version'],
         })
+        # Optional fields...
+        for field in ["version", "datapkg_bundle_doi"]:
+            try:
+                validated_datapkg_settings[field] = datapkg[field]
+            except KeyError:
+                pass
+
         dataset_dicts = []
         for settings_dataset_dict in datapkg['datasets']:
             for dataset in settings_dataset_dict:
@@ -809,6 +818,8 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
     # validate the settings from the settings file.
     validated_bundle_settings = validate_params(
         datapkg_bundle_settings, pudl_settings)
+
+    # Generate a random UUID to identify this ETL run / data package bundle
     datapkg_bundle_uuid = str(uuid.uuid4())
 
     datapkg_bundle_dir = pudl.load.metadata.prep_directory(

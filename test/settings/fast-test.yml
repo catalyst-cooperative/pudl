@@ -2,6 +2,7 @@
 # out lines enumerating the full extent of the currently loadable data, which
 # you can un-comment or edit to suit your data analysis.
 datapkg_bundle_name: pudl-fast
+datapkg_bundle_doi: 10.5072/zenodo.412406  # Sandbox DOI... not real.
 datapkg_bundle_settings:
   ###########################################################################
   # EPA IPM SETTINGS
@@ -9,7 +10,7 @@ datapkg_bundle_settings:
   - name: epaipm-test
     title: EPA Integrated Planning Model transmission data
     description: The full EPA IPM transmission dataset, since it is small.
-    version: 0.1.0
+    # version: 0.1.0 # Test this one w/o a version....
     datasets:
       - epaipm:
           epaipm_tables:

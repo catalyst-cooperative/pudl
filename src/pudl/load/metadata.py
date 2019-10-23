@@ -587,8 +587,11 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
     return report
 
 
-def generate_metadata(datapkg_settings, tables, datapkg_dir,
-                      datapkg_bundle_uuid=str(uuid.uuid4())):
+def generate_metadata(datapkg_settings,
+                      tables,
+                      datapkg_dir,
+                      datapkg_bundle_uuid=None,
+                      datapkg_bundle_doi=None):
     """
     Generate metadata for package tables and validate package.
 
@@ -618,6 +621,10 @@ def generate_metadata(datapkg_settings, tables, datapkg_dir,
         datapkg_bundle_uuid: A type 4 UUID identifying the ETL run which
             which generated the data package -- this indicates that the data
             packages are compatible with each other
+        datapkg_bundle_doi: A digital object identifier (DOI) that will be used
+            to archive the bundle of mutually compatible data packages. Needs
+            to be provided by an archiving service like Zenodo. This field may
+            also be added after the data package has been generated.
 
     Returns:
         datapackage.package.Package: a datapackage. See frictionlessdata specs.
@@ -646,11 +653,12 @@ def generate_metadata(datapkg_settings, tables, datapkg_dir,
         for c in pudl.constants.contributors_by_source[src]:
             contributors.add(c)
 
+    # Fields which we are requiring:
     datapkg_descriptor = {
         "name": datapkg_settings["name"],
+        "id": str(uuid.uuid4()),
         "profile": "tabular-data-package",
         "title": datapkg_settings["title"],
-        "datapkg-bundle-uuid": datapkg_bundle_uuid,
         "description": datapkg_settings["description"],
         "keywords": get_keywords_from_sources(data_sources),
         "homepage": "https://catalyst.coop/pudl/",
@@ -663,9 +671,39 @@ def generate_metadata(datapkg_settings, tables, datapkg_dir,
         "python-package-name": "catalystcoop.pudl",
         "python-package-version":
             pkg_resources.get_distribution('catalystcoop.pudl').version,
-        "version": datapkg_settings["version"],
         "resources": resources,
     }
+
+    # Optional fields:
+    try:
+        datapkg_descriptor["version"] = datapkg_settings["version"]
+    except KeyError:
+        pass
+
+    # The datapackage bundle UUID indicates packages can be used together
+    if datapkg_bundle_uuid is not None:
+        # Check to make sure it's a valid Type 4 UUID.
+        # If it's not the right kind of hex value or string, this will fail:
+        val = uuid.UUID(datapkg_bundle_uuid, version=4)
+        # If it's nominally a Type 4 UUID, but these come back different,
+        # something is wrong:
+        if uuid.UUID(val.hex, version=4) != uuid.UUID(str(val), version=4):
+            raise ValueError(
+                f"Got invalid type 4 UUID: {datapkg_bundle_uuid} "
+                f"as bundle ID for data package {datapkg_settings['name']}."
+            )
+        # Guess it looks okay!
+        datapkg_descriptor["datapkg-bundle-uuid"] = datapkg_bundle_uuid
+
+    # Check the proffered DOI, if any, against this regex, taken from the
+    # idutils python package:
+    if datapkg_bundle_doi is not None:
+        if not pudl.helpers.is_doi(datapkg_bundle_doi):
+            raise ValueError(
+                f"Got invalid DOI: {datapkg_bundle_doi} "
+                f"as bundle DOI for data package {datapkg_settings['name']}."
+            )
+        datapkg_descriptor["datapkg-bundle-doi"] = datapkg_bundle_doi
 
     report = validate_save_datapkg(datapkg_descriptor, datapkg_dir)
     return report
@@ -678,15 +716,18 @@ def prep_directory(dir_path, clobber=False):
     Args:
         dir_path (path-like): path to the directory that you are trying to
             clean and prepare.
-        debug (bool): If True, return a dictionary with package names (keys)
-            and a list with the data package metadata and report (values).
+        clobber (bool): If True and dir_path exists, it will be removed and
+            replaced with a new, empty directory.
+
+    Raises:
+        FileExistsError: if a file or directory already exists at dir_path.
 
     Returns:
-        path-like
+        path-like: dir_path.
 
     """
     if os.path.exists(dir_path) and (clobber is False):
-        raise AssertionError(
+        raise FileExistsError(
             f'{dir_path} already exists and clobber is set to {clobber}')
     elif os.path.exists(dir_path) and (clobber is True):
         shutil.rmtree(dir_path)

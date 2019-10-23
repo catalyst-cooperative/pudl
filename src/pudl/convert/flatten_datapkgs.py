@@ -94,7 +94,12 @@ def compile_datapkg_bundle_metadata(datapkg_bundle_dir,
                 try:
                     datapkg_descriptor_elements[thing].append(metadata[thing])
                 except KeyError:
-                    datapkg_descriptor_elements[thing] = [metadata[thing]]
+                    try:
+                        datapkg_descriptor_elements[thing] = [metadata[thing]]
+                    except KeyError:
+                        # These are optional fields:
+                        if thing not in ["version", "datapkg-bundle-doi"]:
+                            raise
     return(datapkg_descriptor_elements)
 
 
@@ -126,9 +131,14 @@ def flatten_datapkg_bundle_metadata(datapkg_bundle_dir,
             'too many ids found in data packages metadata')
     # for these pkg_descriptor items, they should all be the same, so we are
     # just going to grab the first item for the flattened metadata
-    for item in ['datapkg-bundle-uuid', 'licenses', 'homepage',
-                 'python-package-version', 'python-package-name']:
-        datapkg_descriptor[item] = datapkg_descriptor_elements[item][0]
+    for item in ['datapkg-bundle-uuid', 'datapkg-bundle-doi', 'licenses',
+                 'homepage', 'python-package-version', 'python-package-name']:
+        try:
+            datapkg_descriptor[item] = datapkg_descriptor_elements[item][0]
+        except KeyError:
+            if item == "datapkg-bundle-doi":
+                pass
+
     # we're gonna grab the first 'created' timestap (each dp generates it's own
     # timestamp, which are slightly different)
     datapkg_descriptor['created'] = min(datapkg_descriptor_elements['created'])

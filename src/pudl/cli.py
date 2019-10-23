@@ -91,11 +91,22 @@ def main():
                                     flattened_params_dict['epacems_states'],
                                     pudl_settings)
 
+    try:
+        datapkg_bundle_doi = script_settings["datapkg_bundle_doi"]
+        if not pudl.helpers.is_doi(datapkg_bundle_doi):
+            raise ValueError(
+                f"Found invalid bundle DOI: {datapkg_bundle_doi} "
+                f"in bundle {script_settings['datpkg_bundle_name']}."
+            )
+    except KeyError:
+        datapkg_bundle_doi = None
+
     pudl.etl.generate_datapkg_bundle(
         script_settings['datapkg_bundle_settings'],
         pudl_settings,
         debug=False,
         datapkg_bundle_name=script_settings['datapkg_bundle_name'],
+        datapkg_bundle_doi=datapkg_bundle_doi,
         clobber=args.clobber)
 
 
