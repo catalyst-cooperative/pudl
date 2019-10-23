@@ -5,11 +5,11 @@ matrix:
   - python: "3.7"
     env: PY_VERSION=py37
     dist: xenial
-  - python: "3.8-dev"
-    env: PY_VERSION=py38
-    dist: xenial
-  allow_failures:
-  - python: "3.8-dev"
+#  - python: "3.8-dev"
+#    env: PY_VERSION=py38
+#    dist: xenial
+#  allow_failures:
+#  - python: "3.8-dev"
 
 addons:
   apt:
