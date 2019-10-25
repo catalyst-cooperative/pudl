@@ -93,7 +93,7 @@ def parse_command_line(argv):
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        '--pkg_bundle_name',
+        '--datapkg_bundle_name',
         default="",
         help="""Name for data package bundle directory. If no name is given the
         default is the pudl python package version.""")
@@ -124,17 +124,17 @@ def main():
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in, pudl_out=pudl_out)
 
-    logger.info(f"Flattening datapackages within {args.pkg_bundle_name}.")
-    pudl.convert.flatten_datapkg_bundle.flatten_datapkg_bundle(
+    logger.info(f"Flattening datapackages within {args.datapkg_bundle_name}.")
+    pudl.convert.flatten_datapkgs.flatten_datapkg_bundle(
         pudl_settings,
-        datapkg_bundle_name=args.pkg_bundle_name,
+        datapkg_bundle_name=args.datapkg_bundle_name,
         datapkg_name='pudl-all'
     )
 
     logger.info(f"Converting flattened datapackage into an SQLite database.")
     datapkg_to_sqlite_db(
         pudl_settings,
-        datapkg_bundle_name=args.pkg_bundle_name,
+        datapkg_bundle_name=args.datapkg_bundle_name,
         datapkg_name='pudl-all',
         clobber=args.clobber)
     logger.info(f"Success! You can connect to the PUDL DB using this URL:")

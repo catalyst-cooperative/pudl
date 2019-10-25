@@ -48,7 +48,7 @@ def parse_command_line(argv):
     return arguments
 
 
-def main():
+def main():  # noqa: C901
     """Clone the FERC Form 1 FoxPro database into SQLite."""
     # Display logged output from the PUDL package:
     logger = logging.getLogger(pudl.__name__)
@@ -106,12 +106,18 @@ def main():
                 f"{max(pc.data_years['ferc1'])})."
             )
 
+    try:
+        # This field is optional and generally unused...
+        bad_cols = script_settings['ferc1_to_sqlite_bad_cols']
+    except KeyError:
+        bad_cols = ()
+
     pudl.extract.ferc1.dbf2sqlite(
         tables=script_settings['ferc1_to_sqlite_tables'],
         years=script_settings['ferc1_to_sqlite_years'],
         refyear=script_settings['ferc1_to_sqlite_refyear'],
         pudl_settings=pudl_settings,
-        bad_cols=script_settings['ferc1_to_sqlite_bad_cols'],
+        bad_cols=bad_cols,
         clobber=args.clobber)
 
 
