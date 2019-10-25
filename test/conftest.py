@@ -112,7 +112,7 @@ def data_scope(fast_tests, pudl_settings_fixture):
     except KeyError:
         datapkg_bundle_doi = None
 
-    scope["datapkg_budle_doi"] = datapkg_bundle_doi
+    scope["datapkg_bundle_doi"] = datapkg_bundle_doi
     # copy the etl parameters (years, tables, states) from the datapkg dataset
     # settings into the scope so they are more easily available
     scope.update(pudl.etl.get_flattened_etl_parameters(
@@ -189,16 +189,17 @@ def ferc1_engine(live_ferc1_db, pudl_settings_fixture,
 
 @pytest.fixture(scope='session')
 def datapkg_bundle(request, datastore_fixture, ferc1_engine,
-                   pudl_settings_fixture, data_scope):
+                   pudl_settings_fixture, live_pudl_db, data_scope):
     """Generate limited packages for testing."""
-    logger.info('setting up the data_packaging fixture')
-    clobber = request.config.getoption("--clobber")
-    pudl.etl.generate_datapkg_bundle(
-        data_scope['datapkg_bundle_settings'],
-        pudl_settings_fixture,
-        datapkg_bundle_name=data_scope['datapkg_bundle_name'],
-        datapkg_bundle_doi=data_scope['datapkg_bundle_doi'],
-        clobber=clobber)
+    if not live_pudl_db:
+        logger.info('setting up the datapkg_bundle fixture')
+        clobber = request.config.getoption("--clobber")
+        pudl.etl.generate_datapkg_bundle(
+            data_scope['datapkg_bundle_settings'],
+            pudl_settings_fixture,
+            datapkg_bundle_name=data_scope['datapkg_bundle_name'],
+            datapkg_bundle_doi=data_scope['datapkg_bundle_doi'],
+            clobber=clobber)
 
 
 @pytest.fixture(scope='session')

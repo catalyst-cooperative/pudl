@@ -7,10 +7,10 @@ PUDL_VERSION=0.2.1
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
 bash ~/miniconda.sh -b -p ~/miniconda
 export PATH=~/miniconda/bin:$PATH
-conda init bash
 eval "$(conda shell.bash hook)"
+conda init bash
 conda config --set channel_priority strict
-conda env create --file data-release-env.yml \
+conda env create --file data-release-env.yml
 #    catalystcoop.pudl=$PUDL_VERSION
 conda activate pudl-data-release
 git clone --depth 1 https://github.com/catalyst-cooperative/pudl.git # --branch $PUDL_VERSION
@@ -22,8 +22,7 @@ conda env export > export-environment.yml
 pudl_setup --clobber ./
 pudl_data -s eia860 -y 2011 2012 2013 2014 2015 2016 2017 2018
 pudl_data -s eia923 -y 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018
-pudl_data -s ferc1 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 \
-                   2014 2015 2016 2017 2018
+pudl_data -s ferc1 -y 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018
 pudl_data -s epacems -t co
 
 # Clone the FERC 1 DB:
