@@ -16,4 +16,4 @@ gcloud compute instances create pudl-data-release \
 #  --source-snapshot=pudl-data-release
 #  --metadata-from-file startup-script=data_release.sh
 
-gcloud compute scp data-release-env.yml data-release-etl.yml data-release.sh zane@pudl-data-release:
+gcloud compute scp data-release-env.yml data-release-etl.yml data-release.sh zane@pudl-data-release: --zone=us-central1-c

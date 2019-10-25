@@ -4,11 +4,15 @@
 # Create, activate, and record the pudl-data-release conda environment
 ###############################################################################
 PUDL_VERSION=0.2.1
+# libsnappy needs to be installed for data validation since tox uses pip
+sudo apt install libsnappy-dev libsnappy1v5
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
 bash ~/miniconda.sh -b -p ~/miniconda
+~/miniconda/bin/conda init bash
 export PATH=~/miniconda/bin:$PATH
 eval "$(conda shell.bash hook)"
-conda init bash
+echo "conda path:"
+echo `which conda`
 conda config --set channel_priority strict
 conda env create --file data-release-env.yml
 #    catalystcoop.pudl=$PUDL_VERSION
@@ -36,16 +40,15 @@ pudl_etl data-release-etl.yml
 # Load those data packages into an SQLite DB:
 datapkg_to_sqlite --datapkg_bundle_name pudl-data-release
 
-cd pudl
-tox -v -e validate > ../data-validation.log
-cd ..
-#touch README.txt
-# Make sure everyone has the right
-#cp README.txt datapkg/pudl-data-release/pudl-ferc1
-#cp README.txt datapkg/pudl-data-release/pudl-eia860-eia923/
-#cp README.txt datapkg/pudl-data-release/pudl-eia860-eia923-epacems/
-#
-#tar -cvzf pudl-input-data.tgz data/
-#tar -cvzf pudl-ferc1.tgz datapkg/pudl-data-release/pudl-ferc1/
-#tar -cvzf pudl-eia860-eia923.tgz datapkg/pudl-data-release/pudl-eia860-eia923/
-#tar -cvzf pudl-eia860-eia923-epacems.tgz datapkg/pudl-data-release/pudl-eia860-eia923-epacems/
+# Validate the data we've loaded
+tox -v -c pudl/tox.ini -e validate > data-validation.log
+
+touch README.txt
+cp README.txt datapkg/pudl-data-release/pudl-ferc1
+cp README.txt datapkg/pudl-data-release/pudl-eia860-eia923/
+cp README.txt datapkg/pudl-data-release/pudl-eia860-eia923-epacems/
+
+tar -cvzf pudl-input-data.tgz data/
+tar -cvzf pudl-ferc1.tgz datapkg/pudl-data-release/pudl-ferc1/
+tar -cvzf pudl-eia860-eia923.tgz datapkg/pudl-data-release/pudl-eia860-eia923/
+tar -cvzf pudl-eia860-eia923-epacems.tgz datapkg/pudl-data-release/pudl-eia860-eia923-epacems/
