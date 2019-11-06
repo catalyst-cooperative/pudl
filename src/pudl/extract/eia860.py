@@ -205,7 +205,6 @@ def get_eia860_page(page, eia860_xlsx,
         newdata = pd.read_excel(eia860_xlsx[yr],
                                 sheet_name=sheet_name,
                                 skiprows=skiprows,
-                                # dtype=column_types_table,
                                 dtype=dtype,
                                 )
         newdata = pudl.helpers.simplify_columns(newdata)
