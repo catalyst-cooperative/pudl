@@ -967,37 +967,6 @@ Valid petroleum based fuel heat content values.
 Based on historically reported values in EIA 923 Fuel Receipts and Costs.
 """
 
-gf_eia923_gas_heat_content = [
-    {
-        "title": "Natural Gas heat content (middle)",
-        "query": "fuel_type_code_pudl=='gas'",
-        "hi_q": 0.50,
-        "hi_bound": 1.036,
-        "low_q": 0.50,
-        "low_bound": 1.018,
-        "data_col": "fuel_mmbtu_per_unit",
-        "weight_col": "fuel_consumed_units",
-    },
-    {  # This may fail because of bad data at 0.1 mmbtu/unit
-        "title": "Natural Gas heat content (tails)",
-        "query": "fuel_type_code_pudl=='gas'",
-        "hi_q": 0.99,
-        "hi_bound": 1.15,
-        "low_q": 0.01,
-        "low_bound": 0.95,
-        "data_col": "fuel_mmbtu_per_unit",
-        "weight_col": "fuel_consumed_units",
-    },
-]
-"""
-Valid natural gas heat content values.
-
-Based on historically reported values in EIA 923 Fuel Receipts and Costs. May
-fail because non-methane gaseous fuels have been lumped in with "gas" here and
-some of them have substantially lower heat content.
-
-"""
-
 ###############################################################################
 # EIA 923 Generation Fuel validations against aggregated historical data.
 ###############################################################################

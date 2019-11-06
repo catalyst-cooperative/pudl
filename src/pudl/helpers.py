@@ -35,6 +35,28 @@ sum_na = partial(pd.Series.sum, skipna=False)
 tz_finder = timezonefinder.TimezoneFinder()
 
 
+def is_doi(doi):
+    """
+    Determine if a string is a valid digital object identifier (DOI).
+
+    Function simply checks whether the offered string matches a regular
+    expresssion -- it doesn't check whether the DOI is actually registered
+    with the relevant authority.
+
+    Args:
+        doi (str): String to validate.
+
+    Returns:
+        bool: True if doi matches the regex for valid DOIs, False otherwise.
+
+    """
+    doi_regex = re.compile(
+        r'(doi:\s*|(?:https?://)?(?:dx\.)?doi\.org/)?(10\.\d+(.\d+)*/.+)$',
+        re.IGNORECASE | re.UNICODE)
+
+    return bool(re.match(doi_regex, doi))
+
+
 def is_annual(df_year, year_col='report_date'):
     """Determine whether dataframe is consistent with yearly reporting.
 

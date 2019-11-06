@@ -1,14 +1,16 @@
 # The default settings load nothing into the database, but there are commented
 # out lines enumerating the full extent of the currently loadable data, which
 # you can un-comment or edit to suit your data analysis.
-pkg_bundle_name: pudl-fast
-pkg_bundle_settings:
+datapkg_bundle_name: pudl-fast
+datapkg_bundle_doi: 10.5072/zenodo.412406  # Sandbox DOI... not real.
+datapkg_bundle_settings:
   ###########################################################################
   # EPA IPM SETTINGS
   ###########################################################################
   - name: epaipm-test
     title: EPA Integrated Planning Model transmission data
     description: The full EPA IPM transmission dataset, since it is small.
+    # version: 0.1.0 # Test this one w/o a version....
     datasets:
       - epaipm:
           epaipm_tables:
@@ -23,6 +25,7 @@ pkg_bundle_settings:
   - name: ferc1-test
     title: FERC Form 1 Testing Package
     description: A single year of FERC Form 1 data, with all default tables.
+    version: 0.1.0
     datasets:
       - ferc1:
           ferc1_tables:
@@ -45,6 +48,7 @@ pkg_bundle_settings:
   - name: epacems-eia-test
     title: EPA CEMS Hourly Emissions and EIA 860/923
     description: A minimal EPA CEMS ETL run, including one year of Idaho data.
+    version: 0.1.0
     datasets:
       - eia:
           # This is the full list of EIA 923 tables.  Many of them are

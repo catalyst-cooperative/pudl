@@ -9,7 +9,7 @@ use of the module is to use it *after* generating the CSV's via `etl.py`.
 On a basic level, based on the settings in the pkg_settings, tables and sources
 associated with a data package, we are compiling information about the data
 package. For the table metadata, we are pulling from the megadata
-(`pudl/package_data/meta/datapackage/datapackage.json`). Most of the other
+(`src/pudl/package_data/meta/datapkg/datapackage.json`). Most of the other
 elements of the metadata is regenerated.
 
 For most tables, this is a relatively straightforward process, but we are
@@ -70,7 +70,7 @@ def hash_csv(csv_path):
     return f"sha256:{hasher.hexdigest()}"
 
 
-def compile_partitions(pkg_settings):
+def compile_partitions(datapkg_settings):
     """
     Pull out the partitions from data package settings.
 
@@ -84,7 +84,7 @@ def compile_partitions(pkg_settings):
 
     """
     partitions = {}
-    for dataset in pkg_settings['datasets']:
+    for dataset in datapkg_settings['datasets']:
         for dataset_name in dataset:
             try:
                 partitions.update(dataset[dataset_name]['partition'])
@@ -93,7 +93,7 @@ def compile_partitions(pkg_settings):
     return(partitions)
 
 
-def get_unpartioned_tables(tables, pkg_settings):
+def get_unpartioned_tables(tables, datapkg_settings):
     """
     Get the tables w/out the partitions.
 
@@ -108,7 +108,7 @@ def get_unpartioned_tables(tables, pkg_settings):
     Returns:
         iterable: tables_unpartioned is a set of un-partitioned tables
     """
-    partitions = compile_partitions(pkg_settings)
+    partitions = compile_partitions(datapkg_settings)
     tables_unpartioned = set()
     if partitions:
         for table in tables:
@@ -122,7 +122,7 @@ def get_unpartioned_tables(tables, pkg_settings):
         return tables
 
 
-def package_files_from_table(table, pkg_settings):
+def package_files_from_table(table, datapkg_settings):
     """Determine which files should exist in a package cooresponding to a table.
 
     We want to convert the datapackage tables and any information about package
@@ -130,9 +130,9 @@ def package_files_from_table(table, pkg_settings):
     partitioned, we want to add the partitions to the end of the table name.
 
     """
-    partitions = compile_partitions(pkg_settings)
+    partitions = compile_partitions(datapkg_settings)
     files = []
-    for dataset in pkg_settings['datasets']:
+    for dataset in datapkg_settings['datasets']:
         try:
             partitions[table]
         except KeyError:
@@ -150,27 +150,27 @@ def package_files_from_table(table, pkg_settings):
     return(files)
 
 
-def get_repartitioned_tables(tables, partitions, pkg_settings):
+def get_repartitioned_tables(tables, partitions, datapkg_settings):
     """
     Get the re-partitioned tables.
 
     Args:
         tables (list): a list of tables that are included in this data package.
         partitions (dict)
-        pkg_settings (dict): a dictionary containing package settings
+        datapkg_settings (dict): a dictionary containing package settings
             containing top level elements of the data package JSON descriptor
             specific to the data package.
     Returns:
         list: list of tables including full groups of
     """
-    flat_pkg_settings = pudl.etl.get_flattened_etl_parameters(
-        [pkg_settings])
+    flat_datapkg_settings = pudl.etl.get_flattened_etl_parameters(
+        [datapkg_settings])
     tables_repartitioned = []
     for table in tables:
         if partitions:
             for part in partitions.keys():
                 if part is table:
-                    for part_separator in flat_pkg_settings[partitions[part]]:
+                    for part_separator in flat_datapkg_settings[partitions[part]]:
                         tables_repartitioned.append(
                             table + "_" + str(part_separator))
                 else:
@@ -203,14 +203,14 @@ def data_sources_from_tables(table_names):
     return table_sources
 
 
-def get_foreign_key_relash_from_pkg(pkg_json):
+def get_foreign_key_relash_from_datapkg(datapkg_json):
     """Generate a dictionary of foreign key relationships from pkging metadata.
 
     This function helps us pull all of the foreign key relationships of all
     of the tables in the metadata.
 
     Args:
-        datapackage_json_path (path-like): Path to the datapackage.json
+        datapkg_json (path-like): Path to the datapackage.json
             containing the schema from which the foreign key relationships
             will be read
 
@@ -218,7 +218,7 @@ def get_foreign_key_relash_from_pkg(pkg_json):
         dict: list of foreign key tables
 
     """
-    with open(pkg_json) as md:
+    with open(datapkg_json) as md:
         metadata = json.load(md)
 
     fk_relash = {}
@@ -232,7 +232,7 @@ def get_foreign_key_relash_from_pkg(pkg_json):
     return(fk_relash)
 
 
-def get_dependent_tables_pkg(table_name, fk_relash):
+def get_dependent_tables_datapkg(table_name, fk_relash):
     """
     For a given table, get the list of all the other tables it depends on.
 
@@ -260,7 +260,7 @@ def get_dependent_tables_pkg(table_name, fk_relash):
     for table_name in new_table_names:
         logger.debug(f"Finding dependent tables for {table_name}")
         dependent_tables.add(table_name)
-        for t in get_dependent_tables_pkg(table_name, fk_relash):
+        for t in get_dependent_tables_datapkg(table_name, fk_relash):
             dependent_tables.add(t)
 
     return dependent_tables
@@ -283,19 +283,19 @@ def get_dependent_tables_from_list(table_names):
         tables depends on, via ForeignKey constraints.
 
     """
-    with importlib.resources.path('pudl.package_data.meta.datapackage',
+    with importlib.resources.path('pudl.package_data.meta.datapkg',
                                   'datapackage.json') as md:
-        fk_relash = get_foreign_key_relash_from_pkg(md)
+        fk_relash = get_foreign_key_relash_from_datapkg(md)
 
         all_the_tables = set()
         for t in table_names:
-            for x in get_dependent_tables_pkg(t, fk_relash):
+            for x in get_dependent_tables_datapkg(t, fk_relash):
                 all_the_tables.add(x)
 
     return all_the_tables
 
 
-def test_file_consistency(tables, pkg_settings, pkg_dir):
+def test_file_consistency(tables, datapkg_settings, datapkg_dir):
     """
     Test the consistency of tables for packaging.
 
@@ -309,10 +309,10 @@ def test_file_consistency(tables, pkg_settings, pkg_dir):
     which are tested against the CSVs present in the package directory.
 
     Args:
-        pkg_name (string): the name of the data package.
+        datapkg_name (string): the name of the data package.
         tables (list): a list of table names to be tested.
-        pkg_dir (path-like): the directory in which to check the consistency
-            of table files
+        datapkg_dir (path-like): the directory in which to check the
+            consistency of table files
 
     Raises:
         AssertionError: If the tables in the CSVs and the ETL tables are not
@@ -322,43 +322,32 @@ def test_file_consistency(tables, pkg_settings, pkg_dir):
         Determine what to do with the dependent tables check.
 
     """
-    pkg_name = pkg_settings['name']
+    datapkg_name = datapkg_settings['name']
     # remove the '.csv' or the '.csv.gz' from the file names
     file_tbls = [re.sub(r'(\.csv.*$)', '', x) for x in os.listdir(
-        os.path.join(pkg_dir, 'data'))]
+        os.path.join(datapkg_dir, 'data'))]
     # given list of table names and partitions, generate list of expected files
-    pkg_files = tables
-    # pkg_files = []
-    # for table in tables:
-    #    pkg_file = package_files_from_table(table, pkg_settings)
-    #    pkg_files.extend(pkg_file)
+    datapkg_files = tables
 
     dependent_tbls = list(get_dependent_tables_from_list(tables))
     etl_tbls = tables
 
     dependent_tbls.sort()
     file_tbls.sort()
-    pkg_files.sort()
+    datapkg_files.sort()
     etl_tbls.sort()
     # TODO: determine what to do about the dependent_tbls... right now the
     # dependent tables include some glue tables for FERC in particular, but
     # we are imagining the glue tables will be in another data package...
-    if (file_tbls == pkg_files):  # & (dependent_tbls == etl_tbls)):
-        logger.info(f"Tables are consistent for {pkg_name} package")
+    if (file_tbls == datapkg_files):  # & (dependent_tbls == etl_tbls)):
+        logger.info(f"Tables are consistent for {datapkg_name} package")
     else:
         inconsistent_tbls = []
         for tbl in file_tbls:
-            if tbl not in pkg_files:
+            if tbl not in datapkg_files:
                 inconsistent_tbls.extend(tbl)
                 raise AssertionError(f"{tbl} from CSVs not in ETL tables")
 
-        # for tbl in dependent_tbls:
-        #    if tbl not in etl_tbls:
-        #        inconsistent_tbls.extend(tbl)
-        #        raise AssertionError(
-        #            f"{tbl} from forgien key relationships not in ETL tables")
-        # this is here for now just in case the previous two asserts don't work..
-        # we should probably just stick to one.
         raise AssertionError(
             f"Tables are inconsistent. "
             f"Missing tables include: {inconsistent_tbls}")
@@ -380,7 +369,7 @@ def pull_resource_from_megadata(table_name):
             metadata library.
 
     """
-    with importlib.resources.open_text('pudl.package_data.meta.datapackage',
+    with importlib.resources.open_text('pudl.package_data.meta.datapkg',
                                        'datapackage.json') as md:
         metadata_mega = json.load(md)
     # bc we partition the CEMS output, the CEMS table name includes the state,
@@ -436,7 +425,8 @@ def get_date_from_sources(sources, date_to_grab):
                 return str(max(param)) + "-21-31"
 
 
-def get_tabular_data_resource(table_name, pkg_dir, pkg_settings, partitions=False):
+def get_tabular_data_resource(table_name, datapkg_dir,
+                              datapkg_settings, partitions=False):
     """
     Create a Tabular Data Resource descriptor for a PUDL table.
 
@@ -450,7 +440,7 @@ def get_tabular_data_resource(table_name, pkg_dir, pkg_settings, partitions=Fals
             Tabular Data Resource descriptor
         pkg_dir (path-like): The location of the directory for this package.
             The data package directory will be a subdirectory in the
-            `datapackage_dir` directory, with the name of the package as the
+            `datapkg_dir` directory, with the name of the package as the
             name of the subdirectory.
 
     Returns:
@@ -460,9 +450,9 @@ def get_tabular_data_resource(table_name, pkg_dir, pkg_settings, partitions=Fals
     """
     # every time we want to generate the cems table, we want it compressed
     if 'epacems' in table_name:
-        abs_path = pathlib.Path(pkg_dir, 'data', f'{table_name}.csv.gz')
+        abs_path = pathlib.Path(datapkg_dir, 'data', f'{table_name}.csv.gz')
     else:
-        abs_path = pathlib.Path(pkg_dir, 'data', f'{table_name}.csv')
+        abs_path = pathlib.Path(datapkg_dir, 'data', f'{table_name}.csv')
 
     # pull the skeleton of the descriptor from the megadata file
     descriptor = pull_resource_from_megadata(table_name)
@@ -472,9 +462,11 @@ def get_tabular_data_resource(table_name, pkg_dir, pkg_settings, partitions=Fals
     descriptor['created'] = (datetime.datetime.utcnow().
                              replace(microsecond=0).isoformat() + 'Z')
 
-    unpartitioned_tables = get_unpartioned_tables([table_name], pkg_settings)
+    unpartitioned_tables = get_unpartioned_tables([table_name],
+                                                  datapkg_settings)
     data_sources = data_sources_from_tables(unpartitioned_tables)
-    descriptor['sources'] = get_source_metadata(data_sources, pkg_settings)
+    descriptor['sources'] = get_source_metadata(data_sources,
+                                                datapkg_settings)
     descriptor['start_date'] = \
         get_date_from_sources(descriptor['sources'], 'start_date')
     descriptor['end_date'] = \
@@ -502,7 +494,7 @@ def get_tabular_data_resource(table_name, pkg_dir, pkg_settings, partitions=Fals
     return descriptor
 
 
-def get_source_metadata(data_sources, pkg_settings):
+def get_source_metadata(data_sources, datapkg_settings):
     """Grab sources for metadata."""
     sources = []
     for src in data_sources:
@@ -510,7 +502,7 @@ def get_source_metadata(data_sources, pkg_settings):
             src_meta = {"title": pc.source_titles[src],
                         "path": pc.base_data_urls[src],
                         "source_code": src}
-            for dataset_dict in pkg_settings['datasets']:
+            for dataset_dict in datapkg_settings['datasets']:
                 for dataset in dataset_dict:
                     # because we have defined eia as a dataset, but 860 and 923
                     # are separate sources, either the dataset must be or be in
@@ -531,7 +523,7 @@ def get_keywords_from_sources(data_sources):
 
 def get_autoincrement_columns(unpartitioned_tables):
     """Grab the autoincrement columns for pkg tables."""
-    with importlib.resources.open_text('pudl.package_data.meta.datapackage',
+    with importlib.resources.open_text('pudl.package_data.meta.datapkg',
                                        'datapackage.json') as md:
         metadata_mega = json.load(md)
     autoincrement = {}
@@ -543,40 +535,40 @@ def get_autoincrement_columns(unpartitioned_tables):
     return autoincrement
 
 
-def validate_save_pkg(pkg_descriptor, pkg_dir):
+def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
     """
     Validate a data package descriptor and save it to a json file.
 
     Args:
-        pkg_descriptor (dict):
-        pkg_dir (path-like):
+        datapkg_descriptor (dict):
+        datapkg_dir (path-like):
 
     Returns:
         report
 
     """
     # Use that descriptor to instantiate a Package object
-    data_pkg = datapackage.Package(pkg_descriptor)
+    datapkg = datapackage.Package(datapkg_descriptor)
 
     # Validate the data package descriptor before we go to
     logger.info(
-        f"Validating JSON descriptor for {data_pkg.descriptor['name']} "
+        f"Validating JSON descriptor for {datapkg.descriptor['name']} "
         f"tabular data package...")
-    if not data_pkg.valid:
+    if not datapkg.valid:
         raise ValueError(
-            f"Invalid tabular data package: {data_pkg.descriptor['name']} "
-            f"Errors: {data_pkg.errors}")
+            f"Invalid tabular data package: {datapkg.descriptor['name']} "
+            f"Errors: {datapkg.errors}")
     logger.info('JSON descriptor appears valid!')
 
     # pkg_json is the datapackage.json that we ultimately output:
-    pkg_json = os.path.join(pkg_dir, "datapackage.json")
-    data_pkg.save(pkg_json)
+    datapkg_json = os.path.join(datapkg_dir, "datapackage.json")
+    datapkg.save(datapkg_json)
     logger.info(
-        f"Validating a sample of data from {data_pkg.descriptor['name']} "
+        f"Validating a sample of data from {datapkg.descriptor['name']} "
         f"tabular data package using goodtables...")
     # Validate the data within the package using goodtables:
     report = goodtables.validate(
-        pkg_json,
+        datapkg_json,
         # TODO: check which checks are applied... and uncomment out the line
         # below when the checks are integrated
         # checks=['structure', 'schema', 'foreign-key'],
@@ -595,8 +587,11 @@ def validate_save_pkg(pkg_descriptor, pkg_dir):
     return report
 
 
-def generate_metadata(pkg_settings, tables, pkg_dir,
-                      uuid_pkgs=str(uuid.uuid4())):
+def generate_metadata(datapkg_settings,
+                      tables,
+                      datapkg_dir,
+                      datapkg_bundle_uuid=None,
+                      datapkg_bundle_doi=None):
     """
     Generate metadata for package tables and validate package.
 
@@ -610,22 +605,26 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
     http://frictionlessdata.io/specs/tabular-data-package/
 
     Args:
-        pkg_settings (dict): a dictionary containing package settings
+        datapkg_settings (dict): a dictionary containing package settings
             containing top level elements of the data package JSON descriptor
             specific to the data package including:
-            * name: short package name e.g. pudl-eia923, ferc1-test, cems_pkg
+            * name: short package name e.g. pudl-eia923, ferc1-test
             * title: One line human readable description.
             * description: A paragraph long description.
+            * version: the version of the data package being published.
             * keywords: For search purposes.
         tables (list): a list of tables that are included in this data package.
-        pkg_dir (path-like): The location of the directory for this package.
-            The data package directory will be a subdirectory in the
-            `datapackage_dir` directory, with the name of the package as the
+        datapkg_dir (path-like): The location of the directory for this
+            package. The data package directory will be a subdirectory in the
+            `datapkg_dir` directory, with the name of the package as the
             name of the subdirectory.
-        uuid_pkgs:
-
-    Todo:
-        Return to (uuid_pkgs)
+        datapkg_bundle_uuid: A type 4 UUID identifying the ETL run which
+            which generated the data package -- this indicates that the data
+            packages are compatible with each other
+        datapkg_bundle_doi: A digital object identifier (DOI) that will be used
+            to archive the bundle of mutually compatible data packages. Needs
+            to be provided by an archiving service like Zenodo. This field may
+            also be added after the data package has been generated.
 
     Returns:
         datapackage.package.Package: a datapackage. See frictionlessdata specs.
@@ -635,29 +634,32 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
     """
     # Create a tabular data resource for each of the tables.
     resources = []
-    partitions = compile_partitions(pkg_settings)
+    partitions = compile_partitions(datapkg_settings)
     for table in tables:
-        resources.append(get_tabular_data_resource(table,
-                                                   pkg_dir=pkg_dir,
-                                                   pkg_settings=pkg_settings,
-                                                   partitions=partitions))
+        resources.append(get_tabular_data_resource(
+            table,
+            datapkg_dir=datapkg_dir,
+            datapkg_settings=datapkg_settings,
+            partitions=partitions)
+        )
 
-    unpartitioned_tables = get_unpartioned_tables(tables, pkg_settings)
+    unpartitioned_tables = get_unpartioned_tables(tables, datapkg_settings)
     data_sources = data_sources_from_tables(unpartitioned_tables)
     autoincrement = get_autoincrement_columns(unpartitioned_tables)
-    sources = get_source_metadata(data_sources, pkg_settings)
+    sources = get_source_metadata(data_sources, datapkg_settings)
 
     contributors = set()
     for src in data_sources:
         for c in pudl.constants.contributors_by_source[src]:
             contributors.add(c)
 
-    pkg_descriptor = {
-        "name": pkg_settings["name"],
+    # Fields which we are requiring:
+    datapkg_descriptor = {
+        "name": datapkg_settings["name"],
+        "id": str(uuid.uuid4()),
         "profile": "tabular-data-package",
-        "title": pkg_settings["title"],
-        "bundle-id-pudl": uuid_pkgs,
-        "description": pkg_settings["description"],
+        "title": datapkg_settings["title"],
+        "description": datapkg_settings["description"],
         "keywords": get_keywords_from_sources(data_sources),
         "homepage": "https://catalyst.coop/pudl/",
         "created": (datetime.datetime.utcnow().
@@ -666,33 +668,66 @@ def generate_metadata(pkg_settings, tables, pkg_dir,
         "sources": sources,
         "licenses": [pudl.constants.licenses["cc-by-4.0"]],
         "autoincrement": autoincrement,
-        "resources": resources,
         "python-package-name": "catalystcoop.pudl",
         "python-package-version":
-            pkg_resources.get_distribution('catalystcoop.pudl').version
+            pkg_resources.get_distribution('catalystcoop.pudl').version,
+        "resources": resources,
     }
 
-    report = validate_save_pkg(pkg_descriptor, pkg_dir)
+    # Optional fields:
+    try:
+        datapkg_descriptor["version"] = datapkg_settings["version"]
+    except KeyError:
+        pass
+
+    # The datapackage bundle UUID indicates packages can be used together
+    if datapkg_bundle_uuid is not None:
+        # Check to make sure it's a valid Type 4 UUID.
+        # If it's not the right kind of hex value or string, this will fail:
+        val = uuid.UUID(datapkg_bundle_uuid, version=4)
+        # If it's nominally a Type 4 UUID, but these come back different,
+        # something is wrong:
+        if uuid.UUID(val.hex, version=4) != uuid.UUID(str(val), version=4):
+            raise ValueError(
+                f"Got invalid type 4 UUID: {datapkg_bundle_uuid} "
+                f"as bundle ID for data package {datapkg_settings['name']}."
+            )
+        # Guess it looks okay!
+        datapkg_descriptor["datapkg-bundle-uuid"] = datapkg_bundle_uuid
+
+    # Check the proffered DOI, if any, against this regex, taken from the
+    # idutils python package:
+    if datapkg_bundle_doi is not None:
+        if not pudl.helpers.is_doi(datapkg_bundle_doi):
+            raise ValueError(
+                f"Got invalid DOI: {datapkg_bundle_doi} "
+                f"as bundle DOI for data package {datapkg_settings['name']}."
+            )
+        datapkg_descriptor["datapkg-bundle-doi"] = datapkg_bundle_doi
+
+    report = validate_save_datapkg(datapkg_descriptor, datapkg_dir)
     return report
 
 
-def prep_directory(dir_path,
-                   clobber=False):
+def prep_directory(dir_path, clobber=False):
     """
     Create (or delete and create) data package directory.
 
     Args:
         dir_path (path-like): path to the directory that you are trying to
             clean and prepare.
-        debug (bool): If True, return a dictionary with package names (keys)
-            and a list with the data package metadata and report (values).
+        clobber (bool): If True and dir_path exists, it will be removed and
+            replaced with a new, empty directory.
+
+    Raises:
+        FileExistsError: if a file or directory already exists at dir_path.
 
     Returns:
-        path-like
+        path-like: dir_path.
 
     """
     if os.path.exists(dir_path) and (clobber is False):
-        raise AssertionError(
+        raise FileExistsError(
             f'{dir_path} already exists and clobber is set to {clobber}')
     elif os.path.exists(dir_path) and (clobber is True):
         shutil.rmtree(dir_path)

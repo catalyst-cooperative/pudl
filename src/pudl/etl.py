@@ -122,7 +122,7 @@ def _validate_params_eia(etl_params):  # noqa: C901
         return eia_input_dict
 
 
-def _load_static_tables_eia(pkg_dir):
+def _load_static_tables_eia(datapkg_dir):
     """Populate static EIA tables with constants for use as foreign keys.
 
     There are many values specified within the data that are essentially
@@ -162,12 +162,11 @@ def _load_static_tables_eia(pkg_dir):
     # CSVs
     pudl.load.csv.dict_dump(static_dfs,
                             "Static EIA Tables",
-                            need_fix_inting=pc.need_fix_inting,
-                            pkg_dir=pkg_dir)
+                            datapkg_dir=datapkg_dir)
     return list(static_dfs.keys())
 
 
-def _etl_eia_pkg(etl_params, data_dir, pkg_dir):
+def _etl_eia_datapkg(etl_params, data_dir, datapkg_dir):
     eia_inputs = _validate_params_eia(etl_params)
     eia923_tables = eia_inputs['eia923_tables']
     eia923_years = eia_inputs['eia923_years']
@@ -180,7 +179,7 @@ def _etl_eia_pkg(etl_params, data_dir, pkg_dir):
         return []
 
     # generate CSVs for the static EIA tables, return the list of tables
-    static_tables = _load_static_tables_eia(pkg_dir)
+    static_tables = _load_static_tables_eia(datapkg_dir)
 
     # Extract EIA forms 923, 860
     eia923_raw_dfs = pudl.extract.eia923.extract(eia923_years=eia923_years,
@@ -214,8 +213,7 @@ def _etl_eia_pkg(etl_params, data_dir, pkg_dir):
     for data_source, transformed_df in transformed_dfs.items():
         pudl.load.csv.dict_dump(transformed_df,
                                 data_source,
-                                need_fix_inting=pc.need_fix_inting,
-                                pkg_dir=pkg_dir)
+                                datapkg_dir=datapkg_dir)
 
     return list(eia_transformed_dfs.keys()) + list(entities_dfs.keys()) + static_tables
 
@@ -259,7 +257,7 @@ def _validate_params_ferc1(etl_params):  # noqa: C901
         return ferc1_dict
 
 
-def _load_static_tables_ferc(pkg_dir):
+def _load_static_tables_ferc(datapkg_dir):
     """Populate static PUDL tables with constants for use as foreign keys.
 
     There are many values specified within the data that are essentially
@@ -288,13 +286,12 @@ def _load_static_tables_ferc(pkg_dir):
     # CSVs
     pudl.load.csv.dict_dump(static_dfs,
                             "Static FERC Tables",
-                            need_fix_inting=pc.need_fix_inting,
-                            pkg_dir=pkg_dir)
+                            datapkg_dir=datapkg_dir)
 
     return list(static_dfs.keys())
 
 
-def _etl_ferc1_pkg(etl_params, pudl_settings, pkg_dir):
+def _etl_ferc1_datapkg(etl_params, pudl_settings, datapkg_dir):
     ferc1_inputs = _validate_params_ferc1(etl_params)
 
     ferc1_years = ferc1_inputs['ferc1_years']
@@ -304,7 +301,7 @@ def _etl_ferc1_pkg(etl_params, pudl_settings, pkg_dir):
         logger.info('Not loading FERC1')
         return []
 
-    static_tables = _load_static_tables_ferc(pkg_dir)
+    static_tables = _load_static_tables_ferc(datapkg_dir)
     # Extract FERC form 1
     ferc1_raw_dfs = pudl.extract.ferc1.extract(
         ferc1_tables=ferc1_tables,
@@ -316,8 +313,7 @@ def _etl_ferc1_pkg(etl_params, pudl_settings, pkg_dir):
     # Load FERC form 1
     pudl.load.csv.dict_dump(ferc1_transformed_dfs,
                             "FERC 1",
-                            need_fix_inting=pc.need_fix_inting,
-                            pkg_dir=pkg_dir)
+                            datapkg_dir=datapkg_dir)
     return list(ferc1_transformed_dfs.keys()) + static_tables
 
 ###############################################################################
@@ -364,20 +360,24 @@ def _validate_params_epacems(etl_params):
         return epacems_dict
 
 
-def _etl_epacems_part(part, epacems_years, epacems_states, data_dir, pkg_dir):
+def _etl_epacems_part(part,
+                      epacems_years,
+                      epacems_states,
+                      data_dir,
+                      datapkg_dir):
     # NOTE: This a generator for raw dataframes
     epacems_raw_dfs = pudl.extract.epacems.extract(
         epacems_years=[part], states=epacems_states, data_dir=data_dir)
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform(
-        epacems_raw_dfs=epacems_raw_dfs, pkg_dir=pkg_dir)
+        epacems_raw_dfs=epacems_raw_dfs, datapkg_dir=datapkg_dir)
     logger.info("Loading tables from EPA CEMS into PUDL:")
     if logger.isEnabledFor(logging.INFO):
         start_time = time.monotonic()
     table_name = f"hourly_emissions_epacems_{part}"
     with pudl.load.csv.BulkCopy(
             table_name=table_name,
-            pkg_dir=pkg_dir) as loader:
+            datapkg_dir=datapkg_dir) as loader:
 
         for transformed_df_dict in epacems_transformed_dfs:
             # There's currently only one dataframe in this dict at a time,
@@ -394,7 +394,7 @@ def _etl_epacems_part(part, epacems_years, epacems_states, data_dir, pkg_dir):
     return(table_name)
 
 
-def _etl_epacems_pkg(etl_params, data_dir, pkg_dir):
+def _etl_epacems_datapkg(etl_params, data_dir, datapkg_dir):
     epacems_dict = pudl.etl._validate_params_epacems(etl_params)
     epacems_years = epacems_dict['epacems_years']
     epacems_states = epacems_dict['epacems_states']
@@ -408,7 +408,7 @@ def _etl_epacems_pkg(etl_params, data_dir, pkg_dir):
         epacems_years=epacems_years, states=epacems_states, data_dir=data_dir)
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform(
-        epacems_raw_dfs=epacems_raw_dfs, pkg_dir=pkg_dir)
+        epacems_raw_dfs=epacems_raw_dfs, datapkg_dir=datapkg_dir)
 
     logger.info("Loading tables from EPA CEMS into PUDL:")
     if logger.isEnabledFor(logging.INFO):
@@ -418,8 +418,7 @@ def _etl_epacems_pkg(etl_params, data_dir, pkg_dir):
     for transformed_df_dict in epacems_transformed_dfs:
         pudl.load.csv.dict_dump(transformed_df_dict,
                                 "EPA CEMS",
-                                need_fix_inting=pc.need_fix_inting,
-                                pkg_dir=pkg_dir)
+                                datapkg_dir=datapkg_dir)
         epacems_tables.append(list(transformed_df_dict.keys())[0])
     if logger.isEnabledFor(logging.INFO):
         time_message = "    Loading    EPA CEMS took {}".format(
@@ -455,7 +454,7 @@ def _validate_params_epaipm(etl_params):
     return(epaipm_dict)
 
 
-def _load_static_tables_epaipm(pkg_dir):
+def _load_static_tables_epaipm(datapkg_dir):
     """Populate static PUDL tables with constants for use as foreign keys.
 
     For IPM, there is only one list of regional id's stored in constants that
@@ -463,12 +462,13 @@ def _load_static_tables_epaipm(pkg_dir):
     resources in IPM rely on the regional_id_epaipm as a foreign key.
 
     Args:
-        pkg_dir (path-like): The location of the directory for this package.
-            The data package directory will be a subdirectory in the
-            `datapackage_dir` directory, with the name of the package as the
+        datapkg_dir (path-like): The location of the directory for this
+            package. The data package directory will be a subdirectory in the
+            `datapkg_dir` directory, with the name of the package as the
             name of the subdirectory.
     Returns:
         iterable: list of tables
+
     """
     # compile the dfs in a dictionary, prep for dict_dump
     static_dfs = {'regions_entity_epaipm':
@@ -478,21 +478,20 @@ def _load_static_tables_epaipm(pkg_dir):
     # CSVs
     pudl.load.csv.dict_dump(static_dfs,
                             "Static IPM Tables",
-                            need_fix_inting=pc.need_fix_inting,
-                            pkg_dir=pkg_dir)
+                            datapkg_dir=datapkg_dir)
 
     return list(static_dfs.keys())
 
 
-def _etl_epaipm(etl_params, data_dir, pkg_dir):
+def _etl_epaipm(etl_params, data_dir, datapkg_dir):
     """Extracts, transforms and loads CSVs for EPA IPM.
 
     Args:
         etl_params (iterable): dictionary of parameters for etl
         data_dir (path-like): The location of the directory for the data store.
-        pkg_dir (path-like): The location of the directory for this package.
-            The data package directory will be a subdirectory in the
-            `datapackage_dir` directory, with the name of the package as the
+        datapkg_dir (path-like): The location of the directory for this
+            package. The data package directory will be a subdirectory in the
+            `datapkg_dir` directory, with the name of the package as the
             name of the subdirectory.
     Returns:
         iterable: list of tables
@@ -502,7 +501,7 @@ def _etl_epaipm(etl_params, data_dir, pkg_dir):
     if not epaipm_tables:
         logger.info('Not ingesting EPA IPM.')
         return []
-    static_tables = _load_static_tables_epaipm(pkg_dir)
+    static_tables = _load_static_tables_epaipm(datapkg_dir)
 
     # Extract IPM tables
     epaipm_raw_dfs = pudl.extract.epaipm.extract(
@@ -512,12 +511,8 @@ def _etl_epaipm(etl_params, data_dir, pkg_dir):
         epaipm_raw_dfs, epaipm_tables
     )
 
-    pudl.load.csv.dict_dump(
-        epaipm_transformed_dfs,
-        "EPA IPM",
-        need_fix_inting=pc.need_fix_inting,
-        pkg_dir=pkg_dir
-    )
+    pudl.load.csv.dict_dump(epaipm_transformed_dfs, "EPA IPM",
+                            datapkg_dir=datapkg_dir)
 
     return list(epaipm_transformed_dfs.keys()) + static_tables
 
@@ -544,7 +539,7 @@ def _validate_params_glue(etl_params):
         return(glue_dict)
 
 
-def _etl_glue(etl_params, pkg_dir):
+def _etl_glue(etl_params, datapkg_dir):
     """Grab the glue tables and generate CSVs.
 
     Right now, this function only generates the glue between EIA and FERC.
@@ -560,10 +555,7 @@ def _etl_glue(etl_params, pkg_dir):
         eia=glue_dict['eia']
     )
 
-    pudl.load.csv.dict_dump(glue_dfs,
-                            "Glue",
-                            need_fix_inting=pc.need_fix_inting,
-                            pkg_dir=pkg_dir)
+    pudl.load.csv.dict_dump(glue_dfs, "Glue", datapkg_dir=datapkg_dir)
     return list(glue_dfs.keys())
 
 
@@ -571,16 +563,16 @@ def _etl_glue(etl_params, pkg_dir):
 # Coordinating functions
 ###############################################################################
 
-def _prep_directories(pkg_dir):
+def _prep_directories(datapkg_dir):
     """Prepare data package directories to receive CSVs."""
     # delete package directories if they exist
-    if os.path.exists(pkg_dir):
-        shutil.rmtree(pkg_dir)
+    if os.path.exists(datapkg_dir):
+        shutil.rmtree(datapkg_dir)
 
     # create the main package directory
-    os.mkdir(pkg_dir)
+    os.mkdir(datapkg_dir)
     # also create the data directory for the CSVs to live in
-    os.mkdir(os.path.join(pkg_dir, 'data'))
+    os.mkdir(os.path.join(datapkg_dir, 'data'))
 
 
 def _insert_glue_settings(dataset_dicts):
@@ -627,20 +619,20 @@ def _add_missing_parameters(flattened_params_dict):
     return flattened_params_dict
 
 
-def get_flattened_etl_parameters(pkg_bundle_settings):  # noqa: C901
+def get_flattened_etl_parameters(datapkg_bundle_settings):  # noqa: C901
     """
     Compile flattened etl parameters.
 
     Args:
-        pkg_bundle_settings (iterable): a list of data package parameters,
+        datapkg_bundle_settings (iterable): a list of data package parameters,
             with each element of the list being a dictionary specifying
             the data to be packaged.
     Returns:
         dict: dictionary of etl parameters (i.e. ferc1_years, eia923_years)
     """
     flattened_parameters = []
-    for pkg in pkg_bundle_settings:
-        for settings_dataset_dict in pkg['datasets']:
+    for datapkg in datapkg_bundle_settings:
+        for settings_dataset_dict in datapkg['datasets']:
             for dataset in settings_dataset_dict:
                 if settings_dataset_dict[dataset]:
                     flattened_parameters.append(settings_dataset_dict[dataset])
@@ -664,17 +656,19 @@ def get_flattened_etl_parameters(pkg_bundle_settings):  # noqa: C901
     return flattened_params_dict
 
 
-def validate_params(pkg_bundle_settings, pudl_settings):
+def validate_params(datapkg_bundle_settings, pudl_settings):
     """
     Read and validate the etl inputs from a settings file.
 
     Args:
-        pkg_bundle_settings (iterable): a list of data package parameters,
+        datapkg_bundle_settings (iterable): a list of data package parameters,
             with each element of the list being a dictionary specifying
             the data to be packaged.
+        pudl_settings (dict):
 
     Returns:
         iterable: validated list of inputs
+
     """
     logger.info('reading and validating etl settings')
     param_validation_functions = {
@@ -687,15 +681,23 @@ def validate_params(pkg_bundle_settings, pudl_settings):
     # where we are going to compile the new validated settings
     validated_settings = []
     # for each of the packages, rebuild the settings
-    for pkg in pkg_bundle_settings:
-        validated_pkg_settings = {}
-        validated_pkg_settings.update({
-            'name': pkg['name'],
-            'title': pkg['title'],
-            'description': pkg['description']
+    for datapkg in datapkg_bundle_settings:
+        validated_datapkg_settings = {}
+        # Required fields:
+        validated_datapkg_settings.update({
+            'name': datapkg['name'],
+            'title': datapkg['title'],
+            'description': datapkg['description'],
         })
+        # Optional fields...
+        for field in ["version", "datapkg_bundle_doi"]:
+            try:
+                validated_datapkg_settings[field] = datapkg[field]
+            except KeyError:
+                pass
+
         dataset_dicts = []
-        for settings_dataset_dict in pkg['datasets']:
+        for settings_dataset_dict in datapkg['datasets']:
             for dataset in settings_dataset_dict:
                 etl_params = param_validation_functions[dataset](
                     settings_dataset_dict[dataset])
@@ -704,25 +706,26 @@ def validate_params(pkg_bundle_settings, pudl_settings):
                     dataset_dicts.extend([validated_dataset_dict])
         dataset_dicts = _insert_glue_settings(dataset_dicts)
         if dataset_dicts:
-            validated_pkg_settings['datasets'] = dataset_dicts
-            validated_settings.extend([validated_pkg_settings])
+            validated_datapkg_settings['datasets'] = dataset_dicts
+            validated_settings.extend([validated_datapkg_settings])
     return(validated_settings)
 
 
-def etl_pkg(pkg_settings, pudl_settings, pkg_bundle_dir):
+def etl_datapkg(datapkg_settings, pudl_settings, datapkg_bundle_dir):
     """Extracts, transforms and loads CSVs.
 
-    This is the coordinating function for generating all of the CSV's for a data
-    package. For each of the datasets enumerated in the pkg_settings, this
-    function runs the dataset specific ETL function. Along the way, we are
+    This is the coordinating function for generating all of the CSV's for a
+    data package. For each of the datasets enumerated in the datapkg_settings,
+    this function runs the dataset specific ETL function. Along the way, we are
     accumulating which tables have been loaded. This is useful for generating
     the metadata associated with the package.
 
     Args:
-        pkg_settings (dict) : a dictionary of etl_params for a datapackage.
+        datapkg_settings (dict) : a dictionary of etl_params for a datapackage.
         pudl_settings (dict) : a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
-        uuid_pkgs (uuid)
+        datapkg_bundle_dir (path-like): Directory where the bundle of data
+            packages will be output.
 
     Returns:
         dict: dictionary with datapackpackages (keys) and
@@ -731,42 +734,41 @@ def etl_pkg(pkg_settings, pudl_settings, pkg_bundle_dir):
     """
     # a dictionary to compile the list of tables being loaded for each package
     # define the package directory
-    pkg_dir = os.path.join(pkg_bundle_dir,
-                           pkg_settings['name'])
+    datapkg_dir = os.path.join(datapkg_bundle_dir, datapkg_settings['name'])
     # prepping the directories where the pkges will live
-    _prep_directories(pkg_dir)
+    _prep_directories(datapkg_dir)
     # compile a list of tables in each dataset
     tables = []
-    for dataset_dict in pkg_settings['datasets']:
+    for dataset_dict in datapkg_settings['datasets']:
         for dataset in dataset_dict:
             if dataset == 'eia':
-                tbls = _etl_eia_pkg(
+                tbls = _etl_eia_datapkg(
                     dataset_dict['eia'],
                     data_dir=pudl_settings['data_dir'],
-                    pkg_dir=pkg_dir
+                    datapkg_dir=datapkg_dir
                 )
             elif dataset == 'ferc1':
-                tbls = _etl_ferc1_pkg(
+                tbls = _etl_ferc1_datapkg(
                     dataset_dict['ferc1'],
                     pudl_settings=pudl_settings,
-                    pkg_dir=pkg_dir
+                    datapkg_dir=datapkg_dir
                 )
             elif dataset == 'epacems':
-                tbls = _etl_epacems_pkg(
+                tbls = _etl_epacems_datapkg(
                     dataset_dict['epacems'],
                     data_dir=pudl_settings['data_dir'],
-                    pkg_dir=pkg_dir
+                    datapkg_dir=datapkg_dir
                 )
             elif dataset == 'glue':
                 tbls = _etl_glue(
                     dataset_dict['glue'],
-                    pkg_dir=pkg_dir
+                    datapkg_dir=datapkg_dir
                 )
             elif dataset == 'epaipm':
                 tbls = _etl_epaipm(
                     dataset_dict['epaipm'],
                     data_dir=pudl_settings['data_dir'],
-                    pkg_dir=pkg_dir
+                    datapkg_dir=datapkg_dir
                 )
             else:
                 raise AssertionError(
@@ -777,11 +779,12 @@ def etl_pkg(pkg_settings, pudl_settings, pkg_bundle_dir):
     return tables
 
 
-def generate_data_packages(pkg_bundle_settings,
-                           pudl_settings,
-                           pkg_bundle_name,
-                           debug=False,
-                           clobber=False):
+def generate_datapkg_bundle(datapkg_bundle_settings,
+                            pudl_settings,
+                            datapkg_bundle_name,
+                            datapkg_bundle_doi=None,
+                            debug=False,
+                            clobber=False):
     """
     Coordinate the generation of data packages.
 
@@ -794,18 +797,19 @@ def generate_data_packages(pkg_bundle_settings,
     the schema for all of the possible pudl tables).
 
     Args:
-        pkg_bundle_settings (iterable) : a list of dictionaries. Each item in
-            the list corresponds to a data package. Each data package's
+        datapkg_bundle_settings (iterable) : a list of dictionaries. Each item
+            in the list corresponds to a data package. Each data package's
             dictionary contains the arguements for its ETL function.
         pudl_settings (dict) : a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
-        pkg_bundle_name (string): name of directory you want the bundle of
+        datapkg_bundle_name (string): name of directory you want the bundle of
             data packages to live.
         debug (bool): If True, return a dictionary with package names (keys)
             and a list with the data package metadata and report (values).
         clobber (bool): If True and there is already a directory with data
-            packages with the pkg_bundle_name, the existing data packages will
-            be deleted and new data packages will be generated in their place.
+            packages with the datapkg_bundle_name, the existing data packages
+            will be deleted and new data packages will be generated in their
+            place.
 
     Returns:
         tuple: A tuple containing generated metadata for the packages laid out
@@ -814,37 +818,38 @@ def generate_data_packages(pkg_bundle_settings,
     """
     # validate the settings from the settings file.
     validated_bundle_settings = validate_params(
-        pkg_bundle_settings, pudl_settings)
-    uuid_pkgs = str(uuid.uuid4())
+        datapkg_bundle_settings, pudl_settings)
 
-    pkg_bundle_dir = pudl.load.metadata.prep_directory(
-        pathlib.Path(pudl_settings['datapackage_dir'], pkg_bundle_name),
+    # Generate a random UUID to identify this ETL run / data package bundle
+    datapkg_bundle_uuid = str(uuid.uuid4())
+
+    datapkg_bundle_dir = pudl.load.metadata.prep_directory(
+        pathlib.Path(pudl_settings['datapkg_dir'], datapkg_bundle_name),
         clobber=clobber)
 
     metas = {}
-    for pkg_settings in validated_bundle_settings:
-        pkg_dir = pathlib.Path(pkg_bundle_dir, pkg_settings['name'])
+    for datapkg_settings in validated_bundle_settings:
+        datapkg_dir = pathlib.Path(datapkg_bundle_dir,
+                                   datapkg_settings['name'])
         # run the ETL functions for this pkg and return the list of tables
         # dumped to CSV
-        pkg_tables = etl_pkg(pkg_settings, pudl_settings, pkg_bundle_dir)
-        # assure that the list of tables from ETL match up with the CVSs and
-        # dependent tables
-        # pudl.load.metadata.test_file_consistency(
-        #    pkg_tables,
-        #    pkg_settings,
-        #    pkg_dir=pkg_dir)
+        datapkg_tables = etl_datapkg(datapkg_settings,
+                                     pudl_settings,
+                                     datapkg_bundle_dir)
 
-        if pkg_tables:
+        if datapkg_tables:
             # generate the metadata for the package and validate
             # TODO: we'll probably want to remove this double return... but having
             # the report and the metadata while debugging is very useful.
             report = pudl.load.metadata.generate_metadata(
-                pkg_settings,
-                pkg_tables,
-                pkg_dir,
-                uuid_pkgs=uuid_pkgs)
-            metas[pkg_settings['name']] = report
+                datapkg_settings,
+                datapkg_tables,
+                datapkg_dir,
+                datapkg_bundle_uuid=datapkg_bundle_uuid,
+                datapkg_bundle_doi=datapkg_bundle_doi)
+            metas[datapkg_settings['name']] = report
         else:
-            logger.info(f"Not generating metadata for {pkg_settings['name']}")
+            logger.info(
+                f"Not generating metadata for {datapkg_settings['name']}")
     if debug:
         return (metas)

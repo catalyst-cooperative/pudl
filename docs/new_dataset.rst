@@ -16,7 +16,7 @@ In general the process for adding a new data source looks like this:
    the ``pudl_data`` script.
 #. Define well normalized data tables for the new data source in the
    metadata, which is stored in
-   ``src/pudl/package_data/meta/datapackage/datapackage.json``.
+   ``src/pudl/package_data/meta/datapkg/datapackage.json``.
 #. Add a module to the :mod:`pudl.extract` subpackage that generates raw
    dataframes containing the new data source's information from whatever its
    original format was.
@@ -76,7 +76,7 @@ Describe Table Metadata
 
 Add table description into `resources` in the  the mega-data: the metadata file
 that contains all of the PUDL table descriptions
-(``src/pudl/package_data/meta/datapackage/datapackage.json``). The resource
+(``src/pudl/package_data/meta/datapkg/datapackage.json``). The resource
 descriptions must conform to the `Frictionless Data specifications <https://frictionlessdata.io/specs/>`__,
 specifically the specifications for a `tabular data resource <https://frictionlessdata.io/specs/tabular-data-resource/>`__.
 The `table schema specification <https://frictionlessdata.io/specs/table-schema/>`__ will be particularly helpful.

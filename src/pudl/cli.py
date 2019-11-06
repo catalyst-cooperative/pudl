@@ -51,8 +51,8 @@ def parse_command_line(argv):
         action='store_true',
         help="""Clobber existing datapackages if they exist. If clobber is not
         included but the datapackage bundle directory already exists the _build
-        will fail. Either the pkg_bundle_name in the settings_file needs to be
-        unique or you need to include --clobber""",
+        will fail. Either the datapkg_bundle_name in the settings_file needs to
+        be unique or you need to include --clobber""",
         default=False)
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -83,7 +83,7 @@ def main():
 
     logger.info('verifying that the data we need exists in the data store')
     flattened_params_dict = pudl.etl.get_flattened_etl_parameters(
-        script_settings['pkg_bundle_settings'])
+        script_settings['datapkg_bundle_settings'])
     pudl.helpers.verify_input_files(flattened_params_dict['ferc1_years'],
                                     flattened_params_dict['eia923_years'],
                                     flattened_params_dict['eia860_years'],
@@ -91,11 +91,22 @@ def main():
                                     flattened_params_dict['epacems_states'],
                                     pudl_settings)
 
-    pudl.etl.generate_data_packages(
-        script_settings['pkg_bundle_settings'],
+    try:
+        datapkg_bundle_doi = script_settings["datapkg_bundle_doi"]
+        if not pudl.helpers.is_doi(datapkg_bundle_doi):
+            raise ValueError(
+                f"Found invalid bundle DOI: {datapkg_bundle_doi} "
+                f"in bundle {script_settings['datpkg_bundle_name']}."
+            )
+    except KeyError:
+        datapkg_bundle_doi = None
+
+    pudl.etl.generate_datapkg_bundle(
+        script_settings['datapkg_bundle_settings'],
         pudl_settings,
         debug=False,
-        pkg_bundle_name=script_settings['pkg_bundle_name'],
+        datapkg_bundle_name=script_settings['datapkg_bundle_name'],
+        datapkg_bundle_doi=datapkg_bundle_doi,
         clobber=args.clobber)
 
 

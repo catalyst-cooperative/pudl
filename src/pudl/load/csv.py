@@ -27,8 +27,8 @@ class BulkCopy(contextlib.AbstractContextManager):
         buffer (int): Size of data to accumulate (in bytes) before actually
             writing the data into postgresql. (Approximate, because we don't
             introspect memory usage 'deeply'). Default 1 GB.
-        pkg_dir (str): Path to the directory into which the CSV file should be
-            saved, if it's being kept.
+        datapkg_dir (str): Path to the directory into which the CSV file should
+            be saved, if it's being kept.
     Example:
         >>> with BulkCopy(my_table, my_engine) as p:
                 for df in df_generator:
@@ -36,11 +36,11 @@ class BulkCopy(contextlib.AbstractContextManager):
 
     """
 
-    def __init__(self, table_name, pkg_dir, buffer=1024**3):
+    def __init__(self, table_name, datapkg_dir, buffer=1024**3):
         """Initialize the BulkCopy context manager."""
         self.table_name = table_name
         self.buffer = buffer
-        self.pkg_dir = pkg_dir
+        self.datapkg_dir = datapkg_dir
         # Initialize a list to keep the dataframes
         self.accumulated_dfs = []
         self.accumulated_size = 0
@@ -100,8 +100,7 @@ expected:
                 f"({round(self.accumulated_size/1024**2)} MB) into PUDL."
             )
 
-            # csv_dump(all_dfs, self.table_name, True, self.pkg_dir)
-            clean_columns_dump(self.table_name, self.pkg_dir, all_dfs)
+            clean_columns_dump(self.table_name, self.datapkg_dir, all_dfs)
             logger.info(
                 "================ Resume Number Crunching ================")
         self.accumulated_dfs = []
@@ -126,7 +125,7 @@ expected:
 # Packaging specific load step
 ###############################################################################
 
-def csv_dump(df, table_name, keep_index, pkg_dir):
+def csv_dump(df, table_name, keep_index, datapkg_dir):
     """Writes a dataframe to CSV, appending to the file if it already exists.
 
     Note that this creates an additional in-memory representation of the data,
@@ -136,16 +135,15 @@ def csv_dump(df, table_name, keep_index, pkg_dir):
         df (:mod:`pandas.DataFrame`): The DataFrame to be dumped to CSV.
         table_name (str): Used to name the CSV file.
         keep_index (bool): Should the output CSV file contain an index (id)?
-        pkg_dir (path-like): Path to the top level datapackage directory.
+        datapkg_dir (path-like): Path to the top level datapackage directory.
 
     Returns:
         None
 
     """
-    outfile = os.path.join(pkg_dir, 'data', table_name + '.csv')
+    outfile = os.path.join(datapkg_dir, 'data', table_name + '.csv')
     if 'epacems' in table_name:
-        outfile = os.path.join(pkg_dir, 'data', table_name + '.csv.gz')
-        # outfile = os.path.join(pkg_dir, 'data', table_name + '.csv')
+        outfile = os.path.join(datapkg_dir, 'data', table_name + '.csv.gz')
         df.to_csv(path_or_buf=outfile, mode='a',
                   compression='gzip',
                   index=False,
@@ -157,13 +155,13 @@ def csv_dump(df, table_name, keep_index, pkg_dir):
         df.to_csv(path_or_buf=outfile, index=False)
 
 
-def clean_columns_dump(table_name, pkg_dir, df):
+def clean_columns_dump(table_name, datapkg_dir, df):
     """
     Output the cleaned columns to a CSV file.
 
     Args:
         table_name (str):
-        pkg_dir (path-like):
+        datapkg_dir (path-like):
         df (pandas.DataFrame):
 
     Returns:
@@ -190,7 +188,7 @@ def clean_columns_dump(table_name, pkg_dir, df):
                 f"metadata JSON descriptor and dataframe for {table_name}!"
             )
         df = df.reindex(columns=columns)
-        csv_dump(df, table_name, keep_index=False, pkg_dir=pkg_dir)
+        csv_dump(df, table_name, keep_index=False, datapkg_dir=datapkg_dir)
     # there are also a ton of tables that use the `id` column as an auto-
     # autoincrement id/primary key. For these tables, the index will end up
     # as the id column so we want to remove the `id` in the list of columns
@@ -206,13 +204,10 @@ def clean_columns_dump(table_name, pkg_dir, df):
             )
         df = df.reset_index(drop=True)
         df = df.reindex(columns=columns)
-        csv_dump(df, table_name, keep_index=True, pkg_dir=pkg_dir)
+        csv_dump(df, table_name, keep_index=True, datapkg_dir=datapkg_dir)
 
 
-def dict_dump(transformed_dfs,
-              data_source,
-              need_fix_inting=pc.need_fix_inting,
-              pkg_dir=''):
+def dict_dump(transformed_dfs, data_source, datapkg_dir=''):
     """
     Wrapper for _csv_dump for each data source.
 
@@ -224,7 +219,7 @@ def dict_dump(transformed_dfs,
         need_fix_inting (dict): A dictionary containing table names (keys) and
             column names for each table that need their null values cleaned up
             (values).
-        pkg_dir (path-like): Path to the directory into which the CSV file
+        datapkg_dir (path-like): Path to the directory into which the CSV file
             should be saved, if it's being kept.
 
     Returns:
@@ -233,7 +228,7 @@ def dict_dump(transformed_dfs,
     """
     for table_name, df in transformed_dfs.items():
         logger.info(f"Loading {data_source} {table_name} dataframe into CSV")
-        if table_name in list(need_fix_inting.keys()):
+        if table_name in pc.need_fix_inting:
             df = pudl.helpers.fix_int_na(
                 df, columns=pc.need_fix_inting[table_name])
-        clean_columns_dump(table_name, pkg_dir, df)
+        clean_columns_dump(table_name, datapkg_dir, df)

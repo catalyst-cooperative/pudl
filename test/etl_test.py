@@ -22,14 +22,14 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.datapkg
-def test_datapkg(datapkg):
+def test_datapkg_bundle(datapkg_bundle):
     """Generate limited packages for testing."""
     pass
 
 
 @pytest.mark.datapkg
-def test_datapkg_to_sqlite(datapkg_to_sqlite):
-    """Try flattening the data packages."""
+def test_pudl_engine(pudl_engine):
+    """Try creating a pudl_engine...."""
     pass
 
 
@@ -43,20 +43,19 @@ def test_ferc1_etl(ferc1_engine):
     pass
 
 
-def test_epacems_to_parquet(datapkg,
+def test_epacems_to_parquet(datapkg_bundle,
                             pudl_settings_fixture,
                             data_scope,
-                            fast_tests,
                             request):
     """Attempt to convert a small amount of EPA CEMS data to parquet format."""
     clobber = request.config.getoption("--clobber")
     logger.info(pathlib.Path(
-        pudl_settings_fixture['datapackage_dir'],
-        data_scope['pkg_bundle_name'], 'epacems-eia-test'))
+        pudl_settings_fixture['datapkg_dir'],
+        data_scope['datapkg_bundle_name'], 'epacems-eia-test'))
     epacems_to_parquet(
-        pkg_dir=pathlib.Path(
-            pudl_settings_fixture['datapackage_dir'],
-            data_scope['pkg_bundle_name'], 'epacems-eia-test'),
+        datapkg_dir=pathlib.Path(
+            pudl_settings_fixture['datapkg_dir'],
+            data_scope['datapkg_bundle_name'], 'epacems-eia-test'),
         epacems_years=data_scope['epacems_years'],
         epacems_states=data_scope['epacems_states'],
         out_dir=pathlib.Path(
@@ -122,10 +121,10 @@ def test_ferc1_solo_etl(datastore_fixture,
     with open(pathlib.Path(
             pathlib.Path(__file__).parent,
             'settings', 'ferc1-solo.yml'), "r") as f:
-        pkg_settings = yaml.safe_load(f)['pkg_bundle_settings']
+        datapkg_settings = yaml.safe_load(f)['datapkg_bundle_settings']
 
-    pudl.etl.generate_data_packages(
-        pkg_settings,
+    pudl.etl.generate_datapkg_bundle(
+        datapkg_settings,
         pudl_settings_fixture,
-        pkg_bundle_name='ferc1-solo',
+        datapkg_bundle_name='ferc1-solo',
         clobber=True)

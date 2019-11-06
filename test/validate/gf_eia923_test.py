@@ -38,11 +38,6 @@ def test_fuel_for_electricity(pudl_out_orig, pudl_out_eia, live_pudl_db):
     "cases", [
         pytest.param(pv.gf_eia923_coal_heat_content, id="coal_heat_content"),
         pytest.param(pv.gf_eia923_oil_heat_content, id="oil_heat_content"),
-        pytest.param(
-            pv.gf_eia923_gas_heat_content,
-            id="gas_heat_content",
-            marks=pytest.mark.xfail(reason="EIA 923 reporting errors?")
-        ),
     ]
 )
 def test_vs_bounds(pudl_out_orig, live_pudl_db, cases):

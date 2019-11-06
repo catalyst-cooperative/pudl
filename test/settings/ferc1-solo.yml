@@ -1,13 +1,14 @@
 # The following settings are for the test_only_ferc1_pudl_init_db test.
 
-pkg_bundle_name: pudl-ferc1-solo
-pkg_bundle_settings:
+datapkg_bundle_name: pudl-ferc1-solo
+datapkg_bundle_settings:
   ###########################################################################
   # FERC FORM 1 SETTINGS
   ###########################################################################
   - name: ferc1-solo
     title: FERC Form 1 Solo ETL
     description: A truly minimal FERC Form 1 ETL, just to demonstrate it can be loaded independently of all other datasets. One year, fuel and steam tables.
+    version: 0.1.0
     datasets:
       - ferc1:
           ferc1_tables:

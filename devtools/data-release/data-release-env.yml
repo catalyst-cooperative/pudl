@@ -1,0 +1,27 @@
+name: pudl-data-release
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - coloredlogs         # base
+  - datapackage>=1.9.0  # base We depend on features introduced in v1.9.0
+  - dbfread             # base
+  - goodtables          # base
+  - matplotlib          # base
+  - networkx>=2.2       # base We depend on features introduced in v2.2
+  - numpy               # base
+  - pandas>=0.25        # base We use nullable integers!
+  - pip                 # N/A
+  - pyarrow>=0.14.0     # base compilation issues below 0.14.0
+  - pytest              # dev
+  - python>=3.7         # N/A
+  - python-snappy       # base
+  - pyyaml              # base
+  - scikit-learn>=0.20  # base pandas integration added in v0.20
+  - scipy               # base
+  - sqlalchemy>=1.3.0   # base Security issues below v1.3.0
+  - tableschema         # base
+  - tableschema-sql     # base
+  - timezonefinder      # base
+  - tox                 # dev
+  - xlsxwriter          # base
