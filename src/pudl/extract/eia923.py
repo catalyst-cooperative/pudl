@@ -116,7 +116,11 @@ def get_eia923_column_map(page, year):
     for k, v in d.items():
         column_map[v] = k
 
-    return (sheet_name, skiprows, column_map)
+    all_columns = page_to_df[page].columns
+    all_columns = all_columns.drop(
+        ['reserved_2', 'reserved_1', 'reserved'], errors='ignore')
+
+    return (sheet_name, skiprows, column_map, all_columns)
 
 
 def get_eia923_page(page, eia923_xlsx,
@@ -147,7 +151,8 @@ def get_eia923_page(page, eia923_xlsx,
     for yr in years:
         logger.info(f"Converting EIA 923 {page} spreadsheet tab from {yr} "
                     f"into a pandas DataFrame")
-        sheet_name, skiprows, column_map = get_eia923_column_map(page, yr)
+        sheet_name, skiprows, column_map, all_columns = get_eia923_column_map(
+            page, yr)
         newdata = pd.read_excel(eia923_xlsx[yr],
                                 sheet_name=sheet_name,
                                 skiprows=skiprows)
@@ -172,6 +177,13 @@ def get_eia923_page(page, eia923_xlsx,
             newdata = newdata[~newdata.plant_id_eia.isin([99999, 999999])]
 
         df = df.append(newdata)
+    # We need to ensure that ALL possible columns show up in the dataframe
+    # that's being returned, even if they are empty, so that we know we have a
+    # consistent set of columns to work with in the transform step of ETL, and
+    # the columns match up with the database definition.
+    missing_cols = all_columns.difference(df.columns)
+    empty_cols = pd.DataFrame(columns=missing_cols)
+    df = pd.concat([df, empty_cols], sort=True)
     return df
 
 

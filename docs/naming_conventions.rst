@@ -38,6 +38,7 @@ Abbreviation            Definition
 ``df`` & ``dfs``        dataframe & dataframes
 ``dir``                 directory
 ``epxns``               expenses
+``equip``               equipment
 ``info``                information
 ``mcf``                 thousand cubic feet (volume of gas)
 ``mmbtu``               million British Thermal Units
