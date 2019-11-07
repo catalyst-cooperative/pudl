@@ -36,6 +36,110 @@ logger = logging.getLogger(__name__)
 ##############################################################################
 
 
+def unpack_rows(ferc1_df, row_map, data_cols):
+    """
+    Normalize a row-and-column based FERC Form 1 table.
+
+    Many FERC Form 1 tables are organized with various rows containing distinct
+    data values. In order to create a normalized table, with a single row
+    containing distinct values, these rows need to be turned into columns.
+    However, which row number corresponds to what variable changes from year to
+    year, and so a row-to-variable mapping is used to ensure that the data is
+    consistently organized in the outputs.
+
+    Args:
+        ferc1_df (pandas.DataFrame): Data Frame representing a table of the
+            cloned FERC Form 1 database. Must contain columns:
+            ``respondent_id``, ``report_year``, ``report_prd``,
+            ``spplmnt_num``, and ``row_number``.
+        row_map (pandas.DataFrame): Data Frame indicating which rows map to
+            what variables in each year of reported data. Must be indexed by
+            ``year_index``. Each column is labeled with the name of a variable
+            to be extracted from ``ferc1_df``. The value of each cell in the
+            Data Frame corresponds to the value of ``row_number`` corresponding
+            to the variable named for that column in that year. If a variable
+            does not exist for that year, the sentinel value -1 is used to
+            indicate such.
+        data_cols (list): A list of labels identifying the columns in
+            ``ferc1_df`` which contain actual data to be extracted.
+
+    Returns:
+        pandas.DataFrame: A Data Frame containing the normalized contents of
+        ``ferc1_df`` with a single record in each row, and a distinct column
+        for each value. The number of columns will correspond to the number of
+        columns defined in row_map multiplied by the number of data columns
+        listed in ``data_cols``, plus the index-like columns ``respondent_id``
+        ``report_year``, ``report_prd``, and  ``spplmnt_num``.
+
+    """
+    # Index the dataframe based on the list of index_cols
+    # For each year of data, rename the row numbers to variable names based on the row_map.
+    # Unstack the dataframe based on variable names
+    rename_dict = {}
+    out_df = pd.DataFrame()
+    for year in row_map.index:
+        rename_dict = {v: k for k, v in dict(row_map.loc[year, :]).items()}
+        _ = rename_dict.pop(-1, None)
+        df = ferc1_df.loc[ferc1_df.report_year == year].copy()
+        df.loc[:, "var_name"] = (
+            df.loc[:, "row_number"]
+            .replace(rename_dict, value=None)
+        )
+        out_df = pd.concat([out_df, df], axis="index")
+
+    # Is this list of index columns universal? Or should they be an argument?
+    idx_cols = [
+        "respondent_id",
+        "report_year",
+        "report_prd",
+        "spplmnt_num",
+        "var_name"
+    ]
+    logger.info(
+        f"{len(out_df[out_df.duplicated(idx_cols)])/len(out_df):.4%} of unpacked records were duplicates, and discarded.")
+    out_df = (
+        out_df.loc[:, idx_cols + data_cols]
+        # These lost records should be minimal. If not, something's wrong.
+        .drop_duplicates(subset=idx_cols)
+        .set_index(idx_cols)
+        .unstack("var_name")
+    )
+    return out_df
+
+
+def cols_to_cats(df, cat_name, col_cats):
+    """
+    Turn top-level MultiIndex columns into a categorial column.
+
+    In some cases FERC Form 1 data comes with many different types of related
+    values interleaved in the same table -- e.g. current year and previous year
+    income -- this can result in DataFrames that are hundreds of columns wide,
+    which is unwieldy. This function takes those top level MultiIndex labels
+    and turns them into categories in a single column, which can be used to
+    select a particular type of report.
+
+    Args:
+        df (pandas.DataFrame): the dataframe to be simplified.
+        cat_name (str): the label of the column to be created indicating what
+            MultiIndex lable the values came from.
+        col_cats (dict): a dictionary with top level MultiIndex labels as keys,
+            and the category to which they should be mapped as values.
+
+    Returns:
+        pandas.DataFrame: A re-shaped/re-labeled dataframe with one fewer
+        levels of MultiIndex in the columns, and an additional column
+        containing the assigned labels.
+
+    """
+    out_df = pd.DataFrame()
+    for col, cat in col_cats.items():
+        logger.info(f"Col: {col}, Cat: {cat}")
+        tmp_df = df.loc[:, col].copy().dropna(how='all')
+        tmp_df.loc[:, cat_name] = cat
+        out_df = pd.concat([out_df, tmp_df])
+    return out_df.reset_index()
+
+
 def _clean_cols(df, table_name):
     """Adds a FERC record ID and drop FERC columns not to be loaded into PUDL.
 
@@ -107,20 +211,14 @@ def _clean_cols(df, table_name):
             f"in pre-transform table {table_name}: {dupe_ids}."
         )
 
-    unused_cols = [
-        'spplmnt_num',
-        'row_number',
-        'row_prvlg',
-        'row_seq',
-        'report_prd',
-        'item',
-        'record_number'
-    ]
-
     # Drop any _f columns... since we're not using the FERC Footnotes...
-    footnote_cols = [col for col in df.columns if re.match('.*_f$', col)]
-    # Drop these columns and don't complain about it if they don't exist:
-    df = df.drop(unused_cols + footnote_cols, errors='ignore', axis=1)
+    # Drop columns and don't complain about it if they don't exist:
+    df = (
+        df.filter(regex=r"^((?!_f).)*$", axis="columns")
+        .drop(['spplmnt_num', 'row_number', 'row_prvlg', 'row_seq',
+               'report_prd', 'item', 'record_number'],
+              errors='ignore', axis="columns")
+    )
 
     return df
 
