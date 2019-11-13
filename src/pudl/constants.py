@@ -1061,7 +1061,6 @@ entity_tables = ['utilities_entity_eia',
 """list: A list of PUDL entity tables.
 """
 
-# 'stocks_eia923'
 xlsx_maps_pkg = 'pudl.package_data.meta.xlsx_maps'
 """type?:
 
