@@ -213,8 +213,9 @@ def _clean_cols(df, table_name):
 
     # Drop any _f columns... since we're not using the FERC Footnotes...
     # Drop columns and don't complain about it if they don't exist:
+    no_f = [c for c in df.columns if not re.match(".*_f$", c)]
     df = (
-        df.filter(regex=r"^((?!_f).)*$", axis="columns")
+        df.loc[:, no_f]
         .drop(['spplmnt_num', 'row_number', 'row_prvlg', 'row_seq',
                'report_prd', 'item', 'record_number'],
               errors='ignore', axis="columns")
@@ -983,6 +984,7 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     Returns:
         dict: The dictionary of the transformed DataFrames.
+
     """
     # grab table from dictionary of dfs
     ferc1_pis_df = ferc1_raw_dfs['plant_in_service_ferc1']
