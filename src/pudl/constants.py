@@ -2412,7 +2412,7 @@ working_years = {
     'eia860': tuple(range(2011, 2019)),
     'eia923': tuple(range(2009, 2019)),
     'epacems': tuple(range(1995, 2019)),
-    'ferc1': tuple(range(2004, 2018)),
+    'ferc1': tuple(range(1994, 2019)),
     'epaipm': (None, ),
 }
 """

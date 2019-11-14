@@ -1,0 +1,130 @@
+utility_id_ferc1,plant_name_ferc1,utility_name_ferc1,capacity_mw,plant_table
+11,subtotal,emera maine,2.0,f1_gnrt_plant
+11,youngs corner,emera maine,0.0,f1_gnrt_plant
+12,n/a,"black hills power, inc.",0.0,f1_gnrt_plant
+12,wygen 3 bhp 52%,"black hills power, inc.",110.0,f1_steam
+12,wyodak - bhp 20%,"black hills power, inc.",72.41,f1_steam
+41,circuit west solar,consumers energy company,0.53,f1_gnrt_plant
+45,lee cc,"duke energy carolinas, llc",738.79,f1_steam
+49,holloman air force base (hafb),el paso electric company,5.0,f1_gnrt_plant
+55,avon park ct,"duke energy florida, llc",67.0,f1_steam
+55,bayboro ct,"duke energy florida, llc",227.0,f1_steam
+55,citrus county cc,"duke energy florida, llc",1971.0,f1_steam
+55,debary ct,"duke energy florida, llc",748.0,f1_steam
+55,higgins ct,"duke energy florida, llc",153.2,f1_steam
+55,hines cc,"duke energy florida, llc",2263.0,f1_steam
+55,intercession city ct,"duke energy florida, llc",1197.0,f1_steam
+55,univ of florida,"duke energy florida, llc",54.0,f1_steam
+56,babcock,florida power & light company,74.5,f1_steam
+56,barefoot bay,florida power & light company,74.5,f1_steam
+56,blue cypress,florida power & light company,74.5,f1_steam
+56,citrus,florida power & light company,74.5,f1_steam
+56,coral farms,florida power & light company,74.5,f1_steam
+56,fort myers,florida power & light company,124.02,f1_steam
+56,hammock,florida power & light company,74.5,f1_steam
+56,horizon,florida power & light company,74.5,f1_steam
+56,indian river,florida power & light company,74.5,f1_steam
+56,loggerhead,florida power & light company,74.5,f1_steam
+56,martin 3&4,florida power & light company,1224.0,f1_steam
+56,martin solar energy,florida power & light company,75.0,f1_steam
+56,st. lucie - nuclear,florida power & light company,2160.0,f1_steam
+56,wildflower,florida power & light company,74.5,f1_steam
+57,mclb,georgia power company,31.16,f1_steam
+61,panton battery #119,green mountain power corp,0.0,f1_gnrt_plant
+74,eagle valley ccgt,indianapolis power & light company,689.0,f1_steam
+88,business solar - archdiocese of louisville,louisville gas and electric company,0.03,f1_gnrt_plant
+101,ft martin,monongahela power company,1152.0,f1_steam
+120,benson,northern states power company (minnesota),0.0,f1_steam
+120,"black dog 2, 5, & 6",northern states power company (minnesota),554.29,f1_steam
+120,pleasant valley wind,northern states power company (minnesota),200.0,f1_gnrt_plant
+120,wind turbine,northern states power company (minnesota),0.0,f1_gnrt_plant
+122,roosevelt (tower falls),northwestern corporation,1.0,f1_gnrt_plant
+122,two dot wind,northwestern corporation,11.28,f1_steam
+129,wildcat point,old dominion electric cooperative,1113.0,f1_steam
+130,tinker,oklahoma gas and electric company,83.7,f1_steam
+133,diablo canyon 1& 2,pacific gas and electric company,2323.0,f1_steam
+141,ohsu,portland general electric company,4.5,f1_gnrt_plant
+141,pelton (100%),portland general electric company,110.2,f1_hydro
+141,pelton (pge %),portland general electric company,73.47,f1_hydro
+141,round butte (100%),portland general electric company,372.5,f1_hydro
+141,round butte (pge %),portland general electric company,248.33,f1_hydro
+145,rush creek,public service company of colorado,600.0,f1_gnrt_plant
+145,wind turbine plants,public service company of colorado,0.0,f1_gnrt_plant
+148,northeastern 3,public service company of oklahoma,469.0,f1_steam
+149,-extension - pilot projects,public service electric and gas company,2.4,f1_gnrt_plant
+159,columbia energy ctr,south carolina electric & gas company,668.5,f1_steam
+161,sc-redlnd13-so,southern california edison company,3.5,f1_gnrt_plant
+161,sc-redlnd16-so,southern california edison company,1.5,f1_gnrt_plant
+163,oak hill solar generation facility,southern indiana gas and electric company,2.0,f1_gnrt_plant
+163,volkman road solar generation facility,southern indiana gas and electric company,2.0,f1_gnrt_plant
+170,balm solar,tampa electric company,74.4,f1_steam
+170,na,tampa electric company,0.0,f1_hydro
+170,payne creek solar,tampa electric company,70.3,f1_steam
+171,units 1-3,alcoa power generating inc.,500.0,f1_steam
+176,residential solar,tucson electric power company,2.68,f1_gnrt_plant
+176,solon prairie fire,tucson electric power company,4.0,f1_gnrt_plant
+176,sundt areva solar thermal,tucson electric power company,5.0,f1_gnrt_plant
+176,total solar operation/maintenance,tucson electric power company,0.0,f1_gnrt_plant
+186,community solar 40,virginia electric and power company,1.0,f1_gnrt_plant
+186,greensville,virginia electric and power company,1588.0,f1_steam
+186,hollyfield solar,virginia electric and power company,17.0,f1_steam
+186,montross solar,virginia electric and power company,20.0,f1_steam
+186,pecan solar,virginia electric and power company,74.9,f1_steam
+186,puller solar,virginia electric and power company,15.0,f1_steam
+194,forward wind (wpl),wisconsin power and light company,58.7,f1_steam
+195,forward,wisconsin public service corporation,61.48,f1_gnrt_plant
+195,west marinette total,wisconsin public service corporation,0.0,f1_steam
+195,wrpc total,wisconsin public service corporation,0.0,f1_hydro
+210,(100 units @ 2.0 mw each),midamerican energy company,0.0,f1_gnrt_plant
+210,(170 units @ 2.0 mw each),midamerican energy company,0.0,f1_gnrt_plant
+210,(amounts are for the total of all 104 units),midamerican energy company,0.0,f1_gnrt_plant
+210,(amounts are for the total of all 125 units),midamerican energy company,0.0,f1_gnrt_plant
+210,(amounts are for the total of all 134 units),midamerican energy company,0.0,f1_gnrt_plant
+210,(amounts are for the total of all 170 units),midamerican energy company,0.0,f1_gnrt_plant
+210,(amounts are for the total of all 35 units),midamerican energy company,0.0,f1_gnrt_plant
+210,(amounts are for the total of all 84 units),midamerican energy company,0.0,f1_gnrt_plant
+210,10 units @ 1.62 mw each & 35 units @ 1 mw each),midamerican energy company,0.0,f1_gnrt_plant
+210,34 units @ 1.62 mw & 13 units @ 2.3 mw each),midamerican energy company,0.0,f1_gnrt_plant
+210,42 units @ 1.62 mw each),midamerican energy company,0.0,f1_gnrt_plant
+210,5 units @ 2.415 mw each),midamerican energy company,0.0,f1_gnrt_plant
+210,and 50 units @ 1.62 mw each),midamerican energy company,0.0,f1_gnrt_plant
+210,arbor hill wind farm (125 units @ 2.0 mw each),midamerican energy company,250.0,f1_gnrt_plant
+210,beaver creek wind farm,midamerican energy company,340.0,f1_gnrt_plant
+210,charles city wind farm (8 units @ 1.5 mw each &,midamerican energy company,80.04,f1_gnrt_plant
+210,ivester wind farm (30 units @ 2.625 mw each &,midamerican energy company,90.83,f1_gnrt_plant
+210,north english wind farm,midamerican energy company,200.0,f1_gnrt_plant
+210,orient wind farm (51 units @ 2.0 mw each),midamerican energy company,102.0,f1_gnrt_plant
+210,pomeroy wind farm (137 units @ 1.5 mw each &,midamerican energy company,290.48,f1_gnrt_plant
+210,prairie wind farm (84 units @ 2.0 mw each),midamerican energy company,168.0,f1_gnrt_plant
+210,wellsburg wind farm (60 units @ 2.346 mw each),midamerican energy company,140.76,f1_gnrt_plant
+281,emery (6 units 2.17 mw capacity each),interstate power and light company,13.0,f1_gnrt_plant
+288,total solar operation/maintenance,"uns electric, inc.",0.0,f1_gnrt_plant
+309,"amherst rd, sunderland ma",nstar electric company,0.0,f1_gnrt_plant
+309,"cadwell dr, east springfield ma",nstar electric company,0.0,f1_gnrt_plant
+309,"chapin street, ludlow",nstar electric company,0.0,f1_gnrt_plant
+309,"cottage street, spingfield ma",nstar electric company,0.0,f1_gnrt_plant
+309,"denslow rd, longmeadow ma",nstar electric company,0.0,f1_gnrt_plant
+309,"duchaine blvd, bedford ma",nstar electric company,0.0,f1_gnrt_plant
+309,"feeding hills rd, southwick ma",nstar electric company,0.0,f1_gnrt_plant
+309,"goodwin street (indian orchard), springfield ma",nstar electric company,0.0,f1_gnrt_plant
+309,"log plain rd, greenfield ma",nstar electric company,0.0,f1_gnrt_plant
+309,"millers falls rd, montague, ma",nstar electric company,0.0,f1_gnrt_plant
+309,"new windsor rd, hinsdale ma",nstar electric company,0.0,f1_gnrt_plant
+309,"partridge rd, pittsfield ma",nstar electric company,0.0,f1_gnrt_plant
+309,"plain rd, hatfield ma",nstar electric company,0.0,f1_gnrt_plant
+309,"roosevelt ave, springfield ma",nstar electric company,0.0,f1_gnrt_plant
+309,"silver lake, pittsfield ma",nstar electric company,0.0,f1_gnrt_plant
+309,"station drive, westwood ma",nstar electric company,0.0,f1_gnrt_plant
+309,"summer street, plymouth ma",nstar electric company,0.0,f1_gnrt_plant
+309,"tobey rd, wareham ma",nstar electric company,0.0,f1_gnrt_plant
+309,"valley rd, southhampton ma",nstar electric company,0.0,f1_gnrt_plant
+309,"water street, lee ma",nstar electric company,0.0,f1_gnrt_plant
+309,"windsor rd, savoy ma",nstar electric company,0.0,f1_gnrt_plant
+403,not applicable,"cheyenne light, fuel and power company",0.0,f1_gnrt_plant
+432,airport - units 1&2,"black hills/colorado electric utility company, lp",200.0,f1_steam
+432,airport unit 6,"black hills/colorado electric utility company, lp",42.0,f1_steam
+432,pueblo diesels,"black hills/colorado electric utility company, lp",10.0,f1_steam
+432,rocky ford diesels,"black hills/colorado electric utility company, lp",10.0,f1_steam
+454,little gypsy 2 & 3,"entergy louisiana, llc",1002.9,f1_steam
+454,ninemile point 4 & 5,"entergy louisiana, llc",1790.2,f1_steam
+454,sterlington 7,"entergy louisiana, llc",226.3,f1_steam
