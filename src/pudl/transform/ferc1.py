@@ -9,6 +9,7 @@ the existing data. It may also include removing bad data, or replacing it
 with the appropriate NA values.
 """
 
+import datetime
 import importlib.resources
 import logging
 import re
@@ -615,9 +616,13 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     # Force the construction and installation years to be numeric values, and
     # set them to NA if they can't be converted. (table has some junk values)
-    ferc1_small_df['yr_constructed'] = pd.to_numeric(
-        ferc1_small_df['yr_constructed'],
-        errors='coerce')
+    this_year = datetime.date.today().year
+    ferc1_small_df['yr_constructed'] = (
+        pd.to_numeric(ferc1_small_df['yr_constructed'], errors='coerce'))
+    ferc1_small_df.loc[ferc1_small_df.yr_constructed <
+                       1850, "yr_constructed"] = np.nan
+    ferc1_small_df.loc[ferc1_small_df.yr_constructed <
+                       this_year, "yr_constructed"] = np.nan
     # Convert from cents per mmbtu to dollars per mmbtu to be consistent
     # with the f1_fuel table data. Also, let's use a clearer name.
     ferc1_small_df['fuel_cost_per_mmbtu'] = ferc1_small_df['fuel_cost'] / 100.0
@@ -665,8 +670,8 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     # in order to create one complete column of plant names, we have to use the
     # cleaned plant names when available and the orignial plant names when the
     # cleaned version is not available, but the strings first need cleaning
-    ferc1_small_df['plant_name_clean'] = \
-        ferc1_small_df['plant_name_clean'].fillna(value="")
+    ferc1_small_df['plant_name_clean'] = ferc1_small_df['plant_name_clean'].fillna(
+        value="")
     ferc1_small_df['plant_name_clean'] = ferc1_small_df.apply(
         lambda row: row['plant_name']
         if (row['plant_name_clean'] == "")
@@ -935,8 +940,6 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
     # grab table from dictionary of dfs
     df = (_clean_cols(ferc1_raw_dfs['purchased_power_ferc1'],
                       'f1_purchased_pwr')
-          .replace({"": "NA"}, "")
-          .replace(to_replace='', value=np.nan)
           .rename(columns={
               'respondent_id': 'utility_id_ferc1',
               'athrty_co_name': 'seller_name',
@@ -952,22 +955,13 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
               'erg_charges': 'energy_charges',
               'othr_charges': 'other_charges',
               'settlement_tot': 'total_settlement'})
-          .replace({  # Remove all non-numeric characters from these columns
-              "billing_demand_mw": r"[^0-9\.]",
-              "non_coincident_peak_demand_mw": r"[^0-9\.]",
-              "coincident_peak_demand_mw": r"[^0-9\.]"}, '', regex=True)
-          .replace({  # If all that's left is a period, set to NaN.
-              "billing_demand_mw": ".",
-              "non_coincident_peak_demand_mw": ".",
-              "coincident_peak_demand_mw": "."}, np.nan)
-          .replace({  # Replace empty fields with NaN
-              "billing_demand_mw": "",
-              "non_coincident_peak_demand_mw": "",
-              "coincident_peak_demand_mw": ""}, np.nan)
-          .astype({  # Whatever is left can be cast to a float.
-              "billing_demand_mw": float,
-              "non_coincident_peak_demand_mw": float,
-              "coincident_peak_demand_mw": float})
+          .assign(  # Require these columns to numeric, or NaN
+        billing_demand_mw=lambda x: pd.to_numeric(
+            x.billing_demand_mw, errors="coerce"),
+        non_coincident_peak_demand_mw=lambda x: pd.to_numeric(
+            x.non_coincident_peak_demand_mw, errors="coerce"),
+        coincident_peak_demand_mw=lambda x: pd.to_numeric(
+            x.coincident_peak_demand_mw, errors="coerce"))
           .fillna({  # Replace blanks w/ 0.0 in data columns.
               "purchased_mwh": 0.0,
               "received_mwh": 0.0,
@@ -1566,7 +1560,7 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
         except KeyError:
             pass
 
-    df[['primary_fuel_by_cost', 'primary_fuel_by_mmbtu']] = \
-        df[['primary_fuel_by_cost', 'primary_fuel_by_mmbtu']].fillna('')
+    df[['primary_fuel_by_cost', 'primary_fuel_by_mmbtu']] = df[[
+        'primary_fuel_by_cost', 'primary_fuel_by_mmbtu']].fillna('')
 
     return df
