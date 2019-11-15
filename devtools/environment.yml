@@ -22,6 +22,7 @@ dependencies:
   - jupyter             # user
   - jupyterlab          # user
   - matplotlib          # base
+  - nbdime              # dev
   - nbval               # dev
   - networkx>=2.2       # base We depend on features introduced in v2.2
   - numpy               # base
@@ -38,6 +39,7 @@ dependencies:
   - python>=3.7         # N/A
   - python-snappy       # base
   - pyyaml              # base
+  - seaborn             # dev
   - scikit-learn>=0.20  # base pandas integration added in v0.20
   - scipy               # base
   - setuptools_scm      # dev

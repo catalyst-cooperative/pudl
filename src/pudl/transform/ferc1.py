@@ -185,31 +185,37 @@ def _clean_cols(df, table_name):
         AssertionError: If the table input contains NULL columns
     """
     # Make sure that *all* of these columns exist in the proffered table:
-    for field in ['report_year', 'respondent_id', 'spplmnt_num', 'row_number']:
-        if df[field].isnull().any():
-            raise AssertionError(
-                f"Null field {field} found in ferc1 table {table_name}."
-            )
+    for field in ['report_year', 'report_prd', 'respondent_id', 'spplmnt_num', 'row_number']:
+        if field in df.columns:
+            if df[field].isnull().any():
+                raise AssertionError(
+                    f"Null field {field} found in ferc1 table {table_name}."
+                )
 
     # Create a unique inter-year FERC table record ID:
     df['record_id'] = (
         table_name + '_' +
         df.report_year.astype(str) + '_' +
+        df.report_prd.astype(str) + '_' +
         df.respondent_id.astype(str) + '_' +
-        df.spplmnt_num.astype(str) + '_' +
-        df.row_number.astype(str)
+        df.spplmnt_num.astype(str)
     )
+    # Because of the way we are re-organizing columns and rows to create well
+    # normalized tables, there may or may not be a row number available.
+    if "row_number" in df.columns:
+        df["record_id"] = df["record_id"] + "_" + df.row_number.astype(str)
 
-    # Check to make sure that the generated record_id is unique... since that's
-    # kind of the whole point. There are couple of genuine bad records here
-    # that are taken care of in the transform step, so just print a warning:
-    n_dupes = df.record_id.duplicated().values.sum()
-    if n_dupes:
-        dupe_ids = df.record_id[df.record_id.duplicated()].values
-        logger.warning(
-            f"{n_dupes} duplicate record_id values found "
-            f"in pre-transform table {table_name}: {dupe_ids}."
-        )
+        # Check to make sure that the generated record_id is unique... since
+        # that's kind of the whole point. There are couple of genuine bad
+        # records here that are taken care of in the transform step, so just
+        # print a warning.
+        n_dupes = df.record_id.duplicated().values.sum()
+        if n_dupes:
+            dupe_ids = df.record_id[df.record_id.duplicated()].values
+            logger.warning(
+                f"{n_dupes} duplicate record_id values found "
+                f"in pre-transform table {table_name}: {dupe_ids}."
+            )
 
     # Drop any _f columns... since we're not using the FERC Footnotes...
     # Drop columns and don't complain about it if they don't exist:
@@ -219,8 +225,8 @@ def _clean_cols(df, table_name):
         .drop(['spplmnt_num', 'row_number', 'row_prvlg', 'row_seq',
                'report_prd', 'item', 'record_number'],
               errors='ignore', axis="columns")
+        .rename(columns={"respondent_id": "utility_id_ferc1"})
     )
-
     return df
 
 
@@ -348,7 +354,6 @@ def _plants_steam_clean(ferc1_steam_df):
 
     ferc1_steam_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
-        'respondent_id': 'utility_id_ferc1',
         "plant_name": "plant_name_ferc1",
         'yr_const': 'construction_year',
         'plant_kind': 'plant_type',
@@ -604,7 +609,6 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
         # Rename the columns to match our DB definitions
         rename(columns={
             # FERC 1 DB Name      PUDL DB Name
-            'respondent_id': 'utility_id_ferc1',
             "plant_name": "plant_name_ferc1",
             'fuel': 'fuel_type_code_pudl',
             'fuel_avg_mmbtu_per_unit': 'fuel_mmbtu_per_unit',
@@ -777,7 +781,6 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_small_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
-        'respondent_id': 'utility_id_ferc1',
         'plant_name': 'plant_name_original',
         'plant_name_clean': 'plant_name_ferc1',
         'ferc_license': 'ferc_license_id',
@@ -836,7 +839,6 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
         dropna().
         rename(columns={
             # FERC1 DB          PUDL DB
-            'respondent_id': 'utility_id_ferc1',
             "plant_name": "plant_name_ferc1",
             'project_no': 'project_num',
             'yr_const': 'construction_year',
@@ -922,7 +924,6 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
         dropna().
         rename(columns={
             # FERC1 DB          PUDL DB
-            'respondent_id': 'utility_id_ferc1',
             "plant_name": "plant_name_ferc1",
             'project_number': 'project_num',
             'tot_capacity': 'capacity_mw',
@@ -968,17 +969,22 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
 
 
 def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
-    """Transforms FERC Form 1 plant_in_service data for loading into PUDL.
+    """Transforms FERC Form 1 Plant in Service data for loading into PUDL.
 
-    This information is organized by FERC account, with each line of the FERC
-    Form 1 having a different FERC account id (most are numeric and correspond
-    to FERC's Uniform Electric System of Accounts). As of PUDL v0.1, this data
-    is only valid from 2007 onward, as the line numbers for several accounts
-    are different in earlier years.
+    Re-organizes the original FERC Form 1 Plant in Service data by unpacking
+    the rows as needed on a year by year basis, to organize them into columns.
+    The "columns" in the original FERC Form 1 denote starting balancing, ending
+    balance, additions, retirements, adjustments, and transfers -- these
+    categories are turned into labels in a column called "amount_type". Because
+    each row in the transformed table is composed of many individual records
+    (rows) from the original table, row_number can't be part of the record_id,
+    which means they are no longer unique. To infer exactly what record a given
+    piece of data came from, the record_id and the row_map (found in the PUDL
+    package_data directory) can be used.
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
-            objects corresponds to a table from the  FERC Form 1 DBC database.
+            objects corresponds to a table from the FERC Form 1 DBC database.
         ferc1_transformed_dfs (dict): A dictionary of DataFrames to be
             transformed.
 
@@ -986,30 +992,56 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
         dict: The dictionary of the transformed DataFrames.
 
     """
-    # grab table from dictionary of dfs
-    ferc1_pis_df = ferc1_raw_dfs['plant_in_service_ferc1']
+    ferc1_row_maps_pkg = "pudl.package_data.meta.ferc1_row_maps"
+    pis_row_map = pd.read_csv(
+        importlib.resources.open_text(
+            ferc1_row_maps_pkg, "f1_plant_in_srvce_map.csv"),
+        index_col=0, comment="#"
+    )
 
-    # Now we need to add a column to the DataFrame that has the FERC account
-    # IDs corresponding to the row_number that's already in there...
-    ferc_accts_df = pc.ferc_electric_plant_accounts.drop(
-        ['ferc_account_description'], axis=1)
-    ferc_accts_df.dropna(inplace=True)
-    ferc_accts_df['row_number'] = ferc_accts_df['row_number'].astype(int)
+    # These are the "columns" in the FERC Form 1 that are reported by "row"
+    # (corresponding to the FERC Accounts)
+    pis_data_cols = [
+        "begin_yr_bal",
+        "addition",
+        "retirements",
+        "adjustments",
+        "transfers",
+        "yr_end_bal",
+    ]
 
-    ferc1_pis_df = pd.merge(ferc1_pis_df, ferc_accts_df,
-                            how='left', on='row_number')
-    ferc1_pis_df = _clean_cols(ferc1_pis_df, 'f1_plant_in_srvce')
+    pis_df = ferc1_raw_dfs["plant_in_service_ferc1"].copy()
+    pis_df = unpack_rows(pis_df, pis_row_map, pis_data_cols)
 
-    ferc1_pis_df.rename(columns={
-        # FERC 1 DB Name  PUDL DB Name
-        'respondent_id': 'utility_id_ferc1',
-        'begin_yr_bal': 'beginning_year_balance',
-        'addition': 'additions',
-        'yr_end_bal': 'year_end_balance'},
-        inplace=True)
+    # Chunk out the now extremely wide table into categorized records
+    # organized by the previously reported columns:
+    categorized_pis = pd.DataFrame()
+    for category in pis_df.columns.levels[0]:
+        tmp_df = pis_df.loc[:, category].copy()
+        tmp_df["amount_type"] = category
+        categorized_pis = pd.concat([categorized_pis, tmp_df])
+    categorized_pis.columns.name = None
+    pis_df = (
+        categorized_pis.reset_index()
+        .assign(
+            amount_type=lambda x: x["amount_type"]
+            .replace(
+                to_replace={
+                    "begin_yr_bal": "starting_balance",
+                    "addition": "additions",
+                    "yr_end_bal": "ending_balance",
+                }
+            )
+        )
+        .pipe(_clean_cols, "f1_plant_in_srvce")
+    )
+    # Get rid of the columns corresponding to "header" rows in the FERC
+    # form, which should *never* contain data... but in about 2 dozen cases,
+    # they do. See this issue on Github for more information:
+    # https://github.com/catalyst-cooperative/pudl/issues/471
+    pis_df = pis_df.drop(columns=pis_df.filter(regex=".*_head$").columns)
 
-    ferc1_transformed_dfs['plant_in_service_ferc1'] = ferc1_pis_df
-
+    ferc1_transformed_dfs["plant_in_service_ferc1"] = pis_df
     return ferc1_transformed_dfs
 
 
@@ -1038,7 +1070,6 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
           .replace({"": "NA"}, "")
           .replace(to_replace='', value=np.nan)
           .rename(columns={
-              'respondent_id': 'utility_id_ferc1',
               'athrty_co_name': 'seller_name',
               'sttstcl_clssfctn': 'purchase_type',
               'rtsched_trffnbr': 'tariff',
@@ -1130,7 +1161,6 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_accumdepr_prvsn_df.rename(columns={
         # FERC1 DB   PUDL DB
-        'respondent_id': 'utility_id_ferc1',
         'total_cde': 'total'},
         inplace=True)
 
