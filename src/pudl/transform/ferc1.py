@@ -9,7 +9,6 @@ the existing data. It may also include removing bad data, or replacing it
 with the appropriate NA values.
 """
 
-import datetime
 import importlib.resources
 import logging
 import re
@@ -35,6 +34,33 @@ logger = logging.getLogger(__name__)
 ##############################################################################
 # FERC TRANSFORM HELPER FUNCTIONS ############################################
 ##############################################################################
+
+
+def oob_to_nan(df, cols, lb=None, ub=None):
+    """
+    Set non-numeric values and those outside of a given rage to NaN.
+
+    Args:
+        df (pandas.DataFrame): The dataframe containing values to be altered.
+        cols (iterable): Labels of the columns whose values are to be changed.
+        lb: (number): Lower bound, below which values are set to NaN. If None,
+            don't use a lower bound.
+        ub: (number): Upper bound, below which values are set to NaN. If None,
+            don't use an upper bound.
+
+    Returns:
+        pandas.DataFrame: The altered DataFrame.
+
+    """
+    for col in cols:
+        # Force column to be numeric if possible, NaN otherwise:
+        df.loc[:, col] = pd.to_numeric(df[col], errors="coerce")
+        if lb is not None:
+            df.loc[df[col] < lb, col] = np.nan
+        if ub is not None:
+            df.loc[df[col] > ub, col] = np.nan
+
+    return df
 
 
 def unpack_rows(ferc1_df, row_map, data_cols):
@@ -322,75 +348,59 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
 
 
 def _plants_steam_clean(ferc1_steam_df):
-    # grab table from dictionary of dfs
     ferc1_steam_df = (
-        ferc1_steam_df.
-        pipe(_clean_cols, 'f1_steam').
-        pipe(pudl.helpers.strip_lower, ['plant_name']).
-        # Take the messy free-form construction_type and plant_kind fields, and
-        # do our best to map them to some canonical categories... this is
-        # necessarily imperfect:
-        pipe(pudl.helpers.cleanstrings, ['type_const', 'plant_kind'],
-             [pc.ferc1_const_type_strings, pc.ferc1_plant_kind_strings],
-             unmapped='')
+        ferc1_steam_df.rename(columns={
+            "plant_name": "plant_name_ferc1",
+            "yr_const": 'construction_year',
+            "plant_kind": 'plant_type',
+            "type_const": 'construction_type',
+            "asset_retire_cost": 'asset_retirement_cost',
+            "yr_installed": 'installation_year',
+            "tot_capacity": 'capacity_mw',
+            "peak_demand": 'peak_demand_mw',
+            "plant_hours": 'plant_hours_connected_while_generating',
+            "plnt_capability": 'plant_capability_mw',
+            "when_limited": 'water_limited_capacity_mw',
+            "when_not_limited": 'not_water_limited_capacity_mw',
+            "avg_num_of_emp": 'avg_num_employees',
+            "net_generation": 'net_generation_kwh',
+            "cost_land": 'capex_land',
+            "cost_structure": 'capex_structures',
+            "cost_equipment": 'capex_equipment',
+            "cost_of_plant_to": 'capex_total',
+            "cost_per_kw": 'capex_per_kw',
+            "expns_operations": 'opex_operations',
+            "expns_fuel": 'opex_fuel',
+            "expns_coolants": 'opex_coolants',
+            "expns_steam": 'opex_steam',
+            "expns_steam_othr": 'opex_steam_other',
+            "expns_transfer": 'opex_transfer',
+            "expns_electric": 'opex_electric',
+            "expns_misc_power": 'opex_misc_power',
+            "expns_rents": 'opex_rents',
+            "expns_allowances": 'opex_allowances',
+            "expns_engnr": 'opex_engineering',
+            "expns_structures": 'opex_structures',
+            "expns_boiler": 'opex_boiler',
+            "expns_plants": 'opex_plants',
+            "expns_misc_steam": 'opex_misc_steam',
+            "tot_prdctn_expns": 'opex_production_total',
+            "expns_kwh": 'opex_per_kwh'})
+        .pipe(_clean_cols, "f1_steam")
+        .pipe(pudl.helpers.strip_lower, ['plant_name'])
+        .pipe(pudl.helpers.cleanstrings,
+              ['construction_type', 'plant_type'],
+              [pc.ferc1_const_type_strings, pc.ferc1_plant_kind_strings],
+              unmapped='')
+        .pipe(oob_to_nan, cols=["construction_year", "installation_year"],
+              lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
+        .assign(
+            capex_per_mw=lambda x: 1000.0 * x.capex_per_kw,
+            opex_per_mwh=lambda x: 1000.0 * x.opex_per_kwh,
+            net_generation_mwh=lambda x: x.net_generation_kwh / 1000.0,
+        )
+        .drop(columns=["capex_per_kw", "opex_per_kwh", "net_generation_kwh"])
     )
-
-    # Force the construction and installation years to be numeric values, and
-    # set them to NA if they can't be converted. (table has some junk values)
-    ferc1_steam_df['yr_const'] = pd.to_numeric(
-        ferc1_steam_df['yr_const'], errors='coerce')
-    ferc1_steam_df['yr_installed'] = pd.to_numeric(
-        ferc1_steam_df['yr_installed'], errors='coerce')
-    # There are also a few zeroes... which are not valid years for us:
-    ferc1_steam_df = ferc1_steam_df.replace(
-        {"yr_const": 0, "yr_installed": 0}, np.nan)
-
-    # Converting everything to per MW and MWh units...
-    ferc1_steam_df['cost_per_mw'] = 1000 * ferc1_steam_df['cost_per_kw']
-    ferc1_steam_df.drop('cost_per_kw', axis=1, inplace=True)
-    ferc1_steam_df['net_generation_mwh'] = ferc1_steam_df['net_generation'] / 1000
-    ferc1_steam_df.drop('net_generation', axis=1, inplace=True)
-    ferc1_steam_df['expns_per_mwh'] = 1000 * ferc1_steam_df['expns_kwh']
-    ferc1_steam_df.drop('expns_kwh', axis=1, inplace=True)
-
-    ferc1_steam_df.rename(columns={
-        # FERC 1 DB Name      PUDL DB Name
-        "plant_name": "plant_name_ferc1",
-        'yr_const': 'construction_year',
-        'plant_kind': 'plant_type',
-        'type_const': 'construction_type',
-        'asset_retire_cost': 'asset_retirement_cost',
-        'yr_installed': 'installation_year',
-        'tot_capacity': 'capacity_mw',
-        'peak_demand': 'peak_demand_mw',
-        'plant_hours': 'plant_hours_connected_while_generating',
-        'plnt_capability': 'plant_capability_mw',
-        'when_limited': 'water_limited_capacity_mw',
-        'when_not_limited': 'not_water_limited_capacity_mw',
-        'avg_num_of_emp': 'avg_num_employees',
-        'net_generation': 'net_generation_mwh',
-        'cost_land': 'capex_land',
-        'cost_structure': 'capex_structures',
-        'cost_equipment': 'capex_equipment',
-        'cost_of_plant_to': 'capex_total',
-        'cost_per_mw': 'capex_per_mw',
-        'expns_operations': 'opex_operations',
-        'expns_fuel': 'opex_fuel',
-        'expns_coolants': 'opex_coolants',
-        'expns_steam': 'opex_steam',
-        'expns_steam_othr': 'opex_steam_other',
-        'expns_transfer': 'opex_transfer',
-        'expns_electric': 'opex_electric',
-        'expns_misc_power': 'opex_misc_power',
-        'expns_rents': 'opex_rents',
-        'expns_allowances': 'opex_allowances',
-        'expns_engnr': 'opex_engineering',
-        'expns_structures': 'opex_structures',
-        'expns_boiler': 'opex_boiler',
-        'expns_plants': 'opex_plants',
-        'expns_misc_steam': 'opex_misc_steam',
-        'tot_prdctn_expns': 'opex_production_total',
-        'expns_per_mwh': 'opex_per_mwh'}, inplace=True)
 
     return ferc1_steam_df
 
@@ -719,13 +729,10 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     # Force the construction and installation years to be numeric values, and
     # set them to NA if they can't be converted. (table has some junk values)
-    this_year = datetime.date.today().year
-    ferc1_small_df['yr_constructed'] = (
-        pd.to_numeric(ferc1_small_df['yr_constructed'], errors='coerce'))
-    ferc1_small_df.loc[ferc1_small_df.yr_constructed <
-                       1850, "yr_constructed"] = np.nan
-    ferc1_small_df.loc[ferc1_small_df.yr_constructed <
-                       this_year, "yr_constructed"] = np.nan
+    ferc1_small_df = oob_to_nan(
+        ferc1_small_df, cols=["yr_constructed"],
+        lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
+
     # Convert from cents per mmbtu to dollars per mmbtu to be consistent
     # with the f1_fuel table data. Also, let's use a clearer name.
     ferc1_small_df['fuel_cost_per_mmbtu'] = ferc1_small_df['fuel_cost'] / 100.0
@@ -823,26 +830,24 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     # grab table from dictionary of dfs
     ferc1_hydro_df = (
-        _clean_cols(ferc1_raw_dfs['plants_hydro_ferc1'], 'f1_hydro').
+        _clean_cols(ferc1_raw_dfs['plants_hydro_ferc1'], 'f1_hydro')
         # Standardize plant_name capitalization and remove leading/trailing
         # white space -- necesary b/c plant_name is part of many foreign keys.
-        pipe(pudl.helpers.strip_lower, ['plant_name']).
-        pipe(pudl.helpers.cleanstrings, ['plant_const'], [pc.ferc1_const_type_strings],
-             unmapped='').
-        assign(
+        .pipe(pudl.helpers.strip_lower, ['plant_name'])
+        .pipe(pudl.helpers.cleanstrings, ['plant_const'],
+              [pc.ferc1_const_type_strings], unmapped='')
+        .assign(
             # Converting kWh to MWh
             net_generation_mwh=lambda x: x.net_generation / 1000.0,
             # Converting cost per kW installed to cost per MW installed:
             cost_per_mw=lambda x: x.cost_per_kw * 1000.0,
             # Converting kWh to MWh
-            expns_per_mwh=lambda x: x.expns_kwh * 1000.0,
-            yr_const=lambda x: pd.to_numeric(x.yr_const, errors='coerce'),
-            yr_installed=lambda x: pd.to_numeric(
-                x.yr_installed, errors='coerce'),
-        ).
-        drop(columns=['net_generation', 'cost_per_kw', 'expns_kwh']).
-        dropna().
-        rename(columns={
+            expns_per_mwh=lambda x: x.expns_kwh * 1000.0)
+        .pipe(oob_to_nan, cols=["yr_const", "yr_installed"],
+              lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
+        .drop(columns=['net_generation', 'cost_per_kw', 'expns_kwh'])
+        .dropna()
+        .rename(columns={
             # FERC1 DB          PUDL DB
             "plant_name": "plant_name_ferc1",
             'project_no': 'project_num',
@@ -903,31 +908,27 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     # grab table from dictionary of dfs
     ferc1_pump_df = (
-        _clean_cols(ferc1_raw_dfs['plants_pumped_storage_ferc1'],
-                    'f1_pumped_storage').
+        _clean_cols(
+            ferc1_raw_dfs['plants_pumped_storage_ferc1'], 'f1_pumped_storage')
         # Standardize plant_name capitalization and remove leading/trailing
         # white space -- necesary b/c plant_name is part of many foreign keys.
-        pipe(pudl.helpers.strip_lower, ['plant_name']).
+        .pipe(pudl.helpers.strip_lower, ['plant_name'])
         # Clean up the messy plant construction type column:
-        pipe(pudl.helpers.cleanstrings,
-             ['plant_kind'],
-             [pc.ferc1_const_type_strings],
-             unmapped='').
-        assign(
+        .pipe(pudl.helpers.cleanstrings, ['plant_kind'],
+              [pc.ferc1_const_type_strings], unmapped='')
+        .assign(
             # Converting from kW/kWh to MW/MWh
             net_generation_mwh=lambda x: x.net_generation / 1000.0,
             energy_used_for_pumping_mwh=lambda x: x.energy_used / 1000.0,
             net_load_mwh=lambda x: x.net_load / 1000.0,
             cost_per_mw=lambda x: x.cost_per_kw * 1000.0,
-            expns_per_mwh=lambda x: x.expns_kwh * 1000.0,
-            yr_const=lambda x: pd.to_numeric(x.yr_const, errors='coerce'),
-            yr_installed=lambda x: pd.to_numeric(
-                x.yr_installed, errors='coerce'),
-        ).
-        drop(columns=['net_generation', 'energy_used', 'net_load',
-                      'cost_per_kw', 'expns_kwh']).
-        dropna().
-        rename(columns={
+            expns_per_mwh=lambda x: x.expns_kwh * 1000.0)
+        .pipe(oob_to_nan, cols=["yr_const", "yr_installed"],
+              lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
+        .drop(columns=['net_generation', 'energy_used', 'net_load',
+                       'cost_per_kw', 'expns_kwh'])
+        .dropna()
+        .rename(columns={
             # FERC1 DB          PUDL DB
             "plant_name": "plant_name_ferc1",
             'project_number': 'project_num',
@@ -1133,7 +1134,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
-            objects corresponds to a table from the  FERC Form 1 DBC database.
+            objects corresponds to a table from the FERC Form 1 DBC database.
         ferc1_transformed_dfs (dict): A dictionary of DataFrames to be
             transformed.
 
