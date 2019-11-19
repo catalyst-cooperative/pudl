@@ -227,7 +227,7 @@ def fuel_cost(pudl_out):
     multi_fuel = multi_fuel[['plant_id_eia', 'report_date', 'generator_id',
                              'fuel_cost_per_mmbtu', 'heat_rate_mmbtu_mwh']]
 
-    fuel_cost = one_fuel.append(multi_fuel)
+    fuel_cost = one_fuel.append(multi_fuel, sort=True)
     fuel_cost['fuel_cost_per_mwh'] = \
         fuel_cost['fuel_cost_per_mmbtu'] * fuel_cost['heat_rate_mmbtu_mwh']
     fuel_cost = \

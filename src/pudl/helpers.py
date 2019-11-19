@@ -871,3 +871,63 @@ def convert_dfs_dict_dtypes(dfs_dict, data_source):
     for name, df in dfs_dict.items():
         cleaned_dfs_dict[name] = convert_cols_dtypes(df, data_source, name)
     return cleaned_dfs_dict
+
+
+def generate_rolling_av(df, group_cols, data_col, win_type='triang'):
+    """Generate a rolling average."""
+    df = df.astype({'report_date': 'datetime64[ns]'})
+    # create a full date range for this df
+    date_range = (pd.DataFrame(pd.date_range(
+        start=min(df['report_date']),
+        end=max(df['report_date']), freq='MS',
+        name='report_date')).
+        # assiging a temp column to merge on
+        assign(tmp=1))
+    groups = (df[group_cols + ['report_date']].
+              drop_duplicates().
+              # assiging a temp column to merge on
+              assign(tmp=1))
+    # merge the date range and the groups together
+    # to get the backbone/complete date range/groups
+    bones = (date_range.merge(groups).
+             # drop the temp column
+             drop('tmp', axis=1).
+             # then merge the actual data onto the
+             merge(df, on=group_cols + ['report_date']).
+             set_index(group_cols + ['report_date']).
+             groupby(by=group_cols + ['report_date']).
+             mean())
+    # with the aggregated data, get a rolling average
+    roll = (bones.rolling(12, win_type=win_type, min_periods=6, center=True).
+            agg({data_col: 'mean'})
+            )
+    # return the merged
+    return bones.merge(roll,
+                       on=group_cols + ['report_date'],
+                       suffixes=('', '_rolling')).reset_index()
+
+
+def fillna_w_rolling_average(df_og, group_cols, data_col, win_type='triang'):
+    """
+    Filling NaNs with a rolling average.
+
+    Args:
+        df_of (pandas.DataFrame): Original dataframe. Must have group_cols
+            column, a data_col column and a 'report_date' column.
+        group_cols (iterable)
+        data_col (string)
+        win_type (string)
+    Returns:
+        pandas.DataFrame
+    """
+    df_og = df_og.astype({'report_date': 'datetime64[ns]'})
+    df_roll = generate_rolling_av(df_og, group_cols, data_col, win_type)
+    df_roll[data_col] = df_roll[data_col].fillna(
+        df_roll[f'{data_col}_rolling'])
+    df_new = df_og.merge(df_roll,
+                         how='left',
+                         on=group_cols + ['report_date'],
+                         suffixes=('', '_rollfilled'))
+    df_new[data_col] = df_new[data_col].fillna(
+        df_new[f'{data_col}_rollfilled'])
+    return df_new.drop(columns=[f'{data_col}_rollfilled', f'{data_col}_rolling'])

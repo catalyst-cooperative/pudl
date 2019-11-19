@@ -42,7 +42,8 @@ import pudl.constants as pc
 class PudlTabl(object):
     """A class for compiling common useful tabular outputs from the PUDL DB."""
 
-    def __init__(self, pudl_engine, freq=None, start_date=None, end_date=None):
+    def __init__(self, pudl_engine, freq=None, start_date=None, end_date=None,
+                 rolling=False):
         """
         Initialize the PUDL output object.
 
@@ -61,6 +62,9 @@ class PudlTabl(object):
             end_date (date): End date for data to pull from the PUDL DB.
             pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
                 for the PUDL DB.
+            rolling (boolean): if set to True, apply a rolling average to a
+                subset of output table's columns (currently only
+                'fuel_cost_per_mmbtu' for the frc table).
 
         """
         self.pudl_engine = pudl_engine
@@ -87,6 +91,7 @@ class PudlTabl(object):
         self.pudl_engine = pudl_engine
 
         self.pt = get_table_meta(self.pudl_engine)
+        self.rolling = rolling
         # We populate this library of dataframes as they are generated, and
         # allow them to persist, in case they need to be used again.
         self._dfs = {
@@ -295,7 +300,8 @@ class PudlTabl(object):
                     self.pt,
                     freq=self.freq,
                     start_date=self.start_date,
-                    end_date=self.end_date)
+                    end_date=self.end_date,
+                    rolling=self.rolling)
         return self._dfs['frc_eia923']
 
     def bf_eia923(self, update=False):
