@@ -1,26 +1,31 @@
-#!/bin/sh
+#!/bin/bash
+
+PUDL_VERSION=0.2.1
+
+###############################################################################
+# libsnappy needs to be installed for data validation since tox uses pip
+###############################################################################
+sudo apt install libsnappy-dev libsnappy1v5
 
 ###############################################################################
 # Create, activate, and record the pudl-data-release conda environment
 ###############################################################################
-PUDL_VERSION=0.2.1
-# libsnappy needs to be installed for data validation since tox uses pip
-sudo apt install libsnappy-dev libsnappy1v5
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
 bash ~/miniconda.sh -b -p ~/miniconda
 ~/miniconda/bin/conda init bash
 export PATH=~/miniconda/bin:$PATH
-eval "$(conda shell.bash hook)"
+eval "$(~/miniconda/bin/conda shell.bash hook)"
+source ~/miniconda/etc/profile.d/conda.sh
 echo "conda path:"
 echo `which conda`
-conda config --set channel_priority strict
-conda env create --file data-release-env.yml
+~/miniconda/bin/conda config --set channel_priority strict
+~/miniconda/bin/conda env create --file data-release-env.yml
 #    catalystcoop.pudl=$PUDL_VERSION
-conda activate pudl-data-release
+source ~/miniconda/bin/activate pudl-data-release
 git clone --depth 1 https://github.com/catalyst-cooperative/pudl.git # --branch $PUDL_VERSION
 
 pip install --editable ./pudl
-conda env export > export-environment.yml
+~/miniconda/bin/conda env export > export-environment.yml
 
 # Create a new workspace and download the required data:
 pudl_setup --clobber ./
@@ -41,7 +46,7 @@ pudl_etl data-release-etl.yml
 datapkg_to_sqlite --datapkg_bundle_name pudl-data-release
 
 # Validate the data we've loaded
-tox -v -c pudl/tox.ini -e validate > data-validation.log
+tox -v -c pudl/tox.ini -e validate #> data-validation.log
 
 touch README.txt
 cp README.txt datapkg/pudl-data-release/pudl-ferc1
