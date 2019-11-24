@@ -1061,7 +1061,6 @@ entity_tables = ['utilities_entity_eia',
 """list: A list of PUDL entity tables.
 """
 
-# 'stocks_eia923'
 xlsx_maps_pkg = 'pudl.package_data.meta.xlsx_maps'
 """type?:
 
@@ -2412,7 +2411,7 @@ working_years = {
     'eia860': tuple(range(2010, 2019)),
     'eia923': tuple(range(2009, 2019)),
     'epacems': tuple(range(1995, 2019)),
-    'ferc1': tuple(range(2004, 2018)),
+    'ferc1': tuple(range(1994, 2019)),
     'epaipm': (None, ),
 }
 """

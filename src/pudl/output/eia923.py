@@ -1,9 +1,13 @@
 """Functions for pulling EIA 923 data out of the PUDl DB."""
 
+import logging
+
 import pandas as pd
 import sqlalchemy as sa
 
 import pudl
+
+logger = logging.getLogger(__name__)
 
 
 def generation_fuel_eia923(pudl_engine, pt, freq=None,
@@ -122,7 +126,8 @@ def generation_fuel_eia923(pudl_engine, pt, freq=None,
 
 
 def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
-                               start_date=None, end_date=None):
+                               start_date=None, end_date=None,
+                               rolling=False):
     """
     Pull records from ``fuel_receipts_costs_eia923`` table in given date range.
 
@@ -195,6 +200,17 @@ def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
 
     cols_to_drop = ['id', 'mine_id_pudl']
     frc_df = frc_df.drop(cols_to_drop, axis=1)
+
+    # this next step smoothes fuel_cost_per_mmbtu as a rolling monthly average.
+    # for each month where there is any data make weighted averages of each
+    # plant/fuel/month.
+    if rolling is True:
+        logger.info('filling in fuel cost NaNs with rolling averages')
+        frc_df = pudl.helpers.fillna_w_rolling_average(
+            frc_df,
+            group_cols=['plant_id_eia', 'energy_source_code'],
+            data_col='fuel_cost_per_mmbtu',
+        )
 
     # Calculate a few totals that are commonly needed:
     frc_df['total_heat_content_mmbtu'] = \

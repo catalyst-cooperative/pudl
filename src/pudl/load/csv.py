@@ -178,33 +178,32 @@ def clean_columns_dump(table_name, datapkg_dir, df):
     columns = [x['name'] for x in resource['schema']['fields']]
     # there are two types of tables when it comes to indexes and ids...
     # first there are tons of tables that don't use the index as a column
-    # these tables don't have an `id` column and we don't want to keept the
+    # these tables don't have an `id` column and we don't want to keep the
     # index when doing df.to_csv()
     if 'id' not in columns:
-        if set(columns) != set(df.columns):
-            set_diff = set(columns).symmetric_difference(set(df.columns))
-            raise ValueError(
-                f"Columns {set_diff} are not shared between "
-                f"metadata JSON descriptor and dataframe for {table_name}!"
-            )
-        df = df.reindex(columns=columns)
-        csv_dump(df, table_name, keep_index=False, datapkg_dir=datapkg_dir)
+        keep_index = False
     # there are also a ton of tables that use the `id` column as an auto-
     # autoincrement id/primary key. For these tables, the index will end up
     # as the id column so we want to remove the `id` in the list of columns
     # because while the id column exists in the metadata it isn't in the df
-    # We also want to reindex in order to ensure the index is clean
     else:
         columns.remove('id')
-        if set(columns) != set(df.columns):
-            set_diff = set(columns).symmetric_difference(set(df.columns))
-            raise ValueError(
-                f"Columns {set_diff} are not shared between metadata JSON"
-                f"descriptor and dataframe for {table_name}!"
-            )
         df = df.reset_index(drop=True)
-        df = df.reindex(columns=columns)
-        csv_dump(df, table_name, keep_index=True, datapkg_dir=datapkg_dir)
+        keep_index = True
+
+    # Now we want to check and make sure the set of columns in the dataframe
+    # is the same as the set of columns described in the metadata. If not, we
+    # have a problem, and need to report it to the user.
+    if set(columns) != set(df.columns):
+        set_diff = set(columns).symmetric_difference(set(df.columns))
+        raise ValueError(
+            f"Columns {set_diff} are not shared between metadata JSON"
+            f"descriptor and dataframe for {table_name}!"
+        )
+
+    # Reindex to ensure the index is clean
+    df = df.reindex(columns=columns)
+    csv_dump(df, table_name, keep_index=keep_index, datapkg_dir=datapkg_dir)
 
 
 def dict_dump(transformed_dfs, data_source, datapkg_dir=''):

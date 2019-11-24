@@ -1,29 +1,27 @@
 {
-    "autoincrement" :
-        {
-            "fuel_ferc1": "id",
-            "load_curves_epaipm":"id",
-            "plant_region_map_epaipm":"id",
-            "generation_eia923":"id",
-            "plants_hydro_ferc1":"id",
-            "purchased_power_ferc1":"id",
-            "generators_eia860":"id",
-            "ownership_eia860":"id",
-            "fuel_receipts_costs_eia923":"id",
-            "boiler_generator_assn_eia860":"id",
-            "plants_eia860":"id",
-            "generation_fuel_eia923":"id",
-            "plants_small_ferc1":"id",
-            "plants_pumped_storage_ferc1":"id",
-            "boiler_fuel_eia923":"id",
-            "hourly_emissions_epacems":"id",
-            "transmission_single_epaipm":"id",
-            "plants_steam_ferc1":"id",
-            "utilities_eia860":"id",
-            "transmission_joint_epaipm":"id"
-          },
-    "resources": [
-        {
+    "autoincrement": {
+        "fuel_ferc1": "id",
+        "load_curves_epaipm": "id",
+        "plant_region_map_epaipm": "id",
+        "generation_eia923": "id",
+        "plants_hydro_ferc1": "id",
+        "purchased_power_ferc1": "id",
+        "generators_eia860": "id",
+        "ownership_eia860": "id",
+        "fuel_receipts_costs_eia923": "id",
+        "boiler_generator_assn_eia860": "id",
+        "plants_eia860": "id",
+        "generation_fuel_eia923": "id",
+        "plants_small_ferc1": "id",
+        "plants_pumped_storage_ferc1": "id",
+        "boiler_fuel_eia923": "id",
+        "hourly_emissions_epacems": "id",
+        "transmission_single_epaipm": "id",
+        "plants_steam_ferc1": "id",
+        "utilities_eia860": "id",
+        "transmission_joint_epaipm": "id"
+    },
+    "resources": [{
             "profile": "tabular-data-resource",
             "name": "fuel_ferc1",
             "path": "data/fuel_ferc1.csv",
@@ -42,11 +40,10 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
+                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
                         "format": "default"
                     },
                     {
@@ -137,32 +134,26 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": ["plant_name_ferc1", "utility_id_ferc1"],
-                        "reference": {
-                            "resource": "plants_ferc1",
-                            "fields": ["plant_name_ferc1", "utility_id_ferc1"]
-                        }
+                "foreignKeys": [{
+                    "fields": ["plant_name_ferc1", "utility_id_ferc1"],
+                    "reference": {
+                        "resource": "plants_ferc1",
+                        "fields": ["plant_name_ferc1", "utility_id_ferc1"]
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "ferc1",
-                    "path": "ftp://eforms1.ferc.gov/f1allyears"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "ferc1",
+                "path": "ftp://eforms1.ferc.gov/f1allyears"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -182,8 +173,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "region_id_epaipm",
                         "type": "string",
                         "description": "Name of the IPM region",
@@ -220,26 +210,22 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": "region_id_epaipm",
-                        "reference": {
-                            "resource": "regions_entity_epaipm",
-                            "fields": "region_id_epaipm"
-                        }
+                "foreignKeys": [{
+                    "fields": "region_id_epaipm",
+                    "reference": {
+                        "resource": "regions_entity_epaipm",
+                        "fields": "region_id_epaipm"
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -260,8 +246,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "EIA Plant Identification number. One to five digit numeric.",
@@ -274,26 +259,22 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": "region",
-                        "reference": {
-                            "resource": "regions_entity_epaipm",
-                            "fields": "region_id_epaipm"
-                        }
+                "foreignKeys": [{
+                    "fields": "region",
+                    "reference": {
+                        "resource": "regions_entity_epaipm",
+                        "fields": "region_id_epaipm"
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -315,8 +296,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "line_id",
                         "type": "string",
                         "description": "A human readable string uniquely identifying the FERC depreciation account. Used in lieu of the actual line number, as those numbers are not guaranteed to be consistent from year to year.",
@@ -336,13 +316,11 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -363,8 +341,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "utility_id_eia",
                         "type": "integer",
                         "format": "default"
@@ -383,26 +360,22 @@
                 "primaryKey": [
                     "utility_id_eia"
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": "utility_id_pudl",
-                        "reference": {
-                            "resource": "utilities_pudl",
-                            "fields": "utility_id_pudl"
-                        }
+                "foreignKeys": [{
+                    "fields": "utility_id_pudl",
+                    "reference": {
+                        "resource": "utilities_pudl",
+                        "fields": "utility_id_pudl"
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -423,8 +396,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "abbr",
                         "type": "string",
                         "format": "default"
@@ -442,19 +414,15 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia923",
-                    "path": "https://www.eia.gov/electricity/data/eia923"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia923",
+                "path": "https://www.eia.gov/electricity/data/eia923"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -474,8 +442,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "datasource",
                         "type": "string",
                         "description": "The dataset from the list of datasets that can be pulled into PUDL.",
@@ -495,13 +462,11 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -522,8 +487,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "abbr",
                         "type": "string",
                         "format": "default"
@@ -541,19 +505,15 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia923",
-                    "path": "https://www.eia.gov/electricity/data/eia923"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia923",
+                "path": "https://www.eia.gov/electricity/data/eia923"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -574,8 +534,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "utility_id_pudl",
                         "type": "integer",
                         "description": "A manually assigned PUDL utility ID. Should probably be constant over time.",
@@ -595,13 +554,11 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -622,8 +579,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "utility_id_ferc1",
                         "type": "integer",
                         "description": "FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.",
@@ -646,8 +602,7 @@
                     "utility_id_ferc1",
                     "plant_name_ferc1"
                 ],
-                "foreignKeys": [
-                    {
+                "foreignKeys": [{
                         "fields": "utility_id_ferc1",
                         "reference": {
                             "resource": "utilities_ferc1",
@@ -666,13 +621,11 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -693,8 +646,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "EIA Plant Identification number. One to five digit numeric.",
@@ -719,32 +671,26 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": ["plant_id_eia", "generator_id"],
-                        "reference": {
-                            "resource": "generators_entity_eia",
-                            "fields": ["plant_id_eia", "generator_id"]
-                        }
+                "foreignKeys": [{
+                    "fields": ["plant_id_eia", "generator_id"],
+                    "reference": {
+                        "resource": "generators_entity_eia",
+                        "fields": ["plant_id_eia", "generator_id"]
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia923",
-                    "path": "https://www.eia.gov/electricity/data/eia923"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia923",
+                "path": "https://www.eia.gov/electricity/data/eia923"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -764,8 +710,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "utility_id_eia",
                         "type": "integer",
                         "description": "The EIA Utility Identification number.",
@@ -791,13 +736,11 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -818,8 +761,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "EIA Plant Identification number. One to five digit numeric.",
@@ -950,26 +892,22 @@
                     "plant_id_eia",
                     "generator_id"
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": "plant_id_eia",
-                        "reference": {
-                            "resource": "plants_entity_eia",
-                            "fields": "plant_id_eia"
-                        }
+                "foreignKeys": [{
+                    "fields": "plant_id_eia",
+                    "reference": {
+                        "resource": "plants_entity_eia",
+                        "fields": "plant_id_eia"
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -990,13 +928,11 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
-                        "name": "region_id_epaipm",
-                        "type": "string",
-                        "format": "default"
-                    }
-                ],
+                "fields": [{
+                    "name": "region_id_epaipm",
+                    "type": "string",
+                    "format": "default"
+                }],
                 "primaryKey": [
                     "region_id_epaipm"
                 ],
@@ -1004,13 +940,11 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -1032,11 +966,10 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
+                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
                         "format": "default"
                     },
                     {
@@ -1263,32 +1196,26 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": ["utility_id_ferc1", "plant_name_ferc1"],
-                        "reference": {
-                            "resource": "plants_ferc1",
-                            "fields": ["utility_id_ferc1", "plant_name_ferc1"]
-                        }
+                "foreignKeys": [{
+                    "fields": ["utility_id_ferc1", "plant_name_ferc1"],
+                    "reference": {
+                        "resource": "plants_ferc1",
+                        "fields": ["utility_id_ferc1", "plant_name_ferc1"]
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "ferc1",
-                    "path": "ftp://eforms1.ferc.gov/f1allyears"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "ferc1",
+                "path": "ftp://eforms1.ferc.gov/f1allyears"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -1309,8 +1236,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "utility_id_ferc1",
                         "type": "integer",
                         "description": "FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.",
@@ -1323,92 +1249,611 @@
                         "format": "default"
                     },
                     {
-                        "name": "ferc_account_id",
+                        "name": "amount_type",
                         "type": "string",
-                        "description": "Identification number associated with each FERC account, as described in the FERC Uniform System of Accounts for Electric Plant.",
+                        "constraints": {
+                            "enum": [
+                                "starting_balance",
+                                "additions",
+                                "retirements",
+                                "adjustments",
+                                "transfers",
+                                "ending_balance"
+                            ]
+                        },
+                        "description": "String indicating which original FERC Form 1 column the listed amount came from. Each field should have one (potentially NA) value of each type for each utility in each year, and the ending_balance should equal the sum of starting_balance, additions, retirements, adjustments, and transfers.",
                         "format": "default"
                     },
                     {
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
+                        "description": "Identifier indicating original FERC Form 1 source records. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}. Due to row unpacking in the plant_in_service_ferc1 table, this ID will not be unique. For each record_id there should be a single row corresponding to each amount_type.",
                         "format": "default"
                     },
                     {
-                        "name": "beginning_year_balance",
+                        "name": "distribution_acct360_land",
                         "type": "number",
-                        "description": "Balance in the associated account at the beginning of the year. Nominal USD.",
-                        "format": "default"
+                        "format": "default",
+                        "description": "FERC Account 360: Distribution Plant Land and Land Rights."
                     },
                     {
-                        "name": "additions",
+                        "name": "distribution_acct361_structures",
                         "type": "number",
-                        "description": "Change in account balance during the year due to additions. Nominal USD.",
-                        "format": "default"
+                        "format": "default",
+                        "description": "FERC Account 361: Distribution Plant Structures and Improvements."
                     },
                     {
-                        "name": "retirements",
+                        "name": "distribution_acct362_station_equip",
                         "type": "number",
-                        "description": "Change in account balance during the year due to retirements. Nominal USD.",
-                        "format": "default"
+                        "format": "default",
+                        "description": "FERC Account 362: Distribution Plant Station Equipment."
                     },
                     {
-                        "name": "adjustments",
+                        "name": "distribution_acct363_storage_battery_equip",
                         "type": "number",
-                        "description": "Change in account balance during the year due to adjustments. Nominal USD.",
-                        "format": "default"
+                        "format": "default",
+                        "description": "FERC Account 363: Distribution Plant Storage Battery Equipment."
                     },
                     {
-                        "name": "transfers",
+                        "name": "distribution_acct364_poles_towers",
                         "type": "number",
-                        "description": "Change in account balance during the year due to transfers. Nominal USD.",
-                        "format": "default"
+                        "format": "default",
+                        "description": "FERC Account 364: Distribution Plant Poles, Towers, and Fixtures."
                     },
                     {
-                        "name": "year_end_balance",
+                        "name": "distribution_acct365_overhead_conductors",
                         "type": "number",
-                        "description": "Balance in the associated account at the end of the year. Nominal USD.",
-                        "format": "default"
+                        "format": "default",
+                        "description": "FERC Account 365: Distribution Plant Overhead Conductors and Devices."
+                    },
+                    {
+                        "name": "distribution_acct366_underground_conduit",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 366: Distribution Plant Underground Conduit."
+                    },
+                    {
+                        "name": "distribution_acct367_underground_conductors",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 367: Distribution Plant Underground Conductors and Devices."
+                    },
+                    {
+                        "name": "distribution_acct368_line_transformers",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 368: Distribution Plant Line Transformers."
+                    },
+                    {
+                        "name": "distribution_acct369_services",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 369: Distribution Plant Services."
+                    },
+                    {
+                        "name": "distribution_acct370_meters",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 370: Distribution Plant Meters."
+                    },
+                    {
+                        "name": "distribution_acct371_customer_installations",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 371: Distribution Plant Installations on Customer Premises."
+                    },
+                    {
+                        "name": "distribution_acct372_leased_property",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 372: Distribution Plant Leased Property on Customer Premises."
+                    },
+                    {
+                        "name": "distribution_acct373_street_lighting",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 373: Distribution PLant Street Lighting and Signal Systems."
+                    },
+                    {
+                        "name": "distribution_acct374_asset_retirement",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 374: Distribution Plant Asset Retirement Costs."
+                    },
+                    {
+                        "name": "distribution_total",
+                        "type": "number",
+                        "format": "default",
+                        "description": "Distribution Plant Total (FERC Accounts 360-374)."
+                    },
+                    {
+                        "name": "electric_plant_in_service_total",
+                        "type": "number",
+                        "format": "default",
+                        "description": "Total Electric Plant in Service (FERC Accounts 101, 102, 103 and 106)"
+                    },
+                    {
+                        "name": "electric_plant_purchased_acct102",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 102: Electric Plant Purchased."
+                    },
+                    {
+                        "name": "electric_plant_sold_acct102",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 102: Electric Plant Sold (Negative)."
+                    },
+                    {
+                        "name": "experimental_plant_acct103",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 103: Experimental Plant Unclassified."
+                    },
+                    {
+                        "name": "general_acct389_land",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 389: General Land and Land Rights."
+                    },
+                    {
+                        "name": "general_acct390_structures",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 390: General Structures and Improvements."
+                    },
+                    {
+                        "name": "general_acct391_office_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 391: General Office Furniture and Equipment."
+                    },
+                    {
+                        "name": "general_acct392_transportation_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 392: General Transportation Equipment."
+                    },
+                    {
+                        "name": "general_acct393_stores_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 393: General Stores Equipment."
+                    },
+                    {
+                        "name": "general_acct394_shop_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 394: General Tools, Shop, and Garage Equipment."
+                    },
+                    {
+                        "name": "general_acct395_lab_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 395: General Laboratory Equipment."
+                    },
+                    {
+                        "name": "general_acct396_power_operated_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 396: General Power Operated Equipment."
+                    },
+                    {
+                        "name": "general_acct397_communication_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 397: General Communication Equipment."
+                    },
+                    {
+                        "name": "general_acct398_misc_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 398: General Miscellaneous Equipment."
+                    },
+                    {
+                        "name": "general_acct399_1_asset_retirement",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 399.1: Asset Retirement Costs for General Plant."
+                    },
+                    {
+                        "name": "general_acct399_other_property",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 399: General Plant Other Tangible Property."
+                    },
+                    {
+                        "name": "general_subtotal",
+                        "type": "number",
+                        "format": "default",
+                        "description": "General Plant Subtotal (FERC Accounts 389-398)."
+                    },
+                    {
+                        "name": "general_total",
+                        "type": "number",
+                        "format": "default",
+                        "description": "General Plant Total (FERC Accounts 389-399.1)."
+                    },
+                    {
+                        "name": "hydro_acct330_land",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 330: Hydro Land and Land Rights."
+                    },
+                    {
+                        "name": "hydro_acct331_structures",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 331: Hydro Structures and Improvements."
+                    },
+                    {
+                        "name": "hydro_acct332_reservoirs_dams_waterways",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 332: Hydro Reservoirs, Dams, and Waterways."
+                    },
+                    {
+                        "name": "hydro_acct333_wheels_turbines_generators",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 333: Hydro Water Wheels, Turbins, and Generators."
+                    },
+                    {
+                        "name": "hydro_acct334_accessory_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 334: Hydro Accessory Electric Equipment."
+                    },
+                    {
+                        "name": "hydro_acct335_misc_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 335: Hydro Miscellaneous Power Plant Equipment."
+                    },
+                    {
+                        "name": "hydro_acct336_roads_railroads_bridges",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 336: Hydro Roads, Railroads, and Bridges."
+                    },
+                    {
+                        "name": "hydro_acct337_asset_retirement",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 337: Asset Retirement Costs for Hydraulic Production."
+                    },
+                    {
+                        "name": "hydro_total",
+                        "type": "number",
+                        "format": "default",
+                        "description": "Hydraulic Production Plant Total (FERC Accounts 330-337)"
+                    },
+                    {
+                        "name": "intangible_acct301_organization",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 301: Intangible Plant Organization."
+                    },
+                    {
+                        "name": "intangible_acct302_franchises_consents",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 302: Intangible Plant Franchises and Consents."
+                    },
+                    {
+                        "name": "intangible_acct303_misc",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 303: Miscellaneous Intangible Plant."
+                    },
+                    {
+                        "name": "intangible_total",
+                        "type": "number",
+                        "format": "default",
+                        "description": "Intangible Plant Total (FERC Accounts 301-303)."
+                    },
+                    {
+                        "name": "major_electric_plant_acct101_acct106_total",
+                        "type": "number",
+                        "format": "default",
+                        "description": "Total Major Electric Plant in Service (FERC Accounts 101 and 106)."
+                    },
+                    {
+                        "name": "nuclear_acct320_land",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 320: Nuclear Land and Land Rights."
+                    },
+                    {
+                        "name": "nuclear_acct321_structures",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 321: Nuclear Structures and Improvements."
+                    },
+                    {
+                        "name": "nuclear_acct322_reactor_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 322: Nuclear Reactor Plant Equipment."
+                    },
+                    {
+                        "name": "nuclear_acct323_turbogenerators",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 323: Nuclear Turbogenerator Units"
+                    },
+                    {
+                        "name": "nuclear_acct324_accessory_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 324: Nuclear Accessory Electric Equipment."
+                    },
+                    {
+                        "name": "nuclear_acct325_misc_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 325: Nuclear Miscellaneous Power Plant Equipment."
+                    },
+                    {
+                        "name": "nuclear_acct326_asset_retirement",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 326: Asset Retirement Costs for Nuclear Production."
+                    },
+                    {
+                        "name": "nuclear_total",
+                        "type": "number",
+                        "format": "default",
+                        "description": "Total Nuclear Production Plant (FERC Accounts 320-326)"
+                    },
+                    {
+                        "name": "other_acct340_land",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 340: Other Land and Land Rights."
+                    },
+                    {
+                        "name": "other_acct341_structures",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 341: Other Structures and Improvements."
+                    },
+                    {
+                        "name": "other_acct342_fuel_accessories",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 342: Other Fuel Holders, Products, and Accessories."
+                    },
+                    {
+                        "name": "other_acct343_prime_movers",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 343: Other Prime Movers."
+                    },
+                    {
+                        "name": "other_acct344_generators",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 344: Other Generators."
+                    },
+                    {
+                        "name": "other_acct345_accessory_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 345: Other Accessory Electric Equipment."
+                    },
+                    {
+                        "name": "other_acct346_misc_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 346: Other Miscellaneous Power Plant Equipment."
+                    },
+                    {
+                        "name": "other_acct347_asset_retirement",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 347: Asset Retirement Costs for Other Production."
+                    },
+                    {
+                        "name": "other_total",
+                        "type": "number",
+                        "format": "default",
+                        "description": "Total Other Production Plant (FERC Accounts 340-347)."
+                    },
+                    {
+                        "name": "production_total",
+                        "type": "number",
+                        "format": "default",
+                        "description": "Total Production Plant (FERC Accounts 310-347)."
+                    },
+                    {
+                        "name": "rtmo_acct380_land",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 380: RTMO Land and Land Rights."
+                    },
+                    {
+                        "name": "rtmo_acct381_structures",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 381: RTMO Structures and Improvements."
+                    },
+                    {
+                        "name": "rtmo_acct382_computer_hardware",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 382: RTMO Computer Hardware."
+                    },
+                    {
+                        "name": "rtmo_acct383_computer_software",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 383: RTMO Computer Software."
+                    },
+                    {
+                        "name": "rtmo_acct384_communication_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 384: RTMO Communication Equipment."
+                    },
+                    {
+                        "name": "rtmo_acct385_misc_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 385: RTMO Miscellaneous Equipment."
+                    },
+                    {
+                        "name": "rtmo_total",
+                        "type": "number",
+                        "format": "default",
+                        "description": "Total RTMO Plant (FERC Accounts 380-386)"
+                    },
+                    {
+                        "name": "steam_acct310_land",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 310: Steam Plant Land and Land Rights."
+                    },
+                    {
+                        "name": "steam_acct311_structures",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 311: Steam Plant Structures and Improvements."
+                    },
+                    {
+                        "name": "steam_acct312_boiler_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 312: Steam Boiler Plant Equipment."
+                    },
+                    {
+                        "name": "steam_acct313_engines",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 313: Steam Engines and Engine-Driven Generators."
+                    },
+                    {
+                        "name": "steam_acct314_turbogenerators",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 314: Steam Turbogenerator Units."
+                    },
+                    {
+                        "name": "steam_acct315_accessory_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 315: Steam Accessory Electric Equipment."
+                    },
+                    {
+                        "name": "steam_acct316_misc_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 316: Steam Miscellaneous Power Plant Equipment."
+                    },
+                    {
+                        "name": "steam_acct317_asset_retirement",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 317: Asset Retirement Costs for Steam Production."
+                    },
+                    {
+                        "name": "steam_total",
+                        "type": "number",
+                        "format": "default",
+                        "description": "Total Steam Production Plant (FERC Accounts 310-317)."
+                    },
+                    {
+                        "name": "transmission_acct350_land",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 350: Transmission Land and Land Rights."
+                    },
+                    {
+                        "name": "transmission_acct352_structures",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 352: Transmission Structures and Improvements."
+                    },
+                    {
+                        "name": "transmission_acct353_station_equip",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 353: Transmission Station Equipment."
+                    },
+                    {
+                        "name": "transmission_acct354_towers",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 354: Transmission Towers and Fixtures."
+                    },
+                    {
+                        "name": "transmission_acct355_poles",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 355: Transmission Poles and Fixtures."
+                    },
+                    {
+                        "name": "transmission_acct356_overhead_conductors",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 356: Overhead Transmission Conductors and Devices."
+                    },
+                    {
+                        "name": "transmission_acct357_underground_conduit",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 357: Underground Transmission Conduit."
+                    },
+                    {
+                        "name": "transmission_acct358_underground_conductors",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 358: Underground Transmission Conductors."
+                    },
+                    {
+                        "name": "transmission_acct359_1_asset_retirement",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 359.1: Asset Retirement Costs for Transmission Plant."
+                    },
+                    {
+                        "name": "transmission_acct359_roads_trails",
+                        "type": "number",
+                        "format": "default",
+                        "description": "FERC Account 359: Transmission Roads and Trails."
+                    },
+                    {
+                        "name": "transmission_total",
+                        "type": "number",
+                        "format": "default",
+                        "description": "Total Transmission Plant (FERC Accounts 350-359.1)"
                     }
                 ],
                 "primaryKey": [
                     "utility_id_ferc1",
                     "report_year",
-                    "ferc_account_id"
+                    "amount_type"
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": "utility_id_ferc1",
-                        "reference": {
-                            "resource": "utilities_ferc1",
-                            "fields": "utility_id_ferc1"
-                        }
-                    },
-                    {
-                        "fields": "ferc_account_id",
-                        "reference": {
-                            "resource": "ferc_accounts",
-                            "fields": "ferc_account_id"
-                        }
+                "foreignKeys": [{
+                    "fields": "utility_id_ferc1",
+                    "reference": {
+                        "resource": "utilities_ferc1",
+                        "fields": "utility_id_ferc1"
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "ferc1",
-                    "path": "ftp://eforms1.ferc.gov/f1allyears"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "ferc1",
+                "path": "ftp://eforms1.ferc.gov/f1allyears"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -1429,11 +1874,10 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
+                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
                         "format": "default"
                     },
                     {
@@ -1544,19 +1988,15 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "ferc1",
-                    "path": "ftp://eforms1.ferc.gov/f1allyears"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "ferc1",
+                "path": "ftp://eforms1.ferc.gov/f1allyears"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -1576,8 +2016,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "EIA Plant Identification number. One to five digit numeric.",
@@ -1890,32 +2329,26 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": ["plant_id_eia", "generator_id"],
-                        "reference": {
-                            "resource": "generators_entity_eia",
-                            "fields": ["plant_id_eia", "generator_id"]
-                        }
+                "foreignKeys": [{
+                    "fields": ["plant_id_eia", "generator_id"],
+                    "reference": {
+                        "resource": "generators_entity_eia",
+                        "fields": ["plant_id_eia", "generator_id"]
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia860",
-                    "path": "https://www.eia.gov/electricity/data/eia860"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia860",
+                "path": "https://www.eia.gov/electricity/data/eia860"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -1935,8 +2368,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "report_date",
                         "type": "date",
                         "description": "Date reported.",
@@ -2078,8 +2510,7 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
+                "foreignKeys": [{
                         "fields": "utility_id_eia",
                         "reference": {
                             "resource": "utilities_entity_eia",
@@ -2098,19 +2529,15 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia860",
-                    "path": "https://www.eia.gov/electricity/data/eia860"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia860",
+                "path": "https://www.eia.gov/electricity/data/eia860"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -2131,8 +2558,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "plant_id_pudl",
                         "type": "integer",
                         "description": "A manually assigned PUDL plant ID. Should probably be constant over time.",
@@ -2152,13 +2578,11 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -2179,8 +2603,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "abbr",
                         "type": "string",
                         "format": "default"
@@ -2198,19 +2621,15 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia923",
-                    "path": "https://www.eia.gov/electricity/data/eia923"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia923",
+                "path": "https://www.eia.gov/electricity/data/eia923"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -2231,8 +2650,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "utility_id_ferc1",
                         "type": "integer",
                         "description": "FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.",
@@ -2247,7 +2665,7 @@
                     {
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
+                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
                         "format": "default"
                     },
                     {
@@ -2286,8 +2704,7 @@
                     "report_year",
                     "line_id"
                 ],
-                "foreignKeys": [
-                    {
+                "foreignKeys": [{
                         "fields": "utility_id_ferc1",
                         "reference": {
                             "resource": "utilities_ferc1",
@@ -2306,19 +2723,15 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "ferc1",
-                    "path": "ftp://eforms1.ferc.gov/f1allyears"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "ferc1",
+                "path": "ftp://eforms1.ferc.gov/f1allyears"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -2338,8 +2751,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "abbr",
                         "type": "string",
                         "format": "default"
@@ -2357,19 +2769,15 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia923",
-                    "path": "https://www.eia.gov/electricity/data/eia923"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia923",
+                "path": "https://www.eia.gov/electricity/data/eia923"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -2389,8 +2797,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "id",
                         "type": "integer",
                         "description": "PUDL issued surrogate key.",
@@ -2559,8 +2966,7 @@
                 "primaryKey": [
                     "id"
                 ],
-                "foreignKeys": [
-                    {
+                "foreignKeys": [{
                         "fields": "plant_id_eia",
                         "reference": {
                             "resource": "plants_entity_eia",
@@ -2600,19 +3006,15 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia923",
-                    "path": "https://www.eia.gov/electricity/data/eia923"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia923",
+                "path": "https://www.eia.gov/electricity/data/eia923"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -2633,8 +3035,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "utility_id_ferc1",
                         "type": "integer",
                         "description": "FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.",
@@ -2656,26 +3057,22 @@
                 "primaryKey": [
                     "utility_id_ferc1"
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": "utility_id_pudl",
-                        "reference": {
-                            "resource": "utilities_pudl",
-                            "fields": "utility_id_pudl"
-                        }
+                "foreignKeys": [{
+                    "fields": "utility_id_pudl",
+                    "reference": {
+                        "resource": "utilities_pudl",
+                        "fields": "utility_id_pudl"
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -2696,8 +3093,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "EIA Plant Identification number. One to five digit numeric.",
@@ -2740,32 +3136,26 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": ["plant_id_eia", "generator_id"],
-                        "reference": {
-                            "resource": "generators_entity_eia",
-                            "fields": ["plant_id_eia", "generator_id"]
-                        }
+                "foreignKeys": [{
+                    "fields": ["plant_id_eia", "generator_id"],
+                    "reference": {
+                        "resource": "generators_entity_eia",
+                        "fields": ["plant_id_eia", "generator_id"]
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia860",
-                    "path": "https://www.eia.gov/electricity/data/eia860"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia860",
+                "path": "https://www.eia.gov/electricity/data/eia860"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -2785,8 +3175,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "abbr",
                         "type": "string",
                         "format": "default"
@@ -2804,19 +3193,15 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia923",
-                    "path": "https://www.eia.gov/electricity/data/eia923"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia923",
+                "path": "https://www.eia.gov/electricity/data/eia923"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -2836,8 +3221,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "abbr",
                         "type": "string",
                         "format": "default"
@@ -2855,19 +3239,15 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia923",
-                    "path": "https://www.eia.gov/electricity/data/eia923"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia923",
+                "path": "https://www.eia.gov/electricity/data/eia923"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -2887,8 +3267,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "mine_id_pudl",
                         "type": "integer",
                         "description": "PUDL issued surrogate key.",
@@ -3012,19 +3391,15 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia923",
-                    "path": "https://www.eia.gov/electricity/data/eia923"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia923",
+                "path": "https://www.eia.gov/electricity/data/eia923"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -3044,8 +3419,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
                         "format": "default"
@@ -3064,26 +3438,22 @@
                 "primaryKey": [
                     "plant_id_eia"
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": "plant_id_pudl",
-                        "reference": {
-                            "resource": "plants_pudl",
-                            "fields": "plant_id_pudl"
-                        }
+                "foreignKeys": [{
+                    "fields": "plant_id_pudl",
+                    "reference": {
+                        "resource": "plants_pudl",
+                        "fields": "plant_id_pudl"
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -3105,8 +3475,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "ferc_account_id",
                         "type": "string",
                         "description": "Account number, from FERC's Uniform System of Accounts for Electric Plant. Also includes higher level labeled categories.",
@@ -3126,13 +3495,11 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -3153,8 +3520,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "utility_id_pudl",
                         "type": "integer",
                         "format": "default"
@@ -3169,8 +3535,7 @@
                     "utility_id_pudl",
                     "plant_id_pudl"
                 ],
-                "foreignKeys": [
-                    {
+                "foreignKeys": [{
                         "fields": "utility_id_pudl",
                         "reference": {
                             "resource": "utilities_pudl",
@@ -3189,13 +3554,11 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -3216,8 +3579,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "EIA Plant Identification number. One to five digit numeric.",
@@ -3356,32 +3718,26 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": "plant_id_eia",
-                        "reference": {
-                            "resource": "plants_entity_eia",
-                            "fields": "plant_id_eia"
-                        }
+                "foreignKeys": [{
+                    "fields": "plant_id_eia",
+                    "reference": {
+                        "resource": "plants_entity_eia",
+                        "fields": "plant_id_eia"
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia860",
-                    "path": "https://www.eia.gov/electricity/data/eia860"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia860",
+                "path": "https://www.eia.gov/electricity/data/eia860"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -3401,8 +3757,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "EIA Plant Identification number. One to five digit numeric.",
@@ -3481,8 +3836,7 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
+                "foreignKeys": [{
                         "fields": "plant_id_eia",
                         "reference": {
                             "resource": "plants_entity_eia",
@@ -3515,19 +3869,15 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia923",
-                    "path": "https://www.eia.gov/electricity/data/eia923"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia923",
+                "path": "https://www.eia.gov/electricity/data/eia923"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -3548,11 +3898,10 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
+                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
                         "format": "default"
                     },
                     {
@@ -3658,32 +4007,26 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": ["plant_name_original", "utility_id_ferc1"],
-                        "reference": {
-                            "resource": "plants_ferc1",
-                            "fields": ["plant_name_ferc1", "utility_id_ferc1"]
-                        }
+                "foreignKeys": [{
+                    "fields": ["plant_name_original", "utility_id_ferc1"],
+                    "reference": {
+                        "resource": "plants_ferc1",
+                        "fields": ["plant_name_ferc1", "utility_id_ferc1"]
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "ferc1",
-                    "path": "ftp://eforms1.ferc.gov/f1allyears"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "ferc1",
+                "path": "ftp://eforms1.ferc.gov/f1allyears"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -3703,11 +4046,10 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
+                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
                         "format": "default"
                     },
                     {
@@ -3958,32 +4300,26 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": ["plant_name_ferc1", "utility_id_ferc1"],
-                        "reference": {
-                            "resource": "plants_ferc1",
-                            "fields": ["plant_name_ferc1", "utility_id_ferc1"]
-                        }
+                "foreignKeys": [{
+                    "fields": ["plant_name_ferc1", "utility_id_ferc1"],
+                    "reference": {
+                        "resource": "plants_ferc1",
+                        "fields": ["plant_name_ferc1", "utility_id_ferc1"]
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "ferc1",
-                    "path": "ftp://eforms1.ferc.gov/f1allyears"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "ferc1",
+                "path": "ftp://eforms1.ferc.gov/f1allyears"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -4003,8 +4339,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "EIA Plant Identification number. One to five digit numeric.",
@@ -4059,32 +4394,26 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": "fuel_type_code",
-                        "reference": {
-                            "resource": "fuel_type_eia923",
-                            "fields": "abbr"
-                        }
+                "foreignKeys": [{
+                    "fields": "fuel_type_code",
+                    "reference": {
+                        "resource": "fuel_type_eia923",
+                        "fields": "abbr"
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia923",
-                    "path": "https://www.eia.gov/electricity/data/eia923"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia923",
+                "path": "https://www.eia.gov/electricity/data/eia923"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -4104,8 +4433,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "state",
                         "type": "string",
                         "constraints": {
@@ -4323,19 +4651,15 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "epacems",
-                    "path": "ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "epacems",
+                "path": "ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -4355,8 +4679,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "region_from",
                         "type": "string",
                         "description": "Name of the IPM region sending electricity",
@@ -4387,8 +4710,7 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
+                "foreignKeys": [{
                         "fields": "region_to",
                         "reference": {
                             "resource": "regions_entity_epaipm",
@@ -4407,13 +4729,11 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -4435,11 +4755,10 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
+                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
                         "format": "default"
                     },
                     {
@@ -4697,32 +5016,26 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": ["plant_name_ferc1", "utility_id_ferc1"],
-                        "reference": {
-                            "resource": "plants_ferc1",
-                            "fields": ["plant_name_ferc1", "utility_id_ferc1"]
-                        }
+                "foreignKeys": [{
+                    "fields": ["plant_name_ferc1", "utility_id_ferc1"],
+                    "reference": {
+                        "resource": "plants_ferc1",
+                        "fields": ["plant_name_ferc1", "utility_id_ferc1"]
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "ferc1",
-                    "path": "ftp://eforms1.ferc.gov/f1allyears"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "ferc1",
+                "path": "ftp://eforms1.ferc.gov/f1allyears"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -4742,8 +5055,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "utility_id_eia",
                         "type": "integer",
                         "description": "EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.",
@@ -4804,32 +5116,26 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": "utility_id_eia",
-                        "reference": {
-                            "resource": "utilities_entity_eia",
-                            "fields": "utility_id_eia"
-                        }
+                "foreignKeys": [{
+                    "fields": "utility_id_eia",
+                    "reference": {
+                        "resource": "utilities_entity_eia",
+                        "fields": "utility_id_eia"
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
-            "sources": [
-                {
-                    "title": "eia860",
-                    "path": "https://www.eia.gov/electricity/data/eia860"
-                }
-            ]
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": [{
+                "title": "eia860",
+                "path": "https://www.eia.gov/electricity/data/eia860"
+            }]
         },
         {
             "profile": "tabular-data-resource",
@@ -4849,8 +5155,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "EIA Plant Identification number. One to five digit numeric.",
@@ -4873,26 +5178,22 @@
                     "plant_id_eia",
                     "boiler_id"
                 ],
-                "foreignKeys": [
-                    {
-                        "fields": "plant_id_eia",
-                        "reference": {
-                            "resource": "plants_entity_eia",
-                            "fields": "plant_id_eia"
-                        }
+                "foreignKeys": [{
+                    "fields": "plant_id_eia",
+                    "reference": {
+                        "resource": "plants_entity_eia",
+                        "fields": "plant_id_eia"
                     }
-                ],
+                }],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -4913,8 +5214,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "EIA Plant Identification number. One to five digit numeric.",
@@ -5066,13 +5366,11 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         },
         {
@@ -5093,8 +5391,7 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [
-                    {
+                "fields": [{
                         "name": "joint_constraint_id",
                         "type": "integer",
                         "description": "Identification of groups that make up a single joint constraint",
@@ -5125,8 +5422,7 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [
-                    {
+                "foreignKeys": [{
                         "fields": "region_to",
                         "reference": {
                             "resource": "regions_entity_epaipm",
@@ -5145,13 +5441,11 @@
                     ""
                 ]
             },
-            "licenses": [
-                {
-                    "name": "CC-BY-4.0",
-                    "title": "Creative Commons Attribution 4.0",
-                    "path": "https://creativecommons.org/licenses/by/4.0/"
-                }
-            ],
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
             "sources": []
         }
     ]

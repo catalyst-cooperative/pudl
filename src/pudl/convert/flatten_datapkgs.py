@@ -155,10 +155,13 @@ def flatten_datapkg_bundle_metadata(datapkg_bundle_dir,
                 tuple(x.items()) for x in list_of_dicts)]
         elif item == 'sources' or 'resources':
             item_list = []
+            # these are the keys we'll use to determine uniqueness
+            keys = {'sources': 'path',
+                    'resources': 'name'}
             # pull only one of each dataset creating a dictionary with the
             # title as the key (both source and resources have titles that
             # should never differ between data packages).
-            for i in dict([(item_dict['title'], item_dict)
+            for i in dict([(item_dict[keys[item]], item_dict)
                            for item_dict in list_of_dicts]).values():
                 item_list.append(i)
             datapkg_descriptor[item] = item_list
