@@ -2053,6 +2053,12 @@
                         "format": "default"
                     },
                     {
+                        "name": "utility_id_eia",
+                        "type": "integer",
+                        "description": "EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.",
+                        "format": "default"
+                    },
+                    {
                         "name": "capacity_mw",
                         "type": "number",
                         "description": "The highest value on the generator nameplate in megawatts rounded to the nearest tenth.",
@@ -2334,6 +2340,13 @@
                     "reference": {
                         "resource": "generators_entity_eia",
                         "fields": ["plant_id_eia", "generator_id"]
+                    }
+                },
+                {
+                    "fields": "utility_id_eia",
+                    "reference": {
+                        "resource": "utilities_entity_eia",
+                        "fields": "utility_id_eia"
                     }
                 }],
                 "missingValues": [

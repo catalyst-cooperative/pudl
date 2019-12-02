@@ -2113,7 +2113,7 @@ entities = {
          'turbines_inverters_hydrokinetics', 'nameplate_power_factor',
          'uprate_derate_during_year', 'uprate_derate_completed_date',
          'current_planned_operating_date', 'summer_estimated_capability_mw',
-         'winter_estimated_capability_mw', 'retirement_date'],
+         'winter_estimated_capability_mw', 'retirement_date', 'utility_id_eia'],
         # need type fixing
         {}
         # {'plant_id_eia': 'int64',
