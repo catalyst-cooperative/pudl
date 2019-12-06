@@ -72,7 +72,7 @@ def unpack_table(ferc1_df, table_name, data_cols, data_rows):
 
     Args:
         ferc1_df (pandas.DataFrame): Raw FERC Form 1 DataFrame from the DB.
-        table_name (str): Original name of the FERC Form 1 DB table (f1_...)
+        table_name (str): Original name of the FERC Form 1 DB table.
         data_cols (list): List of strings corresponding to the original FERC
             Form 1 database table column labels -- these are the columns of
             data that we are extracting (it can be a subset of the columns
