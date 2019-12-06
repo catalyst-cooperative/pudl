@@ -765,6 +765,7 @@ def drop_tables(engine,
 
     Returns:
         None
+
     """
     md = sa.MetaData()
     md.reflect(engine)
@@ -784,10 +785,13 @@ def merge_dicts(list_of_dicts):
 
     Given any number of dicts, shallow copy and merge into a new dict,
     precedence goes to key value pairs in latter dicts.
+
     Args:
         dict_args (list): a list of dictionaries.
+
     Returns:
-        dictionary
+        dict
+
     """
     merge_dict = {}
     for dictionary in list_of_dicts:
@@ -800,7 +804,7 @@ def convert_cols_dtypes(df, data_source, name=None):
     Convert the data types for a dataframe.
 
     This function will convert a PUDL dataframe's columns to the correct data
-    type. It uses a dictionary in constants.py called column_dtypes to asign
+    type. It uses a dictionary in constants.py called column_dtypes to assign
     the right type.
 
     Boolean type conversions created a special problem, because null values in
@@ -820,9 +824,11 @@ def convert_cols_dtypes(df, data_source, name=None):
             tables.
         data_source (str): the name of the datasource
         name (str): name of the table (for logging only!)
+
     Returns:
         pandas.DataFrame : a dataframe that has been fully converted to data
         types as outlined in pc.
+
     """
     # get me all of the columns for the table in the constants dtype dict
     column_types_table = {key: value for key, value
@@ -877,7 +883,7 @@ def convert_dfs_dict_dtypes(dfs_dict, data_source):
     return cleaned_dfs_dict
 
 
-def generate_rolling_av(df, group_cols, data_col, win_type='triang'):
+def generate_rolling_avg(df, group_cols, data_col, win_type='triang'):
     """Generate a rolling average."""
     df = df.astype({'report_date': 'datetime64[ns]'})
     # create a full date range for this df
@@ -911,7 +917,7 @@ def generate_rolling_av(df, group_cols, data_col, win_type='triang'):
                        suffixes=('', '_rolling')).reset_index()
 
 
-def fillna_w_rolling_average(df_og, group_cols, data_col, win_type='triang'):
+def fillna_w_rolling_avg(df_og, group_cols, data_col, win_type='triang'):
     """
     Filling NaNs with a rolling average.
 
@@ -925,7 +931,7 @@ def fillna_w_rolling_average(df_og, group_cols, data_col, win_type='triang'):
         pandas.DataFrame
     """
     df_og = df_og.astype({'report_date': 'datetime64[ns]'})
-    df_roll = generate_rolling_av(df_og, group_cols, data_col, win_type)
+    df_roll = generate_rolling_avg(df_og, group_cols, data_col, win_type)
     df_roll[data_col] = df_roll[data_col].fillna(
         df_roll[f'{data_col}_rolling'])
     df_new = df_og.merge(df_roll,

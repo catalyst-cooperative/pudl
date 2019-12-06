@@ -2684,7 +2684,31 @@ keywords_by_datset = {
 """dict: A dictionary of datasets (keys) and keywords (values). """
 
 column_dtypes = {
-    'eia': {
+    "ferc1": {  # Obviously this is not yet a complete list...
+        "construction_year": "Int64",  # Nullable Integer
+        "installation_year": "Int64",  # Nullable Integer
+    },
+    "epacems": {
+        'state': str,
+        'plant_id_eia': "Int64",  # Nullable Integer
+        'unitid': str,
+        'operating_datetime_utc': "datetime64[ns]",
+        'operating_time_hours': float,
+        'gross_load_mw': float,
+        'steam_load_1000_lbs': float,
+        'so2_mass_lbs': float,
+        'so2_mass_measurement_code': str,
+        'nox_rate_lbs_mmbtu': float,
+        'nox_rate_measurement_code': str,
+        'nox_mass_lbs': float,
+        'nox_mass_measurement_code': str,
+        'co2_mass_tons': float,
+        'co2_mass_measurement_code': str,
+        'heat_content_mmbtu': float,
+        'facility_id': "Int64",  # Nullable Integer
+        'unit_id_epa': "Int64",  # Nullable Integer
+    },
+    "eia": {
         'ash_content_pct': float,
         'ash_impoundment': bool,
         'ash_impoundment_lined': bool,
@@ -2695,13 +2719,13 @@ column_dtypes = {
         'boiler_id': str,
         'capacity_mw': float,
         'carbon_capture': bool,
-        'chlorine_content_ppm': pd.Int64Dtype(),
+        'chlorine_content_ppm': float,
         'city': str,
         'cofire_fuels': bool,
         'contract_expiration_date': 'datetime64[ns]',
         'contract_type_code': str,
         'county': str,
-        'county_id_fips': pd.Int32Dtype(),
+        'county_id_fips': pd.Int64Dtype(),
         'current_planned_operating_date': 'datetime64[ns]',
         'deliver_power_transgrid': bool,
         'duct_burners': bool,
@@ -2722,14 +2746,14 @@ column_dtypes = {
         'fluidized_bed_tech': bool,
         'fraction_owned': float,
         'fuel_consumed_for_electricity_mmbtu': float,
-        'fuel_consumed_for_electricity_units': pd.Int64Dtype(),
+        'fuel_consumed_for_electricity_units': float,
         'fuel_consumed_mmbtu': float,
-        'fuel_consumed_units': pd.Int64Dtype(),
+        'fuel_consumed_units': float,
         'fuel_cost_per_mmbtu': float,
         'fuel_group_code': str,
         'fuel_group_code_simple': str,
         'fuel_mmbtu_per_unit': float,
-        'fuel_qty_units': int,
+        'fuel_qty_units': float,
         # are fuel_type and fuel_type_code the same??
         # fuel_type includes 40 code-like things.. WAT, SUN, NUC, etc.
         'fuel_type': str,
@@ -2768,7 +2792,7 @@ column_dtypes = {
         'nerc_region': str,
         'net_generation_mwh': float,
         'net_metering': bool,
-        'nuclear_unit_id': pd.Int16Dtype(),
+        'nuclear_unit_id': pd.Int64Dtype(),
         'original_planned_operating_date': 'datetime64[ns]',
         'operating_date': 'datetime64[ns]',
         'operating_switch': str,
@@ -2781,7 +2805,7 @@ column_dtypes = {
         'owner_name': str,
         'owner_state': str,
         'owner_street_address': str,
-        'owner_utility_id_eia': pd.Int32Dtype(),
+        'owner_utility_id_eia': pd.Int64Dtype(),
         'owner_zip_code': str,
         # we should transition these into readable codes, not a one letter thing
         'ownership_code': str,
@@ -2798,7 +2822,7 @@ column_dtypes = {
         'planned_repower_date': 'datetime64[ns]',
         'planned_retirement_date': 'datetime64[ns]',
         'planned_uprate_date': 'datetime64[ns]',
-        'plant_id_eia': int,
+        'plant_id_eia': pd.Int64Dtype(),
         'plant_name_eia': str,
         'plants_reported_asset_manager': bool,
         'plants_reported_operator': bool,
@@ -2815,7 +2839,7 @@ column_dtypes = {
         'rto_iso_location_wholesale_reporting_id': str,
         'retirement_date': 'datetime64[ns]',
         'secondary_transportation_mode_code': str,
-        'sector_id': pd.Int16Dtype(),
+        'sector_id': pd.Int64Dtype(),
         'solid_fuel_gasification': bool,
         'startup_source_code_1': str,
         'startup_source_code_2': str,
@@ -2836,17 +2860,17 @@ column_dtypes = {
         'technology_description': str,
         'time_cold_shutdown_full_load_code': str,
         'topping_bottoming_code': str,
-        'transmission_distribution_owner_id': pd.Int32Dtype(),
+        'transmission_distribution_owner_id': pd.Int64Dtype(),
         'transmission_distribution_owner_name': str,
         'transmission_distribution_owner_state': str,
         'turbines_inverters_hydrokinetics': float,
-        'turbines_num': pd.Int32Dtype(),  # TODO: check if any turbines show up pre-2016
+        'turbines_num': pd.Int64Dtype(),  # TODO: check if any turbines show up pre-2016
         'ultrasupercritical_tech': bool,
         'unit_id_eia': str,
-        'unit_id_pudl': pd.Int32Dtype(),
+        'unit_id_pudl': pd.Int64Dtype(),
         'uprate_derate_completed_date': 'datetime64[ns]',
         'uprate_derate_during_year': bool,
-        'utility_id_eia': pd.Int32Dtype(),
+        'utility_id_eia': pd.Int64Dtype(),
         'utility_name_eia': str,
         'water_source': str,
         'winter_capacity_mw': float,

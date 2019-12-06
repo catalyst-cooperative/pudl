@@ -19,9 +19,9 @@ def plants_utils_ferc1(pudl_engine):
 
     """
     pu_df = pd.merge(
-        pd.read_sql('plants_ferc1', pudl_engine),
+        pd.read_sql("plants_ferc1", pudl_engine),
         pd.read_sql("utilities_ferc1", pudl_engine),
-        on='utility_id_ferc1')
+        on="utility_id_ferc1")
     return pu_df
 
 
