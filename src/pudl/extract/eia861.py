@@ -238,6 +238,6 @@ class ExtractorExcel(object):
             if isinstance(file_pages, str):
                 file_pages = [file_pages]
             for page_name in file_pages:
-                self.dfs[page_name] = self.get_page(
+                self.dfs[file_name + '_' + page_name] = self.get_page(
                     years, page_name, file_name)
         return self.dfs
