@@ -215,7 +215,7 @@ def get_eia860_page(page, eia860_xlsx,
 
         newdata = newdata.rename(columns=column_map)
 
-        df = df.append(newdata)
+        df = df.append(newdata, sort=True)
 
     # We need to ensure that ALL possible columns show up in the dataframe
     # that's being returned, even if they are empty, so that we know we have a

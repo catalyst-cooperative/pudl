@@ -130,7 +130,7 @@ def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
         consistently reported records were found.
     """
     # grab the dirty plant records, round and get a new consistency
-    ll_df = dirty_df.round(decimals=round_to)
+    ll_df = dirty_df.round(decimals={col: round_to})
     ll_df['table'] = 'special_case'
     ll_df = _occurrence_consistency(entity_id, ll_df, col, cols_to_consit)
     # grab the clean plants

@@ -63,55 +63,51 @@ def oob_to_nan(df, cols, lb=None, ub=None):
     return df
 
 
-def unpack_rows(ferc1_df, row_map, data_cols):
+def unpack_table(ferc1_df, table_name, data_cols, data_rows):
     """
     Normalize a row-and-column based FERC Form 1 table.
 
-    Many FERC Form 1 tables are organized with various rows containing distinct
-    data values. In order to create a normalized table, with a single row
-    containing distinct values, these rows need to be turned into columns.
-    However, which row number corresponds to what variable changes from year to
-    year, and so a row-to-variable mapping is used to ensure that the data is
-    consistently organized in the outputs.
+    Pulls the named database table from the FERC Form 1 DB and uses the
+    corresponding ferc1_row_map to unpack the row_number coded data.
 
     Args:
-        ferc1_df (pandas.DataFrame): Data Frame representing a table of the
-            cloned FERC Form 1 database. Must contain columns:
-            ``respondent_id``, ``report_year``, ``report_prd``,
-            ``spplmnt_num``, and ``row_number``.
-        row_map (pandas.DataFrame): Data Frame indicating which rows map to
-            what variables in each year of reported data. Must be indexed by
-            ``year_index``. Each column is labeled with the name of a variable
-            to be extracted from ``ferc1_df``. The value of each cell in the
-            Data Frame corresponds to the value of ``row_number`` corresponding
-            to the variable named for that column in that year. If a variable
-            does not exist for that year, the sentinel value -1 is used to
-            indicate such.
-        data_cols (list): A list of labels identifying the columns in
-            ``ferc1_df`` which contain actual data to be extracted.
+        ferc1_df (pandas.DataFrame): Raw FERC Form 1 DataFrame from the DB.
+        table_name (str): Original name of the FERC Form 1 DB table (f1_...)
+        data_cols (list): List of strings corresponding to the original FERC
+            Form 1 database table column labels -- these are the columns of
+            data that we are extracting (it can be a subset of the columns
+            which are present in the original database).
+        data_rows (list): List of row_names to extract, as defined in the
+            FERC 1 row maps. Set to slice(None) if you want all rows.
 
     Returns:
-        pandas.DataFrame: A Data Frame containing the normalized contents of
-        ``ferc1_df`` with a single record in each row, and a distinct column
-        for each value. The number of columns will correspond to the number of
-        columns defined in row_map multiplied by the number of data columns
-        listed in ``data_cols``, plus the index-like columns ``respondent_id``
-        ``report_year``, ``report_prd``, and  ``spplmnt_num``.
+        pandas.DataFrame
 
     """
-    # Index the dataframe based on the list of index_cols
-    # For each year of data, rename the row numbers to variable names based on the row_map.
-    # Unstack the dataframe based on variable names
+    # Read in the corresponding row map:
+    row_map = (
+        pd.read_csv(
+            importlib.resources.open_text(
+                "pudl.package_data.meta.ferc1_row_maps",
+                f"{table_name}.csv"),
+            index_col=0, comment="#")
+        .copy().transpose()
+        .rename_axis(index="year_index", columns=None)
+    )
+    row_map.index = row_map.index.astype(int)
+
+    # For each year, rename row numbers to variable names based on row_map.
     rename_dict = {}
     out_df = pd.DataFrame()
     for year in row_map.index:
         rename_dict = {v: k for k, v in dict(row_map.loc[year, :]).items()}
         _ = rename_dict.pop(-1, None)
         df = ferc1_df.loc[ferc1_df.report_year == year].copy()
-        df.loc[:, "var_name"] = (
+        df.loc[:, "row_name"] = (
             df.loc[:, "row_number"]
             .replace(rename_dict, value=None)
         )
+        # The concatenate according to row_name
         out_df = pd.concat([out_df, df], axis="index")
 
     # Is this list of index columns universal? Or should they be an argument?
@@ -120,16 +116,21 @@ def unpack_rows(ferc1_df, row_map, data_cols):
         "report_year",
         "report_prd",
         "spplmnt_num",
-        "var_name"
+        "row_name"
     ]
     logger.info(
-        f"{len(out_df[out_df.duplicated(idx_cols)])/len(out_df):.4%} of unpacked records were duplicates, and discarded.")
+        f"{len(out_df[out_df.duplicated(idx_cols)])/len(out_df):.4%} "
+        f"of unpacked records were duplicates, and discarded."
+    )
+    # Index the dataframe based on the list of index_cols
+    # Unstack the dataframe based on variable names
     out_df = (
         out_df.loc[:, idx_cols + data_cols]
         # These lost records should be minimal. If not, something's wrong.
         .drop_duplicates(subset=idx_cols)
         .set_index(idx_cols)
-        .unstack("var_name")
+        .unstack("row_name")
+        .loc[:, (slice(None), data_rows)]
     )
     return out_df
 
@@ -148,7 +149,7 @@ def cols_to_cats(df, cat_name, col_cats):
     Args:
         df (pandas.DataFrame): the dataframe to be simplified.
         cat_name (str): the label of the column to be created indicating what
-            MultiIndex lable the values came from.
+            MultiIndex label the values came from.
         col_cats (dict): a dictionary with top level MultiIndex labels as keys,
             and the category to which they should be mapped as values.
 
@@ -387,7 +388,7 @@ def _plants_steam_clean(ferc1_steam_df):
             "tot_prdctn_expns": 'opex_production_total',
             "expns_kwh": 'opex_per_kwh'})
         .pipe(_clean_cols, "f1_steam")
-        .pipe(pudl.helpers.strip_lower, ['plant_name'])
+        .pipe(pudl.helpers.strip_lower, ['plant_name_ferc1'])
         .pipe(pudl.helpers.cleanstrings,
               ['construction_type', 'plant_type'],
               [pc.ferc1_const_type_strings, pc.ferc1_plant_kind_strings],
@@ -998,49 +999,40 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
         dict: The dictionary of the transformed DataFrames.
 
     """
-    ferc1_row_maps_pkg = "pudl.package_data.meta.ferc1_row_maps"
-    pis_row_map = pd.read_csv(
-        importlib.resources.open_text(
-            ferc1_row_maps_pkg, "f1_plant_in_srvce_map.csv"),
-        index_col=0, comment="#"
-    )
-
-    # These are the "columns" in the FERC Form 1 that are reported by "row"
-    # (corresponding to the FERC Accounts)
-    pis_data_cols = [
-        "begin_yr_bal",
-        "addition",
-        "retirements",
-        "adjustments",
-        "transfers",
-        "yr_end_bal",
-    ]
-
-    pis_df = ferc1_raw_dfs["plant_in_service_ferc1"].copy()
-    pis_df = unpack_rows(pis_df, pis_row_map, pis_data_cols)
-
-    # Chunk out the now extremely wide table into categorized records
-    # organized by the previously reported columns:
-    categorized_pis = pd.DataFrame()
-    for category in pis_df.columns.levels[0]:
-        tmp_df = pis_df.loc[:, category].copy()
-        tmp_df["amount_type"] = category
-        categorized_pis = pd.concat([categorized_pis, tmp_df])
-    categorized_pis.columns.name = None
     pis_df = (
-        categorized_pis.reset_index()
-        .assign(
-            amount_type=lambda x: x["amount_type"]
-            .replace(
-                to_replace={
-                    "begin_yr_bal": "starting_balance",
-                    "addition": "additions",
-                    "yr_end_bal": "ending_balance",
-                }
-            )
-        )
+        unpack_table(
+            ferc1_df=ferc1_raw_dfs["plant_in_service_ferc1"],
+            table_name="f1_plant_in_srvce",
+            data_rows=slice(None),  # Gotta catch 'em all!
+            data_cols=[
+                "begin_yr_bal",
+                "addition",
+                "retirements",
+                "adjustments",
+                "transfers",
+                "yr_end_bal"
+            ])
+        .pipe(  # Convert top level of column index into a categorical column:
+            cols_to_cats,
+            cat_name="amount_type",
+            col_cats={
+                "begin_yr_bal": "starting_balance",
+                "addition": "additions",
+                "retirements": "retirements",
+                "adjustments": "adjustments",
+                "transfers": "transfers",
+                "yr_end_bal": "ending_balance",
+            })
+        .rename_axis(columns=None)
         .pipe(_clean_cols, "f1_plant_in_srvce")
+        .set_index([
+            "utility_id_ferc1",
+            "report_year",
+            "amount_type",
+            "record_id"])
+        .reset_index()
     )
+
     # Get rid of the columns corresponding to "header" rows in the FERC
     # form, which should *never* contain data... but in about 2 dozen cases,
     # they do. See this issue on Github for more information:
@@ -1200,6 +1192,9 @@ def transform(ferc1_raw_dfs, ferc1_tables=pc.pudl_tables['ferc1']):
             ferc1_transform_functions[table](ferc1_raw_dfs,
                                              ferc1_transformed_dfs)
 
+    # convert types..
+    ferc1_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
+        ferc1_transformed_dfs, 'ferc1')
     return ferc1_transformed_dfs
 
 ###############################################################################

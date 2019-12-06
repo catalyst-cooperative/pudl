@@ -206,7 +206,7 @@ def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
     # plant/fuel/month.
     if rolling is True:
         logger.info('filling in fuel cost NaNs with rolling averages')
-        frc_df = pudl.helpers.fillna_w_rolling_average(
+        frc_df = pudl.helpers.fillna_w_rolling_avg(
             frc_df,
             group_cols=['plant_id_eia', 'energy_source_code'],
             data_col='fuel_cost_per_mmbtu',

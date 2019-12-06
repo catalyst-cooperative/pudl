@@ -245,6 +245,9 @@ def transform(epacems_raw_dfs, datapkg_dir):
     for raw_df_dict in epacems_raw_dfs:
         # There's currently only one dataframe in this dict at a time, but
         # that could be changed if you want.
+        # Also, the type conversion is being done here so that it happens
+        # inside the generator -- rather than following the same pattern as
+        # in the EIA type conversions.
         for yr_st, raw_df in raw_df_dict.items():
             df = (
                 raw_df.fillna(pc.epacems_columns_fill_na_dict)
@@ -252,5 +255,7 @@ def transform(epacems_raw_dfs, datapkg_dir):
                 .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
                 .pipe(add_facility_id_unit_id_epa)
                 .pipe(correct_gross_load_mw)
+                .pipe(pudl.helpers.convert_cols_dtypes,
+                      "epacems", "hourly_emissions_epacems")
             )
             yield {yr_st: df}
