@@ -287,7 +287,8 @@ That's too much forward filling.""")
                                  start_date=start_date,
                                  end_date=end_date)
     out_df = pd.merge(out_df, pu_eia,
-                      on=['report_date', 'plant_id_eia', 'plant_name_eia'])
+                      on=['report_date', 'plant_id_eia',
+                          'plant_name_eia', 'utility_id_eia'])
 
     # Drop a few extraneous fields...
     out_df = out_df.drop(['id'], axis='columns')

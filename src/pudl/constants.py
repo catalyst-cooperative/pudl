@@ -2113,7 +2113,7 @@ entities = {
          'turbines_inverters_hydrokinetics', 'nameplate_power_factor',
          'uprate_derate_during_year', 'uprate_derate_completed_date',
          'current_planned_operating_date', 'summer_estimated_capability_mw',
-         'winter_estimated_capability_mw', 'retirement_date'],
+         'winter_estimated_capability_mw', 'retirement_date', 'utility_id_eia'],
         # need type fixing
         {}
         # {'plant_id_eia': 'int64',
@@ -2408,7 +2408,7 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 
 # The full set of years we currently expect to be able to ingest, per source:
 working_years = {
-    'eia860': tuple(range(2011, 2019)),
+    'eia860': tuple(range(2010, 2019)),
     'eia923': tuple(range(2009, 2019)),
     'epacems': tuple(range(1995, 2019)),
     'ferc1': tuple(range(1994, 2019)),

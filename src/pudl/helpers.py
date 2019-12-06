@@ -861,7 +861,11 @@ def convert_cols_dtypes(df, data_source, name=None):
     # column of strings (!) of numbers so it is an object column, and therefor
     # needs to be converted beforehand.
     if 'utility_id_eia' in df.columns:
-        df = df.astype({'utility_id_eia': int}, skipna=True)
+        # we want to be able to use this dtype cleaning at many stages, and
+        # sometimes this column has been converted to a float and therefor
+        # we need to skip this conversion
+        if df.utility_id_eia.dtypes is np.dtype('object'):
+            df = df.astype({'utility_id_eia': 'float'}, skipna=True)
     # we need the skipna in here for now... it looks like this is
     # going to become standard, but for now it is important because
     # without it, the integer cols (even the new nullable Int cols)
