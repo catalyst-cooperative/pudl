@@ -2385,6 +2385,7 @@ dict: A dictionary of dictionaries containing EPA IPM tables (keys) and items
 
 data_sources = (
     'eia860',
+    'eia861',
     'eia923',
     'epacems',
     'ferc1',
@@ -2396,6 +2397,7 @@ data_sources = (
 # All the years for which we ought to be able to download these data sources
 data_years = {
     'eia860': tuple(range(2001, 2019)),
+    'eia861': tuple(range(1990, 2019)),
     'eia923': tuple(range(2001, 2019)),
     'epacems': tuple(range(1995, 2019)),
     'ferc1': tuple(range(1994, 2019)),
@@ -2408,7 +2410,8 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 
 # The full set of years we currently expect to be able to ingest, per source:
 working_years = {
-    'eia860': tuple(range(2011, 2019)),
+    'eia860': tuple(range(2010, 2019)),
+    'eia861': tuple(range(1990, 2019)),
     'eia923': tuple(range(2009, 2019)),
     'epacems': tuple(range(1995, 2019)),
     'ferc1': tuple(range(1994, 2019)),
