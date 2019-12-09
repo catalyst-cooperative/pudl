@@ -274,10 +274,11 @@ def plants(eia860_dfs, eia860_transformed_dfs):
             to_replace=["Y", "N"], value=[True, False])
 
     # Ensure plant & operator IDs are integers.
-    p_df['plant_id_eia'] = p_df['plant_id_eia'].astype(int)
-    p_df['utility_id_eia'] = p_df['utility_id_eia'].astype(int)
-    p_df['primary_purpose_naics_id'] = p_df['primary_purpose_naics_id'].astype(
-        int)
+    p_df = p_df.astype({
+        "plant_id_eia": int,
+        "utility_id_eia": int,
+        "primary_purpose_naics_id": "Int64"
+    })
 
     p_df = pudl.helpers.convert_to_date(p_df)
 
