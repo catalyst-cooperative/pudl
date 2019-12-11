@@ -44,13 +44,15 @@ class ExtractorExcel(object):
         Grab the metadata file.
 
         Args:
-            meta_name (str): the name of the top level metadata
-            file_name (str): if the metadata is in a nested subdirecotry (such
+            meta_name (str): the name of the top level metadata.
+            file_name (str): if the metadata is in a nested subdirectory (such
                 as 'column_maps' or 'tab_maps') the file_name is the file name.
-                This name should coorespond to the name of the Excel file being
+                This name should correspond to the name of the Excel file being
                 extracted.
+
         Return:
             pandas.DataFrame
+
         """
         xlsx_maps_dataset = f'pudl.package_data.meta.xlsx_maps.{self.dataset_name}'
         if meta_name in ('column_maps', 'tab_maps'):
@@ -75,15 +77,15 @@ class ExtractorExcel(object):
 
         Args:
             year (int): The year that we're trying to read data for.
-            file_name (str): A string containing part of the file name for a given EIA
-                860 file (e.g. '*Generat*')
+            file_name (str): A string containing part of the file name for a
+                given EIA 860 file (e.g. '*Generat*')
 
         Returns:
-            str: Path to EIA 860 spreadsheets corresponding to a given year.
+            str: Path to EIA 861 spreadsheets corresponding to a given year.
 
         Raises:
             AssertionError: If the requested year is not in the list of working
-                years for EIA 860.
+                years for EIA 861.
 
         """
         if yr not in pc.working_years[self.dataset_name]:
