@@ -1103,14 +1103,18 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
     df['purchase_type'] = df.purchase_type.replace(
         pc.ferc1_power_purchase_type)
 
-    # Drop records containing no useful data.
-    df = df.drop(df.loc[((df.purchased_mwh == 0) &
-                         (df.received_mwh == 0)
-                         & (df.delivered_mwh == 0)
-                         & (df.demand_charges == 0)
-                         & (df.energy_charges == 0)
-                         & (df.other_charges == 0)
-                         & (df.total_settlement == 0)), :].index)
+    # Drop records containing no useful data and also any completely duplicate
+    # records -- there are 6 in 1998 for utility 238 for some reason...
+    df = (
+        df.drop_duplicates()
+        .drop(df.loc[((df.purchased_mwh == 0)
+                      & (df.received_mwh == 0)
+                      & (df.delivered_mwh == 0)
+                      & (df.demand_charges == 0)
+                      & (df.energy_charges == 0)
+                      & (df.other_charges == 0)
+                      & (df.total_settlement == 0)), :].index)
+    )
 
     ferc1_transformed_dfs['purchased_power_ferc1'] = df
 

@@ -9,10 +9,15 @@ import logging
 
 import pytest
 
-import pudl
 import pudl.validate as pv
 
 logger = logging.getLogger(__name__)
+
+
+def test_fuel_ferc1_trivial(pudl_out_ferc1):
+    """Test output routines for tables from FERC Form 1."""
+    logger.info("Compiling FERC Form 1 fuel table...")
+    logger.info(f"{len(pudl_out_ferc1.fuel_ferc1())} fuel records found")
 
 
 @pytest.mark.parametrize(
@@ -45,13 +50,12 @@ def test_vs_bounds(pudl_out_ferc1, live_pudl_db, cases):
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     for case in cases:
-        pudl.validate.vs_bounds(pudl_out_ferc1.fuel_ferc1(), **case)
+        pv.vs_bounds(pudl_out_ferc1.fuel_ferc1(), **case)
 
 
 def test_self_vs_historical(pudl_out_ferc1, live_pudl_db):
     """Validate..."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
-
     for args in pv.fuel_ferc1_self:
-        pudl.validate.vs_self(pudl_out_ferc1.fuel_ferc1(), **args)
+        pv.vs_self(pudl_out_ferc1.fuel_ferc1(), **args)
