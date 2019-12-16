@@ -656,12 +656,11 @@ def fuel(ferc1_meta, ferc1_table, ferc1_years):
     # Generate a SELECT statement that pulls all fields of the f1_fuel table,
     # but only gets records with plant names and non-zero fuel amounts:
     f1_fuel_select = (
-        sa.sql.select([f1_fuel]).
-        where(f1_fuel.c.fuel != '').
-        where(f1_fuel.c.fuel_quantity > 0).
-        where(f1_fuel.c.plant_name != '').
-        where(f1_fuel.c.report_year.in_(ferc1_years)).
-        where(f1_fuel.c.respondent_id.notin_(pc.missing_respondents_ferc1))
+        sa.sql.select([f1_fuel])
+        .where(f1_fuel.c.fuel != '')
+        .where(f1_fuel.c.fuel_quantity > 0)
+        .where(f1_fuel.c.plant_name != '')
+        .where(f1_fuel.c.report_year.in_(ferc1_years))
     )
     # Use the above SELECT to pull those records into a DataFrame:
     return pd.read_sql(f1_fuel_select, ferc1_meta.bind)
@@ -683,11 +682,10 @@ def plants_steam(ferc1_meta, ferc1_table, ferc1_years):
     """
     f1_steam = ferc1_meta.tables[ferc1_table]
     f1_steam_select = (
-        sa.sql.select([f1_steam]).
-        where(f1_steam.c.tot_capacity > 0).
-        where(f1_steam.c.plant_name != '').
-        where(f1_steam.c.report_year.in_(ferc1_years)).
-        where(f1_steam.c.respondent_id.notin_(pc.missing_respondents_ferc1))
+        sa.sql.select([f1_steam])
+        .where(f1_steam.c.tot_capacity > 0)
+        .where(f1_steam.c.plant_name != '')
+        .where(f1_steam.c.report_year.in_(ferc1_years))
     )
 
     return pd.read_sql(f1_steam_select, ferc1_meta.bind)
@@ -712,19 +710,18 @@ def plants_small(ferc1_meta, ferc1_table, ferc1_years):
 
     f1_small = ferc1_meta.tables[ferc1_table]
     f1_small_select = (
-        sa.sql.select([f1_small, ]).
-        where(f1_small.c.report_year.in_(ferc1_years)).
-        where(f1_small.c.plant_name != '').
-        where(f1_small.c.respondent_id.notin_(pc.missing_respondents_ferc1)).
-        where(or_((f1_small.c.capacity_rating != 0),
-                  (f1_small.c.net_demand != 0),
-                  (f1_small.c.net_generation != 0),
-                  (f1_small.c.plant_cost != 0),
-                  (f1_small.c.plant_cost_mw != 0),
-                  (f1_small.c.operation != 0),
-                  (f1_small.c.expns_fuel != 0),
-                  (f1_small.c.expns_maint != 0),
-                  (f1_small.c.fuel_cost != 0)))
+        sa.sql.select([f1_small, ])
+        .where(f1_small.c.report_year.in_(ferc1_years))
+        .where(f1_small.c.plant_name != '')
+        .where(or_((f1_small.c.capacity_rating != 0),
+                   (f1_small.c.net_demand != 0),
+                   (f1_small.c.net_generation != 0),
+                   (f1_small.c.plant_cost != 0),
+                   (f1_small.c.plant_cost_mw != 0),
+                   (f1_small.c.operation != 0),
+                   (f1_small.c.expns_fuel != 0),
+                   (f1_small.c.expns_maint != 0),
+                   (f1_small.c.fuel_cost != 0)))
     )
 
     return pd.read_sql(f1_small_select, ferc1_meta.bind)
@@ -747,10 +744,9 @@ def plants_hydro(ferc1_meta, ferc1_table, ferc1_years):
     f1_hydro = ferc1_meta.tables[ferc1_table]
 
     f1_hydro_select = (
-        sa.sql.select([f1_hydro]).
-        where(f1_hydro.c.plant_name != '').
-        where(f1_hydro.c.report_year.in_(ferc1_years)).
-        where(f1_hydro.c.respondent_id.notin_(pc.missing_respondents_ferc1))
+        sa.sql.select([f1_hydro])
+        .where(f1_hydro.c.plant_name != '')
+        .where(f1_hydro.c.report_year.in_(ferc1_years))
     )
 
     return pd.read_sql(f1_hydro_select, ferc1_meta.bind)
@@ -775,11 +771,9 @@ def plants_pumped_storage(ferc1_meta, ferc1_table, ferc1_years):
     # Removing the empty records.
     # This reduces the entries for 2015 from 272 records to 27.
     f1_pumped_storage_select = (
-        sa.sql.select([f1_pumped_storage]).
-        where(f1_pumped_storage.c.plant_name != '').
-        where(f1_pumped_storage.c.report_year.in_(ferc1_years)).
-        where(f1_pumped_storage.c.respondent_id.
-              notin_(pc.missing_respondents_ferc1))
+        sa.sql.select([f1_pumped_storage])
+        .where(f1_pumped_storage.c.plant_name != '')
+        .where(f1_pumped_storage.c.report_year.in_(ferc1_years))
     )
 
     return pd.read_sql(f1_pumped_storage_select, ferc1_meta.bind)
@@ -801,12 +795,8 @@ def plant_in_service(ferc1_meta, ferc1_table, ferc1_years):
     """
     f1_plant_in_srvce = ferc1_meta.tables[ferc1_table]
     f1_plant_in_srvce_select = (
-        sa.sql.select([f1_plant_in_srvce]).
-        where(f1_plant_in_srvce.c.report_year.in_(ferc1_years)).
-        # line_no mapping is invalid before 2007
-        where(f1_plant_in_srvce.c.report_year >= 2007).
-        where(f1_plant_in_srvce.c.respondent_id.
-              notin_(pc.missing_respondents_ferc1))
+        sa.sql.select([f1_plant_in_srvce])
+        .where(f1_plant_in_srvce.c.report_year.in_(ferc1_years))
     )
 
     return pd.read_sql(f1_plant_in_srvce_select, ferc1_meta.bind)
@@ -828,10 +818,8 @@ def purchased_power(ferc1_meta, ferc1_table, ferc1_years):
     """
     f1_purchased_pwr = ferc1_meta.tables[ferc1_table]
     f1_purchased_pwr_select = (
-        sa.sql.select([f1_purchased_pwr]).
-        where(f1_purchased_pwr.c.report_year.in_(ferc1_years)).
-        where(f1_purchased_pwr.c.respondent_id.
-              notin_(pc.missing_respondents_ferc1))
+        sa.sql.select([f1_purchased_pwr])
+        .where(f1_purchased_pwr.c.report_year.in_(ferc1_years))
     )
 
     return pd.read_sql(f1_purchased_pwr_select, ferc1_meta.bind)
@@ -853,10 +841,8 @@ def accumulated_depreciation(ferc1_meta, ferc1_table, ferc1_years):
     """
     f1_accumdepr_prvsn = ferc1_meta.tables[ferc1_table]
     f1_accumdepr_prvsn_select = (
-        sa.sql.select([f1_accumdepr_prvsn]).
-        where(f1_accumdepr_prvsn.c.report_year.in_(ferc1_years)).
-        where(f1_accumdepr_prvsn.c.respondent_id.
-              notin_(pc.missing_respondents_ferc1))
+        sa.sql.select([f1_accumdepr_prvsn])
+        .where(f1_accumdepr_prvsn.c.report_year.in_(ferc1_years))
     )
 
     return pd.read_sql(f1_accumdepr_prvsn_select, ferc1_meta.bind)

@@ -938,16 +938,16 @@ ferc1_tbl2dbf = {v: k for k, v in ferc1_dbf2tbl.items()}
 # missing from the ferc respondent table but show up in other tables. We are
 # inserting them into the respondent table and hope to go back to determine
 # what the real names of the respondents are to insert them.
-missing_respondents_ferc1 = {514: 'respondent_514',
-                             515: 'respondent_515',
-                             516: 'respondent_516',
-                             517: 'respondent_517',
-                             518: 'respondent_518',
-                             519: 'respondent_519',
-                             522: 'respondent_522'}
-"""dict: A dictionary of missing FERC Form 1 respondent IDs (keys) and names
-    (values).
-"""
+# missing_respondents_ferc1 = {514: 'respondent_514',
+#                             515: 'respondent_515',
+#                             516: 'respondent_516',
+#                             517: 'respondent_517',
+#                             518: 'respondent_518',
+#                             519: 'respondent_519',
+#                             522: 'respondent_522'}
+# """dict: A dictionary of missing FERC Form 1 respondent IDs (keys) and names
+#    (values).
+# """
 
 # This dictionary maps the strings which are used to denote field types in the
 # DBF objects to the corresponding generic SQLAlchemy Column types:
