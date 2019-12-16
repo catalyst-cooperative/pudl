@@ -176,7 +176,7 @@ def get_eia923_page(page, eia923_xlsx,
         if page != 'stocks':
             newdata = newdata[~newdata.plant_id_eia.isin([99999, 999999])]
 
-        df = df.append(newdata)
+        df = df.append(newdata, sort=True)
     # We need to ensure that ALL possible columns show up in the dataframe
     # that's being returned, even if they are empty, so that we know we have a
     # consistent set of columns to work with in the transform step of ETL, and

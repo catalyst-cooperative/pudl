@@ -212,6 +212,17 @@ def path(source, data_dir,  # noqa: C901
         dstore_path = os.path.join(data_dir, 'eia', 'form860')
         if year is not None:
             dstore_path = os.path.join(dstore_path, f"eia860{year}")
+    elif source == 'eia861':
+        dstore_path = os.path.join(data_dir, 'eia', 'form861')
+        if year is not None:
+            dstore_path = os.path.join(dstore_path, f"eia861{year}")
+            if year > 2011:
+                folder = f'f861{year}'
+            elif year in list(range(2001, 2006)) + list(range(2007, 2010)):
+                folder = str(year)
+            elif year in list(range(1990, 2001)) + [2006, 2010, 2011]:
+                folder = f'f861{str(year)[-2:]}'
+            dstore_path = os.path.join(dstore_path, folder)
     elif source == 'eia923':
         dstore_path = os.path.join(data_dir, 'eia', 'form923')
         if year is not None:

@@ -130,7 +130,7 @@ def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
         consistently reported records were found.
     """
     # grab the dirty plant records, round and get a new consistency
-    ll_df = dirty_df.round(decimals=round_to)
+    ll_df = dirty_df.round(decimals={col: round_to})
     ll_df['table'] = 'special_case'
     ll_df = _occurrence_consistency(entity_id, ll_df, col, cols_to_consit)
     # grab the clean plants
@@ -424,23 +424,9 @@ def _harvesting(entity,  # noqa: C901
                 f"Wrongos: {wrongos:.5}  "
                 f"Total: {total}   {col}"
             )
-            # the following assertions are here to ensure that the harvesting
-            # process is producing enough consistent records. When every year
-            # is being imported the lowest consistency ratio should be .95,
-            # with the exception of the latitude and longitude, which has a
-            # ratio of ~.92. The ratios are better with less years imported.
-            if col in ('latitude', 'longitude', 'county', 'previously_canceled'):
-                if ratio < .90:
-                    if debug:
-                        logger.info(
-                            f'ERROR: Harvesting of {col} is too inconsistent.')
-                    else:
-                        raise AssertionError(
-                            f'Harvesting of {col} is too inconsistent.')
-            elif ratio < .95:
+            if ratio < 0.9:
                 if debug:
-                    logger.info(
-                        f'ERROR: Harvesting of {col} is too inconsistent.')
+                    logger.error(f'{col} has low consistency: {ratio:.3}.')
                 else:
                     raise AssertionError(
                         f'Harvesting of {col} is too inconsistent at {ratio:.3}.')

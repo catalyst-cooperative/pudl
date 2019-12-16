@@ -360,40 +360,6 @@ def _validate_params_epacems(etl_params):
         return epacems_dict
 
 
-def _etl_epacems_part(part,
-                      epacems_years,
-                      epacems_states,
-                      data_dir,
-                      datapkg_dir):
-    # NOTE: This a generator for raw dataframes
-    epacems_raw_dfs = pudl.extract.epacems.extract(
-        epacems_years=[part], states=epacems_states, data_dir=data_dir)
-    # NOTE: This is a generator for transformed dataframes
-    epacems_transformed_dfs = pudl.transform.epacems.transform(
-        epacems_raw_dfs=epacems_raw_dfs, datapkg_dir=datapkg_dir)
-    logger.info("Loading tables from EPA CEMS into PUDL:")
-    if logger.isEnabledFor(logging.INFO):
-        start_time = time.monotonic()
-    table_name = f"hourly_emissions_epacems_{part}"
-    with pudl.load.csv.BulkCopy(
-            table_name=table_name,
-            datapkg_dir=datapkg_dir) as loader:
-
-        for transformed_df_dict in epacems_transformed_dfs:
-            # There's currently only one dataframe in this dict at a time,
-            # but that could be changed if useful.
-            # The keys to the dict are a tuple (year, month, state)
-            for transformed_df in transformed_df_dict.values():
-                loader.add(transformed_df)
-    if logger.isEnabledFor(logging.INFO):
-        time_message = "    Loading    EPA CEMS took {}".format(
-            time.strftime("%H:%M:%S",
-                          time.gmtime(time.monotonic() - start_time)))
-        logger.info(time_message)
-        start_time = time.monotonic()
-    return(table_name)
-
-
 def _etl_epacems_datapkg(etl_params, data_dir, datapkg_dir):
     epacems_dict = pudl.etl._validate_params_epacems(etl_params)
     epacems_years = epacems_dict['epacems_years']
