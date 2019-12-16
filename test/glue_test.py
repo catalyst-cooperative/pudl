@@ -18,6 +18,14 @@ def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_engine):
     but deletes a plant from the raw FERC 1 DB contents, which should then be
     identified as "unmapped."
 
+    Currently this test is XFAILing for several reasons:
+      * Junk "Plants" with names like "0.0000"
+      * Plants associated with previously "bad" respondents.
+      * Plants with names containing special characters lke ñ.
+
+    These plants haven't been "mapped" to anything, at least in our current
+    processes.
+
     """
     years = pudl.constants.working_years['ferc1']
     actually_unmapped_plants = (
@@ -53,7 +61,6 @@ def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_engine):
     logger.info("Found 1 unmapped FERC 1 plant, as expected.")
 
 
-@pytest.mark.xfail
 def test_unmapped_utils_ferc1(pudl_settings_fixture, ferc1_engine):
     """Test that we can identify unmapped FERC 1 utilities."""
     years = pudl.constants.working_years['ferc1']
