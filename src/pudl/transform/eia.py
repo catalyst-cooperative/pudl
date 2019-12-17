@@ -424,23 +424,9 @@ def _harvesting(entity,  # noqa: C901
                 f"Wrongos: {wrongos:.5}  "
                 f"Total: {total}   {col}"
             )
-            # the following assertions are here to ensure that the harvesting
-            # process is producing enough consistent records. When every year
-            # is being imported the lowest consistency ratio should be .95,
-            # with the exception of the latitude and longitude, which has a
-            # ratio of ~.92. The ratios are better with less years imported.
-            if col in ('latitude', 'longitude', 'county', 'previously_canceled'):
-                if ratio < .90:
-                    if debug:
-                        logger.info(
-                            f'ERROR: Harvesting of {col} is too inconsistent.')
-                    else:
-                        raise AssertionError(
-                            f'Harvesting of {col} is too inconsistent.')
-            elif ratio < .95:
+            if ratio < 0.9:
                 if debug:
-                    logger.info(
-                        f'ERROR: Harvesting of {col} is too inconsistent.')
+                    logger.error(f'{col} has low consistency: {ratio:.3}.')
                 else:
                     raise AssertionError(
                         f'Harvesting of {col} is too inconsistent at {ratio:.3}.')
