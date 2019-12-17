@@ -941,3 +941,20 @@ def fillna_w_rolling_avg(df_og, group_cols, data_col, win_type='triang'):
     df_new[data_col] = df_new[data_col].fillna(
         df_new[f'{data_col}_rollfilled'])
     return df_new.drop(columns=[f'{data_col}_rollfilled', f'{data_col}_rolling'])
+
+
+def count_records(df, cols, new_count_col_name):
+    """
+    Count the number of records in a dataframe.
+
+    Args:
+        df (panda.DataFrame) : dataframe you would like to groupby and count.
+        cols (iterable) : list of columns to group and count by.
+        new_count_col_name (string) : the name that will be assigned to the
+            column that will contain the count.
+    """
+    return (df.assign(count_me=1).
+            groupby(cols).
+            agg({'count_me': 'count'}).
+            reset_index().
+            rename(columns={'count_me': new_count_col_name}))
