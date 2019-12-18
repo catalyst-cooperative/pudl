@@ -847,7 +847,6 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
         .pipe(oob_to_nan, cols=["yr_const", "yr_installed"],
               lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
         .drop(columns=['net_generation', 'cost_per_kw', 'expns_kwh'])
-        .dropna()
         .rename(columns={
             # FERC1 DB          PUDL DB
             "plant_name": "plant_name_ferc1",
@@ -928,7 +927,6 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
               lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
         .drop(columns=['net_generation', 'energy_used', 'net_load',
                        'cost_per_kw', 'expns_kwh'])
-        .dropna()
         .rename(columns={
             # FERC1 DB          PUDL DB
             "plant_name": "plant_name_ferc1",

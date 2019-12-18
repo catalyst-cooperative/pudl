@@ -618,7 +618,8 @@ def extract(ferc1_tables=pc.ferc1_pudl_tables,
         "plants_pumped_storage_ferc1": plants_pumped_storage,
         "plant_in_service_ferc1": plant_in_service,
         "purchased_power_ferc1": purchased_power,
-        "accumulated_depreciation_ferc1": accumulated_depreciation}
+        "accumulated_depreciation_ferc1": accumulated_depreciation
+    }
 
     ferc1_raw_dfs = {}
     for pudl_table in ferc1_tables:
@@ -650,6 +651,7 @@ def fuel(ferc1_meta, ferc1_table, ferc1_years):
     Returns:
         pandas.DataFrame: A DataFrame containing f1_fuel records that have
         plant_names and non-zero fuel amounts.
+
     """
     # Grab the f1_fuel SQLAlchemy Table object from the metadata object.
     f1_fuel = ferc1_meta.tables[ferc1_table]
@@ -683,9 +685,8 @@ def plants_steam(ferc1_meta, ferc1_table, ferc1_years):
     f1_steam = ferc1_meta.tables[ferc1_table]
     f1_steam_select = (
         sa.sql.select([f1_steam])
-        .where(f1_steam.c.tot_capacity > 0)
-        .where(f1_steam.c.plant_name != '')
         .where(f1_steam.c.report_year.in_(ferc1_years))
+        .where(f1_steam.c.plant_name != '')
     )
 
     return pd.read_sql(f1_steam_select, ferc1_meta.bind)

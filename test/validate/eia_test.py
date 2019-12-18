@@ -11,19 +11,19 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.parametrize(
     "df_name,cols", [
-        # pytest.param(
-        #     "plants_eia860", "all",
-        #     marks=pytest.mark.xfail(reason="Missing 2009-2010 EIA 860 Data.")),
-        # ("utils_eia860", "all"),
-        # ("pu_eia860", "all"),
-        # ("bga_eia860", "all"),
-        # ("own_eia860", "all"),
-        # pytest.param(
-        #     "gens_eia860", "all",
-        #     marks=pytest.mark.xfail(reason="Missing 2009-2010 EIA 860 Data.")),
-        # ("gen_eia923", "all"),
-        # ("gf_eia923", "all"),
-        # ("bf_eia923", "all"),
+        pytest.param(
+            "plants_eia860", "all",
+            marks=pytest.mark.xfail(reason="Missing 2009-2010 EIA 860 Data.")),
+        ("utils_eia860", "all"),
+        ("pu_eia860", "all"),
+        ("bga_eia860", "all"),
+        ("own_eia860", "all"),
+        pytest.param(
+            "gens_eia860", "all",
+            marks=pytest.mark.xfail(reason="Missing 2009-2010 EIA 860 Data.")),
+        ("gen_eia923", "all"),
+        ("gf_eia923", "all"),
+        ("bf_eia923", "all"),
         ("frc_eia923", "all"),
     ])
 def test_no_null_cols_eia(pudl_out_eia, live_pudl_db, cols, df_name):
@@ -85,22 +85,24 @@ def test_minmax_rows(pudl_out_eia,
 
 @pytest.mark.parametrize(
     "df_name,unique_subset", [
-        # ("plants_eia860", ["report_date", "plant_id_eia"]),
+        ("plants_eia860", ["report_date", "plant_id_eia"]),
         ("utils_eia860", ["report_date", "utility_id_eia"]),
-        # ("pu_eia860", ["report_date", "plant_id_eia"]),
-        # ("gens_eia860", ["report_date", "plant_id_eia", "generator_id"]),
-        # ("bga_eia860", ["report_date",
-        #                 "plant_id_eia",
-        #                 "boiler_id",
-        #                 "generator_id"]),
-        # ("own_eia860", ["report_date",
-        #                 "plant_id_eia",
-        #                 "generator_id",
-        #                 "owner_utility_id_eia"]),
-        # ("gen_eia923", ["report_date", "plant_id_eia", "generator_id"]),
+        ("pu_eia860", ["report_date", "plant_id_eia"]),
+        ("gens_eia860", ["report_date", "plant_id_eia", "generator_id"]),
+        ("bga_eia860", ["report_date",
+                        "plant_id_eia",
+                        "boiler_id",
+                        "generator_id"]),
+        ("own_eia860", ["report_date",
+                        "plant_id_eia",
+                        "generator_id",
+                        "owner_utility_id_eia"]),
+        ("gen_eia923", ["report_date", "plant_id_eia", "generator_id"]),
     ])
 def test_unique_rows_eia(pudl_out_eia, live_pudl_db, unique_subset, df_name):
     """Test whether dataframe has unique records within a subset of columns."""
+    if not live_pudl_db:
+        raise AssertionError("Data validation only works with a live PUDL DB.")
     if (pudl_out_eia.freq is None) and (df_name == "gen_eia923"):
         pytest.xfail(reason="RE-RUN ETL DUDE.")
     pv.check_unique_rows(

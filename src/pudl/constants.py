@@ -970,7 +970,7 @@ ferc1_pudl_tables = (
     'plants_pumped_storage_ferc1',  # Plant-level data
     'purchased_power_ferc1',  # Inter-utility electricity transactions
     'plant_in_service_ferc1',  # Row-mapped plant accounting data.
-    'accumulated_depreciation_ferc1'  # Requires row-mapping to be useful.
+    # 'accumulated_depreciation_ferc1'  # Requires row-mapping to be useful.
 )
 """tuple: A tuple containing the FERC Form 1 tables that can be successfully
     integrated into PUDL.
