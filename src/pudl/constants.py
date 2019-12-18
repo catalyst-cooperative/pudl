@@ -934,20 +934,6 @@ ferc1_tbl2dbf = {v: k for k, v in ferc1_dbf2tbl.items()}
 """dict: A dictionary mapping database table names (keys) to FERC Form 1 DBF
     files(w / o .DBF file extension) (values).
 """
-# This is a dictionary of respondents (respondent_id: respondent_name) that are
-# missing from the ferc respondent table but show up in other tables. We are
-# inserting them into the respondent table and hope to go back to determine
-# what the real names of the respondents are to insert them.
-# missing_respondents_ferc1 = {514: 'respondent_514',
-#                             515: 'respondent_515',
-#                             516: 'respondent_516',
-#                             517: 'respondent_517',
-#                             518: 'respondent_518',
-#                             519: 'respondent_519',
-#                             522: 'respondent_522'}
-# """dict: A dictionary of missing FERC Form 1 respondent IDs (keys) and names
-#    (values).
-# """
 
 # This dictionary maps the strings which are used to denote field types in the
 # DBF objects to the corresponding generic SQLAlchemy Column types:
@@ -974,48 +960,18 @@ dbf_typemap = {
 """dict: A dictionary mapping field types in the DBF objects (keys) to the
     corresponding generic SQLAlchemy Column types.
 """
-# These are the FERC Form 1 DB tables that we're focusing on initially.
-ferc1_default_tables = (
-    'f1_respondent_id',
-    'f1_fuel',
-    'f1_steam',
-    'f1_gnrt_plant',
-    'f1_hydro',
-    'f1_pumped_storage',
-    'f1_plant_in_srvce',
-    'f1_purchased_pwr',
-    'f1_accumdepr_prvsn',
-    'f1_general_info',  # For Uday Varadarajan / RMI
-    'f1_row_lit_tbl',  # For Uday Varadarajan / RMI
-    'f1_edcfu_epda',  # For Uday Varadarajan / RMI
-    'f1_dacs_epda',  # For Uday Varadarajan / RMI
-    'f1_sales_by_sched',  # For Uday Varadarajan / RMI
-    'f1_sale_for_resale',  # For Uday Varadarajan / RMI
-    'f1_elctrc_oper_rev',  # For Uday Varadarajan / RMI
-    'f1_elctrc_erg_acct',  # For Uday Varadarajan / RMI
-    'f1_elc_op_mnt_expn',  # For Uday Varadarajan / RMI
-    'f1_slry_wg_dstrbtn',  # For Uday Varadarajan / RMI
-    'f1_utltyplnt_smmry',  # For Uday Varadarajan / RMI
-    'f1_399_mth_peak',  # For Uday Varadarajan / RMI
-    'f1_398_ancl_ps',  # For Uday Varadarajan / RMI
-    'f1_325_elc_cust',  # For Uday Varadarajan / RMI
-    'f1_400_sys_peak',  # For Uday Varadarajan / RMI
-    'f1_400a_iso_peak',  # For Uday Varadarajan / RMI
-    'f1_397_isorto_stl',  # For Uday Varadarajan / RMI
-)
-"""tuple: A tuple containing the FERC Form 1 columns PUDL is initially focused
-    on.
-"""
 
 # This is the set of tables which have been successfully integrated into PUDL:
-ferc1_pudl_tables = ('fuel_ferc1',
-                     'plants_steam_ferc1',
-                     'plants_small_ferc1',
-                     'plants_hydro_ferc1',
-                     'plants_pumped_storage_ferc1',
-                     'plant_in_service_ferc1',
-                     'purchased_power_ferc1',
-                     'accumulated_depreciation_ferc1')
+ferc1_pudl_tables = (
+    'fuel_ferc1',  # Plant-level data, linked to plants_steam_ferc1
+    'plants_steam_ferc1',  # Plant-level data
+    'plants_small_ferc1',  # Plant-level data
+    'plants_hydro_ferc1',  # Plant-level data
+    'plants_pumped_storage_ferc1',  # Plant-level data
+    'purchased_power_ferc1',  # Inter-utility electricity transactions
+    'plant_in_service_ferc1',  # Row-mapped plant accounting data.
+    'accumulated_depreciation_ferc1'  # Requires row-mapping to be useful.
+)
 """tuple: A tuple containing the FERC Form 1 tables that can be successfully
     integrated into PUDL.
 """

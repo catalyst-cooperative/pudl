@@ -24,7 +24,8 @@ def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_engine):
       * Plants with names containing special characters lke ñ.
 
     These plants haven't been "mapped" to anything, at least in our current
-    processes.
+    processes. The bad respondent and special character names should get
+    integrated, but what do we do with the "junk" names?
 
     """
     years = pudl.constants.working_years['ferc1']

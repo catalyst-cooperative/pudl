@@ -21,7 +21,7 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 
-def no_nan_cols(df, cols=None, df_name=""):
+def no_null_cols(df, cols="all", df_name=""):
     """Check that a dataframe has no all-NaN columns.
 
     Occasionally in the concatenation / merging of dataframes we get a label
@@ -30,8 +30,8 @@ def no_nan_cols(df, cols=None, df_name=""):
 
     Args:
         df (pandas.DataFrame): DataFrame to check for null columns.
-        cols (iterable or None): The labels of columns to check for null
-            all-null values. If None (the default) check all columns.
+        cols (iterable or "all"): The labels of columns to check for
+            all-null values. If "all" check all columns.
         df_name (str): Name of the dataframe, to aid in debugging/logging.
 
     Returns:
@@ -42,7 +42,7 @@ def no_nan_cols(df, cols=None, df_name=""):
         ValueError: If any completely NaN / Null valued columns are found.
 
     """
-    if cols is None:
+    if cols == "all":
         cols = df.columns
 
     for c in cols:
@@ -52,7 +52,17 @@ def no_nan_cols(df, cols=None, df_name=""):
     return df
 
 
-def min_rows(df, n_rows=0, df_name=""):
+def check_max_rows(df, n_rows=np.inf, df_name=""):
+    """Validate that a dataframe has less than a maximum number of rows."""
+    len_df = len(df)
+    if len_df > n_rows:
+        raise ValueError(
+            f"Too many records ({len_df}>{n_rows}) in dataframe {df_name}")
+
+    return df
+
+
+def check_min_rows(df, n_rows=0, df_name=""):
     """Validate that a dataframe has a certain minimum number of rows."""
     len_df = len(df)
     if len_df < n_rows:
@@ -62,8 +72,8 @@ def min_rows(df, n_rows=0, df_name=""):
     return df
 
 
-def unique_rows(df, subset=None, df_name=""):
-    """Test whether dataframe has unique records in a subset of columns.
+def check_unique_rows(df, subset=None, df_name=""):
+    """Test whether dataframe has unique records within a subset of columns.
 
     Args:
         df (pandas.DataFrame): DataFrame to check for duplicate records.

@@ -71,27 +71,33 @@ logger = logging.getLogger(__name__)
                      id="landfill_gas_heat_content"),
     ]
 )
-def test_vs_bounds(pudl_out_orig, live_pudl_db, cases):
+def test_vs_bounds(pudl_out_eia, live_pudl_db, cases):
     """Validate distribution of reported data is within expected bounds."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     for case in cases:
-        pudl.validate.vs_bounds(pudl_out_orig.frc_eia923(), **case)
+        pudl.validate.vs_bounds(pudl_out_eia.frc_eia923(), **case)
+    if pudl_out_eia.freq is not None:
+        pytest.skip("Test only runs on un-aggregated data.")
 
 
-def test_self_vs_historical(pudl_out_orig, live_pudl_db):
+def test_self_vs_historical(pudl_out_eia, live_pudl_db):
     """Validate the whole dataset against historical annual subsamples."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
+    if pudl_out_eia.freq is not None:
+        pytest.skip("Test only runs on un-aggregated data.")
 
     for args in pudl.validate.frc_eia923_self:
-        pudl.validate.vs_self(pudl_out_orig.frc_eia923(), **args)
+        pudl.validate.vs_self(pudl_out_eia.frc_eia923(), **args)
 
 
 def test_agg_vs_historical(pudl_out_orig, pudl_out_eia, live_pudl_db):
     """Validate whole dataset against aggregated historical values."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
+    if pudl_out_eia.freq is None:
+        pytest.skip("Only run if pudl_out_eia != pudl_out_orig.")
 
     for args in pudl.validate.frc_eia923_agg:
         pudl.validate.vs_historical(pudl_out_orig.frc_eia923(),

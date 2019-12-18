@@ -84,42 +84,64 @@ def test_bga(pudl_out_eia, live_pudl_db):
 # These tests were inspired by some bad merges that generated multiple copies
 # of some records in the past...
 ###############################################################################
-
-
-def test_hr_by_unit_exists(pudl_out_eia, live_pudl_db):
-    """Calculate heat rates on a per generation unit basis."""
+@pytest.mark.parametrize(
+    "df_name,cols", [
+        ("hr_by_unit", "all"),
+        ("hr_by_gen", "all"),
+        ("fuel_cost", "all"),
+        ("capacity_factor", "all"),
+        ("bga", "all"),
+        pytest.param(
+            "mcoe", "all",
+            marks=pytest.mark.xfail(reason="Missing 2009-2010 EIA860 data."),
+        )
+    ]
+)
+def test_no_null_cols_mcoe(pudl_out_mcoe, live_pudl_db, cols, df_name):
+    """Verify that output DataFrames have no entirely NULL columns."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
-
-    logger.info("Calculating heat rates by generation unit...")
-    hr_by_unit = pudl_out_eia.hr_by_unit()
-    logger.info(f"{len(hr_by_unit)} generation unit heat rates calculated.")
-    key_cols = ['report_date', 'plant_id_eia', 'unit_id_pudl']
-    if not pv.single_records(hr_by_unit, key_cols=key_cols):
-        raise AssertionError("Found non-unique unit heat rates!")
+    pv.no_null_cols(
+        pudl_out_mcoe.__getattribute__(df_name)(),
+        cols=cols, df_name=df_name)
 
 
-def test_hr_by_gen_unique(pudl_out_eia, live_pudl_db):
-    """Calculate heat reates on a per-generator basis."""
+@pytest.mark.parametrize(
+    "df_name,min_rows", [
+        ("bga", 90_000),
+        ("hr_by_unit", 15_000),
+        ("hr_by_gen", 23_000),
+        ("fuel_cost", 23_000),
+        ("capacity_factor", 25_000),
+        ("mcoe", 23_000),
+    ])
+def test_minmax_rows_mcoe(pudl_out_mcoe, live_pudl_db, min_rows, df_name):
+    """Verify that output DataFrames don't have too many or too few rows."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
+    if pudl_out_mcoe.freq == "MS":
+        min_rows = 12 * min_rows
+    _ = (
+        pudl_out_mcoe.__getattribute__(df_name)()
+        .pipe(pv.check_min_rows, n_rows=min_rows, df_name=df_name)
+        .pipe(pv.check_max_rows, n_rows=min_rows * 1.25, df_name=df_name)
+    )
 
-    logger.info("Calculating heat rates for individual generators...")
-    hr_by_gen = pudl_out_eia.hr_by_gen()
-    logger.info(f"{len(hr_by_gen)} generator heat rates calculated.")
-    if not pv.single_records(hr_by_gen):
-        raise AssertionError("Found non-unique generator heat rates!")
 
-
-def test_fuel_cost_unique(pudl_out_eia, live_pudl_db):
-    """Calculate fuel costs on a per-generator basis, and sanity check."""
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
-    logger.info("Calculating fuel costs by individual generator...")
-    fc = pudl_out_eia.fuel_cost()
-    logger.info(f"{len(fc)} per-generator fuel costs calculated.")
-    if not pv.single_records(fc):
-        raise AssertionError("Found non-unique generator fuel cost records!")
+@pytest.mark.parametrize(
+    "df_name,unique_subset", [
+        ("bga", ["report_date", "plant_id_eia", "boiler_id", "generator_id"]),
+        ("hr_by_unit", ["report_date", "plant_id_eia", "unit_id_pudl"]),
+        ("hr_by_gen", ["report_date", "plant_id_eia", "generator_id"]),
+        ("fuel_cost", ["report_date", "plant_id_eia", "generator_id"]),
+        ("capacity_factor", ["report_date", "plant_id_eia", "generator_id"]),
+        ("mcoe", ["report_date", "plant_id_eia", "generator_id"]),
+    ])
+def test_unique_rows_mcoe(pudl_out_mcoe, live_pudl_db, unique_subset, df_name):
+    """Test whether dataframe has unique records within a subset of columns."""
+    pv.check_unique_rows(
+        pudl_out_mcoe.__getattribute__(df_name)(),
+        subset=unique_subset, df_name=df_name)
 
 ###############################################################################
 # Tests that look at distributions of MCOE calculation outputs.

@@ -91,7 +91,7 @@ def data_scope(fast_tests, pudl_settings_fixture):
         # the ferc1_dbf_tables are for the ferc1_engine. they refer to ferc1
         # dbf table names, not pudl table names. for the fast test, we only pull
         # in tables we need for pudl.
-        scope['ferc1_dbf_tables'] = pc.ferc1_default_tables
+        scope['ferc1_dbf_tables'] = pc.ferc1_pudl_tables
     else:
         settings_file = 'full-test.yml'
         scope['ferc1_dbf_tables'] = [
@@ -133,8 +133,8 @@ def pudl_out_ferc1(live_pudl_db, pudl_engine, request):
 
 @pytest.fixture(
     scope="session",
-    params=["AS", "MS"],
-    ids=["eia_annual", "eia_monthly"]
+    params=["AS", "MS", None],
+    ids=["eia_annual", "eia_monthly", "eia_raw"]
 )
 def pudl_out_eia(live_pudl_db, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for EIA tests."""

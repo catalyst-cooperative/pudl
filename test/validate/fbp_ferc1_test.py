@@ -15,27 +15,6 @@ import pudl.validate as pv
 logger = logging.getLogger(__name__)
 
 
-def test_fbp_ferc1_basic(pudl_out_ferc1, live_pudl_db):
-    """Check Fuel by Plant outputs for basic validity.
-
-    Basic checks include:
-    * No completely null valued columns
-    * Unique rows for report_year, utility_id_ferc1, and plant_name_ferc1
-    * A certain minimum expected number of records (10,000)
-
-    """
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
-    _ = (
-        pudl_out_ferc1.fbp_ferc1()
-        .pipe(pv.min_rows, n_rows=10_000, df_name="fbp_ferc1")
-        .pipe(pv.no_nan_cols, df_name="fbp_ferc1")
-        .pipe(pv.unique_rows,
-              subset=['report_year', 'utility_id_ferc1', 'plant_name_ferc1'],
-              df_name="fbp_ferc1")
-    )
-
-
 def test_fbp_ferc1_missing_fractions(pudl_out_ferc1, live_pudl_db):
     """Check whether FERC 1 fuel costs by plant appear to be complete."""
     if not live_pudl_db:

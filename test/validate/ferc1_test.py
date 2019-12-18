@@ -11,6 +11,7 @@ import pandas as pd
 import pytest
 
 import pudl.constants as pc
+import pudl.validate as pv
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +40,23 @@ def test_record_id_dupes(pudl_engine, table_name):
         )
 
 
-def test_pu_ferc1(pudl_out_ferc1):
-    """Test output routines for tables from FERC Form 1."""
-    logger.info("Compiling FERC Form 1 plants & utilities table...")
-    logger.info(f"{len(pudl_out_ferc1.pu_ferc1())} plant & utility "
-                f"records found.")
+@pytest.mark.parametrize(
+    "df_name,min_rows,unique_subset", [
+        ("pu_ferc1", 6000, ["utility_id_ferc1", "plant_name_ferc1"]),
+        ("fuel_ferc1", 25_000, None),
+        ("plants_steam_ferc1", 25_000, None),
+        ("fbp_ferc1", 19_000, [
+            "report_year",
+            "utility_id_ferc1",
+            "plant_name_ferc1"]),
+    ])
+def test_sanity(pudl_out_ferc1,
+                live_pudl_db,
+                df_name,
+                min_rows,
+                unique_subset):
+    """Run basic sanity checks on structure of FERC 1 output DataFrames."""
+    df = pudl_out_ferc1.__getattribute__(df_name)()
+    pv.basic_sanity(df, df_name=df_name,
+                    min_rows=min_rows, max_rows=min_rows * 1.5,
+                    unique_subset=unique_subset)
