@@ -2097,8 +2097,6 @@ entities = {
         [],
         # need type fixing
         {}, ]}
-# {'plant_id_eia': 'int64',
-# 'boiler_id': 'str', }, ]}
 """dict: A dictionary containing table name strings (keys) and lists of columns
     to keep for those tables (values).
 """
@@ -2643,6 +2641,12 @@ column_dtypes = {
     "ferc1": {  # Obviously this is not yet a complete list...
         "construction_year": "Int64",  # Nullable Integer
         "installation_year": "Int64",  # Nullable Integer
+        'utility_id_ferc1': 'Int64',
+        'plant_id_pudl': 'Int64',
+        'plant_id_ferc1': 'Int64',
+        'utility_id_pudl': 'Int64',
+        'report_year': 'Int64',
+        'report_date': 'datetime64[ns]',
     },
     "epacems": {
         'state': str,
@@ -2779,6 +2783,7 @@ column_dtypes = {
         'planned_retirement_date': 'datetime64[ns]',
         'planned_uprate_date': 'datetime64[ns]',
         'plant_id_eia': pd.Int64Dtype(),
+        'plant_id_pudl': pd.Int64Dtype(),
         'plant_name_eia': str,
         'plants_reported_asset_manager': bool,
         'plants_reported_operator': bool,
@@ -2827,6 +2832,7 @@ column_dtypes = {
         'uprate_derate_completed_date': 'datetime64[ns]',
         'uprate_derate_during_year': bool,
         'utility_id_eia': pd.Int64Dtype(),
+        'utility_id_pudl': pd.Int64Dtype(),
         'utility_name_eia': str,
         'water_source': str,
         'winter_capacity_mw': float,
