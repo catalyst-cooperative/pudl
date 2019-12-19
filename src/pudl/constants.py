@@ -976,14 +976,16 @@ ferc1_pudl_tables = (
     integrated into PUDL.
 """
 
-table_map_ferc1_pudl = {'fuel_ferc1': 'f1_fuel',
-                        'plants_steam_ferc1': 'f1_steam',
-                        'plants_small_ferc1': 'f1_gnrt_plant',
-                        'plants_hydro_ferc1': 'f1_hydro',
-                        'plants_pumped_storage_ferc1': 'f1_pumped_storage',
-                        'plant_in_service_ferc1': 'f1_plant_in_srvce',
-                        'purchased_power_ferc1': 'f1_purchased_pwr',
-                        'accumulated_depreciation_ferc1': 'f1_accumdepr_prvsn'}
+table_map_ferc1_pudl = {
+    'fuel_ferc1': 'f1_fuel',
+    'plants_steam_ferc1': 'f1_steam',
+    'plants_small_ferc1': 'f1_gnrt_plant',
+    'plants_hydro_ferc1': 'f1_hydro',
+    'plants_pumped_storage_ferc1': 'f1_pumped_storage',
+    'plant_in_service_ferc1': 'f1_plant_in_srvce',
+    'purchased_power_ferc1': 'f1_purchased_pwr',
+    # 'accumulated_depreciation_ferc1': 'f1_accumdepr_prvsn'
+}
 """dict: A dictionary mapping PUDL table names (keys) to the corresponding FERC
     Form 1 DBF table names.
 """

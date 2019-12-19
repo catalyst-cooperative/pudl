@@ -91,7 +91,9 @@ def data_scope(fast_tests, pudl_settings_fixture):
         # the ferc1_dbf_tables are for the ferc1_engine. they refer to ferc1
         # dbf table names, not pudl table names. for the fast test, we only pull
         # in tables we need for pudl.
-        scope['ferc1_dbf_tables'] = pc.ferc1_pudl_tables
+        scope['ferc1_dbf_tables'] = [
+            pc.table_map_ferc1_pudl[k] for k in pc.pudl_tables["ferc1"]
+        ] + ["f1_respondent_id"]
     else:
         settings_file = 'full-test.yml'
         scope['ferc1_dbf_tables'] = [

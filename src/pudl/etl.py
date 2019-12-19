@@ -97,14 +97,14 @@ def _validate_params_eia(etl_params):  # noqa: C901
     # Validate the etl_params
     if eia_input_dict['eia860_tables']:
         for table in eia_input_dict['eia860_tables']:
-            if table not in pc.eia860_pudl_tables:
+            if table not in pc.pudl_tables["eia860"]:
                 raise AssertionError(
                     f"Unrecognized EIA 860 table: {table}"
                 )
 
     if eia_input_dict['eia923_tables']:
         for table in eia_input_dict['eia923_tables']:
-            if table not in pc.eia923_pudl_tables:
+            if table not in pc.pudl_tables["eia923"]:
                 raise AssertionError(
                     f"Unrecogized EIA 923 table: {table}"
                 )
@@ -247,7 +247,7 @@ def _validate_params_ferc1(etl_params):  # noqa: C901
 
     if (not ferc1_dict['debug']) and (ferc1_dict['ferc1_tables']):
         for table in ferc1_dict['ferc1_tables']:
-            if table not in pc.ferc1_pudl_tables:
+            if table not in pc.pudl_tables["ferc1"]:
                 raise AssertionError(
                     f"Unrecognized FERC table: {table}."
                 )
