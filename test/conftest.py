@@ -135,8 +135,8 @@ def pudl_out_ferc1(live_pudl_db, pudl_engine, request):
 
 @pytest.fixture(
     scope="session",
-    params=["AS", "MS", None],
-    ids=["eia_annual", "eia_monthly", "eia_raw"]
+    params=[None, "AS", "MS"],
+    ids=["eia_raw", "eia_annual", "eia_monthly"]
 )
 def pudl_out_eia(live_pudl_db, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for EIA tests."""

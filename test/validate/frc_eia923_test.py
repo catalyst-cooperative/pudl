@@ -75,10 +75,11 @@ def test_vs_bounds(pudl_out_eia, live_pudl_db, cases):
     """Validate distribution of reported data is within expected bounds."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
-    for case in cases:
-        pudl.validate.vs_bounds(pudl_out_eia.frc_eia923(), **case)
     if pudl_out_eia.freq is not None:
         pytest.skip("Test only runs on un-aggregated data.")
+
+    for case in cases:
+        pudl.validate.vs_bounds(pudl_out_eia.frc_eia923(), **case)
 
 
 def test_self_vs_historical(pudl_out_eia, live_pudl_db):
