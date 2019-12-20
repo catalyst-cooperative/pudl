@@ -184,7 +184,7 @@ def _clean_cols(df, table_name):
     those columns and that none of them are NULL, and adds a new column to the
     dataframe containing a string of the format:
 
-    {table_name}_{report_year}_{respondent_id}_{spplmnt_num}_{row_number}
+    {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}
 
     In addition there are some columns which are not meaningful or useful in
     the context of PUDL, but which show up in virtually every FERC table, and
@@ -207,7 +207,7 @@ def _clean_cols(df, table_name):
     Returns:
         pandas.DataFrame: The same DataFrame with a column appended containing
             a string of the format
-            {table_name}_{report_year}_{respondent_id}_{spplmnt_num}_{row_number}
+            {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}
 
     Raises:
         AssertionError: If the table input contains NULL columns
@@ -885,6 +885,12 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
             'asset_retire_cost': 'asset_retirement_cost',
             '': '',
         })
+        .drop_duplicates(
+            subset=["report_year",
+                    "utility_id_ferc1",
+                    "plant_name_ferc1",
+                    "capacity_mw"],
+            keep=False)
     )
 
     ferc1_transformed_dfs['plants_hydro_ferc1'] = ferc1_hydro_df
@@ -967,6 +973,12 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
             'tot_prdctn_exns': 'opex_total',
             'expns_per_mwh': 'opex_per_mwh',
         })
+        .drop_duplicates(
+            subset=["report_year",
+                    "utility_id_ferc1",
+                    "plant_name_ferc1",
+                    "capacity_mw"],
+            keep=False)
     )
 
     ferc1_transformed_dfs['plants_pumped_storage_ferc1'] = ferc1_pump_df

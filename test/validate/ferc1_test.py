@@ -51,12 +51,12 @@ def test_record_id_dupes(pudl_engine, table_name):
         ("purchased_power_ferc1", "all"),
         ("plant_in_service_ferc1", "all"),
     ])
-def test_no_null_cols_eia(pudl_out_eia, live_pudl_db, cols, df_name):
+def test_no_null_cols_ferc1(pudl_out_ferc1, live_pudl_db, cols, df_name):
     """Verify that output DataFrames have no entirely NULL columns."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     pv.no_null_cols(
-        pudl_out_eia.__getattribute__(df_name)(),
+        pudl_out_ferc1.__getattribute__(df_name)(),
         cols=cols, df_name=df_name)
 
 
@@ -99,16 +99,16 @@ def test_minmax_rows(pudl_out_ferc1, live_pudl_db, min_rows, df_name):
         ("pu_ferc1", ["utility_id_ferc1", "plant_name_ferc1"]),
         ("fbp_ferc1", ["report_year", "utility_id_ferc1", "plant_name_ferc1"]),
         ("plants_hydro_ferc1",
-         ["report_year", "utility_id_ferc1", "plant_name_ferc1"]),
+         ["report_year", "utility_id_ferc1", "plant_name_ferc1", "capacity_mw"]),
         ("plants_pumped_storage_ferc1",
-         ["report_year", "utility_id_ferc1", "plant_name_ferc1"]),
+         ["report_year", "utility_id_ferc1", "plant_name_ferc1", "capacity_mw"]),
         ("plant_in_service_ferc1",
          ["report_year", "utility_id_ferc1", "amount_type"]),
     ])
-def test_unique_rows_ferc1(pudl_out_eia, live_pudl_db, df_name, unique_subset):
+def test_unique_rows_ferc1(pudl_out_ferc1, live_pudl_db, df_name, unique_subset):
     """Test whether dataframe has unique records within a subset of columns."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     pv.check_unique_rows(
-        pudl_out_eia.__getattribute__(df_name)(),
+        pudl_out_ferc1.__getattribute__(df_name)(),
         subset=unique_subset, df_name=df_name)

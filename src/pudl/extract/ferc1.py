@@ -687,6 +687,7 @@ def plants_steam(ferc1_meta, ferc1_table, ferc1_years):
         sa.sql.select([f1_steam])
         .where(f1_steam.c.report_year.in_(ferc1_years))
         .where(f1_steam.c.plant_name != '')
+        .where(f1_steam.c.tot_capacity > 0.0)
     )
 
     return pd.read_sql(f1_steam_select, ferc1_meta.bind)
