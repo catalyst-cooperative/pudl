@@ -593,8 +593,10 @@ def get_flattened_etl_parameters(datapkg_bundle_settings):  # noqa: C901
         datapkg_bundle_settings (iterable): a list of data package parameters,
             with each element of the list being a dictionary specifying
             the data to be packaged.
+
     Returns:
         dict: dictionary of etl parameters (i.e. ferc1_years, eia923_years)
+
     """
     flattened_parameters = []
     for datapkg in datapkg_bundle_settings:

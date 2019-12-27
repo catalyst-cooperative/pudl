@@ -2500,6 +2500,7 @@ data_source_info = {
     },
     "eia861": {
         "title": "EIA Form 861",
+        "path": "https://www.eia.gov/electricity/data/eia861/",
     },
     "eiawater": {
         "title": "EIA Water Use for Power",
@@ -2604,7 +2605,7 @@ keywords_by_datset = {
     ],
     'eia860': [
         'electricity', 'electric', 'boiler', 'generator', 'plant', 'utility',
-        'fuel', 'coal', 'natural gas', ' prime mover', 'eia860', 'retirement',
+        'fuel', 'coal', 'natural gas', 'prime mover', 'eia860', 'retirement',
         'capacity', 'planned', 'proposed', 'energy', 'hydro', 'solar', 'wind',
         'nuclear', 'form 860', 'eia', 'annual', 'gas', 'ownership', 'steam',
         'turbine', 'combustion', 'combined cycle', 'eia',

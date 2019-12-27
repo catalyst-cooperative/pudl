@@ -11,7 +11,7 @@ import pudl.constants
 import pudl.convert.datapkg_to_sqlite
 import pudl.convert.epacems_to_parquet
 import pudl.convert.ferc1_to_sqlite
-import pudl.convert.flatten_datapkgs
+import pudl.convert.merge_datapkgs
 import pudl.etl
 import pudl.extract.eia860
 import pudl.extract.eia923
