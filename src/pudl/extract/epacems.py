@@ -56,13 +56,11 @@ def extract(epacems_years, states, data_dir):
         # The keys of the us_states dictionary are the state abbrevs
         for state in states:
             dfs = []
+            logger.info(f"Performing ETL for EPA CEMS hourly {state}-{year}")
             for month in range(1, 13):
                 filename = datastore.path('epacems',
                                           year=year, month=month, state=state,
                                           data_dir=data_dir)
-                logger.info(
-                    f"Performing ETL for EPA CEMS hourly "
-                    f"{state}-{year}-{month:02}")
                 dfs.append(read_cems_csv(filename))
             # Return a dictionary where the key identifies this dataset
             # (just like the other extract functions), but unlike the
