@@ -236,7 +236,7 @@ def pudl_engine(ferc1_engine, live_pudl_db, pudl_settings_fixture,
         pudl.convert.merge_datapkgs.merge_datapkgs(
             dps, out_path, clobber=False)
 
-        pudl.convert.datapkg_to_sqlite.datapkg_to_sqlite_db(
+        pudl.convert.datapkg_to_sqlite.datapkg_to_sqlite(
             sqlite_url=pudl_settings_fixture["pudl_db"],
             out_path=out_path, clobber=False)
     # Grab a connection to the freshly populated PUDL DB, and hand it off.

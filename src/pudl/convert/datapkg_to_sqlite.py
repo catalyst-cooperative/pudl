@@ -39,7 +39,7 @@ from pudl.convert.merge_datapkgs import merge_datapkgs
 logger = logging.getLogger(__name__)
 
 
-def datapkg_to_sqlite_db(sqlite_url, out_path, clobber=False):
+def datapkg_to_sqlite(sqlite_url, out_path, clobber=False):
     """
     Turn a data package into a sqlite database.
 
@@ -167,7 +167,7 @@ def main():
 
     if args.load_sqlite is True:
         logger.info(f"Loading merged datapackage into an SQLite database.")
-        datapkg_to_sqlite_db(
+        datapkg_to_sqlite(
             pudl_settings['pudl_db'], out_path, clobber=args.clobber)
         logger.info(f"Success! You can connect to the PUDL DB at this URL:")
         logger.info(f"{pudl_settings['pudl_db']}")
