@@ -572,6 +572,7 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
         # TODO: check which checks are applied... and uncomment out the line
         # below when the checks are integrated
         # checks=['structure', 'schema', 'foreign-key'],
+        # table_limit=100,
         row_limit=1000)
     if not report["valid"]:
         goodtables_errors = ""

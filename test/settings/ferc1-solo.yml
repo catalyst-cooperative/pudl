@@ -19,5 +19,4 @@ datapkg_bundle_settings:
            #- plants_pumped_storage_ferc1
            #- plant_in_service_ferc1
            #- purchased_power_ferc1
-           #- accumulated_depreciation_ferc1
           ferc1_years: [2017]

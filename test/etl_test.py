@@ -49,19 +49,21 @@ def test_epacems_to_parquet(datapkg_bundle,
                             request):
     """Attempt to convert a small amount of EPA CEMS data to parquet format."""
     clobber = request.config.getoption("--clobber")
-    logger.info(pathlib.Path(
+    epacems_datapkg_json = pathlib.Path(
         pudl_settings_fixture['datapkg_dir'],
-        data_scope['datapkg_bundle_name'], 'epacems-eia-test'))
+        data_scope['datapkg_bundle_name'],
+        'epacems-eia-test',
+        "datapackage.json"
+    )
+    logger.info(f"Loading epacems from {epacems_datapkg_json}")
     epacems_to_parquet(
-        datapkg_dir=pathlib.Path(
-            pudl_settings_fixture['datapkg_dir'],
-            data_scope['datapkg_bundle_name'], 'epacems-eia-test'),
+        datapkg_path=epacems_datapkg_json,
         epacems_years=data_scope['epacems_years'],
         epacems_states=data_scope['epacems_states'],
-        out_dir=pathlib.Path(
-            pudl_settings_fixture['parquet_dir'], 'epacems'),
+        out_dir=pathlib.Path(pudl_settings_fixture['parquet_dir'], 'epacems'),
         compression='snappy',
-        clobber=clobber)
+        clobber=clobber
+    )
 
 
 def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
@@ -116,6 +118,7 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
 
 def test_ferc1_solo_etl(datastore_fixture,
                         pudl_settings_fixture,
+                        ferc1_engine,
                         live_ferc1_db):
     """Verify that a minimal FERC Form 1 can be loaded without other data."""
     with open(pathlib.Path(

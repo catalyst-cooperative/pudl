@@ -184,7 +184,7 @@ def _clean_cols(df, table_name):
     those columns and that none of them are NULL, and adds a new column to the
     dataframe containing a string of the format:
 
-    {table_name}_{report_year}_{respondent_id}_{spplmnt_num}_{row_number}
+    {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}
 
     In addition there are some columns which are not meaningful or useful in
     the context of PUDL, but which show up in virtually every FERC table, and
@@ -207,7 +207,7 @@ def _clean_cols(df, table_name):
     Returns:
         pandas.DataFrame: The same DataFrame with a column appended containing
             a string of the format
-            {table_name}_{report_year}_{respondent_id}_{spplmnt_num}_{row_number}
+            {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}
 
     Raises:
         AssertionError: If the table input contains NULL columns
@@ -847,7 +847,6 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
         .pipe(oob_to_nan, cols=["yr_const", "yr_installed"],
               lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
         .drop(columns=['net_generation', 'cost_per_kw', 'expns_kwh'])
-        # .dropna()
         .rename(columns={
             # FERC1 DB          PUDL DB
             "plant_name": "plant_name_ferc1",
@@ -886,6 +885,12 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
             'asset_retire_cost': 'asset_retirement_cost',
             '': '',
         })
+        .drop_duplicates(
+            subset=["report_year",
+                    "utility_id_ferc1",
+                    "plant_name_ferc1",
+                    "capacity_mw"],
+            keep=False)
     )
 
     ferc1_transformed_dfs['plants_hydro_ferc1'] = ferc1_hydro_df
@@ -928,7 +933,6 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
               lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
         .drop(columns=['net_generation', 'energy_used', 'net_load',
                        'cost_per_kw', 'expns_kwh'])
-        .dropna()
         .rename(columns={
             # FERC1 DB          PUDL DB
             "plant_name": "plant_name_ferc1",
@@ -969,6 +973,12 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
             'tot_prdctn_exns': 'opex_total',
             'expns_per_mwh': 'opex_per_mwh',
         })
+        .drop_duplicates(
+            subset=["report_year",
+                    "utility_id_ferc1",
+                    "plant_name_ferc1",
+                    "capacity_mw"],
+            keep=False)
     )
 
     ferc1_transformed_dfs['plants_pumped_storage_ferc1'] = ferc1_pump_df
@@ -1103,14 +1113,18 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
     df['purchase_type'] = df.purchase_type.replace(
         pc.ferc1_power_purchase_type)
 
-    # Drop records containing no useful data.
-    df = df.drop(df.loc[((df.purchased_mwh == 0) &
-                         (df.received_mwh == 0)
-                         & (df.delivered_mwh == 0)
-                         & (df.demand_charges == 0)
-                         & (df.energy_charges == 0)
-                         & (df.other_charges == 0)
-                         & (df.total_settlement == 0)), :].index)
+    # Drop records containing no useful data and also any completely duplicate
+    # records -- there are 6 in 1998 for utility 238 for some reason...
+    df = (
+        df.drop_duplicates()
+        .drop(df.loc[((df.purchased_mwh == 0)
+                      & (df.received_mwh == 0)
+                      & (df.delivered_mwh == 0)
+                      & (df.demand_charges == 0)
+                      & (df.energy_charges == 0)
+                      & (df.other_charges == 0)
+                      & (df.total_settlement == 0)), :].index)
+    )
 
     ferc1_transformed_dfs['purchased_power_ferc1'] = df
 

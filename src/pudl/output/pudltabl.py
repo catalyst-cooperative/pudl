@@ -95,30 +95,35 @@ class PudlTabl(object):
         # We populate this library of dataframes as they are generated, and
         # allow them to persist, in case they need to be used again.
         self._dfs = {
-            'pu_eia': None,
-            'pu_ferc1': None,
+            "pu_eia": None,
+            "pu_ferc1": None,
 
-            'utils_eia860': None,
-            'bga_eia860': None,
-            'plants_eia860': None,
-            'gens_eia860': None,
-            'own_eia860': None,
+            "utils_eia860": None,
+            "bga_eia860": None,
+            "plants_eia860": None,
+            "gens_eia860": None,
+            "own_eia860": None,
 
-            'gf_eia923': None,
-            'frc_eia923': None,
-            'bf_eia923': None,
-            'gen_eia923': None,
+            "gf_eia923": None,
+            "frc_eia923": None,
+            "bf_eia923": None,
+            "gen_eia923": None,
 
-            'plants_steam_ferc1': None,
-            'fuel_ferc1': None,
-            'fbp_ferc1': None,
+            "plants_steam_ferc1": None,
+            "fuel_ferc1": None,
+            "fbp_ferc1": None,
+            "plants_small_ferc1": None,
+            "plants_hydro_ferc1": None,
+            "plants_pumped_storage_ferc1": None,
+            "purchased_power_ferc1": None,
+            "plant_in_service_ferc1": None,
 
-            'bga': None,
-            'hr_by_unit': None,
-            'hr_by_gen': None,
-            'fuel_cost': None,
-            'capacity_factor': None,
-            'mcoe': None,
+            "bga": None,
+            "hr_by_unit": None,
+            "hr_by_gen": None,
+            "fuel_cost": None,
+            "capacity_factor": None,
+            "mcoe": None,
         }
 
     def pu_eia860(self, update=False):
@@ -158,6 +163,9 @@ class PudlTabl(object):
                 self.pudl_engine)
         return self._dfs['pu_ferc1']
 
+    ###########################################################################
+    # EIA 860/923 OUTPUTS
+    ###########################################################################
     def utils_eia860(self, update=False):
         """
         Pull a dataframe describing utilities reported in EIA 860.
@@ -346,6 +354,9 @@ class PudlTabl(object):
                 end_date=self.end_date)
         return self._dfs['gen_eia923']
 
+    ###########################################################################
+    # FERC FORM 1 OUTPUTS
+    ###########################################################################
     def plants_steam_ferc1(self, update=False):
         """
         Pull the FERC Form 1 steam plants data.
@@ -397,6 +408,94 @@ class PudlTabl(object):
                 self.pudl_engine)
         return self._dfs['fbp_ferc1']
 
+    def plants_small_ferc1(self, update=False):
+        """
+        Pull the FERC Form 1 Small Plants Table.
+
+        Args:
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
+
+        Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+
+        """
+        if update or self._dfs['plants_small_ferc1'] is None:
+            self._dfs['plants_small_ferc1'] = pudl.output.ferc1.plants_small_ferc1(
+                self.pudl_engine)
+        return self._dfs['plants_small_ferc1']
+
+    def plants_hydro_ferc1(self, update=False):
+        """
+        Pull the FERC Form 1 Hydro Plants Table.
+
+        Args:
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
+
+        Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+
+        """
+        if update or self._dfs['plants_hydro_ferc1'] is None:
+            self._dfs['plants_hydro_ferc1'] = pudl.output.ferc1.plants_hydro_ferc1(
+                self.pudl_engine)
+        return self._dfs['plants_hydro_ferc1']
+
+    def plants_pumped_storage_ferc1(self, update=False):
+        """
+        Pull the FERC Form 1 Pumped Storage Table.
+
+        Args:
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
+
+        Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+
+        """
+        if update or self._dfs['plants_pumped_storage_ferc1'] is None:
+            self._dfs['plants_pumped_storage_ferc1'] = pudl.output.ferc1.plants_pumped_storage_ferc1(
+                self.pudl_engine)
+        return self._dfs['plants_pumped_storage_ferc1']
+
+    def purchased_power_ferc1(self, update=False):
+        """
+        Pull the FERC Form 1 Purchased Power Table.
+
+        Args:
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
+
+        Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+
+        """
+        if update or self._dfs['purchased_power_ferc1'] is None:
+            self._dfs['purchased_power_ferc1'] = pudl.output.ferc1.purchased_power_ferc1(
+                self.pudl_engine)
+        return self._dfs['purchased_power_ferc1']
+
+    def plant_in_service_ferc1(self, update=False):
+        """
+        Pull the FERC Form 1 Plant in Service Table.
+
+        Args:
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
+
+        Returns:
+            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+
+        """
+        if update or self._dfs['plant_in_service_ferc1'] is None:
+            self._dfs['plant_in_service_ferc1'] = pudl.output.ferc1.plant_in_service_ferc1(
+                self.pudl_engine)
+        return self._dfs['plant_in_service_ferc1']
+
+    ###########################################################################
+    # EIA MCOE OUTPUTS
+    ###########################################################################
     def bga(self, update=False):
         """
         Pull the more complete EIA/PUDL boiler-generator associations.

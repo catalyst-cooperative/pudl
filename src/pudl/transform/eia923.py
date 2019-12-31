@@ -331,37 +331,34 @@ def generation(eia923_dfs, eia923_transformed_dfs):
         DataFrames of values from that page (values).
 
     """
-    # This needs to be a copy of what we're passed in so we can edit it.
-    generation_df = eia923_dfs['generator'].copy()
+    gen_df = (
+        eia923_dfs['generator']
+        .dropna(subset=['generator_id'])
+        .drop(['combined_heat_power',
+               'plant_name_eia',
+               'operator_name',
+               'operator_id',
+               'plant_state',
+               'census_region',
+               'nerc_region',
+               'naics_code',
+               'eia_sector',
+               'sector_name',
+               'net_generation_mwh_year_to_date'],
+              axis="columns")
+        .pipe(_yearly_to_monthly_records, pc.month_dict_eia923)
+        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.convert_to_date)
+    )
+    # There are a few hundred (out of a few hundred thousand) records which
+    # have duplicate records for a given generator/date combo. However, in all
+    # cases one of them has no data (net_generation_mwh) associated with it,
+    # so it's pretty clear which one to drop.
+    unique_subset = ["report_date", "plant_id_eia", "generator_id"]
+    dupes = gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
+    gen_df = gen_df.drop(dupes.net_generation_mwh.isna().index)
 
-    # Drop fields we're not inserting into the generation_eia923_fuel_eia923
-    # table.
-    cols_to_drop = ['combined_heat_power',
-                    'plant_name_eia',
-                    'operator_name',
-                    'operator_id',
-                    'plant_state',
-                    'census_region',
-                    'nerc_region',
-                    'naics_code',
-                    'eia_sector',
-                    'sector_name',
-                    'net_generation_mwh_year_to_date']
-
-    generation_df.dropna(subset=['generator_id'], inplace=True)
-
-    generation_df.drop(cols_to_drop, axis=1, inplace=True)
-
-    # Convert the EIA923 DataFrame from yearly to monthly records.
-    generation_df = _yearly_to_monthly_records(
-        generation_df, pc.month_dict_eia923)
-    # Replace the EIA923 NA value ('.') with a real NA value.
-    generation_df = pudl.helpers.fix_eia_na(generation_df)
-
-    # Convert Year/Month columns into a single Date column...
-    generation_df = pudl.helpers.convert_to_date(generation_df)
-
-    eia923_transformed_dfs['generation_eia923'] = generation_df
+    eia923_transformed_dfs['generation_eia923'] = gen_df
 
     return eia923_transformed_dfs
 

@@ -41,20 +41,55 @@ import pudl.constants as pc
 # pudl output, not just from this module, hence the pudl.__name__
 logger = logging.getLogger(__name__)
 
-IN_DTYPES = {
-    "co2_mass_measurement_code": "category",
-    "nox_mass_measurement_code": "category",
-    "nox_rate_measurement_code": "category",
-    "so2_mass_measurement_code": "category",
-    "state": "category",
-    "unitid": "str",
-    # Note: it'd be better to use pandas' nullable integers once this issue is
-    # resolved: https://issues.apache.org/jira/browse/ARROW-5379
-    # 'facility_id': "Int32",
-    # 'unit_id_epa': "Int32",
-    'facility_id': "float32",
-    'unit_id_epa': "float32",
-}
+
+def create_in_dtypes():
+    """Create a dictionary of input data types.
+
+    This specifies the dtypes of the input columns, which is necessary for some
+    cases where, e.g., a column is always NaN.
+    """
+    # These measurement codes are used by all four of our measurement variables
+    common_codes = (
+        "LME",
+        "Measured",
+        "Measured and Substitute",
+        "Other",
+        "Substitute",
+        "Undetermined",
+        "Unknown Code",
+        "",
+    )
+    co2_so2_cats = pd.CategoricalDtype(categories=common_codes, ordered=False)
+    nox_cats = pd.CategoricalDtype(
+        categories=common_codes + ("Calculated",), ordered=False
+    )
+    state_cats = pd.CategoricalDtype(
+        categories=pc.cems_states.keys(), ordered=False)
+    in_dtypes = {
+        "state": state_cats,
+        "plant_id_eia": "int32",
+        "unitid": "str",
+        # "operating_datetime_utc": "datetime",
+        "operating_time_hours": "float32",
+        "gross_load_mw": "float32",
+        "steam_load_1000_lbs": "float32",
+        "so2_mass_lbs": "float32",
+        "so2_mass_measurement_code": co2_so2_cats,
+        "nox_rate_lbs_mmbtu": "float32",
+        "nox_rate_measurement_code": nox_cats,
+        "nox_mass_lbs": "float32",
+        "nox_mass_measurement_code": nox_cats,
+        "co2_mass_tons": "float32",
+        "co2_mass_measurement_code": co2_so2_cats,
+        "heat_content_mmbtu": "float32",
+        # Note: it'd be better to use pandas' nullable integers once this issue
+        # is resolved: https://issues.apache.org/jira/browse/ARROW-5379
+        # "facility_id": "Int32",
+        # "unit_id_epa": "Int32",
+        "facility_id": "float32",
+        "unit_id_epa": "float32",
+    }
+    return in_dtypes
 
 
 def create_cems_schema():
@@ -109,44 +144,7 @@ def create_cems_schema():
     ])
 
 
-def year_from_operating_datetime(df):
-    """Add a 'year' column based on the year in the operating_datetime.
-
-    Args:
-        df (pandas.DataFrame): A DataFrame containing EPA CEMS data.
-
-    Returns:
-        pandas.DataFrame: A DataFrame containing EPA CEMS data with a 'year'
-        column.
-
-    """
-    df['year'] = df.operating_datetime_utc.dt.year
-    return df
-
-
-def _verify_cems_args(data_path, epacems_years, epacems_states):
-    """Check that the data packaage has all years and states you want."""
-    years = set()
-    states = set()
-    # compile all of the years and states
-    for file in data_path.iterdir():
-        if "epacems" in file.name:
-            df_name = file.name[:file.name.find(".")]
-            years.add(int(df_name[25:29]))
-            states.add(df_name[30:])
-    for arg_year in epacems_years:
-        if arg_year not in years:
-            raise AssertionError(
-                f'The data packages do not include the requested year: {arg_year}'
-            )
-    for arg_state in epacems_states:
-        if arg_state.lower() not in states:
-            raise AssertionError(
-                f'The data packages do not include the requested state: {arg_state}'
-            )
-
-
-def epacems_to_parquet(datapkg_dir,
+def epacems_to_parquet(datapkg_path,
                        epacems_years,
                        epacems_states,
                        out_dir,
@@ -161,11 +159,13 @@ def epacems_to_parquet(datapkg_dir,
     across all of the dataframes, and downcasting to the most efficient data
     type possible for each of them. We also add a 'year' column so that we can
     partition the datset on disk by year as well as state.
+    (Year partitions follow the CEMS input data, based on local plant time.
+    The operating_datetime_utc identifies time in UTC, so there's a mismatch
+    of a few hours on December 31 / January 1.)
 
     Args:
-        datapkg_dir (path-like): Path to the directory of the data package
-            which contains EPA CEMS. This directory should have a json metadata
-            file and a `data` subdirectory containing CSVs.
+        datapkg_path (path-like): Path to the datapackage.json file describing
+            the datapackage contaning the EPA CEMS data to be converted.
         epacems_years (list): list of years from which we are trying to read
             CEMs data
         epacems_states (list): list of years from which we are trying to read
@@ -187,27 +187,42 @@ def epacems_to_parquet(datapkg_dir,
     if not out_dir:
         raise AssertionError("Required output directory not specified.")
     out_dir = pudl.load.metadata.prep_directory(out_dir, clobber=clobber)
+    data_dir = pathlib.Path(datapkg_path).parent / "data"
+
+    # Verify that all the requested data files are present:
+    epacems_years = list(epacems_years)
+    epacems_years.sort()
+    epacems_states = list(epacems_states)
+    epacems_states.sort()
+    for year in epacems_years:
+        for state in epacems_states:
+            newpath = pathlib.Path(
+                data_dir,
+                f"hourly_emissions_epacems_{year}_{state.lower()}.csv.gz")
+            if not newpath.is_file():
+                raise FileNotFoundError(f"EPA CEMS file not found: {newpath}")
+
+    # TODO: Rather than going directly to the data directory, we should really
+    # use the metadata inside the datapackage to find the appropriate file
+    # paths pertaining to the CEMS years/states of interest.
+    in_types = create_in_dtypes()
     schema = create_cems_schema()
-    data_path = pathlib.Path(datapkg_dir, 'data')
-    # double check that all of the years you are asking for are actually in
-    _verify_cems_args(data_path, epacems_years, epacems_states)
-    for file in data_path.iterdir():
-        if "epacems" in file.name:
-            df_name = file.name[:file.name.find(".")]
-            year = df_name[25:29]
-            state = df_name[30:]
-            # only convert the years and states that you actually want
-            if int(year) in epacems_years and state.upper() in epacems_states:
-                df = pd.read_csv(file, parse_dates=['operating_datetime_utc'])
-                logger.info(
-                    f"Converted {len(df)} records for {year} and {state}."
-                )
-                df = year_from_operating_datetime(df).astype(IN_DTYPES)
-                pq.write_to_dataset(
-                    pa.Table.from_pandas(
-                        df, preserve_index=False, schema=schema),
-                    root_path=str(out_dir), partition_cols=list(partition_cols),
-                    compression=compression)
+    for year in epacems_years:
+        for state in epacems_states:
+            newpath = pathlib.Path(
+                data_dir,
+                f"hourly_emissions_epacems_{year}_{state.lower()}.csv.gz")
+            df = (
+                pd.read_csv(newpath, dtype=in_types,
+                            parse_dates=["operating_datetime_utc"])
+                .assign(year=year)
+            )
+            logger.info(f"{year}-{state}: {len(df)} records")
+            pq.write_to_dataset(
+                pa.Table.from_pandas(
+                    df, preserve_index=False, schema=schema),
+                root_path=str(out_dir), partition_cols=list(partition_cols),
+                compression=compression)
 
 
 def parse_command_line(argv):
@@ -224,15 +239,16 @@ def parse_command_line(argv):
     parser = argparse.ArgumentParser(description=__doc__)
     defaults = pudl.workspace.setup.get_defaults()
     parser.add_argument(
-        '--datapkg_dir',
+        'datapkg',
         type=str,
-        help="""Path to the directory of the data package which contains EPA
-            CEMS. This directory should have a json metadata file and a `data`
-            subdirectory containing CSVs.""",
+        help="""Path to the datapackage.json file describing the datapackage
+        that contains the CEMS data to be converted.""",
     )
     parser.add_argument(
+        '-z',
         '--compression',
         type=str,
+        choices=["gzip", "snappy"],
         help="""Compression algorithm to use for Parquet files. Can be either
         'snappy' (much faster but larger files) or 'gzip' (slower but better
         compression). (default: %(default)s).""",
@@ -309,7 +325,7 @@ def main():
         pudl_settings=pudl_settings,
     )
 
-    epacems_to_parquet(datapkg_dir=args.datapkg_dir,
+    epacems_to_parquet(datapkg_path=pathlib.Path(args.datapkg),
                        epacems_years=args.years,
                        epacems_states=args.states,
                        out_dir=pathlib.Path(

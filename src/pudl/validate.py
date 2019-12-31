@@ -21,6 +21,82 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 
+def no_null_cols(df, cols="all", df_name=""):
+    """Check that a dataframe has no all-NaN columns.
+
+    Occasionally in the concatenation / merging of dataframes we get a label
+    wrong, and it results in a fully NaN column... which should probably never
+    actually happen. This is a quick verification.
+
+    Args:
+        df (pandas.DataFrame): DataFrame to check for null columns.
+        cols (iterable or "all"): The labels of columns to check for
+            all-null values. If "all" check all columns.
+        df_name (str): Name of the dataframe, to aid in debugging/logging.
+
+    Returns:
+        pandas.DataFrame: The same DataFrame as was passed in, for use in
+            DataFrame.pipe().
+
+    Raises:
+        ValueError: If any completely NaN / Null valued columns are found.
+
+    """
+    if cols == "all":
+        cols = df.columns
+
+    for c in cols:
+        if df[c].isna().all():
+            raise ValueError(f"Null column: {c} found in dataframe {df_name}")
+
+    return df
+
+
+def check_max_rows(df, n_rows=np.inf, df_name=""):
+    """Validate that a dataframe has less than a maximum number of rows."""
+    len_df = len(df)
+    if len_df > n_rows:
+        raise ValueError(
+            f"Too many records ({len_df}>{n_rows}) in dataframe {df_name}")
+
+    return df
+
+
+def check_min_rows(df, n_rows=0, df_name=""):
+    """Validate that a dataframe has a certain minimum number of rows."""
+    len_df = len(df)
+    if len_df < n_rows:
+        raise ValueError(
+            f"Too few records ({len_df}<{n_rows}) in dataframe {df_name}")
+
+    return df
+
+
+def check_unique_rows(df, subset=None, df_name=""):
+    """Test whether dataframe has unique records within a subset of columns.
+
+    Args:
+        df (pandas.DataFrame): DataFrame to check for duplicate records.
+        subset (iterable or None): Columns to consider in checking for dupes.
+        df_name (str): Name of the dataframe, to aid in debugging/logging.
+
+    Returns:
+        pandas.DataFrame: The same DataFrame as was passed in, for use in
+            DataFrame.pipe().
+
+    Raises:
+        ValueError:  If there are duplicate records in the subset of selected
+            columns.
+
+    """
+    n_dupes = len(df[df.duplicated(subset=subset)])
+    if n_dupes != 0:
+        raise ValueError(
+            f"Found {n_dupes} dupes of in dataframe {df_name}")
+
+    return df
+
+
 def weighted_quantile(data, weights, quantile):
     """
     Calculate the weighted quantile of a Series or DataFrame column.
@@ -417,9 +493,9 @@ plants_steam_ferc1_expenses = [
         "title": "Capital Expenses (median)",
         "query": "",
         "low_q": 0.5,
-        "low_bound": 4e5,
+        "low_bound": 2e5,
         "hi_q": 0.5,
-        "hi_bound": 7e5,
+        "hi_bound": 6e5,
         "data_col": "capex_per_mw",
         "weight_col": "capacity_mw",
     },
@@ -437,9 +513,9 @@ plants_steam_ferc1_expenses = [
         "title": "OpEx Fuel (median)",
         "query": "opex_fuel_per_mwh>0",
         "low_q": 0.5,
-        "low_bound": 13.0,
+        "low_bound": 10.0,
         "hi_q": 0.5,
-        "hi_bound": 27.0,
+        "hi_bound": 25.0,
         "data_col": "opex_fuel_per_mwh",
         "weight_col": "net_generation_mwh",
     },
@@ -449,7 +525,7 @@ plants_steam_ferc1_expenses = [
         "low_q": False,
         "low_bound": False,
         "hi_q": 0.95,
-        "hi_bound": 86.0,
+        "hi_bound": 80.0,
         "data_col": "opex_fuel_per_mwh",
         "weight_col": "net_generation_mwh",
     },
@@ -457,9 +533,9 @@ plants_steam_ferc1_expenses = [
         "title": "Nonfuel OpEx (central)",
         "query": "opex_nonfuel_per_mwh>0",
         "low_q": 0.3,
-        "low_bound": 3.75,
+        "low_bound": 2.5,
         "hi_q": 0.3,
-        "hi_bound": 5.8,
+        "hi_bound": 5.0,
         "data_col": "opex_nonfuel_per_mwh",
         "weight_col": "net_generation_mwh",
     },
@@ -469,7 +545,7 @@ plants_steam_ferc1_expenses = [
         "low_q": 0.05,
         "low_bound": 1.2,
         "hi_q": 0.95,
-        "hi_bound": 21.0,
+        "hi_bound": 25.0,
         "data_col": "opex_nonfuel_per_mwh",
         "weight_col": "net_generation_mwh",
     },
@@ -502,7 +578,7 @@ plants_steam_ferc1_capacity_ratios = [
         "low_q": 0.5,
         "low_bound": 0.91,
         "hi_q": 0.5,
-        "hi_bound": 0.96,
+        "hi_bound": 1.0,
         "data_col": "peak_demand_ratio",
         "weight_col": "",
     },
@@ -512,7 +588,7 @@ plants_steam_ferc1_capacity_ratios = [
         "low_q": 0.05,
         "low_bound": 0.4,
         "hi_q": 0.95,
-        "hi_bound": 1.25,
+        "hi_bound": 1.3,
         "data_col": "peak_demand_ratio",
         "weight_col": "",
     },
@@ -522,7 +598,7 @@ plants_steam_ferc1_capacity_ratios = [
         "low_q": 0.5,
         "low_bound": 0.89,
         "hi_q": 0.5,
-        "hi_bound": 0.92,
+        "hi_bound": 0.95,
         "data_col": "water_limited_ratio",
         "weight_col": "",
     },
@@ -532,7 +608,7 @@ plants_steam_ferc1_capacity_ratios = [
         "low_q": 0.05,
         "low_bound": 0.63,
         "hi_q": 0.95,
-        "hi_bound": 1.09,
+        "hi_bound": 1.15,
         "data_col": "water_limited_ratio",
         "weight_col": "",
     },
@@ -542,7 +618,7 @@ plants_steam_ferc1_capacity_ratios = [
         "low_q": 0.5,
         "low_bound": 0.92,
         "hi_q": 0.5,
-        "hi_bound": 0.96,
+        "hi_bound": 1.0,
         "data_col": "not_water_limited_ratio",
         "weight_col": "",
     },
@@ -552,7 +628,7 @@ plants_steam_ferc1_capacity_ratios = [
         "low_q": 0.05,
         "low_bound": 0.73,
         "hi_q": 0.95,
-        "hi_bound": 1.16,
+        "hi_bound": 1.2,
         "data_col": "not_water_limited_ratio",
         "weight_col": "",
     },
@@ -799,7 +875,7 @@ fuel_ferc1_coal_mmbtu_per_unit_bounds = [
         "title": "Coal heat content (tails)",
         "query": "fuel_type_code_pudl=='coal'",
         "low_q": 0.05,
-        "low_bound": 16.0,
+        "low_bound": 15.0,
         "hi_q": 0.95,
         "hi_bound": 26.0,
         "data_col": "fuel_mmbtu_per_unit",
@@ -835,7 +911,7 @@ fuel_ferc1_coal_cost_per_mmbtu_bounds = [
         "title": "Cost per mmbtu (Coal)",
         "query": "fuel_type_code_pudl=='coal'",
         "low_q": 0.05,
-        "low_bound": 0.85,
+        "low_bound": 0.75,
         "hi_q": 0.95,
         "hi_bound": 4.2,
         "data_col": "fuel_cost_per_mmbtu",
@@ -859,7 +935,7 @@ fuel_ferc1_gas_cost_per_mmbtu_bounds = [
         "title": "Cost per mmbtu (Gas)",
         "query": "fuel_type_code_pudl=='gas'",
         "low_q": 0.05,
-        "low_bound": 2.0,
+        "low_bound": 1.8,
         "hi_q": 0.95,
         "hi_bound": 12.0,
         "data_col": "fuel_cost_per_mmbtu",
@@ -870,7 +946,7 @@ fuel_ferc1_coal_cost_per_unit_bounds = [
     {
         "title": "Cost per unit burned (Coal)",
         "query": "fuel_type_code_pudl=='coal'",
-        "low_q": 0.05,
+        "low_q": 0.10,
         "low_bound": 7.0,
         "hi_q": 0.95,
         "hi_bound": 100.0,
@@ -895,13 +971,115 @@ fuel_ferc1_gas_cost_per_unit_bounds = [
         "title": "Cost per unit burned (Gas)",
         "query": "fuel_type_code_pudl=='gas'",
         "low_q": 0.05,
-        "low_bound": 2.5,
+        "low_bound": 2.0,
         "hi_q": 0.95,
         "hi_bound": 12.0,
         "data_col": "fuel_cost_per_unit_burned",
         "weight_col": "fuel_qty_burned",
     },
 ]
+
+###############################################################################
+# Fuel by Plant FERC 1
+###############################################################################
+
+fbp_ferc1_self = [
+    {
+        "title": "Cost per mmbtu (Gas)",
+        "query": "",
+        "low_q": 0.05,
+        "mid_q": 0.5,
+        "hi_q": 0.90,
+        "data_col": "gas_cost_per_mmbtu",
+        "weight_col": "",
+    },
+    {
+        "title": "Cost per mmbtu (Oil)",
+        "query": "",
+        "low_q": 0.1,
+        "mid_q": 0.5,
+        "hi_q": 0.9,
+        "data_col": "oil_cost_per_mmbtu",
+        "weight_col": "",
+    },
+    {
+        "title": "Cost per mmbtu (Coal)",
+        "query": "",
+        "low_q": 0.10,
+        "mid_q": 0.5,
+        "hi_q": 0.95,
+        "data_col": "coal_cost_per_mmbtu",
+        "weight_col": "",
+    },
+]
+
+fbp_ferc1_gas_cost_per_mmbtu_bounds = [
+    {
+        "title": "Gas cost per MMBTU (Tails)",
+        "query": "",
+        "low_q": 0.05,
+        "low_bound": 1.5,
+        "hi_q": 0.90,
+        "hi_bound": 15.0,
+        "data_col": "gas_cost_per_mmbtu",
+        "weight_col": "",
+    },
+    {
+        "title": "Gas Cost per MMBTU (Median)",
+        "query": "",
+        "low_q": 0.5,
+        "low_bound": 2.0,
+        "hi_q": 0.5,
+        "hi_bound": 10.0,
+        "data_col": "gas_cost_per_mmbtu",
+        "weight_col": "",
+    },
+]
+fbp_ferc1_oil_cost_per_mmbtu_bounds = [
+    {
+        "title": "Oil cost per MMBTU (Tails)",
+        "query": "",
+        "low_q": 0.1,
+        "low_bound": 4.0,
+        "hi_q": 0.90,
+        "hi_bound": 25.0,
+        "data_col": "oil_cost_per_mmbtu",
+        "weight_col": "",
+    },
+    {
+        "title": "Oil Cost per MMBTU (Median)",
+        "query": "",
+        "low_q": 0.5,
+        "low_bound": 7.0,
+        "hi_q": 0.5,
+        "hi_bound": 17.0,
+        "data_col": "oil_cost_per_mmbtu",
+        "weight_col": "",
+    },
+]
+fbp_ferc1_coal_cost_per_mmbtu_bounds = [
+    {
+        "title": "Coal cost per MMBTU (Tails)",
+        "query": "",
+        "low_q": 0.1,
+        "low_bound": 0.75,
+        "hi_q": 0.95,
+        "hi_bound": 4.5,
+        "data_col": "coal_cost_per_mmbtu",
+        "weight_col": "",
+    },
+    {
+        "title": "Coal Cost per MMBTU (Median)",
+        "query": "",
+        "low_q": 0.5,
+        "low_bound": 1.0,
+        "hi_q": 0.5,
+        "hi_bound": 2.5,
+        "data_col": "coal_cost_per_mmbtu",
+        "weight_col": "",
+    },
+]
+
 ###############################################################################
 # EIA923 Generation Fuel data validation against fixed values
 ###############################################################################

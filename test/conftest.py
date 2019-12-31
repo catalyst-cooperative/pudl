@@ -1,10 +1,12 @@
 """PyTest configuration module. Defines useful fixtures, command line args."""
 
+import glob
 import logging
 import os
 import pathlib
 import shutil
 
+import datapackage
 import pandas as pd
 import pytest
 import sqlalchemy as sa
@@ -91,7 +93,9 @@ def data_scope(fast_tests, pudl_settings_fixture):
         # the ferc1_dbf_tables are for the ferc1_engine. they refer to ferc1
         # dbf table names, not pudl table names. for the fast test, we only pull
         # in tables we need for pudl.
-        scope['ferc1_dbf_tables'] = pc.ferc1_default_tables
+        scope['ferc1_dbf_tables'] = [
+            pc.table_map_ferc1_pudl[k] for k in pc.pudl_tables["ferc1"]
+        ] + ["f1_respondent_id"]
     else:
         settings_file = 'full-test.yml'
         scope['ferc1_dbf_tables'] = [
@@ -133,8 +137,8 @@ def pudl_out_ferc1(live_pudl_db, pudl_engine, request):
 
 @pytest.fixture(
     scope="session",
-    params=["AS", "MS"],
-    ids=["eia_annual", "eia_monthly"]
+    params=[None, "AS", "MS"],
+    ids=["eia_raw", "eia_annual", "eia_monthly"]
 )
 def pudl_out_eia(live_pudl_db, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for EIA tests."""
@@ -213,15 +217,28 @@ def pudl_engine(ferc1_engine, live_pudl_db, pudl_settings_fixture,
     """
     logger.info('setting up the pudl_engine fixture')
     if not live_pudl_db:
-        pudl.convert.flatten_datapkgs.flatten_datapkg_bundle(
-            pudl_settings_fixture,
-            datapkg_bundle_name=data_scope['datapkg_bundle_name'],
-            datapkg_name='pudl-all')
+        # Generate the list of datapackages to merge...
+        datapkg_bundle_dir = pathlib.Path(
+            pudl_settings_fixture["datapkg_dir"],
+            data_scope["datapkg_bundle_name"],
+        )
+        # Here we're gonna merge *any* datapackages found within the bundle:
+        in_paths = glob.glob(f"{datapkg_bundle_dir}/*/datapackage.json")
+        dps = [datapackage.DataPackage(descriptor=path) for path in in_paths]
+        out_path = pathlib.Path(
+            pudl_settings_fixture["datapkg_dir"],
+            data_scope["datapkg_bundle_name"],
+            "pudl-merged")
+        # clobber has to be False here, because if the pudl-merged datapackage
+        # already existed somehow in the datapkg_bundle_dir, then we're
+        # merging things back in more than once and that's broken... so we want
+        # it to fail if the merged package exists already.
+        pudl.convert.merge_datapkgs.merge_datapkgs(
+            dps, out_path, clobber=False)
 
-        pudl.convert.datapkg_to_sqlite.datapkg_to_sqlite_db(
-            pudl_settings_fixture,
-            datapkg_bundle_name=data_scope['datapkg_bundle_name'],
-            datapkg_name='pudl-all')
+        pudl.convert.datapkg_to_sqlite.datapkg_to_sqlite(
+            sqlite_url=pudl_settings_fixture["pudl_db"],
+            out_path=out_path, clobber=False)
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
     # All the hard work here is being done by the datapkg and
     # datapkg_to_sqlite fixtures, above.

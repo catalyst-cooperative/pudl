@@ -35,7 +35,7 @@ def test_own_eia860(fast_out):
     logger.info(f"Generated {len(own_df)} EIA 860 ownership records.")
 
 
-def test_gf_iea923(fast_out):
+def test_gf_eia923(fast_out):
     """Read EIA 923 generator fuel data. (not used in MCOE)."""
     logger.info("Pulling the EIA 923 generator fuel data.")
     gf_df = fast_out.gf_eia923()
