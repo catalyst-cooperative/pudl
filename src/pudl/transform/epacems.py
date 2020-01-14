@@ -5,7 +5,6 @@ import pathlib
 
 import numpy as np
 import pandas as pd
-import sqlalchemy as sa
 
 import pudl
 import pudl.constants as pc
@@ -57,46 +56,12 @@ def fix_up_dates(df, plant_utc_offset):
         )
     # Add the offset from UTC. CEMS data don't have DST, so the offset is
     # always the same for a given plant.
-    df["operating_datetime_utc"] = df["op_datetime_naive"] + df["utc_offset"]
+    df["operating_datetime_utc"] = df["op_datetime_naive"] - df["utc_offset"]
     del df["op_date"], df["op_hour"], df["op_datetime_naive"], df["utc_offset"]
     return df
 
 
-def _load_plant_utc_offset(pudl_engine):
-    """Load the UTC offset for each plant.
-
-    CEMS times don't change for DST, so we get get the UTC offset by using
-    the offset for the plants' timezones in January.
-
-    Args:
-        pudl_engine (sa.engine.Engine): A connection to the sqlalchemy database
-
-    Returns:
-        pandas.DataFrame: A DataFrame including columns plant_id_eia and
-        utc_offset
-
-    """
-    import pytz
-
-    plants_eia_entity_select = sa.sql.select(
-        [pudl.models.entities.PUDLBase.metadata.tables["plants_entity_eia"]]
-    )
-    # TODO: that this reads all the columns. It would be better to select a
-    # subset.
-    timezones = pd.read_sql(plants_eia_entity_select, pudl_engine)[
-        ["plant_id_eia", "timezone"]
-    ].dropna()
-    # Some plants lack the info to get a timezone. None of these plants are in
-    # CEMS.
-    jan1 = pd.datetime(2011, 1, 1)  # year doesn't matter
-    timezones["utc_offset"] = timezones["timezone"].apply(
-        lambda tz: pytz.timezone(tz).localize(jan1).utcoffset()
-    )
-    del timezones["timezone"]
-    return timezones
-
-
-def _load_plant_utc_offset_pkg(pkg_dir):
+def _load_plant_utc_offset(datapkg_dir):
     """Load the UTC offset each EIA plant.
 
     CEMS times don't change for DST, so we get get the UTC offset by using the
@@ -115,7 +80,7 @@ def _load_plant_utc_offset_pkg(pkg_dir):
     # from the package directory, find the "plants_entity_eia" table
     # and pull the ["plant_id_eia", "timezone"] columns
     timezones = pd.read_csv(
-        pathlib.Path(pkg_dir, 'data/plants_entity_eia.csv'))[
+        pathlib.Path(datapkg_dir, 'data/plants_entity_eia.csv'))[
             ["plant_id_eia", "timezone"]].dropna()
 
     # Some plants lack the info to get a timezone. None of these plants are in
@@ -241,7 +206,7 @@ def transform(epacems_raw_dfs, datapkg_dir):
     """
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
     # a transformation pipeline, and yield it back as another generator.
-    plant_utc_offset = _load_plant_utc_offset_pkg(datapkg_dir)
+    plant_utc_offset = _load_plant_utc_offset(datapkg_dir)
     for raw_df_dict in epacems_raw_dfs:
         # There's currently only one dataframe in this dict at a time, but
         # that could be changed if you want.

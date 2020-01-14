@@ -71,28 +71,23 @@ def check_etl_params(dps):
             of the datapackages to be merged are not identical.
 
     """
-    # Grab the set of all data source codes that exist in any of the data
-    # packages which we are attempting to merge together:
-    source_codes = set()
-    for dp in dps:
-        for source in dp.descriptor["sources"]:
-            source_codes.add(source["source_code"])
+    # These are all the possible datasets right now... note that this is
+    # slightly different from the data *source* codes, because we have merged
+    # the EIA 860 and EIA 923 souces into a single dataset called EIA...
+    dataset_codes = ["eia", "epacems", "ferc1", "epaipm"]
 
     # For each of the unique source codes, verify that all ETL parameters
     # associated with it in any of the input data packages are identical:
-    for code in source_codes:
+    for dataset_code in dataset_codes:
         etl_params = []
         for dp in dps:
-            new_params = [
-                x for x in dp.descriptor["sources"]
-                if x["source_code"] == code
-            ]
-            if new_params:
-                etl_params.append(new_params)
+            for dataset in dp.descriptor["etl-parameters-pudl"]:
+                if dataset_code in dataset.keys():
+                    etl_params.append(dataset[dataset_code])
         for params in etl_params:
             if not params == etl_params[0]:
                 raise ValueError(
-                    f"Mismatched PUDL ETL parameters for {code}.")
+                    f"Mismatched PUDL ETL parameters for {dataset_code}.")
 
 
 def merge_data(dps, out_path):

@@ -75,7 +75,7 @@ def compile_partitions(datapkg_settings):
     Pull out the partitions from data package settings.
 
     Args:
-        pkg_settings (dict): a dictionary containing package settings
+        datapkg_settings (dict): a dictionary containing package settings
             containing top level elements of the data package JSON descriptor
             specific to the data package
 
@@ -93,7 +93,7 @@ def compile_partitions(datapkg_settings):
     return(partitions)
 
 
-def get_unpartioned_tables(tables, datapkg_settings):
+def get_unpartitioned_tables(tables, datapkg_settings):
     """
     Get the tables w/out the partitions.
 
@@ -104,20 +104,22 @@ def get_unpartioned_tables(tables, datapkg_settings):
 
     Args:
         tables (iterable): list of tables that are included in this datapackage.
-        pkg_settings (dictionary):
+        datapkg_settings (dictionary):
+
     Returns:
-        iterable: tables_unpartioned is a set of un-partitioned tables
+        iterable: tables_unpartitioned is a set of un-partitioned tables
+
     """
     partitions = compile_partitions(datapkg_settings)
-    tables_unpartioned = set()
+    tables_unpartitioned = set()
     if partitions:
         for table in tables:
             for part in partitions.keys():
                 if part in table:
-                    tables_unpartioned.add(part)
+                    tables_unpartitioned.add(part)
                 else:
-                    tables_unpartioned.add(table)
-        return tables_unpartioned
+                    tables_unpartitioned.add(table)
+        return tables_unpartitioned
     else:
         return tables
 
@@ -160,8 +162,10 @@ def get_repartitioned_tables(tables, partitions, datapkg_settings):
         datapkg_settings (dict): a dictionary containing package settings
             containing top level elements of the data package JSON descriptor
             specific to the data package.
+
     Returns:
         list: list of tables including full groups of
+
     """
     flat_datapkg_settings = pudl.etl.get_flattened_etl_parameters(
         [datapkg_settings])
@@ -196,7 +200,7 @@ def data_sources_from_tables(table_names):
     # All tables get PUDL:
     table_sources.add('pudl')
     for t in all_tables:
-        for src in pudl.constants.data_sources:
+        for src in pc.data_sources:
             if re.match(f".*_{src}$", t):
                 table_sources.add(src)
 
@@ -353,12 +357,12 @@ def test_file_consistency(tables, datapkg_settings, datapkg_dir):
             f"Missing tables include: {inconsistent_tbls}")
 
 
-def pull_resource_from_megadata(table_name):
+def pull_resource_from_megadata(resource_name):
     """
     Read a single data resource from the PUDL metadata library.
 
     Args:
-        table_name (str): the name of the table / data resource whose JSON
+        resource_name (str): the name of the tabular data resource whose JSON
             descriptor we are reading.
 
     Returns:
@@ -375,22 +379,22 @@ def pull_resource_from_megadata(table_name):
     # bc we partition the CEMS output, the CEMS table name includes the state,
     # year or other partition.. therefor we need to assume for the sake of
     # grabing metadata that any table name that includes the table name is cems
-    if "hourly_emissions_epacems" in table_name:
+    if "hourly_emissions_epacems" in resource_name:
         table_name_mega = "hourly_emissions_epacems"
     else:
-        table_name_mega = table_name
+        table_name_mega = resource_name
     table_resource = [
         x for x in metadata_mega['resources'] if x['name'] == table_name_mega
     ]
 
     if len(table_resource) == 0:
-        raise ValueError(f"{table_name} not found in stored metadata.")
+        raise ValueError(f"{resource_name} not found in stored metadata.")
     if len(table_resource) > 1:
-        raise ValueError(f"{table_name} found multiple times in metadata.")
+        raise ValueError(f"{resource_name} found multiple times in metadata.")
     table_resource = table_resource[0]
     # rename the resource name to the og table name
     # this is important for the partitioned tables in particular
-    table_resource['name'] = table_name
+    table_resource['name'] = resource_name
     return(table_resource)
 
 
@@ -403,8 +407,10 @@ def get_date_from_sources(sources, date_to_grab):
             the result of the get_source_metadata() function.
         date_to_grab (string): the name of the date metadata to extract.
             Currently, this is only either 'start_date' or 'end_date'.
+
     Returns:
         string : date formatted as 'YYYY-MM-DD' or None
+
     """
     # if there are no sources, then we grab nothing
     if len(sources) == 0:
@@ -425,7 +431,81 @@ def get_date_from_sources(sources, date_to_grab):
                 return str(max(param)) + "-21-31"
 
 
-def get_tabular_data_resource(table_name, datapkg_dir,
+def spatial_coverage(resource_name):
+    """
+    Extract spatial coverage (country and state) for a given source.
+
+    Args:
+        resource_name (str): The name of the (potentially partitioned) resource
+            for which we are enumerating the spatial coverage. Currently this
+            is the only place we are able to access the partitioned spatial
+            coverage after the ETL process has completed.
+
+    Returns:
+        dict: A dictionary containing country and potentially state level
+        spatial coverage elements. Country keys are "country" for the full name
+        of country, "iso_3166-1_alpha-2" for the 2-letter ISO code, and
+        "iso_3166-1_alpha-3" for the 3-letter ISO code. State level elements
+        are "state" (a two letter ISO code for sub-national jurisdiction) and
+        "iso_3166-2" for the combined country-state code conforming to that
+        standard.
+
+    """
+    coverage = {
+        "country": "United States of America",
+        # More generally... ISO 3166-1 2-letter country code:
+        "iso_3166-1_alpha-2": "US",
+        # More generally... ISO 3166-1 3-letter country code:
+        "iso_3166-1_alpha-3": "USA",
+    }
+    if "hourly_emissions_epacems" in resource_name:
+        us_state = resource_name.split("_")[4].upper()
+        coverage["state"] = us_state
+        # ISO3166-2:US code for the relevant state or outlying area:
+        coverage["iso_3166-2"] = f"US-{us_state}"
+    return coverage
+
+
+def temporal_coverage(resource_name, datapkg_settings):
+    """Extract start and end dates from ETL parameters for a given source.
+
+    Args:
+        resource_name (str): The name of the (potentially partitioned) resource
+            for which we are enumerating the spatial coverage. Currently this
+            is the only place we are able to access the partitioned spatial
+            coverage after the ETL process has completed.
+        datapkg_settings (dict): Python dictionary represeting the ETL
+            parameters read in from the settings file, pertaining to the
+            tabular datapackage this resource is part of.
+
+    Returns:
+        dict: A dictionary of two items, keys "start_date" and "end_date" with
+        values in ISO 8601 YYYY-MM-DD format, indicating the extent of the
+        time series data contained within the resource. If the resource does
+        not contain time series data, the dates are null.
+
+    """
+    start_date = None
+    end_date = None
+    if "hourly_emissions_epacems" in resource_name:
+        year = resource_name.split("_")[3]
+        start_date = f"{year}-01-01"
+        end_date = f"{year}-12-31"
+    else:
+        source_years = f"{resource_name.split('_')[-1]}_years"
+        for dataset in datapkg_settings["datasets"]:
+            etl_params = list(dataset.values())[0]
+            try:
+                start_date = f"{min(etl_params[source_years])}-01-01"
+                end_date = f"{max(etl_params[source_years])}-12-31"
+                break
+            except KeyError:
+                continue
+
+    return {"start_date": start_date, "end_date": end_date}
+
+
+def get_tabular_data_resource(resource_name, datapkg_dir,
                               datapkg_settings, partitions=False):
     """
     Create a Tabular Data Resource descriptor for a PUDL table.
@@ -436,55 +516,66 @@ def get_tabular_data_resource(table_name, datapkg_dir,
     https://frictionlessdata.io/specs/tabular-data-resource/
 
     Args:
-        table_name (string): table name for which you want to generate a
-            Tabular Data Resource descriptor
-        pkg_dir (path-like): The location of the directory for this package.
-            The data package directory will be a subdirectory in the
-            `datapkg_dir` directory, with the name of the package as the
-            name of the subdirectory.
+        resource_name (string): name of the tabular data resource for which you
+            want to generate a Tabular Data Resource descriptor. This is the
+            resource name, rather than the database table name, because we
+            partition large tables into resource groups consisting of many
+            files.
+        datapkg_dir (path-like): The location of the directory for this
+            package. The data package directory will be a subdirectory in the
+            `datapkg_dir` directory, with the name of the package as the name
+            of the subdirectory.
+        datapkg_settings (dict): Python dictionary represeting the ETL
+            parameters read in from the settings file, pertaining to the
+            tabular datapackage this resource is part of.
+        partitions (dict): Fuck if I know what this is.
 
     Returns:
-        Tabular Data Resource descriptor: A JSON object containing key
-        information about the selected table
+        dict: A Python dictionary representing a tabular data resource
+        descriptor that complies with the Frictionless Data specification.
 
     """
+    # Only some datasets have meaningful temporal coverage:
+    # temporal_data = ["eia860", "eia923", "ferc1", "eia861", "epacems"]
     # every time we want to generate the cems table, we want it compressed
-    if 'epacems' in table_name:
-        abs_path = pathlib.Path(datapkg_dir, 'data', f'{table_name}.csv.gz')
+    if "hourly_emissions_epacems" in resource_name:
+        abs_path = pathlib.Path(datapkg_dir, "data", f"{resource_name}.csv.gz")
     else:
-        abs_path = pathlib.Path(datapkg_dir, 'data', f'{table_name}.csv')
+        abs_path = pathlib.Path(datapkg_dir, "data", f"{resource_name}.csv")
 
     # pull the skeleton of the descriptor from the megadata file
-    descriptor = pull_resource_from_megadata(table_name)
-    descriptor['path'] = str(abs_path.relative_to(abs_path.parent.parent))
-    descriptor['bytes'] = abs_path.stat().st_size
-    descriptor['hash'] = hash_csv(abs_path)
-    descriptor['created'] = (datetime.datetime.utcnow().
-                             replace(microsecond=0).isoformat() + 'Z')
-
-    unpartitioned_tables = get_unpartioned_tables([table_name],
-                                                  datapkg_settings)
+    descriptor = pull_resource_from_megadata(resource_name)
+    descriptor["path"] = str(abs_path.relative_to(abs_path.parent.parent))
+    descriptor["bytes"] = abs_path.stat().st_size
+    descriptor["hash"] = hash_csv(abs_path)
+    descriptor["created"] = (
+        datetime.datetime.utcnow()
+        .replace(microsecond=0)
+        .isoformat() + "Z"
+    )
+    unpartitioned_tables = get_unpartitioned_tables([resource_name],
+                                                    datapkg_settings)
     data_sources = data_sources_from_tables(unpartitioned_tables)
-    descriptor['sources'] = get_source_metadata(data_sources,
-                                                datapkg_settings)
-    descriptor['start_date'] = \
-        get_date_from_sources(descriptor['sources'], 'start_date')
-    descriptor['end_date'] = \
-        get_date_from_sources(descriptor['sources'], 'end_date')
+    descriptor["sources"] = [pc.data_source_info[src] for src in data_sources]
+    descriptor["coverage"] = {
+        "temporal": temporal_coverage(resource_name, datapkg_settings),
+        "spatial": spatial_coverage(resource_name),
+    }
 
     if partitions:
         for part in partitions.keys():
-            if part in table_name:
-                descriptor['group'] = part
+            if part in resource_name:
+                descriptor["group"] = part
 
     resource = datapackage.Resource(descriptor)
+
     if resource.valid:
-        logger.debug(f"{table_name} is a valid resource")
-    if not resource.valid:
+        logger.debug(f"{resource_name} is a valid resource")
+    else:
         logger.info(resource)
-        raise AssertionError(
+        raise ValueError(
             f"""
-            Invalid tabular data resource: {resource.name}
+            Invalid tabular data resource descriptor: {resource.name}
 
             Errors:
             {resource.errors}
@@ -495,13 +586,24 @@ def get_tabular_data_resource(table_name, datapkg_dir,
 
 
 def get_source_metadata(data_sources, datapkg_settings):
-    """Grab sources for metadata."""
+    """
+    Lookup metadata for data sources included in a specified datapackage.
+
+    Args:
+        data_sources (iterable): data source codes
+        datapkg_settings (dict):
+
+    Returns:
+        list: A list of dictionaries appropriate for populating the "sources"
+        element of a tabular datapackage, including the "title" and "path" for
+        each of the PUDL data sources mentioned in the input datapkg_settings.
+        (e.g. eia923, ferc1).
+
+    """
     sources = []
     for src in data_sources:
-        if src in pudl.constants.data_sources:
-            src_meta = {"title": pc.source_titles[src],
-                        "path": pc.base_data_urls[src],
-                        "source_code": src}
+        if src in pc.data_sources:
+            src_meta = pc.data_source_info[src].copy()
             for dataset_dict in datapkg_settings['datasets']:
                 for dataset in dataset_dict:
                     # because we have defined eia as a dataset, but 860 and 923
@@ -517,7 +619,7 @@ def get_keywords_from_sources(data_sources):
     """Grab keywords for the metadata based on data sources."""
     keywords = set()
     for src in data_sources:
-        keywords.update(pc.keywords_by_datset[src])
+        keywords.update(pc.keywords_by_data_source[src])
     return list(keywords)
 
 
@@ -540,11 +642,15 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
     Validate a data package descriptor and save it to a json file.
 
     Args:
-        datapkg_descriptor (dict):
-        datapkg_dir (path-like):
+        datapkg_descriptor (dict): A Python dictionary representation of a
+            (hopefully valid) tabular datapackage descriptor.
+        datapkg_dir (path-like): Directory into which the datapackage.json
+            file containing the tabular datapackage descriptor should be
+            written.
 
     Returns:
-        report
+        dict: A dictionary containing the goodtables datapackage validation
+        report.
 
     """
     # Use that descriptor to instantiate a Package object
@@ -561,8 +667,8 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
     logger.info('JSON descriptor appears valid!')
 
     # pkg_json is the datapackage.json that we ultimately output:
-    datapkg_json = os.path.join(datapkg_dir, "datapackage.json")
-    datapkg.save(datapkg_json)
+    datapkg_json = pathlib.Path(datapkg_dir, "datapackage.json")
+    datapkg.save(str(datapkg_json))
     logger.info(
         f"Validating a sample of data from {datapkg.descriptor['name']} "
         f"tabular data package using goodtables...")
@@ -593,7 +699,7 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
 
 
 def generate_metadata(datapkg_settings,
-                      tables,
+                      datapkg_resources,
                       datapkg_dir,
                       datapkg_bundle_uuid=None,
                       datapkg_bundle_doi=None):
@@ -618,7 +724,8 @@ def generate_metadata(datapkg_settings,
             * description: A paragraph long description.
             * version: the version of the data package being published.
             * keywords: For search purposes.
-        tables (list): a list of tables that are included in this data package.
+        datapkg_resources (list): The names of tabular data resources that are
+            included in this data package.
         datapkg_dir (path-like): The location of the directory for this
             package. The data package directory will be a subdirectory in the
             `datapkg_dir` directory, with the name of the package as the
@@ -632,30 +739,28 @@ def generate_metadata(datapkg_settings,
             also be added after the data package has been generated.
 
     Returns:
-        datapackage.package.Package: a datapackage. See frictionlessdata specs.
-        dict: a valition dictionary containing validity of package and any
-        errors that were generated during packaing.
+        dict: a Python dictionary representing a valid tabular data package
+        descriptor.
 
     """
-    # Create a tabular data resource for each of the tables.
+    # Create a tabular data resource for each of the input resources:
     resources = []
     partitions = compile_partitions(datapkg_settings)
-    for table in tables:
+    for resource in datapkg_resources:
         resources.append(get_tabular_data_resource(
-            table,
+            resource,
             datapkg_dir=datapkg_dir,
             datapkg_settings=datapkg_settings,
             partitions=partitions)
         )
 
-    unpartitioned_tables = get_unpartioned_tables(tables, datapkg_settings)
-    data_sources = data_sources_from_tables(unpartitioned_tables)
-    autoincrement = get_autoincrement_columns(unpartitioned_tables)
-    sources = get_source_metadata(data_sources, datapkg_settings)
+    datapkg_tables = get_unpartitioned_tables(
+        datapkg_resources, datapkg_settings)
+    data_sources = data_sources_from_tables(datapkg_tables)
 
     contributors = set()
     for src in data_sources:
-        for c in pudl.constants.contributors_by_source[src]:
+        for c in pc.contributors_by_source[src]:
             contributors.add(c)
 
     # Fields which we are requiring:
@@ -669,10 +774,11 @@ def generate_metadata(datapkg_settings,
         "homepage": "https://catalyst.coop/pudl/",
         "created": (datetime.datetime.utcnow().
                     replace(microsecond=0).isoformat() + 'Z'),
-        "contributors": [pudl.constants.contributors[c] for c in contributors],
-        "sources": sources,
-        "licenses": [pudl.constants.licenses["cc-by-4.0"]],
-        "autoincrement": autoincrement,
+        "contributors": [pc.contributors[c] for c in contributors],
+        "sources": [pc.data_source_info[src] for src in data_sources],
+        "etl-parameters-pudl": datapkg_settings["datasets"],
+        "licenses": [pc.licenses["cc-by-4.0"]],
+        "autoincrement": get_autoincrement_columns(datapkg_tables),
         "python-package-name": "catalystcoop.pudl",
         "python-package-version":
             pkg_resources.get_distribution('catalystcoop.pudl').version,
@@ -710,8 +816,8 @@ def generate_metadata(datapkg_settings,
             )
         datapkg_descriptor["datapkg-bundle-doi"] = datapkg_bundle_doi
 
-    report = validate_save_datapkg(datapkg_descriptor, datapkg_dir)
-    return report
+    _ = validate_save_datapkg(datapkg_descriptor, datapkg_dir)
+    return datapkg_descriptor
 
 
 def prep_directory(dir_path, clobber=False):

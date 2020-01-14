@@ -55,7 +55,7 @@ The project currently integrates data from:
 
 The project is especially meant to serve researchers, activists, journalists,
 and policy makers that might not otherwise be able to afford access to this
-data from existing commercial data providers.
+data from existing commercial data providers. You can sign up for PUDL email updates `here <https://catalyst.coop/updates/>`__.
 
 Getting Started
 ---------------

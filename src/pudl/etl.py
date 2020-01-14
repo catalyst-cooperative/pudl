@@ -801,23 +801,20 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
                                    datapkg_settings['name'])
         # run the ETL functions for this pkg and return the list of tables
         # dumped to CSV
-        datapkg_tables = etl_datapkg(datapkg_settings,
-                                     pudl_settings,
-                                     datapkg_bundle_dir)
+        datapkg_resources = etl_datapkg(datapkg_settings,
+                                        pudl_settings,
+                                        datapkg_bundle_dir)
 
-        if datapkg_tables:
-            # generate the metadata for the package and validate
-            # TODO: we'll probably want to remove this double return... but having
-            # the report and the metadata while debugging is very useful.
-            report = pudl.load.metadata.generate_metadata(
+        if datapkg_resources:
+            descriptor = pudl.load.metadata.generate_metadata(
                 datapkg_settings,
-                datapkg_tables,
+                datapkg_resources,
                 datapkg_dir,
                 datapkg_bundle_uuid=datapkg_bundle_uuid,
                 datapkg_bundle_doi=datapkg_bundle_doi)
-            metas[datapkg_settings['name']] = report
+            metas[datapkg_settings['name']] = descriptor
         else:
             logger.info(
                 f"Not generating metadata for {datapkg_settings['name']}")
-    if debug:
-        return (metas)
+
+    return metas

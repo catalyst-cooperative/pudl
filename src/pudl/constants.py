@@ -2408,20 +2408,6 @@ dict: A dictionary containing data sources (keys) and their base data URLs
     (values).
 """
 
-source_titles = {
-    'eia860': 'Energy Information Administration Form 860',
-    'eia861': 'Energy Information Administration Form 861',
-    'eia923': 'Energy Information Administration Form 923',
-    'epacems': 'Environmental Protection Agency Continuous Emission Monitoring Systems',
-    'ferc1': 'Federal Energy Regulatory Commission Form 1',
-    'epaipm': 'Environmental Protection Agency Integrated Planning Model',
-    'pudl': 'Public Utility Data Liberation'
-}
-"""
-dict: A dictionary containing data sources (keys) and a title (values) to be
-used in the metadata for datapackages.
-"""
-
 need_fix_inting = {
     'plants_steam_ferc1': ('construction_year', 'installation_year'),
     'plants_small_ferc1': ('construction_year', 'ferc_license_id'),
@@ -2485,15 +2471,6 @@ dict: A dictionary of dictionaries containing organization names (keys) and
 """
 
 data_source_info = {
-    "pudl": {
-        "title": "Public Utility Data Liberation Project (PUDL)",
-        "path": "https://catalyst.coop/pudl/",
-        "email": "pudl@catalyst.coop",
-    },
-    "eia923": {
-        "title": "EIA Form 923",
-        "path": "https://www.eia.gov/electricity/data/eia923/",
-    },
     "eia860": {
         "title": "EIA Form 860",
         "path": "https://www.eia.gov/electricity/data/eia860/",
@@ -2502,29 +2479,47 @@ data_source_info = {
         "title": "EIA Form 861",
         "path": "https://www.eia.gov/electricity/data/eia861/",
     },
+    "eia923": {
+        "title": "EIA Form 923",
+        "path": "https://www.eia.gov/electricity/data/eia923/",
+    },
     "eiawater": {
         "title": "EIA Water Use for Power",
-    },
-    "ferc1": {
-        "title": "FERC Form 1",
-        "path": "https://www.ferc.gov/docs-filing/forms/form-1/data.asp",
+        "path": "https://www.eia.gov/electricity/data/water/",
     },
     "epacems": {
         "title": "EPA Air Markets Program Data",
         "path": "https://ampd.epa.gov/ampd/",
     },
-    "msha": {
-        "title": "Mining Safety and Health Administration",
+    "epaipm": {
+        "title": "EPA Integrated Planning Model",
+        "path": "https://www.epa.gov/airmarkets/national-electric-energy-data-system-needs-v6",
     },
-    "phmsa": {
-        "title": "Pipelines and Hazardous Materials Safety Administration",
-    },
-    "ferceqr": {
-        "title": "FERC Electric Quarterly Report",
+    "ferc1": {
+        "title": "FERC Form 1",
+        "path": "https://www.ferc.gov/docs-filing/forms/form-1/data.asp",
     },
     "ferc714": {
         "title": "FERC Form 714",
-    }
+        "path": "https://www.ferc.gov/docs-filing/forms/form-714/data.asp",
+    },
+    "ferceqr": {
+        "title": "FERC Electric Quarterly Report",
+        "path": "https://www.ferc.gov/docs-filing/eqr.asp",
+    },
+    "msha": {
+        "title": "Mining Safety and Health Administration",
+        "path": "https://www.msha.gov/mine-data-retrieval-system",
+    },
+    "phmsa": {
+        "title": "Pipelines and Hazardous Materials Safety Administration",
+        "path": "https://www.phmsa.dot.gov/data-and-statistics/pipeline/data-and-statistics-overview",
+    },
+    "pudl": {
+        "title": "The Public Utility Data Liberation Project (PUDL)",
+        "path": "https://catalyst.coop/pudl/",
+        "email": "pudl@catalyst.coop",
+    },
 }
 """
 dict: A dictionary of dictionaries containing datasources (keys) and
@@ -2599,7 +2594,7 @@ output_formats = [
 """list: A list of types of PUDL output formats."""
 
 
-keywords_by_datset = {
+keywords_by_data_source = {
     'pudl': [
         'us', 'electricity',
     ],
