@@ -959,3 +959,15 @@ def count_records(df, cols, new_count_col_name):
             agg({'count_me': 'count'}).
             reset_index().
             rename(columns={'count_me': new_count_col_name}))
+
+
+def cleanstrings_snake(df, cols):
+    """Clean the strings in a columns in a dataframe with snake case."""
+    for col in cols:
+        df.loc[:, col] = (
+            df[col].astype(str).
+            str.strip().
+            str.lower().
+            str.replace(r'\s+', '_')
+        )
+    return df

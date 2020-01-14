@@ -585,6 +585,10 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
             f"Errors: {goodtables_errors}"
         )
     logger.info('Congrats! You made a valid data package!')
+    logger.info('If you like PUDL (or not!), we would love to hear from you..')
+    logger.info('    Let us know you are using PUDL at: hello@catalyst.coop')
+    logger.info('    Or sign up for our newsletter at: catalyst.coop/updates/')
+
     return report
 
 
