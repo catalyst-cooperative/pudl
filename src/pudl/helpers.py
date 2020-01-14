@@ -9,8 +9,9 @@ functions in here that help with cleaning and restructing dataframes.
 """
 
 import logging
-import os.path
+import pathlib
 import re
+import shutil
 from functools import partial
 
 import numpy as np
@@ -33,6 +34,33 @@ sum_na = partial(pd.Series.sum, skipna=False)
 # them open for efficiency. I want to avoid doing that for every call to find
 # the timezone, so this is global.
 tz_finder = timezonefinder.TimezoneFinder()
+
+
+def prep_dir(dir_path, clobber=False):
+    """
+    Create (or delete and recreate) a directory.
+
+    Args:
+        dir_path (path-like): path to the directory that you are trying to
+            clean and prepare.
+        clobber (bool): If True and dir_path exists, it will be removed and
+            replaced with a new, empty directory.
+
+    Raises:
+        FileExistsError: if a file or directory already exists at dir_path.
+
+    Returns:
+        pathlib.Path: Path to the created directory.
+
+    """
+    dir_path = pathlib.Path(dir_path)
+    if dir_path.exists() and (clobber is False):
+        raise FileExistsError(
+            f'{dir_path} already exists and clobber is set to {clobber}')
+    elif dir_path.exists() and (clobber is True):
+        shutil.rmtree(dir_path)
+    dir_path.mkdir(parents=True)
+    return dir_path
 
 
 def is_doi(doi):
@@ -683,8 +711,8 @@ def verify_input_files(ferc1_years,  # noqa: C901
     data_dir = pudl_settings['data_dir']
 
     missing_ferc1_years = {
-        str(y) for y in ferc1_years if not os.path.isfile(
-            pudl.extract.ferc1.dbc_filename(y, data_dir=data_dir))
+        str(y) for y in ferc1_years if not pathlib.Path(
+            pudl.extract.ferc1.dbc_filename(y, data_dir=data_dir)).is_file()
     }
 
     missing_eia860_years = set()
@@ -701,10 +729,11 @@ def verify_input_files(ferc1_years,  # noqa: C901
     missing_eia923_years = set()
     for y in eia923_years:
         try:
-            f = pudl.extract.eia923.get_eia923_file(y, data_dir=data_dir)
+            f = pathlib.Path(
+                pudl.extract.eia923.get_eia923_file(y, data_dir=data_dir))
         except AssertionError:
             missing_eia923_years.add(str(y))
-        if not os.path.isfile(f):
+        if not f.is_file():
             missing_eia923_years.add(str(y))
 
     if epacems_states and list(epacems_states)[0].lower() == 'all':
@@ -714,17 +743,16 @@ def verify_input_files(ferc1_years,  # noqa: C901
         for s in epacems_states:
             for m in range(1, 13):
                 try:
-                    p = pudl.workspace.datastore.path(
+                    p = pathlib.Path(pudl.workspace.datastore.path(
                         source='epacems',
                         year=y,
                         month=m,
                         state=s,
-                        data_dir=data_dir
-                    )
+                        data_dir=data_dir))
                 except AssertionError:
                     missing_epacems_year_states.add((str(y), s))
                     continue
-                if not os.path.isfile(p):
+                if not p.is_file():
                     missing_epacems_year_states.add((str(y), s))
 
     any_missing = (missing_eia860_years or missing_eia923_years
