@@ -167,9 +167,9 @@ def epacems_to_parquet(datapkg_path,
         datapkg_path (path-like): Path to the datapackage.json file describing
             the datapackage contaning the EPA CEMS data to be converted.
         epacems_years (list): list of years from which we are trying to read
-            CEMs data
+            CEMS data
         epacems_states (list): list of years from which we are trying to read
-            CEMs data
+            CEMS data
         out_dir (path-like): The directory in which to output the Parquet files
         compression (string):
         partition_cols (tuple):
@@ -186,7 +186,7 @@ def epacems_to_parquet(datapkg_path,
     """
     if not out_dir:
         raise AssertionError("Required output directory not specified.")
-    out_dir = pudl.load.metadata.prep_directory(out_dir, clobber=clobber)
+    out_dir = pudl.helpers.prep_dir(out_dir, clobber=clobber)
     data_dir = pathlib.Path(datapkg_path).parent / "data"
 
     # Verify that all the requested data files are present:
