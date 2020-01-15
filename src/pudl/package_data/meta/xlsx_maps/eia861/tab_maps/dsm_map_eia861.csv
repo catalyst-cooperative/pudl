@@ -1,0 +1,166 @@
+﻿year_index,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018
+year,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+utility_id_eia,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+utility_name_eia,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
+sales_to_ultimate_consumers,2,2,5,5,5,5,5,5,5,5,5,-1,-1,-1,-1,-1,-1,-1,-1,-1
+sales_for_resale,3,3,6,6,6,6,6,6,6,6,6,-1,-1,-1,-1,-1,-1,-1,-1,-1
+ownership,-1,-1,3,3,3,3,3,3,3,3,3,3,3,4,-1,-1,-1,-1,-1,-1
+nerc_region,-1,49,4,4,4,4,4,4,4,4,4,5,5,-1,-1,-1,-1,-1,-1,-1
+state,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,4,4,3,3,3,3,3,3,3
+short_form,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,5,-1,-1,-1,-1,-1,-1
+ba_code,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,4,4,4,4,4,4
+residential_incremental_energy_efficiency_energy_effects ,4,4,7,7,7,7,7,7,7,7,7,6,6,6,5,5,5,5,5,5
+commercial_incremental_energy_efficiency_energy_effects ,5,5,8,8,8,8,8,8,8,8,8,7,7,7,6,6,6,6,6,6
+industrial_incremental_energy_efficiency_energy_effects ,6,6,9,9,9,9,9,9,9,9,9,8,8,8,7,7,7,7,7,7
+other_incremental_energy_efficiency_energy_effects ,7,7,10,10,10,10,10,10,10,10,10,9,9,-1,-1,-1,-1,-1,-1,-1
+transportation_incremental_energy_efficiency_energy_effects ,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,9,8,8,8,8,8,8
+total_incremental_energy_efficiency_energy_effects ,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,10,10,10,9,9,9,9,9,9
+residential_annual_energy_efficiency_energy_effects ,8,8,11,11,11,11,11,11,11,11,11,11,11,16,-1,-1,-1,-1,-1,-1
+commercial_annual_energy_efficiency_energy_effects ,9,9,12,12,12,12,12,12,12,12,12,12,12,17,-1,-1,-1,-1,-1,-1
+industrial_annual_energy_efficiency_energy_effects ,10,10,13,13,13,13,13,13,13,13,13,13,13,18,-1,-1,-1,-1,-1,-1
+other_annual_energy_efficiency_energy_effects ,11,11,14,14,14,14,14,14,14,14,14,14,14,-1,-1,-1,-1,-1,-1,-1
+transportation_annual_energy_efficiency_energy_effects ,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,19,-1,-1,-1,-1,-1,-1
+total_annual_energy_efficiency_energy_effects ,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,15,15,20,-1,-1,-1,-1,-1,-1
+residential_incremental_energy_efficiency_actual_peak_reduction,12,12,15,15,15,15,15,15,15,15,15,16,16,11,10,10,10,10,10,10
+commercial_incremental_energy_efficiency_actual_peak_reduction,13,13,16,16,16,16,16,16,16,16,16,17,17,12,11,11,11,11,11,11
+industrial_incremental_energy_efficiency_actual_peak_reduction,14,14,17,17,17,17,17,17,17,17,17,18,18,13,12,12,12,12,12,12
+other_incremental_energy_efficiency_actual_peak_reduction,15,15,18,18,18,18,18,18,18,18,18,19,19,-1,-1,-1,-1,-1,-1,-1
+transportation_incremental_energy_efficiency_actual_peak_reduction,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,14,13,13,13,13,13,13
+total_incremental_energy_efficiency_actual_peak_reduction,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,20,20,15,14,14,14,14,14,14
+residential_annual_energy_efficiency_actual_peak_reduction,16,16,19,19,19,19,19,19,19,19,19,21,21,21,-1,-1,-1,-1,-1,-1
+commercial_annual_energy_efficiency_actual_peak_reduction,17,17,20,20,20,20,20,20,20,20,20,22,22,22,-1,-1,-1,-1,-1,-1
+industrial_annual_energy_efficiency_actual_peak_reduction,18,18,21,21,21,21,21,21,21,21,21,23,23,23,-1,-1,-1,-1,-1,-1
+other_annual_energy_efficiency_actual_peak_reduction,19,19,22,22,22,22,22,22,22,22,22,24,24,-1,-1,-1,-1,-1,-1,-1
+transportation_annual_energy_efficiency_actual_peak_reduction,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,24,-1,-1,-1,-1,-1,-1
+total_annual_energy_efficiency_actual_peak_reduction,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,25,25,25,-1,-1,-1,-1,-1,-1
+residential_incremental_load_management_energy_effects ,20,20,23,23,23,23,23,23,23,23,23,26,26,26,-1,-1,-1,-1,-1,-1
+commercial_incremental_load_management_energy_effects ,21,21,24,24,24,24,24,24,24,24,24,27,27,27,-1,-1,-1,-1,-1,-1
+industrial_incremental_load_management_energy_effects ,22,22,25,25,25,25,25,25,25,25,25,28,28,28,-1,-1,-1,-1,-1,-1
+other_incremental_load_management_energy_effects ,23,23,26,26,26,26,26,26,26,26,26,29,29,-1,-1,-1,-1,-1,-1,-1
+transportation_incremental_load_management_energy_effects ,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,29,-1,-1,-1,-1,-1,-1
+total_incremental_load_management_energy_effects ,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,30,30,30,-1,-1,-1,-1,-1,-1
+residential_annual_load_management_energy_effects ,24,24,27,27,27,27,27,27,27,27,27,31,31,41,-1,-1,-1,-1,-1,-1
+commercial_annual_load_management_energy_effects ,25,25,28,28,28,28,28,28,28,28,28,32,32,42,-1,-1,-1,-1,-1,-1
+industrial_annual_load_management_energy_effects ,26,26,29,29,29,29,29,29,29,29,29,33,33,43,-1,-1,-1,-1,-1,-1
+other_annual_load_management_energy_effects ,27,27,30,30,30,30,30,30,30,30,30,34,34,-1,-1,-1,-1,-1,-1,-1
+transportation_annual_load_management_energy_effects ,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,44,-1,-1,-1,-1,-1,-1
+total_annual_load_management_energy_effects ,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,35,35,45,-1,-1,-1,-1,-1,-1
+residential_incremental_load_management_potential_peak_reduction,28,28,31,31,31,31,31,31,31,31,31,36,36,36,-1,-1,-1,-1,-1,-1
+commercial_incremental_load_management_potential_peak_reduction,29,29,32,32,32,32,32,32,32,32,32,37,37,37,-1,-1,-1,-1,-1,-1
+industrial_incremental_load_management_potential_peak_reduction,30,30,33,33,33,33,33,33,33,33,33,38,38,38,-1,-1,-1,-1,-1,-1
+other_incremental_load_management_potential_peak_reduction,31,31,34,34,34,34,34,34,34,34,34,39,39,-1,-1,-1,-1,-1,-1,-1
+transportation_incremental_load_management_potential_peak_reduction,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,39,-1,-1,-1,-1,-1,-1
+total_incremental_load_management_potential_peak_reduction,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,40,40,40,-1,-1,-1,-1,-1,-1
+residential_annual_load_management_potential_peak_reduction,32,32,35,35,35,35,35,35,35,35,35,41,41,51,-1,-1,-1,-1,-1,-1
+commercial_annual_load_management_potential_peak_reduction,33,33,36,36,36,36,36,36,36,36,36,42,42,52,-1,-1,-1,-1,-1,-1
+industrial_annual_load_management_potential_peak_reduction,3,3,37,37,37,37,37,37,37,37,37,43,43,53,-1,-1,-1,-1,-1,-1
+other_annual_load_management_potential_peak_reduction,35,35,38,38,38,38,38,38,38,38,38,44,44,-1,-1,-1,-1,-1,-1,-1
+transportation_annual_load_management_potential_peak_reduction,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,54,-1,-1,-1,-1,-1,-1
+total_annual_load_management_potential_peak_reduction,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,45,45,55,-1,-1,-1,-1,-1,-1
+residential_incremental_load_management_actual_peak_reduction,36,36,39,39,39,39,39,39,39,39,39,46,46,31,-1,-1,-1,-1,-1,-1
+commercial_incremental_load_management_actual_peak_reduction,37,37,40,40,40,40,40,40,40,40,40,47,47,32,-1,-1,-1,-1,-1,-1
+industrial_incremental_load_management_actual_peak_reduction,38,38,41,41,41,41,41,41,41,41,41,48,48,33,-1,-1,-1,-1,-1,-1
+other_incremental_load_management_actual_peak_reduction,39,39,42,42,42,42,42,42,42,42,42,49,49,-1,-1,-1,-1,-1,-1,-1
+transportation_incremental_load_management_actual_peak_reduction,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,34,-1,-1,-1,-1,-1,-1
+total_incremental_load_management_actual_peak_reduction,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,50,50,35,-1,-1,-1,-1,-1,-1
+residential_annual_load_management_actual_peak_reduction,40,40,43,43,43,43,43,43,43,43,43,51,51,46,-1,-1,-1,-1,-1,-1
+commercial_annual_load_management_actual_peak_reduction,41,41,44,44,44,44,44,44,44,44,44,52,52,47,-1,-1,-1,-1,-1,-1
+industrial_annual_load_management_actual_peak_reduction,42,42,45,45,45,45,45,45,45,45,45,53,53,48,-1,-1,-1,-1,-1,-1
+other_annual_load_management_actual_peak_reduction,43,43,46,46,46,46,46,46,46,46,46,54,54,-1,-1,-1,-1,-1,-1,-1
+transportation_annual_load_management_actual_peak_reduction,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,49,-1,-1,-1,-1,-1,-1
+total_annual_load_management_actual_peak_reduction,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,55,55,50,-1,-1,-1,-1,-1,-1
+annual_energy_efficiency_cost,44,44,47,47,47,47,47,47,47,47,47,60,60,60,-1,-1,-1,-1,-1,-1
+annual_incentive_payment_energy_efficiency,-1,-1,48,48,48,48,48,48,48,48,48,70,70,65,-1,-1,-1,-1,-1,-1
+annual_load_management_cost,45,45,49,49,49,49,49,49,49,49,49,65,65,70,-1,-1,-1,-1,-1,-1
+annual_incentive_payment_load_management,-1,-1,50,50,50,50,50,50,50,50,50,75,75,75,-1,-1,-1,-1,-1,-1
+annual_indirect_utility_cost,46,46,51,51,51,51,51,51,51,51,51,80,80,80,-1,-1,-1,-1,-1,-1
+annual_total_utility_cost,47,47,52,52,52,52,52,52,52,52,52,85,85,85,-1,-1,-1,-1,-1,-1
+demand_side_management,-1,-1,-1,-1,-1,-1,-1,-1,53,53,53,86,86,-1,-1,-1,-1,-1,-1,-1
+reported_by_another_company,-1,-1,-1,-1,-1,-1,-1,-1,54,54,54,87,87,-1,-1,-1,-1,-1,-1,-1
+energy_savings_independently_verified,-1,-1,-1,-1,-1,-1,-1,-1,55,55,55,88,88,-1,-1,-1,-1,-1,-1,-1
+energy_savings_estimates_independently_verified,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,89,89,-1,-1,-1,-1,-1,-1,-1
+major_changes,-1,-1,-1,-1,-1,-1,-1,-1,56,56,56,90,90,-1,-1,-1,-1,-1,-1,-1
+price_responsive_programs,-1,-1,-1,-1,-1,-1,-1,-1,57,57,57,91,91,-1,-1,-1,-1,-1,-1,-1
+residential_price_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,-1,58,58,58,92,92,86,-1,-1,-1,-1,-1,-1
+commercial_price_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,-1,59,59,59,93,93,87,-1,-1,-1,-1,-1,-1
+industrial_price_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,-1,60,60,60,94,94,88,-1,-1,-1,-1,-1,-1
+transportation_price_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,95,95,89,-1,-1,-1,-1,-1,-1
+other_price_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,-1,61,61,61,-1,-1,-1,-1,-1,-1,-1,-1,-1
+time_responsive_programs,-1,-1,-1,-1,-1,-1,-1,-1,62,62,62,96,96,-1,-1,-1,-1,-1,-1,-1
+residential_time_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,-1,63,63,63,97,97,90,-1,-1,-1,-1,-1,-1
+commercial_time_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,-1,64,64,64,98,98,91,-1,-1,-1,-1,-1,-1
+industrial_time_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,-1,65,65,65,99,99,92,-1,-1,-1,-1,-1,-1
+transportation_time_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,-1,66,66,66,100,100,93,-1,-1,-1,-1,-1,-1
+data_status,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,67,101,101,-1,-1,-1,-1,-1,-1,-1
+residential_annual_energy_efficiency_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,56,56,56,-1,-1,-1,-1,-1,-1
+commercial_annual_energy_efficiency_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,57,57,57,-1,-1,-1,-1,-1,-1
+industrial_annual_energy_efficiency_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,58,58,58,-1,-1,-1,-1,-1,-1
+transportation_annual_energy_efficiency_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,59,59,59,-1,-1,-1,-1,-1,-1
+residential_annual_load_management_cost ,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,61,61,66,-1,-1,-1,-1,-1,-1
+commercial_annual_load_management_cost ,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,62,62,67,-1,-1,-1,-1,-1,-1
+industrial_annual_load_management_cost ,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,63,63,68,-1,-1,-1,-1,-1,-1
+transportation_annual_load_management_cost ,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,64,64,69,-1,-1,-1,-1,-1,-1
+residential_energy_efficiency_annual_incentive_payment,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,66,66,61,-1,-1,-1,-1,-1,-1
+commercial_energy_efficiency_annual_incentive_payment,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,67,67,62,-1,-1,-1,-1,-1,-1
+industrial_energy_efficiency_annual_incentive_payment,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,68,68,63,-1,-1,-1,-1,-1,-1
+transportation_energy_efficiency_annual_incentive_payment,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,69,69,64,-1,-1,-1,-1,-1,-1
+residential_load_management_incentive_payment,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,71,71,71,-1,-1,-1,-1,-1,-1
+commercial_load_management_incentive_payment,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,72,72,72,-1,-1,-1,-1,-1,-1
+industrial_load_management_incentive_payment,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,73,73,73,-1,-1,-1,-1,-1,-1
+transportation_load_management_incentive_payment,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,74,74,74,-1,-1,-1,-1,-1,-1
+residential_indirect_program_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,76,76,76,-1,-1,-1,-1,-1,-1
+commercial_indirect_program_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,77,77,77,-1,-1,-1,-1,-1,-1
+industrial_indirect_program_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,78,78,78,-1,-1,-1,-1,-1,-1
+transportation_indirect_program_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,79,79,79,-1,-1,-1,-1,-1,-1
+residential_total_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,81,81,81,-1,-1,-1,-1,-1,-1
+commercial_total_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,82,82,82,-1,-1,-1,-1,-1,-1
+industrial_total_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,83,83,83,-1,-1,-1,-1,-1,-1
+transportation_total_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,84,84,84,-1,-1,-1,-1,-1,-1
+ownership_type,48,48,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+AK,49,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+ECAR,50,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+ERCOT,51,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+FRCC,52,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+MAAC,53,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+MAIN,54,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+MAPP,55,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+NPCC,56,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+SERC,57,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+SPP,58,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+WSCC,59,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+HI,60,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+PR,61,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+residential_incremental_life_cycle_energy_savings,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,15,15,15,15,15,15
+commercial_incremental_life_cycle_energy_savings,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,16,16,16,16,16,16
+industrial_incremental_life_cycle_energy_savings,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,17,17,17,17,17,17
+transportation_incremental_life_cycle_energy_savings,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,18,18,18,18,18,18
+total_incremental_life_cycle_energy_savings,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,19,19,19,19,19,19
+residential_incremental_life_cycle_peak_demand_savings,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,20,20,20,20,20,20
+commercial_incremental_life_cycle_peak_demand_savings,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,21,21,21,21,21,21
+industrial_incremental_life_cycle_peak_demand_savings,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,22,22,22,22,22,22
+transportation_incremental_life_cycle_peak_demand_savings,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,23,23,23,23,23,23
+total_incremental_life_cycle_peak_demand_savings,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,24,24,24,24,24,24
+residential_customer_incentives_incremental_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,25,25,25,25,25,25
+commercial_customer_incentives_incremental_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,26,26,26,26,26,26
+industrial_customer_incentives_incremental_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,27,27,27,27,27,27
+transportation_customer_incentives_incremental_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,28,28,28,28,28,28
+total_customer_incentives_incremental_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,29,29,29,29,29,29
+residential_other_costs_incremental_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,30,30,30,30,30,30
+commercial_other_costs_incremental_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,31,31,31,31,31,31
+industrial_other_costs_incremental_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,32,32,32,32,32,32
+transportation_other_costs_incremental_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,33,33,33,33,33,33
+total_other_costs_incremental_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,34,34,34,34,34,34
+residential_customer_incentives_incremental_life_cycle_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,35,35,35,35,35,35
+commercial_customer_incentives_incremental_life_cycle_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,36,36,36,36,36,36
+industrial_customer_incentives_incremental_life_cycle_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,37,37,37,37,37,37
+transportation_customer_incentives_incremental_life_cycle_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,38,38,38,38,38,38
+total_customer_incentives_incremental_life_cycle_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,39,39,39,39,39,39
+residential_customer_other_costs_incremental_life_cycle_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,40,40,40,40,40,40
+commercial_customer_other_costs_incremental_life_cycle_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,41,41,41,41,41,41
+industrial_customer_other_costs_incremental_life_cycle_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,42,42,42,42,42,42
+transportation_customer_other_costs_incremental_life_cycle_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,43,43,43,43,43,43
+total_customer_other_costs_incremental_life_cycle_cost,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,44,44,44,44,44,44
+residential_weighted_average_life,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,45,45,45,45,45,45
+commercial_weighted_average_life,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,46,46,46,46,46,46
+industrial_weighted_average_life,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,47,47,47,47,47,47
+transportation_weighted_average_life,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,48,48,48,48,48,48
