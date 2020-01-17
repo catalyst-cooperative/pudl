@@ -74,7 +74,9 @@ data interactively.
 
 .. code-block:: console
 
-    $ conda create -y -n pudl -c conda-forge --strict-channel-priority python=3.7 catalystcoop.pudl jupyter jupyterlab pip
+    $ conda create -y -n pudl -c conda-forge \
+        --strict-channel-priority python=3.7 \
+        catalystcoop.pudl jupyter jupyterlab pip
     $ conda activate pudl
 
 Now create a data management workspace called ``pudl-work`` and download EIA,
@@ -129,7 +131,7 @@ packages from the same bundle into a single data package,
         -o pudl-work/datapkg/pudl-example/pudl-merged \
         pudl-work/datapkg/pudl-example/ferc1-example/datapackage.json \
         pudl-work/datapkg/pudl-example/eia-example/datapackage.json \
-        pudl-work/datapkg/pudl-example/epaipm-example/datapackage.json \
+        pudl-work/datapkg/pudl-example/epaipm-example/datapackage.json
 
 The EPA CEMS data is 100 times larger than all of the other data we have
 integrated thus far, and loading it into SQLite takes a very long time. We've
