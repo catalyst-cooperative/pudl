@@ -105,7 +105,6 @@ def main():
     _ = pudl.etl.generate_datapkg_bundle(
         script_settings['datapkg_bundle_settings'],
         pudl_settings,
-        debug=False,
         datapkg_bundle_name=script_settings['datapkg_bundle_name'],
         datapkg_bundle_doi=datapkg_bundle_doi,
         clobber=args.clobber)

@@ -37,13 +37,13 @@ The Public Utility Data Liberation Project (PUDL)
    :alt: Zenodo DOI
 
 `PUDL <https://catalyst.coop/pudl/>`__ makes US energy data easier to access
-and work with. Hundreds of gigabytes of public information is published
-by government agencies, but in many different formats that make it hard to
-work with and combine. PUDL takes these spreadsheets, CSV files, and databases
-and turns them into easy use
+and use. Hundreds of gigabytes of information is available from government
+agencies, but it's often difficult to work with, and different sources can be
+hard to combine. PUDL takes the original spreadsheets, CSV files, and databases
+and turns them into unified
 `tabular data packages <https://frictionlessdata.io/docs/tabular-data-package/>`__
-that can populate a database, or be used directly with Python, R, Microsoft
-Access, and many other tools.
+that can be used to populate a database, or read in directly with Python, R,
+Microsoft Access, and many other tools.
 
 The project currently integrates data from:
 
@@ -53,94 +53,112 @@ The project currently integrates data from:
 * `The EPA Integrated Planning Model (IPM) <https://www.epa.gov/airmarkets/national-electric-energy-data-system-needs-v6>`__
 * `FERC Form 1 <https://www.ferc.gov/docs-filing/forms/form-1/data.asp>`__
 
-The project is especially meant to serve researchers, activists, journalists,
-and policy makers that might not otherwise be able to afford access to this
-data from existing commercial data providers. You can sign up for PUDL email updates `here <https://catalyst.coop/updates/>`__.
+The project is focused on serving researchers, activists, journalists, and
+policy makers that might not otherwise be able to afford access to this data
+from existing commercial data providers. You can sign up for PUDL email updates
+`here <https://catalyst.coop/updates/>`__.
 
-Getting Started
----------------
+Quick Start
+-----------
 
-Just want to play with some example data? Install
+Install
 `Anaconda <https://www.anaconda.com/distribution/>`__
 or `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__ (see
 `this detailed setup guide <https://www.mrdbourke.com/get-your-computer-ready-for-machine-learning-using-anaconda-miniconda-and-conda/>`__
 if you need help) and then work through the following commands.
 
-First, we create and activate conda environment named ``pudl``. All the
-required packages are available from the community maintained ``conda-forge``
-channel, and that channel is given priority, to simplify satisfying
-dependencies. Note that PUDL currently requires Python 3.7, the most recently
-available major version of Python. In addition to the ``catalystcoop.pudl``
-package, we'll also install JupyterLab so we can work with the PUDL data
-interactively.
+Create and activate a conda environment named ``pudl`` that installs packages
+from the community maintained ``conda-forge`` channel. In addition to the
+``catalystcoop.pudl`` package, install JupyterLab so we can work with the PUDL
+data interactively.
 
 .. code-block:: console
 
     $ conda create -y -n pudl -c conda-forge --strict-channel-priority python=3.7 catalystcoop.pudl jupyter jupyterlab pip
     $ conda activate pudl
 
-Now we create a data management workspace called ``pudl-work`` and download
-some data. The workspace is a well defined directory structure that PUDL uses
-to organize the data it downloads, processes, and outputs. You can run
-``pudl_setup --help`` and ``pudl_data --help`` for more information.
+Now create a data management workspace called ``pudl-work`` and download EIA,
+EPA, and FERC data for 2018 data using the ``pudl_data`` script. The workspace
+has a well defined directory structure that PUDL uses to organize the data it
+downloads, processes, and outputs. Run ``pudl_setup --help`` and ``pudl_data
+--help`` for details.
 
 .. code-block:: console
 
     $ mkdir pudl-work
     $ pudl_setup pudl-work
-    $ pudl_data --sources eia923 eia860 ferc1 epacems epaipm --years 2017 --states id
+    $ pudl_data --sources eia923 eia860 ferc1 epacems epaipm --years 2018 --states id
 
-Now that we have the original data as published by the federal agencies, we can
-run the ETL (Extract, Transform, Load) pipeline, that turns the raw data into
-an well organized, standardized bundle of data packages. This involves a couple
-of steps: cloning the FERC Form 1 into an SQLite database, extracting data from
+Now that we have some raw data, we can run the PUDL ETL (Extract, Transform,
+Load) pipeline to clean it up and integrate it together. There are several
+steps: cloning the FERC Form 1 database into SQLite, extracting data from
 that database and all the other sources and cleaning it up, outputting that
 data into well organized CSV/JSON based data packages, and finally loading
 those data packages into a local database.
 
-PUDL provides a script to clone the FERC Form 1 database, controlled by a YAML
-file which you can find in the settings folder. Run it like this:
+PUDL provides a script to clone the FERC Form 1 database. The script is
+controlled by a YAML file which you can find in the settings folder.
 
 .. code-block:: console
 
     $ ferc1_to_sqlite pudl-work/settings/ferc1_to_sqlite_example.yml
 
-The main ETL process is controlled by the YAML file ``etl_example.yml`` which
-defines what data will be processed. It is well commented -- if you want to
-understand what the options are, open it in a text editor, and create your own
-version.
-
-The data packages will be generated in a sub-directory in
-``pudl-work/datapackage`` named ``pudl-example`` (you can change this by
-changing the value of ``pkg_bundle_name`` in the ETL settings file you're
-using. Run the ETL pipeline with this command:
+The main ETL process is controlled by another YAML file defining the data that
+will be processed. A well commented ``etl_example.yml`` can be found
+in the ``settings`` directory of the PUDL workspace you set up. The script that
+runs the ETL process is called ``pudl_etl``:
 
 .. code-block:: console
 
     $ pudl_etl pudl-work/settings/etl_example.yml
 
-The generated data packages are made up of CSV and JSON files. They're both
+This will generate a bundle of tabular data packages in
+``pudl-work/datapkg/pudl-example``
+
+Tabular data packages are made up of CSV and JSON files. They're relatively
 easy to parse programmatically, and readable by humans. They are also well
-suited to archiving, citation, and bulk distribution. However, to make the
-data easier to query and work with interactively, we typically load it into a
-local SQLite database using this script, which combines several data packages
-from the same bundle into a single unified structure:
+suited to archiving, citation, and bulk distribution, but they are static.
+
+To make the data easier to query and work with interactively, we typically load
+it into a local SQLite database using this script, which combines several data
+packages from the same bundle into a single data package,
 
 .. code-block:: console
 
-    $ datapkg_to_sqlite --pkg_bundle_name pudl-example
+    $ datapkg_to_sqlite \
+        -o pudl-work/datapkg/pudl-example/pudl-merged \
+        pudl-work/datapkg/pudl-example/ferc1-example/datapackage.json \
+        pudl-work/datapkg/pudl-example/eia-example/datapackage.json \
+        pudl-work/datapkg/pudl-example/epaipm-example/datapackage.json \
 
-Now that we have a live database, we can easily work with it using a variety
+The EPA CEMS data is 100 times larger than all of the other data we have
+integrated thus far, and loading it into SQLite takes a very long time. We've
+found the most convenient way to work with it is using
+`Apache Parquet <https://parquet.apache.org>`__ files, and have a script that
+converts the EPA CEMS Hourly table from the generated datapackage into that
+format. To convert the example EPA CEMS data package you can run:
+
+.. code-block:: console
+
+    $ epacems_to_parquet pudl-work/datapkg/pudl-example/epacems-eia-example/datapackage.json
+
+The resulting Apache Parquet dataset will be stored in
+``pudl-work/parquet/epacems`` and will be partitioned by year and by state, so
+that you can read in only the relevant portions of the dataset. (Though in the
+example, you'll only find 2018 data for Idaho)
+
+Now that you have a live database, we can easily work with it using a variety
 of tools, including Python, pandas dataframes, and
-`Jupyter notebooks <https://jupyter.org>`__. This command will start up a local
+`Jupyter Notebooks <https://jupyter.org>`__. This command will start up a local
 Jupyter notebook server, and open a notebook of PUDL usage examples:
 
 .. code-block:: console
 
     $ jupyter lab pudl-work/notebook/pudl_intro.ipynb
 
-For more details, see `the full PUDL documentation
-<https://catalystcoop-pudl.readthedocs.io/>`__ on Read The Docs.
+For more usage and installation details, see
+`our more in-depth documentation <https://catalystcoop-pudl.readthedocs.io/>`__
+on Read The Docs.
 
 Contributing to PUDL
 --------------------
@@ -150,8 +168,7 @@ contribute!
 
 * Please be sure to read our `Code of Conduct <https://catalystcoop-pudl.readthedocs.io/en/latest/CODE_OF_CONDUCT.html>`__
 * You can file a bug report, make a feature request, or ask questions in the
-  `Github issue tracker
-  <https://github.com/catalyst-cooperative/pudl/issues>`__.
+  `Github issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`__.
 * Feel free to fork the project and make a pull request with new code,
   better documentation, or example notebooks.
 * `Make a recurring financial contribution <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url>`__ to support
