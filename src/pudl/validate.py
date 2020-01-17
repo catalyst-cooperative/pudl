@@ -1107,6 +1107,35 @@ Based on IEA coal grade definitions:
 https://www.iea.org/statistics/resources/balancedefinitions/
 """
 
+gf_eia923_gas_heat_content = [
+    {
+        "title": "All gas heat content (middle)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.50,
+        "low_bound": 0.975,
+        "hi_q": 0.50,
+        "hi_bound": 1.075,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+    {
+        "title": "All gas heat content (middle)",
+        "query": "fuel_type_code_pudl=='gas'",
+        "low_q": 0.20,
+        "low_bound": 0.95,
+        "hi_q": 0.90,
+        "hi_bound": 1.1,
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_consumed_units",
+    },
+]
+"""
+Valid natural gas heat content values.
+
+Focuses on natural gas proper. Lower bound excludes other types of gaseous
+fuels intentionally.
+"""
+
 gf_eia923_oil_heat_content = [
     {
         "title": "Diesel Fuel Oil heat content (tails)",

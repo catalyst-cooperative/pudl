@@ -4,6 +4,7 @@ Retrieve data from EIA Form 861 spreadsheets for analysis.
 This modules pulls data from EIA's published Excel spreadsheets.
 
 This code is for use analyzing EIA Form 861 data.
+
 """
 
 import importlib.resources
@@ -33,6 +34,7 @@ class ExtractorExcel(object):
             years (iterable) : list of years that are extractable by your dataset
             pudl_settings (dict) : a dictionary filled with settings that mostly
                 describe paths to various resources and outputs.
+
         """
         self.xlsx_dict = {}
         self.dataset_name = dataset_name
@@ -50,7 +52,7 @@ class ExtractorExcel(object):
                 This name should correspond to the name of the Excel file being
                 extracted.
 
-        Return:
+        Returns:
             pandas.DataFrame
 
         """
@@ -59,12 +61,9 @@ class ExtractorExcel(object):
             path = importlib.resources.open_text(
                 (xlsx_maps_dataset + '.' + meta_name), f'{file_name}.csv')
         else:
-
             path = importlib.resources.open_text(
                 xlsx_maps_dataset, f'{meta_name}.csv')
-        file_df = pd.read_csv(
-            path,
-            index_col=0, comment='#')
+        file_df = pd.read_csv(path, index_col=0, comment='#')
         return file_df
 
     def get_path_name(self, yr, file_name):

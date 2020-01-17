@@ -36,6 +36,33 @@ sum_na = partial(pd.Series.sum, skipna=False)
 tz_finder = timezonefinder.TimezoneFinder()
 
 
+def oob_to_nan(df, cols, lb=None, ub=None):
+    """
+    Set non-numeric values and those outside of a given rage to NaN.
+
+    Args:
+        df (pandas.DataFrame): The dataframe containing values to be altered.
+        cols (iterable): Labels of the columns whose values are to be changed.
+        lb: (number): Lower bound, below which values are set to NaN. If None,
+            don't use a lower bound.
+        ub: (number): Upper bound, below which values are set to NaN. If None,
+            don't use an upper bound.
+
+    Returns:
+        pandas.DataFrame: The altered DataFrame.
+
+    """
+    for col in cols:
+        # Force column to be numeric if possible, NaN otherwise:
+        df.loc[:, col] = pd.to_numeric(df[col], errors="coerce")
+        if lb is not None:
+            df.loc[df[col] < lb, col] = np.nan
+        if ub is not None:
+            df.loc[df[col] > ub, col] = np.nan
+
+    return df
+
+
 def prep_dir(dir_path, clobber=False):
     """
     Create (or delete and recreate) a directory.
@@ -86,22 +113,29 @@ def is_doi(doi):
 
 
 def is_annual(df_year, year_col='report_date'):
-    """Determine whether dataframe is consistent with yearly reporting.
+    """
+    Determine whether a DataFrame contains consistent annual time-series data.
 
     Some processes will only work with consistent yearly reporting. This means
     if you have two non-contiguous years of data or the datetime reporting is
-    inconsistent, the process will break.
+    inconsistent, the process will break. This function attempts to infer the
+    temporal frequency of the dataframe, or if that is impossible, to at least
+    see whether the data would be consistent with annual reporting -- e.g. if
+    there is only a single year of data, it should all have the same date, and
+    that date should correspond to January 1st of a given year.
+
+    This function is known to be flaky and needs to be re-written to deal with
+    the edge cases better.
 
     Args:
-        df_year ():
+        df_year (:class:`pandas.DataFrame`): A pandas DataFrame that might
+            contain time-series data at annual resolution.
         year_col (str): The column of the DataFrame in which the year is
             reported.
 
     Returns:
-        bool:
-
-    Todo:
-        Return to for df_year, Returns, assert statements
+        bool: True if df_year is found to be consistent with continuous annual
+        time resolution, False otherwise.
 
     """
     year_index = pd.DatetimeIndex(df_year[year_col].unique()).sort_values()
@@ -163,6 +197,10 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
         the list of columns to be merged on.  The values from df1 are the ones
         which are retained for any shared, non-merging columns
 
+    Raises:
+        ValueError: if the date or year columns are not found, or if the year
+            column is found to be inconsistent with annual reporting.
+
     """
     if date_col not in df_date.columns.tolist():
         raise ValueError(f"Date column {date_col} not found in df_date.")
@@ -223,9 +261,6 @@ def organize_cols(df, cols):
         DataFrame df, but with cols first, in the same order as they
         were passed in, and the remaining columns sorted alphabetically.
 
-    Todo:
-        Update docstring.
-
     """
     # Generate a list of all the columns in the dataframe that are not
     # included in cols
@@ -248,16 +283,20 @@ def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
     long lag in being released.
 
     Args:
-        df (pandas.DataFrame):
-        date_col (str):
-        start_date (date):
-        end_date (date):
+        df (pandas.DataFrame): The dataframe to extend.
+        date_col (str): The column in the dataframe which contains date
+            information.
+        start_date (date): The earliest date to which data should be extended.
+        end_date (date): The latest date to which data should be extended.
+
+    Raises:
+        ValueError: if the data column is found not to be consistent with
+            annual reporting.
 
     Returns:
-        pandas.DataFrame:
-
-    Todo:
-        Return to
+        pandas.DataFrame: A dataframe resembling the input dataframe, but with
+        the first and/or last years of data copied to provide an
+        approximation of earlier/later data that is not available.
 
     """
     if not is_annual(df, year_col=date_col):
@@ -288,7 +327,7 @@ def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
     return df
 
 
-def strip_lower(df, columns=None):
+def strip_lower(df, columns):
     """Strip and compact whitespace, lowercase listed DataFrame columns.
 
     First converts all listed columns (if present in df) to string type, then
@@ -337,7 +376,7 @@ def cleanstrings_series(col, str_map, unmapped=None, simplify=True):
 
     Returns:
         :mod:`pandas.Series`: The cleaned up Series / column, suitable for
-        replacng the original messy column in a pd.Dataframe.
+        replacing the original messy column in a pd.Dataframe.
 
     """
     if simplify:
@@ -403,9 +442,6 @@ def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
         pandas.Series: The function returns a new pandas series/column that can
         be used to set the values of the original data.
 
-    Todo:
-        Update docstring.
-
     """
     out_df = df.copy()
     for col, str_map in zip(columns, stringmaps):
@@ -421,11 +457,15 @@ def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=''):
     Numpy doesn't have a real NA value for integers. When pandas stores integer
     data which has NA values, it thus upcasts integers to floating point
     values, using np.nan values for NA. However, in order to dump some of our
-    dataframes to CSV files that are suitable for loading into postgres
-    directly, we need to write out integer formatted numbers, with empty
-    strings as the NA value. This function replaces np.nan values with a
-    sentinel value, converts the column to integers, and then to strings,
-    finally replacing the sentinel value with the desired NA string.
+    dataframes to CSV files for use in data packages, we need to write out
+    integer formatted numbers, with empty strings as the NA value. This
+    function replaces np.nan values with a sentinel value, converts the column
+    to integers, and then to strings, finally replacing the sentinel value with
+    the desired NA string.
+
+    This is an interim solution -- now that pandas extension arrays have been
+    implemented, we need to go back through and convert all of these integer
+    columns that contain NA values to Nullable Integer types like Int64.
 
     Args:
         df (pandas.DataFrame): The dataframe to be fixed. This argument allows
@@ -443,9 +483,6 @@ def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=''):
         df (pandas.DataFrame): a new DataFrame, with the selected columns
         converted to strings that look like integers, compatible with
         the postgresql COPY FROM command.
-
-    Todo:
-        Update docstring.
 
     """
     return (
@@ -466,12 +503,13 @@ def month_year_to_date(df):
     construct a new _date column (having the same prefix) and the month/year
     columns are then dropped.
 
-    This function needs to be combined with convert_to_date, and improved:
-     - find and use a _day$ column as well
-     - allow specification of default month & day values, if none are found.
-     - allow specification of lists of year, month, and day columns to be
-       combined, rather than automataically finding all the matching ones.
-     - Do the Right Thing when invalid or NA values are encountered.
+    Todo:
+        This function needs to be combined with convert_to_date, and improved:
+        * find and use a _day$ column as well
+        * allow specification of default month & day values, if none are found.
+        * allow specification of lists of year, month, and day columns to be
+          combined, rather than automataically finding all the matching ones.
+        * Do the Right Thing when invalid or NA values are encountered.
 
     Args:
         df (pandas.DataFrame): The DataFrame in which to convert year/months
@@ -480,9 +518,6 @@ def month_year_to_date(df):
     Returns:
         pandas.DataFrame: A DataFrame in which the year/month fields have been
         converted into Date fields.
-
-    Todo:
-        Update docstring.
 
     """
     df = df.copy()
@@ -538,13 +573,19 @@ def month_year_to_date(df):
 
 
 def convert_to_date(df,
-                    date_col='report_date',
-                    year_col='report_year',
-                    month_col='report_month',
-                    day_col='report_day',
+                    date_col="report_date",
+                    year_col="report_year",
+                    month_col="report_month",
+                    day_col="report_day",
                     month_value=1,
                     day_value=1):
-    """Convert specified year, month or day columns into a datetime object.
+    """
+    Convert specified year, month or day columns into a datetime object.
+
+    If the input ``date_col`` already exists in the input dataframe, then no
+    conversion is applied, and the original dataframe is returned unchanged.
+    Otherwise the constructed date is placed in that column, and the columns
+    which were used to create the date are dropped.
 
     Args:
         df (pandas.DataFrame): dataframe to convert
@@ -591,7 +632,8 @@ def convert_to_date(df,
 
 
 def fix_eia_na(df):
-    """Replace common ill-posed EIA NA spreadsheet values with np.nan.
+    """
+    Replace common ill-posed EIA NA spreadsheet values with np.nan.
 
     Args:
         df (pandas.DataFrame): The DataFrame to clean.
@@ -608,7 +650,8 @@ def fix_eia_na(df):
 
 
 def simplify_columns(df):
-    """Simplify column labels for use as database fields.
+    """
+    Simplify column labels for use as database fields.
 
     This transformation includes:
      - Replacing all non-alphanumeric characters with spaces.
@@ -703,9 +746,6 @@ def verify_input_files(ferc1_years,  # noqa: C901
 
     Raises:
         FileNotFoundError: If any of the requested data is missing.
-
-    Todo:
-        Check Docstring.
 
     """
     data_dir = pudl_settings['data_dir']
@@ -833,19 +873,21 @@ def convert_cols_dtypes(df, data_source, name=None):
 
     This function will convert a PUDL dataframe's columns to the correct data
     type. It uses a dictionary in constants.py called column_dtypes to assign
-    the right type.
+    the right type. Within a given data source (e.g. eia923, ferc1) each column
+    name is assumed to *always* have the same data type whenever it is found.
 
     Boolean type conversions created a special problem, because null values in
     boolean columns get converted to True (which is bonkers!)... we generally
-    want to preserve the null values and definitely don't want them to be
-    True, so we are keeping those columns as objects and preforming a simple
-    mask for the boolean columns.
+    want to preserve the null values and definitely don't want them to be True,
+    so we are keeping those columns as objects and preforming a simple mask for
+    the boolean columns.
 
-    The other exception in here is with the `utility_id_eia` column. It is often
-    an object column of strings. All of the strings are numbers, so it should be
-    possible to convert to pd.Int32Dtype() directly, but it is requiring us to
-    convert to int first. There will probably be other columns that have this
-    problem... and hopefully pandas just enables this direct conversion.
+    The other exception in here is with the `utility_id_eia` column. It is
+    often an object column of strings. All of the strings are numbers, so it
+    should be possible to convert to pd.Int32Dtype() directly, but it is
+    requiring us to convert to int first. There will probably be other columns
+    that have this problem... and hopefully pandas just enables this direct
+    conversion.
 
     Args:
         df (pandas.Dataframe): dataframe with columns that appear in the PUDL
@@ -904,7 +946,14 @@ def convert_cols_dtypes(df, data_source, name=None):
 
 
 def convert_dfs_dict_dtypes(dfs_dict, data_source):
-    """Convert the data types of a dictionary of dataframes."""
+    """Convert the data types of a dictionary of dataframes.
+
+    This is a wrapper for pudl.helpers.convert_cols_dtypes() which loops
+    over an entire dictionary of dataframes, assuming they are all from the
+    specified data source, and appropriately assigning data types to each
+    column based on the data source specific type map stored in pudl.constants
+
+    """
     cleaned_dfs_dict = {}
     for name, df in dfs_dict.items():
         cleaned_dfs_dict[name] = convert_cols_dtypes(df, data_source, name)
@@ -952,11 +1001,13 @@ def fillna_w_rolling_avg(df_og, group_cols, data_col, win_type='triang'):
     Args:
         df_of (pandas.DataFrame): Original dataframe. Must have group_cols
             column, a data_col column and a 'report_date' column.
-        group_cols (iterable)
-        data_col (string)
-        win_type (string)
+        group_cols (iterable):
+        data_col (str):
+        win_type (str):
+
     Returns:
         pandas.DataFrame
+
     """
     df_og = df_og.astype({'report_date': 'datetime64[ns]'})
     df_roll = generate_rolling_avg(df_og, group_cols, data_col, win_type)

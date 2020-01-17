@@ -10,7 +10,7 @@ import pudl
 logger = logging.getLogger(__name__)
 
 
-def generation_fuel_eia923(pudl_engine, pt, freq=None,
+def generation_fuel_eia923(pudl_engine, freq=None,
                            start_date=None, end_date=None):
     """
     Pull records from the generation_fuel_eia923 table in given date range.
@@ -39,7 +39,6 @@ def generation_fuel_eia923(pudl_engine, pt, freq=None,
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
             for the PUDL DB.
-        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are
             probably month start (freq='MS') and year start (freq='YS').
@@ -55,6 +54,7 @@ def generation_fuel_eia923(pudl_engine, pt, freq=None,
         Generation Fuel table.
 
     """
+    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     gf_tbl = pt['generation_fuel_eia923']
     gf_select = sa.sql.select([gf_tbl, ])
     if start_date is not None:
@@ -91,7 +91,7 @@ def generation_fuel_eia923(pudl_engine, pt, freq=None,
         gf_df = gf_df.reset_index()
 
     # Bring in some generic plant & utility information:
-    pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine, pt,
+    pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine,
                                                     start_date=start_date,
                                                     end_date=end_date)
     out_df = pudl.helpers.merge_on_date_year(
@@ -125,7 +125,7 @@ def generation_fuel_eia923(pudl_engine, pt, freq=None,
     return out_df
 
 
-def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
+def fuel_receipts_costs_eia923(pudl_engine, freq=None,
                                start_date=None, end_date=None,
                                rolling=False):
     """
@@ -160,7 +160,6 @@ def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
             for the PUDL DB.
-        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are
             probably month start (freq='MS') and year start (freq='YS').
@@ -176,6 +175,7 @@ def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
         Fuel Receipts and Costs table.
 
     """
+    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # Most of the fields we want come direclty from Fuel Receipts & Costs
     frc_tbl = pt['fuel_receipts_costs_eia923']
     frc_select = sa.sql.select([frc_tbl, ])
@@ -267,7 +267,7 @@ def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
                               'total_mercury_content'], axis=1)
 
     # Bring in some generic plant & utility information:
-    pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine, pt,
+    pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine,
                                                     start_date=start_date,
                                                     end_date=end_date)
     out_df = pudl.helpers.merge_on_date_year(
@@ -300,7 +300,7 @@ def fuel_receipts_costs_eia923(pudl_engine, pt, freq=None,
     return out_df
 
 
-def boiler_fuel_eia923(pudl_engine, pt, freq=None,
+def boiler_fuel_eia923(pudl_engine, freq=None,
                        start_date=None, end_date=None):
     """
     Pull records from the boiler_fuel_eia923 table in a given data range.
@@ -325,7 +325,6 @@ def boiler_fuel_eia923(pudl_engine, pt, freq=None,
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
             for the PUDL DB.
-        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are
             probably month start (freq='MS') and year start (freq='YS').
@@ -341,6 +340,7 @@ def boiler_fuel_eia923(pudl_engine, pt, freq=None,
         Boiler Fuel table.
 
     """
+    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     bf_eia923_tbl = pt['boiler_fuel_eia923']
     bf_eia923_select = sa.sql.select([bf_eia923_tbl, ])
     if start_date is not None:
@@ -391,7 +391,7 @@ def boiler_fuel_eia923(pudl_engine, pt, freq=None,
                            axis=1)
 
     # Grab some basic plant & utility information to add.
-    pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine, pt,
+    pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine,
                                                     start_date=start_date,
                                                     end_date=end_date)
     out_df = pudl.helpers.merge_on_date_year(
@@ -428,7 +428,7 @@ def boiler_fuel_eia923(pudl_engine, pt, freq=None,
     return out_df
 
 
-def generation_eia923(pudl_engine, pt, freq=None,
+def generation_eia923(pudl_engine, freq=None,
                       start_date=None, end_date=None):
     """
     Pull records from the boiler_fuel_eia923 table in a given data range.
@@ -436,7 +436,6 @@ def generation_eia923(pudl_engine, pt, freq=None,
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
             for the PUDL DB.
-        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
         freq (str): a pandas timeseries offset alias. The original data is
             reported monthly, so the best time frequencies to use here are
             probably month start (freq='MS') and year start (freq='YS').
@@ -452,6 +451,7 @@ def generation_eia923(pudl_engine, pt, freq=None,
         Generation table.
 
     """
+    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     g_eia923_tbl = pt['generation_eia923']
     g_eia923_select = sa.sql.select([g_eia923_tbl, ])
     if start_date is not None:
@@ -475,7 +475,7 @@ def generation_eia923(pudl_engine, pt, freq=None,
             {'net_generation_mwh': pudl.helpers.sum_na}).reset_index()
 
     # Grab EIA 860 plant and utility specific information:
-    pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine, pt,
+    pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine,
                                                     start_date=start_date,
                                                     end_date=end_date)
 

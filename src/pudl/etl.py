@@ -1,9 +1,9 @@
 """
-Coordinate the PUDL ETL pipeline and datapackage generation.
+Run the PUDL ETL Pipeline.
 
 The PUDL project integrates several different public data sets into well
 normalized data packages allowing easier access and interaction between all
-each dataset. This module coordinates the extract/transfrom/load process of
+each dataset. This module coordinates the extract/transfrom/load process for
 data from:
 
  - US Energy Information Agency (EIA):
@@ -797,7 +797,6 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
                             pudl_settings,
                             datapkg_bundle_name,
                             datapkg_bundle_doi=None,
-                            debug=False,
                             clobber=False):
     """
     Coordinate the generation of data packages.
@@ -818,8 +817,6 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
             describe paths to various resources and outputs.
         datapkg_bundle_name (string): name of directory you want the bundle of
             data packages to live.
-        debug (bool): If True, return a dictionary with package names (keys)
-            and a list with the data package metadata and report (values).
         clobber (bool): If True and there is already a directory with data
             packages with the datapkg_bundle_name, the existing data packages
             will be deleted and new data packages will be generated in their

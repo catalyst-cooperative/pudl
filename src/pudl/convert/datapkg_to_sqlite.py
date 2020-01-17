@@ -1,5 +1,5 @@
 """
-Merge a collection of PUDL datapackages and load the result into an SQLite DB.
+Merge a compatible PUDL datapackages and load the result into an SQLite DB.
 
 This script merges a set of compatible PUDL datapackages into a single
 tabular datapackage that can be loaded into an SQLite database (or potentially
@@ -41,15 +41,17 @@ logger = logging.getLogger(__name__)
 
 def datapkg_to_sqlite(sqlite_url, out_path, clobber=False):
     """
-    Turn a data package into a sqlite database.
+    Load a PUDL datapackage into a sqlite database.
 
     Args:
-        sqlite_url (dict) : A dictionary filled with settings that mostly
-            describe paths to various resources and outputs.
+        sqlite_url (str): An SQLite database connection URL.
         out_path (path-like): Path to the base directory of the datapackage
             to be loaded into SQLite. Must contain the datapackage.json file.
         clobber (bool): If True, replace an existing PUDL DB if it exists. If
             False (the default), fail if an existing PUDL DB is found.
+
+    Returns:
+        None
 
     """
     # prepping the sqlite engine

@@ -90,7 +90,6 @@ class PudlTabl(object):
             raise AssertionError('PudlTabl object needs a pudl_engine')
         self.pudl_engine = pudl_engine
 
-        self.pt = get_table_meta(self.pudl_engine)
         self.rolling = rolling
         # We populate this library of dataframes as they are generated, and
         # allow them to persist, in case they need to be used again.
@@ -141,7 +140,6 @@ class PudlTabl(object):
         if update or self._dfs['pu_eia'] is None:
             self._dfs['pu_eia'] = pudl.output.eia860.plants_utils_eia860(
                 self.pudl_engine,
-                self.pt,
                 start_date=self.start_date,
                 end_date=self.end_date)
         return self._dfs['pu_eia']
@@ -181,7 +179,6 @@ class PudlTabl(object):
         if update or self._dfs['utils_eia860'] is None:
             self._dfs['utils_eia860'] = pudl.output.eia860.utilities_eia860(
                 self.pudl_engine,
-                self.pt,
                 start_date=self.start_date,
                 end_date=self.end_date)
         return self._dfs['utils_eia860']
@@ -202,7 +199,6 @@ class PudlTabl(object):
             self._dfs['bga_eia860'] = \
                 pudl.output.eia860.boiler_generator_assn_eia860(
                     self.pudl_engine,
-                    self.pt,
                     start_date=self.start_date,
                     end_date=self.end_date)
         return self._dfs['bga_eia860']
@@ -222,7 +218,6 @@ class PudlTabl(object):
         if update or self._dfs['plants_eia860'] is None:
             self._dfs['plants_eia860'] = pudl.output.eia860.plants_eia860(
                 self.pudl_engine,
-                self.pt,
                 start_date=self.start_date,
                 end_date=self.end_date,)
         return self._dfs['plants_eia860']
@@ -242,7 +237,6 @@ class PudlTabl(object):
         if update or self._dfs['gens_eia860'] is None:
             self._dfs['gens_eia860'] = pudl.output.eia860.generators_eia860(
                 self.pudl_engine,
-                self.pt,
                 start_date=self.start_date,
                 end_date=self.end_date)
         return self._dfs['gens_eia860']
@@ -262,7 +256,6 @@ class PudlTabl(object):
         if update or self._dfs['own_eia860'] is None:
             self._dfs['own_eia860'] = pudl.output.eia860.ownership_eia860(
                 self.pudl_engine,
-                self.pt,
                 start_date=self.start_date,
                 end_date=self.end_date)
         return self._dfs['own_eia860']
@@ -283,7 +276,6 @@ class PudlTabl(object):
             self._dfs['gf_eia923'] = \
                 pudl.output.eia923.generation_fuel_eia923(
                     self.pudl_engine,
-                    self.pt,
                     freq=self.freq,
                     start_date=self.start_date,
                     end_date=self.end_date)
@@ -305,7 +297,6 @@ class PudlTabl(object):
             self._dfs['frc_eia923'] = \
                 pudl.output.eia923.fuel_receipts_costs_eia923(
                     self.pudl_engine,
-                    self.pt,
                     freq=self.freq,
                     start_date=self.start_date,
                     end_date=self.end_date,
@@ -327,7 +318,6 @@ class PudlTabl(object):
         if update or self._dfs['bf_eia923'] is None:
             self._dfs['bf_eia923'] = pudl.output.eia923.boiler_fuel_eia923(
                 self.pudl_engine,
-                self.pt,
                 freq=self.freq,
                 start_date=self.start_date,
                 end_date=self.end_date)
@@ -348,7 +338,6 @@ class PudlTabl(object):
         if update or self._dfs['gen_eia923'] is None:
             self._dfs['gen_eia923'] = pudl.output.eia923.generation_eia923(
                 self.pudl_engine,
-                self.pt,
                 freq=self.freq,
                 start_date=self.start_date,
                 end_date=self.end_date)
@@ -511,7 +500,6 @@ class PudlTabl(object):
         if update or self._dfs['bga'] is None:
             self._dfs['bga'] = pudl.output.glue.boiler_generator_assn(
                 self.pudl_engine,
-                self.pt,
                 start_date=self.start_date,
                 end_date=self.end_date)
         return self._dfs['bga']
@@ -633,5 +621,4 @@ def get_table_meta(pudl_engine):
     """Grab the pudl sqlitie database table metadata."""
     md = sa.MetaData()
     md.reflect(pudl_engine)
-    pt = md.tables
-    return(pt)
+    return md.tables

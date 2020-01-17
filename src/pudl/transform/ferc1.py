@@ -7,6 +7,7 @@ standardized units and column names, standardizing the formatting of some
 string values, and correcting data entry errors which we can infer based on
 the existing data. It may also include removing bad data, or replacing it
 with the appropriate NA values.
+
 """
 
 import importlib.resources
@@ -34,33 +35,6 @@ logger = logging.getLogger(__name__)
 ##############################################################################
 # FERC TRANSFORM HELPER FUNCTIONS ############################################
 ##############################################################################
-
-
-def oob_to_nan(df, cols, lb=None, ub=None):
-    """
-    Set non-numeric values and those outside of a given rage to NaN.
-
-    Args:
-        df (pandas.DataFrame): The dataframe containing values to be altered.
-        cols (iterable): Labels of the columns whose values are to be changed.
-        lb: (number): Lower bound, below which values are set to NaN. If None,
-            don't use a lower bound.
-        ub: (number): Upper bound, below which values are set to NaN. If None,
-            don't use an upper bound.
-
-    Returns:
-        pandas.DataFrame: The altered DataFrame.
-
-    """
-    for col in cols:
-        # Force column to be numeric if possible, NaN otherwise:
-        df.loc[:, col] = pd.to_numeric(df[col], errors="coerce")
-        if lb is not None:
-            df.loc[df[col] < lb, col] = np.nan
-        if ub is not None:
-            df.loc[df[col] > ub, col] = np.nan
-
-    return df
 
 
 def unpack_table(ferc1_df, table_name, data_cols, data_rows):
@@ -393,7 +367,8 @@ def _plants_steam_clean(ferc1_steam_df):
               ['construction_type', 'plant_type'],
               [pc.ferc1_const_type_strings, pc.ferc1_plant_kind_strings],
               unmapped='')
-        .pipe(oob_to_nan, cols=["construction_year", "installation_year"],
+        .pipe(pudl.helpers.oob_to_nan,
+              cols=["construction_year", "installation_year"],
               lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
         .assign(
             capex_per_mw=lambda x: 1000.0 * x.capex_per_kw,
@@ -730,7 +705,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     # Force the construction and installation years to be numeric values, and
     # set them to NA if they can't be converted. (table has some junk values)
-    ferc1_small_df = oob_to_nan(
+    ferc1_small_df = pudl.helpers.oob_to_nan(
         ferc1_small_df, cols=["yr_constructed"],
         lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
 
@@ -844,7 +819,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
             cost_per_mw=lambda x: x.cost_per_kw * 1000.0,
             # Converting kWh to MWh
             expns_per_mwh=lambda x: x.expns_kwh * 1000.0)
-        .pipe(oob_to_nan, cols=["yr_const", "yr_installed"],
+        .pipe(pudl.helpers.oob_to_nan, cols=["yr_const", "yr_installed"],
               lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
         .drop(columns=['net_generation', 'cost_per_kw', 'expns_kwh'])
         .rename(columns={
@@ -929,7 +904,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
             net_load_mwh=lambda x: x.net_load / 1000.0,
             cost_per_mw=lambda x: x.cost_per_kw * 1000.0,
             expns_per_mwh=lambda x: x.expns_kwh * 1000.0)
-        .pipe(oob_to_nan, cols=["yr_const", "yr_installed"],
+        .pipe(pudl.helpers.oob_to_nan, cols=["yr_const", "yr_installed"],
               lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
         .drop(columns=['net_generation', 'energy_used', 'net_load',
                        'cost_per_kw', 'expns_kwh'])

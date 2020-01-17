@@ -7,14 +7,12 @@ import pudl
 import pudl.constants as pc
 
 
-def utilities_eia860(pudl_engine, pt, start_date=None, end_date=None):
+def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     """Pulls all fields from the EIA860 Utilities table.
 
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
             for the PUDL DB.
-        pt (sqlalchemy.util._collections.immutabledict): a sqlalchemy metadata
-            dictionary of pudl tables
         start_date (date): Date to begin retrieving EIA 860 data.
         end_date (date): Date to end retrieving EIA 860 data.
 
@@ -23,6 +21,7 @@ def utilities_eia860(pudl_engine, pt, start_date=None, end_date=None):
         Utilities table.
 
     """
+    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # grab the entity table
     utils_eia_tbl = pt['utilities_entity_eia']
     utils_eia_select = sa.sql.select([utils_eia_tbl])
@@ -71,7 +70,7 @@ def utilities_eia860(pudl_engine, pt, start_date=None, end_date=None):
     return out_df
 
 
-def plants_eia860(pudl_engine, pt, start_date=None, end_date=None):
+def plants_eia860(pudl_engine, start_date=None, end_date=None):
     """Pulls all fields from the EIA Plants tables.
 
     Args:
@@ -86,6 +85,7 @@ def plants_eia860(pudl_engine, pt, start_date=None, end_date=None):
         Plants table.
 
     """
+    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # grab the entity table
     plants_eia_tbl = pt['plants_entity_eia']
     plants_eia_select = sa.sql.select([plants_eia_tbl])
@@ -135,7 +135,7 @@ def plants_eia860(pudl_engine, pt, start_date=None, end_date=None):
     return out_df
 
 
-def plants_utils_eia860(pudl_engine, pt, start_date=None, end_date=None):
+def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
     """Create a dataframe of plant and utility IDs and names from EIA 860.
 
     Returns a pandas dataframe with the following columns:
@@ -167,11 +167,9 @@ def plants_utils_eia860(pudl_engine, pt, start_date=None, end_date=None):
     # Contains the one-to-one mapping of EIA plants to their operators, but
     # we only have the 860 data integrated for 2011 forward right now.
     plants_eia = plants_eia860(pudl_engine,
-                               pt,
                                start_date=start_date,
                                end_date=end_date)
     utils_eia = utilities_eia860(pudl_engine,
-                                 pt,
                                  start_date=start_date,
                                  end_date=end_date)
 
@@ -199,7 +197,7 @@ def plants_utils_eia860(pudl_engine, pt, start_date=None, end_date=None):
     return out_df
 
 
-def generators_eia860(pudl_engine, pt, start_date=None, end_date=None):
+def generators_eia860(pudl_engine, start_date=None, end_date=None):
     """Pull all fields reported in the generators_eia860 table.
 
     Merge in other useful fields including the latitude & longitude of the
@@ -224,6 +222,7 @@ def generators_eia860(pudl_engine, pt, start_date=None, end_date=None):
         Generators table.
 
     """
+    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # Almost all the info we need will come from here.
     gens_eia860_tbl = pt['generators_eia860']
     gens_eia860_select = sa.sql.select([gens_eia860_tbl, ])
@@ -283,7 +282,6 @@ That's too much forward filling.""")
 
     # Bring in some generic plant & utility information:
     pu_eia = plants_utils_eia860(pudl_engine,
-                                 pt,
                                  start_date=start_date,
                                  end_date=end_date)
     out_df = pd.merge(out_df, pu_eia,
@@ -329,7 +327,7 @@ That's too much forward filling.""")
     return out_df
 
 
-def boiler_generator_assn_eia860(pudl_engine, pt, start_date=None, end_date=None):
+def boiler_generator_assn_eia860(pudl_engine, start_date=None, end_date=None):
     """Pull all fields from the EIA 860 boiler generator association table.
 
     Args:
@@ -344,6 +342,7 @@ def boiler_generator_assn_eia860(pudl_engine, pt, start_date=None, end_date=None
         860 boiler generator association table.
 
     """
+    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     bga_eia860_tbl = pt['boiler_generator_assn_eia860']
     bga_eia860_select = sa.sql.select([bga_eia860_tbl])
 
@@ -365,7 +364,7 @@ def boiler_generator_assn_eia860(pudl_engine, pt, start_date=None, end_date=None
     return out_df
 
 
-def ownership_eia860(pudl_engine, pt, start_date=None, end_date=None):
+def ownership_eia860(pudl_engine, start_date=None, end_date=None):
     """Pull a useful set of fields related to ownership_eia860 table.
 
     Args:
@@ -379,12 +378,12 @@ def ownership_eia860(pudl_engine, pt, start_date=None, end_date=None):
         to the EIA 860 Ownership table.
 
     """
+    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     o_eia860_tbl = pt['ownership_eia860']
     o_eia860_select = sa.sql.select([o_eia860_tbl, ])
     o_df = pd.read_sql(o_eia860_select, pudl_engine)
 
     pu_eia = plants_utils_eia860(pudl_engine,
-                                 pt,
                                  start_date=start_date,
                                  end_date=end_date)
     pu_eia = pu_eia[['plant_id_eia', 'plant_id_pudl', 'plant_name_eia',

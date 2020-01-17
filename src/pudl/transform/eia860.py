@@ -29,12 +29,11 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
         DataFrames of values from that page (values)
 
     """
-    o_df = eia860_dfs['ownership'].copy()
-
-    # Replace '.' and ' ' with NaN in order to read in integer values
-    o_df = pudl.helpers.fix_eia_na(o_df)
-
-    o_df = pudl.helpers.convert_to_date(o_df)
+    o_df = (
+        eia860_dfs['ownership'].copy()
+        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.convert_to_date)
+    )
 
     # The fix we're making here is only known to be valid for 2011 -- if we
     # get older data... then we need to to revisit the cleaning function and
@@ -97,13 +96,11 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     ge_df['operational_status'] = 'existing'
     gr_df['operational_status'] = 'retired'
 
-    gens_df = pd.concat([ge_df, gp_df, gr_df], sort=True)
-
-    # Get rid of any unidentifiable records:
-    gens_df.dropna(subset=['generator_id', 'plant_id_eia'], inplace=True)
-
-    # Replace empty strings, whitespace, and '.' fields with real NA values
-    gens_df = pudl.helpers.fix_eia_na(gens_df)
+    gens_df = (
+        pd.concat([ge_df, gp_df, gr_df], sort=True)
+        .dropna(subset=['generator_id', 'plant_id_eia'])
+        .pipe(pudl.helpers.fix_eia_na)
+    )
 
     # A subset of the columns have zero values, where NA is appropriate:
     columns_to_fix = [

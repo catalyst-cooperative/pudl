@@ -1,34 +1,34 @@
 """
 Extract and transform glue tables between FERC Form 1 and EIA 860/923.
 
-FERC1 and EIA report on the same plants and utilities, but have no embedded
-connection. We have combed through the FERC and EIA plants and utilities to
-generate id's which can connect these datasets. The resulting fields in the PUDL
-tables are `plant_id_pudl` and `utility_id_pudl`, respectively. This was done by
-hand in a spreadsheet which is in the `package_data/glue` directory. When
-mapping plants, we considered a plant a co-located collection of electricity
-generation equipment. If a coal plant was converted to a natural gas unit, our
-aim was to consider this the same plant. This module simply reads in the mapping
-spreadsheet and converts it to a dictionary of dataframes.
+FERC1 and EIA report on many of the same plants and utilities, but have no
+embedded connection. We have combed through the FERC and EIA plants and
+utilities to generate id's which can connect these datasets. The resulting
+fields in the PUDL tables are `plant_id_pudl` and `utility_id_pudl`,
+respectively. This was done by hand in a spreadsheet which is in the
+`package_data/glue` directory. When mapping plants, we considered a plant a
+co-located collection of electricity generation equipment. If a coal plant was
+converted to a natural gas unit, our aim was to consider this the same plant.
+This module simply reads in the mapping spreadsheet and converts it to a
+dictionary of dataframes.
 
 Because these mappings were done by hand and for every one of FERC Form 1's
-reported plants, we are fairly certain that there are probably some incorrect
-or incomplete mappings of plants. If you see a `plant_id_pudl` or
-`utility_id_pudl` mapping that you think is incorrect, poke us on github about
-it.
+thousands of reported plants, we know there are probably some incorrect or
+incomplete mappings. If you see a `plant_id_pudl` or `utility_id_pudl` mapping
+that you think is incorrect, please open an issue on our Github!
 
-A thing to note about using the PUDL id's is that they can change over time. The
-spreadsheet uses MAX({all cells above}) to generate the PUDL id's for the first
-instance of every plant or utility, so when an id in the spreadsheet is changed,
-every id below it is also changed.
+Note that the PUDL IDs may change over time. They are not guaranteed to be
+stable. If you need to find a particular plant or utility reliably, you should
+use its plant_id_eia, utility_id_eia, or utility_id_ferc1.
 
-Another note about these id's: these id's map our definition of plants, which is
-not the most granular level of plant unit. The generators are typically the
+Another note about these id's: these id's map our definition of plants, which
+is not the most granular level of plant unit. The generators are typically the
 smaller, more interesting unit. FERC does not typically report in units
 (although it sometimes does), but it does often break up gas units from coal
 units. EIA reports on the generator and boiler level. When trying to use these
 PUDL id's, consider the granularity that you desire and the potential
 implications of using a co-located set of plant infrastructure as an id.
+
 """
 
 import importlib
@@ -227,6 +227,13 @@ def get_mapped_utils_ferc1():
 
     Unless a new utility has appeared in the database, this should be identical
     to the full list of utilities available in the FERC Form 1 database.
+
+    Args:
+        None
+
+    Returns:
+        :class:`pandas.DataFrame`:
+
     """
     ferc1_mapped_utils = (
         pudl.glue.ferc1_eia.get_utility_map().
@@ -291,7 +298,7 @@ def get_unmapped_utils_ferc1(pudl_settings, years):
         years (iterable): Years for which plants should be compiled from the
             raw FERC Form 1 DB.
     Returns:
-        :class:`pandas.DataFrame`:
+        :class:`pandas.DataFrame`
 
     """
     # Note: we only map the utlities that have plants associated with them.
@@ -336,8 +343,9 @@ def get_db_plants_eia(pudl_engine):
             for connecting to a PUDL SQLite database.
 
     Returns:
-        :mod:`pandas.DataFrame`: A DataFrame with plant_id_eia, plant_name_eia,
-        and state columns, for addition to the FERC 1 / EIA plant mappings.
+        :class:`pandas.DataFrame`: A DataFrame with plant_id_eia,
+        plant_name_eia, and state columns, for addition to the FERC 1 / EIA
+        plant mappings.
 
     """
     db_plants_eia = (
@@ -362,7 +370,7 @@ def get_mapped_plants_eia():
         None
 
     Returns:
-        :mod:`pandas.DataFrame`: A DataFrame listing the plant_id_eia and
+        :class:`pandas.DataFrame`: A DataFrame listing the plant_id_eia and
         plant_name_eia values for every EIA plant which has already been
         assigned a PUDL Plant ID.
 
@@ -642,4 +650,4 @@ def glue(ferc1=False, eia=False):
         del glue_dfs['utilities_ferc1']
         del glue_dfs['plants_ferc1']
 
-    return(glue_dfs)
+    return glue_dfs

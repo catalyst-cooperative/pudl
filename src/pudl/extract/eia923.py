@@ -25,7 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 def get_eia923_file(yr, data_dir):
-    """Construct the appopriate path for a given year's EIA923 Excel file.
+    """
+    Construct the appopriate path for a given year's EIA923 Excel file.
 
     Args:
         year (int): The year that we're trying to read data for.
@@ -55,7 +56,8 @@ def get_eia923_file(yr, data_dir):
 
 
 def get_eia923_column_map(page, year):
-    """Given a year and EIA923 page, returns info needed to slurp it from Excel.
+    """
+    Given a year and EIA923 page, returns info needed to slurp it from Excel.
 
     The format of the EIA923 has changed slightly over the years, and so it
     is not completely straightforward to pull information from the spreadsheets
@@ -98,6 +100,7 @@ def get_eia923_column_map(page, year):
               of leading and trailing whitespace, converted to lower case,
               and have internal non-alphanumeric characters replaced with
               underscores.
+
     """
     sheet_name = pc.tab_map_eia923.at[year, page]
     skiprows = pc.skiprows_eia923.at[year, page]
@@ -188,7 +191,8 @@ def get_eia923_page(page, eia923_xlsx,
 
 
 def get_eia923_xlsx(years, data_dir):
-    """Reads in Excel files to create Excel objects.
+    """
+    Reads in Excel files to create Excel objects.
 
     Rather than reading in the same Excel files several times, we can just
     read them each in once (one per year) and use the ExcelFile object to
@@ -197,8 +201,10 @@ def get_eia923_xlsx(years, data_dir):
     Args:
         years (list): The years that we're trying to read data for.
         data_dir (str): Top level datastore directory.
+
     Returns:
         pandas.io.excel.ExcelFile: xlsx file of EIA Form 923 for input year(s)
+
     """
     eia923_xlsx = {}
     for yr in years:
@@ -208,7 +214,8 @@ def get_eia923_xlsx(years, data_dir):
 
 
 def extract(eia923_years, data_dir):
-    """Creates a dictionary of DataFrames containing all the EIA 923 tables.
+    """
+    Creates a dictionary of DataFrames containing all the EIA 923 tables.
 
     Args:
         eia860_years (list): a list of data_years
@@ -217,6 +224,7 @@ def extract(eia923_years, data_dir):
     Returns:
         dict: A dictionary containing EIA 860 pages (keys) and DataFrames of
         data from each page (values)
+
     """
     eia923_raw_dfs = {}
     if not eia923_years:

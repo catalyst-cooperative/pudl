@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 
 
 def check_identical_vals(dps, required_vals, optional_vals=()):
-    """Verify that datapackages to be merged have required identical values.
+    """
+    Verify that datapackages to be merged have required identical values.
 
     This only works for elements with simple (hashable) datatypes, which can be
     added to a set.
@@ -26,6 +27,9 @@ def check_identical_vals(dps, required_vals, optional_vals=()):
             metadata elements to be compared between the datapackages. They do
             not need to appear in all datapackages, but if they do appear,
             they must be identical.
+
+    Returns:
+        None
 
     Raises:
         ValueError: if any of the required or optional metadata elements have
@@ -50,7 +54,8 @@ def check_identical_vals(dps, required_vals, optional_vals=()):
 
 
 def check_etl_params(dps):
-    """Verify that datapackages to be merged have compatible ETL params.
+    """
+    Verify that datapackages to be merged have compatible ETL params.
 
     Given that all of the input data packages come from the same ETL run, which
     means they will have used the same input data, the only way they should
@@ -63,6 +68,9 @@ def check_etl_params(dps):
     Args:
         dps (iterable): A list of datapackage.Package objects, representing the
             datapackages to be merged.
+
+    Returns:
+        None
 
     Raises:
         ValueError: If the PUDL ETL parameters associated with any given data
@@ -91,7 +99,8 @@ def check_etl_params(dps):
 
 
 def merge_data(dps, out_path):
-    """Copy the CSV files into the merged datapackage's data directory.
+    """
+    Copy the CSV files into the merged datapackage's data directory.
 
     Iterates through all of the resources in the input datapackages and copies
     the files they refer to into the data directory associated with the merged
@@ -108,6 +117,9 @@ def merge_data(dps, out_path):
         out_path (path like): Base directory for the newly created datapackage.
             The final path element will also be used as the name of the merged
             data package.
+
+    Returns:
+        None
 
     """
     data_path = pathlib.Path(out_path, "data")
@@ -144,8 +156,9 @@ def merge_meta(dps, datapkg_name):
             in which the datapackage is found.
 
     Returns:
-        dict: a tabular datapackage JSON descriptor, encoded as a python
-        dictionary, containing the merged metadata of the input datapackages.
+        dict: a Python dictionary representing a tabular datapackage JSON
+        descriptor, encoded as a python dictionary, containing the merged
+        metadata of the input datapackages.
 
     """
     # Set up the initial datapackage descriptor dictionary:
@@ -225,11 +238,15 @@ def merge_datapkgs(dps, out_path, clobber=False):
         dps (iterable): A collection of tabular data package objects that were
             output by PUDL, to be merged into a single deduplicated datapackage
             for loading into a database or other storage medium.
-        out_path (path like): Base directory for the newly created
+        out_path (path-like): Base directory for the newly created
             datapackage. The final path element will also be used as the name
             of the merged data package.
         clobber (bool): If the location of the output datapackage already
             exists, should it be overwritten? If True, yes. If False, no.
+
+    Returns:
+        dict: A report containing information about the validity of the
+        merged datapackage.
 
     Raises:
         FileNotFoundError: If any of the input datapackage paths do not exist.

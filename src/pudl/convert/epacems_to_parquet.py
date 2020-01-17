@@ -18,9 +18,10 @@ Parquet format for use with Dask, either on a multi-core workstation or in an
 interactive cloud computing environment like Pangeo.
 
 For more information on working with these systems check out:
- * https://tomaugspurger.github.io/modern-1-intro
- * https://dask.pydata.org
- * https://pangio.io
+* https://tomaugspurger.github.io/modern-1-intro
+* https://dask.pydata.org
+* https://pangeo.io
+
 """
 
 import argparse
@@ -43,7 +44,8 @@ logger = logging.getLogger(__name__)
 
 
 def create_in_dtypes():
-    """Create a dictionary of input data types.
+    """
+    Create a dictionary of input data types.
 
     This specifies the dtypes of the input columns, which is necessary for some
     cases where, e.g., a column is always NaN.

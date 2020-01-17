@@ -377,9 +377,8 @@ def mcoe(pudl_out,
         'fuel_type_count',
         'fuel_type_code_pudl'
     ], axis=1)
-    mcoe_out = pudl.helpers.merge_on_date_year(mcoe_out, simplified_gens_eia860,
-                                               on=['plant_id_eia',
-                                                   'generator_id'])
+    mcoe_out = pudl.helpers.merge_on_date_year(
+        mcoe_out, simplified_gens_eia860, on=['plant_id_eia', 'generator_id'])
 
     first_cols = ['report_date',
                   'plant_id_eia',

@@ -56,7 +56,8 @@ def get_eia860_file(yr, file, data_dir):
 
 
 def get_eia860_xlsx(years, filename, data_dir):
-    """Read in Excel files to create Excel objects.
+    """
+    Read in Excel files to create Excel objects from EIA860 spreadsheets.
 
     Rather than reading in the same Excel files several times, we can just
     read them each in once (one per year) and use the ExcelFile object to
@@ -65,6 +66,7 @@ def get_eia860_xlsx(years, filename, data_dir):
     Args:
         years (list): The years that we're trying to read data for.
         filename (str): ['enviro_assn', 'utilities', 'plants', 'generators']
+        data_dir (path-like): Path to PUDL input datastore directory.
 
     Returns:
         pandas.io.excel.ExcelFile: xlsx file of EIA Form 860 for input year(s)
@@ -126,6 +128,7 @@ def get_eia860_column_map(page, year):
               the raw dataframe which is ultimately extracted, so we can
               ensure that they all have the same columns, even if we're only
               loading a limited number of years.
+
     """
     sheet_name = pc.tab_map_eia860.at[year, page]
     skiprows = pc.skiprows_eia860.at[year, page]
@@ -262,6 +265,7 @@ def extract(eia860_years, data_dir):
 
     Returns:
         dict: A dictionary of EIA 860 pages (keys) and DataFrames (values)
+
     """
     # Prep for ingesting EIA860
     # create raw 860 dfs from spreadsheets

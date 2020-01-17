@@ -115,6 +115,10 @@ def add_sqlite_table(table_name, sqlite_meta, dbc_map, data_dir,
             pairs of strings of the form (table_name, column_name), indicating
             columns (and their parent tables) which should *not* be cloned
             into the SQLite database for some reason.
+
+    Returns:
+        None
+
     """
     # Create the new table object
     new_table = sa.Table(table_name, sqlite_meta)
@@ -159,6 +163,7 @@ def dbc_filename(year, data_dir):
 
     Returns:
         str: the file path to the master FERC Form 1 .DBC file for the year
+
     """
     ferc1_path = datastore.path('ferc1', data_dir=data_dir,
                                 year=year, file=False)
@@ -234,7 +239,6 @@ def get_dbc_map(year, data_dir, min_length=4):
         the same name as the key, and the second of which is the truncated
         (<=10 character) long name of that field as found in the DBF file.
 
-
     """
     # Extract all the strings longer than "min" from the DBC file
     dbc_strings = list(
@@ -306,7 +310,8 @@ def define_sqlite_db(sqlite_meta, dbc_map, data_dir,
                      tables=pc.ferc1_tbl2dbf,
                      refyear=max(pc.working_years['ferc1']),
                      bad_cols=()):
-    """Defines a FERC Form 1 DB structure in a given SQLAlchemy MetaData object.
+    """
+    Defines a FERC Form 1 DB structure in a given SQLAlchemy MetaData object.
 
     Given a template from an existing year of FERC data, and a list of target
     tables to be cloned, convert that information into table and column names,
@@ -389,6 +394,7 @@ class FERC1FieldParser(dbfread.FieldParser):
 
         Todo:
             Zane revisit
+
         """
         # Strip whitespace, null characters, and zeroes
         data = data.strip().strip(b'*\x00').lstrip(b'0')
@@ -416,6 +422,7 @@ def get_raw_df(table, dbc_map, data_dir,
     Returns:
         pandas.DataFrame: A DataFrame containing several years of FERC Form 1
         data for the given table.
+
     """
     dbf_name = pc.ferc1_tbl2dbf[table]
 
@@ -534,7 +541,6 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
 ###########################################################################
 # Functions for extracting ferc1 tables from SQLite to PUDL
 ###########################################################################
-
 def get_ferc1_meta(pudl_settings):
     """Grab the FERC1 db metadata and check for tables."""
     # Connect to the local SQLite DB and read its structure.
@@ -681,6 +687,7 @@ def plants_steam(ferc1_meta, ferc1_table, ferc1_years):
     Returns:
         pandas.DataFrame: A DataFrame containing f1_steam records that have
         plant names and non-zero capacities.
+
     """
     f1_steam = ferc1_meta.tables[ferc1_table]
     f1_steam_select = (
@@ -742,6 +749,7 @@ def plants_hydro(ferc1_meta, ferc1_table, ferc1_years):
     Returns:
         pandas.DataFrame: A DataFrame containing f1_hydro records that have
         plant names.
+
     """
     f1_hydro = ferc1_meta.tables[ferc1_table]
 
@@ -767,6 +775,7 @@ def plants_pumped_storage(ferc1_meta, ferc1_table, ferc1_years):
     Returns:
         pandas.DataFrame: A DataFrame containing f1_plants_pumped_storage
         records that have plant names.
+
     """
     f1_pumped_storage = ferc1_meta.tables[ferc1_table]
 
@@ -794,6 +803,7 @@ def plant_in_service(ferc1_meta, ferc1_table, ferc1_years):
     Returns:
         pandas.DataFrame: A DataFrame containing all plant_in_service_ferc1
         records.
+
     """
     f1_plant_in_srvce = ferc1_meta.tables[ferc1_table]
     f1_plant_in_srvce_select = (
@@ -817,6 +827,7 @@ def purchased_power(ferc1_meta, ferc1_table, ferc1_years):
     Returns:
         pandas.DataFrame: A DataFrame containing all purchased_power_ferc1
         records.
+
     """
     f1_purchased_pwr = ferc1_meta.tables[ferc1_table]
     f1_purchased_pwr_select = (
@@ -840,6 +851,7 @@ def accumulated_depreciation(ferc1_meta, ferc1_table, ferc1_years):
     Returns:
         pandas.DataFrame: A DataFrame containing all
         accumulated_depreciation_ferc1 records.
+
     """
     f1_accumdepr_prvsn = ferc1_meta.tables[ferc1_table]
     f1_accumdepr_prvsn_select = (
@@ -854,8 +866,7 @@ def accumulated_depreciation(ferc1_meta, ferc1_table, ferc1_years):
 # Helper functions for debugging the extract process and facilitating the
 # manual portions of the FERC to EIA plant and utility mapping process.
 ###########################################################################
-
-def check_ferc1_tables(refyear=2017):
+def check_ferc1_tables(refyear):
     """
     Test each FERC 1 data year for compatibility with reference year schema.
 

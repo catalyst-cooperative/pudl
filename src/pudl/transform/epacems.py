@@ -113,7 +113,7 @@ def harmonize_eia_epa_orispl(df):
         corrected to match the EIA plant IDs.
 
     Todo:
-        Ctually implement the function...
+        Actually implement the function...
 
     """
     return df
@@ -200,7 +200,7 @@ def transform(epacems_raw_dfs, datapkg_dir):
     """
     Transform EPA CEMS hourly data for use in datapackage export.
 
-    To Do:
+    Todo:
         Incomplete docstring.
 
     """
