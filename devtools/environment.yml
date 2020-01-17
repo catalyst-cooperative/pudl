@@ -36,7 +36,7 @@ dependencies:
   - pydocstyle          # dev
   - pytest              # dev
   - pytest-cov          # dev
-  - python>=3.8         # N/A
+  - python>=3.7         # N/A
   - python-snappy       # base
   - pyyaml              # base
   - seaborn             # dev

@@ -8,6 +8,8 @@ matrix:
   - python: "3.8"
     env: PY_VERSION=py38
     dist: xenial
+  allow_failures:
+  - env: PY_VERSION=py38
 
 addons:
   apt:

@@ -508,7 +508,7 @@ def month_year_to_date(df):
         * find and use a _day$ column as well
         * allow specification of default month & day values, if none are found.
         * allow specification of lists of year, month, and day columns to be
-          combined, rather than automataically finding all the matching ones.
+        combined, rather than automataically finding all the matching ones.
         * Do the Right Thing when invalid or NA values are encountered.
 
     Args:
