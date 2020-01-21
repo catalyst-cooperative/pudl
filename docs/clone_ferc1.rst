@@ -12,7 +12,7 @@ vast majority of the available data into PUDL. This also means it's useful to
 just provide programmatic access to the bulk raw data, independent of the
 cleaner subset of the data included within PUDL.
 
-To provide that access, we've broken the :mod:`pudl.extract.ferc1`` process
+To provide that access, we've broken the :mod:`pudl.extract.ferc1` process
 down into two distinct steps:
 
 #. Clone the *entire* FERC Form 1 database from FoxPro into a local

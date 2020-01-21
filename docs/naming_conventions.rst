@@ -5,12 +5,16 @@ Naming Conventions
 In the PUDL codebase, we aspire to follow the naming and other conventions
 detailed in :pep:`8`.
 
-* Imperative verbs (.e.g connect) should precede the object being acted upon
+Admittedly we have a lot of... named things in here, and we haven't been
+perfect about following conventions everywhere. We're trying to clean things up
+as we come across them again in maintaining the code.
+
+* Imperative verbs (e.g. connect) should precede the object being acted upon
   (e.g. connect_db), unless the function returns a simple value (e.g. datadir).
 * No duplication of information (e.g. form names).
-* lowercase, underscores separate words.
-* Helper functions (functions used within a single module only) should be
-  preceded by an underscore.
+* lowercase, underscores separate words (i.e. ``snake_case``).
+* Semi-private helper functions (functions used within a single module only
+  and not exposed via the public API) should be preceded by an underscore.
 * When the object is a table, use the full table name (e.g. ingest_fuel_ferc1).
 * When dataframe outputs are built from multiple tables, identify the type of
   information being pulled (e.g. "plants") and the source of the tables (e.g.
@@ -90,13 +94,10 @@ the table name (e.g. ``boiler_fuel_eia923``).
 Table Names
 -----------
 
-See `this article
-<http://www.vertabelo.com/blog/technical-articles/naming-conventions-in-database-modeling>`__
-on database naming conventions.
+See `this article <http://www.vertabelo.com/blog/technical-articles/naming-conventions-in-database-modeling>`__ on database naming conventions.
 
 * Table names in snake_case
-* The data source or label (e.g. "plant_id_pudl") should follow the thing it is
-  describing
+* The data source should follow the thing it applies to e.g. ``plant_id_ferc1``
 
 Columns and Field Names
 -----------------------
@@ -113,7 +114,7 @@ Columns and Field Names
   for percent, ``_ppm`` for parts per million, or a generic ``_per_unit`` when
   the type of unit varies, as in columns containing a heterogeneous collection
   of fuels)
-* Financial values are assumed to be in US Dollars.
+* Financial values are assumed to be in nominal US dollars.
 * ``_id`` indicates the field contains a usually numerical reference to
   another table, which will not be intelligible without looking up the value in
   that other table.

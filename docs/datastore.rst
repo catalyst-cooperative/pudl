@@ -60,3 +60,15 @@ Depending on which data sources, how many years or states you have requested
 data for, and the speed of your internet connection, this may take minutes to
 hours to complete, and can consume 20+ GB of disk space even when the data is
 compressed.
+
+Occasionally, the federal agencies will re-organize their websites or FTP
+servers, changing the names or locations of the files, causing the download
+script to fail. We try and update the version of the script in the Github
+repository as quickly as possible when this happens, but it may take a while
+for those changes to show up in the released software. We are working on
+creating an automatically updated versioned archive of the raw source files
+on `Zenodo <https://zenodo.org/communities/catalyst-cooperative/>`__ so we
+don't need to refer directly to these unstable files that. See our
+`scrapers <https://github.com/catalyst-cooperative/scrapers>`__ and
+`zen_storage <https://github.com/catalyst-cooperative/zen_storage>`__
+Github repositories for more information.

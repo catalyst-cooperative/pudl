@@ -6,10 +6,10 @@ public data about the US electricity system. In our own climate activism and
 policy work we found that many non-profit organizations, academic researchers,
 grassroots climate activists, energy journalists, smaller businesses, and even
 members of the public sector were scraping together the same data repeatedly,
-for one campaign or project at a time, without accumulating many shared,
-reusable resources. We decided to try and create a platform that would serve
-the many folks who have a stake in our electricity and climate policies, but
-may not have the financial resources to obtain commercially integrated data.
+for one campaign or project at a time, without accumulating shared, reusable
+resources. We decided to try and create a platform that would serve the many
+folks who have a stake in our electricity and climate policies, but may not
+have the financial resources to obtain commercially integrated data.
 
 Our energy systems affect everyone, and they are changing rapidly. We hope this
 shared resource will improve the efficiency, quality, accessibility and

@@ -1020,10 +1020,7 @@ entity_tables = ['utilities_entity_eia',
 """
 
 xlsx_maps_pkg = 'pudl.package_data.meta.xlsx_maps'
-"""type?:
-
-    Todo:
-        Return to
+"""string: The location of the xlsx maps within the PUDL package data.
 """
 
 ##############################################################################

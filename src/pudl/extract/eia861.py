@@ -83,12 +83,12 @@ class ExtractorExcel(object):
             str: Path to EIA 861 spreadsheets corresponding to a given year.
 
         Raises:
-            AssertionError: If the requested year is not in the list of working
+            ValueError: If the requested year is not in the list of working
                 years for EIA 861.
 
         """
         if yr not in pc.working_years[self.dataset_name]:
-            raise AssertionError(
+            raise ValueError(
                 f"Requested non-working {self.dataset_name} year: {yr}.\n"
                 f"{self.dataset_name} is only working for: {pc.working_years[self.dataset_name]}\n"
             )

@@ -26,15 +26,25 @@ There are lots of ways to contribute -- it's not all about code!
   * :ref:`Ask questions on Github <aq_on_gh>` using the `issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`__.
   * `Suggest new data and features <https://github.com/catalyst-cooperative/pudl/issues/new?template=feature_request.md>`__ that would be useful.
   * `File bug reports <https://github.com/catalyst-cooperative/pudl/issues/new?template=bug_report.md>`__ on Github.
-  * Help expand and improve the documentation, or write usage examples.
+  * Help expand and improve the documentation, or share example notebooks.
   * Give us feedback on overall usability -- what's confusing?
   * Tell us a story about how you're using of the data.
-  * Point us at :ref:`interesting publications <bg-reading>` about
+  * Point us at :ref:`interesting publications <bg-reading>` related to
     energy data, or energy system modeling.
-  * Cite PUDL if you use the software or data in your own work.
+  * Cite PUDL using
+    `DOIs from Zenodo <https://zenodo.org/communities/catalyst-cooperative/>`__
+    if you use the software or data in your own published work.
+  * Point us toward appropriate grant funding opportunities and meetings where
+    we might present our work.
   * Share your Jupyter notebooks and other analyses that use PUDL.
-  * Hire Catalyst to do analysis for your organization based on the PUDL data.
-  * Contribute code via `pull requests <https://help.github.com/en/articles/about-pull-requests>`__. See the :doc:`developer setup <dev_setup>` for more details.
+  * `Hire Catalyst <https://catalyst.coop/hire-catalyst/>`__ to do analysis for
+    your organization using the PUDL data -- contract work helps us self-fund
+    ongoing open source development.
+  * Contribute code via
+    `pull requests <https://help.github.com/en/articles/about-pull-requests>`__.
+    See the :doc:`developer setup <dev_setup>` for more details.
+  * And of course... we also appreciate
+    `financial contributions <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url>`__.
 
 -------------------------------------------------------------------------------
 Code of Conduct
@@ -51,10 +61,10 @@ We Use Github
 
 Github is the primary platform we use to manage the project, integrate
 contributions, write and publish documentation, answer user questions, automate
-testing & deployment, etc. `Signing up for a Github account
-<https://github.com/join>`__ (even if you don't intend to write code) will
-allow you to participate in online discussions and track projects that you're
-interested in.
+testing & deployment, etc.
+`Signing up for a Github account <https://github.com/join>`__
+(even if you don't intend to write code) will allow you to participate in
+online discussions and track projects that you're interested in.
 
 .. _aq_on_gh:
 
@@ -72,11 +82,11 @@ having to re-ask the same question. The forum we're using is our `Github issues
 
 Even if you feel like you have a basic question, we want you to feel
 comfortable asking for help in public -- we (Catalyst) only recently came to
-this work as activists and policy wonks -- so it's easy to remember when it all
-seemed frustrating and alien! Sometimes it still does. We want people to use
-the software and data to do good things in the world. We want you to be able to
-access it. Using a public forum also enables the community of users to help
-each other!
+this data work from being activists and policy wonks -- so it's easy for us to
+remember when it all seemed frustrating and alien! Sometimes it still does. We
+want people to use the software and data to do good things in the world. We
+want you to be able to access it. Using a public forum also enables the
+community of users to help each other!
 
 .. _suggest_on_gh:
 
