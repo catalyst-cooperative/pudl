@@ -316,15 +316,15 @@ ferc1_other_strings = [
 # that I don't know what to do with... hopefully they constitute only a
 # small fraction of the overall generation.
 
-ferc1_fuel_strings = {'coal': ferc1_coal_strings,
-                      'oil': ferc1_oil_strings,
-                      'gas': ferc1_gas_strings,
-                      'solar': ferc1_solar_strings,
-                      'wind': ferc1_wind_strings,
-                      'hydro': ferc1_hydro_strings,
-                      'nuclear': ferc1_nuke_strings,
-                      'waste': ferc1_waste_strings,
-                      'other': ferc1_other_strings
+ferc1_fuel_strings = {"coal": ferc1_coal_strings,
+                      "oil": ferc1_oil_strings,
+                      "gas": ferc1_gas_strings,
+                      "solar": ferc1_solar_strings,
+                      "wind": ferc1_wind_strings,
+                      "hydro": ferc1_hydro_strings,
+                      "nuclear": ferc1_nuke_strings,
+                      "waste": ferc1_waste_strings,
+                      "other": ferc1_other_strings
                       }
 """dict: A dictionary linking fuel types (keys) to lists of various strings
     representing that fuel (values)
@@ -1890,7 +1890,7 @@ energy_source_eia923 = {
     'OG': 'Other Gas',
     'RC': 'Refined Coal',
     'RFO': 'Residual Fuel Oil. Including No. 5 & 6 fuel oils and bunker C fuel oil.',
-    'SG': 'Synhtesis Gas from Petroleum Coke',
+    'SG': 'Synthesis Gas from Petroleum Coke',
     'SGP': 'Petroleum Coke Derived Synthesis Gas',
     'SC': 'Coal-based Synfuel. Including briquettes, pellets, or extrusions, which are formed by binding materials or processes that recycle materials.',
     'SUB': 'Subbituminous Coal',

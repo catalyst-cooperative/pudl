@@ -147,12 +147,9 @@ def _clean_cols(df, table_name):
 
     It is often useful to be able to tell exactly which record in the FERC Form
     1 database a given record within the PUDL database came from. Within each
-    FERC Form 1 table, each record is uniquely identified by the combination
-    of:
-      - report_year
-      - respondent_id
-      - spplmnt_num
-      - row_number
+    FERC Form 1 table, each record is supposed to be uniquely identified by the
+    combination of: report_year, report_prd, respondent_id, spplmnt_num,
+    row_number.
 
     So this function takes a dataframe, checks to make sure it contains each of
     those columns and that none of them are NULL, and adds a new column to the
@@ -160,31 +157,34 @@ def _clean_cols(df, table_name):
 
     {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}
 
-    In addition there are some columns which are not meaningful or useful in
-    the context of PUDL, but which show up in virtually every FERC table, and
-    this function drops them if they are present. These columns include:
-     - spplmnt_num (which goes into the record ID)
-     - row_number (which goes into the record_ ID)
-     - row_prvlg
-     - row_seq
-     - item
-     - report_prd
-     - record_number (a temporary column used in plants_small)
-     - *_f (all footnote columns)
+    In some PUDL FERC Form 1 tables (e.g. plant_in_service_ferc1) a single row
+    is re-organized into several new records in order to normalize the data and
+    ensure it is stored in a "tidy" format. In such cases each of the resulting
+    PUDL records will have the same ``record_id``.  Otherwise, the
+    ``record_id`` is expected to be unique within each FERC Form 1 table.
+    However there are a handful of cases in which this uniqueness constraint is
+    violated due to data reporting issues in FERC Form 1.
+
+    In addition to those primary key columns, there are some columns which are
+    not meaningful or useful in the context of PUDL, but which show up in
+    virtually every FERC table, and this function drops them if they are
+    present. These columns include: row_prvlg, row_seq, item, record_number (a
+    temporary column used in plants_small) and all the footnote columns, which
+    end in "_f".
 
     Args:
-        df (pandas.DataFrame): The DataFrame in which the function looks for
-            columns for the unique identification of FERC records, and ensures
-            that those columns are not NULL.
+        df (:mod:`pandas.DataFrame`): The DataFrame in which the function looks
+            for columns for the unique identification of FERC records, and
+            ensures that those columns are not NULL.
         table_name (str): The name of the table that we are cleaning.
 
     Returns:
-        pandas.DataFrame: The same DataFrame with a column appended containing
-            a string of the format
-            {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}
+        :mod:`pandas.DataFrame`: The same DataFrame with a column appended
+        containing a string of the format {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}
 
     Raises:
         AssertionError: If the table input contains NULL columns
+
     """
     # Make sure that *all* of these columns exist in the proffered table:
     for field in ['report_year', 'report_prd', 'respondent_id', 'spplmnt_num', 'row_number']:
