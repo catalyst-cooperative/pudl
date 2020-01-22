@@ -344,20 +344,20 @@
                 "fields": [{
                         "name": "utility_id_eia",
                         "type": "integer",
-                        "format": "default"
-                        "description": "The EIA Utility Identification number.",
+                        "format": "default",
+                        "description": "The EIA Utility Identification number."
                     },
                     {
                         "name": "utility_name_eia",
                         "type": "string",
-                        "format": "default"
-                        "description": "The name of the utility.",
+                        "format": "default",
+                        "description": "The name of the utility."
                     },
                     {
                         "name": "utility_id_pudl",
                         "type": "integer",
-                        "format": "default"
-                        "description": "A manually assigned PUDL utility ID. May not be stable over time.",
+                        "format": "default",
+                        "description": "A manually assigned PUDL utility ID. May not be stable over time."
                     }
                 ],
                 "primaryKey": [
@@ -449,16 +449,16 @@
                         "name": "datasource",
                         "type": "string",
                         "description": "Code identifying a dataset available within PUDL.",
-                        "format": "default"
+                        "format": "default",
                         "constraints": {
                             "enum": [
                                 "ferc1",
                                 "eia860",
                                 "eia923",
                                 "epacems",
-                                "epaipm",
+                                "epaipm"
                             ]
-                        },
+                        }
                     },
                     {
                         "name": "active",
@@ -3448,8 +3448,8 @@
                 "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "format": "default"
-                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
+                        "format": "default",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration."
                     },
                     {
                         "name": "plant_name_eia",

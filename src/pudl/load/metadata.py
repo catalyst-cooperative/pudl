@@ -349,16 +349,12 @@ def pull_resource_from_megadata(resource_name):
             descriptor we are reading.
 
     Returns:
-        dict: A Python dictionary representing a tabular data resource
-            descriptor.
+        dict: A Python dictionary containing pieces of a data package
+        descriptor, not expected to be valid or complete.
 
     Raises:
         ValueError: If table_name is not found exactly one time in the PUDL
             metadata library.
-
-    TODO: Is the dictionary that's returned actually expected to be a valid
-        resource descriptor? The stuff we're storing in the megadata is
-        incomplete isn't it?
 
     """
     with importlib.resources.open_text('pudl.package_data.meta.datapkg',
