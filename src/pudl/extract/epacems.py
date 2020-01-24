@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 def read_cems_csv(filename):
     """
-    Read a CEMS CSV file, compressed or not, into a :mod:`pandas.DataFrame`.
+    Read a CEMS CSV file, compressed or not, into a :class:`pandas.DataFrame`.
 
     Note that some columns are not read. See
     :mod:`pudl.constants.epacems_columns_to_ignore`. Data types for the columns
@@ -26,7 +26,7 @@ def read_cems_csv(filename):
         filename (str): The name of the file to be read
 
     Returns:
-        :class:`pandas.DataFrame`: A DataFrame containing the contents of the
+        pandas.DataFrame: A DataFrame containing the contents of the
         CSV file.
 
     """

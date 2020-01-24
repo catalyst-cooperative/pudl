@@ -100,10 +100,10 @@ def get_db_plants_ferc1(pudl_settings, years):
         years (iterable): Years for which plants should be compiled.
 
     Returns:
-        :class:`pandas.DataFrame`: A dataframe containing five columns:
-            utility_id_ferc1, utility_name_ferc1, plant_name, capacity_mw, and
-            plant_table. Each row is a unique combination of utility_id_ferc1
-            and plant_name.
+        :class:`pandas.DataFrame`: A dataframe containing columns
+        utility_id_ferc1, utility_name_ferc1, plant_name, capacity_mw, and
+        plant_table. Each row is a unique combination of utility_id_ferc1 and
+        plant_name.
 
     """
     # Need to be able to use years outside the "valid" range if we're trying
@@ -339,8 +339,8 @@ def get_db_plants_eia(pudl_engine):
     PUDL DB that has all the EIA data in it.
 
     Args:
-        pudl_engine (:class:`sqlalchemy.Engine`): A database connection engine
-            for connecting to a PUDL SQLite database.
+        pudl_engine (:class:`sqlalchemy.engine.Engine`): A database connection
+            engine for connecting to a PUDL SQLite database.
 
     Returns:
         :class:`pandas.DataFrame`: A DataFrame with plant_id_eia,

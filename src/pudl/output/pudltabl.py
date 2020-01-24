@@ -15,8 +15,8 @@ PUDL database, but should serve as a generally usable set of PUDL data
 products.
 
 The PudlTabl class can also provide access to complex derived values, like the
-generator and plat level marginal cost of electricity (MCOE), which are defined
-in the analysis module.
+generator and plant level marginal cost of electricity (MCOE), which are
+defined in the analysis module.
 
 In the long run, this is a probably a kind of prototype for pre-packaged API
 outputs or data products that we might want to be able to provide to users a la
@@ -134,7 +134,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['pu_eia'] is None:
@@ -153,7 +153,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['pu_ferc1'] is None:
@@ -173,7 +173,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['utils_eia860'] is None:
@@ -192,7 +192,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['bga_eia860'] is None:
@@ -212,7 +212,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['plants_eia860'] is None:
@@ -231,7 +231,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['gens_eia860'] is None:
@@ -250,7 +250,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['own_eia860'] is None:
@@ -269,7 +269,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['gf_eia923'] is None:
@@ -290,7 +290,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['frc_eia923'] is None:
@@ -312,7 +312,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['bf_eia923'] is None:
@@ -332,7 +332,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['gen_eia923'] is None:
@@ -355,7 +355,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['plants_steam_ferc1'] is None:
@@ -372,7 +372,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['fuel_ferc1'] is None:
@@ -389,7 +389,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['fbp_ferc1'] is None:
@@ -406,7 +406,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['plants_small_ferc1'] is None:
@@ -423,7 +423,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['plants_hydro_ferc1'] is None:
@@ -440,7 +440,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['plants_pumped_storage_ferc1'] is None:
@@ -457,7 +457,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['purchased_power_ferc1'] is None:
@@ -474,7 +474,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['plant_in_service_ferc1'] is None:
@@ -494,7 +494,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['bga'] is None:
@@ -513,7 +513,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['hr_by_gen'] is None:
@@ -530,7 +530,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['hr_by_unit'] is None:
@@ -547,7 +547,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['fuel_cost'] is None:
@@ -564,7 +564,7 @@ class PudlTabl(object):
                 a cached version exists.
 
         Returns:
-            :mod:`pandas.DataFrame`: a denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
 
         """
         if update or self._dfs['capacity_factor'] is None:

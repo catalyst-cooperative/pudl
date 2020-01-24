@@ -23,15 +23,16 @@ def generation_fuel_eia923(pudl_engine, freq=None,
     fields. Per-unit values are re-calculated based on the aggregated totals.
     Totals are summed across whatever time range is being used, within a
     given plant and fuel type.
-    * ``plant_id_eia``
-    * ``report_date``
-    * ``fuel_type_code_pudl``
-    * ``fuel_consumed_units``
-    * ``fuel_consumed_for_electricity_units``
-    * ``fuel_mmbtu_per_unit``
-    * ``fuel_consumed_mmbtu``
-    * ``fuel_consumed_for_electricity_mmbtu``
-    * ``net_generation_mwh``
+
+    - ``plant_id_eia``
+    - ``report_date``
+    - ``fuel_type_code_pudl``
+    - ``fuel_consumed_units``
+    - ``fuel_consumed_for_electricity_units``
+    - ``fuel_mmbtu_per_unit``
+    - ``fuel_consumed_mmbtu``
+    - ``fuel_consumed_for_electricity_mmbtu``
+    - ``net_generation_mwh``
 
     In addition, plant and utility names and IDs are pulled in from the EIA
     860 tables.
@@ -140,19 +141,20 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
     following fields are preserved, and appropriately summed or re-calculated
     based on the specified aggregation. In both cases, new total values are
     calculated, for total fuel heat content and total fuel cost.
-    * ``plant_id_eia``
-    * ``report_date``
-    * ``fuel_type_code_pudl`` (formerly energy_source_simple)
-    * ``fuel_qty_units`` (sum)
-    * ``fuel_cost_per_mmbtu`` (weighted average)
-    * ``total_fuel_cost`` (sum)
-    * ``total_heat_content_mmbtu`` (sum)
-    * ``heat_content_mmbtu_per_unit`` (weighted average)
-    * ``sulfur_content_pct`` (weighted average)
-    * ``ash_content_pct`` (weighted average)
-    * ``moisture_content_pct`` (weighted average)
-    * ``mercury_content_ppm`` (weighted average)
-    * ``chlorine_content_ppm`` (weighted average)
+
+    - ``plant_id_eia``
+    - ``report_date``
+    - ``fuel_type_code_pudl`` (formerly energy_source_simple)
+    - ``fuel_qty_units`` (sum)
+    - ``fuel_cost_per_mmbtu`` (weighted average)
+    - ``total_fuel_cost`` (sum)
+    - ``total_heat_content_mmbtu`` (sum)
+    - ``heat_content_mmbtu_per_unit`` (weighted average)
+    - ``sulfur_content_pct`` (weighted average)
+    - ``ash_content_pct`` (weighted average)
+    - ``moisture_content_pct`` (weighted average)
+    - ``mercury_content_ppm`` (weighted average)
+    - ``chlorine_content_ppm`` (weighted average)
 
     In addition, plant and utility names and IDs are pulled in from the EIA
     860 tables.
@@ -313,6 +315,7 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
     fields. Per-unit values are re-calculated based on the aggregated totals.
     Totals are summed across whatever time range is being used, within a
     given plant and fuel type.
+
     * ``fuel_consumed_units`` (sum)
     * ``fuel_mmbtu_per_unit`` (weighted average)
     * ``total_heat_content_mmbtu`` (sum)

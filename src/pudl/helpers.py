@@ -192,7 +192,7 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
             column with annual resolution.
 
     Returns:
-        :mod:`pandas.DataFrame`: a dataframe with a date column, but no year
+        pandas.DataFrame: a dataframe with a date column, but no year
         columns, and only one copy of any shared columns that were not part of
         the list of columns to be merged on.  The values from df1 are the ones
         which are retained for any shared, non-merging columns
@@ -340,7 +340,7 @@ def strip_lower(df, columns):
             converted to lowercase.
 
     Returns:
-        :mod:`pandas.DataFrame`: The whole DataFrame that was passed in, with
+        pandas.DataFrame: The whole DataFrame that was passed in, with
         the columns cleaned up in place, allowing method chaining.
 
     """
@@ -361,7 +361,7 @@ def cleanstrings_series(col, str_map, unmapped=None, simplify=True):
     """Clean up the strings in a single column/Series.
 
     Args:
-        col (pd.Series): A pandas Series, typically a single column of a
+        col (pandas.Series): A pandas Series, typically a single column of a
             dataframe, containing the freeform strings that are to be cleaned.
         map (dict): A dictionary of lists of strings, in which the keys are the
             simplified canonical strings, witch which each string found in the
@@ -375,8 +375,8 @@ def cleanstrings_series(col, str_map, unmapped=None, simplify=True):
             need to be kept track of.
 
     Returns:
-        :mod:`pandas.Series`: The cleaned up Series / column, suitable for
-        replacing the original messy column in a pd.Dataframe.
+        pandas.Series: The cleaned up Series / column, suitable for
+        replacing the original messy column in a :class:`pandas.DataFrame`.
 
     """
     if simplify:
@@ -417,11 +417,11 @@ def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
     taxonomies.
 
     The function takes and returns a pandas.DataFrame, making it suitable for
-    use with the pd.DataFrame.pipe() method in a chain.
+    use with the :func:`pandas.DataFrame.pipe` method in a chain.
 
     Args:
-        df (pd.DataFrame): the DataFrame containing the string columns to be
-            cleaned up.
+        df (pandas.DataFrame): the DataFrame containing the string columns to
+            be cleaned up.
         columns (list): a list of string column labels found in the column
             index of df. These are the columns that will be cleaned.
         stringmaps (list): a list of dictionaries. The keys of these
@@ -884,20 +884,20 @@ def convert_cols_dtypes(df, data_source, name=None):
 
     The other exception in here is with the `utility_id_eia` column. It is
     often an object column of strings. All of the strings are numbers, so it
-    should be possible to convert to pd.Int32Dtype() directly, but it is
-    requiring us to convert to int first. There will probably be other columns
-    that have this problem... and hopefully pandas just enables this direct
-    conversion.
+    should be possible to convert to :func:`pandas.Int32Dtype` directly, but it
+    is requiring us to convert to int first. There will probably be other
+    columns that have this problem... and hopefully pandas just enables this
+    direct conversion.
 
     Args:
-        df (pandas.Dataframe): dataframe with columns that appear in the PUDL
+        df (pandas.DataFrame): dataframe with columns that appear in the PUDL
             tables.
         data_source (str): the name of the datasource
         name (str): name of the table (for logging only!)
 
     Returns:
-        pandas.DataFrame : a dataframe that has been fully converted to data
-        types as outlined in pc.
+        pandas.DataFrame: a dataframe with columns as specified by the
+        :mod:`pudl.constants` ``column_dtypes`` dictionary.
 
     """
     # get me all of the columns for the table in the constants dtype dict
@@ -961,7 +961,12 @@ def convert_dfs_dict_dtypes(dfs_dict, data_source):
 
 
 def generate_rolling_avg(df, group_cols, data_col, win_type='triang'):
-    """Generate a rolling average."""
+    """Generate a rolling average.
+
+    Todo:
+        Need a real docstring :user:`cmgosnell`
+
+    """
     df = df.astype({'report_date': 'datetime64[ns]'})
     # create a full date range for this df
     date_range = (pd.DataFrame(pd.date_range(

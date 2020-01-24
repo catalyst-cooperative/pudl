@@ -101,15 +101,16 @@ def weighted_quantile(data, weights, quantile):
     """
     Calculate the weighted quantile of a Series or DataFrame column.
 
-    This function allows us to take two columns from a :mod:`pandas.DataFrame`
-    one of which contains an observed value (data) like heat content per unit
-    of fuel, and the other of which (weights) contains a quantity like quantity
-    of fuel delivered which should be used to scale the importance of the
-    observed value in an overall distribution, and calculate the values that
-    the scaled distribution will have at various quantiles.
+    This function allows us to take two columns from a
+    :class:`pandas.DataFrame` one of which contains an observed value (data)
+    like heat content per unit of fuel, and the other of which (weights)
+    contains a quantity like quantity of fuel delivered which should be used to
+    scale the importance of the observed value in an overall distribution, and
+    calculate the values that the scaled distribution will have at various
+    quantiles.
 
     Args:
-        data (:mod:`pandas.Series`): A series containing numeric data.
+        data (pandas.Series): A series containing numeric data.
         weights (pandas.series): Weights to use in scaling the data. Must have
             the same length as data.
         quantile (float): A number between 0 and 1, representing the quantile
@@ -152,8 +153,8 @@ def historical_distribution(df, data_col, weight_col, quantile):
     Args:
         df (pandas.DataFrame): a dataframe containing historical data, with a
             column named either ``report_date`` or ``report_year``.
-        data_col (string): Label of the column containing the data of interest.
-        weight_col (string): Label of the column containing the weights to be
+        data_col (str): Label of the column containing the data of interest.
+        weight_col (str): Label of the column containing the weights to be
             used in scaling the data.
 
     Returns:
@@ -232,7 +233,7 @@ def vs_self(df, data_col, weight_col, query="", title="",
     """
     Test a distribution against its own historical range.
 
-    This is a special case of the :mod:`pudl.validate.vs_historical` function,
+    This is a special case of the :func:`pudl.validate.vs_historical` function,
     in which both the ``orig_df`` and ``test_df`` are the same. Mostly it
     helps ensure that the test itself is valid for the given distribution.
 

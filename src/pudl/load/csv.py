@@ -113,16 +113,19 @@ def clean_columns_dump(df, resource_name, datapkg_dir):
 def csv_dump(df, resource_name, keep_index, datapkg_dir):
     """Write a dataframe to CSV.
 
-    Set the df.to_csv() arguments appropriately depending on what data source
-    we're writing out, and then write it out.
+    Set :func:`pandas.DataFrame.to_csv` arguments appropriately depending on
+    what data source we're writing out, and then write it out. In practice
+    this means adding a .csv to the end of the resource name, and then, if it's
+    part of epacems, adding a .gz after that.
 
     Args:
-        df (:mod:`pandas.DataFrame`): The DataFrame to be dumped to CSV.
+        df (pandas.DataFrame): The DataFrame to be dumped to CSV.
         resource_name (str): The exact name of the tabular resource which the
             DataFrame df is going to be used to populate. This will be used
             to name the output CSV file, and must match the corresponding
             stored metadata template.
-        keep_index (bool): Should the output CSV file contain an index (id)?
+        keep_index (bool): if True, use the "id" column of df as the index
+            and output it.
         datapkg_dir (path-like): Path to the top level datapackage directory.
 
     Returns:

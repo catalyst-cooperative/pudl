@@ -549,9 +549,10 @@ def transform(eia923_raw_dfs, eia923_tables=pc.eia923_pudl_tables):
             pulled into PUDL.
 
     Returns:
-        dict: A dictionary of DataFrame objects in
-        which pages from EIA923 form (keys) corresponds to a normalized
-        DataFrame of values from that page (values)
+        dict: A dictionary of DataFrame with table names as keys and
+        :class:`pandas.DataFrame` objects as values, where the contents of the
+        DataFrames correspond to cleaned and normalized PUDL database tables,
+        ready for loading.
 
     """
     eia923_transform_functions = {

@@ -1,13 +1,20 @@
 """
-Routines specific to cleaning up EIA data.
+Code for transforming EIA data that pertains to more than one EIA Form.
 
-This module helps with the normalization of EIA datasets and complinging
-additonal connections between EIA entities. Right now, these two tasks include
-what we call harvesting and generating a more complete set of boiler generator
-associations. The harvesting process normalizes the EIA tables - it consolidates
-the duplicated fields/records into entity and annual entity tables. The boiler
-generator associations (bga) takes the given 860 bga and expands on this through
-several methods within the `_boiler_generator_assn` function.
+This module helps normalize EIA datasets and infers additonal connections
+between EIA entities (i.e. utilities, plants, units, generators...). This
+includes:
+
+- compiling a master list of plant, utility, boiler, and generator IDs that
+  appear in any of the EIA 860 or 923 tables.
+- inferring more complete boiler-generator associations.
+- differentiating between static and time varying attributes associated with
+  the EIA entities, storing the static fields with the entity table, and the
+  variable fields in an annual table.
+
+The boiler generator association inferrence (bga) takes the associations
+provided by the EIA 860, and expands on it using several methods which can be
+found in :func:`pudl.transform.eia._boiler_generator_assn`.
 """
 
 import importlib.resources
@@ -806,8 +813,8 @@ def transform(eia_transformed_dfs,
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
 
     This function coordinates two main actions: generating the entity tables
-    via `_harvesting()` and generating the boiler generator associations via
-    `_boiler_generator_assn()`.
+    via ``_harvesting()`` and generating the boiler generator associations via
+    ``_boiler_generator_assn()``.
 
     There is also some removal of tables that are no longer needed after the
     entity harvesting is finished.
@@ -815,10 +822,13 @@ def transform(eia_transformed_dfs,
     Args:
         eia_transformed_dfs (dict): a dictionary of table names (kays) and
             transformed dataframes (values).
-        eia923_years (list): a list of years for EIA 923
-        eia860_years (list): a list of years for EIA 860
+        eia923_years (list): a list of years for EIA 923, must be continuous,
+            and include only working years.
+        eia860_years (list): a list of years for EIA 860, must be continuous,
+            and only include working years.
         debug (bool): if true, informational columns will be added into
             boiler_generator_assn
+
     Returns:
         tuple: two dictionaries having table names as keys and
         dataframes as values for the entity tables transformed EIA dataframes

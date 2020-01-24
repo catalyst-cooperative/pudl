@@ -13,8 +13,12 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
             for the PUDL DB.
-        start_date (date): Date to begin retrieving EIA 860 data.
-        end_date (date): Date to end retrieving EIA 860 data.
+        start_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+        end_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
@@ -76,9 +80,12 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
             for the PUDL DB.
-        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
-        start_date (date): Date to begin retrieving EIA 860 data.
-        end_date (date): Date to end retrieving EIA 860 data.
+        start_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+        end_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
@@ -154,10 +161,12 @@ def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
             for the PUDL DB.
-        pt (sqlalchemy.util._collections.immutabledict): a sqlalchemy metadata
-            dictionary of pudl tables
-        start_date (date): Date to begin retrieving EIA 860 data.
-        end_date (date): Date to end retrieving EIA 860 data.
+        start_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+        end_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
 
     Returns:
         pandas.DataFrame: A DataFrame containing plant and utility IDs and
@@ -213,9 +222,12 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
             for the PUDL DB.
-        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
-        start_date (date): the earliest EIA 860 data to retrieve or synthesize
-        end_date (date): the latest EIA 860 data to retrieve or synthesize
+        start_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+        end_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
@@ -333,9 +345,12 @@ def boiler_generator_assn_eia860(pudl_engine, start_date=None, end_date=None):
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
             for the PUDL DB.
-        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
-        start_date (date): Date to begin retrieving EIA 860 data.
-        end_date (date): Date to end retrieving EIA 860 data.
+        start_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+        end_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields from the EIA
@@ -370,9 +385,12 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
             for the PUDL DB.
-        pt (immutabledict): a sqlalchemy metadata dictionary of pudl tables
-        start_date (date): date of the earliest data to retrieve
-        end_date (date): date of the latest data to retrieve
+        start_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+        end_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
     Returns:
         pandas.DataFrame: A DataFrame containing a useful set of fields related
         to the EIA 860 Ownership table.

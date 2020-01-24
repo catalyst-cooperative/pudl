@@ -105,12 +105,11 @@ def harmonize_eia_epa_orispl(df):
     because fix_up_dates uses the plant ID to look up timezones.
 
     Args:
-        df (:mod:`pandas.DataFrame`): A CEMS hourly dataframe for one
-            year-month-state
+        df (pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
 
     Returns:
-        :mod:`pandas.DataFrame`: The same data, with the ORISPL plant codes
-        corrected to match the EIA plant IDs.
+        pandas.DataFrame: The same data, with the ORISPL plant codes corrected
+        to match the EIA plant IDs.
 
     Todo:
         Actually implement the function...
@@ -123,15 +122,15 @@ def add_facility_id_unit_id_epa(df):
     """
     Harmonize columns that are added later.
 
-    The load into Postgres checks for consistent column names, and these
+    The datapackage validation checks for consistent column names, and these
     two columns aren't present before August 2008, so this adds them in.
 
     Args:
-        df (pd.DataFrame): A CEMS dataframe
+        df (pandas.DataFrame): A CEMS dataframe
 
     Returns:
-        The same DataFrame guaranteed to have int facility_id and unit_id_epa
-        cols
+        pandas.Dataframe: The same DataFrame guaranteed to have int facility_id
+        and unit_id_epa cols.
 
     """
     if ("facility_id" not in df.columns) or ("unit_id_epa" not in df.columns):
@@ -178,10 +177,10 @@ def correct_gross_load_mw(df):
     Fix values of gross load that are wrong by orders of magnitude.
 
     Args:
-        df (pd.DataFrame): A CEMS dataframe
+        df (pandas.DataFrame): A CEMS dataframe
 
     Returns:
-        pd.DataFrame: The same DataFrame with corrected gross load values.
+        pandas.DataFrame: The same DataFrame with corrected gross load values.
 
     """
     # Largest fossil plant is something like 3500 MW, and the largest unit

@@ -39,7 +39,7 @@ is independent of, but linked to, the original "upstream" project.
 
 Depending on your operating system and the git client you're using to access
 Github, the exact cloning process might be different, but if you're using a
-UNIX-like terminal,`cloning the repository <https://help.github.com/articles/cloning-a-repository/>`__
+UNIX-like terminal, `cloning the repository <https://help.github.com/articles/cloning-a-repository/>`__
 from your fork will look like this (with your own Github username or
 organizational name in place of ``USERNAME`` of course):
 

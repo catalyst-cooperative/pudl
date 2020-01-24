@@ -15,6 +15,7 @@ def heat_rate_by_unit(pudl_out):
     some point in the past.
 
     The BGA dataframe needs to have the following columns:
+
     - report_date (annual)
     - plant_id_eia
     - unit_id_pudl
@@ -29,6 +30,7 @@ def heat_rate_by_unit(pudl_out):
     Then the total net generation and fuel consumption per unit per time period
     are calculated, allowing the calculation of a per unit heat rate. That
     per unit heat rate is returned in a dataframe containing:
+
     - report_date
     - plant_id_eia
     - unit_id_pudl
@@ -332,7 +334,7 @@ def mcoe(pudl_out,
             previously would have been NaN.
 
     Returns:
-        :mod:`pandas.DataFrame`: a dataframe organized by date and generator,
+        pandas.DataFrame: a dataframe organized by date and generator,
         with lots of juicy information about the generators -- including fuel
         cost on a per MWh and MMBTU basis, heat rates, and net generation.
 

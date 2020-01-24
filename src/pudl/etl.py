@@ -810,12 +810,12 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
     the schema for all of the possible pudl tables).
 
     Args:
-        datapkg_bundle_settings (iterable) : a list of dictionaries. Each item
+        datapkg_bundle_settings (iterable): a list of dictionaries. Each item
             in the list corresponds to a data package. Each data package's
             dictionary contains the arguements for its ETL function.
-        pudl_settings (dict) : a dictionary filled with settings that mostly
+        pudl_settings (dict): a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
-        datapkg_bundle_name (string): name of directory you want the bundle of
+        datapkg_bundle_name (str): name of directory you want the bundle of
             data packages to live.
         clobber (bool): If True and there is already a directory with data
             packages with the datapkg_bundle_name, the existing data packages

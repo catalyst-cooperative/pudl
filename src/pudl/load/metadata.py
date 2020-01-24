@@ -193,9 +193,10 @@ def get_datapkg_fks(datapkg_json):
     Returns:
         dict:
 
-    TODO: What are the keys and values in the dictionary that's returned? Is
-    it full foreign key relations, or just a list of tables that a given table
-    has relationships with?
+    Todo:
+        What are the keys and values in the dictionary that's returned? Is it
+        full foreign key relations, or just a list of tables that a given table
+        has relationships with?
 
     """
     with open(datapkg_json) as md:
@@ -223,7 +224,8 @@ def get_dependent_tables(table_name, fk_relash):
     Returns:
         set: the set of all the tables the specified table depends upon.
 
-    TODO: What form does the fk_relash input take?
+    Todo:
+        What form does the fk_relash input take?
 
     """
     # Add the initial table

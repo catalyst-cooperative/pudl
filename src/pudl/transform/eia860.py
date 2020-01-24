@@ -65,7 +65,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
 
     There are three tabs that the generator records come from (proposed,
     existing, and retired). We pull each tab into one dataframe and include
-    an 'operational_status' to indicate which tab the record came from.
+    an ``operational_status`` to indicate which tab the record came from.
 
     Args:
         eia860_dfs (dict): Each entry in this

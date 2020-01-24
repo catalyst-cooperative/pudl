@@ -173,13 +173,13 @@ def _clean_cols(df, table_name):
     end in "_f".
 
     Args:
-        df (:mod:`pandas.DataFrame`): The DataFrame in which the function looks
+        df (pandas.DataFrame): The DataFrame in which the function looks
             for columns for the unique identification of FERC records, and
             ensures that those columns are not NULL.
         table_name (str): The name of the table that we are cleaning.
 
     Returns:
-        :mod:`pandas.DataFrame`: The same DataFrame with a column appended
+        pandas.DataFrame: The same DataFrame with a column appended
         containing a string of the format {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}
 
     Raises:
