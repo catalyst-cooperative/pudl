@@ -44,6 +44,7 @@ dependencies:
   - scipy               # base
   - setuptools_scm      # dev
   - sphinx              # dev
+  - sphinx-issues       # dev
   - sphinx_rtd_theme    # dev
   - sqlalchemy>=1.3.0   # base Security issues below v1.3.0
   - tableschema>=1.12   # base

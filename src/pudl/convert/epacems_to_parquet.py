@@ -7,20 +7,15 @@ too much data to work with in memory.
 
 Apache Parquet is a compressed, columnar datastore format, widely used in Big
 Data applications. It's an open standard, and is very fast to read from disk.
-It works especially well with both Dask dataframes (a parallel / distributed
-computing extension of Pandas) and Apache Spark (a cloud based Big Data
-processing pipeline system.)
+It works especially well with both `Dask dataframes <https://dask.org/>`__ (a
+parallel / distributed computing extension of pandas) and Apache Spark (a cloud
+based Big Data processing pipeline system.)
 
-Since pulling 100 GB of data into postgres takes a long time, and working with
+Since pulling 100 GB of data into SQLite takes a long time, and working with
 that data en masse isn't particularly pleasant on a laptop, this script can be
 used to convert the original EPA CEMS data to the more widely usable Apache
 Parquet format for use with Dask, either on a multi-core workstation or in an
-interactive cloud computing environment like Pangeo.
-
-For more information on working with these systems check out:
-* https://tomaugspurger.github.io/modern-1-intro
-* https://dask.pydata.org
-* https://pangeo.io
+interactive cloud computing environment like `Pangeo <https://pangeo.io>`__.
 
 """
 
@@ -49,6 +44,10 @@ def create_in_dtypes():
 
     This specifies the dtypes of the input columns, which is necessary for some
     cases where, e.g., a column is always NaN.
+
+    Returns:
+        dict: mapping columns names to :mod:`pandas` data types.
+
     """
     # These measurement codes are used by all four of our measurement variables
     common_codes = (
@@ -105,7 +104,7 @@ def create_cems_schema():
     float32.
 
     Returns:
-        pyarrow.schema: An Arrow schema for the EPA CEMS data.
+        :mod:`pyarrow.schema`: An Arrow schema for the EPA CEMS data.
 
     """
     int_nullable = partial(pa.field, type=pa.int32(), nullable=True)

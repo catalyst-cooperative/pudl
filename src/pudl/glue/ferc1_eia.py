@@ -339,7 +339,7 @@ def get_db_plants_eia(pudl_engine):
     PUDL DB that has all the EIA data in it.
 
     Args:
-        pudl_engine (:mod:`sqlalchemy.Engine`): A database connection engine
+        pudl_engine (:class:`sqlalchemy.Engine`): A database connection engine
             for connecting to a PUDL SQLite database.
 
     Returns:

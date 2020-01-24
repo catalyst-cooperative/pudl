@@ -123,7 +123,7 @@ class ExtractorExcel(object):
                     self.get_file(yr, file_name)
                 )
 
-    def get_colum_map(self, year, file_name, page_name):
+    def get_column_map(self, year, file_name, page_name):
         """
         Given a year and page, returns info needed to slurp it from Excel.
 
@@ -177,7 +177,7 @@ class ExtractorExcel(object):
             logger.info(f"Converting {self.dataset_name} spreadsheet tab {page_name} to pandas "
                         f"DataFrame for {year}.")
 
-            sheet_loc, skiprows, column_map, all_columns = self.get_colum_map(
+            sheet_loc, skiprows, column_map, all_columns = self.get_column_map(
                 year, file_name, page_name)
 
             dtype = {}

@@ -19,7 +19,7 @@ import pkg_resources
 # -- Project information -----------------------------------------------------
 
 project = 'PUDL'
-copyright = '2019, Catalyst Cooperative'
+copyright = '2020, Catalyst Cooperative'
 author = 'Catalyst Cooperative'
 
 # The full version, including alpha/beta/rc tags
@@ -38,9 +38,12 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
+    "sphinx_issues",
 ]
-
 todo_include_todos = True
+
+# GitHub repo
+issues_github_path = "catalyst-cooperative/pudl"
 
 # In order to be able to link directly to documentation for other projects,
 # we need to define these package to URL mappings:

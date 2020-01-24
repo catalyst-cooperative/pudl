@@ -177,10 +177,6 @@ def ferc1_engine(live_ferc1_db, pudl_settings_fixture,
             refyear=max(data_scope['ferc1_years']),
             pudl_settings=pudl_settings_fixture,
             clobber=clobber)
-    # for now let's check if the ferc1 database has any tables...
-    pudl.extract.ferc1.get_ferc1_meta(pudl_settings_fixture)
-
-    # Grab a connection to the freshly populated database, and hand it off.
     engine = sa.create_engine(pudl_settings_fixture["ferc1_db"])
     yield engine
 

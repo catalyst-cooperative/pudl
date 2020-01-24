@@ -69,7 +69,8 @@ def get_eia860_xlsx(years, filename, data_dir):
         data_dir (path-like): Path to PUDL input datastore directory.
 
     Returns:
-        pandas.io.excel.ExcelFile: xlsx file of EIA Form 860 for input year(s)
+        :mod:`pandas.io.excel.ExcelFile`: xlsx file of EIA Form 860 for input
+        year(s).
 
     """
     eia860_xlsx = {}
