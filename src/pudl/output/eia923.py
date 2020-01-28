@@ -212,6 +212,9 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
             frc_df,
             group_cols=['plant_id_eia', 'energy_source_code'],
             data_col='fuel_cost_per_mmbtu',
+            window=12,
+            min_periods=6,
+            win_type='triang'
         )
 
     # Calculate a few totals that are commonly needed:

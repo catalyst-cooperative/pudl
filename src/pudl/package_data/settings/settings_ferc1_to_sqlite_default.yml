@@ -16,7 +16,7 @@
 
 # if you are loading ferc1, you need to specify a reference year. This is the
 # year whose database structure is used as a template.
-ferc1_to_sqlite_refyear: 2017
+ferc1_to_sqlite_refyear: 2018
 
 # What years of original FERC data should be cloned into the SQLite DB? The
 # current digital reporting regime began in 1994. FERC typically releases

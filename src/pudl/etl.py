@@ -654,16 +654,21 @@ def get_flattened_etl_parameters(datapkg_bundle_settings):  # noqa: C901
     """
     Compile flattened etl parameters.
 
+    The datapkg_bundle_settings is a list of dictionaries with the specific etl
+    parameters for each dataset nested inside the dictionary. This function
+    extracts the years, states, tables, etc. from the list datapackage settings
+    and compiles them into one dictionary.
+
+
     Args:
         datapkg_bundle_settings (iterable): a list of data package parameters,
             with each element of the list being a dictionary specifying
             the data to be packaged.
 
     Returns:
-        dict: dictionary of etl parameters (i.e. ferc1_years, eia923_years)
-
-    TODO: What are the keys and values of the return dictionary, generally?
-    What does it mean to "flatten" the ETL parameters?
+        dict: dictionary of etl parameters with etl parameter names (keys) (i.e.
+        ferc1_years, eia923_years) and etl parameters (values) (i.e. a list of
+        years for ferc1_years)
 
     """
     flattened_parameters = []
@@ -696,6 +701,19 @@ def validate_params(datapkg_bundle_settings, pudl_settings):
     """
     Enforce validity of ETL parameters found in datapackage bundle settings.
 
+    For each enumerated data package in the datapkg_bundle_settings, this
+    function checks to ensure the input parameters for each of the datasets
+    are consistent with the known input options. Most of those options are
+    enumerated in pudl.constants. For each dataset, the years, states, tables,
+    etc. are checked to ensure that they are valid and present. If parameters
+    are not valid, assertions will be raised.
+
+    There is some options that have default options or are hard coded during
+    validation. Tables will typically be defaulted to all of the tables if
+    they aren't set. CEMS is always going to be partitioned by year and state.
+    This means we have functinoally removed the option to not partition or
+    partition another way.
+
     Args:
         datapkg_bundle_settings (iterable): a list of data package parameters,
             with each element of the list being a dictionary specifying
@@ -704,12 +722,8 @@ def validate_params(datapkg_bundle_settings, pudl_settings):
             resources and outputs.
 
     Returns:
-        iterable: validated list of inputs
-
-    TODO: What is a "list of inputs?" We should note that the epacems
-    validation hard-codes the years and states partitioning no matter what we
-    read in. What does it mean for parameters to be valid, vs. invalid? Are
-    we changing / adding parameters, or just checking whether things are good?
+        iterable: validated list of data package parameters, with each element
+            of the list being a dictionary specitying the data to be packaged.
 
     """
     logger.info('reading and validating etl settings')
