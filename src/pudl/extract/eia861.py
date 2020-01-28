@@ -4,6 +4,7 @@ Retrieve data from EIA Form 861 spreadsheets for analysis.
 This modules pulls data from EIA's published Excel spreadsheets.
 
 This code is for use analyzing EIA Form 861 data.
+
 """
 
 import importlib.resources
@@ -33,6 +34,7 @@ class ExtractorExcel(object):
             years (iterable) : list of years that are extractable by your dataset
             pudl_settings (dict) : a dictionary filled with settings that mostly
                 describe paths to various resources and outputs.
+
         """
         self.xlsx_dict = {}
         self.dataset_name = dataset_name
@@ -50,7 +52,7 @@ class ExtractorExcel(object):
                 This name should correspond to the name of the Excel file being
                 extracted.
 
-        Return:
+        Returns:
             pandas.DataFrame
 
         """
@@ -59,12 +61,9 @@ class ExtractorExcel(object):
             path = importlib.resources.open_text(
                 (xlsx_maps_dataset + '.' + meta_name), f'{file_name}.csv')
         else:
-
             path = importlib.resources.open_text(
                 xlsx_maps_dataset, f'{meta_name}.csv')
-        file_df = pd.read_csv(
-            path,
-            index_col=0, comment='#')
+        file_df = pd.read_csv(path, index_col=0, comment='#')
         return file_df
 
     def get_path_name(self, yr, file_name):
@@ -84,12 +83,12 @@ class ExtractorExcel(object):
             str: Path to EIA 861 spreadsheets corresponding to a given year.
 
         Raises:
-            AssertionError: If the requested year is not in the list of working
+            ValueError: If the requested year is not in the list of working
                 years for EIA 861.
 
         """
         if yr not in pc.working_years[self.dataset_name]:
-            raise AssertionError(
+            raise ValueError(
                 f"Requested non-working {self.dataset_name} year: {yr}.\n"
                 f"{self.dataset_name} is only working for: {pc.working_years[self.dataset_name]}\n"
             )
@@ -124,7 +123,7 @@ class ExtractorExcel(object):
                     self.get_file(yr, file_name)
                 )
 
-    def get_colum_map(self, year, file_name, page_name):
+    def get_column_map(self, year, file_name, page_name):
         """
         Given a year and page, returns info needed to slurp it from Excel.
 
@@ -178,7 +177,7 @@ class ExtractorExcel(object):
             logger.info(f"Converting {self.dataset_name} spreadsheet tab {page_name} to pandas "
                         f"DataFrame for {year}.")
 
-            sheet_loc, skiprows, column_map, all_columns = self.get_colum_map(
+            sheet_loc, skiprows, column_map, all_columns = self.get_column_map(
                 year, file_name, page_name)
 
             dtype = {}

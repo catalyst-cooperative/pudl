@@ -8,20 +8,20 @@ from setuptools import find_packages, setup
 
 install_requires = [
     'coloredlogs',
-    'datapackage>=1.9.0',
+    'datapackage>=1.11.0',
     'dbfread',
-    'goodtables',
+    'goodtables>=2.4.2',
     'matplotlib',
     'networkx>=2.2',
     'numpy',
-    'pandas>=0.25',
-    'pyarrow>=0.14.0',
+    'pandas>=0.25,<1.0',
+    'pyarrow>=0.15.1',
     'pyyaml',
     'scikit-learn>=0.20',
     'scipy',
     'sqlalchemy>=1.3.0',
-    'tableschema',
-    'tableschema-sql>=1.1.0',
+    'tableschema>=1.12.3',
+    'tableschema-sql>=1.3.1',
     'timezonefinder',
     'xlsxwriter',
 ]
@@ -36,6 +36,7 @@ if not os.getenv('READTHEDOCS'):
 doc_requires = [
     'doc8',
     'sphinx',
+    'sphinx-issues',
     'sphinx_rtd_theme',
 ]
 
@@ -46,12 +47,13 @@ test_requires = [
     'flake8',
     'flake8-docstrings',
     'flake8-builtins',
+    'nbval',
     'pep8-naming',
     'pre-commit',
     'pydocstyle',
     'pytest',
     'pytest-cov',
-    'nbval',
+    'seaborn',
 ]
 
 readme_path = Path(__file__).parent / "README.rst"
@@ -79,6 +81,7 @@ setup(
         'electricity', 'energy', 'data', 'analysis', 'mcoe', 'climate change',
         'finance', 'eia 923', 'eia 860', 'ferc', 'form 1', 'epa ampd',
         'epa cems', 'coal', 'natural gas', ],
+    # python_requires='>=3.7, <3.8.0a0',
     python_requires='>=3.7',
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,

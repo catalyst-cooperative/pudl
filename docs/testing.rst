@@ -99,6 +99,7 @@ bunch of clutter from underlying libraries and deprecated uses.
 
 Data Validation Tests
 ^^^^^^^^^^^^^^^^^^^^^
+
 The data validation tests are organized into datasource specific modules under
 ``test/validate``. They test the quality and internal consistency of the data
 that is output by the PUDL ETL pipeline. Currently they only work on the full
@@ -106,7 +107,7 @@ dataset, and do not have a ``--fast`` option. While it is possible to run the
 full ETL process and output it in a temporary directory, to then be used by the
 data validation tests, that takes a long time, and you don't get to keep the
 processed data afterward. Typically we validate outputs that we're hoping to
-keep around, so we advise running the data validation on an generated PUDL
+keep around, so we advise running the data validation on a pre-generated PUDL
 SQLite database.
 
 To point the tests at already processed data, use the ``--live_pudl_db`` and
@@ -115,7 +116,8 @@ the same as above. E.g.
 
 .. code-block:: console
 
-    $ pytest --live_pudl_db=AUTO --live_ferc1_db=AUTO --pudl_in=AUTO --pudl_out=AUTO test/validate
+    $ pytest --live_pudl_db=AUTO --live_ferc1_db=AUTO \
+        --pudl_in=AUTO --pudl_out=AUTO test/validate
 
 Data Validation Notebooks
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -129,12 +131,17 @@ with:
 
     $ pytest --nbval-lax test/notebooks
 
-The notebooks can only be run when the output of the ETL process is available.
+The notebooks will only run successfully when there's a full PUDL SQLite
+database available in your PUDL workspace.
 
 If the data validation tests are failing for some reason, you may want to
 launch those notebooks in Jupyter to get a better sense of what's gong on. They
 are integrated into the test suite to ensure that they remain functional as the
 project evolves.
+
+For the moment, the data validation cases themselves are stored in the
+:mod:`pudl.validate` module, but we intend to separate them from the code and
+store them in a more compact, programmatically readable format.
 
 -------------------------------------------------------------------------------
 Running Tox
@@ -267,17 +274,16 @@ explanatory -- like the name of the package, the license it's being released
 under, search keywords, etc. -- but a few are more arcane:
 
 * ``use_scm_version``: Instead of having a hard-coded version that's stored in
-  the repository somewhere, handed off to the packaging script, and often ends
-  up being out of date, pull the version from the source code management (SCM)
+  the repository somewhere, handed off to the packaging script, and often out
+  of date, pull the version from the source code management (SCM)
   system, in our case git (and Github). To make a release we will first need
   to `tag a particular revision <https://help.github.com/en/articles/creating-releases>`__ in ``git``
   with a version like ``v0.1.0``.
 
 * ``python_requires='>=3.7, <3.8.0a0'``: Specifies the version or versions of
   Python on which the package is expected to run. We require at least Python
-  3.7, and it's accepted best practice to preclude packages from getting
-  installed on the next major version up, since major versions tend to break
-  things. So we require a version less than Python 3.8.
+  3.7, and as of yet have not gotten everything working on Python 3.8 reliably,
+  so we require a version less than Python 3.8.
 
 * ``setup_requires=['setuptools_scm']``: What *other* packages need to be
   installed in order for the packaging script to run? Because we are obtaining
@@ -305,10 +311,9 @@ under, search keywords, etc. -- but a few are more arcane:
 
 * ``extras_require``: a dictionary describing optional packages that can
   be conditionally installed depending on the expected usage of the install.
-
-.. todo::
-
-    Explain the contents of ``extras_require``
+  For now this is mostly used in conjunction with Tox, to ensure that the
+  required documentation and testing packages are installed alongside PUDL in
+  the virtual environment.
 
 * ``packages=find_packages('src')``: The ``packages`` parameter takes a list of
   all the python packages to be included in the distribution that is being

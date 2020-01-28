@@ -7,20 +7,16 @@ too much data to work with in memory.
 
 Apache Parquet is a compressed, columnar datastore format, widely used in Big
 Data applications. It's an open standard, and is very fast to read from disk.
-It works especially well with both Dask dataframes (a parallel / distributed
-computing extension of Pandas) and Apache Spark (a cloud based Big Data
-processing pipeline system.)
+It works especially well with both `Dask dataframes <https://dask.org/>`__ (a
+parallel / distributed computing extension of pandas) and Apache Spark (a cloud
+based Big Data processing pipeline system.)
 
-Since pulling 100 GB of data into postgres takes a long time, and working with
+Since pulling 100 GB of data into SQLite takes a long time, and working with
 that data en masse isn't particularly pleasant on a laptop, this script can be
 used to convert the original EPA CEMS data to the more widely usable Apache
 Parquet format for use with Dask, either on a multi-core workstation or in an
-interactive cloud computing environment like Pangeo.
+interactive cloud computing environment like `Pangeo <https://pangeo.io>`__.
 
-For more information on working with these systems check out:
- * https://tomaugspurger.github.io/modern-1-intro
- * https://dask.pydata.org
- * https://pangio.io
 """
 
 import argparse
@@ -43,10 +39,15 @@ logger = logging.getLogger(__name__)
 
 
 def create_in_dtypes():
-    """Create a dictionary of input data types.
+    """
+    Create a dictionary of input data types.
 
     This specifies the dtypes of the input columns, which is necessary for some
     cases where, e.g., a column is always NaN.
+
+    Returns:
+        dict: mapping columns names to :mod:`pandas` data types.
+
     """
     # These measurement codes are used by all four of our measurement variables
     common_codes = (
@@ -103,7 +104,7 @@ def create_cems_schema():
     float32.
 
     Returns:
-        pyarrow.schema: An Arrow schema for the EPA CEMS data.
+        :mod:`pyarrow.schema`: An Arrow schema for the EPA CEMS data.
 
     """
     int_nullable = partial(pa.field, type=pa.int32(), nullable=True)
@@ -167,9 +168,9 @@ def epacems_to_parquet(datapkg_path,
         datapkg_path (path-like): Path to the datapackage.json file describing
             the datapackage contaning the EPA CEMS data to be converted.
         epacems_years (list): list of years from which we are trying to read
-            CEMs data
+            CEMS data
         epacems_states (list): list of years from which we are trying to read
-            CEMs data
+            CEMS data
         out_dir (path-like): The directory in which to output the Parquet files
         compression (string):
         partition_cols (tuple):
@@ -186,7 +187,7 @@ def epacems_to_parquet(datapkg_path,
     """
     if not out_dir:
         raise AssertionError("Required output directory not specified.")
-    out_dir = pudl.load.metadata.prep_directory(out_dir, clobber=clobber)
+    out_dir = pudl.helpers.prep_dir(out_dir, clobber=clobber)
     data_dir = pathlib.Path(datapkg_path).parent / "data"
 
     # Verify that all the requested data files are present:

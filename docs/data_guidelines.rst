@@ -2,11 +2,11 @@
 Data and ETL Design Guidelines
 ===============================================================================
 
-Some technical norms and expectations that we strive to adhere to, and hope
-that contributors can also follow.
+Here we list some technical norms and expectations that we strive to adhere to,
+and hope that contributors can also follow.
 
-Also, we're all learning as we go -- if you have suggestions for best practices
-we might want to adopt, let us know!
+We're all learning as we go -- if you have suggestions for best practices we
+might want to adopt, let us know!
 
 -------------------------------------------------------------------------------
 Input vs. Output Data
@@ -15,7 +15,10 @@ It's important to differentiate between the original data we're attempting
 to provide easy access to, and analyses or data products that are derived from
 that original data. The original data is meant to be archived and re-used as an
 alternative to other users re-processing the raw data from various public
-agencies.
+agencies. For the sake of reproducibility, it's important that we archive the
+inputs alongside the ouputs -- since the reporting agencies often go back and
+update the data they have published without warning, and without version
+control.
 
 -------------------------------------------------------------------------------
 Minimize Data Alteration

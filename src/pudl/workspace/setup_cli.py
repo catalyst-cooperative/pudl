@@ -1,4 +1,4 @@
-"""Set up a well-organized PUDL workspace.
+"""Set up a well-organized PUDL data management workspace.
 
 This script creates a well-defined directory structure for use by the PUDL
 package, and copies several example settings files and Jupyter notebooks into

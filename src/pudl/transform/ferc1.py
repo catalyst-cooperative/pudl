@@ -7,6 +7,7 @@ standardized units and column names, standardizing the formatting of some
 string values, and correcting data entry errors which we can infer based on
 the existing data. It may also include removing bad data, or replacing it
 with the appropriate NA values.
+
 """
 
 import importlib.resources
@@ -34,33 +35,6 @@ logger = logging.getLogger(__name__)
 ##############################################################################
 # FERC TRANSFORM HELPER FUNCTIONS ############################################
 ##############################################################################
-
-
-def oob_to_nan(df, cols, lb=None, ub=None):
-    """
-    Set non-numeric values and those outside of a given rage to NaN.
-
-    Args:
-        df (pandas.DataFrame): The dataframe containing values to be altered.
-        cols (iterable): Labels of the columns whose values are to be changed.
-        lb: (number): Lower bound, below which values are set to NaN. If None,
-            don't use a lower bound.
-        ub: (number): Upper bound, below which values are set to NaN. If None,
-            don't use an upper bound.
-
-    Returns:
-        pandas.DataFrame: The altered DataFrame.
-
-    """
-    for col in cols:
-        # Force column to be numeric if possible, NaN otherwise:
-        df.loc[:, col] = pd.to_numeric(df[col], errors="coerce")
-        if lb is not None:
-            df.loc[df[col] < lb, col] = np.nan
-        if ub is not None:
-            df.loc[df[col] > ub, col] = np.nan
-
-    return df
 
 
 def unpack_table(ferc1_df, table_name, data_cols, data_rows):
@@ -173,12 +147,9 @@ def _clean_cols(df, table_name):
 
     It is often useful to be able to tell exactly which record in the FERC Form
     1 database a given record within the PUDL database came from. Within each
-    FERC Form 1 table, each record is uniquely identified by the combination
-    of:
-      - report_year
-      - respondent_id
-      - spplmnt_num
-      - row_number
+    FERC Form 1 table, each record is supposed to be uniquely identified by the
+    combination of: report_year, report_prd, respondent_id, spplmnt_num,
+    row_number.
 
     So this function takes a dataframe, checks to make sure it contains each of
     those columns and that none of them are NULL, and adds a new column to the
@@ -186,31 +157,34 @@ def _clean_cols(df, table_name):
 
     {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}
 
-    In addition there are some columns which are not meaningful or useful in
-    the context of PUDL, but which show up in virtually every FERC table, and
-    this function drops them if they are present. These columns include:
-     - spplmnt_num (which goes into the record ID)
-     - row_number (which goes into the record_ ID)
-     - row_prvlg
-     - row_seq
-     - item
-     - report_prd
-     - record_number (a temporary column used in plants_small)
-     - *_f (all footnote columns)
+    In some PUDL FERC Form 1 tables (e.g. plant_in_service_ferc1) a single row
+    is re-organized into several new records in order to normalize the data and
+    ensure it is stored in a "tidy" format. In such cases each of the resulting
+    PUDL records will have the same ``record_id``.  Otherwise, the
+    ``record_id`` is expected to be unique within each FERC Form 1 table.
+    However there are a handful of cases in which this uniqueness constraint is
+    violated due to data reporting issues in FERC Form 1.
+
+    In addition to those primary key columns, there are some columns which are
+    not meaningful or useful in the context of PUDL, but which show up in
+    virtually every FERC table, and this function drops them if they are
+    present. These columns include: row_prvlg, row_seq, item, record_number (a
+    temporary column used in plants_small) and all the footnote columns, which
+    end in "_f".
 
     Args:
-        df (pandas.DataFrame): The DataFrame in which the function looks for
-            columns for the unique identification of FERC records, and ensures
-            that those columns are not NULL.
+        df (pandas.DataFrame): The DataFrame in which the function looks
+            for columns for the unique identification of FERC records, and
+            ensures that those columns are not NULL.
         table_name (str): The name of the table that we are cleaning.
 
     Returns:
-        pandas.DataFrame: The same DataFrame with a column appended containing
-            a string of the format
-            {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}
+        pandas.DataFrame: The same DataFrame with a column appended
+        containing a string of the format {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}
 
     Raises:
         AssertionError: If the table input contains NULL columns
+
     """
     # Make sure that *all* of these columns exist in the proffered table:
     for field in ['report_year', 'report_prd', 'respondent_id', 'spplmnt_num', 'row_number']:
@@ -393,7 +367,8 @@ def _plants_steam_clean(ferc1_steam_df):
               ['construction_type', 'plant_type'],
               [pc.ferc1_const_type_strings, pc.ferc1_plant_kind_strings],
               unmapped='')
-        .pipe(oob_to_nan, cols=["construction_year", "installation_year"],
+        .pipe(pudl.helpers.oob_to_nan,
+              cols=["construction_year", "installation_year"],
               lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
         .assign(
             capex_per_mw=lambda x: 1000.0 * x.capex_per_kw,
@@ -730,7 +705,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     # Force the construction and installation years to be numeric values, and
     # set them to NA if they can't be converted. (table has some junk values)
-    ferc1_small_df = oob_to_nan(
+    ferc1_small_df = pudl.helpers.oob_to_nan(
         ferc1_small_df, cols=["yr_constructed"],
         lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
 
@@ -844,7 +819,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
             cost_per_mw=lambda x: x.cost_per_kw * 1000.0,
             # Converting kWh to MWh
             expns_per_mwh=lambda x: x.expns_kwh * 1000.0)
-        .pipe(oob_to_nan, cols=["yr_const", "yr_installed"],
+        .pipe(pudl.helpers.oob_to_nan, cols=["yr_const", "yr_installed"],
               lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
         .drop(columns=['net_generation', 'cost_per_kw', 'expns_kwh'])
         .rename(columns={
@@ -929,7 +904,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
             net_load_mwh=lambda x: x.net_load / 1000.0,
             cost_per_mw=lambda x: x.cost_per_kw * 1000.0,
             expns_per_mwh=lambda x: x.expns_kwh * 1000.0)
-        .pipe(oob_to_nan, cols=["yr_const", "yr_installed"],
+        .pipe(pudl.helpers.oob_to_nan, cols=["yr_const", "yr_installed"],
               lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
         .drop(columns=['net_generation', 'energy_used', 'net_load',
                        'cost_per_kw', 'expns_kwh'])

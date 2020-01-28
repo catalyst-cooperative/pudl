@@ -25,7 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 def get_eia923_file(yr, data_dir):
-    """Construct the appopriate path for a given year's EIA923 Excel file.
+    """
+    Construct the appopriate path for a given year's EIA923 Excel file.
 
     Args:
         year (int): The year that we're trying to read data for.
@@ -55,7 +56,8 @@ def get_eia923_file(yr, data_dir):
 
 
 def get_eia923_column_map(page, year):
-    """Given a year and EIA923 page, returns info needed to slurp it from Excel.
+    """
+    Given a year and EIA923 page, returns info needed to slurp it from Excel.
 
     The format of the EIA923 has changed slightly over the years, and so it
     is not completely straightforward to pull information from the spreadsheets
@@ -67,37 +69,34 @@ def get_eia923_column_map(page, year):
     Args:
         page (str): The string label indicating which page of the EIA923 we
             are attempting to read in. Must be one of the following:
-            - 'generation_fuel'
-            - 'stocks'
-            - 'boiler_fuel'
-            - 'generator'
-            - 'fuel_receipts_costs'
-            - 'plant_frame'
+            'generation_fuel', 'stocks', 'boiler_fuel', 'generator',
+            'fuel_receipts_costs', 'plant_frame'.
         year (int): The year that we're trying to read data for.
 
     Returns:
         tuple: A tuple containing:
             - int: sheet_name (int): An integer indicating which page in the
               worksheet the data should be pulled from. 0 is the first page,
-              1 is the second page, etc. For use by pandas.read_excel()
+              1 is the second page, etc. For use by :func:`pandas.read_excel`
             - int: skiprows, an integer indicating how many rows should be
               skipped at the top of the sheet being read in, before the
               header row that contains the strings which will be converted
               into column names in the dataframe which is created by
-              pandas.read_excel()
+              :func:`pandas.read_excel`
             - int: skiprows, an integer indicating how many rows should be
               skipped at the top of the sheet being read in, before the header
               row that contains the strings which will be converted into column
-              names in the dataframe which is created by pandas.read_excel()
+              names in the dataframe which is created by
+              :func:`pandas.read_excel`
             - dict: column_map, a dictionary that maps the names of the columns
-              in the year being read in, to the canonical EIA923 column names
-              (i.e. the column names as they are in 2014-2016). This
-              dictionary will be used by DataFrame.rename(). The keys are the
-              column names in the dataframe as read from older years, and the
-              values are the canonmical column names.  All should be stripped
-              of leading and trailing whitespace, converted to lower case,
-              and have internal non-alphanumeric characters replaced with
-              underscores.
+              in the year being read in, to the canonical EIA923 column names.
+              This dictionary will be used by :func:`pandas.DataFrame.rename`.
+              The keys are the column names in the dataframe as read from older
+              years, and the values are the canonmical column names. All
+              should be stripped of leading and trailing whitespace, converted
+              to lower case, and have internal non-alphanumeric characters
+              replaced with underscores.
+
     """
     sheet_name = pc.tab_map_eia923.at[year, page]
     skiprows = pc.skiprows_eia923.at[year, page]
@@ -130,14 +129,14 @@ def get_eia923_page(page, eia923_xlsx,
     Args:
         page (str): The string label indicating which page of the EIA923 we
             are attempting to read in. The page argument must be one of the
-            strings listed in pudl.constants.working_pages_eia923.
-        eia923_xlsx (pandas.io.excel.ExcelFile): xlsx file of EIA Form 923 for
-            input year(s)
+            strings listed in :func:`pudl.constants.working_pages_eia923`.
+        eia923_xlsx (:class:`pandas.io.excel.ExcelFile`): xlsx file of EIA Form
+            923 for input year(s).
         years (list): The set of years to read into the dataframe.
 
     Returns:
-        pandas.DataFrame: A dataframe containing the data from the selected
-        page and selected years from EIA 923.
+        :class:`pandas.DataFrame`: A dataframe containing the data from the
+        selected page and selected years from EIA 923.
 
     """
     if min(years) < min(pc.working_years['eia923']):
@@ -188,7 +187,8 @@ def get_eia923_page(page, eia923_xlsx,
 
 
 def get_eia923_xlsx(years, data_dir):
-    """Reads in Excel files to create Excel objects.
+    """
+    Reads in Excel files to create Excel objects.
 
     Rather than reading in the same Excel files several times, we can just
     read them each in once (one per year) and use the ExcelFile object to
@@ -197,8 +197,11 @@ def get_eia923_xlsx(years, data_dir):
     Args:
         years (list): The years that we're trying to read data for.
         data_dir (str): Top level datastore directory.
+
     Returns:
-        pandas.io.excel.ExcelFile: xlsx file of EIA Form 923 for input year(s)
+        :class:`pandas.io.excel.ExcelFile`: xlsx file of EIA Form 923 for input
+        year(s)
+
     """
     eia923_xlsx = {}
     for yr in years:
@@ -208,15 +211,18 @@ def get_eia923_xlsx(years, data_dir):
 
 
 def extract(eia923_years, data_dir):
-    """Creates a dictionary of DataFrames containing all the EIA 923 tables.
+    """
+    Creates a dictionary of DataFrames containing all the EIA 923 tables.
 
     Args:
-        eia860_years (list): a list of data_years
+        eia923_years (list): a list of data_years
         data_dir (str): Top level datastore directory.
 
     Returns:
-        dict: A dictionary containing EIA 860 pages (keys) and DataFrames of
-        data from each page (values)
+        dict: A dictionary containing the names of EIA 923 pages (keys) and
+        :class:`pandas.DataFrame` instances filled with the data from each page
+        (values).
+
     """
     eia923_raw_dfs = {}
     if not eia923_years:

@@ -78,6 +78,7 @@ def transmission_single(epaipm_dfs, epaipm_transformed_dfs):
         dict: A dictionary of DataFrame objects in which tables from EPA
         IPM (keys) correspond to normalized DataFrames of values from
         that table (values)
+
     """
     trans_df = epaipm_dfs['transmission_single_epaipm'].copy()
     trans_df = trans_df.reset_index()
@@ -127,6 +128,7 @@ def plant_region_map(epaipm_dfs, epaipm_transformed_dfs):
         dict: A dictionary of DataFrame objects in which tables from EPA
         IPM(keys) correspond to normalized DataFrames of values from
         that table(values)
+
     """
     trans_df = pd.concat(
         [
@@ -166,6 +168,7 @@ def transform(epaipm_raw_dfs, epaipm_tables=pc.epaipm_pudl_tables):
         dict: A dictionary of DataFrame objects in which tables from EPA
         IPM(keys) correspond to normalized DataFrames of values from
         that table(values)
+
     """
     epaipm_transform_functions = {
         'transmission_single_epaipm': transmission_single,

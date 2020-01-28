@@ -43,7 +43,7 @@
                 "fields": [{
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
+                        "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
                         "format": "default"
                     },
                     {
@@ -249,7 +249,7 @@
                 "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "description": "EIA Plant Identification number. One to five digit numeric.",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
                     {
@@ -344,17 +344,20 @@
                 "fields": [{
                         "name": "utility_id_eia",
                         "type": "integer",
-                        "format": "default"
+                        "format": "default",
+                        "description": "The EIA Utility Identification number."
                     },
                     {
                         "name": "utility_name_eia",
                         "type": "string",
-                        "format": "default"
+                        "format": "default",
+                        "description": "The name of the utility."
                     },
                     {
                         "name": "utility_id_pudl",
                         "type": "integer",
-                        "format": "default"
+                        "format": "default",
+                        "description": "A manually assigned PUDL utility ID. May not be stable over time."
                     }
                 ],
                 "primaryKey": [
@@ -445,13 +448,22 @@
                 "fields": [{
                         "name": "datasource",
                         "type": "string",
-                        "description": "The dataset from the list of datasets that can be pulled into PUDL.",
-                        "format": "default"
+                        "description": "Code identifying a dataset available within PUDL.",
+                        "format": "default",
+                        "constraints": {
+                            "enum": [
+                                "ferc1",
+                                "eia860",
+                                "eia923",
+                                "epacems",
+                                "epaipm"
+                            ]
+                        }
                     },
                     {
                         "name": "active",
                         "type": "boolean",
-                        "description": "Whether or not the dataset has been pulled into PUDL by the extract transform load process.",
+                        "description": "Indicates whether or not the dataset has been pulled into PUDL by the extract transform load process.",
                         "format": "default"
                     }
                 ],
@@ -537,7 +549,7 @@
                 "fields": [{
                         "name": "utility_id_pudl",
                         "type": "integer",
-                        "description": "A manually assigned PUDL utility ID. Should probably be constant over time.",
+                        "description": "A manually assigned PUDL utility ID. May not be stable over time.",
                         "format": "default"
                     },
                     {
@@ -594,7 +606,7 @@
                     {
                         "name": "plant_id_pudl",
                         "type": "integer",
-                        "description": "A manually assigned PUDL plant ID. Should probably be constant over time.",
+                        "description": "A manually assigned PUDL plant ID. May not be constant over time.",
                         "format": "default"
                     }
                 ],
@@ -649,13 +661,13 @@
                 "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "description": "EIA Plant Identification number. One to five digit numeric.",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
                     {
                         "name": "generator_id",
                         "type": "string",
-                        "description": "Generator identification code. Alphanumeric",
+                        "description": "Generator identification code. Often numeric, but sometimes includes letters. It's a string!",
                         "format": "default"
                     },
                     {
@@ -764,7 +776,7 @@
                 "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "description": "EIA Plant Identification number. One to five digit numeric.",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
                     {
@@ -969,7 +981,7 @@
                 "fields": [{
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
+                        "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
                         "format": "default"
                     },
                     {
@@ -1267,7 +1279,7 @@
                     {
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source records. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}. Due to row unpacking in the plant_in_service_ferc1 table, this ID will not be unique. For each record_id there should be a single row corresponding to each amount_type.",
+                        "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
                         "format": "default"
                     },
                     {
@@ -1877,7 +1889,7 @@
                 "fields": [{
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
+                        "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
                         "format": "default"
                     },
                     {
@@ -2019,7 +2031,7 @@
                 "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "description": "EIA Plant Identification number. One to five digit numeric.",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
                     {
@@ -2336,19 +2348,20 @@
                     }
                 ],
                 "foreignKeys": [{
-                    "fields": ["plant_id_eia", "generator_id"],
-                    "reference": {
-                        "resource": "generators_entity_eia",
-                        "fields": ["plant_id_eia", "generator_id"]
+                        "fields": ["plant_id_eia", "generator_id"],
+                        "reference": {
+                            "resource": "generators_entity_eia",
+                            "fields": ["plant_id_eia", "generator_id"]
+                        }
+                    },
+                    {
+                        "fields": "utility_id_eia",
+                        "reference": {
+                            "resource": "utilities_entity_eia",
+                            "fields": "utility_id_eia"
+                        }
                     }
-                },
-                {
-                    "fields": "utility_id_eia",
-                    "reference": {
-                        "resource": "utilities_entity_eia",
-                        "fields": "utility_id_eia"
-                    }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
@@ -2396,7 +2409,7 @@
                     {
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "description": "EIA Plant Identification number. One to five digit numeric.",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
                     {
@@ -2519,7 +2532,7 @@
                     {
                         "name": "fraction_owned",
                         "type": "number",
-                        "description": "Percent of generator ownership.",
+                        "description": "Proportion of generator ownership.",
                         "format": "default"
                     }
                 ],
@@ -2574,7 +2587,7 @@
                 "fields": [{
                         "name": "plant_id_pudl",
                         "type": "integer",
-                        "description": "A manually assigned PUDL plant ID. Should probably be constant over time.",
+                        "description": "A manually assigned PUDL plant ID. May not be constant over time.",
                         "format": "default"
                     },
                     {
@@ -2678,7 +2691,7 @@
                     {
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
+                        "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
                         "format": "default"
                     },
                     {
@@ -2819,7 +2832,7 @@
                     {
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "description": "EIA Plant Identification number. One to five digit numeric.",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
                     {
@@ -3063,7 +3076,7 @@
                     {
                         "name": "utility_id_pudl",
                         "type": "integer",
-                        "description": "A manually assigned PUDL utility ID. Should probably be constant over time.",
+                        "description": "A manually assigned PUDL utility ID. May not be stable over time.",
                         "format": "default"
                     }
                 ],
@@ -3109,7 +3122,7 @@
                 "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "description": "EIA Plant Identification number. One to five digit numeric.",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
                     {
@@ -3435,7 +3448,8 @@
                 "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "format": "default"
+                        "format": "default",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration."
                     },
                     {
                         "name": "plant_name_eia",
@@ -3595,7 +3609,7 @@
                 "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "description": "EIA Plant Identification number. One to five digit numeric.",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
                     {
@@ -3773,7 +3787,7 @@
                 "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "description": "EIA Plant Identification number. One to five digit numeric.",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
                     {
@@ -3914,7 +3928,7 @@
                 "fields": [{
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
+                        "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
                         "format": "default"
                     },
                     {
@@ -4062,7 +4076,7 @@
                 "fields": [{
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
+                        "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
                         "format": "default"
                     },
                     {
@@ -4355,7 +4369,7 @@
                 "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "description": "EIA Plant Identification number. One to five digit numeric.",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
                     {
@@ -4771,7 +4785,7 @@
                 "fields": [{
                         "name": "record_id",
                         "type": "string",
-                        "description": "Identifier indicating original FERC Form 1 source record. format: {report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within each FERC Form 1 DB table.",
+                        "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
                         "format": "default"
                     },
                     {
@@ -5171,7 +5185,7 @@
                 "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "description": "EIA Plant Identification number. One to five digit numeric.",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
                     {
@@ -5230,7 +5244,7 @@
                 "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "description": "EIA Plant Identification number. One to five digit numeric.",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
                     {

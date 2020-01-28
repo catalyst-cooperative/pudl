@@ -32,8 +32,8 @@ def plants_steam_ferc1(pudl_engine):
     utility's name, and the PUDL ID for the plant and utility for readability
     and integration with other tables that have PUDL IDs.
 
-    Also calculates:
-    * capacity_factor (based on net_generation_mwh and capacity_mw)
+    Also calculates ``capacity_factor`` (based on ``net_generation_mwh`` &
+    ``capacity_mw``)
 
     Args:
         pudl_engine (sqlalchemy.engine.Engine): Engine for connecting to the
@@ -71,8 +71,9 @@ def fuel_ferc1(pudl_engine):
     allowing integration with other PUDL tables.
 
     Useful derived values include:
-    * fuel_consumed_mmbtu (total fuel heat content consumed)
-    * fuel_consumed_total_cost (total cost of that fuel)
+
+    * ``fuel_consumed_mmbtu`` (total fuel heat content consumed)
+    * ``fuel_consumed_total_cost`` (total cost of that fuel)
 
     Args:
         pudl_engine (sqlalchemy.engine.Engine): Engine for connecting to the
@@ -103,9 +104,11 @@ def fuel_ferc1(pudl_engine):
 def fuel_by_plant_ferc1(pudl_engine, thresh=0.5):
     """Summarize FERC fuel data by plant for output.
 
-    This is mostly a wrapper around pudl.transform.ferc1.fuel_by_plant_ferc1
+    This is mostly a wrapper around
+    :func:`pudl.transform.ferc1.fuel_by_plant_ferc1`
     which calculates some summary values on a per-plant basis (as indicated
-    by utility_id_ferc1 and plant_name_ferc1) related to fuel consumption.
+    by ``utility_id_ferc1`` and ``plant_name_ferc1``) related to fuel
+    consumption.
 
     Args:
         pudl_engine (sqlalchemy.engine.Engine): Engine for connecting to the
@@ -115,7 +118,7 @@ def fuel_by_plant_ferc1(pudl_engine, thresh=0.5):
             0.5 and 1.0. default value is 0.5.
 
     Returns:
-        :mod:`pandas.DataFrame`: A DataFrame with fuel use summarized by plant.
+        pandas.DataFrame: A DataFrame with fuel use summarized by plant.
 
     """
     fbp_df = (

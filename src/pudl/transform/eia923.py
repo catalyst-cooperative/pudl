@@ -157,8 +157,8 @@ def plants(eia923_dfs, eia923_transformed_dfs):
             dictionary of DataFrame objects corresponds to a page from the EIA
             923 form, as reported in the Excel spreadsheets they distribute.
         eia923_transformed_dfs (dict): A dictionary of DataFrame objects in
-          which pages from EIA923 form (keys) correspond to normalized
-          DataFrames of values from that page (values)
+            which pages from EIA923 form (keys) correspond to normalized
+            DataFrames of values from that page (values)
 
     Returns:
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in
@@ -209,8 +209,8 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
             dictionary of DataFrame objects corresponds to a page from the
             EIA923 form, as reported in the Excel spreadsheets they distribute.
         eia923_transformed_dfs (dict): A dictionary of DataFrame objects in
-          which pages from EIA923 form (keys) correspond to normalized
-          DataFrames of values from that page (values)
+            which pages from EIA923 form (keys) correspond to normalized
+            DataFrames of values from that page (values)
 
     Returns:
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in
@@ -268,8 +268,8 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
             dictionary of DataFrame objects corresponds to a page from the
             EIA923 form, as reported in the Excel spreadsheets they distribute.
         eia923_transformed_dfs (dict): A dictionary of DataFrame objects in
-          which pages from EIA923 form (keys) correspond to normalized
-          DataFrames of values from that page (values)
+            which pages from EIA923 form (keys) correspond to normalized
+            DataFrames of values from that page (values)
 
     Returns:
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in
@@ -322,8 +322,8 @@ def generation(eia923_dfs, eia923_transformed_dfs):
             dictionary of DataFrame objects corresponds to a page from the
             EIA923 form, as reported in the Excel spreadsheets they distribute.
         eia923_transformed_dfs (dict): A dictionary of DataFrame objects in
-          which pages from EIA923 form (keys) correspond to normalized
-          DataFrames of values from that page (values)
+            which pages from EIA923 form (keys) correspond to normalized
+            DataFrames of values from that page (values)
 
     Returns:
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in
@@ -549,9 +549,10 @@ def transform(eia923_raw_dfs, eia923_tables=pc.eia923_pudl_tables):
             pulled into PUDL.
 
     Returns:
-        dict: A dictionary of DataFrame objects in
-        which pages from EIA923 form (keys) corresponds to a normalized
-        DataFrame of values from that page (values)
+        dict: A dictionary of DataFrame with table names as keys and
+        :class:`pandas.DataFrame` objects as values, where the contents of the
+        DataFrames correspond to cleaned and normalized PUDL database tables,
+        ready for loading.
 
     """
     eia923_transform_functions = {

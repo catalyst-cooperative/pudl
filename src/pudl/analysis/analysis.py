@@ -29,16 +29,18 @@ def fuel_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
     Aggregate FERC Form 1 fuel data by PUDL plant id and, optionally, fuel.
 
     Args:
-        pudl_plant_ids: which PUDL plants should we retain for aggregation?
-        fuels: Should the columns listed in cols be broken out by each
-            individual fuel? If so, which fuels do we want totals for? If
+        pudl_plant_ids (list-like): which PUDL plants should we retain for
+            aggregation?
+        fuels (list-like): Should the columns listed in cols be broken out by
+            each individual fuel? If so, which fuels do we want totals for? If
             you want all fuels lumped together, pass in 'all'.
-        cols: which columns from the fuel_ferc1 table should be summed.
+        cols (list-like): which columns from the fuel_ferc1 table should be
+            summed.
 
     Returns:
-        fuel_df: a dataframe with pudl_plant_id, year, and the summed values
-            specified in cols. If fuels is not 'all' then it also has a column
-            specifying fuel type.
+        pandas.DataFrame: with pudl_plant_id, year, and the summed values
+        specified in cols. If fuels is not 'all' then it also has a column
+        specifying fuel type.
 
     """
     fuel_df = pudl.output.ferc1.fuel_ferc1_df(pudl_engine)
@@ -66,12 +68,13 @@ def steam_ferc1_by_pudl(pudl_plant_ids, pudl_engine,
     Aggregate and return data from the steam_ferc1 table by pudl_plant_id.
 
     Args:
-        pudl_plant_ids: A list of ids to include in the output.
-        cols: The data columns that you want to aggregate and return.
+        pudl_plant_ids (list-like): A list of ids to include in the output.
+        cols (list-like): The data columns that you want to aggregate and
+        return.
 
     Returns:
-        steam_df: A dataframe with columns for report_year, pudl_plant_id and
-            cols, with the values in cols aggregated by plant and year.
+        pandas.DataFrameA dataframe with columns for report_year, pudl_plant_id
+        and cols, with the values in cols aggregated by plant and year.
 
     """
     steam_df = pudl.output.ferc1.plants_steam_ferc1_df(pudl_engine)
@@ -101,8 +104,8 @@ def frc_by_pudl(pudl_plant_ids, pudl_engine,
         cols: List of data columns which we are summing.
 
     Returns:
-        A dataframe with the sums of cols, as grouped by pudl ID, year, and
-            (optionally) fuel.
+        pandas.DataFrame: A dataframe with the sums of cols, as grouped by pudl
+        ID, year, and (optionally) fuel.
 
     """
     md = sa.MetaData(bind=pudl_engine)
@@ -157,13 +160,15 @@ def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
     the totals by pudl_plant_id, fuel, and year.
 
     Args:
-        pudl_plant_ids: list of plant IDs to keep.
-        fuels: list of fuel strings that we want to group by. Alternatively,
-            this can be set to 'all' in which case fuel is not grouped by.
-        cols: List of data columns which we are summing.
+        pudl_plant_ids (list-like): list of plant IDs to keep.
+        fuels (list-like): list of fuel strings that we want to group by.
+            Alternatively, this can be set to 'all' in which case fuel is not
+            grouped by.
+        cols (list-like): List of data columns which we are summing.
+
     Returns:
-        A dataframe with the sums of cols, as grouped by pudl ID, year, and
-            (optionally) fuel.
+        pandas.DataFrame: A dataframe with the sums of cols, as grouped by pudl
+        ID, year, and (optionally) fuel.
 
     """
     md = sa.MetaData(bind=pudl_engine)
@@ -212,13 +217,15 @@ def generator_proportion_eia923(g, id_col='plant_id_eia'):
     Generate a dataframe with the proportion of generation for each generator.
 
     Args:
-        g: a dataframe from either all of generation_eia923 or some subset of
-        records from generation_eia923. The dataframe needs the following
-        columns to be present:
-            plant_id_eia, generator_id, report_date, net_generation_mwh
+        g (pandas.DataFrame): a dataframe from either all of generation_eia923
+            or some subset of records from generation_eia923. The dataframe
+            needs the following columns to be present: plant_id_eia,
+            generator_id, report_date, net_generation_mwh
 
-    Returns: a dataframe with:
-            report_year, plant_id_eia, generator_id, proportion_of_generation
+    Returns:
+        pandas.DataFrame: containing report_year, plant_id_eia, generator_id,
+        proportion_of_generation
+
     """
     # Set the datetimeindex
     g = g.set_index(pd.DatetimeIndex(g['report_year']))
@@ -259,17 +266,18 @@ def capacity_proportion_eia923(g, id_col='plant_id_eia',
     Generate dataframe with proportion of plant capacity for each generator.
 
     Args:
-        g: a dataframe from either all of generation_eia923 or some subset of
-        records from generation_eia923. The dataframe needs the following
-        columns to be present:
-            generator_id, report_date, capacity_mw
+        g (pandas.DataFrame): a dataframe from either all of generation_eia923
+            or some subset of records from generation_eia923. The dataframe
+            needs the following columns to be present: generator_id,
+            report_date, capacity_mw
+        id_col (str): either plant_id_eia (default) or plant_id_pudl
+        capacity (str): capacity_mw (default), summer_capacity_mw, or
+            winter_capacity_mw
 
-        id_col: either plant_id_eia (default) or plant_id_pudl
-        capacity: capacity_mw (default), summer_capacity_mw,
-            or winter_capacity_mw
+    Returns:
+        pandas.DataFrame: containing report_year, plant_id_eia, generator_id,
+        proportion_of_capacity
 
-    Returns: a dataframe with:
-            report_year, plant_id_eia, generator_id, proportion_of_capacity
     """
     # groupby plant_id_eia and by year
     g_net_capacity_per_plant = g.groupby(['report_year', id_col])
@@ -298,16 +306,18 @@ def values_by_generator_eia923(table_eia923, column_name, g):
     Generate a dataframe with a plant value proportioned out by generator.
 
     Args:
-        table_eia923: an EIA923 table (this has been tested with
-        fuel_receipts_costs_eia923 and generation_fuel_eia923).
+        table_eia923 (pandas.DataFrame: an EIA923 table (this has been tested
+            with fuel_receipts_costs_eia923 and generation_fuel_eia923).
         column_name: a column name from the table_eia923.
-        g: a dataframe from either all of generation_eia923 or some subset of
-        records from generation_eia923. The dataframe needs the following
-        columns to be present:
-            plant_id_eia, generator_id, report_date, and net_generation_mwh.
+        g (pandas.DataFrame): a dataframe from either all of generation_eia923
+            or some subset of records from generation_eia923. The dataframe
+            needs the following columns to be present: plant_id_eia,
+            generator_id, report_date, and net_generation_mwh.
 
-    Returns: a dataframe with report_date, plant_id_eia, generator_id, and the
+    Returns:
+        pandas.DataFrame: with report_date, plant_id_eia, generator_id, and the
         proportioned value from the column_name.
+
     """
     # Set the datetimeindex
     table_eia923 = table_eia923.set_index(
@@ -355,8 +365,9 @@ def primary_fuel_ferc1(fuel_df, fuel_thresh=0.5):
             primary fuel.
 
     Returns:
-        plants_by_primary_fuel (DataFrame): a DataFrame containing report_year,
-            respondent_id, plant_name, and primary_fuel.
+        pandas.DataFrame: a containing report_year, respondent_id, plant_name,
+        and primary_fuel.
+
     """
     plants_by_heat = plant_fuel_proportions_ferc1(fuel_df)
 
@@ -375,7 +386,16 @@ def primary_fuel_ferc1(fuel_df, fuel_thresh=0.5):
 
 
 def plant_fuel_proportions_ferc1(fuel_df):
-    """Calculate annual fuel proportions by plant based on FERC data."""
+    """
+    Calculate annual fuel proportions by plant based on FERC data.
+
+    Args:
+        fuel_df (pandas.DataFrame): FERC 1 Fuel table, or some subset of it.
+
+    Returns:
+        pandas.DataFrame
+
+    """
     fuel_df = fuel_df.copy()
 
     fuel_df['total_mmbtu'] = \

@@ -1,13 +1,20 @@
 """
-Routines specific to cleaning up EIA data.
+Code for transforming EIA data that pertains to more than one EIA Form.
 
-This module helps with the normalization of EIA datasets and complinging
-additonal connections between EIA entities. Right now, these two tasks include
-what we call harvesting and generating a more complete set of boiler generator
-associations. The harvesting process normalizes the EIA tables - it consolidates
-the duplicated fields/records into entity and annual entity tables. The boiler
-generator associations (bga) takes the given 860 bga and expands on this through
-several methods within the `_boiler_generator_assn` function.
+This module helps normalize EIA datasets and infers additonal connections
+between EIA entities (i.e. utilities, plants, units, generators...). This
+includes:
+
+- compiling a master list of plant, utility, boiler, and generator IDs that
+  appear in any of the EIA 860 or 923 tables.
+- inferring more complete boiler-generator associations.
+- differentiating between static and time varying attributes associated with
+  the EIA entities, storing the static fields with the entity table, and the
+  variable fields in an annual table.
+
+The boiler generator association inferrence (bga) takes the associations
+provided by the EIA 860, and expands on it using several methods which can be
+found in :func:`pudl.transform.eia._boiler_generator_assn`.
 """
 
 import importlib.resources
@@ -46,14 +53,13 @@ def _occurrence_consistency(entity_id, compiled_df, col,
             depending on whether the entity is static or annual.
         strictness (float): How consistent do you want the column records to
             be? The default setting is .7 (so 70% of the records need to be
-            consistent in order to accept harvest the record).
+            consistent in order to accept harvesting the record).
 
     Returns:
         pandas.DataFrame: this dataframe will be a transformed version of
         compiled_df with NaNs removed and with new columns with information
         about the consistency of the reported values.
 
-    Todo: Zane revisit.
     """
     # select only the colums you want and drop the NaNs
     # we want to drop the NaNs because
@@ -128,6 +134,7 @@ def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
         have harvested records from the clean_df. some will have harvested
         records that were found after rounding. some will have NaNs if no
         consistently reported records were found.
+
     """
     # grab the dirty plant records, round and get a new consistency
     ll_df = dirty_df.round(decimals={col: round_to})
@@ -152,7 +159,7 @@ def _add_timezone(plants_entity):
             named "latitude", "longitude", and optionally "state"
 
     Returns:
-        pandas.DataFrame: A DataFrame containing the same table, with a
+        :class:`pandas.DataFrame`: A DataFrame containing the same table, with a
         "timezone" column added. Timezone may be missing if lat / lon is
         missing or invalid.
 
@@ -320,16 +327,15 @@ def _harvesting(entity,  # noqa: C901
             transformed dfs (values)
             entity_dfs (dict): dictionary of entity table names (keys) and
             entity dfs (values)
+
     Raises:
-        AssertionError: If the consistency of latitude and longitude of the
-            records is less than 92 %.
-        AssertionError: If the consistency of other values of the records is
-            less than 95 %.
+        AssertionError: If the consistency of any record value is <90%.
 
     Todo:
         * Return to role of debug.
         * Determine what to do with null records
         * Determine how to treat mostly static records
+
     """
     # we know these columns must be in the dfs
     entity_id = pc.entities[entity][0]
@@ -807,8 +813,8 @@ def transform(eia_transformed_dfs,
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
 
     This function coordinates two main actions: generating the entity tables
-    via `_harvesting()` and generating the boiler generator associations via
-    `_boiler_generator_assn()`.
+    via ``_harvesting()`` and generating the boiler generator associations via
+    ``_boiler_generator_assn()``.
 
     There is also some removal of tables that are no longer needed after the
     entity harvesting is finished.
@@ -816,16 +822,17 @@ def transform(eia_transformed_dfs,
     Args:
         eia_transformed_dfs (dict): a dictionary of table names (kays) and
             transformed dataframes (values).
-        eia923_years (list): a list of years for EIA 923
-        eia860_years (list): a list of years for EIA 860
+        eia923_years (list): a list of years for EIA 923, must be continuous,
+            and include only working years.
+        eia860_years (list): a list of years for EIA 860, must be continuous,
+            and only include working years.
         debug (bool): if true, informational columns will be added into
             boiler_generator_assn
-    Returns:
-        entities_dfs (dict): a dictionary of table names (keys) and dataframes
-        (values) for the entity tables.
 
-        eia_transformed_dfs (dict): a dictionary of table names (keys) and
-        dataframes (values) for the rest of the EIA tables.
+    Returns:
+        tuple: two dictionaries having table names as keys and
+        dataframes as values for the entity tables transformed EIA dataframes
+
     """
     if not eia923_years and not eia860_years:
         logger.info('Not ingesting EIA')

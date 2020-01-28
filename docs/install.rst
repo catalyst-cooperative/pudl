@@ -10,21 +10,19 @@ System Requirements
 .. note::
 
     The PUDL data processing pipeline does a lot of work in-memory with
-    :class:`pandas.DataFrame` objects. The full :ref:`data-epacems` dataset is
-    nearly 100 GB uncompressed. To handle all of the data that is available via
-    PUDL we recommend that your system have at least:
-
-    * **8 GB of memory**
-    * **100 GB of free disk space**
+    :class:`pandas.DataFrame` objects. Exhaustive record linkage within the
+    25 years of :ref:`data-ferc1` data requires up to **24 GB** of memory.
+    The full :ref:`data-epacems` dataset is nearly **100 GB** on disk
+    uncompressed.
 
 Python 3.7+ (and conda)
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-PUDL requires Python 3.7 or later. In addition, while not strictly necessary,
-we **highly** recommend using the most recent version of the `Anaconda Python
-distribution <https://www.anaconda.com/distribution/>`__, or its smaller cousin
-`miniconda <https://conda.io/miniconda.html>`__ (miniconda is nice if you
-are fond of the command line and want a lightweight install).
+PUDL requires Python 3.7 (but is not quite yet working on Python 3.8). While
+not strictly necessary, we **highly** recommend using the most recent version
+of `Anaconda Python <https://www.anaconda.com/distribution/>`__, or its smaller
+cousin `miniconda <https://conda.io/miniconda.html>`__ if you are fond of the
+command line and want a lightweight install.
 
 Both Anaconda and miniconda provide ``conda``, a command-line tool that helps
 you manage your Python software environment, packages, and their dependencies.
@@ -36,7 +34,7 @@ it makes heavy use of Python's open data science stack including packages like
 :mod:`numpy`, :mod:`scipy`, :mod:`pandas`, and :mod:`sklearn` which depend on
 extensions written in C and C++. These extensions can be difficult to build
 locally when installed with ``pip``, but ``conda`` provides pre-compiled
-platform specific binaries.
+platform specific binaries that should Just Work™.
 
 .. _install-pudl:
 
@@ -50,15 +48,16 @@ installing PUDL within its own ``conda`` environment like this:
 
 .. code-block:: console
 
-    $ conda create -y -n pudl -c conda-forge --strict-channel-priority python=3.7 catalystcoop.pudl pip
+    $ conda create --yes --name pudl --channel conda-forge \
+        --strict-channel-priority python=3.7 catalystcoop.pudl pip
 
-Then you activate that ``conda`` environment to use it:
+Then you activate that ``conda`` environment to access it:
 
 .. code-block:: console
 
     $ conda activate pudl
 
-Once you've activated that environment, you may want to install additional
+Once you've activated the pudl environment, you may want to install additional
 software within it, for example if you want to use Jupyter notebooks to work
 with PUDL interactively:
 
@@ -101,7 +100,7 @@ installing ``catalystcoop.pudl`` provides the following command line tools:
 For information on how to use these scripts, each can be run with the
 ``--help`` option. ``ferc1_to_sqlite`` and ``pudl_etl`` are configured with
 YAML files. Examples are provided with the ``catalystcoop.pudl`` package, and
-deployed by running ``pudl_setup`` as described below. Additional inormation
+deployed by running ``pudl_setup`` as described below. Additional information
 about the settings files can be found in our documentation on
 :ref:`settings_files`
 
@@ -121,11 +120,11 @@ PUDL know where all this stuff should go. We call this a "PUDL workspace":
     $ pudl_setup <PUDL_DIR>
 
 Here <PUDL_DIR> is the path to the directory where you want PUDL to do its
-business -- this is where the datastore will be located, and any outputs that
-are generated will end up. The script will also put a configuration file in
-your home directory, called ``.pudl.yml`` that records the location of this
+business -- this is where the datastore will be located, and where any outputs
+that are generated end up. The script will also put a configuration file in
+your home directory, called ``.pudl.yml`` which records the location of this
 workspace and uses it by default in the future. If you run ``pudl_setup`` with
-no arguments, it assumes you want to use the current directory.
+no arguments, it assumes you want to use the current working directory.
 
 The workspace is laid out like this:
 

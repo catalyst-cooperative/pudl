@@ -20,25 +20,28 @@ new code, documentation, or examples of use.
 Install Python 3.7
 ------------------------------------------------------------------------------
 
-We use
+As mentioned in the :doc:`install` documentation, PUDL currently requires
+Python 3.7. We use
 `Anaconda <https://www.anaconda.com/distribution/>`__ or
 `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__ to manage our
 software environments. While using ``conda`` isn't strictly required, it does
-make everything much easier to have everyone on the same platform.
+make everything easier to have everyone on the same platform.
 
 ------------------------------------------------------------------------------
 Fork and Clone the PUDL Repository
 ------------------------------------------------------------------------------
 
-On the `main page of the PUDL repository <https://github.com/catalyst-cooperative/pudl>`__ you should see a **Fork** button in the upper right hand corner.
+On the `main page of the PUDL repository <https://github.com/catalyst-cooperative/pudl>`__
+you should see a **Fork** button in the upper right hand corner.
 `Forking the repository <https://help.github.com/en/articles/fork-a-repo>`__
 makes a copy of it in your personal (or organizational) account on Github that
 is independent of, but linked to, the original "upstream" project.
 
 Depending on your operating system and the git client you're using to access
 Github, the exact cloning process might be different, but if you're using a
-UNIX-like terminal, `cloning the repository <https://help.github.com/articles/cloning-a-repository/>`__ from your fork will look like this (with your own
-Github username or organizational name in place of ``USERNAME`` of course):
+UNIX-like terminal, `cloning the repository <https://help.github.com/articles/cloning-a-repository/>`__
+from your fork will look like this (with your own Github username or
+organizational name in place of ``USERNAME`` of course):
 
 .. code-block:: console
 
@@ -54,14 +57,17 @@ Inside your newly cloned local repository, you should see the following:
 
 ==================== ==========================================================
 **Directory / File** **Contents**
-``docs/``            Documentation source files for `Sphinx <https://www.sphinx-doc.org/en/master/>`__ and `Read The Docs <https://readthedocs.io>`__.
-``src/``             Package source code, isolated to avoid unintended imports.
-``notebooks/``       Jupyter Notebooks, examples and development in progress.
+-------------------- ----------------------------------------------------------
 ``devtools/``        Development tools not distributed with the package.
-``test/``            Modules for use with `PyTest <http://docs.pytest.org/en/latest/>`__.
+``docs/``            Documentation source files for `Sphinx <https://www.sphinx-doc.org/en/master/>`__ and `Read The Docs <https://readthedocs.io>`__.
+``LICENSE.txt``      A copy of the `MIT License <https://opensource.org/licenses/MIT>`__, under which PUDL is distributed.
 ``MANIFEST.in``      Template describing files included in the python package.
+``notebooks/``       Jupyter Notebooks, examples and development in progress.
 ``pyproject.toml``   Configuration for development tools used with the project.
+``README.rst``       Concise, top-level project documentation.
 ``setup.py``         Python build and packaging script.
+``src/``             Package source code, isolated to avoid unintended imports.
+``test/``            Modules for use with `PyTest <http://docs.pytest.org/en/latest/>`__.
 ``tox.ini``          Configuration for the `Tox <https://tox.readthedocs.io/en/latest/>`__ build and test framework.
 ==================== ==========================================================
 
@@ -81,19 +87,21 @@ repository directory by running:
     $ conda env create --name pudl-dev --file devtools/environment.yml
     $ conda activate pudl-dev
 
+This environment mostly includes additional code quality assurance and testing
+packages, on top of the basic PUDL requirements.
+
 -------------------------------------------------------------------------------
 Install PUDL for development
 -------------------------------------------------------------------------------
 
 The ``catalystcoop.pudl`` package isn't part of the ``pudl-dev`` environment
 since you're going to be editing it. To install the local version that now
-exists in your cloned repository using ``pip``, from the main repository
-directory (containing ``setup.py``) run:
+exists in your cloned repository using ``pip``, into your ``pudl-dev``
+environment from the main repository directory (containing ``setup.py``) run:
 
 .. code-block:: console
 
     $ pip install --editable ./
-
 
 -------------------------------------------------------------------------------
 Install PUDL QA/QC tools
@@ -107,17 +115,19 @@ the pudl repo and are working inside the pudl conda environment.
 
 These tools can be run at three different stages in development:
 
-* inside your `text editor or IDE <https://realpython.com/python-ides-code-editors-guide/>`__, while you are writing code or documentation,
+* inside your `text editor or IDE <https://realpython.com/python-ides-code-editors-guide/>`__,
+  while you are writing code or documentation,
 * before you make a new commit to the repository using Git's
   `pre-commit hook scripts <https://pre-commit.com/>`__,
 * when the :doc:`tests are run <testing>` -- either locally or on a
-  `continuous integration (CI) <https://en.wikipedia.org/wiki/Continuous_integration>`__ platform
-  (PUDL uses `Travis CI <https://travis-ci.org/catalyst-cooperative/pudl>`__).
+  `continuous integration (CI) <https://en.wikipedia.org/wiki/Continuous_integration>`__
+  platform (PUDL uses
+  `Travis CI <https://travis-ci.org/catalyst-cooperative/pudl>`__).
 
 .. seealso::
 
-    `Real Python Code Quality Tools and Best Practices <https://realpython.com/python-code-quality/>`__ gives a good overview of available linters and
-    static code analysis tools.
+    `Real Python Code Quality Tools and Best Practices <https://realpython.com/python-code-quality/>`__
+    gives a good overview of available linters and static code analysis tools.
 
 flake8
 ^^^^^^
@@ -145,9 +155,9 @@ doc8
 `Doc8 <https://github.com/PyCQA/doc8>`__ is a lot like flake8, but for Python
 documentation written in the reStructuredText format and built by
 `Sphinx <https://www.sphinx-doc.org/en/master/>`__. This is the de-facto
-standard for Python documentation. The doc8 tool checks for syntax errors and
-other formatting issues in the documentation source files under the ``docs/``
-directory.
+standard for Python documentation. The ``doc8`` tool checks for syntax errors
+and other formatting issues in the documentation source files under the
+``docs/`` directory.
 
 autopep8
 ^^^^^^^^
@@ -251,6 +261,8 @@ stored in your PUDL SQLite database, you would simply run:
 
     $ tox -v -e validate
 
+This process may take 30 minutes to an hour to complete.
+
 -------------------------------------------------------------------------------
 Running the Tests
 -------------------------------------------------------------------------------
@@ -290,6 +302,8 @@ Before you make a pull request, please check that:
   couple of states is sufficient for testing.)
 * Those data packages can be used to populate an SQLite database locally,
   using the ``datapkg_to_sqlite`` script.
+* The ``epacems_to_parquet`` script is able to convert the EPA CEMS Hourly
+  Emissions table from the data package into an Apache Parquet dataset.
 * The data validation tests can be run against that SQLite database, using
   ``tox -v -e validate`` as outlined above.
 * If you've added new data or substantial new code, please also include new

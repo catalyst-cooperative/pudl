@@ -4,7 +4,8 @@ Project Management
 
 The people working on PUDL are distributed all over North America.
 Collaboration takes place online. We make extensive use of Github's project
-management tools.
+management tools, as well as `Zenhub <https://www.zenhub.com>` which provides
+additional features within the context of a public facing Github project.
 
 -------------------------------------------------------------------------------
 Issues and Project Tracking

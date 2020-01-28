@@ -8,14 +8,14 @@ dependencies:
   - coloredlogs         # base
   - coverage            # dev
   - dask                # user
-  - datapackage>=1.9.0  # base We depend on features introduced in v1.9.0
+  - datapackage>=1.11.0 # base We depend on features introduced in v1.9.0
   - dbfread             # base
   - doc8                # dev
   - flake8              # dev
   - flake8-colors       # dev
   - flake8-docstrings   # dev
   - flake8-builtins     # dev
-  - goodtables          # base
+  - goodtables>=2.4.2   # base
   - ipdb                # dev
   - isort               # dev
   - jedi                # dev
@@ -26,13 +26,13 @@ dependencies:
   - nbval               # dev
   - networkx>=2.2       # base We depend on features introduced in v2.2
   - numpy               # base
-  - pandas>=0.25        # base We use nullable integers!
+  - pandas>=0.25,<1.0   # base Nullable integers, but also deprecated behaviors
   - pandoc              # dev
   - pdbpp               # dev
   - pep8-naming         # dev
   - pip                 # N/A
   - pre_commit          # dev
-  - pyarrow>=0.14.0     # base compilation issues below 0.14.0
+  - pyarrow>=0.15       # base compilation issues below 0.14.0
   - pydocstyle          # dev
   - pytest              # dev
   - pytest-cov          # dev
@@ -44,13 +44,14 @@ dependencies:
   - scipy               # base
   - setuptools_scm      # dev
   - sphinx              # dev
+  - sphinx-issues       # dev
   - sphinx_rtd_theme    # dev
   - sqlalchemy>=1.3.0   # base Security issues below v1.3.0
-  - tableschema         # base
-  - tableschema-sql     # base
+  - tableschema>=1.12   # base
+  - tableschema-sql>=1.1.0 # base
   - timezonefinder      # base
   - tox                 # dev
   - twine               # dev
   - xlsxwriter          # base
   - pip:
-      - recordlinkage # dev for now... base if it ends up in ETL
+    - recordlinkage # dev for now... base if it ends up in ETL

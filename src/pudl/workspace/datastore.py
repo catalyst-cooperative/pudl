@@ -33,12 +33,8 @@ def assert_valid_param(source, year,  # noqa: 901
 
     Args:
         source (str): A string indicating which data source we are going to be
-            downloading. Currently it must be one of the following:
-            - 'eia860'
-            - 'eia861'
-            - 'eia923'
-            - 'ferc1'
-            - 'epacems'
+            downloading. Currently it must be one of the following: eia860,
+            eia861, eia923, ferc1, epacems.
         year (int or None): the year for which data should be downloaded. Must
             be within the range of valid data years, which is specified for
             each data source in the pudl.constants module. Use None for data
@@ -47,10 +43,8 @@ def assert_valid_param(source, year,  # noqa: 901
             for EPA CEMS.
         state (str): the state for which data should be downloaded. Only used
             for EPA CEMS.
-        check_month
-
-    Todo:
-        Return to - what is check_month?
+        check_month (bool): Check whether the input month is valid? This is
+            automaticlaly set to True for EPA CEMS.
 
     Raises:
         AssertionError: If the source is not among the list of valid sources.
@@ -178,11 +172,8 @@ def path(source, data_dir,  # noqa: C901
 
     Args:
         source (str): A string indicating which data source we are going to be
-            downloading. Currently it must be one of the following:
-            - 'ferc1'
-            - 'eia923'
-            - 'eia860'
-            - 'epacems'
+            downloading. Currently it must be one of the following: ferc1,
+            eia923, eia860, epacems.
         data_dir (path-like): Path to the top level datastore directory.
         year (int or None): the year of data that the returned path should
             pertain to. Must be within the range of valid data years, which is
@@ -273,11 +264,8 @@ def paths_for_year(source, data_dir, year=None, states=None, file=True):
 
     Args:
         source (str): A string indicating which data source we are going to be
-            downloading. Currently it must be one of the following:
-            - 'ferc1'
-            - 'eia923'
-            - 'eia860'
-            - 'epacems'
+            downloading. Currently it must be one of the following: ferc1,
+            eia923, eia860, epacems.
         data_dir (path-like): Path to the top level datastore directory.
         year (int or None): the year of data that the returned path should
             pertain to. Must be within the range of valid data years, which is
@@ -339,9 +327,6 @@ def download(source, year, states, data_dir):
 
     Returns:
         path-like: The path to the local downloaded file.
-
-    Todo:
-        Return to
 
     """
     assert_valid_param(source=source, year=year, check_month=False)
@@ -630,8 +615,8 @@ def check_if_need_update(source, year, states, data_dir, clobber=False):
     and clobber is False.
 
     Args:
-        source (str): the data source to retrieve. Must be one of: 'eia860',
-            'eia923', 'ferc1', or 'epacems'.
+        source (str): the data source to retrieve. Must be one of: eia860,
+            eia923, ferc1, or epacems.
         year (int or None): the year of data that the returned path should
             pertain to. Must be within the range of valid data years, which is
             specified for each data source in pudl.constants.data_years. Note

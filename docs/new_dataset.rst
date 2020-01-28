@@ -3,6 +3,17 @@
 Integrating a New Dataset
 ===============================================================================
 
+.. warning::
+
+    We are in the process of re-organizing PUDL's datastore management and
+    making the ETL process more object-oriented, so the documentation below may
+    be a bit out of date. See these Github issues to get a sense of our
+    progress:
+    `#182 <https://github.com/catalyst-cooperative/pudl/issues/182>`__
+    `#370 <https://github.com/catalyst-cooperative/pudl/issues/370>`__
+    `#510 <https://github.com/catalyst-cooperative/pudl/issues/510>`__
+    `#514 <https://github.com/catalyst-cooperative/pudl/issues/514>`__
+
 If you're already working with US energy system data in Python, or have been
 thinking about doing so, and would like to have the added benefit of access to
 all the other information that's already part of PUDL, you might consider
@@ -10,7 +21,7 @@ adding a new data source. That way other people can use the data too, and we
 can all share the responsibility for ensuring that the code continues to work,
 and improves over time.
 
-In general the process for adding a new data source looks like this:
+Right now the process for adding a new data source looks something like this:
 
 #. Add the new data source to the :mod:`pudl.workspace.datastore`` module and
    the ``pudl_data`` script.
@@ -126,7 +137,6 @@ tables happens in the transform step.
 
 During this step, any cleaning of the original data is done. This includes
 operations like:
-
 
 * Standardizing units and unit conversions,
 * Casting to appropriate data types (string, int, float, date...),

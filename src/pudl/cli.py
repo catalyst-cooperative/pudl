@@ -13,6 +13,7 @@ The datapackages will be stored in "PUDL_OUT" in the "datapackge" subdirectory.
 Currently, this function only uses default directories for "PUDL_IN" and
 "PUDL_OUT" (meaning those stored in $HOME/.pudl.yml). To setup your default
 pudl directories see the pudl_setup script (pudl_setup --help for more details).
+
 """
 
 import argparse
@@ -104,7 +105,6 @@ def main():
     _ = pudl.etl.generate_datapkg_bundle(
         script_settings['datapkg_bundle_settings'],
         pudl_settings,
-        debug=False,
         datapkg_bundle_name=script_settings['datapkg_bundle_name'],
         datapkg_bundle_doi=datapkg_bundle_doi,
         clobber=args.clobber)

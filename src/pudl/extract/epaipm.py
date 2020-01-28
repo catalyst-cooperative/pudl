@@ -4,6 +4,9 @@ Retrieve data from EPA's Integrated Planning Model (IPM) v6.
 Unlike most of the PUDL data sources, IPM is not an annual timeseries. This
 file assumes that only v6 will be used as an input, so there are a limited
 number of files.
+
+This module was written by :user:`gschivley`
+
 """
 
 import importlib
@@ -56,7 +59,7 @@ def get_epaipm_file(filename, read_file_args, data_dir):
         data_dir (path-like): Path to the top directory of the PUDL datastore.
 
     Returns:
-        pandas.io.excel.ExcelFile: an xlsx file of EPA IPM data
+        :class:`pandas.io.excel.ExcelFile`: an xlsx file of EPA IPM data.
 
     """
     epaipm_file = {}
@@ -86,6 +89,7 @@ def create_dfs_epaipm(files, data_dir):
     Args:
         files (list): a list of epaipm files
         data_dir (path-like): Path to the top directory of the PUDL datastore.
+
     Returns:
         dict: dictionary of pages (key) to dataframes (values)
 

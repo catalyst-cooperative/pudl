@@ -29,13 +29,13 @@ Source Years        2001-2017
 Size (Download)     127 MB
 Size (Uncompressed) 247 MB
 PUDL Code           ``eia860``
-Years Liberated     2011-2017
+Years Liberated     2011-2018
 Records Liberated   ~500,000
 Issues              `open issues labeled epacems <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia860>`__
 =================== ===========================================================
 
-All of the data reported to the EIA on Form 860 is being pulled into the
-PUDL database for the years 2011-2017.
+Nearly all of the data reported to the EIA on Form 860 is being pulled into the
+PUDL database for the years 2011-2018.
 
 We are working on integrating the 2009-2010 EIA 860 data, which has a similar
 format. This will give us the same coverage in both EIA 860 and EIA 923, which
@@ -52,11 +52,11 @@ EIA Form 923
 =================== ===========================================================
 Source URL          https://www.eia.gov/electricity/data/eia923/
 Source Format       Microsoft Excel (.xls/.xlsx)
-Source Years        2001-2017
+Source Years        2001-2018
 Size (Download)     196 MB
 Size (Uncompressed) 299 MB
 PUDL Code           ``eia923``
-Years Liberated     2009-2017
+Years Liberated     2009-2018
 Records Liberated   ~2 million
 Issues              `open issues labeled epacems <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia923>`__
 =================== ===========================================================
@@ -117,7 +117,8 @@ Issues              `open issues labeled epacems <https://github.com/catalyst-co
 
 .. todo::
 
-    Get Greg Schivley to write up a description of the EPA IPM dataset.
+    Get `Greg Schivley <https://github.com/gschivley>`__ to write up a
+    description of the EPA IPM dataset.
 
 .. _data-ferc1:
 
@@ -131,25 +132,25 @@ Source Years        1994-2018
 Size (Download)     1.4 GB
 Size (Uncompressed) 2.5 GB
 PUDL Code           ``ferc1``
-Years Liberated     1994-2018 (raw), 2004-2017 (parboiled)
-Records Liberated   ~12 million (raw), ~270,000 (parboiled)
+Years Liberated     1994-2018
+Records Liberated   ~12 million (116 raw tables), ~280,000 (7 clean tables)
 Issues              `open issues labeled <https://github.com/catalyst-cooperative/pudl/issues?q=is%3Aissue+is%3Aopen+label%3Aferc1>`__
 =================== ===========================================================
 
-We have integrated a subset of the FERC Form 1 data, mostly pertaining to power
-plants, their capital & operating expenses, and fuel consumption, for
-2004-2017. More work will be required to integrate the rest of the years and
-data. However we make *all* of the FERC Form 1 data available (7.2 GB of data
-in 116 tables, going back to 1994) in its raw form via an SQLite database. See
-:doc:`Cloning FERC Form 1 <clone_ferc1>` for details.
+The FERC Form 1 database consists of 116 data tables containing ~8GB of data,
+distributed as separate annual FoxPro databases for the years 1994-2018. PUDL
+can extract all of those tables and load them into a single SQLite database
+together (See :doc:`Cloning FERC Form 1 <clone_ferc1>`). Thus far we have only
+integrated 7 of those tables into the full PUDL ETL pipeline. Mostly we
+focused on tables pertaining to power plants, their capital & operating
+expenses, and fuel consumption. However, we have the tools required to pull
+just about any other table in as well.
 
 We continue to improve the integration between the FERC Form 1 plants and the
 EIA plants and generators, many of which represent the same utility assets.
-Over time if there's demand we may pull in and clean up additional FERC Form 1
-tables.
-
-When we integrate the 2018 FERC Form 1 data, we will also attempt to extend
-coverage for already integrated tables as far back as 1994.
+Over time we will pull in and clean up additional FERC Form 1 tables. If
+there's data you need from Form 1 in bulk you can
+`hire us <https://catalyst.coop/hire-catalyst/>`__ to liberate it first.
 
 -------------------------------------------------------------------------------
 Work in Progress
