@@ -191,12 +191,8 @@ def get_datapkg_fks(datapkg_json):
             will be read.
 
     Returns:
-        dict:
-
-    Todo:
-        What are the keys and values in the dictionary that's returned? Is it
-        full foreign key relations, or just a list of tables that a given table
-        has relationships with?
+        dict: table names (keys) with lists of table names (values) which the
+            key table has forgien key relationships with.
 
     """
     with open(datapkg_json) as md:
@@ -219,13 +215,11 @@ def get_dependent_tables(table_name, fk_relash):
 
     Args:
         table_name (str): The table whose dependencies we are looking for.
-        fk_relash ():
+        fk_relash (dict): table names (keys) with lists of table names (values)
+            which the key table has forgien key relationships with.
 
     Returns:
         set: the set of all the tables the specified table depends upon.
-
-    Todo:
-        What form does the fk_relash input take?
 
     """
     # Add the initial table
@@ -277,71 +271,6 @@ def get_dependent_tables_from_list(table_names):
     return all_the_tables
 
 
-def test_file_consistency(tables, datapkg_settings, datapkg_dir):
-    """
-    Test whether packaged data files are consistent with datapkg_settings.
-
-    There are three different ways we could determine which tables are
-    being dumped into packages: a list of the tables being generated through
-    the ETL functions, the list of dependent tables and the list of CSVs in
-    package directory.
-
-    Currently, this function is supposed to be fed the ETL function tables
-    which are tested against the CSVs present in the package directory.
-
-    Args:
-        tables (list): a list of table names to be tested.
-        datapkg_settings (dict): A validated dictionary of ETL parameters that
-            describe what to include in this datapackage. Read in from a PUDL
-            ETL settings YAML file.
-        datapkg_dir (path-like): the datapackage's base directory, which will
-            contain both a datapackage.json file and a data directory.
-
-    Returns:
-        None
-
-    Raises:
-        AssertionError: If the tables in the CSVs and the ETL tables are not
-            exactly the same list of tables.
-
-    TODO: Determine what to do with the dependent tables check. What are the
-    "ETL function tables?". Fix confusion between naming of "tables" (DB) vs.
-    "files" (paths to something on the filesystem or a full filename) vs.
-    "resources" (resource names w/o filename extensions) in variable names and
-    messages.
-
-    """
-    data_dir = pathlib.Path(datapkg_dir, "data")
-    # Get the list of .csv files (including .gz ones) in the data dir:
-    file_tbls = [x.stem for x in data_dir.glob("*.csv*") if x.is_file()]
-    # given list of table names and partitions, generate list of expected files
-    datapkg_files = tables
-
-    dependent_tbls = list(get_dependent_tables_from_list(tables))
-    etl_tbls = tables
-
-    dependent_tbls.sort()
-    file_tbls.sort()
-    datapkg_files.sort()
-    etl_tbls.sort()
-    # TODO: determine what to do about the dependent_tbls... right now the
-    # dependent tables include some glue tables for FERC in particular, but
-    # we are imagining the glue tables will be in another data package...
-    if (file_tbls == datapkg_files):  # & (dependent_tbls == etl_tbls)):
-        logger.info(
-            f"Datapackage {datapkg_settings['name']} tables are consistent")
-    else:
-        inconsistent_tbls = []
-        for tbl in file_tbls:
-            if tbl not in datapkg_files:
-                inconsistent_tbls.extend(tbl)
-                raise AssertionError(f"{tbl} from CSVs not in ETL tables")
-
-        raise AssertionError(
-            f"Tables are inconsistent. "
-            f"Missing tables include: {inconsistent_tbls}")
-
-
 def pull_resource_from_megadata(resource_name):
     """
     Read metadata for a given data resource from the stored PUDL megadata.
@@ -351,8 +280,8 @@ def pull_resource_from_megadata(resource_name):
             descriptor we are reading.
 
     Returns:
-        dict: A Python dictionary containing pieces of a data package
-        descriptor, not expected to be valid or complete.
+        dict: A Python dictionary containing the resource descriptor portion of
+        a data package descriptor, not expected to be valid or complete.
 
     Raises:
         ValueError: If table_name is not found exactly one time in the PUDL
@@ -641,6 +570,10 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir,
             f"Errors: {goodtables_errors}"
         )
     logger.info('Congrats! You made a valid data package!')
+    logger.info('If you like PUDL (or not!), we would love to hear from you..')
+    logger.info('    Let us know you are using PUDL at: hello@catalyst.coop')
+    logger.info('    Or sign up for our newsletter at: catalyst.coop/updates/')
+
     return report
 
 

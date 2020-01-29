@@ -940,7 +940,8 @@ def convert_cols_dtypes(df, data_source, name=None):
                                'nan': np.NaN},
                               na_action='ignore')
 
-    logger.info(f'Converting the dtypes of: {name}')
+    if name:
+        logger.info(f'Converting the dtypes of: {name}')
     # unfortunately, the pd.Int32Dtype() doesn't allow a conversion from object
     # columns to this nullable int type column. `utility_id_eia` shows up as a
     # column of strings (!) of numbers so it is an object column, and therefor
@@ -975,11 +976,25 @@ def convert_dfs_dict_dtypes(dfs_dict, data_source):
     return cleaned_dfs_dict
 
 
-def generate_rolling_avg(df, group_cols, data_col, win_type='triang'):
-    """Generate a rolling average.
+def generate_rolling_avg(df, group_cols, data_col, window, **kwargs):
+    """
+    Generate a rolling average.
 
-    Todo:
-        Need a real docstring :user:`cmgosnell`
+    For a given dataframe with a `report_date` column, generate a monthly
+    rolling average and use this rolling average to impute missing values.
+
+    Args:
+        df (pandas.DataFrame): Original dataframe. Must have group_cols
+            column, a data_col column and a 'report_date' column.
+        group_cols (iterable): a list of columns to groupby.
+        data_col (str): the name of the data column.
+        window (int): window from pandas.Series.rolling
+        **kwargs : Additional arguments to pass to
+            :class:`pandas.Series.rolling`.
+
+
+    Returns:
+        pandas.DataFrame
 
     """
     df = df.astype({'report_date': 'datetime64[ns]'})
@@ -1005,7 +1020,7 @@ def generate_rolling_avg(df, group_cols, data_col, win_type='triang'):
              groupby(by=group_cols + ['report_date']).
              mean())
     # with the aggregated data, get a rolling average
-    roll = (bones.rolling(12, win_type=win_type, min_periods=6, center=True).
+    roll = (bones.rolling(window=window, center=True, **kwargs).
             agg({data_col: 'mean'})
             )
     # return the merged
@@ -1014,23 +1029,29 @@ def generate_rolling_avg(df, group_cols, data_col, win_type='triang'):
                        suffixes=('', '_rolling')).reset_index()
 
 
-def fillna_w_rolling_avg(df_og, group_cols, data_col, win_type='triang'):
+def fillna_w_rolling_avg(df_og, group_cols, data_col, window=12, **kwargs):
     """
     Filling NaNs with a rolling average.
 
+    Imputes null values from a dataframe on a rolling monthly average. To note,
+    this was designed to work with the PudlTabl object's tables.
+
     Args:
-        df_of (pandas.DataFrame): Original dataframe. Must have group_cols
+        df_og (pandas.DataFrame): Original dataframe. Must have group_cols
             column, a data_col column and a 'report_date' column.
-        group_cols (iterable):
-        data_col (str):
-        win_type (str):
+        group_cols (iterable): a list of columns to groupby.
+        data_col (str): the name of the data column.
+        window (int): window from pandas.Series.rolling
+        **kwargs : Additional arguments to pass to
+            :class:`pandas.Series.rolling`.
 
     Returns:
-        pandas.DataFrame
+        pandas.DataFrame: dataframe with nulls filled in.
 
     """
     df_og = df_og.astype({'report_date': 'datetime64[ns]'})
-    df_roll = generate_rolling_avg(df_og, group_cols, data_col, win_type)
+    df_roll = generate_rolling_avg(df_og, group_cols, data_col,
+                                   window, **kwargs)
     df_roll[data_col] = df_roll[data_col].fillna(
         df_roll[f'{data_col}_rolling'])
     df_new = df_og.merge(df_roll,
@@ -1044,16 +1065,38 @@ def fillna_w_rolling_avg(df_og, group_cols, data_col, win_type='triang'):
 
 def count_records(df, cols, new_count_col_name):
     """
-    Count the number of records in a dataframe.
+    Count the number of unique records in group in a dataframe.
 
     Args:
         df (panda.DataFrame) : dataframe you would like to groupby and count.
         cols (iterable) : list of columns to group and count by.
         new_count_col_name (string) : the name that will be assigned to the
             column that will contain the count.
+    Retruns:
+        pandas.DataFrame: dataframe with only the `cols` definted and the
+        `new_count_col_name`.
     """
     return (df.assign(count_me=1).
             groupby(cols).
             agg({'count_me': 'count'}).
             reset_index().
             rename(columns={'count_me': new_count_col_name}))
+
+
+def cleanstrings_snake(df, cols):
+    """
+    Clean the strings in a columns in a dataframe with snake case.
+
+    Args:
+        df (panda.DataFrame) : original dataframe.
+        cols (list): list of columns in `df` to apply snake case to.
+
+    """
+    for col in cols:
+        df.loc[:, col] = (
+            df[col].astype(str).
+            str.strip().
+            str.lower().
+            str.replace(r'\s+', '_')
+        )
+    return df
