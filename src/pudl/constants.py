@@ -2042,7 +2042,7 @@ entities = {
          'topping_bottoming_code', 'solid_fuel_gasification',
          'pulverized_coal_tech', 'fluidized_bed_tech', 'subcritical_tech',
          'supercritical_tech', 'ultrasupercritical_tech', 'stoker_tech',
-         'other_combustion_tech', 'heat_bypass_recovery',
+         'other_combustion_tech', 'bypass_heat_recovery',
          'rto_iso_lmp_node_id', 'rto_iso_location_wholesale_reporting_id',
          'associated_combined_heat_power', 'original_planned_operating_date',
          'operating_switch', 'previously_canceled'],
@@ -2341,8 +2341,8 @@ data_sources = (
     'eia861',
     'eia923',
     'epacems',
-    'ferc1',
     'epaipm',
+    'ferc1',
     # 'pudl'
 )
 """tuple: A tuple containing the data sources we are able to pull into PUDL."""
@@ -2353,8 +2353,8 @@ data_years = {
     'eia861': tuple(range(1990, 2019)),
     'eia923': tuple(range(2001, 2020)),
     'epacems': tuple(range(1995, 2019)),
-    'ferc1': tuple(range(1994, 2019)),
     'epaipm': (None, ),
+    'ferc1': tuple(range(1994, 2019)),
 }
 """
 dict: A dictionary of data sources (keys) and tuples containing the years
@@ -2367,8 +2367,8 @@ working_years = {
     'eia861': tuple(range(1999, 2019)),
     'eia923': tuple(range(2009, 2019)),
     'epacems': tuple(range(1995, 2019)),
-    'ferc1': tuple(range(1994, 2019)),
     'epaipm': (None, ),
+    'ferc1': tuple(range(1994, 2019)),
 }
 """
 dict: A dictionary of data sources (keys) and tuples containing the years for
@@ -2378,9 +2378,9 @@ dict: A dictionary of data sources (keys) and tuples containing the years for
 pudl_tables = {
     'eia860': eia860_pudl_tables,
     'eia923': eia923_pudl_tables,
-    'ferc1': ferc1_pudl_tables,
     'epacems': epacems_tables,
     'epaipm': epaipm_pudl_tables,
+    'ferc1': ferc1_pudl_tables,
     'glue': glue_pudl_tables,
 }
 """
@@ -2670,13 +2670,21 @@ column_dtypes = {
         'ash_impoundment_status': str,  # TODO: convert this field to more descriptive words
         'associated_combined_heat_power': bool,
         'balancing_authority_code': str,
+        'balancing_authority_name': str,
         'bga_source': str,
         'boiler_id': str,
+        'bypass_heat_recovery': bool,
         'capacity_mw': float,
         'carbon_capture': bool,
         'chlorine_content_ppm': float,
         'city': str,
         'cofire_fuels': bool,
+        'contact_firstname': str,
+        'contact_firstname2': str,
+        'contact_lastname': str,
+        'contact_lastname2': str,
+        'contact_title': str,
+        'contact_title2': str,
         'contract_expiration_date': 'datetime64[ns]',
         'contract_type_code': str,
         'county': str,
@@ -2692,6 +2700,7 @@ column_dtypes = {
         'energy_source_code_5': str,
         'energy_source_code_6': str,
         'energy_storage': bool,
+        'entity_type': str,
         'ferc_cogen_docket_no': str,
         'ferc_cogen_status': bool,
         'ferc_exempt_wholesale_generator': bool,
@@ -2721,7 +2730,6 @@ column_dtypes = {
         'grid_voltage_2_kv': float,
         'grid_voltage_3_kv': float,
         'grid_voltage_kv': float,
-        'heat_bypass_recovery': bool,
         'heat_content_mmbtu_per_unit': float,
         'iso_rto_code': str,
         'iso_rto_name': str,
@@ -2796,6 +2804,7 @@ column_dtypes = {
         'retirement_date': 'datetime64[ns]',
         'secondary_transportation_mode_code': str,
         'sector_id': pd.Int64Dtype(),
+        'sector_name': str,
         'solid_fuel_gasification': bool,
         'startup_source_code_1': str,
         'startup_source_code_2': str,
@@ -2815,6 +2824,7 @@ column_dtypes = {
         'syncronized_transmission_grid': bool,
         'technology_description': str,
         'time_cold_shutdown_full_load_code': str,
+        'timezone': str,
         'topping_bottoming_code': str,
         'transmission_distribution_owner_id': pd.Int64Dtype(),
         'transmission_distribution_owner_name': str,
@@ -2826,9 +2836,12 @@ column_dtypes = {
         'unit_id_pudl': pd.Int64Dtype(),
         'uprate_derate_completed_date': 'datetime64[ns]',
         'uprate_derate_during_year': bool,
+        'utility_attn': str,
         'utility_id_eia': pd.Int64Dtype(),
         'utility_id_pudl': pd.Int64Dtype(),
         'utility_name_eia': str,
+        'utility_pobox': str,
+        'utility_zip4': str,
         'water_source': str,
         'winter_capacity_mw': float,
         'winter_estimated_capability_mw': float,

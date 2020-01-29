@@ -16,6 +16,16 @@ def test_own_eia860(pudl_out_eia, live_pudl_db):
     logger.info('Reading EIA 860 generator ownership data...')
     own_out = pudl_out_eia.own_eia860()
 
+    if (own_out.fraction_owned > 1.0).any():
+        raise AssertionError(
+            "Generators with ownership fractions > 1.0 found. Bad data?"
+        )
+
+    if (own_out.fraction_owned < 0.0).any():
+        raise AssertionError(
+            "Generators with ownership fractions < 0.0 found. Bad data?"
+        )
+
     # Verify that the reported ownership fractions add up to something very
     # close to 1.0 (i.e. that the full ownership of each generator is
     # specified by the EIA860 data)

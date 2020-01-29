@@ -892,7 +892,7 @@ def convert_cols_dtypes(df, data_source, name=None):
     Args:
         df (pandas.DataFrame): dataframe with columns that appear in the PUDL
             tables.
-        data_source (str): the name of the datasource
+        data_source (str): the name of the datasource (eia, ferc1, etc.)
         name (str): name of the table (for logging only!)
 
     Returns:
@@ -901,17 +901,32 @@ def convert_cols_dtypes(df, data_source, name=None):
 
     """
     # get me all of the columns for the table in the constants dtype dict
-    column_types_table = {key: value for key, value
-                          in pc.column_dtypes[data_source].items()
-                          if key in list(df.columns)}
+    col_types = {key: value for key, value
+                 in pc.column_dtypes[data_source].items()
+                 if key in list(df.columns)}
+
     # grab only the boolean columns (we only need their names)
     bool_cols = {key for key, value
-                 in column_types_table.items()
+                 in col_types.items()
                  if value == bool}
+
     # grab all of the non boolean columns
     non_bool_cols = {key: value for key, value
-                     in column_types_table.items()
+                     in col_types.items()
                      if value != bool}
+
+    # If/when we have the columns exhaustively typed, we can do it like this,
+    # but right now we don't have the FERC columns done, so we can't:
+    # get me all of the columns for the table in the constants dtype dict
+    # col_types = {
+    #    col: pc.column_dtypes[data_source][col] for col in df.columns
+    # }
+    # grab only the boolean columns (we only need their names)
+    # bool_cols = {col for col in col_types if col_types[col] is bool}
+    # grab all of the non boolean columns
+    # non_bool_cols = {
+    #    col: col_types[col] for col in col_types if col_types[col] is not bool
+    # }
 
     for col in bool_cols:
         # Bc the og bool values were sometimes coming across as actual bools or
@@ -948,7 +963,7 @@ def convert_cols_dtypes(df, data_source, name=None):
 def convert_dfs_dict_dtypes(dfs_dict, data_source):
     """Convert the data types of a dictionary of dataframes.
 
-    This is a wrapper for pudl.helpers.convert_cols_dtypes() which loops
+    This is a wrapper for :func:`pudl.helpers.convert_cols_dtypes` which loops
     over an entire dictionary of dataframes, assuming they are all from the
     specified data source, and appropriately assigning data types to each
     column based on the data source specific type map stored in pudl.constants

@@ -47,8 +47,8 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
 
     # Prior to 2012, ownership was reported as a percentage, rather than
     # as a proportion, so we need to divide those values by 100.
-    o_df.loc[o_df.report_date.dt.year == 2011, 'fraction_owned'] = \
-        o_df.loc[o_df.report_date.dt.year == 2011, 'fraction_owned'] / 100
+    o_df.loc[o_df.report_date.dt.year < 2012, 'fraction_owned'] = \
+        o_df.loc[o_df.report_date.dt.year < 2012, 'fraction_owned'] / 100
 
     o_df['owner_utility_id_eia'] = o_df['owner_utility_id_eia'].astype(int)
     o_df['utility_id_eia'] = o_df['utility_id_eia'].astype(int)
@@ -135,10 +135,10 @@ def generators(eia860_dfs, eia860_transformed_dfs):
 
     gens_df.duct_burners = \
         gens_df.duct_burners.replace(to_replace='X', value='N')
-    gens_df.heat_bypass_recovery = \
-        gens_df.heat_bypass_recovery.replace(to_replace='X', value='N')
+    gens_df.bypass_heat_recovery = \
+        gens_df.bypass_heat_recovery.replace(to_replace='X', value='N')
     gens_df.syncronized_transmission_grid = \
-        gens_df.heat_bypass_recovery.replace(to_replace='X', value='N')
+        gens_df.bypass_heat_recovery.replace(to_replace='X', value='N')
 
     # A subset of the columns have "U" values, presumably for "Unknown," which
     # must be set to None in order to convert the columns to datatype Boolean.
@@ -164,7 +164,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         'other_combustion_tech',
         'cofire_fuels',
         'switch_oil_gas',
-        'heat_bypass_recovery',
+        'bypass_heat_recovery',
         'associated_combined_heat_power',
         'planned_modifications',
         'other_planned_modifications',

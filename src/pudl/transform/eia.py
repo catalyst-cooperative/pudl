@@ -47,7 +47,7 @@ def _occurrence_consistency(entity_id, compiled_df, col,
             the entity_id is ['plant_id_eia', 'generator_id'].
         compiled_df (pandas.DataFrame): a dataframe with every instance of the
             column we are trying to harvest.
-        col (string): the column name of the column we are trying to harvest.
+        col (str): the column name of the column we are trying to harvest.
         cols_to_consit (list): a list of the columns to determine consistency.
             This either the [entity_id] or the [entity_id, 'report_date'],
             depending on whether the entity is static or annual.
@@ -63,8 +63,13 @@ def _occurrence_consistency(entity_id, compiled_df, col,
     """
     # select only the colums you want and drop the NaNs
     # we want to drop the NaNs because
-    col_df = compiled_df[entity_id + ['report_date',
-                                      col, 'table']].copy().dropna()
+    col_df = compiled_df[entity_id + ['report_date', col, 'table']].copy()
+    if pc.column_dtypes["eia"][col] is str:
+        col_df = (
+            col_df.replace(to_replace={col: {"nan": np.nan}})
+            # .replace(to_replace={col: {"None": np.nan}})
+        )
+    col_df = col_df.dropna()
 
     if len(col_df) == 0:
         col_df[f'{col}_consistent'] = np.NaN

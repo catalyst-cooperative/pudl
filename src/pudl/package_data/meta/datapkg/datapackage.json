@@ -858,7 +858,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "heat_bypass_recovery",
+                        "name": "bypass_heat_recovery",
                         "type": "boolean",
                         "description": "Can this generator operate while bypassing the heat recovery steam generator?",
                         "format": "default"

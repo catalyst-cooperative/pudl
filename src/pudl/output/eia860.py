@@ -241,7 +241,6 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
     # To get the Lat/Lon coordinates
     plants_entity_eia_tbl = pt['plants_entity_eia']
     plants_entity_eia_select = sa.sql.select([
-        # plants_eia860_tbl.c.report_date, # remove?
         plants_entity_eia_tbl.c.plant_id_eia,
         plants_entity_eia_tbl.c.plant_name_eia,
         plants_entity_eia_tbl.c.latitude,
@@ -391,15 +390,13 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
         end_date (date-like): date-like object, including a string of the
             form 'YYYY-MM-DD' which will be used to specify the date range of
             records to be pulled.  Dates are inclusive.
+
     Returns:
         pandas.DataFrame: A DataFrame containing a useful set of fields related
         to the EIA 860 Ownership table.
 
     """
-    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
-    o_eia860_tbl = pt['ownership_eia860']
-    o_eia860_select = sa.sql.select([o_eia860_tbl, ])
-    o_df = pd.read_sql(o_eia860_select, pudl_engine)
+    o_df = pd.read_sql("ownership_eia860", pudl_engine)
 
     pu_eia = plants_utils_eia860(pudl_engine,
                                  start_date=start_date,
