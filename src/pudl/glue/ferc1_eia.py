@@ -343,9 +343,8 @@ def get_db_plants_eia(pudl_engine):
             engine for connecting to a PUDL SQLite database.
 
     Returns:
-        :class:`pandas.DataFrame`: A DataFrame with plant_id_eia,
-        plant_name_eia, and state columns, for addition to the FERC 1 / EIA
-        plant mappings.
+        pandas.DataFrame: A DataFrame with plant_id_eia, plant_name_eia, and
+        state columns, for addition to the FERC 1 / EIA plant mappings.
 
     """
     db_plants_eia = (
@@ -370,7 +369,7 @@ def get_mapped_plants_eia():
         None
 
     Returns:
-        :class:`pandas.DataFrame`: A DataFrame listing the plant_id_eia and
+        pandas.DataFrame: A DataFrame listing the plant_id_eia and
         plant_name_eia values for every EIA plant which has already been
         assigned a PUDL Plant ID.
 
