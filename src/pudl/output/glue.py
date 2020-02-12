@@ -40,5 +40,8 @@ def boiler_generator_assn(pudl_engine, start_date=None, end_date=None):
         bga_eia_select = bga_eia_select.where(
             bga_eia_tbl.c.report_date <= end_date
         )
-    out_df = pd.read_sql(bga_eia_select, pudl_engine)
+    out_df = (
+        pd.read_sql(bga_eia_select, pudl_engine)
+        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    )
     return out_df

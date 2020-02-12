@@ -58,10 +58,10 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
                       how='left', on=['utility_id_eia', ])
     out_df = pd.merge(out_df, utils_g_eia_df,
                       how='left', on=['utility_id_eia', ])
-    out_df['report_date'] = \
-        pd.to_datetime(out_df['report_date'])
-
-    out_df = out_df.drop(['id'], axis='columns')
+    out_df = (
+        out_df.assign(report_date=lambda x: pd.to_datetime(x.report_date))
+        .drop(['id'], axis='columns')
+    )
     first_cols = [
         'report_date',
         'utility_id_eia',
@@ -110,9 +110,10 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
         plants_eia860_select = plants_eia860_select.where(
             plants_eia860_tbl.c.report_date <= end_date
         )
-    plants_eia860_df = pd.read_sql(plants_eia860_select, pudl_engine)
-    plants_eia860_df['report_date'] = \
-        pd.to_datetime(plants_eia860_df['report_date'])
+    plants_eia860_df = (
+        pd.read_sql(plants_eia860_select, pudl_engine)
+        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    )
 
     # plant glue table
     plants_g_eia_tbl = pt['plants_eia']
@@ -354,6 +355,7 @@ def boiler_generator_assn_eia860(pudl_engine, start_date=None, end_date=None):
         )
     out_df = (
         pd.read_sql(bga_eia860_select, pudl_engine)
+        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
         .drop(['id'], axis='columns')
     )
     return out_df
