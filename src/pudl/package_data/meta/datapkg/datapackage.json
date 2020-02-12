@@ -5314,27 +5314,27 @@
                         "format": "default"
                     },
                     {
-                        "name": "iso_rto_name",
-                        "type": "string",
-                        "description": "The name of the plant's ISO or RTO.",
+                        "name": "iso_rto",
+                        "type": "boolean",
+                        "description": "True if plant is part of an ISO/RTO, False otherwise. NA if it was not reported in that year.",
                         "format": "default"
                     },
                     {
                         "name": "iso_rto_code",
                         "type": "string",
-                        "description": "The code of the plant's ISO or RTO.",
+                        "description": "The code of the plant's ISO or RTO. NA if not reported in that year.",
                         "format": "default"
                     },
                     {
                         "name": "latitude",
                         "type": "number",
-                        "description": "The latitude of a plant's coordinates",
+                        "description": "Latitude of the plant's location, in degrees.",
                         "format": "default"
                     },
                     {
                         "name": "longitude",
                         "type": "number",
-                        "description": "The longitude of a plant's coordinates",
+                        "description": "Longitude of the plant's location, in degrees.",
                         "format": "default"
                     },
                     {

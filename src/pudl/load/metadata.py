@@ -572,7 +572,7 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir,
     logger.info("Congrats! You made a valid data package!")
     logger.info("============================================================")
     logger.info("  If you like PUDL (or not!) we'd love to hear from you...")
-    logger.info("  Let us know you are using PUDL at: hello@catalyst.coop")
+    logger.info("  Let us know you are using PUDL at: pudl@catalyst.coop")
     logger.info("  Sign up for our newsletter: https://catalyst.coop/updates/")
     logger.info("============================================================")
 

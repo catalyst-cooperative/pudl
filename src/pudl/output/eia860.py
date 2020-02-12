@@ -4,7 +4,6 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-import pudl.constants as pc
 
 
 def utilities_eia860(pudl_engine, start_date=None, end_date=None):
@@ -59,6 +58,8 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
                       how='left', on=['utility_id_eia', ])
     out_df = pd.merge(out_df, utils_g_eia_df,
                       how='left', on=['utility_id_eia', ])
+    out_df['report_date'] = \
+        pd.to_datetime(out_df['report_date'])
 
     out_df = out_df.drop(['id'], axis='columns')
     first_cols = [
@@ -69,8 +70,6 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     ]
 
     out_df = pudl.helpers.organize_cols(out_df, first_cols)
-    out_df = pudl.helpers.extend_annual(
-        out_df, start_date=start_date, end_date=end_date)
     return out_df
 
 
@@ -175,34 +174,36 @@ def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
     """
     # Contains the one-to-one mapping of EIA plants to their operators, but
     # we only have the 860 data integrated for 2011 forward right now.
-    plants_eia = plants_eia860(pudl_engine,
-                               start_date=start_date,
-                               end_date=end_date)
+    plants_eia = (
+        plants_eia860(pudl_engine, start_date=start_date, end_date=end_date)
+        .drop(['utility_id_pudl', 'city', 'state',  # Avoid dupes in merge
+               'zip_code', 'street_address'], axis='columns')
+    )
     utils_eia = utilities_eia860(pudl_engine,
                                  start_date=start_date,
                                  end_date=end_date)
 
     # to avoid duplicate columns on the merge...
-    plants_eia = plants_eia.drop(['utility_id_pudl', 'city',
-                                  'state', 'zip_code', 'street_address'],
-                                 axis='columns')
     out_df = pd.merge(plants_eia, utils_eia,
                       how='left', on=['report_date', 'utility_id_eia'])
 
-    cols_to_keep = ['report_date',
-                    'plant_id_eia',
-                    'plant_name_eia',
-                    'plant_id_pudl',
-                    'utility_id_eia',
-                    'utility_name_eia',
-                    'utility_id_pudl'
-                    ]
-
-    out_df = out_df[cols_to_keep]
-    out_df = out_df.dropna()
-    out_df.plant_id_pudl = out_df.plant_id_pudl.astype(int)
-    out_df.utility_id_eia = out_df.utility_id_eia.astype(int)
-    out_df.utility_id_pudl = out_df.utility_id_pudl.astype(int)
+    out_df = (
+        out_df.loc[:, ['report_date',
+                       'plant_id_eia',
+                       'plant_name_eia',
+                       'plant_id_pudl',
+                       'utility_id_eia',
+                       'utility_name_eia',
+                       'utility_id_pudl']
+                   ]
+        .dropna()
+        .astype({
+            "plant_id_eia": "Int64",
+            "plant_id_pudl": "Int64",
+            "utility_id_eia": "Int64",
+            "utility_id_pudl": "Int64",
+        })
+    )
     return out_df
 
 
@@ -248,61 +249,44 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
         plants_entity_eia_tbl.c.state,
         plants_entity_eia_tbl.c.balancing_authority_code,
         plants_entity_eia_tbl.c.balancing_authority_name,
-        plants_entity_eia_tbl.c.iso_rto_name,
         plants_entity_eia_tbl.c.iso_rto_code,
     ])
 
     if start_date is not None:
         start_date = pd.to_datetime(start_date)
-        # We don't want to get too crazy with the date extensions...
-        # start_date shouldn't go back before the earliest working year of
-        # EIA 923
-        eia923_start_date = \
-            pd.to_datetime('{}-01-01'.format(
-                min(pc.working_years['eia923'])))
-        if start_date < eia923_start_date:
-            raise AssertionError(f"""
-EIA 860 generators start_date ({start_date}) is before the
-earliest EIA 923 data is available ({eia923_start_date}).
-That's too much backfilling.""")
         gens_eia860_select = gens_eia860_select.where(
             gens_eia860_tbl.c.report_date >= start_date
         )
 
     if end_date is not None:
         end_date = pd.to_datetime(end_date)
-        # end_date shouldn't be more than one year ahead of the most recent
-        # year for which we have EIA 860 data:
-        eia860_end_date = \
-            pd.to_datetime('{}-12-31'.format(
-                max(pc.working_years['eia860'])))
-        if end_date > eia860_end_date + pd.DateOffset(years=1):
-            raise AssertionError(f"""
-EIA 860 end_date ({end_date}) is more than a year after the
-most recent EIA 860 data available ({eia860_end_date}).
-That's too much forward filling.""")
         gens_eia860_select = gens_eia860_select.where(
             gens_eia860_tbl.c.report_date <= end_date
         )
 
+    # breakpoint()
     gens_eia860 = pd.read_sql(gens_eia860_select, pudl_engine)
+
     plants_entity_eia_df = pd.read_sql(plants_entity_eia_select, pudl_engine)
     out_df = pd.merge(gens_eia860, plants_entity_eia_df,
                       how='left', on=['plant_id_eia'])
     out_df.report_date = pd.to_datetime(out_df.report_date)
 
     # Bring in some generic plant & utility information:
-    pu_eia = plants_utils_eia860(pudl_engine,
-                                 start_date=start_date,
-                                 end_date=end_date)
+    pu_eia = (
+        plants_utils_eia860(
+            pudl_engine, start_date=start_date, end_date=end_date)
+        .drop(["plant_name_eia", "utility_id_eia"], axis="columns")
+    )
     out_df = pd.merge(out_df, pu_eia,
-                      on=['report_date', 'plant_id_eia',
-                          'plant_name_eia', 'utility_id_eia'])
+                      on=['report_date', 'plant_id_eia'],
+                      how="left")
+    # ,'plant_name_eia', 'utility_id_eia'])
 
     # Drop a few extraneous fields...
     out_df = out_df.drop(['id'], axis='columns')
 
-    # In order to be able to differentiate betweet single and multi-fuel
+    # In order to be able to differentiate between single and multi-fuel
     # plants, we need to count how many different simple energy sources there
     # are associated with plant's generators. This allows us to do the simple
     # lumping of an entire plant's fuel & generation if its primary fuels
@@ -328,12 +312,10 @@ That's too much forward filling.""")
     ]
 
     # Re-arrange the columns for easier readability:
-    out_df = pudl.helpers.organize_cols(out_df, first_cols)
-    out_df = pudl.helpers.extend_annual(
-        out_df, start_date=start_date, end_date=end_date)
-    out_df = out_df.sort_values(['report_date',
-                                 'plant_id_eia',
-                                 'generator_id'])
+    out_df = (
+        pudl.helpers.organize_cols(out_df, first_cols)
+        .sort_values(['report_date', 'plant_id_eia', 'generator_id'])
+    )
 
     return out_df
 
@@ -370,11 +352,10 @@ def boiler_generator_assn_eia860(pudl_engine, start_date=None, end_date=None):
         bga_eia860_select = bga_eia860_select.where(
             bga_eia860_tbl.c.report_date <= end_date
         )
-    bga_eia860_df = pd.read_sql(bga_eia860_select, pudl_engine)
-    bga_eia860_df = bga_eia860_df.drop(['id'], axis='columns')
-    out_df = pudl.helpers.extend_annual(bga_eia860_df,
-                                        start_date=start_date,
-                                        end_date=end_date)
+    out_df = (
+        pd.read_sql(bga_eia860_select, pudl_engine)
+        .drop(['id'], axis='columns')
+    )
     return out_df
 
 
@@ -396,28 +377,45 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
         to the EIA 860 Ownership table.
 
     """
-    o_df = pd.read_sql("ownership_eia860", pudl_engine)
+    # breakpoint()
+    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
+    own_eia860_tbl = pt["ownership_eia860"]
+    own_eia860_select = sa.sql.select([own_eia860_tbl])
 
-    pu_eia = plants_utils_eia860(pudl_engine,
-                                 start_date=start_date,
-                                 end_date=end_date)
-    pu_eia = pu_eia[['plant_id_eia', 'plant_id_pudl', 'plant_name_eia',
-                     'utility_name_eia', 'utility_id_pudl', 'report_date']]
+    if start_date is not None:
+        start_date = pd.to_datetime(start_date)
+        own_eia860_select = own_eia860_select.where(
+            own_eia860_tbl.c.report_date >= start_date
+        )
+    if end_date is not None:
+        end_date = pd.to_datetime(end_date)
+        own_eia860_select = own_eia860_select.where(
+            own_eia860_tbl.c.report_date <= end_date
+        )
+    own_eia860_df = (
+        pd.read_sql(own_eia860_select, pudl_engine)
+        .drop(['id'], axis='columns')
+        .assign(report_date=lambda x: pd.to_datetime(x["report_date"]))
+    )
 
-    o_df['report_date'] = pd.to_datetime(o_df.report_date)
-    out_df = pd.merge(o_df, pu_eia,
+    pu_eia = (
+        plants_utils_eia860(
+            pudl_engine, start_date=start_date, end_date=end_date)
+        .loc[:, ['plant_id_eia', 'plant_id_pudl', 'plant_name_eia',
+                 'utility_name_eia', 'utility_id_pudl', 'report_date']]
+    )
+
+    out_df = pd.merge(own_eia860_df, pu_eia,
                       how='left', on=['report_date', 'plant_id_eia'])
 
-    out_df = out_df.drop(['id'], axis='columns')
-
-    out_df = out_df.dropna(subset=[
-        'plant_id_eia',
-        'plant_id_pudl',
-        'utility_id_eia',
-        'utility_id_pudl',
-        'generator_id',
-        'owner_utility_id_eia',
-    ])
+    # out_df = out_df.dropna(subset=[
+    #    'plant_id_eia',
+    #    'plant_id_pudl',
+    #    'utility_id_eia',
+    #    'utility_id_pudl',
+    #    'generator_id',
+    #    'owner_utility_id_eia',
+    # ])
 
     first_cols = [
         'report_date',
@@ -433,10 +431,12 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
     ]
 
     # Re-arrange the columns for easier readability:
-    out_df = pudl.helpers.organize_cols(out_df, first_cols)
-    out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
-    out_df['utility_id_pudl'] = out_df.utility_id_pudl.astype(int)
-    out_df = pudl.helpers.extend_annual(
-        out_df, start_date=start_date, end_date=end_date)
+    out_df = (
+        pudl.helpers.organize_cols(out_df, first_cols)
+        .astype({
+            "plant_id_pudl": "Int64",
+            "utility_id_pudl": "Int64",
+        })
+    )
 
     return out_df

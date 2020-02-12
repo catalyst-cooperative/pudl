@@ -255,14 +255,16 @@ def plants(eia860_dfs, eia860_transformed_dfs):
         p_df.liquefied_natural_gas_storage.replace(to_replace='X', value='N')
 
     boolean_columns_to_fix = [
-        'ferc_cogen_status',
-        'ferc_small_power_producer',
-        'ferc_exempt_wholesale_generator',
-        'ash_impoundment',
-        'ash_impoundment_lined',
-        'energy_storage',
-        'natural_gas_storage',
-        'liquefied_natural_gas_storage'
+        "ferc_cogen_status",
+        "ferc_small_power_producer",
+        "ferc_exempt_wholesale_generator",
+        "ash_impoundment",
+        "ash_impoundment_lined",
+        "energy_storage",
+        "natural_gas_storage",
+        "liquefied_natural_gas_storage",
+        "net_metering",
+        "iso_rto",
     ]
 
     for column in boolean_columns_to_fix:

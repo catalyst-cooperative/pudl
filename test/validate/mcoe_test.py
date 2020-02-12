@@ -91,10 +91,7 @@ def test_bga(pudl_out_eia, live_pudl_db):
         ("fuel_cost", "all"),
         ("capacity_factor", "all"),
         ("bga", "all"),
-        pytest.param(
-            "mcoe", "all",
-            marks=pytest.mark.xfail(reason="Missing 2009-2010 EIA860 data."),
-        )
+        ("mcoe", "all"),
     ]
 )
 def test_no_null_cols_mcoe(pudl_out_mcoe, live_pudl_db, cols, df_name):

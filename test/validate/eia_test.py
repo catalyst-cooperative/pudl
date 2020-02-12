@@ -11,16 +11,12 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.parametrize(
     "df_name,cols", [
-        pytest.param(
-            "plants_eia860", "all",
-            marks=pytest.mark.xfail(reason="Missing 2009-2010 EIA 860 Data.")),
+        ("plants_eia860", "all"),
         ("utils_eia860", "all"),
         ("pu_eia860", "all"),
         ("bga_eia860", "all"),
         ("own_eia860", "all"),
-        pytest.param(
-            "gens_eia860", "all",
-            marks=pytest.mark.xfail(reason="Missing 2009-2010 EIA 860 Data.")),
+        ("gens_eia860", "all"),
         ("gen_eia923", "all"),
         ("gf_eia923", "all"),
         ("bf_eia923", "all"),
@@ -37,12 +33,12 @@ def test_no_null_cols_eia(pudl_out_eia, live_pudl_db, cols, df_name):
 
 @pytest.mark.parametrize(
     "df_name,raw_rows,monthly_rows,annual_rows", [
-        ("plants_eia860", 80_000, 80_000, 80_000),
-        ("utils_eia860", 35_000, 35_000, 35_000),
+        ("plants_eia860", 84_000, 84_000, 84_000),
+        ("utils_eia860", 44_000, 44_000, 44_000),
         ("pu_eia860", 60_000, 60_000, 60_000),
         ("bga_eia860", 90_000, 90_000, 90_000),
-        ("own_eia860", 35_000, 35_000, 35_000),
-        ("gens_eia860", 200_000, 200_000, 200_000),
+        ("own_eia860", 42_000, 42_000, 42_000),
+        ("gens_eia860", 242_000, 242_000, 242_000),
         ("gen_eia923", 300_000, 300_000, 25_000),
         ("gf_eia923", 1_000_000, 800_000, 65_000),
         ("bf_eia923", 750_000, 625_000, 50_000),
@@ -58,7 +54,7 @@ def test_minmax_rows(pudl_out_eia,
 
     Args:
         pudl_out_eia: A PudlTabl output object.
-        live_pudl_db: Boolean (wether we're using a live or testing DB).
+        live_pudl_db (bool): Whether we're using a live or testing DB.
         min_rows (int): Minimum number of rows that the dataframe should
             contain when all data is loaded and is output without aggregation.
         df_name (str): Shorthand name identifying the dataframe, corresponding
