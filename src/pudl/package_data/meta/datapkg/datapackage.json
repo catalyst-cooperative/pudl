@@ -4546,13 +4546,13 @@
                     {
                         "name": "gross_load_mw",
                         "type": "number",
-                        "description": "Average power in megawatts produced during time interval measured.",
+                        "description": "Average power in megawatts delivered during time interval measured.",
                         "format": "default"
                     },
                     {
                         "name": "steam_load_1000_lbs",
                         "type": "number",
-                        "description": "Total steam pressure produced by a unit or source in any calendar year (or other specified time period) produced by combusting a given heat input of fuel.",
+                        "description": "Total steam pressure produced by a unit during the reported hour.",
                         "format": "default"
                     },
                     {
@@ -4664,13 +4664,13 @@
                     {
                         "name": "facility_id",
                         "type": "integer",
-                        "description": "Plant ID, assigned by the Energy Information Administration.",
+                        "description": "New EPA plant ID.",
                         "format": "default"
                     },
                     {
                         "name": "unit_id_epa",
                         "type": "integer",
-                        "description": "Unit ID for each unit at a facility, assigned by the Energy Information Administration.",
+                        "description": "New EPA unit ID.",
                         "format": "default"
                     }
                 ],
