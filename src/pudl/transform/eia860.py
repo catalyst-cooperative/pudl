@@ -223,13 +223,12 @@ def plants(eia860_dfs, eia860_transformed_dfs):
 
     """
     # Populating the 'plants_eia860' table
-    p_df = eia860_dfs['plant'].copy()
-
-    # Replace empty strings, whitespace, and '.' fields with real NA values
-    p_df = pudl.helpers.fix_eia_na(p_df)
-
-    # Cast values in zip_code to strings to avoid type errors
-    p_df['zip_code'] = p_df['zip_code'].astype(str)
+    p_df = (
+        eia860_dfs['plant'].copy()
+        .pipe(pudl.helpers.fix_eia_na)
+        .astype({"zip_code": str})
+        .drop("iso_rto", axis="columns")
+    )
 
     # Spelling, punctuation, and capitalization of county names can vary from
     # year to year. We homogenize them here to facilitate correct value
@@ -264,7 +263,6 @@ def plants(eia860_dfs, eia860_transformed_dfs):
         "natural_gas_storage",
         "liquefied_natural_gas_storage",
         "net_metering",
-        "iso_rto",
     ]
 
     for column in boolean_columns_to_fix:

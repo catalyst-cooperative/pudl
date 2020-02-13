@@ -5314,12 +5314,6 @@
                         "format": "default"
                     },
                     {
-                        "name": "iso_rto",
-                        "type": "boolean",
-                        "description": "True if plant is part of an ISO/RTO, False otherwise. NA if it was not reported in that year.",
-                        "format": "default"
-                    },
-                    {
                         "name": "iso_rto_code",
                         "type": "string",
                         "description": "The code of the plant's ISO or RTO. NA if not reported in that year.",

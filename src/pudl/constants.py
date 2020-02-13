@@ -2007,7 +2007,7 @@ entities = {
          'city', 'county', 'ferc_cogen_status',
          'ferc_exempt_wholesale_generator', 'ferc_small_power_producer',
          'grid_voltage_2_kv', 'grid_voltage_3_kv', 'grid_voltage_kv',
-         'iso_rto_code', 'iso_rto', 'latitude', 'longitude',
+         'iso_rto_code', 'latitude', 'longitude',
          'nerc_region', 'plant_name_eia', 'primary_purpose_naics_id',
          'sector_id', 'sector_name', 'state', 'street_address', 'zip_code'],
         # annual cols
@@ -2732,7 +2732,6 @@ column_dtypes = {
         'grid_voltage_kv': float,
         'heat_content_mmbtu_per_unit': float,
         'iso_rto_code': str,
-        'iso_rto': bool,
         'latitude': float,
         'liquefied_natural_gas_storage': bool,
         'longitude': float,
