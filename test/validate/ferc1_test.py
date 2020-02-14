@@ -90,9 +90,9 @@ def test_minmax_rows(pudl_out_ferc1, live_pudl_db, expected_rows, df_name):
     _ = (
         pudl_out_ferc1.__getattribute__(df_name)()
         .pipe(pv.check_min_rows, expected_rows=expected_rows,
-              margin=0.05, df_name=df_name)
+              margin=0.02, df_name=df_name)
         .pipe(pv.check_max_rows, expected_rows=expected_rows,
-              margin=0.05, df_name=df_name)
+              margin=0.02, df_name=df_name)
     )
 
 
