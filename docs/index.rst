@@ -27,5 +27,5 @@ The Public Utility Data Liberation Project
   background
   acknowledgments
   License <LICENSE>
-  Code of Conduct <CODE_OF_CONDUCT>
+  code_of_conduct
   Module Index <api/modules>

@@ -11,7 +11,7 @@ public policymaking.
 
 For more on the motivation and history of the project, have a look at
 :doc:`this background info <background>`. Please also review our :doc:`code of
-conduct <CODE_OF_CONDUCT>`.
+conduct <code_of_conduct>`.
 
 -------------------------------------------------------------------------------
 How to Get Involved
@@ -52,7 +52,7 @@ Code of Conduct
 
 We want to make the PUDL project welcoming to contributors with different
 levels of experience and diverse personal backgrounds. If you're interested in
-contributing please read our :doc:`Code of Conduct <CODE_OF_CONDUCT>`, which is
+contributing please read our :doc:`Code of Conduct <code_of_conduct>`, which is
 based on the `Contributor Covenant <https://www.contributor-covenant.org/>`__.
 
 -------------------------------------------------------------------------------
