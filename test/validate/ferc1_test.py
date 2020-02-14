@@ -61,24 +61,24 @@ def test_no_null_cols_ferc1(pudl_out_ferc1, live_pudl_db, cols, df_name):
 
 
 @pytest.mark.parametrize(
-    "df_name,min_rows", [
-        ("pu_ferc1", 6000),
-        ("fuel_ferc1", 29_000),
-        ("plants_steam_ferc1", 26_000),
-        ("fbp_ferc1", 19_000),
-        ("plants_small_ferc1", 14_000),
-        ("plants_hydro_ferc1", 6300,),
-        ("plants_pumped_storage_ferc1", 650),
-        ("purchased_power_ferc1", 170_000),
-        ("plant_in_service_ferc1", 24_000),
+    "df_name,expected_rows", [
+        ("pu_ferc1", 6632),
+        ("fuel_ferc1", 29_529),
+        ("plants_steam_ferc1", 26_597),
+        ("fbp_ferc1", 19_346),
+        ("plants_small_ferc1", 14_174),
+        ("plants_hydro_ferc1", 6320,),
+        ("plants_pumped_storage_ferc1", 665),
+        ("purchased_power_ferc1", 176_969),
+        ("plant_in_service_ferc1", 24_953),
     ])
-def test_minmax_rows(pudl_out_ferc1, live_pudl_db, min_rows, df_name):
+def test_minmax_rows(pudl_out_ferc1, live_pudl_db, expected_rows, df_name):
     """Verify that output DataFrames don't have too many or too few rows.
 
     Args:
         pudl_out_ferc1: A PudlTabl output object.
         live_pudl_db: Boolean (wether we're using a live or testing DB).
-        min_rows (int): Minimum number of rows that the dataframe should
+        expected_rows (int): Expected number of rows that the dataframe should
             contain when all data is loaded and is output without aggregation.
         df_name (str): Shorthand name identifying the dataframe, corresponding
             to the name of the function used to pull it from the PudlTabl
@@ -89,8 +89,10 @@ def test_minmax_rows(pudl_out_ferc1, live_pudl_db, min_rows, df_name):
         raise AssertionError("Data validation only works with a live PUDL DB.")
     _ = (
         pudl_out_ferc1.__getattribute__(df_name)()
-        .pipe(pv.check_min_rows, n_rows=min_rows, df_name=df_name)
-        .pipe(pv.check_max_rows, n_rows=min_rows * 1.25, df_name=df_name)
+        .pipe(pv.check_min_rows, expected_rows=expected_rows,
+              margin=0.05, df_name=df_name)
+        .pipe(pv.check_max_rows, expected_rows=expected_rows,
+              margin=0.05, df_name=df_name)
     )
 
 

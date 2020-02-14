@@ -52,22 +52,28 @@ def no_null_cols(df, cols="all", df_name=""):
     return df
 
 
-def check_max_rows(df, n_rows=np.inf, df_name=""):
+def check_max_rows(df, expected_rows=np.inf, margin=0.05, df_name=""):
     """Validate that a dataframe has less than a maximum number of rows."""
     len_df = len(df)
-    if len_df > n_rows:
+    max_rows = expected_rows * (1 + margin)
+    if len_df > max_rows:
         raise ValueError(
-            f"Too many records ({len_df}>{n_rows}) in dataframe {df_name}")
+            f"Too many records ({len_df}>{max_rows}) in dataframe {df_name}")
+    logger.info(f"{df_name}: expected {expected_rows} rows, "
+                f"found {len_df} rows.")
 
     return df
 
 
-def check_min_rows(df, n_rows=0, df_name=""):
+def check_min_rows(df, expected_rows=0, margin=0.05, df_name=""):
     """Validate that a dataframe has a certain minimum number of rows."""
     len_df = len(df)
-    if len_df < n_rows:
+    min_rows = expected_rows / (1 + margin)
+    if len_df < min_rows:
         raise ValueError(
-            f"Too few records ({len_df}<{n_rows}) in dataframe {df_name}")
+            f"Too few records ({len_df}<{min_rows}) in dataframe {df_name}")
+    logger.info(f"{df_name}: expected {expected_rows} rows, "
+                f"found {len_df} rows.")
 
     return df
 

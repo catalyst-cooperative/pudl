@@ -100,7 +100,7 @@ def get_db_plants_ferc1(pudl_settings, years):
         years (iterable): Years for which plants should be compiled.
 
     Returns:
-        :class:`pandas.DataFrame`: A dataframe containing columns
+        pandas.DataFrame: A dataframe containing columns
         utility_id_ferc1, utility_name_ferc1, plant_name, capacity_mw, and
         plant_table. Each row is a unique combination of utility_id_ferc1 and
         plant_name.
@@ -194,7 +194,7 @@ def get_mapped_plants_ferc1():
         None
 
     Returns:
-        :class:`pandas.DataFrame`: A DataFrame with three columns: plant_name,
+        pandas.DataFrame A DataFrame with three columns: plant_name,
         utility_id_ferc1, and utility_name_ferc1. Each row represents a unique
         combination of utility_id_ferc1 and plant_name.
 
@@ -232,7 +232,7 @@ def get_mapped_utils_ferc1():
         None
 
     Returns:
-        :class:`pandas.DataFrame`:
+        pandas.DataFrame
 
     """
     ferc1_mapped_utils = (
@@ -263,11 +263,11 @@ def get_unmapped_plants_ferc1(pudl_settings, years):
             raw FERC Form 1 DB.
 
     Returns:
-        :class:`pandas.DataFrame`: A dataframe containing five columns:
-            utility_id_ferc1, utility_name_ferc1, plant_name, capacity_mw, and
-            plant_table. Each row is a unique combination of utility_id_ferc1
-            and plant_name, which appears in the FERC Form 1 DB, but not in
-            the list of manually mapped plants.
+        pandas.DataFrame: A dataframe containing five columns:
+        utility_id_ferc1, utility_name_ferc1, plant_name, capacity_mw, and
+        plant_table. Each row is a unique combination of utility_id_ferc1 and
+        plant_name, which appears in the FERC Form 1 DB, but not in the list of
+        manually mapped plants.
 
     """
     db_plants = (
@@ -298,7 +298,7 @@ def get_unmapped_utils_ferc1(pudl_settings, years):
         years (iterable): Years for which plants should be compiled from the
             raw FERC Form 1 DB.
     Returns:
-        :class:`pandas.DataFrame`
+        pandas.DataFrame
 
     """
     # Note: we only map the utlities that have plants associated with them.
@@ -339,7 +339,7 @@ def get_db_plants_eia(pudl_engine):
     PUDL DB that has all the EIA data in it.
 
     Args:
-        pudl_engine (:class:`sqlalchemy.engine.Engine`): A database connection
+        pudl_engine (sqlalchemy.engine.Engine): A database connection
             engine for connecting to a PUDL SQLite database.
 
     Returns:

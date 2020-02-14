@@ -55,11 +55,13 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     utils_g_eia_df = pd.read_sql(utils_g_eia_select, pudl_engine)
 
     out_df = pd.merge(utils_eia_df, utils_eia860_df,
-                      how='left', on=['utility_id_eia', ])
+                      how='left', on=['utility_id_eia'])
     out_df = pd.merge(out_df, utils_g_eia_df,
-                      how='left', on=['utility_id_eia', ])
+                      how='left', on=['utility_id_eia'])
     out_df = (
         out_df.assign(report_date=lambda x: pd.to_datetime(x.report_date))
+        .dropna(subset=["report_date", "utility_id_eia"])
+        .astype({"utility_id_pudl": "Int64"})
         .drop(['id'], axis='columns')
     )
     first_cols = [
@@ -123,11 +125,9 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
     ])
     plants_g_eia_df = pd.read_sql(plants_g_eia_select, pudl_engine)
 
-    out_df = pd.merge(plants_eia_df, plants_eia860_df,
-                      how='left', on=['plant_id_eia', ])
-
-    out_df = pd.merge(out_df, plants_g_eia_df,
-                      how='left', on=['plant_id_eia', ])
+    out_df = pd.merge(
+        plants_eia_df, plants_eia860_df, how='left', on=['plant_id_eia'])
+    out_df = pd.merge(out_df, plants_g_eia_df, how='left', on=['plant_id_eia'])
 
     utils_eia_tbl = pt['utilities_eia']
     utils_eia_select = sa.sql.select([
@@ -136,9 +136,17 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
     ])
     utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
-    out_df = pd.merge(out_df, utils_eia_df,
-                      how='left', on=['utility_id_eia', ])
-    out_df = out_df.drop(['id'], axis='columns')
+    out_df = (
+        pd.merge(out_df, utils_eia_df, how='left', on=['utility_id_eia', ])
+        .drop(['id'], axis='columns')
+        .dropna(subset=["report_date", "plant_id_eia"])
+        .astype({
+            "plant_id_eia": "Int64",
+            "plant_id_pudl": "Int64",
+            "utility_id_eia": "Int64",
+            "utility_id_pudl": "Int64",
+        })
+    )
     return out_df
 
 
@@ -153,10 +161,6 @@ def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
     - utility_id_eia (from EIA860)
     - utility_name_eia (from EIA860)
     - utility_id_pudl
-
-    Note: EIA 860 data has only been integrated for 2011-2016. If earlier or
-    later years are requested, they will be filled in with data from the
-    first or last years.
 
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
@@ -179,6 +183,7 @@ def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
         plants_eia860(pudl_engine, start_date=start_date, end_date=end_date)
         .drop(['utility_id_pudl', 'city', 'state',  # Avoid dupes in merge
                'zip_code', 'street_address'], axis='columns')
+        .dropna(subset=["utility_id_eia"])  # Drop unmergable records
     )
     utils_eia = utilities_eia860(pudl_engine,
                                  start_date=start_date,
@@ -197,7 +202,7 @@ def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
                        'utility_name_eia',
                        'utility_id_pudl']
                    ]
-        .dropna()
+        .dropna(subset=["report_date", "plant_id_eia", "utility_id_eia"])
         .astype({
             "plant_id_eia": "Int64",
             "plant_id_pudl": "Int64",
@@ -298,8 +303,17 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
     ft_count = ft_count.reset_index()
     ft_count = ft_count.rename(
         columns={'fuel_type_code_pudl': 'fuel_type_count'})
-    out_df = pd.merge(out_df, ft_count, how='left',
-                      on=['plant_id_eia', 'report_date'])
+    out_df = (
+        pd.merge(out_df, ft_count, how='left',
+                 on=['plant_id_eia', 'report_date'])
+        .dropna(subset=["report_date", "plant_id_eia", "generator_id"])
+        .astype({
+            "plant_id_eia": "Int64",
+            "plant_id_pudl": "Int64",
+            "utility_id_eia": "Int64",
+            "utility_id_pudl": "Int64",
+        })
+    )
 
     first_cols = [
         'report_date',
@@ -407,17 +421,22 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
                  'utility_name_eia', 'utility_id_pudl', 'report_date']]
     )
 
-    out_df = pd.merge(own_eia860_df, pu_eia,
-                      how='left', on=['report_date', 'plant_id_eia'])
-
-    # out_df = out_df.dropna(subset=[
-    #    'plant_id_eia',
-    #    'plant_id_pudl',
-    #    'utility_id_eia',
-    #    'utility_id_pudl',
-    #    'generator_id',
-    #    'owner_utility_id_eia',
-    # ])
+    out_df = (
+        pd.merge(own_eia860_df, pu_eia,
+                 how='left', on=['report_date', 'plant_id_eia'])
+        .dropna(subset=[
+            "report_date",
+            "plant_id_eia",
+            "generator_id",
+            "owner_utility_id_eia",
+        ])
+        .astype({
+            "plant_id_eia": "Int64",
+            "plant_id_pudl": "Int64",
+            "utility_id_eia": "Int64",
+            "utility_id_pudl": "Int64",
+        })
+    )
 
     first_cols = [
         'report_date',
@@ -435,10 +454,6 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
     # Re-arrange the columns for easier readability:
     out_df = (
         pudl.helpers.organize_cols(out_df, first_cols)
-        .astype({
-            "plant_id_pudl": "Int64",
-            "utility_id_pudl": "Int64",
-        })
     )
 
     return out_df
