@@ -99,7 +99,7 @@ def heat_rate_by_gen(pudl_out):
                                'plant_id_eia',
                                'unit_id_pudl',
                                'generator_id']].drop_duplicates()
-    gens_simple = pd.merge(gens_simple, bga_gens,
+    bga_gens = pd.merge(gens_simple, bga_gens,
                            on=['report_date', 'plant_id_eia', 'generator_id'],
                            validate='one_to_one')
     # Associate those heat rates with individual generators. This also means
