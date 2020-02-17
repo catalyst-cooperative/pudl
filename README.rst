@@ -94,6 +94,7 @@ downloads, processes, and outputs. Run ``pudl_setup --help`` and ``pudl_data
 Now that we have some raw data, we can run the PUDL ETL (Extract, Transform,
 Load) pipeline to clean it up and integrate it together. There are several
 steps:
+
 * Cloning the FERC Form 1 database into SQLite
 * Extracting data from that database and other sources and cleaning it up
 * Outputting the clean data into CSV/JSON based data packages, and finally
