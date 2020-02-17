@@ -25,24 +25,20 @@ EIA Form 860
 =================== ===========================================================
 Source URL          https://www.eia.gov/electricity/data/eia860/
 Source Format       Microsoft Excel (.xls/.xlsx)
-Source Years        2001-2017
+Source Years        2001-2018
 Size (Download)     127 MB
 Size (Uncompressed) 247 MB
 PUDL Code           ``eia860``
-Years Liberated     2011-2018
-Records Liberated   ~500,000
-Issues              `open issues labeled epacems <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia860>`__
+Years Liberated     2009-2018
+Records Liberated   ~600,000
+Issues              `open EIA 860 issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia860>`__
 =================== ===========================================================
 
 Nearly all of the data reported to the EIA on Form 860 is being pulled into the
-PUDL database for the years 2011-2018.
-
-We are working on integrating the 2009-2010 EIA 860 data, which has a similar
-format. This will give us the same coverage in both EIA 860 and EIA 923, which
-is good since the two datasets are tightly integrated.
-
-Currently we are extending the 2011 EIA 860 data back to 2009 as needed to
-integrate it with EIA 923.
+PUDL database for the years 2009-2018. This data is tightly integrated with the
+EIA 923 data, for which we integrate the same set of years. We do not
+anticipate integrating EIA 860 data from before 2009 at at this time, but if
+you need that data, let us know.
 
 .. _data-eia923:
 
@@ -57,15 +53,18 @@ Size (Download)     196 MB
 Size (Uncompressed) 299 MB
 PUDL Code           ``eia923``
 Years Liberated     2009-2018
-Records Liberated   ~2 million
-Issues              `open issues labeled epacems <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia923>`__
+Records Liberated   ~3.2 million
+Issues              `Open EIA 923 issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia923>`__
 =================== ===========================================================
 
 Nearly all of EIA Form 923 is being pulled into the PUDL database, for years
-2009-2017. Earlier data is available from EIA, but the reporting format for
+2009-2018. Earlier data is available from EIA, but the reporting format for
 earlier years is substantially different from the present day, and will require
 more work to integrate. Monthly year to date releases are not yet being
-integrated.
+integrated, and only larger utilities are required to make monthly reports.
+
+We have not yet integrated tables reporting fuel stocks on hand, data from
+Puerto Rico, or EIA 923 schedules 6, 7, and 8.
 
 .. _data-epacems:
 
@@ -81,7 +80,7 @@ Size (Uncompressed) ~100 GB
 PUDL Code           ``epacems``
 Years Liberated     1995-2018
 Records Liberated   ~1 billion
-Issues              `open issues labeled epacems <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aepacems>`__
+Issues              `Open EPA CEMS issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aepacems>`__
 =================== ===========================================================
 
 All of the EPA's hourly Continuous Emissions Monitoring System (CEMS) data is
@@ -112,7 +111,7 @@ Size (Uncompressed) 14 MB
 PUDL Code           ``epaipm``
 Years Liberated     N/A
 Records Liberated   ~650,000
-Issues              `open issues labeled epacems <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aepaipm>`__
+Issues              `Open EPA IPM Issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aepaipm>`__
 =================== ===========================================================
 
 .. todo::
@@ -130,11 +129,11 @@ Source URL          https://www.ferc.gov/docs-filing/forms/form-1/data.asp
 Source Format       FoxPro Database (.DBC/.DBF)
 Source Years        1994-2018
 Size (Download)     1.4 GB
-Size (Uncompressed) 2.5 GB
+Size (Uncompressed) 10 GB
 PUDL Code           ``ferc1``
 Years Liberated     1994-2018
 Records Liberated   ~12 million (116 raw tables), ~280,000 (7 clean tables)
-Issues              `open issues labeled <https://github.com/catalyst-cooperative/pudl/issues?q=is%3Aissue+is%3Aopen+label%3Aferc1>`__
+Issues              `Open FERC Form 1 issues <https://github.com/catalyst-cooperative/pudl/issues?q=is%3Aissue+is%3Aopen+label%3Aferc1>`__
 =================== ===========================================================
 
 The FERC Form 1 database consists of 116 data tables containing ~8GB of data,
