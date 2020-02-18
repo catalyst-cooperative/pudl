@@ -92,16 +92,10 @@ def heat_rate_by_gen(pudl_out):
         raise ValueError(
             "pudl_out must include a frequency for heat rate calculation")
 
-    gens_simple = pudl_out.gens_eia860()[['report_date', 'plant_id_eia',
-                                          'generator_id',
-                                          'fuel_type_code_pudl']]
     bga_gens = pudl_out.bga()[['report_date',
                                'plant_id_eia',
                                'unit_id_pudl',
                                'generator_id']].drop_duplicates()
-    gens_simple = pd.merge(gens_simple, bga_gens,
-                           on=['report_date', 'plant_id_eia', 'generator_id'],
-                           validate='one_to_one')
     # Associate those heat rates with individual generators. This also means
     # losing the net generation and fuel consumption information for now.
     hr_by_gen = pudl.helpers.merge_on_date_year(
