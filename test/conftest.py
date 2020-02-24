@@ -247,8 +247,9 @@ def pudl_engine(ferc1_engine, live_pudl_db, pudl_settings_fixture,
         pudl.helpers.drop_tables(pudl_engine, clobber=True)
 
 
-@pytest.fixture(scope='session')  # noqa: C901
-def pudl_settings_fixture(request, tmpdir_factory, live_ferc1_db, live_pudl_db):
+@pytest.fixture(scope='session')
+def pudl_settings_fixture(request, tmpdir_factory,  # noqa: C901
+                          live_ferc1_db, live_pudl_db):
     """Determine some settings (mostly paths) for the test session."""
     logger.info('setting up the pudl_settings_fixture')
     # Create a session scoped temporary directory.
