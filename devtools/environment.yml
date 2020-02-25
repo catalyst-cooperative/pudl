@@ -32,7 +32,7 @@ dependencies:
   - pep8-naming         # dev
   - pip                 # N/A
   - pre_commit          # dev
-  - pyarrow>=0.15       # base compilation issues below 0.14.0
+  - pyarrow>=0.16       # base
   - pydocstyle          # dev
   - pytest              # dev
   - pytest-cov          # dev
