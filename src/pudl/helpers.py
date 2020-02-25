@@ -894,13 +894,8 @@ def convert_cols_dtypes(df, data_source, name=None):
         # sometimes this column has been converted to a float and therefor
         # we need to skip this conversion
         if df.utility_id_eia.dtypes is np.dtype('object'):
-            df = df.astype({'utility_id_eia': 'float'}, skipna=True)
-    # we need the skipna in here for now... it looks like this is
-    # going to become standard, but for now it is important because
-    # without it, the integer cols (even the new nullable Int cols)
-    # will keep the trailing .0 decimal
-    # https://github.com/pandas-dev/pandas/pull/28176
-    df = df.astype(non_bool_cols, skipna=True)
+            df = df.astype({'utility_id_eia': 'float'})
+    df = df.astype(non_bool_cols)
     return df
 
 

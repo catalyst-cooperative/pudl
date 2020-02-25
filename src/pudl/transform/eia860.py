@@ -50,9 +50,14 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     o_df.loc[o_df.report_date.dt.year < 2012, 'fraction_owned'] = \
         o_df.loc[o_df.report_date.dt.year < 2012, 'fraction_owned'] / 100
 
-    o_df['owner_utility_id_eia'] = o_df['owner_utility_id_eia'].astype(int)
-    o_df['utility_id_eia'] = o_df['utility_id_eia'].astype(int)
-    o_df['plant_id_eia'] = o_df['plant_id_eia'].astype(int)
+    o_df = (
+        o_df.astype({
+            "owner_utility_id_eia": pd.Int64Dtype(),
+            "utility_id_eia": pd.Int64Dtype(),
+            "plant_id_eia": pd.Int64Dtype(),
+            "owner_state": pd.StringDtype()
+        })
+    )
 
     eia860_transformed_dfs['ownership_eia860'] = o_df
 

@@ -2508,7 +2508,7 @@
                                 "YT"
                             ]
                         },
-                        "description": "Two letter US state and territory abbreviations.",
+                        "description": "Two letter US & Canadian state and territory abbreviations.",
                         "format": "default"
                     },
                     {

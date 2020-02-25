@@ -26,7 +26,7 @@ dependencies:
   - nbval               # dev
   - networkx>=2.2       # base We depend on features introduced in v2.2
   - numpy               # base
-  - pandas>=0.25,<1.0   # base Nullable integers, but also deprecated behaviors
+  - pandas>=1.0         # base Extensive nullable data type use
   - pandoc              # dev
   - pdbpp               # dev
   - pep8-naming         # dev
