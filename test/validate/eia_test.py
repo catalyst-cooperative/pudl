@@ -11,16 +11,12 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.parametrize(
     "df_name,cols", [
-        pytest.param(
-            "plants_eia860", "all",
-            marks=pytest.mark.xfail(reason="Missing 2009-2010 EIA 860 Data.")),
+        ("plants_eia860", "all"),
         ("utils_eia860", "all"),
         ("pu_eia860", "all"),
         ("bga_eia860", "all"),
         ("own_eia860", "all"),
-        pytest.param(
-            "gens_eia860", "all",
-            marks=pytest.mark.xfail(reason="Missing 2009-2010 EIA 860 Data.")),
+        ("gens_eia860", "all"),
         ("gen_eia923", "all"),
         ("gf_eia923", "all"),
         ("bf_eia923", "all"),
@@ -37,16 +33,16 @@ def test_no_null_cols_eia(pudl_out_eia, live_pudl_db, cols, df_name):
 
 @pytest.mark.parametrize(
     "df_name,raw_rows,monthly_rows,annual_rows", [
-        ("plants_eia860", 80_000, 80_000, 80_000),
-        ("utils_eia860", 35_000, 35_000, 35_000),
-        ("pu_eia860", 60_000, 60_000, 60_000),
-        ("bga_eia860", 90_000, 90_000, 90_000),
-        ("own_eia860", 35_000, 35_000, 35_000),
-        ("gens_eia860", 200_000, 200_000, 200_000),
-        ("gen_eia923", 300_000, 300_000, 25_000),
-        ("gf_eia923", 1_000_000, 800_000, 65_000),
-        ("bf_eia923", 750_000, 625_000, 50_000),
-        ("frc_eia923", 275_000, 115_000, 11_000),
+        ("utils_eia860", 44_801, 44_801, 44_801),
+        ("plants_eia860", 84_828, 84_828, 84_828),
+        ("pu_eia860", 83_993, 83_993, 83_993),
+        ("own_eia860", 42_563, 42_563, 42_563),
+        ("bga_eia860", 90_127, 90_127, 90_127),
+        ("gens_eia860", 242_630, 242_630, 242_630),
+        ("frc_eia923", 417_723, 175_553, 17_381),
+        ("gen_eia923", 422_388, 422_388, 35_199),
+        ("bf_eia923", 1_021_764, 855_048, 71_254),
+        ("gf_eia923", 1_379_820, 1_106_712, 92_226),
     ])
 def test_minmax_rows(pudl_out_eia,
                      live_pudl_db,
@@ -58,7 +54,7 @@ def test_minmax_rows(pudl_out_eia,
 
     Args:
         pudl_out_eia: A PudlTabl output object.
-        live_pudl_db: Boolean (wether we're using a live or testing DB).
+        live_pudl_db (bool): Whether we're using a live or testing DB.
         min_rows (int): Minimum number of rows that the dataframe should
             contain when all data is loaded and is output without aggregation.
         df_name (str): Shorthand name identifying the dataframe, corresponding
@@ -69,17 +65,19 @@ def test_minmax_rows(pudl_out_eia,
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     if pudl_out_eia.freq == "AS":
-        min_rows = annual_rows
+        expected_rows = annual_rows
     elif pudl_out_eia.freq == "MS":
-        min_rows = monthly_rows
+        expected_rows = monthly_rows
     else:
         assert pudl_out_eia.freq is None
-        min_rows = raw_rows
+        expected_rows = raw_rows
 
     _ = (
         pudl_out_eia.__getattribute__(df_name)()
-        .pipe(pv.check_min_rows, n_rows=min_rows, df_name=df_name)
-        .pipe(pv.check_max_rows, n_rows=min_rows * 1.25, df_name=df_name)
+        .pipe(pv.check_min_rows, expected_rows=expected_rows,
+              margin=0.05, df_name=df_name)
+        .pipe(pv.check_max_rows, expected_rows=expected_rows,
+              margin=0.05, df_name=df_name)
     )
 
 

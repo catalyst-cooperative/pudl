@@ -91,10 +91,7 @@ def test_bga(pudl_out_eia, live_pudl_db):
         ("fuel_cost", "all"),
         ("capacity_factor", "all"),
         ("bga", "all"),
-        pytest.param(
-            "mcoe", "all",
-            marks=pytest.mark.xfail(reason="Missing 2009-2010 EIA860 data."),
-        )
+        ("mcoe", "all"),
     ]
 )
 def test_no_null_cols_mcoe(pudl_out_mcoe, live_pudl_db, cols, df_name):
@@ -110,26 +107,32 @@ def test_no_null_cols_mcoe(pudl_out_mcoe, live_pudl_db, cols, df_name):
 
 
 @pytest.mark.parametrize(
-    "df_name,min_rows", [
-        ("bga", 90_000),
-        ("hr_by_unit", 15_000),
-        ("hr_by_gen", 23_000),
-        ("fuel_cost", 23_000),
-        ("capacity_factor", 25_000),
-        ("mcoe", 23_000),
+    "df_name,monthly_rows,annual_rows", [
+        ("bga", 90_127, 90_127),
+        ("hr_by_unit", 273_924, 22_827),
+        ("hr_by_gen", 400_992, 33_416),
+        ("fuel_cost", 400_992, 33_416),
+        ("capacity_factor", 422_388, 35_199),
+        ("mcoe", 400_992, 33_416),
     ])
-def test_minmax_rows_mcoe(pudl_out_mcoe, live_pudl_db, min_rows, df_name):
+def test_minmax_rows_mcoe(pudl_out_mcoe, live_pudl_db,
+                          monthly_rows, annual_rows, df_name):
     """Verify that output DataFrames don't have too many or too few rows."""
     if not live_pudl_db:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     if pudl_out_mcoe.freq is None:
         pytest.skip()
-    if (pudl_out_mcoe.freq == "MS") and (df_name != "bga"):
-        min_rows = 12 * min_rows
+    if (pudl_out_mcoe.freq == "MS"):
+        expected_rows = monthly_rows
+    else:
+        assert pudl_out_mcoe.freq == "AS"
+        expected_rows = annual_rows
     _ = (
         pudl_out_mcoe.__getattribute__(df_name)()
-        .pipe(pv.check_min_rows, n_rows=min_rows, df_name=df_name)
-        .pipe(pv.check_max_rows, n_rows=min_rows * 1.25, df_name=df_name)
+        .pipe(pv.check_min_rows, expected_rows=expected_rows,
+              margin=0.05, df_name=df_name)
+        .pipe(pv.check_max_rows, expected_rows=expected_rows,
+              margin=0.05, df_name=df_name)
     )
 
 

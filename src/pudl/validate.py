@@ -52,22 +52,28 @@ def no_null_cols(df, cols="all", df_name=""):
     return df
 
 
-def check_max_rows(df, n_rows=np.inf, df_name=""):
+def check_max_rows(df, expected_rows=np.inf, margin=0.05, df_name=""):
     """Validate that a dataframe has less than a maximum number of rows."""
     len_df = len(df)
-    if len_df > n_rows:
+    max_rows = expected_rows * (1 + margin)
+    if len_df > max_rows:
         raise ValueError(
-            f"Too many records ({len_df}>{n_rows}) in dataframe {df_name}")
+            f"Too many records ({len_df}>{max_rows}) in dataframe {df_name}")
+    logger.info(f"{df_name}: expected {expected_rows} rows, "
+                f"found {len_df} rows.")
 
     return df
 
 
-def check_min_rows(df, n_rows=0, df_name=""):
+def check_min_rows(df, expected_rows=0, margin=0.05, df_name=""):
     """Validate that a dataframe has a certain minimum number of rows."""
     len_df = len(df)
-    if len_df < n_rows:
+    min_rows = expected_rows / (1 + margin)
+    if len_df < min_rows:
         raise ValueError(
-            f"Too few records ({len_df}<{n_rows}) in dataframe {df_name}")
+            f"Too few records ({len_df}<{min_rows}) in dataframe {df_name}")
+    logger.info(f"{df_name}: expected {expected_rows} rows, "
+                f"found {len_df} rows.")
 
     return df
 
@@ -1775,7 +1781,7 @@ frc_eia923_oil_ker_heat_content = [
         "title": "Kerosene heat content (tails)",
         "query": "energy_source_code=='KER'",
         "low_q": 0.05,
-        "low_bound": 5.6,
+        "low_bound": 5.4,
         "hi_q": 0.95,
         "hi_bound": 6.1,
         "data_col": "heat_content_mmbtu_per_unit",
@@ -2603,7 +2609,7 @@ mcoe_fuel_cost_per_mmbtu = [
         "title": "Coal Fuel Costs (tails)",
         "query": "fuel_type_code_pudl=='coal'",
         "low_q": 0.05,
-        "low_bound": 1.25,
+        "low_bound": 1.2,
         "hi_q": 0.95,
         "hi_bound": 4.5,
         "data_col": "fuel_cost_per_mmbtu",

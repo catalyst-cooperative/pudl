@@ -35,16 +35,16 @@ def test_own_eia860(pudl_out_eia, live_pudl_db):
         f"{len(own_sum[own_sum.fraction_owned.isnull()])} generator-years have no ownership data.")
 
     own_sum = own_sum.dropna()
+    pct_missing = stats.percentileofscore(own_sum.fraction_owned, 0.98)
     logger.info(
-        f"{len(own_sum[own_sum.fraction_owned < 0.98])} generator-years have incomplete ownership data.")
+        f"{len(own_sum[own_sum.fraction_owned < 0.98])} ({pct_missing}%) "
+        f"generator-years have incomplete ownership data.")
     if not max(own_sum['fraction_owned'] < 1.02):
-        raise AssertionError(
-            "Plants with more than 100% ownership found..."
-        )
+        raise ValueError("Plants with more than 100% ownership found...")
     # There might be a few generators with incomplete ownership but virtually
     # everything should be pretty fully described. If not, let us know. The
-    # 0.1 threshold means 0.1% -- i.e. less than 1 in 1000 is partial.
-    if stats.percentileofscore(own_sum.fraction_owned, 0.98) >= 0.1:
-        raise AssertionError(
-            "Found too many generators with partial ownership data."
+    # 0.5 threshold means 0.5% -- i.e. less than 1 in 200 is partial.
+    if pct_missing >= 0.5:
+        raise ValueError(
+            f"{pct_missing}% of generators lack complete ownership data."
         )

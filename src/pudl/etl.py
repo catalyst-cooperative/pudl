@@ -257,11 +257,6 @@ def _validate_params_ferc1(etl_params):  # noqa: C901
     except KeyError:
         ferc1_dict['debug'] = False
 
-    # try:
-    #    ferc1_dict['partition'] = etl_params['partition']
-    # except KeyError:
-    #    ferc1_dict['partition'] = None
-
     if (not ferc1_dict['debug']) and (ferc1_dict['ferc1_tables']):
         for table in ferc1_dict['ferc1_tables']:
             if table not in pc.pudl_tables["ferc1"]:
@@ -306,8 +301,7 @@ def _load_static_tables_ferc1(datapkg_dir):
         'ferc_depreciation_lines': ferc_depreciation_lines
     }
 
-    # run the dictionary of prepped static tables through dict_dump to make
-    # CSVs
+    # run dictionary of prepped static tables through dict_dump to make CSVs
     pudl.load.csv.dict_dump(static_dfs,
                             "Static FERC Tables",
                             datapkg_dir=datapkg_dir)

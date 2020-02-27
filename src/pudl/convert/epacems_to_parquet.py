@@ -314,18 +314,6 @@ def main():
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=args.pudl_in, pudl_out=args.pudl_out)
 
-    # Make sure the required input files are available before we go doing a
-    # bunch of work cloning the database...
-    logger.info("Checking for required EPA CEMS input files...")
-    pudl.helpers.verify_input_files(
-        ferc1_years=[],
-        eia860_years=[],
-        eia923_years=[],
-        epacems_years=args.years,
-        epacems_states=args.states,
-        pudl_settings=pudl_settings,
-    )
-
     epacems_to_parquet(datapkg_path=pathlib.Path(args.datapkg),
                        epacems_years=args.years,
                        epacems_states=args.states,

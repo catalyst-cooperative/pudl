@@ -100,7 +100,7 @@ def get_db_plants_ferc1(pudl_settings, years):
         years (iterable): Years for which plants should be compiled.
 
     Returns:
-        :class:`pandas.DataFrame`: A dataframe containing columns
+        pandas.DataFrame: A dataframe containing columns
         utility_id_ferc1, utility_name_ferc1, plant_name, capacity_mw, and
         plant_table. Each row is a unique combination of utility_id_ferc1 and
         plant_name.
@@ -194,7 +194,7 @@ def get_mapped_plants_ferc1():
         None
 
     Returns:
-        :class:`pandas.DataFrame`: A DataFrame with three columns: plant_name,
+        pandas.DataFrame A DataFrame with three columns: plant_name,
         utility_id_ferc1, and utility_name_ferc1. Each row represents a unique
         combination of utility_id_ferc1 and plant_name.
 
@@ -232,7 +232,7 @@ def get_mapped_utils_ferc1():
         None
 
     Returns:
-        :class:`pandas.DataFrame`:
+        pandas.DataFrame
 
     """
     ferc1_mapped_utils = (
@@ -263,11 +263,11 @@ def get_unmapped_plants_ferc1(pudl_settings, years):
             raw FERC Form 1 DB.
 
     Returns:
-        :class:`pandas.DataFrame`: A dataframe containing five columns:
-            utility_id_ferc1, utility_name_ferc1, plant_name, capacity_mw, and
-            plant_table. Each row is a unique combination of utility_id_ferc1
-            and plant_name, which appears in the FERC Form 1 DB, but not in
-            the list of manually mapped plants.
+        pandas.DataFrame: A dataframe containing five columns:
+        utility_id_ferc1, utility_name_ferc1, plant_name, capacity_mw, and
+        plant_table. Each row is a unique combination of utility_id_ferc1 and
+        plant_name, which appears in the FERC Form 1 DB, but not in the list of
+        manually mapped plants.
 
     """
     db_plants = (
@@ -298,7 +298,7 @@ def get_unmapped_utils_ferc1(pudl_settings, years):
         years (iterable): Years for which plants should be compiled from the
             raw FERC Form 1 DB.
     Returns:
-        :class:`pandas.DataFrame`
+        pandas.DataFrame
 
     """
     # Note: we only map the utlities that have plants associated with them.
@@ -339,13 +339,12 @@ def get_db_plants_eia(pudl_engine):
     PUDL DB that has all the EIA data in it.
 
     Args:
-        pudl_engine (:class:`sqlalchemy.engine.Engine`): A database connection
+        pudl_engine (sqlalchemy.engine.Engine): A database connection
             engine for connecting to a PUDL SQLite database.
 
     Returns:
-        :class:`pandas.DataFrame`: A DataFrame with plant_id_eia,
-        plant_name_eia, and state columns, for addition to the FERC 1 / EIA
-        plant mappings.
+        pandas.DataFrame: A DataFrame with plant_id_eia, plant_name_eia, and
+        state columns, for addition to the FERC 1 / EIA plant mappings.
 
     """
     db_plants_eia = (
@@ -370,7 +369,7 @@ def get_mapped_plants_eia():
         None
 
     Returns:
-        :class:`pandas.DataFrame`: A DataFrame listing the plant_id_eia and
+        pandas.DataFrame: A DataFrame listing the plant_id_eia and
         plant_name_eia values for every EIA plant which has already been
         assigned a PUDL Plant ID.
 
@@ -436,7 +435,7 @@ def get_lost_plants_eia(pudl_engine):
 def get_db_utils_eia(pudl_engine):
     """Get a list of all EIA Utilities appearing in the PUDL DB."""
     db_utils_eia = (
-        pd.read_sql("utilities_eia", pudl_engine).
+        pd.read_sql("utilities_entity_eia", pudl_engine).
         loc[:, ["utility_id_eia", "utility_name_eia"]].
         pipe(pudl.helpers.strip_lower, columns=["utility_name_eia"]).
         astype({"utility_id_eia": int}).
@@ -469,6 +468,61 @@ def get_unmapped_utils_eia(pudl_engine):
     unmapped_utils_idx = db_utils_eia.index.difference(mapped_utils_eia.index)
     unmapped_utils_eia = db_utils_eia.loc[unmapped_utils_idx]
     return unmapped_utils_eia
+
+
+def get_unmapped_utils_with_plants_eia(pudl_engine):
+    """Get all EIA Utilities that lack PUDL IDs but have plants/ownership."""
+    pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine)
+
+    utils_idx = ["utility_id_eia", "report_date"]
+    plants_idx = ["plant_id_eia", "report_date"]
+    own_idx = ["plant_id_eia", "generator_id",
+               "owner_utility_id_eia", "report_date"]
+
+    utils_eia860 = (
+        pudl_out.utils_eia860()
+        .dropna(subset=utils_idx)
+        .set_index(utils_idx)
+    )
+    plants_eia860 = (
+        pudl_out.plants_eia860()
+        .dropna(subset=plants_idx)
+        .set_index(plants_idx)
+    )
+    own_eia860 = (
+        pudl_out.own_eia860()
+        .dropna(subset=own_idx)
+        .set_index(own_idx)
+    )
+
+    own_miss_utils = set(
+        own_eia860[own_eia860.utility_id_pudl.isnull()]
+        .utility_id_eia.unique()
+    )
+    plants_miss_utils = set(
+        plants_eia860[plants_eia860.utility_id_pudl.isnull()]
+        .utility_id_eia.unique()
+    )
+
+    utils_eia860 = utils_eia860.reset_index()
+    miss_utils = utils_eia860[
+        (utils_eia860.utility_id_pudl.isna()) &
+        (
+            (utils_eia860.plants_reported_owner == "True") |
+            (utils_eia860.plants_reported_asset_manager == "True") |
+            (utils_eia860.plants_reported_operator == "True") |
+            (utils_eia860.plants_reported_other_relationship == "True") |
+            (utils_eia860.utility_id_eia.isin(own_miss_utils)) |
+            (utils_eia860.utility_id_eia.isin(plants_miss_utils))
+        )
+    ]
+
+    miss_utils = (
+        miss_utils.drop_duplicates("utility_id_eia")
+        .set_index("utility_id_eia")
+        .loc[:, ["utility_name_eia"]]
+    )
+    return miss_utils
 
 
 def get_lost_utils_eia(pudl_engine):

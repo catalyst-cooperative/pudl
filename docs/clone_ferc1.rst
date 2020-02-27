@@ -66,7 +66,7 @@ individual data tables back to ``f1_respondent_id``. In theory, most of the
 data tables use ``report_year``, ``respondent_id``, ``row_number``,
 ``spplmnt_num`` and ``report_prd`` as a composite primary key (According to
 :download:`this FERC Form 1 database schema from 2015
-<ferc/form1/FERC_Form1_Database_Design_Diagram_2015.pdf>`.
+<ferc/form1/ferc_form1_database_design_diagram_2015.pdf>`.
 
 In practice, there are several thousand records (out of ~12 million), including
 some in almost every table, that violate the uniqueness constraint on those

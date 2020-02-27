@@ -95,17 +95,6 @@ def generation_fuel_eia923(pudl_engine, freq=None,
     pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine,
                                                     start_date=start_date,
                                                     end_date=end_date)
-    out_df = pudl.helpers.merge_on_date_year(
-        gf_df, pu_eia, on=['plant_id_eia'])
-    # Drop any records where we've failed to get the 860 data merged in...
-    out_df = out_df.dropna(subset=[
-        'plant_id_eia',
-        'plant_id_pudl',
-        'plant_name_eia',
-        'utility_id_eia',
-        'utility_id_pudl',
-        'utility_name_eia',
-    ])
 
     first_cols = ['report_date',
                   'plant_id_eia',
@@ -115,13 +104,21 @@ def generation_fuel_eia923(pudl_engine, freq=None,
                   'utility_id_pudl',
                   'utility_name_eia', ]
 
-    out_df = pudl.helpers.organize_cols(out_df, first_cols)
-
-    # Clean up the types of a few columns...
-    out_df['plant_id_eia'] = out_df.plant_id_eia.astype(int)
-    out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
-    out_df['utility_id_eia'] = out_df.utility_id_eia.astype(int)
-    out_df['utility_id_pudl'] = out_df.utility_id_pudl.astype(int)
+    out_df = (
+        pudl.helpers.merge_on_date_year(gf_df, pu_eia, on=['plant_id_eia'])
+        # Drop any records where we've failed to get the 860 data merged in...
+        .dropna(subset=[
+            'plant_id_eia',
+            'utility_id_eia',
+        ])
+        .pipe(pudl.helpers.organize_cols, first_cols)
+        .astype({
+            "plant_id_eia": "Int64",
+            "plant_id_pudl": "Int64",
+            "utility_id_eia": "Int64",
+            "utility_id_pudl": "Int64",
+        })
+    )
 
     return out_df
 
@@ -275,32 +272,33 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
     pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine,
                                                     start_date=start_date,
                                                     end_date=end_date)
-    out_df = pudl.helpers.merge_on_date_year(
-        frc_df, pu_eia, on=['plant_id_eia'])
 
-    # Drop any records where we've failed to get the 860 data merged in...
-    out_df = out_df.dropna(subset=['utility_id_eia', 'utility_name_eia'])
+    out_df = (
+        pudl.helpers.merge_on_date_year(frc_df, pu_eia, on=['plant_id_eia'])
+        .dropna(subset=['utility_id_eia'])
+        .pipe(
+            pudl.helpers.organize_cols,
+            cols=[
+                'report_date',
+                'plant_id_eia',
+                'plant_id_pudl',
+                'plant_name_eia',
+                'utility_id_eia',
+                'utility_id_pudl',
+                'utility_name_eia',
+            ]
+        )
+        .astype({
+            "plant_id_eia": "Int64",
+            "plant_id_pudl": "Int64",
+            "utility_id_eia": "Int64",
+            "utility_id_pudl": "Int64",
+        })
+    )
 
     if freq is None:
         # There are a couple of invalid records with no specified fuel.
         out_df = out_df.dropna(subset=['fuel_group_code'])
-
-    first_cols = ['report_date',
-                  'plant_id_eia',
-                  'plant_id_pudl',
-                  'plant_name_eia',
-                  'utility_id_eia',
-                  'utility_id_pudl',
-                  'utility_name_eia', ]
-
-    # Re-arrange the columns for easier readability:
-    out_df = pudl.helpers.organize_cols(out_df, first_cols)
-
-    # Clean up the types of a few columns...
-    out_df['plant_id_eia'] = out_df.plant_id_eia.astype(int)
-    out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
-    out_df['utility_id_eia'] = out_df.utility_id_eia.astype(int)
-    out_df['utility_id_pudl'] = out_df.utility_id_pudl.astype(int)
 
     return out_df
 
@@ -386,12 +384,12 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
             'total_ash_content': pudl.helpers.sum_na,
         })
 
-        bf_df['fuel_mmbtu_per_unit'] = \
-            bf_df['total_heat_content_mmbtu'] / bf_df['fuel_consumed_units']
-        bf_df['sulfur_content_pct'] = \
-            bf_df['total_sulfur_content'] / bf_df['fuel_consumed_units']
-        bf_df['ash_content_pct'] = \
-            bf_df['total_ash_content'] / bf_df['fuel_consumed_units']
+        bf_df['fuel_mmbtu_per_unit'] = bf_df['total_heat_content_mmbtu'] / \
+            bf_df['fuel_consumed_units']
+        bf_df['sulfur_content_pct'] = bf_df['total_sulfur_content'] / \
+            bf_df['fuel_consumed_units']
+        bf_df['ash_content_pct'] = bf_df['total_ash_content'] / \
+            bf_df['fuel_consumed_units']
         bf_df = bf_df.reset_index()
         bf_df = bf_df.drop(['total_ash_content', 'total_sulfur_content'],
                            axis=1)
@@ -400,36 +398,28 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
     pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine,
                                                     start_date=start_date,
                                                     end_date=end_date)
-    out_df = pudl.helpers.merge_on_date_year(
-        bf_df, pu_eia, on=['plant_id_eia'])
+    out_df = (
+        pudl.helpers.merge_on_date_year(bf_df, pu_eia, on=['plant_id_eia'])
+        .dropna(subset=['plant_id_eia', 'utility_id_eia', 'boiler_id'])
+        .pipe(pudl.helpers.organize_cols,
+              cols=['report_date',
+                    'plant_id_eia',
+                    'plant_id_pudl',
+                    'plant_name_eia',
+                    'utility_id_eia',
+                    'utility_id_pudl',
+                    'utility_name_eia',
+                    'boiler_id'])
+        .astype({
+            'plant_id_eia': "Int64",
+            'plant_id_pudl': "Int64",
+            'utility_id_eia': "Int64",
+            'utility_id_pudl': "Int64",
+        })
+    )
+
     if freq is None:
         out_df = out_df.drop(['id'], axis=1)
-
-    out_df = out_df.dropna(subset=[
-        'plant_id_eia',
-        'plant_id_pudl',
-        'utility_id_eia',
-        'utility_id_pudl',
-        'boiler_id',
-    ])
-
-    first_cols = [
-        'report_date',
-        'plant_id_eia',
-        'plant_id_pudl',
-        'plant_name_eia',
-        'utility_id_eia',
-        'utility_id_pudl',
-        'utility_name_eia',
-        'boiler_id',
-    ]
-
-    # Re-arrange the columns for easier readability:
-    out_df = pudl.helpers.organize_cols(out_df, first_cols)
-
-    out_df['utility_id_eia'] = out_df.utility_id_eia.astype(int)
-    out_df['utility_id_pudl'] = out_df.utility_id_pudl.astype(int)
-    out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
 
     return out_df
 
@@ -486,36 +476,28 @@ def generation_eia923(pudl_engine, freq=None,
                                                     end_date=end_date)
 
     # Merge annual plant/utility data in with the more granular dataframe
-    out_df = pudl.helpers.merge_on_date_year(g_df, pu_eia, on=['plant_id_eia'])
+    out_df = (
+        pudl.helpers.merge_on_date_year(g_df, pu_eia, on=['plant_id_eia'])
+        .dropna(subset=['plant_id_eia', 'utility_id_eia', 'generator_id'])
+        .pipe(pudl.helpers.organize_cols, cols=[
+            'report_date',
+            'plant_id_eia',
+            'plant_id_pudl',
+            'plant_name_eia',
+            'utility_id_eia',
+            'utility_id_pudl',
+            'utility_name_eia',
+            'generator_id',
+        ])
+        .astype({
+            "plant_id_eia": "Int64",
+            "plant_id_pudl": "Int64",
+            "utility_id_eia": "Int64",
+            "utility_id_pudl": "Int64",
+        })
+    )
 
     if freq is None:
         out_df = out_df.drop(['id'], axis=1)
-
-    # These ID fields are vital -- without them we don't have a complete record
-    out_df = out_df.dropna(subset=[
-        'plant_id_eia',
-        'plant_id_pudl',
-        'utility_id_eia',
-        'utility_id_pudl',
-        'generator_id',
-    ])
-
-    first_cols = [
-        'report_date',
-        'plant_id_eia',
-        'plant_id_pudl',
-        'plant_name_eia',
-        'utility_id_eia',
-        'utility_id_pudl',
-        'utility_name_eia',
-        'generator_id',
-    ]
-
-    # Re-arrange the columns for easier readability:
-    out_df = pudl.helpers.organize_cols(out_df, first_cols)
-
-    out_df['utility_id_eia'] = out_df.utility_id_eia.astype(int)
-    out_df['utility_id_pudl'] = out_df.utility_id_pudl.astype(int)
-    out_df['plant_id_pudl'] = out_df.plant_id_pudl.astype(int)
 
     return out_df

@@ -270,63 +270,6 @@ def organize_cols(df, cols):
     return df[organized_cols]
 
 
-def extend_annual(df, date_col='report_date', start_date=None, end_date=None):
-    """Extend time range in a DataFrame by duplicating first and last years.
-
-    Takes the earliest year's worth of annual data and uses it to create
-    earlier years by duplicating it, and changing the year.  Similarly,
-    extends a dataset into the future by duplicating the last year's records.
-
-    This is primarily used to extend the EIA860 data about utilities, plants,
-    and generators, so that we can analyze a larger set of EIA923 data. EIA923
-    data has been integrated a bit further back, and the EIA860 data has a year
-    long lag in being released.
-
-    Args:
-        df (pandas.DataFrame): The dataframe to extend.
-        date_col (str): The column in the dataframe which contains date
-            information.
-        start_date (date): The earliest date to which data should be extended.
-        end_date (date): The latest date to which data should be extended.
-
-    Raises:
-        ValueError: if the data column is found not to be consistent with
-            annual reporting.
-
-    Returns:
-        pandas.DataFrame: A dataframe resembling the input dataframe, but with
-        the first and/or last years of data copied to provide an
-        approximation of earlier/later data that is not available.
-
-    """
-    if not is_annual(df, year_col=date_col):
-        raise ValueError(f"DataFrame not annual, based on column {date_col}.")
-
-    earliest_date = pd.to_datetime(df[date_col].min())
-    if start_date is not None:
-        start_date = pd.to_datetime(start_date)
-        while start_date < earliest_date:
-            prev_year = \
-                df[pd.to_datetime(df[date_col]) == earliest_date].copy()
-            prev_year[date_col] = earliest_date - pd.DateOffset(years=1)
-            df = df.append(prev_year)
-            df[date_col] = pd.to_datetime(df[date_col])
-            earliest_date = pd.to_datetime(df[date_col].min())
-
-    latest_date = pd.to_datetime(df[date_col].max())
-    if end_date is not None:
-        end_date = pd.to_datetime(end_date)
-        while end_date >= latest_date + pd.DateOffset(years=1):
-            next_year = df[pd.to_datetime(df[date_col]) == latest_date].copy()
-            next_year[date_col] = latest_date + pd.DateOffset(years=1)
-            df = df.append(next_year)
-            df[date_col] = pd.to_datetime(df[date_col])
-            latest_date = pd.to_datetime(df[date_col].max())
-
-    df[date_col] = pd.to_datetime(df[date_col])
-    return df
-
-
 def strip_lower(df, columns):
     """Strip and compact whitespace, lowercase listed DataFrame columns.
 

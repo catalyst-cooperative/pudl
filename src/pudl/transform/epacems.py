@@ -30,21 +30,23 @@ def fix_up_dates(df, plant_utc_offset):
         and the op_date and op_hour columns removed
 
     """
-    # Convert op_date and op_hour from string and integer to datetime:
-    # Note that doing this conversion, rather than reading the CSV with
-    # `parse_dates=True`, is >10x faster.
-    df["op_datetime_naive"] = (
-        # Read the date as a datetime, so all the dates are midnight
-        # Mark as UTC (it's not true yet, but it will be once we add
-        # utc_offsets, and it's easier to do here)
-        pd.to_datetime(
-            df["op_date"], format=r"%m-%d-%Y", exact=True, cache=True, utc=True
+    df = (
+        df.assign(
+            # Convert op_date and op_hour from string and integer to datetime:
+            # Note that doing this conversion, rather than reading the CSV with
+            # `parse_dates=True`, is >10x faster.
+            op_datetime_naive=lambda x:
+            # Read the date as a datetime, so all the dates are midnight
+            # Mark as UTC (it's not true yet, but it will be once we add
+            # utc_offsets, and it's easier to do here)
+            pd.to_datetime(x.op_date, format=r"%m-%d-%Y",
+                           exact=True, cache=True, utc=True) +
+            # Add the hour
+            pd.to_timedelta(x.op_hour, unit="h")
         )
-
-        # Add the hour
-        + pd.to_timedelta(df["op_hour"], unit="h", box=False)
+        .merge(plant_utc_offset, how="left", on="plant_id_eia")
     )
-    df = df.merge(plant_utc_offset, how="left", on="plant_id_eia")
+
     # Some of the timezones in the plants_entity_eia table may be missing,
     # but none of the CEMS plants should be.
     if not df["utc_offset"].notna().all():
