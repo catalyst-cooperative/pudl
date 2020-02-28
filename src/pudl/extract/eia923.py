@@ -154,7 +154,11 @@ def get_eia923_page(page, eia923_xlsx,
             page, yr)
         newdata = pd.read_excel(eia923_xlsx[yr],
                                 sheet_name=sheet_name,
-                                skiprows=skiprows)
+                                skiprows=skiprows,
+                                dtype={
+                                    "Plant ID": pd.Int64Dtype(),
+                                    "Plant Id": pd.Int64Dtype(),
+        })
         newdata = pudl.helpers.simplify_columns(newdata)
 
         # Drop columns that start with "reserved" because they are empty

@@ -844,19 +844,23 @@ def convert_cols_dtypes(df, data_source, name=None):
 
     """
     # get me all of the columns for the table in the constants dtype dict
-    col_types = {key: value for key, value
-                 in pc.column_dtypes[data_source].items()
-                 if key in list(df.columns)}
+    col_dtypes = {col: col_dtype for col, col_dtype
+                  in pc.column_dtypes[data_source].items()
+                  if col in list(df.columns)}
 
     # grab only the boolean columns (we only need their names)
-    bool_cols = {key for key, value
-                 in col_types.items()
-                 if value == bool}
+    bool_cols = {col: col_dtype for col, col_dtype
+                 in col_dtypes.items()
+                 if col_dtype == pd.BooleanDtype()}
+    # Grab only the string columns...
+    string_cols = {col: col_dtype for col, col_dtype
+                   in col_dtypes.items()
+                   if col_dtype == pd.StringDtype()}
 
     # grab all of the non boolean columns
-    non_bool_cols = {key: value for key, value
-                     in col_types.items()
-                     if value != bool}
+    non_bool_cols = {col: col_dtype for col, col_dtype
+                     in col_dtypes.items()
+                     if col_dtype != pd.BooleanDtype()}
 
     # If/when we have the columns exhaustively typed, we can do it like this,
     # but right now we don't have the FERC columns done, so we can't:
@@ -880,8 +884,11 @@ def convert_cols_dtypes(df, data_source, name=None):
                                'True': True,
                                False: False,
                                True: True,
-                               'nan': np.NaN},
-                              na_action='ignore')
+                               'nan': pd.NA})
+
+    # For whatever reason, this is more flexible than using the StringDtype
+    for col in string_cols:
+        df[col] = df[col].astype(str)
 
     if name:
         logger.info(f'Converting the dtypes of: {name}')
@@ -895,7 +902,14 @@ def convert_cols_dtypes(df, data_source, name=None):
         # we need to skip this conversion
         if df.utility_id_eia.dtypes is np.dtype('object'):
             df = df.astype({'utility_id_eia': 'float'})
-    df = df.astype(non_bool_cols)
+    df = (
+        df.astype(non_bool_cols)
+        .astype(bool_cols)
+        .replace(
+            to_replace="<NA>",
+            value={col: pd.NA for col in string_cols}
+        )
+    )
     return df
 
 

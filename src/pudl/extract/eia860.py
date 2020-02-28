@@ -202,15 +202,15 @@ def get_eia860_page(page, eia860_xlsx,
         sheet_name, skiprows, column_map, all_columns = get_eia860_column_map(
             page, yr)
 
-        dtype = {'plant_id_eia': pd.Int64Dtype()}
-        if 'zip_code' in list(all_columns):
-            dtype['zip_code'] = pc.column_dtypes['eia']['zip_code']
-
-        newdata = pd.read_excel(eia860_xlsx[yr],
-                                sheet_name=sheet_name,
-                                skiprows=skiprows,
-                                dtype=dtype,
-                                )
+        newdata = pd.read_excel(
+            eia860_xlsx[yr],
+            sheet_name=sheet_name,
+            skiprows=skiprows,
+            dtype={
+                "Plant ID": pd.Int64Dtype(),
+                "Plant Id": pd.Int64Dtype(),
+            },
+        )
         newdata = pudl.helpers.simplify_columns(newdata)
 
         # boiler_generator_assn tab is missing a YEAR column. Add it!
@@ -232,7 +232,7 @@ def get_eia860_page(page, eia860_xlsx,
 
 
 def _create_dfs_eia860(files, eia860_years, data_dir):
-    """Create a dict of pages (keys) to DataDrames (values) from EIA 860 tabs.
+    """Create a dict of pages (keys) to DataFrames (values) from EIA 860 tabs.
 
     Args:
         files (list): a list of eia860 files
