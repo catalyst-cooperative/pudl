@@ -64,16 +64,14 @@ def _occurrence_consistency(entity_id, compiled_df, col,
     # select only the colums you want and drop the NaNs
     # we want to drop the NaNs because
     col_df = compiled_df[entity_id + ['report_date', col, 'table']].copy()
-    if pc.column_dtypes["eia"][col] is str:
-        col_df = (
-            col_df.replace(to_replace={col: {"nan": np.nan}})
-            # .replace(to_replace={col: {"None": np.nan}})
-        )
+    if pc.column_dtypes["eia"][col] == pd.StringDtype():
+        nan_str_mask = (col_df[col] == "nan").fillna(False)
+        col_df.loc[nan_str_mask, col] = pd.NA
     col_df = col_df.dropna()
 
     if len(col_df) == 0:
-        col_df[f'{col}_consistent'] = np.NaN
-        col_df['entity_occurences'] = np.NaN
+        col_df[f'{col}_consistent'] = pd.NA
+        col_df['entity_occurences'] = pd.NA
         col_df = col_df.drop(columns=['table'])
         return col_df
     # determine how many times each entity occurs in col_df
@@ -374,8 +372,6 @@ def _harvesting(entity,  # noqa: C901
             cols_to_consit = entity_id + ['report_date']
         if col in static_cols:
             cols_to_consit = entity_id
-        # if col not in compiled_df.columns:
-        #    compiled_df[col] = np.nan
 
         col_df = _occurrence_consistency(
             entity_id, compiled_df, col, cols_to_consit, strictness=.7)
