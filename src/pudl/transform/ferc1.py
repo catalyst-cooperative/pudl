@@ -1314,26 +1314,34 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
             raise RuntimeError(
                 "You must train classifer before predicting data!")
 
-        out_df = pd.DataFrame(columns=self._years)
-        out_idx = []
+        out_df = pd.DataFrame(
+            data=[],
+            index=pd.Index([], name="seed_id"),
+            columns=self._years)
+        tmp_best = (
+            self._best_of.loc[:, ["record_id"] + list(self._years)]
+            .append(pd.DataFrame(data=[""], index=[-1], columns=["record_id"]))
+        )
         # For each record_id we've been given:
         for x in X:
             # Find the index associated with the record ID we are predicting
             # a grouping for:
-            idx = self._best_of[self._best_of.record_id == x].index.values[0]
+            idx = tmp_best[tmp_best.record_id == x].index.values[0]
 
             # Mask the best_of dataframe, keeping only those entries where
             # the index of the chosen record_id appears -- this results in a
             # huge dataframe almost full of NaN values.
-            w_m = self._best_of[self._years][self._best_of[self._years] == idx]
-            # Grab the index values of the rows in the masked dataframe which
-            # are NOT all NaN -- these are the indices of the *other* records
-            # which found the record x to be one of their best matches.
-            w_m = w_m.dropna(how='all').index.values
+            w_m = (
+                tmp_best[self._years][tmp_best[self._years] == idx]
+                # Grab the index values of the rows in the masked dataframe which
+                # are NOT all NaN -- these are the indices of the *other* records
+                # which found the record x to be one of their best matches.
+                .dropna(how="all").index.values
+            )
 
             # Now look up the indices of the records which were found to be
             # best matches to the record x.
-            b_m = self._best_of.loc[idx, self._years].astype(int)
+            b_m = tmp_best.loc[idx, self._years].astype(int)
 
             # Here we require that there is no conflict between the two sets
             # of indices -- that every time a record shows up in a grouping,
@@ -1354,22 +1362,16 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
                 # now it does what we want. We could use .iloc instead, but
                 # then the -1 sentinel value maps to the last entry in the
                 # dataframe, which also isn't what we want.  Blargh.
-                new_grp = self._best_of.loc[b_m, 'record_id']
-
-                # reshape into row, rather than column,
-                new_grp = new_grp.values.reshape(1, len(self._years))
+                new_grp = tmp_best.loc[b_m, "record_id"]
 
                 # Stack the new list of record_ids on our output DataFrame:
-                new_grp = pd.DataFrame(new_grp, columns=self._years)
-
-                out_df = pd.concat([out_df, new_grp])
-
-                # Save the seed record_id for use in indexing the output:
-                out_idx = out_idx + [self._best_of.loc[idx, 'record_id']]
-
-        out_df['seed_id'] = out_idx
-        out_df = out_df.set_index('seed_id')
-        out_df = out_df.fillna('')
+                out_df = out_df.append(
+                    pd.DataFrame(
+                        data=new_grp.values.reshape(1, len(self._years)),
+                        index=pd.Index(
+                            [tmp_best.loc[idx, "record_id"]],
+                            name="seed_id"),
+                        columns=self._years))
         return out_df
 
     def score(self, X, y=None):  # noqa: N803
@@ -1579,13 +1581,13 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
             the plant in that year. Default value: 0.5.
 
     Returns:
-        pandas.DataFrame: A DataFrame with a single record for each
-    plant-year, including the columns required to merge it with the
-    plants_steam_ferc1 table/DataFrame (report_year, utility_id_ferc1,
-    and plant_name) as well as totals for fuel mmbtu consumed in that
-    plant-year, and the cost of fuel in that year, the proportions of
-    heat content and fuel costs for each fuel in that year, and a
-    column that labels the plant's primary fuel for that year.
+        pandas.DataFrame: A DataFrame with a single record for each plant-year,
+        including the columns required to merge it with the plants_steam_ferc1
+        table/DataFrame (report_year, utility_id_ferc1, and plant_name) as well
+        as totals for fuel mmbtu consumed in that plant-year, and the cost of
+        fuel in that year, the proportions of heat content and fuel costs for
+        each fuel in that year, and a column that labels the plant's primary
+        fuel for that year.
 
     Raises:
         AssertionError: If the DataFrame input does not have the columns

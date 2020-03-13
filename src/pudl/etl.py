@@ -81,7 +81,7 @@ def _validate_params_eia(etl_params):  # noqa: C901
         eia_input_dict['eia923_tables'] = pc.pudl_tables['eia923']
 
     # if we are only extracting 860, we also need to pull in the
-    # boiler_fuel_eia923 table. this is for harvessting and also for the boiler
+    # boiler_fuel_eia923 table. this is for harvesting and also for the boiler
     # generator association
     if not eia_input_dict['eia923_years'] and eia_input_dict['eia860_years']:
         eia_input_dict['eia923_years'] = eia_input_dict['eia860_years']

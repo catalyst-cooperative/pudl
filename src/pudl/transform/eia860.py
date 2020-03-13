@@ -50,9 +50,14 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     o_df.loc[o_df.report_date.dt.year < 2012, 'fraction_owned'] = \
         o_df.loc[o_df.report_date.dt.year < 2012, 'fraction_owned'] / 100
 
-    o_df['owner_utility_id_eia'] = o_df['owner_utility_id_eia'].astype(int)
-    o_df['utility_id_eia'] = o_df['utility_id_eia'].astype(int)
-    o_df['plant_id_eia'] = o_df['plant_id_eia'].astype(int)
+    o_df = (
+        o_df.astype({
+            "owner_utility_id_eia": pd.Int64Dtype(),
+            "utility_id_eia": pd.Int64Dtype(),
+            "plant_id_eia": pd.Int64Dtype(),
+            "owner_state": pd.StringDtype()
+        })
+    )
 
     eia860_transformed_dfs['ownership_eia860'] = o_df
 
@@ -173,9 +178,13 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     ]
 
     for column in boolean_columns_to_fix:
-        gens_df[column] = gens_df[column].fillna('False')
-        gens_df[column] = gens_df[column].replace(
-            to_replace=["Y", "N"], value=[True, False])
+        gens_df[column] = (
+            gens_df[column]
+            .fillna("NaN")
+            .replace(
+                to_replace=["Y", "N", "NaN"],
+                value=[True, False, pd.NA])
+        )
 
     gens_df = (
         gens_df.
@@ -188,6 +197,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         astype({
             'plant_id_eia': int,
             'generator_id': str,
+            'unit_id_eia': str,
             'utility_id_eia': int
         }).
         pipe(pudl.helpers.convert_to_date)
@@ -266,18 +276,27 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     ]
 
     for column in boolean_columns_to_fix:
-        p_df[column] = p_df[column].fillna('False')
-        p_df[column] = p_df[column].replace(
-            to_replace=["Y", "N"], value=[True, False])
+        p_df[column] = (
+            p_df[column]
+            .fillna("NaN")
+            .replace(
+                to_replace=["Y", "N", "NaN"],
+                value=[True, False, pd.NA])
+        )
 
     # Ensure plant & operator IDs are integers.
-    p_df = p_df.astype({
-        "plant_id_eia": int,
-        "utility_id_eia": int,
-        "primary_purpose_naics_id": "Int64"
-    })
-
-    p_df = pudl.helpers.convert_to_date(p_df)
+    p_df = (
+        p_df.astype({
+            "plant_id_eia": int,
+            "utility_id_eia": int,
+            "primary_purpose_naics_id": "Int64",
+            "ferc_cogen_docket_no": str,
+            "ferc_exempt_wholesale_generator_docket_no": str,
+            "ferc_small_power_producer_docket_no": str,
+            "street_address": str,
+        })
+        .pipe(pudl.helpers.convert_to_date)
+    )
 
     eia860_transformed_dfs['plants_eia860'] = p_df
 
@@ -373,13 +392,18 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
     ]
 
     for column in boolean_columns_to_fix:
-        u_df[column] = u_df[column].fillna('False')
-        u_df[column] = u_df[column].replace(
-            to_replace=["Y", "N"], value=[True, False])
+        u_df[column] = (
+            u_df[column]
+            .fillna("NaN")
+            .replace(
+                to_replace=["Y", "N", "NaN"],
+                value=[True, False, pd.NA])
+        )
 
-    u_df = pudl.helpers.convert_to_date(u_df)
-
-    u_df['utility_id_eia'] = u_df['utility_id_eia'].astype(int)
+    u_df = (
+        u_df.astype({"utility_id_eia": int})
+        .pipe(pudl.helpers.convert_to_date)
+    )
 
     eia860_transformed_dfs['utilities_eia860'] = u_df
 

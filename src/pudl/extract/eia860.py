@@ -10,7 +10,6 @@ import logging
 
 import pandas as pd
 
-import pudl.constants as pc
 import pudl.extract.excel as excel
 
 logger = logging.getLogger(__name__)
@@ -38,7 +37,7 @@ class Extractor(excel.GenericExtractor):
         return df
 
     def dtypes(self, year, page):
-        dt = {'plant_id_eia': pd.Int64Dtype()}
-        if 'zip_code' in self._metadata.all_columns(page):
-            dt['zip_code'] = pc.column_dtypes['eia']['zip_code']
-        return dt
+        return {
+            "Plant ID": pd.Int64Dtype(),
+            "Plant Id": pd.Int64Dtype(),
+        }

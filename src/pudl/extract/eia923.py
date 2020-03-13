@@ -9,6 +9,8 @@ years 2009-2016 work, as they share nearly identical file formatting.
 
 import logging
 
+import pandas as pd
+
 import pudl.extract.excel as excel
 
 logger = logging.getLogger(__name__)
@@ -46,3 +48,9 @@ class Extractor(excel.GenericExtractor):
         to_drop = [c for c in df.columns if c[:8] == 'reserved']
         df.drop(columns=to_drop, inplace=True, errors='ignore')
         return df
+
+    def dtypes(self, year, page):
+        return {
+            "Plant ID": pd.Int64Dtype(),
+            "Plant Id": pd.Int64Dtype(),
+        }

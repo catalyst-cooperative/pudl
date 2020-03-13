@@ -1,5 +1,6 @@
 """Routines specific to cleaning up EPA CEMS hourly data."""
 
+import datetime
 import logging
 import pathlib
 
@@ -7,7 +8,6 @@ import numpy as np
 import pandas as pd
 
 import pudl
-import pudl.constants as pc
 
 logger = logging.getLogger(__name__)
 ###############################################################################
@@ -70,26 +70,28 @@ def _load_plant_utc_offset(datapkg_dir):
     offset for the plants' timezones in January.
 
     Args:
-        pkg_dir (path-like) : Path to the directory of the datapackage which is
-            currently being assembled.
+        datapkg_dir (path-like) : Path to the directory of the datapackage
+            which is currently being assembled.
 
     Returns:
-        dataframe: A pandas DataFrame, with columns plant_id_eia and utc_offset
+        pandas.DataFrame: With columns plant_id_eia and utc_offset
 
     """
     import pytz
 
-    # from the package directory, find the "plants_entity_eia" table
-    # and pull the ["plant_id_eia", "timezone"] columns
-    timezones = pd.read_csv(
-        pathlib.Path(datapkg_dir, 'data/plants_entity_eia.csv'))[
-            ["plant_id_eia", "timezone"]].dropna()
+    jan1 = datetime.datetime(2011, 1, 1)  # year doesn't matter
+    timezones = (
+        pd.read_csv(
+            pathlib.Path(datapkg_dir, 'data/plants_entity_eia.csv'),
+            usecols=["plant_id_eia", "timezone"],
+            dtype={"plant_id_eia": "Int64", "timezone": pd.StringDtype()})
+        .replace(to_replace="None", value=pd.NA)
+        .dropna()
+    )
 
-    # Some plants lack the info to get a timezone. None of these plants are in
-    # CEMS.
-    jan1 = pd.datetime(2011, 1, 1)  # year doesn't matter
-    timezones["utc_offset"] = timezones["timezone"].apply(
-        lambda tz: pytz.timezone(tz).localize(jan1).utcoffset()
+    timezones["utc_offset"] = (
+        timezones["timezone"]
+        .apply(lambda tz: pytz.timezone(tz).localize(jan1).utcoffset())
     )
     del timezones["timezone"]
     return timezones
@@ -216,7 +218,10 @@ def transform(epacems_raw_dfs, datapkg_dir):
         # in the EIA type conversions.
         for yr_st, raw_df in raw_df_dict.items():
             df = (
-                raw_df.fillna(pc.epacems_columns_fill_na_dict)
+                raw_df.fillna({
+                    "gross_load_mw": 0.0,
+                    "heat_content_mmbtu": 0.0
+                })
                 .pipe(harmonize_eia_epa_orispl)
                 .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
                 .pipe(add_facility_id_unit_id_epa)
