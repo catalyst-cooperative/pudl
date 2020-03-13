@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 
 import pudl
-import pudl.constants as pc
 
 logger = logging.getLogger(__name__)
 ###############################################################################
@@ -219,7 +218,10 @@ def transform(epacems_raw_dfs, datapkg_dir):
         # in the EIA type conversions.
         for yr_st, raw_df in raw_df_dict.items():
             df = (
-                raw_df.fillna(pc.epacems_columns_fill_na_dict)
+                raw_df.fillna({
+                    "gross_load_mw": 0.0,
+                    "heat_content_mmbtu": 0.0
+                })
                 .pipe(harmonize_eia_epa_orispl)
                 .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
                 .pipe(add_facility_id_unit_id_epa)

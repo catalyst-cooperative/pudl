@@ -69,7 +69,7 @@ def create_in_dtypes():
     in_dtypes = {
         "state": state_cats,
         "plant_id_eia": "int32",
-        "unitid": "str",
+        "unitid": pd.StringDtype(),
         # "operating_datetime_utc": "datetime",
         "operating_time_hours": "float32",
         "gross_load_mw": "float32",
@@ -83,12 +83,8 @@ def create_in_dtypes():
         "co2_mass_tons": "float32",
         "co2_mass_measurement_code": co2_so2_cats,
         "heat_content_mmbtu": "float32",
-        # Note: it'd be better to use pandas' nullable integers once this issue
-        # is resolved: https://issues.apache.org/jira/browse/ARROW-5379
-        # "facility_id": "Int32",
-        # "unit_id_epa": "Int32",
-        "facility_id": "float32",
-        "unit_id_epa": "float32",
+        "facility_id": pd.Int32Dtype(),
+        "unit_id_epa": pd.Int32Dtype(),
     }
     return in_dtypes
 
@@ -104,7 +100,7 @@ def create_cems_schema():
     float32.
 
     Returns:
-        :mod:`pyarrow.schema`: An Arrow schema for the EPA CEMS data.
+        pyarrow.schema: An Arrow schema for the EPA CEMS data.
 
     """
     int_nullable = partial(pa.field, type=pa.int32(), nullable=True)

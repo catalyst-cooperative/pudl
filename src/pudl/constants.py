@@ -2158,15 +2158,15 @@ epacems_columns_to_ignore = {
 """
 # Specify dtypes to for reading the CEMS CSVs
 epacems_csv_dtypes = {
-    "STATE": str,
+    "STATE": pd.StringDtype(),
     # "FACILITY_NAME": str,  # Not reading from CSV
-    "ORISPL_CODE": int,
-    "UNITID": str,
+    "ORISPL_CODE": pd.Int64Dtype(),
+    "UNITID": pd.StringDtype(),
     # These op_date, op_hour, and op_time variables get converted to
     # operating_date, operating_datetime and operating_time_interval in
     # transform/epacems.py
-    "OP_DATE": str,
-    "OP_HOUR": int,
+    "OP_DATE": pd.StringDtype(),
+    "OP_HOUR": pd.Int64Dtype(),
     "OP_TIME": float,
     "GLOAD (MW)": float,
     "GLOAD": float,
@@ -2175,38 +2175,29 @@ epacems_csv_dtypes = {
     "SLOAD": float,
     "SO2_MASS (lbs)": float,
     "SO2_MASS": float,
-    "SO2_MASS_MEASURE_FLG": str,
+    "SO2_MASS_MEASURE_FLG": pd.StringDtype(),
     # "SO2_RATE (lbs/mmBtu)": float,  # Not reading from CSV
     # "SO2_RATE": float,  # Not reading from CSV
     # "SO2_RATE_MEASURE_FLG": str,  # Not reading from CSV
     "NOX_RATE (lbs/mmBtu)": float,
     "NOX_RATE": float,
-    "NOX_RATE_MEASURE_FLG": str,
+    "NOX_RATE_MEASURE_FLG": pd.StringDtype(),
     "NOX_MASS (lbs)": float,
     "NOX_MASS": float,
-    "NOX_MASS_MEASURE_FLG": str,
+    "NOX_MASS_MEASURE_FLG": pd.StringDtype(),
     "CO2_MASS (tons)": float,
     "CO2_MASS": float,
-    "CO2_MASS_MEASURE_FLG": str,
+    "CO2_MASS_MEASURE_FLG": pd.StringDtype(),
     # "CO2_RATE (tons/mmBtu)": float,  # Not reading from CSV
     # "CO2_RATE": float,  # Not reading from CSV
     # "CO2_RATE_MEASURE_FLG": str,  # Not reading from CSV
     "HEAT_INPUT (mmBtu)": float,
     "HEAT_INPUT": float,
-    "FAC_ID": int,
-    "UNIT_ID": int,
+    "FAC_ID": pd.Int64Dtype(),
+    "UNIT_ID": pd.Int64Dtype(),
 }
 """dict: A dictionary containing column names (keys) and data types (values)
 for EPA CEMS.
-"""
-epacems_columns_fill_na_dict = {
-    "gross_load_mw": 0.0,
-    "heat_content_mmbtu": 0.0
-}
-"""set: the set of EPA CEMS columns to
-
-    Todo:
-        Return to
 """
 
 epacems_tables = ("hourly_emissions_epacems")
@@ -2644,24 +2635,24 @@ column_dtypes = {
         'report_date': 'datetime64[ns]',
     },
     "epacems": {
-        'state': str,
-        'plant_id_eia': "Int64",  # Nullable Integer
-        'unitid': str,
+        'state': pd.StringDtype(),
+        'plant_id_eia': pd.Int64Dtype(),  # Nullable Integer
+        'unitid': pd.StringDtype(),
         'operating_datetime_utc': "datetime64[ns]",
         'operating_time_hours': float,
         'gross_load_mw': float,
         'steam_load_1000_lbs': float,
         'so2_mass_lbs': float,
-        'so2_mass_measurement_code': str,
+        'so2_mass_measurement_code': pd.StringDtype(),
         'nox_rate_lbs_mmbtu': float,
-        'nox_rate_measurement_code': str,
+        'nox_rate_measurement_code': pd.StringDtype(),
         'nox_mass_lbs': float,
-        'nox_mass_measurement_code': str,
+        'nox_mass_measurement_code': pd.StringDtype(),
         'co2_mass_tons': float,
-        'co2_mass_measurement_code': str,
+        'co2_mass_measurement_code': pd.StringDtype(),
         'heat_content_mmbtu': float,
-        'facility_id': "Int64",  # Nullable Integer
-        'unit_id_epa': "Int64",  # Nullable Integer
+        'facility_id': pd.Int64Dtype(),  # Nullable Integer
+        'unit_id_epa': pd.Int64Dtype(),  # Nullable Integer
     },
     "eia": {
         'ash_content_pct': float,
