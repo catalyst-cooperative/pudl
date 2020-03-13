@@ -24,6 +24,11 @@ class Extractor(excel.GenericExtractor):
     DATASET = 'eia923'
     BLACKLISTED_PAGES = ['plant_frame']
 
+    # Pages not supported by the metadata:
+    # puerto_rico, github issue #457
+    # energy_storage, github issue #458
+    # oil_stocks, coal_stocks, petcoke_stocks
+
     def file_basename_glob(self, year, page):
         return '*2_3_4*'
 

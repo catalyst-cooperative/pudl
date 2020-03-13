@@ -1026,20 +1026,6 @@ xlsx_maps_pkg = 'pudl.package_data.meta.xlsx_maps'
 ##############################################################################
 # EIA 923 Spreadsheet Metadata
 ##############################################################################
-working_pages_eia923 = [
-    "generation_fuel",
-    # "puerto_rico",  # See Github issue #457
-    "stocks",
-    # "oil_stocks",
-    # "coal_stocks",
-    # "petcoke_stocks",
-    # "energy_storage",  # See Github issue #458
-    "boiler_fuel",
-    "fuel_receipts_costs",
-    "generator",
-    "plant_frame",
-]
-
 # patterns for matching columns to months:
 month_dict_eia923 = {1: '_january$',
                      2: '_february$',
@@ -1059,37 +1045,6 @@ month_dict_eia923 = {1: '_january$',
 ##############################################################################
 # EIA 860 Spreadsheet Metadata
 ##############################################################################
-
-# list of eia860 file names
-files_eia860 = ('enviro_assn', 'utilities',
-                'plants', 'generators', 'ownership')
-"""tuple: A tuple containing EIA 860 file names.
-"""
-
-# file names to glob file pattern (used in get_eia860_file)
-files_dict_eia860 = {'utilities': '*Utility*',
-                     'plants': '*Plant*',
-                     'generators': '*Generat*',
-                     'wind': '*Wind*',
-                     'solar': '*Solar*',
-                     'multi_fuel': '*Multi*',
-                     'ownership': '*Owner*',
-                     'enviro_assn': '*EnviroAssoc*',
-                     'envrio_equipment': '*EnviroEquip*'}
-"""dict: A dictionary containing file names (keys) and file name patterns to
-    glob (values) for EIA 860.
-"""
-
-# files to list of tabs
-file_pages_eia860 = {'enviro_assn': ['boiler_generator_assn', ],
-                     'utilities': ['utility', ],
-                     'plants': ['plant', ],
-                     'generators': ['generator_existing', 'generator_proposed',
-                                    'generator_retired'],
-                     'ownership': ['ownership', ]}
-"""dict: A dictionary containing file names (keys) and lists of tab names to
-    read (values) for EIA 860.
-"""
 
 # This is the list of EIA860 tables that can be successfully pulled into PUDL
 eia860_pudl_tables = (
