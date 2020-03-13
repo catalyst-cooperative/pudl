@@ -698,26 +698,9 @@ def verify_input_files(ferc1_years,  # noqa: C901
             pudl.extract.ferc1.dbc_filename(y, data_dir=data_dir)).is_file()
     }
 
+    # TODO(rousik@gmail.com): Redo file validation for eia datasets.
     missing_eia860_years = set()
-    for y in eia860_years:
-        for pattern in pc.files_eia860:
-            f = pc.files_dict_eia860[pattern]
-            try:
-                # This function already looks for the file, and raises an
-                # IndexError if missing
-                pudl.extract.eia860.get_eia860_file(y, f, data_dir=data_dir)
-            except IndexError:
-                missing_eia860_years.add(str(y))
-
     missing_eia923_years = set()
-    for y in eia923_years:
-        try:
-            f = pathlib.Path(
-                pudl.extract.eia923.get_eia923_file(y, data_dir=data_dir))
-        except AssertionError:
-            missing_eia923_years.add(str(y))
-        if not f.is_file():
-            missing_eia923_years.add(str(y))
 
     if epacems_states and list(epacems_states)[0].lower() == 'all':
         epacems_states = list(pc.cems_states.keys())
