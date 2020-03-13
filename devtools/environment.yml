@@ -32,7 +32,7 @@ dependencies:
   - pep8-naming         # dev
   - pip                 # N/A
   - pre_commit          # dev
-  - pyarrow>=0.16       # base
+  - pyarrow>=0.16       # base Nullable pandas types work w/ 0.16 and later
   - pydocstyle          # dev
   - pytest              # dev
   - pytest-cov          # dev
@@ -54,4 +54,4 @@ dependencies:
   - twine               # dev
   - xlsxwriter          # base
   - pip:
-    - recordlinkage # dev for now... base if it ends up in ETL
+     - recordlinkage # dev for now... base if it ends up in ETL
