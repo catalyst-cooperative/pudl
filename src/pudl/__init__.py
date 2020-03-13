@@ -17,6 +17,7 @@ import pudl.extract.eia860
 import pudl.extract.eia923
 import pudl.extract.epacems
 import pudl.extract.epaipm
+import pudl.extract.excelmetadata
 import pudl.extract.ferc1
 import pudl.glue.ferc1_eia
 import pudl.helpers

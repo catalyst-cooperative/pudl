@@ -18,6 +18,8 @@ import pudl.constants as pc
 import pudl.workspace.datastore as datastore
 
 logger = logging.getLogger(__name__)
+metadata = pudl.extract.excelmetadata.ExcelMetadata(
+    'eia923', drop_columns=['reserved_1', 'reserved_2', 'reserved'])
 ###########################################################################
 # Helper functions & other objects to ingest & process Energy Information
 # Administration (EIA) Form 923 data.
@@ -55,73 +57,6 @@ def get_eia923_file(yr, data_dir):
     return eia923_globs[0]
 
 
-def get_eia923_column_map(page, year):
-    """
-    Given a year and EIA923 page, returns info needed to slurp it from Excel.
-
-    The format of the EIA923 has changed slightly over the years, and so it
-    is not completely straightforward to pull information from the spreadsheets
-    into our analytical framework. This function looks up a map of the various
-    tabs in the spreadsheet by year and page, and returns the information
-    needed to name the data fields in a standardized way, and pull the right
-    cells from each year & page into our database.
-
-    Args:
-        page (str): The string label indicating which page of the EIA923 we
-            are attempting to read in. Must be one of the following:
-            'generation_fuel', 'stocks', 'boiler_fuel', 'generator',
-            'fuel_receipts_costs', 'plant_frame'.
-        year (int): The year that we're trying to read data for.
-
-    Returns:
-        tuple: A tuple containing:
-            - int: sheet_name (int): An integer indicating which page in the
-              worksheet the data should be pulled from. 0 is the first page,
-              1 is the second page, etc. For use by :func:`pandas.read_excel`
-            - int: skiprows, an integer indicating how many rows should be
-              skipped at the top of the sheet being read in, before the
-              header row that contains the strings which will be converted
-              into column names in the dataframe which is created by
-              :func:`pandas.read_excel`
-            - int: skiprows, an integer indicating how many rows should be
-              skipped at the top of the sheet being read in, before the header
-              row that contains the strings which will be converted into column
-              names in the dataframe which is created by
-              :func:`pandas.read_excel`
-            - dict: column_map, a dictionary that maps the names of the columns
-              in the year being read in, to the canonical EIA923 column names.
-              This dictionary will be used by :func:`pandas.DataFrame.rename`.
-              The keys are the column names in the dataframe as read from older
-              years, and the values are the canonmical column names. All
-              should be stripped of leading and trailing whitespace, converted
-              to lower case, and have internal non-alphanumeric characters
-              replaced with underscores.
-
-    """
-    sheet_name = pc.tab_map_eia923.at[year, page]
-    skiprows = pc.skiprows_eia923.at[year, page]
-
-    page_to_df = {
-        'generation_fuel': pc.generation_fuel_map_eia923,
-        'stocks': pc.stocks_map_eia923,
-        'boiler_fuel': pc.boiler_fuel_map_eia923,
-        'generator': pc.generator_map_eia923,
-        'fuel_receipts_costs': pc.fuel_receipts_costs_map_eia923,
-        'plant_frame': pc.plant_frame_map_eia923}
-
-    d = page_to_df[page].loc[year].to_dict()
-
-    column_map = {}
-    for k, v in d.items():
-        column_map[v] = k
-
-    all_columns = page_to_df[page].columns
-    all_columns = all_columns.drop(
-        ['reserved_2', 'reserved_1', 'reserved'], errors='ignore')
-
-    return (sheet_name, skiprows, column_map, all_columns)
-
-
 def get_eia923_page(page, eia923_xlsx,
                     years=pc.working_years['eia923']):
     """Reads a table from given years of EIA923 data, returns a DataFrame.
@@ -143,18 +78,16 @@ def get_eia923_page(page, eia923_xlsx,
         raise ValueError(
             f"EIA923 only works for 2009 and later. {min(years)} requested."
         )
-    if (page not in pc.tab_map_eia923.columns) or (page == 'year_index'):
+    if (page not in metadata.all_pages()) or (page == 'year_index'):
         raise ValueError(f"Unrecognized EIA 923 page: {page}")
 
     df = pd.DataFrame()
     for yr in years:
         logger.info(f"Converting EIA 923 {page} spreadsheet tab from {yr} "
                     f"into a pandas DataFrame")
-        sheet_name, skiprows, column_map, all_columns = get_eia923_column_map(
-            page, yr)
         newdata = pd.read_excel(eia923_xlsx[yr],
-                                sheet_name=sheet_name,
-                                skiprows=skiprows)
+                                sheet_name=metadata.sheet_name(yr, page),
+                                skiprows=metadata.skiprows(yr, page))
         newdata = pudl.helpers.simplify_columns(newdata)
 
         # Drop columns that start with "reserved" because they are empty
@@ -165,7 +98,7 @@ def get_eia923_page(page, eia923_xlsx,
         if page == 'stocks':
             newdata['report_year'] = yr
 
-        newdata = newdata.rename(columns=column_map)
+        newdata = newdata.rename(columns=metadata.column_map(yr, page))
         if page == 'stocks':
             newdata = newdata.rename(columns={
                 'unnamed_0': 'census_division_and_state'})
@@ -180,7 +113,7 @@ def get_eia923_page(page, eia923_xlsx,
     # that's being returned, even if they are empty, so that we know we have a
     # consistent set of columns to work with in the transform step of ETL, and
     # the columns match up with the database definition.
-    missing_cols = all_columns.difference(df.columns)
+    missing_cols = metadata.all_columns(page).difference(df.columns)
     empty_cols = pd.DataFrame(columns=missing_cols)
     df = pd.concat([df, empty_cols], sort=True)
     return df

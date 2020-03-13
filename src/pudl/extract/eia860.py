@@ -17,6 +17,7 @@ import pudl.constants as pc
 import pudl.workspace.datastore as datastore
 
 logger = logging.getLogger(__name__)
+metadata = pudl.extract.excelmetadata.ExcelMetadata('eia860')
 
 ###########################################################################
 # Helper functions & other objects to ingest & process Energy Information
@@ -84,77 +85,6 @@ def get_eia860_xlsx(years, filename, data_dir):
     return eia860_xlsx
 
 
-def get_eia860_column_map(page, year):
-    """Given a year and EIA860 page, returns info needed to slurp it from Excel.
-
-    The format of the EIA860 has changed slightly over the years, and so it
-    is not completely straightforward to pull information from the spreadsheets
-    into our analytical framework. This function looks up a map of the various
-    tabs in the spreadsheet by year and page, and returns the information
-    needed to name the data fields in a standardized way, and pull the right
-    cells from each year & page into our database.
-
-    Args:
-        page (str): The string label indicating which page of the EIA860 we
-            are attempting to read in. Must be one of the following:
-            - 'generation_fuel'
-            - 'stocks'
-            - 'boiler_fuel'
-            - 'generator'
-            - 'fuel_receipts_costs'
-            - 'plant_frame'
-        year (int): The year that we're trying to read data for.
-
-    Returns:
-        tuple: A tuple containing:
-            - int: sheet_name, an integer indicating which page in the worksheet
-              the data should be pulled from. 0 is the first page, 1 is the
-              second page, etc. For use by pandas.read_excel()
-            - int: skiprows, an integer indicating how many rows should be skipped
-              at the top of the sheet being read in, before the header row
-              that contains the strings which will be converted into column
-              names in the dataframe which is created by pandas.read_excel()
-            - dict: column_map, a dictionary that maps the names of the columns
-              in the year being read in, to the canonical EIA923 column names
-              (i.e. the column names as they are in 2014-2016). This
-              dictionary will be used by DataFrame.rename(). The keys are the
-              column names in the dataframe as read from older years, and the
-              values are the canonmical column names.  All should be stripped
-              of leading and trailing whitespace, converted to lower case,
-              and have internal non-alphanumeric characters replaced with
-              underscores.
-            - pd.Index: all_columns, the column Index associated with the column
-              map -- it includes all of the columns which might be present in
-              all of the years of data, for use in setting the column index of
-              the raw dataframe which is ultimately extracted, so we can
-              ensure that they all have the same columns, even if we're only
-              loading a limited number of years.
-
-    """
-    sheet_name = pc.tab_map_eia860.at[year, page]
-    skiprows = pc.skiprows_eia860.at[year, page]
-
-    page_to_df = {
-        'boiler_generator_assn': pc.boiler_generator_assn_map_eia860,
-        'utility': pc.utility_assn_map_eia860,
-        'plant': pc.plant_assn_map_eia860,
-        'generator_existing': pc.generator_assn_map_eia860,
-        'generator_proposed': pc.generator_proposed_assn_map_eia860,
-        'generator_retired': pc.generator_retired_assn_map_eia860,
-        'ownership': pc.ownership_assn_map_eia860
-    }
-
-    d = page_to_df[page].loc[year].to_dict()
-
-    column_map = {}
-    for k, v in d.items():
-        column_map[v] = k
-
-    all_columns = page_to_df[page].columns
-
-    return (sheet_name, skiprows, column_map, all_columns)
-
-
 def get_eia860_page(page, eia860_xlsx,
                     years=pc.working_years['eia860']):
     """Reads a table from several years of EIA860 data, returns a DataFrame.
@@ -184,10 +114,10 @@ def get_eia860_page(page, eia860_xlsx,
         AssertionError: If the year is not in the list of years that work for
             EIA 860.
     """
-    if page not in pc.tab_map_eia860.columns and page != 'year_index':
+    if page not in metadata.all_pages() and page != 'year_index':
         raise AssertionError(
             f"Unrecognized EIA 860 page: {page}\n"
-            f"Acceptable EIA 860 pages: {pc.tab_map_eia860.columns}\n"
+            f"Acceptable EIA 860 pages: {metadata.all_pages()}\n"
         )
 
     df = pd.DataFrame()
@@ -199,16 +129,13 @@ def get_eia860_page(page, eia860_xlsx,
             )
         logger.info(f"Converting EIA 860 spreadsheet tab {page} to pandas "
                     f"DataFrame for {yr}.")
-        sheet_name, skiprows, column_map, all_columns = get_eia860_column_map(
-            page, yr)
-
         dtype = {'plant_id_eia': pd.Int64Dtype()}
-        if 'zip_code' in list(all_columns):
+        if 'zip_code' in metadata.all_columns(page):
             dtype['zip_code'] = pc.column_dtypes['eia']['zip_code']
 
         newdata = pd.read_excel(eia860_xlsx[yr],
-                                sheet_name=sheet_name,
-                                skiprows=skiprows,
+                                sheet_name=metadata.sheet_name(yr, page),
+                                skiprows=metadata.skiprows(yr, page),
                                 dtype=dtype,
                                 )
         newdata = pudl.helpers.simplify_columns(newdata)
@@ -217,7 +144,7 @@ def get_eia860_page(page, eia860_xlsx,
         if 'report_year' not in newdata.columns:
             newdata['report_year'] = yr
 
-        newdata = newdata.rename(columns=column_map)
+        newdata = newdata.rename(columns=metadata.column_map(yr, page))
 
         df = df.append(newdata, sort=True)
 
@@ -225,7 +152,7 @@ def get_eia860_page(page, eia860_xlsx,
     # that's being returned, even if they are empty, so that we know we have a
     # consistent set of columns to work with in the transform step of ETL, and
     # the columns match up with the database definition.
-    missing_cols = all_columns.difference(df.columns)
+    missing_cols = metadata.all_columns(page).difference(df.columns)
     empty_cols = pd.DataFrame(columns=missing_cols)
     df = pd.concat([df, empty_cols], sort=True)
     return df

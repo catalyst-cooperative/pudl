@@ -1039,49 +1039,6 @@ working_pages_eia923 = [
     "generator",
     "plant_frame",
 ]
-tab_map_eia923 = pd.read_csv(
-    importlib.resources.open_text(xlsx_maps_pkg, 'tab_map_eia923.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from the EIA 923 tab map.
-"""
-skiprows_eia923 = pd.read_csv(
-    importlib.resources.open_text(xlsx_maps_pkg, 'skiprows_eia923.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from the EIA 923 skiprows map.
-"""
-generation_fuel_map_eia923 = pd.read_csv(
-    importlib.resources.open_text(
-        xlsx_maps_pkg, 'generation_fuel_map_eia923.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from EIA 923 Generation Fuel.
-"""
-stocks_map_eia923 = pd.read_csv(
-    importlib.resources.open_text(xlsx_maps_pkg, 'stocks_map_eia923.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from EIA 923 Stocks.
-"""
-boiler_fuel_map_eia923 = pd.read_csv(
-    importlib.resources.open_text(xlsx_maps_pkg, 'boiler_fuel_map_eia923.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from EIA 923 Boiler Fuel.
-"""
-generator_map_eia923 = pd.read_csv(
-    importlib.resources.open_text(xlsx_maps_pkg, 'generator_map_eia923.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from EIA 923 Generators.
-"""
-fuel_receipts_costs_map_eia923 = pd.read_csv(
-    importlib.resources.open_text(
-        xlsx_maps_pkg, 'fuel_receipts_costs_map_eia923.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from EIA 923 Fuel Receipts and
-    Costs.
-"""
-plant_frame_map_eia923 = pd.read_csv(
-    importlib.resources.open_text(xlsx_maps_pkg, 'plant_frame_map_eia923.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from EIA 923 Plant Frame.
-"""
 
 # patterns for matching columns to months:
 month_dict_eia923 = {1: '_january$',
@@ -1144,67 +1101,6 @@ eia860_pudl_tables = (
 )
 """tuple: A tuple containing the list of EIA 860 tables that can be successfully
     pulled into PUDL.
-"""
-
-tab_map_eia860 = pd.read_csv(
-    importlib.resources.open_text(xlsx_maps_pkg, 'tab_map_eia860.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from EIA 860 tab map.
-"""
-
-skiprows_eia860 = pd.read_csv(
-    importlib.resources.open_text(xlsx_maps_pkg, 'skiprows_eia860.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from EIA 860 skiprows map.
-"""
-
-boiler_generator_assn_map_eia860 = pd.read_csv(
-    importlib.resources.open_text(
-        xlsx_maps_pkg, 'boiler_generator_assn_map_eia860.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from EIA 860 Boiler Generator
-    Association.
-"""
-
-utility_assn_map_eia860 = pd.read_csv(
-    importlib.resources.open_text(
-        xlsx_maps_pkg, 'utility_assn_map_eia860.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from EIA 860 Utility.
-"""
-
-ownership_assn_map_eia860 = pd.read_csv(
-    importlib.resources.open_text(
-        xlsx_maps_pkg, 'ownership_assn_map_eia860.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from EIA 860 Ownership.
-"""
-
-plant_assn_map_eia860 = pd.read_csv(
-    importlib.resources.open_text(xlsx_maps_pkg, 'plant_assn_map_eia860.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from EIA 860 Plant.
-"""
-
-generator_assn_map_eia860 = pd.read_csv(
-    importlib.resources.open_text(
-        xlsx_maps_pkg, 'generator_assn_map_eia860.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from EIA 860 Generator.
-"""
-
-generator_proposed_assn_map_eia860 = pd.read_csv(
-    importlib.resources.open_text(
-        xlsx_maps_pkg, 'generator_proposed_assn_map_eia860.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from EIA 860 Generator Proposed.
-"""
-
-generator_retired_assn_map_eia860 = pd.read_csv(
-    importlib.resources.open_text(
-        xlsx_maps_pkg, 'generator_retired_assn_map_eia860.csv'),
-    index_col=0, comment='#')
-"""pandas.DataFrame: A DataFrame of metadata from EIA 860 Generator Retired.
 """
 
 # The set of FERC Form 1 tables that have the same composite primary keys: [
