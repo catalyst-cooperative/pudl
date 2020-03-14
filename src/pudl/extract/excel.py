@@ -34,10 +34,7 @@ class Metadata(object):
     - skiprows.csv
     - tab_map.csv (for sheet name)
     - column_maps/${page}.csv for column mapping for ${page}
-
-    TODO: There may be additional file complexity here, but not necessarily
-    for simple xlsx datasets.
-    """
+   """
 
     def sheet_name(self, year, page):
         """Returns name of excel sheet containing data for given year and page."""
@@ -73,9 +70,6 @@ class Metadata(object):
         pkg = f'pudl.package_data.meta.xlsx_maps.{dataset_name}'
         self._skiprows = self._load_csv(pkg, 'skiprows.csv')
         self._sheet_name = self._load_csv(pkg, 'tab_map.csv')
-        # TODO(rousik@gmail.com): there may be multiple tab_maps per file (?)
-        # TODO(rousik@gmail.com): iterate over pkg + '.column_maps' and load all the column
-        # maps. Page name matches the filename (assume this is always possible).
         column_map_pkg = pkg + '.column_maps'
         self._column_map = {}
         for res in importlib.resources.contents(column_map_pkg):
@@ -153,16 +147,11 @@ class GenericExtractor(object):
                 f"Supported years: {pc.working_years[self.DATASET]}\n"
             )
 
-        # 1. figure out all pages that should be extracted
-        # 2. figure out file names for the pages
         excel_files = {}
-        for page in self._metadata.all_pages():
-            for yr in years:
-                file_path = self._get_file_path(yr, page)
-                if file_path not in excel_files:
-                    logger.info(
-                        f'Loading excel spreadsheet for {self.DATASET} {page} {yr}')
-                    excel_files[file_path] = pd.ExcelFile(file_path)
+        for file_path in self._get_all_file_paths(years):
+            logger.info(
+                f'Loading excel spreadsheet from {file_path}')
+            excel_files[file_path] = pd.ExcelFile(file_path)
 
         # excel_files now contains pre-loaded excel files, now munch the data
         # per page and put them in raw_dfs[page] = DataFrame
@@ -197,6 +186,29 @@ class GenericExtractor(object):
             df = pd.concat([df, empty_cols], sort=True)
             raw_dfs[page] = self.process_final_page(page, df)
         return raw_dfs
+
+    def _get_all_file_paths(self, years):
+        """Returns list of all data files that will be loaded for all years."""
+        bad_years = []
+        all_files = []
+        for page in self._metadata.all_pages():
+            for yr in years:
+                try:
+                    all_files.append(self._get_file_path(yr, page))
+                except IndexError:
+                    bad_years.append(yr)
+        if bad_years:
+            raise FileNotFoundError(
+                f'Missing {self.DATASET} files for years {bad_years}.')
+        return all_files
+
+    def verify_years(self, years):
+        """Validate that all files are availabe.
+
+        Raises:
+            FileNotFoundError: when some files are not found in the datastore.
+        """
+        self._get_all_file_paths(years)
 
     def file_basename_glob(self, year, page):
         """Returns base filename glob for a given year and page.

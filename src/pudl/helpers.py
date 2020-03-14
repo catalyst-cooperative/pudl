@@ -672,8 +672,6 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
 
 
 def verify_input_files(ferc1_years,  # noqa: C901
-                       eia923_years,
-                       eia860_years,
                        epacems_years,
                        epacems_states,
                        pudl_settings):
@@ -681,8 +679,6 @@ def verify_input_files(ferc1_years,  # noqa: C901
 
     Args:
         ferc1_years (iterable): Years of FERC1 data we're going to import.
-        eia923_years (iterable): Years of EIA923 data we're going to import.
-        eia860_years (iterable): Years of EIA860 data we're going to import.
         epacems_years (iterable): Years of CEMS data we're going to import.
         epacems_states (iterable): States of CEMS data we're going to import.
         data_dir (path-like): Path to the top level of the PUDL datastore.
@@ -697,10 +693,6 @@ def verify_input_files(ferc1_years,  # noqa: C901
         str(y) for y in ferc1_years if not pathlib.Path(
             pudl.extract.ferc1.dbc_filename(y, data_dir=data_dir)).is_file()
     }
-
-    # TODO(rousik@gmail.com): Redo file validation for eia datasets.
-    missing_eia860_years = set()
-    missing_eia923_years = set()
 
     if epacems_states and list(epacems_states)[0].lower() == 'all':
         epacems_states = list(pc.cems_states.keys())
@@ -721,16 +713,11 @@ def verify_input_files(ferc1_years,  # noqa: C901
                 if not p.is_file():
                     missing_epacems_year_states.add((str(y), s))
 
-    any_missing = (missing_eia860_years or missing_eia923_years
-                   or missing_ferc1_years or missing_epacems_year_states)
+    any_missing = (missing_ferc1_years or missing_epacems_year_states)
     if any_missing:
         err_msg = ["Missing data files for the following sources and years:"]
         if missing_ferc1_years:
             err_msg += ["  FERC 1:  " + ", ".join(missing_ferc1_years)]
-        if missing_eia860_years:
-            err_msg += ["  EIA 860: " + ", ".join(missing_eia860_years)]
-        if missing_eia923_years:
-            err_msg += ["  EIA 923: " + ", ".join(missing_eia923_years)]
         if missing_epacems_year_states:
             missing_yr_str = ", ".join(
                 {yr_st[0] for yr_st in missing_epacems_year_states})
