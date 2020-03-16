@@ -15,59 +15,37 @@ logger = logging.getLogger(__name__)
 
 
 class Metadata(object):
-    """Loads excel dataset metadata.
+    """Loads excel metadata from python package.
 
-    This metadata tells us how the data is stored in the Excel spreadsheet
-    and how to extract it into DataFrames.
+    Excel sheet files may contain many different tables. When we load those
+    into dataframes, metadata tells us how to do this. Metadata generally informs
+    us about the position of a given page in the file (which sheet and which row)
+    and it informs us how to translate excel column names into standardized
+    column names.
 
-    The components of the metadata consist of:
-      - skiprows: For a given (year, page), how many leading rows should
-          be skipped before loading the data.
-      - sheet_name: For a given (year, page), what is the name of the
-          excel sheet that contains this data.
-      - column_map: For a given (year, page), this provides mapping from
-          excel column names to the output PUDL column names. This provides
-          a tool for unifying disparate naming schemes across years.
+    When metadata object is instantiated, it is given ${dataset} name and it
+    will attempt to load csv files from pudl.package_data.meta.xlsx_maps.${dataset}
+    package.
 
-    This tool loads the metadata from CSV files from a given python package
-    and expects the files to follow consistent naming scheme:
-    - skiprows.csv
-    - tab_map.csv (for sheet name)
-    - column_maps/${page}.csv for column mapping for ${page}
-   """
-
-    def sheet_name(self, year, page):
-        """Returns name of excel sheet containing data for given year and page."""
-        return self._sheet_name.at[year, page]
-
-    def skiprows(self, year, page):
-        """Returns number of rows to skip when loading given year and page."""
-        return self._skiprows.at[year, page]
-
-    def column_map(self, year, page):
-        """Return the dictionary mapping excel_column to pudl_column.
-
-        The underlying metadata CSV file maps pudl_column to excel_column so
-        we need to invert the mapping before returning it.
-        """
-        return {v: k for k, v in self._column_map[page].loc[year].to_dict().items()}
-
-    def all_columns(self, page):
-        """Returns set of all columns for a given page (across all years)."""
-        return set(self._column_map[page].columns)
-
-    def all_pages(self):
-        """Returns list of supported pages."""
-        return self._column_map.keys()
-
-    def _load_csv(self, pkg, filename):
-        """Load metadata from CSV file from a python package."""
-        return pd.read_csv(importlib.resources.open_text(pkg, filename),
-                           index_col=0, comment='#')
+    It expects the following kinds of files:
+    - skiprows.csv tells us how many initial rows should be skipped when loading
+      data for given (year, page).
+    - tab_map.csv tells us what is the excel sheet name that should be read
+      when loading data for given (year, page)
+    - coumn_map/${page}.csv currently informs us how to translate input column
+      names to standardized pudl names for given (year, input_col_name). Relevant
+      page is encoded in the filename.
+    """
 
     def __init__(self, dataset_name):
-        """Loads CSV metadata and constructs ExcelMetadata object."""
+        """Create Metadata object and load metadata from python package.
+
+        Args:
+          dataset_name: Name of the package/dataset to load the metadata from.
+            Files will be loaded from pudl.package_data.meta.xlsx_meta.${dataset_name}.
+        """
         pkg = f'pudl.package_data.meta.xlsx_maps.{dataset_name}'
+        self._dataset_name = dataset_name
         self._skiprows = self._load_csv(pkg, 'skiprows.csv')
         self._sheet_name = self._load_csv(pkg, 'tab_map.csv')
         column_map_pkg = pkg + '.column_maps'
@@ -80,38 +58,82 @@ class Metadata(object):
             column_map = self._load_csv(column_map_pkg, res)
             self._column_map[parts[0]] = column_map
 
+    def get_dataset_name(self):
+        return self._dataset_name
+
+    def get_sheet_name(self, year, page):
+        """Returns name of the excel sheet that contains the data for given year and page."""
+        return self._sheet_name.at[year, page]
+
+    def get_skiprows(self, year, page):
+        """Returns number of initial rows to skip when loading given year and page."""
+        return self._skiprows.at[year, page]
+
+    def get_column_map(self, year, page):
+        """Returns the dictionary mapping input columns to pudl columns for given year and page."""
+        return {v: k for k, v in self._column_map[page].loc[year].to_dict().items()}
+
+    def get_all_columns(self, page):
+        """Returns set of all pudl (standardized) columns for a given page (across all years)."""
+        return set(self._column_map[page].columns)
+
+    def get_all_pages(self):
+        """Returns list of all known pages."""
+        return self._column_map.keys()
+
+    def _load_csv(self, package, filename):
+        """Load metadata from a filename that is found in a package."""
+        return pd.read_csv(importlib.resources.open_text(package, filename),
+                           index_col=0, comment='#')
+
 
 class GenericExtractor(object):
-    """Extracts DataFrames from excel spreadsheets.
+    """Contains logic for extracting panda.DataFrames from excel spreadsheets.
 
-    Subclasses for each excel based dataset should implement
-    custom logic by overriding class-level constants and methods
-    as follows:
+    This class implements the generic dataset agnostic logic to load data
+    from excel spreadsheet simply by using excel Metadata for given dataset.
 
-    1. Set DATASET attribute such that metadata for the excel
-       spreadsheets will be loaded from
-       pudl.package_data.meta.xlsx_maps.${DATASET}. See Metadata
-       object for how this process works.
-    2. Set BLACKLISTED_PAGES to bypass loading of pages that
-       are described by the metadata but should not be extracted.
-    3. override file_base_path method to return basename globs
-       for a given (year, page) combination.
-    4. Optionally provide custom data cleanup/processing logic
-       in process_raw, process_renamed and process_final_page
-       methods.
-    5. Optionally provide dtypes for raw data loaded from excel
-       by overrinding dtypes method.
-    6.
-"""
-    DATASET = None
+    It is expected that individual datasets wil subclass this code and add
+    custom business logic by overriding necessary methods.
+
+    When implementing custom business logic, the following should be modified:
+    1. DATASET class attribute controls which excel metadata should be loaded.
+    2. BLACKLISTED_PAGES class attribute specifies which pages should not
+       be loaded from the underlying excel files even if the metadata is
+       available. This can be used for experimental/new code that should not be
+       run yet.
+    3. file_basename_glob() tells us what is the basename of the excel file
+       that contains the data for a given (year, page).
+    4. dtypes() should return dict with {column_name: pandas_datatype} if you
+       need to specify which datatypes should be uded upon loading.
+    5. If data cleanup is necessary, you can apply custom logic by overriding
+       one of the following functions (they all return the modified dataframe).
+       a. process_raw() is applied right after loading the excel DataFrame
+          from the disk.
+       b. process_renamed() is applied after input columns were renamed to
+          standardized pudl columns.
+       c. process_final_page() is applied when data from all available years
+          is merged into single DataFrame for a given page.
+    """
+
+    METADATA = None
+    """Instance of metadata object to use with this extractor."""
 
     BLACKLISTED_PAGES = []
     """List of supported pages that should not be extracted."""
 
-    def __init__(self, data_dir):
-        """Create new extractor object and load metadata."""
+    def __init__(self, data_dir, metadata=None):
+        """Create new extractor object and load metadata.
+
+        Args:
+            data_dir: Path to the data_dir to use when loading excel
+              files from disk (passed to datastore).
+        """
         self._data_dir = data_dir
-        self._metadata = Metadata(self.DATASET)
+        if not self.METADATA:
+            raise NotImplementedError('self.METADATA must be set.')
+        self._metadata = self.METADATA
+        self._dataset_name = self._metadata.get_dataset_name()
 
     def process_raw(self, year, page, dataframe):
         """Transforms raw dataframe before columns are renamed."""
@@ -125,7 +147,7 @@ class GenericExtractor(object):
         """Final processing stage applied to a page DataFrame."""
         return dataframe
 
-    def dtypes(self, year, page):
+    def get_dtypes(self, year, page):
         """Provide custom dtypes for given page and year."""
         return {}
 
@@ -140,11 +162,12 @@ class GenericExtractor(object):
                 f'No years given. Not extracting {self.DATSET} spreadsheet data.')
             return {}
 
-        bad_years = set(years).difference(set(pc.working_years[self.DATASET]))
+        bad_years = set(years).difference(
+            set(pc.working_years[self._dataset_name]))
         if bad_years:
             raise ValueError(
-                f"Requested invalid years for {self.DATASET}: {bad_years}\n"
-                f"Supported years: {pc.working_years[self.DATASET]}\n"
+                f"Requested invalid years for {self._dataset_name}: {bad_years}\n"
+                f"Supported years: {pc.working_years[self._dataset_name]}\n"
             )
 
         excel_files = {}
@@ -156,7 +179,7 @@ class GenericExtractor(object):
         # excel_files now contains pre-loaded excel files, now munch the data
         # per page and put them in raw_dfs[page] = DataFrame
         raw_dfs = {}
-        for page in self._metadata.all_pages():
+        for page in self._metadata.get_all_pages():
             if page in self.BLACKLISTED_PAGES:
                 logger.info(f'Skipping blacklisted page {page}.')
                 continue
@@ -165,22 +188,22 @@ class GenericExtractor(object):
                 data = excel_files[self._get_file_path(yr, page)]
 
                 logger.info(
-                    f'Loading dataframe for {self.DATASET} {page} {yr}')
+                    f'Loading dataframe for {self._dataset_name} {page} {yr}')
                 newdata = pd.read_excel(
                     data,
-                    sheet_name=self._metadata.sheet_name(yr, page),
-                    skiprows=self._metadata.skiprows(yr, page),
-                    dtype=self.dtypes(yr, page))
+                    sheet_name=self._metadata.get_sheet_name(yr, page),
+                    skiprows=self._metadata.get_skiprows(yr, page),
+                    dtype=self.get_dtypes(yr, page))
 
                 newdata = pudl.helpers.simplify_columns(newdata)
                 newdata = self.process_raw(yr, page, newdata)
                 newdata = newdata.rename(
-                    columns=self._metadata.column_map(yr, page))
+                    columns=self._metadata.get_column_map(yr, page))
                 newdata = self.process_renamed(yr, page, newdata)
                 df = df.append(newdata, sort=True)
 
             # After all years are loaded, consolidate missing columns
-            missing_cols = self._metadata.all_columns(
+            missing_cols = self._metadata.get_all_columns(
                 page).difference(df.columns)
             empty_cols = pd.DataFrame(columns=missing_cols)
             df = pd.concat([df, empty_cols], sort=True)
@@ -191,7 +214,7 @@ class GenericExtractor(object):
         """Returns list of all data files that will be loaded for all years."""
         bad_years = []
         all_files = []
-        for page in self._metadata.all_pages():
+        for page in self._metadata.get_all_pages():
             for yr in years:
                 try:
                     all_files.append(self._get_file_path(yr, page))
@@ -199,7 +222,7 @@ class GenericExtractor(object):
                     bad_years.append(yr)
         if bad_years:
             raise FileNotFoundError(
-                f'Missing {self.DATASET} files for years {bad_years}.')
+                f'Missing {self._dataset_name} files for years {bad_years}.')
         return all_files
 
     def verify_years(self, years):
@@ -216,16 +239,16 @@ class GenericExtractor(object):
         This is later combined with path from datastore to fetch
         the excel spreadsheet from disk.
         """
-        return None
+        return NotImplementedError('This method must be implemented.')
 
     def _get_file_path(self, year, page):
         """Returns full path to the excel spreadsheet."""
-        directory = datastore.path(self.DATASET, year=year, file=False,
+        directory = datastore.path(self._dataset_name, year=year, file=False,
                                    data_dir=self._data_dir)
         files = glob.glob(os.path.join(
             directory, self.file_basename_glob(year, page)))
         if len(files) != 1:
             logger.warning(
                 f'There are {len(files)} matching files for'
-                f'{self.DATASET} {page} {year}. Exactly one expected.')
+                f'{self._dataset_name} {page} {year}. Exactly one expected.')
         return files[0]

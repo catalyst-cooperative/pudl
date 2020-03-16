@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class Extractor(excel.GenericExtractor):
-    DATASET = 'eia860'
+    METADATA = excel.Metadata('eia860')
 
     PAGE_GLOBS = {
         'boiler_generator_assn': '*EnviroAssoc*',
@@ -36,7 +36,7 @@ class Extractor(excel.GenericExtractor):
             df['report_year'] = year
         return df
 
-    def dtypes(self, year, page):
+    def get_dtypes(self, year, page):
         return {
             "Plant ID": pd.Int64Dtype(),
             "Plant Id": pd.Int64Dtype(),

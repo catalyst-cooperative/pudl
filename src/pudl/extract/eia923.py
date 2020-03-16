@@ -17,11 +17,8 @@ logger = logging.getLogger(__name__)
 
 
 class Extractor(excel.GenericExtractor):
-    """Extractor for EIA923 dataset.
-
-    This loads Energy Information Administration (EIA) form 923
-    """
-    DATASET = 'eia923'
+    """Extractor for EIA form 923."""
+    METADATA = excel.Metadata('eia923')
     BLACKLISTED_PAGES = ['plant_frame']
 
     # Pages not supported by the metadata:
@@ -33,13 +30,13 @@ class Extractor(excel.GenericExtractor):
         return '*2_3_4*'
 
     def process_raw(self, year, page, df):
-        """Drop reserved columns."""
+        """Drops reserved columns."""
         to_drop = [c for c in df.columns if c[:8] == 'reserved']
         df.drop(to_drop, axis=1, inplace=True)
         return df
 
     def process_renamed(self, year, page, df):
-        """Clean up stock column unnamed_0 and drop invalid plan_id_eia rows."""
+        """Cleans up unnamed_0 column in stocks page, drops invalid plan_id_eia rows."""
         if page == 'stocks':
             df = df.rename(columns={'unnamed_0': 'census_division_and_state'})
         # Drop the fields with plant_id_eia 99999 or 999999.
@@ -54,7 +51,7 @@ class Extractor(excel.GenericExtractor):
         df.drop(columns=to_drop, inplace=True, errors='ignore')
         return df
 
-    def dtypes(self, year, page):
+    def get_dtypes(self, year, page):
         return {
             "Plant ID": pd.Int64Dtype(),
             "Plant Id": pd.Int64Dtype(),

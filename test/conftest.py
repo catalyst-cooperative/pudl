@@ -400,9 +400,12 @@ def datastore_fixture(pudl_settings_fixture, data_scope):
 
     pudl.helpers.verify_input_files(
         ferc1_years=years_by_source["ferc1"],
-        eia923_years=years_by_source["eia923"],
-        eia860_years=years_by_source["eia860"],
         epacems_years=years_by_source["epacems"],
         epacems_states=states,
         pudl_settings=pudl_settings_fixture,
     )
+    data_dir = pudl_settings_fixture['data_dir']
+    pudl.extract.eia860.Extractor(
+        data_dir).verify_years(years_by_source['eia860'])
+    pudl.extract.eia923.Extractor(
+        data_dir).verify_years(years_by_source['eia923'])
