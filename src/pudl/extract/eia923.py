@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 class Extractor(excel.GenericExtractor):
     """Extractor for EIA form 923."""
+
     METADATA = excel.Metadata('eia923')
     BLACKLISTED_PAGES = ['plant_frame']
 
@@ -26,16 +27,20 @@ class Extractor(excel.GenericExtractor):
     # energy_storage, github issue #458
     # oil_stocks, coal_stocks, petcoke_stocks
 
-    def file_basename_glob(self, year, page):
+    @staticmethod
+    def file_basename_glob(year, page):
+        """Returns filename glob (same for all pages and years)."""
         return '*2_3_4*'
 
-    def process_raw(self, year, page, df):
+    @staticmethod
+    def process_raw(year, page, df):
         """Drops reserved columns."""
         to_drop = [c for c in df.columns if c[:8] == 'reserved']
         df.drop(to_drop, axis=1, inplace=True)
         return df
 
-    def process_renamed(self, year, page, df):
+    @staticmethod
+    def process_renamed(year, page, df):
         """Cleans up unnamed_0 column in stocks page, drops invalid plan_id_eia rows."""
         if page == 'stocks':
             df = df.rename(columns={'unnamed_0': 'census_division_and_state'})
@@ -45,13 +50,16 @@ class Extractor(excel.GenericExtractor):
             df = df[~df.plant_id_eia.isin([99999, 999999])]
         return df
 
-    def process_final_page(self, page, df):
+    @staticmethod
+    def process_final_page(page, df):
         """Removes reserved columns from the final dataframe."""
         to_drop = [c for c in df.columns if c[:8] == 'reserved']
         df.drop(columns=to_drop, inplace=True, errors='ignore')
         return df
 
-    def get_dtypes(self, year, page):
+    @staticmethod
+    def get_dtypes(year, page):
+        """Returns dtypes for plant id columns."""
         return {
             "Plant ID": pd.Int64Dtype(),
             "Plant Id": pd.Int64Dtype(),

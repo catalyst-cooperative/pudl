@@ -59,6 +59,7 @@ class Metadata(object):
             self._column_map[parts[0]] = column_map
 
     def get_dataset_name(self):
+        """Returns the name of the dataset described by this metadata."""
         return self._dataset_name
 
     def get_sheet_name(self, year, page):
@@ -135,19 +136,23 @@ class GenericExtractor(object):
         self._metadata = self.METADATA
         self._dataset_name = self._metadata.get_dataset_name()
 
-    def process_raw(self, year, page, dataframe):
+    @staticmethod
+    def process_raw(year, page, dataframe):
         """Transforms raw dataframe before columns are renamed."""
         return dataframe
 
-    def process_renamed(self, year, page, dataframe):
+    @staticmethod
+    def process_renamed(year, page, dataframe):
         """Transforms dataframe after columns are renamed."""
         return dataframe
 
-    def process_final_page(self, page, dataframe):
+    @staticmethod
+    def process_final_page(page, dataframe):
         """Final processing stage applied to a page DataFrame."""
         return dataframe
 
-    def get_dtypes(self, year, page):
+    @staticmethod
+    def get_dtypes(year, page):
         """Provide custom dtypes for given page and year."""
         return {}
 
@@ -233,7 +238,8 @@ class GenericExtractor(object):
         """
         self._get_all_file_paths(years)
 
-    def file_basename_glob(self, year, page):
+    @staticmethod
+    def file_basename_glob(year, page):
         """Returns base filename glob for a given year and page.
 
         This is later combined with path from datastore to fetch

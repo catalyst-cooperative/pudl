@@ -16,6 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 class Extractor(excel.GenericExtractor):
+    """Extractor for the excel dataset EIA860."""
+
     METADATA = excel.Metadata('eia860')
 
     PAGE_GLOBS = {
@@ -29,14 +31,19 @@ class Extractor(excel.GenericExtractor):
     }
 
     def file_basename_glob(self, year, page):
+        """Returns corresponding glob pattern for a page."""
         return self.PAGE_GLOBS[page]
 
-    def process_raw(self, year, page, df):
+    @staticmethod
+    def process_raw(year, page, df):
+        """Adds report_year column if missing."""
         if 'report_year' not in df.columns:
             df['report_year'] = year
         return df
 
-    def get_dtypes(self, year, page):
+    @staticmethod
+    def get_dtypes(year, page):
+        """Returns dtypes for plant id columns."""
         return {
             "Plant ID": pd.Int64Dtype(),
             "Plant Id": pd.Int64Dtype(),
