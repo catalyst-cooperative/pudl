@@ -29,19 +29,19 @@ class Metadata(object):
 
     It expects the following kinds of files:
     - skiprows.csv tells us how many initial rows should be skipped when loading
-      data for given (year, page).
+    data for given (year, page).
     - tab_map.csv tells us what is the excel sheet name that should be read
-      when loading data for given (year, page)
-    - coumn_map/${page}.csv currently informs us how to translate input column
-      names to standardized pudl names for given (year, input_col_name). Relevant
-      page is encoded in the filename.
+    when loading data for given (year, page)
+    - column_map/${page}.csv currently informs us how to translate input column
+    names to standardized pudl names for given (year, input_col_name). Relevant
+    page is encoded in the filename.
     """
 
     def __init__(self, dataset_name):
         """Create Metadata object and load metadata from python package.
 
         Args:
-          dataset_name: Name of the package/dataset to load the metadata from.
+            dataset_name: Name of the package/dataset to load the metadata from.
             Files will be loaded from pudl.package_data.meta.xlsx_meta.${dataset_name}.
         """
         pkg = f'pudl.package_data.meta.xlsx_maps.{dataset_name}'
@@ -98,23 +98,28 @@ class GenericExtractor(object):
     custom business logic by overriding necessary methods.
 
     When implementing custom business logic, the following should be modified:
+
     1. DATASET class attribute controls which excel metadata should be loaded.
+
     2. BLACKLISTED_PAGES class attribute specifies which pages should not
-       be loaded from the underlying excel files even if the metadata is
-       available. This can be used for experimental/new code that should not be
-       run yet.
+    be loaded from the underlying excel files even if the metadata is
+    available. This can be used for experimental/new code that should not be
+    run yet.
+
     3. file_basename_glob() tells us what is the basename of the excel file
-       that contains the data for a given (year, page).
+    that contains the data for a given (year, page).
+
     4. dtypes() should return dict with {column_name: pandas_datatype} if you
-       need to specify which datatypes should be uded upon loading.
+    need to specify which datatypes should be uded upon loading.
+
     5. If data cleanup is necessary, you can apply custom logic by overriding
-       one of the following functions (they all return the modified dataframe).
-       a. process_raw() is applied right after loading the excel DataFrame
-          from the disk.
-       b. process_renamed() is applied after input columns were renamed to
-          standardized pudl columns.
-       c. process_final_page() is applied when data from all available years
-          is merged into single DataFrame for a given page.
+    one of the following functions (they all return the modified dataframe):
+    - process_raw() is applied right after loading the excel DataFrame
+    from the disk.
+    - process_renamed() is applied after input columns were renamed to
+    standardized pudl columns.
+    - process_final_page() is applied when data from all available years
+    is merged into single DataFrame for a given page.
     """
 
     METADATA = None
