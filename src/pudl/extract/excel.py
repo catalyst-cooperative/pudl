@@ -36,6 +36,9 @@ class Metadata(object):
     names to standardized pudl names for given (year, input_col_name). Relevant
     page is encoded in the filename.
     """
+    # TODO: we could validate whether metadata is valid for all year. We should have
+    # existing records for each (year, page) -> sheet_name, (year, page) -> skiprows
+    # and for all (year, page) -> column map
 
     def __init__(self, dataset_name):
         """Create Metadata object and load metadata from python package.
@@ -75,14 +78,15 @@ class Metadata(object):
         return {v: k for k, v in self._column_map[page].loc[year].to_dict().items()}
 
     def get_all_columns(self, page):
-        """Returns set of all pudl (standardized) columns for a given page (across all years)."""
-        return set(self._column_map[page].columns)
+        """Returns list of all pudl (standardized) columns for a given page (across all years)."""
+        return sorted(self._column_map[page].columns)
 
     def get_all_pages(self):
         """Returns list of all known pages."""
-        return self._column_map.keys()
+        return sorted(self._column_map.keys())
 
-    def _load_csv(self, package, filename):
+    @staticmethod
+    def _load_csv(package, filename):
         """Load metadata from a filename that is found in a package."""
         return pd.read_csv(importlib.resources.open_text(package, filename),
                            index_col=0, comment='#')
@@ -140,24 +144,21 @@ class GenericExtractor(object):
             raise NotImplementedError('self.METADATA must be set.')
         self._metadata = self.METADATA
         self._dataset_name = self._metadata.get_dataset_name()
+        self._file_cache = {}
 
-    @staticmethod
-    def process_raw(year, page, dataframe):
+    def process_raw(self, df, year, page):
         """Transforms raw dataframe before columns are renamed."""
-        return dataframe
+        return df
 
-    @staticmethod
-    def process_renamed(year, page, dataframe):
+    def process_renamed(self, df, year, page):
         """Transforms dataframe after columns are renamed."""
-        return dataframe
+        return df
 
-    @staticmethod
-    def process_final_page(page, dataframe):
+    def process_final_page(self, df, page):
         """Final processing stage applied to a page DataFrame."""
-        return dataframe
+        return df
 
-    @staticmethod
-    def get_dtypes(year, page):
+    def get_dtypes(self, year, page):
         """Provide custom dtypes for given page and year."""
         return {}
 
@@ -167,27 +168,12 @@ class GenericExtractor(object):
         Returns dict where keys are page names and values are
         DataFrames containing data across given years.
         """
+        # TODO: should we run verify_years(?) here?
         if not years:
             logger.info(
                 f'No years given. Not extracting {self.DATSET} spreadsheet data.')
             return {}
 
-        bad_years = set(years).difference(
-            set(pc.working_years[self._dataset_name]))
-        if bad_years:
-            raise ValueError(
-                f"Requested invalid years for {self._dataset_name}: {bad_years}\n"
-                f"Supported years: {pc.working_years[self._dataset_name]}\n"
-            )
-
-        excel_files = {}
-        for file_path in self._get_all_file_paths(years):
-            logger.info(
-                f'Loading excel spreadsheet from {file_path}')
-            excel_files[file_path] = pd.ExcelFile(file_path)
-
-        # excel_files now contains pre-loaded excel files, now munch the data
-        # per page and put them in raw_dfs[page] = DataFrame
         raw_dfs = {}
         for page in self._metadata.get_all_pages():
             if page in self.BLACKLISTED_PAGES:
@@ -195,45 +181,40 @@ class GenericExtractor(object):
                 continue
             df = pd.DataFrame()
             for yr in years:
-                data = excel_files[self._get_file_path(yr, page)]
-
                 logger.info(
                     f'Loading dataframe for {self._dataset_name} {page} {yr}')
                 newdata = pd.read_excel(
-                    data,
+                    self._load_excel_file(yr, page),
                     sheet_name=self._metadata.get_sheet_name(yr, page),
                     skiprows=self._metadata.get_skiprows(yr, page),
                     dtype=self.get_dtypes(yr, page))
 
                 newdata = pudl.helpers.simplify_columns(newdata)
-                newdata = self.process_raw(yr, page, newdata)
+                newdata = self.process_raw(newdata, yr, page)
                 newdata = newdata.rename(
                     columns=self._metadata.get_column_map(yr, page))
-                newdata = self.process_renamed(yr, page, newdata)
-                df = df.append(newdata, sort=True)
+                newdata = self.process_renamed(newdata, yr, page)
+                df = df.append(newdata, sort=True, ignore_index=True)
 
             # After all years are loaded, consolidate missing columns
-            missing_cols = self._metadata.get_all_columns(
-                page).difference(df.columns)
+            missing_cols = set(self._metadata.get_all_columns(
+                page)).difference(df.columns)
             empty_cols = pd.DataFrame(columns=missing_cols)
             df = pd.concat([df, empty_cols], sort=True)
-            raw_dfs[page] = self.process_final_page(page, df)
+            raw_dfs[page] = self.process_final_page(df, page)
         return raw_dfs
 
-    def _get_all_file_paths(self, years):
-        """Returns list of all data files that will be loaded for all years."""
-        bad_years = []
-        all_files = []
-        for page in self._metadata.get_all_pages():
-            for yr in years:
-                try:
-                    all_files.append(self._get_file_path(yr, page))
-                except IndexError:
-                    bad_years.append(yr)
-        if bad_years:
-            raise FileNotFoundError(
-                f'Missing {self._dataset_name} files for years {bad_years}.')
-        return all_files
+    def _load_excel_file(self, year, page):
+        """Returns ExcelFile object corresponding to given (year, page).
+
+        Additionally, loaded files are stored under self._file_cache for reuse.
+        """
+        full_path = self._get_file_path(year, page)
+        if full_path not in self._file_cache:
+            logger.info(
+                f'{self._dataset_name}: Loading excel file {full_path}')
+            self._file_cache[full_path] = pd.ExcelFile(full_path)
+        return self._file_cache[full_path]
 
     def verify_years(self, years):
         """Validate that all files are availabe.
@@ -241,7 +222,22 @@ class GenericExtractor(object):
         Raises:
             FileNotFoundError: when some files are not found in the datastore.
         """
-        self._get_all_file_paths(years)
+        bad_years = set()
+        for page in self._metadata.get_all_pages():
+            if page in self.BLACKLISTED_PAGES:
+                continue
+            for yr in years:
+                try:
+                    self._get_full_path(yr, page)
+                except FileNotFoundError:
+                    bad_years.add(yr)
+        if bad_years:
+            raise FileNotFoundError(
+                f'Missing {self._dataset_name} files for years {bad_years}.')
+        bad_years = set(years).difference(pc.working_years[self._dataset_name])
+        if bad_years:
+            raise IndexError(
+                f"{self._dataset_name} doesn't support years {bad_years}")
 
     @staticmethod
     def file_basename_glob(year, page):
@@ -259,7 +255,7 @@ class GenericExtractor(object):
         files = glob.glob(os.path.join(
             directory, self.file_basename_glob(year, page)))
         if len(files) != 1:
-            logger.warning(
-                f'There are {len(files)} matching files for'
-                f'{self._dataset_name} {page} {year}. Exactly one expected.')
+            raise FileNotFoundError(
+                f'{len(files)} matching files found for ' +
+                f'{self._dataset_name} {page} {year}. Exacly one expected.')
         return files[0]
