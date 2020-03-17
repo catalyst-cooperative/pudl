@@ -1,5 +1,4 @@
-"""Unit tests for pudl.extract.excel module. """
-
+"""Unit tests for pudl.extract.excel module."""
 import unittest
 import unittest.mock as mock
 from unittest.mock import patch
@@ -13,9 +12,11 @@ class TestMetadata(unittest.TestCase):
     """Tests basic operation of the excel.Metadata object."""
 
     def setUp(self):
+        """Cosntructs test metadata instance for testing."""
         self._metadata = excel.Metadata('test')
 
     def test_basics(self):
+        """Test that basic API method return expected results."""
         self.assertEqual('test', self._metadata.get_dataset_name())
         self.assertListEqual(
             ['books', 'boxes', 'shoes'],
@@ -32,6 +33,7 @@ class TestMetadata(unittest.TestCase):
 
 class FakeExtractor(excel.GenericExtractor):
     """Test friendly fake extractor returns strings instead of files."""
+
     METADATA = excel.Metadata('test')
     BLACKLISTED_PAGES = ['shoes']
 
@@ -44,7 +46,7 @@ def _fake_data_frames(page_name, **kwargs):
 
     This is suitable mock for pd.read_excel method when used together with FakeExtractor.
     """
-    FAKE_DATA = {
+    fake_data = {
         'books-2010': pd.DataFrame.from_dict(
             {'book_title': ['Tao Te Ching'], 'name': ['Laozi'], 'pages': [0]}),
         'books-2011': pd.DataFrame.from_dict(
@@ -54,7 +56,7 @@ def _fake_data_frames(page_name, **kwargs):
         'boxes-2011': pd.DataFrame.from_dict(
             {'composition': ['metal'], 'size_cm': [99]}),
     }
-    return FAKE_DATA[page_name]
+    return fake_data[page_name]
 
 
 class TestGenericExtractor(unittest.TestCase):
@@ -62,6 +64,7 @@ class TestGenericExtractor(unittest.TestCase):
 
     @patch('pudl.extract.excel.pd.read_excel')
     def test_read_excel_calls(self, mock_read_excel):
+        """Verifies that read_excel method is called with expected arguments."""
         mock_read_excel.return_value = pd.DataFrame()
 
         FakeExtractor('/blah').extract([2010, 2011])

@@ -36,6 +36,7 @@ class Metadata(object):
     names to standardized pudl names for given (year, input_col_name). Relevant
     page is encoded in the filename.
     """
+
     # TODO: we could validate whether metadata is valid for all year. We should have
     # existing records for each (year, page) -> sheet_name, (year, page) -> skiprows
     # and for all (year, page) -> column map
@@ -228,7 +229,7 @@ class GenericExtractor(object):
                 continue
             for yr in years:
                 try:
-                    self._get_full_path(yr, page)
+                    self._get_file_path(yr, page)
                 except FileNotFoundError:
                     bad_years.add(yr)
         if bad_years:
