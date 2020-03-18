@@ -75,8 +75,6 @@ def main():  # noqa: C901
     # bunch of work cloning the database...
     pudl.helpers.verify_input_files(
         ferc1_years=script_settings['ferc1_to_sqlite_years'],
-        eia860_years=[],
-        eia923_years=[],
         epacems_years=[],
         epacems_states=[],
         pudl_settings=pudl_settings

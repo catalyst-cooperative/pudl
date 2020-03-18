@@ -85,12 +85,15 @@ def main():
     logger.info('verifying that the data we need exists in the data store')
     flattened_params_dict = pudl.etl.get_flattened_etl_parameters(
         script_settings['datapkg_bundle_settings'])
-    pudl.helpers.verify_input_files(flattened_params_dict['ferc1_years'],
-                                    flattened_params_dict['eia923_years'],
-                                    flattened_params_dict['eia860_years'],
-                                    flattened_params_dict['epacems_years'],
-                                    flattened_params_dict['epacems_states'],
-                                    pudl_settings)
+    pudl.helpers.verify_input_files(ferc1_years=flattened_params_dict['ferc1_years'],
+                                    epacems_years=flattened_params_dict['epacems_years'],
+                                    epacems_states=flattened_params_dict['epacems_states'],
+                                    pudl_settings=pudl_settings)
+    # Run file verification for the new-style extractors.
+    pudl.extract.eia860.Extractor(pudl_settings['data_dir']).verify_years(
+        flattened_params_dict['eia860_years'])
+    pudl.extract.eia923.Extractor(pudl_settings['data_dir']).verify_years(
+        flattened_params_dict['eia923_years'])
 
     try:
         datapkg_bundle_doi = script_settings["datapkg_bundle_doi"]
