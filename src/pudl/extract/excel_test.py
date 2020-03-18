@@ -62,8 +62,9 @@ def _fake_data_frames(page_name, **kwargs):
 class TestGenericExtractor(unittest.TestCase):
     """Test operation of the excel.GenericExtractor class."""
 
+    @staticmethod
     @patch('pudl.extract.excel.pd.read_excel')
-    def test_read_excel_calls(self, mock_read_excel):
+    def test_read_excel_calls(mock_read_excel):
         """Verifies that read_excel method is called with expected arguments."""
         mock_read_excel.return_value = pd.DataFrame()
 
