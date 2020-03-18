@@ -33,14 +33,14 @@ class Extractor(excel.GenericExtractor):
         return '*2_3_4*'
 
     @staticmethod
-    def process_raw(year, page, df):
+    def process_raw(df, year, page):
         """Drops reserved columns."""
         to_drop = [c for c in df.columns if c[:8] == 'reserved']
         df.drop(to_drop, axis=1, inplace=True)
         return df
 
     @staticmethod
-    def process_renamed(year, page, df):
+    def process_renamed(df, year, page):
         """Cleans up unnamed_0 column in stocks page, drops invalid plan_id_eia rows."""
         if page == 'stocks':
             df = df.rename(columns={'unnamed_0': 'census_division_and_state'})
@@ -51,7 +51,7 @@ class Extractor(excel.GenericExtractor):
         return df
 
     @staticmethod
-    def process_final_page(page, df):
+    def process_final_page(df, page):
         """Removes reserved columns from the final dataframe."""
         to_drop = [c for c in df.columns if c[:8] == 'reserved']
         df.drop(columns=to_drop, inplace=True, errors='ignore')

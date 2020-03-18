@@ -35,7 +35,7 @@ class Extractor(excel.GenericExtractor):
         return self.PAGE_GLOBS[page]
 
     @staticmethod
-    def process_raw(year, page, df):
+    def process_raw(df, year, page):
         """Adds report_year column if missing."""
         if 'report_year' not in df.columns:
             df['report_year'] = year
