@@ -555,8 +555,7 @@ def organize(source, year, states, data_dir,  # noqa: C901
         with zipfile.ZipFile(zip_path, mode='w') as epaipm_zip:
             for f in epaipm_files:
                 epaipm_zip.write(f, arcname=os.path.basename(f))
-        for file in epaipm_files:
-            os.remove(file)
+                os.remove(f)
     newfiles = [os.path.join(tmpdir, os.path.basename(f))
                 for f in paths_for_year(source=source,
                                         year=year,
@@ -600,10 +599,8 @@ def organize(source, year, states, data_dir,  # noqa: C901
                        for td in ['UPLOADERS', 'FORMSADMIN']]
             for td in topdirs:
                 if os.path.exists(td):
-                    bottomdir = os.path.join(td, 'FORM1', 'working')
-                    tomove = os.listdir(bottomdir)
-                    for fn in tomove:
-                        shutil.move(os.path.join(bottomdir, fn), destdir)
+                    for f in os.scandir(os.path.join(td, 'FORM1', 'working')):
+                        shutil.move(f.path, destdir)
                     shutil.rmtree(td)
 
 
