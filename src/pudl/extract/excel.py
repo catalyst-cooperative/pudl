@@ -147,19 +147,23 @@ class GenericExtractor(object):
         self._dataset_name = self._metadata.get_dataset_name()
         self._file_cache = {}
 
-    def process_raw(self, df, year, page):
+    @staticmethod
+    def process_raw(df, year, page):
         """Transforms raw dataframe before columns are renamed."""
         return df
 
-    def process_renamed(self, df, year, page):
+    @staticmethod
+    def process_renamed(df, year, page):
         """Transforms dataframe after columns are renamed."""
         return df
 
-    def process_final_page(self, df, page):
+    @staticmethod
+    def process_final_page(df, page):
         """Final processing stage applied to a page DataFrame."""
         return df
 
-    def get_dtypes(self, year, page):
+    @staticmethod
+    def get_dtypes(year, page):
         """Provide custom dtypes for given page and year."""
         return {}
 
