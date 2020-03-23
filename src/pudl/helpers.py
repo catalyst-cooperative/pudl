@@ -672,8 +672,6 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
 
 
 def verify_input_files(ferc1_years,  # noqa: C901
-                       eia923_years,
-                       eia860_years,
                        epacems_years,
                        epacems_states,
                        pudl_settings):
@@ -681,8 +679,6 @@ def verify_input_files(ferc1_years,  # noqa: C901
 
     Args:
         ferc1_years (iterable): Years of FERC1 data we're going to import.
-        eia923_years (iterable): Years of EIA923 data we're going to import.
-        eia860_years (iterable): Years of EIA860 data we're going to import.
         epacems_years (iterable): Years of CEMS data we're going to import.
         epacems_states (iterable): States of CEMS data we're going to import.
         data_dir (path-like): Path to the top level of the PUDL datastore.
@@ -697,27 +693,6 @@ def verify_input_files(ferc1_years,  # noqa: C901
         str(y) for y in ferc1_years if not pathlib.Path(
             pudl.extract.ferc1.dbc_filename(y, data_dir=data_dir)).is_file()
     }
-
-    missing_eia860_years = set()
-    for y in eia860_years:
-        for pattern in pc.files_eia860:
-            f = pc.files_dict_eia860[pattern]
-            try:
-                # This function already looks for the file, and raises an
-                # IndexError if missing
-                pudl.extract.eia860.get_eia860_file(y, f, data_dir=data_dir)
-            except IndexError:
-                missing_eia860_years.add(str(y))
-
-    missing_eia923_years = set()
-    for y in eia923_years:
-        try:
-            f = pathlib.Path(
-                pudl.extract.eia923.get_eia923_file(y, data_dir=data_dir))
-        except AssertionError:
-            missing_eia923_years.add(str(y))
-        if not f.is_file():
-            missing_eia923_years.add(str(y))
 
     if epacems_states and list(epacems_states)[0].lower() == 'all':
         epacems_states = list(pc.cems_states.keys())
@@ -738,16 +713,11 @@ def verify_input_files(ferc1_years,  # noqa: C901
                 if not p.is_file():
                     missing_epacems_year_states.add((str(y), s))
 
-    any_missing = (missing_eia860_years or missing_eia923_years
-                   or missing_ferc1_years or missing_epacems_year_states)
+    any_missing = (missing_ferc1_years or missing_epacems_year_states)
     if any_missing:
         err_msg = ["Missing data files for the following sources and years:"]
         if missing_ferc1_years:
             err_msg += ["  FERC 1:  " + ", ".join(missing_ferc1_years)]
-        if missing_eia860_years:
-            err_msg += ["  EIA 860: " + ", ".join(missing_eia860_years)]
-        if missing_eia923_years:
-            err_msg += ["  EIA 923: " + ", ".join(missing_eia923_years)]
         if missing_epacems_year_states:
             missing_yr_str = ", ".join(
                 {yr_st[0] for yr_st in missing_epacems_year_states})
@@ -844,19 +814,23 @@ def convert_cols_dtypes(df, data_source, name=None):
 
     """
     # get me all of the columns for the table in the constants dtype dict
-    col_types = {key: value for key, value
-                 in pc.column_dtypes[data_source].items()
-                 if key in list(df.columns)}
+    col_dtypes = {col: col_dtype for col, col_dtype
+                  in pc.column_dtypes[data_source].items()
+                  if col in list(df.columns)}
 
     # grab only the boolean columns (we only need their names)
-    bool_cols = {key for key, value
-                 in col_types.items()
-                 if value == bool}
+    bool_cols = {col: col_dtype for col, col_dtype
+                 in col_dtypes.items()
+                 if col_dtype == pd.BooleanDtype()}
+    # Grab only the string columns...
+    string_cols = {col: col_dtype for col, col_dtype
+                   in col_dtypes.items()
+                   if col_dtype == pd.StringDtype()}
 
     # grab all of the non boolean columns
-    non_bool_cols = {key: value for key, value
-                     in col_types.items()
-                     if value != bool}
+    non_bool_cols = {col: col_dtype for col, col_dtype
+                     in col_dtypes.items()
+                     if col_dtype != pd.BooleanDtype()}
 
     # If/when we have the columns exhaustively typed, we can do it like this,
     # but right now we don't have the FERC columns done, so we can't:
@@ -880,8 +854,11 @@ def convert_cols_dtypes(df, data_source, name=None):
                                'True': True,
                                False: False,
                                True: True,
-                               'nan': np.NaN},
-                              na_action='ignore')
+                               'nan': pd.NA})
+
+    # For whatever reason, this is more flexible than using the StringDtype
+    for col in string_cols:
+        df[col] = df[col].astype(str)
 
     if name:
         logger.info(f'Converting the dtypes of: {name}')
@@ -894,13 +871,13 @@ def convert_cols_dtypes(df, data_source, name=None):
         # sometimes this column has been converted to a float and therefor
         # we need to skip this conversion
         if df.utility_id_eia.dtypes is np.dtype('object'):
-            df = df.astype({'utility_id_eia': 'float'}, skipna=True)
-    # we need the skipna in here for now... it looks like this is
-    # going to become standard, but for now it is important because
-    # without it, the integer cols (even the new nullable Int cols)
-    # will keep the trailing .0 decimal
-    # https://github.com/pandas-dev/pandas/pull/28176
-    df = df.astype(non_bool_cols, skipna=True)
+            df = df.astype({'utility_id_eia': 'float'})
+    df = (
+        df.astype(non_bool_cols)
+        .astype(bool_cols)
+        .replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
+        .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
+    )
     return df
 
 

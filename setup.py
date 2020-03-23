@@ -8,14 +8,14 @@ from setuptools import find_packages, setup
 
 install_requires = [
     'coloredlogs',
-    'datapackage>=1.11.0',
+    'datapackage>=1.11',
     'dbfread',
     'goodtables>=2.4.2',
     'matplotlib',
     'networkx>=2.2',
     'numpy',
-    'pandas>=0.25,<1.0',
-    'pyarrow>=0.15.1',
+    'pandas>=1.0',
+    'pyarrow>=0.16',
     'pyyaml',
     'scikit-learn>=0.20',
     'scipy',

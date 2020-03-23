@@ -81,7 +81,7 @@ def _validate_params_eia(etl_params):  # noqa: C901
         eia_input_dict['eia923_tables'] = pc.pudl_tables['eia923']
 
     # if we are only extracting 860, we also need to pull in the
-    # boiler_fuel_eia923 table. this is for harvessting and also for the boiler
+    # boiler_fuel_eia923 table. this is for harvesting and also for the boiler
     # generator association
     if not eia_input_dict['eia923_years'] and eia_input_dict['eia860_years']:
         eia_input_dict['eia923_years'] = eia_input_dict['eia860_years']
@@ -201,10 +201,11 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     static_tables = _load_static_tables_eia(datapkg_dir)
 
     # Extract EIA forms 923, 860
-    eia923_raw_dfs = pudl.extract.eia923.extract(
-        eia923_years=eia923_years, data_dir=pudl_settings["data_dir"])
-    eia860_raw_dfs = pudl.extract.eia860.extract(
-        eia860_years=eia860_years, data_dir=pudl_settings["data_dir"])
+    data_dir = pudl_settings["data_dir"]
+    eia923_raw_dfs = pudl.extract.eia923.Extractor(
+        data_dir).extract(eia923_years)
+    eia860_raw_dfs = pudl.extract.eia860.Extractor(
+        data_dir).extract(eia860_years)
     # Transform EIA forms 923, 860
     eia923_transformed_dfs = pudl.transform.eia923.transform(
         eia923_raw_dfs, eia923_tables=eia923_tables)
