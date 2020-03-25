@@ -31,7 +31,7 @@ DOI = {
 }
 
 
-class ZenodoDownload:
+class Datastore:
     """
     Handle connections and downloading of Zenodo Source archives
     """
