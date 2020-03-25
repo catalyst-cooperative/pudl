@@ -13,5 +13,5 @@ class TestDatastore:
         number = random.randint(100000, 999999)
         fake_doi = "10.5072/zenodo.%d" % number
 
-        assert ds.doi_to_url("fake_doi") == \
-            "https://sandbox.zenodo.org//api/deposit/depositions/%d" % number
+        assert self.ds.doi_to_url(fake_doi) == \
+            "https://sandbox.zenodo.org/api/deposit/depositions/%d" % number

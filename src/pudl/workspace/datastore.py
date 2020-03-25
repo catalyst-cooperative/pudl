@@ -68,7 +68,7 @@ class Datastore:
             self.token = TOKEN["production"]
             self.api_root = "https://zenodo.org/api"
 
-        with open(os.path.expanduser("~/.pudl.yaml"), "r") as f:
+        with open(os.path.expanduser("~/.pudl.yml"), "r") as f:
             cfg = yaml.load(f.read(), Loader=yaml.FullLoader)
             self.pudl_in = os.environ.get("PUDL_IN", cfg["pudl_in"])
 
@@ -299,7 +299,7 @@ def main_arguments():
 
 def available_archives():
     """
-    List available sources, as found in the ~/.pudl.yaml file
+    List available sources, as found in the ~/.pudl.yml file
 
     Args: None
     Returns: str, describe available sources

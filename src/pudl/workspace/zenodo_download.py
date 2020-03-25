@@ -20,7 +20,7 @@ class ZenodoDownload:
         Create a ZenDownloader instance
 
         Args:
-            cfg: dict of the config from ~/.pudl.yaml
+            cfg: dict of the config from ~/.pudl.yml
             loglevel: str, logging level
             verbose: boolean. If true, logs printed to stdout
             sandbox: boolean. If true, use the sandbox server instead of
@@ -55,18 +55,18 @@ class ZenodoDownload:
     @staticmethod
     def load_config():
         """
-        Load ~/.pudl.yaml as a dict.  Raise error if there is no
+        Load ~/.pudl.yml as a dict.  Raise error if there is no
         zenodo_download section.
 
         Args: None
         Returns:
             dict of configuration parameters
         """
-        with open(os.path.expanduser("~/.pudl.yaml"), "r") as f:
+        with open(os.path.expanduser("~/.pudl.yml"), "r") as f:
             cfg = yaml.load(f.read(), Loader=yaml.FullLoader)
 
             if "zenodo_download" not in cfg:
-                raise ValueError("No zenodo_download config in ~/.pudl.yaml")
+                raise ValueError("No zenodo_download config in ~/.pudl.yml")
 
         return cfg
 
@@ -77,7 +77,7 @@ class ZenodoDownload:
 
         Args:
             archive (str): name of the archive, must be available in the
-                           ~/.pudl.yaml
+                           ~/.pudl.yml
             filters (dict): limit retrieved files to those where the
                             datapackage.json["parts"] key & val pairs match
                             those in the filter
@@ -115,7 +115,7 @@ class ZenodoDownload:
         try:
             doi = self.dois[archive]
         except KeyError:
-            msg = "No DOI for %s in ~/.pudl.yaml" % archive
+            msg = "No DOI for %s in ~/.pudl.yml" % archive
             self.logger.error(msg)
             raise ValueError(msg)
 
@@ -233,7 +233,7 @@ def main_arguments():
     config_msg = """
 
 ---------------------------------------------------------
-  Include configuration in your ~/.pudl.yaml, as below
+  Include configuration in your ~/.pudl.yml, as below
 ---------------------------------------------------------
 
 pudl_in: <pudl input dir>
@@ -281,7 +281,7 @@ zenodo_download:
 
 def available_archives():
     """
-    List available sources, as found in the ~/.pudl.yaml file
+    List available sources, as found in the ~/.pudl.yml file
 
     Args: None
     Returns: str, describe available sources
