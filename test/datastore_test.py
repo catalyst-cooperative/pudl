@@ -1,6 +1,5 @@
 """Exercise the functionality in the datastore management module."""
 
-import json
 import random
 import pudl.workspace.datastore as datastore
 
@@ -26,8 +25,7 @@ class TestDatastore:
         """
 
         def test_it(client, doi):
-            text = client.remote_datapackage_json_text(doi)
-            jsr = json.loads(text)
+            jsr = client.remote_datapackage_json(doi)
 
             assert "title" in jsr, "No title for %s" % doi
             assert "resources" in jsr, "No resources for %s" % doi

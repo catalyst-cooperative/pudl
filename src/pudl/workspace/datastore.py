@@ -9,6 +9,7 @@ import logging
 import re
 import requests
 
+import json
 import yaml
 
 
@@ -135,9 +136,30 @@ class Datastore:
 
         return directory / filename
 
+    def save_datapackage_json(self, dataset, dpkg):
+        """
+        Save a datapackage.json file.  Overwrite any previous version.
+
+        Args:
+            dataset (str): name of the dataset, as available in DOI
+            dpkg (dict): dict matching frictionless datapackage spec
+
+        Returns:
+            Path of the saved datapackage
+        """
+        path = self.local_path(dataset, filename="datapackage.json")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        text = json.dumps(dpkg, sort_keys=True)
+
+        with path.open("w") as f:
+            f.write(text)
+            self.logger.debug("%s saved.", path)
+
+        return path
+
     # Datapackage metadata
 
-    def remote_datapackage_json_text(self, doi):
+    def remote_datapackage_json(self, doi):
         """
         Produce the contents of a remote datapackage.json.
 
@@ -145,7 +167,7 @@ class Datastore:
             doi: the DOI
 
         Returns:
-            string contents of the datapackage.json file as available on
+            dict representation of the datapackage.json file as available on
             Zenodo, or raises an error
         """
         dpkg_url = self.doi_to_url(doi)
@@ -170,7 +192,7 @@ class Datastore:
             self.logger.error(msg)
             raise ValueError(msg)
 
-        return response.text
+        return json.loads(response.text)
 
     def datapackage_json(self, dataset, force_download=False):
         """
@@ -186,13 +208,8 @@ class Datastore:
 
         if force_download or not path.exists():
             doi = self.doi(dataset)
-            dpkg = self.remote_datapackage_json_text(doi)
-            path.parent.mkdir(parents=True, exist_ok=True)
-
-            with path.open("w") as f:
-                f.write(dpkg)
-
-            self.logger.debug("Cached %s", path)
+            dpkg = self.remote_datapackage_json(doi)
+            self.save_datapackage_json(dataset, dpkg)
 
         with path.open("r") as f:
             return yaml.load(f.read(), Loader=yaml.FullLoader)
@@ -282,6 +299,15 @@ class Datastore:
         self.logger.debug("Datapackage lists %d resources" %
                           len(dpkg["resources"]))
 
+        updated = False
+
         for r in dpkg["resources"]:
             if self.passes_filters(r, filters) and self.is_remote(r):
-                self.download_resource(r, self.local_path(dataset))
+                local = self.download_resource(r, self.local_path(dataset))
+
+                if local is not None:
+                    updated = True
+                    r["path"] = str(local)
+
+        if updated:
+            self.save_datapackage_json(dataset, dpkg)
