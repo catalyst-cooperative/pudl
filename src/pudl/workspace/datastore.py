@@ -74,6 +74,8 @@ class Datastore:
             cfg = yaml.load(f.read(), Loader=yaml.FullLoader)
             self.pudl_in = Path(os.environ.get("PUDL_IN", cfg["pudl_in"]))
 
+    # Location conversion & helpers
+
     def doi(self, dataset):
         """
         Produce the DOI for a given dataset, or log & raise error.
@@ -126,12 +128,14 @@ class Datastore:
             str: a path
         """
         doi_dirname = re.sub("/", "-", self.doi(dataset))
-        directory = self.pudl_in / dataset / "data" / doi_dirname
+        directory = self.pudl_in / "data" / dataset / doi_dirname
 
         if filename is None:
             return directory
 
         return directory / filename
+
+    # Datapackage metadata
 
     def remote_datapackage_json_text(self, doi):
         """
@@ -193,35 +197,20 @@ class Datastore:
         with path.open("r") as f:
             return yaml.load(f.read(), Loader=yaml.FullLoader)
 
-    def collect(self, dataset, filters=None):
+    # Remote resource retrieval
+
+    def is_remote(self, resource):
         """
-        Download dataset files to PUDL_IN.
+        Determine whether a described resource is located on a remote server.
 
         Args:
-            dataset (str): name of the dataset, must be available in the DOIS
-            filters (dict): limit retrieved files to those where the
-                            datapackage.json["parts"] key & val pairs match
-                            those in the filter
+            resource: dict, a resource descriptor from a frictionless data
+                      package
         Returns:
-            None
+            boolean
         """
-        raise NotImplementedError("Rewrite this")
-        if filters is None:
-            filters = {}
-
-        dpkg = self.datapackage_contents(dataset)
-
-        output_dir = os.path.join(self.output_root, dataset)
-        os.makedirs(output_dir, exist_ok=True)
-
-        self.logger.debug("Datapackage lists %d resources" %
-                          len(dpkg["resources"]))
-
-        for r in dpkg["resources"]:
-
-            if self.passes_filters(r, filters):
-                local_path = self.download_resource(r, output_dir)
-                self.logger.info("Downloaded %s" % local_path)
+        return resource["path"][:8] == "https://" or \
+            resource["path"][:7] == "http://"
 
     def passes_filters(self, resource, filters):
         """
@@ -247,20 +236,17 @@ class Datastore:
 
         return True
 
-    def download_resource(self, resource, output_dir):
+    def download_resource(self, resource, directory):
         """
         Download a frictionless datapackage resource.
 
         Args:
-            resource: dict, a "resource" descriptior from a frictionless
-                      datapackage
-            output_dir: str, the output directory, must already exist
-
+            resource: dict, a remotely located "resource" descriptior from a
+                      frictionless datapackage
+            directory: the directory where the resource should be saved
         Returns:
-            str, path to the locally saved resource, or None on failure
+            Path of the saved resource, or none on failure
         """
-        raise NotImplementedError("REDO")
-        local_path = os.path.join(output_dir, resource["name"])
         response = requests.get(
             resource["path"], params={"access_token": self.token})
 
@@ -269,8 +255,33 @@ class Datastore:
                 "Failed to download %s, %s", resource["path"], response.text)
             return
 
-        with open(local_path, "wb") as f:
+        local_path = directory / resource["name"]
+
+        with local_path.open("wb") as f:
             f.write(response.content)
-            self.logger.debug("Downloaded %s", local_path)
+            self.logger.debug("Cached %s" % local_path)
 
         return local_path
+
+    def download_dataset_files(self, dataset, filters=None):
+        """
+        Download dataset files to PUDL_IN.
+
+        Args:
+            dataset (str): name of the dataset, must be available in the DOIS
+            filters (dict): limit retrieved files to those where the
+                            datapackage.json["parts"] key & val pairs match
+                            those in the filter
+        Returns:
+            None
+        """
+        if filters is None:
+            filters = {}
+
+        dpkg = self.datapackage_json(dataset)
+        self.logger.debug("Datapackage lists %d resources" %
+                          len(dpkg["resources"]))
+
+        for r in dpkg["resources"]:
+            if self.passes_filters(r, filters) and self.is_remote(r):
+                self.download_resource(r, self.local_path(dataset))
