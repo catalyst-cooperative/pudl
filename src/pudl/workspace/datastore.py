@@ -268,9 +268,10 @@ class Datastore:
             resource["path"], params={"access_token": self.token})
 
         if response.status_code >= 299:
-            self.logger.warning(
-                "Failed to download %s, %s", resource["path"], response.text)
-            return
+            msg = "Failed to download %s, %s" % (
+                resource["path"], response.text)
+            self.logger.error(msg)
+            raise RuntimeError(msg)
 
         local_path = directory / resource["name"]
 
@@ -280,34 +281,36 @@ class Datastore:
 
         return local_path
 
-    def download_dataset_files(self, dataset, filters=None):
+    def get_resources(self, dataset, **kwargs):
         """
-        Download dataset files to PUDL_IN.
+        Produce resource descriptors as requested.
+
+        Any resource listed as remote will be downloaded and the
+        datapackage.json will be updated.
 
         Args:
             dataset (str): name of the dataset, must be available in the DOIS
-            filters (dict): limit retrieved files to those where the
-                            datapackage.json["parts"] key & val pairs match
-                            those in the filter
+            **kwargs: limit retrieved files to those where the
+                datapackage.json["parts"] key & val pairs match provided
+                keywords. Eg. year=2011 or state="md"
         Returns:
-            None
+            list of dicts, each representing a resource per the frictionless
+            datapackage spec. For a given r, Path(r["path"]) should open the
+            local file, r["parts"] should provide metadata identifiers.
         """
-        if filters is None:
-            filters = {}
+        filters = dict(**kwargs)
 
         dpkg = self.datapackage_json(dataset)
         self.logger.debug("Datapackage lists %d resources" %
                           len(dpkg["resources"]))
 
-        updated = False
-
         for r in dpkg["resources"]:
-            if self.passes_filters(r, filters) and self.is_remote(r):
-                local = self.download_resource(r, self.local_path(dataset))
 
-                if local is not None:
-                    updated = True
+            if self.passes_filters(r, filters):
+
+                if self.is_remote(r):
+                    local = self.download_resource(r, self.local_path(dataset))
                     r["path"] = str(local)
+                    self.save_datapackage_json(dataset, dpkg)
 
-        if updated:
-            self.save_datapackage_json(dataset, dpkg)
+                yield r
