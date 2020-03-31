@@ -283,16 +283,14 @@ class Datastore:
 
         return local_path
 
-    def validate_dataset(self, dataset):
+    def _validate_dataset(self, dataset):
         """
         Make sure each resource on disc has the right md5sum.
 
         Args:
-            resource: dict, frictionless datapackage descriptor for a local
-                      resource
-
+            dataset: name of a dataset
         Returns:
-            Bool, True if all local resources appear to be correct.
+            Bool, True if local resources appear to be correct.
         """
         dpkg = self.datapackage_json(dataset)
         ok = True
@@ -316,6 +314,25 @@ class Datastore:
                 ok = False
 
         return ok
+
+    def validate(self, dataset=None):
+        """
+        Validate all datasets, or just the specified one.
+
+        Args:
+            dataset: name of a dataset.
+        Returns:
+            Bool, True if local resources appear to be correct.
+        """
+        if dataset is not None:
+            return self._validate_dataset(dataset)
+
+        valid = True
+
+        for dataset in self._dois.keys():
+            valid = valid and self._validate_dataset(dataset)
+
+        return valid
 
     def get_resources(self, dataset, **kwargs):
         """
@@ -359,6 +376,9 @@ def main_arguments():
     parser.add_argument(
         "--dataset", help="Get only a specified dataset. Default gets all.")
     parser.add_argument(
+        "--validate", help="Validate existing cache.", const=True,
+        default=False, action="store_const")
+    parser.add_argument(
         "--sandbox", help="Use sandbox server instead of production.",
         action="store_const", const=True, default=False)
     parser.add_argument(
@@ -376,6 +396,10 @@ def main():
     ds = Datastore(loglevel=args.loglevel, verbose=args.verbose,
                    sandbox=args.sandbox)
     dataset = getattr(args, "dataset", None)
+
+    if args.validate:
+        ds.validate(dataset)
+        return
 
     list(ds.get_resources(dataset))
 
