@@ -3,13 +3,15 @@
 
 """Datastore manages file retrieval for PUDL datasets."""
 
+import hashlib
+import json
+
 import os
 from pathlib import Path
 import logging
 import re
 import requests
 
-import json
 import yaml
 
 
@@ -258,7 +260,7 @@ class Datastore:
         Download a frictionless datapackage resource.
 
         Args:
-            resource: dict, a remotely located "resource" descriptior from a
+            resource: dict, a remotely located resource descriptior from a
                       frictionless datapackage
             directory: the directory where the resource should be saved
         Returns:
@@ -280,6 +282,40 @@ class Datastore:
             self.logger.debug("Cached %s" % local_path)
 
         return local_path
+
+    def validate_dataset(self, dataset):
+        """
+        Make sure each resource on disc has the right md5sum.
+
+        Args:
+            resource: dict, frictionless datapackage descriptor for a local
+                      resource
+
+        Returns:
+            Bool, True if all local resources appear to be correct.
+        """
+        dpkg = self.datapackage_json(dataset)
+        ok = True
+
+        for r in dpkg["resources"]:
+
+            if self.is_remote(r):
+                self.logger.debug("%s not cached, skipping validation"
+                                  % r["path"])
+                continue
+
+            path = Path(r["path"])
+            with path.open("rb") as f:
+                m = hashlib.md5()
+                m.update(f.read())
+
+            if m.hexdigest() == r["hash"]:
+                self.logger.debug("%s appears valid" % path)
+            else:
+                self.logger.warning("%s md5 mismatch" % path)
+                ok = False
+
+        return ok
 
     def get_resources(self, dataset, **kwargs):
         """
