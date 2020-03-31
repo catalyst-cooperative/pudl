@@ -3,15 +3,15 @@
 
 """Datastore manages file retrieval for PUDL datasets."""
 
+import argparse
 import hashlib
 import json
-
+import logging
 import os
 from pathlib import Path
-import logging
 import re
 import requests
-
+import sys
 import yaml
 
 
@@ -350,3 +350,35 @@ class Datastore:
                     self.save_datapackage_json(dataset, dpkg)
 
                 yield r
+
+
+def main_arguments():
+    """Collect the command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Download and cache ETL source data from Zenodo.")
+    parser.add_argument(
+        "--dataset", help="Get only a specified dataset. Default gets all.")
+    parser.add_argument(
+        "--sandbox", help="Use sandbox server instead of production.",
+        action="store_const", const=True, default=False)
+    parser.add_argument(
+        "--loglevel", help="Set logging level", default="WARNING")
+    parser.add_argument(
+        "--verbose", help="Display logging messages", default=False,
+        action="store_const", const=True)
+
+    return parser.parse_args()
+
+
+def main():
+    """Cache datasets."""
+    args = main_arguments()
+    ds = Datastore(loglevel=args.loglevel, verbose=args.verbose,
+                   sandbox=args.sandbox)
+    dataset = getattr(args, "dataset", None)
+
+    list(ds.get_resources(dataset))
+
+
+if __name__ == "__main__":
+    sys.exit(main())
