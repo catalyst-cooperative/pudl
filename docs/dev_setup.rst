@@ -321,13 +321,13 @@ Updating the Development Environment
 
 While working within the development setup, you'll almost certainly need to
 pull new changes and update the conda environment. Here are some instructions.
-This is basic directory structure that is relevant here:
+This is basic directory structure that is relevant here: ::
 
-pudl
-  ├── devtools
-  |    └── environment.py
-  ├── src/pudl
-  └── setup.py
+  pudl
+    ├── devtools
+    |    └── environment.py
+    ├── src/pudl
+    └── setup.py
 
 From inside the ``pudl`` repository, pull the recent changes:
 
@@ -354,10 +354,10 @@ If any pudl scripts or modules have been added or deleted, you'll need to
 reinstall the pudl package. If you don't do this First, you need to move back
 to the top level ``pudl`` repository, where the ``setup.py`` module lives.
 
-.. code-block:: console
+  .. code-block:: console
 
-    $ .. # move into the
-    $ pip install --editable ./
+      $ .. # move into the top-level pudl directory
+      $ pip install --editable ./
 
 
 If you need to update any of your raw data, data packages or database, now is
