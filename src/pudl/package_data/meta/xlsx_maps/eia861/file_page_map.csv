@@ -1,4 +1,4 @@
 file,page
 sales_eia861,states
-net_metering_eia860,states
-net_metering_eia860,territories
+net_metering_eia861,states
+net_metering_eia861,territories
