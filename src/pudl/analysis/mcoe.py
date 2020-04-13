@@ -147,14 +147,21 @@ def fuel_cost(pudl_out):
 
     # Split up the plants on the basis of how many different primary energy
     # sources the component generators have:
-    gen_w_ft = pd.merge(pudl_out.gen_eia923(),
+    gen_w_ft = pd.merge(pudl_out.gens_eia860()[['plant_id_eia',
+                                                'report_date',
+                                                'plant_name_eia',
+                                                'plant_id_pudl',
+                                                'generator_id',
+                                                'utility_id_eia',
+                                                'utility_name_eia',
+                                                'utility_id_pudl',
+                                                'fuel_type_count',
+                                                'fuel_type_code_pudl']],
                         pudl_out.hr_by_gen()[['plant_id_eia',
                                               'report_date',
                                               'generator_id',
-                                              'fuel_type_code_pudl',
-                                              'fuel_type_count',
                                               'heat_rate_mmbtu_mwh']],
-                        how='inner',
+                        how='outer',
                         on=['plant_id_eia', 'report_date', 'generator_id'])
 
     one_fuel = gen_w_ft[gen_w_ft.fuel_type_count == 1]
@@ -340,7 +347,7 @@ def mcoe(pudl_out,
         pudl_out.capacity_factor(min_cap_fact=min_cap_fact,
                                  max_cap_fact=max_cap_fact)[
             ['report_date', 'plant_id_eia',
-             'generator_id', 'capacity_factor']],
+             'generator_id', 'capacity_factor', 'net_generation_mwh']],
         on=['report_date', 'plant_id_eia', 'generator_id'],
         how='left')
 

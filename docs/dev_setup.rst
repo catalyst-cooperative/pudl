@@ -313,3 +313,54 @@ Before you make a pull request, please check that:
 Then you can push the new code to your fork of the PUDL repository on Github,
 and from there, you can make a Pull Request inviting us to review your code and
 merge your improvements in with the main repository!
+
+
+-------------------------------------------------------------------------------
+Updating the Development Environment
+-------------------------------------------------------------------------------
+
+While working within the development setup, you'll almost certainly need to
+pull new changes and update the conda environment. Here are some instructions.
+This is basic directory structure that is relevant here: ::
+
+  pudl
+    ├── devtools
+    |    └── environment.py
+    ├── src/pudl
+    └── setup.py
+
+From inside the ``pudl`` repository, pull the recent changes:
+
+  .. code-block:: console
+
+     $ git pull
+
+To update the instructions for the pudl-dev conda environment, move to the
+devtools directory (where the ``environment.py`` file lives) and update:
+
+ .. code-block:: console
+
+    $ cd devtools
+    $ conda env update pudl-dev
+
+Now that your pudl-dev is updated, activate it. All instructions below this
+assume you stay inside the pudl-dev enironment.
+
+ .. code-block:: console
+
+    $ conda activate pudl-dev
+
+If any pudl scripts or modules have been added or deleted, you'll need to
+reinstall the pudl package. If you don't do this First, you need to move back
+to the top level ``pudl`` repository, where the ``setup.py`` module lives.
+
+  .. code-block:: console
+
+      $ .. # move into the top-level pudl directory
+      $ pip install --editable ./
+
+
+If you need to update any of your raw data, data packages or database, now is
+the time to do that. See the Basic Usage page for that. Now if you are also
+working with a pudl-adjacent repository that relies on ``pudl`` and the
+``pudl-dev`` conda environment, you should be setup and ready to go.
