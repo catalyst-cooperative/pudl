@@ -1,5 +1,6 @@
 """Load excel metadata CSV files form a python data package."""
 
+import csv
 import glob
 import importlib.resources
 import logging
@@ -133,14 +134,8 @@ class GenericExtractor(object):
     BLACKLISTED_PAGES = []
     """List of supported pages that should not be extracted."""
 
-    def __init__(self, data_dir, metadata=None):
-        """Create new extractor object and load metadata.
-
-        Args:
-            data_dir: Path to the data_dir to use when loading excel
-              files from disk (passed to datastore).
-        """
-        self._data_dir = data_dir
+    def __init__(self):
+        """Create new extractor object and load metadata."""
         if not self.METADATA:
             raise NotImplementedError('self.METADATA must be set.')
         self._metadata = self.METADATA
@@ -221,46 +216,24 @@ class GenericExtractor(object):
             self._file_cache[full_path] = pd.ExcelFile(full_path)
         return self._file_cache[full_path]
 
-    def verify_years(self, years):
-        """Validate that all files are availabe.
-
-        Raises:
-            FileNotFoundError: when some files are not found in the datastore.
+    def excel_filename(self, page, year):
         """
-        bad_years = set()
-        for page in self._metadata.get_all_pages():
-            if page in self.BLACKLISTED_PAGES:
-                continue
-            for yr in years:
-                try:
-                    self._get_file_path(yr, page)
-                except FileNotFoundError:
-                    bad_years.add(yr)
-        if bad_years:
-            raise FileNotFoundError(
-                f'Missing {self._dataset_name} files for years {bad_years}.')
-        bad_years = set(years).difference(pc.working_years[self._dataset_name])
-        if bad_years:
-            raise IndexError(
-                f"{self._dataset_name} doesn't support years {bad_years}")
+        Produce the xlsx document file name as it will appear in the archive.
 
-    @staticmethod
-    def file_basename_glob(year, page):
-        """Returns base filename glob for a given year and page.
-
-        This is later combined with path from datastore to fetch
-        the excel spreadsheet from disk.
+        Args:
+            page: pudl name for the dataset contents, eg
+                  "boiler_generator_assn" or "coal_stocks"
+            year: 4 digit year
+        Return:
+            string name of the xlsx file
         """
-        return NotImplementedError('This method must be implemented.')
+        pkg = f"pudl.package_data.meta.xlsx_maps.{self._dataset_name}"
 
-    def _get_file_path(self, year, page):
-        """Returns full path to the excel spreadsheet."""
-        directory = datastore.path(self._dataset_name, year=year, file=False,
-                                   data_dir=self._data_dir)
-        files = glob.glob(os.path.join(
-            directory, self.file_basename_glob(year, page)))
-        if len(files) != 1:
-            raise FileNotFoundError(
-                f'{len(files)} matching files found for ' +
-                f'{self._dataset_name} {page} {year}. Exacly one expected.')
-        return files[0]
+        with importlib.resources.open_text(pkg, "file_map.csv") as f:
+            reader = csv.DictReader(f)
+
+            for row in reader:
+                if row["page"] == page:
+                    return row[str(year)]
+
+        raise ValueError("No excel sheet for %s, %d" % (page, year))

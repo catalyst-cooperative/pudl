@@ -20,16 +20,6 @@ class Extractor(excel.GenericExtractor):
 
     METADATA = excel.Metadata('eia860')
 
-    PAGE_GLOBS = {
-        'boiler_generator_assn': '*EnviroAssoc*',
-        'utility': '*Utility*',
-        'plant': '*Plant*',
-        'generator_existing': '*Generat*',
-        'generator_proposed': '*Generat*',
-        'generator_retired': '*Generat*',
-        'ownership': '*Owner*',
-    }
-
     def file_basename_glob(self, year, page):
         """Returns corresponding glob pattern for a page."""
         return self.PAGE_GLOBS[page]

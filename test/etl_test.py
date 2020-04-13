@@ -131,3 +131,33 @@ def test_ferc1_solo_etl(datastore_fixture,
         pudl_settings_fixture,
         datapkg_bundle_name='ferc1-solo',
         clobber=True)
+
+
+class TestExcelExtractor:
+    """Verify that we can lead excel files as provided via the datastore."""
+
+    def test_excel_filename_eia860(self):
+        """
+        Spot check that the eia860 extractor gets the correct excel sheet
+        names.
+        """
+        extractor = pudl.extract.eia860.Extractor()
+        assert extractor.excel_filename(
+            "boiler_generator_assn", 2011) == "EnviroAssocY2011.xlsx"
+        assert extractor.excel_filename(
+            "generator_retired", 2016) == "3_1_Generator_Y2016.xlsx"
+        assert extractor.excel_filename(
+            "utility", 2018) == "1___Utility_Y2018.xlsx"
+
+    def test_excel_filename_eia923(self):
+        """
+        Spot check that the eia923 extractor gets the correct excel sheet
+        names.
+        """
+        extractor = pudl.extract.eia923.Extractor()
+        assert extractor.excel_filename("plant_frame", 2009) == \
+                "EIA923 SCHEDULES 2_3_4_5 M Final 2009 REVISED 05252011.XLS"
+        assert extractor.excel_filename("energy_storage", 2020) == \
+                "EIA923_Schedules_2_3_4_5_M_01_2020_18MAR2020.xlsx"
+        assert extractor.excel_filename("puerto_rico", 2012) == \
+                "EIA923_Schedules_2_3_4_5_M_12_2012_Final_Revision.xlsx"
