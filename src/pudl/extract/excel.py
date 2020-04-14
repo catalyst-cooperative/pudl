@@ -1,15 +1,14 @@
 """Load excel metadata CSV files form a python data package."""
 
 import csv
-import glob
 import importlib.resources
 import logging
-import os.path
 
 import pandas as pd
+import zipfile
 
+from pathlib import Path
 import pudl
-import pudl.constants as pc
 import pudl.workspace.datastore as datastore
 
 logger = logging.getLogger(__name__)
@@ -216,14 +215,43 @@ class GenericExtractor(object):
             self._file_cache[full_path] = pd.ExcelFile(full_path)
         return self._file_cache[full_path]
 
-    def excel_filename(self, page, year):
+    def load_excel_file(self, year, page, testing=False):
+        """
+        Produce the ExcelFile object for the given (year, page).
+
+        Args:
+            year: 4 digit year
+            page: pudl name for the dataset contents, eg
+                  "boiler_generator_assn" or "coal_stocks"
+        Return:
+            string name of the xlsx file
+        """
+        ds = datastore.Datastore(sandbox=testing)
+        info = ds.get_resources(self._dataset_name, year=year)
+
+        if info is None:
+            return
+
+        item = next(info)
+        p = Path(item["path"])
+
+        if str(p) in self._file_cache:
+            return self._file_cache(str(p))
+
+        zf = zipfile.ZipFile(p)
+        xlsx_filename = self.excel_filename(year, page)
+        excel_file = pd.ExcelFile(zf.read(xlsx_filename))
+        self._file_cache[str(p)] = excel_file
+        return excel_file
+
+    def excel_filename(self, year, page):
         """
         Produce the xlsx document file name as it will appear in the archive.
 
         Args:
+            year: 4 digit year
             page: pudl name for the dataset contents, eg
                   "boiler_generator_assn" or "coal_stocks"
-            year: 4 digit year
         Return:
             string name of the xlsx file
         """
@@ -236,4 +264,4 @@ class GenericExtractor(object):
                 if row["page"] == page:
                     return row[str(year)]
 
-        raise ValueError("No excel sheet for %s, %d" % (page, year))
+        raise ValueError("No excel sheet for %d, %s" % (year, page))
