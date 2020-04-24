@@ -37,7 +37,7 @@ dependencies:
   - pydocstyle          # dev
   - pytest              # dev
   - pytest-cov          # dev
-  - python>=3.7         # N/A
+  - python>=3.8         # N/A zipfile.Path() use requires 3.8
   - python-snappy       # base
   - pyyaml              # base
   - seaborn             # dev
@@ -54,5 +54,5 @@ dependencies:
   - tox                 # dev
   - twine               # dev
   - xlsxwriter          # base
-  - pip:
-     - recordlinkage # dev for now... base if it ends up in ETL
+    # - pip:
+      #- recordlinkage # dev for now... base if it ends up in ETL

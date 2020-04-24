@@ -976,6 +976,21 @@ ferc1_pudl_tables = (
     integrated into PUDL.
 """
 
+ferc714_pudl_tables = (
+    "respondent_id_ferc714",
+    "id_certification_ferc714",
+    "ba_gen_plants_ferc714",
+    "ba_demand_monthly_ferc714",
+    "ba_net_energy_load_ferc714",
+    "adjacent_bas_ferc714",
+    "ba_interchange_ferc714",
+    "ba_lambda_hourly_ferc714",
+    "lambda_description_ferc714",
+    "pa_description_ferc714",
+    "pa_demand_forecast_ferc714",
+    "pa_demand_hourly_ferc714",
+)
+
 table_map_ferc1_pudl = {
     'fuel_ferc1': 'f1_fuel',
     'plants_steam_ferc1': 'f1_steam',
@@ -2223,6 +2238,7 @@ pudl_tables = {
     'epacems': epacems_tables,
     'epaipm': epaipm_pudl_tables,
     'ferc1': ferc1_pudl_tables,
+    'ferc714': ferc714_pudl_tables,
     'glue': glue_pudl_tables,
 }
 """
@@ -2476,14 +2492,26 @@ keywords_by_data_source = {
 
 column_dtypes = {
     "ferc1": {  # Obviously this is not yet a complete list...
-        "construction_year": "Int64",  # Nullable Integer
-        "installation_year": "Int64",  # Nullable Integer
-        'utility_id_ferc1': 'Int64',
-        'plant_id_pudl': 'Int64',
-        'plant_id_ferc1': 'Int64',
-        'utility_id_pudl': 'Int64',
-        'report_year': 'Int64',
+        "construction_year": pd.Int64Dtype(),
+        "installation_year": pd.Int64Dtype(),
+        'utility_id_ferc1': pd.Int64Dtype(),
+        'plant_id_pudl': pd.Int64Dtype(),
+        'plant_id_ferc1': pd.Int64Dtype(),
+        'utility_id_pudl': pd.Int64Dtype(),
+        'report_year': pd.Int64Dtype(),
         'report_date': 'datetime64[ns]',
+    },
+    "ferc714": {  # INCOMPLETE
+        "report_year": pd.Int64Dtype(),
+        "utility_id_ferc714": pd.Int64Dtype(),
+        "utility_id_eia": pd.Int64Dtype(),
+        "utility_name_ferc714": pd.StringDtype(),
+        "timezone": pd.CategoricalDtype(categories=[
+            "America/New_York", "America/Chicago", "America/Denver",
+            "America/Los_Angeles", "America/Anchorage", "Pacific/Honolulu"]),
+        "utc_datetime": "datetime64[ns]",
+        "peak_demand_summer_mw": float,
+        "peak_demand_winter_mw": float,
     },
     "epacems": {
         'state': pd.StringDtype(),
