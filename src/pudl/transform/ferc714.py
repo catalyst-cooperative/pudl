@@ -460,7 +460,7 @@ def _fix_25th_hours(df, spring_forward, fall_back):
 
 
 def log_dupes(df, dupe_cols):
-    """A shortcut to report the number of duplicate records."""
+    """A macro to report the number of duplicate records."""
     n_dupes = len(df[df.duplicated(dupe_cols)])
     logger.info(f"Found {n_dupes} duplicated hours.")
 
@@ -499,14 +499,14 @@ def _apply_tz_fixes_by_date(df, fixes, time_changes):
 
 
 def _fix_inverted_demand(df, utility_id_ferc714, start_time, end_time):
+    """Multiply the demand between start and end time by negative 1."""
     df = df.copy()
     idx_to_flip = df.loc[
         (df.utility_id_ferc714 == utility_id_ferc714) &
         (df.local_time >= start_time) &
         (df.local_time <= end_time)
     ].index
-    df.loc[idx_to_flip, "demand_mwh"] = - \
-        1.0 * df.loc[idx_to_flip, "demand_mwh"]
+    df.loc[idx_to_flip, "demand_mwh"] = - 1 * df.loc[idx_to_flip, "demand_mwh"]
     return df
 
 
@@ -661,42 +661,52 @@ def electricity_planning_areas(pudl_settings):
 
 
 def id_certification(tf_dfs):
+    """A stub transform function."""
     return tf_dfs
 
 
 def ba_gen_plants(tf_dfs):
+    """A stub transform function."""
     return tf_dfs
 
 
 def ba_demand_monthly(tf_dfs):
+    """A stub transform function."""
     return tf_dfs
 
 
 def ba_net_energy_load(tf_dfs):
+    """A stub transform function."""
     return tf_dfs
 
 
 def adjacent_bas(tf_dfs):
+    """A stub transform function."""
     return tf_dfs
 
 
 def ba_interchange(tf_dfs):
+    """A stub transform function."""
     return tf_dfs
 
 
 def ba_lambda_hourly(tf_dfs):
+    """A stub transform function."""
     return tf_dfs
 
 
 def lambda_description(tf_dfs):
+    """A stub transform function."""
     return tf_dfs
 
 
 def pa_description(tf_dfs):
+    """A stub transform function."""
     return tf_dfs
 
 
 def pa_demand_forecast(tf_dfs):
+    """A stub transform function."""
     return tf_dfs
 
 
