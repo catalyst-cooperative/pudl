@@ -1,8 +1,8 @@
 ﻿year_index,2013,2014,2015,2016,2017,2018
-year,0,0,0,0,0,0
+report_year,0,0,0,0,0,0
 utility_id_eia,1,1,1,1,1,1
 utility_name_eia,2,2,2,2,2,2
-State,3,3,3,3,3,3
+state,3,3,3,3,3,3
 ba_code,-1,-1,-1,-1,4,4
 residential_customers,4,4,4,4,5,5
 commercial_customers,5,5,5,5,6,6
@@ -12,7 +12,7 @@ total_customers,8,8,8,8,9,9
 residential_energy_savings,9,9,9,9,10,10
 commercial_energy_savings,10,10,10,10,11,11
 industrial_energy_savings,11,11,11,11,12,12
-Transportation,12,12,12,12,13,13
+transportation,12,12,12,12,13,13
 total_energy_savings,13,13,13,13,14,14
 residential_potential_peak_demand_savings,14,14,14,14,15,15
 commercial_potential_peak_demand_savings,15,15,15,15,16,16

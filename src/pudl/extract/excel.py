@@ -3,11 +3,11 @@
 import csv
 import importlib.resources
 import logging
+import zipfile
+from pathlib import Path
 
 import pandas as pd
-import zipfile
 
-from pathlib import Path
 import pudl
 import pudl.workspace.datastore as datastore
 
@@ -68,19 +68,19 @@ class Metadata(object):
 
     def get_sheet_name(self, year, page):
         """Returns name of the excel sheet that contains the data for given year and page."""
-        return self._sheet_name.at[year, page]
+        return self._sheet_name.at[page, str(year)]
 
     def get_skiprows(self, year, page):
         """Returns number of initial rows to skip when loading given year and page."""
-        return self._skiprows.at[year, page]
+        return self._skiprows.at[page, str(year)]
 
     def get_column_map(self, year, page):
         """Returns the dictionary mapping input columns to pudl columns for given year and page."""
-        return {v: k for k, v in self._column_map[page].loc[year].to_dict().items()}
+        return {v: k for k, v in self._column_map[page].T.loc[str(year)].to_dict().items()}
 
     def get_all_columns(self, page):
         """Returns list of all pudl (standardized) columns for a given page (across all years)."""
-        return sorted(self._column_map[page].columns)
+        return sorted(self._column_map[page].T.columns)
 
     def get_all_pages(self):
         """Returns list of all known pages."""
@@ -141,10 +141,9 @@ class GenericExtractor(object):
         self._dataset_name = self._metadata.get_dataset_name()
         self._file_cache = {}
 
-    @staticmethod
-    def process_raw(df, year, page):
-        """Transforms raw dataframe before columns are renamed."""
-        return df
+    def process_raw(self, df, year, page):
+        """Transforms raw dataframe and rename columns."""
+        return df.rename(columns=self._metadata.get_column_map(year, page))
 
     @staticmethod
     def process_renamed(df, year, page):
@@ -161,11 +160,16 @@ class GenericExtractor(object):
         """Provide custom dtypes for given page and year."""
         return {}
 
-    def extract(self, years):
+    def extract(self, years, testing):
         """Extracts dataframes.
 
         Returns dict where keys are page names and values are
         DataFrames containing data across given years.
+
+        Args:
+            years (list): list of years to extract.
+            testing (boolean): if testing is True, the datastore manager will
+                know to use the zenodo sandbox DOIs.
         """
         # TODO: should we run verify_years(?) here?
         if not years:
@@ -180,18 +184,21 @@ class GenericExtractor(object):
                 continue
             df = pd.DataFrame()
             for yr in years:
+                # we are going to skip
+                if self.excel_filename(yr, page) == '-1':
+                    logger.info(
+                        f'No page for {self._dataset_name} {page} {yr}')
+                    continue
                 logger.info(
                     f'Loading dataframe for {self._dataset_name} {page} {yr}')
                 newdata = pd.read_excel(
-                    self._load_excel_file(yr, page),
+                    self.load_excel_file(yr, page, testing=testing),
                     sheet_name=self._metadata.get_sheet_name(yr, page),
                     skiprows=self._metadata.get_skiprows(yr, page),
                     dtype=self.get_dtypes(yr, page))
 
                 newdata = pudl.helpers.simplify_columns(newdata)
                 newdata = self.process_raw(newdata, yr, page)
-                newdata = newdata.rename(
-                    columns=self._metadata.get_column_map(yr, page))
                 newdata = self.process_renamed(newdata, yr, page)
                 df = df.append(newdata, sort=True, ignore_index=True)
 
@@ -200,6 +207,13 @@ class GenericExtractor(object):
                 page)).difference(df.columns)
             empty_cols = pd.DataFrame(columns=missing_cols)
             df = pd.concat([df, empty_cols], sort=True)
+            if len(self.METADATA._column_map[page].index) != len(df.columns):
+                # raise AssertionError(
+                logger.info(
+                    f'Columns for {page} are off: should be '
+                    f'{len(self.METADATA._column_map[page].index)} but got '
+                    f'{len(df.columns)}'
+                )
             raw_dfs[page] = self.process_final_page(df, page)
         return raw_dfs
 
@@ -235,8 +249,9 @@ class GenericExtractor(object):
         item = next(info)
         p = Path(item["path"])
 
-        if str(p) in self._file_cache:
-            return self._file_cache(str(p))
+        # This was caching the first page's file!
+        # if str(p) in self._file_cache:
+        #    return self._file_cache[str(p)]
 
         zf = zipfile.ZipFile(p)
         xlsx_filename = self.excel_filename(year, page)

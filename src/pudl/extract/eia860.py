@@ -24,9 +24,9 @@ class Extractor(excel.GenericExtractor):
         """Returns corresponding glob pattern for a page."""
         return self.PAGE_GLOBS[page]
 
-    @staticmethod
-    def process_raw(df, year, page):
+    def process_raw(self, df, year, page):
         """Adds report_year column if missing."""
+        df = df.rename(columns=self._metadata.get_column_map(year, page))
         if 'report_year' not in df.columns:
             df['report_year'] = year
         return df
