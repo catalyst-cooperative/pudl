@@ -288,12 +288,6 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
     gens_eia860 = pd.read_sql(gens_eia860_select, pudl_engine)
     generators_entity_eia_df = pd.read_sql(
         generators_entity_eia_select, pudl_engine)
-    # this_year = datetime.datetime.now().year
-    # generators_entity_eia_df['generator_age_years'] = [
-    # generators_entity_eia_df['report_date'].year - # INDENT
-    # generators_entity_eia_df['operating_date'].year] # INDENT
-    # generators_entity_eia_df = generators_entity_eia_df.drop(
-    # ['operating_date', 'report_date'], axis=1) # INDENT
 
     plants_entity_eia_df = pd.read_sql(plants_entity_eia_select, pudl_engine)
 
