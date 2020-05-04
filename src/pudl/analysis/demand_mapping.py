@@ -68,7 +68,7 @@ def create_stacked_intersection_df(gdf_primary, gdf_secondary, gdf_primary_col="
     gdf_primary["primary_area_derived"] = gdf_primary[geom_primary].area
     gdf_secondary["secondary_area_derived"] = gdf_secondary[geom_secondary].area
 
-    new_df = (new_df[[gdf_primary_col, gdf_secondary_col, "geometry"]]
+    new_df = (new_df[[gdf_primary_col, gdf_secondary_col, "area_derived", "geometry"]]
               .merge(gdf_primary[[gdf_primary_col, "primary_area_derived"]])
               .merge(gdf_secondary[[gdf_secondary_col, "secondary_area_derived"]]))
 
