@@ -410,7 +410,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
     return eia860_transformed_dfs
 
 
-def transform(eia860_raw_dfs, eia860_tables=pc.eia860_pudl_tables):
+def transform(eia860_raw_dfs, eia860_tables=pc.pudl_tables["eia860"]):
     """
     Transforms EIA 860 DataFrames.
 

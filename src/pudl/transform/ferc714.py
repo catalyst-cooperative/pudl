@@ -548,6 +548,105 @@ def _to_utc_and_tz(df, offset_codes, tz_codes):
     return df
 
 
+def _complete_demand_timeseries(pa_demand):
+    """
+    Fill in missing planning area demand timesteps, leaving demand_mwh NaN.
+
+    Before we can perform many kinds of time series analyses, including the
+    identification of outliers and other anomolies, and the imputation of
+    missing values, we need to ensure that we have a complete time series with
+    all hourly timesteps for each respondent, and that there are no duplicate
+    timesteps.
+
+    This function does not attempt to impute or otherwise fill in missing
+    demand_mwh values, but it does fill in the other non data fields for
+    the newly created timesteps (utility_id_ferc714, timezone, report_year).
+
+    Args:
+        pa_demand (pandas.DataFrame): A planning area demand time series from
+            the FERC Form 714. May contain duplicate timesteps within a given
+            respondent's data. May be missing some timesteps. Must already
+            have a clean utc_datetime column and timezone column.
+
+    Returns:
+        pandas.DataFrame: A dataframe containing the same demand data as the
+        input, but with no missing and no duplicate timesteps.
+
+    """
+    logger.info("Ensuring that Planning Area demand time series are complete.")
+    # Remove any lingering duplicate hours. There should be less than 10 of
+    # these, resulting from changes a planning area's reporting timezone.
+    pa_demand = pa_demand.drop_duplicates(
+        ["utility_id_ferc714", "utc_datetime"])
+    log_dupes(pa_demand, ["utility_id_ferc714", "utc_datetime"])
+
+    # We need to address the time series for each respondent independently, so
+    # here we iterate over all of the utility IDs one at a time:
+    dfs = []
+    for util_id in pa_demand.utility_id_ferc714.unique():
+        df = (
+            pa_demand
+            .loc[pa_demand.utility_id_ferc714 == util_id]
+            .set_index("utc_datetime")
+        )
+
+        # Reindex with a complete set of hourly timesteps and fill in the
+        # resulting NA values where we can do so easily. The utility IDs and
+        # name do not vary within the time series for a particular respondent,
+        # and the timezone is mainly important for internal consistency between
+        # the utc_datetime value and the report year. So long as those values
+        # are internally consistent, it can be eiter forward or backward filled
+        # -- in reality no data was reported for these time steps, so either
+        # one is equally "correct".
+        df = (
+            df.reindex(
+                pd.date_range(
+                    start=df.index.min(),
+                    end=df.index.max(),
+                    freq="1H"
+                )
+            )
+            .assign(
+                utility_id_ferc714=lambda x: x.utility_id_ferc714.fillna(
+                    method="backfill"),
+                timezone=lambda x: x.timezone.fillna(method="backfill"),
+            )
+        )
+        df.index.name = "utc_datetime"
+        dfs.append(df)
+    # Bring all the individual per-respondent dataframes back together again:
+    new_df = pd.concat(dfs).reset_index()
+    logger.info("Generating self-consistent report_year for new timesteps.")
+    # Now we need to fill in the "report_year" value, which depends on the
+    # local time not the UTC time, so we need to temporarily generate a
+    # localized datetime column:
+    new_df["utc_aware"] = new_df.utc_datetime.dt.tz_localize("UTC")
+    new_df["local_datetime"] = (
+        new_df
+        .groupby("timezone")["utc_aware"]
+        .transform(lambda x: x.dt.tz_convert(x.name))
+    )
+
+    # We can only use the Series.dt datetime accessor on a Series with
+    # homogeneous timezone information, so we now have to iterate through each
+    # of the timezones. If there's a better way to do this with groupby that
+    # would be great...
+    for tz in new_df.timezone.unique():
+        rows_to_fix = (new_df.timezone == tz) & (new_df.report_year.isnull())
+        if rows_to_fix.any():
+            new_df.loc[rows_to_fix, "report_year"] = \
+                new_df.loc[rows_to_fix, "local_datetime"].dt.year
+    # Remove temporary columns and return only the columns we started with.
+    new_df = new_df.drop(["utc_aware", "local_datetime"], axis="columns")
+    non_null = len(new_df[new_df.demand_mwh.notnull()]) / len(new_df)
+
+    logger.info(
+        f"{non_null:.2%} of all planning area demand records have "
+        "non-null values.")
+
+    return new_df
+
+
 def respondent_id(tf_dfs):
     """Table of FERC 714 respondents IDs, names, and EIA utility IDs."""
     df = (
@@ -605,6 +704,7 @@ def pa_demand_hourly(tf_dfs):
         .pipe(_apply_tz_fixes_by_date, tz_fixes_by_date, time_changes)
         .pipe(_apply_inverted_demand_fixes, inverted_demand_fixes)
         .pipe(_to_utc_and_tz, offset_codes=offset_codes, tz_codes=tz_codes)
+        .pipe(_complete_demand_timeseries)
         .loc[:, [
             "report_year",
             "utility_id_ferc714",
