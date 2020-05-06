@@ -178,23 +178,7 @@ EIA_FIPS_COUNTY_FIXES = pd.DataFrame([
 
 
 def service_territory(raw_dfs, tfr_dfs):
-    """Transform the EIA 861 utility service territory table."""
-    # Ensure that we have the canonical US Census county names:
-    df = (
-        pudl.helpers.clean_eia_counties(
-            raw_dfs["service_territory_eia861"],
-            fixes=EIA_FIPS_COUNTY_FIXES)
-        .pipe(pudl.helpers.add_fips_ids)
-        .pipe(pudl.helpers.convert_cols_dtypes,
-              "eia", "service_territory_eia861")
-    )
-    tfr_dfs["service_territory_eia861"] = df
-    return tfr_dfs
-
-
-def table_name(raw_dfs, tfr_dfs):
-    """
-    Transform a dummy EIA 861 table.
+    """Transform the EIA 861 utility service territory table.
 
     Args:
         raw_dfs (dict): Each entry in this dictionary of DataFrame objects
@@ -205,11 +189,23 @@ def table_name(raw_dfs, tfr_dfs):
             DataFrames of values from that page (values)
 
     Returns:
-        dict: tfr_dfs, a dictionary of DataFrame objects in
-        which pages from EIA860 form (keys) correspond to normalized
+        dict: a dictionary of pandas.DataFrame objects in
+        which pages from EIA861 form (keys) correspond to normalized
         DataFrames of values from that page (values)
 
     """
+    df = (
+        # Ensure that we have the canonical US Census county names:
+        pudl.helpers.clean_eia_counties(
+            raw_dfs["service_territory_eia861"],
+            fixes=EIA_FIPS_COUNTY_FIXES)
+        # Add FIPS IDs based on county & state names:
+        .pipe(pudl.helpers.add_fips_ids)
+        # Set the final data types for the table:
+        .pipe(pudl.helpers.convert_cols_dtypes,
+              "eia", "service_territory_eia861")
+    )
+    tfr_dfs["service_territory_eia861"] = df
     return tfr_dfs
 
 

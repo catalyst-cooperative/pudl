@@ -5,7 +5,6 @@ Submodules
 ----------
 
 .. toctree::
-   :maxdepth: 4
 
    pudl.analysis.demand_mapping
    pudl.analysis.mcoe
