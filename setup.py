@@ -7,6 +7,7 @@ from pathlib import Path
 from setuptools import find_packages, setup
 
 install_requires = [
+    "addfips",
     "coloredlogs",
     "datapackage>=1.11",
     "dbfread",

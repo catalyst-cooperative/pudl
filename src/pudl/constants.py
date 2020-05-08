@@ -1069,9 +1069,13 @@ eia860_pudl_tables = (
     'generators_eia860',
     'ownership_eia860'
 )
-"""tuple: A tuple containing the list of EIA 860 tables that can be successfully
-    pulled into PUDL.
+"""tuple: A tuple containing the list of EIA 860 tables that can be
+successfully pulled into PUDL.
 """
+
+eia861_pudl_tables = (
+    "service_territory_eia861",
+)
 
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].
@@ -2234,6 +2238,7 @@ dict: A dictionary of data sources (keys) and tuples containing the years for
 
 pudl_tables = {
     'eia860': eia860_pudl_tables,
+    'eia861': eia861_pudl_tables,
     'eia923': eia923_pudl_tables,
     'epacems': epacems_tables,
     'epaipm': epaipm_pudl_tables,
@@ -2559,7 +2564,7 @@ column_dtypes = {
         'contract_expiration_date': 'datetime64[ns]',
         'contract_type_code': pd.StringDtype(),
         'county': pd.StringDtype(),
-        'county_id_fips': pd.Int64Dtype(),
+        'county_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
         'current_planned_operating_date': 'datetime64[ns]',
         'deliver_power_transgrid': pd.BooleanDtype(),
         'duct_burners': pd.BooleanDtype(),
@@ -2640,7 +2645,7 @@ column_dtypes = {
         'owner_state': pd.StringDtype(),
         'owner_street_address': pd.StringDtype(),
         'owner_utility_id_eia': pd.Int64Dtype(),
-        'owner_zip_code': pd.StringDtype(),
+        'owner_zip_code': pd.StringDtype(),  # Must preserve leading zeroes.
         # we should transition these into readable codes, not a one letter thing
         'ownership_code': pd.StringDtype(),
         'pipeline_notes': pd.StringDtype(),
@@ -2682,6 +2687,7 @@ column_dtypes = {
         'startup_source_code_3': pd.StringDtype(),
         'startup_source_code_4': pd.StringDtype(),
         'state': pd.StringDtype(),
+        'state_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
         'street_address': pd.StringDtype(),
         'stoker_tech': pd.BooleanDtype(),
         'subcritical_tech': pd.BooleanDtype(),

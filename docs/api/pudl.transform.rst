@@ -8,6 +8,7 @@ Submodules
 
    pudl.transform.eia
    pudl.transform.eia860
+   pudl.transform.eia861
    pudl.transform.eia923
    pudl.transform.epacems
    pudl.transform.epaipm

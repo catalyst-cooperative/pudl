@@ -5,6 +5,7 @@ import logging
 
 import pkg_resources
 
+import pudl.analysis.demand_mapping
 import pudl.analysis.mcoe
 import pudl.cli
 import pudl.constants
@@ -33,6 +34,7 @@ import pudl.output.pudltabl
 # Transformation functions, organized by data source:
 import pudl.transform.eia
 import pudl.transform.eia860
+import pudl.transform.eia861
 import pudl.transform.eia923
 import pudl.transform.epacems
 import pudl.transform.epaipm

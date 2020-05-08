@@ -16,14 +16,9 @@ logger = logging.getLogger(__name__)
 ##############################################################################
 # Constants required for transforming FERC 714
 ##############################################################################
-# Stand-in for the null values...
-tz_nulls = {
-    np.nan: "XXX",
-    "": "XXX",
-}
 
 # More detailed fixes on a per respondent basis
-tz_fixes = {
+TZ_FIXES = {
     102: {"CPT": "CST"},
     110: {"CPT": "EST"},
     115: {"MS": "MST"},
@@ -150,46 +145,7 @@ tz_fixes = {
     },
 }
 
-spring_forward = [
-    "2000-04-02T02:02:00", "2001-04-01T02:02:00",
-    "2002-04-07T02:02:00", "2003-04-06T02:02:00",
-    "2004-04-04T02:02:00", "2005-04-03T02:02:00",
-    "2006-04-02T02:02:00", "2007-03-11T02:02:00",
-    "2008-03-09T02:02:00", "2009-03-08T02:02:00",
-
-    "2010-03-14T02:02:00", "2011-03-13T02:02:00",
-    "2012-03-11T02:02:00", "2013-03-10T02:02:00",
-    "2014-03-09T02:02:00", "2015-03-08T02:02:00",
-    "2016-03-13T02:02:00", "2017-03-12T02:02:00",
-    "2018-03-11T02:02:00", "2019-03-10T02:02:00",
-
-    "2020-03-08T02:02:00",
-]
-fall_back = [
-    "2000-10-29T02:02:00", "2001-10-28T02:02:00",
-    "2002-10-27T02:02:00", "2003-10-26T02:02:00",
-    "2004-10-31T02:02:00", "2005-10-30T02:02:00",
-    "2006-10-29T02:02:00", "2007-11-04T02:02:00",
-    "2008-11-02T02:02:00", "2009-11-01T02:02:00",
-
-    "2010-11-07T02:02:00", "2011-11-06T02:02:00",
-    "2012-11-04T02:02:00", "2013-11-03T02:02:00",
-    "2014-11-02T02:02:00", "2015-11-01T02:02:00",
-    "2016-11-06T02:02:00", "2017-11-05T02:02:00",
-    "2018-11-04T02:02:00", "2019-11-03T02:02:00",
-
-    "2020-11-01T02:02:00",
-]
-time_changes = (
-    pd.DataFrame(data={
-        "spring_forward": pd.to_datetime(spring_forward),
-        "fall_back": pd.to_datetime(fall_back)
-    })
-    .assign(year=lambda x: x.spring_forward.dt.year)
-    .set_index("year")
-)
-
-bad_respondents = [
+BAD_RESPONDENTS = [
     319,
     99991,
     99992,
@@ -197,69 +153,20 @@ bad_respondents = [
     99994,
     99995,
 ]
+"""Fake respondent IDs for database test entities."""
 
-tz_fixes_by_date = [
-    {
-        "utility_id_ferc714": 139,
-        "offset_col": "utc_offset_code",
-        "start_time": pd.Timestamp("2006-01-01T00:00:00"),
-        "end_time": pd.Timestamp("2006-12-31T23:00:00"),
-        "std_val": "PST",
-        "dst_val": "PDT",
-    },
-    {
-        "utility_id_ferc714": 235,
-        "offset_col": "utc_offset_code",
-        "start_time": pd.Timestamp("2015-01-01T00:00:00"),
-        "end_time": pd.Timestamp("2015-12-31T23:00:00"),
-        "std_val": "MST",
-        "dst_val": "MDT",
-    },
-    {
-        "utility_id_ferc714": 289,
-        "offset_col": "utc_offset_code",
-        "start_time": pd.Timestamp("2011-01-01T00:00:00"),
-        "end_time": pd.Timestamp("2011-12-31T23:00:00"),
-        "std_val": "CST",
-        "dst_val": "CDT",
-    },
-    {
-        "utility_id_ferc714": 292,
-        "offset_col": "utc_offset_code",
-        "start_time": pd.Timestamp("2011-01-01T00:00:00"),
-        "end_time": pd.Timestamp("2011-12-31T23:00:00"),
-        "std_val": "CST",
-        "dst_val": "CDT",
-    }
-]
-"""Instances in which a UTC offset code is set based on date and respondent."""
-
-inverted_demand_fixes = [
-    {
-        "utility_id_ferc714": 156,
-        "start_time": pd.Timestamp("2006-01-01T00:00:00"),
-        "end_time": pd.Timestamp("2009-12-31T23:00:00"),
-    },
-    {
-        "utility_id_ferc714": 289,
-        "start_time": pd.Timestamp("2006-01-01T00:00:00"),
-        "end_time": pd.Timestamp("2010-12-31T23:00:00"),
-    },
-]
-"""Instances in which a respondent recorded demand as a negative number."""
-
-offset_codes = {
-    "HST": pd.Timedelta(-10, unit="hours"),  # Hawaii Standard
-    "AKST": pd.Timedelta(-9, unit="hours"),  # Alaska Standard
-    "AKDT": pd.Timedelta(-9, unit="hours"),  # Alaska Daylight
-    "PST": pd.Timedelta(-8, unit="hours"),  # Pacific Standard
-    "PDT": pd.Timedelta(-8, unit="hours"),  # Pacific Daylight
-    "MST": pd.Timedelta(-7, unit="hours"),  # Mountain Standard
-    "MDT": pd.Timedelta(-7, unit="hours"),  # Mountain Daylight
-    "CST": pd.Timedelta(-6, unit="hours"),  # Central Standard
-    "CDT": pd.Timedelta(-6, unit="hours"),  # Central Daylight
+OFFSET_CODES = {
     "EST": pd.Timedelta(-5, unit="hours"),  # Eastern Standard
     "EDT": pd.Timedelta(-5, unit="hours"),  # Eastern Daylight
+    "CST": pd.Timedelta(-6, unit="hours"),  # Central Standard
+    "CDT": pd.Timedelta(-6, unit="hours"),  # Central Daylight
+    "MST": pd.Timedelta(-7, unit="hours"),  # Mountain Standard
+    "MDT": pd.Timedelta(-7, unit="hours"),  # Mountain Daylight
+    "PST": pd.Timedelta(-8, unit="hours"),  # Pacific Standard
+    "PDT": pd.Timedelta(-8, unit="hours"),  # Pacific Daylight
+    "AKST": pd.Timedelta(-9, unit="hours"),  # Alaska Standard
+    "AKDT": pd.Timedelta(-9, unit="hours"),  # Alaska Daylight
+    "HST": pd.Timedelta(-10, unit="hours"),  # Hawaii Standard
 }
 """
 A mapping of timezone offset codes to Timedelta offsets from UTC.
@@ -273,7 +180,7 @@ from one year to the next, and these result in duplicate records, which are
 dropped.
 """
 
-tz_codes = {
+TZ_CODES = {
     "EST": "America/New_York",
     "EDT": "America/New_York",
     "CST": "America/Chicago",
@@ -286,6 +193,7 @@ tz_codes = {
     "AKDT": "America/Anchorage",
     "HST": "Pacific/Honolulu",
 }
+"""Mapping between standardized time offset codes and canonical timezones."""
 
 MISSING_UTILITY_ID_EIA = {
     307: 14354,  # PacifiCorp
@@ -364,29 +272,53 @@ def _hours_to_ints(col_name):
         return col_name
 
 
-def _standardize_offset_codes(df, tz_map, tz_fixes):
-    """Convert to standardized timezone abbreviations.
+def _standardize_offset_codes(df, tz_fixes):
+    """
+    Convert to standardized UTC offset abbreviations.
 
     This function ensures that all of the 3-4 letter abbreviations used to
-    indicate a timestamp's localized offset from UTC are starndardized, so that
-    they can be used to convert the timestamps can be made timezone aware.
-    Several different kinds of fixes are applied. Mappings from non-standard
-    abbreviations to standard abbreviations have been defined for each
-    respondent that used non-standard abbreviations. This mapping is tz_map.
-    Other fixes only apply to a given respondent within a certain range of
-    dates. These fixes are described by tz_fixes.
+    indicate a timestamp's localized offset from UTC are standardized, so that
+    they can be used to make the timestamps timezone aware. The standard
+    abbreviations we're using are:
 
-    This stuff shouldn't happen in this function:
+    "HST": Hawaii Standard Time
+    "AKST": Alaska Standard Time
+    "AKDT": Alaska Daylight Time
+    "PST": Pacific Standard Time
+    "PDT": Pacific Daylight Time
+    "MST": Mountain Standard Time
+    "MDT": Mountain Daylight Time
+    "CST": Central Standard Time
+    "CDT": Central Daylight Time
+    "EST": Eastern Standard Time
+    "EDT": Eastern Daylight Time
 
-    The small number of actual NA values for demand that show up originally are
-    set to 0.0 and only records with either a non-zero demand or a real
-    offset are returned.
+    In some cases different respondents use the same non-standard abbreviations
+    to indicate different offsets, and so the fixes are applied on a
+    per-respondent basis, as defined by tz_fixes.
+
+    UTC offset codes which are originally NA or the empty string are replaced
+    with a temporary sentinel value, the string "XXX".
+
+    Args:
+        df (pandas.DataFrame): A DataFrame containing a utc_offset_code column
+            that needs to be standardized.
+        tz_fixes (dict): A dictionary with utility_id_ferc714 values as the
+            keys, and a dictionary mapping non-standard UTC offset codes to
+            the standardized UTC offset codes as the value.
+
+    Returns:
+        pandas.DataFrame: The same as the input DataFrame, but with only
+        standardized UTC offset codes in the ``utc_offset_code`` column.
 
     """
     logger.info("Standardizing UTC offset codes.")
     df = df.copy()
-    df["utc_offset_code"] = df["utc_offset_code"].replace(to_replace=tz_map)
-    # More specific fixes on a per-respondent basis:
+    # Replace NaN and empty string values with a temporary placeholder "XXX"
+    df["utc_offset_code"] = (
+        df.utc_offset_code.replace(to_replace={np.nan: "XXX", "": "XXX"})
+    )
+    # Apply specific fixes on a per-respondent basis:
     for rid in tz_fixes:
         for orig_tz in tz_fixes[rid]:
             df.loc[(
@@ -396,125 +328,10 @@ def _standardize_offset_codes(df, tz_map, tz_fixes):
     return df
 
 
-def _fix_25th_hours(df, spring_forward, fall_back):
-    """Deal with daylight savings time changes."""
-    logger.info("Removing unfixable duplicate 25th hours.")
-
-    fall_back_dates = pd.to_datetime(fall_back).date
-    # The only valid reason for there to be 25 hours in a day is that the
-    # data was collected on on of the "fall back" dates. It's unclear what
-    # to do with the 25th hour data on any other day, so we are going to
-    # discard it.
-    df = df.loc[(df.hour != 25) | df.report_date.isin(fall_back_dates)]
-    # However, it turns out that the vast majority of the 25th hours, even on
-    # the "fall back" dates are just zero, because the whole day of data is
-    # recorded in a single UTC offset, so there really are only 24 hours to
-    # work with. But they don't have any real NA values, so they use zero. We
-    # can safely remove the zero valued 25th hour demand:
-    df = df.loc[(df.hour != 25) | (df.demand_mwh != 0.0)]
-
-    # Select the full day's worth of records for the remaining 25 hour days,
-    # so that we can adjust them in isolation.
-    long_days = (
-        df.query("hour==25")
-        .loc[:, ["utility_id_ferc714", "report_date"]]
-        .drop_duplicates()
-        .merge(df, how="left", on=["utility_id_ferc714", "report_date"])
-    )
-
-    # Many of the remaining 25th hour values are actually daily demand totals.
-    # We can check for those and remove them, since they aren't really hourly
-    # data that we want to keep.
-    daily_totals = (
-        long_days.groupby(["utility_id_ferc714", "report_date"])[
-            "demand_mwh"].sum().reset_index()
-        .merge(long_days.loc[long_days.hour == 25,
-                             ["utility_id_ferc714", "report_date", "demand_mwh"]],
-               on=["utility_id_ferc714", "report_date"])
-        .rename(columns={"demand_mwh_x": "daily_mwh", "demand_mwh_y": "hour25_mwh"})
-        # If the hour 25 demand is half or more of daily demand, assume it is
-        # an irrelevant daily total and can be discarded.
-        .query("hour25_mwh>=0.5*daily_mwh")
-        .loc[:, ["utility_id_ferc714", "report_date"]]
-        .assign(hour=25)
-    )
-    # Drop the set of hour 25 records which we believe to be daily totals:
-    idx_cols = ["utility_id_ferc714", "report_date", "hour"]
-    df = (
-        df.set_index(idx_cols)
-        .drop(daily_totals.set_index(idx_cols).index)
-        .reset_index()
-    )
-    # Convert the "hour" column into 0-23hr format and use it to set the time
-    # portion of the local_time Datetime column. Report the number of resulting
-    # duplicate hours.
-    df["local_time"] = df.report_date + pd.to_timedelta(df.hour - 1, unit="h")
-    log_dupes(df, ["utility_id_ferc714", "local_time"])
-    # Drop the rows that pertained to the 25th hours, since they're unfixable:
-    logger.info("Dropping remaining 25th hour timesteps for all respondents.")
-    df = df.query("hour<25")
-
-    # Now that we have a real datetime column, ditch "hour" and "report_date"
-    df = df.drop(["hour", "report_date"], axis="columns")
-    return df
-
-
-def log_dupes(df, dupe_cols):
-    """A macro to report the number of duplicate records."""
+def _log_dupes(df, dupe_cols):
+    """A macro to report the number of duplicate hours found."""
     n_dupes = len(df[df.duplicated(dupe_cols)])
     logger.info(f"Found {n_dupes} duplicated hours.")
-
-
-def _fix_tz_by_date(df, time_changes, utility_id_ferc714,
-                    start_time, end_time, offset_col, std_val, dst_val):
-    """Assign UTC offset codes using date and respondent specific fixes."""
-    df = df.copy()
-    years = df.loc[(df.utility_id_ferc714 == utility_id_ferc714) &
-                   (df.local_time >= start_time) &
-                   (df.local_time <= end_time)].local_time.dt.year.unique()
-    for yr in years:
-        spring = time_changes.loc[yr, "spring_forward"]
-        fall = time_changes.loc[yr, "fall_back"]
-        std_times = (
-            (df.utility_id_ferc714 == utility_id_ferc714) &
-            (df.local_time.dt.year == yr) &
-            ((df.local_time < spring) | (df.local_time >= fall))
-        )
-        dst_times = (
-            (df.utility_id_ferc714 == utility_id_ferc714) &
-            (df.local_time.dt.year == yr) &
-            ((df.local_time >= spring) & (df.local_time < fall))
-        )
-        df.loc[std_times, offset_col] = std_val
-        df.loc[dst_times, offset_col] = dst_val
-    return df
-
-
-def _apply_tz_fixes_by_date(df, fixes, time_changes):
-    """A wrapper to assign many timezone fixes at once."""
-    logger.info("Applying date and respondent specific UTC offset code fixes.")
-    for fix in fixes:
-        df = _fix_tz_by_date(df, time_changes=time_changes, **fix)
-    return df
-
-
-def _fix_inverted_demand(df, utility_id_ferc714, start_time, end_time):
-    """Multiply the demand between start and end time by negative 1."""
-    df = df.copy()
-    idx_to_flip = df.loc[
-        (df.utility_id_ferc714 == utility_id_ferc714) &
-        (df.local_time >= start_time) &
-        (df.local_time <= end_time)
-    ].index
-    df.loc[idx_to_flip, "demand_mwh"] = - 1 * df.loc[idx_to_flip, "demand_mwh"]
-    return df
-
-
-def _apply_inverted_demand_fixes(df, fixes):
-    """A wrapper to fix reported demand sign errors."""
-    for fix in fixes:
-        df = _fix_inverted_demand(df, **fix)
-    return df
 
 
 def _to_utc_and_tz(df, offset_codes, tz_codes):
@@ -537,32 +354,142 @@ def _to_utc_and_tz(df, offset_codes, tz_codes):
         column is dropped.
 
     """
-    log_dupes(df, ["utility_id_ferc714", "local_time"])
+    _log_dupes(df, ["utility_id_ferc714", "local_time"])
     logger.info("Converting local time + offset code to UTC + timezone.")
     df["utc_offset"] = df.utc_offset_code.replace(offset_codes)
     df["utc_datetime"] = df.local_time - df.utc_offset
     df["timezone"] = df.utc_offset_code.replace(tz_codes)
     df = df.drop(
         ["utc_offset", "utc_offset_code", "local_time"], axis="columns")
-    log_dupes(df, ["utility_id_ferc714", "utc_datetime"])
+    _log_dupes(df, ["utility_id_ferc714", "utc_datetime"])
     return df
 
 
+def _complete_demand_timeseries(pa_demand):
+    """
+    Fill in missing planning area demand timesteps, leaving demand_mwh NaN.
+
+    Before we can perform many kinds of time series analyses, including the
+    identification of outliers and other anomolies, and the imputation of
+    missing values, we need to ensure that we have a complete time series with
+    all hourly timesteps for each respondent, and that there are no duplicate
+    timesteps.
+
+    This function does not attempt to impute or otherwise fill in missing
+    demand_mwh values, but it does fill in the other non data fields for
+    the newly created timesteps (utility_id_ferc714, timezone, report_year).
+
+    Args:
+        pa_demand (pandas.DataFrame): A planning area demand time series from
+            the FERC Form 714. May contain duplicate timesteps within a given
+            respondent's data. May be missing some timesteps. Must already
+            have a clean utc_datetime column and timezone column.
+
+    Returns:
+        pandas.DataFrame: A dataframe containing the same demand data as the
+        input, but with no missing and no duplicate timesteps.
+
+    """
+    logger.info("Ensuring that Planning Area demand time series are complete.")
+    # Remove any lingering duplicate hours. There should be less than 10 of
+    # these, resulting from changes a planning area's reporting timezone.
+    pa_demand = pa_demand.drop_duplicates(
+        ["utility_id_ferc714", "utc_datetime"])
+    _log_dupes(pa_demand, ["utility_id_ferc714", "utc_datetime"])
+
+    # We need to address the time series for each respondent independently, so
+    # here we iterate over all of the utility IDs one at a time:
+    dfs = []
+    for util_id in pa_demand.utility_id_ferc714.unique():
+        df = (
+            pa_demand
+            .loc[pa_demand.utility_id_ferc714 == util_id]
+            .set_index("utc_datetime")
+        )
+
+        # Reindex with a complete set of hourly timesteps and fill in the
+        # resulting NA values where we can do so easily. The utility IDs and
+        # name do not vary within the time series for a particular respondent,
+        # and the timezone is mainly important for internal consistency between
+        # the utc_datetime value and the report year. So long as those values
+        # are internally consistent, it can be eiter forward or backward filled
+        # -- in reality no data was reported for these time steps, so either
+        # one is equally "correct".
+        df = (
+            df.reindex(
+                pd.date_range(
+                    start=df.index.min(),
+                    end=df.index.max(),
+                    freq="1H"
+                )
+            )
+            .assign(
+                utility_id_ferc714=lambda x: x.utility_id_ferc714.fillna(
+                    method="backfill"),
+                timezone=lambda x: x.timezone.fillna(method="backfill"),
+            )
+        )
+        df.index.name = "utc_datetime"
+        dfs.append(df)
+    # Bring all the individual per-respondent dataframes back together again:
+    new_df = pd.concat(dfs).reset_index()
+    logger.info("Generating self-consistent report_year for new timesteps.")
+    # Now we need to fill in the "report_year" value, which depends on the
+    # local time not the UTC time, so we need to temporarily generate a
+    # localized datetime column:
+    new_df["utc_aware"] = new_df.utc_datetime.dt.tz_localize("UTC")
+    new_df["local_datetime"] = (
+        new_df
+        .groupby("timezone")["utc_aware"]
+        .transform(lambda x: x.dt.tz_convert(x.name))
+    )
+
+    # We can only use the Series.dt datetime accessor on a Series with
+    # homogeneous timezone information, so we now have to iterate through each
+    # of the timezones. If there's a better way to do this with groupby that
+    # would be great...
+    for tz in new_df.timezone.unique():
+        rows_to_fix = (new_df.timezone == tz) & (new_df.report_year.isnull())
+        if rows_to_fix.any():
+            new_df.loc[rows_to_fix, "report_year"] = \
+                new_df.loc[rows_to_fix, "local_datetime"].dt.year
+    # Remove temporary columns and return only the columns we started with.
+    new_df = new_df.drop(["utc_aware", "local_datetime"], axis="columns")
+    non_null = len(new_df[new_df.demand_mwh.notnull()]) / len(new_df)
+
+    logger.info(
+        f"{non_null:.2%} of all planning area demand records have "
+        "non-null values.")
+
+    return new_df
+
+
 def respondent_id(tf_dfs):
-    """Table of FERC 714 respondents IDs, names, and EIA utility IDs."""
+    """
+    Transform the FERC 714 respondent IDs, names, and EIA utility IDs.
+
+    This consists primarily of dropping test respondents and manually
+    assigning EIA utility IDs to a few FERC Form 714 respondents that report
+    planning area demand, but which don't have their corresponding EIA utility
+    IDs provided by FERC for some reason (including PacifiCorp).
+
+    Args:
+        tf_dfs (dict): A dictionary of (partially) transformed dataframes,
+            to be cleaned up.
+
+    Returns:
+        dict: The input dictionary of dataframes, but with a finished
+        respondent_id_ferc714 dataframe.
+
+    """
     df = (
-        tf_dfs["respondent_id_ferc714"].astype({
-            "utility_id_eia": pd.Int64Dtype(),
-            "utility_id_ferc714": pd.Int64Dtype(),
-            "utility_name_ferc714": pd.StringDtype(),
-        })
-        .assign(
+        tf_dfs["respondent_id_ferc714"].assign(
             utility_name_ferc714=lambda x: x.utility_name_ferc714.str.strip(),
             utility_id_eia=lambda x: x.utility_id_eia.replace(
                 to_replace=0, value=pd.NA)
         )
         # These excludes fake Test IDs -- not real planning areas
-        .query("utility_id_ferc714 not in @bad_respondents")
+        .query("utility_id_ferc714 not in @BAD_RESPONDENTS")
     )
     # There are a few utilities that seem mappable, but missing:
     for rid in MISSING_UTILITY_ID_EIA:
@@ -573,7 +500,18 @@ def respondent_id(tf_dfs):
 
 
 def pa_demand_hourly(tf_dfs):
-    """Hourly demand time series by Planning Area."""
+    """
+    Transform the hourly demand time series by Planning Area.
+
+    Args:
+        tf_dfs (dict): A dictionary of (partially) transformed dataframes,
+            to be cleaned up.
+
+    Returns:
+        dict: The input dictionary of dataframes, but with a finished
+        pa_demand_hourly_ferc714 dataframe.
+
+    """
     logger.info("Converting dates into pandas Datetime types.")
     df = (
         tf_dfs["pa_demand_hourly_ferc714"].assign(
@@ -591,20 +529,47 @@ def pa_demand_hourly(tf_dfs):
             var_name="hour",
             value_name="demand_mwh")
     )
-    log_dupes(df, ["utility_id_ferc714", "report_date", "hour"])
+    _log_dupes(df, ["utility_id_ferc714", "report_date", "hour"])
 
     df = (
-        df.pipe(_standardize_offset_codes, tz_map=tz_nulls, tz_fixes=tz_fixes)
+        df.pipe(_standardize_offset_codes, tz_fixes=TZ_FIXES)
         # Discard records lacking *both* UTC offset code and non-zero demand
         # In practice, this should be *all* of the XXX records, but we're being
         # conservative, in case something changes / goes wrong. We want to
         # notice if for some reason later we find XXX records that *do* have
         # real demand associated with them.
         .query("utc_offset_code!='XXX' | demand_mwh!=0.0")
-        .pipe(_fix_25th_hours, spring_forward, fall_back)
-        .pipe(_apply_tz_fixes_by_date, tz_fixes_by_date, time_changes)
-        .pipe(_apply_inverted_demand_fixes, inverted_demand_fixes)
-        .pipe(_to_utc_and_tz, offset_codes=offset_codes, tz_codes=tz_codes)
+        # Almost all 25th hours are unusable (0.0 or daily totals),
+        # and they shouldn't really exist at all based on FERC instructions.
+        .query("hour!=25")
+        # Switch to using 0-23 hour notation, and combine hour with date:
+        .assign(
+            local_time=lambda x:
+                x.report_date + pd.to_timedelta(x.hour - 1, unit="h")
+        )
+    )
+
+    # Set a few year-specific offset codes:
+    df.loc[(df.report_year == 2006) & (
+        df.utility_id_ferc714 == 139), "utc_offset_code"] = "PST"
+    df.loc[(df.report_year == 2015) & (
+        df.utility_id_ferc714 == 235), "utc_offset_code"] = "MST"
+    df.loc[(df.report_year == 2011) & (
+        df.utility_id_ferc714 == 289), "utc_offset_code"] = "CST"
+    df.loc[(df.report_year == 2011) & (
+        df.utility_id_ferc714 == 292), "utc_offset_code"] = "CST"
+
+    # Flip the sign on two sections of demand which were reported as negative:
+    mask1 = (df.report_year.isin([2006, 2007, 2008, 2009])) & (
+        df.utility_id_ferc714 == 156)
+    df.loc[mask1, "demand_mwh"] = -1.0 * df.loc[mask1, "demand_mwh"]
+    mask2 = (df.report_year.isin([2006, 2007, 2008, 2009, 2010])) & (
+        df.utility_id_ferc714 == 289)
+    df.loc[mask2, "demand_mwh"] = -1.0 * df.loc[mask2, "demand_mwh"]
+
+    df = (
+        df.pipe(_to_utc_and_tz, offset_codes=OFFSET_CODES, tz_codes=TZ_CODES)
+        .pipe(_complete_demand_timeseries)
         .loc[:, [
             "report_year",
             "utility_id_ferc714",
@@ -710,14 +675,13 @@ def pa_demand_forecast(tf_dfs):
     return tf_dfs
 
 
-def pre_transform(raw_df):
+def _pre_transform(raw_df):
     """
     A simple transform function for until the real ones are written.
 
     * Removes footnotes columns ending with _f
     * Drops report_prd, spplmnt_num, and row_num columns
     * Excludes records which pertain to bad (test) respondents.
-    * Re-names report_yr to our standard report-year
 
     """
     logger.info("Removing unneeded columns and dropping bad respondents.")
@@ -726,7 +690,7 @@ def pre_transform(raw_df):
         raw_df.filter(regex=r"^(?!.*_f$).*")
         .drop(["report_prd", "spplmnt_num", "row_num"],
               axis="columns", errors="ignore")
-        .query("utility_id_ferc714 not in @bad_respondents")
+        .query("utility_id_ferc714 not in @BAD_RESPONDENTS")
     )
     return out_df
 
@@ -773,7 +737,7 @@ def transform(raw_dfs, tables=pc.pudl_tables["ferc714"]):
         tf_dfs[table] = (
             raw_dfs[table]
             .rename(columns=RENAME_COLS[table])
-            .pipe(pre_transform)
+            .pipe(_pre_transform)
         )
         tf_dfs = tf_funcs[table](tf_dfs)
         tf_dfs[table] = (
