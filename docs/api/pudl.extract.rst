@@ -5,7 +5,6 @@ Submodules
 ----------
 
 .. toctree::
-   :maxdepth: 4
 
    pudl.extract.eia860
    pudl.extract.eia861

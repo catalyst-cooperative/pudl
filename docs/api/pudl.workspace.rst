@@ -5,7 +5,6 @@ Submodules
 ----------
 
 .. toctree::
-   :maxdepth: 4
 
    pudl.workspace.datastore
    pudl.workspace.datastore_cli
