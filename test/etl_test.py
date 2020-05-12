@@ -77,10 +77,8 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
     and field that appears in the historical FERC Form 1 data.
     """
     refyear = max(data_scope['ferc1_years'])
-    current_dbc_map = pudl.extract.ferc1.get_dbc_map(
-        year=refyear,
-        data_dir=pudl_settings_fixture['data_dir']
-    )
+    current_dbc_map = pudl.extract.ferc1.get_dbc_map(year=refyear,
+                                                     testing=True)
     current_tables = list(current_dbc_map.keys())
     logger.info(f"Checking for new, unrecognized FERC1 "
                 f"tables in {refyear}.")
@@ -131,6 +129,20 @@ def test_ferc1_solo_etl(datastore_fixture,
         pudl_settings_fixture,
         datapkg_bundle_name='ferc1-solo',
         clobber=True)
+
+
+class TestFerc1Datastore:
+    """Validate the Ferc1Datastore functions."""
+
+    ds = pudl.extract.ferc1.Ferc1Datastore(sandbox=True)
+
+    def test_ferc_folder(self):
+        """Spot check we get correct folder names per dataset year."""
+        assert ds.ferc_folder(1994) == "FORMSADMIN/FORM1/working"
+        assert ds.ferc_folder(2001) == "UPLOADERS/FORM1/working"
+        assert ds.ferc_folder(2002) == "FORMSADMIN/FORM1/working"
+        assert ds.ferc_folder(2010) == "UPLOADERS/FORM1/working"
+        assert ds.ferc_folder(2015) == "UPLOADERS/FORM1/working"
 
 
 class TestExcelExtractor:

@@ -49,7 +49,9 @@ for further processing and integration with other data sources like the EIA 860
 and EIA 923.
 
 """
+import csv
 import logging
+import importlib
 import os.path
 import re
 import string
@@ -57,12 +59,23 @@ import string
 import dbfread
 import pandas as pd
 import sqlalchemy as sa
+import zipfile
 
 import pudl
 import pudl.constants as pc
 import pudl.workspace.datastore as datastore
 
 logger = logging.getLogger(__name__)
+
+
+class Ferc1Datastore(datastore.Datastore):
+    """Provide a thin interface for pulling files from the Datastore."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def ferc_folder(self, year):
+        return 1522
 
 
 def drop_tables(engine):
@@ -155,22 +168,7 @@ def add_sqlite_table(table_name, sqlite_meta, dbc_map, data_dir,
         )
 
 
-def dbc_filename(year, data_dir):
-    """Given a year, returns the path to the master FERC Form 1 .DBC file.
-
-    Args:
-        year (int): The year that we're trying to read data for
-
-    Returns:
-        str: the file path to the master FERC Form 1 .DBC file for the year
-
-    """
-    ferc1_path = datastore.path('ferc1', data_dir=data_dir,
-                                year=year, file=False)
-    return os.path.join(ferc1_path, 'F1_PUB.DBC')
-
-
-def get_strings(filename, min_length=4):
+def get_strings(dbf, min_length=4):
     """
     Yield the printable strings from a binary file.
 
@@ -179,8 +177,7 @@ def get_strings(filename, min_length=4):
     file that is distributed with the FERC Form 1 data.
 
     Args:
-        filename (path-like): the name of the DBC file from which to extract
-            strings.
+        dbf: Contents of the DBC file from which to extract.
         min_length (int): the minimum number of consecutive printable
             characters that should be considered a meaningful string and
             extracted.
@@ -190,20 +187,56 @@ def get_strings(filename, min_length=4):
         binary file.
 
     """
-    with open(filename, errors="ignore") as f:
-        result = ""
-        for c in f.read():
-            if c in string.printable:
-                result += c
-                continue
-            if len(result) >= min_length:
-                yield result
-            result = ""
-        if len(result) >= min_length:  # catch result at EOF
+
+    def keep(it):
+        good = False
+        try:
+            if str(it) in string.printable:
+                good = True
+        except TypeError:
+            pass
+        return good
+    
+    result = ""
+    for c in dbf:
+        if keep(c):
+            result += str(c)
+            continue
+        if len(result) >= min_length:
             yield result
+        result = ""
+    if len(result) >= min_length:  # catch result at EOF
+        yield result
 
 
-def get_dbc_map(year, data_dir, min_length=4):
+def get_dbc_file(year, testing=False):
+    """
+    Retrieve F1_PUB.DBC for a given year via datastore.
+    Args:
+        year (int): Year for the form.
+    Returns:
+        bytes object of the F1_PUB.DBC contents.
+    """
+    pkg = f"pudl.package_data.meta.ferc1_row_maps"
+    dbc_path = None
+
+    with importlib.resources.open_text(pkg, "file_map.csv") as f:
+        reader = csv.DictReader(f)
+
+        for row in reader:
+            if int(row["year"]) == year:
+                dbc_path = row["path"]
+
+    if dbc_path is None:
+        raise ValueError("No ferc1 data for year %d" % year)
+
+    ds = datastore.Datastore(sandbox=testing)
+    resource = next(ds.get_resources("ferc1", year=year))
+    z = zipfile.ZipFile(resource["path"])
+    return z.read(dbc_path)
+
+
+def get_dbc_map(year, min_length=4, testing=False):
     """
     Extract names of all tables and fields from a FERC Form 1 DBC file.
 
@@ -218,8 +251,6 @@ def get_dbc_map(year, data_dir, min_length=4):
         year (int): The year of data from which the database table and column
             names are to be extracted. Typically this is expected to be the
             most recently available year of FERC Form 1 data.
-        data_dir (str): A string representing the full path to the top level of
-            the PUDL datastore containing the FERC Form 1 data to be used.
         min_length (int): The minimum number of consecutive printable
             characters that should be considered a meaningful string and
             extracted.
@@ -233,8 +264,9 @@ def get_dbc_map(year, data_dir, min_length=4):
 
     """
     # Extract all the strings longer than "min" from the DBC file
+    dbc = get_dbc_file(year, testing=testing)
     dbc_strings = list(
-        get_strings(dbc_filename(year, data_dir), min_length=min_length)
+        get_strings(dbc, min_length=min_length)
     )
 
     # Get rid of leading & trailing whitespace in the strings:

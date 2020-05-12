@@ -217,18 +217,6 @@ class GenericExtractor(object):
             raw_dfs[page] = self.process_final_page(df, page)
         return raw_dfs
 
-    def _load_excel_file(self, year, page):
-        """Returns ExcelFile object corresponding to given (year, page).
-
-        Additionally, loaded files are stored under self._file_cache for reuse.
-        """
-        full_path = self._get_file_path(year, page)
-        if full_path not in self._file_cache:
-            logger.info(
-                f'{self._dataset_name}: Loading excel file {full_path}')
-            self._file_cache[full_path] = pd.ExcelFile(full_path)
-        return self._file_cache[full_path]
-
     def load_excel_file(self, year, page, testing=False):
         """
         Produce the ExcelFile object for the given (year, page).
