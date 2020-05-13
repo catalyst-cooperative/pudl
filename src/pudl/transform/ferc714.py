@@ -585,43 +585,46 @@ def pa_demand_hourly(tf_dfs):
 
 def electricity_planning_areas(pudl_settings):
     """Electric Planning Area geometries from HIFLD."""
-    # Sadly geopandas / fiona can't read a zipfile.Path
-    shapepath = pathlib.Path(
+    gdb_path = pathlib.Path(
         pudl_settings["data_dir"],
-        "local",
-        "hifld_electric_planning_areas",
-        "data",
-        "Electric_Planning_Areas.shp"
+        "local/hifld/electric_planning_areas.gdb"
     )
-    gdf = geopandas.read_file(shapepath)
 
     gdf = (
-        gdf.assign(
+        geopandas.read_file(gdb_path)
+        .assign(
             SOURCEDATE=lambda x: pd.to_datetime(x.SOURCEDATE),
             VAL_DATE=lambda x: pd.to_datetime(x.VAL_DATE),
             ID=lambda x: pd.to_numeric(x.ID),
             NAICS_CODE=lambda x: pd.to_numeric(x.NAICS_CODE),
             YEAR=lambda x: pd.to_numeric(x.YEAR),
         )
-        .astype({
-            "OBJECTID": pd.Int64Dtype(),
-            "ID": pd.Int64Dtype(),
-            "NAME": pd.StringDtype(),
-            "COUNTRY": pd.StringDtype(),
-            "NAICS_CODE": pd.Int64Dtype(),
-            "NAICS_DESC": pd.StringDtype(),
-            "SOURCE": pd.StringDtype(),
-            "VAL_METHOD": pd.StringDtype(),
-            "WEBSITE": pd.StringDtype(),
-            "ABBRV": pd.StringDtype(),
-            "YEAR": pd.Int64Dtype(),
-            "PEAK_LOAD": float,
-            "PEAK_RANGE": float,
-            "SHAPE__Are": float,
-            "SHAPE__Len": float,
-        })
-        .set_index("OBJECTID")
+        # Hack to work around geopanda issue fixed as of v0.8.0
+        # https://github.com/geopandas/geopandas/issues/1366
+        .assign(
+            ID=lambda x: x.ID.astype(pd.Int64Dtype()),
+            NAME=lambda x: x.NAME.astype(pd.StringDtype()),
+            COUNTRY=lambda x: x.COUNTRY.astype(pd.StringDtype()),
+            NAICS_CODE=lambda x: x.NAICS_CODE.astype(pd.Int64Dtype()),
+            NAICS_DESC=lambda x: x.NAICS_DESC.astype(pd.StringDtype()),
+            SOURCE=lambda x: x.SOURCE.astype(pd.StringDtype()),
+            VAL_METHOD=lambda x: x.VAL_METHOD.astype(pd.StringDtype()),
+            WEBSITE=lambda x: x.WEBSITE.astype(pd.StringDtype()),
+            ABBRV=lambda x: x.ABBRV.astype(pd.StringDtype()),
+            YEAR=lambda x: x.YEAR.astype(pd.Int64Dtype()),
+            PEAK_LOAD=lambda x: x.PEAK_LOAD.astype(float),
+            PEAK_RANGE=lambda x: x.PEAK_RANGE.astype(float),
+            SHAPE_Length=lambda x: x.SHAPE_Length.astype(float),
+            SHAPE_Area=lambda x: x.SHAPE_Area.astype(float),
+        )
     )
+    # Need to set these IDs b/c HIFLD geometry uses EIA Balancing Authority IDs
+    # (maybe?) FERC 714 is using EIA Utility IDs. This isn't totally resolved
+    # and we need to figure out which set of IDs is getting used where.
+    gdf.loc[gdf.ID == 2775, "ID"] = 229  # CAISO
+    gdf.loc[gdf.ID == 59504, "ID"] = 17690  # Southwest Power Pool
+    gdf.loc[gdf.ID == 14379, "ID"] = 14354  # PacifiCorp East + West
+    gdf.loc[gdf.ID == 13670, "ID"] = 39347  # Northeast TX Electric Co-op
     return gdf
 
 

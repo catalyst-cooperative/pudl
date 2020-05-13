@@ -47,7 +47,7 @@ def _get_zpath(pudl_table, pudl_settings):
     """Given a table and pudl_settings, return a Path to the requested file."""
     return zipfile.Path(
         pathlib.Path(pudl_settings["data_dir"],
-                     "local/ferc714/data/ferc714.zip"),
+                     "local/ferc714/ferc714.zip"),
         TABLE_FNAME[pudl_table]
     )
 

@@ -37,10 +37,14 @@ import geopandas
 import pandas as pd
 
 
-def create_stacked_intersection_df(gdf_intermediate, gdf_source, gdf_intermediate_col="FIPS",
-                                   gdf_source_col="ID", geom_intermediate="geometry",
+def create_stacked_intersection_df(gdf_intermediate,
+                                   gdf_source,
+                                   gdf_intermediate_col="FIPS",
+                                   gdf_source_col="ID",
+                                   geom_intermediate="geometry",
                                    geom_source="geometry"):
-    """Build matrix with 1-1 mapping of intermediate and source GeoDataFrame.
+    """
+    Build matrix with 1-1 mapping of intermediate and source GeoDataFrame.
 
     Under standard convention, the source GeoDataFrame consists of the demand
     geometry and is used to map areas to an intermediate GeoDataFrame.
@@ -60,9 +64,9 @@ def create_stacked_intersection_df(gdf_intermediate, gdf_source, gdf_intermediat
         gdf_source_col(str): column to identify for gdf_source
         file_save (bool): save file option
 
-    Returns: pd.DataFrame
-        DataFrame used to map and scale attribute from one set of geometries
-        to another.
+    Returns:
+        pandas.DataFrame: DataFrame used to map and scale attribute from one
+        set of geometries to another.
 
         Columns:
             intermediate_index: unique index for intermediate geometry
@@ -72,9 +76,11 @@ def create_stacked_intersection_df(gdf_intermediate, gdf_source, gdf_intermediat
             source_intersection_fraction: area as fraction of source geometry
 
     """
-    new_df = geopandas.overlay(gdf_intermediate[[gdf_intermediate_col, geom_intermediate]],
-                               gdf_source[[gdf_source_col, geom_source]],
-                               how='intersection')
+    new_df = geopandas.overlay(
+        gdf_intermediate[[gdf_intermediate_col, geom_intermediate]],
+        gdf_source[[gdf_source_col, geom_source]],
+        how='intersection'
+    )
     new_df["area_derived"] = new_df["geometry"].area
 
     gdf_intermediate["intermediate_area_derived"] = gdf_intermediate[geom_intermediate].area
@@ -100,8 +106,12 @@ def create_stacked_intersection_df(gdf_intermediate, gdf_source, gdf_intermediat
     return new_df
 
 
-def create_intersection_matrix(gdf_intersection, gdf_intersection_col="gdf_intermediate_intersection_fraction",
-                               gdf_intermediate_col="FIPS", gdf_source_col="ID", normalization=True, normalize_axis=1):
+def create_intersection_matrix(gdf_intersection,
+                               gdf_intersection_col="gdf_intermediate_intersection_fraction",
+                               gdf_intermediate_col="FIPS",
+                               gdf_source_col="ID",
+                               normalization=True,
+                               normalize_axis=1):
     """
     Pivots stacked dataframe to an intersection matrix.
 
@@ -110,28 +120,28 @@ def create_intersection_matrix(gdf_intersection, gdf_intersection_col="gdf_inter
     (To normalize double-counting)
 
     Args:
-        gdf_intersection (pd.DataFrame): stacked dataframe with every one-one
-            mapping of intermediate ids
+        gdf_intersection (pandas.DataFrame): stacked dataframe with every
+            one-to-one mapping of intermediate ids.
         gdf_intersection_col (str): name of the column of the area intersection
             fraction. (Usually the fraction along the column you want to
             normalize. Generally makes sense to do it along the distinct and
             disjoint column like census tracts)
-
         gdf_intermediate_col (str): ID name of intermediate gdf
         gdf_source_col (str): ID name of source gdf
-
         normalize_axis (int): 1 for normalizing along intermediate axis
             (generally); 0 for normalizing along source axis
 
-    Returns: pd.DataFrame
-        matrix which consists the intersection value
-        for every intermediate geometry i and source geometry j at index i, j
+    Returns:
+        pandas.DataFrame: matrix which consists the intersection value for
+        every intermediate geometry i and source geometry j at index i, j
 
     """
-    intersection_matrix = gdf_intersection.pivot_table(values=gdf_intersection_col,
-                                                       index=gdf_intermediate_col,
-                                                       columns=gdf_source_col,
-                                                       fill_value=0)
+    intersection_matrix = gdf_intersection.pivot_table(
+        values=gdf_intersection_col,
+        index=gdf_intermediate_col,
+        columns=gdf_source_col,
+        fill_value=0
+    )
 
     if normalization is True:
         intersection_matrix = intersection_matrix.divide(intersection_matrix.sum(axis=normalize_axis),
@@ -140,7 +150,10 @@ def create_intersection_matrix(gdf_intersection, gdf_intersection_col="gdf_inter
     return intersection_matrix
 
 
-def matrix_linear_scaling(intersection_matrix, gdf_scale, gdf_scale_col="POPULATION", axis_scale=1,
+def matrix_linear_scaling(intersection_matrix,
+                          gdf_scale,
+                          gdf_scale_col="POPULATION",
+                          axis_scale=1,
                           normalize=True):
     """
     Scales matrix by a vector with or without normalization.
@@ -153,20 +166,19 @@ def matrix_linear_scaling(intersection_matrix, gdf_scale, gdf_scale_col="POPULAT
     appropriate dataframe, scale_col="demand_mwh"
 
     Args:
-        intersection_matrix (pd.DataFrame): matrix with every one-one mapping of
-            two different geometry IDs
-        gdf_scale (pd.DataFrame): dataframe with the appropriate scaling data
-        gdf_scale_col (str): name of the column being allocated (needs same name
-            in dataframe and matrix)
-
+        intersection_matrix (pandas.DataFrame): matrix with every one-one
+            mapping of two different geometry IDs
+        gdf_scale (pandas.DataFrame): dataframe with appropriate scaling data
+        gdf_scale_col (str): name of the column being allocated (needs same
+            name in dataframe and matrix)
         axis_scale (int): axis of normalization and demand allocation
             1 if data being multiplied to rows
             0 if data being multiplied to columns
-
         normalize (bool): normalize along the axis mentioned
 
-    Returns: pd.DataFrame
-        Intersection matrix scaled by vector (row-wise or column-wise)
+    Returns:
+        pandas.DataFrame: Intersection matrix scaled by vector (row-wise or
+        column-wise)
 
     """
     if axis_scale == 1:
@@ -178,12 +190,12 @@ def matrix_linear_scaling(intersection_matrix, gdf_scale, gdf_scale_col="POPULAT
         index_name = intersection_matrix.columns.name
 
     if normalize is True:
+        intersection_matrix = intersection_matrix.divide(
+            intersection_matrix.sum(axis=axis_scale), axis=(1 - axis_scale))
 
-        intersection_matrix = intersection_matrix.divide(intersection_matrix.sum(axis=axis_scale),
-                                                         axis=int(not axis_scale))
-
-    return intersection_matrix.multiply(gdf_scale[gdf_scale[index_name].isin(unique_index)]
-                                        .set_index(index_name)[gdf_scale_col], axis=int(not axis_scale))
+    return intersection_matrix.multiply(
+        gdf_scale[gdf_scale[index_name].isin(unique_index)]
+        .set_index(index_name)[gdf_scale_col], axis=(1 - axis_scale))
 
 
 def extract_multiple_tracts_demand_ratios(pop_norm_df, intermediate_ids):
@@ -202,13 +214,13 @@ def extract_multiple_tracts_demand_ratios(pop_norm_df, intermediate_ids):
         step to outputting time series of intermediate/source demands
 
     Args:
-        pop_norm_df (pd.DataFrame): matrix mapping between source and
+        pop_norm_df (pandas.DataFrame): matrix mapping between source and
             target/intermediate IDs (usually normalized population matrix)
         intermediate_ids (list): list of tract or other intermediate IDs
 
-    Returns: dict
-        Dictionary of keys demand area IDs and the fraction of demand allocated
-        to the list of intermediate geometry IDs
+    Returns:
+        dict: Dictionary of keys demand area IDs and the fraction of demand
+        allocated to the list of intermediate geometry IDs
 
     """
     intermediate_demand_ratio_dict = pop_norm_df.loc[intermediate_ids].sum(
@@ -217,9 +229,12 @@ def extract_multiple_tracts_demand_ratios(pop_norm_df, intermediate_ids):
     return {k: v / dict_area[k] for k, v in intermediate_demand_ratio_dict.items() if v != 0}
 
 
-def extract_time_series_demand_multiple_tracts(ferc_df, pop_norm_df,
-                                               ferc_df_col, intermediate_ids,
-                                               time_col, demand_col):
+def extract_time_series_demand_multiple_tracts(ferc_df,
+                                               pop_norm_df,
+                                               ferc_df_col,
+                                               intermediate_ids,
+                                               time_col,
+                                               demand_col):
     """
     Map time series from source geometry to intermediate/target geometry.
 
@@ -229,23 +244,28 @@ def extract_time_series_demand_multiple_tracts(ferc_df, pop_norm_df,
     single time series with aggregated demand of the intermediate/target IDs
 
     Args:
-        ferc_df (pd.DataFrame): dataframe with time-stamped demand data for each
-        of the source IDs
-        pop_norm_df (pd.DataFrame): matrix mapping between source and
-            target/intermediate IDs (usually normalized population matrix)
-        ferc_df_col (str): name of source ID column
-        intermediate_ids (list): list of tract or other intermediate IDs
-        time_col (str): name of datetime column in ferc_df
-        demand_col (str): name of demand column
+        ferc_df (pandas.DataFrame): dataframe with time-stamped demand data for
+            each of the source IDs.
+        pop_norm_df (pandas.DataFrame): matrix mapping between source and
+            target/intermediate IDs (usually normalized population matrix).
+        ferc_df_col (str): name of source ID column.
+        intermediate_ids (list): list of tract or other intermediate IDs.
+        time_col (str): name of datetime column in ferc_df>
+        demand_col (str): name of demand column.
 
-    Returns: pd.DataFrame
-        Dataframe with datetime and subsequent demand for list of target or
-        intermediate IDs
+    Returns:
+        pandas.DataFrame: A Dataframe with datetime and subsequent demand for
+        list of target or intermediate IDs.
 
     """
     ratio_dict = extract_multiple_tracts_demand_ratios(
         pop_norm_df, intermediate_ids)
     ferc_df_trunc = ferc_df[ferc_df[ferc_df_col].isin(ratio_dict.keys())]
-    return ferc_df_trunc.pivot_table(index=time_col,
-                                     columns=ferc_df_col,
-                                     values=demand_col).fillna(0).dot(pd.Series(ratio_dict))
+    out_df = ferc_df_trunc.pivot_table(
+        index=time_col,
+        columns=ferc_df_col,
+        values=demand_col
+    )
+    out_df = out_df.fillna(0)
+    out_df = out_df.dot(pd.Series(ratio_dict))
+    return out_df

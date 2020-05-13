@@ -2546,6 +2546,7 @@ column_dtypes = {
         'ash_impoundment_status': pd.StringDtype(),
         'associated_combined_heat_power': pd.BooleanDtype(),
         'balancing_authority_code': pd.StringDtype(),
+        'balancing_authority_id_eia': pd.Int64Dtype(),
         'balancing_authority_name': pd.StringDtype(),
         'bga_source': pd.StringDtype(),
         'boiler_id': pd.StringDtype(),
