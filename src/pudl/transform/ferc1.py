@@ -549,7 +549,7 @@ def plants_steam_validate_ids(ferc1_steam_df):
             )
     else:
         logger.info(
-            f"No duplicate years found in any plant_id_ferc1. Hooray!"
+            "No duplicate years found in any plant_id_ferc1. Hooray!"
         )
 
 
