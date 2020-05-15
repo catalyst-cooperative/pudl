@@ -75,9 +75,9 @@ def datapkg_to_sqlite(sqlite_url, out_path, clobber=False):
     except KeyError:
         autoincrement = {}
 
-    logger.info(f"Loading merged datapackage into SQLite.")
+    logger.info("Loading merged datapackage into SQLite.")
     logger.info("This could take a while. It might be a good time")
-    logger.info(f"to get a drink of water. Hydrate or die!")
+    logger.info("to get a drink of water. Hydrate or die!")
     try:
         # Save the data package in SQL
         pkg.save(storage='sql', engine=pudl_engine, merge_groups=True,
@@ -145,7 +145,7 @@ def main():
     logger.info(f"pudl_in={pudl_settings['pudl_in']}")
     logger.info(f"pudl_out={pudl_settings['pudl_out']}")
 
-    logger.info(f"Merging datapackages.")
+    logger.info("Merging datapackages.")
     # Verify that the input data package descriptors exist, and if so create
     # datapackage objects using them:
     dps = []
@@ -168,10 +168,10 @@ def main():
     merge_datapkgs(dps, out_path, clobber=args.clobber)
 
     if args.load_sqlite is True:
-        logger.info(f"Loading merged datapackage into an SQLite database.")
+        logger.info("Loading merged datapackage into an SQLite database.")
         datapkg_to_sqlite(
             pudl_settings['pudl_db'], out_path, clobber=args.clobber)
-        logger.info(f"Success! You can connect to the PUDL DB at this URL:")
+        logger.info("Success! You can connect to the PUDL DB at this URL:")
         logger.info(f"{pudl_settings['pudl_db']}")
     else:
-        logger.info(f"Not loading merged datapackage into SQLite database.")
+        logger.info("Not loading merged datapackage into SQLite database.")

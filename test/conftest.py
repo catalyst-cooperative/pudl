@@ -341,7 +341,7 @@ def datastore_fixture(pudl_settings_fixture, data_scope):
     # Sadly, FERC & EPA only provide access to their data via FTP, and it's
     # not possible to use FTP from within the Travis CI environment:
     if os.getenv('TRAVIS'):
-        logger.info(f"Building a special Travis CI datastore for PUDL.")
+        logger.info("Building a special Travis CI datastore for PUDL.")
         # Simulate having downloaded the data...
         dl_dir = pathlib.Path(pudl_settings_fixture['data_dir'], 'tmp')
 

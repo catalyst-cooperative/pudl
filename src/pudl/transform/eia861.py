@@ -209,6 +209,33 @@ def service_territory(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
+def balancing_authority(raw_dfs, tfr_dfs):
+    """
+    Transform the EIA 861 Balancing Authority table.
+
+    Args:
+        raw_dfs (dict): Each entry in this dictionary of DataFrame objects
+            corresponds to a page from the EIA861 form, as reported in the
+            Excel spreadsheets they distribute.
+        tfr_dfs (dict): A dictionary of DataFrame objects in
+            which pages from EIA861 form (keys) correspond to normalized
+            DataFrames of values from that page (values)
+
+    Returns:
+        dict: a dictionary of pandas.DataFrame objects in
+        which pages from EIA861 form (keys) correspond to normalized
+        DataFrames of values from that page (values)
+
+    """
+    df = (
+        raw_dfs["balancing_authority_eia861"]
+        .pipe(pudl.helpers.convert_cols_dtypes,
+              "eia", "balancing_authority_eia861")
+    )
+    tfr_dfs["balancing_authority_eia861"] = df
+    return tfr_dfs
+
+
 def transform(raw_dfs, tables=pc.pudl_tables["eia861"]):
     """
     Transforms EIA 860 DataFrames.
