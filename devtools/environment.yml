@@ -22,6 +22,7 @@ dependencies:
   - jedi                # dev
   - jupyter             # user
   - jupyterlab          # user
+  - lxml                # dev -- used for pd.read_html
   - matplotlib          # base
   - nbdime              # dev
   - nbval               # dev
@@ -35,6 +36,7 @@ dependencies:
   - pre_commit          # dev
   - pyarrow>=0.16       # base Nullable pandas types work w/ 0.16 and later
   - pydocstyle          # dev
+  - pysal               # user (required for making maps w/ geopandas)
   - pytest              # dev
   - pytest-cov          # dev
   - python>=3.8         # N/A zipfile.Path() use requires 3.8

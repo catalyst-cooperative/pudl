@@ -229,43 +229,66 @@ def extract_multiple_tracts_demand_ratios(pop_norm_df, intermediate_ids):
     return {k: v / dict_area[k] for k, v in intermediate_demand_ratio_dict.items() if v != 0}
 
 
-def extract_time_series_demand_multiple_tracts(ferc_df,
-                                               pop_norm_df,
-                                               ferc_df_col,
-                                               intermediate_ids,
+def extract_time_series_demand_multiple_tracts(demand_df,
+                                               demand_id_col,
+                                               demand_col,
                                                time_col,
-                                               demand_col):
+                                               normed_weights,
+                                               target_ids):
     """
-    Map time series from source geometry to intermediate/target geometry.
+    Re-allocate demand in a time series from source to target geometries.
 
-    Inputs time series of demand areas, appropriate scaled intersection mapping
-    matrix, source geometry ID column, list of intermediate/source geometry
-    IDs, name of datetime column, demand column name in time series. Outputs
-    single time series with aggregated demand of the intermediate/target IDs
+    Note that this function is used both to allocate demand from large source
+    areas to smaller geometries (according to some geogrpahically varying
+    attribute associated with those smaller geometries), and to aggregate the
+    allocated demand back together into larger geometries of interest (e.g.
+    the areas whose load curves will be used as constraings on electricity
+    system modeling.)
 
     Args:
-        ferc_df (pandas.DataFrame): dataframe with time-stamped demand data for
-            each of the source IDs.
-        pop_norm_df (pandas.DataFrame): matrix mapping between source and
-            target/intermediate IDs (usually normalized population matrix).
-        ferc_df_col (str): name of source ID column.
-        intermediate_ids (list): list of tract or other intermediate IDs.
-        time_col (str): name of datetime column in ferc_df>
-        demand_col (str): name of demand column.
+        demand_df (pandas.DataFrame): An electricity demand time series
+            containing data from multiple demand areas, each of which is
+            identified by its own ID. Which column contains the ID is
+            specified with the ferc_df_col parameter. Which column contains
+            the timestamp is specified with the time_col parameter.
+        demand_id_col (str): The label of the column in demand_df
+            which contains the demand area IDs.
+        demand_col (str): Name of the column containing the reported
+            electricity demand in demand_df.
+        time_col (str): Label of the column containing timestamps in
+            demand_df.
+        normed_weights (pandas.DataFrame): Dataframe containing normalized
+            values of the attribute being used to allocate demand
+            geographically, for the intersection of the demand area (column)
+            and the target area (row). Column labels are the IDs of the demand
+            areas (e.g. FERC 714 planning areas). Row labels are the IDs of
+            target geometries whose attributes are being used to allocate
+            demand (e.g. the FIPS IDs of census tracts for population based
+            demand allocation). The demand area IDs found in the column labels
+            must be a subset of the demand area IDs found in the timeseries
+            dataframe demand_df.
+
+        target_ids (list): A list of IDs associated with the target
+            geometries whose attributes are being used to allocate demand (e.g.
+            census tract FIPS IDs). These IDs must be a subset of the IDs
+            found in the row index of normed_weights.
 
     Returns:
-        pandas.DataFrame: A Dataframe with datetime and subsequent demand for
-        list of target or intermediate IDs.
+        pandas.DataFrame: An electricity demand time series analogous to the
+        input time series, but with demand allocated to the geometries
+        identified by the intermediate_ids.
 
     """
     ratio_dict = extract_multiple_tracts_demand_ratios(
-        pop_norm_df, intermediate_ids)
-    ferc_df_trunc = ferc_df[ferc_df[ferc_df_col].isin(ratio_dict.keys())]
-    out_df = ferc_df_trunc.pivot_table(
-        index=time_col,
-        columns=ferc_df_col,
-        values=demand_col
+        normed_weights, target_ids)
+    demand_trunc = demand_df[demand_df[demand_id_col].isin(ratio_dict.keys())]
+    out_df = (
+        demand_trunc.pivot_table(
+            index=time_col,
+            columns=demand_id_col,
+            values=demand_col
+        )
+        .fillna(0)
+        .dot(pd.Series(ratio_dict))
     )
-    out_df = out_df.fillna(0)
-    out_df = out_df.dot(pd.Series(ratio_dict))
     return out_df
