@@ -22,7 +22,7 @@ def test_fuel_for_electricity(pudl_out_eia, live_pudl_db):
 
     if excess_fuel.any():
         raise ValueError(
-            f"Fuel consumed for electricity is greater than all fuel consumed!"
+            "Fuel consumed for electricity is greater than all fuel consumed!"
         )
 
 
