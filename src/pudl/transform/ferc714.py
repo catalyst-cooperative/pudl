@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 ##############################################################################
 
 # More detailed fixes on a per respondent basis
-TZ_FIXES = {
+OFFSET_CODE_FIXES = {
     102: {"CPT": "CST"},
     110: {"CPT": "EST"},
     115: {"MS": "MST"},
@@ -145,6 +145,29 @@ TZ_FIXES = {
     },
 }
 
+OFFSET_CODE_FIXES_BY_YEAR = [
+    {
+        "utility_id_ferc714": 139,
+        "report_year": 2006,
+        "utc_offset_code": "PST"
+    },
+    {
+        "utility_id_ferc714": 235,
+        "report_year": 2015,
+        "utc_offset_code": "MST"
+    },
+    {
+        "utility_id_ferc714": 289,
+        "report_year": 2011,
+        "utc_offset_code": "CST"
+    },
+    {
+        "utility_id_ferc714": 292,
+        "report_year": 2011,
+        "utc_offset_code": "CST"
+    },
+]
+
 BAD_RESPONDENTS = [
     319,
     99991,
@@ -208,13 +231,13 @@ RENAME_COLS = {
         "respondent_name": "utility_name_ferc714",
         "eia_code": "utility_id_eia",
     },
-    "pa_demand_hourly_ferc714": {
+    "demand_hourly_pa_ferc714": {
         "report_yr": "report_year",
         "plan_date": "report_date",
         "respondent_id": "utility_id_ferc714",
         "timezone": "utc_offset_code",
     },
-    "pa_description_ferc714": {
+    "description_pa_ferc714": {
         "report_yr": "report_year",
         "respondent_id": "utility_id_ferc714",
         "elec_util_name": "utility_name_ferc714",
@@ -225,27 +248,27 @@ RENAME_COLS = {
         "report_yr": "report_year",
         "respondent_id": "utility_id_ferc714",
     },
-    "ba_gen_plants_ferc714": {
+    "gen_plants_ba_ferc714": {
         "report_yr": "report_year",
         "respondent_id": "utility_id_ferc714",
     },
-    "ba_demand_monthly_ferc714": {
+    "demand_monthly_ba_ferc714": {
         "report_yr": "report_year",
         "respondent_id": "utility_id_ferc714",
     },
-    "ba_net_energy_load_ferc714": {
+    "net_energy_load_ba_ferc714": {
         "report_yr": "report_year",
         "respondent_id": "utility_id_ferc714",
     },
-    "adjacent_bas_ferc714": {
+    "adjacency_ba_ferc714": {
         "report_yr": "report_year",
         "respondent_id": "utility_id_ferc714",
     },
-    "ba_interchange_ferc714": {
+    "interchange_ba_ferc714": {
         "report_yr": "report_year",
         "respondent_id": "utility_id_ferc714",
     },
-    "ba_lambda_hourly_ferc714": {
+    "lambda_hourly_ba_ferc714": {
         "report_yr": "report_year",
         "respondent_id": "utility_id_ferc714",
     },
@@ -253,7 +276,7 @@ RENAME_COLS = {
         "report_yr": "report_year",
         "respondent_id": "utility_id_ferc714",
     },
-    "pa_demand_forecast_ferc714": {
+    "demand_forecast_pa_ferc714": {
         "report_yr": "report_year",
         "respondent_id": "utility_id_ferc714",
     },
@@ -267,12 +290,11 @@ RENAME_COLS = {
 def _hours_to_ints(col_name):
     """A macro to rename hourly demand columns."""
     if re.match(r"^hour\d\d$", col_name):
-        return int(col_name[4:])
-    else:
-        return col_name
+        col_name = int(col_name[4:])
+    return col_name
 
 
-def _standardize_offset_codes(df, tz_fixes):
+def _standardize_offset_codes(df, offset_fixes):
     """
     Convert to standardized UTC offset abbreviations.
 
@@ -295,7 +317,7 @@ def _standardize_offset_codes(df, tz_fixes):
 
     In some cases different respondents use the same non-standard abbreviations
     to indicate different offsets, and so the fixes are applied on a
-    per-respondent basis, as defined by tz_fixes.
+    per-respondent basis, as defined by offset_fixes.
 
     UTC offset codes which are originally NA or the empty string are replaced
     with a temporary sentinel value, the string "XXX".
@@ -303,7 +325,7 @@ def _standardize_offset_codes(df, tz_fixes):
     Args:
         df (pandas.DataFrame): A DataFrame containing a utc_offset_code column
             that needs to be standardized.
-        tz_fixes (dict): A dictionary with utility_id_ferc714 values as the
+        offset_fixes (dict): A dictionary with utility_id_ferc714 values as the
             keys, and a dictionary mapping non-standard UTC offset codes to
             the standardized UTC offset codes as the value.
 
@@ -319,11 +341,11 @@ def _standardize_offset_codes(df, tz_fixes):
         df.utc_offset_code.replace(to_replace={np.nan: "XXX", "": "XXX"})
     )
     # Apply specific fixes on a per-respondent basis:
-    for rid in tz_fixes:
-        for orig_tz in tz_fixes[rid]:
+    for rid in offset_fixes:
+        for orig_tz in offset_fixes[rid]:
             df.loc[(
                 (df.utility_id_ferc714 == rid) &
-                (df["utc_offset_code"] == orig_tz)), "utc_offset_code"] = tz_fixes[rid][orig_tz]
+                (df["utc_offset_code"] == orig_tz)), "utc_offset_code"] = offset_fixes[rid][orig_tz]
 
     return df
 
@@ -464,7 +486,7 @@ def _complete_demand_timeseries(pa_demand):
     return new_df
 
 
-def respondent_id(tf_dfs):
+def respondent_id(tfr_dfs):
     """
     Transform the FERC 714 respondent IDs, names, and EIA utility IDs.
 
@@ -474,7 +496,7 @@ def respondent_id(tf_dfs):
     IDs provided by FERC for some reason (including PacifiCorp).
 
     Args:
-        tf_dfs (dict): A dictionary of (partially) transformed dataframes,
+        tfr_dfs (dict): A dictionary of (partially) transformed dataframes,
             to be cleaned up.
 
     Returns:
@@ -483,7 +505,7 @@ def respondent_id(tf_dfs):
 
     """
     df = (
-        tf_dfs["respondent_id_ferc714"].assign(
+        tfr_dfs["respondent_id_ferc714"].assign(
             utility_name_ferc714=lambda x: x.utility_name_ferc714.str.strip(),
             utility_id_eia=lambda x: x.utility_id_eia.replace(
                 to_replace=0, value=pd.NA)
@@ -495,16 +517,16 @@ def respondent_id(tf_dfs):
     for rid in MISSING_UTILITY_ID_EIA:
         df.loc[df.utility_id_ferc714 == rid,
                "utility_id_eia"] = MISSING_UTILITY_ID_EIA[rid]
-    tf_dfs["respondent_id_ferc714"] = df
-    return tf_dfs
+    tfr_dfs["respondent_id_ferc714"] = df
+    return tfr_dfs
 
 
-def pa_demand_hourly(tf_dfs):
+def demand_hourly_pa(tfr_dfs):
     """
     Transform the hourly demand time series by Planning Area.
 
     Args:
-        tf_dfs (dict): A dictionary of (partially) transformed dataframes,
+        tfr_dfs (dict): A dictionary of (partially) transformed dataframes,
             to be cleaned up.
 
     Returns:
@@ -514,7 +536,7 @@ def pa_demand_hourly(tf_dfs):
     """
     logger.info("Converting dates into pandas Datetime types.")
     df = (
-        tf_dfs["pa_demand_hourly_ferc714"].assign(
+        tfr_dfs["demand_hourly_pa_ferc714"].assign(
             report_date=lambda x: pd.to_datetime(x.report_date),
             utc_offset_code=lambda x: x.utc_offset_code.str.upper().str.strip(),
         )
@@ -532,7 +554,7 @@ def pa_demand_hourly(tf_dfs):
     _log_dupes(df, ["utility_id_ferc714", "report_date", "hour"])
 
     df = (
-        df.pipe(_standardize_offset_codes, tz_fixes=TZ_FIXES)
+        df.pipe(_standardize_offset_codes, offset_fixes=OFFSET_CODE_FIXES)
         # Discard records lacking *both* UTC offset code and non-zero demand
         # In practice, this should be *all* of the XXX records, but we're being
         # conservative, in case something changes / goes wrong. We want to
@@ -549,15 +571,12 @@ def pa_demand_hourly(tf_dfs):
         )
     )
 
-    # Set a few year-specific offset codes:
-    df.loc[(df.report_year == 2006) & (
-        df.utility_id_ferc714 == 139), "utc_offset_code"] = "PST"
-    df.loc[(df.report_year == 2015) & (
-        df.utility_id_ferc714 == 235), "utc_offset_code"] = "MST"
-    df.loc[(df.report_year == 2011) & (
-        df.utility_id_ferc714 == 289), "utc_offset_code"] = "CST"
-    df.loc[(df.report_year == 2011) & (
-        df.utility_id_ferc714 == 292), "utc_offset_code"] = "CST"
+    for fix in OFFSET_CODE_FIXES_BY_YEAR:
+        mask = (
+            (df.report_year == fix["report_year"]) &
+            (df.utility_id_ferc714 == fix["utility_id_ferc714"])
+        )
+        df.loc[mask, "utc_offset_code"] = fix["utc_offset_code"]
 
     # Flip the sign on two sections of demand which were reported as negative:
     mask1 = (df.report_year.isin([2006, 2007, 2008, 2009])) & (
@@ -579,8 +598,8 @@ def pa_demand_hourly(tf_dfs):
         ]]
         .sort_values(["utility_id_ferc714", "utc_datetime"])
     )
-    tf_dfs["pa_demand_hourly_ferc714"] = df
-    return tf_dfs
+    tfr_dfs["demand_hourly_pa_ferc714"] = df
+    return tfr_dfs
 
 
 def electricity_planning_areas(pudl_settings):
@@ -628,54 +647,54 @@ def electricity_planning_areas(pudl_settings):
     return gdf
 
 
-def id_certification(tf_dfs):
+def id_certification(tfr_dfs):
     """A stub transform function."""
-    return tf_dfs
+    return tfr_dfs
 
 
-def ba_gen_plants(tf_dfs):
+def gen_plants_ba(tfr_dfs):
     """A stub transform function."""
-    return tf_dfs
+    return tfr_dfs
 
 
-def ba_demand_monthly(tf_dfs):
+def demand_monthly_ba(tfr_dfs):
     """A stub transform function."""
-    return tf_dfs
+    return tfr_dfs
 
 
-def ba_net_energy_load(tf_dfs):
+def net_energy_load_ba(tfr_dfs):
     """A stub transform function."""
-    return tf_dfs
+    return tfr_dfs
 
 
-def adjacent_bas(tf_dfs):
+def adjacency_ba(tfr_dfs):
     """A stub transform function."""
-    return tf_dfs
+    return tfr_dfs
 
 
-def ba_interchange(tf_dfs):
+def interchange_ba(tfr_dfs):
     """A stub transform function."""
-    return tf_dfs
+    return tfr_dfs
 
 
-def ba_lambda_hourly(tf_dfs):
+def lambda_hourly_ba(tfr_dfs):
     """A stub transform function."""
-    return tf_dfs
+    return tfr_dfs
 
 
-def lambda_description(tf_dfs):
+def lambda_description(tfr_dfs):
     """A stub transform function."""
-    return tf_dfs
+    return tfr_dfs
 
 
-def pa_description(tf_dfs):
+def description_pa(tfr_dfs):
     """A stub transform function."""
-    return tf_dfs
+    return tfr_dfs
 
 
-def pa_demand_forecast(tf_dfs):
+def demand_forecast_pa(tfr_dfs):
     """A stub transform function."""
-    return tf_dfs
+    return tfr_dfs
 
 
 def _pre_transform(raw_df):
@@ -714,22 +733,22 @@ def transform(raw_dfs, tables=pc.pudl_tables["ferc714"]):
         output in a data package / database table.
 
     """
-    tf_funcs = {
+    tfr_funcs = {
         "respondent_id_ferc714": respondent_id,
-        "pa_demand_hourly_ferc714": pa_demand_hourly,
-        "pa_description_ferc714": pa_description,
+        "demand_hourly_pa_ferc714": demand_hourly_pa,
+        "description_pa_ferc714": description_pa,
         # These tables have yet to be cleaned up fully.
         "id_certification_ferc714": id_certification,
-        "ba_gen_plants_ferc714": ba_gen_plants,
-        "ba_demand_monthly_ferc714": ba_demand_monthly,
-        "ba_net_energy_load_ferc714": ba_net_energy_load,
-        "adjacent_bas_ferc714": adjacent_bas,
-        "ba_interchange_ferc714": ba_interchange,
-        "ba_lambda_hourly_ferc714": ba_lambda_hourly,
+        "gen_plants_ba_ferc714": gen_plants_ba,
+        "demand_monthly_ba_ferc714": demand_monthly_ba,
+        "net_energy_load_ba_ferc714": net_energy_load_ba,
+        "adjacency_ba_ferc714": adjacency_ba,
+        "interchange_ba_ferc714": interchange_ba,
+        "lambda_hourly_ba_ferc714": lambda_hourly_ba,
         "lambda_description_ferc714": lambda_description,
-        "pa_demand_forecast_ferc714": pa_demand_forecast,
+        "demand_forecast_pa_ferc714": demand_forecast_pa,
     }
-    tf_dfs = {}
+    tfr_dfs = {}
     for table in tables:
         if table not in pc.pudl_tables["ferc714"]:
             raise ValueError(
@@ -737,13 +756,13 @@ def transform(raw_dfs, tables=pc.pudl_tables["ferc714"]):
                 f"data table {table}!"
             )
         logger.info(f"Transforming {table}.")
-        tf_dfs[table] = (
+        tfr_dfs[table] = (
             raw_dfs[table]
             .rename(columns=RENAME_COLS[table])
             .pipe(_pre_transform)
         )
-        tf_dfs = tf_funcs[table](tf_dfs)
-        tf_dfs[table] = (
-            pudl.helpers.convert_cols_dtypes(tf_dfs[table], "ferc714", table)
+        tfr_dfs = tfr_funcs[table](tfr_dfs)
+        tfr_dfs[table] = (
+            pudl.helpers.convert_cols_dtypes(tfr_dfs[table], "ferc714", table)
         )
-    return tf_dfs
+    return tfr_dfs

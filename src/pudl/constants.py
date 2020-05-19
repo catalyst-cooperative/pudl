@@ -979,16 +979,16 @@ ferc1_pudl_tables = (
 ferc714_pudl_tables = (
     "respondent_id_ferc714",
     "id_certification_ferc714",
-    "ba_gen_plants_ferc714",
-    "ba_demand_monthly_ferc714",
-    "ba_net_energy_load_ferc714",
-    "adjacent_bas_ferc714",
-    "ba_interchange_ferc714",
-    "ba_lambda_hourly_ferc714",
+    "gen_plants_ba_ferc714",
+    "demand_monthly_ba_ferc714",
+    "net_energy_load_ba_ferc714",
+    "adjacency_ba_ferc714",
+    "interchange_ba_ferc714",
+    "lambda_hourly_ba_ferc714",
     "lambda_description_ferc714",
-    "pa_description_ferc714",
-    "pa_demand_forecast_ferc714",
-    "pa_demand_hourly_ferc714",
+    "description_pa_ferc714",
+    "demand_forecast_pa_ferc714",
+    "demand_hourly_pa_ferc714",
 )
 
 table_map_ferc1_pudl = {
