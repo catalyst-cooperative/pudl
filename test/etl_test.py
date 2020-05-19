@@ -131,3 +131,47 @@ def test_ferc1_solo_etl(datastore_fixture,
         pudl_settings_fixture,
         datapkg_bundle_name='ferc1-solo',
         clobber=True)
+
+
+class TestExcelExtractor:
+    """Verify that we can lead excel files as provided via the datastore."""
+
+    def test_excel_filename_eia860(self):
+        """Spot check eia860 extractor gets the correct excel sheet names."""
+        extractor = pudl.extract.eia860.Extractor()
+        assert extractor.excel_filename(
+            2011, "boiler_generator_assn") == "EnviroAssocY2011.xlsx"
+        assert extractor.excel_filename(
+            2016, "generator_retired") == "3_1_Generator_Y2016.xlsx"
+        assert extractor.excel_filename(
+            2018, "utility") == "1___Utility_Y2018.xlsx"
+
+    def test_excel_filename_eia923(self):
+        """Spot check eia923 extractor gets the correct excel sheet names."""
+        extractor = pudl.extract.eia923.Extractor()
+        assert extractor.excel_filename(2009, "plant_frame") == \
+            "EIA923 SCHEDULES 2_3_4_5 M Final 2009 REVISED 05252011.XLS"
+        assert extractor.excel_filename(2019, "energy_storage") == \
+            "EIA923_Schedules_2_3_4_5_M_11_2019_21JAN2020.xlsx"
+        assert extractor.excel_filename(2012, "puerto_rico") == \
+            "EIA923_Schedules_2_3_4_5_M_12_2012_Final_Revision.xlsx"
+
+    def test_extract_eia860(self):
+        """Spot check extraction of eia860 excel files."""
+        extractor = pudl.extract.eia860.Extractor()
+        assert "Utility" in extractor.load_excel_file(
+            2015, "utility", testing=True).sheet_names
+        assert "Retired and Canceled" in extractor.load_excel_file(
+            2012, "generator_proposed", testing=True).sheet_names
+        assert "OwnerY09" in extractor.load_excel_file(
+            2009, "ownership", testing=True).sheet_names
+
+    def test_extract_eia923(self):
+        """Spot check extraction eia923 excel files."""
+        extractor = pudl.extract.eia923.Extractor()
+        assert "Page 4 Generator Data" in extractor.load_excel_file(
+            2013, "boiler_fuel", testing=True).sheet_names
+        assert "Page 7 File Layout" in extractor.load_excel_file(
+            2016, "oil_stocks", testing=True).sheet_names
+        assert "Page 3 Boiler Fuel Data" in extractor.load_excel_file(
+            2019, "stocks", testing=True).sheet_names

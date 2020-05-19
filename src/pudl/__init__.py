@@ -15,6 +15,7 @@ import pudl.convert.ferc1_to_sqlite
 import pudl.convert.merge_datapkgs
 import pudl.etl
 import pudl.extract.eia860
+import pudl.extract.eia861
 import pudl.extract.eia923
 import pudl.extract.epacems
 import pudl.extract.epaipm

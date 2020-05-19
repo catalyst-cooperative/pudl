@@ -32,11 +32,11 @@ class Extractor(excel.GenericExtractor):
         """Returns filename glob (same for all pages and years)."""
         return '*2_3_4*'
 
-    @staticmethod
-    def process_raw(df, year, page):
+    def process_raw(self, df, year, page):
         """Drops reserved columns."""
         to_drop = [c for c in df.columns if c[:8] == 'reserved']
         df.drop(to_drop, axis=1, inplace=True)
+        df = df.rename(columns=self._metadata.get_column_map(year, page))
         return df
 
     @staticmethod
