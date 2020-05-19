@@ -1156,6 +1156,7 @@ def transform(ferc1_raw_dfs, ferc1_tables=pc.pudl_tables['ferc1']):
 
     Returns:
         dict: A dictionary of the transformed DataFrames.
+
     """
     ferc1_transform_functions = {
         # fuel must come before steam b/c fuel proportions are used to aid in

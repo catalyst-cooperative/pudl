@@ -6,6 +6,7 @@ Submodules
 
 .. toctree::
 
+   pudl.analysis.demand_mapping
    pudl.analysis.mcoe
 
 Module contents
