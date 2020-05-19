@@ -37,7 +37,7 @@ if not os.getenv("READTHEDOCS"):
 
 doc_requires = [
     "doc8",
-    "sphinx",
+    "sphinx<3.0",
     "sphinx-issues",
     "sphinx_rtd_theme",
 ]
