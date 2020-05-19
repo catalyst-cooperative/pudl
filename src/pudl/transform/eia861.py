@@ -177,6 +177,19 @@ EIA_FIPS_COUNTY_FIXES = pd.DataFrame([
 ], columns=["state", "eia_county", "fips_county"])
 
 
+###############################################################################
+# EIA Form 861 Transform Helper functions
+###############################################################################
+def _filter_customer_cols(df, customer_classes):
+    regex = f"^({'_|'.join(customer_classes)}).*$"
+    return df.filter(regex=regex)
+
+
+def _filter_non_customer_cols(df, customer_classes):
+    regex = f"^(?!({'_|'.join(customer_classes)})).*$"
+    return df.filter(regex=regex)
+
+
 def service_territory(raw_dfs, tfr_dfs):
     """Transform the EIA 861 utility service territory table.
 
@@ -233,6 +246,133 @@ def balancing_authority(raw_dfs, tfr_dfs):
               "eia", "balancing_authority_eia861")
     )
     tfr_dfs["balancing_authority_eia861"] = df
+    return tfr_dfs
+
+
+def sales(raw_dfs, tfr_dfs):
+    """Transform the EIA 861 Sales table."""
+    idx_cols = [
+        "utility_id_eia",
+        "state",
+        "report_year",
+        "part",
+        "ba_code"
+    ]
+
+    customer_classes = [
+        "commercial",
+        "industrial",
+        "other",
+        "residential",
+        "total",
+        "transportation"
+    ]
+
+    ###########################################################################
+    # Tidy Data:
+    ###########################################################################
+    logger.info("Tidying the EIA 861 Sales table.")
+    # Clean up values just enough to use primary key columns as a multi-index:
+    logger.debug("Cleaning up EIA861 Sales index columns so we can tidy data.")
+    raw_sales = (
+        raw_dfs["sales_eia861"].copy()
+        .assign(ba_code=lambda x: x.ba_code.fillna("UNK"))
+        .dropna(subset=["utility_id_eia"])
+        .query("utility_id_eia not in (88888, 99999)")
+        .astype({"utility_id_eia": pd.Int64Dtype()})
+        .set_index(idx_cols)
+    )
+    # Split the table into index, data, and "denormalized" columns for processing:
+    # Separate customer classes and reported data into a hierarchical index
+    logger.debug("Stacking EIA861 Sales data columns by customer class.")
+    data_cols = _filter_customer_cols(raw_sales, customer_classes)
+    data_cols.columns = (
+        data_cols.columns.str.split("_", n=1, expand=True)
+        .set_names(["customer_class", None])
+    )
+    # Now stack the customer classes into their own categorical column,
+    data_cols = (
+        data_cols.stack(level=0, dropna=False)
+        .reset_index()
+    )
+
+    denorm_cols = _filter_non_customer_cols(
+        raw_sales, customer_classes).reset_index()
+
+    # Merge the index, data, and denormalized columns back together
+    tidy_sales = pd.merge(denorm_cols, data_cols, on=idx_cols)
+
+    # Remove the now redundant "Total" records -- they can be reconstructed
+    # from the other customer classes.
+    tidy_sales = tidy_sales.query("customer_class!='total'")
+    tidy_nrows = len(tidy_sales)
+    # remove duplicates on the primary key columns + customer_class -- there
+    # are a handful of records, all from 2010-2012, that have reporting errors
+    # that produce dupes, which do not have a clear meaning. The utility_id_eia
+    # values involved are: [8153, 13830, 17164, 56431, 56434, 56466, 56778,
+    # 56976, 56990, 57081, 57411, 57476, 57484, 58300]
+    tidy_sales = tidy_sales.drop_duplicates(
+        subset=idx_cols + ["customer_class"], keep=False)
+    deduped_nrows = len(tidy_sales)
+    logger.info(
+        f"Dropped {tidy_nrows-deduped_nrows} duplicate records from EIA 861 "
+        f"sales table, out of a total of {tidy_nrows} records "
+        f"({(tidy_nrows-deduped_nrows)/tidy_nrows:.4%} of all records). "
+    )
+
+    ###########################################################################
+    # Set Datatypes:
+    ###########################################################################
+    # TODO: This should be a call to the data typing helper function
+    logger.info("Assigning column data types.")
+    typed_sales = (
+        tidy_sales.pipe(pudl.helpers.fix_eia_na)
+        .astype({
+            # Index Columns
+            "ba_code": pd.CategoricalDtype(),
+            "customer_class": pd.CategoricalDtype(categories=customer_classes),
+            "part": pd.CategoricalDtype(),
+            "report_year": int,
+            "state": pd.CategoricalDtype(),
+            "utility_id_eia": pd.Int64Dtype(),
+            # Denormalized Columns
+            "data_type": pd.CategoricalDtype(),
+            "ownership": pd.CategoricalDtype(),
+            "service_type": pd.CategoricalDtype(),
+            "utility_name_eia": pd.StringDtype(),
+            # Data Columns
+            "customers": pd.Int64Dtype(),
+            "revenues": float,
+            "sales_mwh": float,
+        })
+    )
+
+    ###########################################################################
+    # Transform Values:
+    # * Turn 1000s of dollars back into dollars
+    # * Replace report_year (int) with report_date (datetime64[ns])
+    # * Re-code data_type? O="observed" I="imputed"
+    # * Need a longer field name... "form_part" or "schedule"
+    ###########################################################################
+    logger.info("Performing value transformations on EIA 861 Sales table.")
+    transformed_sales = (
+        typed_sales.assign(
+            revenues=lambda x: x.revenues * 1000.0,
+            report_date=lambda x: pd.to_datetime({
+                "year": x.report_year,
+                "month": 1,
+                "day": 1,
+            }),
+            # value_type=lambda x: x.data_type.replace({
+            #    "O": "observed",
+            #    "I": "imputed",
+            # }),
+        )
+        .drop(["report_year"], axis="columns")
+    )
+
+    tfr_dfs["sales_eia861"] = transformed_sales
+
     return tfr_dfs
 
 
