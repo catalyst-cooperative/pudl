@@ -269,6 +269,7 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
         plants_entity_eia_tbl.c.balancing_authority_name,
         plants_entity_eia_tbl.c.iso_rto_code,
         plants_entity_eia_tbl.c.city,
+        plants_entity_eia_tbl.c.county,
         plants_entity_eia_tbl.c.nerc_region,
     ])
 
