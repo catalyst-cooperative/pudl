@@ -176,6 +176,7 @@ def ferc1_engine(live_ferc1_db, pudl_settings_fixture,
             years=data_scope['ferc1_years'],
             refyear=max(data_scope['ferc1_years']),
             pudl_settings=pudl_settings_fixture,
+            testing=True,
             clobber=clobber)
     engine = sa.create_engine(pudl_settings_fixture["ferc1_db"])
     yield engine
@@ -390,22 +391,4 @@ def datastore_fixture(pudl_settings_fixture, data_scope):
         years_by_source["epacems"] = data_scope["epacems_years"]
         states = ["id"]
 
-    # Download the test year for each dataset that we're downloading...
-    datastore.parallel_update(
-        sources=sources_to_update,
-        years_by_source=years_by_source,
-        states=states,
-        data_dir=pudl_settings_fixture["data_dir"],
-    )
-
-    pudl.helpers.verify_input_files(
-        ferc1_years=years_by_source["ferc1"],
-        epacems_years=years_by_source["epacems"],
-        epacems_states=states,
-        pudl_settings=pudl_settings_fixture,
-    )
     data_dir = pudl_settings_fixture['data_dir']
-    pudl.extract.eia860.Extractor(
-        data_dir).verify_years(years_by_source['eia860'])
-    pudl.extract.eia923.Extractor(
-        data_dir).verify_years(years_by_source['eia923'])

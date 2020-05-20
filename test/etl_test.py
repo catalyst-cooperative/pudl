@@ -16,6 +16,7 @@ import pytest
 import yaml
 
 import pudl
+from pudl.extract.ferc1 import get_dbc_map, get_archive_file, get_fields
 from pudl.convert.epacems_to_parquet import epacems_to_parquet
 
 logger = logging.getLogger(__name__)
@@ -132,7 +133,7 @@ def test_ferc1_solo_etl(datastore_fixture,
 
 
 class TestFerc1Datastore:
-    """Validate the Ferc1Datastore functions."""
+    """Validate the Ferc1 Datastore and integration functions."""
 
     ds = pudl.extract.ferc1.Ferc1Datastore(sandbox=True)
 
@@ -144,6 +145,38 @@ class TestFerc1Datastore:
         assert ds.ferc_folder(2010) == "UPLOADERS/FORM1/working"
         assert ds.ferc_folder(2015) == "UPLOADERS/FORM1/working"
 
+    def test_get_fields(self):
+        """Check that the get fields table works as expected."""
+        expect_path = pathlib.Path(__file__).parent / "data" / "ferc" \
+                      / "form1" / "f1_2018" / "get_fields.json"
+
+        with expect_path.open() as f:
+            expect = yaml.load(f.read(), yaml.Loader)
+
+        data = get_archive_file(2018, "F1_PUB.DBC", testing=True)
+        result = get_fields(data)
+        assert result == expect
+
+
+    def test_sample_get_dbc_map(self):
+        table = get_dbc_map(2018, testing=True)
+        assert table["f1_429_trans_aff"] == {
+            "ACCT_CORC": "acct_corc",
+            "ACCT_CORC_": "acct_corc_f",
+            "AMT_CORC": "amt_corc",
+            "AMT_CORC_F": "amt_corc_f",
+            "DESC_GOOD2": "desc_good_serv_f",
+            "DESC_GOOD_": "desc_good_serv",
+            "NAME_COMP": "name_comp",
+            "NAME_COMP_": "name_comp_f",
+            "REPORT_PRD": "report_prd",
+            "REPORT_YEA": "report_year",
+            "RESPONDENT": "respondent_id",
+            "ROW_NUMBER": "row_number",
+            "ROW_PRVLG": "row_prvlg",
+            "ROW_SEQ": "row_seq",
+            "SPPLMNT_NU": "spplmnt_num"
+        }
 
 class TestExcelExtractor:
     """Verify that we can lead excel files as provided via the datastore."""

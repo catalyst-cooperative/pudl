@@ -50,9 +50,12 @@ and EIA 923.
 
 """
 import csv
+from dbfread import DBF
+import json
 import logging
 import importlib
 import os.path
+from pathlib import Path
 import re
 import string
 
@@ -168,54 +171,53 @@ def add_sqlite_table(table_name, sqlite_meta, dbc_map, data_dir,
         )
 
 
-def get_strings(dbf, min_length=4):
+def get_fields(filedata):
     """
-    Yield the printable strings from a binary file.
-
-    This routine is meant to emulate the Unix "strings" command, for the
-    purposes of grabbing database table and column names from the F1_PUB.DBC
-    file that is distributed with the FERC Form 1 data.
-
+    Produce the expected table names and fields from a DBC file.
     Args:
-        dbf: Contents of the DBC file from which to extract.
-        min_length (int): the minimum number of consecutive printable
-            characters that should be considered a meaningful string and
-            extracted.
-
-    Yields:
-        str: A string having at least min_length characters, found in the
-        binary file.
-
+        filedata: Contents of the DBC file from which to extract.
+    Returns:
+        dict of table_name: [fields]
     """
+    dbf = DBF("", ignore_missing_memofile=True, filedata=filedata)
+    table_ids = {}
+    table_cols = {}
 
-    def keep(it):
-        good = False
-        try:
-            if str(it) in string.printable:
-                good = True
-        except TypeError:
-            pass
-        return good
+    for r in dbf:
+
+        if r.get("OBJECTTYPE", None) == "Table":
+            tname = r["OBJECTNAME"]
+            tid = r["OBJECTID"]
     
-    result = ""
-    for c in dbf:
-        if keep(c):
-            result += str(c)
-            continue
-        if len(result) >= min_length:
-            yield result
-        result = ""
-    if len(result) >= min_length:  # catch result at EOF
-        yield result
+            if not tid in table_ids:
+                table_ids[tid] = tname
 
+        elif r.get("OBJECTTYPE", None) == "Field":
+            tid = r["PARENTID"]
+            colname = r["OBJECTNAME"]
+    
+            if tid in table_cols:
+                table_cols[tid].append(colname)
+            else:
+                table_cols[tid] = [colname]
 
-def get_dbc_file(year, testing=False):
+    tables = {}
+
+    for tid, tname in table_ids.items():
+        if tid in table_cols:
+            tables[tname] = table_cols[tid]
+        else:
+            logger.warning("Missing cols on %s", tname)
+
+    return tables
+
+def get_archive_path(year):
     """
-    Retrieve F1_PUB.DBC for a given year via datastore.
+    Retrieve the DBC path (within a zip file) for a given year via datastore.
     Args:
         year (int): Year for the form.
     Returns:
-        bytes object of the F1_PUB.DBC contents.
+        str: Path of ferc data within the zip file
     """
     pkg = f"pudl.package_data.meta.ferc1_row_maps"
     dbc_path = None
@@ -230,10 +232,21 @@ def get_dbc_file(year, testing=False):
     if dbc_path is None:
         raise ValueError("No ferc1 data for year %d" % year)
 
+    return dbc_path
+
+def get_archive_file(year, filename, testing=False):
+    """
+    Retrieve the specified file from the ferc1 archive.
+    Args:
+        year (int): Year for the form.
+    Returns:
+        bytes object of the requested file, if available.
+    """
+    dbc_path = str(Path(get_archive_path(year)) / filename)
     ds = datastore.Datastore(sandbox=testing)
     resource = next(ds.get_resources("ferc1", year=year))
     z = zipfile.ZipFile(resource["path"])
-    return z.read(dbc_path)
+    return z.open(dbc_path)
 
 
 def get_dbc_map(year, min_length=4, testing=False):
@@ -251,7 +264,7 @@ def get_dbc_map(year, min_length=4, testing=False):
         year (int): The year of data from which the database table and column
             names are to be extracted. Typically this is expected to be the
             most recently available year of FERC Form 1 data.
-        min_length (int): The minimum number of consecutive printable
+       min_length (int): The minimum number of consecutive printable
             characters that should be considered a meaningful string and
             extracted.
 
@@ -264,60 +277,30 @@ def get_dbc_map(year, min_length=4, testing=False):
 
     """
     # Extract all the strings longer than "min" from the DBC file
-    dbc = get_dbc_file(year, testing=testing)
-    dbc_strings = list(
-        get_strings(dbc, min_length=min_length)
-    )
-
-    # Get rid of leading & trailing whitespace in the strings:
-    dbc_strings = [s.strip() for s in dbc_strings]
-
-    # Get rid of all the empty strings:
-    dbc_strings = [s for s in dbc_strings if s != '']
-
-    # Collapse all whitespace to a single space:
-    dbc_strings = [re.sub(r'\s+', ' ', s) for s in dbc_strings]
-
-    # Pull out only strings that begin with Table or Field
-    dbc_strings = [s for s in dbc_strings if re.match('(^Table|^Field)', s)]
-
-    # Split strings by whitespace, and retain only the first two elements.
-    # This eliminates some weird dangling junk characters
-    dbc_strings = [' '.join(s.split()[:2]) for s in dbc_strings]
-
-    # Remove all of the leading Field keywords
-    dbc_strings = [re.sub('Field ', '', s) for s in dbc_strings]
-
-    # Join all the strings together (separated by spaces) and then split the
-    # big string on Table, so each string is now a table name followed by the
-    # associated field names, separated by spaces
-    dbc_table_strings = ' '.join(dbc_strings).split('Table ')
-
-    # strip leading & trailing whitespace from the lists
-    # and get rid of empty strings:
-    dbc_table_strings = [s.strip() for s in dbc_table_strings if s != '']
-
-    # Create a dictionary using the first element of these strings (the table
-    # name) as the key, and the list of field names as the values, and return
-    # it:
-    tf_dict = {}
-    for table_string in dbc_table_strings:
-        table_and_fields = table_string.split()
-        tf_dict[table_and_fields[0]] = table_and_fields[1:]
+    dbc = get_archive_file(year, "F1_PUB.DBC", testing=testing)
+    tf_dict = get_fields(dbc)
 
     dbc_map = {}
     for table in pc.ferc1_tbl2dbf:
-        dbf_path = get_dbf_path(table, year, data_dir=data_dir)
-        if os.path.isfile(dbf_path):
-            dbf_fields = dbfread.DBF(dbf_path).field_names
-            dbf_fields = [f for f in dbf_fields if f != '_NullFlags']
-            dbc_map[table] = \
-                {k: v for k, v in zip(dbf_fields, tf_dict[table])}
-            if len(tf_dict[table]) != len(dbf_fields):
-                raise ValueError(
-                    f"Number of DBF fields in {table} does not match what was "
-                    f"found in the FERC Form 1 DBC index file for {year}."
-                )
+        dbc = get_archive_file(year, "F1_PUB.DBC", testing=testing)
+        ## PTV TODO: Is this the right data?
+        memodata = get_archive_file(year, "F1_PUB.DCX", testing=testing)
+        memofile = dbfread.memo.DB3MemoFile(memodata.read())
+
+        dbf_fields = dbfread.DBF(
+            "", filedata=dbc, memofile=memofile).field_names
+        dbf_fields = [f for f in dbf_fields if f != '_NullFlags']
+        dbc_map[table] = \
+            {k: v for k, v in zip(dbf_fields, tf_dict[table])}
+        if len(tf_dict[table]) != len(dbf_fields):
+            raise ValueError(
+                f"WHY AM I EVEN HERE\n" +
+                json.dumps(tf_dict[table]) +
+                "\n-----\n" +
+                ", ".join(dbf_fields) +
+                f"\nNumber of DBF fields in {table} does not match what was "
+                f"found in the FERC Form 1 DBC index file for {year}."
+            )
 
     # Insofar as we are able, make sure that the fields match each other
     for k in dbc_map:
@@ -372,28 +355,6 @@ def define_sqlite_db(sqlite_meta, dbc_map, data_dir,
                          data_dir=data_dir)
 
     sqlite_meta.create_all()
-
-
-def get_dbf_path(table, year, data_dir):
-    """Given a year and table name, returns the path to its datastore DBF file.
-
-    Args:
-        table (string): The name of one of the FERC Form 1 data tables. For
-            example 'f1_fuel' or 'f1_steam'
-        year (int): The year whose data you wish to find.
-        data_dir (str): A string representing the full path to the top level of
-            the PUDL datastore containing the FERC Form 1 data to be used.
-
-    Returns:
-        str: dbf_path, a (hopefully) OS independent path including the
-        filename of the DBF file corresponding to the requested year and
-        table name.
-    """
-    dbf_name = pc.ferc1_tbl2dbf[table]
-    ferc1_dir = datastore.path(
-        'ferc1', year=year, file=False, data_dir=data_dir)
-    dbf_path = os.path.join(ferc1_dir, f"{dbf_name}.DBF")
-    return dbf_path
 
 
 class FERC1FieldParser(dbfread.FieldParser):
@@ -468,7 +429,7 @@ def get_raw_df(table, dbc_map, data_dir, years=pc.data_years['ferc1']):
 
 
 def dbf2sqlite(tables, years, refyear, pudl_settings,
-               bad_cols=(), clobber=False):
+               bad_cols=(), clobber=False, testing=False):
     """Clone the FERC Form 1 Databsae to SQLite.
 
     Args:
@@ -501,7 +462,7 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
 
     # Get the mapping of filenames to table names and fields
     logger.info(f"Creating a new database schema based on {refyear}.")
-    dbc_map = get_dbc_map(refyear, data_dir=pudl_settings['data_dir'])
+    dbc_map = get_dbc_map(refyear, testing=testing)
     define_sqlite_db(sqlite_meta, dbc_map, tables=tables,
                      refyear=refyear, bad_cols=bad_cols,
                      data_dir=pudl_settings['data_dir'])

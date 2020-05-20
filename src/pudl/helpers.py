@@ -671,64 +671,6 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
     return tz
 
 
-def verify_input_files(ferc1_years,  # noqa: C901
-                       epacems_years,
-                       epacems_states,
-                       pudl_settings):
-    """Verify that all required data files exist prior to the ETL process.
-
-    Args:
-        ferc1_years (iterable): Years of FERC1 data we're going to import.
-        epacems_years (iterable): Years of CEMS data we're going to import.
-        epacems_states (iterable): States of CEMS data we're going to import.
-        data_dir (path-like): Path to the top level of the PUDL datastore.
-
-    Raises:
-        FileNotFoundError: If any of the requested data is missing.
-
-    """
-    data_dir = pudl_settings['data_dir']
-
-    missing_ferc1_years = {
-        str(y) for y in ferc1_years if not pathlib.Path(
-            pudl.extract.ferc1.dbc_filename(y, data_dir=data_dir)).is_file()
-    }
-
-    if epacems_states and list(epacems_states)[0].lower() == 'all':
-        epacems_states = list(pc.cems_states.keys())
-    missing_epacems_year_states = set()
-    for y in epacems_years:
-        for s in epacems_states:
-            for m in range(1, 13):
-                try:
-                    p = pathlib.Path(pudl.workspace.datastore.path(
-                        source='epacems',
-                        year=y,
-                        month=m,
-                        state=s,
-                        data_dir=data_dir))
-                except AssertionError:
-                    missing_epacems_year_states.add((str(y), s))
-                    continue
-                if not p.is_file():
-                    missing_epacems_year_states.add((str(y), s))
-
-    any_missing = (missing_ferc1_years or missing_epacems_year_states)
-    if any_missing:
-        err_msg = ["Missing data files for the following sources and years:"]
-        if missing_ferc1_years:
-            err_msg += ["  FERC 1:  " + ", ".join(missing_ferc1_years)]
-        if missing_epacems_year_states:
-            missing_yr_str = ", ".join(
-                {yr_st[0] for yr_st in missing_epacems_year_states})
-            missing_st_str = ", ".join(
-                {yr_st[1] for yr_st in missing_epacems_year_states})
-            err_msg += ["  EPA CEMS:"]
-            err_msg += ["    Years:  " + missing_yr_str]
-            err_msg += ["    States: " + missing_st_str]
-        raise FileNotFoundError("\n".join(err_msg))
-
-
 def drop_tables(engine,
                 clobber=False):
     """Drops all tables from a SQLite database.
