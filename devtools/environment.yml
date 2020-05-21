@@ -15,6 +15,7 @@ dependencies:
   - flake8-colors       # dev
   - flake8-docstrings   # dev
   - flake8-builtins     # dev
+  - geopandas           # dev for now
   - goodtables>=2.4.2   # base
   - ipdb                # dev
   - isort               # dev
@@ -32,7 +33,7 @@ dependencies:
   - pep8-naming         # dev
   - pip                 # N/A
   - pre_commit          # dev
-  - pyarrow>=0.16       # base
+  - pyarrow>=0.16       # base Nullable pandas types work w/ 0.16 and later
   - pydocstyle          # dev
   - pytest              # dev
   - pytest-cov          # dev
@@ -43,7 +44,7 @@ dependencies:
   - scikit-learn>=0.20  # base pandas integration added in v0.20
   - scipy               # base
   - setuptools_scm      # dev
-  - sphinx              # dev
+  - sphinx<3.0          # dev
   - sphinx-issues       # dev
   - sphinx_rtd_theme    # dev
   - sqlalchemy>=1.3.0   # base Security issues below v1.3.0
@@ -54,4 +55,4 @@ dependencies:
   - twine               # dev
   - xlsxwriter          # base
   - pip:
-    - recordlinkage # dev for now... base if it ends up in ETL
+     - recordlinkage # dev for now... base if it ends up in ETL

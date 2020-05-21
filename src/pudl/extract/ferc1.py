@@ -553,7 +553,7 @@ def get_ferc1_meta(ferc1_engine):
     ferc1_meta.reflect()
     if not ferc1_meta.tables:
         raise ValueError(
-            f"No FERC Form 1 tables found. Is the SQLite DB initialized?"
+            "No FERC Form 1 tables found. Is the SQLite DB initialized?"
         )
     return ferc1_meta
 
