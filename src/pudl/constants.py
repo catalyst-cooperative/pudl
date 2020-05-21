@@ -976,20 +976,6 @@ ferc1_pudl_tables = (
     integrated into PUDL.
 """
 
-ferc714_pudl_tables = (
-    "respondent_id_ferc714",
-    "id_certification_ferc714",
-    "gen_plants_ba_ferc714",
-    "demand_monthly_ba_ferc714",
-    "net_energy_load_ba_ferc714",
-    "adjacency_ba_ferc714",
-    "interchange_ba_ferc714",
-    "lambda_hourly_ba_ferc714",
-    "lambda_description_ferc714",
-    "description_pa_ferc714",
-    "demand_forecast_pa_ferc714",
-    "demand_hourly_pa_ferc714",
-)
 
 table_map_ferc1_pudl = {
     'fuel_ferc1': 'f1_fuel',
@@ -1035,8 +1021,7 @@ entity_tables = ['utilities_entity_eia',
 """
 
 xlsx_maps_pkg = 'pudl.package_data.meta.xlsx_maps'
-"""string: The location of the xlsx maps within the PUDL package data.
-"""
+"""string: The location of the xlsx maps within the PUDL package data."""
 
 ##############################################################################
 # EIA 923 Spreadsheet Metadata
@@ -1054,8 +1039,7 @@ month_dict_eia923 = {1: '_january$',
                      10: '_october$',
                      11: '_november$',
                      12: '_december$'}
-"""dict: A dictionary mapping column numbers (keys) to months (values).
-"""
+"""dict: A dictionary mapping column numbers (keys) to months (values)."""
 
 ##############################################################################
 # EIA 860 Spreadsheet Metadata
@@ -1069,13 +1053,8 @@ eia860_pudl_tables = (
     'generators_eia860',
     'ownership_eia860'
 )
-"""tuple: A tuple containing the list of EIA 860 tables that can be
-successfully pulled into PUDL.
-"""
+"""tuple: A tuple enumerating EIA 860 tables for which PUDL's ETL works."""
 
-eia861_pudl_tables = (
-    "service_territory_eia861",
-)
 
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].
@@ -2216,6 +2195,7 @@ data_years = {
     'epacems': tuple(range(1995, 2019)),
     'epaipm': (None, ),
     'ferc1': tuple(range(1994, 2019)),
+    'ferc714': (None, ),
 }
 """
 dict: A dictionary of data sources (keys) and tuples containing the years
@@ -2230,6 +2210,7 @@ working_years = {
     'epacems': tuple(range(1995, 2019)),
     'epaipm': (None, ),
     'ferc1': tuple(range(1994, 2019)),
+    'ferc714': (None, ),
 }
 """
 dict: A dictionary of data sources (keys) and tuples containing the years for
@@ -2238,12 +2219,29 @@ dict: A dictionary of data sources (keys) and tuples containing the years for
 
 pudl_tables = {
     'eia860': eia860_pudl_tables,
-    'eia861': eia861_pudl_tables,
+    'eia861': (
+        "service_territory_eia861",
+        "balancing_authority_eia861",
+        "sales_eia861",
+    ),
     'eia923': eia923_pudl_tables,
     'epacems': epacems_tables,
     'epaipm': epaipm_pudl_tables,
     'ferc1': ferc1_pudl_tables,
-    'ferc714': ferc714_pudl_tables,
+    'ferc714': (
+        "respondent_id_ferc714",
+        "id_certification_ferc714",
+        "gen_plants_ba_ferc714",
+        "demand_monthly_ba_ferc714",
+        "net_energy_load_ba_ferc714",
+        "adjacency_ba_ferc714",
+        "interchange_ba_ferc714",
+        "lambda_hourly_ba_ferc714",
+        "lambda_description_ferc714",
+        "description_pa_ferc714",
+        "demand_forecast_pa_ferc714",
+        "demand_hourly_pa_ferc714",
+    ),
     'glue': glue_pudl_tables,
 }
 """
@@ -2545,11 +2543,14 @@ column_dtypes = {
         # TODO: convert this field to more descriptive words
         'ash_impoundment_status': pd.StringDtype(),
         'associated_combined_heat_power': pd.BooleanDtype(),
+        'ba_code': pd.CategoricalDtype(),
         'balancing_authority_code': pd.StringDtype(),
         'balancing_authority_id_eia': pd.Int64Dtype(),
         'balancing_authority_name': pd.StringDtype(),
         'bga_source': pd.StringDtype(),
         'boiler_id': pd.StringDtype(),
+        'business_model': pd.CategoricalDtype(categories=[
+            "retail", "energy_services"]),
         'bypass_heat_recovery': pd.BooleanDtype(),
         'capacity_mw': float,
         'carbon_capture': pd.BooleanDtype(),
@@ -2567,6 +2568,12 @@ column_dtypes = {
         'county': pd.StringDtype(),
         'county_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
         'current_planned_operating_date': 'datetime64[ns]',
+        'customers': pd.Int64Dtype(),
+        'customer_class': pd.CategoricalDtype(categories=[
+            "residential", "commercial", "industrial", "transportation",
+            "other"
+        ]),
+        'data_observed': pd.BooleanDtype(),
         'deliver_power_transgrid': pd.BooleanDtype(),
         'duct_burners': pd.BooleanDtype(),
         'energy_source_code': pd.StringDtype(),
@@ -2649,6 +2656,7 @@ column_dtypes = {
         'owner_zip_code': pd.StringDtype(),  # Must preserve leading zeroes.
         # we should transition these into readable codes, not a one letter thing
         'ownership_code': pd.StringDtype(),
+        'ownership_type': pd.CategoricalDtype(),
         'pipeline_notes': pd.StringDtype(),
         'planned_derate_date': 'datetime64[ns]',
         'planned_energy_source_code_1': pd.StringDtype(),
@@ -2679,9 +2687,14 @@ column_dtypes = {
         'rto_iso_lmp_node_id': pd.StringDtype(),
         'rto_iso_location_wholesale_reporting_id': pd.StringDtype(),
         'retirement_date': 'datetime64[ns]',
+        'revenues': float,
+        'sales_mwh': float,
         'secondary_transportation_mode_code': pd.StringDtype(),
         'sector_id': pd.Int64Dtype(),
         'sector_name': pd.StringDtype(),
+        'service_type': pd.CategoricalDtype(categories=[
+            "bundled", "energy", "delivery",
+        ]),
         'solid_fuel_gasification': pd.BooleanDtype(),
         'startup_source_code_1': pd.StringDtype(),
         'startup_source_code_2': pd.StringDtype(),

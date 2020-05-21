@@ -255,7 +255,8 @@ def sales(raw_dfs, tfr_dfs):
         "utility_id_eia",
         "state",
         "report_year",
-        "part",
+        "business_model",
+        "service_type",
         "ba_code"
     ]
 
@@ -322,54 +323,52 @@ def sales(raw_dfs, tfr_dfs):
 
     ###########################################################################
     # Set Datatypes:
+    # Need to ensure type compatibility before we can do the value based
+    # transformations below.
     ###########################################################################
-    # TODO: This should be a call to the data typing helper function
-    logger.info("Assigning column data types.")
-    typed_sales = (
-        tidy_sales.pipe(pudl.helpers.fix_eia_na)
-        .astype({
-            # Index Columns
-            "ba_code": pd.CategoricalDtype(),
-            "customer_class": pd.CategoricalDtype(categories=customer_classes),
-            "part": pd.CategoricalDtype(),
-            "report_year": int,
-            "state": pd.CategoricalDtype(),
-            "utility_id_eia": pd.Int64Dtype(),
-            # Denormalized Columns
-            "data_type": pd.CategoricalDtype(),
-            "ownership": pd.CategoricalDtype(),
-            "service_type": pd.CategoricalDtype(),
-            "utility_name_eia": pd.StringDtype(),
-            # Data Columns
-            "customers": pd.Int64Dtype(),
-            "revenues": float,
-            "sales_mwh": float,
-        })
-    )
+    logger.info("Ensuring raw columns are type compatible.")
+    type_compat_sales = pudl.helpers.fix_eia_na(tidy_sales)
 
     ###########################################################################
     # Transform Values:
     # * Turn 1000s of dollars back into dollars
     # * Replace report_year (int) with report_date (datetime64[ns])
-    # * Re-code data_type? O="observed" I="imputed"
-    # * Need a longer field name... "form_part" or "schedule"
+    # * Re-code data_observed to boolean:
+    #   * O="observed" => True
+    #   * I="imputed" => False
+    # * Change the form code (A, B, C, D) into the business model that it
+    #   corresponds to (retail vs. energy_services), which in combination with
+    #   the service_type column (energy, delivery, bundled) will now serve as
+    #   part of the primary key for the table.
     ###########################################################################
     logger.info("Performing value transformations on EIA 861 Sales table.")
     transformed_sales = (
-        typed_sales.assign(
+        type_compat_sales.assign(
             revenues=lambda x: x.revenues * 1000.0,
             report_date=lambda x: pd.to_datetime({
                 "year": x.report_year,
                 "month": 1,
                 "day": 1,
             }),
-            # value_type=lambda x: x.data_type.replace({
-            #    "O": "observed",
-            #    "I": "imputed",
-            # }),
+            data_observed=lambda x: x.data_observed.replace({
+                "O": True,
+                "I": False,
+            }),
+            business_model=lambda x: x.business_model.replace({
+                "A": "retail",
+                "B": "retail",
+                "C": "retail",
+                "D": "energy_services",
+            }),
+            service_type=lambda x: x.service_type.str.lower(),
         )
         .drop(["report_year"], axis="columns")
     )
+
+    # REMOVE: when EIA 861 has been integrated with ETL -- this step
+    # should be happening after all of the tables are transformed.
+    transformed_sales = pudl.helpers.convert_cols_dtypes(
+        transformed_sales, "eia", "sales_eia861")
 
     tfr_dfs["sales_eia861"] = transformed_sales
 
@@ -395,6 +394,8 @@ def transform(raw_dfs, tables=pc.pudl_tables["eia861"]):
     # these are the tables that we have transform functions for...
     eia861_transform_functions = {
         'service_territory_eia861': service_territory,
+        'balancing_authority_eia861': balancing_authority,
+        'sales_eia861': sales,
     }
     tfr_dfs = {}
 

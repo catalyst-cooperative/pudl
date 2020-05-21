@@ -643,13 +643,14 @@ def fix_eia_na(df):
 
 def simplify_columns(df):
     """
-    Simplify column labels for use as database fields.
+    Simplify column labels for use as snake_case database fields.
 
-    This transformation includes:
-     - Replacing all non-alphanumeric characters with spaces.
-     - Forcing all letters to be lower case.
-     - Compacting internal whitespace.
-     - Stripping leading and trailing whitespace.
+    All columns will be re-labeled by:
+    * Replacing all non-alphanumeric characters with spaces.
+    * Forcing all letters to be lower case.
+    * Compacting internal whitespace to a single " ".
+    * Stripping leading and trailing whitespace.
+    * Replacing all remaining whitespace with underscores.
 
     Args:
         df (pandas.DataFrame): The DataFrame to clean.
