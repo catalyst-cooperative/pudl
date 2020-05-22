@@ -393,9 +393,9 @@ def transform(raw_dfs, tables=pc.pudl_tables["eia861"]):
     """
     # these are the tables that we have transform functions for...
     eia861_transform_functions = {
-        'service_territory_eia861': service_territory,
-        'balancing_authority_eia861': balancing_authority,
-        'sales_eia861': sales,
+        "service_territory_eia861": service_territory,
+        "balancing_authority_eia861": balancing_authority,
+        "sales_eia861": sales,
     }
     tfr_dfs = {}
 
