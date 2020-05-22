@@ -16,7 +16,7 @@ import pytest
 import yaml
 
 import pudl
-from pudl.extract.ferc1 import get_dbc_map, get_archive_file, get_fields
+from pudl.extract.ferc1 import get_dbc_map, get_fields
 from pudl.convert.epacems_to_parquet import epacems_to_parquet
 
 logger = logging.getLogger(__name__)
@@ -96,7 +96,7 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
         logger.info(f"Searching for lost FERC1 tables and fields in {yr}.")
         dbc_maps[yr] = pudl.extract.ferc1.get_dbc_map(
             year=yr,
-            data_dir=pudl_settings_fixture['data_dir']
+            testing=True
         )
         old_tables = list(dbc_maps[yr].keys())
         for table in old_tables:
@@ -139,11 +139,11 @@ class TestFerc1Datastore:
 
     def test_ferc_folder(self):
         """Spot check we get correct folder names per dataset year."""
-        assert ds.ferc_folder(1994) == "FORMSADMIN/FORM1/working"
-        assert ds.ferc_folder(2001) == "UPLOADERS/FORM1/working"
-        assert ds.ferc_folder(2002) == "FORMSADMIN/FORM1/working"
-        assert ds.ferc_folder(2010) == "UPLOADERS/FORM1/working"
-        assert ds.ferc_folder(2015) == "UPLOADERS/FORM1/working"
+        assert self.ds.get_folder(1994) == "FORMSADMIN/FORM1/working"
+        assert self.ds.get_folder(2001) == "UPLOADERS/FORM1/working"
+        assert self.ds.get_folder(2002) == "FORMSADMIN/FORM1/working"
+        assert self.ds.get_folder(2010) == "UPLOADERS/FORM1/working"
+        assert self.ds.get_folder(2015) == "UPLOADERS/FORM1/working"
 
     def test_get_fields(self):
         """Check that the get fields table works as expected."""
@@ -153,7 +153,7 @@ class TestFerc1Datastore:
         with expect_path.open() as f:
             expect = yaml.load(f.read(), yaml.Loader)
 
-        data = get_archive_file(2018, "F1_PUB.DBC", testing=True)
+        data = self.ds.get_file(2018, "F1_PUB.DBC")
         result = get_fields(data)
         assert result == expect
 

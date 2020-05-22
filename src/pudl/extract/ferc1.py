@@ -77,8 +77,47 @@ class Ferc1Datastore(datastore.Datastore):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def ferc_folder(self, year):
-        return 1522
+    def get_folder(self, year):
+        """
+        Retrieve the DBC path (within a zip file) for a given year.
+        Args:
+            year (int): Year for the form.
+        Returns:
+            str: Path of ferc data within the zip file
+        """
+        pkg = f"pudl.package_data.meta.ferc1_row_maps"
+        dbc_path = None
+
+        with importlib.resources.open_text(pkg, "file_map.csv") as f:
+            reader = csv.DictReader(f)
+
+            for row in reader:
+                if int(row["year"]) == year:
+                    dbc_path = row["path"]
+
+        if dbc_path is None:
+            raise ValueError("No ferc1 data for year %d" % year)
+
+        return dbc_path
+
+    def get_file(self, year, filename):
+        """
+        Retrieve the specified file from the ferc1 archive.
+        Args:
+            year (int): Year for the form.
+        Returns:
+            bytes object of the requested file, if available.
+        """
+        dbc_path = str(Path(self.get_folder(year)) / filename)
+        resource = next(self.get_resources("ferc1", year=year))
+        z = zipfile.ZipFile(resource["path"])
+
+        try:
+            f = z.open(dbc_path)
+        except KeyError:
+            raise KeyError(f"{dbc_path} is not available in {year} archive.")
+
+        return f
 
 
 def drop_tables(engine):
@@ -107,8 +146,9 @@ def drop_tables(engine):
     conn.close()
 
 
-def add_sqlite_table(table_name, sqlite_meta, dbc_map, data_dir,
+def add_sqlite_table(table_name, sqlite_meta, dbc_map,
                      refyear=max(pc.working_years['ferc1']),
+                     testing=False,
                      bad_cols=()):
     """Adds a new Table to the FERC Form 1 database schema.
 
@@ -127,6 +167,7 @@ def add_sqlite_table(table_name, sqlite_meta, dbc_map, data_dir,
         sqlite_meta (:class:`sqlalchemy.schema.MetaData`): The database schema
             to which the newly defined :class:`sqlalchemy.Table` will be added.
         dbc_map (dict): A dictionary of dictionaries
+        testing (bool): Assume this is a test run, use sandboxes
         bad_cols (iterable of 2-tuples): A list or other iterable containing
             pairs of strings of the form (table_name, column_name), indicating
             columns (and their parent tables) which should *not* be cloned
@@ -137,9 +178,14 @@ def add_sqlite_table(table_name, sqlite_meta, dbc_map, data_dir,
 
     """
     # Create the new table object
+    ds = Ferc1Datastore(sandbox=testing)
     new_table = sa.Table(table_name, sqlite_meta)
-    ferc1_dbf = dbfread.DBF(
-        get_dbf_path(table_name, refyear, data_dir=data_dir))
+
+    fn = pc.ferc1_tbl2dbf[table_name] + ".DBF"
+    filedata = ds.get_file(refyear, fn)
+
+    ferc1_dbf = dbfread.DBF(fn, ignore_missing_memofile=True,
+                            filedata=filedata)
 
     # Add Columns to the table
     for field in ferc1_dbf.fields:
@@ -188,14 +234,14 @@ def get_fields(filedata):
         if r.get("OBJECTTYPE", None) == "Table":
             tname = r["OBJECTNAME"]
             tid = r["OBJECTID"]
-    
+
             if not tid in table_ids:
                 table_ids[tid] = tname
 
         elif r.get("OBJECTTYPE", None) == "Field":
             tid = r["PARENTID"]
             colname = r["OBJECTNAME"]
-    
+
             if tid in table_cols:
                 table_cols[tid].append(colname)
             else:
@@ -210,44 +256,6 @@ def get_fields(filedata):
             logger.warning("Missing cols on %s", tname)
 
     return tables
-
-def get_archive_path(year):
-    """
-    Retrieve the DBC path (within a zip file) for a given year via datastore.
-    Args:
-        year (int): Year for the form.
-    Returns:
-        str: Path of ferc data within the zip file
-    """
-    pkg = f"pudl.package_data.meta.ferc1_row_maps"
-    dbc_path = None
-
-    with importlib.resources.open_text(pkg, "file_map.csv") as f:
-        reader = csv.DictReader(f)
-
-        for row in reader:
-            if int(row["year"]) == year:
-                dbc_path = row["path"]
-
-    if dbc_path is None:
-        raise ValueError("No ferc1 data for year %d" % year)
-
-    return dbc_path
-
-def get_archive_file(year, filename, testing=False):
-    """
-    Retrieve the specified file from the ferc1 archive.
-    Args:
-        year (int): Year for the form.
-    Returns:
-        bytes object of the requested file, if available.
-    """
-    dbc_path = str(Path(get_archive_path(year)) / filename)
-    ds = datastore.Datastore(sandbox=testing)
-    resource = next(ds.get_resources("ferc1", year=year))
-    z = zipfile.ZipFile(resource["path"])
-    return z.open(dbc_path)
-
 
 def get_dbc_map(year, min_length=4, testing=False):
     """
@@ -277,28 +285,22 @@ def get_dbc_map(year, min_length=4, testing=False):
 
     """
     # Extract all the strings longer than "min" from the DBC file
-    dbc = get_archive_file(year, "F1_PUB.DBC", testing=testing)
+    ds = Ferc1Datastore(sandbox=testing)
+    dbc = ds.get_file(year, "F1_PUB.DBC")
     tf_dict = get_fields(dbc)
 
     dbc_map = {}
-    for table in pc.ferc1_tbl2dbf:
-        dbc = get_archive_file(year, "F1_PUB.DBC", testing=testing)
-        ## PTV TODO: Is this the right data?
-        memodata = get_archive_file(year, "F1_PUB.DCX", testing=testing)
-        memofile = dbfread.memo.DB3MemoFile(memodata.read())
+    for table, fn in pc.ferc1_tbl2dbf.items():
+        dbc = ds.get_file(year, f"{fn}.DBF")
 
         dbf_fields = dbfread.DBF(
-            "", filedata=dbc, memofile=memofile).field_names
+            "", filedata=dbc, ignore_missing_memofile=True).field_names
         dbf_fields = [f for f in dbf_fields if f != '_NullFlags']
         dbc_map[table] = \
             {k: v for k, v in zip(dbf_fields, tf_dict[table])}
         if len(tf_dict[table]) != len(dbf_fields):
             raise ValueError(
-                f"WHY AM I EVEN HERE\n" +
-                json.dumps(tf_dict[table]) +
-                "\n-----\n" +
-                ", ".join(dbf_fields) +
-                f"\nNumber of DBF fields in {table} does not match what was "
+                f"Number of DBF fields in {table} does not match what was "
                 f"found in the FERC Form 1 DBC index file for {year}."
             )
 
@@ -313,9 +315,10 @@ def get_dbc_map(year, min_length=4, testing=False):
     return dbc_map
 
 
-def define_sqlite_db(sqlite_meta, dbc_map, data_dir,
+def define_sqlite_db(sqlite_meta, dbc_map,
                      tables=pc.ferc1_tbl2dbf,
                      refyear=max(pc.working_years['ferc1']),
+                     testing=False,
                      bad_cols=()):
     """
     Defines a FERC Form 1 DB structure in a given SQLAlchemy MetaData object.
@@ -332,13 +335,12 @@ def define_sqlite_db(sqlite_meta, dbc_map, data_dir,
         dbc_map (dict of dicts): A dictionary of dictionaries, of the kind
             returned by get_dbc_map(), describing the table and column names
             stored within the FERC Form 1 FoxPro database files.
-        data_dir (str): A string representing the full path to the top level of
-            the PUDL datastore containing the FERC Form 1 data to be used.
         tables (iterable of strings): List or other iterable of FERC database
             table names that should be included in the database being defined.
             e.g. 'f1_fuel' and 'f1_steam'
         refyear (integer): The year of the FERC Form 1 DB to use as a template
             for creating the overall multi-year database schema.
+        testing (bool): Assume this is a test run, and should use sandboxes
         bad_cols (iterable of 2-tuples): A list or other iterable containing
             pairs of strings of the form (table_name, column_name), indicating
             columns (and their parent tables) which should *not* be cloned
@@ -352,7 +354,7 @@ def define_sqlite_db(sqlite_meta, dbc_map, data_dir,
         add_sqlite_table(table, sqlite_meta, dbc_map,
                          refyear=refyear,
                          bad_cols=bad_cols,
-                         data_dir=data_dir)
+                         testing=testing)
 
     sqlite_meta.create_all()
 
@@ -465,7 +467,7 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
     dbc_map = get_dbc_map(refyear, testing=testing)
     define_sqlite_db(sqlite_meta, dbc_map, tables=tables,
                      refyear=refyear, bad_cols=bad_cols,
-                     data_dir=pudl_settings['data_dir'])
+                     testing=testing)
 
     for table in tables:
         logger.info(f"Pandas: reading {table} into a DataFrame.")
