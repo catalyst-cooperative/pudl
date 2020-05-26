@@ -1,6 +1,5 @@
 """A module with functions to aid generating MCOE."""
 
-import numpy as np
 import pandas as pd
 
 import pudl
@@ -147,22 +146,25 @@ def fuel_cost(pudl_out):
 
     # Split up the plants on the basis of how many different primary energy
     # sources the component generators have:
-    gen_w_ft = pd.merge(pudl_out.gens_eia860()[['plant_id_eia',
-                                                'report_date',
-                                                'plant_name_eia',
-                                                'plant_id_pudl',
-                                                'generator_id',
-                                                'utility_id_eia',
-                                                'utility_name_eia',
-                                                'utility_id_pudl',
-                                                'fuel_type_count',
-                                                'fuel_type_code_pudl']],
-                        pudl_out.hr_by_gen()[['plant_id_eia',
-                                              'report_date',
-                                              'generator_id',
-                                              'heat_rate_mmbtu_mwh']],
-                        how='outer',
-                        on=['plant_id_eia', 'report_date', 'generator_id'])
+    hr_by_gen = pudl_out.hr_by_gen()[['plant_id_eia',
+                                      'report_date',
+                                      'generator_id',
+                                      'heat_rate_mmbtu_mwh']]
+    gens = pudl_out.gens_eia860()[['plant_id_eia',
+                                   'report_date',
+                                   'plant_name_eia',
+                                   'plant_id_pudl',
+                                   'generator_id',
+                                   'utility_id_eia',
+                                   'utility_name_eia',
+                                   'utility_id_pudl',
+                                   'fuel_type_count',
+                                   'fuel_type_code_pudl']]
+
+    gen_w_ft = pudl.helpers.merge_on_date_year(
+        hr_by_gen, gens,
+        on=['plant_id_eia', 'generator_id'],
+        how='inner')
 
     one_fuel = gen_w_ft[gen_w_ft.fuel_type_count == 1]
     multi_fuel = gen_w_ft[gen_w_ft.fuel_type_count > 1]
@@ -276,7 +278,8 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
     capacity_factor = pudl.helpers.merge_on_date_year(gen_eia923,
                                                       gens_eia860,
                                                       on=['plant_id_eia',
-                                                          'generator_id'])
+                                                          'generator_id'],
+                                                      how='inner')
 
     # get a unique set of dates to generate the number of hours
     dates = capacity_factor['report_date'].drop_duplicates()
@@ -297,10 +300,8 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
         (capacity_factor['capacity_mw'] * capacity_factor['hours'])
 
     # Replace unrealistic capacity factors with NaN
-    capacity_factor.loc[capacity_factor['capacity_factor']
-                        < min_cap_fact, 'capacity_factor'] = np.nan
-    capacity_factor.loc[capacity_factor['capacity_factor']
-                        >= max_cap_fact, 'capacity_factor'] = np.nan
+    capacity_factor = pudl.helpers.oob_to_nan(
+        capacity_factor, ['capacity_factor'], lb=min_cap_fact, ub=max_cap_fact)
 
     # drop the hours column, cause we don't need it anymore
     capacity_factor.drop(['hours'], axis=1, inplace=True)
@@ -340,16 +341,28 @@ def mcoe(pudl_out,
         cost on a per MWh and MMBTU basis, heat rates, and net generation.
 
     """
+    # because lots of these input dfs include same info columns, this generates
+    # drop columnss for fuel_cost. This avoids needing to hard code columns.
+    merge_cols = ['plant_id_eia', 'generator_id', 'report_date']
+    drop_cols = [x for x in pudl_out.gens_eia860().columns
+                 if x in pudl_out.fuel_cost().columns and x not in merge_cols]
+    # start with the generators table so we have all of the generators
+    mcoe_out = pudl.helpers.merge_on_date_year(
+        pudl_out.fuel_cost().drop(drop_cols, axis=1),
+        pudl_out.gens_eia860(),
+        on=[x for x in merge_cols if x != 'report_date'],
+        how='inner',
+    )
     # Bring together the fuel cost and capacity factor dataframes, which
     # also include heat rate information.
     mcoe_out = pd.merge(
-        pudl_out.fuel_cost(),
+        mcoe_out,
         pudl_out.capacity_factor(min_cap_fact=min_cap_fact,
                                  max_cap_fact=max_cap_fact)[
             ['report_date', 'plant_id_eia',
              'generator_id', 'capacity_factor', 'net_generation_mwh']],
         on=['report_date', 'plant_id_eia', 'generator_id'],
-        how='left')
+        how='outer')
 
     # Bring the PUDL Unit IDs into the output dataframe so we can see how
     # the generators are really grouped.
@@ -361,7 +374,6 @@ def mcoe(pudl_out,
                         'generator_id']].drop_duplicates(),
         how='left',
         on=['plant_id_eia', 'generator_id'])
-
     # Instead of getting the total MMBTU through this multiplication... we
     # could also calculate the total fuel consumed on a per-unit basis, from
     # the boiler_fuel table, and then determine what proportion should be
@@ -370,18 +382,6 @@ def mcoe(pudl_out,
         mcoe_out.net_generation_mwh * mcoe_out.heat_rate_mmbtu_mwh
     mcoe_out['total_fuel_cost'] = \
         mcoe_out.total_mmbtu * mcoe_out.fuel_cost_per_mmbtu
-
-    simplified_gens_eia860 = pudl_out.gens_eia860().drop([
-        'plant_id_pudl',
-        'plant_name_eia',
-        'utility_id_eia',
-        'utility_id_pudl',
-        'utility_name_eia',
-        'fuel_type_count',
-        'fuel_type_code_pudl'
-    ], axis=1)
-    mcoe_out = pudl.helpers.merge_on_date_year(
-        mcoe_out, simplified_gens_eia860, on=['plant_id_eia', 'generator_id'])
 
     first_cols = ['report_date',
                   'plant_id_eia',
@@ -398,13 +398,10 @@ def mcoe(pudl_out,
     )
 
     # Filter the output based on the range of validity supplied by the user:
-    if min_heat_rate is not None:
-        mcoe_out = mcoe_out[mcoe_out.heat_rate_mmbtu_mwh >= min_heat_rate]
-    if min_fuel_cost_per_mwh is not None:
-        mcoe_out = mcoe_out[mcoe_out.fuel_cost_per_mwh > min_fuel_cost_per_mwh]
-    if min_cap_fact is not None:
-        mcoe_out = mcoe_out[mcoe_out.capacity_factor >= min_cap_fact]
-    if max_cap_fact is not None:
-        mcoe_out = mcoe_out[mcoe_out.capacity_factor <= max_cap_fact]
-
+    mcoe_out = pudl.helpers.oob_to_nan(mcoe_out, ['heat_rate_mmbtu_mwh'],
+                                       lb=min_heat_rate, ub=None)
+    mcoe_out = pudl.helpers.oob_to_nan(mcoe_out, ['fuel_cost_per_mwh'],
+                                       lb=min_fuel_cost_per_mwh, ub=None)
+    mcoe_out = pudl.helpers.oob_to_nan(mcoe_out, ['capacity_factor'],
+                                       lb=min_cap_fact, ub=max_cap_fact)
     return mcoe_out

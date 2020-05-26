@@ -250,6 +250,15 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
         ValueError: if the date or year columns are not found, or if the year
             column is found to be inconsistent with annual reporting.
 
+    TODO: Right mergers will result in null values in the resulting date
+        column. The final output includes the date_col from the date_df and thus
+        if there are any entity records (records being merged on) in the
+        year_df but not in the date_df, a right merge will result in nulls in
+        the date_col. And when we drop the 'year_temp' column, the year from
+        the year_df will be gone. Need to determine how to deal with this.
+        Should we generate a montly record in each year? Should we generate
+        full time serires? Should we restrict right merges in this function?
+
     """
     if date_col not in df_date.columns.tolist():
         raise ValueError(f"Date column {date_col} not found in df_date.")
