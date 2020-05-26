@@ -291,7 +291,15 @@ def get_dbc_map(year, min_length=4, testing=False):
 
     dbc_map = {}
     for table, fn in pc.ferc1_tbl2dbf.items():
-        dbc = ds.get_file(year, f"{fn}.DBF")
+
+        try:
+            dbc = ds.get_file(year, f"{fn}.DBF")
+        except KeyError:
+            # Not all tables exist in all years, so this is acceptable
+            dbc = None
+
+        if dbc is None:
+            continue
 
         dbf_fields = dbfread.DBF(
             "", filedata=dbc, ignore_missing_memofile=True).field_names
@@ -388,7 +396,7 @@ class FERC1FieldParser(dbfread.FieldParser):
         return super(FERC1FieldParser, self).parseN(field, data)
 
 
-def get_raw_df(table, dbc_map, data_dir, years=pc.data_years['ferc1']):
+def get_raw_df(table, dbc_map, years=pc.data_years['ferc1'], testing=False):
     """Combine several years of a given FERC Form 1 DBF table into a dataframe.
 
     Args:
@@ -397,10 +405,9 @@ def get_raw_df(table, dbc_map, data_dir, years=pc.data_years['ferc1']):
         dbc_map (dict of dicts): A dictionary of dictionaries, of the kind
             returned by get_dbc_map(), describing the table and column names
             stored within the FERC Form 1 FoxPro database files.
-        data_dir (str): A string representing the full path to the top level of
-            the PUDL datastore containing the FERC Form 1 data to be used.
         min_length (int): The minimum number of consecutive printable
         years (list): Range of years to be combined into a single DataFrame.
+        testing (bool): Assume this is a test run, use sandboxes
 
     Returns:
         :class:`pandas.DataFrame`: A DataFrame containing several years of FERC
@@ -408,19 +415,22 @@ def get_raw_df(table, dbc_map, data_dir, years=pc.data_years['ferc1']):
 
     """
     dbf_name = pc.ferc1_tbl2dbf[table]
+    ds = Ferc1Datastore(sandbox=testing)
 
     raw_dfs = []
     for yr in years:
-        ferc1_dir = datastore.path(
-            'ferc1', year=yr, file=False, data_dir=data_dir)
-        dbf_path = os.path.join(ferc1_dir, f"{dbf_name}.DBF")
+        try:
+            filedata = ds.get_file(yr, f"{dbf_name}.DBF")
+        except KeyError:
+            continue
 
-        if os.path.exists(dbf_path):
-            new_df = pd.DataFrame(
-                iter(dbfread.DBF(dbf_path,
-                                 encoding='latin1',
-                                 parserclass=FERC1FieldParser)))
-            raw_dfs = raw_dfs + [new_df, ]
+        new_df = pd.DataFrame(
+            iter(dbfread.DBF(dbf_name,
+                             encoding='latin1',
+                             parserclass=FERC1FieldParser,
+                             ignore_missing_memofile=True,
+                             filedata=filedata)))
+        raw_dfs = raw_dfs + [new_df, ]
 
     if raw_dfs:
         return (
@@ -471,8 +481,7 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
 
     for table in tables:
         logger.info(f"Pandas: reading {table} into a DataFrame.")
-        new_df = get_raw_df(table, dbc_map, years=years,
-                            data_dir=pudl_settings['data_dir'])
+        new_df = get_raw_df(table, dbc_map, years=years, testing=testing)
         # Because this table has no year in it, there would be multiple
         # definitions of respondents if we didn't drop duplicates.
         if table == 'f1_respondent_id':
