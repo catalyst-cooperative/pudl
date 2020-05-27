@@ -51,13 +51,9 @@ and EIA 923.
 """
 import csv
 from dbfread import DBF
-import json
 import logging
 import importlib
-import os.path
 from pathlib import Path
-import re
-import string
 
 import dbfread
 import pandas as pd
@@ -74,12 +70,10 @@ logger = logging.getLogger(__name__)
 class Ferc1Datastore(datastore.Datastore):
     """Provide a thin interface for pulling files from the Datastore."""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def get_folder(self, year):
         """
         Retrieve the DBC path (within a zip file) for a given year.
+
         Args:
             year (int): Year for the form.
         Returns:
@@ -103,6 +97,7 @@ class Ferc1Datastore(datastore.Datastore):
     def get_file(self, year, filename):
         """
         Retrieve the specified file from the ferc1 archive.
+
         Args:
             year (int): Year for the form.
         Returns:
@@ -220,6 +215,7 @@ def add_sqlite_table(table_name, sqlite_meta, dbc_map,
 def get_fields(filedata):
     """
     Produce the expected table names and fields from a DBC file.
+
     Args:
         filedata: Contents of the DBC file from which to extract.
     Returns:
@@ -235,7 +231,7 @@ def get_fields(filedata):
             tname = r["OBJECTNAME"]
             tid = r["OBJECTID"]
 
-            if not tid in table_ids:
+            if tid not in table_ids:
                 table_ids[tid] = tname
 
         elif r.get("OBJECTTYPE", None) == "Field":
@@ -256,6 +252,7 @@ def get_fields(filedata):
             logger.warning("Missing cols on %s", tname)
 
     return tables
+
 
 def get_dbc_map(year, min_length=4, testing=False):
     """
