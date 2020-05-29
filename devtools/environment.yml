@@ -56,3 +56,4 @@ dependencies:
   - xlsxwriter          # base
   - pip:
      - recordlinkage # dev for now... base if it ends up in ETL
+     - fredapi # dev
