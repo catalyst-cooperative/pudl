@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import os
 import logging
+import os
 import re
-import requests
 import sys
+
+import requests
 import yaml
 
 
@@ -258,7 +259,8 @@ zenodo_download:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=config_msg)
 
-    parser.add_argument("--year", type=int, help="Limit results by (4 digit) year")
+    parser.add_argument("--year", type=int,
+                        help="Limit results by (4 digit) year")
     parser.add_argument("--month", type=int,
                         help="Limit results by (2 digit) month")
     parser.add_argument("--state", type=str,
@@ -294,7 +296,8 @@ def available_archives():
         sandboxes = "None"
 
     try:
-        production = ", ".join(cfg["zenodo_download"]["production"]["dois"].keys())
+        production = ", ".join(cfg["zenodo_download"]
+                               ["production"]["dois"].keys())
     except:
         production = "None"
 
