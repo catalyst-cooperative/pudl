@@ -1849,10 +1849,21 @@ transport_modes_eia923 = {
 # entity or annual tables. The order here matters. We need to harvest the plant
 # location before harvesting the location of the utilites for example.
 entities = {
-    'plants': [  # base cols
+    'balancing_authorities': [
+        # base cols
+        ['balancing_authority_id_eia'],
+        # static cols
+        ['balancing_authority_code_eia', 'balancing_authority_name_eia'],
+        # annual cols
+        [],
+        # need type fixing
+        {},
+    ],
+    'plants': [
+        # base cols
         ['plant_id_eia'],
         # static cols
-        ['balancing_authority_code', 'balancing_authority_name',
+        ['balancing_authority_code_eia', 'balancing_authority_name_eia',
          'city', 'county', 'ferc_cogen_status',
          'ferc_exempt_wholesale_generator', 'ferc_small_power_producer',
          'grid_voltage_2_kv', 'grid_voltage_3_kv', 'grid_voltage_kv',
@@ -1873,18 +1884,9 @@ entities = {
          'transmission_distribution_owner_state', 'utility_id_eia'],
         # need type fixing
         {},
-        # {'plant_id_eia': 'int64',
-        # 'grid_voltage_2_kv': 'float64',
-        # 'grid_voltage_3_kv': 'float64',
-        # 'grid_voltage_kv': 'float64',
-        # 'longitude': 'float64',
-        # 'latitude': 'float64',
-        # 'primary_purpose_naics_id': 'float64',
-        # 'sector_id': 'float64',
-        # 'zip_code': 'float64',
-        # 'utility_id_eia': 'float64'},
     ],
-    'generators': [  # base cols
+    'generators': [
+        # base cols
         ['plant_id_eia', 'generator_id'],
         # static cols
         ['prime_mover_code', 'duct_burners', 'operating_date',
@@ -1920,12 +1922,11 @@ entities = {
          'winter_estimated_capability_mw', 'retirement_date', 'utility_id_eia'],
         # need type fixing
         {}
-        # {'plant_id_eia': 'int64',
-        #  'generator_id': 'str'},
     ],
     # utilities must come after plants. plant location needs to be
     # removed before the utility locations are compiled
-    'utilities': [  # base cols
+    'utilities': [
+        # base cols
         ['utility_id_eia'],
         # static cols
         ['utility_name_eia',
@@ -1937,14 +1938,17 @@ entities = {
          ],
         # need type fixing
         {'utility_id_eia': 'int64', }, ],
-    'boilers': [  # base cols
+    'boilers': [
+        # base cols
         ['plant_id_eia', 'boiler_id'],
         # static cols
         ['prime_mover_code'],
         # annual cols
         [],
         # need type fixing
-        {}, ]}
+        {},
+    ]
+}
 """dict: A dictionary containing table name strings (keys) and lists of columns
     to keep for those tables (values).
 """
@@ -2506,9 +2510,9 @@ column_dtypes = {
     },
     "ferc714": {  # INCOMPLETE
         "report_year": pd.Int64Dtype(),
-        "utility_id_ferc714": pd.Int64Dtype(),
-        "utility_id_eia": pd.Int64Dtype(),
-        "utility_name_ferc714": pd.StringDtype(),
+        "respondent_id_ferc714": pd.Int64Dtype(),
+        "eia_code": pd.Int64Dtype(),
+        "respondent_name_ferc714": pd.StringDtype(),
         "timezone": pd.CategoricalDtype(categories=[
             "America/New_York", "America/Chicago", "America/Denver",
             "America/Los_Angeles", "America/Anchorage", "Pacific/Honolulu"]),
@@ -2543,10 +2547,9 @@ column_dtypes = {
         # TODO: convert this field to more descriptive words
         'ash_impoundment_status': pd.StringDtype(),
         'associated_combined_heat_power': pd.BooleanDtype(),
-        'ba_code': pd.CategoricalDtype(),
-        'balancing_authority_code': pd.StringDtype(),
+        'balancing_authority_code_eia': pd.CategoricalDtype(),
         'balancing_authority_id_eia': pd.Int64Dtype(),
-        'balancing_authority_name': pd.StringDtype(),
+        'balancing_authority_name_eia': pd.StringDtype(),
         'bga_source': pd.StringDtype(),
         'boiler_id': pd.StringDtype(),
         'business_model': pd.CategoricalDtype(categories=[

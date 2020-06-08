@@ -355,9 +355,9 @@ def cleanstrings_series(col, str_map, unmapped=None, simplify=True):
     Args:
         col (pandas.Series): A pandas Series, typically a single column of a
             dataframe, containing the freeform strings that are to be cleaned.
-        map (dict): A dictionary of lists of strings, in which the keys are the
-            simplified canonical strings, witch which each string found in the
-            corresponding list will be replaced.
+        str_map (dict): A dictionary of lists of strings, in which the keys are
+            the simplified canonical strings, witch which each string found in
+            the corresponding list will be replaced.
         unmapped (str): A value with which to replace any string found in col
             that is not found in one of the lists of strings in map. Typically
             the null string ''. If None, these strings will not be replaced.
@@ -431,8 +431,8 @@ def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
             overall number of string values that need to be tracked.
 
     Returns:
-        pandas.Series: The function returns a new pandas series/column that can
-        be used to set the values of the original data.
+        pandas.DataFrame: The function returns a new DataFrame containing the
+        cleaned strings.
 
     """
     out_df = df.copy()
@@ -618,7 +618,7 @@ def convert_to_date(df,
                         'day': day})
     cols_to_drop = [x for x in [
         day_col, year_col, month_col] if x in df.columns]
-    df.drop(cols_to_drop, axis=1, inplace=True)
+    df.drop(cols_to_drop, axis="columns", inplace=True)
 
     return df
 

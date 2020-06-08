@@ -33,10 +33,133 @@ Finally, we aggregate the demand that has been allocated to the intersecting
 areas up to the areas identified within the target output geometry.
 
 """
+import logging
+import pathlib
+import zipfile
+
 import geopandas
 import pandas as pd
+import requests
+
+logger = logging.getLogger(__name__)
 
 
+################################################################################
+# Local data acquisition functions for the Demand Mapping analysis
+################################################################################
+def download_zip_url(url, save_path, chunk_size=128):
+    """Convenience function to download a Zipfile directly."""
+    r = requests.get(url, stream=True)
+    with save_path.open(mode='wb') as fd:
+        for chunk in r.iter_content(chunk_size=chunk_size):
+            fd.write(chunk)
+
+
+def get_census2010_gdf(pudl_settings, layer):
+    """
+    Obtai na GeoDataFrame containing US Census demographic data for 2010.
+
+    Args:
+        pudl_settings (dict): PUDL Settings dictionary.
+        layer (str): Indicates which layer of the Census GeoDB to read.
+            Must be one of "state", "county", or "tract".
+
+    Returns:
+        geopandas.GeoDataFrame: DataFrame containing the US Census
+        Demographic Profile 1 (DP1) data, aggregated to the layer
+
+    """
+    census2010_url = "http://www2.census.gov/geo/tiger/TIGER2010DP1/Profile-County_Tract.zip"
+    census2010_dir = pathlib.Path(
+        pudl_settings["data_dir"]) / "local/uscb/census2010"
+    census2010_dir.mkdir(parents=True, exist_ok=True)
+    census2010_zipfile = census2010_dir / "census2010.zip"
+    census2010_gdb_dir = census2010_dir / "census2010.gdb"
+
+    if not census2010_gdb_dir.is_dir():
+        logger.info("No Census GeoDB found. Downloading from US Census Bureau.")
+        # Download to appropriate location
+        download_zip_url(census2010_url, census2010_zipfile)
+        # Unzip because we can't use zipfile paths with geopandas
+        with zipfile.ZipFile(census2010_zipfile, 'r') as zip_ref:
+            zip_ref.extractall(census2010_dir)
+            # Grab the UUID based directory name so we can change it:
+            extract_root = census2010_dir / \
+                pathlib.Path(zip_ref.filelist[0].filename).parent
+        extract_root.rename(census2010_gdb_dir)
+    else:
+        logger.info("We've already got the 2010 Census GeoDB.")
+
+    logger.info("Extracting the GeoDB into a GeoDataFrame")
+    layers = {
+        "state": "State_2010Census_DP1",
+        "county": "County_2010Census_DP1",
+        "tract": "Tract_2010Census_DP1",
+    }
+    census_gdf = geopandas.read_file(
+        census2010_gdb_dir,
+        driver='FileGDB',
+        layer=layers[layer],
+    )
+    return census_gdf
+
+
+def get_hifld_planning_areas_gdf(pudl_settings):
+    """Electric Planning Area geometries from HIFLD."""
+    hifld_pa_url = "https://opendata.arcgis.com/datasets/7d35521e3b2c48ab8048330e14a4d2d1_0.gdb"
+    hifld_dir = pathlib.Path(pudl_settings["data_dir"]) / "local/hifld"
+    hifld_dir.mkdir(parents=True, exist_ok=True)
+    hifld_pa_zipfile = hifld_dir / "electric_planning_areas.gdb.zip"
+    hifld_pa_gdb_dir = hifld_dir / "electric_planning_areas.gdb"
+
+    if not hifld_pa_gdb_dir.is_dir():
+        logger.info("No Planning Area GeoDB found. Downloading from HIFLD.")
+        # Download to appropriate location
+        download_zip_url(hifld_pa_url, hifld_pa_zipfile)
+        # Unzip because we can't use zipfile paths with geopandas
+        with zipfile.ZipFile(hifld_pa_zipfile, 'r') as zip_ref:
+            zip_ref.extractall(hifld_dir)
+            # Grab the UUID based directory name so we can change it:
+            extract_root = hifld_dir / \
+                pathlib.Path(zip_ref.filelist[0].filename).parent
+        extract_root.rename(hifld_pa_gdb_dir)
+    else:
+        logger.info("We've already got the planning area GeoDB.")
+
+    gdf = (
+        geopandas.read_file(hifld_pa_gdb_dir)
+        .assign(
+            SOURCEDATE=lambda x: pd.to_datetime(x.SOURCEDATE),
+            VAL_DATE=lambda x: pd.to_datetime(x.VAL_DATE),
+            ID=lambda x: pd.to_numeric(x.ID),
+            NAICS_CODE=lambda x: pd.to_numeric(x.NAICS_CODE),
+            YEAR=lambda x: pd.to_numeric(x.YEAR),
+        )
+        # Hack to work around geopanda issue fixed as of v0.8.0
+        # https://github.com/geopandas/geopandas/issues/1366
+        .assign(
+            ID=lambda x: x.ID.astype(pd.Int64Dtype()),
+            NAME=lambda x: x.NAME.astype(pd.StringDtype()),
+            COUNTRY=lambda x: x.COUNTRY.astype(pd.StringDtype()),
+            NAICS_CODE=lambda x: x.NAICS_CODE.astype(pd.Int64Dtype()),
+            NAICS_DESC=lambda x: x.NAICS_DESC.astype(pd.StringDtype()),
+            SOURCE=lambda x: x.SOURCE.astype(pd.StringDtype()),
+            VAL_METHOD=lambda x: x.VAL_METHOD.astype(pd.StringDtype()),
+            WEBSITE=lambda x: x.WEBSITE.astype(pd.StringDtype()),
+            ABBRV=lambda x: x.ABBRV.astype(pd.StringDtype()),
+            YEAR=lambda x: x.YEAR.astype(pd.Int64Dtype()),
+            PEAK_LOAD=lambda x: x.PEAK_LOAD.astype(float),
+            PEAK_RANGE=lambda x: x.PEAK_RANGE.astype(float),
+            SHAPE_Length=lambda x: x.SHAPE_Length.astype(float),
+            SHAPE_Area=lambda x: x.SHAPE_Area.astype(float),
+        )
+    )
+    return gdf
+
+
+################################################################################
+# Demand allocation functions
+################################################################################
 def create_stacked_intersection_df(gdf_intermediate,
                                    gdf_source,
                                    gdf_intermediate_col="FIPS",

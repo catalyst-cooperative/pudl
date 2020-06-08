@@ -174,7 +174,7 @@ class GenericExtractor(object):
         # TODO: should we run verify_years(?) here?
         if not years:
             logger.info(
-                f'No years given. Not extracting {self.DATSET} spreadsheet data.')
+                f'No years given. Not extracting {self._dataset_name} spreadsheet data.')
             return {}
 
         raw_dfs = {}
