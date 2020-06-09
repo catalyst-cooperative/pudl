@@ -1,36 +1,27 @@
 """
-Routines for geographically re-sampling regional electricity demand.
+A layer contains many features, each of which have an associated geometry and
+many attributes. For our purposes, let's allow each attribute to be one of two
+types:
 
-Electricity demand is reported by a variety of entities, pertaining to many
-different geographic areas. It's often useful to be able to estimate how
-demand reported for one geography maps onto another. For instance, taking the
-total hourly electricity demand reported with in an ISO region or utility
-planning area, and allocating it to individual counties according to their
-populations, as reported within US Census tracts.
+constant: The attribute is equal everywhere within the feature geometry (e.g.
+identifier, percent area).
 
-This process involves 3 different kinds of geometries:
+When splitting a feature, the attribute value for the resulting features is that
+of their parent: e.g. [1] -> [1], [1].
 
-* The demand source geometry, i.e. area associated with the reported demand
-* One or more geometries having data associated with them that will be used
-  to inform the geographic allocation of the reported demand. E.g. US
-  census tract boundaries and their reported populations.
-* The output or target geometry, to which the geographically allocated demand
-  will be aggregated for final use. E.g. counties, states, NREL ReEDS
-  balancing areas, or EPA's IPM regions.
+When joining features, the attribute value for the resulting feature must be a
+function of its children: e.g. [1], [1] -> [1, 1] (list) or 1 (appropriate
+aggregation function, e.g. median or area-weighted mean).
 
-First we calculate the intersection of the reporting demand areas and the
-geometires which have data we want to use to allocate demand geographically.
+uniform: The attribute is uniformly distributed within the feature geometry
+(e.g. count, area).
 
-Second, for each of those intersecting areas, we use data associated with the
-non-demand geometry to calculate a weighting factor that will determine what
-share of the overall demand that area gets.
+When splitting a feature, the attribute value for the resulting features is
+proportional to their area: e.g. [1] (100% area) -> [0.4] (40% area), [0.6] (60%
+area).
 
-Third, we use these weights and the demand time series keyed to the IDs of the
-demand areas to generate new demand time series for each of the intersecting
-geometries.
-
-Finally, we aggregate the demand that has been allocated to the intersecting
-areas up to the areas identified within the target output geometry.
+When joining features, the attribute value for the resulting feature is the sum
+of its children: e.g. [0.4], [0.6] -> [1].
 
 """
 import logging
@@ -38,8 +29,13 @@ import pathlib
 import zipfile
 
 import geopandas
+import numpy as np
 import pandas as pd
 import requests
+import tqdm
+from geopandas import GeoDataFrame
+from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
+from shapely.ops import unary_union
 
 logger = logging.getLogger(__name__)
 
@@ -160,258 +156,406 @@ def get_hifld_planning_areas_gdf(pudl_settings):
 ################################################################################
 # Demand allocation functions
 ################################################################################
-def create_stacked_intersection_df(gdf_intermediate,
-                                   gdf_source,
-                                   gdf_intermediate_col="FIPS",
-                                   gdf_source_col="ID",
-                                   geom_intermediate="geometry",
-                                   geom_source="geometry"):
+def edit_id_set(row, new_ID, ID):
     """
-    Build matrix with 1-1 mapping of intermediate and source GeoDataFrame.
+    Editing ID sets by adding the new geometry ID if required.
 
-    Under standard convention, the source GeoDataFrame consists of the demand
-    geometry and is used to map areas to an intermediate GeoDataFrame.
-
-    Example:
-        intermediate GeoDataFrame: census tract geometries spanning the US
-        source GeoDataFrame: planning area geometries with associated demand.
-
-    The function returns a stacked dataframe with mapping of each intermediate
-    geometry column with every non-intersecting source geometry column
-    quantifying the intersecting area.
-
-    Args:
-        gdf_intermediate (GeoDataframe): intermediate geodataframe
-        gdf_source (GeoDataframe): usually source dataframe (i.e. demand)
-        gdf_intermediate_col (str): column to identify gdf_intermediate
-        gdf_source_col(str): column to identify for gdf_source
-        file_save (bool): save file option
-
-    Returns:
-        pandas.DataFrame: DataFrame used to map and scale attribute from one
-        set of geometries to another.
-
-        Columns:
-            intermediate_index: unique index for intermediate geometry
-            source_index: unique index for source geometry
-            intermediate_intersection_fraction: area as fraction of
-            intermediate geometry
-            source_intersection_fraction: area as fraction of source geometry
-
+    This function edits original ID sets by adding the new geometry ID if
+    required. This function is called by another function
+    `complete_disjoint_geoms`
     """
-    new_df = geopandas.overlay(
-        gdf_intermediate[[gdf_intermediate_col, geom_intermediate]],
-        gdf_source[[gdf_source_col, geom_source]],
-        how='intersection'
-    )
-    new_df["area_derived"] = new_df["geometry"].area
-
-    gdf_intermediate["intermediate_area_derived"] = gdf_intermediate[geom_intermediate].area
-    gdf_source["source_area_derived"] = gdf_source[geom_source].area
-
-    new_df = (new_df[[gdf_intermediate_col, gdf_source_col, "area_derived", "geometry"]]
-              .merge(gdf_intermediate[[gdf_intermediate_col, "intermediate_area_derived"]])
-              .merge(gdf_source[[gdf_source_col, "source_area_derived"]]))
-
-    new_df["gdf_intermediate_intersection_fraction"] = new_df["area_derived"] / \
-        new_df["intermediate_area_derived"]
-    new_df["gdf_source_intersection_fraction"] = new_df["area_derived"] / \
-        new_df["source_area_derived"]
-
-    # Deleting temporary columns defined in the original GeoDataFrames
-    del gdf_intermediate["intermediate_area_derived"]
-    del gdf_source["source_area_derived"]
-
-    new_df = new_df[[gdf_intermediate_col, gdf_source_col,
-                     "gdf_intermediate_intersection_fraction",
-                     "gdf_source_intersection_fraction"]]
-
-    return new_df
-
-
-def create_intersection_matrix(gdf_intersection,
-                               gdf_intersection_col="gdf_intermediate_intersection_fraction",
-                               gdf_intermediate_col="FIPS",
-                               gdf_source_col="ID",
-                               normalization=True,
-                               normalize_axis=1):
-    """
-    Pivots stacked dataframe to an intersection matrix.
-
-    Inputs the intersection matrix with the area intersection fraction a[i, j]
-    for every intermediate ID i and source ID j. Normalization option available
-    (To normalize double-counting)
-
-    Args:
-        gdf_intersection (pandas.DataFrame): stacked dataframe with every
-            one-to-one mapping of intermediate ids.
-        gdf_intersection_col (str): name of the column of the area intersection
-            fraction. (Usually the fraction along the column you want to
-            normalize. Generally makes sense to do it along the distinct and
-            disjoint column like census tracts)
-        gdf_intermediate_col (str): ID name of intermediate gdf
-        gdf_source_col (str): ID name of source gdf
-        normalize_axis (int): 1 for normalizing along intermediate axis
-            (generally); 0 for normalizing along source axis
-
-    Returns:
-        pandas.DataFrame: matrix which consists the intersection value for
-        every intermediate geometry i and source geometry j at index i, j
-
-    """
-    intersection_matrix = gdf_intersection.pivot_table(
-        values=gdf_intersection_col,
-        index=gdf_intermediate_col,
-        columns=gdf_source_col,
-        fill_value=0
-    )
-
-    if normalization is True:
-        intersection_matrix = intersection_matrix.divide(intersection_matrix.sum(axis=normalize_axis),
-                                                         axis=int(not normalize_axis))
-
-    return intersection_matrix
-
-
-def matrix_linear_scaling(intersection_matrix,
-                          gdf_scale,
-                          gdf_scale_col="POPULATION",
-                          axis_scale=1,
-                          normalize=True):
-    """
-    Scales matrix by a vector with or without normalization.
-
-    Scales the linear mapping matrix by a particular variable e.g. If you want
-    to allocate demand by population, scale the area intersection fraction
-    matrix by the population of each of the FIPS using matrix_linear_scaling
-    once by axis_scale=1, appropriate dataframe, scale_col="POPULATION", then
-    allocate demand using matrix_linear_scaling once by axis_scale=0,
-    appropriate dataframe, scale_col="demand_mwh"
-
-    Args:
-        intersection_matrix (pandas.DataFrame): matrix with every one-one
-            mapping of two different geometry IDs
-        gdf_scale (pandas.DataFrame): dataframe with appropriate scaling data
-        gdf_scale_col (str): name of the column being allocated (needs same
-            name in dataframe and matrix)
-        axis_scale (int): axis of normalization and demand allocation
-            1 if data being multiplied to rows
-            0 if data being multiplied to columns
-        normalize (bool): normalize along the axis mentioned
-
-    Returns:
-        pandas.DataFrame: Intersection matrix scaled by vector (row-wise or
-        column-wise)
-
-    """
-    if axis_scale == 1:
-        unique_index = intersection_matrix.index
-        index_name = intersection_matrix.index.name
+    if row["geom_type"] == "geometry_new_int":
+        return frozenset(list(row[ID]) + [new_ID])
 
     else:
-        unique_index = intersection_matrix.columns
-        index_name = intersection_matrix.columns.name
-
-    if normalize is True:
-        intersection_matrix = intersection_matrix.divide(
-            intersection_matrix.sum(axis=axis_scale), axis=(1 - axis_scale))
-
-    return intersection_matrix.multiply(
-        gdf_scale[gdf_scale[index_name].isin(unique_index)]
-        .set_index(index_name)[gdf_scale_col], axis=(1 - axis_scale))
+        return row[ID]
 
 
-def extract_multiple_tracts_demand_ratios(pop_norm_df, intermediate_ids):
+def polygonize_geom(geom):
     """
-    Extract fraction of target/intermediate geometry demand based on mapping.
+    Remove zero-area geometries from a geometry collection.
 
-    Inputs list of target/intermediate geometry IDs and returns dictionary
-    with keys of intersecting source geometry IDs and the demand fraction
-    associated with the target/intermediate geometries.
+    Strip zero-area geometries from a geometrical object.
+    (maybe a single geometry object or collection e.g. GeometryCollection)
+    This function is called by another function `complete_disjoint_geoms`.
+    """
+    if type(geom) == GeometryCollection:
+
+        new_list = [a for a in list(geom) if type(a) in [
+            Polygon, MultiPolygon]]
+
+        if len(new_list) == 1:
+            return new_list[0]
+
+        else:
+            return MultiPolygon(new_list)
+
+    elif type(geom) in [MultiPolygon, Polygon]:
+        return geom
+
+    else:
+        return Polygon([])
+
+
+def extend_gdf(gdf_disjoint, ID):
+    """
+    Add duplicates of intersecting geometries to be able to add the constants.
+
+    This function adds rows with duplicate geometries and creates the new `ID`
+    column for each of the new rows. This function is called by another function
+    `complete_disjoint_geoms`.
+    """
+    tqdm_max = gdf_disjoint.shape[0]
+    ext = pd.DataFrame(columns=list(gdf_disjoint.columns) + [ID + "_set"])
+
+    for index, row in tqdm(gdf_disjoint.iterrows(), total=tqdm_max):
+
+        num = len(row[ID])
+        data = np.array([list(row[ID]), [row["geometry"]] * num]).T
+        ext_new = pd.DataFrame(data, columns=gdf_disjoint.columns)
+        ext_new[ID + "_set"] = [row[ID]] * num
+        ext = ext.append(ext_new, ignore_index=True)
+
+    return ext
+
+
+def complete_disjoint_geoms(epas_gdf, attributes, num_last=np.inf):
+    """
+    Split a self-intersecting layer into distinct non-intersecting geometries.
+
+    Given a GeoDataFrame of multiple geometries, some of which intersect each
+    other, this function iterates through the geometries sequentially and
+    fragments them into distinct individual pieces, and accordingly allocates
+    the uniform and constant attributes.
+
+    Args:
+        epas_gdf (GeoDataframe): GeoDataFrame consisting of the intersecting
+        attributes (dict): a dictionary keeping a track of all the types of
+        attributes with keys represented by column name, and the values
+        representing the type of attribute. One column from the
+        attribute dictionary must belong in the GeoDataFrame and should be of
+        type `ID` to allow for the intersection to happen.
+        num_last (int): number of geometries iterated on in the GeoDataFrame
+        before stopping the disjointing operation (for debugging purposes)
+
+    Returns:
+        geopandas.GeoDataFrame: GeoDataFrame with all attributes as epas_gdf
+        and one extra attribute with name as the `ID` attribute appended by
+        "_set" substring
+
+        attributes: Adds the `ID`+"_set" as a `constant` attribute and returns the
+        attributes dictionary
+    """
+    # ID is the index which will help to identify duplicate geometries
+    ID = [k for k, v in attributes.items() if (
+        (k in epas_gdf.columns) and (v == "ID"))][0]
+    gdf_constants = [k for k, v in attributes.items() if (
+        (k in epas_gdf.columns) and (v == "constant"))]
+    gdf_uniforms = [k for k, v in attributes.items() if (
+        (k in epas_gdf.columns) and (v == "uniform"))]
+
+    tqdm_max = min(epas_gdf.shape[0], num_last)
+
+    # Iterating through each of the geometries
+    for index, row in tqdm(epas_gdf[[ID, "geometry"]].iterrows(), total=tqdm_max):
+
+        if index == 0:
+            gdf_disjoint = pd.DataFrame(row).T
+            gdf_disjoint[ID] = gdf_disjoint[ID].apply(lambda x: frozenset([x]))
+            gdf_disjoint = GeoDataFrame(
+                gdf_disjoint, geometry="geometry", crs=epas_gdf.crs)
+            gdf_disjoint_cur_union = unary_union(gdf_disjoint["geometry"])
+
+        # Additional geometries
+        elif index < tqdm_max:
+
+            # Adding difference and intersections of the old geometries
+            # with the new geometry
+            gdf_disjoint["geometry_new_diff"] = gdf_disjoint.difference(
+                row["geometry"])
+            gdf_disjoint["geometry_new_int"] = gdf_disjoint.intersection(
+                row["geometry"])
+            gdf_disjoint = gdf_disjoint.drop("geometry", axis=1)
+
+            # Stacking all the new geometries in one column
+            gdf_disjoint = (gdf_disjoint
+                            .set_index(ID)
+                            .stack()
+                            .reset_index()
+                            .rename(columns={"level_1": "geom_type", 0: "geometry"}))
+
+            # Creating the new ID sets
+            gdf_disjoint[ID] = gdf_disjoint.apply(
+                lambda x: edit_id_set(x, row[ID], ID), axis=1)
+
+            # Adding the new sole geometry's ID and geometry
+            gdf_disjoint = gdf_disjoint.append({
+                ID: frozenset([row[ID]]),
+                "geom_type": "geometry_new_sole",
+                "geometry": row["geometry"].difference(gdf_disjoint_cur_union)
+            }, ignore_index=True)
+
+            # Removing geometries which are not polygons
+            gdf_disjoint["geometry"] = gdf_disjoint["geometry"].apply(
+                lambda x: polygonize_geom(x))
+            gdf_disjoint = GeoDataFrame(
+                gdf_disjoint, geometry="geometry", crs=epas_gdf.crs)
+
+            # Removing zero-area geometries
+            gdf_disjoint = gdf_disjoint.drop("geom_type", axis=1)[
+                (gdf_disjoint["geometry"].area != 0)]
+
+            # Sum geometry to subtract any new geometry being added
+            gdf_disjoint_cur_union = unary_union(
+                [gdf_disjoint_cur_union, row["geometry"]])
+
+    gdf_disjoint.reset_index(drop=True, inplace=True)
+
+    # Create duplicate entries to add all constants for self-intersecting geometries
+    gdf_disjoint = extend_gdf(gdf_disjoint, ID)
+
+    # Add gdf's constant values and old geometries areas for allocation
+    epas_gdf["old_ID_area"] = epas_gdf.area
+
+    gdf_disjoint = (gdf_disjoint.merge(
+        epas_gdf[[ID, "old_ID_area"] + gdf_constants + gdf_uniforms]))
+    gdf_disjoint = GeoDataFrame(
+        gdf_disjoint, geometry="geometry", crs=epas_gdf.crs)
+
+    # Add gdf's uniform values
+    gdf_disjoint["new_ID_area"] = gdf_disjoint.area
+    gdf_disjoint["area_fraction"] = gdf_disjoint["new_ID_area"] / \
+        gdf_disjoint["old_ID_area"]
+
+    # Intersecting geometries will have copies of the geometries
+    # and the uniform attributes will have different conflicting values
+    for uniform in gdf_uniforms:
+        gdf_disjoint[uniform] = gdf_disjoint[uniform] * \
+            gdf_disjoint["area_fraction"]
+
+    # delete temporary columns
+    del gdf_disjoint["new_ID_area"]
+    del gdf_disjoint["area_fraction"]
+    del gdf_disjoint["old_ID_area"]
+    del epas_gdf["old_ID_area"]
+
+    # Adding the new attribute
+    attributes[ID + "_set"] = "constant"
+    return gdf_disjoint, attributes
+
+
+def layer_intersection(layer1, layer2, attributes):
+    """
+    Break two layers, each covering the same area, into disjoint geometries.
+
+    Two GeoDataFrames are combined together in such a fashion that the
+    geometries are completely disjoint. The uniform attributes are allocated on
+    the basis of the fraction of the area covered by the new geometry
+    compared to the geometry it is being split from. There may be non-unique
+    geometries involved in either layer. If non-unique geometries are involved
+    in layer 1, layer 2 attributes get counted multiple times and are scaled
+    down accordingly and vice-versa.
 
     Example:
-        Provide list of tract/county IDs and the scaled intersection matrix
-        according to which demand has been allocated (e.g. population mapping).
-        It will return dictionary of demand area IDs and the fraction of their
-        demand associated with the list of tract/count IDs. Used as intermediate
-        step to outputting time series of intermediate/source demands
+        In the case of simple geometries A, B and A intersection B (X2)
+        in layer 1, and layer 2 containing geometries 1 and 2. The
+        new geometry (1 int A int B) will be counted twice, and same for new
+        geometry (2 int A int B). However, the allocation of the uniform
+        attribute is done based on the area fraction. So, it is divided by the
+        number of times the duplication is occurring.
+
+    The function returns a new GeoDataFrame with all columns from layer1 and
+    layer2.
 
     Args:
-        pop_norm_df (pandas.DataFrame): matrix mapping between source and
-            target/intermediate IDs (usually normalized population matrix)
-        intermediate_ids (list): list of tract or other intermediate IDs
+        layer1 (GeoDataframe): first GeoDataFrame
+        layer2 (GeoDataframe): second GeoDataFrame
+        attributes (dict): a dictionary keeping a track of all the types of
+        attributes with keys represented by column names from layer1 and
+        layer2, and the values representing the type of attribute. Types of
+        attributes include "constant", "uniform" and "ID". If a column name
+        `col` of type "ID" exists, then one column name `col`+"_set" of type
+        "constant" will exist in the attributes dictionary.
 
     Returns:
-        dict: Dictionary of keys demand area IDs and the fraction of demand
-        allocated to the list of intermediate geometry IDs
-
+        GeoDataFrame: New layer consisting all attributes in layer1 and layer2
     """
-    intermediate_demand_ratio_dict = pop_norm_df.loc[intermediate_ids].sum(
-    ).to_dict()
-    dict_area = pop_norm_df.sum(axis=0).to_dict()
-    return {k: v / dict_area[k] for k, v in intermediate_demand_ratio_dict.items() if v != 0}
+    # separating the uniforms and constant attributes
+    layer1_uniforms = [k for k, v in attributes.items() if (
+        (k in layer1.columns) and (v == "uniform"))]
+    layer2_uniforms = [k for k, v in attributes.items() if (
+        (k in layer2.columns) and (v == "uniform"))]
+
+    layer1_constants = [k for k, v in attributes.items() if (
+        (k in layer1.columns) and (v != "uniform"))]
+    layer2_constants = [k for k, v in attributes.items() if (
+        (k in layer2.columns) and (v != "uniform"))]
+
+    # Calculating the intersection layers
+    layer_new = geopandas.overlay(layer1, layer2)
+
+    # Calculating the areas for the uniform attribute calculations
+    layer1["layer1_area"] = layer1.area
+    layer2["layer2_area"] = layer2.area
+    layer_new["layernew_area"] = layer_new.area
+
+    # Merging the area layers for uniform attribute disaggregation calculation
+    layer_new = (layer_new
+                 .merge(layer1[layer1_constants + ["layer1_area"]])
+                 .merge(layer2[layer2_constants + ["layer2_area"]]))
+
+    # Calculating area fractions to scale the uniforms
+    layer_new["layer1_areafraction"] = layer_new["layernew_area"] / \
+        layer_new["layer1_area"]
+    layer_new["layer2_areafraction"] = layer_new["layernew_area"] / \
+        layer_new["layer2_area"]
+
+    # ID columns for scaling uniform values
+    layer1_IDs = [k for k, v in attributes.items() if (
+        (k in layer1.columns) and (v == "ID"))]
+    layer2_IDs = [k for k, v in attributes.items() if (
+        (k in layer2.columns) and (v == "ID"))]
+
+    # Scaling uniform values in the intersecting layer
+    # layer 1 multiple intersecting geometries will multiple count layer 2 uniforms
+    # layer 2 multiple intersecting geometries will multiple count layer 1 uniforms
+    layer_new["layer1_multi_counts"] = layer_new[[
+        col + "_set" for col in layer2_IDs]].applymap(len).product(axis=1)
+    layer_new["layer2_multi_counts"] = layer_new[[
+        col + "_set" for col in layer1_IDs]].applymap(len).product(axis=1)
+
+    # Uniform
+    # multiplied by the area fraction and
+    # divided by the multiple count that the area was counted for
+    for uniform in layer1_uniforms:
+        layer_new[uniform] = (layer_new[uniform]
+                              * layer_new["layer1_areafraction"]
+                              / layer_new["layer1_multi_counts"])
+
+    for uniform in layer2_uniforms:
+        layer_new[uniform] = (layer_new[uniform]
+                              * layer_new["layer2_areafraction"]
+                              / layer_new["layer2_multi_counts"])
+
+    # Deleting layer intermediate calculations
+    del layer1["layer1_area"]
+    del layer2["layer2_area"]
+    del layer_new["layernew_area"]
+    del layer_new["layer1_areafraction"]
+    del layer_new["layer2_areafraction"]
+    del layer_new["layer1_area"]
+    del layer_new["layer2_area"]
+
+    return layer_new
 
 
-def extract_time_series_demand_multiple_tracts(demand_df,
-                                               demand_id_col,
-                                               demand_col,
-                                               time_col,
-                                               normed_weights,
-                                               target_ids):
+def flatten(layers, attributes, disjoint):
     """
-    Re-allocate demand in a time series from source to target geometries.
+    Wrapper function which calls function
+    `create_disjoint_geoms` and `layer_intersection`.
+    """
 
-    Note that this function is used both to allocate demand from large source
-    areas to smaller geometries (according to some geogrpahically varying
-    attribute associated with those smaller geometries), and to aggregate the
-    allocated demand back together into larger geometries of interest (e.g.
-    the areas whose load curves will be used as constraings on electricity
-    system modeling.)
+    for i, layer in enumerate(layers):
+
+        if disjoint(i) == False:
+            # New column added and hence attributes dict updated in case of
+            # intersecting geometries
+            layer, attributes = complete_disjoint_geoms(layer, attributes)
+
+        else:
+            pass
+
+        if i == 0:
+            layer_new = layer
+
+        else:
+            layer_new = layer_intersection(layer_new, layer, attributes)
+
+    return layer_new
+
+
+def allocate_and_aggregate(disagg_layer, by="id", allocatees="demand", allocators="population", aggregators=[]):
+    """
+    Aggregates selected columns of the disaggregated layer based on arguments
+
+    It is assumed that the data, which needs to be disaggregated, is present as
+    `constant` attributes in the GeoDataFrame. The data is mapped by the `by`
+    columns. So, first the data is disaggregated, according to the allocator
+    columns. Then, it is returned if aggregators list is empty. If it is not,
+    then the data is aggregated again to the aggregator level
 
     Args:
-        demand_df (pandas.DataFrame): An electricity demand time series
-            containing data from multiple demand areas, each of which is
-            identified by its own ID. Which column contains the ID is
-            specified with the ferc_df_col parameter. Which column contains
-            the timestamp is specified with the time_col parameter.
-        demand_id_col (str): The label of the column in demand_df
-            which contains the demand area IDs.
-        demand_col (str): Name of the column containing the reported
-            electricity demand in demand_df.
-        time_col (str): Label of the column containing timestamps in
-            demand_df.
-        normed_weights (pandas.DataFrame): Dataframe containing normalized
-            values of the attribute being used to allocate demand
-            geographically, for the intersection of the demand area (column)
-            and the target area (row). Column labels are the IDs of the demand
-            areas (e.g. FERC 714 planning areas). Row labels are the IDs of
-            target geometries whose attributes are being used to allocate
-            demand (e.g. the FIPS IDs of census tracts for population based
-            demand allocation). The demand area IDs found in the column labels
-            must be a subset of the demand area IDs found in the timeseries
-            dataframe demand_df.
-
-        target_ids (list): A list of IDs associated with the target
-            geometries whose attributes are being used to allocate demand (e.g.
-            census tract FIPS IDs). These IDs must be a subset of the IDs
-            found in the row index of normed_weights.
+        disagg_layer (GeoDataframe): Completely disaggregated GeoDataFrame
+        by (str or list): single column or list of columns according to which
+        the constants to be allocated are mentioned (e.g. "Demand" (constant)
+        which needs to be allocated is mapped by "id". So, "id" is the `by`
+        column)
+        allocatees (str or list): single column or list of columns according to which
+        the constants to be allocated are mentioned (e.g. "Demand" (constant)
+        which needs to be allocated is mapped by "id". So, "demand" is the
+        `allocatees` column)
+        allocators (str or list): columns by which attribute is weighted and
+        allocated
+        aggregators (str or list): if empty list, the disaggregated data is
+        returned. If aggregators is mentioned, for example REEDs geometries, the
+        data is aggregated at that level.
 
     Returns:
-        pandas.DataFrame: An electricity demand time series analogous to the
-        input time series, but with demand allocated to the geometries
-        identified by the intermediate_ids.
-
+        geopandas.GeoDataFrame: Disaggregated GeoDataFrame with all the various
+        allocated demand columns, or aggregated by `aggregators`
     """
-    ratio_dict = extract_multiple_tracts_demand_ratios(
-        normed_weights, target_ids)
-    demand_trunc = demand_df[demand_df[demand_id_col].isin(ratio_dict.keys())]
-    out_df = (
-        demand_trunc.pivot_table(
-            index=time_col,
-            columns=demand_id_col,
-            values=demand_col
-        )
-        .fillna(0)
-        .dot(pd.Series(ratio_dict))
-    )
-    return out_df
+    # Allowing for single and multiple allocators,
+    # aggregating columns and allocatees
+    if type(allocators) is not list:
+        allocators = [allocators]
+
+    if type(allocatees) is not list:
+        allocatees = [allocatees]
+
+    if type(by) is not list:
+        by = [by]
+
+    # temp_allocator is product of all allocators in the row
+    disagg_layer["temp_allocator"] = disagg_layer[allocators].product(axis=1)
+
+    # the fractional allocation for each row is decided by the multiplier:
+    # (temp_allocator/temp_allocator_agg)
+    agg_layer = (disagg_layer[by + ["temp_allocator"]]
+                 .groupby(by)
+                 .sum()
+                 .reset_index()
+                 .rename(columns={"temp_allocator": "temp_allocator_agg"}))
+
+    # adding temp_allocator_agg column to the disagg_layer
+    disagg_layer = disagg_layer.merge(agg_layer)
+    allocatees_agg = [allocatee + "_allocated" for allocatee in allocatees]
+
+    # creating new allocated columns based on the allocation factor
+    disagg_layer[allocatees_agg] = disagg_layer[allocatees].multiply(disagg_layer["temp_allocator"]
+                                                                     / disagg_layer["temp_allocator_agg"],
+                                                                     axis=0)
+
+    # grouping by the relevant columns
+    if type(aggregators) is list:
+        if aggregators == []:
+
+            del agg_layer
+            del disagg_layer["temp_allocator"]
+            del disagg_layer["temp_allocator_agg"]
+            return disagg_layer
+
+    else:
+        # converting aggregators to list
+        aggregators = [aggregators]
+
+    df_alloc = disagg_layer[allocatees_agg +
+                            aggregators].groupby(aggregators).sum().reset_index()
+
+    # deleting columns with temporary calculations
+    del agg_layer
+    del disagg_layer["temp_allocator"]
+    del disagg_layer["temp_allocator_agg"]
+    for allocatee_agg in allocatees_agg:
+        del disagg_layer[allocatee_agg]
+
+    return df_alloc
