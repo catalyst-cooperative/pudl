@@ -29,7 +29,7 @@ DOI = {
         "eia860": "10.5072/zenodo.504556",
         "eia861": "10.5072/zenodo.504558",
         "eia923": "10.5072/zenodo.504560",
-        "epaipm": "10.5072/zenodo.504564",
+        "epaipm": "10.5072/zenodo.602953",
         "ferc1": "10.5072/zenodo.504562"
     },
     "production": {}

@@ -302,6 +302,7 @@ def pudl_settings_fixture(request, tmpdir_factory,  # noqa: C901
             str(live_pudl_db_path)
 
     logger.info(f'pudl_settings being used : {pudl_settings}')
+    pudl_settings["testing"] = True
     return pudl_settings
 
 

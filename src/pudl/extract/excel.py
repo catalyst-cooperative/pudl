@@ -160,7 +160,7 @@ class GenericExtractor(object):
         """Provide custom dtypes for given page and year."""
         return {}
 
-    def extract(self, years, testing):
+    def extract(self, years, testing=False):
         """Extracts dataframes.
 
         Returns dict where keys are page names and values are

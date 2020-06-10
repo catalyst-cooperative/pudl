@@ -200,12 +200,13 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     # generate CSVs for the static EIA tables, return the list of tables
     static_tables = _load_static_tables_eia(datapkg_dir)
 
+    testing = pudl_settings.get("testing", False)
     # Extract EIA forms 923, 860
     data_dir = pudl_settings["data_dir"]
-    eia923_raw_dfs = pudl.extract.eia923.Extractor(
-        data_dir).extract(eia923_years)
-    eia860_raw_dfs = pudl.extract.eia860.Extractor(
-        data_dir).extract(eia860_years)
+    eia923_raw_dfs = pudl.extract.eia923.Extractor().extract(
+        eia923_years, testing=testing)
+    eia860_raw_dfs = pudl.extract.eia860.Extractor().extract(
+        eia860_years, testing=testing)
     # Transform EIA forms 923, 860
     eia923_transformed_dfs = pudl.transform.eia923.transform(
         eia923_raw_dfs, eia923_tables=eia923_tables)
@@ -527,7 +528,7 @@ def _etl_epaipm(etl_params, datapkg_dir, pudl_settings):
 
     # Extract IPM tables
     epaipm_raw_dfs = pudl.extract.epaipm.extract(
-        epaipm_tables, data_dir=pudl_settings["data_dir"])
+        epaipm_tables, testing=pudl_settings.get("testing", False))
 
     epaipm_transformed_dfs = pudl.transform.epaipm.transform(
         epaipm_raw_dfs, epaipm_tables
