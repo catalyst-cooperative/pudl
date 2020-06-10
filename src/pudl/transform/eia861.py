@@ -502,14 +502,112 @@ def demand_response(raw_dfs, tfr_dfs):
     Transform the EIA 861 Demand Response table.
 
     Args:
-        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the extract step.
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
+        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the
+        extract step. tfr_dfs (dict): A dictionary of transformed EIA 861
+        DataFrames, keyed by table name. It will be mutated by this function.
 
     Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-
+        dict: A dictionary of transformed EIA 861 dataframes, keyed by table
+            name.
     """
+    idx_cols = [
+        "utility_id_eia",
+        "state",
+        "report_year",
+        "balancing_authority_code_eia",
+    ]
+
+    customer_classes = [
+        "commercial",
+        "industrial",
+        "other",
+        "residential",
+        "total",
+        "transportation"
+    ]
+
+    ###########################################################################
+    # Tidy Data:
+    ###########################################################################
+    logger.info("Tidying the EIA 861 Demand Response table.")
+    # Clean up values just enough to use primary key columns as a multi-index:
+    logger.debug("Cleaning up EIA861 Demand Response index columns so we can tidy data.")
+    raw_dr = (
+        raw_dfs["demand_response_eia861"].copy()
+        .assign(balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia.fillna("UNK"))
+        .dropna(subset=["utility_id_eia"])
+        .query("utility_id_eia not in (88888, 99999)")
+        .astype({"utility_id_eia": pd.Int64Dtype()})
+        .set_index(idx_cols)
+    )
+    # Split the table into index, data, and "denormalized" columns for processing:
+    # Separate customer classes and reported data into a hierarchical index
+    logger.debug("Stacking EIA861 Demand Response data columns by customer class.")
+    data_cols = _filter_customer_cols(raw_dr, customer_classes)
+    data_cols.columns = (
+        data_cols.columns.str.split("_", n=1, expand=True)
+        .set_names(["customer_class", None])
+    )
+    # Now stack the customer classes into their own categorical column,
+    data_cols = (
+        data_cols.stack(level=0, dropna=False)
+        .reset_index()
+    )
+
+    denorm_cols = _filter_non_customer_cols(
+        raw_dr, customer_classes).reset_index()
+
+    # Merge the index, data, and denormalized columns back together
+    tidy_dr = pd.merge(denorm_cols, data_cols, on=idx_cols)
+
+    # Remove the now redundant "Total" records -- they can be reconstructed
+    # from the other customer classes.
+    tidy_dr = tidy_dr.query("customer_class!='total'")
+    tidy_nrows = len(tidy_dr)
+    # remove duplicates on the primary key columns + customer_class -- there
+    # are a handful of records, all from 2010-2012, that have reporting errors
+    # that produce dupes, which do not have a clear meaning. The utility_id_eia
+    # values involved are: [8153, 13830, 17164, 56431, 56434, 56466, 56778,
+    # 56976, 56990, 57081, 57411, 57476, 57484, 58300]
+    tidy_dr = tidy_dr.drop_duplicates(
+        subset=idx_cols + ["customer_class"], keep=False)
+    deduped_nrows = len(tidy_dr)
+    logger.info(
+        f"Dropped {tidy_nrows-deduped_nrows} duplicate records from EIA 861 "
+        f"demand response table, out of a total of {tidy_nrows} records "
+        f"({(tidy_nrows-deduped_nrows)/tidy_nrows:.4%} of all records). "
+    )
+
+    ###########################################################################
+    # Set Datatypes:
+    # Need to ensure type compatibility before we can do the value based
+    # transformations below.
+    ###########################################################################
+    logger.info("Ensuring raw columns are type compatible.")
+    type_compat_dr = pudl.helpers.fix_eia_na(tidy_dr)
+    type_compat_dr = pudl.helpers.convert_cols_dtypes(type_compat_dr, 'eia')
+
+    ###########################################################################
+    # Transform Values:
+    # * Turn 1000s of dollars back into dollars
+    # * Replace report_year (int) with report_date (datetime64[ns])
+    ###########################################################################
+    logger.info("Performing value transformations on EIA 861 Sales table.")
+    transformed_dr = (
+        type_compat_dr.assign(
+            customer_incentives_cost=lambda x: x.customer_incentives_cost * 1000.0,
+            other_costs=lambda x: x.other_costs * 1000.0
+        )
+        .pipe(pudl.helpers.convert_to_date)
+    )
+
+    # REMOVE: when EIA 861 has been integrated with ETL -- this step
+    # should be happening after all of the tables are transformed.
+    # transformed_sales = pudl.helpers.convert_cols_dtypes(
+    #    transformed_sales, "eia", "sales_eia861")
+
+    tfr_dfs["demand_response_eia861"] = transformed_dr
+
     return tfr_dfs
 
 
@@ -692,6 +790,7 @@ def utility_data(raw_dfs, tfr_dfs):
 ##############################################################################
 # Coordinating Transform Function
 ##############################################################################
+
 def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
     """
     Transforms EIA 861 DataFrames.
@@ -713,6 +812,7 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "service_territory_eia861": service_territory,
         "balancing_authority_eia861": balancing_authority,
         "sales_eia861": sales,
+        "demand_response_eia861": demand_response,
     }
     tfr_dfs = {}
 
