@@ -371,15 +371,6 @@ def sales(raw_dfs, tfr_dfs):
         "balancing_authority_code_eia"
     ]
 
-    customer_classes = [
-        "commercial",
-        "industrial",
-        "other",
-        "residential",
-        "total",
-        "transportation"
-    ]
-
     ###########################################################################
     # Tidy Data:
     ###########################################################################
@@ -397,7 +388,7 @@ def sales(raw_dfs, tfr_dfs):
     # Split the table into index, data, and "denormalized" columns for processing:
     # Separate customer classes and reported data into a hierarchical index
     logger.debug("Stacking EIA861 Sales data columns by customer class.")
-    data_cols = _filter_customer_cols(raw_sales, customer_classes)
+    data_cols = _filter_customer_cols(raw_sales, pc.CUSTOMER_CLASSES)
     data_cols.columns = (
         data_cols.columns.str.split("_", n=1, expand=True)
         .set_names(["customer_class", None])
@@ -409,13 +400,14 @@ def sales(raw_dfs, tfr_dfs):
     )
 
     denorm_cols = _filter_non_customer_cols(
-        raw_sales, customer_classes).reset_index()
+        raw_sales, pc.CUSTOMER_CLASSES).reset_index()
 
     # Merge the index, data, and denormalized columns back together
     tidy_sales = pd.merge(denorm_cols, data_cols, on=idx_cols)
 
     # Remove the now redundant "Total" records -- they can be reconstructed
     # from the other customer classes.
+
     tidy_sales = tidy_sales.query("customer_class!='total'")
     tidy_nrows = len(tidy_sales)
     # remove duplicates on the primary key columns + customer_class -- there
@@ -513,17 +505,8 @@ def demand_response(raw_dfs, tfr_dfs):
     idx_cols = [
         "utility_id_eia",
         "state",
-        "report_year",
         "balancing_authority_code_eia",
-    ]
-
-    customer_classes = [
-        "commercial",
-        "industrial",
-        "other",
-        "residential",
-        "total",
-        "transportation"
+        "report_year",
     ]
 
     ###########################################################################
@@ -543,7 +526,7 @@ def demand_response(raw_dfs, tfr_dfs):
     # Split the table into index, data, and "denormalized" columns for processing:
     # Separate customer classes and reported data into a hierarchical index
     logger.debug("Stacking EIA861 Demand Response data columns by customer class.")
-    data_cols = _filter_customer_cols(raw_dr, customer_classes)
+    data_cols = _filter_customer_cols(raw_dr, pc.CUSTOMER_CLASSES)
     data_cols.columns = (
         data_cols.columns.str.split("_", n=1, expand=True)
         .set_names(["customer_class", None])
@@ -555,20 +538,22 @@ def demand_response(raw_dfs, tfr_dfs):
     )
 
     denorm_cols = _filter_non_customer_cols(
-        raw_dr, customer_classes).reset_index()
+        raw_dr, pc.CUSTOMER_CLASSES).reset_index()
 
     # Merge the index, data, and denormalized columns back together
     tidy_dr = pd.merge(denorm_cols, data_cols, on=idx_cols)
 
     # Remove the now redundant "Total" records -- they can be reconstructed
-    # from the other customer classes.
+    # from the other customer classes. Note that the utility records sometimes
+    # employ rounding so that their reported total values are 1 off from the
+    # calculated values. For the vast majority of these values "1" comprises
+    # less than 1% of their reported total, making it a menial difference.
+    # value columns tend to have 1 or 2 exceptions wherein the percent is
+    # between 10 and 33.333.
     tidy_dr = tidy_dr.query("customer_class!='total'")
     tidy_nrows = len(tidy_dr)
-    # remove duplicates on the primary key columns + customer_class -- there
-    # are a handful of records, all from 2010-2012, that have reporting errors
-    # that produce dupes, which do not have a clear meaning. The utility_id_eia
-    # values involved are: [8153, 13830, 17164, 56431, 56434, 56466, 56778,
-    # 56976, 56990, 57081, 57411, 57476, 57484, 58300]
+    # remove duplicates on the primary key columns (I don't think there are
+    # any here, this is just in case.)
     tidy_dr = tidy_dr.drop_duplicates(
         subset=idx_cols + ["customer_class"], keep=False)
     deduped_nrows = len(tidy_dr)

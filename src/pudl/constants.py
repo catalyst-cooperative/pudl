@@ -2576,7 +2576,7 @@ column_dtypes = {
         'customers': pd.Int64Dtype(),
         'customer_class': pd.CategoricalDtype(categories=[
             "residential", "commercial", "industrial", "transportation",
-            "other"
+            "other", "total",
         ]),
         'customer_incentives_cost': float,  # Added by AES for DR table
         'data_observed': pd.BooleanDtype(),
@@ -2749,3 +2749,16 @@ column_dtypes = {
         'zip_code': pd.StringDtype(),
     },
 }
+
+"""
+list: A list of customer classes.
+"""
+
+CUSTOMER_CLASSES = [
+    "commercial",
+    "industrial",
+    "other",
+    "residential",
+    "total",
+    "transportation"
+]
