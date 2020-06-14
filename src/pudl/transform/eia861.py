@@ -301,21 +301,26 @@ def service_territory(raw_dfs, tfr_dfs):
 
     """
     # No data tidying required
-    # All columns are already type compatible
+    # There are a few NA values in the county column which get interpreted
+    # as floats, which messes up the parsing of counties by addfips.
+    type_compatible_df = (
+        raw_dfs["service_territory_eia861"]
+        .assign(county=lambda x: x.county.astype(str))
+    )
     # Transform values:
     # * Add state and county fips IDs
     # * Convert report_year into report_date
-    df = (
+    transformed_df = (
         # Ensure that we have the canonical US Census county names:
         pudl.helpers.clean_eia_counties(
-            raw_dfs["service_territory_eia861"],
+            type_compatible_df,
             fixes=EIA_FIPS_COUNTY_FIXES)
         # Add FIPS IDs based on county & state names:
         .pipe(pudl.helpers.add_fips_ids)
         # Convert report year to report date
         .pipe(pudl.helpers.convert_to_date)
     )
-    tfr_dfs["service_territory_eia861"] = df
+    tfr_dfs["service_territory_eia861"] = transformed_df
     return tfr_dfs
 
 
@@ -531,7 +536,8 @@ def demand_response(raw_dfs, tfr_dfs):
     ###########################################################################
     logger.info("Tidying the EIA 861 Demand Response table.")
     # Clean up values just enough to use primary key columns as a multi-index:
-    logger.debug("Cleaning up EIA861 Demand Response index columns so we can tidy data.")
+    logger.debug(
+        "Cleaning up EIA861 Demand Response index columns so we can tidy data.")
     raw_dr = (
         raw_dfs["demand_response_eia861"].copy()
         .assign(balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia.fillna("UNK"))
@@ -542,7 +548,8 @@ def demand_response(raw_dfs, tfr_dfs):
     )
     # Split the table into index, data, and "denormalized" columns for processing:
     # Separate customer classes and reported data into a hierarchical index
-    logger.debug("Stacking EIA861 Demand Response data columns by customer class.")
+    logger.debug(
+        "Stacking EIA861 Demand Response data columns by customer class.")
     data_cols = _filter_customer_cols(raw_dr, customer_classes)
     data_cols.columns = (
         data_cols.columns.str.split("_", n=1, expand=True)
