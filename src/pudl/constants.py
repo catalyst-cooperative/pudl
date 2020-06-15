@@ -2227,6 +2227,7 @@ pudl_tables = {
         "service_territory_eia861",
         "balancing_authority_eia861",
         "sales_eia861",
+        "demand_response_eia861",
     ),
     'eia923': eia923_pudl_tables,
     'epacems': epacems_tables,
@@ -2541,6 +2542,7 @@ column_dtypes = {
         'unit_id_epa': pd.Int64Dtype(),  # Nullable Integer
     },
     "eia": {
+        'actual_peak_demand_savings_mw': float,  # Added by AES for DR table
         'ash_content_pct': float,
         'ash_impoundment': pd.BooleanDtype(),
         'ash_impoundment_lined': pd.BooleanDtype(),
@@ -2574,11 +2576,13 @@ column_dtypes = {
         'customers': pd.Int64Dtype(),
         'customer_class': pd.CategoricalDtype(categories=[
             "residential", "commercial", "industrial", "transportation",
-            "other"
+            "other", "total",
         ]),
+        'customer_incentives_cost': float,  # Added by AES for DR table
         'data_observed': pd.BooleanDtype(),
         'deliver_power_transgrid': pd.BooleanDtype(),
         'duct_burners': pd.BooleanDtype(),
+        'energy_savings_mwh': float,  # Added by AES for DR table
         'energy_source_code': pd.StringDtype(),
         'energy_source_code_1': pd.StringDtype(),
         'energy_source_code_2': pd.StringDtype(),
@@ -2642,13 +2646,14 @@ column_dtypes = {
         'net_generation_mwh': float,
         'net_metering': pd.BooleanDtype(),
         'nuclear_unit_id': pd.Int64Dtype(),
-        'original_planned_operating_date': 'datetime64[ns]',
         'operating_date': 'datetime64[ns]',
         'operating_switch': pd.StringDtype(),
         # TODO: double check this for early 860 years
         'operational_status': pd.StringDtype(),
         'operational_status_code': pd.StringDtype(),
+        'original_planned_operating_date': 'datetime64[ns]',
         'other_combustion_tech': pd.BooleanDtype(),
+        'other_costs': float,  # Added by AES for DR table
         'other_modifications_date': 'datetime64[ns]',
         'other_planned_modifications': pd.BooleanDtype(),
         'owner_city': pd.StringDtype(),
@@ -2680,6 +2685,7 @@ column_dtypes = {
         'plants_reported_operator': pd.BooleanDtype(),
         'plants_reported_other_relationship': pd.BooleanDtype(),
         'plants_reported_owner': pd.BooleanDtype(),
+        'potential_peak_demand_savings_mw': float,  # Added by AES for DR table
         'pulverized_coal_tech': pd.BooleanDtype(),
         'previously_canceled': pd.BooleanDtype(),
         'primary_transportation_mode_code': pd.StringDtype(),
@@ -2736,9 +2742,23 @@ column_dtypes = {
         'utility_name_eia': pd.StringDtype(),
         'utility_pobox': pd.StringDtype(),
         'utility_zip4': pd.StringDtype(),
+        'water_heater': pd.Int64Dtype(),  # Added by AES for DR table
         'water_source': pd.StringDtype(),
         'winter_capacity_mw': float,
         'winter_estimated_capability_mw': float,
         'zip_code': pd.StringDtype(),
     },
 }
+
+"""
+list: A list of customer classes.
+"""
+
+CUSTOMER_CLASSES = [
+    "commercial",
+    "industrial",
+    "other",
+    "residential",
+    "total",
+    "transportation"
+]
