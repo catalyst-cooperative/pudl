@@ -2,9 +2,6 @@ language: python
 
 matrix:
   include:
-  - python: "3.7"
-    env: PY_VERSION=py37
-    dist: xenial
   - python: "3.8"
     env: PY_VERSION=py38
     dist: xenial

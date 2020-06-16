@@ -10,7 +10,7 @@ repos:
 
 # Other file formatting, plus common Git mistakes & text file standardization:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.5.0
+  rev: v3.0.0
   hooks:
   - id: check-added-large-files # Don't accidentally commit giant files.
   - id: check-merge-conflict    # Watch for lingering merge markers.
@@ -24,7 +24,7 @@ repos:
 
 # Attempt to enforce standardized PEP8 style formatting:
 - repo: https://github.com/pre-commit/mirrors-autopep8
-  rev: v1.5
+  rev: v1.5.2
   hooks:
   - id: autopep8
 
@@ -40,7 +40,7 @@ repos:
 # - flake8-builtins
 # - pep8-naming
 - repo: https://github.com/PyCQA/flake8
-  rev: 3.7.9
+  rev: 3.8.1
   hooks:
   - id: flake8
     args: [--format, "%(path)40s:%(row)-4d %(code)s %(text)s"]

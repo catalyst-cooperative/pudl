@@ -5,6 +5,7 @@ import logging
 
 import pkg_resources
 
+import pudl.analysis.demand_mapping
 import pudl.analysis.mcoe
 import pudl.cli
 import pudl.constants
@@ -19,6 +20,7 @@ import pudl.extract.epacems
 import pudl.extract.epaipm
 import pudl.extract.excel
 import pudl.extract.ferc1
+import pudl.extract.ferc714
 import pudl.glue.ferc1_eia
 import pudl.helpers
 import pudl.load.csv
@@ -32,10 +34,12 @@ import pudl.output.pudltabl
 # Transformation functions, organized by data source:
 import pudl.transform.eia
 import pudl.transform.eia860
+import pudl.transform.eia861
 import pudl.transform.eia923
 import pudl.transform.epacems
 import pudl.transform.epaipm
 import pudl.transform.ferc1
+import pudl.transform.ferc714
 # Data validation tools and test cases:
 import pudl.validate
 # Deployed data & workspace management
@@ -61,7 +65,7 @@ data, with the goal of enabling climate advocates, academic researchers, and
 data journalists to better understand the electricity system and its impacts
 on climate.
 """
-__pythonrequiredversion__ = "3.7"
+__pythonrequiredversion__ = "3.8"
 __projecturl__ = "https://catalyst.coop/pudl/"
 __downloadurl__ = "https://github.com/catalyst-cooperative/pudl/"
 
