@@ -1,13 +1,28 @@
 """Functions for pulling EIA 923 data out of the PUDl DB."""
 
 import logging
+import os
 
+import numpy as np
 import pandas as pd
+import requests
 import sqlalchemy as sa
 
 import pudl
 
 logger = logging.getLogger(__name__)
+
+API_KEY_EIA = os.environ.get('API_KEY_EIA')
+
+BASE_URL_EIA = "http://api.eia.gov/"
+
+FUEL_TYPE_EIAAPI_MAP = {
+    "COW": "coal",
+    "NG": "gas",
+}
+
+FUEL_COST_CATEGORIES_EIAAPI = [41696, 41762]
+"""The category ids for fuel costs by fuel for electricity."""
 
 
 def generation_fuel_eia923(pudl_engine, freq=None,
@@ -125,7 +140,7 @@ def generation_fuel_eia923(pudl_engine, freq=None,
 
 def fuel_receipts_costs_eia923(pudl_engine, freq=None,
                                start_date=None, end_date=None,
-                               rolling=False):
+                               fill=False, roll=False):
     """
     Pull records from ``fuel_receipts_costs_eia923`` table in given date range.
 
@@ -168,6 +183,8 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         end_date (date-like): date-like object, including a string of the
             form 'YYYY-MM-DD' which will be used to specify the date range of
             records to be pulled.  Dates are inclusive.
+        fill (boolean): if
+        roll (boolean):
 
     Returns:
         pandas.DataFrame: A DataFrame containing all records from the EIA 923
@@ -199,11 +216,39 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
 
     cols_to_drop = ['id', 'mine_id_pudl']
     frc_df = frc_df.drop(cols_to_drop, axis=1)
+    frc_df = pudl.helpers.convert_cols_dtypes(frc_df, data_source='eia')
 
+    if fill:
+        logger.info('filling in fuel cost NaNs EIA APIs monthly state averages')
+        fuel_costs_avg_eiaapi = get_fuel_cost_avg_eiaapi()
+        # add the state from the plants table
+        frc_df = (
+            pudl.helpers.merge_on_date_year(
+                frc_df,
+                pudl.output.eia860.plants_eia860(
+                    pudl_engine, start_date=start_date, end_date=end_date)[
+                        ['report_date', 'plant_id_eia', 'state']],
+                on=['plant_id_eia', ], how='left')
+            .pipe(pd.merge, fuel_costs_avg_eiaapi,
+                  on=['report_date', 'state', 'fuel_type_code_pudl'],
+                  how='left')
+            .assign(fuel_cost_from_eiaapi=lambda x:
+                    np.where(x.fuel_cost_per_mmbtu.isnull()
+                             & x.fuel_cost_per_unit.notnull(),
+                             True, False),
+                    fuel_cost_per_mmbtu=lambda x:
+                    np.where(x.fuel_cost_per_mmbtu.isnull(),
+                             (x.fuel_cost_per_unit
+                              / x.heat_content_mmbtu_per_unit),
+                             x.fuel_cost_per_mmbtu)
+                    )
+        )
+    if not fill:
+        frc_df = frc_df.assign(fuel_cost_from_eiaapi=False)
     # this next step smoothes fuel_cost_per_mmbtu as a rolling monthly average.
     # for each month where there is any data make weighted averages of each
     # plant/fuel/month.
-    if rolling is True:
+    if roll:
         logger.info('filling in fuel cost NaNs with rolling averages')
         frc_df = pudl.helpers.fillna_w_rolling_avg(
             frc_df,
@@ -246,6 +291,8 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
             'total_mercury_content': pudl.helpers.sum_na,
             'total_moisture_content': pudl.helpers.sum_na,
             'total_chlorine_content': pudl.helpers.sum_na,
+            'fuel_cost_from_eiaapi': 'any',
+            'fuel_cost_per_unit': 'mean'
         })
         frc_df['fuel_cost_per_mmbtu'] = \
             frc_df['total_fuel_cost'] / frc_df['total_heat_content_mmbtu']
@@ -501,3 +548,70 @@ def generation_eia923(pudl_engine, freq=None,
         out_df = out_df.drop(['id'], axis=1)
 
     return out_df
+
+
+def make_url_cat_eiaapi(category_id):
+    """Generate a url for a category from EIA's API."""
+    return f"{BASE_URL_EIA}category/?api_key={API_KEY_EIA}&category_id={category_id}"
+
+
+def make_url_series_eiaapi(series_id):
+    """Generate a url for a series EIA's API."""
+    return f"{BASE_URL_EIA}series/?api_key={API_KEY_EIA}&series_id={series_id}"
+
+
+def get_response(url):
+    """Get a response from the API's url."""
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise ValueError(
+            f"API response code may be invalid. Code: {response.status_code}")
+    return response
+
+
+def grab_fuel_state_monthly(cat_id):
+    """Grab an API response for monthly fuel costs for one fuel category."""
+    # we are going to compile a string of series ids to put into one request
+    series_all = ""
+    fuel_level_cat = get_response(make_url_cat_eiaapi(cat_id))
+    for child in fuel_level_cat.json()['category']['childseries']:
+        # get only the monthly
+        if child['f'] == 'M':
+            logger.debug(f"    {child['series_id']}")
+            series_all = series_all + ";" + str(child['series_id'])
+
+    return get_response(make_url_series_eiaapi(series_all))
+
+
+def convert_cost_json_to_df(response_fuel_state_annual):
+    """Convert a fuel-type/state response into a clean dataframe."""
+    cost_df = (pd.json_normalize(response_fuel_state_annual.json()['series'],
+                                 'data',
+                                 ['geography', 'units', 'series_id', 'name', ])
+               .rename(columns={0: 'report_date',
+                                1: 'fuel_cost_per_unit',
+                                'geography': 'state',
+                                })
+               .assign(state=lambda x: x.state.str.partition('-', True)[2],
+                       # break up the long series_id to extract the fuel code
+                       fuel_type_code_pudl=lambda x:
+                       (x.series_id.str.partition('.', True)[2]
+                         .str.partition('.', True)[2]
+                        .str.partition('-', True)[0])
+                       )
+               .replace({'fuel_type_code_pudl': FUEL_TYPE_EIAAPI_MAP})
+               )
+    cost_df.loc[:, 'report_date'] = pd.to_datetime(
+        cost_df['report_date'], format='%Y%m')
+    return cost_df
+
+
+def get_fuel_cost_avg_eiaapi():
+    """Get a dataframe of state-level average fuel costs."""
+    # we can request up to 100 series from EIA but each state-level fuel type
+    # ser is over 50 so we need to pull one fuel type at a time and concat the resulting df
+    dfs_to_concat = []
+    for fuel_cat_id in FUEL_COST_CATEGORIES_EIAAPI:
+        dfs_to_concat.append(convert_cost_json_to_df(
+            grab_fuel_state_monthly(fuel_cat_id)))
+    return pd.concat(dfs_to_concat)
