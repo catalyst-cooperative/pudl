@@ -1,4 +1,6 @@
 """
+This module provide demand allocation functions to disaggregate, allocate and re-aggregate demand.
+
 A layer contains many features, each of which have an associated geometry and
 many attributes. For our purposes, let's allow each attribute to be one of two
 types:
@@ -32,10 +34,10 @@ import geopandas
 import numpy as np
 import pandas as pd
 import requests
-import tqdm
 from geopandas import GeoDataFrame
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
 from shapely.ops import unary_union
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +46,7 @@ logger = logging.getLogger(__name__)
 # Local data acquisition functions for the Demand Mapping analysis
 ################################################################################
 def download_zip_url(url, save_path, chunk_size=128):
-    """Convenience function to download a Zipfile directly."""
+    """Download a Zipfile directly."""
     r = requests.get(url, stream=True)
     with save_path.open(mode='wb') as fd:
         for chunk in r.iter_content(chunk_size=chunk_size):
@@ -156,19 +158,19 @@ def get_hifld_planning_areas_gdf(pudl_settings):
 ################################################################################
 # Demand allocation functions
 ################################################################################
-def edit_id_set(row, new_ID, ID):
+def edit_id_set(row, new_id, id_set):
     """
-    Editing ID sets by adding the new geometry ID if required.
+    Editing id sets by adding the new geometry id if required.
 
-    This function edits original ID sets by adding the new geometry ID if
+    This function edits original id sets by adding the new geometry id if
     required. This function is called by another function
     `complete_disjoint_geoms`
     """
     if row["geom_type"] == "geometry_new_int":
-        return frozenset(list(row[ID]) + [new_ID])
+        return frozenset(list(row[id_set]) + [new_id])
 
     else:
-        return row[ID]
+        return row[id_set]
 
 
 def polygonize_geom(geom):
@@ -179,7 +181,7 @@ def polygonize_geom(geom):
     (maybe a single geometry object or collection e.g. GeometryCollection)
     This function is called by another function `complete_disjoint_geoms`.
     """
-    if type(geom) == GeometryCollection:
+    if isinstance(geom, GeometryCollection):
 
         new_list = [a for a in list(geom) if type(a) in [
             Polygon, MultiPolygon]]
@@ -190,116 +192,129 @@ def polygonize_geom(geom):
         else:
             return MultiPolygon(new_list)
 
-    elif type(geom) in [MultiPolygon, Polygon]:
+    elif isinstance(geom, MultiPolygon) or isinstance(geom, Polygon):
         return geom
 
     else:
         return Polygon([])
 
 
-def extend_gdf(gdf_disjoint, ID):
+def extend_gdf(gdf_disjoint, id_col):
     """
     Add duplicates of intersecting geometries to be able to add the constants.
 
-    This function adds rows with duplicate geometries and creates the new `ID`
+    This function adds rows with duplicate geometries and creates the new `id_col`
     column for each of the new rows. This function is called by another function
     `complete_disjoint_geoms`.
     """
-    tqdm_max = gdf_disjoint.shape[0]
-    ext = pd.DataFrame(columns=list(gdf_disjoint.columns) + [ID + "_set"])
+    tqdm_max = len(gdf_disjoint)
+    ext = pd.DataFrame(columns=list(gdf_disjoint.columns) + [id_col + "_set"])
 
     for index, row in tqdm(gdf_disjoint.iterrows(), total=tqdm_max):
 
-        num = len(row[ID])
-        data = np.array([list(row[ID]), [row["geometry"]] * num]).T
+        num = len(row[id_col])
+        data = np.array([list(row[id_col]), [row["geometry"]] * num]).T
         ext_new = pd.DataFrame(data, columns=gdf_disjoint.columns)
-        ext_new[ID + "_set"] = [row[ID]] * num
+        ext_new[id_col + "_set"] = [row[id_col]] * num
         ext = ext.append(ext_new, ignore_index=True)
 
     return ext
 
 
-def complete_disjoint_geoms(epas_gdf, attributes, num_last=np.inf):
+def complete_disjoint_geoms(gdf, attributes):
     """
     Split a self-intersecting layer into distinct non-intersecting geometries.
 
     Given a GeoDataFrame of multiple geometries, some of which intersect each
     other, this function iterates through the geometries sequentially and
     fragments them into distinct individual pieces, and accordingly allocates
-    the uniform and constant attributes.
+    the `uniform` and `constant` attributes. The intersecting geometries repeat
+    the number of times particular `ID` encircles it.
 
     Args:
-        epas_gdf (GeoDataframe): GeoDataFrame consisting of the intersecting
+        gdf (GeoDataframe): GeoDataFrame consisting of the intersecting
+        geometries. Only `POLYGON` and `MULTIPOLYGON` geometries supported.
+        Other geometries will be deleted.
         attributes (dict): a dictionary keeping a track of all the types of
         attributes with keys represented by column name, and the values
         representing the type of attribute. One column from the
         attribute dictionary must belong in the GeoDataFrame and should be of
-        type `ID` to allow for the intersection to happen.
-        num_last (int): number of geometries iterated on in the GeoDataFrame
-        before stopping the disjointing operation (for debugging purposes)
+        type `ID` to allow for the intersection to happen. The other two
+        possible types are `uniform` and `constant`. The `uniform` type
+        attribute disaggregates the data across geometries and the `constant`
+        type is propagated as the same value.
 
     Returns:
-        geopandas.GeoDataFrame: GeoDataFrame with all attributes as epas_gdf
+        geopandas.GeoDataFrame: GeoDataFrame with all attributes as gdf
         and one extra attribute with name as the `ID` attribute appended by
-        "_set" substring
+        "_set" substring. The geometries will not include zero-area geometry
+        components.
 
         attributes: Adds the `ID`+"_set" as a `constant` attribute and returns the
         attributes dictionary
     """
     # ID is the index which will help to identify duplicate geometries
-    ID = [k for k, v in attributes.items() if (
-        (k in epas_gdf.columns) and (v == "ID"))][0]
+    gdf_ids = [k for k, v in attributes.items() if (
+        (k in gdf.columns) and (v == "ID"))][0]
     gdf_constants = [k for k, v in attributes.items() if (
-        (k in epas_gdf.columns) and (v == "constant"))]
+        (k in gdf.columns) and (v == "constant"))]
     gdf_uniforms = [k for k, v in attributes.items() if (
-        (k in epas_gdf.columns) and (v == "uniform"))]
+        (k in gdf.columns) and (v == "uniform"))]
 
-    tqdm_max = min(epas_gdf.shape[0], num_last)
+    # Check if `ID` column has all unique elements:
+    if gdf[gdf_ids].nunique() != len(gdf):
+        raise Exception("All ID column elements should be unique")
 
     # Iterating through each of the geometries
-    for index, row in tqdm(epas_gdf[[ID, "geometry"]].iterrows(), total=tqdm_max):
+    for row in tqdm((gdf[[gdf_ids, "geometry"]]
+                     .reset_index(drop=True)
+                     .itertuples()), total=len(gdf)):
 
+        index = row.Index
         if index == 0:
-            gdf_disjoint = pd.DataFrame(row).T
-            gdf_disjoint[ID] = gdf_disjoint[ID].apply(lambda x: frozenset([x]))
+            gdf_disjoint = (pd.DataFrame(row).T
+                            .drop(0, axis=1)
+                            .rename(columns={1: gdf_ids, 2: "geometry"}))
+            gdf_disjoint[gdf_ids] = gdf_disjoint[gdf_ids].apply(
+                lambda x: frozenset([x]))
             gdf_disjoint = GeoDataFrame(
-                gdf_disjoint, geometry="geometry", crs=epas_gdf.crs)
+                gdf_disjoint, geometry="geometry", crs=gdf.crs)
             gdf_disjoint_cur_union = unary_union(gdf_disjoint["geometry"])
 
         # Additional geometries
-        elif index < tqdm_max:
+        else:
 
             # Adding difference and intersections of the old geometries
             # with the new geometry
             gdf_disjoint["geometry_new_diff"] = gdf_disjoint.difference(
-                row["geometry"])
+                row[2])
             gdf_disjoint["geometry_new_int"] = gdf_disjoint.intersection(
-                row["geometry"])
+                row[2])
             gdf_disjoint = gdf_disjoint.drop("geometry", axis=1)
 
             # Stacking all the new geometries in one column
             gdf_disjoint = (gdf_disjoint
-                            .set_index(ID)
+                            .set_index(gdf_ids)
                             .stack()
                             .reset_index()
                             .rename(columns={"level_1": "geom_type", 0: "geometry"}))
 
-            # Creating the new ID sets
-            gdf_disjoint[ID] = gdf_disjoint.apply(
-                lambda x: edit_id_set(x, row[ID], ID), axis=1)
+            # Creating the new gdf_ids sets
+            gdf_disjoint[gdf_ids] = gdf_disjoint.apply(
+                lambda x: edit_id_set(x, row[1], gdf_ids), axis=1)
 
-            # Adding the new sole geometry's ID and geometry
+            # Adding the new sole geometry's gdf_ids and geometry
             gdf_disjoint = gdf_disjoint.append({
-                ID: frozenset([row[ID]]),
+                gdf_ids: frozenset([row[1]]),
                 "geom_type": "geometry_new_sole",
-                "geometry": row["geometry"].difference(gdf_disjoint_cur_union)
+                "geometry": row[2].difference(gdf_disjoint_cur_union)
             }, ignore_index=True)
 
             # Removing geometries which are not polygons
             gdf_disjoint["geometry"] = gdf_disjoint["geometry"].apply(
                 lambda x: polygonize_geom(x))
             gdf_disjoint = GeoDataFrame(
-                gdf_disjoint, geometry="geometry", crs=epas_gdf.crs)
+                gdf_disjoint, geometry="geometry", crs=gdf.crs)
 
             # Removing zero-area geometries
             gdf_disjoint = gdf_disjoint.drop("geom_type", axis=1)[
@@ -307,41 +322,41 @@ def complete_disjoint_geoms(epas_gdf, attributes, num_last=np.inf):
 
             # Sum geometry to subtract any new geometry being added
             gdf_disjoint_cur_union = unary_union(
-                [gdf_disjoint_cur_union, row["geometry"]])
+                [gdf_disjoint_cur_union, row[2]])
 
     gdf_disjoint.reset_index(drop=True, inplace=True)
 
     # Create duplicate entries to add all constants for self-intersecting geometries
-    gdf_disjoint = extend_gdf(gdf_disjoint, ID)
+    gdf_disjoint_complete = extend_gdf(gdf_disjoint, gdf_ids)
 
     # Add gdf's constant values and old geometries areas for allocation
-    epas_gdf["old_ID_area"] = epas_gdf.area
+    gdf["_old_ID_area"] = gdf.area
 
-    gdf_disjoint = (gdf_disjoint.merge(
-        epas_gdf[[ID, "old_ID_area"] + gdf_constants + gdf_uniforms]))
-    gdf_disjoint = GeoDataFrame(
-        gdf_disjoint, geometry="geometry", crs=epas_gdf.crs)
+    gdf_disjoint_complete = (gdf_disjoint_complete.merge(
+        gdf[[gdf_ids, "_old_ID_area"] + gdf_constants + gdf_uniforms]))
+    gdf_disjoint_complete = GeoDataFrame(
+        gdf_disjoint_complete, geometry="geometry", crs=gdf.crs)
 
     # Add gdf's uniform values
-    gdf_disjoint["new_ID_area"] = gdf_disjoint.area
-    gdf_disjoint["area_fraction"] = gdf_disjoint["new_ID_area"] / \
-        gdf_disjoint["old_ID_area"]
+    gdf_disjoint_complete["_new_ID_area"] = gdf_disjoint_complete.area
+    gdf_disjoint_complete["_area_fraction"] = gdf_disjoint_complete["_new_ID_area"] / \
+        gdf_disjoint_complete["_old_ID_area"]
 
     # Intersecting geometries will have copies of the geometries
     # and the uniform attributes will have different conflicting values
     for uniform in gdf_uniforms:
-        gdf_disjoint[uniform] = gdf_disjoint[uniform] * \
-            gdf_disjoint["area_fraction"]
+        gdf_disjoint_complete[uniform] = gdf_disjoint_complete[uniform] * \
+            gdf_disjoint_complete["_area_fraction"]
 
     # delete temporary columns
-    del gdf_disjoint["new_ID_area"]
-    del gdf_disjoint["area_fraction"]
-    del gdf_disjoint["old_ID_area"]
-    del epas_gdf["old_ID_area"]
+    del gdf_disjoint_complete["_new_ID_area"]
+    del gdf_disjoint_complete["_area_fraction"]
+    del gdf_disjoint_complete["_old_ID_area"]
+    del gdf["_old_ID_area"]
 
     # Adding the new attribute
-    attributes[ID + "_set"] = "constant"
-    return gdf_disjoint, attributes
+    attributes[gdf_ids + "_set"] = "constant"
+    return gdf_disjoint_complete, attributes
 
 
 def layer_intersection(layer1, layer2, attributes):
@@ -395,75 +410,112 @@ def layer_intersection(layer1, layer2, attributes):
     layer_new = geopandas.overlay(layer1, layer2)
 
     # Calculating the areas for the uniform attribute calculations
-    layer1["layer1_area"] = layer1.area
-    layer2["layer2_area"] = layer2.area
-    layer_new["layernew_area"] = layer_new.area
+    layer1["_layer1_area"] = layer1.area
+    layer2["_layer2_area"] = layer2.area
+    layer_new["_layernew_area"] = layer_new.area
 
     # Merging the area layers for uniform attribute disaggregation calculation
     layer_new = (layer_new
-                 .merge(layer1[layer1_constants + ["layer1_area"]])
-                 .merge(layer2[layer2_constants + ["layer2_area"]]))
+                 .merge(layer1[layer1_constants + ["_layer1_area"]])
+                 .merge(layer2[layer2_constants + ["_layer2_area"]]))
 
     # Calculating area fractions to scale the uniforms
-    layer_new["layer1_areafraction"] = layer_new["layernew_area"] / \
-        layer_new["layer1_area"]
-    layer_new["layer2_areafraction"] = layer_new["layernew_area"] / \
-        layer_new["layer2_area"]
+    layer_new["_layer1_areafraction"] = layer_new["_layernew_area"] / \
+        layer_new["_layer1_area"]
+    layer_new["_layer2_areafraction"] = layer_new["_layernew_area"] / \
+        layer_new["_layer2_area"]
 
     # ID columns for scaling uniform values
-    layer1_IDs = [k for k, v in attributes.items() if (
+    layer1_ids = [k for k, v in attributes.items() if (
         (k in layer1.columns) and (v == "ID"))]
-    layer2_IDs = [k for k, v in attributes.items() if (
+    layer2_ids = [k for k, v in attributes.items() if (
         (k in layer2.columns) and (v == "ID"))]
 
     # Scaling uniform values in the intersecting layer
     # layer 1 multiple intersecting geometries will multiple count layer 2 uniforms
     # layer 2 multiple intersecting geometries will multiple count layer 1 uniforms
-    layer_new["layer1_multi_counts"] = layer_new[[
-        col + "_set" for col in layer2_IDs]].applymap(len).product(axis=1)
-    layer_new["layer2_multi_counts"] = layer_new[[
-        col + "_set" for col in layer1_IDs]].applymap(len).product(axis=1)
+    layer_new["_layer1_multi_counts"] = layer_new[[
+        col + "_set" for col in layer2_ids]].applymap(len).product(axis=1)
+    layer_new["_layer2_multi_counts"] = layer_new[[
+        col + "_set" for col in layer1_ids]].applymap(len).product(axis=1)
 
     # Uniform
     # multiplied by the area fraction and
     # divided by the multiple count that the area was counted for
     for uniform in layer1_uniforms:
         layer_new[uniform] = (layer_new[uniform]
-                              * layer_new["layer1_areafraction"]
-                              / layer_new["layer1_multi_counts"])
+                              * layer_new["_layer1_areafraction"]
+                              # Keeping the below line commented
+                              # / layer_new["_layer1_multi_counts"]
+                              )
 
     for uniform in layer2_uniforms:
         layer_new[uniform] = (layer_new[uniform]
-                              * layer_new["layer2_areafraction"]
-                              / layer_new["layer2_multi_counts"])
+                              * layer_new["_layer2_areafraction"]
+                              # / layer_new["_layer2_multi_counts"]
+                              )
 
     # Deleting layer intermediate calculations
-    del layer1["layer1_area"]
-    del layer2["layer2_area"]
-    del layer_new["layernew_area"]
-    del layer_new["layer1_areafraction"]
-    del layer_new["layer2_areafraction"]
-    del layer_new["layer1_area"]
-    del layer_new["layer2_area"]
+    del layer1["_layer1_area"]
+    del layer2["_layer2_area"]
+    del layer_new["_layernew_area"]
+    del layer_new["_layer1_areafraction"]
+    del layer_new["_layer2_areafraction"]
+    del layer_new["_layer1_area"]
+    del layer_new["_layer2_area"]
+    del layer_new["_layer1_multi_counts"]
+    del layer_new["_layer2_multi_counts"]
 
     return layer_new
 
 
-def flatten(layers, attributes, disjoint):
+def flatten(layers, attributes):
     """
-    Wrapper function which calls function
-    `create_disjoint_geoms` and `layer_intersection`.
-    """
+    Disaggregates geometries by and propagates relevant data.
 
+    It is assumed that the layers are individual `GeoDataFrame`s and have three
+    types of columns, which signify the way data is propagated. These types are
+    `ID`, `constant`, `uniform`. These types are stored in the dictionary
+    `attributes`. The dictionary has a mapping of all requisite columns in each
+    of the layers as keys, and each of the above mentioned types as the values
+    for those keys. If an `ID` type column is present in a layer, it means that
+    the layer consists of intersecting geometries. If this happens, it is passed
+    through the `complete_disjoint_geoms` function to render it into completely
+    non-overlapping geometries. The other attributes are such:
+
+    - constant: The attribute is equal everywhere within the feature geometry
+    (e.g. identifier, percent area).
+        1. When splitting a feature, the attribute value for the resulting
+        features is that of their parent: e.g. [1] -> [1], [1].
+        2. When joining features, the attribute value for the resulting feature
+        must be a function of its children: e.g. [1], [1] -> [1, 1] (list) or 1
+        (appropriate aggregation function, e.g. median or area-weighted mean).
+
+    - uniform: The attribute is uniformly distributed within the feature
+    geometry (e.g. count, area).
+        1. When splitting a feature, the attribute value for the resulting
+        features is proportional to their area: e.g. [1] (100% area) -> [0.4]
+        (40% area), [0.6] (60% area).
+        2. When joining features, the attribute value for the resulting feature
+        is the sum of its children: e.g. [0.4], [0.6] -> [1].
+
+    Args:
+        layers (list of GeoDataFrames): Polygon feature layers.
+        attributes (dict): Attribute names and types ({ name: type, ... }),
+        where type is either 'ID', 'constant' or 'uniform'.
+    Returns:
+        GeoDataFrame: Polygon feature layer with all attributes named in
+        `attributes`.
+    """
     for i, layer in enumerate(layers):
 
-        if disjoint(i) == False:
+        cols = layer.columns
+        type_cols = [attributes.get(col) for col in cols]
+
+        if "ID" in type_cols:
             # New column added and hence attributes dict updated in case of
             # intersecting geometries
             layer, attributes = complete_disjoint_geoms(layer, attributes)
-
-        else:
-            pass
 
         if i == 0:
             layer_new = layer
@@ -474,15 +526,17 @@ def flatten(layers, attributes, disjoint):
     return layer_new
 
 
-def allocate_and_aggregate(disagg_layer, by="id", allocatees="demand", allocators="population", aggregators=[]):
+def allocate_and_aggregate(disagg_layer, attributes, by="id",
+                           allocatees="demand", allocators="population",
+                           aggregators=[]):
     """
-    Aggregates selected columns of the disaggregated layer based on arguments
+    Aggregate selected columns of the disaggregated layer based on arguments.
 
     It is assumed that the data, which needs to be disaggregated, is present as
     `constant` attributes in the GeoDataFrame. The data is mapped by the `by`
     columns. So, first the data is disaggregated, according to the allocator
     columns. Then, it is returned if aggregators list is empty. If it is not,
-    then the data is aggregated again to the aggregator level
+    then the data is aggregated again to the aggregator level.
 
     Args:
         disagg_layer (GeoDataframe): Completely disaggregated GeoDataFrame
@@ -504,15 +558,28 @@ def allocate_and_aggregate(disagg_layer, by="id", allocatees="demand", allocator
         geopandas.GeoDataFrame: Disaggregated GeoDataFrame with all the various
         allocated demand columns, or aggregated by `aggregators`
     """
+    id_cols = [k for k, v in attributes.items() if (
+        (k in disagg_layer.columns) and (v == "ID"))]
+
+    id_set_cols = [col + "_set" for col in id_cols]
+    disagg_layer["_multi_counts"] = (disagg_layer[id_set_cols]
+                                     .applymap(len)
+                                     .product(axis=1))
+
+    for uniform_col in allocators:
+        disagg_layer[uniform_col] = disagg_layer[uniform_col] / \
+            disagg_layer["_multi_counts"]
+
+    del disagg_layer["_multi_counts"]
     # Allowing for single and multiple allocators,
     # aggregating columns and allocatees
-    if type(allocators) is not list:
+    if not isinstance(allocators, list):
         allocators = [allocators]
 
-    if type(allocatees) is not list:
+    if not isinstance(allocatees, list):
         allocatees = [allocatees]
 
-    if type(by) is not list:
+    if not isinstance(by, list):
         by = [by]
 
     # temp_allocator is product of all allocators in the row
@@ -536,7 +603,7 @@ def allocate_and_aggregate(disagg_layer, by="id", allocatees="demand", allocator
                                                                      axis=0)
 
     # grouping by the relevant columns
-    if type(aggregators) is list:
+    if isinstance(aggregators, list):
         if aggregators == []:
 
             del agg_layer
