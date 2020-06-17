@@ -190,8 +190,8 @@ def polygonize_geom(geom):
     """
     if isinstance(geom, GeometryCollection):
 
-        new_list = [a for a in list(geom) if type(a) in [
-            Polygon, MultiPolygon]]
+        new_list = [a for a in list(geom) if isinstance(
+            a, Polygon) or isinstance(a, MultiPolygon)]
 
         if len(new_list) == 1:
             return new_list[0]
@@ -217,7 +217,7 @@ def extend_gdf(gdf_disjoint, id_col):
     tqdm_max = len(gdf_disjoint)
     ext = pd.DataFrame(columns=list(gdf_disjoint.columns) + [id_col + "_set"])
 
-    for index, row in tqdm(gdf_disjoint.iterrows(), total=tqdm_max):
+    for _, row in tqdm(gdf_disjoint.iterrows(), total=tqdm_max):
 
         num = len(row[id_col])
         data = np.array([list(row[id_col]), [row["geometry"]] * num]).T
@@ -319,7 +319,7 @@ def complete_disjoint_geoms(gdf, attributes):
 
             # Removing geometries which are not polygons
             gdf_disjoint["geometry"] = gdf_disjoint["geometry"].apply(
-                lambda x: polygonize_geom(x))
+                polygonize_geom)
             gdf_disjoint = GeoDataFrame(
                 gdf_disjoint, geometry="geometry", crs=gdf.crs)
 
@@ -533,7 +533,7 @@ def flatten(layers, attributes):
     return layer_new
 
 
-def allocate_and_aggregate(disagg_layer, attributes, by="id", allocatees="demand", allocators="population", aggregators=[]):
+def allocate_and_aggregate(disagg_layer, attributes, by="id", allocatees="demand", allocators="population", aggregators=None):
     """
     Aggregate selected columns of the disaggregated layer based on arguments.
 
@@ -563,6 +563,8 @@ def allocate_and_aggregate(disagg_layer, attributes, by="id", allocatees="demand
         geopandas.GeoDataFrame: Disaggregated GeoDataFrame with all the various
         allocated demand columns, or aggregated by `aggregators`
     """
+    if aggregators is None:
+        aggregators = []
     id_cols = [k for k, v in attributes.items() if (
         (k in disagg_layer.columns) and (v == "ID"))]
 
