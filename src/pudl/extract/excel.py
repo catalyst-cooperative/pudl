@@ -237,6 +237,7 @@ class GenericExtractor(object):
             year: 4 digit year
             page: pudl name for the dataset contents, eg
                   "boiler_generator_assn" or "coal_stocks"
+
         Return:
             string name of the xlsx file
         """
@@ -248,10 +249,6 @@ class GenericExtractor(object):
 
         item = next(info)
         p = Path(item["path"])
-
-        # This was caching the first page's file!
-        # if str(p) in self._file_cache:
-        #    return self._file_cache[str(p)]
 
         zf = zipfile.ZipFile(p)
         xlsx_filename = self.excel_filename(year, page)

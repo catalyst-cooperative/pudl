@@ -39,7 +39,15 @@ from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
 from shapely.ops import unary_union
 from tqdm import tqdm
 
+import pudl
+
 logger = logging.getLogger(__name__)
+
+################################################################################
+# Some constants useful for local use
+################################################################################
+MAP_CRS = "EPSG:3857"
+CALC_CRS = "ESRI:102003"
 
 
 ################################################################################
@@ -626,3 +634,376 @@ def allocate_and_aggregate(disagg_layer, attributes, by="id",
         del disagg_layer[allocatee_agg]
 
     return df_alloc
+
+
+################################################################################
+# Historical Planning / Balancing Area Geometry Compilation
+################################################################################
+def categorize_eia_code(rids_ferc714, utils_eia860, ba_eia861):
+    """
+    Categorize EIA Codes in FERC 714 as BA or Utility IDs.
+
+    Most FERC 714 respondent IDs are associated with an `eia_code` which
+    refers to either a `balancing_authority_id_eia` or a `utility_id_eia`
+    but no indication is given as to which type of ID each one is. This
+    is further complicated by the fact that EIA uses the same numerical
+    ID to refer to the same entity in most but not all cases, when that
+    entity acts as both a utility and as a balancing authority.
+
+    Given the nature of the FERC 714 hourly demand dataset, this function
+    assumes that if the `eia_code` appears in the EIA 861 Balancing
+    Authority table, that it should be labeled `balancing_authority`.
+    If the `eia_code` appears only in the EIA 860 Utility table, then
+    it is labeled `utility`. These labels are put in a new column named
+    `respondent_type`. If the planning area's `eia_code` does not appear in
+    either of those tables, then `respondent_type is set to NA.
+
+    Args:
+        rids_ferc714 (pandas.DataFrame): The FERC 714 `respondent_id` table.
+        utils_eia860 (pandas.DataFrame): The EIA 860 Utilities output table.
+        ba_eia861 (pandas.DataFrame): The EIA 861 Balancing Authority table.
+
+    Returns:
+        pandas.DataFrame: A table containing all of the columns present in
+        the FERC 714 `respondent_id` table, plus  a new one named
+        `respondent_type` which can take on the values `balancing_authority`,
+        `utility`, or the special value pandas.NA.
+
+    """
+    ba_ids = set(ba_eia861.balancing_authority_id_eia.dropna())
+    util_not_ba_ids = set(
+        utils_eia860.utility_id_eia.dropna()).difference(ba_ids)
+    new_rids = rids_ferc714.copy()
+    new_rids["respondent_type"] = pd.NA
+    new_rids.loc[new_rids.eia_code.isin(
+        ba_ids), "respondent_type"] = "balancing_authority"
+    new_rids.loc[new_rids.eia_code.isin(
+        util_not_ba_ids), "respondent_type"] = "utility"
+    ba_rids = new_rids[new_rids.respondent_type == "balancing_authority"]
+    util_rids = new_rids[new_rids.respondent_type == "utility"]
+    na_rids = new_rids[new_rids.respondent_type.isnull()]
+
+    ba_rids = (
+        ba_rids.merge(
+            ba_eia861
+            .filter(like="balancing_")
+            .drop_duplicates(subset=["balancing_authority_id_eia", "balancing_authority_code_eia"]),
+            how="left", left_on="eia_code", right_on="balancing_authority_id_eia"
+        )
+    )
+    util_rids = (
+        util_rids.merge(
+            utils_eia860[["utility_id_eia", "utility_name_eia"]]
+            .drop_duplicates("utility_id_eia"),
+            how="left", left_on="eia_code", right_on="utility_id_eia"
+        )
+    )
+    new_rids = (
+        pd.concat([ba_rids, util_rids, na_rids])
+        .astype({
+            "respondent_type": pd.StringDtype(),
+            "balancing_authority_code_eia": pd.StringDtype(),
+            "balancing_authority_id_eia": pd.Int64Dtype(),
+            "balancing_authority_name_eia": pd.StringDtype(),
+            "utility_id_eia": pd.Int64Dtype(),
+            "utility_name_eia": pd.StringDtype(),
+        })
+    )
+    return new_rids
+
+
+def has_demand(dhpa, rids):
+    """
+    Compile a dataframe indicating which respondents reported demand in what years.
+
+    Args:
+        dhpa (pandas.DataFrame): The demand_hourly_planning_area_ferc714 table, or
+            some subset of it.  Must include the report_year, respondent_id_ferc714,
+            demand_mwh, and report_year columns.
+        rids (pandas.DataFram): The respondent_id_ferc714 table, or similar dataframe,
+            including a respondent_id_ferc714 column with all of the respondent ID
+            values for which you want to check for demand.
+
+    Returns:
+        pandas.DataFrame: A dataframe with all 3 columns: respondent_id_ferc714 (int),
+            report_year (int), and has_demand (bool). All possible combinations of
+            respondent_id_ferc714 (from rids) and report_year (from dhpa) are present,
+            and the value of has_demand is True if that respondent ID reported more
+            than zero demand in that year.
+
+    """
+    # Create an complete 2-column index with all years and rids:
+    all_years = (
+        dhpa[["report_year"]]
+        .drop_duplicates()
+        .assign(tmp=1)
+    )
+    all_rids = (
+        rids[["respondent_id_ferc714"]]
+        .drop_duplicates()
+        .assign(tmp=1)
+    )
+    all_years_rids = (
+        pd.merge(all_years, all_rids)
+        .drop("tmp", axis="columns")
+    )
+    out_df = (
+        dhpa.groupby(["respondent_id_ferc714", "report_year"])
+        .agg({"demand_mwh": sum})
+        .reset_index()
+        .assign(has_demand=lambda x: x.demand_mwh > 0.0)
+        .drop("demand_mwh", axis="columns")
+        .merge(all_years_rids, how="right")
+        .assign(has_demand=lambda x: x.has_demand.fillna(False))
+        .pipe(pudl.helpers.convert_to_date)
+    )
+    return out_df
+
+
+def georef_planning_areas(ba_eia861,     # Balancing Area
+                          st_eia861,     # Service Territory
+                          sales_eia861,  # Sales
+                          census_gdf,    # Census DP1
+                          output_crs=MAP_CRS):
+    """
+    Georeference balancing authority and utility territories from EIA 861.
+
+    Use data from the EIA 861 balancing authority, service territory, and sales tables,
+    compile a list of counties (and county FIPS IDs) associated with each balancing
+    authority for each year, as well as for any utilities which don't appear to be
+    associated with any balancing authority. Then associate a county-level geometry from
+    the US Census DP1 dataset with each record, based on the county FIPS ID. This
+    (enormous) GeoDataFrame can then be used to produce simpler annual geometries by
+    dissolving based on either balancing authority or utility IDs and the report date.
+
+    The way that the relationship between balancing authorities and utilities is
+    reported changed between 2012 and 2013. Prior to 2013, the EIA 861 balancing
+    authority table enumerates all of the utilities which participate in each balancing
+    authority. In 2013 and subsequent years, the balancing authority table associates a
+    balancing authority code (e.g. SWPP or ERCO) with each balancing authority ID, and
+    also lists which states the balancing authority was operating in. These balancing
+    authority codes then appear in other EIA 861 tables like the Sales table, in
+    association with utilities and often states. For these later years, we must compile
+    the list of utility IDs which are seen in association with a particular balancing
+    authority code to understand which utilities are operating within which balancing
+    authorities, and thus which counties should be included in that authority's
+    territory. Because the state is also listed, we can select only a subset of the
+    counties that are part of the utility, providing much more geographic specificity.
+    This is especially important in the case of sprawling western utilities like
+    PacifiCorp, which drastically expand the apparent territory of a balancing authority
+    if the utility's entire service territory is included just because the sold
+    electricty within one small portion of the balancing authority's territory.
+
+    Args:
+        ba_eia861 (pandas.DataFrame): The balancing_authority_eia861 table.
+        st_eia861 (pandas.DataFrame): The service_territory_eia861 table.
+        sales_eia861 (pandas.DataFrame): The sales_eia861 table.
+        census_gdf (geopandas.GeoDataFrame): The counties layer of the US Census DP1
+            geospatial dataset.
+        output_crs (str): String representing a coordinate reference system (CRS) that
+            is recognized by geopandas. Applied to the output GeoDataFrame.
+
+    Returns:
+        geopandas.GeoDataFrame: Contains columns identifying the balancing authority,
+        utility, and state, along with the county geometry, for each year in which
+        those balancing authorities / utilities appeared in the EIA 861 Balancing
+        Authority table (through 2012) or the EIA 861 Sales table (for 2013 onward).
+
+    """
+    # Make sure that there aren't any more BA IDs we can recover from later years:
+    ba_ids_missing_codes = (
+        ba_eia861.loc[
+            ba_eia861.balancing_authority_code_eia.isnull(),
+            "balancing_authority_id_eia"]
+        .drop_duplicates()
+        .dropna()
+    )
+    assert len(ba_eia861[
+        (ba_eia861.balancing_authority_id_eia.isin(ba_ids_missing_codes)) &
+        (ba_eia861.balancing_authority_code_eia.notnull())
+    ]) == 0
+
+    # Which utilities were part of what balancing areas in 2010-2012?
+    early_ba_by_util = (
+        ba_eia861
+        .query("report_date <= '2012-12-31'")
+        .loc[:, [
+            "report_date",
+            "balancing_authority_id_eia",
+            "balancing_authority_code_eia",
+            "utility_id_eia",
+            "balancing_authority_name_eia",
+        ]]
+        .drop_duplicates(
+            subset=["report_date", "balancing_authority_id_eia", "utility_id_eia"])
+    )
+
+    # Create a dataframe that associates utilities and balancing authorities.
+    # This information is directly avaialble in the early_ba_by_util dataframe
+    # but has to be compiled for 2013 and later years based on the utility
+    # BA associations that show up in the Sales table
+    # Create an annual, normalized version of the BA table:
+    ba_normed = (
+        ba_eia861
+        .loc[:, [
+            "report_date",
+            "state",
+            "balancing_authority_code_eia",
+            "balancing_authority_id_eia",
+            "balancing_authority_name_eia",
+        ]]
+        .drop_duplicates(subset=[
+            "report_date",
+            "state",
+            "balancing_authority_code_eia",
+            "balancing_authority_id_eia",
+        ])
+    )
+    ba_by_util = (
+        pd.merge(
+            ba_normed,
+            sales_eia861
+            .loc[:, [
+                "report_date",
+                "state",
+                "utility_id_eia",
+                "balancing_authority_code_eia"
+            ]].drop_duplicates()
+        )
+        .loc[:, [
+            "report_date",
+            "state",
+            "utility_id_eia",
+            "balancing_authority_id_eia"
+        ]]
+        .append(early_ba_by_util[["report_date", "utility_id_eia", "balancing_authority_id_eia"]])
+        .drop_duplicates()
+        .merge(ba_normed)
+        .dropna(subset=["report_date", "utility_id_eia", "balancing_authority_id_eia"])
+        .sort_values(
+            ["report_date", "balancing_authority_id_eia", "utility_id_eia", "state"])
+    )
+    # Merge in county FIPS IDs for each county served by the utility from
+    # the service territory dataframe. We do an outer merge here so that we
+    # retain any utilities that are not part of a balancing authority. This
+    # lets us generate both BA and Util maps from the same GeoDataFrame
+    # We have to do this separately for the data up to 2012 (which doesn't
+    # include state) and the 2013 and onward data (which we need to have
+    # state for)
+    early_ba_util_county = (
+        ba_by_util.drop("state", axis="columns")
+        .merge(st_eia861, on=["report_date", "utility_id_eia"], how="outer")
+        .query("report_date <= '2012-12-31'")
+    )
+    late_ba_util_county = (
+        ba_by_util
+        .merge(st_eia861, on=["report_date", "utility_id_eia", "state"], how="outer")
+        .query("report_date >= '2013-01-01'")
+    )
+    ba_util_county = pd.concat([early_ba_util_county, late_ba_util_county])
+    # Bring in county geometry information based on FIPS ID from Census
+    ba_util_county_gdf = (
+        census_gdf[["GEOID10", "NAMELSAD10", "geometry"]]
+        .to_crs(output_crs)
+        .rename(
+            columns={
+                "GEOID10": "county_id_fips",
+                "NAMELSAD10": "county_name_census",
+            }
+        )
+        .merge(ba_util_county)
+    )
+
+    return ba_util_county_gdf
+
+
+def georef_rids_ferc714(annual_rids_ferc714, ba_util_county_gdf):
+    """
+    Georeference the FERC 714 Respondent ID Table.
+
+    Args:
+        annual_rids_ferc714 (pandas.DataFrame):
+        ba_util_county_gdf (geopandas.GeoDataFrame):
+
+    Returns:
+        geopandas.GeoDataFrame:
+
+    """
+    # The respondents we've determined are Utilities
+    utils_ferc714 = (
+        annual_rids_ferc714.loc[
+            annual_rids_ferc714.respondent_type == "utility",
+            [
+                "report_date",
+                "respondent_id_ferc714",
+                "respondent_name_ferc714",
+                "utility_id_eia",
+                "respondent_type",
+                "has_demand"
+            ]
+        ]
+    )
+    # The respondents we've determined are Balancing Authorities
+    bas_ferc714 = (
+        annual_rids_ferc714.loc[
+            annual_rids_ferc714.respondent_type == "balancing_authority",
+            [
+                "report_date",
+                "respondent_id_ferc714",
+                "respondent_name_ferc714",
+                "balancing_authority_id_eia",
+                "respondent_type",
+                "has_demand"
+            ]
+        ]
+    )
+    # The respondents whose types we can't figure out
+    null_ferc714 = (
+        annual_rids_ferc714.loc[
+            annual_rids_ferc714.respondent_type.isnull(),
+            [
+                "report_date",
+                "respondent_id_ferc714",
+                "respondent_name_ferc714",
+                "respondent_type",
+                "has_demand"
+            ]
+        ]
+    )
+    # Merge BA respondents with BA level geometries
+    bas_ferc714_gdf = (
+        ba_util_county_gdf
+        .drop(["county"], axis="columns")
+        .merge(
+            bas_ferc714,
+            on=["report_date", "balancing_authority_id_eia"],
+            how="right"
+        )
+    )
+    # Merge Utility respondents with Utility level geometries
+    utils_ferc714_gdf = (
+        ba_util_county_gdf
+        .drop([
+            "balancing_authority_id_eia",
+            "balancing_authority_code_eia",
+            "balancing_authority_name_eia",
+            "county"], axis="columns")
+        .drop_duplicates()
+        .merge(utils_ferc714, on=["report_date", "utility_id_eia"], how="right")
+    )
+    # Concatenate these differently merged dataframes back together:
+    return (
+        pd.concat([bas_ferc714_gdf, utils_ferc714_gdf, null_ferc714])
+        .astype({
+            "county_id_fips": pd.StringDtype(),
+            "county_name_census": pd.StringDtype(),
+            "respondent_type": pd.StringDtype(),
+            "utility_id_eia": pd.Int64Dtype(),
+            "balancing_authority_id_eia": pd.Int64Dtype(),
+            "balancing_authority_code_eia": pd.StringDtype(),
+            "balancing_authority_name_eia": pd.StringDtype(),
+            "state": pd.StringDtype(),
+            "utility_name_eia": pd.StringDtype(),
+            "has_demand": pd.BooleanDtype(),
+        })
+    )
