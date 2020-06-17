@@ -33,10 +33,10 @@ import geopandas
 import numpy as np
 import pandas as pd
 import requests
-import tqdm
 from geopandas import GeoDataFrame
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
 from shapely.ops import unary_union
+from tqdm import tqdm
 
 import pudl
 
@@ -533,9 +533,7 @@ def flatten(layers, attributes):
     return layer_new
 
 
-def allocate_and_aggregate(disagg_layer, attributes, by="id",
-                           allocatees="demand", allocators="population",
-                           aggregators=[]):
+def allocate_and_aggregate(disagg_layer, attributes, by="id", allocatees="demand", allocators="population", aggregators=[]):
     """
     Aggregate selected columns of the disaggregated layer based on arguments.
 
