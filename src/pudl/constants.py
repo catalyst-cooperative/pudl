@@ -2228,6 +2228,7 @@ pudl_tables = {
         "balancing_authority_eia861",
         "sales_eia861",
         "demand_response_eia861",
+        "distribution_systems_eia861",
     ),
     'eia923': eia923_pudl_tables,
     'epacems': epacems_tables,
@@ -2560,6 +2561,7 @@ column_dtypes = {
         'capacity_mw': float,
         'carbon_capture': pd.BooleanDtype(),
         'chlorine_content_ppm': float,
+        'circuits_with_voltage_optimization': pd.Int64Dtype(),  # Added by AES for DS table
         'city': pd.StringDtype(),
         'cofire_fuels': pd.BooleanDtype(),
         'contact_firstname': pd.StringDtype(),
@@ -2581,6 +2583,7 @@ column_dtypes = {
         'customer_incentives_cost': float,  # Added by AES for DR table
         'data_observed': pd.BooleanDtype(),
         'deliver_power_transgrid': pd.BooleanDtype(),
+        'distribution_circuits': pd.Int64Dtype(),  # Added by AES for DS table
         'duct_burners': pd.BooleanDtype(),
         'energy_savings_mwh': float,  # Added by AES for DR table
         'energy_source_code': pd.StringDtype(),
@@ -2749,16 +2752,3 @@ column_dtypes = {
         'zip_code': pd.StringDtype(),
     },
 }
-
-"""
-list: A list of customer classes.
-"""
-
-CUSTOMER_CLASSES = [
-    "commercial",
-    "industrial",
-    "other",
-    "residential",
-    "total",
-    "transportation"
-]
