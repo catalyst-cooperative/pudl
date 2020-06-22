@@ -576,12 +576,15 @@ def grab_fuel_state_monthly(cat_id):
     # we are going to compile a string of series ids to put into one request
     series_all = ""
     fuel_level_cat = get_response(make_url_cat_eiaapi(cat_id))
-    for child in fuel_level_cat.json()['category']['childseries']:
-        # get only the monthly
-        if child['f'] == 'M':
-            logger.debug(f"    {child['series_id']}")
-            series_all = series_all + ";" + str(child['series_id'])
+    try:
+        for child in fuel_level_cat.json()['category']['childseries']:
+            # get only the monthly
+            if child['f'] == 'M':
+                logger.debug(f"    {child['series_id']}")
+                series_all = series_all + ";" + str(child['series_id'])
 
+    except KeyError:
+        raise AssertionError(fuel_level_cat.json()['data']['error'])
     return get_response(make_url_series_eiaapi(series_all))
 
 
