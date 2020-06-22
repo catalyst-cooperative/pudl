@@ -216,10 +216,20 @@ BA_NAME_FIXES = pd.DataFrame([
             ]
 )
 
+CUSTOMER_CLASSES = [
+    "commercial",
+    "industrial",
+    "other",
+    "residential",
+    "total",
+    "transportation"
+]
 
 ###############################################################################
 # EIA Form 861 Transform Helper functions
 ###############################################################################
+
+
 def _filter_customer_cols(df, customer_classes):
     regex = f"^({'_|'.join(customer_classes)}).*$"
     return df.filter(regex=regex)
@@ -280,10 +290,16 @@ def _ba_code_backfill(df):
     return ba_eia861_filled
 
 
+def _early_transform(df):
+    df = pudl.helpers.fix_eia_na(df)
+    df = pudl.helpers.convert_to_date(df)
+    return df
+
+
 ###############################################################################
 # EIA Form 861 Table Transform Functions
 ###############################################################################
-def service_territory(raw_dfs, tfr_dfs):
+def service_territory(tfr_dfs):
     """Transform the EIA 861 utility service territory table.
 
     Args:
@@ -304,12 +320,11 @@ def service_territory(raw_dfs, tfr_dfs):
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
     type_compatible_df = (
-        raw_dfs["service_territory_eia861"]
+        tfr_dfs["service_territory_eia861"]
         .assign(county=lambda x: x.county.astype(str))
     )
     # Transform values:
     # * Add state and county fips IDs
-    # * Convert report_year into report_date
     transformed_df = (
         # Ensure that we have the canonical US Census county names:
         pudl.helpers.clean_eia_counties(
@@ -317,14 +332,12 @@ def service_territory(raw_dfs, tfr_dfs):
             fixes=EIA_FIPS_COUNTY_FIXES)
         # Add FIPS IDs based on county & state names:
         .pipe(pudl.helpers.add_fips_ids)
-        # Convert report year to report date
-        .pipe(pudl.helpers.convert_to_date)
     )
     tfr_dfs["service_territory_eia861"] = transformed_df
     return tfr_dfs
 
 
-def balancing_authority(raw_dfs, tfr_dfs):
+def balancing_authority(tfr_dfs):
     """
     Transform the EIA 861 Balancing Authority table.
 
@@ -341,11 +354,9 @@ def balancing_authority(raw_dfs, tfr_dfs):
     # All columns are already type compatible.
     # Value transformations:
     # * Backfill BA codes on a per BA ID basis
-    # * convert report_year into report_date
     # * Fix data entry errors
     df = (
-        raw_dfs["balancing_authority_eia861"]
-        .pipe(pudl.helpers.convert_to_date)
+        tfr_dfs["balancing_authority_eia861"]
         .pipe(_ba_code_backfill)
     )
     # Typo: NEVP, BA ID is 13407, but in 2014-2015 in UT, entered as 13047
@@ -365,12 +376,12 @@ def balancing_authority(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def sales(raw_dfs, tfr_dfs):
+def sales(tfr_dfs):
     """Transform the EIA 861 Sales table."""
     idx_cols = [
         "utility_id_eia",
         "state",
-        "report_year",
+        "report_date",
         "business_model",
         "service_type",
         "balancing_authority_code_eia"
@@ -383,7 +394,7 @@ def sales(raw_dfs, tfr_dfs):
     # Clean up values just enough to use primary key columns as a multi-index:
     logger.debug("Cleaning up EIA861 Sales index columns so we can tidy data.")
     raw_sales = (
-        raw_dfs["sales_eia861"].copy()
+        tfr_dfs["sales_eia861"].copy()
         .assign(balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia.fillna("UNK"))
         .dropna(subset=["utility_id_eia"])
         .query("utility_id_eia not in (88888, 99999)")
@@ -393,7 +404,7 @@ def sales(raw_dfs, tfr_dfs):
     # Split the table into index, data, and "denormalized" columns for processing:
     # Separate customer classes and reported data into a hierarchical index
     logger.debug("Stacking EIA861 Sales data columns by customer class.")
-    data_cols = _filter_customer_cols(raw_sales, pc.CUSTOMER_CLASSES)
+    data_cols = _filter_customer_cols(raw_sales, CUSTOMER_CLASSES)
     data_cols.columns = (
         data_cols.columns.str.split("_", n=1, expand=True)
         .set_names(["customer_class", None])
@@ -405,7 +416,7 @@ def sales(raw_dfs, tfr_dfs):
     )
 
     denorm_cols = _filter_non_customer_cols(
-        raw_sales, pc.CUSTOMER_CLASSES).reset_index()
+        raw_sales, CUSTOMER_CLASSES).reset_index()
 
     # Merge the index, data, and denormalized columns back together
     tidy_sales = pd.merge(denorm_cols, data_cols, on=idx_cols)
@@ -430,17 +441,8 @@ def sales(raw_dfs, tfr_dfs):
     )
 
     ###########################################################################
-    # Set Datatypes:
-    # Need to ensure type compatibility before we can do the value based
-    # transformations below.
-    ###########################################################################
-    logger.info("Ensuring raw columns are type compatible.")
-    type_compat_sales = pudl.helpers.fix_eia_na(tidy_sales)
-
-    ###########################################################################
     # Transform Values:
     # * Turn 1000s of dollars back into dollars
-    # * Replace report_year (int) with report_date (datetime64[ns])
     # * Re-code data_observed to boolean:
     #   * O="observed" => True
     #   * I="imputed" => False
@@ -451,7 +453,7 @@ def sales(raw_dfs, tfr_dfs):
     ###########################################################################
     logger.info("Performing value transformations on EIA 861 Sales table.")
     transformed_sales = (
-        type_compat_sales.assign(
+        tidy_sales.assign(
             revenues=lambda x: x.revenues * 1000.0,
             data_observed=lambda x: x.data_observed.replace({
                 "O": True,
@@ -465,7 +467,6 @@ def sales(raw_dfs, tfr_dfs):
             }),
             service_type=lambda x: x.service_type.str.lower(),
         )
-        .pipe(pudl.helpers.convert_to_date)
     )
 
     # REMOVE: when EIA 861 has been integrated with ETL -- this step
@@ -478,7 +479,7 @@ def sales(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def advanced_metering_infrastructure(raw_dfs, tfr_dfs):
+def advanced_metering_infrastructure(tfr_dfs):
     """
     Transform the EIA 861 Advanced Metering Infrastructure table.
 
@@ -494,7 +495,7 @@ def advanced_metering_infrastructure(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def demand_response(raw_dfs, tfr_dfs):
+def demand_response(tfr_dfs):
     """
     Transform the EIA 861 Demand Response table.
 
@@ -511,7 +512,7 @@ def demand_response(raw_dfs, tfr_dfs):
         "utility_id_eia",
         "state",
         "balancing_authority_code_eia",
-        "report_year",
+        "report_date",
     ]
 
     ###########################################################################
@@ -522,7 +523,7 @@ def demand_response(raw_dfs, tfr_dfs):
     logger.debug(
         "Cleaning up EIA861 Demand Response index columns so we can tidy data.")
     raw_dr = (
-        raw_dfs["demand_response_eia861"].copy()
+        tfr_dfs["demand_response_eia861"].copy()
         .assign(balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia.fillna("UNK"))
         .dropna(subset=["utility_id_eia"])
         .query("utility_id_eia not in (88888, 99999)")
@@ -533,7 +534,7 @@ def demand_response(raw_dfs, tfr_dfs):
     # Separate customer classes and reported data into a hierarchical index
     logger.debug(
         "Stacking EIA861 Demand Response data columns by customer class.")
-    data_cols = _filter_customer_cols(raw_dr, pc.CUSTOMER_CLASSES)
+    data_cols = _filter_customer_cols(raw_dr, CUSTOMER_CLASSES)
     data_cols.columns = (
         data_cols.columns.str.split("_", n=1, expand=True)
         .set_names(["customer_class", None])
@@ -543,9 +544,8 @@ def demand_response(raw_dfs, tfr_dfs):
         data_cols.stack(level=0, dropna=False)
         .reset_index()
     )
-
     denorm_cols = _filter_non_customer_cols(
-        raw_dr, pc.CUSTOMER_CLASSES).reset_index()
+        raw_dr, CUSTOMER_CLASSES).reset_index()
 
     # Merge the index, data, and denormalized columns back together
     tidy_dr = pd.merge(denorm_cols, data_cols, on=idx_cols)
@@ -559,17 +559,18 @@ def demand_response(raw_dfs, tfr_dfs):
     # between 10 and 33.333.
     tidy_dr = tidy_dr.query("customer_class!='total'")
     tidy_nrows = len(tidy_dr)
-    # remove duplicates on the primary key columns (I don't think there are
-    # any here, this is just in case.)
+
+    # shouldn't be duplicates but there are some strange values from IN.
+    # thinking this might have to do with DR table weirdness between 2012 and 2013
+    # will come back to this after working on the DSM table. Dropping dupes for now.
     tidy_dr = tidy_dr.drop_duplicates(
         subset=idx_cols + ["customer_class"], keep=False)
     deduped_nrows = len(tidy_dr)
     logger.info(
         f"Dropped {tidy_nrows-deduped_nrows} duplicate records from EIA 861 "
-        f"demand response table, out of a total of {tidy_nrows} records "
+        f"Demand Response table, out of a total of {tidy_nrows} records "
         f"({(tidy_nrows-deduped_nrows)/tidy_nrows:.4%} of all records). "
     )
-
     ###########################################################################
     # Set Datatypes:
     # Need to ensure type compatibility before we can do the value based
@@ -582,7 +583,6 @@ def demand_response(raw_dfs, tfr_dfs):
     ###########################################################################
     # Transform Values:
     # * Turn 1000s of dollars back into dollars
-    # * Replace report_year (int) with report_date (datetime64[ns])
     ###########################################################################
     logger.info("Performing value transformations on EIA 861 Sales table.")
     transformed_dr = (
@@ -590,7 +590,6 @@ def demand_response(raw_dfs, tfr_dfs):
             customer_incentives_cost=lambda x: x.customer_incentives_cost * 1000.0,
             other_costs=lambda x: x.other_costs * 1000.0
         )
-        .pipe(pudl.helpers.convert_to_date)
     )
 
     # REMOVE: when EIA 861 has been integrated with ETL -- this step
@@ -603,7 +602,7 @@ def demand_response(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def demand_side_management(raw_dfs, tfr_dfs):
+def demand_side_management(tfr_dfs):
     """
     Transform the EIA 861 Demand Side Management table.
 
@@ -619,7 +618,7 @@ def demand_side_management(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def distributed_generation(raw_dfs, tfr_dfs):
+def distributed_generation(tfr_dfs):
     """
     Transform the EIA 861 Distributed Generation table.
 
@@ -635,7 +634,7 @@ def distributed_generation(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def distribution_systems(raw_dfs, tfr_dfs):
+def distribution_systems(tfr_dfs):
     """
     Transform the EIA 861 Distribution Systems table.
 
@@ -648,10 +647,34 @@ def distribution_systems(raw_dfs, tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    # No data tidying required
+    # Make sure numeric columns have no strings
+    logger.info('Transforming Distribution Systems table')
+    transformed_df = (
+        tfr_dfs['distribution_systems_eia861'].copy()
+    )
+    # No duplicates to speak of but take measures to check just in case
+    dupes = (
+        transformed_df.duplicated(
+            subset=["utility_id_eia", "state", "report_date"], keep=False)
+    )
+    if dupes.any():
+        raise AssertionError(
+            f"Found {dupes.sum()} duplicate rows in the Distributed Systems \
+            table, when zero were expected!"
+        )
+
+    # Organize table output
+    organized_df = (
+        pudl.helpers.organize_cols(
+            transformed_df, ['utility_id_eia', 'state', 'report_date']
+        )
+    )
+    tfr_dfs["distribution_systems_eia861"] = organized_df
     return tfr_dfs
 
 
-def dynamic_pricing(raw_dfs, tfr_dfs):
+def dynamic_pricing(tfr_dfs):
     """
     Transform the EIA 861 Dynamic Pricing table.
 
@@ -667,7 +690,7 @@ def dynamic_pricing(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def green_pricing(raw_dfs, tfr_dfs):
+def green_pricing(tfr_dfs):
     """
     Transform the EIA 861 Green Pricing table.
 
@@ -683,7 +706,7 @@ def green_pricing(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def mergers(raw_dfs, tfr_dfs):
+def mergers(tfr_dfs):
     """
     Transform the EIA 861 Mergers table.
 
@@ -699,7 +722,7 @@ def mergers(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def net_metering(raw_dfs, tfr_dfs):
+def net_metering(tfr_dfs):
     """
     Transform the EIA 861 Net Metering table.
 
@@ -715,7 +738,7 @@ def net_metering(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def non_net_metering(raw_dfs, tfr_dfs):
+def non_net_metering(tfr_dfs):
     """
     Transform the EIA 861 Non-Net Metering table.
 
@@ -731,7 +754,7 @@ def non_net_metering(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def operational_data(raw_dfs, tfr_dfs):
+def operational_data(tfr_dfs):
     """
     Transform the EIA 861 Operational Data table.
 
@@ -747,7 +770,7 @@ def operational_data(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def reliability(raw_dfs, tfr_dfs):
+def reliability(tfr_dfs):
     """
     Transform the EIA 861 Reliability table.
 
@@ -763,7 +786,7 @@ def reliability(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def utility_data(raw_dfs, tfr_dfs):
+def utility_data(tfr_dfs):
     """
     Transform the EIA 861 Utility Data table.
 
@@ -785,7 +808,7 @@ def utility_data(raw_dfs, tfr_dfs):
 
 def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
     """
-    Transforms EIA 861 DataFrames.
+    Transform EIA 861 DataFrames.
 
     Args:
         raw_dfs (dict): a dictionary of tab names (keys) and DataFrames
@@ -805,6 +828,7 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "balancing_authority_eia861": balancing_authority,
         "sales_eia861": sales,
         "demand_response_eia861": demand_response,
+        "distribution_systems_eia861": distribution_systems,
     }
     tfr_dfs = {}
 
@@ -817,6 +841,6 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         if table in eia861_tables:
             logger.info(f"Transforming raw EIA 861 DataFrames for {table} "
                         f"concatenated across all years.")
-            eia861_transform_functions[table](raw_dfs, tfr_dfs)
-
+            tfr_dfs[table] = _early_transform(raw_dfs[table])
+            eia861_transform_functions[table](tfr_dfs)
     return tfr_dfs
