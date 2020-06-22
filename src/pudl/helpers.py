@@ -48,7 +48,9 @@ def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
         f"{len(df[df.state_id_fips.notnull()])/len(df):.2%} of records."
     )
     df["county_id_fips"] = df.apply(
-        lambda x: af.get_county_fips(state=x.state, county=x.county), axis=1)
+        lambda x: (af.get_county_fips(state=x.state, county=x.county)
+                   if x.county is not None else None),
+        axis=1)
     df["county_id_fips"] = df.county_id_fips.fillna(pd.NA)
     logger.info(
         f"Assigned county FIPS codes for "

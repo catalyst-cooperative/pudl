@@ -244,7 +244,9 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
                     )
         )
     if not fill:
-        frc_df = frc_df.assign(fuel_cost_from_eiaapi=False)
+        frc_df = frc_df.assign(fuel_cost_from_eiaapi=False,
+                               fuel_cost_per_unit=np.NaN
+                               )
     # this next step smoothes fuel_cost_per_mmbtu as a rolling monthly average.
     # for each month where there is any data make weighted averages of each
     # plant/fuel/month.
