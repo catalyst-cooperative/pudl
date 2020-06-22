@@ -261,9 +261,9 @@ def _ba_code_backfill(df):
     logger.info(
         f"Started with {start_nas} missing BA Codes out of {start_len} records ({start_nas/start_len:.2%})")
     ba_ids = (
-        df[["balancing_authority_id_eia", "balancing_authority_code_eia", "report_year"]]
+        df[["balancing_authority_id_eia", "balancing_authority_code_eia", "report_date"]]
         .drop_duplicates()
-        .sort_values(["balancing_authority_id_eia", "report_year"])
+        .sort_values(["balancing_authority_id_eia", "report_date"])
     )
     ba_ids["ba_code_filled"] = (
         ba_ids.groupby("balancing_authority_id_eia")[
@@ -287,6 +287,11 @@ def _ba_code_backfill(df):
         f"Ended with {end_nas} missing BA Codes out of {end_len} records ({end_nas/end_len:.2%})")
     return ba_eia861_filled
 
+
+def _early_transform(df):
+    df = df.pipe(pudl.helpers.fix_eia_na)
+    df = df.pipe(pudl.helpers.convert_to_date)
+    return df
 
 ###############################################################################
 # EIA Form 861 Table Transform Functions
@@ -317,7 +322,6 @@ def service_territory(raw_dfs, tfr_dfs):
     )
     # Transform values:
     # * Add state and county fips IDs
-    # * Convert report_year into report_date
     transformed_df = (
         # Ensure that we have the canonical US Census county names:
         pudl.helpers.clean_eia_counties(
@@ -371,10 +375,11 @@ def balancing_authority(raw_dfs, tfr_dfs):
 
 def sales(raw_dfs, tfr_dfs):
     """Transform the EIA 861 Sales table."""
+
     idx_cols = [
         "utility_id_eia",
         "state",
-        "report_year",
+        "report_date",
         "business_model",
         "service_type",
         "balancing_authority_code_eia"
@@ -438,13 +443,12 @@ def sales(raw_dfs, tfr_dfs):
     # Need to ensure type compatibility before we can do the value based
     # transformations below.
     ###########################################################################
-    logger.info("Ensuring raw columns are type compatible.")
+    #logger.info("Ensuring raw columns are type compatible.")
     type_compat_sales = pudl.helpers.fix_eia_na(tidy_sales)
 
     ###########################################################################
     # Transform Values:
     # * Turn 1000s of dollars back into dollars
-    # * Replace report_year (int) with report_date (datetime64[ns])
     # * Re-code data_observed to boolean:
     #   * O="observed" => True
     #   * I="imputed" => False
@@ -494,6 +498,7 @@ def advanced_metering_infrastructure(raw_dfs, tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+
     return tfr_dfs
 
 
@@ -514,7 +519,7 @@ def demand_response(raw_dfs, tfr_dfs):
         "utility_id_eia",
         "state",
         "balancing_authority_code_eia",
-        "report_year",
+        "report_date",
     ]
 
     ###########################################################################
@@ -546,7 +551,6 @@ def demand_response(raw_dfs, tfr_dfs):
         data_cols.stack(level=0, dropna=False)
         .reset_index()
     )
-
     denorm_cols = _filter_non_customer_cols(
         raw_dr, CUSTOMER_CLASSES).reset_index()
 
@@ -562,17 +566,18 @@ def demand_response(raw_dfs, tfr_dfs):
     # between 10 and 33.333.
     tidy_dr = tidy_dr.query("customer_class!='total'")
     tidy_nrows = len(tidy_dr)
-    # remove duplicates on the primary key columns (I don't think there are
-    # any here, this is just in case.)
+
+    # shouldn't be duplicates but there are some strange values from IN.
+    # thinking this might have to do with DR table weirdness between 2012 and 2013
+    # will come back to this after working on the DSM table. Dropping dupes for now.
     tidy_dr = tidy_dr.drop_duplicates(
         subset=idx_cols + ["customer_class"], keep=False)
     deduped_nrows = len(tidy_dr)
     logger.info(
         f"Dropped {tidy_nrows-deduped_nrows} duplicate records from EIA 861 "
-        f"demand response table, out of a total of {tidy_nrows} records "
+        f"sales table, out of a total of {tidy_nrows} records "
         f"({(tidy_nrows-deduped_nrows)/tidy_nrows:.4%} of all records). "
     )
-
     ###########################################################################
     # Set Datatypes:
     # Need to ensure type compatibility before we can do the value based
@@ -585,7 +590,6 @@ def demand_response(raw_dfs, tfr_dfs):
     ###########################################################################
     # Transform Values:
     # * Turn 1000s of dollars back into dollars
-    # * Replace report_year (int) with report_date (datetime64[ns])
     ###########################################################################
     logger.info("Performing value transformations on EIA 861 Sales table.")
     transformed_dr = (
@@ -655,22 +659,22 @@ def distribution_systems(raw_dfs, tfr_dfs):
     logger.info('Transforming Distribution Systems table')
     transformed_df = (
         raw_dfs['distribution_systems_eia861'].copy()
-        .pipe(pudl.helpers.fix_eia_na)
     )
-    # No duplicates to speak of but take measures to rid of them just in case
-    preduped_nrows = len(transformed_df)
-    transformed_df = transformed_df.drop_duplicates(
-        subset=['utility_id_eia', 'state', 'report_year'], keep=False)
-    deduped_nrows = len(transformed_df)
-    logger.info(
-        f"Dropped {preduped_nrows-deduped_nrows} duplicate records from EIA 861 "
-        f"distribution systems table, out of a total of {preduped_nrows} records "
-        f"({(preduped_nrows-deduped_nrows)/preduped_nrows:.4%} of all records). "
+    # No duplicates to speak of but take measures to check just in case
+    dupes = (
+        transformed_df.duplicated(
+            subset=["utility_id_eia", "state", "report_date"], keep=False)
     )
+    if dupes.any():
+        raise AssertionError(
+            f"Found {dupes.sum()} duplicate rows in the Distributed Systems \
+            table, when zero were expected!"
+        )
+
     # Organize table output
     organized_df = (
         pudl.helpers.organize_cols(
-            transformed_df, ['utility_id_eia', 'state', 'report_year']
+            transformed_df, ['utility_id_eia', 'state', 'report_date']
         )
     )
     tfr_dfs["distribution_systems_eia861"] = organized_df
@@ -811,7 +815,7 @@ def utility_data(raw_dfs, tfr_dfs):
 
 def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
     """
-    Transforms EIA 861 DataFrames.
+    Transform EIA 861 DataFrames.
 
     Args:
         raw_dfs (dict): a dictionary of tab names (keys) and DataFrames
@@ -834,6 +838,10 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "distribution_systems_eia861": distribution_systems,
     }
     tfr_dfs = {}
+
+    # run early transform to change year to date and fix eia na cols.
+    for table_name, table in raw_dfs.items():
+        raw_dfs[table_name] = _early_transform(table)
 
     if not raw_dfs:
         logger.info("No raw EIA 861 dataframes found. "
