@@ -4,7 +4,7 @@
 # * W503, W504: Line break before / after binary operator.
 # * D401, D413: imperative mood, blank line at end of docstring
 inline-quotes = double
-max-line-length 88
+max-line-length = 88
 ignore = E501,W504,W503,D413,D401
 # all the models are going away, package_data isn't code, analysis is zombie
 exclude = package_data

@@ -228,6 +228,8 @@ CUSTOMER_CLASSES = [
 ###############################################################################
 # EIA Form 861 Transform Helper functions
 ###############################################################################
+
+
 def _filter_customer_cols(df, customer_classes):
     regex = f"^({'_|'.join(customer_classes)}).*$"
     return df.filter(regex=regex)
@@ -289,9 +291,10 @@ def _ba_code_backfill(df):
 
 
 def _early_transform(df):
-    df = df.pipe(pudl.helpers.fix_eia_na)
-    df = df.pipe(pudl.helpers.convert_to_date)
+    df = pudl.helpers.fix_eia_na(df)
+    df = pudl.helpers.convert_to_date(df)
     return df
+
 
 ###############################################################################
 # EIA Form 861 Table Transform Functions
@@ -375,7 +378,6 @@ def balancing_authority(raw_dfs, tfr_dfs):
 
 def sales(raw_dfs, tfr_dfs):
     """Transform the EIA 861 Sales table."""
-
     idx_cols = [
         "utility_id_eia",
         "state",
@@ -439,14 +441,6 @@ def sales(raw_dfs, tfr_dfs):
     )
 
     ###########################################################################
-    # Set Datatypes:
-    # Need to ensure type compatibility before we can do the value based
-    # transformations below.
-    ###########################################################################
-    #logger.info("Ensuring raw columns are type compatible.")
-    type_compat_sales = pudl.helpers.fix_eia_na(tidy_sales)
-
-    ###########################################################################
     # Transform Values:
     # * Turn 1000s of dollars back into dollars
     # * Re-code data_observed to boolean:
@@ -459,7 +453,7 @@ def sales(raw_dfs, tfr_dfs):
     ###########################################################################
     logger.info("Performing value transformations on EIA 861 Sales table.")
     transformed_sales = (
-        type_compat_sales.assign(
+        tidy_sales.assign(
             revenues=lambda x: x.revenues * 1000.0,
             data_observed=lambda x: x.data_observed.replace({
                 "O": True,
@@ -498,7 +492,6 @@ def advanced_metering_infrastructure(raw_dfs, tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
-
     return tfr_dfs
 
 
@@ -575,7 +568,7 @@ def demand_response(raw_dfs, tfr_dfs):
     deduped_nrows = len(tidy_dr)
     logger.info(
         f"Dropped {tidy_nrows-deduped_nrows} duplicate records from EIA 861 "
-        f"sales table, out of a total of {tidy_nrows} records "
+        f"Demand Response table, out of a total of {tidy_nrows} records "
         f"({(tidy_nrows-deduped_nrows)/tidy_nrows:.4%} of all records). "
     )
     ###########################################################################
@@ -840,8 +833,8 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
     tfr_dfs = {}
 
     # run early transform to change year to date and fix eia na cols.
-    for table_name, table in raw_dfs.items():
-        raw_dfs[table_name] = _early_transform(table)
+    # for table_name, table in raw_dfs.items():
+    #     raw_dfs[table_name] = _early_transform(table)
 
     if not raw_dfs:
         logger.info("No raw EIA 861 dataframes found. "
@@ -852,10 +845,6 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         if table in eia861_tables:
             logger.info(f"Transforming raw EIA 861 DataFrames for {table} "
                         f"concatenated across all years.")
+            raw_dfs[table] = _early_transform(raw_dfs[table])
             eia861_transform_functions[table](raw_dfs, tfr_dfs)
-    # for each transformed table, convert year col to date
-    for table in tfr_dfs:
-        tfr_dfs[table] = (
-            tfr_dfs[table].pipe(pudl.helpers.convert_to_date)
-        )
     return tfr_dfs
