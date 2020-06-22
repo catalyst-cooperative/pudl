@@ -299,7 +299,7 @@ def _early_transform(df):
 ###############################################################################
 # EIA Form 861 Table Transform Functions
 ###############################################################################
-def service_territory(raw_dfs, tfr_dfs):
+def service_territory(early_tfr_dfs, tfr_dfs):
     """Transform the EIA 861 utility service territory table.
 
     Args:
@@ -320,7 +320,7 @@ def service_territory(raw_dfs, tfr_dfs):
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
     type_compatible_df = (
-        raw_dfs["service_territory_eia861"]
+        early_tfr_dfs["service_territory_eia861"]
         .assign(county=lambda x: x.county.astype(str))
     )
     # Transform values:
@@ -337,7 +337,7 @@ def service_territory(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def balancing_authority(raw_dfs, tfr_dfs):
+def balancing_authority(early_tfr_dfs, tfr_dfs):
     """
     Transform the EIA 861 Balancing Authority table.
 
@@ -356,7 +356,7 @@ def balancing_authority(raw_dfs, tfr_dfs):
     # * Backfill BA codes on a per BA ID basis
     # * Fix data entry errors
     df = (
-        raw_dfs["balancing_authority_eia861"]
+        early_tfr_dfs["balancing_authority_eia861"]
         .pipe(_ba_code_backfill)
     )
     # Typo: NEVP, BA ID is 13407, but in 2014-2015 in UT, entered as 13047
@@ -376,7 +376,7 @@ def balancing_authority(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def sales(raw_dfs, tfr_dfs):
+def sales(early_tfr_dfs, tfr_dfs):
     """Transform the EIA 861 Sales table."""
     idx_cols = [
         "utility_id_eia",
@@ -394,7 +394,7 @@ def sales(raw_dfs, tfr_dfs):
     # Clean up values just enough to use primary key columns as a multi-index:
     logger.debug("Cleaning up EIA861 Sales index columns so we can tidy data.")
     raw_sales = (
-        raw_dfs["sales_eia861"].copy()
+        early_tfr_dfs["sales_eia861"].copy()
         .assign(balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia.fillna("UNK"))
         .dropna(subset=["utility_id_eia"])
         .query("utility_id_eia not in (88888, 99999)")
@@ -479,7 +479,7 @@ def sales(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def advanced_metering_infrastructure(raw_dfs, tfr_dfs):
+def advanced_metering_infrastructure(early_tfr_dfs, tfr_dfs):
     """
     Transform the EIA 861 Advanced Metering Infrastructure table.
 
@@ -495,7 +495,7 @@ def advanced_metering_infrastructure(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def demand_response(raw_dfs, tfr_dfs):
+def demand_response(early_tfr_dfs, tfr_dfs):
     """
     Transform the EIA 861 Demand Response table.
 
@@ -523,7 +523,7 @@ def demand_response(raw_dfs, tfr_dfs):
     logger.debug(
         "Cleaning up EIA861 Demand Response index columns so we can tidy data.")
     raw_dr = (
-        raw_dfs["demand_response_eia861"].copy()
+        early_tfr_dfs["demand_response_eia861"].copy()
         .assign(balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia.fillna("UNK"))
         .dropna(subset=["utility_id_eia"])
         .query("utility_id_eia not in (88888, 99999)")
@@ -602,7 +602,7 @@ def demand_response(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def demand_side_management(raw_dfs, tfr_dfs):
+def demand_side_management(early_tfr_dfs, tfr_dfs):
     """
     Transform the EIA 861 Demand Side Management table.
 
@@ -618,7 +618,7 @@ def demand_side_management(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def distributed_generation(raw_dfs, tfr_dfs):
+def distributed_generation(early_tfr_dfs, tfr_dfs):
     """
     Transform the EIA 861 Distributed Generation table.
 
@@ -634,7 +634,7 @@ def distributed_generation(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def distribution_systems(raw_dfs, tfr_dfs):
+def distribution_systems(early_tfr_dfs, tfr_dfs):
     """
     Transform the EIA 861 Distribution Systems table.
 
@@ -651,7 +651,7 @@ def distribution_systems(raw_dfs, tfr_dfs):
     # Make sure numeric columns have no strings
     logger.info('Transforming Distribution Systems table')
     transformed_df = (
-        raw_dfs['distribution_systems_eia861'].copy()
+        early_tfr_dfs['distribution_systems_eia861'].copy()
     )
     # No duplicates to speak of but take measures to check just in case
     dupes = (
@@ -674,7 +674,7 @@ def distribution_systems(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def dynamic_pricing(raw_dfs, tfr_dfs):
+def dynamic_pricing(early_tfr_dfs, tfr_dfs):
     """
     Transform the EIA 861 Dynamic Pricing table.
 
@@ -690,7 +690,7 @@ def dynamic_pricing(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def green_pricing(raw_dfs, tfr_dfs):
+def green_pricing(early_tfr_dfs, tfr_dfs):
     """
     Transform the EIA 861 Green Pricing table.
 
@@ -706,7 +706,7 @@ def green_pricing(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def mergers(raw_dfs, tfr_dfs):
+def mergers(early_tfr_dfs, tfr_dfs):
     """
     Transform the EIA 861 Mergers table.
 
@@ -722,7 +722,7 @@ def mergers(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def net_metering(raw_dfs, tfr_dfs):
+def net_metering(early_tfr_dfs, tfr_dfs):
     """
     Transform the EIA 861 Net Metering table.
 
@@ -738,7 +738,7 @@ def net_metering(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def non_net_metering(raw_dfs, tfr_dfs):
+def non_net_metering(early_tfr_dfs, tfr_dfs):
     """
     Transform the EIA 861 Non-Net Metering table.
 
@@ -754,7 +754,7 @@ def non_net_metering(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def operational_data(raw_dfs, tfr_dfs):
+def operational_data(early_tfr_dfs, tfr_dfs):
     """
     Transform the EIA 861 Operational Data table.
 
@@ -770,7 +770,7 @@ def operational_data(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def reliability(raw_dfs, tfr_dfs):
+def reliability(early_tfr_dfs, tfr_dfs):
     """
     Transform the EIA 861 Reliability table.
 
@@ -786,7 +786,7 @@ def reliability(raw_dfs, tfr_dfs):
     return tfr_dfs
 
 
-def utility_data(raw_dfs, tfr_dfs):
+def utility_data(early_tfr_dfs, tfr_dfs):
     """
     Transform the EIA 861 Utility Data table.
 
@@ -831,10 +831,7 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "distribution_systems_eia861": distribution_systems,
     }
     tfr_dfs = {}
-
-    # run early transform to change year to date and fix eia na cols.
-    # for table_name, table in raw_dfs.items():
-    #     raw_dfs[table_name] = _early_transform(table)
+    early_tfr_dfs = {}
 
     if not raw_dfs:
         logger.info("No raw EIA 861 dataframes found. "
@@ -845,6 +842,6 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         if table in eia861_tables:
             logger.info(f"Transforming raw EIA 861 DataFrames for {table} "
                         f"concatenated across all years.")
-            raw_dfs[table] = _early_transform(raw_dfs[table])
-            eia861_transform_functions[table](raw_dfs, tfr_dfs)
+            early_tfr_dfs[table] = _early_transform(raw_dfs[table])
+            eia861_transform_functions[table](early_tfr_dfs, tfr_dfs)
     return tfr_dfs
