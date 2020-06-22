@@ -147,7 +147,10 @@ def pudl_out_eia(live_pudl_db, pudl_engine, request):
     return PudlTabl(pudl_engine=pudl_engine,
                     start_date=START_DATE_EIA,
                     end_date=END_DATE_EIA,
-                    freq=request.param)
+                    freq=request.param,
+                    fill=True,
+                    roll=True,
+                    )
 
 
 @pytest.fixture(scope='session')
