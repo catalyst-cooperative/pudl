@@ -101,15 +101,16 @@ def oob_to_nan(df, cols, lb=None, ub=None):
         pandas.DataFrame: The altered DataFrame.
 
     """
+    out_df = df.copy()
     for col in cols:
         # Force column to be numeric if possible, NaN otherwise:
-        df.loc[:, col] = pd.to_numeric(df[col], errors="coerce")
+        out_df.loc[:, col] = pd.to_numeric(out_df[col], errors="coerce")
         if lb is not None:
-            df.loc[df[col] < lb, col] = np.nan
+            out_df.loc[out_df[col] < lb, col] = np.nan
         if ub is not None:
-            df.loc[df[col] > ub, col] = np.nan
+            out_df.loc[out_df[col] > ub, col] = np.nan
 
-    return df
+    return out_df
 
 
 def prep_dir(dir_path, clobber=False):

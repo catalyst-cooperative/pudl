@@ -63,6 +63,237 @@ import pudl.constants as pc
 
 logger = logging.getLogger(__name__)
 
+BA_ID_NAME_FIXES = (
+    pd.DataFrame([
+        # report_date, util_id, ba_id, ba_name
+        ('2001-01-01', 40577, 99999, 'Multiple Control Areas'),
+
+        ('2002-01-01', 40577, 99999, 'Multiple Control Areas'),
+        ('2002-01-01', 2759, 13781, 'Xcel Energy'),
+        ('2002-01-01', 1004, 40604, 'Heartland Consumer Power Dist.'),
+        ('2002-01-01', 5659, 20847, 'Wisconsin Electric Power'),
+        ('2002-01-01', 5588, 9417, 'Interstate Power & Light'),
+        ('2002-01-01', 6112, 9417, 'INTERSTATE POWER & LIGHT'),
+        ('2002-01-01', 6138, 13781, 'Xcel Energy'),
+        ('2002-01-01', 6276, pd.NA, 'Vectren Energy Delivery'),
+        ('2002-01-01', 6501, 9417, 'Interstate Power and Light'),
+        ('2002-01-01', 6579, 4716, 'Dairyland Power Coop'),
+        ('2002-01-01', 6848, pd.NA, pd.NA),
+        ('2002-01-01', 7140, 18195, 'Southern Co Services Inc'),
+        ('2002-01-01', 7257, 22500, 'Westar Energy'),
+        ('2002-01-01', 7444, 14232, 'Minnkota Power Cooperative'),
+        ('2002-01-01', 8490, 22500, 'Westar'),
+        ('2002-01-01', 8632, 12825, 'NorthWestern Energy'),
+        ('2002-01-01', 8770, 22500, 'Westar Energy'),
+        ('2002-01-01', 8796, 13434, 'ISO New England'),
+        ('2002-01-01', 9699, pd.NA, 'Tri-State G&T'),
+        ('2002-01-01', 10040, 13781, 'Xcel Energy'),
+        ('2002-01-01', 10171, 56669, 'Midwest Indep System Operator'),
+        ('2002-01-01', 11053, 9417, 'INTERSTATE POWER & LIGHT'),
+        ('2002-01-01', 11148, 2775, 'California ISO'),
+        ('2002-01-01', 11522, 1, 'Maritimes-Canada'),
+        ('2002-01-01', 11731, 13781, 'XCEL Energy'),
+        ('2002-01-01', 11788, 9417, 'Interstate Power & Light'),
+        ('2002-01-01', 12301, 14232, 'Minnkota Power Cooperative'),
+        ('2002-01-01', 12698, 20391, 'Aquila Networks - MPS'),
+        ('2002-01-01', 12706, 18195, 'Southern Co Services Inc'),
+        ('2002-01-01', 3258, 9417, 'Interstate Power & Light'),
+        ('2002-01-01', 3273, 15473, 'Public Regulatory Commission'),
+        ('2002-01-01', 3722, 9417, 'Interstate Power and Light'),
+        ('2002-01-01', 1417, 12825, 'NorthWestern Energy'),
+        ('2002-01-01', 1683, 12825, 'Northwestern Energy'),
+        ('2002-01-01', 1890, 5416, 'Duke Energy Corporation'),
+        ('2002-01-01', 4319, 20447, 'Okla. Municipal Pwr. Authority'),
+        ('2002-01-01', 18446, 9417, 'Interstate Power and Light'),
+        ('2002-01-01', 19108, pd.NA, 'NC Rural Electrification Auth.'),
+        ('2002-01-01', 19545, 28503, 'Western Area Power Admin'),
+        ('2002-01-01', 12803, 18195, 'Southern Illinois Power'),
+        ('2002-01-01', 13382, 8283, 'Harrison County Rural Electric'),
+        ('2002-01-01', 13423, 829, 'Town of New Carlisle'),
+        ('2002-01-01', 13815, 13781, 'Xcel Energy'),
+        ('2002-01-01', 14649, 18195, 'GSOC (Georgia System Operation'),
+        ('2002-01-01', 15672, 924, 'Associated Electric Coop Inc'),
+        ('2002-01-01', 16023, 9417, 'Interstate Power and Light'),
+        ('2002-01-01', 16463, pd.NA, 'Central Louisiana Electric Co.'),
+        ('2002-01-01', 16922, 22500, 'Westar Energy'),
+        ('2002-01-01', 16992, 9417, 'Interstate Power and Light'),
+        ('2002-01-01', 17643, 924, 'Associated Electric Coop Inc'),
+        ('2002-01-01', 17706, 9417, 'Interstate Power & Light'),
+        ('2002-01-01', 20811, 19876, 'Dominion NC Power'),
+        ('2002-01-01', 3227, 15466, 'Xcel Energy'),
+        ('2002-01-01', 20227, 14063, 'OG&E'),
+        ('2002-01-01', 17787, 13337, 'Mun. Energy Agcy of Nebraska'),
+        ('2002-01-01', 19264, 17718, 'Excel Energy'),
+        ('2002-01-01', 11701, 19578, 'We Energies'),
+        ('2002-01-01', 28802, 14725, 'PJM Interconnection'),
+        ('2002-01-01', 20546, 1692, 'Big Rivers Electric Corp.'),
+        ('2002-01-01', 6223, 1, 'Maritimes-Canada'),
+        ('2002-01-01', 14405, 19876, 'VA Power'),
+        ('2002-01-01', 14405, 14725, 'PJM'),
+        ('2002-01-01', 12698, 20391, 'Aquila Networks - L&P'),
+        ('2002-01-01', 16267, 12698, 'Aquila'),
+        ('2002-01-01', 15871, 5723, 'ERC of Texas'),
+        ('2002-01-01', 6753, 28503, 'Regional Office'),
+        ('2002-01-01', 5571, 14328, 'Pacific Gas and Electric Co.'),
+        ('2002-01-01', 367, pd.NA, 'Western Area Power Admin'),
+        ('2002-01-01', 3247, 13501, 'NYISO'),
+        ('2002-01-01', 11014, 5723, 'Ercot'),
+        ('2002-01-01', 20845, 12427, 'Michigan Power Pool 12427'),
+        ('2002-01-01', 17267, pd.NA, 'Watertown, SD'),
+        ('2002-01-01', 12811, pd.NA, 'First Energy Corp.'),
+        ('2002-01-01', 17368, 13501, 'NYISO'),
+        ('2002-01-01', 5877, 13501, 'NYISO'),
+        ('2002-01-01', 3240, pd.NA, 'Pacific NW Generating Cooperat'),
+        ('2002-01-01', 3037, pd.NA, 'Trans Electric'),
+        ('2002-01-01', 12199, 28503, 'WAPA-Rocky Mountain'),
+        ('2002-01-01', 8936, 14378, 'Pacificorp'),
+        ('2002-01-01', 40604, pd.NA, 'Watertown, SD Office'),
+        ('2002-01-01', 19108, pd.NA, 'USDA- Rural Utility Service'),
+        ('2002-01-01', 8199, 20391, 'Aquila'),
+        ('2002-01-01', 12698, 20391, 'Aquila Networks - WPC'),
+        ('2002-01-01', 12698, 20391, 'Aquila Networks - WPK'),
+        ('2002-01-01', 20387, 14725, 'PJM West'),
+        ('2002-01-01', 588, 20447, 'Western Farmers Elec Coop Inc'),
+        ('2002-01-01', 17561, 5723, 'ERCOT ISO'),
+        ('2002-01-01', 17320, 13781, 'Xcel Energy'),
+        ('2002-01-01', 13676, 17716, 'Southwestern Power Admin.'),
+        ('2002-01-01', 5703, 13501, 'NTISO'),
+        ('2002-01-01', 113, 13501, 'NYISO'),
+        ('2002-01-01', 4486, pd.NA, 'REMC of Western Indiana'),
+        ('2002-01-01', 1039, 13501, 'NYISO'),
+        ('2002-01-01', 5609, pd.NA, 'NMISA'),
+        ('2002-01-01', 3989, pd.NA, 'WAPA'),
+        ('2002-01-01', 13539, 13501, 'NY Independent System Operator'),
+        ('2002-01-01', 15263, 14725, 'PJM West'),
+        ('2002-01-01', 12796, 14725, 'PJM West'),
+        ('2002-01-01', 3539, 13434, 'ISO New England'),
+        ('2002-01-01', 3575, 13434, 'ISO New England'),
+        ('2002-01-01', 3559, 13434, 'ISO New England'),
+        ('2002-01-01', 18193, pd.NA, pd.NA),
+        ('2002-01-01', 838, 3413, 'Chelan PUD'),
+        ('2002-01-01', 1049, 1738, 'Bonneville'),
+        ('2002-01-01', 9248, 14725, 'PJM'),
+        ('2002-01-01', 15026, 803, 'APS Control Area'),
+        ('2002-01-01', 798, 16572, 'Salt River Project'),
+        ('2002-01-01', 5603, 13501, 'ISO - NEW YORK'),
+        ('2002-01-01', 12260, 19876, 'Dominion Virginia Power'),
+        ('2002-01-01', 14788, 17716, 'Southwest Power Administration'),
+        ('2002-01-01', 12909, 22500, 'Westar Energy'),
+        ('2002-01-01', 5605, 9417, 'Interstate Power and Light'),
+        ('2002-01-01', 10908, 9417, 'Interstate Power and Light'),
+
+        ('2003-01-01', 3258, 9417, 'Interstate Power & Light'),
+        ('2003-01-01', 6501, 9417, 'Interstate Power & Light'),
+        ('2003-01-01', 10650, 9417, 'Interstate Power & Light'),
+        ('2003-01-01', 16992, 9417, 'Interstate Power & Light'),
+        ('2003-01-01', 3722, 9417, 'Interstate Power & Light'),
+        ('2003-01-01', 11788, 9417, 'Interstate Power & Light'),
+        ('2003-01-01', 5588, 9417, 'Interstate Power & Light'),
+        ('2003-01-01', 11053, 9417, 'Interstate Power & Light'),
+        ('2003-01-01', 16023, 9417, 'Interstate Power & Light'),
+        ('2003-01-01', 17706, 9417, 'Interstate Power & Light'),
+        ('2003-01-01', 18446, 9417, 'Interstate Power & Light'),
+        ('2004-01-01', 5309, 18195, 'Southern Company Services Inc'),
+        ('2004-01-01', 192, 192, 'Ryant T. Rose'),
+        ('2004-01-01', 6501, 9417, 'Interstate Power & Light'),
+        ('2004-01-01', 16992, 9417, 'Interstate Power & Light'),
+        ('2004-01-01', 8192, 14725, 'PJM-West'),
+        ('2004-01-01', 192, 192, 'Phillip K. Peter, Sr.'),
+        ('2004-01-01', 192, 192, 'Nelson Kinegak'),
+        ('2004-01-01', 1004, 40604, 'Heartland Consumer Power Dist.'),
+        ('2004-01-01', 3258, 9417, 'Interstate Power & Light'),
+        ('2004-01-01', 3722, 9417, 'Interstate Power & Light'),
+        ('2004-01-01', 19879, pd.NA, 'Kevin Smalls St Croix Districe'),
+        ('2004-01-01', 11788, 9417, 'Interstate Power & Light'),
+        ('2004-01-01', 4191, 13434, 'NEISO'),
+        ('2004-01-01', 10650, 9417, 'Interstate Power & Light'),
+        ('2004-01-01', 11053, 9417, 'Interstate Power & Light'),
+        ('2004-01-01', 18446, 9417, 'Interstate Power & Light'),
+        ('2004-01-01', 27000, pd.NA, 'Multiple Operators'),
+        ('2004-01-01', 19879, pd.NA, 'Corey Hodge - St Thomass/St Jo'),
+        ('2004-01-01', 13382, 8283, 'Harrison County Rural Electric'),
+        ('2004-01-01', 10784, pd.NA, 'Hawkeye Tri-county REC'),
+        ('2004-01-01', 16922, pd.NA, 'The Brown Atchison Electric Co'),
+        ('2004-01-01', 15026, 803, 'APS Control Area'),
+        ('2005-01-01', 192, 192, 'Ryant T. Rose'),
+        ('2005-01-01', 192, 192, 'Phillip K. Peter, Sr.'),
+        ('2005-01-01', 192, 182, 'Nelson Kinegak'),
+        ('2005-01-01', 3258, 9417, 'Interstate Power & Light'),
+        ('2005-01-01', 1004, 40604, 'Heartland Consumer Power Dist.'),
+        ('2005-01-01', 5309, 18195, 'Southern Company Services Inc'),
+        ('2005-01-01', 6501, 9417, 'Interstate Power & Light'),
+        ('2005-01-01', 10623, 6455, 'Florida Power Corp'),
+        ('2005-01-01', 10650, 9417, 'Interstate Power & Light'),
+        ('2005-01-01', 13382, 8283, 'Harrison County Rural Electric'),
+        ('2005-01-01', 16922, pd.NA, 'The Brown Atchison Electric Co'),
+        ('2005-01-01', 3722, 9417, 'Interstate Power & Light'),
+        ('2005-01-01', 4191, 13434, 'NEISO'),
+        ('2005-01-01', 11788, 9417, 'Interstate Power & Light'),
+        ('2005-01-01', 8192, 14725, 'PJM-West'),
+        ('2005-01-01', 11053, 9417, 'Interstate Power & Light'),
+        ('2005-01-01', 13815, 13781, 'Northern States Power Co'),
+        ('2005-01-01', 15026, 803, 'APS Control Area'),
+        ('2005-01-01', 18446, 9417, 'Interstate Power & Light'),
+        ('2005-01-01', 19879, pd.NA, 'Kevin Smalls St Croix Districe'),
+        ('2005-01-01', 19879, pd.NA, 'Corey Hodge - St Thomass/St Jo'),
+        ('2005-01-01', 27000, pd.NA, 'Multiple Operators'),
+        ('2005-01-01', 10610, 13501, 'ISO New York'),
+
+        ('2006-01-01', 10610, 13501, 'ISO New York'),
+
+        ('2008-01-01', 10610, 13501, 'ISO New York'),
+
+        ('2009-01-01', 10610, 13501, 'ISO New York'),
+
+        ('2010-01-01', 6389, 3755, 'Cleveland Electric Illum Co'),
+        ('2010-01-01', 6389, 13998, 'Ohio Edison Co'),
+        ('2010-01-01', 6389, 18997, 'Toledo Edison Co'),
+        ('2010-01-01', 6949, 10000, 'Kansas City Power & Light Co'),
+        ('2010-01-01', 14127, 14127, 'Omaha Public Power District'),
+        ('2010-01-01', 11196, 13434, 'ISO New England'),
+        ('2010-01-01', 97, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 3258, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 3405, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 3755, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 7292, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 8847, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 11701, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 13032, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 13998, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 14716, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 17141, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 18997, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 21249, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 40582, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 54862, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 56162, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 56496, 56669, 'Midwest Independent System Operator'),
+        ('2010-01-01', 10610, 13501, 'ISO New York'),
+
+        ('2011-01-01', 1968, 56669, 'Midwest Independent System Operator'),
+        ('2011-01-01', 20806, 56669, 'Midwest Independent System Operator'),
+        ('2011-01-01', 29296, 56669, 'Midwest Independent System Operator'),
+
+        ('2012-01-01', 1968, 56669, 'Midwest Independent System Operator'),
+        ('2012-01-01', 20806, 56669, 'Midwest Independent System Operator'),
+        ('2012-01-01', 29296, 56669, 'Midwest Independent System Operator'),
+
+    ], columns=[
+        "report_date",  # We have this
+        "utility_id_eia",  # We have this
+        "balancing_authority_id_eia",  # We need to set this
+        "balancing_authority_name_eia",  # We have this
+    ])
+    .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    .astype({
+        "utility_id_eia": pd.Int64Dtype(),
+        "balancing_authority_id_eia": pd.Int64Dtype(),
+        "balancing_authority_name_eia": pd.StringDtype(),
+    })
+    .dropna(subset=["report_date", "balancing_authority_name_eia", "utility_id_eia"])
+    .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
+)
+
 EIA_FIPS_COUNTY_FIXES = pd.DataFrame([
     ("AK", "Aleutians Ea", "Aleutians East"),
     ("AK", "Aleutian Islands", "Aleutians East"),
@@ -261,7 +492,8 @@ def _ba_code_backfill(df):
     start_len = len(df)
     start_nas = len(df.loc[df.balancing_authority_code_eia.isnull()])
     logger.info(
-        f"Started with {start_nas} missing BA Codes out of {start_len} records ({start_nas/start_len:.2%})")
+        f"Started with {start_nas} missing BA Codes out of {start_len} "
+        f"records ({start_nas/start_len:.2%})")
     ba_ids = (
         df[["balancing_authority_id_eia", "balancing_authority_code_eia", "report_date"]]
         .drop_duplicates()
@@ -286,7 +518,8 @@ def _ba_code_backfill(df):
     end_nas = len(
         ba_eia861_filled.loc[ba_eia861_filled.balancing_authority_code_eia.isnull()])
     logger.info(
-        f"Ended with {end_nas} missing BA Codes out of {end_len} records ({end_nas/end_len:.2%})")
+        f"Ended with {end_nas} missing BA Codes out of {end_len} "
+        f"records ({end_nas/end_len:.2%})")
     return ba_eia861_filled
 
 
@@ -303,9 +536,6 @@ def service_territory(tfr_dfs):
     """Transform the EIA 861 utility service territory table.
 
     Args:
-        raw_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA861 form, as reported in the
-            Excel spreadsheets they distribute.
         tfr_dfs (dict): A dictionary of DataFrame objects in
             which pages from EIA861 form (keys) correspond to normalized
             DataFrames of values from that page (values)
@@ -342,7 +572,6 @@ def balancing_authority(tfr_dfs):
     Transform the EIA 861 Balancing Authority table.
 
     Args:
-        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the extract step.
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
 
@@ -357,8 +586,16 @@ def balancing_authority(tfr_dfs):
     # * Fix data entry errors
     df = (
         tfr_dfs["balancing_authority_eia861"]
-        .pipe(_ba_code_backfill)
+        .pipe(pudl.helpers.convert_cols_dtypes, "eia", "balancing_authority_eia861")
+        .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     )
+
+    # Fill in BA IDs based on date, utility ID, and BA Name:
+    df.loc[BA_ID_NAME_FIXES.index,
+           "balancing_authority_id_eia"] = BA_ID_NAME_FIXES.balancing_authority_id_eia
+
+    # Backfill BA Codes based on BA IDs:
+    df = df.reset_index().pipe(_ba_code_backfill)
     # Typo: NEVP, BA ID is 13407, but in 2014-2015 in UT, entered as 13047
     df.loc[
         (df.balancing_authority_code_eia == "NEVP") &
@@ -371,6 +608,9 @@ def balancing_authority(tfr_dfs):
         (df.balancing_authority_id_eia == 19281),
         "balancing_authority_code_eia"
     ] = "TIDC"
+
+    df = pudl.helpers.convert_cols_dtypes(
+        df, "eia", "balancing_authority_eia861")
 
     tfr_dfs["balancing_authority_eia861"] = df
     return tfr_dfs
@@ -471,8 +711,8 @@ def sales(tfr_dfs):
 
     # REMOVE: when EIA 861 has been integrated with ETL -- this step
     # should be happening after all of the tables are transformed.
-    # transformed_sales = pudl.helpers.convert_cols_dtypes(
-    #    transformed_sales, "eia", "sales_eia861")
+    transformed_sales = pudl.helpers.convert_cols_dtypes(
+        transformed_sales, "eia", "sales_eia861")
 
     tfr_dfs["sales_eia861"] = transformed_sales
 
@@ -484,7 +724,6 @@ def advanced_metering_infrastructure(tfr_dfs):
     Transform the EIA 861 Advanced Metering Infrastructure table.
 
     Args:
-        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the extract step.
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
 
@@ -500,7 +739,6 @@ def demand_response(tfr_dfs):
     Transform the EIA 861 Demand Response table.
 
     Args:
-        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the
         extract step. tfr_dfs (dict): A dictionary of transformed EIA 861
         DataFrames, keyed by table name. It will be mutated by this function.
 
@@ -594,8 +832,8 @@ def demand_response(tfr_dfs):
 
     # REMOVE: when EIA 861 has been integrated with ETL -- this step
     # should be happening after all of the tables are transformed.
-    # transformed_sales = pudl.helpers.convert_cols_dtypes(
-    #    transformed_sales, "eia", "sales_eia861")
+    transformed_dr = pudl.helpers.convert_cols_dtypes(
+        transformed_dr, "eia", "sales_eia861")
 
     tfr_dfs["demand_response_eia861"] = transformed_dr
 
@@ -607,7 +845,6 @@ def demand_side_management(tfr_dfs):
     Transform the EIA 861 Demand Side Management table.
 
     Args:
-        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the extract step.
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
 
@@ -623,7 +860,6 @@ def distributed_generation(tfr_dfs):
     Transform the EIA 861 Distributed Generation table.
 
     Args:
-        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the extract step.
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
 
@@ -639,7 +875,6 @@ def distribution_systems(tfr_dfs):
     Transform the EIA 861 Distribution Systems table.
 
     Args:
-        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the extract step.
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
 
@@ -679,7 +914,6 @@ def dynamic_pricing(tfr_dfs):
     Transform the EIA 861 Dynamic Pricing table.
 
     Args:
-        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the extract step.
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
 
@@ -695,7 +929,6 @@ def green_pricing(tfr_dfs):
     Transform the EIA 861 Green Pricing table.
 
     Args:
-        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the extract step.
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
 
@@ -711,7 +944,6 @@ def mergers(tfr_dfs):
     Transform the EIA 861 Mergers table.
 
     Args:
-        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the extract step.
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
 
@@ -727,7 +959,6 @@ def net_metering(tfr_dfs):
     Transform the EIA 861 Net Metering table.
 
     Args:
-        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the extract step.
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
 
@@ -743,7 +974,6 @@ def non_net_metering(tfr_dfs):
     Transform the EIA 861 Non-Net Metering table.
 
     Args:
-        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the extract step.
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
 
@@ -759,7 +989,6 @@ def operational_data(tfr_dfs):
     Transform the EIA 861 Operational Data table.
 
     Args:
-        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the extract step.
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
 
@@ -775,7 +1004,6 @@ def reliability(tfr_dfs):
     Transform the EIA 861 Reliability table.
 
     Args:
-        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the extract step.
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
 
@@ -791,7 +1019,6 @@ def utility_data(tfr_dfs):
     Transform the EIA 861 Utility Data table.
 
     Args:
-        raw_dfs (dict): A dictionary of raw EIA 861 dataframes, from the extract step.
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
 
@@ -823,7 +1050,7 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
 
     """
     # these are the tables that we have transform functions for...
-    eia861_transform_functions = {
+    tfr_funcs = {
         "service_territory_eia861": service_territory,
         "balancing_authority_eia861": balancing_authority,
         "sales_eia861": sales,
@@ -837,10 +1064,10 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
                     "Not transforming EIA 861.")
         return tfr_dfs
     # for each of the tables, run the respective transform funtction
-    for table in eia861_transform_functions:
-        if table in eia861_tables:
-            logger.info(f"Transforming raw EIA 861 DataFrames for {table} "
-                        f"concatenated across all years.")
-            tfr_dfs[table] = _early_transform(raw_dfs[table])
-            eia861_transform_functions[table](tfr_dfs)
+    for table in eia861_tables:
+        logger.info(f"Transforming raw EIA 861 DataFrames for {table} "
+                    f"concatenated across all years.")
+        assert table in tfr_funcs.keys()
+        tfr_dfs[table] = _early_transform(raw_dfs[table])
+        tfr_dfs = tfr_funcs[table](tfr_dfs)
     return tfr_dfs
