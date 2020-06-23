@@ -8,7 +8,6 @@ number of files.
 This module was written by :user:`gschivley`
 """
 
-import importlib
 import logging
 from pathlib import Path
 
@@ -61,7 +60,7 @@ class EpaIpmDatastore(datastore.Datastore):
         if path.suffix == ".xlsx":
             logger.debug("Dataframe from excel: %s" % path)
             return pd.read_excel(path, **pandas_args)
-        
+
         if path.suffix == ".csv":
             logger.debug("Dataframe from csv: %s" % path)
             return pd.read_csv(path, **pandas_args)

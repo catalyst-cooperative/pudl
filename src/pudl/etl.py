@@ -202,7 +202,6 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
 
     testing = pudl_settings.get("testing", False)
     # Extract EIA forms 923, 860
-    data_dir = pudl_settings["data_dir"]
     eia923_raw_dfs = pudl.extract.eia923.Extractor().extract(
         eia923_years, testing=testing)
     eia860_raw_dfs = pudl.extract.eia860.Extractor().extract(
@@ -421,7 +420,8 @@ def _etl_epacems(etl_params, datapkg_dir, pudl_settings):
     epacems_raw_dfs = pudl.extract.epacems.extract(
         epacems_years=epacems_years,
         states=epacems_states,
-        data_dir=pudl_settings["data_dir"])
+        data_dir=pudl_settings["data_dir"],
+        testing=pudl_settings["testing"])
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform(
         epacems_raw_dfs=epacems_raw_dfs,

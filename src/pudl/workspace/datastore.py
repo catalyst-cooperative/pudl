@@ -30,6 +30,7 @@ DOI = {
         "eia861": "10.5072/zenodo.504558",
         "eia923": "10.5072/zenodo.504560",
         "epaipm": "10.5072/zenodo.602953",
+        "epacems": "10.5072/zenodo.638878",
         "ferc1": "10.5072/zenodo.504562"
     },
     "production": {}
@@ -74,7 +75,7 @@ class Datastore:
             self.api_root = "https://zenodo.org/api"
 
         with PUDL_YML.open() as f:
-            cfg = yaml.load(f.read(), Loader=yaml.FullLoader)
+            cfg = yaml.safe_load(f)
             self.pudl_in = Path(os.environ.get("PUDL_IN", cfg["pudl_in"]))
 
     # Location conversion & helpers
@@ -214,7 +215,7 @@ class Datastore:
             self.save_datapackage_json(dataset, dpkg)
 
         with path.open("r") as f:
-            return yaml.load(f.read(), Loader=yaml.FullLoader)
+            return yaml.safe_load(f)
 
     # Remote resource retrieval
 
@@ -304,7 +305,7 @@ class Datastore:
 
             path = Path(r["path"])
             with path.open("rb") as f:
-                m = hashlib.md5()
+                m = hashlib.md5()  # nosec
                 m.update(f.read())
 
             if m.hexdigest() == r["hash"]:

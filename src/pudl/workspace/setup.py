@@ -8,7 +8,6 @@ import shutil
 import yaml
 
 import pudl.constants as pc
-import pudl.workspace.datastore as datastore
 
 logger = logging.getLogger(__name__)
 

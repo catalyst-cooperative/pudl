@@ -79,7 +79,7 @@ class Ferc1Datastore(datastore.Datastore):
         Returns:
             str: Path of ferc data within the zip file
         """
-        pkg = f"pudl.package_data.meta.ferc1_row_maps"
+        pkg = "pudl.package_data.meta.ferc1_row_maps"
         dbc_path = None
 
         with importlib.resources.open_text(pkg, "file_map.csv") as f:
@@ -554,7 +554,7 @@ def get_ferc1_meta(ferc1_engine):
     ferc1_meta.reflect()
     if not ferc1_meta.tables:
         raise ValueError(
-            f"No FERC Form 1 tables found. Is the SQLite DB initialized?"
+            "No FERC Form 1 tables found. Is the SQLite DB initialized?"
         )
     return ferc1_meta
 

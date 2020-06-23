@@ -391,5 +391,3 @@ def datastore_fixture(pudl_settings_fixture, data_scope):
         years_by_source["ferc1"] = data_scope["ferc1_years"]
         years_by_source["epacems"] = data_scope["epacems_years"]
         states = ["id"]
-
-    data_dir = pudl_settings_fixture['data_dir']

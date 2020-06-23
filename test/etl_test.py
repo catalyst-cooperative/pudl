@@ -17,6 +17,7 @@ import yaml
 
 import pudl
 from pudl.extract.ferc1 import get_dbc_map, get_fields
+from pudl.extract.epacems import EpaCemsDatastore
 from pudl.convert.epacems_to_parquet import epacems_to_parquet
 
 logger = logging.getLogger(__name__)
@@ -148,7 +149,7 @@ class TestFerc1Datastore:
     def test_get_fields(self):
         """Check that the get fields table works as expected."""
         expect_path = pathlib.Path(__file__).parent / "data" / "ferc" \
-                      / "form1" / "f1_2018" / "get_fields.json"
+            / "form1" / "f1_2018" / "get_fields.json"
 
         with expect_path.open() as f:
             expect = yaml.load(f.read(), yaml.Loader)
@@ -157,8 +158,8 @@ class TestFerc1Datastore:
         result = get_fields(data)
         assert result == expect
 
-
     def test_sample_get_dbc_map(self):
+        """Test sample_get_dbc_map."""
         table = get_dbc_map(2018, testing=True)
         assert table["f1_429_trans_aff"] == {
             "ACCT_CORC": "acct_corc",
@@ -177,6 +178,7 @@ class TestFerc1Datastore:
             "ROW_SEQ": "row_seq",
             "SPPLMNT_NU": "spplmnt_num"
         }
+
 
 class TestExcelExtractor:
     """Verify that we can lead excel files as provided via the datastore."""
@@ -220,3 +222,16 @@ class TestExcelExtractor:
             2016, "oil_stocks", testing=True).sheet_names
         assert "Page 3 Boiler Fuel Data" in extractor.load_excel_file(
             2019, "stocks", testing=True).sheet_names
+
+
+class TestEpaCemsDatastore:
+    """Ensure we can extract csv files from the datastore."""
+
+    datastore = EpaCemsDatastore(sandbox=True)
+
+    def test_get_csv(self):
+        """Spot check opening of epacems csv file from datastore."""
+        head = b'"STATE","F'
+
+        csv = self.datastore.open_csv("ny", 1999, 6)
+        assert csv.read()[:10] == head
