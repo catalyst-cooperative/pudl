@@ -129,7 +129,7 @@ def weighted_quantile(data, weights, quantile):
     """
     if ((quantile < 0) or (quantile > 1)):
         raise ValueError(
-            f"quantile must have a value between 0 and 1.")
+            "quantile must have a value between 0 and 1.")
     if len(data) != len(weights):
         raise ValueError("data and weights must have the same length")
     df = (

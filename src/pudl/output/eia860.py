@@ -1,5 +1,7 @@
 """Functions for pulling data primarily from the EIA's Form 860."""
 
+# import datetime
+
 import pandas as pd
 import sqlalchemy as sa
 
@@ -7,7 +9,7 @@ import pudl
 
 
 def utilities_eia860(pudl_engine, start_date=None, end_date=None):
-    """Pulls all fields from the EIA860 Utilities table.
+    """Pull all fields from the EIA860 Utilities table.
 
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
@@ -76,7 +78,7 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
 
 
 def plants_eia860(pudl_engine, start_date=None, end_date=None):
-    """Pulls all fields from the EIA Plants tables.
+    """Pull all fields from the EIA Plants tables.
 
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
@@ -239,12 +241,22 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
         Generators table.
-
     """
+    # pudl_settings = pudl.workspace.setup.get_defaults()
+    # pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
+
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # Almost all the info we need will come from here.
     gens_eia860_tbl = pt['generators_eia860']
     gens_eia860_select = sa.sql.select([gens_eia860_tbl, ])
+    # To get plant age
+    generators_entity_eia_tbl = pt['generators_entity_eia']
+    generators_entity_eia_select = sa.sql.select([
+        generators_entity_eia_tbl.c.plant_id_eia,
+        generators_entity_eia_tbl.c.generator_id,
+        generators_entity_eia_tbl.c.operating_date,
+        # generators_entity_eia_tbl.c.report_date
+    ])
     # To get the Lat/Lon coordinates
     plants_entity_eia_tbl = pt['plants_entity_eia']
     plants_entity_eia_select = sa.sql.select([
@@ -256,6 +268,8 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
         plants_entity_eia_tbl.c.balancing_authority_code,
         plants_entity_eia_tbl.c.balancing_authority_name,
         plants_entity_eia_tbl.c.iso_rto_code,
+        plants_entity_eia_tbl.c.city,
+        plants_entity_eia_tbl.c.nerc_region,
     ])
 
     if start_date is not None:
@@ -272,10 +286,16 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
 
     # breakpoint()
     gens_eia860 = pd.read_sql(gens_eia860_select, pudl_engine)
+    generators_entity_eia_df = pd.read_sql(
+        generators_entity_eia_select, pudl_engine)
 
     plants_entity_eia_df = pd.read_sql(plants_entity_eia_select, pudl_engine)
+
     out_df = pd.merge(gens_eia860, plants_entity_eia_df,
                       how='left', on=['plant_id_eia'])
+    out_df = pd.merge(out_df, generators_entity_eia_df,
+                      how='left', on=['plant_id_eia', 'generator_id'])
+
     out_df.report_date = pd.to_datetime(out_df.report_date)
 
     # Bring in some generic plant & utility information:

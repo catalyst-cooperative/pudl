@@ -976,6 +976,21 @@ ferc1_pudl_tables = (
     integrated into PUDL.
 """
 
+ferc714_pudl_tables = (
+    "respondent_id_ferc714",
+    "id_certification_ferc714",
+    "gen_plants_ba_ferc714",
+    "demand_monthly_ba_ferc714",
+    "net_energy_load_ba_ferc714",
+    "adjacency_ba_ferc714",
+    "interchange_ba_ferc714",
+    "lambda_hourly_ba_ferc714",
+    "lambda_description_ferc714",
+    "description_pa_ferc714",
+    "demand_forecast_pa_ferc714",
+    "demand_hourly_pa_ferc714",
+)
+
 table_map_ferc1_pudl = {
     'fuel_ferc1': 'f1_fuel',
     'plants_steam_ferc1': 'f1_steam',
@@ -1054,9 +1069,13 @@ eia860_pudl_tables = (
     'generators_eia860',
     'ownership_eia860'
 )
-"""tuple: A tuple containing the list of EIA 860 tables that can be successfully
-    pulled into PUDL.
+"""tuple: A tuple containing the list of EIA 860 tables that can be
+successfully pulled into PUDL.
 """
+
+eia861_pudl_tables = (
+    "service_territory_eia861",
+)
 
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].
@@ -2219,10 +2238,12 @@ dict: A dictionary of data sources (keys) and tuples containing the years for
 
 pudl_tables = {
     'eia860': eia860_pudl_tables,
+    'eia861': eia861_pudl_tables,
     'eia923': eia923_pudl_tables,
     'epacems': epacems_tables,
     'epaipm': epaipm_pudl_tables,
     'ferc1': ferc1_pudl_tables,
+    'ferc714': ferc714_pudl_tables,
     'glue': glue_pudl_tables,
 }
 """
@@ -2476,14 +2497,26 @@ keywords_by_data_source = {
 
 column_dtypes = {
     "ferc1": {  # Obviously this is not yet a complete list...
-        "construction_year": "Int64",  # Nullable Integer
-        "installation_year": "Int64",  # Nullable Integer
-        'utility_id_ferc1': 'Int64',
-        'plant_id_pudl': 'Int64',
-        'plant_id_ferc1': 'Int64',
-        'utility_id_pudl': 'Int64',
-        'report_year': 'Int64',
+        "construction_year": pd.Int64Dtype(),
+        "installation_year": pd.Int64Dtype(),
+        'utility_id_ferc1': pd.Int64Dtype(),
+        'plant_id_pudl': pd.Int64Dtype(),
+        'plant_id_ferc1': pd.Int64Dtype(),
+        'utility_id_pudl': pd.Int64Dtype(),
+        'report_year': pd.Int64Dtype(),
         'report_date': 'datetime64[ns]',
+    },
+    "ferc714": {  # INCOMPLETE
+        "report_year": pd.Int64Dtype(),
+        "utility_id_ferc714": pd.Int64Dtype(),
+        "utility_id_eia": pd.Int64Dtype(),
+        "utility_name_ferc714": pd.StringDtype(),
+        "timezone": pd.CategoricalDtype(categories=[
+            "America/New_York", "America/Chicago", "America/Denver",
+            "America/Los_Angeles", "America/Anchorage", "Pacific/Honolulu"]),
+        "utc_datetime": "datetime64[ns]",
+        "peak_demand_summer_mw": float,
+        "peak_demand_winter_mw": float,
     },
     "epacems": {
         'state': pd.StringDtype(),
@@ -2513,6 +2546,7 @@ column_dtypes = {
         'ash_impoundment_status': pd.StringDtype(),
         'associated_combined_heat_power': pd.BooleanDtype(),
         'balancing_authority_code': pd.StringDtype(),
+        'balancing_authority_id_eia': pd.Int64Dtype(),
         'balancing_authority_name': pd.StringDtype(),
         'bga_source': pd.StringDtype(),
         'boiler_id': pd.StringDtype(),
@@ -2531,7 +2565,7 @@ column_dtypes = {
         'contract_expiration_date': 'datetime64[ns]',
         'contract_type_code': pd.StringDtype(),
         'county': pd.StringDtype(),
-        'county_id_fips': pd.Int64Dtype(),
+        'county_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
         'current_planned_operating_date': 'datetime64[ns]',
         'deliver_power_transgrid': pd.BooleanDtype(),
         'duct_burners': pd.BooleanDtype(),
@@ -2612,7 +2646,7 @@ column_dtypes = {
         'owner_state': pd.StringDtype(),
         'owner_street_address': pd.StringDtype(),
         'owner_utility_id_eia': pd.Int64Dtype(),
-        'owner_zip_code': pd.StringDtype(),
+        'owner_zip_code': pd.StringDtype(),  # Must preserve leading zeroes.
         # we should transition these into readable codes, not a one letter thing
         'ownership_code': pd.StringDtype(),
         'pipeline_notes': pd.StringDtype(),
@@ -2654,6 +2688,7 @@ column_dtypes = {
         'startup_source_code_3': pd.StringDtype(),
         'startup_source_code_4': pd.StringDtype(),
         'state': pd.StringDtype(),
+        'state_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
         'street_address': pd.StringDtype(),
         'stoker_tech': pd.BooleanDtype(),
         'subcritical_tech': pd.BooleanDtype(),

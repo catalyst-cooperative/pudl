@@ -14,6 +14,7 @@ import re
 import shutil
 from functools import partial
 
+import addfips
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
@@ -34,6 +35,54 @@ sum_na = partial(pd.Series.sum, skipna=False)
 # them open for efficiency. I want to avoid doing that for every call to find
 # the timezone, so this is global.
 tz_finder = timezonefinder.TimezoneFinder()
+
+
+def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
+    """Add State and County FIPS IDs to a dataframe."""
+    af = addfips.AddFIPS(vintage=vintage)
+    # Lookup the state and county FIPS IDs and add them to the dataframe:
+    df["state_id_fips"] = df.apply(
+        lambda x: af.get_state_fips(state=x.state), axis=1)
+    logger.info(
+        f"Assigned state FIPS codes for "
+        f"{len(df[df.state_id_fips.notnull()])/len(df):.2%} of records."
+    )
+    df["county_id_fips"] = df.apply(
+        lambda x: af.get_county_fips(state=x.state, county=x.county), axis=1)
+    df["county_id_fips"] = df.county_id_fips.fillna(pd.NA)
+    logger.info(
+        f"Assigned county FIPS codes for "
+        f"{len(df[df.county_id_fips.notnull()])/len(df):.2%} of records."
+    )
+    return df
+
+
+def clean_eia_counties(df, fixes, state_col="state", county_col="county"):
+    """Replace non-standard county names with county nmes from US Census."""
+    df = df.copy()
+    df[county_col] = (
+        df[county_col].str.strip()
+        .str.replace(r"\s+", " ")  # Condense multiple whitespace chars.
+        .str.replace(r"^St ", "St. ")  # Standardize abbreviation.
+        .str.replace(r"^Ste ", "Ste. ")  # Standardize abbreviation.
+        .str.replace("Kent & New Castle", "Kent, New Castle")  # Two counties
+        # Fix ordering, remove comma
+        .str.replace("Borough, Kodiak Island", "Kodiak Island Borough")
+        # Turn comma-separated counties into lists
+        .str.replace(",$", "").str.split(',')
+    )
+    # Create new records for each county in a multi-valued record
+    df = df.explode(county_col)
+    df[county_col] = df[county_col].str.strip()
+    # Yellowstone county is in MT, not WY
+    df.loc[(df[state_col] == "WY") &
+           (df[county_col] == "Yellowstone"), state_col] = "MT"
+    # Replace individual bad county names with identified correct names in fixes:
+    for fix in fixes.itertuples():
+        state_mask = df[state_col] == fix.state
+        county_mask = df[county_col] == fix.eia_county
+        df.loc[state_mask & county_mask, county_col] = fix.fips_county
+    return df
 
 
 def oob_to_nan(df, cols, lb=None, ub=None):
@@ -200,6 +249,15 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
     Raises:
         ValueError: if the date or year columns are not found, or if the year
             column is found to be inconsistent with annual reporting.
+
+    TODO: Right mergers will result in null values in the resulting date
+        column. The final output includes the date_col from the date_df and thus
+        if there are any entity records (records being merged on) in the
+        year_df but not in the date_df, a right merge will result in nulls in
+        the date_col. And when we drop the 'year_temp' column, the year from
+        the year_df will be gone. Need to determine how to deal with this.
+        Should we generate a montly record in each year? Should we generate
+        full time serires? Should we restrict right merges in this function?
 
     """
     if date_col not in df_date.columns.tolist():

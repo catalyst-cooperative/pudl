@@ -549,7 +549,7 @@ def plants_steam_validate_ids(ferc1_steam_df):
             )
     else:
         logger.info(
-            f"No duplicate years found in any plant_id_ferc1. Hooray!"
+            "No duplicate years found in any plant_id_ferc1. Hooray!"
         )
 
 
@@ -1156,6 +1156,7 @@ def transform(ferc1_raw_dfs, ferc1_tables=pc.pudl_tables['ferc1']):
 
     Returns:
         dict: A dictionary of the transformed DataFrames.
+
     """
     ferc1_transform_functions = {
         # fuel must come before steam b/c fuel proportions are used to aid in

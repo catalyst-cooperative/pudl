@@ -1,5 +1,7 @@
 **/*scratch*.ipynb
 **/*.pyc
+**/*.pq
+**/*.parquet
 **/*.*.swp
 **/__pycache__/*
 .ipynb_checkpoints/
