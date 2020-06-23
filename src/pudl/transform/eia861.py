@@ -633,7 +633,7 @@ def sales(tfr_dfs):
     logger.info("Tidying the EIA 861 Sales table.")
     # Clean up values just enough to use primary key columns as a multi-index:
     logger.debug("Cleaning up EIA861 Sales index columns so we can tidy data.")
-    raw_sales = (
+    clean_sales = (
         tfr_dfs["sales_eia861"].copy()
         .assign(balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia.fillna("UNK"))
         .dropna(subset=["utility_id_eia"])
@@ -644,7 +644,7 @@ def sales(tfr_dfs):
     # Split the table into index, data, and "denormalized" columns for processing:
     # Separate customer classes and reported data into a hierarchical index
     logger.debug("Stacking EIA861 Sales data columns by customer class.")
-    data_cols = _filter_customer_cols(raw_sales, CUSTOMER_CLASSES)
+    data_cols = _filter_customer_cols(clean_sales, CUSTOMER_CLASSES)
     data_cols.columns = (
         data_cols.columns.str.split("_", n=1, expand=True)
         .set_names(["customer_class", None])
@@ -656,7 +656,7 @@ def sales(tfr_dfs):
     )
 
     denorm_cols = _filter_non_customer_cols(
-        raw_sales, CUSTOMER_CLASSES).reset_index()
+        clean_sales, CUSTOMER_CLASSES).reset_index()
 
     # Merge the index, data, and denormalized columns back together
     tidy_sales = pd.merge(denorm_cols, data_cols, on=idx_cols)
@@ -731,6 +731,72 @@ def advanced_metering_infrastructure(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    idx_cols = [
+        "utility_id_eia",
+        "state",
+        "balancing_authority_code_eia",
+        "report_date",
+    ]
+
+    ###########################################################################
+    # Tidy Data:
+    ###########################################################################
+    logger.info("Tidying the EIA 861 Advanced Metering Infrastructure table.")
+    # Clean up values just enough to use primary key columns as a multi-index:
+    # Transform values with fix_eia_na()
+    logger.debug(
+        "Cleaning up EIA861 Advanced Metering Infrastructure index columns so we can tidy data.")
+    clean_ami = (
+        tfr_dfs["advanced_metering_infrastructure_eia861"].copy()
+        .assign(balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia.fillna("UNK"))
+        .dropna(subset=["utility_id_eia"])
+        .query("utility_id_eia not in (88888, 99999)")
+        .astype({"utility_id_eia": pd.Int64Dtype()})
+        .set_index(idx_cols)
+    )
+
+    # Split the table into index, data, and "denormalized" columns for processing:
+    # Separate customer classes and reported data into a hierarchical index
+    logger.debug(
+        "Stacking EIA861 Advanced Metering Infrastructure data columns by customer class.")
+    data_cols = _filter_customer_cols(clean_ami, CUSTOMER_CLASSES)
+    data_cols.columns = (
+        data_cols.columns.str.split("_", n=1, expand=True)
+        .set_names(["customer_class", None])
+    )
+
+    # Now stack the customer classes into their own categorical column,
+    data_cols = (
+        data_cols.stack(level=0, dropna=False)
+        .reset_index()
+    )
+    denorm_cols = (
+        _filter_non_customer_cols(clean_ami, CUSTOMER_CLASSES)
+        .reset_index()
+    )
+
+    # Merge the index, data, and denormalized columns back together
+    tidy_ami = pd.merge(denorm_cols, data_cols, on=idx_cols)
+
+    # Remove the now redundant "Total" records -- they can be reconstructed
+    # from the other customer classes.
+    tidy_ami = tidy_ami.query("customer_class!='total'")
+
+    # No duplicates to speak of but take measures to check just in case
+    dupes = (
+        tidy_ami.duplicated(
+            subset=["utility_id_eia",
+                    "state",
+                    "balancing_authority_code_eia",
+                    "report_date",
+                    "customer_class"], keep=False)
+    )
+    if dupes.any():
+        raise AssertionError(
+            f"Found {dupes.sum()} duplicate rows in the Advanced Metring Infrastructure table, when zero were expected!"
+        )
+
+    tfr_dfs["advanced_metering_infrastructure_eia861"] = tidy_ami
     return tfr_dfs
 
 
@@ -809,14 +875,6 @@ def demand_response(tfr_dfs):
         f"Demand Response table, out of a total of {tidy_nrows} records "
         f"({(tidy_nrows-deduped_nrows)/tidy_nrows:.4%} of all records). "
     )
-    ###########################################################################
-    # Set Datatypes:
-    # Need to ensure type compatibility before we can do the value based
-    # transformations below.
-    ###########################################################################
-    logger.info("Ensuring raw columns are type compatible.")
-    type_compat_dr = pudl.helpers.fix_eia_na(tidy_dr)
-    type_compat_dr = pudl.helpers.convert_cols_dtypes(type_compat_dr, 'eia')
 
     ###########################################################################
     # Transform Values:
@@ -824,7 +882,7 @@ def demand_response(tfr_dfs):
     ###########################################################################
     logger.info("Performing value transformations on EIA 861 Sales table.")
     transformed_dr = (
-        type_compat_dr.assign(
+        tidy_dr.assign(
             customer_incentives_cost=lambda x: x.customer_incentives_cost * 1000.0,
             other_costs=lambda x: x.other_costs * 1000.0
         )
@@ -1054,6 +1112,7 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "service_territory_eia861": service_territory,
         "balancing_authority_eia861": balancing_authority,
         "sales_eia861": sales,
+        "advanced_metering_infrastructure_eia861": advanced_metering_infrastructure,
         "demand_response_eia861": demand_response,
         "distribution_systems_eia861": distribution_systems,
     }
@@ -1067,6 +1126,7 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
     for table in eia861_tables:
         logger.info(f"Transforming raw EIA 861 DataFrames for {table} "
                     f"concatenated across all years.")
+        # ADD some sort of customer message here / check across multiple sources
         assert table in tfr_funcs.keys()
         tfr_dfs[table] = _early_transform(raw_dfs[table])
         tfr_dfs = tfr_funcs[table](tfr_dfs)
