@@ -2227,6 +2227,7 @@ pudl_tables = {
         "service_territory_eia861",
         "balancing_authority_eia861",
         "sales_eia861",
+        "advanced_metering_infrastructure_eia861",
         "demand_response_eia861",
         "distribution_systems_eia861",
     ),
@@ -2544,12 +2545,14 @@ column_dtypes = {
     },
     "eia": {
         'actual_peak_demand_savings_mw': float,  # Added by AES for DR table
+        'advanced_metering_infrastructure': float,  # Added by AES for AMI table
         'ash_content_pct': float,
         'ash_impoundment': pd.BooleanDtype(),
         'ash_impoundment_lined': pd.BooleanDtype(),
         # TODO: convert this field to more descriptive words
         'ash_impoundment_status': pd.StringDtype(),
         'associated_combined_heat_power': pd.BooleanDtype(),
+        'automated_meter_reading': float,  # Added by AES for AMI table
         'balancing_authority_code_eia': pd.CategoricalDtype(),
         'balancing_authority_id_eia': pd.Int64Dtype(),
         'balancing_authority_name_eia': pd.StringDtype(),
@@ -2581,11 +2584,14 @@ column_dtypes = {
             "other", "total",
         ]),
         'customer_incentives_cost': float,  # Added by AES for DR table
+        'daily_digital_access_customers': float,  # Added by AES for AMI table
         'data_observed': pd.BooleanDtype(),
         'deliver_power_transgrid': pd.BooleanDtype(),
+        'direct_load_control_customers': float,  # Added by AES for AMI table
         'distribution_circuits': pd.Int64Dtype(),  # Added by AES for DS table
         'duct_burners': pd.BooleanDtype(),
         'energy_savings_mwh': float,  # Added by AES for DR table
+        'energy_served_ami_mwh': float,  # Added by AES for AMI table
         'energy_source_code': pd.StringDtype(),
         'energy_source_code_1': pd.StringDtype(),
         'energy_source_code_2': pd.StringDtype(),
@@ -2625,6 +2631,7 @@ column_dtypes = {
         'grid_voltage_3_kv': float,
         'grid_voltage_kv': float,
         'heat_content_mmbtu_per_unit': float,
+        'home_area_network': float,  # Added by AES for AMI table
         'iso_rto_code': pd.StringDtype(),
         'latitude': float,
         'liquefied_natural_gas_storage': pd.BooleanDtype(),
@@ -2648,6 +2655,7 @@ column_dtypes = {
         'nerc_region': pd.StringDtype(),
         'net_generation_mwh': float,
         'net_metering': pd.BooleanDtype(),
+        'non_amr_ami': float,  # Added by AES for AMI table
         'nuclear_unit_id': pd.Int64Dtype(),
         'operating_date': 'datetime64[ns]',
         'operating_switch': pd.StringDtype(),
@@ -2729,6 +2737,7 @@ column_dtypes = {
         'time_cold_shutdown_full_load_code': pd.StringDtype(),
         'timezone': pd.StringDtype(),
         'topping_bottoming_code': pd.StringDtype(),
+        'total_meters': float,  # Added by AES for AMI table
         'transmission_distribution_owner_id': pd.Int64Dtype(),
         'transmission_distribution_owner_name': pd.StringDtype(),
         'transmission_distribution_owner_state': pd.StringDtype(),
