@@ -523,6 +523,43 @@ def _ba_code_backfill(df):
     return ba_eia861_filled
 
 
+def _tidy_customer_class_dfs(df, idx_cols):
+    # Clean up values just enough to use primary key columns as a multi-index:
+    # Transform values with fix_eia_na()
+    logger.debug("Cleaning table index columns so we can tidy data.")
+    raw_df = (
+        df.assign(
+            balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia.fillna("UNK"))
+        .dropna(subset=["utility_id_eia"])
+        .astype({"utility_id_eia": pd.Int64Dtype()})
+        .set_index(idx_cols)
+    )
+    # Split the table into index, data, and "denormalized" columns for processing:
+    # Separate customer classes and reported data into a hierarchical index
+    logger.debug("Stacking EIA861 data columns by customer class.")
+    data_cols = _filter_customer_cols(raw_df, CUSTOMER_CLASSES)
+    data_cols.columns = (
+        data_cols.columns.str.split("_", n=1, expand=True)
+        .set_names(["customer_class", None])
+    )
+    # Now stack the customer classes into their own categorical column,
+    data_cols = (
+        data_cols.stack(level=0, dropna=False)
+        .reset_index()
+    )
+    denorm_cols = _filter_non_customer_cols(
+        raw_df, CUSTOMER_CLASSES).reset_index()
+
+    # Merge the index, data, and denormalized columns back together
+    tidy_df = pd.merge(denorm_cols, data_cols, on=idx_cols)
+
+    # Remove the now redundant "Total" records -- they can be reconstructed
+    # from the other customer classes.
+    tidy_df = _remove_total_col(tidy_df)
+
+    return tidy_df
+
+
 def _remove_total_col(df):
     """Remove totals from customer class."""
     df = df.query("customer_class!='total'")
@@ -661,43 +698,18 @@ def sales(tfr_dfs):
         "balancing_authority_code_eia"
     ]
 
+    # Pre-tidy clean specific to sales table
+    raw_sales = (
+        tfr_dfs["sales_eia861"].copy()
+        .query("utility_id_eia not in (88888, 99999)")
+    )
+
     ###########################################################################
     # Tidy Data:
     ###########################################################################
+
     logger.info("Tidying the EIA 861 Sales table.")
-    # Clean up values just enough to use primary key columns as a multi-index:
-    logger.debug("Cleaning up EIA861 Sales index columns so we can tidy data.")
-    clean_sales = (
-        tfr_dfs["sales_eia861"].copy()
-        .assign(balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia.fillna("UNK"))
-        .dropna(subset=["utility_id_eia"])
-        .query("utility_id_eia not in (88888, 99999)")
-        .astype({"utility_id_eia": pd.Int64Dtype()})
-        .set_index(idx_cols)
-    )
-    # Split the table into index, data, and "denormalized" columns for processing:
-    # Separate customer classes and reported data into a hierarchical index
-    logger.debug("Stacking EIA861 Sales data columns by customer class.")
-    data_cols = _filter_customer_cols(clean_sales, CUSTOMER_CLASSES)
-    data_cols.columns = (
-        data_cols.columns.str.split("_", n=1, expand=True)
-        .set_names(["customer_class", None])
-    )
-    # Now stack the customer classes into their own categorical column,
-    data_cols = (
-        data_cols.stack(level=0, dropna=False)
-        .reset_index()
-    )
-
-    denorm_cols = _filter_non_customer_cols(
-        clean_sales, CUSTOMER_CLASSES).reset_index()
-
-    # Merge the index, data, and denormalized columns back together
-    tidy_sales = pd.merge(denorm_cols, data_cols, on=idx_cols)
-
-    # Remove the now redundant "Total" records -- they can be reconstructed
-    # from the other customer classes.
-    tidy_sales = _remove_total_col(tidy_sales)
+    tidy_sales = _tidy_customer_class_dfs(raw_sales, idx_cols)
 
     # remove duplicates on the primary key columns + customer_class -- there
     # are a handful of records, all from 2010-2012, that have reporting errors
@@ -735,13 +747,10 @@ def sales(tfr_dfs):
         )
     )
 
-    # REMOVE: when EIA 861 has been integrated with ETL -- this step
-    # should be happening after all of the tables are transformed.
-    transformed_sales = pudl.helpers.convert_cols_dtypes(
-        transformed_sales, "eia", "sales_eia861")
+    # Organize col headers for output
+    transformed_sales = pudl.helpers.organize_cols(transformed_sales, idx_cols)
 
     tfr_dfs["sales_eia861"] = transformed_sales
-
     return tfr_dfs
 
 
@@ -764,53 +773,21 @@ def advanced_metering_infrastructure(tfr_dfs):
         "report_date",
     ]
 
+    raw_ami = tfr_dfs["advanced_metering_infrastructure_eia861"].copy()
+
     ###########################################################################
     # Tidy Data:
     ###########################################################################
+
     logger.info("Tidying the EIA 861 Advanced Metering Infrastructure table.")
-    # Clean up values just enough to use primary key columns as a multi-index:
-    # Transform values with fix_eia_na()
-    logger.debug(
-        "Cleaning up EIA861 Advanced Metering Infrastructure index columns so we can tidy data.")
-    clean_ami = (
-        tfr_dfs["advanced_metering_infrastructure_eia861"].copy()
-        .assign(balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia.fillna("UNK"))
-        .dropna(subset=["utility_id_eia"])
-        .query("utility_id_eia not in (88888, 99999)")
-        .astype({"utility_id_eia": pd.Int64Dtype()})
-        .set_index(idx_cols)
-    )
-
-    # Split the table into index, data, and "denormalized" columns for processing:
-    # Separate customer classes and reported data into a hierarchical index
-    logger.debug(
-        "Stacking EIA861 Advanced Metering Infrastructure data columns by customer class.")
-    data_cols = _filter_customer_cols(clean_ami, CUSTOMER_CLASSES)
-    data_cols.columns = (
-        data_cols.columns.str.split("_", n=1, expand=True)
-        .set_names(["customer_class", None])
-    )
-
-    # Now stack the customer classes into their own categorical column,
-    data_cols = (
-        data_cols.stack(level=0, dropna=False)
-        .reset_index()
-    )
-    denorm_cols = (
-        _filter_non_customer_cols(clean_ami, CUSTOMER_CLASSES)
-        .reset_index()
-    )
-
-    # Merge the index, data, and denormalized columns back together
-    tidy_ami = pd.merge(denorm_cols, data_cols, on=idx_cols)
-
-    # Remove the now redundant "Total" records -- they can be reconstructed
-    # from the other customer classes.
-    tidy_ami = _remove_total_col(tidy_ami)
+    tidy_ami = _tidy_customer_class_dfs(raw_ami, idx_cols)
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_ami, 'Advanced Metering Infrastructure',
                      idx_cols + ['customer_class'])
+
+    # Organize col headers for output
+    tidy_ami = pudl.helpers.organize_cols(tidy_ami, idx_cols)
 
     tfr_dfs["advanced_metering_infrastructure_eia861"] = tidy_ami
     return tfr_dfs
@@ -835,49 +812,14 @@ def demand_response(tfr_dfs):
         "report_date",
     ]
 
+    raw_dr = tfr_dfs["demand_response_eia861"].copy()
+
     ###########################################################################
     # Tidy Data:
     ###########################################################################
+
     logger.info("Tidying the EIA 861 Demand Response table.")
-    # Clean up values just enough to use primary key columns as a multi-index:
-    logger.debug(
-        "Cleaning up EIA861 Demand Response index columns so we can tidy data.")
-    raw_dr = (
-        tfr_dfs["demand_response_eia861"].copy()
-        .assign(balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia.fillna("UNK"))
-        .dropna(subset=["utility_id_eia"])
-        .query("utility_id_eia not in (88888, 99999)")
-        .astype({"utility_id_eia": pd.Int64Dtype()})
-        .set_index(idx_cols)
-    )
-    # Split the table into index, data, and "denormalized" columns for processing:
-    # Separate customer classes and reported data into a hierarchical index
-    logger.debug(
-        "Stacking EIA861 Demand Response data columns by customer class.")
-    data_cols = _filter_customer_cols(raw_dr, CUSTOMER_CLASSES)
-    data_cols.columns = (
-        data_cols.columns.str.split("_", n=1, expand=True)
-        .set_names(["customer_class", None])
-    )
-    # Now stack the customer classes into their own categorical column,
-    data_cols = (
-        data_cols.stack(level=0, dropna=False)
-        .reset_index()
-    )
-    denorm_cols = _filter_non_customer_cols(
-        raw_dr, CUSTOMER_CLASSES).reset_index()
-
-    # Merge the index, data, and denormalized columns back together
-    tidy_dr = pd.merge(denorm_cols, data_cols, on=idx_cols)
-
-    # Remove the now redundant "Total" records -- they can be reconstructed
-    # from the other customer classes. Note that the utility records sometimes
-    # employ rounding so that their reported total values are 1 off from the
-    # calculated values. For the vast majority of these values "1" comprises
-    # less than 1% of their reported total, making it a menial difference.
-    # value columns tend to have 1 or 2 exceptions wherein the percent is
-    # between 10 and 33.333.
-    tidy_dr = _remove_total_col(tidy_dr)
+    tidy_dr = _tidy_customer_class_dfs(raw_dr, idx_cols)
 
     # shouldn't be duplicates but there are some strange values from IN.
     # thinking this might have to do with DR table weirdness between 2012 and 2013
@@ -896,13 +838,10 @@ def demand_response(tfr_dfs):
         )
     )
 
-    # REMOVE: when EIA 861 has been integrated with ETL -- this step
-    # should be happening after all of the tables are transformed.
-    transformed_dr = pudl.helpers.convert_cols_dtypes(
-        transformed_dr, "eia", "sales_eia861")
+    # Organize col headers for output
+    transformed_dr = pudl.helpers.organize_cols(transformed_dr, idx_cols)
 
     tfr_dfs["demand_response_eia861"] = transformed_dr
-
     return tfr_dfs
 
 
@@ -948,24 +887,24 @@ def distribution_systems(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
-    # No data tidying required
-    # Make sure numeric columns have no strings
-    logger.info('Transforming Distribution Systems table')
-    transformed_df = (
+    # No data tidying or transformation required
+
+    raw_ds = (
         tfr_dfs['distribution_systems_eia861'].copy()
     )
 
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(transformed_df, 'Distribution Systems', [
+    _check_for_dupes(raw_ds, 'Distribution Systems', [
                      "utility_id_eia", "state", "report_date"])
 
-    # Organize table output
-    organized_df = (
+    # Organize col headers for output
+    raw_ds = (
         pudl.helpers.organize_cols(
-            transformed_df, ['utility_id_eia', 'state', 'report_date']
+            raw_ds, ['utility_id_eia', 'state', 'report_date']
         )
     )
-    tfr_dfs["distribution_systems_eia861"] = organized_df
+
+    tfr_dfs["distribution_systems_eia861"] = raw_ds
     return tfr_dfs
 
 
@@ -1132,4 +1071,7 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         assert table in tfr_funcs.keys()
         tfr_dfs[table] = _early_transform(raw_dfs[table])
         tfr_dfs = tfr_funcs[table](tfr_dfs)
+        # Convert column dtypes -- move to harvesting later
+        tfr_dfs[table] = pudl.helpers.convert_cols_dtypes(
+            tfr_dfs[table], 'eia', table)
     return tfr_dfs
