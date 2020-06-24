@@ -523,7 +523,39 @@ def _ba_code_backfill(df):
     return ba_eia861_filled
 
 
+def _remove_total_col(df):
+    """Remove totals from customer class."""
+    df = df.query("customer_class!='total'")
+    return df
+
+
+def _drop_dupes(df, subset):
+    tidy_nrows = len(df)
+    deduped_df = df.drop_duplicates(
+        subset=subset, keep=False)
+    deduped_nrows = len(df)
+    logger.info(
+        f"Dropped {tidy_nrows-deduped_nrows} duplicate records from EIA 861 "
+        f"Demand Response table, out of a total of {tidy_nrows} records "
+        f"({(tidy_nrows-deduped_nrows)/tidy_nrows:.4%} of all records). "
+    )
+    return deduped_df
+
+
+def _check_for_dupes(df, df_name, subset):
+    dupes = (
+        df.duplicated(
+            subset=subset, keep=False)
+    )
+    if dupes.any():
+        raise AssertionError(
+            f"Found {len(dupes)} duplicate rows in the {df_name} table, "
+            f"when zero were expected!"
+        )
+
+
 def _early_transform(df):
+    """Fix EIA na values and convert year column to date."""
     df = pudl.helpers.fix_eia_na(df)
     df = pudl.helpers.convert_to_date(df)
     return df
@@ -532,6 +564,8 @@ def _early_transform(df):
 ###############################################################################
 # EIA Form 861 Table Transform Functions
 ###############################################################################
+
+
 def service_territory(tfr_dfs):
     """Transform the EIA 861 utility service territory table.
 
@@ -663,22 +697,14 @@ def sales(tfr_dfs):
 
     # Remove the now redundant "Total" records -- they can be reconstructed
     # from the other customer classes.
+    tidy_sales = _remove_total_col(tidy_sales)
 
-    tidy_sales = tidy_sales.query("customer_class!='total'")
-    tidy_nrows = len(tidy_sales)
     # remove duplicates on the primary key columns + customer_class -- there
     # are a handful of records, all from 2010-2012, that have reporting errors
     # that produce dupes, which do not have a clear meaning. The utility_id_eia
     # values involved are: [8153, 13830, 17164, 56431, 56434, 56466, 56778,
     # 56976, 56990, 57081, 57411, 57476, 57484, 58300]
-    tidy_sales = tidy_sales.drop_duplicates(
-        subset=idx_cols + ["customer_class"], keep=False)
-    deduped_nrows = len(tidy_sales)
-    logger.info(
-        f"Dropped {tidy_nrows-deduped_nrows} duplicate records from EIA 861 "
-        f"sales table, out of a total of {tidy_nrows} records "
-        f"({(tidy_nrows-deduped_nrows)/tidy_nrows:.4%} of all records). "
-    )
+    deduped_sales = _drop_dupes(tidy_sales, idx_cols + ['customer_class'])
 
     ###########################################################################
     # Transform Values:
@@ -693,7 +719,7 @@ def sales(tfr_dfs):
     ###########################################################################
     logger.info("Performing value transformations on EIA 861 Sales table.")
     transformed_sales = (
-        tidy_sales.assign(
+        deduped_sales.assign(
             revenues=lambda x: x.revenues * 1000.0,
             data_observed=lambda x: x.data_observed.replace({
                 "O": True,
@@ -780,21 +806,11 @@ def advanced_metering_infrastructure(tfr_dfs):
 
     # Remove the now redundant "Total" records -- they can be reconstructed
     # from the other customer classes.
-    tidy_ami = tidy_ami.query("customer_class!='total'")
+    tidy_ami = _remove_total_col(tidy_ami)
 
     # No duplicates to speak of but take measures to check just in case
-    dupes = (
-        tidy_ami.duplicated(
-            subset=["utility_id_eia",
-                    "state",
-                    "balancing_authority_code_eia",
-                    "report_date",
-                    "customer_class"], keep=False)
-    )
-    if dupes.any():
-        raise AssertionError(
-            f"Found {dupes.sum()} duplicate rows in the Advanced Metring Infrastructure table, when zero were expected!"
-        )
+    _check_for_dupes(tidy_ami, 'Advanced Metering Infrastructure',
+                     idx_cols + ['customer_class'])
 
     tfr_dfs["advanced_metering_infrastructure_eia861"] = tidy_ami
     return tfr_dfs
@@ -861,20 +877,12 @@ def demand_response(tfr_dfs):
     # less than 1% of their reported total, making it a menial difference.
     # value columns tend to have 1 or 2 exceptions wherein the percent is
     # between 10 and 33.333.
-    tidy_dr = tidy_dr.query("customer_class!='total'")
-    tidy_nrows = len(tidy_dr)
+    tidy_dr = _remove_total_col(tidy_dr)
 
     # shouldn't be duplicates but there are some strange values from IN.
     # thinking this might have to do with DR table weirdness between 2012 and 2013
     # will come back to this after working on the DSM table. Dropping dupes for now.
-    tidy_dr = tidy_dr.drop_duplicates(
-        subset=idx_cols + ["customer_class"], keep=False)
-    deduped_nrows = len(tidy_dr)
-    logger.info(
-        f"Dropped {tidy_nrows-deduped_nrows} duplicate records from EIA 861 "
-        f"Demand Response table, out of a total of {tidy_nrows} records "
-        f"({(tidy_nrows-deduped_nrows)/tidy_nrows:.4%} of all records). "
-    )
+    deduped_dr = _drop_dupes(tidy_dr, idx_cols + ['customer_class'])
 
     ###########################################################################
     # Transform Values:
@@ -882,7 +890,7 @@ def demand_response(tfr_dfs):
     ###########################################################################
     logger.info("Performing value transformations on EIA 861 Sales table.")
     transformed_dr = (
-        tidy_dr.assign(
+        deduped_dr.assign(
             customer_incentives_cost=lambda x: x.customer_incentives_cost * 1000.0,
             other_costs=lambda x: x.other_costs * 1000.0
         )
@@ -946,16 +954,10 @@ def distribution_systems(tfr_dfs):
     transformed_df = (
         tfr_dfs['distribution_systems_eia861'].copy()
     )
+
     # No duplicates to speak of but take measures to check just in case
-    dupes = (
-        transformed_df.duplicated(
-            subset=["utility_id_eia", "state", "report_date"], keep=False)
-    )
-    if dupes.any():
-        raise AssertionError(
-            f"Found {dupes.sum()} duplicate rows in the Distributed Systems \
-            table, when zero were expected!"
-        )
+    _check_for_dupes(transformed_df, 'Distribution Systems', [
+                     "utility_id_eia", "state", "report_date"])
 
     # Organize table output
     organized_df = (
