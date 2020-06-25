@@ -555,15 +555,9 @@ def _tidy_customer_class_dfs(df, idx_cols):
 
     # Remove the now redundant "Total" records -- they can be reconstructed
     # from the other customer classes.
-    tidy_df = _remove_total_col(tidy_df)
+    tidy_df = tidy_df.query("customer_class!='total'")
 
     return tidy_df
-
-
-def _remove_total_col(df):
-    """Remove totals from customer class."""
-    df = df.query("customer_class!='total'")
-    return df
 
 
 def _drop_dupes(df, subset):
@@ -748,7 +742,8 @@ def sales(tfr_dfs):
     )
 
     # Organize col headers for output
-    transformed_sales = pudl.helpers.organize_cols(transformed_sales, idx_cols)
+    transformed_sales = pudl.helpers.organize_cols(
+        transformed_sales, idx_cols + ['utility_name_eia', 'customer_class'])
 
     tfr_dfs["sales_eia861"] = transformed_sales
     return tfr_dfs
@@ -787,7 +782,8 @@ def advanced_metering_infrastructure(tfr_dfs):
                      idx_cols + ['customer_class'])
 
     # Organize col headers for output
-    tidy_ami = pudl.helpers.organize_cols(tidy_ami, idx_cols)
+    tidy_ami = pudl.helpers.organize_cols(
+        tidy_ami, idx_cols + ['utility_name_eia', 'customer_class'])
 
     tfr_dfs["advanced_metering_infrastructure_eia861"] = tidy_ami
     return tfr_dfs
@@ -830,7 +826,8 @@ def demand_response(tfr_dfs):
     # Transform Values:
     # * Turn 1000s of dollars back into dollars
     ###########################################################################
-    logger.info("Performing value transformations on EIA 861 Sales table.")
+    logger.info(
+        "Performing value transformations on EIA 861 Demand Response table.")
     transformed_dr = (
         deduped_dr.assign(
             customer_incentives_cost=lambda x: x.customer_incentives_cost * 1000.0,
@@ -839,7 +836,8 @@ def demand_response(tfr_dfs):
     )
 
     # Organize col headers for output
-    transformed_dr = pudl.helpers.organize_cols(transformed_dr, idx_cols)
+    transformed_dr = pudl.helpers.organize_cols(
+        transformed_dr, idx_cols + ['utility_name_eia', 'customer_class'])
 
     tfr_dfs["demand_response_eia861"] = transformed_dr
     return tfr_dfs
@@ -900,7 +898,8 @@ def distribution_systems(tfr_dfs):
     # Organize col headers for output
     raw_ds = (
         pudl.helpers.organize_cols(
-            raw_ds, ['utility_id_eia', 'state', 'report_date']
+            raw_ds, ['utility_id_eia', 'utility_name_eia',
+                     'state', 'report_date']
         )
     )
 
@@ -920,6 +919,48 @@ def dynamic_pricing(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    idx_cols = [
+        "utility_id_eia",
+        "state",
+        "balancing_authority_code_eia",
+        "report_date",
+    ]
+
+    class_attributes = [
+        'critical_peak_pricing',
+        'critical_peak_rebate',
+        'real_time_pricing_program',
+        'time_of_use_pricing_program',
+        'variable_peak_pricing_program'
+    ]
+
+    raw_dp = tfr_dfs["dynamic_pricing_eia861"].copy()
+
+    ###########################################################################
+    # Tidy Data:
+    ###########################################################################
+
+    logger.info("Tidying the EIA 861 Dynamic Pricing table.")
+    tidy_dp = _tidy_customer_class_dfs(raw_dp, idx_cols)
+
+    ###########################################################################
+    # Transform Values:
+    # * Make Y/N's into booleans and X values into pd.NA
+    ###########################################################################
+
+    logger.info(
+        "Performing value transformations on EIA 861 Dynamic Pricing table.")
+    for col in class_attributes:
+        tidy_dp[col] = (
+            tidy_dp[col].replace({'Y': True, 'N': False})
+            .apply(lambda x: x if x in [True, False] else pd.NA)
+        )
+
+    # Organize col headers for output
+    tidy_dp = pudl.helpers.organize_cols(
+        tidy_dp, idx_cols + ['utility_name_eia', 'customer_class'])
+
+    tfr_dfs["dynamic_pricing_eia861"] = tidy_dp
     return tfr_dfs
 
 
@@ -1056,6 +1097,7 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "advanced_metering_infrastructure_eia861": advanced_metering_infrastructure,
         "demand_response_eia861": demand_response,
         "distribution_systems_eia861": distribution_systems,
+        "dynamic_pricing_eia861": dynamic_pricing,
     }
     tfr_dfs = {}
 
