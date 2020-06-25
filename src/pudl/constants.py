@@ -2631,6 +2631,8 @@ column_dtypes = {
         'fuel_type_code_pudl': pd.StringDtype(),
         # this is a mix of integer-like values (2 or 5) and strings like AUGSF
         'generator_id': pd.StringDtype(),
+        # Added by AES for GP table (added green pricing prefix for now)
+        'green_pricing_revenue': float,
         'grid_voltage_2_kv': float,
         'grid_voltage_3_kv': float,
         'grid_voltage_kv': float,
@@ -2707,16 +2709,15 @@ column_dtypes = {
         'primary_purpose_naics_id': pd.Int64Dtype(),
         'prime_mover_code': pd.StringDtype(),
         'real_time_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
-        'rec_revenues': float,  # Added by AES for GP table
+        'rec_revenue': float,  # Added by AES for GP table
         'rec_sales_mwh': float,  # Added by AES for GP table
         'regulatory_status_code': pd.StringDtype(),
         'report_date': 'datetime64[ns]',
-        'revenues': float,  # Added by AES for GP table
+        'retirement_date': 'datetime64[ns]',
         'rto_iso_lmp_node_id': pd.StringDtype(),
         'rto_iso_location_wholesale_reporting_id': pd.StringDtype(),
-        'retirement_date': 'datetime64[ns]',
-        'revenues': float,
         'sales_mwh': float,
+        'sales_revenue': float,  # Added sales prefix for now
         'secondary_transportation_mode_code': pd.StringDtype(),
         'sector_id': pd.Int64Dtype(),
         'sector_name': pd.StringDtype(),

@@ -878,7 +878,7 @@ def sales(tfr_dfs):
     logger.info("Performing value transformations on EIA 861 Sales table.")
     transformed_sales = (
         deduped_sales.assign(
-            revenues=lambda x: x.revenues * 1000.0,
+            sales_revenue=lambda x: x.sales_revenue * 1000.0,
             data_observed=lambda x: x.data_observed.replace({
                 "O": True,
                 "I": False,
@@ -1157,8 +1157,8 @@ def green_pricing(tfr_dfs):
         "Performing value transformations on EIA 861 Green Pricing table.")
     transformed_gp = (
         tidy_gp.assign(
-            revenues=lambda x: x.revenues * 1000.0,
-            rec_revenues=lambda x: x.rec_revenues * 1000.0
+            green_pricing_revenue=lambda x: x.green_pricing_revenue * 1000.0,
+            rec_revenue=lambda x: x.rec_revenue * 1000.0
         )
     )
 
