@@ -523,20 +523,24 @@ def _ba_code_backfill(df):
     return ba_eia861_filled
 
 
-def _tidy_customer_class_dfs(df, idx_cols):
+def _tidy_customer_class_dfs(df, df_name, idx_cols):
     # Clean up values just enough to use primary key columns as a multi-index:
     # Transform values with fix_eia_na()
-    logger.debug("Cleaning table index columns so we can tidy data.")
+    logger.debug(
+        f"Cleaning {df_name} table index columns so we can tidy data.")
+    if 'balancing_authority_code_eia' in idx_cols:
+        df = (
+            df.assign(
+                balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia.fillna("UNK"))
+        )
     raw_df = (
-        df.assign(
-            balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia.fillna("UNK"))
-        .dropna(subset=["utility_id_eia"])
+        df.dropna(subset=["utility_id_eia"])
         .astype({"utility_id_eia": pd.Int64Dtype()})
         .set_index(idx_cols)
     )
     # Split the table into index, data, and "denormalized" columns for processing:
     # Separate customer classes and reported data into a hierarchical index
-    logger.debug("Stacking EIA861 data columns by customer class.")
+    logger.debug(f"Stacking EIA861 {df_name} data columns by customer class.")
     data_cols = _filter_customer_cols(raw_df, CUSTOMER_CLASSES)
     data_cols.columns = (
         data_cols.columns.str.split("_", n=1, expand=True)
@@ -851,7 +855,7 @@ def sales(tfr_dfs):
     ###########################################################################
 
     logger.info("Tidying the EIA 861 Sales table.")
-    tidy_sales = _tidy_customer_class_dfs(raw_sales, idx_cols)
+    tidy_sales = _tidy_customer_class_dfs(raw_sales, 'Sales', idx_cols)
 
     # remove duplicates on the primary key columns + customer_class -- there
     # are a handful of records, all from 2010-2012, that have reporting errors
@@ -923,7 +927,8 @@ def advanced_metering_infrastructure(tfr_dfs):
     ###########################################################################
 
     logger.info("Tidying the EIA 861 Advanced Metering Infrastructure table.")
-    tidy_ami = _tidy_customer_class_dfs(raw_ami, idx_cols)
+    tidy_ami = _tidy_customer_class_dfs(
+        raw_ami, 'Advanced Metering Infrastructure', idx_cols)
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_ami, 'Advanced Metering Infrastructure',
@@ -963,7 +968,7 @@ def demand_response(tfr_dfs):
     ###########################################################################
 
     logger.info("Tidying the EIA 861 Demand Response table.")
-    tidy_dr = _tidy_customer_class_dfs(raw_dr, idx_cols)
+    tidy_dr = _tidy_customer_class_dfs(raw_dr, 'Demand Response', idx_cols)
 
     # shouldn't be duplicates but there are some strange values from IN.
     # thinking this might have to do with DR table weirdness between 2012 and 2013
@@ -1089,7 +1094,10 @@ def dynamic_pricing(tfr_dfs):
     ###########################################################################
 
     logger.info("Tidying the EIA 861 Dynamic Pricing table.")
-    tidy_dp = _tidy_customer_class_dfs(raw_dp, idx_cols)
+    tidy_dp = _tidy_customer_class_dfs(raw_dp, 'Dynamic Pricing', idx_cols)
+
+    # No duplicates to speak of but take measures to check just in case
+    _check_for_dupes(tidy_dp, 'Dynamic Pricing', idx_cols + ['customer_class'])
 
     ###########################################################################
     # Transform Values:
@@ -1124,6 +1132,42 @@ def green_pricing(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    idx_cols = [
+        "utility_id_eia",
+        "state",
+        "report_date",
+    ]
+
+    raw_gp = tfr_dfs["green_pricing_eia861"].copy()
+
+    ###########################################################################
+    # Tidy Data:
+    ###########################################################################
+
+    logger.info("Tidying the EIA 861 Green Pricing table.")
+    tidy_gp = _tidy_customer_class_dfs(raw_gp, 'Green Pricing', idx_cols)
+
+    _check_for_dupes(tidy_gp, 'Green Pricing', idx_cols + ['customer_class'])
+
+    ###########################################################################
+    # Transform Values:
+    # * Turn 1000s of dollars back into dollars
+    ###########################################################################
+    logger.info(
+        "Performing value transformations on EIA 861 Green Pricing table.")
+    transformed_gp = (
+        tidy_gp.assign(
+            revenues=lambda x: x.revenues * 1000.0,
+            rec_revenues=lambda x: x.rec_revenues * 1000.0
+        )
+    )
+
+    # Organize col headers for output
+    transformed_gp = pudl.helpers.organize_cols(
+        transformed_gp, idx_cols + ['utility_name_eia', 'customer_class'])
+
+    tfr_dfs["green_pricing_eia861"] = transformed_gp
+
     return tfr_dfs
 
 
@@ -1244,8 +1288,17 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "sales_eia861": sales,
         "advanced_metering_infrastructure_eia861": advanced_metering_infrastructure,
         "demand_response_eia861": demand_response,
+        # "demand_side_management_eia861": demand_side_management,
+        # "distributed_generation_eia861": distributed_generation,
         "distribution_systems_eia861": distribution_systems,
         "dynamic_pricing_eia861": dynamic_pricing,
+        "green_pricing_eia861": green_pricing,
+        # "mergers_eia861": mergers,
+        # "net_metering_eia861": net_metering,
+        # "non_net_metering_eia861": non_net_metering,
+        # "operational_data_eia861": operational_data,
+        # "reliability_eia861": reliability,
+        # "utility_data_eia861": utility_data,
     }
     tfr_dfs = {}
 
