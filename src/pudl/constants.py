@@ -2232,6 +2232,7 @@ pudl_tables = {
         "distribution_systems_eia861",
         "dynamic_pricing_eia861",
         "green_pricing_eia861",
+        "mergers_eia861"
     ),
     'eia923': eia923_pudl_tables,
     'epacems': epacems_tables,
@@ -2643,6 +2644,13 @@ column_dtypes = {
         'liquefied_natural_gas_storage': pd.BooleanDtype(),
         'longitude': float,
         'mercury_content_ppm': float,
+        'merge_address': pd.StringDtype(),  # Added by AES for Mergers table
+        'merge_city': pd.StringDtype(),  # Added by AES for Mergers table
+        'merge_company': pd.StringDtype(),  # Added by AES for Mergers table
+        'merge_date': 'datetime64[ns]',  # Added by AES for Mergers table
+        'merge_state': pd.StringDtype(),  # Added by AES for Mergers table
+        'merge_zip_4': pd.Int64Dtype(),  # Added by AES for Mergers table
+        'merge_zip_5': pd.Int64Dtype(),  # Added by AES for Mergers tables
         'mine_id_msha': pd.Int64Dtype(),
         'mine_id_pudl': pd.Int64Dtype(),
         'mine_name': pd.StringDtype(),
@@ -2661,6 +2669,7 @@ column_dtypes = {
         'nerc_region': pd.StringDtype(),
         'net_generation_mwh': float,
         'net_metering': pd.BooleanDtype(),
+        'new_parent': pd.StringDtype(),  # Added by AES for Mergers table
         'non_amr_ami': float,  # Added by AES for AMI table
         'nuclear_unit_id': pd.Int64Dtype(),
         'operating_date': 'datetime64[ns]',
@@ -2680,7 +2689,7 @@ column_dtypes = {
         'owner_utility_id_eia': pd.Int64Dtype(),
         'owner_zip_code': pd.StringDtype(),  # Must preserve leading zeroes.
         # we should transition these into readable codes, not a one letter thing
-        'ownership_code': pd.StringDtype(),
+        'ownership_code': pd.StringDtype(),  # Used by AES for Merger table
         'ownership_type': pd.CategoricalDtype(),
         'pipeline_notes': pd.StringDtype(),
         'planned_derate_date': 'datetime64[ns]',

@@ -1183,6 +1183,23 @@ def mergers(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    # No data tidying or transformation required
+
+    raw_mergers = tfr_dfs["mergers_eia861"].copy()
+
+    # No duplicates to speak of but take measures to check just in case
+    _check_for_dupes(raw_mergers, 'Mergers', [
+                     "utility_id_eia", "state", "report_date"])
+
+    # Organize col headers for output
+    raw_mergers = (
+        pudl.helpers.organize_cols(
+            raw_mergers, ['utility_id_eia', 'utility_name_eia',
+                          'state', 'report_date']
+        )
+    )
+
+    tfr_dfs["distribution_systems_eia861"] = raw_mergers
     return tfr_dfs
 
 
@@ -1293,7 +1310,7 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "distribution_systems_eia861": distribution_systems,
         "dynamic_pricing_eia861": dynamic_pricing,
         "green_pricing_eia861": green_pricing,
-        # "mergers_eia861": mergers,
+        "mergers_eia861": mergers,
         # "net_metering_eia861": net_metering,
         # "non_net_metering_eia861": non_net_metering,
         # "operational_data_eia861": operational_data,
