@@ -955,13 +955,12 @@ def dynamic_pricing(tfr_dfs):
             tidy_dp[col].replace({'Y': True, 'N': False})
             .apply(lambda x: x if x in [True, False] else pd.NA)
         )
-    transformed_dp = tidy_dp
 
     # Organize col headers for output
-    transformed_dp = pudl.helpers.organize_cols(
+    tidy_dp = pudl.helpers.organize_cols(
         tidy_dp, idx_cols + ['utility_name_eia', 'customer_class'])
 
-    tfr_dfs["dynamic_pricing_eia861"] = transformed_dp
+    tfr_dfs["dynamic_pricing_eia861"] = tidy_dp
     return tfr_dfs
 
 
