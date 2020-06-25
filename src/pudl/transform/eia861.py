@@ -616,6 +616,152 @@ def balancing_authority(tfr_dfs):
     return tfr_dfs
 
 
+def balancing_authority_assn(tfr_dfs):
+    """
+    Compile a balancing authority, utility, state association table.
+
+    For the years up through 2012, the only BA-Util information that's
+    available comes from the balancing_authority_eia861 table, and it
+    does not include any state-level information. However, there is
+    utility-state association information in the sales_eia861 and
+    other data tables.
+
+    For the years from 2013 onward, there's explicit BA-Util-State
+    information in the data tables (e.g. sales_eia861). These observed
+    associations can be compiled to give us a picture of which
+    BA-Util-State associations exist. However, we need to merge in
+    the balancing authority IDs since the data tables only contain
+    the balancing authority codes.
+
+    Args:
+        tfr_dfs (dict): A dictionary of transformed EIA 861 dataframes.
+            This must include any dataframes from which we want to
+            compile BA-Util-State associations, which means this
+            function has to be called after all the basic transform
+            functions that depend on only a single raw table.
+
+    Returns:
+        dict: a dictionary of transformed dataframes. This function
+        both compiles the association table, and finishes the
+        normalization of the balancing authority table. It may be that
+        once the harvesting process incorporates the EIA 861, some or
+        all of this functionality should be pulled into the phase-2
+        transform functions.
+
+    """
+    # The dataframes from which to compile BA-Util-State associations
+    other_dfs = [
+        tfr_dfs["sales_eia861"],
+        tfr_dfs["demand_response_eia861"],
+    ]
+
+    logger.info("Building an EIA 861 BA-Util-State association table.")
+
+    old_date_ba_util = (
+        tfr_dfs["balancing_authority_eia861"]
+        .query("report_date<='2012-12-31'")
+        .loc[:, [
+            "report_date",
+            "balancing_authority_id_eia",
+            "utility_id_eia",
+        ]]
+        .dropna()
+        .drop_duplicates()
+    )
+
+    old_date_util_state = pd.DataFrame()
+    for df in other_dfs:
+        tmp_df = (
+            df.query("report_date<='2012-12-31'")
+            .loc[:, [
+                "report_date",
+                "utility_id_eia",
+                "state",
+            ]]
+            .dropna()
+            .drop_duplicates()
+        )
+        old_date_util_state = (
+            pd.concat([old_date_util_state, tmp_df])
+            .drop_duplicates()
+        )
+    old_date_ba_util_state = pd.merge(
+        old_date_ba_util, old_date_util_state, how="outer")
+
+    new_ba_code_id = (
+        tfr_dfs["balancing_authority_eia861"]
+        .query("report_date>='2013-01-01'")
+        .loc[:, [
+            "report_date",
+            "balancing_authority_code_eia",
+            "balancing_authority_id_eia",
+        ]]
+        .dropna()
+        .drop_duplicates()
+    )
+    new_date_ba_code_util_state = pd.DataFrame()
+    for df in other_dfs:
+        tmp_df = (
+            df.query("report_date>='2013-01-01'")
+            .loc[:, [
+                "report_date",
+                "balancing_authority_code_eia",
+                "utility_id_eia",
+                "state",
+            ]]
+            .dropna()
+            .drop_duplicates()
+        )
+        new_date_ba_code_util_state = (
+            pd.concat([new_date_ba_code_util_state, tmp_df])
+            .drop_duplicates()
+        )
+    new_date_ba_util_state = (
+        new_date_ba_code_util_state
+        .merge(new_ba_code_id, how="outer")
+        .drop("balancing_authority_code_eia", axis="columns")
+        .drop_duplicates()
+    )
+    tfr_dfs["balancing_authority_assn_eia861"] = (
+        pd.concat([old_date_ba_util_state, new_date_ba_util_state])
+        .dropna(subset=["balancing_authority_id_eia", ])
+        .astype({"utility_id_eia": pd.Int64Dtype()})
+    )
+
+    # Finish the normalization of the BA table:
+    logger.info("Completing normalization of balancing_authority_eia861.")
+    ba_eia861_normed = (
+        tfr_dfs["balancing_authority_eia861"]
+        .loc[:, [
+            "report_date",
+            "balancing_authority_id_eia",
+            "balancing_authority_code_eia",
+            "balancing_authority_name_eia",
+        ]]
+        .drop_duplicates()
+    )
+
+    # Make sure that there aren't any more BA IDs we can recover from later years:
+    ba_ids_missing_codes = (
+        ba_eia861_normed.loc[
+            ba_eia861_normed.balancing_authority_code_eia.isnull(),
+            "balancing_authority_id_eia"]
+        .drop_duplicates()
+        .dropna()
+    )
+    fillable_ba_codes = ba_eia861_normed[
+        (ba_eia861_normed.balancing_authority_id_eia.isin(ba_ids_missing_codes)) &
+        (ba_eia861_normed.balancing_authority_code_eia.notnull())
+    ]
+    if len(fillable_ba_codes) != 0:
+        raise ValueError(
+            f"Found {len(fillable_ba_codes)} unfilled but fillable BA Codes!"
+        )
+
+    tfr_dfs["balancing_authority_eia861"] = ba_eia861_normed
+    return tfr_dfs
+
+
 def sales(tfr_dfs):
     """Transform the EIA 861 Sales table."""
     idx_cols = [
@@ -1051,8 +1197,8 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
     """
     # these are the tables that we have transform functions for...
     tfr_funcs = {
-        "service_territory_eia861": service_territory,
         "balancing_authority_eia861": balancing_authority,
+        "service_territory_eia861": service_territory,
         "sales_eia861": sales,
         "demand_response_eia861": demand_response,
         "distribution_systems_eia861": distribution_systems,
@@ -1070,4 +1216,6 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         assert table in tfr_funcs.keys()
         tfr_dfs[table] = _early_transform(raw_dfs[table])
         tfr_dfs = tfr_funcs[table](tfr_dfs)
+    # This is more like harvesting stuff, and should probably be reloacted:
+    tfr_dfs = balancing_authority_assn(tfr_dfs)
     return tfr_dfs
