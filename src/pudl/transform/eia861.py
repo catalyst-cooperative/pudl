@@ -926,6 +926,14 @@ def dynamic_pricing(tfr_dfs):
         "report_date",
     ]
 
+    class_attributes = [
+        'critical_peak_pricing',
+        'critical_peak_rebate',
+        'real_time_pricing_program',
+        'time_of_use_pricing_program',
+        'variable_peak_pricing_program'
+    ]
+
     raw_dp = tfr_dfs["dynamic_pricing_eia861"].copy()
 
     ###########################################################################
@@ -937,18 +945,21 @@ def dynamic_pricing(tfr_dfs):
 
     ###########################################################################
     # Transform Values:
-    # * Make Y/N's into booleans
+    # * Make Y/N's into booleans and X values into pd.NA
     ###########################################################################
 
     logger.info(
         "Performing value transformations on EIA 861 Dynamic Pricing table.")
-    transformed_dp = (
-        tidy_dp.replace({'Y': True, 'N': False})
-    )
+    for col in class_attributes:
+        tidy_dp[col] = (
+            tidy_dp[col].replace({'Y': True, 'N': False})
+            .apply(lambda x: x if x in [True, False] else pd.NA)
+        )
+    transformed_dp = tidy_dp
 
     # Organize col headers for output
     transformed_dp = pudl.helpers.organize_cols(
-        transformed_dp, idx_cols + ['utility_name_eia', 'customer_class'])
+        tidy_dp, idx_cols + ['utility_name_eia', 'customer_class'])
 
     tfr_dfs["dynamic_pricing_eia861"] = transformed_dp
     return tfr_dfs

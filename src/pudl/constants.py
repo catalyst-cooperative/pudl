@@ -2578,8 +2578,8 @@ column_dtypes = {
         'contract_type_code': pd.StringDtype(),
         'county': pd.StringDtype(),
         'county_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
-        'critical_peak_pricing': pd.StringDtype(),  # Added by AES for DP table
-        'critical_peak_rebate': pd.StringDtype(),  # Added by AES for DP table
+        'critical_peak_pricing': pd.BooleanDtype(),  # Added by AES for DP table
+        'critical_peak_rebate': pd.BooleanDtype(),  # Added by AES for DP table
         'current_planned_operating_date': 'datetime64[ns]',
         'customers': pd.Int64Dtype(),
         'customer_class': pd.CategoricalDtype(categories=[
@@ -2705,7 +2705,7 @@ column_dtypes = {
         'primary_transportation_mode_code': pd.StringDtype(),
         'primary_purpose_naics_id': pd.Int64Dtype(),
         'prime_mover_code': pd.StringDtype(),
-        'real_time_pricing_program': pd.StringDtype(),  # Added by AES for DP table
+        'real_time_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
         'regulatory_status_code': pd.StringDtype(),
         'report_date': 'datetime64[ns]',
         'rto_iso_lmp_node_id': pd.StringDtype(),
@@ -2739,7 +2739,7 @@ column_dtypes = {
         'syncronized_transmission_grid': pd.BooleanDtype(),
         'technology_description': pd.StringDtype(),
         'time_cold_shutdown_full_load_code': pd.StringDtype(),
-        'time_of_use_pricing_program': pd.StringDtype(),  # Added by AES for DP table
+        'time_of_use_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
         'timezone': pd.StringDtype(),
         'topping_bottoming_code': pd.StringDtype(),
         'total_meters': float,  # Added by AES for AMI table
@@ -2759,7 +2759,7 @@ column_dtypes = {
         'utility_name_eia': pd.StringDtype(),
         'utility_pobox': pd.StringDtype(),
         'utility_zip4': pd.StringDtype(),
-        'variable_peak_pricing_program': pd.StringDtype(),  # Added by AES for DP table
+        'variable_peak_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
         'water_heater': pd.Int64Dtype(),  # Added by AES for DR table
         'water_source': pd.StringDtype(),
         'winter_capacity_mw': float,
