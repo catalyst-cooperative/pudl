@@ -116,8 +116,7 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
                     )
 
 
-def test_ferc1_solo_etl(datastore_fixture,
-                        pudl_settings_fixture,
+def test_ferc1_solo_etl(pudl_settings_fixture,
                         ferc1_engine,
                         live_ferc1_db):
     """Verify that a minimal FERC Form 1 can be loaded without other data."""
