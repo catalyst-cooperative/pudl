@@ -2695,11 +2695,8 @@ column_dtypes = {
             'Wholesale Power Marketer', 'Federal', 'Municipal Mktg Authority',
             'Unregulated', 'Community Choice Aggregator',
             'Nonutility DSM Administrator', 'Behind the Meter'
-        ]),  # Added by AES for Merger table
-        'ownership_code': pd.CategoricalDtype(categories=[
-            'M', 'C', 'R', 'I', 'P', 'T', 'S', 'W', 'F', 'A', 'G', 'D', 'B'
         ]),  # Modified by AES for Merger table
-        'ownership_type': pd.CategoricalDtype(),
+        #    'ownership_type': pd.CategoricalDtype(),
         'pipeline_notes': pd.StringDtype(),
         'planned_derate_date': 'datetime64[ns]',
         'planned_energy_source_code_1': pd.StringDtype(),
@@ -2789,4 +2786,21 @@ column_dtypes = {
         'winter_estimated_capability_mw': float,
         'zip_code': pd.StringDtype(),
     },
+}
+
+OWNERSHIP_DICT = {
+    'M': 'Municipal',
+    'C': 'Cooperative',
+    'R': 'Retail Power Marketer',
+    'I': 'Investor Owned',
+    'P': 'Political Subdivision',
+    'T': 'Transmission',
+    'S': 'State',
+    'W': 'Wholesale Power Marketer',
+    'F': 'Federal',
+    'A': 'Municipal Mktg Authority',
+    'G': 'Community Choice Aggregator',
+    'D': 'Nonutility DSM Administrator',
+    'B': 'Behind the Meter',
+    float('nan'): 'Unregulated',
 }

@@ -1183,23 +1183,34 @@ def mergers(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
-    # No data tidying or transformation required
-
     raw_mergers = tfr_dfs["mergers_eia861"].copy()
 
-    # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(raw_mergers, 'Mergers', [
-                     "utility_id_eia", "state", "report_date"])
+    # No data tidying required
 
-    # Organize col headers for output
-    raw_mergers = (
-        pudl.helpers.organize_cols(
-            raw_mergers, ['utility_id_eia', 'utility_name_eia',
-                          'state', 'report_date']
+    ###########################################################################
+    # Transform Values:
+    # * Turn ownership column from single-letter code to full ownership category.
+    ###########################################################################
+
+    transformed_mergers = (
+        raw_mergers.assign(
+            ownership=lambda x: x.ownership.map(pc.OWNERSHIP_DICT)
         )
     )
 
-    tfr_dfs["mergers_eia861"] = raw_mergers
+    # No duplicates to speak of but take measures to check just in case
+    _check_for_dupes(transformed_mergers, 'Mergers', [
+                     "utility_id_eia", "state", "report_date"])
+
+    # Organize col headers for output
+    transformed_mergers = (
+        pudl.helpers.organize_cols(
+            transformed_mergers, ['utility_id_eia', 'utility_name_eia',
+                                  'state', 'report_date']
+        )
+    )
+
+    tfr_dfs["mergers_eia861"] = transformed_mergers
     return tfr_dfs
 
 
