@@ -1199,7 +1199,7 @@ def mergers(tfr_dfs):
         )
     )
 
-    tfr_dfs["distribution_systems_eia861"] = raw_mergers
+    tfr_dfs["mergers_eia861"] = raw_mergers
     return tfr_dfs
 
 

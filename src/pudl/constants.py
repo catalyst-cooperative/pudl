@@ -2689,7 +2689,16 @@ column_dtypes = {
         'owner_utility_id_eia': pd.Int64Dtype(),
         'owner_zip_code': pd.StringDtype(),  # Must preserve leading zeroes.
         # we should transition these into readable codes, not a one letter thing
-        'ownership_code': pd.StringDtype(),  # Used by AES for Merger table
+        'ownership': pd.CategoricalDtype(categories=[
+            'Municipal', 'Cooperative', 'Retail Power Marketer',
+            'Investor Owned', 'Political Subdivision', 'Transmission', 'State',
+            'Wholesale Power Marketer', 'Federal', 'Municipal Mktg Authority',
+            'Unregulated', 'Community Choice Aggregator',
+            'Nonutility DSM Administrator', 'Behind the Meter'
+        ]),  # Added by AES for Merger table
+        'ownership_code': pd.CategoricalDtype(categories=[
+            'M', 'C', 'R', 'I', 'P', 'T', 'S', 'W', 'F', 'A', 'G', 'D', 'B'
+        ]),  # Modified by AES for Merger table
         'ownership_type': pd.CategoricalDtype(),
         'pipeline_notes': pd.StringDtype(),
         'planned_derate_date': 'datetime64[ns]',
