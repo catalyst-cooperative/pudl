@@ -636,14 +636,9 @@ def convert_cost_json_to_df(response_fuel_state_annual):
     Returns:
         pandas.DataFrame: a dataframe containing state-level montly fuel cost.
         The table contains the following columns, some of which are refernce
-        columns:
-            - 'report_date'
-            - 'fuel_cost_per_unit'
-            - 'state'
-            - 'fuel_type_code_pudl'
-            - 'units': (ref)
-            - 'series_id': (ref)
-            - 'name': (ref)
+        columns: 'report_date', 'fuel_cost_per_unit', 'state',
+        'fuel_type_code_pudl', 'units' (ref), 'series_id' (ref),
+        'name' (ref).
     """
     cost_df = (
         pd.json_normalize(
@@ -676,17 +671,11 @@ def get_fuel_cost_avg_eiaapi(fuel_cost_cat_ids):
             ids are stored in FUEL_COST_CATEGORIES_EIAAPI.
 
     Returns:
-        pandas.DataFrame: a dataframe containing state-level montly fuel cost
-        for all of the fuel type categories specified in fuel_cost_cat_ids.
+        pandas.DataFrame: a dataframe containing state-level montly fuel cost.
         The table contains the following columns, some of which are refernce
-        columns:
-            - 'report_date'
-            - 'fuel_cost_per_unit'
-            - 'state'
-            - 'fuel_type_code_pudl'
-            - 'units': (ref)
-            - 'series_id': (ref)
-            - 'name': (ref)
+        columns: 'report_date', 'fuel_cost_per_unit', 'state',
+        'fuel_type_code_pudl', 'units' (ref), 'series_id' (ref),
+        'name' (ref).
     """
     # grab_fuel_state_monthly compiles childseries for us to make larger
     # requests, but we can request up to 100 series from EIA but each
