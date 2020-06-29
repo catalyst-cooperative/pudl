@@ -686,7 +686,9 @@ def categorize_eia_code(rids_ferc714, utils_eia860, ba_eia861):
         ba_rids.merge(
             ba_eia861
             .filter(like="balancing_")
-            .drop_duplicates(subset=["balancing_authority_id_eia", "balancing_authority_code_eia"]),
+            .drop_duplicates(subset=[
+                "balancing_authority_id_eia",
+                "balancing_authority_code_eia"]),
             how="left", left_on="eia_code", right_on="balancing_authority_id_eia"
         )
     )
@@ -751,7 +753,7 @@ def has_demand(dhpa, rids):
         .agg({"demand_mwh": sum})
         .reset_index()
         .assign(has_demand=lambda x: x.demand_mwh > 0.0)
-        .drop("demand_mwh", axis="columns")
+        .rename(columns={"demand_mwh": "total_demand_mwh"})
         .merge(all_years_rids, how="right")
         .assign(has_demand=lambda x: x.has_demand.fillna(False))
         .pipe(pudl.helpers.convert_to_date)
@@ -809,19 +811,6 @@ def georef_planning_areas(ba_eia861,     # Balancing Area
         Authority table (through 2012) or the EIA 861 Sales table (for 2013 onward).
 
     """
-    # Make sure that there aren't any more BA IDs we can recover from later years:
-    ba_ids_missing_codes = (
-        ba_eia861.loc[
-            ba_eia861.balancing_authority_code_eia.isnull(),
-            "balancing_authority_id_eia"]
-        .drop_duplicates()
-        .dropna()
-    )
-    assert len(ba_eia861[
-        (ba_eia861.balancing_authority_id_eia.isin(ba_ids_missing_codes)) &
-        (ba_eia861.balancing_authority_code_eia.notnull())
-    ]) == 0
-
     # Which utilities were part of what balancing areas in 2010-2012?
     early_ba_by_util = (
         ba_eia861
@@ -991,7 +980,7 @@ def georef_rids_ferc714(annual_rids_ferc714, ba_util_county_gdf):
         .merge(utils_ferc714, on=["report_date", "utility_id_eia"], how="right")
     )
     # Concatenate these differently merged dataframes back together:
-    return (
+    out_gdf = (
         pd.concat([bas_ferc714_gdf, utils_ferc714_gdf, null_ferc714])
         .astype({
             "county_id_fips": pd.StringDtype(),
@@ -1006,3 +995,7 @@ def georef_rids_ferc714(annual_rids_ferc714, ba_util_county_gdf):
             "has_demand": pd.BooleanDtype(),
         })
     )
+    # Work around a bug in geopandas 0.7.0
+    # See: https://github.com/geopandas/geopandas/issues/1340
+    out_gdf.crs = ba_util_county_gdf.crs
+    return out_gdf

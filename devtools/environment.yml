@@ -36,6 +36,7 @@ dependencies:
   - pre_commit          # dev
   - pyarrow>=0.16       # base Nullable pandas types work w/ 0.16 and later
   - pydocstyle          # dev
+  - pygeos              # user (speeds up geopandas operations)
   - pysal               # user (required for making maps w/ geopandas)
   - pytest              # dev
   - pytest-cov          # dev
