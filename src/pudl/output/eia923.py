@@ -21,7 +21,7 @@ FUEL_TYPE_EIAAPI_MAP = {
     "NG": "gas",
 }
 
-FUEL_COST_CATEGORIES_EIAAPI = [41696, 41762]
+FUEL_COST_CATEGORIES_EIAAPI = (41696, 41762)
 """The category ids for fuel costs by fuel for electricity."""
 
 
@@ -611,12 +611,12 @@ def convert_cost_json_to_df(response_fuel_state_annual):
     return cost_df
 
 
-def get_fuel_cost_avg_eiaapi():
+def get_fuel_cost_avg_eiaapi(cat_ids=FUEL_COST_CATEGORIES_EIAAPI):
     """Get a dataframe of state-level average fuel costs."""
     # we can request up to 100 series from EIA but each state-level fuel type
     # ser is over 50 so we need to pull one fuel type at a time and concat the resulting df
     dfs_to_concat = []
-    for fuel_cat_id in FUEL_COST_CATEGORIES_EIAAPI:
+    for fuel_cat_id in cat_ids:
         dfs_to_concat.append(convert_cost_json_to_df(
             grab_fuel_state_monthly(fuel_cat_id)))
     return pd.concat(dfs_to_concat)
