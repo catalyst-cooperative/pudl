@@ -2605,7 +2605,14 @@ column_dtypes = {
         'energy_source_code_5': pd.StringDtype(),
         'energy_source_code_6': pd.StringDtype(),
         'energy_storage': pd.BooleanDtype(),
-        'entity_type': pd.StringDtype(),
+        'entity_type': pd.CategoricalDtype(categories=[
+            'Municipal', 'Cooperative', 'Retail Power Marketer',
+            'Investor Owned', 'Political Subdivision', 'Transmission', 'State',
+            'Wholesale Power Marketer', 'Federal', 'Municipal Mktg Authority',
+            'Unregulated', 'Community Choice Aggregator', 'Industrial'
+            'Nonutility DSM Administrator', 'Behind the Meter', 'Commercial',
+            'Indedpendent Power Producer'
+        ]),  # Modified by AES for Merger table
         'ferc_cogen_docket_no': pd.StringDtype(),
         'ferc_cogen_status': pd.BooleanDtype(),
         'ferc_exempt_wholesale_generator': pd.BooleanDtype(),
@@ -2649,8 +2656,8 @@ column_dtypes = {
         'merge_company': pd.StringDtype(),  # Added by AES for Mergers table
         'merge_date': 'datetime64[ns]',  # Added by AES for Mergers table
         'merge_state': pd.StringDtype(),  # Added by AES for Mergers table
-        'merge_zip_4': pd.Int64Dtype(),  # Added by AES for Mergers table
-        'merge_zip_5': pd.Int64Dtype(),  # Added by AES for Mergers tables
+        'merge_zip_4': pd.StringDtype(),  # Added by AES for Mergers table
+        'merge_zip_5': pd.StringDtype(),  # Added by AES for Mergers tables
         'mine_id_msha': pd.Int64Dtype(),
         'mine_id_pudl': pd.Int64Dtype(),
         'mine_name': pd.StringDtype(),
@@ -2689,14 +2696,6 @@ column_dtypes = {
         'owner_utility_id_eia': pd.Int64Dtype(),
         'owner_zip_code': pd.StringDtype(),  # Must preserve leading zeroes.
         # we should transition these into readable codes, not a one letter thing
-        'ownership': pd.CategoricalDtype(categories=[
-            'Municipal', 'Cooperative', 'Retail Power Marketer',
-            'Investor Owned', 'Political Subdivision', 'Transmission', 'State',
-            'Wholesale Power Marketer', 'Federal', 'Municipal Mktg Authority',
-            'Unregulated', 'Community Choice Aggregator',
-            'Nonutility DSM Administrator', 'Behind the Meter'
-        ]),  # Modified by AES for Merger table
-        #    'ownership_type': pd.CategoricalDtype(),
         'pipeline_notes': pd.StringDtype(),
         'planned_derate_date': 'datetime64[ns]',
         'planned_energy_source_code_1': pd.StringDtype(),
@@ -2788,7 +2787,7 @@ column_dtypes = {
     },
 }
 
-OWNERSHIP_DICT = {
+ENTITY_TYPE_DICT = {
     'M': 'Municipal',
     'C': 'Cooperative',
     'R': 'Retail Power Marketer',
@@ -2802,5 +2801,8 @@ OWNERSHIP_DICT = {
     'G': 'Community Choice Aggregator',
     'D': 'Nonutility DSM Administrator',
     'B': 'Behind the Meter',
+    'Q': 'Independent Power Producer',
+    'IND': 'Industrial',
+    'COM': 'Commercial',
     float('nan'): 'Unregulated',
 }

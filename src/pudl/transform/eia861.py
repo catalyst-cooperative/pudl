@@ -564,6 +564,15 @@ def _tidy_customer_class_dfs(df, df_name, idx_cols):
     return tidy_df
 
 
+def _zero_pad_zips(zip_series):
+    # Add preceeding zeros where necessary and get rid of decimal zeros
+    zip_series = (
+        pd.Series([str(zipcode).split('.')[0].zfill(5)
+                   for zipcode in zip_series if pd.notnull(zipcode)])
+    )
+    return zip_series
+
+
 def _drop_dupes(df, subset):
     tidy_nrows = len(df)
     deduped_df = df.drop_duplicates(
@@ -1190,11 +1199,13 @@ def mergers(tfr_dfs):
     ###########################################################################
     # Transform Values:
     # * Turn ownership column from single-letter code to full ownership category.
+    # * Retain preceeding zeros in zip codes
     ###########################################################################
 
     transformed_mergers = (
         raw_mergers.assign(
-            ownership=lambda x: x.ownership.map(pc.OWNERSHIP_DICT)
+            entity_type=lambda x: x.entity_type.map(pc.ENTITY_TYPE_DICT),
+            merge_zip_5=lambda x: _zero_pad_zips(x.merge_zip_5)
         )
     )
 
