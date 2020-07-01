@@ -1043,7 +1043,7 @@ def count_records(df, cols, new_count_col_name):
         cols (iterable) : list of columns to group and count by.
         new_count_col_name (string) : the name that will be assigned to the
             column that will contain the count.
-    Retruns:
+    Returns:
         pandas.DataFrame: dataframe with only the `cols` definted and the
         `new_count_col_name`.
     """
@@ -1071,3 +1071,25 @@ def cleanstrings_snake(df, cols):
             str.replace(r'\s+', '_')
         )
     return df
+
+
+def zero_pad_zips(zip_series, n_digits):
+    """
+    Retain prefix zeros in zipcodes.
+
+    Args:
+        zip_series (pd.Series) : series containing the zipcode values.
+        n_digits(int) : zipcode length (likely 4 or 5 digits).
+    Returns:
+        pd.Series: a series containing zipcodes with their prefix zeros intact and invalid zipcodes rendered as na.
+    """
+    # Add preceeding zeros where necessary and get rid of decimal zeros
+    zip_series = (
+        pd.to_numeric(zip_series)  # Make sure it's all numerical values
+        .astype(pd.Int64Dtype())  # Make it a (nullable) Integer
+        .fillna(0)  # fill the NA
+        .astype(str).str.zfill(n_digits)  # Make it a string and zero pad it.
+        .astype(pd.StringDtype())  # Make it nullable
+        .replace({n_digits * "0": pd.NA})  # All-zero Zip codes aren't valid.
+    )
+    return zip_series

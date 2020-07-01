@@ -878,7 +878,7 @@ def sales(tfr_dfs):
     logger.info("Performing value transformations on EIA 861 Sales table.")
     transformed_sales = (
         deduped_sales.assign(
-            revenues=lambda x: x.revenues * 1000.0,
+            sales_revenue=lambda x: x.sales_revenue * 1000.0,
             data_observed=lambda x: x.data_observed.replace({
                 "O": True,
                 "I": False,
@@ -1157,8 +1157,8 @@ def green_pricing(tfr_dfs):
         "Performing value transformations on EIA 861 Green Pricing table.")
     transformed_gp = (
         tidy_gp.assign(
-            revenues=lambda x: x.revenues * 1000.0,
-            rec_revenues=lambda x: x.rec_revenues * 1000.0
+            green_pricing_revenue=lambda x: x.green_pricing_revenue * 1000.0,
+            rec_revenue=lambda x: x.rec_revenue * 1000.0
         )
     )
 
@@ -1183,6 +1183,37 @@ def mergers(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    raw_mergers = tfr_dfs["mergers_eia861"].copy()
+
+    # No data tidying required
+
+    ###########################################################################
+    # Transform Values:
+    # * Turn ownership column from single-letter code to full ownership category.
+    # * Retain preceeding zeros in zip codes
+    ###########################################################################
+
+    transformed_mergers = (
+        raw_mergers.assign(
+            entity_type=lambda x: x.entity_type.map(pc.ENTITY_TYPE_DICT),
+            merge_zip_5=lambda x: pudl.helpers.zero_pad_zips(x.merge_zip_5, 5),
+            merge_zip_4=lambda x: pudl.helpers.zero_pad_zips(x.merge_zip_4, 4)
+        )
+    )
+
+    # No duplicates to speak of but take measures to check just in case
+    _check_for_dupes(transformed_mergers, 'Mergers', [
+                     "utility_id_eia", "state", "report_date"])
+
+    # Organize col headers for output
+    transformed_mergers = (
+        pudl.helpers.organize_cols(
+            transformed_mergers, ['utility_id_eia', 'utility_name_eia',
+                                  'state', 'report_date']
+        )
+    )
+
+    tfr_dfs["mergers_eia861"] = transformed_mergers
     return tfr_dfs
 
 
@@ -1293,7 +1324,7 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "distribution_systems_eia861": distribution_systems,
         "dynamic_pricing_eia861": dynamic_pricing,
         "green_pricing_eia861": green_pricing,
-        # "mergers_eia861": mergers,
+        "mergers_eia861": mergers,
         # "net_metering_eia861": net_metering,
         # "non_net_metering_eia861": non_net_metering,
         # "operational_data_eia861": operational_data,
