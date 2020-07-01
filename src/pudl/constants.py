@@ -2501,6 +2501,26 @@ keywords_by_data_source = {
         'epaipm', 'integrated planning',
     ]
 }
+
+ENTITY_TYPE_DICT = {
+    'M': 'Municipal',
+    'C': 'Cooperative',
+    'R': 'Retail Power Marketer',
+    'I': 'Investor Owned',
+    'P': 'Political Subdivision',
+    'T': 'Transmission',
+    'S': 'State',
+    'W': 'Wholesale Power Marketer',
+    'F': 'Federal',
+    'A': 'Municipal Mktg Authority',
+    'G': 'Community Choice Aggregator',
+    'D': 'Nonutility DSM Administrator',
+    'B': 'Behind the Meter',
+    'Q': 'Independent Power Producer',
+    'IND': 'Industrial',
+    'COM': 'Commercial',
+}
+
 """dict: A dictionary of datasets (keys) and keywords (values). """
 
 column_dtypes = {
@@ -2605,14 +2625,8 @@ column_dtypes = {
         'energy_source_code_5': pd.StringDtype(),
         'energy_source_code_6': pd.StringDtype(),
         'energy_storage': pd.BooleanDtype(),
-        'entity_type': pd.CategoricalDtype(categories=[
-            'Municipal', 'Cooperative', 'Retail Power Marketer',
-            'Investor Owned', 'Political Subdivision', 'Transmission', 'State',
-            'Wholesale Power Marketer', 'Federal', 'Municipal Mktg Authority',
-            'Unregulated', 'Community Choice Aggregator', 'Industrial'
-            'Nonutility DSM Administrator', 'Behind the Meter', 'Commercial',
-            'Indedpendent Power Producer'
-        ]),  # Modified by AES for Merger table
+        # Modified by AES for Merger table
+        'entity_type': pd.CategoricalDtype(categories=ENTITY_TYPE_DICT.values()),
         'ferc_cogen_docket_no': pd.StringDtype(),
         'ferc_cogen_status': pd.BooleanDtype(),
         'ferc_exempt_wholesale_generator': pd.BooleanDtype(),
@@ -2785,24 +2799,4 @@ column_dtypes = {
         'winter_estimated_capability_mw': float,
         'zip_code': pd.StringDtype(),
     },
-}
-
-ENTITY_TYPE_DICT = {
-    'M': 'Municipal',
-    'C': 'Cooperative',
-    'R': 'Retail Power Marketer',
-    'I': 'Investor Owned',
-    'P': 'Political Subdivision',
-    'T': 'Transmission',
-    'S': 'State',
-    'W': 'Wholesale Power Marketer',
-    'F': 'Federal',
-    'A': 'Municipal Mktg Authority',
-    'G': 'Community Choice Aggregator',
-    'D': 'Nonutility DSM Administrator',
-    'B': 'Behind the Meter',
-    'Q': 'Independent Power Producer',
-    'IND': 'Industrial',
-    'COM': 'Commercial',
-    float('nan'): 'Unregulated',
 }
