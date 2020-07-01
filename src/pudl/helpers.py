@@ -17,6 +17,7 @@ from functools import partial
 import addfips
 import numpy as np
 import pandas as pd
+import requests
 import sqlalchemy as sa
 import timezonefinder
 from sqlalchemy.engine import reflection
@@ -35,6 +36,27 @@ sum_na = partial(pd.Series.sum, skipna=False)
 # them open for efficiency. I want to avoid doing that for every call to find
 # the timezone, so this is global.
 tz_finder = timezonefinder.TimezoneFinder()
+
+
+def download_zip_url(url, save_path, chunk_size=128):
+    """
+    Download and save a Zipfile locally.
+
+    Useful for acquiring and storing non-PUDL data locally.
+
+    Args:
+        url (str): The URL from which to download the Zipfile
+        save_path (pathlib.Path): The location to save the file.
+        chunk_size (int): Data chunk in bytes to use while downloading.
+
+    Returns:
+        None
+
+    """
+    r = requests.get(url, stream=True)
+    with save_path.open(mode='wb') as fd:
+        for chunk in r.iter_content(chunk_size=chunk_size):
+            fd.write(chunk)
 
 
 def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):

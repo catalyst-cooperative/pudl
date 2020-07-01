@@ -1,3 +1,5 @@
 [build-system]
 requires = ["setuptools", "wheel", "setuptools_scm"]
-#build-backend = "setuptools.build_meta:__legacy__"
+
+[tool.autopep8]
+max-line-length = 88

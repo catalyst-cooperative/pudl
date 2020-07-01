@@ -32,7 +32,6 @@ import zipfile
 import geopandas
 import numpy as np
 import pandas as pd
-import requests
 from geopandas import GeoDataFrame
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
 from shapely.ops import unary_union
@@ -42,73 +41,10 @@ import pudl
 
 logger = logging.getLogger(__name__)
 
-################################################################################
-# Some constants useful for local use
-################################################################################
-MAP_CRS = "EPSG:3857"
-CALC_CRS = "ESRI:102003"
-
 
 ################################################################################
-# Local data acquisition functions for the Demand Mapping analysis
+# Local data acquisition functions specific to the Demand Mapping analysis
 ################################################################################
-def download_zip_url(url, save_path, chunk_size=128):
-    """Download a Zipfile directly."""
-    r = requests.get(url, stream=True)
-    with save_path.open(mode='wb') as fd:
-        for chunk in r.iter_content(chunk_size=chunk_size):
-            fd.write(chunk)
-
-
-def get_census2010_gdf(pudl_settings, layer):
-    """
-    Obtain a GeoDataFrame containing US Census demographic data for 2010.
-
-    Args:
-        pudl_settings (dict): PUDL Settings dictionary.
-        layer (str): Indicates which layer of the Census GeoDB to read.
-            Must be one of "state", "county", or "tract".
-
-    Returns:
-        geopandas.GeoDataFrame: DataFrame containing the US Census
-        Demographic Profile 1 (DP1) data, aggregated to the layer
-
-    """
-    census2010_url = "http://www2.census.gov/geo/tiger/TIGER2010DP1/Profile-County_Tract.zip"
-    census2010_dir = pathlib.Path(
-        pudl_settings["data_dir"]) / "local/uscb/census2010"
-    census2010_dir.mkdir(parents=True, exist_ok=True)
-    census2010_zipfile = census2010_dir / "census2010.zip"
-    census2010_gdb_dir = census2010_dir / "census2010.gdb"
-
-    if not census2010_gdb_dir.is_dir():
-        logger.info("No Census GeoDB found. Downloading from US Census Bureau.")
-        # Download to appropriate location
-        download_zip_url(census2010_url, census2010_zipfile)
-        # Unzip because we can't use zipfile paths with geopandas
-        with zipfile.ZipFile(census2010_zipfile, 'r') as zip_ref:
-            zip_ref.extractall(census2010_dir)
-            # Grab the UUID based directory name so we can change it:
-            extract_root = census2010_dir / \
-                pathlib.Path(zip_ref.filelist[0].filename).parent
-        extract_root.rename(census2010_gdb_dir)
-    else:
-        logger.info("We've already got the 2010 Census GeoDB.")
-
-    logger.info("Extracting the GeoDB into a GeoDataFrame")
-    layers = {
-        "state": "State_2010Census_DP1",
-        "county": "County_2010Census_DP1",
-        "tract": "Tract_2010Census_DP1",
-    }
-    census_gdf = geopandas.read_file(
-        census2010_gdb_dir,
-        driver='FileGDB',
-        layer=layers[layer],
-    )
-    return census_gdf
-
-
 def get_hifld_planning_areas_gdf(pudl_settings):
     """Electric Planning Area geometries from HIFLD."""
     hifld_pa_url = "https://opendata.arcgis.com/datasets/7d35521e3b2c48ab8048330e14a4d2d1_0.gdb"
@@ -120,7 +56,7 @@ def get_hifld_planning_areas_gdf(pudl_settings):
     if not hifld_pa_gdb_dir.is_dir():
         logger.info("No Planning Area GeoDB found. Downloading from HIFLD.")
         # Download to appropriate location
-        download_zip_url(hifld_pa_url, hifld_pa_zipfile)
+        pudl.helpers.download_zip_url(hifld_pa_url, hifld_pa_zipfile)
         # Unzip because we can't use zipfile paths with geopandas
         with zipfile.ZipFile(hifld_pa_zipfile, 'r') as zip_ref:
             zip_ref.extractall(hifld_dir)
@@ -533,7 +469,14 @@ def flatten(layers, attributes):
     return layer_new
 
 
-def allocate_and_aggregate(disagg_layer, attributes, by="id", allocatees="demand", allocators="population", aggregators=None):
+def allocate_and_aggregate(
+    disagg_layer,
+    attributes,
+    by="id",
+    allocatees="demand",
+    allocators="population",
+    aggregators=None
+):
     """
     Aggregate selected columns of the disaggregated layer based on arguments.
 
@@ -544,24 +487,25 @@ def allocate_and_aggregate(disagg_layer, attributes, by="id", allocatees="demand
     then the data is aggregated again to the aggregator level.
 
     Args:
-        disagg_layer (GeoDataframe): Completely disaggregated GeoDataFrame
+        disagg_layer (geopandas.GeoDataframe): Completely disaggregated GeoDataFrame
         by (str or list): single column or list of columns according to which
-        the constants to be allocated are mentioned (e.g. "Demand" (constant)
-        which needs to be allocated is mapped by "id". So, "id" is the `by`
-        column)
+            the constants to be allocated are mentioned (e.g. "Demand" (constant)
+            which needs to be allocated is mapped by "id". So, "id" is the `by`
+            column)
         allocatees (str or list): single column or list of columns according to which
-        the constants to be allocated are mentioned (e.g. "Demand" (constant)
-        which needs to be allocated is mapped by "id". So, "demand" is the
-        `allocatees` column)
+            the constants to be allocated are mentioned (e.g. "Demand" (constant)
+            which needs to be allocated is mapped by "id". So, "demand" is the
+            `allocatees` column)
         allocators (str or list): columns by which attribute is weighted and
-        allocated
+            allocated
         aggregators (str or list): if empty list, the disaggregated data is
-        returned. If aggregators is mentioned, for example REEDs geometries, the
-        data is aggregated at that level.
+            returned. If aggregators is mentioned, for example REEDs geometries, the
+            data is aggregated at that level.
 
     Returns:
         geopandas.GeoDataFrame: Disaggregated GeoDataFrame with all the various
         allocated demand columns, or aggregated by `aggregators`
+
     """
     if aggregators is None:
         aggregators = []
@@ -759,150 +703,6 @@ def has_demand(dhpa, rids):
         .pipe(pudl.helpers.convert_to_date)
     )
     return out_df
-
-
-def georef_planning_areas(ba_eia861,     # Balancing Area
-                          st_eia861,     # Service Territory
-                          sales_eia861,  # Sales
-                          census_gdf,    # Census DP1
-                          output_crs=MAP_CRS):
-    """
-    Georeference balancing authority and utility territories from EIA 861.
-
-    Use data from the EIA 861 balancing authority, service territory, and sales tables,
-    compile a list of counties (and county FIPS IDs) associated with each balancing
-    authority for each year, as well as for any utilities which don't appear to be
-    associated with any balancing authority. Then associate a county-level geometry from
-    the US Census DP1 dataset with each record, based on the county FIPS ID. This
-    (enormous) GeoDataFrame can then be used to produce simpler annual geometries by
-    dissolving based on either balancing authority or utility IDs and the report date.
-
-    The way that the relationship between balancing authorities and utilities is
-    reported changed between 2012 and 2013. Prior to 2013, the EIA 861 balancing
-    authority table enumerates all of the utilities which participate in each balancing
-    authority. In 2013 and subsequent years, the balancing authority table associates a
-    balancing authority code (e.g. SWPP or ERCO) with each balancing authority ID, and
-    also lists which states the balancing authority was operating in. These balancing
-    authority codes then appear in other EIA 861 tables like the Sales table, in
-    association with utilities and often states. For these later years, we must compile
-    the list of utility IDs which are seen in association with a particular balancing
-    authority code to understand which utilities are operating within which balancing
-    authorities, and thus which counties should be included in that authority's
-    territory. Because the state is also listed, we can select only a subset of the
-    counties that are part of the utility, providing much more geographic specificity.
-    This is especially important in the case of sprawling western utilities like
-    PacifiCorp, which drastically expand the apparent territory of a balancing authority
-    if the utility's entire service territory is included just because the sold
-    electricty within one small portion of the balancing authority's territory.
-
-    Args:
-        ba_eia861 (pandas.DataFrame): The balancing_authority_eia861 table.
-        st_eia861 (pandas.DataFrame): The service_territory_eia861 table.
-        sales_eia861 (pandas.DataFrame): The sales_eia861 table.
-        census_gdf (geopandas.GeoDataFrame): The counties layer of the US Census DP1
-            geospatial dataset.
-        output_crs (str): String representing a coordinate reference system (CRS) that
-            is recognized by geopandas. Applied to the output GeoDataFrame.
-
-    Returns:
-        geopandas.GeoDataFrame: Contains columns identifying the balancing authority,
-        utility, and state, along with the county geometry, for each year in which
-        those balancing authorities / utilities appeared in the EIA 861 Balancing
-        Authority table (through 2012) or the EIA 861 Sales table (for 2013 onward).
-
-    """
-    # Which utilities were part of what balancing areas in 2010-2012?
-    early_ba_by_util = (
-        ba_eia861
-        .query("report_date <= '2012-12-31'")
-        .loc[:, [
-            "report_date",
-            "balancing_authority_id_eia",
-            "balancing_authority_code_eia",
-            "utility_id_eia",
-            "balancing_authority_name_eia",
-        ]]
-        .drop_duplicates(
-            subset=["report_date", "balancing_authority_id_eia", "utility_id_eia"])
-    )
-
-    # Create a dataframe that associates utilities and balancing authorities.
-    # This information is directly avaialble in the early_ba_by_util dataframe
-    # but has to be compiled for 2013 and later years based on the utility
-    # BA associations that show up in the Sales table
-    # Create an annual, normalized version of the BA table:
-    ba_normed = (
-        ba_eia861
-        .loc[:, [
-            "report_date",
-            "state",
-            "balancing_authority_code_eia",
-            "balancing_authority_id_eia",
-            "balancing_authority_name_eia",
-        ]]
-        .drop_duplicates(subset=[
-            "report_date",
-            "state",
-            "balancing_authority_code_eia",
-            "balancing_authority_id_eia",
-        ])
-    )
-    ba_by_util = (
-        pd.merge(
-            ba_normed,
-            sales_eia861
-            .loc[:, [
-                "report_date",
-                "state",
-                "utility_id_eia",
-                "balancing_authority_code_eia"
-            ]].drop_duplicates()
-        )
-        .loc[:, [
-            "report_date",
-            "state",
-            "utility_id_eia",
-            "balancing_authority_id_eia"
-        ]]
-        .append(early_ba_by_util[["report_date", "utility_id_eia", "balancing_authority_id_eia"]])
-        .drop_duplicates()
-        .merge(ba_normed)
-        .dropna(subset=["report_date", "utility_id_eia", "balancing_authority_id_eia"])
-        .sort_values(
-            ["report_date", "balancing_authority_id_eia", "utility_id_eia", "state"])
-    )
-    # Merge in county FIPS IDs for each county served by the utility from
-    # the service territory dataframe. We do an outer merge here so that we
-    # retain any utilities that are not part of a balancing authority. This
-    # lets us generate both BA and Util maps from the same GeoDataFrame
-    # We have to do this separately for the data up to 2012 (which doesn't
-    # include state) and the 2013 and onward data (which we need to have
-    # state for)
-    early_ba_util_county = (
-        ba_by_util.drop("state", axis="columns")
-        .merge(st_eia861, on=["report_date", "utility_id_eia"], how="outer")
-        .query("report_date <= '2012-12-31'")
-    )
-    late_ba_util_county = (
-        ba_by_util
-        .merge(st_eia861, on=["report_date", "utility_id_eia", "state"], how="outer")
-        .query("report_date >= '2013-01-01'")
-    )
-    ba_util_county = pd.concat([early_ba_util_county, late_ba_util_county])
-    # Bring in county geometry information based on FIPS ID from Census
-    ba_util_county_gdf = (
-        census_gdf[["GEOID10", "NAMELSAD10", "geometry"]]
-        .to_crs(output_crs)
-        .rename(
-            columns={
-                "GEOID10": "county_id_fips",
-                "NAMELSAD10": "county_name_census",
-            }
-        )
-        .merge(ba_util_county)
-    )
-
-    return ba_util_county_gdf
 
 
 def georef_rids_ferc714(annual_rids_ferc714, ba_util_county_gdf):
