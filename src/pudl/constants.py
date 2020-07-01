@@ -2671,7 +2671,7 @@ column_dtypes = {
         'merge_date': 'datetime64[ns]',  # Added by AES for Mergers table
         'merge_state': pd.StringDtype(),  # Added by AES for Mergers table
         'merge_zip_4': pd.StringDtype(),  # Added by AES for Mergers table
-        'merge_zip_5': pd.StringDtype(),  # Added by AES for Mergers tables
+        # 'merge_zip_5': pd.StringDtype(),  # Added by AES for Mergers tables
         'mine_id_msha': pd.Int64Dtype(),
         'mine_id_pudl': pd.Int64Dtype(),
         'mine_name': pd.StringDtype(),

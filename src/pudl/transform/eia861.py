@@ -564,11 +564,15 @@ def _tidy_customer_class_dfs(df, df_name, idx_cols):
     return tidy_df
 
 
-def _zero_pad_zips(zip_series):
+def _zero_pad_zips(zip_series, n_digits):
     # Add preceeding zeros where necessary and get rid of decimal zeros
     zip_series = (
-        pd.Series([str(zipcode).split('.')[0].zfill(5)
-                   for zipcode in zip_series if pd.notnull(zipcode)])
+        pd.to_numeric(zip_series)  # Make sure it's all numerical values
+        .astype(pd.Int64Dtype())  # Make it a (nullable) Integer
+        .fillna(0)  # fill the NA
+        .astype(str).str.zfill(n_digits)  # Make it a string and zero pad it.
+        .astype(pd.StringDtype())  # Make it nullable
+        .replace({n_digits * "0": pd.NA})  # All-zero Zip codes aren't valid.
     )
     return zip_series
 
@@ -1205,7 +1209,8 @@ def mergers(tfr_dfs):
     transformed_mergers = (
         raw_mergers.assign(
             entity_type=lambda x: x.entity_type.map(pc.ENTITY_TYPE_DICT),
-            merge_zip_5=lambda x: _zero_pad_zips(x.merge_zip_5)
+            merge_zip_5=lambda x: _zero_pad_zips(x.merge_zip_5, 5),
+            merge_zip_4=lambda x: _zero_pad_zips(x.merge_zip_4, 4)
         )
     )
 
