@@ -49,7 +49,7 @@ def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
     af = addfips.AddFIPS(vintage=vintage)
     # Lookup the state and county FIPS IDs and add them to the dataframe:
     df["state_id_fips"] = df.apply(
-        lambda x: (af.get_state_fips(state=x.state)
+        lambda x: (af.get_state_fips(state=x[state_col])
                    if pd.notnull(x[state_col]) else pd.NA),
         axis=1)
 
@@ -58,7 +58,7 @@ def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
         f"{len(df[df.state_id_fips.notnull()])/len(df):.2%} of records."
     )
     df["county_id_fips"] = df.apply(
-        lambda x: (af.get_county_fips(state=x.state, county=x.county)
+        lambda x: (af.get_county_fips(state=x[state_col], county=x[county_col])
                    if pd.notnull(x[county_col]) else pd.NA),
         axis=1)
     # force the code columns to be nullable strings - the leading zeros are
