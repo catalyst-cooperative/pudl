@@ -27,12 +27,17 @@ Todo:
 
 """
 
+import logging
+
 # Useful high-level external modules.
 import pandas as pd
 import sqlalchemy as sa
 
 import pudl
 import pudl.constants as pc
+
+logger = logging.getLogger(__name__)
+
 
 ###############################################################################
 #   Output Class, that can pull all the below tables with similar parameters
@@ -88,7 +93,6 @@ class PudlTabl(object):
 
         if not pudl_engine:
             raise AssertionError('PudlTabl object needs a pudl_engine')
-        self.pudl_engine = pudl_engine
 
         self.rolling = rolling
         # We populate this library of dataframes as they are generated, and
@@ -102,6 +106,12 @@ class PudlTabl(object):
             "plants_eia860": None,
             "gens_eia860": None,
             "own_eia860": None,
+
+            # TODO add the other tables -- this is just an interim check
+            "balancing_authority_eia861": None,
+
+            # TODO add the other tables -- this is just an interim check
+            "respondent_id_ferc714": None,
 
             "gf_eia923": None,
             "frc_eia923": None,
@@ -162,8 +172,135 @@ class PudlTabl(object):
         return self._dfs['pu_ferc1']
 
     ###########################################################################
+    # EIA 861 Interim Outputs (awaiting full DB integration)
+    ###########################################################################
+    def etl_eia861(self, update=False):
+        """A single function that runs the temporary EIA 861 ETL and sets all DFs."""
+        if update or self._dfs["balancing_authority_eia861"] is None:
+            logger.warning("Running the interim EIA 861 ETL process! (~2 minutes)")
+            eia861_raw_dfs = (
+                pudl.extract.eia861.Extractor()
+                .extract(pc.working_years["eia861"], testing=True))
+            eia861_tfr_dfs = pudl.transform.eia861.transform(eia861_raw_dfs)
+            for table in eia861_tfr_dfs:
+                self._dfs[table] = eia861_tfr_dfs[table]
+
+    def ba_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["balancing_authority_eia861"]
+
+    def ba_assn_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["balancing_authority_assn_eia861"]
+
+    def st_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["service_territory_eia861"]
+
+    def sales_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["sales_eia861"]
+
+    def ami_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["advanced_metering_infrastructure_eia861"]
+
+    def dist_sys_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["distribution_systems_eia861"]
+
+    def green_pricing_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["green_pricing_eia861"]
+
+    def dynamic_pricing_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["dynamic_pricing_eia861"]
+
+    ###########################################################################
+    # FERC 714 Interim Outputs (awaiting full DB integration)
+    ###########################################################################
+    def etl_ferc714(self, update=False):
+        """A single function that runs the temporary FERC 714 ETL and sets all DFs."""
+        if update or self._dfs["respondent_id_ferc714"] is None:
+            logger.warning("Running the interim FERC 714 ETL process! (~7 minutes)")
+            ferc714_raw_dfs = pudl.extract.ferc714.extract()
+            ferc714_tfr_dfs = pudl.transform.ferc714.transform(ferc714_raw_dfs)
+            for table in ferc714_tfr_dfs:
+                self._dfs[table] = ferc714_tfr_dfs[table]
+
+    def respondent_id_ferc714(self, update=False):
+        """An interim FERC 714 output function."""
+        self.etl_ferc714(update=update)
+        return self._dfs["respondent_id_ferc714"]
+
+    def demand_hourly_pa_ferc714(self, update=False):
+        """An interim FERC 714 output function."""
+        self.etl_ferc714(update=update)
+        return self._dfs["demand_hourly_pa_ferc714"]
+
+    def description_pa_ferc714(self, update=False):
+        """An interim FERC 714 output function."""
+        self.etl_ferc714(update=update)
+        return self._dfs["description_pa_ferc714"]
+
+    def id_certification_ferc714(self, update=False):
+        """An interim FERC 714 output function."""
+        self.etl_ferc714(update=update)
+        return self._dfs["id_certification_ferc714"]
+
+    def gen_plants_ba_ferc714(self, update=False):
+        """An interim FERC 714 output function."""
+        self.etl_ferc714(update=update)
+        return self._dfs["gen_plants_ba_ferc714"]
+
+    def demand_monthly_ba_ferc714(self, update=False):
+        """An interim FERC 714 output function."""
+        self.etl_ferc714(update=update)
+        return self._dfs["demand_monthly_ba_ferc714"]
+
+    def net_energy_load_ba_ferc714(self, update=False):
+        """An interim FERC 714 output function."""
+        self.etl_ferc714(update=update)
+        return self._dfs["net_energy_load_ba_ferc714"]
+
+    def adjacency_ba_ferc714(self, update=False):
+        """An interim FERC 714 output function."""
+        self.etl_ferc714(update=update)
+        return self._dfs["adjacency_ba_ferc714"]
+
+    def interchange_ba_ferc714(self, update=False):
+        """An interim FERC 714 output function."""
+        self.etl_ferc714(update=update)
+        return self._dfs["interchange_ba_ferc714"]
+
+    def lambda_hourly_ba_ferc714(self, update=False):
+        """An interim FERC 714 output function."""
+        self.etl_ferc714(update=update)
+        return self._dfs["lambda_hourly_ba_ferc714"]
+
+    def lambda_description_ferc714(self, update=False):
+        """An interim FERC 714 output function."""
+        self.etl_ferc714(update=update)
+        return self._dfs["lambda_description_ferc714"]
+
+    def demand_forecast_pa_ferc714(self, update=False):
+        """An interim FERC 714 output function."""
+        self.etl_ferc714(update=update)
+        return self._dfs["demand_forecast_pa_ferc714"]
+
+    ###########################################################################
     # EIA 860/923 OUTPUTS
     ###########################################################################
+
     def utils_eia860(self, update=False):
         """
         Pull a dataframe describing utilities reported in EIA 860.

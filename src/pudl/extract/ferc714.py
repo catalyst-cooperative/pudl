@@ -6,6 +6,7 @@ import zipfile
 
 import pandas as pd
 
+import pudl
 import pudl.constants as pc
 
 logger = logging.getLogger(__name__)
@@ -65,6 +66,8 @@ def extract(tables=pc.pudl_tables["ferc714"], pudl_settings=None):
         keys, and minimally processed pandas.DataFrame instances as the values.
 
     """
+    if pudl_settings is None:
+        pudl_settings = pudl.workspace.setup.get_defaults()
     raw_dfs = {}
     for table in tables:
         if table not in pc.pudl_tables["ferc714"]:
