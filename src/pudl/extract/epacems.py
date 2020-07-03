@@ -3,10 +3,11 @@ Retrieve data from EPA CEMS hourly zipped CSVs.
 
 This modules pulls data from EPA's published CSV files.
 """
-import logging
 import io
-import pandas as pd
+import logging
 from zipfile import ZipFile
+
+import pandas as pd
 
 import pudl.constants as pc
 import pudl.workspace.datastore as datastore

@@ -8,12 +8,12 @@ import hashlib
 import json
 import logging
 import os
-from pathlib import Path
 import re
-import requests
 import sys
-import yaml
+from pathlib import Path
 
+import requests
+import yaml
 
 # The Zenodo tokens recorded here should have read-only access to our archives.
 # Including them here is correct in order to allow public use of this tool, so

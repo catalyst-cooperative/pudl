@@ -50,15 +50,15 @@ and EIA 923.
 
 """
 import csv
-from dbfread import DBF
-import logging
 import importlib
+import logging
+import zipfile
 from pathlib import Path
 
 import dbfread
 import pandas as pd
 import sqlalchemy as sa
-import zipfile
+from dbfread import DBF
 
 import pudl
 import pudl.constants as pc

@@ -16,9 +16,9 @@ import pytest
 import yaml
 
 import pudl
-from pudl.extract.ferc1 import get_dbc_map, get_fields
-from pudl.extract.epacems import EpaCemsDatastore
 from pudl.convert.epacems_to_parquet import epacems_to_parquet
+from pudl.extract.epacems import EpaCemsDatastore
+from pudl.extract.ferc1 import get_dbc_map, get_fields
 
 logger = logging.getLogger(__name__)
 
@@ -151,7 +151,7 @@ class TestFerc1Datastore:
             / "form1" / "f1_2018" / "get_fields.json"
 
         with expect_path.open() as f:
-            expect = yaml.load(f.read(), yaml.Loader)
+            expect = yaml.safe_load(f)
 
         data = self.ds.get_file(2018, "F1_PUB.DBC")
         result = get_fields(data)
