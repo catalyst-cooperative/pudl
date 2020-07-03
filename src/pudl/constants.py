@@ -2232,7 +2232,8 @@ pudl_tables = {
         "distribution_systems_eia861",
         "dynamic_pricing_eia861",
         "green_pricing_eia861",
-        "mergers_eia861"
+        "mergers_eia861",
+        "net_metering_eia861",
     ),
     'eia923': eia923_pudl_tables,
     'epacems': epacems_tables,
@@ -2603,6 +2604,8 @@ column_dtypes = {
         'county_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
         'critical_peak_pricing': pd.BooleanDtype(),  # Added by AES for DP table
         'critical_peak_rebate': pd.BooleanDtype(),  # Added by AES for DP table
+        # Added by AES for NM table
+        'current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
         'current_planned_operating_date': 'datetime64[ns]',
         'customers': pd.Int64Dtype(),
         'customer_class': pd.CategoricalDtype(categories=[
@@ -2616,6 +2619,7 @@ column_dtypes = {
         'direct_load_control_customers': float,  # Added by AES for AMI table
         'distribution_circuits': pd.Int64Dtype(),  # Added by AES for DS table
         'duct_burners': pd.BooleanDtype(),
+        'energy_displaced_mwh': float,  # Added by AES for NM table
         'energy_savings_mwh': float,  # Added by AES for DR table
         'energy_served_ami_mwh': float,  # Added by AES for AMI table
         'energy_source_code': pd.StringDtype(),
@@ -2636,6 +2640,8 @@ column_dtypes = {
         'ferc_small_power_producer_docket_no': pd.StringDtype(),
         'fluidized_bed_tech': pd.BooleanDtype(),
         'fraction_owned': float,
+        # Added by AES for NM table (might want to consider merging with another fuel label)
+        'fuel_class': pd.CategoricalDtype(categories=['pv', 'wind', 'chpcogen', 'other', 'total']),
         'fuel_consumed_for_electricity_mmbtu': float,
         'fuel_consumed_for_electricity_units': float,
         'fuel_consumed_mmbtu': float,
@@ -2753,6 +2759,7 @@ column_dtypes = {
         'service_type': pd.CategoricalDtype(categories=[
             "bundled", "energy", "delivery",
         ]),
+        'sold_to_utility_mwh': float,  # Added by AES for NM table
         'solid_fuel_gasification': pd.BooleanDtype(),
         'startup_source_code_1': pd.StringDtype(),
         'startup_source_code_2': pd.StringDtype(),
@@ -2762,6 +2769,8 @@ column_dtypes = {
         'state_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
         'street_address': pd.StringDtype(),
         'stoker_tech': pd.BooleanDtype(),
+        'storage_capacity_mw': float,  # Added by AES for NM table
+        'storage_customers': pd.Int64Dtype(),  # Added by AES for NM table
         'subcritical_tech': pd.BooleanDtype(),
         'sulfur_content_pct': float,
         'summer_capacity_mw': float,
@@ -2794,6 +2803,8 @@ column_dtypes = {
         'utility_pobox': pd.StringDtype(),
         'utility_zip4': pd.StringDtype(),
         'variable_peak_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
+        'virtual_capacity_mw': float,  # Added by AES for NM table
+        'virtual_customers': pd.Int64Dtype(),  # Added by AES for NM table
         'water_heater': pd.Int64Dtype(),  # Added by AES for DR table
         'water_source': pd.StringDtype(),
         'winter_capacity_mw': float,
