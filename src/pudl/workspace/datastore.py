@@ -372,8 +372,18 @@ class Datastore:
 
 def main_arguments():
     """Collect the command line arguments."""
+    prod_dois = "\n".join(["    - %s" % x for x in DOI["production"].keys()])
+    sand_dois = "\n".join(["    - %s" % x for x in DOI["sandbox"].keys()])
+
+    dataset_msg = "--Available datasets--\n \nProduction:\n%s\n \nSandbox:\n%s" \
+        % (prod_dois, sand_dois)
+
     parser = argparse.ArgumentParser(
-        description="Download and cache ETL source data from Zenodo.")
+        description="Download and cache ETL source data from Zenodo.",
+        epilog=dataset_msg,
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+
     parser.add_argument(
         "--dataset", help="Get only a specified dataset. Default gets all.")
     parser.add_argument(
