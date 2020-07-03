@@ -57,5 +57,6 @@ dependencies:
   - tox                 # dev
   - twine               # dev
   - xlsxwriter          # base
-    # - pip:
-      #- recordlinkage # dev for now... base if it ends up in ETL
+  - pip:
+     - recordlinkage # dev for now... base if it ends up in ETL
+     - fredapi # dev
