@@ -6,7 +6,7 @@ dependencies:
   - autopep8            # dev
   - bandit              # dev
   - coloredlogs         # base
-  - contextily          # user (OpenStreetMap basemap tiles)
+  - contextily          # base (OSM basemap) TODO: Is this needed?
   - coverage            # dev
   - dask                # user
   - dask-labextension   # user (allows dask control within JupyterLab)
@@ -16,7 +16,7 @@ dependencies:
   - flake8-colors       # dev
   - flake8-docstrings   # dev
   - flake8-builtins     # dev
-  - geopandas           # dev for now
+  - geopandas>=0.8.0    # base
   - goodtables>=2.4.2   # base
   - ipdb                # dev
   - isort               # dev
@@ -34,8 +34,6 @@ dependencies:
   - pdbpp               # dev
   - pep8-naming         # dev
   - pip                 # N/A
-  - pip:                # N/A
-        - git+https://github.com/catalyst-cooperative/dbfread/
   - pre_commit          # dev
   - pyarrow>=0.16       # base Nullable pandas types work w/ 0.16 and later
   - pydocstyle          # dev
@@ -59,9 +57,11 @@ dependencies:
   - tableschema-sql>=1.1.0 # base
   - timezonefinder      # base
   - tox                 # dev
+  - tqdm                # base TODO: find usage. Does it need to be in base?
   - twine               # dev
   - xlsxwriter          # base
   - pip:
     - addfips
+    - git+https://github.com/catalyst-cooperative/dbfread/
     - recordlinkage # dev for now... base if it ends up in ETL
     - fredapi # dev
