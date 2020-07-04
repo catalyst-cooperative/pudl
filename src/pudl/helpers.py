@@ -61,17 +61,34 @@ def download_zip_url(url, save_path, chunk_size=128):
 
 def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
     """Add State and County FIPS IDs to a dataframe."""
+    # force the columns to be the nullable string types so we have a consistent
+    # null value to filter out before feeding to addfips
+    df = df.astype({
+        state_col: pd.StringDtype(),
+        county_col: pd.StringDtype(),
+
+    })
     af = addfips.AddFIPS(vintage=vintage)
     # Lookup the state and county FIPS IDs and add them to the dataframe:
     df["state_id_fips"] = df.apply(
-        lambda x: af.get_state_fips(state=x.state), axis=1)
+        lambda x: (af.get_state_fips(state=x[state_col])
+                   if pd.notnull(x[state_col]) else pd.NA),
+        axis=1)
+
     logger.info(
         f"Assigned state FIPS codes for "
         f"{len(df[df.state_id_fips.notnull()])/len(df):.2%} of records."
     )
     df["county_id_fips"] = df.apply(
-        lambda x: af.get_county_fips(state=x.state, county=x.county), axis=1)
-    df["county_id_fips"] = df.county_id_fips.fillna(pd.NA)
+        lambda x: (af.get_county_fips(state=x[state_col], county=x[county_col])
+                   if pd.notnull(x[county_col]) else pd.NA),
+        axis=1)
+    # force the code columns to be nullable strings - the leading zeros are
+    # important
+    df = df.astype({
+        "county_id_fips": pd.StringDtype(),
+        "state_id_fips": pd.StringDtype(),
+    })
     logger.info(
         f"Assigned county FIPS codes for "
         f"{len(df[df.county_id_fips.notnull()])/len(df):.2%} of records."
@@ -751,64 +768,6 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
         except KeyError:
             tz = None
     return tz
-
-
-def verify_input_files(ferc1_years,  # noqa: C901
-                       epacems_years,
-                       epacems_states,
-                       pudl_settings):
-    """Verify that all required data files exist prior to the ETL process.
-
-    Args:
-        ferc1_years (iterable): Years of FERC1 data we're going to import.
-        epacems_years (iterable): Years of CEMS data we're going to import.
-        epacems_states (iterable): States of CEMS data we're going to import.
-        data_dir (path-like): Path to the top level of the PUDL datastore.
-
-    Raises:
-        FileNotFoundError: If any of the requested data is missing.
-
-    """
-    data_dir = pudl_settings['data_dir']
-
-    missing_ferc1_years = {
-        str(y) for y in ferc1_years if not pathlib.Path(
-            pudl.extract.ferc1.dbc_filename(y, data_dir=data_dir)).is_file()
-    }
-
-    if epacems_states and list(epacems_states)[0].lower() == 'all':
-        epacems_states = list(pc.cems_states.keys())
-    missing_epacems_year_states = set()
-    for y in epacems_years:
-        for s in epacems_states:
-            for m in range(1, 13):
-                try:
-                    p = pathlib.Path(pudl.workspace.datastore.path(
-                        source='epacems',
-                        year=y,
-                        month=m,
-                        state=s,
-                        data_dir=data_dir))
-                except AssertionError:
-                    missing_epacems_year_states.add((str(y), s))
-                    continue
-                if not p.is_file():
-                    missing_epacems_year_states.add((str(y), s))
-
-    any_missing = (missing_ferc1_years or missing_epacems_year_states)
-    if any_missing:
-        err_msg = ["Missing data files for the following sources and years:"]
-        if missing_ferc1_years:
-            err_msg += ["  FERC 1:  " + ", ".join(missing_ferc1_years)]
-        if missing_epacems_year_states:
-            missing_yr_str = ", ".join(
-                {yr_st[0] for yr_st in missing_epacems_year_states})
-            missing_st_str = ", ".join(
-                {yr_st[1] for yr_st in missing_epacems_year_states})
-            err_msg += ["  EPA CEMS:"]
-            err_msg += ["    Years:  " + missing_yr_str]
-            err_msg += ["    States: " + missing_st_str]
-        raise FileNotFoundError("\n".join(err_msg))
 
 
 def drop_tables(engine,

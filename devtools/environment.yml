@@ -11,7 +11,6 @@ dependencies:
   - dask                # user
   - dask-labextension   # user (allows dask control within JupyterLab)
   - datapackage>=1.11.0 # base We depend on features introduced in v1.9.0
-  - dbfread             # base
   - doc8                # dev
   - flake8              # dev
   - flake8-colors       # dev
@@ -35,6 +34,8 @@ dependencies:
   - pdbpp               # dev
   - pep8-naming         # dev
   - pip                 # N/A
+  - pip:                # N/A
+        - git+https://github.com/catalyst-cooperative/dbfread/
   - pre_commit          # dev
   - pyarrow>=0.16       # base Nullable pandas types work w/ 0.16 and later
   - pydocstyle          # dev
@@ -63,3 +64,4 @@ dependencies:
   - pip:
     - addfips
     - recordlinkage # dev for now... base if it ends up in ETL
+    - fredapi # dev

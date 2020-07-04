@@ -27,11 +27,6 @@ class Extractor(excel.GenericExtractor):
     # energy_storage, github issue #458
     # oil_stocks, coal_stocks, petcoke_stocks
 
-    @staticmethod
-    def file_basename_glob(year, page):
-        """Returns filename glob (same for all pages and years)."""
-        return '*2_3_4*'
-
     def process_raw(self, df, year, page):
         """Drops reserved columns."""
         to_drop = [c for c in df.columns if c[:8] == 'reserved']

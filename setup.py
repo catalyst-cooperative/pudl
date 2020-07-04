@@ -10,7 +10,7 @@ install_requires = [
     "addfips",
     "coloredlogs",
     "datapackage>=1.11",
-    "dbfread",
+    "dbfread @ git+https://github.com/catalyst-cooperative/dbfread.git#egg=dbfread-2.1.0",
     "geopandas",
     "goodtables>=2.4.2",
     "matplotlib",
@@ -57,6 +57,7 @@ test_requires = [
     "pytest-cov",
     "seaborn",
 ]
+
 
 readme_path = Path(__file__).parent / "README.rst"
 long_description = readme_path.read_text()
@@ -109,13 +110,12 @@ setup(
     # This defines the interfaces to the command line scripts we"re including:
     entry_points={
         'console_scripts': [
-            'pudl_data = pudl.workspace.datastore_cli:main',
+            'pudl_datastore = pudl.workspace.datastore:main',
             'pudl_setup = pudl.workspace.setup_cli:main',
             'pudl_etl = pudl.cli:main',
             'datapkg_to_sqlite = pudl.convert.datapkg_to_sqlite:main',
             'ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main',
             'epacems_to_parquet = pudl.convert.epacems_to_parquet:main',
-            'zenodo_download = pudl.workspace.zenodo_download:main',
             'pudl_territories = pudl.analysis.service_territory:main',
         ]
     },

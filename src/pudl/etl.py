@@ -189,15 +189,12 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     eia_inputs = _validate_params_eia(etl_params)
     eia860_tables = eia_inputs["eia860_tables"]
     eia860_years = eia_inputs["eia860_years"]
-    eia861_tables = eia_inputs["eia861_tables"]
-    eia861_years = eia_inputs["eia861_years"]
     eia923_tables = eia_inputs["eia923_tables"]
     eia923_years = eia_inputs["eia923_years"]
 
     if (
         (not eia923_tables or not eia923_years)
         and (not eia860_tables or not eia860_years)
-        and (not eia861_tables or not eia861_years)
     ):
         logger.info('Not loading EIA.')
         return []
@@ -205,20 +202,19 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     # generate CSVs for the static EIA tables, return the list of tables
     static_tables = _load_static_tables_eia(datapkg_dir)
 
+    testing = pudl_settings.get("testing", False)
     # Extract EIA forms 923, 860
-    eia860_raw_dfs = pudl.extract.eia860.Extractor().extract(eia860_years, testing=True)
-    eia861_raw_dfs = pudl.extract.eia861.Extractor().extract(eia861_years, testing=True)
-    eia923_raw_dfs = pudl.extract.eia923.Extractor().extract(eia923_years, testing=True)
+    eia923_raw_dfs = pudl.extract.eia923.Extractor().extract(
+        eia923_years, testing=testing)
+    eia860_raw_dfs = pudl.extract.eia860.Extractor().extract(
+        eia860_years, testing=testing)
     # Transform EIA forms 923, 860
     eia860_transformed_dfs = pudl.transform.eia860.transform(
         eia860_raw_dfs, eia860_tables=eia860_tables)
-    eia861_transformed_dfs = pudl.transform.eia861.transform(
-        eia861_raw_dfs, eia860_tables=eia861_tables)
     eia923_transformed_dfs = pudl.transform.eia923.transform(
         eia923_raw_dfs, eia923_tables=eia923_tables)
     # create an eia transformed dfs dictionary
     eia_transformed_dfs = eia860_transformed_dfs.copy()
-    eia_transformed_dfs.update(eia861_transformed_dfs.copy())
     eia_transformed_dfs.update(eia923_transformed_dfs.copy())
     # convert types..
     eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
@@ -227,7 +223,6 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     entities_dfs, eia_transformed_dfs = pudl.transform.eia.transform(
         eia_transformed_dfs,
         eia860_years=eia860_years,
-        eia861_years=eia861_years,
         eia923_years=eia923_years,
     )
     # convert types..
@@ -427,7 +422,8 @@ def _etl_epacems(etl_params, datapkg_dir, pudl_settings):
     epacems_raw_dfs = pudl.extract.epacems.extract(
         epacems_years=epacems_years,
         states=epacems_states,
-        data_dir=pudl_settings["data_dir"])
+        data_dir=pudl_settings["data_dir"],
+        testing=pudl_settings["testing"])
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform(
         epacems_raw_dfs=epacems_raw_dfs,
@@ -534,7 +530,7 @@ def _etl_epaipm(etl_params, datapkg_dir, pudl_settings):
 
     # Extract IPM tables
     epaipm_raw_dfs = pudl.extract.epaipm.extract(
-        epaipm_tables, data_dir=pudl_settings["data_dir"])
+        epaipm_tables, testing=pudl_settings.get("testing", False))
 
     epaipm_transformed_dfs = pudl.transform.epaipm.transform(
         epaipm_raw_dfs, epaipm_tables

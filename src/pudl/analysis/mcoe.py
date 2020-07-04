@@ -177,7 +177,9 @@ def fuel_cost(pudl_out):
                                                'fuel_cost_per_mmbtu',
                                                'fuel_type_code_pudl',
                                                'total_fuel_cost',
-                                               'total_heat_content_mmbtu']],
+                                               'total_heat_content_mmbtu',
+                                               'fuel_cost_from_eiaapi',
+                                               ]],
                         how='left', on=['plant_id_eia', 'report_date'])
     # We need to retain the different energy_source_code information from the
     # generators (primary for the generator) and the fuel receipts (which is
@@ -194,7 +196,8 @@ def fuel_cost(pudl_out):
                           pudl_out.frc_eia923()[['plant_id_eia',
                                                  'report_date',
                                                  'fuel_cost_per_mmbtu',
-                                                 'fuel_type_code_pudl']],
+                                                 'fuel_type_code_pudl',
+                                                 'fuel_cost_from_eiaapi', ]],
                           how='left', on=['plant_id_eia', 'report_date',
                                           'fuel_type_code_pudl'])
 
@@ -215,22 +218,24 @@ def fuel_cost(pudl_out):
     one_fuel_gb = one_fuel.groupby(by=['report_date', 'plant_id_eia'])
     one_fuel_agg = one_fuel_gb.agg({
         'total_fuel_cost': pudl.helpers.sum_na,
-        'total_heat_content_mmbtu': pudl.helpers.sum_na
+        'total_heat_content_mmbtu': pudl.helpers.sum_na,
+        'fuel_cost_from_eiaapi': 'any',
     })
     one_fuel_agg['fuel_cost_per_mmbtu'] = \
         one_fuel_agg['total_fuel_cost'] / \
         one_fuel_agg['total_heat_content_mmbtu']
     one_fuel_agg = one_fuel_agg.reset_index()
-    one_fuel = pd.merge(one_fuel[['plant_id_eia', 'report_date',
-                                  'generator_id', 'heat_rate_mmbtu_mwh']],
-                        one_fuel_agg[['plant_id_eia', 'report_date',
-                                      'fuel_cost_per_mmbtu']],
-                        on=['plant_id_eia', 'report_date'])
+    one_fuel = pd.merge(
+        one_fuel[['plant_id_eia', 'report_date', 'generator_id',
+                  'heat_rate_mmbtu_mwh', 'fuel_cost_from_eiaapi']],
+        one_fuel_agg[['plant_id_eia', 'report_date', 'fuel_cost_per_mmbtu']],
+        on=['plant_id_eia', 'report_date'])
     one_fuel = one_fuel.drop_duplicates(
         subset=['plant_id_eia', 'report_date', 'generator_id'])
 
     multi_fuel = multi_fuel[['plant_id_eia', 'report_date', 'generator_id',
-                             'fuel_cost_per_mmbtu', 'heat_rate_mmbtu_mwh']]
+                             'fuel_cost_per_mmbtu', 'heat_rate_mmbtu_mwh',
+                             'fuel_cost_from_eiaapi', ]]
 
     fuel_cost = one_fuel.append(multi_fuel, sort=True)
     fuel_cost['fuel_cost_per_mwh'] = \

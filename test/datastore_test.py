@@ -12,7 +12,7 @@ class TestDatastore:
 
     def test_doi_to_url(self):
         """Get the DOI url right."""
-        number = random.randint(100000, 999999)
+        number = random.randint(100000, 999999)  # nosec
         fake_doi = "10.5072/zenodo.%d" % number
 
         assert self.ds.doi_to_url(fake_doi) == \
