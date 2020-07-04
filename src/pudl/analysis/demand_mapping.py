@@ -705,97 +705,61 @@ def has_demand(dhpa, rids):
     return out_df
 
 
-def georef_rids_ferc714(annual_rids_ferc714, ba_util_county_gdf):
+def georef_rids(rids_df, util_geom, ba_geom):
     """
-    Georeference the FERC 714 Respondent ID Table.
+    Add planning area geometries to the FERC 714 respondent_id table.
+
+    Given a respondent_id_ferc714 dataframe with a respondent_type column
+    containing only "utility", "balancing_authority" and Null values, merge in
+    utility geometries from util_geom on utility_id_eia, and balancing
+    authority geometries from ba_geom on balancing_authority_id_eia. Records
+    with no respondent_type will end up having a Null geometry.
 
     Args:
-        annual_rids_ferc714 (pandas.DataFrame):
-        ba_util_county_gdf (geopandas.GeoDataFrame):
+        rids_df (pandas.DataFrame): A respondent_id_ferc714
+            dataframe, having at least the respondent_id_ferc714,
+            respondent_type, utility_id_eia, and balancing_authority_id_eia
+            columns. Note that both of the EIA ID columns must be nullable.
+            integers for the merge to work.
+        util_geom (geopandas.GeoDataFrame): A geodataframe containing
+            report_date, utility_id_eia, and a geometry column. May be
+            either a dissolved geometry, or a county-level geometry. If
+            the county level geometries are included, at least the
+            county_id_fips column should also be included for later use.
+            The utility_id_eia column must be a nullable integer type.
+        ba_geom (geopandas.GeoDataFrame): A geodataframe containing
+            report_date, balancing_authority_id_eia, and a geometry column.
+            May be either a dissolved geometry, or a county-level geometry.
+            If the county level geometries are included, at least the
+            county_id_fips column should also be included for later use.
+            The utility_id_eia column must be a nullable integer type. The
+            CRS for ba_geom must be the same as util_geom.
 
     Returns:
-        geopandas.GeoDataFrame:
+        geopandas.GeoDataFrame: A FERC 714 respondent_id table with
+        records for each planning area respondent and their associated
+        geometries in each year. The CRS will be set to the same CRS
+        as the input util_geom.
 
     """
-    # The respondents we've determined are Utilities
-    utils_ferc714 = (
-        annual_rids_ferc714.loc[
-            annual_rids_ferc714.respondent_type == "utility",
-            [
-                "report_date",
-                "respondent_id_ferc714",
-                "respondent_name_ferc714",
-                "utility_id_eia",
-                "respondent_type",
-                "has_demand"
-            ]
-        ]
-    )
-    # The respondents we've determined are Balancing Authorities
-    bas_ferc714 = (
-        annual_rids_ferc714.loc[
-            annual_rids_ferc714.respondent_type == "balancing_authority",
-            [
-                "report_date",
-                "respondent_id_ferc714",
-                "respondent_name_ferc714",
-                "balancing_authority_id_eia",
-                "respondent_type",
-                "has_demand"
-            ]
-        ]
-    )
-    # The respondents whose types we can't figure out
-    null_ferc714 = (
-        annual_rids_ferc714.loc[
-            annual_rids_ferc714.respondent_type.isnull(),
-            [
-                "report_date",
-                "respondent_id_ferc714",
-                "respondent_name_ferc714",
-                "respondent_type",
-                "has_demand"
-            ]
-        ]
-    )
-    # Merge BA respondents with BA level geometries
-    bas_ferc714_gdf = (
-        ba_util_county_gdf
-        .drop(["county"], axis="columns")
-        .merge(
-            bas_ferc714,
-            on=["report_date", "balancing_authority_id_eia"],
-            how="right"
+    if util_geom.crs != ba_geom.crs:
+        raise ValueError(
+            "Utility and Balancing Authority CRS values don't match!"
         )
-    )
-    # Merge Utility respondents with Utility level geometries
-    utils_ferc714_gdf = (
-        ba_util_county_gdf
-        .drop([
-            "balancing_authority_id_eia",
-            "balancing_authority_code_eia",
-            "balancing_authority_name_eia",
-            "county"], axis="columns")
-        .drop_duplicates()
-        .merge(utils_ferc714, on=["report_date", "utility_id_eia"], how="right")
-    )
-    # Concatenate these differently merged dataframes back together:
-    out_gdf = (
-        pd.concat([bas_ferc714_gdf, utils_ferc714_gdf, null_ferc714])
+    rids_ba = ba_geom.merge(
+        rids_df.query("respondent_type=='balancing_authority'"),
+        how="right")
+    rids_util = util_geom.merge(
+        rids_df.query("respondent_type=='utility'"),
+        how="right")
+    rids_null = rids_df.loc[rids_df.respondent_type.isnull()]
+    rids_all = (
+        pd.concat([rids_ba, rids_util, rids_null])
         .astype({
-            "county_id_fips": pd.StringDtype(),
-            "county_name_census": pd.StringDtype(),
-            "respondent_type": pd.StringDtype(),
+            "respondent_id_ferc714": pd.Int64Dtype(),
             "utility_id_eia": pd.Int64Dtype(),
             "balancing_authority_id_eia": pd.Int64Dtype(),
-            "balancing_authority_code_eia": pd.StringDtype(),
-            "balancing_authority_name_eia": pd.StringDtype(),
-            "state": pd.StringDtype(),
-            "utility_name_eia": pd.StringDtype(),
-            "has_demand": pd.BooleanDtype(),
         })
+        .set_crs(util_geom.crs)
     )
-    # Work around a bug in geopandas 0.7.0
-    # See: https://github.com/geopandas/geopandas/issues/1340
-    out_gdf.crs = ba_util_county_gdf.crs
-    return out_gdf
+    return rids_all

@@ -6,8 +6,10 @@ dependencies:
   - autopep8            # dev
   - bandit              # dev
   - coloredlogs         # base
+  - contextily          # user (OpenStreetMap basemap tiles)
   - coverage            # dev
   - dask                # user
+  - dask-labextension   # user (allows dask control within JupyterLab)
   - datapackage>=1.11.0 # base We depend on features introduced in v1.9.0
   - dbfread             # base
   - doc8                # dev
@@ -41,6 +43,7 @@ dependencies:
   - pytest              # dev
   - pytest-cov          # dev
   - python>=3.8         # N/A zipfile.Path() use requires 3.8
+  - python-graphviz     # user (for use with dask)
   - python-snappy       # base
   - pyyaml              # base
   - seaborn             # dev

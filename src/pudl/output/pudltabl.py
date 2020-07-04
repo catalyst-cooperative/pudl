@@ -185,17 +185,17 @@ class PudlTabl(object):
             for table in eia861_tfr_dfs:
                 self._dfs[table] = eia861_tfr_dfs[table]
 
-    def ba_eia861(self, update=False):
+    def balancing_authority_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["balancing_authority_eia861"]
 
-    def ba_assn_eia861(self, update=False):
+    def balancing_authority_assn_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["balancing_authority_assn_eia861"]
 
-    def st_eia861(self, update=False):
+    def service_territory_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["service_territory_eia861"]
@@ -205,12 +205,12 @@ class PudlTabl(object):
         self.etl_eia861(update=update)
         return self._dfs["sales_eia861"]
 
-    def ami_eia861(self, update=False):
+    def advanced_metering_infrastructure_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["advanced_metering_infrastructure_eia861"]
 
-    def dist_sys_eia861(self, update=False):
+    def distribution_systems_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["distribution_systems_eia861"]
