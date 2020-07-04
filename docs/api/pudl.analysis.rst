@@ -8,6 +8,7 @@ Submodules
 
    pudl.analysis.demand_mapping
    pudl.analysis.mcoe
+   pudl.analysis.service_territory
 
 Module contents
 ---------------
