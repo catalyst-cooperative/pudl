@@ -306,37 +306,37 @@ def layer_intersection(layer1, layer2, attributes):
     """
     Break two layers, each covering the same area, into disjoint geometries.
 
-    Two GeoDataFrames are combined together in such a fashion that the
-    geometries are completely disjoint. The uniform attributes are allocated on
-    the basis of the fraction of the area covered by the new geometry
-    compared to the geometry it is being split from. There may be non-unique
-    geometries involved in either layer. If non-unique geometries are involved
-    in layer 1, layer 2 attributes get counted multiple times and are scaled
-    down accordingly and vice-versa.
+    Two GeoDataFrames are combined together in such a fashion that the geometries are
+    completely disjoint. The uniform attributes are allocated on the basis of the
+    fraction of the area covered by the new geometry compared to the geometry it is
+    being split from. There may be non-unique geometries involved in either layer. If
+    non-unique geometries are involved in layer 1, layer 2 attributes get counted
+    multiple times and are scaled down accordingly and vice-versa.
 
-    Example:
-        In the case of simple geometries A, B and A intersection B (X2)
-        in layer 1, and layer 2 containing geometries 1 and 2. The
-        new geometry (1 int A int B) will be counted twice, and same for new
-        geometry (2 int A int B). However, the allocation of the uniform
-        attribute is done based on the area fraction. So, it is divided by the
-        number of times the duplication is occurring.
+    For example, in the case of simple geometries A, B and A intersection B (X2) in
+    layer 1, and layer 2 containing geometries 1 and 2. The new geometry (1 int A int B)
+    will be counted twice, and same for new geometry (2 int A int B). However, the
+    allocation of the uniform attribute is done based on the area fraction. So, it is
+    divided by the number of times the duplication is occurring.
 
     The function returns a new GeoDataFrame with all columns from layer1 and
     layer2.
 
     Args:
-        layer1 (GeoDataframe): first GeoDataFrame
-        layer2 (GeoDataframe): second GeoDataFrame
+        layer1 (geopandas.GeoDataframe): first GeoDataFrame
+        layer2 (geopandas.GeoDataframe): second GeoDataFrame
         attributes (dict): a dictionary keeping a track of all the types of
-        attributes with keys represented by column names from layer1 and
-        layer2, and the values representing the type of attribute. Types of
-        attributes include "constant", "uniform" and "ID". If a column name
-        `col` of type "ID" exists, then one column name `col`+"_set" of type
-        "constant" will exist in the attributes dictionary.
+            attributes with keys represented by column names from layer1 and
+            layer2, and the values representing the type of attribute. Types
+            of attributes include ``constant``, ``uniform`` and ``ID``. If a
+            column name ``col`` of type ``ID`` exists, then one column name
+            ``col``+``_set`` of type "constant" will exist in the attributes
+            dictionary.
 
     Returns:
-        GeoDataFrame: New layer consisting all attributes in layer1 and layer2
+        geopandas.GeoDataFrame: New layer consisting all attributes in layer1
+        and layer2.
+
     """
     # separating the uniforms and constant attributes
     layer1_uniforms = [k for k, v in attributes.items() if (
@@ -414,41 +414,47 @@ def layer_intersection(layer1, layer2, attributes):
 
 def flatten(layers, attributes):
     """
-    Disaggregates geometries by and propagates relevant data.
+    Disaggregate geometries by and propagates relevant data.
 
-    It is assumed that the layers are individual `GeoDataFrame`s and have three
-    types of columns, which signify the way data is propagated. These types are
-    `ID`, `constant`, `uniform`. These types are stored in the dictionary
-    `attributes`. The dictionary has a mapping of all requisite columns in each
-    of the layers as keys, and each of the above mentioned types as the values
-    for those keys. If an `ID` type column is present in a layer, it means that
-    the layer consists of intersecting geometries. If this happens, it is passed
-    through the `complete_disjoint_geoms` function to render it into completely
-    non-overlapping geometries. The other attributes are such:
+    It is assumed that the layers are individual `geopandas.GeoDataFrame`` and have
+    three types of columns, which signify the way data is propagated. These types are
+    ``ID``, ``constant``, ``uniform``. These types are stored in the dictionary
+    ``attributes``. The dictionary has a mapping of all requisite columns in each of the
+    layers as keys, and each of the above mentioned types as the values for those keys.
+    If an ``ID`` type column is present in a layer, it means that the layer consists of
+    intersecting geometries. If this happens, it is passed through the
+    ``complete_disjoint_geoms`` function to render it into completely non-overlapping
+    geometries. The other attributes are such:
 
-    - constant: The attribute is equal everywhere within the feature geometry
-    (e.g. identifier, percent area).
-        1. When splitting a feature, the attribute value for the resulting
-        features is that of their parent: e.g. [1] -> [1], [1].
-        2. When joining features, the attribute value for the resulting feature
-        must be a function of its children: e.g. [1], [1] -> [1, 1] (list) or 1
-        (appropriate aggregation function, e.g. median or area-weighted mean).
+    * ``constant``: The attribute is equal everywhere within the feature geometry
+      (e.g. identifier, percent area).
 
-    - uniform: The attribute is uniformly distributed within the feature
-    geometry (e.g. count, area).
-        1. When splitting a feature, the attribute value for the resulting
-        features is proportional to their area: e.g. [1] (100% area) -> [0.4]
-        (40% area), [0.6] (60% area).
-        2. When joining features, the attribute value for the resulting feature
-        is the sum of its children: e.g. [0.4], [0.6] -> [1].
+      #. When splitting a feature, the attribute value for the resulting
+         features is that of their parent: e.g. [1] -> [1], [1].
+
+      #. When joining features, the attribute value for the resulting feature
+         must be a function of its children: e.g. [1], [1] -> [1, 1] (list) or 1
+         (appropriate aggregation function, e.g. median or area-weighted mean).
+
+    * ``uniform``: The attribute is uniformly distributed within the feature geometry
+      (e.g. count, area).
+
+      #. When splitting a feature, the attribute value for the resulting
+         features is proportional to their area: e.g. [1] (100% area) -> [0.4]
+         (40% area), [0.6] (60% area).
+
+      #. When joining features, the attribute value for the resulting feature
+         is the sum of its children: e.g. [0.4], [0.6] -> [1].
 
     Args:
-        layers (list of GeoDataFrames): Polygon feature layers.
+        layers (list of geopandas.GeoDataFrame): Polygon feature layers.
         attributes (dict): Attribute names and types ({ name: type, ... }),
-        where type is either 'ID', 'constant' or 'uniform'.
+            where type is either ``ID``, ``constant`` or ``uniform``.
+
     Returns:
-        GeoDataFrame: Polygon feature layer with all attributes named in
-        `attributes`.
+        geopandas.GeoDataFrame: Polygon feature layer with all attributes named in
+        ``attributes``.
+
     """
     for i, layer in enumerate(layers):
 
@@ -586,31 +592,29 @@ def categorize_eia_code(rids_ferc714, utils_eia860, ba_eia861):
     """
     Categorize EIA Codes in FERC 714 as BA or Utility IDs.
 
-    Most FERC 714 respondent IDs are associated with an `eia_code` which
-    refers to either a `balancing_authority_id_eia` or a `utility_id_eia`
-    but no indication is given as to which type of ID each one is. This
-    is further complicated by the fact that EIA uses the same numerical
-    ID to refer to the same entity in most but not all cases, when that
-    entity acts as both a utility and as a balancing authority.
+    Most FERC 714 respondent IDs are associated with an ``eia_code`` which refers to
+    either a ``balancing_authority_id_eia`` or a ``utility_id_eia`` but no indication is
+    given as to which type of ID each one is. This is further complicated by the fact
+    that EIA uses the same numerical ID to refer to the same entity in most but not all
+    cases, when that entity acts as both a utility and as a balancing authority.
 
-    Given the nature of the FERC 714 hourly demand dataset, this function
-    assumes that if the `eia_code` appears in the EIA 861 Balancing
-    Authority table, that it should be labeled `balancing_authority`.
-    If the `eia_code` appears only in the EIA 860 Utility table, then
-    it is labeled `utility`. These labels are put in a new column named
-    `respondent_type`. If the planning area's `eia_code` does not appear in
-    either of those tables, then `respondent_type is set to NA.
+    Given the nature of the FERC 714 hourly demand dataset, this function assumes that
+    if the ``eia_code`` appears in the EIA 861 Balancing Authority table, that it should
+    be labeled ``balancing_authority``. If the ``eia_code`` appears only in the EIA 860
+    Utility table, then it is labeled ``utility``. These labels are put in a new column
+    named ``respondent_type``. If the planning area's ``eia_code`` does not appear in
+    either of those tables, then ``respondent_type`` is set to NA.
 
     Args:
-        rids_ferc714 (pandas.DataFrame): The FERC 714 `respondent_id` table.
+        rids_ferc714 (pandas.DataFrame): The FERC 714 ``respondent_id`` table.
         utils_eia860 (pandas.DataFrame): The EIA 860 Utilities output table.
         ba_eia861 (pandas.DataFrame): The EIA 861 Balancing Authority table.
 
     Returns:
-        pandas.DataFrame: A table containing all of the columns present in
-        the FERC 714 `respondent_id` table, plus  a new one named
-        `respondent_type` which can take on the values `balancing_authority`,
-        `utility`, or the special value pandas.NA.
+        pandas.DataFrame: A table containing all of the columns present in the FERC 714
+        ``respondent_id`` table, plus  a new one named ``respondent_type`` which can
+        take on the values ``balancing_authority``, ``utility``, or the special value
+        pandas.NA.
 
     """
     ba_ids = set(ba_eia861.balancing_authority_id_eia.dropna())
