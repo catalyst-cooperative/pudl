@@ -6,7 +6,6 @@ FERC Form1 database. We use this cloned database as the starting point for the
 main PUDL ETL process. The underlying work in the script is being done in
 :mod:`pudl.extract.ferc1`.
 """
-
 import argparse
 import logging
 import pathlib
@@ -16,7 +15,7 @@ import coloredlogs
 import yaml
 
 import pudl
-import pudl.constants as pc
+from pudl import constants as pc
 
 # Create a logger to output any messages we might have...
 logger = logging.getLogger(__name__)

@@ -1,11 +1,10 @@
 """Validate post-ETL Fuel Receipts and Costs data from EIA 923."""
-
 import logging
 
 import pytest
 
 import pudl
-import pudl.validate as pv
+from pudl import validate as pv
 
 logger = logging.getLogger(__name__)
 

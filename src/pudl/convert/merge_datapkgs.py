@@ -1,5 +1,4 @@
 """Functions for merging compatible PUDL datapackges together."""
-
 import logging
 import pathlib
 import shutil

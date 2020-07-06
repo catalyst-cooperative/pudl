@@ -30,7 +30,6 @@ PUDL id's, consider the granularity that you desire and the potential
 implications of using a co-located set of plant infrastructure as an id.
 
 """
-
 import importlib
 import logging
 
@@ -38,7 +37,7 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-import pudl.constants as pc
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 

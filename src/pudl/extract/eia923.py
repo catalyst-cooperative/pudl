@@ -6,12 +6,11 @@ This modules pulls data from EIA's published Excel spreadsheets.
 This code is for use analyzing EIA Form 923 data. Currenly only
 years 2009-2016 work, as they share nearly identical file formatting.
 """
-
 import logging
 
 import pandas as pd
 
-import pudl.extract.excel as excel
+from pudl.extract import excel as excel
 
 logger = logging.getLogger(__name__)
 

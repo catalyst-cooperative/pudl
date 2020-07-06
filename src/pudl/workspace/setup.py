@@ -1,5 +1,4 @@
 """Tools for setting up and managing PUDL workspaces."""
-
 import importlib
 import logging
 import pathlib
@@ -7,7 +6,7 @@ import shutil
 
 import yaml
 
-import pudl.constants as pc
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 

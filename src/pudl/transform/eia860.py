@@ -1,12 +1,11 @@
 """Module to perform data cleaning functions on EIA860 data tables."""
-
 import logging
 
 import numpy as np
 import pandas as pd
 
 import pudl
-import pudl.constants as pc
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 

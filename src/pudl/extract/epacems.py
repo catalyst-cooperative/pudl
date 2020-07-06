@@ -9,8 +9,8 @@ from zipfile import ZipFile
 
 import pandas as pd
 
-import pudl.constants as pc
-import pudl.workspace.datastore as datastore
+from pudl import constants as pc
+from pudl.workspace import datastore as datastore
 
 logger = logging.getLogger(__name__)
 

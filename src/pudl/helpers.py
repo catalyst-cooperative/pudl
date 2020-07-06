@@ -7,7 +7,6 @@ is designed to be used as a general purpose tool, applicable in multiple
 scenarios, it should probably live here. There are lost of transform type
 functions in here that help with cleaning and restructing dataframes.
 """
-
 import logging
 import pathlib
 import re
@@ -22,7 +21,7 @@ import timezonefinder
 from sqlalchemy.engine import reflection
 
 import pudl
-import pudl.constants as pc
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 

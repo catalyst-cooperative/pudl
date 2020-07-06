@@ -18,7 +18,6 @@ Parquet format for use with Dask, either on a multi-core workstation or in an
 interactive cloud computing environment like `Pangeo <https://pangeo.io>`__.
 
 """
-
 import argparse
 import logging
 import pathlib
@@ -28,10 +27,10 @@ from functools import partial
 import coloredlogs
 import pandas as pd
 import pyarrow as pa
-import pyarrow.parquet as pq
+from pyarrow import parquet as pq
 
 import pudl
-import pudl.constants as pc
+from pudl import constants as pc
 
 # Because this is an entry point module for a script, we want to gather all the
 # pudl output, not just from this module, hence the pudl.__name__

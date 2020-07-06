@@ -1,5 +1,4 @@
 """Load excel metadata CSV files form a python data package."""
-
 import csv
 import importlib.resources
 import logging
@@ -9,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 
 import pudl
-import pudl.workspace.datastore as datastore
+from pudl.workspace import datastore as datastore
 
 logger = logging.getLogger(__name__)
 

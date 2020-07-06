@@ -25,13 +25,12 @@ for static entity table generation, the generation of intra and inter-dataset
 glue tables, potentially the calculation of more complex derived values.
 
 """
-
 import logging
 
 import pandas as pd
 
 import pudl
-import pudl.constants as pc
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 

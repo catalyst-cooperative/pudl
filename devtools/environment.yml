@@ -17,7 +17,7 @@ dependencies:
   - geopandas           # dev for now
   - goodtables>=2.4.2   # base
   - ipdb                # dev
-  - isort               # dev
+  - isort>=5.0          # dev
   - jedi                # dev
   - jupyter             # user
   - jupyterlab          # user

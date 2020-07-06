@@ -7,14 +7,13 @@ number of files.
 
 This module was written by :user:`gschivley`
 """
-
 import logging
 from pathlib import Path
 
 import pandas as pd
 
-import pudl.constants as pc
-import pudl.workspace.datastore as datastore
+from pudl import constants as pc
+from pudl.workspace import datastore as datastore
 
 logger = logging.getLogger(__name__)
 
