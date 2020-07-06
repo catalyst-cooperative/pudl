@@ -70,7 +70,6 @@ The output is a set of IDs that allow the FERC plants & EIA generators tables
 to be joined together.
 
 """
-
 import itertools
 # Useful high-level external modules.
 import logging
@@ -172,7 +171,7 @@ def zippertestdata(gens=50, max_group_size=6, samples=10,
             data series, allowing us to easily check whether they've been
             correctly matched.
     """
-    from string import ascii_uppercase, ascii_lowercase
+    from string import ascii_lowercase, ascii_uppercase
 
     # Make sure we've got enough plant IDs to work with:
     rpt = 1
@@ -310,6 +309,7 @@ def aggregate_by_pudl_plant(eia_df, ferc_df):
     within some of the pudl_plant_id groups.
     """
     import re
+
     # Create a DataFrame where we will accumulate the tests cases:
     eia_test_df = pd.DataFrame(columns=eia_df.columns)
     eia_pudl_ids = eia_df.pudl_plant_id.unique()

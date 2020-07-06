@@ -7,7 +7,6 @@ infer the historical spatial extent of utility and balancing area territories. O
 the resulting geometries for use in other applications.
 
 """
-
 import argparse
 import logging
 import math
@@ -18,9 +17,9 @@ import zipfile
 import coloredlogs
 import contextily as ctx
 import geopandas
-import matplotlib.pyplot as plt
 import pandas as pd
 import sqlalchemy as sa
+from matplotlib import pyplot as plt
 
 import pudl
 

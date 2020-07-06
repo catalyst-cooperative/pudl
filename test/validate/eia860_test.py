@@ -1,5 +1,4 @@
 """Validate post-ETL EIA 860 data and the associated derived outputs."""
-
 import logging
 
 from scipy import stats

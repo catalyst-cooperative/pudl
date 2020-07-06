@@ -1,5 +1,4 @@
 """PyTest configuration module. Defines useful fixtures, command line args."""
-
 import glob
 import logging
 import os

@@ -1,5 +1,4 @@
 """Routines used for extracting the raw FERC 714 data."""
-
 import logging
 import pathlib
 import zipfile
@@ -7,7 +6,7 @@ import zipfile
 import pandas as pd
 
 import pudl
-import pudl.constants as pc
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 

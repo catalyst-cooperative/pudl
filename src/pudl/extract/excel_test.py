@@ -1,11 +1,11 @@
 """Unit tests for pudl.extract.excel module."""
 import unittest
-import unittest.mock as mock
+from unittest import mock as mock
 from unittest.mock import patch
 
 import pandas as pd
 
-import pudl.extract.excel as excel
+from pudl.extract import excel as excel
 
 
 class TestMetadata(unittest.TestCase):

@@ -1,7 +1,6 @@
 """Functions for pulling data primarily from the EIA's Form 860."""
 
 # import datetime
-
 import pandas as pd
 import sqlalchemy as sa
 

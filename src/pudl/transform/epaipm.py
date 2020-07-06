@@ -1,10 +1,9 @@
 """Module to perform data cleaning functions on EPA IPM data tables."""
-
 import logging
 
 import pandas as pd
 
-import pudl.constants as pc
+from pudl import constants as pc
 from pudl.helpers import simplify_columns
 
 logger = logging.getLogger(__name__)

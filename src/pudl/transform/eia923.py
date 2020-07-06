@@ -1,12 +1,11 @@
 """Routines specific to cleaning up EIA Form 923 data."""
-
 import logging
 
 import numpy as np
 import pandas as pd
 
 import pudl
-import pudl.constants as pc
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 ###############################################################################

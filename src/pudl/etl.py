@@ -16,7 +16,6 @@ data from:
    - Integrated Planning Model (epaipm)
 
 """
-
 import logging
 import pathlib
 import time
@@ -25,7 +24,7 @@ import uuid
 import pandas as pd
 
 import pudl
-import pudl.constants as pc
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 

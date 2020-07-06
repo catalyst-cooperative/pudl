@@ -1,5 +1,4 @@
 """Transformation of the FERC Form 714 data."""
-
 import logging
 import re
 
@@ -7,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 import pudl
-import pudl.constants as pc
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 

@@ -4,12 +4,11 @@ Validate post-ETL FERC Form 1 data and the associated derived outputs.
 These tests depend on a FERC Form 1 specific PudlTabl output object, which is
 a parameterized fixture that has session scope.
 """
-
 import logging
 
 import pytest
 
-import pudl.validate as pv
+from pudl import validate as pv
 
 logger = logging.getLogger(__name__)
 
