@@ -1,10 +1,9 @@
 """Validate post-ETL EIA 860 data and the associated derived outputs."""
-
 import logging
 
 import pytest
 
-import pudl.validate as pv
+from pudl import validate as pv
 
 logger = logging.getLogger(__name__)
 

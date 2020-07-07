@@ -17,6 +17,8 @@ import yaml
 
 import pudl
 from pudl.convert.epacems_to_parquet import epacems_to_parquet
+from pudl.extract.epacems import EpaCemsDatastore
+from pudl.extract.ferc1 import get_dbc_map, get_fields
 
 logger = logging.getLogger(__name__)
 
@@ -77,10 +79,8 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
     and field that appears in the historical FERC Form 1 data.
     """
     refyear = max(data_scope['ferc1_years'])
-    current_dbc_map = pudl.extract.ferc1.get_dbc_map(
-        year=refyear,
-        data_dir=pudl_settings_fixture['data_dir']
-    )
+    current_dbc_map = pudl.extract.ferc1.get_dbc_map(year=refyear,
+                                                     testing=True)
     current_tables = list(current_dbc_map.keys())
     logger.info(f"Checking for new, unrecognized FERC1 "
                 f"tables in {refyear}.")
@@ -97,7 +97,7 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
         logger.info(f"Searching for lost FERC1 tables and fields in {yr}.")
         dbc_maps[yr] = pudl.extract.ferc1.get_dbc_map(
             year=yr,
-            data_dir=pudl_settings_fixture['data_dir']
+            testing=True
         )
         old_tables = list(dbc_maps[yr].keys())
         for table in old_tables:
@@ -116,8 +116,7 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
                     )
 
 
-def test_ferc1_solo_etl(datastore_fixture,
-                        pudl_settings_fixture,
+def test_ferc1_solo_etl(pudl_settings_fixture,
                         ferc1_engine,
                         live_ferc1_db):
     """Verify that a minimal FERC Form 1 can be loaded without other data."""
@@ -131,6 +130,53 @@ def test_ferc1_solo_etl(datastore_fixture,
         pudl_settings_fixture,
         datapkg_bundle_name='ferc1-solo',
         clobber=True)
+
+
+class TestFerc1Datastore:
+    """Validate the Ferc1 Datastore and integration functions."""
+
+    ds = pudl.extract.ferc1.Ferc1Datastore(sandbox=True)
+
+    def test_ferc_folder(self):
+        """Spot check we get correct folder names per dataset year."""
+        assert self.ds.get_folder(1994) == "FORMSADMIN/FORM1/working"
+        assert self.ds.get_folder(2001) == "UPLOADERS/FORM1/working"
+        assert self.ds.get_folder(2002) == "FORMSADMIN/FORM1/working"
+        assert self.ds.get_folder(2010) == "UPLOADERS/FORM1/working"
+        assert self.ds.get_folder(2015) == "UPLOADERS/FORM1/working"
+
+    def test_get_fields(self):
+        """Check that the get fields table works as expected."""
+        expect_path = pathlib.Path(__file__).parent / "data" / "ferc" \
+            / "form1" / "f1_2018" / "get_fields.json"
+
+        with expect_path.open() as f:
+            expect = yaml.safe_load(f)
+
+        data = self.ds.get_file(2018, "F1_PUB.DBC")
+        result = get_fields(data)
+        assert result == expect
+
+    def test_sample_get_dbc_map(self):
+        """Test sample_get_dbc_map."""
+        table = get_dbc_map(2018, testing=True)
+        assert table["f1_429_trans_aff"] == {
+            "ACCT_CORC": "acct_corc",
+            "ACCT_CORC_": "acct_corc_f",
+            "AMT_CORC": "amt_corc",
+            "AMT_CORC_F": "amt_corc_f",
+            "DESC_GOOD2": "desc_good_serv_f",
+            "DESC_GOOD_": "desc_good_serv",
+            "NAME_COMP": "name_comp",
+            "NAME_COMP_": "name_comp_f",
+            "REPORT_PRD": "report_prd",
+            "REPORT_YEA": "report_year",
+            "RESPONDENT": "respondent_id",
+            "ROW_NUMBER": "row_number",
+            "ROW_PRVLG": "row_prvlg",
+            "ROW_SEQ": "row_seq",
+            "SPPLMNT_NU": "spplmnt_num"
+        }
 
 
 class TestExcelExtractor:
@@ -175,3 +221,16 @@ class TestExcelExtractor:
             2016, "oil_stocks", testing=True).sheet_names
         assert "Page 3 Boiler Fuel Data" in extractor.load_excel_file(
             2019, "stocks", testing=True).sheet_names
+
+
+class TestEpaCemsDatastore:
+    """Ensure we can extract csv files from the datastore."""
+
+    datastore = EpaCemsDatastore(sandbox=True)
+
+    def test_get_csv(self):
+        """Spot check opening of epacems csv file from datastore."""
+        head = b'"STATE","F'
+
+        csv = self.datastore.open_csv("ny", 1999, 6)
+        assert csv.read()[:10] == head

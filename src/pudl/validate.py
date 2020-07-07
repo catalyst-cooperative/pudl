@@ -14,9 +14,9 @@ What defines a data validation?
 import logging
 import warnings
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 
 logger = logging.getLogger(__name__)
 

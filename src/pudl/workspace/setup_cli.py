@@ -48,7 +48,6 @@ you there by source. The PUDL_OUT directories are organized by the type of
 file they contain.
 
 """
-
 import argparse
 import logging
 import pathlib

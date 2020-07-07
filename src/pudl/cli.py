@@ -15,7 +15,6 @@ Currently, this function only uses default directories for "PUDL_IN" and
 pudl directories see the pudl_setup script (pudl_setup --help for more details).
 
 """
-
 import argparse
 import logging
 import pathlib

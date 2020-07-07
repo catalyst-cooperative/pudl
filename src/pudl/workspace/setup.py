@@ -1,5 +1,4 @@
 """Tools for setting up and managing PUDL workspaces."""
-
 import importlib
 import logging
 import pathlib
@@ -7,8 +6,7 @@ import shutil
 
 import yaml
 
-import pudl.constants as pc
-import pudl.workspace.datastore as datastore
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 
@@ -162,13 +160,7 @@ def init(pudl_in, pudl_out, clobber=False):
     # Generate paths for the workspace:
     ps = derive_paths(pudl_in, pudl_out)
 
-    # Make directories for all of the data sources, plus the temporary dir:
-    for source in list(pc.data_sources):
-        src_dir = pathlib.Path(
-            datastore.path(source, year=None, file=False,
-                           data_dir=ps["data_dir"]))
-        src_dir.mkdir(parents=True, exist_ok=True)
-
+    # Create tmp directory
     tmp_dir = pathlib.Path(ps["data_dir"], "tmp")
     tmp_dir.mkdir(parents=True, exist_ok=True)
 

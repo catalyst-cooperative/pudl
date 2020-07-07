@@ -9,7 +9,6 @@ the existing data. It may also include removing bad data, or replacing it
 with the appropriate NA values.
 
 """
-
 import importlib.resources
 import logging
 import re
@@ -28,7 +27,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, Normalizer, OneHotEncoder
 
 import pudl
-import pudl.constants as pc
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 

@@ -6,7 +6,6 @@ FERC Form1 database. We use this cloned database as the starting point for the
 main PUDL ETL process. The underlying work in the script is being done in
 :mod:`pudl.extract.ferc1`.
 """
-
 import argparse
 import logging
 import pathlib
@@ -16,7 +15,7 @@ import coloredlogs
 import yaml
 
 import pudl
-import pudl.constants as pc
+from pudl import constants as pc
 
 # Create a logger to output any messages we might have...
 logger = logging.getLogger(__name__)
@@ -44,6 +43,10 @@ def parse_command_line(argv):
         not included but the sqlite databse already exists the _build will
         fail.""",
         default=False)
+    parser.add_argument(
+        "--sandbox", action="store_true", default=False,
+        help="Use the Zenodo sandbox rather than production")
+
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -70,15 +73,6 @@ def main():  # noqa: C901
 
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in, pudl_out=pudl_out)
-
-    # Make sure the required input files are available before we go doing a
-    # bunch of work cloning the database...
-    pudl.helpers.verify_input_files(
-        ferc1_years=script_settings['ferc1_to_sqlite_years'],
-        epacems_years=[],
-        epacems_states=[],
-        pudl_settings=pudl_settings
-    )
 
     # Check args for basic validity:
     for table in script_settings['ferc1_to_sqlite_tables']:
@@ -116,7 +110,8 @@ def main():  # noqa: C901
         refyear=script_settings['ferc1_to_sqlite_refyear'],
         pudl_settings=pudl_settings,
         bad_cols=bad_cols,
-        clobber=args.clobber)
+        clobber=args.clobber,
+        testing=args.sandbox)
 
 
 if __name__ == '__main__':

@@ -5,7 +5,6 @@ other, for example mapping the FERC plants to EIA generators, or the EIA
 boilers to EIA generators, or EPA smokestacks to EIA generators.
 
 """
-
 import pandas as pd
 import sqlalchemy as sa
 
