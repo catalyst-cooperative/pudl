@@ -573,11 +573,6 @@ def allocate_and_aggregate(disagg_layer, attributes, by="id", allocatees="demand
                                      .applymap(len)
                                      .product(axis=1))
 
-    for uniform_col in allocators:
-        disagg_layer[uniform_col] = disagg_layer[uniform_col] / \
-            disagg_layer["_multi_counts"]
-
-    del disagg_layer["_multi_counts"]
     # Allowing for single and multiple allocators,
     # aggregating columns and allocatees
     if not isinstance(allocators, list):
@@ -588,6 +583,12 @@ def allocate_and_aggregate(disagg_layer, attributes, by="id", allocatees="demand
 
     if not isinstance(by, list):
         by = [by]
+
+    for uniform_col in allocators:
+        disagg_layer[uniform_col] = disagg_layer[uniform_col] / \
+            disagg_layer["_multi_counts"]
+
+    del disagg_layer["_multi_counts"]
 
     # temp_allocator is product of all allocators in the row
     disagg_layer["temp_allocator"] = disagg_layer[allocators].product(axis=1)
@@ -602,37 +603,38 @@ def allocate_and_aggregate(disagg_layer, attributes, by="id", allocatees="demand
 
     # adding temp_allocator_agg column to the disagg_layer
     disagg_layer = disagg_layer.merge(agg_layer)
-    allocatees_agg = [allocatee + "_allocated" for allocatee in allocatees]
-
-    # creating new allocated columns based on the allocation factor
-    disagg_layer[allocatees_agg] = disagg_layer[allocatees].multiply(disagg_layer["temp_allocator"]
-                                                                     / disagg_layer["temp_allocator_agg"],
-                                                                     axis=0)
-
-    # grouping by the relevant columns
-    if isinstance(aggregators, list):
-        if aggregators == []:
-
-            del agg_layer
-            del disagg_layer["temp_allocator"]
-            del disagg_layer["temp_allocator_agg"]
-            return disagg_layer
-
-    else:
-        # converting aggregators to list
-        aggregators = [aggregators]
-
-    df_alloc = disagg_layer[allocatees_agg +
-                            aggregators].groupby(aggregators).sum().reset_index()
-
-    # deleting columns with temporary calculations
-    del agg_layer
-    del disagg_layer["temp_allocator"]
-    del disagg_layer["temp_allocator_agg"]
-    for allocatee_agg in allocatees_agg:
-        del disagg_layer[allocatee_agg]
-
-    return df_alloc
+    return disagg_layer
+    # allocatees_agg = [allocatee + "_allocated" for allocatee in allocatees]
+    #
+    # # creating new allocated columns based on the allocation factor
+    # disagg_layer[allocatees_agg] = disagg_layer[allocatees].multiply(disagg_layer["temp_allocator"]
+    #                                                                  / disagg_layer["temp_allocator_agg"],
+    #                                                                  axis=0)
+    #
+    # # grouping by the relevant columns
+    # if isinstance(aggregators, list):
+    #     if aggregators == []:
+    #
+    #         del agg_layer
+    #         del disagg_layer["temp_allocator"]
+    #         del disagg_layer["temp_allocator_agg"]
+    #         return disagg_layer
+    #
+    # else:
+    #     # converting aggregators to list
+    #     aggregators = [aggregators]
+    #
+    # df_alloc = disagg_layer[allocatees_agg +
+    #                         aggregators].groupby(aggregators).sum().reset_index()
+    #
+    # # deleting columns with temporary calculations
+    # del agg_layer
+    # del disagg_layer["temp_allocator"]
+    # del disagg_layer["temp_allocator_agg"]
+    # for allocatee_agg in allocatees_agg:
+    #     del disagg_layer[allocatee_agg]
+    #
+    # return df_alloc
 
 
 ################################################################################
