@@ -132,6 +132,7 @@ def test_ferc1_solo_etl(pudl_settings_fixture,
         clobber=True)
 
 
+@pytest.mark.usefixtures("pudl_settings_fixture")
 class TestFerc1Datastore:
     """Validate the Ferc1 Datastore and integration functions."""
 
@@ -179,6 +180,7 @@ class TestFerc1Datastore:
         }
 
 
+@pytest.mark.usefixtures("pudl_settings_fixture")
 class TestExcelExtractor:
     """Verify that we can lead excel files as provided via the datastore."""
 
@@ -223,6 +225,7 @@ class TestExcelExtractor:
             2019, "stocks", testing=True).sheet_names
 
 
+@pytest.mark.usefixtures("pudl_settings_fixture")
 class TestEpaCemsDatastore:
     """Ensure we can extract csv files from the datastore."""
 
