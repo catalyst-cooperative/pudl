@@ -72,6 +72,7 @@ OFFSET_CODE_FIXES = {
         "E": "EST",
         "XXX": "EST",
     },
+    182: {"PPT": "PDT"},  # Imperial Irrigation District P looks like D
     186: {"EAS": "EST"},
     189: {"CPT": "CST"},
     190: {"CPT": "CST"},

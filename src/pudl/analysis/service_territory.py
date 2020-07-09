@@ -39,6 +39,14 @@ def get_census2010_gdf(pudl_settings, layer):
     """
     Obtain a GeoDataFrame containing US Census demographic data for 2010.
 
+    If we don't have it locally already, download the US Census DP1 data and store it
+    under the "local/uscb/census2010" directory within the PUDL datastore directory,
+    as it isn't yet integrated into the core PUDL data management.
+
+    Read the specified layer out of the downloaded geodatabase, and return the
+    resulting geopandas.GeoDataFrame. The column names and types are not altered from
+    the US Census originals.
+
     Args:
         pudl_settings (dict): PUDL Settings dictionary.
         layer (str): Indicates which layer of the Census GeoDB to read.
@@ -57,15 +65,16 @@ def get_census2010_gdf(pudl_settings, layer):
     census2010_gdb_dir = census2010_dir / "census2010.gdb"
 
     if not census2010_gdb_dir.is_dir():
-        logger.info("No Census GeoDB found. Downloading from US Census Bureau.")
+        logger.warning("No Census GeoDB found. Downloading from US Census Bureau.")
         # Download to appropriate location
         pudl.helpers.download_zip_url(census2010_url, census2010_zipfile)
         # Unzip because we can't use zipfile paths with geopandas
         with zipfile.ZipFile(census2010_zipfile, 'r') as zip_ref:
             zip_ref.extractall(census2010_dir)
-            # Grab the UUID based directory name so we can change it:
+            # Grab the originally extracted directory name so we can change it:
             extract_root = census2010_dir / \
-                pathlib.Path(zip_ref.filelist[0].filename).parent
+                pathlib.Path(zip_ref.filelist[0].filename)
+        logger.warning(f"Rename {extract_root} to {census2010_gdb_dir}")
         extract_root.rename(census2010_gdb_dir)
     else:
         logger.info("We've already got the 2010 Census GeoDB.")
@@ -223,7 +232,50 @@ def utility_geometries(ids,
                        census_gdf,
                        dissolve=False,
                        limit_by_state=False):
-    """Compile utility territory geometries based on county_id_fips."""
+    """
+    Compile utility territory geometries based on county_id_fips.
+
+    Compile geometries for all of the utilities indicated by the ``utility_id_eia``
+    values specified by ``ids``. Use the EIA 861 Service Territory table to look up the
+    list of county FIPS IDs aassociated with each utility in each year, and then merge
+    in the corresponding county geometries from the US Census DP1 data.
+
+    Optionally dissolve all of the county level geometries into a single geometry for
+    each utility-year.
+
+    Note:
+        Dissolving geometires is a costly operation, and may take half an hour or more
+        if you are processing all utilities for all years. Dissolving also means that
+        all the per-county information will be lost, rendering the output inappropriate
+        for use in many analyses. Dissolving is mostly useful for generating
+        visualizations.
+
+    Args:
+        ids (iterable of ints): The set of utility_id_eia values for which we are
+            compiling geometries.
+        st_eia861 (pandas.DataFrame): The service_territory_eia861 table.
+        ba_assn_eia861 (pandas.DataFrame): The balancing_authority_assn_eia861 table.
+        census_gdf (geopandas.GeoDataFrame): The US Census DP1 county-level geometries
+            as returned by get_census2010_gdf().
+        dissolve (bool): If False, each record in the compiled territory will correspond
+            to a single county, with a county-level geometry, and there will be many
+            records enumerating all the counties associated with a given utility_id_eia
+            in each year. If dissolve=True, all of the county-level geometries for each
+            utility in each year will be merged together ("dissolved") resulting in a
+            single geometry and record for each utility-year.
+        limit_by_state (bool): If True, limit the included counties to only those for
+            which data has actually been reported for that utility in association with
+            the state that the county is part of.
+
+    Returns:
+        geopandas.GeoDataFrame
+
+    """
+    if limit_by_state:
+        raise NotImplementedError(
+            "Limit-by-State not yet implemented for utility service territories."
+        )
+
     util_gdf = (
         utility_counties(
             util_ids=ids,
@@ -245,7 +297,49 @@ def balancing_authority_geometries(ids,
                                    census_gdf,
                                    dissolve=False,
                                    limit_by_state=True):
-    """Compile balancing authority territory geometries based on county_id_fips."""
+    """
+    Compile balancing authority territory geometries based on county_id_fips.
+
+    Compile geometries for all of the balancing authorities indicated by the
+    ``balancing_authority_id_eia`` values specified by ``ids``. Use the EIA 861
+    Balancing Authority association and Service Territory table to look up which
+    utilities are associated with each balancing authority, and which counties are
+    associated with each utility in each year. Merge in the corresponding county
+    geometries from the US Census DP1 data passed in via ``census_gdf``.
+
+    Optionally dissolve all of the county level geometries into a single geometry for
+    each combination of balancing authority and year.
+
+    Note:
+        Dissolving geometires is a costly operation, and may take half an hour or more
+        if you are processing all balancing authorities for all years. Dissolving also
+        means that all the per-county information will be lost, rendering the output
+        inappropriate for use in many analyses. Dissolving is mostly useful for
+        generating visualizations.
+
+    Args:
+        ids (iterable of ints): The set of balancing_authority_id_eia values for which
+            we are compiling geometries.
+        st_eia861 (pandas.DataFrame): The service_territory_eia861 table.
+        ba_assn_eia861 (pandas.DataFrame): The balancing_authority_assn_eia861 table.
+        census_gdf (geopandas.GeoDataFrame): The US Census DP1 county-level geometries
+            as returned by get_census2010_gdf().
+        dissolve (bool): If False, each record in the compiled territory will correspond
+            to a single county, with a county-level geometry, and there will be many
+            records enumerating all the counties associated with a given
+            balancing_authority_id_eia in each year. If dissolve=True, all of the
+            county-level geometries for each utility in each year will be merged
+            together ("dissolved") resulting in a single geometry and record for each
+            balancing_authority-year.
+        limit_by_state (bool): If True, limit the included counties to only those for
+            which data has actually been reported for each utility in conjunction with
+            each balancing authority and state, in the sales_eia861 or other data
+            tables.
+
+    Returns:
+        geopandas.GeoDataFrame
+
+    """
     ba_gdf = (
         balancing_authority_counties(
             ba_ids=ids,
@@ -269,7 +363,29 @@ def compile_geoms(pudl_out,
                   dissolve=False,
                   limit_by_state=True,
                   save=True):
-    """Compile all available utility & balancing authority geometries."""
+    """
+    Compile all available utility or balancing authority geometries.
+
+    Args:
+        pudl_out (pudl.output.pudltabl.PudlTabl): A PUDL output object, which will
+            be used to extract and cache the EIA 861 tables.
+        census_counties (geopandas.GeoDataFrame): A GeoDataFrame containing the county
+            level US Census DP1 data and county geometries.
+        entity_type (str): The type of service territory geometry to compile. Must be
+            either "ba" (balancing authority) or "util" (utility).
+        dissolve (bool): Whether to dissolve the compiled geometries to the
+            utility/balancing authority level, or leave them as counties.
+        limit_by_state (bool): Whether to limit included counties to those with
+            observed EIA 861 data in association with the state and utility/balancing
+            authority.
+        save (bool): If True, save the compiled GeoDataFrame as a GeoParquet file before
+            returning. Especially useful in the case of dissolved geometries, as they
+            are computationally expensive.
+
+    Returns:
+        geopandas.GeoDataFrame
+
+    """
     if (entity_type == "util") and limit_by_state:
         logger.info("Limiting territory by state is not yet supported for utilities.")
         return None
@@ -398,6 +514,9 @@ def plot_all_territories(gdf,
         color (str): Color to use for the planning areas.
         alpha (float): Transparency to use for the planning areas.
         basemap (bool): If true, use the OpenStreetMap tiles for context.
+
+    Returns:
+        matplotlib.axes.Axes
 
     """
     unwanted_respondent_ids = (  # noqa: F841 variable is used, in df.query() below

@@ -52,7 +52,16 @@ def download_zip_url(url, save_path, chunk_size=128):
         None
 
     """
-    r = requests.get(url, stream=True)
+    # This is a temporary hack to avoid being filtered as a bot:
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:77.0) Gecko/20100101 Firefox/77.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'DNT': '1',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+    }
+    r = requests.get(url, stream=True, headers=headers)
     with save_path.open(mode='wb') as fd:
         for chunk in r.iter_content(chunk_size=chunk_size):
             fd.write(chunk)

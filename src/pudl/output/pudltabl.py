@@ -176,7 +176,21 @@ class PudlTabl(object):
     # EIA 861 Interim Outputs (awaiting full DB integration)
     ###########################################################################
     def etl_eia861(self, update=False):
-        """A single function that runs the temporary EIA 861 ETL and sets all DFs."""
+        """
+        A single function that runs the temporary EIA 861 ETL and sets all DFs.
+
+        This is an interim solution that provides a (somewhat) standard way of accessing
+        the EIA 861 data prior to its being fully integrated into the PUDL database. If
+        any of the dataframes is attempted to be accessed, all of them are set. Only
+        the tables that have actual transform functions are included, and as new
+        transform functions are completed, they would need to be added to the list
+        below. Surely there is a way to do this automatically / magically but that's
+        beyond my knowledge right now.
+
+        Args:
+            update (bool): Whether to overwrite the existing dataframes if they exist.
+
+        """
         if update or self._dfs["balancing_authority_eia861"] is None:
             logger.warning("Running the interim EIA 861 ETL process! (~2 minutes)")
             eia861_raw_dfs = (
@@ -230,9 +244,25 @@ class PudlTabl(object):
     # FERC 714 Interim Outputs (awaiting full DB integration)
     ###########################################################################
     def etl_ferc714(self, update=False):
-        """A single function that runs the temporary FERC 714 ETL and sets all DFs."""
+        """
+        A single function that runs the temporary FERC 714 ETL and sets all DFs.
+
+        This is an interim solution, so that we can have a (relatively) standard way of
+        accessing the FERC 714 data prior to getting it integrated into the PUDL DB.
+        Some of these are not yet cleaned up, but there are dummy transform functions
+        which pass through the raw DFs with some minor alterations, so all the data is
+        available as it exists right now.
+
+        An attempt to access *any* of the dataframes results in all of them being
+        populated, since generating all of them is almost the same amount of work as
+        generating one of them.
+
+        Args:
+            update (bool): Whether to overwrite the existing dataframes if they exist.
+
+        """
         if update or self._dfs["respondent_id_ferc714"] is None:
-            logger.warning("Running the interim FERC 714 ETL process! (~7 minutes)")
+            logger.warning("Running the interim FERC 714 ETL process! (~11 minutes)")
             ferc714_raw_dfs = pudl.extract.ferc714.extract()
             ferc714_tfr_dfs = pudl.transform.ferc714.transform(ferc714_raw_dfs)
             for table in ferc714_tfr_dfs:

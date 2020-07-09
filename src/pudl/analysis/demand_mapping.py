@@ -46,7 +46,26 @@ logger = logging.getLogger(__name__)
 # Local data acquisition functions specific to the Demand Mapping analysis
 ################################################################################
 def get_hifld_planning_areas_gdf(pudl_settings):
-    """Electric Planning Area geometries from HIFLD."""
+    """
+    Obtain Electric Planning Area geometries from HIFLD.
+
+    Download the HIFLD planning area geometries if they are not already available
+    locally. Store the data in "local/hifld/electric_planning_areas.gdb" under the PUDL
+    datastore's top level directory, as they are not integrated into the core PUDL data
+    management. The data is in the geodatabase format.
+
+    Read the data into a goepandas.GeoDataFrame, and convert the data types as needed.
+    All columns are assigned nullable types.
+
+    Args:
+        pudl_settings (dict): A dictionary of PUDL settings, including the path to the
+            datastore.
+
+    Returns:
+        geopandas.GeoDataFrame: containing the HIFLD planning area geometries and all
+        associated data columns.
+
+    """
     hifld_pa_url = "https://opendata.arcgis.com/datasets/7d35521e3b2c48ab8048330e14a4d2d1_0.gdb"
     hifld_dir = pathlib.Path(pudl_settings["data_dir"]) / "local/hifld"
     hifld_dir.mkdir(parents=True, exist_ok=True)
@@ -54,7 +73,7 @@ def get_hifld_planning_areas_gdf(pudl_settings):
     hifld_pa_gdb_dir = hifld_dir / "electric_planning_areas.gdb"
 
     if not hifld_pa_gdb_dir.is_dir():
-        logger.info("No Planning Area GeoDB found. Downloading from HIFLD.")
+        logger.warning("No Planning Area GeoDB found. Downloading from HIFLD.")
         # Download to appropriate location
         pudl.helpers.download_zip_url(hifld_pa_url, hifld_pa_zipfile)
         # Unzip because we can't use zipfile paths with geopandas
@@ -76,24 +95,22 @@ def get_hifld_planning_areas_gdf(pudl_settings):
             NAICS_CODE=lambda x: pd.to_numeric(x.NAICS_CODE),
             YEAR=lambda x: pd.to_numeric(x.YEAR),
         )
-        # Hack to work around geopanda issue fixed as of v0.8.0
-        # https://github.com/geopandas/geopandas/issues/1366
-        .assign(
-            ID=lambda x: x.ID.astype(pd.Int64Dtype()),
-            NAME=lambda x: x.NAME.astype(pd.StringDtype()),
-            COUNTRY=lambda x: x.COUNTRY.astype(pd.StringDtype()),
-            NAICS_CODE=lambda x: x.NAICS_CODE.astype(pd.Int64Dtype()),
-            NAICS_DESC=lambda x: x.NAICS_DESC.astype(pd.StringDtype()),
-            SOURCE=lambda x: x.SOURCE.astype(pd.StringDtype()),
-            VAL_METHOD=lambda x: x.VAL_METHOD.astype(pd.StringDtype()),
-            WEBSITE=lambda x: x.WEBSITE.astype(pd.StringDtype()),
-            ABBRV=lambda x: x.ABBRV.astype(pd.StringDtype()),
-            YEAR=lambda x: x.YEAR.astype(pd.Int64Dtype()),
-            PEAK_LOAD=lambda x: x.PEAK_LOAD.astype(float),
-            PEAK_RANGE=lambda x: x.PEAK_RANGE.astype(float),
-            SHAPE_Length=lambda x: x.SHAPE_Length.astype(float),
-            SHAPE_Area=lambda x: x.SHAPE_Area.astype(float),
-        )
+        .astype({
+            "ID": pd.Int64Dtype(),
+            "NAME": pd.StringDtype(),
+            "COUNTRY": pd.StringDtype(),
+            "NAICS_CODE": pd.Int64Dtype(),
+            "NAICS_DESC": pd.StringDtype(),
+            "SOURCE": pd.StringDtype(),
+            "VAL_METHOD": pd.StringDtype(),
+            "WEBSITE": pd.StringDtype(),
+            "ABBRV": pd.StringDtype(),
+            "YEAR": pd.Int64Dtype(),
+            "PEAK_LOAD": float,
+            "PEAK_RANGE": float,
+            "SHAPE_Length": float,
+            "SHAPE_Area": float,
+        })
     )
     return gdf
 
@@ -675,10 +692,10 @@ def has_demand(dhpa, rids):
 
     Returns:
         pandas.DataFrame: A dataframe with all 3 columns: respondent_id_ferc714 (int),
-            report_year (int), and has_demand (bool). All possible combinations of
-            respondent_id_ferc714 (from rids) and report_year (from dhpa) are present,
-            and the value of has_demand is True if that respondent ID reported more
-            than zero demand in that year.
+        report_year (int), and has_demand (bool). All possible combinations of
+        respondent_id_ferc714 (from rids) and report_year (from dhpa) are present, and
+        the value of has_demand is True if that respondent ID reported more than zero
+        demand in that year.
 
     """
     # Create an complete 2-column index with all years and rids:
