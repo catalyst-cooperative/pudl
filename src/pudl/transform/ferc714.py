@@ -1,9 +1,7 @@
 """Transformation of the FERC Form 714 data."""
 import logging
-import pathlib
 import re
 
-import geopandas
 import numpy as np
 import pandas as pd
 
@@ -146,22 +144,22 @@ OFFSET_CODE_FIXES = {
 
 OFFSET_CODE_FIXES_BY_YEAR = [
     {
-        "utility_id_ferc714": 139,
+        "respondent_id_ferc714": 139,
         "report_year": 2006,
         "utc_offset_code": "PST"
     },
     {
-        "utility_id_ferc714": 235,
+        "respondent_id_ferc714": 235,
         "report_year": 2015,
         "utc_offset_code": "MST"
     },
     {
-        "utility_id_ferc714": 289,
+        "respondent_id_ferc714": 289,
         "report_year": 2011,
         "utc_offset_code": "CST"
     },
     {
-        "utility_id_ferc714": 292,
+        "respondent_id_ferc714": 292,
         "report_year": 2011,
         "utc_offset_code": "CST"
     },
@@ -217,67 +215,84 @@ TZ_CODES = {
 }
 """Mapping between standardized time offset codes and canonical timezones."""
 
-MISSING_UTILITY_ID_EIA = {
-    307: 14354,  # PacifiCorp
-    295: 40229,  # Old Dominion Electric Cooperative
-    329: 39347,  # East Texas Electricity Cooperative
+EIA_CODE_FIXES = {
+    # FERC 714 Respondent ID: EIA BA or Utility ID
+    125: 2775,  # EIA BA CAISO (fixing bad EIA Code of 229)
+    134: 5416,  # Duke Energy Corp. (bad id was non-existent 3260)
+    203: 12341,  # MidAmerican Energy Co. (fixes typo, from 12431)
+    257: 59504,  # Southwest Power Pool (Fixing bad EIA Coding)
+    292: 20382,  # City of West Memphis -- (fixes a typo, from 20383)
+    295: 40229,  # Old Dominion Electric Cooperative (missing)
+    301: 14725,  # PJM Interconnection Eastern Hub (missing)
+    302: 14725,  # PJM Interconnection Western Hub (missing)
+    303: 14725,  # PJM Interconnection Illinois Hub (missing)
+    304: 14725,  # PJM Interconnection Northern Illinois Hub (missing)
+    305: 14725,  # PJM Interconnection Dominion Hub (missing)
+    306: 14725,  # PJM Interconnection AEP-Dayton Hub (missing)
+    # PacifiCorp Utility ID is 14354. It ALSO has 2 BA IDs: (14378, 14379)
+    # See https://github.com/catalyst-cooperative/pudl/issues/616
+    307: 14379,  # Using this ID for now only b/c it's in the HIFLD geometry
+    309: 12427,  # Michigan Power Pool / Power Coordination Center (missing)
+    315: 56090,  # Griffith Energy (bad id was 55124)
+    323: 58790,  # Gridforce Energy Management (missing)
+    324: 58791,  # NaturEner Wind Watch LLC (Fixes bad ID 57995)
+    329: 39347,  # East Texas Electricity Cooperative (missing)
 }
-"""FERC respondents lacking EIA utility IDs that appear to exist."""
+"""Overrides of FERC 714 respondent IDs with wrong or missing EIA Codes"""
 
 RENAME_COLS = {
     "respondent_id_ferc714": {
-        "respondent_id": "utility_id_ferc714",
-        "respondent_name": "utility_name_ferc714",
-        "eia_code": "utility_id_eia",
+        "respondent_id": "respondent_id_ferc714",
+        "respondent_name": "respondent_name_ferc714",
     },
     "demand_hourly_pa_ferc714": {
         "report_yr": "report_year",
         "plan_date": "report_date",
-        "respondent_id": "utility_id_ferc714",
+        "respondent_id": "respondent_id_ferc714",
         "timezone": "utc_offset_code",
     },
     "description_pa_ferc714": {
         "report_yr": "report_year",
-        "respondent_id": "utility_id_ferc714",
-        "elec_util_name": "utility_name_ferc714",
+        "respondent_id": "respondent_id_ferc714",
+        "elec_util_name": "respondent_name_ferc714",
         "peak_summer": "peak_demand_summer_mw",
         "peak_winter": "peak_demand_winter_mw",
     },
     "id_certification_ferc714": {
         "report_yr": "report_year",
-        "respondent_id": "utility_id_ferc714",
+        "respondent_id": "respondent_id_ferc714",
     },
     "gen_plants_ba_ferc714": {
         "report_yr": "report_year",
-        "respondent_id": "utility_id_ferc714",
+        "respondent_id": "respondent_id_ferc714",
     },
     "demand_monthly_ba_ferc714": {
         "report_yr": "report_year",
-        "respondent_id": "utility_id_ferc714",
+        "respondent_id": "respondent_id_ferc714",
     },
     "net_energy_load_ba_ferc714": {
         "report_yr": "report_year",
-        "respondent_id": "utility_id_ferc714",
+        "respondent_id": "respondent_id_ferc714",
     },
     "adjacency_ba_ferc714": {
         "report_yr": "report_year",
-        "respondent_id": "utility_id_ferc714",
+        "respondent_id": "respondent_id_ferc714",
     },
     "interchange_ba_ferc714": {
         "report_yr": "report_year",
-        "respondent_id": "utility_id_ferc714",
+        "respondent_id": "respondent_id_ferc714",
     },
     "lambda_hourly_ba_ferc714": {
         "report_yr": "report_year",
-        "respondent_id": "utility_id_ferc714",
+        "respondent_id": "respondent_id_ferc714",
     },
     "lambda_description_ferc714": {
         "report_yr": "report_year",
-        "respondent_id": "utility_id_ferc714",
+        "respondent_id": "respondent_id_ferc714",
     },
     "demand_forecast_pa_ferc714": {
         "report_yr": "report_year",
-        "respondent_id": "utility_id_ferc714",
+        "respondent_id": "respondent_id_ferc714",
     },
 }
 
@@ -324,7 +339,7 @@ def _standardize_offset_codes(df, offset_fixes):
     Args:
         df (pandas.DataFrame): A DataFrame containing a utc_offset_code column
             that needs to be standardized.
-        offset_fixes (dict): A dictionary with utility_id_ferc714 values as the
+        offset_fixes (dict): A dictionary with respondent_id_ferc714 values as the
             keys, and a dictionary mapping non-standard UTC offset codes to
             the standardized UTC offset codes as the value.
 
@@ -343,7 +358,7 @@ def _standardize_offset_codes(df, offset_fixes):
     for rid in offset_fixes:
         for orig_tz in offset_fixes[rid]:
             df.loc[(
-                (df.utility_id_ferc714 == rid) &
+                (df.respondent_id_ferc714 == rid) &
                 (df["utc_offset_code"] == orig_tz)), "utc_offset_code"] = offset_fixes[rid][orig_tz]
 
     return df
@@ -375,14 +390,14 @@ def _to_utc_and_tz(df, offset_codes, tz_codes):
         column is dropped.
 
     """
-    _log_dupes(df, ["utility_id_ferc714", "local_time"])
+    _log_dupes(df, ["respondent_id_ferc714", "local_time"])
     logger.info("Converting local time + offset code to UTC + timezone.")
     df["utc_offset"] = df.utc_offset_code.replace(offset_codes)
     df["utc_datetime"] = df.local_time - df.utc_offset
     df["timezone"] = df.utc_offset_code.replace(tz_codes)
     df = df.drop(
         ["utc_offset", "utc_offset_code", "local_time"], axis="columns")
-    _log_dupes(df, ["utility_id_ferc714", "utc_datetime"])
+    _log_dupes(df, ["respondent_id_ferc714", "utc_datetime"])
     return df
 
 
@@ -398,7 +413,7 @@ def _complete_demand_timeseries(pa_demand):
 
     This function does not attempt to impute or otherwise fill in missing
     demand_mwh values, but it does fill in the other non data fields for
-    the newly created timesteps (utility_id_ferc714, timezone, report_year).
+    the newly created timesteps (respondent_id_ferc714, timezone, report_year).
 
     Args:
         pa_demand (pandas.DataFrame): A planning area demand time series from
@@ -415,21 +430,21 @@ def _complete_demand_timeseries(pa_demand):
     # Remove any lingering duplicate hours. There should be less than 10 of
     # these, resulting from changes a planning area's reporting timezone.
     pa_demand = pa_demand.drop_duplicates(
-        ["utility_id_ferc714", "utc_datetime"])
-    _log_dupes(pa_demand, ["utility_id_ferc714", "utc_datetime"])
+        ["respondent_id_ferc714", "utc_datetime"])
+    _log_dupes(pa_demand, ["respondent_id_ferc714", "utc_datetime"])
 
     # We need to address the time series for each respondent independently, so
-    # here we iterate over all of the utility IDs one at a time:
+    # here we iterate over all of the respondent IDs one at a time:
     dfs = []
-    for util_id in pa_demand.utility_id_ferc714.unique():
+    for util_id in pa_demand.respondent_id_ferc714.unique():
         df = (
             pa_demand
-            .loc[pa_demand.utility_id_ferc714 == util_id]
+            .loc[pa_demand.respondent_id_ferc714 == util_id]
             .set_index("utc_datetime")
         )
 
         # Reindex with a complete set of hourly timesteps and fill in the
-        # resulting NA values where we can do so easily. The utility IDs and
+        # resulting NA values where we can do so easily. The respondent IDs and
         # name do not vary within the time series for a particular respondent,
         # and the timezone is mainly important for internal consistency between
         # the utc_datetime value and the report year. So long as those values
@@ -445,7 +460,7 @@ def _complete_demand_timeseries(pa_demand):
                 )
             )
             .assign(
-                utility_id_ferc714=lambda x: x.utility_id_ferc714.fillna(
+                respondent_id_ferc714=lambda x: x.respondent_id_ferc714.fillna(
                     method="backfill"),
                 timezone=lambda x: x.timezone.fillna(method="backfill"),
             )
@@ -505,17 +520,17 @@ def respondent_id(tfr_dfs):
     """
     df = (
         tfr_dfs["respondent_id_ferc714"].assign(
-            utility_name_ferc714=lambda x: x.utility_name_ferc714.str.strip(),
-            utility_id_eia=lambda x: x.utility_id_eia.replace(
+            respondent_name_ferc714=lambda x: x.respondent_name_ferc714.str.strip(),
+            eia_code=lambda x: x.eia_code.replace(
                 to_replace=0, value=pd.NA)
         )
         # These excludes fake Test IDs -- not real planning areas
-        .query("utility_id_ferc714 not in @BAD_RESPONDENTS")
+        .query("respondent_id_ferc714 not in @BAD_RESPONDENTS")
     )
     # There are a few utilities that seem mappable, but missing:
-    for rid in MISSING_UTILITY_ID_EIA:
-        df.loc[df.utility_id_ferc714 == rid,
-               "utility_id_eia"] = MISSING_UTILITY_ID_EIA[rid]
+    for rid in EIA_CODE_FIXES:
+        df.loc[df.respondent_id_ferc714 == rid,
+               "eia_code"] = EIA_CODE_FIXES[rid]
     tfr_dfs["respondent_id_ferc714"] = df
     return tfr_dfs
 
@@ -545,12 +560,12 @@ def demand_hourly_pa(tfr_dfs):
     df = (
         df.rename(columns=_hours_to_ints)
         .melt(
-            id_vars=["report_year", "utility_id_ferc714",
+            id_vars=["report_year", "respondent_id_ferc714",
                      "report_date", "utc_offset_code"],
             var_name="hour",
             value_name="demand_mwh")
     )
-    _log_dupes(df, ["utility_id_ferc714", "report_date", "hour"])
+    _log_dupes(df, ["respondent_id_ferc714", "report_date", "hour"])
 
     df = (
         df.pipe(_standardize_offset_codes, offset_fixes=OFFSET_CODE_FIXES)
@@ -573,16 +588,16 @@ def demand_hourly_pa(tfr_dfs):
     for fix in OFFSET_CODE_FIXES_BY_YEAR:
         mask = (
             (df.report_year == fix["report_year"]) &
-            (df.utility_id_ferc714 == fix["utility_id_ferc714"])
+            (df.respondent_id_ferc714 == fix["respondent_id_ferc714"])
         )
         df.loc[mask, "utc_offset_code"] = fix["utc_offset_code"]
 
     # Flip the sign on two sections of demand which were reported as negative:
     mask1 = (df.report_year.isin([2006, 2007, 2008, 2009])) & (
-        df.utility_id_ferc714 == 156)
+        df.respondent_id_ferc714 == 156)
     df.loc[mask1, "demand_mwh"] = -1.0 * df.loc[mask1, "demand_mwh"]
     mask2 = (df.report_year.isin([2006, 2007, 2008, 2009, 2010])) & (
-        df.utility_id_ferc714 == 289)
+        df.respondent_id_ferc714 == 289)
     df.loc[mask2, "demand_mwh"] = -1.0 * df.loc[mask2, "demand_mwh"]
 
     df = (
@@ -590,60 +605,15 @@ def demand_hourly_pa(tfr_dfs):
         .pipe(_complete_demand_timeseries)
         .loc[:, [
             "report_year",
-            "utility_id_ferc714",
+            "respondent_id_ferc714",
             "utc_datetime",
             "timezone",
             "demand_mwh"
         ]]
-        .sort_values(["utility_id_ferc714", "utc_datetime"])
+        .sort_values(["respondent_id_ferc714", "utc_datetime"])
     )
     tfr_dfs["demand_hourly_pa_ferc714"] = df
     return tfr_dfs
-
-
-def electricity_planning_areas(pudl_settings):
-    """Electric Planning Area geometries from HIFLD."""
-    gdb_path = pathlib.Path(
-        pudl_settings["data_dir"],
-        "local/hifld/electric_planning_areas.gdb"
-    )
-
-    gdf = (
-        geopandas.read_file(gdb_path)
-        .assign(
-            SOURCEDATE=lambda x: pd.to_datetime(x.SOURCEDATE),
-            VAL_DATE=lambda x: pd.to_datetime(x.VAL_DATE),
-            ID=lambda x: pd.to_numeric(x.ID),
-            NAICS_CODE=lambda x: pd.to_numeric(x.NAICS_CODE),
-            YEAR=lambda x: pd.to_numeric(x.YEAR),
-        )
-        # Hack to work around geopanda issue fixed as of v0.8.0
-        # https://github.com/geopandas/geopandas/issues/1366
-        .assign(
-            ID=lambda x: x.ID.astype(pd.Int64Dtype()),
-            NAME=lambda x: x.NAME.astype(pd.StringDtype()),
-            COUNTRY=lambda x: x.COUNTRY.astype(pd.StringDtype()),
-            NAICS_CODE=lambda x: x.NAICS_CODE.astype(pd.Int64Dtype()),
-            NAICS_DESC=lambda x: x.NAICS_DESC.astype(pd.StringDtype()),
-            SOURCE=lambda x: x.SOURCE.astype(pd.StringDtype()),
-            VAL_METHOD=lambda x: x.VAL_METHOD.astype(pd.StringDtype()),
-            WEBSITE=lambda x: x.WEBSITE.astype(pd.StringDtype()),
-            ABBRV=lambda x: x.ABBRV.astype(pd.StringDtype()),
-            YEAR=lambda x: x.YEAR.astype(pd.Int64Dtype()),
-            PEAK_LOAD=lambda x: x.PEAK_LOAD.astype(float),
-            PEAK_RANGE=lambda x: x.PEAK_RANGE.astype(float),
-            SHAPE_Length=lambda x: x.SHAPE_Length.astype(float),
-            SHAPE_Area=lambda x: x.SHAPE_Area.astype(float),
-        )
-    )
-    # Need to set these IDs b/c HIFLD geometry uses EIA Balancing Authority IDs
-    # (maybe?) FERC 714 is using EIA Utility IDs. This isn't totally resolved
-    # and we need to figure out which set of IDs is getting used where.
-    gdf.loc[gdf.ID == 2775, "ID"] = 229  # CAISO
-    gdf.loc[gdf.ID == 59504, "ID"] = 17690  # Southwest Power Pool
-    gdf.loc[gdf.ID == 14379, "ID"] = 14354  # PacifiCorp East + West
-    gdf.loc[gdf.ID == 13670, "ID"] = 39347  # Northeast TX Electric Co-op
-    return gdf
 
 
 def id_certification(tfr_dfs):
@@ -711,7 +681,7 @@ def _pre_transform(raw_df):
         raw_df.filter(regex=r"^(?!.*_f$).*")
         .drop(["report_prd", "spplmnt_num", "row_num"],
               axis="columns", errors="ignore")
-        .query("utility_id_ferc714 not in @BAD_RESPONDENTS")
+        .query("respondent_id_ferc714 not in @BAD_RESPONDENTS")
     )
     return out_df
 

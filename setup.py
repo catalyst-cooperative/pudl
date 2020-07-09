@@ -10,7 +10,8 @@ install_requires = [
     "addfips",
     "coloredlogs",
     "datapackage>=1.11",
-    "dbfread @ git+https://github.com/catalyst-cooperative/dbfread.git#egg=dbfread-2.1.0",
+    "dbfread @ git+https://github.com/catalyst-cooperative/dbfread.\
+    git#egg=dbfread-2.1.0",
     "geopandas",
     "goodtables>=2.4.2",
     "matplotlib",
