@@ -2607,7 +2607,7 @@ column_dtypes = {
         # Added by AES for NM table
         'current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
         'current_planned_operating_date': 'datetime64[ns]',
-        'customers': pd.Int64Dtype(),
+        'customers': pd.Int64Dtype(),  # Used by AES for NM table
         'customer_class': pd.CategoricalDtype(categories=[
             "residential", "commercial", "industrial", "transportation",
             "other", "total",

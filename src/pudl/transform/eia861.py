@@ -531,7 +531,7 @@ def _ba_code_backfill(df):
     return ba_eia861_filled
 
 
-def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type):
+def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=False):
     # Clean up values just enough to use primary key columns as a multi-index:
     logger.debug(
         f"Cleaning {df_name} table index columns so we can tidy data.")
@@ -558,17 +558,20 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type):
         data_cols.stack(level=0, dropna=False)
         .reset_index()
     )
-    denorm_cols = _filter_non_class_cols(
-        raw_df, class_list).reset_index()
+    denorm_cols = _filter_non_class_cols(raw_df, class_list).reset_index()
 
     # Merge the index, data, and denormalized columns back together
     tidy_df = pd.merge(denorm_cols, data_cols, on=idx_cols)
 
+    # Compare reported totals with sum of component columns
+    _compare_totals(data_cols, idx_cols, class_type, df_name)
+
     # Remove the now redundant "Total" records -- they can be reconstructed
     # from the other customer classes.
-    # tidy_df = tidy_df.query(f"{class_type}!='total'")
+    if keep_totals is False:
+        tidy_df = tidy_df.query(f"{class_type}!='total'")
 
-    return tidy_df
+    return tidy_df, idx_cols + [class_type]
 
 
 def _drop_dupes(df, subset):
@@ -601,6 +604,56 @@ def _early_transform(df):
     df = pudl.helpers.fix_eia_na(df)
     df = pudl.helpers.convert_to_date(df)
     return df
+
+
+def _compare_totals(data_cols, idx_cols, class_type, df_name):
+    """Compare reported totals with sum of component columns.
+
+    Args:
+        data_cols (pd.DataFrame): A DataFrame containing only the columns with
+            normalized information.
+        idx_cols (list): A list of the primary keys for the given denormalized
+            DataFrame.
+        class_type (str): The name (either 'customer_class' or 'fuel_class') of
+            the column for which you'd like to compare totals to components.
+        df_name (str): The name of the dataframe.
+    """
+    # Convert column dtypes so that numeric cols can be adequately summed
+    data_cols = pudl.helpers.convert_cols_dtypes(data_cols, 'eia')
+    # Drop data cols that are non numeric (preserve primary keys)
+    data_cols = (
+        data_cols.set_index(idx_cols + [class_type])
+        .select_dtypes('float', 'Int64')
+        .reset_index()
+    )
+    # Create list of data columns to be summed (may include non-numeric that will be excluded)
+    data_col_list = set(data_cols.columns.tolist()) - \
+        set(idx_cols + [class_type])
+    # Distinguish reported totals from segments
+    data_totals_df = data_cols.loc[data_cols[class_type] == 'total']
+    data_no_tots_df = data_cols.loc[data_cols[class_type] != 'total']
+    # Calculate sum of segments for comparison against reported total
+    data_sums_df = data_no_tots_df.groupby(
+        idx_cols + [class_type], observed=True).sum()
+    sum_total_df = pd.merge(data_totals_df, data_sums_df, on=idx_cols,
+                            how='outer', suffixes=('_total', '_sum'))
+    # Check each data column's calculated sum against the reported total
+    for col in data_col_list:
+        col_df = (sum_total_df.loc[sum_total_df[col + '_total'].notnull()])
+        if len(col_df) > 0:
+            col_df = (
+                col_df.assign(
+                    compare_totals=lambda x: (x[col + '_total'] == x[col + '_sum']))
+            )
+            pct_bad_math = str(int(
+                (~col_df['compare_totals']).values.sum()
+                / len(col_df)
+                * 100
+            )) + '%'
+            log_output = f'{df_name}: for column {col}, {pct_bad_math} of non-null reported totals ≠ the sum of parts.'
+        else:
+            log_output = f'{df_name}: for column {col} all total values are nan'
+        logger.info(log_output)
 
 
 ###############################################################################
@@ -862,7 +915,7 @@ def sales(tfr_dfs):
     ###########################################################################
 
     logger.info("Tidying the EIA 861 Sales table.")
-    tidy_sales = _tidy_class_dfs(
+    tidy_sales, idx_cols = _tidy_class_dfs(
         raw_sales, 'Sales', idx_cols, CUSTOMER_CLASSES, 'customer_class')
 
     # remove duplicates on the primary key columns + customer_class -- there
@@ -870,7 +923,7 @@ def sales(tfr_dfs):
     # that produce dupes, which do not have a clear meaning. The utility_id_eia
     # values involved are: [8153, 13830, 17164, 56431, 56434, 56466, 56778,
     # 56976, 56990, 57081, 57411, 57476, 57484, 58300]
-    deduped_sales = _drop_dupes(tidy_sales, idx_cols + ['customer_class'])
+    deduped_sales = _drop_dupes(tidy_sales, idx_cols)
 
     ###########################################################################
     # Transform Values:
@@ -935,16 +988,14 @@ def advanced_metering_infrastructure(tfr_dfs):
     ###########################################################################
 
     logger.info("Tidying the EIA 861 Advanced Metering Infrastructure table.")
-    tidy_ami = _tidy_class_dfs(
+    tidy_ami, idx_cols = _tidy_class_dfs(
         raw_ami, 'Advanced Metering Infrastructure', idx_cols, CUSTOMER_CLASSES, 'customer_class')
 
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(tidy_ami, 'Advanced Metering Infrastructure',
-                     idx_cols + ['customer_class'])
+    _check_for_dupes(tidy_ami, 'Advanced Metering Infrastructure', idx_cols)
 
     # Organize col headers for output
-    tidy_ami = pudl.helpers.organize_cols(
-        tidy_ami, idx_cols + ['utility_name_eia', 'customer_class'])
+    tidy_ami = pudl.helpers.organize_cols(tidy_ami, idx_cols)
 
     tfr_dfs["advanced_metering_infrastructure_eia861"] = tidy_ami
     return tfr_dfs
@@ -976,13 +1027,13 @@ def demand_response(tfr_dfs):
     ###########################################################################
 
     logger.info("Tidying the EIA 861 Demand Response table.")
-    tidy_dr = _tidy_class_dfs(
+    tidy_dr, idx_cols = _tidy_class_dfs(
         raw_dr, 'Demand Response', idx_cols, CUSTOMER_CLASSES, 'customer_class')
 
     # shouldn't be duplicates but there are some strange values from IN.
     # thinking this might have to do with DR table weirdness between 2012 and 2013
     # will come back to this after working on the DSM table. Dropping dupes for now.
-    deduped_dr = _drop_dupes(tidy_dr, idx_cols + ['customer_class'])
+    deduped_dr = _drop_dupes(tidy_dr, idx_cols)
 
     ###########################################################################
     # Transform Values:
@@ -998,8 +1049,7 @@ def demand_response(tfr_dfs):
     )
 
     # Organize col headers for output
-    transformed_dr = pudl.helpers.organize_cols(
-        transformed_dr, idx_cols + ['utility_name_eia', 'customer_class'])
+    transformed_dr = pudl.helpers.organize_cols(transformed_dr, idx_cols)
 
     tfr_dfs["demand_response_eia861"] = transformed_dr
     return tfr_dfs
@@ -1103,11 +1153,11 @@ def dynamic_pricing(tfr_dfs):
     ###########################################################################
 
     logger.info("Tidying the EIA 861 Dynamic Pricing table.")
-    tidy_dp = _tidy_class_dfs(
+    tidy_dp, idx_cols = _tidy_class_dfs(
         raw_dp, 'Dynamic Pricing', idx_cols, CUSTOMER_CLASSES, 'customer_class')
 
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(tidy_dp, 'Dynamic Pricing', idx_cols + ['customer_class'])
+    _check_for_dupes(tidy_dp, 'Dynamic Pricing', idx_cols)
 
     ###########################################################################
     # Transform Values:
@@ -1123,8 +1173,7 @@ def dynamic_pricing(tfr_dfs):
         )
 
     # Organize col headers for output
-    tidy_dp = pudl.helpers.organize_cols(
-        tidy_dp, idx_cols + ['utility_name_eia', 'customer_class'])
+    tidy_dp = pudl.helpers.organize_cols(tidy_dp, idx_cols)
 
     tfr_dfs["dynamic_pricing_eia861"] = tidy_dp
     return tfr_dfs
@@ -1155,10 +1204,10 @@ def green_pricing(tfr_dfs):
     ###########################################################################
 
     logger.info("Tidying the EIA 861 Green Pricing table.")
-    tidy_gp = _tidy_class_dfs(raw_gp, 'Green Pricing',
-                              idx_cols, CUSTOMER_CLASSES, 'customer_class')
+    tidy_gp, idx_cols = _tidy_class_dfs(raw_gp, 'Green Pricing',
+                                        idx_cols, CUSTOMER_CLASSES, 'customer_class')
 
-    _check_for_dupes(tidy_gp, 'Green Pricing', idx_cols + ['customer_class'])
+    _check_for_dupes(tidy_gp, 'Green Pricing', idx_cols)
 
     ###########################################################################
     # Transform Values:
@@ -1174,8 +1223,7 @@ def green_pricing(tfr_dfs):
     )
 
     # Organize col headers for output
-    transformed_gp = pudl.helpers.organize_cols(
-        transformed_gp, idx_cols + ['utility_name_eia', 'customer_class'])
+    transformed_gp = pudl.helpers.organize_cols(transformed_gp, idx_cols)
 
     tfr_dfs["green_pricing_eia861"] = transformed_gp
 
@@ -1255,24 +1303,21 @@ def net_metering(tfr_dfs):
     ###########################################################################
 
     logger.info("Tidying the EIA 861 Net Metering table.")
-    # Normalize by customer class
-    tidy_nm = _tidy_class_dfs(raw_nm, 'Net Metering',
-                              idx_cols, CUSTOMER_CLASSES, 'customer_class')
-    # maybe delete these cols from excel so there aren't duplicates?
-    tidy_nm = tidy_nm.drop(columns='customers')
+    # Normalize by customer class (must be done before normalizing by fuel class)
+    tidy_nm, idx_cols = _tidy_class_dfs(raw_nm, 'Net Metering',
+                                        idx_cols, CUSTOMER_CLASSES, 'customer_class')
+
     # Normalize by fuel class
-    tidy_nm = _tidy_class_dfs(tidy_nm, 'Net Metering',
-                              idx_cols + ['customer_class'], FUEL_CLASSES, 'fuel_class')
+    tidy_nm, idx_cols = _tidy_class_dfs(tidy_nm, 'Net Metering',
+                                        idx_cols, FUEL_CLASSES, 'fuel_class', keep_totals=True)
 
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(tidy_nm, 'Net Metering',
-                     idx_cols + ['customer_class', 'fuel_class'])
+    _check_for_dupes(tidy_nm, 'Net Metering', idx_cols)
 
     # No transformation needed
 
     # Organize col headers for output
-    tidy_nm = pudl.helpers.organize_cols(
-        tidy_nm, idx_cols + ['utility_name_eia', 'customer_class', 'fuel_class'])
+    tidy_nm = pudl.helpers.organize_cols(tidy_nm, idx_cols)
 
     tfr_dfs["net_metering_eia861"] = tidy_nm
 
