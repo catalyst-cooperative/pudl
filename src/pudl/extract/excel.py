@@ -1,5 +1,4 @@
 """Load excel metadata CSV files form a python data package."""
-
 import csv
 import importlib.resources
 import logging
@@ -9,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 
 import pudl
-import pudl.workspace.datastore as datastore
+from pudl.workspace import datastore as datastore
 
 logger = logging.getLogger(__name__)
 
@@ -167,7 +166,7 @@ class GenericExtractor(object):
         """Provide custom dtypes for given page and year."""
         return {}
 
-    def extract(self, years, testing):
+    def extract(self, years, testing=False):
         """Extracts dataframes.
 
         Returns dict where keys are page names and values are
@@ -223,18 +222,6 @@ class GenericExtractor(object):
                 )
             raw_dfs[page] = self.process_final_page(df, page)
         return raw_dfs
-
-    def _load_excel_file(self, year, page):
-        """Returns ExcelFile object corresponding to given (year, page).
-
-        Additionally, loaded files are stored under self._file_cache for reuse.
-        """
-        full_path = self._get_file_path(year, page)
-        if full_path not in self._file_cache:
-            logger.info(
-                f'{self._dataset_name}: Loading excel file {full_path}')
-            self._file_cache[full_path] = pd.ExcelFile(full_path)
-        return self._file_cache[full_path]
 
     def load_excel_file(self, year, page, testing=False):
         """

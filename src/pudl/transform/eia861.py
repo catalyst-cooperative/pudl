@@ -53,13 +53,12 @@ for the next step that happens after the intra-table transformations, in which t
 collection of EIA tables is normalized as a whole.
 
 """
-
 import logging
 
 import pandas as pd
 
 import pudl
-import pudl.constants as pc
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 

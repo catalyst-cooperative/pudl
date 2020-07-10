@@ -1,5 +1,4 @@
 """Functions for pulling EIA 923 data out of the PUDl DB."""
-
 import logging
 import os
 

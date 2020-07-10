@@ -21,7 +21,6 @@ and year, which can be read directly into pandas or dask dataframes, for use
 in conjunction with the other PUDL data that is stored in the SQLite DB.
 
 """
-
 import argparse
 import logging
 import pathlib

@@ -1,5 +1,4 @@
 """Functions for pulling FERC Form 1 data out of the PUDL DB."""
-
 import pandas as pd
 
 import pudl

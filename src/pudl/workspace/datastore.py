@@ -29,7 +29,8 @@ DOI = {
         "eia860": "10.5072/zenodo.504556",
         "eia861": "10.5072/zenodo.504558",
         "eia923": "10.5072/zenodo.504560",
-        "epaipm": "10.5072/zenodo.504564",
+        "epaipm": "10.5072/zenodo.602953",
+        "epacems": "10.5072/zenodo.638878",
         "ferc1": "10.5072/zenodo.504562"
     },
     "production": {}
@@ -74,7 +75,7 @@ class Datastore:
             self.api_root = "https://zenodo.org/api"
 
         with PUDL_YML.open() as f:
-            cfg = yaml.load(f.read(), Loader=yaml.FullLoader)
+            cfg = yaml.safe_load(f)
             self.pudl_in = Path(os.environ.get("PUDL_IN", cfg["pudl_in"]))
 
     # Location conversion & helpers
@@ -214,7 +215,7 @@ class Datastore:
             self.save_datapackage_json(dataset, dpkg)
 
         with path.open("r") as f:
-            return yaml.load(f.read(), Loader=yaml.FullLoader)
+            return yaml.safe_load(f)
 
     # Remote resource retrieval
 
@@ -304,7 +305,7 @@ class Datastore:
 
             path = Path(r["path"])
             with path.open("rb") as f:
-                m = hashlib.md5()
+                m = hashlib.md5()  # nosec
                 m.update(f.read())
 
             if m.hexdigest() == r["hash"]:
@@ -371,8 +372,18 @@ class Datastore:
 
 def main_arguments():
     """Collect the command line arguments."""
+    prod_dois = "\n".join(["    - %s" % x for x in DOI["production"].keys()])
+    sand_dois = "\n".join(["    - %s" % x for x in DOI["sandbox"].keys()])
+
+    dataset_msg = "--Available datasets--\n \nProduction:\n%s\n \nSandbox:\n%s" \
+        % (prod_dois, sand_dois)
+
     parser = argparse.ArgumentParser(
-        description="Download and cache ETL source data from Zenodo.")
+        description="Download and cache ETL source data from Zenodo.",
+        epilog=dataset_msg,
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+
     parser.add_argument(
         "--dataset", help="Get only a specified dataset. Default gets all.")
     parser.add_argument(

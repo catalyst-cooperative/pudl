@@ -9,7 +9,6 @@ good idea to set up a standalone dataset for testing. We'll still need a
 separate locally run test for the datastore management.
 
 """
-
 import argparse
 import logging
 import os
@@ -18,8 +17,8 @@ import sys
 import zipfile
 
 import pudl
-import pudl.constants as pc
-import pudl.workspace.datastore as datastore
+from pudl import constants as pc
+from pudl.workspace import datastore as datastore
 
 # Create a logger to output any messages we might have...
 logger = logging.getLogger(pudl.__name__)

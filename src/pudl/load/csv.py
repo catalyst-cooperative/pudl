@@ -13,12 +13,11 @@ include converting floatified integer columns into strings with null values,
 and appropriately indexing the dataframes as needed.
 
 """
-
 import logging
 import pathlib
 
 import pudl
-import pudl.constants as pc
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 

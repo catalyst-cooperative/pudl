@@ -1,5 +1,4 @@
 """A module with functions to aid generating MCOE."""
-
 import pandas as pd
 
 import pudl
