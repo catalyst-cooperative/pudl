@@ -5254,13 +5254,13 @@
                         "format": "default"
                     },
                     {
-                        "name": "balancing_authority_code",
+                        "name": "balancing_authority_code_eia",
                         "type": "string",
                         "description": "The plant's balancing authority code.",
                         "format": "default"
                     },
                     {
-                        "name": "balancing_authority_name",
+                        "name": "balancing_authority_name_eia",
                         "type": "string",
                         "description": "The plant's balancing authority name.",
                         "format": "default"

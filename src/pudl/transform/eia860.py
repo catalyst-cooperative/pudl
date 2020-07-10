@@ -400,7 +400,12 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
         )
 
     u_df = (
-        u_df.astype({"utility_id_eia": int})
+        u_df.astype({
+            "utility_id_eia": int
+        })
+        .assign(
+            entity_type=lambda x: x.entity_type.map(pc.ENTITY_TYPE_DICT)
+        )
         .pipe(pudl.helpers.convert_to_date)
     )
 

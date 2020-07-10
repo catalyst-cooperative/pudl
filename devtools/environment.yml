@@ -58,5 +58,6 @@ dependencies:
   - twine               # dev
   - xlsxwriter          # base
   - pip:
-     - recordlinkage # dev for now... base if it ends up in ETL
-     - fredapi # dev
+    - addfips
+    - recordlinkage # dev for now... base if it ends up in ETL
+    - fredapi

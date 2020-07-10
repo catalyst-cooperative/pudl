@@ -62,6 +62,7 @@ def _occurrence_consistency(entity_id, compiled_df, col,
     """
     # select only the colums you want and drop the NaNs
     # we want to drop the NaNs because
+    # breakpoint()
     col_df = compiled_df[entity_id + ['report_date', col, 'table']].copy()
     if pc.column_dtypes["eia"][col] == pd.StringDtype():
         nan_str_mask = (col_df[col] == "nan").fillna(False)
@@ -259,9 +260,10 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
                 dfs.append(df)
 
                 # remove the static columns, with an exception
-                if entity in ('generators', 'plants') and table_name in ('ownership_eia860',
-                                                                         'utilities_eia860',
-                                                                         'generators_eia860'):
+                if ((entity in ('generators', 'plants'))
+                    and (table_name in ('ownership_eia860',
+                                        'utilities_eia860',
+                                        'generators_eia860'))):
                     cols.remove('utility_id_eia')
                 transformed_df = transformed_df.drop(columns=cols)
                 eia_transformed_dfs[table_name] = transformed_df
@@ -807,8 +809,9 @@ def _restrict_years(df,
 
 
 def transform(eia_transformed_dfs,
-              eia923_years=pc.working_years['eia923'],
               eia860_years=pc.working_years['eia860'],
+              eia861_years=pc.working_years['eia861'],
+              eia923_years=pc.working_years['eia923'],
               debug=False):
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
 
@@ -822,10 +825,12 @@ def transform(eia_transformed_dfs,
     Args:
         eia_transformed_dfs (dict): a dictionary of table names (kays) and
             transformed dataframes (values).
-        eia923_years (list): a list of years for EIA 923, must be continuous,
-            and include only working years.
         eia860_years (list): a list of years for EIA 860, must be continuous,
             and only include working years.
+        eia861_years (list): a list of years for EIA 861, must be continuous,
+            and only include working years.
+        eia923_years (list): a list of years for EIA 923, must be continuous,
+            and include only working years.
         debug (bool): if true, informational columns will be added into
             boiler_generator_assn
 
@@ -834,7 +839,7 @@ def transform(eia_transformed_dfs,
         dataframes as values for the entity tables transformed EIA dataframes
 
     """
-    if not eia923_years and not eia860_years:
+    if not eia923_years and not eia860_years and not eia861_years:
         logger.info('Not ingesting EIA')
         return None
     # create the empty entities df to fill up
@@ -857,8 +862,8 @@ def transform(eia_transformed_dfs,
     # get rid of the original annual dfs in the transformed dict
     remove = ['generators', 'plants', 'utilities']
     for entity in remove:
-        eia_transformed_dfs[f'{entity}_eia860'] = eia_transformed_dfs.pop(f'{entity}_annual_eia',
-                                                                          f'{entity}_annual_eia')
+        eia_transformed_dfs[f'{entity}_eia860'] = eia_transformed_dfs.pop(
+            f'{entity}_annual_eia', f'{entity}_annual_eia')
     # remove the boilers annual table bc it has no columns
     eia_transformed_dfs.pop('boilers_annual_eia',)
     return entities_dfs, eia_transformed_dfs
