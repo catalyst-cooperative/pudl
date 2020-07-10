@@ -499,9 +499,12 @@ def _ba_code_backfill(df):
         .sort_values(["balancing_authority_id_eia", "report_date"])
     )
     ba_ids["ba_code_filled"] = (
+        #    ba_ids.groupby("balancing_authority_id_eia")[
+        #        "balancing_authority_code_eia"]
+        #    .apply(lambda x: x.bfill())
+        # )
         ba_ids.groupby("balancing_authority_id_eia")[
-            "balancing_authority_code_eia"]
-        .apply(lambda x: x.bfill())
+            "balancing_authority_code_eia"].fillna(method="bfill")
     )
     ba_eia861_filled = df.merge(ba_ids, how="left")
     ba_eia861_filled = (
@@ -617,10 +620,7 @@ def service_territory(tfr_dfs):
     # No data tidying required
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
-    type_compatible_df = (
-        tfr_dfs["service_territory_eia861"]
-        .assign(county=lambda x: x.county.astype(str))
-    )
+    type_compatible_df = tfr_dfs["service_territory_eia861"].astype({"county": str})
     # Transform values:
     # * Add state and county fips IDs
     transformed_df = (
@@ -677,9 +677,6 @@ def balancing_authority(tfr_dfs):
         "balancing_authority_code_eia"
     ] = "TIDC"
 
-    df = pudl.helpers.convert_cols_dtypes(
-        df, "eia", "balancing_authority_eia861")
-
     tfr_dfs["balancing_authority_eia861"] = df
     return tfr_dfs
 
@@ -727,78 +724,107 @@ def balancing_authority_assn(tfr_dfs):
 
     logger.info("Building an EIA 861 BA-Util-State association table.")
 
-    old_date_ba_util = (
-        tfr_dfs["balancing_authority_eia861"]
-        .query("report_date<='2012-12-31'")
-        .loc[:, [
-            "report_date",
-            "balancing_authority_id_eia",
-            "utility_id_eia",
-        ]]
-        .dropna()
+    # Helpful shorthand query strings....
+    before_times = "report_date<='2012-12-31'"
+    after_times = "report_date>='2013-01-01'"
+
+    # The old BA table lists utilities directly, but has no state information.
+    old_date_ba_util = _harvest_associations(
+        dfs=[tfr_dfs["balancing_authority_eia861"], ],
+        cols=["report_date",
+              "balancing_authority_id_eia",
+              "utility_id_eia"],
+        query=before_times,
+    )
+    # State-utility associations are brought in from observations in other_dfs
+    old_date_util_state = _harvest_associations(
+        dfs=other_dfs,
+        cols=["report_date",
+              "utility_id_eia",
+              "state"],
+        query=before_times,
+    )
+    old_date_ba_util_state = (
+        old_date_ba_util
+        .merge(old_date_util_state, how="outer")
         .drop_duplicates()
     )
 
-    old_date_util_state = pd.DataFrame()
-    for df in other_dfs:
-        tmp_df = (
-            df.query("report_date<='2012-12-31'")
-            .loc[:, [
-                "report_date",
-                "utility_id_eia",
-                "state",
-            ]]
-            .dropna()
-            .drop_duplicates()
-        )
-        old_date_util_state = (
-            pd.concat([old_date_util_state, tmp_df])
-            .drop_duplicates()
-        )
-    old_date_ba_util_state = pd.merge(
-        old_date_ba_util, old_date_util_state, how="outer")
-
-    new_ba_code_id = (
-        tfr_dfs["balancing_authority_eia861"]
-        .query("report_date>='2013-01-01'")
-        .loc[:, [
-            "report_date",
-            "balancing_authority_code_eia",
-            "balancing_authority_id_eia",
-        ]]
-        .dropna()
-        .drop_duplicates()
+    # New BA table has no utility information, but has BA Codes...
+    new_ba_code_id = _harvest_associations(
+        dfs=[tfr_dfs["balancing_authority_eia861"], ],
+        cols=["report_date",
+              "balancing_authority_code_eia",
+              "balancing_authority_id_eia"],
+        query=after_times,
     )
-    new_date_ba_code_util_state = pd.DataFrame()
-    for df in other_dfs:
-        tmp_df = (
-            df.query("report_date>='2013-01-01'")
-            .loc[:, [
-                "report_date",
-                "balancing_authority_code_eia",
-                "utility_id_eia",
-                "state",
-            ]]
-            .dropna()
-            .drop_duplicates()
-        )
-        new_date_ba_code_util_state = (
-            pd.concat([new_date_ba_code_util_state, tmp_df])
-            .drop_duplicates()
-        )
+    # BA Code allows us to bring in utility+state data from other_dfs:
+    new_date_ba_code_util_state = _harvest_associations(
+        dfs=other_dfs,
+        cols=["report_date",
+              "balancing_authority_code_eia",
+              "utility_id_eia",
+              "state"],
+        query=after_times,
+    )
+    # We merge on ba_code then drop it, b/c only BA ID exists in all years consistently:
     new_date_ba_util_state = (
         new_date_ba_code_util_state
         .merge(new_ba_code_id, how="outer")
         .drop("balancing_authority_code_eia", axis="columns")
         .drop_duplicates()
     )
+
     tfr_dfs["balancing_authority_assn_eia861"] = (
         pd.concat([old_date_ba_util_state, new_date_ba_util_state])
         .dropna(subset=["balancing_authority_id_eia", ])
         .astype({"utility_id_eia": pd.Int64Dtype()})
     )
+    return tfr_dfs
 
-    # Finish the normalization of the BA table:
+
+def _harvest_associations(dfs, cols, query=None):
+    """
+    Harvest all unique combinations of some columns in some dataframes.
+
+    Find all unique, non-null combinations of the columns ``cols`` in the dataframes
+    ``dfs`` within records that are selected by ``query``.
+
+    Args:
+        dfs (iterable of pandas.DataFrame): The DataFrames in which to search for
+            unique associations.
+        cols (iterable of str): Labels of columns for which to find unique, non-null
+            combinations of values.
+        query (str): A string which can be used in ``df.query()`` to select a subset of
+            rows in ``dfs`` for association harvesting. Optional. If None, all records
+            in the dataframes are used.
+
+    Returns:
+        pandas.DataFrame: A dataframe containing all the unique, non-null combinations
+        of values found in ``cols``.
+
+    """
+    out_dfs = []
+    for df in dfs:
+        df = df.copy()
+        if query is not None:
+            df = df.query(query)
+        out_dfs.append(df[cols])
+    return pd.concat(out_dfs).dropna().drop_duplicates()
+
+
+def normalize_balancing_authority(tfr_dfs):
+    """
+    Finish the normalization of the balancing_authority_eia861 table.
+
+    The balancing_authority_assn_eia861 table depends on information that is only
+    available in the UN-normalized form of the balancing_authority_eia861 table, so
+    and also on having access to a bunch of transformed data tables, so it can compile
+    the observed combinations of report dates, balancing authorities, states, and
+    utilities. This means that we have to hold off on the final normalization of the
+    balancing_authority_eia861 table until the rest of the transform process is over.
+
+    """
     logger.info("Completing normalization of balancing_authority_eia861.")
     ba_eia861_normed = (
         tfr_dfs["balancing_authority_eia861"]
@@ -1307,15 +1333,16 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         return tfr_dfs
     # for each of the tables, run the respective transform funtction
     for table in eia861_tables:
+        if table not in tfr_funcs.keys():
+            raise ValueError(f"Unrecognized EIA 861 table: {table}")
         logger.info(f"Transforming raw EIA 861 DataFrames for {table} "
                     f"concatenated across all years.")
-        # ADD some sort of customer message here / check across multiple sources
-        assert table in tfr_funcs.keys()
         tfr_dfs[table] = _early_transform(raw_dfs[table])
         tfr_dfs = tfr_funcs[table](tfr_dfs)
 
     # This is more like harvesting stuff, and should probably be relocated:
     tfr_dfs = balancing_authority_assn(tfr_dfs)
+    tfr_dfs = normalize_balancing_authority(tfr_dfs)
     tfr_dfs = pudl.helpers.convert_dfs_dict_dtypes(tfr_dfs, 'eia')
 
     return tfr_dfs

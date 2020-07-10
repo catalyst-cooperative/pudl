@@ -415,23 +415,32 @@ def compile_geoms(pudl_out,
         limit_by_state=limit_by_state,
     )
     if save:
-        # For filenames based on input args:
-        dissolved = ""
-        if dissolve:
-            dissolved = "_dissolved"
-        else:
-            # States & counties only remain at this point if we didn't dissolve
-            # Nullable strings not compatible with Parquet yet.
-            for col in ("county_id_fips", "state_id_fips"):
-                geom[col] = geom[col].fillna("").astype(str)
-        limited = ""
-        if limit_by_state:
-            limited = "_limited"
-        # Save the geometries to a GeoParquet file
-        fn = f"{entity_type}_geom{limited+dissolved}.pq"
-        geom.to_parquet(fn, index=False)
+        _save_geoparquet(
+            geom,
+            entity_type=entity_type,
+            dissolve=dissolve,
+            limit_by_state=limit_by_state
+        )
 
     return geom
+
+
+def _save_geoparquet(gdf, entity_type, dissolve, limit_by_state):
+    # For filenames based on input args:
+    dissolved = ""
+    if dissolve:
+        dissolved = "_dissolved"
+    else:
+        # States & counties only remain at this point if we didn't dissolve
+        for col in ("county_id_fips", "state_id_fips"):
+            # pandas.NA values are not compatible with Parquet Strings yet.
+            gdf[col] = gdf[col].fillna("")
+    limited = ""
+    if limit_by_state:
+        limited = "_limited"
+    # Save the geometries to a GeoParquet file
+    fn = f"{entity_type}_geom{limited+dissolved}.pq"
+    gdf.to_parquet(fn, index=False)
 
 
 ################################################################################
