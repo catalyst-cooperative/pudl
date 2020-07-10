@@ -30,7 +30,7 @@ repos:
 
 # Make sure import statements are sorted uniformly.
 - repo: https://github.com/pre-commit/mirrors-isort
-  rev: v4.3.21
+  rev: v5.0.6
   hooks:
   - id: isort
 
