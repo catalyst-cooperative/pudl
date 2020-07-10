@@ -63,5 +63,5 @@ dependencies:
   - pip:
     - addfips
     - git+https://github.com/catalyst-cooperative/dbfread/
-    - recordlinkage # dev for now... base if it ends up in ETL
-    - fredapi # dev
+    - recordlinkage     # dev for now... base if it ends up in ETL
+    - fredapi           # dev
