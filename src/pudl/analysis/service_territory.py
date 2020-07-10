@@ -96,10 +96,10 @@ def get_census2010_gdf(pudl_settings, layer):
 ################################################################################
 # Functions that compile geometries based on EIA 861 data tables:
 ################################################################################
-def balancing_authority_counties(ba_ids,
-                                 st_eia861,
-                                 ba_assn_eia861,
-                                 limit_by_state=True):
+def get_balancing_authority_counties(ba_ids,
+                                     st_eia861,
+                                     ba_assn_eia861,
+                                     limit_by_state=True):
     """
     Compile counties associated with select balancing authorities by year.
 
@@ -140,7 +140,7 @@ def balancing_authority_counties(ba_ids,
     return ba_counties
 
 
-def utility_counties(util_ids, st_eia861):
+def get_utility_counties(util_ids, st_eia861):
     """
     Compile the list of counties associated with the given utility IDs.
 
@@ -226,12 +226,12 @@ def add_geometries(df, census_gdf, dissolve=False, dissolve_by=None):
     return out_gdf
 
 
-def utility_geometries(ids,
-                       st_eia861,
-                       ba_assn_eia861,
-                       census_gdf,
-                       dissolve=False,
-                       limit_by_state=False):
+def get_utility_geometries(ids,
+                           st_eia861,
+                           ba_assn_eia861,
+                           census_gdf,
+                           dissolve=False,
+                           limit_by_state=False):
     """
     Compile utility territory geometries based on county_id_fips.
 
@@ -277,7 +277,7 @@ def utility_geometries(ids,
         )
 
     util_gdf = (
-        utility_counties(
+        get_utility_counties(
             util_ids=ids,
             st_eia861=st_eia861
         )
@@ -291,12 +291,12 @@ def utility_geometries(ids,
     return util_gdf
 
 
-def balancing_authority_geometries(ids,
-                                   st_eia861,
-                                   ba_assn_eia861,
-                                   census_gdf,
-                                   dissolve=False,
-                                   limit_by_state=True):
+def get_balancing_authority_geometries(ids,
+                                       st_eia861,
+                                       ba_assn_eia861,
+                                       census_gdf,
+                                       dissolve=False,
+                                       limit_by_state=True):
     """
     Compile balancing authority territory geometries based on county_id_fips.
 
@@ -341,7 +341,7 @@ def balancing_authority_geometries(ids,
 
     """
     ba_gdf = (
-        balancing_authority_counties(
+        get_balancing_authority_counties(
             ba_ids=ids,
             st_eia861=st_eia861,
             ba_assn_eia861=ba_assn_eia861,
@@ -401,8 +401,8 @@ def compile_geoms(pudl_out,
         "util": st_eia861.utility_id_eia.unique(),
     }
     funcs = {
-        "ba": balancing_authority_geometries,
-        "util": utility_geometries
+        "ba": get_balancing_authority_geometries,
+        "util": get_utility_geometries
     }
 
     # Identify all Utility IDs with service territory information
