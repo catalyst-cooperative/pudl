@@ -725,92 +725,89 @@ def balancing_authority_assn(tfr_dfs):
     logger.info("Building an EIA 861 BA-Util-State association table.")
 
     # Helpful shorthand query strings....
-    before_times = "report_date<='2012-12-31'"
-    after_times = "report_date>='2013-01-01'"
+    early_years = "report_date<='2012-12-31'"
+    late_years = "report_date>='2013-01-01'"
+    early_dfs = [df.query(early_years) for df in other_dfs]
+    late_dfs = [df.query(late_years) for df in other_dfs]
 
     # The old BA table lists utilities directly, but has no state information.
-    old_date_ba_util = _harvest_associations(
-        dfs=[tfr_dfs["balancing_authority_eia861"], ],
+    early_date_ba_util = _harvest_associations(
+        dfs=[tfr_dfs["balancing_authority_eia861"].query(early_years), ],
         cols=["report_date",
               "balancing_authority_id_eia",
               "utility_id_eia"],
-        query=before_times,
     )
     # State-utility associations are brought in from observations in other_dfs
-    old_date_util_state = _harvest_associations(
-        dfs=other_dfs,
+    early_date_util_state = _harvest_associations(
+        dfs=early_dfs,
         cols=["report_date",
               "utility_id_eia",
               "state"],
-        query=before_times,
     )
-    old_date_ba_util_state = (
-        old_date_ba_util
-        .merge(old_date_util_state, how="outer")
+    early_date_ba_util_state = (
+        early_date_ba_util
+        .merge(early_date_util_state, how="outer")
         .drop_duplicates()
     )
 
     # New BA table has no utility information, but has BA Codes...
-    new_ba_code_id = _harvest_associations(
-        dfs=[tfr_dfs["balancing_authority_eia861"], ],
+    late_ba_code_id = _harvest_associations(
+        dfs=[tfr_dfs["balancing_authority_eia861"].query(late_years), ],
         cols=["report_date",
               "balancing_authority_code_eia",
               "balancing_authority_id_eia"],
-        query=after_times,
     )
     # BA Code allows us to bring in utility+state data from other_dfs:
-    new_date_ba_code_util_state = _harvest_associations(
-        dfs=other_dfs,
+    late_date_ba_code_util_state = _harvest_associations(
+        dfs=late_dfs,
         cols=["report_date",
               "balancing_authority_code_eia",
               "utility_id_eia",
               "state"],
-        query=after_times,
     )
     # We merge on ba_code then drop it, b/c only BA ID exists in all years consistently:
-    new_date_ba_util_state = (
-        new_date_ba_code_util_state
-        .merge(new_ba_code_id, how="outer")
+    late_date_ba_util_state = (
+        late_date_ba_code_util_state
+        .merge(late_ba_code_id, how="outer")
         .drop("balancing_authority_code_eia", axis="columns")
         .drop_duplicates()
     )
 
     tfr_dfs["balancing_authority_assn_eia861"] = (
-        pd.concat([old_date_ba_util_state, new_date_ba_util_state])
+        pd.concat([early_date_ba_util_state, late_date_ba_util_state])
         .dropna(subset=["balancing_authority_id_eia", ])
         .astype({"utility_id_eia": pd.Int64Dtype()})
     )
     return tfr_dfs
 
 
-def _harvest_associations(dfs, cols, query=None):
+def _harvest_associations(dfs, cols):
     """
-    Harvest all unique combinations of some columns in some dataframes.
+    Compile all unique, non-null combinations of some columns in some dataframes.
 
     Find all unique, non-null combinations of the columns ``cols`` in the dataframes
-    ``dfs`` within records that are selected by ``query``.
+    ``dfs`` within records that are selected by ``query``. All of ``cols`` must be
+    present in each of the ``dfs``.
 
     Args:
         dfs (iterable of pandas.DataFrame): The DataFrames in which to search for
             unique associations.
         cols (iterable of str): Labels of columns for which to find unique, non-null
             combinations of values.
-        query (str): A string which can be used in ``df.query()`` to select a subset of
-            rows in ``dfs`` for association harvesting. Optional. If None, all records
-            in the dataframes are used.
 
     Returns:
         pandas.DataFrame: A dataframe containing all the unique, non-null combinations
         of values found in ``cols``.
 
     """
-    out_dfs = []
     for df in dfs:
-        df = df.copy()
-        if query is not None:
-            df = df.query(query)
-        out_dfs.append(df[cols])
-    return pd.concat(out_dfs).dropna().drop_duplicates()
+        for col in cols:
+            if col not in df.columns:
+                raise ValueError(
+                    f"Column {col} not found in dataframe for association harvesting."
+                    "All columns must be present in all dataframes."
+                )
+    return pd.concat([df[cols] for df in dfs]).dropna().drop_duplicates()
 
 
 def normalize_balancing_authority(tfr_dfs):
