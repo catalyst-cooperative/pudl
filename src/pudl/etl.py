@@ -206,13 +206,12 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
 
     testing = pudl_settings.get("testing", False)
     # Extract EIA forms 923, 860
-    eia923_raw_dfs = pudl.extract.eia923.Extractor().extract(
-        eia923_years, testing=testing)
     eia860_raw_dfs = pudl.extract.eia860.Extractor().extract(
         eia860_years, testing=testing)
     eia861_raw_dfs = pudl.extract.eia861.Extractor().extract(
         eia861_years, testing=testing)
-
+    eia923_raw_dfs = pudl.extract.eia923.Extractor().extract(
+        eia923_years, testing=testing)
     # Transform EIA forms 923, 860
     eia860_transformed_dfs = pudl.transform.eia860.transform(
         eia860_raw_dfs, eia860_tables=eia860_tables)

@@ -1,7 +1,7 @@
 """Exercise the functionality in the datastore management module."""
 import random
 
-import pudl.workspace.datastore as datastore
+from pudl.workspace import datastore as datastore
 
 
 class TestDatastore:

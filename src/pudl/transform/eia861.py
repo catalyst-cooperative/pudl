@@ -574,7 +574,7 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
 
     # Remove the now redundant "Total" records -- they can be reconstructed
     # from the other customer classes.
-    if keep_totals is False:
+    if keep_totals is not True:
         tidy_df = tidy_df.query(f"{class_type}!='total'")
 
     return tidy_df, idx_cols + [class_type]
@@ -629,7 +629,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
     # Drop data cols that are non numeric (preserve primary keys)
     data_cols = (
         data_cols.set_index(idx_cols + [class_type])
-        .select_dtypes('float', 'Int64')
+        .select_dtypes('number')
         .reset_index()
     )
     # Create list of data columns to be summed (may include non-numeric that will be excluded)
