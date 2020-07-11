@@ -566,7 +566,7 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
 
     # Remove the now redundant "Total" records -- they can be reconstructed
     # from the other customer classes.
-    if keep_totals is not True:
+    if not keep_totals:
         tidy_df = tidy_df.query(f"{class_type}!='total'")
 
     return tidy_df, idx_cols + [class_type]
@@ -624,9 +624,9 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
         .select_dtypes('number')
         .reset_index()
     )
-    # Create list of data columns to be summed (may include non-numeric that will be excluded)
-    data_col_list = set(data_cols.columns.tolist()) - \
-        set(idx_cols + [class_type])
+    # Create list of data columns to be summed
+    # (may include non-numeric that will be excluded)
+    data_col_list = set(data_cols.columns.tolist()) - set(idx_cols + [class_type])
     # Distinguish reported totals from segments
     data_totals_df = data_cols.loc[data_cols[class_type] == 'total']
     data_no_tots_df = data_cols.loc[data_cols[class_type] != 'total']
@@ -643,15 +643,13 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
                 col_df.assign(
                     compare_totals=lambda x: (x[col + '_total'] == x[col + '_sum']))
             )
-            pct_bad_math = str(int(
-                (~col_df['compare_totals']).values.sum()
-                / len(col_df)
-                * 100
-            )) + '%'
-            log_output = f'{df_name}: for column {col}, {pct_bad_math} of non-null reported totals ≠ the sum of parts.'
+            bad_math = (~col_df['compare_totals']).values.sum() / len(col_df)
+            logger.info(
+                f"{df_name}: for column {col}, {bad_math:.0%} "
+                "of non-null reported totals ≠ the sum of parts."
+            )
         else:
-            log_output = f'{df_name}: for column {col} all total values are nan'
-        logger.info(log_output)
+            logger.info(f'{df_name}: for column {col} all total values are NaN')
 
 
 ###############################################################################
@@ -935,7 +933,12 @@ def sales(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Sales table.")
     tidy_sales, idx_cols = _tidy_class_dfs(
-        raw_sales, 'Sales', idx_cols, CUSTOMER_CLASSES, 'customer_class')
+        raw_sales,
+        df_name='Sales',
+        idx_cols=idx_cols,
+        class_list=CUSTOMER_CLASSES,
+        class_type='customer_class',
+    )
 
     # remove duplicates on the primary key columns + customer_class -- there
     # are a handful of records, all from 2010-2012, that have reporting errors
@@ -1008,7 +1011,12 @@ def advanced_metering_infrastructure(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Advanced Metering Infrastructure table.")
     tidy_ami, idx_cols = _tidy_class_dfs(
-        raw_ami, 'Advanced Metering Infrastructure', idx_cols, CUSTOMER_CLASSES, 'customer_class')
+        raw_ami,
+        df_name='Advanced Metering Infrastructure',
+        idx_cols=idx_cols,
+        class_list=CUSTOMER_CLASSES,
+        class_type='customer_class',
+    )
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_ami, 'Advanced Metering Infrastructure', idx_cols)
@@ -1047,7 +1055,12 @@ def demand_response(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Demand Response table.")
     tidy_dr, idx_cols = _tidy_class_dfs(
-        raw_dr, 'Demand Response', idx_cols, CUSTOMER_CLASSES, 'customer_class')
+        raw_dr,
+        df_name='Demand Response',
+        idx_cols=idx_cols,
+        class_list=CUSTOMER_CLASSES,
+        class_type='customer_class',
+    )
 
     # shouldn't be duplicates but there are some strange values from IN.
     # thinking this might have to do with DR table weirdness between 2012 and 2013
@@ -1173,7 +1186,12 @@ def dynamic_pricing(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Dynamic Pricing table.")
     tidy_dp, idx_cols = _tidy_class_dfs(
-        raw_dp, 'Dynamic Pricing', idx_cols, CUSTOMER_CLASSES, 'customer_class')
+        raw_dp,
+        df_name='Dynamic Pricing',
+        idx_cols=idx_cols,
+        class_list=CUSTOMER_CLASSES,
+        class_type='customer_class',
+    )
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_dp, 'Dynamic Pricing', idx_cols)
@@ -1223,8 +1241,13 @@ def green_pricing(tfr_dfs):
     ###########################################################################
 
     logger.info("Tidying the EIA 861 Green Pricing table.")
-    tidy_gp, idx_cols = _tidy_class_dfs(raw_gp, 'Green Pricing',
-                                        idx_cols, CUSTOMER_CLASSES, 'customer_class')
+    tidy_gp, idx_cols = _tidy_class_dfs(
+        raw_gp,
+        df_name='Green Pricing',
+        idx_cols=idx_cols,
+        class_list=CUSTOMER_CLASSES,
+        class_type='customer_class',
+    )
 
     _check_for_dupes(tidy_gp, 'Green Pricing', idx_cols)
 
@@ -1324,11 +1347,22 @@ def net_metering(tfr_dfs):
     logger.info("Tidying the EIA 861 Net Metering table.")
     # Normalize by customer class (must be done before normalizing by fuel class)
     tidy_nm, idx_cols = _tidy_class_dfs(
-        raw_nm, 'Net Metering', idx_cols, CUSTOMER_CLASSES, 'customer_class')
+        raw_nm,
+        df_name='Net Metering',
+        idx_cols=idx_cols,
+        class_list=CUSTOMER_CLASSES,
+        class_type='customer_class',
+    )
 
     # Normalize by fuel class
     tidy_nm, idx_cols = _tidy_class_dfs(
-        tidy_nm, 'Net Metering', idx_cols, FUEL_CLASSES, 'fuel_class', keep_totals=True)
+        tidy_nm,
+        df_name='Net Metering',
+        idx_cols=idx_cols,
+        class_list=FUEL_CLASSES,
+        class_type='fuel_class',
+        keep_totals=True,
+    )
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_nm, 'Net Metering', idx_cols)
@@ -1430,13 +1464,13 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "sales_eia861": sales,
         "advanced_metering_infrastructure_eia861": advanced_metering_infrastructure,
         "demand_response_eia861": demand_response,
-        # "demand_side_management_eia861": demand_side_management,
-        # "distributed_generation_eia861": distributed_generation,
         "distribution_systems_eia861": distribution_systems,
         "dynamic_pricing_eia861": dynamic_pricing,
         "green_pricing_eia861": green_pricing,
         "mergers_eia861": mergers,
         "net_metering_eia861": net_metering,
+        # "demand_side_management_eia861": demand_side_management,
+        # "distributed_generation_eia861": distributed_generation,
         # "non_net_metering_eia861": non_net_metering,
         # "operational_data_eia861": operational_data,
         # "reliability_eia861": reliability,
