@@ -507,10 +507,6 @@ def _ba_code_backfill(df):
         .sort_values(["balancing_authority_id_eia", "report_date"])
     )
     ba_ids["ba_code_filled"] = (
-        #    ba_ids.groupby("balancing_authority_id_eia")[
-        #        "balancing_authority_code_eia"]
-        #    .apply(lambda x: x.bfill())
-        # )
         ba_ids.groupby("balancing_authority_id_eia")[
             "balancing_authority_code_eia"].fillna(method="bfill")
     )
@@ -780,6 +776,7 @@ def balancing_authority_assn(tfr_dfs):
         tfr_dfs["demand_response_eia861"],
         tfr_dfs["advanced_metering_infrastructure_eia861"],
         tfr_dfs["dynamic_pricing_eia861"],
+        tfr_dfs["net_metering_eia861"],
     ]
 
     logger.info("Building an EIA 861 BA-Util-State association table.")
@@ -1326,12 +1323,12 @@ def net_metering(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Net Metering table.")
     # Normalize by customer class (must be done before normalizing by fuel class)
-    tidy_nm, idx_cols = _tidy_class_dfs(raw_nm, 'Net Metering',
-                                        idx_cols, CUSTOMER_CLASSES, 'customer_class')
+    tidy_nm, idx_cols = _tidy_class_dfs(
+        raw_nm, 'Net Metering', idx_cols, CUSTOMER_CLASSES, 'customer_class')
 
     # Normalize by fuel class
-    tidy_nm, idx_cols = _tidy_class_dfs(tidy_nm, 'Net Metering',
-                                        idx_cols, FUEL_CLASSES, 'fuel_class', keep_totals=True)
+    tidy_nm, idx_cols = _tidy_class_dfs(
+        tidy_nm, 'Net Metering', idx_cols, FUEL_CLASSES, 'fuel_class', keep_totals=True)
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_nm, 'Net Metering', idx_cols)
