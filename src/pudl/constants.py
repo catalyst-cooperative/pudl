@@ -2708,6 +2708,7 @@ column_dtypes = {
         'owner_utility_id_eia': pd.Int64Dtype(),
         'owner_zip_code': pd.StringDtype(),  # Must preserve leading zeroes.
         # we should transition these into readable codes, not a one letter thing
+        'ownership_code': pd.StringDtype(),
         'pipeline_notes': pd.StringDtype(),
         'planned_derate_date': 'datetime64[ns]',
         'planned_energy_source_code_1': pd.StringDtype(),
