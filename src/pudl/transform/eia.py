@@ -810,7 +810,6 @@ def _restrict_years(df,
 
 def transform(eia_transformed_dfs,
               eia860_years=pc.working_years['eia860'],
-              eia861_years=pc.working_years['eia861'],
               eia923_years=pc.working_years['eia923'],
               debug=False):
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
@@ -827,8 +826,6 @@ def transform(eia_transformed_dfs,
             transformed dataframes (values).
         eia860_years (list): a list of years for EIA 860, must be continuous,
             and only include working years.
-        eia861_years (list): a list of years for EIA 861, must be continuous,
-            and only include working years.
         eia923_years (list): a list of years for EIA 923, must be continuous,
             and include only working years.
         debug (bool): if true, informational columns will be added into
@@ -839,7 +836,7 @@ def transform(eia_transformed_dfs,
         dataframes as values for the entity tables transformed EIA dataframes
 
     """
-    if not eia923_years and not eia860_years and not eia861_years:
+    if not eia923_years and not eia860_years:
         logger.info('Not ingesting EIA')
         return None
     # create the empty entities df to fill up

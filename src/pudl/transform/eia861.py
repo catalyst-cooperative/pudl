@@ -515,8 +515,7 @@ def _ba_code_backfill(df):
     )
     ba_ids["ba_code_filled"] = (
         ba_ids.groupby("balancing_authority_id_eia")[
-            "balancing_authority_code_eia"]
-        .apply(lambda x: x.bfill())
+            "balancing_authority_code_eia"].fillna(method="bfill")
     )
     ba_eia861_filled = df.merge(ba_ids, how="left")
     ba_eia861_filled = (
@@ -574,7 +573,7 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
 
     # Remove the now redundant "Total" records -- they can be reconstructed
     # from the other customer classes.
-    if keep_totals is False:
+    if not keep_totals:
         tidy_df = tidy_df.query(f"{class_type}!='total'")
 
     return tidy_df, idx_cols + [class_type]
@@ -629,10 +628,11 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
     # Drop data cols that are non numeric (preserve primary keys)
     data_cols = (
         data_cols.set_index(idx_cols + [class_type])
-        .select_dtypes('float', 'Int64')
+        .select_dtypes('number')
         .reset_index()
     )
-    # Create list of data columns to be summed (may include non-numeric that will be excluded)
+    # Create list of data columns to be summed
+    # (may include non-numeric that will be excluded)
     data_col_list = set(data_cols.columns.tolist()) - \
         set(idx_cols + [class_type])
     # Distinguish reported totals from segments
@@ -651,15 +651,14 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
                 col_df.assign(
                     compare_totals=lambda x: (x[col + '_total'] == x[col + '_sum']))
             )
-            pct_bad_math = str(int(
-                (~col_df['compare_totals']).values.sum()
-                / len(col_df)
-                * 100
-            )) + '%'
-            log_output = f'{df_name}: for column {col}, {pct_bad_math} of non-null reported totals ≠ the sum of parts.'
+            bad_math = (~col_df['compare_totals']).values.sum() / len(col_df)
+            logger.info(
+                f"{df_name}: for column {col}, {bad_math:.0%} "
+                "of non-null reported totals ≠ the sum of parts."
+            )
         else:
-            log_output = f'{df_name}: for column {col} all total values are nan'
-        print(log_output)
+            logger.info(
+                f'{df_name}: for column {col} all total values are NaN')
 
 
 ###############################################################################
@@ -684,10 +683,8 @@ def service_territory(tfr_dfs):
     # No data tidying required
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
-    type_compatible_df = (
-        tfr_dfs["service_territory_eia861"]
-        .assign(county=lambda x: x.county.astype(str))
-    )
+    type_compatible_df = tfr_dfs["service_territory_eia861"].astype({
+                                                                    "county": str})
     # Transform values:
     # * Add state and county fips IDs
     transformed_df = (
@@ -744,9 +741,6 @@ def balancing_authority(tfr_dfs):
         "balancing_authority_code_eia"
     ] = "TIDC"
 
-    df = pudl.helpers.convert_cols_dtypes(
-        df, "eia", "balancing_authority_eia861")
-
     tfr_dfs["balancing_authority_eia861"] = df
     return tfr_dfs
 
@@ -790,82 +784,109 @@ def balancing_authority_assn(tfr_dfs):
         tfr_dfs["demand_response_eia861"],
         tfr_dfs["advanced_metering_infrastructure_eia861"],
         tfr_dfs["dynamic_pricing_eia861"],
+        tfr_dfs["net_metering_eia861"],
     ]
 
     logger.info("Building an EIA 861 BA-Util-State association table.")
 
-    old_date_ba_util = (
-        tfr_dfs["balancing_authority_eia861"]
-        .query("report_date<='2012-12-31'")
-        .loc[:, [
-            "report_date",
-            "balancing_authority_id_eia",
-            "utility_id_eia",
-        ]]
-        .dropna()
+    # Helpful shorthand query strings....
+    early_years = "report_date<='2012-12-31'"
+    late_years = "report_date>='2013-01-01'"
+    early_dfs = [df.query(early_years) for df in other_dfs]
+    late_dfs = [df.query(late_years) for df in other_dfs]
+
+    # The old BA table lists utilities directly, but has no state information.
+    early_date_ba_util = _harvest_associations(
+        dfs=[tfr_dfs["balancing_authority_eia861"].query(early_years), ],
+        cols=["report_date",
+              "balancing_authority_id_eia",
+              "utility_id_eia"],
+    )
+    # State-utility associations are brought in from observations in other_dfs
+    early_date_util_state = _harvest_associations(
+        dfs=early_dfs,
+        cols=["report_date",
+              "utility_id_eia",
+              "state"],
+    )
+    early_date_ba_util_state = (
+        early_date_ba_util
+        .merge(early_date_util_state, how="outer")
         .drop_duplicates()
     )
 
-    old_date_util_state = pd.DataFrame()
-    for df in other_dfs:
-        tmp_df = (
-            df.query("report_date<='2012-12-31'")
-            .loc[:, [
-                "report_date",
-                "utility_id_eia",
-                "state",
-            ]]
-            .dropna()
-            .drop_duplicates()
-        )
-        old_date_util_state = (
-            pd.concat([old_date_util_state, tmp_df])
-            .drop_duplicates()
-        )
-    old_date_ba_util_state = pd.merge(
-        old_date_ba_util, old_date_util_state, how="outer")
-
-    new_ba_code_id = (
-        tfr_dfs["balancing_authority_eia861"]
-        .query("report_date>='2013-01-01'")
-        .loc[:, [
-            "report_date",
-            "balancing_authority_code_eia",
-            "balancing_authority_id_eia",
-        ]]
-        .dropna()
-        .drop_duplicates()
+    # New BA table has no utility information, but has BA Codes...
+    late_ba_code_id = _harvest_associations(
+        dfs=[tfr_dfs["balancing_authority_eia861"].query(late_years), ],
+        cols=["report_date",
+              "balancing_authority_code_eia",
+              "balancing_authority_id_eia"],
     )
-    new_date_ba_code_util_state = pd.DataFrame()
-    for df in other_dfs:
-        tmp_df = (
-            df.query("report_date>='2013-01-01'")
-            .loc[:, [
-                "report_date",
-                "balancing_authority_code_eia",
-                "utility_id_eia",
-                "state",
-            ]]
-            .dropna()
-            .drop_duplicates()
-        )
-        new_date_ba_code_util_state = (
-            pd.concat([new_date_ba_code_util_state, tmp_df])
-            .drop_duplicates()
-        )
-    new_date_ba_util_state = (
-        new_date_ba_code_util_state
-        .merge(new_ba_code_id, how="outer")
+    # BA Code allows us to bring in utility+state data from other_dfs:
+    late_date_ba_code_util_state = _harvest_associations(
+        dfs=late_dfs,
+        cols=["report_date",
+              "balancing_authority_code_eia",
+              "utility_id_eia",
+              "state"],
+    )
+    # We merge on ba_code then drop it, b/c only BA ID exists in all years consistently:
+    late_date_ba_util_state = (
+        late_date_ba_code_util_state
+        .merge(late_ba_code_id, how="outer")
         .drop("balancing_authority_code_eia", axis="columns")
         .drop_duplicates()
     )
+
     tfr_dfs["balancing_authority_assn_eia861"] = (
-        pd.concat([old_date_ba_util_state, new_date_ba_util_state])
+        pd.concat([early_date_ba_util_state, late_date_ba_util_state])
         .dropna(subset=["balancing_authority_id_eia", ])
         .astype({"utility_id_eia": pd.Int64Dtype()})
     )
+    return tfr_dfs
 
-    # Finish the normalization of the BA table:
+
+def _harvest_associations(dfs, cols):
+    """
+    Compile all unique, non-null combinations of some columns in some dataframes.
+
+    Find all unique, non-null combinations of the columns ``cols`` in the dataframes
+    ``dfs`` within records that are selected by ``query``. All of ``cols`` must be
+    present in each of the ``dfs``.
+
+    Args:
+        dfs (iterable of pandas.DataFrame): The DataFrames in which to search for
+            unique associations.
+        cols (iterable of str): Labels of columns for which to find unique, non-null
+            combinations of values.
+
+    Returns:
+        pandas.DataFrame: A dataframe containing all the unique, non-null combinations
+        of values found in ``cols``.
+
+    """
+    for df in dfs:
+        for col in cols:
+            if col not in df.columns:
+                raise ValueError(
+                    f"Column {col} not found in dataframe for association harvesting."
+                    "All columns must be present in all dataframes."
+                )
+    return pd.concat([df[cols] for df in dfs]).dropna().drop_duplicates()
+
+
+def normalize_balancing_authority(tfr_dfs):
+    """
+    Finish the normalization of the balancing_authority_eia861 table.
+
+    The balancing_authority_assn_eia861 table depends on information that is only
+    available in the UN-normalized form of the balancing_authority_eia861 table, so
+    and also on having access to a bunch of transformed data tables, so it can compile
+    the observed combinations of report dates, balancing authorities, states, and
+    utilities. This means that we have to hold off on the final normalization of the
+    balancing_authority_eia861 table until the rest of the transform process is over.
+
+    """
     logger.info("Completing normalization of balancing_authority_eia861.")
     ba_eia861_normed = (
         tfr_dfs["balancing_authority_eia861"]
@@ -922,7 +943,12 @@ def sales(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Sales table.")
     tidy_sales, idx_cols = _tidy_class_dfs(
-        raw_sales, 'Sales', idx_cols, CUSTOMER_CLASSES, 'customer_class')
+        raw_sales,
+        df_name='Sales',
+        idx_cols=idx_cols,
+        class_list=CUSTOMER_CLASSES,
+        class_type='customer_class',
+    )
 
     # remove duplicates on the primary key columns + customer_class -- there
     # are a handful of records, all from 2010-2012, that have reporting errors
@@ -991,7 +1017,12 @@ def advanced_metering_infrastructure(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Advanced Metering Infrastructure table.")
     tidy_ami, idx_cols = _tidy_class_dfs(
-        raw_ami, 'Advanced Metering Infrastructure', idx_cols, CUSTOMER_CLASSES, 'customer_class')
+        raw_ami,
+        df_name='Advanced Metering Infrastructure',
+        idx_cols=idx_cols,
+        class_list=CUSTOMER_CLASSES,
+        class_type='customer_class',
+    )
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_ami, 'Advanced Metering Infrastructure', idx_cols)
@@ -1027,7 +1058,12 @@ def demand_response(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Demand Response table.")
     tidy_dr, idx_cols = _tidy_class_dfs(
-        raw_dr, 'Demand Response', idx_cols, CUSTOMER_CLASSES, 'customer_class')
+        raw_dr,
+        df_name='Demand Response',
+        idx_cols=idx_cols,
+        class_list=CUSTOMER_CLASSES,
+        class_type='customer_class',
+    )
 
     # shouldn't be duplicates but there are some strange values from IN.
     # thinking this might have to do with DR table weirdness between 2012 and 2013
@@ -1142,7 +1178,12 @@ def dynamic_pricing(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Dynamic Pricing table.")
     tidy_dp, idx_cols = _tidy_class_dfs(
-        raw_dp, 'Dynamic Pricing', idx_cols, CUSTOMER_CLASSES, 'customer_class')
+        raw_dp,
+        df_name='Dynamic Pricing',
+        idx_cols=idx_cols,
+        class_list=CUSTOMER_CLASSES,
+        class_type='customer_class',
+    )
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_dp, 'Dynamic Pricing', idx_cols)
@@ -1189,8 +1230,13 @@ def green_pricing(tfr_dfs):
     ###########################################################################
 
     logger.info("Tidying the EIA 861 Green Pricing table.")
-    tidy_gp, idx_cols = _tidy_class_dfs(raw_gp, 'Green Pricing',
-                                        idx_cols, CUSTOMER_CLASSES, 'customer_class')
+    tidy_gp, idx_cols = _tidy_class_dfs(
+        raw_gp,
+        df_name='Green Pricing',
+        idx_cols=idx_cols,
+        class_list=CUSTOMER_CLASSES,
+        class_type='customer_class',
+    )
 
     _check_for_dupes(tidy_gp, 'Green Pricing', idx_cols)
 
@@ -1278,12 +1324,23 @@ def net_metering(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Net Metering table.")
     # Normalize by customer class (must be done before normalizing by fuel class)
-    tidy_nm, idx_cols = _tidy_class_dfs(raw_nm, 'Net Metering',
-                                        idx_cols, CUSTOMER_CLASSES, 'customer_class')
+    tidy_nm, idx_cols = _tidy_class_dfs(
+        raw_nm,
+        df_name='Net Metering',
+        idx_cols=idx_cols,
+        class_list=CUSTOMER_CLASSES,
+        class_type='customer_class',
+    )
 
     # Normalize by fuel class
-    tidy_nm, idx_cols = _tidy_class_dfs(tidy_nm, 'Net Metering',
-                                        idx_cols, TECH_CLASSES, 'tech_class', keep_totals=True)
+    tidy_nm, idx_cols = _tidy_class_dfs(
+        tidy_nm,
+        df_name='Net Metering',
+        idx_cols=idx_cols,
+        class_list=TECH_CLASSES,
+        class_type='tech_class',
+        keep_totals=True,
+    )
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_nm, 'Net Metering', idx_cols)
@@ -1419,8 +1476,6 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "sales_eia861": sales,
         "advanced_metering_infrastructure_eia861": advanced_metering_infrastructure,
         "demand_response_eia861": demand_response,
-        # "demand_side_management_eia861": demand_side_management,
-        # "distributed_generation_eia861": distributed_generation,
         "distribution_systems_eia861": distribution_systems,
         "dynamic_pricing_eia861": dynamic_pricing,
         "green_pricing_eia861": green_pricing,
@@ -1428,6 +1483,8 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "net_metering_eia861": net_metering,
         "non_net_metering_eia861": non_net_metering,
         # "operational_data_eia861": operational_data,
+        # "demand_side_management_eia861": demand_side_management,
+        # "distributed_generation_eia861": distributed_generation,
         # "reliability_eia861": reliability,
         # "utility_data_eia861": utility_data,
     }
@@ -1439,15 +1496,16 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         return tfr_dfs
     # for each of the tables, run the respective transform funtction
     for table in eia861_tables:
+        if table not in tfr_funcs.keys():
+            raise ValueError(f"Unrecognized EIA 861 table: {table}")
         logger.info(f"Transforming raw EIA 861 DataFrames for {table} "
                     f"concatenated across all years.")
-        # ADD some sort of customer message here / check across multiple sources
-        assert table in tfr_funcs.keys()
         tfr_dfs[table] = _early_transform(raw_dfs[table])
         tfr_dfs = tfr_funcs[table](tfr_dfs)
 
     # This is more like harvesting stuff, and should probably be relocated:
     tfr_dfs = balancing_authority_assn(tfr_dfs)
+    tfr_dfs = normalize_balancing_authority(tfr_dfs)
     tfr_dfs = pudl.helpers.convert_dfs_dict_dtypes(tfr_dfs, 'eia')
 
     return tfr_dfs

@@ -178,8 +178,7 @@ def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
         names from EIA 860.
 
     """
-    # Contains the one-to-one mapping of EIA plants to their operators, but
-    # we only have the 860 data integrated for 2011 forward right now.
+    # Contains the one-to-one mapping of EIA plants to their operators
     plants_eia = (
         plants_eia860(pudl_engine, start_date=start_date, end_date=end_date)
         .drop(['utility_id_pudl', 'city', 'state',  # Avoid dupes in merge

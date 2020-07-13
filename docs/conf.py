@@ -50,6 +50,7 @@ issues_github_path = "catalyst-cooperative/pudl"
 intersphinx_mapping = {
     'arrow': ('https://arrow.apache.org/docs/', None),
     'dask': ('https://docs.dask.org/en/latest/', None),
+    'geopandas': ('https://geopandas.org/', None),
     'networkx': ('https://networkx.github.io/documentation/stable/', None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None),

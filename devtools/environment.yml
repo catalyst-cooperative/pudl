@@ -6,15 +6,17 @@ dependencies:
   - autopep8            # dev
   - bandit              # dev
   - coloredlogs         # base
+  - contextily          # base (OSM basemap) TODO: Is this needed?
   - coverage            # dev
   - dask                # user
+  - dask-labextension   # user (allows dask control within JupyterLab)
   - datapackage>=1.11.0 # base We depend on features introduced in v1.9.0
   - doc8                # dev
   - flake8              # dev
   - flake8-colors       # dev
   - flake8-docstrings   # dev
   - flake8-builtins     # dev
-  - geopandas           # dev for now
+  - geopandas>=0.8.0    # base
   - goodtables>=2.4.2   # base
   - ipdb                # dev
   - isort>=5.0          # dev
@@ -32,15 +34,15 @@ dependencies:
   - pdbpp               # dev
   - pep8-naming         # dev
   - pip                 # N/A
-  - pip:                # N/A
-        - git+https://github.com/catalyst-cooperative/dbfread/
   - pre_commit          # dev
   - pyarrow>=0.16       # base Nullable pandas types work w/ 0.16 and later
   - pydocstyle          # dev
+  - pygeos              # user (speeds up geopandas operations)
   - pysal               # user (required for making maps w/ geopandas)
   - pytest              # dev
   - pytest-cov          # dev
   - python>=3.8         # N/A zipfile.Path() use requires 3.8
+  - python-graphviz     # user (for use with dask)
   - python-snappy       # base
   - pyyaml              # base
   - seaborn             # dev
@@ -55,9 +57,11 @@ dependencies:
   - tableschema-sql>=1.1.0 # base
   - timezonefinder      # base
   - tox                 # dev
+  - tqdm                # base TODO: find usage. Does it need to be in base?
   - twine               # dev
   - xlsxwriter          # base
   - pip:
     - addfips
-    - recordlinkage # dev for now... base if it ends up in ETL
-    - fredapi
+    - git+https://github.com/catalyst-cooperative/dbfread/
+    - recordlinkage     # dev for now... base if it ends up in ETL
+    - fredapi           # dev

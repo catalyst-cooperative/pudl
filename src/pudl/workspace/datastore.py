@@ -47,7 +47,9 @@ class Datastore:
         Datastore manages file retrieval for PUDL datasets.
 
         It pulls files from Zenodo archives as needed, and caches them
-        locally.
+        locally. If the environment variable PUDL_IN is set, the datastore
+        is assumed to be in PUDL_IN / data. Otherwise PUDL_IN is read
+        from the user's ~/.pudl.yml settings file.
 
         Args:
             loglevel: str, logging level
