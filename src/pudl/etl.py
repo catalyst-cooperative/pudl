@@ -188,8 +188,6 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     eia_inputs = _validate_params_eia(etl_params)
     eia860_tables = eia_inputs["eia860_tables"]
     eia860_years = eia_inputs["eia860_years"]
-    # eia861_tables = eia_inputs["eia861_tables"]
-    # eia861_years = eia_inputs["eia861_years"]
     eia923_tables = eia_inputs["eia923_tables"]
     eia923_years = eia_inputs["eia923_years"]
 
@@ -209,8 +207,6 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
         eia923_years, testing=testing)
     eia860_raw_dfs = pudl.extract.eia860.Extractor().extract(
         eia860_years, testing=testing)
-    # eia861_raw_dfs = pudl.extract.eia861.Extractor().extract(
-    # eia861_years, testing=testing)
 
     # Transform EIA forms 923, 860
     eia860_transformed_dfs = pudl.transform.eia860.transform(
