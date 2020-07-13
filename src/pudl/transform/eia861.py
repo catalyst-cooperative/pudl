@@ -651,10 +651,10 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
                 col_df.assign(
                     compare_totals=lambda x: (x[col + '_total'] == x[col + '_sum']))
             )
-            bad_math = (~col_df['compare_totals']).values.sum() / len(col_df)
+            bad_math = (col_df['compare_totals']).sum() / len(col_df)
             logger.info(
                 f"{df_name}: for column {col}, {bad_math:.0%} "
-                "of non-null reported totals ≠ the sum of parts."
+                "of non-null reported totals = the sum of parts."
             )
         else:
             logger.info(
@@ -1379,12 +1379,24 @@ def non_net_metering(tfr_dfs):
     ###########################################################################
 
     # Normalize by customer class (must be done before normalizing by fuel class)
-    tidy_nnm, idx_cols = _tidy_class_dfs(raw_nnm, 'Non Net Metering',
-                                         idx_cols, CUSTOMER_CLASSES, 'customer_class', keep_totals=True)
+    tidy_nnm, idx_cols = _tidy_class_dfs(
+        raw_nnm,
+        df_name='Non Net Metering',
+        idx_cols=idx_cols,
+        class_list=CUSTOMER_CLASSES,
+        class_type='customer_class',
+        keep_totals=True
+    )
 
     # Normalize by fuel class
-    tidy_nnm, idx_cols = _tidy_class_dfs(tidy_nnm, 'Non Net Metering',
-                                         idx_cols, TECH_CLASSES, 'tech_class', keep_totals=True)
+    tidy_nnm, idx_cols = _tidy_class_dfs(
+        tidy_nnm,
+        df_name='Non Net Metering',
+        idx_cols=idx_cols,
+        class_list=TECH_CLASSES,
+        class_type='tech_class',
+        keep_totals=True
+    )
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_nnm, 'Non Net Metering', idx_cols)
