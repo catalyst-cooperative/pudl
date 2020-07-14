@@ -1849,16 +1849,6 @@ transport_modes_eia923 = {
 # entity or annual tables. The order here matters. We need to harvest the plant
 # location before harvesting the location of the utilites for example.
 entities = {
-    'balancing_authorities': [
-        # base cols
-        ['balancing_authority_id_eia'],
-        # static cols
-        ['balancing_authority_code_eia', 'balancing_authority_name_eia'],
-        # annual cols
-        [],
-        # need type fixing
-        {},
-    ],
     'plants': [
         # base cols
         ['plant_id_eia'],
@@ -2187,6 +2177,7 @@ data_sources = (
     'epacems',
     'epaipm',
     'ferc1',
+    'ferc714',
     # 'pudl'
 )
 """tuple: A tuple containing the data sources we are able to pull into PUDL."""
@@ -2209,7 +2200,7 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 # The full set of years we currently expect to be able to ingest, per source:
 working_years = {
     'eia860': tuple(range(2009, 2019)),
-    'eia861': tuple(range(2010, 2019)),
+    'eia861': tuple(range(2001, 2019)),
     'eia923': tuple(range(2009, 2019)),
     'epacems': tuple(range(1995, 2019)),
     'epaipm': (None, ),
@@ -2721,6 +2712,7 @@ column_dtypes = {
         'owner_utility_id_eia': pd.Int64Dtype(),
         'owner_zip_code': pd.StringDtype(),  # Must preserve leading zeroes.
         # we should transition these into readable codes, not a one letter thing
+        'ownership_code': pd.StringDtype(),
         'pipeline_notes': pd.StringDtype(),
         'planned_derate_date': 'datetime64[ns]',
         'planned_energy_source_code_1': pd.StringDtype(),

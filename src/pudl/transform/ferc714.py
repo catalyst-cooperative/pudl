@@ -72,6 +72,7 @@ OFFSET_CODE_FIXES = {
         "E": "EST",
         "XXX": "EST",
     },
+    182: {"PPT": "PDT"},  # Imperial Irrigation District P looks like D
     186: {"EAS": "EST"},
     189: {"CPT": "CST"},
     190: {"CPT": "CST"},
@@ -666,7 +667,7 @@ def demand_forecast_pa(tfr_dfs):
     return tfr_dfs
 
 
-def _pre_transform(raw_df):
+def _early_transform(raw_df):
     """
     A simple transform function for until the real ones are written.
 
@@ -728,7 +729,7 @@ def transform(raw_dfs, tables=pc.pudl_tables["ferc714"]):
         tfr_dfs[table] = (
             raw_dfs[table]
             .rename(columns=RENAME_COLS[table])
-            .pipe(_pre_transform)
+            .pipe(_early_transform)
         )
         tfr_dfs = tfr_funcs[table](tfr_dfs)
         tfr_dfs[table] = (
