@@ -2220,11 +2220,17 @@ pudl_tables = {
         "sales_eia861",
         "advanced_metering_infrastructure_eia861",
         "demand_response_eia861",
+        # "demand_side_management_eia861",
+        # "distributed_generation_eia861",
         "distribution_systems_eia861",
         "dynamic_pricing_eia861",
         "green_pricing_eia861",
         "mergers_eia861",
         "net_metering_eia861",
+        "non_net_metering_eia861",
+        # "operational_data_eia861",
+        # "reliability_eia861",
+        # "utility_data_eia861"
     ),
     'eia923': eia923_pudl_tables,
     'epacems': epacems_tables,
@@ -2601,7 +2607,7 @@ column_dtypes = {
         'customers': pd.Int64Dtype(),  # Used by AES for NM table
         'customer_class': pd.CategoricalDtype(categories=[
             "residential", "commercial", "industrial", "transportation",
-            "other", "total",
+            "dircnct", "other", "total",
         ]),
         'customer_incentives_cost': float,  # Added by AES for DR table
         'daily_digital_access_customers': float,  # Added by AES for AMI table
@@ -2631,8 +2637,6 @@ column_dtypes = {
         'ferc_small_power_producer_docket_no': pd.StringDtype(),
         'fluidized_bed_tech': pd.BooleanDtype(),
         'fraction_owned': float,
-        # Added by AES for NM table (might want to consider merging with another fuel label)
-        'fuel_class': pd.CategoricalDtype(categories=['pv', 'wind', 'chpcogen', 'other', 'total']),
         'fuel_consumed_for_electricity_mmbtu': float,
         'fuel_consumed_for_electricity_units': float,
         'fuel_consumed_mmbtu': float,
@@ -2772,6 +2776,10 @@ column_dtypes = {
         'supplier_name': pd.StringDtype(),
         'switch_oil_gas': pd.BooleanDtype(),
         'syncronized_transmission_grid': pd.BooleanDtype(),
+        # Added by AES for NM table (might want to consider merging with another fuel label)
+        'tech_class': pd.CategoricalDtype(
+            categories=['pv', 'wind', 'chpcogen', 'other', 'combturb',
+                        'fcell', 'hydro', 'ice', 'steam', 'storage', 'total']),
         'technology_description': pd.StringDtype(),
         'time_cold_shutdown_full_load_code': pd.StringDtype(),
         'time_of_use_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table

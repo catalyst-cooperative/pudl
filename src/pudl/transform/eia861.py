@@ -448,6 +448,7 @@ BA_NAME_FIXES = pd.DataFrame([
 
 CUSTOMER_CLASSES = [
     "commercial",
+    "dircnct",  # previously direct_connection
     "industrial",
     "other",
     "residential",
@@ -455,10 +456,16 @@ CUSTOMER_CLASSES = [
     "transportation"
 ]
 
-FUEL_CLASSES = [
+TECH_CLASSES = [
     'pv',
     'wind',
-    'chpcogen',
+    'chpcogen',  # previously chp_cogen
+    'combturb',  # previously combustion_turbine
+    'fcell',  # previously fuell_cell
+    'hydro',
+    'ice',  # previously internal_combustion
+    'steam',
+    'storage',
     'other',
     'total'
 ]
@@ -612,7 +619,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
             normalized information.
         idx_cols (list): A list of the primary keys for the given denormalized
             DataFrame.
-        class_type (str): The name (either 'customer_class' or 'fuel_class') of
+        class_type (str): The name (either 'customer_class' or 'tech_class') of
             the column for which you'd like to compare totals to components.
         df_name (str): The name of the dataframe.
     """
@@ -626,7 +633,8 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
     )
     # Create list of data columns to be summed
     # (may include non-numeric that will be excluded)
-    data_col_list = set(data_cols.columns.tolist()) - set(idx_cols + [class_type])
+    data_col_list = set(data_cols.columns.tolist()) - \
+        set(idx_cols + [class_type])
     # Distinguish reported totals from segments
     data_totals_df = data_cols.loc[data_cols[class_type] == 'total']
     data_no_tots_df = data_cols.loc[data_cols[class_type] != 'total']
@@ -643,13 +651,14 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
                 col_df.assign(
                     compare_totals=lambda x: (x[col + '_total'] == x[col + '_sum']))
             )
-            bad_math = (~col_df['compare_totals']).values.sum() / len(col_df)
+            bad_math = (col_df['compare_totals']).sum() / len(col_df)
             logger.info(
                 f"{df_name}: for column {col}, {bad_math:.0%} "
-                "of non-null reported totals ≠ the sum of parts."
+                "of non-null reported totals = the sum of parts."
             )
         else:
-            logger.info(f'{df_name}: for column {col} all total values are NaN')
+            logger.info(
+                f'{df_name}: for column {col} all total values are NaN')
 
 
 ###############################################################################
@@ -674,7 +683,8 @@ def service_territory(tfr_dfs):
     # No data tidying required
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
-    type_compatible_df = tfr_dfs["service_territory_eia861"].astype({"county": str})
+    type_compatible_df = tfr_dfs["service_territory_eia861"].astype({
+                                                                    "county": str})
     # Transform values:
     # * Add state and county fips IDs
     transformed_df = (
@@ -976,10 +986,6 @@ def sales(tfr_dfs):
         )
     )
 
-    # Organize col headers for output
-    transformed_sales = pudl.helpers.organize_cols(
-        transformed_sales, idx_cols + ['utility_name_eia', 'customer_class'])
-
     tfr_dfs["sales_eia861"] = transformed_sales
     return tfr_dfs
 
@@ -1020,9 +1026,6 @@ def advanced_metering_infrastructure(tfr_dfs):
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_ami, 'Advanced Metering Infrastructure', idx_cols)
-
-    # Organize col headers for output
-    tidy_ami = pudl.helpers.organize_cols(tidy_ami, idx_cols)
 
     tfr_dfs["advanced_metering_infrastructure_eia861"] = tidy_ami
     return tfr_dfs
@@ -1080,9 +1083,6 @@ def demand_response(tfr_dfs):
         )
     )
 
-    # Organize col headers for output
-    transformed_dr = pudl.helpers.organize_cols(transformed_dr, idx_cols)
-
     tfr_dfs["demand_response_eia861"] = transformed_dr
     return tfr_dfs
 
@@ -1138,14 +1138,6 @@ def distribution_systems(tfr_dfs):
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(raw_ds, 'Distribution Systems', [
                      "utility_id_eia", "state", "report_date"])
-
-    # Organize col headers for output
-    raw_ds = (
-        pudl.helpers.organize_cols(
-            raw_ds, ['utility_id_eia', 'utility_name_eia',
-                     'state', 'report_date']
-        )
-    )
 
     tfr_dfs["distribution_systems_eia861"] = raw_ds
     return tfr_dfs
@@ -1209,9 +1201,6 @@ def dynamic_pricing(tfr_dfs):
             .apply(lambda x: x if x in [True, False] else pd.NA)
         )
 
-    # Organize col headers for output
-    tidy_dp = pudl.helpers.organize_cols(tidy_dp, idx_cols)
-
     tfr_dfs["dynamic_pricing_eia861"] = tidy_dp
     return tfr_dfs
 
@@ -1264,9 +1253,6 @@ def green_pricing(tfr_dfs):
         )
     )
 
-    # Organize col headers for output
-    transformed_gp = pudl.helpers.organize_cols(transformed_gp, idx_cols)
-
     tfr_dfs["green_pricing_eia861"] = transformed_gp
 
     return tfr_dfs
@@ -1306,14 +1292,6 @@ def mergers(tfr_dfs):
     _check_for_dupes(transformed_mergers, 'Mergers', [
                      "utility_id_eia", "state", "report_date"])
 
-    # Organize col headers for output
-    transformed_mergers = (
-        pudl.helpers.organize_cols(
-            transformed_mergers, ['utility_id_eia', 'utility_name_eia',
-                                  'state', 'report_date']
-        )
-    )
-
     tfr_dfs["mergers_eia861"] = transformed_mergers
     return tfr_dfs
 
@@ -1333,8 +1311,8 @@ def net_metering(tfr_dfs):
     idx_cols = [
         'utility_id_eia',
         'state',
+        'balancing_authority_code_eia',
         'report_date',
-        'balancing_authority_code_eia'
     ]
 
     # Pre-tidy clean specific to sales table
@@ -1359,8 +1337,8 @@ def net_metering(tfr_dfs):
         tidy_nm,
         df_name='Net Metering',
         idx_cols=idx_cols,
-        class_list=FUEL_CLASSES,
-        class_type='fuel_class',
+        class_list=TECH_CLASSES,
+        class_type='tech_class',
         keep_totals=True,
     )
 
@@ -1368,9 +1346,6 @@ def net_metering(tfr_dfs):
     _check_for_dupes(tidy_nm, 'Net Metering', idx_cols)
 
     # No transformation needed
-
-    # Organize col headers for output
-    tidy_nm = pudl.helpers.organize_cols(tidy_nm, idx_cols)
 
     tfr_dfs["net_metering_eia861"] = tidy_nm
 
@@ -1389,6 +1364,55 @@ def non_net_metering(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    idx_cols = [
+        'utility_id_eia',
+        'state',
+        'balancing_authority_code_eia',
+        'report_date',
+    ]
+
+    # Pre-tidy clean specific to sales table
+    raw_nnm = tfr_dfs["non_net_metering_eia861"].copy()
+
+    ###########################################################################
+    # Tidy Data:
+    ###########################################################################
+
+    # Normalize by customer class (must be done before normalizing by fuel class)
+    tidy_nnm, idx_cols = _tidy_class_dfs(
+        raw_nnm,
+        df_name='Non Net Metering',
+        idx_cols=idx_cols,
+        class_list=CUSTOMER_CLASSES,
+        class_type='customer_class',
+        keep_totals=True
+    )
+
+    # Normalize by fuel class
+    tidy_nnm, idx_cols = _tidy_class_dfs(
+        tidy_nnm,
+        df_name='Non Net Metering',
+        idx_cols=idx_cols,
+        class_list=TECH_CLASSES,
+        class_type='tech_class',
+        keep_totals=True
+    )
+
+    # No duplicates to speak of but take measures to check just in case
+    _check_for_dupes(tidy_nnm, 'Non Net Metering', idx_cols)
+
+    # Delete total_capacity_mw col for redundancy (it doesn't matter which one)
+    tidy_nnm = (
+        tidy_nnm.drop(columns='capacity_mw_y')
+        .rename(columns={'capacity_mw_x': 'capacity_mw'})
+    )
+
+    # No transformation needed
+
+    tfr_dfs["non_net_metering_eia861"] = tidy_nnm
+
+    logger.info("Tidying the EIA 861 Non Net Metering table.")
+
     return tfr_dfs
 
 
@@ -1469,10 +1493,10 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "green_pricing_eia861": green_pricing,
         "mergers_eia861": mergers,
         "net_metering_eia861": net_metering,
+        "non_net_metering_eia861": non_net_metering,
+        # "operational_data_eia861": operational_data,
         # "demand_side_management_eia861": demand_side_management,
         # "distributed_generation_eia861": distributed_generation,
-        # "non_net_metering_eia861": non_net_metering,
-        # "operational_data_eia861": operational_data,
         # "reliability_eia861": reliability,
         # "utility_data_eia861": utility_data,
     }
