@@ -404,18 +404,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
             "utility_id_eia": int
         })
         .assign(
-            entity_type=lambda x: x.entity_type.replace({
-                "C": "Cooperative",
-                "F": "Federal",
-                "I": "Investor Owned",
-                "M": "Municipal",
-                "P": "Political Subdivision",
-                "S": "State",
-                # Not in EIA 861:
-                "Q": "Independent Power Producer",
-                "IND": "Industrial",
-                "COM": "Commercial",
-            })
+            entity_type=lambda x: x.entity_type.map(pc.ENTITY_TYPE_DICT)
         )
         .pipe(pudl.helpers.convert_to_date)
     )

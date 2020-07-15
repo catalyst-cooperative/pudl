@@ -16,6 +16,7 @@ from functools import partial
 import addfips
 import numpy as np
 import pandas as pd
+import requests
 import sqlalchemy as sa
 import timezonefinder
 from sqlalchemy.engine import reflection
@@ -34,6 +35,36 @@ sum_na = partial(pd.Series.sum, skipna=False)
 # them open for efficiency. I want to avoid doing that for every call to find
 # the timezone, so this is global.
 tz_finder = timezonefinder.TimezoneFinder()
+
+
+def download_zip_url(url, save_path, chunk_size=128):
+    """
+    Download and save a Zipfile locally.
+
+    Useful for acquiring and storing non-PUDL data locally.
+
+    Args:
+        url (str): The URL from which to download the Zipfile
+        save_path (pathlib.Path): The location to save the file.
+        chunk_size (int): Data chunk in bytes to use while downloading.
+
+    Returns:
+        None
+
+    """
+    # This is a temporary hack to avoid being filtered as a bot:
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:77.0) Gecko/20100101 Firefox/77.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'DNT': '1',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+    }
+    r = requests.get(url, stream=True, headers=headers)
+    with save_path.open(mode='wb') as fd:
+        for chunk in r.iter_content(chunk_size=chunk_size):
+            fd.write(chunk)
 
 
 def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
@@ -117,15 +148,16 @@ def oob_to_nan(df, cols, lb=None, ub=None):
         pandas.DataFrame: The altered DataFrame.
 
     """
+    out_df = df.copy()
     for col in cols:
         # Force column to be numeric if possible, NaN otherwise:
-        df.loc[:, col] = pd.to_numeric(df[col], errors="coerce")
+        out_df.loc[:, col] = pd.to_numeric(out_df[col], errors="coerce")
         if lb is not None:
-            df.loc[df[col] < lb, col] = np.nan
+            out_df.loc[out_df[col] < lb, col] = np.nan
         if ub is not None:
-            df.loc[df[col] > ub, col] = np.nan
+            out_df.loc[out_df[col] > ub, col] = np.nan
 
-    return df
+    return out_df
 
 
 def prep_dir(dir_path, clobber=False):
@@ -1009,7 +1041,7 @@ def count_records(df, cols, new_count_col_name):
         cols (iterable) : list of columns to group and count by.
         new_count_col_name (string) : the name that will be assigned to the
             column that will contain the count.
-    Retruns:
+    Returns:
         pandas.DataFrame: dataframe with only the `cols` definted and the
         `new_count_col_name`.
     """
@@ -1037,3 +1069,25 @@ def cleanstrings_snake(df, cols):
             str.replace(r'\s+', '_')
         )
     return df
+
+
+def zero_pad_zips(zip_series, n_digits):
+    """
+    Retain prefix zeros in zipcodes.
+
+    Args:
+        zip_series (pd.Series) : series containing the zipcode values.
+        n_digits(int) : zipcode length (likely 4 or 5 digits).
+    Returns:
+        pd.Series: a series containing zipcodes with their prefix zeros intact and invalid zipcodes rendered as na.
+    """
+    # Add preceeding zeros where necessary and get rid of decimal zeros
+    zip_series = (
+        pd.to_numeric(zip_series)  # Make sure it's all numerical values
+        .astype(pd.Int64Dtype())  # Make it a (nullable) Integer
+        .fillna(0)  # fill the NA
+        .astype(str).str.zfill(n_digits)  # Make it a string and zero pad it.
+        .astype(pd.StringDtype())  # Make it nullable
+        .replace({n_digits * "0": pd.NA})  # All-zero Zip codes aren't valid.
+    )
+    return zip_series

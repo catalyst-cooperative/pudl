@@ -1849,16 +1849,6 @@ transport_modes_eia923 = {
 # entity or annual tables. The order here matters. We need to harvest the plant
 # location before harvesting the location of the utilites for example.
 entities = {
-    'balancing_authorities': [
-        # base cols
-        ['balancing_authority_id_eia'],
-        # static cols
-        ['balancing_authority_code_eia', 'balancing_authority_name_eia'],
-        # annual cols
-        [],
-        # need type fixing
-        {},
-    ],
     'plants': [
         # base cols
         ['plant_id_eia'],
@@ -2187,6 +2177,7 @@ data_sources = (
     'epacems',
     'epaipm',
     'ferc1',
+    'ferc714',
     # 'pudl'
 )
 """tuple: A tuple containing the data sources we are able to pull into PUDL."""
@@ -2209,7 +2200,7 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 # The full set of years we currently expect to be able to ingest, per source:
 working_years = {
     'eia860': tuple(range(2009, 2019)),
-    'eia861': tuple(range(2010, 2019)),
+    'eia861': tuple(range(2001, 2019)),
     'eia923': tuple(range(2009, 2019)),
     'epacems': tuple(range(1995, 2019)),
     'epaipm': (None, ),
@@ -2227,7 +2218,19 @@ pudl_tables = {
         "service_territory_eia861",
         "balancing_authority_eia861",
         "sales_eia861",
+        "advanced_metering_infrastructure_eia861",
         "demand_response_eia861",
+        # "demand_side_management_eia861",
+        # "distributed_generation_eia861",
+        "distribution_systems_eia861",
+        "dynamic_pricing_eia861",
+        "green_pricing_eia861",
+        "mergers_eia861",
+        "net_metering_eia861",
+        "non_net_metering_eia861",
+        # "operational_data_eia861",
+        # "reliability_eia861",
+        # "utility_data_eia861"
     ),
     'eia923': eia923_pudl_tables,
     'epacems': epacems_tables,
@@ -2496,6 +2499,27 @@ keywords_by_data_source = {
         'epaipm', 'integrated planning',
     ]
 }
+
+ENTITY_TYPE_DICT = {
+    'M': 'Municipal',
+    'C': 'Cooperative',
+    'R': 'Retail Power Marketer',
+    'I': 'Investor Owned',
+    'P': 'Political Subdivision',
+    'T': 'Transmission',
+    'S': 'State',
+    'W': 'Wholesale Power Marketer',
+    'F': 'Federal',
+    'A': 'Municipal Mktg Authority',
+    'G': 'Community Choice Aggregator',
+    'D': 'Nonutility DSM Administrator',
+    'B': 'Behind the Meter',
+    'Q': 'Independent Power Producer',
+    'IND': 'Industrial',
+    'COM': 'Commercial',
+    float('nan'): 'Unregulated'
+}
+
 """dict: A dictionary of datasets (keys) and keywords (values). """
 
 column_dtypes = {
@@ -2543,12 +2567,14 @@ column_dtypes = {
     },
     "eia": {
         'actual_peak_demand_savings_mw': float,  # Added by AES for DR table
+        'advanced_metering_infrastructure': float,  # Added by AES for AMI table
         'ash_content_pct': float,
         'ash_impoundment': pd.BooleanDtype(),
         'ash_impoundment_lined': pd.BooleanDtype(),
         # TODO: convert this field to more descriptive words
         'ash_impoundment_status': pd.StringDtype(),
         'associated_combined_heat_power': pd.BooleanDtype(),
+        'automated_meter_reading': float,  # Added by AES for AMI table
         'balancing_authority_code_eia': pd.CategoricalDtype(),
         'balancing_authority_id_eia': pd.Int64Dtype(),
         'balancing_authority_name_eia': pd.StringDtype(),
@@ -2560,6 +2586,7 @@ column_dtypes = {
         'capacity_mw': float,
         'carbon_capture': pd.BooleanDtype(),
         'chlorine_content_ppm': float,
+        'circuits_with_voltage_optimization': pd.Int64Dtype(),  # Added by AES for DS table
         'city': pd.StringDtype(),
         'cofire_fuels': pd.BooleanDtype(),
         'contact_firstname': pd.StringDtype(),
@@ -2572,17 +2599,26 @@ column_dtypes = {
         'contract_type_code': pd.StringDtype(),
         'county': pd.StringDtype(),
         'county_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
+        'critical_peak_pricing': pd.BooleanDtype(),  # Added by AES for DP table
+        'critical_peak_rebate': pd.BooleanDtype(),  # Added by AES for DP table
+        # Added by AES for NM table
+        'current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
         'current_planned_operating_date': 'datetime64[ns]',
-        'customers': pd.Int64Dtype(),
+        'customers': pd.Int64Dtype(),  # Used by AES for NM table
         'customer_class': pd.CategoricalDtype(categories=[
             "residential", "commercial", "industrial", "transportation",
-            "other", "total",
+            "dircnct", "other", "total",
         ]),
         'customer_incentives_cost': float,  # Added by AES for DR table
+        'daily_digital_access_customers': float,  # Added by AES for AMI table
         'data_observed': pd.BooleanDtype(),
         'deliver_power_transgrid': pd.BooleanDtype(),
+        'direct_load_control_customers': float,  # Added by AES for AMI table
+        'distribution_circuits': pd.Int64Dtype(),  # Added by AES for DS table
         'duct_burners': pd.BooleanDtype(),
+        'energy_displaced_mwh': float,  # Added by AES for NM table
         'energy_savings_mwh': float,  # Added by AES for DR table
+        'energy_served_ami_mwh': float,  # Added by AES for AMI table
         'energy_source_code': pd.StringDtype(),
         'energy_source_code_1': pd.StringDtype(),
         'energy_source_code_2': pd.StringDtype(),
@@ -2591,7 +2627,8 @@ column_dtypes = {
         'energy_source_code_5': pd.StringDtype(),
         'energy_source_code_6': pd.StringDtype(),
         'energy_storage': pd.BooleanDtype(),
-        'entity_type': pd.StringDtype(),
+        # Modified by AES for Merger table
+        'entity_type': pd.CategoricalDtype(categories=ENTITY_TYPE_DICT.values()),
         'ferc_cogen_docket_no': pd.StringDtype(),
         'ferc_cogen_status': pd.BooleanDtype(),
         'ferc_exempt_wholesale_generator': pd.BooleanDtype(),
@@ -2618,15 +2655,25 @@ column_dtypes = {
         'fuel_type_code_pudl': pd.StringDtype(),
         # this is a mix of integer-like values (2 or 5) and strings like AUGSF
         'generator_id': pd.StringDtype(),
+        # Added by AES for GP table (added green pricing prefix for now)
+        'green_pricing_revenue': float,
         'grid_voltage_2_kv': float,
         'grid_voltage_3_kv': float,
         'grid_voltage_kv': float,
         'heat_content_mmbtu_per_unit': float,
+        'home_area_network': float,  # Added by AES for AMI table
         'iso_rto_code': pd.StringDtype(),
         'latitude': float,
         'liquefied_natural_gas_storage': pd.BooleanDtype(),
         'longitude': float,
         'mercury_content_ppm': float,
+        'merge_address': pd.StringDtype(),  # Added by AES for Mergers table
+        'merge_city': pd.StringDtype(),  # Added by AES for Mergers table
+        'merge_company': pd.StringDtype(),  # Added by AES for Mergers table
+        'merge_date': 'datetime64[ns]',  # Added by AES for Mergers table
+        'merge_state': pd.StringDtype(),  # Added by AES for Mergers table
+        'merge_zip_4': pd.StringDtype(),  # Added by AES for Mergers table
+        'merge_zip_5': pd.StringDtype(),  # Added by AES for Mergers tables
         'mine_id_msha': pd.Int64Dtype(),
         'mine_id_pudl': pd.Int64Dtype(),
         'mine_name': pd.StringDtype(),
@@ -2645,6 +2692,8 @@ column_dtypes = {
         'nerc_region': pd.StringDtype(),
         'net_generation_mwh': float,
         'net_metering': pd.BooleanDtype(),
+        'new_parent': pd.StringDtype(),  # Added by AES for Mergers table
+        'non_amr_ami': float,  # Added by AES for AMI table
         'nuclear_unit_id': pd.Int64Dtype(),
         'operating_date': 'datetime64[ns]',
         'operating_switch': pd.StringDtype(),
@@ -2664,7 +2713,6 @@ column_dtypes = {
         'owner_zip_code': pd.StringDtype(),  # Must preserve leading zeroes.
         # we should transition these into readable codes, not a one letter thing
         'ownership_code': pd.StringDtype(),
-        'ownership_type': pd.CategoricalDtype(),
         'pipeline_notes': pd.StringDtype(),
         'planned_derate_date': 'datetime64[ns]',
         'planned_energy_source_code_1': pd.StringDtype(),
@@ -2691,19 +2739,23 @@ column_dtypes = {
         'primary_transportation_mode_code': pd.StringDtype(),
         'primary_purpose_naics_id': pd.Int64Dtype(),
         'prime_mover_code': pd.StringDtype(),
+        'real_time_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
+        'rec_revenue': float,  # Added by AES for GP table
+        'rec_sales_mwh': float,  # Added by AES for GP table
         'regulatory_status_code': pd.StringDtype(),
         'report_date': 'datetime64[ns]',
+        'retirement_date': 'datetime64[ns]',
         'rto_iso_lmp_node_id': pd.StringDtype(),
         'rto_iso_location_wholesale_reporting_id': pd.StringDtype(),
-        'retirement_date': 'datetime64[ns]',
-        'revenues': float,
         'sales_mwh': float,
+        'sales_revenue': float,  # Added sales prefix for now
         'secondary_transportation_mode_code': pd.StringDtype(),
         'sector_id': pd.Int64Dtype(),
         'sector_name': pd.StringDtype(),
         'service_type': pd.CategoricalDtype(categories=[
             "bundled", "energy", "delivery",
         ]),
+        'sold_to_utility_mwh': float,  # Added by AES for NM table
         'solid_fuel_gasification': pd.BooleanDtype(),
         'startup_source_code_1': pd.StringDtype(),
         'startup_source_code_2': pd.StringDtype(),
@@ -2713,6 +2765,8 @@ column_dtypes = {
         'state_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
         'street_address': pd.StringDtype(),
         'stoker_tech': pd.BooleanDtype(),
+        'storage_capacity_mw': float,  # Added by AES for NM table
+        'storage_customers': pd.Int64Dtype(),  # Added by AES for NM table
         'subcritical_tech': pd.BooleanDtype(),
         'sulfur_content_pct': float,
         'summer_capacity_mw': float,
@@ -2722,10 +2776,16 @@ column_dtypes = {
         'supplier_name': pd.StringDtype(),
         'switch_oil_gas': pd.BooleanDtype(),
         'syncronized_transmission_grid': pd.BooleanDtype(),
+        # Added by AES for NM table (might want to consider merging with another fuel label)
+        'tech_class': pd.CategoricalDtype(
+            categories=['pv', 'wind', 'chpcogen', 'other', 'combturb',
+                        'fcell', 'hydro', 'ice', 'steam', 'storage', 'total']),
         'technology_description': pd.StringDtype(),
         'time_cold_shutdown_full_load_code': pd.StringDtype(),
+        'time_of_use_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
         'timezone': pd.StringDtype(),
         'topping_bottoming_code': pd.StringDtype(),
+        'total_meters': float,  # Added by AES for AMI table
         'transmission_distribution_owner_id': pd.Int64Dtype(),
         'transmission_distribution_owner_name': pd.StringDtype(),
         'transmission_distribution_owner_state': pd.StringDtype(),
@@ -2742,6 +2802,9 @@ column_dtypes = {
         'utility_name_eia': pd.StringDtype(),
         'utility_pobox': pd.StringDtype(),
         'utility_zip4': pd.StringDtype(),
+        'variable_peak_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
+        'virtual_capacity_mw': float,  # Added by AES for NM table
+        'virtual_customers': pd.Int64Dtype(),  # Added by AES for NM table
         'water_heater': pd.Int64Dtype(),  # Added by AES for DR table
         'water_source': pd.StringDtype(),
         'winter_capacity_mw': float,
@@ -2749,16 +2812,3 @@ column_dtypes = {
         'zip_code': pd.StringDtype(),
     },
 }
-
-"""
-list: A list of customer classes.
-"""
-
-CUSTOMER_CLASSES = [
-    "commercial",
-    "industrial",
-    "other",
-    "residential",
-    "total",
-    "transportation"
-]

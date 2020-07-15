@@ -9,9 +9,10 @@ from setuptools import find_packages, setup
 install_requires = [
     "addfips",
     "coloredlogs",
+    "contextily",
     "datapackage>=1.11",
     "dbfread @ git+https://github.com/catalyst-cooperative/dbfread.git#egg=dbfread-2.1.0",
-    "geopandas",
+    "geopandas>=0.8.0",
     "goodtables>=2.4.2",
     "matplotlib",
     "networkx>=2.2",
@@ -25,6 +26,7 @@ install_requires = [
     "tableschema>=1.12.3",
     "tableschema-sql>=1.3.1",
     "timezonefinder",
+    "tqdm",
     "xlsxwriter",
 ]
 
@@ -83,7 +85,7 @@ setup(
     keywords=[
         "electricity", "energy", "data", "analysis", "mcoe", "climate change",
         "finance", "eia 923", "eia 860", "ferc", "form 1", "epa ampd",
-        "epa cems", "coal", "natural gas", ],
+        "epa cems", "coal", "natural gas", "eia 861", "ferc 714"],
     python_requires=">=3.8",
     setup_requires=["setuptools_scm"],
     install_requires=install_requires,
@@ -109,12 +111,14 @@ setup(
     include_package_data=True,
     # This defines the interfaces to the command line scripts we"re including:
     entry_points={
-        "console_scripts": [
-            "pudl_setup = pudl.workspace.setup_cli:main",
-            "pudl_etl = pudl.cli:main",
-            "datapkg_to_sqlite = pudl.convert.datapkg_to_sqlite:main",
-            "ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main",
-            "epacems_to_parquet = pudl.convert.epacems_to_parquet:main",
+        'console_scripts': [
+            'pudl_datastore = pudl.workspace.datastore:main',
+            'pudl_setup = pudl.workspace.setup_cli:main',
+            'pudl_etl = pudl.cli:main',
+            'datapkg_to_sqlite = pudl.convert.datapkg_to_sqlite:main',
+            'ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main',
+            'epacems_to_parquet = pudl.convert.epacems_to_parquet:main',
+            'pudl_territories = pudl.analysis.service_territory:main',
         ]
     },
 )

@@ -29,6 +29,8 @@ class Metadata(object):
     It expects the following kinds of files:
     - skiprows.csv tells us how many initial rows should be skipped when loading
     data for given (year, page).
+    - skipfooter.csv tells us how many bottom rows should be skipped when
+    loading data for given year (year, page).
     - tab_map.csv tells us what is the excel sheet name that should be read
     when loading data for given (year, page)
     - column_map/${page}.csv currently informs us how to translate input column
@@ -50,6 +52,7 @@ class Metadata(object):
         pkg = f'pudl.package_data.meta.xlsx_maps.{dataset_name}'
         self._dataset_name = dataset_name
         self._skiprows = self._load_csv(pkg, 'skiprows.csv')
+        self._skipfooter = self._load_csv(pkg, 'skipfooter.csv')
         self._sheet_name = self._load_csv(pkg, 'tab_map.csv')
         column_map_pkg = pkg + '.column_maps'
         self._column_map = {}
@@ -72,6 +75,10 @@ class Metadata(object):
     def get_skiprows(self, year, page):
         """Returns number of initial rows to skip when loading given year and page."""
         return self._skiprows.at[page, str(year)]
+
+    def get_skipfooter(self, year, page):
+        """Returns number of bottom rows to skip when loading given year and page."""
+        return self._skipfooter.at[page, str(year)]
 
     def get_column_map(self, year, page):
         """Returns the dictionary mapping input columns to pudl columns for given year and page."""
@@ -194,8 +201,8 @@ class GenericExtractor(object):
                     self.load_excel_file(yr, page, testing=testing),
                     sheet_name=self._metadata.get_sheet_name(yr, page),
                     skiprows=self._metadata.get_skiprows(yr, page),
+                    skipfooter=self._metadata.get_skipfooter(yr, page),
                     dtype=self.get_dtypes(yr, page))
-
                 newdata = pudl.helpers.simplify_columns(newdata)
                 newdata = self.process_raw(newdata, yr, page)
                 newdata = self.process_renamed(newdata, yr, page)

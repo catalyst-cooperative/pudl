@@ -271,11 +271,13 @@ def pudl_settings_fixture(request, tmpdir_factory,  # noqa: C901
     # we use whatever the user has configured in their $HOME/.pudl.yml file.
     if pudl_in is False:
         pudl_in = pudl_dir
+        os.environ["PUDL_IN"] = str(pudl_in)
     elif pudl_in == 'AUTO':
         pudl_in = pudl_auto['pudl_in']
 
     if pudl_out is False:
         pudl_out = pudl_dir
+        os.environ["PUDL_OUT"] = str(pudl_out)
     elif pudl_out == 'AUTO':
         pudl_out = pudl_auto['pudl_out']
 

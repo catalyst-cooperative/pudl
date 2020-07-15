@@ -114,7 +114,8 @@ def _validate_params_eia(etl_params):  # noqa: C901
     for year in eia_input_dict['eia923_years']:
         if year not in pc.working_years['eia923']:
             raise AssertionError(f"Unrecognized EIA 923 year: {year}")
-    if not eia_input_dict['eia923_years'] and not eia_input_dict['eia860_years']:
+    if (not eia_input_dict['eia923_years']
+            and not eia_input_dict['eia860_years']):
         return None
     else:
         return eia_input_dict
@@ -170,8 +171,7 @@ def _load_static_tables_eia(datapkg_dir):
 
 
 def _etl_eia(etl_params, datapkg_dir, pudl_settings):
-    """
-    Extracts, transforms and loads CSVs for the EIA datasets.
+    """Extract, transform and load CSVs for the EIA datasets.
 
     Args:
         etl_params (dict): ETL parameters required by this data source.
@@ -207,6 +207,7 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
         eia923_years, testing=testing)
     eia860_raw_dfs = pudl.extract.eia860.Extractor().extract(
         eia860_years, testing=testing)
+
     # Transform EIA forms 923, 860
     eia860_transformed_dfs = pudl.transform.eia860.transform(
         eia860_raw_dfs, eia860_tables=eia860_tables)
@@ -235,7 +236,10 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
                                 data_source,
                                 datapkg_dir=datapkg_dir)
 
-    return list(eia_transformed_dfs.keys()) + list(entities_dfs.keys()) + static_tables
+    return (
+        list(eia_transformed_dfs.keys())
+        + list(entities_dfs.keys())
+        + static_tables)
 
 
 ###############################################################################
@@ -312,8 +316,7 @@ def _load_static_tables_ferc1(datapkg_dir):
 
 
 def _etl_ferc1(etl_params, datapkg_dir, pudl_settings):
-    """
-    Extracts, transforms and loads CSVs for FERC Form 1.
+    """Extract, transform and load CSVs for FERC Form 1.
 
     Args:
         etl_params (dict): ETL parameters required by this data source.
@@ -372,10 +375,10 @@ def _validate_params_epacems(etl_params):
             epacems_dict['epacems_states'] = list(pc.cems_states.keys())
 
     # CEMS is ALWAYS going to be partitioned by year and state. This means we
-    # are functinoally removing the option to not partition or partition another
-    # way. Nonetheless, we are adding it in here because we still need to know
-    # what the partitioning is like for the metadata generation (it treats
-    # partitioned tables differently).
+    # are functinoally removing the option to not partition or partition
+    # another way. Nonetheless, we are adding it in here because we still need
+    # to know what the partitioning is like for the metadata generation
+    # (it treats partitioned tables differently).
     epacems_dict['partition'] = {'hourly_emissions_epacems':
                                  ['epacems_years', 'epacems_states']}
     # this is maybe unnecessary because we are hardcoding the partitions, but
@@ -383,9 +386,10 @@ def _validate_params_epacems(etl_params):
     epacems_dict['partition'] = _validate_params_partition(
         epacems_dict, [pc.epacems_tables])
     if not epacems_dict['partition']:
-        raise AssertionError('No partition found for EPA CEMS.'
-                             'EPA CEMS requires either states or years as a partion'
-                             )
+        raise AssertionError(
+            'No partition found for EPA CEMS.'
+            'EPA CEMS requires either states or years as a partion'
+        )
 
     if not epacems_dict['epacems_years'] or not epacems_dict['epacems_states']:
         return None
@@ -394,8 +398,7 @@ def _validate_params_epacems(etl_params):
 
 
 def _etl_epacems(etl_params, datapkg_dir, pudl_settings):
-    """
-    Extracts, transforms and loads CSVs for EPA CEMS.
+    """Extract, transform and load CSVs for EPA CEMS.
 
     Args:
         etl_params (dict): ETL parameters required by this data source.
@@ -493,7 +496,8 @@ def _load_static_tables_epaipm(datapkg_dir):
     """
     # compile the dfs in a dictionary, prep for dict_dump
     static_dfs = {'regions_entity_epaipm':
-                  pd.DataFrame(pc.epaipm_region_names, columns=['region_id_epaipm'])}
+                  pd.DataFrame(
+                      pc.epaipm_region_names, columns=['region_id_epaipm'])}
 
     # run the dictionary of prepped static tables through dict_dump to make
     # CSVs
@@ -505,8 +509,7 @@ def _load_static_tables_epaipm(datapkg_dir):
 
 
 def _etl_epaipm(etl_params, datapkg_dir, pudl_settings):
-    """
-    Extracts, transforms and loads CSVs for EPA IPM.
+    """Extract, transform and load CSVs for EPA IPM.
 
     Args:
         etl_params (dict): ETL parameters required by this data source.
@@ -563,8 +566,7 @@ def _validate_params_glue(etl_params):
 
 
 def _etl_glue(etl_params, datapkg_dir, pudl_settings):
-    """
-    Extracts, transforms and loads CSVs for the Glue tables.
+    """Extract, transform and load CSVs for the Glue tables.
 
     Currently this only generates glue connecting FERC Form 1 and EIA
 
@@ -600,8 +602,7 @@ def _etl_glue(etl_params, datapkg_dir, pudl_settings):
 # Coordinating functions
 ###############################################################################
 def _insert_glue_settings(dataset_dicts):
-    """
-    Add glue settings into data package settings if this is a glue-y dataset.
+    """Add glue settings into data package settings if this is a glue-y dataset.
 
     Args:
         dataset_dicts (iterable): A list of dictionaries with dataset codes
@@ -663,9 +664,9 @@ def get_flattened_etl_parameters(datapkg_bundle_settings):  # noqa: C901
             the data to be packaged.
 
     Returns:
-        dict: dictionary of etl parameters with etl parameter names (keys) (i.e.
-        ferc1_years, eia923_years) and etl parameters (values) (i.e. a list of
-        years for ferc1_years)
+        dict: dictionary of etl parameters with etl parameter names (keys)
+        (i.e. ferc1_years, eia923_years) and etl parameters (values) (i.e. a
+        list of years for ferc1_years)
 
     """
     flattened_parameters = []

@@ -7,6 +7,7 @@ import pkg_resources
 
 import pudl.analysis.demand_mapping
 import pudl.analysis.mcoe
+import pudl.analysis.service_territory
 import pudl.cli
 import pudl.constants
 import pudl.convert.datapkg_to_sqlite
