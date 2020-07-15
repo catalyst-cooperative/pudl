@@ -533,7 +533,7 @@ def flatten(layers, attributes):
     return layer_new
 
 
-def allocate_and_aggregate(disagg_layer, attributes, by="id", allocatees="demand", allocators="population", aggregators=None):
+def allocate_and_aggregate(disagg_layer, attributes, timeseries, alloc_exps=None, geo_layer=None, by="respondent_id_ferc714", allocatees="demand", allocators="POPULATION", aggregators=None):
     """
     Aggregate selected columns of the disaggregated layer based on arguments.
 
@@ -549,6 +549,19 @@ def allocate_and_aggregate(disagg_layer, attributes, by="id", allocatees="demand
         the constants to be allocated are mentioned (e.g. "Demand" (constant)
         which needs to be allocated is mapped by "id". So, "id" is the `by`
         column)
+        attributes (dict): a dictionary keeping a track of all the types of
+        attributes with keys represented by column names from layer1 and
+        layer2, and the values representing the type of attribute. Types of
+        attributes include "constant", "uniform" and "ID". If a column name
+        `col` of type "ID" exists, then one column name `col`+"_set" of type
+        "constant" will exist in the attributes dictionary.
+        timeseries (pd.DataFrame): A dataframe which has the columns present in
+        the variable `by`, which acts as the index. Also, it has the `allocatees`
+        columns, usually indexed as a string type of a `datetime` element or
+        some other aggregated version of a timeslice.
+        alloc_exps (str or list): The exponent to which each column in the
+        `allocators` column is raised. If it is not assigned, all the exponents
+        are considered 1.
         allocatees (str or list): single column or list of columns according to which
         the constants to be allocated are mentioned (e.g. "Demand" (constant)
         which needs to be allocated is mapped by "id". So, "demand" is the
@@ -560,11 +573,20 @@ def allocate_and_aggregate(disagg_layer, attributes, by="id", allocatees="demand
         data is aggregated at that level.
 
     Returns:
-        geopandas.GeoDataFrame: Disaggregated GeoDataFrame with all the various
-        allocated demand columns, or aggregated by `aggregators`
+        geopandas.GeoDataFrame: If aggregators is None, the function will return
+        a disaggregated GeoDataFrame with all the various
+        allocated demand columns. If aggregators is not `None`, the data will be
+        aggregated by the `aggregators` column. The geometries span the
+        individual elements of the aggregator columns.
+        geo_layer: If geo_layer is `None`, the function will calculate the
+        allocated and aggregated geo_layer by `aggregators` column.
+        This is unique for every reporting year and aggregators column. So, if
+        there are multiple iterations of this function, it is best to save the
+        `geo_layer`, and assign it to the `geo_layer` argument in the function
+        to reduce time-consuming redundant computation. If the `geo_layer`
+        argument is not None, the geo_layer is not returned as an output.
     """
-    if aggregators is None:
-        aggregators = []
+    logger.info("Prep Allocation Data")
     id_cols = [k for k, v in attributes.items() if (
         (k in disagg_layer.columns) and (v == "ID"))]
 
@@ -575,14 +597,19 @@ def allocate_and_aggregate(disagg_layer, attributes, by="id", allocatees="demand
 
     # Allowing for single and multiple allocators,
     # aggregating columns and allocatees
-    if not isinstance(allocators, list):
-        allocators = [allocators]
+    def listify(ele):
+        if isinstance(ele, list):
+            return ele
+        else:
+            return [ele]
+    allocators, allocatees, by = tuple(
+        map(listify, [allocators, allocatees, by]))
 
-    if not isinstance(allocatees, list):
-        allocatees = [allocatees]
+    if alloc_exps is None:
+        alloc_exps = [1] * len(allocators)
 
-    if not isinstance(by, list):
-        by = [by]
+    else:
+        alloc_exps = listify(alloc_exps)
 
     for uniform_col in allocators:
         disagg_layer[uniform_col] = disagg_layer[uniform_col] / \
@@ -590,9 +617,18 @@ def allocate_and_aggregate(disagg_layer, attributes, by="id", allocatees="demand
 
     del disagg_layer["_multi_counts"]
 
-    # temp_allocator is product of all allocators in the row
-    disagg_layer["temp_allocator"] = disagg_layer[allocators].product(axis=1)
+    allocators_temp = ["_" + uniform_col + "_exp_" +
+                       str(i) for i, uniform_col in enumerate(allocators)]
 
+    logger.info("Raise allocators to appropriate exponents")
+    for i, alloc_temp in enumerate(allocators_temp):
+        disagg_layer[alloc_temp] = disagg_layer[allocators[i]] ** alloc_exps[i]
+
+    # temp_allocator is product of all allocators in the row
+    disagg_layer["temp_allocator"] = disagg_layer[allocators_temp].product(
+        axis=1)
+
+    logger.info("Calculate fractional allocation factors for each geometry")
     # the fractional allocation for each row is decided by the multiplier:
     # (temp_allocator/temp_allocator_agg)
     agg_layer = (disagg_layer[by + ["temp_allocator"]]
@@ -603,43 +639,55 @@ def allocate_and_aggregate(disagg_layer, attributes, by="id", allocatees="demand
 
     # adding temp_allocator_agg column to the disagg_layer
     disagg_layer = disagg_layer.merge(agg_layer)
-    return disagg_layer
-    # allocatees_agg = [allocatee + "_allocated" for allocatee in allocatees]
-    #
-    # # creating new allocated columns based on the allocation factor
-    # disagg_layer[allocatees_agg] = disagg_layer[allocatees].multiply(disagg_layer["temp_allocator"]
-    #                                                                  / disagg_layer["temp_allocator_agg"],
-    #                                                                  axis=0)
-    #
-    # # grouping by the relevant columns
-    # if isinstance(aggregators, list):
-    #     if aggregators == []:
-    #
-    #         del agg_layer
-    #         del disagg_layer["temp_allocator"]
-    #         del disagg_layer["temp_allocator_agg"]
-    #         return disagg_layer
-    #
-    # else:
-    #     # converting aggregators to list
-    #     aggregators = [aggregators]
-    #
-    # df_alloc = disagg_layer[allocatees_agg +
-    #                         aggregators].groupby(aggregators).sum().reset_index()
-    #
-    # # deleting columns with temporary calculations
-    # del agg_layer
-    # del disagg_layer["temp_allocator"]
-    # del disagg_layer["temp_allocator_agg"]
-    # for allocatee_agg in allocatees_agg:
-    #     del disagg_layer[allocatee_agg]
-    #
-    # return df_alloc
 
+    logger.info("Allocating demand from demand dataframe")
+    demand_allocated_arr = (disagg_layer[by + ["temp_allocator", "temp_allocator_agg"]]
+                            .merge(timeseries[by + allocatees])[allocatees].values) * \
+        ((disagg_layer["temp_allocator"] /
+          disagg_layer["temp_allocator_agg"]).values[:, np.newaxis])
+
+    allocate_layer = pd.concat([disagg_layer, pd.DataFrame(demand_allocated_arr, columns=allocatees)],
+                               axis=1)
+
+    if aggregators is not None:
+
+        logger.info("Aggregate data according to level specified")
+        aggregators = listify(aggregators)
+
+        if geo_layer is None:
+            logger.info("Geo layer being created")
+            geo_layer = (allocate_layer[aggregators + ["geometry"]]
+                         .dissolve(by=aggregators, as_index=False))
+
+            logger.info("Geo layer merged with aggregated data")
+            final_agg_layer = (geo_layer
+                               .merge(allocate_layer
+                                      .groupby(aggregators)[allocatees]
+                                      .sum()
+                                      .reset_index())
+                               .replace(0, np.nan))
+
+            return final_agg_layer, geo_layer
+
+        else:
+            final_agg_layer = (geo_layer
+                               .merge(allocate_layer
+                                      .groupby(aggregators)[allocatees]
+                                      .sum()
+                                      .reset_index())
+                               .replace(0, np.nan))
+
+            return final_agg_layer
+
+    else:
+        logger.info("Complete demand allocation")
+        return allocate_layer
 
 ################################################################################
 # Historical Planning / Balancing Area Geometry Compilation
 ################################################################################
+
+
 def categorize_eia_code(rids_ferc714, utils_eia860, ba_eia861):
     """
     Categorize EIA Codes in FERC 714 as BA or Utility IDs.
