@@ -605,9 +605,9 @@ def allocate_and_aggregate(
 ################################################################################
 # Historical Planning / Balancing Area Geometry Compilation
 ################################################################################
-def categorize_eia_code(rids_ferc714, utils_eia860, ba_eia861):
+def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authority"):
     """
-    Categorize EIA Codes in FERC 714 as BA or Utility IDs.
+    Categorize EIA Codes in FERC 714 as either balancing authority or utility IDs.
 
     Most FERC 714 respondent IDs are associated with an ``eia_code`` which refers to
     either a ``balancing_authority_id_eia`` or a ``utility_id_eia`` but no indication is
@@ -615,67 +615,73 @@ def categorize_eia_code(rids_ferc714, utils_eia860, ba_eia861):
     that EIA uses the same numerical ID to refer to the same entity in most but not all
     cases, when that entity acts as both a utility and as a balancing authority.
 
-    Given the nature of the FERC 714 hourly demand dataset, this function assumes that
-    if the ``eia_code`` appears in the EIA 861 Balancing Authority table, that it should
-    be labeled ``balancing_authority``. If the ``eia_code`` appears only in the EIA 860
-    Utility table, then it is labeled ``utility``. These labels are put in a new column
-    named ``respondent_type``. If the planning area's ``eia_code`` does not appear in
-    either of those tables, then ``respondent_type`` is set to NA.
+    This function associates a ``respondent_type`` of ``utility``,
+    ``balancing_authority`` or ``pandas.NA`` with each input ``eia_code`` using the
+    following rules:
+    * If a ``eia_code`` appears only in ``util_ids`` the ``respondent_type`` will be
+    ``utility``.
+    * If ``eia_code`` appears only in ``ba_ids`` the ``respondent_type`` will be
+    assigned ``balancing_authority``.
+    * If ``eia_code`` appears in neither set of IDs, ``respondent_type`` will be
+    assigned ``pandas.NA``.
+    * If ``eia_code`` appears in both sets of IDs, then whichever ``respondent_type``
+    has been selected with the ``priority`` flag will be assigned.
 
     Args:
-        rids_ferc714 (pandas.DataFrame): The FERC 714 ``respondent_id`` table.
-        utils_eia860 (pandas.DataFrame): The EIA 860 Utilities output table.
-        ba_eia861 (pandas.DataFrame): The EIA 861 Balancing Authority table.
+        eia_codes (ordered collection): A dataframe based on the respondent_id_ferc714
+            table, having at least the two columns: ``respondent_id_ferc714`` and
+            ``eia_code``. Other columns may be present.
+        ba_ids_eia (iterable of ints): A collection of IDs which should be interpreted
+            as belonging to EIA Balancing Authorities.
+        util_ids_eia (iterable of ints): A collection of IDs which should be interpreted
+            as belonging to EIA Utilities.
+        priorty (str): Which respondent_type to give priority to if the eia_code shows
+            up in both util_ids_eia and ba_ids_eia. Must be one of "utility" or
+            "balancing_authority". The default is "balanacing_authority".
 
     Returns:
-        pandas.DataFrame: A table containing all of the columns present in the FERC 714
-        ``respondent_id`` table, plus  a new one named ``respondent_type`` which can
-        take on the values ``balancing_authority``, ``utility``, or the special value
-        pandas.NA.
+        pandas.DataFrame: A dataframe containing 2 columns: ``eia_code`` and
+        ``respondent_type``.
 
     """
-    ba_ids = set(ba_eia861.balancing_authority_id_eia.dropna())
-    util_not_ba_ids = set(
-        utils_eia860.utility_id_eia.dropna()).difference(ba_ids)
-    new_rids = rids_ferc714.copy()
-    new_rids["respondent_type"] = pd.NA
-    new_rids.loc[new_rids.eia_code.isin(
-        ba_ids), "respondent_type"] = "balancing_authority"
-    new_rids.loc[new_rids.eia_code.isin(
-        util_not_ba_ids), "respondent_type"] = "utility"
-    ba_rids = new_rids[new_rids.respondent_type == "balancing_authority"]
-    util_rids = new_rids[new_rids.respondent_type == "utility"]
-    na_rids = new_rids[new_rids.respondent_type.isnull()]
+    if priority == "balancing_authority":
+        primary = "balancing_authority"
+        secondary = "utility"
+    elif priority == "utility":
+        primary = "utility"
+        secondary = "balancing_authority"
+    else:
+        raise ValueError(
+            f"Invalid respondent type {priority} chosen as priority."
+            "Must be either 'utility' or 'balancing_authority'."
+        )
 
-    ba_rids = (
-        ba_rids.merge(
-            ba_eia861
-            .filter(like="balancing_")
-            .drop_duplicates(subset=[
-                "balancing_authority_id_eia",
-                "balancing_authority_code_eia"]),
-            how="left", left_on="eia_code", right_on="balancing_authority_id_eia"
-        )
+    eia_codes = pd.DataFrame(eia_codes, columns=["eia_code"]).drop_duplicates()
+    ba_ids = (
+        pd.Series(ba_ids, name="balancing_authority_id_eia")
+        .drop_duplicates()
+        .astype(pd.Int64Dtype())
     )
-    util_rids = (
-        util_rids.merge(
-            utils_eia860[["utility_id_eia", "utility_name_eia"]]
-            .drop_duplicates("utility_id_eia"),
-            how="left", left_on="eia_code", right_on="utility_id_eia"
-        )
+    util_ids = (
+        pd.Series(util_ids, name="utility_id_eia")
+        .drop_duplicates()
+        .astype(pd.Int64Dtype())
     )
-    new_rids = (
-        pd.concat([ba_rids, util_rids, na_rids])
-        .astype({
-            "respondent_type": pd.StringDtype(),
-            "balancing_authority_code_eia": pd.StringDtype(),
-            "balancing_authority_id_eia": pd.Int64Dtype(),
-            "balancing_authority_name_eia": pd.StringDtype(),
-            "utility_id_eia": pd.Int64Dtype(),
-            "utility_name_eia": pd.StringDtype(),
-        })
+
+    df = (
+        eia_codes
+        .merge(ba_ids, left_on="eia_code", right_on="balancing_authority_id_eia", how="left")
+        .merge(util_ids, left_on="eia_code", right_on="utility_id_eia", how="left")
     )
-    return new_rids
+    df.loc[df[f"{primary}_id_eia"].notnull(), "respondent_type"] = primary
+    df.loc[
+        (df[f"{secondary}_id_eia"].notnull())
+        & (df[f"{primary}_id_eia"].isnull()), "respondent_type"] = secondary
+    df = (
+        df.astype({"respondent_type": pd.StringDtype()})
+        .loc[:, ["eia_code", "respondent_type"]]
+    )
+    return df
 
 
 def has_demand(dhpa, rids):
@@ -686,7 +692,7 @@ def has_demand(dhpa, rids):
         dhpa (pandas.DataFrame): The demand_hourly_planning_area_ferc714 table, or
             some subset of it.  Must include the report_year, respondent_id_ferc714,
             demand_mwh, and report_year columns.
-        rids (pandas.DataFram): The respondent_id_ferc714 table, or similar dataframe,
+        rids (pandas.DataFrame): The respondent_id_ferc714 table, or similar dataframe,
             including a respondent_id_ferc714 column with all of the respondent ID
             values for which you want to check for demand.
 
