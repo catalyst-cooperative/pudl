@@ -617,7 +617,7 @@ def _check_for_dupes(df, df_name, subset):
     )
     if dupes.any():
         raise AssertionError(
-            f"Found {len(dupes)} duplicate rows in the {df_name} table, "
+            f"Found {len(df[dupes])} duplicate rows in the {df_name} table, "
             f"when zero were expected!"
         )
 
@@ -1470,6 +1470,15 @@ def non_net_metering(tfr_dfs):
     # Pre-tidy clean specific to sales table
     raw_nnm = tfr_dfs["non_net_metering_eia861"].copy()
 
+    # there are ~80 fully duplicate records in the 2018 table. We need to
+    # remove those duplicates
+    og_len = len(raw_nnm)
+    raw_nnm = raw_nnm.drop_duplicates(keep='first')
+    diff_len = og_len - len(raw_nnm)
+    if diff_len > 100:
+        raise ValueError(
+            f"""Too many duplicate dropped records in raw non-net metering
+    table: {diff_len}""")
     ###########################################################################
     # Tidy Data:
     ###########################################################################
