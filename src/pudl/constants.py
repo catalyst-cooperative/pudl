@@ -2228,7 +2228,7 @@ pudl_tables = {
         "mergers_eia861",
         "net_metering_eia861",
         "non_net_metering_eia861",
-        # "operational_data_eia861",
+        "operational_data_eia861",
         # "reliability_eia861",
         # "utility_data_eia861"
     ),

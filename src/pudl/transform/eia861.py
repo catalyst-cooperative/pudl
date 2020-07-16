@@ -446,6 +446,24 @@ BA_NAME_FIXES = pd.DataFrame([
             ]
 )
 
+RECOGNIZED_NERC_REGIONS = [
+    'ASCC',
+    'ECAR',
+    'ERCOT',
+    'FRCC',
+    'HICC',
+    'MAAC',
+    'MAIN',
+    'MAPP'
+    'MRO',
+    'NPCC',
+    'RFC',
+    'SERC',
+    'SPP',
+    'TRE',
+    'WECC',
+]
+
 CUSTOMER_CLASSES = [
     "commercial",
     "dircnct",  # previously direct_connection
@@ -659,6 +677,67 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
         else:
             logger.info(
                 f'{df_name}: for column {col} all total values are NaN')
+
+
+def _clean_nerc_add_row(df, idx_cols, idx_no_nerc):
+    """Clean NERC region entries and make new rows for multiple nercs."""
+    # Split raw df into primary keys plus nerc region and other value cols
+    nerc_df = df[idx_cols]
+    other_df = df.drop('nerc_region', axis=1).set_index(idx_no_nerc)
+
+    # Make all values upper-case
+    # Replace all NA values with UNK
+    # Make nerc values into lists to see how many separate values are stuffed into one row (ex: SPP & ERCOT)
+    nerc_df = (
+        nerc_df.assign(
+            nerc_region=(lambda x: (
+                x.nerc_region
+                .str.upper()
+                .fillna('UNK')
+                .str.findall(r'[A-Z]+'))),
+            multiple_nercs=(lambda x: (
+                x.nerc_region.apply(lambda x: len(x) > 1)))
+        )
+    )
+
+    # Needed nerc_regions as a list to calculate multiple_nercs, but now can convert nerc lists into
+    # comma-separated strings (can't use same col name twice in one assign)
+    nerc_df['nerc_region'] = nerc_df['nerc_region'].str.join(',')
+
+    # Make dfs of multiple vs. single nerc values
+    nerc_multiples = (
+        nerc_df[nerc_df['multiple_nercs']].copy()
+        .drop('multiple_nercs', axis=1)
+    )
+    nerc_singles = (
+        nerc_df[~nerc_df['multiple_nercs']].copy()
+        .drop('multiple_nercs', axis=1)
+    )
+
+    new_nerc_rows = (
+        nerc_multiples
+        .set_index(idx_no_nerc)
+        .stack()
+        .str.split(',', expand=True)
+        .stack()
+        .unstack(-2)
+        .reset_index(-1, drop=True)
+        .reset_index()
+    )
+
+    # Recombine old nerc single rows with new nerc expanded rows
+    nerc_df = nerc_singles.append(new_nerc_rows)
+
+    # Anything that isn't in the official list of nerc_regions is 'UNK'
+    nerc_df['nerc_region'] = (
+        nerc_df['nerc_region']
+        .apply(lambda x: x if x in RECOGNIZED_NERC_REGIONS else 'UNK')
+    )
+
+    # Merge all data back together
+    full_df = pd.merge(nerc_df, other_df, on=idx_no_nerc)
+
+    return full_df
 
 
 ###############################################################################
@@ -1378,6 +1457,8 @@ def non_net_metering(tfr_dfs):
     # Tidy Data:
     ###########################################################################
 
+    logger.info("Tidying the EIA 861 Non Net Metering table.")
+
     # Normalize by customer class (must be done before normalizing by fuel class)
     tidy_nnm, idx_cols = _tidy_class_dfs(
         raw_nnm,
@@ -1398,6 +1479,7 @@ def non_net_metering(tfr_dfs):
         keep_totals=True
     )
 
+    tidy_nnm = tidy_nnm.drop_duplicates()
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_nnm, 'Non Net Metering', idx_cols)
 
@@ -1410,8 +1492,6 @@ def non_net_metering(tfr_dfs):
     # No transformation needed
 
     tfr_dfs["non_net_metering_eia861"] = tidy_nnm
-
-    logger.info("Tidying the EIA 861 Non Net Metering table.")
 
     return tfr_dfs
 
@@ -1428,6 +1508,51 @@ def operational_data(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    idx_cols = [
+        'utility_id_eia',
+        'state',
+        'nerc_region',
+        'report_date',
+    ]
+
+    idx_no_nerc = [
+        'utility_id_eia',
+        'state',
+        'report_date',
+    ]
+
+    # Pre-tidy clean specific to operational data table
+    raw_od = tfr_dfs["operational_data_eia861"].copy()
+    # tried to do same as SALES table but query didn't work
+    raw_od = (
+        raw_od[(raw_od['utility_id_eia'].notnull()) &
+               (raw_od['utility_id_eia'] != 88888)]
+    )
+
+    # No tidying
+
+    ###########################################################################
+    # Transform Data:
+    # - Clean up nerc:
+    #    - Fix puncuation in entries
+    #    - Add new rows for multiples
+    #    - Replace NA with 'UNK'
+    #    - Make sure reported nerc region is a verified nerc region
+    # - Drop duplicates
+    ###########################################################################
+
+    transformed_od = (
+        _clean_nerc_add_row(raw_od, idx_cols, idx_no_nerc)
+    )
+
+    # There should be one NY entry that is duplicated because the NERC region was listed as
+    # 'New York'. This would have created two rows with nerc regions NEW and YORK, neither
+    # of which is listed as a regocnized_nerc_region. This leads to two identical cols with
+    # 'UNK' values for nerc_region.
+    transformed_od = _drop_dupes(transformed_od, None)
+
+    tfr_dfs["operational_data_eia861"] = transformed_od
+
     return tfr_dfs
 
 
@@ -1494,7 +1619,7 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "mergers_eia861": mergers,
         "net_metering_eia861": net_metering,
         "non_net_metering_eia861": non_net_metering,
-        # "operational_data_eia861": operational_data,
+        "operational_data_eia861": operational_data,
         # "demand_side_management_eia861": demand_side_management,
         # "distributed_generation_eia861": distributed_generation,
         # "reliability_eia861": reliability,
