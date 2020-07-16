@@ -2518,7 +2518,7 @@ ENTITY_TYPE_DICT = {
     'IND': 'Industrial',
     'COM': 'Commercial',
     float('nan'): 'Unregulated',
-    'PR': 'Private',  # Added by AES for OD table
+    'PR': 'Private',  # Added by AES for OD table (Arbitrary moniker)
     'PO': 'Power Marketer',  # Added by AES for OD table
     'U': 'Unknown',  # Added by AES for OD table
     'O': 'Other'  # Added by AES for OD table
@@ -2579,6 +2579,7 @@ column_dtypes = {
         'ash_impoundment_status': pd.StringDtype(),
         'associated_combined_heat_power': pd.BooleanDtype(),
         'automated_meter_reading': float,  # Added by AES for AMI table
+        'backup_capacity_mw': float,  # Added by AES for NNM table
         'balancing_authority_code_eia': pd.CategoricalDtype(),
         'balancing_authority_id_eia': pd.Int64Dtype(),
         'balancing_authority_name_eia': pd.StringDtype(),
@@ -2587,7 +2588,7 @@ column_dtypes = {
         'business_model': pd.CategoricalDtype(categories=[
             "retail", "energy_services"]),
         'bypass_heat_recovery': pd.BooleanDtype(),
-        'capacity_mw': float,
+        'capacity_mw': float,  # Used by AES for NNM table
         'carbon_capture': pd.BooleanDtype(),
         'chlorine_content_ppm': float,
         'circuits_with_voltage_optimization': pd.Int64Dtype(),  # Added by AES for DS table
@@ -2607,7 +2608,7 @@ column_dtypes = {
         'county_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
         'critical_peak_pricing': pd.BooleanDtype(),  # Added by AES for DP table
         'critical_peak_rebate': pd.BooleanDtype(),  # Added by AES for DP table
-        # Added by AES for NM table
+        # Added by AES for NM table; used for NNM table
         'current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
         'current_planned_operating_date': 'datetime64[ns]',
         'customers': pd.Int64Dtype(),  # Used by AES for NM table
@@ -2664,6 +2665,7 @@ column_dtypes = {
         'furnished_without_charge_mwh': float,  # Added by AES for OD table
         # this is a mix of integer-like values (2 or 5) and strings like AUGSF
         'generator_id': pd.StringDtype(),
+        'generators_number': pd.Int64Dtype(),  # Added by AES for NNM table
         # Added by AES for GP table (added green pricing prefix for now)
         'green_pricing_revenue': float,
         'grid_voltage_2_kv': float,
@@ -2826,6 +2828,7 @@ column_dtypes = {
         'utility_id_eia': pd.Int64Dtype(),
         'utility_id_pudl': pd.Int64Dtype(),
         'utility_name_eia': pd.StringDtype(),
+        'utility_owned_capacity_mw': float,  # Added by AES for NNM table
         'utility_pobox': pd.StringDtype(),
         'utility_zip4': pd.StringDtype(),
         'variable_peak_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
