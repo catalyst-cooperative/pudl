@@ -679,8 +679,25 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
                 f'{df_name}: for column {col} all total values are NaN')
 
 
-def _clean_nerc_add_row(df, idx_cols, idx_no_nerc):
-    """Clean NERC region entries and make new rows for multiple nercs."""
+def _clean_nerc_add_rows(df, idx_cols, idx_no_nerc):
+    """Clean NERC region entries and make new rows for multiple nercs.
+
+    This function examines reported NERC regions and makes sure the output column of
+    the same name has reliable, singular NERC region acronyms. To do so, this function
+    identifies entries where there are two or more NERC regions specified in a single cell
+    (such as SPP & ERCOT) and makes new, duplicate rows for each NERC region. It also
+    converts non-recognized reported nerc regions to 'UNK'.
+
+    Args:
+        df (pandas.DataFrame): A DataFrame with the column 'nerc_region' to be
+            cleaned.
+        idx_cols (list): A list of the primary keys.
+        idx_no_nerc (list): A list of the primary keys, not including nerc_region.
+
+    Returns:
+        pandas.DataFrame: A DataFrame with correct and clean nerc regions.
+
+    """
     # Split raw df into primary keys plus nerc region and other value cols
     nerc_df = df[idx_cols]
     other_df = df.drop('nerc_region', axis=1).set_index(idx_no_nerc)
@@ -1523,7 +1540,7 @@ def operational_data(tfr_dfs):
 
     # Pre-tidy clean specific to operational data table
     raw_od = tfr_dfs["operational_data_eia861"].copy()
-    # tried to do same as SALES table but query didn't work
+    # Tried to do same as SALES table but query didn't work
     raw_od = (
         raw_od[(raw_od['utility_id_eia'].notnull()) &
                (raw_od['utility_id_eia'] != 88888)]
@@ -1533,16 +1550,33 @@ def operational_data(tfr_dfs):
 
     ###########################################################################
     # Transform Data:
-    # - Clean up nerc:
-    #    - Fix puncuation in entries
-    #    - Add new rows for multiples
-    #    - Replace NA with 'UNK'
-    #    - Make sure reported nerc region is a verified nerc region
-    # - Drop duplicates
+    # * Clean up reported NERC regions:
+    #    * Fix puncuation/case
+    #    * Add new rows for multiples in one row
+    #    * Replace na with 'UNK'
+    #    * Make sure NERC regions are a verified NERC region
+    # * Turn 1000s of dollars back into dollars
+    # * Re-code data_observed to boolean:
+    #   * O="observed" => True
+    #   * I="imputed" => False
+    # * Drop duplicates (see NY below)
     ###########################################################################
 
     transformed_od = (
-        _clean_nerc_add_row(raw_od, idx_cols, idx_no_nerc)
+        _clean_nerc_add_rows(raw_od, idx_cols, idx_no_nerc)
+        .assign(
+            revenue_from_credits_or_adjustments=lambda x: x.revenue_from_credits_or_adjustments * 1000.0,
+            revenue_from_delivery_customers=lambda x: x.revenue_from_delivery_customers * 1000.0,
+            revenue_from_other=lambda x: x.revenue_from_other * 1000.0,
+            revenue_from_retail_sales=lambda x: x.revenue_from_retail_sales * 1000.0,
+            revenue_from_sales_for_resale=lambda x: x.revenue_from_sales_for_resale * 1000.0,
+            revenue_from_transmission=lambda x: x.revenue_from_transmission * 1000.0,
+            revenue_total=lambda x: x.revenue_total * 1000.0,
+            data_observed=lambda x: x.data_observed.replace({
+                "O": True,
+                "I": False,
+            })
+        )
     )
 
     # There should be one NY entry that is duplicated because the NERC region was listed as
