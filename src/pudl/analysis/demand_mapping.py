@@ -607,11 +607,11 @@ def allocate_and_aggregate(
 ################################################################################
 def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authority"):
     """
-    Categorize EIA Codes in FERC 714 as either balancing authority or utility IDs.
+    Categorize FERC 714 ``eia_codes`` as either balancing authority or utility IDs.
 
     Most FERC 714 respondent IDs are associated with an ``eia_code`` which refers to
-    either a ``balancing_authority_id_eia`` or a ``utility_id_eia`` but no indication is
-    given as to which type of ID each one is. This is further complicated by the fact
+    either a ``balancing_authority_id_eia`` or a ``utility_id_eia`` but no indication
+    as to which type of ID each one is. This is further complicated by the fact
     that EIA uses the same numerical ID to refer to the same entity in most but not all
     cases, when that entity acts as both a utility and as a balancing authority.
 
@@ -626,6 +626,13 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
     assigned ``pandas.NA``.
     * If ``eia_code`` appears in both sets of IDs, then whichever ``respondent_type``
     has been selected with the ``priority`` flag will be assigned.
+
+    Note that the vast majority of ``balancing_authority_id_eia`` values also show up
+    as ``utility_id_eia`` values, but only a small subset of the ``utility_id_eia``
+    values are associated with balancing authorities. If you use
+    ``priority="utility"`` you should probably also be specifically compiling the list
+    of Utility IDs because you know they should take precedence. If you use utility
+    priority with all utility IDs
 
     Args:
         eia_codes (ordered collection): A dataframe based on the respondent_id_ferc714
