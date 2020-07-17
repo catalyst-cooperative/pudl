@@ -635,13 +635,12 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
     priority with all utility IDs
 
     Args:
-        eia_codes (ordered collection): A dataframe based on the respondent_id_ferc714
-            table, having at least the two columns: ``respondent_id_ferc714`` and
-            ``eia_code``. Other columns may be present.
-        ba_ids_eia (iterable of ints): A collection of IDs which should be interpreted
-            as belonging to EIA Balancing Authorities.
-        util_ids_eia (iterable of ints): A collection of IDs which should be interpreted
-            as belonging to EIA Utilities.
+        eia_codes (ordered collection of ints): A collection of IDs which may be either
+            associated with EIA balancing authorities or utilities, to be categorized.
+        ba_ids_eia (ordered collection of ints): A collection of IDs which should be
+            interpreted as belonging to EIA Balancing Authorities.
+        util_ids_eia (ordered collection of ints): A collection of IDs which should be
+            interpreted as belonging to EIA Utilities.
         priorty (str): Which respondent_type to give priority to if the eia_code shows
             up in both util_ids_eia and ba_ids_eia. Must be one of "utility" or
             "balancing_authority". The default is "balanacing_authority".
