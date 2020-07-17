@@ -2229,7 +2229,7 @@ pudl_tables = {
         "net_metering_eia861",
         "non_net_metering_eia861",
         "operational_data_eia861",
-        # "reliability_eia861",
+        "reliability_eia861",
         # "utility_data_eia861"
     ),
     'eia923': eia923_pudl_tables,
@@ -2524,6 +2524,13 @@ ENTITY_TYPE_DICT = {
     'O': 'Other'  # Added by AES for OD table
 }
 
+# Confirm these designations -- educated guess based on the form instructions
+MOMENTARY_INTERRUPTION_DEF = {  # Added by AES for R table
+    'L': 'Less than 1 minute',
+    'F': 'Less than or equal to 5 minutes',
+    'O': 'Other',
+}
+
 """dict: A dictionary of datasets (keys) and keywords (values). """
 
 column_dtypes = {
@@ -2611,7 +2618,8 @@ column_dtypes = {
         # Added by AES for NM table; used for NNM table
         'current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
         'current_planned_operating_date': 'datetime64[ns]',
-        'customers': pd.Int64Dtype(),  # Used by AES for NM table
+        # Used by AES for NM table and R table (made float because R table was being finicky / throwing the error: cannot safely cast non-equivalent float64 to int64)
+        'customers': float,
         'customer_class': pd.CategoricalDtype(categories=[
             "residential", "commercial", "industrial", "transportation",
             "dircnct", "other", "total",
@@ -2634,7 +2642,7 @@ column_dtypes = {
         'energy_source_code_5': pd.StringDtype(),
         'energy_source_code_6': pd.StringDtype(),
         'energy_storage': pd.BooleanDtype(),
-        # Modified by AES for Merger table and OD table
+        # Modified by AES for Merger, OD, and R tables
         'entity_type': pd.CategoricalDtype(categories=ENTITY_TYPE_DICT.values()),
         'exchange_energy_delivered_mwh': float,  # Added by AES for OD table
         'exchange_energy_recieved_mwh': float,  # Added by AES for OD table
@@ -2672,7 +2680,11 @@ column_dtypes = {
         'grid_voltage_3_kv': float,
         'grid_voltage_kv': float,
         'heat_content_mmbtu_per_unit': float,
+        'highest_distribution_voltage': float,  # Added by AES for R table
         'home_area_network': float,  # Added by AES for AMI table
+        'inactive_accounts_included': pd.BooleanDtype(),  # Added by AES for R table
+        # Added by AES for R table
+        'interruption_indicies': pd.CategoricalDtype(categories=['caidi', 'saidi', 'saifi']),
         'iso_rto_code': pd.StringDtype(),
         'latitude': float,
         'liquefied_natural_gas_storage': pd.BooleanDtype(),
@@ -2691,6 +2703,8 @@ column_dtypes = {
         'mine_type_code': pd.StringDtype(),
         'minimum_load_mw': float,
         'moisture_content_pct': float,
+        # Added by AES for R table
+        # 'momentary_interruption_definition': pd.CategoricalDtype(categories=MOMENTARY_INTERRUPTION_DEF.values()),
         'multiple_fuels': pd.BooleanDtype(),
         'nameplate_power_factor': float,
         'natural_gas_delivery_contract_type_code': pd.StringDtype(),
@@ -2718,6 +2732,7 @@ column_dtypes = {
         'other_costs': float,  # Added by AES for DR table
         'other_modifications_date': 'datetime64[ns]',
         'other_planned_modifications': pd.BooleanDtype(),
+        'outages_recorded_automatically': pd.BooleanDtype(),  # Added by AES for R table
         'owner_city': pd.StringDtype(),
         'owner_name': pd.StringDtype(),
         'owner_state': pd.StringDtype(),
@@ -2841,7 +2856,10 @@ column_dtypes = {
         'wholesale_power_purchases_mwh': float,  # Added by AES for OD table
         'winter_capacity_mw': float,
         'winter_estimated_capability_mw': float,
-        'winter_peak_demand_mw': float,  # Added by AES for OD
+        'winter_peak_demand_mw': float,  # Added by AES for OD table
+        'with_med': float,  # Added by AES for R table
+        'with_med_minus_los': float,  # Added by AES for R table
+        'without_med': float,  # Added by AES for R table
         'zip_code': pd.StringDtype(),
     },
 }

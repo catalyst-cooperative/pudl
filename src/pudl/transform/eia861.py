@@ -488,6 +488,17 @@ TECH_CLASSES = [
     'total'
 ]
 
+STANDARDS = [
+    'ieee',
+    'other'
+]
+
+INTERUPTION_INDICIES = [
+    'caidi',
+    'saidi',
+    'saifi',
+]
+
 ###############################################################################
 # EIA Form 861 Transform Helper functions
 ###############################################################################
@@ -587,7 +598,8 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
     tidy_df = pd.merge(denorm_cols, data_cols, on=idx_cols)
 
     # Compare reported totals with sum of component columns
-    _compare_totals(data_cols, idx_cols, class_type, df_name)
+    if 'total' in class_list:
+        _compare_totals(data_cols, idx_cols, class_type, df_name)
 
     # Remove the now redundant "Total" records -- they can be reconstructed
     # from the other customer classes.
@@ -1611,6 +1623,66 @@ def reliability(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    idx_cols = [
+        'utility_id_eia',
+        'state',
+        'report_date'
+    ]
+
+    # Pre-tidy clean specific to operational data table
+    raw_r = tfr_dfs["reliability_eia861"].copy()
+
+    ###########################################################################
+    # Tidy Data:
+    ###########################################################################
+
+    logger.info("Tidying the EIA 861 Reliability table.")
+
+    # Normalize by standards
+    tidy_r, idx_cols = _tidy_class_dfs(
+        df=raw_r,
+        df_name='Reliability',
+        idx_cols=idx_cols,
+        class_list=STANDARDS,
+        class_type='standard',
+        keep_totals=False,
+    )
+
+    # Normalize by interuption incidies
+    tidy_r, idx_cols = _tidy_class_dfs(
+        df=tidy_r,
+        df_name='Reliability',
+        idx_cols=idx_cols,
+        class_list=INTERUPTION_INDICIES,
+        class_type='interuption_indicies',
+        keep_totals=False,
+    )
+
+    ###########################################################################
+    # Transform Data:
+    # * Re-code outages_recorded_automatically and inactive_accounts_included to boolean:
+    #   * Y/y="Yes" => True
+    #   * N/n="No" => False
+    ###########################################################################
+
+    transformed_r = (
+        tidy_r.assign(
+            outages_recorded_automatically=lambda x: (
+                x.outages_recorded_automatically.str.upper().replace({
+                    'Y': True,
+                    'N': False})),
+            inactive_accounts_included=lambda x: (
+                x.inactive_accounts_included.replace({
+                    'Y': True,
+                    'N': False})),
+            momentary_interruption_definition=lambda x: (
+                x.momentary_interruption_definition.map(
+                    pc.MOMENTARY_INTERRUPTION_DEF))
+        )
+    )
+
+    tfr_dfs["reliability_eia861"] = transformed_r
+
     return tfr_dfs
 
 
@@ -1663,9 +1735,9 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "net_metering_eia861": net_metering,
         "non_net_metering_eia861": non_net_metering,
         "operational_data_eia861": operational_data,
+        "reliability_eia861": reliability,
         # "demand_side_management_eia861": demand_side_management,
         # "distributed_generation_eia861": distributed_generation,
-        # "reliability_eia861": reliability,
         # "utility_data_eia861": utility_data,
     }
     tfr_dfs = {}
