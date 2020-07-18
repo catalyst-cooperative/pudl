@@ -178,25 +178,26 @@ class GenericExtractor(object):
             testing (boolean): if testing is True, the datastore manager will
                 know to use the zenodo sandbox DOIs.
         """
+        raw_dfs = {}
         # TODO: should we run verify_years(?) here?
         if not years:
-            logger.info(
+            logger.warning(
                 f'No years given. Not extracting {self._dataset_name} spreadsheet data.')
-            return {}
+            return raw_dfs
+        logger.info(f'Extracting {self._dataset_name} spreadsheet data.')
 
-        raw_dfs = {}
         for page in self._metadata.get_all_pages():
             if page in self.BLACKLISTED_PAGES:
-                logger.info(f'Skipping blacklisted page {page}.')
+                logger.debug(f'Skipping blacklisted page {page}.')
                 continue
             df = pd.DataFrame()
             for yr in years:
                 # we are going to skip
                 if self.excel_filename(yr, page) == '-1':
-                    logger.info(
+                    logger.debug(
                         f'No page for {self._dataset_name} {page} {yr}')
                     continue
-                logger.info(
+                logger.debug(
                     f'Loading dataframe for {self._dataset_name} {page} {yr}')
                 newdata = pd.read_excel(
                     self.load_excel_file(yr, page, testing=testing),
@@ -216,7 +217,7 @@ class GenericExtractor(object):
             df = pd.concat([df, empty_cols], sort=True)
             if len(self.METADATA._column_map[page].index) != len(df.columns):
                 # raise AssertionError(
-                logger.info(
+                logger.warning(
                     f'Columns for {page} are off: should be '
                     f'{len(self.METADATA._column_map[page].index)} but got '
                     f'{len(df.columns)}'
