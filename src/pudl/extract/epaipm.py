@@ -67,19 +67,17 @@ class EpaIpmDatastore(datastore.Datastore):
         raise ValueError("%s: unknown file format on %s" % (path.suffix, path))
 
 
-def create_dfs_epaipm(files, testing=False):
+def create_dfs_epaipm(files, ds):
     """Makes dictionary of pages (keys) to dataframes (values) for epaipm tabs.
 
     Args:
         files (list): a list of epaipm files
-        testing (boolian): use the datastore sandbox instead of prod
+        ds (EpaIpmDatastore): Initialized datastore
 
     Returns:
         dict: dictionary of pages (key) to dataframes (values)
 
     """
-    ds = EpaIpmDatastore(sandbox=testing)
-
     epaipm_dfs = {}
     for f in files:
         # NEEDS is the only IPM data file with multiple sheets. Keeping the overall

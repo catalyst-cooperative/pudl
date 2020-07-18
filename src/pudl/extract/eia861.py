@@ -19,7 +19,15 @@ logger = logging.getLogger(__name__)
 class Extractor(excel.GenericExtractor):
     """Extractor for the excel dataset EIA861."""
 
-    METADATA = excel.Metadata('eia861')
+    def __init__(self, ds, *args, **kwargs):
+        """
+        Initialize the module.
+
+        Args:
+            ds (:class:datastore.Datastore): Initialized datastore.
+        """
+        self.METADATA = excel.Metadata('eia861', ds)
+        super().__init__(*args, **kwargs)
 
     def file_basename_glob(self, year, page):
         """Returns corresponding glob pattern for a page."""

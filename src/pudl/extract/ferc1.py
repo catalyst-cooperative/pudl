@@ -141,7 +141,7 @@ def drop_tables(engine):
     conn.close()
 
 
-def add_sqlite_table(table_name, sqlite_meta, dbc_map,
+def add_sqlite_table(table_name, sqlite_meta, dbc_map, ds,
                      refyear=max(pc.working_years['ferc1']),
                      testing=False,
                      bad_cols=()):
@@ -162,6 +162,7 @@ def add_sqlite_table(table_name, sqlite_meta, dbc_map,
         sqlite_meta (:class:`sqlalchemy.schema.MetaData`): The database schema
             to which the newly defined :class:`sqlalchemy.Table` will be added.
         dbc_map (dict): A dictionary of dictionaries
+        ds (:class:`Ferc1Datastore`): Initialized datastore
         testing (bool): Assume this is a test run, use sandboxes
         bad_cols (iterable of 2-tuples): A list or other iterable containing
             pairs of strings of the form (table_name, column_name), indicating
@@ -173,7 +174,6 @@ def add_sqlite_table(table_name, sqlite_meta, dbc_map,
 
     """
     # Create the new table object
-    ds = Ferc1Datastore(sandbox=testing)
     new_table = sa.Table(table_name, sqlite_meta)
 
     fn = pc.ferc1_tbl2dbf[table_name] + ".DBF"
@@ -254,7 +254,7 @@ def get_fields(filedata):
     return tables
 
 
-def get_dbc_map(year, min_length=4, testing=False):
+def get_dbc_map(ds, year, min_length=4, testing=False):
     """
     Extract names of all tables and fields from a FERC Form 1 DBC file.
 
@@ -266,6 +266,7 @@ def get_dbc_map(year, min_length=4, testing=False):
     characters in their names.)
 
     Args:
+        ds (:class:`Ferc1Datastore`): Initialized datastore
         year (int): The year of data from which the database table and column
             names are to be extracted. Typically this is expected to be the
             most recently available year of FERC Form 1 data.
@@ -282,7 +283,6 @@ def get_dbc_map(year, min_length=4, testing=False):
 
     """
     # Extract all the strings longer than "min" from the DBC file
-    ds = Ferc1Datastore(sandbox=testing)
     dbc = ds.get_file(year, "F1_PUB.DBC")
     tf_dict = get_fields(dbc)
 
@@ -393,10 +393,11 @@ class FERC1FieldParser(dbfread.FieldParser):
         return super(FERC1FieldParser, self).parseN(field, data)
 
 
-def get_raw_df(table, dbc_map, years=pc.data_years['ferc1'], testing=False):
+def get_raw_df(ds, table, dbc_map, years=pc.data_years['ferc1']):
     """Combine several years of a given FERC Form 1 DBF table into a dataframe.
 
     Args:
+        ds (:class:`Ferc1Datastore`): Initialized datastore
         table (string): The name of the FERC Form 1 table from which data is
             read.
         dbc_map (dict of dicts): A dictionary of dictionaries, of the kind
@@ -404,7 +405,6 @@ def get_raw_df(table, dbc_map, years=pc.data_years['ferc1'], testing=False):
             stored within the FERC Form 1 FoxPro database files.
         min_length (int): The minimum number of consecutive printable
         years (list): Range of years to be combined into a single DataFrame.
-        testing (bool): Assume this is a test run, use sandboxes
 
     Returns:
         :class:`pandas.DataFrame`: A DataFrame containing several years of FERC
@@ -412,7 +412,6 @@ def get_raw_df(table, dbc_map, years=pc.data_years['ferc1'], testing=False):
 
     """
     dbf_name = pc.ferc1_tbl2dbf[table]
-    ds = Ferc1Datastore(sandbox=testing)
 
     raw_dfs = []
     for yr in years:

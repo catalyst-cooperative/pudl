@@ -17,7 +17,6 @@ import yaml
 
 import pudl
 from pudl.convert.epacems_to_parquet import epacems_to_parquet
-from pudl.extract.epacems import EpaCemsDatastore
 from pudl.extract.ferc1 import get_dbc_map, get_fields
 
 logger = logging.getLogger(__name__)
@@ -147,35 +146,38 @@ def test_interim_ferc714_etl(pudl_settings_fixture):
     _ = pudl.transform.ferc714.transform(pudl.extract.ferc714.extract())
 
 
-@pytest.mark.usefixtures("pudl_settings_fixture")
 class TestFerc1Datastore:
     """Validate the Ferc1 Datastore and integration functions."""
 
-    ds = pudl.extract.ferc1.Ferc1Datastore(sandbox=True)
-
-    def test_ferc_folder(self):
+    def test_ferc_folder(self, pudl_ferc1datastore_fixture):
         """Spot check we get correct folder names per dataset year."""
-        assert self.ds.get_folder(1994) == "FORMSADMIN/FORM1/working"
-        assert self.ds.get_folder(2001) == "UPLOADERS/FORM1/working"
-        assert self.ds.get_folder(2002) == "FORMSADMIN/FORM1/working"
-        assert self.ds.get_folder(2010) == "UPLOADERS/FORM1/working"
-        assert self.ds.get_folder(2015) == "UPLOADERS/FORM1/working"
+        ds = pudl_ferc1datastore_fixture
 
-    def test_get_fields(self):
+        assert ds.get_folder(1994) == "FORMSADMIN/FORM1/working"
+        assert ds.get_folder(2001) == "UPLOADERS/FORM1/working"
+        assert ds.get_folder(2002) == "FORMSADMIN/FORM1/working"
+        assert ds.get_folder(2010) == "UPLOADERS/FORM1/working"
+        assert ds.get_folder(2015) == "UPLOADERS/FORM1/working"
+
+    def test_get_fields(self, pudl_ferc1datastore_fixture):
         """Check that the get fields table works as expected."""
+        ds = pudl_ferc1datastore_fixture
+
         expect_path = pathlib.Path(__file__).parent / "data" / "ferc" \
             / "form1" / "f1_2018" / "get_fields.json"
 
         with expect_path.open() as f:
             expect = yaml.safe_load(f)
 
-        data = self.ds.get_file(2018, "F1_PUB.DBC")
+        data = ds.get_file(2018, "F1_PUB.DBC")
         result = get_fields(data)
         assert result == expect
 
-    def test_sample_get_dbc_map(self):
+    def test_sample_get_dbc_map(self, pudl_ferc1datastore_fixture):
         """Test sample_get_dbc_map."""
-        table = get_dbc_map(2018, testing=True)
+        ds = pudl_ferc1datastore_fixture
+
+        table = get_dbc_map(ds, 2018, testing=True)
         assert table["f1_429_trans_aff"] == {
             "ACCT_CORC": "acct_corc",
             "ACCT_CORC_": "acct_corc_f",
@@ -195,7 +197,6 @@ class TestFerc1Datastore:
         }
 
 
-@pytest.mark.usefixtures("pudl_settings_fixture")
 class TestExcelExtractor:
     """Verify that we can lead excel files as provided via the datastore."""
 
@@ -240,11 +241,10 @@ class TestExcelExtractor:
             2019, "stocks", testing=True).sheet_names
 
 
-@pytest.mark.usefixtures("pudl_settings_fixture")
 class TestEpaCemsDatastore:
     """Ensure we can extract csv files from the datastore."""
 
-    datastore = EpaCemsDatastore(sandbox=True)
+    # datastore = EpaCemsDatastore(sandbox=True)
 
     def test_get_csv(self):
         """Spot check opening of epacems csv file from datastore."""

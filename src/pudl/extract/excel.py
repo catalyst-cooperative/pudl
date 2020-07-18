@@ -8,7 +8,6 @@ from pathlib import Path
 import pandas as pd
 
 import pudl
-from pudl.workspace import datastore as datastore
 
 logger = logging.getLogger(__name__)
 
@@ -42,14 +41,16 @@ class Metadata(object):
     # existing records for each (year, page) -> sheet_name, (year, page) -> skiprows
     # and for all (year, page) -> column map
 
-    def __init__(self, dataset_name):
+    def __init__(self, dataset_name, ds):
         """Create Metadata object and load metadata from python package.
 
         Args:
             dataset_name: Name of the package/dataset to load the metadata from.
             Files will be loaded from pudl.package_data.meta.xlsx_meta.${dataset_name}.
+            ds (datastore.Datastore): An initialized datastore
         """
         pkg = f'pudl.package_data.meta.xlsx_maps.{dataset_name}'
+        self.ds = ds
         self._dataset_name = dataset_name
         self._skiprows = self._load_csv(pkg, 'skiprows.csv')
         self._skipfooter = self._load_csv(pkg, 'skipfooter.csv')
@@ -223,7 +224,7 @@ class GenericExtractor(object):
             raw_dfs[page] = self.process_final_page(df, page)
         return raw_dfs
 
-    def load_excel_file(self, year, page, testing=False):
+    def load_excel_file(self, year, page):
         """
         Produce the ExcelFile object for the given (year, page).
 
@@ -235,8 +236,7 @@ class GenericExtractor(object):
         Return:
             string name of the xlsx file
         """
-        ds = datastore.Datastore(sandbox=testing)
-        info = ds.get_resources(self._dataset_name, year=year)
+        info = self.ds.get_resources(self._dataset_name, year=year)
 
         if info is None:
             return

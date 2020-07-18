@@ -304,5 +304,11 @@ def pudl_settings_fixture(request, tmpdir_factory,  # noqa: C901
             str(live_pudl_db_path)
 
     logger.info(f'pudl_settings being used : {pudl_settings}')
-    pudl_settings["testing"] = True
     return pudl_settings
+
+
+@pytest.fixture(scope='session')  # noqa: C901
+def pudl_ferc1datastore_fixture(pudl_settings_fixture):
+    """Produce a :class:pudl.extract.ferc1.Ferc1Datastore."""
+    return pudl.extract.ferc1.Ferc1Datastore(
+        pathlib.Path(pudl_settings_fixture["pudl_in"]), sandbox=True)
