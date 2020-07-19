@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class Extractor(excel.GenericExtractor):
     """Extractor for EIA form 923."""
 
-    def __init__(self, ds, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         Initialize the module.
 

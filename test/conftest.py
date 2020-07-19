@@ -312,3 +312,17 @@ def pudl_ferc1datastore_fixture(pudl_settings_fixture):
     """Produce a :class:pudl.extract.ferc1.Ferc1Datastore."""
     return pudl.extract.ferc1.Ferc1Datastore(
         pathlib.Path(pudl_settings_fixture["pudl_in"]), sandbox=True)
+
+
+@pytest.fixture(scope='session')  # noqa: C901
+def pudl_datastore_fixture(pudl_settings_fixture):
+    """Produce a :class:pudl.workspace.datastore.Datastore."""
+    return pudl.workspace.datastore.Datastore(
+        pathlib.Path(pudl_settings_fixture["pudl_in"]), sandbox=True)
+
+
+@pytest.fixture(scope='session')  # noqa: C901
+def pudl_epacemsdatastore_fixture(pudl_settings_fixture):
+    """Produce a :class:pudl.extract.epacems.EpaCemsDatastore."""
+    return pudl.extract.epacems.EpaCemsDatastore(
+        pathlib.Path(pudl_settings_fixture["pudl_in"]), sandbox=True)

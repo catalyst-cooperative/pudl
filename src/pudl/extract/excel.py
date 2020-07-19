@@ -41,16 +41,14 @@ class Metadata(object):
     # existing records for each (year, page) -> sheet_name, (year, page) -> skiprows
     # and for all (year, page) -> column map
 
-    def __init__(self, dataset_name, ds):
+    def __init__(self, dataset_name):
         """Create Metadata object and load metadata from python package.
 
         Args:
             dataset_name: Name of the package/dataset to load the metadata from.
             Files will be loaded from pudl.package_data.meta.xlsx_meta.${dataset_name}.
-            ds (datastore.Datastore): An initialized datastore
         """
         pkg = f'pudl.package_data.meta.xlsx_maps.{dataset_name}'
-        self.ds = ds
         self._dataset_name = dataset_name
         self._skiprows = self._load_csv(pkg, 'skiprows.csv')
         self._skipfooter = self._load_csv(pkg, 'skipfooter.csv')
@@ -140,13 +138,19 @@ class GenericExtractor(object):
     BLACKLISTED_PAGES = []
     """List of supported pages that should not be extracted."""
 
-    def __init__(self):
-        """Create new extractor object and load metadata."""
+    def __init__(self, ds):
+        """
+        Create new extractor object and load metadata.
+
+        Args:
+            ds (datastore.Datastore): An initialized datastore, or subclass
+        """
         if not self.METADATA:
             raise NotImplementedError('self.METADATA must be set.')
         self._metadata = self.METADATA
         self._dataset_name = self._metadata.get_dataset_name()
         self._file_cache = {}
+        self.ds = ds
 
     def process_raw(self, df, year, page):
         """Transforms raw dataframe and rename columns."""
