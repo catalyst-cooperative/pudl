@@ -171,7 +171,7 @@ class GenericExtractor(object):
         """Provide custom dtypes for given page and year."""
         return {}
 
-    def extract(self, years, testing=False):
+    def extract(self, years):
         """Extracts dataframes.
 
         Returns dict where keys are page names and values are
@@ -179,8 +179,6 @@ class GenericExtractor(object):
 
         Args:
             years (list): list of years to extract.
-            testing (boolean): if testing is True, the datastore manager will
-                know to use the zenodo sandbox DOIs.
         """
         raw_dfs = {}
         # TODO: should we run verify_years(?) here?
@@ -204,7 +202,7 @@ class GenericExtractor(object):
                 logger.debug(
                     f'Loading dataframe for {self._dataset_name} {page} {yr}')
                 newdata = pd.read_excel(
-                    self.load_excel_file(yr, page, testing=testing),
+                    self.load_excel_file(yr, page),
                     sheet_name=self._metadata.get_sheet_name(yr, page),
                     skiprows=self._metadata.get_skiprows(yr, page),
                     skipfooter=self._metadata.get_skipfooter(yr, page),

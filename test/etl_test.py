@@ -78,8 +78,10 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
     and field that appears in the historical FERC Form 1 data.
     """
     refyear = max(data_scope['ferc1_years'])
-    current_dbc_map = pudl.extract.ferc1.get_dbc_map(year=refyear,
-                                                     testing=True)
+    ds = pudl.extract.ferc1.Ferc1Datastore(
+        pathlib.Path(pudl_settings_fixture["pudl_in"]),
+        sandbox=True)
+    current_dbc_map = pudl.extract.ferc1.get_dbc_map(ds, year=refyear)
     current_tables = list(current_dbc_map.keys())
     logger.info(f"Checking for new, unrecognized FERC1 "
                 f"tables in {refyear}.")
@@ -94,10 +96,7 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
     dbc_maps = {}
     for yr in data_scope['ferc1_years']:
         logger.info(f"Searching for lost FERC1 tables and fields in {yr}.")
-        dbc_maps[yr] = pudl.extract.ferc1.get_dbc_map(
-            year=yr,
-            testing=True
-        )
+        dbc_maps[yr] = pudl.extract.ferc1.get_dbc_map(ds, year=yr)
         old_tables = list(dbc_maps[yr].keys())
         for table in old_tables:
             # Check to make sure there aren't any lost archaic tables:
@@ -134,9 +133,12 @@ def test_ferc1_solo_etl(pudl_settings_fixture,
 def test_interim_eia861_etl(pudl_settings_fixture):
     """Make sure that the EIA 861 Extract-Transform steps work."""
     logger.info("Running the interim EIA 861 ETL process! (~2 minutes)")
+    ds = pudl.workspace.datastore.Datastore(
+        pathlib.Path(pudl_settings_fixture["pudl_in"]),
+        sandbox=True)
     _ = pudl.transform.eia861.transform(
-        pudl.extract.eia861.Extractor()
-        .extract(pudl.constants.working_years["eia861"], testing=True)
+        pudl.extract.eia861.Extractor(ds)
+        .extract(pudl.constants.working_years["eia861"])
     )
 
 
@@ -177,7 +179,7 @@ class TestFerc1Datastore:
         """Test sample_get_dbc_map."""
         ds = pudl_ferc1datastore_fixture
 
-        table = get_dbc_map(ds, 2018, testing=True)
+        table = get_dbc_map(ds, 2018)
         assert table["f1_429_trans_aff"] == {
             "ACCT_CORC": "acct_corc",
             "ACCT_CORC_": "acct_corc_f",

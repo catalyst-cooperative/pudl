@@ -86,7 +86,7 @@ def extract(epacems_years, states, ds):
             integers.
         states (list): The states whose CEMS data we want to extract, indicated
             by 2-letter US state codes.
-        ds (EpaCemsDatastore): Initialized datastore
+        ds (:class:`EpaCemsDatastore`): Initialized datastore
         testing (boolean): use Zenodo sandbox if True
 
     Yields:

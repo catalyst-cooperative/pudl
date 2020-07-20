@@ -72,7 +72,7 @@ def create_dfs_epaipm(files, ds):
 
     Args:
         files (list): a list of epaipm files
-        ds (EpaIpmDatastore): Initialized datastore
+        ds (:class:`EpaIpmDatastore`): Initialized datastore
 
     Returns:
         dict: dictionary of pages (key) to dataframes (values)
@@ -95,12 +95,12 @@ def create_dfs_epaipm(files, ds):
     return epaipm_dfs
 
 
-def extract(epaipm_tables, testing=False):
+def extract(epaipm_tables, ds):
     """Extracts data from IPM files.
 
     Args:
         epaipm_tables (iterable): A tuple or list of table names to extract
-        testing (bool): If true, use sandbox & testing sources instead of prod
+        ds (:class:`EpaIpmDatastore`): Initialized datastore
 
     Returns:
         dict: dictionary of DataFrames with extracted (but not yet transformed)
@@ -117,5 +117,5 @@ def extract(epaipm_tables, testing=False):
     #    if table in epaipm_tables
     # }
 
-    epaipm_raw_dfs = create_dfs_epaipm(files=epaipm_tables, testing=testing)
+    epaipm_raw_dfs = create_dfs_epaipm(epaipm_tables, ds)
     return epaipm_raw_dfs

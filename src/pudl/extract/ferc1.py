@@ -254,7 +254,7 @@ def get_fields(filedata):
     return tables
 
 
-def get_dbc_map(ds, year, min_length=4, testing=False):
+def get_dbc_map(ds, year, min_length=4):
     """
     Extract names of all tables and fields from a FERC Form 1 DBC file.
 
@@ -320,10 +320,9 @@ def get_dbc_map(ds, year, min_length=4, testing=False):
     return dbc_map
 
 
-def define_sqlite_db(sqlite_meta, dbc_map,
+def define_sqlite_db(sqlite_meta, dbc_map, ds,
                      tables=pc.ferc1_tbl2dbf,
                      refyear=max(pc.working_years['ferc1']),
-                     testing=False,
                      bad_cols=()):
     """
     Defines a FERC Form 1 DB structure in a given SQLAlchemy MetaData object.
@@ -340,12 +339,12 @@ def define_sqlite_db(sqlite_meta, dbc_map,
         dbc_map (dict of dicts): A dictionary of dictionaries, of the kind
             returned by get_dbc_map(), describing the table and column names
             stored within the FERC Form 1 FoxPro database files.
+        ds (:class:`Ferc1Datastore`): Initialized Ferc1Datastore
         tables (iterable of strings): List or other iterable of FERC database
             table names that should be included in the database being defined.
             e.g. 'f1_fuel' and 'f1_steam'
         refyear (integer): The year of the FERC Form 1 DB to use as a template
             for creating the overall multi-year database schema.
-        testing (bool): Assume this is a test run, and should use sandboxes
         bad_cols (iterable of 2-tuples): A list or other iterable containing
             pairs of strings of the form (table_name, column_name), indicating
             columns (and their parent tables) which should *not* be cloned
@@ -356,10 +355,8 @@ def define_sqlite_db(sqlite_meta, dbc_map,
 
     """
     for table in tables:
-        add_sqlite_table(table, sqlite_meta, dbc_map,
-                         refyear=refyear,
-                         bad_cols=bad_cols,
-                         testing=testing)
+        add_sqlite_table(table, sqlite_meta, dbc_map, ds,
+                         refyear=refyear, bad_cols=bad_cols)
 
     sqlite_meta.create_all()
 
@@ -437,7 +434,7 @@ def get_raw_df(ds, table, dbc_map, years=pc.data_years['ferc1']):
 
 
 def dbf2sqlite(tables, years, refyear, pudl_settings,
-               bad_cols=(), clobber=False, testing=False):
+               bad_cols=(), clobber=False):
     """Clone the FERC Form 1 Databsae to SQLite.
 
     Args:
@@ -470,14 +467,18 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
 
     # Get the mapping of filenames to table names and fields
     logger.info(f"Creating a new database schema based on {refyear}.")
-    dbc_map = get_dbc_map(refyear, testing=testing)
-    define_sqlite_db(sqlite_meta, dbc_map, tables=tables,
-                     refyear=refyear, bad_cols=bad_cols,
-                     testing=testing)
+    sandbox = pudl_settings.get("sandbox", False)
+    ds = Ferc1Datastore(
+        Path(pudl_settings["pudl_in"]),
+        sandbox=sandbox)
+
+    dbc_map = get_dbc_map(ds, refyear)
+    define_sqlite_db(sqlite_meta, dbc_map, ds, tables=tables,
+                     refyear=refyear, bad_cols=bad_cols)
 
     for table in tables:
         logger.info(f"Pandas: reading {table} into a DataFrame.")
-        new_df = get_raw_df(table, dbc_map, years=years, testing=testing)
+        new_df = get_raw_df(ds, table, dbc_map, years=years)
         # Because this table has no year in it, there would be multiple
         # definitions of respondents if we didn't drop duplicates.
         if table == 'f1_respondent_id':
