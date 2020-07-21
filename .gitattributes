@@ -1,1 +1,2 @@
-*.ipynb linguist-detectable=false
+x*.ipynb linguist-detectable=false
+eia861-transform.ipynb merge=ours
