@@ -506,6 +506,7 @@ NERC_SPELLCHECK = {
     'VACAR': 'SERC',  # VACAR is a subregion of SERC
     'GATEWAY': 'SERC',  # GATEWAY is a subregion of SERC
     'TERR': 'GU',
+    25470: 'MRO',
 }
 
 ###############################################################################
@@ -722,11 +723,8 @@ def _clean_nerc(df, idx_cols):
         idx_no_nerc.remove('nerc_region')
 
     # Split raw df into primary keys plus nerc region and other value cols
-    nerc_df = df[idx_cols]
+    nerc_df = df[idx_cols].copy()
     other_df = df.drop('nerc_region', axis=1).set_index(idx_no_nerc)
-
-    # Backfill the utility with strange numeric nerc region
-    nerc_df.loc[nerc_df.utility_id_eia == 55959, 'nerc_region'] = 'MRO'
 
     # Make all values upper-case
     # Replace all NA values with UNK
