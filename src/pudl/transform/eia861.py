@@ -454,7 +454,7 @@ RECOGNIZED_NERC_REGIONS = [
     'HICC',
     'MAAC',
     'MAIN',
-    'MAPP'
+    'MAPP',
     'MRO',
     'NPCC',
     'RFC',
@@ -462,7 +462,27 @@ RECOGNIZED_NERC_REGIONS = [
     'SPP',
     'TRE',
     'WECC',
+    'WSCC',  # pre-2002 version of WECC
+    'MISO',  # unclear whether technically a regional entity, but lots of entries
+    'AK',  # Alaska
+    'HI',  # Hawaii
+    'VI',  # Virgin Islands
+    'GU',  # Guam
+    'PR',  # Puerto Rico
+    'AS',  # American Samoa
+    'UNK',
 ]
+
+NERC_SPELLCHECK = {
+    'GUSTAVUSAK': 'AK',
+    'ERCTO': 'ERCOT',
+    'RFO': 'RFC',
+    'RF': 'RFC',
+    'SSP': 'SPP',
+    'VACAR': 'SERC',  # VACAR is a subregion of SERC
+    'GATEWAY': 'SERC',  # GATEWAY is a subregion of SERC
+    'TERR': 'GU',
+}
 
 CUSTOMER_CLASSES = [
     "commercial",
@@ -691,7 +711,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
                 f'{df_name}: for column {col} all total values are NaN')
 
 
-def _clean_nerc_add_rows(df, idx_cols, idx_no_nerc):
+def _clean_nerc(df, idx_cols):
     """Clean NERC region entries and make new rows for multiple nercs.
 
     This function examines reported NERC regions and makes sure the output column of
@@ -704,63 +724,57 @@ def _clean_nerc_add_rows(df, idx_cols, idx_no_nerc):
         df (pandas.DataFrame): A DataFrame with the column 'nerc_region' to be
             cleaned.
         idx_cols (list): A list of the primary keys.
-        idx_no_nerc (list): A list of the primary keys, not including nerc_region.
 
     Returns:
         pandas.DataFrame: A DataFrame with correct and clean nerc regions.
 
     """
+    idx_no_nerc = idx_cols.copy()
+    if 'nerc_region' in idx_no_nerc:
+        idx_no_nerc.remove('nerc_region')
+
     # Split raw df into primary keys plus nerc region and other value cols
     nerc_df = df[idx_cols]
     other_df = df.drop('nerc_region', axis=1).set_index(idx_no_nerc)
 
+    # Backfill the utility with strange numeric nerc region
+    nerc_df.loc[nerc_df.utility_id_eia == 55959, 'nerc_region'] = 'MRO'
+
     # Make all values upper-case
     # Replace all NA values with UNK
-    # Make nerc values into lists to see how many separate values are stuffed into one row (ex: SPP & ERCOT)
+    # Make nerc values into lists to see how many separate values are stuffed into one row (ex: 'SPP & ERCOT' --> ['SPP', 'ERCOT'])
     nerc_df = (
         nerc_df.assign(
             nerc_region=(lambda x: (
                 x.nerc_region
                 .str.upper()
                 .fillna('UNK')
-                .str.findall(r'[A-Z]+'))),
-            multiple_nercs=(lambda x: (
-                x.nerc_region.apply(lambda x: len(x) > 1)))
+                .str.findall(r'[A-Z]+')))
         )
     )
 
-    # Needed nerc_regions as a list to calculate multiple_nercs, but now can convert nerc lists into
-    # comma-separated strings (can't use same col name twice in one assign)
-    nerc_df['nerc_region'] = nerc_df['nerc_region'].str.join(',')
+    # Record a list of the reported nerc regions not included in the recognized regions list (these eventually become UNK)
+    nerc_col = nerc_df['nerc_region'].tolist()
+    nerc_list = list(set([item for sublist in nerc_col for item in sublist]))
+    non_nerc_list = [
+        nerc_entity for nerc_entity in nerc_list if nerc_entity not in RECOGNIZED_NERC_REGIONS + list(NERC_SPELLCHECK.keys())]
+    logger.info(
+        f'The following reported NERC regions are not currently recognized and become UNK values: {non_nerc_list}')
 
-    # Make dfs of multiple vs. single nerc values
-    nerc_multiples = (
-        nerc_df[nerc_df['multiple_nercs']].copy()
-        .drop('multiple_nercs', axis=1)
-    )
-    nerc_singles = (
-        nerc_df[~nerc_df['multiple_nercs']].copy()
-        .drop('multiple_nercs', axis=1)
-    )
+    # Function to turn instances of 'SPP_UNK' into 'SPP' (or other recognized nerc regions)
+    def _remove_unk_multiples(entity_list):
+        if ((len(entity_list) > 1) & ('UNK' in entity_list)):
+            entity_list.remove('UNK')
+        return entity_list
 
-    new_nerc_rows = (
-        nerc_multiples
-        .set_index(idx_no_nerc)
-        .stack()
-        .str.split(',', expand=True)
-        .stack()
-        .unstack(-2)
-        .reset_index(-1, drop=True)
-        .reset_index()
-    )
-
-    # Recombine old nerc single rows with new nerc expanded rows
-    nerc_df = nerc_singles.append(new_nerc_rows)
-
-    # Anything that isn't in the official list of nerc_regions is 'UNK'
+    # Go through the nerc regions, spellcheck errors, delete those that aren't recognized, and piece them back together
+    # (with _ separator if more than one recognized)
     nerc_df['nerc_region'] = (
         nerc_df['nerc_region']
-        .apply(lambda x: x if x in RECOGNIZED_NERC_REGIONS else 'UNK')
+        .apply(lambda x: [i if i not in NERC_SPELLCHECK.keys() else NERC_SPELLCHECK[i] for i in x])
+        .apply(lambda x: sorted([i if i in RECOGNIZED_NERC_REGIONS else 'UNK' for i in x]))
+        .apply(lambda x: _remove_unk_multiples(x))
+        .str.join('_')
     )
 
     # Merge all data back together
@@ -792,7 +806,7 @@ def service_territory(tfr_dfs):
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
     type_compatible_df = tfr_dfs["service_territory_eia861"].astype({
-                                                                    "county": str})
+        "county": str})
     # Transform values:
     # * Add state and county fips IDs
     transformed_df = (
@@ -1517,8 +1531,7 @@ def non_net_metering(tfr_dfs):
         keep_totals=True
     )
 
-    tidy_nnm = tidy_nnm.drop_duplicates()
-    # No duplicates to speak of but take measures to check just in case
+    # No duplicates to speak of (deleted 2018 duplicates above) but take measures to check just in case
     _check_for_dupes(tidy_nnm, 'Non Net Metering', idx_cols)
 
     # Delete total_capacity_mw col for redundancy (it doesn't matter which one)
@@ -1553,12 +1566,6 @@ def operational_data(tfr_dfs):
         'report_date',
     ]
 
-    idx_no_nerc = [
-        'utility_id_eia',
-        'state',
-        'report_date',
-    ]
-
     # Pre-tidy clean specific to operational data table
     raw_od = tfr_dfs["operational_data_eia861"].copy()
     # Tried to do same as SALES table but query didn't work
@@ -1584,7 +1591,7 @@ def operational_data(tfr_dfs):
     ###########################################################################
 
     transformed_od = (
-        _clean_nerc_add_rows(raw_od, idx_cols, idx_no_nerc)
+        _clean_nerc(raw_od, idx_cols)
         .assign(
             revenue_from_credits_or_adjustments=lambda x: x.revenue_from_credits_or_adjustments * 1000.0,
             revenue_from_delivery_customers=lambda x: x.revenue_from_delivery_customers * 1000.0,
