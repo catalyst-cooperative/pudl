@@ -497,6 +497,16 @@ TECH_CLASSES = [
     'total'
 ]
 
+REVENUE_CLASSES = [
+    'retail_sales',
+    'unbundled',
+    'delivery_customers',
+    'sales_for_resale',
+    'credits_or_adjustments',
+    'other',
+    'total'
+]
+
 NERC_SPELLCHECK = {
     'GUSTAVUSAK': 'AK',
     'ERCTO': 'ERCOT',
@@ -593,8 +603,17 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
     # Separate customer classes and reported data into a hierarchical index
     logger.debug(f"Stacking EIA861 {df_name} data columns by {class_type}.")
     data_cols = _filter_class_cols(raw_df, class_list)
+
+    # Create a regex identifier that splits the column headers based on the strings
+    # deliniated in the class_list not just an underscore. This enables prefixes with
+    # underscores such as fuel_cell as opposed to single-word prefixes followed by
+    # underscores. Final string looks like: '(?<=customer_test)_|(?<=unbundled)_'
+    # This ensures that the underscore AFTER the desired string (that can also include underscores)
+    # is where the column headers are split, not just the first underscore.
+    class_list_regex = '|'.join(['(?<=' + col + ')_' for col in class_list])
+
     data_cols.columns = (
-        data_cols.columns.str.split("_", n=1, expand=True)
+        data_cols.columns.str.split(fr"{class_list_regex}", n=1, expand=True)
         .set_names([class_type, None])
     )
     # Now stack the customer classes into their own categorical column,
@@ -1554,21 +1573,18 @@ def operational_data(tfr_dfs):
 
     # Pre-tidy clean specific to operational data table
     raw_od = tfr_dfs["operational_data_eia861"].copy()
-    # Tried to do same as SALES table but query didn't work
     raw_od = (
         raw_od[(raw_od['utility_id_eia'].notnull()) &
                (raw_od['utility_id_eia'] != 88888)]
     )
 
-    # No tidying
-
     ###########################################################################
     # Transform Data:
     # * Clean up reported NERC regions:
     #    * Fix puncuation/case
-    #    * Add new rows for multiples in one row
     #    * Replace na with 'UNK'
     #    * Make sure NERC regions are a verified NERC region
+    #    * Add underscore between double entires (SPP_ERCOT)
     # * Turn 1000s of dollars back into dollars
     # * Re-code data_observed to boolean:
     #   * O="observed" => True
@@ -1579,13 +1595,13 @@ def operational_data(tfr_dfs):
     transformed_od = (
         _clean_nerc(raw_od, idx_cols)
         .assign(
-            revenue_from_credits_or_adjustments=lambda x: x.revenue_from_credits_or_adjustments * 1000.0,
-            revenue_from_delivery_customers=lambda x: x.revenue_from_delivery_customers * 1000.0,
-            revenue_from_other=lambda x: x.revenue_from_other * 1000.0,
-            revenue_from_retail_sales=lambda x: x.revenue_from_retail_sales * 1000.0,
-            revenue_from_sales_for_resale=lambda x: x.revenue_from_sales_for_resale * 1000.0,
-            revenue_from_transmission=lambda x: x.revenue_from_transmission * 1000.0,
-            revenue_total=lambda x: x.revenue_total * 1000.0,
+            credits_or_adjustments_revenue=lambda x: x.credits_or_adjustments_revenue * 1000.0,
+            delivery_customers_revenue=lambda x: x.delivery_customers_revenue * 1000.0,
+            other_revenue=lambda x: x.other_revenue * 1000.0,
+            retail_sales_revenue=lambda x: x.retail_sales_revenue * 1000.0,
+            sales_for_resale_revenue=lambda x: x.sales_for_resale_revenue * 1000.0,
+            transmission_revenue=lambda x: x.transmission_revenue * 1000.0,
+            total_revenue=lambda x: x.total_revenue * 1000.0,
             data_observed=lambda x: x.data_observed.replace({
                 "O": True,
                 "I": False,
@@ -1593,13 +1609,27 @@ def operational_data(tfr_dfs):
         )
     )
 
-    # There should be one NY entry that is duplicated because the NERC region was listed as
-    # 'New York'. This would have created two rows with nerc regions NEW and YORK, neither
-    # of which is listed as a regocnized_nerc_region. This leads to two identical cols with
-    # 'UNK' values for nerc_region.
-    transformed_od = _drop_dupes(transformed_od, None)
+    revenue_cols = [col for col in transformed_od if 'revenue' in col]
 
-    tfr_dfs["operational_data_eia861"] = transformed_od
+    # Split data into 2 tables:
+    #  * Revenue (to normalize)
+    #  * Other
+    transformed_od_other = (transformed_od.drop(revenue_cols, axis=1))
+    transformed_od_rev = (transformed_od[idx_cols + revenue_cols].copy())
+
+    # Normalize revenue columns
+    tidy_od_rev, idx_cols = (
+        _tidy_class_dfs(
+            transformed_od_rev,
+            df_name='Operational Data Revenue',
+            idx_cols=idx_cols,
+            class_list=REVENUE_CLASSES,
+            class_type='revenue_class'
+        )
+    )
+
+    tfr_dfs["operational_data_revenue_eia861"] = tidy_od_rev
+    tfr_dfs["operational_data_other_eia861"] = transformed_od_other
 
     return tfr_dfs
 

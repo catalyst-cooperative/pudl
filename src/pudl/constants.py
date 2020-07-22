@@ -2606,6 +2606,7 @@ column_dtypes = {
         'contract_type_code': pd.StringDtype(),
         'county': pd.StringDtype(),
         'county_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
+        'credits_or_adjustments': float,  # Added by AES for OD Revenue table
         'critical_peak_pricing': pd.BooleanDtype(),  # Added by AES for DP table
         'critical_peak_rebate': pd.BooleanDtype(),  # Added by AES for DP table
         # Added by AES for NM table; used for NNM table
@@ -2620,6 +2621,7 @@ column_dtypes = {
         'daily_digital_access_customers': float,  # Added by AES for AMI table
         'data_observed': pd.BooleanDtype(),  # Used by AES for OD table
         'deliver_power_transgrid': pd.BooleanDtype(),
+        'delivery_customers': float,  # Added by AES for OD Revenue table
         'direct_load_control_customers': float,  # Added by AES for AMI table
         'distribution_circuits': pd.Int64Dtype(),  # Added by AES for DS table
         'duct_burners': pd.BooleanDtype(),
@@ -2714,6 +2716,7 @@ column_dtypes = {
         'operational_status': pd.StringDtype(),
         'operational_status_code': pd.StringDtype(),
         'original_planned_operating_date': 'datetime64[ns]',
+        'other': float,  # Added by AES for OD Revenue table
         'other_combustion_tech': pd.BooleanDtype(),
         'other_costs': float,  # Added by AES for DR table
         'other_modifications_date': 'datetime64[ns]',
@@ -2757,17 +2760,12 @@ column_dtypes = {
         'rec_sales_mwh': float,  # Added by AES for GP table
         'regulatory_status_code': pd.StringDtype(),
         'report_date': 'datetime64[ns]',
+        'retail_sales': float,  # Added by AES for OD Revenue table
         'retail_sales_mwh': float,  # Added by AES for OD table
         'retirement_date': 'datetime64[ns]',
-        'revenue_from_credits_or_adjustments': float,  # Added by AES for OD table
-        'revenue_from_delivery_customers': float,  # Added by AES for OD table
-        'revenue_from_other': float,  # Added by AES for OD table
-        'revenue_from_retail_sales': float,  # Added by AES for OD table
-        'revenue_from_sales_for_resale': float,  # Added by AES for OD table
-        'revenue_from_transmission': float,  # Added by AES for OD table
-        'revenue_total': float,  # Added by AES for OD table
         'rto_iso_lmp_node_id': pd.StringDtype(),
         'rto_iso_location_wholesale_reporting_id': pd.StringDtype(),
+        'sales_for_resale': float,  # Added by AES for OD Revenue table
         'sales_for_resale_mwh': float,  # Added by AES for OD table
         'sales_mwh': float,
         'sales_revenue': float,  # Added sales prefix for now
@@ -2808,10 +2806,12 @@ column_dtypes = {
         'time_of_use_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
         'timezone': pd.StringDtype(),
         'topping_bottoming_code': pd.StringDtype(),
+        'total': float,  # Added by AES for OD Revenue table
         'total_meters': float,  # Added by AES for AMI table
         'total_disposition_mwh': float,  # Added by AES for OD table
         'total_energy_losses_mwh': float,  # Added by AES for OD table
         'total_sources_mwh': float,  # Added by AES for OD table
+        'transmission': float,  # Added by AES for OD Revenue table
         'transmission_by_other_losses_mwh': float,  # Added by AES for OD table
         'transmission_distribution_owner_id': pd.Int64Dtype(),
         'transmission_distribution_owner_name': pd.StringDtype(),
