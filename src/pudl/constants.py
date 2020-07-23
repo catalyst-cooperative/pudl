@@ -2615,7 +2615,7 @@ column_dtypes = {
         'customers': pd.Int64Dtype(),  # Used by AES for NM table
         'customer_class': pd.CategoricalDtype(categories=[
             "residential", "commercial", "industrial", "transportation",
-            "dircnct", "other", "total",
+            "direct_connection", "other", "total",
         ]),
         'customer_incentives_cost': float,  # Added by AES for DR table
         'daily_digital_access_customers': float,  # Added by AES for AMI table
@@ -2799,8 +2799,8 @@ column_dtypes = {
         'syncronized_transmission_grid': pd.BooleanDtype(),
         # Added by AES for NM table (might want to consider merging with another fuel label)
         'tech_class': pd.CategoricalDtype(
-            categories=['pv', 'wind', 'chpcogen', 'other', 'combturb',
-                        'fcell', 'hydro', 'ice', 'steam', 'storage', 'total']),
+            categories=['pv', 'wind', 'chp_cogen', 'other', 'combustion_turbine',
+                        'fuel_cell', 'hydro', 'internal_combustion', 'steam', 'storage', 'total']),
         'technology_description': pd.StringDtype(),
         'time_cold_shutdown_full_load_code': pd.StringDtype(),
         'time_of_use_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table

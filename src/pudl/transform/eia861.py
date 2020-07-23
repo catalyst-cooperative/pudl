@@ -486,11 +486,11 @@ CUSTOMER_CLASSES = [
 TECH_CLASSES = [
     'pv',
     'wind',
-    'chpcogen',  # previously chp_cogen
-    'combturb',  # previously combustion_turbine
-    'fcell',  # previously fuell_cell
+    'chp_cogen',
+    'combustion_turbine',
+    'fuel_cell',
     'hydro',
-    'ice',  # previously internal_combustion
+    'internal_combustion',
     'steam',
     'storage',
     'other',
@@ -627,8 +627,9 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
     tidy_df = pd.merge(denorm_cols, data_cols, on=idx_cols)
 
     # Compare reported totals with sum of component columns
+    logger.info('starting to compare totals')
     _compare_totals(data_cols, idx_cols, class_type, df_name)
-
+    logger.info(f'done comparing totals for {df_name}')
     # Remove the now redundant "Total" records -- they can be reconstructed
     # from the other customer classes.
     if not keep_totals:
@@ -684,15 +685,18 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
     # Convert column dtypes so that numeric cols can be adequately summed
     data_cols = pudl.helpers.convert_cols_dtypes(data_cols, 'eia')
     # Drop data cols that are non numeric (preserve primary keys)
+    logger.debug(f'{idx_cols}, {class_type}')
     data_cols = (
         data_cols.set_index(idx_cols + [class_type])
         .select_dtypes('number')
         .reset_index()
     )
+    logger.debug(f'{data_cols.columns.tolist()}')
     # Create list of data columns to be summed
     # (may include non-numeric that will be excluded)
     data_col_list = set(data_cols.columns.tolist()) - \
         set(idx_cols + [class_type])
+    logger.debug(f'{data_col_list}')
     # Distinguish reported totals from segments
     data_totals_df = data_cols.loc[data_cols[class_type] == 'total']
     data_no_tots_df = data_cols.loc[data_cols[class_type] != 'total']
