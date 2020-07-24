@@ -2531,6 +2531,88 @@ MOMENTARY_INTERRUPTION_DEF = {  # Added by AES for R table
     'O': 'Other',
 }
 
+RECOGNIZED_NERC_REGIONS = [
+    'ASCC',
+    'ECAR',
+    'ERCOT',
+    'FRCC',
+    'HICC',
+    'MAAC',
+    'MAIN',
+    'MAPP',
+    'MRO',
+    'NPCC',
+    'RFC',
+    'SERC',
+    'SPP',
+    'TRE',
+    'WECC',
+    'WSCC',  # pre-2002 version of WECC
+    'MISO',  # unclear whether technically a regional entity, but lots of entries
+    'ECAR_MAAC',
+    'MAPP_WECC',
+    'RFC_SERC',
+    'SPP_WECC',
+    'MRO_WECC',
+    'ERCOT_SPP',
+    'SPP_TRE',
+    'ERCOT_TRE',
+    'MISO_TRE',
+    'AK',  # Alaska
+    'HI',  # Hawaii
+    'VI',  # Virgin Islands
+    'GU',  # Guam
+    'PR',  # Puerto Rico
+    'AS',  # American Samoa
+    'UNK',
+]
+
+CUSTOMER_CLASSES = [
+    "commercial",
+    "industrial",
+    "direct_connection",
+    "other",
+    "residential",
+    "total",
+    "transportation"
+]
+
+TECH_CLASSES = [
+    'pv',
+    'wind',
+    'chp_cogen',
+    'combustion_turbine',
+    'fuel_cell',
+    'hydro',
+    'internal_combustion',
+    'steam',
+    'storage',
+    'other',
+    'total'
+]
+
+REVENUE_CLASSES = [
+    'retail_sales',
+    'unbundled',
+    'delivery_customers',
+    'sales_for_resale',
+    'credits_or_adjustments',
+    'other',
+    'total'
+]
+
+STANDARDS = [
+    'ieee',
+    'other'
+]
+
+INTERUPTION_INDICIES = [
+    'caidi',
+    'saidi',
+    'saifi',
+]
+
+
 """dict: A dictionary of datasets (keys) and keywords (values). """
 
 column_dtypes = {
@@ -2613,21 +2695,19 @@ column_dtypes = {
         'contract_type_code': pd.StringDtype(),
         'county': pd.StringDtype(),
         'county_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
+        'credits_or_adjustments': float,  # Added by AES for OD Revenue table
         'critical_peak_pricing': pd.BooleanDtype(),  # Added by AES for DP table
         'critical_peak_rebate': pd.BooleanDtype(),  # Added by AES for DP table
         # Added by AES for NM table; used for NNM table
         'current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
         'current_planned_operating_date': 'datetime64[ns]',
-        # Used by AES for NM table and R table (made float because R table was being finicky / throwing the error: cannot safely cast non-equivalent float64 to int64)
-        'customers': float,
-        'customer_class': pd.CategoricalDtype(categories=[
-            "residential", "commercial", "industrial", "transportation",
-            "dircnct", "other", "total",
-        ]),
+        'customers': float,  # pd.Int64Dtype(),  # Used by AES for NM table
+        'customer_class': pd.CategoricalDtype(categories=CUSTOMER_CLASSES),
         'customer_incentives_cost': float,  # Added by AES for DR table
         'daily_digital_access_customers': float,  # Added by AES for AMI table
         'data_observed': pd.BooleanDtype(),  # Used by AES for OD table
         'deliver_power_transgrid': pd.BooleanDtype(),
+        'delivery_customers': float,  # Added by AES for OD Revenue table
         'direct_load_control_customers': float,  # Added by AES for AMI table
         'distribution_circuits': pd.Int64Dtype(),  # Added by AES for DS table
         'duct_burners': pd.BooleanDtype(),
@@ -2714,7 +2794,7 @@ column_dtypes = {
         'natural_gas_pipeline_name_3': pd.StringDtype(),
         'natural_gas_storage': pd.BooleanDtype(),
         'natural_gas_transport_code': pd.StringDtype(),
-        'nerc_region': pd.StringDtype(),
+        'nerc_region': pd.CategoricalDtype(categories=RECOGNIZED_NERC_REGIONS),
         'net_generation_mwh': float,  # Used by AES for OD table
         'net_metering': pd.BooleanDtype(),
         'net_power_exchanged_mwh': float,  # Added by AES for OD table
@@ -2728,6 +2808,7 @@ column_dtypes = {
         'operational_status': pd.StringDtype(),
         'operational_status_code': pd.StringDtype(),
         'original_planned_operating_date': 'datetime64[ns]',
+        'other': float,  # Added by AES for OD Revenue table
         'other_combustion_tech': pd.BooleanDtype(),
         'other_costs': float,  # Added by AES for DR table
         'other_modifications_date': 'datetime64[ns]',
@@ -2772,17 +2853,14 @@ column_dtypes = {
         'rec_sales_mwh': float,  # Added by AES for GP table
         'regulatory_status_code': pd.StringDtype(),
         'report_date': 'datetime64[ns]',
+        'retail_sales': float,  # Added by AES for OD Revenue table
         'retail_sales_mwh': float,  # Added by AES for OD table
         'retirement_date': 'datetime64[ns]',
-        'revenue_from_credits_or_adjustments': float,  # Added by AES for OD table
-        'revenue_from_delivery_customers': float,  # Added by AES for OD table
-        'revenue_from_other': float,  # Added by AES for OD table
-        'revenue_from_retail_sales': float,  # Added by AES for OD table
-        'revenue_from_sales_for_resale': float,  # Added by AES for OD table
-        'revenue_from_transmission': float,  # Added by AES for OD table
-        'revenue_total': float,  # Added by AES for OD table
+        # Added by AES for OD table
+        'revenue_class': pd.CategoricalDtype(categories=REVENUE_CLASSES),
         'rto_iso_lmp_node_id': pd.StringDtype(),
         'rto_iso_location_wholesale_reporting_id': pd.StringDtype(),
+        'sales_for_resale': float,  # Added by AES for OD Revenue table
         'sales_for_resale_mwh': float,  # Added by AES for OD table
         'sales_mwh': float,
         'sales_revenue': float,  # Added sales prefix for now
@@ -2815,18 +2893,18 @@ column_dtypes = {
         'switch_oil_gas': pd.BooleanDtype(),
         'syncronized_transmission_grid': pd.BooleanDtype(),
         # Added by AES for NM table (might want to consider merging with another fuel label)
-        'tech_class': pd.CategoricalDtype(
-            categories=['pv', 'wind', 'chpcogen', 'other', 'combturb',
-                        'fcell', 'hydro', 'ice', 'steam', 'storage', 'total']),
+        'tech_class': pd.CategoricalDtype(categories=TECH_CLASSES),
         'technology_description': pd.StringDtype(),
         'time_cold_shutdown_full_load_code': pd.StringDtype(),
         'time_of_use_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
         'timezone': pd.StringDtype(),
         'topping_bottoming_code': pd.StringDtype(),
+        'total': float,  # Added by AES for OD Revenue table
         'total_meters': float,  # Added by AES for AMI table
         'total_disposition_mwh': float,  # Added by AES for OD table
         'total_energy_losses_mwh': float,  # Added by AES for OD table
         'total_sources_mwh': float,  # Added by AES for OD table
+        'transmission': float,  # Added by AES for OD Revenue table
         'transmission_by_other_losses_mwh': float,  # Added by AES for OD table
         'transmission_distribution_owner_id': pd.Int64Dtype(),
         'transmission_distribution_owner_name': pd.StringDtype(),

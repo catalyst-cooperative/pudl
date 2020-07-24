@@ -446,33 +446,6 @@ BA_NAME_FIXES = pd.DataFrame([
             ]
 )
 
-RECOGNIZED_NERC_REGIONS = [
-    'ASCC',
-    'ECAR',
-    'ERCOT',
-    'FRCC',
-    'HICC',
-    'MAAC',
-    'MAIN',
-    'MAPP',
-    'MRO',
-    'NPCC',
-    'RFC',
-    'SERC',
-    'SPP',
-    'TRE',
-    'WECC',
-    'WSCC',  # pre-2002 version of WECC
-    'MISO',  # unclear whether technically a regional entity, but lots of entries
-    'AK',  # Alaska
-    'HI',  # Hawaii
-    'VI',  # Virgin Islands
-    'GU',  # Guam
-    'PR',  # Puerto Rico
-    'AS',  # American Samoa
-    'UNK',
-]
-
 NERC_SPELLCHECK = {
     'GUSTAVUSAK': 'AK',
     'ERCTO': 'ERCOT',
@@ -482,42 +455,12 @@ NERC_SPELLCHECK = {
     'VACAR': 'SERC',  # VACAR is a subregion of SERC
     'GATEWAY': 'SERC',  # GATEWAY is a subregion of SERC
     'TERR': 'GU',
+    25470: 'MRO',
+    'TX': 'TRE',
+    'NY': 'NPCC',
+    'NEW': 'NPCC',
+    'YORK': 'NPCC',
 }
-
-CUSTOMER_CLASSES = [
-    "commercial",
-    "dircnct",  # previously direct_connection
-    "industrial",
-    "other",
-    "residential",
-    "total",
-    "transportation"
-]
-
-TECH_CLASSES = [
-    'pv',
-    'wind',
-    'chpcogen',  # previously chp_cogen
-    'combturb',  # previously combustion_turbine
-    'fcell',  # previously fuell_cell
-    'hydro',
-    'ice',  # previously internal_combustion
-    'steam',
-    'storage',
-    'other',
-    'total'
-]
-
-STANDARDS = [
-    'ieee',
-    'other'
-]
-
-INTERUPTION_INDICIES = [
-    'caidi',
-    'saidi',
-    'saifi',
-]
 
 ###############################################################################
 # EIA Form 861 Transform Helper functions
@@ -603,8 +546,17 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
     # Separate customer classes and reported data into a hierarchical index
     logger.debug(f"Stacking EIA861 {df_name} data columns by {class_type}.")
     data_cols = _filter_class_cols(raw_df, class_list)
+
+    # Create a regex identifier that splits the column headers based on the strings
+    # deliniated in the class_list not just an underscore. This enables prefixes with
+    # underscores such as fuel_cell as opposed to single-word prefixes followed by
+    # underscores. Final string looks like: '(?<=customer_test)_|(?<=unbundled)_'
+    # This ensures that the underscore AFTER the desired string (that can also include underscores)
+    # is where the column headers are split, not just the first underscore.
+    class_list_regex = '|'.join(['(?<=' + col + ')_' for col in class_list])
+
     data_cols.columns = (
-        data_cols.columns.str.split("_", n=1, expand=True)
+        data_cols.columns.str.split(fr"{class_list_regex}", n=1, expand=True)
         .set_names([class_type, None])
     )
     # Now stack the customer classes into their own categorical column,
@@ -620,10 +572,7 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
     # Compare reported totals with sum of component columns
     if 'total' in class_list:
         _compare_totals(data_cols, idx_cols, class_type, df_name)
-
-    # Remove the now redundant "Total" records -- they can be reconstructed
-    # from the other customer classes.
-    if not keep_totals:
+    if keep_totals is False:
         tidy_df = tidy_df.query(f"{class_type}!='total'")
 
     return tidy_df, idx_cols + [class_type]
@@ -676,15 +625,18 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
     # Convert column dtypes so that numeric cols can be adequately summed
     data_cols = pudl.helpers.convert_cols_dtypes(data_cols, 'eia')
     # Drop data cols that are non numeric (preserve primary keys)
+    logger.debug(f'{idx_cols}, {class_type}')
     data_cols = (
         data_cols.set_index(idx_cols + [class_type])
         .select_dtypes('number')
         .reset_index()
     )
+    logger.debug(f'{data_cols.columns.tolist()}')
     # Create list of data columns to be summed
     # (may include non-numeric that will be excluded)
     data_col_list = set(data_cols.columns.tolist()) - \
         set(idx_cols + [class_type])
+    logger.debug(f'{data_col_list}')
     # Distinguish reported totals from segments
     data_totals_df = data_cols.loc[data_cols[class_type] == 'total']
     data_no_tots_df = data_cols.loc[data_cols[class_type] != 'total']
@@ -734,11 +686,8 @@ def _clean_nerc(df, idx_cols):
         idx_no_nerc.remove('nerc_region')
 
     # Split raw df into primary keys plus nerc region and other value cols
-    nerc_df = df[idx_cols]
+    nerc_df = df[idx_cols].copy()
     other_df = df.drop('nerc_region', axis=1).set_index(idx_no_nerc)
-
-    # Backfill the utility with strange numeric nerc region
-    nerc_df.loc[nerc_df.utility_id_eia == 55959, 'nerc_region'] = 'MRO'
 
     # Make all values upper-case
     # Replace all NA values with UNK
@@ -757,14 +706,17 @@ def _clean_nerc(df, idx_cols):
     nerc_col = nerc_df['nerc_region'].tolist()
     nerc_list = list(set([item for sublist in nerc_col for item in sublist]))
     non_nerc_list = [
-        nerc_entity for nerc_entity in nerc_list if nerc_entity not in RECOGNIZED_NERC_REGIONS + list(NERC_SPELLCHECK.keys())]
-    logger.info(
+        nerc_entity for nerc_entity in nerc_list if nerc_entity not in pc.RECOGNIZED_NERC_REGIONS + list(NERC_SPELLCHECK.keys())]
+    print(
         f'The following reported NERC regions are not currently recognized and become UNK values: {non_nerc_list}')
 
-    # Function to turn instances of 'SPP_UNK' into 'SPP' (or other recognized nerc regions)
-    def _remove_unk_multiples(entity_list):
-        if ((len(entity_list) > 1) & ('UNK' in entity_list)):
-            entity_list.remove('UNK')
+    # Function to turn instances of 'SPP_UNK' or 'SPP_SPP' into 'SPP'
+    def _remove_nerc_duplicates(entity_list):
+        if len(entity_list) > 1:
+            if 'UNK' in entity_list:
+                entity_list.remove('UNK')
+            if all(x == entity_list[0] for x in entity_list):
+                entity_list = [entity_list[0]]
         return entity_list
 
     # Go through the nerc regions, spellcheck errors, delete those that aren't recognized, and piece them back together
@@ -772,8 +724,8 @@ def _clean_nerc(df, idx_cols):
     nerc_df['nerc_region'] = (
         nerc_df['nerc_region']
         .apply(lambda x: [i if i not in NERC_SPELLCHECK.keys() else NERC_SPELLCHECK[i] for i in x])
-        .apply(lambda x: sorted([i if i in RECOGNIZED_NERC_REGIONS else 'UNK' for i in x]))
-        .apply(lambda x: _remove_unk_multiples(x))
+        .apply(lambda x: sorted([i if i in pc.RECOGNIZED_NERC_REGIONS else 'UNK' for i in x]))
+        .apply(lambda x: _remove_nerc_duplicates(x))
         .str.join('_')
     )
 
@@ -1068,7 +1020,7 @@ def sales(tfr_dfs):
         raw_sales,
         df_name='Sales',
         idx_cols=idx_cols,
-        class_list=CUSTOMER_CLASSES,
+        class_list=pc.CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1142,7 +1094,7 @@ def advanced_metering_infrastructure(tfr_dfs):
         raw_ami,
         df_name='Advanced Metering Infrastructure',
         idx_cols=idx_cols,
-        class_list=CUSTOMER_CLASSES,
+        class_list=pc.CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1183,7 +1135,7 @@ def demand_response(tfr_dfs):
         raw_dr,
         df_name='Demand Response',
         idx_cols=idx_cols,
-        class_list=CUSTOMER_CLASSES,
+        class_list=pc.CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1303,7 +1255,7 @@ def dynamic_pricing(tfr_dfs):
         raw_dp,
         df_name='Dynamic Pricing',
         idx_cols=idx_cols,
-        class_list=CUSTOMER_CLASSES,
+        class_list=pc.CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1356,7 +1308,7 @@ def green_pricing(tfr_dfs):
         raw_gp,
         df_name='Green Pricing',
         idx_cols=idx_cols,
-        class_list=CUSTOMER_CLASSES,
+        class_list=pc.CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1450,7 +1402,7 @@ def net_metering(tfr_dfs):
         raw_nm,
         df_name='Net Metering',
         idx_cols=idx_cols,
-        class_list=CUSTOMER_CLASSES,
+        class_list=pc.CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1459,7 +1411,7 @@ def net_metering(tfr_dfs):
         tidy_nm,
         df_name='Net Metering',
         idx_cols=idx_cols,
-        class_list=TECH_CLASSES,
+        class_list=pc.TECH_CLASSES,
         class_type='tech_class',
         keep_totals=True,
     )
@@ -1516,7 +1468,7 @@ def non_net_metering(tfr_dfs):
         raw_nnm,
         df_name='Non Net Metering',
         idx_cols=idx_cols,
-        class_list=CUSTOMER_CLASSES,
+        class_list=pc.CUSTOMER_CLASSES,
         class_type='customer_class',
         keep_totals=True
     )
@@ -1526,7 +1478,7 @@ def non_net_metering(tfr_dfs):
         tidy_nnm,
         df_name='Non Net Metering',
         idx_cols=idx_cols,
-        class_list=TECH_CLASSES,
+        class_list=pc.TECH_CLASSES,
         class_type='tech_class',
         keep_totals=True
     )
@@ -1568,21 +1520,18 @@ def operational_data(tfr_dfs):
 
     # Pre-tidy clean specific to operational data table
     raw_od = tfr_dfs["operational_data_eia861"].copy()
-    # Tried to do same as SALES table but query didn't work
     raw_od = (
         raw_od[(raw_od['utility_id_eia'].notnull()) &
                (raw_od['utility_id_eia'] != 88888)]
     )
 
-    # No tidying
-
     ###########################################################################
     # Transform Data:
     # * Clean up reported NERC regions:
     #    * Fix puncuation/case
-    #    * Add new rows for multiples in one row
     #    * Replace na with 'UNK'
     #    * Make sure NERC regions are a verified NERC region
+    #    * Add underscore between double entires (SPP_ERCOT)
     # * Turn 1000s of dollars back into dollars
     # * Re-code data_observed to boolean:
     #   * O="observed" => True
@@ -1593,13 +1542,13 @@ def operational_data(tfr_dfs):
     transformed_od = (
         _clean_nerc(raw_od, idx_cols)
         .assign(
-            revenue_from_credits_or_adjustments=lambda x: x.revenue_from_credits_or_adjustments * 1000.0,
-            revenue_from_delivery_customers=lambda x: x.revenue_from_delivery_customers * 1000.0,
-            revenue_from_other=lambda x: x.revenue_from_other * 1000.0,
-            revenue_from_retail_sales=lambda x: x.revenue_from_retail_sales * 1000.0,
-            revenue_from_sales_for_resale=lambda x: x.revenue_from_sales_for_resale * 1000.0,
-            revenue_from_transmission=lambda x: x.revenue_from_transmission * 1000.0,
-            revenue_total=lambda x: x.revenue_total * 1000.0,
+            credits_or_adjustments_revenue=lambda x: x.credits_or_adjustments_revenue * 1000.0,
+            delivery_customers_revenue=lambda x: x.delivery_customers_revenue * 1000.0,
+            other_revenue=lambda x: x.other_revenue * 1000.0,
+            retail_sales_revenue=lambda x: x.retail_sales_revenue * 1000.0,
+            sales_for_resale_revenue=lambda x: x.sales_for_resale_revenue * 1000.0,
+            transmission_revenue=lambda x: x.transmission_revenue * 1000.0,
+            total_revenue=lambda x: x.total_revenue * 1000.0,
             data_observed=lambda x: x.data_observed.replace({
                 "O": True,
                 "I": False,
@@ -1607,13 +1556,27 @@ def operational_data(tfr_dfs):
         )
     )
 
-    # There should be one NY entry that is duplicated because the NERC region was listed as
-    # 'New York'. This would have created two rows with nerc regions NEW and YORK, neither
-    # of which is listed as a regocnized_nerc_region. This leads to two identical cols with
-    # 'UNK' values for nerc_region.
-    transformed_od = _drop_dupes(transformed_od, None)
+    revenue_cols = [col for col in transformed_od if 'revenue' in col]
 
-    tfr_dfs["operational_data_eia861"] = transformed_od
+    # Split data into 2 tables:
+    #  * Revenue (to normalize)
+    #  * Other
+    transformed_od_other = (transformed_od.drop(revenue_cols, axis=1))
+    transformed_od_rev = (transformed_od[idx_cols + revenue_cols].copy())
+
+    # Normalize revenue columns
+    tidy_od_rev, idx_cols = (
+        _tidy_class_dfs(
+            transformed_od_rev,
+            df_name='Operational Data Revenue',
+            idx_cols=idx_cols,
+            class_list=pc.REVENUE_CLASSES,
+            class_type='revenue_class'
+        )
+    )
+
+    tfr_dfs["operational_data_revenue_eia861"] = tidy_od_rev
+    tfr_dfs["operational_data_other_eia861"] = transformed_od_other
 
     return tfr_dfs
 
@@ -1650,7 +1613,7 @@ def reliability(tfr_dfs):
         df=raw_r,
         df_name='Reliability',
         idx_cols=idx_cols,
-        class_list=STANDARDS,
+        class_list=pc.STANDARDS,
         class_type='standard',
         keep_totals=False,
     )
@@ -1660,7 +1623,7 @@ def reliability(tfr_dfs):
         df=tidy_r,
         df_name='Reliability',
         idx_cols=idx_cols,
-        class_list=INTERUPTION_INDICIES,
+        class_list=pc.INTERUPTION_INDICIES,
         class_type='interuption_indicies',
         keep_totals=False,
     )
