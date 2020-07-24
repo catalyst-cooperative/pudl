@@ -2764,7 +2764,7 @@ column_dtypes = {
         'home_area_network': float,  # Added by AES for AMI table
         'inactive_accounts_included': pd.BooleanDtype(),  # Added by AES for R table
         # Added by AES for R table
-        'interruption_indicies': pd.CategoricalDtype(categories=['caidi', 'saidi', 'saifi']),
+        'interuption_indicies': pd.CategoricalDtype(categories=INTERUPTION_INDICIES),
         'iso_rto_code': pd.StringDtype(),
         'latitude': float,
         'liquefied_natural_gas_storage': pd.BooleanDtype(),
@@ -2784,7 +2784,7 @@ column_dtypes = {
         'minimum_load_mw': float,
         'moisture_content_pct': float,
         # Added by AES for R table
-        # 'momentary_interruption_definition': pd.CategoricalDtype(categories=MOMENTARY_INTERRUPTION_DEF.values()),
+        'momentary_interruption_definition': pd.CategoricalDtype(categories=MOMENTARY_INTERRUPTION_DEF.values()),
         'multiple_fuels': pd.BooleanDtype(),
         'nameplate_power_factor': float,
         'natural_gas_delivery_contract_type_code': pd.StringDtype(),
@@ -2872,6 +2872,8 @@ column_dtypes = {
         ]),
         'sold_to_utility_mwh': float,  # Added by AES for NM table
         'solid_fuel_gasification': pd.BooleanDtype(),
+        # Added by AES for R table
+        'standard': pd.CategoricalDtype(categories=STANDARDS),
         'startup_source_code_1': pd.StringDtype(),
         'startup_source_code_2': pd.StringDtype(),
         'startup_source_code_3': pd.StringDtype(),
