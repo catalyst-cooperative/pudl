@@ -446,67 +446,6 @@ BA_NAME_FIXES = pd.DataFrame([
             ]
 )
 
-RECOGNIZED_NERC_REGIONS = [
-    'ASCC',
-    'ECAR',
-    'ERCOT',
-    'FRCC',
-    'HICC',
-    'MAAC',
-    'MAIN',
-    'MAPP',
-    'MRO',
-    'NPCC',
-    'RFC',
-    'SERC',
-    'SPP',
-    'TRE',
-    'WECC',
-    'WSCC',  # pre-2002 version of WECC
-    'MISO',  # unclear whether technically a regional entity, but lots of entries
-    'AK',  # Alaska
-    'HI',  # Hawaii
-    'VI',  # Virgin Islands
-    'GU',  # Guam
-    'PR',  # Puerto Rico
-    'AS',  # American Samoa
-    'UNK',
-]
-
-CUSTOMER_CLASSES = [
-    "commercial",
-    "dircnct",  # previously direct_connection
-    "industrial",
-    "other",
-    "residential",
-    "total",
-    "transportation"
-]
-
-TECH_CLASSES = [
-    'pv',
-    'wind',
-    'chp_cogen',
-    'combustion_turbine',
-    'fuel_cell',
-    'hydro',
-    'internal_combustion',
-    'steam',
-    'storage',
-    'other',
-    'total'
-]
-
-REVENUE_CLASSES = [
-    'retail_sales',
-    'unbundled',
-    'delivery_customers',
-    'sales_for_resale',
-    'credits_or_adjustments',
-    'other',
-    'total'
-]
-
 NERC_SPELLCHECK = {
     'GUSTAVUSAK': 'AK',
     'ERCTO': 'ERCOT',
@@ -517,6 +456,10 @@ NERC_SPELLCHECK = {
     'GATEWAY': 'SERC',  # GATEWAY is a subregion of SERC
     'TERR': 'GU',
     25470: 'MRO',
+    'TX': 'TRE',
+    'NY': 'NPCC',
+    'NEW': 'NPCC',
+    'YORK': 'NPCC',
 }
 
 ###############################################################################
@@ -766,14 +709,17 @@ def _clean_nerc(df, idx_cols):
     nerc_col = nerc_df['nerc_region'].tolist()
     nerc_list = list(set([item for sublist in nerc_col for item in sublist]))
     non_nerc_list = [
-        nerc_entity for nerc_entity in nerc_list if nerc_entity not in RECOGNIZED_NERC_REGIONS + list(NERC_SPELLCHECK.keys())]
-    logger.info(
+        nerc_entity for nerc_entity in nerc_list if nerc_entity not in pc.RECOGNIZED_NERC_REGIONS + list(NERC_SPELLCHECK.keys())]
+    print(
         f'The following reported NERC regions are not currently recognized and become UNK values: {non_nerc_list}')
 
-    # Function to turn instances of 'SPP_UNK' into 'SPP' (or other recognized nerc regions)
-    def _remove_unk_multiples(entity_list):
-        if ((len(entity_list) > 1) & ('UNK' in entity_list)):
-            entity_list.remove('UNK')
+    # Function to turn instances of 'SPP_UNK' or 'SPP_SPP' into 'SPP'
+    def _remove_nerc_duplicates(entity_list):
+        if len(entity_list) > 1:
+            if 'UNK' in entity_list:
+                entity_list.remove('UNK')
+            if all(x == entity_list[0] for x in entity_list):
+                entity_list = [entity_list[0]]
         return entity_list
 
     # Go through the nerc regions, spellcheck errors, delete those that aren't recognized, and piece them back together
@@ -781,8 +727,8 @@ def _clean_nerc(df, idx_cols):
     nerc_df['nerc_region'] = (
         nerc_df['nerc_region']
         .apply(lambda x: [i if i not in NERC_SPELLCHECK.keys() else NERC_SPELLCHECK[i] for i in x])
-        .apply(lambda x: sorted([i if i in RECOGNIZED_NERC_REGIONS else 'UNK' for i in x]))
-        .apply(lambda x: _remove_unk_multiples(x))
+        .apply(lambda x: sorted([i if i in pc.RECOGNIZED_NERC_REGIONS else 'UNK' for i in x]))
+        .apply(lambda x: _remove_nerc_duplicates(x))
         .str.join('_')
     )
 
@@ -1077,7 +1023,7 @@ def sales(tfr_dfs):
         raw_sales,
         df_name='Sales',
         idx_cols=idx_cols,
-        class_list=CUSTOMER_CLASSES,
+        class_list=pc.CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1151,7 +1097,7 @@ def advanced_metering_infrastructure(tfr_dfs):
         raw_ami,
         df_name='Advanced Metering Infrastructure',
         idx_cols=idx_cols,
-        class_list=CUSTOMER_CLASSES,
+        class_list=pc.CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1192,7 +1138,7 @@ def demand_response(tfr_dfs):
         raw_dr,
         df_name='Demand Response',
         idx_cols=idx_cols,
-        class_list=CUSTOMER_CLASSES,
+        class_list=pc.CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1312,7 +1258,7 @@ def dynamic_pricing(tfr_dfs):
         raw_dp,
         df_name='Dynamic Pricing',
         idx_cols=idx_cols,
-        class_list=CUSTOMER_CLASSES,
+        class_list=pc.CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1365,7 +1311,7 @@ def green_pricing(tfr_dfs):
         raw_gp,
         df_name='Green Pricing',
         idx_cols=idx_cols,
-        class_list=CUSTOMER_CLASSES,
+        class_list=pc.CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1459,7 +1405,7 @@ def net_metering(tfr_dfs):
         raw_nm,
         df_name='Net Metering',
         idx_cols=idx_cols,
-        class_list=CUSTOMER_CLASSES,
+        class_list=pc.CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1468,7 +1414,7 @@ def net_metering(tfr_dfs):
         tidy_nm,
         df_name='Net Metering',
         idx_cols=idx_cols,
-        class_list=TECH_CLASSES,
+        class_list=pc.TECH_CLASSES,
         class_type='tech_class',
         keep_totals=True,
     )
@@ -1525,7 +1471,7 @@ def non_net_metering(tfr_dfs):
         raw_nnm,
         df_name='Non Net Metering',
         idx_cols=idx_cols,
-        class_list=CUSTOMER_CLASSES,
+        class_list=pc.CUSTOMER_CLASSES,
         class_type='customer_class',
         keep_totals=True
     )
@@ -1535,7 +1481,7 @@ def non_net_metering(tfr_dfs):
         tidy_nnm,
         df_name='Non Net Metering',
         idx_cols=idx_cols,
-        class_list=TECH_CLASSES,
+        class_list=pc.TECH_CLASSES,
         class_type='tech_class',
         keep_totals=True
     )
@@ -1627,7 +1573,7 @@ def operational_data(tfr_dfs):
             transformed_od_rev,
             df_name='Operational Data Revenue',
             idx_cols=idx_cols,
-            class_list=REVENUE_CLASSES,
+            class_list=pc.REVENUE_CLASSES,
             class_type='revenue_class'
         )
     )

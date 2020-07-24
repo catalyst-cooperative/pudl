@@ -2524,6 +2524,77 @@ ENTITY_TYPE_DICT = {
     'O': 'Other'  # Added by AES for OD table
 }
 
+RECOGNIZED_NERC_REGIONS = [
+    'ASCC',
+    'ECAR',
+    'ERCOT',
+    'FRCC',
+    'HICC',
+    'MAAC',
+    'MAIN',
+    'MAPP',
+    'MRO',
+    'NPCC',
+    'RFC',
+    'SERC',
+    'SPP',
+    'TRE',
+    'WECC',
+    'WSCC',  # pre-2002 version of WECC
+    'MISO',  # unclear whether technically a regional entity, but lots of entries
+    'ECAR_MAAC',
+    'MAPP_WECC',
+    'RFC_SERC',
+    'SPP_WECC',
+    'MRO_WECC',
+    'ERCOT_SPP',
+    'SPP_TRE',
+    'ERCOT_TRE',
+    'MISO_TRE',
+    'AK',  # Alaska
+    'HI',  # Hawaii
+    'VI',  # Virgin Islands
+    'GU',  # Guam
+    'PR',  # Puerto Rico
+    'AS',  # American Samoa
+    'UNK',
+]
+
+CUSTOMER_CLASSES = [
+    "commercial",
+    "industrial",
+    "direct_connection",
+    "other",
+    "residential",
+    "total",
+    "transportation"
+]
+
+TECH_CLASSES = [
+    'pv',
+    'wind',
+    'chp_cogen',
+    'combustion_turbine',
+    'fuel_cell',
+    'hydro',
+    'internal_combustion',
+    'steam',
+    'storage',
+    'other',
+    'total'
+]
+
+REVENUE_CLASSES = [
+    'retail_sales',
+    'unbundled',
+    'delivery_customers',
+    'sales_for_resale',
+    'credits_or_adjustments',
+    'other',
+    'total'
+]
+
+
 """dict: A dictionary of datasets (keys) and keywords (values). """
 
 column_dtypes = {
@@ -2613,10 +2684,7 @@ column_dtypes = {
         'current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
         'current_planned_operating_date': 'datetime64[ns]',
         'customers': pd.Int64Dtype(),  # Used by AES for NM table
-        'customer_class': pd.CategoricalDtype(categories=[
-            "residential", "commercial", "industrial", "transportation",
-            "direct_connection", "other", "total",
-        ]),
+        'customer_class': pd.CategoricalDtype(categories=CUSTOMER_CLASSES),
         'customer_incentives_cost': float,  # Added by AES for DR table
         'daily_digital_access_customers': float,  # Added by AES for AMI table
         'data_observed': pd.BooleanDtype(),  # Used by AES for OD table
@@ -2702,7 +2770,7 @@ column_dtypes = {
         'natural_gas_pipeline_name_3': pd.StringDtype(),
         'natural_gas_storage': pd.BooleanDtype(),
         'natural_gas_transport_code': pd.StringDtype(),
-        'nerc_region': pd.StringDtype(),
+        'nerc_region': pd.CategoricalDtype(categories=RECOGNIZED_NERC_REGIONS),
         'net_generation_mwh': float,  # Used by AES for OD table
         'net_metering': pd.BooleanDtype(),
         'net_power_exchanged_mwh': float,  # Added by AES for OD table
@@ -2763,6 +2831,8 @@ column_dtypes = {
         'retail_sales': float,  # Added by AES for OD Revenue table
         'retail_sales_mwh': float,  # Added by AES for OD table
         'retirement_date': 'datetime64[ns]',
+        # Added by AES for OD table
+        'revenue_class': pd.CategoricalDtype(categories=REVENUE_CLASSES),
         'rto_iso_lmp_node_id': pd.StringDtype(),
         'rto_iso_location_wholesale_reporting_id': pd.StringDtype(),
         'sales_for_resale': float,  # Added by AES for OD Revenue table
@@ -2798,9 +2868,7 @@ column_dtypes = {
         'switch_oil_gas': pd.BooleanDtype(),
         'syncronized_transmission_grid': pd.BooleanDtype(),
         # Added by AES for NM table (might want to consider merging with another fuel label)
-        'tech_class': pd.CategoricalDtype(
-            categories=['pv', 'wind', 'chp_cogen', 'other', 'combustion_turbine',
-                        'fuel_cell', 'hydro', 'internal_combustion', 'steam', 'storage', 'total']),
+        'tech_class': pd.CategoricalDtype(categories=TECH_CLASSES),
         'technology_description': pd.StringDtype(),
         'time_cold_shutdown_full_load_code': pd.StringDtype(),
         'time_of_use_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
