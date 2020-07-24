@@ -91,7 +91,7 @@ In addition to making the :mod:`pudl` package available for import in Python,
 installing ``catalystcoop.pudl`` provides the following command line tools:
 
 * ``pudl_setup``
-* ``pudl_data``
+* ``pudl_datastore``
 * ``ferc1_to_sqlite``
 * ``pudl_etl``
 * ``datapkg_to_sqlite``

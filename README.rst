@@ -79,17 +79,14 @@ data interactively.
         catalystcoop.pudl jupyter jupyterlab pip
     $ conda activate pudl
 
-Now create a data management workspace called ``pudl-work`` and download EIA,
-EPA, and FERC data for 2018 data using the ``pudl_data`` script. The workspace
+Now create a data management workspace called ``pudl-work``. The workspace
 has a well defined directory structure that PUDL uses to organize the data it
-downloads, processes, and outputs. Run ``pudl_setup --help`` and ``pudl_data
---help`` for details.
+downloads, processes, and outputs. Run ``pudl_setup --help`` for details.
 
 .. code-block:: console
 
     $ mkdir pudl-work
     $ pudl_setup pudl-work
-    $ pudl_data --sources eia923 eia860 ferc1 epacems epaipm --years 2018 --states id
 
 Now that we have some raw data, we can run the PUDL ETL (Extract, Transform,
 Load) pipeline to clean it up and integrate it together. There are several
