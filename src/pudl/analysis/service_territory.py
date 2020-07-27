@@ -166,7 +166,7 @@ def get_utility_counties(util_ids, st_eia861):
             for looking up the state and county FIPS IDs associated with the utilities.
 
     Returns
-        pandas.DataFrame: A dataframe containing columns: report_year, utility_id_eia,
+        pandas.DataFrame: A dataframe containing columns: report_date, utility_id_eia,
         state, state_id_fips, county, and county_id_fips, including all of the counties
         in each year that are associated with the service territory of each
         utility_id_eia value.
@@ -194,7 +194,7 @@ def add_geometries(df, census_gdf, dissolve=False, dissolve_by=None):
         dissolve (bool): If True, dissolve individual county geometries into larger
             service territories.
         dissolve_by (list): The columns to group by in the dissolve. For example,
-            dissolve_by=["report_data", "utility_id_eia"] might provide annual utility
+            dissolve_by=["report_date", "utility_id_eia"] might provide annual utility
             service territories, while ["report_date", "balancing_authority_id_eia"]
             would provide annual balancing authority territories.
 
