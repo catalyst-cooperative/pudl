@@ -17,6 +17,15 @@ def add_dates(rids_ferc714, report_dates):
         report_dates (ordered collection of datetime): Dates for which each respondent
             should be given a record.
 
+    Raises:
+        ValueError: if a ``report_date`` column exists in ``rids_ferc714``.
+
+    Returns:
+        pandas.DataFrame: Dataframe having all the same columns as the input
+        ``rids_ferc714`` with the addition of a ``report_date`` column, but with all
+        records associated with each ``respondent_id_ferc714`` duplicated on a per-date
+        basis.
+
     """
     if "report_date" in rids_ferc714.columns:
         raise ValueError("report_date already present, can't be added again!")
@@ -41,6 +50,10 @@ def get_all_utils(pudl_out):
     because we haven't integrated the EIA 861 information into the entity harvesting
     process and PUDL database yet.
 
+    Args:
+        pudl_out (pudl.output.pudltabl.PudlTabl): The PUDL output object which should be
+            used to obtain PUDL data.
+
     Returns:
         pandas.DataFrame: Having 2 columns ``utility_id_eia`` and ``utility_name_eia``.
 
@@ -53,7 +66,7 @@ def get_all_utils(pudl_out):
     )
 
 
-class FERC714Respondents(object):
+class Respondents(object):
     """
     A class coordinating compilation of data related to FERC 714 Respondents.
 
@@ -66,7 +79,7 @@ class FERC714Respondents(object):
 
     Some of these derived attributes are computationally expensive, and so they are
     cached internally. You can force a new computation in most cases by using
-    ``update=True`` in the access methods. HOwever, this functionality isn't totally
+    ``update=True`` in the access methods. However, this functionality isn't totally
     implemented because we're still depending on the interim ETL processes for the FERC
     714 and EIA 861 data, and we don't want to trigger whole new ETL runs every time
     a derived value is updated.
@@ -211,7 +224,7 @@ class FERC714Respondents(object):
                 pd.concat([
                     ba_respondents,
                     util_respondents,
-                    # Uncategorized espondents w/ no respondent_type:
+                    # Uncategorized respondents w/ no respondent_type:
                     categorized[categorized.respondent_type.isnull()]
                 ])
                 .pipe(
@@ -281,42 +294,33 @@ class FERC714Respondents(object):
         if update or self._fipsified is None:
             categorized = self.categorize(update=update)
             # Generate the BA:FIPS relation:
-            ba_counties = (
+            ba_counties = pd.merge(
+                categorized.query("respondent_type=='balancing_authority'"),
                 pudl.analysis.service_territory.get_balancing_authority_counties(
                     ba_ids=categorized.balancing_authority_id_eia.unique(),
                     st_eia861=self.pudl_out.service_territory_eia861(),
                     ba_assn_eia861=self.pudl_out.balancing_authority_assn_eia861(),
-                    limit_by_state=self.limit_by_state
-                )
-            )
-            ba_fips = (
-                pd.merge(
-                    categorized.query("respondent_type=='balancing_authority'"),
-                    ba_counties,
-                    on=["report_date", "balancing_authority_id_eia"],
-                    how="left",
-                )
+                    limit_by_state=self.limit_by_state),
+                on=["report_date", "balancing_authority_id_eia"],
+                how="left",
             )
             # Generate the Util:FIPS relation:
-            util_counties = pudl.analysis.service_territory.get_utility_counties(
-                util_ids=categorized.utility_id_eia.unique(),
-                st_eia861=self.pudl_out.service_territory_eia861(),
-                # NOT YET IMPLEMENTED:
-                # util_assn_eia861=self.pudl_out.utility_assn_eia861(),
-                # limit_by_state=self.limit_by_state,
-            )
-            util_fips = (
-                pd.merge(
-                    categorized.query("respondent_type=='utility'"),
-                    util_counties,
-                    on=["report_date", "utility_id_eia"],
-                    how="left",
-                )
+            util_counties = pd.merge(
+                categorized.query("respondent_type=='utility'"),
+                pudl.analysis.service_territory.get_utility_counties(
+                    util_ids=categorized.utility_id_eia.unique(),
+                    st_eia861=self.pudl_out.service_territory_eia861(),
+                    # NOT YET IMPLEMENTED:
+                    # util_assn_eia861=self.pudl_out.utility_assn_eia861(),
+                    # limit_by_state=self.limit_by_state,
+                ),
+                on=["report_date", "utility_id_eia"],
+                how="left",
             )
             self._fipsified = (
                 pd.concat([
-                    ba_fips,
-                    util_fips,
+                    ba_counties,
+                    util_counties,
                     categorized[categorized.respondent_type.isnull()]
                 ])
                 .pipe(
