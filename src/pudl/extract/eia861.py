@@ -7,6 +7,7 @@ This code is for use analyzing EIA Form 861 data.
 
 """
 import logging
+import warnings
 
 import pandas as pd
 
@@ -35,6 +36,10 @@ class Extractor(excel.GenericExtractor):
 
     def process_raw(self, df, yr, page):
         """Rename columns with location."""
+        warnings.warn(
+            "Integration of EIA 861 into PUDL is still experimental and incomplete.\n"
+            "The data has not yet been validated, and the structure may change."
+        )
         column_map_numeric = self._metadata.get_column_map(yr, page)
         df = df.rename(
             columns=dict(zip(df.columns[list(column_map_numeric.keys())],

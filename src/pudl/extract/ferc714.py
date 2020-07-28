@@ -1,6 +1,7 @@
 """Routines used for extracting the raw FERC 714 data."""
 import logging
 import pathlib
+import warnings
 import zipfile
 
 import pandas as pd
@@ -78,6 +79,10 @@ def extract(tables=pc.pudl_tables["ferc714"], pudl_settings=None):
         keys, and minimally processed pandas.DataFrame instances as the values.
 
     """
+    warnings.warn(
+        "Integration of FERC 714 into PUDL is still experimental and incomplete.\n"
+        "The data has not yet been validated, and the structure may change."
+    )
     if pudl_settings is None:
         pudl_settings = pudl.workspace.setup.get_defaults()
     raw_dfs = {}
@@ -87,7 +92,7 @@ def extract(tables=pc.pudl_tables["ferc714"], pudl_settings=None):
                 f"No extract function found for requested FERC Form 714 data "
                 f"table {table}!"
             )
-        logger.info(f"Reading {table} from CSV into pandas DataFrame.")
+        logger.info(f"Extracting {table} from CSV into pandas DataFrame.")
         with _get_zpath(table, pudl_settings).open() as f:
             raw_dfs[table] = pd.read_csv(f, encoding=TABLE_ENCODING[table])
     return raw_dfs
