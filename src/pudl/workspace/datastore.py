@@ -7,7 +7,6 @@ import argparse
 import hashlib
 import json
 import logging
-import os
 import re
 import sys
 from pathlib import Path
@@ -42,7 +41,7 @@ PUDL_YML = Path.home() / ".pudl.yml"
 class Datastore:
     """Handle connections and downloading of Zenodo Source archives."""
 
-    def __init__(self, loglevel="WARNING", verbose=False, sandbox=False):
+    def __init__(self, pudl_in, loglevel="WARNING", verbose=False, sandbox=False):
         """
         Datastore manages file retrieval for PUDL datasets.
 
@@ -52,11 +51,13 @@ class Datastore:
         from the user's ~/.pudl.yml settings file.
 
         Args:
+            pudl_in (Path): path to the root pudl data directory
             loglevel: str, logging level
             verbose: boolean. If true, logs printed to stdout
             sandbox: boolean. If true, use the sandbox server instead of
                      production
         """
+        self.pudl_in = pudl_in
         logger = logging.Logger(__name__)
         logger.setLevel(loglevel)
 
@@ -75,10 +76,6 @@ class Datastore:
             self._dois = DOI["production"]
             self.token = TOKEN["production"]
             self.api_root = "https://zenodo.org/api"
-
-        with PUDL_YML.open() as f:
-            cfg = yaml.safe_load(f)
-            self.pudl_in = Path(os.environ.get("PUDL_IN", cfg["pudl_in"]))
 
     # Location conversion & helpers
 
@@ -389,6 +386,9 @@ def main_arguments():
     parser.add_argument(
         "--dataset", help="Get only a specified dataset. Default gets all.")
     parser.add_argument(
+        "--pudl_in",
+        help="Override pudl_in directory, defaults to option .pudl.yml")
+    parser.add_argument(
         "--validate", help="Validate existing cache.", const=True,
         default=False, action="store_const")
     parser.add_argument(
@@ -406,9 +406,18 @@ def main_arguments():
 def main():
     """Cache datasets."""
     args = main_arguments()
-    ds = Datastore(loglevel=args.loglevel, verbose=args.verbose,
-                   sandbox=args.sandbox)
     dataset = getattr(args, "dataset", None)
+    pudl_in = getattr(args, "pudl_in", None)
+
+    if pudl_in is None:
+        with PUDL_YML.open() as f:
+            cfg = yaml.safe_load(f)
+            pudl_in = Path(cfg["pudl_in"])
+    else:
+        pudl_in = Path(pudl_in)
+
+    ds = Datastore(pudl_in, loglevel=args.loglevel, verbose=args.verbose,
+                   sandbox=args.sandbox)
 
     if args.validate:
         ds.validate(dataset)

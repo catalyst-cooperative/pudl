@@ -910,7 +910,7 @@ def convert_cols_dtypes(df, data_source, name=None):
         df[col] = df[col].astype(str)
 
     if name:
-        logger.info(f'Converting the dtypes of: {name}')
+        logger.debug(f'Converting the dtypes of: {name}')
     # unfortunately, the pd.Int32Dtype() doesn't allow a conversion from object
     # columns to this nullable int type column. `utility_id_eia` shows up as a
     # column of strings (!) of numbers so it is an object column, and therefor

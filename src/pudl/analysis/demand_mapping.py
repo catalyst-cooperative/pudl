@@ -744,54 +744,6 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
     return df
 
 
-def has_demand(dhpa, rids):
-    """
-    Compile a dataframe indicating which respondents reported demand in what years.
-
-    Args:
-        dhpa (pandas.DataFrame): The demand_hourly_planning_area_ferc714 table, or
-            some subset of it.  Must include the report_year, respondent_id_ferc714,
-            demand_mwh, and report_year columns.
-        rids (pandas.DataFrame): The respondent_id_ferc714 table, or similar dataframe,
-            including a respondent_id_ferc714 column with all of the respondent ID
-            values for which you want to check for demand.
-
-    Returns:
-        pandas.DataFrame: A dataframe with all 3 columns: respondent_id_ferc714 (int),
-        report_year (int), and has_demand (bool). All possible combinations of
-        respondent_id_ferc714 (from rids) and report_year (from dhpa) are present, and
-        the value of has_demand is True if that respondent ID reported more than zero
-        demand in that year.
-
-    """
-    # Create an complete 2-column index with all years and rids:
-    all_years = (
-        dhpa[["report_year"]]
-        .drop_duplicates()
-        .assign(tmp=1)
-    )
-    all_rids = (
-        rids[["respondent_id_ferc714"]]
-        .drop_duplicates()
-        .assign(tmp=1)
-    )
-    all_years_rids = (
-        pd.merge(all_years, all_rids)
-        .drop("tmp", axis="columns")
-    )
-    out_df = (
-        dhpa.groupby(["respondent_id_ferc714", "report_year"])
-        .agg({"demand_mwh": sum})
-        .reset_index()
-        .assign(has_demand=lambda x: x.demand_mwh > 0.0)
-        .rename(columns={"demand_mwh": "total_demand_mwh"})
-        .merge(all_years_rids, how="right")
-        .assign(has_demand=lambda x: x.has_demand.fillna(False))
-        .pipe(pudl.helpers.convert_to_date)
-    )
-    return out_df
-
-
 def georef_rids(rids_df, util_geom, ba_geom):
     """
     Add planning area geometries to the FERC 714 respondent_id table.

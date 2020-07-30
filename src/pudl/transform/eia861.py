@@ -652,13 +652,12 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
                     compare_totals=lambda x: (x[col + '_total'] == x[col + '_sum']))
             )
             bad_math = (col_df['compare_totals']).sum() / len(col_df)
-            logger.info(
+            logger.debug(
                 f"{df_name}: for column {col}, {bad_math:.0%} "
                 "of non-null reported totals = the sum of parts."
             )
         else:
-            logger.info(
-                f'{df_name}: for column {col} all total values are NaN')
+            logger.debug(f'{df_name}: for column {col} all total values are NaN')
 
 
 ###############################################################################
@@ -683,8 +682,7 @@ def service_territory(tfr_dfs):
     # No data tidying required
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
-    type_compatible_df = tfr_dfs["service_territory_eia861"].astype({
-                                                                    "county": str})
+    type_compatible_df = tfr_dfs["service_territory_eia861"].astype({"county": str})
     # Transform values:
     # * Add state and county fips IDs
     transformed_df = (
@@ -896,7 +894,7 @@ def normalize_balancing_authority(tfr_dfs):
             "balancing_authority_code_eia",
             "balancing_authority_name_eia",
         ]]
-        .drop_duplicates()
+        .drop_duplicates(subset=["report_date", "balancing_authority_id_eia"])
     )
 
     # Make sure that there aren't any more BA IDs we can recover from later years:

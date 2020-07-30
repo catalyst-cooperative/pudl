@@ -84,7 +84,7 @@ def main():
 
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in, pudl_out=pudl_out)
-    pudl_settings["testing"] = args.sandbox
+    pudl_settings["sandbox"] = args.sandbox
 
     try:
         datapkg_bundle_doi = script_settings["datapkg_bundle_doi"]

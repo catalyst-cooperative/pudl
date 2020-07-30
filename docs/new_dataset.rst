@@ -23,8 +23,6 @@ and improves over time.
 
 Right now the process for adding a new data source looks something like this:
 
-#. Add the new data source to the :mod:`pudl.workspace.datastore`` module and
-   the ``pudl_data`` script.
 #. Define well normalized data tables for the new data source in the
    metadata, which is stored in
    ``src/pudl/package_data/meta/datapkg/datapackage.json``.
@@ -55,7 +53,7 @@ Scripts
 ^^^^^^^
 
 This means editing the :mod:`pudl.workspace.datastore` module and the
-``pudl_data`` script so that they can acquire the data from the
+``pudl_datastore`` script so that they can acquire the data from the
 reporting agencies, and organize it locally in advance of the ETL process.
 New data sources should be organized under ``data/<agency>/<source>/`` e.g.
 ``data/ferc/form1`` or ``data/eia/form923``. Larger data sources that are
