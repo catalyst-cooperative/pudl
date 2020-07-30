@@ -28,10 +28,15 @@ of its children: e.g. [0.4], [0.6] -> [1].
 import logging
 import pathlib
 import zipfile
+from collections import defaultdict
 
 import geopandas
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy
+import seaborn as sns
 from geopandas import GeoDataFrame
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
 from shapely.ops import unary_union
@@ -845,3 +850,396 @@ def georef_rids(rids_df, util_geom, ba_geom):
         .set_crs(util_geom.crs)
     )
     return rids_all
+
+################################################################################
+# Demand Data and Error Visualization Functions
+################################################################################
+
+
+def compare_datasets(alloc_demand, actual_demand, demand_columns, select_regions, time_col="utc_datetime", region="pca"):
+    """
+    Stack allocated and actual demand data together for comparison.
+
+    Given the allocated and actual demand dataframes where both dataframes are
+    similarly oriented, i.e. one column specifying all the unique regions, and
+    other columns specifying demand data, with the column labelled by the time
+    slice it is calculated for, the function will output a single datafram
+    which gives a stacked comparison of the actual demand and allocated demand
+    at every time interval and for every specified region.
+
+    Args:
+        alloc_demand (pandas.DataFrame): A dataframe with the `region` and
+            a subset of `demand_columns`. Each column name in the
+            `demand_columns` is typically an hourly datetime object refering to
+            the time period of demand observed, but can be any other timeslice.
+            The `demand_columns` contain the allocated demand as allocated by
+            the `allocate_and_aggregate` function. Any columns not present in
+            demand_columns will be imputed as np.nan.
+        actual_demand (pandas.DataFrame): A similar dataframe as actual_demand,
+            but contains actual demand data, which is being compared against.
+        demand_columns (list): A list containing column names present in the
+            `alloc_demand` dataframe and the `actual_demand` dataframe. If some
+            of the columns are not present in either dataframe, those columns
+            are instantiated with NaN values.
+        select_regions (list): The list of all unique ids whose actual and
+            allocated demand is compared. If all regions are to be compared,
+            pass `actual_demand[region].unique()` as the argument.
+        time_col (str): name that will be given to the time column in the output
+            dataframe
+        region (str): It is the name of the column, common to both
+            `alloc_demand` and `actual_demand` dataframes which refers to the
+            unique ID of each region whose demand is being calculated
+
+    Returns:
+        geopandas.GeoDataFrame: A FERC 714 respondent_id table with
+        records for each planning area respondent and their associated
+        geometries in each year. The CRS will be set to the same CRS
+        as the input util_geom.
+
+    """
+    # Add excepted columns as NaN values
+    for col in set(demand_columns).difference(alloc_demand.columns):
+        alloc_demand[col] = np.nan
+
+    for col in set(demand_columns).difference(actual_demand.columns):
+        actual_demand[col] = np.nan
+
+    # Add column name so that when transformed, the appropriate name is provided
+    actual_demand.columns.name = time_col
+    alloc_demand.columns.name = time_col
+
+    # Provide NaN values to region ids missing in `alloc_demand`
+    missing_region = set(actual_demand[region].unique()).difference(
+        alloc_demand[region].unique())
+    alloc_demand = alloc_demand.set_index(region)
+    alloc_demand = alloc_demand.reindex(
+        alloc_demand.index.union(missing_region))
+    alloc_demand.index.name = region
+    alloc_demand = alloc_demand.reset_index()
+
+    demand_actual = (actual_demand[actual_demand[region].isin(select_regions)]
+                     .set_index(region)[demand_columns]
+                     .T
+                     .reset_index()
+                     [
+                         [time_col] + select_regions
+    ])
+
+    demand_alloc = (alloc_demand[alloc_demand[region].isin(select_regions)]
+                    .set_index(region)[demand_columns]
+                    .T
+                    .reset_index()
+                    [
+        [time_col] + select_regions
+    ])
+
+    demand_data = demand_actual.merge(
+        demand_alloc, on=time_col, suffixes=('_actual', '_alloc'), how="outer")
+
+    demand_data = demand_data.set_index(time_col).unstack(
+    ).reset_index().rename(columns={0: "demand"})
+    demand_data[["region", "demand_type"]
+                ] = demand_data[region].str.split("_", expand=True)
+    demand_data.drop(region, axis=1, inplace=True)
+
+    demand_data = (demand_data
+                   .pivot_table(values="demand",
+                                index=[time_col, "region"],
+                                columns="demand_type")
+                   .reset_index())
+
+    return demand_data
+
+
+def corr_fig(fg_data, suptitle, s=2):
+    """
+    Create visualization to compare the allocated and actual demand for every region.
+
+    Uses the output of `compare_datasets` function as input to check
+    correlations between actual demand data and the allocated demand data.
+
+    Args:
+        fg_data (pandas.DataFrame): This is typically the output of the function
+            `compare_datasets`. It has columns named 'alloc', 'actual' and
+            'region'.
+        suptitle (str): The title for the whole image
+        s (float): Adjust the size of the markers which are displayed
+            in the graph
+
+    Returns:
+        None: Displays the image
+
+    """
+    fg_data = fg_data.dropna()
+
+    mpl.rcdefaults()
+    pred = 'alloc'
+    actual = "actual"
+
+    g = sns.FacetGrid(fg_data, col="region", col_wrap=3,
+                      sharey=False, sharex=False)
+    g.map(sns.regplot, actual, pred, scatter_kws={'alpha': 0.1, 's': s})
+
+    region_list = fg_data["region"].unique().tolist()
+
+    counter = 0
+
+    for ax in g.axes.flat:
+
+        df_temp = fg_data[fg_data["region"] == region_list[counter]]
+        min_max = df_temp.describe().loc[["min", "max"], ["actual", "alloc"]]
+
+        slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(
+            df_temp[actual], df_temp[pred])
+
+        min_lim, max_lim = 0, min_max.max().max()
+
+        ax.plot((min_lim, max_lim), (min_lim, max_lim), ls="--")
+        ax.text(max_lim - 10, max_lim - 10, "y={0:.2f}x + {1:.1f} (R² = {2:.2f})".format(slope, intercept, r_value),
+                horizontalalignment='right', verticalalignment="top")
+
+        ax.set_ylim(min_lim, max_lim)
+        ax.set_xlim(min_lim, max_lim)
+
+        counter += 1
+
+    plt.subplots_adjust(top=0.9)
+    g.fig.suptitle(suptitle)
+    plt.show()
+
+
+def error_na_fig(df_compare, index_col="region", time_col="utc_datetime", error_metric="mse"):
+    """
+    Create visualization to compare the error at various timescales and check NaN values.
+
+    Uses the output of `compare_datasets` function as input to check mean
+    squared error or mean absolute percentage error for the hour of the day,
+    day of the week and the month of the year.
+
+    Args:
+        df_compare (pandas.DataFrame): This is typically the output of the function
+            `compare_datasets`. It has columns named 'alloc', 'actual' and
+            'region'.
+        index_col (str): The name of the index column (usually 'region')
+        time_col (str): The name of the time column (usually 'utc_datetime')
+        error_metric (str): Currently has two options: 'mse' for Mean Squared
+            Error, and 'mape%' for Mean Absolute Percentage Error
+
+    Returns:
+        None: Displays the image
+
+    """
+    if error_metric == "mse":
+        df_compare[error_metric] = (
+            df_compare["actual"] - df_compare["alloc"]) ** 2
+
+    elif error_metric == "mape%":
+        df_compare[error_metric] = np.abs(
+            (df_compare["actual"] - df_compare["alloc"]) / df_compare["actual"])
+
+    df_compare["hour"] = df_compare["utc_datetime"].dt.hour
+    df_compare["day_of_week"] = df_compare["utc_datetime"].apply(
+        lambda x: x.weekday())
+    df_compare["month"] = df_compare["utc_datetime"].dt.month
+    df_compare["na_alloc"] = df_compare["alloc"].isna().astype(int)
+    df_compare["na_actual"] = df_compare["actual"].isna().astype(int)
+
+    fig, ax = plt.subplots(3, 2, figsize=(15, 10))
+
+    for i, col in enumerate(["hour", "day_of_week", "month"]):
+        sns.barplot(x=col, y=error_metric, data=df_compare, ax=ax[i, 0], color="blue",
+                    estimator=np.mean, ci=None)
+
+    df_na = (df_compare.set_index([index_col, time_col, "hour",
+                                   "day_of_week", "month"])[["na_alloc", "na_actual"]]
+             .stack()
+             .reset_index()
+             .rename(columns={0: "NA Count"}))
+
+    for i, col in enumerate(["hour", "day_of_week", "month"]):
+        sns.lineplot(x=col, y="NA Count", data=df_na, hue="demand_type", ci=None,
+                     estimator=np.sum, ax=ax[i, 1])
+
+    for i in [0, 1]:
+        ax[1, i].set_xticks([0, 1, 2, 3, 4, 5, 6])
+        ax[1, i].set_xticklabels(
+            ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])
+
+    plt.show()
+
+
+def regional_demand_profiles(df_compare, select_regions, time_col="utc_datetime"):
+    """
+    Create visualization to compare the average demand profiles for selected regions.
+
+    Uses the output of `compare_datasets` function as input to plot average
+    daily (hour-of-day), weekly (day-of-week) and yearly (month-of-year) demand
+    profiles for the selected regions under `select_regions`.
+
+    Args:
+        df_compare (pandas.DataFrame): This is typically the output of the function
+            `compare_datasets`. It has columns named 'alloc', 'actual' and
+            'region'.
+        select_regions (list): The list of all unique ids whose actual and
+            allocated demand is compared. If all regions are to be compared,
+            pass `df_compare[region].unique()` as the argument.
+        time_col (str): The name of the time column (usually 'utc_datetime')
+
+    Returns:
+        None: Displays the image
+
+    """
+    df_compare["hour_of_day"] = df_compare["utc_datetime"].dt.hour
+    df_compare["day_of_week"] = df_compare["utc_datetime"].apply(
+        lambda x: x.weekday())
+    df_compare["month_of_year"] = df_compare["utc_datetime"].dt.month
+    df_compare = df_compare[df_compare["region"].isin(select_regions)]
+
+    df_compare = (df_compare
+                  .set_index([time_col, "region"] + ["hour_of_day", "day_of_week", "month_of_year"])
+                  .stack()
+                  .reset_index().rename(columns={0: "demand"}))
+
+    df_compare = (df_compare
+                  .set_index([time_col, "region"] + ["demand_type", "demand"])
+                  .stack()
+                  .reset_index().rename(columns={0: "time", "level_4": "time_type"}))
+
+    g = sns.relplot(x="time", y="demand",
+                    hue="demand_type", col="time_type", row="region",
+                    kind="line", data=df_compare,
+                    facet_kws={'sharey': False, 'sharex': False})
+
+    g.set(ylim=(0, None))
+    ax = g.axes
+
+    for i in range(len(select_regions)):
+        ax[i, 1].set_xticks([0, 1, 2, 3, 4, 5, 6])
+        ax[i, 1].set_xticklabels(
+            ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])
+
+
+def uncovered_area_mismatch(alloc_gdf, actual_gdf, region_col="pca"):
+    """
+    Create map visualization to identify areas which are uncovered by FERC 714 timeseries.
+
+    Uses the output of `allocate_and_aggregate` function as input along with
+    actual demand data to create a map of the entire region in actual_gdf
+    highlighted by the area which is unallocated by alloc_gdf. Both
+    geodataframes have the `region_col` column name which stores the unique
+    areas and 'geometry' column with their geometries.
+
+    Args:
+        alloc_gdf (geopandas.GeoDataFrame): This is the geodataframe with the
+            allocated geometries stored in the 'geometry' column. If alloc_gdf
+            misses any unique region present in actual_gdf, it is considered a
+            100% unallocated region.
+        actual_gdf (geopandas.GeoDataFrame): This is the geodataframe with the
+            actual geometries stored in the 'geometry' column, which are the
+            basis for comparison.
+        region_col (str): The column_name which contains the unique ids for each
+            of the regions.
+
+    Returns:
+        None: Displays the image
+
+    """
+    alloc_region_area = alloc_gdf.set_index(
+        region_col)["geometry"].area.to_dict()
+    actual_region_area = actual_gdf.set_index(
+        region_col)["geometry"].area.to_dict()
+
+    alloc_region_area = defaultdict(lambda: 0, alloc_region_area)
+
+    uncovered_area = {key: max((actual_region_area[key] - alloc_region_area[key])
+                               / actual_region_area[key], 0) for key in actual_region_area.keys()}
+    actual_gdf["uncovered_area"] = actual_gdf[region_col].apply(
+        lambda x: uncovered_area[x])
+
+    fig, ax = plt.subplots(figsize=(20, 10))
+    actual_gdf.plot("uncovered_area", legend=True, cmap="cividis", ax=ax,
+                    legend_kwds={"label": "Uncovered Area (2010)"})
+
+    ax.set_xticks([])
+    ax.set_yticks([])
+    plt.show()
+
+
+def vec_error(vec1, vec2, errtype):
+    """
+    Calculate error metrics between two vectors vec1 (alloc), and vec2 (actual).
+
+    Takes input of two numpy arrays, vec1 and vec2, and calculates error metric.
+    Possible specifications of error metrics include: Mean Squared Error
+    ('mse'), Mean Absolute Percentage Error ('mape%') and R2 value ('r2').
+    """
+    vec1 = np.array(vec1)
+    vec2 = np.array(vec2)
+    if errtype == "mse":
+        return np.nanmean((vec1 - vec2) ** 2)
+
+    elif errtype == "mape%":
+        vec1[vec2 == 0] = np.nan
+        return np.nanmean(np.abs((vec1 - vec2) / vec2)) * 100
+
+    elif errtype == "r2":
+        mask = ~np.isnan(vec1) & ~np.isnan(vec2)
+        if vec1[mask].size == 0:
+            return np.nan
+
+        else:
+            _, _, r_value, _, _ = scipy.stats.linregress(
+                vec1[mask], vec2[mask])
+            return r_value ** 2
+
+
+def error_heatmap(alloc_df, actual_df, demand_columns, region_col="pca", error_metric="r2"):
+    """
+    Create heatmap of 365X24 dimension to visualize the annual hourly error.
+
+    Uses the output of `allocate_and_aggregate` function as input along with
+    actual demand data to plot the annual hourly errors as a heatmap on a 365X24
+    grid.
+
+    Args:
+        alloc_df (pandas.DataFrame): A dataframe with the `region` and a subset
+            of `demand_columns`. Each column name in the `demand_columns` is
+            typically an hourly datetime object refering to the time period of
+            demand observed, but can be any other timeslice. The
+            `demand_columns` contain the allocated demand as allocated by the
+            `allocate_and_aggregate` function. Any columns not present in
+            `demand_columns` will be imputed as np.nan.
+        actual_df (pandas.DataFrame): A similar dataframe as actual_demand,
+            but contains actual demand data, which is being compared against.
+        region_col (str): The column_name which contains the unique ids for each
+            of the regions.
+        error_metric (str): Specifies the error metric to be observed in the
+        heatmap. Possible error metrics available include: Mean Squared Error
+        ('mse'), Mean Absolute Percentage Error ('mape%') and R2 value ('r2')
+
+    Returns:
+        None: Displays the image
+
+    """
+    actual_df = actual_df.sort_values(
+        region_col)[[region_col] + demand_columns]
+    columns_excepted = set(demand_columns).difference(set(alloc_df.columns))
+
+    for col in columns_excepted:
+        alloc_df[col] = np.nan
+
+    alloc_df = actual_df[[region_col]].merge(
+        alloc_df[[region_col] + demand_columns], how="left")
+    hmap = np.empty((365, 24))
+
+    for col in demand_columns:
+        hmap[col.timetuple().tm_yday - 1, col.hour] = vec_error(np.array(alloc_df[col]),
+                                                                np.array(
+                                                                    actual_df[col]),
+                                                                error_metric)
+
+    mask = np.isnan(hmap)
+    fig, ax = plt.subplots(figsize=(14, 8))
+    sns.heatmap(hmap, ax=ax, mask=mask)
+    plt.title(error_metric.upper())
+    plt.show()
