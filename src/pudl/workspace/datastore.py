@@ -45,17 +45,12 @@ class Datastore:
         """
         Datastore manages file retrieval for PUDL datasets.
 
-        It pulls files from Zenodo archives as needed, and caches them
-        locally. If the environment variable PUDL_IN is set, the datastore
-        is assumed to be in PUDL_IN / data. Otherwise PUDL_IN is read
-        from the user's ~/.pudl.yml settings file.
-
         Args:
             pudl_in (Path): path to the root pudl data directory
-            loglevel: str, logging level
-            verbose: boolean. If true, logs printed to stdout
-            sandbox: boolean. If true, use the sandbox server instead of
-                     production
+            loglevel (str): logging level
+            verbose (bool): If true, logs printed to stdout
+            sandbox (bool): If true, use the sandbox server instead of
+                production
         """
         self.pudl_in = pudl_in
         logger = logging.Logger(__name__)
@@ -102,11 +97,12 @@ class Datastore:
         Given a DOI, produce the API url to retrieve it.
 
         Args:
-            doi: str, the doi (concept doi) to retrieve, per
-                 https://help.zenodo.org/
+            doi (str): the doi (concept doi) to retrieve, per
+                https://help.zenodo.org/
 
         Returns:
             url to get the deposition from the api
+
         """
         match = re.search(r"zenodo.([\d]+)", doi)
 
@@ -125,7 +121,7 @@ class Datastore:
         Args:
             dataset: the name of the dataset
             filename: optional filename as it would appear, if included in the
-                      path
+                path
 
         Return:
             str: a path
@@ -204,7 +200,7 @@ class Datastore:
             dataset (str): name of the dataset, must be available in the DOIS
 
         Return:
-            dict representation of the datapackage.json
+            dict: representation of the datapackage.json
         """
         path = self.local_path(dataset, filename="datapackage.json")
 
@@ -224,9 +220,10 @@ class Datastore:
 
         Args:
             resource: dict, a resource descriptor from a frictionless data
-                      package
+                package
+
         Returns:
-            boolean
+            bool
         """
         return resource["path"][:8] == "https://" or \
             resource["path"][:7] == "http://"
@@ -236,12 +233,14 @@ class Datastore:
         Test whether file metadata passes given filters.
 
         Args:
-            resource: dict, a "resource" descriptior from a frictionless
-                      datapackage
-            filters: dict, pairs that must match in order for a
-                     resource to pass
+            resource (dict): a "resource" descriptior from a frictionless
+                datapackage
+            filters (dict): pairs that must match in order for a
+                resource to pass
+
         Returns:
-            boolean, True if the resource parts pass the filters
+            bool: True if the resource parts pass the filters
+
         """
         for key, _ in filters.items():
 
@@ -261,17 +260,19 @@ class Datastore:
 
         Args:
             resource: dict, a remotely located resource descriptior from a
-                      frictionless datapackage
+                frictionless datapackage
             directory: the directory where the resource should be saved
+
         Returns:
             Path of the saved resource, or none on failure
+
         """
         response = requests.get(
             resource["path"], params={"access_token": self.token})
 
         if response.status_code >= 299:
-            msg = "Failed to download %s, %s" % (
-                resource["path"], response.text)
+            msg = "Failed to download %s, %s" % (resource["path"], response.text)
+
             self.logger.error(msg)
             raise RuntimeError(msg)
 
@@ -289,8 +290,10 @@ class Datastore:
 
         Args:
             dataset: name of a dataset
+
         Returns:
             Bool, True if local resources appear to be correct.
+
         """
         dpkg = self.datapackage_json(dataset)
         ok = True
@@ -321,8 +324,10 @@ class Datastore:
 
         Args:
             dataset: name of a dataset.
+
         Returns:
-            Bool, True if local resources appear to be correct.
+            bool: True if local resources appear to be correct.
+
         """
         if dataset is not None:
             return self._validate_dataset(dataset)
@@ -346,10 +351,12 @@ class Datastore:
             **kwargs: limit retrieved files to those where the
                 datapackage.json["parts"] key & val pairs match provided
                 keywords. Eg. year=2011 or state="md"
+
         Returns:
             list of dicts, each representing a resource per the frictionless
             datapackage spec. For a given r, Path(r["path"]) should open the
             local file, r["parts"] should provide metadata identifiers.
+
         """
         filters = dict(**kwargs)
 
