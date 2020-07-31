@@ -223,6 +223,11 @@ class PudlTabl(object):
         self.etl_eia861(update=update)
         return self._dfs["balancing_authority_assn_eia861"]
 
+    def utility_assn_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["utility_assn_eia861"]
+
     def service_territory_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)

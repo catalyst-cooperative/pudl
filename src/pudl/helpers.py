@@ -905,10 +905,6 @@ def convert_cols_dtypes(df, data_source, name=None):
                                True: True,
                                'nan': pd.NA})
 
-    # For whatever reason, this is more flexible than using the StringDtype
-    for col in string_cols:
-        df[col] = df[col].astype(str)
-
     if name:
         logger.debug(f'Converting the dtypes of: {name}')
     # unfortunately, the pd.Int32Dtype() doesn't allow a conversion from object
@@ -922,10 +918,10 @@ def convert_cols_dtypes(df, data_source, name=None):
         if df.utility_id_eia.dtypes is np.dtype('object'):
             df = df.astype({'utility_id_eia': 'float'})
     df = (
-        df.astype(non_bool_cols)
-        .astype(bool_cols)
-        .replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
+        df.replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
         .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
+        .astype(non_bool_cols)
+        .astype(bool_cols)
     )
     return df
 
