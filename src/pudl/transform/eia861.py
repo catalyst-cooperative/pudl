@@ -1128,6 +1128,8 @@ def demand_response(tfr_dfs):
     ]
 
     raw_dr = tfr_dfs["demand_response_eia861"].copy()
+    # fill na BA values with 'UNK'
+    raw_dr = raw_dr['balancing_authority_code_eia'].fillna('UNK')
 
     ###########################################################################
     # Tidy Data:
@@ -1143,6 +1145,7 @@ def demand_response(tfr_dfs):
     )
 
     # shouldn't be duplicates but there are some strange values from IN.
+    # these values have Nan BA values and should be deleted earlier.
     # thinking this might have to do with DR table weirdness between 2012 and 2013
     # will come back to this after working on the DSM table. Dropping dupes for now.
     deduped_dr = _drop_dupes(tidy_dr, idx_cols)

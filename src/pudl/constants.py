@@ -2572,6 +2572,8 @@ CUSTOMER_CLASSES = [
 
 TECH_CLASSES = [
     'pv',
+    'pv_storage',
+    'pv_virtual',
     'wind',
     'chp_cogen',
     'combustion_turbine',
@@ -2579,7 +2581,6 @@ TECH_CLASSES = [
     'hydro',
     'internal_combustion',
     'steam',
-    'storage',
     'other',
     'total'
 ]
