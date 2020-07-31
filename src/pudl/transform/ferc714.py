@@ -488,8 +488,8 @@ def _complete_demand_timeseries(pa_demand):
     for tz in new_df.timezone.unique():
         rows_to_fix = (new_df.timezone == tz) & (new_df.report_year.isnull())
         if rows_to_fix.any():
-            new_df.loc[rows_to_fix, "report_year"] = \
-                new_df.loc[rows_to_fix, "local_datetime"].dt.year
+            new_df.loc[rows_to_fix, "report_year"] = pd.to_datetime(
+                new_df.loc[rows_to_fix, "local_datetime"]).dt.year
     # Remove temporary columns and return only the columns we started with.
     new_df = new_df.drop(["utc_aware", "local_datetime"], axis="columns")
     non_null = len(new_df[new_df.demand_mwh.notnull()]) / len(new_df)
