@@ -7,6 +7,7 @@ This code is for use analyzing EIA Form 861 data.
 
 """
 import logging
+import warnings
 
 import pandas as pd
 
@@ -19,7 +20,15 @@ logger = logging.getLogger(__name__)
 class Extractor(excel.GenericExtractor):
     """Extractor for the excel dataset EIA861."""
 
-    METADATA = excel.Metadata('eia861')
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize the module.
+
+        Args:
+            ds (:class:datastore.Datastore): Initialized datastore.
+        """
+        self.METADATA = excel.Metadata('eia861')
+        super().__init__(*args, **kwargs)
 
     def file_basename_glob(self, year, page):
         """Returns corresponding glob pattern for a page."""
@@ -27,6 +36,10 @@ class Extractor(excel.GenericExtractor):
 
     def process_raw(self, df, yr, page):
         """Rename columns with location."""
+        warnings.warn(
+            "Integration of EIA 861 into PUDL is still experimental and incomplete.\n"
+            "The data has not yet been validated, and the structure may change."
+        )
         column_map_numeric = self._metadata.get_column_map(yr, page)
         df = df.rename(
             columns=dict(zip(df.columns[list(column_map_numeric.keys())],
