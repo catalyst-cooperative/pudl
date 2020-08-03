@@ -654,12 +654,12 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
                     compare_totals=lambda x: (x[col + '_total'] == x[col + '_sum']))
             )
             bad_math = (col_df['compare_totals']).sum() / len(col_df)
-            logger.info(
+            logger.debug(
                 f"{df_name}: for column {col}, {bad_math:.0%} "
                 "of non-null reported totals = the sum of parts."
             )
         else:
-            logger.info(
+            logger.debug(
                 f'{df_name}: for column {col} all total values are NaN')
 
 
@@ -758,7 +758,7 @@ def service_territory(tfr_dfs):
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
     type_compatible_df = tfr_dfs["service_territory_eia861"].astype({
-        "county": str})
+                                                                    "county": str})
     # Transform values:
     # * Add state and county fips IDs
     transformed_df = (
@@ -858,7 +858,7 @@ def balancing_authority_assn(tfr_dfs):
         tfr_dfs["demand_response_eia861"],
         tfr_dfs["advanced_metering_infrastructure_eia861"],
         tfr_dfs["dynamic_pricing_eia861"],
-        tfr_dfs["net_metering_eia861"],
+        tfr_dfs["net_metering_misc_eia861"],
     ]
 
     logger.info("Building an EIA 861 BA-Util-State association table.")
@@ -970,7 +970,7 @@ def normalize_balancing_authority(tfr_dfs):
             "balancing_authority_code_eia",
             "balancing_authority_name_eia",
         ]]
-        .drop_duplicates()
+        .drop_duplicates(subset=["report_date", "balancing_authority_id_eia"])
     )
 
     # Make sure that there aren't any more BA IDs we can recover from later years:
@@ -1125,6 +1125,10 @@ def demand_response(tfr_dfs):
     ]
 
     raw_dr = tfr_dfs["demand_response_eia861"].copy()
+    # fill na BA values with 'UNK'
+    # raw_dr['balancing_authority_code_eia'] = (
+    #     raw_dr['balancing_authority_code_eia'].fillna('UNK')
+    # )
 
     ###########################################################################
     # Tidy Data:
@@ -1140,6 +1144,7 @@ def demand_response(tfr_dfs):
     )
 
     # shouldn't be duplicates but there are some strange values from IN.
+    # these values have Nan BA values and should be deleted earlier.
     # thinking this might have to do with DR table weirdness between 2012 and 2013
     # will come back to this after working on the DSM table. Dropping dupes for now.
     deduped_dr = _drop_dupes(tidy_dr, idx_cols)
@@ -1389,8 +1394,25 @@ def net_metering(tfr_dfs):
         'report_date',
     ]
 
-    # Pre-tidy clean specific to sales table
-    raw_nm = tfr_dfs["net_metering_eia861"].copy()
+    misc_cols = [
+        'pv_current_flow_type'
+    ]
+
+    # Pre-tidy clean specific to net_metering table
+    raw_nm = (
+        tfr_dfs["net_metering_eia861"].copy()
+        .query("utility_id_eia not in '99999'")
+    )
+
+    # Separate customer class data from misc data (in this case just one col: current flow)
+    # Could easily add this to tech_class if desired.
+    raw_nm_customer_fuel_class = (
+        raw_nm.drop(misc_cols, axis=1).copy())
+    raw_nm_misc = raw_nm[idx_cols + misc_cols].copy()
+
+    # Check for duplicates before idx cols get changed
+    _check_for_dupes(
+        raw_nm_misc, 'Net Metering Current Flow Type PV', idx_cols)
 
     ###########################################################################
     # Tidy Data:
@@ -1398,8 +1420,8 @@ def net_metering(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Net Metering table.")
     # Normalize by customer class (must be done before normalizing by fuel class)
-    tidy_nm, idx_cols = _tidy_class_dfs(
-        raw_nm,
+    tidy_nm_customer_class, idx_cols = _tidy_class_dfs(
+        raw_nm_customer_fuel_class,
         df_name='Net Metering',
         idx_cols=idx_cols,
         class_list=pc.CUSTOMER_CLASSES,
@@ -1407,8 +1429,8 @@ def net_metering(tfr_dfs):
     )
 
     # Normalize by fuel class
-    tidy_nm, idx_cols = _tidy_class_dfs(
-        tidy_nm,
+    tidy_nm_customer_fuel_class, idx_cols = _tidy_class_dfs(
+        tidy_nm_customer_class,
         df_name='Net Metering',
         idx_cols=idx_cols,
         class_list=pc.TECH_CLASSES,
@@ -1417,11 +1439,16 @@ def net_metering(tfr_dfs):
     )
 
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(tidy_nm, 'Net Metering', idx_cols)
+    _check_for_dupes(
+        tidy_nm_customer_fuel_class, 'Net Metering Customer & Fuel Class', idx_cols)
 
     # No transformation needed
 
-    tfr_dfs["net_metering_eia861"] = tidy_nm
+    # Drop original net_metering_eia861 table from tfr_dfs
+    del tfr_dfs['net_metering_eia861']
+
+    tfr_dfs["net_metering_customer_fuel_class_eia861"] = tidy_nm_customer_fuel_class
+    tfr_dfs["net_metering_misc_eia861"] = raw_nm_misc
 
     return tfr_dfs
 
@@ -1445,8 +1472,18 @@ def non_net_metering(tfr_dfs):
         'report_date',
     ]
 
-    # Pre-tidy clean specific to sales table
-    raw_nnm = tfr_dfs["non_net_metering_eia861"].copy()
+    misc_cols = [
+        'backup_capacity_mw',
+        'generators_number',
+        'pv_current_flow_type',
+        'utility_owned_capacity_mw'
+    ]
+
+    # Pre-tidy clean specific to non_net_metering table
+    raw_nnm = (
+        tfr_dfs["non_net_metering_eia861"].copy()
+        .query("utility_id_eia not in '99999'")
+    )
 
     # there are ~80 fully duplicate records in the 2018 table. We need to
     # remove those duplicates
@@ -1457,6 +1494,15 @@ def non_net_metering(tfr_dfs):
         raise ValueError(
             f"""Too many duplicate dropped records in raw non-net metering
     table: {diff_len}""")
+
+    # Separate customer class data from misc data
+    raw_nnm_customer_fuel_class = raw_nnm.drop(misc_cols, axis=1).copy()
+    raw_nnm_misc = (raw_nnm[idx_cols + misc_cols]).copy()
+
+    # Check for duplicates before idx cols get changed
+    _check_for_dupes(
+        raw_nnm_misc, 'Non Net Metering Misc.', idx_cols)
+
     ###########################################################################
     # Tidy Data:
     ###########################################################################
@@ -1464,8 +1510,8 @@ def non_net_metering(tfr_dfs):
     logger.info("Tidying the EIA 861 Non Net Metering table.")
 
     # Normalize by customer class (must be done before normalizing by fuel class)
-    tidy_nnm, idx_cols = _tidy_class_dfs(
-        raw_nnm,
+    tidy_nnm_customer_class, idx_cols = _tidy_class_dfs(
+        raw_nnm_customer_fuel_class,
         df_name='Non Net Metering',
         idx_cols=idx_cols,
         class_list=pc.CUSTOMER_CLASSES,
@@ -1474,8 +1520,8 @@ def non_net_metering(tfr_dfs):
     )
 
     # Normalize by fuel class
-    tidy_nnm, idx_cols = _tidy_class_dfs(
-        tidy_nnm,
+    tidy_nnm_customer_fuel_class, idx_cols = _tidy_class_dfs(
+        tidy_nnm_customer_class,
         df_name='Non Net Metering',
         idx_cols=idx_cols,
         class_list=pc.TECH_CLASSES,
@@ -1484,17 +1530,22 @@ def non_net_metering(tfr_dfs):
     )
 
     # No duplicates to speak of (deleted 2018 duplicates above) but take measures to check just in case
-    _check_for_dupes(tidy_nnm, 'Non Net Metering', idx_cols)
+    _check_for_dupes(
+        tidy_nnm_customer_fuel_class, 'Non Net Metering Customer & Fuel Class', idx_cols)
 
     # Delete total_capacity_mw col for redundancy (it doesn't matter which one)
-    tidy_nnm = (
-        tidy_nnm.drop(columns='capacity_mw_y')
+    tidy_nnm_customer_fuel_class = (
+        tidy_nnm_customer_fuel_class.drop(columns='capacity_mw_y')
         .rename(columns={'capacity_mw_x': 'capacity_mw'})
     )
 
     # No transformation needed
 
-    tfr_dfs["non_net_metering_eia861"] = tidy_nnm
+    # Drop original net_metering_eia861 table from tfr_dfs
+    del tfr_dfs['non_net_metering_eia861']
+
+    tfr_dfs["non_net_metering_customer_fuel_class_eia861"] = tidy_nnm_customer_fuel_class
+    tfr_dfs["non_net_metering_misc_eia861"] = raw_nnm_misc
 
     return tfr_dfs
 
@@ -1526,45 +1577,33 @@ def operational_data(tfr_dfs):
     )
 
     ###########################################################################
-    # Transform Data:
+    # Transform Data Round 1:
     # * Clean up reported NERC regions:
     #    * Fix puncuation/case
     #    * Replace na with 'UNK'
     #    * Make sure NERC regions are a verified NERC region
     #    * Add underscore between double entires (SPP_ERCOT)
-    # * Turn 1000s of dollars back into dollars
     # * Re-code data_observed to boolean:
     #   * O="observed" => True
     #   * I="imputed" => False
-    # * Drop duplicates (see NY below)
     ###########################################################################
 
     transformed_od = (
         _clean_nerc(raw_od, idx_cols)
         .assign(
-            credits_or_adjustments_revenue=lambda x: x.credits_or_adjustments_revenue * 1000.0,
-            delivery_customers_revenue=lambda x: x.delivery_customers_revenue * 1000.0,
-            other_revenue=lambda x: x.other_revenue * 1000.0,
-            retail_sales_revenue=lambda x: x.retail_sales_revenue * 1000.0,
-            sales_for_resale_revenue=lambda x: x.sales_for_resale_revenue * 1000.0,
-            transmission_revenue=lambda x: x.transmission_revenue * 1000.0,
-            total_revenue=lambda x: x.total_revenue * 1000.0,
             data_observed=lambda x: x.data_observed.replace({
                 "O": True,
-                "I": False,
-            })
-        )
+                "I": False}))
     )
 
-    revenue_cols = [col for col in transformed_od if 'revenue' in col]
-
     # Split data into 2 tables:
-    #  * Revenue (to normalize)
-    #  * Other
-    transformed_od_other = (transformed_od.drop(revenue_cols, axis=1))
+    #  * Revenue (wide-to-tall)
+    #  * Misc. (other)
+    revenue_cols = [col for col in transformed_od if 'revenue' in col]
+    transformed_od_misc = (transformed_od.drop(revenue_cols, axis=1))
     transformed_od_rev = (transformed_od[idx_cols + revenue_cols].copy())
 
-    # Normalize revenue columns
+    # Wide-to-tall revenue columns
     tidy_od_rev, idx_cols = (
         _tidy_class_dfs(
             transformed_od_rev,
@@ -1575,8 +1614,21 @@ def operational_data(tfr_dfs):
         )
     )
 
-    tfr_dfs["operational_data_revenue_eia861"] = tidy_od_rev
-    tfr_dfs["operational_data_other_eia861"] = transformed_od_other
+    ###########################################################################
+    # Transform Data Round 2:
+    # * Turn 1000s of dollars back into dollars
+    ###########################################################################
+
+    # Transform revenue 1000s into dollars
+    transformed_od_rev = (
+        tidy_od_rev.assign(revenue=lambda x: x.revenue * 1000)
+    )
+
+    # Drop original operational_data_eia861 table from tfr_dfs
+    del tfr_dfs['operational_data_eia861']
+
+    tfr_dfs["operational_data_revenue_eia861"] = transformed_od_rev
+    tfr_dfs["operational_data_misc_eia861"] = transformed_od_misc
 
     return tfr_dfs
 
@@ -1710,6 +1762,9 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         # "distributed_generation_eia861": distributed_generation,
         # "utility_data_eia861": utility_data,
     }
+
+    # Dictionary for transformed dataframes and pre-transformed dataframes.
+    # Pre-transformed dataframes may be split into two or more output dataframes.
     tfr_dfs = {}
 
     if not raw_dfs:
@@ -1729,5 +1784,4 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
     tfr_dfs = balancing_authority_assn(tfr_dfs)
     tfr_dfs = normalize_balancing_authority(tfr_dfs)
     tfr_dfs = pudl.helpers.convert_dfs_dict_dtypes(tfr_dfs, 'eia')
-
     return tfr_dfs

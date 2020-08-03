@@ -77,7 +77,7 @@ def csv_to_dataframe(csv):
     return df
 
 
-def extract(epacems_years, states, data_dir, testing=False):
+def extract(epacems_years, states, ds):
     """
     Coordinate the extraction of EPA CEMS hourly DataFrames.
 
@@ -86,7 +86,7 @@ def extract(epacems_years, states, data_dir, testing=False):
             integers.
         states (list): The states whose CEMS data we want to extract, indicated
             by 2-letter US state codes.
-        data_dir (path-like): Path to the top directory of the PUDL datastore.
+        ds (:class:`EpaCemsDatastore`): Initialized datastore
         testing (boolean): use Zenodo sandbox if True
 
     Yields:
@@ -96,8 +96,6 @@ def extract(epacems_years, states, data_dir, testing=False):
         US state. The value is a :class:`pandas.DataFrame` containing all the
         raw EPA CEMS hourly emissions data for the indicated state and year.
     """
-    ds = EpaCemsDatastore(sandbox=testing)
-
     for year in epacems_years:
         # The keys of the us_states dictionary are the state abbrevs
         for state in states:

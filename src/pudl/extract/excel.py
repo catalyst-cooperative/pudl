@@ -8,7 +8,6 @@ from pathlib import Path
 import pandas as pd
 
 import pudl
-from pudl.workspace import datastore as datastore
 
 logger = logging.getLogger(__name__)
 
@@ -139,13 +138,19 @@ class GenericExtractor(object):
     BLACKLISTED_PAGES = []
     """List of supported pages that should not be extracted."""
 
-    def __init__(self):
-        """Create new extractor object and load metadata."""
+    def __init__(self, ds):
+        """
+        Create new extractor object and load metadata.
+
+        Args:
+            ds (datastore.Datastore): An initialized datastore, or subclass
+        """
         if not self.METADATA:
             raise NotImplementedError('self.METADATA must be set.')
         self._metadata = self.METADATA
         self._dataset_name = self._metadata.get_dataset_name()
         self._file_cache = {}
+        self.ds = ds
 
     def process_raw(self, df, year, page):
         """Transforms raw dataframe and rename columns."""
@@ -166,7 +171,7 @@ class GenericExtractor(object):
         """Provide custom dtypes for given page and year."""
         return {}
 
-    def extract(self, years, testing=False):
+    def extract(self, years):
         """Extracts dataframes.
 
         Returns dict where keys are page names and values are
@@ -174,8 +179,6 @@ class GenericExtractor(object):
 
         Args:
             years (list): list of years to extract.
-            testing (boolean): if testing is True, the datastore manager will
-                know to use the zenodo sandbox DOIs.
         """
         raw_dfs = {}
         # TODO: should we run verify_years(?) here?
@@ -199,7 +202,7 @@ class GenericExtractor(object):
                 logger.debug(
                     f'Loading dataframe for {self._dataset_name} {page} {yr}')
                 newdata = pd.read_excel(
-                    self.load_excel_file(yr, page, testing=testing),
+                    self.load_excel_file(yr, page),
                     sheet_name=self._metadata.get_sheet_name(yr, page),
                     skiprows=self._metadata.get_skiprows(yr, page),
                     skipfooter=self._metadata.get_skipfooter(yr, page),
@@ -224,7 +227,7 @@ class GenericExtractor(object):
             raw_dfs[page] = self.process_final_page(df, page)
         return raw_dfs
 
-    def load_excel_file(self, year, page, testing=False):
+    def load_excel_file(self, year, page):
         """
         Produce the ExcelFile object for the given (year, page).
 
@@ -236,8 +239,7 @@ class GenericExtractor(object):
         Return:
             string name of the xlsx file
         """
-        ds = datastore.Datastore(sandbox=testing)
-        info = ds.get_resources(self._dataset_name, year=year)
+        info = self.ds.get_resources(self._dataset_name, year=year)
 
         if info is None:
             return

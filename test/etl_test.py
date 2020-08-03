@@ -17,7 +17,6 @@ import yaml
 
 import pudl
 from pudl.convert.epacems_to_parquet import epacems_to_parquet
-from pudl.extract.epacems import EpaCemsDatastore
 from pudl.extract.ferc1 import get_dbc_map, get_fields
 
 logger = logging.getLogger(__name__)
@@ -79,8 +78,10 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
     and field that appears in the historical FERC Form 1 data.
     """
     refyear = max(data_scope['ferc1_years'])
-    current_dbc_map = pudl.extract.ferc1.get_dbc_map(year=refyear,
-                                                     testing=True)
+    ds = pudl.extract.ferc1.Ferc1Datastore(
+        pathlib.Path(pudl_settings_fixture["pudl_in"]),
+        sandbox=True)
+    current_dbc_map = pudl.extract.ferc1.get_dbc_map(ds, year=refyear)
     current_tables = list(current_dbc_map.keys())
     logger.info(f"Checking for new, unrecognized FERC1 "
                 f"tables in {refyear}.")
@@ -95,10 +96,7 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
     dbc_maps = {}
     for yr in data_scope['ferc1_years']:
         logger.info(f"Searching for lost FERC1 tables and fields in {yr}.")
-        dbc_maps[yr] = pudl.extract.ferc1.get_dbc_map(
-            year=yr,
-            testing=True
-        )
+        dbc_maps[yr] = pudl.extract.ferc1.get_dbc_map(ds, year=yr)
         old_tables = list(dbc_maps[yr].keys())
         for table in old_tables:
             # Check to make sure there aren't any lost archaic tables:
@@ -132,50 +130,38 @@ def test_ferc1_solo_etl(pudl_settings_fixture,
         clobber=True)
 
 
-def test_interim_eia861_etl(pudl_settings_fixture):
-    """Make sure that the EIA 861 Extract-Transform steps work."""
-    logger.info("Running the interim EIA 861 ETL process! (~2 minutes)")
-    _ = pudl.transform.eia861.transform(
-        pudl.extract.eia861.Extractor()
-        .extract(pudl.constants.working_years["eia861"], testing=True)
-    )
-
-
-def test_interim_ferc714_etl(pudl_settings_fixture):
-    """Make sure that the EIA 861 Extract-Transform steps work."""
-    logger.info("Running the interim FERC 714 ETL process! (~11 minutes)")
-    _ = pudl.transform.ferc714.transform(pudl.extract.ferc714.extract())
-
-
-@pytest.mark.usefixtures("pudl_settings_fixture")
 class TestFerc1Datastore:
     """Validate the Ferc1 Datastore and integration functions."""
 
-    ds = pudl.extract.ferc1.Ferc1Datastore(sandbox=True)
-
-    def test_ferc_folder(self):
+    def test_ferc_folder(self, pudl_ferc1datastore_fixture):
         """Spot check we get correct folder names per dataset year."""
-        assert self.ds.get_folder(1994) == "FORMSADMIN/FORM1/working"
-        assert self.ds.get_folder(2001) == "UPLOADERS/FORM1/working"
-        assert self.ds.get_folder(2002) == "FORMSADMIN/FORM1/working"
-        assert self.ds.get_folder(2010) == "UPLOADERS/FORM1/working"
-        assert self.ds.get_folder(2015) == "UPLOADERS/FORM1/working"
+        ds = pudl_ferc1datastore_fixture
 
-    def test_get_fields(self):
+        assert ds.get_folder(1994) == "FORMSADMIN/FORM1/working"
+        assert ds.get_folder(2001) == "UPLOADERS/FORM1/working"
+        assert ds.get_folder(2002) == "FORMSADMIN/FORM1/working"
+        assert ds.get_folder(2010) == "UPLOADERS/FORM1/working"
+        assert ds.get_folder(2015) == "UPLOADERS/FORM1/working"
+
+    def test_get_fields(self, pudl_ferc1datastore_fixture):
         """Check that the get fields table works as expected."""
+        ds = pudl_ferc1datastore_fixture
+
         expect_path = pathlib.Path(__file__).parent / "data" / "ferc" \
             / "form1" / "f1_2018" / "get_fields.json"
 
         with expect_path.open() as f:
             expect = yaml.safe_load(f)
 
-        data = self.ds.get_file(2018, "F1_PUB.DBC")
+        data = ds.get_file(2018, "F1_PUB.DBC")
         result = get_fields(data)
         assert result == expect
 
-    def test_sample_get_dbc_map(self):
+    def test_sample_get_dbc_map(self, pudl_ferc1datastore_fixture):
         """Test sample_get_dbc_map."""
-        table = get_dbc_map(2018, testing=True)
+        ds = pudl_ferc1datastore_fixture
+
+        table = get_dbc_map(ds, 2018)
         assert table["f1_429_trans_aff"] == {
             "ACCT_CORC": "acct_corc",
             "ACCT_CORC_": "acct_corc_f",
@@ -195,13 +181,12 @@ class TestFerc1Datastore:
         }
 
 
-@pytest.mark.usefixtures("pudl_settings_fixture")
 class TestExcelExtractor:
     """Verify that we can lead excel files as provided via the datastore."""
 
-    def test_excel_filename_eia860(self):
+    def test_excel_filename_eia860(self, pudl_datastore_fixture):
         """Spot check eia860 extractor gets the correct excel sheet names."""
-        extractor = pudl.extract.eia860.Extractor()
+        extractor = pudl.extract.eia860.Extractor(pudl_datastore_fixture)
         assert extractor.excel_filename(
             2011, "boiler_generator_assn") == "EnviroAssocY2011.xlsx"
         assert extractor.excel_filename(
@@ -209,9 +194,9 @@ class TestExcelExtractor:
         assert extractor.excel_filename(
             2018, "utility") == "1___Utility_Y2018.xlsx"
 
-    def test_excel_filename_eia923(self):
+    def test_excel_filename_eia923(self, pudl_datastore_fixture):
         """Spot check eia923 extractor gets the correct excel sheet names."""
-        extractor = pudl.extract.eia923.Extractor()
+        extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
         assert extractor.excel_filename(2009, "plant_frame") == \
             "EIA923 SCHEDULES 2_3_4_5 M Final 2009 REVISED 05252011.XLS"
         assert extractor.excel_filename(2019, "energy_storage") == \
@@ -219,36 +204,27 @@ class TestExcelExtractor:
         assert extractor.excel_filename(2012, "puerto_rico") == \
             "EIA923_Schedules_2_3_4_5_M_12_2012_Final_Revision.xlsx"
 
-    def test_extract_eia860(self):
+    def test_extract_eia860(self, pudl_datastore_fixture):
         """Spot check extraction of eia860 excel files."""
-        extractor = pudl.extract.eia860.Extractor()
-        assert "Utility" in extractor.load_excel_file(
-            2015, "utility", testing=True).sheet_names
-        assert "Retired and Canceled" in extractor.load_excel_file(
-            2012, "generator_proposed", testing=True).sheet_names
-        assert "OwnerY09" in extractor.load_excel_file(
-            2009, "ownership", testing=True).sheet_names
+        extractor = pudl.extract.eia860.Extractor(pudl_datastore_fixture)
+        assert "Ownership" in extractor.load_excel_file(
+            2018, "ownership").sheet_names
 
-    def test_extract_eia923(self):
+    def test_extract_eia923(self, pudl_datastore_fixture):
         """Spot check extraction eia923 excel files."""
-        extractor = pudl.extract.eia923.Extractor()
-        assert "Page 4 Generator Data" in extractor.load_excel_file(
-            2013, "boiler_fuel", testing=True).sheet_names
-        assert "Page 7 File Layout" in extractor.load_excel_file(
-            2016, "oil_stocks", testing=True).sheet_names
+        extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
         assert "Page 3 Boiler Fuel Data" in extractor.load_excel_file(
-            2019, "stocks", testing=True).sheet_names
+            2018, "stocks").sheet_names
 
 
-@pytest.mark.usefixtures("pudl_settings_fixture")
 class TestEpaCemsDatastore:
     """Ensure we can extract csv files from the datastore."""
 
-    datastore = EpaCemsDatastore(sandbox=True)
+    # datastore = EpaCemsDatastore(sandbox=True)
 
-    def test_get_csv(self):
+    def test_get_csv(self, pudl_epacemsdatastore_fixture):
         """Spot check opening of epacems csv file from datastore."""
         head = b'"STATE","F'
 
-        csv = self.datastore.open_csv("ny", 1999, 6)
+        csv = pudl_epacemsdatastore_fixture.open_csv("ny", 1999, 6)
         assert csv.read()[:10] == head

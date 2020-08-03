@@ -18,7 +18,7 @@ install_requires = [
     "networkx>=2.2",
     "numpy",
     "pandas>=1.0",
-    "pyarrow>=0.16",
+    "pyarrow<1.0.0",
     "pyyaml",
     "scikit-learn>=0.20",
     "scipy",

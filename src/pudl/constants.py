@@ -2579,6 +2579,8 @@ CUSTOMER_CLASSES = [
 
 TECH_CLASSES = [
     'pv',
+    'storage_pv',
+    'virtual_pv',
     'wind',
     'chp_cogen',
     'combustion_turbine',
@@ -2586,7 +2588,6 @@ TECH_CLASSES = [
     'hydro',
     'internal_combustion',
     'steam',
-    'storage',
     'other',
     'total'
 ]
@@ -2619,24 +2620,29 @@ column_dtypes = {
     "ferc1": {  # Obviously this is not yet a complete list...
         "construction_year": pd.Int64Dtype(),
         "installation_year": pd.Int64Dtype(),
-        'utility_id_ferc1': pd.Int64Dtype(),
-        'plant_id_pudl': pd.Int64Dtype(),
-        'plant_id_ferc1': pd.Int64Dtype(),
-        'utility_id_pudl': pd.Int64Dtype(),
-        'report_year': pd.Int64Dtype(),
-        'report_date': 'datetime64[ns]',
+        "plant_id_ferc1": pd.Int64Dtype(),
+        "plant_id_pudl": pd.Int64Dtype(),
+        "report_date": "datetime64[ns]",
+        "report_year": pd.Int64Dtype(),
+        "utility_id_ferc1": pd.Int64Dtype(),
+        "utility_id_pudl": pd.Int64Dtype(),
     },
     "ferc714": {  # INCOMPLETE
-        "report_year": pd.Int64Dtype(),
-        "respondent_id_ferc714": pd.Int64Dtype(),
+        "demand_mwh": float,
+        "demand_annual_mwh": float,
         "eia_code": pd.Int64Dtype(),
+        "peak_demand_summer_mw": float,
+        "peak_demand_winter_mw": float,
+        "report_date": "datetime64[ns]",
+        "respondent_id_ferc714": pd.Int64Dtype(),
         "respondent_name_ferc714": pd.StringDtype(),
+        "respondent_type": pd.CategoricalDtype(categories=[
+            "utility", "balancing_authority",
+        ]),
         "timezone": pd.CategoricalDtype(categories=[
             "America/New_York", "America/Chicago", "America/Denver",
             "America/Los_Angeles", "America/Anchorage", "Pacific/Honolulu"]),
         "utc_datetime": "datetime64[ns]",
-        "peak_demand_summer_mw": float,
-        "peak_demand_winter_mw": float,
     },
     "epacems": {
         'state': pd.StringDtype(),
@@ -2698,8 +2704,6 @@ column_dtypes = {
         'credits_or_adjustments': float,  # Added by AES for OD Revenue table
         'critical_peak_pricing': pd.BooleanDtype(),  # Added by AES for DP table
         'critical_peak_rebate': pd.BooleanDtype(),  # Added by AES for DP table
-        # Added by AES for NM table; used for NNM table
-        'current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
         'current_planned_operating_date': 'datetime64[ns]',
         'customers': float,  # pd.Int64Dtype(),  # Used by AES for NM table
         'customer_class': pd.CategoricalDtype(categories=CUSTOMER_CLASSES),
@@ -2848,6 +2852,8 @@ column_dtypes = {
         'primary_transportation_mode_code': pd.StringDtype(),
         'primary_purpose_naics_id': pd.Int64Dtype(),
         'prime_mover_code': pd.StringDtype(),
+        # Added by AES for NM table; used for NM & NNM table
+        'pv_current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
         'real_time_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
         'rec_revenue': float,  # Added by AES for GP table
         'rec_sales_mwh': float,  # Added by AES for GP table
