@@ -1671,14 +1671,14 @@ def reliability(tfr_dfs):
     )
 
     # Normalize by interuption incidies
-    tidy_r, idx_cols = _tidy_class_dfs(
-        df=tidy_r,
-        df_name='Reliability',
-        idx_cols=idx_cols,
-        class_list=pc.INTERUPTION_INDICIES,
-        class_type='interuption_indicies',
-        keep_totals=False,
-    )
+    # tidy_r, idx_cols = _tidy_class_dfs(
+    #     df=tidy_r,
+    #     df_name='Reliability',
+    #     idx_cols=idx_cols,
+    #     class_list=pc.INTERUPTION_INDICIES,
+    #     class_type='interuption_indicies',
+    #     keep_totals=False,
+    # )
 
     ###########################################################################
     # Transform Data:
