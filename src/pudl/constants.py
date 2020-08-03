@@ -2572,8 +2572,8 @@ CUSTOMER_CLASSES = [
 
 TECH_CLASSES = [
     'pv',
-    'pv_storage',
-    'pv_virtual',
+    'storage_pv',
+    'virtual_pv',
     'wind',
     'chp_cogen',
     'combustion_turbine',
@@ -2686,8 +2686,6 @@ column_dtypes = {
         'credits_or_adjustments': float,  # Added by AES for OD Revenue table
         'critical_peak_pricing': pd.BooleanDtype(),  # Added by AES for DP table
         'critical_peak_rebate': pd.BooleanDtype(),  # Added by AES for DP table
-        # Added by AES for NM table; used for NNM table
-        'current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
         'current_planned_operating_date': 'datetime64[ns]',
         'customers': pd.Int64Dtype(),  # Used by AES for NM table
         'customer_class': pd.CategoricalDtype(categories=CUSTOMER_CLASSES),
@@ -2829,6 +2827,8 @@ column_dtypes = {
         'primary_transportation_mode_code': pd.StringDtype(),
         'primary_purpose_naics_id': pd.Int64Dtype(),
         'prime_mover_code': pd.StringDtype(),
+        # Added by AES for NM table; used for NM & NNM table
+        'pv_current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
         'real_time_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
         'rec_revenue': float,  # Added by AES for GP table
         'rec_sales_mwh': float,  # Added by AES for GP table
