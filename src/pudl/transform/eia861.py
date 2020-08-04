@@ -1670,16 +1670,6 @@ def reliability(tfr_dfs):
         keep_totals=False,
     )
 
-    # Normalize by interuption incidies
-    # tidy_r, idx_cols = _tidy_class_dfs(
-    #     df=tidy_r,
-    #     df_name='Reliability',
-    #     idx_cols=idx_cols,
-    #     class_list=pc.INTERUPTION_INDICIES,
-    #     class_type='interuption_indicies',
-    #     keep_totals=False,
-    # )
-
     ###########################################################################
     # Transform Data:
     # * Re-code outages_recorded_automatically and inactive_accounts_included to boolean:

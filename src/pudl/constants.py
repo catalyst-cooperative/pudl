@@ -2603,15 +2603,15 @@ REVENUE_CLASSES = [
 ]
 
 STANDARDS = [
-    'ieee',
-    'other'
+    'ieee_standard',
+    'other_standard'
 ]
 
-INTERUPTION_INDICIES = [
-    'caidi',
-    'saidi',
-    'saifi',
-]
+# INTERUPTION_INDICIES = [
+#     'caidi',
+#     'saidi',
+#     'saifi',
+# ]
 
 
 """dict: A dictionary of datasets (keys) and keywords (values). """
@@ -2768,7 +2768,7 @@ column_dtypes = {
         'home_area_network': float,  # Added by AES for AMI table
         'inactive_accounts_included': pd.BooleanDtype(),  # Added by AES for R table
         # Added by AES for R table
-        'interuption_indicies': pd.CategoricalDtype(categories=INTERUPTION_INDICIES),
+        # 'interuption_indicies': pd.CategoricalDtype(categories=INTERUPTION_INDICIES),
         'iso_rto_code': pd.StringDtype(),
         'latitude': float,
         'liquefied_natural_gas_storage': pd.BooleanDtype(),
