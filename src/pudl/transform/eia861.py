@@ -772,6 +772,13 @@ def _compare_nerc_physical_w_nerc_operational(df):
     nerc region does not match the operational region ever, meaning there is no additional
     row for the same utlity during the same year where there is a match between the cols.
 
+    Args:
+        df (pandas.DataFrame): The utility_data_nerc_eia861 table output from the utility_data()
+            function.
+    Returns:
+        pandas.DataFrame: A DataFrame with rows for utilities where NO listed operating nerc
+            region matches the "physical location" nerc region column that's a part of the index.
+
     """
     # Set NA states to UNK
     df['state'] = df['state'].fillna('UNK')
