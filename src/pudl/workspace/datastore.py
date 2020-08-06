@@ -136,7 +136,7 @@ class Datastore:
 
     def local_path(self, dataset, filename=None):
         """
-        Produce the local path for a given dataset.
+        Produce the local absolute path for a given dataset.
 
         Args:
             dataset: the name of the dataset
@@ -402,7 +402,8 @@ class Datastore:
 
                 if self.is_remote(r):
                     local = self.download_resource(r, self.local_path(dataset))
-                    r["path"] = str(local)
+                    r["path"] = str(local.relative_to(
+                        self.local_path(dataset)))
                     self.save_datapackage_json(dataset, dpkg)
 
                 yield r
