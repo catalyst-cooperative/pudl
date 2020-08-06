@@ -32,7 +32,7 @@ DOI = {
         "eia923": "10.5072/zenodo.504560",
         "epaipm": "10.5072/zenodo.602953",
         "epacems": "10.5072/zenodo.638878",
-        "ferc1": "10.5072/zenodo.504562"
+        "ferc1": "10.5072/zenodo.656695"
     },
     "production": {}
 }
@@ -272,7 +272,7 @@ class Datastore:
 
         return True
 
-    def download_resource(self, resource, directory):
+    def download_resource(self, resource, directory, retries=3):
         """
         Download a frictionless datapackage resource.
 
@@ -284,7 +284,8 @@ class Datastore:
             Path of the saved resource, or none on failure
         """
         response = self.http.get(
-            resource["path"], params={"access_token": self.token},
+            resource["parts"]["remote_url"],
+            params={"access_token": self.token},
             timeout=self.timeout)
 
         if response.status_code >= 299:
@@ -301,8 +302,18 @@ class Datastore:
 
         if not self._validate_file(local_path, resource["hash"]):
             self.logger.error(
-                "Invalid md5 after download of %s.\nResponse: %s\nResource: %s",
-                local_path, response, resource)
+                "Invalid md5 after download of %s.\n"
+                "Response: %s\n"
+                "Resource: %s\n"
+                "Retries left: %d",
+                local_path, response, resource, retries)
+
+            if retries > 0:
+                self.download_resource(resource, directory,
+                                       retries=retries - 1)
+            else:
+                raise RuntimeError("Could not download valid %s",
+                                   resource["path"])
 
         return local_path
 
@@ -316,6 +327,9 @@ class Datastore:
         Returns:
             Boolean: True if the resource md5sum matches the descriptor.
         """
+        if not path.exists():
+            return False
+
         with path.open("rb") as f:
             m = hashlib.md5()  # nosec
             m.update(f.read())
@@ -400,10 +414,10 @@ class Datastore:
 
             if self.passes_filters(r, filters):
 
-                if self.is_remote(r):
+                if self.is_remote(r) or not self._validate_file(
+                        self.local_path(dataset, r["path"]), r["hash"]):
                     local = self.download_resource(r, self.local_path(dataset))
-                    r["path"] = str(local.relative_to(
-                        self.local_path(dataset)))
+                    r["path"] = str(local.relative_to(self.local_path(dataset)))
                     self.save_datapackage_json(dataset, dpkg)
 
                 yield r
