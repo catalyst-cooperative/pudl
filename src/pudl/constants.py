@@ -2230,7 +2230,7 @@ pudl_tables = {
         "non_net_metering_eia861",
         "operational_data_eia861",
         "reliability_eia861",
-        # "utility_data_eia861"
+        "utility_data_eia861"
     ),
     'eia923': eia923_pudl_tables,
     'epacems': epacems_tables,
@@ -2517,7 +2517,6 @@ ENTITY_TYPE_DICT = {
     'Q': 'Independent Power Producer',
     'IND': 'Industrial',
     'COM': 'Commercial',
-    float('nan'): 'Unregulated',
     'PR': 'Private',  # Added by AES for OD table (Arbitrary moniker)
     'PO': 'Power Marketer',  # Added by AES for OD table
     'U': 'Unknown',  # Added by AES for OD table
@@ -2531,24 +2530,34 @@ MOMENTARY_INTERRUPTION_DEF = {  # Added by AES for R table
     'O': 'Other',
 }
 
+# https://www.eia.gov/electricity/data/eia411/#tabs_NERC-3
 RECOGNIZED_NERC_REGIONS = [
-    'ASCC',
-    'ECAR',
-    'ERCOT',
-    'FRCC',
-    'HICC',
-    'MAAC',
-    'MAIN',
-    'MAPP',
-    'MRO',
-    'NPCC',
-    'RFC',
-    'SERC',
-    'SPP',
-    'TRE',
-    'WECC',
-    'WSCC',  # pre-2002 version of WECC
-    'MISO',  # unclear whether technically a regional entity, but lots of entries
+    'BASN',  # ASSESSMENT AREA Basin (WECC)
+    'CALN',  # ASSESSMENT AREA California (WECC)
+    'CALS',  # ASSESSMENT AREA California (WECC)
+    'DSW',  # ASSESSMENT AREA Desert Southwest (WECC)
+    'ASCC',  # Alaska
+    'ISONE',  # ISO New England (NPCC)
+    'ERCOT',  # lumped under TRE in 2017 Form instructions
+    'NORW',  # ASSESSMENT AREA Northwest (WECC)
+    'NYISO',  # ISO (NPCC)
+    'PJM',  # RTO
+    'ROCK',  # ASSESSMENT AREA Rockies (WECC)
+    'ECAR',  # OLD RE Now part of RFC and SERC
+    'FRCC',  # included in 2017 Form instructions, recently joined with SERC
+    'HICC',  # Hawaii
+    'MAAC',  # OLD RE Now part of RFC
+    'MAIN',  # OLD RE Now part of SERC, RFC, MRO
+    'MAPP',  # OLD/NEW RE Became part of MRO, resurfaced in 2010
+    'MRO',  # RE included in 2017 Form instructions
+    'NPCC',  # RE included in 2017 Form instructions
+    'RFC',  # RE included in 2017 Form instructions
+    'SERC',  # RE included in 2017 Form instructions
+    'SPP',  # RE included in 2017 Form instructions
+    'TRE',  # RE included in 2017 Form instructions (included ERCOT)
+    'WECC',  # RE included in 2017 Form instructions
+    'WSCC',  # OLD RE pre-2002 version of WECC
+    'MISO',  # ISO unclear whether technically a regional entity, but lots of entries
     'ECAR_MAAC',
     'MAPP_WECC',
     'RFC_SERC',
@@ -2558,8 +2567,6 @@ RECOGNIZED_NERC_REGIONS = [
     'SPP_TRE',
     'ERCOT_TRE',
     'MISO_TRE',
-    'AK',  # Alaska
-    'HI',  # Hawaii
     'VI',  # Virgin Islands
     'GU',  # Guam
     'PR',  # Puerto Rico

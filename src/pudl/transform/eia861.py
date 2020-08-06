@@ -447,7 +447,9 @@ BA_NAME_FIXES = pd.DataFrame([
 )
 
 NERC_SPELLCHECK = {
-    'GUSTAVUSAK': 'AK',
+    'GUSTAVUSAK': 'ASCC',
+    'AK': 'ASCC',
+    'HI': 'HICC',
     'ERCTO': 'ERCOT',
     'RFO': 'RFC',
     'RF': 'RFC',
@@ -461,6 +463,28 @@ NERC_SPELLCHECK = {
     'NEW': 'NPCC',
     'YORK': 'NPCC',
 }
+
+NERC_CLASS = [
+    'tre',
+    'frcc',
+    'mro',
+    'npcc',
+    'rfc',
+    'serc',
+    'spp',
+    'wecc',
+]
+
+RTO_CLASS = [
+    'caiso',
+    'ercot',
+    'pjm',
+    'nyiso',
+    'spp',
+    'miso',
+    'isone',
+    'other'
+]
 
 ###############################################################################
 # EIA Form 861 Transform Helper functions
@@ -733,6 +757,51 @@ def _clean_nerc(df, idx_cols):
     full_df = pd.merge(nerc_df, other_df, on=idx_no_nerc)
 
     return full_df
+
+
+def _compare_nerc_physical_w_nerc_operational(df):
+    """Show df rows where physical nerc region does not match operational region.
+
+    In the Utility Data table, there is the 'nerc_region' index column, otherwise
+    interpreted as nerc region in which the utility is physically located and the
+    'nerc_regions_of_operation' column that depicts the nerc regions the utility
+    operates in. In most cases, these two columns are the same, however there are certain
+    instances where this is not true. There are also instances where a utility operates in
+    multiple nerc regions in which case one row will match and another row will not.
+    The output of this function in a table that shows only the utilities where the physical
+    nerc region does not match the operational region ever, meaning there is no additional
+    row for the same utlity during the same year where there is a match between the cols.
+
+    """
+    # Set NA states to UNK
+    df['state'] = df['state'].fillna('UNK')
+
+    # Create column indicating whether the nerc region matches the nerc region of operation (TRUE)
+    df['nerc_match'] = df['nerc_region'] == df['nerc_regions_of_operation']
+
+    # Group by utility, state, and report date to see which groups have at least one TRUE value
+    grouped_nerc_match_bools = (
+        df.groupby(['utility_id_eia', 'state', 'report_date'])
+        [['nerc_match']].any()
+        .reset_index()
+        .rename(columns={'nerc_match': 'nerc_group_match'})
+    )
+
+    # Merge back with original df to show cases where there are multiple non-matching nerc values
+    # per utility id, year, and state.
+    expanded_nerc_match_bools = (
+        pd.merge(df,
+                 grouped_nerc_match_bools,
+                 on=['utility_id_eia', 'state', 'report_date'],
+                 how='left')
+    )
+
+    # Keep only rows where there are no matches for the whole group.
+    expanded_nerc_match_bools_false = (
+        expanded_nerc_match_bools[~expanded_nerc_match_bools['nerc_group_match']]
+    )
+
+    return expanded_nerc_match_bools_false
 
 
 ###############################################################################
@@ -1710,6 +1779,131 @@ def utility_data(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    idx_cols = [
+        'utility_id_eia',
+        'state',
+        'report_date',
+        'nerc_region'
+    ]
+
+    # Pre-tidy clean specific to operational data table
+    raw_ud = (
+        tfr_dfs["utility_data_eia861"].copy()
+        .query("utility_id_eia not in [88888]")
+
+    )
+
+    ###########################################################################
+    # Transform Data Round 1:
+    # * Clean NERC region col
+    ###########################################################################
+
+    transformed_ud = _clean_nerc(raw_ud, idx_cols)
+
+    # Establish columns that are nerc regions vs. rtos
+    nerc_cols = [col for col in raw_ud if 'nerc_region_operation' in col]
+    rto_cols = [col for col in raw_ud if 'rto_operation' in col]
+
+    # Make separate tables for nerc vs. rto vs. misc data
+    raw_ud_nerc = transformed_ud[idx_cols + nerc_cols].copy()
+    raw_ud_rto = transformed_ud[idx_cols + rto_cols].copy()
+    raw_ud_misc = transformed_ud.drop(nerc_cols + rto_cols, axis=1).copy()
+
+    ###########################################################################
+    # Tidy Data:
+    ###########################################################################
+
+    logger.info("Tidying the EIA 861 Utility Data tables.")
+
+    tidy_ud_nerc, nerc_idx_cols = _tidy_class_dfs(
+        df=raw_ud_nerc,
+        df_name='Utility Data NERC Regions',
+        idx_cols=idx_cols,
+        class_list=NERC_CLASS,
+        class_type='nerc_regions_of_operation',
+    )
+
+    tidy_ud_rto, rto_idx_cols = _tidy_class_dfs(
+        df=raw_ud_rto,
+        df_name='Utility Data RTOs',
+        idx_cols=idx_cols,
+        class_list=RTO_CLASS,
+        class_type='rtos_of_operation'
+    )
+
+    ###########################################################################
+    # Transform Data Round 2:
+    # * Re-code operating_in_XX to boolean:
+    #   * Y = "Yes" => True
+    #   * N = "No" => False
+    #   * Blank => False
+    ###########################################################################
+
+    # Transform NERC region table
+    transformed_ud_nerc = (
+        tidy_ud_nerc.assign(
+            nerc_region_operation=lambda x: (
+                x.nerc_region_operation
+                .fillna(False)
+                .replace({"N": False, "Y": True})),
+            nerc_regions_of_operation=lambda x: (
+                x.nerc_regions_of_operation.str.upper()
+            )
+        )
+    )
+
+    # Only keep true values and drop bool col
+    transformed_ud_nerc = (
+        transformed_ud_nerc[transformed_ud_nerc.nerc_region_operation]
+        .drop(['nerc_region_operation'], axis=1)
+    )
+
+    # Transform RTO table
+    transformed_ud_rto = (
+        tidy_ud_rto.assign(
+            rto_operation=lambda x: (
+                x.rto_operation
+                .fillna(False)
+                .replace({"N": False, "Y": True})),
+            rtos_of_operation=lambda x: (
+                x.rtos_of_operation.str.upper()
+            )
+        )
+    )
+
+    # Only keep true values and drop bool col
+    transformed_ud_rto = (
+        transformed_ud_rto[transformed_ud_rto.rto_operation]
+        .drop(['rto_operation'], axis=1)
+    )
+
+    # Transform MISC table by first separating bool cols from non bool cols
+    # and then making them into boolean values.
+    transformed_ud_misc_bool = (
+        raw_ud_misc
+        .drop(['entity_type', 'utility_name_eia'], axis=1)
+        .set_index(idx_cols)
+        .fillna(False)
+        .replace({"N": False, "Y": True})
+    )
+
+    # Merge misc. bool cols back together with misc. non bool cols
+    transformed_ud_misc = (
+        pd.merge(
+            raw_ud_misc[idx_cols + ['entity_type', 'utility_name_eia']],
+            transformed_ud_misc_bool,
+            on=idx_cols,
+            how='outer'
+        )
+    )
+
+    # Drop original operational_data_eia861 table from tfr_dfs
+    del tfr_dfs['utility_data_eia861']
+
+    tfr_dfs["utility_data_nerc_eia861"] = transformed_ud_nerc
+    tfr_dfs["utility_data_rto_eia861"] = transformed_ud_rto
+    tfr_dfs["utility_data_misc_eia861"] = transformed_ud_misc
+
     return tfr_dfs
 
 
@@ -1750,7 +1944,7 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "reliability_eia861": reliability,
         # "demand_side_management_eia861": demand_side_management,
         # "distributed_generation_eia861": distributed_generation,
-        # "utility_data_eia861": utility_data,
+        "utility_data_eia861": utility_data,
     }
 
     # Dictionary for transformed dataframes and pre-transformed dataframes.
