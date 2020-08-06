@@ -2499,6 +2499,7 @@ keywords_by_data_source = {
         'epaipm', 'integrated planning',
     ]
 }
+"""dict: A dictionary of datasets (keys) and keywords (values). """
 
 ENTITY_TYPE_DICT = {
     'M': 'Municipal',
@@ -2517,10 +2518,7 @@ ENTITY_TYPE_DICT = {
     'Q': 'Independent Power Producer',
     'IND': 'Industrial',
     'COM': 'Commercial',
-    float('nan'): 'Unregulated'
 }
-
-"""dict: A dictionary of datasets (keys) and keywords (values). """
 
 column_dtypes = {
     "ferc1": {  # Obviously this is not yet a complete list...
