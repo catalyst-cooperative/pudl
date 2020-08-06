@@ -68,6 +68,8 @@ class Datastore:
             self.api_root = "https://sandbox.zenodo.org/api"
 
         else:
+            raise NotImplementedError(
+                "Production archive not ready. Use --sandbox.")
             self._dois = DOI["production"]
             self.token = TOKEN["production"]
             self.api_root = "https://zenodo.org/api"
@@ -426,11 +428,21 @@ def main():
     ds = Datastore(pudl_in, loglevel=args.loglevel, verbose=args.verbose,
                    sandbox=args.sandbox)
 
-    if args.validate:
-        ds.validate(dataset)
-        return
+    if dataset is None:
+        if args.sandbox:
+            datasets = DOI["sandbox"].keys()
+        else:
+            datasets = DOI["production"].keys()
+    else:
+        datasets = [dataset]
 
-    list(ds.get_resources(dataset))
+    for selection in datasets:
+
+        if args.validate:
+            ds.validate(selection)
+            continue
+
+        list(ds.get_resources(selection))
 
 
 if __name__ == "__main__":
