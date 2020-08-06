@@ -843,10 +843,8 @@ def compare_datasets(alloc_demand, actual_demand, demand_columns, select_regions
             unique ID of each region whose demand is being calculated
 
     Returns:
-        geopandas.GeoDataFrame: A FERC 714 respondent_id table with
-        records for each planning area respondent and their associated
-        geometries in each year. The CRS will be set to the same CRS
-        as the input util_geom.
+        pandas.DataFrame: A stacked dataframe which can be utilised for Seaborn
+        visualizations to estimate accuracy of allocation and error metrics.
 
     """
     # Add excepted columns as NaN values
@@ -1145,7 +1143,7 @@ def vec_error(vec1, vec2, errtype):
             return r_value ** 2
 
 
-def error_heatmap(alloc_df, actual_df, demand_columns, region_col="pca", error_metric="r2"):
+def error_heatmap(alloc_df, actual_df, demand_columns, region_col="pca", error_metric="r2", leap_exception=False):
     """
     Create heatmap of 365X24 dimension to visualize the annual hourly error.
 
@@ -1168,21 +1166,26 @@ def error_heatmap(alloc_df, actual_df, demand_columns, region_col="pca", error_m
         error_metric (str): Specifies the error metric to be observed in the
         heatmap. Possible error metrics available include: Mean Squared Error
         ('mse'), Mean Absolute Percentage Error ('mape%') and R2 value ('r2')
+        leap_exception (bool): Specify if the year being analyzed is a leap year
+            or not to account for February 29th.
 
     Returns:
         None: Displays the image
 
     """
+    demand_columns = list(set(demand_columns)
+                          .intersection(set(actual_df.columns)))
+    columns_excepted = set(demand_columns).difference(set(alloc_df.columns))
+
     actual_df = actual_df.sort_values(
         region_col)[[region_col] + demand_columns]
-    columns_excepted = set(demand_columns).difference(set(alloc_df.columns))
 
     for col in columns_excepted:
         alloc_df[col] = np.nan
 
     alloc_df = actual_df[[region_col]].merge(
         alloc_df[[region_col] + demand_columns], how="left")
-    hmap = np.empty((365, 24))
+    hmap = np.empty((365 + int(leap_exception), 24))
 
     for col in demand_columns:
         hmap[col.timetuple().tm_yday - 1, col.hour] = vec_error(np.array(alloc_df[col]),
