@@ -178,11 +178,11 @@ def prep_dir(dir_path, clobber=False):
 
     """
     dir_path = pathlib.Path(dir_path)
-    if dir_path.exists() and (clobber is False):
-        raise FileExistsError(
-            f'{dir_path} already exists and clobber is set to {clobber}')
-    elif dir_path.exists() and (clobber is True):
-        shutil.rmtree(dir_path)
+    if dir_path.exists():
+        if clobber:
+            shutil.rmtree(dir_path)
+        else:
+            raise FileExistsError(f'{dir_path} exists and clobber is {clobber}')
     dir_path.mkdir(parents=True)
     return dir_path
 
