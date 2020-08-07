@@ -852,6 +852,10 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
 
     # Generate a random UUID to identify this ETL run / data package bundle
     datapkg_bundle_uuid = str(uuid.uuid4())
+    datapkg_bundle_dir = Path(pudl_settings["datapkg_dir"], datapkg_bundle_name)
+
+    # Create, or delete and re-create the top level datapackage bundle directory:
+    _ = pudl.helpers.prep_dir(datapkg_bundle_dir, clobber=clobber)
 
     metas = {}
     for datapkg_settings in validated_bundle_settings:
@@ -859,11 +863,9 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
             pudl_settings["datapkg_dir"],  # PUDL datapackage output dir
             datapkg_bundle_name,           # Name of the datapackage bundle
             datapkg_settings["name"])      # Name of the datapackage
-        # Create the data directory for this datapackage, as well as any
-        # necessary parent directories. Don't save the Path though, because
-        # we need to use the output_dir path for both the data generation and
-        # the metadata generation.
-        _ = pudl.helpers.prep_dir(output_dir / "data", clobber=clobber)
+
+        # Create the datapackge directory, and its data subdir:
+        (output_dir / "data").mkdir(parents=True)
         # run the ETL functions for this pkg and return the list of tables
         # output to CSVs:
         datapkg_resources = etl(datapkg_settings, output_dir, pudl_settings)
