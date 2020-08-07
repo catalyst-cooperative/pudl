@@ -8,7 +8,7 @@ ieee_standard_saidi_w_major_event_days_minutes,4,4,4,5,5,5
 ieee_standard_saidi_wo_major_event_days_minutes,5,5,5,6,6,8
 ieee_standard_saidi_w_major_event_days_minus_loss_of_service_minutes,6,6,6,7,7,11
 ieee_standard_saifi_w_major_event_days_customers,7,7,7,8,8,6
-ieee_standard_caidi_w_major_event_days,-1,-1,-1,-1,-1,7
+ieee_standard_caidi_w_major_event_days_minutes,-1,-1,-1,-1,-1,7
 ieee_standard_saifi_wo_major_event_days_customers,8,8,8,9,9,9
 ieee_standard_caidi_wo_major_event_days_minutes,-1,-1,-1,-1,-1,10
 ieee_standard_saifi_w_major_event_days_minus_loss_of_service_customers,9,9,9,10,10,12
