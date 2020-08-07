@@ -2499,6 +2499,7 @@ keywords_by_data_source = {
         'epaipm', 'integrated planning',
     ]
 }
+"""dict: A dictionary of datasets (keys) and keywords (values). """
 
 ENTITY_TYPE_DICT = {
     'M': 'Municipal',
@@ -2517,7 +2518,6 @@ ENTITY_TYPE_DICT = {
     'Q': 'Independent Power Producer',
     'IND': 'Industrial',
     'COM': 'Commercial',
-    float('nan'): 'Unregulated',
     'PR': 'Private',  # Added by AES for OD table (Arbitrary moniker)
     'PO': 'Power Marketer',  # Added by AES for OD table
     'U': 'Unknown',  # Added by AES for OD table

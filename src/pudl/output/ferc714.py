@@ -41,31 +41,6 @@ def add_dates(rids_ferc714, report_dates):
     return pd.merge(rids_ferc714, dates_rids_df, on="respondent_id_ferc714")
 
 
-def get_all_utils(pudl_out):
-    """
-    Compile IDs and Names of all known EIA Utilities.
-
-    Grab all EIA utility names and IDs from both the EIA 861 Service Territory table and
-    the EIA 860 Utility entity table. This is a temporary function that's only needed
-    because we haven't integrated the EIA 861 information into the entity harvesting
-    process and PUDL database yet.
-
-    Args:
-        pudl_out (pudl.output.pudltabl.PudlTabl): The PUDL output object which should be
-            used to obtain PUDL data.
-
-    Returns:
-        pandas.DataFrame: Having 2 columns ``utility_id_eia`` and ``utility_name_eia``.
-
-    """
-    return (
-        pd.concat([
-            pudl_out.utils_eia860()[["utility_id_eia", "utility_name_eia"]],
-            pudl_out.service_territory_eia861()[["utility_id_eia", "utility_name_eia"]],
-        ]).dropna(subset=["utility_id_eia"]).drop_duplicates(subset=["utility_id_eia"])
-    )
-
-
 class Respondents(object):
     """
     A class coordinating compilation of data related to FERC 714 Respondents.
@@ -129,7 +104,10 @@ class Respondents(object):
         self.ba_ids = ba_ids
 
         if util_ids is None:
-            util_ids = get_all_utils(self.pudl_out).utility_id_eia.dropna().unique()
+            util_ids = (
+                pudl.analysis.service_territory
+                .get_all_utils(self.pudl_out).utility_id_eia
+            )
         self.util_ids = util_ids
 
         self.priority = priority
@@ -216,7 +194,7 @@ class Respondents(object):
             util_respondents = (
                 categorized.query("respondent_type=='utility'")
                 .merge(
-                    get_all_utils(self.pudl_out),
+                    pudl.analysis.service_territory.get_all_utils(self.pudl_out),
                     how="left", left_on="eia_code", right_on="utility_id_eia"
                 )
             )
@@ -296,10 +274,11 @@ class Respondents(object):
             # Generate the BA:FIPS relation:
             ba_counties = pd.merge(
                 categorized.query("respondent_type=='balancing_authority'"),
-                pudl.analysis.service_territory.get_balancing_authority_counties(
-                    ba_ids=categorized.balancing_authority_id_eia.unique(),
+                pudl.analysis.service_territory.get_territory_fips(
+                    ids=categorized.balancing_authority_id_eia.unique(),
+                    assn=self.pudl_out.balancing_authority_assn_eia861(),
+                    assn_col="balancing_authority_id_eia",
                     st_eia861=self.pudl_out.service_territory_eia861(),
-                    ba_assn_eia861=self.pudl_out.balancing_authority_assn_eia861(),
                     limit_by_state=self.limit_by_state),
                 on=["report_date", "balancing_authority_id_eia"],
                 how="left",
@@ -307,12 +286,12 @@ class Respondents(object):
             # Generate the Util:FIPS relation:
             util_counties = pd.merge(
                 categorized.query("respondent_type=='utility'"),
-                pudl.analysis.service_territory.get_utility_counties(
-                    util_ids=categorized.utility_id_eia.unique(),
+                pudl.analysis.service_territory.get_territory_fips(
+                    ids=categorized.utility_id_eia.unique(),
+                    assn=self.pudl_out.utility_assn_eia861(),
+                    assn_col="utility_id_eia",
                     st_eia861=self.pudl_out.service_territory_eia861(),
-                    # NOT YET IMPLEMENTED:
-                    # util_assn_eia861=self.pudl_out.utility_assn_eia861(),
-                    # limit_by_state=self.limit_by_state,
+                    limit_by_state=self.limit_by_state,
                 ),
                 on=["report_date", "utility_id_eia"],
                 how="left",
