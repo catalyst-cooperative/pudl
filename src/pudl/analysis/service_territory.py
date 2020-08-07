@@ -131,7 +131,7 @@ def get_territory_fips(ids, assn, assn_col, st_eia861, limit_by_state=True):
     within the EIA 861 data.
 
     Args:
-        ids (iterable of ints): A collection of EIA balancing authority IDs.
+        ids (iterable of ints): A collection of EIA utility or balancing authority IDs.
         assn (pandas.DataFrame): Association table, relating ``report_date``,
         ``state``, and ``utility_id_eia`` to each other, as well as the
             column indicated by ``assn_col`` -- if it's not ``utility_id_eia``.
@@ -230,14 +230,13 @@ def get_territory_geometries(ids,
     geometries from the US Census DP1 data passed in via ``census_gdf``.
 
     Optionally dissolve all of the county level geometries into a single geometry for
-    each combination of balancing authority and year.
+    each combination of entity and year.
 
     Note:
         Dissolving geometires is a costly operation, and may take half an hour or more
-        if you are processing all balancing authorities for all years. Dissolving also
-        means that all the per-county information will be lost, rendering the output
-        inappropriate for use in many analyses. Dissolving is mostly useful for
-        generating visualizations.
+        if you are processing all entities for all years. Dissolving also means that all
+        the per-county information will be lost, rendering the output inappropriate for
+        use in many analyses. Dissolving is mostly useful for generating visualizations.
 
     Args:
         ids (iterable of ints): A collection of EIA balancing authority IDs.
@@ -278,7 +277,7 @@ def get_territory_geometries(ids,
             add_geometries,
             census_gdf,
             dissolve=dissolve,
-            dissolve_by=["report_date", "utility_id_eia"]
+            dissolve_by=["report_date", assn_col]
         )
     )
 

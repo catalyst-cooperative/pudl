@@ -744,65 +744,6 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
     return df
 
 
-def georef_rids(rids_df, util_geom, ba_geom):
-    """
-    Add planning area geometries to the FERC 714 respondent_id table.
-
-    Given a respondent_id_ferc714 dataframe with a respondent_type column
-    containing only "utility", "balancing_authority" and Null values, merge in
-    utility geometries from util_geom on utility_id_eia, and balancing
-    authority geometries from ba_geom on balancing_authority_id_eia. Records
-    with no respondent_type will end up having a Null geometry.
-
-    Args:
-        rids_df (pandas.DataFrame): A respondent_id_ferc714
-            dataframe, having at least the respondent_id_ferc714,
-            respondent_type, utility_id_eia, and balancing_authority_id_eia
-            columns. Note that both of the EIA ID columns must be nullable.
-            integers for the merge to work.
-        util_geom (geopandas.GeoDataFrame): A geodataframe containing
-            report_date, utility_id_eia, and a geometry column. May be
-            either a dissolved geometry, or a county-level geometry. If
-            the county level geometries are included, at least the
-            county_id_fips column should also be included for later use.
-            The utility_id_eia column must be a nullable integer type.
-        ba_geom (geopandas.GeoDataFrame): A geodataframe containing
-            report_date, balancing_authority_id_eia, and a geometry column.
-            May be either a dissolved geometry, or a county-level geometry.
-            If the county level geometries are included, at least the
-            county_id_fips column should also be included for later use.
-            The utility_id_eia column must be a nullable integer type. The
-            CRS for ba_geom must be the same as util_geom.
-
-    Returns:
-        geopandas.GeoDataFrame: A FERC 714 respondent_id table with
-        records for each planning area respondent and their associated
-        geometries in each year. The CRS will be set to the same CRS
-        as the input util_geom.
-
-    """
-    if util_geom.crs != ba_geom.crs:
-        raise ValueError(
-            "Utility and Balancing Authority CRS values don't match!"
-        )
-    rids_ba = ba_geom.merge(
-        rids_df.query("respondent_type=='balancing_authority'"),
-        how="right")
-    rids_util = util_geom.merge(
-        rids_df.query("respondent_type=='utility'"),
-        how="right")
-    rids_null = rids_df.loc[rids_df.respondent_type.isnull()]
-    rids_all = (
-        pd.concat([rids_ba, rids_util, rids_null])
-        .astype({
-            "respondent_id_ferc714": pd.Int64Dtype(),
-            "utility_id_eia": pd.Int64Dtype(),
-            "balancing_authority_id_eia": pd.Int64Dtype(),
-        })
-        .set_crs(util_geom.crs)
-    )
-    return rids_all
-
 ################################################################################
 # Demand Data and Error Visualization Functions
 ################################################################################

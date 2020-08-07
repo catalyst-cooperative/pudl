@@ -855,15 +855,14 @@ def balancing_authority_assn(tfr_dfs):
         transform functions.
 
     """
-    # These are structural rather than "data" tables, and should not be searched
-    structural_dfs = [
+    # These aren't really "data" tables, and should not be searched for associations:
+    non_data_dfs = [
         "balancing_authority_eia861",
-        "service_territory_eia861"
+        "service_territory_eia861",
     ]
 
     # The dataframes from which to compile BA-Util-State associations
-    data_dfs = [tfr_dfs[table]
-                for table in tfr_dfs if table not in structural_dfs]
+    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
 
     logger.info("Building an EIA 861 BA-Util-State-Date association table.")
 
@@ -926,14 +925,13 @@ def balancing_authority_assn(tfr_dfs):
 
 def utility_assn(tfr_dfs):
     """Harvest a Utility-Date-State Association Table."""
-    # These are structural rather than "data" tables, and should not be searched
-    structural_dfs = [
+    # These aren't really "data" tables, and should not be searched for associations
+    non_data_dfs = [
         "balancing_authority_eia861",
         "service_territory_eia861",
     ]
     # The dataframes from which to compile BA-Util-State associations
-    data_dfs = [tfr_dfs[table]
-                for table in tfr_dfs if table not in structural_dfs]
+    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
 
     logger.info("Building an EIA 861 Util-State-Date association table.")
     tfr_dfs["utility_assn_eia861"] = _harvest_associations(
