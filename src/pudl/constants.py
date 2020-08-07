@@ -2221,7 +2221,7 @@ pudl_tables = {
         "advanced_metering_infrastructure_eia861",
         "demand_response_eia861",
         # "demand_side_management_eia861",
-        # "distributed_generation_eia861",
+        "distributed_generation_eia861",
         "distribution_systems_eia861",
         "dynamic_pricing_eia861",
         "green_pricing_eia861",

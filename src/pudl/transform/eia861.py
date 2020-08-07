@@ -1269,6 +1269,12 @@ def distributed_generation(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    raw_dg = (
+        tfr_dfs['distribution_systems_eia861'].copy()
+    )
+
+    tfr_dfs["distributed_generation_eia861"] = raw_dg
+
     return tfr_dfs
 
 
@@ -1295,6 +1301,7 @@ def distribution_systems(tfr_dfs):
                      "utility_id_eia", "state", "report_date"])
 
     tfr_dfs["distribution_systems_eia861"] = raw_ds
+
     return tfr_dfs
 
 
@@ -1950,7 +1957,7 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "operational_data_eia861": operational_data,
         "reliability_eia861": reliability,
         # "demand_side_management_eia861": demand_side_management,
-        # "distributed_generation_eia861": distributed_generation,
+        "distributed_generation_eia861": distributed_generation,
         "utility_data_eia861": utility_data,
     }
 
