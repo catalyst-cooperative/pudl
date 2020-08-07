@@ -27,9 +27,9 @@ TOKEN = {
 
 DOI = {
     "sandbox": {
-        "eia860": "10.5072/zenodo.504556",
-        "eia861": "10.5072/zenodo.504558",
-        "eia923": "10.5072/zenodo.504560",
+        "eia860": "10.5072/zenodo.657344",
+        "eia861": "10.5072/zenodo.656696",
+        "eia923": "10.5072/zenodo.656697",
         "epaipm": "10.5072/zenodo.602953",
         "epacems": "10.5072/zenodo.638878",
         "ferc1": "10.5072/zenodo.656695"
@@ -278,7 +278,9 @@ class Datastore:
 
         Args:
             resource: dict, a remotely located resource descriptior from a
-                      frictionless datapackage
+                      frictionless datapackage. Requires a custom
+                      "parts/remote_url" since we can't rely on our "path"
+                      referring to a url.
             directory: the directory where the resource should be saved
         Returns:
             Path of the saved resource, or none on failure
@@ -401,8 +403,7 @@ class Datastore:
                 keywords. Eg. year=2011 or state="md"
         Returns:
             list of dicts, each representing a resource per the frictionless
-            datapackage spec. For a given r, Path(r["path"]) should open the
-            local file, r["parts"] should provide metadata identifiers.
+            datapackage spec.
         """
         filters = dict(**kwargs)
 
@@ -417,9 +418,12 @@ class Datastore:
                 if self.is_remote(r) or not self._validate_file(
                         self.local_path(dataset, r["path"]), r["hash"]):
                     local = self.download_resource(r, self.local_path(dataset))
+
+                    # save with a relative path
                     r["path"] = str(local.relative_to(self.local_path(dataset)))
                     self.save_datapackage_json(dataset, dpkg)
 
+                r["path"] = str(self.local_path(dataset, r["path"]))
                 yield r
 
 
