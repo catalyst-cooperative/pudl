@@ -451,21 +451,21 @@ def flatten(layers, attributes):
     * ``constant``: The attribute is equal everywhere within the feature geometry
       (e.g. identifier, percent area).
 
-      #. When splitting a feature, the attribute value for the resulting
+      # . When splitting a feature, the attribute value for the resulting
          features is that of their parent: e.g. [1] -> [1], [1].
 
-      #. When joining features, the attribute value for the resulting feature
+      # . When joining features, the attribute value for the resulting feature
          must be a function of its children: e.g. [1], [1] -> [1, 1] (list) or 1
          (appropriate aggregation function, e.g. median or area-weighted mean).
 
     * ``uniform``: The attribute is uniformly distributed within the feature geometry
       (e.g. count, area).
 
-      #. When splitting a feature, the attribute value for the resulting
+      # . When splitting a feature, the attribute value for the resulting
          features is proportional to their area: e.g. [1] (100% area) -> [0.4]
          (40% area), [0.6] (60% area).
 
-      #. When joining features, the attribute value for the resulting feature
+      # . When joining features, the attribute value for the resulting feature
          is the sum of its children: e.g. [0.4], [0.6] -> [1].
 
     Args:
@@ -503,7 +503,7 @@ def allocate_and_aggregate(disagg_layer,
                            alloc_exps=None,
                            geo_layer=None,
                            by="respondent_id_ferc714",
-                           allocatees="demand",
+                           allocatees="Average Hourly Demand (MW)",
                            allocators="POPULATION",
                            aggregators=None):
     """
@@ -538,11 +538,11 @@ def allocate_and_aggregate(disagg_layer,
             time-consuming redundant computation. If the ``geo_layer`` argument is not
             ``None``, the ``geo_layer`` is not returned as an output.
         by (str or list): single column or list of columns according to which the
-            constants to be allocated are mentioned (e.g. "Demand" (constant) which
+            constants to be allocated are mentioned (e.g. "Average Hourly Demand (MW)" (constant) which
             needs to be allocated is mapped by "id". So, "id" is the ``by`` column)
         allocatees (str or list): single column or list of columns according to which
-            the constants to be allocated are mentioned (e.g. "Demand" (constant)
-            which needs to be allocated is mapped by "id". So, "demand" is the
+            the constants to be allocated are mentioned (e.g. "Average Hourly Demand (MW)" (constant)
+            which needs to be allocated is mapped by "id". So, "Average Hourly Demand (MW)" is the
             `allocatees` column)
         allocators (str or list): columns by which attribute is weighted and
             allocated
@@ -825,16 +825,16 @@ def compare_datasets(alloc_demand, actual_demand, demand_columns, select_regions
     ])
 
     demand_data = demand_actual.merge(
-        demand_alloc, on=time_col, suffixes=('_actual', '_alloc'), how="outer")
+        demand_alloc, on=time_col, suffixes=('_measured', '_predicted'), how="outer")
 
     demand_data = demand_data.set_index(time_col).unstack(
-    ).reset_index().rename(columns={0: "demand"})
+    ).reset_index().rename(columns={0: "Average Hourly Demand (MW)"})
     demand_data[["region", "demand_type"]
                 ] = demand_data[region].str.split("_", expand=True)
     demand_data.drop(region, axis=1, inplace=True)
 
     demand_data = (demand_data
-                   .pivot_table(values="demand",
+                   .pivot_table(values="Average Hourly Demand (MW)",
                                 index=[time_col, "region"],
                                 columns="demand_type")
                    .reset_index())
@@ -842,7 +842,7 @@ def compare_datasets(alloc_demand, actual_demand, demand_columns, select_regions
     return demand_data
 
 
-def corr_fig(fg_data, suptitle, s=2):
+def corr_fig(compare_data, select_regions=None, suptitle="Parity Plot", s=2, top=0.85):
     """
     Create visualization to compare the allocated and actual demand for every region.
 
@@ -850,35 +850,50 @@ def corr_fig(fg_data, suptitle, s=2):
     correlations between actual demand data and the allocated demand data.
 
     Args:
-        fg_data (pandas.DataFrame): This is typically the output of the function
+        compare_data (pandas.DataFrame): This is typically the output of the function
             `compare_datasets`. It has columns named 'alloc', 'actual' and
             'region'.
+        select_regions (list): If select_regions is None (default), all regions'
+            parity plot will be constructed, else the specific regions mentioned
+            in the list will be plotted.
         suptitle (str): The title for the whole image
         s (float): Adjust the size of the markers which are displayed
             in the graph
+        top (float): The space by which the top needs to be adjusted to allow
+            for the `suptitle` to be adjusted. Ranges typically between 0.85
+            and 0.976. Right tuning required
 
     Returns:
         None: Displays the image
 
     """
-    fg_data = fg_data.dropna()
+    compare_data = compare_data.dropna()
 
     mpl.rcdefaults()
-    pred = 'alloc'
-    actual = "actual"
+    pred = 'predicted'
+    actual = "measured"
 
-    g = sns.FacetGrid(fg_data, col="region", col_wrap=3,
+    if select_regions is not None:
+        compare_data = compare_data[compare_data["region"].isin(
+            select_regions)]
+
+    else:
+        select_regions = list(compare_data["region"].unique())
+
+    g = sns.FacetGrid(compare_data, col="region", col_wrap=3,
                       sharey=False, sharex=False)
-    g.map(sns.regplot, actual, pred, scatter_kws={'alpha': 0.1, 's': s})
+    (g.map(sns.regplot, actual, pred, scatter_kws={'alpha': 0.1, 's': s})
+     .set_axis_labels('Measured Demand (MW)', 'Predicted Demand (MW)'))
 
-    region_list = fg_data["region"].unique().tolist()
+    region_list = compare_data["region"].unique().tolist()
 
     counter = 0
 
     for ax in g.axes.flat:
 
-        df_temp = fg_data[fg_data["region"] == region_list[counter]]
-        min_max = df_temp.describe().loc[["min", "max"], ["actual", "alloc"]]
+        df_temp = compare_data[compare_data["region"] == region_list[counter]]
+        min_max = df_temp.describe().loc[["min", "max"], [
+            actual, pred]]
 
         slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(
             df_temp[actual], df_temp[pred])
@@ -894,8 +909,10 @@ def corr_fig(fg_data, suptitle, s=2):
 
         counter += 1
 
-    plt.subplots_adjust(top=0.9)
     g.fig.suptitle(suptitle)
+    # Formula for specifically adjusting the `suptitle`
+    # top=(0.8471363 + np.ceil(len(select_regions) / 3) / 44 * 0.126))
+    g.fig.subplots_adjust(top=top)
     plt.show()
 
 
@@ -959,7 +976,7 @@ def error_na_fig(df_compare, index_col="region", time_col="utc_datetime", error_
     plt.show()
 
 
-def regional_demand_profiles(df_compare, select_regions, time_col="utc_datetime"):
+def regional_demand_profiles(df_compare, select_regions=None, agg=False, time_col="utc_datetime", region_text=None):
     """
     Create visualization to compare the average demand profiles for selected regions.
 
@@ -972,31 +989,53 @@ def regional_demand_profiles(df_compare, select_regions, time_col="utc_datetime"
             `compare_datasets`. It has columns named 'alloc', 'actual' and
             'region'.
         select_regions (list): The list of all unique ids whose actual and
-            allocated demand is compared. If all regions are to be compared,
-            pass `df_compare[region].unique()` as the argument.
+            allocated demand is compared. If not set, all regions will be
+            considered.
+        agg (bool): If agg is True, all the 'select_regions' will be added and
+            compared. If agg is False, then all the regions' data will be
+            separately considered.
         time_col (str): The name of the time column (usually 'utc_datetime')
+        region_text (str): Works only if agg is True, set custom text label for
+            the set of regions being considered. If agg is True, and region_text
+            is not set, all the regions will be named separated by a comma.
 
     Returns:
         None: Displays the image
 
     """
+    if select_regions is not None:
+        df_compare = df_compare[df_compare["region"].isin(select_regions)]
+        if region_text is None:
+            region_text = (",").join(select_regions)
+
+    else:
+        select_regions = list(df_compare["region"].unique())
+        if region_text is None:
+            region_text = "US Mainland"
+
+    if agg is True:
+        df_compare.groupby(time_col).agg(np.nansum).replace(0, np.nan)
+        df_compare["region"] = region_text
+        select_regions = [region_text]
+
     df_compare["hour_of_day"] = df_compare["utc_datetime"].dt.hour
     df_compare["day_of_week"] = df_compare["utc_datetime"].apply(
         lambda x: x.weekday())
     df_compare["month_of_year"] = df_compare["utc_datetime"].dt.month
-    df_compare = df_compare[df_compare["region"].isin(select_regions)]
+    # df_compare = df_compare[df_compare["region"].isin(select_regions)]
 
     df_compare = (df_compare
                   .set_index([time_col, "region"] + ["hour_of_day", "day_of_week", "month_of_year"])
                   .stack()
-                  .reset_index().rename(columns={0: "demand"}))
+                  .reset_index().rename(columns={0: "Average Hourly Demand (MW)"}))
+    # display(df_compare)
 
     df_compare = (df_compare
-                  .set_index([time_col, "region"] + ["demand_type", "demand"])
+                  .set_index([time_col, "region"] + ["demand_type", "Average Hourly Demand (MW)"])
                   .stack()
-                  .reset_index().rename(columns={0: "time", "level_4": "time_type"}))
+                  .reset_index().rename(columns={0: "Time Interval", "level_4": "time_type"}))
 
-    g = sns.relplot(x="time", y="demand",
+    g = sns.relplot(x="Time Interval", y="Average Hourly Demand (MW)",
                     hue="demand_type", col="time_type", row="region",
                     kind="line", data=df_compare,
                     facet_kws={'sharey': False, 'sharex': False})
@@ -1131,8 +1170,8 @@ def error_heatmap(alloc_df, actual_df, demand_columns, region_col="pca", error_m
     for col in demand_columns:
         hmap[col.timetuple().tm_yday - 1, col.hour] = vec_error(np.array(alloc_df[col]),
                                                                 np.array(
-                                                                    actual_df[col]),
-                                                                error_metric)
+            actual_df[col]),
+            error_metric)
 
     mask = np.isnan(hmap)
     fig, ax = plt.subplots(figsize=(14, 8))
