@@ -2985,7 +2985,6 @@ column_dtypes = {
         'report_date': 'datetime64[ns]',
         'common': pd.BooleanDtype(),
         'plant_balance': float,
-        'plant_balance': float,
         'book_reserve': float,
         'unaccrued_balance': float,
         'reserve_pct': float,
