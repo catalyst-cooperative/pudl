@@ -28,7 +28,7 @@ TOKEN = {
 DOI = {
     "sandbox": {
         "eia860": "10.5072/zenodo.657345",
-        "eia861": "10.5072/zenodo.656696",
+        "eia861": "10.5072/zenodo.658437",
         "eia923": "10.5072/zenodo.657350",
         "epaipm": "10.5072/zenodo.602953",
         "epacems": "10.5072/zenodo.638878",
