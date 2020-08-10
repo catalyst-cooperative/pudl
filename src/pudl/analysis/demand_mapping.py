@@ -1210,11 +1210,6 @@ def error_heatmap(alloc_df, actual_df, demand_columns, region_col="pca", error_m
     monday_idx = [(i + 0.5, "(Mon)")
                   for i, v in enumerate(dofw_list) if v == 0]
 
-    # print(list(set(month_start_idx)))
-    #
-    # print(list(set(month_label_idx)))
-    # print(list(set(monday_idx)))
-
     df_idx_label = (pd.DataFrame(list(set(month_start_idx))
                                  + list(set(month_label_idx))
                                  + list(set(monday_idx)), columns=['index', 'label'])
@@ -1224,7 +1219,6 @@ def error_heatmap(alloc_df, actual_df, demand_columns, region_col="pca", error_m
 
     mask = np.isnan(hmap)
     fig, ax = plt.subplots(figsize=(6, 80))
-    # fig, ax = plt.subplots()
     hmap = sns.heatmap(hmap, ax=ax, mask=mask)
     hmap.set_yticks(yticks)
     hmap.set_yticklabels(
