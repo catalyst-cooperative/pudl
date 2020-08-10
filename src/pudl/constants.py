@@ -2585,18 +2585,20 @@ CUSTOMER_CLASSES = [
 ]
 
 TECH_CLASSES = [
-    'pv',
-    'storage_pv',
-    'virtual_pv',
-    'wind',
+    'backup',
     'chp_cogen',
     'combustion_turbine',
     'fuel_cell',
     'hydro',
     'internal_combustion',
-    'steam',
     'other',
+    'pv',
+    'steam',
+    'storage_pv',
+    'storage'  # will cause a problem with the 'storage_pv' category
     'total'
+    'virtual_pv',
+    'wind',
 ]
 
 REVENUE_CLASSES = [

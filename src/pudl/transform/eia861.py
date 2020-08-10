@@ -1270,7 +1270,7 @@ def distributed_generation(tfr_dfs):
 
     """
     raw_dg = (
-        tfr_dfs['distribution_systems_eia861'].copy()
+        tfr_dfs['distributed_generation_eia861'].copy()
     )
 
     tfr_dfs["distributed_generation_eia861"] = raw_dg
