@@ -25,10 +25,10 @@ When joining features, the attribute value for the resulting feature is the sum
 of its children: e.g. [0.4], [0.6] -> [1].
 
 """
+import calendar
 import logging
 import pathlib
 import zipfile
-from collections import defaultdict
 
 import geopandas
 import matplotlib as mpl
@@ -939,18 +939,18 @@ def error_na_fig(df_compare, index_col="region", time_col="utc_datetime", error_
     """
     if error_metric == "mse":
         df_compare[error_metric] = (
-            df_compare["actual"] - df_compare["alloc"]) ** 2
+            df_compare["measured"] - df_compare["predicted"]) ** 2
 
     elif error_metric == "mape%":
         df_compare[error_metric] = np.abs(
-            (df_compare["actual"] - df_compare["alloc"]) / df_compare["actual"])
+            (df_compare["measured"] - df_compare["predicted"]) / df_compare["measured"])
 
     df_compare["hour"] = df_compare["utc_datetime"].dt.hour
     df_compare["day_of_week"] = df_compare["utc_datetime"].apply(
         lambda x: x.weekday())
     df_compare["month"] = df_compare["utc_datetime"].dt.month
-    df_compare["na_alloc"] = df_compare["alloc"].isna().astype(int)
-    df_compare["na_actual"] = df_compare["actual"].isna().astype(int)
+    df_compare["na_predicted"] = df_compare["predicted"].isna().astype(int)
+    df_compare["na_measured"] = df_compare["measured"].isna().astype(int)
 
     fig, ax = plt.subplots(3, 2, figsize=(15, 10))
 
@@ -959,7 +959,7 @@ def error_na_fig(df_compare, index_col="region", time_col="utc_datetime", error_
                     estimator=np.mean, ci=None)
 
     df_na = (df_compare.set_index([index_col, time_col, "hour",
-                                   "day_of_week", "month"])[["na_alloc", "na_actual"]]
+                                   "day_of_week", "month"])[["na_predicted", "na_measured"]]
              .stack()
              .reset_index()
              .rename(columns={0: "NA Count"}))
@@ -1049,49 +1049,67 @@ def regional_demand_profiles(df_compare, select_regions=None, agg=False, time_co
             ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])
 
 
-def uncovered_area_mismatch(alloc_gdf, actual_gdf, region_col="pca"):
+def uncovered_area_mismatch(disagg_geom, total_geom, title="Area Coverage (By Planning Area)"):
     """
-    Create map visualization to identify areas which are uncovered by FERC 714 timeseries.
+    Create map visualization to analyze regions covered by FERC714 allocation.
 
-    Uses the output of `allocate_and_aggregate` function as input along with
-    actual demand data to create a map of the entire region in actual_gdf
-    highlighted by the area which is unallocated by alloc_gdf. Both
-    geodataframes have the `region_col` column name which stores the unique
-    areas and 'geometry' column with their geometries.
+    Uses the final disaggregated layer as input along with the map of the total
+    US mainland to display coverage of the planning areas. The US areas which
+    have not been allocated demand are shown in gray. Rest are displayed in the
+    Viridis colorscheme.
 
     Args:
-        alloc_gdf (geopandas.GeoDataFrame): This is the geodataframe with the
-            allocated geometries stored in the 'geometry' column. If alloc_gdf
-            misses any unique region present in actual_gdf, it is considered a
-            100% unallocated region.
-        actual_gdf (geopandas.GeoDataFrame): This is the geodataframe with the
-            actual geometries stored in the 'geometry' column, which are the
-            basis for comparison.
-        region_col (str): The column_name which contains the unique ids for each
-            of the regions.
+        disagg_geom (geopandas.GeoDataFrame): Input the final disaggregated
+            geodataframe, which has the column `respondent_id_ferc714_set`. This
+            column mentiones the number of overlapping planning areas reporting
+            for a particular geometry.
+        total_geom (geopandas.GeoDataFrame): This is a geodataframe which has
+            the total US mainland map. This will allow display of the regions
+            not covered even once as grey.
+        title (str): The title for the map visualization
 
     Returns:
         None: Displays the image
 
     """
-    alloc_region_area = alloc_gdf.set_index(
-        region_col)["geometry"].area.to_dict()
-    actual_region_area = actual_gdf.set_index(
-        region_col)["geometry"].area.to_dict()
+    covered_geom = (disagg_geom[["respondent_id_ferc714_set", "geometry"]]
+                    .drop_duplicates()
+                    .reset_index(drop=True)
+                    )
+    covered_geom["num_covered"] = covered_geom["respondent_id_ferc714_set"].apply(
+        len)
+    max_val = covered_geom["num_covered"].max()
 
-    alloc_region_area = defaultdict(lambda: 0, alloc_region_area)
+    # extract viridis features
+    cmap = plt.cm.viridis  # define the colormap
+    cmaplist = [cmap(i) for i in range(cmap.N)]
+    # force the first color entry to be grey
+    cmaplist[0] = (.5, .5, .5, 1.0)
+    # create the new map
+    cmap = mpl.colors.LinearSegmentedColormap.from_list(
+        'DiscreteViridis', cmaplist, cmap.N)
 
-    uncovered_area = {key: max((actual_region_area[key] - alloc_region_area[key])
-                               / actual_region_area[key], 0) for key in actual_region_area.keys()}
-    actual_gdf["uncovered_area"] = actual_gdf[region_col].apply(
-        lambda x: uncovered_area[x])
+    # define the bins and normalize
+    bounds = np.linspace(-0.5, max_val + 0.5, max_val + 2)
+    ticks = [b + 0.5 for b in bounds][:-1]
+    norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
 
-    fig, ax = plt.subplots(figsize=(20, 10))
-    actual_gdf.plot("uncovered_area", legend=True, cmap="cividis", ax=ax,
-                    legend_kwds={"label": "Uncovered Area (2010)"})
+    # create the figure
+    fig, ax = plt.subplots(figsize=(20, 13))
+    ax = total_geom.assign(num=1).dissolve(
+        by="num").plot(facecolor="grey", ax=ax)
+    covered_geom.plot("num_covered", legend=False, ax=ax, cmap=cmap, norm=norm)
+    plt.title(title, fontdict={'fontsize': 25})
 
     ax.set_xticks([])
     ax.set_yticks([])
+
+    # create a second axes for the colorbar
+    ax2 = fig.add_axes([0.97, 0.1, 0.03, 0.8])
+    mpl.colorbar.ColorbarBase(ax2, cmap=cmap, norm=norm,
+                              spacing='proportional', ticks=ticks,
+                              boundaries=bounds, format='%1i')
+
     plt.show()
 
 
@@ -1153,6 +1171,9 @@ def error_heatmap(alloc_df, actual_df, demand_columns, region_col="pca", error_m
         None: Displays the image
 
     """
+    font = {'size': 12}
+
+    mpl.rc('font', **font)
     demand_columns = list(set(demand_columns)
                           .intersection(set(actual_df.columns)))
     columns_excepted = set(demand_columns).difference(set(alloc_df.columns))
@@ -1167,14 +1188,54 @@ def error_heatmap(alloc_df, actual_df, demand_columns, region_col="pca", error_m
         alloc_df[[region_col] + demand_columns], how="left")
     hmap = np.empty((365 + int(leap_exception), 24))
 
+    dofw_list = [None] * (365 + int(leap_exception))
+    month_label_idx = []
+    month_start_idx = []
+
     for col in demand_columns:
         hmap[col.timetuple().tm_yday - 1, col.hour] = vec_error(np.array(alloc_df[col]),
                                                                 np.array(
             actual_df[col]),
             error_metric)
+        dofw_list[col.timetuple().tm_yday - 1] = col.weekday()
+
+        if col.day == 1:
+            month_start_idx.append(
+                (col.timetuple().tm_yday - 1, "-------------"))
+
+        elif col.day == 15:
+            month_label_idx.append(
+                (col.timetuple().tm_yday, calendar.month_name[col.month] + '            '))
+
+    monday_idx = [(i + 0.5, "(Mon)")
+                  for i, v in enumerate(dofw_list) if v == 0]
+
+    # print(list(set(month_start_idx)))
+    #
+    # print(list(set(month_label_idx)))
+    # print(list(set(monday_idx)))
+
+    df_idx_label = (pd.DataFrame(list(set(month_start_idx))
+                                 + list(set(month_label_idx))
+                                 + list(set(monday_idx)), columns=['index', 'label'])
+                    .sort_values("index"))
+    yticks = df_idx_label["index"].tolist()
+    yticklabels = df_idx_label["label"].tolist()
 
     mask = np.isnan(hmap)
-    fig, ax = plt.subplots(figsize=(14, 8))
-    sns.heatmap(hmap, ax=ax, mask=mask)
+    fig, ax = plt.subplots(figsize=(6, 80))
+    # fig, ax = plt.subplots()
+    hmap = sns.heatmap(hmap, ax=ax, mask=mask)
+    hmap.set_yticks(yticks)
+    hmap.set_yticklabels(
+        yticklabels, rotation=0)
+
+    hmap.set_xticks([tick + 0.5 for tick in [0, 4, 8, 12, 16, 20]])
+    hmap.set_xticklabels([0, 4, 8, 12, 16, 20])
+
+    plt.ylabel("Day of Year")
+    plt.xlabel("Hour of Day (UTC Datetime)")
+
     plt.title(error_metric.upper())
     plt.show()
+    mpl.rcdefaults()
