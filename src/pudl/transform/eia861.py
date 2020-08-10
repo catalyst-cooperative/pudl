@@ -804,8 +804,10 @@ def _compare_nerc_physical_w_nerc_operational(df):
     )
 
     # Keep only rows where there are no matches for the whole group.
+    # Delete row with individual match boolean vs. group match boolean
     expanded_nerc_match_bools_false = (
         expanded_nerc_match_bools[~expanded_nerc_match_bools['nerc_group_match']]
+        .drop(columns='nerc_match', axis=1)
     )
 
     return expanded_nerc_match_bools_false
@@ -1741,8 +1743,8 @@ def reliability(tfr_dfs):
         df=raw_r,
         df_name='Reliability',
         idx_cols=idx_cols,
-        class_list=pc.STANDARDS,
-        class_type='standard',
+        class_list=pc.RELIABILITY_STANDARDS,
+        class_type='reliability_standard',
         keep_totals=False,
     )
 
