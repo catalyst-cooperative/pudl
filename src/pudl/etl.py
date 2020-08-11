@@ -17,9 +17,9 @@ data from:
 
 """
 import logging
-import pathlib
 import time
 import uuid
+from pathlib import Path
 
 import pandas as pd
 
@@ -201,12 +201,13 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     # generate CSVs for the static EIA tables, return the list of tables
     static_tables = _load_static_tables_eia(datapkg_dir)
 
-    testing = pudl_settings.get("testing", False)
+    sandbox = pudl_settings.get("sandbox", False)
+    ds = pudl.workspace.datastore.Datastore(
+        Path(pudl_settings["pudl_in"]),
+        sandbox=sandbox)
     # Extract EIA forms 923, 860
-    eia923_raw_dfs = pudl.extract.eia923.Extractor().extract(
-        eia923_years, testing=testing)
-    eia860_raw_dfs = pudl.extract.eia860.Extractor().extract(
-        eia860_years, testing=testing)
+    eia923_raw_dfs = pudl.extract.eia923.Extractor(ds).extract(eia923_years)
+    eia860_raw_dfs = pudl.extract.eia860.Extractor(ds).extract(eia860_years)
 
     # Transform EIA forms 923, 860
     eia860_transformed_dfs = pudl.transform.eia860.transform(
@@ -421,11 +422,13 @@ def _etl_epacems(etl_params, datapkg_dir, pudl_settings):
         logger.info('Not ingesting EPA CEMS.')
 
     # NOTE: This a generator for raw dataframes
+    sandbox = pudl_settings.get("sandbox", False)
+    ds = pudl.extract.epacems.EpaCemsDatastore(
+        Path(pudl_settings["pudl_in"]),
+        sandbox=sandbox)
     epacems_raw_dfs = pudl.extract.epacems.extract(
-        epacems_years=epacems_years,
-        states=epacems_states,
-        data_dir=pudl_settings["data_dir"],
-        testing=pudl_settings["testing"])
+        epacems_years, epacems_states, ds)
+
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform(
         epacems_raw_dfs=epacems_raw_dfs,
@@ -531,8 +534,10 @@ def _etl_epaipm(etl_params, datapkg_dir, pudl_settings):
     static_tables = _load_static_tables_epaipm(datapkg_dir)
 
     # Extract IPM tables
-    epaipm_raw_dfs = pudl.extract.epaipm.extract(
-        epaipm_tables, testing=pudl_settings.get("testing", False))
+    sandbox = pudl_settings.get("sandbox", False)
+    ds = pudl.extract.epaipm.EpaIpmDatastore(
+        Path(pudl_settings["pudl_in"]), sandbox=sandbox)
+    epaipm_raw_dfs = pudl.extract.epaipm.extract(epaipm_tables, ds)
 
     epaipm_transformed_dfs = pudl.transform.epaipm.transform(
         epaipm_raw_dfs, epaipm_tables
@@ -847,18 +852,20 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
 
     # Generate a random UUID to identify this ETL run / data package bundle
     datapkg_bundle_uuid = str(uuid.uuid4())
+    datapkg_bundle_dir = Path(pudl_settings["datapkg_dir"], datapkg_bundle_name)
+
+    # Create, or delete and re-create the top level datapackage bundle directory:
+    _ = pudl.helpers.prep_dir(datapkg_bundle_dir, clobber=clobber)
 
     metas = {}
     for datapkg_settings in validated_bundle_settings:
-        output_dir = pathlib.Path(
+        output_dir = Path(
             pudl_settings["datapkg_dir"],  # PUDL datapackage output dir
             datapkg_bundle_name,           # Name of the datapackage bundle
             datapkg_settings["name"])      # Name of the datapackage
-        # Create the data directory for this datapackage, as well as any
-        # necessary parent directories. Don't save the Path though, because
-        # we need to use the output_dir path for both the data generation and
-        # the metadata generation.
-        _ = pudl.helpers.prep_dir(output_dir / "data", clobber=clobber)
+
+        # Create the datapackge directory, and its data subdir:
+        (output_dir / "data").mkdir(parents=True)
         # run the ETL functions for this pkg and return the list of tables
         # output to CSVs:
         datapkg_resources = etl(datapkg_settings, output_dir, pudl_settings)

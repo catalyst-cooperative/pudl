@@ -18,8 +18,16 @@ logger = logging.getLogger(__name__)
 class Extractor(excel.GenericExtractor):
     """Extractor for EIA form 923."""
 
-    METADATA = excel.Metadata('eia923')
-    BLACKLISTED_PAGES = ['plant_frame']
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize the module.
+
+        Args:
+            ds (:class:datastore.Datastore): Initialized datastore.
+        """
+        self.METADATA = excel.Metadata('eia923')
+        self.BLACKLISTED_PAGES = ['plant_frame']
+        super().__init__(*args, **kwargs)
 
     # Pages not supported by the metadata:
     # puerto_rico, github issue #457

@@ -67,19 +67,17 @@ class EpaIpmDatastore(datastore.Datastore):
         raise ValueError("%s: unknown file format on %s" % (path.suffix, path))
 
 
-def create_dfs_epaipm(files, testing=False):
+def create_dfs_epaipm(files, ds):
     """Makes dictionary of pages (keys) to dataframes (values) for epaipm tabs.
 
     Args:
         files (list): a list of epaipm files
-        testing (boolian): use the datastore sandbox instead of prod
+        ds (:class:`EpaIpmDatastore`): Initialized datastore
 
     Returns:
         dict: dictionary of pages (key) to dataframes (values)
 
     """
-    ds = EpaIpmDatastore(sandbox=testing)
-
     epaipm_dfs = {}
     for f in files:
         # NEEDS is the only IPM data file with multiple sheets. Keeping the overall
@@ -97,12 +95,12 @@ def create_dfs_epaipm(files, testing=False):
     return epaipm_dfs
 
 
-def extract(epaipm_tables, testing=False):
+def extract(epaipm_tables, ds):
     """Extracts data from IPM files.
 
     Args:
         epaipm_tables (iterable): A tuple or list of table names to extract
-        testing (bool): If true, use sandbox & testing sources instead of prod
+        ds (:class:`EpaIpmDatastore`): Initialized datastore
 
     Returns:
         dict: dictionary of DataFrames with extracted (but not yet transformed)
@@ -119,5 +117,5 @@ def extract(epaipm_tables, testing=False):
     #    if table in epaipm_tables
     # }
 
-    epaipm_raw_dfs = create_dfs_epaipm(files=epaipm_tables, testing=testing)
+    epaipm_raw_dfs = create_dfs_epaipm(epaipm_tables, ds)
     return epaipm_raw_dfs

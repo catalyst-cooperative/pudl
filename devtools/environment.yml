@@ -29,13 +29,13 @@ dependencies:
   - nbval               # dev
   - networkx>=2.2       # base We depend on features introduced in v2.2
   - numpy               # base
-  - pandas>=1.0         # base Extensive nullable data type use
+  - pandas>=1.1         # base Extensive nullable data type use
   - pandoc              # dev
   - pdbpp               # dev
   - pep8-naming         # dev
   - pip                 # N/A
   - pre_commit          # dev
-  - pyarrow>=0.16       # base Nullable pandas types work w/ 0.16 and later
+  - pyarrow<1.0.0       # base Some issue with schema definitions in 1.0.0
   - pydocstyle          # dev
   - pygeos              # user (speeds up geopandas operations)
   - pysal               # user (required for making maps w/ geopandas)

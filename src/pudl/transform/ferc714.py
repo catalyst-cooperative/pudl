@@ -349,7 +349,7 @@ def _standardize_offset_codes(df, offset_fixes):
         standardized UTC offset codes in the ``utc_offset_code`` column.
 
     """
-    logger.info("Standardizing UTC offset codes.")
+    logger.debug("Standardizing UTC offset codes.")
     df = df.copy()
     # Replace NaN and empty string values with a temporary placeholder "XXX"
     df["utc_offset_code"] = (
@@ -368,7 +368,7 @@ def _standardize_offset_codes(df, offset_fixes):
 def _log_dupes(df, dupe_cols):
     """A macro to report the number of duplicate hours found."""
     n_dupes = len(df[df.duplicated(dupe_cols)])
-    logger.info(f"Found {n_dupes} duplicated hours.")
+    logger.debug(f"Found {n_dupes} duplicated hours.")
 
 
 def _to_utc_and_tz(df, offset_codes, tz_codes):
@@ -392,7 +392,7 @@ def _to_utc_and_tz(df, offset_codes, tz_codes):
 
     """
     _log_dupes(df, ["respondent_id_ferc714", "local_time"])
-    logger.info("Converting local time + offset code to UTC + timezone.")
+    logger.debug("Converting local time + offset code to UTC + timezone.")
     df["utc_offset"] = df.utc_offset_code.replace(offset_codes)
     df["utc_datetime"] = df.local_time - df.utc_offset
     df["timezone"] = df.utc_offset_code.replace(tz_codes)
@@ -427,7 +427,7 @@ def _complete_demand_timeseries(pa_demand):
         input, but with no missing and no duplicate timesteps.
 
     """
-    logger.info("Ensuring that Planning Area demand time series are complete.")
+    logger.debug("Ensuring that Planning Area demand time series are complete.")
     # Remove any lingering duplicate hours. There should be less than 10 of
     # these, resulting from changes a planning area's reporting timezone.
     pa_demand = pa_demand.drop_duplicates(
@@ -470,7 +470,7 @@ def _complete_demand_timeseries(pa_demand):
         dfs.append(df)
     # Bring all the individual per-respondent dataframes back together again:
     new_df = pd.concat(dfs).reset_index()
-    logger.info("Generating self-consistent report_year for new timesteps.")
+    logger.debug("Generating self-consistent report_year for new timesteps.")
     # Now we need to fill in the "report_year" value, which depends on the
     # local time not the UTC time, so we need to temporarily generate a
     # localized datetime column:
@@ -488,13 +488,13 @@ def _complete_demand_timeseries(pa_demand):
     for tz in new_df.timezone.unique():
         rows_to_fix = (new_df.timezone == tz) & (new_df.report_year.isnull())
         if rows_to_fix.any():
-            new_df.loc[rows_to_fix, "report_year"] = \
-                new_df.loc[rows_to_fix, "local_datetime"].dt.year
+            new_df.loc[rows_to_fix, "report_year"] = pd.to_datetime(
+                new_df.loc[rows_to_fix, "local_datetime"]).dt.year
     # Remove temporary columns and return only the columns we started with.
     new_df = new_df.drop(["utc_aware", "local_datetime"], axis="columns")
     non_null = len(new_df[new_df.demand_mwh.notnull()]) / len(new_df)
 
-    logger.info(
+    logger.debug(
         f"{non_null:.2%} of all planning area demand records have "
         "non-null values.")
 
@@ -549,7 +549,7 @@ def demand_hourly_pa(tfr_dfs):
         pa_demand_hourly_ferc714 dataframe.
 
     """
-    logger.info("Converting dates into pandas Datetime types.")
+    logger.debug("Converting dates into pandas Datetime types.")
     df = (
         tfr_dfs["demand_hourly_pa_ferc714"].assign(
             report_date=lambda x: pd.to_datetime(x.report_date),
@@ -557,7 +557,7 @@ def demand_hourly_pa(tfr_dfs):
         )
     )
 
-    logger.info("Melting daily FERC 714 records into hourly records.")
+    logger.debug("Melting daily FERC 714 records into hourly records.")
     df = (
         df.rename(columns=_hours_to_ints)
         .melt(
@@ -612,6 +612,7 @@ def demand_hourly_pa(tfr_dfs):
             "demand_mwh"
         ]]
         .sort_values(["respondent_id_ferc714", "utc_datetime"])
+        .pipe(pudl.helpers.convert_to_date)
     )
     tfr_dfs["demand_hourly_pa_ferc714"] = df
     return tfr_dfs
@@ -676,7 +677,7 @@ def _early_transform(raw_df):
     * Excludes records which pertain to bad (test) respondents.
 
     """
-    logger.info("Removing unneeded columns and dropping bad respondents.")
+    logger.debug("Removing unneeded columns and dropping bad respondents.")
 
     out_df = (
         raw_df.filter(regex=r"^(?!.*_f$).*")
@@ -706,8 +707,8 @@ def transform(raw_dfs, tables=pc.pudl_tables["ferc714"]):
     tfr_funcs = {
         "respondent_id_ferc714": respondent_id,
         "demand_hourly_pa_ferc714": demand_hourly_pa,
+        # These tables have yet to be fully transformed:
         "description_pa_ferc714": description_pa,
-        # These tables have yet to be cleaned up fully.
         "id_certification_ferc714": id_certification,
         "gen_plants_ba_ferc714": gen_plants_ba,
         "demand_monthly_ba_ferc714": demand_monthly_ba,

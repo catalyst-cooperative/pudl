@@ -7,7 +7,6 @@ import argparse
 import hashlib
 import json
 import logging
-import os
 import re
 import sys
 from pathlib import Path
@@ -42,21 +41,18 @@ PUDL_YML = Path.home() / ".pudl.yml"
 class Datastore:
     """Handle connections and downloading of Zenodo Source archives."""
 
-    def __init__(self, loglevel="WARNING", verbose=False, sandbox=False):
+    def __init__(self, pudl_in, loglevel="WARNING", verbose=False, sandbox=False):
         """
         Datastore manages file retrieval for PUDL datasets.
 
-        It pulls files from Zenodo archives as needed, and caches them
-        locally. If the environment variable PUDL_IN is set, the datastore
-        is assumed to be in PUDL_IN / data. Otherwise PUDL_IN is read
-        from the user's ~/.pudl.yml settings file.
-
         Args:
-            loglevel: str, logging level
-            verbose: boolean. If true, logs printed to stdout
-            sandbox: boolean. If true, use the sandbox server instead of
-                     production
+            pudl_in (Path): path to the root pudl data directory
+            loglevel (str): logging level
+            verbose (bool): If true, logs printed to stdout
+            sandbox (bool): If true, use the sandbox server instead of
+                production
         """
+        self.pudl_in = pudl_in
         logger = logging.Logger(__name__)
         logger.setLevel(loglevel)
 
@@ -72,13 +68,11 @@ class Datastore:
             self.api_root = "https://sandbox.zenodo.org/api"
 
         else:
+            raise NotImplementedError(
+                "Production archive not ready. Use --sandbox.")
             self._dois = DOI["production"]
             self.token = TOKEN["production"]
             self.api_root = "https://zenodo.org/api"
-
-        with PUDL_YML.open() as f:
-            cfg = yaml.safe_load(f)
-            self.pudl_in = Path(os.environ.get("PUDL_IN", cfg["pudl_in"]))
 
     # Location conversion & helpers
 
@@ -105,11 +99,12 @@ class Datastore:
         Given a DOI, produce the API url to retrieve it.
 
         Args:
-            doi: str, the doi (concept doi) to retrieve, per
-                 https://help.zenodo.org/
+            doi (str): the doi (concept doi) to retrieve, per
+                https://help.zenodo.org/
 
         Returns:
             url to get the deposition from the api
+
         """
         match = re.search(r"zenodo.([\d]+)", doi)
 
@@ -128,7 +123,7 @@ class Datastore:
         Args:
             dataset: the name of the dataset
             filename: optional filename as it would appear, if included in the
-                      path
+                path
 
         Return:
             str: a path
@@ -207,7 +202,7 @@ class Datastore:
             dataset (str): name of the dataset, must be available in the DOIS
 
         Return:
-            dict representation of the datapackage.json
+            dict: representation of the datapackage.json
         """
         path = self.local_path(dataset, filename="datapackage.json")
 
@@ -227,9 +222,10 @@ class Datastore:
 
         Args:
             resource: dict, a resource descriptor from a frictionless data
-                      package
+                package
+
         Returns:
-            boolean
+            bool
         """
         return resource["path"][:8] == "https://" or \
             resource["path"][:7] == "http://"
@@ -239,12 +235,14 @@ class Datastore:
         Test whether file metadata passes given filters.
 
         Args:
-            resource: dict, a "resource" descriptior from a frictionless
-                      datapackage
-            filters: dict, pairs that must match in order for a
-                     resource to pass
+            resource (dict): a "resource" descriptior from a frictionless
+                datapackage
+            filters (dict): pairs that must match in order for a
+                resource to pass
+
         Returns:
-            boolean, True if the resource parts pass the filters
+            bool: True if the resource parts pass the filters
+
         """
         for key, _ in filters.items():
 
@@ -264,17 +262,19 @@ class Datastore:
 
         Args:
             resource: dict, a remotely located resource descriptior from a
-                      frictionless datapackage
+                frictionless datapackage
             directory: the directory where the resource should be saved
+
         Returns:
             Path of the saved resource, or none on failure
+
         """
         response = requests.get(
             resource["path"], params={"access_token": self.token})
 
         if response.status_code >= 299:
-            msg = "Failed to download %s, %s" % (
-                resource["path"], response.text)
+            msg = "Failed to download %s, %s" % (resource["path"], response.text)
+
             self.logger.error(msg)
             raise RuntimeError(msg)
 
@@ -292,8 +292,10 @@ class Datastore:
 
         Args:
             dataset: name of a dataset
+
         Returns:
             Bool, True if local resources appear to be correct.
+
         """
         dpkg = self.datapackage_json(dataset)
         ok = True
@@ -324,8 +326,10 @@ class Datastore:
 
         Args:
             dataset: name of a dataset.
+
         Returns:
-            Bool, True if local resources appear to be correct.
+            bool: True if local resources appear to be correct.
+
         """
         if dataset is not None:
             return self._validate_dataset(dataset)
@@ -349,10 +353,12 @@ class Datastore:
             **kwargs: limit retrieved files to those where the
                 datapackage.json["parts"] key & val pairs match provided
                 keywords. Eg. year=2011 or state="md"
+
         Returns:
             list of dicts, each representing a resource per the frictionless
             datapackage spec. For a given r, Path(r["path"]) should open the
             local file, r["parts"] should provide metadata identifiers.
+
         """
         filters = dict(**kwargs)
 
@@ -389,6 +395,9 @@ def main_arguments():
     parser.add_argument(
         "--dataset", help="Get only a specified dataset. Default gets all.")
     parser.add_argument(
+        "--pudl_in",
+        help="Override pudl_in directory, defaults to option .pudl.yml")
+    parser.add_argument(
         "--validate", help="Validate existing cache.", const=True,
         default=False, action="store_const")
     parser.add_argument(
@@ -406,15 +415,34 @@ def main_arguments():
 def main():
     """Cache datasets."""
     args = main_arguments()
-    ds = Datastore(loglevel=args.loglevel, verbose=args.verbose,
-                   sandbox=args.sandbox)
     dataset = getattr(args, "dataset", None)
+    pudl_in = getattr(args, "pudl_in", None)
 
-    if args.validate:
-        ds.validate(dataset)
-        return
+    if pudl_in is None:
+        with PUDL_YML.open() as f:
+            cfg = yaml.safe_load(f)
+            pudl_in = Path(cfg["pudl_in"])
+    else:
+        pudl_in = Path(pudl_in)
 
-    list(ds.get_resources(dataset))
+    ds = Datastore(pudl_in, loglevel=args.loglevel, verbose=args.verbose,
+                   sandbox=args.sandbox)
+
+    if dataset is None:
+        if args.sandbox:
+            datasets = DOI["sandbox"].keys()
+        else:
+            datasets = DOI["production"].keys()
+    else:
+        datasets = [dataset]
+
+    for selection in datasets:
+
+        if args.validate:
+            ds.validate(selection)
+            continue
+
+        list(ds.get_resources(selection))
 
 
 if __name__ == "__main__":

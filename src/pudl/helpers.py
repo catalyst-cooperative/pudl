@@ -178,11 +178,11 @@ def prep_dir(dir_path, clobber=False):
 
     """
     dir_path = pathlib.Path(dir_path)
-    if dir_path.exists() and (clobber is False):
-        raise FileExistsError(
-            f'{dir_path} already exists and clobber is set to {clobber}')
-    elif dir_path.exists() and (clobber is True):
-        shutil.rmtree(dir_path)
+    if dir_path.exists():
+        if clobber:
+            shutil.rmtree(dir_path)
+        else:
+            raise FileExistsError(f'{dir_path} exists and clobber is {clobber}')
     dir_path.mkdir(parents=True)
     return dir_path
 
@@ -905,12 +905,8 @@ def convert_cols_dtypes(df, data_source, name=None):
                                True: True,
                                'nan': pd.NA})
 
-    # For whatever reason, this is more flexible than using the StringDtype
-    for col in string_cols:
-        df[col] = df[col].astype(str)
-
     if name:
-        logger.info(f'Converting the dtypes of: {name}')
+        logger.debug(f'Converting the dtypes of: {name}')
     # unfortunately, the pd.Int32Dtype() doesn't allow a conversion from object
     # columns to this nullable int type column. `utility_id_eia` shows up as a
     # column of strings (!) of numbers so it is an object column, and therefor
@@ -922,10 +918,10 @@ def convert_cols_dtypes(df, data_source, name=None):
         if df.utility_id_eia.dtypes is np.dtype('object'):
             df = df.astype({'utility_id_eia': 'float'})
     df = (
-        df.astype(non_bool_cols)
-        .astype(bool_cols)
-        .replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
+        df.replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
         .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
+        .astype(non_bool_cols)
+        .astype(bool_cols)
     )
     return df
 

@@ -104,14 +104,14 @@ def main():  # noqa: C901
     except KeyError:
         bad_cols = ()
 
+    pudl_settings["sandbox"] = args.sandbox
     pudl.extract.ferc1.dbf2sqlite(
         tables=script_settings['ferc1_to_sqlite_tables'],
         years=script_settings['ferc1_to_sqlite_years'],
         refyear=script_settings['ferc1_to_sqlite_refyear'],
         pudl_settings=pudl_settings,
         bad_cols=bad_cols,
-        clobber=args.clobber,
-        testing=args.sandbox)
+        clobber=args.clobber)
 
 
 if __name__ == '__main__':
