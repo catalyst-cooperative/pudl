@@ -16,15 +16,16 @@ jobs:
         sudo apt-get install libsnappy-dev
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
-    - name: Run PyTest with Tox
+    - name: Survey the Scene
       run: |
         pwd
-        ls -a
-        tox -ve travis -- --fast
+        find ./
+    - name: Run PyTest with Tox
       env:
+        API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
         CI: True
         TRAVIS: True
-        API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
+      run: tox -ve travis -- --fast
 
 # TODO:
 # * Add build status badge
