@@ -1,6 +1,6 @@
 name: tox-pytest
 
-on: push
+on: [ push, pull_request ]
 
 jobs:
   build:
@@ -34,7 +34,3 @@ jobs:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
         MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
       if: always() # Pick up events even if the job fails or is canceled.
-
-# TODO:
-# * Add build status badge
-# * Discontinue Travis CI builds
