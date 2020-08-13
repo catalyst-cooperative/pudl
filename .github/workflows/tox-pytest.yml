@@ -16,23 +16,19 @@ jobs:
         sudo apt-get install libsnappy-dev
         python -m pip install --upgrade pip
         pip install tox
-    - name: Survey the Scene
-      run: |
-        pwd
-        find ./
     - name: Run PyTest with Tox
       env:
         API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
         CI: True
         TRAVIS: True
-      run: tox -ve scripts
+      run: tox -ve travis -- --fast
     - name: Upload Test Coverage to codecov.io
       uses: codecov/codecov-action@v1
     - name: Notify Slack
       uses: 8398a7/action-slack@v3
       with:
         status: ${{ job.status }}
-        fields: repo,message,commit,author,action,eventName,ref,workflow,job,took # selectable (default: repo,message)
+        fields: repo,message,commit,author,workflow,took
       env:
         GITHUB_TOKEN: ${{ github.token }} # required
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
@@ -41,6 +37,4 @@ jobs:
 
 # TODO:
 # * Add build status badge
-# * Generate coverage and upload
-# * Set up Slack notification of build
 # * Discontinue Travis CI builds
