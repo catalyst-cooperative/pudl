@@ -811,6 +811,11 @@ def _compare_nerc_physical_w_nerc_operational(df):
     return expanded_nerc_match_bools_false
 
 
+def _pct_to_mw(df, pct_col):
+    """Turn pct col into mw capacity using total capacity col."""
+    mw_value = df['total_capacity_mw'] * df[pct_col] / 100
+    return mw_value
+
 ###############################################################################
 # EIA Form 861 Table Transform Functions
 ###############################################################################
@@ -1269,11 +1274,138 @@ def distributed_generation(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    idx_cols = [
+        'utility_id_eia',
+        'state',
+        'report_date',
+    ]
+
+    misc_cols = [
+        'backup_capacity_mw',
+        'backup_capacity_pct',
+        'distributed_generation_owned_capacity_mw',
+        'distributed_generation_owned_capacity_pct',
+        'estimated_or_actual_capacity_data',
+        'generators_number',
+        'generators_num_less_1_mw',
+        'total_capacity_mw',
+        'total_capacity_less_1_mw',
+        'utility_name_eia',
+    ]
+
+    tech_cols = [
+        'all_storage_capacity_mw',
+        'combustion_turbine_capacity_mw',
+        'combustion_turbine_capacity_pct',
+        'estimated_or_actual_tech_data',
+        'hydro_capacity_mw',
+        'hydro_capacity_pct',
+        'internal_combustion_capacity_mw',
+        'internal_combustion_capacity_pct',
+        'other_capacity_mw',
+        'other_capacity_pct',
+        'pv_capacity_mw',
+        'steam_capacity_mw',
+        'steam_capacity_pct',
+        'total_capacity_mw',
+        'wind_capacity_mw',
+        'wind_capacity_pct',
+    ]
+
+    fuel_cols = [
+        'oil_fuel_pct',
+        'estimated_or_actual_fuel_data',
+        'gas_fuel_pct',
+        'other_fuel_pct',
+        'renewable_fuel_pct',
+        'water_fuel_pct',
+        'wind_fuel_pct',
+        'wood_fuel_pct',
+    ]
+
     raw_dg = (
         tfr_dfs['distributed_generation_eia861'].copy()
     )
 
-    tfr_dfs["distributed_generation_eia861"] = raw_dg
+    # Split into three tables: Capacity/tech-related, fuel-related, and misc.
+    raw_dg_tech = raw_dg[idx_cols + tech_cols].copy()
+    raw_dg_fuel = raw_dg[idx_cols + fuel_cols].copy()
+    raw_dg_misc = raw_dg[idx_cols + misc_cols].copy()
+
+    ###########################################################################
+    # Transform Values:
+    # * Turn pct values into mw values
+    # * Remove old pct cols and totals cols
+    ###########################################################################
+
+    # Separate datasets into years with only pct values (pre-2010) and years with only mw values (post-2010)
+    df_pre_2010_tech = raw_dg_tech[raw_dg_tech['report_date'] < '2010-01-01']
+    df_post_2010_tech = raw_dg_tech[raw_dg_tech['report_date'] >= '2010-01-01']
+    df_pre_2010_misc = raw_dg_misc[raw_dg_misc['report_date'] < '2010-01-01']
+    df_post_2010_misc = raw_dg_misc[raw_dg_misc['report_date'] >= '2010-01-01']
+
+    logger.info(
+        'Converting pct values into mw values for distributed generation misc table')
+    transformed_dg_misc = (
+        df_pre_2010_misc.assign(
+            distributed_generation_owned_capacity_mw=lambda x: _pct_to_mw(
+                x, 'distributed_generation_owned_capacity_pct'),
+            backup_capacity_mw=lambda x: _pct_to_mw(x, 'backup_capacity_pct')
+        ).append(df_post_2010_misc)
+        .drop(['distributed_generation_owned_capacity_pct',
+               'backup_capacity_pct',
+               'total_capacity_mw'], axis=1)
+    )
+
+    logger.info(
+        'Converting pct values into mw values for distributed generation misc table')
+    transformed_dg_tech = (
+        df_pre_2010_tech.assign(
+            combustion_turbine_capacity_mw=lambda x: (
+                _pct_to_mw(x, 'combustion_turbine_capacity_pct')),
+            hydro_capacity_mw=lambda x: _pct_to_mw(x, 'hydro_capacity_pct'),
+            internal_combustion_capacity_mw=lambda x: (
+                _pct_to_mw(x, 'internal_combustion_capacity_pct')),
+            other_capacity_mw=lambda x: _pct_to_mw(x, 'other_capacity_pct'),
+            steam_capacity_mw=lambda x: _pct_to_mw(x, 'steam_capacity_pct'),
+            wind_capacity_mw=lambda x: _pct_to_mw(x, 'wind_capacity_pct'),
+        ).append(df_post_2010_tech)
+        .drop([
+            'combustion_turbine_capacity_pct',
+            'hydro_capacity_pct',
+            'internal_combustion_capacity_pct',
+            'other_capacity_pct',
+            'steam_capacity_pct',
+            'wind_capacity_pct',
+            'total_capacity_mw'], axis=1
+        )
+    )
+
+    ###########################################################################
+    # Tidy Data
+    ###########################################################################
+
+    logger.info('Tidying Distributed Generation Tech Table')
+    tidy_dg_tech, tech_idx_cols = _tidy_class_dfs(
+        df=transformed_dg_tech,
+        df_name='Distributed Generation Tech Component Capacity',
+        idx_cols=idx_cols,
+        class_list=pc.TECH_CLASSES,
+        class_type='tech_class',
+    )
+
+    logger.info('Tidying Distributed Generation Fuel Table')
+    tidy_dg_fuel, fuel_idx_cols = _tidy_class_dfs(
+        df=raw_dg_fuel,
+        df_name='Distributed Generation Fuel Percent',
+        idx_cols=idx_cols,
+        class_list=pc.FUEL_CLASSES,
+        class_type='fuel_class',
+    )
+
+    tfr_dfs["distributed_generation_tech_eia861"] = tidy_dg_tech
+    tfr_dfs["distributed_generation_fuel_eia861"] = tidy_dg_fuel
+    tfr_dfs["distributed_generation_misc_eia861"] = transformed_dg_misc
 
     return tfr_dfs
 

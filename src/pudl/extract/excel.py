@@ -81,7 +81,7 @@ class Metadata(object):
 
     def get_column_map(self, year, page):
         """Returns the dictionary mapping input columns to pudl columns for given year and page."""
-        return {v: k for k, v in self._column_map[page].T.loc[str(year)].to_dict().items() if v > 0}
+        return {v: k for k, v in self._column_map[page].T.loc[str(year)].to_dict().items() if v != -1}
 
     def get_all_columns(self, page):
         """Returns list of all pudl (standardized) columns for a given page (across all years)."""
