@@ -24,10 +24,13 @@ jobs:
         API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
       run: tox -ve ci -- --fast
 
-    - name: Upload Test Coverage to codecov.io
+    - name: Inspect Datastore
+      run: find ~/pudl-work/
+
+    - name: Upload test coverage report
       uses: codecov/codecov-action@v1
 
-    - name: Archive code coverage results
+    - name: Archive test coverage report
       uses: actions/upload-artifact@v2
       with:
         name: code-coverage-report
