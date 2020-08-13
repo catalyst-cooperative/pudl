@@ -2627,7 +2627,18 @@ FUEL_CLASSES = [
     'wood',
 ]
 
-ESTIMATED_OR_ACTUAL = ['E', 'A']
+RTO_CLASSES = [
+    'caiso',
+    'ercot',
+    'pjm',
+    'nyiso',
+    'spp',
+    'miso',
+    'isone',
+    'other'
+]
+
+ESTIMATED_OR_ACTUAL = {'E': 'Estimated', 'A': 'Actual'}
 
 """dict: A dictionary of datasets (keys) and keywords (values). """
 
@@ -2759,11 +2770,11 @@ column_dtypes = {
         # Modified by AES for Merger, OD, and R tables
         'entity_type': pd.CategoricalDtype(categories=ENTITY_TYPE_DICT.values()),
         # Added by AES for DG misc table
-        'estimated_or_actual_capacity_data': pd.CategoricalDtype(categories=ESTIMATED_OR_ACTUAL),
+        'estimated_or_actual_capacity_data': pd.CategoricalDtype(categories=ESTIMATED_OR_ACTUAL.values()),
         # Added by AES for DG fuel table
-        'estimated_or_actual_fuel_data': pd.CategoricalDtype(categories=ESTIMATED_OR_ACTUAL),
+        'estimated_or_actual_fuel_data': pd.CategoricalDtype(categories=ESTIMATED_OR_ACTUAL.values()),
         # Added by AES for DG tech table
-        'estimated_or_actual_tech_data': pd.CategoricalDtype(categories=ESTIMATED_OR_ACTUAL),
+        'estimated_or_actual_tech_data': pd.CategoricalDtype(categories=ESTIMATED_OR_ACTUAL.values()),
         'exchange_energy_delivered_mwh': float,  # Added by AES for OD table
         'exchange_energy_recieved_mwh': float,  # Added by AES for OD table
         'ferc_cogen_docket_no': pd.StringDtype(),
