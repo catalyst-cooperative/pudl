@@ -2848,7 +2848,8 @@ column_dtypes = {
         'natural_gas_storage': pd.BooleanDtype(),
         'natural_gas_transport_code': pd.StringDtype(),
         'nerc_region': pd.CategoricalDtype(categories=RECOGNIZED_NERC_REGIONS),
-        'nerc_regions_of_operation': pd.StringDtype(),  # Added by AES for UD nerc table
+        # Added by AES for UD nerc table
+        'nerc_regions_of_operation': pd.CategoricalDtype(categories=RECOGNIZED_NERC_REGIONS),
         'net_generation_mwh': float,  # Used by AES for OD table
         'net_metering': pd.BooleanDtype(),
         'net_power_exchanged_mwh': float,  # Added by AES for OD table
