@@ -594,7 +594,7 @@ def extract(ferc1_tables=pc.pudl_tables['ferc1'],
             raise ValueError(
                 f"FERC Form 1 data from the year {year} was requested but is "
                 f"not available. The years for which data is available are: "
-                f"{' '.join(pc.data_years['ferc1'])}."
+                f"{' '.join(str(year) for item in pc.data_years['ferc1'])}."
             )
         if year not in pc.working_years["ferc1"]:
             raise ValueError(
@@ -604,7 +604,7 @@ def extract(ferc1_tables=pc.pudl_tables['ferc1'],
                 f"functions, come find us on GitHub: "
                 f"{pudl.__downloadurl__}"
                 f"For now, the years which PUDL has integrated are: "
-                f"{' '.join(pc.working_years['ferc1'])}."
+                f"{' '.join(str(year) for item in pc.working_years['ferc1'])}."
             )
     for table in ferc1_tables:
         if table not in pc.pudl_tables["ferc1"]:
@@ -615,7 +615,7 @@ def extract(ferc1_tables=pc.pudl_tables['ferc1'],
                 f"functions, come find us on GitHub: "
                 f"{pudl.__downloadurl__}"
                 f"For now, the tables which PUDL has integrated are: "
-                f"{' '.join(pc.pudl_tables['ferc1'])}"
+                f"{' '.join(str(year) for item in pc.pudl_tables['ferc1'])}"
             )
 
     ferc1_meta = get_ferc1_meta(sa.create_engine(pudl_settings["ferc1_db"]))

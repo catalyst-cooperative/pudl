@@ -2499,6 +2499,7 @@ keywords_by_data_source = {
         'epaipm', 'integrated planning',
     ]
 }
+"""dict: A dictionary of datasets (keys) and keywords (values). """
 
 ENTITY_TYPE_DICT = {
     'M': 'Municipal',
@@ -2611,7 +2612,7 @@ REVENUE_CLASSES = [
     'total'
 ]
 
-STANDARDS = [
+RELIABILITY_STANDARDS = [
     'ieee_standard',
     'other_standard'
 ]
@@ -2627,7 +2628,6 @@ FUEL_CLASSES = [
 ]
 
 ESTIMATED_OR_ACTUAL = ['E', 'A']
-
 
 """dict: A dictionary of datasets (keys) and keywords (values). """
 
@@ -2685,7 +2685,7 @@ column_dtypes = {
         # Added by AES for UD misc table
         'alternative_fuel_vehicle_2_activity': pd.BooleanDtype(),
         # Added by AES for UD misc table
-        'alternative_fule_vehicle_activity': pd.BooleanDtype(),
+        'alternative_fuel_vehicle_activity': pd.BooleanDtype(),
         'ash_content_pct': float,
         'ash_impoundment': pd.BooleanDtype(),
         'ash_impoundment_lined': pd.BooleanDtype(),
@@ -2706,7 +2706,8 @@ column_dtypes = {
         # Added by AES for UD misc table
         'buying_transmission_activity': pd.BooleanDtype(),
         'bypass_heat_recovery': pd.BooleanDtype(),
-        'caidi_w_major_event_days_minus_loss_of_service_minutes'
+        # Added by AES for R table
+        'caidi_w_major_event_days_minus_loss_of_service_minutes': float,
         'caidi_w_major_event_dats_minutes': float,  # Added by AES for R table
         'caidi_wo_major_event_days_minutes': float,  # Added by AES for R table
         'capacity_mw': float,  # Used by AES for NNM table
@@ -2806,8 +2807,6 @@ column_dtypes = {
         'highest_distribution_voltage_kv': float,  # Added by AES for R table
         'home_area_network': float,  # Added by AES for AMI table
         'inactive_accounts_included': pd.BooleanDtype(),  # Added by AES for R table
-        # Added by AES for R table
-        # 'interuption_indicies': pd.CategoricalDtype(categories=INTERUPTION_INDICIES),
         'iso_rto_code': pd.StringDtype(),
         'latitude': float,
         'liquefied_natural_gas_storage': pd.BooleanDtype(),
@@ -2930,7 +2929,7 @@ column_dtypes = {
         'sold_to_utility_mwh': float,  # Added by AES for NM table
         'solid_fuel_gasification': pd.BooleanDtype(),
         # Added by AES for R table
-        'standard': pd.CategoricalDtype(categories=STANDARDS),
+        'standard': pd.CategoricalDtype(categories=RELIABILITY_STANDARDS),
         'startup_source_code_1': pd.StringDtype(),
         'startup_source_code_2': pd.StringDtype(),
         'startup_source_code_3': pd.StringDtype(),
@@ -3003,4 +3002,29 @@ column_dtypes = {
         # 'without_med': float,  # Added by AES for R table
         'zip_code': pd.StringDtype(),
     },
+    'depreciation': {
+        'utility_id_ferc1': pd.Int64Dtype(),
+        'utility_id_pudl': pd.Int64Dtype(),
+        'plant_id_pudl': pd.Int64Dtype(),
+        # 'plant_name': pd.StringDtype(),
+        'report_year': pd.Int64Dtype(),
+        'report_date': 'datetime64[ns]',
+        'common': pd.BooleanDtype(),
+        'plant_balance': float,
+        'book_reserve': float,
+        'unaccrued_balance': float,
+        'reserve_pct': float,
+        # 'survivor_curve_type': pd.StringDtype(),
+        'service_life_avg': float,
+        'net_salvage_pct': float,
+        'net_salvage_num_or_pct': pd.BooleanDtype(),
+        'net_removal': float,
+        'net_removal_pct': float,
+        'remaining_life_avg': float,
+        'retirement_date': 'datetime64[ns]',
+        'depreciation_annual_epxns': float,
+        'depreciation_annual_pct': float,
+        'depreciation_annual_num_or_pct': pd.BooleanDtype(),
+        # 'data_source': pd.StringDtype(),
+    }
 }

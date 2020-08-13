@@ -804,8 +804,10 @@ def _compare_nerc_physical_w_nerc_operational(df):
     )
 
     # Keep only rows where there are no matches for the whole group.
+    # Delete row with individual match boolean vs. group match boolean
     expanded_nerc_match_bools_false = (
         expanded_nerc_match_bools[~expanded_nerc_match_bools['nerc_group_match']]
+        .drop(columns='nerc_match', axis=1)
     )
 
     return expanded_nerc_match_bools_false
@@ -933,22 +935,21 @@ def balancing_authority_assn(tfr_dfs):
         transform functions.
 
     """
-    # The dataframes from which to compile BA-Util-State associations
-    other_dfs = [
-        tfr_dfs["sales_eia861"],
-        tfr_dfs["demand_response_eia861"],
-        tfr_dfs["advanced_metering_infrastructure_eia861"],
-        tfr_dfs["dynamic_pricing_eia861"],
-        tfr_dfs["net_metering_misc_eia861"],
+    # These aren't really "data" tables, and should not be searched for associations:
+    non_data_dfs = [
+        "balancing_authority_eia861",
+        "service_territory_eia861",
     ]
+    # The dataframes from which to compile BA-Util-State associations
+    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
 
-    logger.info("Building an EIA 861 BA-Util-State association table.")
+    logger.info("Building an EIA 861 BA-Util-State-Date association table.")
 
     # Helpful shorthand query strings....
     early_years = "report_date<='2012-12-31'"
     late_years = "report_date>='2013-01-01'"
-    early_dfs = [df.query(early_years) for df in other_dfs]
-    late_dfs = [df.query(late_years) for df in other_dfs]
+    early_dfs = [df.query(early_years) for df in data_dfs]
+    late_dfs = [df.query(late_years) for df in data_dfs]
 
     # The old BA table lists utilities directly, but has no state information.
     early_date_ba_util = _harvest_associations(
@@ -957,7 +958,7 @@ def balancing_authority_assn(tfr_dfs):
               "balancing_authority_id_eia",
               "utility_id_eia"],
     )
-    # State-utility associations are brought in from observations in other_dfs
+    # State-utility associations are brought in from observations in data_dfs
     early_date_util_state = _harvest_associations(
         dfs=early_dfs,
         cols=["report_date",
@@ -977,7 +978,7 @@ def balancing_authority_assn(tfr_dfs):
               "balancing_authority_code_eia",
               "balancing_authority_id_eia"],
     )
-    # BA Code allows us to bring in utility+state data from other_dfs:
+    # BA Code allows us to bring in utility+state data from data_dfs:
     late_date_ba_code_util_state = _harvest_associations(
         dfs=late_dfs,
         cols=["report_date",
@@ -1001,13 +1002,25 @@ def balancing_authority_assn(tfr_dfs):
     return tfr_dfs
 
 
+def utility_assn(tfr_dfs):
+    """Harvest a Utility-Date-State Association Table."""
+    # These aren't really "data" tables, and should not be searched for associations
+    non_data_dfs = [
+        "balancing_authority_eia861",
+        "service_territory_eia861",
+    ]
+    # The dataframes from which to compile BA-Util-State associations
+    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
+
+    logger.info("Building an EIA 861 Util-State-Date association table.")
+    tfr_dfs["utility_assn_eia861"] = _harvest_associations(
+        data_dfs, ["report_date", "utility_id_eia", "state"])
+    return tfr_dfs
+
+
 def _harvest_associations(dfs, cols):
     """
-    Compile all unique, non-null combinations of some columns in some dataframes.
-
-    Find all unique, non-null combinations of the columns ``cols`` in the dataframes
-    ``dfs`` within records that are selected by ``query``. All of ``cols`` must be
-    present in each of the ``dfs``.
+    Compile all unique, non-null combinations of values ``cols`` within ``dfs``.
 
     Args:
         dfs (iterable of pandas.DataFrame): The DataFrames in which to search for
@@ -1015,19 +1028,25 @@ def _harvest_associations(dfs, cols):
         cols (iterable of str): Labels of columns for which to find unique, non-null
             combinations of values.
 
+    Raises:
+        ValueError: if no associations for cols are found in dfs.
+
     Returns:
         pandas.DataFrame: A dataframe containing all the unique, non-null combinations
         of values found in ``cols``.
 
     """
+    assn = pd.DataFrame()
     for df in dfs:
-        for col in cols:
-            if col not in df.columns:
-                raise ValueError(
-                    f"Column {col} not found in dataframe for association harvesting."
-                    "All columns must be present in all dataframes."
-                )
-    return pd.concat([df[cols] for df in dfs]).dropna().drop_duplicates()
+        if set(df.columns).issuperset(set(cols)):
+            assn = assn.append(df[cols])
+    assn = assn.dropna().drop_duplicates()
+    if assn.empty:
+        raise ValueError(
+            "These dataframes contain no associations for the columns: "
+            f"{cols}"
+        )
+    return assn
 
 
 def normalize_balancing_authority(tfr_dfs):
@@ -1880,8 +1899,8 @@ def reliability(tfr_dfs):
         df=raw_r,
         df_name='Reliability',
         idx_cols=idx_cols,
-        class_list=pc.STANDARDS,
-        class_type='standard',
+        class_list=pc.RELIABILITY_STANDARDS,
+        class_type='reliability_standard',
         keep_totals=False,
     )
 
@@ -2112,6 +2131,7 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
 
     # This is more like harvesting stuff, and should probably be relocated:
     tfr_dfs = balancing_authority_assn(tfr_dfs)
+    tfr_dfs = utility_assn(tfr_dfs)
     tfr_dfs = normalize_balancing_authority(tfr_dfs)
     tfr_dfs = pudl.helpers.convert_dfs_dict_dtypes(tfr_dfs, 'eia')
     return tfr_dfs

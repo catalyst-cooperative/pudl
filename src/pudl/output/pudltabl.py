@@ -28,6 +28,7 @@ Todo:
 """
 
 import logging
+import pathlib
 
 # Useful high-level external modules.
 import pandas as pd
@@ -47,7 +48,7 @@ logger = logging.getLogger(__name__)
 class PudlTabl(object):
     """A class for compiling common useful tabular outputs from the PUDL DB."""
 
-    def __init__(self, pudl_engine, freq=None, start_date=None, end_date=None,
+    def __init__(self, pudl_engine, ds=None, freq=None, start_date=None, end_date=None,
                  fill=False, roll=False):
         """
         Initialize the PUDL output object.
@@ -74,6 +75,9 @@ class PudlTabl(object):
         """
         self.pudl_engine = pudl_engine
         self.freq = freq
+        # We need datastore access because some data is not yet integrated into the
+        # PUDL DB. See the etl_eia861 method.
+        self.ds = ds
 
         if start_date is None:
             self.start_date = \
@@ -193,9 +197,18 @@ class PudlTabl(object):
         """
         if update or self._dfs["balancing_authority_eia861"] is None:
             logger.warning("Running the interim EIA 861 ETL process! (~2 minutes)")
+
+            if self.ds is None:
+                pudl_in = pathlib.Path(pudl.workspace.setup.get_defaults()["pudl_in"])
+                self.ds = pudl.workspace.datastore.Datastore(
+                    pudl_in=pudl_in,
+                    sandbox=True,
+                )
+
             eia861_raw_dfs = (
-                pudl.extract.eia861.Extractor()
-                .extract(pc.working_years["eia861"], testing=True))
+                pudl.extract.eia861.Extractor(self.ds)
+                .extract(pc.working_years["eia861"])
+            )
             eia861_tfr_dfs = pudl.transform.eia861.transform(eia861_raw_dfs)
             for table in eia861_tfr_dfs:
                 self._dfs[table] = eia861_tfr_dfs[table]
@@ -209,6 +222,11 @@ class PudlTabl(object):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["balancing_authority_assn_eia861"]
+
+    def utility_assn_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["utility_assn_eia861"]
 
     def service_territory_eia861(self, update=False):
         """An interim EIA 861 output function."""
@@ -364,11 +382,10 @@ class PudlTabl(object):
 
         """
         if update or self._dfs['bga_eia860'] is None:
-            self._dfs['bga_eia860'] = \
-                pudl.output.eia860.boiler_generator_assn_eia860(
-                    self.pudl_engine,
-                    start_date=self.start_date,
-                    end_date=self.end_date)
+            self._dfs['bga_eia860'] = pudl.output.eia860.boiler_generator_assn_eia860(
+                self.pudl_engine,
+                start_date=self.start_date,
+                end_date=self.end_date)
         return self._dfs['bga_eia860']
 
     def plants_eia860(self, update=False):
@@ -441,12 +458,11 @@ class PudlTabl(object):
 
         """
         if update or self._dfs['gf_eia923'] is None:
-            self._dfs['gf_eia923'] = \
-                pudl.output.eia923.generation_fuel_eia923(
-                    self.pudl_engine,
-                    freq=self.freq,
-                    start_date=self.start_date,
-                    end_date=self.end_date)
+            self._dfs['gf_eia923'] = pudl.output.eia923.generation_fuel_eia923(
+                self.pudl_engine,
+                freq=self.freq,
+                start_date=self.start_date,
+                end_date=self.end_date)
         return self._dfs['gf_eia923']
 
     def frc_eia923(self, update=False):
@@ -462,14 +478,13 @@ class PudlTabl(object):
 
         """
         if update or self._dfs['frc_eia923'] is None:
-            self._dfs['frc_eia923'] = \
-                pudl.output.eia923.fuel_receipts_costs_eia923(
-                    self.pudl_engine,
-                    freq=self.freq,
-                    start_date=self.start_date,
-                    end_date=self.end_date,
-                    fill=self.fill,
-                    roll=self.roll)
+            self._dfs['frc_eia923'] = pudl.output.eia923.fuel_receipts_costs_eia923(
+                self.pudl_engine,
+                freq=self.freq,
+                start_date=self.start_date,
+                end_date=self.end_date,
+                fill=self.fill,
+                roll=self.roll)
         return self._dfs['frc_eia923']
 
     def bf_eia923(self, update=False):
@@ -528,8 +543,8 @@ class PudlTabl(object):
 
         """
         if update or self._dfs['plants_steam_ferc1'] is None:
-            self._dfs['plants_steam_ferc1'] = \
-                pudl.output.ferc1.plants_steam_ferc1(self.pudl_engine)
+            self._dfs['plants_steam_ferc1'] = pudl.output.ferc1.plants_steam_ferc1(
+                self.pudl_engine)
         return self._dfs['plants_steam_ferc1']
 
     def fuel_ferc1(self, update=False):
