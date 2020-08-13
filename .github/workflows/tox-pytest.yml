@@ -26,11 +26,11 @@ jobs:
         CI: True
         TRAVIS: True
       run: tox -ve travis -- --fast
+    - name: Upload Test Coverage to codecov.io
+      uses: codecov/codecov-action@v1
 
 # TODO:
 # * Add build status badge
-# * Make this a check on PRs
 # * Generate coverage and upload
 # * Set up Slack notification of build
-# * Set up... the other private environment variable whatever it was!
 # * Discontinue Travis CI builds
