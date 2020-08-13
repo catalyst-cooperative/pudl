@@ -8,6 +8,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - uses: actions/cache@v2
+      id: cache
+      with:
+        path: ~/pudl-work/data/
+        key: pudl-datastore-${{ hashFiles('**/datapackage.json') }}
+
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -18,6 +24,13 @@ jobs:
         sudo apt-get install libsnappy-dev
         python -m pip install --upgrade pip
         pip install tox
+
+    - name: Cache
+
+    - name: Check for cached data
+      run: |
+        mkdir -p ~/pudl-work/
+        find ~/pudl-work/
 
     - name: Run PyTest with Tox
       env:
