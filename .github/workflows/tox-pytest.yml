@@ -33,7 +33,7 @@ jobs:
     - name: Run PyTest with Tox
       env:
         API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
-      run: tox -ve ci -- --fast
+      run: tox -ve scripts
 
     - name: Inspect Datastore
       run: find ~/pudl-work/
