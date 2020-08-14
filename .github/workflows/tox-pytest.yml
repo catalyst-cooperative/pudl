@@ -17,8 +17,8 @@ jobs:
         path: ~/pudl-work/data/
         key: pudl-data-${{ hashFiles('datastore-dois.txt') }}
         restore-keys: |
-          pudl-datastore-${{ hashFiles('datastore-dois.txt') }}
-          pudl-datastore-
+          pudl-data-${{ hashFiles('datastore-dois.txt') }}
+          pudl-data-
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -39,7 +39,7 @@ jobs:
     - name: Run PyTest with Tox
       env:
         API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
-      run: tox -ve scripts
+      run: tox -ve ci -- --fast
 
     - name: Inspect Datastore
       run: find ~/pudl-work/data/
