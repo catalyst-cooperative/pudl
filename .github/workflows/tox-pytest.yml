@@ -12,13 +12,12 @@ jobs:
       run: grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
 
     - uses: actions/cache@v2
-      id: cache-datastore
+      id: cache-zenodo-datastore
       with:
         path: ~/pudl-work/data/
-        key: pudl-data-${{ hashFiles('datastore-dois.txt') }}
+        key: zenodo-datastore-${{ hashFiles('datastore-dois.txt') }}
         restore-keys: |
-          pudl-data-${{ hashFiles('datastore-dois.txt') }}
-          pudl-data-
+          zenodo-datastore-${{ hashFiles('datastore-dois.txt') }}
 
     - name: Set up Python
       uses: actions/setup-python@v2
