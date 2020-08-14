@@ -26,7 +26,6 @@ jobs:
         sudo apt-get install libsnappy-dev
         python -m pip install --upgrade pip
         pip install tox
-        pip install ./
 
     - name: Check for cached data
       run: |
@@ -36,8 +35,7 @@ jobs:
     - name: Run PyTest with Tox
       env:
         API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
-      #run: tox -ve ci -- --fast
-      run: pudl_datastore --sandbox --dataset eia861 --verbose --loglevel DEBUG --pudl_in ~/pudl-work/
+      run: tox -ve scripts
 
     - name: Inspect Datastore
       run: find ~/pudl-work/data/
