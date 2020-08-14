@@ -12,9 +12,9 @@ jobs:
       id: cache-datastore
       with:
         path: ~/pudl-work/data/
-        key: pudl-datastore-${{ hashFiles('**/datapackage.json') }}
+        key: pudl-data-${{ hashFiles('**/datapackage.json') }}
         restore-keys: |
-          pudl-datastore-
+          pudl-data-
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -29,8 +29,8 @@ jobs:
 
     - name: Check for cached data
       run: |
-        mkdir -p ~/pudl-work/
-        find ~/pudl-work/
+        mkdir -p ~/pudl-work/data/
+        find ~/pudl-work/data/
 
     - name: Run PyTest with Tox
       env:
@@ -38,7 +38,7 @@ jobs:
       run: tox -ve ci -- --fast
 
     - name: Inspect Datastore
-      run: find ~/pudl-work/
+      run: find ~/pudl-work/data/
 
     - name: Upload test coverage report
       uses: codecov/codecov-action@v1
