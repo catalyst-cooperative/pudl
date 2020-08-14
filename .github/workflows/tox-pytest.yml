@@ -8,13 +8,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Compile Zenodo Datastore DOIs
+      run: grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
+
     - uses: actions/cache@v2
       id: cache-datastore
       with:
         path: ~/pudl-work/data/
-        key: pudl-data-${{ hashFiles('**/datapackage.json') }}
+        key: pudl-data-${{ hashFiles('datastore-dois.txt') }}
         restore-keys: |
-          pudl-data-
+          pudl-datastore-${{ hashFiles('datastore-dois.txt') }}
+          pudl-datastore-
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -60,7 +64,7 @@ jobs:
             icon_emoji: ':octocat:',
             attachments: [{
               color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-              text: `${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} finished in ${process.env.AS_TOOK}`,
+              text: `${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} ${{ job.status }} in ${process.env.AS_TOOK}`,
             }]
           }
       env:
