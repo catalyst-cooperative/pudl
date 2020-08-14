@@ -47,18 +47,7 @@ jobs:
         name: code-coverage-report
         path: coverage.xml
 
-    - name: Notify Slack
-      uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ job.status }}
-        fields: repo,message,commit,author,workflow,took
-      env:
-        GITHUB_TOKEN: ${{ github.token }} # required
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-        MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
-      if: always() # Pick up events even if the job fails or is canceled.
-
-    - name: Notify Slack Custom
+    - name: Tell the Codemonkeys
       uses: 8398a7/action-slack@v3
       with:
         status: custom
