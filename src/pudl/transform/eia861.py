@@ -1323,6 +1323,10 @@ def distributed_generation(tfr_dfs):
     # Transform Values:
     # * Turn pct values into mw values
     # * Remove old pct cols and totals cols
+    # Explanation: Pre 2010 reporting asks for components as a percent of total capacity
+    # whereas after 2010, the forms ask for the component portion as a mw value. In order
+    # To coalesce similar data, we've used total values to turn percent values from pre 2010
+    # into mw values like those post-2010.
     ###########################################################################
 
     # Separate datasets into years with only pct values (pre-2010) and years with only mw values (post-2010)
@@ -1345,7 +1349,7 @@ def distributed_generation(tfr_dfs):
     )
 
     logger.info(
-        'Converting pct values into mw values for distributed generation misc table')
+        'Converting pct values into mw values for distributed generation tech table')
     transformed_dg_tech = (
         df_pre_2010_tech.assign(
             combustion_turbine_capacity_mw=lambda x: (
@@ -1389,6 +1393,9 @@ def distributed_generation(tfr_dfs):
         class_list=pc.FUEL_CLASSES,
         class_type='fuel_class',
     )
+
+    # Drop original distributed generation table from tfr_dfs
+    del tfr_dfs['distributed_generation_eia861']
 
     tfr_dfs["distributed_generation_tech_eia861"] = tidy_dg_tech
     tfr_dfs["distributed_generation_fuel_eia861"] = tidy_dg_fuel

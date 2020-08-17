@@ -2621,7 +2621,7 @@ FUEL_CLASSES = [
     'gas',
     'oil',
     'other',
-    'renewable',  # needs prefix 'all' to not confuse with 'other'
+    'renewable',
     'water',
     'wind',
     'wood',

@@ -41,7 +41,6 @@ class Extractor(excel.GenericExtractor):
             "The data has not yet been validated, and the structure may change."
         )
         column_map_numeric = self._metadata.get_column_map(yr, page)
-        # print(column_map_numeric)
         df = df.rename(
             columns=dict(zip(df.columns[list(column_map_numeric.keys())],
                              list(column_map_numeric.values()))))
