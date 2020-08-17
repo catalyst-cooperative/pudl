@@ -464,28 +464,6 @@ NERC_SPELLCHECK = {
     'YORK': 'NPCC',
 }
 
-NERC_CLASS = [
-    'tre',
-    'frcc',
-    'mro',
-    'npcc',
-    'rfc',
-    'serc',
-    'spp',
-    'wecc',
-]
-
-RTO_CLASS = [
-    'caiso',
-    'ercot',
-    'pjm',
-    'nyiso',
-    'spp',
-    'miso',
-    'isone',
-    'other'
-]
-
 ###############################################################################
 # EIA Form 861 Transform Helper functions
 ###############################################################################
@@ -804,14 +782,17 @@ def _compare_nerc_physical_w_nerc_operational(df):
     )
 
     # Keep only rows where there are no matches for the whole group.
-    # Delete row with individual match boolean vs. group match boolean
     expanded_nerc_match_bools_false = (
         expanded_nerc_match_bools[~expanded_nerc_match_bools['nerc_group_match']]
-        .drop(columns='nerc_match', axis=1)
     )
 
     return expanded_nerc_match_bools_false
 
+
+def _pct_to_mw(df, pct_col):
+    """Turn pct col into mw capacity using total capacity col."""
+    mw_value = df['total_capacity_mw'] * df[pct_col] / 100
+    return mw_value
 
 ###############################################################################
 # EIA Form 861 Table Transform Functions
@@ -930,21 +911,22 @@ def balancing_authority_assn(tfr_dfs):
         transform functions.
 
     """
-    # These aren't really "data" tables, and should not be searched for associations:
-    non_data_dfs = [
-        "balancing_authority_eia861",
-        "service_territory_eia861",
-    ]
     # The dataframes from which to compile BA-Util-State associations
-    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
+    other_dfs = [
+        tfr_dfs["sales_eia861"],
+        tfr_dfs["demand_response_eia861"],
+        tfr_dfs["advanced_metering_infrastructure_eia861"],
+        tfr_dfs["dynamic_pricing_eia861"],
+        tfr_dfs["net_metering_misc_eia861"],
+    ]
 
-    logger.info("Building an EIA 861 BA-Util-State-Date association table.")
+    logger.info("Building an EIA 861 BA-Util-State association table.")
 
     # Helpful shorthand query strings....
     early_years = "report_date<='2012-12-31'"
     late_years = "report_date>='2013-01-01'"
-    early_dfs = [df.query(early_years) for df in data_dfs]
-    late_dfs = [df.query(late_years) for df in data_dfs]
+    early_dfs = [df.query(early_years) for df in other_dfs]
+    late_dfs = [df.query(late_years) for df in other_dfs]
 
     # The old BA table lists utilities directly, but has no state information.
     early_date_ba_util = _harvest_associations(
@@ -953,7 +935,7 @@ def balancing_authority_assn(tfr_dfs):
               "balancing_authority_id_eia",
               "utility_id_eia"],
     )
-    # State-utility associations are brought in from observations in data_dfs
+    # State-utility associations are brought in from observations in other_dfs
     early_date_util_state = _harvest_associations(
         dfs=early_dfs,
         cols=["report_date",
@@ -973,7 +955,7 @@ def balancing_authority_assn(tfr_dfs):
               "balancing_authority_code_eia",
               "balancing_authority_id_eia"],
     )
-    # BA Code allows us to bring in utility+state data from data_dfs:
+    # BA Code allows us to bring in utility+state data from other_dfs:
     late_date_ba_code_util_state = _harvest_associations(
         dfs=late_dfs,
         cols=["report_date",
@@ -997,25 +979,13 @@ def balancing_authority_assn(tfr_dfs):
     return tfr_dfs
 
 
-def utility_assn(tfr_dfs):
-    """Harvest a Utility-Date-State Association Table."""
-    # These aren't really "data" tables, and should not be searched for associations
-    non_data_dfs = [
-        "balancing_authority_eia861",
-        "service_territory_eia861",
-    ]
-    # The dataframes from which to compile BA-Util-State associations
-    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
-
-    logger.info("Building an EIA 861 Util-State-Date association table.")
-    tfr_dfs["utility_assn_eia861"] = _harvest_associations(
-        data_dfs, ["report_date", "utility_id_eia", "state"])
-    return tfr_dfs
-
-
 def _harvest_associations(dfs, cols):
     """
-    Compile all unique, non-null combinations of values ``cols`` within ``dfs``.
+    Compile all unique, non-null combinations of some columns in some dataframes.
+
+    Find all unique, non-null combinations of the columns ``cols`` in the dataframes
+    ``dfs`` within records that are selected by ``query``. All of ``cols`` must be
+    present in each of the ``dfs``.
 
     Args:
         dfs (iterable of pandas.DataFrame): The DataFrames in which to search for
@@ -1023,25 +993,19 @@ def _harvest_associations(dfs, cols):
         cols (iterable of str): Labels of columns for which to find unique, non-null
             combinations of values.
 
-    Raises:
-        ValueError: if no associations for cols are found in dfs.
-
     Returns:
         pandas.DataFrame: A dataframe containing all the unique, non-null combinations
         of values found in ``cols``.
 
     """
-    assn = pd.DataFrame()
     for df in dfs:
-        if set(df.columns).issuperset(set(cols)):
-            assn = assn.append(df[cols])
-    assn = assn.dropna().drop_duplicates()
-    if assn.empty:
-        raise ValueError(
-            "These dataframes contain no associations for the columns: "
-            f"{cols}"
-        )
-    return assn
+        for col in cols:
+            if col not in df.columns:
+                raise ValueError(
+                    f"Column {col} not found in dataframe for association harvesting."
+                    "All columns must be present in all dataframes."
+                )
+    return pd.concat([df[cols] for df in dfs]).dropna().drop_duplicates()
 
 
 def normalize_balancing_authority(tfr_dfs):
@@ -1288,6 +1252,155 @@ def distributed_generation(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    idx_cols = [
+        'utility_id_eia',
+        'state',
+        'report_date',
+    ]
+
+    misc_cols = [
+        'backup_capacity_mw',
+        'backup_capacity_pct',
+        'distributed_generation_owned_capacity_mw',
+        'distributed_generation_owned_capacity_pct',
+        'estimated_or_actual_capacity_data',
+        'generators_number',
+        'generators_num_less_1_mw',
+        'total_capacity_mw',
+        'total_capacity_less_1_mw',
+        'utility_name_eia',
+    ]
+
+    tech_cols = [
+        'all_storage_capacity_mw',
+        'combustion_turbine_capacity_mw',
+        'combustion_turbine_capacity_pct',
+        'estimated_or_actual_tech_data',
+        'hydro_capacity_mw',
+        'hydro_capacity_pct',
+        'internal_combustion_capacity_mw',
+        'internal_combustion_capacity_pct',
+        'other_capacity_mw',
+        'other_capacity_pct',
+        'pv_capacity_mw',
+        'steam_capacity_mw',
+        'steam_capacity_pct',
+        'total_capacity_mw',
+        'wind_capacity_mw',
+        'wind_capacity_pct',
+    ]
+
+    fuel_cols = [
+        'oil_fuel_pct',
+        'estimated_or_actual_fuel_data',
+        'gas_fuel_pct',
+        'other_fuel_pct',
+        'renewable_fuel_pct',
+        'water_fuel_pct',
+        'wind_fuel_pct',
+        'wood_fuel_pct',
+    ]
+
+    # Pre-tidy transform: set estimated or actual A/E values to 'Acutal'/'Estimated'
+    raw_dg = (
+        tfr_dfs['distributed_generation_eia861'].copy()
+        .assign(
+            estimated_or_actual_capacity_data=lambda x: (
+                x.estimated_or_actual_capacity_data.map(pc.ESTIMATED_OR_ACTUAL)),
+            estimated_or_actual_fuel_data=lambda x: (
+                x.estimated_or_actual_fuel_data.map(pc.ESTIMATED_OR_ACTUAL)),
+            estimated_or_actual_tech_data=lambda x: (
+                x.estimated_or_actual_tech_data.map(pc.ESTIMATED_OR_ACTUAL))
+        )
+    )
+
+    # Split into three tables: Capacity/tech-related, fuel-related, and misc.
+    raw_dg_tech = raw_dg[idx_cols + tech_cols].copy()
+    raw_dg_fuel = raw_dg[idx_cols + fuel_cols].copy()
+    raw_dg_misc = raw_dg[idx_cols + misc_cols].copy()
+
+    ###########################################################################
+    # Transform Values:
+    # * Turn pct values into mw values
+    # * Remove old pct cols and totals cols
+    # Explanation: Pre 2010 reporting asks for components as a percent of total capacity
+    # whereas after 2010, the forms ask for the component portion as a mw value. In order
+    # To coalesce similar data, we've used total values to turn percent values from pre 2010
+    # into mw values like those post-2010.
+    ###########################################################################
+
+    # Separate datasets into years with only pct values (pre-2010) and years with only mw values (post-2010)
+    df_pre_2010_tech = raw_dg_tech[raw_dg_tech['report_date'] < '2010-01-01']
+    df_post_2010_tech = raw_dg_tech[raw_dg_tech['report_date'] >= '2010-01-01']
+    df_pre_2010_misc = raw_dg_misc[raw_dg_misc['report_date'] < '2010-01-01']
+    df_post_2010_misc = raw_dg_misc[raw_dg_misc['report_date'] >= '2010-01-01']
+
+    logger.info(
+        'Converting pct values into mw values for distributed generation misc table')
+    transformed_dg_misc = (
+        df_pre_2010_misc.assign(
+            distributed_generation_owned_capacity_mw=lambda x: _pct_to_mw(
+                x, 'distributed_generation_owned_capacity_pct'),
+            backup_capacity_mw=lambda x: _pct_to_mw(x, 'backup_capacity_pct'),
+        ).append(df_post_2010_misc)
+        .drop(['distributed_generation_owned_capacity_pct',
+               'backup_capacity_pct',
+               'total_capacity_mw'], axis=1)
+    )
+
+    logger.info(
+        'Converting pct values into mw values for distributed generation tech table')
+    transformed_dg_tech = (
+        df_pre_2010_tech.assign(
+            combustion_turbine_capacity_mw=lambda x: (
+                _pct_to_mw(x, 'combustion_turbine_capacity_pct')),
+            hydro_capacity_mw=lambda x: _pct_to_mw(x, 'hydro_capacity_pct'),
+            internal_combustion_capacity_mw=lambda x: (
+                _pct_to_mw(x, 'internal_combustion_capacity_pct')),
+            other_capacity_mw=lambda x: _pct_to_mw(x, 'other_capacity_pct'),
+            steam_capacity_mw=lambda x: _pct_to_mw(x, 'steam_capacity_pct'),
+            wind_capacity_mw=lambda x: _pct_to_mw(x, 'wind_capacity_pct'),
+        ).append(df_post_2010_tech)
+        .drop([
+            'combustion_turbine_capacity_pct',
+            'hydro_capacity_pct',
+            'internal_combustion_capacity_pct',
+            'other_capacity_pct',
+            'steam_capacity_pct',
+            'wind_capacity_pct',
+            'total_capacity_mw'], axis=1
+        )
+    )
+
+    ###########################################################################
+    # Tidy Data
+    ###########################################################################
+
+    logger.info('Tidying Distributed Generation Tech Table')
+    tidy_dg_tech, tech_idx_cols = _tidy_class_dfs(
+        df=transformed_dg_tech,
+        df_name='Distributed Generation Tech Component Capacity',
+        idx_cols=idx_cols,
+        class_list=pc.TECH_CLASSES,
+        class_type='tech_class',
+    )
+
+    logger.info('Tidying Distributed Generation Fuel Table')
+    tidy_dg_fuel, fuel_idx_cols = _tidy_class_dfs(
+        df=raw_dg_fuel,
+        df_name='Distributed Generation Fuel Percent',
+        idx_cols=idx_cols,
+        class_list=pc.FUEL_CLASSES,
+        class_type='fuel_class',
+    )
+
+    # Drop original distributed generation table from tfr_dfs
+    del tfr_dfs['distributed_generation_eia861']
+
+    tfr_dfs["distributed_generation_tech_eia861"] = tidy_dg_tech
+    tfr_dfs["distributed_generation_fuel_eia861"] = tidy_dg_fuel
+    tfr_dfs["distributed_generation_misc_eia861"] = transformed_dg_misc
+
     return tfr_dfs
 
 
@@ -1314,6 +1427,7 @@ def distribution_systems(tfr_dfs):
                      "utility_id_eia", "state", "report_date"])
 
     tfr_dfs["distribution_systems_eia861"] = raw_ds
+
     return tfr_dfs
 
 
@@ -1761,7 +1875,7 @@ def reliability(tfr_dfs):
         df_name='Reliability',
         idx_cols=idx_cols,
         class_list=pc.RELIABILITY_STANDARDS,
-        class_type='reliability_standard',
+        class_type='standard',
         keep_totals=False,
     )
 
@@ -1845,7 +1959,7 @@ def utility_data(tfr_dfs):
         df=raw_ud_nerc,
         df_name='Utility Data NERC Regions',
         idx_cols=idx_cols,
-        class_list=NERC_CLASS,
+        class_list=[x.lower() for x in pc.RECOGNIZED_NERC_REGIONS],
         class_type='nerc_regions_of_operation',
     )
 
@@ -1853,7 +1967,7 @@ def utility_data(tfr_dfs):
         df=raw_ud_rto,
         df_name='Utility Data RTOs',
         idx_cols=idx_cols,
-        class_list=RTO_CLASS,
+        class_list=pc.RTO_CLASSES,
         class_type='rtos_of_operation'
     )
 
@@ -1863,6 +1977,7 @@ def utility_data(tfr_dfs):
     #   * Y = "Yes" => True
     #   * N = "No" => False
     #   * Blank => False
+
     ###########################################################################
 
     # Transform NERC region table
@@ -1969,7 +2084,7 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "operational_data_eia861": operational_data,
         "reliability_eia861": reliability,
         # "demand_side_management_eia861": demand_side_management,
-        # "distributed_generation_eia861": distributed_generation,
+        "distributed_generation_eia861": distributed_generation,
         "utility_data_eia861": utility_data,
     }
 
@@ -1992,7 +2107,6 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
 
     # This is more like harvesting stuff, and should probably be relocated:
     tfr_dfs = balancing_authority_assn(tfr_dfs)
-    tfr_dfs = utility_assn(tfr_dfs)
     tfr_dfs = normalize_balancing_authority(tfr_dfs)
     tfr_dfs = pudl.helpers.convert_dfs_dict_dtypes(tfr_dfs, 'eia')
     return tfr_dfs
