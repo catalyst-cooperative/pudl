@@ -8,16 +8,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Compile Zenodo Datastore DOIs
+    - name: Compile Zenodo datastore DOIs for cache invalidation
       run: grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
 
-    - uses: actions/cache@v2
+    - name: Restore Zenodo datastore from cache if possible
+      uses: actions/cache@v2
       id: cache-zenodo-datastore
       with:
         path: ~/pudl-work/data/
         key: zenodo-datastore-${{ hashFiles('datastore-dois.txt') }}
         restore-keys: |
-          zenodo-datastore-${{ hashFiles('datastore-dois.txt') }}
+          zenodo-datastore-
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -30,7 +31,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox
 
-    - name: Check for cached data
+    - name: Log pre-test Zenodo datastore contents
       run: |
         mkdir -p ~/pudl-work/data/
         find ~/pudl-work/data/
@@ -40,19 +41,19 @@ jobs:
         API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
       run: tox -ve ci -- --fast
 
-    - name: Inspect Datastore
+    - name: Log post-test Zenodo datastore contents
       run: find ~/pudl-work/data/
 
-    - name: Upload test coverage report
+    - name: Upload test coverage report to CodeCov
       uses: codecov/codecov-action@v1
 
-    - name: Archive test coverage report
+    - name: Archive test coverage report at GitHub
       uses: actions/upload-artifact@v2
       with:
         name: code-coverage-report
         path: coverage.xml
 
-    - name: Tell the Codemonkeys
+    - name: Inform the Codemonkeys
       uses: 8398a7/action-slack@v3
       with:
         status: custom
