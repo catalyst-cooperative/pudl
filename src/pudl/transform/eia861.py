@@ -1493,6 +1493,31 @@ def dynamic_pricing(tfr_dfs):
     return tfr_dfs
 
 
+def energy_efficiency(tfr_dfs):
+    """
+    Transform the EIA 861 Energy Efficiency table.
+
+    Args:
+        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
+            name. It will be mutated by this function.
+
+    Returns:
+        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
+
+    """
+    # idx_cols = [
+    #     'utility_id_eia',
+    #     'state',
+    #     'balancing_authority_code_eia',
+    #     'report_date',
+    # ]
+
+    raw_ee = tfr_dfs["energy_efficiency_eia861"].copy()
+
+    tfr_dfs["dynamic_pricing_eia861"] = raw_ee
+    return tfr_dfs
+
+
 def green_pricing(tfr_dfs):
     """
     Transform the EIA 861 Green Pricing table.
@@ -2075,17 +2100,19 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "sales_eia861": sales,
         "advanced_metering_infrastructure_eia861": advanced_metering_infrastructure,
         "demand_response_eia861": demand_response,
+        "demand_side_management_eia861": demand_side_management,
+        "distributed_generation_eia861": distributed_generation,
         "distribution_systems_eia861": distribution_systems,
         "dynamic_pricing_eia861": dynamic_pricing,
+        "energy_efficiency_eia861": energy_efficiency,
         "green_pricing_eia861": green_pricing,
         "mergers_eia861": mergers,
         "net_metering_eia861": net_metering,
         "non_net_metering_eia861": non_net_metering,
         "operational_data_eia861": operational_data,
         "reliability_eia861": reliability,
-        # "demand_side_management_eia861": demand_side_management,
-        "distributed_generation_eia861": distributed_generation,
         "utility_data_eia861": utility_data,
+
     }
 
     # Dictionary for transformed dataframes and pre-transformed dataframes.
