@@ -8,9 +8,9 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://www.repostatus.org/#active
    :alt: Project Status: Active – The project has reached a stable, usable state and is being actively developed.
 
-.. image:: https://img.shields.io/travis/catalyst-cooperative/pudl
-   :target: https://travis-ci.org/catalyst-cooperative/pudl
-   :alt: Travis CI Build Status
+.. image:: https://github.com/catalyst-cooperative/pudl/workflows/tox-pytest/badge.svg
+   :target: https://github.com/catalyst-cooperative/pudl/actions?query=workflow%3Atox-pytest
+   :alt: Tox-PyTest Status
 
 .. image:: https://img.shields.io/readthedocs/catalystcoop-pudl
    :target: https://catalystcoop-pudl.readthedocs.io/en/latest/
