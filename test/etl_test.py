@@ -147,8 +147,8 @@ class TestFerc1Datastore:
         """Check that the get fields table works as expected."""
         ds = pudl_ferc1datastore_fixture
 
-        expect_path = pathlib.Path(__file__).parent / "data" / "ferc" \
-            / "form1" / "f1_2018" / "get_fields.json"
+        expect_path = pathlib.Path(__file__).parent / \
+            "data/ferc1/f1_2018/get_fields.json"
 
         with expect_path.open() as f:
             expect = yaml.safe_load(f)

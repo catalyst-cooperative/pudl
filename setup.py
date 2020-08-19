@@ -17,7 +17,7 @@ install_requires = [
     "matplotlib",
     "networkx>=2.2",
     "numpy",
-    "pandas>=1.0",
+    "pandas>=1.1",
     "pyarrow<1.0.0",
     "pyyaml",
     "scikit-learn>=0.20",

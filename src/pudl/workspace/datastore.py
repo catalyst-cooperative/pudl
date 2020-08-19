@@ -13,6 +13,8 @@ from pathlib import Path
 
 import requests
 import yaml
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 # The Zenodo tokens recorded here should have read-only access to our archives.
 # Including them here is correct in order to allow public use of this tool, so
@@ -25,12 +27,12 @@ TOKEN = {
 
 DOI = {
     "sandbox": {
-        "eia860": "10.5072/zenodo.504556",
-        "eia861": "10.5072/zenodo.504558",
-        "eia923": "10.5072/zenodo.504560",
+        "eia860": "10.5072/zenodo.657345",
+        "eia861": "10.5072/zenodo.658437",
+        "eia923": "10.5072/zenodo.657350",
         "epaipm": "10.5072/zenodo.602953",
         "epacems": "10.5072/zenodo.638878",
-        "ferc1": "10.5072/zenodo.504562"
+        "ferc1": "10.5072/zenodo.656695"
     },
     "production": {}
 }
@@ -41,7 +43,8 @@ PUDL_YML = Path.home() / ".pudl.yml"
 class Datastore:
     """Handle connections and downloading of Zenodo Source archives."""
 
-    def __init__(self, pudl_in, loglevel="WARNING", verbose=False, sandbox=False):
+    def __init__(self, pudl_in, loglevel="WARNING", verbose=False,
+                 sandbox=False, timeout=7):
         """
         Datastore manages file retrieval for PUDL datasets.
 
@@ -51,6 +54,7 @@ class Datastore:
             verbose (bool): If true, logs printed to stdout
             sandbox (bool): If true, use the sandbox server instead of
                 production
+            timeout (float): Network timeout for http requests.
         """
         self.pudl_in = pudl_in
         logger = logging.Logger(__name__)
@@ -73,6 +77,16 @@ class Datastore:
             self._dois = DOI["production"]
             self.token = TOKEN["production"]
             self.api_root = "https://zenodo.org/api"
+
+        # HTTP Requests
+        self.timeout = timeout
+        retries = Retry(backoff_factor=2, total=3,
+                        status_forcelist=[429, 500, 502, 503, 504])
+        adapter = HTTPAdapter(max_retries=retries)
+
+        self.http = requests.Session()
+        self.http.mount("http://", adapter)
+        self.http.mount("https://", adapter)
 
     # Location conversion & helpers
 
@@ -118,7 +132,7 @@ class Datastore:
 
     def local_path(self, dataset, filename=None):
         """
-        Produce the local path for a given dataset.
+        Produce the local absolute path for a given dataset.
 
         Args:
             dataset: the name of the dataset
@@ -171,8 +185,8 @@ class Datastore:
             Zenodo, or raises an error
         """
         dpkg_url = self.doi_to_url(doi)
-        response = requests.get(
-            dpkg_url, params={"access_token": self.token})
+        response = self.http.get(
+            dpkg_url, params={"access_token": self.token}, timeout=self.timeout)
 
         if response.status_code > 299:
             msg = "Failed to retrieve %s" % dpkg_url
@@ -182,9 +196,10 @@ class Datastore:
         jsr = response.json()
         files = {x["filename"]: x for x in jsr["files"]}
 
-        response = requests.get(
+        response = self.http.get(
             files["datapackage.json"]["links"]["download"],
-            params={"access_token": self.token})
+            params={"access_token": self.token},
+            timeout=self.timeout)
 
         if response.status_code > 299:
             msg = "Failed to retrieve datapackage for %s: %s" % (
@@ -256,21 +271,23 @@ class Datastore:
 
         return True
 
-    def download_resource(self, resource, directory):
+    def download_resource(self, resource, directory, retries=3):
         """
         Download a frictionless datapackage resource.
 
         Args:
             resource: dict, a remotely located resource descriptior from a
-                frictionless datapackage
+                      frictionless datapackage.
             directory: the directory where the resource should be saved
 
         Returns:
             Path of the saved resource, or none on failure
 
         """
-        response = requests.get(
-            resource["path"], params={"access_token": self.token})
+        response = self.http.get(
+            resource["parts"]["remote_url"],
+            params={"access_token": self.token},
+            timeout=self.timeout)
 
         if response.status_code >= 299:
             msg = "Failed to download %s, %s" % (resource["path"], response.text)
@@ -284,7 +301,46 @@ class Datastore:
             f.write(response.content)
             self.logger.debug("Cached %s" % local_path)
 
+        if not self._validate_file(local_path, resource["hash"]):
+            self.logger.error(
+                "Invalid md5 after download of %s.\n"
+                "Response: %s\n"
+                "Resource: %s\n"
+                "Retries left: %d",
+                local_path, response, resource, retries)
+
+            if retries > 0:
+                self.download_resource(resource, directory,
+                                       retries=retries - 1)
+            else:
+                raise RuntimeError("Could not download valid %s",
+                                   resource["path"])
+
         return local_path
+
+    def _validate_file(self, path, hsh):
+        """
+        Validate a filename by md5 hash.
+
+        Args:
+            path: path to the resource on disk
+            hsh: string, expected md5hash
+        Returns:
+            Boolean: True if the resource md5sum matches the descriptor.
+        """
+        if not path.exists():
+            return False
+
+        with path.open("rb") as f:
+            m = hashlib.md5()  # nosec
+            m.update(f.read())
+
+        if m.hexdigest() == hsh:
+            self.logger.debug("%s appears valid" % path)
+            return True
+
+        self.logger.warning("%s md5 mismatch" % path)
+        return False
 
     def _validate_dataset(self, dataset):
         """
@@ -307,16 +363,11 @@ class Datastore:
                                   % r["path"])
                 continue
 
-            path = Path(r["path"])
-            with path.open("rb") as f:
-                m = hashlib.md5()  # nosec
-                m.update(f.read())
+            # We verify and warn on every resource. Even though a single
+            # failure could end the algorithm, we want to see which ones are
+            # invalid.
 
-            if m.hexdigest() == r["hash"]:
-                self.logger.debug("%s appears valid" % path)
-            else:
-                self.logger.warning("%s md5 mismatch" % path)
-                ok = False
+            ok = self._validate_file(Path(r["path"]), r["hash"]) and ok
 
         return ok
 
@@ -356,25 +407,27 @@ class Datastore:
 
         Returns:
             list of dicts, each representing a resource per the frictionless
-            datapackage spec. For a given r, Path(r["path"]) should open the
-            local file, r["parts"] should provide metadata identifiers.
-
+            datapackage spec, except that locas paths are modified to be absolute.
         """
         filters = dict(**kwargs)
 
         dpkg = self.datapackage_json(dataset)
-        self.logger.debug("Datapackage lists %d resources" %
-                          len(dpkg["resources"]))
+        self.logger.debug("%s datapackage lists %d resources" %
+                          (dataset, len(dpkg["resources"])))
 
         for r in dpkg["resources"]:
 
             if self.passes_filters(r, filters):
 
-                if self.is_remote(r):
+                if self.is_remote(r) or not self._validate_file(
+                        self.local_path(dataset, r["path"]), r["hash"]):
                     local = self.download_resource(r, self.local_path(dataset))
-                    r["path"] = str(local)
+
+                    # save with a relative path
+                    r["path"] = str(local.relative_to(self.local_path(dataset)))
                     self.save_datapackage_json(dataset, dpkg)
 
+                r["path"] = str(self.local_path(dataset, r["path"]))
                 yield r
 
 
