@@ -895,7 +895,7 @@ def corr_fig(compare_data, select_regions=None, suptitle="Parity Plot", s=2, top
         min_max = df_temp.describe().loc[["min", "max"], [
             actual, pred]]
 
-        slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(
+        slope, intercept, r_value, _, std_err = scipy.stats.linregress(
             df_temp[actual], df_temp[pred])
 
         min_lim, max_lim = 0, min_max.max().max()
@@ -916,7 +916,7 @@ def corr_fig(compare_data, select_regions=None, suptitle="Parity Plot", s=2, top
     plt.show()
 
 
-def error_fig(df_compare, index_col="region", time_col="utc_datetime"):
+def error_fig(df_compare, select_regions=None, index_col="region", time_col="utc_datetime"):
     """
     Create visualization to compare the relative and absolute error at various timescales.
 
@@ -925,13 +925,15 @@ def error_fig(df_compare, index_col="region", time_col="utc_datetime"):
     of the day, day of the week and the month of the year.
 
     Args:
-        df_compare (pandas.DataFrame): This is typically the output of the function
-            `compare_datasets`. It has columns named 'alloc', 'actual' and
-            'region'.
+        df_compare (pandas.DataFrame): This is typically the output of the
+            function `compare_datasets`. It has columns named 'alloc', 'actual'
+            and 'region'.
+        select_regions (list): This is the subset of the regions from the
+            `index_col` whose error metrics need to be calculated. if
+            select_regions is None, the calculation is done for the entire US
+            mainland.
         index_col (str): The name of the index column (usually 'region')
         time_col (str): The name of the time column (usually 'utc_datetime')
-        error_metric (str): Currently has two options: 'mse' for Mean Squared
-            Error, and 'mape%' for Mean Absolute Percentage Error
 
     Returns:
         None: Displays the image
@@ -939,6 +941,9 @@ def error_fig(df_compare, index_col="region", time_col="utc_datetime"):
     """
     def rmse(x):
         return np.sqrt(np.mean(x))
+
+    if select_regions is not None:
+        df_compare = df_compare[df_compare[index_col].isin(select_regions)]
 
     df_compare["Root Mean Squared Error (MWh)"] = (
         df_compare["measured"] - df_compare["predicted"]) ** 2
