@@ -916,13 +916,13 @@ def corr_fig(compare_data, select_regions=None, suptitle="Parity Plot", s=2, top
     plt.show()
 
 
-def error_na_fig(df_compare, index_col="region", time_col="utc_datetime", error_metric="mse"):
+def error_fig(df_compare, index_col="region", time_col="utc_datetime"):
     """
-    Create visualization to compare the error at various timescales and check NaN values.
+    Create visualization to compare the relative and absolute error at various timescales.
 
-    Uses the output of `compare_datasets` function as input to check mean
-    squared error or mean absolute percentage error for the hour of the day,
-    day of the week and the month of the year.
+    Uses the output of `compare_datasets` function as input to check Root Mean
+    Squared Error (RMSE) and Mean Absolute Percentage Error (MAPE) for the hour
+    of the day, day of the week and the month of the year.
 
     Args:
         df_compare (pandas.DataFrame): This is typically the output of the function
@@ -937,41 +937,39 @@ def error_na_fig(df_compare, index_col="region", time_col="utc_datetime", error_
         None: Displays the image
 
     """
-    if error_metric == "mse":
-        df_compare[error_metric] = (
-            df_compare["measured"] - df_compare["predicted"]) ** 2
+    def rmse(x):
+        return np.sqrt(np.mean(x))
 
-    elif error_metric == "mape%":
-        df_compare[error_metric] = np.abs(
-            (df_compare["measured"] - df_compare["predicted"]) / df_compare["measured"])
+    df_compare["Root Mean Squared Error (MWh)"] = (
+        df_compare["measured"] - df_compare["predicted"]) ** 2
 
-    df_compare["hour"] = df_compare["utc_datetime"].dt.hour
-    df_compare["day_of_week"] = df_compare["utc_datetime"].apply(
+    df_compare["Mean Absolute Percentage Error (%)"] = np.abs(
+        (df_compare["measured"] - df_compare["predicted"]) / df_compare["measured"])
+
+    df_compare["Hour of Day"] = df_compare[time_col].dt.hour
+    df_compare["Day of Week"] = df_compare[time_col].apply(
         lambda x: x.weekday())
-    df_compare["month"] = df_compare["utc_datetime"].dt.month
+    df_compare["Month"] = df_compare["utc_datetime"].dt.month - 1
     df_compare["na_predicted"] = df_compare["predicted"].isna().astype(int)
     df_compare["na_measured"] = df_compare["measured"].isna().astype(int)
 
     fig, ax = plt.subplots(3, 2, figsize=(15, 10))
 
-    for i, col in enumerate(["hour", "day_of_week", "month"]):
-        sns.barplot(x=col, y=error_metric, data=df_compare, ax=ax[i, 0], color="blue",
+    for i, col in enumerate(["Hour of Day", "Day of Week", "Month"]):
+        sns.barplot(x=col, y="Root Mean Squared Error (MWh)", data=df_compare, ax=ax[i, 0], color="blue",
+                    estimator=rmse, ci=None)
+
+    for i, col in enumerate(["Hour of Day", "Day of Week", "Month"]):
+        sns.barplot(x=col, y="Mean Absolute Percentage Error (%)", data=df_compare, ax=ax[i, 1], color="blue",
                     estimator=np.mean, ci=None)
 
-    df_na = (df_compare.set_index([index_col, time_col, "hour",
-                                   "day_of_week", "month"])[["na_predicted", "na_measured"]]
-             .stack()
-             .reset_index()
-             .rename(columns={0: "NA Count"}))
-
-    for i, col in enumerate(["hour", "day_of_week", "month"]):
-        sns.lineplot(x=col, y="NA Count", data=df_na, hue="demand_type", ci=None,
-                     estimator=np.sum, ax=ax[i, 1])
-
     for i in [0, 1]:
-        ax[1, i].set_xticks([0, 1, 2, 3, 4, 5, 6])
-        ax[1, i].set_xticklabels(
-            ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])
+
+        ax[1, i].set_xticklabels([calendar.day_abbr[day]
+                                  for day in list(range(7))])
+
+        ax[2, i].set_xticklabels([calendar.month_abbr[month + 1]
+                                  for month in list(range(12))])
 
     plt.show()
 
