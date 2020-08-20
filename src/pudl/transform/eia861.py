@@ -795,6 +795,17 @@ def _pct_to_mw(df, pct_col):
     mw_value = df['total_capacity_mw'] * df[pct_col] / 100
     return mw_value
 
+
+def _make_yn_bool(df_object):
+    """Turn Y/N reporting into True or False boolean statements for df or series."""
+    return df_object.replace({"N": False, "Y": True})
+
+
+def _thousand_to_one(df_object):
+    """Turn reporting in thousands of dollars to regular dollars for df or series."""
+    return df_object * 1000
+
+
 ###############################################################################
 # EIA Form 861 Table Transform Functions
 ###############################################################################
@@ -1260,6 +1271,129 @@ def demand_side_management(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    idx_cols = [
+        'utility_id_eia',
+        'state',
+        'nerc_region',
+        'report_date',
+        # 'entity_type' # ?
+    ]
+
+    sales_cols = [
+        'sales_for_resale_mwh',
+        'sales_to_ultimate_consumers_mwh'
+    ]
+
+    bool_cols = [
+        'energy_savings_estimates_independently_verified',
+        'energy_savings_independently_verified',
+        'major_program_changes',
+        'price_responsive_programs',
+        'short_form',
+        'time_responsive_programs',
+    ]
+
+    cost_cols = [
+        'annual_indirect_program_cost',
+        'annual_total_cost',
+        'energy_efficiency_annual_cost',
+        'load_management_annual_cost',
+    ]
+
+    raw_dsm = tfr_dfs['demand_side_management_eia861'].copy()
+
+    ###########################################################################
+    # Transform Data Round 1 (must be done to avoid issues with nerc_region col in _tidy_class_dfs())
+    # * Clean NERC region col
+    # * Drop data_status and demand_side_management (all F) cols
+    ###########################################################################
+
+    transformed_dsm1 = (
+        _clean_nerc(raw_dsm, idx_cols)
+        .drop(['demand_side_management', 'data_status'], axis=1)
+        .query("utility_id_eia not in [88888]")
+    )
+
+    # Separate dsm data into sales vs. other table (the latter of which can be tidied)
+    dsm_sales = transformed_dsm1[idx_cols + sales_cols].copy()
+    dsm_ee_dr = transformed_dsm1.drop(sales_cols, axis=1)
+
+    ###########################################################################
+    # Tidy Data:
+    ###########################################################################
+
+    tidy_dsm, dsm_idx_cols = (
+        pudl.transform.eia861._tidy_class_dfs(
+            dsm_ee_dr,
+            df_name='Demand Side Management',
+            idx_cols=idx_cols,
+            class_list=pc.CUSTOMER_CLASSES,
+            class_type='customer_class',
+            keep_totals=True
+        )
+    )
+
+    ###########################################################################
+    # Transform Data Round 2
+    # * Make booleans (Y=True, N=False)
+    # * Turn 1000s of dollars back into dollars
+    ###########################################################################
+
+    # Split tidy dsm data into transformable chunks
+    tidy_dsm_bool = (
+        tidy_dsm[dsm_idx_cols + bool_cols].copy().set_index(dsm_idx_cols)
+    )
+    tidy_dsm_cost = (
+        tidy_dsm[dsm_idx_cols + cost_cols].copy().set_index(dsm_idx_cols)
+    )
+    tidy_dsm_ee_dr = tidy_dsm.drop(bool_cols, axis=1).drop(cost_cols, axis=1)
+
+    # Calculate transformations for each chunk
+    transformed_dsm2_bool = (
+        _make_yn_bool(tidy_dsm_bool)
+        .reset_index()
+        .assign(short_form=lambda x: x.short_form.fillna(False))
+    )
+    transformed_dsm2_cost = _thousand_to_one(tidy_dsm_cost).reset_index()
+
+    # Merge transformed chunks back together
+    transformed_dsm2 = (
+        pd.merge(transformed_dsm2_bool, transformed_dsm2_cost,
+                 on=dsm_idx_cols, how='outer')
+    )
+    transformed_dsm2 = (
+        pd.merge(transformed_dsm2, tidy_dsm_ee_dr,
+                 on=dsm_idx_cols, how='outer')
+    )
+
+    # Split into final tables
+    ee_cols = [col for col in transformed_dsm2 if 'energy_efficiency' in col]
+    dr_cols = [col for col in transformed_dsm2 if 'load_management' in col]
+    program_cols = ['price_responsiveness_customers',
+                    'time_responsiveness_customers']
+    total_cost_cols = ['annual_indirect_program_cost', 'annual_total_cost']
+
+    dsm_program_customers = (
+        transformed_dsm2[dsm_idx_cols + program_cols].copy())
+    dsm_ee_dr = (
+        transformed_dsm2[dsm_idx_cols + ee_cols + dr_cols + total_cost_cols].copy())
+    dsm_misc = (
+        transformed_dsm2.drop(
+            ee_cols
+            + dr_cols
+            + program_cols
+            + total_cost_cols
+            + ['customer_class'], axis=1)
+        .drop_duplicates()
+    )
+
+    del tfr_dfs['demand_side_management_eia861']
+
+    tfr_dfs['demand_side_management_sales_eia861'] = dsm_sales
+    tfr_dfs['demand_side_management_program_customers_eia861'] = dsm_program_customers
+    tfr_dfs['demand_side_management_ee_dr_eia861'] = dsm_ee_dr
+    tfr_dfs['demand_side_management_misc_eia861'] = dsm_misc
+
     return tfr_dfs
 
 
@@ -1698,7 +1832,7 @@ def net_metering(tfr_dfs):
     # Pre-tidy clean specific to net_metering table
     raw_nm = (
         tfr_dfs["net_metering_eia861"].copy()
-        .query("utility_id_eia not in '99999'")
+        .query("utility_id_eia not in [99999]")
     )
 
     # Separate customer class data from misc data (in this case just one col: current flow)
@@ -2022,7 +2156,7 @@ def utility_data(tfr_dfs):
     )
 
     ###########################################################################
-    # Transform Data Round 1:
+    # Transform Data Round 1 (must be done to avoid issues with nerc_region col in _tidy_class_dfs())
     # * Clean NERC region col
     ###########################################################################
 
@@ -2065,7 +2199,6 @@ def utility_data(tfr_dfs):
     #   * Y = "Yes" => True
     #   * N = "No" => False
     #   * Blank => False
-
     ###########################################################################
 
     # Transform NERC region table
