@@ -1223,6 +1223,10 @@ def demand_response(tfr_dfs):
     #     raw_dr['balancing_authority_code_eia'].fillna('UNK')
     # )
 
+    # Split data into tidy-able and not
+    raw_dr_water_heater = raw_dr[idx_cols + ['water_heater']].copy()
+    raw_dr = raw_dr.drop(['water_heater'], axis=1)
+
     ###########################################################################
     # Tidy Data:
     ###########################################################################
@@ -1258,6 +1262,8 @@ def demand_response(tfr_dfs):
     )
 
     tfr_dfs["demand_response_eia861"] = transformed_dr
+    tfr_dfs["demand_response_water_heater_eia861"] = raw_dr_water_heater
+
     return tfr_dfs
 
 
