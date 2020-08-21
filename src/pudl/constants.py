@@ -2876,7 +2876,7 @@ column_dtypes = {
         'other': float,  # Added by AES for OD Revenue table
         'other_combustion_tech': pd.BooleanDtype(),
         'other_costs': float,  # Added by AES for DR table
-        'other_costso_incremental_cost': float,  # Added by AES for EE table
+        'other_costs_incremental_cost': float,  # Added by AES for EE table
         'other_modifications_date': 'datetime64[ns]',
         'other_planned_modifications': pd.BooleanDtype(),
         'outages_recorded_automatically': pd.BooleanDtype(),  # Added by AES for R table

@@ -1547,7 +1547,7 @@ def energy_efficiency(tfr_dfs):
     logger.info("Tidying the EIA 861 Energy Efficiency table.")
 
     # wide-to-tall by customer class (must be done before wide-to-tall by fuel class)
-    tidy_ee, ee_idx_cols = pudl.transform.eia861._tidy_class_dfs(
+    tidy_ee, _ = pudl.transform.eia861._tidy_class_dfs(
         raw_ee,
         df_name='Energy Efficiency',
         idx_cols=idx_cols,
