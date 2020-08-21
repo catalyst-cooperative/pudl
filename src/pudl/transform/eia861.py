@@ -918,7 +918,8 @@ def balancing_authority_assn(tfr_dfs):
         "service_territory_eia861",
     ]
     # The dataframes from which to compile BA-Util-State associations
-    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
+    data_dfs = [tfr_dfs[table]
+                for table in tfr_dfs if table not in non_data_dfs]
 
     logger.info("Building an EIA 861 BA-Util-State association table.")
 
@@ -987,7 +988,8 @@ def utility_assn(tfr_dfs):
         "service_territory_eia861",
     ]
     # The dataframes from which to compile BA-Util-State associations
-    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
+    data_dfs = [tfr_dfs[table]
+                for table in tfr_dfs if table not in non_data_dfs]
 
     logger.info("Building an EIA 861 Util-State-Date association table.")
     tfr_dfs["utility_assn_eia861"] = _harvest_associations(
@@ -1514,6 +1516,71 @@ def dynamic_pricing(tfr_dfs):
     return tfr_dfs
 
 
+def energy_efficiency(tfr_dfs):
+    """
+    Transform the EIA 861 Energy Efficiency table.
+
+    Args:
+        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
+            name. It will be mutated by this function.
+
+    Returns:
+        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
+
+    """
+    idx_cols = [
+        'utility_id_eia',
+        'state',
+        'balancing_authority_code_eia',
+        'report_date',
+    ]
+
+    raw_ee = tfr_dfs["energy_efficiency_eia861"].copy()
+
+    # No duplicates to speak of but take measures to check just in case
+    _check_for_dupes(raw_ee, 'Energy Efficiency', idx_cols)
+
+    ###########################################################################
+    # Tidy Data:
+    ###########################################################################
+
+    logger.info("Tidying the EIA 861 Energy Efficiency table.")
+
+    # wide-to-tall by customer class (must be done before wide-to-tall by fuel class)
+    tidy_ee, _ = pudl.transform.eia861._tidy_class_dfs(
+        raw_ee,
+        df_name='Energy Efficiency',
+        idx_cols=idx_cols,
+        class_list=pc.CUSTOMER_CLASSES,
+        class_type='customer_class',
+        keep_totals=True
+    )
+
+    ###########################################################################
+    # Transform Values:
+    # * Turn 1000s of dollars back into dollars
+    # * Get rid of website column
+    ###########################################################################
+
+    logger.info("Transforming the EIA 861 Energy Efficiency table.")
+
+    transformed_ee = (
+        tidy_ee.assign(
+            customer_incentives_incremental_cost=lambda x: (
+                x.customer_incentives_incremental_cost * 1000),
+            customer_incentives_incremental_life_cycle_cost=lambda x: (
+                x.customer_incentives_incremental_life_cycle_cost * 1000),
+            customer_other_costs_incremental_life_cycle_cost=lambda x: (
+                x.customer_other_costs_incremental_life_cycle_cost * 1000),
+            other_costs_incremental_cost=lambda x: (
+                x.other_costs_incremental_cost * 1000),
+        ).drop(['website'], axis=1)
+    )
+
+    tfr_dfs["energy_efficiency_eia861"] = transformed_ee
+    return tfr_dfs
+
+
 def green_pricing(tfr_dfs):
     """
     Transform the EIA 861 Green Pricing table.
@@ -1649,7 +1716,7 @@ def net_metering(tfr_dfs):
     ###########################################################################
 
     logger.info("Tidying the EIA 861 Net Metering table.")
-    # Normalize by customer class (must be done before normalizing by fuel class)
+    # wide-to-tall by customer class (must be done before wide-to-tall by fuel class)
     tidy_nm_customer_class, idx_cols = _tidy_class_dfs(
         raw_nm_customer_fuel_class,
         df_name='Net Metering',
@@ -1658,7 +1725,7 @@ def net_metering(tfr_dfs):
         class_type='customer_class',
     )
 
-    # Normalize by fuel class
+    # wide-to-tall by fuel class
     tidy_nm_customer_fuel_class, idx_cols = _tidy_class_dfs(
         tidy_nm_customer_class,
         df_name='Net Metering',
@@ -1739,7 +1806,7 @@ def non_net_metering(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Non Net Metering table.")
 
-    # Normalize by customer class (must be done before normalizing by fuel class)
+    # wide-to-tall by customer class (must be done before wide-to-tall by fuel class)
     tidy_nnm_customer_class, idx_cols = _tidy_class_dfs(
         raw_nnm_customer_fuel_class,
         df_name='Non Net Metering',
@@ -1749,7 +1816,7 @@ def non_net_metering(tfr_dfs):
         keep_totals=True
     )
 
-    # Normalize by fuel class
+    # wide-to-tall by fuel class
     tidy_nnm_customer_fuel_class, idx_cols = _tidy_class_dfs(
         tidy_nnm_customer_class,
         df_name='Non Net Metering',
@@ -1890,7 +1957,7 @@ def reliability(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Reliability table.")
 
-    # Normalize by standards
+    # wide-to-tall by standards
     tidy_r, idx_cols = _tidy_class_dfs(
         df=raw_r,
         df_name='Reliability',
@@ -2096,17 +2163,19 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "sales_eia861": sales,
         "advanced_metering_infrastructure_eia861": advanced_metering_infrastructure,
         "demand_response_eia861": demand_response,
+        "demand_side_management_eia861": demand_side_management,
+        "distributed_generation_eia861": distributed_generation,
         "distribution_systems_eia861": distribution_systems,
         "dynamic_pricing_eia861": dynamic_pricing,
+        "energy_efficiency_eia861": energy_efficiency,
         "green_pricing_eia861": green_pricing,
         "mergers_eia861": mergers,
         "net_metering_eia861": net_metering,
         "non_net_metering_eia861": non_net_metering,
         "operational_data_eia861": operational_data,
         "reliability_eia861": reliability,
-        # "demand_side_management_eia861": demand_side_management,
-        "distributed_generation_eia861": distributed_generation,
         "utility_data_eia861": utility_data,
+
     }
 
     # Dictionary for transformed dataframes and pre-transformed dataframes.
