@@ -265,6 +265,15 @@ def pudl_settings_fixture(request, tmpdir_factory,  # noqa: C901
     pudl_in = request.config.getoption("--pudl_in")
     pudl_out = request.config.getoption("--pudl_out")
 
+    # Having this in a constant place will allow us to cache inputs which should
+    # speed up the tests considerably
+    try:
+        if os.environ["GITHUB_ACTIONS"]:
+            pudl_in = pathlib.Path(os.environ["HOME"]) / "pudl-work"
+            pudl_out = pathlib.Path(os.environ["HOME"]) / "pudl-work"
+    except KeyError:
+        pass
+
     # By default, we use the command line option. If that is left False, then
     # we use a temporary directory. If the command_line option is AUTO, then
     # we use whatever the user has configured in their $HOME/.pudl.yml file.
