@@ -656,6 +656,61 @@ def allocate_and_aggregate(disagg_layer,
         return allocate_layer
 
 
+def sales_ratio_by_class_fips(pudl_out):
+    """
+    Estimate fraction of sales to each customer class by county.
+
+    For each combination of utility_id_eia, report_date, and state found in the EIA 861
+    sales table, the relative proportion of electricity sales going to each customer
+    class will be calculated. The resulting dataframe is merged with the Service
+    Territory table, associating these proprotions with counties (by FIPS code). For
+    counties that have more than one estimate in a year, from different utilities, the
+    mean of all estimates will be calculated, resulting in a unique estimate of the
+    relative proportions of electricity sales to each customer class, in each county,
+    in each year.
+
+    Args:
+        pudl_out (pudl.output.pudltabl.PudlTabl): A PUDL output object that will be
+            used to pull the EIA 861 Sales and Service Territory tables.
+
+    Returns:
+        pandas.DataFrame: DataFrame containing unique combinations of ``report_date``
+        and ``county_id_fips`` (but not as an index) as well as one column for each
+        customer class in the EIA 861 Sales table (residential, commercial, industrial,
+        transportation, and other). The sum of the values in each row should be 1.0,
+        and the values represent the relative proportions of electricity sales that
+        went to each customer class in each county that year.
+
+    """
+    sales_by_class = (
+        pudl_out.sales_eia861()
+        .astype({"customer_class": pd.StringDtype()})
+        .groupby(["utility_id_eia", "state", "report_date", "customer_class"], observed=True)
+        .agg({"sales_mwh": sum})
+        .unstack()
+    )
+    sales_by_class.columns = sales_by_class.columns.droplevel()
+    total_sales_mwh = sales_by_class.sum(axis="columns")
+    sales_by_class_fips = (
+        sales_by_class
+        .divide(total_sales_mwh, axis="index")
+        .reset_index()
+        .merge(
+            pudl_out.service_territory_eia861()[[
+                "utility_id_eia",
+                "state",
+                "report_date",
+                "county_id_fips"
+            ]]
+        )
+        .drop(["utility_id_eia", "state"], axis="columns")
+        .groupby(["report_date", "county_id_fips"])
+        .mean()
+        .reset_index()
+    )
+    return sales_by_class_fips
+
+
 ################################################################################
 # Historical Planning / Balancing Area Geometry Compilation
 ################################################################################
