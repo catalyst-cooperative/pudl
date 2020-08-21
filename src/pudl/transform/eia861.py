@@ -1138,7 +1138,7 @@ def sales(tfr_dfs):
     logger.info("Performing value transformations on EIA 861 Sales table.")
     transformed_sales = (
         deduped_sales.assign(
-            sales_revenue=lambda x: x.sales_revenue * 1000.0,
+            sales_revenue=lambda x: _thousand_to_one(x.sales_revenue),
             data_observed=lambda x: x.data_observed.replace({
                 "O": True,
                 "I": False,
@@ -1250,8 +1250,10 @@ def demand_response(tfr_dfs):
         "Performing value transformations on EIA 861 Demand Response table.")
     transformed_dr = (
         deduped_dr.assign(
-            customer_incentives_cost=lambda x: x.customer_incentives_cost * 1000.0,
-            other_costs=lambda x: x.other_costs * 1000.0
+            customer_incentives_cost=lambda x: (
+                _thousand_to_one(x.customer_incentives_cost)),
+            other_costs=lambda x: (
+                _thousand_to_one(x.other_costs))
         )
     )
 
@@ -1341,12 +1343,16 @@ def demand_side_management(tfr_dfs):
 
     # Split tidy dsm data into transformable chunks
     tidy_dsm_bool = (
-        tidy_dsm[dsm_idx_cols + bool_cols].copy().set_index(dsm_idx_cols)
+        tidy_dsm[dsm_idx_cols + bool_cols].copy()
+        .set_index(dsm_idx_cols)
     )
     tidy_dsm_cost = (
-        tidy_dsm[dsm_idx_cols + cost_cols].copy().set_index(dsm_idx_cols)
+        tidy_dsm[dsm_idx_cols + cost_cols].copy()
+        .set_index(dsm_idx_cols)
     )
-    tidy_dsm_ee_dr = tidy_dsm.drop(bool_cols, axis=1).drop(cost_cols, axis=1)
+    tidy_dsm_ee_dr = (
+        tidy_dsm.drop(bool_cols + cost_cols, axis=1)
+    )
 
     # Calculate transformations for each chunk
     transformed_dsm2_bool = (
@@ -1374,9 +1380,15 @@ def demand_side_management(tfr_dfs):
     total_cost_cols = ['annual_indirect_program_cost', 'annual_total_cost']
 
     dsm_program_customers = (
-        transformed_dsm2[dsm_idx_cols + program_cols].copy())
+        transformed_dsm2[dsm_idx_cols + program_cols].copy()
+    )
     dsm_ee_dr = (
-        transformed_dsm2[dsm_idx_cols + ee_cols + dr_cols + total_cost_cols].copy())
+        transformed_dsm2[
+            dsm_idx_cols
+            + ee_cols
+            + dr_cols
+            + total_cost_cols].copy()
+    )
     dsm_misc = (
         transformed_dsm2.drop(
             ee_cols
@@ -1701,13 +1713,13 @@ def energy_efficiency(tfr_dfs):
     transformed_ee = (
         tidy_ee.assign(
             customer_incentives_incremental_cost=lambda x: (
-                x.customer_incentives_incremental_cost * 1000),
+                _thousand_to_one(x.customer_incentives_incremental_cost)),
             customer_incentives_incremental_life_cycle_cost=lambda x: (
-                x.customer_incentives_incremental_life_cycle_cost * 1000),
+                _thousand_to_one(x.customer_incentives_incremental_life_cycle_cost)),
             customer_other_costs_incremental_life_cycle_cost=lambda x: (
-                x.customer_other_costs_incremental_life_cycle_cost * 1000),
+                _thousand_to_one(x.customer_other_costs_incremental_life_cycle_cost)),
             other_costs_incremental_cost=lambda x: (
-                x.other_costs_incremental_cost * 1000),
+                _thousand_to_one(x.other_costs_incremental_cost)),
         ).drop(['website'], axis=1)
     )
 
@@ -1758,8 +1770,10 @@ def green_pricing(tfr_dfs):
         "Performing value transformations on EIA 861 Green Pricing table.")
     transformed_gp = (
         tidy_gp.assign(
-            green_pricing_revenue=lambda x: x.green_pricing_revenue * 1000.0,
-            rec_revenue=lambda x: x.rec_revenue * 1000.0
+            green_pricing_revenue=lambda x: (
+                _thousand_to_one(x.green_pricing_revenue)),
+            rec_revenue=lambda x: (
+                _thousand_to_one(x.rec_revenue))
         )
     )
 
@@ -2052,7 +2066,9 @@ def operational_data(tfr_dfs):
 
     # Transform revenue 1000s into dollars
     transformed_od_rev = (
-        tidy_od_rev.assign(revenue=lambda x: x.revenue * 1000)
+        tidy_od_rev.assign(revenue=lambda x: (
+            _thousand_to_one(x.revenue))
+        )
     )
 
     # Drop original operational_data_eia861 table from tfr_dfs
@@ -2106,18 +2122,18 @@ def reliability(tfr_dfs):
     # * Re-code outages_recorded_automatically and inactive_accounts_included to boolean:
     #   * Y/y="Yes" => True
     #   * N/n="No" => False
+    # * Expand momentary_interruption_definition:
+    #   * 'L' => 'Less than one minute'
+    #   * 'F' => 'Less than or equal to five minutes'
+    #   * 'O' => 'Other'
     ###########################################################################
 
     transformed_r = (
         tidy_r.assign(
             outages_recorded_automatically=lambda x: (
-                x.outages_recorded_automatically.str.upper().replace({
-                    'Y': True,
-                    'N': False})),
+                _make_yn_bool(x.outages_recorded_automatically.str.upper())),
             inactive_accounts_included=lambda x: (
-                x.inactive_accounts_included.replace({
-                    'Y': True,
-                    'N': False})),
+                _make_yn_bool(x.inactive_accounts_included)),
             momentary_interruption_definition=lambda x: (
                 x.momentary_interruption_definition.map(
                     pc.MOMENTARY_INTERRUPTION_DEF))
@@ -2199,15 +2215,14 @@ def utility_data(tfr_dfs):
     #   * Y = "Yes" => True
     #   * N = "No" => False
     #   * Blank => False
+    # * Make nerc_regions uppercase
     ###########################################################################
 
     # Transform NERC region table
     transformed_ud_nerc = (
         tidy_ud_nerc.assign(
             nerc_region_operation=lambda x: (
-                x.nerc_region_operation
-                .fillna(False)
-                .replace({"N": False, "Y": True})),
+                _make_yn_bool(x.nerc_region_operation.fillna(False))),
             nerc_regions_of_operation=lambda x: (
                 x.nerc_regions_of_operation.str.upper()
             )
