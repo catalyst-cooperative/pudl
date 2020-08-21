@@ -1278,7 +1278,6 @@ def demand_side_management(tfr_dfs):
         'state',
         'nerc_region',
         'report_date',
-        # 'entity_type' # ?
     ]
 
     sales_cols = [
