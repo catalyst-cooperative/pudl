@@ -1,8 +1,8 @@
 """Routines used for extracting the raw FERC 714 data."""
 import logging
-import pathlib
 import warnings
 import zipfile
+from pathlib import Path
 
 import pandas as pd
 
@@ -46,14 +46,16 @@ TABLE_ENCODING = {
 
 def get_ferc714(pudl_settings):
     """If necessary, download a fresh copy of the FERC 714 data."""
-    ferc714_url = "https://www.ferc.gov/sites/default/files/2020-06/form714-database-June-2020.zip"
-    ferc714_dir = pathlib.Path(pudl_settings["data_dir"]) / "local/ferc714/"
-    ferc714_dir.mkdir(parents=True, exist_ok=True)
-    ferc714_zipfile = ferc714_dir / "ferc714.zip"
-    if not ferc714_zipfile.is_file():
-        logger.warning("Downloading a fresh copy of the FERC 714 data (~50MB).")
-        pudl.helpers.download_zip_url(ferc714_url, ferc714_zipfile)
-    return ferc714_zipfile
+
+    sandbox = pudl_settings.get("sandbox", False)
+    ds = pudl.workspace.datastore.Datastore(
+        Path(pudl_settings["pudl_in"]),
+        sandbox=sandbox)
+    resources = ds.get_resources("ferc714")
+
+    for r in resources:
+        if r["name"] == "form714.zip":
+            return Path(r["path"])
 
 
 def _get_zpath(ferc714_table, pudl_settings):

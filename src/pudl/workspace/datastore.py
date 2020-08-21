@@ -32,7 +32,8 @@ DOI = {
         "eia923": "10.5072/zenodo.657350",
         "epaipm": "10.5072/zenodo.602953",
         "epacems": "10.5072/zenodo.638878",
-        "ferc1": "10.5072/zenodo.656695"
+        "ferc1": "10.5072/zenodo.656695",
+        "ferc714": "10.5072/zenodo.661865"
     },
     "production": {}
 }
