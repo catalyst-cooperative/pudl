@@ -125,9 +125,9 @@ def get_hifld_planning_areas_gdf(pudl_settings):
 ################################################################################
 def edit_id_set(row, new_id, id_set):
     """
-    Editing ID sets by adding the new geometry ID if required.
+    Editing "id" sets by adding the new geometry id if required.
 
-    This function edits original ID sets by adding the new geometry ID if
+    This function edits original "id_set" by adding the new geometry "id" if
     required. This function is called by another function
     `complete_disjoint_geoms`
     """
@@ -168,7 +168,7 @@ def extend_gdf(gdf_disjoint, id_col):
     """
     Add duplicates of intersecting geometries to be able to add the constants.
 
-    This function adds rows with duplicate geometries and creates the new `ID`
+    This function adds rows with duplicate geometries and creates the new `id`
     column for each of the new rows. This function is called by another function
     `complete_disjoint_geoms`.
     """
@@ -194,7 +194,7 @@ def complete_disjoint_geoms(gdf, attributes):
     other, this function iterates through the geometries sequentially and
     fragments them into distinct individual pieces, and accordingly allocates
     the `uniform` and `constant` attributes. The intersecting geometries repeat
-    the number of times particular `ID` encircles it.
+    the number of times particular `id` encircles it.
 
     Args:
         gdf (GeoDataframe): GeoDataFrame consisting of the intersecting
@@ -204,23 +204,23 @@ def complete_disjoint_geoms(gdf, attributes):
         attributes with keys represented by column name, and the values
         representing the type of attribute. One column from the
         attribute dictionary must belong in the GeoDataFrame and should be of
-        type `ID` to allow for the intersection to happen. The other two
+        type `id` to allow for the intersection to happen. The other two
         possible types are `uniform` and `constant`. The `uniform` type
         attribute disaggregates the data across geometries and the `constant`
         type is propagated as the same value.
 
     Returns:
         geopandas.GeoDataFrame: GeoDataFrame with all attributes as gdf
-        and one extra attribute with name as the `ID` attribute appended by
+        and one extra attribute with name as the `id` attribute appended by
         "_set" substring. The geometries will not include zero-area geometry
         components.
 
-        attributes: Adds the `ID`+"_set" as a `constant` attribute and returns the
+        attributes: Adds the `id`+"_set" as a `constant` attribute and returns the
         attributes dictionary
     """
     # ID is the index which will help to identify duplicate geometries
     gdf_ids = [k for k, v in attributes.items() if (
-        (k in gdf.columns) and (v == "ID"))][0]
+        (k in gdf.columns) and (v == "id"))][0]
     gdf_constants = [k for k, v in attributes.items() if (
         (k in gdf.columns) and (v == "constant"))]
     gdf_uniforms = [k for k, v in attributes.items() if (
@@ -228,7 +228,7 @@ def complete_disjoint_geoms(gdf, attributes):
 
     # Check if `ID` column has all unique elements:
     if gdf[gdf_ids].nunique() != len(gdf):
-        raise Exception("All ID column elements should be unique")
+        raise Exception("All id column elements should be unique")
 
     # Iterating through each of the geometries
     for row in tqdm((gdf[[gdf_ids, "geometry"]]
@@ -350,8 +350,8 @@ def layer_intersection(layer1, layer2, attributes):
         attributes (dict): a dictionary keeping a track of all the types of
             attributes with keys represented by column names from layer1 and
             layer2, and the values representing the type of attribute. Types
-            of attributes include ``constant``, ``uniform`` and ``ID``. If a
-            column name ``col`` of type ``ID`` exists, then one column name
+            of attributes include ``constant``, ``uniform`` and ``id``. If a
+            column name ``col`` of type ``id`` exists, then one column name
             ``col``+``_set`` of type "constant" will exist in the attributes
             dictionary.
 
@@ -392,9 +392,9 @@ def layer_intersection(layer1, layer2, attributes):
 
     # ID columns for scaling uniform values
     layer1_ids = [k for k, v in attributes.items() if (
-        (k in layer1.columns) and (v == "ID"))]
+        (k in layer1.columns) and (v == "id"))]
     layer2_ids = [k for k, v in attributes.items() if (
-        (k in layer2.columns) and (v == "ID"))]
+        (k in layer2.columns) and (v == "id"))]
 
     # Scaling uniform values in the intersecting layer
     # layer 1 multiple intersecting geometries will multiple count layer 2 uniforms
@@ -440,10 +440,10 @@ def flatten(layers, attributes):
 
     It is assumed that the layers are individual `geopandas.GeoDataFrame`` and have
     three types of columns, which signify the way data is propagated. These types are
-    ``ID``, ``constant``, ``uniform``. These types are stored in the dictionary
+    ``id``, ``constant``, ``uniform``. These types are stored in the dictionary
     ``attributes``. The dictionary has a mapping of all requisite columns in each of the
     layers as keys, and each of the above mentioned types as the values for those keys.
-    If an ``ID`` type column is present in a layer, it means that the layer consists of
+    If an ``id`` type column is present in a layer, it means that the layer consists of
     intersecting geometries. If this happens, it is passed through the
     ``complete_disjoint_geoms`` function to render it into completely non-overlapping
     geometries. The other attributes are such:
@@ -451,27 +451,27 @@ def flatten(layers, attributes):
     * ``constant``: The attribute is equal everywhere within the feature geometry
       (e.g. identifier, percent area).
 
-      # . When splitting a feature, the attribute value for the resulting
+      -  When splitting a feature, the attribute value for the resulting
          features is that of their parent: e.g. [1] -> [1], [1].
 
-      # . When joining features, the attribute value for the resulting feature
-         must be a function of its children: e.g. [1], [1] -> [1, 1] (list) or 1
-         (appropriate aggregation function, e.g. median or area-weighted mean).
+      - When joining features, the attribute value for the resulting feature
+        must be a function of its children: e.g. [1], [1] -> [1, 1] (list) or 1
+        (appropriate aggregation function, e.g. median or area-weighted mean).
 
     * ``uniform``: The attribute is uniformly distributed within the feature geometry
       (e.g. count, area).
 
-      # . When splitting a feature, the attribute value for the resulting
-         features is proportional to their area: e.g. [1] (100% area) -> [0.4]
-         (40% area), [0.6] (60% area).
+      - When splitting a feature, the attribute value for the resulting
+        features is proportional to their area: e.g. [1] (100% area) -> [0.4]
+        (40% area), [0.6] (60% area).
 
-      # . When joining features, the attribute value for the resulting feature
-         is the sum of its children: e.g. [0.4], [0.6] -> [1].
+      - When joining features, the attribute value for the resulting feature
+        is the sum of its children: e.g. [0.4], [0.6] -> [1].
 
     Args:
         layers (list of geopandas.GeoDataFrame): Polygon feature layers.
         attributes (dict): Attribute names and types ({ name: type, ... }),
-            where type is either ``ID``, ``constant`` or ``uniform``.
+            where type is either ``id``, ``constant`` or ``uniform``.
 
     Returns:
         geopandas.GeoDataFrame: Polygon feature layer with all attributes named in
@@ -483,7 +483,7 @@ def flatten(layers, attributes):
         cols = layer.columns
         type_cols = [attributes.get(col) for col in cols]
 
-        if "ID" in type_cols:
+        if "id" in type_cols:
             # New column added and hence attributes dict updated in case of
             # intersecting geometries
             layer, attributes = complete_disjoint_geoms(layer, attributes)
@@ -503,64 +503,73 @@ def allocate_and_aggregate(disagg_layer,
                            alloc_exps=None,
                            geo_layer=None,
                            by="respondent_id_ferc714",
-                           allocatees="Average Hourly Demand (MW)",
-                           allocators="POPULATION",
+                           allocatees="demand_mwh",
+                           allocators="population",
                            aggregators=None):
     """
     Aggregate selected columns of the disaggregated layer based on arguments.
 
     It is assumed that the data, which needs to be disaggregated, is present as
-    ``constant`` attributes in the GeoDataFrame. The data is mapped by the ``by``
-    columns. So, first the data is disaggregated, according to the allocator columns.
-    Then, it is returned if aggregators list is empty. If it is not, then the data is
-    aggregated again to the aggregator level.
+    ``constant`` attributes in the GeoDataFrame. The data is mapped by the
+    ``by`` columns. So, first the data is disaggregated, according to the
+    allocator columns. Then, it is returned if aggregators list is empty. If it
+    is not, then the data is aggregated again to the aggregator level.
 
     Args:
-        disagg_layer (geopandas.GeoDataframe): Completely disaggregated GeoDataFrame
-        attributes (dict): a dictionary keeping a track of all the types of attributes
-            with keys represented by column names from layer1 and layer2, and the values
-            representing the type of attribute. Types of attributes include "constant",
-            "uniform" and "ID". If a column name ``col`` of type "ID" exists, then one
-            column name ``col`` + "_set" of type "constant" will exist in the attributes
+        disagg_layer (geopandas.GeoDataframe): GeoDataFrame with all required
+            attribute and geometry layers disaggregated into disjoint sections
+            with all attributes distributed to individual disjoint geometries
+            based on whether they are constant or uniform.
+        attributes (dict): a dictionary keeping a track of all the types of
+            attributes with keys represented by column names from all the
+            various layers which have been disaggregated into disagg_layer,
+            and the dictionary values representing the type of attribute. Types
+            of attributes include "constant", "uniform" and "id". If a column
+            name ``col`` of type "id" exists, then one column name
+            ``col`` + "_set" of type "constant" will exist in the attributes
             dictionary.
-        timeseries (pandas.DataFrame): A dataframe which has the columns present in the
-            variable ``by``, which acts as the index. Also, it has the ``allocatees``
-            columns, usually indexed as a string type of a ``datetime`` element or some
-            other aggregated version of a timeslice.
+        timeseries (pandas.DataFrame): A dataframe which has the columns present
+            in the variable ``by``, which acts as the index. Also, it has the
+            ``allocatees`` columns, usually indexed as a string type of a
+            ``datetime`` element or some other aggregated version of a
+            timeslice.
         alloc_exps (str or list): The exponent to which each column in the
-            ``allocators`` column is raised. If it is not assigned, all the exponents
-            are considered 1.
-        geo_layer (TYPE?): If ``geo_layer`` is ``None``, the function will calculate the
-            allocated and aggregated geo_layer by ``aggregators`` column. This is unique
-            for every reporting year and aggregators column. So, if there are multiple
-            iterations of this function, it is best to save the ``geo_layer``, and
-            assign it to the ``geo_layer`` argument in the function to reduce
-            time-consuming redundant computation. If the ``geo_layer`` argument is not
-            ``None``, the ``geo_layer`` is not returned as an output.
-        by (str or list): single column or list of columns according to which the
-            constants to be allocated are mentioned (e.g. "Average Hourly Demand (MW)" (constant) which
-            needs to be allocated is mapped by "id". So, "id" is the ``by`` column)
-        allocatees (str or list): single column or list of columns according to which
-            the constants to be allocated are mentioned (e.g. "Average Hourly Demand (MW)" (constant)
-            which needs to be allocated is mapped by "id". So, "Average Hourly Demand (MW)" is the
-            `allocatees` column)
+            ``allocators`` column is raised. If it is not assigned, all the
+            exponents are considered 1.
+        geo_layer (TYPE?): If ``geo_layer`` is ``None``, the function will
+            calculate the allocated and aggregated geo_layer by ``aggregators``
+            column. This is unique for every reporting year and aggregators
+            column. So, if there are multiple iterations of this function, it is
+            best to save the ``geo_layer``, and assign it to the ``geo_layer``
+            argument in the function to reduce time-consuming redundant
+            computation. If the ``geo_layer`` argument is not ``None``, the
+            ``geo_layer`` is not returned as an output.
+        by (str or list): single column or list of columns according to which
+            the constants to be allocated are mentioned (e.g. "demand_mwh"
+            (constant) which needs to be allocated is mapped by
+            "respondent_id_ferc714". So, that's the ``by`` column
+        allocatees (str or list): single column or list of columns according to
+            which the constants to be allocated are mentioned (e.g. "demand_mwh"
+            (constant) which needs to be allocated is mapped by "id". So,
+            "demand_mwh" is the `allocatees` column)
         allocators (str or list): columns by which attribute is weighted and
             allocated
         aggregators (str or list): if empty list, the disaggregated data is
-            returned. If aggregators is mentioned, for example REEDs geometries, the
-            data is aggregated at that level.
+            returned. If aggregators is mentioned, for example REEDs geometries,
+            the data is aggregated at that level.
 
 
     Returns:
-        geopandas.GeoDataFrame: If aggregators is None, the function will return a
-        disaggregated GeoDataFrame with all the various allocated demand columns. If
-        aggregators is not `None`, the data will be aggregated by the `aggregators`
-        column. The geometries span the individual elements of the aggregator columns.
+        geopandas.GeoDataFrame: If aggregators is None, the function will return
+            a disaggregated GeoDataFrame with all the various allocated demand
+            columns. If aggregators is not `None`, the data will be aggregated
+            by the `aggregators` column. The geometries span the individual
+            elements of the aggregator columns.
 
     """
     logger.info("Prep Allocation Data")
     id_cols = [k for k, v in attributes.items() if (
-        (k in disagg_layer.columns) and (v == "ID"))]
+        (k in disagg_layer.columns) and (v == "id"))]
 
     id_set_cols = [col + "_set" for col in id_cols]
     disagg_layer["_multi_counts"] = (disagg_layer[id_set_cols]
@@ -863,24 +872,24 @@ def compare_datasets(alloc_demand, actual_demand, demand_columns, select_regions
     alloc_demand.index.name = region
     alloc_demand = alloc_demand.reset_index()
 
-    demand_actual = (actual_demand[actual_demand[region].isin(select_regions)]
-                     .set_index(region)[demand_columns]
-                     .T
-                     .reset_index()
-                     [
-                         [time_col] + select_regions
-    ])
-
-    demand_alloc = (alloc_demand[alloc_demand[region].isin(select_regions)]
-                    .set_index(region)[demand_columns]
-                    .T
-                    .reset_index()
-                    [
+    actual_demand_transpose = (actual_demand[actual_demand[region].isin(select_regions)]
+                               .set_index(region)[demand_columns]
+                               .T
+                               .reset_index()
+                               [
         [time_col] + select_regions
     ])
 
-    demand_data = demand_actual.merge(
-        demand_alloc, on=time_col, suffixes=('_measured', '_predicted'), how="outer")
+    alloc_demand_transpose = (alloc_demand[alloc_demand[region].isin(select_regions)]
+                              .set_index(region)[demand_columns]
+                              .T
+                              .reset_index()
+                              [
+        [time_col] + select_regions
+    ])
+
+    demand_data = actual_demand_transpose.merge(
+        alloc_demand_transpose, on=time_col, suffixes=('_measured', '_predicted'), how="outer")
 
     demand_data = demand_data.set_index(time_col).unstack(
     ).reset_index().rename(columns={0: "Average Hourly Demand (MW)"})
@@ -950,7 +959,7 @@ def corr_fig(compare_data, select_regions=None, suptitle="Parity Plot", s=2, top
         min_max = df_temp.describe().loc[["min", "max"], [
             actual, pred]]
 
-        slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(
+        slope, intercept, r_value, _, _ = scipy.stats.linregress(
             df_temp[actual], df_temp[pred])
 
         min_lim, max_lim = 0, min_max.max().max()
@@ -971,7 +980,7 @@ def corr_fig(compare_data, select_regions=None, suptitle="Parity Plot", s=2, top
     plt.show()
 
 
-def error_fig(df_compare, index_col="region", time_col="utc_datetime"):
+def error_fig(df_compare, select_regions=None, index_col="region", time_col="utc_datetime"):
     """
     Create visualization to compare the relative and absolute error at various timescales.
 
@@ -980,13 +989,15 @@ def error_fig(df_compare, index_col="region", time_col="utc_datetime"):
     of the day, day of the week and the month of the year.
 
     Args:
-        df_compare (pandas.DataFrame): This is typically the output of the function
-            `compare_datasets`. It has columns named 'alloc', 'actual' and
-            'region'.
+        df_compare (pandas.DataFrame): This is typically the output of the
+            function `compare_datasets`. It has columns named 'alloc', 'actual'
+            and 'region'.
+        select_regions (list): This is the subset of the regions from the
+            `index_col` whose error metrics need to be calculated. if
+            select_regions is None, the calculation is done for the entire US
+            mainland.
         index_col (str): The name of the index column (usually 'region')
         time_col (str): The name of the time column (usually 'utc_datetime')
-        error_metric (str): Currently has two options: 'mse' for Mean Squared
-            Error, and 'mape%' for Mean Absolute Percentage Error
 
     Returns:
         None: Displays the image
@@ -994,6 +1005,9 @@ def error_fig(df_compare, index_col="region", time_col="utc_datetime"):
     """
     def rmse(x):
         return np.sqrt(np.mean(x))
+
+    if select_regions is not None:
+        df_compare = df_compare[df_compare[index_col].isin(select_regions)]
 
     df_compare["Root Mean Squared Error (MWh)"] = (
         df_compare["measured"] - df_compare["predicted"]) ** 2
@@ -1026,6 +1040,7 @@ def error_fig(df_compare, index_col="region", time_col="utc_datetime"):
         ax[2, i].set_xticklabels([calendar.month_abbr[month + 1]
                                   for month in list(range(12))])
 
+    fig.tight_layout()
     plt.show()
 
 
@@ -1215,8 +1230,9 @@ def error_heatmap(alloc_df, actual_df, demand_columns, region_col="pca", error_m
         region_col (str): The column_name which contains the unique ids for each
             of the regions.
         error_metric (str): Specifies the error metric to be observed in the
-        heatmap. Possible error metrics available include: Mean Squared Error
-        ('mse'), Mean Absolute Percentage Error ('mape%') and R2 value ('r2')
+            heatmap. Possible error metrics available include: Mean Squared
+            Error ('mse'), Mean Absolute Percentage Error ('mape%') and R2 value
+            ('r2').
         leap_exception (bool): Specify if the year being analyzed is a leap year
             or not to account for February 29th.
 
@@ -1271,7 +1287,9 @@ def error_heatmap(alloc_df, actual_df, demand_columns, region_col="pca", error_m
     yticklabels = df_idx_label["label"].tolist()
 
     mask = np.isnan(hmap)
-    fig, ax = plt.subplots(figsize=(6, 80))
+    # fig, ax = plt.subplots(figsize=(6, 80))
+    fig = plt.figure(figsize=(6, 80))
+    ax = fig.add_subplot(111)
     hmap = sns.heatmap(hmap, ax=ax, mask=mask)
     hmap.set_yticks(yticks)
     hmap.set_yticklabels(
