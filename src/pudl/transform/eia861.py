@@ -917,6 +917,7 @@ def balancing_authority_assn(tfr_dfs):
         "balancing_authority_eia861",
         "service_territory_eia861",
     ]
+
     # The dataframes from which to compile BA-Util-State associations
     data_dfs = [tfr_dfs[table]
                 for table in tfr_dfs if table not in non_data_dfs]
