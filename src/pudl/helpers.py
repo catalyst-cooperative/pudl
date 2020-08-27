@@ -1074,8 +1074,11 @@ def zero_pad_zips(zip_series, n_digits):
     Args:
         zip_series (pd.Series) : series containing the zipcode values.
         n_digits(int) : zipcode length (likely 4 or 5 digits).
+
     Returns:
-        pd.Series: a series containing zipcodes with their prefix zeros intact and invalid zipcodes rendered as na.
+        pandas.Series: a series containing zipcodes with their prefix zeros
+        intact and invalid zipcodes rendered as na.
+
     """
     # Add preceeding zeros where necessary and get rid of decimal zeros
     zip_series = (
