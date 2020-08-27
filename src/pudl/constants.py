@@ -2220,17 +2220,18 @@ pudl_tables = {
         "sales_eia861",
         "advanced_metering_infrastructure_eia861",
         "demand_response_eia861",
-        # "demand_side_management_eia861",
+        "demand_side_management_eia861",
         "distributed_generation_eia861",
         "distribution_systems_eia861",
         "dynamic_pricing_eia861",
+        "energy_efficiency_eia861",
         "green_pricing_eia861",
         "mergers_eia861",
         "net_metering_eia861",
         "non_net_metering_eia861",
         "operational_data_eia861",
         "reliability_eia861",
-        "utility_data_eia861"
+        "utility_data_eia861",
     ),
     'eia923': eia923_pudl_tables,
     'epacems': epacems_tables,
@@ -2746,6 +2747,10 @@ column_dtypes = {
         'customers': float,  # pd.Int64Dtype(),  # Used by AES for NM table
         'customer_class': pd.CategoricalDtype(categories=CUSTOMER_CLASSES),
         'customer_incentives_cost': float,  # Added by AES for DR table
+        'customer_incentives_incremental_cost': float,  # Added by AES for EE table
+        'customer_incentives_incremental_life_cycle_cost': float,  # Added by AES for EE table
+        # Added by AES for EE table
+        'customer_other_costs_incremental_life_cycle_cost': float,
         'daily_digital_access_customers': float,  # Added by AES for AMI table
         'data_observed': pd.BooleanDtype(),  # Used by AES for OD table
         'deliver_power_transgrid': pd.BooleanDtype(),
@@ -2818,6 +2823,10 @@ column_dtypes = {
         'highest_distribution_voltage_kv': float,  # Added by AES for R table
         'home_area_network': float,  # Added by AES for AMI table
         'inactive_accounts_included': pd.BooleanDtype(),  # Added by AES for R table
+        'incremental_energy_savings_mwh': float,  # Added by AES for EE table
+        'incremental_life_cycle_energy_savings_mwh': float,  # Added by AES for EE table
+        'incremental_life_cycle_peak_reduction_mwh': float,  # Added by AES for EE table
+        'incremental_peak_reduction_mw': float,  # Added by AES for EE table
         'iso_rto_code': pd.StringDtype(),
         'latitude': float,
         'liquefied_natural_gas_storage': pd.BooleanDtype(),
@@ -2867,6 +2876,7 @@ column_dtypes = {
         'other': float,  # Added by AES for OD Revenue table
         'other_combustion_tech': pd.BooleanDtype(),
         'other_costs': float,  # Added by AES for DR table
+        'other_costs_incremental_cost': float,  # Added by AES for EE table
         'other_modifications_date': 'datetime64[ns]',
         'other_planned_modifications': pd.BooleanDtype(),
         'outages_recorded_automatically': pd.BooleanDtype(),  # Added by AES for R table
@@ -3001,6 +3011,7 @@ column_dtypes = {
         'virtual_customers': pd.Int64Dtype(),  # Added by AES for NM table
         'water_heater': pd.Int64Dtype(),  # Added by AES for DR table
         'water_source': pd.StringDtype(),
+        'weighted_average_life_years': float,  # Added by AES for EE table
         'wheeled_power_delivered_mwh': float,  # Added by AES for OD table
         'wheeled_power_recieved_mwh': float,  # Added by AES for OD table
         # Added by AES for UD misc table
