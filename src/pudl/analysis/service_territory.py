@@ -10,9 +10,9 @@ the resulting geometries for use in other applications.
 import argparse
 import logging
 import math
-import pathlib
 import sys
 import zipfile
+from pathlib import Path
 
 import coloredlogs
 import contextily as ctx
@@ -57,23 +57,26 @@ def get_census2010_gdf(pudl_settings, layer):
         Demographic Profile 1 (DP1) data, aggregated to the layer
 
     """
-    census2010_url = "http://www2.census.gov/geo/tiger/TIGER2010DP1/Profile-County_Tract.zip"
-    census2010_dir = pathlib.Path(
+    census2010_dir = Path(
         pudl_settings["data_dir"]) / "local/uscb/census2010"
     census2010_dir.mkdir(parents=True, exist_ok=True)
-    census2010_zipfile = census2010_dir / "census2010.zip"
     census2010_gdb_dir = census2010_dir / "census2010.gdb"
 
     if not census2010_gdb_dir.is_dir():
-        logger.warning("No Census GeoDB found. Downloading from US Census Bureau.")
-        # Download to appropriate location
-        pudl.helpers.download_zip_url(census2010_url, census2010_zipfile)
+        sandbox = pudl_settings.get("sandbox", False)
+        ds = pudl.workspace.datastore.Datastore(
+            Path(pudl_settings["pudl_in"]),
+            sandbox=sandbox)
+        resource = next(ds.get_resources("census"))
+
+        logger.debug("Extracting census geodb to %s", census2010_gdb_dir)
+
         # Unzip because we can't use zipfile paths with geopandas
-        with zipfile.ZipFile(census2010_zipfile, 'r') as zip_ref:
+        with zipfile.ZipFile(resource["path"], 'r') as zip_ref:
             zip_ref.extractall(census2010_dir)
             # Grab the originally extracted directory name so we can change it:
             extract_root = census2010_dir / \
-                pathlib.Path(zip_ref.filelist[0].filename)
+                Path(zip_ref.filelist[0].filename)
         logger.warning(f"Rename {extract_root} to {census2010_gdb_dir}")
         extract_root.rename(census2010_gdb_dir)
     else:

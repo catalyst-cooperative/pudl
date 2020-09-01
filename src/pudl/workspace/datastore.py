@@ -27,6 +27,7 @@ TOKEN = {
 
 DOI = {
     "sandbox": {
+        "census": "10.5072/zenodo.665425",
         "eia860": "10.5072/zenodo.657345",
         "eia861": "10.5072/zenodo.658437",
         "eia923": "10.5072/zenodo.657350",
@@ -407,7 +408,7 @@ class Datastore:
 
         Returns:
             list of dicts, each representing a resource per the frictionless
-            datapackage spec, except that locas paths are modified to be absolute.
+            datapackage spec, except that local paths are modified to be absolute.
         """
         filters = dict(**kwargs)
 
