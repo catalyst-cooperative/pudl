@@ -220,11 +220,17 @@ class Respondents(object):
 
     def summarize_demand(self, update=False):
         """
-        Compile annualized, categorized respondents with yearly demand totals.
+        Compile annualized, categorized respondents and summarize values.
 
-        Calculate the total reported electricity demand associated with each respondent,
-        and add that value to the annualized, categorized respodnent dataframe. This
-        is in a ``demand_annual_mwh`` column.
+        Calculated summary values include:
+        * Total reported electricity demand per respondent (``demand_annual_mwh``)
+        * Reported per-capita electrcity demand (``demand_annual_per_capita_mwh``)
+        * Population density (``population_density_km2``)
+        * Demand density (``demand_density_mwh_km2``)
+
+        These metrics are helpful identifying suspicious changes in the compiled annual
+        geometries for the planning areas.
+
         """
         if update or self._demand_summary is None:
             demand_annual = (
@@ -237,6 +243,17 @@ class Respondents(object):
                 .agg({"demand_mwh": sum})
                 .rename(columns={"demand_mwh": "demand_annual_mwh"})
                 .reset_index()
+                .merge(
+                    self.georef_counties(update=update)
+                    .groupby(["report_date", "respondent_id_ferc714"])
+                    .agg({"population": sum,
+                          "area_km2": sum})
+                    .reset_index())
+                .assign(
+                    population_density_km2=lambda x: x.population / x.area_km2,
+                    demand_annual_per_capita_mwh=lambda x: x.demand_annual_mwh / x.population,
+                    demand_density_mwh_km2=lambda x: x.demand_annual_mwh / x.area_km2,
+                )
             )
             # Merge respondent categorizations into the annual demand
             self._demand_summary = (

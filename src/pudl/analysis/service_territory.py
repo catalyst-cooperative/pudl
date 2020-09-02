@@ -173,7 +173,8 @@ def add_geometries(df, census_gdf, dissolve=False, dissolve_by=None):
 
     Merge the US Census county-level geospatial information into the DataFrame df
     based on the the column county_id_fips (in df), which corresponds to the column
-    GEOID10 in census_gdf.
+    GEOID10 in census_gdf. Also bring in the population and area of the counties,
+    summing as necessary in the case of dissolved geometries.
 
     Args:
         df (pandas.DataFrame): A DataFrame containing a county_id_fips column.
@@ -192,25 +193,37 @@ def add_geometries(df, census_gdf, dissolve=False, dissolve_by=None):
 
     """
     out_gdf = (
-        census_gdf[["GEOID10", "NAMELSAD10", "geometry"]]
+        census_gdf[["GEOID10", "NAMELSAD10", "DP0010001", "geometry"]]
         .rename(columns={
             "GEOID10": "county_id_fips",
-            "NAMELSAD10": "county_name_census"
+            "NAMELSAD10": "county_name_census",
+            "DP0010001": "population",
         })
+        # Calculate county areas using cylindrical equal area projection:
+        .assign(area_km2=lambda x: x.geometry.to_crs(epsg=6933).area / 1e6)
         .merge(df, how="right")
     )
     if dissolve is True:
+        # Don't double-count duplicated counties, if any.
+        out_gdf = out_gdf.drop_duplicates(subset=dissolve_by + ["county_id_fips", ])
+        # Sum these numerical columns so we can merge with dissolved geometries
+        summed = (
+            out_gdf.groupby(dissolve_by)[["population", "area_km2"]]
+            .sum().reset_index()
+        )
         out_gdf = (
-            out_gdf.drop_duplicates(subset=dissolve_by + ["county_id_fips", ])
-            .dissolve(by=dissolve_by)
+            out_gdf.dissolve(by=dissolve_by)
             .drop([
                 "county_id_fips",
                 "county",
                 "county_name_census",
                 "state",
-                "state_id_fips"
+                "state_id_fips",
+                "population",
+                "area_km2",
             ], axis="columns")
             .reset_index()
+            .merge(summed)
         )
     return out_gdf
 

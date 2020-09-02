@@ -25,13 +25,18 @@ When joining features, the attribute value for the resulting feature is the sum
 of its children: e.g. [0.4], [0.6] -> [1].
 
 """
+import calendar
 import logging
 import pathlib
 import zipfile
 
 import geopandas
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy
+import seaborn as sns
 from geopandas import GeoDataFrame
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
 from shapely.ops import unary_union
@@ -120,9 +125,9 @@ def get_hifld_planning_areas_gdf(pudl_settings):
 ################################################################################
 def edit_id_set(row, new_id, id_set):
     """
-    Editing ID sets by adding the new geometry ID if required.
+    Editing "id" sets by adding the new geometry id if required.
 
-    This function edits original ID sets by adding the new geometry ID if
+    This function edits original "id_set" by adding the new geometry "id" if
     required. This function is called by another function
     `complete_disjoint_geoms`
     """
@@ -163,7 +168,7 @@ def extend_gdf(gdf_disjoint, id_col):
     """
     Add duplicates of intersecting geometries to be able to add the constants.
 
-    This function adds rows with duplicate geometries and creates the new `ID`
+    This function adds rows with duplicate geometries and creates the new `id`
     column for each of the new rows. This function is called by another function
     `complete_disjoint_geoms`.
     """
@@ -189,7 +194,7 @@ def complete_disjoint_geoms(gdf, attributes):
     other, this function iterates through the geometries sequentially and
     fragments them into distinct individual pieces, and accordingly allocates
     the `uniform` and `constant` attributes. The intersecting geometries repeat
-    the number of times particular `ID` encircles it.
+    the number of times particular `id` encircles it.
 
     Args:
         gdf (GeoDataframe): GeoDataFrame consisting of the intersecting
@@ -199,23 +204,23 @@ def complete_disjoint_geoms(gdf, attributes):
         attributes with keys represented by column name, and the values
         representing the type of attribute. One column from the
         attribute dictionary must belong in the GeoDataFrame and should be of
-        type `ID` to allow for the intersection to happen. The other two
+        type `id` to allow for the intersection to happen. The other two
         possible types are `uniform` and `constant`. The `uniform` type
         attribute disaggregates the data across geometries and the `constant`
         type is propagated as the same value.
 
     Returns:
         geopandas.GeoDataFrame: GeoDataFrame with all attributes as gdf
-        and one extra attribute with name as the `ID` attribute appended by
+        and one extra attribute with name as the `id` attribute appended by
         "_set" substring. The geometries will not include zero-area geometry
         components.
 
-        attributes: Adds the `ID`+"_set" as a `constant` attribute and returns the
+        attributes: Adds the `id`+"_set" as a `constant` attribute and returns the
         attributes dictionary
     """
     # ID is the index which will help to identify duplicate geometries
     gdf_ids = [k for k, v in attributes.items() if (
-        (k in gdf.columns) and (v == "ID"))][0]
+        (k in gdf.columns) and (v == "id"))][0]
     gdf_constants = [k for k, v in attributes.items() if (
         (k in gdf.columns) and (v == "constant"))]
     gdf_uniforms = [k for k, v in attributes.items() if (
@@ -223,7 +228,7 @@ def complete_disjoint_geoms(gdf, attributes):
 
     # Check if `ID` column has all unique elements:
     if gdf[gdf_ids].nunique() != len(gdf):
-        raise Exception("All ID column elements should be unique")
+        raise Exception("All id column elements should be unique")
 
     # Iterating through each of the geometries
     for row in tqdm((gdf[[gdf_ids, "geometry"]]
@@ -345,8 +350,8 @@ def layer_intersection(layer1, layer2, attributes):
         attributes (dict): a dictionary keeping a track of all the types of
             attributes with keys represented by column names from layer1 and
             layer2, and the values representing the type of attribute. Types
-            of attributes include ``constant``, ``uniform`` and ``ID``. If a
-            column name ``col`` of type ``ID`` exists, then one column name
+            of attributes include ``constant``, ``uniform`` and ``id``. If a
+            column name ``col`` of type ``id`` exists, then one column name
             ``col``+``_set`` of type "constant" will exist in the attributes
             dictionary.
 
@@ -387,9 +392,9 @@ def layer_intersection(layer1, layer2, attributes):
 
     # ID columns for scaling uniform values
     layer1_ids = [k for k, v in attributes.items() if (
-        (k in layer1.columns) and (v == "ID"))]
+        (k in layer1.columns) and (v == "id"))]
     layer2_ids = [k for k, v in attributes.items() if (
-        (k in layer2.columns) and (v == "ID"))]
+        (k in layer2.columns) and (v == "id"))]
 
     # Scaling uniform values in the intersecting layer
     # layer 1 multiple intersecting geometries will multiple count layer 2 uniforms
@@ -435,10 +440,10 @@ def flatten(layers, attributes):
 
     It is assumed that the layers are individual `geopandas.GeoDataFrame`` and have
     three types of columns, which signify the way data is propagated. These types are
-    ``ID``, ``constant``, ``uniform``. These types are stored in the dictionary
+    ``id``, ``constant``, ``uniform``. These types are stored in the dictionary
     ``attributes``. The dictionary has a mapping of all requisite columns in each of the
     layers as keys, and each of the above mentioned types as the values for those keys.
-    If an ``ID`` type column is present in a layer, it means that the layer consists of
+    If an ``id`` type column is present in a layer, it means that the layer consists of
     intersecting geometries. If this happens, it is passed through the
     ``complete_disjoint_geoms`` function to render it into completely non-overlapping
     geometries. The other attributes are such:
@@ -446,27 +451,27 @@ def flatten(layers, attributes):
     * ``constant``: The attribute is equal everywhere within the feature geometry
       (e.g. identifier, percent area).
 
-      #. When splitting a feature, the attribute value for the resulting
+      -  When splitting a feature, the attribute value for the resulting
          features is that of their parent: e.g. [1] -> [1], [1].
 
-      #. When joining features, the attribute value for the resulting feature
-         must be a function of its children: e.g. [1], [1] -> [1, 1] (list) or 1
-         (appropriate aggregation function, e.g. median or area-weighted mean).
+      - When joining features, the attribute value for the resulting feature
+        must be a function of its children: e.g. [1], [1] -> [1, 1] (list) or 1
+        (appropriate aggregation function, e.g. median or area-weighted mean).
 
     * ``uniform``: The attribute is uniformly distributed within the feature geometry
       (e.g. count, area).
 
-      #. When splitting a feature, the attribute value for the resulting
-         features is proportional to their area: e.g. [1] (100% area) -> [0.4]
-         (40% area), [0.6] (60% area).
+      - When splitting a feature, the attribute value for the resulting
+        features is proportional to their area: e.g. [1] (100% area) -> [0.4]
+        (40% area), [0.6] (60% area).
 
-      #. When joining features, the attribute value for the resulting feature
-         is the sum of its children: e.g. [0.4], [0.6] -> [1].
+      - When joining features, the attribute value for the resulting feature
+        is the sum of its children: e.g. [0.4], [0.6] -> [1].
 
     Args:
         layers (list of geopandas.GeoDataFrame): Polygon feature layers.
         attributes (dict): Attribute names and types ({ name: type, ... }),
-            where type is either ``ID``, ``constant`` or ``uniform``.
+            where type is either ``id``, ``constant`` or ``uniform``.
 
     Returns:
         geopandas.GeoDataFrame: Polygon feature layer with all attributes named in
@@ -478,7 +483,7 @@ def flatten(layers, attributes):
         cols = layer.columns
         type_cols = [attributes.get(col) for col in cols]
 
-        if "ID" in type_cols:
+        if "id" in type_cols:
             # New column added and hence attributes dict updated in case of
             # intersecting geometries
             layer, attributes = complete_disjoint_geoms(layer, attributes)
@@ -492,73 +497,119 @@ def flatten(layers, attributes):
     return layer_new
 
 
-def allocate_and_aggregate(
-    disagg_layer,
-    attributes,
-    by="id",
-    allocatees="demand",
-    allocators="population",
-    aggregators=None
-):
+def allocate_and_aggregate(disagg_layer,
+                           attributes,
+                           timeseries,
+                           alloc_exps=None,
+                           geo_layer=None,
+                           by="respondent_id_ferc714",
+                           allocatees="demand_mwh",
+                           allocators="population",
+                           aggregators=None):
     """
     Aggregate selected columns of the disaggregated layer based on arguments.
 
     It is assumed that the data, which needs to be disaggregated, is present as
-    `constant` attributes in the GeoDataFrame. The data is mapped by the `by`
-    columns. So, first the data is disaggregated, according to the allocator
-    columns. Then, it is returned if aggregators list is empty. If it is not,
-    then the data is aggregated again to the aggregator level.
+    ``constant`` attributes in the GeoDataFrame. The data is mapped by the
+    ``by`` columns. So, first the data is disaggregated, according to the
+    allocator columns. Then, it is returned if aggregators list is empty. If it
+    is not, then the data is aggregated again to the aggregator level.
 
     Args:
-        disagg_layer (geopandas.GeoDataframe): Completely disaggregated GeoDataFrame
+        disagg_layer (geopandas.GeoDataframe): GeoDataFrame with all required
+            attribute and geometry layers disaggregated into disjoint sections
+            with all attributes distributed to individual disjoint geometries
+            based on whether they are constant or uniform.
+        attributes (dict): a dictionary keeping a track of all the types of
+            attributes with keys represented by column names from all the
+            various layers which have been disaggregated into disagg_layer,
+            and the dictionary values representing the type of attribute. Types
+            of attributes include "constant", "uniform" and "id". If a column
+            name ``col`` of type "id" exists, then one column name
+            ``col`` + "_set" of type "constant" will exist in the attributes
+            dictionary.
+        timeseries (pandas.DataFrame): A dataframe which has the columns present
+            in the variable ``by``, which acts as the index. Also, it has the
+            ``allocatees`` columns, usually indexed as a string type of a
+            ``datetime`` element or some other aggregated version of a
+            timeslice.
+        alloc_exps (str or list): The exponent to which each column in the
+            ``allocators`` column is raised. If it is not assigned, all the
+            exponents are considered 1.
+        geo_layer (TYPE?): If ``geo_layer`` is ``None``, the function will
+            calculate the allocated and aggregated geo_layer by ``aggregators``
+            column. This is unique for every reporting year and aggregators
+            column. So, if there are multiple iterations of this function, it is
+            best to save the ``geo_layer``, and assign it to the ``geo_layer``
+            argument in the function to reduce time-consuming redundant
+            computation. If the ``geo_layer`` argument is not ``None``, the
+            ``geo_layer`` is not returned as an output.
         by (str or list): single column or list of columns according to which
-            the constants to be allocated are mentioned (e.g. "Demand" (constant)
-            which needs to be allocated is mapped by "id". So, "id" is the `by`
-            column)
-        allocatees (str or list): single column or list of columns according to which
-            the constants to be allocated are mentioned (e.g. "Demand" (constant)
-            which needs to be allocated is mapped by "id". So, "demand" is the
-            `allocatees` column)
+            the constants to be allocated are mentioned (e.g. "demand_mwh"
+            (constant) which needs to be allocated is mapped by
+            "respondent_id_ferc714". So, that's the ``by`` column
+        allocatees (str or list): single column or list of columns according to
+            which the constants to be allocated are mentioned (e.g. "demand_mwh"
+            (constant) which needs to be allocated is mapped by "id". So,
+            "demand_mwh" is the `allocatees` column)
         allocators (str or list): columns by which attribute is weighted and
             allocated
         aggregators (str or list): if empty list, the disaggregated data is
-            returned. If aggregators is mentioned, for example REEDs geometries, the
-            data is aggregated at that level.
+            returned. If aggregators is mentioned, for example REEDs geometries,
+            the data is aggregated at that level.
+
 
     Returns:
-        geopandas.GeoDataFrame: Disaggregated GeoDataFrame with all the various
-        allocated demand columns, or aggregated by `aggregators`
+        geopandas.GeoDataFrame: If aggregators is None, the function will return
+            a disaggregated GeoDataFrame with all the various allocated demand
+            columns. If aggregators is not `None`, the data will be aggregated
+            by the `aggregators` column. The geometries span the individual
+            elements of the aggregator columns.
 
     """
-    if aggregators is None:
-        aggregators = []
+    logger.info("Prep Allocation Data")
     id_cols = [k for k, v in attributes.items() if (
-        (k in disagg_layer.columns) and (v == "ID"))]
+        (k in disagg_layer.columns) and (v == "id"))]
 
     id_set_cols = [col + "_set" for col in id_cols]
     disagg_layer["_multi_counts"] = (disagg_layer[id_set_cols]
                                      .applymap(len)
                                      .product(axis=1))
 
+    # Allowing for single and multiple allocators,
+    # aggregating columns and allocatees
+    def listify(ele):
+        if isinstance(ele, list):
+            return ele
+        else:
+            return [ele]
+    allocators, allocatees, by = tuple(
+        map(listify, [allocators, allocatees, by]))
+
+    if alloc_exps is None:
+        alloc_exps = [1] * len(allocators)
+
+    else:
+        alloc_exps = listify(alloc_exps)
+
     for uniform_col in allocators:
         disagg_layer[uniform_col] = disagg_layer[uniform_col] / \
             disagg_layer["_multi_counts"]
 
     del disagg_layer["_multi_counts"]
-    # Allowing for single and multiple allocators,
-    # aggregating columns and allocatees
-    if not isinstance(allocators, list):
-        allocators = [allocators]
 
-    if not isinstance(allocatees, list):
-        allocatees = [allocatees]
+    allocators_temp = ["_" + uniform_col + "_exp_" +
+                       str(i) for i, uniform_col in enumerate(allocators)]
 
-    if not isinstance(by, list):
-        by = [by]
+    logger.info("Raise allocators to appropriate exponents")
+    for i, alloc_temp in enumerate(allocators_temp):
+        disagg_layer[alloc_temp] = disagg_layer[allocators[i]] ** alloc_exps[i]
 
     # temp_allocator is product of all allocators in the row
-    disagg_layer["temp_allocator"] = disagg_layer[allocators].product(axis=1)
+    disagg_layer["temp_allocator"] = disagg_layer[allocators_temp].product(
+        axis=1)
 
+    logger.info("Calculate fractional allocation factors for each geometry")
     # the fractional allocation for each row is decided by the multiplier:
     # (temp_allocator/temp_allocator_agg)
     agg_layer = (disagg_layer[by + ["temp_allocator"]]
@@ -569,37 +620,104 @@ def allocate_and_aggregate(
 
     # adding temp_allocator_agg column to the disagg_layer
     disagg_layer = disagg_layer.merge(agg_layer)
-    allocatees_agg = [allocatee + "_allocated" for allocatee in allocatees]
 
-    # creating new allocated columns based on the allocation factor
-    disagg_layer[allocatees_agg] = disagg_layer[allocatees].multiply(disagg_layer["temp_allocator"]
-                                                                     / disagg_layer["temp_allocator_agg"],
-                                                                     axis=0)
+    logger.info("Allocating demand from demand dataframe")
+    demand_allocated_arr = (disagg_layer[by + ["temp_allocator", "temp_allocator_agg"]]
+                            .merge(timeseries[by + allocatees])[allocatees].values) * \
+        ((disagg_layer["temp_allocator"] /
+          disagg_layer["temp_allocator_agg"]).values[:, np.newaxis])
 
-    # grouping by the relevant columns
-    if isinstance(aggregators, list):
-        if aggregators == []:
+    allocate_layer = pd.concat([disagg_layer, pd.DataFrame(demand_allocated_arr, columns=allocatees)],
+                               axis=1)
 
-            del agg_layer
-            del disagg_layer["temp_allocator"]
-            del disagg_layer["temp_allocator_agg"]
-            return disagg_layer
+    if aggregators is not None:
+
+        logger.info("Aggregate data according to level specified")
+        aggregators = listify(aggregators)
+
+        if geo_layer is None:
+            logger.info("Geo layer being created")
+            geo_layer = (allocate_layer[aggregators + ["geometry"]]
+                         .dissolve(by=aggregators, as_index=False))
+
+            logger.info("Geo layer merged with aggregated data")
+            final_agg_layer = (geo_layer
+                               .merge(allocate_layer
+                                      .groupby(aggregators)[allocatees]
+                                      .sum()
+                                      .reset_index())
+                               .replace(0, np.nan))
+
+            return final_agg_layer, geo_layer
+
+        else:
+            final_agg_layer = (geo_layer
+                               .merge(allocate_layer
+                                      .groupby(aggregators)[allocatees]
+                                      .sum()
+                                      .reset_index())
+                               .replace(0, np.nan))
+
+            return final_agg_layer
 
     else:
-        # converting aggregators to list
-        aggregators = [aggregators]
+        logger.info("Complete demand allocation")
+        return allocate_layer
 
-    df_alloc = disagg_layer[allocatees_agg +
-                            aggregators].groupby(aggregators).sum().reset_index()
 
-    # deleting columns with temporary calculations
-    del agg_layer
-    del disagg_layer["temp_allocator"]
-    del disagg_layer["temp_allocator_agg"]
-    for allocatee_agg in allocatees_agg:
-        del disagg_layer[allocatee_agg]
+def sales_ratio_by_class_fips(pudl_out):
+    """
+    Estimate fraction of sales to each customer class by county.
 
-    return df_alloc
+    For each combination of utility_id_eia, report_date, and state found in the EIA 861
+    sales table, the relative proportion of electricity sales going to each customer
+    class will be calculated. The resulting dataframe is merged with the Service
+    Territory table, associating these proprotions with counties (by FIPS code). For
+    counties that have more than one estimate in a year, from different utilities, the
+    mean of all estimates will be calculated, resulting in a unique estimate of the
+    relative proportions of electricity sales to each customer class, in each county,
+    in each year.
+
+    Args:
+        pudl_out (pudl.output.pudltabl.PudlTabl): A PUDL output object that will be
+            used to pull the EIA 861 Sales and Service Territory tables.
+
+    Returns:
+        pandas.DataFrame: DataFrame containing unique combinations of ``report_date``
+        and ``county_id_fips`` (but not as an index) as well as one column for each
+        customer class in the EIA 861 Sales table (residential, commercial, industrial,
+        transportation, and other). The sum of the values in each row should be 1.0,
+        and the values represent the relative proportions of electricity sales that
+        went to each customer class in each county that year.
+
+    """
+    sales_by_class = (
+        pudl_out.sales_eia861()
+        .astype({"customer_class": pd.StringDtype()})
+        .groupby(["utility_id_eia", "state", "report_date", "customer_class"], observed=True)
+        .agg({"sales_mwh": sum})
+        .unstack()
+    )
+    sales_by_class.columns = sales_by_class.columns.droplevel()
+    total_sales_mwh = sales_by_class.sum(axis="columns")
+    sales_by_class_fips = (
+        sales_by_class
+        .divide(total_sales_mwh, axis="index")
+        .reset_index()
+        .merge(
+            pudl_out.service_territory_eia861()[[
+                "utility_id_eia",
+                "state",
+                "report_date",
+                "county_id_fips"
+            ]]
+        )
+        .drop(["utility_id_eia", "state"], axis="columns")
+        .groupby(["report_date", "county_id_fips"])
+        .mean()
+        .reset_index()
+    )
+    return sales_by_class_fips
 
 
 ################################################################################
@@ -688,3 +806,501 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
         .loc[:, ["eia_code", "respondent_type"]]
     )
     return df
+
+
+################################################################################
+# Demand Data and Error Visualization Functions
+################################################################################
+
+
+def compare_datasets(alloc_demand, actual_demand, demand_columns, select_regions, time_col="utc_datetime", region="pca"):
+    """
+    Stack allocated and actual demand data together for comparison.
+
+    Given the allocated and actual demand dataframes where both dataframes are
+    similarly oriented, i.e. one column specifying all the unique regions, and
+    other columns specifying demand data, with the column labelled by the time
+    slice it is calculated for, the function will output a single datafram
+    which gives a stacked comparison of the actual demand and allocated demand
+    at every time interval and for every specified region.
+
+    Args:
+        alloc_demand (pandas.DataFrame): A dataframe with the `region` and
+            a subset of `demand_columns`. Each column name in the
+            `demand_columns` is typically an hourly datetime object refering to
+            the time period of demand observed, but can be any other timeslice.
+            The `demand_columns` contain the allocated demand as allocated by
+            the `allocate_and_aggregate` function. Any columns not present in
+            demand_columns will be imputed as np.nan.
+        actual_demand (pandas.DataFrame): A similar dataframe as actual_demand,
+            but contains actual demand data, which is being compared against.
+        demand_columns (list): A list containing column names present in the
+            `alloc_demand` dataframe and the `actual_demand` dataframe. If some
+            of the columns are not present in either dataframe, those columns
+            are instantiated with NaN values.
+        select_regions (list): The list of all unique ids whose actual and
+            allocated demand is compared. If all regions are to be compared,
+            pass `actual_demand[region].unique()` as the argument.
+        time_col (str): name that will be given to the time column in the output
+            dataframe
+        region (str): It is the name of the column, common to both
+            `alloc_demand` and `actual_demand` dataframes which refers to the
+            unique ID of each region whose demand is being calculated
+
+    Returns:
+        pandas.DataFrame: A stacked dataframe which can be utilised for Seaborn
+        visualizations to estimate accuracy of allocation and error metrics.
+
+    """
+    # Add excepted columns as NaN values
+    for col in set(demand_columns).difference(alloc_demand.columns):
+        alloc_demand[col] = np.nan
+
+    for col in set(demand_columns).difference(actual_demand.columns):
+        actual_demand[col] = np.nan
+
+    # Add column name so that when transformed, the appropriate name is provided
+    actual_demand.columns.name = time_col
+    alloc_demand.columns.name = time_col
+
+    # Provide NaN values to region ids missing in `alloc_demand`
+    missing_region = set(actual_demand[region].unique()).difference(
+        alloc_demand[region].unique())
+    alloc_demand = alloc_demand.set_index(region)
+    alloc_demand = alloc_demand.reindex(
+        alloc_demand.index.union(missing_region))
+    alloc_demand.index.name = region
+    alloc_demand = alloc_demand.reset_index()
+
+    actual_demand_transpose = (actual_demand[actual_demand[region].isin(select_regions)]
+                               .set_index(region)[demand_columns]
+                               .T
+                               .reset_index()
+                               [
+        [time_col] + select_regions
+    ])
+
+    alloc_demand_transpose = (alloc_demand[alloc_demand[region].isin(select_regions)]
+                              .set_index(region)[demand_columns]
+                              .T
+                              .reset_index()
+                              [
+        [time_col] + select_regions
+    ])
+
+    demand_data = actual_demand_transpose.merge(
+        alloc_demand_transpose, on=time_col, suffixes=('_measured', '_predicted'), how="outer")
+
+    demand_data = demand_data.set_index(time_col).unstack(
+    ).reset_index().rename(columns={0: "Average Hourly Demand (MW)"})
+    demand_data[["region", "demand_type"]
+                ] = demand_data[region].str.split("_", expand=True)
+    demand_data.drop(region, axis=1, inplace=True)
+
+    demand_data = (demand_data
+                   .pivot_table(values="Average Hourly Demand (MW)",
+                                index=[time_col, "region"],
+                                columns="demand_type")
+                   .reset_index())
+
+    return demand_data
+
+
+def corr_fig(compare_data, select_regions=None, suptitle="Parity Plot", s=2, top=0.85):
+    """
+    Create visualization to compare the allocated and actual demand for every region.
+
+    Uses the output of `compare_datasets` function as input to check
+    correlations between actual demand data and the allocated demand data.
+
+    Args:
+        compare_data (pandas.DataFrame): This is typically the output of the function
+            `compare_datasets`. It has columns named 'alloc', 'actual' and
+            'region'.
+        select_regions (list): If select_regions is None (default), all regions'
+            parity plot will be constructed, else the specific regions mentioned
+            in the list will be plotted.
+        suptitle (str): The title for the whole image
+        s (float): Adjust the size of the markers which are displayed
+            in the graph
+        top (float): The space by which the top needs to be adjusted to allow
+            for the `suptitle` to be adjusted. Ranges typically between 0.85
+            and 0.976. Right tuning required
+
+    Returns:
+        None: Displays the image
+
+    """
+    compare_data = compare_data.dropna()
+
+    mpl.rcdefaults()
+    pred = 'predicted'
+    actual = "measured"
+
+    if select_regions is not None:
+        compare_data = compare_data[compare_data["region"].isin(
+            select_regions)]
+
+    else:
+        select_regions = list(compare_data["region"].unique())
+
+    g = sns.FacetGrid(compare_data, col="region", col_wrap=3,
+                      sharey=False, sharex=False)
+    (g.map(sns.regplot, actual, pred, scatter_kws={'alpha': 0.1, 's': s})
+     .set_axis_labels('Measured Demand (MW)', 'Predicted Demand (MW)'))
+
+    region_list = compare_data["region"].unique().tolist()
+
+    counter = 0
+
+    for ax in g.axes.flat:
+
+        df_temp = compare_data[compare_data["region"] == region_list[counter]]
+        min_max = df_temp.describe().loc[["min", "max"], [
+            actual, pred]]
+
+        slope, intercept, r_value, _, _ = scipy.stats.linregress(
+            df_temp[actual], df_temp[pred])
+
+        min_lim, max_lim = 0, min_max.max().max()
+
+        ax.plot((min_lim, max_lim), (min_lim, max_lim), ls="--")
+        ax.text(max_lim - 10, max_lim - 10, "y={0:.2f}x + {1:.1f} (R² = {2:.2f})".format(slope, intercept, r_value),
+                horizontalalignment='right', verticalalignment="top")
+
+        ax.set_ylim(min_lim, max_lim)
+        ax.set_xlim(min_lim, max_lim)
+
+        counter += 1
+
+    g.fig.suptitle(suptitle)
+    # Formula for specifically adjusting the `suptitle`
+    # top=(0.8471363 + np.ceil(len(select_regions) / 3) / 44 * 0.126))
+    g.fig.subplots_adjust(top=top)
+    plt.show()
+
+
+def error_fig(df_compare, select_regions=None, index_col="region", time_col="utc_datetime"):
+    """
+    Create visualization to compare the relative and absolute error at various timescales.
+
+    Uses the output of `compare_datasets` function as input to check Root Mean
+    Squared Error (RMSE) and Mean Absolute Percentage Error (MAPE) for the hour
+    of the day, day of the week and the month of the year.
+
+    Args:
+        df_compare (pandas.DataFrame): This is typically the output of the
+            function `compare_datasets`. It has columns named 'alloc', 'actual'
+            and 'region'.
+        select_regions (list): This is the subset of the regions from the
+            `index_col` whose error metrics need to be calculated. if
+            select_regions is None, the calculation is done for the entire US
+            mainland.
+        index_col (str): The name of the index column (usually 'region')
+        time_col (str): The name of the time column (usually 'utc_datetime')
+
+    Returns:
+        None: Displays the image
+
+    """
+    def rmse(x):
+        return np.sqrt(np.mean(x))
+
+    if select_regions is not None:
+        df_compare = df_compare[df_compare[index_col].isin(select_regions)]
+
+    df_compare["Root Mean Squared Error (MWh)"] = (
+        df_compare["measured"] - df_compare["predicted"]) ** 2
+
+    df_compare["Mean Absolute Percentage Error (%)"] = np.abs(
+        (df_compare["measured"] - df_compare["predicted"]) / df_compare["measured"])
+
+    df_compare["Hour of Day"] = df_compare[time_col].dt.hour
+    df_compare["Day of Week"] = df_compare[time_col].apply(
+        lambda x: x.weekday())
+    df_compare["Month"] = df_compare["utc_datetime"].dt.month - 1
+    df_compare["na_predicted"] = df_compare["predicted"].isna().astype(int)
+    df_compare["na_measured"] = df_compare["measured"].isna().astype(int)
+
+    fig, ax = plt.subplots(3, 2, figsize=(15, 10))
+
+    for i, col in enumerate(["Hour of Day", "Day of Week", "Month"]):
+        sns.barplot(x=col, y="Root Mean Squared Error (MWh)", data=df_compare, ax=ax[i, 0], color="blue",
+                    estimator=rmse, ci=None)
+
+    for i, col in enumerate(["Hour of Day", "Day of Week", "Month"]):
+        sns.barplot(x=col, y="Mean Absolute Percentage Error (%)", data=df_compare, ax=ax[i, 1], color="blue",
+                    estimator=np.mean, ci=None)
+
+    for i in [0, 1]:
+
+        ax[1, i].set_xticklabels([calendar.day_abbr[day]
+                                  for day in list(range(7))])
+
+        ax[2, i].set_xticklabels([calendar.month_abbr[month + 1]
+                                  for month in list(range(12))])
+
+    fig.tight_layout()
+    plt.show()
+
+
+def regional_demand_profiles(df_compare, select_regions=None, agg=False, time_col="utc_datetime", region_text=None):
+    """
+    Create visualization to compare the average demand profiles for selected regions.
+
+    Uses the output of `compare_datasets` function as input to plot average
+    daily (hour-of-day), weekly (day-of-week) and yearly (month-of-year) demand
+    profiles for the selected regions under `select_regions`.
+
+    Args:
+        df_compare (pandas.DataFrame): This is typically the output of the function
+            `compare_datasets`. It has columns named 'alloc', 'actual' and
+            'region'.
+        select_regions (list): The list of all unique ids whose actual and
+            allocated demand is compared. If not set, all regions will be
+            considered.
+        agg (bool): If agg is True, all the 'select_regions' will be added and
+            compared. If agg is False, then all the regions' data will be
+            separately considered.
+        time_col (str): The name of the time column (usually 'utc_datetime')
+        region_text (str): Works only if agg is True, set custom text label for
+            the set of regions being considered. If agg is True, and region_text
+            is not set, all the regions will be named separated by a comma.
+
+    Returns:
+        None: Displays the image
+
+    """
+    if select_regions is not None:
+        df_compare = df_compare[df_compare["region"].isin(select_regions)]
+        if region_text is None:
+            region_text = (",").join(select_regions)
+
+    else:
+        select_regions = list(df_compare["region"].unique())
+        if region_text is None:
+            region_text = "US Mainland"
+
+    if agg is True:
+        df_compare.groupby(time_col).agg(np.nansum).replace(0, np.nan)
+        df_compare["region"] = region_text
+        select_regions = [region_text]
+
+    df_compare["hour_of_day"] = df_compare["utc_datetime"].dt.hour
+    df_compare["day_of_week"] = df_compare["utc_datetime"].apply(
+        lambda x: x.weekday())
+    df_compare["month_of_year"] = df_compare["utc_datetime"].dt.month
+    # df_compare = df_compare[df_compare["region"].isin(select_regions)]
+
+    df_compare = (df_compare
+                  .set_index([time_col, "region"] + ["hour_of_day", "day_of_week", "month_of_year"])
+                  .stack()
+                  .reset_index().rename(columns={0: "Average Hourly Demand (MW)"}))
+    # display(df_compare)
+
+    df_compare = (df_compare
+                  .set_index([time_col, "region"] + ["demand_type", "Average Hourly Demand (MW)"])
+                  .stack()
+                  .reset_index().rename(columns={0: "Time Interval", "level_4": "time_type"}))
+
+    g = sns.relplot(x="Time Interval", y="Average Hourly Demand (MW)",
+                    hue="demand_type", col="time_type", row="region",
+                    kind="line", data=df_compare,
+                    facet_kws={'sharey': False, 'sharex': False})
+
+    g.set(ylim=(0, None))
+    ax = g.axes
+
+    for i in range(len(select_regions)):
+        ax[i, 1].set_xticks([0, 1, 2, 3, 4, 5, 6])
+        ax[i, 1].set_xticklabels(
+            ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])
+
+
+def uncovered_area_mismatch(disagg_geom, total_geom, title="Area Coverage (By Planning Area)"):
+    """
+    Create map visualization to analyze regions covered by FERC714 allocation.
+
+    Uses the final disaggregated layer as input along with the map of the total
+    US mainland to display coverage of the planning areas. The US areas which
+    have not been allocated demand are shown in gray. Rest are displayed in the
+    Viridis colorscheme.
+
+    Args:
+        disagg_geom (geopandas.GeoDataFrame): Input the final disaggregated
+            geodataframe, which has the column `respondent_id_ferc714_set`. This
+            column mentiones the number of overlapping planning areas reporting
+            for a particular geometry.
+        total_geom (geopandas.GeoDataFrame): This is a geodataframe which has
+            the total US mainland map. This will allow display of the regions
+            not covered even once as grey.
+        title (str): The title for the map visualization
+
+    Returns:
+        None: Displays the image
+
+    """
+    covered_geom = (disagg_geom[["respondent_id_ferc714_set", "geometry"]]
+                    .drop_duplicates()
+                    .reset_index(drop=True)
+                    )
+    covered_geom["num_covered"] = covered_geom["respondent_id_ferc714_set"].apply(
+        len)
+    max_val = covered_geom["num_covered"].max()
+
+    # extract viridis features
+    cmap = plt.cm.viridis  # define the colormap
+    cmaplist = [cmap(i) for i in range(cmap.N)]
+    # force the first color entry to be grey
+    cmaplist[0] = (.5, .5, .5, 1.0)
+    # create the new map
+    cmap = mpl.colors.LinearSegmentedColormap.from_list(
+        'DiscreteViridis', cmaplist, cmap.N)
+
+    # define the bins and normalize
+    bounds = np.linspace(-0.5, max_val + 0.5, max_val + 2)
+    ticks = [b + 0.5 for b in bounds][:-1]
+    norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+
+    # create the figure
+    fig, ax = plt.subplots(figsize=(20, 13))
+    ax = total_geom.assign(num=1).dissolve(
+        by="num").plot(facecolor="grey", ax=ax)
+    covered_geom.plot("num_covered", legend=False, ax=ax, cmap=cmap, norm=norm)
+    plt.title(title, fontdict={'fontsize': 25})
+
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    # create a second axes for the colorbar
+    ax2 = fig.add_axes([0.97, 0.1, 0.03, 0.8])
+    mpl.colorbar.ColorbarBase(ax2, cmap=cmap, norm=norm,
+                              spacing='proportional', ticks=ticks,
+                              boundaries=bounds, format='%1i')
+
+    plt.show()
+
+
+def vec_error(vec1, vec2, errtype):
+    """
+    Calculate error metrics between two vectors vec1 (alloc), and vec2 (actual).
+
+    Takes input of two numpy arrays, vec1 and vec2, and calculates error metric.
+    Possible specifications of error metrics include: Mean Squared Error
+    ('mse'), Mean Absolute Percentage Error ('mape%') and R2 value ('r2').
+    """
+    vec1 = np.array(vec1)
+    vec2 = np.array(vec2)
+    if errtype == "mse":
+        return np.nanmean((vec1 - vec2) ** 2)
+
+    elif errtype == "mape%":
+        vec1[vec2 == 0] = np.nan
+        return np.nanmean(np.abs((vec1 - vec2) / vec2)) * 100
+
+    elif errtype == "r2":
+        mask = ~np.isnan(vec1) & ~np.isnan(vec2)
+        if vec1[mask].size == 0:
+            return np.nan
+
+        else:
+            _, _, r_value, _, _ = scipy.stats.linregress(
+                vec1[mask], vec2[mask])
+            return r_value ** 2
+
+
+def error_heatmap(alloc_df, actual_df, demand_columns, region_col="pca", error_metric="r2", leap_exception=False):
+    """
+    Create heatmap of 365X24 dimension to visualize the annual hourly error.
+
+    Uses the output of `allocate_and_aggregate` function as input along with
+    actual demand data to plot the annual hourly errors as a heatmap on a 365X24
+    grid.
+
+    Args:
+        alloc_df (pandas.DataFrame): A dataframe with the `region` and a subset
+            of `demand_columns`. Each column name in the `demand_columns` is
+            typically an hourly datetime object refering to the time period of
+            demand observed, but can be any other timeslice. The
+            `demand_columns` contain the allocated demand as allocated by the
+            `allocate_and_aggregate` function. Any columns not present in
+            `demand_columns` will be imputed as np.nan.
+        actual_df (pandas.DataFrame): A similar dataframe as actual_demand,
+            but contains actual demand data, which is being compared against.
+        region_col (str): The column_name which contains the unique ids for each
+            of the regions.
+        error_metric (str): Specifies the error metric to be observed in the
+            heatmap. Possible error metrics available include: Mean Squared
+            Error ('mse'), Mean Absolute Percentage Error ('mape%') and R2 value
+            ('r2').
+        leap_exception (bool): Specify if the year being analyzed is a leap year
+            or not to account for February 29th.
+
+    Returns:
+        None: Displays the image
+
+    """
+    font = {'size': 12}
+
+    mpl.rc('font', **font)
+    demand_columns = list(set(demand_columns)
+                          .intersection(set(actual_df.columns)))
+    columns_excepted = set(demand_columns).difference(set(alloc_df.columns))
+
+    actual_df = actual_df.sort_values(
+        region_col)[[region_col] + demand_columns]
+
+    for col in columns_excepted:
+        alloc_df[col] = np.nan
+
+    alloc_df = actual_df[[region_col]].merge(
+        alloc_df[[region_col] + demand_columns], how="left")
+    hmap = np.empty((365 + int(leap_exception), 24))
+
+    dofw_list = [None] * (365 + int(leap_exception))
+    month_label_idx = []
+    month_start_idx = []
+
+    for col in demand_columns:
+        hmap[col.timetuple().tm_yday - 1, col.hour] = vec_error(np.array(alloc_df[col]),
+                                                                np.array(
+            actual_df[col]),
+            error_metric)
+        dofw_list[col.timetuple().tm_yday - 1] = col.weekday()
+
+        if col.day == 1:
+            month_start_idx.append(
+                (col.timetuple().tm_yday - 1, "-------------"))
+
+        elif col.day == 15:
+            month_label_idx.append(
+                (col.timetuple().tm_yday, calendar.month_name[col.month] + '            '))
+
+    monday_idx = [(i + 0.5, "(Mon)")
+                  for i, v in enumerate(dofw_list) if v == 0]
+
+    df_idx_label = (pd.DataFrame(list(set(month_start_idx))
+                                 + list(set(month_label_idx))
+                                 + list(set(monday_idx)), columns=['index', 'label'])
+                    .sort_values("index"))
+    yticks = df_idx_label["index"].tolist()
+    yticklabels = df_idx_label["label"].tolist()
+
+    mask = np.isnan(hmap)
+    # fig, ax = plt.subplots(figsize=(6, 80))
+    fig = plt.figure(figsize=(6, 80))
+    ax = fig.add_subplot(111)
+    hmap = sns.heatmap(hmap, ax=ax, mask=mask)
+    hmap.set_yticks(yticks)
+    hmap.set_yticklabels(
+        yticklabels, rotation=0)
+
+    hmap.set_xticks([tick + 0.5 for tick in [0, 4, 8, 12, 16, 20]])
+    hmap.set_xticklabels([0, 4, 8, 12, 16, 20])
+
+    plt.ylabel("Day of Year")
+    plt.xlabel("Hour of Day (UTC Datetime)")
+
+    plt.title(error_metric.upper())
+    plt.show()
+    mpl.rcdefaults()
