@@ -1265,6 +1265,20 @@ def demand_side_management(tfr_dfs):
     """
     Transform the EIA 861 Demand Side Management table.
 
+    In 2013, the EIA changed the contents of the 861 form so that information
+    pertaining to demand side management was no longer housed in a single table,
+    rather two seperate ones pertaining to energy efficiency and demand response.
+    While the pre and post 2013 tables contain similar information, their contents
+    contain no cut-and-dry counterparts between these years. In other words, one
+    column in the pre-2013 demand side management table may not have an obvious
+    column equivalent in the post-2013 energy efficiency or demand response data.
+    As a result, we've separated the demand side management from the energy efficiency
+    and demand response tables. Information of this sort will therefore be separated
+    into pre and post 2013 chuncks accordingly. (Use the DSM table for pre 2013 data
+    and the EE / DR tables for post 2013 data). Despite the uncertainty comparing
+    across these years, the data are similar and we hope to provide a cohesive
+    dataset in the future with all years and comprable columns combined.
+
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
@@ -1306,7 +1320,7 @@ def demand_side_management(tfr_dfs):
     ###########################################################################
     # Transform Data Round 1 (must be done to avoid issues with nerc_region col in _tidy_class_dfs())
     # * Clean NERC region col
-    # * Drop data_status and demand_side_management (all F) cols
+    # * Drop data_status and demand_side_management cols (they don't contain anything)
     ###########################################################################
 
     transformed_dsm1 = (
@@ -1378,14 +1392,12 @@ def demand_side_management(tfr_dfs):
                     'time_responsiveness_customers']
     total_cost_cols = ['annual_indirect_program_cost', 'annual_total_cost']
 
-    dsm_program_customers = (
-        transformed_dsm2[dsm_idx_cols + program_cols].copy()
-    )
     dsm_ee_dr = (
         transformed_dsm2[
             dsm_idx_cols
             + ee_cols
             + dr_cols
+            + program_cols
             + total_cost_cols].copy()
     )
     dsm_misc = (
@@ -1401,7 +1413,6 @@ def demand_side_management(tfr_dfs):
     del tfr_dfs['demand_side_management_eia861']
 
     tfr_dfs['demand_side_management_sales_eia861'] = dsm_sales
-    tfr_dfs['demand_side_management_program_customers_eia861'] = dsm_program_customers
     tfr_dfs['demand_side_management_ee_dr_eia861'] = dsm_ee_dr
     tfr_dfs['demand_side_management_misc_eia861'] = dsm_misc
 
