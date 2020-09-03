@@ -219,7 +219,7 @@ The Demand Side Management table exists pre-2013 and combines load management
 further description. We've broken the EIA output table into multiple tables
 so as to...
 
-**Demand Side Management EE DR**
+**Demand Side Management EE DR** -- check whether incentive payment in 1000s
 
 +------------------------------------+----------+-----------------------------+
 |**Columns**                         |**Dtype** |**Contents / Difference from |
@@ -248,7 +248,190 @@ so as to...
 |                                    |          |etc.) extracted for          |
 |                                    |          |wide-to-tall format.         |
 +------------------------------------+----------+-----------------------------+
+|``energy_efficiency_annual_cost``   |float     |Costs directly attributable  |
+|                                    |          |to EE programs in the given  |
+|                                    |          |report year. Reported as     |
+|                                    |          |$1000, converted to $1.      |
++------------------------------------+----------+-----------------------------+
+|``energy_efficiency_annual_actual_  |float     |Peak reductions resulting    |
+|peak_reduction_mw``                 |          |from all energy efficiency   |
+|                                    |          |programs operating in the    |
+|                                    |          |given report year. As seen in|
+|                                    |          |EIA output files.            |
++------------------------------------+----------+-----------------------------+
+|``energy_efficiency_annual_         |float     |Energy saved as a result of  |
+|effects_mwh``                       |          |all energy efficiency        |
+|                                    |          |programs operating in the    |
+|                                    |          |given report year. As seen in|
+|                                    |          |EIA output files.            |
++------------------------------------+----------+-----------------------------+
+|``energy_efficiency_annual_         |float     |Total financial value        |
+|incentive_payment``                 |          |provided to a customer for EE|
+|                                    |          |program participation. As    |
+|                                    |          |seen in EIA output files.    |
++------------------------------------+----------+-----------------------------+
+|``energy_efficiency_incremental_    |float     |Peak reductions resulting    |
+|actual_peak_reduction_mw``          |          |from new EE participants and |
+|                                    |          |new EE programs. As seen in  |
+|                                    |          |EIA output files.            |
++------------------------------------+----------+-----------------------------+
+|``energy_efficiency_incremental_    |float     |Energy saved as a result of  |
+|effects_mwh``                       |          |new EE participants and new  |
+|                                    |          |EE programs in the given     |
+|                                    |          |report year. As seen in EIA  |
+|                                    |          |output files.                |
++------------------------------------+----------+-----------------------------+
+|``load_management_annual_cost``     |float     |Costs directly attributable  |
+|                                    |          |to DR programs in the given  |
+|                                    |          |report year. Reported as     |
+|                                    |          |$1000, converted to $1.      |
++------------------------------------+----------+-----------------------------+
+|``load_management_annual_actual_    |float     |Peak reductions resulting    |
+|peak_reduction_mw``                 |          |from all demand response     |
+|                                    |          |programs operating in the    |
+|                                    |          |given report year. As seen in|
+|                                    |          |EIA output files.            |
++------------------------------------+----------+-----------------------------+
+|``load_management_annual_effects_   |float     |Energy saved as a result of  |
+|mwh``                               |          |all demand response          |
+|                                    |          |programs operating in the    |
+|                                    |          |given report year. As seen in|
+|                                    |          |EIA output files.            |
++------------------------------------+----------+-----------------------------+
+|``load_management_annual_incentive  |float     |Total financial value        |
+|_payment``                          |          |provided to a customer for DR|
+|                                    |          |program participation. As    |
+|                                    |          |seen in EIA output files.    |
++------------------------------------+----------+-----------------------------+
+|``load_management_annual_potential  |float     |                             |
+|_peak_reduction_mw``                |          |                             |
++------------------------------------+----------+-----------------------------+
+|``load_management_incremental_      |float     |Peak reductions resulting    |
+|actual_peak_reduction_mw``          |          |from new DR participants and |
+|                                    |          |new DR programs. As seen in  |
+|                                    |          |EIA output files.            |
++------------------------------------+----------+-----------------------------+
+|``load_management_incremental_      |float     |Energy saved as a result of  |
+|effects_mwh``                       |          |new DR participants and new  |
+|                                    |          |DR programs in the given     |
+|                                    |          |report year. As seen in EIA  |
+|                                    |          |output files.                |
++------------------------------------+----------+-----------------------------+
+|``load_management_incremental_      |float     |                             |
+|potential_peak_reduction_mw``       |          |                             |
++------------------------------------+----------+-----------------------------+
+|``price_responsiveness_customers``  |int       |Number of customers          |
+|                                    |          |participating in price       |
+|                                    |          |responsiveness programs. As  |
+|                                    |          |seen in EIA output files.    |
++------------------------------------+----------+-----------------------------+
+|``time_responsiveness_customers``   |int       |Number of customers          |
+|                                    |          |participating in time        |
+|                                    |          |responsiveness programs. As  |
+|                                    |          |seen in EIA output files.    |
++------------------------------------+----------+-----------------------------+
 
+**Demand Side Management Sales**
+
++------------------------------------+----------+-----------------------------+
+|**Columns**                         |**Dtype** |**Contents / Difference from |
+|                                    |          |EIA output files**           |
++====================================+==========+=============================+
+|\* ``utility_id_eia``               |int       |Unique EIA utility code      |
+|                                    |          |as seen in EIA output files. |
++------------------------------------+----------+-----------------------------+
+|\* ``state``                        |str       |State where a utility        |
+|                                    |          |operates. Utilities may have |
+|                                    |          |multiple entries if they     |
+|                                    |          |opperate in multiple states. |
+|                                    |          |As seen in EIA output files. |
++------------------------------------+----------+-----------------------------+
+|\* ``nerc_region``                  |category  |Acronym for physical NERC    |
+|                                    |          |region in which a utility    |
+|                                    |          |operates, not just transacts.|
+|                                    |          |Cleaned and corrected.       |
++------------------------------------+----------+-----------------------------+
+|\* ``report_date``                  |datetime  |Date of form completion.     |
+|                                    |          |Converted from year to Jan   |
+|                                    |          |1st date.                    |
++------------------------------------+----------+-----------------------------+
+|``sales_for_resale_mwh``            |float     |Energy sold for resale       |
+|                                    |          |purposes. As seen in EIA     |
+|                                    |          |output forms.                |
++------------------------------------+----------+-----------------------------+
+|``sales_to_ultimate_consumers_mwh`` |float     |Energy sold to the ultimate  |
+|                                    |          |customer. As seen in EIA     |
+|                                    |          |output files.                |
++------------------------------------+----------+-----------------------------+
+
+**Demand Side Management Misc.** -- need to define ENTITY_TYPE better
+
++------------------------------------+----------+-----------------------------+
+|**Columns**                         |**Dtype** |**Contents / Difference from |
+|                                    |          |EIA output files**           |
++====================================+==========+=============================+
+|\* ``utility_id_eia``               |int       |Unique EIA utility code      |
+|                                    |          |as seen in EIA output files. |
++------------------------------------+----------+-----------------------------+
+|\* ``state``                        |str       |State where a utility        |
+|                                    |          |operates. Utilities may have |
+|                                    |          |multiple entries if they     |
+|                                    |          |opperate in multiple states. |
+|                                    |          |As seen in EIA output files. |
++------------------------------------+----------+-----------------------------+
+|\* ``nerc_region``                  |category  |Acronym for physical NERC    |
+|                                    |          |region in which a utility    |
+|                                    |          |operates, not just transacts.|
+|                                    |          |Cleaned and corrected.       |
++------------------------------------+----------+-----------------------------+
+|\* ``report_date``                  |datetime  |Date of form completion.     |
+|                                    |          |Converted from year to Jan   |
+|                                    |          |1st date.                    |
++------------------------------------+----------+-----------------------------+
+|``energy_savings_estimates_         |bool      |Whether savings estimates    |
+|independently_verified``            |          |were verified through        |
+|                                    |          |independent evaluation.      |
+|                                    |          |Adapted from Y/N as seen in  |
+|                                    |          |as seen in EIA output files. |
++------------------------------------+----------+-----------------------------+
+|``energy_savings_independently      |bool      |Whether savings were verified|
+|_verified``                         |          |through independent          |
+|                                    |          |evaluation. Adapted from Y/N |
+|                                    |          |as seen in EIA output files  |
++------------------------------------+----------+-----------------------------+
+|``major_program_changes``           |bool      |Whether there have been major|
+|                                    |          |program changes that would   |
+|                                    |          |affect year-to-year          |
+|                                    |          |comparison. Adapted from Y/N |
+|                                    |          |as seen in EIA output files. |
++------------------------------------+----------+-----------------------------+
+|``price_responsive_programs``       |bool      |Whether the utility offers   |
+|                                    |          |price responsiveness         |
+|                                    |          |programs. Adapted from Y/N as|
+|                                    |          |seen in EIA output files.    |
++------------------------------------+----------+-----------------------------+
+|``short_form``                      |bool      |Whether the utility also     |
+|                                    |          |completed the short form.    |
+|                                    |          |Adapted from Y/N as seen in  |
+|                                    |          |as seen in EIA output files. |
++------------------------------------+----------+-----------------------------+
+|``time_responsive_programs``        |bool      |Whether the utility offers   |
+|                                    |          |time responsiveness          |
+|                                    |          |programs. Adapted from Y/N as|
+|                                    |          |seen in EIA output files.    |
++------------------------------------+----------+-----------------------------+
+|``entity_type``                     |category  |Entity that owns XX such as  |
+|                                    |          |Municipal, Cooperative, etc. |
+|                                    |          |From first letter (M, C etc.)|
+|                                    |          |to full name.                |
++------------------------------------+----------+-----------------------------+
+|``reported_as_another_company``     |str       |If applicable, the name of   |
+|                                    |          |the company that also reports|
+|                                    |          |the same DSM data.           |
++------------------------------------+----------+-----------------------------+
+|``utility_name_eia``                |str       |Full name of the utility as  |
+|                                    |          |seen in EIA output files.    |
++------------------------------------+----------+-----------------------------+
 
 
 Distributed Generation
@@ -262,6 +445,62 @@ Dynamic Pricing
 
 Energy Efficiency
 ^^^^^^^^^^^^^^^^^
+
+**Energy Efficiency**
+
++------------------------------------+----------+-----------------------------+
+|**Columns**                         |**Dtype** |**Contents / Difference from |
+|                                    |          |EIA output files**           |
++====================================+==========+=============================+
+|\* ``utility_id_eia``               |int       |Unique EIA utility code      |
+|                                    |          |as seen in EIA output files. |
++------------------------------------+----------+-----------------------------+
+|\* ``state``                        |str       |State where a utility        |
+|                                    |          |operates. Utilities may have |
+|                                    |          |multiple entries if they     |
+|                                    |          |opperate in multiple states. |
+|                                    |          |As seen in EIA output files. |
++------------------------------------+----------+-----------------------------+
+|\* ``balancing_authority_code_eia`` |category  |Acronym for a utility's      |
+|                                    |          |balancing authority as seen  |
+|                                    |          |in EIA output files.         |
++------------------------------------+----------+-----------------------------+
+|\* ``report_date``                  |datetime  |Date of form completion.     |
+|                                    |          |Converted from year to Jan   |
+|                                    |          |1st date.                    |
++------------------------------------+----------+-----------------------------+
+|\* ``customer_class``               |category  |Customer breakdown           |
+|                                    |          |(residential, commercial,    |
+|                                    |          |etc.) extracted for          |
+|                                    |          |wide-to-tall format.         |
++------------------------------------+----------+-----------------------------+
+|``utility_name_eia``                |str       |Full name of the utility as  |
+|                                    |          |seen in EIA output files.    |
++------------------------------------+----------+-----------------------------+
+|``customer_incentives_incremental   |          |                             |
+|_cost``                             |          |                             |
++------------------------------------+----------+-----------------------------+
+|``customer_incentives_incremental_  |          |                             |
+|life_cycle_cost``                   |          |                             |
++------------------------------------+----------+-----------------------------+
+|``customer_other_costs_incremental_ |          |                             |
+|life_cycle_cost``                   |          |                             |
++------------------------------------+----------+-----------------------------+
+|``incremental_energy_savings_mwh``  |          |                             |
++------------------------------------+----------+-----------------------------+
+|``incremental_life_cycle_energy_    |          |                             |
+|savings_mwh``                       |          |                             |
++------------------------------------+----------+-----------------------------+
+|``incremental_life_cycle_peak_      |          |                             |
+|reduction_mwh``                     |          |                             |
++------------------------------------+----------+-----------------------------+
+|``incremental_peak_reduction_mw``   |          |                             |
++------------------------------------+----------+-----------------------------+
+|``other_costs_incremental_cost``    |          |                             |
++------------------------------------+----------+-----------------------------+
+|``weighted_average_life_years``     |          |                             |
++------------------------------------+----------+-----------------------------+
+
 
 Green Pricing
 ^^^^^^^^^^^^^

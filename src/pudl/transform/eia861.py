@@ -1411,7 +1411,6 @@ def demand_side_management(tfr_dfs):
         transformed_dsm2.drop(
             ee_cols
             + dr_cols
-            + program_cols
             + total_cost_cols
             + ['customer_class'], axis=1)
         .drop_duplicates()
