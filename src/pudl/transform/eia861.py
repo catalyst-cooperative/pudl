@@ -1319,7 +1319,9 @@ def demand_side_management(tfr_dfs):
         'annual_indirect_program_cost',
         'annual_total_cost',
         'energy_efficiency_annual_cost',
+        'energy_efficiency_annual_incentive_payment',
         'load_management_annual_cost',
+        'load_management_annual_incentive_payment',
     ]
 
     raw_dsm = tfr_dfs['demand_side_management_eia861'].copy()

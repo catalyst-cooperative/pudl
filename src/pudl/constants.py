@@ -2610,7 +2610,8 @@ REVENUE_CLASSES = [
     'sales_for_resale',
     'credits_or_adjustments',
     'other',
-    'total'
+    'transmission',
+    'total',
 ]
 
 RELIABILITY_STANDARDS = [
