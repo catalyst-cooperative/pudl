@@ -1193,6 +1193,9 @@ def advanced_metering_infrastructure(tfr_dfs):
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_ami, 'Advanced Metering Infrastructure', idx_cols)
 
+    # Drop total_meters col
+    tidy_ami = tidy_ami.drop(['total_meters'], axis=1)
+
     tfr_dfs["advanced_metering_infrastructure_eia861"] = tidy_ami
     return tfr_dfs
 
