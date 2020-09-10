@@ -1123,7 +1123,7 @@ def sales(tfr_dfs):
     deduped_sales = _drop_dupes(
         df=tidy_sales,
         df_name='Sales',
-        idx_cols=idx_cols
+        subset=idx_cols
     )
 
     ###########################################################################
@@ -1233,7 +1233,7 @@ def demand_response(tfr_dfs):
     raw_dr_water_heater = _drop_dupes(
         df=raw_dr_water_heater,
         df_name='Demand Response Water Heater',
-        idx_cols=idx_cols
+        subset=idx_cols
     )
     raw_dr = raw_dr.drop(['water_heater'], axis=1)
 
@@ -1257,7 +1257,7 @@ def demand_response(tfr_dfs):
     deduped_dr = _drop_dupes(
         df=tidy_dr,
         df_name='Demand Response',
-        idx_cols=idx_cols
+        subset=idx_cols
     )
 
     ###########################################################################
@@ -1433,7 +1433,7 @@ def demand_side_management(tfr_dfs):
     dsm_misc = _drop_dupes(
         df=dsm_misc,
         df_name='Demand Side Management Misc.',
-        idx_cols=['utility_id_eia', 'state', 'nerc_region', 'report_date']
+        subset=['utility_id_eia', 'state', 'nerc_region', 'report_date']
     )
 
     del tfr_dfs['demand_side_management_eia861']
@@ -2180,7 +2180,7 @@ def reliability(tfr_dfs):
     transformed_r = _drop_dupes(
         df=transformed_r,
         df_name='Reliability',
-        idx_cols=idx_cols
+        subset=idx_cols
     )
 
     tfr_dfs["reliability_eia861"] = transformed_r
