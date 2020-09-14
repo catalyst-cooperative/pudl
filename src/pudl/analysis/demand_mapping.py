@@ -584,9 +584,10 @@ def demand_allocation(disagg_layer,
                                          .applymap(len)
                                          .product(axis=1))
 
-    for uniform_col in allocators:
-        disagg_layer_red[uniform_col] = disagg_layer_red[uniform_col] / \
-            disagg_layer_red["_multi_counts"]
+    for col in allocators:
+        if attributes[col] == "uniform":
+            disagg_layer_red[col] = disagg_layer_red[col] / \
+                disagg_layer_red["_multi_counts"]
 
     del disagg_layer_red["_multi_counts"]
 
@@ -632,14 +633,14 @@ def demand_allocation(disagg_layer,
     allocate_layer = pd.concat([disagg_layer_red, pd.DataFrame(demand_allocated_arr, columns=allocatees)],
                                axis=1)
 
-    agg_layer = (allocate_layer.groupby(aggregators)[allocatees]
-                 .sum()
-                 .stack()
-                 .replace(0, np.nan)
-                 .dropna()
-                 .reset_index().rename(columns={"level_1": time_col, 0: demand_col}))
+    aggregate_demand = (allocate_layer.groupby(aggregators)[allocatees]
+                        .sum()
+                        .stack()
+                        .replace(0, np.nan)
+                        .dropna()
+                        .reset_index().rename(columns={"level_1": time_col, 0: demand_col}))
 
-    return agg_layer
+    return aggregate_demand
 
 
 def sales_ratio_by_class_fips(pudl_out):
@@ -1242,3 +1243,256 @@ def error_heatmap(alloc_df, actual_df, demand_columns, region_col="pca", error_m
     plt.title(error_metric.upper())
     plt.show()
     mpl.rcdefaults()
+
+################################################################################
+# Demand Time Series and Geometries Class
+################################################################################
+
+
+class DemandSpaceTimeSeries:
+    """Object with raw FERC 714 time-series data/methods to allocate demand."""
+
+    def __init__(self, pudl_engine, pa_demand_df=None, ba_county_map=None):
+        """Extract raw data and initialize attribute dictionary."""
+        # Initialize the service territory timeseries dataframe
+        if pa_demand_df is None:
+            pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine=pudl_engine)
+            self.pa_demand_df = pudl_out.demand_hourly_pa_ferc714()
+        else:
+            self.pa_demand_df = pa_demand_df
+
+        if ba_county_map is None:
+            # Initialize the county-demand mapping geodataframe
+            ferc714_out = pudl.output.ferc714.Respondents(pudl_out)
+            self.ba_county_map = ferc714_out.georef_counties()
+
+        else:
+            self.ba_county_map = ba_county_map
+
+        # List of dataframes which will be merged with the county-demand mapping geodataframe
+        # Each dataframe will add new attributes to the timeseries dataframe, thus it needs to have common keys
+        self._join_df_list = []
+
+        # List of geodataframes which will be disaggregated with the county-demand mapping layer
+        # Each geodataframe will add new attributes to the timeseries dataframe (needs to have geometry column)
+        self._sjoin_gdf_list = []
+
+        # Dictionary to keep track of columns in ba_county_map dataframe on constant and uniform attributes
+        self.attributes = dict()
+        for col in self.ba_county_map.columns:
+            self.attributes[col] = "constant"
+
+        self.attributes["population"] = "uniform"
+        self.attributes["area_km2"] = "uniform"
+        self.attributes["respondent_id_ferc714"] = "id"
+        del self.attributes["geometry"]
+
+        return
+
+    def _attribute_collision(self, df, common_columns):
+        """Check if column names from other df already exist as object attributes."""
+        collisions = set(df.columns).difference(
+            common_columns).intersection(self.attributes.keys())
+        return collisions
+
+    def add_df(self, df, uniform_list=None, check_subset=False):
+        """Add new 1-to-1 attributes for demand allocation at the state and county level. Each dataframe should have one common column with ba_county_map to merge on."""
+        df_copy = df.copy()
+        df_columns = set(df_copy.columns)
+
+        if "geometry" in df_columns:
+            logger.warning(
+                "Dropping geometry column. If you need to spatially add a geometry, use method add_gdf")
+            df_copy.drop("geometry", inplace=True)
+
+        merge_columns = df_columns.intersection(self.ba_county_map.columns)
+        if merge_columns == set():
+            raise Exception("No columns to merge on")
+
+        # check for repeating attributes
+        # check if attribute already present in a different dataframe
+        collisions = self._attribute_collision(df_copy, merge_columns)
+
+        if collisions != set():
+            logger.error("Attributes " + str(collisions) +
+                         " are already present in the class object")
+            raise
+
+        self._join_df_list.append(df_copy)
+
+        for col in set(df_copy.columns).difference(merge_columns):
+            self.attributes[col] = "constant"
+
+        if uniform_list is not None:
+            for col in uniform_list:
+                self.attributes[col] = "uniform"
+
+        return
+
+    def add_gdf(self, gdf, uniform_list=None):
+        """Add new spatial attributes using spatial overlay. Each geodataframe should span the entire US mainland area or restricted to the area of analysis."""
+        # 1. check no common columns except geometry (otherwise column names)
+        # 2. add to list
+        # 3. add columns to attribute dict
+        gdf_copy = gdf.copy().to_crs("ESRI:102003")
+        common_columns = set(gdf_copy.columns).intersection(
+            self.ba_county_map.columns)
+        if common_columns != set(["geometry"]):
+            logger.error(
+                "Multiple common columns or geometry column not assigned")
+            raise
+
+        # check for repeating attributes
+        collisions = self._attribute_collision(gdf_copy, common_columns)
+        if collisions != set():
+            logger.error("Attributes " + str(collisions) +
+                         " are already present in the class object")
+            raise
+
+        self._sjoin_gdf_list.append(gdf_copy)
+        for col in set(gdf_copy.columns).difference(common_columns):
+            self.attributes[col] = "constant"
+
+        if uniform_list is not None:
+            for col in uniform_list:
+                self.attributes[col] = "uniform"
+
+        return
+
+    def del_df(self, index):
+        """Delete 1-to-1 data attributes using index. use get_df method to go through available DataFrames."""
+        # remove df by list index
+        # update attributes
+        if len(self._join_df_list) <= index:
+            logger.exception("Index not available")
+            raise
+
+        df = self._join_df_list.pop(index)
+        merge_columns = set(df.columns).intersection(self.ba_county_map)
+        for col in set(df.columns).difference(merge_columns):
+            del self.attributes[col]
+
+        return
+
+    def del_gdf(self, index):
+        """Delete spatial overlaid data attributes using index. Use get_gdf method to go through available GeoDataFrames."""
+        # remove gdf by list index
+        # update attributes
+        if len(self._sjoin_gdf_list) <= index:
+            print("Index not available")
+            raise
+
+        gdf = self._sjoin_gdf_list.pop(index)
+        for col in set(gdf.columns).difference(["geometry"]):
+            del self.attributes[col]
+
+        return
+
+    def get_df(self):
+        """Return list of available attribute dataframes which could be used to allocate data."""
+        # return list of dataframes
+        return self._join_df_list
+
+    def get_gdf(self):
+        """Return list of available attribute dataframes which could be used to allocate data."""
+        # return list of geodataframes
+        return self._sjoin_gdf_list
+
+    def _annual_demand_space_time(self, reporting_year):
+        """Return clean version of timeseries and county mapping for 1 year."""
+        logger.info(
+            "Extracting clean demand timeseries and geometries for year: " + str(reporting_year))
+        logger.info("Removing NA demand")
+        pa_demand_df_annual = (self.pa_demand_df[
+            self.pa_demand_df["report_date"].dt.year == reporting_year
+        ].dropna(subset=["demand_mwh"]))
+
+        logger.info("Selecting respondent mappings having non-zero demand")
+        ba_county_map_annual = (self.ba_county_map[
+            (self.ba_county_map.report_date.dt.year == reporting_year) &
+            (self.ba_county_map["respondent_id_ferc714"].isin(pa_demand_df_annual["respondent_id_ferc714"]
+                                                              .unique()))]
+            .to_crs("ESRI:102003"))
+
+        logger.info("Aggregating demand mapping")
+        ba_county_id_set = (ba_county_map_annual
+                            .groupby(["county_id_fips", "state", "state_id_fips"])["respondent_id_ferc714"]
+                            .agg(frozenset).reset_index()
+                            .rename(columns={"respondent_id_ferc714": "respondent_id_ferc714_set"}))
+
+        ba_county_map_annual = ba_county_map_annual.merge(ba_county_id_set)
+
+        return pa_demand_df_annual, ba_county_map_annual
+
+    def _allocate_demand_annual(self, reporting_year, allocators, aggregators):
+        """Allocate demand for one year."""
+        pa_demand_df_annual, ba_county_map_annual = self._annual_demand_space_time(
+            reporting_year)
+        allocator_cols, _ = list(
+            allocators.keys()), list(allocators.values())
+
+        ba_county_map_annual.drop(["balancing_authority_id_eia",
+                                   "balancing_authority_name_eia",
+                                   "utility_id_eia",
+                                   "utility_name_eia"], axis=1, inplace=True)
+
+        for df in self._join_df_list:
+            # Common columns in ba_county_map and df
+            merge_columns = set(df.columns).intersection(
+                ba_county_map_annual.columns)
+            # Selected columns from df in allocators or aggregators
+            select_columns = set(df.columns).difference(
+                merge_columns).intersection(allocator_cols + aggregators)
+
+            if select_columns != set():
+                ba_county_map_annual = ba_county_map_annual.merge(df[list(merge_columns | select_columns)],
+                                                                  how="left")
+
+        disagg_layer = ba_county_map_annual.copy()
+
+        for gdf in self._sjoin_gdf_list:
+            select_columns = (set(gdf.columns) -
+                              {"geometry"}) & set(allocator_cols + aggregators)
+
+            if select_columns != set():
+                disagg_layer = layer_intersection(disagg_layer, gdf[list(select_columns | {"geometry"})],
+                                                  self.attributes)
+
+        demand_annual = demand_allocation(disagg_layer, pa_demand_df_annual, self.attributes,
+                                          aggregators, allocators)
+
+        logger.info(
+            "Prepare aggregated geometry for reporting year " + str(reporting_year))
+        geo_layer_annual = (disagg_layer
+                            .dissolve(by=aggregators)
+                            .reset_index()[list(aggregators) + ["geometry"]])
+
+        return demand_annual, geo_layer_annual
+
+    def allocate_demand(self, start_year, end_year, allocators, aggregators, localize=False):
+        """Allocate demand for a range of years based on allocators, and aggregate based on aggregators."""
+        for i, annual in enumerate(range(start_year, end_year)):
+            demand_annual, geo_layer_annual = self._allocate_demand_annual(
+                annual, allocators, aggregators)
+            geo_layer_annual["reporting_year"] = annual
+
+            if i == 0:
+                geo_layer_complete = geo_layer_annual.copy()
+                demand_df_list = [demand_annual.copy()]
+
+            else:
+                geo_layer_complete = geo_layer_complete.append(
+                    geo_layer_annual).reset_index(drop=True)
+                demand_df_list.append(demand_annual.copy())
+
+        for i, demand_df in enumerate(demand_df_list):
+
+            if i == 0:
+                demand_complete = demand_df.set_index(
+                    aggregators + ["utc_datetime"])
+
+            else:
+                demand_complete = demand_complete.add(demand_df.set_index(
+                    aggregators + ["utc_datetime"]), fill_value=0).replace(0, np.nan)
+
+        return demand_complete, geo_layer_complete
