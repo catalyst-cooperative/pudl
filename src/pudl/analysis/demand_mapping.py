@@ -1314,9 +1314,8 @@ class DemandSpaceTimeSeries:
         collisions = self._attribute_collision(df_copy, merge_columns)
 
         if collisions != set():
-            logger.error("Attributes " + str(collisions) +
-                         " are already present in the class object")
-            raise
+            raise Exception("Attributes " + str(collisions) +
+                            " are already present in the class object")
 
         self._join_df_list.append(df_copy)
 
@@ -1338,16 +1337,14 @@ class DemandSpaceTimeSeries:
         common_columns = set(gdf_copy.columns).intersection(
             self.ba_county_map.columns)
         if common_columns != set(["geometry"]):
-            logger.error(
+            raise Exception(
                 "Multiple common columns or geometry column not assigned")
-            raise
 
         # check for repeating attributes
         collisions = self._attribute_collision(gdf_copy, common_columns)
         if collisions != set():
-            logger.error("Attributes " + str(collisions) +
-                         " are already present in the class object")
-            raise
+            raise Exception("Attributes " + str(collisions) +
+                            " are already present in the class object")
 
         self._sjoin_gdf_list.append(gdf_copy)
         for col in set(gdf_copy.columns).difference(common_columns):
@@ -1364,8 +1361,7 @@ class DemandSpaceTimeSeries:
         # remove df by list index
         # update attributes
         if len(self._join_df_list) <= index:
-            logger.exception("Index not available")
-            raise
+            raise Exception("Index not available")
 
         df = self._join_df_list.pop(index)
         merge_columns = set(df.columns).intersection(self.ba_county_map)
@@ -1379,8 +1375,7 @@ class DemandSpaceTimeSeries:
         # remove gdf by list index
         # update attributes
         if len(self._sjoin_gdf_list) <= index:
-            print("Index not available")
-            raise
+            raise Exception("Index not available")
 
         gdf = self._sjoin_gdf_list.pop(index)
         for col in set(gdf.columns).difference(["geometry"]):
