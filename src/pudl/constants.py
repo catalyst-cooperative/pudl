@@ -2610,7 +2610,8 @@ REVENUE_CLASSES = [
     'sales_for_resale',
     'credits_or_adjustments',
     'other',
-    'total'
+    'transmission',
+    'total',
 ]
 
 RELIABILITY_STANDARDS = [
@@ -2693,7 +2694,7 @@ column_dtypes = {
     },
     "eia": {
         'actual_peak_demand_savings_mw': float,  # Added by AES for DR table
-        'advanced_metering_infrastructure': float,  # Added by AES for AMI table
+        'advanced_metering_infrastructure': pd.Int64Dtype(),  # Added by AES for AMI table
         # Added by AES for UD misc table
         'alternative_fuel_vehicle_2_activity': pd.BooleanDtype(),
         # Added by AES for UD misc table
@@ -2706,7 +2707,7 @@ column_dtypes = {
         # TODO: convert this field to more descriptive words
         'ash_impoundment_status': pd.StringDtype(),
         'associated_combined_heat_power': pd.BooleanDtype(),
-        'automated_meter_reading': float,  # Added by AES for AMI table
+        'automated_meter_reading': pd.Int64Dtype(),  # Added by AES for AMI table
         'backup_capacity_mw': float,  # Added by AES for NNM & DG misc table
         'balancing_authority_code_eia': pd.CategoricalDtype(),
         'balancing_authority_id_eia': pd.Int64Dtype(),
@@ -2746,18 +2747,18 @@ column_dtypes = {
         'critical_peak_pricing': pd.BooleanDtype(),  # Added by AES for DP table
         'critical_peak_rebate': pd.BooleanDtype(),  # Added by AES for DP table
         'current_planned_operating_date': 'datetime64[ns]',
-        'customers': float,  # pd.Int64Dtype(),  # Used by AES for NM table
+        'customers': float,  # Added by AES for DR, NM table
         'customer_class': pd.CategoricalDtype(categories=CUSTOMER_CLASSES),
         'customer_incentives_cost': float,  # Added by AES for DR table
         'customer_incentives_incremental_cost': float,  # Added by AES for EE table
         'customer_incentives_incremental_life_cycle_cost': float,  # Added by AES for EE table
         # Added by AES for EE table
         'customer_other_costs_incremental_life_cycle_cost': float,
-        'daily_digital_access_customers': float,  # Added by AES for AMI table
+        'daily_digital_access_customers': pd.Int64Dtype(),  # Added by AES for AMI table
         'data_observed': pd.BooleanDtype(),  # Used by AES for OD table
         'deliver_power_transgrid': pd.BooleanDtype(),
         'delivery_customers': float,  # Added by AES for OD Revenue table
-        'direct_load_control_customers': float,  # Added by AES for AMI table
+        'direct_load_control_customers': pd.Int64Dtype(),  # Added by AES for AMI table
         # Added by AES for DG misc table
         'distributed_generation_owned_capacity_mw': float,
         'distribution_activity': pd.BooleanDtype(),  # Added by AES for UD misc table
@@ -2837,7 +2838,7 @@ column_dtypes = {
         'grid_voltage_kv': float,
         'heat_content_mmbtu_per_unit': float,
         'highest_distribution_voltage_kv': float,  # Added by AES for R table
-        'home_area_network': float,  # Added by AES for AMI table
+        'home_area_network': pd.Int64Dtype(),  # Added by AES for AMI table
         'inactive_accounts_included': pd.BooleanDtype(),  # Added by AES for R table
         'incremental_energy_savings_mwh': float,  # Added by AES for EE table
         'incremental_life_cycle_energy_savings_mwh': float,  # Added by AES for EE table
@@ -2895,7 +2896,7 @@ column_dtypes = {
         'net_power_exchanged_mwh': float,  # Added by AES for OD table
         'net_wheeled_power_mwh': float,  # Added by AES for OD table
         'new_parent': pd.StringDtype(),  # Added by AES for Mergers table
-        'non_amr_ami': float,  # Added by AES for AMI table
+        'non_amr_ami': pd.Int64Dtype(),  # Added by AES for AMI table
         'nuclear_unit_id': pd.Int64Dtype(),
         'operates_generating_plant': pd.BooleanDtype(),  # Added by AES for UD misc table
         'operating_date': 'datetime64[ns]',
@@ -3023,7 +3024,7 @@ column_dtypes = {
         'topping_bottoming_code': pd.StringDtype(),
         'total': float,  # Added by AES for OD Revenue table
         'total_capacity_less_1_mw': float,  # Added by AES for DG misc table
-        'total_meters': float,  # Added by AES for AMI table
+        'total_meters': pd.Int64Dtype(),  # Added by AES for AMI table
         'total_disposition_mwh': float,  # Added by AES for OD table
         'total_energy_losses_mwh': float,  # Added by AES for OD table
         'total_sources_mwh': float,  # Added by AES for OD table
