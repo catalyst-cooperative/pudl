@@ -466,7 +466,7 @@ class Datastore:
                     self.save_datapackage_json(dataset, dpkg)
 
                 r_abspath = copy.deepcopy(r)
-                r_abspath["path"] = str(local)
+                r_abspath["path"] = str(self.local_path(dataset, r["path"]))
                 yield r_abspath
 
 
