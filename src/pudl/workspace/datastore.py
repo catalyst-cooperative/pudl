@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """Datastore manages file retrieval for PUDL datasets."""
 
 import argparse
+import copy
 import hashlib
 import json
 import logging
@@ -11,6 +11,7 @@ import re
 import sys
 from pathlib import Path
 
+import datapackage
 import requests
 import yaml
 from requests.adapters import HTTPAdapter
@@ -21,19 +22,25 @@ from requests.packages.urllib3.util.retry import Retry
 # long as we stick to read-only keys.
 
 TOKEN = {
-    "sandbox": "WX1FW2JOrkcCvoGutoZaGS69W5P9A73wybsToLeo4nt6NP3moeIg7sPBw8nI",
-    "production": "N/A"
+    # Tied to unknown account. Pablo?
+    # "sandbox": "WX1FW2JOrkcCvoGutoZaGS69W5P9A73wybsToLeo4nt6NP3moeIg7sPBw8nI",
+    # Tied to zane.selvans@catalyst.coop:
+    # "sandbox": "qeSCRegRkKbXN11j2WXz71BM3Ahp6sLnVHZ1B7usi5TmUTyrU6pSamKIg4VS",
+    # Read-only tokens for pudl@catalyst.coop:
+    "sandbox": "qyPC29wGPaflUUVAv1oGw99ytwBqwEEdwi4NuUrpwc3xUcEwbmuB4emwysco",
+    "production": "KXcG5s9TqeuPh1Ukt5QYbzhCElp9LxuqAuiwdqHP0WS4qGIQiydHn6FBtdJ5"
 }
+
 
 DOI = {
     "sandbox": {
-        "eia860": "10.5072/zenodo.657345",
-        "eia861": "10.5072/zenodo.658437",
-        "eia923": "10.5072/zenodo.657350",
-        "epaipm": "10.5072/zenodo.602953",
+        "eia860": "10.5072/zenodo.672210",
+        "eia861": "10.5072/zenodo.672199",
+        "eia923": "10.5072/zenodo.672221",
         "epacems": "10.5072/zenodo.638878",
-        "ferc1": "10.5072/zenodo.656695",
-        "ferc714": "10.5072/zenodo.661865"
+        "epaipm": "10.5072/zenodo.602953",
+        "ferc1": "10.5072/zenodo.672226",
+        "ferc714": "10.5072/zenodo.672224",
     },
     "production": {}
 }
@@ -164,11 +171,12 @@ class Datastore:
         """
         path = self.local_path(dataset, filename="datapackage.json")
         path.parent.mkdir(parents=True, exist_ok=True)
-        text = json.dumps(dpkg, sort_keys=True)
+        text = json.dumps(dpkg, sort_keys=True, indent=4)
 
         with path.open("w") as f:
             f.write(text)
             self.logger.debug("%s saved.", path)
+        self._validate_datapackage(dataset)
 
         return path
 
@@ -219,6 +227,7 @@ class Datastore:
 
         Return:
             dict: representation of the datapackage.json
+
         """
         path = self.local_path(dataset, filename="datapackage.json")
 
@@ -286,7 +295,7 @@ class Datastore:
 
         """
         response = self.http.get(
-            resource["parts"]["remote_url"],
+            resource["remote_url"],
             params={"access_token": self.token},
             timeout=self.timeout)
 
@@ -326,8 +335,10 @@ class Datastore:
         Args:
             path: path to the resource on disk
             hsh: string, expected md5hash
+
         Returns:
-            Boolean: True if the resource md5sum matches the descriptor.
+            bool: True if the resource md5sum matches the descriptor.
+
         """
         if not path.exists():
             return False
@@ -337,7 +348,7 @@ class Datastore:
             m.update(f.read())
 
         if m.hexdigest() == hsh:
-            self.logger.debug("%s appears valid" % path)
+            self.logger.debug("%s md5 hash is valid" % path)
             return True
 
         self.logger.warning("%s md5 mismatch" % path)
@@ -345,32 +356,56 @@ class Datastore:
 
     def _validate_dataset(self, dataset):
         """
-        Make sure each resource on disc has the right md5sum.
+        Validate datapackage.json and check each resource on disk has correct md5sum.
 
         Args:
             dataset: name of a dataset
 
         Returns:
-            Bool, True if local resources appear to be correct.
+            bool: True if local datapackage.json is valid and resources have good md5
+            checksums.
 
         """
-        dpkg = self.datapackage_json(dataset)
-        ok = True
+        dp = self.datapackage_json(dataset)
+        ok = self._validate_datapackage(dataset)
 
-        for r in dpkg["resources"]:
+        for r in dp["resources"]:
 
             if self.is_remote(r):
-                self.logger.debug("%s not cached, skipping validation"
-                                  % r["path"])
+                self.logger.debug(f"{r['path']} not cached, skipping validation")
                 continue
 
             # We verify and warn on every resource. Even though a single
             # failure could end the algorithm, we want to see which ones are
             # invalid.
 
-            ok = self._validate_file(Path(r["path"]), r["hash"]) and ok
+            ok = self._validate_file(
+                self.local_path(dataset, r["path"]), r["hash"]) and ok
 
         return ok
+
+    def _validate_datapackage(self, dataset):
+        """
+        Validate the datapackage.json metadata against the datapackage standard.
+
+        Args:
+            dataset (str): Name of a dataset.
+
+        Returns:
+            bool: True if the datapackage.json is valid. False otherwise.
+
+        """
+        dp = datapackage.Package(self.datapackage_json(dataset))
+        if not dp.valid:
+            msg = f"Found {len(dp.errors)} datapackage validation errors:\n"
+            for e in dp.errors:
+                msg = msg + f"  * {e}\n"
+            self.logger.warning(msg)
+        else:
+            self.logger.debug(
+                f"{self.local_path(dataset, filename='datapackage.json')} is valid"
+            )
+        return dp.valid
 
     def validate(self, dataset=None):
         """
@@ -408,7 +443,8 @@ class Datastore:
 
         Returns:
             list of dicts, each representing a resource per the frictionless
-            datapackage spec, except that locas paths are modified to be absolute.
+            datapackage spec, except that local paths are modified to be absolute.
+
         """
         filters = dict(**kwargs)
 
@@ -426,10 +462,12 @@ class Datastore:
 
                     # save with a relative path
                     r["path"] = str(local.relative_to(self.local_path(dataset)))
+                    self.logger.debug(f"resource local relative path: {r['path']}")
                     self.save_datapackage_json(dataset, dpkg)
 
-                r["path"] = str(self.local_path(dataset, r["path"]))
-                yield r
+                r_abspath = copy.deepcopy(r)
+                r_abspath["path"] = str(local)
+                yield r_abspath
 
 
 def main_arguments():

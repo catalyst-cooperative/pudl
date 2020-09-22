@@ -30,7 +30,7 @@ repos:
 
 # Make sure import statements are sorted uniformly.
 - repo: https://github.com/pre-commit/mirrors-isort
-  rev: v5.4.2
+  rev: v5.5.3
   hooks:
   - id: isort
 
@@ -48,7 +48,7 @@ repos:
 
 # Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8
-  rev: 0.9.0a0
+  rev: 0.9.0a1
   hooks:
   - id: doc8
     args: [--ignore-path, docs/_build]
