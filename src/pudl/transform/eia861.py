@@ -464,33 +464,10 @@ NERC_SPELLCHECK = {
     'YORK': 'NPCC',
 }
 
-NERC_CLASS = [
-    'tre',
-    'frcc',
-    'mro',
-    'npcc',
-    'rfc',
-    'serc',
-    'spp',
-    'wecc',
-]
-
-RTO_CLASS = [
-    'caiso',
-    'ercot',
-    'pjm',
-    'nyiso',
-    'spp',
-    'miso',
-    'isone',
-    'other'
-]
 
 ###############################################################################
 # EIA Form 861 Transform Helper functions
 ###############################################################################
-
-
 def _filter_class_cols(df, class_list):
     regex = f"^({'_|'.join(class_list)}).*$"
     return df.filter(regex=regex)
@@ -602,14 +579,13 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
     return tidy_df, idx_cols + [class_type]
 
 
-def _drop_dupes(df, subset):
+def _drop_dupes(df, df_name, subset):
     tidy_nrows = len(df)
-    deduped_df = df.drop_duplicates(
-        subset=subset, keep=False)
+    deduped_df = df.drop_duplicates(subset=subset)
     deduped_nrows = len(df)
     logger.info(
         f"Dropped {tidy_nrows-deduped_nrows} duplicate records from EIA 861 "
-        f"Demand Response table, out of a total of {tidy_nrows} records "
+        f"{df_name} table, out of a total of {tidy_nrows} records "
         f"({(tidy_nrows-deduped_nrows)/tidy_nrows:.4%} of all records). "
     )
     return deduped_df
@@ -765,19 +741,21 @@ def _compare_nerc_physical_w_nerc_operational(df):
     In the Utility Data table, there is the 'nerc_region' index column, otherwise
     interpreted as nerc region in which the utility is physically located and the
     'nerc_regions_of_operation' column that depicts the nerc regions the utility
-    operates in. In most cases, these two columns are the same, however there are certain
-    instances where this is not true. There are also instances where a utility operates in
-    multiple nerc regions in which case one row will match and another row will not.
-    The output of this function in a table that shows only the utilities where the physical
-    nerc region does not match the operational region ever, meaning there is no additional
-    row for the same utlity during the same year where there is a match between the cols.
+    operates in. In most cases, these two columns are the same, however there are
+    certain instances where this is not true. There are also instances where a
+    utility operates in multiple nerc regions in which case one row will match and
+    another row will not. The output of this function in a table that shows only the
+    utilities where the physical nerc region does not match the operational region
+    ever, meaning there is no additional row for the same utlity during the same
+    year where there is a match between the cols.
 
     Args:
-        df (pandas.DataFrame): The utility_data_nerc_eia861 table output from the utility_data()
-            function.
+        df (pandas.DataFrame): The utility_data_nerc_eia861 table output from the
+            utility_data() function.
     Returns:
-        pandas.DataFrame: A DataFrame with rows for utilities where NO listed operating nerc
-            region matches the "physical location" nerc region column that's a part of the index.
+        pandas.DataFrame: A DataFrame with rows for utilities where NO listed operating
+        nerc region matches the "physical location" nerc region column that's a part of
+        the index.
 
     """
     # Set NA states to UNK
@@ -804,13 +782,27 @@ def _compare_nerc_physical_w_nerc_operational(df):
     )
 
     # Keep only rows where there are no matches for the whole group.
-    # Delete row with individual match boolean vs. group match boolean
     expanded_nerc_match_bools_false = (
         expanded_nerc_match_bools[~expanded_nerc_match_bools['nerc_group_match']]
-        .drop(columns='nerc_match', axis=1)
     )
 
     return expanded_nerc_match_bools_false
+
+
+def _pct_to_mw(df, pct_col):
+    """Turn pct col into mw capacity using total capacity col."""
+    mw_value = df['total_capacity_mw'] * df[pct_col] / 100
+    return mw_value
+
+
+def _make_yn_bool(df_object):
+    """Turn Y/N reporting into True or False boolean statements for df or series."""
+    return df_object.replace({"N": False, "Y": True})
+
+
+def _thousand_to_one(df_object):
+    """Turn reporting in thousands of dollars to regular dollars for df or series."""
+    return df_object * 1000
 
 
 ###############################################################################
@@ -930,15 +922,17 @@ def balancing_authority_assn(tfr_dfs):
         transform functions.
 
     """
-    # These aren't really "data" tables, and should not be searched for associations:
+    # These aren't really "data" tables, and should not be searched for associations
     non_data_dfs = [
         "balancing_authority_eia861",
         "service_territory_eia861",
     ]
-    # The dataframes from which to compile BA-Util-State associations
-    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
 
-    logger.info("Building an EIA 861 BA-Util-State-Date association table.")
+    # The dataframes from which to compile BA-Util-State associations
+    data_dfs = [tfr_dfs[table]
+                for table in tfr_dfs if table not in non_data_dfs]
+
+    logger.info("Building an EIA 861 BA-Util-State association table.")
 
     # Helpful shorthand query strings....
     early_years = "report_date<='2012-12-31'"
@@ -1005,7 +999,8 @@ def utility_assn(tfr_dfs):
         "service_territory_eia861",
     ]
     # The dataframes from which to compile BA-Util-State associations
-    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
+    data_dfs = [tfr_dfs[table]
+                for table in tfr_dfs if table not in non_data_dfs]
 
     logger.info("Building an EIA 861 Util-State-Date association table.")
     tfr_dfs["utility_assn_eia861"] = _harvest_associations(
@@ -1017,9 +1012,12 @@ def _harvest_associations(dfs, cols):
     """
     Compile all unique, non-null combinations of values ``cols`` within ``dfs``.
 
+    Find all unique, non-null combinations of the columns ``cols`` in the dataframes
+    ``dfs`` within records that are selected by ``query``. All of ``cols`` must be
+    present in each of the ``dfs``.
+
     Args:
         dfs (iterable of pandas.DataFrame): The DataFrames in which to search for
-            unique associations.
         cols (iterable of str): Labels of columns for which to find unique, non-null
             combinations of values.
 
@@ -1095,9 +1093,7 @@ def sales(tfr_dfs):
         "utility_id_eia",
         "state",
         "report_date",
-        "business_model",
-        "service_type",
-        "balancing_authority_code_eia"
+        "balancing_authority_code_eia",
     ]
 
     # Pre-tidy clean specific to sales table
@@ -1120,11 +1116,15 @@ def sales(tfr_dfs):
     )
 
     # remove duplicates on the primary key columns + customer_class -- there
-    # are a handful of records, all from 2010-2012, that have reporting errors
-    # that produce dupes, which do not have a clear meaning. The utility_id_eia
-    # values involved are: [8153, 13830, 17164, 56431, 56434, 56466, 56778,
-    # 56976, 56990, 57081, 57411, 57476, 57484, 58300]
-    deduped_sales = _drop_dupes(tidy_sales, idx_cols)
+    # are lots of records that have reporting errors in the form of duplicates.
+    # Many of them include different values and are therefore impossible to tell
+    # which are "correct". The following function drops all but the first of
+    # these duplicate entries.
+    deduped_sales = _drop_dupes(
+        df=tidy_sales,
+        df_name='Sales',
+        subset=idx_cols
+    )
 
     ###########################################################################
     # Transform Values:
@@ -1140,7 +1140,7 @@ def sales(tfr_dfs):
     logger.info("Performing value transformations on EIA 861 Sales table.")
     transformed_sales = (
         deduped_sales.assign(
-            sales_revenue=lambda x: x.sales_revenue * 1000.0,
+            sales_revenue=lambda x: _thousand_to_one(x.sales_revenue),
             data_observed=lambda x: x.data_observed.replace({
                 "O": True,
                 "I": False,
@@ -1196,6 +1196,9 @@ def advanced_metering_infrastructure(tfr_dfs):
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_ami, 'Advanced Metering Infrastructure', idx_cols)
 
+    # Drop total_meters col
+    tidy_ami = tidy_ami.drop(['total_meters'], axis=1)
+
     tfr_dfs["advanced_metering_infrastructure_eia861"] = tidy_ami
     return tfr_dfs
 
@@ -1225,6 +1228,15 @@ def demand_response(tfr_dfs):
     #     raw_dr['balancing_authority_code_eia'].fillna('UNK')
     # )
 
+    # Split data into tidy-able and not
+    raw_dr_water_heater = raw_dr[idx_cols + ['water_heater']].copy()
+    raw_dr_water_heater = _drop_dupes(
+        df=raw_dr_water_heater,
+        df_name='Demand Response Water Heater',
+        subset=idx_cols
+    )
+    raw_dr = raw_dr.drop(['water_heater'], axis=1)
+
     ###########################################################################
     # Tidy Data:
     ###########################################################################
@@ -1242,7 +1254,11 @@ def demand_response(tfr_dfs):
     # these values have Nan BA values and should be deleted earlier.
     # thinking this might have to do with DR table weirdness between 2012 and 2013
     # will come back to this after working on the DSM table. Dropping dupes for now.
-    deduped_dr = _drop_dupes(tidy_dr, idx_cols)
+    deduped_dr = _drop_dupes(
+        df=tidy_dr,
+        df_name='Demand Response',
+        subset=idx_cols
+    )
 
     ###########################################################################
     # Transform Values:
@@ -1252,18 +1268,36 @@ def demand_response(tfr_dfs):
         "Performing value transformations on EIA 861 Demand Response table.")
     transformed_dr = (
         deduped_dr.assign(
-            customer_incentives_cost=lambda x: x.customer_incentives_cost * 1000.0,
-            other_costs=lambda x: x.other_costs * 1000.0
+            customer_incentives_cost=lambda x: (
+                _thousand_to_one(x.customer_incentives_cost)),
+            other_costs=lambda x: (
+                _thousand_to_one(x.other_costs))
         )
     )
 
     tfr_dfs["demand_response_eia861"] = transformed_dr
+    tfr_dfs["demand_response_water_heater_eia861"] = raw_dr_water_heater
+
     return tfr_dfs
 
 
 def demand_side_management(tfr_dfs):
     """
     Transform the EIA 861 Demand Side Management table.
+
+    In 2013, the EIA changed the contents of the 861 form so that information
+    pertaining to demand side management was no longer housed in a single table,
+    rather two seperate ones pertaining to energy efficiency and demand response.
+    While the pre and post 2013 tables contain similar information, their contents
+    contain no cut-and-dry counterparts between these years. In other words, one
+    column in the pre-2013 demand side management table may not have an obvious
+    column equivalent in the post-2013 energy efficiency or demand response data.
+    As a result, we've separated the demand side management from the energy efficiency
+    and demand response tables. Information of this sort will therefore be separated
+    into pre and post 2013 chuncks accordingly. (Use the DSM table for pre 2013 data
+    and the EE / DR tables for post 2013 data). Despite the uncertainty comparing
+    across these years, the data are similar and we hope to provide a cohesive
+    dataset in the future with all years and comprable columns combined.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -1273,6 +1307,141 @@ def demand_side_management(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    idx_cols = [
+        'utility_id_eia',
+        'state',
+        'nerc_region',
+        'report_date',
+    ]
+
+    sales_cols = [
+        'sales_for_resale_mwh',
+        'sales_to_ultimate_consumers_mwh'
+    ]
+
+    bool_cols = [
+        'energy_savings_estimates_independently_verified',
+        'energy_savings_independently_verified',
+        'major_program_changes',
+        'price_responsive_programs',
+        'short_form',
+        'time_responsive_programs',
+    ]
+
+    cost_cols = [
+        'annual_indirect_program_cost',
+        'annual_total_cost',
+        'energy_efficiency_annual_cost',
+        'energy_efficiency_annual_incentive_payment',
+        'load_management_annual_cost',
+        'load_management_annual_incentive_payment',
+    ]
+
+    raw_dsm = tfr_dfs['demand_side_management_eia861'].copy()
+
+    ###########################################################################
+    # Transform Data Round 1 (must be done to avoid issues with nerc_region col in _tidy_class_dfs())
+    # * Clean NERC region col
+    # * Drop data_status and demand_side_management cols (they don't contain anything)
+    ###########################################################################
+
+    transformed_dsm1 = (
+        _clean_nerc(raw_dsm, idx_cols)
+        .drop(['demand_side_management', 'data_status'], axis=1)
+        .query("utility_id_eia not in [88888]")
+    )
+
+    # Separate dsm data into sales vs. other table (the latter of which can be tidied)
+    dsm_sales = transformed_dsm1[idx_cols + sales_cols].copy()
+    dsm_ee_dr = transformed_dsm1.drop(sales_cols, axis=1)
+
+    ###########################################################################
+    # Tidy Data:
+    ###########################################################################
+
+    tidy_dsm, dsm_idx_cols = (
+        pudl.transform.eia861._tidy_class_dfs(
+            dsm_ee_dr,
+            df_name='Demand Side Management',
+            idx_cols=idx_cols,
+            class_list=pc.CUSTOMER_CLASSES,
+            class_type='customer_class',
+            keep_totals=True
+        )
+    )
+
+    ###########################################################################
+    # Transform Data Round 2
+    # * Make booleans (Y=True, N=False)
+    # * Turn 1000s of dollars back into dollars
+    ###########################################################################
+
+    # Split tidy dsm data into transformable chunks
+    tidy_dsm_bool = (
+        tidy_dsm[dsm_idx_cols + bool_cols].copy()
+        .set_index(dsm_idx_cols)
+    )
+    tidy_dsm_cost = (
+        tidy_dsm[dsm_idx_cols + cost_cols].copy()
+        .set_index(dsm_idx_cols)
+    )
+    tidy_dsm_ee_dr = (
+        tidy_dsm.drop(bool_cols + cost_cols, axis=1)
+    )
+
+    # Calculate transformations for each chunk
+    transformed_dsm2_bool = (
+        _make_yn_bool(tidy_dsm_bool)
+        .reset_index()
+        .assign(short_form=lambda x: x.short_form.fillna(False))
+    )
+    transformed_dsm2_cost = _thousand_to_one(tidy_dsm_cost).reset_index()
+
+    # Merge transformed chunks back together
+    transformed_dsm2 = (
+        pd.merge(transformed_dsm2_bool, transformed_dsm2_cost,
+                 on=dsm_idx_cols, how='outer')
+    )
+    transformed_dsm2 = (
+        pd.merge(transformed_dsm2, tidy_dsm_ee_dr,
+                 on=dsm_idx_cols, how='outer')
+    )
+
+    # Split into final tables
+    ee_cols = [col for col in transformed_dsm2 if 'energy_efficiency' in col]
+    dr_cols = [col for col in transformed_dsm2 if 'load_management' in col]
+    program_cols = ['price_responsiveness_customers',
+                    'time_responsiveness_customers']
+    total_cost_cols = ['annual_indirect_program_cost', 'annual_total_cost']
+
+    dsm_ee_dr = (
+        transformed_dsm2[
+            dsm_idx_cols
+            + ee_cols
+            + dr_cols
+            + program_cols
+            + total_cost_cols].copy()
+    )
+    dsm_misc = (
+        transformed_dsm2.drop(
+            ee_cols
+            + dr_cols
+            + program_cols
+            + total_cost_cols
+            + ['customer_class'], axis=1)
+    )
+    dsm_misc = _drop_dupes(
+        df=dsm_misc,
+        df_name='Demand Side Management Misc.',
+        subset=['utility_id_eia', 'state', 'nerc_region', 'report_date']
+    )
+
+    del tfr_dfs['demand_side_management_eia861']
+
+    tfr_dfs['demand_side_management_sales_eia861'] = dsm_sales
+    tfr_dfs['demand_side_management_ee_dr_eia861'] = dsm_ee_dr
+    tfr_dfs['demand_side_management_misc_eia861'] = dsm_misc
+
     return tfr_dfs
 
 
@@ -1288,6 +1457,155 @@ def distributed_generation(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
+    idx_cols = [
+        'utility_id_eia',
+        'state',
+        'report_date',
+    ]
+
+    misc_cols = [
+        'backup_capacity_mw',
+        'backup_capacity_pct',
+        'distributed_generation_owned_capacity_mw',
+        'distributed_generation_owned_capacity_pct',
+        'estimated_or_actual_capacity_data',
+        'generators_number',
+        'generators_num_less_1_mw',
+        'total_capacity_mw',
+        'total_capacity_less_1_mw',
+        'utility_name_eia',
+    ]
+
+    tech_cols = [
+        'all_storage_capacity_mw',
+        'combustion_turbine_capacity_mw',
+        'combustion_turbine_capacity_pct',
+        'estimated_or_actual_tech_data',
+        'hydro_capacity_mw',
+        'hydro_capacity_pct',
+        'internal_combustion_capacity_mw',
+        'internal_combustion_capacity_pct',
+        'other_capacity_mw',
+        'other_capacity_pct',
+        'pv_capacity_mw',
+        'steam_capacity_mw',
+        'steam_capacity_pct',
+        'total_capacity_mw',
+        'wind_capacity_mw',
+        'wind_capacity_pct',
+    ]
+
+    fuel_cols = [
+        'oil_fuel_pct',
+        'estimated_or_actual_fuel_data',
+        'gas_fuel_pct',
+        'other_fuel_pct',
+        'renewable_fuel_pct',
+        'water_fuel_pct',
+        'wind_fuel_pct',
+        'wood_fuel_pct',
+    ]
+
+    # Pre-tidy transform: set estimated or actual A/E values to 'Acutal'/'Estimated'
+    raw_dg = (
+        tfr_dfs['distributed_generation_eia861'].copy()
+        .assign(
+            estimated_or_actual_capacity_data=lambda x: (
+                x.estimated_or_actual_capacity_data.map(pc.ESTIMATED_OR_ACTUAL)),
+            estimated_or_actual_fuel_data=lambda x: (
+                x.estimated_or_actual_fuel_data.map(pc.ESTIMATED_OR_ACTUAL)),
+            estimated_or_actual_tech_data=lambda x: (
+                x.estimated_or_actual_tech_data.map(pc.ESTIMATED_OR_ACTUAL))
+        )
+    )
+
+    # Split into three tables: Capacity/tech-related, fuel-related, and misc.
+    raw_dg_tech = raw_dg[idx_cols + tech_cols].copy()
+    raw_dg_fuel = raw_dg[idx_cols + fuel_cols].copy()
+    raw_dg_misc = raw_dg[idx_cols + misc_cols].copy()
+
+    ###########################################################################
+    # Transform Values:
+    # * Turn pct values into mw values
+    # * Remove old pct cols and totals cols
+    # Explanation: Pre 2010 reporting asks for components as a percent of total capacity
+    # whereas after 2010, the forms ask for the component portion as a mw value. In order
+    # To coalesce similar data, we've used total values to turn percent values from pre 2010
+    # into mw values like those post-2010.
+    ###########################################################################
+
+    # Separate datasets into years with only pct values (pre-2010) and years with only mw values (post-2010)
+    df_pre_2010_tech = raw_dg_tech[raw_dg_tech['report_date'] < '2010-01-01']
+    df_post_2010_tech = raw_dg_tech[raw_dg_tech['report_date'] >= '2010-01-01']
+    df_pre_2010_misc = raw_dg_misc[raw_dg_misc['report_date'] < '2010-01-01']
+    df_post_2010_misc = raw_dg_misc[raw_dg_misc['report_date'] >= '2010-01-01']
+
+    logger.info(
+        'Converting pct values into mw values for distributed generation misc table')
+    transformed_dg_misc = (
+        df_pre_2010_misc.assign(
+            distributed_generation_owned_capacity_mw=lambda x: _pct_to_mw(
+                x, 'distributed_generation_owned_capacity_pct'),
+            backup_capacity_mw=lambda x: _pct_to_mw(x, 'backup_capacity_pct'),
+        ).append(df_post_2010_misc)
+        .drop(['distributed_generation_owned_capacity_pct',
+               'backup_capacity_pct',
+               'total_capacity_mw'], axis=1)
+    )
+
+    logger.info(
+        'Converting pct values into mw values for distributed generation tech table')
+    transformed_dg_tech = (
+        df_pre_2010_tech.assign(
+            combustion_turbine_capacity_mw=lambda x: (
+                _pct_to_mw(x, 'combustion_turbine_capacity_pct')),
+            hydro_capacity_mw=lambda x: _pct_to_mw(x, 'hydro_capacity_pct'),
+            internal_combustion_capacity_mw=lambda x: (
+                _pct_to_mw(x, 'internal_combustion_capacity_pct')),
+            other_capacity_mw=lambda x: _pct_to_mw(x, 'other_capacity_pct'),
+            steam_capacity_mw=lambda x: _pct_to_mw(x, 'steam_capacity_pct'),
+            wind_capacity_mw=lambda x: _pct_to_mw(x, 'wind_capacity_pct'),
+        ).append(df_post_2010_tech)
+        .drop([
+            'combustion_turbine_capacity_pct',
+            'hydro_capacity_pct',
+            'internal_combustion_capacity_pct',
+            'other_capacity_pct',
+            'steam_capacity_pct',
+            'wind_capacity_pct',
+            'total_capacity_mw'], axis=1
+        )
+    )
+
+    ###########################################################################
+    # Tidy Data
+    ###########################################################################
+
+    logger.info('Tidying Distributed Generation Tech Table')
+    tidy_dg_tech, tech_idx_cols = _tidy_class_dfs(
+        df=transformed_dg_tech,
+        df_name='Distributed Generation Tech Component Capacity',
+        idx_cols=idx_cols,
+        class_list=pc.TECH_CLASSES,
+        class_type='tech_class',
+    )
+
+    logger.info('Tidying Distributed Generation Fuel Table')
+    tidy_dg_fuel, fuel_idx_cols = _tidy_class_dfs(
+        df=raw_dg_fuel,
+        df_name='Distributed Generation Fuel Percent',
+        idx_cols=idx_cols,
+        class_list=pc.FUEL_CLASSES,
+        class_type='fuel_class',
+    )
+
+    # Drop original distributed generation table from tfr_dfs
+    del tfr_dfs['distributed_generation_eia861']
+
+    tfr_dfs["distributed_generation_tech_eia861"] = tidy_dg_tech
+    tfr_dfs["distributed_generation_fuel_eia861"] = tidy_dg_fuel
+    tfr_dfs["distributed_generation_misc_eia861"] = transformed_dg_misc
+
     return tfr_dfs
 
 
@@ -1314,6 +1632,7 @@ def distribution_systems(tfr_dfs):
                      "utility_id_eia", "state", "report_date"])
 
     tfr_dfs["distribution_systems_eia861"] = raw_ds
+
     return tfr_dfs
 
 
@@ -1379,6 +1698,71 @@ def dynamic_pricing(tfr_dfs):
     return tfr_dfs
 
 
+def energy_efficiency(tfr_dfs):
+    """
+    Transform the EIA 861 Energy Efficiency table.
+
+    Args:
+        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
+            name. It will be mutated by this function.
+
+    Returns:
+        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
+
+    """
+    idx_cols = [
+        'utility_id_eia',
+        'state',
+        'balancing_authority_code_eia',
+        'report_date',
+    ]
+
+    raw_ee = tfr_dfs["energy_efficiency_eia861"].copy()
+
+    # No duplicates to speak of but take measures to check just in case
+    _check_for_dupes(raw_ee, 'Energy Efficiency', idx_cols)
+
+    ###########################################################################
+    # Tidy Data:
+    ###########################################################################
+
+    logger.info("Tidying the EIA 861 Energy Efficiency table.")
+
+    # wide-to-tall by customer class (must be done before wide-to-tall by fuel class)
+    tidy_ee, _ = pudl.transform.eia861._tidy_class_dfs(
+        raw_ee,
+        df_name='Energy Efficiency',
+        idx_cols=idx_cols,
+        class_list=pc.CUSTOMER_CLASSES,
+        class_type='customer_class',
+        keep_totals=True
+    )
+
+    ###########################################################################
+    # Transform Values:
+    # * Turn 1000s of dollars back into dollars
+    # * Get rid of website column
+    ###########################################################################
+
+    logger.info("Transforming the EIA 861 Energy Efficiency table.")
+
+    transformed_ee = (
+        tidy_ee.assign(
+            customer_incentives_incremental_cost=lambda x: (
+                _thousand_to_one(x.customer_incentives_incremental_cost)),
+            customer_incentives_incremental_life_cycle_cost=lambda x: (
+                _thousand_to_one(x.customer_incentives_incremental_life_cycle_cost)),
+            customer_other_costs_incremental_life_cycle_cost=lambda x: (
+                _thousand_to_one(x.customer_other_costs_incremental_life_cycle_cost)),
+            other_costs_incremental_cost=lambda x: (
+                _thousand_to_one(x.other_costs_incremental_cost)),
+        ).drop(['website'], axis=1)
+    )
+
+    tfr_dfs["energy_efficiency_eia861"] = transformed_ee
+    return tfr_dfs
+
+
 def green_pricing(tfr_dfs):
     """
     Transform the EIA 861 Green Pricing table.
@@ -1422,8 +1806,10 @@ def green_pricing(tfr_dfs):
         "Performing value transformations on EIA 861 Green Pricing table.")
     transformed_gp = (
         tidy_gp.assign(
-            green_pricing_revenue=lambda x: x.green_pricing_revenue * 1000.0,
-            rec_revenue=lambda x: x.rec_revenue * 1000.0
+            green_pricing_revenue=lambda x: (
+                _thousand_to_one(x.green_pricing_revenue)),
+            rec_revenue=lambda x: (
+                _thousand_to_one(x.rec_revenue))
         )
     )
 
@@ -1496,7 +1882,7 @@ def net_metering(tfr_dfs):
     # Pre-tidy clean specific to net_metering table
     raw_nm = (
         tfr_dfs["net_metering_eia861"].copy()
-        .query("utility_id_eia not in '99999'")
+        .query("utility_id_eia not in [99999]")
     )
 
     # Separate customer class data from misc data (in this case just one col: current flow)
@@ -1514,7 +1900,7 @@ def net_metering(tfr_dfs):
     ###########################################################################
 
     logger.info("Tidying the EIA 861 Net Metering table.")
-    # Normalize by customer class (must be done before normalizing by fuel class)
+    # wide-to-tall by customer class (must be done before wide-to-tall by fuel class)
     tidy_nm_customer_class, idx_cols = _tidy_class_dfs(
         raw_nm_customer_fuel_class,
         df_name='Net Metering',
@@ -1523,7 +1909,7 @@ def net_metering(tfr_dfs):
         class_type='customer_class',
     )
 
-    # Normalize by fuel class
+    # wide-to-tall by fuel class
     tidy_nm_customer_fuel_class, idx_cols = _tidy_class_dfs(
         tidy_nm_customer_class,
         df_name='Net Metering',
@@ -1604,7 +1990,7 @@ def non_net_metering(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Non Net Metering table.")
 
-    # Normalize by customer class (must be done before normalizing by fuel class)
+    # wide-to-tall by customer class (must be done before wide-to-tall by fuel class)
     tidy_nnm_customer_class, idx_cols = _tidy_class_dfs(
         raw_nnm_customer_fuel_class,
         df_name='Non Net Metering',
@@ -1614,7 +2000,7 @@ def non_net_metering(tfr_dfs):
         keep_totals=True
     )
 
-    # Normalize by fuel class
+    # wide-to-tall by fuel class
     tidy_nnm_customer_fuel_class, idx_cols = _tidy_class_dfs(
         tidy_nnm_customer_class,
         df_name='Non Net Metering',
@@ -1716,7 +2102,9 @@ def operational_data(tfr_dfs):
 
     # Transform revenue 1000s into dollars
     transformed_od_rev = (
-        tidy_od_rev.assign(revenue=lambda x: x.revenue * 1000)
+        tidy_od_rev.assign(revenue=lambda x: (
+            _thousand_to_one(x.revenue))
+        )
     )
 
     # Drop original operational_data_eia861 table from tfr_dfs
@@ -1755,13 +2143,13 @@ def reliability(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Reliability table.")
 
-    # Normalize by standards
+    # wide-to-tall by standards
     tidy_r, idx_cols = _tidy_class_dfs(
         df=raw_r,
         df_name='Reliability',
         idx_cols=idx_cols,
         class_list=pc.RELIABILITY_STANDARDS,
-        class_type='reliability_standard',
+        class_type='standard',
         keep_totals=False,
     )
 
@@ -1770,22 +2158,29 @@ def reliability(tfr_dfs):
     # * Re-code outages_recorded_automatically and inactive_accounts_included to boolean:
     #   * Y/y="Yes" => True
     #   * N/n="No" => False
+    # * Expand momentary_interruption_definition:
+    #   * 'L' => 'Less than one minute'
+    #   * 'F' => 'Less than or equal to five minutes'
+    #   * 'O' => 'Other'
     ###########################################################################
 
     transformed_r = (
         tidy_r.assign(
             outages_recorded_automatically=lambda x: (
-                x.outages_recorded_automatically.str.upper().replace({
-                    'Y': True,
-                    'N': False})),
+                _make_yn_bool(x.outages_recorded_automatically.str.upper())),
             inactive_accounts_included=lambda x: (
-                x.inactive_accounts_included.replace({
-                    'Y': True,
-                    'N': False})),
+                _make_yn_bool(x.inactive_accounts_included)),
             momentary_interruption_definition=lambda x: (
                 x.momentary_interruption_definition.map(
                     pc.MOMENTARY_INTERRUPTION_DEF))
         )
+    )
+
+    # Drop duplicate entries for utilities 13027, 3408 and 9697
+    transformed_r = _drop_dupes(
+        df=transformed_r,
+        df_name='Reliability',
+        subset=idx_cols
     )
 
     tfr_dfs["reliability_eia861"] = transformed_r
@@ -1820,7 +2215,7 @@ def utility_data(tfr_dfs):
     )
 
     ###########################################################################
-    # Transform Data Round 1:
+    # Transform Data Round 1 (must be done to avoid issues with nerc_region col in _tidy_class_dfs())
     # * Clean NERC region col
     ###########################################################################
 
@@ -1845,7 +2240,7 @@ def utility_data(tfr_dfs):
         df=raw_ud_nerc,
         df_name='Utility Data NERC Regions',
         idx_cols=idx_cols,
-        class_list=NERC_CLASS,
+        class_list=[x.lower() for x in pc.RECOGNIZED_NERC_REGIONS],
         class_type='nerc_regions_of_operation',
     )
 
@@ -1853,7 +2248,7 @@ def utility_data(tfr_dfs):
         df=raw_ud_rto,
         df_name='Utility Data RTOs',
         idx_cols=idx_cols,
-        class_list=RTO_CLASS,
+        class_list=pc.RTO_CLASSES,
         class_type='rtos_of_operation'
     )
 
@@ -1863,15 +2258,14 @@ def utility_data(tfr_dfs):
     #   * Y = "Yes" => True
     #   * N = "No" => False
     #   * Blank => False
+    # * Make nerc_regions uppercase
     ###########################################################################
 
     # Transform NERC region table
     transformed_ud_nerc = (
         tidy_ud_nerc.assign(
             nerc_region_operation=lambda x: (
-                x.nerc_region_operation
-                .fillna(False)
-                .replace({"N": False, "Y": True})),
+                _make_yn_bool(x.nerc_region_operation.fillna(False))),
             nerc_regions_of_operation=lambda x: (
                 x.nerc_regions_of_operation.str.upper()
             )
@@ -1960,17 +2354,19 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
         "sales_eia861": sales,
         "advanced_metering_infrastructure_eia861": advanced_metering_infrastructure,
         "demand_response_eia861": demand_response,
+        "demand_side_management_eia861": demand_side_management,
+        "distributed_generation_eia861": distributed_generation,
         "distribution_systems_eia861": distribution_systems,
         "dynamic_pricing_eia861": dynamic_pricing,
+        "energy_efficiency_eia861": energy_efficiency,
         "green_pricing_eia861": green_pricing,
         "mergers_eia861": mergers,
         "net_metering_eia861": net_metering,
         "non_net_metering_eia861": non_net_metering,
         "operational_data_eia861": operational_data,
         "reliability_eia861": reliability,
-        # "demand_side_management_eia861": demand_side_management,
-        # "distributed_generation_eia861": distributed_generation,
         "utility_data_eia861": utility_data,
+
     }
 
     # Dictionary for transformed dataframes and pre-transformed dataframes.

@@ -2,7 +2,7 @@ repos:
 
 # Quick content checks based on grepping for python specific patterns:
 - repo: https://github.com/pre-commit/pygrep-hooks
-  rev: v1.5.1
+  rev: v1.6.0
   hooks:
   - id: python-check-blanket-noqa   # Prohibit overly broad QA exclusions.
   - id: python-no-eval              # Never use eval() it's dangerous.
@@ -24,13 +24,13 @@ repos:
 
 # Attempt to enforce standardized PEP8 style formatting:
 - repo: https://github.com/pre-commit/mirrors-autopep8
-  rev: v1.5.3
+  rev: v1.5.4
   hooks:
   - id: autopep8
 
 # Make sure import statements are sorted uniformly.
 - repo: https://github.com/pre-commit/mirrors-isort
-  rev: v5.2.2
+  rev: v5.4.2
   hooks:
   - id: isort
 
@@ -39,6 +39,7 @@ repos:
 # - flake8-docstrings
 # - flake8-builtins
 # - pep8-naming
+# - mccabe
 - repo: https://github.com/PyCQA/flake8
   rev: 3.8.3
   hooks:
@@ -47,7 +48,7 @@ repos:
 
 # Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8
-  rev: 0.8.1rc3
+  rev: 0.9.0a0
   hooks:
   - id: doc8
     args: [--ignore-path, docs/_build]

@@ -23,4 +23,15 @@ def test_interim_ferc714_etl(pudl_settings_fixture, fast_tests):
     if fast_tests:
         pytest.skip()
     logger.info("Running the interim FERC 714 ETL process! (~11 minutes)")
-    _ = pudl.transform.ferc714.transform(pudl.extract.ferc714.extract())
+    _ = pudl.transform.ferc714.transform(
+        pudl.extract.ferc714.extract(pudl_settings=pudl_settings_fixture))
+
+
+def test_get_ferc714(pudl_settings_fixture, fast_tests):
+    """Make sure we get a real file from the datastore."""
+    if fast_tests:
+        pytest.skip()
+
+    fn = str(pudl.extract.ferc714.get_ferc714(pudl_settings_fixture))
+    assert pudl_settings_fixture["pudl_in"] in fn
+    assert fn[-11:] == "form714.zip"

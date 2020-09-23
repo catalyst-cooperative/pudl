@@ -25,6 +25,7 @@ dependencies:
   - jupyterlab          # user
   - lxml                # dev -- used for pd.read_html
   - matplotlib          # base
+  - mccabe              # dev
   - nbdime              # dev
   - nbval               # dev
   - networkx>=2.2       # base We depend on features introduced in v2.2

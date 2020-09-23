@@ -1,0 +1,74 @@
+name: tox-pytest
+
+on: [ push, pull_request ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Compile Zenodo datastore DOIs for cache invalidation
+      run: grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
+
+    - name: Restore Zenodo datastore from cache if possible
+      uses: actions/cache@v2
+      id: cache-zenodo-datastore
+      with:
+        path: ~/pudl-work/data/
+        key: zenodo-datastore-${{ hashFiles('datastore-dois.txt') }}
+        restore-keys: |
+          zenodo-datastore-
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install libsnappy-dev
+        python -m pip install --upgrade pip
+        pip install tox
+
+    - name: Log pre-test Zenodo datastore contents
+      run: |
+        mkdir -p ~/pudl-work/data/
+        find ~/pudl-work/data/
+
+    - name: Run PyTest with Tox
+      env:
+        API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
+      run: tox -ve ci -- --fast
+
+    - name: Log post-test Zenodo datastore contents
+      run: find ~/pudl-work/data/
+
+    - name: Upload test coverage report to CodeCov
+      uses: codecov/codecov-action@v1
+
+    - name: Archive test coverage report at GitHub
+      uses: actions/upload-artifact@v2
+      with:
+        name: code-coverage-report
+        path: coverage.xml
+
+    - name: Inform the Codemonkeys
+      uses: 8398a7/action-slack@v3
+      with:
+        status: custom
+        fields: workflow,job,commit,repo,ref,author,took
+        custom_payload: |
+          {
+            username: 'action-slack',
+            icon_emoji: ':octocat:',
+            attachments: [{
+              color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+              text: `${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} ${{ job.status }} in ${process.env.AS_TOOK}`,
+            }]
+          }
+      env:
+        GITHUB_TOKEN: ${{ github.token }} # required
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
+      if: always() # Pick up events even if the job fails or is canceled.
