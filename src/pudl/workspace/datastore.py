@@ -22,11 +22,7 @@ from requests.packages.urllib3.util.retry import Retry
 # long as we stick to read-only keys.
 
 TOKEN = {
-    # Tied to unknown account. Pablo?
-    # "sandbox": "WX1FW2JOrkcCvoGutoZaGS69W5P9A73wybsToLeo4nt6NP3moeIg7sPBw8nI",
-    # Tied to zane.selvans@catalyst.coop:
-    # "sandbox": "qeSCRegRkKbXN11j2WXz71BM3Ahp6sLnVHZ1B7usi5TmUTyrU6pSamKIg4VS",
-    # Read-only tokens for pudl@catalyst.coop:
+    # Read-only personal access tokens for pudl@catalyst.coop:
     "sandbox": "qyPC29wGPaflUUVAv1oGw99ytwBqwEEdwi4NuUrpwc3xUcEwbmuB4emwysco",
     "production": "KXcG5s9TqeuPh1Ukt5QYbzhCElp9LxuqAuiwdqHP0WS4qGIQiydHn6FBtdJ5"
 }
@@ -37,7 +33,7 @@ DOI = {
         "eia860": "10.5072/zenodo.672210",
         "eia861": "10.5072/zenodo.672199",
         "eia923": "10.5072/zenodo.672221",
-        "epacems": "10.5072/zenodo.638878",
+        "epacems": "10.5072/zenodo.672963",
         "epaipm": "10.5072/zenodo.602953",
         "ferc1": "10.5072/zenodo.672226",
         "ferc714": "10.5072/zenodo.672224",
