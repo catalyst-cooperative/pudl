@@ -579,14 +579,13 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
     return tidy_df, idx_cols + [class_type]
 
 
-def _drop_dupes(df, subset):
+def _drop_dupes(df, df_name, subset):
     tidy_nrows = len(df)
-    deduped_df = df.drop_duplicates(
-        subset=subset, keep=False)
+    deduped_df = df.drop_duplicates(subset=subset)
     deduped_nrows = len(df)
     logger.info(
         f"Dropped {tidy_nrows-deduped_nrows} duplicate records from EIA 861 "
-        f"Demand Response table, out of a total of {tidy_nrows} records "
+        f"{df_name} table, out of a total of {tidy_nrows} records "
         f"({(tidy_nrows-deduped_nrows)/tidy_nrows:.4%} of all records). "
     )
     return deduped_df
@@ -1094,9 +1093,7 @@ def sales(tfr_dfs):
         "utility_id_eia",
         "state",
         "report_date",
-        "business_model",
-        "service_type",
-        "balancing_authority_code_eia"
+        "balancing_authority_code_eia",
     ]
 
     # Pre-tidy clean specific to sales table
@@ -1119,11 +1116,15 @@ def sales(tfr_dfs):
     )
 
     # remove duplicates on the primary key columns + customer_class -- there
-    # are a handful of records, all from 2010-2012, that have reporting errors
-    # that produce dupes, which do not have a clear meaning. The utility_id_eia
-    # values involved are: [8153, 13830, 17164, 56431, 56434, 56466, 56778,
-    # 56976, 56990, 57081, 57411, 57476, 57484, 58300]
-    deduped_sales = _drop_dupes(tidy_sales, idx_cols)
+    # are lots of records that have reporting errors in the form of duplicates.
+    # Many of them include different values and are therefore impossible to tell
+    # which are "correct". The following function drops all but the first of
+    # these duplicate entries.
+    deduped_sales = _drop_dupes(
+        df=tidy_sales,
+        df_name='Sales',
+        subset=idx_cols
+    )
 
     ###########################################################################
     # Transform Values:
@@ -1195,6 +1196,9 @@ def advanced_metering_infrastructure(tfr_dfs):
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_ami, 'Advanced Metering Infrastructure', idx_cols)
 
+    # Drop total_meters col
+    tidy_ami = tidy_ami.drop(['total_meters'], axis=1)
+
     tfr_dfs["advanced_metering_infrastructure_eia861"] = tidy_ami
     return tfr_dfs
 
@@ -1224,6 +1228,15 @@ def demand_response(tfr_dfs):
     #     raw_dr['balancing_authority_code_eia'].fillna('UNK')
     # )
 
+    # Split data into tidy-able and not
+    raw_dr_water_heater = raw_dr[idx_cols + ['water_heater']].copy()
+    raw_dr_water_heater = _drop_dupes(
+        df=raw_dr_water_heater,
+        df_name='Demand Response Water Heater',
+        subset=idx_cols
+    )
+    raw_dr = raw_dr.drop(['water_heater'], axis=1)
+
     ###########################################################################
     # Tidy Data:
     ###########################################################################
@@ -1241,7 +1254,11 @@ def demand_response(tfr_dfs):
     # these values have Nan BA values and should be deleted earlier.
     # thinking this might have to do with DR table weirdness between 2012 and 2013
     # will come back to this after working on the DSM table. Dropping dupes for now.
-    deduped_dr = _drop_dupes(tidy_dr, idx_cols)
+    deduped_dr = _drop_dupes(
+        df=tidy_dr,
+        df_name='Demand Response',
+        subset=idx_cols
+    )
 
     ###########################################################################
     # Transform Values:
@@ -1259,6 +1276,8 @@ def demand_response(tfr_dfs):
     )
 
     tfr_dfs["demand_response_eia861"] = transformed_dr
+    tfr_dfs["demand_response_water_heater_eia861"] = raw_dr_water_heater
+
     return tfr_dfs
 
 
@@ -1313,7 +1332,9 @@ def demand_side_management(tfr_dfs):
         'annual_indirect_program_cost',
         'annual_total_cost',
         'energy_efficiency_annual_cost',
+        'energy_efficiency_annual_incentive_payment',
         'load_management_annual_cost',
+        'load_management_annual_incentive_payment',
     ]
 
     raw_dsm = tfr_dfs['demand_side_management_eia861'].copy()
@@ -1408,7 +1429,11 @@ def demand_side_management(tfr_dfs):
             + program_cols
             + total_cost_cols
             + ['customer_class'], axis=1)
-        .drop_duplicates()
+    )
+    dsm_misc = _drop_dupes(
+        df=dsm_misc,
+        df_name='Demand Side Management Misc.',
+        subset=['utility_id_eia', 'state', 'nerc_region', 'report_date']
     )
 
     del tfr_dfs['demand_side_management_eia861']
@@ -2149,6 +2174,13 @@ def reliability(tfr_dfs):
                 x.momentary_interruption_definition.map(
                     pc.MOMENTARY_INTERRUPTION_DEF))
         )
+    )
+
+    # Drop duplicate entries for utilities 13027, 3408 and 9697
+    transformed_r = _drop_dupes(
+        df=transformed_r,
+        df_name='Reliability',
+        subset=idx_cols
     )
 
     tfr_dfs["reliability_eia861"] = transformed_r
