@@ -114,6 +114,7 @@ class PudlTabl(object):
 
             # TODO add the other tables -- this is just an interim check
             "balancing_authority_eia861": None,
+            "advanced_metering_infrastructure_eia861": None,
 
             # TODO add the other tables -- this is just an interim check
             "respondent_id_ferc714": None,
@@ -196,10 +197,12 @@ class PudlTabl(object):
 
         """
         if update or self._dfs["balancing_authority_eia861"] is None:
-            logger.warning("Running the interim EIA 861 ETL process! (~2 minutes)")
+            logger.warning(
+                "Running the interim EIA 861 ETL process! (~2 minutes)")
 
             if self.ds is None:
-                pudl_in = pathlib.Path(pudl.workspace.setup.get_defaults()["pudl_in"])
+                pudl_in = pathlib.Path(
+                    pudl.workspace.setup.get_defaults()["pudl_in"])
                 self.ds = pudl.workspace.datastore.Datastore(
                     pudl_in=pudl_in,
                     sandbox=True,
@@ -280,7 +283,8 @@ class PudlTabl(object):
 
         """
         if update or self._dfs["respondent_id_ferc714"] is None:
-            logger.warning("Running the interim FERC 714 ETL process! (~11 minutes)")
+            logger.warning(
+                "Running the interim FERC 714 ETL process! (~11 minutes)")
             ferc714_raw_dfs = pudl.extract.ferc714.extract()
             ferc714_tfr_dfs = pudl.transform.ferc714.transform(ferc714_raw_dfs)
             for table in ferc714_tfr_dfs:
