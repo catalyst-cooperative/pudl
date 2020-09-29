@@ -37,6 +37,7 @@ repos:
 # Check for PEP8 non-compliance, code complexity, and syntax errors:
 # Make sure the following plugins are installed as well:
 # - flake8-docstrings
+# - flake8-rst-docstrings
 # - flake8-builtins
 # - pep8-naming
 # - mccabe
@@ -44,18 +45,28 @@ repos:
   rev: 3.8.3
   hooks:
   - id: flake8
-    args: [--format, "%(path)40s:%(row)-4d %(code)s %(text)s"]
+    args: [--config, .flake8]
+    additional_dependencies:
+      - flake8-docstrings
+      - flake8-colors
+      - pydocstyle
+      - flake8-builtins
+      - mccabe
+      - naming
+      - pycodestyle
+      - pyflakes
+      - flake8-rst-docstrings
 
 # Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8
   rev: 0.9.0a1
   hooks:
   - id: doc8
-    args: [--ignore-path, docs/_build]
+    args: [--config, tox.ini]
 
 # Check for known security vulnerabilities:
 - repo: https://github.com/PyCQA/bandit
   rev: 1.6.2
   hooks:
   - id: bandit
-    args: [-c, .bandit.yml]
+    args: [--configfile, .bandit.yml]

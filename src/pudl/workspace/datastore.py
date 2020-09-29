@@ -50,15 +50,15 @@ class Datastore:
     def __init__(self, pudl_in, loglevel="WARNING", verbose=False,
                  sandbox=False, timeout=7):
         """
-        Datastore manages file retrieval for PUDL datasets.
+        Datastore `manages` file retrieval for PUDL datasets.
 
         Args:
             pudl_in (Path): path to the root pudl data directory
             loglevel (str): logging level
             verbose (bool): If true, logs printed to stdout
-            sandbox (bool): If true, use the sandbox server instead of
-                production
+            sandbox (bool): If true, use the sandbox server instead of production
             timeout (float): Network timeout for http requests.
+
         """
         self.pudl_in = pudl_in
         logger = logging.Logger(__name__)
@@ -282,8 +282,8 @@ class Datastore:
         Download a frictionless datapackage resource.
 
         Args:
-            resource: dict, a remotely located resource descriptior from a
-                      frictionless datapackage.
+            resource: dict, a remotely located resource descriptior from a frictionless
+                datapackage.
             directory: the directory where the resource should be saved
 
         Returns:
@@ -433,9 +433,8 @@ class Datastore:
 
         Args:
             dataset (str): name of the dataset, must be available in the DOIS
-            **kwargs: limit retrieved files to those where the
-                datapackage.json["parts"] key & val pairs match provided
-                keywords. Eg. year=2011 or state="md"
+            kwargs: limit retrieved files to those where the datapackage.json["parts"]
+                key & val pairs match provided keywords. Eg. year=2011 or state="md"
 
         Returns:
             list of dicts, each representing a resource per the frictionless

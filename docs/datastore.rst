@@ -82,15 +82,15 @@ Github repositories for more information.
 Developing a new Dataset for the Datastore
 ===============================================================================
 
-There are three components necessary to prepare a new datastet for use with the
-PUDL datastore.
+There are three components necessary to prepare a new datastet for use with the PUDL
+datastore.
 
 1. Create a ``pudl-scraper`` to download the raw data.
 2. Use ``pudl-zenodo-storage`` to upload the data to Zenodo.
 3. Prepare the datastore to retrieve the data from Zenodo.
 
-In the event that data is already available on Zenodo in the appropriate
-format, it may be possible to skip steps 1 and 2.
+In the event that data is already available on Zenodo in the appropriate format, it may
+be possible to skip steps 1 and 2.
 
 -------------------------------------------------------------------------------
 Creating a scraper
@@ -119,7 +119,7 @@ of the environment.
 
 
 -------------------------------------------------------------------------------
-Prepare zen_store
+Prepare zenodo_store
 -------------------------------------------------------------------------------
 
 Our `zenodo_store <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__
@@ -187,10 +187,9 @@ UUID from ``zs.metadata``.
 Prepare the Datastore
 -------------------------------------------------------------------------------
 
-If you have used a scraper and zenodo_store to prepare a Zenodo archive as
-above, you can add support for your archive to the datastore by adding the DOI
-to pudl.workspace.datastore.DOI, under "sandbox" or "production" as
-appropriate.
+If you have used a scraper and zenodo_store to prepare a Zenodo archive as above, you
+can add support for your archive to the datastore by adding the DOI to
+pudl.workspace.datastore.DOI, under "sandbox" or "production" as appropriate.
 
 If you want to prepare an archive for the datastore separately, the following
 are required.
