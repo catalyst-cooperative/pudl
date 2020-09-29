@@ -53,6 +53,7 @@ test_requires = [
     "flake8-colors",
     "flake8-docstrings",
     "flake8-rst-docstrings",
+    "flake8-use-fstring",
     "mccabe",
     "nbval",
     "pep8-naming",
