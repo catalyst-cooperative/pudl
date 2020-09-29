@@ -26,3 +26,5 @@ rst-roles =
 rst-directives =
     envvar,
     exception,
+percent-greedy = 2
+format-greedy = 2

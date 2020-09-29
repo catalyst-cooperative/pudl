@@ -328,7 +328,7 @@ def values_by_generator_eia923(table_eia923, column_name, g):
     table_eia923_sr = table_eia923_gb[column_name].sum()
     # Convert back into a dataframe
     table_eia923_df = pd.DataFrame(table_eia923_sr)
-    column_name_by_plant = "{}_plant".format(column_name)
+    column_name_by_plant = f"{column_name}_plant"
     table_eia923_df = table_eia923_df.rename(
         columns={column_name: column_name_by_plant})
     # get the generator proportions
@@ -337,7 +337,7 @@ def values_by_generator_eia923(table_eia923, column_name, g):
     g_generator = g_gens_proportion.merge(
         table_eia923_df, how="left", right_index=True, left_index=True)
     # calculate the proportional fuel costs
-    g_generator["{}_generator".format(column_name)] = (
+    g_generator[f"{column_name}_generator"] = (
         g_generator[column_name_by_plant] *
         g_generator.proportion_of_generation)
     # drop the unneccessary columns

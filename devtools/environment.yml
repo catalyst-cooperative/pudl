@@ -63,7 +63,8 @@ dependencies:
   - twine               # dev
   - xlsxwriter          # base
   - pip:
-    - addfips
+    - flake8-use-fstring # dev
+    - addfips           # base -- need to get into conda
     - git+https://github.com/catalyst-cooperative/dbfread/
     - recordlinkage     # dev for now... base if it ends up in ETL
     - fredapi           # dev

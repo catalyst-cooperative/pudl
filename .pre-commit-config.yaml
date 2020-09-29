@@ -34,13 +34,7 @@ repos:
   hooks:
   - id: isort
 
-# Check for PEP8 non-compliance, code complexity, and syntax errors:
-# Make sure the following plugins are installed as well:
-# - flake8-docstrings
-# - flake8-rst-docstrings
-# - flake8-builtins
-# - pep8-naming
-# - mccabe
+# Check for PEP8 non-compliance, code complexity, style, errors, etc:
 - repo: https://github.com/PyCQA/flake8
   rev: 3.8.3
   hooks:
@@ -56,6 +50,7 @@ repos:
       - pycodestyle
       - pyflakes
       - flake8-rst-docstrings
+      - flake8-use-fstring
 
 # Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8
