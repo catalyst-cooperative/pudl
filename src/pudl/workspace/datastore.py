@@ -50,7 +50,7 @@ class Datastore:
     def __init__(self, pudl_in, loglevel="WARNING", verbose=False,
                  sandbox=False, timeout=7):
         """
-        Datastore `manages` file retrieval for PUDL datasets.
+        Datastore manages file retrieval for PUDL datasets.
 
         Args:
             pudl_in (Path): path to the root pudl data directory
