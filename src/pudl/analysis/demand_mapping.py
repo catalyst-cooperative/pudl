@@ -1271,11 +1271,11 @@ class DemandSpaceTimeSeries:
 
         # List of dataframes which will be merged with the county-demand mapping geodataframe
         # Each dataframe will add new attributes to the timeseries dataframe, thus it needs to have common keys
-        self._join_df_list = []
+        self._join_df_list = dict()
 
         # List of geodataframes which will be disaggregated with the county-demand mapping layer
         # Each geodataframe will add new attributes to the timeseries dataframe (needs to have geometry column)
-        self._sjoin_gdf_list = []
+        self._sjoin_gdf_list = dict()
 
         # Dictionary to keep track of columns in ba_county_map dataframe on constant and uniform attributes
         self.attributes = dict()
@@ -1295,7 +1295,7 @@ class DemandSpaceTimeSeries:
             common_columns).intersection(self.attributes.keys())
         return collisions
 
-    def add_df(self, df, uniform_list=None, check_subset=False):
+    def add_df(self, df, df_name, uniform_list=None, check_subset=False):
         """Add new 1-to-1 attributes for demand allocation at the state and county level. Each dataframe should have one common column with ba_county_map to merge on."""
         df_copy = df.copy()
         df_columns = set(df_copy.columns)
@@ -1317,18 +1317,22 @@ class DemandSpaceTimeSeries:
             raise Exception("Attributes " + str(collisions) +
                             " are already present in the class object")
 
-        self._join_df_list.append(df_copy)
+        if df_name in self._join_df_list.keys():
+            raise Exception("The name already exists.")
 
-        for col in set(df_copy.columns).difference(merge_columns):
-            self.attributes[col] = "constant"
+        else:
+            self._join_df_list[df_name] = df_copy
 
-        if uniform_list is not None:
-            for col in uniform_list:
-                self.attributes[col] = "uniform"
+            for col in set(df_copy.columns).difference(merge_columns):
+                self.attributes[col] = "constant"
+
+            if uniform_list is not None:
+                for col in uniform_list:
+                    self.attributes[col] = "uniform"
 
         return
 
-    def add_gdf(self, gdf, uniform_list=None):
+    def add_gdf(self, gdf, gdf_name, uniform_list=None):
         """Add new spatial attributes using spatial overlay. Each geodataframe should span the entire US mainland area or restricted to the area of analysis."""
         # 1. check no common columns except geometry (otherwise column names)
         # 2. add to list
@@ -1346,40 +1350,46 @@ class DemandSpaceTimeSeries:
             raise Exception("Attributes " + str(collisions) +
                             " are already present in the class object")
 
-        self._sjoin_gdf_list.append(gdf_copy)
-        for col in set(gdf_copy.columns).difference(common_columns):
-            self.attributes[col] = "constant"
+        if gdf_name not in self._sjoin_gdf_list.keys():
+            self._sjoin_gdf_list[gdf_name] = gdf_copy
+            for col in set(gdf_copy.columns).difference(common_columns):
+                self.attributes[col] = "constant"
 
-        if uniform_list is not None:
-            for col in uniform_list:
-                self.attributes[col] = "uniform"
+            if uniform_list is not None:
+                for col in uniform_list:
+                    self.attributes[col] = "uniform"
+
+        else:
+            raise Exception("The name already exists.")
 
         return
 
-    def del_df(self, index):
+    def del_df(self, df_name):
         """Delete 1-to-1 data attributes using index. use get_df method to go through available DataFrames."""
-        # remove df by list index
+        # remove df by name
         # update attributes
-        if len(self._join_df_list) <= index:
-            raise Exception("Index not available")
+        if df_name not in self._join_df_list.keys():
+            raise Exception("Name not present")
 
-        df = self._join_df_list.pop(index)
-        merge_columns = set(df.columns).intersection(self.ba_county_map)
-        for col in set(df.columns).difference(merge_columns):
-            del self.attributes[col]
+        else:
+            df = self._join_df_list.pop(df_name)
+            merge_columns = set(df.columns).intersection(self.ba_county_map)
+            for col in set(df.columns).difference(merge_columns):
+                del self.attributes[col]
 
         return
 
-    def del_gdf(self, index):
+    def del_gdf(self, gdf_name):
         """Delete spatial overlaid data attributes using index. Use get_gdf method to go through available GeoDataFrames."""
-        # remove gdf by list index
+        # remove gdf by name
         # update attributes
-        if len(self._sjoin_gdf_list) <= index:
-            raise Exception("Index not available")
+        if gdf_name not in self._sjoin_gdf_list.keys():
+            raise Exception("Name not present")
 
-        gdf = self._sjoin_gdf_list.pop(index)
-        for col in set(gdf.columns).difference(["geometry"]):
-            del self.attributes[col]
+        else:
+            gdf = self._sjoin_gdf_list.pop(gdf_name)
+            for col in set(gdf.columns).difference(["geometry"]):
+                del self.attributes[col]
 
         return
 
@@ -1416,6 +1426,12 @@ class DemandSpaceTimeSeries:
                             .rename(columns={"respondent_id_ferc714": "respondent_id_ferc714_set"}))
 
         ba_county_map_annual = ba_county_map_annual.merge(ba_county_id_set)
+        respondents_no_geoms = (set(pa_demand_df_annual.respondent_id_ferc714.unique())
+                                .difference(ba_county_map_annual.respondent_id_ferc714.unique()))
+
+        if respondents_no_geoms != set():
+            logger.warning(
+                "The following respondent IDs have demand but no geometry: " + str(respondents_no_geoms))
 
         return pa_demand_df_annual, ba_county_map_annual
 
@@ -1431,7 +1447,7 @@ class DemandSpaceTimeSeries:
                                    "utility_id_eia",
                                    "utility_name_eia"], axis=1, inplace=True)
 
-        for df in self._join_df_list:
+        for df in list(self._join_df_list.values()):
             # Common columns in ba_county_map and df
             merge_columns = set(df.columns).intersection(
                 ba_county_map_annual.columns)
@@ -1445,7 +1461,7 @@ class DemandSpaceTimeSeries:
 
         disagg_layer = ba_county_map_annual.copy()
 
-        for gdf in self._sjoin_gdf_list:
+        for gdf in list(self._sjoin_gdf_list.values()):
             select_columns = (set(gdf.columns) -
                               {"geometry"}) & set(allocator_cols + aggregators)
 
