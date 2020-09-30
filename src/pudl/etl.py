@@ -446,7 +446,7 @@ def _etl_epacems(etl_params, datapkg_dir, pudl_settings):
         epacems_tables.append(list(transformed_df_dict.keys())[0])
     if logger.isEnabledFor(logging.INFO):
         delta_t = time.strftime("%H:%M:%S", time.gmtime(time.monotonic() - start_time))
-        time_message = f"    Loading    EPA CEMS took {delta_t}"
+        time_message = f"Loading EPA CEMS took {delta_t}"
         logger.info(time_message)
         start_time = time.monotonic()
 
