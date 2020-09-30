@@ -15,6 +15,7 @@ dependencies:
   - flake8              # dev
   - flake8-colors       # dev
   - flake8-docstrings   # dev
+  - flake8-rst-docstrings # dev
   - flake8-builtins     # dev
   - geopandas>=0.8.0    # base
   - goodtables>=2.4.2   # base
@@ -62,7 +63,8 @@ dependencies:
   - twine               # dev
   - xlsxwriter          # base
   - pip:
-    - addfips
+    - flake8-use-fstring # dev
+    - addfips           # base -- need to get into conda
     - git+https://github.com/catalyst-cooperative/dbfread/
     - recordlinkage     # dev for now... base if it ends up in ETL
     - fredapi           # dev

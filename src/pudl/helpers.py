@@ -6,6 +6,7 @@ processes. They are usually not dataset specific, but not always. If a function
 is designed to be used as a general purpose tool, applicable in multiple
 scenarios, it should probably live here. There are lost of transform type
 functions in here that help with cleaning and restructing dataframes.
+
 """
 import logging
 import pathlib
@@ -74,7 +75,6 @@ def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
     df = df.astype({
         state_col: pd.StringDtype(),
         county_col: pd.StringDtype(),
-
     })
     af = addfips.AddFIPS(vintage=vintage)
     # Lookup the state and county FIPS IDs and add them to the dataframe:
@@ -225,7 +225,7 @@ def is_annual(df_year, year_col='report_date'):
     the edge cases better.
 
     Args:
-        df_year (:class:`pandas.DataFrame`): A pandas DataFrame that might
+        df_year (pandas.DataFrame): A pandas DataFrame that might
             contain time-series data at annual resolution.
         year_col (str): The column of the DataFrame in which the year is
             reported.
@@ -590,17 +590,17 @@ def month_year_to_date(df):
     # to create a corresponding Date column named [BASE]_date
     month_year_date = []
     for base in date_base:
-        base_month_regex = '^{}{}'.format(base, month_regex)
+        base_month_regex = f'^{base}{month_regex}'
         month_col = list(df.filter(regex=base_month_regex).columns)
         if not len(month_col) == 1:
             raise AssertionError()
         month_col = month_col[0]
-        base_year_regex = '^{}{}'.format(base, year_regex)
+        base_year_regex = f'^{base}{year_regex}'
         year_col = list(df.filter(regex=base_year_regex).columns)
         if not len(year_col) == 1:
             raise AssertionError()
         year_col = year_col[0]
-        date_col = '{}_date'.format(base)
+        date_col = f'{base}_date'
         month_year_date.append((month_col, year_col, date_col))
 
     for month_col, year_col, date_col in month_year_date:
@@ -669,10 +669,9 @@ def convert_to_date(df,
     else:
         day = df[day_col]
 
-    df[date_col] = \
-        pd.to_datetime({'year': year,
-                        'month': month,
-                        'day': day})
+    df[date_col] = pd.to_datetime({'year': year,
+                                   'month': month,
+                                   'day': day})
     cols_to_drop = [x for x in [
         day_col, year_col, month_col] if x in df.columns]
     df.drop(cols_to_drop, axis="columns", inplace=True)
@@ -945,18 +944,17 @@ def generate_rolling_avg(df, group_cols, data_col, window, **kwargs):
     """
     Generate a rolling average.
 
-    For a given dataframe with a `report_date` column, generate a monthly
+    For a given dataframe with a ``report_date`` column, generate a monthly
     rolling average and use this rolling average to impute missing values.
 
     Args:
         df (pandas.DataFrame): Original dataframe. Must have group_cols
-            column, a data_col column and a 'report_date' column.
+            column, a data_col column and a ``report_date`` column.
         group_cols (iterable): a list of columns to groupby.
         data_col (str): the name of the data column.
-        window (int): window from pandas.Series.rolling
-        **kwargs : Additional arguments to pass to
-            :class:`pandas.Series.rolling`.
-
+        window (int): window from :func:`pandas.Series.rolling`.
+        kwargs : Additional arguments to pass to
+            :func:`pandas.Series.rolling`.
 
     Returns:
         pandas.DataFrame
@@ -1007,7 +1005,7 @@ def fillna_w_rolling_avg(df_og, group_cols, data_col, window=12, **kwargs):
         group_cols (iterable): a list of columns to groupby.
         data_col (str): the name of the data column.
         window (int): window from pandas.Series.rolling
-        **kwargs : Additional arguments to pass to
+        kwargs : Additional arguments to pass to
             :class:`pandas.Series.rolling`.
 
     Returns:

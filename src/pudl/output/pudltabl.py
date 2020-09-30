@@ -82,7 +82,7 @@ class PudlTabl(object):
         if start_date is None:
             self.start_date = \
                 pd.to_datetime(
-                    '{}-01-01'.format(min(pc.working_years['eia923'])))
+                    f"{min(pc.working_years['eia923'])}-01-01")
         else:
             # Make sure it's a date... and not a string.
             self.start_date = pd.to_datetime(start_date)
@@ -90,7 +90,7 @@ class PudlTabl(object):
         if end_date is None:
             self.end_date = \
                 pd.to_datetime(
-                    '{}-12-31'.format(max(pc.working_years['eia923'])))
+                    f"{max(pc.working_years['eia923'])}-12-31")
         else:
             # Make sure it's a date... and not a string.
             self.end_date = pd.to_datetime(end_date)

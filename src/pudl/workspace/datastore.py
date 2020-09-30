@@ -56,9 +56,9 @@ class Datastore:
             pudl_in (Path): path to the root pudl data directory
             loglevel (str): logging level
             verbose (bool): If true, logs printed to stdout
-            sandbox (bool): If true, use the sandbox server instead of
-                production
+            sandbox (bool): If true, use the sandbox server instead of production
             timeout (float): Network timeout for http requests.
+
         """
         self.pudl_in = pudl_in
         logger = logging.Logger(__name__)
@@ -68,7 +68,7 @@ class Datastore:
             logger.addHandler(logging.StreamHandler())
 
         self.logger = logger
-        logger.info("Logging at loglevel %s" % loglevel)
+        logger.info(f"Logging at loglevel {loglevel}")
 
         if sandbox:
             self._dois = DOI["sandbox"]
@@ -108,7 +108,7 @@ class Datastore:
         try:
             return self._dois[dataset]
         except KeyError:
-            msg = "No DOI available for %s" % dataset
+            msg = f"No DOI available for {dataset}"
             self.logger.error(msg)
             raise ValueError(msg)
 
@@ -127,12 +127,12 @@ class Datastore:
         match = re.search(r"zenodo.([\d]+)", doi)
 
         if match is None:
-            msg = "Invalid doi %s" % doi
+            msg = f"Invalid doi {doi}"
             self.logger.error(msg)
             raise ValueError(msg)
 
         zen_id = int(match.groups()[0])
-        return "%s/deposit/depositions/%d" % (self.api_root, zen_id)
+        return f"{self.api_root}/deposit/depositions/{zen_id}"
 
     def local_path(self, dataset, filename=None):
         """
@@ -171,7 +171,7 @@ class Datastore:
 
         with path.open("w") as f:
             f.write(text)
-            self.logger.debug("%s saved.", path)
+            self.logger.debug(f"{path} saved.")
         self._validate_datapackage(dataset)
 
         return path
@@ -194,7 +194,7 @@ class Datastore:
             dpkg_url, params={"access_token": self.token}, timeout=self.timeout)
 
         if response.status_code > 299:
-            msg = "Failed to retrieve %s" % dpkg_url
+            msg = f"Failed to retrieve {dpkg_url}"
             self.logger.error(msg)
             raise ValueError(msg)
 
@@ -207,8 +207,7 @@ class Datastore:
             timeout=self.timeout)
 
         if response.status_code > 299:
-            msg = "Failed to retrieve datapackage for %s: %s" % (
-                doi, response.text)
+            msg = f"Failed to retrieve datapackage for {doi}: {response.text}"
             self.logger.error(msg)
             raise ValueError(msg)
 
@@ -271,8 +270,9 @@ class Datastore:
 
             if part_val != filters[key]:
                 self.logger.debug(
-                    "Filtered %s on %s: %s != %s", resource["name"], key,
-                    part_val, filters[key])
+                    f"Filtered {resource['name']} on {key}: "
+                    f"{part_val} != {filters[key]}"
+                )
                 return False
 
         return True
@@ -282,8 +282,8 @@ class Datastore:
         Download a frictionless datapackage resource.
 
         Args:
-            resource: dict, a remotely located resource descriptior from a
-                      frictionless datapackage.
+            resource: dict, a remotely located resource descriptior from a frictionless
+                datapackage.
             directory: the directory where the resource should be saved
 
         Returns:
@@ -296,7 +296,7 @@ class Datastore:
             timeout=self.timeout)
 
         if response.status_code >= 299:
-            msg = "Failed to download %s, %s" % (resource["path"], response.text)
+            msg = f"Failed to download {resource['path']}, {response.text}"
 
             self.logger.error(msg)
             raise RuntimeError(msg)
@@ -305,22 +305,21 @@ class Datastore:
 
         with local_path.open("wb") as f:
             f.write(response.content)
-            self.logger.debug("Cached %s" % local_path)
+            self.logger.debug(f"Cached {local_path}")
 
         if not self._validate_file(local_path, resource["hash"]):
             self.logger.error(
-                "Invalid md5 after download of %s.\n"
-                "Response: %s\n"
-                "Resource: %s\n"
-                "Retries left: %d",
-                local_path, response, resource, retries)
+                f"Invalid md5 after download of {local_path}.\n"
+                f"Response: {response}\n"
+                f"Resource: {resource}\n"
+                f"Retries left: {retries}"
+            )
 
             if retries > 0:
                 self.download_resource(resource, directory,
                                        retries=retries - 1)
             else:
-                raise RuntimeError("Could not download valid %s",
-                                   resource["path"])
+                raise RuntimeError(f"Could not download valid {resource['path']}")
 
         return local_path
 
@@ -344,10 +343,10 @@ class Datastore:
             m.update(f.read())
 
         if m.hexdigest() == hsh:
-            self.logger.debug("%s md5 hash is valid" % path)
+            self.logger.debug(f"{path} md5 hash is valid")
             return True
 
-        self.logger.warning("%s md5 mismatch" % path)
+        self.logger.warning(f"{path} md5 mismatch")
         return False
 
     def _validate_dataset(self, dataset):
@@ -433,9 +432,8 @@ class Datastore:
 
         Args:
             dataset (str): name of the dataset, must be available in the DOIS
-            **kwargs: limit retrieved files to those where the
-                datapackage.json["parts"] key & val pairs match provided
-                keywords. Eg. year=2011 or state="md"
+            kwargs: limit retrieved files to those where the datapackage.json["parts"]
+                key & val pairs match provided keywords. Eg. year=2011 or state="md"
 
         Returns:
             list of dicts, each representing a resource per the frictionless
@@ -445,8 +443,9 @@ class Datastore:
         filters = dict(**kwargs)
 
         dpkg = self.datapackage_json(dataset)
-        self.logger.debug("%s datapackage lists %d resources" %
-                          (dataset, len(dpkg["resources"])))
+        self.logger.debug(
+            f"{dataset} datapackage lists {len(dpkg['resources'])} resources"
+        )
 
         for r in dpkg["resources"]:
 
@@ -468,11 +467,10 @@ class Datastore:
 
 def main_arguments():
     """Collect the command line arguments."""
-    prod_dois = "\n".join(["    - %s" % x for x in DOI["production"].keys()])
-    sand_dois = "\n".join(["    - %s" % x for x in DOI["sandbox"].keys()])
+    prod_dois = "\n".join([f"    - {x}" for x in DOI["production"].keys()])
+    sand_dois = "\n".join([f"    - {x}" for x in DOI["sandbox"].keys()])
 
-    dataset_msg = "--Available datasets--\n \nProduction:\n%s\n \nSandbox:\n%s" \
-        % (prod_dois, sand_dois)
+    dataset_msg = f"--Available datasets--\n \nProduction:\n{prod_dois}\n \nSandbox:\n{sand_dois}"
 
     parser = argparse.ArgumentParser(
         description="Download and cache ETL source data from Zenodo.",

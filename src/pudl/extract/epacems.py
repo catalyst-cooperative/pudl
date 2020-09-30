@@ -23,29 +23,29 @@ class EpaCemsDatastore(datastore.Datastore):
         Open the csv file for the given state / year / month.
 
         Args:
-            state: 2 character staty abbreviation such as "ca" or "ny"
-            year: integer of the desired year
-            month: integer of the desired month
+            state (str): 2 character state abbreviation such as "ca" or "ny"
+            year (int): integer of the desired year
+            month (int): integer of the desired month
 
         Returns:
             CSV file stream, or raises an error on invalid input
         """
         state = state.lower()
 
-        monthly_zip = "%d%s%02d.zip" % (year, state, month)
-        monthly_csv = "%d%s%02d.csv" % (year, state, month)
+        monthly_zip = f"{year}{state}{month:02}.zip"
+        monthly_csv = f"{year}{state}{month:02}.csv"
 
         try:
             resource = next(self.get_resources(
                 "epacems", **{"year": year, "state": state}))
         except StopIteration:
-            raise ValueError("No epacems data for %s in %d", state, year)
+            raise ValueError(f"No epacems data for {state} in {year}")
 
-        logger.debug("epacems resource found at %s", resource["path"])
+        logger.debug(f"epacems resource found at {resource['path']}")
 
         with ZipFile(resource["path"], "r").open(monthly_zip, "r") as mz:
             with ZipFile(mz, "r").open(monthly_csv, "r") as csv:
-                logger.debug("epacepms csv %s opened", monthly_csv)
+                logger.debug(f"epacepms csv {monthly_csv} opened")
                 csv = io.BytesIO(csv.read())
 
         return csv

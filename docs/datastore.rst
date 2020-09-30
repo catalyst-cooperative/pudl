@@ -47,11 +47,14 @@ The downloaded data will be used by the script to populate a datastore under
 the ``data`` directory in your workspace, organized by data source, form, and
 date::
 
-    data/eia/form860/
-    data/eia/form923/
-    data/epa/cems/
-    data/epa/ipm/
-    data/ferc/form1/
+    data/censusdp1tract/
+    data/eia860/
+    data/eia861/
+    data/eia923/
+    data/epacems/
+    data/epaipm/
+    data/ferc1/
+    data/ferc714/
 
 If the download fails (e.g. the FTP server times out), this command can be run
 repeatedly until all the files are downloaded. It will not try and re-download
@@ -79,32 +82,32 @@ Github repositories for more information.
 Developing a new Dataset for the Datastore
 ===============================================================================
 
-There are three components necessary to prepare a new datastet for use with the
-PUDL datastore.
+There are three components necessary to prepare a new datastet for use with the PUDL
+datastore.
 
-1. Prepare scraper to download the source data.
-2. Prepare the zen_store to upload the data to Zenodo.
+1. Create a ``pudl-scraper`` to download the raw data.
+2. Use ``pudl-zenodo-storage`` to upload the data to Zenodo.
 3. Prepare the datastore to retrieve the data from Zenodo.
 
-In the event that data is already available on Zenodo, it may be possible to
-skip steps 1 and 2.
+In the event that data is already available on Zenodo in the appropriate format, it may
+be possible to skip steps 1 and 2.
 
 -------------------------------------------------------------------------------
-Prepare a scraper
+Creating a scraper
 -------------------------------------------------------------------------------
 
 Where possible, we use `Scrapy <https://docs.scrapy.org/en/latest/>`__ to
 handle data collection.  Our scrapy spiders, as well as any custom scripts, are
 located in our `scrapers repo
-<https://github.com/catalyst-cooperative/scrapers>`__.  Familiarize yourself
+<https://github.com/catalyst-cooperative/pudl-scrapers>`__.  Familiarize yourself
 with scrapy, and note the following.
 
 From a scraper, a correct ouput directory takes the form: ::
-    `pudl.helpers.new_output_dir(self.settings["OUTPUT_DIR"] /
+    `pudl_scrapers.helpers.new_output_dir(self.settings["OUTPUT_DIR"] /
     "datastet_name")`
 
-The ``pudl.settings`` and ``pudl.helpers`` can be imported outside the context
-of a Scrapy scraper to achieve the same effect as needed.
+The ``pudl_scrapers.settings`` and ``pudl_scrapers.helpers`` can be imported
+outside the context of a Scrapy scraper to achieve the same effect as needed.
 
 To take advantage of the existing file saving pipeline, create a custom item in
 the ``items.py`` collection.  Make sure that it inherits from the existing
@@ -116,41 +119,41 @@ of the environment.
 
 
 -------------------------------------------------------------------------------
-Prepare zen_store
+Prepare zenodo_store
 -------------------------------------------------------------------------------
 
-Our `zen_store <https://github.com/catalyst-cooperative/zen_storage>`__ script
-initializes and updates data sources that we maintain on `Zenodo
-<https://zenodo.org/>`__. It prepares `Frictionless Datapackages
-https://frictionlessdata.io/` from scraped files and uploads them to the
-appropriate Zenodo archive.
+Our `zenodo_store <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__
+script initializes and updates data sources that we maintain on
+`Zenodo <https://zenodo.org/>`__. It prepares `Frictionless Datapackages
+https://frictionlessdata.io/` from scraped files and uploads them to the appropriate
+Zenodo archive.
 
-To add a new archive to our zen storage collection:
+To add a new archive to our zenodo storage collection:
 
-#. Update `zs.metadata` with a uuid and metadata for the new Zenodo archive.
+#. Update ``zs.metadata`` with a uuid and metadata for the new Zenodo archive.
 These details will be used by Zenodo to identify and describe the archive on
 the website.  The UUID is used to uniquely distinguish the archive *prior to
 the creation of a DOI.*
 #. Prepare a new library to handle the *frictionless datapackage* descriptor of
 the archive.
 
-   * The library name should take the form `frictionless.DATASET_source`.
+   * The library name should take the form ``frictionless.DATASET_source``.
    * The library must contain `frictionless data metadata
      <https://specs.frictionlessdata.io/data-package/#language>`__ describing
      the archive.
-   * The library must contain a `datapackager(dfiles)` function that:
+   * The library must contain a ``datapackager(dfiles)`` function that:
 
       #. recieves a list of `zenodo file descriptors
       <https://developers.zenodo.org/#deposition-files>`__
       #. converts each to an appropriate `frictionless datapackage resource
       descriptor <https://specs.frictionlessdata.io/data-resource/#language>`__
 
-         * **Important**: The resource descriptor must include and
-            additional ``descriptor["parts"]["remote_url"]`` that contains
+         * **Important**: The resource descriptor must include an
+            additional ``descriptor["remote_url"]`` that contains
             the zenodo url to download its resource.  This will be the same
             as the ``descriptor["path"]`` at this stage.
          * If there are criteria by which you wish to be able to discover or
-           filter specific resources, ``discriptor["parts"][...]`` should be
+           filter specific resources, ``descriptor["parts"][...]`` should be
            used to denote those details.  For example,
            ``descriptor["parts"]["year"] = 2018`` would be appropriate to
            allow filtering by year.
@@ -158,7 +161,7 @@ the archive.
       #. Combines the resource descriptors and frictionless metadata to produce
          the complete datapackage descriptor as a python dict.
 
-#. In the ``bin/zen_store.py`` script:
+#. In the ``bin/zenodo_store.py`` script:
 
    * Import the new frictionless library.
    * Add the new source to the ``archive_selection`` function; follow the
@@ -171,21 +174,21 @@ updates of the new data source on Zenodo.
 
 
 You initialize an archive (preferably starting with the sandbox) by running
-zen_store.py --initialize --verbose --sandbox
+``zenodo_store.py --initialize --verbose --sandbox``
 
 If successful, the DOI and url for your archive will be printed.  You will
-need to visit the url to review and publish the Zenodo archive  before it can
+need to visit the url to review and publish the Zenodo archive before it can
 be used.
 
 If you lose track of the DOI, you can look up the archive on Zenodo using the
-UUID from zs.metadata.
+UUID from ``zs.metadata``.
 
 -------------------------------------------------------------------------------
 Prepare the Datastore
 -------------------------------------------------------------------------------
 
-If you have used a scraper and zen_store to prepare a Zenodo archive as above,
-you can add support for your archive to the datastore by adding the DOI to
+If you have used a scraper and zenodo_store to prepare a Zenodo archive as above, you
+can add support for your archive to the datastore by adding the DOI to
 pudl.workspace.datastore.DOI, under "sandbox" or "production" as appropriate.
 
 If you want to prepare an archive for the datastore separately, the following
@@ -197,10 +200,13 @@ are required.
 #. Each listed resource among the ``datapackage.json`` resources must include:
 
    * ``path`` containing the zenodo download url for the specific file.
-   * ``parts.remote_url`` with the same url as the ``path``
+   * ``remote_url`` with the same url as the ``path``
    * ``name`` of the file
    * ``hash`` with the md5 hash of the file
-
-#. For resources, any additional metadata to be used for filtering /
-identification should be included as a key / value pair under the ``parts``
-section.
+   * ``parts`` a set of key / value pairs defining additional attributes that
+     can be used to select a subset of the whole datapackage. For example, the
+     ``epacems`` dataset is partitioned by year and state, and
+     ``"parts": {"year": 2010, "state": "ca"}`` would indicate that the
+     resource contains data for the state of California in the year 2010.
+     Unpartitioned datasets like the ``ferc714`` which includes all years in
+     a single file, would have an empty ``"parts": {}``
