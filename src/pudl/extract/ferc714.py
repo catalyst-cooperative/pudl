@@ -53,7 +53,7 @@ def get_ferc714(pudl_settings):
     resources = ds.get_resources("ferc714")
 
     for r in resources:
-        if r["name"] == "form714.zip":
+        if r["name"] == "ferc714.zip":
             return Path(r["path"])
 
 

@@ -90,7 +90,7 @@ class Ferc1Datastore(datastore.Datastore):
                     dbc_path = row["path"]
 
         if dbc_path is None:
-            raise ValueError("No ferc1 data for year %d" % year)
+            raise ValueError(f"No ferc1 data for year {year}")
 
         return dbc_path
 
@@ -249,7 +249,7 @@ def get_fields(filedata):
         if tid in table_cols:
             tables[tname] = table_cols[tid]
         else:
-            logger.warning("Missing cols on %s", tname)
+            logger.warning(f"Missing cols on {tname}")
 
     return tables
 

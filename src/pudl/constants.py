@@ -245,7 +245,7 @@ ferc1_oil_strings = [
     'no. 2  oil', 'blended oil', 'no 2. oil', '# 6 oil', 'nno. 2 oil',
     '#2 fuel', 'oill', 'oils', 'gas/oil', 'no.2 oil gas', '#2 fuel oil',
     'oli', 'oil (#6)', 'oil/diesel', '2 oil', '#6 hvy oil', 'jet fuel',
-    'diesel/compos', 'oil-8', 'oil {6}', 'oil-unit #1', 'bbl.', 'oil.',
+    'diesel/compos', 'oil-8', 'oil {6}', 'oil-unit #1', 'bbl.', 'oil.',  # noqa: FS003
     'oil #6', 'oil (6)', 'oil(#2)', 'oil-unit1&2', 'oil-6', '#2 fue oil',
     'dielel oil', 'dielsel oil', '#6 & used', 'barrels', 'oil un 1 & 2',
     'jet oil', 'oil-u1&2', 'oiul', 'pil', 'oil - 2', '#6 & used', 'oial'
@@ -3073,7 +3073,8 @@ column_dtypes = {
         'utility_id_pudl': pd.Int64Dtype(),
         'plant_id_pudl': pd.Int64Dtype(),
         # 'plant_name': pd.StringDtype(),
-        'report_year': pd.Int64Dtype(),
+        'note': pd.StringDtype(),
+        'report_year': int,
         'report_date': 'datetime64[ns]',
         'common': pd.BooleanDtype(),
         'plant_balance': float,
@@ -3083,14 +3084,14 @@ column_dtypes = {
         # 'survivor_curve_type': pd.StringDtype(),
         'service_life_avg': float,
         'net_salvage_pct': float,
-        'net_salvage_num_or_pct': pd.BooleanDtype(),
+        'net_salvage_rate_type_pct': pd.BooleanDtype(),
         'net_removal': float,
         'net_removal_pct': float,
         'remaining_life_avg': float,
-        'retirement_date': 'datetime64[ns]',
+        # 'retirement_date': 'datetime64[ns]',
         'depreciation_annual_epxns': float,
         'depreciation_annual_pct': float,
-        'depreciation_annual_num_or_pct': pd.BooleanDtype(),
+        'depreciation_annual_rate_type_pct': pd.BooleanDtype(),
         # 'data_source': pd.StringDtype(),
     }
 }
