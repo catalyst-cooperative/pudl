@@ -160,6 +160,9 @@ def fuel_cost(pudl_out):
                                    'fuel_type_count',
                                    'fuel_type_code_pudl']]
 
+    # We are inner merging here, which means that we don't get every generator
+    # in this output... we only get the ones that show up in hr_by_gen.
+    # See Issue #608
     gen_w_ft = pudl.helpers.merge_on_date_year(
         hr_by_gen, gens,
         on=['plant_id_eia', 'generator_id'],
