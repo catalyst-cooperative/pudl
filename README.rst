@@ -45,7 +45,7 @@ and turns them into unified
 that can be used to populate a database, or read in directly with Python, R,
 Microsoft Access, and many other tools.
 
-The project currently integrates data from:
+The project currently integrates data from :
 
 * `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__
 * `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__
