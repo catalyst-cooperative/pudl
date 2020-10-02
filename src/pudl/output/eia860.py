@@ -250,25 +250,13 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
     # To get plant age
     generators_entity_eia_tbl = pt['generators_entity_eia']
     generators_entity_eia_select = sa.sql.select([
-        generators_entity_eia_tbl.c.plant_id_eia,
-        generators_entity_eia_tbl.c.generator_id,
-        generators_entity_eia_tbl.c.operating_date,
+        generators_entity_eia_tbl,
         # generators_entity_eia_tbl.c.report_date
     ])
     # To get the Lat/Lon coordinates
     plants_entity_eia_tbl = pt['plants_entity_eia']
     plants_entity_eia_select = sa.sql.select([
-        plants_entity_eia_tbl.c.plant_id_eia,
-        plants_entity_eia_tbl.c.plant_name_eia,
-        plants_entity_eia_tbl.c.latitude,
-        plants_entity_eia_tbl.c.longitude,
-        plants_entity_eia_tbl.c.state,
-        plants_entity_eia_tbl.c.balancing_authority_code_eia,
-        plants_entity_eia_tbl.c.balancing_authority_name_eia,
-        plants_entity_eia_tbl.c.iso_rto_code,
-        plants_entity_eia_tbl.c.city,
-        plants_entity_eia_tbl.c.county,
-        plants_entity_eia_tbl.c.nerc_region,
+        plants_entity_eia_tbl,
     ])
 
     if start_date is not None:
