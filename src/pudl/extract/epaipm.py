@@ -51,20 +51,20 @@ class EpaIpmDatastore(datastore.Datastore):
                     return Path(r["path"])
 
             raise ValueError(
-                "%s is not available in the epaipm archive" % filename)
+                f"{filename} is not available in the epaipm archive")
 
         logger.debug("Dataframe %s requested", table_name)
         path = resource_path()
 
         if path.suffix == ".xlsx":
-            logger.debug("Dataframe from excel: %s" % path)
+            logger.debug(f"Dataframe from excel: {path}")
             return pd.read_excel(path, **pandas_args)
 
         if path.suffix == ".csv":
-            logger.debug("Dataframe from csv: %s" % path)
+            logger.debug(f"Dataframe from csv: {path}")
             return pd.read_csv(path, **pandas_args)
 
-        raise ValueError("%s: unknown file format on %s" % (path.suffix, path))
+        raise ValueError(f"{path.suffix}: unknown file format on {path}")
 
 
 def create_dfs_epaipm(files, ds):

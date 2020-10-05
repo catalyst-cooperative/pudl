@@ -111,7 +111,7 @@ def test_no_null_cols_mcoe(pudl_out_mcoe, live_pudl_db, cols, df_name):
         ("bga", 90_127, 90_127),
         ("hr_by_unit", 277_848, 23_154),
         ("hr_by_gen", 407_424, 33_952),
-        ("fuel_cost", 447_932, 33_952),
+        ("fuel_cost", 407_424, 33_952),
         ("capacity_factor", 429_072, 35_756),
         ("mcoe", 429_320, 36_004),
     ])

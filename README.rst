@@ -26,7 +26,11 @@ The Public Utility Data Liberation Project (PUDL)
 
 .. image:: https://img.shields.io/pypi/v/catalystcoop.pudl
    :target: https://pypi.org/project/catalystcoop.pudl/
-   :alt: PyPI Version
+   :alt: PyPI Latest Version
+
+.. image:: https://img.shields.io/pypi/pyversions/catalystcoop.pudl
+   :target: https://pypi.org/project/catalystcoop.pudl/
+   :alt: PyPI - Supported Python Versions
 
 .. image:: https://img.shields.io/conda/vn/conda-forge/catalystcoop.pudl
    :target: https://anaconda.org/conda-forge/catalystcoop.pudl
@@ -48,10 +52,13 @@ Microsoft Access, and many other tools.
 The project currently integrates data from:
 
 * `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__
+* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__
 * `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__
 * `The EPA Continuous Emissions Monitoring System (CEMS) <https://ampd.epa.gov/ampd/>`__
 * `The EPA Integrated Planning Model (IPM) <https://www.epa.gov/airmarkets/national-electric-energy-data-system-needs-v6>`__
-* `FERC Form 1 <https://www.ferc.gov/docs-filing/forms/form-1/data.asp>`__
+* `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__
+* `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__
+* `The US Census Demographic Profile 1 Geodatabase <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
 
 The project is focused on serving researchers, activists, journalists, and
 policy makers that might not otherwise be able to afford access to this data
@@ -75,7 +82,7 @@ data interactively.
 .. code-block:: console
 
     $ conda create --yes --name pudl --channel conda-forge \
-        --strict-channel-priority python=3.7 \
+        --strict-channel-priority python=3.8 \
         catalystcoop.pudl jupyter jupyterlab pip
     $ conda activate pudl
 

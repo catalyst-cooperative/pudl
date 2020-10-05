@@ -965,7 +965,7 @@ def corr_fig(compare_data, select_regions=None, suptitle="Parity Plot", s=2, top
         min_lim, max_lim = 0, min_max.max().max()
 
         ax.plot((min_lim, max_lim), (min_lim, max_lim), ls="--")
-        ax.text(max_lim - 10, max_lim - 10, "y={0:.2f}x + {1:.1f} (R² = {2:.2f})".format(slope, intercept, r_value),
+        ax.text(max_lim - 10, max_lim - 10, f"y={slope:.2f}x + {intercept:.1f} (R² = {r_value:.2f})",
                 horizontalalignment='right', verticalalignment="top")
 
         ax.set_ylim(min_lim, max_lim)

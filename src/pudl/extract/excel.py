@@ -273,4 +273,4 @@ class GenericExtractor(object):
                 if row["page"] == page:
                     return row[str(year)]
 
-        raise ValueError("No excel sheet for %d, %s" % (year, page))
+        raise ValueError(f"No excel sheet for {year}, {page}")
