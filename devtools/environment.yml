@@ -65,6 +65,6 @@ dependencies:
   - pip:
     - flake8-use-fstring # dev
     - addfips           # base -- need to get into conda
-    - git+https://github.com/catalyst-cooperative/dbfread/
+    - git+https://github.com/catalyst-cooperative/dbfread.git#egg=catalystcoop.dbfread-2.1.1
     - recordlinkage     # dev for now... base if it ends up in ETL
     - fredapi           # dev

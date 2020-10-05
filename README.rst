@@ -26,7 +26,11 @@ The Public Utility Data Liberation Project (PUDL)
 
 .. image:: https://img.shields.io/pypi/v/catalystcoop.pudl
    :target: https://pypi.org/project/catalystcoop.pudl/
-   :alt: PyPI Version
+   :alt: PyPI Latest Version
+
+.. image:: https://img.shields.io/pypi/pyversions/catalystcoop.pudl
+   :target: https://pypi.org/project/catalystcoop.pudl/
+   :alt: PyPI - Supported Python Versions
 
 .. image:: https://img.shields.io/conda/vn/conda-forge/catalystcoop.pudl
    :target: https://anaconda.org/conda-forge/catalystcoop.pudl

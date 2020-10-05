@@ -182,7 +182,8 @@ def prep_dir(dir_path, clobber=False):
         if clobber:
             shutil.rmtree(dir_path)
         else:
-            raise FileExistsError(f'{dir_path} exists and clobber is {clobber}')
+            raise FileExistsError(
+                f'{dir_path} exists and clobber is {clobber}')
     dir_path.mkdir(parents=True)
     return dir_path
 
@@ -298,7 +299,7 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
         ValueError: if the date or year columns are not found, or if the year
             column is found to be inconsistent with annual reporting.
 
-    TODO: Right mergers will result in null values in the resulting date
+    Todo: Right mergers will result in null values in the resulting date
         column. The final output includes the date_col from the date_df and thus
         if there are any entity records (records being merged on) in the
         year_df but not in the date_df, a right merge will result in nulls in
@@ -326,8 +327,8 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
             date_freq = pd.infer_freq(all_dates)
             rng = pd.date_range(start=first_date, periods=2, freq=date_freq)
             second_date = rng[1]
-            if (second_date - first_date) / pd.Timedelta(days=366) > 1.0:
-                raise ValueError("Consecutive annual dates >1 year apart.")
+        if (second_date - first_date) / pd.Timedelta(days=366) > 1.0:
+            raise ValueError("Consecutive annual dates >1 year apart.")
 
     # Create a temporary column in each dataframe with the year
     df_year = df_year.copy()

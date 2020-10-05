@@ -11,7 +11,7 @@ install_requires = [
     "coloredlogs",
     "contextily",
     "datapackage>=1.11",
-    "dbfread @ git+https://github.com/catalyst-cooperative/dbfread.git#egg=dbfread-2.1.0",
+    "catalystcoop.dbfread @ git+https://github.com/catalyst-cooperative/dbfread.git#egg=catalystcoop.dbfread-2.1.1",
     "geopandas>=0.8.0",
     "goodtables>=2.4.2",
     "matplotlib",
