@@ -2189,7 +2189,7 @@ data_years = {
     'eia923': tuple(range(2001, 2020)),
     'epacems': tuple(range(1995, 2019)),
     'epaipm': (None, ),
-    'ferc1': tuple(range(1994, 2019)),
+    'ferc1': tuple(range(1994, 2020)),
     'ferc714': (None, ),
 }
 """
@@ -2199,9 +2199,9 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 
 # The full set of years we currently expect to be able to ingest, per source:
 working_years = {
-    'eia860': tuple(range(2009, 2019)),
+    'eia860': tuple(range(2009, 2020)),
     'eia861': tuple(range(2001, 2019)),
-    'eia923': tuple(range(2009, 2019)),
+    'eia923': tuple(range(2009, 2020)),
     'epacems': tuple(range(1995, 2019)),
     'epaipm': (None, ),
     'ferc1': tuple(range(1994, 2019)),
