@@ -200,7 +200,7 @@ class TestExcelExtractor:
         assert extractor.excel_filename(2009, "plant_frame") == \
             "EIA923 SCHEDULES 2_3_4_5 M Final 2009 REVISED 05252011.XLS"
         assert extractor.excel_filename(2019, "energy_storage") == \
-            "EIA923_Schedules_2_3_4_5_M_11_2019_21JAN2020.xlsx"
+            "EIA923_Schedules_2_3_4_5_M_12_2019_Final.xlsx"
         assert extractor.excel_filename(2012, "puerto_rico") == \
             "EIA923_Schedules_2_3_4_5_M_12_2012_Final_Revision.xlsx"
 

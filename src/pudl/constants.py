@@ -2201,9 +2201,9 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 
 # The full set of years we currently expect to be able to ingest, per source:
 working_years = {
-    'eia860': tuple(range(2009, 2019)),
+    'eia860': tuple(range(2009, 2020)),
     'eia861': tuple(range(2001, 2019)),
-    'eia923': tuple(range(2009, 2019)),
+    'eia923': tuple(range(2009, 2020)),
     'epacems': tuple(range(1995, 2019)),
     'epaipm': (None, ),
     'ferc1': tuple(range(1994, 2020)),
@@ -3050,7 +3050,7 @@ column_dtypes = {
         'utility_name_eia': pd.StringDtype(),
         'utility_owned_capacity_mw': float,  # Added by AES for NNM table
         'utility_pobox': pd.StringDtype(),
-        'utility_zip4': pd.StringDtype(),
+        'utility_zip_ext': pd.StringDtype(),
         'variable_peak_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
         'virtual_capacity_mw': float,  # Added by AES for NM table
         'virtual_customers': pd.Int64Dtype(),  # Added by AES for NM table
