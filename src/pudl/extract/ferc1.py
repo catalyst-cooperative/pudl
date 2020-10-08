@@ -70,7 +70,10 @@ MIN_RID = 1
 MAX_RID = 531
 PUDL_RIDS = {
     514: "AEP Texas",
+    519: "Upper Michigan Energy Resources Company",
     522: "Luning Energy Holdings LLC, Invenergy Investments",
+    529: "Tri-State Generation and Transmission Association",
+    531: "Basin Electric Power Cooperative",
 }
 
 
