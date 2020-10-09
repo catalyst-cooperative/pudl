@@ -32,7 +32,7 @@ DOI = {
     "sandbox": {
         "censusdp1tract": "10.5072/zenodo.674992",
         "eia860": "10.5072/zenodo.672210",
-        "eia861": "10.5072/zenodo.672199",
+        "eia861": "10.5072/zenodo.679031",
         "eia923": "10.5072/zenodo.673469",
         "epacems": "10.5072/zenodo.672963",
         "ferc1": "10.5072/zenodo.672226",
