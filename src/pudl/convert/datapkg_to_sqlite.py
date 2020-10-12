@@ -18,8 +18,9 @@ separate epacems_to_parquet script that can be used to generate a Parquet
 dataset that is partitioned by state and year, which can be read directly into
 pandas or dask dataframes, for use in conjunction with the other PUDL data that
 is stored in the SQLite DB.
-
 """
+
+
 import argparse
 import logging
 import pathlib
@@ -37,7 +38,7 @@ from pudl.convert.merge_datapkgs import merge_datapkgs
 logger = logging.getLogger(__name__)
 
 
-def datapkg_to_sqlite(sqlite_url, out_path, clobber=False):
+def datapkg_to_sqlite(sqlite_url, out_path, clobber=False, fkey_constraints=False):
     """
     Load a PUDL datapackage into a sqlite database.
 
@@ -52,6 +53,16 @@ def datapkg_to_sqlite(sqlite_url, out_path, clobber=False):
         None
 
     """
+    if fkey_constraints:
+        @sa.event.listens_for(sa.engine.Engine, "connect")
+        def _set_sqlite_pragma(dbapi_connection, connection_record):
+            from sqlite3 import Connection as SQLite3Connection
+            if isinstance(dbapi_connection, SQLite3Connection):
+                logger.warning("Enforcing foreign key constraints in SQLite3")
+                cursor = dbapi_connection.cursor()
+                cursor.execute("PRAGMA foreign_keys=ON;")
+                cursor.close()
+
     # prepping the sqlite engine
     pudl_engine = sa.create_engine(sqlite_url)
     logger.info("Dropping the current PUDL DB, if it exists.")

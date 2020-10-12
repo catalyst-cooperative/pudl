@@ -66,8 +66,6 @@ from pudl.workspace import datastore as datastore
 
 logger = logging.getLogger(__name__)
 
-MIN_RID = 1
-MAX_RID = 531
 PUDL_RIDS = {
     514: "AEP Texas",
     519: "Upper Michigan Energy Resources Company",
@@ -75,19 +73,38 @@ PUDL_RIDS = {
     529: "Tri-State Generation and Transmission Association",
     531: "Basin Electric Power Cooperative",
 }
+"""Missing FERC 1 Respondent IDs for which we have identified the respondent."""
 
 
-def missing_respondents(min_rid, max_rid, existing_rids, pudl_rids):
-    """Fill in missing respondents for the f1_respondent_id table."""
+def missing_respondents(reported, observed, identified):
+    """
+    Fill in missing respondents for the f1_respondent_id table.
+
+    Args:
+        reported (iterable): Respondent IDs appearing in f1_respondent_id.
+        observed (iterable): Respondent IDs appearing anywhere in the ferc1 DB.
+        identified (dict): A {respondent_id: respondent_name} mapping for those
+            observed but not reported respondent IDs which we have been able to
+            identify based on circumstantial evidence. See also:
+            `pudl.extract.ferc1.PUDL_RIDS`
+
+    Returns:
+        list: A list of dictionaries representing minimal f1_respondent_id table
+        records, of the form {"respondent_id": ID, "respondent_name": NAME}. These
+        records are generated only for unreported respondents. Identified respondents
+        get the values passed in through ``identified`` and the other observed but
+        unidentified respondents are named "Missing Respondent ID"
+
+    """
     records = []
-    for rid in range(min_rid, max_rid + 1):
-        if rid in existing_rids:
+    for rid in observed:
+        if rid in reported:
             continue
-        elif rid in pudl_rids:
+        elif rid in identified:
             records.append(
                 {
                     "respondent_id": rid,
-                    "respondent_name": f"{pudl_rids[rid]} (PUDL determined)"
+                    "respondent_name": f"{identified[rid]} (PUDL determined)"
                 },
             )
         else:
@@ -98,6 +115,32 @@ def missing_respondents(min_rid, max_rid, existing_rids, pudl_rids):
                 },
             )
     return records
+
+
+def observed_respondents(ferc1_engine):
+    """
+    Compile the set of all observed respondent IDs found in the FERC 1 database.
+
+    A significant number of FERC 1 respondent IDs appear in the data tables, but not
+    in the f1_respondent_id table. In order to construct a self-consisten database with
+    we need to find all of those missing respondent IDs and inject them into the table
+    when we clone the database.
+
+    Args:
+        ferc1_engine (sqlalchemy.engine.Engine): An engine for connecting to the FERC 1
+            database.
+
+    Returns:
+        set: Every respondent ID reported in any of the FERC 1 DB tables.
+
+    """
+    f1_table_meta = pudl.output.pudltabl.get_table_meta(ferc1_engine)
+    observed = set([])
+    for table in f1_table_meta.values():
+        if table.name != "f1_respondent_id" and "respondent_id" in table.columns:
+            observed = observed.union(set(pd.read_sql_table(
+                table.name, ferc1_engine, columns=["respondent_id"]).respondent_id))
+    return observed
 
 
 class Ferc1Datastore(datastore.Datastore):
@@ -542,21 +585,21 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
         new_df.to_sql(table, sqlite_engine,
                       if_exists='append', chunksize=100000,
                       dtype=coltypes, index=False)
-        # add the missing respondents into the respondent_id table.
-        if table == 'f1_respondent_id':
-            logger.debug(f'inserting missing respondents into {table}')
-            sa.insert(
-                sqlite_meta.tables['f1_respondent_id'],
-                # we can insert info into any of the columns for this
-                # table through the following dictionary, but each of the
-                # records need to have all of the same columns (you can't
-                # add a column for one respondent without adding it to all).
-                values=missing_respondents(
-                    min_rid=MIN_RID, max_rid=MAX_RID,
-                    existing_rids=new_df.respondent_id.unique(),
-                    pudl_rids=PUDL_RIDS,
-                )
-            ).execute()
+
+    # add the missing respondents into the respondent_id table.
+    reported_ids = (
+        pd.read_sql_table("f1_respondent_id", sqlite_engine)
+        .respondent_id
+        .unique()
+    )
+    observed_ids = observed_respondents(sqlite_engine)
+    missing = missing_respondents(
+        reported=reported_ids,
+        observed=observed_ids,
+        identified=PUDL_RIDS,
+    )
+    logger.info(f"Inserting {len(missing)} missing IDs into f1_respondent_id table.")
+    sa.insert(sqlite_meta.tables['f1_respondent_id'], values=missing).execute()
 
 
 ###########################################################################
