@@ -2014,10 +2014,10 @@ def non_net_metering(tfr_dfs):
     _check_for_dupes(
         tidy_nnm_customer_fuel_class, 'Non Net Metering Customer & Fuel Class', idx_cols)
 
-    # Delete total_capacity_mw col for redundancy (it doesn't matter which one)
+    # Delete total_capacity_mw col for redundancy (must delete x not y)
     tidy_nnm_customer_fuel_class = (
-        tidy_nnm_customer_fuel_class.drop(columns='capacity_mw_y')
-        .rename(columns={'capacity_mw_x': 'capacity_mw'})
+        tidy_nnm_customer_fuel_class.drop(columns='capacity_mw_x')
+        .rename(columns={'capacity_mw_y': 'capacity_mw'})
     )
 
     # No transformation needed
