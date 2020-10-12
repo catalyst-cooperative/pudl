@@ -137,11 +137,11 @@ class TestFerc1Datastore:
         """Spot check we get correct folder names per dataset year."""
         ds = pudl_ferc1datastore_fixture
 
-        assert ds.get_folder(1994) == "FORMSADMIN/FORM1/working"
-        assert ds.get_folder(2001) == "UPLOADERS/FORM1/working"
-        assert ds.get_folder(2002) == "FORMSADMIN/FORM1/working"
-        assert ds.get_folder(2010) == "UPLOADERS/FORM1/working"
-        assert ds.get_folder(2015) == "UPLOADERS/FORM1/working"
+        assert ds.get_dir(1994) == "FORMSADMIN/FORM1/working"
+        assert ds.get_dir(2001) == "UPLOADERS/FORM1/working"
+        assert ds.get_dir(2002) == "FORMSADMIN/FORM1/working"
+        assert ds.get_dir(2010) == "UPLOADERS/FORM1/working"
+        assert ds.get_dir(2015) == "UPLOADERS/FORM1/working"
 
     def test_get_fields(self, pudl_ferc1datastore_fixture):
         """Check that the get fields table works as expected."""
