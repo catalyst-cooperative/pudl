@@ -4,7 +4,7 @@ import pandas as pd
 import pudl
 
 
-def heat_rate_by_unit(pudl_out):
+def heat_rate_by_unit(pudl_out, fill_in):
     """
     Calculate heat rates (mmBTU/MWh) within separable generation units.
 
@@ -48,9 +48,13 @@ def heat_rate_by_unit(pudl_out):
                                'plant_id_eia',
                                'generator_id',
                                'unit_id_pudl']].drop_duplicates()
+    gen = pudl_out.gen_eia923()
+    if fill_in:
+        gen = pudl_out.gen_allocated()
+
     # Merge those unit ids into the generation data:
     gen_w_unit = pudl.helpers.merge_on_date_year(
-        pudl_out.gen_eia923(), bga_gens, on=['plant_id_eia', 'generator_id'])
+        gen, bga_gens, on=['plant_id_eia', 'generator_id'])
     # Sum up the net generation per unit for each time period:
     gen_gb = gen_w_unit.groupby(['report_date',
                                  'plant_id_eia',
@@ -82,7 +86,7 @@ def heat_rate_by_unit(pudl_out):
     return hr_by_unit
 
 
-def heat_rate_by_gen(pudl_out):
+def heat_rate_by_gen(pudl_out, fill_in):
     """Convert by-unit heat rate to by-generator, adding fuel type & count."""
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
@@ -97,8 +101,9 @@ def heat_rate_by_gen(pudl_out):
     # Associate those heat rates with individual generators. This also means
     # losing the net generation and fuel consumption information for now.
     hr_by_gen = pudl.helpers.merge_on_date_year(
-        pudl_out.hr_by_unit()[['report_date', 'plant_id_eia',
-                               'unit_id_pudl', 'heat_rate_mmbtu_mwh']],
+        pudl_out.hr_by_unit(fill_in=fill_in)
+        [['report_date', 'plant_id_eia',
+          'unit_id_pudl', 'heat_rate_mmbtu_mwh']],
         bga_gens, on=['plant_id_eia', 'unit_id_pudl']
     )
     hr_by_gen = hr_by_gen.drop('unit_id_pudl', axis=1)
@@ -112,7 +117,7 @@ def heat_rate_by_gen(pudl_out):
     return hr_by_gen
 
 
-def fuel_cost(pudl_out):
+def fuel_cost(pudl_out, fill_in=False):
     """
     Calculate fuel costs per MWh on a per generator basis for MCOE.
 
@@ -145,10 +150,10 @@ def fuel_cost(pudl_out):
 
     # Split up the plants on the basis of how many different primary energy
     # sources the component generators have:
-    hr_by_gen = pudl_out.hr_by_gen()[['plant_id_eia',
-                                      'report_date',
-                                      'generator_id',
-                                      'heat_rate_mmbtu_mwh']]
+    hr_by_gen = pudl_out.hr_by_gen(fill_in=fill_in)[['plant_id_eia',
+                                                     'report_date',
+                                                     'generator_id',
+                                                     'heat_rate_mmbtu_mwh']]
     gens = pudl_out.gens_eia860()[['plant_id_eia',
                                    'report_date',
                                    'plant_name_eia',
@@ -252,7 +257,7 @@ def fuel_cost(pudl_out):
     return out_df
 
 
-def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
+def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5, fill_in=False):
     """
     Calculate the capacity factor for each generator.
 
@@ -276,13 +281,15 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
                                           'report_date',
                                           'generator_id',
                                           'capacity_mw']]
-    gen_eia923 = pudl_out.gen_eia923()[['plant_id_eia',
-                                        'report_date',
-                                        'generator_id',
-                                        'net_generation_mwh']]
+
+    gen = pudl_out.gen_eia923()
+    if fill_in:
+        gen = pudl_out.gen_allocated()
+    gen = gen[['plant_id_eia', 'report_date',
+               'generator_id', 'net_generation_mwh']]
 
     # merge the generation and capacity to calculate capacity factor
-    capacity_factor = pudl.helpers.merge_on_date_year(gen_eia923,
+    capacity_factor = pudl.helpers.merge_on_date_year(gen,
                                                       gens_eia860,
                                                       on=['plant_id_eia',
                                                           'generator_id'],
@@ -318,7 +325,7 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
 
 def mcoe(pudl_out,
          min_heat_rate=5.5, min_fuel_cost_per_mwh=0.0,
-         min_cap_fact=0.0, max_cap_fact=1.5):
+         min_cap_fact=0.0, max_cap_fact=1.5, fill_in=False):
     """
     Compile marginal cost of electricity (MCOE) at the generator level.
 
@@ -341,6 +348,7 @@ def mcoe(pudl_out,
             required for a generator record to be considered valid. For some
             reason there are now a large number of $0 fuel cost records, which
             previously would have been NaN.
+        fill_in (boolean):
 
     Returns:
         pandas.DataFrame: a dataframe organized by date and generator,
@@ -352,10 +360,10 @@ def mcoe(pudl_out,
     # drop columnss for fuel_cost. This avoids needing to hard code columns.
     merge_cols = ['plant_id_eia', 'generator_id', 'report_date']
     drop_cols = [x for x in pudl_out.gens_eia860().columns
-                 if x in pudl_out.fuel_cost().columns and x not in merge_cols]
+                 if x in pudl_out.fuel_cost(fill_in).columns and x not in merge_cols]
     # start with the generators table so we have all of the generators
     mcoe_out = pudl.helpers.merge_on_date_year(
-        pudl_out.fuel_cost().drop(drop_cols, axis=1),
+        pudl_out.fuel_cost(fill_in).drop(drop_cols, axis=1),
         pudl_out.gens_eia860(),
         on=[x for x in merge_cols if x != 'report_date'],
         how='inner',
@@ -365,7 +373,7 @@ def mcoe(pudl_out,
     mcoe_out = pd.merge(
         mcoe_out,
         pudl_out.capacity_factor(min_cap_fact=min_cap_fact,
-                                 max_cap_fact=max_cap_fact)[
+                                 max_cap_fact=max_cap_fact, fill_in=fill_in)[
             ['report_date', 'plant_id_eia',
              'generator_id', 'capacity_factor', 'net_generation_mwh']],
         on=['report_date', 'plant_id_eia', 'generator_id'],

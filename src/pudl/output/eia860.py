@@ -62,7 +62,10 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = (
         out_df.assign(report_date=lambda x: pd.to_datetime(x.report_date))
         .dropna(subset=["report_date", "utility_id_eia"])
-        .astype({"utility_id_pudl": "Int64"})
+        .astype({
+            "utility_id_eia": "Int64",
+            "utility_id_pudl": "Int64",
+        })
         .drop(['id'], axis='columns')
     )
     first_cols = [

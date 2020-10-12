@@ -138,6 +138,8 @@ class PudlTabl(object):
             "fuel_cost": None,
             "capacity_factor": None,
             "mcoe": None,
+
+            "gen_allocated": None,
         }
 
     def pu_eia860(self, update=False):
@@ -196,10 +198,12 @@ class PudlTabl(object):
 
         """
         if update or self._dfs["balancing_authority_eia861"] is None:
-            logger.warning("Running the interim EIA 861 ETL process! (~2 minutes)")
+            logger.warning(
+                "Running the interim EIA 861 ETL process! (~2 minutes)")
 
             if self.ds is None:
-                pudl_in = pathlib.Path(pudl.workspace.setup.get_defaults()["pudl_in"])
+                pudl_in = pathlib.Path(
+                    pudl.workspace.setup.get_defaults()["pudl_in"])
                 self.ds = pudl.workspace.datastore.Datastore(
                     pudl_in=pudl_in,
                     sandbox=True,
@@ -280,7 +284,8 @@ class PudlTabl(object):
 
         """
         if update or self._dfs["respondent_id_ferc714"] is None:
-            logger.warning("Running the interim FERC 714 ETL process! (~11 minutes)")
+            logger.warning(
+                "Running the interim FERC 714 ETL process! (~11 minutes)")
             ferc714_raw_dfs = pudl.extract.ferc714.extract()
             ferc714_tfr_dfs = pudl.transform.ferc714.transform(ferc714_raw_dfs)
             for table in ferc714_tfr_dfs:
@@ -688,7 +693,7 @@ class PudlTabl(object):
                 end_date=self.end_date)
         return self._dfs['bga']
 
-    def hr_by_gen(self, update=False):
+    def hr_by_gen(self, update=False, fill_in=False):
         """
         Calculate and return generator level heat rates (mmBTU/MWh).
 
@@ -702,10 +707,10 @@ class PudlTabl(object):
         """
         if update or self._dfs['hr_by_gen'] is None:
             self._dfs['hr_by_gen'] = pudl.analysis.mcoe.heat_rate_by_gen(
-                self)
+                self, fill_in=fill_in)
         return self._dfs['hr_by_gen']
 
-    def hr_by_unit(self, update=False):
+    def hr_by_unit(self, update=False, fill_in=False):
         """
         Calculate and return generation unit level heat rates.
 
@@ -718,11 +723,11 @@ class PudlTabl(object):
 
         """
         if update or self._dfs['hr_by_unit'] is None:
-            self._dfs['hr_by_unit'] = pudl.analysis.mcoe.heat_rate_by_unit(
-                self)
+            self._dfs['hr_by_unit'] = (
+                pudl.analysis.mcoe.heat_rate_by_unit(self, fill_in=fill_in))
         return self._dfs['hr_by_unit']
 
-    def fuel_cost(self, update=False):
+    def fuel_cost(self, update=False, fill_in=False):
         """
         Calculate and return generator level fuel costs per MWh.
 
@@ -735,11 +740,12 @@ class PudlTabl(object):
 
         """
         if update or self._dfs['fuel_cost'] is None:
-            self._dfs['fuel_cost'] = pudl.analysis.mcoe.fuel_cost(self)
+            self._dfs['fuel_cost'] = (
+                pudl.analysis.mcoe.fuel_cost(self, fill_in=fill_in))
         return self._dfs['fuel_cost']
 
-    def capacity_factor(self, update=False,
-                        min_cap_fact=None, max_cap_fact=None):
+    def capacity_factor(self, update=False, min_cap_fact=None,
+                        max_cap_fact=None, fill_in=True):
         """
         Calculate and return generator level capacity factors.
 
@@ -752,13 +758,16 @@ class PudlTabl(object):
 
         """
         if update or self._dfs['capacity_factor'] is None:
-            self._dfs['capacity_factor'] = pudl.analysis.mcoe.capacity_factor(
-                self, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact)
+            self._dfs['capacity_factor'] = (
+                pudl.analysis.mcoe.capacity_factor(
+                    self, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact,
+                    fill_in=fill_in)
+            )
         return self._dfs['capacity_factor']
 
     def mcoe(self, update=False,
              min_heat_rate=5.5, min_fuel_cost_per_mwh=0.0,
-             min_cap_fact=0.0, max_cap_fact=1.5):
+             min_cap_fact=0.0, max_cap_fact=1.5, fill_in=False):
         """
         Calculate and return generator level MCOE based on EIA data.
 
@@ -797,8 +806,21 @@ class PudlTabl(object):
                 min_heat_rate=min_heat_rate,
                 min_fuel_cost_per_mwh=min_fuel_cost_per_mwh,
                 min_cap_fact=min_cap_fact,
-                max_cap_fact=max_cap_fact)
+                max_cap_fact=max_cap_fact,
+                fill_in=fill_in
+            )
         return self._dfs['mcoe']
+    ###########################################################################
+    # ANALYSIS FUNCTIONS
+    ###########################################################################
+
+    def gen_allocated(self, update=False):
+        """Net generation from gen fuel table allocated to generators."""
+        if update or self._dfs['gen_allocated'] is None:
+            self._dfs['gen_allocated'] = (
+                pudl.analysis.allocate_net_gen.allocate_gen_fuel_by_gen(self)
+            )
+        return self._dfs['gen_allocated']
 
 
 def get_table_meta(pudl_engine):
