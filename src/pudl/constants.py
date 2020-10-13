@@ -332,7 +332,7 @@ ferc1_fuel_strings = {"coal": ferc1_coal_strings,
 # Similarly, dictionary for cleaning up fuel unit strings
 ferc1_ton_strings = ['toms', 'taons', 'tones', 'col-tons', 'toncoaleq', 'coal',
                      'tons coal eq', 'coal-tons', 'ton', 'tons', 'tons coal',
-                     'coal-ton', 'tires-tons', 'coal tons -2 ',
+                     'coal-ton', 'tires-tons', 'coal tons -2 ', 'oil-tons',
                      'coal tons 200', 'ton-2000', 'coal tons -2', 'coal tons',
                      'coal-tone', 'tire-ton', 'tire-tons', 'ton coal eqv']
 """list: A list of fuel unit strings for tons."""
@@ -353,7 +353,7 @@ ferc1_bbl_strings = \
      'bbf', 'blb.', '(bbl)', 'bb1', 'bbsl', 'barrrel', 'barrels 100%',
      'bsrrels', "bbl's", '*barrels', 'oil - barrels', 'oil 42 gal ba', 'bll',
      'boiler barrel', 'gas barrel', '"boiler" barr', '"gas" barrel',
-     '"boiler"barre', '"boiler barre', 'barrels .']
+     '"boiler"barre', '"boiler barre', 'barrels .', 'bariel', 'brrels', 'oil barrel']
 """list: A list of fuel unit strings for barrels."""
 
 ferc1_gal_strings = ['gallons', 'gal.', 'gals', 'gals.', 'gallon', 'gal',
@@ -382,7 +382,7 @@ ferc1_kgU_strings = [  # noqa: N816 (U-ranium is capitalized...)
 """list: A list of fuel unit strings for thousand grams."""
 
 ferc1_mmbtu_strings = ['mmbtu', 'mmbtus', 'mbtus', '(mmbtu)',
-                       "mmbtu's", 'nuclear-mmbtu', 'nuclear-mmbt']
+                       "mmbtu's", 'nuclear-mmbtu', 'nuclear-mmbt', 'mmbtul']
 """list: A list of fuel unit strings for million British Thermal Units."""
 
 ferc1_mwdth_strings = \
@@ -503,7 +503,8 @@ ferc1_plant_kind_combined_cycle = [
     'steam (comb. cycle)', 'steam & cc', 'gas turbine/steam',
     'gas turb/cumbus cycl', 'gas turb/comb cycle', 'gasturb/comb cycle',
     'gas turb/cumb. cyc', 'igcc/gas turbine', 'gas / steam', 'ctg/steam-gas',
-    'ctg/steam -gas'
+    'ctg/steam -gas', 'gas fired cc turbine', 'combinedcycle', 'comb cycle gas turb',
+    'combined cycle opern', 'comb. cycle gas turb',
 ]
 """
 list: A list of strings from FERC Form 1 for the combined cycle plant kind.
@@ -698,6 +699,7 @@ ferc1_const_type_outdoor = [
     'outodoor (auto oper)', 'outdoor steel encl.', 'full outoor',
     'boiler & outdoor ful', 'otdr. blr. & f. otdr', 'f.otdr & otdr.blr.',
     'oudoor (auto oper)', 'outdoor constructin', 'f. otdr. & otdr. blr',
+    'outdoor boiler & fue',
 
 ]
 """list: A list of strings from FERC Form 1 associated with the outdoor
@@ -762,7 +764,7 @@ ferc1_const_type_conventional = [
     'conventional, indoor', 'comb. cycle indoor', '3 indoor boiler',
     '2 indoor boilers', '1 indoor boiler', '2 indoor boiler',
     '3 indoor boilers', 'fully contained', 'conv - b', 'conventional/boiler',
-    'cnventional', 'comb. cycle indooor', 'sonventional',
+    'cnventional', 'comb. cycle indooor', 'sonventional', 'ind enclosures',
 ]
 """list: A list of strings from FERC Form 1 associated with the conventional
     construction type.
@@ -2184,12 +2186,12 @@ data_sources = (
 
 # All the years for which we ought to be able to download these data sources
 data_years = {
-    'eia860': tuple(range(2001, 2019)),
-    'eia861': tuple(range(1990, 2019)),
+    'eia860': tuple(range(2001, 2020)),
+    'eia861': tuple(range(1990, 2020)),
     'eia923': tuple(range(2001, 2020)),
-    'epacems': tuple(range(1995, 2019)),
+    'epacems': tuple(range(1995, 2021)),
     'epaipm': (None, ),
-    'ferc1': tuple(range(1994, 2019)),
+    'ferc1': tuple(range(1994, 2020)),
     'ferc714': (None, ),
 }
 """
@@ -2199,12 +2201,12 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 
 # The full set of years we currently expect to be able to ingest, per source:
 working_years = {
-    'eia860': tuple(range(2009, 2019)),
+    'eia860': tuple(range(2009, 2020)),
     'eia861': tuple(range(2001, 2019)),
     'eia923': tuple(range(2009, 2020)),
     'epacems': tuple(range(1995, 2020)),
     'epaipm': (None, ),
-    'ferc1': tuple(range(1994, 2019)),
+    'ferc1': tuple(range(1994, 2020)),
     'ferc714': (None, ),
 }
 """
@@ -3048,7 +3050,7 @@ column_dtypes = {
         'utility_name_eia': pd.StringDtype(),
         'utility_owned_capacity_mw': float,  # Added by AES for NNM table
         'utility_pobox': pd.StringDtype(),
-        'utility_zip4': pd.StringDtype(),
+        'utility_zip_ext': pd.StringDtype(),
         'variable_peak_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
         'virtual_capacity_mw': float,  # Added by AES for NM table
         'virtual_customers': pd.Int64Dtype(),  # Added by AES for NM table

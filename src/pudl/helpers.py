@@ -397,8 +397,8 @@ def strip_lower(df, columns):
     out_df = df.copy()
     for col in columns:
         if col in out_df.columns:
-            out_df.loc[:, col] = (
-                out_df[col].astype(str).
+            out_df.loc[out_df[col].notnull(), col] = (
+                out_df.loc[out_df[col].notnull(), col].astype(str).
                 str.strip().
                 str.lower().
                 str.replace(r'\s+', ' ')
@@ -918,7 +918,8 @@ def convert_cols_dtypes(df, data_source, name=None):
         if df.utility_id_eia.dtypes is np.dtype('object'):
             df = df.astype({'utility_id_eia': 'float'})
     df = (
-        df.replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
+        df.replace(to_replace="<NA>", value={
+                   col: pd.NA for col in string_cols})
         .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
         .astype(non_bool_cols)
         .astype(bool_cols)

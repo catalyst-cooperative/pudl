@@ -673,7 +673,9 @@ def glue(ferc1=False, eia=False):
         ['plants_eia', 'plants_ferc1', 'utilities_eia', 'utilities_ferc1']
     ):
         if df[pd.isnull(df).any(axis=1)].shape[0] > 1:
-            raise AssertionError(f"FERC to EIA glue breaking in {df_n}")
+            raise AssertionError(
+                f"FERC to EIA glue breaking in {df_n}. There are too many null "
+                "fields. Check the mapping spreadhseet.")
         df = df.dropna()
 
     # Before we start inserting records into the database, let's do some basic
