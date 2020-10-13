@@ -125,3 +125,4 @@ plant_id_eia,plant_name_eia,last_date,state,latitude,longitude,fill_data_source_
 880101,RockTenn CP LLC Stevenson Mill,2017-09-30,AL,34.838,-85.7865,EPA CAMD web query
 880107,SPMT Marcus Hook Industrial Complex,2017-12-31,PA,39.8076,-75.4239,EPA CAMD web query
 880108,Grain Processing Corporation,2018-12-31,IN,38.6552,-87.1814,EPA CAMD web query
+880109,Unknown,2020-10-13,40.367474,-82.996216,Not found in EPA CAMD - Avg OH Lat
