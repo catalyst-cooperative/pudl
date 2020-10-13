@@ -48,8 +48,9 @@ logger = logging.getLogger(__name__)
 class PudlTabl(object):
     """A class for compiling common useful tabular outputs from the PUDL DB."""
 
-    def __init__(self, pudl_engine, ds=None, freq=None, start_date=None, end_date=None,
-                 fill=False, roll=False):
+    def __init__(self, pudl_engine, ds=None, freq=None, start_date=None,
+                 end_date=None, fill_fuel_cost=False, roll_fuel_cost=False,
+                 fill_net_gen=False):
         """
         Initialize the PUDL output object.
 
@@ -68,7 +69,7 @@ class PudlTabl(object):
             end_date (date): End date for data to pull from the PUDL DB.
             pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
                 for the PUDL DB.
-            roll (boolean): if set to True, apply a rolling average to a
+            roll_fuel_cost (boolean): if set to True, apply a rolling average to a
                 subset of output table's columns (currently only
                 'fuel_cost_per_mmbtu' for the frc table).
 
@@ -98,8 +99,9 @@ class PudlTabl(object):
         if not pudl_engine:
             raise AssertionError('PudlTabl object needs a pudl_engine')
 
-        self.roll = roll
-        self.fill = fill
+        self.roll_fuel_cost = roll_fuel_cost
+        self.fill_fuel_cost = fill_fuel_cost
+        self.fill_net_gen = fill_net_gen
         # We populate this library of dataframes as they are generated, and
         # allow them to persist, in case they need to be used again.
         self._dfs = {
@@ -488,8 +490,8 @@ class PudlTabl(object):
                 freq=self.freq,
                 start_date=self.start_date,
                 end_date=self.end_date,
-                fill=self.fill,
-                roll=self.roll)
+                fill=self.fill_fuel_cost,
+                roll=self.roll_fuel_cost)
         return self._dfs['frc_eia923']
 
     def bf_eia923(self, update=False):
@@ -693,7 +695,7 @@ class PudlTabl(object):
                 end_date=self.end_date)
         return self._dfs['bga']
 
-    def hr_by_gen(self, update=False, fill_in=False):
+    def hr_by_gen(self, update=False):
         """
         Calculate and return generator level heat rates (mmBTU/MWh).
 
@@ -706,11 +708,10 @@ class PudlTabl(object):
 
         """
         if update or self._dfs['hr_by_gen'] is None:
-            self._dfs['hr_by_gen'] = pudl.analysis.mcoe.heat_rate_by_gen(
-                self, fill_in=fill_in)
+            self._dfs['hr_by_gen'] = pudl.analysis.mcoe.heat_rate_by_gen(self)
         return self._dfs['hr_by_gen']
 
-    def hr_by_unit(self, update=False, fill_in=False):
+    def hr_by_unit(self, update=False):
         """
         Calculate and return generation unit level heat rates.
 
@@ -724,10 +725,11 @@ class PudlTabl(object):
         """
         if update or self._dfs['hr_by_unit'] is None:
             self._dfs['hr_by_unit'] = (
-                pudl.analysis.mcoe.heat_rate_by_unit(self, fill_in=fill_in))
+                pudl.analysis.mcoe.heat_rate_by_unit(self)
+            )
         return self._dfs['hr_by_unit']
 
-    def fuel_cost(self, update=False, fill_in=False):
+    def fuel_cost(self, update=False):
         """
         Calculate and return generator level fuel costs per MWh.
 
@@ -740,12 +742,11 @@ class PudlTabl(object):
 
         """
         if update or self._dfs['fuel_cost'] is None:
-            self._dfs['fuel_cost'] = (
-                pudl.analysis.mcoe.fuel_cost(self, fill_in=fill_in))
+            self._dfs['fuel_cost'] = pudl.analysis.mcoe.fuel_cost(self)
         return self._dfs['fuel_cost']
 
-    def capacity_factor(self, update=False, min_cap_fact=None,
-                        max_cap_fact=None, fill_in=True):
+    def capacity_factor(self, update=False,
+                        min_cap_fact=None, max_cap_fact=None):
         """
         Calculate and return generator level capacity factors.
 
@@ -760,14 +761,13 @@ class PudlTabl(object):
         if update or self._dfs['capacity_factor'] is None:
             self._dfs['capacity_factor'] = (
                 pudl.analysis.mcoe.capacity_factor(
-                    self, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact,
-                    fill_in=fill_in)
+                    self, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact)
             )
         return self._dfs['capacity_factor']
 
     def mcoe(self, update=False,
              min_heat_rate=5.5, min_fuel_cost_per_mwh=0.0,
-             min_cap_fact=0.0, max_cap_fact=1.5, fill_in=False):
+             min_cap_fact=0.0, max_cap_fact=1.5):
         """
         Calculate and return generator level MCOE based on EIA data.
 
@@ -807,7 +807,6 @@ class PudlTabl(object):
                 min_fuel_cost_per_mwh=min_fuel_cost_per_mwh,
                 min_cap_fact=min_cap_fact,
                 max_cap_fact=max_cap_fact,
-                fill_in=fill_in
             )
         return self._dfs['mcoe']
     ###########################################################################

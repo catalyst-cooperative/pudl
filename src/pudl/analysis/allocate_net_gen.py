@@ -9,11 +9,101 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 IDX_GENS = ['plant_id_eia', 'generator_id', 'report_date']
+"""Id columns for generators."""
 
 IDX_PM_FUEL = ['plant_id_eia', 'prime_mover_code',
                'fuel_type', 'report_date']
+"""Id columns for plant, prime mover & fuel type records."""
 
-DATA_COLS = ['net_generation_mwh', 'fuel_consumed_mmbtu']
+
+def allocate_gen_fuel_by_gen(pudl_out):
+    """
+    Allocate gen fuel data columns to generators.
+
+    The generation_fuel_eia923 table includes net generation and fuel
+    consumption data at the plant/fuel type/prime mover level. The most
+    granular level of plants that PUDL typically uses is at the plant/generator
+    level. This method converts the generation_fuel_eia923 table to the level
+    of plant/generators.
+
+    Args:
+        pudl_out
+
+    Returns:
+        pandas.DataFrame
+    """
+    gen_pm_fuel = allocate_gen_fuel_by_gen_pm_fuel(pudl_out)
+    gen = agg_by_generator(gen_pm_fuel)
+    _test_gen_fuel_allocation(pudl_out, gen)
+    return gen
+
+
+def allocate_gen_fuel_by_gen_pm_fuel(pudl_out):
+    """
+    Proportionally allocate net gen from gen_fuel table to generators.
+
+    Two main steps here:
+     * associated gen_fuel data w/ generators
+     * allocate gen_fuel data proportionally
+
+    Args:
+        pudl_out
+
+    Returns:
+        pandas.DataFrame
+    """
+    gens_asst = associate_gen_tables(pudl_out)
+    # get the total values for the merge group
+    gen_pm_fuel = (
+        pd.merge(
+            gens_asst,
+            gens_asst.groupby(by=IDX_PM_FUEL)
+            [['net_generation_mwh_gen', 'capacity_mw']]
+            .sum(min_count=1)
+            .add_suffix('_pm_fuel_total')
+            .reset_index(),
+            on=IDX_PM_FUEL,
+        )
+        .pipe(_associate_unconnected_records)
+    )
+
+    # do the allocating-ing!
+    gen_pm_fuel = (
+        gen_pm_fuel.assign(
+            # we could condense these remaining cols into one... but let's keep
+            # it for debuging for now
+            gen_ratio_net_gen=lambda x: x.net_generation_mwh_gen / \
+            x.net_generation_mwh_gen_pm_fuel_total,
+            gen_ratio_cap=lambda x: x.capacity_mw / x.capacity_mw_pm_fuel_total,
+            gen_ratio=lambda x:
+                np.where(
+                    x.gen_ratio_net_gen.notnull() | x.gen_ratio_net_gen != 0,
+                    x.gen_ratio_net_gen, x.gen_ratio_cap),
+            net_generation_mwh=lambda x: x.net_generation_mwh_gf * x.gen_ratio,
+            fuel_consumed_mmbtu_gf=lambda x: x.fuel_consumed_mmbtu,
+            fuel_consumed_mmbtu=lambda x: x.fuel_consumed_mmbtu * x.gen_ratio
+        )
+    )
+
+    gen_pm_fuel = (
+        gen_pm_fuel.astype({"plant_id_eia": "Int64", })
+        .pipe(_test_generator_output, pudl_out)
+    )
+    return gen_pm_fuel
+
+
+def agg_by_generator(gen_pm_fuel):
+    """
+    Aggreate the allocated gen fuel data to the generator level.
+
+    Args:
+        gen_pm_fuel (pandas.DataFrame): result of
+            `allocate_gen_fuel_by_gen_pm_fuel()`
+    """
+    data_cols = ['net_generation_mwh', 'fuel_consumed_mmbtu']
+    gen = (gen_pm_fuel.groupby(by=IDX_GENS)
+           [data_cols].sum(min_count=1).reset_index())
+    return gen
 
 
 def _stack_generators(pudl_out, idx_stack, cols_to_stack,
@@ -26,8 +116,10 @@ def _stack_generators(pudl_out, idx_stack, cols_to_stack,
         pudl_out
         idx_stack (iterable): list of columns. index to stack based on
         cols_to_stack (iterable): list of columns to stack
-        cat_col (string): name of category column which will end up having the column names of cols_to_stack
-        stacked_col (string): name of column which will end up with the stacked data from cols_to_stack
+        cat_col (string): name of category column which will end up having the
+            column names of cols_to_stack
+        stacked_col (string): name of column which will end up with the stacked
+            data from cols_to_stack
 
     Returns:
         pandas.DataFrame: a dataframe with these columns: idx_stack, cat_col,
@@ -170,69 +262,27 @@ def _test_generator_output(eia_generators, pudl_out):
     return eia_generators
 
 
-def allocate_gen_fuel_by_gen_pm_fuel(pudl_out):
-    """
-    Proportionally allocate net gen from gen_fuel table to generators.
-
-    Two main steps here:
-     * associated gen_fuel data w/ generators
-     * allocate gen_fuel data proportionally
-    """
-    gens_asst = associate_gen_tables(pudl_out)
-    # get the total values for the merge group
-    gen_pm_fuel = (
+def _test_gen_fuel_allocation(pudl_out, gen_allocated, ratio=.05):
+    gens_test = (
         pd.merge(
-            gens_asst,
-            gens_asst.groupby(by=IDX_PM_FUEL)
-            [['net_generation_mwh_gen', 'capacity_mw']]
-            .sum(min_count=1)
-            .add_suffix('_pm_fuel_total')
-            .reset_index(),
-            on=IDX_PM_FUEL,
+            gen_allocated,
+            pudl_out.gen_eia923(),
+            on=IDX_GENS,
+            suffixes=('_new', '_og')
         )
-        .pipe(_associate_unconnected_records)
+        .assign(
+            net_generation_new_v_og=lambda x:
+                x.net_generation_mwh_new / x.net_generation_mwh_og)
     )
 
-    # do the allocating-ing!
-    gen_pm_fuel = (
-        gen_pm_fuel.assign(
-            # we could condense these remaining cols into one... but let's keep
-            # it for debuging for now
-            gen_ratio_net_gen=lambda x: x.net_generation_mwh_gen / \
-            x.net_generation_mwh_gen_pm_fuel_total,
-            gen_ratio_cap=lambda x: x.capacity_mw / x.capacity_mw_pm_fuel_total,
-            gen_ratio=lambda x:
-                np.where(
-                    x.gen_ratio_net_gen.notnull() | x.gen_ratio_net_gen != 0,
-                    x.gen_ratio_net_gen, x.gen_ratio_cap),
-            net_generation_mwh=lambda x: x.net_generation_mwh_gf * x.gen_ratio,
-            fuel_consumed_mmbtu_gf=lambda x: x.fuel_consumed_mmbtu,
-            fuel_consumed_mmbtu=lambda x: x.fuel_consumed_mmbtu * x.gen_ratio
+    os_ration = gens_test[
+        (~gens_test.net_generation_new_v_og.between((1 - ratio), (1 + ratio)))
+        & (gens_test.net_generation_new_v_og.notnull())
+    ]
+    os_ratio = len(os_ration) / len(gens_test)
+    logger.info(
+        f"{os_ratio:.2%} of generator records are more that {ratio:.0%} off from the net generation table")
+    if ratio == 0.5 and os_ratio > .11:
+        raise AssertionError(
+            f"Too many generator records that have allocated net gen more than {ratio:.0%}"
         )
-    )
-
-    gen_pm_fuel = (
-        gen_pm_fuel.astype({"plant_id_eia": "Int64", })
-        .pipe(_test_generator_output, pudl_out)
-    )
-    return gen_pm_fuel
-
-
-def agg_by_generator(gen_pm_fuel):
-    """
-    Aggreate the allocated gen fuel data to the generator level.
-
-    Args:
-        gen_pm_fuel (pandas.DataFrame): result of
-            `allocate_gen_fuel_by_gen_pm_fuel()`
-    """
-    gen = (gen_pm_fuel.groupby(by=IDX_GENS)
-           [DATA_COLS].sum(min_count=1).reset_index())
-    return gen
-
-
-def allocate_gen_fuel_by_gen(pudl_out):
-    """Allocate gen fuel data columns to generators."""
-    gen_pm_fuel = allocate_gen_fuel_by_gen_pm_fuel(pudl_out)
-    gen = agg_by_generator(gen_pm_fuel)
-    return gen
