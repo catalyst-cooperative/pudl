@@ -1224,9 +1224,9 @@ def demand_response(tfr_dfs):
 
     raw_dr = tfr_dfs["demand_response_eia861"].copy()
     # fill na BA values with 'UNK'
-    # raw_dr['balancing_authority_code_eia'] = (
-    #     raw_dr['balancing_authority_code_eia'].fillna('UNK')
-    # )
+    raw_dr['balancing_authority_code_eia'] = (
+        raw_dr['balancing_authority_code_eia'].fillna('UNK')
+    )
 
     # Split data into tidy-able and not
     raw_dr_water_heater = raw_dr[idx_cols + ['water_heater']].copy()
