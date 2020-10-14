@@ -2052,9 +2052,9 @@ def operational_data(tfr_dfs):
 
     # Pre-tidy clean specific to operational data table
     raw_od = tfr_dfs["operational_data_eia861"].copy()
-    raw_od = (
-        raw_od[(raw_od['utility_id_eia'].notnull()) &
-               (raw_od['utility_id_eia'] != 88888)]
+    raw_od = (  # removed (raw_od['utility_id_eia'].notnull()) for RMI
+        raw_od[(raw_od['utility_id_eia'] != 88888) &
+               (raw_od['utility_id_eia'].notnull())]
     )
 
     ###########################################################################
