@@ -133,9 +133,10 @@ def weighted_quantile(data, weights, quantile):
     if len(data) != len(weights):
         raise ValueError("data and weights must have the same length")
     df = (
-        pd.DataFrame({"data": data, "weights": weights}).
-        sort_values(by="data").
-        dropna()
+        pd.DataFrame({"data": data, "weights": weights})
+        .replace([np.inf, -np.inf], np.nan)
+        .dropna()
+        .sort_values(by="data")
     )
     Sn = df.weights.cumsum()  # noqa: N806
     # This conditional is necessary because sometimes new columns get
