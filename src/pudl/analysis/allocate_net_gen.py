@@ -214,12 +214,15 @@ def _associate_unconnected_records(eia_generators_merged):
             how='outer'
         )
         .assign(
+            # we want the main and the unconnected net get to be added together
+            # but sometimes there is no main net get and sometimes there is no
+            # unconnected net gen
             net_generation_mwh_gf=lambda x: np.where(
                 x.net_generation_mwh_gf.notnull()
                 | x.net_generation_mwh_gf_unconnected.notnull(),
                 x.net_generation_mwh_gf.fillna(0)
                 + x.net_generation_mwh_gf_unconnected.fillna(0),
-                pd.NA
+                np.nan
             ),
             fuel_consumed_mmbtu=lambda x: x.fuel_consumed_mmbtu.fillna(
                 0) + x.fuel_consumed_mmbtu_unconnected.fillna(0)
