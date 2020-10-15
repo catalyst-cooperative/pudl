@@ -6,6 +6,7 @@ processes. They are usually not dataset specific, but not always. If a function
 is designed to be used as a general purpose tool, applicable in multiple
 scenarios, it should probably live here. There are lost of transform type
 functions in here that help with cleaning and restructing dataframes.
+
 """
 import logging
 import pathlib
@@ -74,7 +75,6 @@ def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
     df = df.astype({
         state_col: pd.StringDtype(),
         county_col: pd.StringDtype(),
-
     })
     af = addfips.AddFIPS(vintage=vintage)
     # Lookup the state and county FIPS IDs and add them to the dataframe:
@@ -182,7 +182,8 @@ def prep_dir(dir_path, clobber=False):
         if clobber:
             shutil.rmtree(dir_path)
         else:
-            raise FileExistsError(f'{dir_path} exists and clobber is {clobber}')
+            raise FileExistsError(
+                f'{dir_path} exists and clobber is {clobber}')
     dir_path.mkdir(parents=True)
     return dir_path
 
@@ -225,7 +226,7 @@ def is_annual(df_year, year_col='report_date'):
     the edge cases better.
 
     Args:
-        df_year (:class:`pandas.DataFrame`): A pandas DataFrame that might
+        df_year (pandas.DataFrame): A pandas DataFrame that might
             contain time-series data at annual resolution.
         year_col (str): The column of the DataFrame in which the year is
             reported.
@@ -298,7 +299,7 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
         ValueError: if the date or year columns are not found, or if the year
             column is found to be inconsistent with annual reporting.
 
-    TODO: Right mergers will result in null values in the resulting date
+    Todo: Right mergers will result in null values in the resulting date
         column. The final output includes the date_col from the date_df and thus
         if there are any entity records (records being merged on) in the
         year_df but not in the date_df, a right merge will result in nulls in
@@ -326,8 +327,8 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
             date_freq = pd.infer_freq(all_dates)
             rng = pd.date_range(start=first_date, periods=2, freq=date_freq)
             second_date = rng[1]
-            if (second_date - first_date) / pd.Timedelta(days=366) > 1.0:
-                raise ValueError("Consecutive annual dates >1 year apart.")
+        if (second_date - first_date) / pd.Timedelta(days=366) > 1.0:
+            raise ValueError("Consecutive annual dates >1 year apart.")
 
     # Create a temporary column in each dataframe with the year
     df_year = df_year.copy()
@@ -396,8 +397,8 @@ def strip_lower(df, columns):
     out_df = df.copy()
     for col in columns:
         if col in out_df.columns:
-            out_df.loc[:, col] = (
-                out_df[col].astype(str).
+            out_df.loc[out_df[col].notnull(), col] = (
+                out_df.loc[out_df[col].notnull(), col].astype(str).
                 str.strip().
                 str.lower().
                 str.replace(r'\s+', ' ')
@@ -590,17 +591,17 @@ def month_year_to_date(df):
     # to create a corresponding Date column named [BASE]_date
     month_year_date = []
     for base in date_base:
-        base_month_regex = '^{}{}'.format(base, month_regex)
+        base_month_regex = f'^{base}{month_regex}'
         month_col = list(df.filter(regex=base_month_regex).columns)
         if not len(month_col) == 1:
             raise AssertionError()
         month_col = month_col[0]
-        base_year_regex = '^{}{}'.format(base, year_regex)
+        base_year_regex = f'^{base}{year_regex}'
         year_col = list(df.filter(regex=base_year_regex).columns)
         if not len(year_col) == 1:
             raise AssertionError()
         year_col = year_col[0]
-        date_col = '{}_date'.format(base)
+        date_col = f'{base}_date'
         month_year_date.append((month_col, year_col, date_col))
 
     for month_col, year_col, date_col in month_year_date:
@@ -669,10 +670,9 @@ def convert_to_date(df,
     else:
         day = df[day_col]
 
-    df[date_col] = \
-        pd.to_datetime({'year': year,
-                        'month': month,
-                        'day': day})
+    df[date_col] = pd.to_datetime({'year': year,
+                                   'month': month,
+                                   'day': day})
     cols_to_drop = [x for x in [
         day_col, year_col, month_col] if x in df.columns]
     df.drop(cols_to_drop, axis="columns", inplace=True)
@@ -918,7 +918,8 @@ def convert_cols_dtypes(df, data_source, name=None):
         if df.utility_id_eia.dtypes is np.dtype('object'):
             df = df.astype({'utility_id_eia': 'float'})
     df = (
-        df.replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
+        df.replace(to_replace="<NA>", value={
+                   col: pd.NA for col in string_cols})
         .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
         .astype(non_bool_cols)
         .astype(bool_cols)
@@ -945,18 +946,17 @@ def generate_rolling_avg(df, group_cols, data_col, window, **kwargs):
     """
     Generate a rolling average.
 
-    For a given dataframe with a `report_date` column, generate a monthly
+    For a given dataframe with a ``report_date`` column, generate a monthly
     rolling average and use this rolling average to impute missing values.
 
     Args:
         df (pandas.DataFrame): Original dataframe. Must have group_cols
-            column, a data_col column and a 'report_date' column.
+            column, a data_col column and a ``report_date`` column.
         group_cols (iterable): a list of columns to groupby.
         data_col (str): the name of the data column.
-        window (int): window from pandas.Series.rolling
-        **kwargs : Additional arguments to pass to
-            :class:`pandas.Series.rolling`.
-
+        window (int): window from :func:`pandas.Series.rolling`.
+        kwargs : Additional arguments to pass to
+            :func:`pandas.Series.rolling`.
 
     Returns:
         pandas.DataFrame
@@ -1007,7 +1007,7 @@ def fillna_w_rolling_avg(df_og, group_cols, data_col, window=12, **kwargs):
         group_cols (iterable): a list of columns to groupby.
         data_col (str): the name of the data column.
         window (int): window from pandas.Series.rolling
-        **kwargs : Additional arguments to pass to
+        kwargs : Additional arguments to pass to
             :class:`pandas.Series.rolling`.
 
     Returns:

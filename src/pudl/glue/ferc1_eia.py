@@ -282,48 +282,44 @@ def get_unmapped_plants_ferc1(pudl_settings, years):
     return unmapped_plants
 
 
-def get_unmapped_utils_ferc1(pudl_settings, years):
+def get_unmapped_utils_ferc1(ferc1_engine):
     """
     Generate a list of as-of-yet unmapped utilities from the FERC Form 1 DB.
 
-    Find any utilities which exist in the FERC Form 1 database for the years
-    requested, but which do not show up in the mapped plants.  Note that there
-    are many more utilities in FERC Form 1 that simply have no plants
-    associated with them that will not show up here.
+    Find any utilities which do exist in the cloned FERC Form 1 DB,
+    but which do not show up in the already mapped FERC respondents.
 
     Args:
-        pudl_settings (dict): Dictionary containing various paths and database
-            URLs used by PUDL.
-        years (iterable): Years for which plants should be compiled from the
-            raw FERC Form 1 DB.
+        ferc1_engine (sqlalchemy.engine.Engine): A database connection engine
+            for the cloned FERC Form 1 DB.
+
     Returns:
-        pandas.DataFrame
+        pandas.DataFrame: with columns "utility_id_ferc1" and "utility_name_ferc1"
 
     """
-    # Note: we only map the utlities that have plants associated with them.
-    # Grab the list of all utilities listed in the mapped plants:
-    mapped_utilities = get_mapped_utils_ferc1().set_index("utility_id_ferc1")
-    # Generate a list of all utilities which have unmapped plants:
-    # (Since any unmapped utility *must* have unmapped plants)
-    utils_with_unmapped_plants = (
-        get_unmapped_plants_ferc1(pudl_settings, years).
-        loc[:, ["utility_id_ferc1", "utility_name_ferc1"]].
-        drop_duplicates("utility_id_ferc1").
-        set_index("utility_id_ferc1")
+    all_utils_ferc1 = (
+        pd.read_sql_table("f1_respondent_id", ferc1_engine)
+        .rename(columns={
+            "respondent_id": "utility_id_ferc1",
+            "respondent_name": "utility_name_ferc1",
+        })
+        .pipe(pudl.helpers.strip_lower, ["utility_name_ferc1"])
+        .set_index(["utility_id_ferc1", "utility_name_ferc1"])
     )
-    # Find the indices of all utilities with unmapped plants that do not appear
-    # in the list of mapped utilities at all:
-    new_utilities_index = (
-        utils_with_unmapped_plants.index.
-        difference(mapped_utilities.index)
+    mapped_utils_ferc1 = (
+        get_mapped_utils_ferc1()
+        .pipe(pudl.helpers.strip_lower, ["utility_name_ferc1"])
+        .set_index(["utility_id_ferc1", "utility_name_ferc1"])
     )
-    # Use that index to select only the previously unmapped utilities:
-    unmapped_utilities = (
-        utils_with_unmapped_plants.
-        loc[new_utilities_index].
-        reset_index()
+    unmapped_utils_ferc1 = (
+        all_utils_ferc1.loc[
+            all_utils_ferc1.index
+            .difference(mapped_utils_ferc1.index)
+        ]
+        .reset_index()
+        .loc[:, ["utility_id_ferc1", "utility_name_ferc1"]]
     )
-    return unmapped_utilities
+    return unmapped_utils_ferc1
 
 
 def get_db_plants_eia(pudl_engine):
@@ -673,7 +669,9 @@ def glue(ferc1=False, eia=False):
         ['plants_eia', 'plants_ferc1', 'utilities_eia', 'utilities_ferc1']
     ):
         if df[pd.isnull(df).any(axis=1)].shape[0] > 1:
-            raise AssertionError(f"FERC to EIA glue breaking in {df_n}")
+            raise AssertionError(
+                f"FERC to EIA glue breaking in {df_n}. There are too many null "
+                "fields. Check the mapping spreadhseet.")
         df = df.dropna()
 
     # Before we start inserting records into the database, let's do some basic
