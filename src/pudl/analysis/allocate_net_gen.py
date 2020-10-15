@@ -86,7 +86,9 @@ def allocate_gen_fuel_by_gen_pm_fuel(pudl_out):
     )
 
     gen_pm_fuel = (
-        gen_pm_fuel.astype({"plant_id_eia": "Int64", })
+        gen_pm_fuel.astype(
+            {"plant_id_eia": "Int64",
+             "net_generation_mwh": "float"})
         .pipe(_test_generator_output, pudl_out)
     )
     return gen_pm_fuel
@@ -212,11 +214,15 @@ def _associate_unconnected_records(eia_generators_merged):
             how='outer'
         )
         .assign(
-            net_generation_mwh_gf=lambda x:
+            net_generation_mwh_gf=lambda x: np.where(
+                x.net_generation_mwh_gf.notnull()
+                | x.net_generation_mwh_gf_unconnected.notnull(),
                 x.net_generation_mwh_gf.fillna(0)
                 + x.net_generation_mwh_gf_unconnected.fillna(0),
+                pd.NA
+            ),
             fuel_consumed_mmbtu=lambda x: x.fuel_consumed_mmbtu.fillna(
-                    0) + x.fuel_consumed_mmbtu_unconnected.fillna(0)
+                0) + x.fuel_consumed_mmbtu_unconnected.fillna(0)
         )
     )
     return eia_generators
@@ -228,13 +234,14 @@ def _test_generator_output(eia_generators, pudl_out):
         pd.merge(
             eia_generators,
             eia_generators.groupby(by=IDX_PM_FUEL)
-            [['net_generation_mwh']].sum().add_suffix('_test').reset_index(),
+            [['net_generation_mwh']]
+            .sum(min_count=1).add_suffix('_test').reset_index(),
             on=IDX_PM_FUEL,
             how='outer'
         )
         .assign(net_generation_mwh_diff=lambda x:
-                x.net_generation_mwh_gf.round()
-                - x.net_generation_mwh_test.round())
+                x.net_generation_mwh_gf
+                - x.net_generation_mwh_test)
     )
     no_cap_gen = eia_generators[
         (eia_generators.capacity_mw.isnull())
