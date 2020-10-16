@@ -60,7 +60,12 @@ def allocate_gen_fuel_by_gen_pm_fuel(pudl_out):
 
      The assocation process happens via `associate_gen_tables()`.
 
-     The allocation process entails generating a ratio
+     The allocation process entails generating a ratio for each record within a
+     ``IDX_PM_FUEL`` group. We have two options for generating this ratio: the
+     net generation in the generation_eia923 table and the capacity from the
+     generators_eia860 table. We calculate both these ratios, then used the
+     net generation based ratio if available to allocation a portion of the
+     associated data fields.
 
     Args:
         pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create
@@ -209,9 +214,19 @@ def _associate_unconnected_records(eia_generators_merged):
     """
     Associate unassocaited gen_fuel table records on idx_pm.
 
+    There are a subset of generation_fuel_eia923 records which do not
+    merge onto the stacked generator table on ``IDX_PM_FUEL``. These records
+    generally don't match with the set of prime movers and fuel types in the
+    stacked generator table. In this method, we associated those straggler,
+    unconnected records by merging these records with the stacked generators on
+    the prime mover only.
+
     Args:
         eia_generators_merged (pandas.DataFrame)
     """
+    # we're assocaiting on the plant/pm level... but we only want to associated
+    # these unassocaited records w/ the primary fuel type from _stack_generators
+    # so we're going to merge on energy_source_code_num and
     idx_pm = ['plant_id_eia', 'prime_mover_code',
               'energy_source_code_num', 'report_date', ]
     # we're going to only associate these unconnected fuel records w/
@@ -248,8 +263,9 @@ def _associate_unconnected_records(eia_generators_merged):
                 + x.net_generation_mwh_gf_unconnected.fillna(0),
                 np.nan
             ),
-            fuel_consumed_mmbtu=lambda x: x.fuel_consumed_mmbtu.fillna(
-                0) + x.fuel_consumed_mmbtu_unconnected.fillna(0)
+            fuel_consumed_mmbtu=lambda x:
+                x.fuel_consumed_mmbtu.fillna(0)
+                + x.fuel_consumed_mmbtu_unconnected.fillna(0)
         )
     )
     return eia_generators

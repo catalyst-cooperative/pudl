@@ -69,9 +69,16 @@ class PudlTabl(object):
             end_date (date): End date for data to pull from the PUDL DB.
             pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
                 for the PUDL DB.
-            roll_fuel_cost (boolean): if set to True, apply a rolling average to a
-                subset of output table's columns (currently only
+            fill_fuel_cost (boolean): if True, fill in missing EIA fuel cost
+                from ``frc_eia923()`` with state-level monthly averages from EIA's
+                API.
+            roll_fuel_cost (boolean): if True, apply a rolling average
+                to a subset of output table's columns (currently only
                 'fuel_cost_per_mmbtu' for the frc table).
+            fill_net_gen (boolean): if True, use net generation from the
+                generation_fuel_eia923 - which is reported at the
+                plant/fuel/prime mover level - re-allocated to generators in
+                ``mcoe()``, ``capacity_factor()`` and ``heat_rate_by_unit()``.
 
         """
         self.pudl_engine = pudl_engine
