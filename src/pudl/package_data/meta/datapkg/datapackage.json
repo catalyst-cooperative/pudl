@@ -77,7 +77,7 @@
                                 "hydro",
                                 "nuclear",
                                 "waste",
-                                "other"
+                                "unknown"
                             ]
                         },
                         "description": "PUDL assigned code indicating the general fuel type.",
@@ -92,12 +92,15 @@
                                 "mcf",
                                 "bbl",
                                 "gal",
-                                "1kgal",
+                                "kgal",
                                 "gramsU",
                                 "kgU",
+                                "klbs",
+                                "btu",
                                 "mmbtu",
                                 "mwdth",
-                                "mwhth"
+                                "mwhth",
+                                "unknown"
                             ]
                         },
                         "description": "PUDL assigned code indicating reported fuel unit of measure.",
@@ -1021,7 +1024,8 @@
                             "enum": [
                                 "outdoor",
                                 "semioutdoor",
-                                "conventional"
+                                "conventional",
+                                "unknown"
                             ]
                         },
                         "description": "Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.",
@@ -4110,7 +4114,8 @@
                             "enum": [
                                 "outdoor",
                                 "semioutdoor",
-                                "conventional"
+                                "conventional",
+                                "unknown"
                             ]
                         },
                         "description": "Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.",
@@ -4825,7 +4830,8 @@
                                 "internal_combustion",
                                 "wind",
                                 "photovoltaic",
-                                "solar_thermal"
+                                "solar_thermal",
+                                "unknown"
                             ]
                         },
                         "description": "Simplified plant type, categorized by PUDL based on our best guess of what was intended based on freeform string reported to FERC. Unidentifiable types are null.",
@@ -4838,7 +4844,8 @@
                             "enum": [
                                 "outdoor",
                                 "semioutdoor",
-                                "conventional"
+                                "conventional",
+                                "unknown"
                             ]
                         },
                         "description": "Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.",
