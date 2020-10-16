@@ -125,7 +125,17 @@ def test_unmapped_plants_eia(pudl_settings_fixture, pudl_engine):
 
 
 def test_unmapped_utils_eia(pudl_settings_fixture, pudl_engine):
-    """Check for unmapped EIA Utilities."""
+    """
+    Check for unmapped EIA Utilities.
+
+    The EIA 860 contains thousands of utility IDs, most of which do not have
+    any data associated with them in the EIA 923, even if they do have plants
+    associated with them in the EIA 860. In practice the only utilities which
+    we have been making sure have PUDL IDs are the ones that show up in the
+    EIA 923, so those tables are the only ones we're searching here for utility
+    IDs.
+
+    """
     pudl_raw = pudl.output.pudltabl.PudlTabl(pudl_engine, freq=None)
     frc_eia923 = pudl_raw.frc_eia923()
     gf_eia923 = pudl_raw.gf_eia923()
