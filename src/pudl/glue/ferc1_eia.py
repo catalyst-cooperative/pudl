@@ -156,8 +156,8 @@ def get_db_plants_ferc1(pudl_settings, years):
                             "respondent_name": "utility_name_ferc1",
                             "plant_name": "plant_name_ferc1",
                             capacity_cols[tbl]: "capacity_mw"}).
-            pipe(pudl.helpers.strip_lower, columns=["plant_name_ferc1",
-                                                    "utility_name_ferc1"]).
+            pipe(pudl.helpers.simplify_strings, columns=["plant_name_ferc1",
+                                                         "utility_name_ferc1"]).
             assign(plant_table=tbl).
             loc[:, ["utility_id_ferc1",
                     "utility_name_ferc1",
@@ -209,7 +209,7 @@ def get_mapped_plants_ferc1():
         pudl.glue.ferc1_eia.get_plant_map().
         loc[:, ["utility_id_ferc1", "utility_name_ferc1", "plant_name_ferc1"]].
         dropna(subset=["utility_id_ferc1"]).
-        pipe(pudl.helpers.strip_lower,
+        pipe(pudl.helpers.simplify_strings,
              columns=["utility_id_ferc1",
                       "utility_name_ferc1",
                       "plant_name_ferc1"]).
@@ -235,14 +235,14 @@ def get_mapped_utils_ferc1():
 
     """
     ferc1_mapped_utils = (
-        pudl.glue.ferc1_eia.get_utility_map().
-        loc[:, ["utility_id_ferc1", "utility_name_ferc1"]].
-        dropna(subset=["utility_id_ferc1"]).
-        pipe(pudl.helpers.strip_lower,
-             columns=["utility_id_ferc1", "utility_name_ferc1"]).
-        drop_duplicates("utility_id_ferc1").
-        astype({"utility_id_ferc1": int}).
-        sort_values(["utility_id_ferc1"])
+        pudl.glue.ferc1_eia.get_utility_map()
+        .loc[:, ["utility_id_ferc1", "utility_name_ferc1"]]
+        .dropna(subset=["utility_id_ferc1"])
+        .pipe(pudl.helpers.simplify_strings,
+              columns=["utility_id_ferc1", "utility_name_ferc1"])
+        .drop_duplicates(["utility_id_ferc1", "utility_name_ferc1"])
+        .astype({"utility_id_ferc1": int, "utility_name_ferc1": str})
+        .sort_values(["utility_id_ferc1"])
     )
     return ferc1_mapped_utils
 
@@ -303,12 +303,12 @@ def get_unmapped_utils_ferc1(ferc1_engine):
             "respondent_id": "utility_id_ferc1",
             "respondent_name": "utility_name_ferc1",
         })
-        .pipe(pudl.helpers.strip_lower, ["utility_name_ferc1"])
+        .pipe(pudl.helpers.simplify_strings, ["utility_name_ferc1"])
         .set_index(["utility_id_ferc1", "utility_name_ferc1"])
     )
     mapped_utils_ferc1 = (
         get_mapped_utils_ferc1()
-        .pipe(pudl.helpers.strip_lower, ["utility_name_ferc1"])
+        .pipe(pudl.helpers.simplify_strings, ["utility_name_ferc1"])
         .set_index(["utility_id_ferc1", "utility_name_ferc1"])
     )
     unmapped_utils_ferc1 = (
@@ -345,7 +345,7 @@ def get_db_plants_eia(pudl_engine):
     db_plants_eia = (
         pd.read_sql("plants_entity_eia", pudl_engine).
         loc[:, ["plant_id_eia", "plant_name_eia", "state"]].
-        pipe(pudl.helpers.strip_lower, columns=["plant_name_eia"]).
+        pipe(pudl.helpers.simplify_strings, columns=["plant_name_eia"]).
         astype({"plant_id_eia": int}).
         drop_duplicates("plant_id_eia").
         sort_values("plant_id_eia")
@@ -373,7 +373,7 @@ def get_mapped_plants_eia():
         pudl.glue.ferc1_eia.get_plant_map().
         loc[:, ["plant_id_eia", "plant_name_eia"]].
         dropna(subset=["plant_id_eia"]).
-        pipe(pudl.helpers.strip_lower, columns=["plant_name_eia"]).
+        pipe(pudl.helpers.simplify_strings, columns=["plant_name_eia"]).
         astype({"plant_id_eia": int}).
         drop_duplicates("plant_id_eia").
         sort_values("plant_id_eia")
@@ -432,7 +432,7 @@ def get_db_utils_eia(pudl_engine):
     db_utils_eia = (
         pd.read_sql("utilities_entity_eia", pudl_engine).
         loc[:, ["utility_id_eia", "utility_name_eia"]].
-        pipe(pudl.helpers.strip_lower, columns=["utility_name_eia"]).
+        pipe(pudl.helpers.simplify_strings, columns=["utility_name_eia"]).
         astype({"utility_id_eia": int}).
         drop_duplicates("utility_id_eia").
         sort_values("utility_id_eia").
@@ -447,7 +447,7 @@ def get_mapped_utils_eia():
         pudl.glue.ferc1_eia.get_utility_map().
         loc[:, ["utility_id_eia", "utility_name_eia"]].
         dropna(subset=["utility_id_eia"]).
-        pipe(pudl.helpers.strip_lower, columns=["utility_name_eia"]).
+        pipe(pudl.helpers.simplify_strings, columns=["utility_name_eia"]).
         astype({"utility_id_eia": int}).
         drop_duplicates(["utility_id_eia"]).
         sort_values(["utility_id_eia"]).
@@ -579,7 +579,7 @@ def glue(ferc1=False, eia=False):
     # from other tables.
     plant_map = (
         get_plant_map().
-        pipe(pudl.helpers.strip_lower, ['plant_name_ferc1'])
+        pipe(pudl.helpers.simplify_strings, ['plant_name_ferc1'])
     )
 
     plants_pudl = (
