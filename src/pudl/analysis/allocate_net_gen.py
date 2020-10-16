@@ -1,4 +1,10 @@
-"""hello."""
+"""
+Allocated data from generation_fuel_eia923 table to generator level.
+
+This module allocates net generation and fuel consumption from the
+generation_fuel_eia923 table to the generator level. The main function here is
+``allocate_gen_fuel_by_gen()``.
+"""
 
 import logging
 
@@ -15,6 +21,9 @@ IDX_PM_FUEL = ['plant_id_eia', 'prime_mover_code',
                'fuel_type', 'report_date']
 """Id columns for plant, prime mover & fuel type records."""
 
+DATA_COLS = ['net_generation_mwh', 'fuel_consumed_mmbtu']
+"""Data columns from generation_fuel_eia923 that are being allocated."""
+
 
 def allocate_gen_fuel_by_gen(pudl_out):
     """
@@ -30,7 +39,9 @@ def allocate_gen_fuel_by_gen(pudl_out):
         pudl_out
 
     Returns:
-        pandas.DataFrame
+        pandas.DataFrame: table with columns ``IDX_GENS`` and ``DATA_COLS``.
+        The ``DATA_COLS`` will be scaled to the level of the ``IDX_GENS``.
+
     """
     gen_pm_fuel = allocate_gen_fuel_by_gen_pm_fuel(pudl_out)
     gen = agg_by_generator(gen_pm_fuel)
@@ -45,6 +56,10 @@ def allocate_gen_fuel_by_gen_pm_fuel(pudl_out):
     Two main steps here:
      * associated gen_fuel data w/ generators
      * allocate gen_fuel data proportionally
+
+     The assocation process happens via `associate_gen_tables()`.
+
+     The allocation process entails generating a ratio
 
     Args:
         pudl_out
@@ -70,8 +85,9 @@ def allocate_gen_fuel_by_gen_pm_fuel(pudl_out):
     # do the allocating-ing!
     gen_pm_fuel = (
         gen_pm_fuel.assign(
-            # we could condense these remaining cols into one... but let's keep
-            # it for debuging for now
+            # we have two options for generating a ratio for allocating
+            # we'll first try to allocated based on net generation from the gen
+            # table and if that isn't there we'll allocate based on capacity
             gen_ratio_net_gen=lambda x: x.net_generation_mwh_gen / \
             x.net_generation_mwh_gen_pm_fuel_total,
             gen_ratio_cap=lambda x: x.capacity_mw / x.capacity_mw_pm_fuel_total,
@@ -79,7 +95,11 @@ def allocate_gen_fuel_by_gen_pm_fuel(pudl_out):
                 np.where(
                     x.gen_ratio_net_gen.notnull() | x.gen_ratio_net_gen != 0,
                     x.gen_ratio_net_gen, x.gen_ratio_cap),
+            # we could x.net_generation_mwh_gen.fillna here if we wanted to
+            # take the net gen
             net_generation_mwh=lambda x: x.net_generation_mwh_gf * x.gen_ratio,
+            # let's preserve the gf version of fuel consumption (it didn't show
+            # up in the tables we pulled together in associate_gen_tables()).
             fuel_consumed_mmbtu_gf=lambda x: x.fuel_consumed_mmbtu,
             fuel_consumed_mmbtu=lambda x: x.fuel_consumed_mmbtu * x.gen_ratio
         )
@@ -256,10 +276,10 @@ def _test_generator_output(eia_generators, pudl_out):
     gen_fuel = pudl_out.gf_eia923()
     gen = pudl_out.gen_eia923()
     # remove the junk/corrective plants
-    fuel_net_gen = gen_fuel[gen_fuel.plant_id_eia !=
-                            '99999'].net_generation_mwh.sum()
-    fuel_consumed = gen_fuel[gen_fuel.plant_id_eia !=
-                             '99999'].fuel_consumed_mmbtu.sum()
+    fuel_net_gen = gen_fuel[
+        gen_fuel.plant_id_eia != '99999'].net_generation_mwh.sum()
+    fuel_consumed = gen_fuel[
+        gen_fuel.plant_id_eia != '99999'].fuel_consumed_mmbtu.sum()
     logger.info(
         "gen v fuel table net gen diff:      "
         f"{(gen.net_generation_mwh.sum())/fuel_net_gen:.1%}")
