@@ -36,7 +36,8 @@ def allocate_gen_fuel_by_gen(pudl_out):
     of plant/generators.
 
     Args:
-        pudl_out
+        pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create
+            the tables for EIA and FERC Form 1 analysis.
 
     Returns:
         pandas.DataFrame: table with columns ``IDX_GENS`` and ``DATA_COLS``.
@@ -62,7 +63,8 @@ def allocate_gen_fuel_by_gen_pm_fuel(pudl_out):
      The allocation process entails generating a ratio
 
     Args:
-        pudl_out
+        pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create
+            the tables for EIA and FERC Form 1 analysis.
 
     Returns:
         pandas.DataFrame
@@ -109,7 +111,7 @@ def allocate_gen_fuel_by_gen_pm_fuel(pudl_out):
         gen_pm_fuel.astype(
             {"plant_id_eia": "Int64",
              "net_generation_mwh": "float"})
-        .pipe(_test_generator_output, pudl_out)
+        .pipe(_test_gen_pm_fuel_output, pudl_out)
     )
     return gen_pm_fuel
 
@@ -135,7 +137,8 @@ def _stack_generators(pudl_out, idx_stack, cols_to_stack,
     Stack the generator table with a set of columns.
 
     Args:
-        pudl_out
+        pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create
+            the tables for EIA and FERC Form 1 analysis.
         idx_stack (iterable): list of columns. index to stack based on
         cols_to_stack (iterable): list of columns to stack
         cat_col (string): name of category column which will end up having the
@@ -168,7 +171,8 @@ def associate_gen_tables(pudl_out):
     Assocaite the three tables needed to assign net gen to generators.
 
     Args:
-        pudl_out
+        pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create
+            the tables for EIA and FERC Form 1 analysis.
     """
     esc = [
         'energy_source_code_1', 'energy_source_code_2', 'energy_source_code_3',
@@ -251,12 +255,12 @@ def _associate_unconnected_records(eia_generators_merged):
     return eia_generators
 
 
-def _test_generator_output(eia_generators, pudl_out):
+def _test_gen_pm_fuel_output(gen_pm_fuel, pudl_out):
     # this is just for testing/debugging
-    eia_generators = (
+    gen_pm_fuel = (
         pd.merge(
-            eia_generators,
-            eia_generators.groupby(by=IDX_PM_FUEL)
+            gen_pm_fuel,
+            gen_pm_fuel.groupby(by=IDX_PM_FUEL)
             [['net_generation_mwh']]
             .sum(min_count=1).add_suffix('_test').reset_index(),
             on=IDX_PM_FUEL,
@@ -266,9 +270,9 @@ def _test_generator_output(eia_generators, pudl_out):
                 x.net_generation_mwh_gf
                 - x.net_generation_mwh_test)
     )
-    no_cap_gen = eia_generators[
-        (eia_generators.capacity_mw.isnull())
-        & (eia_generators.net_generation_mwh_gen.isnull())
+    no_cap_gen = gen_pm_fuel[
+        (gen_pm_fuel.capacity_mw.isnull())
+        & (gen_pm_fuel.net_generation_mwh_gen.isnull())
     ]
     if len(no_cap_gen) > 15:
         logger.info(
@@ -285,11 +289,11 @@ def _test_generator_output(eia_generators, pudl_out):
         f"{(gen.net_generation_mwh.sum())/fuel_net_gen:.1%}")
     logger.info(
         "new v fuel table net gen diff:      "
-        f"{(eia_generators.net_generation_mwh.sum())/fuel_net_gen:.1%}")
+        f"{(gen_pm_fuel.net_generation_mwh.sum())/fuel_net_gen:.1%}")
     logger.info(
         "new v fuel table fuel (mmbtu) diff: "
-        f"{(eia_generators.fuel_consumed_mmbtu.sum())/fuel_consumed:.1%}")
-    return eia_generators
+        f"{(gen_pm_fuel.fuel_consumed_mmbtu.sum())/fuel_consumed:.1%}")
+    return gen_pm_fuel
 
 
 def _test_gen_fuel_allocation(pudl_out, gen_allocated, ratio=.05):
