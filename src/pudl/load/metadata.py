@@ -548,17 +548,9 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir,
     datapkg_json = pathlib.Path(datapkg_dir, "datapackage.json")
     datapkg.save(str(datapkg_json))
     logger.info(
-        f"Validating a sample of data from {datapkg.descriptor['name']} "
-        f"tabular data package using goodtables...")
-    # Validate the data within the package using goodtables_pandas:
+        f"Validating {datapkg.descriptor['name']} tabular data package "
+        f"using goodtables_pandas...")
     report = goodtables_pandas.validate(str(datapkg_json))
-    # The official goodtables, which goes row by row, is 10-100x slower:
-    # report = goodtables.validate(
-    #     datapkg_json,
-    #     checks=['structure', 'schema', 'foreign-key'],
-    #     table_limit=table_limit,
-    #     row_limit=row_limit
-    # )
     if not report["valid"]:
         goodtables_errors = ""
         for table in report["tables"]:
