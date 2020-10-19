@@ -8,6 +8,7 @@ jupyter labextension install --no-build --log-level=INFO \
     @jupyter-widgets/jupyterlab-manager \
     dask-labextension
 
+jupyter labextension update --all
 jupyter serverextension enable dask_labextension
 
 # Rebuild the jupyterlab application with the extensions:

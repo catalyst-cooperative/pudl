@@ -45,7 +45,7 @@ import re
 import uuid
 
 import datapackage
-import goodtables
+import goodtables_pandas
 import pkg_resources
 
 import pudl
@@ -548,16 +548,9 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir,
     datapkg_json = pathlib.Path(datapkg_dir, "datapackage.json")
     datapkg.save(str(datapkg_json))
     logger.info(
-        f"Validating a sample of data from {datapkg.descriptor['name']} "
-        f"tabular data package using goodtables...")
-    # Validate the data within the package using goodtables:
-    report = goodtables.validate(
-        datapkg_json,
-        # TODO: check which checks are applied... and uncomment out the line
-        # below when the checks are integrated
-        # checks=['structure', 'schema', 'foreign-key'],
-        # table_limit=100,
-        row_limit=1000)
+        f"Validating {datapkg.descriptor['name']} tabular data package "
+        f"using goodtables_pandas...")
+    report = goodtables_pandas.validate(str(datapkg_json))
     if not report["valid"]:
         goodtables_errors = ""
         for table in report["tables"]:
