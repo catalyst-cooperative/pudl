@@ -76,7 +76,7 @@ datapkg_bundle_settings:
       - epacems:
           # Note that the CEMS data relies on EIA 860 data for plant locations,
           # so if you're loading CEMS data for a particular year, you should
-          # also load the EIA 860 data for that year (2011-2018 only)
+          # also load the EIA 860 data for that year (2011-2019 only)
           epacems_years: [2019]
           # Just Idaho, because it is tiny:
           epacems_states: [ID]
