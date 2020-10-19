@@ -377,33 +377,37 @@ def organize_cols(df, cols):
     return df[organized_cols]
 
 
-def strip_lower(df, columns):
-    """Strip and compact whitespace, lowercase listed DataFrame columns.
+def simplify_strings(df, columns):
+    """
+    Simplify the strings contained in a set of dataframe columns.
 
-    First converts all listed columns (if present in df) to string type, then
-    applies the str.strip() and str.lower() methods to them, and replaces all
-    internal whitespace to a single space. The columns are assigned in place.
+    Performs several operations to simplify strings for comparison and parsing purposes.
+    These include removing Unicode control characters, stripping leading and trailing
+    whitespace, using lowercase characters, and compacting all internal whitespace to a
+    single space.
+
+    Leaves null values unaltered. Casts other values with astype(str).
 
     Args:
         df (pandas.DataFrame): DataFrame whose columns are being cleaned up.
-        columns (iterable): The labels of the columns to be stripped and
-            converted to lowercase.
+        columns (iterable): The labels of the string columns to be simplified.
 
     Returns:
         pandas.DataFrame: The whole DataFrame that was passed in, with
-        the columns cleaned up in place, allowing method chaining.
+        the string columns cleaned up.
 
     """
     out_df = df.copy()
     for col in columns:
         if col in out_df.columns:
-            out_df.loc[:, col] = (
-                out_df[col].astype(str).
-                str.strip().
-                str.lower().
-                str.replace(r'\s+', ' ')
+            out_df.loc[out_df[col].notnull(), col] = (
+                out_df.loc[out_df[col].notnull(), col]
+                .astype(str)
+                .str.replace("[\x00-\x1f\x7f-\x9f]", "")
+                .str.strip()
+                .str.lower()
+                .str.replace(r'\s+', ' ')
             )
-
     return out_df
 
 
@@ -918,7 +922,8 @@ def convert_cols_dtypes(df, data_source, name=None):
         if df.utility_id_eia.dtypes is np.dtype('object'):
             df = df.astype({'utility_id_eia': 'float'})
     df = (
-        df.replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
+        df.replace(to_replace="<NA>", value={
+                   col: pd.NA for col in string_cols})
         .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
         .astype(non_bool_cols)
         .astype(bool_cols)

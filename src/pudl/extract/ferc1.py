@@ -66,18 +66,96 @@ from pudl.workspace import datastore as datastore
 
 logger = logging.getLogger(__name__)
 
+PUDL_RIDS = {
+    514: "AEP Texas",
+    519: "Upper Michigan Energy Resources Company",
+    522: "Luning Energy Holdings LLC, Invenergy Investments",
+    529: "Tri-State Generation and Transmission Association",
+    531: "Basin Electric Power Cooperative",
+}
+"""Missing FERC 1 Respondent IDs for which we have identified the respondent."""
+
+
+def missing_respondents(reported, observed, identified):
+    """
+    Fill in missing respondents for the f1_respondent_id table.
+
+    Args:
+        reported (iterable): Respondent IDs appearing in f1_respondent_id.
+        observed (iterable): Respondent IDs appearing anywhere in the ferc1 DB.
+        identified (dict): A {respondent_id: respondent_name} mapping for those
+            observed but not reported respondent IDs which we have been able to
+            identify based on circumstantial evidence. See also:
+            `pudl.extract.ferc1.PUDL_RIDS`
+
+    Returns:
+        list: A list of dictionaries representing minimal f1_respondent_id table
+        records, of the form {"respondent_id": ID, "respondent_name": NAME}. These
+        records are generated only for unreported respondents. Identified respondents
+        get the values passed in through ``identified`` and the other observed but
+        unidentified respondents are named "Missing Respondent ID"
+
+    """
+    records = []
+    for rid in observed:
+        if rid in reported:
+            continue
+        elif rid in identified:
+            records.append(
+                {
+                    "respondent_id": rid,
+                    "respondent_name": f"{identified[rid]} (PUDL determined)"
+                },
+            )
+        else:
+            records.append(
+                {
+                    "respondent_id": rid,
+                    "respondent_name": f"Missing Respondent {rid}"
+                },
+            )
+    return records
+
+
+def observed_respondents(ferc1_engine):
+    """
+    Compile the set of all observed respondent IDs found in the FERC 1 database.
+
+    A significant number of FERC 1 respondent IDs appear in the data tables, but not
+    in the f1_respondent_id table. In order to construct a self-consisten database with
+    we need to find all of those missing respondent IDs and inject them into the table
+    when we clone the database.
+
+    Args:
+        ferc1_engine (sqlalchemy.engine.Engine): An engine for connecting to the FERC 1
+            database.
+
+    Returns:
+        set: Every respondent ID reported in any of the FERC 1 DB tables.
+
+    """
+    f1_table_meta = pudl.output.pudltabl.get_table_meta(ferc1_engine)
+    observed = set([])
+    for table in f1_table_meta.values():
+        if table.name != "f1_respondent_id" and "respondent_id" in table.columns:
+            observed = observed.union(set(pd.read_sql_table(
+                table.name, ferc1_engine, columns=["respondent_id"]).respondent_id))
+    return observed
+
 
 class Ferc1Datastore(datastore.Datastore):
     """Provide a thin interface for pulling files from the Datastore."""
 
-    def get_folder(self, year):
+    def get_dir(self, year):
         """
-        Retrieve the DBC path (within a zip file) for a given year.
+        Look up the root DBC directory (within a zip file) for a given year.
 
         Args:
-            year (int): Year for the form.
+            year (int): The year for which to look up the root DBC directory.
+
         Returns:
-            str: Path of ferc data within the zip file
+            str: Path of FERC 1 data within the zip file.
+
         """
         pkg = "pudl.package_data.meta.ferc1_row_maps"
         dbc_path = None
@@ -99,11 +177,15 @@ class Ferc1Datastore(datastore.Datastore):
         Retrieve the specified file from the ferc1 archive.
 
         Args:
-            year (int): Year for the form.
+            year (int): The year from which to retrive FERC 1 data.
+            filename (str): Name of the file to read from FERC 1 zip archive. (e.g.
+                "F1_1.DBF")
+
         Returns:
             bytes object of the requested file, if available.
+
         """
-        dbc_path = str(Path(self.get_folder(year)) / filename)
+        dbc_path = f"{self.get_dir(year)}/{filename}"
         resource = next(self.get_resources("ferc1", year=year))
         z = zipfile.ZipFile(resource["path"])
 
@@ -179,8 +261,11 @@ def add_sqlite_table(table_name, sqlite_meta, dbc_map, ds,
     fn = pc.ferc1_tbl2dbf[table_name] + ".DBF"
     filedata = ds.get_file(refyear, fn)
 
-    ferc1_dbf = dbfread.DBF(fn, ignore_missing_memofile=True,
-                            filedata=filedata)
+    ferc1_dbf = dbfread.DBF(
+        fn,
+        ignore_missing_memofile=True,
+        filedata=filedata
+    )
 
     # Add Columns to the table
     for field in ferc1_dbf.fields:
@@ -500,31 +585,21 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
         new_df.to_sql(table, sqlite_engine,
                       if_exists='append', chunksize=100000,
                       dtype=coltypes, index=False)
-        # add the missing respondents into the respondent_id table.
-        if table == 'f1_respondent_id':
-            logger.debug(f'inserting missing respondents into {table}')
-            sa.insert(sqlite_meta.tables['f1_respondent_id'],
-                      # we can insert info info into any of the columns for this
-                      # table through the following dictionary, but each of the
-                      # records need to have all of the same columns (you can't
-                      # add a column for one respondent without adding it to all).
-                      values=[
-                      {'respondent_id': 514,
-                       'respondent_name': 'AEP, Texas (PUDL determined)'},
-                      {'respondent_id': 515,
-                       'respondent_name': 'respondent_515'},
-                      {'respondent_id': 516,
-                       'respondent_name': 'respondent_516'},
-                      {'respondent_id': 517,
-                       'respondent_name': 'respondent_517'},
-                      {'respondent_id': 518,
-                       'respondent_name': 'respondent_518'},
-                      {'respondent_id': 519,
-                       'respondent_name': 'respondent_519'},
-                      {'respondent_id': 522,
-                       'respondent_name':
-                       'Luning Energy Holdings LLC, Invenergy Investments (PUDL determined)'},
-            ]).execute()
+
+    # add the missing respondents into the respondent_id table.
+    reported_ids = (
+        pd.read_sql_table("f1_respondent_id", sqlite_engine)
+        .respondent_id
+        .unique()
+    )
+    observed_ids = observed_respondents(sqlite_engine)
+    missing = missing_respondents(
+        reported=reported_ids,
+        observed=observed_ids,
+        identified=PUDL_RIDS,
+    )
+    logger.info(f"Inserting {len(missing)} missing IDs into f1_respondent_id table.")
+    sa.insert(sqlite_meta.tables['f1_respondent_id'], values=missing).execute()
 
 
 ###########################################################################
@@ -538,11 +613,11 @@ def get_ferc1_meta(ferc1_engine):
     sure the DB is not empty, and returns the metadata object.
 
     Args:
-        ferc1_engine (:mod:`sqlalchemy.engine.Engine`): SQL Alchemy database
+        ferc1_engine (sqlalchemy.engine.Engine): SQL Alchemy database
             connection engine for the PUDL FERC 1 DB.
 
     Returns:
-        :class:`sqlalchemy.Metadata`: A SQL Alchemy metadata object, containing
+        sqlalchemy.Metadata A SQL Alchemy metadata object, containing
         the definition of the DB structure.
 
     Raises:

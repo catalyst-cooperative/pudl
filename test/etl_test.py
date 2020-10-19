@@ -137,11 +137,11 @@ class TestFerc1Datastore:
         """Spot check we get correct folder names per dataset year."""
         ds = pudl_ferc1datastore_fixture
 
-        assert ds.get_folder(1994) == "FORMSADMIN/FORM1/working"
-        assert ds.get_folder(2001) == "UPLOADERS/FORM1/working"
-        assert ds.get_folder(2002) == "FORMSADMIN/FORM1/working"
-        assert ds.get_folder(2010) == "UPLOADERS/FORM1/working"
-        assert ds.get_folder(2015) == "UPLOADERS/FORM1/working"
+        assert ds.get_dir(1994) == "FORMSADMIN/FORM1/working"
+        assert ds.get_dir(2001) == "UPLOADERS/FORM1/working"
+        assert ds.get_dir(2002) == "FORMSADMIN/FORM1/working"
+        assert ds.get_dir(2010) == "UPLOADERS/FORM1/working"
+        assert ds.get_dir(2015) == "UPLOADERS/FORM1/working"
 
     def test_get_fields(self, pudl_ferc1datastore_fixture):
         """Check that the get fields table works as expected."""
@@ -200,7 +200,7 @@ class TestExcelExtractor:
         assert extractor.excel_filename(2009, "plant_frame") == \
             "EIA923 SCHEDULES 2_3_4_5 M Final 2009 REVISED 05252011.XLS"
         assert extractor.excel_filename(2019, "energy_storage") == \
-            "EIA923_Schedules_2_3_4_5_M_11_2019_21JAN2020.xlsx"
+            "EIA923_Schedules_2_3_4_5_M_12_2019_Final.xlsx"
         assert extractor.excel_filename(2012, "puerto_rico") == \
             "EIA923_Schedules_2_3_4_5_M_12_2012_Final_Revision.xlsx"
 
@@ -219,8 +219,6 @@ class TestExcelExtractor:
 
 class TestEpaCemsDatastore:
     """Ensure we can extract csv files from the datastore."""
-
-    # datastore = EpaCemsDatastore(sandbox=True)
 
     def test_get_csv(self, pudl_epacemsdatastore_fixture):
         """Spot check opening of epacems csv file from datastore."""

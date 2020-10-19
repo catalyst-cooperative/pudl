@@ -46,7 +46,7 @@ TABLE_ENCODING = {
 
 def get_ferc714(pudl_settings):
     """If necessary, download a fresh copy of the FERC 714 data."""
-    sandbox = pudl_settings.get("sandbox", False)
+    sandbox = pudl_settings.get("sandbox", True)
     ds = pudl.workspace.datastore.Datastore(
         Path(pudl_settings["pudl_in"]),
         sandbox=sandbox)

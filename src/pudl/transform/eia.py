@@ -71,6 +71,7 @@ def _occurrence_consistency(entity_id, compiled_df, col,
 
     if len(col_df) == 0:
         col_df[f'{col}_consistent'] = pd.NA
+        col_df[f'{col}_consistent_rate'] = pd.NA
         col_df['entity_occurences'] = pd.NA
         col_df = col_df.drop(columns=['table'])
         return col_df
@@ -101,9 +102,11 @@ def _occurrence_consistency(entity_id, compiled_df, col,
     # occurances of the entities.
     col_df = col_df.merge(consist_df, how='outer').drop(columns=['table'])
     # change all of the fully consistent records to True
-    col_df[f'{col}_consistent'] = (col_df['record_occurences'] /
-                                   col_df['entity_occurences'] > strictness)
-
+    col_df[f'{col}_consistent_rate'] = (
+        col_df['record_occurences'] / col_df['entity_occurences'])
+    col_df[f'{col}_consistent'] = (
+        col_df[f'{col}_consistent_rate'] > strictness)
+    col_df = col_df.sort_values(f'{col}_consistent_rate')
     return col_df
 
 
@@ -374,8 +377,11 @@ def _harvesting(entity,  # noqa: C901
         if col in static_cols:
             cols_to_consit = entity_id
 
+        strictness = .7
+        if col in ['plant_name_eia', 'utility_name_eia']:
+            strictness = 0
         col_df = _occurrence_consistency(
-            entity_id, compiled_df, col, cols_to_consit, strictness=.7)
+            entity_id, compiled_df, col, cols_to_consit, strictness=strictness)
 
         # pull the correct values out of the df and merge w/ the plant ids
         col_correct_df = (

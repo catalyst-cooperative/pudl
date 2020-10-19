@@ -5,6 +5,7 @@ channels:
 dependencies:
   - autopep8            # dev
   - bandit              # dev
+  - catalystcoop.dbfread>=3.0 # base
   - coloredlogs         # base
   - contextily          # base (OSM basemap) TODO: Is this needed?
   - coverage            # dev
@@ -63,8 +64,8 @@ dependencies:
   - twine               # dev
   - xlsxwriter          # base
   - pip:
+    - addfips            # base -- get in conda!
     - flake8-use-fstring # dev
-    - addfips           # base -- need to get into conda
-    - git+https://github.com/catalyst-cooperative/dbfread.git#egg=catalystcoop.dbfread-2.1.1
-    - recordlinkage     # dev for now... base if it ends up in ETL
-    - fredapi           # dev
+    - git+https://github.com/ezwelty/goodtables-pandas-py  # base get in conda!
+    - recordlinkage      # dev for now... base if it ends up in ETL
+    - fredapi            # dev

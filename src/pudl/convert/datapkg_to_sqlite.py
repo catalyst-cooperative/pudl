@@ -18,8 +18,9 @@ separate epacems_to_parquet script that can be used to generate a Parquet
 dataset that is partitioned by state and year, which can be read directly into
 pandas or dask dataframes, for use in conjunction with the other PUDL data that
 is stored in the SQLite DB.
-
 """
+
+
 import argparse
 import logging
 import pathlib
@@ -37,7 +38,7 @@ from pudl.convert.merge_datapkgs import merge_datapkgs
 logger = logging.getLogger(__name__)
 
 
-def datapkg_to_sqlite(sqlite_url, out_path, clobber=False):
+def datapkg_to_sqlite(sqlite_url, out_path, clobber=False, fkeys=False):
     """
     Load a PUDL datapackage into a sqlite database.
 
@@ -47,11 +48,28 @@ def datapkg_to_sqlite(sqlite_url, out_path, clobber=False):
             to be loaded into SQLite. Must contain the datapackage.json file.
         clobber (bool): If True, replace an existing PUDL DB if it exists. If
             False (the default), fail if an existing PUDL DB is found.
+        fkeys(bool): If true, tell SQLite to check foreign key constraints
+            for the records that are being loaded. Left off by default.
 
     Returns:
         None
 
     """
+    # Using SQL Alchemy event hooks to enable the foreign key checking pragma
+    # within SQLite for all subsequent database connections. See these pages for
+    # additional documentation on how this stuff works:
+    # https://docs.sqlalchemy.org/en/13/core/event.html
+    # https://docs.sqlalchemy.org/en/13/dialects/sqlite.html#foreign-key-support
+    if fkeys:
+        @sa.event.listens_for(sa.engine.Engine, "connect")
+        def _set_sqlite_pragma(dbapi_connection, connection_record):
+            from sqlite3 import Connection as SQLite3Connection
+            if isinstance(dbapi_connection, SQLite3Connection):
+                logger.warning("Enforcing foreign key constraints in SQLite3")
+                cursor = dbapi_connection.cursor()
+                cursor.execute("PRAGMA foreign_keys=ON;")
+                cursor.close()
+
     # prepping the sqlite engine
     pudl_engine = sa.create_engine(sqlite_url)
     logger.info("Dropping the current PUDL DB, if it exists.")
@@ -105,6 +123,12 @@ def parse_command_line(argv):
         the existence of a pre-existing database will cause the conversion to fail.""",
         default=False)
     parser.add_argument(
+        '-k',
+        '--fkeys',
+        action='store_true',
+        help="""Enforce foreign-key constraints within SQLite.""",
+        default=False)
+    parser.add_argument(
         'in_paths',
         nargs="+",
         help="""A list of paths to the datapackage.json files containing the
@@ -144,6 +168,11 @@ def main():
         out_path = pathlib.Path(tmpdir)
         merge_datapkgs(dps, out_path, clobber=args.clobber)
         logger.info("Loading merged datapackage into an SQLite database.")
-        datapkg_to_sqlite(pudl_settings['pudl_db'], out_path, clobber=args.clobber)
+        datapkg_to_sqlite(
+            pudl_settings['pudl_db'],
+            out_path,
+            clobber=args.clobber,
+            fkeys=args.fkeys,
+        )
     logger.info("Success! You can connect to the PUDL DB at this URL:")
     logger.info(f"{pudl_settings['pudl_db']}")

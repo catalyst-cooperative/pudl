@@ -190,7 +190,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         pipe(pudl.helpers.month_year_to_date).
         assign(fuel_type_code_pudl=lambda x: pudl.helpers.cleanstrings_series(
             x['energy_source_code_1'], pc.fuel_type_eia860_simple_map)).
-        pipe(pudl.helpers.strip_lower,
+        pipe(pudl.helpers.simplify_strings,
              columns=['rto_iso_lmp_node_id',
                       'rto_iso_location_wholesale_reporting_id']).
         astype({
@@ -284,18 +284,7 @@ def plants(eia860_dfs, eia860_transformed_dfs):
         )
 
     # Ensure plant & operator IDs are integers.
-    p_df = (
-        p_df.astype({
-            "plant_id_eia": int,
-            "utility_id_eia": int,
-            "primary_purpose_naics_id": "Int64",
-            "ferc_cogen_docket_no": str,
-            "ferc_exempt_wholesale_generator_docket_no": str,
-            "ferc_small_power_producer_docket_no": str,
-            "street_address": str,
-        })
-        .pipe(pudl.helpers.convert_to_date)
-    )
+    p_df = pudl.helpers.convert_to_date(p_df)
 
     eia860_transformed_dfs['plants_eia860'] = p_df
 
