@@ -1,0 +1,35 @@
+# First, build a base image with miniconda, pudl-dev environment
+# and all dependencies installed.
+
+# Step 1: make shallow git clone of local source code
+FROM alpine/git:latest AS pudl-source
+WORKDIR /pudl/local-src
+COPY . .
+WORKDIR /pudl/src
+RUN git clone --depth=1 file:///pudl/local-src /pudl/src
+
+# Step 2: create miniconda pudl-dev environment based on the local environment.yml
+COPY devtools/environment.yml 
+FROM continuumio/miniconda3:latest AS pudl-conda-base
+WORKDIR /pudl
+COPY --from=pudl-source /pudl/src/devtools/environment.yml .
+RUN conda env create -f environment.yml
+
+RUN echo "source activate pudl-dev" > ~/.bashrc
+# ENV PATH /opt/conda/envs/env/bin:$PATH
+SHELL ["conda", "run", "-n", "pudl-dev", "/bin/bash", "-c"]
+
+# Step 3: mount /pudl/src into the conda image and pip install the pudl code
+FROM pudl-conda-base AS pudl-dev
+WORKDIR /pudl/src 
+COPY --from=pudl-source /pudl/src .
+RUN pip install --editable /pudl/src
+# TODO(rousik): is it worth using --editable here? 
+
+RUN mkdir /pudl/inputs 
+RUN mkdir /pudl/outputs
+RUN pudl_setup --pudl_in /pudl/inputs /pudl/outputs
+
+# Mark inputs and outputs as mountable volumes
+VOLUME /pudl/inputs
+VOLUME /pudl/outputs
