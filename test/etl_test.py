@@ -220,8 +220,6 @@ class TestExcelExtractor:
 class TestEpaCemsDatastore:
     """Ensure we can extract csv files from the datastore."""
 
-    # datastore = EpaCemsDatastore(sandbox=True)
-
     def test_get_csv(self, pudl_epacemsdatastore_fixture):
         """Spot check opening of epacems csv file from datastore."""
         head = b'"STATE","F'
