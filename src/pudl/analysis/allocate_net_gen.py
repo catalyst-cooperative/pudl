@@ -4,9 +4,61 @@ Allocated data from generation_fuel_eia923 table to generator level.
 This module allocates net generation and fuel consumption from the
 generation_fuel_eia923 table to the generator level. The main function here is
 ``allocate_gen_fuel_by_gen()``.
+
+The methodology we are employing here to allocate the net generation from the
+generation_fuel_eia923 table is not the only option and includes many
+assumptions. Firstly, this methodology assumes the generation_fuel_eia923
+table is the ground truth for net generation - as opposed to the
+generation_eia923 table. We are making this assumption because we know that the
+generation_fuel_eia923 table is necessarily more complete - there are many
+full plants or generators in plants that do not report to the generation_eia923
+table at all.
+
+The next important note is the way in which we associated the data reported in
+the generation_fuel_eia923 table with generators. The generation_fuel_eia923
+table is reported at the level of prime_mover_code/fuel_type (See
+``IDX_PM_FUEL``). Generators have prime_mover_codes, fuel_types (in
+energy_source_code_*s) and report_dates. This methology does not distinguish
+between primary and secondary fuel_types for generators - it associates
+portions of net generatoion to each prime_mover_code/fuel_type.
+
+The last high-level point about this methodology surrounds the allocation
+method. In order to allocate portions of the net generation, we calculate as
+allocation ratio, which is based on the net generation from the
+generation_eia923 table when available and the capacity_mw from the
+generators_eia860 table. Some plants have a portion of their generators that
+report to generation_eia923. For those plants, we assign an allocation ratio in
+three steps: first we generate an allocation ratio based on capacity_mw for each
+group of generators (generators the do report in generation_eia923 and those
+that do not). Then we generate an allocation ratio based on the net
+generation reported in generation_eia923. Then we multiply both allocation
+ratios together to scale down the net generation based ratio based on the
+capacity of the generators reporting in generation_eia923.
+
+This methodology has several potentail flaws and drawbacks. Because there is no
+indicator of what portion of the energy_source_codes (ie. fule_type), we
+associate the net generation equally amoung them. In effect, if a plant had
+multiple generators with the same prime_mover_code but opposite primary and
+secondary fuels (eg. gen 1 has a primary fuel of 'NG' and secondard fuel of
+'DFO', while gen 2 has a primary fuel of 'DFO' and a secondary fuel of 'NG'),
+the methodology associates the generation_fuel_eia923 records similarly across
+these two generators. Nonetheless, the allocated net generation will still be
+porporational to each generators generation_eia923 net generation or capacity.
+
+This methodology also has an effect of smoothing differences of generators with
+the same prime_mover_code and fuel_type. In effect, two similar generators will
+appear to have similar capacity factors, especially if they reported no data to
+the generation_eia923 table.
+
+Another methodology that could be worth employing is use the generation_eia923
+table when available and allocate the remaining net generation in a similar
+methodology as we have currently employed by using each generators' capacity as
+an allocator. For the ~.2% of records which report more net generation in the
+generation_eia923 table, we would have to augment that methodology.
 """
 
 import logging
+import warnings
 
 # Useful high-level external modules.
 import numpy as np
@@ -74,34 +126,14 @@ def allocate_gen_fuel_by_gen_pm_fuel(pudl_out):
     Returns:
         pandas.DataFrame
     """
-    gens_asst = associate_gen_tables(pudl_out)
-    # get the total values for the merge group
-    gen_pm_fuel = (
-        pd.merge(
-            gens_asst,
-            gens_asst.groupby(by=IDX_PM_FUEL)
-            [['net_generation_mwh_gen', 'capacity_mw']]
-            .sum(min_count=1)
-            .add_suffix('_pm_fuel_total')
-            .reset_index(),
-            on=IDX_PM_FUEL,
-        )
-        .pipe(_associate_unconnected_records)
-    )
+    gens_asst = (associate_gen_tables(pudl_out)
+                 .pipe(_associate_unconnected_records))
+
+    gen_pm_fuel = make_allocation_ratio(gens_asst)
 
     # do the allocating-ing!
     gen_pm_fuel = (
         gen_pm_fuel.assign(
-            # we have two options for generating a ratio for allocating
-            # we'll first try to allocated based on net generation from the gen
-            # table and if that isn't there we'll allocate based on capacity
-            gen_ratio_net_gen=lambda x: x.net_generation_mwh_gen / \
-            x.net_generation_mwh_gen_pm_fuel_total,
-            gen_ratio_cap=lambda x: x.capacity_mw / x.capacity_mw_pm_fuel_total,
-            gen_ratio=lambda x:
-                np.where(
-                    x.gen_ratio_net_gen.notnull() | x.gen_ratio_net_gen != 0,
-                    x.gen_ratio_net_gen, x.gen_ratio_cap),
             # we could x.net_generation_mwh_gen.fillna here if we wanted to
             # take the net gen
             net_generation_mwh=lambda x: x.net_generation_mwh_gf * x.gen_ratio,
@@ -247,10 +279,11 @@ def _associate_unconnected_records(eia_generators_merged):
     eia_generators = (
         pd.merge(
             eia_generators_connected,
-            eia_generators_unconnected,
+            eia_generators_unconnected[
+                idx_pm + ['net_generation_mwh_gf', 'fuel_consumed_mmbtu']],
             on=idx_pm,
             suffixes=('', '_unconnected'),
-            how='outer'
+            how='left'
         )
         .assign(
             # we want the main and the unconnected net get to be added together
@@ -271,6 +304,92 @@ def _associate_unconnected_records(eia_generators_merged):
     return eia_generators
 
 
+def make_allocation_ratio(gens_asst):
+    """Generate a ratio to use to allocate net generation by."""
+    # generate a flag if the generator exists in
+    # the generator table (this will be used later on)
+    # for generating ratios to use to allocate
+    gens_asst = gens_asst.assign(
+        exists_in_gen=lambda x: np.where(
+            x.net_generation_mwh_gen.notnull(),
+            True, False)
+    )
+
+    gens_gb = gens_asst.groupby(by=IDX_PM_FUEL)
+    # get the total values for the merge group
+    # we would use on groupby here with agg but it is much slower
+    # so we're gb-ing twice w/ a merge
+    # gens_gb.agg({'net_generation_mwh_gen': lambda x: x.sum(min_count=1),
+    #              'capacity_mw': lambda x: x.sum(min_count=1),
+    #              'exists_in_gen': 'all'},)
+    gen_pm_fuel = (
+        pd.merge(
+            gens_asst,
+            gens_gb
+            [['net_generation_mwh_gen', 'capacity_mw']]
+            .sum(min_count=1)
+            .add_suffix('_pm_fuel_total')
+            .reset_index(),
+            on=IDX_PM_FUEL,
+        )
+        .merge(
+            gens_gb[['exists_in_gen']].all().reset_index(),
+            on=IDX_PM_FUEL,
+            suffixes=('', '_pm_fuel_total')
+        )
+    )
+    gen_pm_fuel_ratio = (
+        pd.merge(
+            gen_pm_fuel,
+            gen_pm_fuel.groupby(by=IDX_PM_FUEL + ['exists_in_gen'])
+            [['capacity_mw']]
+            .sum(min_count=1)
+            .add_suffix('_exist_in_gen_group')
+            .reset_index(),
+            on=IDX_PM_FUEL + ['exists_in_gen'],
+        )
+    )
+
+    gen_pm_fuel_ratio = (
+        gen_pm_fuel_ratio.assign(
+            # we have two options for generating a ratio for allocating
+            # we'll first try to allocated based on net generation from the gen
+            # table, but we need to scale that based on capacity of the
+            # generators the report in net gen table
+            # and if that isn't there we'll allocate based on capacity
+            gen_ratio_exist_in_gen_group=lambda x:
+                x.capacity_mw_exist_in_gen_group / x.capacity_mw_pm_fuel_total,
+            gen_ratio_net_gen=lambda x:
+                x.net_generation_mwh_gen /
+                x.net_generation_mwh_gen_pm_fuel_total,
+            gen_ratio_net_gen_scaled_by_cap=lambda x:
+                x.gen_ratio_net_gen * x.gen_ratio_exist_in_gen_group,
+            gen_ratio_cap=lambda x: x.capacity_mw / x.capacity_mw_pm_fuel_total,
+            gen_ratio=lambda x:
+                np.where(
+                    (x.gen_ratio_net_gen_scaled_by_cap.notnull()
+                     | x.gen_ratio_net_gen_scaled_by_cap != 0),
+                    x.gen_ratio_net_gen_scaled_by_cap, x.gen_ratio_cap),)
+    )
+
+    # test! Check if each of the IDX_PM_FUEL groups gen_ratio's add up to 1
+    ratio_test = (
+        gen_pm_fuel_ratio.groupby(IDX_PM_FUEL)
+        [['gen_ratio']].sum(min_count=1)
+    )
+    ratio_test_bad = ratio_test[
+        ~np.isclose(ratio_test.gen_ratio, 1)
+        & ratio_test.gen_ratio.notnull()
+    ]
+    if not ratio_test_bad.empty:
+        raise AssertionError(
+            f"Ooopsies. You got {len(ratio_test_bad)} records where the "
+            "'gen_ratio' column isn't adding up to 1 for each 'IDX_PM_FUEL' "
+            "group. Check 'make_allocation_ratio()'"
+        )
+    return gen_pm_fuel_ratio
+
+
 def _test_gen_pm_fuel_output(gen_pm_fuel, pudl_out):
     # this is just for testing/debugging
     gen_pm_fuel = (
@@ -286,6 +405,12 @@ def _test_gen_pm_fuel_output(gen_pm_fuel, pudl_out):
                 x.net_generation_mwh_gf
                 - x.net_generation_mwh_test)
     )
+    bad_diff = gen_pm_fuel[
+        (~np.isclose(gen_pm_fuel.net_generation_mwh_diff, 0))
+        & (gen_pm_fuel.net_generation_mwh_diff.notnull())]
+    logger.info(
+        f"{len(bad_diff)/len(gen_pm_fuel):.03%} of records have are partially "
+        "off from their 'IDX_PM_FUEL' group")
     no_cap_gen = gen_pm_fuel[
         (gen_pm_fuel.capacity_mw.isnull())
         & (gen_pm_fuel.net_generation_mwh_gen.isnull())
@@ -325,14 +450,14 @@ def _test_gen_fuel_allocation(pudl_out, gen_allocated, ratio=.05):
                 x.net_generation_mwh_new / x.net_generation_mwh_og)
     )
 
-    os_ration = gens_test[
+    os_ratios = gens_test[
         (~gens_test.net_generation_new_v_og.between((1 - ratio), (1 + ratio)))
         & (gens_test.net_generation_new_v_og.notnull())
     ]
-    os_ratio = len(os_ration) / len(gens_test)
+    os_ratio = len(os_ratios) / len(gens_test)
     logger.info(
         f"{os_ratio:.2%} of generator records are more that {ratio:.0%} off from the net generation table")
-    if ratio == 0.5 and os_ratio > .11:
-        raise AssertionError(
-            f"Too many generator records that have allocated net gen more than {ratio:.0%}"
+    if ratio == 0.05 and os_ratio > .17:
+        warnings.warn(
+            f"Many generator records that have allocated net gen more than {ratio:.0%}"
         )
