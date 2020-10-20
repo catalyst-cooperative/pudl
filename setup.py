@@ -13,7 +13,7 @@ install_requires = [
     "datapackage>=1.11",
     "catalystcoop.dbfread>=3.0",
     "geopandas>=0.8.0",
-    "goodtables_pandas@git+https://github.com/ezwelty/goodtables-pandas-py.git@master",
+    "goodtables_pandas@git+https://github.com/ezwelty/goodtables-pandas-py.git@61ae04beca4d5567edfdeaac2c4a9aa5ca678503",
     "matplotlib",
     "networkx>=2.2",
     "numpy",
