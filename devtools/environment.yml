@@ -66,6 +66,6 @@ dependencies:
   - pip:
     - addfips            # base -- get in conda!
     - flake8-use-fstring # dev
-    - git+https://github.com/ezwelty/goodtables-pandas-py  # base get in conda!
+    - goodtables-pandas-py>=0.1.1  # base get in conda!
     - recordlinkage      # dev for now... base if it ends up in ETL
     - fredapi            # dev
