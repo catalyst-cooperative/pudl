@@ -2,14 +2,15 @@
 # and all dependencies installed.
 
 # Step 1: make shallow git clone of local source code
+# TODO(rousik): The unexpected consequence of this is that unsubmitted changes
+# are ignored.
 FROM alpine/git:latest AS pudl-source
 WORKDIR /pudl/local-src
-COPY . .
+COPY . /pudl/local-src
 WORKDIR /pudl/src
 RUN git clone --depth=1 file:///pudl/local-src /pudl/src
 
 # Step 2: create miniconda pudl-dev environment based on the local environment.yml
-COPY devtools/environment.yml 
 FROM continuumio/miniconda3:latest AS pudl-conda-base
 WORKDIR /pudl
 COPY --from=pudl-source /pudl/src/devtools/environment.yml .
@@ -21,15 +22,20 @@ SHELL ["conda", "run", "-n", "pudl-dev", "/bin/bash", "-c"]
 
 # Step 3: mount /pudl/src into the conda image and pip install the pudl code
 FROM pudl-conda-base AS pudl-dev
-WORKDIR /pudl/src 
+WORKDIR /pudl/src
 COPY --from=pudl-source /pudl/src .
 RUN pip install --editable /pudl/src
-# TODO(rousik): is it worth using --editable here? 
+# TODO(rousik): is it worth using --editable here?
 
-RUN mkdir /pudl/inputs 
+RUN mkdir /pudl/inputs
 RUN mkdir /pudl/outputs
 RUN pudl_setup --pudl_in /pudl/inputs /pudl/outputs
 
 # Mark inputs and outputs as mountable volumes
-VOLUME /pudl/inputs
+VOLUME /pudl/inputs/data
 VOLUME /pudl/outputs
+
+# Sets the default configuration to use with the release.
+ENV PUDL_SETTINGS=/pudl/src/release/settings.yml
+# TODO(rousik): Set default entrypoint to release/data-release.sh
+# so that release is kicked off once this container is started.
