@@ -36,6 +36,6 @@ VOLUME /pudl/inputs/data
 VOLUME /pudl/outputs
 
 # Sets the default configuration to use with the release.
-ENV PUDL_SETTINGS=/pudl/src/release/settings.yml
+ENV PUDL_SETTINGS=/pudl/src/release/settings/release.yml
 # TODO(rousik): Set default entrypoint to release/data-release.sh
 # so that release is kicked off once this container is started.
