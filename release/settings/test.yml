@@ -132,7 +132,7 @@ ferc1_to_sqlite_tables: [
 ###########################################################################
 # Top level data package bundle settings:
 ###########################################################################
-datapkg_bundle_name: pudl-data-release
+datapkg_bundle_name: test-pudl-data-release
 datapkg_bundle_doi: 10.5281/zenodo.3672068
 datapkg_bundle_settings:
 ###########################################################################
