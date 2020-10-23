@@ -1,31 +1,33 @@
 # First, build a base image with miniconda, pudl-dev environment
 # and all dependencies installed.
 
-# Step 1: make shallow git clone of local source code
-# TODO(rousik): The unexpected consequence of this is that unsubmitted changes
-# are ignored.
-FROM alpine/git:latest AS pudl-source
-WORKDIR /pudl/local-src
-COPY . /pudl/local-src
-WORKDIR /pudl/src
-RUN git clone --depth=1 file:///pudl/local-src /pudl/src
+# Build pypi tarball from the local source
+FROM python:3.8 AS pudl-pypi-builder
+WORKDIR /pudl/repo
+COPY . /pudl/repo
+RUN mkdir /pudl/dist && mkdir /pudl/src
+RUN python setup.py sdist -d /pudl/dist && mv /pudl/dist/*tar.gz /pudl/dist/pudl.tar.gz
+RUN tar xzf /pudl/dist/pudl.tar.gz -C /pudl/src --strip-components=1
+# TODO(rousik): remove /pudl/repo?
 
-# Step 2: create miniconda pudl-dev environment based on the local environment.yml
+
+# Create pudl-dev environment based on the environment.yml from the source
 FROM continuumio/miniconda3:latest AS pudl-conda-base
 WORKDIR /pudl
-COPY --from=pudl-source /pudl/src/devtools/environment.yml .
+COPY --from=pudl-pypi-builder /pudl/src/devtools/environment.yml .
 RUN conda env create -f environment.yml
 
 RUN echo "source activate pudl-dev" > ~/.bashrc
 # ENV PATH /opt/conda/envs/env/bin:$PATH
 SHELL ["conda", "run", "-n", "pudl-dev", "/bin/bash", "-c"]
 
-# Step 3: mount /pudl/src into the conda image and pip install the pudl code
+
+# Copy source code and install pypi package with pip
 FROM pudl-conda-base AS pudl-dev
 WORKDIR /pudl/src
-COPY --from=pudl-source /pudl/src .
-RUN pip install --editable /pudl/src
-# TODO(rousik): is it worth using --editable here?
+COPY --from=pudl-pypi-builder /pudl/src .
+COPY --from=pudl-pypi-builder /pudl/dist/pudl.tar.gz /pudl/dist/pudl.tar.gz
+RUN pip install /pudl/dist/pudl.tar.gz
 
 RUN mkdir /pudl/inputs
 RUN mkdir /pudl/outputs
