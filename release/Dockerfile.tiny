@@ -1,0 +1,23 @@
+# WIP: This is an attempt to make small docker image that
+# installs pypi tarball with pip and does not rely on
+# conda environment.
+# It is unclear whether this will work.
+
+# Step 1: build pypi tarball from local code
+FROM python:3.8 AS pypi-build
+WORKDIR /pudl/src
+COPY . /pudl/src
+RUN mkdir /pudl/deploy
+RUN python setup.py sdist -d /pudl/deploy
+
+# Step 2: install pudl package from the above, also install libsnappy-dev
+# because
+# Step 2: install pipy package from above
+FROM python:3.8
+# TODO(rousik): use python:3.8-slim or python:3.8-slim-buster
+RUN apt-get update && apt-get -y install libsnappy-dev git
+WORKDIR /pudl/pypi-tarball
+COPY --from=pypi-build /pudl/deploy /pudl/pypi-tarball
+RUN pip install /pudl/pypi-tarball/*tar.gz
+RUN mkdir /pudl/src
+RUN tar xzf /pudl/pypi-tarball/*tar.gz --strip-components=1 -C /pudl/src
