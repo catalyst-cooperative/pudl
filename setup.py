@@ -22,6 +22,7 @@ install_requires = [
     "pyyaml",
     "scikit-learn>=0.20",
     "scipy",
+    "seaborn",
     "sqlalchemy>=1.3.0",
     "tableschema>=1.12.3",
     "tableschema-sql>=1.3.1",
@@ -61,7 +62,6 @@ test_requires = [
     "pydocstyle",
     "pytest",
     "pytest-cov",
-    "seaborn",
 ]
 
 
