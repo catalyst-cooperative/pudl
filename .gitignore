@@ -20,3 +20,4 @@ codecov.sh
 .env_pudl/
 *wheel-metadata
 dask-worker-space*
+.vscode
