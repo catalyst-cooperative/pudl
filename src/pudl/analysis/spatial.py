@@ -122,10 +122,7 @@ def dissolve(
         and grouping columns set as the index.
 
     Examples:
-        >>> from shapely.geometry import Polygon
-        >>> import geopandas as gpd
         >>> gpd.options.display_precision = 0
-
         >>> gdf = gpd.GeoDataFrame({
         ...     'geometry': gpd.GeoSeries([
         ...         Polygon([(0, 0), (0, 1), (3, 1), (3, 0)]),
@@ -190,10 +187,7 @@ def overlay(
         GeoDataFrame with the geometries and attributes resulting from the overlay.
 
     Examples:
-        >>> from shapely.geometry import Polygon
-        >>> import geopandas as gpd
         >>> gpd.options.display_precision = 0
-
         >>> a = gpd.GeoDataFrame({
         ...     'geometry': gpd.GeoSeries([Polygon([(0, 0), (0, 1), (3, 1), (3, 0)])]),
         ...     'a': [3.0]
