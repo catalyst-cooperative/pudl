@@ -41,9 +41,9 @@ def polygonize(geom: BaseGeometry, empty: bool = False) -> Union[Polygon, MultiP
         Empty geometries are only permitted with `empty=True`.
 
         >>> result = polygonize(Polygon())
-        Traceback (most recent call last)
+        Traceback (most recent call last):
           ...
-        ValueError: Geometry has zero area.
+        ValueError: Geometry has zero area
         >>> result = polygonize(Polygon(), empty=True)
         >>> result.area
         0.0
@@ -127,21 +127,21 @@ def dissolve(
         >>> gpd.options.display_precision = 0
 
         >>> gdf = gpd.GeoDataFrame({
-        >>>     'geometry': gpd.GeoSeries([
-        >>>         Polygon([(0, 0), (0, 1), (3, 1), (3, 0)]),
-        >>>         Polygon([(3, 0), (3, 1), (4, 1), (4, 0)])
-        >>>     ]),
-        >>>     'id': [0, 0],
-        >>>     'ids': [0, 1],
-        >>>     'x': [3.0, 1.0]
-        >>> })
-        >>> dissolve_gdf(gdf, by='id', func={'ids': tuple, 'x': 'sum'}, how='union')
+        ...     'geometry': gpd.GeoSeries([
+        ...         Polygon([(0, 0), (0, 1), (3, 1), (3, 0)]),
+        ...         Polygon([(3, 0), (3, 1), (4, 1), (4, 0)])
+        ...     ]),
+        ...     'id': [0, 0],
+        ...     'ids': [0, 1],
+        ...     'x': [3.0, 1.0]
+        ... })
+        >>> dissolve(gdf, by='id', func={'ids': tuple, 'x': 'sum'}, how='union')
                                                  geometry     ids    x
-        id
+        id  ...
         0   POLYGON ((0 0, 0 1, 3 1, 4 1, 4 0, 3 0, 0 0))  (0, 1)  4.0
-        >>> dissolve_gdf(gdf, by='id', func={'ids': tuple, 'x': 'sum'}, how='first')
+        >>> dissolve(gdf, by='id', func={'ids': tuple, 'x': 'sum'}, how='first')
                                        geometry     ids    x
-        id
+        id  ...
         0   POLYGON ((0 0, 0 1, 3 1, 3 0, 0 0))  (0, 1)  4.0
     """
     merges = {"union": lambda x: x.unary_union, "first": lambda x: x.iloc[0]}
