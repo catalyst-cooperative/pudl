@@ -23,6 +23,7 @@ rst-roles =
     mod,
     ref,
     user,
+    meth,
 rst-directives =
     envvar,
     exception,
