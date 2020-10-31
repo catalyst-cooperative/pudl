@@ -1,4 +1,5 @@
 """Spatial operations for demand allocation."""
+import warnings
 from typing import Callable, Iterable, Literal, Union
 
 import geopandas as gpd
@@ -7,48 +8,109 @@ from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
 from shapely.geometry.base import BaseGeometry
 
 
-def polygonize(geom: BaseGeometry, empty: bool = False) -> Union[Polygon, MultiPolygon]:
+def check_gdf(gdf: gpd.GeoDataFrame) -> None:
+    """
+    Check that GeoDataFrame contains (Multi)Polygon geometries with non-zero area.
+
+    Args:
+        gdf: GeoDataFrame.
+
+    Raises:
+        TypeError: Object is not a GeoDataFrame.
+        AttributeError: GeoDataFrame has no geometry.
+        TypeError: Geometry is not a GeoSeries.
+        ValueError: Geometry contains null geometries.
+        ValueError: Geometry contains non-(Multi)Polygon geometries.
+        ValueError: Geometry contains (Multi)Polygon geometries with zero area.
+        ValueError: MultiPolygon contains Polygon geometries with zero area.
+
+    Examples:
+        >>> poly = Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])
+        >>> zero_poly = Polygon([(0, 0), (0, 0), (0, 0), (0, 0)])
+        >>> check_gdf(gpd.GeoDataFrame(geometry=[poly]))
+        >>> check_gdf(None)
+        Traceback (most recent call last):
+          ...
+        TypeError: Object is not a GeoDataFrame
+        >>> check_gdf(gpd.GeoDataFrame({'x': [0]}))
+        Traceback (most recent call last):
+          ...
+        AttributeError: GeoDataFrame has no geometry
+        >>> check_gdf(gpd.GeoDataFrame({'geometry': [0]}))
+        Traceback (most recent call last):
+          ...
+        TypeError: Geometry is not a GeoSeries
+        >>> check_gdf(gpd.GeoDataFrame(geometry=[GeometryCollection()]))
+        Traceback (most recent call last):
+          ...
+        ValueError: Geometry contains non-(Multi)Polygon geometries
+        >>> check_gdf(gpd.GeoDataFrame(geometry=[zero_poly]))
+        Traceback (most recent call last):
+          ...
+        ValueError: Geometry contains (Multi)Polygon geometries with zero area
+        >>> check_gdf(gpd.GeoDataFrame(geometry=[MultiPolygon([poly, zero_poly])]))
+        Traceback (most recent call last):
+          ...
+        ValueError: MultiPolygon contains Polygon geometries with zero area
+    """
+    if not isinstance(gdf, gpd.GeoDataFrame):
+        raise TypeError("Object is not a GeoDataFrame")
+    if not hasattr(gdf, "geometry"):
+        raise AttributeError("GeoDataFrame has no geometry")
+    if not isinstance(gdf.geometry, gpd.GeoSeries):
+        raise TypeError("Geometry is not a GeoSeries")
+    warnings.filterwarnings("ignore", "GeoSeries.isna", UserWarning)
+    if gdf.geometry.isna().any():
+        raise ValueError("Geometry contains null geometries")
+    if not gdf.geometry.geom_type.isin(["Polygon", "MultiPolygon"]).all():
+        raise ValueError("Geometry contains non-(Multi)Polygon geometries")
+    if not gdf.geometry.area.all():
+        raise ValueError("Geometry contains (Multi)Polygon geometries with zero area")
+    is_mpoly = gdf.geometry.geom_type == "MultiPolygon"
+    for mpoly in gdf.geometry[is_mpoly]:
+        for poly in mpoly:
+            if not poly.area:
+                raise ValueError(
+                    "MultiPolygon contains Polygon geometries with zero area"
+                )
+
+
+def polygonize(geom: BaseGeometry) -> Union[Polygon, MultiPolygon]:
     """
     Convert geometry to (Multi)Polygon.
 
     Args:
         geom: Geometry to convert to (Multi)Polygon.
-        empty: Whether to return an empty Polygon (True) or raise an error (False)
-            if `geom` is empty (zero-area).
 
     Returns:
-        Geometry converted to (Multi)Polygon, with all empty geometries removed.
+        Geometry converted to (Multi)Polygon, with all zero-area components removed.
 
     Raises:
         ValueError: Geometry has zero area.
 
     Exmaples:
-        A collection with one non-empty polygon is returned as a Polygon.
+        A collection with one non-zero-area Polygon is returned as a Polygon.
 
         >>> poly = Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])
-        >>> geom = MultiPolygon([Polygon(), poly])
+        >>> zero_poly = Polygon([(0, 0), (0, 0), (0, 0), (0, 0)])
+        >>> geom = GeometryCollection([poly, zero_poly])
         >>> result = polygonize(geom)
         >>> result.geom_type, result.area
         ('Polygon', 1.0)
 
-        A collection with multiple non-empty polygons is returned as a MultiPolygon.
+        A collection with multiple non-zero-area polygons is returned as a MultiPolygon.
 
-        >>> geom = MultiPolygon([poly, poly])
+        >>> geom = GeometryCollection([poly, poly])
         >>> result = polygonize(geom)
         >>> result.geom_type, result.area
         ('MultiPolygon', 2.0)
 
-        Empty geometries are only permitted with `empty=True`.
+        Zero-area geometries are not permitted.
 
-        >>> result = polygonize(Polygon())
+        >>> result = polygonize(zero_poly)
         Traceback (most recent call last):
           ...
         ValueError: Geometry has zero area
-        >>> result = polygonize(Polygon(), empty=True)
-        >>> result.area
-        0.0
-        >>> isinstance(result, Polygon)
-        True
     """
     polys = []
     # Explode geometries to polygons
@@ -62,11 +124,9 @@ def polygonize(geom: BaseGeometry, empty: bool = False) -> Union[Polygon, MultiP
         polys.extend(geom)
     elif isinstance(geom, Polygon):
         polys.append(geom)
-    # Remove empty polygons
+    # Remove zero-area polygons
     polys = [p for p in polys if p.area]
     if not polys:
-        if empty:
-            return Polygon()
         raise ValueError("Geometry has zero area")
     if len(polys) == 1:
         return polys[0]
@@ -141,6 +201,7 @@ def dissolve(
         id  ...
         0   POLYGON ((0 0, 0 1, 3 1, 3 0, 0 0))  (0, 1)  4.0
     """
+    check_gdf(gdf)
     merges = {"union": lambda x: x.unary_union, "first": lambda x: x.iloc[0]}
     data = gdf.drop(columns=gdf.geometry.name).groupby(by=by).aggregate(func)
     geometry = gdf.groupby(by=by, group_keys=False)[gdf.geometry.name].aggregate(
@@ -210,6 +271,8 @@ def overlay(
         1  POLYGON ((0 0, 0 1, 2 1, 2 0, 0 0))  2.0  NaN
         2  POLYGON ((3 1, 4 1, 4 0, 3 0, 3 1))  NaN  4.0
     """
+    for gdf in gdfs:
+        check_gdf(gdf)
     if ratios is None:
         ratios = []
     # Check for duplicate non-geometry column names
@@ -280,10 +343,8 @@ class LayerBuilder:
             ratios: Names of columns (not necessarily present in `gdf`) to rescale by
                 the area fraction of the split feature relative to the original.
                 Has no effect on the geometry column.
-
-        Raises:
-            ValueError: Only non-empty (Multi)Polygon geometries are supported.
         """
+        check_gdf(gdf)
         self.gdf = gdf
         self.ratios = []
         self.add_ratios(ratios)
@@ -334,6 +395,7 @@ class LayerBuilder:
         Raises:
             ValueError: Only non-empty (Multi)Polygon geometries are supported.
         """
+        check_gdf(gdf)
         # Drop data columns already present in layer
         xcols = list(set(get_data_columns(gdf)) & set(get_data_columns(self.gdf)))
         gdf = gdf.drop(columns=xcols)
@@ -362,6 +424,7 @@ class LayerBuilder:
         ValueError:
             ValueError: Only non-empty (Multi)Polygon geometries are supported.
         """
+        check_gdf(gdf)
         # Drop data columns already present in layer
         xcols = list(set(get_data_columns(gdf)) & set(get_data_columns(self.gdf)))
         gdf = gdf.drop(columns=xcols)
