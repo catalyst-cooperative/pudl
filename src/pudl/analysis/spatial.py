@@ -135,6 +135,63 @@ def polygonize(geom: BaseGeometry) -> Union[Polygon, MultiPolygon]:
     return MultiPolygon(polys)
 
 
+def explode(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDataFrame:
+    """
+    Explode MultiPolygon to multiple Polygon geometries.
+
+    Args:
+        gdf: GeoDataFrame with non-zero-area (Multi)Polygon geometries.
+        ratios: Names of columns to rescale by the area fraction of the Polygon
+            relative to the MultiPolygon.
+            If provided, MultiPolygon cannot self-intersect.
+            By default, the original value is used unchanged.
+
+    Raises:
+        ValueError: Geometry contains self-intersecting MultiPolygon.
+
+    Returns:
+        GeoDataFrame with each Polygon as a separate row in the GeoDataFrame.
+        The index is the number of the source row in the input GeoDataFrame.
+
+    Examples:
+        >>> gpd.options.display_precision = 0
+        >>> gdf = gpd.GeoDataFrame({
+        ...     'geometry': gpd.GeoSeries([
+        ...         MultiPolygon([
+        ...             Polygon([(0, 0), (0, 1), (1, 1), (1, 0)]),
+        ...             Polygon([(1, 1), (2, 1), (2, 2), (1, 2)])
+        ...         ]),
+        ...         Polygon([(1, 1), (1, 2), (2, 2), (2, 1)]),
+        ...     ]),
+        ...     'x': [0, 1],
+        ...     'y': [4.0, 8.0],
+        ... })
+        >>> explode(gdf, ratios=['y'])
+                                      geometry  x    y
+        0  POLYGON ((0 0, 0 1, 1 1, 1 0, 0 0))  0  2.0
+        0  POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1))  0  2.0
+        1  POLYGON ((1 1, 1 2, 2 2, 2 1, 1 1))  1  8.0
+        >>> exploded = explode(gdf, ratios=['y']).reset_index()
+        >>> dissolved = dissolve(exploded, by='index', func={'x': 'first', 'y': 'sum'})
+        >>> dissolved.rename_axis(None)
+                                                    geometry  x    y
+        0  MULTIPOLYGON (((0 0, 0 1, 1 1, 1 0, 0 0)), ((1...  0  4.0
+        1                POLYGON ((1 1, 1 2, 2 2, 2 1, 1 1))  1  8.0
+    """
+    check_gdf(gdf)
+    gdf = gdf.reset_index(drop=True)
+    is_mpoly = gdf.geometry.geom_type == "MultiPolygon"
+    if ratios and is_mpoly.any():
+        union_area = gdf.geometry[is_mpoly].apply(shapely.ops.unary_union).area
+        if (union_area != gdf.geometry[is_mpoly].area).any():
+            raise ValueError("Geometry contains self-intersecting MultiPolygon")
+    result = gdf.explode().droplevel(1)
+    if ratios:
+        fraction = result.geometry.area.values / gdf.geometry.area[result.index].values
+        result[ratios] = result[ratios].multiply(fraction, axis="index")
+    return result[gdf.columns]
+
+
 def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDataFrame:
     """
     Calculate the geometric union of a feature layer with itself.
@@ -144,7 +201,7 @@ def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDa
     Each split feature contains the attributes of the original feature.
 
     Args:
-        gdf: GeoDataFrame with non-empty (Multi)Polygon geometries.
+        gdf: GeoDataFrame with non-zero-area Polygon geometries.
         ratios: Names of columns to rescale by the area fraction of the split feature
             relative to the original. By default, the original value is used unchanged.
 
