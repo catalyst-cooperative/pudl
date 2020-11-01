@@ -5,6 +5,7 @@ from typing import Callable, Iterable, Literal, Union
 
 import geopandas as gpd
 import pandas as pd
+import shapely.ops
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
 from shapely.geometry.base import BaseGeometry
 
@@ -164,50 +165,45 @@ def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDa
         ... })
         >>> self_union(gdf)
                                                         geometry  x    y
+        (0,)       POLYGON ((0 0, 0 2, 1 2, 1 1, 2 1, 2 0, 0 0))  0  4.0
         (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  0  4.0
         (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  1  8.0
         (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  2  1.0
-        (0,)       POLYGON ((0 0, 0 2, 1 2, 1 1, 2 1, 2 0, 0 0))  0  4.0
-        (1,)       POLYGON ((1 2, 1 3, 3 3, 3 1, 2 1, 2 2, 1 2))  1  8.0
+        (1,)       POLYGON ((2 2, 1 2, 1 3, 3 3, 3 1, 2 1, 2 2))  1  8.0
         >>> self_union(gdf, ratios=['y'])
                                                         geometry  x    y
+        (0,)       POLYGON ((0 0, 0 2, 1 2, 1 1, 2 1, 2 0, 0 0))  0  3.0
         (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  0  1.0
         (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  1  2.0
         (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  2  1.0
-        (0,)       POLYGON ((0 0, 0 2, 1 2, 1 1, 2 1, 2 0, 0 0))  0  3.0
-        (1,)       POLYGON ((1 2, 1 3, 3 3, 3 1, 2 1, 2 2, 1 2))  1  6.0
+        (1,)       POLYGON ((2 2, 1 2, 1 3, 3 3, 3 1, 2 1, 2 2))  1  6.0
     """
     check_gdf(gdf)
-    # Drop index columns and reset to unique integer index
-    key = "__id__"
-    gdf = gdf.reset_index(drop=True).rename_axis(key).reset_index()
+    gdf = gdf.reset_index(drop=True)
+    # Calculate all pairwise intersections
+    # https://nbviewer.jupyter.org/gist/jorisvandenbossche/3a55a16fda9b3c37e0fb48b1d4019e65
+    pairs = itertools.combinations(gdf.geometry, 2)
+    intersections = gpd.GeoSeries([a.intersection(b) for a, b in pairs])
+    # Form polygons from the boundaries of the original polygons and their intersections
+    boundaries = pd.concat([gdf.geometry, intersections]).boundary.unary_union
+    polygons = gpd.GeoSeries(shapely.ops.polygonize(boundaries))
+    # Determine origin of each polygon by a spatial join on representative points
+    points = gpd.GeoDataFrame(geometry=polygons.representative_point())
+    oids = gpd.sjoin(points, gdf[["geometry"]], how="left", op="within")["index_right"]
+    # Build new dataframe
     columns = get_data_columns(gdf)
-    for col in columns:
-        gdf[col] = list(zip(gdf[col]))
-    disjoint = gdf[0:1]
-    for i in range(1, len(gdf)):
-        disjoint = gpd.overlay(
-            disjoint, gdf.iloc[i: i + 1], how="union", keep_geom_type=True
-        )
-        disjoint = disjoint.applymap(lambda x: tuple() if pd.isna(x) else x)
-        for col in columns:
-            disjoint[col] = disjoint[f"{col}_1"] + disjoint[f"{col}_2"]
-            disjoint = disjoint.drop(columns=[f"{col}_1", f"{col}_2"])
-    # Expand by index
-    lengths = disjoint[key].apply(len)
-    oids = pd.Index(itertools.chain.from_iterable(disjoint[key]))
-    ids = lengths.index.repeat(lengths)
-    disjoint = disjoint.loc[ids].set_index(oids).assign(
-        **{
-            col: list(itertools.chain.from_iterable(disjoint[col]))
-            for col in columns
-            if col != key
-        }
+    df = gpd.GeoDataFrame(
+        data=gdf.loc[oids, columns].reset_index(drop=True),
+        geometry=polygons[oids.index].values,
     )
     if ratios:
-        fraction = disjoint.geometry.area / gdf.geometry.area[oids]
-        disjoint[ratios] = disjoint[ratios].multiply(fraction, axis="index")
-    return disjoint.set_index(key).rename_axis(None)
+        fraction = df.area.values / gdf.area[oids].values
+        df[ratios] = df[ratios].multiply(fraction, axis="index")
+    # Add original row indices to index
+    df.index = oids.groupby(oids.index).agg(tuple)[oids.index]
+    df.index.name = None
+    # Return with original column order
+    return df[gdf.columns]
 
 
 def dissolve(
