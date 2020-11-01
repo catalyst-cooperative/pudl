@@ -1,4 +1,5 @@
 """Spatial operations for demand allocation."""
+import itertools
 import warnings
 from typing import Callable, Iterable, Literal, Union
 
@@ -150,11 +151,63 @@ def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDa
         GeoDataFrame representing the union of the input features with themselves.
         Its index contains tuples of the index of the original overlapping features.
 
-    Raises:
-        ValueError: Only (Multi)Polygon geometries are supported.
-        ValueError: Empty Polygon geometries are not supported.
+    Examples:
+        >>> gpd.options.display_precision = 0
+        >>> gdf = gpd.GeoDataFrame({
+        ...     'geometry': gpd.GeoSeries([
+        ...         Polygon([(0, 0), (0, 2), (2, 2), (2, 0)]),
+        ...         Polygon([(1, 1), (3, 1), (3, 3), (1, 3)]),
+        ...         Polygon([(1, 1), (1, 2), (2, 2), (2, 1)]),
+        ...     ]),
+        ...     'x': [0, 1, 2],
+        ...     'y': [4.0, 8.0, 1.0],
+        ... })
+        >>> self_union(gdf)
+                                                        geometry  x    y
+        (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  0  4.0
+        (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  1  8.0
+        (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  2  1.0
+        (0,)       POLYGON ((0 0, 0 2, 1 2, 1 1, 2 1, 2 0, 0 0))  0  4.0
+        (1,)       POLYGON ((1 2, 1 3, 3 3, 3 1, 2 1, 2 2, 1 2))  1  8.0
+        >>> self_union(gdf, ratios=['y'])
+                                                        geometry  x    y
+        (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  0  1.0
+        (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  1  2.0
+        (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  2  1.0
+        (0,)       POLYGON ((0 0, 0 2, 1 2, 1 1, 2 1, 2 0, 0 0))  0  3.0
+        (1,)       POLYGON ((1 2, 1 3, 3 3, 3 1, 2 1, 2 2, 1 2))  1  6.0
     """
-    raise NotImplementedError('Coming soon')
+    check_gdf(gdf)
+    # Drop index columns and reset to unique integer index
+    key = "__id__"
+    gdf = gdf.reset_index(drop=True).rename_axis(key).reset_index()
+    columns = get_data_columns(gdf)
+    for col in columns:
+        gdf[col] = list(zip(gdf[col]))
+    disjoint = gdf[0:1]
+    for i in range(1, len(gdf)):
+        disjoint = gpd.overlay(
+            disjoint, gdf.iloc[i: i + 1], how="union", keep_geom_type=True
+        )
+        disjoint = disjoint.applymap(lambda x: tuple() if pd.isna(x) else x)
+        for col in columns:
+            disjoint[col] = disjoint[f"{col}_1"] + disjoint[f"{col}_2"]
+            disjoint = disjoint.drop(columns=[f"{col}_1", f"{col}_2"])
+    # Expand by index
+    lengths = disjoint[key].apply(len)
+    oids = pd.Index(itertools.chain.from_iterable(disjoint[key]))
+    ids = lengths.index.repeat(lengths)
+    disjoint = disjoint.loc[ids].set_index(oids).assign(
+        **{
+            col: list(itertools.chain.from_iterable(disjoint[col]))
+            for col in columns
+            if col != key
+        }
+    )
+    if ratios:
+        fraction = disjoint.geometry.area / gdf.geometry.area[oids]
+        disjoint[ratios] = disjoint[ratios].multiply(fraction, axis="index")
+    return disjoint.set_index(key).rename_axis(None)
 
 
 def dissolve(
