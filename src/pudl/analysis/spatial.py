@@ -201,13 +201,16 @@ def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDa
     Each split feature contains the attributes of the original feature.
 
     Args:
-        gdf: GeoDataFrame with non-zero-area Polygon geometries.
+        gdf: GeoDataFrame with non-zero-area MultiPolygon geometries.
         ratios: Names of columns to rescale by the area fraction of the split feature
             relative to the original. By default, the original value is used unchanged.
 
     Returns:
         GeoDataFrame representing the union of the input features with themselves.
         Its index contains tuples of the index of the original overlapping features.
+
+    Raises:
+        NotImplementedError: MultiPolygon geometries are not yet supported.
 
     Examples:
         >>> gpd.options.display_precision = 0
@@ -237,6 +240,9 @@ def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDa
     """
     check_gdf(gdf)
     gdf = gdf.reset_index(drop=True)
+    is_mpoly = gdf.geometry.geom_type == "MultiPolygon"
+    if is_mpoly.any():
+        raise NotImplementedError("MultiPolygon geometries are not yet supported")
     # Calculate all pairwise intersections
     # https://nbviewer.jupyter.org/gist/jorisvandenbossche/3a55a16fda9b3c37e0fb48b1d4019e65
     pairs = itertools.combinations(gdf.geometry, 2)
