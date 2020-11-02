@@ -32,13 +32,21 @@ DOI = {
     "sandbox": {
         "censusdp1tract": "10.5072/zenodo.674992",
         "eia860": "10.5072/zenodo.672210",
-        "eia861": "10.5072/zenodo.679031",
-        "eia923": "10.5072/zenodo.673469",
+        "eia861": "10.5072/zenodo.687052",
+        "eia923": "10.5072/zenodo.687071",
         "epacems": "10.5072/zenodo.672963",
-        "ferc1": "10.5072/zenodo.672226",
+        "ferc1": "10.5072/zenodo.687072",
         "ferc714": "10.5072/zenodo.672224",
     },
-    "production": {}
+    "production": {
+        "censusdp1tract": "10.5281/zenodo.4127049",
+        "eia860": "10.5281/zenodo.4127027",
+        "eia861": "10.5281/zenodo.4127029",
+        "eia923": "10.5281/zenodo.4127040",
+        "epacems": "10.5281/zenodo.4127055",
+        "ferc1": "10.5281/zenodo.4127044",
+        "ferc714": "10.5281/zenodo.4127101",
+    }
 }
 
 PUDL_YML = Path.home() / ".pudl.yml"
@@ -76,8 +84,6 @@ class Datastore:
             self.api_root = "https://sandbox.zenodo.org/api"
 
         else:
-            raise NotImplementedError(
-                "Production archive not ready. Use --sandbox.")
             self._dois = DOI["production"]
             self.token = TOKEN["production"]
             self.api_root = "https://zenodo.org/api"

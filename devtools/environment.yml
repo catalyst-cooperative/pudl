@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - addfips>=0.3        # base
   - autopep8            # dev
   - bandit              # dev
   - catalystcoop.dbfread>=3.0 # base
@@ -64,7 +65,6 @@ dependencies:
   - twine               # dev
   - xlsxwriter          # base
   - pip:
-    - addfips            # base -- get in conda!
     - flake8-use-fstring # dev
     - goodtables-pandas-py>=0.1.1  # base get in conda!
     - recordlinkage      # dev for now... base if it ends up in ETL

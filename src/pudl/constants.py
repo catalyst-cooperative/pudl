@@ -1929,6 +1929,12 @@ keywords_by_data_source = {
         'natural gas', 'gas', 'opex', 'capex', 'accounts', 'investment',
         'capacity'
     ],
+    'ferc714': [
+        'electricity', 'electric', 'utility', 'planning area', 'form 714',
+        'balancing authority', 'demand', 'system lambda', 'ferc',
+        'federal energy regulatory commission', "hourly", "generation",
+        "interchange", "forecast", "load", "adjacency", "plants",
+    ],
     'epaipm': [
         'epaipm', 'integrated planning',
     ]
