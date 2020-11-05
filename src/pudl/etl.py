@@ -253,8 +253,7 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings, flow, bundle_name=None):
 
             dfs_names = _transform_eia(
                 params, eia860_out_dfs, eia923_out_dfs, datapkg_dir)
-            return prefect.tasks.core.collections.Set().bind(
-                static_tables, dfs_names, flow=flow)
+            return [static_tables, dfs_names]
 
 
 ###############################################################################
@@ -370,8 +369,7 @@ def _etl_ferc1(etl_params, datapkg_dir, pudl_settings, flow, bundle_name=None):
             static_tables = _load_static_tables_ferc1(datapkg_dir)
             dfs = _extract_ferc1(params, pudl_settings)
             dfs_names = _transform_ferc1(params, dfs, datapkg_dir)
-            return prefect.tasks.core.collections.Set().bind(
-                static_tables, dfs_names, flow=flow)
+            return [static_tables, dfs_names]
 
 
 ###############################################################################
@@ -474,7 +472,7 @@ def _etl_epacems(etl_params, datapkg_dir, pudl_settings, flow, bundle_name=None)
         with prefect.tags(f'bundle/{bundle_name}', 'dataset/epacems'):
             dfs = _extract_epacems(params, pudl_settings)
             dfs_names = _transform_epacems(params, dfs, datapkg_dir)
-            return prefect.tasks.core.collections.Set().bind(dfs_names, flow=flow)
+            return [dfs_names]
 
 
 ###############################################################################
@@ -574,7 +572,7 @@ def _etl_epaipm(etl_params, datapkg_dir, pudl_settings, flow, bundle_name=None):
         static_tables = _load_static_tables_epaipm(datapkg_dir)
         dfs = _extract_epaipm(params)
         dfs_names = _transform_epaipm(params, dfs, datapkg_dir)
-        return prefect.tasks.core.collections.Set().bind(static_tables, dfs_names, flow=flow)
+        return [static_tables, dfs_names]
 
 
 ###############################################################################
@@ -626,7 +624,7 @@ def _etl_glue(etl_params, datapkg_dir, pudl_settings, flow, bundle_name=None):
     """
     params = _validate_params_glue(etl_params)
     with flow:
-        return _transform_glue(params, datapkg_dir)
+        return [_transform_glue(params, datapkg_dir)]
 
 
 ###############################################################################
@@ -837,7 +835,7 @@ def etl(datapkg_settings, output_dir, pudl_settings, flow=None, bundle_name=None
                 flow=flow,
                 bundle_name=bundle_name)
             if res:
-                task_results.append(res)
+                task_results.extend(res)
 
     # TODO(rousik): epacems transform reads data emitted by eia transform. This is an
     # extremely dirty hack and should be refactored cleanly. Until then, let's make
@@ -852,7 +850,7 @@ def etl(datapkg_settings, output_dir, pudl_settings, flow=None, bundle_name=None
         for j in stage2:
             flow.add_edge(i, j)
 
-    return prefect.tasks.core.collections.Set().bind(*task_results, flow=flow)
+    return prefect.tasks.core.collections.List().bind(*task_results, flow=flow)
 
 
 class MetadataBundleMaker(prefect.Task):
@@ -872,8 +870,13 @@ class MetadataBundleMaker(prefect.Task):
 
     def run(self, table_names):
         """Generates metadata for the datapackage bundle."""
+        unique_tables = set()
+        for ts in table_names:
+            unique_tables.update(ts)
+
         return pudl.load.metadata.generate_metadata(
             self.datapkg_bundle_settings,
+            sorted(unique_tables),
             table_names,
             self.output_dir,
             datapkg_bundle_uuid=self.uuid,
