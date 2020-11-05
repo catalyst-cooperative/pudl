@@ -39,6 +39,7 @@ dependencies:
   - pep8-naming         # dev
   - pip                 # N/A
   - pre_commit          # dev
+  - prefect             # base
   - pyarrow>=2.0.0      # base
   - pydocstyle          # dev
   - pygeos              # user (speeds up geopandas operations)
