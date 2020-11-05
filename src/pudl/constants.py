@@ -2308,8 +2308,6 @@ column_dtypes = {
         'merge_company': pd.StringDtype(),  # Added by AES for Mergers table
         'merge_date': 'datetime64[ns]',  # Added by AES for Mergers table
         'merge_state': pd.StringDtype(),  # Added by AES for Mergers table
-        'merge_zip_4': pd.StringDtype(),  # Added by AES for Mergers table
-        'merge_zip_5': pd.StringDtype(),  # Added by AES for Mergers tables
         'mine_id_msha': pd.Int64Dtype(),
         'mine_id_pudl': pd.Int64Dtype(),
         'mine_name': pd.StringDtype(),
@@ -2356,7 +2354,7 @@ column_dtypes = {
         'owner_state': pd.StringDtype(),
         'owner_street_address': pd.StringDtype(),
         'owner_utility_id_eia': pd.Int64Dtype(),
-        'owner_zip_code': pd.StringDtype(),  # Must preserve leading zeroes.
+        'owner_zip_code': pd.StringDtype(),
         # we should transition these into readable codes, not a one letter thing
         'ownership_code': pd.StringDtype(),
         'pipeline_notes': pd.StringDtype(),
@@ -2505,7 +2503,8 @@ column_dtypes = {
         # 'with_med': float,  # Added by AES for R table
         # 'with_med_minus_los': float,  # Added by AES for R table
         # 'without_med': float,  # Added by AES for R table
-        'zip_code': pd.StringDtype(),
+        'zip_code': pd.StringDtype(),  # Added by AES for M table
+        'zip_code_4': pd.StringDtype()  # Added by AES for M table
     },
     'depreciation': {
         'utility_id_ferc1': pd.Int64Dtype(),
