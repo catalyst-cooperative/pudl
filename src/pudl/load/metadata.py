@@ -45,7 +45,7 @@ import re
 import uuid
 
 import datapackage
-import goodtables_pandas
+import goodtables_pandas as goodtables
 import pkg_resources
 
 import pudl
@@ -503,8 +503,7 @@ def get_autoincrement_columns(unpartitioned_tables):
     return autoincrement
 
 
-def validate_save_datapkg(datapkg_descriptor, datapkg_dir,
-                          row_limit=1000, table_limit=10):
+def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
     """
     Validate datapackage descriptor, save it, and validate some sample data.
 
@@ -514,12 +513,6 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir,
         datapkg_dir (path-like): Directory into which the datapackage.json
             file containing the tabular datapackage descriptor should be
             written.
-        row_limit (int): Number of rows to validate in each table. Passed in to
-            goodtables.validate()
-        table_limit (int): Number of different tables to validate within the
-            datapackage. Passed in in to goodtables.validate(). Note that for
-            larger numbers of tables this has caused memory issues, not sure
-            why.
 
     Returns:
         dict: A dictionary containing the goodtables datapackage validation
@@ -550,7 +543,7 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir,
     logger.info(
         f"Validating {datapkg.descriptor['name']} tabular data package "
         f"using goodtables_pandas...")
-    report = goodtables_pandas.validate(str(datapkg_json))
+    report = goodtables.validate(str(datapkg_json))
     if not report["valid"]:
         goodtables_errors = ""
         for table in report["tables"]:
