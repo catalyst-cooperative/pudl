@@ -55,8 +55,14 @@ PUDL_YML = Path.home() / ".pudl.yml"
 class Datastore:
     """Handle connections and downloading of Zenodo Source archives."""
 
-    def __init__(self, pudl_in, loglevel="WARNING", verbose=False,
-                 sandbox=False, timeout=7):
+    def __init__(
+        self,
+        pudl_in,
+        loglevel="WARNING",
+        verbose=False,
+        sandbox=False,
+        timeout=15
+    ):
         """
         Datastore manages file retrieval for PUDL datasets.
 
