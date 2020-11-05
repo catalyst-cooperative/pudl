@@ -877,7 +877,6 @@ class MetadataBundleMaker(prefect.Task):
         return pudl.load.metadata.generate_metadata(
             self.datapkg_bundle_settings,
             sorted(unique_tables),
-            table_names,
             self.output_dir,
             datapkg_bundle_uuid=self.uuid,
             datapkg_bundle_doi=self.doi)
