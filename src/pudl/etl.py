@@ -49,6 +49,13 @@ def _validate_params_partition(etl_params_og, tables):
     return(partition_dict)
 
 
+def _all_params_present(params, required_params):
+    """Returns true iff all params in required_params are defined and nonempty."""
+    for p in required_params:
+        if not params.get(p):
+            return False
+    return True
+
 ###############################################################################
 # EIA EXPORT FUNCTIONS
 ###############################################################################
@@ -120,11 +127,6 @@ def _validate_params_eia(etl_params):  # noqa: C901
         return None
     else:
         return eia_input_dict
-
-
-def _should_run_eia(params):
-    return bool((params['eia923_tables'] and params['eia923_years']) or
-                (params['eia860_tables'] and params['eia860_years']))
 
 
 @prefect.task
@@ -220,7 +222,7 @@ def _transform_eia(params, eia860_dfs, eia923_dfs, datapkg_dir):
     return list(entities_dfs.keys()) + list(eia_transformed_dfs.keys())
 
 
-def _etl_eia(etl_params, datapkg_dir, pudl_settings, flow):
+def _etl_eia(etl_params, datapkg_dir, pudl_settings, flow, bundle_name=None):
     """Extract, transform and load CSVs for the EIA datasets.
 
     Args:
@@ -235,13 +237,13 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings, flow):
         list: Names of PUDL DB tables output by the ETL for this data source.
 
     """
+    params = _validate_params_eia(etl_params)
+    if not (_all_params_present(params, ['eia923_tables', 'eia923_years']) or
+            _all_params_present(params, ['eia860_tables', 'eia860_years'])):
+        return None
     with flow:
-        params = _validate_params_eia(etl_params)
-        if not _should_run_eia(params):
-            return []
-        else:
+        with prefect.tags(f'bundle/{bundle_name}', 'dataset/eia'):
             static_tables = _load_static_tables_eia(datapkg_dir)
-            # TODO: kick off extraction and transform of eia923 and eia860
 
             eia860_raw_dfs = _extract_eia860(params, pudl_settings)
             eia860_out_dfs = _transform_eia860(params, eia860_raw_dfs)
@@ -253,8 +255,6 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings, flow):
                 params, eia860_out_dfs, eia923_out_dfs, datapkg_dir)
             return prefect.tasks.core.collections.Set().bind(
                 static_tables, dfs_names, flow=flow)
-
-            # TODO(rousik): emit static_tables + dfs_names as a list
 
 
 ###############################################################################
@@ -331,10 +331,6 @@ def _load_static_tables_ferc1(datapkg_dir):
     return list(static_dfs.keys())
 
 
-def _should_run_ferc1(params):
-    return bool(params['ferc1_years'] and params['ferc1_tables'])
-
-
 @prefect.task
 def _extract_ferc1(params, pudl_settings):
     return pudl.extract.ferc1.extract(
@@ -351,7 +347,7 @@ def _transform_ferc1(params, dfs, datapkg_dir):
     return list(dfs.keys())
 
 
-def _etl_ferc1(etl_params, datapkg_dir, pudl_settings, flow):
+def _etl_ferc1(etl_params, datapkg_dir, pudl_settings, flow, bundle_name=None):
     """Extract, transform and load CSVs for FERC Form 1.
 
     Args:
@@ -366,16 +362,16 @@ def _etl_ferc1(etl_params, datapkg_dir, pudl_settings, flow):
         list: Names of PUDL DB tables output by the ETL for this data source.
 
     """
+    params = _validate_params_ferc1(etl_params)
+    if not params['ferc1_years'] or not params['ferc1_tables']:
+        return None
     with flow:
-        params = _validate_params_ferc1(etl_params)
-        if _should_run_ferc1(params):
+        with prefect.tags(f'bundle/{bundle_name}', 'dataset/ferc1'):
             static_tables = _load_static_tables_ferc1(datapkg_dir)
             dfs = _extract_ferc1(params, pudl_settings)
             dfs_names = _transform_ferc1(params, dfs, datapkg_dir)
-
-            return prefect.tasks.core.collections.Set().bind(static_tables, dfs_names, flow=flow)
-        else:
-            return []
+            return prefect.tasks.core.collections.Set().bind(
+                static_tables, dfs_names, flow=flow)
 
 
 ###############################################################################
@@ -421,10 +417,6 @@ def _validate_params_epacems(etl_params):
         return epacems_dict
 
 
-def _should_run_epacems(params):
-    return bool(params['epacems_states'] and params['epacems_years'])
-
-
 @prefect.task
 def _extract_epacems(params, pudl_settings):
     sandbox = pudl_settings.get("sandbox", False)
@@ -460,7 +452,7 @@ def _transform_epacems(params, dfs, datapkg_dir):
     return epacems_tables
 
 
-def _etl_epacems(etl_params, datapkg_dir, pudl_settings, flow):
+def _etl_epacems(etl_params, datapkg_dir, pudl_settings, flow, bundle_name=None):
     """Extract, transform and load CSVs for EPA CEMS.
 
     Args:
@@ -475,14 +467,15 @@ def _etl_epacems(etl_params, datapkg_dir, pudl_settings, flow):
         list: Names of PUDL DB tables output by the ETL for this data source.
 
     """
+    params = _validate_params_epacems(etl_params)
+    if not _all_params_present(params, ['epacems_states', 'epacems_years']):
+        return None
     with flow:
-        params = _validate_params_epacems(etl_params)
-        if _should_run_epacems(params):
+        with prefect.tags(f'bundle/{bundle_name}', 'dataset/epacems'):
             dfs = _extract_epacems(params, pudl_settings)
             dfs_names = _transform_epacems(params, dfs, datapkg_dir)
             return prefect.tasks.core.collections.Set().bind(dfs_names, flow=flow)
-        else:
-            return []
+
 
 ###############################################################################
 # EPA IPM ETL FUNCTIONS
@@ -544,10 +537,6 @@ def _load_static_tables_epaipm(datapkg_dir):
     return list(static_dfs.keys())
 
 
-def _should_run_epaipm(params):
-    return bool(params['epaipm_tables'])
-
-
 @prefect.task
 def _extract_epaipm(params, pudl_settings):
     sandbox = pudl_settings.get("sandbox", False)
@@ -563,7 +552,7 @@ def _transform_epaipm(params, dfs, datapkg_dir):
     return list(dfs.keys())
 
 
-def _etl_epaipm(etl_params, datapkg_dir, pudl_settings, flow):
+def _etl_epaipm(etl_params, datapkg_dir, pudl_settings, flow, bundle_name=None):
     """Extract, transform and load CSVs for EPA IPM.
 
     Args:
@@ -578,15 +567,14 @@ def _etl_epaipm(etl_params, datapkg_dir, pudl_settings, flow):
         list: Names of PUDL DB tables output by the ETL for this data source.
 
     """
+    params = _validate_params_epaipm(etl_params)
+    if not _all_params_present(params, ['epaipm_tables']):
+        return None
     with flow:
-        params = _validate_params_epaipm(etl_params)
-        if _should_run_epaipm(params):
-            static_tables = _load_static_tables_epaipm(datapkg_dir)
-            dfs = _extract_epaipm(params)
-            dfs_names = _transform_epaipm(params, dfs, datapkg_dir)
-            return prefect.tasks.core.collections.Set().bind(static_tables, dfs_names, flow=flow)
-        else:
-            return []
+        static_tables = _load_static_tables_epaipm(datapkg_dir)
+        dfs = _extract_epaipm(params)
+        dfs_names = _transform_epaipm(params, dfs, datapkg_dir)
+        return prefect.tasks.core.collections.Set().bind(static_tables, dfs_names, flow=flow)
 
 
 ###############################################################################
@@ -619,7 +607,7 @@ def _transform_glue(params, datapkg_dir):
     return list(dfs.keys())
 
 
-def _etl_glue(etl_params, datapkg_dir, pudl_settings, flow):
+def _etl_glue(etl_params, datapkg_dir, pudl_settings, flow, bundle_name=None):
     """Extract, transform and load CSVs for the Glue tables.
 
     Currently this only generates glue connecting FERC Form 1 and EIA
@@ -636,8 +624,8 @@ def _etl_glue(etl_params, datapkg_dir, pudl_settings, flow):
         list: Names of PUDL DB tables output by the ETL for this data source.
 
     """
+    params = _validate_params_glue(etl_params)
     with flow:
-        params = _validate_params_glue(etl_params)
         return _transform_glue(params, datapkg_dir)
 
 
@@ -808,7 +796,7 @@ def validate_params(datapkg_bundle_settings, pudl_settings):
     return validated_settings
 
 
-def etl(datapkg_settings, output_dir, pudl_settings, flow=None):
+def etl(datapkg_settings, output_dir, pudl_settings, flow=None, bundle_name=None):
     """
     Run ETL process for data package specified by datapkg_settings dictionary.
 
@@ -818,7 +806,7 @@ def etl(datapkg_settings, output_dir, pudl_settings, flow=None):
     accumulating which tables have been loaded. This is useful for generating
     the metadata associated with the package.
 
-    Args:
+    Args)
         datapkg_settings (dict): Validated ETL parameters for a single
             datapackage, originally read in from the PUDL ETL input file.
         output_dir (path-like): The individual datapackage directory, which
@@ -841,10 +829,29 @@ def etl(datapkg_settings, output_dir, pudl_settings, flow=None):
         'glue': _etl_glue,
     }
     for dataset_dict in datapkg_settings['datasets']:
+        # TODO(rousik): epacems transform depends on eia transform. We should be able
+        # to bind those
         for dataset in dataset_dict:
             res = etl_funcs[dataset](
-                dataset_dict[dataset], output_dir, pudl_settings, flow)
-            task_results.append(res)
+                dataset_dict[dataset], output_dir, pudl_settings,
+                flow=flow,
+                bundle_name=bundle_name)
+            if res:
+                task_results.append(res)
+
+    # TODO(rousik): epacems transform reads data emitted by eia transform. This is an
+    # extremely dirty hack and should be refactored cleanly. Until then, let's make
+    # sure that tasks are run in the correct order.
+    stage1 = flow.get_tasks(name='_transform_eia', tags=[f'bundle/{bundle_name}'])
+    stage2 = flow.get_tasks(name='_transform_epacems', tags=[f'bundle/{bundle_name}'])
+    logger.info(
+        f'Binding eia and epacems tasks. Binding {len(stage1)} tasks to {len(stage2)} dependent tasks.')
+
+    # tasks from stage2 depend on tasks from stage1,
+    for i in stage1:
+        for j in stage2:
+            flow.add_edge(i, j)
+
     return prefect.tasks.core.collections.Set().bind(*task_results, flow=flow)
 
 
@@ -940,7 +947,8 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
             datapkg_settings,
             output_dir,
             uuid=datapkg_bundle_uuid, doi=datapkg_bundle_doi)
-        datapkg_resources = etl(datapkg_settings, output_dir, pudl_settings, flow=flow)
+        datapkg_resources = etl(datapkg_settings, output_dir, pudl_settings, flow=flow,
+                                bundle_name=datapkg_bundle_name)
         bundle_maker.bind(table_names=datapkg_resources, flow=flow)
 
         # _generate_metadata(
