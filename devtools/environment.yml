@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - prefect             # base
   - autopep8            # dev
   - bandit              # dev
   - catalystcoop.dbfread>=3.0 # base
