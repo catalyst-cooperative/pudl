@@ -426,6 +426,14 @@ def _extract_epacems(params, pudl_settings):
 
 
 @prefect.task
+def _dump_epacems_csv(df_map, datapkg_dir):
+    pudl.load.csv.dict_dump(
+        df_map,
+        "EPA CEMS",
+        datapkg_dir=datapkg_dir)
+    return df_map.keys()
+
+
 def _transform_epacems(params, dfs, datapkg_dir):
     epacems_transformed_dfs = pudl.transform.epacems.transform(
         epacems_raw_dfs=dfs,
@@ -466,13 +474,30 @@ def _etl_epacems(etl_params, datapkg_dir, pudl_settings, flow, bundle_name=None)
 
     """
     params = _validate_params_epacems(etl_params)
+
+    sandbox = pudl_settings.get("sandbox", False)
+    ds = pudl.extract.epacems.EpaCemsDatastore(
+        Path(pudl_settings["pudl_in"]),
+        sandbox=sandbox)
+
     if not _all_params_present(params, ['epacems_states', 'epacems_years']):
         return None
     with flow:
         with prefect.tags(f'bundle/{bundle_name}', 'dataset/epacems'):
-            dfs = _extract_epacems(params, pudl_settings)
-            dfs_names = _transform_epacems(params, dfs, datapkg_dir)
-            return [dfs_names]
+            # TODO(rousik): This is the task that depends on _eia_transform !!!
+            plant_utc_offset = pudl.transform.epacems.load_plant_utc_offset(datapkg_dir)
+
+            raw_dfs = pudl.extract.epacems.extract_fragment.map(
+                year=params['epacems_years'],
+                state=params['epacems_states'],
+                ds=prefect.unmapped(ds))
+            tf_dfs = pudl.transform.epacems.transform_fragment.map(raw_dfs,
+                                                                   plant_utc_offset=prefect.unmapped(plant_utc_offset))
+            table_names = _dump_epacems_csv.map(
+                tf_dfs, datapkg_dir=prefect.unmapped(datapkg_dir))
+            return prefect.flatten(table_names)
+#          return table_names
+#           return prefect.flatten(table_names)
 
 
 ###############################################################################
@@ -841,9 +866,9 @@ def etl(datapkg_settings, output_dir, pudl_settings, flow=None, bundle_name=None
     # extremely dirty hack and should be refactored cleanly. Until then, let's make
     # sure that tasks are run in the correct order.
     stage1 = flow.get_tasks(name='_transform_eia', tags=[f'bundle/{bundle_name}'])
-    stage2 = flow.get_tasks(name='_transform_epacems', tags=[f'bundle/{bundle_name}'])
-    logger.info(
-        f'Binding eia and epacems tasks. Binding {len(stage1)} tasks to {len(stage2)} dependent tasks.')
+    stage2 = flow.get_tasks(name='load_plant_utc_offset',
+                            tags=[f'bundle/{bundle_name}'])
+    logger.info(f'Linking {len(stage1)} eia to {len(stage2)} epacems tasks.')
 
     # tasks from stage2 depend on tasks from stage1,
     for i in stage1:

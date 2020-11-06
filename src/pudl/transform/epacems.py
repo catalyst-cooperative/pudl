@@ -5,6 +5,7 @@ import pathlib
 
 import numpy as np
 import pandas as pd
+import prefect
 
 import pudl
 
@@ -62,7 +63,8 @@ def fix_up_dates(df, plant_utc_offset):
     return df
 
 
-def _load_plant_utc_offset(datapkg_dir):
+@prefect.task
+def load_plant_utc_offset(datapkg_dir):
     """Load the UTC offset each EIA plant.
 
     CEMS times don't change for DST, so we get get the UTC offset by using the
@@ -198,34 +200,20 @@ def correct_gross_load_mw(df):
     return df
 
 
-def transform(epacems_raw_dfs, datapkg_dir):
-    """
-    Transform EPA CEMS hourly data for use in datapackage export.
-
-    Todo:
-        Incomplete docstring.
-
-    """
-    # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
-    # a transformation pipeline, and yield it back as another generator.
-    plant_utc_offset = _load_plant_utc_offset(datapkg_dir)
-    for raw_df_dict in epacems_raw_dfs:
-        # There's currently only one dataframe in this dict at a time, but
-        # that could be changed if you want.
-        # Also, the type conversion is being done here so that it happens
-        # inside the generator -- rather than following the same pattern as
-        # in the EIA type conversions.
-        for yr_st, raw_df in raw_df_dict.items():
-            df = (
-                raw_df.fillna({
-                    "gross_load_mw": 0.0,
-                    "heat_content_mmbtu": 0.0
-                })
-                .pipe(harmonize_eia_epa_orispl)
-                .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
-                .pipe(add_facility_id_unit_id_epa)
-                .pipe(correct_gross_load_mw)
-                .pipe(pudl.helpers.convert_cols_dtypes,
-                      "epacems", "hourly_emissions_epacems")
-            )
-            yield {yr_st: df}
+@prefect.task
+def transform_fragment(df_kv, plant_utc_offset):
+    """Transform EPA CEMS hourly data for use in datapackage export."""
+    results = {}
+    for k, df in df_kv.items():
+        results[k] = (
+            df.fillna({
+                "gross_load_mw": 0.0,
+                "heat_content_mmbtu": 0.0
+            })
+            .pipe(harmonize_eia_epa_orispl)
+            .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
+            .pipe(add_facility_id_unit_id_epa)
+            .pipe(correct_gross_load_mw)
+            .pipe(pudl.helpers.convert_cols_dtypes,
+                  "epacems", "hourly_emissions_epacems"))
+    return results
