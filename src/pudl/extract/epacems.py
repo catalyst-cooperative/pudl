@@ -8,6 +8,7 @@ import logging
 from zipfile import ZipFile
 
 import pandas as pd
+from prefect import task
 
 from pudl import constants as pc
 from pudl.workspace import datastore as datastore
@@ -77,40 +78,17 @@ def csv_to_dataframe(csv):
     return df
 
 
-def extract(epacems_years, states, ds):
+@task
+def extract_fragment(year, state, ds):
+    """Extracts epacems dataframe for given year and state.
+
+    Returns:
+        {fragment_name: pandas.DataFrame}
     """
-    Coordinate the extraction of EPA CEMS hourly DataFrames.
+    dfs = []
+    for month in range(1, 13):
+        csv = ds.open_csv(state, year, month)
+        dfs.append(csv_to_dataframe(csv))
 
-    Args:
-        epacems_years (list): The years of CEMS data to extract, as 4-digit
-            integers.
-        states (list): The states whose CEMS data we want to extract, indicated
-            by 2-letter US state codes.
-        ds (:class:`EpaCemsDatastore`): Initialized datastore
-        testing (boolean): use Zenodo sandbox if True
-
-    Yields:
-        dict: a dictionary with a single EPA CEMS tabular data resource name as
-        the key, having the form "hourly_emissions_epacems_YEAR_STATE" where
-        YEAR is a 4 digit number and STATE is a lower case 2-letter code for a
-        US state. The value is a :class:`pandas.DataFrame` containing all the
-        raw EPA CEMS hourly emissions data for the indicated state and year.
-    """
-    for year in epacems_years:
-        # The keys of the us_states dictionary are the state abbrevs
-        for state in states:
-            dfs = []
-            logger.info(f"Performing ETL for EPA CEMS hourly {state}-{year}")
-
-            for month in range(1, 13):
-                csv = ds.open_csv(state, year, month)
-                dfs.append(csv_to_dataframe(csv))
-
-            # Return a dictionary where the key identifies this dataset
-            # (just like the other extract functions), but unlike the
-            # others, this is yielded as a generator (and it's a one-item
-            # dictionary).
-            yield {
-                ("hourly_emissions_epacems_" + str(year) + "_" + state.lower()):
-                    pd.concat(dfs, sort=True, copy=False, ignore_index=True)
-            }
+    final_df = pd.concat(dfs, sort=True, copy=False, ignore_index=True)
+    return {f'hourly_emissions_epacems_{year}_{state.lower()}': final_df}
