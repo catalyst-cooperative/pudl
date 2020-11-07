@@ -57,6 +57,11 @@ def parse_command_line(argv):
     parser.add_argument(
         "--sandbox", action="store_true", default=False,
         help="Use the Zenodo sandbox rather than production")
+    parser.add_argument(
+        "--use-dask-cluster",
+        type=str,
+        default='',
+        help='Optional address of the dask scheduler to run the flow on.')
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -101,7 +106,8 @@ def main():
         pudl_settings,
         datapkg_bundle_name=script_settings['datapkg_bundle_name'],
         datapkg_bundle_doi=datapkg_bundle_doi,
-        clobber=args.clobber)
+        clobber=args.clobber,
+        dask_executor=args.use_dask_cluster)
 
 
 if __name__ == "__main__":
