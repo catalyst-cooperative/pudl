@@ -860,7 +860,7 @@ def etl(datapkg_settings, output_dir, pudl_settings, flow=None, bundle_name=None
                 flow=flow,
                 bundle_name=bundle_name)
             if res:
-                task_results.extend(res)
+                task_results.append(res)
 
     # TODO(rousik): epacems transform reads data emitted by eia transform. This is an
     # extremely dirty hack and should be refactored cleanly. Until then, let's make
@@ -911,7 +911,8 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
                             pudl_settings,
                             datapkg_bundle_name,
                             datapkg_bundle_doi=None,
-                            clobber=False):
+                            clobber=False,
+                            dask_executor=None):
     """
     Coordinate the generation of data packages.
 
@@ -988,7 +989,11 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
 
     # TODO(rousik): print out the flow structure
     flow.visualize()
-    state = flow.run()
+    if dask_executor:
+        executor = prefect.DaskExecutor(address=dask_executor)
+        state = flow.run(executor=executor)
+    else:
+        state = flow.run()
     flow.visualize(flow_state=state)
     # TODO(rousik): figure out if we need to actually return the metas or just toss
     # it away. Perhaps this is needed for testing.
