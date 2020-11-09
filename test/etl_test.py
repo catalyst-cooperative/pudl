@@ -80,7 +80,7 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
     refyear = max(data_scope['ferc1_years'])
     ds = pudl.extract.ferc1.Ferc1Datastore(
         pathlib.Path(pudl_settings_fixture["pudl_in"]),
-        sandbox=True)
+        sandbox=pudl_settings_fixture["sandbox"])
     current_dbc_map = pudl.extract.ferc1.get_dbc_map(ds, year=refyear)
     current_tables = list(current_dbc_map.keys())
     logger.info(f"Checking for new, unrecognized FERC1 "
@@ -219,8 +219,6 @@ class TestExcelExtractor:
 
 class TestEpaCemsDatastore:
     """Ensure we can extract csv files from the datastore."""
-
-    # datastore = EpaCemsDatastore(sandbox=True)
 
     def test_get_csv(self, pudl_epacemsdatastore_fixture):
         """Spot check opening of epacems csv file from datastore."""

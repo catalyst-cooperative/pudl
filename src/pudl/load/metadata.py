@@ -45,7 +45,7 @@ import re
 import uuid
 
 import datapackage
-import goodtables
+import goodtables_pandas as goodtables
 import pkg_resources
 
 import pudl
@@ -418,13 +418,10 @@ def get_tabular_data_resource(resource_name, datapkg_dir,
         descriptor that complies with the Frictionless Data specification.
 
     """
-    # Only some datasets have meaningful temporal coverage:
-    # temporal_data = ["eia860", "eia923", "ferc1", "eia861", "epacems"]
     # every time we want to generate the cems table, we want it compressed
+    abs_path = pathlib.Path(datapkg_dir, "data", f"{resource_name}.csv")
     if "hourly_emissions_epacems" in resource_name:
-        abs_path = pathlib.Path(datapkg_dir, "data", f"{resource_name}.csv.gz")
-    else:
-        abs_path = pathlib.Path(datapkg_dir, "data", f"{resource_name}.csv")
+        abs_path = pathlib.Path(abs_path.parent, abs_path.name + ".gz")
 
     # pull the skeleton of the descriptor from the megadata file
     descriptor = pull_resource_from_megadata(resource_name)
@@ -503,8 +500,7 @@ def get_autoincrement_columns(unpartitioned_tables):
     return autoincrement
 
 
-def validate_save_datapkg(datapkg_descriptor, datapkg_dir,
-                          row_limit=1000, table_limit=10):
+def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
     """
     Validate datapackage descriptor, save it, and validate some sample data.
 
@@ -514,12 +510,6 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir,
         datapkg_dir (path-like): Directory into which the datapackage.json
             file containing the tabular datapackage descriptor should be
             written.
-        row_limit (int): Number of rows to validate in each table. Passed in to
-            goodtables.validate()
-        table_limit (int): Number of different tables to validate within the
-            datapackage. Passed in in to goodtables.validate(). Note that for
-            larger numbers of tables this has caused memory issues, not sure
-            why.
 
     Returns:
         dict: A dictionary containing the goodtables datapackage validation
@@ -548,15 +538,9 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir,
     datapkg_json = pathlib.Path(datapkg_dir, "datapackage.json")
     datapkg.save(str(datapkg_json))
     logger.info(
-        f"Validating a sample of data from {datapkg.descriptor['name']} "
-        f"tabular data package using goodtables...")
-    # Validate the data within the package using goodtables:
-    report = goodtables.validate(
-        datapkg_json,
-        # checks=['structure', 'schema', 'foreign-key'],
-        table_limit=table_limit,
-        row_limit=row_limit
-    )
+        f"Validating {datapkg.descriptor['name']} tabular data package "
+        f"using goodtables_pandas...")
+    report = goodtables.validate(str(datapkg_json))
     if not report["valid"]:
         goodtables_errors = ""
         for table in report["tables"]:

@@ -190,7 +190,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         pipe(pudl.helpers.month_year_to_date).
         assign(fuel_type_code_pudl=lambda x: pudl.helpers.cleanstrings_series(
             x['energy_source_code_1'], pc.fuel_type_eia860_simple_map)).
-        pipe(pudl.helpers.strip_lower,
+        pipe(pudl.helpers.simplify_strings,
              columns=['rto_iso_lmp_node_id',
                       'rto_iso_location_wholesale_reporting_id']).
         astype({

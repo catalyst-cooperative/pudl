@@ -758,7 +758,7 @@ def _plants_steam_clean(ferc1_steam_df):
             "tot_prdctn_expns": 'opex_production_total',
             "expns_kwh": 'opex_per_kwh'})
         .pipe(_clean_cols, "f1_steam")
-        .pipe(pudl.helpers.strip_lower, ['plant_name_ferc1'])
+        .pipe(pudl.helpers.simplify_strings, ['plant_name_ferc1'])
         .pipe(pudl.helpers.cleanstrings,
               ['construction_type', 'plant_type'],
               [CONSTRUCTION_TYPE_STRINGS, PLANT_KIND_STRINGS],
@@ -973,7 +973,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
         _clean_cols(ferc1_raw_dfs['fuel_ferc1'], 'f1_fuel').
         # Standardize plant_name capitalization and remove leading/trailing
         # white space -- necesary b/c plant_name is part of many foreign keys.
-        pipe(pudl.helpers.strip_lower, ['plant_name']).
+        pipe(pudl.helpers.simplify_strings, ['plant_name']).
         # Take the messy free-form fuel & fuel_unit fields, and do our best to
         # map them to some canonical categories... this is necessarily
         # imperfect:
@@ -1096,7 +1096,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     ferc1_small_df = ferc1_raw_dfs['plants_small_ferc1']
     # Standardize plant_name_raw capitalization and remove leading/trailing
     # white space -- necesary b/c plant_name_raw is part of many foreign keys.
-    ferc1_small_df = pudl.helpers.strip_lower(
+    ferc1_small_df = pudl.helpers.simplify_strings(
         ferc1_small_df, ['plant_name', 'kind_of_fuel']
     )
 
@@ -1147,7 +1147,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space, so that plant_name matches formatting of plant_name_raw
-    ferc1_small_df = pudl.helpers.strip_lower(
+    ferc1_small_df = pudl.helpers.simplify_strings(
         ferc1_small_df, ['plant_name_clean'])
 
     # in order to create one complete column of plant names, we have to use the
@@ -1206,7 +1206,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
         _clean_cols(ferc1_raw_dfs['plants_hydro_ferc1'], 'f1_hydro')
         # Standardize plant_name capitalization and remove leading/trailing
         # white space -- necesary b/c plant_name is part of many foreign keys.
-        .pipe(pudl.helpers.strip_lower, ['plant_name'])
+        .pipe(pudl.helpers.simplify_strings, ['plant_name'])
         .pipe(pudl.helpers.cleanstrings, ['plant_const'],
               [CONSTRUCTION_TYPE_STRINGS], unmapped='')
         .assign(
@@ -1290,7 +1290,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
             ferc1_raw_dfs['plants_pumped_storage_ferc1'], 'f1_pumped_storage')
         # Standardize plant_name capitalization and remove leading/trailing
         # white space -- necesary b/c plant_name is part of many foreign keys.
-        .pipe(pudl.helpers.strip_lower, ['plant_name'])
+        .pipe(pudl.helpers.simplify_strings, ['plant_name'])
         # Clean up the messy plant construction type column:
         .pipe(pudl.helpers.cleanstrings, ['plant_kind'],
               [CONSTRUCTION_TYPE_STRINGS], unmapped='')

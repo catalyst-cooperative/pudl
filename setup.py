@@ -13,7 +13,7 @@ install_requires = [
     "datapackage>=1.11",
     "catalystcoop.dbfread>=3.0",
     "geopandas>=0.8.0",
-    "goodtables>=2.4.2",
+    "goodtables-pandas-py>=0.1.1",
     "matplotlib",
     "networkx>=2.2",
     "numpy",
@@ -22,6 +22,7 @@ install_requires = [
     "pyyaml",
     "scikit-learn>=0.20",
     "scipy",
+    "seaborn",
     "sqlalchemy>=1.3.0",
     "tableschema>=1.12.3",
     "tableschema-sql>=1.3.1",
@@ -61,7 +62,6 @@ test_requires = [
     "pydocstyle",
     "pytest",
     "pytest-cov",
-    "seaborn",
 ]
 
 

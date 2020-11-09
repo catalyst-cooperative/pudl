@@ -205,7 +205,7 @@ class PudlTabl(object):
                     pudl.workspace.setup.get_defaults()["pudl_in"])
                 self.ds = pudl.workspace.datastore.Datastore(
                     pudl_in=pudl_in,
-                    sandbox=True,
+                    sandbox=False,
                 )
 
             eia861_raw_dfs = (

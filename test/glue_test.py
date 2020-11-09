@@ -1,7 +1,7 @@
 """PyTest cases related to the integration between FERC1 & EIA 860/923."""
 import logging
 
-import pytest
+import pandas as pd
 
 import pudl
 from pudl import constants as pc
@@ -9,7 +9,6 @@ from pudl import constants as pc
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.xfail
 def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_engine):
     """
     Test that we can correctly identify unmapped FERC Form 1 DB plants.
@@ -17,15 +16,6 @@ def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_engine):
     This test replicates :func:`pudl.glue.ferc1_eia.get_unmapped_plants_ferc1`
     but deletes a plant from the raw FERC 1 DB contents, which should then be
     identified as "unmapped."
-
-    Currently this test is XFAILing for several reasons:
-      * Junk "Plants" with names like "0.0000"
-      * Plants associated with previously "bad" respondents.
-      * Plants with names containing special characters lke ñ.
-
-    These plants haven't been "mapped" to anything, at least in our current
-    processes. The bad respondent and special character names should get
-    integrated, but what do we do with the "junk" names?
 
     """
     years = pudl.constants.working_years['ferc1']
@@ -125,11 +115,46 @@ def test_unmapped_utils_ferc1(pudl_settings_fixture, ferc1_engine):
     logger.info("Found 1 unmapped FERC 1 utility, as expected.")
 
 
-# def test_unmapped_utils_eia(pudl_settings_fixture, pudl_engine):
-#    """Check for unmapped EIA Utilities."""
-#    pass
+def test_unmapped_plants_eia(pudl_settings_fixture, pudl_engine):
+    """Check for unmapped EIA Plants."""
+    unmapped_plants_eia = pudl.glue.ferc1_eia.get_unmapped_plants_eia(pudl_engine)
+    if len(unmapped_plants_eia) > 0:
+        raise AssertionError(
+            f"Found {len(unmapped_plants_eia)} unmapped EIA plants. Expected 0."
+        )
 
 
-# def test_unmapped_plants_eia(pudl_settings_fixture, pudl_engine):
-#    """Check for unmapped EIA Plants."""
-#    pass
+def test_unmapped_utils_eia(pudl_settings_fixture, pudl_engine):
+    """
+    Check for unmapped EIA Utilities.
+
+    The EIA 860 contains thousands of utility IDs, most of which do not have
+    any data associated with them in the EIA 923, even if they do have plants
+    associated with them in the EIA 860. In practice the only utilities which
+    we have been making sure have PUDL IDs are the ones that show up in the
+    EIA 923, so those tables are the only ones we're searching here for utility
+    IDs.
+
+    """
+    pudl_raw = pudl.output.pudltabl.PudlTabl(pudl_engine, freq=None)
+    frc_eia923 = pudl_raw.frc_eia923()
+    gf_eia923 = pudl_raw.gf_eia923()
+    gen_eia923 = pudl_raw.gen_eia923()
+    bf_eia923 = pudl_raw.bf_eia923()
+
+    cols = ["utility_id_eia", "utility_name_eia"]
+    missing_frc = frc_eia923[frc_eia923.utility_id_pudl.isna()][cols]
+    missing_gf = gf_eia923[gf_eia923.utility_id_pudl.isna()][cols]
+    missing_bf = bf_eia923[bf_eia923.utility_id_pudl.isna()][cols]
+    missing_gens = gen_eia923[gen_eia923.utility_id_pudl.isna()][cols]
+
+    missing_utils = (
+        pd.concat([missing_frc, missing_bf, missing_gf, missing_gens])
+        .drop_duplicates(subset="utility_id_eia")
+        .set_index("utility_id_eia")
+    )
+    if len(missing_utils) > 0:
+        raise AssertionError(
+            f"Found {len(missing_utils)} unmapped EIA utilities that"
+            "report data in the EIA 923. Expected zero."
+        )

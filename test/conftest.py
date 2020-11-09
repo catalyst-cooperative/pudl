@@ -40,6 +40,8 @@ def pytest_addoption(parser):
                      help="Use minimal test data to speed up the tests.")
     parser.addoption("--clobber", action="store_true", default=False,
                      help="Clobber the existing datapackages if they exist")
+    parser.addoption("--sandbox", action="store_true", default=False,
+                     help="Use raw inputs from the Zenodo sandbox server.")
 
 
 @pytest.fixture(scope='session')
@@ -248,8 +250,12 @@ def pudl_engine(ferc1_engine, live_pudl_db, pudl_settings_fixture,
 
 
 @pytest.fixture(scope='session')  # noqa: C901
-def pudl_settings_fixture(request, tmpdir_factory,  # noqa: C901
-                          live_ferc1_db, live_pudl_db):  # noqa: C901
+def pudl_settings_fixture(  # noqa: C901
+    request,  # noqa: C901
+    tmpdir_factory,  # noqa: C901
+    live_ferc1_db,  # noqa: C901
+    live_pudl_db,  # noqa: C901
+):  # noqa: C901
     """Determine some settings (mostly paths) for the test session."""
     logger.info('setting up the pudl_settings_fixture')
     # Create a session scoped temporary directory.
@@ -311,8 +317,8 @@ def pudl_settings_fixture(request, tmpdir_factory,  # noqa: C901
         pudl_settings['pudl_db'] = 'sqlite:///' + \
             str(live_pudl_db_path)
 
+    pudl_settings["sandbox"] = request.config.getoption("--sandbox")
     logger.info(f'pudl_settings being used : {pudl_settings}')
-    pudl_settings["sandbox"] = True
     return pudl_settings
 
 
