@@ -5475,6 +5475,83 @@
                 "path": "https://creativecommons.org/licenses/by/4.0/"
             }],
             "sources": []
-        }
+        },
+        {
+            "profile": "tabular-data-resource",
+            "name": "eia_epacems_crosswalk",
+            "path": "data/plants_eia.csv",  # NOT SURE
+            "title": "eia_epacems_crosswalk",
+            "encoding": "utf-8",  # NOT SURE
+            "mediatype": "text/csv",
+            "format": "csv",
+            "dialect": {  # NOT SURE ABOUT ANY OF THESE
+                "delimiter": ",",
+                "header": true,
+                "quoteChar": "\"",
+                "doubleQuote": true,
+                "lineTerminator": "\r\n",
+                "skipInitialSpace": true,
+                "caseSensitiveHeader": false
+            },
+            "schema": {
+                "fields": [{
+                        "name": "plant_id_eia",
+                        "type": "integer",
+                        "format": "default",  # NOT SURE WHAT DEFAULT MEANS
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration."
+                    },
+                    {
+                        "name": "plant_id_epa",
+                        "type": "integer",
+                        "format": "default"
+                    },
+                    {
+                        "name": "plant_name_eia",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "epa_point_source_unit",
+                        "type": "integer",
+                        "format": "default",
+                        "description": "'Smokestack' unit monitered by EPA CEMS"
+                    },
+                    {
+                        "name": "generator_id",
+                        "type": "integer",
+                        "format": "default",
+                    },
+                    {
+                        "name": "boiler_id",
+                        "type": "integer",
+                        "format": "default",
+                    },
+                    {
+                        "name": "unit_type",
+                        "type": "string",
+                        "format": "default",
+                        "description": "Prime mover code as seen in EIA."
+                ],
+                "primaryKey": [
+                    "plant_id_eia"
+                ],
+                "foreignKeys": [{  # DONT KNOW WHERE THIS STANDS
+                    "fields": "plant_id_pudl",
+                    "reference": {
+                        "resource": "plants_pudl",
+                        "fields": "plant_id_pudl"
+                    }
+                }],
+                "missingValues": [
+                    ""
+                ]
+            },
+            "licenses": [{  # DONT KNOW WHETHER THIS SHOULD CHANGE
+                "name": "CC-BY-4.0",
+                "title": "Creative Commons Attribution 4.0",
+                "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": []
+        },
     ]
 }
