@@ -106,8 +106,7 @@ def main():
         pudl_settings,
         datapkg_bundle_name=script_settings['datapkg_bundle_name'],
         datapkg_bundle_doi=datapkg_bundle_doi,
-        clobber=args.clobber,
-        dask_executor=args.use_dask_cluster)
+        clobber=args.clobber)
 
 
 if __name__ == "__main__":

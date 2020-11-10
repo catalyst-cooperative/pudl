@@ -9,6 +9,7 @@ from zipfile import ZipFile
 
 import pandas as pd
 from prefect import task
+from prefect.engine.results import LocalResult
 
 from pudl import constants as pc
 from pudl.workspace import datastore as datastore
@@ -78,7 +79,7 @@ def csv_to_dataframe(csv):
     return df
 
 
-@task
+@task(result=LocalResult(), target="{task_full_name}")  # noqa: FS003
 def extract_fragment(year, state, ds):
     """Extracts epacems dataframe for given year and state.
 
