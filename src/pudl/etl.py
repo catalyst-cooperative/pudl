@@ -23,6 +23,9 @@ from pathlib import Path
 
 import pandas as pd
 import prefect
+from prefect import task
+# from prefect.engine.executors import DaskExecutor
+from prefect.engine.results import LocalResult
 
 import pudl
 from pudl import constants as pc
@@ -129,7 +132,7 @@ def _validate_params_eia(etl_params):  # noqa: C901
         return eia_input_dict
 
 
-@prefect.task
+@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
 def _load_static_tables_eia(datapkg_dir):
     """Populate static EIA tables with constants for use as foreign keys.
 
@@ -179,7 +182,7 @@ def _load_static_tables_eia(datapkg_dir):
     return list(static_dfs.keys())
 
 
-@prefect.task
+@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
 def _extract_eia860(params, pudl_settings):
     sandbox = pudl_settings.get("sandbox", False)
     ds = pudl.workspace.datastore.Datastore(
@@ -188,7 +191,7 @@ def _extract_eia860(params, pudl_settings):
     return pudl.extract.eia860.Extractor(ds).extract(params['eia860_years'])
 
 
-@prefect.task
+@task(result=LocalResult(), target="{task_name}-{task_tags}")  # noqa: FS003
 def _extract_eia923(params, pudl_settings):
     sandbox = pudl_settings.get("sandbox", False)
     ds = pudl.workspace.datastore.Datastore(
@@ -197,18 +200,23 @@ def _extract_eia923(params, pudl_settings):
     return pudl.extract.eia923.Extractor(ds).extract(params['eia923_years'])
 
 
-@prefect.task
+@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
 def _transform_eia860(params, dfs):
     return pudl.transform.eia860.transform(dfs, params['eia860_tables'])
 
 
-@prefect.task
+@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
 def _transform_eia923(params, dfs):
     return pudl.transform.eia923.transform(dfs, params['eia923_tables'])
 
 
-@prefect.task
+@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
 def _transform_eia(params, eia860_dfs, eia923_dfs, datapkg_dir):
+    for k, v in eia860_dfs.items():
+        logger.info(f'eia <- eia860.{k}: {sorted(v.columns)}')
+    for k, v in eia923_dfs.items():
+        logger.info(f'eia <- eia923.{k}: {sorted(v.columns)}')
+
     dfs = eia860_dfs.copy()
     dfs.update(eia923_dfs.copy())
     dfs = pudl.helpers.convert_dfs_dict_dtypes(dfs, 'eia')
@@ -289,7 +297,7 @@ def _validate_params_ferc1(etl_params):  # noqa: C901
         return ferc1_dict
 
 
-@prefect.task
+@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
 def _load_static_tables_ferc1(datapkg_dir):
     """Populate static PUDL tables with constants for use as foreign keys.
 
@@ -330,7 +338,7 @@ def _load_static_tables_ferc1(datapkg_dir):
     return list(static_dfs.keys())
 
 
-@prefect.task
+@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
 def _extract_ferc1(params, pudl_settings):
     return pudl.extract.ferc1.extract(
         ferc1_tables=params['ferc1_tables'],
@@ -338,7 +346,7 @@ def _extract_ferc1(params, pudl_settings):
         pudl_settings=pudl_settings)
 
 
-@prefect.task
+@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
 def _transform_ferc1(params, dfs, datapkg_dir):
     dfs = pudl.transform.ferc1.transform(
         dfs, ferc1_tables=params['ferc1_tables'])
@@ -415,7 +423,7 @@ def _validate_params_epacems(etl_params):
         return epacems_dict
 
 
-@prefect.task
+@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
 def _extract_epacems(params, pudl_settings):
     sandbox = pudl_settings.get("sandbox", False)
     ds = pudl.extract.epacems.EpaCemsDatastore(
@@ -425,7 +433,7 @@ def _extract_epacems(params, pudl_settings):
         params['epacems_years'], params['epacems_states'], ds)
 
 
-@prefect.task
+@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
 def _dump_epacems_csv(df_map, datapkg_dir):
     pudl.load.csv.dict_dump(
         df_map,
@@ -527,7 +535,7 @@ def _validate_params_epaipm(etl_params):
     return epaipm_dict
 
 
-@prefect.task
+@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
 def _load_static_tables_epaipm(datapkg_dir):
     """
     Populate static PUDL tables with constants for use as foreign keys.
@@ -560,7 +568,7 @@ def _load_static_tables_epaipm(datapkg_dir):
     return list(static_dfs.keys())
 
 
-@prefect.task
+@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
 def _extract_epaipm(params, pudl_settings):
     sandbox = pudl_settings.get("sandbox", False)
     ds = pudl.extract.epaipm.EpaIpmDatastore(
@@ -568,7 +576,7 @@ def _extract_epaipm(params, pudl_settings):
     return pudl.extract.epaipm.extract(params['epaipm_tables'], ds)
 
 
-@prefect.task
+@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
 def _transform_epaipm(params, dfs, datapkg_dir):
     dfs = pudl.transform.epaipm.transform(dfs, params['epaipm_tables'])
     pudl.load.csv.dict_dump(dfs, "EPA IPM", datapkg_dir=datapkg_dir)
@@ -620,7 +628,7 @@ def _validate_params_glue(etl_params):
         return(glue_dict)
 
 
-@prefect.task
+@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
 def _transform_glue(params, datapkg_dir):
     if not params['ferc1'] or not params['eia']:
         return []
@@ -852,8 +860,6 @@ def etl(datapkg_settings, output_dir, pudl_settings, flow=None, bundle_name=None
         'glue': _etl_glue,
     }
     for dataset_dict in datapkg_settings['datasets']:
-        # TODO(rousik): epacems transform depends on eia transform. We should be able
-        # to bind those
         for dataset in dataset_dict:
             res = etl_funcs[dataset](
                 dataset_dict[dataset], output_dir, pudl_settings,
@@ -911,8 +917,7 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
                             pudl_settings,
                             datapkg_bundle_name,
                             datapkg_bundle_doi=None,
-                            clobber=False,
-                            dask_executor=None):
+                            clobber=False):
     """
     Coordinate the generation of data packages.
 
@@ -989,11 +994,8 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
 
     # TODO(rousik): print out the flow structure
     flow.visualize()
-    if dask_executor:
-        executor = prefect.DaskExecutor(address=dask_executor)
-        state = flow.run(executor=executor)
-    else:
-        state = flow.run()
+    # state = flow.run(executor=DaskExecutor())
+    state = flow.run()
     flow.visualize(flow_state=state)
     # TODO(rousik): figure out if we need to actually return the metas or just toss
     # it away. Perhaps this is needed for testing.
