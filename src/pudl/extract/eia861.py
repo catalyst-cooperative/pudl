@@ -30,10 +30,6 @@ class Extractor(excel.GenericExtractor):
         self.METADATA = excel.Metadata('eia861')
         super().__init__(*args, **kwargs)
 
-    def file_basename_glob(self, year, page):
-        """Returns corresponding glob pattern for a page."""
-        return self.PAGE_GLOBS[page]
-
     def process_raw(self, df, yr, page):
         """Rename columns with location."""
         warnings.warn(
@@ -44,6 +40,7 @@ class Extractor(excel.GenericExtractor):
         df = df.rename(
             columns=dict(zip(df.columns[list(column_map_numeric.keys())],
                              list(column_map_numeric.values()))))
+        self.cols_added = []
         return df
 
     @staticmethod

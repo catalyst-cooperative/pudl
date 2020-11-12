@@ -193,12 +193,6 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         pipe(pudl.helpers.simplify_strings,
              columns=['rto_iso_lmp_node_id',
                       'rto_iso_location_wholesale_reporting_id']).
-        astype({
-            'plant_id_eia': int,
-            'generator_id': str,
-            'unit_id_eia': str,
-            'utility_id_eia': int
-        }).
         pipe(pudl.helpers.convert_to_date)
     )
 

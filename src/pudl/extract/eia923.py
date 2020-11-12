@@ -39,6 +39,7 @@ class Extractor(excel.GenericExtractor):
         to_drop = [c for c in df.columns if c[:8] == 'reserved']
         df.drop(to_drop, axis=1, inplace=True)
         df = df.rename(columns=self._metadata.get_column_map(year, page))
+        self.cols_added = []
         return df
 
     @staticmethod

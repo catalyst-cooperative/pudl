@@ -67,24 +67,24 @@ class Metadata(object):
         """Returns the name of the dataset described by this metadata."""
         return self._dataset_name
 
-    def get_sheet_name(self, year, page):
-        """Returns name of the excel sheet that contains the data for given year and page."""
-        return self._sheet_name.at[page, str(year)]
+    def get_sheet_name(self, part, page):
+        """Returns name of the excel sheet that contains the data for given partition and page."""
+        return self._sheet_name.at[page, str(part)]
 
-    def get_skiprows(self, year, page):
-        """Returns number of initial rows to skip when loading given year and page."""
-        return self._skiprows.at[page, str(year)]
+    def get_skiprows(self, part, page):
+        """Returns number of initial rows to skip when loading given partition and page."""
+        return self._skiprows.at[page, str(part)]
 
-    def get_skipfooter(self, year, page):
-        """Returns number of bottom rows to skip when loading given year and page."""
-        return self._skipfooter.at[page, str(year)]
+    def get_skipfooter(self, part, page):
+        """Returns number of bottom rows to skip when loading given partition and page."""
+        return self._skipfooter.at[page, str(part)]
 
-    def get_column_map(self, year, page):
-        """Returns the dictionary mapping input columns to pudl columns for given year and page."""
-        return {v: k for k, v in self._column_map[page].T.loc[str(year)].to_dict().items() if v != -1}
+    def get_column_map(self, part, page):
+        """Returns the dictionary mapping input columns to pudl columns for given partition and page."""
+        return {v: k for k, v in self._column_map[page].T.loc[str(part)].to_dict().items() if v != -1}
 
     def get_all_columns(self, page):
-        """Returns list of all pudl (standardized) columns for a given page (across all years)."""
+        """Returns list of all pudl (standardized) columns for a given page (across all partition)."""
         return sorted(self._column_map[page].T.columns)
 
     def get_all_pages(self):
@@ -116,13 +116,10 @@ class GenericExtractor(object):
     available. This can be used for experimental/new code that should not be
     run yet.
 
-    3. file_basename_glob() tells us what is the basename of the excel file
-    that contains the data for a given (year, page).
-
-    4. dtypes() should return dict with {column_name: pandas_datatype} if you
+    3. dtypes() should return dict with {column_name: pandas_datatype} if you
     need to specify which datatypes should be uded upon loading.
 
-    5. If data cleanup is necessary, you can apply custom logic by overriding
+    4. If data cleanup is necessary, you can apply custom logic by overriding
     one of the following functions (they all return the modified dataframe):
     - process_raw() is applied right after loading the excel DataFrame
     from the disk.
@@ -130,6 +127,9 @@ class GenericExtractor(object):
     standardized pudl columns.
     - process_final_page() is applied when data from all available years
     is merged into single DataFrame for a given page.
+
+    5. get_datapackage_resources() if partition is anything other than a year,
+    this method should be overwritten in the dataset-specific extractor.
     """
 
     METADATA = None
@@ -152,12 +152,13 @@ class GenericExtractor(object):
         self._file_cache = {}
         self.ds = ds
 
-    def process_raw(self, df, year, page):
+    def process_raw(self, df, part, page):
         """Transforms raw dataframe and rename columns."""
-        return df.rename(columns=self._metadata.get_column_map(year, page))
+        self.cols_added = []
+        return df.rename(columns=self._metadata.get_column_map(part, page))
 
     @staticmethod
-    def process_renamed(df, year, page):
+    def process_renamed(df, part, page):
         """Transforms dataframe after columns are renamed."""
         return df
 
@@ -167,24 +168,25 @@ class GenericExtractor(object):
         return df
 
     @staticmethod
-    def get_dtypes(year, page):
-        """Provide custom dtypes for given page and year."""
+    def get_dtypes(part, page):
+        """Provide custom dtypes for given page and partition."""
         return {}
 
-    def extract(self, years):
+    def extract(self, partitions):
         """Extracts dataframes.
 
         Returns dict where keys are page names and values are
         DataFrames containing data across given years.
 
         Args:
-            years (list): list of years to extract.
+            partitions (list): list of partitions to extract.
+                (Ex: [2009, 2010] if dataset is partitioned by years or
+                ['2020-08'] if dataset is partitioned by year_month)
         """
         raw_dfs = {}
-        # TODO: should we run verify_years(?) here?
-        if not years:
+        if not partitions:
             logger.warning(
-                f'No years given. Not extracting {self._dataset_name} spreadsheet data.')
+                f'No years were given. Not extracting {self._dataset_name} spreadsheet data.')
             return raw_dfs
         logger.info(f'Extracting {self._dataset_name} spreadsheet data.')
 
@@ -193,23 +195,23 @@ class GenericExtractor(object):
                 logger.debug(f'Skipping blacklisted page {page}.')
                 continue
             df = pd.DataFrame()
-            for yr in years:
+            for part in partitions:
                 # we are going to skip
-                if self.excel_filename(yr, page) == '-1':
+                if self.excel_filename(part, page) == '-1':
                     logger.debug(
-                        f'No page for {self._dataset_name} {page} {yr}')
+                        f'No page for {self._dataset_name} {page} {part}')
                     continue
                 logger.debug(
-                    f'Loading dataframe for {self._dataset_name} {page} {yr}')
+                    f'Loading dataframe for {self._dataset_name} {page} {part}')
                 newdata = pd.read_excel(
-                    self.load_excel_file(yr, page),
-                    sheet_name=self._metadata.get_sheet_name(yr, page),
-                    skiprows=self._metadata.get_skiprows(yr, page),
-                    skipfooter=self._metadata.get_skipfooter(yr, page),
-                    dtype=self.get_dtypes(yr, page))
+                    self.load_excel_file(page, part),
+                    sheet_name=self._metadata.get_sheet_name(part, page),
+                    skiprows=self._metadata.get_skiprows(part, page),
+                    skipfooter=self._metadata.get_skipfooter(part, page),
+                    dtype=self.get_dtypes(part, page))
                 newdata = pudl.helpers.simplify_columns(newdata)
-                newdata = self.process_raw(newdata, yr, page)
-                newdata = self.process_renamed(newdata, yr, page)
+                newdata = self.process_raw(newdata, part, page)
+                newdata = self.process_renamed(newdata, part, page)
                 df = df.append(newdata, sort=True, ignore_index=True)
 
             # After all years are loaded, consolidate missing columns
@@ -217,7 +219,8 @@ class GenericExtractor(object):
                 page)).difference(df.columns)
             empty_cols = pd.DataFrame(columns=missing_cols)
             df = pd.concat([df, empty_cols], sort=True)
-            if len(self.METADATA._column_map[page].index) != len(df.columns):
+            if (len(self.METADATA._column_map[page].index)
+                    + len(self.cols_added)) != len(df.columns):
                 # raise AssertionError(
                 logger.warning(
                     f'Columns for {page} are off: should be '
@@ -227,30 +230,51 @@ class GenericExtractor(object):
             raw_dfs[page] = self.process_final_page(df, page)
         return raw_dfs
 
-    def load_excel_file(self, year, page):
+    def get_datapackage_resources(self, part):
+        """
+        Get annual resources from datapackage based on part.
+
+        The name of the kwarg here is important. `ds.get_resources()` converts
+        the kwarg into a dict which is used to search through the datapackage
+        JSON. If part is something other than a year, overwrite this method in
+        the dataset specifc extractor.
+        """
+        return self.ds.get_resources(self._dataset_name, year=part)
+
+    def load_excel_file(self, page, part):
         """
         Produce the ExcelFile object for the given (year, page).
 
         Args:
-            year: 4 digit year
-            page: pudl name for the dataset contents, eg
+            part: partition to load. (ex: 2009 for year partition or "2020-08"
+                for year_month partition)
+            page (str): pudl name for the dataset contents, eg
                   "boiler_generator_assn" or "coal_stocks"
 
         Return:
             string name of the xlsx file
         """
-        info = self.ds.get_resources(self._dataset_name, year=year)
+        info = self.get_datapackage_resources(part)
 
         if info is None:
             return
 
         item = next(info)
         p = Path(item["path"])
+        xlsx_filename = self.excel_filename(part, page)
 
-        zf = zipfile.ZipFile(p)
-        xlsx_filename = self.excel_filename(year, page)
-        excel_file = pd.ExcelFile(zf.read(xlsx_filename))
-        self._file_cache[str(p)] = excel_file
+        if xlsx_filename in self._file_cache.keys():
+            logger.debug("Grabing cached file.")
+            excel_file = self._file_cache[xlsx_filename]
+        else:
+            logger.debug("Grabing new file.")
+
+        if p.name != xlsx_filename:
+            zf = zipfile.ZipFile(p)
+            excel_file = pd.ExcelFile(zf.read(xlsx_filename))
+        else:
+            excel_file = pd.ExcelFile(p)
+        self._file_cache[xlsx_filename] = excel_file
         return excel_file
 
     def excel_filename(self, year, page):
