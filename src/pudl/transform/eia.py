@@ -299,6 +299,9 @@ def _manage_strictness(col, eia860_ytd):
             year-to-date updated from EIA 860M.
     """
     strictness_default = .7
+    # the longitude column is very different in the ytd 860M data (it appears
+    # to have an additional decimal point) bc it shows up in the generator
+    # table but it is a plant level data point, it mucks up the consistency
     strictness_cols = {
         'plant_name_eia': 0,
         'utility_name_eia': 0,
