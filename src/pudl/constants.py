@@ -1321,7 +1321,7 @@ entities = {
          'associated_combined_heat_power', 'original_planned_operating_date',
          'operating_switch', 'previously_canceled'],
         # annual cols
-        ['source', 'capacity_mw', 'fuel_type_code_pudl', 'multiple_fuels',
+        ['data_source', 'capacity_mw', 'fuel_type_code_pudl', 'multiple_fuels',
          'ownership_code', 'deliver_power_transgrid', 'summer_capacity_mw',
          'winter_capacity_mw', 'minimum_load_mw', 'technology_description',
          'energy_source_code_1', 'energy_source_code_2',
@@ -2430,7 +2430,7 @@ column_dtypes = {
         'short_form': pd.BooleanDtype(),  # Added by AES for DSM misc table
         'sold_to_utility_mwh': float,  # Added by AES for NM table
         'solid_fuel_gasification': pd.BooleanDtype(),
-        'source': pd.StringDtype(),
+        'data_source': pd.StringDtype(),
         # Added by AES for R table
         'standard': pd.CategoricalDtype(categories=RELIABILITY_STANDARDS),
         'startup_source_code_1': pd.StringDtype(),
