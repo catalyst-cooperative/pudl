@@ -16,6 +16,8 @@ and appropriately indexing the dataframes as needed.
 import logging
 import pathlib
 
+from prefect import task
+
 import pudl
 from pudl import constants as pc
 
@@ -44,6 +46,16 @@ def dict_dump(transformed_dfs, data_source, datapkg_dir):
         logger.info(
             f"Loading {data_source} {resource_name} dataframe into CSV")
         clean_columns_dump(df, resource_name, datapkg_dir)
+
+
+@task
+def write_datapackages(df_map, datapkg_dir):
+    """Prefect task that writes named dataframe into a file."""
+    # TODO(rousik): perhaps this could be achieved with a suitable Result class
+    for name, df in df_map.items():
+        logger.info(f'Writing datapackage {name}')
+        clean_columns_dump(df, name, datapkg_dir)
+    return list(df_map)
 
 
 def clean_columns_dump(df, resource_name, datapkg_dir):

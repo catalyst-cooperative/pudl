@@ -869,4 +869,5 @@ def transform(eia_transformed_dfs,
             f'{entity}_annual_eia', f'{entity}_annual_eia')
     # remove the boilers annual table bc it has no columns
     eia_transformed_dfs.pop('boilers_annual_eia',)
+    entities_dfs = pudl.helpers.convert_dfs_dict_dtypes(entities_dfs, 'eia')
     return entities_dfs, eia_transformed_dfs
