@@ -42,8 +42,8 @@ class Extractor(excel.GenericExtractor):
         df = df.rename(columns=self._metadata.get_column_map(part, page))
         if 'report_year' not in df.columns:
             df['report_year'] = datetime.strptime(part, "%Y-%m").year
-        df = df.assign(source='eia860m')
-        self.cols_added = ['source', 'report_year']
+        df = df.assign(data_source='eia860m')
+        self.cols_added = ['data_source', 'report_year']
         return df
 
     def get_datapackage_resources(self, part):

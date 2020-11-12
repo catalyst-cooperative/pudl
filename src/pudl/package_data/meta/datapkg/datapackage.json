@@ -2351,7 +2351,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "source",
+                        "name": "data_source",
                         "type": "string",
                         "description": "Source of EIA 860 data. Either Annual EIA 860",
                         "constraints": {
