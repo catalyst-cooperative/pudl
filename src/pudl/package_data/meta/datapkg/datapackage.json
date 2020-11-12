@@ -2387,7 +2387,12 @@
             "sources": [{
                 "title": "eia860",
                 "path": "https://www.eia.gov/electricity/data/eia860"
-            }]
+            },
+            {
+              "title": "eia860m",
+              "path": "https://www.eia.gov/electricity/data/eia860m"
+            }
+          ]
         },
         {
             "profile": "tabular-data-resource",
