@@ -23,12 +23,13 @@ According to law **XXXX** must fill out the form?
     Say more about legal background.
 
 The *Annual Electric Power Industry Report*, also known as Form EIA-861, elicits
-information from utilities regarding load, generation, capacity, sales, revenues,
+information from respondents regarding load, generation, capacity, sales, revenues,
 programs, and more. The EIA-861 exists in parallel with its "short form" counterpart,
 the EIA-861S, which is not yet included in the pudl database. The short form was
 created in 2012 and, true to it's name, serves as a truncated version of the full
-form, intended to reduce the respondent burden for smaller utilities. Approximately
-1,100 utilities complete the EIA-861S and 2,300 utilities complete the full EIA-861.
+form, intended to reduce the respondent burden for smaller reporting entities.
+Approximately 1,100 utilities complete the EIA-861S and 2,300 utilities complete
+the full EIA-861.
 
 EIA also solicits information for a *Monthly Electric Power Industry Report*, the
 EIA-861M, however all the monthly information is encapsulated in the Annual EIA-861.
@@ -42,7 +43,13 @@ Respondents to the Form EIA-861 include public and investor-owned utilities,
 electric cooperatives, retail power marketers, third-party solar system operators,
 and more. Once the respondent utilities have submitted their data, the EIA
 creates a series of spreadsheets that reflect themes within the form. These
-spreadsheets have changed over the years as the form itself evolves.
+spreadsheets have changed over the years as the form itself evolves. To gain
+greater insight into year-to-year nuances of the form, we recommend downloading
+the EIA-861 zip files for the desired years from the `EIA website
+<https://www.eia.gov/electricity/data/eia861/>`__ and scrutinizing both the Form
+and the Form Instructions files.
+`Form EIA-861 FAQ <https://www.eia.gov/survey/form/eia_861/faqs.php>`__, can also
+provide clarity on the contents of the data.
 
 Notable Irregularities
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -58,7 +65,7 @@ aggregation, but do not apply to utility-level analysis.
     data is guarded.
 
 Not all of the EIA-861 data span all years. As mentioned above, both the Form and
-its output files have changed over time; most notably, perhaps, between 2012 and
+its output files have changed over time; most notably between 2012 and
 2013. Beginning in 2013, the EIA split it's Demand Side Management spreadsheet
 into two: Demand Response and Energy Efficiency in order to reduce ambiguity and
 ensure data reliability. While there are many similarities between the two years,
@@ -69,7 +76,7 @@ EE spreadsheets are considered more accurate.
 Raw Data
 ^^^^^^^^
 
-The following table shows the "raw" Form EIA-861 data included in the pudl database.
+The following table depicts the "raw" Form EIA-861 data included in the pudl database.
 Table descriptions are taken directly from the EIA website.
 
 +-----------------+--------------+-----------------------------------------------+
