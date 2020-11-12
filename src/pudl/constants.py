@@ -1321,7 +1321,7 @@ entities = {
          'associated_combined_heat_power', 'original_planned_operating_date',
          'operating_switch', 'previously_canceled'],
         # annual cols
-        ['capacity_mw', 'fuel_type_code_pudl', 'multiple_fuels',
+        ['source', 'capacity_mw', 'fuel_type_code_pudl', 'multiple_fuels',
          'ownership_code', 'deliver_power_transgrid', 'summer_capacity_mw',
          'winter_capacity_mw', 'minimum_load_mw', 'technology_description',
          'energy_source_code_1', 'energy_source_code_2',
@@ -1633,6 +1633,7 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 # The full set of years we currently expect to be able to ingest, per source:
 working_years = {
     'eia860': tuple(range(2009, 2020)),
+    'eia860m': ["2020-08"],
     'eia861': tuple(range(2001, 2020)),
     'eia923': tuple(range(2009, 2020)),
     'epacems': tuple(range(1995, 2020)),
@@ -2429,6 +2430,7 @@ column_dtypes = {
         'short_form': pd.BooleanDtype(),  # Added by AES for DSM misc table
         'sold_to_utility_mwh': float,  # Added by AES for NM table
         'solid_fuel_gasification': pd.BooleanDtype(),
+        'source': pd.StringDtype(),
         # Added by AES for R table
         'standard': pd.CategoricalDtype(categories=RELIABILITY_STANDARDS),
         'startup_source_code_1': pd.StringDtype(),

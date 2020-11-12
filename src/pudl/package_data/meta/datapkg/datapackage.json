@@ -2349,6 +2349,15 @@
                         "type": "date",
                         "description": "Date of the scheduled or effected retirement of the generator.",
                         "format": "default"
+                    },
+                    {
+                        "name": "source",
+                        "type": "string",
+                        "description": "Source of EIA 860 data. Either Annual EIA 860",
+                        "constraints": {
+                            "enum": ["eia860","eia860m"]
+                          },
+                        "format": "default"
                     }
                 ],
                 "foreignKeys": [{

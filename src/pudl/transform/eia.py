@@ -144,12 +144,14 @@ def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
     """
     # grab the dirty plant records, round and get a new consistency
     ll_df = dirty_df.round(decimals={col: round_to})
+    logger.debug(f"Dirty {col} records: {len(ll_df)}")
     ll_df['table'] = 'special_case'
     ll_df = _occurrence_consistency(entity_id, ll_df, col, cols_to_consit)
     # grab the clean plants
     ll_clean_df = clean_df.dropna()
     # find the new clean plant records by selecting the True consistent records
     ll_df = ll_df[ll_df[f'{col}_consistent']].drop_duplicates(subset=entity_id)
+    logger.debug(f"Clean {col} records: {len(ll_df)}")
     # add the newly cleaned records
     ll_clean_df = ll_clean_df.append(ll_df,)
     # merge onto the plants df w/ all plant ids
@@ -287,10 +289,29 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
     return compiled_df
 
 
-def _harvesting(entity,  # noqa: C901
-                eia_transformed_dfs,
-                entities_dfs,
-                debug=False):
+def _manage_strictness(col, eia860_ytd):
+    """
+    Manage the strictness level for each column.
+
+    Args:
+        col (str): name of column
+        eia860_ytd (boolean): if True, the etl run is attempting to include
+            year-to-date updated from EIA 860M.
+    """
+    strictness = .7
+    non_strict_cols = ['plant_name_eia', 'utility_name_eia']
+    if eia860_ytd:
+        non_strict_cols.append('longitude')
+    if col in non_strict_cols:
+        strictness = 0
+    return strictness
+
+
+def harvesting(entity,  # noqa: C901
+               eia_transformed_dfs,
+               entities_dfs,
+               eia860_ytd=False,
+               debug=False):
     """Compiles consistent records for various entities.
 
     For each entity(plants, generators, boilers, utilties), this function
@@ -323,6 +344,8 @@ def _harvesting(entity,  # noqa: C901
             transformed dfs (values)
         entities_dfs(dict): A dictionary of entity table names (keys) and
             entity dfs (values)
+        eia860_ytd (boolean): if True, the etl run is attempting to include
+            year-to-date updated from EIA 860M.
         debug (bool): If True, this function will also return an additional
             dictionary of dataframes that includes the pre-deduplicated
             compiled records with the number of occurances of the entity and
@@ -377,9 +400,7 @@ def _harvesting(entity,  # noqa: C901
         if col in static_cols:
             cols_to_consit = entity_id
 
-        strictness = .7
-        if col in ['plant_name_eia', 'utility_name_eia']:
-            strictness = 0
+        strictness = _manage_strictness(col, eia860_ytd)
         col_df = _occurrence_consistency(
             entity_id, compiled_df, col, cols_to_consit, strictness=strictness)
 
@@ -817,11 +838,12 @@ def _restrict_years(df,
 def transform(eia_transformed_dfs,
               eia860_years=pc.working_years['eia860'],
               eia923_years=pc.working_years['eia923'],
+              eia860_ytd=False,
               debug=False):
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
 
     This function coordinates two main actions: generating the entity tables
-    via ``_harvesting()`` and generating the boiler generator associations via
+    via ``harvesting()`` and generating the boiler generator associations via
     ``_boiler_generator_assn()``.
 
     There is also some removal of tables that are no longer needed after the
@@ -834,6 +856,8 @@ def transform(eia_transformed_dfs,
             and only include working years.
         eia923_years (list): a list of years for EIA 923, must be continuous,
             and include only working years.
+        eia860_ytd (boolean): if True, the etl run is attempting to include
+            year-to-date updated from EIA 860M.
         debug (bool): if true, informational columns will be added into
             boiler_generator_assn
 
@@ -854,8 +878,8 @@ def transform(eia_transformed_dfs,
         logger.info(f"Harvesting IDs & consistently static attributes "
                     f"for EIA {entity}")
 
-        _harvesting(entity, eia_transformed_dfs, entities_dfs,
-                    debug=debug)
+        harvesting(entity, eia_transformed_dfs, entities_dfs,
+                   debug=debug, eia860_ytd=eia860_ytd)
 
     _boiler_generator_assn(eia_transformed_dfs,
                            eia923_years=eia923_years,
