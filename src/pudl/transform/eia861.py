@@ -1843,8 +1843,6 @@ def mergers(tfr_dfs):
     transformed_mergers = (
         raw_mergers.assign(
             entity_type=lambda x: x.entity_type.map(pc.ENTITY_TYPE_DICT),
-            merge_zip_5=lambda x: pudl.helpers.zero_pad_zips(x.merge_zip_5, 5),
-            merge_zip_4=lambda x: pudl.helpers.zero_pad_zips(x.merge_zip_4, 4)
         )
     )
 
