@@ -5484,7 +5484,7 @@
             "encoding": "utf-8",  # NOT SURE
             "mediatype": "text/csv",
             "format": "csv",
-            "dialect": {  # NOT SURE ABOUT ANY OF THESE
+            "dialect": {
                 "delimiter": ",",
                 "header": true,
                 "quoteChar": "\"",
@@ -5535,11 +5535,11 @@
                 "primaryKey": [
                     "plant_id_eia"
                 ],
-                "foreignKeys": [{  # DONT KNOW WHERE THIS STANDS
-                    "fields": "plant_id_pudl",
+                "foreignKeys": [{
+                    "fields": ["plant_id_eia", "generator_id"],
                     "reference": {
-                        "resource": "plants_pudl",
-                        "fields": "plant_id_pudl"
+                        "resource": "generators_entitiy_eia",
+                        "fields": ["plant_id_eia", "generator_id"]
                     }
                 }],
                 "missingValues": [
@@ -5548,8 +5548,8 @@
             },
             "licenses": [{  # DONT KNOW WHETHER THIS SHOULD CHANGE
                 "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
+                "title": "EPA",
+                "path": "https://www.epa.gov/"
             }],
             "sources": []
         },
