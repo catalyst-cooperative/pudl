@@ -23,8 +23,9 @@ Background
 ^^^^^^^^^^
 
 The Form EIA-860 collects environmental equipment and generator-level data from
-extant as well as planned generation entities with one or more megawatts of
-capacity. Beginning in 2013, EIA-860 also collects construction cost data.
+extant as well as planned generation entities with one  or more megawatts of
+capacity. Beginning in 2013,  EIA-860 also collects construction cost data.
+
 
 **Who is required to fill out the form?**
 

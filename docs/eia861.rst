@@ -24,7 +24,7 @@ Background
 The *Annual Electric Power Industry Report*, also known as Form EIA-861, elicits
 information on load, generation, capacity, sales, revenues, programs, and more.
 The EIA-861 exists in parallel with its "short form" counterpart,
-**the EIA-861S, which is not yet included in the pudl database.** The short form was
+**the EIA-861S, which is not yet included in the PUDL database.** The short form was
 created in 2012 to reduce the respondent burden for entities producing under
 100,000 MWh of power. Every eight years, these entities are required to fill out
 the full form. Year-to-year, approximately 1,100 utilities complete the EIA-861S
@@ -32,11 +32,11 @@ and 2,300 utilities complete the full EIA-861.
 
 EIA also solicits information for a *Monthly Electric Power Industry Report*, the
 EIA-861M, however all the monthly information is encapsulated in the Annual EIA-861.
-**pudl only draws from EIA-861M if a user requests year-to-date information that
+**PUDL only draws from EIA-861M if a user requests year-to-date information that
 isn't yet available in its annual form.**
 
 .. todo::
-    Confirm the role of EIA-861M and EIA-861S in pudl
+    Confirm the role of EIA-861M and EIA-861S in PUDL
 
 **Who is required to fill out the form?**
 
@@ -51,52 +51,57 @@ As mandated by Section 13(b) of the Federal Energy Administration Act (FEAA) of
     operators.
   * Third Party Owners of solar PV (TPO).
 
-Responses are collected at the operating company level (not at the holding company
-level).”
+Responses are collected at the operating company level (not at the holding
+company level).”
 
-Annual responses are due by April 30th, and failure to respond may result
-in fines of several thousand dollars per day, depending on the infraction and the
+Annual responses are due by April 30th, and failure to respond may result in
+fines of several thousand dollars per day, depending on the infraction and
 form in question. Under Title 18 U.S.C. 1001, submitting false information is
 considered a criminal offense and warrants the highest fine.
 
 **What does the data look like?**
 
-Once the respondents have submitted their data, the EIA creates a series of
-spreadsheets that reflect themes within the form. These spreadsheets have changed
-over the years as the form itself evolves. To gain greater insight into year-to-year
-nuances of the form, we recommend downloading the EIA-861 zip files for the desired
-years from the `EIA website <https://www.eia.gov/electricity/data/eia861/>`__ and
-scrutinizing both the Form and the Form Instructions files.
-`Form EIA-861 FAQ <https://www.eia.gov/survey/form/eia_861/faqs.php>`__, can also
-provide clarity on the contents of the data.
+Once the respondents have submitted their data, EIA creates a series of
+spreadsheets that reflect themes from the form. These spreadsheets have changed
+over the years as the form itself evolves. To gain greater insight into
+year-to-year nuances of the form, we recommend downloading the EIA-861 zip files
+for the desired years from the `EIA website
+<https://www.eia.gov/electricity/data/eia861/>`__ and scrutinizing both the Form
+and the Form Instructions files. `Form EIA-861 FAQ
+<https://www.eia.gov/survey/form/eia_861/faqs.php>`__, can also provide clarity
+on the contents of the data.
 
 Notable Irregularities
 ^^^^^^^^^^^^^^^^^^^^^^
+The Freedom of Information Act (FOIA), 5 U.S.C. §552, the Department of Energy
+(DOE) regulations, 10 C.F.R. §1004.11, implementing the FOIA, and the Trade
+﻿Secrets Act, 18 U.S.C. §1905 allow qualifying respondents to restrict
+access to their data. According to sources at the EIA, around 3
+respondents have used this as a means to keep their data utility-level data
+private. These entries appear under the utility id ``88888`` in the data.
 
-For proprietary reasons, power marketer data can appear unaffiliated for
-up to nine months after reporting. As a result, several entries sport the uniform
-utility id ``88888``. EIA also performs state-level adjustments for **XXX**. These
-adjustments appear under the utility id ``99999``. They are useful for state-level
-aggregation, but do not apply to utility-level analysis.
+The EIA also performs state-level imputations and adjustments for more accurate
+state- level analysis. These entries appear under the utility id ``99999``
+and are not intended for use in utility-level aggregations.
 
 .. todo::
     Say more about the state-level adjustments (99999) and maybe why power marketer
     data is guarded.
 
-Not all of the EIA-861 data span all years. As mentioned above, both the Form and
-its output files have changed over time; most notably between 2012 and
-2013. Beginning in 2013, the EIA split it's Demand Side Management spreadsheet
-into two: Demand Response and Energy Efficiency in order to reduce ambiguity and
-ensure data reliability. While there are many similarities between the two years,
-EIA officials recommend against combining data across these years, citing to differences
-in Form questions. For these fields, the post-2012 data from the DR and
-EE spreadsheets are considered more accurate.
+Not all of the EIA-861 data span all years. As mentioned earlier, both the Form
+and its output files have changed over time; most notably between 2012 and 2013.
+Beginning in 2013, the EIA split it's Demand Side Management spreadsheet into
+two: Demand Response and Energy Efficiency in order to reduce ambiguity and
+ensure data reliability. While there are many similarities between the two
+years, EIA officials recommend against combining data from these three files,
+citing subtle differences in Form questions. For these files, the post-2012 DR
+and EE spreadsheets are considered more accurate.
 
 Raw Data
 ^^^^^^^^
 
-The following table depicts the "raw" Form EIA-861 data included in the pudl database.
-Table descriptions are taken directly from the EIA website.
+The following table depicts the "raw" Form EIA-861 data included in the PUDL
+database. Table descriptions are taken directly from the EIA website.
 
 +-----------------+--------------+-----------------------------------------------+
 | 861 Table Name  | Years Used   | Description                                   |
@@ -194,9 +199,9 @@ Table descriptions are taken directly from the EIA website.
 PUDL Data Transformations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-These raw inputs are extracted by pudl, cleaned, and transformed for storage in
-the database. The data from each of these tables can be accessed either by
-querying the SQL database or interacting with pudl output tables.
+These raw inputs are extracted by PUDL, cleaned, and transformed for efficient
+storage in the database. The data from each of these tables can be accessed
+either by querying the SQL database or interacting with PUDL output tables.
 
 .. note::
     Add transformation details about the EIA861 output tables.
