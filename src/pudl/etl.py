@@ -98,6 +98,15 @@ def _validate_params_eia(etl_params):
     if not eia_input_dict['eia860_years'] and eia_input_dict['eia923_years']:
         eia_input_dict['eia860_years'] = eia_input_dict['eia923_years']
 
+    if (eia_input_dict['eia860_ytd']
+        & (pd.to_datetime(pc.working_years['eia860m'][0]).year
+           in eia_input_dict['eia860_years'])):
+        raise AssertionError(
+            "Attempting to integrate an eia860m year "
+            f"({pd.to_datetime(pc.working_years['eia860m'][0]).year}) that is "
+            f"within the eia860 years: {eia_input_dict['eia860_years']}."
+            "Consider switching eia860_ytd parameter to False."
+        )
     check_for_bad_tables(
         try_tables=eia_input_dict['eia923_tables'], dataset='eia923')
     check_for_bad_tables(
