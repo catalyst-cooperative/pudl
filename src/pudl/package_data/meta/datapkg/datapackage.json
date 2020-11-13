@@ -5527,11 +5527,11 @@
                         "format": "default",
                     },
                     {
-                        "name": "unit_type",
+                        "name": "prime_mover_code",
                         "type": "string",
                         "format": "default",
                         "description": "Prime mover code as seen in EIA."
-                ],
+                }],
                 "primaryKey": [
                     "plant_id_eia"
                 ],
