@@ -64,32 +64,25 @@ def fix_up_dates(df, plant_utc_offset):
 
 
 @prefect.task
-def load_plant_utc_offset(datapkg_dir):
-    """Load the UTC offset each EIA plant.
-
-    CEMS times don't change for DST, so we get get the UTC offset by using the
-    offset for the plants' timezones in January.
+def load_plant_utc_offset(plant_entity_df):
+    """Build UTC offset for each EIA plant.
 
     Args:
-        datapkg_dir (path-like) : Path to the directory of the datapackage
-            which is currently being assembled.
+        plant_entity_df: pandas.DataFrame that holds the plant_entity_eia table.
 
     Returns:
         pandas.DataFrame: With columns plant_id_eia and utc_offset
-
     """
     import pytz
 
     jan1 = datetime.datetime(2011, 1, 1)  # year doesn't matter
     timezones = (
-        pd.read_csv(
-            pathlib.Path(datapkg_dir, 'data/plants_entity_eia.csv'),
-            usecols=["plant_id_eia", "timezone"],
-            dtype={"plant_id_eia": "Int64", "timezone": pd.StringDtype()})
+        plant_entity_df[["plant_id_eia", "timezone"]]
+        .astype({
+                "plant_id_eia": pd.Int64Dtype(),
+                "timezone": pd.StringDtype()})
         .replace(to_replace="None", value=pd.NA)
-        .dropna()
-    )
-
+        .dropna())
     timezones["utc_offset"] = (
         timezones["timezone"]
         .apply(lambda tz: pytz.timezone(tz).localize(jan1).utcoffset())

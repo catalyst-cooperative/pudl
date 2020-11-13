@@ -101,7 +101,7 @@ def main():
     except KeyError:
         datapkg_bundle_doi = None
 
-    _ = pudl.etl.generate_datapkg_bundle(
+    pudl.etl.generate_datapkg_bundle(
         script_settings['datapkg_bundle_settings'],
         pudl_settings,
         datapkg_bundle_name=script_settings['datapkg_bundle_name'],
