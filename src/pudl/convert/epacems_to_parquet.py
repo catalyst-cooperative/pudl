@@ -69,7 +69,6 @@ def create_in_dtypes():
         "state": state_cats,
         "plant_id_eia": "int32",
         "unitid": pd.StringDtype(),
-        # "operating_datetime_utc": "datetime",
         "operating_time_hours": "float32",
         "gross_load_mw": "float32",
         "steam_load_1000_lbs": "float32",
@@ -105,9 +104,8 @@ def create_cems_schema():
     int_nullable = partial(pa.field, type=pa.int32(), nullable=True)
     int_not_null = partial(pa.field, type=pa.int32(), nullable=False)
     str_not_null = partial(pa.field, type=pa.string(), nullable=False)
-    # Timestamp resolution is hourly, but millisecond is the largest allowed.
-    timestamp = partial(pa.field, type=pa.timestamp(
-        "ms", tz="utc"), nullable=False)
+    # Timestamp resolution is hourly, but second is the largest allowed.
+    timestamp = partial(pa.field, type=pa.timestamp("s", tz="UTC"), nullable=False)
     float_nullable = partial(pa.field, type=pa.float32(), nullable=True)
     float_not_null = partial(pa.field, type=pa.float32(), nullable=False)
     # (float32 can accurately hold integers up to 16,777,216 so no need for
@@ -118,7 +116,6 @@ def create_cems_schema():
         nullable=True
     )
     return pa.schema([
-        int_not_null("year"),
         dict_nullable("state"),
         int_not_null("plant_id_eia"),
         str_not_null("unitid"),
@@ -137,6 +134,7 @@ def create_cems_schema():
         float_not_null("heat_content_mmbtu"),
         int_nullable("facility_id"),
         int_nullable("unit_id_epa"),
+        int_not_null("year"),
     ])
 
 
@@ -209,16 +207,21 @@ def epacems_to_parquet(datapkg_path,
                 data_dir,
                 f"hourly_emissions_epacems_{year}_{state.lower()}.csv.gz")
             df = (
-                pd.read_csv(newpath, dtype=in_types,
-                            parse_dates=["operating_datetime_utc"])
+                pd.read_csv(
+                    newpath, dtype=in_types, parse_dates=["operating_datetime_utc"]
+                )
                 .assign(year=year)
             )
             logger.info(f"{year}-{state}: {len(df)} records")
-            pq.write_to_dataset(
-                pa.Table.from_pandas(
-                    df, preserve_index=False, schema=schema),
-                root_path=str(out_dir), partition_cols=list(partition_cols),
-                compression=compression)
+            if len(df) > 0:
+                pq.write_to_dataset(
+                    pa.Table.from_pandas(df, preserve_index=False, schema=schema),
+                    root_path=str(out_dir),
+                    partition_cols=list(partition_cols),
+                    compression=compression
+                )
+            else:
+                logger.info("Skipping: no records found.")
 
 
 def parse_command_line(argv):
