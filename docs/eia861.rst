@@ -4,6 +4,10 @@ EIA Form 861
 
 =================== ===========================================================
 Source URL          https://www.eia.gov/electricity/data/eia861/
+Source Description  | The status of electric power industry participants involved
+                    | in the generation, transmission, distribution, or sale of
+                    | electric energy in the United States and its territories
+Respondents         Utilities
 Source Format       Microsoft Excel (.xls/.xlsx)
 Source Years        1990+, 2001+, 2007+, 2013+
 Size (Download)     --
@@ -17,37 +21,42 @@ Issues              `open issues labeled epacems <https://github.com/catalyst-co
 Background
 ^^^^^^^^^^
 
-According to law **XXXX** must fill out the form?
-
-.. todo::
-    Say more about legal background.
-
 The *Annual Electric Power Industry Report*, also known as Form EIA-861, elicits
-information from respondents regarding load, generation, capacity, sales, revenues,
-programs, and more. The EIA-861 exists in parallel with its "short form" counterpart,
-the EIA-861S, which is not yet included in the pudl database. The short form was
-created in 2012 and, true to it's name, serves as a truncated version of the full
-form, intended to reduce the respondent burden for smaller reporting entities.
-Approximately 1,100 utilities complete the EIA-861S and 2,300 utilities complete
-the full EIA-861.
+information on load, generation, capacity, sales, revenues, programs, and more.
+The EIA-861 exists in parallel with its "short form" counterpart,
+**the EIA-861S, which is not yet included in the pudl database.** The short form was
+created in 2012 to reduce the respondent burden for entities producing under
+100,000 MWh of power. Every eight years, these entities are required to fill out
+the full form. Year-to-year, approximately 1,100 utilities complete the EIA-861S
+and 2,300 utilities complete the full EIA-861.
 
 EIA also solicits information for a *Monthly Electric Power Industry Report*, the
 EIA-861M, however all the monthly information is encapsulated in the Annual EIA-861.
-**pudl only draws from EIA-861M in the event that a user requests year-to-date
-information that isn't yet available in its annual form.**
+**pudl only draws from EIA-861M if a user requests year-to-date information that
+isn't yet available in its annual form.**
 
 .. todo::
-    Confirm the role of EIA-861M in pudl
+    Confirm the role of EIA-861M and EIA-861S in pudl
 
-Respondents to the Form EIA-861 include public and investor-owned utilities,
-electric cooperatives, retail power marketers, third-party solar system operators,
-and more. Once the respondent utilities have submitted their data, the EIA
-creates a series of spreadsheets that reflect themes within the form. These
-spreadsheets have changed over the years as the form itself evolves. To gain
-greater insight into year-to-year nuances of the form, we recommend downloading
-the EIA-861 zip files for the desired years from the `EIA website
-<https://www.eia.gov/electricity/data/eia861/>`__ and scrutinizing both the Form
-and the Form Instructions files.
+As mandated by Section 13(b) of the Federal Energy Administration Act (FEAA) of
+1974 and specified by the Form instructions, respondents include:
+“electric power industry entities such as, but not limited to, electric utilities,
+all Demand Side Management (DSM) Program Managers (entities responsible for
+conducting or administering a DSM program), wholesale power marketers, energy
+service providers, electric power producers, transmission owners, transmission
+operators, and Third Party Owners of solar PV (TPO). Responses are collected at
+the operating company level (not at the holding company level).” Annual responses
+are due by April 30th, and failure to respond may result in fines of several
+thousand dollars per day, depending on the infraction and the form in question.
+Under Title 18 U.S.C. 1001, submitting false information is considered a criminal
+offense and warrants the highest fine.
+
+Once the respondents have submitted their data, the EIA creates a series of
+spreadsheets that reflect themes within the form. These spreadsheets have changed
+over the years as the form itself evolves. To gain greater insight into year-to-year
+nuances of the form, we recommend downloading the EIA-861 zip files for the desired
+years from the `EIA website <https://www.eia.gov/electricity/data/eia861/>`__ and
+scrutinizing both the Form and the Form Instructions files.
 `Form EIA-861 FAQ <https://www.eia.gov/survey/form/eia_861/faqs.php>`__, can also
 provide clarity on the contents of the data.
 

@@ -17,6 +17,7 @@ The Public Utility Data Liberation Project
   data_catalog
   eia860
   eia861
+  ferc1
   settings_files
   Contributing <CONTRIBUTING>
   dev_setup

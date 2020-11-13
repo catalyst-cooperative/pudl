@@ -4,6 +4,11 @@ EIA Form 860
 
 =================== ===========================================================
 Source URL          https://www.eia.gov/electricity/data/eia860/
+Source Description  | The status of existing electric generating plants and
+                    | associated equipment in the United States, and those
+                    | scheduled for initial commercial operation within 10
+                    | years of the filing.
+Respondents         Utilities
 Source Format       Microsoft Excel (.xls/.xlsx)
 Source Years        2001-2018
 Size (Download)     127 MB
@@ -17,12 +22,34 @@ Issues              `open EIA 860 issues <https://github.com/catalyst-cooperativ
 Background
 ^^^^^^^^^^
 
-.. todo::
-    Say more about legal background.
-
 The Form EIA-860 collects environmental equipment and generator-level data from
 extant as well as planned generation entities with one or more megawatts of
 capacity. Beginning in 2013, EIA-860 also collects construction cost data.
+
+As mandated by Section 13(b) of the Federal Energy Administration Act (FEAA) of
+1974 and specified by the Form instructions, respondents include:
+"all existing plants and proposed (10-year plans) plants that: 1) have a total
+generator nameplate capacity (sum for generators at a single site) of 1 Megawatt
+(MW) or greater; and 2) where the generator(s), or the facility in which the
+generator(s) resides, is connected to the local or regional electric power grid
+and has the ability to draw power from the grid or deliver power to the grid. See
+General Instructions for related details to determine total capacity at a site.
+In the case of generators located in Alaska and Hawaii which are not a part of the
+North American interconnected grid, generators that are connected to a “public grid,”
+meaning a local or regional transmission or distribution system that supplies power
+to the public, must be reported on Form EIA-860. The operator or planned operator
+of jointly-owned plants should be the only respondent for those ﻿plants." Annual
+responses are due between the beginning of January and the end of February. Failure
+to respond may result in fines of several thousand dollars per day, depending on
+the infraction and the form in question. Under Title 18 U.S.C. 1001, submitting
+false information is considered a criminal offense and warrants the highest fine.
+
+Once the respondents have submitted their data, the EIA creates a series of
+spreadsheets that reflect themes within the form. These spreadsheets have changed
+over the years as the form itself evolves. To gain greater insight into year-to-year
+nuances of the form, we recommend downloading the EIA-860 zip files for the desired
+years from the `EIA website <https://www.eia.gov/electricity/data/eia860/>`__ and
+scrutinizing both the Form and the Form Instructions files.
 
 Notable Irregularities
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -30,7 +57,7 @@ Notable Irregularities
 Raw Data
 ^^^^^^^^
 
-Where yyyy stands for a given year. Ex: LayoutY2013
+Where yyyy stands for a given year. Ex: LayoutYyyy = LayoutY2013 or LayoutY2014
 
 +-----------------+--------------+-----------------------------------------------+
 | 860 Table Name  | Years Used   | Description                                   |
@@ -52,3 +79,5 @@ Where yyyy stands for a given year. Ex: LayoutY2013
 
 PUDL Data Transformations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The
