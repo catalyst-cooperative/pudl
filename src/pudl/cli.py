@@ -61,10 +61,9 @@ def parse_command_line(argv):
         "--logfile", default=None,
         help="If specified, write logs to this file.")
     parser.add_argument(
-        "--use-dask-cluster",
-        type=str,
-        default='',
-        help='Optional address of the dask scheduler to run the flow on.')
+        "--use-dask-executor",
+        type=bool,
+        help='If enabled, use local DaskExecutor to run the flow.')
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -113,7 +112,8 @@ def main():
         pudl_settings,
         datapkg_bundle_name=script_settings['datapkg_bundle_name'],
         datapkg_bundle_doi=datapkg_bundle_doi,
-        clobber=args.clobber)
+        clobber=args.clobber,
+        use_dask_executor=args.use_dask_executor)
 
 
 if __name__ == "__main__":

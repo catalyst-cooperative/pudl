@@ -23,7 +23,7 @@ from pathlib import Path
 import pandas as pd
 import prefect
 from prefect import task, unmapped
-# from prefect.engine.executors import DaskExecutor
+from prefect.engine.executors import DaskExecutor
 from prefect.engine.results import LocalResult
 
 import pudl
@@ -880,7 +880,8 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
                             pudl_settings,
                             datapkg_bundle_name,
                             datapkg_bundle_doi=None,
-                            clobber=False):
+                            clobber=False,
+                            use_dask_executor=False):
     """
     Coordinate the generation of data packages.
 
@@ -904,6 +905,8 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
             packages with the datapkg_bundle_name, the existing data packages
             will be deleted and new data packages will be generated in their
             place.
+        use_dask_executor (bool): If True, launch local Dask cluster to run the
+            ETL tasks on.
 
     Returns:
         dict: A dictionary with datapackage names as the keys, and Python
@@ -937,8 +940,10 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
 
     # TODO(rousik): print out the flow structure
     flow.visualize()
-    # state = flow.run(executor=DaskExecutor(adapt_kwargs={'minimum':2, 'maximum': 10}))
-    state = flow.run()
+    if use_dask_executor:
+        state = flow.run(executor=DaskExecutor(adapt_kwargs={'minimum':2, 'maximum': 10}))
+    else:
+        state = flow.run()
     flow.visualize(flow_state=state)
     # TODO(rousik): determine what kind of return value should happen here. For now lets just
     # not return anything.
