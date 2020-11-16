@@ -583,6 +583,7 @@ def _transform_glue(params):
 
 
 class GluePipeline(DatasetPipeline):
+    DATASET = 'glue'
 
     @staticmethod
     def validate_params(etl_params):
@@ -602,7 +603,7 @@ class GluePipeline(DatasetPipeline):
             return glue_dict
 
     def build(self, params):
-        if not _all_params_present(params, ['ferc1', 'eia']):
+        if not params.get('ferc1') and not params.get('eia'):
             return None
         with self.flow:
             return _transform_glue(params)
