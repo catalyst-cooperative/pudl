@@ -911,6 +911,13 @@ def convert_cols_dtypes(df, data_source, name=None):
 
     if name:
         logger.debug(f'Converting the dtypes of: {name}')
+    # Int64Dtype() can't convert from object dtype so we need to convert via
+    # float type. Identify columns for which this needs to happen.
+    cols_to_fix = [col for col in df.select_dtypes(object) if col_dtypes.get(col) == np.int64]
+    if cols_to_fix:
+        logger.debug(f'Converting object columns of {name} to int: {sorted(cols_to_fix)}')
+        df = df.astype({c: float for c in cols_to_fix})
+
     # unfortunately, the pd.Int32Dtype() doesn't allow a conversion from object
     # columns to this nullable int type column. `utility_id_eia` shows up as a
     # column of strings (!) of numbers so it is an object column, and therefor
@@ -925,8 +932,6 @@ def convert_cols_dtypes(df, data_source, name=None):
         df.replace(to_replace="<NA>", value={
                    col: pd.NA for col in string_cols})
         .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
-        .astype(non_bool_cols)
-        .astype(bool_cols)
     )
 
     # Zip codes are highly coorelated with datatype. If they datatype gets
@@ -942,6 +947,10 @@ def convert_cols_dtypes(df, data_source, name=None):
             else:
                 df[col] = zero_pad_zips(df[col], 5)
 
+    # Apply dtypes one by one to allow for better error detection
+    for col, dtype in col_dtypes.items():
+        logger.debug(f'Applying dtype {dtype} to column {col}')
+        df.astype({col: dtype}, copy=False)
     return df
 
 
