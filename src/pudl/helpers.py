@@ -12,6 +12,7 @@ import logging
 import pathlib
 import re
 import shutil
+import tempfile
 from functools import partial
 
 import addfips
@@ -833,6 +834,14 @@ def merge_dicts(list_of_dicts):
     return merge_dict
 
 
+class ColumnTypeConversionError(Exception):
+    def __init__(self, raw_exception, df_name=None, column=None):
+        self.df_name = df_name
+        self.column = column
+        self.raw_exception = raw_exception
+        super().__init__(f'Failed to convert {df_name}.{column}: {raw_exception}')
+
+
 def convert_cols_dtypes(df, data_source, name=None):
     """
     Convert the data types for a dataframe.
@@ -909,35 +918,38 @@ def convert_cols_dtypes(df, data_source, name=None):
                                True: True,
                                'nan': pd.NA})
 
-    if name:
-        logger.debug(f'Converting the dtypes of: {name}')
     # Int64Dtype() can't convert from object dtype so we need to convert via
     # float type. Identify columns for which this needs to happen.
-    cols_to_fix = [col for col in df.select_dtypes(object) if col_dtypes.get(col) == np.int64]
+    cols_to_fix = set(df.select_dtypes(object).keys()).intersection(
+            set(col for col, dtype in col_dtypes.items() if dtype == pd.Int64Dtype()))
     if cols_to_fix:
-        logger.debug(f'Converting object columns of {name} to int: {sorted(cols_to_fix)}')
         df = df.astype({c: float for c in cols_to_fix})
 
-    # unfortunately, the pd.Int32Dtype() doesn't allow a conversion from object
-    # columns to this nullable int type column. `utility_id_eia` shows up as a
-    # column of strings (!) of numbers so it is an object column, and therefor
-    # needs to be converted beforehand.
-    if 'utility_id_eia' in df.columns:
-        # we want to be able to use this dtype cleaning at many stages, and
-        # sometimes this column has been converted to a float and therefor
-        # we need to skip this conversion
-        if df.utility_id_eia.dtypes is np.dtype('object'):
-            df = df.astype({'utility_id_eia': 'float'})
     df = (
         df.replace(to_replace="<NA>", value={
                    col: pd.NA for col in string_cols})
         .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
     )
-    # Apply dtypes one by one to allow for better error detection
-    for col, dtype in col_dtypes.items():
-        logger.debug(f'Applying dtype {dtype} to column {col}')
-        df.astype({col: dtype}, copy=False)
-    return df
+    # Apply dtype conversion all at once. If this fails, dump the failed dataframe to
+    # disk and try running conversion one column at a time to determine what exactly has
+    # failed.
+    try:
+        return df.astype(col_dtypes)
+    except TypeError:
+        # Dump the offending dataframe to file for debugging purposes
+        _, tmp_file = tempfile.mkstemp(suffix=".pandas.df", prefix=name)
+        df.to_pickle(tmp_file)
+        logger.error(f'Failed to convert {name} dtypes. Re-running with debug info.')
+        logger.error(f'Offending dataframe saved to {tmp_file}')
+        for col, dtype in col_dtypes.items():
+            orig_type = str(df.dtypes[col])
+            new_type = str(dtype)
+            logger.info(f'{name}: {col} will be converted from {orig_type} to {new_type}')
+        for col, dtype in col_dtypes.items():
+            try:
+                df = df.astype({col: dtype})
+            except TypeError as err:
+                raise ColumnTypeConversionError(err, df_name=name, column=col)
 
 
 def convert_dfs_dict_dtypes(dfs_dict, data_source):
@@ -945,14 +957,12 @@ def convert_dfs_dict_dtypes(dfs_dict, data_source):
 
     This is a wrapper for :func:`pudl.helpers.convert_cols_dtypes` which loops
     over an entire dictionary of dataframes, assuming they are all from the
+        # Dump the offending data frame to temporary file for debugging purposes
     specified data source, and appropriately assigning data types to each
     column based on the data source specific type map stored in pudl.constants
 
     """
-    cleaned_dfs_dict = {}
-    for name, df in dfs_dict.items():
-        cleaned_dfs_dict[name] = convert_cols_dtypes(df, data_source, name)
-    return cleaned_dfs_dict
+    return {name: convert_cols_dtypes(df, data_source, name) for name, df in dfs_dict.items()}
 
 
 def generate_rolling_avg(df, group_cols, data_col, window, **kwargs):
