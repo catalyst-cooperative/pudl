@@ -18,16 +18,16 @@ data from:
 """
 import logging
 import uuid
-from pathlib import Path
 from datetime import timedelta
+from pathlib import Path
 
 import pandas as pd
 import prefect
 from prefect import task, unmapped
-from prefect.engine.executors import DaskExecutor
-from prefect.engine.results import LocalResult
 from prefect.engine import cache_validators
 from prefect.engine.cache_validators import all_inputs
+from prefect.engine.executors import DaskExecutor
+from prefect.engine.results import LocalResult
 
 import pudl
 from pudl import constants as pc
@@ -87,19 +87,32 @@ def _all_params_present(params, required_params):
 
 
 class DatasetPipeline:
-    """A generic representation of a pudl pipeline.
+    """This object encapsulates the logic for processing pudl dataset.
 
-    This class is responsible for determining what tasks need to be run in order to process
-    given dataset. It will construct these tasks and attach them to given flow.
+    When instantiated, it will extract the relevant dataset parameters,
+    determine if any tasks need to be run and attaches relevant prefect
+    tasks to the provided flow.
 
-    It also implements series of helper function to prepare
-
+    When implementing subclasses of this, you should:
+    - set DATASET class attribute
+    - implement validate_params() method
+    - implement build() method
     """
+
     DATASET = None
 
     def __init__(self, pudl_settings, dataset_list, flow, datapkg_name=None):
+        """Initialize Pipeline object and construct prefect tasks.
+
+        Args:
+            pudl_settings: overall pipeline settings
+            dataset_list: list of named datasets associated with this bundle
+            flow: attach prefect tasks to this flow
+            datapkg_name: fully qualified name of the datapackage/bundle
+        """
         if not self.DATASET:
-            raise NotImplementedError('{self.__cls__.__name__}: missing DATASET attribute')
+            raise NotImplementedError(
+                f'{self.__cls__.__name__}: missing DATASET attribute')
         self.flow = flow
         self.pipeline_params = None
         self.pudl_settings = pudl_settings
@@ -110,9 +123,16 @@ class DatasetPipeline:
             self.pipeline_params = self.validate_params(self.pipeline_params)
             self.output_dataframes = self.build(self.pipeline_params)
         else:
-            logger.info(f'{self.DATASET}: pipeline not running due to missing parameters.')
+            logger.info(
+                f'{self.DATASET}: pipeline not running due to missing parameters.')
 
     def _get_dataset_params(self, dataset_list):
+        """Return params that match self.DATASET.
+
+        Args:
+          dataset_list: list of dataset parameters to search for the matching params
+          structure
+        """
         matching_ds = []
         for ds in dataset_list:
             if self.DATASET in ds:
@@ -126,20 +146,46 @@ class DatasetPipeline:
 
     @staticmethod
     def validate_params(datapkg_settings):
+        """Validates pipeline parameters/settings.
+
+        Returns:
+          (dict) normalized datapkg parameters
+        """
         raise NotImplementedError('Please implement pipeline validate_settings method')
 
     def build(self, etl_params):
-        """Instantiate prefect tasks for this pipeline."""
+        """Add pipeline tasks to the flow.
+
+        Args:
+          etl_params: parameters for this pipeline (returned by self.validate_params)
+        """
         raise NotImplementedError(
             f'{self.__name__}: Please implement pipeline build method.')
 
     def get_outputs(self):
+        """Returns prefect.Result which contains the output of the pipeline.
+
+        It is expected that the result is a dataframe map which maps table names
+        to pandas.DataFrame objects.
+        """
         return self.output_dataframes
 
     def get_table(self, table_name):
-        """Returns prefect Result which holds the content of given table (pandas.DataFrame)."""
-        # TODO(rousik): right now, this needs to absorb all dataframes and find the relevant one
-        # but this may be okay until we can break down tasks to table-level granularity.
+        """Returns DataFrame for given table that is emitted by the pipeline.
+
+        This is intended to be used to link pipeline outputs to other prefect tasks.
+        It does not actually return the pandas.DataFrame directly but rather creates
+        prefect task that scans through the results of this pipeline run and extracts
+        the table of interest.
+
+        Args:
+          table_name: Name of the table to be returned.
+
+        Returns:
+          (prefect.Task) task which returns pandas.DataFrame for the requested table.
+        """
+        # TODO(rousik): once we break down tasks to table-level granularity, this
+        # extraction task/functionality may no longer be needed.
         with self.flow:
             return _extract_table(self.get_outputs(), table_name)
 
@@ -199,8 +245,12 @@ def _load_static_tables_eia():
             'energy_source_eia923': energy_source_eia923,
             'transport_modes_eia923': transport_modes_eia923}
 
+
 def pudl_task_target_name(**kwargs):
     """Constructs the path where ETL task result should be stored."""
+    target_task = kwargs["task_full_name"]
+    logger.debug(
+        f'pudl_task_target_name for {target_task} has these kwargs: {sorted(kwargs)}')
     output_path = ''
     parsed_tags = dict(tag.split(':', maxsplit=1) for tag in kwargs["task_tags"])
     if 'datapkg' in parsed_tags:
@@ -212,8 +262,8 @@ def pudl_task_target_name(**kwargs):
 
 
 @task(result=LocalResult(),
-        target=pudl_task_target_name,
-        cache_for=timedelta(days=1), cache_validator=all_inputs)
+      target=pudl_task_target_name,
+      cache_for=timedelta(days=1), cache_validator=all_inputs)
 def _extract_eia860(params, pudl_settings):
     sandbox = pudl_settings.get("sandbox", False)
     ds = pudl.workspace.datastore.Datastore(
@@ -223,9 +273,9 @@ def _extract_eia860(params, pudl_settings):
     return dfs
 
 
-@task(result=LocalResult(), 
-        target=pudl_task_target_name,
-        cache_for=timedelta(days=1), cache_validator=all_inputs)
+@task(result=LocalResult(),
+      target=pudl_task_target_name,
+      cache_for=timedelta(days=1), cache_validator=all_inputs)
 def _extract_eia923(params, pudl_settings):
     sandbox = pudl_settings.get("sandbox", False)
     ds = pudl.workspace.datastore.Datastore(
@@ -234,49 +284,42 @@ def _extract_eia923(params, pudl_settings):
     return pudl.extract.eia923.Extractor(ds).extract(params['eia923_years'])
 
 
-@task(result=LocalResult(), 
-        target=pudl_task_target_name,
-        cache_for=timedelta(days=1),
-        cache_validator=cache_validators.partial_inputs_only(['params']))
+@task(result=LocalResult(),
+      target=pudl_task_target_name,
+      cache_for=timedelta(days=1),
+      cache_validator=cache_validators.partial_inputs_only(['params']))
 def _transform_eia860(params, dfs):
     return pudl.transform.eia860.transform(dfs, params['eia860_tables'])
 
 
 @task(result=LocalResult(),
-        target=pudl_task_target_name,
-        cache_for=timedelta(days=1),
-        cache_validator=cache_validators.partial_inputs_only(['params']))
+      target=pudl_task_target_name,
+      cache_for=timedelta(days=1),
+      cache_validator=cache_validators.partial_inputs_only(['params']))
 def _transform_eia923(params, dfs):
     return pudl.transform.eia923.transform(dfs, params['eia923_tables'])
 
-# TODO(rousik): target should be templatized to include fully qualified datapkg_name
-@task(result=LocalResult(), 
-        target=pudl_task_target_name,
-        cache_for=timedelta(days=1),
-        cache_validator=cache_validators.partial_inputs_only(['params']))
-def _transform_eia(params, dfs):
-#     dfs = pudl.helpers.convert_dfs_dict_dtypes(dfs, 'eia')
-    for name, df in dfs.items():
-        logger.info(f'dtypes for df {name} are: {df.dtypes}')
 
-    # TODO(rousik): do we want/need to apply eia dtypes here or not?
-    entities_dfs, eia_transformed_dfs = pudl.transform.eia.transform(
+@task(result=LocalResult(),
+      target=pudl_task_target_name,
+      cache_for=timedelta(days=1),
+      cache_validator=cache_validators.partial_inputs_only(['params']))
+def _transform_eia(params, dfs):
+    return pudl.transform.eia.transform(
         dfs,
         eia860_years=params['eia860_years'],
         eia923_years=params['eia923_years'])
-    overlap = set(entities_dfs).intersection(set(eia_transformed_dfs))
-    if overlap:
-        raise AssertionError(
-            f"eia and entity dataframes overlap: {sorted(overlap)}")
-    eia_transformed_dfs.update(entities_dfs)
-    return eia_transformed_dfs
+    # TODO(rousik): the above method could be replaced with @task annotation on eia.transform
 
 
 class EiaPipeline(DatasetPipeline):
+    """Runs eia923, eia860 and eia (entity extraction) tasks."""
+
     DATASET = 'eia'
 
-    @staticmethod
+    @staticmethod  # noqa: C901
     def validate_params(etl_params):
+        """Validate and normalize eia parameters."""
         # extract all of the etl_params for the EIA ETL function
         # empty dictionary to compile etl_params
         eia_input_dict = {}
@@ -345,12 +388,11 @@ class EiaPipeline(DatasetPipeline):
 
     def build(self, params):
         """Extract, transform and load CSVs for the EIA datasets."""
-
         if not (_all_params_present(params, ['eia923_tables', 'eia923_years']) or
                 _all_params_present(params, ['eia860_tables', 'eia860_years'])):
             return None
         with self.flow:
-            #@with prefect.context(datapkg_name=self.datapkg_name):
+            # @with prefect.context(datapkg_name=self.datapkg_name):
             with prefect.tags(f'datapkg:{self.datapkg_name}'):
                 static_tables = _load_static_tables_eia()
                 eia860_raw_dfs = _extract_eia860(params, self.pudl_settings)
@@ -367,7 +409,7 @@ class EiaPipeline(DatasetPipeline):
 # FERC1 EXPORT FUNCTIONS
 ###############################################################################
 @task(result=LocalResult(), target="{task_name}")  # noqa: FS003
-def _load_static_tables_ferc1(): 
+def _load_static_tables_ferc1():
     """Populate static PUDL tables with constants for use as foreign keys.
 
     There are many values specified within the data that are essentially
@@ -417,15 +459,18 @@ def _transform_ferc1(params, dfs):
 @task(result=LocalResult(), cache_for=timedelta(days=1), cache_validator=all_inputs)
 def _extract_table(df_map, table_name):
     if table_name not in df_map:
-        logger.error(f'Not found table {table_name} in {sorted(df_map)}')
+        raise KeyError(f'Table {table_name} not found in {sorted(df_map)}')
     return df_map.get(table_name)
 
 
 class Ferc1Pipeline(DatasetPipeline):
+    """Runs ferc1 tasks."""
+
     DATASET = 'ferc1'
 
-    @staticmethod
-    def validate_params(etl_params):  # noqa: C901
+    @staticmethod  # noqa: C901
+    def validate_params(etl_params):
+        """Validate and normalize ferc1 parameters."""
         ferc1_dict = {}
         # pull out the etl_params from the dictionary passed into this function
         try:
@@ -455,6 +500,7 @@ class Ferc1Pipeline(DatasetPipeline):
             return ferc1_dict
 
     def build(self, params):
+        """Add ferc1 tasks to the flow."""
         if not _all_params_present(params, ['ferc1_years', 'ferc1_tables']):
             return None
         with self.flow:
@@ -464,14 +510,27 @@ class Ferc1Pipeline(DatasetPipeline):
 
 
 class EpaCemsPipeline(DatasetPipeline):
+    """Runs epacems tasks."""
+
     DATASET = 'epacems'
 
     def __init__(self, *args, eia_pipeline=None, **kwargs):
+        """Initializes epacems pipeline, hooks it to the existing eia pipeline.
+
+        epacems depends on the plants_entity_eia table that is generated by the
+        EiaPipeline. If epacems is run, it will pull this table from the existing
+        eia pipeline.
+
+        Args:
+          eia_pipeline: instance of EiaPipeline that holds the plants_entity_eia
+            table.
+        """
         self.eia_pipeline = eia_pipeline
         super().__init__(*args, **kwargs)
 
     @staticmethod
     def validate_params(etl_params):
+        """Validate and normalize epacems parameters."""
         epacems_dict = {}
         # pull out the etl_params from the dictionary passed into this function
         try:
@@ -511,6 +570,7 @@ class EpaCemsPipeline(DatasetPipeline):
             return epacems_dict
 
     def build(self, params):
+        """Add epacems tasks to the flow."""
         if not _all_params_present(params, ['epacems_states', 'epacems_years']):
             return None
 
@@ -572,10 +632,13 @@ def _transform_epaipm(params, dfs):
 
 
 class EpaIpmPipeline(DatasetPipeline):
+    """Runs epaipm tasks."""
+
     DATASET = 'epaipm'
 
     @staticmethod
     def validate_params(etl_params):
+        """Validate and normalize epaipm parameters."""
         epaipm_dict = {}
         # pull out the etl_params from the dictionary passed into this function
         try:
@@ -587,6 +650,7 @@ class EpaIpmPipeline(DatasetPipeline):
         return epaipm_dict
 
     def build(self, params):
+        """Add epaipm tasks to the flow."""
         if not _all_params_present(params, ['epaipm_tables']):
             return None
         with self.flow:
@@ -599,18 +663,22 @@ class EpaIpmPipeline(DatasetPipeline):
 ###############################################################################
 # GLUE EXPORT FUNCTIONS
 ###############################################################################
-@task(result=LocalResult(), 
-        target=pudl_task_target_name,
-        cache_for=timedelta(days=1), cache_validator=all_inputs)
+@task(result=LocalResult(),
+      target=pudl_task_target_name,
+      cache_for=timedelta(days=1))
 def _transform_glue(params):
+    # TODO(rousik): replace this thin wrapper with @task annotation on ferc1_eia.glue()
     return pudl.glue.ferc1_eia.glue(ferc1=params['ferc1'], eia=params['eia'])
 
 
 class GluePipeline(DatasetPipeline):
+    """Runs glue tasks combining eia/ferc1 results."""
+
     DATASET = 'glue'
 
     @staticmethod
     def validate_params(etl_params):
+        """Validate and normalize glue parameters."""
         glue_dict = {}
         # pull out the etl_params from the dictionary passed into this function
         try:
@@ -627,9 +695,8 @@ class GluePipeline(DatasetPipeline):
             return glue_dict
 
     def build(self, params):
+        """Add glue tasks to the flow."""
         if not params.get('ferc1') and not params.get('eia'):
-            logger.warn(f'{self.DATASET}: glue not running.')
-            logger.warn(params)
             return None
         with self.flow:
             return _transform_glue(params)
@@ -847,8 +914,8 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
 
     for pl_class in [Ferc1Pipeline, EiaPipeline, EpaIpmPipeline, GluePipeline]:
         pipelines[pl_class.DATASET] = pl_class(
-                pudl_settings, dataset_list, flow,
-                datapkg_name=datapkg_builder.get_datapkg_name(datapkg_settings))
+            pudl_settings, dataset_list, flow,
+            datapkg_name=datapkg_builder.get_datapkg_name(datapkg_settings))
     # EpaCems pipeline is special because it needs to read the output of eia
     # pipeline
     pipelines['epacems'] = EpaCemsPipeline(
@@ -865,7 +932,20 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
 
 
 class DatapackageBuilder(prefect.Task):
+    """Builds and validates datapackages.
+
+    Writes metadata for each data package and validates results.
+    """
+
     def __init__(self, bundle_name, pudl_settings, doi, *args, **kwargs):
+        """Constructs the datapackage builder.
+
+        Args:
+            bundle_name: top-level name of the bundle that is being
+              built by this instance.
+            pudl_settings: configuration object for this ETL run.
+            doi: doi associated with the datapackages that are to be built.
+        """
         self.uuid = str(uuid.uuid4())
         self.doi = doi
         self.pudl_settings = pudl_settings
@@ -875,6 +955,7 @@ class DatapackageBuilder(prefect.Task):
         super().__init__(*args, **kwargs)
 
     def prepare_output_directories(self, clobber=False):
+        """Create (or wipe and re-create) output directory for the bundle."""
         pudl.helpers.prep_dir(self.bundle_dir, clobber=clobber)
 
     def make_datapkg_dir(self, datapkg_settings):
@@ -882,15 +963,18 @@ class DatapackageBuilder(prefect.Task):
         (self.get_datapkg_output_dir(datapkg_settings) / "data").mkdir(parents=True)
 
     def get_datapkg_output_dir(self, datapkg_settings):
+        """Returns path where datapkg files should be stored."""
         return Path(
             self.pudl_settings["datapkg_dir"],
             self.bundle_name,
             datapkg_settings["name"])
 
     def get_datapkg_name(self, datapkg_settings):
+        """Returns fully qualified datapkg name in the form of bundle_name/datapkg."""
         return f'{self.bundle_name}/{datapkg_settings["name"]}'
 
     def run(self, list_of_df_maps, datapkg_settings):
+        """Write metadata and validate contents."""
         unique_tables = set()
         for df_map in list_of_df_maps:
             unique_tables.update(df_map)
