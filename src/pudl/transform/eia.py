@@ -828,7 +828,7 @@ def transform(eia_transformed_dfs,
     entity harvesting is finished.
 
     Args:
-        eia_transformed_dfs (dict): a dictionary of table names (kays) and
+        eia_transformed_dfs (dict): a dictionary of table names (keys) and
             transformed dataframes (values).
         eia860_years (list): a list of years for EIA 860, must be continuous,
             and only include working years.
@@ -845,6 +845,9 @@ def transform(eia_transformed_dfs,
     if not eia923_years and not eia860_years:
         logger.info('Not ingesting EIA')
         return None
+    # Apply the right dtypes to the input dfs
+    eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
+            eia_transformed_dfs, 'eia')
     # create the empty entities df to fill up
     entities_dfs = {}
 
