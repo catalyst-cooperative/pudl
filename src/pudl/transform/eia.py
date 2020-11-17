@@ -838,16 +838,15 @@ def transform(eia_transformed_dfs,
             boiler_generator_assn
 
     Returns:
-        tuple: two dictionaries having table names as keys and
-        dataframes as values for the entity tables transformed EIA dataframes
-
+        dict: mapping from table names to dataframes. Both entity tables and
+        simplified eia tables are returned.
     """
     if not eia923_years and not eia860_years:
         logger.info('Not ingesting EIA')
         return None
     # Apply the right dtypes to the input dfs
     eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
-            eia_transformed_dfs, 'eia')
+        eia_transformed_dfs, 'eia')
     # create the empty entities df to fill up
     entities_dfs = {}
 
@@ -872,5 +871,5 @@ def transform(eia_transformed_dfs,
             f'{entity}_annual_eia', f'{entity}_annual_eia')
     # remove the boilers annual table bc it has no columns
     eia_transformed_dfs.pop('boilers_annual_eia',)
-    entities_dfs = pudl.helpers.convert_dfs_dict_dtypes(entities_dfs, 'eia')
-    return entities_dfs, eia_transformed_dfs
+    eia_transformed_dfs.update(entities_dfs)
+    return pudl.helpers.convert_dfs_dict_dtypes(eia_transformed_dfs, 'eia')
