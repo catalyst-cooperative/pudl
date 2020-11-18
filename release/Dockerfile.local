@@ -8,8 +8,7 @@ COPY . /pudl/repo
 RUN mkdir /pudl/dist && mkdir /pudl/src
 RUN python setup.py sdist -d /pudl/dist && mv /pudl/dist/*tar.gz /pudl/dist/pudl.tar.gz
 RUN tar xzf /pudl/dist/pudl.tar.gz -C /pudl/src --strip-components=1
-# TODO(rousik): remove /pudl/repo?
-
+RUN rm -Rf /pudl/repo
 
 # Create pudl-dev environment based on the environment.yml from the source
 FROM continuumio/miniconda3:latest AS pudl-conda-base
