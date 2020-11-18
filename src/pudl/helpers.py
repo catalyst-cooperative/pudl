@@ -807,7 +807,7 @@ def drop_tables(engine,
     insp = reflection.Inspector.from_engine(engine)
     if len(insp.get_table_names()) > 0 and not clobber:
         raise AssertionError(
-            f'You are attempting to drop your database without setting clobber to {clobber}')
+            'Refusing to drop database because clobber is not set to True.')
     md.drop_all(engine)
     conn = engine.connect()
     conn.execute("VACUUM")
@@ -835,7 +835,10 @@ def merge_dicts(list_of_dicts):
 
 
 class ColumnTypeConversionError(Exception):
+    """pandas.DataFrame dtype conversion has failed."""
+
     def __init__(self, raw_exception, df_name=None, column=None):
+        """Creates new Exception and associates it with df_name and specific column."""
         self.df_name = df_name
         self.column = column
         self.raw_exception = raw_exception
@@ -889,24 +892,6 @@ def convert_cols_dtypes(df, data_source, name=None):
                    in col_dtypes.items()
                    if col_dtype == pd.StringDtype()}
 
-    # grab all of the non boolean columns
-    non_bool_cols = {col: col_dtype for col, col_dtype
-                     in col_dtypes.items()
-                     if col_dtype != pd.BooleanDtype()}
-
-    # If/when we have the columns exhaustively typed, we can do it like this,
-    # but right now we don't have the FERC columns done, so we can't:
-    # get me all of the columns for the table in the constants dtype dict
-    # col_types = {
-    #    col: pc.column_dtypes[data_source][col] for col in df.columns
-    # }
-    # grab only the boolean columns (we only need their names)
-    # bool_cols = {col for col in col_types if col_types[col] is bool}
-    # grab all of the non boolean columns
-    # non_bool_cols = {
-    #    col: col_types[col] for col in col_types if col_types[col] is not bool
-    # }
-
     for col in bool_cols:
         # Bc the og bool values were sometimes coming across as actual bools or
         # strings, for some reason we need to map both types (I'm not sure
@@ -921,7 +906,7 @@ def convert_cols_dtypes(df, data_source, name=None):
     # Int64Dtype() can't convert from object dtype so we need to convert via
     # float type. Identify columns for which this needs to happen.
     cols_to_fix = set(df.select_dtypes(object).keys()).intersection(
-            set(col for col, dtype in col_dtypes.items() if dtype == pd.Int64Dtype()))
+        set(col for col, dtype in col_dtypes.items() if dtype == pd.Int64Dtype()))
     if cols_to_fix:
         df = df.astype({c: float for c in cols_to_fix})
 
@@ -958,7 +943,8 @@ def convert_cols_dtypes(df, data_source, name=None):
         for col, dtype in col_dtypes.items():
             orig_type = str(df.dtypes[col])
             new_type = str(dtype)
-            logger.info(f'{name}: {col} will be converted from {orig_type} to {new_type}')
+            logger.info(
+                f'{name}: {col} will be converted from {orig_type} to {new_type}')
         for col, dtype in col_dtypes.items():
             try:
                 df = df.astype({col: dtype})
