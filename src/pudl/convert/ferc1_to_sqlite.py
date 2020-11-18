@@ -15,7 +15,6 @@ import coloredlogs
 import yaml
 
 import pudl
-from pudl import constants as pc
 
 # Create a logger to output any messages we might have...
 logger = logging.getLogger(__name__)
@@ -75,34 +74,7 @@ def main():  # noqa: C901
         pudl_in=pudl_in, pudl_out=pudl_out)
 
     # Check args for basic validity:
-    for table in script_settings['ferc1_to_sqlite_tables']:
-        if table not in pc.ferc1_tbl2dbf:
-            raise ValueError(
-                f"{table} was not found in the list of "
-                f"available FERC Form 1 tables."
-            )
-    if script_settings['ferc1_to_sqlite_refyear'] \
-            not in pc.data_years['ferc1']:
-        raise ValueError(
-            f"Reference year {script_settings['ferc1_to_sqlite_refyear']} "
-            f"is outside the range of available FERC Form 1 data "
-            f"({min(pc.data_years['ferc1'])}-"
-            f"{max(pc.data_years['ferc1'])})."
-        )
-    for year in script_settings['ferc1_to_sqlite_years']:
-        if year not in pc.data_years['ferc1']:
-            raise ValueError(
-                f"Requested data from {year} is outside the range of "
-                f"available FERC Form 1 data "
-                f"({min(pc.data_years['ferc1'])}-"
-                f"{max(pc.data_years['ferc1'])})."
-            )
-
-    try:
-        # This field is optional and generally unused...
-        bad_cols = script_settings['ferc1_to_sqlite_bad_cols']
-    except KeyError:
-        bad_cols = ()
+    pudl.extract.ferc1.validate_ferc1_to_sqlite_settings(script_settings)
 
     pudl_settings["sandbox"] = args.sandbox
     pudl.extract.ferc1.dbf2sqlite(
@@ -110,7 +82,7 @@ def main():  # noqa: C901
         years=script_settings['ferc1_to_sqlite_years'],
         refyear=script_settings['ferc1_to_sqlite_refyear'],
         pudl_settings=pudl_settings,
-        bad_cols=bad_cols,
+        bad_cols=script_settings.get('ferc1_to_sqlite_bad_cols', ()),
         clobber=args.clobber)
 
 

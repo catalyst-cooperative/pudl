@@ -101,14 +101,17 @@ class DatasetPipeline:
 
     DATASET = None
 
-    def __init__(self, pudl_settings, dataset_list, flow, datapkg_name=None):
+    def __init__(self, pudl_settings, dataset_list, flow, datapkg_name=None, etl_settings=None,
+                 clobber=False):
         """Initialize Pipeline object and construct prefect tasks.
 
         Args:
-            pudl_settings: overall pipeline settings
-            dataset_list: list of named datasets associated with this bundle
-            flow: attach prefect tasks to this flow
-            datapkg_name: fully qualified name of the datapackage/bundle
+            pudl_settings (dict): overall configuration (paths and such)
+            dataset_list (list): list of named datasets associated with this bundle
+            flow (prefect.Flow): attach prefect tasks to this flow
+            datapkg_name (str): fully qualified name of the datapackage/bundle
+            etl_settings (dict): the complete ETL configuration
+            clobber (bool): if True, then existing outputs will be clobbered
         """
         if not self.DATASET:
             raise NotImplementedError(
@@ -119,6 +122,8 @@ class DatasetPipeline:
         self.output_dataframes = None
         self.pipeline_params = self._get_dataset_params(dataset_list)
         self.datapkg_name = datapkg_name
+        self.etl_settings = etl_settings
+        self.clobber = clobber
         if self.pipeline_params:
             self.pipeline_params = self.validate_params(self.pipeline_params)
             self.output_dataframes = self.build(self.pipeline_params)
@@ -196,6 +201,7 @@ class DatasetPipeline:
             if subclass.DATASET == dataset:
                 return subclass
         return None
+
 
 ###############################################################################
 # EIA EXPORT FUNCTIONS
@@ -504,9 +510,19 @@ class Ferc1Pipeline(DatasetPipeline):
         if not _all_params_present(params, ['ferc1_years', 'ferc1_tables']):
             return None
         with self.flow:
+            # ferc1_to_sqlite task should only happen once.
+            # Only add this task to the flow if it is not already present.
+            if not self.flow.get_tasks(name='ferc1_to_sqlite'):
+                pudl.extract.ferc1.ferc1_to_sqlite(
+                    self.etl_settings, self.pudl_settings, clobber=True)
+                # TODO(rousik): wire the clobber argument to commandline flag,
+                # --create-ferc1-sqlite=always|once|never
+            raw_dfs = _extract_ferc1(params, self.pudl_settings,
+                                     upstream_tasks=self.flow.get_tasks(name='ferc1_to_sqlite'))
+            dfs = _transform_ferc1(params, raw_dfs)
             return merge_dataframe_maps(
                 static_tables=_load_static_tables_ferc1(),
-                dfs=_transform_ferc1(params, _extract_ferc1(params, self.pudl_settings)))
+                dfs=dfs)
 
 
 class EpaCemsPipeline(DatasetPipeline):
@@ -877,7 +893,7 @@ def _create_synthetic_dependencies(flow, src_group, dst_group):
 
 
 def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
-        datapkg_builder=None):
+        datapkg_builder=None, etl_settings=None, clobber=False):
     """
     Run ETL process for data package specified by datapkg_settings dictionary.
 
@@ -894,6 +910,8 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
             will contain the datapackage.json file and the data directory.
         pudl_settings (dict): a dictionary describing paths to various
             resources and outputs.
+        etl_settings (dict): the complete configuration for the ETL run.
+        clobber (bool): if True then existing results will be overwritten.
 
     Returns:
         list: List of the task results that hold name of the tables included in the output
@@ -915,7 +933,8 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
     for pl_class in [Ferc1Pipeline, EiaPipeline, EpaIpmPipeline, GluePipeline]:
         pipelines[pl_class.DATASET] = pl_class(
             pudl_settings, dataset_list, flow,
-            datapkg_name=datapkg_builder.get_datapkg_name(datapkg_settings))
+            datapkg_name=datapkg_builder.get_datapkg_name(datapkg_settings),
+            etl_settings=etl_settings, clobber=clobber)
     # EpaCems pipeline is special because it needs to read the output of eia
     # pipeline
     pipelines['epacems'] = EpaCemsPipeline(
@@ -956,6 +975,7 @@ class DatapackageBuilder(prefect.Task):
 
     def prepare_output_directories(self, clobber=False):
         """Create (or wipe and re-create) output directory for the bundle."""
+        logger.info(f'Prep dir {self.bundle_dir}')
         pudl.helpers.prep_dir(self.bundle_dir, clobber=clobber)
 
     def make_datapkg_dir(self, datapkg_settings):
@@ -989,7 +1009,7 @@ class DatapackageBuilder(prefect.Task):
             datapkg_bundle_doi=self.doi)
 
 
-def generate_datapkg_bundle(datapkg_bundle_settings,
+def generate_datapkg_bundle(etl_settings,
                             pudl_settings,
                             datapkg_bundle_name,
                             datapkg_bundle_doi=None,
@@ -1007,9 +1027,7 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
     the schema for all of the possible pudl tables).
 
     Args:
-        datapkg_bundle_settings (iterable): a list of dictionaries. Each item
-            in the list corresponds to a data package. Each data package's
-            dictionary contains the arguements for its ETL function.
+        etl_settings (dict): ETL configuration object.
         pudl_settings (dict): a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
         datapkg_bundle_name (str): name of directory you want the bundle of
@@ -1036,6 +1054,8 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
     # _ = pudl.helpers.prep_dir(datapkg_bundle_dir, clobber=clobber)
 
     # metas = {}
+
+    datapkg_bundle_settings = etl_settings['datapkg_bundle_settings']
     flow = prefect.Flow("PUDL ETL")
     datapkg_builder = DatapackageBuilder(
         datapkg_bundle_name, pudl_settings, doi=datapkg_bundle_doi)
@@ -1049,7 +1069,8 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
     for datapkg_settings in validated_bundle_settings:
         datapkg_builder.make_datapkg_dir(datapkg_settings)
         etl(datapkg_settings, pudl_settings, flow=flow,
-            bundle_name=datapkg_bundle_name, datapkg_builder=datapkg_builder)
+            bundle_name=datapkg_bundle_name, datapkg_builder=datapkg_builder,
+            etl_settings=etl_settings, clobber=clobber)
 
     # TODO(rousik): print out the flow structure
     flow.visualize()

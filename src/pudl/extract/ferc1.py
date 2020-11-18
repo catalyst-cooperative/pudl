@@ -59,6 +59,7 @@ import dbfread
 import pandas as pd
 import sqlalchemy as sa
 from dbfread import DBF
+from prefect import task
 
 import pudl
 from pudl import constants as pc
@@ -516,6 +517,49 @@ def get_raw_df(ds, table, dbc_map, years=pc.data_years['ferc1']):
             drop('_NullFlags', axis=1, errors='ignore').
             rename(dbc_map[table], axis=1)
         )
+
+
+def validate_ferc1_to_sqlite_settings(script_settings):
+    """Check that ferc1_to_sqlite settings are correct."""
+    for table in script_settings['ferc1_to_sqlite_tables']:
+        if table not in pc.ferc1_tbl2dbf:
+            raise ValueError(
+                f"{table} was not found in the list of "
+                f"available FERC Form 1 tables."
+            )
+    if script_settings['ferc1_to_sqlite_refyear'] \
+            not in pc.data_years['ferc1']:
+        raise ValueError(
+            f"Reference year {script_settings['ferc1_to_sqlite_refyear']} "
+            f"is outside the range of available FERC Form 1 data "
+            f"({min(pc.data_years['ferc1'])}-"
+            f"{max(pc.data_years['ferc1'])})."
+        )
+    for year in script_settings['ferc1_to_sqlite_years']:
+        if year not in pc.data_years['ferc1']:
+            raise ValueError(
+                f"Requested data from {year} is outside the range of "
+                f"available FERC Form 1 data "
+                f"({min(pc.data_years['ferc1'])}-"
+                f"{max(pc.data_years['ferc1'])})."
+            )
+
+
+@task
+def ferc1_to_sqlite(script_settings, pudl_settings, clobber=True):
+    """Clones the FERC1 Form 1 database to sqlite."""
+    # TODO(rousik): clobber should be replaced with --mode=always|once|never that will control
+    # when is ferc1_sqlite table created.
+    # We may also consider hashing the input configuration such that we will only kick this
+    # step when the database is not in sync with the requested settings.
+    validate_ferc1_to_sqlite_settings(script_settings)
+    dbf2sqlite(
+        tables=script_settings['ferc1_to_sqlite_tables'],
+        years=script_settings['ferc1_to_sqlite_years'],
+        refyear=script_settings['ferc1_to_sqlite_refyear'],
+        pudl_settings=pudl_settings,
+        bad_cols=script_settings.get('ferc1_to_sqlite_bad_cols', ()),
+        clobber=clobber)
 
 
 def dbf2sqlite(tables, years, refyear, pudl_settings,
