@@ -27,7 +27,7 @@ RUN pip install /pudl/src
 
 RUN mkdir /pudl/inputs
 RUN mkdir /pudl/outputs
-RUN pudl_setup --pudl_in /pudl/inputs /pudl/outputs
+RUN pudl_setup --pudl_in /pudl/inputs --pudl_out /pudl/outputs
 
 # Mark inputs and outputs as mountable volumes
 VOLUME /pudl/inputs

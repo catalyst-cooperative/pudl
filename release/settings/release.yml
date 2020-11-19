@@ -3,11 +3,13 @@
 ###########################################################################
 # if you are loading ferc1, you need to specify a reference year. This is the
 # year whose database structure is used as a template.
-ferc1_to_sqlite_refyear: 2018
+ferc1_to_sqlite_refyear: 2019
 # What years of original FERC data should be cloned into the SQLite DB?
-ferc1_to_sqlite_years: [1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
-                        2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
-                        2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
+ferc1_to_sqlite_years: [
+    1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
+    2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
+    2014, 2015, 2016, 2017, 2018, 2019
+]
 # A list of tables to be loaded into the local SQLite database. These are
 # the table names as they appear in the 2015 FERC Form 1 database.
 ferc1_to_sqlite_tables: [
@@ -154,9 +156,11 @@ datapkg_bundle_settings:
            - plants_pumped_storage_ferc1
            - plant_in_service_ferc1
            - purchased_power_ferc1
-          ferc1_years: [1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
-                        2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011,
-                        2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
+          ferc1_years: [
+              1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
+              2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
+              2014, 2015, 2016, 2017, 2018, 2019
+          ]
 
 ###########################################################################
 # EIA FORM 923 & 860 ETL SETTINGS
@@ -174,16 +178,20 @@ datapkg_bundle_settings:
             # NOTE: coalmine_eia923 REQUIRES fuel_receipts_costs_eia923
             - coalmine_eia923
             - fuel_receipts_costs_eia923
-          eia923_years: [2009, 2010, 2011, 2012, 2013,
-                         2014, 2015, 2016, 2017, 2018, 2019]
+          eia923_years: [
+              2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+              2019
+          ]
           eia860_tables:
             - boiler_generator_assn_eia860
             - utilities_eia860
             - plants_eia860
             - generators_eia860
             - ownership_eia860
-          eia860_years: [2009, 2010, 2011, 2012, 2013,
-                         2014, 2015, 2016, 2017, 2018, 2019]
+          eia860_years: [
+              2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+              2019
+          ]
 
 ###########################################################################
 # EPA CEMS HOURLY ETL SETTINGS
@@ -201,18 +209,24 @@ datapkg_bundle_settings:
             # NOTE: coalmine_eia923 REQUIRES fuel_receipts_costs_eia923
             - coalmine_eia923
             - fuel_receipts_costs_eia923
-          eia923_years: [2009, 2010, 2011, 2012, 2013,
-                         2014, 2015, 2016, 2017, 2018, 2019]
+          eia923_years: [
+              2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+              2019
+          ]
           eia860_tables:
             - boiler_generator_assn_eia860
             - utilities_eia860
             - plants_eia860
             - generators_eia860
             - ownership_eia860
-          eia860_years: [2009, 2010, 2011, 2012, 2013,
-                         2014, 2015, 2016, 2017, 2018, 2019]
+          eia860_years: [
+              2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+              2019
+          ]
       - epacems:
-          epacems_years: [1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
-                          2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,
-                          2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
+          epacems_years: [
+              1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
+              2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
+              2015, 2016, 2017, 2018, 2019
+          ]
           epacems_states: [ALL]
