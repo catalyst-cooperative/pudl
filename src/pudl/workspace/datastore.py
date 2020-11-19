@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """Datastore manages file retrieval for PUDL datasets."""
 
 import argparse
@@ -68,8 +66,8 @@ class Datastore:
 
         Args:
             pudl_in (Path): path to the root pudl data directory
-            loglevel (str): logging level
-            verbose (bool): If true, logs printed to stdout
+            loglevel (str): logging level.
+            verbose (bool): If true, logs printed to stdout.
             sandbox (bool): If true, use the sandbox server instead of production
             timeout (float): Network timeout for http requests.
 
@@ -482,7 +480,12 @@ def main_arguments():
     prod_dois = "\n".join([f"    - {x}" for x in DOI["production"].keys()])
     sand_dois = "\n".join([f"    - {x}" for x in DOI["sandbox"].keys()])
 
-    dataset_msg = f"--Available datasets--\n \nProduction:\n{prod_dois}\n \nSandbox:\n{sand_dois}"
+    dataset_msg = f"""
+Available Production Datasets:
+{prod_dois}
+
+Available Sandbox Datasets:
+{sand_dois}"""
 
     parser = argparse.ArgumentParser(
         description="Download and cache ETL source data from Zenodo.",
@@ -491,21 +494,41 @@ def main_arguments():
     )
 
     parser.add_argument(
-        "--dataset", help="Get only a specified dataset. Default gets all.")
+        "--dataset",
+        help="Download the specified dataset only. See below for available options. "
+        "The default is to download all, which may take an hour or more."
+        "speed."
+    )
     parser.add_argument(
         "--pudl_in",
-        help="Override pudl_in directory, defaults to option .pudl.yml")
+        help="Override pudl_in directory, defaults to setting in ~/.pudl.yml",
+    )
     parser.add_argument(
-        "--validate", help="Validate existing cache.", const=True,
-        default=False, action="store_const")
+        "--validate",
+        help="Validate locally cached datapackages, but don't download anything.",
+        action="store_const",
+        const=True,
+        default=False,
+    )
     parser.add_argument(
-        "--sandbox", help="Use sandbox server instead of production.",
-        action="store_const", const=True, default=False)
+        "--sandbox",
+        help="Download data from Zenodo sandbox server. For testing purposes only.",
+        action="store_const",
+        const=True,
+        default=False,
+    )
     parser.add_argument(
-        "--loglevel", help="Set logging level", default="WARNING")
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
     parser.add_argument(
-        "--verbose", help="Display logging messages", default=False,
-        action="store_const", const=True)
+        "--quiet",
+        help="Do not send logging messages to stdout.",
+        action="store_const",
+        const=True,
+        default=False,
+    )
 
     return parser.parse_args()
 
@@ -523,8 +546,12 @@ def main():
     else:
         pudl_in = Path(pudl_in)
 
-    ds = Datastore(pudl_in, loglevel=args.loglevel, verbose=args.verbose,
-                   sandbox=args.sandbox)
+    ds = Datastore(
+        pudl_in,
+        loglevel=args.loglevel,
+        verbose=not args.quiet,
+        sandbox=args.sandbox
+    )
 
     if dataset is None:
         if args.sandbox:
