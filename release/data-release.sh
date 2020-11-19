@@ -16,8 +16,8 @@ eval "$(conda shell.bash hook)"
 source activate pudl-dev
 
 pudl_setup --pudl_in /pudl/inputs --pudl_out /pudl/outputs
-ferc1_to_sqlite --clobber --sandbox $PUDL_SETTINGS
-pudl_etl --clobber --sandbox $PUDL_SETTINGS
+ferc1_to_sqlite --clobber $PUDL_SETTINGS
+pudl_etl --clobber $PUDL_SETTINGS
 
 # TODO: Build zenodo archives from the above. If the settings
 # file is not for the standard release, then the tar commands
