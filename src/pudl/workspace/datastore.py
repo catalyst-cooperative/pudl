@@ -496,7 +496,7 @@ Available Sandbox Datasets:
     parser.add_argument(
         "--dataset",
         help="Download the specified dataset only. See below for available options. "
-        "The default is to download all, which takes a long time depending on network "
+        "The default is to download all, which may take an hour or more."
         "speed."
     )
     parser.add_argument(
