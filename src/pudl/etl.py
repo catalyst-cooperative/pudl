@@ -1049,7 +1049,8 @@ def generate_datapkg_bundle(etl_settings,
                             clobber=False,
                             use_dask_executor=False,
                             gcs_bucket=None,
-                            overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS):
+                            overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS,
+                            show_flow_graph=False):
     """
     Coordinate the generation of data packages.
 
@@ -1115,13 +1116,15 @@ def generate_datapkg_bundle(etl_settings,
             overwrite_ferc1_db=overwrite_ferc1_db)
 
     # TODO(rousik): print out the flow structure
-    flow.visualize()
+    if show_flow_graph:
+        flow.visualize()
     if use_dask_executor:
         state = flow.run(executor=DaskExecutor(
             adapt_kwargs={'minimum': 2, 'maximum': 10}))
     else:
         state = flow.run()
-    flow.visualize(flow_state=state)
+    if show_flow_graph:
+        flow.visualize(flow_state=state)
     # TODO(rousik): determine what kind of return value should happen here. For now lets just
     # not return anything.
     return {}

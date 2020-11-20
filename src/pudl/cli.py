@@ -74,6 +74,11 @@ def parse_command_line(argv):
         type=lambda mode: SqliteOverwriteMode[mode],
         default=SqliteOverwriteMode.ALWAYS,
         choices=list(SqliteOverwriteMode))
+    parser.add_argument(
+        "--show-flow-graph",
+        type=bool,
+        default=False,
+        help="Controls whether flow dependency graphs should be displayed.")
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -125,7 +130,10 @@ def main():
         clobber=args.clobber,
         use_dask_executor=args.use_dask_executor,
         gcs_bucket=args.upload_to_gcs_bucket,
-        overwrite_ferc1_db=args.overwrite_ferc1_db)
+        overwrite_ferc1_db=args.overwrite_ferc1_db,
+        show_flow_graph=args.show_flow_graph)
+    # TODO(rousik): perhaps we can pass args to this method for direct
+    # acces to the commandline flags.
 
 
 if __name__ == "__main__":
