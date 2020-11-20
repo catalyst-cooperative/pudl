@@ -5478,10 +5478,10 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "eia_epacems_crosswalk",
-            "path": "data/plants_eia.csv",  # NOT SURE
-            "title": "eia_epacems_crosswalk",
-            "encoding": "utf-8",  # NOT SURE
+            "name": "assn_eia_epacems",
+            "path": "data/plants_eia.csv",
+            "title": "assn_eia_epacems",
+            "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
             "dialect": {
@@ -5497,7 +5497,7 @@
                 "fields": [{
                         "name": "plant_id_eia",
                         "type": "integer",
-                        "format": "default",  # NOT SURE WHAT DEFAULT MEANS
+                        "format": "default",
                         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration."
                     },
                     {
@@ -5519,12 +5519,12 @@
                     {
                         "name": "generator_id",
                         "type": "integer",
-                        "format": "default",
+                        "format": "default"
                     },
                     {
                         "name": "boiler_id",
                         "type": "integer",
-                        "format": "default",
+                        "format": "default"
                     },
                     {
                         "name": "prime_mover_code",
@@ -5546,12 +5546,12 @@
                     ""
                 ]
             },
-            "licenses": [{  # DONT KNOW WHETHER THIS SHOULD CHANGE
+            "licenses": [{
                 "name": "CC-BY-4.0",
                 "title": "EPA",
                 "path": "https://www.epa.gov/"
             }],
             "sources": []
-        },
+        }
     ]
 }
