@@ -66,6 +66,10 @@ def parse_command_line(argv):
         type=bool,
         help='If enabled, use local DaskExecutor to run the flow.')
     parser.add_argument(
+        "--upload-to-gcs-bucket",
+        type=str,
+        help='If specified, upload the datapackages to the specified gcs bucket.')
+    parser.add_argument(
         "--overwrite-ferc1-db",
         type=lambda mode: SqliteOverwriteMode[mode],
         default=SqliteOverwriteMode.ALWAYS,
@@ -120,6 +124,7 @@ def main():
         datapkg_bundle_doi=datapkg_bundle_doi,
         clobber=args.clobber,
         use_dask_executor=args.use_dask_executor,
+        gcs_bucket=args.upload_to_gcs_bucket,
         overwrite_ferc1_db=args.overwrite_ferc1_db)
 
 

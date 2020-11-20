@@ -59,6 +59,7 @@ test_requires = [
     "nbval",
     "pep8-naming",
     "pre-commit",
+    "prefect[viz, google]",
     "pydocstyle",
     "pytest",
     "pytest-cov",

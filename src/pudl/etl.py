@@ -16,12 +16,12 @@ data from:
    - Integrated Planning Model (epaipm)
 
 """
+import io
 import logging
+import tarfile
 import uuid
 from datetime import timedelta
 from pathlib import Path
-
-from pudl.extract.ferc1 import SqliteOverwriteMode
 
 import pandas as pd
 import prefect
@@ -30,6 +30,7 @@ from prefect.engine import cache_validators
 from prefect.engine.cache_validators import all_inputs
 from prefect.engine.executors import DaskExecutor
 from prefect.engine.results import LocalResult
+from prefect.tasks.gcp import GCSUpload
 
 import pudl
 from pudl import constants as pc
@@ -970,7 +971,7 @@ class DatapackageBuilder(prefect.Task):
     Writes metadata for each data package and validates results.
     """
 
-    def __init__(self, bundle_name, pudl_settings, doi, *args, **kwargs):
+    def __init__(self, bundle_name, pudl_settings, doi, gcs_bucket=None, *args, **kwargs):
         """Constructs the datapackage builder.
 
         Args:
@@ -978,12 +979,15 @@ class DatapackageBuilder(prefect.Task):
               built by this instance.
             pudl_settings: configuration object for this ETL run.
             doi: doi associated with the datapackages that are to be built.
+            gcs_bucket (str): if specified, upload the archived datapackagers to this
+              Google Cloud Storage bucket.
         """
         self.uuid = str(uuid.uuid4())
         self.doi = doi
         self.pudl_settings = pudl_settings
         self.bundle_dir = Path(pudl_settings["datapkg_dir"], bundle_name)
         self.bundle_name = bundle_name
+        self.gcs_bucket = gcs_bucket
         logger.warning(f'DatapackageBuilder uuid is {self.uuid}')
         super().__init__(*args, **kwargs)
 
@@ -1015,12 +1019,27 @@ class DatapackageBuilder(prefect.Task):
         datapkg_full_name = self.get_datapkg_name(datapkg_settings)
         tables = sorted(unique_tables)
         logger.info(f'Building metadata for {datapkg_full_name} with tables: {tables}')
-        return pudl.load.metadata.generate_metadata(
+        results = pudl.load.metadata.generate_metadata(
             datapkg_settings,
             tables,
             self.get_datapkg_output_dir(datapkg_settings),
             datapkg_bundle_uuid=self.uuid,
             datapkg_bundle_doi=self.doi)
+
+        # Optionally upload files to Google Storage Bucket
+        # TODO(rousik): this should probably be separated into its own task
+        if self.gcs_bucket:
+            full_datapkg_name = self.get_datapkg_name(datapkg_settings)
+            blob = f'{self.uuid}/{self.doi}/{full_datapkg_name}.tgz'
+            # Create in-memory tar archive
+            tar_buffer = io.BytesIO()
+            with tarfile.open(mode='w:gz', fileobj=tar_buffer) as tar:
+                tar.add(self.get_datapkg_output_dir(datapkg_settings))
+            # TODO(rousik): perhaps drop the tgz file to somewhere
+            GCSUpload(bucket=self.gcs_bucket).run(
+                data=tar_buffer.getvalue(),
+                blob=blob)
+        return results
 
 
 def generate_datapkg_bundle(etl_settings,
@@ -1029,6 +1048,7 @@ def generate_datapkg_bundle(etl_settings,
                             datapkg_bundle_doi=None,
                             clobber=False,
                             use_dask_executor=False,
+                            gcs_bucket=None,
                             overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS):
     """
     Coordinate the generation of data packages.
@@ -1053,6 +1073,8 @@ def generate_datapkg_bundle(etl_settings,
             place.
         use_dask_executor (bool): If True, launch local Dask cluster to run the
             ETL tasks on.
+        gcs_bucket (str): if specified, upload the datapackage archives to this
+            Google Cloud Bucket.
         overwrite_ferc1_db (SqliteOverwriteMode): controls what to do with ferc1
             sqlite database. ALWAYS recreate, run the setup ONCE if the file does
             not exist or simply NEVER try to create ferc1 database.
@@ -1076,7 +1098,8 @@ def generate_datapkg_bundle(etl_settings,
     datapkg_bundle_settings = etl_settings['datapkg_bundle_settings']
     flow = prefect.Flow("PUDL ETL")
     datapkg_builder = DatapackageBuilder(
-        datapkg_bundle_name, pudl_settings, doi=datapkg_bundle_doi)
+        datapkg_bundle_name, pudl_settings, doi=datapkg_bundle_doi,
+        gcs_bucket=gcs_bucket)
     # Create, or delete and re-create the top level datapackage bundle directory:
     datapkg_builder.prepare_output_directories(clobber=clobber)
 
