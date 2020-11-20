@@ -42,7 +42,7 @@ class Extractor(excel.GenericExtractor):
         return df
 
     @staticmethod
-    def get_dtypes(part, page):
+    def get_dtypes(partition, page):
         """Returns dtypes for plant id columns."""
         return {
             "Plant ID": pd.Int64Dtype(),

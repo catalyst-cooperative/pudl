@@ -169,7 +169,7 @@ class GenericExtractor(object):
         return df
 
     @staticmethod
-    def get_dtypes(papartitionrt, page):
+    def get_dtypes(partition, page):
         """Provide custom dtypes for given page and partition."""
         return {}
 
