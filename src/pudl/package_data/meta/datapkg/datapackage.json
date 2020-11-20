@@ -2353,7 +2353,7 @@
                     {
                         "name": "data_source",
                         "type": "string",
-                        "description": "Source of EIA 860 data. Either Annual EIA 860",
+                        "description": "Source of EIA 860 data. Either Annual EIA 860 or the year-to-date updates from EIA 860M.",
                         "constraints": {
                             "enum": ["eia860","eia860m"]
                           },

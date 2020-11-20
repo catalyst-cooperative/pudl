@@ -208,13 +208,13 @@ class TestExcelExtractor:
         """Spot check extraction of eia860 excel files."""
         extractor = pudl.extract.eia860.Extractor(pudl_datastore_fixture)
         assert "Ownership" in extractor.load_excel_file(
-            part=2018, page="ownership").sheet_names
+            partition=2018, page="ownership").sheet_names
 
     def test_extract_eia923(self, pudl_datastore_fixture):
         """Spot check extraction eia923 excel files."""
         extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
         assert "Page 3 Boiler Fuel Data" in extractor.load_excel_file(
-            part=2018, page="stocks").sheet_names
+            partition=2018, page="stocks").sheet_names
 
 
 class TestEpaCemsDatastore:

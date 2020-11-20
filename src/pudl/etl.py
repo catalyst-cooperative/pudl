@@ -50,7 +50,9 @@ def _validate_params_partition(etl_params_og, tables):
 
 def check_for_bad_years(try_years, dataset):
     """Check for bad data years."""
-    bad_years = [y for y in try_years if y not in pc.working_years[dataset]]
+    bad_years = [
+        y for y in try_years
+        if y not in pc.working_partitions[dataset]['years']]
     if bad_years:
         raise AssertionError(f"Unrecognized {dataset} years: {bad_years}")
 
@@ -98,14 +100,15 @@ def _validate_params_eia(etl_params):
     if not eia_input_dict['eia860_years'] and eia_input_dict['eia923_years']:
         eia_input_dict['eia860_years'] = eia_input_dict['eia923_years']
 
+    eia860m_year = pd.to_datetime(
+        pc.working_partitions['eia860m']['year_month']).year
     if (eia_input_dict['eia860_ytd']
-        & (pd.to_datetime(pc.working_years['eia860m'][0]).year
-           in eia_input_dict['eia860_years'])):
+            and (eia860m_year in eia_input_dict['eia860_years'])):
         raise AssertionError(
             "Attempting to integrate an eia860m year "
-            f"({pd.to_datetime(pc.working_years['eia860m'][0]).year}) that is "
-            f"within the eia860 years: {eia_input_dict['eia860_years']}."
-            "Consider switching eia860_ytd parameter to False."
+            f"({eia860m_year}) that is within the eia860 years: "
+            f"{eia_input_dict['eia860_years']}. Consider switching eia860_ytd "
+            "parameter to False."
         )
     check_for_bad_tables(
         try_tables=eia_input_dict['eia923_tables'], dataset='eia923')
@@ -210,7 +213,7 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     # if we are trying to add the EIA 860M YTD data, then extract it and append
     if eia860_ytd:
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-            pc.working_years['eia860m'])
+            [pc.working_partitions['eia860m']['year_month']])
         eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
             eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
 
@@ -370,7 +373,7 @@ def _validate_params_epacems(etl_params):
     # if states are All, then we grab all of the states from constants
     if epacems_dict['epacems_states']:
         if epacems_dict['epacems_states'][0].lower() == 'all':
-            epacems_dict['epacems_states'] = list(pc.cems_states.keys())
+            epacems_dict['epacems_states'] = pc.working_partitions['epacems']['states']
 
     # CEMS is ALWAYS going to be partitioned by year and state. This means we
     # are functinoally removing the option to not partition or partition

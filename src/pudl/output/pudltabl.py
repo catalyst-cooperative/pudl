@@ -82,13 +82,14 @@ class PudlTabl(object):
         if start_date is None:
             self.start_date = \
                 pd.to_datetime(
-                    f"{min(pc.working_years['eia923'])}-01-01")
+                    f"{min(pc.working_partitions['eia923']['years'])}-01-01")
         else:
             # Make sure it's a date... and not a string.
             self.start_date = pd.to_datetime(start_date)
 
         if end_date is None:
-            self.end_date = pd.to_datetime(pc.working_years['eia860m'][0])
+            self.end_date = pd.to_datetime(
+                pc.working_partitions['eia860m']['year_month'])
         else:
             # Make sure it's a date... and not a string.
             self.end_date = pd.to_datetime(end_date)
@@ -207,7 +208,7 @@ class PudlTabl(object):
 
             eia861_raw_dfs = (
                 pudl.extract.eia861.Extractor(self.ds)
-                .extract(pc.working_years["eia861"])
+                .extract(pc.working_partitions["eia861"]["years"])
             )
             eia861_tfr_dfs = pudl.transform.eia861.transform(eia861_raw_dfs)
             for table in eia861_tfr_dfs:

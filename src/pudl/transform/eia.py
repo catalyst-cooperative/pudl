@@ -490,8 +490,8 @@ def harvesting(entity,  # noqa: C901
 
 
 def _boiler_generator_assn(eia_transformed_dfs,
-                           eia923_years=pc.working_years['eia923'],
-                           eia860_years=pc.working_years['eia860'],
+                           eia923_years=pc.working_partitions['eia923']['years'],
+                           eia860_years=pc.working_partitions['eia860']['years'],
                            debug=False):
     """
     Creates a set of more complete boiler generator associations.
@@ -830,8 +830,8 @@ def _boiler_generator_assn(eia_transformed_dfs,
 
 
 def _restrict_years(df,
-                    eia923_years=pc.working_years['eia923'],
-                    eia860_years=pc.working_years['eia860']):
+                    eia923_years=pc.working_partitions['eia923']['years'],
+                    eia860_years=pc.working_partitions['eia860']['years']):
     """Restricts eia years for boiler generator association."""
     bga_years = set(eia860_years) & set(eia923_years)
     df = df[df.report_date.dt.year.isin(bga_years)]
@@ -839,8 +839,8 @@ def _restrict_years(df,
 
 
 def transform(eia_transformed_dfs,
-              eia860_years=pc.working_years['eia860'],
-              eia923_years=pc.working_years['eia923'],
+              eia860_years=pc.working_partitions['eia860']['years'],
+              eia923_years=pc.working_partitions['eia923']['years'],
               eia860_ytd=False,
               debug=False):
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
