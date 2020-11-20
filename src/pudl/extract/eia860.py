@@ -27,11 +27,11 @@ class Extractor(excel.GenericExtractor):
         self.METADATA = excel.Metadata('eia860')
         super().__init__(*args, **kwargs)
 
-    def process_raw(self, df, year, page):
+    def process_raw(self, df, partition, page):
         """Adds data_source column and report_year column if missing."""
-        df = df.rename(columns=self._metadata.get_column_map(year, page))
+        df = df.rename(columns=self._metadata.get_column_map(partition, page))
         if 'report_year' not in df.columns:
-            df['report_year'] = year
+            df['report_year'] = partition
         self.cols_added = ['report_year']
         # if this is one of the EIA860M pages, add data_source
         meta_eia860m = excel.Metadata('eia860m')

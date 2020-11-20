@@ -304,11 +304,12 @@ class GenericExtractor(object):
 
 def iterate_multivalue_dict(**kwargs):
     """Make dicts from dict with main dict key and one value of main dict."""
-    single_valued = {k: v for k, v in kwargs.items() if type(v) != list}
+    single_valued = {k: v for k,
+                     v in kwargs.items() if not isinstance(v, list)}
 
     # Transform multi-valued {k: vlist} into {k1: [{k1: v1}, {k1: v2}, ...], k2: [...], ...}
     multi_valued = {k: [{k: v} for v in vlist]
-                    for k, vlist in kwargs.items() if type(vlist) == list}
+                    for k, vlist in kwargs.items() if isinstance(vlist, list)}
 
     for value_assignments in itertools.product(*multi_valued.values()):
         result = dict(single_valued)

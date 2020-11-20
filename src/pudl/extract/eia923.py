@@ -34,16 +34,16 @@ class Extractor(excel.GenericExtractor):
     # energy_storage, github issue #458
     # oil_stocks, coal_stocks, petcoke_stocks
 
-    def process_raw(self, df, year, page):
+    def process_raw(self, df, partition, page):
         """Drops reserved columns."""
         to_drop = [c for c in df.columns if c[:8] == 'reserved']
         df.drop(to_drop, axis=1, inplace=True)
-        df = df.rename(columns=self._metadata.get_column_map(year, page))
+        df = df.rename(columns=self._metadata.get_column_map(partition, page))
         self.cols_added = []
         return df
 
     @staticmethod
-    def process_renamed(df, year, page):
+    def process_renamed(df, partition, page):
         """Cleans up unnamed_0 column in stocks page, drops invalid plan_id_eia rows."""
         if page == 'stocks':
             df = df.rename(columns={'unnamed_0': 'census_division_and_state'})
@@ -61,7 +61,7 @@ class Extractor(excel.GenericExtractor):
         return df
 
     @staticmethod
-    def get_dtypes(year, page):
+    def get_dtypes(partition, page):
         """Returns dtypes for plant id columns."""
         return {
             "Plant ID": pd.Int64Dtype(),

@@ -37,16 +37,16 @@ class Extractor(excel.GenericExtractor):
         self.METADATA = excel.Metadata('eia860m')
         super().__init__(*args, **kwargs)
 
-    def process_raw(self, df, part, page):
+    def process_raw(self, df, partition, page):
         """Adds source column and report_year column if missing."""
-        df = df.rename(columns=self._metadata.get_column_map(part, page))
+        df = df.rename(columns=self._metadata.get_column_map(partition, page))
         if 'report_year' not in df.columns:
-            df['report_year'] = datetime.strptime(part, "%Y-%m").year
+            df['report_year'] = datetime.strptime(partition, "%Y-%m").year
         df = df.assign(data_source='eia860m')
         self.cols_added = ['data_source', 'report_year']
         return df
 
-    def get_datapackage_resources(self, part):
+    def get_datapackage_resources(self, partition):
         """
         Get year_month resources from datapackage based on part.
 
@@ -56,10 +56,10 @@ class Extractor(excel.GenericExtractor):
 
         TODO: is there a cleaner way to do this??
         """
-        return self.ds.get_resources(self._dataset_name, year_month=part)
+        return self.ds.get_resources(self._dataset_name, year_month=partition)
 
     @staticmethod
-    def get_dtypes(part, page):
+    def get_dtypes(partition, page):
         """Returns dtypes for plant id columns."""
         return {
             "Plant ID": pd.Int64Dtype(),
