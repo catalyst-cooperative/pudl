@@ -24,6 +24,7 @@ import coloredlogs
 import yaml
 
 import pudl
+from pudl.extract.ferc1 import SqliteOverwriteMode
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +65,11 @@ def parse_command_line(argv):
         "--use-dask-executor",
         type=bool,
         help='If enabled, use local DaskExecutor to run the flow.')
+    parser.add_argument(
+        "--overwrite-ferc1-db",
+        type=lambda mode: SqliteOverwriteMode[mode],
+        default=SqliteOverwriteMode.ALWAYS,
+        choices=list(SqliteOverwriteMode))
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -113,7 +119,8 @@ def main():
         datapkg_bundle_name=script_settings['datapkg_bundle_name'],
         datapkg_bundle_doi=datapkg_bundle_doi,
         clobber=args.clobber,
-        use_dask_executor=args.use_dask_executor)
+        use_dask_executor=args.use_dask_executor,
+        overwrite_ferc1_db=args.overwrite_ferc1_db)
 
 
 if __name__ == "__main__":

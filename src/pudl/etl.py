@@ -21,6 +21,8 @@ import uuid
 from datetime import timedelta
 from pathlib import Path
 
+from pudl.extract.ferc1 import SqliteOverwriteMode
+
 import pandas as pd
 import prefect
 from prefect import task, unmapped
@@ -31,6 +33,7 @@ from prefect.engine.results import LocalResult
 
 import pudl
 from pudl import constants as pc
+from pudl.extract.ferc1 import SqliteOverwriteMode
 
 logger = logging.getLogger(__name__)
 
@@ -474,6 +477,11 @@ class Ferc1Pipeline(DatasetPipeline):
 
     DATASET = 'ferc1'
 
+    def __init__(self, *args, overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS, **kwargs):
+        """Initializes ferc1 pipeline, optionally creates ferc1 sqlite database."""
+        self.overwrite_ferc1_db = overwrite_ferc1_db
+        super().__init__(*args, **kwargs)
+
     @staticmethod  # noqa: C901
     def validate_params(etl_params):
         """Validate and normalize ferc1 parameters."""
@@ -514,7 +522,7 @@ class Ferc1Pipeline(DatasetPipeline):
             # Only add this task to the flow if it is not already present.
             if not self.flow.get_tasks(name='ferc1_to_sqlite'):
                 pudl.extract.ferc1.ferc1_to_sqlite(
-                    self.etl_settings, self.pudl_settings, clobber=True)
+                    self.etl_settings, self.pudl_settings, overwrite=self.overwrite_ferc1_db)
                 # TODO(rousik): wire the clobber argument to commandline flag,
                 # --create-ferc1-sqlite=always|once|never
             raw_dfs = _extract_ferc1(params, self.pudl_settings,
@@ -893,7 +901,8 @@ def _create_synthetic_dependencies(flow, src_group, dst_group):
 
 
 def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
-        datapkg_builder=None, etl_settings=None, clobber=False):
+        datapkg_builder=None, etl_settings=None, clobber=False,
+        overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS):
     """
     Run ETL process for data package specified by datapkg_settings dictionary.
 
@@ -912,6 +921,8 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
             resources and outputs.
         etl_settings (dict): the complete configuration for the ETL run.
         clobber (bool): if True then existing results will be overwritten.
+        overwrite_ferc1_db (SqliteOverwriteMode): controls how ferc1 db should
+            be treated.
 
     Returns:
         list: List of the task results that hold name of the tables included in the output
@@ -929,12 +940,16 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
         f'Running etl with the following configurations: {sorted(dataset_names)}')
 
     # datapkg_name = datapkg_builder.get_datapkg_name(datapkg_settings)
+    extra_params = {
+        'ferc1': {'overwrite_ferc1_db': overwrite_ferc1_db},
+    }
 
     for pl_class in [Ferc1Pipeline, EiaPipeline, EpaIpmPipeline, GluePipeline]:
         pipelines[pl_class.DATASET] = pl_class(
             pudl_settings, dataset_list, flow,
             datapkg_name=datapkg_builder.get_datapkg_name(datapkg_settings),
-            etl_settings=etl_settings, clobber=clobber)
+            etl_settings=etl_settings,
+            **extra_params.get(pl_class.DATASET, {}))
     # EpaCems pipeline is special because it needs to read the output of eia
     # pipeline
     pipelines['epacems'] = EpaCemsPipeline(
@@ -947,7 +962,6 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
             [pl.get_outputs() for pl in pipelines.values() if pl.get_outputs()],
             datapkg_dir=unmapped(output_dir))
         datapkg_builder(table_names, datapkg_settings)
-        # TODO(rousik): how can we set name on this task?
 
 
 class DatapackageBuilder(prefect.Task):
@@ -1014,7 +1028,8 @@ def generate_datapkg_bundle(etl_settings,
                             datapkg_bundle_name,
                             datapkg_bundle_doi=None,
                             clobber=False,
-                            use_dask_executor=False):
+                            use_dask_executor=False,
+                            overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS):
     """
     Coordinate the generation of data packages.
 
@@ -1038,6 +1053,9 @@ def generate_datapkg_bundle(etl_settings,
             place.
         use_dask_executor (bool): If True, launch local Dask cluster to run the
             ETL tasks on.
+        overwrite_ferc1_db (SqliteOverwriteMode): controls what to do with ferc1
+            sqlite database. ALWAYS recreate, run the setup ONCE if the file does
+            not exist or simply NEVER try to create ferc1 database.
 
     Returns:
         dict: A dictionary with datapackage names as the keys, and Python
@@ -1070,7 +1088,8 @@ def generate_datapkg_bundle(etl_settings,
         datapkg_builder.make_datapkg_dir(datapkg_settings)
         etl(datapkg_settings, pudl_settings, flow=flow,
             bundle_name=datapkg_bundle_name, datapkg_builder=datapkg_builder,
-            etl_settings=etl_settings, clobber=clobber)
+            etl_settings=etl_settings, clobber=clobber,
+            overwrite_ferc1_db=overwrite_ferc1_db)
 
     # TODO(rousik): print out the flow structure
     flow.visualize()

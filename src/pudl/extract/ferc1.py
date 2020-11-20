@@ -52,8 +52,11 @@ and EIA 923.
 import csv
 import importlib
 import logging
+import os
 import zipfile
+from enum import Enum
 from pathlib import Path
+from urllib.parse import urlparse
 
 import dbfread
 import pandas as pd
@@ -545,21 +548,32 @@ def validate_ferc1_to_sqlite_settings(script_settings):
             )
 
 
+class SqliteOverwriteMode(Enum):
+    """Controls how the existing sqlite database should be treated."""
+
+    ALWAYS = 1
+    ONCE = 2
+    NEVER = 3
+
+
 @task
-def ferc1_to_sqlite(script_settings, pudl_settings, clobber=True):
+def ferc1_to_sqlite(script_settings, pudl_settings, overwrite=SqliteOverwriteMode.ONCE):
     """Clones the FERC1 Form 1 database to sqlite."""
-    # TODO(rousik): clobber should be replaced with --mode=always|once|never that will control
-    # when is ferc1_sqlite table created.
-    # We may also consider hashing the input configuration such that we will only kick this
-    # step when the database is not in sync with the requested settings.
-    validate_ferc1_to_sqlite_settings(script_settings)
-    dbf2sqlite(
-        tables=script_settings['ferc1_to_sqlite_tables'],
-        years=script_settings['ferc1_to_sqlite_years'],
-        refyear=script_settings['ferc1_to_sqlite_refyear'],
-        pudl_settings=pudl_settings,
-        bad_cols=script_settings.get('ferc1_to_sqlite_bad_cols', ()),
-        clobber=clobber)
+    logger.warning(f'overwrite={overwrite}, dbfile={pudl_settings["ferc1_db"]}')
+    if overwrite == SqliteOverwriteMode.NEVER:
+        return False
+    elif overwrite == SqliteOverwriteMode.ONCE and os.path.isfile(urlparse(pudl_settings["ferc1_db"]).path):
+        return False
+    else:
+        validate_ferc1_to_sqlite_settings(script_settings)
+        dbf2sqlite(
+            tables=script_settings['ferc1_to_sqlite_tables'],
+            years=script_settings['ferc1_to_sqlite_years'],
+            refyear=script_settings['ferc1_to_sqlite_refyear'],
+            pudl_settings=pudl_settings,
+            bad_cols=script_settings.get('ferc1_to_sqlite_bad_cols', ()),
+            clobber=True)
+        return True
 
 
 def dbf2sqlite(tables, years, refyear, pudl_settings,
