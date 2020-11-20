@@ -16,7 +16,7 @@ jobs:
         uses: docker/build-push-action@v1
         with:
           file: release/Dockerfile.tiny
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: catalystcoop/pudl_etl
           tag_with_ref: true
