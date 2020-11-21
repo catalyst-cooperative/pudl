@@ -30,6 +30,7 @@ dependencies:
   - matplotlib          # base
   - mccabe              # dev
   - nbdime              # dev
+  - nbresuse            # dev
   - nbval               # dev
   - networkx>=2.2       # base We depend on features introduced in v2.2
   - numpy               # base

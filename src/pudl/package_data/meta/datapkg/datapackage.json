@@ -2359,6 +2359,13 @@
                         }
                     },
                     {
+                        "fields": "plant_id_eia",
+                        "reference": {
+                            "resource": "plants_entity_eia",
+                            "fields": "plant_id_eia"
+                        }
+                    },
+                    {
                         "fields": "utility_id_eia",
                         "reference": {
                             "resource": "utilities_entity_eia",
