@@ -5514,7 +5514,7 @@
                         "name": "epa_point_source_unit",
                         "type": "integer",
                         "format": "default",
-                        "description": "'Smokestack' unit monitered by EPA CEMS"
+                        "description": "'Smokestack' unit monitored by EPA CEMS."
                     },
                     {
                         "name": "generator_id",
@@ -5538,7 +5538,7 @@
                 "foreignKeys": [{
                     "fields": ["plant_id_eia", "generator_id"],
                     "reference": {
-                        "resource": "generators_entitiy_eia",
+                        "resource": "generators_entity_eia",
                         "fields": ["plant_id_eia", "generator_id"]
                     }
                 }],
