@@ -5479,7 +5479,7 @@
         {
             "profile": "tabular-data-resource",
             "name": "assn_eia_epacems",
-            "path": "data/plants_eia.csv",
+            "path": "data/assn_eia_epacems.csv",
             "title": "assn_eia_epacems",
             "encoding": "utf-8",
             "mediatype": "text/csv",
