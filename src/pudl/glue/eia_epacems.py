@@ -30,7 +30,7 @@ def grab_n_clean_epa_orignal():
         .rename(columns={
             'oris_code': 'plant_id_epa',
             'eia_oris': 'plant_id_eia',
-            'unit_id': 'epa_point_source_unit',
+            'unit_id': 'point_source_unit_id_epa',
             'facility_name': 'plant_name_eia',
             'unit_type': 'prime_mover_code'})
         .drop([
