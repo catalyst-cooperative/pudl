@@ -77,7 +77,7 @@ def parse_command_line(argv):
         choices=list(SqliteOverwriteMode))
     parser.add_argument(
         "--show-flow-graph",
-        type=bool,
+        action="store_true",
         default=False,
         help="Controls whether flow dependency graphs should be displayed.")
 
