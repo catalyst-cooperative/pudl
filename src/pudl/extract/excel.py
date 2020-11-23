@@ -187,7 +187,7 @@ class GenericExtractor(object):
         raw_dfs = {}
         if not partitions:
             logger.warning(
-                f'No years were given. Not extracting {self._dataset_name} spreadsheet data.')
+                f'No partitions were given. Not extracting {self._dataset_name} spreadsheet data.')
             return raw_dfs
         logger.info(f'Extracting {self._dataset_name} spreadsheet data.')
 
