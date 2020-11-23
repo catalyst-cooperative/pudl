@@ -5,6 +5,7 @@ This modules pulls data from EPA's published CSV files.
 """
 import io
 import logging
+from collections import namedtuple
 from zipfile import ZipFile
 
 import pandas as pd
@@ -79,17 +80,25 @@ def csv_to_dataframe(csv):
     return df
 
 
-@task(result=LocalResult(), target="{task_full_name}")  # noqa: FS003
-def extract_fragment(year, state, ds):
+EpacemsPartition = namedtuple('EpacemsPartition', 'year state')
+
+
+@task(result=LocalResult(), target="epacems-extract-{year}-{state}")  # noqa: FS003
+def extract_fragment(datastore, partition):
     """Extracts epacems dataframe for given year and state.
+
+    Args:
+        partition (EpacemsPartition): defines which partition (year, state)
+        should be loaded.
 
     Returns:
         {fragment_name: pandas.DataFrame}
     """
     dfs = []
     for month in range(1, 13):
-        csv = ds.open_csv(state, year, month)
+        csv = datastore.open_csv(partition.state, partition.year, month)
         dfs.append(csv_to_dataframe(csv))
 
     final_df = pd.concat(dfs, sort=True, copy=False, ignore_index=True)
-    return {f'hourly_emissions_epacems_{year}_{state.lower()}': final_df}
+    key = f'hourly_emissions_epacems_{partition.year}_{partition.state.lower()}'
+    return {key: final_df}
