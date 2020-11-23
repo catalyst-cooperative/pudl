@@ -63,7 +63,8 @@ def parse_command_line(argv):
         help="If specified, write logs to this file.")
     parser.add_argument(
         "--use-dask-executor",
-        type=bool,
+        action="store_true",
+        default=False,
         help='If enabled, use local DaskExecutor to run the flow.')
     parser.add_argument(
         "--upload-to-gcs-bucket",
