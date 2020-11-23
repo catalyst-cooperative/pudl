@@ -32,6 +32,4 @@ RUN pudl_setup --pudl_in /pudl/inputs --pudl_out /pudl/outputs
 VOLUME /pudl/inputs/data
 VOLUME /pudl/outputs
 
-ENV PUDL_SETTINGS=/pudl/src/release/settings/release.yml
-ENTRYPOINT pudl_etl
-CMD ["-c", "/pudl/src/release/settings/release.yml"]
+CMD ["pudl_etl", "-c", "/pudl/src/release/settings/release.yml"]
