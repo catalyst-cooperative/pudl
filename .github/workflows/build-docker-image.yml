@@ -13,9 +13,9 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v2
       - name: Push to Docker Hub
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v2
         with:
-          file: release/Dockerfile.tiny
+          dockerfile: release/Dockerfile.tiny
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: catalystcoop/pudl_etl
