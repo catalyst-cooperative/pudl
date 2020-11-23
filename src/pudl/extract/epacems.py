@@ -83,7 +83,7 @@ def csv_to_dataframe(csv):
 EpacemsPartition = namedtuple('EpacemsPartition', 'year state')
 
 
-@task(result=LocalResult(), target="epacems-extract-{year}-{state}")  # noqa: FS003
+@task(result=LocalResult(), target="epacems-extract-{partition.year}-{partition.state}")  # noqa: FS003
 def extract_fragment(datastore, partition):
     """Extracts epacems dataframe for given year and state.
 

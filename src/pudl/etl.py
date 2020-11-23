@@ -608,13 +608,9 @@ class EpaCemsPipeline(DatasetPipeline):
             plants = pudl.transform.epacems.load_plant_utc_offset(
                 _extract_table(self.eia_pipeline.get_outputs(), 'plants_entity_eia'))
 
-            states = params["epacems_states"]
-            years = params["epacems_years"]
             partitions = [
                 pudl.extract.epacems.EpacemsPartition(year=y, state=s)
                 for y, s in itertools.product(params["epacems_years"], params["epacems_states"])]
-            logger.info(
-                f'Epacems {years} {states} generated {len(partitions)} partitions.')
             raw_dfs = pudl.extract.epacems.extract_fragment.map(
                 datastore=unmapped(ds), partition=partitions)
             tf_dfs = pudl.transform.epacems.transform_fragment.map(raw_dfs,
