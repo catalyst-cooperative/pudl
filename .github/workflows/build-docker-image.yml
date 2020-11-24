@@ -31,6 +31,7 @@ jobs:
           file: release/Dockerfile.tiny
           platforms: linux/amd64,linux/arm64,linux/386
           push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.docker_meta.outputs.tags }}
           #          cache-from: type=registry,ref=catalystcoop/pudl_etl:latest
           #          cache-to: type=inline
           # TODO(rousik): should we use caching?
