@@ -170,6 +170,19 @@ def _load_static_tables_eia(datapkg_dir):
     return list(static_dfs.keys())
 
 
+def _add_eia_epacems_crosswalk(eia_transformed_dfs):
+    """Add the EIA-EPA crosswalk to the transformed dfs dict."""
+    plants_eia = eia_transformed_dfs['plants_eia860'].copy()
+    gens_eia = eia_transformed_dfs['generators_eia860'].copy()
+    assn_dfs = (
+        pudl.glue.eia_epacems.find_test_combine_id_matches(
+            plants_eia, gens_eia)
+    )
+    eia_transformed_dfs.update(assn_dfs)
+
+    return eia_transformed_dfs
+
+
 def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     """Extract, transform and load CSVs for the EIA datasets.
 
@@ -217,6 +230,10 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     # create an eia transformed dfs dictionary
     eia_transformed_dfs = eia860_transformed_dfs.copy()
     eia_transformed_dfs.update(eia923_transformed_dfs.copy())
+
+    # ADD CROSSWALK
+    eia_transformed_dfs = _add_eia_epacems_crosswalk(eia_transformed_dfs)
+
     # convert types..
     eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
         eia_transformed_dfs, 'eia')
@@ -445,7 +462,8 @@ def _etl_epacems(etl_params, datapkg_dir, pudl_settings):
                                 datapkg_dir=datapkg_dir)
         epacems_tables.append(list(transformed_df_dict.keys())[0])
     if logger.isEnabledFor(logging.INFO):
-        delta_t = time.strftime("%H:%M:%S", time.gmtime(time.monotonic() - start_time))
+        delta_t = time.strftime("%H:%M:%S", time.gmtime(
+            time.monotonic() - start_time))
         time_message = f"Loading EPA CEMS took {delta_t}"
         logger.info(time_message)
         start_time = time.monotonic()
@@ -851,7 +869,8 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
 
     # Generate a random UUID to identify this ETL run / data package bundle
     datapkg_bundle_uuid = str(uuid.uuid4())
-    datapkg_bundle_dir = Path(pudl_settings["datapkg_dir"], datapkg_bundle_name)
+    datapkg_bundle_dir = Path(
+        pudl_settings["datapkg_dir"], datapkg_bundle_name)
 
     # Create, or delete and re-create the top level datapackage bundle directory:
     _ = pudl.helpers.prep_dir(datapkg_bundle_dir, clobber=clobber)

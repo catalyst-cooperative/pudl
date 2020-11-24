@@ -1,7 +1,7 @@
 """
 Define and fill in gaps of the EPA-EIA crosswalk.
 
-This module defines functions that read in the EPA-EIA crosswalk
+This module defines functions that read in the EPA-EIA crosswalk file
 and fill in as many of the eia id gaps as possible. Eventually, EPA
 is going to come out with a crosswalk file containing fewer gaps.
 Until then, this module reads and cleans the current crosswalk.
@@ -27,20 +27,20 @@ def grab_n_clean_epa_orignal():
     eia_epacems_crosswalk = (
         pd.read_csv(eia_epacems_crosswalk_csv)
         .pipe(pudl.helpers.simplify_columns)
+        # .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
         .rename(columns={
             'oris_code': 'plant_id_epa',
             'eia_oris': 'plant_id_eia',
-            'unit_id': 'point_source_unit_id_epa',
-            'facility_name': 'plant_name_eia',
-            'unit_type': 'prime_mover_code'})
-        .drop([
-            'fuel_type_primary',
-            'edat_mw_cap',
-            'way_gen_id_matched',
-            'unit_op_status_date',
-            'notes',
-            'annual_heat_input',
-            'op_status'], axis=1)
+            'unit_id': 'unit_id_epa',
+            'facility_name': 'plant_name_eia'})
+        .filter([
+            'plant_name_eia',
+            'plant_id_eia',
+            'plant_id_epa',
+            'unit_id_epa',
+            'generator_id',
+            'boiler_id',
+        ])
     )
     return eia_epacems_crosswalk
 
@@ -102,6 +102,31 @@ def test_plant_ids(missing_ids, eia_plants):
     return split_into_w_and_wo_eia_ids(missing_merge)
 
 
+def split_tables(df):
+    """Split the EIA-EPA crosswalk table into three normalized tables."""
+    logger.info("splitting crosswalk into three normalized tables")
+    epa_df = (
+        df.filter(['plant_id_epa', 'unit_id_epa']).copy()
+        .drop_duplicates()
+        .dropna()
+    )
+    plants_eia_epa = (
+        df.filter(['plant_id_eia', 'plant_id_epa']).copy()
+        .drop_duplicates()
+        .dropna()
+    )
+    gen_unit_df = (
+        df.filter(['plant_id_eia', 'generator_id', 'unit_id_epa']).copy()
+        .drop_duplicates()
+        .dropna()
+    )
+
+    return {
+        'plant_unit_epa': epa_df,
+        'assn_plant_id_eia_epa': plants_eia_epa,
+        'assn_gen_eia_unit_epa': gen_unit_df}
+
+
 def find_test_combine_id_matches(eia_plants, eia_gens):
     """Run all EIA id matching tests on the crosswalk to fill in the gaps."""
     # Make sure the original crosswalk has an index field
@@ -120,6 +145,6 @@ def find_test_combine_id_matches(eia_plants, eia_gens):
             matched_ids_3,
             matched_ids_4,
             missing_ids])
-        .drop(['index', 'plant_name_eia_eia', 'plant_name_eia_epa'], axis=1)
     )
-    return clean_crosswalk
+
+    return split_tables(clean_crosswalk)
