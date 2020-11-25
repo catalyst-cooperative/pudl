@@ -5546,7 +5546,7 @@
                     },
                     {
                         "name": "plant_id_eia",
-                        "type": "string",
+                        "type": "integer",
                         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     }
@@ -5593,7 +5593,7 @@
             "schema": {
                 "fields": [{
                         "name": "plant_id_eia",
-                        "type": "string",
+                        "type": "integer",
                         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
