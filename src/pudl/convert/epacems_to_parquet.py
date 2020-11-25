@@ -212,16 +212,16 @@ def epacems_to_parquet(datapkg_path,
                 )
                 .assign(year=year)
             )
-            logger.info(f"{year}-{state}: {len(df)} records")
-            if len(df) > 0:
+            if len(df) == 0:
+                logger.info(f"Skipping {year}-{state}: 0 records found.")
+            else:
+                logger.info(f"{year}-{state}: {len(df)} records")
                 pq.write_to_dataset(
                     pa.Table.from_pandas(df, preserve_index=False, schema=schema),
                     root_path=str(out_dir),
                     partition_cols=list(partition_cols),
                     compression=compression
                 )
-            else:
-                logger.info("Skipping: no records found.")
 
 
 def parse_command_line(argv):
