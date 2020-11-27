@@ -71,7 +71,8 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     existing, retired). Pre 2009, the existing and retired data are lumped
     together under a single generator file with one tab. We pull each tab into
     one dataframe and include an ``operational_status`` to indicate which tab
-    the record came from.
+    the record came from. We use ``operational_status`` to parse the pre 2009
+    files as well.
 
     Args:
         eia860_dfs (dict): Each entry in this
@@ -104,7 +105,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     gr_df['operational_status'] = 'retired'
     g_df['operational_status'] = (
         g_df['operational_status_code']
-        .replace({'OP': 'existing',
+        .replace({'OP': 'existing',  # could move this dict to constants
                   'SB': 'existing',
                   'OA': 'existing',
                   'OS': 'existing',
@@ -322,7 +323,6 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     """
     # Populating the 'generators_eia860' table
     b_g_df = eia860_dfs['boiler_generator_assn'].copy()
-
     b_g_cols = ['report_year',
                 'utility_id_eia',
                 'plant_id_eia',
