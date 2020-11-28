@@ -167,10 +167,12 @@ def sample(
     """
     df_key, df_data = find_sample(df=df, key=key, data=data)
     if len(df_key) < len(key):
-        #
+        # Not all primary-key columns could be matched to columns in the dataframe
         return None
+    # Rename periodic key columns to the requested period
     mapper = {old: new for old, new in zip(df_key, key) if new != old}
     sdf = df[df_key + df_data].rename(columns=mapper)
+    # Convert periodic key columns to the requested period
     for k, df_k in zip(key, df_key):
         _, period = split_period(k)
         if period:
