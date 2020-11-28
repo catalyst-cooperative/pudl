@@ -167,6 +167,7 @@ def sample(
     """
     df_key, df_data = find_sample(df=df, key=key, data=data)
     if len(df_key) < len(key):
+        #
         return None
     mapper = {old: new for old, new in zip(df_key, key) if new != old}
     sdf = df[df_key + df_data].rename(columns=mapper)
@@ -811,12 +812,14 @@ class ResourceBuilder:
                     f"Resource {resource['name']} has duplicate field basenames"
                 )
             if resource.get("harvest"):
+                # All resource fields must be in dataframes with matching primary key
                 key = resource["schema"]["primaryKey"]
                 for df in self.dfs.values():
                     df_key, df_data = find_sample(df, key=key, data=columns)
                     if len(df_key) == len(key):
                         columns -= set(key) | set(df_data)
             else:
+                # All resource fields must be in dataframe of same name
                 columns -= set(self.dfs[resource["name"]].columns)
             if columns:
                 raise KeyError(
