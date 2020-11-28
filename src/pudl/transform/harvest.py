@@ -762,6 +762,7 @@ class ResourceBuilder:
                 ):
                     pruned.append(resource)
             elif resource["name"] in self.dfs:
+                # Keep standard tables with input tables of the same name
                 pruned.append(resource)
         return pruned
 
