@@ -5,8 +5,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pudl.harvest.harvest import (ResourceBuilder, expand_resource_fields,
-                                  most_frequent)
+from pudl.transform.harvest import (ResourceBuilder, expand_resource_fields,
+                                    most_frequent)
 
 # ---- Helpers ---- #
 
