@@ -43,7 +43,7 @@ def split_period(name: str) -> Tuple[str, Optional[str]]:
     return parts[0], parts[1]
 
 
-def add_smaller_periods(names: Iterable[str]) -> List[str]:
+def expand_periodic_column_names(names: Iterable[str]) -> List[str]:
     """
     Add smaller periods to a list of column names.
 
@@ -54,7 +54,7 @@ def add_smaller_periods(names: Iterable[str]) -> List[str]:
         Column names with additional names for smaller periods.
 
     Examples:
-        >>> add_smaller_periods(['id', 'report_year'])
+        >>> expand_periodic_column_names(['id', 'report_year'])
         ['id', 'report_year', 'report_quarter', 'report_month', 'report_day']
     """
     periods = list(PERIODS)
@@ -98,7 +98,7 @@ def find_sample(
     data = [col for col in data if col not in key]
     df_key = []
     for k in key:
-        for name in add_smaller_periods([k]):
+        for name in expand_periodic_column_names([k]):
             if name in df.columns:
                 df_key.append(name)
     df_data = [col for col in data if col in df.columns and col not in df_key]
@@ -755,7 +755,7 @@ class ResourceBuilder:
                 key_columns = set(resource["schema"]["primaryKey"])
                 data_columns = columns - key_columns
                 # Add alternative keys with smaller periods
-                key_columns = set(add_smaller_periods(key_columns))
+                key_columns = set(expand_periodic_column_names(key_columns))
                 # Keep if 1+ key columns in input, and 1+ data columns (if any) in input
                 if (self.columns & key_columns) and (
                     not data_columns or (self.columns & data_columns)
