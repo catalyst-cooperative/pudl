@@ -909,24 +909,17 @@ class ResourceBuilder:
                         for field in resource["schema"]["fields"]
                         if field["name"] not in key
                     }
+                    odf = groupby_aggregate(
+                        odf,
+                        by=key,
+                        aggfuncs=aggfuncs,
+                        errors="report" if errors == "log" else errors,
+                        errorfunc=errorfunc,
+                    )
                     if errors == "log":
-                        odf, report = groupby_aggregate(
-                            odf,
-                            by=key,
-                            aggfuncs=aggfuncs,
-                            errors="report",
-                            errorfunc=errorfunc,
-                        )
+                        odf, report = odf
                         if report:
                             reports[rname] = report
-                    else:
-                        odf = groupby_aggregate(
-                            odf,
-                            by=key,
-                            aggfuncs=aggfuncs,
-                            errors=errors,
-                            errorfunc=errorfunc,
-                        )
                 else:
                     # Set index to primary key to match harvest output
                     odf = odf.set_index(key)
