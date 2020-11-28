@@ -625,7 +625,7 @@ class ResourceBuilder:
         ... }
         >>> builder = ResourceBuilder(dfs)
 
-        Skip aggregation to access the full groups.
+        Skip aggregation to access all the rows concatenated from the input dataframes.
         The names of the input dataframes are used as the index.
 
         >>> build = builder.build(resources, errors='coerce', aggregate=False)
@@ -640,7 +640,8 @@ class ResourceBuilder:
         B    4
         Name: x, dtype: Int64
 
-        Aggregate and coerce errors to null.
+        Aggregate and coerce any aggregation errors to null
+        (by default, aggregation stops at and raises the first error).
         The primary key fields are used as the index.
 
         >>> build = builder.build(resources, errors='coerce')
