@@ -43,6 +43,26 @@ def split_period(name: str) -> Tuple[str, Optional[str]]:
     return parts[0], parts[1]
 
 
+def has_duplicate_basenames(names: Iterable[str]) -> bool:
+    """
+    Test whether column names contain duplicate base names.
+
+    Arguments:
+        names: Column names.
+
+    Returns:
+        Whether duplicate base names were found.
+
+    Examples:
+        >>> has_duplicate_basenames(['id', 'report_day'])
+        False
+        >>> has_duplicate_basenames(['id', 'report_day', 'report_month'])
+        True
+    """
+    basenames = [split_period(name)[0] for name in names]
+    return len(set(basenames)) != len(basenames)
+
+
 def expand_periodic_column_names(names: Iterable[str]) -> List[str]:
     """
     Add smaller periods to a list of column names.
@@ -720,8 +740,7 @@ class ResourceBuilder:
             dfs = {i: df for i, df in enumerate(dfs)}
         self.dfs = dfs
         for key in self.dfs:
-            basenames = [split_period(col)[0] for col in self.dfs[key].columns]
-            if len(set(basenames)) != len(basenames):
+            if has_duplicate_basenames(self.dfs[key].columns):
                 raise ValueError(f"Dataframe {key} has duplicate column basenames")
         self.errors = None
 
@@ -787,8 +806,7 @@ class ResourceBuilder:
         """
         for resource in resources:
             columns = set([field["name"] for field in resource["schema"]["fields"]])
-            basenames = [split_period(col)[0] for col in columns]
-            if len(set(basenames)) != len(basenames):
+            if has_duplicate_basenames(columns):
                 raise ValueError(
                     f"Resource {resource['name']} has duplicate field basenames"
                 )
