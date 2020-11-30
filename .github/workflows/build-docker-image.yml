@@ -17,6 +17,8 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.7
+      - name: Determine version
+        run: python setup.py --version
           #- name: Install build environment
         # run: python -m pip install build --user
         #      - name: Build source tarball
