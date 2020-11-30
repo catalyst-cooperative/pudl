@@ -28,7 +28,7 @@ jobs:
         #      - name: Build source tarball
         # run: python -m build --sdist --outdir dist/ .
         # TODO(rousik): inject tarball into the docker image
-      - name: Debug: print requirements
+      - name: Debug print requirements
         run: python devtools/print_requirements.py 
       - name: Docker Meta
         id: docker_meta
