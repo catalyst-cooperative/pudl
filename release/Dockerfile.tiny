@@ -11,7 +11,7 @@ FROM python:3.8 AS pudl-source-build
 WORKDIR /pudl/repo
 COPY . /pudl/repo
 RUN mkdir /pudl/package && mkdir /pudl/src
-# RUN ./devtools/print_requirements.py > /pudl/package/requirements.txt
+RUN ./devtools/print_requirements.py > /pudl/package/requirements.txt
 RUN python setup.py sdist -d /pudl/package && mv /pudl/package/*tar.gz /pudl/package/pudl.tar.gz
 RUN tar xzf /pudl/package/pudl.tar.gz -C /pudl/src --strip-components=1
 RUN rm -Rf /pudl/repo
@@ -21,9 +21,9 @@ RUN rm -Rf /pudl/repo
 
 FROM python:3.8
 RUN apt-get update && apt-get -y install libsnappy-dev git
-# COPY --from=pudl-source-build /pudl/package/requirements.txt /tmp/requirements.txt
+COPY --from=pudl-source-build /pudl/package/requirements.txt /tmp/requirements.txt
 # RUN --mount=type=cache,mode=0755,target=/root/.cache/pip pip install -r /tmp/requirements.txt
-# RUN pip install -r /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
 COPY --from=pudl-source-build /pudl /pudl
 RUN pip install /pudl/package/pudl.tar.gz
 WORKDIR /pudl/src
