@@ -543,7 +543,7 @@ def groupby_aggregate(  # noqa: C901
     dtypes = {col: df[col].dtype for col in data_columns}
     if errors == "report":
         reports = {}
-        # Prepare columns for error objects
+        # Prepare data columns for error objects returned by their aggregation function
         df = df.astype({col: object for col in data_columns})
     if errors == "raise":
         aggfuncs = {
@@ -566,18 +566,16 @@ def groupby_aggregate(  # noqa: C901
     else:
         # groupby.aggregate drops index when aggfuncs is empty
         result = df[by].drop_duplicates().set_index(by)
-    for col in data_columns:
-        ds = result[col]
-        if errors == "report":
-            is_error = ds.apply(isinstance, args=(ValueError,))
-            report = ds[is_error]
+    if errors == "report":
+        # Move errors to report and replace errors with nulls
+        is_error = result.applymap(lambda x: isinstance(x, ValueError))
+        for col in data_columns:
+            report = result[col][is_error[col]]
             if not report.empty:
                 reports[col] = report
-                ds = ds.where(~is_error)
-        # Enforce original data types, which nulls and errors may have changed
-        if str(dtypes[col]) != str(ds.dtype):
-            ds = ds.astype(dtypes[col])
-        result[col] = ds
+        result = result.where(~is_error)
+    # Enforce original data types, which nulls and errors may have changed
+    result = result.astype(dtypes, copy=False)
     if errors == "report":
         return result, reports
     return result
