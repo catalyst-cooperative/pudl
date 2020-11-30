@@ -371,7 +371,7 @@ def groupby_apply(  # noqa: C901
     aggfuncs: Dict[Any, Callable],
     errors: Literal["raise", "coerce", "report"] = "raise",
     errorfunc: Callable = None,
-) -> Union[pd.DataFrame, Tuple[pd.DataFrame, Dict[Any, pd.Series]]]:
+) -> Tuple[pd.DataFrame, Dict[Any, pd.Series]]:
     """
     Aggregate dataframe and capture errors (using apply).
 
@@ -397,8 +397,8 @@ def groupby_apply(  # noqa: C901
 
     Returns:
         Aggregated dataframe with `by` columns set as the index and
-        (if `errors`='report') an error report with a :class:`pd.Series`
-        for each column where errors occured.
+        an error report with (if `errors`='report')
+        a :class:`pd.Series` for each column where errors occured.
 
     Examples:
         >>> import pandas as pd
@@ -409,7 +409,7 @@ def groupby_apply(  # noqa: C901
         Traceback (most recent call last):
           ...
         ValueError: Could not aggregate y at x = 1: Not unique.
-        >>> groupby_apply(**base, errors='coerce')
+        >>> groupby_apply(**base, errors='coerce')[0]
               y
         x ...
         0     2
@@ -464,9 +464,7 @@ def groupby_apply(  # noqa: C901
                 report.index.names = keys
             reports[col] = report
         series[col] = ds
-    if errors == "report":
-        return pd.DataFrame(series), reports
-    return pd.DataFrame(series)
+    return pd.DataFrame(series), reports
 
 
 def groupby_aggregate(  # noqa: C901
@@ -475,7 +473,7 @@ def groupby_aggregate(  # noqa: C901
     aggfuncs: Dict[Any, Callable],
     errors: Literal["raise", "coerce", "report"] = "raise",
     errorfunc: Callable = None,
-) -> Union[pd.DataFrame, Tuple[pd.DataFrame, Dict[Any, pd.Series]]]:
+) -> Tuple[pd.DataFrame, Dict[Any, pd.Series]]:
     """
     Aggregate dataframe and capture errors (using aggregate).
 
@@ -502,7 +500,7 @@ def groupby_aggregate(  # noqa: C901
 
     Returns:
         Aggregated dataframe with `by` columns set as the index and
-        (if `errors`='report') an error report with a :class:`pd.Series` of errors
+        an error report with (if `errors`='report') a :class:`pd.Series` of errors
         (or the value returned by `errorfunc`) for each column where errors occured.
 
     Examples:
@@ -517,7 +515,7 @@ def groupby_aggregate(  # noqa: C901
         Traceback (most recent call last):
           ...
         ValueError: Could not aggregate y: Not unique.
-        >>> groupby_aggregate(**base, errors='coerce')
+        >>> groupby_aggregate(**base, errors='coerce')[0]
               y
         x ...
         0     2
@@ -541,8 +539,8 @@ def groupby_aggregate(  # noqa: C901
     """
     data_columns = [col for col in df.columns if col not in by]
     dtypes = {col: df[col].dtype for col in data_columns}
+    reports = {}
     if errors == "report":
-        reports = {}
         # Prepare data columns for error objects returned by their aggregation function
         df = df.astype({col: object for col in data_columns})
     if errors == "raise":
@@ -576,9 +574,7 @@ def groupby_aggregate(  # noqa: C901
         result = result.where(~is_error)
     # Enforce original data types, which nulls and errors may have changed
     result = result.astype(dtypes, copy=False)
-    if errors == "report":
-        return result, reports
-    return result
+    return result, reports
 
 
 # ---- Class definition ---- #
@@ -672,7 +668,7 @@ class ResourceBuilder:
         2    <NA>
         3       4
         Name: x, dtype: Int64
-        >>> builder.errors is None
+        >>> builder.errors == {}
         True
 
         Aggregate, log errors, and generate an error report.
@@ -743,7 +739,7 @@ class ResourceBuilder:
         for key in self.dfs:
             if has_duplicate_basenames(self.dfs[key].columns):
                 raise ValueError(f"Dataframe {key} has duplicate column basenames")
-        self.errors = None
+        self.errors = {}
 
     @property
     def columns(self) -> Set[str]:
@@ -907,22 +903,20 @@ class ResourceBuilder:
                         for field in resource["schema"]["fields"]
                         if field["name"] not in key
                     }
-                    odf = groupby_aggregate(
+                    odf, report = groupby_aggregate(
                         odf,
                         by=key,
                         aggfuncs=aggfuncs,
                         errors="report" if errors == "log" else errors,
                         errorfunc=errorfunc,
                     )
-                    if errors == "log":
-                        odf, report = odf
-                        if report:
-                            reports[rname] = report
+                    if errors == "log" and report:
+                        reports[rname] = report
                 else:
                     # Set index to primary key to match harvest output
                     odf = odf.set_index(key)
             odfs[rname] = odf
-        self.errors = reports if errors == "log" else None
+        self.errors = reports
         return odfs
 
     def report(
@@ -967,8 +961,6 @@ class ResourceBuilder:
         Raises:
             ValueError: No errors were logged by the last build.
         """
-        if self.errors is None:
-            raise ValueError("No errors were logged by the last build.")
         rreports = {}
         if resources:
             rnames = [resource["name"] for resource in resources]
