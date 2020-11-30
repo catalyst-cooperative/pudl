@@ -202,6 +202,26 @@ def most_frequent(x: pd.Series) -> Any:
     raise ValueError("No value is most frequent.")
 
 
+def most_and_more_frequent(x: pd.Series, min_frequency: float = None) -> Any:
+    """
+    Return most frequent value if more frequent than minimum (or error if none exists).
+
+    The minimum frequency ignores null values, so for example,
+    `1` in `[1, 1, 1, nan]` has a frequency of 0.75.
+    """
+    x = x.dropna()
+    mode = x.mode()
+    if mode.size == 1:
+        if min_frequency and min_frequency > (x == mode[0]).sum() / len(x):
+            raise ValueError(
+                f"The most frequent value is less frequent than {min_frequency}."
+            )
+        return mode[0]
+    if mode.empty:
+        return np.nan
+    raise ValueError("No value is most frequent.")
+
+
 def unique(x: pd.Series) -> Any:
     """Return single unique value (or error if none exists)."""
     x = x.dropna()
