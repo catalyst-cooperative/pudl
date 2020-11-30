@@ -188,8 +188,14 @@ Aggregation functions.
 All take a :class:`pd.Series` as input (and any optional keyword arguments).
 They may either return a single value (ideally of the same data type as the input),
 null (`np.nan`),
-or raise a :class:`ValueError` if the input does not meet requirements.
+or raise a :class:`AggregationError` if the input does not meet requirements.
 """
+
+
+class AggregationError(ValueError):
+    """Error raised by aggregation functions."""
+
+    pass
 
 
 def most_frequent(x: pd.Series) -> Any:
@@ -199,7 +205,7 @@ def most_frequent(x: pd.Series) -> Any:
         return mode[0]
     if mode.empty:
         return np.nan
-    raise ValueError("No value is most frequent.")
+    raise AggregationError("No value is most frequent.")
 
 
 def most_and_more_frequent(x: pd.Series, min_frequency: float = None) -> Any:
@@ -213,13 +219,13 @@ def most_and_more_frequent(x: pd.Series, min_frequency: float = None) -> Any:
     mode = x.mode()
     if mode.size == 1:
         if min_frequency and min_frequency > (x == mode[0]).sum() / len(x):
-            raise ValueError(
+            raise AggregationError(
                 f"The most frequent value is less frequent than {min_frequency}."
             )
         return mode[0]
     if mode.empty:
         return np.nan
-    raise ValueError("No value is most frequent.")
+    raise AggregationError("No value is most frequent.")
 
 
 def unique(x: pd.Series) -> Any:
@@ -230,7 +236,7 @@ def unique(x: pd.Series) -> Any:
     uniques = x.unique()
     if uniques.size == 1:
         return uniques[0]
-    raise ValueError("Not unique.")
+    raise AggregationError("Not unique.")
 
 
 def as_dict(x: pd.Series) -> Dict[Any, list]:
@@ -251,7 +257,7 @@ def try_aggfunc(  # noqa: C901
 
     Arguments:
         func: Aggregate function.
-        method: Error handling method (for :class:`ValueError` only).
+        method: Error handling method (for :class:`AggregationError` only).
 
             - 'coerce': Return `np.nan` instead of the error.
             - 'raise': Re-raise the error.
@@ -278,20 +284,20 @@ def try_aggfunc(  # noqa: C901
         >>> most_frequent(x)
         Traceback (most recent call last):
           ...
-        ValueError: No value is most frequent.
+        AggregationError: No value is most frequent.
         >>> try_aggfunc(most_frequent, 'coerce')(x)
         nan
         >>> try_aggfunc(most_frequent, 'return')(x)
-        ValueError('No value is most frequent.')
+        AggregationError('No value is most frequent.')
         >>> try_aggfunc(most_frequent, 'raise', 'Bad dtype {x.dtype}')(x)
         Traceback (most recent call last):
           ...
-        ValueError: Bad dtype int64
+        AggregationError: Bad dtype int64
         >>> error = lambda x, e: as_dict(x)
         >>> try_aggfunc(most_frequent, 'return', error)(x)
         {'a': [0, 0, 1], 'b': [1]}
         >>> try_aggfunc(most_frequent, 'insert', error)(x)
-        ValueError({'a': [0, 0, 1], 'b': [1]})
+        AggregationError({'a': [0, 0, 1], 'b': [1]})
         >>> errors = []
         >>> try_aggfunc(most_frequent, 'append', error)(x, errors)
         nan
@@ -305,7 +311,7 @@ def try_aggfunc(  # noqa: C901
         def wrapped(x):
             try:
                 return func(x)
-            except ValueError:
+            except AggregationError:
                 return np.nan
 
     elif method == "raise":
@@ -314,7 +320,7 @@ def try_aggfunc(  # noqa: C901
             def wrapped(x):
                 try:
                     return func(x)
-                except ValueError as e:
+                except AggregationError as e:
                     raise e
 
         elif method == "raise":
@@ -322,8 +328,8 @@ def try_aggfunc(  # noqa: C901
             def wrapped(x):
                 try:
                     return func(x)
-                except ValueError as e:
-                    raise ValueError(error.format(x=x, e=e))  # noqa: FS002
+                except AggregationError as e:
+                    raise AggregationError(error.format(x=x, e=e))  # noqa: FS002
 
     elif method == "insert":
         if error is None:
@@ -331,7 +337,7 @@ def try_aggfunc(  # noqa: C901
             def wrapped(x):
                 try:
                     return func(x)
-                except ValueError as e:
+                except AggregationError as e:
                     return e
 
         else:
@@ -339,7 +345,7 @@ def try_aggfunc(  # noqa: C901
             def wrapped(x):
                 try:
                     return func(x)
-                except ValueError as e:
+                except AggregationError as e:
                     e.args = (error(x, e),)
                     return e
 
@@ -349,7 +355,7 @@ def try_aggfunc(  # noqa: C901
             def wrapped(x):
                 try:
                     return func(x)
-                except ValueError as e:
+                except AggregationError as e:
                     return e
 
         else:
@@ -357,7 +363,7 @@ def try_aggfunc(  # noqa: C901
             def wrapped(x):
                 try:
                     return func(x)
-                except ValueError as e:
+                except AggregationError as e:
                     return error(x, e)
 
     elif method == "append":
@@ -366,7 +372,7 @@ def try_aggfunc(  # noqa: C901
             def wrapped(x, errors):
                 try:
                     return func(x)
-                except ValueError as e:
+                except AggregationError as e:
                     errors.append(e)
                     return np.nan
 
@@ -375,7 +381,7 @@ def try_aggfunc(  # noqa: C901
             def wrapped(x, errors):
                 try:
                     return func(x)
-                except ValueError as e:
+                except AggregationError as e:
                     errors.append(error(x, e))
                     return np.nan
 
@@ -428,7 +434,7 @@ def groupby_apply(  # noqa: C901
         >>> groupby_apply(**base, errors='raise')
         Traceback (most recent call last):
           ...
-        ValueError: Could not aggregate y at x = 1: Not unique.
+        AggregationError: Could not aggregate y at x = 1: Not unique.
         >>> groupby_apply(**base, errors='coerce')[0]
               y
         x ...
@@ -469,7 +475,7 @@ def groupby_apply(  # noqa: C901
             def wrapper(x):
                 try:
                     return aggfunc(x)
-                except ValueError as e:
+                except AggregationError as e:
                     report.append(errorfunc(x, e))
                     return np.nan
 
@@ -534,10 +540,10 @@ def groupby_aggregate(  # noqa: C901
         >>> groupby_aggregate(**base, errors='raise')
         Traceback (most recent call last):
           ...
-        ValueError: Could not aggregate y: Not unique.
+        AggregationError: Could not aggregate y: Not unique.
         >>> groupby_aggregate(**base, errors='coerce')[0]
               y
-        x ...
+        x  ...
         0     2
         1  <NA>
         >>> result, report = groupby_aggregate(**base, errors='report')
@@ -586,7 +592,7 @@ def groupby_aggregate(  # noqa: C901
         result = df[by].drop_duplicates().set_index(by)
     if errors == "report":
         # Move errors to report and replace errors with nulls
-        is_error = result.applymap(lambda x: isinstance(x, ValueError))
+        is_error = result.applymap(lambda x: isinstance(x, AggregationError))
         for col in data_columns:
             report = result[col][is_error[col]]
             if not report.empty:
@@ -977,9 +983,6 @@ class ResourceBuilder:
 
         Returns:
             Error report as described above.
-
-        Raises:
-            ValueError: No errors were logged by the last build.
         """
         rreports = {}
         if resources:
