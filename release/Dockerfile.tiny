@@ -25,8 +25,9 @@ RUN apt-get update && apt-get -y install libsnappy-dev git
 # RUN --mount=type=cache,mode=0755,target=/root/.cache/pip pip install -r /tmp/requirements.txt
 # RUN pip install -r /tmp/requirements.txt
 COPY --from=pudl-source-build /pudl /pudl
-RUN --mount=type=cache,mode=0755,target=/root/.cache/pip pip install /pudl/package/pudl.tar.gz
+RUN pip install /pudl/package/pudl.tar.gz
 WORKDIR /pudl/src
+
 
 RUN mkdir /pudl/inputs /pudl/outputs
 RUN pudl_setup --pudl_in /pudl/inputs --pudl_out /pudl/outputs
