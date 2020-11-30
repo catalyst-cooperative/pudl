@@ -16,8 +16,7 @@ jobs:
       - name: Retrieve history and tags for SCM versioning to work
         run: |
           git fetch --prune --unshallow
-        git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       - name: Set up Python 3.7
         uses: actions/setup-python@v1
         with:
