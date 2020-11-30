@@ -43,3 +43,8 @@ class TestDatastore:
 
         for doi in pudl_datastore_fixture._dois.values():
             test_it(pudl_datastore_fixture, doi)
+
+# TODO(rousik): add unit tests for LocalFileCache, ZenodoFetcher and other parts
+
+# LocalFileCache -- use temp directory, add/remove files and verify that their content will
+# be correctly retrieved
