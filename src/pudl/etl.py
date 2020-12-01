@@ -26,12 +26,13 @@ from pathlib import Path
 
 import pandas as pd
 import prefect
-from prefect import flatten, task, unmapped
+from prefect import task, unmapped
 from prefect.engine import cache_validators
 from prefect.engine.cache_validators import all_inputs
 from prefect.engine.executors.local import LocalExecutor
 from prefect.engine.results import LocalResult
 from prefect.tasks.gcp import GCSUpload
+from prefect.utilities.collections import flatten_seq
 
 import pudl
 from pudl import constants as pc
@@ -981,12 +982,7 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
         datapkg_dir=datapkg_dir,
         eia_pipeline=pipelines['eia'])
     with flow:
-        # datapkg_builder.map([pl.get_table_names()]
-        # datapkg_builder(flatten([pl.get_table_names()]), datapkg_settinsg())
-        #        table_names = pudl.load.csv.write_datapackages.map(
-        #           [pl.get_outputs() for pl in pipelines.values() if pl.get_outputs()],
-        #            datapkg_dir=unmapped(output_dir))
-        datapkg_builder(flatten([pl.get_table_names() for pl in pipelines.values()]),
+        datapkg_builder([pl.get_table_names() for pl in pipelines.values()],
                         datapkg_settings)
 
 
@@ -1036,13 +1032,12 @@ class DatapackageBuilder(prefect.Task):
         """Returns fully qualified datapkg name in the form of bundle_name/datapkg."""
         return f'{self.bundle_name}/{datapkg_settings["name"]}'
 
-    def run(self, list_of_df_maps, datapkg_settings):
+    def run(self, table_names, datapkg_settings):
         """Write metadata and validate contents."""
-        unique_tables = set()
-        for df_map in list_of_df_maps:
-            unique_tables.update(df_map)
+        # TODO(rousik): some of the input frames can be none. It is unclear whether this
+        # is expected or harmful.
+        tables = sorted(set(x for x in flatten_seq(table_names) if x is not None))
         datapkg_full_name = self.get_datapkg_name(datapkg_settings)
-        tables = sorted(unique_tables)
         logger.info(f'Building metadata for {datapkg_full_name} with tables: {tables}')
         results = pudl.load.metadata.generate_metadata(
             datapkg_settings,
