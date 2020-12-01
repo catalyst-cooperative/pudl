@@ -23,6 +23,7 @@ from datetime import datetime
 
 import coloredlogs
 import yaml
+from prefect.engine.executors import DaskExecutor
 
 import pudl
 from pudl.extract.ferc1 import SqliteOverwriteMode
@@ -73,6 +74,10 @@ def parse_command_line(argv):
         default=False,
         help='If enabled, use local DaskExecutor to run the flow.')
     parser.add_argument(
+        "--dask-executor-address",
+        default=None,
+        help='If specified, use pre-existing DaskExecutor at this address.')
+    parser.add_argument(
         "--upload-to-gcs-bucket",
         type=str,
         help='If specified, upload the datapackages to the specified gcs bucket.')
@@ -91,14 +96,15 @@ def parse_command_line(argv):
     return arguments
 
 
-def main():
-    """Parse command line and initialize PUDL DB."""
-    # Display logged output from the PUDL package:
+def setup_logging(args):
+    """Configures the logging based on the command-line flags.
+
+    Args:
+        args: parsed command line flags.
+    """
     logger = logging.getLogger(pudl.__name__)
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
     coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
-
-    args = parse_command_line(sys.argv)
     if args.logfile:
         file_logger = logging.FileHandler(args.logfile)
         file_logger.setFormatter(logging.Formatter(log_format))
@@ -109,6 +115,13 @@ def main():
         file_logger.setFormatter(logging.Formatter(log_format))
         logger.addHandler(file_logger)
         logger.info(f"Command line: {' '.join(sys.argv)}")
+
+
+def main():
+    """Parse command line and initialize PUDL DB."""
+    # Display logged output from the PUDL package:
+    args = parse_command_line(sys.argv)
+    setup_logging(args)
 
     with pathlib.Path(args.settings_file).open() as f:
         script_settings = yaml.safe_load(f)
@@ -136,13 +149,17 @@ def main():
     except KeyError:
         datapkg_bundle_doi = None
 
+    prefect_executor = None
+    if args.dask_executor_address or args.use_dask_executor:
+        prefect_executor = DaskExecutor(address=args.dask_executor_address)
+
     pudl.etl.generate_datapkg_bundle(
         script_settings,
         pudl_settings,
         datapkg_bundle_name=script_settings['datapkg_bundle_name'],
         datapkg_bundle_doi=datapkg_bundle_doi,
         clobber=args.clobber,
-        use_dask_executor=args.use_dask_executor,
+        prefect_executor=prefect_executor,
         gcs_bucket=args.upload_to_gcs_bucket,
         overwrite_ferc1_db=args.overwrite_ferc1_db,
         show_flow_graph=args.show_flow_graph)

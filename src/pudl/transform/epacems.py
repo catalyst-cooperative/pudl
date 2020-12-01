@@ -1,11 +1,11 @@
 """Routines specific to cleaning up EPA CEMS hourly data."""
 import datetime
 import logging
-import pathlib
 
 import numpy as np
 import pandas as pd
-import prefect
+from prefect import task
+from prefect.engine.results import LocalResult
 
 import pudl
 
@@ -63,7 +63,7 @@ def fix_up_dates(df, plant_utc_offset):
     return df
 
 
-@prefect.task
+@task
 def load_plant_utc_offset(plant_entity_df):
     """Build UTC offset for each EIA plant.
 
@@ -193,8 +193,8 @@ def correct_gross_load_mw(df):
     return df
 
 
-@prefect.task
-def transform_fragment(df_kv, plant_utc_offset):
+@task(result=LocalResult(), target="epacems-transform-{partition.year}-{partition.state}")  # noqa: FS003
+def transform_fragment(df_kv, plant_utc_offset, partition):
     """Transform EPA CEMS hourly data for use in datapackage export."""
     results = {}
     for k, df in df_kv.items():
