@@ -19,6 +19,7 @@ import argparse
 import logging
 import pathlib
 import sys
+from datetime import datetime
 
 import coloredlogs
 import yaml
@@ -62,6 +63,11 @@ def parse_command_line(argv):
         "--logfile", default=None,
         help="If specified, write logs to this file.")
     parser.add_argument(
+        "--timestamped-logfile",
+        default="/tmp/pudl_etl.%F-%H%M%S.log",  # nosec
+        help="""If specified, also log to the timestamped logfile. The value of
+        this flag is passed to strftime method of datetime.now().""")
+    parser.add_argument(
         "--use-dask-executor",
         action="store_true",
         default=False,
@@ -97,6 +103,13 @@ def main():
         file_logger = logging.FileHandler(args.logfile)
         file_logger.setFormatter(logging.Formatter(log_format))
         logger.addHandler(file_logger)
+    if args.timestamped_logfile:
+        file_logger = logging.FileHandler(
+            datetime.now().strftime(args.timestamped_logfile))
+        file_logger.setFormatter(logging.Formatter(log_format))
+        logger.addHandler(file_logger)
+        logger.info(f"Command line: {' '.join(sys.argv)}")
+
     with pathlib.Path(args.settings_file).open() as f:
         script_settings = yaml.safe_load(f)
 
