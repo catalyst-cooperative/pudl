@@ -14,10 +14,7 @@ The Public Utility Data Liberation Project
   clone_ferc1
   datapackages
   cloud_access
-  data_catalog
-  eia860
-  eia861
-  ferc1
+  data_sources
   settings_files
   Contributing <CONTRIBUTING>
   dev_setup

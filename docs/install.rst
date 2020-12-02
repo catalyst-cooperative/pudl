@@ -11,8 +11,8 @@ System Requirements
 
     The PUDL data processing pipeline does a lot of work in-memory with
     :class:`pandas.DataFrame` objects. Exhaustive record linkage within the
-    25 years of :ref:`data-ferc1` data requires up to **24 GB** of memory.
-    The full :ref:`data-epacems` dataset is nearly **100 GB** on disk
+    25 years of :doc:`data_sources/ferc1` data requires up to **24 GB** of memory.
+    The full :doc:`data_sources/epacems` dataset is nearly **100 GB** on disk
     uncompressed.
 
 Python 3.7+ (and conda)
