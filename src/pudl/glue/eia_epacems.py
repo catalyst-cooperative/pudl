@@ -70,7 +70,7 @@ def test_plant_name_strings(missing_ids, eia_plants):
 
 
 def test_plant_id_gen_id_pairs(missing_ids, eia_gens):
-    """Look for plant_id and generator_id parings that match between EIA and EPA."""
+    """Look for plant_id and generator_id parings that match EIA to EPA."""
     logger.info("running plant id and plant gen match")
     eia_gen = eia_gens.filter(['plant_id_eia', 'generator_id']).copy()
     missing_merge = (
