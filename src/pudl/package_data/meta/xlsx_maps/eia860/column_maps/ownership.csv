@@ -1,8 +1,8 @@
 year_index,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019
 utility_id_eia,utilcode,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id
 utility_name_eia,utilname,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name
-plant_id_eia,pltcode,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code
-plant_name_eia,pltname,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name
+plant_id_eia,plntcode,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code
+plant_name_eia,plntname,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name
 state,,state,state,state,state,state,state,state,state,state,state,state
 generator_id,gencode,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id
 operational_status_code,status,status,status,status,status,status,status,status,status,status,status,status

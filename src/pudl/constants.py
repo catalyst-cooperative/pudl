@@ -1352,13 +1352,14 @@ entities = {
         # base cols
         ['utility_id_eia'],
         # static cols
-        ['utility_name_eia',
-         'entity_type'],
+        ['utility_name_eia'],
         # annual cols
-        ['street_address', 'city', 'state', 'zip_code',
+        ['street_address', 'city', 'state', 'zip_code', 'entity_type',
          'plants_reported_owner', 'plants_reported_operator',
          'plants_reported_asset_manager', 'plants_reported_other_relationship',
-         ],
+         'utility_attn', 'address_2', 'zip_code_4', 'contact_firstname',
+         'contact_lastname', 'contact_title', 'contact_firstname2',
+         'contact_lastname2', 'contact_title2'],
         # need type fixing
         {'utility_id_eia': 'int64', }, ],
     'boilers': [
@@ -2133,6 +2134,7 @@ column_dtypes = {
     },
     "eia": {
         'actual_peak_demand_savings_mw': float,  # Added by AES for DR table
+        'address_2': pd.StringDtype(),  # Added by AES for 860 utilities table
         'advanced_metering_infrastructure': pd.Int64Dtype(),  # Added by AES for AMI table
         # Added by AES for UD misc table
         'alternative_fuel_vehicle_2_activity': pd.BooleanDtype(),
@@ -2484,8 +2486,8 @@ column_dtypes = {
         'utility_id_pudl': pd.Int64Dtype(),
         'utility_name_eia': pd.StringDtype(),
         'utility_owned_capacity_mw': float,  # Added by AES for NNM table
-        'utility_pobox': pd.StringDtype(),
-        'utility_zip_ext': pd.StringDtype(),
+        # 'utility_address': pd.StringDtype(),
+        # 'utility_zip_ext': pd.StringDtype(),
         'variable_peak_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
         'virtual_capacity_mw': float,  # Added by AES for NM table
         'virtual_customers': pd.Int64Dtype(),  # Added by AES for NM table

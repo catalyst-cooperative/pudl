@@ -1,7 +1,7 @@
 year_index,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019
 utility_id_eia,utilcode,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id
 utility_name_eia,utilname,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name
-street_address,address3,utility_street_address,utility_street_address_2,street_address,street_address,street_address,street_address,street_address,street_address,street_address,street_address,street_address
+street_address,address3,utility_street_address,utility_street_address,street_address,street_address,street_address,street_address,street_address,street_address,street_address,street_address,street_address
 city,city,utility_city,utility_city,city,city,city,city,city,city,city,city,city
 state,state,utility_state,utility_state,state,state,state,state,state,state,state,state,state
 zip_code,zipcode,utility_zip5,utility_zip5,zip5,zip,zip,zip,zip,zip,zip,zip,zip
@@ -11,8 +11,8 @@ plants_reported_asset_manager,,,,,,asset_manager,asset_manager,asset_manager_of_
 plants_reported_other_relationship,,,,,,other_reltionships_with_plants_reported_on_form,other_relationships_with_plants_reported_on_form,other_relationships_with_plants_reported_on_form,other_relationships_with_plants_reported_on_form,other_relationships_with_plants_reported_on_form,other_relationships_with_plants_reported_on_form,other_relationships_with_plants_reported_on_form
 entity_type,,,,,,entity_type,entity_type,entity_type,entity_type,entity_type,entity_type,entity_type
 utility_attn,attn,utility_attention_line,,,,,,,,,,
-utility_pobox,address2,utility_po_box_line,utility_street_address,,,,,,,,,
-utility_zip_ext,extzip,utility_zip4,utility_zip4,,,,,,,,,
+address_2,address2,utility_po_box_line,utility_street_address_2,,,,,,,,,
+zip_code_4,extzip,utility_zip4,utility_zip4,,,,,,,,,
 contact_firstname,cont1nme1,contact_firstname,,,,,,,,,,
 contact_lastname,cont1nme2,contact_name,,,,,,,,,,
 contact_title,contitle,contact_title,,,,,,,,,,
