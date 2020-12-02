@@ -148,3 +148,14 @@ def find_test_combine_id_matches(eia_plants, eia_gens):
     )
 
     return split_tables(clean_crosswalk)
+
+
+def simple_clean():
+    """No attempt to fill in the gaps, simply returns available data."""
+    crosswalk = (
+        grab_n_clean_epa_orignal()
+        .reset_index()
+        .dropna()
+    )
+
+    return split_tables(crosswalk)

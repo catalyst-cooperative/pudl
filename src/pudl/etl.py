@@ -172,12 +172,7 @@ def _load_static_tables_eia(datapkg_dir):
 
 def _add_eia_epacems_crosswalk(eia_transformed_dfs):
     """Add the EIA-EPA crosswalk to the transformed dfs dict."""
-    plants_eia = eia_transformed_dfs['plants_eia860'].copy()
-    gens_eia = eia_transformed_dfs['generators_eia860'].copy()
-    assn_dfs = (
-        pudl.glue.eia_epacems.find_test_combine_id_matches(
-            plants_eia, gens_eia)
-    )
+    assn_dfs = pudl.glue.eia_epacems.simple_clean()
     eia_transformed_dfs.update(assn_dfs)
 
     return eia_transformed_dfs
