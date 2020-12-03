@@ -1,6 +1,12 @@
 """
 Allocated data from generation_fuel_eia923 table to generator level.
 
+Net generation and fuel consumption is reported in two seperate tables in EIA
+923: in the generation_eia923 and generation_fuel_eia923 tables. While the
+generation_fuel_eia923 table is more complete (the generation_eia923 table
+includes only ~55% of the reported MWhs), the generation_eia923 table is more
+granular (it is reported at the generator level).
+
 This module allocates net generation and fuel consumption from the
 generation_fuel_eia923 table to the generator level. The main function here is
 ``allocate_gen_fuel_by_gen()``.
