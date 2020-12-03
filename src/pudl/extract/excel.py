@@ -152,7 +152,7 @@ class GenericExtractor(object):
         self._file_cache = {}
         self.ds = ds
 
-    def process_raw(self, df, partition, page):
+    def process_raw(self, df, page, **partition):
         """Transforms raw dataframe and rename columns."""
         self.cols_added = []
         return df.rename(columns=self._metadata.get_column_map(partition, page))
@@ -168,7 +168,7 @@ class GenericExtractor(object):
         return df
 
     @staticmethod
-    def get_dtypes(partition, page):
+    def get_dtypes(page, **partition):
         """Provide custom dtypes for given page and partition."""
         return {}
 

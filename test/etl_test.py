@@ -213,8 +213,13 @@ class TestExcelExtractor:
     def test_extract_eia923(self, pudl_datastore_fixture):
         """Spot check extraction eia923 excel files."""
         extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
-        assert "Page 3 Boiler Fuel Data" in extractor.load_excel_file(
-            page="stocks", year=2018).sheet_names
+        page = 'stocks'
+        year = 2018
+        if "Page 3 Boiler Fuel Data" not in extractor.load_excel_file(
+                page=page, year=year).sheet_names:
+            raise AssertionError(
+                f"page {page} not found in datastore for {year}"
+            )
 
 
 class TestEpaCemsDatastore:
