@@ -1,3 +1,5 @@
+.. _data-sources:
+
 Data Sources
 ============
 
@@ -15,4 +17,4 @@ Data Sources
    :caption: Future Data / Need full pages for current data
    :maxdepth: 1
 
-   data_sources/data_catalog
+   data_sources/wip_future

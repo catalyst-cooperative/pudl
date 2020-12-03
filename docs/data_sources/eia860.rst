@@ -10,7 +10,7 @@ Source Description  | The status of existing electric generating plants and
                     | years of the filing.
 Respondents         Utilities
 Source Format       Microsoft Excel (.xls/.xlsx)
-Source Years        2001-2018
+Source Years        2001-2019
 Size (Download)     127 MB
 Size (Uncompressed) 247 MB
 PUDL Code           ``eia860``

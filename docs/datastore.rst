@@ -46,7 +46,6 @@ date::
     data/eia861/
     data/eia923/
     data/epacems/
-    data/epaipm/
     data/ferc1/
     data/ferc714/
 

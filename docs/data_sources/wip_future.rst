@@ -1,36 +1,11 @@
-.. _data-catalog:
+.. _wip_future:
 
 ===============================================================================
-Data Catalog
+Work in Progress & Future Datasets
 ===============================================================================
 
 .. contents::
 
--------------------------------------------------------------------------------
-Available Data
--------------------------------------------------------------------------------
-
-.. _data-epaipm:
-
-EPA IPM
-^^^^^^^
-
-=================== ===========================================================
-Source URL          https://www.epa.gov/airmarkets/national-electric-energy-data-system-needs-v6
-Source Format       Microsoft Excel (.xlsx)
-Source Years        N/A
-Size (Download)     14 MB
-Size (Uncompressed) 14 MB
-PUDL Code           ``epaipm``
-Years Liberated     N/A
-Records Liberated   ~650,000
-Issues              `Open EPA IPM Issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aepaipm>`__
-=================== ===========================================================
-
-.. todo::
-
-    Get `Greg Schivley <https://github.com/gschivley>`__ to write up a
-    description of the EPA IPM dataset.
 
 -------------------------------------------------------------------------------
 Work in Progress
