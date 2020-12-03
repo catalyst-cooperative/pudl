@@ -30,13 +30,13 @@ class Extractor(excel.GenericExtractor):
         self.METADATA = excel.Metadata('eia861')
         super().__init__(*args, **kwargs)
 
-    def process_raw(self, df, partition, page):
+    def process_raw(self, df, page, **partition):
         """Rename columns with location."""
         warnings.warn(
             "Integration of EIA 861 into PUDL is still experimental and incomplete.\n"
             "The data has not yet been validated, and the structure may change."
         )
-        column_map_numeric = self._metadata.get_column_map(partition, page)
+        column_map_numeric = self._metadata.get_column_map(page, **partition)
         df = df.rename(
             columns=dict(zip(df.columns[list(column_map_numeric.keys())],
                              list(column_map_numeric.values()))))
@@ -44,14 +44,14 @@ class Extractor(excel.GenericExtractor):
         return df
 
     @staticmethod
-    def process_renamed(df, partition, page):
+    def process_renamed(df, page, **partition):
         """Adds report_year column if missing."""
         if 'report_year' not in df.columns:
-            df['report_year'] = partition
+            df['report_year'] = list(partition.values())[0]
         return df
 
     @staticmethod
-    def get_dtypes(partition, page):
+    def get_dtypes(page, **partition):
         """Returns dtypes for plant id columns."""
         return {
             "Plant ID": pd.Int64Dtype(),

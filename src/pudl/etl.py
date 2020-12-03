@@ -208,12 +208,14 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
         Path(pudl_settings["pudl_in"]),
         sandbox=sandbox)
     # Extract EIA forms 923, 860
-    eia923_raw_dfs = pudl.extract.eia923.Extractor(ds).extract(eia923_years)
-    eia860_raw_dfs = pudl.extract.eia860.Extractor(ds).extract(eia860_years)
+    eia923_raw_dfs = pudl.extract.eia923.Extractor(ds).extract(
+        year=eia923_years)
+    eia860_raw_dfs = pudl.extract.eia860.Extractor(ds).extract(
+        year=eia860_years)
     # if we are trying to add the EIA 860M YTD data, then extract it and append
     if eia860_ytd:
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-            [pc.working_partitions['eia860m']['year_month']])
+            year_month=pc.working_partitions['eia860m']['year_month'])
         eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
             eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
 

@@ -1,7 +1,6 @@
 """Load excel metadata CSV files form a python data package."""
 import csv
 import importlib.resources
-import itertools
 import logging
 import zipfile
 from pathlib import Path
@@ -68,21 +67,21 @@ class Metadata(object):
         """Returns the name of the dataset described by this metadata."""
         return self._dataset_name
 
-    def get_sheet_name(self, partition, page):
+    def get_sheet_name(self, page, **partition):
         """Returns name of the excel sheet that contains the data for given partition and page."""
-        return self._sheet_name.at[page, str(partition)]
+        return self._sheet_name.at[page, str(list(partition.values())[0])]
 
-    def get_skiprows(self, partition, page):
+    def get_skiprows(self, page, **partition):
         """Returns number of initial rows to skip when loading given partition and page."""
-        return self._skiprows.at[page, str(partition)]
+        return self._skiprows.at[page, str(list(partition.values())[0])]
 
-    def get_skipfooter(self, partition, page):
+    def get_skipfooter(self, page, **partition):
         """Returns number of bottom rows to skip when loading given partition and page."""
-        return self._skipfooter.at[page, str(partition)]
+        return self._skipfooter.at[page, str(list(partition.values())[0])]
 
-    def get_column_map(self, partition, page):
+    def get_column_map(self, page, **partition):
         """Returns the dictionary mapping input columns to pudl columns for given partition and page."""
-        return {v: k for k, v in self._column_map[page].T.loc[str(partition)].to_dict().items() if v != -1}
+        return {v: k for k, v in self._column_map[page].T.loc[str(list(partition.values())[0])].to_dict().items() if v != -1}
 
     def get_all_columns(self, page):
         """Returns list of all pudl (standardized) columns for a given page (across all partition)."""
@@ -159,7 +158,7 @@ class GenericExtractor(object):
         return df.rename(columns=self._metadata.get_column_map(partition, page))
 
     @staticmethod
-    def process_renamed(df, partition, page):
+    def process_renamed(df, page, **partition):
         """Transforms dataframe after columns are renamed."""
         return df
 
@@ -173,16 +172,16 @@ class GenericExtractor(object):
         """Provide custom dtypes for given page and partition."""
         return {}
 
-    def extract(self, partitions):
+    def extract(self, **partitions):
         """Extracts dataframes.
 
         Returns dict where keys are page names and values are
         DataFrames containing data across given years.
 
         Args:
-            partitions (list): list of partitions to extract.
-                (Ex: [2009, 2010] if dataset is partitioned by years or
-                ['2020-08'] if dataset is partitioned by year_month)
+            partitions (list, tuple or string): list of partitions to
+                extract. (Ex: [2009, 2010] if dataset is partitioned by years
+                or '2020-08' if dataset is partitioned by year_month)
         """
         raw_dfs = {}
         if not partitions:
@@ -196,23 +195,25 @@ class GenericExtractor(object):
                 logger.debug(f'Skipping blacklisted page {page}.')
                 continue
             df = pd.DataFrame()
-            for partition in partitions:
+            for partition in pudl.helpers.iterate_multivalue_dict(**partitions):
                 # we are going to skip
-                if self.excel_filename(partition, page) == '-1':
+                if self.excel_filename(page, **partition) == '-1':
                     logger.debug(
                         f'No page for {self._dataset_name} {page} {partition}')
                     continue
                 logger.debug(
                     f'Loading dataframe for {self._dataset_name} {page} {partition}')
                 newdata = pd.read_excel(
-                    self.load_excel_file(page, partition),
-                    sheet_name=self._metadata.get_sheet_name(partition, page),
-                    skiprows=self._metadata.get_skiprows(partition, page),
-                    skipfooter=self._metadata.get_skipfooter(partition, page),
-                    dtype=self.get_dtypes(partition, page))
+                    self.load_excel_file(page, **partition),
+                    sheet_name=self._metadata.get_sheet_name(
+                        page, **partition),
+                    skiprows=self._metadata.get_skiprows(page, **partition),
+                    skipfooter=self._metadata.get_skipfooter(
+                        page, **partition),
+                    dtype=self.get_dtypes(page, **partition))
                 newdata = pudl.helpers.simplify_columns(newdata)
-                newdata = self.process_raw(newdata, partition, page)
-                newdata = self.process_renamed(newdata, partition, page)
+                newdata = self.process_raw(newdata, page, **partition)
+                newdata = self.process_renamed(newdata, page, **partition)
                 df = df.append(newdata, sort=True, ignore_index=True)
 
             # After all years are loaded, consolidate missing columns
@@ -231,38 +232,28 @@ class GenericExtractor(object):
             raw_dfs[page] = self.process_final_page(df, page)
         return raw_dfs
 
-    def get_datapackage_resources(self, partition):
-        """
-        Get annual resources from datapackage based on partition.
-
-        The name of the kwarg here is important. `ds.get_resources()` converts
-        the kwarg into a dict which is used to search through the datapackage
-        JSON. If partition is something other than a year, overwrite this
-        method in the dataset specifc extractor.
-        """
-        return self.ds.get_resources(self._dataset_name, year=partition)
-
-    def load_excel_file(self, page, partition):
+    def load_excel_file(self, page, **partition):
         """
         Produce the ExcelFile object for the given (partition, page).
 
         Args:
-            partition: partition to load. (ex: 2009 for year partition or
-                "2020-08" for year_month partition)
             page (str): pudl name for the dataset contents, eg
                   "boiler_generator_assn" or "coal_stocks"
+            partition: partition to load. (ex: 2009 for year partition or
+                "2020-08" for year_month partition)
 
         Return:
             string name of the xlsx file
         """
-        info = self.get_datapackage_resources(partition)
+        info = self.ds.get_resources(self._dataset_name, **partition)
 
         if info is None:
+            logger.info(f"No resource found for {partition}, {page}")
             return
 
         item = next(info)
         p = Path(item["path"])
-        xlsx_filename = self.excel_filename(partition, page)
+        xlsx_filename = self.excel_filename(page, **partition)
 
         if xlsx_filename in self._file_cache.keys():
             logger.debug("Grabing cached file.")
@@ -278,15 +269,15 @@ class GenericExtractor(object):
         self._file_cache[xlsx_filename] = excel_file
         return excel_file
 
-    def excel_filename(self, partition, page):
+    def excel_filename(self, page, **partition):
         """
         Produce the xlsx document file name as it will appear in the archive.
 
         Args:
-            partition: partition to load. (ex: 2009 for year partition or
-                "2020-08" for year_month partition)
             page: pudl name for the dataset contents, eg
                   "boiler_generator_assn" or "coal_stocks"
+            partition: partition to load. (ex: 2009 for year partition or
+                "2020-08" for year_month partition)
         Return:
             string name of the xlsx file
         """
@@ -297,22 +288,6 @@ class GenericExtractor(object):
 
             for row in reader:
                 if row["page"] == page:
-                    return row[str(partition)]
+                    return row[str(list(partition.values())[0])]
 
         raise ValueError(f"No excel sheet for {partition}, {page}")
-
-
-def iterate_multivalue_dict(**kwargs):
-    """Make dicts from dict with main dict key and one value of main dict."""
-    single_valued = {k: v for k,
-                     v in kwargs.items() if not isinstance(v, list)}
-
-    # Transform multi-valued {k: vlist} into {k1: [{k1: v1}, {k1: v2}, ...], k2: [...], ...}
-    multi_valued = {k: [{k: v} for v in vlist]
-                    for k, vlist in kwargs.items() if isinstance(vlist, list)}
-
-    for value_assignments in itertools.product(*multi_valued.values()):
-        result = dict(single_valued)
-        for k_v in value_assignments:
-            result.update(k_v)
-        yield result

@@ -37,29 +37,19 @@ class Extractor(excel.GenericExtractor):
         self.METADATA = excel.Metadata('eia860m')
         super().__init__(*args, **kwargs)
 
-    def process_raw(self, df, partition, page):
+    def process_raw(self, df, page, **partition):
         """Adds source column and report_year column if missing."""
-        df = df.rename(columns=self._metadata.get_column_map(partition, page))
+        df = df.rename(
+            columns=self._metadata.get_column_map(page, **partition))
         if 'report_year' not in df.columns:
-            df['report_year'] = datetime.strptime(partition, "%Y-%m").year
+            df['report_year'] = datetime.strptime(
+                list(partition.values())[0], "%Y-%m").year
         df = df.assign(data_source='eia860m')
         self.cols_added = ['data_source', 'report_year']
         return df
 
-    def get_datapackage_resources(self, partition):
-        """
-        Get year_month resources from datapackage based on part.
-
-        We need to overwrite the standard method here because the name of the
-        kwarg here is important. `ds.get_resources()` converts the kwarg into a
-        dict which is used to search through the datapackage JSON.
-
-        TODO: is there a cleaner way to do this??
-        """
-        return self.ds.get_resources(self._dataset_name, year_month=partition)
-
     @staticmethod
-    def get_dtypes(partition, page):
+    def get_dtypes(page, **partition):
         """Returns dtypes for plant id columns."""
         return {
             "Plant ID": pd.Int64Dtype(),

@@ -188,33 +188,33 @@ class TestExcelExtractor:
         """Spot check eia860 extractor gets the correct excel sheet names."""
         extractor = pudl.extract.eia860.Extractor(pudl_datastore_fixture)
         assert extractor.excel_filename(
-            2011, "boiler_generator_assn") == "EnviroAssocY2011.xlsx"
+            "boiler_generator_assn", year=2011) == "EnviroAssocY2011.xlsx"
         assert extractor.excel_filename(
-            2016, "generator_retired") == "3_1_Generator_Y2016.xlsx"
+            "generator_retired", year=2016) == "3_1_Generator_Y2016.xlsx"
         assert extractor.excel_filename(
-            2018, "utility") == "1___Utility_Y2018.xlsx"
+            "utility", year=2018) == "1___Utility_Y2018.xlsx"
 
     def test_excel_filename_eia923(self, pudl_datastore_fixture):
         """Spot check eia923 extractor gets the correct excel sheet names."""
         extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
-        assert extractor.excel_filename(2009, "plant_frame") == \
+        assert extractor.excel_filename("plant_frame", year=2009) == \
             "EIA923 SCHEDULES 2_3_4_5 M Final 2009 REVISED 05252011.XLS"
-        assert extractor.excel_filename(2019, "energy_storage") == \
+        assert extractor.excel_filename("energy_storage", year=2019) == \
             "EIA923_Schedules_2_3_4_5_M_12_2019_Final.xlsx"
-        assert extractor.excel_filename(2012, "puerto_rico") == \
+        assert extractor.excel_filename("puerto_rico", year=2012) == \
             "EIA923_Schedules_2_3_4_5_M_12_2012_Final_Revision.xlsx"
 
     def test_extract_eia860(self, pudl_datastore_fixture):
         """Spot check extraction of eia860 excel files."""
         extractor = pudl.extract.eia860.Extractor(pudl_datastore_fixture)
         assert "Ownership" in extractor.load_excel_file(
-            partition=2018, page="ownership").sheet_names
+            page="ownership", year=2018).sheet_names
 
     def test_extract_eia923(self, pudl_datastore_fixture):
         """Spot check extraction eia923 excel files."""
         extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
         assert "Page 3 Boiler Fuel Data" in extractor.load_excel_file(
-            partition=2018, page="stocks").sheet_names
+            page="stocks", year=2018).sheet_names
 
 
 class TestEpaCemsDatastore:
