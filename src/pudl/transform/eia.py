@@ -814,17 +814,6 @@ def _restrict_years(df,
     return df
 
 
-# def _add_eia_epacems_crosswalk(eia_transformed_dfs):
-#     """Add the EIA-EPA crosswalk to the transformed dfs dict."""
-#     plants_eia = eia_transformed_dfs['plants_eia860'].copy()
-#     gens_eia = eia_transformed_dfs['generators_eia860'].copy()
-#     eia_transformed_dfs['assn_eia_epacems'] = (
-#         pudl.glue.eia_epacems.find_test_combine_id_matches(
-#             plants_eia, gens_eia)
-#     )
-#     return eia_transformed_dfs
-
-
 def transform(eia_transformed_dfs,
               eia860_years=pc.working_years['eia860'],
               eia923_years=pc.working_years['eia923'],
@@ -856,9 +845,6 @@ def transform(eia_transformed_dfs,
     if not eia923_years and not eia860_years:
         logger.info('Not ingesting EIA')
         return None
-
-    # add EIA-EPA crosswalk to transformed_dfs
-    # eia_transformed_dfs = _add_eia_epacems_crosswalk(eia_transformed_dfs)
 
     # create the empty entities df to fill up
     entities_dfs = {}
