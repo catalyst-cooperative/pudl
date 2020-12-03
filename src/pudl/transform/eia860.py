@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def ownership(eia860_dfs, eia860_transformed_dfs):
     """
-    Pulls and transforms the ownership table.
+    Pull and transform the ownership table.
 
     Args:
         eia860_dfs (dict): Each entry in this dictionary of DataFrame objects
@@ -65,7 +65,7 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
 
 def generators(eia860_dfs, eia860_transformed_dfs):
     """
-    Pulls and transforms the generators table.
+    Pull and transform the generators table.
 
     There are three tabs that the generator records come from (proposed,
     existing, and retired). We pull each tab into one dataframe and include
@@ -209,7 +209,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
 
 def plants(eia860_dfs, eia860_transformed_dfs):
     """
-    Pulls and transforms the plants table.
+    Pull and transform the plants table.
 
     Much of the static plant information is reported repeatedly, and scattered
     across several different pages of EIA 923. The data frame which this
@@ -293,7 +293,7 @@ def plants(eia860_dfs, eia860_transformed_dfs):
 
 def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     """
-    Pulls and transforms the boilder generator association table.
+    Pull and transform the boilder generator association table.
 
     Args:
         eia860_dfs (dict): Each entry in this dictionary of DataFrame objects
@@ -345,7 +345,7 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
 
 def utilities(eia860_dfs, eia860_transformed_dfs):
     """
-    Pulls and transforms the utilities table.
+    Pull and transform the utilities table.
 
     Args:
         eia860_dfs (dict): Each entry in this
@@ -405,7 +405,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
 
 def transform(eia860_raw_dfs, eia860_tables=pc.pudl_tables["eia860"]):
     """
-    Transforms EIA 860 DataFrames.
+    Transform EIA 860 DataFrames.
 
     Args:
         eia860_raw_dfs (dict): a dictionary of tab names (keys) and DataFrames
