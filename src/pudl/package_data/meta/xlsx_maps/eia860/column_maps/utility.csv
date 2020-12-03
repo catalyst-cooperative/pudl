@@ -10,7 +10,7 @@ plants_reported_operator,,,,,,operator,operator,operator_of_plants_reported_on_f
 plants_reported_asset_manager,,,,,,asset_manager,asset_manager,asset_manager_of_plants_reported_on_form,asset_manager_of_plants_reported_on_form,asset_manager_of_plants_reported_on_form,asset_manager_of_plants_reported_on_form,asset_manager_of_plants_reported_on_form
 plants_reported_other_relationship,,,,,,other_reltionships_with_plants_reported_on_form,other_relationships_with_plants_reported_on_form,other_relationships_with_plants_reported_on_form,other_relationships_with_plants_reported_on_form,other_relationships_with_plants_reported_on_form,other_relationships_with_plants_reported_on_form,other_relationships_with_plants_reported_on_form
 entity_type,,,,,,entity_type,entity_type,entity_type,entity_type,entity_type,entity_type,entity_type
-utility_attn,attn,utility_attention_line,,,,,,,,,,
+attention_line,attn,utility_attention_line,,,,,,,,,,
 address_2,address2,utility_po_box_line,utility_street_address_2,,,,,,,,,
 zip_code_4,extzip,utility_zip4,utility_zip4,,,,,,,,,
 contact_firstname,cont1nme1,contact_firstname,,,,,,,,,,

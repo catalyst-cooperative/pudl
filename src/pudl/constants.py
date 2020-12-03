@@ -1358,9 +1358,9 @@ entities = {
         ['street_address', 'city', 'state', 'zip_code', 'entity_type',
          'plants_reported_owner', 'plants_reported_operator',
          'plants_reported_asset_manager', 'plants_reported_other_relationship',
-         'utility_attn', 'address_2', 'zip_code_4', 'contact_firstname',
-         'contact_lastname', 'contact_title', 'contact_firstname_2',
-         'contact_lastname_2', 'contact_title_2'],
+         'attention_line', 'address_2', 'zip_code_4',
+         'contact_firstname', 'contact_lastname', 'contact_title',
+         'contact_firstname_2', 'contact_lastname_2', 'contact_title_2'],
         # need type fixing
         {'utility_id_eia': 'int64', }, ],
     'boilers': [
@@ -2149,6 +2149,7 @@ column_dtypes = {
         # TODO: convert this field to more descriptive words
         'ash_impoundment_status': pd.StringDtype(),
         'associated_combined_heat_power': pd.BooleanDtype(),
+        'attention_line': pd.StringDtype(),
         'automated_meter_reading': pd.Int64Dtype(),  # Added by AES for AMI table
         'backup_capacity_mw': float,  # Added by AES for NNM & DG misc table
         'balancing_authority_code_eia': pd.CategoricalDtype(),
@@ -2482,7 +2483,6 @@ column_dtypes = {
         'unit_id_pudl': pd.Int64Dtype(),
         'uprate_derate_completed_date': 'datetime64[ns]',
         'uprate_derate_during_year': pd.BooleanDtype(),
-        'utility_attn': pd.StringDtype(),
         'utility_id_eia': pd.Int64Dtype(),
         'utility_id_pudl': pd.Int64Dtype(),
         'utility_name_eia': pd.StringDtype(),
