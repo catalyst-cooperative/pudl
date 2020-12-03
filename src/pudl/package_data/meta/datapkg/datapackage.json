@@ -5180,17 +5180,17 @@
                         "format": "default"
                     },
                     {
-                        "name": "contact_firstname2",
+                        "name": "contact_firstname_2",
                         "type": "string",
                         "format": "default"
                     },
                     {
-                        "name": "contact_lastname2",
+                        "name": "contact_lastname_2",
                         "type": "string",
                         "format": "default"
                     },
                     {
-                        "name": "contact_title2",
+                        "name": "contact_title_2",
                         "type": "string",
                         "format": "default"
                     }

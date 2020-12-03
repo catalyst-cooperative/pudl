@@ -1342,7 +1342,8 @@ entities = {
          'turbines_inverters_hydrokinetics', 'nameplate_power_factor',
          'uprate_derate_during_year', 'uprate_derate_completed_date',
          'current_planned_operating_date', 'summer_estimated_capability_mw',
-         'winter_estimated_capability_mw', 'retirement_date', 'utility_id_eia'],
+         'winter_estimated_capability_mw', 'retirement_date',
+         'utility_id_eia'],
         # need type fixing
         {}
     ],
@@ -1358,8 +1359,8 @@ entities = {
          'plants_reported_owner', 'plants_reported_operator',
          'plants_reported_asset_manager', 'plants_reported_other_relationship',
          'utility_attn', 'address_2', 'zip_code_4', 'contact_firstname',
-         'contact_lastname', 'contact_title', 'contact_firstname2',
-         'contact_lastname2', 'contact_title2'],
+         'contact_lastname', 'contact_title', 'contact_firstname_2',
+         'contact_lastname_2', 'contact_title_2'],
         # need type fixing
         {'utility_id_eia': 'int64', }, ],
     'boilers': [
@@ -2175,11 +2176,11 @@ column_dtypes = {
         'consumed_by_facility_mwh': float,  # Added by AES for OD table
         'consumed_by_respondent_without_charge_mwh': float,  # Added by AES for OD table
         'contact_firstname': pd.StringDtype(),
-        'contact_firstname2': pd.StringDtype(),
+        'contact_firstname_2': pd.StringDtype(),
         'contact_lastname': pd.StringDtype(),
-        'contact_lastname2': pd.StringDtype(),
+        'contact_lastname_2': pd.StringDtype(),
         'contact_title': pd.StringDtype(),
-        'contact_title2': pd.StringDtype(),
+        'contact_title_2': pd.StringDtype(),
         'contract_expiration_date': 'datetime64[ns]',
         'contract_type_code': pd.StringDtype(),
         'county': pd.StringDtype(),
