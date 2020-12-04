@@ -5479,7 +5479,7 @@
         {
             "profile": "tabular-data-resource",
             "name": "plant_unit_epa",
-            "path": "data/assn_eia_epacems.csv",
+            "path": "data/plant_unit_epa.csv",
             "title": "EPA Plant and Unit",
             "encoding": "utf-8",
             "mediatype": "text/csv",
@@ -5524,7 +5524,7 @@
         {
             "profile": "tabular-data-resource",
             "name": "assn_plant_id_eia_epa",
-            "path": "data/assn_eia_epacems.csv",
+            "path": "data/assn_plant_id_eia_epa.csv",
             "title": "EIA-EPA Plant ID Crosswalk",
             "encoding": "utf-8",
             "mediatype": "text/csv",
@@ -5576,7 +5576,7 @@
         {
             "profile": "tabular-data-resource",
             "name": "assn_gen_eia_unit_epa",
-            "path": "data/assn_eia_epacems.csv",
+            "path": "data/assn_gen_eia_unit_epa.csv",
             "title": "EIA Plant and Generator to EPA Unit",
             "encoding": "utf-8",
             "mediatype": "text/csv",
