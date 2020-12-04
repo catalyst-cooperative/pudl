@@ -72,31 +72,39 @@ class PudlFileResource:
     It is expected that PudlFileResource can be used as a key for dict-like storage.
     """
 
-    def __init__(self, dataset: str, name: str, doi: str, metadata: dict = None, **properties: Any):
+    def __init__(self, dataset: str, name: str, doi: str, metadata: dict = None):
         self.doi = doi
         self.dataset = dataset
         self.name = name
-        self.properties = properties
-        self.metadata = metadata
+        self.metadata = metadata or dict()
 
     def __str__(self):
-        return f"Resource({self.local_path()})"
+        return f"Resource({self.get_local_path()})"
 
     def __hash__(self):
         return hash((self.dataset, self.doi, self.name))
 
-    def matches(self, **props):
+    def matches(self, **props: Any) -> bool:
         """Returns true if the file resource matches all props."""
-        return all(self.properties.get(k) == v for k, v in props.items())
+        return all(self.metadata.get('parts', {}).get(k) == v for k, v in props.items())
 
-    def get_path(self):
-        return self.metadata["path"]
+    def get_path(self) -> Optional[Path]: 
+        """Returns the remote (zenodo) path where the file is stored.
 
-    def local_path(self) -> Path:
+        In order to maintain backward compatibility with prior versions of the datastore
+        we will check if remote_url attributes has been added to metadata. If yes, use that,
+        otherwise use path.
+        """
+        try:
+            return Path(self.metadata.get('remote_url', self.metadata.get('path')))
+        except TypeError:
+            return None
+
+    def get_local_path(self) -> Path:
         doi_dirname = re.sub("/", "-", self.doi)
         return Path(self.dataset) / doi_dirname / self.name
 
-    def validate_checksum(self, content: bytes):
+    def content_matches_checksum(self, content: bytes) -> bool:
         m = hashlib.md5()  # nosec
         m.update(content)
         return m.hexdigest() == self.metadata["hash"]
@@ -225,7 +233,7 @@ class ZenodoFetcher:
     def fetch_resource(self, resource: PudlFileResource) -> bytes:
         """Retrieves resource content from zenodo and validates that checkum matches."""
         response = self._fetch_from_url(resource.get_path())
-        if not resource.validate_checksum(response.content):
+        if not resource.content_matches_checksum(response.content):
             raise ValueError(f'Resource {resource} has invalid checksum')
         return response.content
 
@@ -236,7 +244,7 @@ class LocalFileCache:
 
     def _resource_path(self, resource: PudlFileResource) -> Path:
         doi_dirname = re.sub("/", "-", resource.doi)
-        return self.cache_root_dir / resource.local_path() 
+        return self.cache_root_dir / resource.get_local_path() 
 
     def get(self, resource: PudlFileResource) -> bytes:
         logger.info(f'LocalCache.get({resource})')
