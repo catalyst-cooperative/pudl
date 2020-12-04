@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  release:
+    build:
+      context: .
+      dockerfile: release/Dockerfile.local
+    work_dir: /pudl/src
+    volumes:
+      - .:/pudl/src
+      - ./build-datapkg:/pudl/outputs/datapkg
+      - pudldata:/pudl/inputs/data
+    command: /pudl/src/release/data-release.sh
+  # TODO(rousik): create validate service that validates stuff under build/
+volumes:
+  pudldata: {}
