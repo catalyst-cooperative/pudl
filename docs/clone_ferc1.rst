@@ -4,7 +4,7 @@ Cloning the FERC Form 1 DB
 
 FERC Form 1 is... special.
 
-The :ref:`Form 1 data <data-ferc1>` is published in a particularly inaccessible
+The :doc:`data_sources/ferc1` is published in a particularly inaccessible
 format (proprietary binary `FoxPro database <https://en.wikipedia.org/wiki/FoxPro>`__ files),
 and the data itself is unclean and poorly organized. As a result, very few
 people are currently able to use it at all, and we have not yet integrated the

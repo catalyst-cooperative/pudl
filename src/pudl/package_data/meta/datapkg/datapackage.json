@@ -4669,7 +4669,7 @@
                     {
                         "name": "unit_id_epa",
                         "type": "integer",
-                        "description": "New EPA unit ID.",
+                        "description": "Smokestack' unit monitored by EPA CEMS.",
                         "format": "default"
                     }
                 ],
@@ -5518,6 +5518,163 @@
                 "name": "CC-BY-4.0",
                 "title": "Creative Commons Attribution 4.0",
                 "path": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "sources": []
+        },
+        {
+            "profile": "tabular-data-resource",
+            "name": "plant_unit_epa",
+            "path": "data/plant_unit_epa.csv",
+            "title": "EPA Plant and Unit",
+            "encoding": "utf-8",
+            "mediatype": "text/csv",
+            "format": "csv",
+            "dialect": {
+                "delimiter": ",",
+                "header": true,
+                "quoteChar": "\"",
+                "doubleQuote": true,
+                "lineTerminator": "\r\n",
+                "skipInitialSpace": true,
+                "caseSensitiveHeader": false
+            },
+            "schema": {
+                "fields": [{
+                        "name": "plant_id_epa",
+                        "type": "integer",
+                        "format": "default"
+                    },
+                    {
+                        "name": "unit_id_epa",
+                        "type": "string",
+                        "description": "Smokestack' unit monitored by EPA CEMS.",
+                        "format": "default"
+                    }
+                ],
+                "primaryKey": [
+                    "plant_id_epa",
+                    "unit_id_epa"
+                ],
+                "missingValues": [
+                    ""
+                ]
+            },
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "EPA",
+                "path": "https://www.epa.gov/"
+            }],
+            "sources": []
+        },
+        {
+            "profile": "tabular-data-resource",
+            "name": "assn_plant_id_eia_epa",
+            "path": "data/assn_plant_id_eia_epa.csv",
+            "title": "EIA-EPA Plant ID Crosswalk",
+            "encoding": "utf-8",
+            "mediatype": "text/csv",
+            "format": "csv",
+            "dialect": {
+                "delimiter": ",",
+                "header": true,
+                "quoteChar": "\"",
+                "doubleQuote": true,
+                "lineTerminator": "\r\n",
+                "skipInitialSpace": true,
+                "caseSensitiveHeader": false
+            },
+            "schema": {
+                "fields": [{
+                        "name": "plant_id_epa",
+                        "type": "integer",
+                        "format": "default"
+                    },
+                    {
+                        "name": "plant_id_eia",
+                        "type": "integer",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
+                        "format": "default"
+                    }
+                ],
+                "primaryKey": [
+                    "plant_id_epa",
+                    "plant_id_eia"
+                ],
+                "foreignKeys": [{
+                    "fields": ["plant_id_eia"],
+                    "reference": {
+                        "resource": "plants_entity_eia",
+                        "fields": ["plant_id_eia"]
+                    }
+                }],
+                "missingValues": [
+                    ""
+                ]
+            },
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "EPA",
+                "path": "https://www.epa.gov/"
+            }],
+            "sources": []
+        },
+        {
+            "profile": "tabular-data-resource",
+            "name": "assn_gen_eia_unit_epa",
+            "path": "data/assn_gen_eia_unit_epa.csv",
+            "title": "EIA Plant and Generator to EPA Unit",
+            "encoding": "utf-8",
+            "mediatype": "text/csv",
+            "format": "csv",
+            "dialect": {
+                "delimiter": ",",
+                "header": true,
+                "quoteChar": "\"",
+                "doubleQuote": true,
+                "lineTerminator": "\r\n",
+                "skipInitialSpace": true,
+                "caseSensitiveHeader": false
+            },
+            "schema": {
+                "fields": [{
+                        "name": "plant_id_eia",
+                        "type": "integer",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
+                        "format": "default"
+                    },
+                    {
+                       "name": "unit_id_epa",
+                       "type": "string",
+                       "description": "Smokestack' unit monitored by EPA CEMS.",
+                       "format": "default"
+                    },
+                    {
+                       "name": "generator_id",
+                       "type": "string",
+                       "description": "Generator identification code. Often numeric, but sometimes includes letters. It's a string!",
+                       "format": "default"
+                    }
+                ],
+                "primaryKey": [
+                    "plant_id_eia",
+                    "unit_id_epa",
+                    "generator_id"
+                ],
+                "foreignKeys": [{
+                    "fields": ["plant_id_eia", "generator_id"],
+                    "reference": {
+                        "resource": "generators_entity_eia",
+                        "fields": ["plant_id_eia", "generator_id"]
+                    }
+                }],
+                "missingValues": [
+                    ""
+                ]
+            },
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "EPA",
+                "path": "https://www.epa.gov/"
             }],
             "sources": []
         }

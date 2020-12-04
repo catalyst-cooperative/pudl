@@ -2139,10 +2139,9 @@ column_dtypes = {
         'advanced_metering_infrastructure': pd.Int64Dtype(),  # Added by AES for AMI table
         # Added by AES for UD misc table
         'alternative_fuel_vehicle_2_activity': pd.BooleanDtype(),
-        # Added by AES for UD misc table
         'alternative_fuel_vehicle_activity': pd.BooleanDtype(),
-        'annual_indirect_program_cost': float,  # Added by AES for DSM ee_dr table
-        'annual_total_cost': float,  # Added by AES for DSM ee_dr table
+        'annual_indirect_program_cost': float,
+        'annual_total_cost': float,
         'ash_content_pct': float,
         'ash_impoundment': pd.BooleanDtype(),
         'ash_impoundment_lined': pd.BooleanDtype(),
@@ -2157,25 +2156,23 @@ column_dtypes = {
         'balancing_authority_name_eia': pd.StringDtype(),
         'bga_source': pd.StringDtype(),
         'boiler_id': pd.StringDtype(),
-        'bunded_activity': pd.BooleanDtype(),  # Added by AES for UD misc table
+        'bunded_activity': pd.BooleanDtype(),
         'business_model': pd.CategoricalDtype(categories=[
             "retail", "energy_services"]),
-        'buy_distribution_activity': pd.BooleanDtype(),  # Added by AES for UD misc table
-        # Added by AES for UD misc table
+        'buy_distribution_activity': pd.BooleanDtype(),
         'buying_transmission_activity': pd.BooleanDtype(),
         'bypass_heat_recovery': pd.BooleanDtype(),
-        # Added by AES for R table
         'caidi_w_major_event_days_minus_loss_of_service_minutes': float,
-        'caidi_w_major_event_dats_minutes': float,  # Added by AES for R table
-        'caidi_wo_major_event_days_minutes': float,  # Added by AES for R table
-        'capacity_mw': float,  # Used by AES for NNM table
+        'caidi_w_major_event_dats_minutes': float,
+        'caidi_wo_major_event_days_minutes': float,
+        'capacity_mw': float,
         'carbon_capture': pd.BooleanDtype(),
         'chlorine_content_ppm': float,
-        'circuits_with_voltage_optimization': pd.Int64Dtype(),  # Added by AES for DS table
+        'circuits_with_voltage_optimization': pd.Int64Dtype(),
         'city': pd.StringDtype(),
         'cofire_fuels': pd.BooleanDtype(),
-        'consumed_by_facility_mwh': float,  # Added by AES for OD table
-        'consumed_by_respondent_without_charge_mwh': float,  # Added by AES for OD table
+        'consumed_by_facility_mwh': float,
+        'consumed_by_respondent_without_charge_mwh': float,
         'contact_firstname': pd.StringDtype(),
         'contact_firstname_2': pd.StringDtype(),
         'contact_lastname': pd.StringDtype(),
@@ -2186,44 +2183,36 @@ column_dtypes = {
         'contract_type_code': pd.StringDtype(),
         'county': pd.StringDtype(),
         'county_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
-        'credits_or_adjustments': float,  # Added by AES for OD Revenue table
-        'critical_peak_pricing': pd.BooleanDtype(),  # Added by AES for DP table
-        'critical_peak_rebate': pd.BooleanDtype(),  # Added by AES for DP table
+        'credits_or_adjustments': float,
+        'critical_peak_pricing': pd.BooleanDtype(),
+        'critical_peak_rebate': pd.BooleanDtype(),
         'current_planned_operating_date': 'datetime64[ns]',
-        'customers': float,  # Added by AES for DR, NM table
+        'customers': float,
         'customer_class': pd.CategoricalDtype(categories=CUSTOMER_CLASSES),
-        'customer_incentives_cost': float,  # Added by AES for DR table
-        'customer_incentives_incremental_cost': float,  # Added by AES for EE table
-        'customer_incentives_incremental_life_cycle_cost': float,  # Added by AES for EE table
-        # Added by AES for EE table
+        'customer_incentives_cost': float,
+        'customer_incentives_incremental_cost': float,
+        'customer_incentives_incremental_life_cycle_cost': float,
         'customer_other_costs_incremental_life_cycle_cost': float,
-        'daily_digital_access_customers': pd.Int64Dtype(),  # Added by AES for AMI table
-        'data_observed': pd.BooleanDtype(),  # Used by AES for OD table
+        'daily_digital_access_customers': pd.Int64Dtype(),
+        'data_observed': pd.BooleanDtype(),
         'deliver_power_transgrid': pd.BooleanDtype(),
-        'delivery_customers': float,  # Added by AES for OD Revenue table
-        'direct_load_control_customers': pd.Int64Dtype(),  # Added by AES for AMI table
-        # Added by AES for DG misc table
+        'delivery_customers': float,
+        'direct_load_control_customers': pd.Int64Dtype(),
         'distributed_generation_owned_capacity_mw': float,
-        'distribution_activity': pd.BooleanDtype(),  # Added by AES for UD misc table
-        'distribution_circuits': pd.Int64Dtype(),  # Added by AES for DS table
+        'distribution_activity': pd.BooleanDtype(),
+        'distribution_circuits': pd.Int64Dtype(),
         'duct_burners': pd.BooleanDtype(),
-        'energy_displaced_mwh': float,  # Added by AES for NM table
-        'energy_efficiency_annual_cost': float,  # Added by AES for DSM ee_dr table
-        # Added by AES for DSM ee_dr table
+        'energy_displaced_mwh': float,
+        'energy_efficiency_annual_cost': float,
         'energy_efficiency_annual_actual_peak_reduction_mw': float,
-        'energy_efficiency_annual_effects_mwh': float,  # Added by AES for DSM ee_dr table
-        # Added by AES for DSM ee_dr table
+        'energy_efficiency_annual_effects_mwh': float,
         'energy_efficiency_annual_incentive_payment': float,
-        # Added by AES for DSM ee_dr table
         'energy_efficiency_incremental_actual_peak_reduction_mw': float,
-        # Added by AES for dSM ee_dr table
         'energy_efficiency_incremental_effects_mwh': float,
-        # Added by AES for DSM misc table
         'energy_savings_estimates_independently_verified': pd.BooleanDtype(),
-        # Added by AES for DSM misc table
         'energy_savings_independently_verified': pd.BooleanDtype(),
-        'energy_savings_mwh': float,  # Added by AES for DR table
-        'energy_served_ami_mwh': float,  # Added by AES for AMI table
+        'energy_savings_mwh': float,
+        'energy_served_ami_mwh': float,
         'energy_source_code': pd.StringDtype(),
         'energy_source_code_1': pd.StringDtype(),
         'energy_source_code_2': pd.StringDtype(),
@@ -2232,16 +2221,12 @@ column_dtypes = {
         'energy_source_code_5': pd.StringDtype(),
         'energy_source_code_6': pd.StringDtype(),
         'energy_storage': pd.BooleanDtype(),
-        # Modified by AES for Merger, OD, and R tables
         'entity_type': pd.CategoricalDtype(categories=ENTITY_TYPE_DICT.values()),
-        # Added by AES for DG misc table
         'estimated_or_actual_capacity_data': pd.CategoricalDtype(categories=ESTIMATED_OR_ACTUAL.values()),
-        # Added by AES for DG fuel table
         'estimated_or_actual_fuel_data': pd.CategoricalDtype(categories=ESTIMATED_OR_ACTUAL.values()),
-        # Added by AES for DG tech table
         'estimated_or_actual_tech_data': pd.CategoricalDtype(categories=ESTIMATED_OR_ACTUAL.values()),
-        'exchange_energy_delivered_mwh': float,  # Added by AES for OD table
-        'exchange_energy_recieved_mwh': float,  # Added by AES for OD table
+        'exchange_energy_delivered_mwh': float,
+        'exchange_energy_recieved_mwh': float,
         'ferc_cogen_docket_no': pd.StringDtype(),
         'ferc_cogen_status': pd.BooleanDtype(),
         'ferc_exempt_wholesale_generator': pd.BooleanDtype(),
@@ -2250,7 +2235,7 @@ column_dtypes = {
         'ferc_small_power_producer_docket_no': pd.StringDtype(),
         'fluidized_bed_tech': pd.BooleanDtype(),
         'fraction_owned': float,
-        'fuel_class': pd.StringDtype(),  # Added by AES for DG fuel table
+        'fuel_class': pd.StringDtype(),
         'fuel_consumed_for_electricity_mmbtu': float,
         'fuel_consumed_for_electricity_units': float,
         'fuel_consumed_mmbtu': float,
@@ -2259,7 +2244,7 @@ column_dtypes = {
         'fuel_group_code': pd.StringDtype(),
         'fuel_group_code_simple': pd.StringDtype(),
         'fuel_mmbtu_per_unit': float,
-        'fuel_pct': float,  # Added by AES for DG fuel table
+        'fuel_pct': float,
         'fuel_qty_units': float,
         # are fuel_type and fuel_type_code the same??
         # fuel_type includes 40 code-like things.. WAT, SUN, NUC, etc.
@@ -2268,57 +2253,49 @@ column_dtypes = {
         'fuel_type_code': pd.StringDtype(),
         'fuel_type_code_aer': pd.StringDtype(),
         'fuel_type_code_pudl': pd.StringDtype(),
-        'furnished_without_charge_mwh': float,  # Added by AES for OD table
-        'generation_activity': pd.BooleanDtype(),  # Added by AES for UD misc table
+        'furnished_without_charge_mwh': float,
+        'generation_activity': pd.BooleanDtype(),
         # this is a mix of integer-like values (2 or 5) and strings like AUGSF
         'generator_id': pd.StringDtype(),
-        'generators_number': float,  # Added by AES for NNM & DG misc table
-        'generators_num_less_1_mw': float,  # Added by AES for DG misc table
-        # Added by AES for GP table (added green pricing prefix for now)
+        'generators_number': float,
+        'generators_num_less_1_mw': float,
         'green_pricing_revenue': float,
         'grid_voltage_2_kv': float,
         'grid_voltage_3_kv': float,
         'grid_voltage_kv': float,
         'heat_content_mmbtu_per_unit': float,
-        'highest_distribution_voltage_kv': float,  # Added by AES for R table
-        'home_area_network': pd.Int64Dtype(),  # Added by AES for AMI table
-        'inactive_accounts_included': pd.BooleanDtype(),  # Added by AES for R table
-        'incremental_energy_savings_mwh': float,  # Added by AES for EE table
-        'incremental_life_cycle_energy_savings_mwh': float,  # Added by AES for EE table
-        'incremental_life_cycle_peak_reduction_mwh': float,  # Added by AES for EE table
-        'incremental_peak_reduction_mw': float,  # Added by AES for EE table
+        'highest_distribution_voltage_kv': float,
+        'home_area_network': pd.Int64Dtype(),
+        'inactive_accounts_included': pd.BooleanDtype(),
+        'incremental_energy_savings_mwh': float,
+        'incremental_life_cycle_energy_savings_mwh': float,
+        'incremental_life_cycle_peak_reduction_mwh': float,
+        'incremental_peak_reduction_mw': float,
         'iso_rto_code': pd.StringDtype(),
         'latitude': float,
         'liquefied_natural_gas_storage': pd.BooleanDtype(),
-        'load_management_annual_cost': float,  # Added by AES for DSM ee_dr table
-        # Added by AES for DSM ee_dr table
+        'load_management_annual_cost': float,
         'load_management_annual_actual_peak_reduction_mw': float,
-        'load_management_annual_effects_mwh': float,  # Added by AES for DSM ee_dr table
-        # Added by AES for DSM ee_dr table
+        'load_management_annual_effects_mwh': float,
         'load_management_annual_incentive_payment': float,
-        # Added by AES for DSM ee_dr table
         'load_management_annual_potential_peak_reduction_mw': float,
-        # Added by AES for DSM ee_dr table
         'load_management_incremental_actual_peak_reduction_mw': float,
-        # Added by AES for DSM ee_dr table
         'load_management_incremental_effects_mwh': float,
-        # Added by AES for ee_dr table
         'load_management_incremental_potential_peak_reduction_mw': float,
         'longitude': float,
-        'major_program_changes': pd.BooleanDtype(),  # Added by AES for DSM misc table
+        'major_program_changes': pd.BooleanDtype(),
         'mercury_content_ppm': float,
-        'merge_address': pd.StringDtype(),  # Added by AES for Mergers table
-        'merge_city': pd.StringDtype(),  # Added by AES for Mergers table
-        'merge_company': pd.StringDtype(),  # Added by AES for Mergers table
-        'merge_date': 'datetime64[ns]',  # Added by AES for Mergers table
-        'merge_state': pd.StringDtype(),  # Added by AES for Mergers table
+        'merge_address': pd.StringDtype(),
+        'merge_city': pd.StringDtype(),
+        'merge_company': pd.StringDtype(),
+        'merge_date': 'datetime64[ns]',
+        'merge_state': pd.StringDtype(),
         'mine_id_msha': pd.Int64Dtype(),
         'mine_id_pudl': pd.Int64Dtype(),
         'mine_name': pd.StringDtype(),
         'mine_type_code': pd.StringDtype(),
         'minimum_load_mw': float,
         'moisture_content_pct': float,
-        # Added by AES for R table
         'momentary_interruption_definition': pd.CategoricalDtype(categories=MOMENTARY_INTERRUPTION_DEF.values()),
         'multiple_fuels': pd.BooleanDtype(),
         'nameplate_power_factor': float,
@@ -2330,29 +2307,28 @@ column_dtypes = {
         'natural_gas_storage': pd.BooleanDtype(),
         'natural_gas_transport_code': pd.StringDtype(),
         'nerc_region': pd.CategoricalDtype(categories=RECOGNIZED_NERC_REGIONS),
-        # Added by AES for UD nerc table
         'nerc_regions_of_operation': pd.CategoricalDtype(categories=RECOGNIZED_NERC_REGIONS),
-        'net_generation_mwh': float,  # Used by AES for OD table
+        'net_generation_mwh': float,
         'net_metering': pd.BooleanDtype(),
-        'net_power_exchanged_mwh': float,  # Added by AES for OD table
-        'net_wheeled_power_mwh': float,  # Added by AES for OD table
-        'new_parent': pd.StringDtype(),  # Added by AES for Mergers table
-        'non_amr_ami': pd.Int64Dtype(),  # Added by AES for AMI table
+        'net_power_exchanged_mwh': float,
+        'net_wheeled_power_mwh': float,
+        'new_parent': pd.StringDtype(),
+        'non_amr_ami': pd.Int64Dtype(),
         'nuclear_unit_id': pd.Int64Dtype(),
-        'operates_generating_plant': pd.BooleanDtype(),  # Added by AES for UD misc table
+        'operates_generating_plant': pd.BooleanDtype(),
         'operating_date': 'datetime64[ns]',
         'operating_switch': pd.StringDtype(),
         # TODO: double check this for early 860 years
         'operational_status': pd.StringDtype(),
         'operational_status_code': pd.StringDtype(),
         'original_planned_operating_date': 'datetime64[ns]',
-        'other': float,  # Added by AES for OD Revenue table
+        'other': float,
         'other_combustion_tech': pd.BooleanDtype(),
-        'other_costs': float,  # Added by AES for DR table
-        'other_costs_incremental_cost': float,  # Added by AES for EE table
+        'other_costs': float,
+        'other_costs_incremental_cost': float,
         'other_modifications_date': 'datetime64[ns]',
         'other_planned_modifications': pd.BooleanDtype(),
-        'outages_recorded_automatically': pd.BooleanDtype(),  # Added by AES for R table
+        'outages_recorded_automatically': pd.BooleanDtype(),
         'owner_city': pd.StringDtype(),
         'owner_name': pd.StringDtype(),
         'owner_state': pd.StringDtype(),
@@ -2375,63 +2351,57 @@ column_dtypes = {
         'planned_retirement_date': 'datetime64[ns]',
         'planned_uprate_date': 'datetime64[ns]',
         'plant_id_eia': pd.Int64Dtype(),
+        'plant_id_epa': pd.Int64Dtype(),
         'plant_id_pudl': pd.Int64Dtype(),
         'plant_name_eia': pd.StringDtype(),
         'plants_reported_asset_manager': pd.BooleanDtype(),
         'plants_reported_operator': pd.BooleanDtype(),
         'plants_reported_other_relationship': pd.BooleanDtype(),
         'plants_reported_owner': pd.BooleanDtype(),
-        'potential_peak_demand_savings_mw': float,  # Added by AES for DR table
+        'point_source_unit_id_epa': pd.StringDtype(),
+        'potential_peak_demand_savings_mw': float,
         'pulverized_coal_tech': pd.BooleanDtype(),
         'previously_canceled': pd.BooleanDtype(),
-        # Added by AES for DSM misc table
         'price_responsive_programes': pd.BooleanDtype(),
-        # Added by AES for DSM program table
         'price_responsiveness_customers': pd.Int64Dtype(),
         'primary_transportation_mode_code': pd.StringDtype(),
         'primary_purpose_naics_id': pd.Int64Dtype(),
         'prime_mover_code': pd.StringDtype(),
-        # Added by AES for NM table; used for NM & NNM table
         'pv_current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
-        'real_time_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
-        'rec_revenue': float,  # Added by AES for GP table
-        'rec_sales_mwh': float,  # Added by AES for GP table
+        'real_time_pricing_program': pd.BooleanDtype(),
+        'rec_revenue': float,
+        'rec_sales_mwh': float,
         'regulatory_status_code': pd.StringDtype(),
         'report_date': 'datetime64[ns]',
-        # Added by AES for DSM misc table
         'reported_as_another_company': pd.StringDtype(),
-        'retail_marketing_activity': pd.BooleanDtype(),  # Added by AES for UD misc table
-        'retail_sales': float,  # Added by AES for OD Revenue table
-        'retail_sales_mwh': float,  # Added by AES for OD table
+        'retail_marketing_activity': pd.BooleanDtype(),
+        'retail_sales': float,
+        'retail_sales_mwh': float,
         'retirement_date': 'datetime64[ns]',
-        # Added by AES for OD table
         'revenue_class': pd.CategoricalDtype(categories=REVENUE_CLASSES),
         'rto_iso_lmp_node_id': pd.StringDtype(),
         'rto_iso_location_wholesale_reporting_id': pd.StringDtype(),
-        'rtos_of_operation': pd.StringDtype(),  # Added by AES for UD rto table
-        # Added by AES for R table
+        'rtos_of_operation': pd.StringDtype(),
         'saidi_w_major_event_dats_minus_loss_of_service_minutes': float,
-        'saidi_w_major_event_days_minutes': float,  # Added by AES for R table
-        'saidi_wo_major_event_days_minutes': float,  # Added by AES for R table
-        'saifi_w_major_event_days_customers': float,  # Added by AES for R table
-        # Added by AES for R table
+        'saidi_w_major_event_days_minutes': float,
+        'saidi_wo_major_event_days_minutes': float,
+        'saifi_w_major_event_days_customers': float,
         'saifi_w_major_event_days_minus_loss_of_service_customers': float,
-        'saifi_wo_major_event_days_customers': float,  # Added by AES for R table
-        'sales_for_resale': float,  # Added by AES for OD Revenue table
-        'sales_for_resale_mwh': float,  # Added by AES for OD table, DSM sales table
+        'saifi_wo_major_event_days_customers': float,
+        'sales_for_resale': float,
+        'sales_for_resale_mwh': float,
         'sales_mwh': float,
-        'sales_revenue': float,  # Added sales prefix for now
-        'sales_to_ultimate_consumers_mwh': float,  # Added by AES for DSM sales table
+        'sales_revenue': float,
+        'sales_to_ultimate_consumers_mwh': float,
         'secondary_transportation_mode_code': pd.StringDtype(),
         'sector_id': pd.Int64Dtype(),
         'sector_name': pd.StringDtype(),
         'service_type': pd.CategoricalDtype(categories=[
             "bundled", "energy", "delivery",
         ]),
-        'short_form': pd.BooleanDtype(),  # Added by AES for DSM misc table
-        'sold_to_utility_mwh': float,  # Added by AES for NM table
+        'short_form': pd.BooleanDtype(),
+        'sold_to_utility_mwh': float,
         'solid_fuel_gasification': pd.BooleanDtype(),
-        # Added by AES for R table
         'standard': pd.CategoricalDtype(categories=RELIABILITY_STANDARDS),
         'startup_source_code_1': pd.StringDtype(),
         'startup_source_code_2': pd.StringDtype(),
@@ -2441,14 +2411,14 @@ column_dtypes = {
         'state_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
         'street_address': pd.StringDtype(),
         'stoker_tech': pd.BooleanDtype(),
-        'storage_capacity_mw': float,  # Added by AES for NM table
-        'storage_customers': pd.Int64Dtype(),  # Added by AES for NM table
+        'storage_capacity_mw': float,
+        'storage_customers': pd.Int64Dtype(),
         'subcritical_tech': pd.BooleanDtype(),
         'sulfur_content_pct': float,
         'summer_capacity_mw': float,
         # TODO: check if there is any data pre-2016
         'summer_estimated_capability_mw': float,
-        'summer_peak_demand_mw': float,  # Added by AES for OD table
+        'summer_peak_demand_mw': float,
         'supercritical_tech': pd.BooleanDtype(),
         'supplier_name': pd.StringDtype(),
         'switch_oil_gas': pd.BooleanDtype(),
@@ -2457,28 +2427,27 @@ column_dtypes = {
         'tech_class': pd.CategoricalDtype(categories=TECH_CLASSES),
         'technology_description': pd.StringDtype(),
         'time_cold_shutdown_full_load_code': pd.StringDtype(),
-        'time_of_use_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
-        'time_responsive_programs': pd.BooleanDtype(),  # Added by AES for DSM misc table
-        # Added by AES for DSM program table
+        'time_of_use_pricing_program': pd.BooleanDtype(),
+        'time_responsive_programs': pd.BooleanDtype(),
         'time_responsiveness_customers': pd.Int64Dtype(),
         'timezone': pd.StringDtype(),
         'topping_bottoming_code': pd.StringDtype(),
-        'total': float,  # Added by AES for OD Revenue table
-        'total_capacity_less_1_mw': float,  # Added by AES for DG misc table
-        'total_meters': pd.Int64Dtype(),  # Added by AES for AMI table
-        'total_disposition_mwh': float,  # Added by AES for OD table
-        'total_energy_losses_mwh': float,  # Added by AES for OD table
-        'total_sources_mwh': float,  # Added by AES for OD table
-        'transmission': float,  # Added by AES for OD Revenue table
-        'transmission_activity': pd.BooleanDtype(),  # Added by AES for UD misc table
-        'transmission_by_other_losses_mwh': float,  # Added by AES for OD table
+        'total': float,
+        'total_capacity_less_1_mw': float,
+        'total_meters': pd.Int64Dtype(),
+        'total_disposition_mwh': float,
+        'total_energy_losses_mwh': float,
+        'total_sources_mwh': float,
+        'transmission': float,
+        'transmission_activity': pd.BooleanDtype(),
+        'transmission_by_other_losses_mwh': float,
         'transmission_distribution_owner_id': pd.Int64Dtype(),
         'transmission_distribution_owner_name': pd.StringDtype(),
         'transmission_distribution_owner_state': pd.StringDtype(),
         'turbines_inverters_hydrokinetics': float,
         'turbines_num': pd.Int64Dtype(),  # TODO: check if any turbines show up pre-2016
         'ultrasupercritical_tech': pd.BooleanDtype(),
-        'unbundled_revenues': float,  # Added by AES for OD table
+        'unbundled_revenues': float,
         'unit_id_eia': pd.StringDtype(),
         'unit_id_pudl': pd.Int64Dtype(),
         'uprate_derate_completed_date': 'datetime64[ns]',
@@ -2487,27 +2456,24 @@ column_dtypes = {
         'utility_id_pudl': pd.Int64Dtype(),
         'utility_name_eia': pd.StringDtype(),
         'utility_owned_capacity_mw': float,  # Added by AES for NNM table
-        # 'utility_address': pd.StringDtype(),
-        # 'utility_zip_ext': pd.StringDtype(),
         'variable_peak_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
         'virtual_capacity_mw': float,  # Added by AES for NM table
         'virtual_customers': pd.Int64Dtype(),  # Added by AES for NM table
         'water_heater': pd.Int64Dtype(),  # Added by AES for DR table
         'water_source': pd.StringDtype(),
-        'weighted_average_life_years': float,  # Added by AES for EE table
-        'wheeled_power_delivered_mwh': float,  # Added by AES for OD table
-        'wheeled_power_recieved_mwh': float,  # Added by AES for OD table
-        # Added by AES for UD misc table
+        'weighted_average_life_years': float,
+        'wheeled_power_delivered_mwh': float,
+        'wheeled_power_recieved_mwh': float,
         'wholesale_marketing_activity': pd.BooleanDtype(),
-        'wholesale_power_purchases_mwh': float,  # Added by AES for OD table
+        'wholesale_power_purchases_mwh': float,
         'winter_capacity_mw': float,
         'winter_estimated_capability_mw': float,
-        'winter_peak_demand_mw': float,  # Added by AES for OD table
-        # 'with_med': float,  # Added by AES for R table
-        # 'with_med_minus_los': float,  # Added by AES for R table
-        # 'without_med': float,  # Added by AES for R table
-        'zip_code': pd.StringDtype(),  # Added by AES for M table
-        'zip_code_4': pd.StringDtype()  # Added by AES for M table
+        'winter_peak_demand_mw': float,
+        # 'with_med': float,
+        # 'with_med_minus_los': float,
+        # 'without_med': float,
+        'zip_code': pd.StringDtype(),
+        'zip_code_4': pd.StringDtype()
     },
     'depreciation': {
         'utility_id_ferc1': pd.Int64Dtype(),
