@@ -1,0 +1,26 @@
+===============================================================================
+EIA Form 923
+===============================================================================
+
+=================== ===========================================================
+Source URL          https://www.eia.gov/electricity/data/eia923/
+Source Description
+Respondents
+Source Format       Microsoft Excel (.xls/.xlsx)
+Source Years        2001-2018
+Size (Download)     196 MB
+Size (Uncompressed) 299 MB
+PUDL Code           ``eia923``
+Years Liberated     2009-2018
+Records Liberated   ~3.2 million
+Issues              `Open EIA 923 issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia923>`__
+=================== ===========================================================
+
+Nearly all of EIA Form 923 is being pulled into the PUDL database, for years
+2009-2018. Earlier data is available from EIA, but the reporting format for
+earlier years is substantially different from the present day, and will require
+more work to integrate. Monthly year to date releases are not yet being
+integrated, and only larger utilities are required to make monthly reports.
+
+We have not yet integrated tables reporting fuel stocks on hand, data from
+Puerto Rico, or EIA 923 schedules 6, 7, and 8.

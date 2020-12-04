@@ -1,0 +1,207 @@
+===============================================================================
+EIA Form 861
+===============================================================================
+
+=================== ===========================================================
+Source URL          https://www.eia.gov/electricity/data/eia861/
+Source Description  | The status of electric power industry participants involved
+                    | in the generation, transmission, distribution, or sale of
+                    | electric energy in the United States and its territories
+Respondents         Utilities
+Source Format       Microsoft Excel (.xls/.xlsx)
+Source Years        1990+, 2001+, 2007+, 2013+
+Size (Download)     --
+Size (Uncompressed) --
+PUDL Code           ``eia861``
+Years Liberated     --
+Records Liberated   --
+Issues              `open issues labeled epacems <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia861>`__
+=================== ===========================================================
+
+Background
+^^^^^^^^^^
+
+The *Annual Electric Power Industry Report*, also known as Form EIA-861, elicits
+information on load, generation, capacity, sales, revenues, programs, and more.
+The EIA-861 exists in parallel with its "short form" counterpart,
+**the EIA-861S, which is not yet included in the PUDL database.** The short form was
+created in 2012 to reduce the respondent burden for entities producing under
+100,000 MWh of power. Every eight years, these entities are required to fill out
+the full form. Year-to-year, approximately 1,100 utilities complete the EIA-861S
+and 2,300 utilities complete the full EIA-861.
+
+EIA also solicits information for a *Monthly Electric Power Industry Report*, the
+EIA-861M, however all the monthly information is encapsulated in the Annual EIA-861.
+**PUDL only draws from EIA-861M if a user requests year-to-date information that
+isn't yet available in its annual form.**
+
+.. todo::
+    Confirm the role of EIA-861M and EIA-861S in PUDL
+
+**Who is required to fill out the form?**
+
+As mandated by Section 13(b) of the Federal Energy Administration Act (FEAA) of
+1974 and specified by the Form instructions, respondents include:
+“electric power industry entities such as, but not limited to:
+
+  * Electric utilities,
+  * All Demand Side Management (DSM) Program Managers (entities responsible for
+    conducting or administering a DSM program), wholesale power marketers, energy
+    service providers, electric power producers, transmission owners, transmission
+    operators.
+  * Third Party Owners of solar PV (TPO).
+
+Responses are collected at the operating company level (not at the holding
+company level).”
+
+Annual responses are due by April 30th, and failure to respond may result in
+fines of several thousand dollars per day, depending on the infraction and
+form in question. Under Title 18 U.S.C. 1001, submitting false information is
+considered a criminal offense and warrants the highest fine.
+
+**What does the data look like?**
+
+Once the respondents have submitted their data, EIA creates a series of
+spreadsheets that reflect themes from the form. These spreadsheets have changed
+over the years as the form itself evolves. To gain greater insight into
+year-to-year nuances of the form, we recommend downloading the EIA-861 zip files
+for the desired years from the `EIA website
+<https://www.eia.gov/electricity/data/eia861/>`__ and scrutinizing both the Form
+and the Form Instructions files. `Form EIA-861 FAQ
+<https://www.eia.gov/survey/form/eia_861/faqs.php>`__, can also provide clarity
+on the contents of the data.
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+The Freedom of Information Act (FOIA), 5 U.S.C. §552, the Department of Energy
+(DOE) regulations, 10 C.F.R. §1004.11, implementing the FOIA, and the Trade
+﻿Secrets Act, 18 U.S.C. §1905 allow qualifying respondents to restrict
+access to their data. According to sources at the EIA, around 3
+respondents have used this as a means to keep their data utility-level data
+private. These entries appear under the utility id ``88888`` in the data.
+
+The EIA also performs state-level imputations and adjustments for more accurate
+state- level analysis. These entries appear under the utility id ``99999``
+and are not intended for use in utility-level aggregations.
+
+.. todo::
+    Say more about the state-level adjustments (99999) and maybe why power marketer
+    data is guarded.
+
+Not all of the EIA-861 data span all years. As mentioned earlier, both the Form
+and its output files have changed over time; most notably between 2012 and 2013.
+Beginning in 2013, the EIA split it's Demand Side Management spreadsheet into
+two: Demand Response and Energy Efficiency in order to reduce ambiguity and
+ensure data reliability. While there are many similarities between the two
+years, EIA officials recommend against combining data from these three files,
+citing subtle differences in Form questions. For these files, the post-2012 DR
+and EE spreadsheets are considered more accurate.
+
+Raw Data
+^^^^^^^^
+
+The following table depicts the "raw" Form EIA-861 data included in the PUDL
+database. Table descriptions are taken directly from the EIA website.
+
++-----------------+--------------+-----------------------------------------------+
+| 861 Table Name  | Years Used   | Description                                   |
++=================+==============+===============================================+
+| Advanced Meters | 2007 +       | | Information on Automated Meter Readings (AMR|
+|                 |              | | and Advanced Metering Infrastructure (AMI). |
++-----------------+--------------+-----------------------------------------------+
+| Balancing       | 2012 +       | | List of Balancing Authorities and the states|
+| Authority       |              | | they operate in.                            |
++-----------------+--------------+-----------------------------------------------+
+| Demand Response | 2013 +       | | The number of customers enrolled, energy    |
+|                 |              | | savings, potential and actual peak savings, |
+|                 |              | | and associated costs.                       |
+|                 |              | |                                             |
+|                 |              | | This table is part of the second-generation |
+|                 |              | | DSM table broken into DR and EE. Some but   |
+|                 |              | | not all of the columns overlap.             |
++-----------------+--------------+-----------------------------------------------+
+| Demand Side     | 2001 - 2012  | | Information on electric utility demand-side |
+| Management      |              | | management programs, including energy       |
+|                 |              | | efficiency and load management effects and  |
+|                 |              | | expenditures. Beginning in 2007, it also    |
+|                 |              | | contains the number of customers in time-   |
+|                 |              | | based rate programs.                        |
++-----------------+--------------+-----------------------------------------------+
+| Distribution    | 2013 +       | | The number of distribution circuits and     |
+| Systems         |              | | circuits with voltage optimization.         |
++-----------------+--------------+-----------------------------------------------+
+| Dynamic Pricing | 2013 +       | | The number of customers enrolled in various |
+|                 |              | | programs, i.e., time of use, real time,     |
+|                 |              | | variable peak and critical peak pricing,    |
+|                 |              | | and critical peak rebate programs.          |
++-----------------+--------------+-----------------------------------------------+
+| Energy          | 2013 +       | | Incremental and life cycle data on energy   |
+| Efficiency      |              | | savings, peak demand savings, weighted      |
+|                 |              | | average life, and associated costs.         |
+|                 |              | |                                             |
+|                 |              | | This table is part of the second-generation |
+|                 |              | | DSM table broken into DR and EE. Some but   |
+|                 |              | | not all of the columns overlap.             |
++-----------------+--------------+-----------------------------------------------+
+| Green Pricing   | 2001 - 2012  | | The number of customers, sales, and revenue,|
+|                 |              | | by sector and state.                        |
++-----------------+--------------+-----------------------------------------------+
+| Mergers         | 2007 +       | | Information on mergers and acquisitions.    |
++-----------------+--------------+-----------------------------------------------+
+| Net Metering    | 2007 +       | | The number of customers and displaced       |
+|                 |              | | energy, by sector and state. For 2010       |
+|                 |              | | forward, it contains capacity, customer     |
+|                 |              | | count, and energy sold back (an optional    |
+|                 |              | | question on the survey) by sector and state |
+|                 |              | | and by technology type, i.e., photovoltaic, |
+|                 |              | | wind, or other.                             |
++-----------------+--------------+-----------------------------------------------+
+| Non Net         | 2007 +       | | Information on utility- or customer-owned   |
+| Metering        |              | | distributed generators such as the number,  |
+|                 |              | | capacity, and technology type of generators.|
+|                 |              | | Capacities by photovoltaic and storage      |
+|                 |              | | generation types were added in 2010, fuel   |
+|                 |              | | cells were added in 2016. Starting in 2016, |
+|                 |              | | this data is now collected at the sector    |
+|                 |              | | level.                                      |
++-----------------+--------------+-----------------------------------------------+
+| Operational Data| 1990 +       | | Aggregated operational data for the source  |
+|                 |              | | and disposition of energy and revenue       |
+|                 |              | | information from each electric utility in   |
+|                 |              | | the country.                                |
++-----------------+--------------+-----------------------------------------------+
+| Reliability     | 2013 +       | | SAIDI and SAIFI data.                       |
++-----------------+--------------+-----------------------------------------------+
+| Sales to        | 1990 +       | | Information on retail revenue, sales, and   |
+| Ultimate        |              | | customer counts by state, balancing         |
+| Customers       |              | | authority, and class of service (including  |
+|                 |              | | the transportation sector which was added in|
+|                 |              | | 2003) for each electric distribution utility|
+|                 |              | | or energy service provider.                 |
++-----------------+--------------+-----------------------------------------------+
+| Service         | 2007 +       | | The names of the counties, by state, in     |
+| Territory       |              | | which the utility has equipment for the     |
+|                 |              | | distribution of electricity to ultimate     |
+|                 |              | | consumers.                                  |
++-----------------+--------------+-----------------------------------------------+
+| Utility Data    | 2007 +       | | Information on the types of activities each |
+|                 |              | | utility engages in, the North American      |
+|                 |              | | Electric Reliability (NERC) regions of      |
+|                 |              | | operation, whether the utility generates    |
+|                 |              | | power, whether it operates alternative-     |
+|                 |              | | fueled vehicles, and, beginning in 2010, the|
+|                 |              | | Independent System Operator (ISO) or        |
+|                 |              | | Regional Transmission Organization (RTO)    |
+|                 |              | | region in which the entity conducts         |
+|                 |              | | operations.                                 |
++-----------------+--------------+-----------------------------------------------+
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+These raw inputs are extracted by PUDL, cleaned, and transformed for efficient
+storage in the database. The data from each of these tables can be accessed
+either by querying the SQL database or interacting with PUDL output tables.
+
+.. note::
+    Add transformation details about the EIA861 output tables.
