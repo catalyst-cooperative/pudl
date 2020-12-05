@@ -10,7 +10,8 @@ import sys
 import zipfile
 import io
 from pathlib import Path
-from typing import Dict, Iterable, Optional, Any, List, Tuple
+from typing import Dict, Iterator, Optional, Any, List, Tuple
+from abc import ABC, abstractmethod
 
 import coloredlogs
 import datapackage
@@ -72,7 +73,7 @@ class PudlFileResource:
     It is expected that PudlFileResource can be used as a key for dict-like storage.
     """
 
-    def __init__(self, dataset: str, name: str, doi: str, metadata: dict = None):
+    def __init__(self, dataset: str, doi: str, name: str, metadata: dict = None):
         self.doi = doi
         self.dataset = dataset
         self.name = name
@@ -88,17 +89,17 @@ class PudlFileResource:
         """Returns true if the file resource matches all props."""
         return all(self.metadata.get('parts', {}).get(k) == v for k, v in props.items())
 
-    def get_path(self) -> Optional[Path]: 
+    def get_path(self) -> str: 
         """Returns the remote (zenodo) path where the file is stored.
 
         In order to maintain backward compatibility with prior versions of the datastore
         we will check if remote_url attributes has been added to metadata. If yes, use that,
         otherwise use path.
         """
-        try:
-            return Path(self.metadata.get('remote_url', self.metadata.get('path')))
-        except TypeError:
-            return None
+        p = self.metadata.get('remote_url') or self.metadata.get('path')
+        if not p:
+            raise KeyError(f"Metadata for {self} does not contain remote_url or path attributes")
+        return p
 
     def get_local_path(self) -> Path:
         doi_dirname = re.sub("/", "-", self.doi)
@@ -107,7 +108,9 @@ class PudlFileResource:
     def content_matches_checksum(self, content: bytes) -> bool:
         m = hashlib.md5()  # nosec
         m.update(content)
+        logger.info(f'calculated hash: {m.hexdigest()}')
         return m.hexdigest() == self.metadata["hash"]
+
 
 
 class DatapackageDescriptor:
@@ -197,9 +200,9 @@ class ZenodoFetcher:
         zen_id = int(match.groups()[0])
         return f"{self.api_root}/deposit/depositions/{zen_id}"
 
-    def _fetch_from_url(self, url: str):
+    def _fetch_from_url(self, url: str) -> requests.Response:
         logger.info(f"Retrieving {url} from zenodo")
-        response = requests.get(
+        response = self.http.get(
             url,
             params={"access_token": self.token},
             timeout=self.timeout)
@@ -238,7 +241,29 @@ class ZenodoFetcher:
         return response.content
 
 
-class LocalFileCache:
+class AbstractCache(ABC):
+    @abstractmethod
+    def get(self, resource: PudlFileResource) -> bytes:
+        """Retrieves content of given resource or throws KeyError."""
+        pass
+
+    @abstractmethod
+    def set(self, resource: PudlFileResource, content: str) -> None:
+        """Sets the content for given resource and adds the resource to cache."""
+        pass
+    
+    @abstractmethod
+    def delete(self, resource: PudlFileResource) -> None:
+        """Removes the resource from cache."""
+        pass
+
+    @abstractmethod
+    def contains(self, resource: PudlFileResource) -> bool:
+        """Returns True if the resource is present in the cache."""
+        pass
+
+
+class LocalFileCache(AbstractCache):
     def __init__(self, cache_root_dir: Path):
         self.cache_root_dir = cache_root_dir
 
@@ -263,13 +288,13 @@ class LocalFileCache:
         return self._resource_path(resource).exists()
 
 
-class GoogleCloudStorageCache:
+class GoogleCloudStorageCache(AbstractCache):
     def __init__(self, bucket_name: str):
         self.bucket = storage.Client().bucket(bucket_name)
 
     def _blob(self, resource: PudlFileResource) -> Blob:
         """Retrieve Blob object associated with given resource."""
-        return self.bucket.blob(resource.local_path().as_posix())
+        return self.bucket.blob(resource.get_local_path().as_posix())
 
     def get(self, resource: PudlFileResource) -> bytes:
         return self._blob(resource).download_as_bytes()
@@ -337,7 +362,7 @@ class Datastore:
             timeout (float): Network timeout for http requests.
 
         """
-        caches = []
+        caches = []  # type: List[AbstractCache]
         if pudl_in:
             caches.append(LocalFileCache(pudl_in / "data"))
         if gcs_bucket:
@@ -368,7 +393,7 @@ class Datastore:
             self.local_cache.set(res, self.datapackage_descriptors[doi].to_bytes())
         return self.datapackage_descriptors[doi]
 
-    def get_resources(self, dataset: str, **filters: Any) -> Iterable[Tuple[PudlFileResource, io.BytesIO]]:
+    def get_resources(self, dataset: str, **filters: Any) -> Iterator[Tuple[PudlFileResource, io.BytesIO]]:
         """Return content of the matching resources.
 
         Args:
@@ -391,7 +416,7 @@ class Datastore:
 
     def get_unique_resource(self, dataset: str, **filters: Any) -> io.BytesIO:
         # TODO(rousik): should we error check to ensure that there is exactly one resource (and no more)?
-        res = self.get_resources(dataset, **filter)
+        res = self.get_resources(dataset, **filters)
         _, content = next(res)
         try:
             next(res)
