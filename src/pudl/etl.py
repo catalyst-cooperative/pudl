@@ -21,7 +21,7 @@ import itertools
 import logging
 import tarfile
 import uuid
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -1004,6 +1004,7 @@ class DatapackageBuilder(prefect.Task):
               Google Cloud Storage bucket.
         """
         self.uuid = str(uuid.uuid4())
+        self.timestamp = datetime.now().strftime('%F-%H%M%S')
         self.doi = doi
         self.pudl_settings = pudl_settings
         self.bundle_dir = Path(pudl_settings["datapkg_dir"], bundle_name)
@@ -1011,6 +1012,10 @@ class DatapackageBuilder(prefect.Task):
         self.gcs_bucket = gcs_bucket
         logger.warning(f'DatapackageBuilder uuid is {self.uuid}')
         super().__init__(*args, **kwargs)
+
+    def noslash_doi(self):
+        """Returns doi where slashes are replaced with."""
+        return self.doi.replace("/", "-")
 
     def prepare_output_directories(self, clobber=False):
         """Create (or wipe and re-create) output directory for the bundle."""
@@ -1049,8 +1054,8 @@ class DatapackageBuilder(prefect.Task):
         # Optionally upload files to Google Storage Bucket
         # TODO(rousik): this should probably be separated into its own task
         if self.gcs_bucket:
-            full_datapkg_name = self.get_datapkg_name(datapkg_settings)
-            blob = f'{self.uuid}/{self.doi}/{full_datapkg_name}.tgz'
+            full_name = self.get_datapkg_name(datapkg_settings)
+            blob = f'{self.timestamp}-{self.uuid}-{self.noslash_doi()}/{full_name}.tgz'
             # Create in-memory tar archive
             tar_buffer = io.BytesIO()
             with tarfile.open(mode='w:gz', fileobj=tar_buffer) as tar:
