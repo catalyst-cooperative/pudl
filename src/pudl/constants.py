@@ -1342,7 +1342,8 @@ entities = {
          'turbines_inverters_hydrokinetics', 'nameplate_power_factor',
          'uprate_derate_during_year', 'uprate_derate_completed_date',
          'current_planned_operating_date', 'summer_estimated_capability_mw',
-         'winter_estimated_capability_mw', 'retirement_date', 'utility_id_eia'],
+         'winter_estimated_capability_mw', 'retirement_date',
+         'utility_id_eia'],
         # need type fixing
         {}
     ],
@@ -1352,13 +1353,14 @@ entities = {
         # base cols
         ['utility_id_eia'],
         # static cols
-        ['utility_name_eia',
-         'entity_type'],
+        ['utility_name_eia'],
         # annual cols
-        ['street_address', 'city', 'state', 'zip_code',
+        ['street_address', 'city', 'state', 'zip_code', 'entity_type',
          'plants_reported_owner', 'plants_reported_operator',
          'plants_reported_asset_manager', 'plants_reported_other_relationship',
-         ],
+         'attention_line', 'address_2', 'zip_code_4',
+         'contact_firstname', 'contact_lastname', 'contact_title',
+         'contact_firstname_2', 'contact_lastname_2', 'contact_title_2'],
         # need type fixing
         {'utility_id_eia': 'int64', }, ],
     'boilers': [
@@ -1632,7 +1634,7 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 
 # The full set of years we currently expect to be able to ingest, per source:
 working_years = {
-    'eia860': tuple(range(2009, 2020)),
+    'eia860': tuple(range(2008, 2020)),
     'eia861': tuple(range(2001, 2020)),
     'eia923': tuple(range(2009, 2020)),
     'epacems': tuple(range(1995, 2020)),
@@ -2132,8 +2134,10 @@ column_dtypes = {
         'unit_id_epa': pd.Int64Dtype(),  # Nullable Integer
     },
     "eia": {
-        'actual_peak_demand_savings_mw': float,
-        'advanced_metering_infrastructure': pd.Int64Dtype(),
+        'actual_peak_demand_savings_mw': float,  # Added by AES for DR table
+        'address_2': pd.StringDtype(),  # Added by AES for 860 utilities table
+        'advanced_metering_infrastructure': pd.Int64Dtype(),  # Added by AES for AMI table
+        # Added by AES for UD misc table
         'alternative_fuel_vehicle_2_activity': pd.BooleanDtype(),
         'alternative_fuel_vehicle_activity': pd.BooleanDtype(),
         'annual_indirect_program_cost': float,
@@ -2144,8 +2148,9 @@ column_dtypes = {
         # TODO: convert this field to more descriptive words
         'ash_impoundment_status': pd.StringDtype(),
         'associated_combined_heat_power': pd.BooleanDtype(),
-        'automated_meter_reading': pd.Int64Dtype(),
-        'backup_capacity_mw': float,
+        'attention_line': pd.StringDtype(),
+        'automated_meter_reading': pd.Int64Dtype(),  # Added by AES for AMI table
+        'backup_capacity_mw': float,  # Added by AES for NNM & DG misc table
         'balancing_authority_code_eia': pd.CategoricalDtype(),
         'balancing_authority_id_eia': pd.Int64Dtype(),
         'balancing_authority_name_eia': pd.StringDtype(),
@@ -2169,11 +2174,11 @@ column_dtypes = {
         'consumed_by_facility_mwh': float,
         'consumed_by_respondent_without_charge_mwh': float,
         'contact_firstname': pd.StringDtype(),
-        'contact_firstname2': pd.StringDtype(),
+        'contact_firstname_2': pd.StringDtype(),
         'contact_lastname': pd.StringDtype(),
-        'contact_lastname2': pd.StringDtype(),
+        'contact_lastname_2': pd.StringDtype(),
         'contact_title': pd.StringDtype(),
-        'contact_title2': pd.StringDtype(),
+        'contact_title_2': pd.StringDtype(),
         'contract_expiration_date': 'datetime64[ns]',
         'contract_type_code': pd.StringDtype(),
         'county': pd.StringDtype(),
@@ -2447,17 +2452,14 @@ column_dtypes = {
         'unit_id_pudl': pd.Int64Dtype(),
         'uprate_derate_completed_date': 'datetime64[ns]',
         'uprate_derate_during_year': pd.BooleanDtype(),
-        'utility_attn': pd.StringDtype(),
         'utility_id_eia': pd.Int64Dtype(),
         'utility_id_pudl': pd.Int64Dtype(),
         'utility_name_eia': pd.StringDtype(),
-        'utility_owned_capacity_mw': float,
-        'utility_pobox': pd.StringDtype(),
-        'utility_zip_ext': pd.StringDtype(),
-        'variable_peak_pricing_program': pd.BooleanDtype(),
-        'virtual_capacity_mw': float,
-        'virtual_customers': pd.Int64Dtype(),
-        'water_heater': pd.Int64Dtype(),
+        'utility_owned_capacity_mw': float,  # Added by AES for NNM table
+        'variable_peak_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
+        'virtual_capacity_mw': float,  # Added by AES for NM table
+        'virtual_customers': pd.Int64Dtype(),  # Added by AES for NM table
+        'water_heater': pd.Int64Dtype(),  # Added by AES for DR table
         'water_source': pd.StringDtype(),
         'weighted_average_life_years': float,
         'wheeled_power_delivered_mwh': float,

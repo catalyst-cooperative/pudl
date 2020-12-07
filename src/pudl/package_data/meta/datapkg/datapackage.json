@@ -736,12 +736,6 @@
                         "type": "string",
                         "description": "The name of the utility.",
                         "format": "default"
-                    },
-                    {
-                        "name": "entity_type",
-                        "type": "string",
-                        "description": "Entity type of principle owner (C = Cooperative, I = Investor-Owned Utility, Q = Independent Power Producer, M = Municipally-Owned Utility, P = Political Subdivision, F = Federally-Owned Utility, S = State-Owned Utility, IND = Industrial, COM = Commercial",
-                        "format": "default"
                     }
                 ],
                 "primaryKey": [
@@ -5147,6 +5141,57 @@
                         "name": "plants_reported_other_relationship",
                         "type": "string",
                         "description": "Does the reporting entity have any other relationship to the power plants reported on Schedule 2 of the form?",
+                        "format": "default"
+                    },
+                    {
+                        "name": "entity_type",
+                        "type": "string",
+                        "description": "Entity type of principle owner (C = Cooperative, I = Investor-Owned Utility, Q = Independent Power Producer, M = Municipally-Owned Utility, P = Political Subdivision, F = Federally-Owned Utility, S = State-Owned Utility, IND = Industrial, COM = Commercial",
+                        "format": "default"
+                    },
+                    {
+                        "name": "attention_line",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "address_2",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "zip_code_4",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "contact_firstname",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "contact_lastname",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "contact_title",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "contact_firstname_2",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "contact_lastname_2",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "contact_title_2",
+                        "type": "string",
                         "format": "default"
                     }
                 ],
