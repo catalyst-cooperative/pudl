@@ -185,6 +185,7 @@ class TestExcelExtractor:
     """Verify that we can lead excel files as provided via the datastore."""
 
     @staticmethod
+    @pytest.mark.skip(reason="helper function")
     def test_expected_file_name(extractor, page, year, expected_name):
         """Check if extractor can access files with expected file names."""
         if extractor.excel_filename(page, year=year) != expected_name:

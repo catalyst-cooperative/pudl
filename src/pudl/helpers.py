@@ -1113,3 +1113,18 @@ def iterate_multivalue_dict(**kwargs):
         for k_v in value_assignments:
             result.update(k_v)
         yield result
+
+
+def get_working_eia_dates():
+    """Get all working EIA dates as a DatetimeIndex."""
+    dates = pd.DatetimeIndex([])
+    for dataset_name, dataset in pc.working_partitions.items():
+        if 'eia' in dataset_name:
+            for name, partition in dataset.items():
+                if name == 'years':
+                    dates = dates.append(
+                        pd.to_datetime(partition, format='%Y'))
+                if name == 'year_month':
+                    dates = dates.append(pd.DatetimeIndex(
+                        [pd.to_datetime(partition)]))
+    return dates

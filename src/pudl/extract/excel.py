@@ -69,19 +69,19 @@ class Metadata(object):
 
     def get_sheet_name(self, page, **partition):
         """Returns name of the excel sheet that contains the data for given partition and page."""
-        return self._sheet_name.at[page, str(list(partition.values())[0])]
+        return self._sheet_name.at[page, str(self._get_partition_key(partition))]
 
     def get_skiprows(self, page, **partition):
         """Returns number of initial rows to skip when loading given partition and page."""
-        return self._skiprows.at[page, str(list(partition.values())[0])]
+        return self._skiprows.at[page, str(self._get_partition_key(partition))]
 
     def get_skipfooter(self, page, **partition):
         """Returns number of bottom rows to skip when loading given partition and page."""
-        return self._skipfooter.at[page, str(list(partition.values())[0])]
+        return self._skipfooter.at[page, str(self._get_partition_key(partition))]
 
     def get_column_map(self, page, **partition):
         """Returns the dictionary mapping input columns to pudl columns for given partition and page."""
-        return {v: k for k, v in self._column_map[page].T.loc[str(list(partition.values())[0])].to_dict().items() if v != -1}
+        return {v: k for k, v in self._column_map[page].T.loc[str(self._get_partition_key(partition))].to_dict().items() if v != -1}
 
     def get_all_columns(self, page):
         """Returns list of all pudl (standardized) columns for a given page (across all partition)."""
@@ -96,6 +96,14 @@ class Metadata(object):
         """Load metadata from a filename that is found in a package."""
         return pd.read_csv(importlib.resources.open_text(package, filename),
                            index_col=0, comment='#')
+
+    @staticmethod
+    def _get_partition_key(partition):
+        """Grab the partition key."""
+        if len(partition) != 1:
+            raise AssertionError(
+                f"Expecting exactly one partition attribute (found: {partition})")
+        return list(partition.values())[0]
 
 
 class GenericExtractor(object):
@@ -288,6 +296,6 @@ class GenericExtractor(object):
 
             for row in reader:
                 if row["page"] == page:
-                    return row[str(list(partition.values())[0])]
+                    return row[str(self.METADATA._get_partition_key(partition))]
 
         raise ValueError(f"No excel sheet for {partition}, {page}")
