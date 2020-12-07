@@ -30,6 +30,7 @@ DOI = {
     "sandbox": {
         "censusdp1tract": "10.5072/zenodo.674992",
         "eia860": "10.5072/zenodo.672210",
+        "eia860m": "10.5072/zenodo.692655",
         "eia861": "10.5072/zenodo.687052",
         "eia923": "10.5072/zenodo.687071",
         "epacems": "10.5072/zenodo.672963",
@@ -39,6 +40,7 @@ DOI = {
     "production": {
         "censusdp1tract": "10.5281/zenodo.4127049",
         "eia860": "10.5281/zenodo.4127027",
+        "eia860m": "10.5281/zenodo.4281337",
         "eia861": "10.5281/zenodo.4127029",
         "eia923": "10.5281/zenodo.4127040",
         "epacems": "10.5281/zenodo.4127055",
@@ -329,7 +331,8 @@ class Datastore:
                 self.download_resource(resource, directory,
                                        retries=retries - 1)
             else:
-                raise RuntimeError(f"Could not download valid {resource['path']}")
+                raise RuntimeError(
+                    f"Could not download valid {resource['path']}")
 
         return local_path
 
@@ -367,8 +370,8 @@ class Datastore:
             dataset: name of a dataset
 
         Returns:
-            bool: True if local datapackage.json is valid and resources have good md5
-            checksums.
+            bool: True if local datapackage.json is valid and resources have
+            good md5 checksums.
 
         """
         dp = self.datapackage_json(dataset)
@@ -377,7 +380,8 @@ class Datastore:
         for r in dp["resources"]:
 
             if self.is_remote(r):
-                self.logger.debug(f"{r['path']} not cached, skipping validation")
+                self.logger.debug(
+                    f"{r['path']} not cached, skipping validation")
                 continue
 
             # We verify and warn on every resource. Even though a single
@@ -466,8 +470,10 @@ class Datastore:
                     local = self.download_resource(r, self.local_path(dataset))
 
                     # save with a relative path
-                    r["path"] = str(local.relative_to(self.local_path(dataset)))
-                    self.logger.debug(f"resource local relative path: {r['path']}")
+                    r["path"] = str(local.relative_to(
+                        self.local_path(dataset)))
+                    self.logger.debug(
+                        f"resource local relative path: {r['path']}")
                     self.save_datapackage_json(dataset, dpkg)
 
                 r_abspath = copy.deepcopy(r)

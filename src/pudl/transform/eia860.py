@@ -1,4 +1,5 @@
 """Module to perform data cleaning functions on EIA860 data tables."""
+
 import logging
 
 import numpy as np
@@ -37,11 +38,12 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     # The fix we're making here is only known to be valid for 2011 -- if we
     # get older data... then we need to to revisit the cleaning function and
     # make sure it also applies to those earlier years.
-    if min(o_df.report_date.dt.year) < min(pc.working_years["eia860"]):
+    if (min(o_df.report_date.dt.year)
+            < min(pc.working_partitions['eia860']['years'])):
         raise ValueError(
             f"EIA 860 transform step is only known to work for "
-            f"year {min(pc.working_years['eia860'])} and later, but found data "
-            f"from year {min(o_df.report_date.dt.year)}."
+            f"year {min(pc.working_partitions['eia860']['years'])} and later, "
+            f"but found data from year {min(o_df.report_date.dt.year)}."
         )
 
     # Prior to 2012, ownership was reported as a percentage, rather than
@@ -205,12 +207,6 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         pipe(pudl.helpers.simplify_strings,
              columns=['rto_iso_lmp_node_id',
                       'rto_iso_location_wholesale_reporting_id']).
-        astype({
-            'plant_id_eia': int,
-            'generator_id': str,
-            'unit_id_eia': str,
-            'utility_id_eia': int
-        }).
         pipe(pudl.helpers.convert_to_date)
     )
 

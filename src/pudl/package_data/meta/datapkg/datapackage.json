@@ -2343,6 +2343,15 @@
                         "type": "date",
                         "description": "Date of the scheduled or effected retirement of the generator.",
                         "format": "default"
+                    },
+                    {
+                        "name": "data_source",
+                        "type": "string",
+                        "description": "Source of EIA 860 data. Either Annual EIA 860 or the year-to-date updates from EIA 860M.",
+                        "constraints": {
+                            "enum": ["eia860","eia860m"]
+                          },
+                        "format": "default"
                     }
                 ],
                 "foreignKeys": [{
@@ -2372,7 +2381,12 @@
             "sources": [{
                 "title": "eia860",
                 "path": "https://www.eia.gov/electricity/data/eia860"
-            }]
+            },
+            {
+              "title": "eia860m",
+              "path": "https://www.eia.gov/electricity/data/eia860m"
+            }
+          ]
         },
         {
             "profile": "tabular-data-resource",

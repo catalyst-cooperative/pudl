@@ -1321,7 +1321,7 @@ entities = {
          'associated_combined_heat_power', 'original_planned_operating_date',
          'operating_switch', 'previously_canceled'],
         # annual cols
-        ['capacity_mw', 'fuel_type_code_pudl', 'multiple_fuels',
+        ['data_source', 'capacity_mw', 'fuel_type_code_pudl', 'multiple_fuels',
          'ownership_code', 'deliver_power_transgrid', 'summer_capacity_mw',
          'winter_capacity_mw', 'minimum_load_mw', 'technology_description',
          'energy_source_code_1', 'energy_source_code_2',
@@ -1633,18 +1633,32 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 """
 
 # The full set of years we currently expect to be able to ingest, per source:
-working_years = {
-    'eia860': tuple(range(2008, 2020)),
-    'eia861': tuple(range(2001, 2020)),
-    'eia923': tuple(range(2009, 2020)),
-    'epacems': tuple(range(1995, 2020)),
-    'epaipm': (None, ),
-    'ferc1': tuple(range(1994, 2020)),
-    'ferc714': (None, ),
+working_partitions = {
+    'eia860': {
+        'years': tuple(range(2008, 2020))
+    },
+    'eia860m': {
+        'year_month': '2020-08'
+    },
+    'eia861': {
+        'years': tuple(range(2001, 2020))
+    },
+    'eia923': {
+        'years': tuple(range(2009, 2020))
+    },
+    'epacems': {
+        'years': tuple(range(1995, 2020)),
+        'states': cems_states.keys()},
+    'ferc1': {
+        'years': tuple(range(1994, 2020))
+    },
+    'ferc714': {},
 }
 """
-dict: A dictionary of data sources (keys) and tuples containing the years for
-    each data source that are able to be ingested into PUDL.
+dict: A dictionary of data sources (keys) and dictionaries (values) of names of
+    partition type (sub-key) and paritions (sub-value) containing the paritions
+    such as tuples of years for each data source that are able to be ingested
+    into PUDL.
 """
 
 pudl_tables = {
@@ -2402,6 +2416,7 @@ column_dtypes = {
         'short_form': pd.BooleanDtype(),
         'sold_to_utility_mwh': float,
         'solid_fuel_gasification': pd.BooleanDtype(),
+        'data_source': pd.StringDtype(),
         'standard': pd.CategoricalDtype(categories=RELIABILITY_STANDARDS),
         'startup_source_code_1': pd.StringDtype(),
         'startup_source_code_2': pd.StringDtype(),

@@ -8,6 +8,7 @@ scenarios, it should probably live here. There are lost of transform type
 functions in here that help with cleaning and restructing dataframes.
 
 """
+import itertools
 import logging
 import pathlib
 import re
@@ -1112,3 +1113,36 @@ def zero_pad_zips(zip_series, n_digits):
         .replace({n_digits * "0": pd.NA})  # All-zero Zip codes aren't valid.
     )
     return zip_series
+
+
+def iterate_multivalue_dict(**kwargs):
+    """Make dicts from dict with main dict key and one value of main dict."""
+    single_valued = {k: v for k,
+                     v in kwargs.items()
+                     if not (isinstance(v, list) or isinstance(v, tuple))}
+
+    # Transform multi-valued {k: vlist} into {k1: [{k1: v1}, {k1: v2}, ...], k2: [...], ...}
+    multi_valued = {k: [{k: v} for v in vlist]
+                    for k, vlist in kwargs.items()
+                    if (isinstance(vlist, list) or isinstance(vlist, tuple))}
+
+    for value_assignments in itertools.product(*multi_valued.values()):
+        result = dict(single_valued)
+        for k_v in value_assignments:
+            result.update(k_v)
+        yield result
+
+
+def get_working_eia_dates():
+    """Get all working EIA dates as a DatetimeIndex."""
+    dates = pd.DatetimeIndex([])
+    for dataset_name, dataset in pc.working_partitions.items():
+        if 'eia' in dataset_name:
+            for name, partition in dataset.items():
+                if name == 'years':
+                    dates = dates.append(
+                        pd.to_datetime(partition, format='%Y'))
+                if name == 'year_month':
+                    dates = dates.append(pd.DatetimeIndex(
+                        [pd.to_datetime(partition)]))
+    return dates
