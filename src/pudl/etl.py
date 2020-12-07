@@ -171,6 +171,14 @@ def _load_static_tables_eia(datapkg_dir):
     return list(static_dfs.keys())
 
 
+def _add_eia_epacems_crosswalk(eia_transformed_dfs):
+    """Add normalized EIA-EPA crosswalk tables to the transformed dfs dict."""
+    assn_dfs = pudl.glue.eia_epacems.grab_clean_split()
+    eia_transformed_dfs.update(assn_dfs)
+
+    return eia_transformed_dfs
+
+
 def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     """Extract, transform and load CSVs for the EIA datasets.
 
@@ -227,6 +235,10 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     # create an eia transformed dfs dictionary
     eia_transformed_dfs = eia860_transformed_dfs.copy()
     eia_transformed_dfs.update(eia923_transformed_dfs.copy())
+
+    # Add EIA-EPA crosswalk tables
+    eia_transformed_dfs = _add_eia_epacems_crosswalk(eia_transformed_dfs)
+
     # convert types..
     eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
         eia_transformed_dfs, 'eia')

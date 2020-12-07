@@ -418,13 +418,10 @@ def get_tabular_data_resource(resource_name, datapkg_dir,
         descriptor that complies with the Frictionless Data specification.
 
     """
-    # Only some datasets have meaningful temporal coverage:
-    # temporal_data = ["eia860", "eia923", "ferc1", "eia861", "epacems"]
     # every time we want to generate the cems table, we want it compressed
+    abs_path = pathlib.Path(datapkg_dir, "data", f"{resource_name}.csv")
     if "hourly_emissions_epacems" in resource_name:
-        abs_path = pathlib.Path(datapkg_dir, "data", f"{resource_name}.csv.gz")
-    else:
-        abs_path = pathlib.Path(datapkg_dir, "data", f"{resource_name}.csv")
+        abs_path = pathlib.Path(abs_path.parent, abs_path.name + ".gz")
 
     # pull the skeleton of the descriptor from the megadata file
     descriptor = pull_resource_from_megadata(resource_name)

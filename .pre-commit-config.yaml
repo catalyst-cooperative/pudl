@@ -2,7 +2,7 @@ repos:
 
 # Quick content checks based on grepping for python specific patterns:
 - repo: https://github.com/pre-commit/pygrep-hooks
-  rev: v1.6.0
+  rev: v1.7.0
   hooks:
   - id: python-check-blanket-noqa   # Prohibit overly broad QA exclusions.
   - id: python-no-eval              # Never use eval() it's dangerous.

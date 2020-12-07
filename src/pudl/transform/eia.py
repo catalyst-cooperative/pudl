@@ -872,6 +872,7 @@ def transform(eia_transformed_dfs,
     if not eia923_years and not eia860_years:
         logger.info('Not ingesting EIA')
         return None
+
     # create the empty entities df to fill up
     entities_dfs = {}
 
