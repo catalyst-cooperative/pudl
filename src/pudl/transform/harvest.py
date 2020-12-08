@@ -249,7 +249,7 @@ def as_dict(x: pd.Series) -> Dict[Any, list]:
 
 def try_aggfunc(  # noqa: C901
     func: Callable,
-    method: Literal["coerce", "raise", "return", "insert", "append"] = "coerce",
+    method: Literal["coerce", "raise", "report"] = "coerce",
     error: Union[str, Callable] = None,
 ) -> Callable:
     """
@@ -257,23 +257,21 @@ def try_aggfunc(  # noqa: C901
 
     Arguments:
         func: Aggregate function.
-        method: Error handling method (for :class:`AggregationError` only).
+        method: Error handling method for :class:`AggregationError`.
 
-            - 'coerce': Return `np.nan` instead of the error.
-            - 'raise': Re-raise the error.
-            - 'return' and 'insert': Return rather than raise the error.
-            - 'append': Append the error to a list passed as a second function argument.
+            - 'coerce': Return `np.nan`.
+            - 'raise': Raise the error.
+            - 'report': Return the error.
 
         error: Error value, whose type and format depends on `method`.
             Below, `x` is the original input and `e` is the original error.
 
             - 'raise': A string with substitions (e.g. 'Error at {x.name}: {e}')
-              By default, the original error is raised.
-            - 'return': A function with signature `f(x, e)` returning a value to return.
-              By default, the original error is returned.
-            - 'insert': Same as for 'return', except the returned value replaces the
-              arguments of the original error and the original error is returned.
-            - 'append': Same as for 'return', except the returned value is appended.
+              that replaces the arguments of the original error.
+              By default, the original error is raised unchanged.
+            - 'report': A function with signature `f(x, e)` returning a value that
+              replaces the arguments of the original error.
+              By default, the original error is returned unchanged.
 
     Returns:
         Aggregate function with custom error handling.
@@ -287,22 +285,15 @@ def try_aggfunc(  # noqa: C901
         AggregationError: No value is most frequent.
         >>> try_aggfunc(most_frequent, 'coerce')(x)
         nan
-        >>> try_aggfunc(most_frequent, 'return')(x)
+        >>> try_aggfunc(most_frequent, 'report')(x)
         AggregationError('No value is most frequent.')
         >>> try_aggfunc(most_frequent, 'raise', 'Bad dtype {x.dtype}')(x)
         Traceback (most recent call last):
           ...
         AggregationError: Bad dtype int64
         >>> error = lambda x, e: as_dict(x)
-        >>> try_aggfunc(most_frequent, 'return', error)(x)
-        {'a': [0, 0, 1], 'b': [1]}
-        >>> try_aggfunc(most_frequent, 'insert', error)(x)
+        >>> try_aggfunc(most_frequent, 'report', error)(x)
         AggregationError({'a': [0, 0, 1], 'b': [1]})
-        >>> errors = []
-        >>> try_aggfunc(most_frequent, 'append', error)(x, errors)
-        nan
-        >>> errors
-        [{'a': [0, 0, 1], 'b': [1]}]
     """
     # Conditional statements outside function for execution speed.
     wrapped = func
@@ -314,24 +305,16 @@ def try_aggfunc(  # noqa: C901
             except AggregationError:
                 return np.nan
 
-    elif method == "raise":
-        if error is None:
+    elif method == "raise" and error is not None:
 
-            def wrapped(x):
-                try:
-                    return func(x)
-                except AggregationError as e:
-                    raise e
+        def wrapped(x):
+            try:
+                return func(x)
+            except AggregationError as e:
+                e.args = error.format(x=x, e=e),  # noqa: FS002
+                raise e
 
-        elif method == "raise":
-
-            def wrapped(x):
-                try:
-                    return func(x)
-                except AggregationError as e:
-                    raise AggregationError(error.format(x=x, e=e))  # noqa: FS002
-
-    elif method == "insert":
+    elif method == "report":
         if error is None:
 
             def wrapped(x):
@@ -346,44 +329,8 @@ def try_aggfunc(  # noqa: C901
                 try:
                     return func(x)
                 except AggregationError as e:
-                    e.args = (error(x, e),)
+                    e.args = error(x, e),
                     return e
-
-    elif method == "return":
-        if error is None:
-
-            def wrapped(x):
-                try:
-                    return func(x)
-                except AggregationError as e:
-                    return e
-
-        else:
-
-            def wrapped(x):
-                try:
-                    return func(x)
-                except AggregationError as e:
-                    return error(x, e)
-
-    elif method == "append":
-        if error is None:
-
-            def wrapped(x, errors):
-                try:
-                    return func(x)
-                except AggregationError as e:
-                    errors.append(e)
-                    return np.nan
-
-        else:
-
-            def wrapped(x, errors):
-                try:
-                    return func(x)
-                except AggregationError as e:
-                    errors.append(error(x, e))
-                    return np.nan
 
     return wrapped
 
@@ -470,8 +417,6 @@ def groupby_apply(  # noqa: C901
                 def errorfunc(x, e):
                     return x.name, str(e)
 
-            # NOTE: Appending to list in scope ~10% faster than passing list as argument
-            # aggfunc = try_aggfunc(aggfunc, method='append', error=errorfunc)
             def wrapper(x):
                 try:
                     return aggfunc(x)
@@ -569,22 +514,14 @@ def groupby_aggregate(  # noqa: C901
     if errors == "report":
         # Prepare data columns for error objects returned by their aggregation function
         df = df.astype({col: object for col in data_columns})
-    if errors == "raise":
-        aggfuncs = {
-            col: try_aggfunc(
-                func, method="raise", error=f"Could not aggregate {col}: {{e}}"
-            )
-            for col, func in aggfuncs.items()
-        }
-    elif errors == "coerce":
-        aggfuncs = {
-            col: try_aggfunc(func, method="coerce") for col, func in aggfuncs.items()
-        }
-    elif errors == "report":
-        aggfuncs = {
-            col: try_aggfunc(func, method="insert", error=errorfunc)
-            for col, func in aggfuncs.items()
-        }
+    aggfuncs = {
+        col: try_aggfunc(
+            func,
+            method=errors,
+            error=f"Could not aggregate {col}: {{e}}" if errors == "raise" else errorfunc
+        )
+        for col, func in aggfuncs.items()
+    }
     if data_columns:
         result = df.groupby(by).aggregate(aggfuncs)
     else:
