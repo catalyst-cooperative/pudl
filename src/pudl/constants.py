@@ -1295,7 +1295,7 @@ entities = {
          'sector_id', 'sector_name', 'state', 'street_address', 'zip_code'],
         # annual cols
         ['ash_impoundment', 'ash_impoundment_lined', 'ash_impoundment_status',
-         'energy_storage', 'ferc_cogen_docket_no', 'water_source',
+         'coordinate_system', 'energy_storage', 'ferc_cogen_docket_no', 'water_source',
          'ferc_exempt_wholesale_generator_docket_no',
          'ferc_small_power_producer_docket_no',
          'liquefied_natural_gas_storage',
@@ -1322,11 +1322,16 @@ entities = {
          'operating_switch', 'previously_canceled'],
         # annual cols
         ['capacity_mw', 'fuel_type_code_pudl', 'multiple_fuels',
-         'ownership_code', 'deliver_power_transgrid', 'summer_capacity_mw',
-         'winter_capacity_mw', 'minimum_load_mw', 'technology_description',
+         'ownership_code', 'owned_by_non_utility', 'deliver_power_transgrid',
+         'summer_capacity_mw', 'winter_capacity_mw', 'summer_capacity_estimate',
+         'winter_capacity_estimate', 'minimum_load_mw', 'distributed_generation',
+         'technology_description', 'reactive_power_output',
          'energy_source_code_1', 'energy_source_code_2',
          'energy_source_code_3', 'energy_source_code_4',
          'energy_source_code_5', 'energy_source_code_6',
+         'energy_source_1_transport_1', 'energy_source_1_transport_2',
+         'energy_source_1_transport_3', 'energy_source_2_transport_1',
+         'energy_source_2_transport_2', 'energy_source_2_transport_3',
          'startup_source_code_1', 'startup_source_code_2',
          'startup_source_code_3', 'startup_source_code_4',
          'time_cold_shutdown_full_load_code', 'syncronized_transmission_grid',
@@ -1634,7 +1639,7 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 
 # The full set of years we currently expect to be able to ingest, per source:
 working_years = {
-    'eia860': tuple(range(2008, 2020)),
+    'eia860': tuple(range(2006, 2020)),
     'eia861': tuple(range(2001, 2020)),
     'eia923': tuple(range(2009, 2020)),
     'epacems': tuple(range(1995, 2020)),
@@ -2083,6 +2088,15 @@ RTO_CLASSES = [
 
 ESTIMATED_OR_ACTUAL = {'E': 'Estimated', 'A': 'Actual'}
 
+TRANSIT_TYPE_DICT = {
+    'CV': 'Conveyer',
+    'PL': 'Pipeline',
+    'RR': 'Railroad',
+    'TK': 'Truck',
+    'WA': 'Water',
+    'UN': 'Unknown',
+}
+
 """dict: A dictionary of datasets (keys) and keywords (values). """
 
 column_dtypes = {
@@ -2181,6 +2195,7 @@ column_dtypes = {
         'contact_title_2': pd.StringDtype(),
         'contract_expiration_date': 'datetime64[ns]',
         'contract_type_code': pd.StringDtype(),
+        'coordinate_system': pd.StringDtype(),
         'county': pd.StringDtype(),
         'county_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
         'credits_or_adjustments': float,
@@ -2198,6 +2213,7 @@ column_dtypes = {
         'deliver_power_transgrid': pd.BooleanDtype(),
         'delivery_customers': float,
         'direct_load_control_customers': pd.Int64Dtype(),
+        'distributed_generation': pd.BooleanDtype(),
         'distributed_generation_owned_capacity_mw': float,
         'distribution_activity': pd.BooleanDtype(),
         'distribution_circuits': pd.Int64Dtype(),
@@ -2213,6 +2229,12 @@ column_dtypes = {
         'energy_savings_independently_verified': pd.BooleanDtype(),
         'energy_savings_mwh': float,
         'energy_served_ami_mwh': float,
+        'energy_source_1_transport_1': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
+        'energy_source_1_transport_2': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
+        'energy_source_1_transport_3': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
+        'energy_source_2_transport_1': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
+        'energy_source_2_transport_2': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
+        'energy_source_2_transport_3': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
         'energy_source_code': pd.StringDtype(),
         'energy_source_code_1': pd.StringDtype(),
         'energy_source_code_2': pd.StringDtype(),
@@ -2329,6 +2351,7 @@ column_dtypes = {
         'other_modifications_date': 'datetime64[ns]',
         'other_planned_modifications': pd.BooleanDtype(),
         'outages_recorded_automatically': pd.BooleanDtype(),
+        'owned_by_non_utility': pd.BooleanDtype(),
         'owner_city': pd.StringDtype(),
         'owner_name': pd.StringDtype(),
         'owner_state': pd.StringDtype(),
@@ -2368,6 +2391,7 @@ column_dtypes = {
         'primary_purpose_naics_id': pd.Int64Dtype(),
         'prime_mover_code': pd.StringDtype(),
         'pv_current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
+        'reactive_power_output': float,
         'real_time_pricing_program': pd.BooleanDtype(),
         'rec_revenue': float,
         'rec_sales_mwh': float,
@@ -2416,6 +2440,7 @@ column_dtypes = {
         'subcritical_tech': pd.BooleanDtype(),
         'sulfur_content_pct': float,
         'summer_capacity_mw': float,
+        'summer_capacity_estimate': pd.BooleanDtype(),
         # TODO: check if there is any data pre-2016
         'summer_estimated_capability_mw': float,
         'summer_peak_demand_mw': float,
@@ -2467,6 +2492,7 @@ column_dtypes = {
         'wholesale_marketing_activity': pd.BooleanDtype(),
         'wholesale_power_purchases_mwh': float,
         'winter_capacity_mw': float,
+        'winter_capacity_estimate': pd.BooleanDtype(),
         'winter_estimated_capability_mw': float,
         'winter_peak_demand_mw': float,
         # 'with_med': float,

@@ -185,7 +185,14 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         'planned_modifications',
         'other_planned_modifications',
         'uprate_derate_during_year',
-        'previously_canceled'
+        'previously_canceled',
+        'owned_by_non_utility',
+        'summer_capacity_estimate',
+        'winter_capacity_estimate',
+        'distributed_generation',
+        'ferc_cogen_status',
+        'ferc_small_power_producer',
+        'ferc_exempt_wholesale_generator'
     ]
 
     for column in boolean_columns_to_fix:
@@ -195,6 +202,27 @@ def generators(eia860_dfs, eia860_transformed_dfs):
             .replace(
                 to_replace=["Y", "N", "NaN"],
                 value=[True, False, pd.NA])
+        )
+
+    # A subset of the columns refer to transportation methods with a series of
+    # codes. This writes them out in their entirety.
+
+    transport_columns_to_fix = [
+        'energy_source_1_transport_1',
+        'energy_source_1_transport_2',
+        'energy_source_1_transport_3',
+        'energy_source_2_transport_1',
+        'energy_source_2_transport_2',
+        'energy_source_2_transport_3',
+    ]
+
+    for column in transport_columns_to_fix:
+        gens_df[column] = (
+            gens_df[column]
+            .replace(
+                to_replace=["CV", "PL", "RR", "TK", "WA", "UN"],
+                value=["Conveyer", "Pipeline", "Railroad",
+                       "Truck", "Water", "Unknown"])
         )
 
     gens_df = (

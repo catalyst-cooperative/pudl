@@ -2063,6 +2063,12 @@
                         "format": "default"
                     },
                     {
+                        "name": "owned_by_non_utility",
+                        "type": "boolean",
+                        "description": "Whether any part of generator is owned by a nonutilty",
+                        "format": "default"
+                    },
+                    {
                         "name": "utility_id_eia",
                         "type": "integer",
                         "description": "EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.",
@@ -2075,6 +2081,12 @@
                         "format": "default"
                     },
                     {
+                        "name": "reactive_power_output",
+                        "type": "number",
+                        "description": "Reactive Power Output (MVARS)",
+                        "format": "default"
+                    },
+                    {
                         "name": "summer_capacity_mw",
                         "type": "number",
                         "description": "The net summer capacity.",
@@ -2084,6 +2096,18 @@
                         "name": "winter_capacity_mw",
                         "type": "number",
                         "description": "The net winter capacity.",
+                        "format": "default"
+                    },
+                    {
+                        "name": "summer_capacity_estimate",
+                        "type": "boolean",
+                        "description": "Whether the summer capacity value was an estimate",
+                        "format": "default"
+                    },
+                    {
+                        "name": "winter_capacity_estimate",
+                        "type": "boolean",
+                        "description": "Whether the winter capacity value was an estimate",
                         "format": "default"
                     },
                     {
@@ -2123,9 +2147,51 @@
                         "format": "default"
                     },
                     {
+                        "name": "energy_source_1_transport_1",
+                        "type": "string",
+                        "description": "Primary Mode of Transportaion for Energy Source 1",
+                        "format": "default"
+                    },
+                    {
+                        "name": "energy_source_1_transport_2",
+                        "type": "string",
+                        "description": "Secondary Mode of Transportaion for Energy Source 1",
+                        "format": "default"
+                    },
+                    {
+                        "name": "energy_source_1_transport_3",
+                        "type": "string",
+                        "description": "Third Mode of Transportaion for Energy Source 1",
+                        "format": "default"
+                    },
+                    {
+                        "name": "energy_source_2_transport_1",
+                        "type": "string",
+                        "description": "Primary Mode of Transportaion for Energy Source 2",
+                        "format": "default"
+                    },
+                    {
+                        "name": "energy_source_2_transport_2",
+                        "type": "string",
+                        "description": "Secondary Mode of Transportaion for Energy Source 2",
+                        "format": "default"
+                    },
+                    {
+                        "name": "energy_source_2_transport_3",
+                        "type": "string",
+                        "description": "Third Mode of Transportaion for Energy Source 2",
+                        "format": "default"
+                    },
+                    {
                         "name": "fuel_type_code_pudl",
                         "type": "string",
                         "description": "Standardized fuel codes in PUDL.",
+                        "format": "default"
+                    },
+                    {
+                        "name": "distributed_generation",
+                        "type": "boolean",
+                        "description": "Whether the generator is considered distributed generation",
                         "format": "default"
                     },
                     {
@@ -3632,6 +3698,12 @@
                         "name": "ash_impoundment_status",
                         "type": "string",
                         "description": "If there is an ash impoundment at the plant, the ash impoundment status as of December 31 of the reporting year.",
+                        "format": "default"
+                    },
+                    {
+                        "name": "coordinate_system",
+                        "type": "string",
+                        "description": "Projection",
                         "format": "default"
                     },
                     {
