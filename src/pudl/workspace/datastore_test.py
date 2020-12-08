@@ -10,54 +10,58 @@ from unittest.mock import patch
 from pathlib import Path
 from unittest import mock
 import responses
+import json
 
 from pudl.workspace import datastore
+from pudl.workspace.datastore import PudlResourceKey
 
 
-class TestPudlFileResource(unittest.TestCase):
-    def testMatches(self):
-        res = datastore.PudlFileResource(dataset='ds', name='foo', doi='doi',
-            metadata={
-                'parts': dict(color='blue', shape='square', quantity=2)
-                })
-        self.assertTrue(res.matches())
-        self.assertTrue(res.matches(color='blue'))
-        self.assertTrue(res.matches(color='blue', shape='square'))
-        self.assertFalse(res.matches(nonexistentAttribute=1))
-        self.assertFalse(res.matches(shape='round'))
-        self.assertFalse(res.matches(color='blue', shape='round'))
+class TestDatapackageDescriptor(unittest.TestCase):
+    MOCK_DATAPACKAGE = {
+        "resources": [
+            {"name": "first-red",
+             "path": "http://localhost/first",
+             "parts": {"color": "red", "order": 1}},
+            {"name": "second-blue",
+             "path": "http://localhost/second",
+             "parts": {"color": "blue", "order": 2}},
+        ]
+    }
+    def setUp(self):
+        self.descriptor = datastore.DatapackageDescriptor(
+            self.MOCK_DATAPACKAGE,
+            dataset="epacems",
+            doi="123")
 
-    def testGetPathForLegacyJsons(self):
-        res = datastore.PudlFileResource('ds', 'foo', 'doi', metadata={
-                'path': 'local/path/to/file.zip',
-                'remote_url': 'http://remote.host/file.zip'
-            })
-        self.assertEqual('http://remote.host/file.zip', res.get_path())
+    def testGetResourcePath(self):
+        self.assertEqual(
+            "http://localhost/first",
+            self.descriptor.get_resource_path("first-red"))
+        self.assertEqual(
+            "http://localhost/second",
+            self.descriptor.get_resource_path("second-blue"))
+        self.assertRaises(
+            KeyError, 
+            self.descriptor.get_resource_path,
+            "third-orange")  # this resource does not exist
 
-    def testPathForUnmodifiedJson(self):
-        res = datastore.PudlFileResource('ds', 'foo', 'doi', metadata={
-                'path': 'arbitrary/path.zip'
-            })
-        self.assertEqual('arbitrary/path.zip', res.get_path())
+    def testGetResources(self):
+        res = list(self.descriptor.get_resources())
+        self.assertEqual(
+            [PudlResourceKey("epacems", "123", "first-red"),
+             PudlResourceKey("epacems", "123", "second-blue")],
+            list(self.descriptor.get_resources()))
+        self.assertEqual(
+            [PudlResourceKey("epacems", "123", "first-red")],
+            list(self.descriptor.get_resources(color="red")))
+        self.assertEqual(
+            [],
+            list(self.descriptor.get_resources(flavor="blueberry")))
 
-    def testPathWithoutMetadata(self):
-        res = datastore.PudlFileResource('ds', 'foo', 'doi')
-        self.assertRaises(KeyError, res.get_path)
-
-    def testLocalPath(self):
-        res = datastore.PudlFileResource(dataset='stuff', name='foo.zip', doi='10.5072/zenodo.672199')
-        self.assertEqual(Path('stuff/10.5072-zenodo.672199/foo.zip'), res.get_local_path())
-
-    def testValidateChecksum(self):
-        first = os.urandom(50)
-        second = os.urandom(50)
-
-        # Calculate hash for the first random sequence and associate it with the resource.
-        m = hashlib.md5()
-        m.update(first)
-        res = datastore.PudlFileResource('ds', 'foo', 'doi', metadata={"hash": m.hexdigest()})
-        self.assertTrue(res.content_matches_checksum(first))
-        self.assertFalse(res.content_matches_checksum(second))
+    def testGetJsonString(self):
+        self.assertEqual(
+            self.MOCK_DATAPACKAGE,
+            json.loads(self.descriptor.get_json_string()))
 
 
 class TestZenodoFetcher(unittest.TestCase):
@@ -101,55 +105,23 @@ class TestZenodoFetcher(unittest.TestCase):
         responses.add(responses.GET,
             "http://localhost/my/datapackage.json",
             json=self.MOCK_EPACEMS_DATAPACKAGE)
-        desc = fetcher.fetch_datapackage_descriptor('epacems')
+        desc = fetcher.get_descriptor('epacems')
         self.assertEqual(self.MOCK_EPACEMS_DATAPACKAGE, desc.datapackage_json)
 
-    @responses.activate
-    def testFetchResource(self):
-        fetcher = datastore.ZenodoFetcher()
-        file_path = "http://somehost/somefile"
-        res = datastore.PudlFileResource(
-            dataset="epacems",
-            doi=self.PROD_EPACEMS_DOI, 
-            name="blah",
-            metadata={
-                "path": file_path,
-                "hash": "6f1ed002ab5595859014ebf0951522d9"
-            })
-        responses.add(responses.GET, file_path, body="blah")
-        self.assertEqual(b"blah", fetcher.fetch_resource(res))
-
-
-class TestDatapackageDescriptor(unittest.TestCase):
-    MOCK_DATAPACKAGE = {
-        "resources": [
-            {"name": "first-red",
-             "path": "http://localhost/first",
-             "parts": {"color": "red", "order": 1}},
-            {"name": "second-blue",
-             "path": "http://localhost/second",
-             "parts": {"color": "blue", "order": 2}},
-        ]
-    }
-
-    def testGetResources(self):
-        descriptor = datastore.DatapackageDescriptor(
-            self.MOCK_DATAPACKAGE,
-            dataset="epacems",
-            doi="123")
-        self.assertEqual(
-            [],
-            descriptor.get_resources(strange_property=True))
-        self.assertEqual(
-            ["Resource(epacems/123/first-red)"],
-            [str(x) for x in descriptor.get_resources(color="red")])
-        self.assertEqual(
-            [
-                "Resource(epacems/123/first-red)",
-
-                "Resource(epacems/123/second-blue)",
-            ],
-            [str(x) for x in descriptor.get_resources()])
+#    @responses.activate
+#    def testGetResource(self):
+#        fetcher = datastore.ZenodoFetcher()
+#        file_path = "http://somehost/somefile"
+#        res = datastore.PudlResourceKey(
+#            dataset="epacems",
+#            doi=self.PROD_EPACEMS_DOI, 
+#            name="blah")
+#            metadata={
+# "path": file_path,
+# "hash": "6f1ed002ab5595859014ebf0951522d9"
+#            })
+#        responses.add(responses.GET, file_path, body="blah")
+#        self.assertEqual(b"blah", fetcher.get_resource(res))
 
 
 # class TestLocalFileCache(unittest.TestCase):
@@ -163,7 +135,7 @@ class TestDatapackageDescriptor(unittest.TestCase):
 #         shutil.rmtree(self.test_dir)
 
 #     def testAddSingleResource(self):
-#         res = datastore.PudlFileResource(dataset="test", doi="123", name="x")
+#         res = datastore.PudlResourceKey(dataset="test", doi="123", name="x")
 
 #         res.content = "test_content"
 #         self.assertFalse(self.cache.exists(res))
@@ -172,7 +144,7 @@ class TestDatapackageDescriptor(unittest.TestCase):
 #         self.assertEqual(res.content, self.cache.get_resource(res))
 
 #     def testRemoveTwice(self):
-#         res = datastore.PudlFileResource("a", "b", "c")
+#         res = datastore.PudlResourceKey("a", "b", "c")
 #         res.content = "123"
 #         self.cache.remove_resource(res)
 #         self.assertFalse(self.cache.exists(res))
