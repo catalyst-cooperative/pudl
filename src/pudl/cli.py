@@ -91,6 +91,10 @@ def parse_command_line(argv):
         action="store_true",
         default=False,
         help="Controls whether flow dependency graphs should be displayed.")
+    parser.add_argument(
+        "--datapkg-bundle-name",
+        type=str,
+        help="If specified, use this datpkg_bundle_name instead of the default from the config.""")
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -125,6 +129,9 @@ def main():
 
     with pathlib.Path(args.settings_file).open() as f:
         script_settings = yaml.safe_load(f)
+
+    if args.datapkg_bundle_name:
+        script_settings["datapkg_bundle_name"] = args.datapkg_bundle_name
 
     pudl_in = script_settings.get(
         "pudl_in", pudl.workspace.setup.get_defaults()["pudl_in"])
