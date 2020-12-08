@@ -825,6 +825,7 @@ class ResourceBuilder:
 
         Raises:
             ValueError: Resource has duplicate field basenames.
+            KeyError: Missing input for standard resource.
             KeyError: Missing columns needed by resource.
         """
         for resource in resources:
@@ -841,6 +842,10 @@ class ResourceBuilder:
                     if len(df_key) == len(key):
                         columns -= set(key) | set(df_data)
             else:
+                if resource["name"] not in self.dfs:
+                    raise KeyError(
+                        f'Missing input for standard resource {resource["name"]}'
+                    )
                 # All resource fields must be in dataframe of same name
                 columns -= set(self.dfs[resource["name"]].columns)
             if columns:
