@@ -242,7 +242,8 @@ def unique(x: pd.Series) -> Any:
 def as_dict(x: pd.Series) -> Dict[Any, list]:
     """Return dictionary of values, listed by index."""
     result = {}
-    for key, xi in x.dropna().groupby(x.index):
+    x = x.dropna()
+    for key, xi in x.groupby(x.index):
         result[key] = list(xi)
     return result
 
