@@ -246,7 +246,7 @@ up a local data management environment and download some data locally, then
 :doc:`run the ETL pipeline <usage>` to :doc:`generate some data packages
 <datapackages>` and use them to populate a local SQLite database with as much
 PUDL data as you can stand (for development, we typically load all of the
-available data for ``ferc1``, ``eia923``, ``eia860``, and ``epaipm``, datasets,
+available data for ``ferc1``, ``eia923``, and ``eia860`` datasets,
 but only a single state's worth of data for the much larger ``epacems``
 hourly data.)
 

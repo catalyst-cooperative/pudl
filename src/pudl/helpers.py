@@ -8,6 +8,7 @@ scenarios, it should probably live here. There are lost of transform type
 functions in here that help with cleaning and restructing dataframes.
 
 """
+import itertools
 import logging
 import pathlib
 import re
@@ -845,6 +846,33 @@ class ColumnTypeConversionError(Exception):
         super().__init__(f'Failed to convert {df_name}.{column}: {raw_exception}')
 
 
+def _apply_type_conversion(df, col_dtypes, name=''):
+    """Attempts type conversion on DataFrame.
+
+    If the conversion fails, this method will try once more one column
+    at a time and prints useful debugging information and dumps the offending
+    dataframe to temporary file for later inspection.
+    """
+    try:
+        return df.astype(col_dtypes)
+    except TypeError:
+        # Dump the offending dataframe to file for debugging purposes
+        _, tmp_file = tempfile.mkstemp(suffix=".pandas.df", prefix=name)
+        df.to_pickle(tmp_file)
+        logger.error(f'Failed to convert {name} dtypes. Re-running with debug info.')
+        logger.error(f'Offending dataframe saved to {tmp_file}')
+        for col, dtype in col_dtypes.items():
+            orig_type = str(df.dtypes[col])
+            new_type = str(dtype)
+            logger.info(
+                f'{name}: {col} will be converted from {orig_type} to {new_type}')
+        for col, dtype in col_dtypes.items():
+            try:
+                df = df.astype({col: dtype})
+            except TypeError as err:
+                raise ColumnTypeConversionError(err, df_name=name, column=col)
+
+
 def convert_cols_dtypes(df, data_source, name=None):
     """
     Convert the data types for a dataframe.
@@ -932,24 +960,7 @@ def convert_cols_dtypes(df, data_source, name=None):
     # Apply dtype conversion all at once. If this fails, dump the failed dataframe to
     # disk and try running conversion one column at a time to determine what exactly has
     # failed.
-    try:
-        return df.astype(col_dtypes)
-    except TypeError:
-        # Dump the offending dataframe to file for debugging purposes
-        _, tmp_file = tempfile.mkstemp(suffix=".pandas.df", prefix=name)
-        df.to_pickle(tmp_file)
-        logger.error(f'Failed to convert {name} dtypes. Re-running with debug info.')
-        logger.error(f'Offending dataframe saved to {tmp_file}')
-        for col, dtype in col_dtypes.items():
-            orig_type = str(df.dtypes[col])
-            new_type = str(dtype)
-            logger.info(
-                f'{name}: {col} will be converted from {orig_type} to {new_type}')
-        for col, dtype in col_dtypes.items():
-            try:
-                df = df.astype({col: dtype})
-            except TypeError as err:
-                raise ColumnTypeConversionError(err, df_name=name, column=col)
+    return _apply_type_conversion(df, col_dtypes, name=name)
 
 
 def convert_dfs_dict_dtypes(dfs_dict, data_source):
@@ -1117,3 +1128,36 @@ def zero_pad_zips(zip_series, n_digits):
         .replace({n_digits * "0": pd.NA})  # All-zero Zip codes aren't valid.
     )
     return zip_series
+
+
+def iterate_multivalue_dict(**kwargs):
+    """Make dicts from dict with main dict key and one value of main dict."""
+    single_valued = {k: v for k,
+                     v in kwargs.items()
+                     if not (isinstance(v, list) or isinstance(v, tuple))}
+
+    # Transform multi-valued {k: vlist} into {k1: [{k1: v1}, {k1: v2}, ...], k2: [...], ...}
+    multi_valued = {k: [{k: v} for v in vlist]
+                    for k, vlist in kwargs.items()
+                    if (isinstance(vlist, list) or isinstance(vlist, tuple))}
+
+    for value_assignments in itertools.product(*multi_valued.values()):
+        result = dict(single_valued)
+        for k_v in value_assignments:
+            result.update(k_v)
+        yield result
+
+
+def get_working_eia_dates():
+    """Get all working EIA dates as a DatetimeIndex."""
+    dates = pd.DatetimeIndex([])
+    for dataset_name, dataset in pc.working_partitions.items():
+        if 'eia' in dataset_name:
+            for name, partition in dataset.items():
+                if name == 'years':
+                    dates = dates.append(
+                        pd.to_datetime(partition, format='%Y'))
+                if name == 'year_month':
+                    dates = dates.append(pd.DatetimeIndex(
+                        [pd.to_datetime(partition)]))
+    return dates

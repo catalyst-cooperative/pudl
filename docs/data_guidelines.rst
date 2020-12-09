@@ -56,10 +56,10 @@ Examples of Unacceptable Changes
   top of the original data.
 * Aggregating data that has date/time information associated with it into a
   time series, when the individual records do not pertain to unique timesteps.
-  For example, the :ref:`data-eia923` Fuel Receipts and Costs table lists fuel
-  deliveries by month, but each plant might receive several deliveries from the
-  same supplier of the same fuel type in a month -- the individual delivery
-  information should be retained.
+  For example, the :doc:`EIA 923 <data_sources/eia923>` Fuel Receipts and Costs
+  table lists fuel deliveries by month, but each plant might receive several
+  deliveries from the same supplier of the same fuel type in a month -- the
+  individual delivery information should be retained.
 * Computing heat rates for generators in an original table that contains both
   fuel heat content and net electricity generation, since the heat rate would
   be a derived value, and not part of the original data.
@@ -140,8 +140,8 @@ Silo the ETL Process
 -------------------------------------------------------------------------------
 It should be possible to run the ETL process on each data source independently,
 and with any combination of data sources included. This allows users to include
-only the data need. In some cases like the :ref:`EIA 860 <data-eia860>` and
-:ref:`EIA 923 <data-eia923>` data, two data sources may be so intertwined that
+only the data need. In some cases like the :doc:`EIA 860 <data_sources/eia860>` and
+:doc:`EIA 923 <data_sources/eia923>` data, two data sources may be so intertwined that
 keeping them separate doesn't really make sense, but that should be the
 exception, not the rule.
 
@@ -158,7 +158,7 @@ Partition Big Data
 -------------------------------------------------------------------------------
 Our goal is that users should be able to run the ETL process on a decent
 laptop. However, some of the utility datasets are hundreds of gigabytes in size
-(e.g. :ref:`EPA CEMS <data-epacems>`, :ref:`FERC EQR <data-ferceqr>`,
+(e.g. :doc:`data_sources/epacems`, :ref:`FERC EQR <data-ferceqr>`,
 :ref:`ISO/RTO LMP <data-tmolmp>`). Many users will not need to use the entire
 dataset for the work they are doing. Allow them to pull in only certain years,
 or certain states, or other sensible partitions of the data if need be, so that
@@ -177,11 +177,11 @@ If two columns in different tables record the same quantity in the same units,
 give them the same name. That way if they end up in the same dataframe for
 comparison it's easy to automatically rename them with suffixes indicating
 where they came from. For example net electricity generation is reported to
-both :ref:`FERC Form 1 <data-ferc1>` and :ref:`EIA 923 <data-eia923>`, so we've
-named columns ``net_generation_mwh`` in each of those data sources. Similarly,
-give non-comparable quantities reported in different data sources **different**
-column names. This helps make it clear that the quantities are actually
-different.
+both :doc:`FERC Form 1 <data_sources/ferc1>` and :doc:`EIA 923 <data_sources/eia923>`,
+so we've named columns ``net_generation_mwh`` in each of those data sources.
+Similarly, give non-comparable quantities reported in different data sources
+**different** column names. This helps make it clear that the quantities are
+actually different.
 
 Follow Existing Conventions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

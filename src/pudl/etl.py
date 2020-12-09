@@ -87,10 +87,7 @@ def _validate_params_partition(etl_params_og, tables):
 
 def _all_params_present(params, required_params):
     """Returns true iff all params in required_params are defined and nonempty."""
-    for p in required_params:
-        if not params.get(p):
-            return False
-    return True
+    return all(params.get(p) for p in required_params)
 
 
 class DatasetPipeline:
@@ -251,8 +248,6 @@ def pudl_task_target_name(**kwargs):
     output_path += kwargs["task_name"]
     return output_path
 
-    # raise NotImplementedError('Booh, this actually does not work.')
-
 
 @task(result=LocalResult(),
       target=pudl_task_target_name,
@@ -262,7 +257,13 @@ def _extract_eia860(params, pudl_settings):
     ds = pudl.workspace.datastore.Datastore(
         Path(pudl_settings["pudl_in"]),
         sandbox=sandbox)
-    dfs = pudl.extract.eia860.Extractor(ds).extract(params['eia860_years'])
+    dfs = pudl.extract.eia860.Extractor(ds).extract(year=params['eia860_years'])
+    if params['eia860_ytd']:
+        # TODO(rousik): this could be theoretically split to a separate task
+        eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
+            year_month=pc.working_partitions['eia860m']['year_month'])
+        dfs = pudl.extract.eia860m.append_eia860m(
+            eia860_raw_dfs=dfs, eia860m_raw_dfs=eia860m_raw_dfs)
     return dfs
 
 
@@ -274,7 +275,7 @@ def _extract_eia923(params, pudl_settings):
     ds = pudl.workspace.datastore.Datastore(
         Path(pudl_settings["pudl_in"]),
         sandbox=sandbox)
-    return pudl.extract.eia923.Extractor(ds).extract(params['eia923_years'])
+    return pudl.extract.eia923.Extractor(ds).extract(year=params['eia923_years'])
 
 
 @task(result=LocalResult(),
@@ -298,11 +299,33 @@ def _transform_eia923(params, dfs):
       cache_for=timedelta(days=1),
       cache_validator=cache_validators.partial_inputs_only(['params']))
 def _transform_eia(params, dfs):
+
+    # Add normalized EIA-EPA crosswalk tables to the transformed dfs dict.
+    assn_dfs = pudl.glue.eia_epacems.grab_clean_split()
+    dfs.update(assn_dfs)
+
     return pudl.transform.eia.transform(
         dfs,
         eia860_years=params['eia860_years'],
-        eia923_years=params['eia923_years'])
+        eia923_years=params['eia923_years'],
+        eia860_ytd=params['eia860_ytd'])
     # TODO(rousik): the above method could be replaced with @task annotation on eia.transform
+
+
+def check_for_bad_years(try_years, dataset):
+    """Check for bad data years."""
+    bad_years = [
+        y for y in try_years
+        if y not in pc.working_partitions[dataset]['years']]
+    if bad_years:
+        raise AssertionError(f"Unrecognized {dataset} years: {bad_years}")
+
+
+def check_for_bad_tables(try_tables, dataset):
+    """Check for bad data tables."""
+    bad_tables = [t for t in try_tables if t not in pc.pudl_tables[dataset]]
+    if bad_tables:
+        raise AssertionError(f"Unrecognized {dataset} table: {bad_tables}")
 
 
 class EiaPipeline(DatasetPipeline):
@@ -315,28 +338,13 @@ class EiaPipeline(DatasetPipeline):
         """Validate and normalize eia parameters."""
         # extract all of the etl_params for the EIA ETL function
         # empty dictionary to compile etl_params
-        eia_input_dict = {}
-        # when nothing is set in the settings file, the years will default as none
-        try:
-            eia_input_dict['eia860_years'] = etl_params['eia860_years']
-        except KeyError:
-            eia_input_dict['eia860_years'] = []
-
-        # the tables will default to all of the tables if nothing is given
-        try:
-            eia_input_dict['eia860_tables'] = etl_params['eia860_tables']
-        except KeyError:
-            eia_input_dict['eia860_tables'] = pc.pudl_tables['eia860']
-
-        try:
-            eia_input_dict['eia923_years'] = etl_params['eia923_years']
-        except KeyError:
-            eia_input_dict['eia923_years'] = []
-
-        try:
-            eia_input_dict['eia923_tables'] = etl_params['eia923_tables']
-        except KeyError:
-            eia_input_dict['eia923_tables'] = pc.pudl_tables['eia923']
+        eia_input_dict = {
+            'eia860_years': etl_params.get('eia860_years', []),
+            'eia923_years': etl_params.get('eia923_years', []),
+            'eia860_tables': etl_params.get('eia860_tables', pc.pudl_tables['eia860']),
+            'eia923_tables': etl_params.get('eia923_tables', pc.pudl_tables['eia923']),
+            'eia860_ytd': etl_params.get('eia860_ytd', False),
+        }
 
         # if we are only extracting 860, we also need to pull in the
         # boiler_fuel_eia923 table. this is for harvesting and also for the boiler
@@ -351,33 +359,23 @@ class EiaPipeline(DatasetPipeline):
         if not eia_input_dict['eia860_years'] and eia_input_dict['eia923_years']:
             eia_input_dict['eia860_years'] = eia_input_dict['eia923_years']
 
-        # Validate the etl_params
-        if eia_input_dict['eia860_tables']:
-            for table in eia_input_dict['eia860_tables']:
-                if table not in pc.pudl_tables["eia860"]:
-                    raise AssertionError(
-                        f"Unrecognized EIA 860 table: {table}"
-                    )
-
-        if eia_input_dict['eia923_tables']:
-            for table in eia_input_dict['eia923_tables']:
-                if table not in pc.pudl_tables["eia923"]:
-                    raise AssertionError(
-                        f"Unrecogized EIA 923 table: {table}"
-                    )
-
-        for year in eia_input_dict['eia860_years']:
-            if year not in pc.working_years['eia860']:
-                raise AssertionError(f"Unrecognized EIA 860 year: {year}")
-
-        for year in eia_input_dict['eia923_years']:
-            if year not in pc.working_years['eia923']:
-                raise AssertionError(f"Unrecognized EIA 923 year: {year}")
-        if (not eia_input_dict['eia923_years']
-                and not eia_input_dict['eia860_years']):
-            return None
-        else:
-            return eia_input_dict
+        eia860m_year = pd.to_datetime(
+            pc.working_partitions['eia860m']['year_month']).year
+        if (eia_input_dict['eia860_ytd']
+                and (eia860m_year in eia_input_dict['eia860_years'])):
+            raise AssertionError(
+                "Attempting to integrate an eia860m year "
+                f"({eia860m_year}) that is within the eia860 years: "
+                f"{eia_input_dict['eia860_years']}. Consider switching eia860_ytd "
+                "parameter to False."
+            )
+        check_for_bad_tables(
+            try_tables=eia_input_dict['eia860_tables'], dataset='eia860')
+        check_for_bad_tables(
+            try_tables=eia_input_dict['eia923_tables'], dataset='eia923')
+        check_for_bad_years(try_years=eia_input_dict['eia860_years'], dataset='eia860')
+        check_for_bad_years(try_years=eia_input_dict['eia923_years'], dataset='eia923')
+        return eia_input_dict
 
     def build(self, params):
         """Extract, transform and load CSVs for the EIA datasets.
@@ -426,10 +424,11 @@ class EiaPipeline(DatasetPipeline):
 #       with self.flow:
 #           return _extract_table(self.raw_dfs_map, table_name)
 
-
 ###############################################################################
 # FERC1 EXPORT FUNCTIONS
 ###############################################################################
+
+
 @task(result=LocalResult(), target="{task_name}")  # noqa: FS003
 def _load_static_tables_ferc1():
     """Populate static PUDL tables with constants for use as foreign keys.
@@ -499,30 +498,18 @@ class Ferc1Pipeline(DatasetPipeline):
     @staticmethod  # noqa: C901
     def validate_params(etl_params):
         """Validate and normalize ferc1 parameters."""
-        ferc1_dict = {}
-        # pull out the etl_params from the dictionary passed into this function
-        try:
-            ferc1_dict['ferc1_years'] = etl_params['ferc1_years']
-        except KeyError:
-            ferc1_dict['ferc1_years'] = [None]
-        # the tables will default to all of the tables if nothing is given
-        try:
-            ferc1_dict['ferc1_tables'] = etl_params['ferc1_tables']
-        except KeyError:
-            ferc1_dict['ferc1_tables'] = pc.pudl_tables['ferc1']
+        ferc1_dict = {
+            'ferc1_years': etl_params.get('ferc1_years', [None]),
+            'ferc1_tables': etl_params.get('ferc1_tables', pc.pudl_tables['ferc1']),
+            'debug': etl_params.get('debug', False),
+        }
+        if not ferc1_dict['debug']:
+            check_for_bad_tables(try_tables=ferc1_dict['ferc1_tables'], dataset='ferc1')
 
-        try:
-            ferc1_dict['debug'] = etl_params['debug']
-        except KeyError:
-            ferc1_dict['debug'] = False
-
-        if (not ferc1_dict['debug']) and (ferc1_dict['ferc1_tables']):
-            for table in ferc1_dict['ferc1_tables']:
-                if table not in pc.pudl_tables["ferc1"]:
-                    raise AssertionError(
-                        f"Unrecognized FERC table: {table}."
-                    )
         if not ferc1_dict['ferc1_years']:
+            # TODO(rousik): this really does not make much sense? We should be skipping the pipeline
+            # when ferc1_years assumes false value so why do we need to clear the parameters dict
+            # here???
             return {}
         else:
             return ferc1_dict
@@ -571,21 +558,15 @@ class EpaCemsPipeline(DatasetPipeline):
     @staticmethod
     def validate_params(etl_params):
         """Validate and normalize epacems parameters."""
-        epacems_dict = {}
-        # pull out the etl_params from the dictionary passed into this function
-        try:
-            epacems_dict['epacems_years'] = etl_params['epacems_years']
-        except KeyError:
-            epacems_dict['epacems_years'] = []
-        # the states will default to all of the states if nothing is given
-        try:
-            epacems_dict['epacems_states'] = etl_params['epacems_states']
-        except KeyError:
-            epacems_dict['epacems_states'] = []
+        epacems_dict = {
+            'epacems_years': etl_params.get('epacems_years', []),
+            'epacems_states': etl_params.get('epacems_states', []),
+        }
+
         # if states are All, then we grab all of the states from constants
         if epacems_dict['epacems_states']:
             if epacems_dict['epacems_states'][0].lower() == 'all':
-                epacems_dict['epacems_states'] = list(pc.cems_states.keys())
+                epacems_dict['epacems_states'] = pc.working_partitions['epacems']['states']
 
         # CEMS is ALWAYS going to be partitioned by year and state. This means we
         # are functinoally removing the option to not partition or partition
@@ -1114,15 +1095,6 @@ def generate_datapkg_bundle(etl_settings,
         bundle.
 
     """
-    # Generate a random UUID to identify this ETL run / data package bundle
-    # Create, or delete and re-create the top level datapackage bundle directory:
-
-    # datapkg_bundle_uuid = str(uuid.uuid4())
-    # datapkg_bundle_dir = Path(pudl_settings["datapkg_dir"], datapkg_bundle_name)
-    # _ = pudl.helpers.prep_dir(datapkg_bundle_dir, clobber=clobber)
-
-    # metas = {}
-
     datapkg_bundle_settings = etl_settings['datapkg_bundle_settings']
     flow = prefect.Flow("PUDL ETL")
     datapkg_builder = DatapackageBuilder(
