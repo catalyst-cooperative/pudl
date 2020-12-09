@@ -1290,8 +1290,8 @@ entities = {
          'city', 'county', 'ferc_cogen_status',
          'ferc_exempt_wholesale_generator', 'ferc_small_power_producer',
          'grid_voltage_2_kv', 'grid_voltage_3_kv', 'grid_voltage_kv',
-         'iso_rto_code', 'latitude', 'longitude',
-         'nerc_region', 'plant_name_eia', 'primary_purpose_naics_id',
+         'iso_rto_code', 'latitude', 'longitude', 'service_area',
+         'plant_name_eia', 'primary_purpose_naics_id',
          'sector_id', 'sector_name', 'state', 'street_address', 'zip_code'],
         # annual cols
         ['ash_impoundment', 'ash_impoundment_lined', 'ash_impoundment_status',
@@ -1301,8 +1301,9 @@ entities = {
          'liquefied_natural_gas_storage',
          'natural_gas_local_distribution_company', 'natural_gas_storage',
          'natural_gas_pipeline_name_1', 'natural_gas_pipeline_name_2',
-         'natural_gas_pipeline_name_3', 'net_metering', 'pipeline_notes',
-         'regulatory_status_code', 'transmission_distribution_owner_id',
+         'natural_gas_pipeline_name_3', 'nerc_region', 'net_metering',
+         'pipeline_notes', 'regulatory_status_code',
+         'transmission_distribution_owner_id',
          'transmission_distribution_owner_name',
          'transmission_distribution_owner_state', 'utility_id_eia'],
         # need type fixing
@@ -1363,9 +1364,11 @@ entities = {
         ['street_address', 'city', 'state', 'zip_code', 'entity_type',
          'plants_reported_owner', 'plants_reported_operator',
          'plants_reported_asset_manager', 'plants_reported_other_relationship',
-         'attention_line', 'address_2', 'zip_code_4',
+         'attention_line', 'address_2', 'address_3', 'zip_code_4',
          'contact_firstname', 'contact_lastname', 'contact_title',
-         'contact_firstname_2', 'contact_lastname_2', 'contact_title_2'],
+         'contact_firstname_2', 'contact_lastname_2', 'contact_title_2',
+         'phone_extension_1', 'phone_extension_2', 'phone_number_1',
+         'phone_number_2'],
         # need type fixing
         {'utility_id_eia': 'int64', }, ],
     'boilers': [
@@ -1639,7 +1642,7 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 
 # The full set of years we currently expect to be able to ingest, per source:
 working_years = {
-    'eia860': tuple(range(2006, 2020)),
+    'eia860': tuple(range(2004, 2020)),
     'eia861': tuple(range(2001, 2020)),
     'eia923': tuple(range(2009, 2020)),
     'epacems': tuple(range(1995, 2020)),
@@ -2150,6 +2153,7 @@ column_dtypes = {
     "eia": {
         'actual_peak_demand_savings_mw': float,  # Added by AES for DR table
         'address_2': pd.StringDtype(),  # Added by AES for 860 utilities table
+        'address_3': pd.StringDtype(),
         'advanced_metering_infrastructure': pd.Int64Dtype(),  # Added by AES for AMI table
         # Added by AES for UD misc table
         'alternative_fuel_vehicle_2_activity': pd.BooleanDtype(),
@@ -2360,6 +2364,10 @@ column_dtypes = {
         'owner_zip_code': pd.StringDtype(),
         # we should transition these into readable codes, not a one letter thing
         'ownership_code': pd.StringDtype(),
+        'phone_extension_1': pd.StringDtype(),
+        'phone_extension_2': pd.StringDtype(),
+        'phone_number_1': pd.StringDtype(),
+        'phone_number_2': pd.StringDtype(),
         'pipeline_notes': pd.StringDtype(),
         'planned_derate_date': 'datetime64[ns]',
         'planned_energy_source_code_1': pd.StringDtype(),
@@ -2420,6 +2428,7 @@ column_dtypes = {
         'secondary_transportation_mode_code': pd.StringDtype(),
         'sector_id': pd.Int64Dtype(),
         'sector_name': pd.StringDtype(),
+        'service_area': pd.StringDtype(),
         'service_type': pd.CategoricalDtype(categories=[
             "bundled", "energy", "delivery",
         ]),

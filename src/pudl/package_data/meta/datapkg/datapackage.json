@@ -3767,6 +3767,12 @@
                         "format": "default"
                     },
                     {
+                        "name": "nerc_region",
+                        "type": "string",
+                        "description": "NERC region in which the plant is located",
+                        "format": "default"
+                    },
+                    {
                         "name": "net_metering",
                         "type": "string",
                         "description": "Did this plant have a net metering agreement in effect during the reporting year?  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015",
@@ -5232,6 +5238,11 @@
                         "format": "default"
                     },
                     {
+                        "name": "address_3",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
                         "name": "zip_code_4",
                         "type": "string",
                         "format": "default"
@@ -5264,6 +5275,30 @@
                     {
                         "name": "contact_title_2",
                         "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "phone_extension_1",
+                        "type": "string",
+                        "description": "Phone extension for contact 1",
+                        "format": "default"
+                    },
+                    {
+                        "name": "phone_extension_2",
+                        "type": "string",
+                        "description": "Phone extension for contact 2",
+                        "format": "default"
+                    },
+                    {
+                        "name": "phone_number_1",
+                        "type": "string",
+                        "description": "Phone number for contact 1",
+                        "format": "default"
+                    },
+                    {
+                        "name": "phone_number_2",
+                        "type": "string",
+                        "description": "Phone number for contact 2",
                         "format": "default"
                     }
                 ],
@@ -5456,12 +5491,6 @@
                         "format": "default"
                     },
                     {
-                        "name": "nerc_region",
-                        "type": "string",
-                        "description": "NERC region in which the plant is located",
-                        "format": "default"
-                    },
-                    {
                         "name": "primary_purpose_naics_id",
                         "type": "number",
                         "description": "North American Industry Classification System (NAICS) code that best describes the primary purpose of the reporting plant",
@@ -5477,6 +5506,12 @@
                         "name": "sector_id",
                         "type": "number",
                         "description": "Plant-level sector number, designated by the primary purpose, regulatory status and plant-level combined heat and power status",
+                        "format": "default"
+                    },
+                    {
+                        "name": "service_area",
+                        "type": "string",
+                        "description": "Service area in which plant is located; for unregulated companies, it's the electric utility with which plant is interconnected",
                         "format": "default"
                     },
                     {

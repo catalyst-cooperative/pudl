@@ -28,10 +28,12 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
         DataFrames of values from that page (values)
 
     """
+    # Preiminary clean and get rid of unecessary 'year' column
     o_df = (
         eia860_dfs['ownership'].copy()
         .pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.convert_to_date)
+        .drop(columns=['year'])
     )
 
     # The fix we're making here is only known to be valid for 2011 -- if we
@@ -410,6 +412,27 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
         'QB': 'QC',  # wrong abbreviation for Quebec
         'Y': 'NY',  # Typo
     })
+
+    # Combine phone number columns into one
+    def _make_phone_number(col1, col2, col3):
+        """Combine columns to make full phone number seperated by dashes."""
+        return (
+            col1.astype('string')
+            + '-' + col2.astype('string')
+            + '-' + col3.astype('string')
+        )
+
+    u_df = (
+        u_df.assign(
+            phone_number_1=_make_phone_number(
+                u_df.phone_number_first_1,
+                u_df.phone_number_mid_1,
+                u_df.phone_number_last_1),
+            phone_number_2=_make_phone_number(
+                u_df.phone_number_first_2,
+                u_df.phone_number_mid_2,
+                u_df.phone_number_last_2))
+    )
 
     boolean_columns_to_fix = [
         'plants_reported_owner',
