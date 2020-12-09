@@ -14,7 +14,7 @@ def test_interim_eia861_etl(pudl_settings_fixture, pudl_datastore_fixture):
     logger.info("Running the interim EIA 861 ETL process! (~2 minutes)")
     _ = pudl.transform.eia861.transform(
         pudl.extract.eia861.Extractor(pudl_datastore_fixture)
-        .extract(pudl.constants.working_years["eia861"])
+        .extract(year=pudl.constants.working_partitions['eia861']['years'])
     )
 
 
