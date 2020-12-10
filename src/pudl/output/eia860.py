@@ -134,14 +134,11 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = pd.merge(out_df, plants_g_eia_df, how='left', on=['plant_id_eia'])
 
     utils_eia_tbl = pt['utilities_eia']
-    utils_eia_select = sa.sql.select([
-        utils_eia_tbl.c.utility_id_eia,
-        utils_eia_tbl.c.utility_id_pudl,
-    ])
+    utils_eia_select = sa.sql.select([utils_eia_tbl])
     utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
     out_df = (
-        pd.merge(out_df, utils_eia_df, how='left', on=['utility_id_eia', ])
+        pd.merge(out_df, utils_eia_df, how='left', on=['utility_id_eia'])
         .drop(['id'], axis='columns')
         .dropna(subset=["report_date", "plant_id_eia"])
         .astype({
@@ -185,7 +182,8 @@ def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
     plants_eia = (
         plants_eia860(pudl_engine, start_date=start_date, end_date=end_date)
         .drop(['utility_id_pudl', 'city', 'state',  # Avoid dupes in merge
-               'zip_code', 'street_address'], axis='columns')
+               'zip_code', 'street_address', 'utility_name_eia'],
+              axis='columns')
         .dropna(subset=["utility_id_eia"])  # Drop unmergable records
     )
     utils_eia = utilities_eia860(pudl_engine,

@@ -105,7 +105,7 @@ def allocate_gen_fuel_by_gen(pudl_out):
 
     """
     gen_pm_fuel = allocate_gen_fuel_by_gen_pm_fuel(pudl_out)
-    gen = agg_by_generator(gen_pm_fuel)
+    gen = agg_by_generator(gen_pm_fuel, pudl_out)
     _test_gen_fuel_allocation(pudl_out, gen)
     return gen
 
@@ -162,7 +162,7 @@ def allocate_gen_fuel_by_gen_pm_fuel(pudl_out):
     return gen_pm_fuel
 
 
-def agg_by_generator(gen_pm_fuel):
+def agg_by_generator(gen_pm_fuel, pudl_out):
     """
     Aggreate the allocated gen fuel data to the generator level.
 
@@ -173,6 +173,19 @@ def agg_by_generator(gen_pm_fuel):
     data_cols = ['net_generation_mwh', 'fuel_consumed_mmbtu']
     gen = (gen_pm_fuel.groupby(by=IDX_GENS)
            [data_cols].sum(min_count=1).reset_index())
+
+    # merge in the plants table for the plant and utility names/ids so the
+    # output matches the orginal table (pudl_out.gen_original_eia923)
+    idx_plant = ['plant_id_eia', 'report_date']
+    gen.merge(
+        pudl_out.plants_eia860()[
+            idx_plant +
+            [c for c in pudl_out.gen_original_eia923() if c not in gen]],
+        on=idx_plant,
+        validate='m:1',
+        how='left'
+
+    )
     return gen
 
 
@@ -232,12 +245,12 @@ def associate_gen_tables(pudl_out):
     # because lots of these input dfs include same info columns, this generates
     # drop columnss for fuel_cost. This avoids needing to hard code columns.
     drop_cols_gens = [x for x in stack_gens.columns
-                      if x in pudl_out.gen_eia923().columns
+                      if x in pudl_out.gen_original_eia923().columns
                       and x not in IDX_GENS]
     gens_asst = (
         pd.merge(
             stack_gens,
-            pudl_out.gen_eia923().drop(columns=drop_cols_gens),
+            pudl_out.gen_original_eia923().drop(columns=drop_cols_gens),
             on=IDX_GENS,
             how='outer')
         .merge(
@@ -586,7 +599,7 @@ def _test_gen_pm_fuel_output(gen_pm_fuel, pudl_out):
         logger.info(
             f'Warning: {len(no_cap_gen)} records have no capacity or net gen')
     gen_fuel = pudl_out.gf_eia923()
-    gen = pudl_out.gen_eia923()
+    gen = pudl_out.gen_original_eia923()
     # remove the junk/corrective plants
     fuel_net_gen = gen_fuel[
         gen_fuel.plant_id_eia != '99999'].net_generation_mwh.sum()
@@ -608,7 +621,7 @@ def _test_gen_fuel_allocation(pudl_out, gen_allocated, ratio=.05):
     gens_test = (
         pd.merge(
             gen_allocated,
-            pudl_out.gen_eia923(),
+            pudl_out.gen_original_eia923(),
             on=IDX_GENS,
             suffixes=('_new', '_og')
         )

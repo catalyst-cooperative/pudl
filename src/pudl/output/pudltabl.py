@@ -131,6 +131,8 @@ class PudlTabl(object):
             "frc_eia923": None,
             "bf_eia923": None,
             "gen_eia923": None,
+            "gen_og_eia923": None,
+            "gen_allocated_eia923": None,
 
             "plants_steam_ferc1": None,
             "fuel_ferc1": None,
@@ -147,8 +149,6 @@ class PudlTabl(object):
             "fuel_cost": None,
             "capacity_factor": None,
             "mcoe": None,
-
-            "gen_allocated": None,
         }
 
     def pu_eia860(self, update=False):
@@ -525,6 +525,16 @@ class PudlTabl(object):
         """
         Pull EIA 923 net generation data by generator.
 
+        Net generation is reported in two seperate tables in EIA 923: in the
+        generation_eia923 and generation_fuel_eia923 tables. While the
+        generation_fuel_eia923 table is more complete (the generation_eia923
+        table includes only ~55% of the reported MWhs), the generation_eia923
+        table is more granular (it is reported at the generator level).
+
+        This method either grabs the generation_eia923 table that is reported
+        by generator, or allocates net generation from the
+        generation_fuel_eia923 table to the generator level.
+
         Args:
             update (bool): If true, re-calculate the output dataframe, even if
                 a cached version exists.
@@ -534,12 +544,34 @@ class PudlTabl(object):
 
         """
         if update or self._dfs['gen_eia923'] is None:
-            self._dfs['gen_eia923'] = pudl.output.eia923.generation_eia923(
+            if self.fill_net_gen:
+                logger.info(
+                    'Allocating net generation from the generation_fuel_eia923 '
+                    'to the generator level instead of using the less complete '
+                    'generation_eia923 table.'
+                )
+                self._dfs['gen_eia923'] = self.gen_allocated_eia923(update)
+            else:
+                self._dfs['gen_eia923'] = self.gen_original_eia923(update)
+        return self._dfs['gen_eia923']
+
+    def gen_original_eia923(self, update=False):
+        """Pull the original EIA 923 net generation data by generator."""
+        if update or self._dfs['gen_og_eia923'] is None:
+            self._dfs['gen_og_eia923'] = pudl.output.eia923.generation_eia923(
                 self.pudl_engine,
                 freq=self.freq,
                 start_date=self.start_date,
                 end_date=self.end_date)
-        return self._dfs['gen_eia923']
+        return self._dfs['gen_og_eia923']
+
+    def gen_allocated_eia923(self, update=False):
+        """Net generation from gen fuel table allocated to generators."""
+        if update or self._dfs['gen_allocated_eia923'] is None:
+            self._dfs['gen_allocated_eia923'] = (
+                pudl.analysis.allocate_net_gen.allocate_gen_fuel_by_gen(self)
+            )
+        return self._dfs['gen_allocated_eia923']
 
     ###########################################################################
     # FERC FORM 1 OUTPUTS
@@ -816,17 +848,6 @@ class PudlTabl(object):
                 max_cap_fact=max_cap_fact,
             )
         return self._dfs['mcoe']
-    ###########################################################################
-    # ANALYSIS FUNCTIONS
-    ###########################################################################
-
-    def gen_allocated(self, update=False):
-        """Net generation from gen fuel table allocated to generators."""
-        if update or self._dfs['gen_allocated'] is None:
-            self._dfs['gen_allocated'] = (
-                pudl.analysis.allocate_net_gen.allocate_gen_fuel_by_gen(self)
-            )
-        return self._dfs['gen_allocated']
 
 
 def get_table_meta(pudl_engine):

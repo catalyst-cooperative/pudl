@@ -49,8 +49,6 @@ def heat_rate_by_unit(pudl_out):
                                'generator_id',
                                'unit_id_pudl']].drop_duplicates()
     gen = pudl_out.gen_eia923()
-    if pudl_out.fill_net_gen:
-        gen = pudl_out.gen_allocated()
 
     # Merge those unit ids into the generation data:
     gen_w_unit = pudl.helpers.merge_on_date_year(
@@ -283,8 +281,6 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
                                           'capacity_mw']]
 
     gen = pudl_out.gen_eia923()
-    if pudl_out.fill_net_gen:
-        gen = pudl_out.gen_allocated()
     gen = gen[['plant_id_eia', 'report_date',
                'generator_id', 'net_generation_mwh']]
 
