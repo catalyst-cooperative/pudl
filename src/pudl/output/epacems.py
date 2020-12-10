@@ -21,22 +21,7 @@ def year_state_filter(years=(), states=()):
     of tuples, appropriate for use with the read_parquet() methods of pandas and dask
     dataframes. The filter will include all combinations of the specified years and
     states. E.g. if years=(2018, 2019) and states=("CA", "CO") then the filter would
-    result in getting 2018 and 2019 data for CO, as well as 2018 and 2019 data for CA,
-    which would look like:
-
-    [
-        [('year', '=', 2018), ('state', '=', 'CA')],
-        [('year', '=', 2018), ('state', '=', 'CO')],
-        [('year', '=', 2019), ('state', '=', 'CA')],
-        [('year', '=', 2019), ('state', '=', 'CO')]
-    ]
-
-    Which in DNF translates to:
-
-    (year=2018 AND state=CA) OR
-    (year=2018 AND state=CO) OR
-    (year=2019 AND state=CA) OR
-    (year=2019 AND state=CO)
+    result in getting 2018 and 2019 data for CO, as well as 2018 and 2019 data for CA.
 
     Args:
         years (iterable): 4-digit integers indicating the years of data you would like
