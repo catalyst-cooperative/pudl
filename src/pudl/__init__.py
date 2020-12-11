@@ -16,6 +16,7 @@ import pudl.convert.ferc1_to_sqlite
 import pudl.convert.merge_datapkgs
 import pudl.etl
 import pudl.extract.eia860
+import pudl.extract.eia860m
 import pudl.extract.eia861
 import pudl.extract.eia923
 import pudl.extract.epacems
@@ -23,6 +24,7 @@ import pudl.extract.epaipm
 import pudl.extract.excel
 import pudl.extract.ferc1
 import pudl.extract.ferc714
+import pudl.glue.eia_epacems
 import pudl.glue.ferc1_eia
 import pudl.helpers
 import pudl.load.csv

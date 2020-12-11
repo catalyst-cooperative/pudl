@@ -43,7 +43,6 @@ SQLite database, respectively:
         -o datapkg/pudl-example/pudl-merged \
         datapkg/pudl-example/ferc1-example/datapackage.json \
         datapkg/pudl-example/eia-example/datapackage.json \
-        datapkg/pudl-example/epaipm-example/datapackage.json
     $ epacems_to_parquet datapkg/pudl-example/epacems-eia-example/datapackage.json
 
 These commands should result in a bunch of Python :mod:`logging` output,
@@ -51,8 +50,8 @@ describing what the script is doing, and outputs in the ``sqlite``,
 ``datapkg``, and ``parquet`` directories within your workspace. In particular,
 you should see new files at ``sqlite/ferc1.sqlite`` and ``sqlite/pudl.sqlite``,
 and a new directory at ``datapkg/pudl-example`` containing several datapackage
-directories, one for each of the ``ferc1``, ``eia`` (Forms 860 and 923),
-``epacems-eia``, and ``epaipm`` datasets.
+directories, one for each of the ``ferc1``, ``eia`` (Forms 860 and 923), and
+``epacems-eia`` datasets.
 
 Under the hood, these scripts are extracting data from the datastore, including
 spreadsheets, CSV files, and binary DBF files, generating a SQLite database

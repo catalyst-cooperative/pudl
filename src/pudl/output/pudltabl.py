@@ -79,18 +79,18 @@ class PudlTabl(object):
         # PUDL DB. See the etl_eia861 method.
         self.ds = ds
 
+        # grab all working eia dates to use to set start and end dates if they
+        # are not set
+        eia_dates = pudl.helpers.get_working_eia_dates()
         if start_date is None:
-            self.start_date = \
-                pd.to_datetime(
-                    f"{min(pc.working_years['eia923'])}-01-01")
+            self.start_date = min(eia_dates)
+
         else:
             # Make sure it's a date... and not a string.
             self.start_date = pd.to_datetime(start_date)
 
         if end_date is None:
-            self.end_date = \
-                pd.to_datetime(
-                    f"{max(pc.working_years['eia923'])}-12-31")
+            self.end_date = max(eia_dates)
         else:
             # Make sure it's a date... and not a string.
             self.end_date = pd.to_datetime(end_date)
@@ -210,7 +210,7 @@ class PudlTabl(object):
 
             eia861_raw_dfs = (
                 pudl.extract.eia861.Extractor(self.ds)
-                .extract(pc.working_years["eia861"])
+                .extract(year=pc.working_partitions["eia861"]["years"])
             )
             eia861_tfr_dfs = pudl.transform.eia861.transform(eia861_raw_dfs)
             for table in eia861_tfr_dfs:
