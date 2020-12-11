@@ -5,6 +5,7 @@ import logging
 
 import pkg_resources
 
+import pudl.analysis.allocate_net_gen
 import pudl.analysis.demand_mapping
 import pudl.analysis.mcoe
 import pudl.analysis.service_territory
