@@ -30,7 +30,7 @@ LICENSES: Dict[str, Dict[str, str]] = {
 License attributes by PUDL identifier.
 """
 
-SOURCES: Dict[str, str] = {
+SOURCES: Dict[str, Dict[str, str]] = {
     "eia860": {
         "title": "EIA Form 860",
         "path": "https://www.eia.gov/electricity/data/eia860",
