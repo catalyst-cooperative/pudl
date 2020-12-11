@@ -145,6 +145,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "report_date",
                 "net_generation_mwh",
             ],
+            "primaryKey": ["plant_id_eia", "generator_id", "report_date"],
             "foreignKeys": [
                 {
                     "fields": ["plant_id_eia", "generator_id"],
@@ -460,6 +461,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "winter_estimated_capability_mw",
                 "retirement_date",
             ],
+            "primaryKey": ["plant_id_eia", "generator_id", "report_date"],
             "foreignKeys": [
                 {
                     "fields": ["plant_id_eia", "generator_id"],
@@ -494,6 +496,9 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "owner_street_address",
                 "owner_zip_code",
                 "fraction_owned",
+            ],
+            "primaryKey": [
+                "report_date", "plant_id_eia", "generator_id", "owner_utility_id_eia"
             ],
             "foreignKeys": [
                 {
@@ -665,6 +670,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "unit_id_pudl",
                 "bga_source",
             ],
+            "primaryKey": ["plant_id_eia", "report_date", "generator_id", "boiler_id"],
             "foreignKeys": [
                 {
                     "fields": ["plant_id_eia", "generator_id"],
@@ -777,6 +783,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "utility_id_eia",
                 "water_source",
             ],
+            "primaryKey": ["plant_id_eia", "report_date"],
             "foreignKeys": [
                 {
                     "fields": ["plant_id_eia"],
@@ -978,6 +985,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "unit_id_epa",
             ]
         },
+        "primaryKey": ["plant_id_eia", "unitid", "operating_datetime_utc"],
         "sources": ["epacems"],
     },
     {
@@ -1081,6 +1089,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "plants_reported_asset_manager",
                 "plants_reported_other_relationship",
             ],
+            "primaryKey": ["utility_id_eia", "report_date"],
             "foreignKeys": [
                 {
                     "fields": ["utility_id_eia"],
