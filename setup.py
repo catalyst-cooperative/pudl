@@ -28,6 +28,7 @@ install_requires = [
     "tableschema-sql>=1.3.1",
     "timezonefinder",
     "tqdm",
+    "xlrd<2.0",
     "xlsxwriter",
 ]
 
