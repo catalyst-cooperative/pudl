@@ -43,21 +43,21 @@ SOURCES: Dict[str, Dict[str, str]] = {
         "title": "EIA Form 923",
         "path": "https://www.eia.gov/electricity/data/eia923",
     },
+    "eiawater": {
+        "title": "EIA Thermoelectric cooling water data",
+        "path": "https://www.eia.gov/electricity/data/water",
+    },
     "epacems": {
         "title": "EPA Air Markets Program Data: Hourly Continuous Emission Monitoring System(CEMS)",
-        "path": "ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly",
+        "path": "https://ampd.epa.gov/ampd",
     },
     "epaipm": {
         "title": "EPA Integrated Planning Model (IPM)",
         "path": "https://www.epa.gov/airmarkets/national-electric-energy-data-system-needs-v6",
     },
-    "eiawater": {
-        "title": "EIA Thermoelectric cooling water data",
-        "path": "https://www.eia.gov/electricity/data/water",
-    },
     "ferc1": {
         "title": "FERC Form 1: Electric Utility Annual Report",
-        "path": "ftp://eforms1.ferc.gov/f1allyears",
+        "path": "https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual",
     },
     "ferc714": {
         "title": "FERC Form 714: Annual Electric Balancing Authority Area and Planning Area Report",
@@ -65,15 +65,15 @@ SOURCES: Dict[str, Dict[str, str]] = {
     },
     "ferceqr": {
         "title": "FERC Form 920: Electric Quarterly Report (EQR)",
-        "path": "ftp://eqrdownload.ferc.gov/DownloadRepositoryProd/BulkNew/CSV",
-    },
-    "phmsa": {
-        "title": "Pipelines and Hazardous Materials Safety Administration (PHMSA)",
-        "path": "https://www.phmsa.dot.gov/data-and-statistics/pipeline/data-and-statistics-overview",
+        "path": "https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr",
     },
     "msha": {
         "title": "Mine Safety and Health Administration (MSHA)",
         "path": "https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp",
+    },
+    "phmsa": {
+        "title": "Pipelines and Hazardous Materials Safety Administration (PHMSA)",
+        "path": "https://www.phmsa.dot.gov/data-and-statistics/pipeline/data-and-statistics-overview",
     },
     "pudl": {
         "title": "The Public Utility Data Liberation (PUDL) Project",
