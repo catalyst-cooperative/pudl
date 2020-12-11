@@ -11,10 +11,10 @@ years, but a lot of the work has still been done on a volunteer basis, both
 by members of Catalyst Cooperative and open source contributors, including:
 
 * `Karl Dunkle Werner <https://karldw.org/>`__, a PhD student at UC Berkeley,
-  who did a lot of the integration work for :ref:`data-epacems`.
+  who did a lot of the integration work for :doc:`data_sources/epacems`.
 * `Greg Schivley <https://gschivley.github.io/>`__, a recently minted PhD from
   Carnegie Mellon University, who has pointed us at lots of great open data
-  resources, and integrated the :ref:`data-epaipm` data.
+  resources.
 * `Priya Donti <https://priyadonti.com/>`__, a PhD student at Carnegie Mellon
   University, for user experience and documentation feedback.
 * `Josh Rhodes <https://sites.google.com/site/joshdr83/>`__,

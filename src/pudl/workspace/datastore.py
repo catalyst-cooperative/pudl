@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """Datastore manages file retrieval for PUDL datasets."""
 
 import argparse
@@ -32,13 +30,23 @@ DOI = {
     "sandbox": {
         "censusdp1tract": "10.5072/zenodo.674992",
         "eia860": "10.5072/zenodo.672210",
-        "eia861": "10.5072/zenodo.679031",
-        "eia923": "10.5072/zenodo.673469",
+        "eia860m": "10.5072/zenodo.692655",
+        "eia861": "10.5072/zenodo.687052",
+        "eia923": "10.5072/zenodo.687071",
         "epacems": "10.5072/zenodo.672963",
-        "ferc1": "10.5072/zenodo.672226",
+        "ferc1": "10.5072/zenodo.687072",
         "ferc714": "10.5072/zenodo.672224",
     },
-    "production": {}
+    "production": {
+        "censusdp1tract": "10.5281/zenodo.4127049",
+        "eia860": "10.5281/zenodo.4127027",
+        "eia860m": "10.5281/zenodo.4281337",
+        "eia861": "10.5281/zenodo.4127029",
+        "eia923": "10.5281/zenodo.4127040",
+        "epacems": "10.5281/zenodo.4127055",
+        "ferc1": "10.5281/zenodo.4127044",
+        "ferc714": "10.5281/zenodo.4127101",
+    }
 }
 
 PUDL_YML = Path.home() / ".pudl.yml"
@@ -47,15 +55,21 @@ PUDL_YML = Path.home() / ".pudl.yml"
 class Datastore:
     """Handle connections and downloading of Zenodo Source archives."""
 
-    def __init__(self, pudl_in, loglevel="WARNING", verbose=False,
-                 sandbox=False, timeout=7):
+    def __init__(
+        self,
+        pudl_in,
+        loglevel="WARNING",
+        verbose=False,
+        sandbox=False,
+        timeout=15
+    ):
         """
         Datastore manages file retrieval for PUDL datasets.
 
         Args:
             pudl_in (Path): path to the root pudl data directory
-            loglevel (str): logging level
-            verbose (bool): If true, logs printed to stdout
+            loglevel (str): logging level.
+            verbose (bool): If true, logs printed to stdout.
             sandbox (bool): If true, use the sandbox server instead of production
             timeout (float): Network timeout for http requests.
 
@@ -76,8 +90,6 @@ class Datastore:
             self.api_root = "https://sandbox.zenodo.org/api"
 
         else:
-            raise NotImplementedError(
-                "Production archive not ready. Use --sandbox.")
             self._dois = DOI["production"]
             self.token = TOKEN["production"]
             self.api_root = "https://zenodo.org/api"
@@ -319,7 +331,8 @@ class Datastore:
                 self.download_resource(resource, directory,
                                        retries=retries - 1)
             else:
-                raise RuntimeError(f"Could not download valid {resource['path']}")
+                raise RuntimeError(
+                    f"Could not download valid {resource['path']}")
 
         return local_path
 
@@ -357,8 +370,8 @@ class Datastore:
             dataset: name of a dataset
 
         Returns:
-            bool: True if local datapackage.json is valid and resources have good md5
-            checksums.
+            bool: True if local datapackage.json is valid and resources have
+            good md5 checksums.
 
         """
         dp = self.datapackage_json(dataset)
@@ -367,7 +380,8 @@ class Datastore:
         for r in dp["resources"]:
 
             if self.is_remote(r):
-                self.logger.debug(f"{r['path']} not cached, skipping validation")
+                self.logger.debug(
+                    f"{r['path']} not cached, skipping validation")
                 continue
 
             # We verify and warn on every resource. Even though a single
@@ -456,8 +470,10 @@ class Datastore:
                     local = self.download_resource(r, self.local_path(dataset))
 
                     # save with a relative path
-                    r["path"] = str(local.relative_to(self.local_path(dataset)))
-                    self.logger.debug(f"resource local relative path: {r['path']}")
+                    r["path"] = str(local.relative_to(
+                        self.local_path(dataset)))
+                    self.logger.debug(
+                        f"resource local relative path: {r['path']}")
                     self.save_datapackage_json(dataset, dpkg)
 
                 r_abspath = copy.deepcopy(r)
@@ -470,7 +486,12 @@ def main_arguments():
     prod_dois = "\n".join([f"    - {x}" for x in DOI["production"].keys()])
     sand_dois = "\n".join([f"    - {x}" for x in DOI["sandbox"].keys()])
 
-    dataset_msg = f"--Available datasets--\n \nProduction:\n{prod_dois}\n \nSandbox:\n{sand_dois}"
+    dataset_msg = f"""
+Available Production Datasets:
+{prod_dois}
+
+Available Sandbox Datasets:
+{sand_dois}"""
 
     parser = argparse.ArgumentParser(
         description="Download and cache ETL source data from Zenodo.",
@@ -479,21 +500,41 @@ def main_arguments():
     )
 
     parser.add_argument(
-        "--dataset", help="Get only a specified dataset. Default gets all.")
+        "--dataset",
+        help="Download the specified dataset only. See below for available options. "
+        "The default is to download all, which may take an hour or more."
+        "speed."
+    )
     parser.add_argument(
         "--pudl_in",
-        help="Override pudl_in directory, defaults to option .pudl.yml")
+        help="Override pudl_in directory, defaults to setting in ~/.pudl.yml",
+    )
     parser.add_argument(
-        "--validate", help="Validate existing cache.", const=True,
-        default=False, action="store_const")
+        "--validate",
+        help="Validate locally cached datapackages, but don't download anything.",
+        action="store_const",
+        const=True,
+        default=False,
+    )
     parser.add_argument(
-        "--sandbox", help="Use sandbox server instead of production.",
-        action="store_const", const=True, default=False)
+        "--sandbox",
+        help="Download data from Zenodo sandbox server. For testing purposes only.",
+        action="store_const",
+        const=True,
+        default=False,
+    )
     parser.add_argument(
-        "--loglevel", help="Set logging level", default="WARNING")
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
     parser.add_argument(
-        "--verbose", help="Display logging messages", default=False,
-        action="store_const", const=True)
+        "--quiet",
+        help="Do not send logging messages to stdout.",
+        action="store_const",
+        const=True,
+        default=False,
+    )
 
     return parser.parse_args()
 
@@ -511,8 +552,12 @@ def main():
     else:
         pudl_in = Path(pudl_in)
 
-    ds = Datastore(pudl_in, loglevel=args.loglevel, verbose=args.verbose,
-                   sandbox=args.sandbox)
+    ds = Datastore(
+        pudl_in,
+        loglevel=args.loglevel,
+        verbose=not args.quiet,
+        sandbox=args.sandbox
+    )
 
     if dataset is None:
         if args.sandbox:

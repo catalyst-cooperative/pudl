@@ -16,10 +16,14 @@ from pudl.output.pudltabl import PudlTabl
 
 logger = logging.getLogger(__name__)
 
-START_DATE_EIA = pd.to_datetime(f"{min(pc.working_years['eia923'])}-01-01")
-END_DATE_EIA = pd.to_datetime(f"{max(pc.working_years['eia923'])}-12-31")
-START_DATE_FERC1 = pd.to_datetime(f"{min(pc.working_years['ferc1'])}-01-01")
-END_DATE_FERC1 = pd.to_datetime(f"{max(pc.working_years['ferc1'])}-12-31")
+START_DATE_EIA = pd.to_datetime(
+    f"{min(pc.working_partitions['eia923']['years'])}-01-01")
+END_DATE_EIA = pd.to_datetime(
+    f"{max(pc.working_partitions['eia923']['years'])}-12-31")
+START_DATE_FERC1 = pd.to_datetime(
+    f"{min(pc.working_partitions['ferc1']['years'])}-01-01")
+END_DATE_FERC1 = pd.to_datetime(
+    f"{max(pc.working_partitions['ferc1']['years'])}-12-31")
 
 
 def pytest_addoption(parser):
@@ -40,6 +44,8 @@ def pytest_addoption(parser):
                      help="Use minimal test data to speed up the tests.")
     parser.addoption("--clobber", action="store_true", default=False,
                      help="Clobber the existing datapackages if they exist")
+    parser.addoption("--sandbox", action="store_true", default=False,
+                     help="Use raw inputs from the Zenodo sandbox server.")
 
 
 @pytest.fixture(scope='session')
@@ -62,7 +68,7 @@ def fast_tests(request):
     We sometimes want to do a quick sanity check while testing locally, and
     that can be accomplished by setting the --fast flag on the command line.
     if fast_tests is true, then we only use 1 year of data, otherwise we use
-    all available data (all the working_years for each dataset).
+    all available data (all the working_partitions for each dataset).
 
     Additionally, if we are on a CI platform, we *always* want to use the fast
     tests, regardless of what has been passed in on the command line with the
@@ -249,8 +255,12 @@ def pudl_engine(ferc1_engine, live_pudl_db, pudl_settings_fixture,
 
 
 @pytest.fixture(scope='session')  # noqa: C901
-def pudl_settings_fixture(request, tmpdir_factory,  # noqa: C901
-                          live_ferc1_db, live_pudl_db):  # noqa: C901
+def pudl_settings_fixture(  # noqa: C901
+    request,  # noqa: C901
+    tmpdir_factory,  # noqa: C901
+    live_ferc1_db,  # noqa: C901
+    live_pudl_db,  # noqa: C901
+):  # noqa: C901
     """Determine some settings (mostly paths) for the test session."""
     logger.info('setting up the pudl_settings_fixture')
     # Create a session scoped temporary directory.
@@ -312,8 +322,8 @@ def pudl_settings_fixture(request, tmpdir_factory,  # noqa: C901
         pudl_settings['pudl_db'] = 'sqlite:///' + \
             str(live_pudl_db_path)
 
+    pudl_settings["sandbox"] = request.config.getoption("--sandbox")
     logger.info(f'pudl_settings being used : {pudl_settings}')
-    pudl_settings["sandbox"] = True
     return pudl_settings
 
 

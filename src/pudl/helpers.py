@@ -8,6 +8,7 @@ scenarios, it should probably live here. There are lost of transform type
 functions in here that help with cleaning and restructing dataframes.
 
 """
+import itertools
 import logging
 import pathlib
 import re
@@ -928,6 +929,20 @@ def convert_cols_dtypes(df, data_source, name=None):
         .astype(non_bool_cols)
         .astype(bool_cols)
     )
+
+    # Zip codes are highly coorelated with datatype. If they datatype gets
+    # converted at any point it may mess up the accuracy of the data. For
+    # example: 08401.0 or 8401 are both incorrect versions of 080401 that a
+    # simple datatype conversion cannot fix. For this reason, we use the
+    # zero_pad_zips function.
+    if any('zip_code' for col in df.columns):
+        zip_cols = [col for col in df.columns if 'zip_code' in col]
+        for col in zip_cols:
+            if '4' in col:
+                df[col] = zero_pad_zips(df[col], 4)
+            else:
+                df[col] = zero_pad_zips(df[col], 5)
+
     return df
 
 
@@ -1085,12 +1100,49 @@ def zero_pad_zips(zip_series, n_digits):
 
     """
     # Add preceeding zeros where necessary and get rid of decimal zeros
+    def get_rid_of_decimal(series):
+        return series.str.replace(r'[\.]+\d*', '', regex=True)
+
     zip_series = (
-        pd.to_numeric(zip_series)  # Make sure it's all numerical values
-        .astype(pd.Int64Dtype())  # Make it a (nullable) Integer
-        .fillna(0)  # fill the NA
-        .astype(str).str.zfill(n_digits)  # Make it a string and zero pad it.
-        .astype(pd.StringDtype())  # Make it nullable
+        zip_series
+        .astype(pd.StringDtype())
+        .replace('nan', np.nan)
+        .fillna("0")
+        .pipe(get_rid_of_decimal)
+        .str.zfill(n_digits)
         .replace({n_digits * "0": pd.NA})  # All-zero Zip codes aren't valid.
     )
     return zip_series
+
+
+def iterate_multivalue_dict(**kwargs):
+    """Make dicts from dict with main dict key and one value of main dict."""
+    single_valued = {k: v for k,
+                     v in kwargs.items()
+                     if not (isinstance(v, list) or isinstance(v, tuple))}
+
+    # Transform multi-valued {k: vlist} into {k1: [{k1: v1}, {k1: v2}, ...], k2: [...], ...}
+    multi_valued = {k: [{k: v} for v in vlist]
+                    for k, vlist in kwargs.items()
+                    if (isinstance(vlist, list) or isinstance(vlist, tuple))}
+
+    for value_assignments in itertools.product(*multi_valued.values()):
+        result = dict(single_valued)
+        for k_v in value_assignments:
+            result.update(k_v)
+        yield result
+
+
+def get_working_eia_dates():
+    """Get all working EIA dates as a DatetimeIndex."""
+    dates = pd.DatetimeIndex([])
+    for dataset_name, dataset in pc.working_partitions.items():
+        if 'eia' in dataset_name:
+            for name, partition in dataset.items():
+                if name == 'years':
+                    dates = dates.append(
+                        pd.to_datetime(partition, format='%Y'))
+                if name == 'year_month':
+                    dates = dates.append(pd.DatetimeIndex(
+                        [pd.to_datetime(partition)]))
+    return dates

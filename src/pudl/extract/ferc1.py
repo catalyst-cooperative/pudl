@@ -224,7 +224,7 @@ def drop_tables(engine):
 
 
 def add_sqlite_table(table_name, sqlite_meta, dbc_map, ds,
-                     refyear=max(pc.working_years['ferc1']),
+                     refyear=max(pc.working_partitions['ferc1']['years']),
                      testing=False,
                      bad_cols=()):
     """Adds a new Table to the FERC Form 1 database schema.
@@ -407,7 +407,7 @@ def get_dbc_map(ds, year, min_length=4):
 
 def define_sqlite_db(sqlite_meta, dbc_map, ds,
                      tables=pc.ferc1_tbl2dbf,
-                     refyear=max(pc.working_years['ferc1']),
+                     refyear=max(pc.working_partitions['ferc1']['years']),
                      bad_cols=()):
     """
     Defines a FERC Form 1 DB structure in a given SQLAlchemy MetaData object.
@@ -598,7 +598,8 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
         observed=observed_ids,
         identified=PUDL_RIDS,
     )
-    logger.info(f"Inserting {len(missing)} missing IDs into f1_respondent_id table.")
+    logger.info(
+        f"Inserting {len(missing)} missing IDs into f1_respondent_id table.")
     sa.insert(sqlite_meta.tables['f1_respondent_id'], values=missing).execute()
 
 
@@ -635,7 +636,7 @@ def get_ferc1_meta(ferc1_engine):
 
 
 def extract(ferc1_tables=pc.pudl_tables['ferc1'],
-            ferc1_years=pc.working_years['ferc1'],
+            ferc1_years=pc.working_partitions['ferc1']['years'],
             pudl_settings=None):
     """Coordinates the extraction of all FERC Form 1 tables into PUDL.
 
@@ -671,7 +672,7 @@ def extract(ferc1_tables=pc.pudl_tables['ferc1'],
                 f"not available. The years for which data is available are: "
                 f"{' '.join(str(year) for item in pc.data_years['ferc1'])}."
             )
-        if year not in pc.working_years["ferc1"]:
+        if year not in pc.working_partitions["ferc1"]["years"]:
             raise ValueError(
                 f"FERC Form 1 data from the year {year} was requested but it "
                 f"has not yet been integrated into PUDL. "
@@ -679,7 +680,7 @@ def extract(ferc1_tables=pc.pudl_tables['ferc1'],
                 f"functions, come find us on GitHub: "
                 f"{pudl.__downloadurl__}"
                 f"For now, the years which PUDL has integrated are: "
-                f"{' '.join(str(year) for item in pc.working_years['ferc1'])}."
+                f"{' '.join(str(year) for item in pc.working_partitions['ferc1']['years'])}."
             )
     for table in ferc1_tables:
         if table not in pc.pudl_tables["ferc1"]:

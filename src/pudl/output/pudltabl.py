@@ -87,18 +87,18 @@ class PudlTabl(object):
         # PUDL DB. See the etl_eia861 method.
         self.ds = ds
 
+        # grab all working eia dates to use to set start and end dates if they
+        # are not set
+        eia_dates = pudl.helpers.get_working_eia_dates()
         if start_date is None:
-            self.start_date = \
-                pd.to_datetime(
-                    f"{min(pc.working_years['eia923'])}-01-01")
+            self.start_date = min(eia_dates)
+
         else:
             # Make sure it's a date... and not a string.
             self.start_date = pd.to_datetime(start_date)
 
         if end_date is None:
-            self.end_date = \
-                pd.to_datetime(
-                    f"{max(pc.working_years['eia923'])}-12-31")
+            self.end_date = max(eia_dates)
         else:
             # Make sure it's a date... and not a string.
             self.end_date = pd.to_datetime(end_date)
@@ -123,6 +123,7 @@ class PudlTabl(object):
 
             # TODO add the other tables -- this is just an interim check
             "balancing_authority_eia861": None,
+            "advanced_metering_infrastructure_eia861": None,
 
             # TODO add the other tables -- this is just an interim check
             "respondent_id_ferc714": None,
@@ -215,12 +216,12 @@ class PudlTabl(object):
                     pudl.workspace.setup.get_defaults()["pudl_in"])
                 self.ds = pudl.workspace.datastore.Datastore(
                     pudl_in=pudl_in,
-                    sandbox=True,
+                    sandbox=False,
                 )
 
             eia861_raw_dfs = (
                 pudl.extract.eia861.Extractor(self.ds)
-                .extract(pc.working_years["eia861"])
+                .extract(year=pc.working_partitions["eia861"]["years"])
             )
             eia861_tfr_dfs = pudl.transform.eia861.transform(eia861_raw_dfs)
             for table in eia861_tfr_dfs:

@@ -1,0 +1,22 @@
+name: Build and publish Docker image
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - 'sprint*'
+jobs:
+  push_to_registry:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          dockerfile: release/Dockerfile.tiny
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: catalystcoop/pudl_etl
+          tag_with_ref: true

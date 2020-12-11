@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - addfips>=0.3        # base
   - autopep8            # dev
   - bandit              # dev
   - catalystcoop.dbfread>=3.0 # base
@@ -38,7 +39,7 @@ dependencies:
   - pep8-naming         # dev
   - pip                 # N/A
   - pre_commit          # dev
-  - pyarrow<1.0.0       # base Some issue with schema definitions in 1.0.0
+  - pyarrow>=2.0.0      # base
   - pydocstyle          # dev
   - pygeos              # user (speeds up geopandas operations)
   - pysal               # user (required for making maps w/ geopandas)
@@ -63,8 +64,8 @@ dependencies:
   - tqdm                # base TODO: find usage. Does it need to be in base?
   - twine               # dev
   - xlsxwriter          # base
+  - xlrd<2.0            # base xlrd 2.0 and later drops xlsx support
   - pip:
-    - addfips            # base -- get in conda!
     - flake8-use-fstring # dev
     - goodtables-pandas-py>=0.1.1  # base get in conda!
     - recordlinkage      # dev for now... base if it ends up in ETL

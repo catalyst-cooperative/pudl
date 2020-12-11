@@ -18,15 +18,17 @@ install_requires = [
     "networkx>=2.2",
     "numpy",
     "pandas>=1.1",
-    "pyarrow<1.0.0",
+    "pyarrow>=2.0.0",
     "pyyaml",
     "scikit-learn>=0.20",
     "scipy",
+    "seaborn",
     "sqlalchemy>=1.3.0",
     "tableschema>=1.12.3",
     "tableschema-sql>=1.3.1",
     "timezonefinder",
     "tqdm",
+    "xlrd<2.0",
     "xlsxwriter",
 ]
 
@@ -61,7 +63,6 @@ test_requires = [
     "pydocstyle",
     "pytest",
     "pytest-cov",
-    "seaborn",
 ]
 
 

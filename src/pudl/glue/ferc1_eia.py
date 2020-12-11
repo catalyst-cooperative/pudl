@@ -48,17 +48,22 @@ def get_plant_map():
         'pudl.package_data.glue', 'mapping_eia923_ferc1.xlsx')
 
     return pd.read_excel(
-        map_eia_ferc_file, 'plants_output',
-        na_values='', keep_default_na=False,
-        converters={'plant_id_pudl': int,
-                    'plant_name_pudl': str,
-                    'utility_id_ferc1': int,
-                    'utility_name_ferc1': str,
-                    'plant_name_ferc1': str,
-                    'plant_id_eia': int,
-                    'plant_name_eia': str,
-                    'utility_name_eia': str,
-                    'utility_id_eia': int})
+        map_eia_ferc_file,
+        'plants_output',
+        na_values='',
+        keep_default_na=False,
+        converters={
+            'plant_id_pudl': int,
+            'plant_name_pudl': str,
+            'utility_id_ferc1': int,
+            'utility_name_ferc1': str,
+            'plant_name_ferc1': str,
+            'plant_id_eia': int,
+            'plant_name_eia': str,
+            'utility_name_eia': str,
+            'utility_id_eia': int
+        },
+    )
 
 
 def get_utility_map():
@@ -66,14 +71,20 @@ def get_utility_map():
     map_eia_ferc_file = importlib.resources.open_binary(
         'pudl.package_data.glue', 'mapping_eia923_ferc1.xlsx')
 
-    return pd.read_excel(map_eia_ferc_file, 'utilities_output',
-                         na_values='', keep_default_na=False,
-                         converters={'utility_id_pudl': int,
-                                     'utility_name_pudl': str,
-                                     'utility_id_ferc1': int,
-                                     'utility_name_ferc1': str,
-                                     'utility_id_eia': int,
-                                     'utility_name_eia': str})
+    return pd.read_excel(
+        map_eia_ferc_file,
+        'utilities_output',
+        na_values='',
+        keep_default_na=False,
+        converters={
+            'utility_id_pudl': int,
+            'utility_name_pudl': str,
+            'utility_id_ferc1': int,
+            'utility_name_ferc1': str,
+            'utility_id_eia': int,
+            'utility_name_eia': str
+        },
+    )
 
 
 def get_db_plants_ferc1(pudl_settings, years):
