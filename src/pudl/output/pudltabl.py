@@ -114,6 +114,7 @@ class PudlTabl(object):
 
             # TODO add the other tables -- this is just an interim check
             "balancing_authority_eia861": None,
+            "advanced_metering_infrastructure_eia861": None,
 
             # TODO add the other tables -- this is just an interim check
             "respondent_id_ferc714": None,
