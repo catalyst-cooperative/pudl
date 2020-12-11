@@ -63,7 +63,7 @@ def get_census2010_gdf(pudl_settings, layer):
     census2010_gdb_dir = census2010_dir / "census2010.gdb"
 
     if not census2010_gdb_dir.is_dir():
-        sandbox = pudl_settings.get("sandbox", False)
+        sandbox = pudl_settings.get("sandbox", True)
         ds = pudl.workspace.datastore.Datastore(
             Path(pudl_settings["pudl_in"]),
             sandbox=sandbox)

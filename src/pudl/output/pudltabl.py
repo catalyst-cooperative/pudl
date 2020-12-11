@@ -114,6 +114,7 @@ class PudlTabl(object):
 
             # TODO add the other tables -- this is just an interim check
             "balancing_authority_eia861": None,
+            "advanced_metering_infrastructure_eia861": None,
 
             # TODO add the other tables -- this is just an interim check
             "respondent_id_ferc714": None,
@@ -209,7 +210,7 @@ class PudlTabl(object):
 
             eia861_raw_dfs = (
                 pudl.extract.eia861.Extractor(self.ds)
-                .extract(pc.working_partitions["eia861"]["years"])
+                .extract(year=pc.working_partitions["eia861"]["years"])
             )
             eia861_tfr_dfs = pudl.transform.eia861.transform(eia861_raw_dfs)
             for table in eia861_tfr_dfs:

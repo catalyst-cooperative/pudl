@@ -32,6 +32,7 @@ import pudl.load.metadata
 # Output modules by data source:
 import pudl.output.eia860
 import pudl.output.eia923
+import pudl.output.epacems
 import pudl.output.ferc1
 import pudl.output.ferc714
 import pudl.output.glue
