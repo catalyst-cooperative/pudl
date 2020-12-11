@@ -576,7 +576,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         "name": "fuel_receipts_costs_eia923",
         "schema": {
             "fields": [
-                "id",
                 "plant_id_eia",
                 "report_date",
                 "contract_type_code",
@@ -600,7 +599,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "moisture_content_pct",
                 "chlorine_content_ppm",
             ],
-            "primaryKey": ["id"],
             "foreignKeys": [
                 {
                     "fields": ["plant_id_eia"],
