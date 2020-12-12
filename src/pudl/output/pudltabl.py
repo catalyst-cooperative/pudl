@@ -48,8 +48,9 @@ logger = logging.getLogger(__name__)
 class PudlTabl(object):
     """A class for compiling common useful tabular outputs from the PUDL DB."""
 
-    def __init__(self, pudl_engine, ds=None, freq=None, start_date=None, end_date=None,
-                 fill=False, roll=False):
+    def __init__(self, pudl_engine, ds=None, freq=None, start_date=None,
+                 end_date=None, fill_fuel_cost=False, roll_fuel_cost=False,
+                 fill_net_gen=False):
         """
         Initialize the PUDL output object.
 
@@ -68,9 +69,16 @@ class PudlTabl(object):
             end_date (date): End date for data to pull from the PUDL DB.
             pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
                 for the PUDL DB.
-            roll (boolean): if set to True, apply a rolling average to a
-                subset of output table's columns (currently only
+            fill_fuel_cost (boolean): if True, fill in missing EIA fuel cost
+                from ``frc_eia923()`` with state-level monthly averages from EIA's
+                API.
+            roll_fuel_cost (boolean): if True, apply a rolling average
+                to a subset of output table's columns (currently only
                 'fuel_cost_per_mmbtu' for the frc table).
+            fill_net_gen (boolean): if True, use net generation from the
+                generation_fuel_eia923 - which is reported at the
+                plant/fuel/prime mover level - re-allocated to generators in
+                ``mcoe()``, ``capacity_factor()`` and ``heat_rate_by_unit()``.
 
         """
         self.pudl_engine = pudl_engine
@@ -98,8 +106,9 @@ class PudlTabl(object):
         if not pudl_engine:
             raise AssertionError('PudlTabl object needs a pudl_engine')
 
-        self.roll = roll
-        self.fill = fill
+        self.roll_fuel_cost = roll_fuel_cost
+        self.fill_fuel_cost = fill_fuel_cost
+        self.fill_net_gen = fill_net_gen
         # We populate this library of dataframes as they are generated, and
         # allow them to persist, in case they need to be used again.
         self._dfs = {
@@ -123,6 +132,8 @@ class PudlTabl(object):
             "frc_eia923": None,
             "bf_eia923": None,
             "gen_eia923": None,
+            "gen_og_eia923": None,
+            "gen_allocated_eia923": None,
 
             "plants_steam_ferc1": None,
             "fuel_ferc1": None,
@@ -487,8 +498,8 @@ class PudlTabl(object):
                 freq=self.freq,
                 start_date=self.start_date,
                 end_date=self.end_date,
-                fill=self.fill,
-                roll=self.roll)
+                fill=self.fill_fuel_cost,
+                roll=self.roll_fuel_cost)
         return self._dfs['frc_eia923']
 
     def bf_eia923(self, update=False):
@@ -515,6 +526,16 @@ class PudlTabl(object):
         """
         Pull EIA 923 net generation data by generator.
 
+        Net generation is reported in two seperate tables in EIA 923: in the
+        generation_eia923 and generation_fuel_eia923 tables. While the
+        generation_fuel_eia923 table is more complete (the generation_eia923
+        table includes only ~55% of the reported MWhs), the generation_eia923
+        table is more granular (it is reported at the generator level).
+
+        This method either grabs the generation_eia923 table that is reported
+        by generator, or allocates net generation from the
+        generation_fuel_eia923 table to the generator level.
+
         Args:
             update (bool): If true, re-calculate the output dataframe, even if
                 a cached version exists.
@@ -524,12 +545,34 @@ class PudlTabl(object):
 
         """
         if update or self._dfs['gen_eia923'] is None:
-            self._dfs['gen_eia923'] = pudl.output.eia923.generation_eia923(
+            if self.fill_net_gen:
+                logger.info(
+                    'Allocating net generation from the generation_fuel_eia923 '
+                    'to the generator level instead of using the less complete '
+                    'generation_eia923 table.'
+                )
+                self._dfs['gen_eia923'] = self.gen_allocated_eia923(update)
+            else:
+                self._dfs['gen_eia923'] = self.gen_original_eia923(update)
+        return self._dfs['gen_eia923']
+
+    def gen_original_eia923(self, update=False):
+        """Pull the original EIA 923 net generation data by generator."""
+        if update or self._dfs['gen_og_eia923'] is None:
+            self._dfs['gen_og_eia923'] = pudl.output.eia923.generation_eia923(
                 self.pudl_engine,
                 freq=self.freq,
                 start_date=self.start_date,
                 end_date=self.end_date)
-        return self._dfs['gen_eia923']
+        return self._dfs['gen_og_eia923']
+
+    def gen_allocated_eia923(self, update=False):
+        """Net generation from gen fuel table allocated to generators."""
+        if update or self._dfs['gen_allocated_eia923'] is None:
+            self._dfs['gen_allocated_eia923'] = (
+                pudl.analysis.allocate_net_gen.allocate_gen_fuel_by_gen(self)
+            )
+        return self._dfs['gen_allocated_eia923']
 
     ###########################################################################
     # FERC FORM 1 OUTPUTS
@@ -705,8 +748,7 @@ class PudlTabl(object):
 
         """
         if update or self._dfs['hr_by_gen'] is None:
-            self._dfs['hr_by_gen'] = pudl.analysis.mcoe.heat_rate_by_gen(
-                self)
+            self._dfs['hr_by_gen'] = pudl.analysis.mcoe.heat_rate_by_gen(self)
         return self._dfs['hr_by_gen']
 
     def hr_by_unit(self, update=False):
@@ -722,8 +764,9 @@ class PudlTabl(object):
 
         """
         if update or self._dfs['hr_by_unit'] is None:
-            self._dfs['hr_by_unit'] = pudl.analysis.mcoe.heat_rate_by_unit(
-                self)
+            self._dfs['hr_by_unit'] = (
+                pudl.analysis.mcoe.heat_rate_by_unit(self)
+            )
         return self._dfs['hr_by_unit']
 
     def fuel_cost(self, update=False):
@@ -756,8 +799,10 @@ class PudlTabl(object):
 
         """
         if update or self._dfs['capacity_factor'] is None:
-            self._dfs['capacity_factor'] = pudl.analysis.mcoe.capacity_factor(
-                self, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact)
+            self._dfs['capacity_factor'] = (
+                pudl.analysis.mcoe.capacity_factor(
+                    self, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact)
+            )
         return self._dfs['capacity_factor']
 
     def mcoe(self, update=False,
@@ -801,7 +846,8 @@ class PudlTabl(object):
                 min_heat_rate=min_heat_rate,
                 min_fuel_cost_per_mwh=min_fuel_cost_per_mwh,
                 min_cap_fact=min_cap_fact,
-                max_cap_fact=max_cap_fact)
+                max_cap_fact=max_cap_fact,
+            )
         return self._dfs['mcoe']
 
 
