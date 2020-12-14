@@ -150,48 +150,91 @@ class TestZenodoFetcher(unittest.TestCase):
             PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "first"))
         self.assertEqual(b"blah", res)
 
-#    @responses.activate
-#    def testGetResource(self):
-#        fetcher = datastore.ZenodoFetcher()
-#        file_path = "http://somehost/somefile"
-#        res = datastore.PudlResourceKey(
-#            dataset="epacems",
-#            doi=self.PROD_EPACEMS_DOI, 
-#            name="blah")
-#            metadata={
-# "path": file_path,
-# "hash": "6f1ed002ab5595859014ebf0951522d9"
-#            })
-#        responses.add(responses.GET, file_path, body="blah")
-#        self.assertEqual(b"blah", fetcher.get_resource(res))
+# TODO(rousik): add tests for the caching layers
+# TODO(rousik): add tests for resource filtering
+
+class TestLocalFileCache(unittest.TestCase):
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+        self.cache = datastore.LocalFileCache(Path(self.test_dir))
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
+
+    def testAddSingleResource(self):
+        res = datastore.PudlResourceKey("ds", "doi", "file.txt")
+        self.assertFalse(self.cache.contains(res))
+        self.cache.set(res, b"blah")
+        self.assertTrue(self.cache.contains(res))
+        self.assertEqual(b"blah", self.cache.get(res))
+
+    def testTwoCacheObjectShareStorage(self):
+        second_cache = datastore.LocalFileCache(Path(self.test_dir))
+        res = datastore.PudlResourceKey("dataset", "doi", "file.txt")
+        self.assertFalse(self.cache.contains(res))
+        self.assertFalse(second_cache.contains(res))
+        self.cache.set(res, b"testContents")
+        self.assertTrue(self.cache.contains(res))
+        self.assertTrue(second_cache.contains(res))
+        self.assertEqual(b"testContents", second_cache.get(res))
+
+    def testDeletion(self):
+        res = datastore.PudlResourceKey("a", "b", "c")
+        self.assertFalse(self.cache.contains(res))
+        self.cache.set(res, b"sampleContents")
+        self.assertTrue(self.cache.contains(res))
+        self.cache.delete(res)
+        self.assertFalse(self.cache.contains(res))
 
 
-# class TestLocalFileCache(unittest.TestCase):
-#     """Validates basic operation of the LocalFileCache."""
+class TestLayeredCache(unittest.TestCase):
+    def setUp(self):
+        self.layered_cache = datastore.LayeredCache()
+        self.test_dir_1 = tempfile.mkdtemp()
+        self.test_dir_2 = tempfile.mkdtemp()
+        self.cache_1 = datastore.LocalFileCache(self.test_dir_1)
+        self.cache_2 = datastore.LocalFileCache(self.test_dir_2)
 
-#     def setUp(self):
-#         self.test_dir = tempfile.mkdtemp()
-#         self.cache = datastore.LocalFileCache(Path(self.test_dir))
+    def tearDown(self):
+        shutil.rmtree(self.test_dir_1)
+        shutil.rmtree(self.test_dir_2)
 
-#     def tearDown(self):
-#         shutil.rmtree(self.test_dir)
+    def testAddLayers(self):
+        self.assertEqual(0, self.layered_cache.num_layers())
+        self.layered_cache.add_cache_layer(self.cache_1)
+        self.assertEqual(1, self.layered_cache.num_layers())
+        self.layered_cache.add_cache_layer(self.cache_2)
+        self.assertEqual(2, self.layered_cache.num_layers())
 
-#     def testAddSingleResource(self):
-#         res = datastore.PudlResourceKey(dataset="test", doi="123", name="x")
+    def testAddToFirstLayer(self):
+        self.layered_cache.add_cache_layer(self.cache_1)
+        self.layered_cache.add_cache_layer(self.cache_2)
+        res = datastore.PudlResourceKey("a", "b", "x.txt")
+        self.assertFalse(self.layered_cache.contains(res))
+        self.layered_cache.set(res, b"sampleContent")
+        self.assertTrue(self.layered_cache.contains(res))
+        self.assertTrue(self.cache_1.contains(res))
+        self.assertFalse(self.cache_2.contains(res))
 
-#         res.content = "test_content"
-#         self.assertFalse(self.cache.exists(res))
-#         self.cache.add_resource(res)
-#         self.assertTrue(self.cache.exists(res))
-#         self.assertEqual(res.content, self.cache.get_resource(res))
+    def testFetchFromInnermostLayer(self):
+        res = datastore.PudlResourceKey("a", "b", "x.txt")
+        self.layered_cache.add_cache_layer(self.cache_1)
+        self.layered_cache.add_cache_layer(self.cache_2)
+        # self.cache_1.set(res, "firstLayer")
+        self.cache_2.set(res, b"secondLayer")
+        self.assertEqual(b"secondLayer", self.layered_cache.get(res))
 
-#     def testRemoveTwice(self):
-#         res = datastore.PudlResourceKey("a", "b", "c")
-#         res.content = "123"
-#         self.cache.remove_resource(res)
-#         self.assertFalse(self.cache.exists(res))
-#         self.cache.add_resource(res)
-#         self.assertTrue(self.cache.exists(res))
-#         self.cache.remove_resource(res)
-#         self.assertFalse(self.cache.exists(res))
-#         self.cache.remove_resource(res)
+        self.cache_1.set(res, b"firstLayer")
+        self.assertEqual(b"firstLayer", self.layered_cache.get(res))
+        # Set on layered cache updates innermost layer
+        self.layered_cache.set(res, b"newContents")
+        self.assertEqual(b"newContents", self.layered_cache.get(res))
+        self.assertEqual(b"newContents", self.cache_1.get(res))
+        self.assertEqual(b"secondLayer", self.cache_2.get(res))
+
+        # Deletion also only affects innermost layer
+        self.layered_cache.delete(res)
+        self.assertTrue(self.layered_cache.contains(res))
+        self.assertFalse(self.cache_1.contains(res))
+        self.assertTrue(self.cache_2.contains(res))
+        self.assertEqual(b"secondLayer", self.layered_cache.get(res))
