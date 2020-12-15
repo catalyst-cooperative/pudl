@@ -1,5 +1,5 @@
 """Metadata and operational constants."""
-from typing import Dict, List
+from typing import Dict, List, Union
 
 FIELD_DTYPES: Dict[str, str] = {
     "string": "string",
@@ -388,4 +388,36 @@ RESOURCES_BY_SOURCE: Dict[str, List[str]] = {
 }
 """
 Resources (PUDL identifiers) by source (PUDL identifier).
+"""
+
+FOREIGN_KEY_RULES: Dict[tuple, List[Union[str, tuple]]] = {
+    ("energy_source_code", ): ["energy_source_eia923", ("abbr", )],
+    ("fuel_type", ): ["fuel_type_eia923", ("abbr", )],
+    ("fuel_type_code", ): ["fuel_type_eia923", ("abbr", )],
+    ("fuel_type_code_aer", ): ["fuel_type_aer_eia923", ("abbr", )],
+    ("line_id", ): ["ferc_depreciation_lines"],
+    ("mine_id_pudl", ): ["coalmine_eia923"],
+    ("plant_id_eia", ): ["plants_entity_eia"],
+    ("plant_id_eia", "generator_id"): ["generators_entity_eia"],
+    ("plant_id_pudl", ): ["plants_pudl"],
+    ("plant_name_ferc1", "utility_id_ferc1"): ["plants_ferc1"],
+    ("plant_name_original", "utility_id_ferc1"): [
+        "plants_ferc1", ("plant_name_ferc1", "utility_id_ferc1")
+    ],
+    ("primary_transportation_mode_code", ): ["transport_modes_eia923", ("abbr", )],
+    ("prime_mover_code", ): ["prime_movers_eia923", ("abbr", )],
+    ("region", ): ["regions_entity_epaipm", ("region_id_epaipm", )],
+    ("region_from", ): ["regions_entity_epaipm", ("region_id_epaipm", )],
+    ("region_id_epaipm", ): ["regions_entity_epaipm"],
+    ("region_to", ): ["regions_entity_epaipm", ("region_id_epaipm", )],
+    ("secondary_transportation_mode_code", ): ["transport_modes_eia923", ("abbr", )],
+    ("utility_id_eia", ): ["utilities_entity_eia"],
+    ("utility_id_ferc1", ): ["utilities_ferc1"],
+    ("utility_id_pudl", ): ["utilities_pudl"],
+}
+"""
+Rules for foreign key constraints between resources.
+
+Each tuple of local field names points to the name of the reference resource and,
+if different from the local field names, the reference's field names.
 """
