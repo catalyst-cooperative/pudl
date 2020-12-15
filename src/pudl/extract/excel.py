@@ -250,32 +250,30 @@ class GenericExtractor(object):
             partition: partition to load. (ex: 2009 for year partition or
                 "2020-08" for year_month partition)
 
-        Return:
-            string name of the xlsx file
+        Returns:
+            pd.ExcelFile instance with the parsed excel spreadsheet frame
         """
-        info = self.ds.get_resources(self._dataset_name, **partition)
-
-        if info is None:
-            logger.info(f"No resource found for {partition}, {page}")
-            return
-
-        item = next(info)
-        p = Path(item["path"])
         xlsx_filename = self.excel_filename(page, **partition)
+        if xlsx_filename not in self._file_cache:
+            excel_file = None
+            try:
+                # eia860m exports the resources as raw xlsx files that are not
+                # embedded in zip archives. To support this, we will first try
+                # to retrieve the resource directly. If this fails, we will attempt
+                # to open zip archive and locate the xlsx file inside that.
 
-        if xlsx_filename in self._file_cache.keys():
-            logger.debug("Grabing cached file.")
-            excel_file = self._file_cache[xlsx_filename]
-        else:
-            logger.debug("Grabing new file.")
-
-        if p.name != xlsx_filename:
-            zf = zipfile.ZipFile(p)
-            excel_file = pd.ExcelFile(zf.read(xlsx_filename))
-        else:
-            excel_file = pd.ExcelFile(p)
-        self._file_cache[xlsx_filename] = excel_file
-        return excel_file
+                # TODO(rousik): if we can make it so, it would be useful to normalize
+                # the eia860m and zip the xlsx files. Then we could simplify this code.
+                res = self.ds.get_unique_resource(
+                    self._dataset_name, name=xlsx_filename)
+                excel_file = pd.ExcelFile(res)
+            except KeyError:
+                zf = self.ds.get_zipfile_resource(self._dataset_name, **partition)
+                excel_file = pd.ExcelFile(zf.read(xlsx_filename))
+            finally:
+                self._file_cache[xlsx_filename] = excel_file
+        # TODO(rousik): this _file_cache could be replaced with @cache or @memoize annotations
+        return self._file_cache[xlsx_filename]
 
     def excel_filename(self, page, **partition):
         """

@@ -6,78 +6,86 @@ This modules pulls data from EPA's published CSV files.
 import io
 import logging
 from zipfile import ZipFile
+from pathlib import Path
 
 import pandas as pd
 
 from pudl import constants as pc
-from pudl.workspace import datastore as datastore
+from pudl.workspace.datastore import Datastore
+from typing import NamedTuple
 
 logger = logging.getLogger(__name__)
 
 
-class EpaCemsDatastore(datastore.Datastore):
-    """Provide a thin datastore wrapper to ease access to epacems."""
+class EpaCemsPartition(NamedTuple):
+    """Represents EpaCems partition identifying unique resource file."""
+    year: str
+    state: str
 
-    def open_csv(self, state, year, month):
+    def get_key(self):
+        """Returns hashable key for use with EpaCemsDatastore."""
+        return (self.year, self.state.lower())
+
+    def get_filters(self):
+        """Returns filters for retrieving given partition resource from Datastore."""
+        return dict(year=self.year, state=self.state.lower())
+
+    def get_monthly_file(self, month: int) -> Path:
+        return Path(f"{self.year}{self.state.lower()}{month:02}")
+
+
+class EpaCemsDatastore:
+    """Helper class to extract EpaCems resources from datastore.
+
+    EpaCems resources are identified by a year and a state. Each of these zip files 
+    contain monthly zip files that in turn contain csv files. This class implements
+    method open_csv that reads the monthly csv and returrns it as a pandas.DataFrame.
+
+    Because multiple months of data are usually read in sequence, this class also 
+    implements caching of the open archives. These persist available during the lifetime
+    of this instance.
+    """
+    def __init__(self, datastore: Datastore):
+        self.datastore = datastore
+        self._open_archives = {}  # type: Dict[Tuple(str, str), zipfile.ZipFile]
+
+    def open_csv(self, partition: EpaCemsPartition, month: int) -> pd.DataFrame:
+        archive_key = partition.get_key()
+        if archive_key not in self._open_archives:
+            self._open_archives[archive_key] = self.datastore.get_zipfile_resource(
+                "epacems", **partition.get_filters())
+        archive = self._open_archives[archive_key]
+        # Access the csv file within the embedded zip file
+        mf = partition.get_monthly_file(month)
+        with archive.open(str(mf.with_suffix(".zip")), "r") as mzip:
+            with ZipFile(mzip, "r").open(str(mf.with_suffix(".csv")), "r") as csv_file:
+                return self.csv_to_dataframe(csv_file)
+
+    def csv_to_dataframe(self, csv_file) -> pd.DataFrame:        
         """
-        Open the csv file for the given state / year / month.
+        Convert a CEMS csv file into a :class:`pandas.DataFrame`.
+
+        Note that some columns are not read. See
+        :mod:`pudl.constants.epacems_columns_to_ignore`. Data types for the columns
+        are specified in :mod:`pudl.constants.epacems_csv_dtypes` and names of the
+        output columns are set by :mod:`pudl.constants.epacems_rename_dict`.
 
         Args:
-            state (str): 2 character state abbreviation such as "ca" or "ny"
-            year (int): integer of the desired year
-            month (int): integer of the desired month
+            csv (file-like object): data to be read
 
         Returns:
-            CSV file stream, or raises an error on invalid input
+            pandas.DataFrame: A DataFrame containing the contents of the
+            CSV file.
         """
-        state = state.lower()
-
-        monthly_zip = f"{year}{state}{month:02}.zip"
-        monthly_csv = f"{year}{state}{month:02}.csv"
-
-        try:
-            resource = next(self.get_resources(
-                "epacems", **{"year": year, "state": state}))
-        except StopIteration:
-            raise ValueError(f"No epacems data for {state} in {year}")
-
-        logger.debug(f"epacems resource found at {resource['path']}")
-
-        with ZipFile(resource["path"], "r").open(monthly_zip, "r") as mz:
-            with ZipFile(mz, "r").open(monthly_csv, "r") as csv:
-                logger.debug(f"epacepms csv {monthly_csv} opened")
-                csv = io.BytesIO(csv.read())
-
-        return csv
+        return pd.read_csv(
+            csv_file,
+            index_col=False,
+            usecols=lambda col: col not in pc.epacems_columns_to_ignore,
+            dtype=pc.epacems_csv_dtypes,
+        ).rename(columns=pc.epacems_rename_dict)
 
 
-def csv_to_dataframe(csv):
-    """
-    Convert a CEMS csv file into a :class:`pandas.DataFrame`.
-
-    Note that some columns are not read. See
-    :mod:`pudl.constants.epacems_columns_to_ignore`. Data types for the columns
-    are specified in :mod:`pudl.constants.epacems_csv_dtypes` and names of the
-    output columns are set by :mod:`pudl.constants.epacems_rename_dict`.
-
-    Args:
-        csv (file-like object): data to be read
-
-    Returns:
-        pandas.DataFrame: A DataFrame containing the contents of the
-        CSV file.
-
-    """
-    df = pd.read_csv(
-        csv,
-        index_col=False,
-        usecols=lambda col: col not in pc.epacems_columns_to_ignore,
-        dtype=pc.epacems_csv_dtypes,
-    ).rename(columns=pc.epacems_rename_dict)
-    return df
-
-
-def extract(epacems_years, states, ds):
+def extract(epacems_years, states, ds: EpaCemsDatastore):
     """
     Coordinate the extraction of EPA CEMS hourly DataFrames.
 
@@ -99,12 +107,12 @@ def extract(epacems_years, states, ds):
     for year in epacems_years:
         # The keys of the us_states dictionary are the state abbrevs
         for state in states:
+            partition = EpaCemsPartition(state=state, year=year)
             dfs = []
             logger.info(f"Performing ETL for EPA CEMS hourly {state}-{year}")
 
             for month in range(1, 13):
-                csv = ds.open_csv(state, year, month)
-                dfs.append(csv_to_dataframe(csv))
+                dfs.append(ds.open_csv(partition, month=month))
 
             # Return a dictionary where the key identifies this dataset
             # (just like the other extract functions), but unlike the

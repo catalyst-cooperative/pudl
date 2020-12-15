@@ -62,7 +62,7 @@ from dbfread import DBF
 
 import pudl
 from pudl import constants as pc
-from pudl.workspace import datastore as datastore
+from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
 
@@ -143,58 +143,33 @@ def observed_respondents(ferc1_engine):
     return observed
 
 
-class Ferc1Datastore(datastore.Datastore):
-    """Provide a thin interface for pulling files from the Datastore."""
+class Ferc1Datastore:
+    PACKAGE_PATH = "pudl.package_data.meta.ferc1_row_maps"
+    
+    def __init__(self, datastore: Datastore):
+        self.datastore = datastore
+        self._cache = {}  # type: Dict[int, file]
+        self.dbc_path = {}  # type: Dict[int, Path]
 
-    def get_dir(self, year):
-        """
-        Look up the root DBC directory (within a zip file) for a given year.
+        with importlib.resources.open_text(self.PACKAGE_PATH, "file_map.csv") as f:
+            for row in csv.DictReader(f):
+                year = int(row["year"])
+                path = Path(row["path"])
+                self.dbc_path[year] = path 
 
-        Args:
-            year (int): The year for which to look up the root DBC directory.
-
-        Returns:
-            str: Path of FERC 1 data within the zip file.
-
-        """
-        pkg = "pudl.package_data.meta.ferc1_row_maps"
-        dbc_path = None
-
-        with importlib.resources.open_text(pkg, "file_map.csv") as f:
-            reader = csv.DictReader(f)
-
-            for row in reader:
-                if int(row["year"]) == year:
-                    dbc_path = row["path"]
-
-        if dbc_path is None:
+    def get_dir(self, year: int):
+        if year not in self.dbc_path:
             raise ValueError(f"No ferc1 data for year {year}")
+        return self.dbc_path[year]
 
-        return dbc_path
-
-    def get_file(self, year, filename):
-        """
-        Retrieve the specified file from the ferc1 archive.
-
-        Args:
-            year (int): The year from which to retrive FERC 1 data.
-            filename (str): Name of the file to read from FERC 1 zip archive. (e.g.
-                "F1_1.DBF")
-
-        Returns:
-            bytes object of the requested file, if available.
-
-        """
-        dbc_path = f"{self.get_dir(year)}/{filename}"
-        resource = next(self.get_resources("ferc1", year=year))
-        z = zipfile.ZipFile(resource["path"])
-
+    def get_file(self, year: int, filename: str):
+        if year not in self._cache:
+            self._cache[year] = self.datastore.get_zipfile_resource("ferc1", year=year)
+        archive = self._cache[year]
         try:
-            f = z.open(dbc_path)
+            return archive.open(f"{self.get_dir(year)}/{filename}")
         except KeyError:
-            raise KeyError(f"{dbc_path} is not available in {year} archive.")
-
-        return f
+            raise KeyError(f"{filename} not availabe for year {year} in ferc1.")
 
 
 def drop_tables(engine):
@@ -553,17 +528,17 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
     # Get the mapping of filenames to table names and fields
     logger.info(f"Creating a new database schema based on {refyear}.")
     sandbox = pudl_settings.get("sandbox", False)
-    ds = Ferc1Datastore(
-        Path(pudl_settings["pudl_in"]),
-        sandbox=sandbox)
-
-    dbc_map = get_dbc_map(ds, refyear)
-    define_sqlite_db(sqlite_meta, dbc_map, ds, tables=tables,
+    datastore = Ferc1Datastore(
+        Datastore(
+            local_cache_path=Path(pudl_settings["pudl_in"]) / "data",
+            sandbox=sandbox))
+    dbc_map = get_dbc_map(datastore, refyear)
+    define_sqlite_db(sqlite_meta, dbc_map, datastore, tables=tables,
                      refyear=refyear, bad_cols=bad_cols)
 
     for table in tables:
         logger.info(f"Pandas: reading {table} into a DataFrame.")
-        new_df = get_raw_df(ds, table, dbc_map, years=years)
+        new_df = get_raw_df(datastore, table, dbc_map, years=years)
         # Because this table has no year in it, there would be multiple
         # definitions of respondents if we didn't drop duplicates.
         if table == 'f1_respondent_id':
