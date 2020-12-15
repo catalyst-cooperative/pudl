@@ -11,8 +11,6 @@ import zipfile
 import io
 from pathlib import Path
 from typing import Dict, Iterator, Optional, Any, List, Tuple, NamedTuple
-from abc import ABC, abstractmethod
-from urllib.parse import urlparse
 
 import coloredlogs
 import datapackage
@@ -20,8 +18,8 @@ import requests
 import yaml
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-from google.cloud.storage.blob import Blob
-from google.cloud import storage
+from pudl.workspace import resource_cache
+from pudl.workspace.resource_cache import PudlResourceKey
 
 logger = logging.getLogger(__name__)
 
@@ -30,18 +28,6 @@ logger = logging.getLogger(__name__)
 # long as we stick to read-only keys.
 
 
-class PudlResourceKey(NamedTuple):
-    """Uniquely identifies a specific resource."""
-    dataset: str
-    doi: str
-    name: str
-
-    def __repr__(self) -> str:
-        return f'Resource({self.dataset}/{self.doi}/{self.name})'
-
-    def get_local_path(self) -> Path:
-        doi_dirname = self.doi.replace("/", "-")
-        return Path(self.dataset) / doi_dirname / self.name
 
 
 PUDL_YML = Path.home() / ".pudl.yml"
@@ -197,158 +183,6 @@ class ZenodoFetcher:
         return sorted(self._dataset_to_doi)
 
 
-class AbstractCache(ABC):
-
-    def __init__(self, read_only: bool = False):
-        self._read_only = read_only
-
-    def is_read_only(self) -> bool:
-        return self._read_only
-
-    @abstractmethod
-    def get(self, resource: PudlResourceKey) -> bytes:
-        """Retrieves content of given resource or throws KeyError."""
-        pass
-
-    @abstractmethod
-    def set(self, resource: PudlResourceKey, content: bytes) -> None:
-        """Adds resource to the cache and sets the content."""
-        pass
-    
-    @abstractmethod
-    def delete(self, resource: PudlResourceKey) -> None:
-        """Removes the resource from cache."""
-        pass
-
-    @abstractmethod
-    def contains(self, resource: PudlResourceKey) -> bool:
-        """Returns True if the resource is present in the cache."""
-        pass
-
-
-class LocalFileCache(AbstractCache):
-    """Simple key-value store mapping PudlResourceKeys to ByteIO contents."""
-    def __init__(self, cache_root_dir: Path, **kwargs: Any):
-        super().__init__(**kwargs)
-        self.cache_root_dir = cache_root_dir
-
-    def _resource_path(self, resource: PudlResourceKey) -> Path:
-        return self.cache_root_dir / resource.get_local_path() 
-
-    def get(self, resource: PudlResourceKey) -> bytes:
-        return self._resource_path(resource).open("rb").read()
-
-    def set(self, resource: PudlResourceKey, content: bytes):
-        if self.is_read_only():
-            logger.debug(f"Read only cache: ignoring set({resource})")
-            return
-        path = self._resource_path(resource)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.open("wb").write(content)
-
-    def delete(self, resource: PudlResourceKey):
-        if self.is_read_only():
-            logger.debug(f"Read only cache: ignoring delete({resource})")
-            return
-        self._resource_path(resource).unlink(missing_ok=True)
-
-    def contains(self, resource: PudlResourceKey) -> bool:
-        return self._resource_path(resource).exists()
-
-
-class GoogleCloudStorageCache(AbstractCache):
-    """Implements file cache backed by Google Cloud Storage bucket."""
-
-    def __init__(self, gcs_path: str, **kwargs: Any):
-        """Constructs new cache that stores files in Google Cloud Storage:
-
-        Args:
-            gcs_path (str): path to where the data should be stored. This should
-              be in the form of gs://{bucket-name}/{optional-path-prefix}
-        """
-        super().__init__(**kwargs)
-        parsed_url = urlparse(gcs_path)
-        if parsed_url.scheme != "gs":
-            raise ValueError(f"gsc_path should start with gs:// (found: {gcs_path})")
-        self._path_prefix = Path(parsed_url.path)
-        self._bucket = storage.Client().bucket(parsed_url.netloc)
-
-    def _blob(self, resource: PudlResourceKey) -> Blob:
-        """Retrieve Blob object associated with given resource."""
-        p = (self._path_prefix / resource.get_local_path()).as_posix().lstrip('/')
-        return self._bucket.blob(p)
-
-    def get(self, resource: PudlResourceKey) -> bytes:
-        return self._blob(resource).download_as_bytes()
-
-    def set(self, resource: PudlResourceKey, value: bytes):
-        return self._blob(resource).upload_from_string(value)
-
-    def delete(self, resource: PudlResourceKey): 
-        self._blob(resource).delete()
-
-    def contains(self, resource: PudlResourceKey) -> bool:
-        return self._blob(resource).exists()
-
-
-class LayeredCache(AbstractCache):
-    """Implements multi-layered system of caches.
-
-    This allows building multi-layered system of caches. The idea is that you can
-    have faster local caches with fall-back to the more remote or expensive caches
-    that can be acessed in case of missing content.
-
-    Only the closest layer is being written to (set, delete), while all remaining 
-    layers are read-only (get).
-    """
-    def __init__(self, *caches: List[AbstractCache], **kwargs: Any):
-        """Creates layered cache consisting of given cache layers.
-
-        Args:
-            caches: List of caching layers to uses. These are given in the order
-              of decreasing priority.
-        """
-        super().__init__(**kwargs)
-        self._caches = list(caches)  # type: List[AbstractCache]
-
-    def add_cache_layer(self, cache: AbstractCache):
-        """Adds caching layer. The priority is below all other."""
-        self._caches.append(cache)
-
-    def num_layers(self):
-        return len(self._caches)
-
-    def get(self, resource: PudlResourceKey) -> bytes:
-        for cache in self._caches:
-            if cache.contains(resource):
-                return cache.get(resource)
-        raise KeyError(f"{resource} not found in the layered cache")
-
-    def set(self, resource: PudlResourceKey, value):
-        if self.is_read_only():
-            logger.debug(f"Read only cache: ignoring set({resource})")
-            return
-        for cache_layer in self._caches:
-            if cache_layer.is_read_only():
-                continue
-            cache_layer.set(resource, value)
-            break
-
-    def delete(self, resource: PudlResourceKey):
-        if self.is_read_only():
-            logger.debug(f"Readonly cache: not removing {resource}")
-            return
-        for cache_layer in self._caches:
-            if cache_layer.is_read_only():
-                continue
-            cache_layer.delete(resource)
-            break
-
-    def contains(self, resource: PudlResourceKey) -> bool:
-        for cache in self._caches:
-            if cache.contains(resource):
-                return True
-        return False
 
 
 class Datastore:
@@ -378,14 +212,14 @@ class Datastore:
               to Zenodo servers.
 
         """
-        self.cache = LayeredCache()
+        self.cache = resource_cache.LayeredCache()
         self._datapackage_descriptors = {}  # type: Dict[str, DatapackageDescriptor]
 
         if local_cache_path:
             self.cache.add_cache_layer(
-                LocalFileCache(local_cache_path))
+                resource_cache.LocalFileCache(local_cache_path))
         if gcs_cache_path:
-            self.cache.add_cache_layer(GoogleCloudStorageCache(gcs_cache_path))
+            self.cache.add_cache_layer(resource_cache.GoogleCloudStorageCache(gcs_cache_path))
 
         self._zenodo_fetcher = ZenodoFetcher(
             sandbox=sandbox,
@@ -537,9 +371,9 @@ def main():
 
     dstore = Datastore(sandbox=args.sandbox)
     if args.populate_gcs_cache:
-        dstore.cache.add_cache_layer(GoogleCloudStorageCache(args.populate_gcs_cache))
+        dstore.cache.add_cache_layer(resource_cache.GoogleCloudStorageCache(args.populate_gcs_cache))
     else:
-        dstore.cache.add_cache_layer(LocalFileCache(Path(pudl_in) / "data"))
+        dstore.cache.add_cache_layer(resource_cache.LocalFileCache(Path(pudl_in) / "data"))
 
     datasets = []
     if args.dataset:
