@@ -63,7 +63,7 @@ class DatapackageDescriptor:
 
     def _matches(self, res: dict, **filters: Any):
         parts = res.get('parts', {})
-        return all(parts.get(k) == v for k, v in filters.items())
+        return all(str(parts.get(k)) == str(v) for k, v in filters.items())
 
     def get_resources(self, name: str = None, **filters: Any) -> Iterator[PudlResourceKey]:
         for res in self.datapackage_json["resources"]:
@@ -193,6 +193,10 @@ class ZenodoFetcher:
         """Given resource key, retrieve contents of the file from zenodo."""
         url = self.get_descriptor(res.dataset).get_resource_path(res.name)
         return self._fetch_from_url(url).content
+
+    def get_known_datasets(self) -> List[str]:
+        """Returns list of supported datasets."""
+        return sorted(self._dataset_to_doi)
 
 
 class AbstractCache(ABC):
@@ -361,6 +365,10 @@ class Datastore:
             sandbox=sandbox,
             timeout=timeout)
 
+    def get_known_datasets(self) -> List[str]:
+        """Returns list of supported datasets."""
+        return self._zenodo_fetcher.get_known_datasets()
+
     def get_datapackage_descriptor(self, dataset: str) -> DatapackageDescriptor:
         """Fetch datapackage descriptor for given dataset either from cache or from zenodo."""
         doi = self._zenodo_fetcher.get_doi(dataset)
@@ -402,15 +410,15 @@ class Datastore:
     def get_unique_resource(self, dataset: str, **filters: Any) -> bytes:
         """Returns content of a resource assuming there is exactly one that matches."""
         res = self.get_resources(dataset, **filters)
-        if not res:
-            raise ValueError(f"No resources found for {dataset}: {filters}")
-
-        _, content = next(res)
+        try:
+            _, content = next(res)
+        except StopIteration:
+            raise KeyError(f"No resources found for {dataset}: {filters}")
         try:
             next(res)
         except StopIteration:
             return content
-        raise ValueError(f"Multiple resources found for {dataset}: {filters}")
+        raise KeyError(f"Multiple resources found for {dataset}: {filters}")
 
     def get_zipfile_resource(self, dataset: str, **filters: Any) -> zipfile.ZipFile:
         return zipfile.ZipFile(io.BytesIO(self.get_unique_resource(dataset, **filters)))
