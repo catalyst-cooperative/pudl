@@ -397,8 +397,17 @@ FOREIGN_KEY_RULES: Dict[tuple, List[Union[str, tuple]]] = {
     ("fuel_type_code_aer", ): ["fuel_type_aer_eia923", ("abbr", )],
     ("line_id", ): ["ferc_depreciation_lines"],
     ("mine_id_pudl", ): ["coalmine_eia923"],
+    ("owner_utility_id_eia", ): ["utilities_entity_eia", ("utility_id_eia", )],
+    ("owner_utility_id_eia", "report_date"): [
+        "utilities_eia860", ("utility_id_eia", "report_date")
+    ],
     ("plant_id_eia", ): ["plants_entity_eia"],
+    ("plant_id_eia", "boiler_id"): [
+        "boilers_entity_eia", ("plant_id_eia", "boiler_id")
+    ],
     ("plant_id_eia", "generator_id"): ["generators_entity_eia"],
+    ("plant_id_eia", "generator_id", "report_date"): ["generators_eia860"],
+    ("plant_id_eia", "report_date"): ["plants_eia860"],
     ("plant_id_pudl", ): ["plants_pudl"],
     ("plant_name_ferc1", "utility_id_ferc1"): ["plants_ferc1"],
     ("plant_name_original", "utility_id_ferc1"): [
@@ -412,6 +421,7 @@ FOREIGN_KEY_RULES: Dict[tuple, List[Union[str, tuple]]] = {
     ("region_to", ): ["regions_entity_epaipm", ("region_id_epaipm", )],
     ("secondary_transportation_mode_code", ): ["transport_modes_eia923", ("abbr", )],
     ("utility_id_eia", ): ["utilities_entity_eia"],
+    ("utility_id_eia", "report_date"): ["utilities_eia860"],
     ("utility_id_ferc1", ): ["utilities_ferc1"],
     ("utility_id_pudl", ): ["utilities_pudl"],
 }
