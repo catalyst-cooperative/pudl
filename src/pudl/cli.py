@@ -80,6 +80,15 @@ def parse_command_line(argv):
         action="store_true",
         default=False,
         help="Controls whether flow dependency graphs should be displayed.")
+    parser.add_argument(
+        "--gcs-cache-path",
+        type=str,
+        help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]")
+    parser.add_argument(
+        "--bypass-local-cache",
+        action="store_true",
+        default=False,
+        help="If enabled, the local file cache for datastore will not be used.")
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -131,6 +140,8 @@ def main():
         clobber=args.clobber,
         use_dask_executor=args.use_dask_executor,
         gcs_bucket=args.upload_to_gcs_bucket,
+        use_local_cache=not args.bypass_local_cache,
+        gcs_cache_path=args.gcs_cache_path,
         overwrite_ferc1_db=args.overwrite_ferc1_db,
         show_flow_graph=args.show_flow_graph)
     # TODO(rousik): perhaps we can pass args to this method for direct

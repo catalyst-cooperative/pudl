@@ -1507,31 +1507,6 @@ epaipm_url_ext = {
     downloading that table's data.
 """
 
-read_excel_epaipm_dict = {
-    'transmission_single_epaipm': dict(
-        skiprows=3,
-        usecols='B:F',
-        index_col=[0, 1],
-    ),
-    'transmission_joint_epaipm': {},
-    'load_curves_epaipm': dict(
-        skiprows=3,
-        usecols='B:AB',
-    ),
-    'plant_region_map_epaipm_active': dict(
-        sheet_name='NEEDS v6_Active',
-        usecols='C,I',
-    ),
-    'plant_region_map_epaipm_retired': dict(
-        sheet_name='NEEDS v6_Retired_Through2021',
-        usecols='C,I',
-    ),
-}
-"""
-dict: A dictionary of dictionaries containing EPA IPM tables and associated
-    information for reading those tables into PUDL (values).
-"""
-
 epaipm_region_names = [
     'ERC_PHDL', 'ERC_REST', 'ERC_FRNT', 'ERC_GWAY', 'ERC_WEST',
     'FRCC', 'NENG_CT', 'NENGREST', 'NENG_ME', 'MIS_AR', 'MIS_IL',

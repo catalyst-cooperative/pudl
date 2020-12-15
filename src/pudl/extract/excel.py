@@ -236,22 +236,15 @@ class GenericExtractor(object):
             page: pudl name for the dataset contents, eg
                   "boiler_generator_assn" or "coal_stocks"
 
-        Return:
-            string name of the xlsx file
+        Returns:
+            pd.ExcelFile instance with the parsed excel spreadsheet frame
         """
-        info = self.ds.get_resources(self._dataset_name, year=year)
-
-        if info is None:
-            return
-
-        item = next(info)
-        p = Path(item["path"])
-
-        zf = zipfile.ZipFile(p)
-        xlsx_filename = self.excel_filename(year, page)
-        excel_file = pd.ExcelFile(zf.read(xlsx_filename))
-        self._file_cache[str(p)] = excel_file
-        return excel_file
+        if year not in self._file_cache:
+            zf = self.ds.get_zipfile_resource(self._dataset_name, year=year)
+            xlsx_filename = self.excel_filename(year, page)
+            excel_file = pd.ExcelFile(zf.read(xlsx_filename))
+            self._file_cache[year] = excel_file
+        return self._file_cache[year]
 
     def excel_filename(self, year, page):
         """

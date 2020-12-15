@@ -13,26 +13,72 @@ from pathlib import Path
 import pandas as pd
 
 from pudl import constants as pc
-from pudl.workspace import datastore as datastore
+from pudl.workspace.datastore import Datastore
+#$ from pudl.workspace import datastore as datastore
+
+from typing import Dict, List, NamedTuple, Any
 
 logger = logging.getLogger(__name__)
 
 
-class EpaIpmDatastore(datastore.Datastore):
-    """Provide thin wrapper of Datastore."""
+class TableSettings(NamedTuple):
+    table_name: str 
+    file: str
+    excel_settings: Dict[str, Any] = {}
 
-    table_filename = {
-        "transmission_single_epaipm":
-            "table_3-21_annual_transmission_capabilities_of_u.s._model_regions_in_epa_platform_v6_-_2021.xlsx",
-        "transmission_joint_epaipm": "table_3-5_transmission_joint_ipm.csv",
-        "load_curves_epaipm":
-            "table_2-2_load_duration_curves_used_in_epa_platform_v6.xlsx",
-        "plant_region_map_epaipm":
-            "needs_v6_november_2018_reference_case_0.xlsx"
-    }
 
-    def get_dataframe(self, table_name, pandas_args):
+class EpaIpmDatastore:
+    """Helper for extracting EpaIpm dataframes from Datastore."""
+
+    SETTINGS = (
+        TableSettings(
+            table_name="transmission_single_epaipm",
+            file="table_3-21_annual_transmission_capabilities_of_u.s._model_regions_in_epa_platform_v6_-_2021.xlsx",
+            excel_settings=dict(
+                skiprows=3,
+                usecols='B:F',
+                index_col=[0, 1])
+            ),
+        TableSettings(
+            table_name="transmission_joint_epaipm",
+            file="table_3-5_transmission_joint_ipm.csv"
+            ),
+        TableSettings(
+            table_name="load_curves_epaipm",
+            file="table_2-2_load_duration_curves_used_in_epa_platform_v6.xlsx",
+            excel_settings=dict(
+                skiprows=3,
+                usecols='B:AB')
+            ),
+        TableSettings(
+            table_name="plant_region_map_epaipm_active",
+            file="needs_v6_november_2018_reference_case_0.xlsx",
+            excel_settings=dict(
+                sheet_name='NEEDS v6_Active',
+                usecols='C,I')
+            ),
+        TableSettings(
+            table_name="plant_region_map_epaipm_retired",
+            file="needs_v6_november_2018_reference_case_0.xlsx",
+            excel_settings=dict(
+                sheet_name='NEEDS v6_Retired_Through2021',
+                usecols='C,I')
+            ),
+        )
+
+    def __init__(self, datastore: Datastore):
+        self.datastore = datastore
+
+    def get_table_settings(self, table_name: str) -> TableSettings:
+        """Returns TableSettings for a given table_name."""
+        for s in self.SETTINGS:
+            if s.table_name == table_name:
+                return s
+        raise ValueError(f"Table {table_name} not found in EpaIpmDatastore.SETTINGS.")
+
+    def get_dataframe(self, table_name: str) -> pd.DataFrame:
         """
+
         Retrieve the specified file from the epaipm archive.
 
         Args:
@@ -41,61 +87,23 @@ class EpaIpmDatastore(datastore.Datastore):
         Returns:
              Pandas dataframe of EPA IPM data.
         """
-        def resource_path():
-            """Get the path of the requested file, from the datastore."""
-            filename = self.table_filename[table_name]
-            resources = self.get_resources("epaipm")
 
-            for r in resources:
-                if r["name"] == filename:
-                    return Path(r["path"])
+        table_settings = self.get_table_settings(table_name)
+        f = io.BytesIO(self.datastore.get_unique_resource(
+            "epaipm",
+            name=table_settings.file))
 
-            raise ValueError(
-                f"{filename} is not available in the epaipm archive")
-
-        logger.debug("Dataframe %s requested", table_name)
-        path = resource_path()
-
+        path = Path(resource_name)
         if path.suffix == ".xlsx":
-            logger.debug(f"Dataframe from excel: {path}")
-            return pd.read_excel(path, **pandas_args)
+            return pd.read_excel(f, table_settings.excel_settings)
 
         if path.suffix == ".csv":
-            logger.debug(f"Dataframe from csv: {path}")
-            return pd.read_csv(path, **pandas_args)
+            return pd.read_csv(f)
 
-        raise ValueError(f"{path.suffix}: unknown file format on {path}")
-
-
-def create_dfs_epaipm(files, ds):
-    """Makes dictionary of pages (keys) to dataframes (values) for epaipm tabs.
-
-    Args:
-        files (list): a list of epaipm files
-        ds (:class:`EpaIpmDatastore`): Initialized datastore
-
-    Returns:
-        dict: dictionary of pages (key) to dataframes (values)
-
-    """
-    epaipm_dfs = {}
-    for f in files:
-        # NEEDS is the only IPM data file with multiple sheets. Keeping the overall
-        # code simpler but adding this if statement to read both sheets (active and
-        # retired by 2021).
-        if f == 'plant_region_map_epaipm':
-            epaipm_dfs['plant_region_map_epaipm_active'] = ds.get_dataframe(
-                f, pc.read_excel_epaipm_dict['plant_region_map_epaipm_active'])
-
-            epaipm_dfs['plant_region_map_epaipm_retired'] = ds.get_dataframe(
-                f, pc.read_excel_epaipm_dict['plant_region_map_epaipm_retired'])
-        else:
-            epaipm_dfs[f] = ds.get_dataframe(f, pc.read_excel_epaipm_dict[f])
-
-    return epaipm_dfs
+        raise ValueError(f"{path.suffix}: unknown file format for {path}")
 
 
-def extract(epaipm_tables, ds):
+def extract(epaipm_tables: List[str], ds: Datastore) -> Dict[str, pd.DataFrame]:
     """Extracts data from IPM files.
 
     Args:
@@ -108,14 +116,17 @@ def extract(epaipm_tables, ds):
 
     """
     # Prep for ingesting EPA IPM
-    # create raw ipm dfs from spreadsheets
-
     logger.info('Beginning ETL for EPA IPM.')
+    epaipm_dfs = {}
+    ds = EpaIpmDatastore(ds)
 
-    # files = {
-    #    table: pattern for table, pattern in pc.files_dict_epaipm.items()
-    #    if table in epaipm_tables
-    # }
+    if "plant_region_map_epaipm" in epaipm_tables:
+        # NEEDS is the only IPM data file with multiple sheets. Keeping the overall
+        # code simpler but adding this if statement to read both sheets (active and
+        # retired by 2021).
+        epaipm_tables.remove("plant_region_map_epaipm")
+        epaipm_tables.extend([
+            "plant_region_map_epaipm_active",
+            "plant_region_map_epaipm_retired"])
 
-    epaipm_raw_dfs = create_dfs_epaipm(epaipm_tables, ds)
-    return epaipm_raw_dfs
+    return {f: ds.get_dataframe(f) for f in epaipm_tables}
