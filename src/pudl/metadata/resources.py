@@ -19,15 +19,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "fuel_cost_per_unit_delivered",
                 "fuel_cost_per_mmbtu",
             ],
-            "foreignKeys": [
-                {
-                    "fields": ["plant_name_ferc1", "utility_id_ferc1"],
-                    "reference": {
-                        "resource": "plants_ferc1",
-                        "fields": ["plant_name_ferc1", "utility_id_ferc1"],
-                    },
-                }
-            ],
         },
         "sources": ["ferc1"],
     },
@@ -42,30 +33,12 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "time_index",
                 "load_mw",
             ],
-            "foreignKeys": [
-                {
-                    "fields": ["region_id_epaipm"],
-                    "reference": {
-                        "resource": "regions_entity_epaipm",
-                        "fields": ["region_id_epaipm"],
-                    },
-                }
-            ],
         },
     },
     {
         "name": "plant_region_map_epaipm",
         "schema": {
             "fields": ["plant_id_eia", "region"],
-            "foreignKeys": [
-                {
-                    "fields": ["region"],
-                    "reference": {
-                        "resource": "regions_entity_epaipm",
-                        "fields": ["region_id_epaipm"],
-                    },
-                }
-            ],
         },
     },
     {
@@ -78,15 +51,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia", "utility_id_pudl"],
             "primaryKey": ["utility_id_eia"],
-            "foreignKeys": [
-                {
-                    "fields": ["utility_id_pudl"],
-                    "reference": {
-                        "resource": "utilities_pudl",
-                        "fields": ["utility_id_pudl"],
-                    },
-                }
-            ],
         },
     },
     {
@@ -118,22 +82,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         "schema": {
             "fields": ["utility_id_ferc1", "plant_name_ferc1", "plant_id_pudl"],
             "primaryKey": ["utility_id_ferc1", "plant_name_ferc1"],
-            "foreignKeys": [
-                {
-                    "fields": ["utility_id_ferc1"],
-                    "reference": {
-                        "resource": "utilities_ferc1",
-                        "fields": ["utility_id_ferc1"],
-                    },
-                },
-                {
-                    "fields": ["plant_id_pudl"],
-                    "reference": {
-                        "resource": "plants_pudl",
-                        "fields": ["plant_id_pudl"],
-                    },
-                },
-            ],
         },
     },
     {
@@ -146,15 +94,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "net_generation_mwh",
             ],
             "primaryKey": ["plant_id_eia", "generator_id", "report_date"],
-            "foreignKeys": [
-                {
-                    "fields": ["plant_id_eia", "generator_id"],
-                    "reference": {
-                        "resource": "generators_entity_eia",
-                        "fields": ["plant_id_eia", "generator_id"],
-                    },
-                }
-            ],
         },
         "sources": ["eia923"],
     },
@@ -192,15 +131,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "previously_canceled",
             ],
             "primaryKey": ["plant_id_eia", "generator_id"],
-            "foreignKeys": [
-                {
-                    "fields": ["plant_id_eia"],
-                    "reference": {
-                        "resource": "plants_entity_eia",
-                        "fields": ["plant_id_eia"],
-                    },
-                }
-            ],
         },
     },
     {
@@ -249,15 +179,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "opex_misc_plant",
                 "opex_total",
                 "opex_per_mwh",
-            ],
-            "foreignKeys": [
-                {
-                    "fields": ["utility_id_ferc1", "plant_name_ferc1"],
-                    "reference": {
-                        "resource": "plants_ferc1",
-                        "fields": ["utility_id_ferc1", "plant_name_ferc1"],
-                    },
-                }
             ],
         },
         "sources": ["ferc1"],
@@ -366,15 +287,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "transmission_total",
             ],
             "primaryKey": ["utility_id_ferc1", "report_year", "amount_type"],
-            "foreignKeys": [
-                {
-                    "fields": ["utility_id_ferc1"],
-                    "reference": {
-                        "resource": "utilities_ferc1",
-                        "fields": ["utility_id_ferc1"],
-                    },
-                }
-            ],
         },
         "sources": ["ferc1"],
     },
@@ -462,22 +374,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "retirement_date",
             ],
             "primaryKey": ["plant_id_eia", "generator_id", "report_date"],
-            "foreignKeys": [
-                {
-                    "fields": ["plant_id_eia", "generator_id"],
-                    "reference": {
-                        "resource": "generators_entity_eia",
-                        "fields": ["plant_id_eia", "generator_id"],
-                    },
-                },
-                {
-                    "fields": ["utility_id_eia"],
-                    "reference": {
-                        "resource": "utilities_entity_eia",
-                        "fields": ["utility_id_eia"],
-                    },
-                },
-            ],
         },
         "sources": ["eia860"],
     },
@@ -499,22 +395,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
             ],
             "primaryKey": [
                 "report_date", "plant_id_eia", "generator_id", "owner_utility_id_eia"
-            ],
-            "foreignKeys": [
-                {
-                    "fields": ["utility_id_eia"],
-                    "reference": {
-                        "resource": "utilities_entity_eia",
-                        "fields": ["utility_id_eia"],
-                    },
-                },
-                {
-                    "fields": ["plant_id_eia", "generator_id"],
-                    "reference": {
-                        "resource": "generators_entity_eia",
-                        "fields": ["plant_id_eia", "generator_id"],
-                    },
-                },
             ],
         },
         "sources": ["eia860"],
@@ -548,22 +428,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "leased_plant",
             ],
             "primaryKey": ["utility_id_ferc1", "report_year", "line_id"],
-            "foreignKeys": [
-                {
-                    "fields": ["utility_id_ferc1"],
-                    "reference": {
-                        "resource": "utilities_ferc1",
-                        "fields": ["utility_id_ferc1"],
-                    },
-                },
-                {
-                    "fields": ["line_id"],
-                    "reference": {
-                        "resource": "ferc_depreciation_lines",
-                        "fields": ["line_id"],
-                    },
-                },
-            ],
         },
         "sources": ["ferc1"],
     },
@@ -599,43 +463,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "moisture_content_pct",
                 "chlorine_content_ppm",
             ],
-            "foreignKeys": [
-                {
-                    "fields": ["plant_id_eia"],
-                    "reference": {
-                        "resource": "plants_entity_eia",
-                        "fields": ["plant_id_eia"],
-                    },
-                },
-                {
-                    "fields": ["energy_source_code"],
-                    "reference": {
-                        "resource": "energy_source_eia923",
-                        "fields": ["abbr"],
-                    },
-                },
-                {
-                    "fields": ["mine_id_pudl"],
-                    "reference": {
-                        "resource": "coalmine_eia923",
-                        "fields": ["mine_id_pudl"],
-                    },
-                },
-                {
-                    "fields": ["primary_transportation_mode_code"],
-                    "reference": {
-                        "resource": "transport_modes_eia923",
-                        "fields": ["abbr"],
-                    },
-                },
-                {
-                    "fields": ["secondary_transportation_mode_code"],
-                    "reference": {
-                        "resource": "transport_modes_eia923",
-                        "fields": ["abbr"],
-                    },
-                },
-            ],
         },
         "sources": ["eia923"],
     },
@@ -645,15 +472,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         "schema": {
             "fields": ["utility_id_ferc1", "utility_name_ferc1", "utility_id_pudl"],
             "primaryKey": ["utility_id_ferc1"],
-            "foreignKeys": [
-                {
-                    "fields": ["utility_id_pudl"],
-                    "reference": {
-                        "resource": "utilities_pudl",
-                        "fields": ["utility_id_pudl"],
-                    },
-                }
-            ],
         },
     },
     {
@@ -669,15 +487,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "bga_source",
             ],
             "primaryKey": ["plant_id_eia", "report_date", "generator_id", "boiler_id"],
-            "foreignKeys": [
-                {
-                    "fields": ["plant_id_eia", "generator_id"],
-                    "reference": {
-                        "resource": "generators_entity_eia",
-                        "fields": ["plant_id_eia", "generator_id"],
-                    },
-                }
-            ],
         },
         "sources": ["eia860"],
     },
@@ -711,15 +520,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         "schema": {
             "fields": ["plant_id_eia", "plant_name_eia", "plant_id_pudl"],
             "primaryKey": ["plant_id_eia"],
-            "foreignKeys": [
-                {
-                    "fields": ["plant_id_pudl"],
-                    "reference": {
-                        "resource": "plants_pudl",
-                        "fields": ["plant_id_pudl"],
-                    },
-                }
-            ],
         },
     },
     {
@@ -735,22 +535,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         "schema": {
             "fields": ["utility_id_pudl", "plant_id_pudl"],
             "primaryKey": ["utility_id_pudl", "plant_id_pudl"],
-            "foreignKeys": [
-                {
-                    "fields": ["utility_id_pudl"],
-                    "reference": {
-                        "resource": "utilities_pudl",
-                        "fields": ["utility_id_pudl"],
-                    },
-                },
-                {
-                    "fields": ["plant_id_pudl"],
-                    "reference": {
-                        "resource": "plants_pudl",
-                        "fields": ["plant_id_pudl"],
-                    },
-                },
-            ],
         },
     },
     {
@@ -782,15 +566,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "water_source",
             ],
             "primaryKey": ["plant_id_eia", "report_date"],
-            "foreignKeys": [
-                {
-                    "fields": ["plant_id_eia"],
-                    "reference": {
-                        "resource": "plants_entity_eia",
-                        "fields": ["plant_id_eia"],
-                    },
-                }
-            ],
         },
         "sources": ["eia860"],
     },
@@ -811,33 +586,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "fuel_consumed_mmbtu",
                 "fuel_consumed_for_electricity_mmbtu",
                 "net_generation_mwh",
-            ],
-            "foreignKeys": [
-                {
-                    "fields": ["plant_id_eia"],
-                    "reference": {
-                        "resource": "plants_entity_eia",
-                        "fields": ["plant_id_eia"],
-                    },
-                },
-                {
-                    "fields": ["fuel_type"],
-                    "reference": {"resource": "fuel_type_eia923", "fields": ["abbr"]},
-                },
-                {
-                    "fields": ["fuel_type_code_aer"],
-                    "reference": {
-                        "resource": "fuel_type_aer_eia923",
-                        "fields": ["abbr"],
-                    },
-                },
-                {
-                    "fields": ["prime_mover_code"],
-                    "reference": {
-                        "resource": "prime_movers_eia923",
-                        "fields": ["abbr"],
-                    },
-                },
             ],
         },
         "sources": ["eia923"],
@@ -865,15 +613,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "opex_maintenance",
                 "fuel_type",
                 "fuel_cost_per_mmbtu",
-            ],
-            "foreignKeys": [
-                {
-                    "fields": ["plant_name_original", "utility_id_ferc1"],
-                    "reference": {
-                        "resource": "plants_ferc1",
-                        "fields": ["plant_name_ferc1", "utility_id_ferc1"],
-                    },
-                }
             ],
         },
         "sources": ["ferc1"],
@@ -924,15 +663,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "opex_total",
                 "opex_per_mwh",
             ],
-            "foreignKeys": [
-                {
-                    "fields": ["plant_name_ferc1", "utility_id_ferc1"],
-                    "reference": {
-                        "resource": "plants_ferc1",
-                        "fields": ["plant_name_ferc1", "utility_id_ferc1"],
-                    },
-                }
-            ],
         },
         "sources": ["ferc1"],
     },
@@ -949,12 +679,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "fuel_mmbtu_per_unit",
                 "sulfur_content_pct",
                 "ash_content_pct",
-            ],
-            "foreignKeys": [
-                {
-                    "fields": ["fuel_type_code"],
-                    "reference": {"resource": "fuel_type_eia923", "fields": ["abbr"]},
-                }
             ],
         },
         "sources": ["eia923"],
@@ -995,22 +719,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "firm_ttc_mw",
                 "nonfirm_ttc_mw",
                 "tariff_mills_kwh",
-            ],
-            "foreignKeys": [
-                {
-                    "fields": ["region_to"],
-                    "reference": {
-                        "resource": "regions_entity_epaipm",
-                        "fields": ["region_id_epaipm"],
-                    },
-                },
-                {
-                    "fields": ["region_from"],
-                    "reference": {
-                        "resource": "regions_entity_epaipm",
-                        "fields": ["region_id_epaipm"],
-                    },
-                },
             ],
         },
     },
@@ -1060,15 +768,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "opex_per_mwh",
                 "asset_retirement_cost",
             ],
-            "foreignKeys": [
-                {
-                    "fields": ["plant_name_ferc1", "utility_id_ferc1"],
-                    "reference": {
-                        "resource": "plants_ferc1",
-                        "fields": ["plant_name_ferc1", "utility_id_ferc1"],
-                    },
-                }
-            ],
         },
         "sources": ["ferc1"],
     },
@@ -1088,15 +787,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "plants_reported_other_relationship",
             ],
             "primaryKey": ["utility_id_eia", "report_date"],
-            "foreignKeys": [
-                {
-                    "fields": ["utility_id_eia"],
-                    "reference": {
-                        "resource": "utilities_entity_eia",
-                        "fields": ["utility_id_eia"],
-                    },
-                }
-            ],
         },
         "sources": ["eia860"],
     },
@@ -1105,15 +795,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         "schema": {
             "fields": ["plant_id_eia", "boiler_id", "prime_mover_code"],
             "primaryKey": ["plant_id_eia", "boiler_id"],
-            "foreignKeys": [
-                {
-                    "fields": ["plant_id_eia"],
-                    "reference": {
-                        "resource": "plants_entity_eia",
-                        "fields": ["plant_id_eia"],
-                    },
-                }
-            ],
         },
     },
     {
@@ -1156,22 +837,6 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "region_to",
                 "firm_ttc_mw",
                 "nonfirm_ttc_mw",
-            ],
-            "foreignKeys": [
-                {
-                    "fields": ["region_to"],
-                    "reference": {
-                        "resource": "regions_entity_epaipm",
-                        "fields": ["region_id_epaipm"],
-                    },
-                },
-                {
-                    "fields": ["region_from"],
-                    "reference": {
-                        "resource": "regions_entity_epaipm",
-                        "fields": ["region_id_epaipm"],
-                    },
-                },
             ],
         },
     },
