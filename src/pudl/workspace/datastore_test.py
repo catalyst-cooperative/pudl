@@ -256,3 +256,6 @@ class TestLayeredCache(unittest.TestCase):
         self.layered_cache.set(res, b"sample")
         self.assertFalse(self.layered_cache.contains(res))
         self.layered_cache.delete(res)
+
+
+# TODO(rousik): add tests for Datastore itself

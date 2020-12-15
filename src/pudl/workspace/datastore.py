@@ -261,7 +261,8 @@ class GoogleCloudStorageCache(AbstractCache):
 
     def _blob(self, resource: PudlResourceKey) -> Blob:
         """Retrieve Blob object associated with given resource."""
-        return self._bucket.blob(self._path_prefix / resource.get_local_path())
+        p = (self._path_prefix / resource.get_local_path()).as_posix().lstrip('/')
+        return self._bucket.blob(p)
 
     def get(self, resource: PudlResourceKey) -> bytes:
         return self._blob(resource).download_as_bytes()
@@ -350,14 +351,14 @@ class Datastore:
               to Zenodo servers.
 
         """
-        self._cache = LayeredCache()
+        self.cache = LayeredCache()
         self._datapackage_descriptors = {}  # type: Dict[str, DatapackageDescriptor]
 
         if local_cache_path:
-            self._cache.add_cache_layer(
+            self.cache.add_cache_layer(
                 LocalFileCache(local_cache_path))
         if gcs_cache_path:
-            self._cache.add_cache_layer(GoogleCloudStorageCache(gcs_cache_path))
+            self.cache.add_cache_layer(GoogleCloudStorageCache(gcs_cache_path))
 
         self._zenodo_fetcher = ZenodoFetcher(
             sandbox=sandbox,
@@ -372,15 +373,15 @@ class Datastore:
         doi = self._zenodo_fetcher.get_doi(dataset)
         if doi not in self._datapackage_descriptors:
             res = PudlResourceKey(dataset, doi, "datapackage.json")
-            if self._cache.contains(res):
+            if self.cache.contains(res):
                 self._datapackage_descriptors[doi] = DatapackageDescriptor(
-                    json.loads(self._cache.get(res).decode('utf-8')),
+                    json.loads(self.cache.get(res).decode('utf-8')),
                     dataset=dataset,
                     doi=doi)
             else:
                 desc = self._zenodo_fetcher.get_descriptor(dataset)
                 self._datapackage_descriptors[doi] = desc
-                self._cache.set(res, bytes(desc.get_json_string(), "utf-8"))
+                self.cache.set(res, bytes(desc.get_json_string(), "utf-8"))
         return self._datapackage_descriptors[doi]
 
     def get_resources(self, dataset: str, **filters: Any) -> Iterator[Tuple[PudlResourceKey, bytes]]:
@@ -396,13 +397,13 @@ class Datastore:
         """
         desc = self.get_datapackage_descriptor(dataset)
         for res in desc.get_resources(**filters):
-            if self._cache.contains(res):
+            if self.cache.contains(res):
                 logger.debug(f"Retrieved {res} from cache.")
-                yield (res, self._cache.get(res))
+                yield (res, self.cache.get(res))
             else:
                 logger.debug(f"Retrieved {res} from zenodo.")
                 contents = self._zenodo_fetcher.get_resource(res)
-                self._cache.set(res, contents)
+                self.cache.set(res, contents)
                 yield (res, contents)
 
     def get_unique_resource(self, dataset: str, **filters: Any) -> bytes:
@@ -478,6 +479,11 @@ Available Sandbox Datasets:
         default=None,
         help="If specified, upload data resources to this GCS bucket"
         )
+    parser.add_argument(
+        "--partition",
+        type=str,
+        help="k1=v1,k2=v2 selectors to apply when retrieving resources.")
+
     return parser.parse_args()
 
 
@@ -493,7 +499,6 @@ def main():
     # if not args.quiet:
     #    logger.addHandler(logging.StreamHandler())
 
-    dataset = args.dataset
     pudl_in = args.pudl_in
 
     if pudl_in is None:
@@ -503,27 +508,31 @@ def main():
     else:
         pudl_in = Path(pudl_in)
 
-    ds = Datastore(
-        pudl_in,
-        sandbox=args.sandbox
-    )
-
-    if dataset is None:
-        if args.sandbox:
-            datasets = DOI["sandbox"].keys()
-        else:
-            datasets = DOI["production"].keys()
-    else:
-        datasets = [dataset]
-
+    dstore = Datastore(sandbox=args.sandbox)
     if args.populate_gcs_cache:
-        ds = Datastore(gcs_cache_path=args.populate_gcs_cache, sandbox=sandbox)
+        dstore.cache.add_cache_layer(GoogleCloudStorageCache(args.populate_gcs_cache))
+    else:
+        dstore.cache.add_cache_layer(LocalFileCache(Path(pudl_in) / "data"))
+
+    datasets = []
+    if args.dataset:
+        datasets.append(args.dataset)
+    else:
+        datasets = dstore.get_known_datasets()
+
+    partition = {}
+    if args.partition:
+        for kv in args.partition.split(','):
+            k, v = kv.split('=')
+            partition[k] = v
+        logger.info(f"Only retrieving resources for partition: {partition}")
 
     for selection in datasets:
         if args.validate:
-            ds.validate(selection)
+            dstore.validate(selection)
         else:
-            list(ds.get_resources())
+            for res, _ in dstore.get_resources(selection, **partition):
+                logger.info(f"Retrieved {res}.")
 
 if __name__ == "__main__":
     sys.exit(main())
