@@ -114,6 +114,11 @@ class TestZenodoFetcher(unittest.TestCase):
                 dataset="epacems",
                 doi=self.PROD_EPACEMS_DOI)})
 
+    def testGetKnownDatasets(self):
+        self.assertEqual(
+                sorted(datastore.ZenodoFetcher.DOI["production"]),
+                self.fetcher.get_known_datasets())
+
     def testProdEpacemsDoiMatches(self):
         """Most of the tests assume specific DOI for production epacems dataset.
 
