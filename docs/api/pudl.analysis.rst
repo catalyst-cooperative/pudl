@@ -7,6 +7,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   pudl.analysis.allocate_net_gen
    pudl.analysis.demand_mapping
    pudl.analysis.mcoe
    pudl.analysis.service_territory

@@ -16,10 +16,14 @@ from pudl.output.pudltabl import PudlTabl
 
 logger = logging.getLogger(__name__)
 
-START_DATE_EIA = pd.to_datetime(f"{min(pc.working_years['eia923'])}-01-01")
-END_DATE_EIA = pd.to_datetime(f"{max(pc.working_years['eia923'])}-12-31")
-START_DATE_FERC1 = pd.to_datetime(f"{min(pc.working_years['ferc1'])}-01-01")
-END_DATE_FERC1 = pd.to_datetime(f"{max(pc.working_years['ferc1'])}-12-31")
+START_DATE_EIA = pd.to_datetime(
+    f"{min(pc.working_partitions['eia923']['years'])}-01-01")
+END_DATE_EIA = pd.to_datetime(
+    f"{max(pc.working_partitions['eia923']['years'])}-12-31")
+START_DATE_FERC1 = pd.to_datetime(
+    f"{min(pc.working_partitions['ferc1']['years'])}-01-01")
+END_DATE_FERC1 = pd.to_datetime(
+    f"{max(pc.working_partitions['ferc1']['years'])}-12-31")
 
 
 def pytest_addoption(parser):
@@ -64,7 +68,7 @@ def fast_tests(request):
     We sometimes want to do a quick sanity check while testing locally, and
     that can be accomplished by setting the --fast flag on the command line.
     if fast_tests is true, then we only use 1 year of data, otherwise we use
-    all available data (all the working_years for each dataset).
+    all available data (all the working_partitions for each dataset).
 
     Additionally, if we are on a CI platform, we *always* want to use the fast
     tests, regardless of what has been passed in on the command line with the
@@ -147,8 +151,9 @@ def pudl_out_eia(live_pudl_db, pudl_engine, request):
                     start_date=START_DATE_EIA,
                     end_date=END_DATE_EIA,
                     freq=request.param,
-                    fill=True,
-                    roll=True,
+                    fill_fuel_cost=True,
+                    roll_fuel_cost_=True,
+                    fill_net_gen=True,
                     )
 
 

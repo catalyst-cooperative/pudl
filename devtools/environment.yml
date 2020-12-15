@@ -65,6 +65,7 @@ dependencies:
   - tqdm                # base TODO: find usage. Does it need to be in base?
   - twine               # dev
   - xlsxwriter          # base
+  - xlrd<2.0            # base xlrd 2.0 and later drops xlsx support
   - pip:
     - flake8-use-fstring # dev
     - goodtables-pandas-py>=0.1.1  # base get in conda!

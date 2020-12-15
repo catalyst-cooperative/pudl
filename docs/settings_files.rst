@@ -88,8 +88,8 @@ are described below::
       └── another data package...
 
 The dataset names must not be changed. The dataset names enabled include:
-``eia`` (which includes Forms 860/923 only for now), ``ferc1``, ``epacems``,
-and ``epaipm``. Any other dataset name will result in an assertion error.
+``eia`` (which includes Forms 860/923 only for now), ``ferc1``, and ``epacems``.
+Any other dataset name will result in an assertion error.
 
 .. note::
 

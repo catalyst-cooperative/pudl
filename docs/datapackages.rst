@@ -82,7 +82,7 @@ files indicate which data packages should be merged and loaded into SQLite.
 Apache Parquet
 ^^^^^^^^^^^^^^
 
-The :ref:`data-epacems` data approaches 100 GB in size, which is too large to
+The :doc:`data_sources/epacems` data approaches 100 GB in size, which is too large to
 work with directly in memory on most systems, and take a very very long time
 to load into SQLite. Instead, we recommend converting the Hourly Emissions
 table into an `Apache Parquet <https://parquet.apache.org>`__ dataset which is

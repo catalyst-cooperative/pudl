@@ -25,11 +25,6 @@ from google.cloud import storage
 
 logger = logging.getLogger(__name__)
 
-# The Zenodo tokens recorded here should have read-only access to our archives.
-# Including them here is correct in order to allow public use of this tool, so
-# long as we stick to read-only keys.
-
-
 
 class PudlResourceKey(NamedTuple):
     """Uniquely identifies a specific resource."""
@@ -97,6 +92,10 @@ class DatapackageDescriptor:
 class ZenodoFetcher:
     """API for fetching datapackage descriptors and resource contents from zenodo."""
 
+
+    # Zenodo tokens recorded here should have read-only access to our archives.
+    # Including them here is correct in order to allow public use of this tool, so
+    # long as we stick to read-only keys.
     TOKEN = {
         # Read-only personal access tokens for pudl@catalyst.coop:
         "sandbox": "qyPC29wGPaflUUVAv1oGw99ytwBqwEEdwi4NuUrpwc3xUcEwbmuB4emwysco",
@@ -107,6 +106,7 @@ class ZenodoFetcher:
         "sandbox": {
             "censusdp1tract": "10.5072/zenodo.674992",
             "eia860": "10.5072/zenodo.672210",
+            "eia860m": "10.5072/zenodo.692655",
             "eia861": "10.5072/zenodo.687052",
             "eia923": "10.5072/zenodo.687071",
             "epacems": "10.5072/zenodo.672963",
@@ -116,6 +116,7 @@ class ZenodoFetcher:
         "production": {
             "censusdp1tract": "10.5281/zenodo.4127049",
             "eia860": "10.5281/zenodo.4127027",
+            "eia860m": "10.5281/zenodo.4281337",
             "eia861": "10.5281/zenodo.4127029",
             "eia923": "10.5281/zenodo.4127040",
             "epacems": "10.5281/zenodo.4127055",
@@ -417,8 +418,8 @@ class Datastore:
 
 def parse_command_line():
     """Collect the command line arguments."""
-    prod_dois = "\n".join([f"    - {x}" for x in DOI["production"].keys()])
-    sand_dois = "\n".join([f"    - {x}" for x in DOI["sandbox"].keys()])
+    prod_dois = "\n".join([f"    - {x}" for x in ZenodoFetcher.DOI["production"]])
+    sand_dois = "\n".join([f"    - {x}" for x in ZenodoFetcher.DOI["sandbox"]])
 
     dataset_msg = f"""
 Available Production Datasets:
