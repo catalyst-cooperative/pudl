@@ -198,6 +198,13 @@ class ZenodoFetcher:
 
 
 class AbstractCache(ABC):
+
+    def __init__(self, read_only: bool = False):
+        self._read_only = read_only
+
+    def is_read_only(self) -> bool:
+        return self._read_only
+
     @abstractmethod
     def get(self, resource: PudlResourceKey) -> bytes:
         """Retrieves content of given resource or throws KeyError."""
@@ -221,22 +228,28 @@ class AbstractCache(ABC):
 
 class LocalFileCache(AbstractCache):
     """Simple key-value store mapping PudlResourceKeys to ByteIO contents."""
-    def __init__(self, cache_root_dir: Path):
+    def __init__(self, cache_root_dir: Path, **kwargs: Any):
+        super().__init__(**kwargs)
         self.cache_root_dir = cache_root_dir
 
     def _resource_path(self, resource: PudlResourceKey) -> Path:
-        doi_dirname = re.sub("/", "-", resource.doi)
         return self.cache_root_dir / resource.get_local_path() 
 
     def get(self, resource: PudlResourceKey) -> bytes:
         return self._resource_path(resource).open("rb").read()
 
     def set(self, resource: PudlResourceKey, content: bytes):
+        if self.is_read_only():
+            logger.debug(f"Read only cache: ignoring set({resource})")
+            return
         path = self._resource_path(resource)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.open("wb").write(content)
 
     def delete(self, resource: PudlResourceKey):
+        if self.is_read_only():
+            logger.debug(f"Read only cache: ignoring delete({resource})")
+            return
         self._resource_path(resource).unlink(missing_ok=True)
 
     def contains(self, resource: PudlResourceKey) -> bool:
@@ -246,13 +259,14 @@ class LocalFileCache(AbstractCache):
 class GoogleCloudStorageCache(AbstractCache):
     """Implements file cache backed by Google Cloud Storage bucket."""
 
-    def __init__(self, gcs_path: str):
+    def __init__(self, gcs_path: str, **kwargs: Any):
         """Constructs new cache that stores files in Google Cloud Storage:
 
         Args:
             gcs_path (str): path to where the data should be stored. This should
               be in the form of gs://{bucket-name}/{optional-path-prefix}
         """
+        super().__init__(**kwargs)
         parsed_url = urlparse(gcs_path)
         if parsed_url.scheme != "gs":
             raise ValueError(f"gsc_path should start with gs:// (found: {gcs_path})")
@@ -287,14 +301,15 @@ class LayeredCache(AbstractCache):
     Only the closest layer is being written to (set, delete), while all remaining 
     layers are read-only (get).
     """
-    def __init__(self, *caches: List[AbstractCache]):
+    def __init__(self, *caches: List[AbstractCache], **kwargs: Any):
         """Creates layered cache consisting of given cache layers.
 
         Args:
             caches: List of caching layers to uses. These are given in the order
               of decreasing priority.
         """
-        self._caches = list(*caches) or []  # type: List[AbstractCache]
+        super().__init__(**kwargs)
+        self._caches = list(caches)  # type: List[AbstractCache]
 
     def add_cache_layer(self, cache: AbstractCache):
         """Adds caching layer. The priority is below all other."""
@@ -310,12 +325,24 @@ class LayeredCache(AbstractCache):
         raise KeyError(f"{resource} not found in the layered cache")
 
     def set(self, resource: PudlResourceKey, value):
-        if self._caches:
-            self._caches[0].set(resource, value)
+        if self.is_read_only():
+            logger.debug(f"Read only cache: ignoring set({resource})")
+            return
+        for cache_layer in self._caches:
+            if cache_layer.is_read_only():
+                continue
+            cache_layer.set(resource, value)
+            break
 
     def delete(self, resource: PudlResourceKey):
-        if self._caches:
-            self._caches[0].delete(resource)
+        if self.is_read_only():
+            logger.debug(f"Readonly cache: not removing {resource}")
+            return
+        for cache_layer in self._caches:
+            if cache_layer.is_read_only():
+                continue
+            cache_layer.delete(resource)
+            break
 
     def contains(self, resource: PudlResourceKey) -> bool:
         for cache in self._caches:
