@@ -197,6 +197,23 @@ class TestLocalFileCache(unittest.TestCase):
         self.cache.delete(res)
         self.assertFalse(self.cache.contains(res))
 
+    def testReadOnlySetAndDelete(self):
+        res = datastore.PudlResourceKey("a", "b", "c")
+        ro_cache = datastore.LocalFileCache(Path(self.test_dir), read_only=True)
+        self.assertTrue(ro_cache.is_read_only())
+        
+        ro_cache.set(res, b"sample")
+        self.assertFalse(ro_cache.contains(res))
+
+        # Use read-write cache to insert resource
+        self.cache.set(res, b"sample")
+        self.assertFalse(self.cache.is_read_only())
+        self.assertTrue(ro_cache.contains(res))
+
+        # Deleting via ro cache should not happen
+        ro_cache.delete(res)
+        self.assertTrue(ro_cache.contains(res))
+
 
 class TestLayeredCache(unittest.TestCase):
     def setUp(self):
@@ -256,6 +273,52 @@ class TestLayeredCache(unittest.TestCase):
         self.layered_cache.set(res, b"sample")
         self.assertFalse(self.layered_cache.contains(res))
         self.layered_cache.delete(res)
+
+    def testReadOnlyLayersSkipped(self):
+        c1 = datastore.LocalFileCache(self.test_dir_1, read_only=True)
+        c2 = datastore.LocalFileCache(self.test_dir_2)
+        lc = datastore.LayeredCache(c1, c2)
+
+        res = datastore.PudlResourceKey("a", "b", "c")
+
+        self.assertFalse(lc.contains(res))
+        self.assertFalse(c1.contains(res))
+        self.assertFalse(c2.contains(res))
+
+        lc.set(res, b"test")
+        self.assertTrue(lc.contains(res))
+        self.assertFalse(c1.contains(res))
+        self.assertTrue(c2.contains(res))
+
+        lc.delete(res)
+        self.assertFalse(lc.contains(res))
+        self.assertFalse(c1.contains(res))
+        self.assertFalse(c2.contains(res))
+
+    def testReadOnlyLayeredCache(self):
+        r1 = datastore.PudlResourceKey("a", "b", "r1")
+        r2 = datastore.PudlResourceKey("a", "b", "r2")
+        self.cache_1.set(r1, b"xxx")
+        self.cache_2.set(r2, b"yyy")
+        self.assertTrue(self.cache_1.contains(r1))
+        self.assertTrue(self.cache_2.contains(r2))
+        lc = datastore.LayeredCache(self.cache_1, self.cache_2, read_only=True)
+
+        self.assertTrue(lc.contains(r1))
+        self.assertTrue(lc.contains(r2))
+
+        lc.delete(r1)
+        lc.delete(r2)
+        self.assertTrue(lc.contains(r1))
+        self.assertTrue(lc.contains(r2))
+        self.assertTrue(self.cache_1.contains(r1))
+        self.assertTrue(self.cache_2.contains(r2))
+
+        r_new = datastore.PudlResourceKey("a", "b", "new")
+        lc.set(r_new, b"xyz")
+        self.assertFalse(lc.contains(r_new))
+        self.assertFalse(self.cache_1.contains(r_new))
+        self.assertFalse(self.cache_2.contains(r_new))
 
 
 # TODO(rousik): add tests for Datastore itself
