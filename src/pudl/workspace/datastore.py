@@ -70,8 +70,10 @@ class DatapackageDescriptor:
         parts = res.get('parts', {})
         return all(parts.get(k) == v for k, v in filters.items())
 
-    def get_resources(self, **filters: Any) -> Iterator[PudlResourceKey]:
+    def get_resources(self, name: str = None, **filters: Any) -> Iterator[PudlResourceKey]:
         for res in self.datapackage_json["resources"]:
+            if name and res["name"] != name:
+                continue
             if self._matches(res, **filters):
                 yield PudlResourceKey(
                     dataset=self.dataset,

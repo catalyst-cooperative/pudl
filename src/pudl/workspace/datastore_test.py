@@ -60,6 +60,11 @@ class TestDatapackageDescriptor(unittest.TestCase):
             [],
             list(self.descriptor.get_resources(flavor="blueberry")))
 
+    def testGetResourcesByName(self):
+        self.assertEqual(
+            [PudlResourceKey("epacems", "123", "second-blue")],
+            list(self.descriptor.get_resources(name="second-blue")))
+
     def testGetJsonString(self):
         self.assertEqual(
             self.MOCK_DATAPACKAGE,
@@ -149,6 +154,7 @@ class TestZenodoFetcher(unittest.TestCase):
         res = self.fetcher.get_resource(
             PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "first"))
         self.assertEqual(b"blah", res)
+
 
 # TODO(rousik): add tests for the caching layers
 # TODO(rousik): add tests for resource filtering
