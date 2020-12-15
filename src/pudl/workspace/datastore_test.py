@@ -244,3 +244,10 @@ class TestLayeredCache(unittest.TestCase):
         self.assertFalse(self.cache_1.contains(res))
         self.assertTrue(self.cache_2.contains(res))
         self.assertEqual(b"secondLayer", self.layered_cache.get(res))
+
+    def testSetWithNoLayers(self):
+        res = datastore.PudlResourceKey("a", "b", "c")
+        self.assertFalse(self.layered_cache.contains(res))
+        self.layered_cache.set(res, b"sample")
+        self.assertFalse(self.layered_cache.contains(res))
+        self.layered_cache.delete(res)

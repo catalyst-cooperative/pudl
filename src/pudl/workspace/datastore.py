@@ -305,10 +305,12 @@ class LayeredCache(AbstractCache):
         raise KeyError(f"{resource} not found in the layered cache")
 
     def set(self, resource: PudlResourceKey, value):
-        self._caches[0].set(resource, value)
+        if self._caches:
+            self._caches[0].set(resource, value)
 
     def delete(self, resource: PudlResourceKey):
-        self._caches[0].delete(resource)
+        if self._caches:
+            self._caches[0].delete(resource)
 
     def contains(self, resource: PudlResourceKey) -> bool:
         for cache in self._caches:
@@ -349,7 +351,7 @@ class Datastore:
 
         if local_cache_path:
             self._cache.add_cache_layer(
-                LocalFileCache(local_cache_path / "data"))
+                LocalFileCache(local_cache_path))
         if gcs_cache_path:
             self._cache.add_cache_layer(GoogleCloudStorageCache(gcs_cache_path))
 
@@ -364,13 +366,13 @@ class Datastore:
             res = PudlResourceKey(dataset, doi, "datapackage.json")
             if self._cache.contains(res):
                 self._datapackage_descriptors[doi] = DatapackageDescriptor(
-                    json.loads(self._cache.get(res)),
+                    json.loads(self._cache.get(res).decode('utf-8')),
                     dataset=dataset,
                     doi=doi)
             else:
                 desc = self._zenodo_fetcher.get_descriptor(dataset)
                 self._datapackage_descriptors[doi] = desc
-                self._cache.set(res, desc.get_json_string())
+                self._cache.set(res, bytes(desc.get_json_string(), "utf-8"))
         return self._datapackage_descriptors[doi]
 
     def get_resources(self, dataset: str, **filters: Any) -> Iterator[Tuple[PudlResourceKey, bytes]]:
@@ -387,8 +389,10 @@ class Datastore:
         desc = self.get_datapackage_descriptor(dataset)
         for res in desc.get_resources(**filters):
             if self._cache.contains(res):
+                logger.debug(f"Retrieved {res} from cache.")
                 yield (res, self._cache.get(res))
             else:
+                logger.debug(f"Retrieved {res} from zenodo.")
                 contents = self._zenodo_fetcher.get_resource(res)
                 self._cache.set(res, contents)
                 yield (res, contents)
