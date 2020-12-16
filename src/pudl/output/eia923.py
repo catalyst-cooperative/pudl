@@ -11,8 +11,6 @@ import pudl
 
 logger = logging.getLogger(__name__)
 
-API_KEY_EIA = os.environ.get('API_KEY_EIA')
-
 BASE_URL_EIA = "http://api.eia.gov/"
 
 FUEL_TYPE_EIAAPI_MAP = {
@@ -571,7 +569,10 @@ def generation_eia923(pudl_engine, freq=None,
 
 def make_url_cat_eiaapi(category_id):
     """Generate a url for a category from EIA's API."""
-    return f"{BASE_URL_EIA}category/?api_key={API_KEY_EIA}&category_id={category_id}"
+    return (
+        f"{BASE_URL_EIA}category/?api_key={os.environ.get('API_KEY_EIA')}"
+        f"&category_id={category_id}"
+    )
 
 
 def make_url_series_eiaapi(series_id):
@@ -582,7 +583,10 @@ def make_url_series_eiaapi(series_id):
             Too many series ids in this request: {series_id.count(';')}
             EIA allows up to 100 series in a request. Reduce the selection.
             """)
-    return f"{BASE_URL_EIA}series/?api_key={API_KEY_EIA}&series_id={series_id}"
+    return (
+        f"{BASE_URL_EIA}series/?api_key={os.environ.get('API_KEY_EIA')}"
+        f"&series_id={series_id}"
+    )
 
 
 def get_response(url):
@@ -621,8 +625,8 @@ def grab_fuel_state_monthly(cat_id):
 
     except KeyError:
         raise AssertionError(
-            f"Error in Response: {fuel_level_cat.json()['data']['error']}"
-            f"API_KEY_EIA={API_KEY_EIA}"
+            f"Error in Response: {fuel_level_cat.json()['data']['error']}\n"
+            f"API_KEY_EIA={os.environ.get('API_KEY_EIA')}"
         )
     return get_response(make_url_series_eiaapi(series_all))
 
