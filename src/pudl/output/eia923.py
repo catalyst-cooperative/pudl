@@ -621,7 +621,9 @@ def grab_fuel_state_monthly(cat_id):
 
     except KeyError:
         raise AssertionError(
-            f"Error in Response: {fuel_level_cat.json()['data']['error']}")
+            f"Error in Response: {fuel_level_cat.json()['data']['error']}"
+            f"API_KEY_EIA={API_KEY_EIA}"
+        )
     return get_response(make_url_series_eiaapi(series_all))
 
 
