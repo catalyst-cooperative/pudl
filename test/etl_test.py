@@ -18,6 +18,7 @@ import yaml
 import pudl
 from pudl.convert.epacems_to_parquet import epacems_to_parquet
 from pudl.extract.ferc1 import get_dbc_map, get_fields
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,7 @@ def test_epacems_to_parquet(datapkg_bundle,
     )
 
 
-def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
+def test_ferc1_lost_data(pudl_settings_fixture, pudl_datastore_fixture, data_scope):
     """
     Check to make sure we aren't missing any old FERC Form 1 tables or fields.
 
@@ -78,9 +79,7 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
     and field that appears in the historical FERC Form 1 data.
     """
     refyear = max(data_scope['ferc1_years'])
-    ds = pudl.extract.ferc1.Ferc1Datastore(
-        pathlib.Path(pudl_settings_fixture["pudl_in"]),
-        sandbox=pudl_settings_fixture["sandbox"])
+    ds = pudl.extract.ferc1.Ferc1Datastore(pudl_datastore_fixture)
     current_dbc_map = pudl.extract.ferc1.get_dbc_map(ds, year=refyear)
     current_tables = list(current_dbc_map.keys())
     logger.info(f"Checking for new, unrecognized FERC1 "
@@ -133,19 +132,19 @@ def test_ferc1_solo_etl(pudl_settings_fixture,
 class TestFerc1Datastore:
     """Validate the Ferc1 Datastore and integration functions."""
 
-    def test_ferc_folder(self, pudl_ferc1datastore_fixture):
-        """Spot check we get correct folder names per dataset year."""
-        ds = pudl_ferc1datastore_fixture
+    def test_ferc_folder(self, pudl_datastore_fixture):
+        """Spot check we t correct folder names per dataset year."""
+        ds = pudl.extract.ferc1.Ferc1Datastore(pudl_datastore_fixture)
 
-        assert ds.get_dir(1994) == "FORMSADMIN/FORM1/working"
-        assert ds.get_dir(2001) == "UPLOADERS/FORM1/working"
-        assert ds.get_dir(2002) == "FORMSADMIN/FORM1/working"
-        assert ds.get_dir(2010) == "UPLOADERS/FORM1/working"
-        assert ds.get_dir(2015) == "UPLOADERS/FORM1/working"
+        assert ds.get_dir(1994) == Path("FORMSADMIN/FORM1/working")
+        assert ds.get_dir(2001) == Path("UPLOADERS/FORM1/working")
+        assert ds.get_dir(2002) == Path("FORMSADMIN/FORM1/working")
+        assert ds.get_dir(2010) == Path("UPLOADERS/FORM1/working")
+        assert ds.get_dir(2015) == Path("UPLOADERS/FORM1/working")
 
-    def test_get_fields(self, pudl_ferc1datastore_fixture):
+    def test_get_fields(self, pudl_datastore_fixture):
         """Check that the get fields table works as expected."""
-        ds = pudl_ferc1datastore_fixture
+        ds = pudl.extract.ferc1.Ferc1Datastore(pudl_datastore_fixture)
 
         expect_path = pathlib.Path(__file__).parent / \
             "data/ferc1/f1_2018/get_fields.json"
@@ -157,9 +156,9 @@ class TestFerc1Datastore:
         result = get_fields(data)
         assert result == expect
 
-    def test_sample_get_dbc_map(self, pudl_ferc1datastore_fixture):
+    def test_sample_get_dbc_map(self, pudl_datastore_fixture):
         """Test sample_get_dbc_map."""
-        ds = pudl_ferc1datastore_fixture
+        ds = pudl.extract.ferc1.Ferc1Datastore(pudl_datastore_fixture)
 
         table = get_dbc_map(ds, 2018)
         assert table["f1_429_trans_aff"] == {
@@ -263,9 +262,11 @@ class TestExcelExtractor:
 class TestEpaCemsDatastore:
     """Ensure we can extract csv files from the datastore."""
 
-    def test_get_csv(self, pudl_epacemsdatastore_fixture):
+    def test_get_csv(self, pudl_datastore_fixture):
         """Spot check opening of epacems csv file from datastore."""
-        head = b'"STATE","F'
-
-        csv = pudl_epacemsdatastore_fixture.open_csv("ny", 1999, 6)
-        assert csv.read()[:10] == head
+        ds = pudl.extract.epacems.EpaCemsDatastore(pudl_datastore_fixture)
+        df = ds.open_csv(pudl.extract.epacems.EpaCemsPartition(state="NY", year=1999), 6)
+        # TODO(rousik): this is reading file from zenodo which may be expensive, slow
+        # and potentially flaky.
+        assert "state" in df.columns()
+        assert "plant_id_eia" in df.columns()
