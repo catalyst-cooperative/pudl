@@ -18,8 +18,10 @@ extend-ignore =
     # See https://github.com/peterjc/flake8-rst-docstrings/issues/17
     RST201,RST203,RST301,
 rst-roles =
+    attr,
     class,
     func,
+    meth,
     mod,
     ref,
     user,
