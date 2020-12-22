@@ -101,7 +101,7 @@ def extract_fragment(partition: EpaCemsPartition):
         {fragment_name: pandas.DataFrame}
     """
     dfs = []
-    ds = EpaCemsDatastore(Datastore.get_from_context())
+    ds = EpaCemsDatastore(Datastore.from_prefect_context())
     for month in range(1, 13):
         dfs.append(ds.open_csv(partition, month=month))
 

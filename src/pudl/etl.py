@@ -289,9 +289,9 @@ def pudl_task_target_name(**kwargs):
       target=pudl_task_target_name,
       cache_for=timedelta(days=1), cache_validator=all_inputs)
 def _extract_eia860(params):
-    dfs = pudl.extract.eia860.Extractor(Datastore.get_from_context()).extract(year=params['eia860_years'])
+    dfs = pudl.extract.eia860.Extractor(Datastore.from_prefect_context()).extract(year=params['eia860_years'])
     if params['eia860_ytd']:
-        eia860m_dfs = pudl.extract.eia860m.Extractor(Datastore.get_from_context()).extract(
+        eia860m_dfs = pudl.extract.eia860m.Extractor(Datastore.from_prefect_context()).extract(
                 year_month=pc.working_partitions['eia860m']['year_month'])
         dfs = pudl.extract.eia860m.append_eia860m(dfs, eia860m_dfs)
     return dfs
@@ -301,7 +301,7 @@ def _extract_eia860(params):
       target=pudl_task_target_name,
       cache_for=timedelta(days=1), cache_validator=all_inputs)
 def _extract_eia923(params):
-    return pudl.extract.eia923.Extractor(Datastore.get_from_context()).extract(year=params['eia923_years'])
+    return pudl.extract.eia923.Extractor(Datastore.from_prefect_context()).extract(year=params['eia923_years'])
 
 
 @task(result=LocalResult(),
@@ -622,7 +622,7 @@ def _load_static_tables_epaipm():
 
 @task(result=LocalResult(), cache_for=timedelta(days=1), cache_validator=all_inputs)
 def _extract_epaipm(params):
-    return pudl.extract.epaipm.extract(params['epaipm_tables'], Datastore.get_from_context())
+    return pudl.extract.epaipm.extract(params['epaipm_tables'], Datastore.from_prefect_context())
 
 
 @task(result=LocalResult(), cache_for=timedelta(days=1), cache_validator=all_inputs)
@@ -1103,7 +1103,7 @@ def generate_datapkg_bundle(etl_settings,
  
     # Allow for construction of datastore by setting the params to context
     # This will allow us to construct datastore when needed 
-    # by calling Datastore.get_from_context()
+    # by calling Datastore.from_prefect_context()
 
     prefect.context.datastore_config = dict(
             sandbox=pudl_settings.get("sandbox", False), 

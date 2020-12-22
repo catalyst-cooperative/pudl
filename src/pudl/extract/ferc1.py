@@ -540,7 +540,7 @@ def ferc1_to_sqlite(script_settings, pudl_settings, overwrite=SqliteOverwriteMod
     elif overwrite == SqliteOverwriteMode.ONCE and os.path.isfile(urlparse(pudl_settings["ferc1_db"]).path):
         return False
     else:
-        datastore = Ferc1Datastore(Datastore.get_from_context())
+        datastore = Ferc1Datastore(Datastore.from_prefect_context())
         validate_ferc1_to_sqlite_settings(script_settings)
         dbf2sqlite(
             tables=script_settings['ferc1_to_sqlite_tables'],

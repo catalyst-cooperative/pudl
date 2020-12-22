@@ -229,7 +229,8 @@ class Datastore:
             timeout=timeout)
 
     @classmethod
-    def get_from_context(cls):
+    def from_prefect_context(cls):
+        """Returns Datastore instance constructed with the configuration stored in prefect.context."""
         return cls(**prefect.context.get("datastore_config", {}))
 
     def get_known_datasets(self) -> List[str]:
