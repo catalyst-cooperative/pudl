@@ -64,6 +64,7 @@ test_requires = [
     "pydocstyle",
     "pytest",
     "pytest-cov",
+    "responses",
 ]
 
 
