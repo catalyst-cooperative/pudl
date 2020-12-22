@@ -97,8 +97,12 @@ class TestZenodoFetcher(unittest.TestCase):
 
     MOCK_EPACEMS_DATAPACKAGE = {
         "resources": [
-            {"name": "first", "path": "http://localhost/first"},
-            {"name": "second", "path": "http://localhost/second"},
+            {"name": "first",
+             "path": "http://localhost/first",
+             "hash": "6f1ed002ab5595859014ebf0951522d9"},  # md5sum of "blah"
+            {"name": "second",
+             "path": "http://localhost/second",
+             "hash": "6f1ed002ab5595859014ebf0951522d9"},
         ]
     }
     PROD_EPACEMS_DOI = "10.5281/zenodo.4127055"
@@ -157,9 +161,15 @@ class TestZenodoFetcher(unittest.TestCase):
             PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "first"))
         self.assertEqual(b"blah", res)
 
+    @responses.activate
+    def testGetResourceWithInvalidChecksum(self):
+        responses.add(responses.GET,
+                "http://localhost/first", body="wrongContent")
+        res = PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "first")
+        self.assertRaises(ValueError, self.fetcher.get_resource, res)
 
-# TODO(rousik): add tests for the caching layers
-# TODO(rousik): add tests for resource filtering
-
+    def testGetResourceWithNonexistentResource(self):
+        res = PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "nonexistent")
+        self.assertRaises(KeyError, self.fetcher.get_resource, res)
 
 # TODO(rousik): add tests for Datastore itself
