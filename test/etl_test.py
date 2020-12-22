@@ -117,13 +117,11 @@ def test_ferc1_solo_etl(pudl_settings_fixture,
                         ferc1_engine,
                         live_ferc1_db):
     """Verify that a minimal FERC Form 1 can be loaded without other data."""
-    with open(pathlib.Path(
-            pathlib.Path(__file__).parent,
-            'settings', 'ferc1-solo.yml'), "r") as f:
-        datapkg_settings = yaml.safe_load(f)['datapkg_bundle_settings']
+    cfg_path = pathlib.Path(__file__).parent / "settings/ferc1-solo.yml"
+    pudl_settings = yaml.safe_load(open(cfg_path, "r"))
 
     pudl.etl.generate_datapkg_bundle(
-        datapkg_settings,
+        pudl_settings,
         pudl_settings_fixture,
         datapkg_bundle_name='ferc1-solo',
         clobber=True)
@@ -268,5 +266,5 @@ class TestEpaCemsDatastore:
         df = ds.open_csv(pudl.extract.epacems.EpaCemsPartition(state="NY", year=1999), 6)
         # TODO(rousik): this is reading file from zenodo which may be expensive, slow
         # and potentially flaky.
-        assert "state" in df.columns()
-        assert "plant_id_eia" in df.columns()
+        assert "state" in df.columns
+        assert "plant_id_eia" in df.columns

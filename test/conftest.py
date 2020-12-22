@@ -204,7 +204,7 @@ def datapkg_bundle(request, ferc1_engine,
         logger.info('setting up the datapkg_bundle fixture')
         clobber = request.config.getoption("--clobber")
         pudl.etl.generate_datapkg_bundle(
-            data_scope['datapkg_bundle_settings'],
+            data_scope,
             pudl_settings_fixture,
             datapkg_bundle_name=data_scope['datapkg_bundle_name'],
             datapkg_bundle_doi=data_scope['datapkg_bundle_doi'],
