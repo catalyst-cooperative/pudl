@@ -41,12 +41,26 @@ class DatapackageDescriptor:
 
     def get_resource_path(self, name: str) -> str:
         """Returns zenodo url that holds contents of given named resource."""
+        res = self._get_resource_metadata(name)
+        # remote_url is sometimes set on the local cached version of datapackage.json
+        # so we should be using that if it exists.
+        return res.get("remote_url") or res.get("path")
+
+    def _get_resource_metadata(self, name: str) -> dict:
         for res in self.datapackage_json["resources"]:
             if res["name"] == name:
-                # remote_url is sometimes set on the local cached version of datapackage.json
-                # so we should be using that if it exists.
-                return res.get("remote_url") or res.get("path")
+                return res
         raise KeyError(f"Resource {name} not found for {self.dataset}/{self.doi}")
+
+    def validate_checksum(self, name: str, content: str) -> bool:
+        """Returns True if content matches checksum for given named resource."""
+        expected_checksum = self._get_resource_metadata(name)["hash"]
+        m = hashlib.md5()  # nosec
+        m.update(content)
+        if m.hexdigest() != expected_checksum:
+            raise ValueError(
+                f'Checksum for resource {name} does not match.'
+                f'Expected {expected_checksum}, got {m.hexdigest()}')
 
     def _matches(self, res: dict, **filters: Any):
         parts = res.get('parts', {})
@@ -178,14 +192,15 @@ class ZenodoFetcher:
 
     def get_resource(self, res: PudlResourceKey) -> bytes:
         """Given resource key, retrieve contents of the file from zenodo."""
-        url = self.get_descriptor(res.dataset).get_resource_path(res.name)
-        return self._fetch_from_url(url).content
+        desc = self.get_descriptor(res.dataset)
+        url = desc.get_resource_path(res.name)
+        content = self._fetch_from_url(url).content
+        desc.validate_checksum(res.name, content)
+        return content
 
     def get_known_datasets(self) -> List[str]:
         """Returns list of supported datasets."""
         return sorted(self._dataset_to_doi)
-
-
 
 
 class Datastore:
@@ -231,7 +246,9 @@ class Datastore:
     @classmethod
     def from_prefect_context(cls):
         """Returns Datastore instance constructed with the configuration stored in prefect.context."""
-        return cls(**prefect.context.get("datastore_config", {}))
+        kwargs = prefect.context.get("datastore_config", {})
+        logger.debug(f"Instantiating Datastore with the following arguments: {kwargs}")
+        return cls(**kwargs)
 
     def get_known_datasets(self) -> List[str]:
         """Returns list of supported datasets."""
