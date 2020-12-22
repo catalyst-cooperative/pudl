@@ -214,14 +214,14 @@ class Datastore:
               to Zenodo servers.
 
         """
-        self.cache = resource_cache.LayeredCache()
+        self._cache = resource_cache.LayeredCache()
         self._datapackage_descriptors = {}  # type: Dict[str, DatapackageDescriptor]
 
         if local_cache_path:
-            self.cache.add_cache_layer(
+            self._cache.add_cache_layer(
                 resource_cache.LocalFileCache(local_cache_path))
         if gcs_cache_path:
-            self.cache.add_cache_layer(resource_cache.GoogleCloudStorageCache(gcs_cache_path))
+            self._cache.add_cache_layer(resource_cache.GoogleCloudStorageCache(gcs_cache_path))
 
         self._zenodo_fetcher = ZenodoFetcher(
             sandbox=sandbox,
@@ -236,15 +236,15 @@ class Datastore:
         doi = self._zenodo_fetcher.get_doi(dataset)
         if doi not in self._datapackage_descriptors:
             res = PudlResourceKey(dataset, doi, "datapackage.json")
-            if self.cache.contains(res):
+            if self._cache.contains(res):
                 self._datapackage_descriptors[doi] = DatapackageDescriptor(
-                    json.loads(self.cache.get(res).decode('utf-8')),
+                    json.loads(self._cache.get(res).decode('utf-8')),
                     dataset=dataset,
                     doi=doi)
             else:
                 desc = self._zenodo_fetcher.get_descriptor(dataset)
                 self._datapackage_descriptors[doi] = desc
-                self.cache.set(res, bytes(desc.get_json_string(), "utf-8"))
+                self._cache.set(res, bytes(desc.get_json_string(), "utf-8"))
         return self._datapackage_descriptors[doi]
 
     def get_resources(self, dataset: str, **filters: Any) -> Iterator[Tuple[PudlResourceKey, bytes]]:
@@ -260,13 +260,13 @@ class Datastore:
         """
         desc = self.get_datapackage_descriptor(dataset)
         for res in desc.get_resources(**filters):
-            if self.cache.contains(res):
+            if self._cache.contains(res):
                 logger.debug(f"Retrieved {res} from cache.")
-                yield (res, self.cache.get(res))
+                yield (res, self._cache.get(res))
             else:
                 logger.debug(f"Retrieved {res} from zenodo.")
                 contents = self._zenodo_fetcher.get_resource(res)
-                self.cache.set(res, contents)
+                self._cache.set(res, contents)
                 yield (res, contents)
 
     def get_unique_resource(self, dataset: str, **filters: Any) -> bytes:
@@ -371,11 +371,14 @@ def main():
     else:
         pudl_in = Path(pudl_in)
 
-    dstore = Datastore(sandbox=args.sandbox)
-    if args.populate_gcs_cache:
-        dstore.cache.add_cache_layer(resource_cache.GoogleCloudStorageCache(args.populate_gcs_cache))
-    else:
-        dstore.cache.add_cache_layer(resource_cache.LocalFileCache(Path(pudl_in) / "data"))
+    local_cache_path = None
+    if not args.populate_gcs_cache:
+        local_cache_path = Path(pudl_in) / "data"
+
+    dstore = Datastore(
+            sandbox=args.sandbox,
+            local_cache_path=local_cache_path,
+            gcs_cache_path=args.populate_gcs_cache)
 
     datasets = []
     if args.dataset:
