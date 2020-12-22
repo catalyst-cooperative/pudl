@@ -532,7 +532,7 @@ class SqliteOverwriteMode(Enum):
 
 
 @task
-def ferc1_to_sqlite(script_settings, pudl_settings, datastore: Datastore = None, overwrite=SqliteOverwriteMode.ONCE):
+def ferc1_to_sqlite(script_settings, pudl_settings, overwrite=SqliteOverwriteMode.ONCE):
     """Clones the FERC1 Form 1 database to sqlite."""
     logger.warning(f'overwrite={overwrite}, dbfile={pudl_settings["ferc1_db"]}')
     if overwrite == SqliteOverwriteMode.NEVER:
@@ -540,7 +540,7 @@ def ferc1_to_sqlite(script_settings, pudl_settings, datastore: Datastore = None,
     elif overwrite == SqliteOverwriteMode.ONCE and os.path.isfile(urlparse(pudl_settings["ferc1_db"]).path):
         return False
     else:
-        datastore = Ferc1Datastore(datastore)
+        datastore = Ferc1Datastore(Datastore.get_from_context())
         validate_ferc1_to_sqlite_settings(script_settings)
         dbf2sqlite(
             tables=script_settings['ferc1_to_sqlite_tables'],

@@ -124,7 +124,7 @@ class DatasetPipeline:
     DATASET = None
 
     def __init__(self, pudl_settings, dataset_list, flow, datapkg_name=None, etl_settings=None,
-                 clobber=False, datastore: pudl.workspace.datastore.Datastore = None):
+            clobber=False):
         """Initialize Pipeline object and construct prefect tasks.
 
         Args:
@@ -146,7 +146,6 @@ class DatasetPipeline:
         self.datapkg_name = datapkg_name
         self.etl_settings = etl_settings
         self.clobber = clobber
-        self.datastore = datastore
         if self.pipeline_params:
             self.pipeline_params = self.validate_params(self.pipeline_params)
             self.output_dataframes = self.build(self.pipeline_params)
@@ -289,10 +288,10 @@ def pudl_task_target_name(**kwargs):
 @task(result=LocalResult(),
       target=pudl_task_target_name,
       cache_for=timedelta(days=1), cache_validator=all_inputs)
-def _extract_eia860(params, datastore):
-    dfs = pudl.extract.eia860.Extractor(datastore).extract(year=params['eia860_years'])
+def _extract_eia860(params):
+    dfs = pudl.extract.eia860.Extractor(Datastore.get_from_context()).extract(year=params['eia860_years'])
     if params['eia860_ytd']:
-        eia860m_dfs = pudl.extract.eia860m.Extractor(datastore).extract(
+        eia860m_dfs = pudl.extract.eia860m.Extractor(Datastore.get_from_context()).extract(
                 year_month=pc.working_partitions['eia860m']['year_month'])
         dfs = pudl.extract.eia860m.append_eia860m(dfs, eia860m_dfs)
     return dfs
@@ -301,8 +300,8 @@ def _extract_eia860(params, datastore):
 @task(result=LocalResult(),
       target=pudl_task_target_name,
       cache_for=timedelta(days=1), cache_validator=all_inputs)
-def _extract_eia923(params, datastore):
-    return pudl.extract.eia923.Extractor(datastore).extract(year=params['eia923_years'])
+def _extract_eia923(params):
+    return pudl.extract.eia923.Extractor(Datastore.get_from_context()).extract(year=params['eia923_years'])
 
 
 @task(result=LocalResult(),
@@ -407,10 +406,10 @@ class EiaPipeline(DatasetPipeline):
             # @with prefect.context(datapkg_name=self.datapkg_name):
             with prefect.tags(f'datapkg:{self.datapkg_name}'):
                 static_tables = _load_static_tables_eia()
-                eia860_raw_dfs = _extract_eia860(params, self.datastore)
+                eia860_raw_dfs = _extract_eia860(params)
                 eia860_out_dfs = _transform_eia860(params, eia860_raw_dfs)
 
-                eia923_raw_dfs = _extract_eia923(params, self.datastore)
+                eia923_raw_dfs = _extract_eia923(params)
                 eia923_out_dfs = _transform_eia923(params, eia923_raw_dfs)
                 dfs = merge_dataframe_maps(eia860=eia860_out_dfs, eia923=eia923_out_dfs)
                 out_dfs = _transform_eia(params, dfs)
@@ -513,7 +512,6 @@ class Ferc1Pipeline(DatasetPipeline):
                 pudl.extract.ferc1.ferc1_to_sqlite(
                     self.etl_settings, 
                     self.pudl_settings,
-                    datastore=self.datastore, 
                     overwrite=self.overwrite_ferc1_db)
                 # TODO(rousik): wire the clobber argument to commandline flag,
                 # --create-ferc1-sqlite=always|once|never
@@ -587,8 +585,7 @@ class EpaCemsPipeline(DatasetPipeline):
             partitions = [
                 pudl.extract.epacems.EpaCemsPartition(year=y, state=s)
                 for y, s in itertools.product(params["epacems_years"], params["epacems_states"])]
-            raw_dfs = pudl.extract.epacems.extract_fragment.map(
-                datastore=unmapped(self.datastore), partition=partitions)
+            raw_dfs = pudl.extract.epacems.extract_fragment.map(partition=partitions)
             tf_dfs = pudl.transform.epacems.transform_fragment.map(
                 raw_dfs,
                 plant_utc_offset=unmapped(plants))
@@ -624,8 +621,8 @@ def _load_static_tables_epaipm():
 
 
 @task(result=LocalResult(), cache_for=timedelta(days=1), cache_validator=all_inputs)
-def _extract_epaipm(params, datastore):
-    return pudl.extract.epaipm.extract(params['epaipm_tables'], datastore)
+def _extract_epaipm(params):
+    return pudl.extract.epaipm.extract(params['epaipm_tables'], Datastore.get_from_context())
 
 
 @task(result=LocalResult(), cache_for=timedelta(days=1), cache_validator=all_inputs)
@@ -659,7 +656,7 @@ class EpaIpmPipeline(DatasetPipeline):
             # TODO(rousik): annotate epaipm extract/transform methods with @task decorators
             return merge_dataframe_maps(
                 static_tables=_load_static_tables_epaipm(),
-                dfs=_transform_epaipm(params, _extract_epaipm(params, self.datastore)))
+                dfs=_transform_epaipm(params, _extract_epaipm(params)))
 
 
 ###############################################################################
@@ -880,7 +877,6 @@ def _create_synthetic_dependencies(flow, src_group, dst_group):
 
 def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
         datapkg_builder=None, etl_settings=None, clobber=False,
-        datastore=None,
         overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS):
     """
     Run ETL process for data package specified by datapkg_settings dictionary.
@@ -900,7 +896,6 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
             resources and outputs.
         etl_settings (dict): the complete configuration for the ETL run.
         clobber (bool): if True then existing results will be overwritten.
-        datastore (Datastore): Datastore that provides access to raw resources.
         overwrite_ferc1_db (SqliteOverwriteMode): controls how ferc1 db should
             be treated.
 
@@ -923,8 +918,6 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
     extra_params = {
         'ferc1': {'overwrite_ferc1_db': overwrite_ferc1_db},
     }
-    # TODO(rousik): Perhaps datastore can be stored in prefect.context and accessed that
-    # way.
     # TODO(rousik): we need to have a good way of configuring the datastore caching options
     # from commandline arguments here. Perhaps passing cmdline args by Datastore constructor
     # may do the trick?
@@ -934,7 +927,6 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
             pudl_settings, dataset_list, flow,
             datapkg_name=datapkg_builder.get_datapkg_name(datapkg_settings),
             etl_settings=etl_settings,
-            datastore=datastore,
             **extra_params.get(pl_class.DATASET, {}))
     # EpaCems pipeline is special because it needs to read the output of eia
     # pipeline
@@ -943,8 +935,7 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
         pudl_settings,
         dataset_list,
         flow,
-        eia_pipeline=pipelines['eia'],
-        datastore=datastore)
+        eia_pipeline=pipelines['eia'])
     with flow:
         table_names = pudl.load.csv.write_datapackages.map(
             [pl.get_outputs() for pl in pipelines.values() if pl.get_outputs()],
@@ -1105,10 +1096,22 @@ def generate_datapkg_bundle(etl_settings,
     local_cache_path = None
     if use_local_cache:
         local_cache_path = Path(pudl_settings["pudl_in"]) / "data"
-    ds = Datastore(
-        local_cache_path=local_cache_path,
-        gcs_cache_path=gcs_cache_path,
-        sandbox=pudl_settings.get("sandbox", False))
+    # ds = Datastore(
+    #    local_cache_path=local_cache_path,
+    #    gcs_cache_path=gcs_cache_path,
+    #    sandbox=pudl_settings.get("sandbox", False))
+ 
+    # Allow for construction of datastore by setting the params to context
+    # This will allow us to construct datastore when needed 
+    # by calling Datastore.get_from_context()
+
+    prefect.context.datastore_config = dict(
+            sandbox=pudl_settings.get("sandbox", False), 
+            local_cache_path=local_cache_path,
+            gcs_cache_path=gcs_cache_path)
+    # TODO(rousik): the above code that sets datastore_config in prefect context
+    # is a bit of a black magic and should not actually be here but be part of
+    # Datastore class (maybe?)
 
     # this is a list and should be processed by another task
     for datapkg_settings in validated_bundle_settings:
@@ -1120,7 +1123,6 @@ def generate_datapkg_bundle(etl_settings,
             datapkg_builder=datapkg_builder,
             etl_settings=etl_settings,
             clobber=clobber,
-            datastore=ds,
             overwrite_ferc1_db=overwrite_ferc1_db)
 
     # TODO(rousik): print out the flow structure
@@ -1133,6 +1135,17 @@ def generate_datapkg_bundle(etl_settings,
         state = flow.run()
     if show_flow_graph:
         flow.visualize(flow_state=state)
+ 
+    # If the flow failed, summarize failed tasks and throw an exception here.
+    # TODO(rousik): perhaps we might want to not generate partial results.
+
+    # For the sake of unit tests, we should be returning something sane here.
+    # But what should it really be?
+
+
+    
+    
+
     # TODO(rousik): determine what kind of return value should happen here. For now lets just
     # not return anything.
     return {}

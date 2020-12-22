@@ -5,6 +5,7 @@ import copy
 import hashlib
 import json
 import logging
+import prefect
 import re
 import sys
 import zipfile
@@ -226,6 +227,10 @@ class Datastore:
         self._zenodo_fetcher = ZenodoFetcher(
             sandbox=sandbox,
             timeout=timeout)
+
+    @classmethod
+    def get_from_context(cls):
+        return cls(**prefect.context.get("datastore_config", {}))
 
     def get_known_datasets(self) -> List[str]:
         """Returns list of supported datasets."""

@@ -90,11 +90,10 @@ class EpaCemsDatastore:
 
 
 @task(result=LocalResult(), target="epacems-extract-{partition.year}-{partition.state}")  # noqa: FS003
-def extract_fragment(datastore: Datastore, partition: EpaCemsPartition):
+def extract_fragment(partition: EpaCemsPartition):
     """Extracts epacems dataframe for given year and state.
 
     Args:
-        datastore (EpaCemsDatastore): datastore containing the data.
         partition (EpacemsPartition): defines which partition (year, state)
         should be loaded.
 
@@ -102,7 +101,7 @@ def extract_fragment(datastore: Datastore, partition: EpaCemsPartition):
         {fragment_name: pandas.DataFrame}
     """
     dfs = []
-    ds = EpaCemsDatastore(datastore)
+    ds = EpaCemsDatastore(Datastore.get_from_context())
     for month in range(1, 13):
         dfs.append(ds.open_csv(partition, month=month))
 
