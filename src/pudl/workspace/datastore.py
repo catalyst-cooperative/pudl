@@ -33,6 +33,11 @@ logger = logging.getLogger(__name__)
 PUDL_YML = Path.home() / ".pudl.yml"
 
 
+class ChecksumMismatch(ValueError):
+    """Resource checksum (md5) does not match."""
+    pass
+
+
 class DatapackageDescriptor:
     """A simple wrapper providing access to datapackage.json."""
     """An abstract representation of the datapackage resources."""
@@ -61,7 +66,7 @@ class DatapackageDescriptor:
         m = hashlib.md5()  # nosec
         m.update(content)
         if m.hexdigest() != expected_checksum:
-            raise ValueError(
+            raise ChecksumMismatch(
                 f'Checksum for resource {name} does not match.'
                 f'Expected {expected_checksum}, got {m.hexdigest()}')
 
@@ -262,11 +267,12 @@ class Datastore:
                 self._cache.set(res, bytes(desc.get_json_string(), "utf-8"))
         return self._datapackage_descriptors[doi]
 
-    def get_resources(self, dataset: str, **filters: Any) -> Iterator[Tuple[PudlResourceKey, bytes]]:
+    def get_resources(self, dataset: str, cached_only : bool = False, **filters: Any) -> Iterator[Tuple[PudlResourceKey, bytes]]:
         """Return content of the matching resources.
 
         Args:
             dataset (str): name of the dataset to query
+            cached_only (bool): if True, only retrieve resources that are present in the cache
             **filters (key=val): only return resources that match the key-value mapping in their
             metadata["parts"].
 
@@ -278,11 +284,15 @@ class Datastore:
             if self._cache.contains(res):
                 logger.debug(f"Retrieved {res} from cache.")
                 yield (res, self._cache.get(res))
-            else:
+            elif not cached_only:
                 logger.debug(f"Retrieved {res} from zenodo.")
                 contents = self._zenodo_fetcher.get_resource(res)
                 self._cache.set(res, contents)
                 yield (res, contents)
+
+    def remove_from_cache(self, res: PudlResourceKey):
+        """Remove given resource from the associated cache."""
+        self._cache.delete(res)
 
     def get_unique_resource(self, dataset: str, **filters: Any) -> bytes:
         """Returns content of a resource assuming there is exactly one that matches."""
@@ -410,7 +420,13 @@ def main():
 
     for selection in datasets:
         if args.validate:
-            dstore.validate(selection)
+            descriptor = dstore.get_datapackage_descriptor(selection)
+            for res, content in dstore.get_resources(selection, cached_only=True, **partition):
+                try:
+                    descriptor.validate_checksum(res.name, content)
+                except ChecksumMismatch:
+                    logger.warning(f"Resource {res} has invalid checksum. Removing from cache.")
+                    dstore.remove_from_cache(res)
         else:
             for res, _ in dstore.get_resources(selection, **partition):
                 logger.info(f"Retrieved {res}.")
