@@ -166,7 +166,7 @@ class TestZenodoFetcher(unittest.TestCase):
         responses.add(responses.GET,
                 "http://localhost/first", body="wrongContent")
         res = PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "first")
-        self.assertRaises(ValueError, self.fetcher.get_resource, res)
+        self.assertRaises(datastore.ChecksumMismatch, self.fetcher.get_resource, res)
 
     def testGetResourceWithNonexistentResource(self):
         res = PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "nonexistent")
