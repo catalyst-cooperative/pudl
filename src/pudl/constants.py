@@ -1349,7 +1349,7 @@ entities = {
          'uprate_derate_during_year', 'uprate_derate_completed_date',
          'current_planned_operating_date', 'summer_estimated_capability_mw',
          'winter_estimated_capability_mw', 'retirement_date',
-         'utility_id_eia'],
+         'utility_id_eia', 'data_source'],
         # need type fixing
         {}
     ],

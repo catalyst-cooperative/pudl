@@ -208,8 +208,8 @@ def generators(eia860_dfs, eia860_transformed_dfs):
                 value=[True, False, pd.NA])
         )
 
-    # A subset of the columns refer to transportation methods with a series of
-    # codes. This writes them out in their entirety.
+    # A subset of the pre-2009 columns refer to transportation methods with a
+    # series of codes. This writes them out in their entirety.
 
     transport_columns_to_fix = [
         'energy_source_1_transport_1',
@@ -223,6 +223,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     for column in transport_columns_to_fix:
         gens_df[column] = (
             gens_df[column]
+            .astype('string')
             .replace(
                 to_replace=["CV", "PL", "RR", "TK", "WA", "UN"],
                 value=["Conveyer", "Pipeline", "Railroad",
