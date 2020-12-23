@@ -23,6 +23,188 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+# ---- Helpers ---- #
+
+
+def encode_run_length(x: Iterable) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Encode vector with run-length encoding.
+
+    Args:
+        x: Vector to encode.
+
+    Returns:
+        Values and their run lengths.
+
+    Examples:
+        >>> x = np.array([0, 1, 1, 0, 1])
+        >>> encode_run_length(x)
+        (array([0, 1, 0, 1]), array([1, 2, 1, 1]))
+        >>> encode_run_length(x.astype('bool'))
+        (array([False,  True, False,  True]), array([1, 2, 1, 1]))
+        >>> encode_run_length(x.astype('<U1'))
+        (array(['0', '1', '0', '1'], dtype='<U1'), array([1, 2, 1, 1]))
+        >>> encode_run_length(np.where(x == 0, np.nan, x))
+        (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))
+    """
+    # Inspired by https://stackoverflow.com/a/32681075
+    x = np.asarray(x)
+    n = len(x)
+    if not n:
+        return x, np.array([], dtype=int)
+    # Pairwise unequal (string safe)
+    y = np.array(x[1:] != x[:-1])
+    # Must include last element position
+    i = np.append(np.where(y), n - 1)
+    lengths = np.diff(np.append(-1, i))
+    # starts = np.cumsum(np.append(0, lengths))[:-1]
+    return x[i], lengths
+
+
+def insert_run_length(
+    x: Iterable,
+    values: Iterable,
+    lengths: Iterable[int],
+    mask: Iterable = None,
+    padding: int = 0
+) -> np.ndarray:
+    """
+    Insert run-length encoded values into a vector.
+
+    Value runs are inserted randomly without overlap.
+
+    Args:
+        x: Vector to insert values into.
+        values: Values to insert.
+        lengths: Length of run to insert for each value in `values`.
+        mask: Boolean mask, of the same length as `x`, where values can be inserted.
+            By default, values can be inserted anywhere in `x`.
+        padding: Minimum space between inserted runs and,
+            if `mask` is provided, the edges of masked-out areas.
+
+    Raises:
+        ValueError: Padding must zero or greater.
+        ValueError: Run length must be greater than zero.
+        ValueError: Cound not find space for run of length {length}.
+
+    Returns:
+        Copy of array `x` with values inserted.
+
+    Example:
+        >>> x = [0, 0, 0, 0]
+        >>> mask = [True, False, True, True]
+        >>> insert_run_length(x, values=[1, 2], lengths=[1, 2], mask=mask)
+        array([1, 0, 2, 2])
+
+        If we use unique values for the background and each inserted run,
+        the run length encoding of the result (ignoring the background)
+        is the same as the inserted run, albeit in a different order.
+
+        >>> x = np.zeros(10, dtype=int)
+        >>> values = [1, 2, 3]
+        >>> lengths = [1, 2, 3]
+        >>> x = insert_run_length(x, values=values, lengths=lengths)
+        >>> rvalues, rlengths = encode_run_length(x[x != 0])
+        >>> order = np.argsort(rvalues)
+        >>> all(rvalues[order] == values) and all(rlengths[order] == lengths)
+        True
+
+        Null values can be inserted into a vector such that the new null runs
+        match the run length encoding of the existing null runs.
+
+        >>> x = [1, 2, np.nan, np.nan, 5, 6, 7, 8, np.nan]
+        >>> is_nan = np.isnan(x)
+        >>> rvalues, rlengths = encode_run_length(is_nan)
+        >>> xi = insert_run_length(
+        ...     x,
+        ...     values=[np.nan] * rvalues.sum(),
+        ...     lengths=rlengths[rvalues],
+        ...     mask=~is_nan
+        ... )
+        >>> np.isnan(xi).sum() == 2 * is_nan.sum()
+        True
+
+        The same as above, with non-zero `padding`, yields a unique solution:
+
+        >>> insert_run_length(
+        ...     x,
+        ...     values=[np.nan] * rvalues.sum(),
+        ...     lengths=rlengths[rvalues],
+        ...     mask=~is_nan,
+        ...     padding=1
+        ... )
+        array([nan,  2., nan, nan,  5., nan, nan,  8., nan])
+    """
+    if padding < 0:
+        raise ValueError("Padding must zero or greater")
+    # Make a new array to modify in place
+    x = np.array(x)
+    # Compute runs available for insertions
+    if mask is None:
+        run_starts = np.array([0])
+        run_lengths = np.array([len(x)])
+    else:
+        mask_values, mask_lengths = encode_run_length(mask)
+        run_starts = np.cumsum(np.append(0, mask_lengths))[:-1][mask_values]
+        run_lengths = mask_lengths[mask_values]
+    if padding:
+        # Constrict runs
+        run_ends = run_starts + run_lengths
+        # Move run starts forward, unless endpoint
+        moved = slice(int(run_starts[0] == 0), None)
+        run_starts[moved] += padding
+        # Move run ends backward, unless endpoint
+        moved = slice(None, -1 if run_ends[-1] == len(x) else None)
+        run_ends[moved] -= padding
+        # Recalculate run lengths and keep runs with positive length
+        run_lengths = run_ends - run_starts
+        keep = run_lengths > 0
+        run_starts = run_starts[keep]
+        run_lengths = run_lengths[keep]
+    # Grow runs by maxinum number of insertions (for speed)
+    n_runs = len(run_starts)
+    buffer = np.zeros(len(values), dtype=int)
+    run_starts = np.concatenate((run_starts, buffer))
+    run_lengths = np.concatenate((run_lengths, buffer))
+    # Initialize random number generator
+    rng = np.random.default_rng()
+    # Sort insertions from longest to shortest
+    order = np.argsort(lengths)[::-1]
+    values = np.asarray(values)[order]
+    lengths = np.asarray(lengths)[order]
+    for value, length in zip(values, lengths):
+        if length < 1:
+            raise ValueError("Gap length must be greater than zero")
+        # Choose runs of adequate length
+        choices = np.nonzero(run_lengths[:n_runs] >= length)[0]
+        if not choices.size:
+            raise ValueError(f"Could not find space for gap of length {length}")
+        idx = rng.choice(choices)
+        # Choose adequate start position in run
+        offset = rng.integers(0, run_lengths[idx] - length, endpoint=True)
+        start = run_starts[idx] + offset
+        # Insert value
+        x[start:start + length] = value
+        # Update runs
+        padded_length = length + padding
+        if not offset:
+            # Shift and shorten run
+            run_starts[idx] += padded_length
+            run_lengths[idx] -= padded_length
+        else:
+            tail = run_lengths[idx] - offset - padded_length
+            if tail > 0:
+                # Insert run
+                run_starts[n_runs] = start + padded_length
+                run_lengths[n_runs] = tail
+                n_runs += 1
+            # Shorten run
+            run_lengths[idx] = offset - padding
+    return x
+
+
+# ---- Classes ---- #
+
 
 class Series:
     """
@@ -554,3 +736,45 @@ class Series:
             # Set zorder manually to ensure flagged points are drawn on top
             plt.scatter(x, y, c=colors[flag], label=flag, zorder=2)
         plt.legend()
+
+    def simulate_nulls(
+        self,
+        lengths: Iterable[int] = None,
+        padding: int = 1
+    ) -> np.ndarray:
+        """
+        Find non-null values to null to match a run-length distribution.
+
+        Args:
+            length: Length of null runs to simulate.
+                By default, uses the run lengths of null values in :attr:`x`.
+            padding: Minimum number of non-null values between simulated null runs
+                and between simulated and existing null runs.
+
+        Returns:
+            Boolean mask of current non-null values to set to null such that
+            the new null values in :attr:`x` match the run-length distribution.
+
+        Raises:
+            ValueError: Cound not find space for run of length {length}.
+
+        Examples:
+            >>> x = [1, 2, np.nan, 4, 5, 6, 7, np.nan, np.nan]
+            >>> s = Series(x)
+            >>> s.simulate_nulls()
+            array([ True, False, False, False, True, True, False, False, False])
+            >>> s.simulate_nulls(lengths=[4], padding=0)
+            array([False, False, False, True, True, True, True, False, False])
+        """
+        is_null = self.x.isna()
+        if lengths is None:
+            run_values, run_lengths = encode_run_length(is_null)
+            lengths = run_lengths[run_values]
+        is_new_null = insert_run_length(
+            np.zeros(self.x.shape, dtype=bool),
+            values=np.ones(len(lengths), dtype=bool),
+            lengths=lengths,
+            mask=~is_null,
+            padding=padding
+        )
+        return is_new_null
