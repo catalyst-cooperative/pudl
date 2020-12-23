@@ -19,9 +19,11 @@ import argparse
 import logging
 import pathlib
 import sys
+from datetime import datetime
 
 import coloredlogs
 import yaml
+from prefect.engine.executors import DaskExecutor
 
 import pudl
 from pudl.extract.ferc1 import SqliteOverwriteMode
@@ -62,10 +64,19 @@ def parse_command_line(argv):
         "--logfile", default=None,
         help="If specified, write logs to this file.")
     parser.add_argument(
+        "--timestamped-logfile",
+        default="/tmp/pudl_etl.%F-%H%M%S.log",  # nosec
+        help="""If specified, also log to the timestamped logfile. The value of
+        this flag is passed to strftime method of datetime.now().""")
+    parser.add_argument(
         "--use-dask-executor",
         action="store_true",
         default=False,
         help='If enabled, use local DaskExecutor to run the flow.')
+    parser.add_argument(
+        "--dask-executor-address",
+        default=None,
+        help='If specified, use pre-existing DaskExecutor at this address.')
     parser.add_argument(
         "--upload-to-gcs-bucket",
         type=str,
@@ -89,48 +100,66 @@ def parse_command_line(argv):
         action="store_true",
         default=False,
         help="If enabled, the local file cache for datastore will not be used.")
+    parser.add_argument(
+        "--datapkg-bundle-name",
+        type=str,
+        help="If specified, use this datpkg_bundle_name instead of the default from the config.""")
 
     arguments = parser.parse_args(argv[1:])
     return arguments
 
 
-def main():
-    """Parse command line and initialize PUDL DB."""
-    # Display logged output from the PUDL package:
+def setup_logging(args):
+    """Configures the logging based on the command-line flags.
+
+    Args:
+        args: parsed command line flags.
+    """
     logger = logging.getLogger(pudl.__name__)
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
     coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
-
-    args = parse_command_line(sys.argv)
     if args.logfile:
         file_logger = logging.FileHandler(args.logfile)
         file_logger.setFormatter(logging.Formatter(log_format))
         logger.addHandler(file_logger)
+    if args.timestamped_logfile:
+        file_logger = logging.FileHandler(
+            datetime.now().strftime(args.timestamped_logfile))
+        file_logger.setFormatter(logging.Formatter(log_format))
+        logger.addHandler(file_logger)
+        logger.info(f"Command line: {' '.join(sys.argv)}")
+
+
+def main():
+    """Parse command line and initialize PUDL DB."""
+    # Display logged output from the PUDL package:
+    args = parse_command_line(sys.argv)
+    setup_logging(args)
+
     with pathlib.Path(args.settings_file).open() as f:
         script_settings = yaml.safe_load(f)
 
-    try:
-        pudl_in = script_settings["pudl_in"]
-    except KeyError:
-        pudl_in = pudl.workspace.setup.get_defaults()["pudl_in"]
-    try:
-        pudl_out = script_settings["pudl_out"]
-    except KeyError:
-        pudl_out = pudl.workspace.setup.get_defaults()["pudl_out"]
+    if args.datapkg_bundle_name:
+        script_settings["datapkg_bundle_name"] = args.datapkg_bundle_name
 
+    pudl_in = script_settings.get(
+        "pudl_in", pudl.workspace.setup.get_defaults()["pudl_in"])
+    pudl_out = script_settings.get(
+        "pudl_out", pudl.workspace.setup.get_defaults()["pudl_out"])
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in, pudl_out=pudl_out)
     pudl_settings["sandbox"] = args.sandbox
 
-    try:
-        datapkg_bundle_doi = script_settings["datapkg_bundle_doi"]
-        if not pudl.helpers.is_doi(datapkg_bundle_doi):
-            raise ValueError(
-                f"Found invalid bundle DOI: {datapkg_bundle_doi} "
-                f"in bundle {script_settings['datpkg_bundle_name']}."
-            )
-    except KeyError:
-        datapkg_bundle_doi = None
+    datapkg_bundle_doi = script_settings.get("datapkg_bundle_doi")
+    if datapkg_bundle_doi and not pudl.helpers.is_doi(datapkg_bundle_doi):
+        raise ValueError(
+            f"Found invalid bundle DOI: {datapkg_bundle_doi} "
+            f"in bundle {script_settings['datpkg_bundle_name']}."
+        )
+
+    prefect_executor = None
+    if args.dask_executor_address or args.use_dask_executor:
+        prefect_executor = DaskExecutor(address=args.dask_executor_address)
 
     pudl.etl.generate_datapkg_bundle(
         script_settings,
@@ -138,14 +167,12 @@ def main():
         datapkg_bundle_name=script_settings['datapkg_bundle_name'],
         datapkg_bundle_doi=datapkg_bundle_doi,
         clobber=args.clobber,
-        use_dask_executor=args.use_dask_executor,
+        prefect_executor=prefect_executor,
         gcs_bucket=args.upload_to_gcs_bucket,
         use_local_cache=not args.bypass_local_cache,
         gcs_cache_path=args.gcs_cache_path,
         overwrite_ferc1_db=args.overwrite_ferc1_db,
         show_flow_graph=args.show_flow_graph)
-    # TODO(rousik): perhaps we can pass args to this method for direct
-    # acces to the commandline flags.
 
 
 if __name__ == "__main__":

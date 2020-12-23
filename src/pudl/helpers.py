@@ -846,6 +846,33 @@ class ColumnTypeConversionError(Exception):
         super().__init__(f'Failed to convert {df_name}.{column}: {raw_exception}')
 
 
+def _apply_type_conversion(df, col_dtypes, name=''):
+    """Attempts type conversion on DataFrame.
+
+    If the conversion fails, this method will try once more one column
+    at a time and prints useful debugging information and dumps the offending
+    dataframe to temporary file for later inspection.
+    """
+    try:
+        return df.astype(col_dtypes)
+    except TypeError:
+        # Dump the offending dataframe to file for debugging purposes
+        _, tmp_file = tempfile.mkstemp(suffix=".pandas.df", prefix=name)
+        df.to_pickle(tmp_file)
+        logger.error(f'Failed to convert {name} dtypes. Re-running with debug info.')
+        logger.error(f'Offending dataframe saved to {tmp_file}')
+        for col, dtype in col_dtypes.items():
+            orig_type = str(df.dtypes[col])
+            new_type = str(dtype)
+            logger.info(
+                f'{name}: {col} will be converted from {orig_type} to {new_type}')
+        for col, dtype in col_dtypes.items():
+            try:
+                df = df.astype({col: dtype})
+            except TypeError as err:
+                raise ColumnTypeConversionError(err, df_name=name, column=col)
+
+
 def convert_cols_dtypes(df, data_source, name=None):
     """
     Convert the data types for a dataframe.
@@ -933,24 +960,7 @@ def convert_cols_dtypes(df, data_source, name=None):
     # Apply dtype conversion all at once. If this fails, dump the failed dataframe to
     # disk and try running conversion one column at a time to determine what exactly has
     # failed.
-    try:
-        return df.astype(col_dtypes)
-    except TypeError:
-        # Dump the offending dataframe to file for debugging purposes
-        _, tmp_file = tempfile.mkstemp(suffix=".pandas.df", prefix=name)
-        df.to_pickle(tmp_file)
-        logger.error(f'Failed to convert {name} dtypes. Re-running with debug info.')
-        logger.error(f'Offending dataframe saved to {tmp_file}')
-        for col, dtype in col_dtypes.items():
-            orig_type = str(df.dtypes[col])
-            new_type = str(dtype)
-            logger.info(
-                f'{name}: {col} will be converted from {orig_type} to {new_type}')
-        for col, dtype in col_dtypes.items():
-            try:
-                df = df.astype({col: dtype})
-            except TypeError as err:
-                raise ColumnTypeConversionError(err, df_name=name, column=col)
+    return _apply_type_conversion(df, col_dtypes, name=name)
 
 
 def convert_dfs_dict_dtypes(dfs_dict, data_source):

@@ -874,6 +874,7 @@ def transform(eia_transformed_dfs,
     # Apply the right dtypes to the input dfs
     eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
         eia_transformed_dfs, 'eia')
+
     # create the empty entities df to fill up
     entities_dfs = {}
 
