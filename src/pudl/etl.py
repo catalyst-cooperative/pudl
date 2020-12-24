@@ -54,9 +54,9 @@ def merge_dataframe_maps(apply_dtypes=None, **kwargs):
     """
     final_map = {}
     for _, input_map in kwargs.items():
-        if type(input_map) == dict:
+        if isinstance(input_map, dict):
             final_map.update(input_map)
-        elif type(input_map) == list:
+        elif isinstance(input_map, list):
             for df_map in input_map:
                 final_map.update(df_map)
         else:
