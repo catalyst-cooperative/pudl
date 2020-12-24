@@ -2,34 +2,42 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, Iterator, Optional, Any, List, Tuple, NamedTuple
-from google.cloud.storage.blob import Blob
-from google.cloud import storage
-from urllib.parse import urlparse
 from pathlib import Path
+from typing import Any, List, NamedTuple
+from urllib.parse import urlparse
+
+from google.cloud import storage
+from google.cloud.storage.blob import Blob
 
 logger = logging.getLogger(__name__)
 
 
 class PudlResourceKey(NamedTuple):
     """Uniquely identifies a specific resource."""
+
     dataset: str
     doi: str
     name: str
 
     def __repr__(self) -> str:
+        """Returns string representation of PudlResourceKey."""
         return f'Resource({self.dataset}/{self.doi}/{self.name})'
 
     def get_local_path(self) -> Path:
+        """Returns (relative) path that should be used when caching this resource."""
         doi_dirname = self.doi.replace("/", "-")
         return Path(self.dataset) / doi_dirname / self.name
 
+
 class AbstractCache(ABC):
+    """Defines interaface for the generic resource caching layer."""
 
     def __init__(self, read_only: bool = False):
+        """Constructs instance and sets read_only attribute."""
         self._read_only = read_only
 
     def is_read_only(self) -> bool:
+        """Returns true if the cache is read-only and should not be modified."""
         return self._read_only
 
     @abstractmethod
@@ -38,10 +46,10 @@ class AbstractCache(ABC):
         pass
 
     @abstractmethod
-    def set(self, resource: PudlResourceKey, content: bytes) -> None:
+    def add(self, resource: PudlResourceKey, content: bytes) -> None:
         """Adds resource to the cache and sets the content."""
         pass
-    
+
     @abstractmethod
     def delete(self, resource: PudlResourceKey) -> None:
         """Removes the resource from cache."""
@@ -55,17 +63,21 @@ class AbstractCache(ABC):
 
 class LocalFileCache(AbstractCache):
     """Simple key-value store mapping PudlResourceKeys to ByteIO contents."""
+
     def __init__(self, cache_root_dir: Path, **kwargs: Any):
+        """Constructs LocalFileCache that stores resources under cache_root_dir."""
         super().__init__(**kwargs)
         self.cache_root_dir = cache_root_dir
 
     def _resource_path(self, resource: PudlResourceKey) -> Path:
-        return self.cache_root_dir / resource.get_local_path() 
+        return self.cache_root_dir / resource.get_local_path()
 
     def get(self, resource: PudlResourceKey) -> bytes:
+        """Retrieves value associated with a given resource."""
         return self._resource_path(resource).open("rb").read()
 
-    def set(self, resource: PudlResourceKey, content: bytes):
+    def add(self, resource: PudlResourceKey, content: bytes):
+        """Adds (or updates) resource to the cache with given value."""
         if self.is_read_only():
             logger.debug(f"Read only cache: ignoring set({resource})")
             return
@@ -74,12 +86,14 @@ class LocalFileCache(AbstractCache):
         path.open("wb").write(content)
 
     def delete(self, resource: PudlResourceKey):
+        """Deletes resource from the cache."""
         if self.is_read_only():
             logger.debug(f"Read only cache: ignoring delete({resource})")
             return
         self._resource_path(resource).unlink(missing_ok=True)
 
     def contains(self, resource: PudlResourceKey) -> bool:
+        """Returns True if resource is present in the cache."""
         return self._resource_path(resource).exists()
 
 
@@ -87,7 +101,7 @@ class GoogleCloudStorageCache(AbstractCache):
     """Implements file cache backed by Google Cloud Storage bucket."""
 
     def __init__(self, gcs_path: str, **kwargs: Any):
-        """Constructs new cache that stores files in Google Cloud Storage:
+        """Constructs new cache that stores files in Google Cloud Storage.
 
         Args:
             gcs_path (str): path to where the data should be stored. This should
@@ -106,15 +120,19 @@ class GoogleCloudStorageCache(AbstractCache):
         return self._bucket.blob(p)
 
     def get(self, resource: PudlResourceKey) -> bytes:
+        """Retrieves value associated with given resource."""
         return self._blob(resource).download_as_bytes()
 
-    def set(self, resource: PudlResourceKey, value: bytes):
+    def add(self, resource: PudlResourceKey, value: bytes):
+        """Adds (or updates) resource to the cache with given value."""
         return self._blob(resource).upload_from_string(value)
 
-    def delete(self, resource: PudlResourceKey): 
+    def delete(self, resource: PudlResourceKey):
+        """Deletes resource from the cache."""
         self._blob(resource).delete()
 
     def contains(self, resource: PudlResourceKey) -> bool:
+        """Returns True if resource is present in the cache."""
         return self._blob(resource).exists()
 
 
@@ -125,9 +143,10 @@ class LayeredCache(AbstractCache):
     have faster local caches with fall-back to the more remote or expensive caches
     that can be acessed in case of missing content.
 
-    Only the closest layer is being written to (set, delete), while all remaining 
+    Only the closest layer is being written to (set, delete), while all remaining
     layers are read-only (get).
     """
+
     def __init__(self, *caches: List[AbstractCache], **kwargs: Any):
         """Creates layered cache consisting of given cache layers.
 
@@ -143,25 +162,29 @@ class LayeredCache(AbstractCache):
         self._caches.append(cache)
 
     def num_layers(self):
+        """Returns number of caching layers that are in this LayeredCache."""
         return len(self._caches)
 
     def get(self, resource: PudlResourceKey) -> bytes:
+        """Returns content of a given resource."""
         for cache in self._caches:
             if cache.contains(resource):
                 return cache.get(resource)
         raise KeyError(f"{resource} not found in the layered cache")
 
-    def set(self, resource: PudlResourceKey, value):
+    def add(self, resource: PudlResourceKey, value):
+        """Adds (or replaces) resource into the cache with given value."""
         if self.is_read_only():
             logger.debug(f"Read only cache: ignoring set({resource})")
             return
         for cache_layer in self._caches:
             if cache_layer.is_read_only():
                 continue
-            cache_layer.set(resource, value)
+            cache_layer.add(resource, value)
             break
 
     def delete(self, resource: PudlResourceKey):
+        """Removes resource from the cache if the cache is not in the read_only mode."""
         if self.is_read_only():
             logger.debug(f"Readonly cache: not removing {resource}")
             return
@@ -172,8 +195,8 @@ class LayeredCache(AbstractCache):
             break
 
     def contains(self, resource: PudlResourceKey) -> bool:
+        """Returns True if resource is present in the cache."""
         for cache in self._caches:
             if cache.contains(resource):
                 return True
         return False
-
