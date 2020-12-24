@@ -203,7 +203,121 @@ def insert_run_length(
     return x
 
 
-# ---- Classes ---- #
+def mat2ten(matrix: np.ndarray, shape: Iterable[int], mode: int) -> np.ndarray:
+    """Fold matrix into a tensor."""
+    index = [mode] + [i for i in range(len(shape)) if i != mode]
+    return np.moveaxis(
+        np.reshape(matrix, newshape=list(shape[index]), order='F'),
+        source=0,
+        destination=mode
+    )
+
+
+def ten2mat(tensor: np.ndarray, mode: int) -> np.ndarray:
+    """Unfold tensor into a matrix."""
+    return np.reshape(
+        np.moveaxis(tensor, source=mode, destination=0),
+        newshape=(tensor.shape[mode], -1),
+        order='F'
+    )
+
+
+def svt_tnn(matrix: np.ndarray, tau: Iterable[int], theta: int) -> np.ndarray:
+    """Singular value thresholding (SVT) truncated nuclear norm (TNN) minimization."""
+    [m, n] = matrix.shape
+    if 2 * m < n:
+        u, s, v = np.linalg.svd(matrix @ matrix.T, full_matrices=0)
+        s = np.sqrt(s)
+        idx = np.sum(s > tau)
+        mid = np.zeros(idx)
+        mid[: theta] = 1
+        mid[theta:idx] = (s[theta:idx] - tau) / s[theta:idx]
+        return (u[:, :idx] @ np.diag(mid)) @ (u[:, :idx].T @ matrix)
+    if m > 2 * n:
+        return svt_tnn(matrix.T, tau, theta).T
+    u, s, v = np.linalg.svd(matrix, full_matrices=0)
+    idx = np.sum(s > tau)
+    vec = s[:idx].copy()
+    vec[theta:idx] = s[theta:idx] - tau
+    return u[:, :idx] @ np.diag(vec) @ v[:idx, :]
+
+
+def impute_latc_tnn(
+    tensor: np.ndarray,
+    time_lags: Iterable[int] = [1],
+    alpha: Iterable[float] = [1 / 3, 1 / 3, 1 / 3],
+    rho0: float = 1e-7,
+    lambda0: float = 2e-7,
+    theta: float = 20,
+    epsilon: float = 1e-7,
+    maxiter: int = 300
+) -> np.ndarray:
+    """
+    Impute tensor values with LATC-TNN method.
+
+    Uses low-rank autoregressive tensor completion (LATC) with
+    truncated nuclear norm (TNN) minimization.
+    """
+    dim = np.array(tensor.shape)
+    dim_time = np.int(np.prod(dim) / dim[0])
+    d = len(time_lags)
+    max_lag = np.max(time_lags)
+    sparse_mat = ten2mat(tensor, mode=0)
+    pos_missing = np.where(sparse_mat == 0)
+    X = np.zeros(np.insert(dim, 0, len(dim)))
+    T = np.zeros(np.insert(dim, 0, len(dim)))
+    Z = sparse_mat.copy()
+    Z[pos_missing] = np.mean(sparse_mat[sparse_mat != 0])
+    A = 0.001 * np.random.rand(dim[0], d)
+    it = 0
+    ind = np.zeros((d, dim_time - max_lag), dtype=int)
+    for i in range(d):
+        ind[i, :] = np.arange(max_lag - time_lags[i], dim_time - time_lags[i])
+    last_mat = sparse_mat.copy()
+    snorm = np.linalg.norm(sparse_mat, 'fro')
+    rho = rho0
+    while True:
+        rho = min(rho * 1.05, 1e5)
+        for k in range(len(dim)):
+            X[k] = mat2ten(
+                svt_tnn(
+                    ten2mat(mat2ten(Z, shape=dim, mode=0) - T[k] / rho, mode=k),
+                    tau=alpha[k] / rho,
+                    theta=theta
+                ),
+                shape=dim,
+                mode=k
+            )
+        tensor_hat = np.einsum('k, kmnt -> mnt', alpha, X)
+        mat_hat = ten2mat(tensor_hat, 0)
+        mat0 = np.zeros((dim[0], dim_time - max_lag))
+        if lambda0 > 0:
+            for m in range(dim[0]):
+                Qm = mat_hat[m, ind].T
+                A[m, :] = np.linalg.pinv(Qm) @ Z[m, max_lag:]
+                mat0[m, :] = Qm @ A[m, :]
+            mat1 = ten2mat(np.mean(rho * X + T, axis=0), 0)
+            Z[pos_missing] = np.append(
+                (mat1[:, :max_lag] / rho),
+                (mat1[:, max_lag:] + lambda0 * mat0) / (rho + lambda0),
+                axis=1
+            )[pos_missing]
+        else:
+            Z[pos_missing] = (ten2mat(np.mean(X + T / rho, axis=0), 0))[pos_missing]
+        T = T + rho * (X - np.broadcast_to(
+            mat2ten(Z, dim, 0), np.insert(dim, 0, len(dim))
+        ))
+        tol = np.linalg.norm((mat_hat - last_mat), 'fro') / snorm
+        last_mat = mat_hat.copy()
+        it += 1
+        print(f"Iteration: {it}", end="\r")
+        if tol < epsilon or it >= maxiter:
+            break
+    print(f"Iteration: {it}")
+    return tensor_hat
+
+
+# ---- Anomaly detection ---- #
 
 
 class Series:
