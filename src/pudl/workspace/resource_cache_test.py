@@ -1,56 +1,64 @@
 """Unit tests for resource_cache."""
-from pathlib import Path
-from pudl.workspace import resource_cache
-from pudl.workspace.resource_cache import PudlResourceKey
-import unittest
-import tempfile
 import shutil
 import tempfile
+import unittest
+from pathlib import Path
+
+from pudl.workspace import resource_cache
+from pudl.workspace.resource_cache import PudlResourceKey
 
 
 class TestLocalFileCache(unittest.TestCase):
+    """Unit tests for the LocalFileCache class."""
+
     def setUp(self):
+        """Prepares temporary directory for storing cache contents."""
         self.test_dir = tempfile.mkdtemp()
         self.cache = resource_cache.LocalFileCache(Path(self.test_dir))
 
     def tearDown(self):
+        """Deletes content of the temporary directories."""
         shutil.rmtree(self.test_dir)
 
-    def testAddSingleResource(self):
+    def test_add_single_resource(self):
+        """Adding resource has the expected effect on subsequent get() and contains() calls."""
         res = PudlResourceKey("ds", "doi", "file.txt")
         self.assertFalse(self.cache.contains(res))
-        self.cache.set(res, b"blah")
+        self.cache.add(res, b"blah")
         self.assertTrue(self.cache.contains(res))
         self.assertEqual(b"blah", self.cache.get(res))
 
-    def testTwoCacheObjectShareStorage(self):
+    def test_that_two_cache_objects_share_storage(self):
+        """Two LocalFileCache instances with the same path share the object storage."""
         second_cache = resource_cache.LocalFileCache(Path(self.test_dir))
         res = PudlResourceKey("dataset", "doi", "file.txt")
         self.assertFalse(self.cache.contains(res))
         self.assertFalse(second_cache.contains(res))
-        self.cache.set(res, b"testContents")
+        self.cache.add(res, b"testContents")
         self.assertTrue(self.cache.contains(res))
         self.assertTrue(second_cache.contains(res))
         self.assertEqual(b"testContents", second_cache.get(res))
 
-    def testDeletion(self):
+    def test_deletion(self):
+        """Deletion of resources has the expected effect on subsequent get()and contains() calls."""
         res = PudlResourceKey("a", "b", "c")
         self.assertFalse(self.cache.contains(res))
-        self.cache.set(res, b"sampleContents")
+        self.cache.add(res, b"sampleContents")
         self.assertTrue(self.cache.contains(res))
         self.cache.delete(res)
         self.assertFalse(self.cache.contains(res))
 
-    def testReadOnlySetAndDelete(self):
+    def test_read_only_add_and_delete_do_nothing(self):
+        """When cache is in read_only mode, add() and delete() calls should be ignored."""
         res = PudlResourceKey("a", "b", "c")
         ro_cache = resource_cache.LocalFileCache(Path(self.test_dir), read_only=True)
         self.assertTrue(ro_cache.is_read_only())
-        
-        ro_cache.set(res, b"sample")
+
+        ro_cache.add(res, b"sample")
         self.assertFalse(ro_cache.contains(res))
 
         # Use read-write cache to insert resource
-        self.cache.set(res, b"sample")
+        self.cache.add(res, b"sample")
         self.assertFalse(self.cache.is_read_only())
         self.assertTrue(ro_cache.contains(res))
 
@@ -60,7 +68,10 @@ class TestLocalFileCache(unittest.TestCase):
 
 
 class TestLayeredCache(unittest.TestCase):
+    """Unit tests for LayeredCache class."""
+
     def setUp(self):
+        """Constructs two LocalFileCache layers pointed at temporary directories."""
         self.layered_cache = resource_cache.LayeredCache()
         self.test_dir_1 = tempfile.mkdtemp()
         self.test_dir_2 = tempfile.mkdtemp()
@@ -68,38 +79,42 @@ class TestLayeredCache(unittest.TestCase):
         self.cache_2 = resource_cache.LocalFileCache(self.test_dir_2)
 
     def tearDown(self):
+        """Remove temporary directories storing the cache contents."""
         shutil.rmtree(self.test_dir_1)
         shutil.rmtree(self.test_dir_2)
 
-    def testAddLayers(self):
+    def test_add_caching_layers(self):
+        """Adding layers has the expected effect on the subsequent num_layers() calls."""
         self.assertEqual(0, self.layered_cache.num_layers())
         self.layered_cache.add_cache_layer(self.cache_1)
         self.assertEqual(1, self.layered_cache.num_layers())
         self.layered_cache.add_cache_layer(self.cache_2)
         self.assertEqual(2, self.layered_cache.num_layers())
 
-    def testAddToFirstLayer(self):
+    def test_add_to_first_layer(self):
+        """Adding to layered cache by default stores entires in the first layer."""
         self.layered_cache.add_cache_layer(self.cache_1)
         self.layered_cache.add_cache_layer(self.cache_2)
         res = PudlResourceKey("a", "b", "x.txt")
         self.assertFalse(self.layered_cache.contains(res))
-        self.layered_cache.set(res, b"sampleContent")
+        self.layered_cache.add(res, b"sampleContent")
         self.assertTrue(self.layered_cache.contains(res))
         self.assertTrue(self.cache_1.contains(res))
         self.assertFalse(self.cache_2.contains(res))
 
-    def testFetchFromInnermostLayer(self):
+    def test_get_uses_innermost_layer(self):
+        """Resource is retrieved from the leftmost layer that contains it."""
         res = PudlResourceKey("a", "b", "x.txt")
         self.layered_cache.add_cache_layer(self.cache_1)
         self.layered_cache.add_cache_layer(self.cache_2)
-        # self.cache_1.set(res, "firstLayer")
-        self.cache_2.set(res, b"secondLayer")
+        # self.cache_1.add(res, "firstLayer")
+        self.cache_2.add(res, b"secondLayer")
         self.assertEqual(b"secondLayer", self.layered_cache.get(res))
 
-        self.cache_1.set(res, b"firstLayer")
+        self.cache_1.add(res, b"firstLayer")
         self.assertEqual(b"firstLayer", self.layered_cache.get(res))
         # Set on layered cache updates innermost layer
-        self.layered_cache.set(res, b"newContents")
+        self.layered_cache.add(res, b"newContents")
         self.assertEqual(b"newContents", self.layered_cache.get(res))
         self.assertEqual(b"newContents", self.cache_1.get(res))
         self.assertEqual(b"secondLayer", self.cache_2.get(res))
@@ -111,14 +126,16 @@ class TestLayeredCache(unittest.TestCase):
         self.assertTrue(self.cache_2.contains(res))
         self.assertEqual(b"secondLayer", self.layered_cache.get(res))
 
-    def testSetWithNoLayers(self):
+    def test_add_with_no_layers_does_nothing(self):
+        """When add() is called on cache with no layers nothing happens."""
         res = PudlResourceKey("a", "b", "c")
         self.assertFalse(self.layered_cache.contains(res))
-        self.layered_cache.set(res, b"sample")
+        self.layered_cache.add(res, b"sample")
         self.assertFalse(self.layered_cache.contains(res))
         self.layered_cache.delete(res)
 
-    def testReadOnlyLayersSkipped(self):
+    def test_read_only_layers_skipped_when_adding(self):
+        """When add() is called, layers that are marked as read_only are skipped."""
         c1 = resource_cache.LocalFileCache(self.test_dir_1, read_only=True)
         c2 = resource_cache.LocalFileCache(self.test_dir_2)
         lc = resource_cache.LayeredCache(c1, c2)
@@ -129,7 +146,7 @@ class TestLayeredCache(unittest.TestCase):
         self.assertFalse(c1.contains(res))
         self.assertFalse(c2.contains(res))
 
-        lc.set(res, b"test")
+        lc.add(res, b"test")
         self.assertTrue(lc.contains(res))
         self.assertFalse(c1.contains(res))
         self.assertTrue(c2.contains(res))
@@ -139,11 +156,12 @@ class TestLayeredCache(unittest.TestCase):
         self.assertFalse(c1.contains(res))
         self.assertFalse(c2.contains(res))
 
-    def testReadOnlyLayeredCache(self):
+    def test_read_only_cache_ignores_modifications(self):
+        """When cache is marked as read_only, add() and delete() calls are ignored."""
         r1 = PudlResourceKey("a", "b", "r1")
         r2 = PudlResourceKey("a", "b", "r2")
-        self.cache_1.set(r1, b"xxx")
-        self.cache_2.set(r2, b"yyy")
+        self.cache_1.add(r1, b"xxx")
+        self.cache_2.add(r2, b"yyy")
         self.assertTrue(self.cache_1.contains(r1))
         self.assertTrue(self.cache_2.contains(r2))
         lc = resource_cache.LayeredCache(self.cache_1, self.cache_2, read_only=True)
@@ -159,9 +177,7 @@ class TestLayeredCache(unittest.TestCase):
         self.assertTrue(self.cache_2.contains(r2))
 
         r_new = PudlResourceKey("a", "b", "new")
-        lc.set(r_new, b"xyz")
+        lc.add(r_new, b"xyz")
         self.assertFalse(lc.contains(r_new))
         self.assertFalse(self.cache_1.contains(r_new))
         self.assertFalse(self.cache_2.contains(r_new))
-
-

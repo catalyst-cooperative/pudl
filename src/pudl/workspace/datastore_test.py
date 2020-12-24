@@ -1,21 +1,18 @@
-import re
-import os
-import shutil
-import tempfile
-import unittest
-import hashlib
-import responses
-from pathlib import Path
-from unittest.mock import patch
-from unittest import mock
+"""Unit tests for Datastore module."""
+
 import json
+import unittest
 from typing import Dict
+
+import responses
 
 from pudl.workspace import datastore
 from pudl.workspace.resource_cache import PudlResourceKey
 
 
 class TestDatapackageDescriptor(unittest.TestCase):
+    """Unit tests for the DatapackageDescriptor class."""
+
     MOCK_DATAPACKAGE = {
         "resources": [
             {"name": "first-red",
@@ -26,26 +23,32 @@ class TestDatapackageDescriptor(unittest.TestCase):
              "parts": {"color": "blue", "order": 2}},
         ]
     }
+
     def setUp(self):
+        """Builds DatapackageDescriptor based on MOCK_DATAPACKAGE."""
         self.descriptor = datastore.DatapackageDescriptor(
             self.MOCK_DATAPACKAGE,
             dataset="epacems",
             doi="123")
 
-    def testGetResourcePath(self):
+    def test_get_resource_path_for_existing_resources(self):
+        """Checks that get_resource_path() works."""
         self.assertEqual(
             "http://localhost/first",
             self.descriptor.get_resource_path("first-red"))
         self.assertEqual(
             "http://localhost/second",
             self.descriptor.get_resource_path("second-blue"))
+
+    def test_get_resource_path_throws_exception(self):
+        """Verifies that KeyError is thrown when resource does not exist."""
         self.assertRaises(
-            KeyError, 
+            KeyError,
             self.descriptor.get_resource_path,
             "third-orange")  # this resource does not exist
 
-    def testGetResources(self):
-        res = list(self.descriptor.get_resources())
+    def test_get_resources_filtering(self):
+        """Verifies correct operation of get_resources()."""
         self.assertEqual(
             [PudlResourceKey("epacems", "123", "first-red"),
              PudlResourceKey("epacems", "123", "second-blue")],
@@ -57,12 +60,14 @@ class TestDatapackageDescriptor(unittest.TestCase):
             [],
             list(self.descriptor.get_resources(flavor="blueberry")))
 
-    def testGetResourcesByName(self):
+    def test_get_resources_by_name(self):
+        """Verifies that get_resources() work when name is specified."""
         self.assertEqual(
             [PudlResourceKey("epacems", "123", "second-blue")],
             list(self.descriptor.get_resources(name="second-blue")))
 
-    def testGetJsonString(self):
+    def test_json_string_representation(self):
+        """Checks that json representation parses to the same dict."""
         self.assertEqual(
             self.MOCK_DATAPACKAGE,
             json.loads(self.descriptor.get_json_string()))
@@ -73,23 +78,26 @@ class MockableZenodoFetcher(datastore.ZenodoFetcher):
 
     Allows populating _descriptor_cache at the initialization time.
     """
+
     def __init__(
-        self,
-        descriptors: Dict[str, datastore.DatapackageDescriptor],
-        **kwargs):
+            self,
+            descriptors: Dict[str, datastore.DatapackageDescriptor],
+            **kwargs):
+        """Constructs test-friendly ZenodoFetcher that has given descriptors pre-loaded."""
         super().__init__(**kwargs)
         self._descriptor_cache = dict(descriptors)
 
 
 class TestZenodoFetcher(unittest.TestCase):
-    # mock http interactions
+    """Unit tests for ZenodoFetcher class."""
+
     MOCK_EPACEMS_DEPOSITION = {
         "files": [
             {"filename": "random.zip"},
             {
                 "filename": "datapackage.json",
-                "links": { 
-                    "download": "http://localhost/my/datapackage.json" 
+                "links": {
+                    "download": "http://localhost/my/datapackage.json"
                 },
             },
         ]
@@ -109,18 +117,20 @@ class TestZenodoFetcher(unittest.TestCase):
     PROD_EPACEMS_ZEN_ID = 4127055  # This is the last numeric part of doi
 
     def setUp(self):
+        """Constructs instance of mockable zenodo fetcher based on the MOCK_EPACEMS_DATAPACKAGE."""
         self.fetcher = MockableZenodoFetcher(descriptors={
             self.PROD_EPACEMS_DOI: datastore.DatapackageDescriptor(
                 self.MOCK_EPACEMS_DATAPACKAGE,
                 dataset="epacems",
                 doi=self.PROD_EPACEMS_DOI)})
 
-    def testGetKnownDatasets(self):
+    def test_get_known_datasets(self):
+        """Call to get_known_datasets() produces the expected results."""
         self.assertEqual(
-                sorted(datastore.ZenodoFetcher.DOI["production"]),
-                self.fetcher.get_known_datasets())
+            sorted(datastore.ZenodoFetcher.DOI["production"]),
+            self.fetcher.get_known_datasets())
 
-    def testProdEpacemsDoiMatches(self):
+    def test_doi_of_prod_epacems_matches(self):
         """Most of the tests assume specific DOI for production epacems dataset.
 
         This test verifies that the expected value is in use.
@@ -128,48 +138,52 @@ class TestZenodoFetcher(unittest.TestCase):
         self.assertEqual(self.PROD_EPACEMS_DOI, self.fetcher.get_doi("epacems"))
 
     @responses.activate
-    def testGetDescriptorRequests(self):
+    def test_get_descriptor_http_calls(self):
         """Tests that the right http requests are fired when loading datapackage.json."""
         fetcher = datastore.ZenodoFetcher()
-        responses.add(responses.GET, 
-            f"https://zenodo.org/api/deposit/depositions/{self.PROD_EPACEMS_ZEN_ID}",
-            json=self.MOCK_EPACEMS_DEPOSITION)
         responses.add(responses.GET,
-            "http://localhost/my/datapackage.json",
-            json=self.MOCK_EPACEMS_DATAPACKAGE)
+                      f"https://zenodo.org/api/deposit/depositions/{self.PROD_EPACEMS_ZEN_ID}",
+                      json=self.MOCK_EPACEMS_DEPOSITION)
+        responses.add(responses.GET,
+                      "http://localhost/my/datapackage.json",
+                      json=self.MOCK_EPACEMS_DATAPACKAGE)
         desc = fetcher.get_descriptor('epacems')
         self.assertEqual(self.MOCK_EPACEMS_DATAPACKAGE, desc.datapackage_json)
-#        self.assertEqual(self.MOCK_EPACEMS_DATAPACKAGE, desc.datapackage_json)
-#        self.assertTrue(responses.assert_call_count("http://localhost/my/datapackage.json", 1))
+        # self.assertTrue(responses.assert_call_count("http://localhost/my/datapackage.json", 1))
 
-    def testGetResourceKey(self):
+    def test_get_resource_key(self):
+        """Tests normal operation of get_resource_key()."""
         self.assertEqual(
             PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "blob.zip"),
             self.fetcher.get_resource_key("epacems", "blob.zip"))
 
-    def testGetResourceKeyForInvalidDataset(self):
+    def test_get_resource_key_for_unknown_dataset_fails(self):
+        """When get_resource_key() is called for unknown dataset it throws KeyError."""
         self.assertRaises(
             KeyError,
             self.fetcher.get_resource_key,
             "unknown", "blob.zip")
 
     @responses.activate
-    def testGetResource(self):
+    def test_get_resource(self):
+        """Tests that get_resource() calls the expected http request and gives back the content."""
         responses.add(responses.GET,
-            "http://localhost/first", body="blah")
+                      "http://localhost/first", body="blah")
         res = self.fetcher.get_resource(
             PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "first"))
         self.assertEqual(b"blah", res)
 
     @responses.activate
-    def testGetResourceWithInvalidChecksum(self):
+    def test_get_resource_with_invalid_checksum(self):
+        """Retrieving resource where content does nto match the checksum will throw ChecksumMismatch."""
         responses.add(responses.GET,
-                "http://localhost/first", body="wrongContent")
+                      "http://localhost/first", body="wrongContent")
         res = PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "first")
         self.assertRaises(datastore.ChecksumMismatch, self.fetcher.get_resource, res)
 
-    def testGetResourceWithNonexistentResource(self):
+    def test_get_resource_with_nonexistent_resource_fails(self):
+        """If resource does not exist, get_resource() throws KeyError."""
         res = PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "nonexistent")
         self.assertRaises(KeyError, self.fetcher.get_resource, res)
 
-# TODO(rousik): add tests for Datastore itself
+# TODO(rousik): add unit tests for Datasource class as well

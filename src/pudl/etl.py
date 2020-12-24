@@ -37,8 +37,8 @@ from prefect.utilities.collections import flatten_seq
 import pudl
 from pudl import constants as pc
 from pudl.extract.ferc1 import SqliteOverwriteMode
-from pudl.workspace.datastore import Datastore
 from pudl.load.csv import write_datapackages
+from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
 
@@ -267,10 +267,11 @@ def pudl_task_target_name(**kwargs):
       target=pudl_task_target_name,
       cache_for=timedelta(days=1), cache_validator=all_inputs)
 def _extract_eia860(params):
-    dfs = pudl.extract.eia860.Extractor(Datastore.from_prefect_context()).extract(year=params['eia860_years'])
+    dfs = pudl.extract.eia860.Extractor(
+        Datastore.from_prefect_context()).extract(year=params['eia860_years'])
     if params['eia860_ytd']:
         eia860m_dfs = pudl.extract.eia860m.Extractor(Datastore.from_prefect_context()).extract(
-                year_month=pc.working_partitions['eia860m']['year_month'])
+            year_month=pc.working_partitions['eia860m']['year_month'])
         dfs = pudl.extract.eia860m.append_eia860m(dfs, eia860m_dfs)
     return dfs
 
@@ -316,22 +317,6 @@ def _transform_eia(params, dfs):
     # TODO(rousik): the above method could be replaced with @task annotation on eia.transform
 
 
-def check_for_bad_years(try_years, dataset):
-    """Check for bad data years."""
-    bad_years = [
-        y for y in try_years
-        if y not in pc.working_partitions[dataset]['years']]
-    if bad_years:
-        raise AssertionError(f"Unrecognized {dataset} years: {bad_years}")
-
-
-def check_for_bad_tables(try_tables, dataset):
-    """Check for bad data tables."""
-    bad_tables = [t for t in try_tables if t not in pc.pudl_tables[dataset]]
-    if bad_tables:
-        raise AssertionError(f"Unrecognized {dataset} table: {bad_tables}")
-
-
 class EiaPipeline(DatasetPipeline):
     """Runs eia923, eia860 and eia (entity extraction) tasks."""
 
@@ -350,7 +335,7 @@ class EiaPipeline(DatasetPipeline):
 
             'eia923_years': etl_params.get('eia923_years', []),
             'eia923_tables': etl_params.get('eia923_tables', pc.pudl_tables['eia923']),
-            }
+        }
 
         # if we are only extracting 860, we also need to pull in the
         # boiler_fuel_eia923 table. this is for harvesting and also for the boiler
@@ -531,7 +516,7 @@ class Ferc1Pipeline(DatasetPipeline):
             # Only add this task to the flow if it is not already present.
             if not self.flow.get_tasks(name='ferc1_to_sqlite'):
                 pudl.extract.ferc1.ferc1_to_sqlite(
-                    self.etl_settings, 
+                    self.etl_settings,
                     self.pudl_settings,
                     overwrite=self.overwrite_ferc1_db)
                 # TODO(rousik): wire the clobber argument to commandline flag,
@@ -569,9 +554,9 @@ class EpaCemsPipeline(DatasetPipeline):
     def validate_params(etl_params):
         """Validate and normalize epacems parameters."""
         epacems_dict = {
-                "epacems_years": etl_params.get("epacems_years", []),
-                "epacems_states": etl_params.get("epacems_states", []),
-                }
+            "epacems_years": etl_params.get("epacems_years", []),
+            "epacems_states": etl_params.get("epacems_states", []),
+        }
         if epacems_dict["epacems_states"] and epacems_dict["epacems_states"][0].lower() == "all":
             epacems_dict["epacems_states"] = sorted(pc.cems_states.keys())
 
@@ -1119,19 +1104,14 @@ def generate_datapkg_bundle(etl_settings,
     local_cache_path = None
     if use_local_cache:
         local_cache_path = Path(pudl_settings["pudl_in"]) / "data"
-    # ds = Datastore(
-    #    local_cache_path=local_cache_path,
-    #    gcs_cache_path=gcs_cache_path,
-    #    sandbox=pudl_settings.get("sandbox", False))
- 
-    # Allow for construction of datastore by setting the params to context
-    # This will allow us to construct datastore when needed 
-    # by calling Datastore.from_prefect_context()
 
+    # Allow for construction of datastore by setting the params to context
+    # This will allow us to construct datastore when needed
+    # by calling Datastore.from_prefect_context()
     prefect.context.datastore_config = dict(
-            sandbox=pudl_settings.get("sandbox", False), 
-            local_cache_path=local_cache_path,
-            gcs_cache_path=gcs_cache_path)
+        sandbox=pudl_settings.get("sandbox", False),
+        local_cache_path=local_cache_path,
+        gcs_cache_path=gcs_cache_path)
     # TODO(rousik): the above code that sets datastore_config in prefect context
     # is a bit of a black magic and should not actually be here but be part of
     # Datastore class (maybe?)
@@ -1154,17 +1134,7 @@ def generate_datapkg_bundle(etl_settings,
     state = flow.run(executor=prefect_executor)
     if show_flow_graph:
         flow.visualize(flow_state=state)
- 
-    # If the flow failed, summarize failed tasks and throw an exception here.
-    # TODO(rousik): perhaps we might want to not generate partial results.
 
-    # For the sake of unit tests, we should be returning something sane here.
-    # But what should it really be?
-
-
-    
-    
-
-    # TODO(rousik): determine what kind of return value should happen here. For now lets just
-    # not return anything.
+    # TODO(rousik): if the flow failed, summarize the failed tasks and throw an exception here.
+    # It is unclear whether we want to generate partial results or wipe them.
     return {}
