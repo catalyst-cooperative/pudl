@@ -11,7 +11,6 @@ dependencies:
   - contextily          # base (OSM basemap) TODO: Is this needed?
   - coverage            # dev
   - dask                # user
-  - dask-labextension   # user (allows dask control within JupyterLab)
   - datapackage>=1.11.0 # base We depend on features introduced in v1.9.0
   - doc8                # dev
   - flake8              # dev
@@ -23,7 +22,7 @@ dependencies:
   - goodtables>=2.4.2   # base
   - ipdb                # dev
   - isort>=5.0          # dev
-  - jedi                # dev
+  - jedi<0.18           # dev
   - jupyter             # user
   - jupyterlab          # user
   - lxml                # dev -- used for pd.read_html

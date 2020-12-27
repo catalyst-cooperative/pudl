@@ -3,13 +3,9 @@
 jupyter labextension install --no-build --log-level=INFO \
     @axlair/jupyterlab_vim \
     @jupyterlab/toc \
-    @jupyterlab/debugger \
-    jupyterlab-flake8 \
-    @jupyter-widgets/jupyterlab-manager \
-    dask-labextension
+    @jupyter-widgets/jupyterlab-manager
 
 jupyter labextension update --all
-jupyter serverextension enable dask_labextension
 
 # Rebuild the jupyterlab application with the extensions:
 jupyter lab build
