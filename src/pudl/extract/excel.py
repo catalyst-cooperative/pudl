@@ -2,8 +2,6 @@
 import csv
 import importlib.resources
 import logging
-import zipfile
-from pathlib import Path
 
 import pandas as pd
 
@@ -254,7 +252,6 @@ class GenericExtractor(object):
             pd.ExcelFile instance with the parsed excel spreadsheet frame
         """
         xlsx_filename = self.excel_filename(page, **partition)
-        
         if xlsx_filename not in self._file_cache:
             excel_file = None
             try:
@@ -265,7 +262,8 @@ class GenericExtractor(object):
 
                 # TODO(rousik): if we can make it so, it would be useful to normalize
                 # the eia860m and zip the xlsx files. Then we could simplify this code.
-                res = self.ds.get_unique_resource(self._dataset_name, name=xlsx_filename)
+                res = self.ds.get_unique_resource(
+                    self._dataset_name, name=xlsx_filename)
                 excel_file = pd.ExcelFile(res)
             except KeyError:
                 zf = self.ds.get_zipfile_resource(self._dataset_name, **partition)

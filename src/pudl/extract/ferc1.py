@@ -51,12 +51,14 @@ and EIA 923.
 """
 import csv
 import importlib
+import io
 import logging
 import os
-import zipfile
 from enum import Enum
 from pathlib import Path
+from typing import Dict
 from urllib.parse import urlparse
+from zipfile import ZipFile
 
 import dbfread
 import pandas as pd
@@ -148,25 +150,30 @@ def observed_respondents(ferc1_engine):
 
 
 class Ferc1Datastore:
+    """Datastore wrapper for accessing Ferc1 resources."""
+
     PACKAGE_PATH = "pudl.package_data.meta.ferc1_row_maps"
-    
+
     def __init__(self, datastore: Datastore):
+        """Consructs datastore wrapper for ferc1 tables."""
         self.datastore = datastore
-        self._cache = {}  # type: Dict[int, file]
+        self._cache = {}  # type: Dict[int, ZipFile]
         self.dbc_path = {}  # type: Dict[int, Path]
 
         with importlib.resources.open_text(self.PACKAGE_PATH, "file_map.csv") as f:
             for row in csv.DictReader(f):
                 year = int(row["year"])
                 path = Path(row["path"])
-                self.dbc_path[year] = path 
+                self.dbc_path[year] = path
 
     def get_dir(self, year: int):
+        """Returns directory where the ferc1 database for given year is located."""
         if year not in self.dbc_path:
             raise ValueError(f"No ferc1 data for year {year}")
         return self.dbc_path[year]
 
-    def get_file(self, year: int, filename: str):
+    def get_file(self, year: int, filename: str) -> io.BytesIO:
+        """Opens file from zipfile archive for given year."""
         if year not in self._cache:
             self._cache[year] = self.datastore.get_zipfile_resource("ferc1", year=year)
         archive = self._cache[year]
@@ -588,7 +595,6 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
 
     # Get the mapping of filenames to table names and fields
     logger.info(f"Creating a new database schema based on {refyear}.")
-    sandbox = pudl_settings.get("sandbox", False)
     dbc_map = get_dbc_map(datastore, refyear)
     define_sqlite_db(sqlite_meta, dbc_map, datastore, tables=tables,
                      refyear=refyear, bad_cols=bad_cols)

@@ -3,11 +3,10 @@ Retrieve data from EPA CEMS hourly zipped CSVs.
 
 This modules pulls data from EPA's published CSV files.
 """
-import io
 import logging
-from collections import namedtuple
-from zipfile import ZipFile
 from pathlib import Path
+from typing import Dict, NamedTuple, Tuple
+from zipfile import ZipFile
 
 import pandas as pd
 from prefect import task
@@ -15,13 +14,13 @@ from prefect.engine.results import LocalResult
 
 from pudl import constants as pc
 from pudl.workspace.datastore import Datastore
-from typing import NamedTuple
 
 logger = logging.getLogger(__name__)
 
 
 class EpaCemsPartition(NamedTuple):
     """Represents EpaCems partition identifying unique resource file."""
+
     year: str
     state: str
 
@@ -34,25 +33,32 @@ class EpaCemsPartition(NamedTuple):
         return dict(year=self.year, state=self.state.lower())
 
     def get_monthly_file(self, month: int) -> Path:
+        """Returns path to the file that contains data for a given month.
+
+        This file is stored inside the zip file resource for this partition.
+        """
         return Path(f"{self.year}{self.state.lower()}{month:02}")
 
 
 class EpaCemsDatastore:
     """Helper class to extract EpaCems resources from datastore.
 
-    EpaCems resources are identified by a year and a state. Each of these zip files 
+    EpaCems resources are identified by a year and a state. Each of these zip files
     contain monthly zip files that in turn contain csv files. This class implements
     method open_csv that reads the monthly csv and returrns it as a pandas.DataFrame.
 
-    Because multiple months of data are usually read in sequence, this class also 
+    Because multiple months of data are usually read in sequence, this class also
     implements caching of the open archives. These persist available during the lifetime
     of this instance.
     """
+
     def __init__(self, datastore: Datastore):
+        """Create new EpaCemsDatastore wrapper."""
         self.datastore = datastore
-        self._open_archives = {}  # type: Dict[Tuple(str, str), zipfile.ZipFile]
+        self._open_archives = {}  # type: Dict[Tuple(str, str), ZipFile]
 
     def open_csv(self, partition: EpaCemsPartition, month: int) -> pd.DataFrame:
+        """Returns dataframe containing data for a given EpaCems partition and month."""
         archive_key = partition.get_key()
         if archive_key not in self._open_archives:
             self._open_archives[archive_key] = self.datastore.get_zipfile_resource(
@@ -64,7 +70,7 @@ class EpaCemsDatastore:
             with ZipFile(mzip, "r").open(str(mf.with_suffix(".csv")), "r") as csv_file:
                 return self.csv_to_dataframe(csv_file)
 
-    def csv_to_dataframe(self, csv_file) -> pd.DataFrame:        
+    def csv_to_dataframe(self, csv_file) -> pd.DataFrame:
         """
         Convert a CEMS csv file into a :class:`pandas.DataFrame`.
 
