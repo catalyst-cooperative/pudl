@@ -589,44 +589,47 @@ def glue(ferc1=False, eia=False):
     # many cases. This also needs to be done any time plant_name is pulled in
     # from other tables.
     plant_map = (
-        get_plant_map().
-        pipe(pudl.helpers.simplify_strings, ['plant_name_ferc1'])
+        get_plant_map()
+        .pipe(pudl.helpers.simplify_strings, ['plant_name_ferc1'])
     )
 
     plants_pudl = (
-        plant_map.
-        loc[:, ['plant_id_pudl', 'plant_name_pudl']].
-        drop_duplicates('plant_id_pudl')
+        plant_map
+        .loc[:, ['plant_id_pudl', 'plant_name_pudl']]
+        .drop_duplicates('plant_id_pudl')
+        .dropna(how="all")
     )
     plants_eia = (
-        plant_map.
-        loc[:, ['plant_id_eia', 'plant_name_eia', 'plant_id_pudl']].
-        drop_duplicates("plant_id_eia").
-        dropna(subset=["plant_id_eia"])
+        plant_map
+        .loc[:, ['plant_id_eia', 'plant_name_eia', 'plant_id_pudl']]
+        .drop_duplicates("plant_id_eia")
+        .dropna(subset=["plant_id_eia"])
     )
     plants_ferc1 = (
-        plant_map.
-        loc[:, ['plant_name_ferc1', 'utility_id_ferc1', 'plant_id_pudl']].
-        drop_duplicates(['plant_name_ferc1', 'utility_id_ferc1']).
-        dropna(subset=["utility_id_ferc1", "plant_name_ferc1"])
+        plant_map
+        .loc[:, ['plant_name_ferc1', 'utility_id_ferc1', 'plant_id_pudl']]
+        .drop_duplicates(['plant_name_ferc1', 'utility_id_ferc1'])
+        .dropna(subset=["utility_id_ferc1", "plant_name_ferc1"])
     )
 
     utility_map = get_utility_map()
     utilities_pudl = (
-        utility_map.loc[:, ['utility_id_pudl', 'utility_name_pudl']].
-        drop_duplicates('utility_id_pudl')
+        utility_map
+        .loc[:, ['utility_id_pudl', 'utility_name_pudl']]
+        .drop_duplicates('utility_id_pudl')
+        .dropna(how="all")
     )
     utilities_eia = (
-        utility_map.
-        loc[:, ['utility_id_eia', 'utility_name_eia', 'utility_id_pudl']].
-        drop_duplicates('utility_id_eia').
-        dropna(subset=['utility_id_eia'])
+        utility_map
+        .loc[:, ['utility_id_eia', 'utility_name_eia', 'utility_id_pudl']]
+        .drop_duplicates('utility_id_eia')
+        .dropna(subset=['utility_id_eia'])
     )
     utilities_ferc1 = (
-        utility_map.
-        loc[:, ['utility_id_ferc1', 'utility_name_ferc1', 'utility_id_pudl']].
-        drop_duplicates('utility_id_ferc1').
-        dropna(subset=['utility_id_ferc1'])
+        utility_map
+        .loc[:, ['utility_id_ferc1', 'utility_name_ferc1', 'utility_id_pudl']]
+        .drop_duplicates('utility_id_ferc1')
+        .dropna(subset=['utility_id_ferc1'])
     )
 
     # Now we need to create a table that indicates which plants are associated
@@ -635,14 +638,14 @@ def glue(ferc1=False, eia=False):
     # These dataframes map our plant_id to FERC respondents and EIA
     # operators -- the equivalents of our "utilities"
     plants_utilities_ferc1 = (
-        plant_map.
-        loc[:, ['plant_id_pudl', 'utility_id_ferc1']].
-        dropna(subset=['utility_id_ferc1'])
+        plant_map
+        .loc[:, ['plant_id_pudl', 'utility_id_ferc1']]
+        .dropna(subset=['utility_id_ferc1'])
     )
     plants_utilities_eia = (
-        plant_map.
-        loc[:, ['plant_id_pudl', 'utility_id_eia']].
-        dropna(subset=['utility_id_eia'])
+        plant_map
+        .loc[:, ['plant_id_pudl', 'utility_id_eia']]
+        .dropna(subset=['utility_id_eia'])
     )
 
     # Here we treat the dataframes like database tables, and join on the
@@ -663,10 +666,10 @@ def glue(ferc1=False, eia=False):
     )
 
     utility_plant_assn = (
-        utility_plant_assn.
-        loc[:, ['plant_id_pudl', 'utility_id_pudl']].
-        dropna().
-        drop_duplicates()
+        utility_plant_assn
+        .loc[:, ['plant_id_pudl', 'utility_id_pudl']]
+        .dropna()
+        .drop_duplicates()
     )
 
     # At this point there should be at most one row in each of these data
