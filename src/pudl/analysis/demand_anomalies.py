@@ -870,7 +870,7 @@ class Series:
                     for j in range(idx - width, idx + width):
                         # Flag if not start or end of data run
                         if (
-                            j >= 1 and j < mask.size
+                            j >= 1 and j < mask.shape[0]
                             and self.flags[j, col] is None
                             and percent_data_pre[j] != 1 and percent_data_post[j] != 1
                             and len_data[j] <= width
