@@ -1065,7 +1065,13 @@ class Series:
         """
         return tensor.T.reshape(self.x.shape, order='F')
 
-    def impute(self, mask: np.ndarray = None, periods: int = 24, **kwargs) -> np.ndarray:
+    def impute(
+        self,
+        mask: np.ndarray = None,
+        periods: int = 24,
+        blocks: int = 1,
+        **kwargs: Any
+    ) -> np.ndarray:
         """
         Impute null values.
 
@@ -1074,6 +1080,8 @@ class Series:
                 any null values in :attr:`x`.
             periods: Number of consecutive values in each series to fold into a group.
                 See :meth:`fold_tensor`.
+            blocks: Number of blocks into which to split the series for imputation.
+                This has been found to reduce processing time without loss of accuracy.
             kwargs: Optional arguments to :func:`impute_latc_tnn`.
 
         Returns:
@@ -1085,5 +1093,11 @@ class Series:
             x = np.where(mask, np.nan, x)
         x = np.where(np.isnan(x), 0, x)
         tensor = self.fold_tensor(x, periods=periods)
-        imputed = impute_latc_tnn(tensor, **kwargs)
-        return self.unfold_tensor(imputed)
+        n = tensor.shape[1]
+        ends = [*range(0, n, int(np.ceil(n / blocks))), n]
+        for i in range(blocks):
+            if blocks > 1:
+                print(f"Block: {i}")
+            idx = slice(None), slice(ends[i], ends[i + 1]), slice(None)
+            tensor[idx] = impute_latc_tnn(tensor[idx], **kwargs)
+        return self.unfold_tensor(tensor)
