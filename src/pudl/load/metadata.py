@@ -548,16 +548,15 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
         goodtables_errors = ""
         for table in report["tables"]:
             if not table["valid"]:
-                goodtables_errors += str(table["source"])
+                goodtables_errors += str(table["path"])
                 goodtables_errors += str(table["errors"])
                 compact_errors = []
                 for err in table["errors"]:
                     new_err = err.copy()
-                    new_err["message-data"] = new_err["message-data"].copy()
                     # Only retain up to 5 samples of bad values
-                    new_err["message-data"]["values"] = new_err["message-data"]["values"][:5]
+                    new_err["values"] = new_err["values"][:5]
                     compact_errors.append(new_err)
-                compact_report[table["source"]] = compact_errors
+                compact_report[table["path"]] = compact_errors
         pretty_report = json.dumps(compact_report, sort_keys=True, indent=4)
         logger.error(f'{datapkg.descriptor["name"]} failed: {pretty_report}')
         raise ValueError(

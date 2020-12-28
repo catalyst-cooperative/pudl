@@ -33,7 +33,7 @@ dependencies:
   - nbval               # dev
   - networkx>=2.2       # base We depend on features introduced in v2.2
   - numpy               # base
-  - pandas>=1.1         # base Extensive nullable data type use
+  - pandas>=1.2         # base Extensive nullable data type use
   - pandoc              # dev
   - pdbpp               # dev
   - pep8-naming         # dev
@@ -65,9 +65,8 @@ dependencies:
   - tqdm                # base TODO: find usage. Does it need to be in base?
   - twine               # dev
   - xlsxwriter          # base
-  - xlrd<2.0            # base xlrd 2.0 and later drops xlsx support
   - pip:
     - flake8-use-fstring # dev
-    - goodtables-pandas-py>=0.1.1  # base get in conda!
+    - goodtables-pandas-py>=0.2.0  # base get in conda!
     - recordlinkage      # dev for now... base if it ends up in ETL
     - fredapi            # dev

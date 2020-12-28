@@ -17,7 +17,7 @@ install_requires = [
     "matplotlib",
     "networkx>=2.2",
     "numpy",
-    "pandas>=1.1",
+    "pandas>=1.2",
     "prefect[viz, gcp]",
     "pyarrow>=2.0.0",
     "pyyaml",
@@ -29,7 +29,6 @@ install_requires = [
     "tableschema-sql>=1.3.1",
     "timezonefinder",
     "tqdm",
-    "xlrd<2.0",
     "xlsxwriter",
 ]
 
