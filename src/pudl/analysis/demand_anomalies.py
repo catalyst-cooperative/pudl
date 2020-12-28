@@ -1030,7 +1030,7 @@ class Series:
             )
         return new_nulls
 
-    def fold_tensor(self, periods: int = 24, x: np.ndarray = None) -> np.ndarray:
+    def fold_tensor(self, x: np.ndarray = None, periods: int = 24) -> np.ndarray:
         """
         Fold into a 3-dimensional tensor representation.
 
@@ -1040,8 +1040,8 @@ class Series:
         For example, each group may represent a day and each period the hour of the day.
 
         Args:
-            periods: Number of consecutive values in each series to fold into a group.
             x: Series array to fold. Uses :attr:`x` by default.
+            periods: Number of consecutive values in each series to fold into a group.
 
         Returns:
             >>> x = np.column_stack([[1, 2, 3, 4, 5, 6], [10, 20, 30, 40, 50, 60]])
