@@ -1,19 +1,28 @@
 """
-Functions to screen electricity demand timeseries data for anomalies.
+Screen timeseries for anomalies and impute missing and anomalous values.
 
-These method were originally designed to identify unrealistic data in the
+The screening methods were originally designed to identify unrealistic data in the
 electricity demand timeseries reported to EIA on Form 930, and have also been
 applied to the FERC Form 714, and various historical demand timeseries
 published by regional grid operators like MISO, PJM, ERCOT, and SPP.
 
-Adapted from code published and modified by:
+They are adapted from code published and modified by:
 * Tyler Ruggles <truggles@carnegiescience.edu>
 * Greg Schivley <greg@carbonimpact.co>
 
-See also:
+And described at:
 * https://doi.org/10.1038/s41597-020-0483-x
 * https://zenodo.org/record/3737085
 * https://github.com/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Code
+
+The imputation method was designed for multivariate time series forecasting.
+
+It is adapted from code published by:
+* Xinyu Chen <chenxy346@gmail.com>
+
+And described at:
+* https://arxiv.org/abs/2006.10436
+* https://github.com/xinychen/tensor-learning
 """
 
 import warnings
@@ -276,7 +285,7 @@ def insert_run_length(
     return x
 
 
-def mat2ten(matrix: np.ndarray, shape: Iterable[int], mode: int) -> np.ndarray:
+def _mat2ten(matrix: np.ndarray, shape: Iterable[int], mode: int) -> np.ndarray:
     """Fold matrix into a tensor."""
     index = [mode] + [i for i in range(len(shape)) if i != mode]
     return np.moveaxis(
@@ -286,7 +295,7 @@ def mat2ten(matrix: np.ndarray, shape: Iterable[int], mode: int) -> np.ndarray:
     )
 
 
-def ten2mat(tensor: np.ndarray, mode: int) -> np.ndarray:
+def _ten2mat(tensor: np.ndarray, mode: int) -> np.ndarray:
     """Unfold tensor into a matrix."""
     return np.reshape(
         np.moveaxis(tensor, source=mode, destination=0),
@@ -295,7 +304,7 @@ def ten2mat(tensor: np.ndarray, mode: int) -> np.ndarray:
     )
 
 
-def svt_tnn(matrix: np.ndarray, tau: Iterable[int], theta: int) -> np.ndarray:
+def _svt_tnn(matrix: np.ndarray, tau: Iterable[int], theta: int) -> np.ndarray:
     """Singular value thresholding (SVT) truncated nuclear norm (TNN) minimization."""
     [m, n] = matrix.shape
     if 2 * m < n:
@@ -307,7 +316,7 @@ def svt_tnn(matrix: np.ndarray, tau: Iterable[int], theta: int) -> np.ndarray:
         mid[theta:idx] = (s[theta:idx] - tau) / s[theta:idx]
         return (u[:, :idx] @ np.diag(mid)) @ (u[:, :idx].T @ matrix)
     if m > 2 * n:
-        return svt_tnn(matrix.T, tau, theta).T
+        return _svt_tnn(matrix.T, tau, theta).T
     u, s, v = np.linalg.svd(matrix, full_matrices=0)
     idx = np.sum(s > tau)
     vec = s[:idx].copy()
@@ -317,7 +326,7 @@ def svt_tnn(matrix: np.ndarray, tau: Iterable[int], theta: int) -> np.ndarray:
 
 def impute_latc_tnn(
     tensor: np.ndarray,
-    time_lags: Iterable[int] = [1],
+    lags: Iterable[int] = [1],
     alpha: Iterable[float] = [1 / 3, 1 / 3, 1 / 3],
     rho0: float = 1e-7,
     lambda0: float = 2e-7,
@@ -326,16 +335,30 @@ def impute_latc_tnn(
     maxiter: int = 300
 ) -> np.ndarray:
     """
-    Impute tensor values with LATC-TNN method.
+    Impute tensor values with LATC-TNN method by Chen and Sun (2020).
 
     Uses low-rank autoregressive tensor completion (LATC) with
     truncated nuclear norm (TNN) minimization.
+
+    * description: https://arxiv.org/abs/2006.10436
+    * code: https://github.com/xinychen/tensor-learning/blob/master/mats
+
+    Args:
+        tensor: Observational series in the form (series, groups, periods).
+        lags:
+        alpha:
+        rho0:
+        lambda0:
+        theta:
+        epsilon: Convergence criterion. A smaller number will result in more iterations.
+        maxiter: Max number of iterations.
     """
+    tensor = np.where(np.isnan(tensor), 0, tensor)
     dim = np.array(tensor.shape)
     dim_time = np.int(np.prod(dim) / dim[0])
-    d = len(time_lags)
-    max_lag = np.max(time_lags)
-    sparse_mat = ten2mat(tensor, mode=0)
+    d = len(lags)
+    max_lag = np.max(lags)
+    sparse_mat = _ten2mat(tensor, mode=0)
     pos_missing = np.where(sparse_mat == 0)
     X = np.zeros(np.insert(dim, 0, len(dim)))
     T = np.zeros(np.insert(dim, 0, len(dim)))
@@ -345,16 +368,16 @@ def impute_latc_tnn(
     it = 0
     ind = np.zeros((d, dim_time - max_lag), dtype=int)
     for i in range(d):
-        ind[i, :] = np.arange(max_lag - time_lags[i], dim_time - time_lags[i])
+        ind[i, :] = np.arange(max_lag - lags[i], dim_time - lags[i])
     last_mat = sparse_mat.copy()
     snorm = np.linalg.norm(sparse_mat, 'fro')
     rho = rho0
     while True:
         rho = min(rho * 1.05, 1e5)
         for k in range(len(dim)):
-            X[k] = mat2ten(
-                svt_tnn(
-                    ten2mat(mat2ten(Z, shape=dim, mode=0) - T[k] / rho, mode=k),
+            X[k] = _mat2ten(
+                _svt_tnn(
+                    _ten2mat(_mat2ten(Z, shape=dim, mode=0) - T[k] / rho, mode=k),
                     tau=alpha[k] / rho,
                     theta=theta
                 ),
@@ -362,23 +385,23 @@ def impute_latc_tnn(
                 mode=k
             )
         tensor_hat = np.einsum('k, kmnt -> mnt', alpha, X)
-        mat_hat = ten2mat(tensor_hat, 0)
+        mat_hat = _ten2mat(tensor_hat, 0)
         mat0 = np.zeros((dim[0], dim_time - max_lag))
         if lambda0 > 0:
             for m in range(dim[0]):
                 Qm = mat_hat[m, ind].T
                 A[m, :] = np.linalg.pinv(Qm) @ Z[m, max_lag:]
                 mat0[m, :] = Qm @ A[m, :]
-            mat1 = ten2mat(np.mean(rho * X + T, axis=0), 0)
+            mat1 = _ten2mat(np.mean(rho * X + T, axis=0), 0)
             Z[pos_missing] = np.append(
                 (mat1[:, :max_lag] / rho),
                 (mat1[:, max_lag:] + lambda0 * mat0) / (rho + lambda0),
                 axis=1
             )[pos_missing]
         else:
-            Z[pos_missing] = (ten2mat(np.mean(X + T / rho, axis=0), 0))[pos_missing]
+            Z[pos_missing] = (_ten2mat(np.mean(X + T / rho, axis=0), 0))[pos_missing]
         T = T + rho * (X - np.broadcast_to(
-            mat2ten(Z, dim, 0), np.insert(dim, 0, len(dim))
+            _mat2ten(Z, dim, 0), np.insert(dim, 0, len(dim))
         ))
         tol = np.linalg.norm((mat_hat - last_mat), 'fro') / snorm
         last_mat = mat_hat.copy()
@@ -1007,3 +1030,61 @@ class Series:
             )
             is_new_nulls.append(is_new_null)
         return np.column_stack(is_new_nulls)
+
+    def fold_tensor(self, periods: int = 24, x: np.ndarray = None) -> np.ndarray:
+        """
+        Fold into a 3-dimensional tensor representation.
+
+        Folds the series `x` (number of observations, number of series)
+        into a 3-d tensor (number of series, number of groups, number of periods),
+        splitting observations into groups of length `periods`.
+        For example, each group may represent a day and each period the hour of the day.
+
+        Args:
+            periods: Number of consecutive values in each series to fold into a group.
+            x: Series array to fold. Uses :attr:`x` by default.
+
+        Returns:
+            >>> x = np.column_stack([[1, 2, 3, 4, 5, 6], [10, 20, 30, 40, 50, 60]])
+            >>> s = Series(x)
+            >>> tensor = s.fold_tensor(periods=3)
+            >>> tensor[0]
+            array([[1, 2, 3],
+                   [4, 5, 6]])
+            >>> np.all(x == s.unfold_tensor(tensor))
+            True
+        """
+        tensor_shape = self.x.shape[1], self.x.shape[0] // periods, periods
+        x = self.x if x is None else x
+        return x.T.reshape(tensor_shape)
+
+    def unfold_tensor(self, tensor: np.ndarray) -> np.ndarray:
+        """
+        Unfold a 3-dimensional tensor representation.
+
+        Performs the reverse of :meth:`fold_tensor`.
+        """
+        return tensor.T.reshape(self.x.shape, order='F')
+
+    def impute(self, mask: np.ndarray = None, periods: int = 24, **kwargs) -> np.ndarray:
+        """
+        Impute null values.
+
+        Args:
+            mask: Boolean mask of values to impute in addition to
+                any null values in :attr:`x`.
+            periods: Number of consecutive values in each series to fold into a group.
+                See :meth:`fold_tensor`.
+            kwargs: Optional arguments to :func:`impute_latc_tnn`.
+
+        Returns:
+            Array of same shape as :attr:`x` with all null values
+            (and those selected by `mask`) replaced with imputed values.
+        """
+        x = self.x
+        if mask is not None:
+            x = np.where(mask, np.nan, x)
+        x = np.where(np.isnan(x), 0, x)
+        tensor = self.fold_tensor(x, periods=periods)
+        imputed = impute_latc_tnn(tensor, **kwargs)
+        return self.unfold_tensor(imputed)
