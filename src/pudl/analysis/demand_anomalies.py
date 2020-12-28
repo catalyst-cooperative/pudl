@@ -942,19 +942,17 @@ class Series:
 
     def summarize_flags(self) -> pd.DataFrame:
         """Summarize flagged values by flag, count and median."""
-        stats = []
-        # Use pd.unique to preserve flagging order
-        for flag in pd.unique(self.flagged):
-            mask = self.flags == flag
-            for col in range(self.xi.shape[1]):
-                xi = self.xi[mask[:, col], col]
-                stats.append({
-                    'column': self.columns[col],
-                    'flag': flag,
-                    'count': xi.size,
-                    'median': np.nanmedian(xi) if xi.size else np.nan,
-                })
-        return pd.DataFrame(stats).sort_values(by='column')
+        stats = {}
+        for col in range(self.xi.shape[1]):
+            stats[self.columns[col]] = (
+                pd.Series(self.xi[:, col])
+                .groupby(self.flags[:, col])
+                .agg(['count', 'median'])
+            )
+        df = pd.concat(stats, names=['column', 'flag']).reset_index()
+        # Sort flags by flagged order
+        ordered = df['flag'].astype(pd.CategoricalDtype(pd.unique(self.flagged)))
+        return df.assign(flag=ordered).sort_values(['column', 'flag'])
 
     def plot_flags(self, name: Any = 0) -> None:
         """
