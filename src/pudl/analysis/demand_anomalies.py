@@ -1101,3 +1101,39 @@ class Series:
             idx = slice(None), slice(ends[i], ends[i + 1]), slice(None)
             tensor[idx] = impute_latc_tnn(tensor[idx], **kwargs)
         return self.unfold_tensor(tensor)
+
+    def summarize_imputed(
+        self,
+        imputed: np.ndarray,
+        mask: np.ndarray
+    ) -> pd.DataFrame:
+        """
+        Summarize the fit of imputed values to actual values.
+
+        Summarizes the agreement between actual and imputed values with the
+        following statistics:
+
+        * `mpe`: Mean percent error, `100 * (actual - imputed) / actual`.
+        * `mape`: Mean absolute percent error, `abs(mpe)`.
+
+        Args:
+            imputed: Series of same shape as :attr:`x` with imputed values.
+                See :meth:`impute`.
+            mask: Boolean mask of imputed values that were not null in :attr:`x`.
+                See :meth:`simulate_nulls`.
+
+        Returns:
+            Table of imputed value statistics for each series.
+        """
+        stats = []
+        for col in range(self.x.shape[1]):
+            x = self.x[mask[:, col], col]
+            pe = 100 * (x - imputed[mask[:, col], col]) / x
+            pe = pe[~np.isnan(pe)]
+            stats.append({
+                'column': self.columns[col],
+                'count': x.size,
+                'mpe': np.mean(pe),
+                'mape': np.mean(np.abs(pe)),
+            })
+        return pd.DataFrame(stats)
