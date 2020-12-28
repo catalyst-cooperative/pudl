@@ -11,6 +11,7 @@ will need to tell PUDL where to find them with --pudl_in=<PUDL_IN>.
 """
 import logging
 import pathlib
+from pathlib import Path
 
 import pytest
 import yaml
@@ -18,7 +19,6 @@ import yaml
 import pudl
 from pudl.convert.epacems_to_parquet import epacems_to_parquet
 from pudl.extract.ferc1 import get_dbc_map, get_fields
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +115,8 @@ def test_ferc1_lost_data(pudl_settings_fixture, pudl_datastore_fixture, data_sco
 
 def test_ferc1_solo_etl(pudl_settings_fixture,
                         ferc1_engine,
-                        live_ferc1_db):
+                        live_ferc1_db,
+                        commandline_args):
     """Verify that a minimal FERC Form 1 can be loaded without other data."""
     cfg_path = pathlib.Path(__file__).parent / "settings/ferc1-solo.yml"
     pudl_settings = yaml.safe_load(open(cfg_path, "r"))
@@ -124,7 +125,7 @@ def test_ferc1_solo_etl(pudl_settings_fixture,
         pudl_settings,
         pudl_settings_fixture,
         datapkg_bundle_name='ferc1-solo',
-        clobber=True)
+        commandline_args=commandline_args)
 
 
 class TestFerc1Datastore:
@@ -263,7 +264,8 @@ class TestEpaCemsDatastore:
     def test_get_csv(self, pudl_datastore_fixture):
         """Spot check opening of epacems csv file from datastore."""
         ds = pudl.extract.epacems.EpaCemsDatastore(pudl_datastore_fixture)
-        df = ds.open_csv(pudl.extract.epacems.EpaCemsPartition(state="NY", year=1999), 6)
+        df = ds.open_csv(pudl.extract.epacems.EpaCemsPartition(
+            state="NY", year=1999), 6)
         # TODO(rousik): this is reading file from zenodo which may be expensive, slow
         # and potentially flaky.
         assert "state" in df.columns

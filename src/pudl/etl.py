@@ -14,11 +14,12 @@ data from:
  - US Environmental Protection Agency (EPA):
    - Continuous Emissions Monitory System (epacems)
    - Integrated Planning Model (epaipm)
-
 """
+import argparse
 import io
 import itertools
 import logging
+import os
 import tarfile
 import uuid
 from datetime import datetime, timedelta
@@ -29,8 +30,9 @@ import prefect
 from prefect import task, unmapped
 from prefect.engine import cache_validators
 from prefect.engine.cache_validators import all_inputs
-from prefect.engine.executors.local import LocalExecutor
 from prefect.engine.results import LocalResult
+from prefect.executors import DaskExecutor
+from prefect.executors.local import LocalExecutor
 from prefect.tasks.gcp import GCSUpload
 from prefect.utilities.collections import flatten_seq
 
@@ -41,6 +43,79 @@ from pudl.load.csv import write_datapackages
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
+
+
+def command_line_flags() -> argparse.ArgumentParser:
+    """Returns argparse.ArgumentParser containing flags relevant to the ETL component."""
+    parser = argparse.ArgumentParser(
+        description="ETL configuration flags", add_help=False)
+    parser.add_argument(
+        '-c',
+        '--clobber',
+        action='store_true',
+        help="""Clobber existing datapackages if they exist. If clobber is not
+        included but the datapackage bundle directory already exists the _build
+        will fail. Either the datapkg_bundle_name in the settings_file needs to
+        be unique or you need to include --clobber""",
+        default=False)
+    parser.add_argument(
+        "--use-dask-executor",
+        action="store_true",
+        default=False,
+        help='If enabled, use local DaskExecutor to run the flow.')
+    parser.add_argument(
+        "--dask-executor-address",
+        default=None,
+        help='If specified, use pre-existing DaskExecutor at this address.')
+    parser.add_argument(
+        "--upload-to-gcs-bucket",
+        type=str,
+        default=os.environ.get('PUDL_UPLOAD_TO_GCS_BUCKET'),
+        help="""Name of the Google Cloud Storage bucket where the resulting csv
+        files should be uploaded to.
+
+        If not set, the default value will be set from PUDL_UPLOAD_TO_GCS_BUCKET
+        environment variable.
+
+        If neither command-line flag nor env variable are set, the results
+        will be stored to local disk only and will not be uploaded to GCS.""")
+    parser.add_argument(
+        "--overwrite-ferc1-db",
+        type=lambda mode: SqliteOverwriteMode[mode],
+        default=SqliteOverwriteMode.ALWAYS,
+        choices=list(SqliteOverwriteMode))
+    parser.add_argument(
+        "--show-flow-graph",
+        action="store_true",
+        default=False,
+        help="Controls whether flow dependency graphs should be displayed.")
+    parser.add_argument(
+        "--gcs-cache-path",
+        type=str,
+        default=os.environ.get('PUDL_GCS_CACHE_PATH'),
+        help="""Specifies path in the form of gs://${bucket-name}[/optional-path-prefix].
+
+        If set, datastore will use this storage bucket as a caching layer and will retrieve
+        resources from there before contacting Zenodo.
+
+        This can be combined with --gcs-cache-readonly and --bypass-local-cache flags
+        to control the exact operation of datastore caching layers.
+
+        If not specified, the default will be loaded from environment variable
+        PUDL_GCS_CACHE_PATH. If that one is not set, Google Cloud Storage caching will
+        not be used.""")
+    parser.add_argument(
+        "--bypass-local-cache",
+        action="store_true",
+        default=False,
+        help="If enabled, the local file cache for datastore will not be used.")
+    parser.add_argument(
+        "--gcs-cache-readonly",
+        action="store_true",
+        default=False,
+        help="""If this is set to true, then the caching layer specified by --cs-cache-path
+        will be set to be read-only (no modifications will be attempted).""")
+    return parser
 
 
 @task
@@ -1035,18 +1110,11 @@ class DatapackageBuilder(prefect.Task):
         return results
 
 
-def generate_datapkg_bundle(etl_settings,
-                            pudl_settings,
-                            datapkg_bundle_name,
-                            datapkg_bundle_doi=None,
-                            clobber=False,
-                            prefect_executor=LocalExecutor(),
-                            gcs_bucket=None,
-                            overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS,
-                            show_flow_graph: bool = False,
-                            use_local_cache: bool = True,
-                            gcs_cache_path: str = None
-                            ):
+def generate_datapkg_bundle(etl_settings: dict,
+                            pudl_settings: dict,
+                            datapkg_bundle_name: str,
+                            datapkg_bundle_doi: str = None,
+                            commandline_args: argparse.Namespace = None):
     """
     Coordinate the generation of data packages.
 
@@ -1064,23 +1132,8 @@ def generate_datapkg_bundle(etl_settings,
             describe paths to various resources and outputs.
         datapkg_bundle_name (str): name of directory you want the bundle of
             data packages to live.
-        clobber (bool): If True and there is already a directory with data
-            packages with the datapkg_bundle_name, the existing data packages
-            will be deleted and new data packages will be generated in their
-            place.
-        prefect_executor (prefect.engine.executors.base.Executor): if specified,
-            run the flow on this executor.
-        use_dask_executor (bool): If True, launch local Dask cluster to run the
-            ETL tasks on.
-        gcs_bucket (str): if specified, upload the datapackage archives to this
-            Google Cloud Bucket.
-        use_local_cache (bool): controls whether datastore should be using local
-            file cache.
-        gcs_cache_path (str): controls whether datastore should be using Google
-            Cloud Storage based cache.
-        overwrite_ferc1_db (SqliteOverwriteMode): controls what to do with ferc1
-            sqlite database. ALWAYS recreate, run the setup ONCE if the file does
-            not exist or simply NEVER try to create ferc1 database.
+        commandline_args (argparse.Namespace): provides parsed commandline
+            flags that control the operation of the ETL pipeline.
 
     Returns:
         dict: A dictionary with datapackage names as the keys, and Python
@@ -1089,20 +1142,26 @@ def generate_datapkg_bundle(etl_settings,
         bundle.
 
     """
+    # TODO(rousik): args.clobber should be moved to prefect.context, also other
+    # configuration parameters such as overwrite-ferc1-db.
+    prefect_executor = LocalExecutor()
+    if commandline_args.dask_executor_address or commandline_args.use_dask_executor:
+        prefect_executor = DaskExecutor(address=commandline_args.dask_executor_address)
+
     datapkg_bundle_settings = etl_settings['datapkg_bundle_settings']
     flow = prefect.Flow("PUDL ETL")
     datapkg_builder = DatapackageBuilder(
         datapkg_bundle_name, pudl_settings, doi=datapkg_bundle_doi,
-        gcs_bucket=gcs_bucket)
+        gcs_bucket=commandline_args.upload_to_gcs_bucket)
     # Create, or delete and re-create the top level datapackage bundle directory:
-    datapkg_builder.prepare_output_directories(clobber=clobber)
+    datapkg_builder.prepare_output_directories(clobber=commandline_args.clobber)
 
     # validate the settings from the settings file.
     validated_bundle_settings = validate_params(
         datapkg_bundle_settings, pudl_settings)
 
     local_cache_path = None
-    if use_local_cache:
+    if not commandline_args.bypass_local_cache:
         local_cache_path = Path(pudl_settings["pudl_in"]) / "data"
 
     # Allow for construction of datastore by setting the params to context
@@ -1111,7 +1170,8 @@ def generate_datapkg_bundle(etl_settings,
     prefect.context.datastore_config = dict(
         sandbox=pudl_settings.get("sandbox", False),
         local_cache_path=local_cache_path,
-        gcs_cache_path=gcs_cache_path)
+        gcs_cache_path=commandline_args.gcs_cache_path,
+        gcs_cache_readonly=commandline_args.gcs_cache_readonly)
     # TODO(rousik): the above code that sets datastore_config in prefect context
     # is a bit of a black magic and should not actually be here but be part of
     # Datastore class (maybe?)
@@ -1125,14 +1185,14 @@ def generate_datapkg_bundle(etl_settings,
             bundle_name=datapkg_bundle_name,
             datapkg_builder=datapkg_builder,
             etl_settings=etl_settings,
-            clobber=clobber,
-            overwrite_ferc1_db=overwrite_ferc1_db)
+            clobber=commandline_args.clobber,
+            overwrite_ferc1_db=commandline_args.overwrite_ferc1_db)
 
     # TODO(rousik): print out the flow structure
-    if show_flow_graph:
+    if commandline_args.show_flow_graph:
         flow.visualize()
     state = flow.run(executor=prefect_executor)
-    if show_flow_graph:
+    if commandline_args.show_flow_graph:
         flow.visualize(flow_state=state)
 
     # TODO(rousik): if the flow failed, summarize the failed tasks and throw an exception here.

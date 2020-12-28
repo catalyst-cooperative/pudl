@@ -197,18 +197,28 @@ def ferc1_engine(live_ferc1_db, pudl_settings_fixture,
 
 
 @pytest.fixture(scope='session')
-def datapkg_bundle(request, ferc1_engine,
-                   pudl_settings_fixture, live_pudl_db, data_scope):
+def commandline_args(request):
+    """Returns argparse.Namespace with flag settings for generate_datapkg_bundle."""
+    args = pudl.etl.command_line_flags().parse_args([])
+    args.clobber = request.config.getoption('--clobber')
+    return args
+
+
+@pytest.fixture(scope='session')
+def datapkg_bundle(ferc1_engine,
+                   pudl_settings_fixture,
+                   live_pudl_db,
+                   data_scope,
+                   commandline_args):
     """Generate limited packages for testing."""
     if not live_pudl_db:
         logger.info('setting up the datapkg_bundle fixture')
-        clobber = request.config.getoption("--clobber")
         pudl.etl.generate_datapkg_bundle(
             data_scope,
             pudl_settings_fixture,
             datapkg_bundle_name=data_scope['datapkg_bundle_name'],
             datapkg_bundle_doi=data_scope['datapkg_bundle_doi'],
-            clobber=clobber)
+            commandline_args=commandline_args)
 
 
 @pytest.fixture(scope='session')

@@ -17,16 +17,15 @@ pudl directories see the pudl_setup script (pudl_setup --help for more details).
 """
 import argparse
 import logging
+import os
 import pathlib
 import sys
 from datetime import datetime
 
 import coloredlogs
 import yaml
-from prefect.engine.executors import DaskExecutor
 
 import pudl
-from pudl.extract.ferc1 import SqliteOverwriteMode
 
 logger = logging.getLogger(__name__)
 
@@ -42,21 +41,18 @@ def parse_command_line(argv):
         dict: A dictionary mapping command line arguments to their values.
 
     """
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        parents=[pudl.etl.command_line_flags()])
+
     parser.add_argument(
         dest='settings_file',
         type=str,
-        default='',
-        help="path to YAML datapackage settings file.")
-    parser.add_argument(
-        '-c',
-        '--clobber',
-        action='store_true',
-        help="""Clobber existing datapackages if they exist. If clobber is not
-        included but the datapackage bundle directory already exists the _build
-        will fail. Either the datapkg_bundle_name in the settings_file needs to
-        be unique or you need to include --clobber""",
-        default=False)
+        default=os.environ.get('PUDL_SETTINGS_FILE'),
+        help="""Path to YAML datapackage settings file.
+
+        If not specified, the default will be set from PUDL_SETTINGS_FILE environment
+        variable. If this is also not set the script will fail.""")
     parser.add_argument(
         "--sandbox", action="store_true", default=False,
         help="Use the Zenodo sandbox rather than production")
@@ -68,38 +64,6 @@ def parse_command_line(argv):
         default="/tmp/pudl_etl.%F-%H%M%S.log",  # nosec
         help="""If specified, also log to the timestamped logfile. The value of
         this flag is passed to strftime method of datetime.now().""")
-    parser.add_argument(
-        "--use-dask-executor",
-        action="store_true",
-        default=False,
-        help='If enabled, use local DaskExecutor to run the flow.')
-    parser.add_argument(
-        "--dask-executor-address",
-        default=None,
-        help='If specified, use pre-existing DaskExecutor at this address.')
-    parser.add_argument(
-        "--upload-to-gcs-bucket",
-        type=str,
-        help='If specified, upload the datapackages to the specified gcs bucket.')
-    parser.add_argument(
-        "--overwrite-ferc1-db",
-        type=lambda mode: SqliteOverwriteMode[mode],
-        default=SqliteOverwriteMode.ALWAYS,
-        choices=list(SqliteOverwriteMode))
-    parser.add_argument(
-        "--show-flow-graph",
-        action="store_true",
-        default=False,
-        help="Controls whether flow dependency graphs should be displayed.")
-    parser.add_argument(
-        "--gcs-cache-path",
-        type=str,
-        help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]")
-    parser.add_argument(
-        "--bypass-local-cache",
-        action="store_true",
-        default=False,
-        help="If enabled, the local file cache for datastore will not be used.")
     parser.add_argument(
         "--datapkg-bundle-name",
         type=str,
@@ -157,22 +121,12 @@ def main():
             f"in bundle {script_settings['datpkg_bundle_name']}."
         )
 
-    prefect_executor = None
-    if args.dask_executor_address or args.use_dask_executor:
-        prefect_executor = DaskExecutor(address=args.dask_executor_address)
-
     pudl.etl.generate_datapkg_bundle(
         script_settings,
         pudl_settings,
         datapkg_bundle_name=script_settings['datapkg_bundle_name'],
         datapkg_bundle_doi=datapkg_bundle_doi,
-        clobber=args.clobber,
-        prefect_executor=prefect_executor,
-        gcs_bucket=args.upload_to_gcs_bucket,
-        use_local_cache=not args.bypass_local_cache,
-        gcs_cache_path=args.gcs_cache_path,
-        overwrite_ferc1_db=args.overwrite_ferc1_db,
-        show_flow_graph=args.show_flow_graph)
+        commandline_args=args)
 
 
 if __name__ == "__main__":

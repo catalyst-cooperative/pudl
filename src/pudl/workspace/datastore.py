@@ -239,6 +239,7 @@ class Datastore:
         self,
         local_cache_path: Optional[Path] = None,
         gcs_cache_path: Optional[str] = None,
+        gcs_cache_readonly: bool = False,
         sandbox: bool = False,
         timeout: float = 15
     ):
