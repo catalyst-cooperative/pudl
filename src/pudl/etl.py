@@ -974,7 +974,7 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
     accumulating which tables have been loaded. This is useful for generating
     the metadata associated with the package.
 
-    Args)
+    Args:
         datapkg_settings (dict): Validated ETL parameters for a single
             datapackage, originally read in from the PUDL ETL input file.
         output_dir (path-like): The individual datapackage directory, which

@@ -968,7 +968,6 @@ def convert_dfs_dict_dtypes(dfs_dict, data_source):
 
     This is a wrapper for :func:`pudl.helpers.convert_cols_dtypes` which loops
     over an entire dictionary of dataframes, assuming they are all from the
-        # Dump the offending data frame to temporary file for debugging purposes
     specified data source, and appropriately assigning data types to each
     column based on the data source specific type map stored in pudl.constants
 
