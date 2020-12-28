@@ -22,8 +22,81 @@ from typing import Any, Iterable, List, Tuple, Union
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy.stats
 
 # ---- Helpers ---- #
+
+
+def slice_axis(
+    x: np.ndarray, start: int = None, end: int = None, step: int = None, axis: int = 0
+) -> Tuple:
+    """
+    Return an index that slices an array along an axis.
+
+    Args:
+        x: Array to slice.
+        start: Start index of slice.
+        end: End index of slice.
+        step: Step size of slice.
+        axis: Axis along which to slice.
+
+    Returns:
+        Tuple of :class:`slice` that slices array `x` along axis `axis`
+        (`x[..., start:stop:step]`).
+
+    Examples:
+        >>> x = np.random.random((3, 4, 5))
+        >>> np.all(x[1:] == x[slice_axis(x, start=1, axis=0)])
+        True
+        >>> np.all(x[:, 1:] == x[slice_axis(x, start=1, axis=1)])
+        True
+        >>> np.all(x[:, :, 1:] == x[slice_axis(x, start=1, axis=2)])
+        True
+    """
+    index = [slice(None)] * np.mod(axis, x.ndim) + [slice(start, end, step)]
+    return tuple(index)
+
+
+def array_diff(
+    x: np.ndarray,
+    periods: int = 1,
+    axis: int = 0,
+    fill: Any = np.nan
+) -> np.ndarray:
+    """
+    First discrete difference of array elements.
+
+    This is a fast numpy implementation of :meth:`pd.DataFrame.diff`.
+
+    Args:
+        periods: Periods to shift for calculating difference, accepts negative values.
+        axis: Array axis along which to calculate the difference.
+        fill: Value to use at the margins where a difference cannot be calculated.
+
+    Returns:
+        Array of same shape and type as `x` with discrete element differences.
+
+    Examples:
+        >>> x = np.random.random((4, 2))
+        >>> np.all(array_diff(x, 1)[1:] == pd.DataFrame(x).diff(1).values[1:])
+        True
+        >>> np.all(array_diff(x, 2)[2:] == pd.DataFrame(x).diff(2).values[2:])
+        True
+        >>> np.all(array_diff(x, -1)[:-1] == pd.DataFrame(x).diff(-1).values[:-1])
+        True
+    """
+    if not periods:
+        return x - x
+    dx = np.empty_like(x)
+    prepend = slice_axis(x, end=periods, axis=axis)
+    append = slice_axis(x, start=periods, axis=axis)
+    if periods > 0:
+        dx[prepend] = fill
+        dx[append] = x[append] - x[slice_axis(x, end=-periods, axis=axis)]
+    else:
+        dx[prepend] = x[prepend] - x[slice_axis(x, start=-periods, axis=axis)]
+        dx[append] = fill
+    return dx
 
 
 def encode_run_length(x: Iterable) -> Tuple[np.ndarray, np.ndarray]:
@@ -332,21 +405,26 @@ class Series:
         flagged: Running list of flags that have been checked so far.
     """
 
-    def __init__(self, x: Iterable[Union[int, float]]) -> None:
+    def __init__(self, x: Union[np.ndarray, pd.DataFrame]) -> None:
         """
-        Initialize a data series.
+        Initialize data series.
 
         Args:
             x: Data values. Any pandas index will be ignored.
         """
-        if isinstance(x, pd.Series):
-            x = x.reset_index(drop=True)
-        self.x: pd.Series = pd.Series(x, dtype=float)
-        self.xi: pd.Series = self.x.copy()
-        self.flags: pd.Series = pd.Series([np.nan] * len(self.x), dtype=object)
+        if isinstance(x, pd.DataFrame):
+            self.xi: np.ndarray = x.values
+            self.index: pd.Index = x.index
+            self.columns: pd.Index = x.columns
+        else:
+            self.xi: np.ndarray = x
+            self.index: pd.Index = pd.RangeIndex(x.shape[0])
+            self.columns: pd.Index = pd.RangeIndex(x.shape[1])
+        self.x = self.xi.copy()
+        self.flags: np.ndarray = np.empty(self.x.shape, dtype=object)
         self.flagged: List[str] = []
 
-    def flag(self, mask: Union[np.ndarray, pd.Series], flag: str) -> None:
+    def flag(self, mask: np.ndarray, flag: str) -> None:
         """
         Flag values.
 
@@ -357,7 +435,7 @@ class Series:
             flag: Flag name.
         """
         # Only flag unflagged values
-        mask = mask & self.flags.isna()
+        mask = mask & ~np.isnan(self.x)
         self.flags[mask] = flag
         self.flagged.append(flag)
         # Null flagged values
@@ -381,9 +459,10 @@ class Series:
         """
         if length < 2:
             raise ValueError("Run length must be 2 or greater")
-        mask = self.x.diff(periods=1) == 0
-        for periods in range(2, length):
-            mask &= self.x.diff(periods=periods) == 0
+        mask = np.ones(self.x.shape, dtype=bool)
+        mask[0] = False
+        for n in range(1, length):
+            mask[n:] &= self.x[n:] == self.x[:-n]
         self.flag(mask, "IDENTICAL_RUN")
 
     def flag_global_outlier(self, medians: Union[int, float] = 9) -> None:
@@ -393,8 +472,8 @@ class Series:
         Args:
             medians: Number of times the median the value must exceed the median.
         """
-        median = self.x.median()
-        mask = (self.x - median).abs() > np.abs(median * medians)
+        median = np.nanmedian(self.x, axis=0)
+        mask = np.abs(self.x - median) > np.abs(median * medians)
         self.flag(mask, "GLOBAL_OUTLIER")
 
     def flag_global_outlier_neighbor(self, neighbors: int = 1) -> None:
@@ -410,12 +489,15 @@ class Series:
         if "GLOBAL_OUTLIER" not in self.flagged:
             raise ValueError("Global outliers must be flagged first")
         mask = np.zeros(self.x.shape, dtype=bool)
-        for i in np.flatnonzero(self.flags == "GLOBAL_OUTLIER"):
-            mask[range(max(0, i - neighbors), i)] = True
-            mask[range(i + 1, min(len(mask), i + neighbors + 1))] = True
+        outliers = self.flags == "GLOBAL_OUTLIER"
+        for shift in range(1, neighbors + 1):
+            # Neighbors before
+            mask[:-shift][outliers[shift:]] = True
+            # Neighors after
+            mask[shift:][outliers[:-shift]] = True
         self.flag(mask, "GLOBAL_OUTLIER_NEIGHBOR")
 
-    def rolling_median(self, window: int = 48) -> pd.Series:
+    def rolling_median(self, window: int = 48) -> np.ndarray:
         """
         Rolling median of values.
 
@@ -423,9 +505,10 @@ class Series:
             window: Number of values in the moving window.
         """
         # RUGGLES: rollingDem, rollingDemLong (window=480)
-        return self.x.rolling(window, min_periods=1, center=True).median()
+        df = pd.DataFrame(self.x, copy=False)
+        return df.rolling(window, min_periods=1, center=True).median().values
 
-    def rolling_median_offset(self, window: int = 48) -> pd.Series:
+    def rolling_median_offset(self, window: int = 48) -> np.ndarray:
         """
         Values minus the rolling median.
 
@@ -441,7 +524,7 @@ class Series:
         self,
         window: int = 48,
         shifts: Iterable[int] = range(-240, 241, 24)
-    ) -> pd.Series:
+    ) -> np.ndarray:
         """
         Median of the offset from the rolling median.
 
@@ -455,21 +538,29 @@ class Series:
         """
         # RUGGLES: vals_dem_minus_rolling
         offset = self.rolling_median_offset(window=window)
-        shifted = []
-        for shift in shifts:
-            shifted.append(offset.shift(periods=shift))
+        # Fast numpy implementation of pd.DataFrame.shift
+        shifted = np.empty([len(shifts), *offset.shape], dtype=float)
+        for i, shift in enumerate(shifts):
+            if shift > 0:
+                shifted[i, :shift] = np.nan
+                shifted[i, shift:] = offset[:-shift]
+            elif shift < 0:
+                shifted[i, shift:] = np.nan
+                shifted[i, :shift] = offset[-shift:]
+            else:
+                shifted[i, :] = offset
         # Ignore warning for rows with all null values
         with warnings.catch_warnings():
             warnings.filterwarnings(
                 "ignore", category=RuntimeWarning, message="All-NaN slice encountered"
             )
-            return pd.concat(shifted, axis=1).median(axis=1)
+            return np.nanmedian(shifted, axis=0)
 
     def rolling_iqr_of_rolling_median_offset(
         self,
         window: int = 48,
         iqr_window: int = 240
-    ) -> pd.Series:
+    ) -> np.ndarray:
         """
         Rolling interquartile range (IQR) of rolling median offset.
 
@@ -481,15 +572,16 @@ class Series:
         """
         # RUGGLES: dem_minus_rolling_IQR
         offset = self.rolling_median_offset(window=window)
-        rolling = offset.rolling(iqr_window, min_periods=1, center=True)
-        return rolling.quantile(0.75) - rolling.quantile(0.25)
+        df = pd.DataFrame(offset, copy=False)
+        rolling = df.rolling(iqr_window, min_periods=1, center=True)
+        return (rolling.quantile(0.75) - rolling.quantile(0.25)).values
 
     def median_prediction(
         self,
         window: int = 48,
         shifts: Iterable[int] = range(-240, 241, 24),
         long_window: int = 480
-    ) -> pd.Series:
+    ) -> np.ndarray:
         """
         Values predicted from local and regional rolling medians.
 
@@ -548,7 +640,7 @@ class Series:
         mask = self.x < prediction - multiplier[1] * iqr
         self.flag(mask, "LOCAL_OUTLIER_LOW")
 
-    def diff(self, shift: int = 1) -> pd.Series:
+    def diff(self, shift: int = 1) -> np.ndarray:
         """
         Values minus the value of their neighbor.
 
@@ -557,9 +649,9 @@ class Series:
                 Positive values select a preceding (left) neighbor.
         """
         # RUGGLES: delta_pre (shift=1), delta_post (shift=-1)
-        return self.x.diff(periods=shift)
+        return array_diff(self.x, shift)
 
-    def rolling_iqr_of_diff(self, shift: int = 1, window: int = 240) -> pd.Series:
+    def rolling_iqr_of_diff(self, shift: int = 1, window: int = 240) -> np.ndarray:
         """
         Rolling interquartile range (IQR) of the difference between neighboring values.
 
@@ -568,8 +660,10 @@ class Series:
             window: Number of values in the moving window for the rolling IQR.
         """
         # RUGGLES: delta_rolling_iqr
-        rolling = self.diff(shift=shift).rolling(window, min_periods=1, center=True)
-        return rolling.quantile(0.75) - rolling.quantile(0.25)
+        diff = self.diff(shift=shift)
+        df = pd.DataFrame(diff, copy=False)
+        rolling = df.rolling(window, min_periods=1, center=True)
+        return (rolling.quantile(0.75) - rolling.quantile(0.25)).values
 
     def flag_double_delta(
         self, iqr_window: int = 240, multiplier: Union[int, float] = 2
@@ -590,10 +684,10 @@ class Series:
         before = self.diff(shift=1)
         after = self.diff(shift=-1)
         iqr = multiplier * self.rolling_iqr_of_diff(shift=1, window=iqr_window)
-        mask = (((before > iqr) & (after > iqr)) | ((before < -iqr) & (after < -iqr)))
+        mask = (np.minimum(before, after) > iqr) | (np.maximum(before, after) < -iqr)
         self.flag(mask, "DOUBLE_DELTA")
 
-    def relative_median_prediction(self, **kwargs: Any) -> pd.Series:
+    def relative_median_prediction(self, **kwargs: Any) -> np.ndarray:
         """
         Values divided by their value predicted from medians.
 
@@ -605,7 +699,7 @@ class Series:
 
     def iqr_of_diff_of_relative_median_prediction(
         self, shift: int = 1, **kwargs: Any
-    ) -> float:
+    ) -> np.ndarray:
         """
         Interquartile range of the running difference of the relative median prediction.
 
@@ -615,8 +709,8 @@ class Series:
             kwargs: Arguments to :meth:`relative_median_prediction`.
         """
         # RUGGLES: iqr_relative_deltas
-        difference = self.relative_median_prediction(**kwargs).diff(shift)
-        return difference.quantile(0.75) - difference.quantile(0.25)
+        diff = array_diff(self.relative_median_prediction(**kwargs), shift)
+        return scipy.stats.iqr(diff, nan_policy='omit', axis=0)
 
     def flag_single_delta(
         self,
@@ -670,43 +764,45 @@ class Series:
             )
         )
 
-        def find_single_delta(reverse: bool = False) -> pd.Series:
+        def find_single_delta(reverse: bool = False) -> np.ndarray:
             # Iterate over all non-null values
+            not_nan = ~np.isnan(self.x)
             mask = np.zeros(self.x.shape, dtype=bool)
-            indices = np.flatnonzero(~self.x.isna())[::(-1 if reverse else 1)]
-            previous_idx = indices[0]
-            for idx in indices[1:]:
-                # Compute differences between current value and previous value
-                diff = abs(self.x[idx] - self.x[previous_idx])
-                diff_relative_median_prediction = abs(
-                    relative_median_prediction[previous_idx] -
-                    relative_median_prediction[idx]
-                )
-                # Flag current value if differences are too large
-                if diff > rolling_iqr_of_diff[idx] and (
-                        diff_relative_median_prediction >
-                        iqr_of_diff_of_relative_mean_prediction
-                ):
-                    # Compare max deviation across short and long rolling median
-                    # to catch when outliers pull short median towards themseves.
-                    previous_max = max(
-                        abs(1 - relative_median_prediction[previous_idx]),
-                        abs(1 - relative_median_prediction_long[previous_idx]),
+            for col in range(self.x.shape[1]):
+                indices = np.flatnonzero(not_nan[:, col])[::(-1 if reverse else 1)]
+                previous_idx = indices[0]
+                for idx in indices[1:]:
+                    # Compute differences between current value and previous value
+                    diff = abs(self.x[idx, col] - self.x[previous_idx, col])
+                    diff_relative_median_prediction = abs(
+                        relative_median_prediction[previous_idx, col] -
+                        relative_median_prediction[idx, col]
                     )
-                    current_max = max(
-                        abs(1 - relative_median_prediction[idx]),
-                        abs(1 - relative_median_prediction_long[idx]),
-                    )
-                    if abs(current_max) > abs(previous_max):
-                        # Flag current value
-                        mask[idx] = True
+                    # Flag current value if differences are too large
+                    if diff > rolling_iqr_of_diff[idx, col] and (
+                            diff_relative_median_prediction >
+                            iqr_of_diff_of_relative_mean_prediction[col]
+                    ):
+                        # Compare max deviation across short and long rolling median
+                        # to catch when outliers pull short median towards themseves.
+                        previous_max = max(
+                            abs(1 - relative_median_prediction[previous_idx, col]),
+                            abs(1 - relative_median_prediction_long[previous_idx, col]),
+                        )
+                        current_max = max(
+                            abs(1 - relative_median_prediction[idx, col]),
+                            abs(1 - relative_median_prediction_long[idx, col]),
+                        )
+                        if abs(current_max) > abs(previous_max):
+                            # Flag current value
+                            mask[idx, col] = True
+                        else:
+                            # Previous value likely to be flagged on reverse pass
+                            # Use current value as reference for next value
+                            previous_idx = idx
                     else:
-                        # Previous value likely to be flagged on reverse pass
                         # Use current value as reference for next value
                         previous_idx = idx
-                else:
-                    # Use current value as reference for next value
-                    previous_idx = idx
             return mask
 
         # Set values flagged in forward pass to null before reverse pass
@@ -728,56 +824,58 @@ class Series:
             threshold: Fraction of flagged values required for a region to be flagged.
         """
         mask = np.zeros(self.x.shape, dtype=bool)
-        percent_data_cnt = [0.0] * mask.size
-        percent_data_pre = [0.0] * mask.size
-        percent_data_post = [0.0] * mask.size
-        len_data = np.zeros(mask.size, dtype=int)
-        data_quality_cnt: List[int] = []
-        data_quality_short: List[int] = []
-        start_data = None
-        end_data = None
-        for idx in range(mask.size):
-            short_end = len(data_quality_short) > width
-            centered_end = len(data_quality_cnt) > 2 * width
-            # Remove the oldest item in the list
-            if short_end:
-                data_quality_short.pop(0)
-            if centered_end:
-                data_quality_cnt.pop(0)
-            # Add unflagged values (treat original null value as unflagged)
-            if pd.isna(self.flags[idx]) or pd.isna(self.xi[idx]):
-                data_quality_cnt.append(1)
-                data_quality_short.append(1)
-                # Track length of good data chunks
-                if start_data is None:
-                    start_data = idx
-                end_data = idx
-            else:
-                data_quality_cnt.append(0)
-                data_quality_short.append(0)
-                # Fill in run length of unflagged values
-                if start_data is not None and end_data is not None:
-                    len_data[start_data:end_data] = end_data - start_data + 1
-                start_data = None
-                end_data = None
-            # left and right / pre and post measurements have length = width + 1
-            if short_end:
-                percent_data_pre[idx] = np.mean(data_quality_short)
-                percent_data_post[idx - width] = np.mean(data_quality_short)
-            # centered measurements have length 2 * width
-            if centered_end:
-                percent_data_cnt[idx - width] = np.mean(data_quality_cnt)
-        for idx in range(mask.size):
-            if (1 - percent_data_cnt[idx]) > threshold:
-                for j in range(idx - width, idx + width):
-                    # Flag if not start or end of data run
-                    if (
-                        j >= 1 and j < mask.size
-                        and pd.isna(self.flags[j])
-                        and percent_data_pre[j] != 1 and percent_data_post[j] != 1
-                        and len_data[j] <= width
-                    ):
-                        mask[j] = True
+        nrows = self.x.shape[0]
+        for col in range(self.x.shape[1]):
+            percent_data_cnt = np.zeros(nrows, dtype=float)
+            percent_data_pre = np.zeros(nrows, dtype=float)
+            percent_data_post = np.zeros(nrows, dtype=float)
+            len_data = np.zeros(nrows, dtype=int)
+            data_quality_cnt: List[int] = []
+            data_quality_short: List[int] = []
+            start_data = None
+            end_data = None
+            for idx in range(nrows):
+                short_end = len(data_quality_short) > width
+                centered_end = len(data_quality_cnt) > 2 * width
+                # Remove the oldest item in the list
+                if short_end:
+                    data_quality_short.pop(0)
+                if centered_end:
+                    data_quality_cnt.pop(0)
+                # Add unflagged values (including original null values)
+                if self.flags[idx, col] is None:
+                    data_quality_cnt.append(1)
+                    data_quality_short.append(1)
+                    # Track length of good data chunks
+                    if start_data is None:
+                        start_data = idx
+                    end_data = idx
+                else:
+                    data_quality_cnt.append(0)
+                    data_quality_short.append(0)
+                    # Fill in run length of unflagged values
+                    if start_data is not None and end_data is not None:
+                        len_data[start_data:end_data] = end_data - start_data + 1
+                    start_data = None
+                    end_data = None
+                # left and right / pre and post measurements have length = width + 1
+                if short_end:
+                    percent_data_pre[idx] = np.mean(data_quality_short)
+                    percent_data_post[idx - width] = np.mean(data_quality_short)
+                # centered measurements have length 2 * width
+                if centered_end:
+                    percent_data_cnt[idx - width] = np.mean(data_quality_cnt)
+            for idx in range(nrows):
+                if (1 - percent_data_cnt[idx]) > threshold:
+                    for j in range(idx - width, idx + width):
+                        # Flag if not start or end of data run
+                        if (
+                            j >= 1 and j < mask.size
+                            and self.flags[j, col] is None
+                            and percent_data_pre[j] != 1 and percent_data_post[j] != 1
+                            and len_data[j] <= width
+                        ):
+                            mask[j, col] = True
         self.flag(mask, "ANOMALOUS_REGION")
 
     def flag_ruggles(self) -> None:
@@ -822,17 +920,30 @@ class Series:
     def summarize_flags(self) -> pd.DataFrame:
         """Summarize flagged values by flag, count and median."""
         stats = []
-        # Running same flag multiple times is not currently prohibited
+        # Use pd.unique to preserve flagging order
         for flag in pd.unique(self.flagged):
             mask = self.flags == flag
-            stats.append({
-                'flag': flag, 'count': mask.sum(), 'median': self.xi[mask].median()
-            })
-        return pd.DataFrame(stats)
+            for col in range(self.xi.shape[1]):
+                xi = self.xi[mask[:, col], col]
+                stats.append({
+                    'column': self.columns[col],
+                    'flag': flag,
+                    'count': xi.size,
+                    'median': np.nanmedian(xi) if xi.size else np.nan,
+                })
+        return pd.DataFrame(stats).sort_values(by='column')
 
-    def plot_flags(self) -> None:
-        """Plot values colored by flag."""
-        plt.plot(self.x, color='lightgrey', marker='.', zorder=1)
+    def plot_flags(self, name: Any = 0) -> None:
+        """
+        Plot cleaned series and anomalous values colored by flag.
+
+        Args:
+            name: Series to plot, as either an integer index or name in :attr:`columns`.
+        """
+        if name not in self.columns:
+            name = self.columns[name]
+        col = list(self.columns).index(name)
+        plt.plot(self.index, self.x[:, col], color='lightgrey', marker='.', zorder=1)
         colors = {
             'NEGATIVE_OR_ZERO': 'pink',
             'IDENTICAL_RUN': 'blue',
@@ -845,8 +956,8 @@ class Series:
             'ANOMALOUS_REGION': 'orange',
         }
         for flag in colors:
-            mask = self.flags == flag
-            x, y = np.flatnonzero(mask), self.xi[mask]
+            mask = self.flags[:, col] == flag
+            x, y = self.index[mask], self.xi[mask, col]
             # Set zorder manually to ensure flagged points are drawn on top
             plt.scatter(x, y, c=colors[flag], label=flag, zorder=2)
         plt.legend()
@@ -873,22 +984,26 @@ class Series:
             ValueError: Cound not find space for run of length {length}.
 
         Examples:
-            >>> x = [1, 2, np.nan, 4, 5, 6, 7, np.nan, np.nan]
+            >>> x = np.column_stack([[1, 2, np.nan, 4, 5, 6, 7, np.nan, np.nan]])
             >>> s = Series(x)
-            >>> s.simulate_nulls()
+            >>> s.simulate_nulls().ravel()
             array([ True, False, False, False, True, True, False, False, False])
-            >>> s.simulate_nulls(lengths=[4], padding=0)
+            >>> s.simulate_nulls(lengths=[4], padding=0).ravel()
             array([False, False, False, True, True, True, True, False, False])
         """
-        is_null = self.x.isna()
-        if lengths is None:
-            run_values, run_lengths = encode_run_length(is_null)
-            lengths = run_lengths[run_values]
-        is_new_null = insert_run_length(
-            np.zeros(self.x.shape, dtype=bool),
-            values=np.ones(len(lengths), dtype=bool),
-            lengths=lengths,
-            mask=~is_null,
-            padding=padding
-        )
-        return is_new_null
+        is_new_nulls = []
+        template = np.zeros(self.x.shape[0], dtype=bool)
+        for col in range(self.x.shape[1]):
+            is_null = np.isnan(self.x[:, col])
+            if lengths is None:
+                run_values, run_lengths = encode_run_length(is_null)
+                lengths = run_lengths[run_values]
+            is_new_null = insert_run_length(
+                template,
+                values=np.ones(len(lengths), dtype=bool),
+                lengths=lengths,
+                mask=~is_null,
+                padding=padding
+            )
+            is_new_nulls.append(is_new_null)
+        return np.column_stack(is_new_nulls)
