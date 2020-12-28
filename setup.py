@@ -44,6 +44,7 @@ doc_requires = [
     "sphinx>=3.0",
     "sphinx-issues",
     "sphinx_rtd_theme",
+    "responses",
 ]
 
 test_requires = [
