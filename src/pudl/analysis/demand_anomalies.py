@@ -994,8 +994,8 @@ class Series:
         Find non-null values to null to match a run-length distribution.
 
         Args:
-            length: Length of null runs to simulate.
-                By default, uses the run lengths of null values in :attr:`x`.
+            length: Length of null runs to simulate for each series.
+                By default, uses the run lengths of null values in each series.
             padding: Minimum number of non-null values between simulated null runs
                 and between simulated and existing null runs.
 
@@ -1014,22 +1014,21 @@ class Series:
             >>> s.simulate_nulls(lengths=[4], padding=0).ravel()
             array([False, False, False, True, True, True, True, False, False])
         """
-        is_new_nulls = []
-        template = np.zeros(self.x.shape[0], dtype=bool)
+        default_lengths = lengths is None
+        new_nulls = np.zeros(self.x.shape, dtype=bool)
         for col in range(self.x.shape[1]):
             is_null = np.isnan(self.x[:, col])
-            if lengths is None:
+            if default_lengths:
                 run_values, run_lengths = encode_run_length(is_null)
                 lengths = run_lengths[run_values]
-            is_new_null = insert_run_length(
-                template,
+            new_nulls[:, col] = insert_run_length(
+                new_nulls[:, col],
                 values=np.ones(len(lengths), dtype=bool),
                 lengths=lengths,
                 mask=~is_null,
                 padding=padding
             )
-            is_new_nulls.append(is_new_null)
-        return np.column_stack(is_new_nulls)
+        return new_nulls
 
     def fold_tensor(self, periods: int = 24, x: np.ndarray = None) -> np.ndarray:
         """
