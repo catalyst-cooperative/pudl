@@ -163,7 +163,7 @@ class GenericExtractor(object):
     def process_raw(self, df, page, **partition):
         """Transforms raw dataframe and rename columns."""
         self.cols_added = []
-        return df.rename(columns=self._metadata.get_column_map(partition, page))
+        return df.rename(columns=self._metadata.get_column_map(page, **partition))
 
     @staticmethod
     def process_renamed(df, page, **partition):
