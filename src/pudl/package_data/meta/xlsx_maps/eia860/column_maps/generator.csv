@@ -11,7 +11,7 @@ operational_status_code,status,status,status,status,status
 ownership_code,owner,owner,owner,ownership,ownership
 owned_by_non_utility,owned_by_nu,owned_by_nu,owned_by_nu,,
 capacity_mw,nameplate,nameplate,nameplate,nameplate,nameplate
-reactive_power_output,reactive_power_output,reactive_power_output,reactive_power_output,,
+reactive_power_output_mvar,reactive_power_output,reactive_power_output,reactive_power_output,,
 summer_capacity_mw,summcap,summcap,summcap,summer_capability,summer_capability
 winter_capacity_mw,wintcap,wintcap,wintcap,winter_capability,winter_capability
 summer_capacity_estimate,sumcapflg,sumcapflg,sumcapflg,,

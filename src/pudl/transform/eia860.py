@@ -224,10 +224,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         gens_df[column] = (
             gens_df[column]
             .astype('string')
-            .replace(
-                to_replace=["CV", "PL", "RR", "TK", "WA", "UN"],
-                value=["Conveyer", "Pipeline", "Railroad",
-                       "Truck", "Water", "Unknown"])
+            .replace(pc.TRANSIT_TYPE_DICT)
         )
 
     gens_df = (

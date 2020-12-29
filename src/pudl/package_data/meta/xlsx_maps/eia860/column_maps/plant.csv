@@ -45,4 +45,4 @@ pipeline_notes,,,,,,,,,,,,,pipeline_notes,pipeline_notes,pipeline_notes,pipeline
 natural_gas_local_distribution_company,,,,,,,,,,,,,natural_gas_ldc_name,natural_gas_ldc_name,natural_gas_ldc_name,natural_gas_ldc_name
 natural_gas_storage,,,,,,,,,,,,,natural_gas_storage,natural_gas_storage,natural_gas_storage,natural_gas_storage
 liquefied_natural_gas_storage,,,,,,,,,,,,,liquefied_natural_gas_storage,liquefied_natural_gas_storage,liquefied_natural_gas_storage,liquefied_natural_gas_storage
-coordinate_system,,,,datum,,,,,,,,,,,,
+datum,,,,datum,,,,,,,,,,,,

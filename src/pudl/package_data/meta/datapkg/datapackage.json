@@ -2081,9 +2081,9 @@
                         "format": "default"
                     },
                     {
-                        "name": "reactive_power_output",
+                        "name": "reactive_power_output_mvar",
                         "type": "number",
-                        "description": "Reactive Power Output (MVARS)",
+                        "description": "Reactive Power Output (MVAr)",
                         "format": "default"
                     },
                     {
@@ -3715,9 +3715,8 @@
                         "format": "default"
                     },
                     {
-                        "name": "coordinate_system",
+                        "name": "datum",
                         "type": "string",
-                        "description": "Projection",
                         "format": "default"
                     },
                     {
