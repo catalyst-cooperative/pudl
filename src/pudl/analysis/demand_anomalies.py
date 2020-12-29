@@ -743,6 +743,74 @@ class Series:
         diff = array_diff(self.relative_median_prediction(**kwargs), shift)
         return scipy.stats.iqr(diff, nan_policy='omit', axis=0)
 
+    def _find_single_delta(
+        self,
+        relative_median_prediction: np.ndarray,
+        relative_median_prediction_long: np.ndarray,
+        rolling_iqr_of_diff: np.ndarray,
+        iqr_of_diff_of_relative_median_prediction: np.ndarray,
+        reverse: bool = False
+    ) -> np.ndarray:
+        not_nan = ~np.isnan(self.x)
+        mask = np.zeros(self.x.shape, dtype=bool)
+        for col in range(self.x.shape[1]):
+            indices = np.flatnonzero(not_nan[:, col])[::(-1 if reverse else 1)]
+            previous, current = indices[:-1], indices[1:]
+            while len(current):
+                # Evaluate value pairs
+                diff = np.abs(self.x[current, col] - self.x[previous, col])
+                diff_relative_median_prediction = np.abs(
+                    relative_median_prediction[current, col] -
+                    relative_median_prediction[previous, col]
+                )
+                # Compare max deviation across short and long rolling median
+                # to catch when outliers pull short median towards themselves.
+                previous_max = np.maximum(
+                    np.abs(1 - relative_median_prediction[previous, col]),
+                    np.abs(1 - relative_median_prediction_long[previous, col]),
+                )
+                current_max = np.maximum(
+                    np.abs(1 - relative_median_prediction[current, col]),
+                    np.abs(1 - relative_median_prediction_long[current, col]),
+                )
+                flagged = (
+                    (diff > rolling_iqr_of_diff[current, col]) &
+                    (
+                        diff_relative_median_prediction >
+                        iqr_of_diff_of_relative_median_prediction[col]
+                    ) &
+                    (current_max > previous_max)
+                )
+                flagged_indices = current[flagged]
+                if not flagged_indices.size:
+                    break
+                # Find position of flagged indices in index
+                if reverse:
+                    indices_idx = indices.size - (
+                        indices[::-1].searchsorted(flagged_indices, side='right')
+                    )
+                else:
+                    indices_idx = indices.searchsorted(flagged_indices, side='left')
+                # Only flag first of consecutive flagged indices
+                # TODO: May not be necessary after first iteration
+                unflagged = np.concatenate(([False], np.diff(indices_idx) == 1))
+                flagged_indices = np.delete(flagged_indices, unflagged)
+                indices_idx = np.delete(indices_idx, unflagged)
+                mask[flagged_indices, col] = True
+                flagged[flagged] = ~unflagged
+                # Bump current index of flagged pairs to next unflagged index
+                # Next index always unflagged because flagged runs are not permitted
+                next_indices_idx = indices_idx + 1
+                if next_indices_idx[-1] > len(indices):
+                    # Drop last index if out of range
+                    next_indices_idx = next_indices_idx[:-1]
+                current = indices[next_indices_idx]
+                # Trim previous values to length of current values
+                previous = previous[flagged][:len(current)]
+                # Delete flagged indices
+                indices = np.delete(indices, indices_idx)
+        return mask
+
     def flag_single_delta(
         self,
         window: int = 48,
@@ -789,58 +857,30 @@ class Series:
         rolling_iqr_of_diff = multiplier * self.rolling_iqr_of_diff(
             shift=1, window=iqr_window
         )
-        iqr_of_diff_of_relative_mean_prediction = rel_multiplier * (
+        iqr_of_diff_of_relative_median_prediction = rel_multiplier * (
             self.iqr_of_diff_of_relative_median_prediction(
                 shift=1, window=window, shifts=shifts, long_window=long_window
             )
         )
-
-        def find_single_delta(reverse: bool = False) -> np.ndarray:
-            # Iterate over all non-null values
-            not_nan = ~np.isnan(self.x)
-            mask = np.zeros(self.x.shape, dtype=bool)
-            for col in range(self.x.shape[1]):
-                indices = np.flatnonzero(not_nan[:, col])[::(-1 if reverse else 1)]
-                previous_idx = indices[0]
-                for idx in indices[1:]:
-                    # Compute differences between current value and previous value
-                    diff = abs(self.x[idx, col] - self.x[previous_idx, col])
-                    diff_relative_median_prediction = abs(
-                        relative_median_prediction[previous_idx, col] -
-                        relative_median_prediction[idx, col]
-                    )
-                    # Flag current value if differences are too large
-                    if diff > rolling_iqr_of_diff[idx, col] and (
-                            diff_relative_median_prediction >
-                            iqr_of_diff_of_relative_mean_prediction[col]
-                    ):
-                        # Compare max deviation across short and long rolling median
-                        # to catch when outliers pull short median towards themseves.
-                        previous_max = max(
-                            abs(1 - relative_median_prediction[previous_idx, col]),
-                            abs(1 - relative_median_prediction_long[previous_idx, col]),
-                        )
-                        current_max = max(
-                            abs(1 - relative_median_prediction[idx, col]),
-                            abs(1 - relative_median_prediction_long[idx, col]),
-                        )
-                        if abs(current_max) > abs(previous_max):
-                            # Flag current value
-                            mask[idx, col] = True
-                        else:
-                            # Previous value likely to be flagged on reverse pass
-                            # Use current value as reference for next value
-                            previous_idx = idx
-                    else:
-                        # Use current value as reference for next value
-                        previous_idx = idx
-            return mask
-
         # Set values flagged in forward pass to null before reverse pass
-        self.flag(find_single_delta(reverse=False), "SINGLE_DELTA")
+        mask = self._find_single_delta(
+            relative_median_prediction,
+            relative_median_prediction_long,
+            rolling_iqr_of_diff,
+            iqr_of_diff_of_relative_median_prediction,
+            reverse=False
+        )
+        self.flag(mask, "SINGLE_DELTA")
         # Repeat in reverse to get all options.
         # As in original code, do not recompute constants with new nulls
-        self.flag(find_single_delta(reverse=True), "SINGLE_DELTA")
+        mask = self._find_single_delta(
+            relative_median_prediction,
+            relative_median_prediction_long,
+            rolling_iqr_of_diff,
+            iqr_of_diff_of_relative_median_prediction,
+            reverse=True
+        )
+        self.flag(mask, "SINGLE_DELTA")
 
     def flag_anomalous_region(  # noqa: C901
         self, width: int = 24, threshold: float = 0.15
