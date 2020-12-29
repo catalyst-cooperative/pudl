@@ -25,6 +25,7 @@ And described at:
 * https://github.com/xinychen/tensor-learning
 """
 
+import functools
 import warnings
 from typing import Any, Iterable, List, Tuple, Union
 
@@ -463,6 +464,11 @@ class Series:
         self.flagged.append(flag)
         # Null flagged values
         self.x[mask] = np.nan
+        # Clear cached metrics
+        for name in dir(self):
+            attr = getattr(self, name)
+            if hasattr(attr, 'cache_clear'):
+                attr.cache_clear()
 
     def flag_negative_or_zero(self) -> None:
         """Flag negative or zero values (NEGATIVE_OR_ZERO)."""
@@ -520,6 +526,7 @@ class Series:
             mask[shift:][outliers[:-shift]] = True
         self.flag(mask, "GLOBAL_OUTLIER_NEIGHBOR")
 
+    @functools.lru_cache(maxsize=2)
     def rolling_median(self, window: int = 48) -> np.ndarray:
         """
         Rolling median of values.
@@ -710,6 +717,7 @@ class Series:
         mask = (np.minimum(before, after) > iqr) | (np.maximum(before, after) < -iqr)
         self.flag(mask, "DOUBLE_DELTA")
 
+    @functools.lru_cache(maxsize=2)
     def relative_median_prediction(self, **kwargs: Any) -> np.ndarray:
         """
         Values divided by their value predicted from medians.
