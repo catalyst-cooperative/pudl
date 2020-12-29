@@ -1,6 +1,7 @@
 """Unit tests for Datastore module."""
 
 import json
+import re
 import unittest
 from typing import Dict
 
@@ -124,6 +125,25 @@ class TestZenodoFetcher(unittest.TestCase):
                 dataset="epacems",
                 doi=self.PROD_EPACEMS_DOI)})
 
+    def test_sandbox_doi_format_is_correct(self):
+        """Verifies that sandbox ZenodoFetcher DOIs have the right format."""
+        ds = datastore.ZenodoFetcher(sandbox=True)
+        self.assertTrue(ds.get_known_datasets())
+        for dataset in ds.get_known_datasets():
+            print(f"doi for {dataset} is {ds.get_doi(dataset)}")
+            self.assertTrue(
+                re.fullmatch(r"10\.5072/zenodo\.[0-9]{5,10}", ds.get_doi(dataset)),  # noqa: FS003
+                msg=f"doi for {dataset} is {ds.get_doi(dataset)}")
+
+    def test_prod_doi_format_is_correct(self):
+        """Verifies that production ZenodoFetcher DOIs have the right format."""
+        ds = datastore.ZenodoFetcher(sandbox=False)
+        self.assertTrue(ds.get_known_datasets())
+        for dataset in ds.get_known_datasets():
+            self.assertTrue(
+                re.fullmatch(r"10\.5281/zenodo\.[0-9]{5,10}", ds.get_doi(dataset)),  # noqa: FS003
+                msg=f"doi for {dataset} is {ds.get_doi(dataset)}")
+
     def test_get_known_datasets(self):
         """Call to get_known_datasets() produces the expected results."""
         self.assertEqual(
@@ -185,5 +205,6 @@ class TestZenodoFetcher(unittest.TestCase):
         """If resource does not exist, get_resource() throws KeyError."""
         res = PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "nonexistent")
         self.assertRaises(KeyError, self.fetcher.get_resource, res)
+
 
 # TODO(rousik): add unit tests for Datasource class as well
