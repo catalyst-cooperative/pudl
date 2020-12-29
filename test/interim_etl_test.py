@@ -27,13 +27,6 @@ def test_interim_ferc714_etl(pudl_settings_fixture, fast_tests):
         pudl.extract.ferc714.extract(pudl_settings=pudl_settings_fixture))
 
 
-def test_get_ferc714(pudl_settings_fixture, fast_tests):
-    """Make sure we get a real file from the datastore."""
-    fn = str(pudl.extract.ferc714.get_ferc714(pudl_settings_fixture))
-    assert pudl_settings_fixture["pudl_in"] in fn
-    assert fn[-11:] == "ferc714.zip"
-
-
 def test_interim_get_census2010_gdf(pudl_settings_fixture, fast_tests):
     """Make sure that service_territory.get_census."""
     if fast_tests:
