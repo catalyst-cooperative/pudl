@@ -2106,12 +2106,12 @@ RTO_CLASSES = [
 ESTIMATED_OR_ACTUAL = {'E': 'Estimated', 'A': 'Actual'}
 
 TRANSIT_TYPE_DICT = {
-    'CV': 'Conveyer',
-    'PL': 'Pipeline',
-    'RR': 'Railroad',
-    'TK': 'Truck',
-    'WA': 'Water',
-    'UN': 'Unknown',
+    'CV': 'conveyer',
+    'PL': 'pipeline',
+    'RR': 'railroad',
+    'TK': 'truck',
+    'WA': 'water',
+    'UN': 'unknown',
 }
 
 """dict: A dictionary of datasets (keys) and keywords (values). """

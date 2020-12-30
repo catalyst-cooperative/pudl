@@ -409,12 +409,14 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
 
     # Combine phone number columns into one
     def _make_phone_number(col1, col2, col3):
-        """Combine columns to make full phone number seperated by dashes."""
-        return (
+        """Make and validate full phone number seperated by dashes."""
+        p_num = (
             col1.astype('string')
             + '-' + col2.astype('string')
             + '-' + col3.astype('string')
         )
+        # Turn anything that doesn't match a US phone number format to NA
+        return p_num.replace(regex=r'^(?!.*\d{3}-\d{3}-\d{4}).*$', value=pd.NA)  # noqa: FS003
 
     u_df = (
         u_df.assign(
