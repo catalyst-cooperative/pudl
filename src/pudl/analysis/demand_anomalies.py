@@ -1151,7 +1151,7 @@ class Series:
         Summarizes the agreement between actual and imputed values with the
         following statistics:
 
-        * `mpe`: Mean percent error, `100 * (actual - imputed) / actual`.
+        * `mpe`: Mean percent error, `(actual - imputed) / actual`.
         * `mape`: Mean absolute percent error, `abs(mpe)`.
 
         Args:
@@ -1166,7 +1166,7 @@ class Series:
         stats = []
         for col in range(self.x.shape[1]):
             x = self.x[mask[:, col], col]
-            pe = 100 * (x - imputed[mask[:, col], col]) / x
+            pe = (x - imputed[mask[:, col], col]) / x
             pe = pe[~np.isnan(pe)]
             stats.append({
                 'column': self.columns[col],
