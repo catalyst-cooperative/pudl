@@ -896,8 +896,8 @@ class Series:
         )
         self.flag(mask, "SINGLE_DELTA")
 
-    def flag_anomalous_region(  # noqa: C901
-        self, width: int = 24, threshold: float = 0.15
+    def flag_anomalous_region(
+        self, window: int = 48, threshold: float = 0.15
     ) -> None:
         """
         Flag values surrounded by flagged values (ANOMALOUS_REGION).
@@ -908,59 +908,37 @@ class Series:
             width: Width of regions.
             threshold: Fraction of flagged values required for a region to be flagged.
         """
-        mask = np.zeros(self.x.shape, dtype=bool)
-        nrows = self.x.shape[0]
-        for col in range(self.x.shape[1]):
-            percent_data_cnt = np.zeros(nrows, dtype=float)
-            percent_data_pre = np.zeros(nrows, dtype=float)
-            percent_data_post = np.zeros(nrows, dtype=float)
-            len_data = np.zeros(nrows, dtype=int)
-            data_quality_cnt: List[int] = []
-            data_quality_short: List[int] = []
-            start_data = None
-            end_data = None
-            for idx in range(nrows):
-                short_end = len(data_quality_short) > width
-                centered_end = len(data_quality_cnt) > 2 * width
-                # Remove the oldest item in the list
-                if short_end:
-                    data_quality_short.pop(0)
-                if centered_end:
-                    data_quality_cnt.pop(0)
-                # Add unflagged values (including original null values)
-                if self.flags[idx, col] is None:
-                    data_quality_cnt.append(1)
-                    data_quality_short.append(1)
-                    # Track length of good data chunks
-                    if start_data is None:
-                        start_data = idx
-                    end_data = idx
-                else:
-                    data_quality_cnt.append(0)
-                    data_quality_short.append(0)
-                    # Fill in run length of unflagged values
-                    if start_data is not None and end_data is not None:
-                        len_data[start_data:end_data] = end_data - start_data + 1
-                    start_data = None
-                    end_data = None
-                # left and right / pre and post measurements have length = width + 1
-                if short_end:
-                    percent_data_pre[idx] = np.mean(data_quality_short)
-                    percent_data_post[idx - width] = np.mean(data_quality_short)
-                # centered measurements have length 2 * width
-                if centered_end:
-                    percent_data_cnt[idx - width] = np.mean(data_quality_cnt)
-            for idx in range(nrows):
-                if (1 - percent_data_cnt[idx]) > threshold:
-                    for j in range(idx - width, idx + width):
-                        # Flag if not start or end of data run
-                        if (
-                            j >= 1 and j < mask.shape[0]
-                            and self.flags[j, col] is None
-                            and percent_data_pre[j] != 1 and percent_data_post[j] != 1
-                            and len_data[j] <= width
-                        ):
-                            mask[j, col] = True
+        # Check whether unflagged
+        mask = np.equal(self.flags, None)
+        # Check whether after or before half-width region with 1+ flagged values
+        half_window = window // 2
+        is_after = (
+            pd.DataFrame(mask, copy=False)
+            .rolling(window=half_window)
+            .mean()
+            .lt(1)
+            .values
+        )
+        is_before = np.roll(is_after, -(half_window - 1), axis=0)
+        # Check whether not part of a run of unflagged values longer than a half-width
+        is_not_run = np.empty_like(mask)
+        for col in range(mask.shape[1]):
+            rvalues, rlengths = encode_run_length(mask[:, col])
+            is_short_run = np.where(rvalues, rlengths, 0) <= half_window
+            is_not_run[:, col] = np.repeat(is_short_run, rlengths)
+        # Check whether within full-width region with too many flagged values
+        is_region = (
+            pd.DataFrame(~mask, copy=False)
+            .rolling(window=window, center=True)
+            .mean()
+            .gt(threshold)
+            .rolling(window=window, center=True)
+            .max()
+            .eq(True)
+            .values
+        )
+        # Flag if all conditions are met
+        mask &= is_after & is_before & is_not_run & is_region
         self.flag(mask, "ANOMALOUS_REGION")
 
     def flag_ruggles(self) -> None:
@@ -1000,7 +978,7 @@ class Series:
             multiplier=5,
             rel_multiplier=15,
         )
-        self.flag_anomalous_region(width=24, threshold=0.15)
+        self.flag_anomalous_region(window=window + 1, threshold=0.15)
 
     def summarize_flags(self) -> pd.DataFrame:
         """Summarize flagged values by flag, count and median."""
