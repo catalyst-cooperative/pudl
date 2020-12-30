@@ -145,17 +145,16 @@ def encode_run_length(x: Iterable) -> Tuple[np.ndarray, np.ndarray]:
     return x[i], lengths
 
 
-def insert_run_length(
+def insert_run_length(  # noqa: C901
     x: Iterable,
     values: Iterable,
     lengths: Iterable[int],
     mask: Iterable = None,
-    padding: int = 0
+    padding: int = 0,
+    intersect: bool = False,
 ) -> np.ndarray:
     """
     Insert run-length encoded values into a vector.
-
-    Value runs are inserted randomly without overlap.
 
     Args:
         x: Vector to insert values into.
@@ -165,6 +164,7 @@ def insert_run_length(
             By default, values can be inserted anywhere in `x`.
         padding: Minimum space between inserted runs and,
             if `mask` is provided, the edges of masked-out areas.
+        intersect: Whether to allow inserted runs to intersect each other.
 
     Raises:
         ValueError: Padding must zero or greater.
@@ -245,11 +245,12 @@ def insert_run_length(
         keep = run_lengths > 0
         run_starts = run_starts[keep]
         run_lengths = run_lengths[keep]
-    # Grow runs by maxinum number of insertions (for speed)
+    # Grow runs by maximum number of insertions (for speed)
     n_runs = len(run_starts)
-    buffer = np.zeros(len(values), dtype=int)
-    run_starts = np.concatenate((run_starts, buffer))
-    run_lengths = np.concatenate((run_lengths, buffer))
+    if not intersect:
+        buffer = np.zeros(len(values), dtype=int)
+        run_starts = np.concatenate((run_starts, buffer))
+        run_lengths = np.concatenate((run_lengths, buffer))
     # Initialize random number generator
     rng = np.random.default_rng()
     # Sort insertions from longest to shortest
@@ -258,24 +259,22 @@ def insert_run_length(
     lengths = np.asarray(lengths)[order]
     for value, length in zip(values, lengths):
         if length < 1:
-            raise ValueError("Gap length must be greater than zero")
+            raise ValueError("Run length must be greater than zero")
         # Choose runs of adequate length
         choices = np.nonzero(run_lengths[:n_runs] >= length)[0]
         if not choices.size:
-            raise ValueError(f"Could not find space for gap of length {length}")
+            raise ValueError(f"Could not find space for run of length {length}")
         idx = rng.choice(choices)
         # Choose adequate start position in run
         offset = rng.integers(0, run_lengths[idx] - length, endpoint=True)
         start = run_starts[idx] + offset
         # Insert value
         x[start:start + length] = value
+        if intersect:
+            continue
         # Update runs
         padded_length = length + padding
-        if not offset:
-            # Shift and shorten run
-            run_starts[idx] += padded_length
-            run_lengths[idx] -= padded_length
-        else:
+        if offset:
             tail = run_lengths[idx] - offset - padded_length
             if tail > 0:
                 # Insert run
@@ -284,6 +283,10 @@ def insert_run_length(
                 n_runs += 1
             # Shorten run
             run_lengths[idx] = offset - padding
+        else:
+            # Shift and shorten run
+            run_starts[idx] += padded_length
+            run_lengths[idx] -= padded_length
     return x
 
 
@@ -1142,7 +1145,9 @@ class Series:
     def simulate_nulls(
         self,
         lengths: Iterable[int] = None,
-        padding: int = 1
+        padding: int = 1,
+        intersect: bool = False,
+        overlap: bool = False,
     ) -> np.ndarray:
         """
         Find non-null values to null to match a run-length distribution.
@@ -1152,10 +1157,12 @@ class Series:
                 By default, uses the run lengths of null values in each series.
             padding: Minimum number of non-null values between simulated null runs
                 and between simulated and existing null runs.
+            intersect: Whether simulated null runs can intersect each other.
+            overlap: Whether simulated null runs can overlap existing null runs.
+                If `True`, `padding` is ignored.
 
         Returns:
-            Boolean mask of current non-null values to set to null such that
-            the new null values in :attr:`x` match the run-length distribution.
+            Boolean mask of current non-null values to set to null.
 
         Raises:
             ValueError: Cound not find space for run of length {length}.
@@ -1175,13 +1182,17 @@ class Series:
             if default_lengths:
                 run_values, run_lengths = encode_run_length(is_null)
                 lengths = run_lengths[run_values]
-            new_nulls[:, col] = insert_run_length(
+            is_new_null = insert_run_length(
                 new_nulls[:, col],
                 values=np.ones(len(lengths), dtype=bool),
                 lengths=lengths,
-                mask=~is_null,
-                padding=padding
+                mask=None if overlap else ~is_null,
+                padding=0 if overlap else padding,
+                intersect=intersect
             )
+            if overlap:
+                is_new_null &= ~is_null
+            new_nulls[:, col] = is_new_null
         return new_nulls
 
     def fold_tensor(self, x: np.ndarray = None, periods: int = 24) -> np.ndarray:
