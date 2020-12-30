@@ -416,6 +416,9 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
             + '-' + col3.astype('string')
         )
         # Turn anything that doesn't match a US phone number format to NA
+        # using noqa to get past flake8 test that give a false positive thinking
+        # that the regex string is supposed to be an f-string and is missing
+        # the it's designated prefix.
         return p_num.replace(regex=r'^(?!.*\d{3}-\d{3}-\d{4}).*$', value=pd.NA)  # noqa: FS003
 
     u_df = (
