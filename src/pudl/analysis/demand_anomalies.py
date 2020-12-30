@@ -15,19 +15,20 @@ And described at:
 * https://zenodo.org/record/3737085
 * https://github.com/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Code
 
-The imputation method was designed for multivariate time series forecasting.
+The imputation methods were designed for multivariate time series forecasting.
 
-It is adapted from code published by:
+They are adapted from code published by:
 * Xinyu Chen <chenxy346@gmail.com>
 
 And described at:
 * https://arxiv.org/abs/2006.10436
+* https://arxiv.org/abs/2008.03194
 * https://github.com/xinychen/tensor-learning
 """
 
 import functools
 import warnings
-from typing import Any, Iterable, List, Tuple, Union
+from typing import Any, Iterable, List, Literal, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -346,32 +347,36 @@ def impute_latc_tnn(
 
     Args:
         tensor: Observational series in the form (series, groups, periods).
+            Null values are replaced with zeros, so any zeros will be treated as null.
         lags:
         alpha:
         rho0:
         lambda0:
         theta:
         epsilon: Convergence criterion. A smaller number will result in more iterations.
-        maxiter: Max number of iterations.
+        maxiter: Maximum number of iterations.
+
+    Returns:
+        Tensor with missing values in `tensor` replaced by imputed values.
     """
     tensor = np.where(np.isnan(tensor), 0, tensor)
     dim = np.array(tensor.shape)
     dim_time = np.int(np.prod(dim) / dim[0])
     d = len(lags)
     max_lag = np.max(lags)
-    sparse_mat = _ten2mat(tensor, mode=0)
-    pos_missing = np.where(sparse_mat == 0)
+    mat = _ten2mat(tensor, mode=0)
+    pos_missing = np.where(mat == 0)
     X = np.zeros(np.insert(dim, 0, len(dim)))
     T = np.zeros(np.insert(dim, 0, len(dim)))
-    Z = sparse_mat.copy()
-    Z[pos_missing] = np.mean(sparse_mat[sparse_mat != 0])
+    Z = mat.copy()
+    Z[pos_missing] = np.mean(mat[mat != 0])
     A = 0.001 * np.random.rand(dim[0], d)
     it = 0
     ind = np.zeros((d, dim_time - max_lag), dtype=int)
     for i in range(d):
         ind[i, :] = np.arange(max_lag - lags[i], dim_time - lags[i])
-    last_mat = sparse_mat.copy()
-    snorm = np.linalg.norm(sparse_mat, 'fro')
+    last_mat = mat.copy()
+    snorm = np.linalg.norm(mat, 'fro')
     rho = rho0
     while True:
         rho = min(rho * 1.05, 1e5)
@@ -412,6 +417,117 @@ def impute_latc_tnn(
             break
     print(f"Iteration: {it}")
     return tensor_hat
+
+
+def _tsvt(tensor: np.ndarray, phi: np.ndarray, tau: float) -> np.ndarray:
+    """Tensor singular value thresholding (TSVT)."""
+    dim = tensor.shape
+    X = np.zeros(dim)
+    tensor = np.einsum('kt, ijk -> ijt', phi, tensor)
+    for t in range(dim[2]):
+        u, s, v = np.linalg.svd(tensor[:, :, t], full_matrices=False)
+        r = len(np.where(s > tau)[0])
+        if r >= 1:
+            s = s[:r]
+            s[: r] = s[:r] - tau
+            X[:, :, t] = u[:, :r] @ np.diag(s) @ v[:r, :]
+    return np.einsum('kt, ijt -> ijk', phi, X)
+
+
+def impute_latc_tubal(  # noqa: C901
+    tensor: np.ndarray,
+    lags: Iterable[int] = [1],
+    rho0: float = 1e-7,
+    lambda0: float = 2e-7,
+    epsilon: float = 1e-7,
+    maxiter: int = 300
+) -> np.ndarray:
+    """
+    Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).
+
+    Uses low-tubal-rank autoregressive tensor completion (LATC-Tubal).
+    It is much faster than :func:`impute_latc_tnn` for very large datasets,
+    with comparable accuracy.
+
+    * description: https://arxiv.org/abs/2008.03194
+    * code: https://github.com/xinychen/tensor-learning/blob/master/mats
+
+    Args:
+        tensor: Observational series in the form (series, groups, periods).
+            Null values are replaced with zeros, so any zeros will be treated as null.
+        lags:
+        rho0:
+        lambda0:
+        epsilon: Convergence criterion. A smaller number will result in more iterations.
+        maxiter: Maximum number of iterations.
+
+    Returns:
+        Tensor with missing values in `tensor` replaced by imputed values.
+    """
+    tensor = np.where(np.isnan(tensor), 0, tensor)
+    dim = np.array(tensor.shape)
+    dim_time = np.int(np.prod(dim) / dim[0])
+    d = len(lags)
+    max_lag = np.max(lags)
+    mat = _ten2mat(tensor, 0)
+    pos_missing = np.where(mat == 0)
+    T = np.zeros(dim)
+    Z = mat.copy()
+    Z[pos_missing] = np.mean(mat[mat != 0])
+    A = 0.001 * np.random.rand(dim[0], d)
+    it = 0
+    ind = np.zeros((d, dim_time - max_lag), dtype=np.int_)
+    for i in range(d):
+        ind[i, :] = np.arange(max_lag - lags[i], dim_time - lags[i])
+    last_mat = mat.copy()
+    snorm = np.linalg.norm(mat, 'fro')
+    rho = rho0
+    temp1 = _ten2mat(_mat2ten(Z, dim, 0), 2)
+    _, phi = np.linalg.eig(temp1 @ temp1.T)
+    del temp1
+    if dim_time > 5e3 and dim_time <= 1e4:
+        sample_rate = 0.2
+    elif dim_time > 1e4:
+        sample_rate = 0.1
+    while True:
+        rho = min(rho * 1.05, 1e5)
+        X = _tsvt(_mat2ten(Z, dim, 0) - T / rho, phi, 1 / rho)
+        mat_hat = _ten2mat(X, 0)
+        mat0 = np.zeros((dim[0], dim_time - max_lag))
+        temp2 = _ten2mat(rho * X + T, 0)
+        if lambda0 > 0:
+            if dim_time <= 5e3:
+                for m in range(dim[0]):
+                    Qm = mat_hat[m, ind].T
+                    A[m, :] = np.linalg.pinv(Qm) @ Z[m, max_lag:]
+                    mat0[m, :] = Qm @ A[m, :]
+            elif dim_time > 5e3:
+                for m in range(dim[0]):
+                    idx = np.arange(0, dim_time - max_lag)
+                    np.random.shuffle(idx)
+                    idx = idx[: int(sample_rate * (dim_time - max_lag))]
+                    Qm = mat_hat[m, ind].T
+                    A[m, :] = np.linalg.pinv(Qm[idx[:], :]) @ Z[m, max_lag:][idx[:]]
+                    mat0[m, :] = Qm @ A[m, :]
+            Z[pos_missing] = np.append(
+                (temp2[:, :max_lag] / rho),
+                (temp2[:, max_lag:] + lambda0 * mat0) / (rho + lambda0), axis=1
+            )[pos_missing]
+        else:
+            Z[pos_missing] = temp2[pos_missing] / rho
+        T = T + rho * (X - _mat2ten(Z, dim, 0))
+        tol = np.linalg.norm((mat_hat - last_mat), 'fro') / snorm
+        last_mat = mat_hat.copy()
+        it += 1
+        if not np.mod(it, 10):
+            temp1 = _ten2mat(_mat2ten(Z, dim, 0) - T / rho, 2)
+            _, phi = np.linalg.eig(temp1 @ temp1.T)
+            del temp1
+        print(f"Iteration: {it}", end="\r")
+        if tol < epsilon or it >= maxiter:
+            break
+    print(f"Iteration: {it}")
+    return X
 
 
 # ---- Anomaly detection ---- #
@@ -1108,10 +1224,15 @@ class Series:
         mask: np.ndarray = None,
         periods: int = 24,
         blocks: int = 1,
+        method: Literal['tubal', 'tnn'] = 'tubal',
         **kwargs: Any
     ) -> np.ndarray:
         """
         Impute null values.
+
+        .. note::
+            The imputation method requires that nulls be replaced by zeros,
+            so the series cannot already contain zeros.
 
         Args:
             mask: Boolean mask of values to impute in addition to
@@ -1119,17 +1240,24 @@ class Series:
             periods: Number of consecutive values in each series to fold into a group.
                 See :meth:`fold_tensor`.
             blocks: Number of blocks into which to split the series for imputation.
-                This has been found to reduce processing time without loss of accuracy.
-            kwargs: Optional arguments to :func:`impute_latc_tnn`.
+                This has been found to reduce processing time for `method='tnn'`.
+            method: Imputation method to use
+                ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`).
+            kwargs: Optional arguments to `method`.
 
         Returns:
             Array of same shape as :attr:`x` with all null values
             (and those selected by `mask`) replaced with imputed values.
+
+        Raises:
+            ValueError: Zero values present. Replace with very small value.
         """
+        imputer = {'tubal': impute_latc_tubal, 'tnn': impute_latc_tubal}[method]
         x = self.x
         if mask is not None:
             x = np.where(mask, np.nan, x)
-        x = np.where(np.isnan(x), 0, x)
+        if (x == 0).any():
+            raise ValueError("Zero values present. Replace with very small value.")
         tensor = self.fold_tensor(x, periods=periods)
         n = tensor.shape[1]
         ends = [*range(0, n, int(np.ceil(n / blocks))), n]
@@ -1137,7 +1265,7 @@ class Series:
             if blocks > 1:
                 print(f"Block: {i}")
             idx = slice(None), slice(ends[i], ends[i + 1]), slice(None)
-            tensor[idx] = impute_latc_tnn(tensor[idx], **kwargs)
+            tensor[idx] = imputer(tensor[idx], **kwargs)
         return self.unfold_tensor(tensor)
 
     def summarize_imputed(
