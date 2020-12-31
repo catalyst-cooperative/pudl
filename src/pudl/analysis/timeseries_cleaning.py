@@ -28,7 +28,7 @@ And described at:
 
 import functools
 import warnings
-from typing import Any, Iterable, List, Literal, Tuple, Union
+from typing import Any, Iterable, List, Sequence, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -110,7 +110,9 @@ def array_diff(
     return dx
 
 
-def encode_run_length(x: Iterable) -> Tuple[np.ndarray, np.ndarray]:
+def encode_run_length(
+    x: Union[Sequence, np.ndarray]
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Encode vector with run-length encoding.
 
@@ -146,10 +148,10 @@ def encode_run_length(x: Iterable) -> Tuple[np.ndarray, np.ndarray]:
 
 
 def insert_run_length(  # noqa: C901
-    x: Iterable,
-    values: Iterable,
-    lengths: Iterable[int],
-    mask: Iterable = None,
+    x: Union[Sequence, np.ndarray],
+    values: Union[Sequence, np.ndarray],
+    lengths: Sequence[int],
+    mask: Sequence[bool] = None,
     padding: int = 0,
     intersect: bool = False,
 ) -> np.ndarray:
@@ -290,11 +292,11 @@ def insert_run_length(  # noqa: C901
     return x
 
 
-def _mat2ten(matrix: np.ndarray, shape: Iterable[int], mode: int) -> np.ndarray:
+def _mat2ten(matrix: np.ndarray, shape: np.ndarray, mode: int) -> np.ndarray:
     """Fold matrix into a tensor."""
     index = [mode] + [i for i in range(len(shape)) if i != mode]
     return np.moveaxis(
-        np.reshape(matrix, newshape=list(shape[index]), order='F'),
+        np.reshape(matrix, newshape=shape[index], order='F'),
         source=0,
         destination=mode
     )
@@ -309,7 +311,7 @@ def _ten2mat(tensor: np.ndarray, mode: int) -> np.ndarray:
     )
 
 
-def _svt_tnn(matrix: np.ndarray, tau: Iterable[int], theta: int) -> np.ndarray:
+def _svt_tnn(matrix: np.ndarray, tau: float, theta: int) -> np.ndarray:
     """Singular value thresholding (SVT) truncated nuclear norm (TNN) minimization."""
     [m, n] = matrix.shape
     if 2 * m < n:
@@ -331,11 +333,11 @@ def _svt_tnn(matrix: np.ndarray, tau: Iterable[int], theta: int) -> np.ndarray:
 
 def impute_latc_tnn(
     tensor: np.ndarray,
-    lags: Iterable[int] = [1],
-    alpha: Iterable[float] = [1 / 3, 1 / 3, 1 / 3],
+    lags: Sequence[int] = [1],
+    alpha: Sequence[float] = [1 / 3, 1 / 3, 1 / 3],
     rho0: float = 1e-7,
     lambda0: float = 2e-7,
-    theta: float = 20,
+    theta: int = 20,
     epsilon: float = 1e-7,
     maxiter: int = 300
 ) -> np.ndarray:
@@ -439,7 +441,7 @@ def _tsvt(tensor: np.ndarray, phi: np.ndarray, tau: float) -> np.ndarray:
 
 def impute_latc_tubal(  # noqa: C901
     tensor: np.ndarray,
-    lags: Iterable[int] = [1],
+    lags: Sequence[int] = [1],
     rho0: float = 1e-7,
     lambda0: float = 2e-7,
     epsilon: float = 1e-7,
@@ -561,15 +563,18 @@ class Timeseries:
                 Otherwise, :attr:`index` and :attr:`columns` are the default
                 `pandas.RangeIndex`.
         """
+        self.xi: np.ndarray
+        self.index: pd.Index
+        self.columns: pd.Index
         if isinstance(x, pd.DataFrame):
-            self.xi: np.ndarray = x.values
-            self.index: pd.Index = x.index
-            self.columns: pd.Index = x.columns
+            self.xi = x.values
+            self.index = x.index
+            self.columns = x.columns
         else:
-            self.xi: np.ndarray = x
-            self.index: pd.Index = pd.RangeIndex(x.shape[0])
-            self.columns: pd.Index = pd.RangeIndex(x.shape[1])
-        self.x = self.xi.copy()
+            self.xi = x
+            self.index = pd.RangeIndex(x.shape[0])
+            self.columns = pd.RangeIndex(x.shape[1])
+        self.x: np.ndarray = self.xi.copy()
         self.flags: np.ndarray = np.empty(self.x.shape, dtype=object)
         self.flagged: List[str] = []
 
@@ -633,7 +638,7 @@ class Timeseries:
             mask[n:] &= self.x[n:] == self.x[:-n]
         self.flag(mask, "IDENTICAL_RUN")
 
-    def flag_global_outlier(self, medians: Union[int, float] = 9) -> None:
+    def flag_global_outlier(self, medians: float = 9) -> None:
         """
         Flag values greater or less than n times the global median (GLOBAL_OUTLIER).
 
@@ -692,7 +697,7 @@ class Timeseries:
     def median_of_rolling_median_offset(
         self,
         window: int = 48,
-        shifts: Iterable[int] = range(-240, 241, 24)
+        shifts: Sequence[int] = range(-240, 241, 24)
     ) -> np.ndarray:
         """
         Median of the offset from the rolling median.
@@ -748,7 +753,7 @@ class Timeseries:
     def median_prediction(
         self,
         window: int = 48,
-        shifts: Iterable[int] = range(-240, 241, 24),
+        shifts: Sequence[int] = range(-240, 241, 24),
         long_window: int = 480
     ) -> np.ndarray:
         """
@@ -773,10 +778,10 @@ class Timeseries:
     def flag_local_outlier(
         self,
         window: int = 48,
-        shifts: Iterable[int] = range(-240, 241, 24),
+        shifts: Sequence[int] = range(-240, 241, 24),
         long_window: int = 480,
         iqr_window: int = 240,
-        multiplier: Tuple[Union[int, float], Union[int, float]] = (3.5, 2.5)
+        multiplier: Tuple[float, float] = (3.5, 2.5)
     ) -> None:
         """
         Flag local outliers (LOCAL_OUTLIER_HIGH, LOCAL_OUTLIER_LOW).
@@ -835,7 +840,7 @@ class Timeseries:
         return (rolling.quantile(0.75) - rolling.quantile(0.25)).values
 
     def flag_double_delta(
-        self, iqr_window: int = 240, multiplier: Union[int, float] = 2
+        self, iqr_window: int = 240, multiplier: float = 2
     ) -> None:
         """
         Flag values very different from their neighbors on either side (DOUBLE_DELTA).
@@ -953,11 +958,11 @@ class Timeseries:
     def flag_single_delta(
         self,
         window: int = 48,
-        shifts: Iterable[int] = range(-240, 241, 24),
+        shifts: Sequence[int] = range(-240, 241, 24),
         long_window: int = 480,
         iqr_window: int = 240,
-        multiplier: Union[int, float] = 5,
-        rel_multiplier: Union[int, float] = 15
+        multiplier: float = 5,
+        rel_multiplier: float = 15
     ) -> None:
         """
         Flag values very different from the nearest unflagged value (SINGLE_DELTA).
@@ -1150,7 +1155,7 @@ class Timeseries:
 
     def simulate_nulls(
         self,
-        lengths: Iterable[int] = None,
+        lengths: Sequence[int] = None,
         padding: int = 1,
         intersect: bool = False,
         overlap: bool = False,
@@ -1181,17 +1186,18 @@ class Timeseries:
             >>> s.simulate_nulls(lengths=[4], padding=0).ravel()
             array([False, False, False, True, True, True, True, False, False])
         """
-        default_lengths = lengths is None
         new_nulls = np.zeros(self.x.shape, dtype=bool)
         for col in range(self.x.shape[1]):
             is_null = np.isnan(self.x[:, col])
-            if default_lengths:
+            if lengths is None:
                 run_values, run_lengths = encode_run_length(is_null)
-                lengths = run_lengths[run_values]
+                run_lengths = run_lengths[run_values]
+            else:
+                run_lengths = lengths
             is_new_null = insert_run_length(
                 new_nulls[:, col],
-                values=np.ones(len(lengths), dtype=bool),
-                lengths=lengths,
+                values=np.ones(len(run_lengths), dtype=bool),
+                lengths=run_lengths,
                 mask=None if overlap else ~is_null,
                 padding=0 if overlap else padding,
                 intersect=intersect
@@ -1241,7 +1247,7 @@ class Timeseries:
         mask: np.ndarray = None,
         periods: int = 24,
         blocks: int = 1,
-        method: Literal['tubal', 'tnn'] = 'tubal',
+        method: str = 'tubal',
         **kwargs: Any
     ) -> np.ndarray:
         """

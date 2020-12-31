@@ -76,7 +76,7 @@ def test_flags_and_imputes_anomalies() -> None:
     assert np.isin(flag_indices, indices).sum() > 0.9 * flag_indices.size
     # Add additional null values alongside nulled anomalies
     mask = s.simulate_nulls()
-    for method in 'tnn', 'tubal':
+    for method in 'tubal', 'tnn':
         # Impute null values
         imputed0 = s.impute(mask=mask, method=method, rho0=1, maxiter=1)
         imputed = s.impute(mask=mask, method=method, rho0=1, maxiter=10)
