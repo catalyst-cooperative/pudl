@@ -1305,6 +1305,8 @@ class Series:
         stats = []
         for col in range(self.x.shape[1]):
             x = self.x[mask[:, col], col]
+            if not x.size:
+                continue
             pe = (x - imputed[mask[:, col], col]) / x
             pe = pe[~np.isnan(pe)]
             stats.append({
