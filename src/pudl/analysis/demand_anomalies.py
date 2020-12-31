@@ -369,11 +369,11 @@ def impute_latc_tnn(
     max_lag = np.max(lags)
     mat = _ten2mat(tensor, mode=0)
     pos_missing = np.where(mat == 0)
-    X = np.zeros(np.insert(dim, 0, len(dim)))
-    T = np.zeros(np.insert(dim, 0, len(dim)))
-    Z = mat.copy()
-    Z[pos_missing] = np.mean(mat[mat != 0])
-    A = 0.001 * np.random.rand(dim[0], d)
+    x = np.zeros(np.insert(dim, 0, len(dim)))
+    t = np.zeros(np.insert(dim, 0, len(dim)))
+    z = mat.copy()
+    z[pos_missing] = np.mean(mat[mat != 0])
+    a = 0.001 * np.random.rand(dim[0], d)
     it = 0
     ind = np.zeros((d, dim_time - max_lag), dtype=int)
     for i in range(d):
@@ -384,33 +384,33 @@ def impute_latc_tnn(
     while True:
         rho = min(rho * 1.05, 1e5)
         for k in range(len(dim)):
-            X[k] = _mat2ten(
+            x[k] = _mat2ten(
                 _svt_tnn(
-                    _ten2mat(_mat2ten(Z, shape=dim, mode=0) - T[k] / rho, mode=k),
+                    _ten2mat(_mat2ten(z, shape=dim, mode=0) - t[k] / rho, mode=k),
                     tau=alpha[k] / rho,
                     theta=theta
                 ),
                 shape=dim,
                 mode=k
             )
-        tensor_hat = np.einsum('k, kmnt -> mnt', alpha, X)
+        tensor_hat = np.einsum('k, kmnt -> mnt', alpha, x)
         mat_hat = _ten2mat(tensor_hat, 0)
         mat0 = np.zeros((dim[0], dim_time - max_lag))
         if lambda0 > 0:
             for m in range(dim[0]):
-                Qm = mat_hat[m, ind].T
-                A[m, :] = np.linalg.pinv(Qm) @ Z[m, max_lag:]
-                mat0[m, :] = Qm @ A[m, :]
-            mat1 = _ten2mat(np.mean(rho * X + T, axis=0), 0)
-            Z[pos_missing] = np.append(
+                qm = mat_hat[m, ind].T
+                a[m, :] = np.linalg.pinv(qm) @ z[m, max_lag:]
+                mat0[m, :] = qm @ a[m, :]
+            mat1 = _ten2mat(np.mean(rho * x + t, axis=0), 0)
+            z[pos_missing] = np.append(
                 (mat1[:, :max_lag] / rho),
                 (mat1[:, max_lag:] + lambda0 * mat0) / (rho + lambda0),
                 axis=1
             )[pos_missing]
         else:
-            Z[pos_missing] = (_ten2mat(np.mean(X + T / rho, axis=0), 0))[pos_missing]
-        T = T + rho * (X - np.broadcast_to(
-            _mat2ten(Z, dim, 0), np.insert(dim, 0, len(dim))
+            z[pos_missing] = (_ten2mat(np.mean(x + t / rho, axis=0), 0))[pos_missing]
+        t = t + rho * (x - np.broadcast_to(
+            _mat2ten(z, dim, 0), np.insert(dim, 0, len(dim))
         ))
         tol = np.linalg.norm((mat_hat - last_mat), 'fro') / snorm
         last_mat = mat_hat.copy()
@@ -425,7 +425,7 @@ def impute_latc_tnn(
 def _tsvt(tensor: np.ndarray, phi: np.ndarray, tau: float) -> np.ndarray:
     """Tensor singular value thresholding (TSVT)."""
     dim = tensor.shape
-    X = np.zeros(dim)
+    x = np.zeros(dim)
     tensor = np.einsum('kt, ijk -> ijt', phi, tensor)
     for t in range(dim[2]):
         u, s, v = np.linalg.svd(tensor[:, :, t], full_matrices=False)
@@ -433,8 +433,8 @@ def _tsvt(tensor: np.ndarray, phi: np.ndarray, tau: float) -> np.ndarray:
         if r >= 1:
             s = s[:r]
             s[: r] = s[:r] - tau
-            X[:, :, t] = u[:, :r] @ np.diag(s) @ v[:r, :]
-    return np.einsum('kt, ijt -> ijk', phi, X)
+            x[:, :, t] = u[:, :r] @ np.diag(s) @ v[:r, :]
+    return np.einsum('kt, ijt -> ijk', phi, x)
 
 
 def impute_latc_tubal(  # noqa: C901
@@ -474,10 +474,10 @@ def impute_latc_tubal(  # noqa: C901
     max_lag = np.max(lags)
     mat = _ten2mat(tensor, 0)
     pos_missing = np.where(mat == 0)
-    T = np.zeros(dim)
-    Z = mat.copy()
-    Z[pos_missing] = np.mean(mat[mat != 0])
-    A = 0.001 * np.random.rand(dim[0], d)
+    t = np.zeros(dim)
+    z = mat.copy()
+    z[pos_missing] = np.mean(mat[mat != 0])
+    a = 0.001 * np.random.rand(dim[0], d)
     it = 0
     ind = np.zeros((d, dim_time - max_lag), dtype=np.int_)
     for i in range(d):
@@ -485,7 +485,7 @@ def impute_latc_tubal(  # noqa: C901
     last_mat = mat.copy()
     snorm = np.linalg.norm(mat, 'fro')
     rho = rho0
-    temp1 = _ten2mat(_mat2ten(Z, dim, 0), 2)
+    temp1 = _ten2mat(_mat2ten(z, dim, 0), 2)
     _, phi = np.linalg.eig(temp1 @ temp1.T)
     del temp1
     if dim_time > 5e3 and dim_time <= 1e4:
@@ -494,43 +494,43 @@ def impute_latc_tubal(  # noqa: C901
         sample_rate = 0.1
     while True:
         rho = min(rho * 1.05, 1e5)
-        X = _tsvt(_mat2ten(Z, dim, 0) - T / rho, phi, 1 / rho)
-        mat_hat = _ten2mat(X, 0)
+        x = _tsvt(_mat2ten(z, dim, 0) - t / rho, phi, 1 / rho)
+        mat_hat = _ten2mat(x, 0)
         mat0 = np.zeros((dim[0], dim_time - max_lag))
-        temp2 = _ten2mat(rho * X + T, 0)
+        temp2 = _ten2mat(rho * x + t, 0)
         if lambda0 > 0:
             if dim_time <= 5e3:
                 for m in range(dim[0]):
-                    Qm = mat_hat[m, ind].T
-                    A[m, :] = np.linalg.pinv(Qm) @ Z[m, max_lag:]
-                    mat0[m, :] = Qm @ A[m, :]
+                    qm = mat_hat[m, ind].T
+                    a[m, :] = np.linalg.pinv(qm) @ z[m, max_lag:]
+                    mat0[m, :] = qm @ a[m, :]
             elif dim_time > 5e3:
                 for m in range(dim[0]):
                     idx = np.arange(0, dim_time - max_lag)
                     np.random.shuffle(idx)
                     idx = idx[: int(sample_rate * (dim_time - max_lag))]
-                    Qm = mat_hat[m, ind].T
-                    A[m, :] = np.linalg.pinv(Qm[idx[:], :]) @ Z[m, max_lag:][idx[:]]
-                    mat0[m, :] = Qm @ A[m, :]
-            Z[pos_missing] = np.append(
+                    qm = mat_hat[m, ind].T
+                    a[m, :] = np.linalg.pinv(qm[idx[:], :]) @ z[m, max_lag:][idx[:]]
+                    mat0[m, :] = qm @ a[m, :]
+            z[pos_missing] = np.append(
                 (temp2[:, :max_lag] / rho),
                 (temp2[:, max_lag:] + lambda0 * mat0) / (rho + lambda0), axis=1
             )[pos_missing]
         else:
-            Z[pos_missing] = temp2[pos_missing] / rho
-        T = T + rho * (X - _mat2ten(Z, dim, 0))
+            z[pos_missing] = temp2[pos_missing] / rho
+        t = t + rho * (x - _mat2ten(z, dim, 0))
         tol = np.linalg.norm((mat_hat - last_mat), 'fro') / snorm
         last_mat = mat_hat.copy()
         it += 1
         if not np.mod(it, 10):
-            temp1 = _ten2mat(_mat2ten(Z, dim, 0) - T / rho, 2)
+            temp1 = _ten2mat(_mat2ten(z, dim, 0) - t / rho, 2)
             _, phi = np.linalg.eig(temp1 @ temp1.T)
             del temp1
         print(f"Iteration: {it}", end="\r")
         if tol < epsilon or it >= maxiter:
             break
     print(f"Iteration: {it}")
-    return X
+    return x
 
 
 # ---- Anomaly detection ---- #
