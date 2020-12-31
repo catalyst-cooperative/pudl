@@ -934,7 +934,7 @@ class Series:
                 # Bump current index of flagged pairs to next unflagged index
                 # Next index always unflagged because flagged runs are not permitted
                 next_indices_idx = indices_idx + 1
-                if next_indices_idx[-1] > len(indices):
+                if next_indices_idx[-1] == len(indices):
                     # Drop last index if out of range
                     next_indices_idx = next_indices_idx[:-1]
                 current = indices[next_indices_idx]
