@@ -536,24 +536,30 @@ def impute_latc_tubal(  # noqa: C901
 # ---- Anomaly detection ---- #
 
 
-class Series:
+class Timeseries:
     """
-    Data series for anomalies detection and imputation.
+    Multivariate timeseries for anomalies detection and imputation.
 
     Attributes:
-        xi: Original values (can be null). Many methods assume that these represent
-            a regular timeseries sorted chronologically.
-        x: Values :attr:`xi` with any flagged values replaced with null.
+        xi: Reference to the original values (can be null).
+            Many methods assume that these represent chronological, regular timeseries.
+        x: Copy of :attr:`xi` with any flagged values replaced with null.
         flags: Flag label for each value, or null if not flagged.
         flagged: Running list of flags that have been checked so far.
+        index: Row index.
+        columns: Column names.
     """
 
     def __init__(self, x: Union[np.ndarray, pd.DataFrame]) -> None:
         """
-        Initialize data series.
+        Initialize a multivariate timeseries.
 
         Args:
-            x: Data values. Any pandas index will be ignored.
+            x: Timeseries with shape (n observations, m variables).
+                If :class:`pandas.DataFrame`, :attr:`index` and :attr:`columns`
+                are equal to `x.index` and `x.columns`, respectively.
+                Otherwise, :attr:`index` and :attr:`columns` are the default
+                `pandas.RangeIndex`.
         """
         if isinstance(x, pd.DataFrame):
             self.xi: np.ndarray = x.values
@@ -1169,7 +1175,7 @@ class Series:
 
         Examples:
             >>> x = np.column_stack([[1, 2, np.nan, 4, 5, 6, 7, np.nan, np.nan]])
-            >>> s = Series(x)
+            >>> s = Timeseries(x)
             >>> s.simulate_nulls().ravel()
             array([ True, False, False, False, True, True, False, False, False])
             >>> s.simulate_nulls(lengths=[4], padding=0).ravel()
@@ -1210,7 +1216,7 @@ class Series:
 
         Returns:
             >>> x = np.column_stack([[1, 2, 3, 4, 5, 6], [10, 20, 30, 40, 50, 60]])
-            >>> s = Series(x)
+            >>> s = Timeseries(x)
             >>> tensor = s.fold_tensor(periods=3)
             >>> tensor[0]
             array([[1, 2, 3],

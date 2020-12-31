@@ -3,7 +3,7 @@ from typing import Tuple
 
 import numpy as np
 
-import pudl.analysis.demand_anomalies
+import pudl.analysis.timeseries_cleaning
 
 
 def simulate_series(
@@ -67,7 +67,7 @@ def test_flags_and_imputes_anomalies() -> None:
     values, indices = simulate_anomalies(x)
     x.flat[indices] = values
     # Flag anomalies
-    s = pudl.analysis.demand_anomalies.Series(x)
+    s = pudl.analysis.timeseries_cleaning.Timeseries(x)
     s.flag_ruggles()
     flag_indices = np.flatnonzero(~np.equal(s.flags, None))
     # Flag summary table has the right flag count
