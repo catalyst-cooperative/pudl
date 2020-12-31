@@ -61,15 +61,15 @@ def test_no_null_cols_ferc1(pudl_out_ferc1, live_pudl_db, cols, df_name):
 
 @pytest.mark.parametrize(
     "df_name,expected_rows", [
-        ("pu_ferc1", 6632),
-        ("fuel_ferc1", 29_529),
-        ("plants_steam_ferc1", 26_597),
-        ("fbp_ferc1", 19_346),
-        ("plants_small_ferc1", 14_174),
-        ("plants_hydro_ferc1", 6320,),
-        ("plants_pumped_storage_ferc1", 665),
-        ("purchased_power_ferc1", 176_969),
-        ("plant_in_service_ferc1", 24_953),
+        ("fuel_ferc1", 30_403),
+        ("fbp_ferc1", 19_967),
+        ("plants_steam_ferc1", 27_470),
+        ("plants_small_ferc1", 14_878),
+        ("plants_hydro_ferc1", 6550),
+        ("plants_pumped_storage_ferc1", 689),
+        ("plant_in_service_ferc1", 25_931),
+        ("purchased_power_ferc1", 183_583),
+        ("pu_ferc1", 6797),
     ])
 def test_minmax_rows(pudl_out_ferc1, live_pudl_db, expected_rows, df_name):
     """Verify that output DataFrames don't have too many or too few rows.

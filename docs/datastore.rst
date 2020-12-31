@@ -4,44 +4,38 @@
 Collecting a Datastore
 ===============================================================================
 
-The input data that PUDL processes comes from a variety of US government
-agencies. These agencies typically make the data available on their websites
-or via FTP without really planning for programmatic access.
+The input data that PUDL processes comes from a variety of US government agencies.
+However, these agencies typically make the data available on their websites or via FTP
+without planning for programmatic access. To ensure reproducible, programmatic access,
+we periodically archive the input files on the
+`Zenodo <https://zenodo.org/communities/catalyst-cooperative/>`__
+research archiving service maintained by CERN. (See our
+`pudl-scrapers <https://github.com/catalyst-cooperative/pudl-scrapers>`__ and
+`pudl-zenodo-storage <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__
+repositories on GitHub for more information.) When PUDL needs a data resource it will
+attempt to automatically retrieve it from Zenodo and store it locally in a file
+hierarchy organized by dataset and the versioned DOI of the corresponding Zenodo
+deposition.
 
-The ``pudl_data`` script helps you obtain and organize this data locally, for
-use by the rest of the PUDL system. It uses the routines defined in the
-:mod:`pudl.workspace.datastore` module. For details on what data is available,
-for what time periods, and how much of it there is, see the
-:doc:`data_catalog`.
+The ``pudl_datastore`` script can also be used to pre-download the raw input data in
+bulk. It uses the routines defined in the :mod:`pudl.workspace.datastore` module. For
+details on what data is available, for what time periods, and how much of it there is,
+see the PUDL :doc:`data_sources`. At present the ``pudl_datastore`` script downloads
+the entire collection of data available for each dataset. For the FERC Form 1 and EPA
+CEMS datasets, this is several gigabytes.
 
-For example, if you wanted to download the 2018 :ref:`data-epacems` data for
-Colorado:
-
-.. code-block:: console
-
-    $ pudl_data --sources epacems --states CO --years 2018
-
-If you do not specify years, the script will retrieve all available data. So
-to get everything for :ref:`data-eia860` and :ref:`data-eia923` you would run:
-
-.. code-block:: console
-
-    $ pudl_data --sources eia860 eia923
-
-The script will download from all sources in parallel, so if you have a fast
-internet connection and need a lot of data, doing it all in one go makes sense.
-To pull down **all** the available data for all the sources (10+ GB) you would
-run:
+For example, to download the full :doc:`data_sources/eia860` dataset
+(covering 2001-present) you would use:
 
 .. code-block:: console
 
-    $ pudl_data --sources eia860 eia923 epacems ferc1 epaipm
+    $ pudl_datastore --dataset eia860
 
 For more detailed usage information, see:
 
 .. code-block:: console
 
-    $ pudl_data --help
+    $ pudl_datastore --help
 
 The downloaded data will be used by the script to populate a datastore under
 the ``data`` directory in your workspace, organized by data source, form, and
@@ -52,34 +46,15 @@ date::
     data/eia861/
     data/eia923/
     data/epacems/
-    data/epaipm/
     data/ferc1/
     data/ferc714/
 
-If the download fails (e.g. the FTP server times out), this command can be run
-repeatedly until all the files are downloaded. It will not try and re-download
-data which is already present locally, unless you use the ``--clobber`` option.
-Depending on which data sources, how many years or states you have requested
-data for, and the speed of your internet connection, this may take minutes to
-hours to complete, and can consume 20+ GB of disk space even when the data is
-compressed.
-
-Occasionally, the federal agencies will re-organize their websites or FTP
-servers, changing the names or locations of the files, causing the download
-script to fail. We try and update the version of the script in the Github
-repository as quickly as possible when this happens, but it may take a while
-for those changes to show up in the released software. We are working on
-creating an automatically updated versioned archive of the raw source files
-on `Zenodo <https://zenodo.org/communities/catalyst-cooperative/>`__ so we
-don't need to refer directly to these unstable files that. See our
-`scrapers <https://github.com/catalyst-cooperative/scrapers>`__ and
-`zen_storage <https://github.com/catalyst-cooperative/zen_storage>`__
-Github repositories for more information.
-
-
+If the download fails to complete successfully, the script can be run repeatedly until
+all the files are downloaded. It will not try and re-download data which is already
+present locally.
 
 ===============================================================================
-Developing a new Dataset for the Datastore
+Creating a new Dataset for the Datastore
 ===============================================================================
 
 There are three components necessary to prepare a new datastet for use with the PUDL
@@ -98,11 +73,13 @@ Creating a scraper
 
 Where possible, we use `Scrapy <https://docs.scrapy.org/en/latest/>`__ to
 handle data collection.  Our scrapy spiders, as well as any custom scripts, are
-located in our `scrapers repo
-<https://github.com/catalyst-cooperative/pudl-scrapers>`__.  Familiarize yourself
+located in our
+`scrapers repo <https://github.com/catalyst-cooperative/pudl-scrapers>`__.
+Familiarize yourself
 with scrapy, and note the following.
 
 From a scraper, a correct ouput directory takes the form: ::
+
     `pudl_scrapers.helpers.new_output_dir(self.settings["OUTPUT_DIR"] /
     "datastet_name")`
 
@@ -124,54 +101,50 @@ Prepare zenodo_store
 
 Our `zenodo_store <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__
 script initializes and updates data sources that we maintain on
-`Zenodo <https://zenodo.org/>`__. It prepares `Frictionless Datapackages
-https://frictionlessdata.io/` from scraped files and uploads them to the appropriate
-Zenodo archive.
+`Zenodo <https://zenodo.org/>`__ . It prepares
+`Frictionless Datapackages <https://frictionlessdata.io/>`__ from scraped files and
+uploads them to the appropriate Zenodo archive.
 
-To add a new archive to our zenodo storage collection:
+To add a new archive to our Zenodo storage collection:
 
-#. Update ``zs.metadata`` with a uuid and metadata for the new Zenodo archive.
-These details will be used by Zenodo to identify and describe the archive on
-the website.  The UUID is used to uniquely distinguish the archive *prior to
-the creation of a DOI.*
-#. Prepare a new library to handle the *frictionless datapackage* descriptor of
-the archive.
+* Update ``zs.metadata`` with a UUID and metadata for the new Zenodo archive.
+   These details will be used by Zenodo to identify and describe the archive on
+   the website.  The UUID is used to uniquely distinguish the archive **prior to
+   the creation of a DOI.**
+* Prepare a new library to handle the **frictionless datapackage** descriptor of
+  the archive.
 
-   * The library name should take the form ``frictionless.DATASET_source``.
-   * The library must contain `frictionless data metadata
-     <https://specs.frictionlessdata.io/data-package/#language>`__ describing
-     the archive.
-   * The library must contain a ``datapackager(dfiles)`` function that:
+  * The library name should take the form ``frictionless.DATASET_raw``.
+  * The library must contain
+    `frictionless data metadata <https://specs.frictionlessdata.io/data-package/#language>`__
+    describing the archive.
+  * The library must contain a ``datapackager(dfiles)`` function that:
 
-      #. recieves a list of `zenodo file descriptors
-      <https://developers.zenodo.org/#deposition-files>`__
-      #. converts each to an appropriate `frictionless datapackage resource
-      descriptor <https://specs.frictionlessdata.io/data-resource/#language>`__
+    * receives a list of
+      `zenodo file descriptors <https://developers.zenodo.org/#deposition-files>`__
+    * converts each to an appropriate
+      `frictionless datapackage resource descriptor <https://specs.frictionlessdata.io/data-resource/#language>`__
+    * **Important**: The resource descriptor must include an
+      additional ``descriptor["remote_url"]`` that contains
+      the zenodo url to download its resource.  This will be the same
+      as the ``descriptor["path"]`` at this stage.
+    * If there are criteria by which you wish to be able to discover or
+      filter specific resources, ``descriptor["parts"][...]`` should be
+      used to denote those details.  For example,
+      ``descriptor["parts"]["year"] = 2018`` would be appropriate to
+      allow filtering by year.
+    * Combines the resource descriptors and frictionless metadata to produce
+      the complete datapackage descriptor as a python dict.
+* In the ``bin/zenodo_store.py`` script:
 
-         * **Important**: The resource descriptor must include an
-            additional ``descriptor["remote_url"]`` that contains
-            the zenodo url to download its resource.  This will be the same
-            as the ``descriptor["path"]`` at this stage.
-         * If there are criteria by which you wish to be able to discover or
-           filter specific resources, ``descriptor["parts"][...]`` should be
-           used to denote those details.  For example,
-           ``descriptor["parts"]["year"] = 2018`` would be appropriate to
-           allow filtering by year.
-
-      #. Combines the resource descriptors and frictionless metadata to produce
-         the complete datapackage descriptor as a python dict.
-
-#. In the ``bin/zenodo_store.py`` script:
-
-   * Import the new frictionless library.
-   * Add the new source to the ``archive_selection`` function; follow the
-     format of the existing selectors.
-   * Add the new source name to the help text in the ``parse_main() ..
-     deposition`` argument.
+  * Import the new frictionless library.
+  * Add the new source to the ``archive_selection`` function; follow the
+    format of the existing selectors.
+  * Add the new source name to the help text in the ``parse_main() ..
+    deposition`` argument.
 
 The above steps should be sufficient to allow automatic initialization and
 updates of the new data source on Zenodo.
-
 
 You initialize an archive (preferably starting with the sandbox) by running
 ``zenodo_store.py --initialize --verbose --sandbox``
@@ -195,8 +168,7 @@ If you want to prepare an archive for the datastore separately, the following
 are required.
 
 #. The root path must contain a ``datapackage.json`` file that conforms to the
-`frictionless datapackage spec
-<https://specs.frictionlessdata.io/data-package/>`__
+`frictionless datapackage spec <https://specs.frictionlessdata.io/data-package/>`__
 #. Each listed resource among the ``datapackage.json`` resources must include:
 
    * ``path`` containing the zenodo download url for the specific file.

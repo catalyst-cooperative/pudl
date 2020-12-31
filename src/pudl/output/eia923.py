@@ -97,7 +97,8 @@ def generation_fuel_eia923(pudl_engine, freq=None,
     gf_df = gf_df.drop(cols_to_drop, axis=1)
 
     # fuel_type_code_pudl was formerly aer_fuel_category
-    by = ['plant_id_eia', 'fuel_type_code_pudl']
+    by = ['plant_id_eia', 'fuel_type_code_pudl',
+          'fuel_type', 'prime_mover_code']
     if freq is not None:
         # Create a date index for temporal resampling:
         gf_df = gf_df.set_index(pd.DatetimeIndex(gf_df.report_date))

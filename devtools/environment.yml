@@ -3,8 +3,10 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - addfips>=0.3        # base
   - autopep8            # dev
   - bandit              # dev
+  - catalystcoop.dbfread>=3.0 # base
   - coloredlogs         # base
   - contextily          # base (OSM basemap) TODO: Is this needed?
   - coverage            # dev
@@ -31,13 +33,13 @@ dependencies:
   - nbval               # dev
   - networkx>=2.2       # base We depend on features introduced in v2.2
   - numpy               # base
-  - pandas>=1.1         # base Extensive nullable data type use
+  - pandas>=1.2         # base Extensive nullable data type use
   - pandoc              # dev
   - pdbpp               # dev
   - pep8-naming         # dev
   - pip                 # N/A
   - pre_commit          # dev
-  - pyarrow<1.0.0       # base Some issue with schema definitions in 1.0.0
+  - pyarrow>=2.0.0      # base
   - pydocstyle          # dev
   - pygeos              # user (speeds up geopandas operations)
   - pysal               # user (required for making maps w/ geopandas)
@@ -64,7 +66,6 @@ dependencies:
   - xlsxwriter          # base
   - pip:
     - flake8-use-fstring # dev
-    - addfips           # base -- need to get into conda
-    - git+https://github.com/catalyst-cooperative/dbfread.git#egg=catalystcoop.dbfread-2.1.1
-    - recordlinkage     # dev for now... base if it ends up in ETL
-    - fredapi           # dev
+    - goodtables-pandas-py>=0.2.0  # base get in conda!
+    - recordlinkage      # dev for now... base if it ends up in ETL
+    - fredapi            # dev
