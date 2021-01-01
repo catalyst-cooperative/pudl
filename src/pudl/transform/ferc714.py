@@ -575,6 +575,7 @@ def demand_hourly_pa(tfr_dfs):
     )
     _log_dupes(df, ["respondent_id_ferc714", "report_date", "hour"])
 
+    hour_timedeltas = {i + 1: pd.to_timedelta(i, unit="h") for i in range(24)}
     df = (
         # Discard records lacking *both* UTC offset code and non-zero demand
         # In practice, this should be *all* of the XXX records, but we're being
@@ -583,10 +584,7 @@ def demand_hourly_pa(tfr_dfs):
         # real demand associated with them.
         df.query("utc_offset_code!='XXX' | demand_mwh!=0.0")
         # Switch to using 0-23 hour notation, and combine hour with date:
-        .assign(
-            local_time=lambda x:
-                x.report_date + pd.to_timedelta(x.hour - 1, unit="h")
-        )
+        .assign(local_time=lambda x: x.report_date + x.hour.map(hour_timedeltas))
     )
 
     for fix in OFFSET_CODE_FIXES_BY_YEAR:
