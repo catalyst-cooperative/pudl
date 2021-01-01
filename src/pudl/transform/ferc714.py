@@ -552,7 +552,9 @@ def demand_hourly_pa(tfr_dfs):
     logger.debug("Converting dates into pandas Datetime types.")
     df = tfr_dfs["demand_hourly_pa_ferc714"]
     df = df.assign(
-        report_date=pd.to_datetime(df.report_date),
+        report_date=pd.to_datetime(
+            df.report_date, format="%m/%d/%Y %H:%M:%S", exact=True
+        ),
         utc_offset_code=df.utc_offset_code.str.upper().str.strip(),
     )
 
