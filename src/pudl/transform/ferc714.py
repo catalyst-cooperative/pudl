@@ -559,16 +559,19 @@ def demand_hourly_pa(tfr_dfs):
             utc_offset_code=df.utc_offset_code.str.upper().str.strip(),
         )
         .pipe(_standardize_offset_codes, offset_fixes=OFFSET_CODE_FIXES)
+        .rename(columns=_hours_to_ints)
+        # Almost all 25th hours are unusable (0.0 or daily totals),
+        # and they shouldn't really exist at all based on FERC instructions.
+        .drop(columns=[25])
     )
 
     logger.debug("Melting daily FERC 714 records into hourly records.")
-    df = (
-        df.rename(columns=_hours_to_ints)
-        .melt(
-            id_vars=["report_year", "respondent_id_ferc714",
-                     "report_date", "utc_offset_code"],
-            var_name="hour",
-            value_name="demand_mwh")
+    df = df.melt(
+        id_vars=[
+            "report_year", "respondent_id_ferc714", "report_date", "utc_offset_code"
+        ],
+        var_name="hour",
+        value_name="demand_mwh"
     )
     _log_dupes(df, ["respondent_id_ferc714", "report_date", "hour"])
 
@@ -579,9 +582,6 @@ def demand_hourly_pa(tfr_dfs):
         # notice if for some reason later we find XXX records that *do* have
         # real demand associated with them.
         df.query("utc_offset_code!='XXX' | demand_mwh!=0.0")
-        # Almost all 25th hours are unusable (0.0 or daily totals),
-        # and they shouldn't really exist at all based on FERC instructions.
-        .query("hour!=25")
         # Switch to using 0-23 hour notation, and combine hour with date:
         .assign(
             local_time=lambda x:
