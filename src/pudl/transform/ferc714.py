@@ -393,11 +393,10 @@ def _to_utc_and_tz(df, offset_codes, tz_codes):
     """
     _log_dupes(df, ["respondent_id_ferc714", "local_time"])
     logger.debug("Converting local time + offset code to UTC + timezone.")
-    df["utc_offset"] = df.utc_offset_code.replace(offset_codes)
+    df["utc_offset"] = df.utc_offset_code.map(offset_codes)
     df["utc_datetime"] = df.local_time - df.utc_offset
-    df["timezone"] = df.utc_offset_code.replace(tz_codes)
-    df = df.drop(
-        ["utc_offset", "utc_offset_code", "local_time"], axis="columns")
+    df["timezone"] = df.utc_offset_code.map(tz_codes)
+    df = df.drop(columns=["utc_offset", "utc_offset_code", "local_time"])
     _log_dupes(df, ["respondent_id_ferc714", "utc_datetime"])
     return df
 
