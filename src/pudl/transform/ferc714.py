@@ -551,11 +551,14 @@ def demand_hourly_pa(tfr_dfs):
     """
     logger.debug("Converting dates into pandas Datetime types.")
     df = tfr_dfs["demand_hourly_pa_ferc714"]
-    df = df.assign(
-        report_date=pd.to_datetime(
-            df.report_date, format="%m/%d/%Y %H:%M:%S", exact=True
-        ),
-        utc_offset_code=df.utc_offset_code.str.upper().str.strip(),
+    df = (
+        df.assign(
+            report_date=pd.to_datetime(
+                df.report_date, format="%m/%d/%Y %H:%M:%S", exact=True
+            ),
+            utc_offset_code=df.utc_offset_code.str.upper().str.strip(),
+        )
+        .pipe(_standardize_offset_codes, offset_fixes=OFFSET_CODE_FIXES)
     )
 
     logger.debug("Melting daily FERC 714 records into hourly records.")
@@ -570,13 +573,12 @@ def demand_hourly_pa(tfr_dfs):
     _log_dupes(df, ["respondent_id_ferc714", "report_date", "hour"])
 
     df = (
-        df.pipe(_standardize_offset_codes, offset_fixes=OFFSET_CODE_FIXES)
         # Discard records lacking *both* UTC offset code and non-zero demand
         # In practice, this should be *all* of the XXX records, but we're being
         # conservative, in case something changes / goes wrong. We want to
         # notice if for some reason later we find XXX records that *do* have
         # real demand associated with them.
-        .query("utc_offset_code!='XXX' | demand_mwh!=0.0")
+        df.query("utc_offset_code!='XXX' | demand_mwh!=0.0")
         # Almost all 25th hours are unusable (0.0 or daily totals),
         # and they shouldn't really exist at all based on FERC instructions.
         .query("hour!=25")
