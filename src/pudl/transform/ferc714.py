@@ -550,11 +550,10 @@ def demand_hourly_pa(tfr_dfs):
 
     """
     logger.debug("Converting dates into pandas Datetime types.")
-    df = (
-        tfr_dfs["demand_hourly_pa_ferc714"].assign(
-            report_date=lambda x: pd.to_datetime(x.report_date),
-            utc_offset_code=lambda x: x.utc_offset_code.str.upper().str.strip(),
-        )
+    df = tfr_dfs["demand_hourly_pa_ferc714"]
+    df = df.assign(
+        report_date=pd.to_datetime(df.report_date),
+        utc_offset_code=df.utc_offset_code.str.upper().str.strip(),
     )
 
     logger.debug("Melting daily FERC 714 records into hourly records.")
