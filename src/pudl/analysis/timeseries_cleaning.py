@@ -1275,7 +1275,7 @@ class Timeseries:
         Raises:
             ValueError: Zero values present. Replace with very small value.
         """
-        imputer = {'tubal': impute_latc_tubal, 'tnn': impute_latc_tubal}[method]
+        imputer = {'tubal': impute_latc_tubal, 'tnn': impute_latc_tnn}[method]
         x = self.x
         if mask is not None:
             x = np.where(mask, np.nan, x)
