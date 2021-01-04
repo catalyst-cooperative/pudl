@@ -4555,6 +4555,7 @@
                         "type": "string",
                         "constraints": {
                             "enum": [
+                                "AK",
                                 "AL",
                                 "AR",
                                 "AZ",
