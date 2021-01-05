@@ -8,10 +8,10 @@ from setuptools import find_packages, setup
 
 install_requires = [
     "addfips~=0.3.0",
+    "catalystcoop.dbfread~=3.0",
     "coloredlogs~=15.0",
     "contextily~=1.0",
     "datapackage~=1.11",
-    "catalystcoop.dbfread~=3.0",
     "geopandas~=0.8.1",
     "goodtables-pandas-py~=0.2.0",
     "matplotlib~=3.0",
@@ -53,7 +53,7 @@ test_requires = [
     "flake8-builtins~=1.5",
     "flake8-colors~=0.1.0",
     "flake8-docstrings~=1.5",
-    "flake8-rst-docstrings",
+    "flake8-rst-docstrings~=0.0.14",
     "flake8-use-fstring~=1.0",
     "mccabe~=0.6.0",
     "nbval~=0.9",
