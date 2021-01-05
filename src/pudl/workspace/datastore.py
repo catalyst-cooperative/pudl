@@ -352,6 +352,8 @@ class ParseKeyValues(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         """Parses the argument value into dict."""
         d = getattr(namespace, self.dest, {})
+        if isinstance(values, str):
+            values = [values]
         for val in values:
             for kv in val.split(','):
                 k, v = kv.split('=')
