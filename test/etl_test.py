@@ -67,7 +67,7 @@ def test_epacems_to_parquet(datapkg_bundle,
     )
 
 
-def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
+def test_ferc1_lost_data(data_scope, pudl_ferc1datastore_fixture):
     """
     Check to make sure we aren't missing any old FERC Form 1 tables or fields.
 
@@ -78,9 +78,7 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
     and field that appears in the historical FERC Form 1 data.
     """
     refyear = max(data_scope['ferc1_years'])
-    ds = pudl.extract.ferc1.Ferc1Datastore(
-        pathlib.Path(pudl_settings_fixture["pudl_in"]),
-        sandbox=pudl_settings_fixture["sandbox"])
+    ds = pudl_ferc1datastore_fixture
     current_dbc_map = pudl.extract.ferc1.get_dbc_map(ds, year=refyear)
     current_tables = list(current_dbc_map.keys())
     logger.info(f"Checking for new, unrecognized FERC1 "
