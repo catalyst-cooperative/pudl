@@ -180,7 +180,7 @@ def _add_eia_epacems_crosswalk(eia_transformed_dfs):
     return eia_transformed_dfs
 
 
-def _etl_eia(etl_params, datapkg_dir, pudl_settings, ds_kwarg, ds_kwargs):
+def _etl_eia(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     """Extract, transform and load CSVs for the EIA datasets.
 
     Args:
@@ -894,7 +894,7 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
         # run the ETL functions for this pkg and return the list of tables
         # output to CSVs:
         datapkg_resources = etl(datapkg_settings, output_dir, pudl_settings,
-                datastore_kwargs)
+                ds_kwargs)
 
         if datapkg_resources:
             descriptor = pudl.load.metadata.generate_metadata(
