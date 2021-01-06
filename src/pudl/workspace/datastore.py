@@ -92,6 +92,7 @@ class ZenodoFetcher:
         "sandbox": {
             "censusdp1tract": "10.5072/zenodo.674992",
             "eia860": "10.5072/zenodo.672210",
+            "eia860m": "10.5072/zenodo.692655",
             "eia861": "10.5072/zenodo.687052",
             "eia923": "10.5072/zenodo.687071",
             "epacems": "10.5072/zenodo.672963",
@@ -101,6 +102,7 @@ class ZenodoFetcher:
         "production": {
             "censusdp1tract": "10.5281/zenodo.4127049",
             "eia860": "10.5281/zenodo.4127027",
+            "eia860m": "10.5281/zenodo.4281337",
             "eia861": "10.5281/zenodo.4127029",
             "eia923": "10.5281/zenodo.4127040",
             "epacems": "10.5281/zenodo.4127055",
