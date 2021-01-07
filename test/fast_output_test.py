@@ -11,7 +11,9 @@ logger = logging.getLogger(__name__)
 @pytest.fixture(scope="module")
 def fast_out(pudl_engine):
     """A PUDL output object for use with Travis CI."""
-    return pudl.output.pudltabl.PudlTabl(pudl_engine, freq="MS")
+    return pudl.output.pudltabl.PudlTabl(
+        pudl_engine, freq="MS", fill_fuel_cost=True,
+        roll_fuel_cost=True, fill_net_gen=True)
 
 
 def test_fuel_ferc1(fast_out):

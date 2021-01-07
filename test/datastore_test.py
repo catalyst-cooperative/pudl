@@ -1,61 +1,45 @@
-"""
-Exercise the functionality in the datastore management module.
+"""Exercise the functionality in the datastore management module."""
+import random
+import re
 
-The local datastore is managed by a script that uses the datastore management
-module to pull raw data from public sources, and organize it prior to ETL.
-However, that process is time consuming because the data is large and far away.
-Because of that, we don't pull down new data frequently, which means if the
-datastore management infrastructure breaks, we often don't find out about it
-for a long time. These tests are meant to help avoid that problem by
-continuosly exercising this functionality.
-"""
+import datapackage
 
-import logging
-import os
-
-import pudl
-import pudl.workspace.datastore as datastore
-
-logger = logging.getLogger(__name__)
+from pudl.workspace import datastore as datastore
 
 
-def test_datastore(pudl_settings_fixture, data_scope):
-    """Download sample data for each available data source."""
-    sources_to_update = ['eia860', 'eia923', 'epaipm']
-    years_by_source = {
-        'eia860': data_scope['eia860_years'],
-        'eia923': data_scope['eia923_years'],
-        'epacems': [],
-        'epaipm': [None, ],
-        'ferc1': [],
-    }
-    # Sadly, FERC & EPA only provide access to their data via FTP, and it's
-    # not possible to use FTP from within the Travis CI environment:
-    if os.getenv('TRAVIS'):
-        states = []
-    else:
-        # Idaho has the least data of any CEMS state.
-        states = data_scope['epacems_states']
-        sources_to_update.extend(['ferc1', 'epacems'])
-        years_by_source['ferc1'] = data_scope['ferc1_years']
-        years_by_source['epacems'] = data_scope['epacems_years']
+class TestDatastore:
+    """Test the Datastore functions."""
 
-    datastore.parallel_update(
-        sources=sources_to_update,
-        years_by_source=years_by_source,
-        states=states,
-        data_dir=pudl_settings_fixture['data_dir'],
-    )
+    def test_doi_to_url(self, pudl_datastore_fixture):
+        """Get the DOI url right."""
+        number = random.randint(100000, 999999)  # nosec
+        fake_doi = f"10.5072/zenodo.{number}"
 
-    pudl.helpers.verify_input_files(
-        ferc1_years=years_by_source['ferc1'],
-        epacems_years=years_by_source['epacems'],
-        epacems_states=states,
-        # Currently no mechanism for automatically verifying EPA IPM files...
-        pudl_settings=pudl_settings_fixture,
-    )
-    data_dir = pudl_settings_fixture['data_dir']
-    pudl.extract.eia860.Extractor(
-        data_dir).verify_years(years_by_source['eia860'])
-    pudl.extract.eia923.Extractor(
-        data_dir).verify_years(years_by_source['eia923'])
+        assert pudl_datastore_fixture.doi_to_url(fake_doi) == \
+            f"{pudl_datastore_fixture.api_root}/deposit/depositions/{number}"
+
+    def test_sandbox_vs_production_dois(self):
+        """Check that Sandbox/Production DOIs are formatted as expected."""
+        for doi in datastore.DOI["sandbox"].values():
+            assert re.match(r"^10\.5072/zenodo\.[0-9]{5,10}$", doi) is not None  # noqa: FS003
+        for doi in datastore.DOI["production"].values():
+            assert re.match(r"^10\.5281/zenodo\.[0-9]{5,10}$", doi) is not None  # noqa: FS003
+
+    def test_all_datapackage_json_available(self, pudl_datastore_fixture):
+        """
+        Ensure that every recorded DOI has a valid datapackage.json file.
+
+        Integration test!
+        """
+
+        def test_it(client, doi):
+            jsr = client.remote_datapackage_json(doi)
+            dp = datapackage.Package(jsr)
+            if not dp.valid:
+                raise AssertionError(
+                    f"Invalid datapackage.json found for {doi} "
+                    f"({jsr['name']})."
+                )
+
+        for doi in pudl_datastore_fixture._dois.values():
+            test_it(pudl_datastore_fixture, doi)

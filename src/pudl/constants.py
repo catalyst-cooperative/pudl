@@ -213,573 +213,6 @@ state_tz_approx = {
     (keys) and timezones (values)
 """
 
-# Construct a dictionary mapping a canonical fuel name to a list of strings
-# which are used to represent that fuel in the FERC Form 1 Reporting. Case is
-# ignored, as all fuel strings can be converted to a lower case in the data
-# set.
-# Previous categories of ferc1_biomass_strings and ferc1_stream_strings have
-# been deleted and their contents redistributed to ferc1_waste_strings and
-# ferc1_other_strings
-
-ferc1_coal_strings = [
-    'coal', 'coal-subbit', 'lignite', 'coal(sb)', 'coal (sb)', 'coal-lignite',
-    'coke', 'coa', 'lignite/coal', 'coal - subbit', 'coal-subb', 'coal-sub',
-    'coal-lig', 'coal-sub bit', 'coals', 'ciak', 'petcoke', 'coal.oil',
-    'coal/gas', 'bit coal', 'coal-unit #3', 'coal-subbitum', 'coal tons',
-    'coal mcf', 'coal unit #3', 'pet. coke', 'coal-u3', 'coal&coke', 'tons'
-]
-"""
-list: A list of strings which are used to represent coal fuel in FERC Form 1
-    reporting.
-"""
-
-ferc1_oil_strings = [
-    'oil', '#6 oil', '#2 oil', 'fuel oil', 'jet', 'no. 2 oil', 'no.2 oil',
-    'no.6& used', 'used oil', 'oil-2', 'oil (#2)', 'diesel oil',
-    'residual oil', '# 2 oil', 'resid. oil', 'tall oil', 'oil/gas',
-    'no.6 oil', 'oil-fuel', 'oil-diesel', 'oil / gas', 'oil bbls', 'oil bls',
-    'no. 6 oil', '#1 kerosene', 'diesel', 'no. 2 oils', 'blend oil',
-    '#2oil diesel', '#2 oil-diesel', '# 2  oil', 'light oil', 'heavy oil',
-    'gas.oil', '#2', '2', '6', 'bbl', 'no 2 oil', 'no 6 oil', '#1 oil', '#6',
-    'oil-kero', 'oil bbl', 'biofuel', 'no 2', 'kero', '#1 fuel oil',
-    'no. 2  oil', 'blended oil', 'no 2. oil', '# 6 oil', 'nno. 2 oil',
-    '#2 fuel', 'oill', 'oils', 'gas/oil', 'no.2 oil gas', '#2 fuel oil',
-    'oli', 'oil (#6)', 'oil/diesel', '2 oil', '#6 hvy oil', 'jet fuel',
-    'diesel/compos', 'oil-8', 'oil {6}', 'oil-unit #1', 'bbl.', 'oil.',
-    'oil #6', 'oil (6)', 'oil(#2)', 'oil-unit1&2', 'oil-6', '#2 fue oil',
-    'dielel oil', 'dielsel oil', '#6 & used', 'barrels', 'oil un 1 & 2',
-    'jet oil', 'oil-u1&2', 'oiul', 'pil', 'oil - 2', '#6 & used', 'oial'
-]
-"""
-list: A list of strings which are used to represent oil fuel in FERC Form 1
-    reporting.
-"""
-
-ferc1_gas_strings = [
-    'gas', 'gass', 'methane', 'natural gas', 'blast gas', 'gas mcf',
-    'propane', 'prop', 'natural  gas', 'nat.gas', 'nat gas',
-    'nat. gas', 'natl gas', 'ga', 'gas`', 'syngas', 'ng', 'mcf',
-    'blast gaa', 'nat  gas', 'gac', 'syngass', 'prop.', 'natural', 'coal.gas',
-    'n. gas', 'lp gas', 'natuaral gas', 'coke gas', 'gas #2016', 'propane**',
-    '* propane', 'propane **', 'gas expander', 'gas ct', '# 6 gas', '#6 gas',
-    'coke oven gas'
-]
-"""
-list: A list of strings which are used to represent gas fuel in FERC Form 1
-    reporting.
-"""
-
-ferc1_solar_strings = []
-
-ferc1_wind_strings = []
-
-ferc1_hydro_strings = []
-
-ferc1_nuke_strings = [
-    'nuclear', 'grams of uran', 'grams of', 'grams of  ura',
-    'grams', 'nucleur', 'nulear', 'nucl', 'nucleart', 'nucelar',
-    'gr.uranium', 'grams of urm', 'nuclear (9)', 'nulcear', 'nuc',
-    'gr. uranium', 'nuclear mw da', 'grams of ura'
-]
-"""
-list: A list of strings which are used to represent nuclear fuel in FERC Form
-    1 reporting.
-"""
-
-ferc1_waste_strings = [
-    'tires', 'tire', 'refuse', 'switchgrass', 'wood waste', 'woodchips',
-    'biomass', 'wood', 'wood chips', 'rdf', 'tires/refuse', 'tire refuse',
-    'waste oil', 'waste', 'woodships', 'tire chips'
-]
-"""
-list: A list of strings which are used to represent waste fuel in FERC Form 1
-    reporting.
-"""
-
-ferc1_other_strings = [
-    'steam', 'purch steam', 'all', 'tdf', 'n/a', 'purch. steam', 'other',
-    'composite', 'composit', 'mbtus', 'total', 'avg', 'avg.', 'blo',
-    'all fuel', 'comb.', 'alt. fuels', 'na', 'comb', '/#=2\x80â\x91?',
-    'kã\xadgv¸\x9d?', "mbtu's", 'gas, oil', 'rrm', '3\x9c', 'average',
-    'furfural', '0', 'watson bng', 'toal', 'bng', '# 6 & used', 'combined',
-    'blo bls', 'compsite', '*', 'compos.', 'gas / oil', 'mw days', 'g', 'c',
-    'lime', 'all fuels', 'at right', '20', '1', 'comp oil/gas', 'all fuels to',
-    'the right are', 'c omposite', 'all fuels are', 'total pr crk',
-    'all fuels =', 'total pc', 'comp', 'alternative', 'alt. fuel', 'bio fuel',
-    'total prairie', ''
-]
-"""list: A list of strings which are used to represent other fuels in FERC Form
-    1 reporting.
-"""
-
-# There are also a bunch of other weird and hard to categorize strings
-# that I don't know what to do with... hopefully they constitute only a
-# small fraction of the overall generation.
-
-ferc1_fuel_strings = {"coal": ferc1_coal_strings,
-                      "oil": ferc1_oil_strings,
-                      "gas": ferc1_gas_strings,
-                      "solar": ferc1_solar_strings,
-                      "wind": ferc1_wind_strings,
-                      "hydro": ferc1_hydro_strings,
-                      "nuclear": ferc1_nuke_strings,
-                      "waste": ferc1_waste_strings,
-                      "other": ferc1_other_strings
-                      }
-"""dict: A dictionary linking fuel types (keys) to lists of various strings
-    representing that fuel (values)
-"""
-# Similarly, dictionary for cleaning up fuel unit strings
-ferc1_ton_strings = ['toms', 'taons', 'tones', 'col-tons', 'toncoaleq', 'coal',
-                     'tons coal eq', 'coal-tons', 'ton', 'tons', 'tons coal',
-                     'coal-ton', 'tires-tons', 'coal tons -2 ',
-                     'coal tons 200', 'ton-2000', 'coal tons -2', 'coal tons',
-                     'coal-tone', 'tire-ton', 'tire-tons', 'ton coal eqv']
-"""list: A list of fuel unit strings for tons."""
-
-ferc1_mcf_strings = \
-    ['mcf', "mcf's", 'mcfs', 'mcf.', 'gas mcf', '"gas" mcf', 'gas-mcf',
-     'mfc', 'mct', ' mcf', 'msfs', 'mlf', 'mscf', 'mci', 'mcl', 'mcg',
-     'm.cu.ft.', 'kcf', '(mcf)', 'mcf *(4)', 'mcf00', 'm.cu.ft..']
-"""list: A list of fuel unit strings for thousand cubic feet."""
-
-ferc1_bbl_strings = \
-    ['barrel', 'bbls', 'bbl', 'barrels', 'bbrl', 'bbl.', 'bbls.',
-     'oil 42 gal', 'oil-barrels', 'barrrels', 'bbl-42 gal',
-     'oil-barrel', 'bb.', 'barrells', 'bar', 'bbld', 'oil- barrel',
-     'barrels    .', 'bbl .', 'barels', 'barrell', 'berrels', 'bb',
-     'bbl.s', 'oil-bbl', 'bls', 'bbl:', 'barrles', 'blb', 'propane-bbl',
-     'barriel', 'berriel', 'barrile', '(bbl.)', 'barrel *(4)', '(4) barrel',
-     'bbf', 'blb.', '(bbl)', 'bb1', 'bbsl', 'barrrel', 'barrels 100%',
-     'bsrrels', "bbl's", '*barrels', 'oil - barrels', 'oil 42 gal ba', 'bll',
-     'boiler barrel', 'gas barrel', '"boiler" barr', '"gas" barrel',
-     '"boiler"barre', '"boiler barre', 'barrels .']
-"""list: A list of fuel unit strings for barrels."""
-
-ferc1_gal_strings = ['gallons', 'gal.', 'gals', 'gals.', 'gallon', 'gal',
-                     'galllons']
-"""list: A list of fuel unit strings for gallons."""
-
-ferc1_1kgal_strings = ['oil(1000 gal)', 'oil(1000)', 'oil (1000)', 'oil(1000',
-                       'oil(1000ga)']
-"""list: A list of fuel unit strings for thousand gallons."""
-
-ferc1_gramsU_strings = [  # noqa: N816 (U-ranium is capitalized...)
-    'gram', 'grams', 'gm u', 'grams u235', 'grams u-235', 'grams of uran',
-    'grams: u-235', 'grams:u-235', 'grams:u235', 'grams u308', 'grams: u235',
-    'grams of', 'grams - n/a', 'gms uran', 's e uo2 grams', 'gms uranium',
-    'grams of urm', 'gms. of uran', 'grams (100%)', 'grams v-235',
-    'se uo2 grams'
-]
-"""list: A list of fuel unit strings for grams."""
-
-ferc1_kgU_strings = [  # noqa: N816 (U-ranium is capitalized...)
-    'kg of uranium', 'kg uranium', 'kilg. u-235', 'kg u-235', 'kilograms-u23',
-    'kg', 'kilograms u-2', 'kilograms', 'kg of', 'kg-u-235', 'kilgrams',
-    'kilogr. u235', 'uranium kg', 'kg uranium25', 'kilogr. u-235',
-    'kg uranium 25', 'kilgr. u-235', 'kguranium 25', 'kg-u235'
-]
-"""list: A list of fuel unit strings for thousand grams."""
-
-ferc1_mmbtu_strings = ['mmbtu', 'mmbtus', 'mbtus', '(mmbtu)',
-                       "mmbtu's", 'nuclear-mmbtu', 'nuclear-mmbt']
-"""list: A list of fuel unit strings for million British Thermal Units."""
-
-ferc1_mwdth_strings = \
-    ['mwd therman', 'mw days-therm', 'mwd thrml', 'mwd thermal',
-     'mwd/mtu', 'mw days', 'mwdth', 'mwd', 'mw day', 'dth', 'mwdaysthermal',
-     'mw day therml', 'mw days thrml', 'nuclear mwd', 'mmwd', 'mw day/therml'
-     'mw days/therm', 'mw days (th', 'ermal)']
-"""list: A list of fuel unit strings for megawatt days thermal."""
-
-ferc1_mwhth_strings = ['mwh them', 'mwh threm', 'nwh therm', 'mwhth',
-                       'mwh therm', 'mwh', 'mwh therms.', 'mwh term.uts',
-                       'mwh thermal', 'mwh thermals', 'mw hr therm',
-                       'mwh therma', 'mwh therm.uts']
-"""list: A list of fuel unit strings for megawatt hours thermal."""
-
-ferc1_fuel_unit_strings = {'ton': ferc1_ton_strings,
-                           'mcf': ferc1_mcf_strings,
-                           'bbl': ferc1_bbl_strings,
-                           'gal': ferc1_gal_strings,
-                           '1kgal': ferc1_1kgal_strings,
-                           'gramsU': ferc1_gramsU_strings,
-                           'kgU': ferc1_kgU_strings,
-                           'mmbtu': ferc1_mmbtu_strings,
-                           'mwdth': ferc1_mwdth_strings,
-                           'mwhth': ferc1_mwhth_strings
-                           }
-"""
-dict: A dictionary linking fuel units (keys) to lists of various strings
-    representing those fuel units (values)
-"""
-
-# Categorizing the strings from the FERC Form 1 Plant Kind (plant_kind) field
-# into lists. There are many strings that weren't categorized,
-# Solar and Solar Project were not classified as these do not indicate if they
-# are solar thermal or photovoltaic. Variants on Steam (e.g. "steam 72" and
-# "steam and gas") were classified based on additional research of the plants
-# on the Internet.
-
-ferc1_plant_kind_steam_turbine = [
-    'coal', 'steam', 'steam units 1 2 3', 'steam units 4 5',
-    'steam fossil', 'steam turbine', 'steam a', 'steam 100',
-    'steam units 1 2 3', 'steams', 'steam 1', 'steam retired 2013', 'stream',
-    'steam units 1,2,3', 'steam units 4&5', 'steam units 4&6',
-    'steam conventional', 'unit total-steam', 'unit total steam',
-    '*resp. share steam', 'resp. share steam', 'steam (see note 1,',
-    'steam (see note 3)', 'mpc 50%share steam', '40% share steam'
-    'steam (2)', 'steam (3)', 'steam (4)', 'steam (5)', 'steam (6)',
-    'steam (7)', 'steam (8)', 'steam units 1 and 2', 'steam units 3 and 4',
-    'steam (note 1)', 'steam (retired)', 'steam (leased)', 'coal-fired steam',
-    'oil-fired steam', 'steam/fossil', 'steam (a,b)', 'steam (a)', 'stean',
-    'steam-internal comb', 'steam (see notes)', 'steam units 4 & 6',
-    'resp share stm note3' 'mpc50% share steam', 'mpc40%share steam',
-    'steam - 64%', 'steam - 100%', 'steam (1) & (2)', 'resp share st note3',
-    'mpc 50% shares steam', 'steam-64%', 'steam-100%', 'steam (see note 1)',
-    'mpc 50% share steam', 'steam units 1, 2, 3', 'steam units 4, 5',
-    'steam (2)', 'steam (1)', 'steam 4, 5', 'steam - 72%', 'steam (incl i.c.)',
-    'steam- 72%', 'steam;retired - 2013', "respondent's sh.-st.",
-    "respondent's sh-st", '40% share steam', 'resp share stm note3',
-    'mpc50% share steam', 'resp share st note 3', '\x02steam (1)',
-]
-"""
-list: A list of strings from FERC Form 1 for the steam turbine plant kind.
-"""
-
-ferc1_plant_kind_combustion_turbine = [
-    'combustion turbine', 'gt', 'gas turbine',
-    'gas turbine # 1', 'gas turbine', 'gas turbine (note 1)',
-    'gas turbines', 'simple cycle', 'combustion turbine',
-    'comb.turb.peak.units', 'gas turbine', 'combustion turbine',
-    'com turbine peaking', 'gas turbine peaking', 'comb turb peaking',
-    'combustine turbine', 'comb. turine', 'conbustion turbine',
-    'combustine turbine', 'gas turbine (leased)', 'combustion tubine',
-    'gas turb', 'gas turbine peaker', 'gtg/gas', 'simple cycle turbine',
-    'gas-turbine', 'gas turbine-simple', 'gas turbine - note 1',
-    'gas turbine #1', 'simple cycle', 'gasturbine', 'combustionturbine',
-    'gas turbine (2)', 'comb turb peak units', 'jet engine',
-    'jet powered turbine', '*gas turbine', 'gas turb.(see note5)',
-    'gas turb. (see note', 'combutsion turbine', 'combustion turbin',
-    'gas turbine-unit 2', 'gas - turbine', 'comb turbine peaking',
-    'gas expander turbine', 'jet turbine', 'gas turbin (lease',
-    'gas turbine (leased', 'gas turbine/int. cm', 'comb.turb-gas oper.',
-    'comb.turb.gas/oil op', 'comb.turb.oil oper.', 'jet', 'comb. turbine (a)',
-    'gas turb.(see notes)', 'gas turb(see notes)', 'comb. turb-gas oper',
-    'comb.turb.oil oper', 'gas turbin (leasd)', 'gas turbne/int comb',
-    'gas turbine (note1)', 'combution turbin', '* gas turbine',
-    'add to gas turbine', 'gas turbine (a)', 'gas turbinint comb',
-    'gas turbine (note 3)', 'resp share gas note3', 'gas trubine',
-    '*gas turbine(note3)', 'gas turbine note 3,6', 'gas turbine note 4,6',
-    'gas turbine peakload', 'combusition turbine', 'gas turbine (lease)',
-    'comb. turb-gas oper.', 'combution turbine', 'combusion turbine',
-    'comb. turb. oil oper', 'combustion burbine', 'combustion and gas',
-    'comb. turb.', 'gas turbine (lease', 'gas turbine (leasd)',
-    'gas turbine/int comb', '*gas turbine(note 3)', 'gas turbine (see nos',
-    'i.c.e./gas turbine', 'gas turbine/intcomb', 'cumbustion turbine',
-    'gas turb, int. comb.', 'gas turb, diesel', 'gas turb, int. comb',
-    'i.c.e/gas turbine', 'diesel turbine', 'comubstion turbine',
-    'i.c.e. /gas turbine', 'i.c.e/ gas turbine', 'i.c.e./gas tubine',
-]
-"""list: A list of strings from FERC Form 1 for the combustion turbine plant
-    kind.
-"""
-
-ferc1_plant_kind_combined_cycle = [
-    'Combined cycle', 'combined cycle', 'combined', 'gas & steam turbine',
-    'gas turb. & heat rec', 'combined cycle', 'com. cyc', 'com. cycle',
-    'gas turb-combined cy', 'combined cycle ctg', 'combined cycle - 40%',
-    'com cycle gas turb', 'combined cycle oper', 'gas turb/comb. cyc',
-    'combine cycle', 'cc', 'comb. cycle', 'gas turb-combined cy',
-    'steam and cc', 'steam cc', 'gas steam', 'ctg steam gas',
-    'steam comb cycle', 'gas/steam comb. cycl', 'steam (comb. cycle)'
-    'gas turbine/steam', 'steam & gas turbine', 'gas trb & heat rec',
-    'steam & combined ce', 'st/gas turb comb cyc', 'gas tur & comb cycl',
-    'combined cycle (a,b)', 'gas turbine/ steam', 'steam/gas turb.',
-    'steam & comb cycle', 'gas/steam comb cycle', 'comb cycle (a,b)', 'igcc',
-    'steam/gas turbine', 'gas turbine / steam', 'gas tur & comb cyc',
-    'comb cyc (a) (b)', 'comb cycle', 'comb cyc', 'combined turbine',
-    'combine cycle oper', 'comb cycle/steam tur', 'cc / gas turb',
-    'steam (comb. cycle)', 'steam & cc', 'gas turbine/steam',
-    'gas turb/cumbus cycl', 'gas turb/comb cycle', 'gasturb/comb cycle',
-    'gas turb/cumb. cyc', 'igcc/gas turbine', 'gas / steam', 'ctg/steam-gas',
-    'ctg/steam -gas'
-]
-"""
-list: A list of strings from FERC Form 1 for the combined cycle plant kind.
-"""
-
-ferc1_plant_kind_nuke = [
-    'nuclear', 'nuclear (3)', 'steam(nuclear)', 'nuclear(see note4)'
-    'nuclear steam', 'nuclear turbine', 'nuclear - steam',
-    'nuclear (a)(b)(c)', 'nuclear (b)(c)', '* nuclear', 'nuclear (b) (c)',
-    'nuclear (see notes)', 'steam (nuclear)', '* nuclear (note 2)',
-    'nuclear (note 2)', 'nuclear (see note 2)', 'nuclear(see note4)',
-    'nuclear steam', 'nuclear(see notes)', 'nuclear-steam',
-    'nuclear (see note 3)'
-]
-"""list: A list of strings from FERC Form 1 for the nuclear plant kind."""
-
-ferc1_plant_kind_geothermal = [
-    'steam - geothermal', 'steam_geothermal', 'geothermal'
-]
-"""list: A list of strings from FERC Form 1 for the geothermal plant kind."""
-
-ferc_1_plant_kind_internal_combustion = [
-    'ic', 'internal combustion', 'internal comb.', 'internl combustion'
-    'diesel turbine', 'int combust (note 1)', 'int. combust (note1)',
-    'int.combustine', 'comb. cyc', 'internal comb', 'diesel', 'diesel engine',
-    'internal combustion', 'int combust - note 1', 'int. combust - note1',
-    'internal comb recip', 'reciprocating engine', 'comb. turbine',
-    'internal combust.', 'int. combustion (1)', '*int combustion (1)',
-    "*internal combust'n", 'internal', 'internal comb.', 'steam internal comb',
-    'combustion', 'int. combustion', 'int combust (note1)', 'int. combustine',
-    'internl combustion', '*int. combustion (1)'
-]
-"""
-list: A list of strings from FERC Form 1 for the internal combustion plant
-    kind.
-"""
-
-ferc1_plant_kind_wind = [
-    'wind', 'wind energy', 'wind turbine', 'wind - turbine', 'wind generation'
-]
-"""list: A list of strings from FERC Form 1 for the wind plant kind."""
-
-ferc1_plant_kind_photovoltaic = [
-    'solar photovoltaic', 'photovoltaic', 'solar', 'solar project'
-]
-"""list: A list of strings from FERC Form 1 for the photovoltaic plant kind."""
-
-ferc1_plant_kind_solar_thermal = ['solar thermal']
-"""
-list: A list of strings from FERC Form 1 for the solar thermal plant kind.
-"""
-
-# Making a dictionary of lists from the lists of plant_fuel strings to create
-# a dictionary of plant fuel lists.
-
-ferc1_plant_kind_strings = {
-    'steam': ferc1_plant_kind_steam_turbine,
-    'combustion_turbine': ferc1_plant_kind_combustion_turbine,
-    'combined_cycle': ferc1_plant_kind_combined_cycle,
-    'nuclear': ferc1_plant_kind_nuke,
-    'geothermal': ferc1_plant_kind_geothermal,
-    'internal_combustion': ferc_1_plant_kind_internal_combustion,
-    'wind': ferc1_plant_kind_wind,
-    'photovoltaic': ferc1_plant_kind_photovoltaic,
-    'solar_thermal': ferc1_plant_kind_solar_thermal
-}
-"""
-dict: A dictionary of plant kinds (keys) and associated lists of plant_fuel
-    strings (values).
-"""
-
-# This is an alternative set of strings for simplifying the plant kind field
-# from Uday & Laura at CPI. For the moment we have reverted to using our own
-# categorizations which are more detailed, but these are preserved here for
-# comparison and testing, if need be.
-cpi_diesel_strings = ['DIESEL', 'Diesel Engine', 'Diesel Turbine', ]
-"""
-list: A list of strings for fuel type diesel compiled by Climate Policy
-    Initiative.
-"""
-cpi_geothermal_strings = ['Steam - Geothermal', ]
-"""
-list: A list of strings for fuel type geothermal compiled by Climate Policy
-    Initiative.
-"""
-cpi_natural_gas_strings = [
-    'Combined Cycle', 'Combustion Turbine', 'GT',
-    'GAS TURBINE', 'Comb. Turbine', 'Gas Turbine #1', 'Combine Cycle Oper',
-    'Combustion', 'Combined', 'Gas Turbine/Steam', 'Gas Turbine Peaker',
-    'Gas Turbine - Note 1', 'Resp Share Gas Note3', 'Gas Turbines',
-    'Simple Cycle', 'Gas / Steam', 'GasTurbine', 'Combine Cycle',
-    'CTG/Steam-Gas', 'GTG/Gas', 'CTG/Steam -Gas', 'Steam/Gas Turbine',
-    'CombustionTurbine', 'Gas Turbine-Simple', 'STEAM & GAS TURBINE',
-    'Gas & Steam Turbine', 'Gas', 'Gas Turbine (2)', 'COMBUSTION AND GAS',
-    'Com Turbine Peaking', 'Gas Turbine Peaking', 'Comb Turb Peaking',
-    'JET ENGINE', 'Comb. Cyc', 'Com. Cyc', 'Com. Cycle',
-    'GAS TURB-COMBINED CY', 'Gas Turb', 'Combined Cycle - 40%',
-    'IGCC/Gas Turbine', 'CC', 'Combined Cycle Oper', 'Simple Cycle Turbine',
-    'Steam and CC', 'Com Cycle Gas Turb', 'I.C.E/  Gas Turbine',
-    'Combined Cycle CTG', 'GAS-TURBINE', 'Gas Expander Turbine',
-    'Gas Turbine (Leased)', 'Gas Turbine # 1', 'Gas Turbine (Note 1)',
-    'COMBUSTINE TURBINE', 'Gas Turb, Int. Comb.', 'Combined Turbine',
-    'Comb Turb Peak Units', 'Combustion Tubine', 'Comb. Cycle',
-    'COMB.TURB.PEAK.UNITS', 'Steam  and  CC', 'I.C.E. /Gas Turbine',
-    'Conbustion Turbine', 'Gas Turbine/Int Comb', 'Steam & CC',
-    'GAS TURB. & HEAT REC', 'Gas Turb/Comb. Cyc', 'Comb. Turine',
-]
-"""list: A list of strings for fuel type gas compiled by Climate Policy
-    Initiative.
-"""
-cpi_nuclear_strings = ['Nuclear', 'Nuclear (3)', ]
-"""list: A list of strings for fuel type nuclear compiled by Climate Policy
-    Initiative.
-"""
-cpi_other_strings = [
-    'IC', 'Internal Combustion', 'Int Combust - Note 1',
-    'Resp. Share - Note 2', 'Int. Combust - Note1', 'Resp. Share - Note 4',
-    'Resp Share - Note 5', 'Resp. Share - Note 7', 'Internal Comb Recip',
-    'Reciprocating Engine', 'Internal Comb', 'Resp. Share - Note 8',
-    'Resp. Share - Note 9', 'Resp Share - Note 11', 'Resp. Share - Note 6',
-    'INT.COMBUSTINE', 'Steam (Incl I.C.)', 'Other', 'Int Combust (Note 1)',
-    'Resp. Share (Note 2)', 'Int. Combust (Note1)', 'Resp. Share (Note 8)',
-    'Resp. Share (Note 9)', 'Resp Share (Note 11)', 'Resp. Share (Note 4)',
-    'Resp. Share (Note 6)', 'Plant retired- 2013', 'Retired - 2013',
-]
-"""list: A list of strings for fuel type other compiled by Climate Policy
-    Initiative.
-"""
-cpi_steam_strings = [
-    'Steam', 'Steam Units 1, 2, 3', 'Resp Share St Note 3',
-    'Steam Turbine', 'Steam-Internal Comb', 'IGCC', 'Steam- 72%', 'Steam (1)',
-    'Steam (1)', 'Steam Units 1,2,3', 'Steam/Fossil', 'Steams', 'Steam - 72%',
-    'Steam - 100%', 'Stream', 'Steam Units 4, 5', 'Steam - 64%', 'Common',
-    'Steam (A)', 'Coal', 'Steam;Retired - 2013', 'Steam Units 4 & 6',
-]
-"""list: A list of strings for fuel type steam compiled by Climate Policy
-    Initiative.
-"""
-cpi_wind_strings = ['Wind', 'Wind Turbine', 'Wind - Turbine', 'Wind Energy', ]
-"""list: A list of strings for fuel type wind compiled by Climate Policy
-    Initiative.
-"""
-cpi_solar_strings = [
-    'Solar Photovoltaic', 'Solar Thermal', 'SOLAR PROJECT', 'Solar',
-    'Photovoltaic',
-]
-"""list: A list of strings for fuel type photovoltaic compiled by Climate
-Policy Initiative.
-"""
-cpi_plant_kind_strings = {
-    'natural_gas': cpi_natural_gas_strings,
-    'diesel': cpi_diesel_strings,
-    'geothermal': cpi_geothermal_strings,
-    'nuclear': cpi_nuclear_strings,
-    'steam': cpi_steam_strings,
-    'wind': cpi_wind_strings,
-    'solar': cpi_solar_strings,
-    'other': cpi_other_strings,
-}
-"""dict: A dictionary linking fuel types (keys) to lists of strings associated
-    by Climate Policy Institute with those fuel types (values).
-"""
-# Categorizing the strings from the FERC Form 1 Type of Plant Construction
-# (construction_type) field into lists.
-# There are many strings that weren't categorized, including crosses between
-# conventional and outdoor, PV, wind, combined cycle, and internal combustion.
-# The lists are broken out into the two types specified in Form 1:
-# conventional and outdoor. These lists are inclusive so that variants of
-# conventional (e.g. "conventional full") and outdoor (e.g. "outdoor full"
-# and "outdoor hrsg") are included.
-
-ferc1_const_type_outdoor = [
-    'outdoor', 'outdoor boiler', 'full outdoor', 'outdoor boiler',
-    'outdoor boilers', 'outboilers', 'fuel outdoor', 'full outdoor',
-    'outdoors', 'outdoor', 'boiler outdoor& full', 'boiler outdoor&full',
-    'outdoor boiler& full', 'full -outdoor', 'outdoor steam',
-    'outdoor boiler', 'ob', 'outdoor automatic', 'outdoor repower',
-    'full outdoor boiler', 'fo', 'outdoor boiler & ful', 'full-outdoor',
-    'fuel outdoor', 'outoor', 'outdoor', 'outdoor  boiler&full',
-    'boiler outdoor &full', 'outdoor boiler &full', 'boiler outdoor & ful',
-    'outdoor-boiler', 'outdoor - boiler', 'outdoor const.',
-    '4 outdoor boilers', '3 outdoor boilers', 'full outdoor', 'full outdoors',
-    'full oudoors', 'outdoor (auto oper)', 'outside boiler',
-    'outdoor boiler&full', 'outdoor hrsg', 'outdoor hrsg',
-    'outdoor-steel encl.', 'boiler-outdr & full',
-    'con.& full outdoor', 'partial outdoor', 'outdoor (auto. oper)',
-    'outdoor (auto.oper)', 'outdoor construction', '1 outdoor boiler',
-    '2 outdoor boilers', 'outdoor enclosure', '2 outoor boilers',
-    'boiler outdr.& full', 'boiler outdr. & full', 'ful outdoor',
-    'outdoor-steel enclos', 'outdoor (auto oper.)', 'con. & full outdoor',
-    'outdore', 'boiler & full outdor', 'full & outdr boilers',
-    'outodoor (auto oper)', 'outdoor steel encl.', 'full outoor',
-    'boiler & outdoor ful', 'otdr. blr. & f. otdr', 'f.otdr & otdr.blr.',
-    'oudoor (auto oper)', 'outdoor constructin', 'f. otdr. & otdr. blr',
-
-]
-"""list: A list of strings from FERC Form 1 associated with the outdoor
-    construction type.
-"""
-
-ferc1_const_type_semioutdoor = [
-    'more than 50% outdoo', 'more than 50% outdos', 'over 50% outdoor',
-    'over 50% outdoors', 'semi-outdoor', 'semi - outdoor', 'semi outdoor',
-    'semi-enclosed', 'semi-outdoor boiler', 'semi outdoor boiler',
-    'semi- outdoor', 'semi - outdoors', 'semi -outdoor'
-    'conven & semi-outdr', 'conv & semi-outdoor', 'conv & semi- outdoor',
-    'convent. semi-outdr', 'conv. semi outdoor', 'conv(u1)/semiod(u2)',
-    'conv u1/semi-od u2', 'conv-one blr-semi-od', 'convent semioutdoor',
-    'conv. u1/semi-od u2', 'conv - 1 blr semi od', 'conv. ui/semi-od u2',
-    'conv-1 blr semi-od', 'conven. semi-outdoor', 'conv semi-outdoor',
-    'u1-conv./u2-semi-od', 'u1-conv./u2-semi -od', 'convent. semi-outdoo',
-    'u1-conv. / u2-semi', 'conven & semi-outdr', 'semi -outdoor',
-    'outdr & conventnl', 'conven. full outdoor', 'conv. & outdoor blr',
-    'conv. & outdoor blr.', 'conv. & outdoor boil', 'conv. & outdr boiler',
-    'conv. & out. boiler', 'convntl,outdoor blr', 'outdoor & conv.',
-    '2 conv., 1 out. boil', 'outdoor/conventional', 'conv. boiler outdoor',
-    'conv-one boiler-outd', 'conventional outdoor', 'conventional outdor',
-    'conv. outdoor boiler', 'conv.outdoor boiler', 'conventional outdr.',
-    'conven,outdoorboiler', 'conven full outdoor', 'conven,full outdoor',
-    '1 out boil, 2 conv', 'conv. & full outdoor', 'conv. & outdr. boilr',
-    'conv outdoor boiler', 'convention. outdoor', 'conv. sem. outdoor',
-    'convntl, outdoor blr', 'conv & outdoor boil', 'conv & outdoor boil.',
-    'outdoor & conv', 'conv. broiler outdor', '1 out boilr, 2 conv',
-    'conv.& outdoor boil.', 'conven,outdr.boiler', 'conven,outdr boiler',
-    'outdoor & conventil', '1 out boilr 2 conv', 'conv & outdr. boilr',
-    'conven, full outdoor', 'conven full outdr.', 'conven, full outdr.',
-    'conv/outdoor boiler', "convnt'l outdr boilr", '1 out boil 2 conv',
-    'conv full outdoor', 'conven, outdr boiler', 'conventional/outdoor',
-    'conv&outdoor boiler', 'outdoor & convention', 'conv & outdoor boilr',
-    'conv & full outdoor', 'convntl. outdoor blr', 'conv - ob',
-    "1conv'l/2odboilers", "2conv'l/1odboiler", 'conv-ob', 'conv.-ob',
-    '1 conv/ 2odboilers', '2 conv /1 odboilers', 'conv- ob', 'conv -ob',
-    'con sem outdoor', 'cnvntl, outdr, boilr', 'less than 50% outdoo',
-    'under 50% outdoor', 'under 50% outdoors', '1cnvntnl/2odboilers',
-    '2cnvntnl1/1odboiler', 'con & ob', 'combination (b)', 'indoor & outdoor',
-    'conven. blr. & full', 'conv. & otdr. blr.', 'combination',
-    'indoor and outdoor', 'conven boiler & full', "2conv'l/10dboiler",
-    '4 indor/outdr boiler', '4 indr/outdr boilerr', '4 indr/outdr boiler',
-    'indoor & outdoof',
-]
-"""list: A list of strings from FERC Form 1 associated with the semi - outdoor
-    construction type, or a mix of conventional and outdoor construction.
-"""
-
-ferc1_const_type_conventional = [
-    'conventional', 'conventional', 'conventional boiler', 'conv-b',
-    'conventionall', 'convention', 'conventional', 'coventional',
-    'conven full boiler', 'c0nventional', 'conventtional', 'convential'
-    'underground', 'conventional bulb', 'conventrional',
-    '*conventional', 'convential', 'convetional', 'conventioanl',
-    'conventioinal', 'conventaional', 'indoor construction', 'convenional',
-    'conventional steam', 'conventinal', 'convntional', 'conventionl',
-    'conventionsl', 'conventiional', 'convntl steam plants', 'indoor const.',
-    'full indoor', 'indoor', 'indoor automatic', 'indoor boiler',
-    '(peak load) indoor', 'conventionl,indoor', 'conventionl, indoor',
-    'conventional, indoor', 'comb. cycle indoor', '3 indoor boiler',
-    '2 indoor boilers', '1 indoor boiler', '2 indoor boiler',
-    '3 indoor boilers', 'fully contained', 'conv - b', 'conventional/boiler',
-    'cnventional', 'comb. cycle indooor', 'sonventional',
-]
-"""list: A list of strings from FERC Form 1 associated with the conventional
-    construction type.
-"""
-
-# Making a dictionary of lists from the lists of construction_type strings to
-# create a dictionary of construction type lists.
-
-ferc1_const_type_strings = {
-    'outdoor': ferc1_const_type_outdoor,
-    'semioutdoor': ferc1_const_type_semioutdoor,
-    'conventional': ferc1_const_type_conventional,
-}
-"""dict: A dictionary of construction types (keys) and lists of construction
-    type strings associated with each type (values) from FERC Form 1.
-"""
-
 ferc1_power_purchase_type = {
     'RQ': 'requirement',
     'LF': 'long_firm',
@@ -976,20 +409,6 @@ ferc1_pudl_tables = (
     integrated into PUDL.
 """
 
-ferc714_pudl_tables = (
-    "respondent_id_ferc714",
-    "id_certification_ferc714",
-    "gen_plants_ba_ferc714",
-    "demand_monthly_ba_ferc714",
-    "net_energy_load_ba_ferc714",
-    "adjacency_ba_ferc714",
-    "interchange_ba_ferc714",
-    "lambda_hourly_ba_ferc714",
-    "lambda_description_ferc714",
-    "description_pa_ferc714",
-    "demand_forecast_pa_ferc714",
-    "demand_hourly_pa_ferc714",
-)
 
 table_map_ferc1_pudl = {
     'fuel_ferc1': 'f1_fuel',
@@ -1035,8 +454,7 @@ entity_tables = ['utilities_entity_eia',
 """
 
 xlsx_maps_pkg = 'pudl.package_data.meta.xlsx_maps'
-"""string: The location of the xlsx maps within the PUDL package data.
-"""
+"""string: The location of the xlsx maps within the PUDL package data."""
 
 ##############################################################################
 # EIA 923 Spreadsheet Metadata
@@ -1054,8 +472,7 @@ month_dict_eia923 = {1: '_january$',
                      10: '_october$',
                      11: '_november$',
                      12: '_december$'}
-"""dict: A dictionary mapping column numbers (keys) to months (values).
-"""
+"""dict: A dictionary mapping column numbers (keys) to months (values)."""
 
 ##############################################################################
 # EIA 860 Spreadsheet Metadata
@@ -1069,13 +486,8 @@ eia860_pudl_tables = (
     'generators_eia860',
     'ownership_eia860'
 )
-"""tuple: A tuple containing the list of EIA 860 tables that can be
-successfully pulled into PUDL.
-"""
+"""tuple: A tuple enumerating EIA 860 tables for which PUDL's ETL works."""
 
-eia861_pudl_tables = (
-    "service_territory_eia861",
-)
 
 # The set of FERC Form 1 tables that have the same composite primary keys: [
 # respondent_id, report_year, report_prd, row_number, spplmnt_num ].
@@ -1870,42 +1282,35 @@ transport_modes_eia923 = {
 # entity or annual tables. The order here matters. We need to harvest the plant
 # location before harvesting the location of the utilites for example.
 entities = {
-    'plants': [  # base cols
+    'plants': [
+        # base cols
         ['plant_id_eia'],
         # static cols
-        ['balancing_authority_code', 'balancing_authority_name',
+        ['balancing_authority_code_eia', 'balancing_authority_name_eia',
          'city', 'county', 'ferc_cogen_status',
          'ferc_exempt_wholesale_generator', 'ferc_small_power_producer',
          'grid_voltage_2_kv', 'grid_voltage_3_kv', 'grid_voltage_kv',
-         'iso_rto_code', 'latitude', 'longitude',
-         'nerc_region', 'plant_name_eia', 'primary_purpose_naics_id',
+         'iso_rto_code', 'latitude', 'longitude', 'service_area',
+         'plant_name_eia', 'primary_purpose_naics_id',
          'sector_id', 'sector_name', 'state', 'street_address', 'zip_code'],
         # annual cols
         ['ash_impoundment', 'ash_impoundment_lined', 'ash_impoundment_status',
-         'energy_storage', 'ferc_cogen_docket_no', 'water_source',
+         'datum', 'energy_storage', 'ferc_cogen_docket_no', 'water_source',
          'ferc_exempt_wholesale_generator_docket_no',
          'ferc_small_power_producer_docket_no',
          'liquefied_natural_gas_storage',
          'natural_gas_local_distribution_company', 'natural_gas_storage',
          'natural_gas_pipeline_name_1', 'natural_gas_pipeline_name_2',
-         'natural_gas_pipeline_name_3', 'net_metering', 'pipeline_notes',
-         'regulatory_status_code', 'transmission_distribution_owner_id',
+         'natural_gas_pipeline_name_3', 'nerc_region', 'net_metering',
+         'pipeline_notes', 'regulatory_status_code',
+         'transmission_distribution_owner_id',
          'transmission_distribution_owner_name',
          'transmission_distribution_owner_state', 'utility_id_eia'],
         # need type fixing
         {},
-        # {'plant_id_eia': 'int64',
-        # 'grid_voltage_2_kv': 'float64',
-        # 'grid_voltage_3_kv': 'float64',
-        # 'grid_voltage_kv': 'float64',
-        # 'longitude': 'float64',
-        # 'latitude': 'float64',
-        # 'primary_purpose_naics_id': 'float64',
-        # 'sector_id': 'float64',
-        # 'zip_code': 'float64',
-        # 'utility_id_eia': 'float64'},
     ],
-    'generators': [  # base cols
+    'generators': [
+        # base cols
         ['plant_id_eia', 'generator_id'],
         # static cols
         ['prime_mover_code', 'duct_burners', 'operating_date',
@@ -1918,11 +1323,16 @@ entities = {
          'operating_switch', 'previously_canceled'],
         # annual cols
         ['capacity_mw', 'fuel_type_code_pudl', 'multiple_fuels',
-         'ownership_code', 'deliver_power_transgrid', 'summer_capacity_mw',
-         'winter_capacity_mw', 'minimum_load_mw', 'technology_description',
+         'ownership_code', 'owned_by_non_utility', 'deliver_power_transgrid',
+         'summer_capacity_mw', 'winter_capacity_mw', 'summer_capacity_estimate',
+         'winter_capacity_estimate', 'minimum_load_mw', 'distributed_generation',
+         'technology_description', 'reactive_power_output_mvar',
          'energy_source_code_1', 'energy_source_code_2',
          'energy_source_code_3', 'energy_source_code_4',
          'energy_source_code_5', 'energy_source_code_6',
+         'energy_source_1_transport_1', 'energy_source_1_transport_2',
+         'energy_source_1_transport_3', 'energy_source_2_transport_1',
+         'energy_source_2_transport_2', 'energy_source_2_transport_3',
          'startup_source_code_1', 'startup_source_code_2',
          'startup_source_code_3', 'startup_source_code_4',
          'time_cold_shutdown_full_load_code', 'syncronized_transmission_grid',
@@ -1938,34 +1348,40 @@ entities = {
          'turbines_inverters_hydrokinetics', 'nameplate_power_factor',
          'uprate_derate_during_year', 'uprate_derate_completed_date',
          'current_planned_operating_date', 'summer_estimated_capability_mw',
-         'winter_estimated_capability_mw', 'retirement_date', 'utility_id_eia'],
+         'winter_estimated_capability_mw', 'retirement_date',
+         'utility_id_eia', 'data_source'],
         # need type fixing
         {}
-        # {'plant_id_eia': 'int64',
-        #  'generator_id': 'str'},
     ],
     # utilities must come after plants. plant location needs to be
     # removed before the utility locations are compiled
-    'utilities': [  # base cols
+    'utilities': [
+        # base cols
         ['utility_id_eia'],
         # static cols
-        ['utility_name_eia',
-         'entity_type'],
+        ['utility_name_eia'],
         # annual cols
-        ['street_address', 'city', 'state', 'zip_code',
+        ['street_address', 'city', 'state', 'zip_code', 'entity_type',
          'plants_reported_owner', 'plants_reported_operator',
          'plants_reported_asset_manager', 'plants_reported_other_relationship',
-         ],
+         'attention_line', 'address_2', 'address_3', 'zip_code_4',
+         'contact_firstname', 'contact_lastname', 'contact_title',
+         'contact_firstname_2', 'contact_lastname_2', 'contact_title_2',
+         'phone_extension_1', 'phone_extension_2', 'phone_number_1',
+         'phone_number_2'],
         # need type fixing
         {'utility_id_eia': 'int64', }, ],
-    'boilers': [  # base cols
+    'boilers': [
+        # base cols
         ['plant_id_eia', 'boiler_id'],
         # static cols
         ['prime_mover_code'],
         # annual cols
         [],
         # need type fixing
-        {}, ]}
+        {},
+    ]
+}
 """dict: A dictionary containing table name strings (keys) and lists of columns
     to keep for those tables (values).
 """
@@ -2204,18 +1620,20 @@ data_sources = (
     'epacems',
     'epaipm',
     'ferc1',
+    'ferc714',
     # 'pudl'
 )
 """tuple: A tuple containing the data sources we are able to pull into PUDL."""
 
 # All the years for which we ought to be able to download these data sources
 data_years = {
-    'eia860': tuple(range(2001, 2019)),
-    'eia861': tuple(range(1990, 2019)),
+    'eia860': tuple(range(2001, 2020)),
+    'eia861': tuple(range(1990, 2020)),
     'eia923': tuple(range(2001, 2020)),
-    'epacems': tuple(range(1995, 2019)),
+    'epacems': tuple(range(1995, 2020)),
     'epaipm': (None, ),
-    'ferc1': tuple(range(1994, 2019)),
+    'ferc1': tuple(range(1994, 2020)),
+    'ferc714': (None, ),
 }
 """
 dict: A dictionary of data sources (keys) and tuples containing the years
@@ -2223,27 +1641,73 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 """
 
 # The full set of years we currently expect to be able to ingest, per source:
-working_years = {
-    'eia860': tuple(range(2009, 2019)),
-    'eia861': tuple(range(1999, 2019)),
-    'eia923': tuple(range(2009, 2019)),
-    'epacems': tuple(range(1995, 2019)),
-    'epaipm': (None, ),
-    'ferc1': tuple(range(1994, 2019)),
+working_partitions = {
+    'eia860': {
+        'years': tuple(range(2004, 2020))
+    },
+    'eia860m': {
+        'year_month': '2020-08'
+    },
+    'eia861': {
+        'years': tuple(range(2001, 2020))
+    },
+    'eia923': {
+        'years': tuple(range(2009, 2020))
+    },
+    'epacems': {
+        'years': tuple(range(1995, 2020)),
+        'states': cems_states.keys()},
+    'ferc1': {
+        'years': tuple(range(1994, 2020))
+    },
+    'ferc714': {},
 }
 """
-dict: A dictionary of data sources (keys) and tuples containing the years for
-    each data source that are able to be ingested into PUDL.
+dict: A dictionary of data sources (keys) and dictionaries (values) of names of
+    partition type (sub-key) and paritions (sub-value) containing the paritions
+    such as tuples of years for each data source that are able to be ingested
+    into PUDL.
 """
 
 pudl_tables = {
     'eia860': eia860_pudl_tables,
-    'eia861': eia861_pudl_tables,
+    'eia861': (
+        "service_territory_eia861",
+        "balancing_authority_eia861",
+        "sales_eia861",
+        "advanced_metering_infrastructure_eia861",
+        "demand_response_eia861",
+        "demand_side_management_eia861",
+        "distributed_generation_eia861",
+        "distribution_systems_eia861",
+        "dynamic_pricing_eia861",
+        "energy_efficiency_eia861",
+        "green_pricing_eia861",
+        "mergers_eia861",
+        "net_metering_eia861",
+        "non_net_metering_eia861",
+        "operational_data_eia861",
+        "reliability_eia861",
+        "utility_data_eia861",
+    ),
     'eia923': eia923_pudl_tables,
     'epacems': epacems_tables,
     'epaipm': epaipm_pudl_tables,
     'ferc1': ferc1_pudl_tables,
-    'ferc714': ferc714_pudl_tables,
+    'ferc714': (
+        "respondent_id_ferc714",
+        "id_certification_ferc714",
+        "gen_plants_ba_ferc714",
+        "demand_monthly_ba_ferc714",
+        "net_energy_load_ba_ferc714",
+        "adjacency_ba_ferc714",
+        "interchange_ba_ferc714",
+        "lambda_hourly_ba_ferc714",
+        "lambda_description_ferc714",
+        "description_pa_ferc714",
+        "demand_forecast_pa_ferc714",
+        "demand_hourly_pa_ferc714",
+    ),
     'glue': glue_pudl_tables,
 }
 """
@@ -2489,34 +1953,196 @@ keywords_by_data_source = {
         'natural gas', 'gas', 'opex', 'capex', 'accounts', 'investment',
         'capacity'
     ],
+    'ferc714': [
+        'electricity', 'electric', 'utility', 'planning area', 'form 714',
+        'balancing authority', 'demand', 'system lambda', 'ferc',
+        'federal energy regulatory commission', "hourly", "generation",
+        "interchange", "forecast", "load", "adjacency", "plants",
+    ],
     'epaipm': [
         'epaipm', 'integrated planning',
     ]
 }
 """dict: A dictionary of datasets (keys) and keywords (values). """
 
+ENTITY_TYPE_DICT = {
+    'M': 'Municipal',
+    'C': 'Cooperative',
+    'R': 'Retail Power Marketer',
+    'I': 'Investor Owned',
+    'P': 'Political Subdivision',
+    'T': 'Transmission',
+    'S': 'State',
+    'W': 'Wholesale Power Marketer',
+    'F': 'Federal',
+    'A': 'Municipal Mktg Authority',
+    'G': 'Community Choice Aggregator',
+    'D': 'Nonutility DSM Administrator',
+    'B': 'Behind the Meter',
+    'Q': 'Independent Power Producer',
+    'IND': 'Industrial',
+    'COM': 'Commercial',
+    'PR': 'Private',  # Added by AES for OD table (Arbitrary moniker)
+    'PO': 'Power Marketer',  # Added by AES for OD table
+    'U': 'Unknown',  # Added by AES for OD table
+    'O': 'Other'  # Added by AES for OD table
+}
+
+# Confirm these designations -- educated guess based on the form instructions
+MOMENTARY_INTERRUPTION_DEF = {  # Added by AES for R table
+    'L': 'Less than 1 minute',
+    'F': 'Less than or equal to 5 minutes',
+    'O': 'Other',
+}
+
+# https://www.eia.gov/electricity/data/eia411/#tabs_NERC-3
+RECOGNIZED_NERC_REGIONS = [
+    'BASN',  # ASSESSMENT AREA Basin (WECC)
+    'CALN',  # ASSESSMENT AREA California (WECC)
+    'CALS',  # ASSESSMENT AREA California (WECC)
+    'DSW',  # ASSESSMENT AREA Desert Southwest (WECC)
+    'ASCC',  # Alaska
+    'ISONE',  # ISO New England (NPCC)
+    'ERCOT',  # lumped under TRE in 2017 Form instructions
+    'NORW',  # ASSESSMENT AREA Northwest (WECC)
+    'NYISO',  # ISO (NPCC)
+    'PJM',  # RTO
+    'ROCK',  # ASSESSMENT AREA Rockies (WECC)
+    'ECAR',  # OLD RE Now part of RFC and SERC
+    'FRCC',  # included in 2017 Form instructions, recently joined with SERC
+    'HICC',  # Hawaii
+    'MAAC',  # OLD RE Now part of RFC
+    'MAIN',  # OLD RE Now part of SERC, RFC, MRO
+    'MAPP',  # OLD/NEW RE Became part of MRO, resurfaced in 2010
+    'MRO',  # RE included in 2017 Form instructions
+    'NPCC',  # RE included in 2017 Form instructions
+    'RFC',  # RE included in 2017 Form instructions
+    'SERC',  # RE included in 2017 Form instructions
+    'SPP',  # RE included in 2017 Form instructions
+    'TRE',  # RE included in 2017 Form instructions (included ERCOT)
+    'WECC',  # RE included in 2017 Form instructions
+    'WSCC',  # OLD RE pre-2002 version of WECC
+    'MISO',  # ISO unclear whether technically a regional entity, but lots of entries
+    'ECAR_MAAC',
+    'MAPP_WECC',
+    'RFC_SERC',
+    'SPP_WECC',
+    'MRO_WECC',
+    'ERCOT_SPP',
+    'SPP_TRE',
+    'ERCOT_TRE',
+    'MISO_TRE',
+    'VI',  # Virgin Islands
+    'GU',  # Guam
+    'PR',  # Puerto Rico
+    'AS',  # American Samoa
+    'UNK',
+]
+
+CUSTOMER_CLASSES = [
+    "commercial",
+    "industrial",
+    "direct_connection",
+    "other",
+    "residential",
+    "total",
+    "transportation"
+]
+
+TECH_CLASSES = [
+    'backup',  # WHERE Is this used? because removed from DG table b/c not a real component
+    'chp_cogen',
+    'combustion_turbine',
+    'fuel_cell',
+    'hydro',
+    'internal_combustion',
+    'other',
+    'pv',
+    'steam',
+    'storage_pv',
+    'all_storage',  # need 'all' as prefix so as not to confuse with other storage category
+    'total',
+    'virtual_pv',
+    'wind',
+]
+
+REVENUE_CLASSES = [
+    'retail_sales',
+    'unbundled',
+    'delivery_customers',
+    'sales_for_resale',
+    'credits_or_adjustments',
+    'other',
+    'transmission',
+    'total',
+]
+
+RELIABILITY_STANDARDS = [
+    'ieee_standard',
+    'other_standard'
+]
+
+FUEL_CLASSES = [
+    'gas',
+    'oil',
+    'other',
+    'renewable',
+    'water',
+    'wind',
+    'wood',
+]
+
+RTO_CLASSES = [
+    'caiso',
+    'ercot',
+    'pjm',
+    'nyiso',
+    'spp',
+    'miso',
+    'isone',
+    'other'
+]
+
+ESTIMATED_OR_ACTUAL = {'E': 'Estimated', 'A': 'Actual'}
+
+TRANSIT_TYPE_DICT = {
+    'CV': 'conveyer',
+    'PL': 'pipeline',
+    'RR': 'railroad',
+    'TK': 'truck',
+    'WA': 'water',
+    'UN': 'unknown',
+}
+
+"""dict: A dictionary of datasets (keys) and keywords (values). """
+
 column_dtypes = {
     "ferc1": {  # Obviously this is not yet a complete list...
         "construction_year": pd.Int64Dtype(),
         "installation_year": pd.Int64Dtype(),
-        'utility_id_ferc1': pd.Int64Dtype(),
-        'plant_id_pudl': pd.Int64Dtype(),
-        'plant_id_ferc1': pd.Int64Dtype(),
-        'utility_id_pudl': pd.Int64Dtype(),
-        'report_year': pd.Int64Dtype(),
-        'report_date': 'datetime64[ns]',
+        "plant_id_ferc1": pd.Int64Dtype(),
+        "plant_id_pudl": pd.Int64Dtype(),
+        "report_date": "datetime64[ns]",
+        "report_year": pd.Int64Dtype(),
+        "utility_id_ferc1": pd.Int64Dtype(),
+        "utility_id_pudl": pd.Int64Dtype(),
     },
     "ferc714": {  # INCOMPLETE
-        "report_year": pd.Int64Dtype(),
-        "utility_id_ferc714": pd.Int64Dtype(),
-        "utility_id_eia": pd.Int64Dtype(),
-        "utility_name_ferc714": pd.StringDtype(),
+        "demand_mwh": float,
+        "demand_annual_mwh": float,
+        "eia_code": pd.Int64Dtype(),
+        "peak_demand_summer_mw": float,
+        "peak_demand_winter_mw": float,
+        "report_date": "datetime64[ns]",
+        "respondent_id_ferc714": pd.Int64Dtype(),
+        "respondent_name_ferc714": pd.StringDtype(),
+        "respondent_type": pd.CategoricalDtype(categories=[
+            "utility", "balancing_authority",
+        ]),
         "timezone": pd.CategoricalDtype(categories=[
             "America/New_York", "America/Chicago", "America/Denver",
             "America/Los_Angeles", "America/Anchorage", "Pacific/Honolulu"]),
         "utc_datetime": "datetime64[ns]",
-        "peak_demand_summer_mw": float,
-        "peak_demand_winter_mw": float,
     },
     "epacems": {
         'state': pd.StringDtype(),
@@ -2539,36 +2165,94 @@ column_dtypes = {
         'unit_id_epa': pd.Int64Dtype(),  # Nullable Integer
     },
     "eia": {
+        'actual_peak_demand_savings_mw': float,  # Added by AES for DR table
+        'address_2': pd.StringDtype(),  # Added by AES for 860 utilities table
+        'address_3': pd.StringDtype(),
+        'advanced_metering_infrastructure': pd.Int64Dtype(),  # Added by AES for AMI table
+        # Added by AES for UD misc table
+        'alternative_fuel_vehicle_2_activity': pd.BooleanDtype(),
+        'alternative_fuel_vehicle_activity': pd.BooleanDtype(),
+        'annual_indirect_program_cost': float,
+        'annual_total_cost': float,
         'ash_content_pct': float,
         'ash_impoundment': pd.BooleanDtype(),
         'ash_impoundment_lined': pd.BooleanDtype(),
         # TODO: convert this field to more descriptive words
         'ash_impoundment_status': pd.StringDtype(),
         'associated_combined_heat_power': pd.BooleanDtype(),
-        'balancing_authority_code': pd.StringDtype(),
+        'attention_line': pd.StringDtype(),
+        'automated_meter_reading': pd.Int64Dtype(),  # Added by AES for AMI table
+        'backup_capacity_mw': float,  # Added by AES for NNM & DG misc table
+        'balancing_authority_code_eia': pd.CategoricalDtype(),
         'balancing_authority_id_eia': pd.Int64Dtype(),
-        'balancing_authority_name': pd.StringDtype(),
+        'balancing_authority_name_eia': pd.StringDtype(),
         'bga_source': pd.StringDtype(),
         'boiler_id': pd.StringDtype(),
+        'bunded_activity': pd.BooleanDtype(),
+        'business_model': pd.CategoricalDtype(categories=[
+            "retail", "energy_services"]),
+        'buy_distribution_activity': pd.BooleanDtype(),
+        'buying_transmission_activity': pd.BooleanDtype(),
         'bypass_heat_recovery': pd.BooleanDtype(),
+        'caidi_w_major_event_days_minus_loss_of_service_minutes': float,
+        'caidi_w_major_event_dats_minutes': float,
+        'caidi_wo_major_event_days_minutes': float,
         'capacity_mw': float,
         'carbon_capture': pd.BooleanDtype(),
         'chlorine_content_ppm': float,
+        'circuits_with_voltage_optimization': pd.Int64Dtype(),
         'city': pd.StringDtype(),
         'cofire_fuels': pd.BooleanDtype(),
+        'consumed_by_facility_mwh': float,
+        'consumed_by_respondent_without_charge_mwh': float,
         'contact_firstname': pd.StringDtype(),
-        'contact_firstname2': pd.StringDtype(),
+        'contact_firstname_2': pd.StringDtype(),
         'contact_lastname': pd.StringDtype(),
-        'contact_lastname2': pd.StringDtype(),
+        'contact_lastname_2': pd.StringDtype(),
         'contact_title': pd.StringDtype(),
-        'contact_title2': pd.StringDtype(),
+        'contact_title_2': pd.StringDtype(),
         'contract_expiration_date': 'datetime64[ns]',
         'contract_type_code': pd.StringDtype(),
         'county': pd.StringDtype(),
         'county_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
+        'credits_or_adjustments': float,
+        'critical_peak_pricing': pd.BooleanDtype(),
+        'critical_peak_rebate': pd.BooleanDtype(),
         'current_planned_operating_date': 'datetime64[ns]',
+        'customers': float,
+        'customer_class': pd.CategoricalDtype(categories=CUSTOMER_CLASSES),
+        'customer_incentives_cost': float,
+        'customer_incentives_incremental_cost': float,
+        'customer_incentives_incremental_life_cycle_cost': float,
+        'customer_other_costs_incremental_life_cycle_cost': float,
+        'daily_digital_access_customers': pd.Int64Dtype(),
+        'data_observed': pd.BooleanDtype(),
+        'datum': pd.StringDtype(),
         'deliver_power_transgrid': pd.BooleanDtype(),
+        'delivery_customers': float,
+        'direct_load_control_customers': pd.Int64Dtype(),
+        'distributed_generation': pd.BooleanDtype(),
+        'distributed_generation_owned_capacity_mw': float,
+        'distribution_activity': pd.BooleanDtype(),
+        'distribution_circuits': pd.Int64Dtype(),
         'duct_burners': pd.BooleanDtype(),
+        'energy_displaced_mwh': float,
+        'energy_efficiency_annual_cost': float,
+        'energy_efficiency_annual_actual_peak_reduction_mw': float,
+        'energy_efficiency_annual_effects_mwh': float,
+        'energy_efficiency_annual_incentive_payment': float,
+        'energy_efficiency_incremental_actual_peak_reduction_mw': float,
+        'energy_efficiency_incremental_effects_mwh': float,
+        'energy_savings_estimates_independently_verified': pd.BooleanDtype(),
+        'energy_savings_independently_verified': pd.BooleanDtype(),
+        'energy_savings_mwh': float,
+        'energy_served_ami_mwh': float,
+        'energy_source_1_transport_1': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
+        'energy_source_1_transport_2': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
+        'energy_source_1_transport_3': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
+        'energy_source_2_transport_1': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
+        'energy_source_2_transport_2': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
+        'energy_source_2_transport_3': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
         'energy_source_code': pd.StringDtype(),
         'energy_source_code_1': pd.StringDtype(),
         'energy_source_code_2': pd.StringDtype(),
@@ -2577,7 +2261,12 @@ column_dtypes = {
         'energy_source_code_5': pd.StringDtype(),
         'energy_source_code_6': pd.StringDtype(),
         'energy_storage': pd.BooleanDtype(),
-        'entity_type': pd.StringDtype(),
+        'entity_type': pd.CategoricalDtype(categories=ENTITY_TYPE_DICT.values()),
+        'estimated_or_actual_capacity_data': pd.CategoricalDtype(categories=ESTIMATED_OR_ACTUAL.values()),
+        'estimated_or_actual_fuel_data': pd.CategoricalDtype(categories=ESTIMATED_OR_ACTUAL.values()),
+        'estimated_or_actual_tech_data': pd.CategoricalDtype(categories=ESTIMATED_OR_ACTUAL.values()),
+        'exchange_energy_delivered_mwh': float,
+        'exchange_energy_recieved_mwh': float,
         'ferc_cogen_docket_no': pd.StringDtype(),
         'ferc_cogen_status': pd.BooleanDtype(),
         'ferc_exempt_wholesale_generator': pd.BooleanDtype(),
@@ -2586,6 +2275,7 @@ column_dtypes = {
         'ferc_small_power_producer_docket_no': pd.StringDtype(),
         'fluidized_bed_tech': pd.BooleanDtype(),
         'fraction_owned': float,
+        'fuel_class': pd.StringDtype(),
         'fuel_consumed_for_electricity_mmbtu': float,
         'fuel_consumed_for_electricity_units': float,
         'fuel_consumed_mmbtu': float,
@@ -2594,6 +2284,7 @@ column_dtypes = {
         'fuel_group_code': pd.StringDtype(),
         'fuel_group_code_simple': pd.StringDtype(),
         'fuel_mmbtu_per_unit': float,
+        'fuel_pct': float,
         'fuel_qty_units': float,
         # are fuel_type and fuel_type_code the same??
         # fuel_type includes 40 code-like things.. WAT, SUN, NUC, etc.
@@ -2602,23 +2293,50 @@ column_dtypes = {
         'fuel_type_code': pd.StringDtype(),
         'fuel_type_code_aer': pd.StringDtype(),
         'fuel_type_code_pudl': pd.StringDtype(),
+        'furnished_without_charge_mwh': float,
+        'generation_activity': pd.BooleanDtype(),
         # this is a mix of integer-like values (2 or 5) and strings like AUGSF
         'generator_id': pd.StringDtype(),
+        'generators_number': float,
+        'generators_num_less_1_mw': float,
+        'green_pricing_revenue': float,
         'grid_voltage_2_kv': float,
         'grid_voltage_3_kv': float,
         'grid_voltage_kv': float,
         'heat_content_mmbtu_per_unit': float,
+        'highest_distribution_voltage_kv': float,
+        'home_area_network': pd.Int64Dtype(),
+        'inactive_accounts_included': pd.BooleanDtype(),
+        'incremental_energy_savings_mwh': float,
+        'incremental_life_cycle_energy_savings_mwh': float,
+        'incremental_life_cycle_peak_reduction_mwh': float,
+        'incremental_peak_reduction_mw': float,
         'iso_rto_code': pd.StringDtype(),
         'latitude': float,
         'liquefied_natural_gas_storage': pd.BooleanDtype(),
+        'load_management_annual_cost': float,
+        'load_management_annual_actual_peak_reduction_mw': float,
+        'load_management_annual_effects_mwh': float,
+        'load_management_annual_incentive_payment': float,
+        'load_management_annual_potential_peak_reduction_mw': float,
+        'load_management_incremental_actual_peak_reduction_mw': float,
+        'load_management_incremental_effects_mwh': float,
+        'load_management_incremental_potential_peak_reduction_mw': float,
         'longitude': float,
+        'major_program_changes': pd.BooleanDtype(),
         'mercury_content_ppm': float,
+        'merge_address': pd.StringDtype(),
+        'merge_city': pd.StringDtype(),
+        'merge_company': pd.StringDtype(),
+        'merge_date': 'datetime64[ns]',
+        'merge_state': pd.StringDtype(),
         'mine_id_msha': pd.Int64Dtype(),
         'mine_id_pudl': pd.Int64Dtype(),
         'mine_name': pd.StringDtype(),
         'mine_type_code': pd.StringDtype(),
         'minimum_load_mw': float,
         'moisture_content_pct': float,
+        'momentary_interruption_definition': pd.CategoricalDtype(categories=MOMENTARY_INTERRUPTION_DEF.values()),
         'multiple_fuels': pd.BooleanDtype(),
         'nameplate_power_factor': float,
         'natural_gas_delivery_contract_type_code': pd.StringDtype(),
@@ -2628,27 +2346,42 @@ column_dtypes = {
         'natural_gas_pipeline_name_3': pd.StringDtype(),
         'natural_gas_storage': pd.BooleanDtype(),
         'natural_gas_transport_code': pd.StringDtype(),
-        'nerc_region': pd.StringDtype(),
+        'nerc_region': pd.CategoricalDtype(categories=RECOGNIZED_NERC_REGIONS),
+        'nerc_regions_of_operation': pd.CategoricalDtype(categories=RECOGNIZED_NERC_REGIONS),
         'net_generation_mwh': float,
         'net_metering': pd.BooleanDtype(),
+        'net_power_exchanged_mwh': float,
+        'net_wheeled_power_mwh': float,
+        'new_parent': pd.StringDtype(),
+        'non_amr_ami': pd.Int64Dtype(),
         'nuclear_unit_id': pd.Int64Dtype(),
-        'original_planned_operating_date': 'datetime64[ns]',
+        'operates_generating_plant': pd.BooleanDtype(),
         'operating_date': 'datetime64[ns]',
         'operating_switch': pd.StringDtype(),
         # TODO: double check this for early 860 years
         'operational_status': pd.StringDtype(),
         'operational_status_code': pd.StringDtype(),
+        'original_planned_operating_date': 'datetime64[ns]',
+        'other': float,
         'other_combustion_tech': pd.BooleanDtype(),
+        'other_costs': float,
+        'other_costs_incremental_cost': float,
         'other_modifications_date': 'datetime64[ns]',
         'other_planned_modifications': pd.BooleanDtype(),
+        'outages_recorded_automatically': pd.BooleanDtype(),
+        'owned_by_non_utility': pd.BooleanDtype(),
         'owner_city': pd.StringDtype(),
         'owner_name': pd.StringDtype(),
         'owner_state': pd.StringDtype(),
         'owner_street_address': pd.StringDtype(),
         'owner_utility_id_eia': pd.Int64Dtype(),
-        'owner_zip_code': pd.StringDtype(),  # Must preserve leading zeroes.
+        'owner_zip_code': pd.StringDtype(),
         # we should transition these into readable codes, not a one letter thing
         'ownership_code': pd.StringDtype(),
+        'phone_extension_1': pd.StringDtype(),
+        'phone_extension_2': pd.StringDtype(),
+        'phone_number_1': pd.StringDtype(),
+        'phone_number_2': pd.StringDtype(),
         'pipeline_notes': pd.StringDtype(),
         'planned_derate_date': 'datetime64[ns]',
         'planned_energy_source_code_1': pd.StringDtype(),
@@ -2663,26 +2396,61 @@ column_dtypes = {
         'planned_retirement_date': 'datetime64[ns]',
         'planned_uprate_date': 'datetime64[ns]',
         'plant_id_eia': pd.Int64Dtype(),
+        'plant_id_epa': pd.Int64Dtype(),
         'plant_id_pudl': pd.Int64Dtype(),
         'plant_name_eia': pd.StringDtype(),
         'plants_reported_asset_manager': pd.BooleanDtype(),
         'plants_reported_operator': pd.BooleanDtype(),
         'plants_reported_other_relationship': pd.BooleanDtype(),
         'plants_reported_owner': pd.BooleanDtype(),
+        'point_source_unit_id_epa': pd.StringDtype(),
+        'potential_peak_demand_savings_mw': float,
         'pulverized_coal_tech': pd.BooleanDtype(),
         'previously_canceled': pd.BooleanDtype(),
+        'price_responsive_programes': pd.BooleanDtype(),
+        'price_responsiveness_customers': pd.Int64Dtype(),
         'primary_transportation_mode_code': pd.StringDtype(),
         'primary_purpose_naics_id': pd.Int64Dtype(),
         'prime_mover_code': pd.StringDtype(),
+        'pv_current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
+        'reactive_power_output_mvar': float,
+        'real_time_pricing_program': pd.BooleanDtype(),
+        'rec_revenue': float,
+        'rec_sales_mwh': float,
         'regulatory_status_code': pd.StringDtype(),
         'report_date': 'datetime64[ns]',
+        'reported_as_another_company': pd.StringDtype(),
+        'retail_marketing_activity': pd.BooleanDtype(),
+        'retail_sales': float,
+        'retail_sales_mwh': float,
+        'retirement_date': 'datetime64[ns]',
+        'revenue_class': pd.CategoricalDtype(categories=REVENUE_CLASSES),
         'rto_iso_lmp_node_id': pd.StringDtype(),
         'rto_iso_location_wholesale_reporting_id': pd.StringDtype(),
-        'retirement_date': 'datetime64[ns]',
+        'rtos_of_operation': pd.StringDtype(),
+        'saidi_w_major_event_dats_minus_loss_of_service_minutes': float,
+        'saidi_w_major_event_days_minutes': float,
+        'saidi_wo_major_event_days_minutes': float,
+        'saifi_w_major_event_days_customers': float,
+        'saifi_w_major_event_days_minus_loss_of_service_customers': float,
+        'saifi_wo_major_event_days_customers': float,
+        'sales_for_resale': float,
+        'sales_for_resale_mwh': float,
+        'sales_mwh': float,
+        'sales_revenue': float,
+        'sales_to_ultimate_consumers_mwh': float,
         'secondary_transportation_mode_code': pd.StringDtype(),
         'sector_id': pd.Int64Dtype(),
         'sector_name': pd.StringDtype(),
+        'service_area': pd.StringDtype(),
+        'service_type': pd.CategoricalDtype(categories=[
+            "bundled", "energy", "delivery",
+        ]),
+        'short_form': pd.BooleanDtype(),
+        'sold_to_utility_mwh': float,
         'solid_fuel_gasification': pd.BooleanDtype(),
+        'data_source': pd.StringDtype(),
+        'standard': pd.CategoricalDtype(categories=RELIABILITY_STANDARDS),
         'startup_source_code_1': pd.StringDtype(),
         'startup_source_code_2': pd.StringDtype(),
         'startup_source_code_3': pd.StringDtype(),
@@ -2691,38 +2459,96 @@ column_dtypes = {
         'state_id_fips': pd.StringDtype(),  # Must preserve leading zeroes
         'street_address': pd.StringDtype(),
         'stoker_tech': pd.BooleanDtype(),
+        'storage_capacity_mw': float,
+        'storage_customers': pd.Int64Dtype(),
         'subcritical_tech': pd.BooleanDtype(),
         'sulfur_content_pct': float,
         'summer_capacity_mw': float,
+        'summer_capacity_estimate': pd.BooleanDtype(),
         # TODO: check if there is any data pre-2016
         'summer_estimated_capability_mw': float,
+        'summer_peak_demand_mw': float,
         'supercritical_tech': pd.BooleanDtype(),
         'supplier_name': pd.StringDtype(),
         'switch_oil_gas': pd.BooleanDtype(),
         'syncronized_transmission_grid': pd.BooleanDtype(),
+        # Added by AES for NM & DG tech table (might want to consider merging with another fuel label)
+        'tech_class': pd.CategoricalDtype(categories=TECH_CLASSES),
         'technology_description': pd.StringDtype(),
         'time_cold_shutdown_full_load_code': pd.StringDtype(),
+        'time_of_use_pricing_program': pd.BooleanDtype(),
+        'time_responsive_programs': pd.BooleanDtype(),
+        'time_responsiveness_customers': pd.Int64Dtype(),
         'timezone': pd.StringDtype(),
         'topping_bottoming_code': pd.StringDtype(),
+        'total': float,
+        'total_capacity_less_1_mw': float,
+        'total_meters': pd.Int64Dtype(),
+        'total_disposition_mwh': float,
+        'total_energy_losses_mwh': float,
+        'total_sources_mwh': float,
+        'transmission': float,
+        'transmission_activity': pd.BooleanDtype(),
+        'transmission_by_other_losses_mwh': float,
         'transmission_distribution_owner_id': pd.Int64Dtype(),
         'transmission_distribution_owner_name': pd.StringDtype(),
         'transmission_distribution_owner_state': pd.StringDtype(),
         'turbines_inverters_hydrokinetics': float,
         'turbines_num': pd.Int64Dtype(),  # TODO: check if any turbines show up pre-2016
         'ultrasupercritical_tech': pd.BooleanDtype(),
+        'unbundled_revenues': float,
         'unit_id_eia': pd.StringDtype(),
         'unit_id_pudl': pd.Int64Dtype(),
         'uprate_derate_completed_date': 'datetime64[ns]',
         'uprate_derate_during_year': pd.BooleanDtype(),
-        'utility_attn': pd.StringDtype(),
         'utility_id_eia': pd.Int64Dtype(),
         'utility_id_pudl': pd.Int64Dtype(),
         'utility_name_eia': pd.StringDtype(),
-        'utility_pobox': pd.StringDtype(),
-        'utility_zip4': pd.StringDtype(),
+        'utility_owned_capacity_mw': float,  # Added by AES for NNM table
+        'variable_peak_pricing_program': pd.BooleanDtype(),  # Added by AES for DP table
+        'virtual_capacity_mw': float,  # Added by AES for NM table
+        'virtual_customers': pd.Int64Dtype(),  # Added by AES for NM table
+        'water_heater': pd.Int64Dtype(),  # Added by AES for DR table
         'water_source': pd.StringDtype(),
+        'weighted_average_life_years': float,
+        'wheeled_power_delivered_mwh': float,
+        'wheeled_power_recieved_mwh': float,
+        'wholesale_marketing_activity': pd.BooleanDtype(),
+        'wholesale_power_purchases_mwh': float,
         'winter_capacity_mw': float,
+        'winter_capacity_estimate': pd.BooleanDtype(),
         'winter_estimated_capability_mw': float,
+        'winter_peak_demand_mw': float,
+        # 'with_med': float,
+        # 'with_med_minus_los': float,
+        # 'without_med': float,
         'zip_code': pd.StringDtype(),
+        'zip_code_4': pd.StringDtype()
     },
+    'depreciation': {
+        'utility_id_ferc1': pd.Int64Dtype(),
+        'utility_id_pudl': pd.Int64Dtype(),
+        'plant_id_pudl': pd.Int64Dtype(),
+        # 'plant_name': pd.StringDtype(),
+        'note': pd.StringDtype(),
+        'report_year': int,
+        'report_date': 'datetime64[ns]',
+        'common': pd.BooleanDtype(),
+        'plant_balance': float,
+        'book_reserve': float,
+        'unaccrued_balance': float,
+        'reserve_pct': float,
+        # 'survivor_curve_type': pd.StringDtype(),
+        'service_life_avg': float,
+        'net_salvage_pct': float,
+        'net_salvage_rate_type_pct': pd.BooleanDtype(),
+        'net_removal': float,
+        'net_removal_pct': float,
+        'remaining_life_avg': float,
+        # 'retirement_date': 'datetime64[ns]',
+        'depreciation_annual_epxns': float,
+        'depreciation_annual_pct': float,
+        'depreciation_annual_rate_type_pct': pd.BooleanDtype(),
+        # 'data_source': pd.StringDtype(),
+    }
 }

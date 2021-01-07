@@ -6,12 +6,11 @@ This modules pulls data from EIA's published Excel spreadsheets.
 This code is for use analyzing EIA Form 923 data. Currenly only
 years 2009-2016 work, as they share nearly identical file formatting.
 """
-
 import logging
 
 import pandas as pd
 
-import pudl.extract.excel as excel
+from pudl.extract import excel as excel
 
 logger = logging.getLogger(__name__)
 
@@ -19,28 +18,33 @@ logger = logging.getLogger(__name__)
 class Extractor(excel.GenericExtractor):
     """Extractor for EIA form 923."""
 
-    METADATA = excel.Metadata('eia923')
-    BLACKLISTED_PAGES = ['plant_frame']
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize the module.
+
+        Args:
+            ds (:class:datastore.Datastore): Initialized datastore.
+        """
+        self.METADATA = excel.Metadata('eia923')
+        self.BLACKLISTED_PAGES = ['plant_frame']
+        super().__init__(*args, **kwargs)
 
     # Pages not supported by the metadata:
     # puerto_rico, github issue #457
     # energy_storage, github issue #458
     # oil_stocks, coal_stocks, petcoke_stocks
 
-    @staticmethod
-    def file_basename_glob(year, page):
-        """Returns filename glob (same for all pages and years)."""
-        return '*2_3_4*'
-
-    @staticmethod
-    def process_raw(df, year, page):
+    def process_raw(self, df, page, **partition):
         """Drops reserved columns."""
         to_drop = [c for c in df.columns if c[:8] == 'reserved']
         df.drop(to_drop, axis=1, inplace=True)
+        df = df.rename(
+            columns=self._metadata.get_column_map(page, **partition))
+        self.cols_added = []
         return df
 
     @staticmethod
-    def process_renamed(df, year, page):
+    def process_renamed(df, page, **partition):
         """Cleans up unnamed_0 column in stocks page, drops invalid plan_id_eia rows."""
         if page == 'stocks':
             df = df.rename(columns={'unnamed_0': 'census_division_and_state'})
@@ -58,7 +62,7 @@ class Extractor(excel.GenericExtractor):
         return df
 
     @staticmethod
-    def get_dtypes(year, page):
+    def get_dtypes(page, **partition):
         """Returns dtypes for plant id columns."""
         return {
             "Plant ID": pd.Int64Dtype(),

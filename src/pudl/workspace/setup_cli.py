@@ -42,13 +42,12 @@ PUDL_OUT
   ├── settings
   └── sqlite
 
-Initially, the directories in the data store will be empty. The pudl_data or
+Initially, the directories in the data store will be empty. The pudl_datastore or
 pudl_etl commands will download data from public sources and organize it for
 you there by source. The PUDL_OUT directories are organized by the type of
 file they contain.
 
 """
-
 import argparse
 import logging
 import pathlib

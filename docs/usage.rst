@@ -31,21 +31,18 @@ An example is provided in the ``settings`` folder that is created when you run
 
 To run the ETL pipeline for the example, from within your PUDL workspace you
 would need to run four commands, which
-:doc:`download the original data <datastore>`, then
 :doc:`clone the FERC Form 1 database <clone_ferc1>`, convert
 that and other raw data into datapackages, and loads those datapackages into an
 SQLite database, respectively:
 
 .. code-block:: console
 
-    $ pudl_data --sources eia923 eia860 ferc1 epacems epaipm --years 2018 --states id
     $ ferc1_to_sqlite settings/ferc1_to_sqlite_example.yml
     $ pudl_etl settings/etl_example.yml
     $ datapkg_to_sqlite \
         -o datapkg/pudl-example/pudl-merged \
         datapkg/pudl-example/ferc1-example/datapackage.json \
         datapkg/pudl-example/eia-example/datapackage.json \
-        datapkg/pudl-example/epaipm-example/datapackage.json
     $ epacems_to_parquet datapkg/pudl-example/epacems-eia-example/datapackage.json
 
 These commands should result in a bunch of Python :mod:`logging` output,
@@ -53,8 +50,8 @@ describing what the script is doing, and outputs in the ``sqlite``,
 ``datapkg``, and ``parquet`` directories within your workspace. In particular,
 you should see new files at ``sqlite/ferc1.sqlite`` and ``sqlite/pudl.sqlite``,
 and a new directory at ``datapkg/pudl-example`` containing several datapackage
-directories, one for each of the ``ferc1``, ``eia`` (Forms 860 and 923),
-``epacems-eia``, and ``epaipm`` datasets.
+directories, one for each of the ``ferc1``, ``eia`` (Forms 860 and 923), and
+``epacems-eia`` datasets.
 
 Under the hood, these scripts are extracting data from the datastore, including
 spreadsheets, CSV files, and binary DBF files, generating a SQLite database

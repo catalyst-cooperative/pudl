@@ -1,12 +1,13 @@
 """Routines used for extracting the raw FERC 714 data."""
-
 import logging
-import pathlib
+import warnings
 import zipfile
+from pathlib import Path
 
 import pandas as pd
 
-import pudl.constants as pc
+import pudl
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 
@@ -14,14 +15,14 @@ TABLE_FNAME = {
     "id_certification_ferc714": "Part 1 Schedule 1 - Identification Certification.csv",
     "gen_plants_ba_ferc714": "Part 2 Schedule 1 - Balancing Authority Generating Plants.csv",
     "demand_monthly_ba_ferc714": "Part 2 Schedule 2 - Balancing Authority Monthly Demand.csv",
-    "net_energy_load_ba_ferc714": "Part 2 Schedule 3 - Balancing Authority Net Energy for Load.csv",
+    "net_energy_load_ba_ferc714": "Part 2 Schedule 3 - Balancing Authority Net Energy For Load.csv",
     "adjacency_ba_ferc714": "Part 2 Schedule 4 - Adjacent Balancing Authorities.csv",
     "interchange_ba_ferc714": "Part 2 Schedule 5 - Balancing Authority Interchange.csv",
     "lambda_hourly_ba_ferc714": "Part 2 Schedule 6 - Balancing Authority Hourly System Lambda.csv",
     "lambda_description_ferc714": "Part 2 Schedule 6 - System Lambda Description.csv",
     "description_pa_ferc714": "Part 3 Schedule 1 - Planning Area Description.csv",
-    "demand_forecast_pa_ferc714": "Part 3 Schedule 2 - Planning Area Forecast Demand.csv",
     "demand_hourly_pa_ferc714": "Part 3 Schedule 2 - Planning Area Hourly Demand.csv",
+    "demand_forecast_pa_ferc714": "Part 3 Schedule 3 - Planning Area Forecast Demand.csv",
     "respondent_id_ferc714": "Respondent IDs.csv",
 }
 """Dictionary mapping PUDL tables to filenames within the FERC 714 zipfile."""
@@ -43,13 +44,27 @@ TABLE_ENCODING = {
 """Dictionary describing the character encodings of the FERC 714 CSV files."""
 
 
-def _get_zpath(pudl_table, pudl_settings):
-    """Given a table and pudl_settings, return a Path to the requested file."""
-    return zipfile.Path(
-        pathlib.Path(pudl_settings["data_dir"],
-                     "local/ferc714/ferc714.zip"),
-        TABLE_FNAME[pudl_table]
-    )
+def get_ferc714(pudl_settings):
+    """If necessary, download a fresh copy of the FERC 714 data."""
+    sandbox = pudl_settings.get("sandbox", False)
+    ds = pudl.workspace.datastore.Datastore(
+        Path(pudl_settings["pudl_in"]),
+        sandbox=sandbox)
+    resources = ds.get_resources("ferc714")
+
+    for r in resources:
+        if r["name"] == "ferc714.zip":
+            return Path(r["path"])
+
+
+def _get_zpath(ferc714_table, pudl_settings):
+    """
+    Given a table name and pudl_settings, return a Path to the corresponding file.
+
+    Args:
+        ferc714_table
+    """
+    return zipfile.Path(get_ferc714(pudl_settings), TABLE_FNAME[ferc714_table])
 
 
 def extract(tables=pc.pudl_tables["ferc714"], pudl_settings=None):
@@ -65,6 +80,12 @@ def extract(tables=pc.pudl_tables["ferc714"], pudl_settings=None):
         keys, and minimally processed pandas.DataFrame instances as the values.
 
     """
+    warnings.warn(
+        "Integration of FERC 714 into PUDL is still experimental and incomplete.\n"
+        "The data has not yet been validated, and the structure may change."
+    )
+    if pudl_settings is None:
+        pudl_settings = pudl.workspace.setup.get_defaults()
     raw_dfs = {}
     for table in tables:
         if table not in pc.pudl_tables["ferc714"]:
@@ -72,7 +93,7 @@ def extract(tables=pc.pudl_tables["ferc714"], pudl_settings=None):
                 f"No extract function found for requested FERC Form 714 data "
                 f"table {table}!"
             )
-        logger.info(f"Reading {table} from CSV into pandas DataFrame.")
+        logger.info(f"Extracting {table} from CSV into pandas DataFrame.")
         with _get_zpath(table, pudl_settings).open() as f:
             raw_dfs[table] = pd.read_csv(f, encoding=TABLE_ENCODING[table])
     return raw_dfs

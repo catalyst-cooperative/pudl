@@ -3,17 +3,17 @@ datapkg_bundle_settings:
   ###########################################################################
   # EPA IPM SETTINGS
   ###########################################################################
-  - name: epaipm-test
-    title: EPA Integrated Planning Model transmission data
-    description: All of the EPA IPM data, since it's small and not organized into annual chunks.
-    version: 0.1.0
-    datasets:
-      - epaipm:
-          epaipm_tables:
-            - transmission_single_epaipm
-            - transmission_joint_epaipm
-            - load_curves_epaipm
-            - plant_region_map_epaipm
+  #- name: epaipm-test
+  #  title: EPA Integrated Planning Model transmission data
+  #  description: All of the EPA IPM data, since it's small and not organized into annual chunks.
+  #  version: 0.1.0
+  #  datasets:
+  #    - epaipm:
+  #        epaipm_tables:
+  #          - transmission_single_epaipm
+  #          - transmission_joint_epaipm
+  #          - load_curves_epaipm
+  #          - plant_region_map_epaipm
 
   ###########################################################################
   # FERC FORM 1 SETTINGS
@@ -32,11 +32,11 @@ datapkg_bundle_settings:
            - plants_pumped_storage_ferc1
            - plant_in_service_ferc1
            - purchased_power_ferc1
-          ferc1_years: [1994, 1995, 1996, 1997, 1998,
-                        1999, 2000, 2001, 2002, 2003,
-                        2004, 2005, 2006, 2007, 2008,
-                        2009, 2010, 2011, 2012, 2013,
-                        2014, 2015, 2016, 2017, 2018]
+          ferc1_years: [
+              1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
+              2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
+              2014, 2015, 2016, 2017, 2018
+          ]
 
   ###########################################################################
   # EIA FORM 923 & 860 SETTINGS
@@ -53,15 +53,20 @@ datapkg_bundle_settings:
             - generation_eia923
             - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
             - fuel_receipts_costs_eia923
-          eia923_years: [2009, 2010, 2011, 2012, 2013,
-                         2014, 2015, 2016, 2017, 2018]
+          eia923_years: [
+              2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+              2019
+          ]
           eia860_tables:
             - boiler_generator_assn_eia860
             - utilities_eia860
             - plants_eia860
             - generators_eia860
             - ownership_eia860
-          eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018]
+          eia860_years: [
+              2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+              2019
+          ]
 
   ###########################################################################
   # EPA CEMS HOURLY SETTINGS
@@ -72,17 +77,31 @@ datapkg_bundle_settings:
     version: 0.1.0
     datasets:
       - eia:
+          eia923_tables:
+            - generation_fuel_eia923
+            - boiler_fuel_eia923
+            - generation_eia923
+            - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
+            - fuel_receipts_costs_eia923
+          eia923_years: [
+              2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+              2019
+          ]
           eia860_tables:
             - boiler_generator_assn_eia860
             - utilities_eia860
             - plants_eia860
             - generators_eia860
             - ownership_eia860
-          eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018]
+          eia860_years: [
+              2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+              2019
+          ]
       - epacems:
           # Just Idaho, because it is tiny:
           epacems_states: [ID]
-          epacems_years: [1995, 1996, 1997, 1998, 1999, 2000,
-                          2001, 2002, 2003, 2004, 2005, 2006,
-                          2007, 2008, 2009, 2010, 2011, 2012,
-                          2013, 2014, 2015, 2016, 2017, 2018]
+          epacems_years: [
+              1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
+              2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
+              2015, 2016, 2017, 2018, 2019,
+          ]

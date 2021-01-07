@@ -49,20 +49,152 @@ for further processing and integration with other data sources like the EIA 860
 and EIA 923.
 
 """
+import csv
+import importlib
 import logging
-import os.path
-import re
-import string
+import zipfile
+from pathlib import Path
 
 import dbfread
 import pandas as pd
 import sqlalchemy as sa
+from dbfread import DBF
 
 import pudl
-import pudl.constants as pc
-import pudl.workspace.datastore as datastore
+from pudl import constants as pc
+from pudl.workspace import datastore as datastore
 
 logger = logging.getLogger(__name__)
+
+PUDL_RIDS = {
+    514: "AEP Texas",
+    519: "Upper Michigan Energy Resources Company",
+    522: "Luning Energy Holdings LLC, Invenergy Investments",
+    529: "Tri-State Generation and Transmission Association",
+    531: "Basin Electric Power Cooperative",
+}
+"""Missing FERC 1 Respondent IDs for which we have identified the respondent."""
+
+
+def missing_respondents(reported, observed, identified):
+    """
+    Fill in missing respondents for the f1_respondent_id table.
+
+    Args:
+        reported (iterable): Respondent IDs appearing in f1_respondent_id.
+        observed (iterable): Respondent IDs appearing anywhere in the ferc1 DB.
+        identified (dict): A {respondent_id: respondent_name} mapping for those
+            observed but not reported respondent IDs which we have been able to
+            identify based on circumstantial evidence. See also:
+            `pudl.extract.ferc1.PUDL_RIDS`
+
+    Returns:
+        list: A list of dictionaries representing minimal f1_respondent_id table
+        records, of the form {"respondent_id": ID, "respondent_name": NAME}. These
+        records are generated only for unreported respondents. Identified respondents
+        get the values passed in through ``identified`` and the other observed but
+        unidentified respondents are named "Missing Respondent ID"
+
+    """
+    records = []
+    for rid in observed:
+        if rid in reported:
+            continue
+        elif rid in identified:
+            records.append(
+                {
+                    "respondent_id": rid,
+                    "respondent_name": f"{identified[rid]} (PUDL determined)"
+                },
+            )
+        else:
+            records.append(
+                {
+                    "respondent_id": rid,
+                    "respondent_name": f"Missing Respondent {rid}"
+                },
+            )
+    return records
+
+
+def observed_respondents(ferc1_engine):
+    """
+    Compile the set of all observed respondent IDs found in the FERC 1 database.
+
+    A significant number of FERC 1 respondent IDs appear in the data tables, but not
+    in the f1_respondent_id table. In order to construct a self-consisten database with
+    we need to find all of those missing respondent IDs and inject them into the table
+    when we clone the database.
+
+    Args:
+        ferc1_engine (sqlalchemy.engine.Engine): An engine for connecting to the FERC 1
+            database.
+
+    Returns:
+        set: Every respondent ID reported in any of the FERC 1 DB tables.
+
+    """
+    f1_table_meta = pudl.output.pudltabl.get_table_meta(ferc1_engine)
+    observed = set([])
+    for table in f1_table_meta.values():
+        if table.name != "f1_respondent_id" and "respondent_id" in table.columns:
+            observed = observed.union(set(pd.read_sql_table(
+                table.name, ferc1_engine, columns=["respondent_id"]).respondent_id))
+    return observed
+
+
+class Ferc1Datastore(datastore.Datastore):
+    """Provide a thin interface for pulling files from the Datastore."""
+
+    def get_dir(self, year):
+        """
+        Look up the root DBC directory (within a zip file) for a given year.
+
+        Args:
+            year (int): The year for which to look up the root DBC directory.
+
+        Returns:
+            str: Path of FERC 1 data within the zip file.
+
+        """
+        pkg = "pudl.package_data.meta.ferc1_row_maps"
+        dbc_path = None
+
+        with importlib.resources.open_text(pkg, "file_map.csv") as f:
+            reader = csv.DictReader(f)
+
+            for row in reader:
+                if int(row["year"]) == year:
+                    dbc_path = row["path"]
+
+        if dbc_path is None:
+            raise ValueError(f"No ferc1 data for year {year}")
+
+        return dbc_path
+
+    def get_file(self, year, filename):
+        """
+        Retrieve the specified file from the ferc1 archive.
+
+        Args:
+            year (int): The year from which to retrive FERC 1 data.
+            filename (str): Name of the file to read from FERC 1 zip archive. (e.g.
+                "F1_1.DBF")
+
+        Returns:
+            bytes object of the requested file, if available.
+
+        """
+        dbc_path = f"{self.get_dir(year)}/{filename}"
+        resource = next(self.get_resources("ferc1", year=year))
+        z = zipfile.ZipFile(resource["path"])
+
+        try:
+            f = z.open(dbc_path)
+        except KeyError:
+            raise KeyError(f"{dbc_path} is not available in {year} archive.")
+
+        return f
 
 
 def drop_tables(engine):
@@ -91,8 +223,9 @@ def drop_tables(engine):
     conn.close()
 
 
-def add_sqlite_table(table_name, sqlite_meta, dbc_map, data_dir,
-                     refyear=max(pc.working_years['ferc1']),
+def add_sqlite_table(table_name, sqlite_meta, dbc_map, ds,
+                     refyear=max(pc.working_partitions['ferc1']['years']),
+                     testing=False,
                      bad_cols=()):
     """Adds a new Table to the FERC Form 1 database schema.
 
@@ -111,6 +244,8 @@ def add_sqlite_table(table_name, sqlite_meta, dbc_map, data_dir,
         sqlite_meta (:class:`sqlalchemy.schema.MetaData`): The database schema
             to which the newly defined :class:`sqlalchemy.Table` will be added.
         dbc_map (dict): A dictionary of dictionaries
+        ds (:class:`Ferc1Datastore`): Initialized datastore
+        testing (bool): Assume this is a test run, use sandboxes
         bad_cols (iterable of 2-tuples): A list or other iterable containing
             pairs of strings of the form (table_name, column_name), indicating
             columns (and their parent tables) which should *not* be cloned
@@ -122,8 +257,15 @@ def add_sqlite_table(table_name, sqlite_meta, dbc_map, data_dir,
     """
     # Create the new table object
     new_table = sa.Table(table_name, sqlite_meta)
+
+    fn = pc.ferc1_tbl2dbf[table_name] + ".DBF"
+    filedata = ds.get_file(refyear, fn)
+
     ferc1_dbf = dbfread.DBF(
-        get_dbf_path(table_name, refyear, data_dir=data_dir))
+        fn,
+        ignore_missing_memofile=True,
+        filedata=filedata
+    )
 
     # Add Columns to the table
     for field in ferc1_dbf.fields:
@@ -155,55 +297,49 @@ def add_sqlite_table(table_name, sqlite_meta, dbc_map, data_dir,
         )
 
 
-def dbc_filename(year, data_dir):
-    """Given a year, returns the path to the master FERC Form 1 .DBC file.
+def get_fields(filedata):
+    """
+    Produce the expected table names and fields from a DBC file.
 
     Args:
-        year (int): The year that we're trying to read data for
-
+        filedata: Contents of the DBC file from which to extract.
     Returns:
-        str: the file path to the master FERC Form 1 .DBC file for the year
-
+        dict of table_name: [fields]
     """
-    ferc1_path = datastore.path('ferc1', data_dir=data_dir,
-                                year=year, file=False)
-    return os.path.join(ferc1_path, 'F1_PUB.DBC')
+    dbf = DBF("", ignore_missing_memofile=True, filedata=filedata)
+    table_ids = {}
+    table_cols = {}
+
+    for r in dbf:
+
+        if r.get("OBJECTTYPE", None) == "Table":
+            tname = r["OBJECTNAME"]
+            tid = r["OBJECTID"]
+
+            if tid not in table_ids:
+                table_ids[tid] = tname
+
+        elif r.get("OBJECTTYPE", None) == "Field":
+            tid = r["PARENTID"]
+            colname = r["OBJECTNAME"]
+
+            if tid in table_cols:
+                table_cols[tid].append(colname)
+            else:
+                table_cols[tid] = [colname]
+
+    tables = {}
+
+    for tid, tname in table_ids.items():
+        if tid in table_cols:
+            tables[tname] = table_cols[tid]
+        else:
+            logger.warning(f"Missing cols on {tname}")
+
+    return tables
 
 
-def get_strings(filename, min_length=4):
-    """
-    Yield the printable strings from a binary file.
-
-    This routine is meant to emulate the Unix "strings" command, for the
-    purposes of grabbing database table and column names from the F1_PUB.DBC
-    file that is distributed with the FERC Form 1 data.
-
-    Args:
-        filename (path-like): the name of the DBC file from which to extract
-            strings.
-        min_length (int): the minimum number of consecutive printable
-            characters that should be considered a meaningful string and
-            extracted.
-
-    Yields:
-        str: A string having at least min_length characters, found in the
-        binary file.
-
-    """
-    with open(filename, errors="ignore") as f:
-        result = ""
-        for c in f.read():
-            if c in string.printable:
-                result += c
-                continue
-            if len(result) >= min_length:
-                yield result
-            result = ""
-        if len(result) >= min_length:  # catch result at EOF
-            yield result
-
-
-def get_dbc_map(year, data_dir, min_length=4):
+def get_dbc_map(ds, year, min_length=4):
     """
     Extract names of all tables and fields from a FERC Form 1 DBC file.
 
@@ -215,12 +351,11 @@ def get_dbc_map(year, data_dir, min_length=4):
     characters in their names.)
 
     Args:
+        ds (:class:`Ferc1Datastore`): Initialized datastore
         year (int): The year of data from which the database table and column
             names are to be extracted. Typically this is expected to be the
             most recently available year of FERC Form 1 data.
-        data_dir (str): A string representing the full path to the top level of
-            the PUDL datastore containing the FERC Form 1 data to be used.
-        min_length (int): The minimum number of consecutive printable
+       min_length (int): The minimum number of consecutive printable
             characters that should be considered a meaningful string and
             extracted.
 
@@ -233,59 +368,31 @@ def get_dbc_map(year, data_dir, min_length=4):
 
     """
     # Extract all the strings longer than "min" from the DBC file
-    dbc_strings = list(
-        get_strings(dbc_filename(year, data_dir), min_length=min_length)
-    )
-
-    # Get rid of leading & trailing whitespace in the strings:
-    dbc_strings = [s.strip() for s in dbc_strings]
-
-    # Get rid of all the empty strings:
-    dbc_strings = [s for s in dbc_strings if s != '']
-
-    # Collapse all whitespace to a single space:
-    dbc_strings = [re.sub(r'\s+', ' ', s) for s in dbc_strings]
-
-    # Pull out only strings that begin with Table or Field
-    dbc_strings = [s for s in dbc_strings if re.match('(^Table|^Field)', s)]
-
-    # Split strings by whitespace, and retain only the first two elements.
-    # This eliminates some weird dangling junk characters
-    dbc_strings = [' '.join(s.split()[:2]) for s in dbc_strings]
-
-    # Remove all of the leading Field keywords
-    dbc_strings = [re.sub('Field ', '', s) for s in dbc_strings]
-
-    # Join all the strings together (separated by spaces) and then split the
-    # big string on Table, so each string is now a table name followed by the
-    # associated field names, separated by spaces
-    dbc_table_strings = ' '.join(dbc_strings).split('Table ')
-
-    # strip leading & trailing whitespace from the lists
-    # and get rid of empty strings:
-    dbc_table_strings = [s.strip() for s in dbc_table_strings if s != '']
-
-    # Create a dictionary using the first element of these strings (the table
-    # name) as the key, and the list of field names as the values, and return
-    # it:
-    tf_dict = {}
-    for table_string in dbc_table_strings:
-        table_and_fields = table_string.split()
-        tf_dict[table_and_fields[0]] = table_and_fields[1:]
+    dbc = ds.get_file(year, "F1_PUB.DBC")
+    tf_dict = get_fields(dbc)
 
     dbc_map = {}
-    for table in pc.ferc1_tbl2dbf:
-        dbf_path = get_dbf_path(table, year, data_dir=data_dir)
-        if os.path.isfile(dbf_path):
-            dbf_fields = dbfread.DBF(dbf_path).field_names
-            dbf_fields = [f for f in dbf_fields if f != '_NullFlags']
-            dbc_map[table] = \
-                {k: v for k, v in zip(dbf_fields, tf_dict[table])}
-            if len(tf_dict[table]) != len(dbf_fields):
-                raise ValueError(
-                    f"Number of DBF fields in {table} does not match what was "
-                    f"found in the FERC Form 1 DBC index file for {year}."
-                )
+    for table, fn in pc.ferc1_tbl2dbf.items():
+
+        try:
+            dbc = ds.get_file(year, f"{fn}.DBF")
+        except KeyError:
+            # Not all tables exist in all years, so this is acceptable
+            dbc = None
+
+        if dbc is None:
+            continue
+
+        dbf_fields = dbfread.DBF(
+            "", filedata=dbc, ignore_missing_memofile=True).field_names
+        dbf_fields = [f for f in dbf_fields if f != '_NullFlags']
+        dbc_map[table] = \
+            {k: v for k, v in zip(dbf_fields, tf_dict[table])}
+        if len(tf_dict[table]) != len(dbf_fields):
+            raise ValueError(
+                f"Number of DBF fields in {table} does not match what was "
+                f"found in the FERC Form 1 DBC index file for {year}."
+            )
 
     # Insofar as we are able, make sure that the fields match each other
     for k in dbc_map:
@@ -298,9 +405,9 @@ def get_dbc_map(year, data_dir, min_length=4):
     return dbc_map
 
 
-def define_sqlite_db(sqlite_meta, dbc_map, data_dir,
+def define_sqlite_db(sqlite_meta, dbc_map, ds,
                      tables=pc.ferc1_tbl2dbf,
-                     refyear=max(pc.working_years['ferc1']),
+                     refyear=max(pc.working_partitions['ferc1']['years']),
                      bad_cols=()):
     """
     Defines a FERC Form 1 DB structure in a given SQLAlchemy MetaData object.
@@ -317,8 +424,7 @@ def define_sqlite_db(sqlite_meta, dbc_map, data_dir,
         dbc_map (dict of dicts): A dictionary of dictionaries, of the kind
             returned by get_dbc_map(), describing the table and column names
             stored within the FERC Form 1 FoxPro database files.
-        data_dir (str): A string representing the full path to the top level of
-            the PUDL datastore containing the FERC Form 1 data to be used.
+        ds (:class:`Ferc1Datastore`): Initialized Ferc1Datastore
         tables (iterable of strings): List or other iterable of FERC database
             table names that should be included in the database being defined.
             e.g. 'f1_fuel' and 'f1_steam'
@@ -334,34 +440,10 @@ def define_sqlite_db(sqlite_meta, dbc_map, data_dir,
 
     """
     for table in tables:
-        add_sqlite_table(table, sqlite_meta, dbc_map,
-                         refyear=refyear,
-                         bad_cols=bad_cols,
-                         data_dir=data_dir)
+        add_sqlite_table(table, sqlite_meta, dbc_map, ds,
+                         refyear=refyear, bad_cols=bad_cols)
 
     sqlite_meta.create_all()
-
-
-def get_dbf_path(table, year, data_dir):
-    """Given a year and table name, returns the path to its datastore DBF file.
-
-    Args:
-        table (string): The name of one of the FERC Form 1 data tables. For
-            example 'f1_fuel' or 'f1_steam'
-        year (int): The year whose data you wish to find.
-        data_dir (str): A string representing the full path to the top level of
-            the PUDL datastore containing the FERC Form 1 data to be used.
-
-    Returns:
-        str: dbf_path, a (hopefully) OS independent path including the
-        filename of the DBF file corresponding to the requested year and
-        table name.
-    """
-    dbf_name = pc.ferc1_tbl2dbf[table]
-    ferc1_dir = datastore.path(
-        'ferc1', year=year, file=False, data_dir=data_dir)
-    dbf_path = os.path.join(ferc1_dir, f"{dbf_name}.DBF")
-    return dbf_path
 
 
 class FERC1FieldParser(dbfread.FieldParser):
@@ -393,17 +475,16 @@ class FERC1FieldParser(dbfread.FieldParser):
         return super(FERC1FieldParser, self).parseN(field, data)
 
 
-def get_raw_df(table, dbc_map, data_dir, years=pc.data_years['ferc1']):
+def get_raw_df(ds, table, dbc_map, years=pc.data_years['ferc1']):
     """Combine several years of a given FERC Form 1 DBF table into a dataframe.
 
     Args:
+        ds (:class:`Ferc1Datastore`): Initialized datastore
         table (string): The name of the FERC Form 1 table from which data is
             read.
         dbc_map (dict of dicts): A dictionary of dictionaries, of the kind
             returned by get_dbc_map(), describing the table and column names
             stored within the FERC Form 1 FoxPro database files.
-        data_dir (str): A string representing the full path to the top level of
-            the PUDL datastore containing the FERC Form 1 data to be used.
         min_length (int): The minimum number of consecutive printable
         years (list): Range of years to be combined into a single DataFrame.
 
@@ -416,16 +497,18 @@ def get_raw_df(table, dbc_map, data_dir, years=pc.data_years['ferc1']):
 
     raw_dfs = []
     for yr in years:
-        ferc1_dir = datastore.path(
-            'ferc1', year=yr, file=False, data_dir=data_dir)
-        dbf_path = os.path.join(ferc1_dir, f"{dbf_name}.DBF")
+        try:
+            filedata = ds.get_file(yr, f"{dbf_name}.DBF")
+        except KeyError:
+            continue
 
-        if os.path.exists(dbf_path):
-            new_df = pd.DataFrame(
-                iter(dbfread.DBF(dbf_path,
-                                 encoding='latin1',
-                                 parserclass=FERC1FieldParser)))
-            raw_dfs = raw_dfs + [new_df, ]
+        new_df = pd.DataFrame(
+            iter(dbfread.DBF(dbf_name,
+                             encoding='latin1',
+                             parserclass=FERC1FieldParser,
+                             ignore_missing_memofile=True,
+                             filedata=filedata)))
+        raw_dfs = raw_dfs + [new_df, ]
 
     if raw_dfs:
         return (
@@ -469,15 +552,18 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
 
     # Get the mapping of filenames to table names and fields
     logger.info(f"Creating a new database schema based on {refyear}.")
-    dbc_map = get_dbc_map(refyear, data_dir=pudl_settings['data_dir'])
-    define_sqlite_db(sqlite_meta, dbc_map, tables=tables,
-                     refyear=refyear, bad_cols=bad_cols,
-                     data_dir=pudl_settings['data_dir'])
+    sandbox = pudl_settings.get("sandbox", False)
+    ds = Ferc1Datastore(
+        Path(pudl_settings["pudl_in"]),
+        sandbox=sandbox)
+
+    dbc_map = get_dbc_map(ds, refyear)
+    define_sqlite_db(sqlite_meta, dbc_map, ds, tables=tables,
+                     refyear=refyear, bad_cols=bad_cols)
 
     for table in tables:
         logger.info(f"Pandas: reading {table} into a DataFrame.")
-        new_df = get_raw_df(table, dbc_map, years=years,
-                            data_dir=pudl_settings['data_dir'])
+        new_df = get_raw_df(ds, table, dbc_map, years=years)
         # Because this table has no year in it, there would be multiple
         # definitions of respondents if we didn't drop duplicates.
         if table == 'f1_respondent_id':
@@ -499,31 +585,22 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
         new_df.to_sql(table, sqlite_engine,
                       if_exists='append', chunksize=100000,
                       dtype=coltypes, index=False)
-        # add the missing respondents into the respondent_id table.
-        if table == 'f1_respondent_id':
-            logger.debug(f'inserting missing respondents into {table}')
-            sa.insert(sqlite_meta.tables['f1_respondent_id'],
-                      # we can insert info info into any of the columns for this
-                      # table through the following dictionary, but each of the
-                      # records need to have all of the same columns (you can't
-                      # add a column for one respondent without adding it to all).
-                      values=[
-                      {'respondent_id': 514,
-                       'respondent_name': 'AEP, Texas (PUDL determined)'},
-                      {'respondent_id': 515,
-                       'respondent_name': 'respondent_515'},
-                      {'respondent_id': 516,
-                       'respondent_name': 'respondent_516'},
-                      {'respondent_id': 517,
-                       'respondent_name': 'respondent_517'},
-                      {'respondent_id': 518,
-                       'respondent_name': 'respondent_518'},
-                      {'respondent_id': 519,
-                       'respondent_name': 'respondent_519'},
-                      {'respondent_id': 522,
-                       'respondent_name':
-                       'Luning Energy Holdings LLC, Invenergy Investments (PUDL determined)'},
-            ]).execute()
+
+    # add the missing respondents into the respondent_id table.
+    reported_ids = (
+        pd.read_sql_table("f1_respondent_id", sqlite_engine)
+        .respondent_id
+        .unique()
+    )
+    observed_ids = observed_respondents(sqlite_engine)
+    missing = missing_respondents(
+        reported=reported_ids,
+        observed=observed_ids,
+        identified=PUDL_RIDS,
+    )
+    logger.info(
+        f"Inserting {len(missing)} missing IDs into f1_respondent_id table.")
+    sa.insert(sqlite_meta.tables['f1_respondent_id'], values=missing).execute()
 
 
 ###########################################################################
@@ -537,11 +614,11 @@ def get_ferc1_meta(ferc1_engine):
     sure the DB is not empty, and returns the metadata object.
 
     Args:
-        ferc1_engine (:mod:`sqlalchemy.engine.Engine`): SQL Alchemy database
+        ferc1_engine (sqlalchemy.engine.Engine): SQL Alchemy database
             connection engine for the PUDL FERC 1 DB.
 
     Returns:
-        :class:`sqlalchemy.Metadata`: A SQL Alchemy metadata object, containing
+        sqlalchemy.Metadata A SQL Alchemy metadata object, containing
         the definition of the DB structure.
 
     Raises:
@@ -559,7 +636,7 @@ def get_ferc1_meta(ferc1_engine):
 
 
 def extract(ferc1_tables=pc.pudl_tables['ferc1'],
-            ferc1_years=pc.working_years['ferc1'],
+            ferc1_years=pc.working_partitions['ferc1']['years'],
             pudl_settings=None):
     """Coordinates the extraction of all FERC Form 1 tables into PUDL.
 
@@ -593,9 +670,9 @@ def extract(ferc1_tables=pc.pudl_tables['ferc1'],
             raise ValueError(
                 f"FERC Form 1 data from the year {year} was requested but is "
                 f"not available. The years for which data is available are: "
-                f"{' '.join(pc.data_years['ferc1'])}."
+                f"{' '.join(str(year) for item in pc.data_years['ferc1'])}."
             )
-        if year not in pc.working_years["ferc1"]:
+        if year not in pc.working_partitions["ferc1"]["years"]:
             raise ValueError(
                 f"FERC Form 1 data from the year {year} was requested but it "
                 f"has not yet been integrated into PUDL. "
@@ -603,7 +680,7 @@ def extract(ferc1_tables=pc.pudl_tables['ferc1'],
                 f"functions, come find us on GitHub: "
                 f"{pudl.__downloadurl__}"
                 f"For now, the years which PUDL has integrated are: "
-                f"{' '.join(pc.working_years['ferc1'])}."
+                f"{' '.join(str(year) for item in pc.working_partitions['ferc1']['years'])}."
             )
     for table in ferc1_tables:
         if table not in pc.pudl_tables["ferc1"]:
@@ -614,7 +691,7 @@ def extract(ferc1_tables=pc.pudl_tables['ferc1'],
                 f"functions, come find us on GitHub: "
                 f"{pudl.__downloadurl__}"
                 f"For now, the tables which PUDL has integrated are: "
-                f"{' '.join(pc.pudl_tables['ferc1'])}"
+                f"{' '.join(str(year) for item in pc.pudl_tables['ferc1'])}"
             )
 
     ferc1_meta = get_ferc1_meta(sa.create_engine(pudl_settings["ferc1_db"]))

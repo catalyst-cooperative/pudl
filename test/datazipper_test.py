@@ -1,5 +1,4 @@
 """Tests excercising FERC/EIA correlation merge for use with PyTest."""
-
 import logging
 
 import pytest
@@ -25,28 +24,28 @@ def test_datazipper(gens=100, max_group_size=5, n_series=10, n_samples=100):
     # plant-level data) while the EIA data will remain fine grained (with
     # every data series available for every generator)
     logger.info('Generating synthetic EIA & FERC test data.')
-    logger.info("""    generators = {}
-    max_group_size = {}
-    n_series = {}
-    n_samples = {}""".format(gens, max_group_size, n_series, n_samples))
+    logger.info(f"""    generators = {gens}
+    max_group_size = {max_group_size}
+    n_series = {n_series}
+    n_samples = {n_samples}""")
     eia_df, ferc_df = analysis.zippertestdata(gens=gens,
                                               max_group_size=max_group_size,
                                               noise=test_noise,
                                               samples=n_samples)
 
     n_pudl_plants = len(ferc_df.pudl_plant_id.unique())
-    logger.info('{} synthetic PUDL plants created.'.format(n_pudl_plants))
+    logger.info(f'{n_pudl_plants} synthetic PUDL plants created.')
 
     # Now we aggregate the synthetic EIA data to create all the possible
     # lumpings that we might want to use in comparing to the FERC data:
     logger.info('Aggregating synthetic EIA data.')
     agg_df = analysis.aggregate_by_pudl_plant(eia_df, ferc_df)
     n_eia_groups = len(agg_df.eia_gen_subgroup.unique())
-    logger.info('{} EIA subgroupings created.'.format(n_eia_groups))
+    logger.info(f'{n_eia_groups} EIA subgroupings created.')
 
-    eia_cols = ['series{}_eia'.format(n) for n in range(n_series)]
-    ferc_cols = ['series{}_ferc'.format(n) for n in range(n_series)]
-    corr_cols = ['series{}_corr'.format(n) for n in range(n_series)]
+    eia_cols = [f'series{n}_eia' for n in range(n_series)]
+    ferc_cols = [f'series{n}_ferc' for n in range(n_series)]
+    corr_cols = [f'series{n}_corr' for n in range(n_series)]
 
     # Now that we have all the possible lumpings of EIA data, we can
     # calculate the correlations between each of them and their potential

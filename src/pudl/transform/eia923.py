@@ -1,12 +1,11 @@
 """Routines specific to cleaning up EIA Form 923 data."""
-
 import logging
 
 import numpy as np
 import pandas as pd
 
 import pudl
-import pudl.constants as pc
+from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 ###############################################################################
@@ -128,7 +127,7 @@ def _coalmine_cleanup(cmi_df):
             )
         )
         # No leading or trailing whitespace:
-        .pipe(pudl.helpers.strip_lower, columns=["mine_name"])
+        .pipe(pudl.helpers.simplify_strings, columns=["mine_name"])
         .astype({"county_id_fips": float})
         .astype({"county_id_fips": pd.Int64Dtype()})
         .fillna({"mine_type_code": pd.NA})
@@ -490,7 +489,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         # Replace the EIA923 NA value ('.') with a real NA value.
         pipe(pudl.helpers.fix_eia_na).
         # These come in ALL CAPS from EIA...
-        pipe(pudl.helpers.strip_lower, columns=['supplier_name']).
+        pipe(pudl.helpers.simplify_strings, columns=['supplier_name']).
         pipe(pudl.helpers.fix_int_na, columns=['contract_expiration_date', ]).
         assign(
             # Standardize case on transportaion codes -- all upper case!

@@ -2,7 +2,7 @@ repos:
 
 # Quick content checks based on grepping for python specific patterns:
 - repo: https://github.com/pre-commit/pygrep-hooks
-  rev: v1.5.1
+  rev: v1.7.0
   hooks:
   - id: python-check-blanket-noqa   # Prohibit overly broad QA exclusions.
   - id: python-no-eval              # Never use eval() it's dangerous.
@@ -10,7 +10,7 @@ repos:
 
 # Other file formatting, plus common Git mistakes & text file standardization:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v3.0.0
+  rev: v3.4.0
   hooks:
   - id: check-added-large-files # Don't accidentally commit giant files.
   - id: check-merge-conflict    # Watch for lingering merge markers.
@@ -24,37 +24,44 @@ repos:
 
 # Attempt to enforce standardized PEP8 style formatting:
 - repo: https://github.com/pre-commit/mirrors-autopep8
-  rev: v1.5.2
+  rev: v1.5.4
   hooks:
   - id: autopep8
 
 # Make sure import statements are sorted uniformly.
 - repo: https://github.com/pre-commit/mirrors-isort
-  rev: v4.3.21
+  rev: v5.7.0
   hooks:
   - id: isort
 
-# Check for PEP8 non-compliance, code complexity, and syntax errors:
-# Make sure the following plugins are installed as well:
-# - flake8-docstrings
-# - flake8-builtins
-# - pep8-naming
+# Check for PEP8 non-compliance, code complexity, style, errors, etc:
 - repo: https://github.com/PyCQA/flake8
-  rev: 3.8.1
+  rev: 3.8.4
   hooks:
   - id: flake8
-    args: [--format, "%(path)40s:%(row)-4d %(code)s %(text)s"]
+    args: [--config, .flake8]
+    additional_dependencies:
+      - flake8-docstrings
+      - flake8-colors
+      - pydocstyle
+      - flake8-builtins
+      - mccabe
+      - naming
+      - pycodestyle
+      - pyflakes
+      - flake8-rst-docstrings
+      - flake8-use-fstring
 
 # Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8
-  rev: 0.8.1rc3
+  rev: 0.9.0a1
   hooks:
   - id: doc8
-    args: [--ignore-path, docs/_build]
+    args: [--config, tox.ini]
 
 # Check for known security vulnerabilities:
 - repo: https://github.com/PyCQA/bandit
-  rev: 1.6.2
+  rev: 1.7.0
   hooks:
   - id: bandit
-    args: [-c, .bandit.yml]
+    args: [--configfile, .bandit.yml]

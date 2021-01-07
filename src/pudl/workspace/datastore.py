@@ -1,715 +1,580 @@
-"""
-Download the original public data sources used by PUDL.
+"""Datastore manages file retrieval for PUDL datasets."""
 
-This module provides programmatic, platform-independent access to the original
-data sources which are used to populate the PUDL database. Those sources
-currently include: FERC Form 1, EIA Form 860, and EIA Form 923. The module
-can be used to download the data, and populate a local data store which is
-organized such that the rest of the PUDL package knows where to find all the
-raw data it needs.
-
-Support for selectively downloading portions of the EPA's large Continuous
-Emissions Monitoring System dataset will be added in the future.
-"""
-
-import concurrent.futures
-import ftplib  # nosec: B402 We sadly need ftplib for ferc1 & epacems. :-(
+import argparse
+import copy
+import hashlib
+import json
 import logging
-import os
-import shutil
-import urllib
-import warnings
-import zipfile
+import re
+import sys
+from pathlib import Path
 
-import pudl.constants as pc
+import datapackage
+import requests
+import yaml
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
-logger = logging.getLogger(__name__)
+# The Zenodo tokens recorded here should have read-only access to our archives.
+# Including them here is correct in order to allow public use of this tool, so
+# long as we stick to read-only keys.
 
-
-def assert_valid_param(source, year,  # noqa: 901
-                       month=None, state=None, check_month=None):
-    """
-    Check whether parameters used in various datastore functions are valid.
-
-    Args:
-        source (str): A string indicating which data source we are going to be
-            downloading. Currently it must be one of the following: eia860,
-            eia861, eia923, ferc1, epacems.
-        year (int or None): the year for which data should be downloaded. Must
-            be within the range of valid data years, which is specified for
-            each data source in the pudl.constants module. Use None for data
-            sources that do not have multiple years.
-        month (int): the month for which data should be downloaded. Only used
-            for EPA CEMS.
-        state (str): the state for which data should be downloaded. Only used
-            for EPA CEMS.
-        check_month (bool): Check whether the input month is valid? This is
-            automaticlaly set to True for EPA CEMS.
-
-    Raises:
-        AssertionError: If the source is not among the list of valid sources.
-        AssertionError: If the source is not found in the valid data years.
-        AssertionError: If the year is not valid for the specified source.
-        AssertionError: If the source is not found in valid base download URLs.
-        AssertionError: If the month is not valid (1-12).
-        AssertionError: If the state is not a valid US state abbreviation.
-
-    """
-    if source not in pc.data_sources:
-        raise AssertionError(
-            f"Source '{source}' not found in valid data sources.")
-    if year is not None:
-        if source not in pc.data_years:
-            raise AssertionError(
-                f"Source '{source}' not found in valid data years.")
-        if year not in pc.data_years[source]:
-            raise AssertionError(
-                f"Year {year} is not valid for source {source}.")
-    if source not in pc.base_data_urls:
-        raise AssertionError(
-            f"Source '{source}' not found in valid base download URLs.")
-
-    if check_month is None:
-        check_month = source == 'epacems'
-
-    if source == 'epacems':
-        valid_states = pc.cems_states.keys()
-    else:
-        valid_states = pc.us_states.keys()
-
-    if check_month:
-        if month not in range(1, 13):
-            raise AssertionError(f"Month {month} is not valid (must be 1-12)")
-        if state.upper() not in valid_states:
-            raise AssertionError(
-                f"Invalid state '{state}'. Must use US state abbreviations.")
+TOKEN = {
+    # Read-only personal access tokens for pudl@catalyst.coop:
+    "sandbox": "qyPC29wGPaflUUVAv1oGw99ytwBqwEEdwi4NuUrpwc3xUcEwbmuB4emwysco",
+    "production": "KXcG5s9TqeuPh1Ukt5QYbzhCElp9LxuqAuiwdqHP0WS4qGIQiydHn6FBtdJ5"
+}
 
 
-def source_url(source, year, month=None, state=None, table=None):  # noqa: C901
-    """Construct a download URL for the specified federal data source and year.
+DOI = {
+    "sandbox": {
+        "censusdp1tract": "10.5072/zenodo.674992",
+        "eia860": "10.5072/zenodo.672210",
+        "eia860m": "10.5072/zenodo.692655",
+        "eia861": "10.5072/zenodo.687052",
+        "eia923": "10.5072/zenodo.687071",
+        "epacems": "10.5072/zenodo.672963",
+        "ferc1": "10.5072/zenodo.687072",
+        "ferc714": "10.5072/zenodo.672224",
+    },
+    "production": {
+        "censusdp1tract": "10.5281/zenodo.4127049",
+        "eia860": "10.5281/zenodo.4127027",
+        "eia860m": "10.5281/zenodo.4281337",
+        "eia861": "10.5281/zenodo.4127029",
+        "eia923": "10.5281/zenodo.4127040",
+        "epacems": "10.5281/zenodo.4127055",
+        "ferc1": "10.5281/zenodo.4127044",
+        "ferc714": "10.5281/zenodo.4127101",
+    }
+}
 
-    Args:
-       source (str): A string indicating which data source we are going to be
-           downloading. Currently it must be one of the following:
-           - 'eia860'
-           - 'eia861'
-           - 'eia923'
-           - 'ferc1'
-           - 'epacems'
-       year (int or None): the year for which data should be downloaded. Must
-           be within the range of valid data years, which is specified for
-           each data source in the pudl.constants module. Use None for data
-           sources that do not have multiple years.
-       month (int): the month for which data should be downloaded. Only used
-           for EPA CEMS.
-       state (str): the state for which data should be downloaded. Only used
-           for EPA CEMS.
-       table (str): the table for which data should be downloaded. Only used
-           for EPA IPM.
+PUDL_YML = Path.home() / ".pudl.yml"
 
-    Returns:
-       download_url (str): a full URL from which the requested data may be
-       obtained
 
-    """
-    assert_valid_param(source=source, year=year, month=month, state=state)
+class Datastore:
+    """Handle connections and downloading of Zenodo Source archives."""
 
-    base_url = pc.base_data_urls[source]
+    def __init__(
+        self,
+        pudl_in,
+        loglevel="WARNING",
+        verbose=False,
+        sandbox=False,
+        timeout=15
+    ):
+        """
+        Datastore manages file retrieval for PUDL datasets.
 
-    if source == 'eia860':
-        if year < max(pc.data_years['eia860']):
-            download_url = f'{base_url}/archive/xls/eia860{year}.zip'
+        Args:
+            pudl_in (Path): path to the root pudl data directory
+            loglevel (str): logging level.
+            verbose (bool): If true, logs printed to stdout.
+            sandbox (bool): If true, use the sandbox server instead of production
+            timeout (float): Network timeout for http requests.
+
+        """
+        self.pudl_in = pudl_in
+        logger = logging.Logger(__name__)
+        logger.setLevel(loglevel)
+
+        if verbose:
+            logger.addHandler(logging.StreamHandler())
+
+        self.logger = logger
+        logger.info(f"Logging at loglevel {loglevel}")
+
+        if sandbox:
+            self._dois = DOI["sandbox"]
+            self.token = TOKEN["sandbox"]
+            self.api_root = "https://sandbox.zenodo.org/api"
+
         else:
-            download_url = f'{base_url}/xls/eia860{year}.zip'
-    elif source == 'eia861':
-        if year < 2012:
-            # Before 2012 they used 2 digit years. Y2K12 FTW!
-            download_url = f"{base_url}/f861{str(year)[2:]}.zip"
-        else:
-            download_url = f"{base_url}/f861{year}.zip"
-    elif source == 'eia923':
-        if year < 2008:
-            prefix = 'f906920_'
-        else:
-            prefix = 'f923_'
-        if year < max(pc.data_years['eia923']):
-            arch_path = 'archive/xls'
-        else:
-            arch_path = 'xls'
-        download_url = f"{base_url}/{arch_path}/{prefix}{year}.zip"
-    elif source == 'ferc1':
-        download_url = f"{base_url}/f1_{year}.zip"
-    elif (source == 'epacems'):
-        # lowercase the state and zero-pad the month
-        download_url = (
-            f"{base_url}/{year}/"
-            f"{year}{state.lower()}{str(month).zfill(2)}.zip"
-        )
-    elif source == 'epaipm':
-        table_url_ext = pc.epaipm_url_ext[table]
-        download_url = f"{base_url}/{table_url_ext}"
-    else:
-        # we should never ever get here because of the assert statement.
-        raise AssertionError(f"Bad data source '{source}' requested.")
+            self._dois = DOI["production"]
+            self.token = TOKEN["production"]
+            self.api_root = "https://zenodo.org/api"
 
-    return download_url
+        # HTTP Requests
+        self.timeout = timeout
+        retries = Retry(backoff_factor=2, total=3,
+                        status_forcelist=[429, 500, 502, 503, 504])
+        adapter = HTTPAdapter(max_retries=retries)
 
+        self.http = requests.Session()
+        self.http.mount("http://", adapter)
+        self.http.mount("https://", adapter)
 
-def path(source, data_dir,  # noqa: C901
-         year=None, month=None, state=None, file=True):
-    """Construct a variety of local datastore paths for a given data source.
+    # Location conversion & helpers
 
-    PUDL expects the original data it ingests to be organized in a particular
-    way. This function allows you to easily construct useful paths that refer
-    to various parts of the data store, by specifying the data source you are
-    interested in, and optionally the year of data you're seeking, as well as
-    whether you want the originally downloaded files for that year, or the
-    directory in which a given year's worth of data for a particular data
-    source can be found.
+    def doi(self, dataset):
+        """
+        Produce the DOI for a given dataset, or log & raise error.
 
-    Note: if you change the default arguments here, you should also change them
-    for paths_for_year()
+        Args:
+            datapackage: the name of the datapackage
 
-    Args:
-        source (str): A string indicating which data source we are going to be
-            downloading. Currently it must be one of the following: ferc1,
-            eia923, eia860, epacems.
-        data_dir (path-like): Path to the top level datastore directory.
-        year (int or None): the year of data that the returned path should
-            pertain to. Must be within the range of valid data years, which is
-            specified for each data source in pudl.constants.data_years, unless
-            year is set to zero, in which case only the top level directory for
-            the data source specified in source is returned. If None, no
-            subdirectory is used for the data source.
-        month (int): Month of year (1-12). Only applies to epacems.
-        state (str): Two letter US state abbreviation. Only applies to epacems.
-        file (bool): If True, return the full path to the originally downloaded
-            file specified by the data source and year. If file is true, year
-            must not be set to zero, as a year is required to specify a
-            particular downloaded file.
+        Returns:
+            str, doi for the datapackage
 
-    Returns:
-        str: the path to requested resource within the local PUDL datastore.
-
-    """
-    assert_valid_param(source=source, year=year, month=month, state=state,
-                       check_month=False)
-
-    if file is True and year is None and source != 'epaipm':
-        raise AssertionError(
-            "A year is required to generate full datastore file path.")
-
-    if source == 'eia860':
-        dstore_path = os.path.join(data_dir, 'eia', 'form860')
-        if year is not None:
-            dstore_path = os.path.join(dstore_path, f"eia860{year}")
-    elif source == 'eia861':
-        dstore_path = os.path.join(data_dir, 'eia', 'form861')
-        if year is not None:
-            dstore_path = os.path.join(dstore_path, f"eia861{year}")
-            if year > 2011:
-                folder = f'f861{year}'
-            elif year in list(range(2001, 2006)) + list(range(2007, 2010)):
-                folder = str(year)
-            elif year in list(range(1990, 2001)) + [2006, 2010, 2011]:
-                folder = f'f861{str(year)[-2:]}'
-            dstore_path = os.path.join(dstore_path, folder)
-    elif source == 'eia923':
-        dstore_path = os.path.join(data_dir, 'eia', 'form923')
-        if year is not None:
-            if year < 2008:
-                prefix = 'f906920_'
-            else:
-                prefix = 'f923_'
-            dstore_path = os.path.join(dstore_path, f"{prefix}{year}")
-    elif source == 'ferc1':
-        dstore_path = os.path.join(data_dir, 'ferc', 'form1')
-        if year is not None:
-            dstore_path = os.path.join(dstore_path, f"f1_{year}")
-    elif (source == 'epacems'):
-        dstore_path = os.path.join(data_dir, 'epa', 'cems')
-        if year is not None:
-            dstore_path = os.path.join(dstore_path, f"epacems{year}")
-    elif source == 'epaipm':
-        dstore_path = os.path.join(data_dir, 'epa', 'ipm', 'epaipm')
-    else:
-        # we should never ever get here because of the assert statement.
-        raise AssertionError(f"Bad data source '{source}' requested.")
-
-    # Handle month and state, if they're provided
-    if month is None:
-        month_str = ''
-    else:
-        month_str = str(month).zfill(2)
-    if state is None:
-        state_str = ''
-    else:
-        state_str = state.lower()
-
-    if file is True:
-        # Current naming convention requires the name of the directory to which
-        # an original data source is downloaded to be the same as the basename
-        # of the file itself...
-        basename = os.path.basename(dstore_path)
-        # For all the non-CEMS data, state_str and month_str are '',
-        # but this should work for other monthly data too.
-        dstore_path = os.path.join(
-            dstore_path, f"{basename}{state_str}{month_str}.zip")
-
-    return dstore_path
-
-
-def paths_for_year(source, data_dir, year=None, states=None, file=True):
-    """Derive all paths for a given source and year. See path() for details.
-
-    Args:
-        source (str): A string indicating which data source we are going to be
-            downloading. Currently it must be one of the following: ferc1,
-            eia923, eia860, epacems.
-        data_dir (path-like): Path to the top level datastore directory.
-        year (int or None): the year of data that the returned path should
-            pertain to. Must be within the range of valid data years, which is
-            specified for each data source in pudl.constants.data_years, unless
-            year is set to zero, in which case only the top level directory for
-            the data source specified in source is returned. If None, no
-            subdirectory is used for the data source.
-        month (int): Month of year (1-12). Only applies to epacems.
-        state (str): Two letter US state abbreviation. Only applies to epacems.
-        file (bool): If True, return the full path to the originally downloaded
-            file specified by the data source and year. If file is true, year
-            must not be set to zero, as a year is required to specify a
-            particular downloaded file.
-
-    Returns:
-        str: the path to requested resource within the local PUDL datastore.
-
-    """
-    # TODO: I'm not sure this is the best construction, since it relies on
-    # the order being the same here as in the url list comprehension
-    if states is None:
-        states = pc.cems_states.keys()
-
-    if source == 'epacems':
-        paths = [path(source, data_dir, year=year, month=month,
-                      state=state, file=file)
-                 # For consistency, it's important that this is state, then
-                 # month
-                 for state in states
-                 for month in range(1, 13)]
-    else:
-        paths = [path(source, data_dir, year=year, file=file)]
-
-    return paths
-
-
-def download(source, year, states, data_dir):
-    """Download the original data for the specified data source and year.
-
-    Given a data source and the desired year of data, download the original
-    data files from the appropriate federal website, and place them in a
-    temporary directory within the data store. This function does not do any
-    checking to see whether the file already exists, or needs to be updated,
-    and does not do any of the organization of the datastore after download,
-    it simply gets the requested file.
-
-    Args:
-        source (str): the data source to retrieve. Must be one of: 'eia860',
-            'eia923', 'ferc1', or 'epacems'.
-        year (int or None): the year of data that the returned path should
-            pertain to. Must be within the range of valid data years, which is
-            specified for each data source in pudl.constants.data_years. Note
-            that for data (like EPA CEMS) that have multiple datasets per year,
-            this function will download all the files for the specified year.
-            Use None for data sources that do not have multiple years.
-        states (iterable): List of two letter US state abbreviations indicating
-            which states data should be downloaded for.
-        data_dir (path-like): Path to the top level datastore directory.
-
-    Returns:
-        path-like: The path to the local downloaded file.
-
-    """
-    assert_valid_param(source=source, year=year, check_month=False)
-
-    tmp_dir = os.path.join(data_dir, 'tmp')
-
-    # Ensure that the temporary download directory exists:
-    if not os.path.exists(tmp_dir):
-        os.makedirs(tmp_dir)
-
-    if source == 'epacems':
-        src_urls = [source_url(source, year, month=month, state=state)
-                    # For consistency, it's important that this is state, then
-                    # month
-                    for state in states
-                    for month in range(1, 13)]
-        tmp_files = [os.path.join(tmp_dir, os.path.basename(f))
-                     for f in paths_for_year(
-                         source, data_dir, year=year, states=states)]
-    elif source == 'epaipm':
-        # This is going to download all of the IPM tables listed in
-        # pudl.constants.epaipm_pudl_tables and pc.epaipm_url_ext.
-        # I'm finding it easier to
-        # code the url and temp files than use provided functions.
-        fns = pc.epaipm_url_ext.values()
-        base_url = pc.base_data_urls['epaipm']
-
-        src_urls = [f'{base_url}/{f}' for f in fns]
-        tmp_files = [os.path.join(tmp_dir, f) for f in fns]
-    else:
-        src_urls = [source_url(source, year)]
-        tmp_files = [os.path.join(
-            tmp_dir, os.path.basename(path(source, data_dir, year)))]
-    if source == 'epacems':
-        logger.info(f"Downloading {source} data for {year}.")
-    elif year is None:
-        logger.info(f"Downloading {source} data.")
-    else:
-        logger.info(f"Downloading {source} data for {year} from {src_urls[0]}")
-    url_schemes = {urllib.parse.urlparse(url).scheme for url in src_urls}
-    # Pass all the URLs at once, rather than looping here, because that way
-    # we can use the same FTP connection for all of the src_urls
-    # (without going all the way to a global FTP cache)
-    if url_schemes == {"ftp"}:
-        _download_ftp(src_urls, tmp_files)
-    else:
-        _download_default(src_urls, tmp_files)
-    return tmp_files
-
-
-def _download_ftp(src_urls, tmp_files, allow_retry=True):  # noqa: C901
-    """
-    Download a source data using FTP, retrying as necessary.
-
-    Args:
-        src_urls (list): A list of complete source URLs for the files to be
-            downloaded.
-        tmp_files (list): A corresponding list of local temporary files to
-            which the downloaded files should be saved.
-        allow_retry (bool): If True, retry on errors. Otherwise do not retry.
-
-    Returns:
-        None
-
-    """
-    if len(src_urls) != len(tmp_files):
-        raise ValueError(
-            "The number of source URLs and temporary files are not equal.")
-    if len(src_urls) == 0:
-        raise ValueError("Got zero source URLs!")
-    parsed_urls = [urllib.parse.urlparse(url) for url in src_urls]
-    domains = {url.netloc for url in parsed_urls}
-    within_domain_paths = [url.path for url in parsed_urls]
-    if len(domains) > 1:
-        # This should never be true, but it seems good to check
-        raise NotImplementedError(
-            "I don't yet know how to download from multiple domains")
-    domain = domains.pop()
-    ftp = ftplib.FTP(domain)  # nosec: B321 Sadly required for ferc1 & epacems
-    login_result = ftp.login()
-    assert login_result.startswith("230"), \
-        f"Failed to login to {domain}: {login_result}"
-    url_to_retry = []
-    tmp_to_retry = []
-    error_messages = []
-    for path, tmp_file, src_url in zip(within_domain_paths, tmp_files, src_urls):
-        with open(tmp_file, "wb") as f:
-            try:
-                ftp.retrbinary(f"RETR {path}", f.write)
-            except ftplib.all_errors as e:
-                error_messages.append(e)
-                url_to_retry.append(src_url)
-                tmp_to_retry.append(tmp_file)
-    # Now retry failures recursively
-    num_failed = len(url_to_retry)
-    if num_failed > 0:
-        if allow_retry and len(src_urls) == 1:
-            # If there was only one URL and it failed, retry once.
-            return _download_ftp(url_to_retry, tmp_to_retry, allow_retry=False)
-        elif allow_retry and src_urls != url_to_retry:
-            # If there were multiple URLs and at least one didn't fail,
-            # keep retrying until all fail or all succeed.
-            return _download_ftp(url_to_retry,
-                                 tmp_to_retry,
-                                 allow_retry=allow_retry)
-        if url_to_retry == src_urls:
-            err_msg = (
-                f"Download failed for all {num_failed} URLs. " +
-                "Maybe the server is down?\n" +
-                "Here are the failure messages:\n " +
-                " \n".join(error_messages)
-            )
-        if not allow_retry:
-            err_msg = (
-                f"Download failed for {num_failed} URLs and no more " +
-                "retries are allowed.\n" +
-                "Here are the failure messages:\n " +
-                " \n".join(error_messages)
-            )
-        warnings.warn(err_msg)
-
-
-def _download_default(src_urls, tmp_files, allow_retry=True):
-    """Download URLs to files. Designed to be called by `download` function.
-
-    If the file cannot be downloaded, the program will issue a warning.
-
-    Args:
-        src_urls (list of str): the source URLs to download.
-        tmp_files (list of str): the corresponding files to save.
-        allow_retry (bool): Should the function call itself again to
-            retry the download? (Default will try twice for a single file, or
-            until all files fail)
-    Returns:
-        None
-
-    Todo:
-        Replace assert statement
-
-    """
-    assert len(src_urls) == len(tmp_files) > 0
-    url_to_retry = []
-    tmp_to_retry = []
-    for src_url, tmp_file in zip(src_urls, tmp_files):
+        """
         try:
-            # While we aren't auditing the url to ensure it's http/https, the
-            # URLs are hard-coded in pudl.constants, so we ought to know what
-            # we are connecting to. Thus the # nosec comment to avoid the
-            # security linter (bandit) from complaining.
-            _ = urllib.request.urlretrieve(  # nosec
-                src_url, filename=tmp_file)
-        except urllib.error.URLError:
-            url_to_retry.append(src_url)
-            tmp_to_retry.append(tmp_to_retry)
-    # Now retry failures recursively
-    num_failed = len(url_to_retry)
-    if num_failed > 0:
-        if allow_retry and len(src_urls) == 1:
-            # If there was only one URL and it failed, retry once.
-            return _download_default(url_to_retry,
-                                     tmp_to_retry,
-                                     allow_retry=False)
-        elif allow_retry and src_urls != url_to_retry:
-            # If there were multiple URLs and at least one didn't fail,
-            # keep retrying until all fail or all succeed.
-            return _download_default(url_to_retry,
-                                     tmp_to_retry,
-                                     allow_retry=allow_retry)
-        if url_to_retry == src_urls:
-            err_msg = f"""ERROR: Download failed for all {num_failed} URLs.
-Maybe the server is down?"""
-        if not allow_retry:
-            err_msg = f"""ERROR: Download failed for {num_failed}
-URLs and no more retries are allowed."""
-        warnings.warn(err_msg)
+            return self._dois[dataset]
+        except KeyError:
+            msg = f"No DOI available for {dataset}"
+            self.logger.error(msg)
+            raise ValueError(msg)
 
+    def doi_to_url(self, doi):
+        """
+        Given a DOI, produce the API url to retrieve it.
 
-def organize(source, year, states, data_dir,  # noqa: C901
-             unzip=True, dl=True):
-    """Put downloaded original data file where it belongs in the datastore.
+        Args:
+            doi (str): the doi (concept doi) to retrieve, per
+                https://help.zenodo.org/
 
-    Once we've downloaded an original file from the public website it lives on
-    we need to put it where it belongs in the datastore. Optionally, we also
-    unzip it and clean up the directory hierarchy that results from unzipping.
+        Returns:
+            url to get the deposition from the api
 
-    Args:
-        source (str): the data source to retrieve. Must be one of: 'eia860',
-            'eia923', 'ferc1', or 'epacems'.
-        year (int or None): the year of data that the returned path should
-            pertain to. Must be within the range of valid data years, which is
-            specified for each data source in pudl.constants.data_years. Use
-            None for data sources that do not have multiple years.
-        data_dir (path-like): Path to the top level datastore directory.
-        unzip (bool): If True, unzip the file once downloaded, and place the
-            resulting data files where they ought to be in the datastore.
-        dl (bool): If False, the files were not downloaded in this run.
+        """
+        match = re.search(r"zenodo.([\d]+)", doi)
 
-    Returns:
-        None
+        if match is None:
+            msg = f"Invalid doi {doi}"
+            self.logger.error(msg)
+            raise ValueError(msg)
 
-    Todo:
-        Replace 4 assert statements
+        zen_id = int(match.groups()[0])
+        return f"{self.api_root}/deposit/depositions/{zen_id}"
 
-    """
-    assert source in pc.data_sources, \
-        f"Source '{source}' not found in valid data sources."
-    if year is not None:
-        assert source in pc.data_years, \
-            f"Source '{source}' not found in valid data years."
-        assert year in pc.data_years[source], \
-            f"Year {year} is not valid for source {source}."
-    assert source in pc.base_data_urls, \
-        f"Source '{source}' not found in valid base download URLs."
+    def local_path(self, dataset, filename=None):
+        """
+        Produce the local absolute path for a given dataset.
 
-    assert_valid_param(source=source, year=year, check_month=False)
+        Args:
+            dataset: the name of the dataset
+            filename: optional filename as it would appear, if included in the
+                path
 
-    tmpdir = os.path.join(data_dir, 'tmp')
-    # For non-CEMS, the newfiles and destfiles lists will have length 1.
-    if source == 'epaipm':
-        fns = list(pc.epaipm_url_ext.values())
-        epaipm_files = [os.path.join(tmpdir, f) for f in fns]
-        # Create a ZIP file for epaipm so that it can behave more like the
-        # other sources, including having a well defined "path" to check
-        # whether it exists in the datastore.
-        zip_path = os.path.join(tmpdir, 'epaipm.zip')
-        with zipfile.ZipFile(zip_path, mode='w') as epaipm_zip:
-            for f in epaipm_files:
-                epaipm_zip.write(f, arcname=os.path.basename(f))
-                os.remove(f)
-    newfiles = [os.path.join(tmpdir, os.path.basename(f))
-                for f in paths_for_year(source=source,
-                                        year=year,
-                                        states=states,
-                                        data_dir=data_dir)]
-    destfiles = paths_for_year(source=source,
-                               year=year,
-                               states=states,
-                               file=True, data_dir=data_dir)
+        Return:
+            str: a path
+        """
+        doi_dirname = re.sub("/", "-", self.doi(dataset))
+        directory = self.pudl_in / "data" / dataset / doi_dirname
 
-    # If we've gotten to this point, we're wiping out the previous version of
-    # the data for this source and year... so lets wipe it! Scary!
-    destdir = path(source=source, year=year, file=False, data_dir=data_dir)
-    if dl:
-        if os.path.exists(destdir) and source != 'epacems':
-            shutil.rmtree(destdir)
-        # move the new file from wherever it is, to its rightful home.
-        if not os.path.exists(destdir):
-            os.makedirs(destdir)
-        for newfile, destfile in zip(newfiles, destfiles):
-            # paranoid safety check to make sure these files match...
-            assert os.path.basename(newfile) == os.path.basename(destfile)
-            shutil.move(newfile, destfile)  # works more cases than os.rename
-    # If download is False, then we already did this rmtree and move
-    # The last time this program ran.
+        if filename is None:
+            return directory
 
-    # If we're unzipping the downloaded file, then we may have some
-    # reorganization to do. Currently all data sources will get unzipped,
-    # except the CEMS, because they're really big and take up 92% less space.
-    if(unzip and source != 'epacems'):
-        # Unzip the downloaded file in its new home:
-        zip_ref = zipfile.ZipFile(destfile, 'r')
-        logger.info(f"unzipping {destfile}")
-        zip_ref.extractall(destdir)
-        zip_ref.close()
-        # Most of the data sources can just be unzipped in place and be done
-        # with it, but FERC Form 1 requires some special attention:
-        # data source we're working with:
-        if source == 'ferc1':
-            topdirs = [os.path.join(destdir, td)
-                       for td in ['UPLOADERS', 'FORMSADMIN']]
-            for td in topdirs:
-                if os.path.exists(td):
-                    for f in os.scandir(os.path.join(td, 'FORM1', 'working')):
-                        shutil.move(f.path, destdir)
-                    shutil.rmtree(td)
+        return directory / filename
 
+    def save_datapackage_json(self, dataset, dpkg):
+        """
+        Save a datapackage.json file.  Overwrite any previous version.
 
-def check_if_need_update(source, year, states, data_dir, clobber=False):
-    """Check to see if the file is already downloaded and clobber is False.
+        Args:
+            dataset (str): name of the dataset, as available in DOI
+            dpkg (dict): dict matching frictionless datapackage spec
 
-    Do we really need to download the requested data? Only case in which
-    we don't have to do anything is when the downloaded file already exists
-    and clobber is False.
+        Returns:
+            Path of the saved datapackage
+        """
+        path = self.local_path(dataset, filename="datapackage.json")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        text = json.dumps(dpkg, sort_keys=True, indent=4)
 
-    Args:
-        source (str): the data source to retrieve. Must be one of: eia860,
-            eia923, ferc1, or epacems.
-        year (int or None): the year of data that the returned path should
-            pertain to. Must be within the range of valid data years, which is
-            specified for each data source in pudl.constants.data_years. Note
-            that for data (like EPA CEMS) that have multiple datasets per year,
-            this function will download all the files for the specified year.
-            Use None for data sources that do not have multiple years.
-        states (iterable): List of two letter US state abbreviations indicating
-            which states data should be downloaded for.
-        data_dir (path-like): Path to the top level datastore directory.
-        clobber (bool): If True, clobber the existing file and note that the
-            file will need to be replaced with an updated file.
+        with path.open("w") as f:
+            f.write(text)
+            self.logger.debug(f"{path} saved.")
+        self._validate_datapackage(dataset)
 
-    Returns:
-        bool: Whether an update is needed (True) or not (False)
+        return path
 
-    """
-    paths = paths_for_year(source=source, year=year, states=states,
-                           data_dir=data_dir)
-    need_update = False
-    msg = None
-    for path in paths:
-        if os.path.exists(path):
-            if clobber:
-                msg = f"{source} data for {year} already present, CLOBBERING."
-                need_update = True
+    # Datapackage metadata
+
+    def remote_datapackage_json(self, doi):
+        """
+        Produce the contents of a remote datapackage.json.
+
+        Args:
+            doi: the DOI
+
+        Returns:
+            dict representation of the datapackage.json file as available on
+            Zenodo, or raises an error
+        """
+        dpkg_url = self.doi_to_url(doi)
+        response = self.http.get(
+            dpkg_url, params={"access_token": self.token}, timeout=self.timeout)
+
+        if response.status_code > 299:
+            msg = f"Failed to retrieve {dpkg_url}"
+            self.logger.error(msg)
+            raise ValueError(msg)
+
+        jsr = response.json()
+        files = {x["filename"]: x for x in jsr["files"]}
+
+        response = self.http.get(
+            files["datapackage.json"]["links"]["download"],
+            params={"access_token": self.token},
+            timeout=self.timeout)
+
+        if response.status_code > 299:
+            msg = f"Failed to retrieve datapackage for {doi}: {response.text}"
+            self.logger.error(msg)
+            raise ValueError(msg)
+
+        return json.loads(response.text)
+
+    def datapackage_json(self, dataset, force_download=False):
+        """
+        Produce the contents of datapackage.json, cache as necessary.
+
+        Args:
+            dataset (str): name of the dataset, must be available in the DOIS
+
+        Return:
+            dict: representation of the datapackage.json
+
+        """
+        path = self.local_path(dataset, filename="datapackage.json")
+
+        if force_download or not path.exists():
+            doi = self.doi(dataset)
+            dpkg = self.remote_datapackage_json(doi)
+            self.save_datapackage_json(dataset, dpkg)
+
+        with path.open("r") as f:
+            return yaml.safe_load(f)
+
+    # Remote resource retrieval
+
+    def is_remote(self, resource):
+        """
+        Determine whether a described resource is located on a remote server.
+
+        Args:
+            resource: dict, a resource descriptor from a frictionless data
+                package
+
+        Returns:
+            bool
+        """
+        return resource["path"][:8] == "https://" or \
+            resource["path"][:7] == "http://"
+
+    def passes_filters(self, resource, filters):
+        """
+        Test whether file metadata passes given filters.
+
+        Args:
+            resource (dict): a "resource" descriptior from a frictionless
+                datapackage
+            filters (dict): pairs that must match in order for a
+                resource to pass
+
+        Returns:
+            bool: True if the resource parts pass the filters
+
+        """
+        for key, _ in filters.items():
+
+            part_val = resource["parts"].get(key, None)
+
+            if part_val != filters[key]:
+                self.logger.debug(
+                    f"Filtered {resource['name']} on {key}: "
+                    f"{part_val} != {filters[key]}"
+                )
+                return False
+
+        return True
+
+    def download_resource(self, resource, directory, retries=3):
+        """
+        Download a frictionless datapackage resource.
+
+        Args:
+            resource: dict, a remotely located resource descriptior from a frictionless
+                datapackage.
+            directory: the directory where the resource should be saved
+
+        Returns:
+            Path of the saved resource, or none on failure
+
+        """
+        response = self.http.get(
+            resource["remote_url"],
+            params={"access_token": self.token},
+            timeout=self.timeout)
+
+        if response.status_code >= 299:
+            msg = f"Failed to download {resource['path']}, {response.text}"
+
+            self.logger.error(msg)
+            raise RuntimeError(msg)
+
+        local_path = directory / resource["name"]
+
+        with local_path.open("wb") as f:
+            f.write(response.content)
+            self.logger.debug(f"Cached {local_path}")
+
+        if not self._validate_file(local_path, resource["hash"]):
+            self.logger.error(
+                f"Invalid md5 after download of {local_path}.\n"
+                f"Response: {response}\n"
+                f"Resource: {resource}\n"
+                f"Retries left: {retries}"
+            )
+
+            if retries > 0:
+                self.download_resource(resource, directory,
+                                       retries=retries - 1)
             else:
-                msg = f"{source} data for {year} already present, skipping."
+                raise RuntimeError(
+                    f"Could not download valid {resource['path']}")
+
+        return local_path
+
+    def _validate_file(self, path, hsh):
+        """
+        Validate a filename by md5 hash.
+
+        Args:
+            path: path to the resource on disk
+            hsh: string, expected md5hash
+
+        Returns:
+            bool: True if the resource md5sum matches the descriptor.
+
+        """
+        if not path.exists():
+            return False
+
+        with path.open("rb") as f:
+            m = hashlib.md5()  # nosec
+            m.update(f.read())
+
+        if m.hexdigest() == hsh:
+            self.logger.debug(f"{path} md5 hash is valid")
+            return True
+
+        self.logger.warning(f"{path} md5 mismatch")
+        return False
+
+    def _validate_dataset(self, dataset):
+        """
+        Validate datapackage.json and check each resource on disk has correct md5sum.
+
+        Args:
+            dataset: name of a dataset
+
+        Returns:
+            bool: True if local datapackage.json is valid and resources have
+            good md5 checksums.
+
+        """
+        dp = self.datapackage_json(dataset)
+        ok = self._validate_datapackage(dataset)
+
+        for r in dp["resources"]:
+
+            if self.is_remote(r):
+                self.logger.debug(
+                    f"{r['path']} not cached, skipping validation")
+                continue
+
+            # We verify and warn on every resource. Even though a single
+            # failure could end the algorithm, we want to see which ones are
+            # invalid.
+
+            ok = self._validate_file(
+                self.local_path(dataset, r["path"]), r["hash"]) and ok
+
+        return ok
+
+    def _validate_datapackage(self, dataset):
+        """
+        Validate the datapackage.json metadata against the datapackage standard.
+
+        Args:
+            dataset (str): Name of a dataset.
+
+        Returns:
+            bool: True if the datapackage.json is valid. False otherwise.
+
+        """
+        dp = datapackage.Package(self.datapackage_json(dataset))
+        if not dp.valid:
+            msg = f"Found {len(dp.errors)} datapackage validation errors:\n"
+            for e in dp.errors:
+                msg = msg + f"  * {e}\n"
+            self.logger.warning(msg)
         else:
-            need_update = True
-    if msg is not None:
-        logger.info(msg)
-    return need_update
+            self.logger.debug(
+                f"{self.local_path(dataset, filename='datapackage.json')} is valid"
+            )
+        return dp.valid
+
+    def validate(self, dataset=None):
+        """
+        Validate all datasets, or just the specified one.
+
+        Args:
+            dataset: name of a dataset.
+
+        Returns:
+            bool: True if local resources appear to be correct.
+
+        """
+        if dataset is not None:
+            return self._validate_dataset(dataset)
+
+        valid = True
+
+        for dataset in self._dois.keys():
+            valid = valid and self._validate_dataset(dataset)
+
+        return valid
+
+    def get_resources(self, dataset, **kwargs):
+        """
+        Produce resource descriptors as requested.
+
+        Any resource listed as remote will be downloaded and the
+        datapackage.json will be updated.
+
+        Args:
+            dataset (str): name of the dataset, must be available in the DOIS
+            kwargs: limit retrieved files to those where the datapackage.json["parts"]
+                key & val pairs match provided keywords. Eg. year=2011 or state="md"
+
+        Returns:
+            list of dicts, each representing a resource per the frictionless
+            datapackage spec, except that local paths are modified to be absolute.
+
+        """
+        filters = dict(**kwargs)
+
+        dpkg = self.datapackage_json(dataset)
+        self.logger.debug(
+            f"{dataset} datapackage lists {len(dpkg['resources'])} resources"
+        )
+
+        for r in dpkg["resources"]:
+
+            if self.passes_filters(r, filters):
+
+                if self.is_remote(r) or not self._validate_file(
+                        self.local_path(dataset, r["path"]), r["hash"]):
+                    local = self.download_resource(r, self.local_path(dataset))
+
+                    # save with a relative path
+                    r["path"] = str(local.relative_to(
+                        self.local_path(dataset)))
+                    self.logger.debug(
+                        f"resource local relative path: {r['path']}")
+                    self.save_datapackage_json(dataset, dpkg)
+
+                r_abspath = copy.deepcopy(r)
+                r_abspath["path"] = str(self.local_path(dataset, r["path"]))
+                yield r_abspath
 
 
-def update(source, year, states, data_dir, clobber=False, unzip=True,
-           dl=True):
-    """Update the local datastore for the given source and year.
+def main_arguments():
+    """Collect the command line arguments."""
+    prod_dois = "\n".join([f"    - {x}" for x in DOI["production"].keys()])
+    sand_dois = "\n".join([f"    - {x}" for x in DOI["sandbox"].keys()])
 
-    If necessary, pull down a new copy of the data for the specified data
-    source and year. If we already have the requested data, do nothing,
-    unless clobber is True -- in which case remove the existing data and
-    replace it with a freshly downloaded copy.
+    dataset_msg = f"""
+Available Production Datasets:
+{prod_dois}
 
-    Note that update_datastore.py runs this function in parallel, so files
-    multiple sources and years may be in progress simultaneously.
+Available Sandbox Datasets:
+{sand_dois}"""
 
-    Args:
-        source (str): the data source to retrieve. Must be one of: 'eia860',
-            'eia923', 'ferc1', or 'epacems'.
-        year (int): the year of data that the returned path should pertain to.
-            Must be within the range of valid data years, which is specified
-            for each data source in pudl.constants.data_years.
-        states (iterable): List of two letter US state abbreviations indicating
-            which states data should be downloaded for. Currently only affects
-            the epacems dataset.
-        clobber (bool): If true, replace existing copy of the requested data
-            if we have it, with freshly downloaded data.
-        unzip (bool): If true, unzip the file once downloaded, and place the
-            resulting data files where they ought to be in the datastore.
-            EPA CEMS files will never be unzipped.
-        data_dir (str): The ``data`` directory which holds the PUDL datastore.
-        dl (bool): If False, don't download the files, only unzip ones
-            that are already present. If True, do download the files. Either
-            way, still obey the unzip and clobber settings. (unzip=False and
-            dl=False will do nothing.)
+    parser = argparse.ArgumentParser(
+        description="Download and cache ETL source data from Zenodo.",
+        epilog=dataset_msg,
+        formatter_class=argparse.RawTextHelpFormatter
+    )
 
-    Returns:
-        None
+    parser.add_argument(
+        "--dataset",
+        help="Download the specified dataset only. See below for available options. "
+        "The default is to download all, which may take an hour or more."
+        "speed."
+    )
+    parser.add_argument(
+        "--pudl_in",
+        help="Override pudl_in directory, defaults to setting in ~/.pudl.yml",
+    )
+    parser.add_argument(
+        "--validate",
+        help="Validate locally cached datapackages, but don't download anything.",
+        action="store_const",
+        const=True,
+        default=False,
+    )
+    parser.add_argument(
+        "--sandbox",
+        help="Download data from Zenodo sandbox server. For testing purposes only.",
+        action="store_const",
+        const=True,
+        default=False,
+    )
+    parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
+    parser.add_argument(
+        "--quiet",
+        help="Do not send logging messages to stdout.",
+        action="store_const",
+        const=True,
+        default=False,
+    )
 
-    """
-    need_update = check_if_need_update(
-        source=source, year=year, states=states,
-        data_dir=data_dir, clobber=clobber)
-
-    if need_update:
-        # Otherwise we're downloading:
-        if dl:
-            download(source=source, year=year,
-                     states=states, data_dir=data_dir)
-        organize(source=source, year=year, states=states, unzip=unzip,
-                 data_dir=data_dir, dl=dl)
+    return parser.parse_args()
 
 
-def parallel_update(sources,
-                    years_by_source,
-                    states,
-                    data_dir,
-                    clobber=False,
-                    unzip=True,
-                    dl=True):
-    """Download many original source data files in parallel using threads."""
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        for source in sources:
-            for year in years_by_source[source]:
-                executor.submit(update, source, year, states,
-                                clobber=clobber,
-                                unzip=unzip,
-                                data_dir=data_dir,
-                                dl=download)
+def main():
+    """Cache datasets."""
+    args = main_arguments()
+    dataset = getattr(args, "dataset", None)
+    pudl_in = getattr(args, "pudl_in", None)
+
+    if pudl_in is None:
+        with PUDL_YML.open() as f:
+            cfg = yaml.safe_load(f)
+            pudl_in = Path(cfg["pudl_in"])
+    else:
+        pudl_in = Path(pudl_in)
+
+    ds = Datastore(
+        pudl_in,
+        loglevel=args.loglevel,
+        verbose=not args.quiet,
+        sandbox=args.sandbox
+    )
+
+    if dataset is None:
+        if args.sandbox:
+            datasets = DOI["sandbox"].keys()
+        else:
+            datasets = DOI["production"].keys()
+    else:
+        datasets = [dataset]
+
+    for selection in datasets:
+
+        if args.validate:
+            ds.validate(selection)
+            continue
+
+        list(ds.get_resources(selection))
+
+
+if __name__ == "__main__":
+    sys.exit(main())

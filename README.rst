@@ -8,9 +8,9 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://www.repostatus.org/#active
    :alt: Project Status: Active – The project has reached a stable, usable state and is being actively developed.
 
-.. image:: https://img.shields.io/travis/catalyst-cooperative/pudl
-   :target: https://travis-ci.org/catalyst-cooperative/pudl
-   :alt: Travis CI Build Status
+.. image:: https://github.com/catalyst-cooperative/pudl/workflows/tox-pytest/badge.svg
+   :target: https://github.com/catalyst-cooperative/pudl/actions?query=workflow%3Atox-pytest
+   :alt: Tox-PyTest Status
 
 .. image:: https://img.shields.io/readthedocs/catalystcoop-pudl
    :target: https://catalystcoop-pudl.readthedocs.io/en/latest/
@@ -26,7 +26,11 @@ The Public Utility Data Liberation Project (PUDL)
 
 .. image:: https://img.shields.io/pypi/v/catalystcoop.pudl
    :target: https://pypi.org/project/catalystcoop.pudl/
-   :alt: PyPI Version
+   :alt: PyPI Latest Version
+
+.. image:: https://img.shields.io/pypi/pyversions/catalystcoop.pudl
+   :target: https://pypi.org/project/catalystcoop.pudl/
+   :alt: PyPI - Supported Python Versions
 
 .. image:: https://img.shields.io/conda/vn/conda-forge/catalystcoop.pudl
    :target: https://anaconda.org/conda-forge/catalystcoop.pudl
@@ -48,10 +52,12 @@ Microsoft Access, and many other tools.
 The project currently integrates data from:
 
 * `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__
+* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__
 * `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__
 * `The EPA Continuous Emissions Monitoring System (CEMS) <https://ampd.epa.gov/ampd/>`__
-* `The EPA Integrated Planning Model (IPM) <https://www.epa.gov/airmarkets/national-electric-energy-data-system-needs-v6>`__
-* `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-1>`__
+* `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__
+* `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__
+* `The US Census Demographic Profile 1 Geodatabase <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
 
 The project is focused on serving researchers, activists, journalists, and
 policy makers that might not otherwise be able to afford access to this data
@@ -75,21 +81,18 @@ data interactively.
 .. code-block:: console
 
     $ conda create --yes --name pudl --channel conda-forge \
-        --strict-channel-priority python=3.7 \
+        --strict-channel-priority python=3.8 \
         catalystcoop.pudl jupyter jupyterlab pip
     $ conda activate pudl
 
-Now create a data management workspace called ``pudl-work`` and download EIA,
-EPA, and FERC data for 2018 data using the ``pudl_data`` script. The workspace
+Now create a data management workspace called ``pudl-work``. The workspace
 has a well defined directory structure that PUDL uses to organize the data it
-downloads, processes, and outputs. Run ``pudl_setup --help`` and ``pudl_data
---help`` for details.
+downloads, processes, and outputs. Run ``pudl_setup --help`` for details.
 
 .. code-block:: console
 
     $ mkdir pudl-work
     $ pudl_setup pudl-work
-    $ pudl_data --sources eia923 eia860 ferc1 epacems epaipm --years 2018 --states id
 
 Now that we have some raw data, we can run the PUDL ETL (Extract, Transform,
 Load) pipeline to clean it up and integrate it together. There are several

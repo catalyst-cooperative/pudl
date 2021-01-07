@@ -6,8 +6,8 @@ settings has empty datapackage parameters (meaning there are no years or
 tables included), no datapacakges will be generated. If the settings include a
 datapackage that has empty parameters, the other valid datatpackages will be
 generated, but not the empty one. If there are invalid parameters (meaning a
-year that is not included in the pudl.constant.working_years), the build will
-fail early on in the process.
+partition that is not included in the pudl.constant.working_partitions), the
+build will fail early on in the process.
 
 The datapackages will be stored in "PUDL_OUT" in the "datapackge" subdirectory.
 Currently, this function only uses default directories for "PUDL_IN" and
@@ -15,7 +15,6 @@ Currently, this function only uses default directories for "PUDL_IN" and
 pudl directories see the pudl_setup script (pudl_setup --help for more details).
 
 """
-
 import argparse
 import logging
 import pathlib
@@ -55,6 +54,13 @@ def parse_command_line(argv):
         will fail. Either the datapkg_bundle_name in the settings_file needs to
         be unique or you need to include --clobber""",
         default=False)
+    parser.add_argument(
+        "--sandbox", action="store_true", default=False,
+        help="Use the Zenodo sandbox rather than production")
+    parser.add_argument(
+        "--logfile", default=None,
+        help="If specified, write logs to this file.")
+
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -67,6 +73,10 @@ def main():
     coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
 
     args = parse_command_line(sys.argv)
+    if args.logfile:
+        file_logger = logging.FileHandler(args.logfile)
+        file_logger.setFormatter(logging.Formatter(log_format))
+        logger.addHandler(file_logger)
     with pathlib.Path(args.settings_file).open() as f:
         script_settings = yaml.safe_load(f)
 
@@ -81,19 +91,7 @@ def main():
 
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in, pudl_out=pudl_out)
-
-    logger.info('verifying that the data we need exists in the data store')
-    flattened_params_dict = pudl.etl.get_flattened_etl_parameters(
-        script_settings['datapkg_bundle_settings'])
-    pudl.helpers.verify_input_files(ferc1_years=flattened_params_dict['ferc1_years'],
-                                    epacems_years=flattened_params_dict['epacems_years'],
-                                    epacems_states=flattened_params_dict['epacems_states'],
-                                    pudl_settings=pudl_settings)
-    # Run file verification for the new-style extractors.
-    pudl.extract.eia860.Extractor(pudl_settings['data_dir']).verify_years(
-        flattened_params_dict['eia860_years'])
-    pudl.extract.eia923.Extractor(pudl_settings['data_dir']).verify_years(
-        flattened_params_dict['eia923_years'])
+    pudl_settings["sandbox"] = args.sandbox
 
     try:
         datapkg_bundle_doi = script_settings["datapkg_bundle_doi"]

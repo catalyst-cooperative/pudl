@@ -1,5 +1,4 @@
 """Validate post-ETL Generators data from EIA 860."""
-
 import logging
 
 import pytest

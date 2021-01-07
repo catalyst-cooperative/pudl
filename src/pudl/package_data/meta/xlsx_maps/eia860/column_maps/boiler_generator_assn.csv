@@ -1,11 +1,5 @@
-year_index,utility_id_eia,plant_id_eia,boiler_id,generator_id
-2009,utility_id,plant_code,boiler_id,
-2010,utility_id,plant_code,boiler_id,generator_id
-2011,utility_id,plant_code,boiler_id,generator_id
-2012,utility_id,plant_code,boiler_id,generator_id
-2013,utility_id,plant_code,boiler_id,generator_id
-2014,utility_id,plant_code,boiler_id,generator_id
-2015,utility_id,plant_code,boiler_id,generator_id
-2016,utility_id,plant_code,boiler_id,generator_id
-2017,utility_id,plant_code,boiler_id,generator_id
-2018,utility_id,plant_code,boiler_id,generator_id
+year_index,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019
+utility_id_eia,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id
+plant_id_eia,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code
+boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id
+generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id

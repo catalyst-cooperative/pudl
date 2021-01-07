@@ -17,6 +17,7 @@ import yaml
 
 import pudl
 from pudl.convert.epacems_to_parquet import epacems_to_parquet
+from pudl.extract.ferc1 import get_dbc_map, get_fields
 
 logger = logging.getLogger(__name__)
 
@@ -77,10 +78,10 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
     and field that appears in the historical FERC Form 1 data.
     """
     refyear = max(data_scope['ferc1_years'])
-    current_dbc_map = pudl.extract.ferc1.get_dbc_map(
-        year=refyear,
-        data_dir=pudl_settings_fixture['data_dir']
-    )
+    ds = pudl.extract.ferc1.Ferc1Datastore(
+        pathlib.Path(pudl_settings_fixture["pudl_in"]),
+        sandbox=pudl_settings_fixture["sandbox"])
+    current_dbc_map = pudl.extract.ferc1.get_dbc_map(ds, year=refyear)
     current_tables = list(current_dbc_map.keys())
     logger.info(f"Checking for new, unrecognized FERC1 "
                 f"tables in {refyear}.")
@@ -95,10 +96,7 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
     dbc_maps = {}
     for yr in data_scope['ferc1_years']:
         logger.info(f"Searching for lost FERC1 tables and fields in {yr}.")
-        dbc_maps[yr] = pudl.extract.ferc1.get_dbc_map(
-            year=yr,
-            data_dir=pudl_settings_fixture['data_dir']
-        )
+        dbc_maps[yr] = pudl.extract.ferc1.get_dbc_map(ds, year=yr)
         old_tables = list(dbc_maps[yr].keys())
         for table in old_tables:
             # Check to make sure there aren't any lost archaic tables:
@@ -116,8 +114,7 @@ def test_ferc1_lost_data(pudl_settings_fixture, data_scope):
                     )
 
 
-def test_ferc1_solo_etl(datastore_fixture,
-                        pudl_settings_fixture,
+def test_ferc1_solo_etl(pudl_settings_fixture,
                         ferc1_engine,
                         live_ferc1_db):
     """Verify that a minimal FERC Form 1 can be loaded without other data."""
@@ -131,3 +128,144 @@ def test_ferc1_solo_etl(datastore_fixture,
         pudl_settings_fixture,
         datapkg_bundle_name='ferc1-solo',
         clobber=True)
+
+
+class TestFerc1Datastore:
+    """Validate the Ferc1 Datastore and integration functions."""
+
+    def test_ferc_folder(self, pudl_ferc1datastore_fixture):
+        """Spot check we get correct folder names per dataset year."""
+        ds = pudl_ferc1datastore_fixture
+
+        assert ds.get_dir(1994) == "FORMSADMIN/FORM1/working"
+        assert ds.get_dir(2001) == "UPLOADERS/FORM1/working"
+        assert ds.get_dir(2002) == "FORMSADMIN/FORM1/working"
+        assert ds.get_dir(2010) == "UPLOADERS/FORM1/working"
+        assert ds.get_dir(2015) == "UPLOADERS/FORM1/working"
+
+    def test_get_fields(self, pudl_ferc1datastore_fixture):
+        """Check that the get fields table works as expected."""
+        ds = pudl_ferc1datastore_fixture
+
+        expect_path = pathlib.Path(__file__).parent / \
+            "data/ferc1/f1_2018/get_fields.json"
+
+        with expect_path.open() as f:
+            expect = yaml.safe_load(f)
+
+        data = ds.get_file(2018, "F1_PUB.DBC")
+        result = get_fields(data)
+        assert result == expect
+
+    def test_sample_get_dbc_map(self, pudl_ferc1datastore_fixture):
+        """Test sample_get_dbc_map."""
+        ds = pudl_ferc1datastore_fixture
+
+        table = get_dbc_map(ds, 2018)
+        assert table["f1_429_trans_aff"] == {
+            "ACCT_CORC": "acct_corc",
+            "ACCT_CORC_": "acct_corc_f",
+            "AMT_CORC": "amt_corc",
+            "AMT_CORC_F": "amt_corc_f",
+            "DESC_GOOD2": "desc_good_serv_f",
+            "DESC_GOOD_": "desc_good_serv",
+            "NAME_COMP": "name_comp",
+            "NAME_COMP_": "name_comp_f",
+            "REPORT_PRD": "report_prd",
+            "REPORT_YEA": "report_year",
+            "RESPONDENT": "respondent_id",
+            "ROW_NUMBER": "row_number",
+            "ROW_PRVLG": "row_prvlg",
+            "ROW_SEQ": "row_seq",
+            "SPPLMNT_NU": "spplmnt_num"
+        }
+
+
+class TestExcelExtractor:
+    """Verify that we can lead excel files as provided via the datastore."""
+
+    @staticmethod
+    @pytest.mark.skip(reason="helper function")
+    def test_expected_file_name(extractor, page, year, expected_name):
+        """Check if extractor can access files with expected file names."""
+        if extractor.excel_filename(page, year=year) != expected_name:
+            raise AssertionError(
+                f"file name for {page} in {year} doesn't match datastore."
+            )
+
+    def test_excel_filename_eia860(self, pudl_datastore_fixture):
+        """Spot check eia860 extractor gets the correct excel sheet names."""
+        extractor = pudl.extract.eia860.Extractor(pudl_datastore_fixture)
+        self.test_expected_file_name(
+            extractor=extractor,
+            page='boiler_generator_assn',
+            year=2011,
+            expected_name="EnviroAssocY2011.xlsx"
+        )
+        self.test_expected_file_name(
+            extractor=extractor,
+            page='generator_retired',
+            year=2016,
+            expected_name="3_1_Generator_Y2016.xlsx"
+        )
+        self.test_expected_file_name(
+            extractor=extractor,
+            page='utility',
+            year=2018,
+            expected_name="1___Utility_Y2018.xlsx"
+        )
+
+    def test_excel_filename_eia923(self, pudl_datastore_fixture):
+        """Spot check eia923 extractor gets the correct excel sheet names."""
+        extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
+        self.test_expected_file_name(
+            extractor=extractor,
+            page='plant_frame',
+            year=2009,
+            expected_name="EIA923 SCHEDULES 2_3_4_5 M Final 2009 REVISED 05252011.XLS"
+        )
+        self.test_expected_file_name(
+            extractor=extractor,
+            page='energy_storage',
+            year=2019,
+            expected_name="EIA923_Schedules_2_3_4_5_M_12_2019_Final.xlsx"
+        )
+        self.test_expected_file_name(
+            extractor=extractor,
+            page='puerto_rico',
+            year=2012,
+            expected_name="EIA923_Schedules_2_3_4_5_M_12_2012_Final_Revision.xlsx"
+        )
+
+    def test_extract_eia860(self, pudl_datastore_fixture):
+        """Spot check extraction of eia860 excel files."""
+        extractor = pudl.extract.eia860.Extractor(pudl_datastore_fixture)
+        page = 'ownership'
+        year = 2018
+        if "Ownership" not in extractor.load_excel_file(
+                page="ownership", year=2018).sheet_names:
+            raise AssertionError(
+                f"page {page} not found in datastore for {year}"
+            )
+
+    def test_extract_eia923(self, pudl_datastore_fixture):
+        """Spot check extraction eia923 excel files."""
+        extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
+        page = 'stocks'
+        year = 2018
+        if "Page 3 Boiler Fuel Data" not in extractor.load_excel_file(
+                page=page, year=year).sheet_names:
+            raise AssertionError(
+                f"page {page} not found in datastore for {year}"
+            )
+
+
+class TestEpaCemsDatastore:
+    """Ensure we can extract csv files from the datastore."""
+
+    def test_get_csv(self, pudl_epacemsdatastore_fixture):
+        """Spot check opening of epacems csv file from datastore."""
+        head = b'"STATE","F'
+
+        csv = pudl_epacemsdatastore_fixture.open_csv("ny", 1999, 6)
+        assert csv.read()[:10] == head

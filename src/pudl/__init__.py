@@ -5,8 +5,10 @@ import logging
 
 import pkg_resources
 
+import pudl.analysis.allocate_net_gen
 import pudl.analysis.demand_mapping
 import pudl.analysis.mcoe
+import pudl.analysis.service_territory
 import pudl.cli
 import pudl.constants
 import pudl.convert.datapkg_to_sqlite
@@ -15,12 +17,15 @@ import pudl.convert.ferc1_to_sqlite
 import pudl.convert.merge_datapkgs
 import pudl.etl
 import pudl.extract.eia860
+import pudl.extract.eia860m
+import pudl.extract.eia861
 import pudl.extract.eia923
 import pudl.extract.epacems
 import pudl.extract.epaipm
 import pudl.extract.excel
 import pudl.extract.ferc1
 import pudl.extract.ferc714
+import pudl.glue.eia_epacems
 import pudl.glue.ferc1_eia
 import pudl.helpers
 import pudl.load.csv
@@ -28,7 +33,9 @@ import pudl.load.metadata
 # Output modules by data source:
 import pudl.output.eia860
 import pudl.output.eia923
+import pudl.output.epacems
 import pudl.output.ferc1
+import pudl.output.ferc714
 import pudl.output.glue
 import pudl.output.pudltabl
 # Transformation functions, organized by data source:

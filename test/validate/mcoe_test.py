@@ -15,7 +15,7 @@ import logging
 import pandas as pd
 import pytest
 
-import pudl.validate as pv
+from pudl import validate as pv
 
 logger = logging.getLogger(__name__)
 
@@ -108,12 +108,12 @@ def test_no_null_cols_mcoe(pudl_out_mcoe, live_pudl_db, cols, df_name):
 
 @pytest.mark.parametrize(
     "df_name,monthly_rows,annual_rows", [
-        ("bga", 90_127, 90_127),
-        ("hr_by_unit", 277_848, 23_154),
-        ("hr_by_gen", 407_424, 33_952),
-        ("fuel_cost", 447_932, 33_952),
-        ("capacity_factor", 429_072, 35_756),
-        ("mcoe", 429_320, 36_004),
+        ("bga", 103_805, 103_805),
+        ("hr_by_unit", 302_256, 25_188),
+        ("hr_by_gen", 451_668, 37_639),
+        ("fuel_cost", 451_668, 37_639),
+        ("capacity_factor", 476_052, 39_671),
+        ("mcoe", 476_052, 39_671),
     ])
 def test_minmax_rows_mcoe(pudl_out_mcoe, live_pudl_db,
                           monthly_rows, annual_rows, df_name):

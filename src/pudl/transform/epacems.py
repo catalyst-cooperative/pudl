@@ -1,5 +1,4 @@
 """Routines specific to cleaning up EPA CEMS hourly data."""
-
 import datetime
 import logging
 import pathlib

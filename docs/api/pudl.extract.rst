@@ -5,8 +5,10 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    pudl.extract.eia860
+   pudl.extract.eia860m
    pudl.extract.eia861
    pudl.extract.eia923
    pudl.extract.epacems

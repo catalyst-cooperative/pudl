@@ -1,10 +1,9 @@
 """Validate post-ETL EIA 860 data and the associated derived outputs."""
-
 import logging
 
 import pytest
 
-import pudl.validate as pv
+from pudl import validate as pv
 
 logger = logging.getLogger(__name__)
 
@@ -33,16 +32,16 @@ def test_no_null_cols_eia(pudl_out_eia, live_pudl_db, cols, df_name):
 
 @pytest.mark.parametrize(
     "df_name,raw_rows,monthly_rows,annual_rows", [
-        ("utils_eia860", 44_801, 44_801, 44_801),
-        ("plants_eia860", 84_828, 84_828, 84_828),
-        ("pu_eia860", 83_993, 83_993, 83_993),
-        ("own_eia860", 42_563, 42_563, 42_563),
-        ("bga_eia860", 90_127, 90_127, 90_127),
-        ("gens_eia860", 242_630, 242_630, 242_630),
-        ("frc_eia923", 417_723, 175_553, 17_381),
-        ("gen_eia923", 422_388, 422_388, 35_199),
-        ("bf_eia923", 1_021_764, 855_048, 71_254),
-        ("gf_eia923", 1_379_820, 1_106_712, 92_226),
+        ("utils_eia860", 50_186, 50_186, 50_186),
+        ("plants_eia860", 96_694, 96_694, 96_694),
+        ("pu_eia860", 95_826, 95_826, 95_826),
+        ("own_eia860", 47_354, 47_354, 47_354),
+        ("bga_eia860", 103_805, 103_805, 103_805),
+        ("gens_eia860", 271_689, 271_689, 271_689),
+        ("frc_eia923", 454_891, 190_115, 18_773),
+        ("gen_eia923", 476_052, 476_052, 39_671),
+        ("bf_eia923", 1_133_388, 946_056, 78_838),
+        ("gf_eia923", 1_551_264, 1_250_340, 104_195),
     ])
 def test_minmax_rows(pudl_out_eia,
                      live_pudl_db,
