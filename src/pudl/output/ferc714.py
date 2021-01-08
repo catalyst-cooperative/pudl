@@ -1,7 +1,41 @@
 """Functions & classes for compiling derived aspects of the FERC Form 714 data."""
+from functools import cached_property
+from typing import Any, Dict, List
+
+import numpy as np
 import pandas as pd
 
 import pudl
+
+FIXES: List[Dict[str, Any]] = [
+    # MISO: Midwest Indep System Operator
+    {'id': 56669, 'from': 2011, 'to': [2009, 2010]},
+    # SWPP: Southwest Power Pool
+    {'id': 59504, 'from': 2014, 'to': [2006, 2009], 'exclude': ['NE']},
+    {'id': 59504, 'from': 2014, 'to': [2010, 2013]},
+    # LGEE: LG&E and KU Services Company
+    {'id': 11249, 'from': 2014, 'to': [2006, 2013]},
+    # (no code): Entergy
+    {'id': 12506, 'from': 2012, 'to': [2013, 2013]},
+    # (no code): American Electric Power Co Inc
+    {'id': 829, 'from': 2008, 'to': [2009, 2013]},
+]
+"""
+Adjustments to balancing authority-utility associations from EIA 861.
+
+The changes are applied locally to EIA 861 tables.
+
+* `id` [int]: EIA balancing authority identifier (`balancing_authority_id_eia`).
+* `from` [int]: Reference year.
+* `to` List[int]: Target years, in the closed interval format [minimum, maximum].
+* `exclude` Optional[List[str]]: States to exclude, by their abbreviation.
+"""
+
+UTILITIES: List[int] = [
+    # San Diego Gas & Electric Company (2011-2019)
+    # Dayton Power & Light (2011-2019)
+    # Consumers Energy Company
+]
 
 
 ################################################################################
@@ -98,7 +132,7 @@ class Respondents(object):
 
         if ba_ids is None:
             ba_ids = (
-                self.pudl_out.balancing_authority_eia861()
+                self.balancing_authority_eia861
                 .balancing_authority_id_eia.dropna().unique()
             )
         self.ba_ids = ba_ids
@@ -118,6 +152,96 @@ class Respondents(object):
         self._fipsified = None
         self._counties_gdf = None
         self._respondents_gdf = None
+
+    @cached_property
+    def balancing_authority_eia861(self) -> pd.DataFrame:
+        """Modified balancing_authority_eia861 table."""
+        df = self.pudl_out.balancing_authority_eia861()
+        index = ['balancing_authority_id_eia', 'report_date']
+        dfi = df.set_index(index)
+        # Prepare reference rows
+        keys = [(fix['id'], pd.Timestamp(fix['from'], 1, 1)) for fix in FIXES]
+        refs = dfi.loc[keys].reset_index().to_dict('records')
+        # Build table of new rows
+        # Insert row for each target balancing authority-year pair
+        # missing from the original table, using the reference year as a template.
+        rows = []
+        for ref, fix in zip(refs, FIXES):
+            for year in range(fix['to'][0], fix['to'][1] + 1):
+                key = (fix['id'], pd.Timestamp(year, 1, 1))
+                if key not in dfi.index:
+                    rows.append({**ref, 'report_date': key[1]})
+        # Append to original table
+        return df.append(pd.DataFrame(rows))
+
+    @cached_property
+    def balancing_authority_assn_eia861(self) -> pd.DataFrame:
+        """Modified balancing_authority_assn_eia861 table."""
+        df = self.pudl_out.balancing_authority_assn_eia861()
+        # Prepare reference rows
+        refs = []
+        for fix in FIXES:
+            mask = df['balancing_authority_id_eia'].eq(fix['id']).to_numpy(bool)
+            mask[mask] = df['report_date'][mask].eq(pd.Timestamp(fix['from'], 1, 1))
+            ref = df[mask]
+            if 'exclude' in fix:
+                # Exclude utilities by state
+                mask = ref['state'].isin(fix['exclude'])
+                ref = ref[mask]
+            refs.append(ref)
+        # Buid table of new rows
+        # Insert (or overwrite) rows for each target balancing authority-year pair,
+        # using the reference year as a template.
+        replaced = np.zeros(df.shape[0], dtype=bool)
+        tables = []
+        for ref, fix in zip(refs, FIXES):
+            for year in range(fix['to'][0], fix['to'][1] + 1):
+                key = fix['id'], pd.Timestamp(year, 1, 1)
+                mask = df['balancing_authority_id_eia'].eq(key[0]).to_numpy(bool)
+                mask[mask] = df['report_date'][mask].eq(key[1])
+                tables.append(ref.assign(report_date=key[1]))
+                replaced |= mask
+        # Append to original table with matching rows removed
+        return df[~replaced].append(pd.concat(tables))
+
+    @cached_property
+    def service_territory_eia861(self) -> pd.DataFrame:
+        """Modified service_territory_eia861 table."""
+        index = ['utility_id_eia', 'state', 'report_date']
+        # Select relevant balancing authority-utility associations
+        assn = self.balancing_authority_assn_eia861
+        selected = np.zeros(assn.shape[0], dtype=bool)
+        for fix in FIXES:
+            years = [fix['from'], *range(fix['to'][0], fix['to'][1] + 1)]
+            dates = [pd.Timestamp(year, 1, 1) for year in years]
+            mask = assn['balancing_authority_id_eia'].eq(fix['id']).to_numpy(bool)
+            mask[mask] = assn['report_date'][mask].isin(dates)
+            selected |= mask
+        # Reformat as unique utility-state-year
+        assn = assn[selected][index].drop_duplicates()
+        # Select relevant service territories
+        df = self.pudl_out.service_territory_eia861()
+        mdf = assn.merge(df, how='left')
+        # Drop utility-state with no counties for all years
+        grouped = mdf.groupby(['utility_id_eia', 'state'])['county_id_fips']
+        mdf = mdf[grouped.transform('count').gt(0)]
+        # Fill missing utility-state-year with nearest year with counties
+        grouped = mdf.groupby(index)['county_id_fips']
+        missing = mdf[grouped.transform('count').eq(0)].to_dict('records')
+        has_county = mdf['county_id_fips'].notna()
+        tables = []
+        for row in missing:
+            mask = (
+                mdf['utility_id_eia'].eq(row['utility_id_eia']) &
+                mdf['state'].eq(row['state']) &
+                has_county
+            )
+            years = mdf['report_date'][mask].drop_duplicates()
+            # Match to nearest year
+            idx = (years - row['report_date']).abs().idxmin()
+            mask &= mdf['report_date'].eq(years[idx])
+            tables.append(mdf[mask].assign(report_date=row['report_date']))
+        return pd.concat([df] + tables)
 
     def annualize(self, update=False):
         """
@@ -180,7 +304,7 @@ class Respondents(object):
             ba_respondents = (
                 categorized.query("respondent_type=='balancing_authority'")
                 .merge(
-                    self.pudl_out.balancing_authority_eia861()[[
+                    self.balancing_authority_eia861[[
                         "balancing_authority_id_eia",
                         "balancing_authority_code_eia",
                         "balancing_authority_name_eia",
@@ -293,9 +417,9 @@ class Respondents(object):
                 categorized.query("respondent_type=='balancing_authority'"),
                 pudl.analysis.service_territory.get_territory_fips(
                     ids=categorized.balancing_authority_id_eia.unique(),
-                    assn=self.pudl_out.balancing_authority_assn_eia861(),
+                    assn=self.balancing_authority_assn_eia861,
                     assn_col="balancing_authority_id_eia",
-                    st_eia861=self.pudl_out.service_territory_eia861(),
+                    st_eia861=self.service_territory_eia861,
                     limit_by_state=self.limit_by_state),
                 on=["report_date", "balancing_authority_id_eia"],
                 how="left",
@@ -307,7 +431,7 @@ class Respondents(object):
                     ids=categorized.utility_id_eia.unique(),
                     assn=self.pudl_out.utility_assn_eia861(),
                     assn_col="utility_id_eia",
-                    st_eia861=self.pudl_out.service_territory_eia861(),
+                    st_eia861=self.service_territory_eia861,
                     limit_by_state=self.limit_by_state,
                 ),
                 on=["report_date", "utility_id_eia"],
