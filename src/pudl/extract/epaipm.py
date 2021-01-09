@@ -7,22 +7,25 @@ number of files.
 
 This module was written by :user:`gschivley`
 """
+import io
 import logging
 from pathlib import Path
+from typing import Any, Dict, List, NamedTuple
 
 import pandas as pd
 
-from pudl import constants as pc
 from pudl.workspace.datastore import Datastore
-#$ from pudl.workspace import datastore as datastore
 
-from typing import Dict, List, NamedTuple, Any
+# $ from pudl.workspace import datastore as datastore
+
 
 logger = logging.getLogger(__name__)
 
 
 class TableSettings(NamedTuple):
-    table_name: str 
+    """Contains information for how to access and load EpaIpm dataframes."""
+
+    table_name: str
     file: str
     excel_settings: Dict[str, Any] = {}
 
@@ -38,35 +41,36 @@ class EpaIpmDatastore:
                 skiprows=3,
                 usecols='B:F',
                 index_col=[0, 1])
-            ),
+        ),
         TableSettings(
             table_name="transmission_joint_epaipm",
             file="table_3-5_transmission_joint_ipm.csv"
-            ),
+        ),
         TableSettings(
             table_name="load_curves_epaipm",
             file="table_2-2_load_duration_curves_used_in_epa_platform_v6.xlsx",
             excel_settings=dict(
                 skiprows=3,
                 usecols='B:AB')
-            ),
+        ),
         TableSettings(
             table_name="plant_region_map_epaipm_active",
             file="needs_v6_november_2018_reference_case_0.xlsx",
             excel_settings=dict(
                 sheet_name='NEEDS v6_Active',
                 usecols='C,I')
-            ),
+        ),
         TableSettings(
             table_name="plant_region_map_epaipm_retired",
             file="needs_v6_november_2018_reference_case_0.xlsx",
             excel_settings=dict(
                 sheet_name='NEEDS v6_Retired_Through2021',
                 usecols='C,I')
-            ),
-        )
+        ),
+    )
 
     def __init__(self, datastore: Datastore):
+        """Creates new instance of EpaIpmDatastore wrapper."""
         self.datastore = datastore
 
     def get_table_settings(self, table_name: str) -> TableSettings:
@@ -78,7 +82,6 @@ class EpaIpmDatastore:
 
     def get_dataframe(self, table_name: str) -> pd.DataFrame:
         """
-
         Retrieve the specified file from the epaipm archive.
 
         Args:
@@ -87,13 +90,12 @@ class EpaIpmDatastore:
         Returns:
              Pandas dataframe of EPA IPM data.
         """
-
         table_settings = self.get_table_settings(table_name)
         f = io.BytesIO(self.datastore.get_unique_resource(
             "epaipm",
             name=table_settings.file))
 
-        path = Path(resource_name)
+        path = Path(table_settings.file)
         if path.suffix == ".xlsx":
             return pd.read_excel(f, table_settings.excel_settings)
 
@@ -117,7 +119,6 @@ def extract(epaipm_tables: List[str], ds: Datastore) -> Dict[str, pd.DataFrame]:
     """
     # Prep for ingesting EPA IPM
     logger.info('Beginning ETL for EPA IPM.')
-    epaipm_dfs = {}
     ds = EpaIpmDatastore(ds)
 
     if "plant_region_map_epaipm" in epaipm_tables:

@@ -358,7 +358,8 @@ class ParseKeyValues(argparse.Action):
 
 def parse_command_line():
     """Collect the command line arguments."""
-    prod_dois = "\n".join([f"    - {x}" for x in ZenodoFetcher.DOI["production"].keys()])
+    prod_dois = "\n".join(
+        [f"    - {x}" for x in ZenodoFetcher.DOI["production"].keys()])
     sand_dois = "\n".join([f"    - {x}" for x in ZenodoFetcher.DOI["sandbox"].keys()])
 
     dataset_msg = f"""

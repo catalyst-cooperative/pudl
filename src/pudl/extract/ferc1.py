@@ -51,9 +51,10 @@ and EIA 923.
 """
 import csv
 import importlib
+import io
 import logging
-import zipfile
 from pathlib import Path
+from typing import Dict
 
 import dbfread
 import pandas as pd
@@ -144,11 +145,14 @@ def observed_respondents(ferc1_engine):
 
 
 class Ferc1Datastore:
+    """Simple datastore wrapper for accessing ferc1 resources."""
+
     PACKAGE_PATH = "pudl.package_data.meta.ferc1_row_maps"
-    
+
     def __init__(self, datastore: Datastore):
+        """Instantiate datastore wrapper for ferc1 resources."""
         self.datastore = datastore
-        self._cache = {}  # type: Dict[int, file]
+        self._cache = {}  # type: Dict[int, io.BytesIO]
         self.dbc_path = {}  # type: Dict[int, Path]
 
         with importlib.resources.open_text(self.PACKAGE_PATH, "file_map.csv") as f:
@@ -158,11 +162,13 @@ class Ferc1Datastore:
                 self.dbc_path[year] = path
 
     def get_dir(self, year: int) -> Path:
+        """Returns the path where individual ferc1 files are stored inside the yearly archive."""
         if year not in self.dbc_path:
             raise ValueError(f"No ferc1 data for year {year}")
         return self.dbc_path[year]
 
     def get_file(self, year: int, filename: str):
+        """Opens given ferc1 file from the corresponding archive."""
         if year not in self._cache:
             self._cache[year] = self.datastore.get_zipfile_resource("ferc1", year=year)
         archive = self._cache[year]
