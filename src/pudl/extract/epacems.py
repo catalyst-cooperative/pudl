@@ -3,22 +3,22 @@ Retrieve data from EPA CEMS hourly zipped CSVs.
 
 This modules pulls data from EPA's published CSV files.
 """
-import io
 import logging
-from zipfile import ZipFile
 from pathlib import Path
+from typing import NamedTuple
+from zipfile import ZipFile
 
 import pandas as pd
 
 from pudl import constants as pc
 from pudl.workspace.datastore import Datastore
-from typing import NamedTuple
 
 logger = logging.getLogger(__name__)
 
 
 class EpaCemsPartition(NamedTuple):
     """Represents EpaCems partition identifying unique resource file."""
+
     year: str
     state: str
 
@@ -31,37 +31,36 @@ class EpaCemsPartition(NamedTuple):
         return dict(year=self.year, state=self.state.lower())
 
     def get_monthly_file(self, month: int) -> Path:
+        """Returns the filename (without suffix) that contains the monthly data."""
         return Path(f"{self.year}{self.state.lower()}{month:02}")
 
 
 class EpaCemsDatastore:
     """Helper class to extract EpaCems resources from datastore.
 
-    EpaCems resources are identified by a year and a state. Each of these zip files 
+    EpaCems resources are identified by a year and a state. Each of these zip files
     contain monthly zip files that in turn contain csv files. This class implements
-    method open_csv that reads the monthly csv and returrns it as a pandas.DataFrame.
-
-    Because multiple months of data are usually read in sequence, this class also 
-    implements caching of the open archives. These persist available during the lifetime
-    of this instance.
+    get_data_frame method that will concatenate tables for a given state and month
+    across all months.
     """
+
     def __init__(self, datastore: Datastore):
+        """Constructs a simple datastore wrapper for loading EpaCems dataframes from datastore."""
         self.datastore = datastore
-        self._open_archives = {}  # type: Dict[Tuple(str, str), zipfile.ZipFile]
 
-    def open_csv(self, partition: EpaCemsPartition, month: int) -> pd.DataFrame:
-        archive_key = partition.get_key()
-        if archive_key not in self._open_archives:
-            self._open_archives[archive_key] = self.datastore.get_zipfile_resource(
-                "epacems", **partition.get_filters())
-        archive = self._open_archives[archive_key]
-        # Access the csv file within the embedded zip file
-        mf = partition.get_monthly_file(month)
-        with archive.open(str(mf.with_suffix(".zip")), "r") as mzip:
-            with ZipFile(mzip, "r").open(str(mf.with_suffix(".csv")), "r") as csv_file:
-                return self.csv_to_dataframe(csv_file)
+    def get_data_frame(self, partition: EpaCemsPartition) -> pd.DataFrame:
+        """Constructs dataframe holding data for a given (year, state) partition."""
+        archive = self.datastore.get_zipfile_resource(
+            "epacems", **partition.get_filters())
+        dfs = []
+        for month in range(1, 13):
+            mf = partition.get_monthly_file(month)
+            with archive.open(str(mf.with_suffix(".zip")), "r") as mzip:
+                with ZipFile(mzip, "r").open(str(mf.with_suffix(".csv")), "r") as csv_file:
+                    dfs.append(self._csv_to_dataframe(csv_file))
+        return pd.concat(dfs, sort=True, copy=False, ignore_index=True)
 
-    def csv_to_dataframe(self, csv_file) -> pd.DataFrame:        
+    def _csv_to_dataframe(self, csv_file) -> pd.DataFrame:
         """
         Convert a CEMS csv file into a :class:`pandas.DataFrame`.
 
@@ -85,7 +84,7 @@ class EpaCemsDatastore:
         ).rename(columns=pc.epacems_rename_dict)
 
 
-def extract(epacems_years, states, ds: EpaCemsDatastore):
+def extract(epacems_years, states, ds: Datastore):
     """
     Coordinate the extraction of EPA CEMS hourly DataFrames.
 
@@ -94,8 +93,7 @@ def extract(epacems_years, states, ds: EpaCemsDatastore):
             integers.
         states (list): The states whose CEMS data we want to extract, indicated
             by 2-letter US state codes.
-        ds (:class:`EpaCemsDatastore`): Initialized datastore
-        testing (boolean): use Zenodo sandbox if True
+        ds (:class:`Datastore`): Initialized datastore
 
     Yields:
         dict: a dictionary with a single EPA CEMS tabular data resource name as
@@ -104,21 +102,17 @@ def extract(epacems_years, states, ds: EpaCemsDatastore):
         US state. The value is a :class:`pandas.DataFrame` containing all the
         raw EPA CEMS hourly emissions data for the indicated state and year.
     """
+    ds = EpaCemsDatastore(ds)
     for year in epacems_years:
         # The keys of the us_states dictionary are the state abbrevs
         for state in states:
             partition = EpaCemsPartition(state=state, year=year)
-            dfs = []
             logger.info(f"Performing ETL for EPA CEMS hourly {state}-{year}")
-
-            for month in range(1, 13):
-                dfs.append(ds.open_csv(partition, month=month))
-
             # Return a dictionary where the key identifies this dataset
             # (just like the other extract functions), but unlike the
             # others, this is yielded as a generator (and it's a one-item
             # dictionary).
             yield {
                 ("hourly_emissions_epacems_" + str(year) + "_" + state.lower()):
-                    pd.concat(dfs, sort=True, copy=False, ignore_index=True)
+                    ds.get_data_frame(partition)
             }

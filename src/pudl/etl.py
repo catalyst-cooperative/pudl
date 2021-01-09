@@ -328,7 +328,7 @@ def _load_static_tables_ferc1(datapkg_dir):
     return list(static_dfs.keys())
 
 
-def _etl_ferc1(etl_params, datapkg_dir, pudl_settings, unused_ds_kwargs):
+def _etl_ferc1(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     """Extract, transform and load CSVs for FERC Form 1.
 
     Args:
@@ -434,9 +434,8 @@ def _etl_epacems(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
         logger.info('Not ingesting EPA CEMS.')
 
     # NOTE: This a generator for raw dataframes
-    ds = pudl.extract.epacems.EpaCemsDatastore(Datastore(**ds_kwargs))
     epacems_raw_dfs = pudl.extract.epacems.extract(
-        epacems_years, epacems_states, ds)
+        epacems_years, epacems_states, Datastore(**ds_kwargs))
 
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform(
@@ -577,7 +576,7 @@ def _validate_params_glue(etl_params):
         return(glue_dict)
 
 
-def _etl_glue(etl_params, datapkg_dir, pudl_settings, unused_ds_kwargs):
+def _etl_glue(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     """Extract, transform and load CSVs for the Glue tables.
 
     Currently this only generates glue connecting FERC Form 1 and EIA
@@ -869,8 +868,8 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
         datapkg_bundle_settings, pudl_settings)
 
     ds_kwargs = dict(
-            gcs_cache_path=gcs_cache_path,
-            sandbox=pudl_settings.get("sandbox", False))
+        gcs_cache_path=gcs_cache_path,
+        sandbox=pudl_settings.get("sandbox", False))
     if use_local_cache:
         ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
 
@@ -894,7 +893,7 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
         # run the ETL functions for this pkg and return the list of tables
         # output to CSVs:
         datapkg_resources = etl(datapkg_settings, output_dir, pudl_settings,
-                ds_kwargs)
+                                ds_kwargs)
 
         if datapkg_resources:
             descriptor = pudl.load.metadata.generate_metadata(
