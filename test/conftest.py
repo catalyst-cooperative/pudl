@@ -340,9 +340,3 @@ def pudl_datastore_fixture(pudl_settings_fixture):
         pathlib.Path(
             pudl_settings_fixture["pudl_in"]),
         sandbox=pudl_settings_fixture["sandbox"])
-
-
-@pytest.fixture(scope='session')  # noqa: C901
-def pudl_epacemsdatastore_fixture(pudl_datstore_fixture):
-    """Produce a :class:pudl.extract.epacems.EpaCemsDatastore."""
-    return pudl.extract.epacems.EpaCemsDatastore(pudl_datastore_fixture)

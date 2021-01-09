@@ -11,6 +11,7 @@ will need to tell PUDL where to find them with --pudl_in=<PUDL_IN>.
 """
 import logging
 import pathlib
+from pathlib import Path
 
 import pytest
 import yaml
@@ -18,7 +19,6 @@ import yaml
 import pudl
 from pudl.convert.epacems_to_parquet import epacems_to_parquet
 from pudl.extract.ferc1 import get_dbc_map, get_fields
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -257,14 +257,3 @@ class TestExcelExtractor:
             raise AssertionError(
                 f"page {page} not found in datastore for {year}"
             )
-
-
-class TestEpaCemsDatastore:
-    """Ensure we can extract csv files from the datastore."""
-
-    def test_get_csv(self, pudl_epacemsdatastore_fixture):
-        """Spot check opening of epacems csv file from datastore."""
-        head = b'"STATE","F'
-
-        csv = pudl_epacemsdatastore_fixture.open_csv("ny", 1999, 6)
-        assert csv.read()[:10] == head
