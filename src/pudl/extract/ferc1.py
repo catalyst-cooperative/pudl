@@ -155,9 +155,9 @@ class Ferc1Datastore:
             for row in csv.DictReader(f):
                 year = int(row["year"])
                 path = Path(row["path"])
-                self.dbc_path[year] = path 
+                self.dbc_path[year] = path
 
-    def get_dir(self, year: int):
+    def get_dir(self, year: int) -> Path:
         if year not in self.dbc_path:
             raise ValueError(f"No ferc1 data for year {year}")
         return self.dbc_path[year]
@@ -167,7 +167,7 @@ class Ferc1Datastore:
             self._cache[year] = self.datastore.get_zipfile_resource("ferc1", year=year)
         archive = self._cache[year]
         try:
-            return archive.open(f"{self.get_dir(year)}/{filename}")
+            return archive.open((self.get_dir(year) / filename).as_posix())
         except KeyError:
             raise KeyError(f"{filename} not availabe for year {year} in ferc1.")
 

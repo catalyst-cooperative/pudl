@@ -18,6 +18,7 @@ import yaml
 import pudl
 from pudl.convert.epacems_to_parquet import epacems_to_parquet
 from pudl.extract.ferc1 import get_dbc_map, get_fields
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -134,12 +135,12 @@ class TestFerc1Datastore:
     def test_ferc_folder(self, pudl_ferc1datastore_fixture):
         """Spot check we get correct folder names per dataset year."""
         ds = pudl_ferc1datastore_fixture
+        assert ds.get_dir(1994) == Path("FORMSADMIN/FORM1/working")
 
-        assert ds.get_dir(1994) == "FORMSADMIN/FORM1/working"
-        assert ds.get_dir(2001) == "UPLOADERS/FORM1/working"
-        assert ds.get_dir(2002) == "FORMSADMIN/FORM1/working"
-        assert ds.get_dir(2010) == "UPLOADERS/FORM1/working"
-        assert ds.get_dir(2015) == "UPLOADERS/FORM1/working"
+        assert ds.get_dir(2001) == Path("UPLOADERS/FORM1/working")
+        assert ds.get_dir(2002) == Path("FORMSADMIN/FORM1/working")
+        assert ds.get_dir(2010) == Path("UPLOADERS/FORM1/working")
+        assert ds.get_dir(2015) == Path("UPLOADERS/FORM1/working")
 
     def test_get_fields(self, pudl_ferc1datastore_fixture):
         """Check that the get fields table works as expected."""

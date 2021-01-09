@@ -347,6 +347,8 @@ class ParseKeyValues(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         """Parses the argument value into dict."""
         d = getattr(namespace, self.dest, {})
+        if isinstance(values, str):
+            values = [values]
         for val in values:
             for kv in val.split(','):
                 k, v = kv.split('=')
@@ -356,8 +358,8 @@ class ParseKeyValues(argparse.Action):
 
 def parse_command_line():
     """Collect the command line arguments."""
-    prod_dois = "\n".join([f"    - {x}" for x in DOI["production"].keys()])
-    sand_dois = "\n".join([f"    - {x}" for x in DOI["sandbox"].keys()])
+    prod_dois = "\n".join([f"    - {x}" for x in ZenodoFetcher.DOI["production"].keys()])
+    sand_dois = "\n".join([f"    - {x}" for x in ZenodoFetcher.DOI["sandbox"].keys()])
 
     dataset_msg = f"""
 Available Production Datasets:
