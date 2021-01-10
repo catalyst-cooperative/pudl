@@ -40,26 +40,15 @@ The changes are applied locally to EIA 861 tables.
 
 UTILITIES: List[Dict[str, Any]] = [
     # (no code): Pacific Gas & Electric Co
-    # Remove from balancing_authority_eia861
-    # Reassign utilities assigned as BA in 2002 to parent BA 2775 (CISO)
     {'id': 14328, 'reassign': True},
-    # NOTE: 2001 utility not associated with BA
     # (no code): San Diego Gas & Electric Co
-    # Remove from balancing_authority_eia861
-    # Reassign utilities assigned as BA in 2001-2010 (5969) to parent BA 2775 (CISO)
     {'id': 16609, 'reassign': True},
-    # NOTE: 2001 utility only associated with itself as BA, not 2775 (CISO)
     # (no code): Dayton Power & Light Co
-    # Remove from balancing_authority_eia861
-    # Reassign utilities assigned as BA in 2001-2010 to parent BA 14725 (PJM)
     {'id': 4922, 'reassign': True},
-    # NOTE: 2005-2010 Double reporting by 4922 and parent 14725 as BA
     # (no code): Consumers Energy Company
-    # Remove from balancing_authority_eia861
+    # NOTE: 2003-2006 parent to 40211, which is never child to parent BA (12427),
+    # (and 40211 never reports in service_territory_eia861) so don't reassign.
     {'id': 4254},
-    # NOTE: 2001-2010 parent BA is 12427. 2011-2019 parent BA is 56669
-    # NOTE: 2003-2006 as BA associated with 40211 (IN), which never reports in
-    # service_territory_eia861.
 ]
 """
 Balancing authorities to treat as utilities in associations from EIA 861.
