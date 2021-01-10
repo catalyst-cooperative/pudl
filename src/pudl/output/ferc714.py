@@ -38,16 +38,49 @@ The changes are applied locally to EIA 861 tables.
   Rows are excluded from `balancing_authority_assn_eia861` with target year and state.
 """
 
-UTILITIES: List[int] = [
-    # San Diego Gas & Electric Company (2011-2019)
-    # Dayton Power & Light (2011-2019)
-    # Consumers Energy Company
+UTILITIES: List[Dict[str, Any]] = [
+    # (no code): Pacific Gas & Electric Co
+    # Remove from balancing_authority_eia861
+    # Reassign utilities assigned as BA in 2002 to parent BA 2775 (CISO)
+    {'id': 14328, 'reassign': True},
+    # NOTE: 2001 utility not associated with BA
+    # (no code): San Diego Gas & Electric Co
+    # Remove from balancing_authority_eia861
+    # Reassign utilities assigned as BA in 2001-2010 (5969) to parent BA 2775 (CISO)
+    {'id': 16609, 'reassign': True},
+    # NOTE: 2001 utility only associated with itself as BA, not 2775 (CISO)
+    # (no code): Dayton Power & Light Co
+    # Remove from balancing_authority_eia861
+    # Reassign utilities assigned as BA in 2001-2010 to parent BA 14725 (PJM)
+    {'id': 4922, 'reassign': True},
+    # NOTE: 2005-2010 Double reporting by 4922 and parent 14725 as BA
+    # (no code): Consumers Energy Company
+    # Remove from balancing_authority_eia861
+    {'id': 4254},
+    # NOTE: 2001-2010 parent BA is 12427. 2011-2019 parent BA is 56669
+    # NOTE: 2003-2006 as BA associated with 40211 (IN), which never reports in
+    # service_territory_eia861.
 ]
+"""
+Balancing authorities to treat as utilities in associations from EIA 861.
 
+The changes are applied locally to EIA 861 tables.
+
+* `id` (int): EIA balancing authority (BA) identifier (`balancing_authority_id_eia`).
+  Rows for `id` are removed from `balancing_authority_eia861`.
+* `reassign` (Optional[bool]): Whether to reassign utilities to parent BAs.
+  Rows for `id` as BA in `balancing_authority_assn_eia861` are removed.
+  Utilities assigned to `id` for a given year are reassigned
+  to the BAs for which `id` is an associated utility.
+* `replace` (Optional[bool]): Whether to remove rows where `id` is a utility in
+  `balancing_authority_assn_eia861`. Applies only if `reassign=True`.
+"""
 
 ################################################################################
 # Helper functions
 ################################################################################
+
+
 def add_dates(rids_ferc714, report_dates):
     """
     Broadcast respondent data across dates.
@@ -179,7 +212,10 @@ class Respondents(object):
                 if key not in dfi.index:
                     rows.append({**ref, 'report_date': key[1]})
         # Append to original table
-        return df.append(pd.DataFrame(rows))
+        df = df.append(pd.DataFrame(rows))
+        # Remove balancing authorities treated as utilities
+        mask = df['balancing_authority_id_eia'].isin([util['id'] for util in UTILITIES])
+        return df[~mask]
 
     @cached_property
     def balancing_authority_assn_eia861(self) -> pd.DataFrame:
@@ -209,7 +245,37 @@ class Respondents(object):
                 tables.append(ref.assign(report_date=key[1]))
                 replaced |= mask
         # Append to original table with matching rows removed
-        return df[~replaced].append(pd.concat(tables))
+        df = df[~replaced].append(pd.concat(tables))
+        # Remove balancing authorities treated as utilities
+        mask = np.zeros(df.shape[0], dtype=bool)
+        tables = []
+        for util in UTILITIES:
+            is_parent = df['balancing_authority_id_eia'].eq(util['id'])
+            mask |= is_parent
+            # Associated utilities are reassigned to parent balancing authorities
+            if 'reassign' in util and util['reassign']:
+                # Ignore when entity is child to itself
+                is_child = ~is_parent & df['utility_id_eia'].eq(util['id'])
+                # Build table associating parents to children of entity
+                table = df[is_child].merge(
+                    df[is_parent & ~df['utility_id_eia'].eq(util['id'])],
+                    left_on=['report_date', 'utility_id_eia'],
+                    right_on=['report_date', 'balancing_authority_id_eia']
+                ).drop(
+                    columns=[
+                        'utility_id_eia_x', 'state_x', 'balancing_authority_id_eia_y'
+                    ]
+                ).rename(
+                    columns={
+                        'balancing_authority_id_eia_x': 'balancing_authority_id_eia',
+                        'utility_id_eia_y': 'utility_id_eia',
+                        'state_y': 'state'
+                    }
+                )
+                tables.append(table)
+                if 'replace' in util and util['replace']:
+                    mask |= is_child
+        return df[~mask].append(pd.concat(tables)).drop_duplicates()
 
     @cached_property
     def service_territory_eia861(self) -> pd.DataFrame:
