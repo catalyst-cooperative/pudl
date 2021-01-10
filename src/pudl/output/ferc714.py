@@ -7,7 +7,7 @@ import pandas as pd
 
 import pudl
 
-FIXES: List[Dict[str, Any]] = [
+ASSOCIATIONS: List[Dict[str, Any]] = [
     # MISO: Midwest Indep System Operator
     {'id': 56669, 'from': 2011, 'to': [2009, 2010]},
     # SWPP: Southwest Power Pool
@@ -25,10 +25,17 @@ Adjustments to balancing authority-utility associations from EIA 861.
 
 The changes are applied locally to EIA 861 tables.
 
-* `id` [int]: EIA balancing authority identifier (`balancing_authority_id_eia`).
-* `from` [int]: Reference year.
-* `to` List[int]: Target years, in the closed interval format [minimum, maximum].
-* `exclude` Optional[List[str]]: States to exclude, by their abbreviation.
+* `id` (int): EIA balancing authority identifier (`balancing_authority_id_eia`).
+* `from` (int): Reference year, to use as a template for target years.
+* `to` (List[int]): Target years, in the closed interval format [minimum, maximum].
+  Rows in `balancing_authority_eia861` are added (if missing) for every target year
+  with the attributes from the reference year.
+  Rows in `balancing_authority_assn_eia861` are added (or replaced, if existing)
+  for every target year with the utility associations from the reference year.
+  Rows in `service_territory_eia861` are added (if missing) for every target year
+  with the nearest year's associated utilities' counties.
+* `exclude` (Optional[List[str]]): Utilities to exclude, by state (two-letter code).
+  Rows are excluded from `balancing_authority_assn_eia861` with target year and state.
 """
 
 UTILITIES: List[int] = [
@@ -160,13 +167,13 @@ class Respondents(object):
         index = ['balancing_authority_id_eia', 'report_date']
         dfi = df.set_index(index)
         # Prepare reference rows
-        keys = [(fix['id'], pd.Timestamp(fix['from'], 1, 1)) for fix in FIXES]
+        keys = [(fix['id'], pd.Timestamp(fix['from'], 1, 1)) for fix in ASSOCIATIONS]
         refs = dfi.loc[keys].reset_index().to_dict('records')
         # Build table of new rows
         # Insert row for each target balancing authority-year pair
         # missing from the original table, using the reference year as a template.
         rows = []
-        for ref, fix in zip(refs, FIXES):
+        for ref, fix in zip(refs, ASSOCIATIONS):
             for year in range(fix['to'][0], fix['to'][1] + 1):
                 key = (fix['id'], pd.Timestamp(year, 1, 1))
                 if key not in dfi.index:
@@ -180,7 +187,7 @@ class Respondents(object):
         df = self.pudl_out.balancing_authority_assn_eia861()
         # Prepare reference rows
         refs = []
-        for fix in FIXES:
+        for fix in ASSOCIATIONS:
             mask = df['balancing_authority_id_eia'].eq(fix['id']).to_numpy(bool)
             mask[mask] = df['report_date'][mask].eq(pd.Timestamp(fix['from'], 1, 1))
             ref = df[mask]
@@ -194,7 +201,7 @@ class Respondents(object):
         # using the reference year as a template.
         replaced = np.zeros(df.shape[0], dtype=bool)
         tables = []
-        for ref, fix in zip(refs, FIXES):
+        for ref, fix in zip(refs, ASSOCIATIONS):
             for year in range(fix['to'][0], fix['to'][1] + 1):
                 key = fix['id'], pd.Timestamp(year, 1, 1)
                 mask = df['balancing_authority_id_eia'].eq(key[0]).to_numpy(bool)
@@ -211,7 +218,7 @@ class Respondents(object):
         # Select relevant balancing authority-utility associations
         assn = self.balancing_authority_assn_eia861
         selected = np.zeros(assn.shape[0], dtype=bool)
-        for fix in FIXES:
+        for fix in ASSOCIATIONS:
             years = [fix['from'], *range(fix['to'][0], fix['to'][1] + 1)]
             dates = [pd.Timestamp(year, 1, 1) for year in years]
             mask = assn['balancing_authority_id_eia'].eq(fix['id']).to_numpy(bool)
