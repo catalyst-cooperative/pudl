@@ -1290,19 +1290,20 @@ entities = {
          'city', 'county', 'ferc_cogen_status',
          'ferc_exempt_wholesale_generator', 'ferc_small_power_producer',
          'grid_voltage_2_kv', 'grid_voltage_3_kv', 'grid_voltage_kv',
-         'iso_rto_code', 'latitude', 'longitude',
-         'nerc_region', 'plant_name_eia', 'primary_purpose_naics_id',
+         'iso_rto_code', 'latitude', 'longitude', 'service_area',
+         'plant_name_eia', 'primary_purpose_naics_id',
          'sector_id', 'sector_name', 'state', 'street_address', 'zip_code'],
         # annual cols
         ['ash_impoundment', 'ash_impoundment_lined', 'ash_impoundment_status',
-         'energy_storage', 'ferc_cogen_docket_no', 'water_source',
+         'datum', 'energy_storage', 'ferc_cogen_docket_no', 'water_source',
          'ferc_exempt_wholesale_generator_docket_no',
          'ferc_small_power_producer_docket_no',
          'liquefied_natural_gas_storage',
          'natural_gas_local_distribution_company', 'natural_gas_storage',
          'natural_gas_pipeline_name_1', 'natural_gas_pipeline_name_2',
-         'natural_gas_pipeline_name_3', 'net_metering', 'pipeline_notes',
-         'regulatory_status_code', 'transmission_distribution_owner_id',
+         'natural_gas_pipeline_name_3', 'nerc_region', 'net_metering',
+         'pipeline_notes', 'regulatory_status_code',
+         'transmission_distribution_owner_id',
          'transmission_distribution_owner_name',
          'transmission_distribution_owner_state', 'utility_id_eia'],
         # need type fixing
@@ -1321,12 +1322,17 @@ entities = {
          'associated_combined_heat_power', 'original_planned_operating_date',
          'operating_switch', 'previously_canceled'],
         # annual cols
-        ['data_source', 'capacity_mw', 'fuel_type_code_pudl', 'multiple_fuels',
-         'ownership_code', 'deliver_power_transgrid', 'summer_capacity_mw',
-         'winter_capacity_mw', 'minimum_load_mw', 'technology_description',
+        ['capacity_mw', 'fuel_type_code_pudl', 'multiple_fuels',
+         'ownership_code', 'owned_by_non_utility', 'deliver_power_transgrid',
+         'summer_capacity_mw', 'winter_capacity_mw', 'summer_capacity_estimate',
+         'winter_capacity_estimate', 'minimum_load_mw', 'distributed_generation',
+         'technology_description', 'reactive_power_output_mvar',
          'energy_source_code_1', 'energy_source_code_2',
          'energy_source_code_3', 'energy_source_code_4',
          'energy_source_code_5', 'energy_source_code_6',
+         'energy_source_1_transport_1', 'energy_source_1_transport_2',
+         'energy_source_1_transport_3', 'energy_source_2_transport_1',
+         'energy_source_2_transport_2', 'energy_source_2_transport_3',
          'startup_source_code_1', 'startup_source_code_2',
          'startup_source_code_3', 'startup_source_code_4',
          'time_cold_shutdown_full_load_code', 'syncronized_transmission_grid',
@@ -1343,7 +1349,7 @@ entities = {
          'uprate_derate_during_year', 'uprate_derate_completed_date',
          'current_planned_operating_date', 'summer_estimated_capability_mw',
          'winter_estimated_capability_mw', 'retirement_date',
-         'utility_id_eia'],
+         'utility_id_eia', 'data_source'],
         # need type fixing
         {}
     ],
@@ -1358,9 +1364,11 @@ entities = {
         ['street_address', 'city', 'state', 'zip_code', 'entity_type',
          'plants_reported_owner', 'plants_reported_operator',
          'plants_reported_asset_manager', 'plants_reported_other_relationship',
-         'attention_line', 'address_2', 'zip_code_4',
+         'attention_line', 'address_2', 'address_3', 'zip_code_4',
          'contact_firstname', 'contact_lastname', 'contact_title',
-         'contact_firstname_2', 'contact_lastname_2', 'contact_title_2'],
+         'contact_firstname_2', 'contact_lastname_2', 'contact_title_2',
+         'phone_extension_1', 'phone_extension_2', 'phone_number_1',
+         'phone_number_2'],
         # need type fixing
         {'utility_id_eia': 'int64', }, ],
     'boilers': [
@@ -1635,7 +1643,7 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 # The full set of years we currently expect to be able to ingest, per source:
 working_partitions = {
     'eia860': {
-        'years': tuple(range(2008, 2020))
+        'years': tuple(range(2004, 2020))
     },
     'eia860m': {
         'year_month': '2020-08'
@@ -2097,6 +2105,15 @@ RTO_CLASSES = [
 
 ESTIMATED_OR_ACTUAL = {'E': 'Estimated', 'A': 'Actual'}
 
+TRANSIT_TYPE_DICT = {
+    'CV': 'conveyer',
+    'PL': 'pipeline',
+    'RR': 'railroad',
+    'TK': 'truck',
+    'WA': 'water',
+    'UN': 'unknown',
+}
+
 """dict: A dictionary of datasets (keys) and keywords (values). """
 
 column_dtypes = {
@@ -2150,6 +2167,7 @@ column_dtypes = {
     "eia": {
         'actual_peak_demand_savings_mw': float,  # Added by AES for DR table
         'address_2': pd.StringDtype(),  # Added by AES for 860 utilities table
+        'address_3': pd.StringDtype(),
         'advanced_metering_infrastructure': pd.Int64Dtype(),  # Added by AES for AMI table
         # Added by AES for UD misc table
         'alternative_fuel_vehicle_2_activity': pd.BooleanDtype(),
@@ -2209,9 +2227,11 @@ column_dtypes = {
         'customer_other_costs_incremental_life_cycle_cost': float,
         'daily_digital_access_customers': pd.Int64Dtype(),
         'data_observed': pd.BooleanDtype(),
+        'datum': pd.StringDtype(),
         'deliver_power_transgrid': pd.BooleanDtype(),
         'delivery_customers': float,
         'direct_load_control_customers': pd.Int64Dtype(),
+        'distributed_generation': pd.BooleanDtype(),
         'distributed_generation_owned_capacity_mw': float,
         'distribution_activity': pd.BooleanDtype(),
         'distribution_circuits': pd.Int64Dtype(),
@@ -2227,6 +2247,12 @@ column_dtypes = {
         'energy_savings_independently_verified': pd.BooleanDtype(),
         'energy_savings_mwh': float,
         'energy_served_ami_mwh': float,
+        'energy_source_1_transport_1': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
+        'energy_source_1_transport_2': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
+        'energy_source_1_transport_3': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
+        'energy_source_2_transport_1': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
+        'energy_source_2_transport_2': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
+        'energy_source_2_transport_3': pd.CategoricalDtype(categories=TRANSIT_TYPE_DICT.values()),
         'energy_source_code': pd.StringDtype(),
         'energy_source_code_1': pd.StringDtype(),
         'energy_source_code_2': pd.StringDtype(),
@@ -2343,6 +2369,7 @@ column_dtypes = {
         'other_modifications_date': 'datetime64[ns]',
         'other_planned_modifications': pd.BooleanDtype(),
         'outages_recorded_automatically': pd.BooleanDtype(),
+        'owned_by_non_utility': pd.BooleanDtype(),
         'owner_city': pd.StringDtype(),
         'owner_name': pd.StringDtype(),
         'owner_state': pd.StringDtype(),
@@ -2351,6 +2378,10 @@ column_dtypes = {
         'owner_zip_code': pd.StringDtype(),
         # we should transition these into readable codes, not a one letter thing
         'ownership_code': pd.StringDtype(),
+        'phone_extension_1': pd.StringDtype(),
+        'phone_extension_2': pd.StringDtype(),
+        'phone_number_1': pd.StringDtype(),
+        'phone_number_2': pd.StringDtype(),
         'pipeline_notes': pd.StringDtype(),
         'planned_derate_date': 'datetime64[ns]',
         'planned_energy_source_code_1': pd.StringDtype(),
@@ -2382,6 +2413,7 @@ column_dtypes = {
         'primary_purpose_naics_id': pd.Int64Dtype(),
         'prime_mover_code': pd.StringDtype(),
         'pv_current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
+        'reactive_power_output_mvar': float,
         'real_time_pricing_program': pd.BooleanDtype(),
         'rec_revenue': float,
         'rec_sales_mwh': float,
@@ -2410,6 +2442,7 @@ column_dtypes = {
         'secondary_transportation_mode_code': pd.StringDtype(),
         'sector_id': pd.Int64Dtype(),
         'sector_name': pd.StringDtype(),
+        'service_area': pd.StringDtype(),
         'service_type': pd.CategoricalDtype(categories=[
             "bundled", "energy", "delivery",
         ]),
@@ -2431,6 +2464,7 @@ column_dtypes = {
         'subcritical_tech': pd.BooleanDtype(),
         'sulfur_content_pct': float,
         'summer_capacity_mw': float,
+        'summer_capacity_estimate': pd.BooleanDtype(),
         # TODO: check if there is any data pre-2016
         'summer_estimated_capability_mw': float,
         'summer_peak_demand_mw': float,
@@ -2482,6 +2516,7 @@ column_dtypes = {
         'wholesale_marketing_activity': pd.BooleanDtype(),
         'wholesale_power_purchases_mwh': float,
         'winter_capacity_mw': float,
+        'winter_capacity_estimate': pd.BooleanDtype(),
         'winter_estimated_capability_mw': float,
         'winter_peak_demand_mw': float,
         # 'with_med': float,

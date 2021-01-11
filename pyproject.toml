@@ -3,3 +3,6 @@ requires = ["setuptools", "wheel", "setuptools_scm"]
 
 [tool.autopep8]
 max-line-length = 88
+
+[tool.pytest.ini_options]
+doctest_optionflags = ["NORMALIZE_WHITESPACE"]

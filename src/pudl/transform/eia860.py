@@ -29,10 +29,12 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
         DataFrames of values from that page (values)
 
     """
+    # Preiminary clean and get rid of unecessary 'year' column
     o_df = (
         eia860_dfs['ownership'].copy()
         .pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.convert_to_date)
+        .drop(columns=['year'])
     )
 
     # The fix we're making here is only known to be valid for 2011 -- if we
@@ -187,7 +189,14 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         'planned_modifications',
         'other_planned_modifications',
         'uprate_derate_during_year',
-        'previously_canceled'
+        'previously_canceled',
+        'owned_by_non_utility',
+        'summer_capacity_estimate',
+        'winter_capacity_estimate',
+        'distributed_generation',
+        'ferc_cogen_status',
+        'ferc_small_power_producer',
+        'ferc_exempt_wholesale_generator'
     ]
 
     for column in boolean_columns_to_fix:
@@ -197,6 +206,25 @@ def generators(eia860_dfs, eia860_transformed_dfs):
             .replace(
                 to_replace=["Y", "N", "NaN"],
                 value=[True, False, pd.NA])
+        )
+
+    # A subset of the pre-2009 columns refer to transportation methods with a
+    # series of codes. This writes them out in their entirety.
+
+    transport_columns_to_fix = [
+        'energy_source_1_transport_1',
+        'energy_source_1_transport_2',
+        'energy_source_1_transport_3',
+        'energy_source_2_transport_1',
+        'energy_source_2_transport_2',
+        'energy_source_2_transport_3',
+    ]
+
+    for column in transport_columns_to_fix:
+        gens_df[column] = (
+            gens_df[column]
+            .astype('string')
+            .replace(pc.TRANSIT_TYPE_DICT)
         )
 
     gens_df = (
@@ -378,6 +406,32 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
         'QB': 'QC',  # wrong abbreviation for Quebec
         'Y': 'NY',  # Typo
     })
+
+    # Combine phone number columns into one
+    def _make_phone_number(col1, col2, col3):
+        """Make and validate full phone number seperated by dashes."""
+        p_num = (
+            col1.astype('string')
+            + '-' + col2.astype('string')
+            + '-' + col3.astype('string')
+        )
+        # Turn anything that doesn't match a US phone number format to NA
+        # using noqa to get past flake8 test that give a false positive thinking
+        # that the regex string is supposed to be an f-string and is missing
+        # the it's designated prefix.
+        return p_num.replace(regex=r'^(?!.*\d{3}-\d{3}-\d{4}).*$', value=pd.NA)  # noqa: FS003
+
+    u_df = (
+        u_df.assign(
+            phone_number_1=_make_phone_number(
+                u_df.phone_number_first_1,
+                u_df.phone_number_mid_1,
+                u_df.phone_number_last_1),
+            phone_number_2=_make_phone_number(
+                u_df.phone_number_first_2,
+                u_df.phone_number_mid_2,
+                u_df.phone_number_last_2))
+    )
 
     boolean_columns_to_fix = [
         'plants_reported_owner',
