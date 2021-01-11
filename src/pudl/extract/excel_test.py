@@ -6,7 +6,6 @@ from unittest.mock import patch
 import pandas as pd
 
 from pudl.extract import excel as excel
-from pudl.workspace import datastore
 
 
 class TestMetadata(unittest.TestCase):
@@ -39,7 +38,7 @@ class FakeExtractor(excel.GenericExtractor):
         """It's a Fake extractor.  Good thing flake demanded this."""
         self.METADATA = excel.Metadata('test')
         self.BLACKLISTED_PAGES = ['shoes']
-        super().__init__(ds=datastore.Datastore(sandbox=True))
+        super().__init__(ds=None)
 
     def load_excel_file(self, page, **partition):
         """Returns fake file contents for given page and partition."""
