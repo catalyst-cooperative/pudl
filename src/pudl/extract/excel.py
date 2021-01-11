@@ -2,8 +2,6 @@
 import csv
 import importlib.resources
 import logging
-import zipfile
-from pathlib import Path
 
 import pandas as pd
 
