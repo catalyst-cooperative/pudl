@@ -5,7 +5,6 @@ import logging
 import numpy as np
 import pandas as pd
 from prefect import task
-from prefect.engine.results import LocalResult
 
 import pudl
 
@@ -193,7 +192,7 @@ def correct_gross_load_mw(df):
     return df
 
 
-@task(result=LocalResult(), target="epacems-transform-{partition.year}-{partition.state}")  # noqa: FS003
+@task
 def transform_fragment(df_kv, plant_utc_offset, partition):
     """Transform EPA CEMS hourly data for use in datapackage export."""
     results = {}

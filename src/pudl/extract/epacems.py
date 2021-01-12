@@ -10,7 +10,6 @@ from zipfile import ZipFile
 
 import pandas as pd
 from prefect import task
-from prefect.engine.results import LocalResult
 
 from pudl import constants as pc
 from pudl.workspace.datastore import Datastore
@@ -95,7 +94,7 @@ class EpaCemsDatastore:
         ).rename(columns=pc.epacems_rename_dict)
 
 
-@task(result=LocalResult(), target="epacems-extract-{partition.year}-{partition.state}")  # noqa: FS003
+@task
 def extract_fragment(partition: EpaCemsPartition):
     """Extracts epacems dataframe for given year and state.
 

@@ -170,7 +170,7 @@ class Ferc1Datastore:
         """Returns directory where the ferc1 database for given year is located."""
         if year not in self.dbc_path:
             raise ValueError(f"No ferc1 data for year {year}")
-        return self.dbc_path[year]
+        return Path(self.dbc_path[year])
 
     def get_file(self, year: int, filename: str) -> io.BytesIO:
         """Opens file from zipfile archive for given year."""

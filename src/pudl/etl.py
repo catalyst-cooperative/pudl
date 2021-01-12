@@ -23,15 +23,13 @@ import logging
 import os
 import tarfile
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
 import prefect
 from prefect import task, unmapped
-from prefect.engine import cache_validators
-from prefect.engine.cache_validators import all_inputs
-from prefect.engine.results import LocalResult
+from prefect.engine.results import GCSResult
 from prefect.executors import DaskExecutor
 from prefect.executors.local import LocalExecutor
 from prefect.tasks.gcp import GCSUpload
@@ -116,6 +114,11 @@ def command_line_flags() -> argparse.ArgumentParser:
         default=False,
         help="""If this is set to true, then the caching layer specified by --cs-cache-path
         will be set to be read-only (no modifications will be attempted).""")
+    parser.add_argument(
+        "--gcs-bucket-for-prefect-cache",
+        type=str,
+        default=None,
+        help="""If specified, use given GCS bucket to cache prefect task results.""")
     return parser
 
 
@@ -282,7 +285,7 @@ class DatasetPipeline:
 ###############################################################################
 
 
-@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
+@task
 def _load_static_tables_eia():
     """Populate static EIA tables with constants for use as foreign keys.
 
@@ -339,9 +342,8 @@ def pudl_task_target_name(**kwargs):
     return output_path
 
 
-@task(result=LocalResult(),
-      target=pudl_task_target_name,
-      cache_for=timedelta(days=1), cache_validator=all_inputs)
+# TODO(rousik): perhaps we should add target=pudl_task_target_name to these tasks
+@task
 def _extract_eia860(params):
     dfs = pudl.extract.eia860.Extractor(
         Datastore.from_prefect_context()).extract(year=params['eia860_years'])
@@ -352,33 +354,22 @@ def _extract_eia860(params):
     return dfs
 
 
-@task(result=LocalResult(),
-      target=pudl_task_target_name,
-      cache_for=timedelta(days=1), cache_validator=all_inputs)
+@task
 def _extract_eia923(params):
     return pudl.extract.eia923.Extractor(Datastore.from_prefect_context()).extract(year=params['eia923_years'])
 
 
-@task(result=LocalResult(),
-      target=pudl_task_target_name,
-      cache_for=timedelta(days=1),
-      cache_validator=cache_validators.partial_inputs_only(['params']))
+@task
 def _transform_eia860(params, dfs):
     return pudl.transform.eia860.transform(dfs, params['eia860_tables'])
 
 
-@task(result=LocalResult(),
-      target=pudl_task_target_name,
-      cache_for=timedelta(days=1),
-      cache_validator=cache_validators.partial_inputs_only(['params']))
+@task
 def _transform_eia923(params, dfs):
     return pudl.transform.eia923.transform(dfs, params['eia923_tables'])
 
 
-@task(result=LocalResult(),
-      target=pudl_task_target_name,
-      cache_for=timedelta(days=1),
-      cache_validator=cache_validators.partial_inputs_only(['params']))
+@task
 def _transform_eia(params, dfs):
 
     # Add normalized EIA-EPA crosswalk tables to the transformed dfs dict.
@@ -498,7 +489,7 @@ class EiaPipeline(DatasetPipeline):
 ###############################################################################
 
 
-@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
+@task
 def _load_static_tables_ferc1():
     """Populate static PUDL tables with constants for use as foreign keys.
 
@@ -532,7 +523,7 @@ def _load_static_tables_ferc1():
     }
 
 
-@task(result=LocalResult(), cache_for=timedelta(days=1), cache_validator=all_inputs)
+@task
 def _extract_ferc1(params, pudl_settings):
     return pudl.extract.ferc1.extract(
         ferc1_tables=params['ferc1_tables'],
@@ -540,13 +531,12 @@ def _extract_ferc1(params, pudl_settings):
         pudl_settings=pudl_settings)
 
 
-@task(result=LocalResult(), cache_for=timedelta(days=1), cache_validator=all_inputs)
+@task
 def _transform_ferc1(params, dfs):
     return pudl.transform.ferc1.transform(
         dfs, ferc1_tables=params['ferc1_tables'])
 
 
-# @task(result=LocalResult(), cache_for=timedelta(days=1), cache_validator=all_inputs)
 @task
 def _extract_table(df_map, table_name):
     if table_name not in df_map:
@@ -680,7 +670,7 @@ class EpaCemsPipeline(DatasetPipeline):
 ##############################################################################
 # EPA IPM ETL FUNCTIONS
 ###############################################################################
-@task(result=LocalResult(), target="{task_name}")  # noqa: FS003
+@task
 def _load_static_tables_epaipm():
     """
     Populate static PUDL tables with constants for use as foreign keys.
@@ -705,12 +695,12 @@ def _load_static_tables_epaipm():
                 pc.epaipm_region_names, columns=['region_id_epaipm'])}
 
 
-@task(result=LocalResult(), cache_for=timedelta(days=1), cache_validator=all_inputs)
+@task
 def _extract_epaipm(params):
     return pudl.extract.epaipm.extract(params['epaipm_tables'], Datastore.from_prefect_context())
 
 
-@task(result=LocalResult(), cache_for=timedelta(days=1), cache_validator=all_inputs)
+@task
 def _transform_epaipm(params, dfs):
     return pudl.transform.epaipm.transform(dfs, params['epaipm_tables'])
 
@@ -749,9 +739,7 @@ class EpaIpmPipeline(DatasetPipeline):
 ###############################################################################
 # GLUE EXPORT FUNCTIONS
 ###############################################################################
-@task(result=LocalResult(),
-      target=pudl_task_target_name,
-      cache_for=timedelta(days=1))
+@task
 def _transform_glue(params):
     # TODO(rousik): replace this thin wrapper with @task annotation on ferc1_eia.glue()
     return pudl.glue.ferc1_eia.glue(ferc1=params['ferc1'], eia=params['eia'])
@@ -1145,12 +1133,14 @@ def generate_datapkg_bundle(etl_settings: dict,
     """
     # TODO(rousik): args.clobber should be moved to prefect.context, also other
     # configuration parameters such as overwrite-ferc1-db.
-    prefect_executor = LocalExecutor()
-    if commandline_args.dask_executor_address or commandline_args.use_dask_executor:
-        prefect_executor = DaskExecutor(address=commandline_args.dask_executor_address)
-
     datapkg_bundle_settings = etl_settings['datapkg_bundle_settings']
-    flow = prefect.Flow("PUDL ETL")
+
+    flow_kwargs = {}
+    if commandline_args.gcs_bucket_for_prefect_cache:
+        flow_kwargs["result"] = GCSResult(
+            bucket=commandline_args.gcs_bucket_for_prefect_cache)
+    flow = prefect.Flow("PUDL ETL", **flow_kwargs)
+
     datapkg_builder = DatapackageBuilder(
         datapkg_bundle_name, pudl_settings, doi=datapkg_bundle_doi,
         gcs_bucket=commandline_args.upload_to_gcs_bucket)
@@ -1192,6 +1182,10 @@ def generate_datapkg_bundle(etl_settings: dict,
     # TODO(rousik): print out the flow structure
     if commandline_args.show_flow_graph:
         flow.visualize()
+
+    prefect_executor = LocalExecutor()
+    if commandline_args.dask_executor_address or commandline_args.use_dask_executor:
+        prefect_executor = DaskExecutor(address=commandline_args.dask_executor_address)
     state = flow.run(executor=prefect_executor)
     if commandline_args.show_flow_graph:
         flow.visualize(flow_state=state)
