@@ -167,9 +167,12 @@ class LayeredCache(AbstractCache):
 
     def get(self, resource: PudlResourceKey) -> bytes:
         """Returns content of a given resource."""
-        for cache in self._caches:
+        for i, cache in enumerate(self._caches):
             if cache.contains(resource):
+                logger.debug(
+                    f"get:{resource} found in {i}-th layer ({cache.__class__.__name__}).")
                 return cache.get(resource)
+        logger.debug(f"get:{resource} not found in the layered cache.")
         raise KeyError(f"{resource} not found in the layered cache")
 
     def add(self, resource: PudlResourceKey, value):
@@ -196,7 +199,10 @@ class LayeredCache(AbstractCache):
 
     def contains(self, resource: PudlResourceKey) -> bool:
         """Returns True if resource is present in the cache."""
-        for cache in self._caches:
+        for i, cache in enumerate(self._caches):
             if cache.contains(resource):
+                logger.debug(
+                    f"contains: {resource} found in {i}-th layer ({cache.__class__.__name__}).")
                 return True
+        logger.debug(f"contains: {resource} not found in layered cache.")
         return False
