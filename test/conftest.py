@@ -341,6 +341,6 @@ def pudl_datastore_fixture(pudl_settings_fixture, request):
     gcs_cache = request.config.getoption("--gcs-cache-path")
     return pudl.workspace.datastore.Datastore(
         local_cache_path=pathlib.Path(
-            pudl_settings_fixture["pudl_in"]),
+            pudl_settings_fixture["pudl_in"]) / "data",
         gcs_cache_path=gcs_cache,
         sandbox=pudl_settings_fixture["sandbox"])
