@@ -10,6 +10,7 @@ install_requires = [
     "addfips",
     "coloredlogs",
     "contextily",
+    "dask[distributed]",
     "datapackage>=1.11",
     "catalystcoop.dbfread>=3.0",
     "geopandas>=0.8.0",
