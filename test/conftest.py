@@ -171,7 +171,7 @@ def pudl_out_orig(live_pudl_db, pudl_engine):
 
 @pytest.fixture(scope='session')
 def ferc1_engine(live_ferc1_db, pudl_settings_fixture,
-                 data_scope, request):
+                 data_scope, request, pudl_datastore_fixture):
     """
     Grab a connection to the FERC Form 1 DB clone.
 
@@ -185,7 +185,8 @@ def ferc1_engine(live_ferc1_db, pudl_settings_fixture,
             years=data_scope['ferc1_years'],
             refyear=max(data_scope['ferc1_years']),
             pudl_settings=pudl_settings_fixture,
-            clobber=clobber)
+            clobber=clobber,
+            datastore=pudl_datastore_fixture)
     engine = sa.create_engine(pudl_settings_fixture["ferc1_db"])
     yield engine
 

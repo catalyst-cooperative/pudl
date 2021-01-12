@@ -500,7 +500,7 @@ def get_raw_df(ds, table, dbc_map, years=pc.data_years['ferc1']):
 
 
 def dbf2sqlite(tables, years, refyear, pudl_settings,
-               bad_cols=(), clobber=False):
+               bad_cols=(), clobber=False, datastore=None):
     """Clone the FERC Form 1 Databsae to SQLite.
 
     Args:
@@ -513,6 +513,7 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
             indicating columns that should be skipped during the cloning
             process. Both table and column are strings in this case, the
             names of their respective entities within the database metadata.
+        datastore (Datastore): instance of a datastore to access the resources.
 
     Returns:
         None
@@ -533,11 +534,7 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
 
     # Get the mapping of filenames to table names and fields
     logger.info(f"Creating a new database schema based on {refyear}.")
-    sandbox = pudl_settings.get("sandbox", False)
-    datastore = Ferc1Datastore(
-        Datastore(
-            local_cache_path=Path(pudl_settings["pudl_in"]) / "data",
-            sandbox=sandbox))
+    datastore = Ferc1Datastore(datastore)
     dbc_map = get_dbc_map(datastore, refyear)
     define_sqlite_db(sqlite_meta, dbc_map, datastore, tables=tables,
                      refyear=refyear, bad_cols=bad_cols)
