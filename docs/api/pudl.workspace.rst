@@ -8,9 +8,7 @@ Submodules
    :maxdepth: 4
 
    pudl.workspace.datastore
-   pudl.workspace.datastore_test
    pudl.workspace.resource_cache
-   pudl.workspace.resource_cache_test
    pudl.workspace.setup
    pudl.workspace.setup_cli
 

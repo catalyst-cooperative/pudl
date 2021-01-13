@@ -24,7 +24,6 @@ from pudl.workspace.resource_cache import PudlResourceKey
 
 logger = logging.getLogger(__name__)
 
-
 PUDL_YML = Path.home() / ".pudl.yml"
 
 
@@ -253,6 +252,8 @@ class Datastore:
             gcs_cache_path (str): if provided, GoogleCloudStorageCache will be used
               to retrieve data files. The path is expected to have the following
               format: gs://bucket[/path_prefix]
+            gcs_cache_readonly (bool): controls whether GCS cache should be treated
+              as read-only layer and should not be modified.
             sandbox (bool): if True, use sandbox zenodo backend when retrieving files,
               otherwise use production. This affects which zenodo servers are contacted
               as well as dois used for each dataset.
@@ -363,8 +364,9 @@ class ParseKeyValues(argparse.Action):
 
 def parse_command_line():
     """Collect the command line arguments."""
-    prod_dois = "\n".join([f"    - {x}" for x in ZenodoFetcher.DOI["production"]])
-    sand_dois = "\n".join([f"    - {x}" for x in ZenodoFetcher.DOI["sandbox"]])
+    prod_dois = "\n".join(
+        [f"    - {x}" for x in ZenodoFetcher.DOI["production"].keys()])
+    sand_dois = "\n".join([f"    - {x}" for x in ZenodoFetcher.DOI["sandbox"].keys()])
 
     dataset_msg = f"""
 Available Production Datasets:

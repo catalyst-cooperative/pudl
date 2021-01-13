@@ -46,6 +46,8 @@ def pytest_addoption(parser):
                      help="Clobber the existing datapackages if they exist")
     parser.addoption("--sandbox", action="store_true", default=False,
                      help="Use raw inputs from the Zenodo sandbox server.")
+    parser.addoption("--gcs-cache-path", default=None,
+                     help="If set, use this GCS path as a datastore cache layer.")
 
 
 @pytest.fixture(scope='session')
@@ -169,8 +171,7 @@ def pudl_out_orig(live_pudl_db, pudl_engine):
 
 @pytest.fixture(scope='session')
 def ferc1_engine(live_ferc1_db, pudl_settings_fixture,
-                 pudl_datastore_fixture,
-                 data_scope, request):
+                 data_scope, request, pudl_datastore_fixture):
     """
     Grab a connection to the FERC Form 1 DB clone.
 
@@ -184,8 +185,8 @@ def ferc1_engine(live_ferc1_db, pudl_settings_fixture,
             years=data_scope['ferc1_years'],
             refyear=max(data_scope['ferc1_years']),
             pudl_settings=pudl_settings_fixture,
-            datastore=pudl.extract.ferc1.Ferc1Datastore(pudl_datastore_fixture),
-            clobber=clobber)
+            clobber=clobber,
+            datastore=pudl_datastore_fixture)
     engine = sa.create_engine(pudl_settings_fixture["ferc1_db"])
     yield engine
 
@@ -340,9 +341,11 @@ def pudl_settings_fixture(  # noqa: C901
 
 
 @pytest.fixture(scope='session')  # noqa: C901
-def pudl_datastore_fixture(pudl_settings_fixture):
+def pudl_datastore_fixture(pudl_settings_fixture, request):
     """Produce a :class:pudl.workspace.datastore.Datastore."""
+    gcs_cache = request.config.getoption("--gcs-cache-path")
     return pudl.workspace.datastore.Datastore(
-        pathlib.Path(
-            pudl_settings_fixture["pudl_in"]),
+        local_cache_path=pathlib.Path(
+            pudl_settings_fixture["pudl_in"]) / "data",
+        gcs_cache_path=gcs_cache,
         sandbox=pudl_settings_fixture["sandbox"])

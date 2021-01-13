@@ -10,11 +10,13 @@ import argparse
 import logging
 import pathlib
 import sys
+from pathlib import Path
 
 import coloredlogs
 import yaml
 
 import pudl
+from pudl.workspace.datastore import Datastore
 
 # Create a logger to output any messages we might have...
 logger = logging.getLogger(__name__)
@@ -83,7 +85,10 @@ def main():  # noqa: C901
         refyear=script_settings['ferc1_to_sqlite_refyear'],
         pudl_settings=pudl_settings,
         bad_cols=script_settings.get('ferc1_to_sqlite_bad_cols', ()),
-        clobber=args.clobber)
+        clobber=args.clobber,
+        datastore=Datastore(
+            local_cache_path=(Path(pudl_in) / "data"),
+            sandbox=args.sandbox))
 
 
 if __name__ == '__main__':

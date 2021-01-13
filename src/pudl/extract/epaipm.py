@@ -16,11 +16,14 @@ import pandas as pd
 
 from pudl.workspace.datastore import Datastore
 
+# $ from pudl.workspace import datastore as datastore
+
+
 logger = logging.getLogger(__name__)
 
 
 class TableSettings(NamedTuple):
-    """Settings for loading EpaIpm tables from datastore."""
+    """Contains information for how to access and load EpaIpm dataframes."""
 
     table_name: str
     file: str

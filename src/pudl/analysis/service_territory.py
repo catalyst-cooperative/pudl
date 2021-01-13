@@ -34,7 +34,7 @@ CALC_CRS = "ESRI:102003"  # For accurate area calculations
 ################################################################################
 # Outside data that we rely on for this analysis
 ################################################################################
-def get_census2010_gdf(pudl_settings, layer):
+def get_census2010_gdf(pudl_settings, layer, ds):
     """
     Obtain a GeoDataFrame containing US Census demographic data for 2010.
 
@@ -50,6 +50,7 @@ def get_census2010_gdf(pudl_settings, layer):
         pudl_settings (dict): PUDL Settings dictionary.
         layer (str): Indicates which layer of the Census GeoDB to read.
             Must be one of "state", "county", or "tract".
+        ds (Datastore): instance of a datastore for resource retrieval.
 
     Returns:
         geopandas.GeoDataFrame: DataFrame containing the US Census
@@ -62,12 +63,7 @@ def get_census2010_gdf(pudl_settings, layer):
     census2010_gdb_dir = census2010_dir / "census2010.gdb"
 
     if not census2010_gdb_dir.is_dir():
-        sandbox = pudl_settings.get("sandbox", True)
-        ds = pudl.workspace.datastore.Datastore(
-            Path(pudl_settings["pudl_in"]),
-            sandbox=sandbox)
         zip_ref = ds.get_zipfile_resource("censusdp1tract", year=2010)
-
         logger.debug("Extracting census geodb to %s", census2010_gdb_dir)
         zip_ref.extractall(census2010_dir)
         # Grab the originally extracted directory name so we can change it:

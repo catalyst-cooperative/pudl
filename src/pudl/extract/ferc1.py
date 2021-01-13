@@ -150,12 +150,12 @@ def observed_respondents(ferc1_engine):
 
 
 class Ferc1Datastore:
-    """Datastore wrapper for accessing Ferc1 resources."""
+    """Simple datastore wrapper for accessing ferc1 resources."""
 
     PACKAGE_PATH = "pudl.package_data.meta.ferc1_row_maps"
 
     def __init__(self, datastore: Datastore):
-        """Consructs datastore wrapper for ferc1 tables."""
+        """Instantiate datastore wrapper for ferc1 resources."""
         self.datastore = datastore
         self._cache = {}  # type: Dict[int, ZipFile]
         self.dbc_path = {}  # type: Dict[int, Path]
@@ -166,19 +166,19 @@ class Ferc1Datastore:
                 path = Path(row["path"])
                 self.dbc_path[year] = path
 
-    def get_dir(self, year: int):
-        """Returns directory where the ferc1 database for given year is located."""
+    def get_dir(self, year: int) -> Path:
+        """Returns path to the ferc1 database within the ferc1 top-level archive."""
         if year not in self.dbc_path:
             raise ValueError(f"No ferc1 data for year {year}")
         return Path(self.dbc_path[year])
 
     def get_file(self, year: int, filename: str) -> io.BytesIO:
-        """Opens file from zipfile archive for given year."""
+        """Opens given ferc1 file from the corresponding archive."""
         if year not in self._cache:
             self._cache[year] = self.datastore.get_zipfile_resource("ferc1", year=year)
         archive = self._cache[year]
         try:
-            return archive.open(f"{self.get_dir(year)}/{filename}")
+            return archive.open((self.get_dir(year) / filename).as_posix())
         except KeyError:
             raise KeyError(f"{filename} not availabe for year {year} in ferc1.")
 
@@ -547,34 +547,34 @@ def ferc1_to_sqlite(script_settings, pudl_settings, overwrite=SqliteOverwriteMod
     elif overwrite == SqliteOverwriteMode.ONCE and os.path.isfile(urlparse(pudl_settings["ferc1_db"]).path):
         return False
     else:
-        datastore = Ferc1Datastore(Datastore.from_prefect_context())
         validate_ferc1_to_sqlite_settings(script_settings)
         dbf2sqlite(
             tables=script_settings['ferc1_to_sqlite_tables'],
             years=script_settings['ferc1_to_sqlite_years'],
             refyear=script_settings['ferc1_to_sqlite_refyear'],
             pudl_settings=pudl_settings,
-            datastore=datastore,
+            datastore=Datastore.from_prefect_context(),
             bad_cols=script_settings.get('ferc1_to_sqlite_bad_cols', ()),
             clobber=True)
         return True
 
 
 def dbf2sqlite(tables, years, refyear, pudl_settings,
-               datastore, bad_cols=(), clobber=False):
+               bad_cols=(), clobber=False, datastore=None):
     """Clone the FERC Form 1 Databsae to SQLite.
 
     Args:
         tables (iterable): What tables should be cloned?
         years (iterable): Which years of data should be cloned?
         refyear (int): Which database year to use as a template.
-        datastore (Datastore): Ferc1Datastore for accessing resources.
         pudl_settings (dict): Dictionary containing paths and database URLs
             used by PUDL.
         bad_cols (iterable of tuples): A list of (table, column) pairs
             indicating columns that should be skipped during the cloning
             process. Both table and column are strings in this case, the
             names of their respective entities within the database metadata.
+        clobber (bool): Controls whether existing database should be cleared first.
+        datastore (Datastore): instance of a datastore to access the resources.
 
     Returns:
         None
@@ -595,6 +595,7 @@ def dbf2sqlite(tables, years, refyear, pudl_settings,
 
     # Get the mapping of filenames to table names and fields
     logger.info(f"Creating a new database schema based on {refyear}.")
+    datastore = Ferc1Datastore(datastore)
     dbc_map = get_dbc_map(datastore, refyear)
     define_sqlite_db(sqlite_meta, dbc_map, datastore, tables=tables,
                      refyear=refyear, bad_cols=bad_cols)

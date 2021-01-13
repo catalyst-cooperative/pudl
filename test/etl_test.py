@@ -258,15 +258,12 @@ class TestExcelExtractor:
             )
 
 
-class TestEpaCemsDatastore:
-    """Ensure we can extract csv files from the datastore."""
-
-    def test_get_csv(self, pudl_datastore_fixture):
-        """Spot check opening of epacems csv file from datastore."""
-        ds = pudl.extract.epacems.EpaCemsDatastore(pudl_datastore_fixture)
-        df = ds.open_csv(pudl.extract.epacems.EpaCemsPartition(
-            state="NY", year=1999), 6)
-        # TODO(rousik): this is reading file from zenodo which may be expensive, slow
-        # and potentially flaky.
-        assert "state" in df.columns
-        assert "plant_id_eia" in df.columns
+def test_epacems_datastore_integration(pudl_datastore_fixture):
+    """Tests that epacems datastore fetches the right data."""
+    ds = pudl.extract.epacems.EpaCemsDatastore(pudl_datastore_fixture)
+    df = ds.open_csv(pudl.extract.epacems.EpaCemsPartition(
+        state="NY", year=1999), 6)
+    # TODO(rousik): this is reading file from zenodo which may be expensive, slow
+    # and potentially flaky.
+    assert "state" in df.columns
+    assert "plant_id_eia" in df.columns
