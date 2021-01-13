@@ -63,6 +63,7 @@ test_requires = [
     "pydocstyle~=5.1",
     "pytest~=6.2",
     "pytest-cov~=2.10",
+    "responses~=0.12.1",
 ]
 
 
