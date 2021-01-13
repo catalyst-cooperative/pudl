@@ -440,7 +440,7 @@ def cleanstrings_series(col, str_map, unmapped=None, simplify=True):
             col.astype(str).
             str.strip().
             str.lower().
-            str.replace(r'\s+', ' ')
+            str.replace(r'\s+', ' ', regex=True)
         )
         for k in str_map:
             str_map[k] = [re.sub(r'\s+', ' ', s.lower().strip())
