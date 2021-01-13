@@ -11,6 +11,7 @@ dependencies:
   - contextily~=1.0
   - datapackage~=1.11
   - geopandas~=0.8.1
+  - google-cloud-storage~=1.35.0
   - matplotlib~=3.0
   - networkx~=2.2
   - numpy~=1.19
@@ -52,6 +53,7 @@ dependencies:
   - pydocstyle~=5.1
   - pytest~=6.2
   - pytest-cov~=2.10
+  - responses~=0.12.1
 
   # development
   - autopep8~=1.5
