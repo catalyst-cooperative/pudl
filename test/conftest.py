@@ -348,4 +348,5 @@ def pudl_datastore_fixture(pudl_settings_fixture, request):
         local_cache_path=pathlib.Path(
             pudl_settings_fixture["pudl_in"]) / "data",
         gcs_cache_path=gcs_cache,
+        gcs_cache_readonly=True,
         sandbox=pudl_settings_fixture["sandbox"])
