@@ -1224,9 +1224,9 @@ def demand_response(tfr_dfs):
 
     raw_dr = tfr_dfs["demand_response_eia861"].copy()
     # fill na BA values with 'UNK'
-    # raw_dr['balancing_authority_code_eia'] = (
-    #     raw_dr['balancing_authority_code_eia'].fillna('UNK')
-    # )
+    raw_dr['balancing_authority_code_eia'] = (
+        raw_dr['balancing_authority_code_eia'].fillna('UNK')
+    )
 
     # Split data into tidy-able and not
     raw_dr_water_heater = raw_dr[idx_cols + ['water_heater']].copy()
@@ -1843,8 +1843,6 @@ def mergers(tfr_dfs):
     transformed_mergers = (
         raw_mergers.assign(
             entity_type=lambda x: x.entity_type.map(pc.ENTITY_TYPE_DICT),
-            merge_zip_5=lambda x: pudl.helpers.zero_pad_zips(x.merge_zip_5, 5),
-            merge_zip_4=lambda x: pudl.helpers.zero_pad_zips(x.merge_zip_4, 4)
         )
     )
 
@@ -2014,10 +2012,10 @@ def non_net_metering(tfr_dfs):
     _check_for_dupes(
         tidy_nnm_customer_fuel_class, 'Non Net Metering Customer & Fuel Class', idx_cols)
 
-    # Delete total_capacity_mw col for redundancy (it doesn't matter which one)
+    # Delete total_capacity_mw col for redundancy (must delete x not y)
     tidy_nnm_customer_fuel_class = (
-        tidy_nnm_customer_fuel_class.drop(columns='capacity_mw_y')
-        .rename(columns={'capacity_mw_x': 'capacity_mw'})
+        tidy_nnm_customer_fuel_class.drop(columns='capacity_mw_x')
+        .rename(columns={'capacity_mw_y': 'capacity_mw'})
     )
 
     # No transformation needed
@@ -2052,9 +2050,9 @@ def operational_data(tfr_dfs):
 
     # Pre-tidy clean specific to operational data table
     raw_od = tfr_dfs["operational_data_eia861"].copy()
-    raw_od = (
-        raw_od[(raw_od['utility_id_eia'].notnull()) &
-               (raw_od['utility_id_eia'] != 88888)]
+    raw_od = (  # removed (raw_od['utility_id_eia'].notnull()) for RMI
+        raw_od[(raw_od['utility_id_eia'] != 88888) &
+               (raw_od['utility_id_eia'].notnull())]
     )
 
     ###########################################################################

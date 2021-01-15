@@ -48,9 +48,11 @@ def heat_rate_by_unit(pudl_out):
                                'plant_id_eia',
                                'generator_id',
                                'unit_id_pudl']].drop_duplicates()
+    gen = pudl_out.gen_eia923()
+
     # Merge those unit ids into the generation data:
     gen_w_unit = pudl.helpers.merge_on_date_year(
-        pudl_out.gen_eia923(), bga_gens, on=['plant_id_eia', 'generator_id'])
+        gen, bga_gens, on=['plant_id_eia', 'generator_id'])
     # Sum up the net generation per unit for each time period:
     gen_gb = gen_w_unit.groupby(['report_date',
                                  'plant_id_eia',
@@ -97,8 +99,9 @@ def heat_rate_by_gen(pudl_out):
     # Associate those heat rates with individual generators. This also means
     # losing the net generation and fuel consumption information for now.
     hr_by_gen = pudl.helpers.merge_on_date_year(
-        pudl_out.hr_by_unit()[['report_date', 'plant_id_eia',
-                               'unit_id_pudl', 'heat_rate_mmbtu_mwh']],
+        pudl_out.hr_by_unit()
+        [['report_date', 'plant_id_eia',
+          'unit_id_pudl', 'heat_rate_mmbtu_mwh']],
         bga_gens, on=['plant_id_eia', 'unit_id_pudl']
     )
     hr_by_gen = hr_by_gen.drop('unit_id_pudl', axis=1)
@@ -276,13 +279,13 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
                                           'report_date',
                                           'generator_id',
                                           'capacity_mw']]
-    gen_eia923 = pudl_out.gen_eia923()[['plant_id_eia',
-                                        'report_date',
-                                        'generator_id',
-                                        'net_generation_mwh']]
+
+    gen = pudl_out.gen_eia923()
+    gen = gen[['plant_id_eia', 'report_date',
+               'generator_id', 'net_generation_mwh']]
 
     # merge the generation and capacity to calculate capacity factor
-    capacity_factor = pudl.helpers.merge_on_date_year(gen_eia923,
+    capacity_factor = pudl.helpers.merge_on_date_year(gen,
                                                       gens_eia860,
                                                       on=['plant_id_eia',
                                                           'generator_id'],
@@ -365,9 +368,9 @@ def mcoe(pudl_out,
     mcoe_out = pd.merge(
         mcoe_out,
         pudl_out.capacity_factor(min_cap_fact=min_cap_fact,
-                                 max_cap_fact=max_cap_fact)[
-            ['report_date', 'plant_id_eia',
-             'generator_id', 'capacity_factor', 'net_generation_mwh']],
+                                 max_cap_fact=max_cap_fact)
+        [['report_date', 'plant_id_eia', 'generator_id',
+          'capacity_factor', 'net_generation_mwh']],
         on=['report_date', 'plant_id_eia', 'generator_id'],
         how='outer')
 

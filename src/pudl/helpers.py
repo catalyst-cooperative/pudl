@@ -8,6 +8,7 @@ scenarios, it should probably live here. There are lost of transform type
 functions in here that help with cleaning and restructing dataframes.
 
 """
+import itertools
 import logging
 import pathlib
 import re
@@ -377,33 +378,37 @@ def organize_cols(df, cols):
     return df[organized_cols]
 
 
-def strip_lower(df, columns):
-    """Strip and compact whitespace, lowercase listed DataFrame columns.
+def simplify_strings(df, columns):
+    """
+    Simplify the strings contained in a set of dataframe columns.
 
-    First converts all listed columns (if present in df) to string type, then
-    applies the str.strip() and str.lower() methods to them, and replaces all
-    internal whitespace to a single space. The columns are assigned in place.
+    Performs several operations to simplify strings for comparison and parsing purposes.
+    These include removing Unicode control characters, stripping leading and trailing
+    whitespace, using lowercase characters, and compacting all internal whitespace to a
+    single space.
+
+    Leaves null values unaltered. Casts other values with astype(str).
 
     Args:
         df (pandas.DataFrame): DataFrame whose columns are being cleaned up.
-        columns (iterable): The labels of the columns to be stripped and
-            converted to lowercase.
+        columns (iterable): The labels of the string columns to be simplified.
 
     Returns:
         pandas.DataFrame: The whole DataFrame that was passed in, with
-        the columns cleaned up in place, allowing method chaining.
+        the string columns cleaned up.
 
     """
     out_df = df.copy()
     for col in columns:
         if col in out_df.columns:
-            out_df.loc[:, col] = (
-                out_df[col].astype(str).
-                str.strip().
-                str.lower().
-                str.replace(r'\s+', ' ')
+            out_df.loc[out_df[col].notnull(), col] = (
+                out_df.loc[out_df[col].notnull(), col]
+                .astype(str)
+                .str.replace("[\x00-\x1f\x7f-\x9f]", "")
+                .str.strip()
+                .str.lower()
+                .str.replace(r'\s+', ' ')
             )
-
     return out_df
 
 
@@ -918,11 +923,26 @@ def convert_cols_dtypes(df, data_source, name=None):
         if df.utility_id_eia.dtypes is np.dtype('object'):
             df = df.astype({'utility_id_eia': 'float'})
     df = (
-        df.replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
+        df.replace(to_replace="<NA>", value={
+                   col: pd.NA for col in string_cols})
         .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
         .astype(non_bool_cols)
         .astype(bool_cols)
     )
+
+    # Zip codes are highly coorelated with datatype. If they datatype gets
+    # converted at any point it may mess up the accuracy of the data. For
+    # example: 08401.0 or 8401 are both incorrect versions of 080401 that a
+    # simple datatype conversion cannot fix. For this reason, we use the
+    # zero_pad_zips function.
+    if any('zip_code' for col in df.columns):
+        zip_cols = [col for col in df.columns if 'zip_code' in col]
+        for col in zip_cols:
+            if '4' in col:
+                df[col] = zero_pad_zips(df[col], 4)
+            else:
+                df[col] = zero_pad_zips(df[col], 5)
+
     return df
 
 
@@ -1080,12 +1100,49 @@ def zero_pad_zips(zip_series, n_digits):
 
     """
     # Add preceeding zeros where necessary and get rid of decimal zeros
+    def get_rid_of_decimal(series):
+        return series.str.replace(r'[\.]+\d*', '', regex=True)
+
     zip_series = (
-        pd.to_numeric(zip_series)  # Make sure it's all numerical values
-        .astype(pd.Int64Dtype())  # Make it a (nullable) Integer
-        .fillna(0)  # fill the NA
-        .astype(str).str.zfill(n_digits)  # Make it a string and zero pad it.
-        .astype(pd.StringDtype())  # Make it nullable
+        zip_series
+        .astype(pd.StringDtype())
+        .replace('nan', np.nan)
+        .fillna("0")
+        .pipe(get_rid_of_decimal)
+        .str.zfill(n_digits)
         .replace({n_digits * "0": pd.NA})  # All-zero Zip codes aren't valid.
     )
     return zip_series
+
+
+def iterate_multivalue_dict(**kwargs):
+    """Make dicts from dict with main dict key and one value of main dict."""
+    single_valued = {k: v for k,
+                     v in kwargs.items()
+                     if not (isinstance(v, list) or isinstance(v, tuple))}
+
+    # Transform multi-valued {k: vlist} into {k1: [{k1: v1}, {k1: v2}, ...], k2: [...], ...}
+    multi_valued = {k: [{k: v} for v in vlist]
+                    for k, vlist in kwargs.items()
+                    if (isinstance(vlist, list) or isinstance(vlist, tuple))}
+
+    for value_assignments in itertools.product(*multi_valued.values()):
+        result = dict(single_valued)
+        for k_v in value_assignments:
+            result.update(k_v)
+        yield result
+
+
+def get_working_eia_dates():
+    """Get all working EIA dates as a DatetimeIndex."""
+    dates = pd.DatetimeIndex([])
+    for dataset_name, dataset in pc.working_partitions.items():
+        if 'eia' in dataset_name:
+            for name, partition in dataset.items():
+                if name == 'years':
+                    dates = dates.append(
+                        pd.to_datetime(partition, format='%Y'))
+                if name == 'year_month':
+                    dates = dates.append(pd.DatetimeIndex(
+                        [pd.to_datetime(partition)]))
+    return dates

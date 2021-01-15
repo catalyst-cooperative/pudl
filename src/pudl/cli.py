@@ -6,8 +6,8 @@ settings has empty datapackage parameters (meaning there are no years or
 tables included), no datapacakges will be generated. If the settings include a
 datapackage that has empty parameters, the other valid datatpackages will be
 generated, but not the empty one. If there are invalid parameters (meaning a
-year that is not included in the pudl.constant.working_years), the build will
-fail early on in the process.
+partition that is not included in the pudl.constant.working_partitions), the
+build will fail early on in the process.
 
 The datapackages will be stored in "PUDL_OUT" in the "datapackge" subdirectory.
 Currently, this function only uses default directories for "PUDL_IN" and
@@ -57,6 +57,9 @@ def parse_command_line(argv):
     parser.add_argument(
         "--sandbox", action="store_true", default=False,
         help="Use the Zenodo sandbox rather than production")
+    parser.add_argument(
+        "--logfile", default=None,
+        help="If specified, write logs to this file.")
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -70,6 +73,10 @@ def main():
     coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
 
     args = parse_command_line(sys.argv)
+    if args.logfile:
+        file_logger = logging.FileHandler(args.logfile)
+        file_logger.setFormatter(logging.Formatter(log_format))
+        logger.addHandler(file_logger)
     with pathlib.Path(args.settings_file).open() as f:
         script_settings = yaml.safe_load(f)
 

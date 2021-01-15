@@ -32,6 +32,403 @@ from pudl import constants as pc
 logger = logging.getLogger(__name__)
 
 ##############################################################################
+# Dicts for categorizing freeform strings ####################################
+##############################################################################
+FUEL_STRINGS = {
+    "coal": [
+        'coal', 'coal-subbit', 'lignite', 'coal(sb)', 'coal (sb)', 'coal-lignite',
+        'coke', 'coa', 'lignite/coal', 'coal - subbit', 'coal-subb', 'coal-sub',
+        'coal-lig', 'coal-sub bit', 'coals', 'ciak', 'petcoke', 'coal.oil', 'coal/gas',
+        'bit coal', 'coal-unit #3', 'coal-subbitum', 'coal tons', 'coal mcf',
+        'coal unit #3', 'pet. coke', 'coal-u3', 'coal&coke', 'tons'
+    ],
+    "oil": [
+        'oil', '#6 oil', '#2 oil', 'fuel oil', 'jet', 'no. 2 oil', 'no.2 oil',
+        'no.6& used', 'used oil', 'oil-2', 'oil (#2)', 'diesel oil',
+        'residual oil', '# 2 oil', 'resid. oil', 'tall oil', 'oil/gas',
+        'no.6 oil', 'oil-fuel', 'oil-diesel', 'oil / gas', 'oil bbls', 'oil bls',
+        'no. 6 oil', '#1 kerosene', 'diesel', 'no. 2 oils', 'blend oil',
+        '#2oil diesel', '#2 oil-diesel', '# 2  oil', 'light oil', 'heavy oil',
+        'gas.oil', '#2', '2', '6', 'bbl', 'no 2 oil', 'no 6 oil', '#1 oil', '#6',
+        'oil-kero', 'oil bbl', 'biofuel', 'no 2', 'kero', '#1 fuel oil',
+        'no. 2  oil', 'blended oil', 'no 2. oil', '# 6 oil', 'nno. 2 oil',
+        '#2 fuel', 'oill', 'oils', 'gas/oil', 'no.2 oil gas', '#2 fuel oil',
+        'oli', 'oil (#6)', 'oil/diesel', '2 oil', '#6 hvy oil', 'jet fuel',
+        'diesel/compos', 'oil-8', 'oil {6}', 'oil-unit #1', 'bbl.', 'oil.',  # noqa: FS003
+        'oil #6', 'oil (6)', 'oil(#2)', 'oil-unit1&2', 'oil-6', '#2 fue oil',
+        'dielel oil', 'dielsel oil', '#6 & used', 'barrels', 'oil un 1 & 2',
+        'jet oil', 'oil-u1&2', 'oiul', 'pil', 'oil - 2', '#6 & used', 'oial'
+    ],
+    "gas": [
+        'gas', 'gass', 'methane', 'natural gas', 'blast gas', 'gas mcf',
+        'propane', 'prop', 'natural  gas', 'nat.gas', 'nat gas',
+        'nat. gas', 'natl gas', 'ga', 'gas`', 'syngas', 'ng', 'mcf',
+        'blast gaa', 'nat  gas', 'gac', 'syngass', 'prop.', 'natural', 'coal.gas',
+        'n. gas', 'lp gas', 'natuaral gas', 'coke gas', 'gas #2016', 'propane**',
+        '* propane', 'propane **', 'gas expander', 'gas ct', '# 6 gas', '#6 gas',
+        'coke oven gas'
+    ],
+    "solar": [],
+    "wind": [],
+    "hydro": [],
+    "nuclear": [
+        'nuclear', 'grams of uran', 'grams of', 'grams of  ura',
+        'grams', 'nucleur', 'nulear', 'nucl', 'nucleart', 'nucelar',
+        'gr.uranium', 'grams of urm', 'nuclear (9)', 'nulcear', 'nuc',
+        'gr. uranium', 'nuclear mw da', 'grams of ura'
+    ],
+    "waste": [
+        'tires', 'tire', 'refuse', 'switchgrass', 'wood waste', 'woodchips',
+        'biomass', 'wood', 'wood chips', 'rdf', 'tires/refuse', 'tire refuse',
+        'waste oil', 'waste', 'woodships', 'tire chips'
+    ],
+    "unknown": [
+        'steam', 'purch steam', 'all', 'tdf', 'n/a', 'purch. steam', 'other',
+        'composite', 'composit', 'mbtus', 'total', 'avg', 'avg.', 'blo',
+        'all fuel', 'comb.', 'alt. fuels', 'na', 'comb', '/#=2\x80â\x91?',
+        'kã\xadgv¸\x9d?', "mbtu's", 'gas, oil', 'rrm', '3\x9c', 'average',
+        'furfural', '0', 'watson bng', 'toal', 'bng', '# 6 & used', 'combined',
+        'blo bls', 'compsite', '*', 'compos.', 'gas / oil', 'mw days', 'g', 'c',
+        'lime', 'all fuels', 'at right', '20', '1', 'comp oil/gas', 'all fuels to',
+        'the right are', 'c omposite', 'all fuels are', 'total pr crk',
+        'all fuels =', 'total pc', 'comp', 'alternative', 'alt. fuel', 'bio fuel',
+        'total prairie', ''
+    ],
+}
+"""dict: A mapping a canonical fuel name to a list of strings which are used
+to represent that fuel in the FERC Form 1 Reporting. Case is ignored, as all fuel
+strings are converted to a lower case in the data set.
+"""
+
+FUEL_UNIT_STRINGS = {
+    "ton": [
+        'toms', 'taons', 'tones', 'col-tons', 'toncoaleq', 'coal', 'tons coal eq',
+        'coal-tons', 'ton', 'tons', 'tons coal', 'coal-ton', 'tires-tons',
+        'coal tons -2 ', 'oil-tons', 'coal tons 200', 'ton-2000', 'coal tons',
+        'coal tons -2', 'coal-tone', 'tire-ton', 'tire-tons', 'ton coal eqv', 'tos',
+        'coal tons - 2', 'c. t.', 'c.t.', 'toncoalequiv',
+    ],
+    "mcf": [
+        'mcf', "mcf's", 'mcfs', 'mcf.', 'gas mcf', '"gas" mcf', 'gas-mcf',
+        'mfc', 'mct', ' mcf', 'msfs', 'mlf', 'mscf', 'mci', 'mcl', 'mcg',
+        'm.cu.ft.', 'kcf', '(mcf)', 'mcf *(4)', 'mcf00', 'm.cu.ft..',
+    ],
+    "bbl": [
+        'barrel', 'bbls', 'bbl', 'barrels', 'bbrl', 'bbl.', 'bbls.', 'oil 42 gal',
+        'oil-barrels', 'barrrels', 'bbl-42 gal', 'oil-barrel', 'bb.', 'barrells',
+        'bar', 'bbld', 'oil- barrel', 'barrels    .', 'bbl .', 'barels', 'barrell',
+        'berrels', 'bb', 'bbl.s', 'oil-bbl', 'bls', 'bbl:', 'barrles', 'blb',
+        'propane-bbl', 'barriel', 'berriel', 'barrile', '(bbl.)', 'barrel *(4)',
+        '(4) barrel', 'bbf', 'blb.', '(bbl)', 'bb1', 'bbsl', 'barrrel', 'barrels 100%',
+        'bsrrels', "bbl's", '*barrels', 'oil - barrels', 'oil 42 gal ba', 'bll',
+        'boiler barrel', 'gas barrel', '"boiler" barr', '"gas" barrel',
+        '"boiler"barre', '"boiler barre', 'barrels .', 'bariel', 'brrels', 'oil barrel',
+    ],
+    "gal": ['gallons', 'gal.', 'gals', 'gals.', 'gallon', 'gal', 'galllons'],
+    "kgal": ['oil(1000 gal)', 'oil(1000)', 'oil (1000)', 'oil(1000', 'oil(1000ga)'],
+    "gramsU": [
+        'gram', 'grams', 'gm u', 'grams u235', 'grams u-235', 'grams of uran',
+        'grams: u-235', 'grams:u-235', 'grams:u235', 'grams u308', 'grams: u235',
+        'grams of', 'grams - n/a', 'gms uran', 's e uo2 grams', 'gms uranium',
+        'grams of urm', 'gms. of uran', 'grams (100%)', 'grams v-235', 'se uo2 grams',
+    ],
+    "kgU": [
+        'kg of uranium', 'kg uranium', 'kilg. u-235', 'kg u-235', 'kilograms-u23',
+        'kg', 'kilograms u-2', 'kilograms', 'kg of', 'kg-u-235', 'kilgrams',
+        'kilogr. u235', 'uranium kg', 'kg uranium25', 'kilogr. u-235',
+        'kg uranium 25', 'kilgr. u-235', 'kguranium 25', 'kg-u235', 'kgm',
+    ],
+    "klbs": ['k lbs.', 'k lbs'],
+    "mmbtu": [
+        'mmbtu', 'mmbtus', 'mbtus', '(mmbtu)', "mmbtu's", 'nuclear-mmbtu',
+        'nuclear-mmbt', 'mmbtul',
+    ],
+    "btu": ['btus', 'btu', ],
+    "mwdth": [
+        'mwd therman', 'mw days-therm', 'mwd thrml', 'mwd thermal',
+        'mwd/mtu', 'mw days', 'mwdth', 'mwd', 'mw day', 'dth', 'mwdaysthermal',
+        'mw day therml', 'mw days thrml', 'nuclear mwd', 'mmwd', 'mw day/therml'
+        'mw days/therm', 'mw days (th', 'ermal)',
+    ],
+    "mwhth": [
+        'mwh them', 'mwh threm', 'nwh therm', 'mwhth',
+        'mwh therm', 'mwh', 'mwh therms.', 'mwh term.uts',
+        'mwh thermal', 'mwh thermals', 'mw hr therm',
+        'mwh therma', 'mwh therm.uts',
+    ],
+    "unknown": [
+        '', '1265', 'mwh units', 'composite', 'therms', 'n/a', 'mbtu/kg', 'uranium 235',
+        'oil', 'ccf', '2261', 'uo2', '(7)', 'oil #2', 'oil #6', '\x99å\x83\x90?"',
+        'dekatherm', '0', 'mw day/therml', 'nuclear', 'gas', '62,679', 'mw days/therm',
+        'na', 'uranium', 'oil/gas', 'thermal', '(thermal)', 'se uo2', '181679', '83',
+        '3070', '248', '273976', '747', '-', 'are total', 'pr. creek', 'decatherms',
+        'uramium', '.', 'total pr crk', '>>>>>>>>', 'all', 'total', 'alternative-t',
+        'oil-mcf', '3303671', '929', '7182175', '319', '1490442', '10881', '1363663',
+        '7171', '1726497', '4783', '7800', '12559', '2398', 'creek fuels',
+        'propane-barre', '509', 'barrels/mcf', 'propane-bar', '4853325', '4069628',
+        '1431536', '708903', 'mcf/oil (1000',
+    ],
+}
+"""
+dict: A dictionary linking fuel units (keys) to lists of various strings
+    representing those fuel units (values)
+"""
+
+PLANT_KIND_STRINGS = {
+    "steam": [
+        'coal', 'steam', 'steam units 1 2 3', 'steam units 4 5',
+        'steam fossil', 'steam turbine', 'steam a', 'steam 100',
+        'steam units 1 2 3', 'steams', 'steam 1', 'steam retired 2013', 'stream',
+        'steam units 1,2,3', 'steam units 4&5', 'steam units 4&6',
+        'steam conventional', 'unit total-steam', 'unit total steam',
+        '*resp. share steam', 'resp. share steam', 'steam (see note 1,',
+        'steam (see note 3)', 'mpc 50%share steam', '40% share steam'
+        'steam (2)', 'steam (3)', 'steam (4)', 'steam (5)', 'steam (6)',
+        'steam (7)', 'steam (8)', 'steam units 1 and 2', 'steam units 3 and 4',
+        'steam (note 1)', 'steam (retired)', 'steam (leased)', 'coal-fired steam',
+        'oil-fired steam', 'steam/fossil', 'steam (a,b)', 'steam (a)', 'stean',
+        'steam-internal comb', 'steam (see notes)', 'steam units 4 & 6',
+        'resp share stm note3' 'mpc50% share steam', 'mpc40%share steam',
+        'steam - 64%', 'steam - 100%', 'steam (1) & (2)', 'resp share st note3',
+        'mpc 50% shares steam', 'steam-64%', 'steam-100%', 'steam (see note 1)',
+        'mpc 50% share steam', 'steam units 1, 2, 3', 'steam units 4, 5',
+        'steam (2)', 'steam (1)', 'steam 4, 5', 'steam - 72%', 'steam (incl i.c.)',
+        'steam- 72%', 'steam;retired - 2013', "respondent's sh.-st.",
+        "respondent's sh-st", '40% share steam', 'resp share stm note3',
+        'mpc50% share steam', 'resp share st note 3', '\x02steam (1)',
+    ],
+    "combustion_turbine": [
+        'combustion turbine', 'gt', 'gas turbine',
+        'gas turbine # 1', 'gas turbine', 'gas turbine (note 1)',
+        'gas turbines', 'simple cycle', 'combustion turbine',
+        'comb.turb.peak.units', 'gas turbine', 'combustion turbine',
+        'com turbine peaking', 'gas turbine peaking', 'comb turb peaking',
+        'combustine turbine', 'comb. turine', 'conbustion turbine',
+        'combustine turbine', 'gas turbine (leased)', 'combustion tubine',
+        'gas turb', 'gas turbine peaker', 'gtg/gas', 'simple cycle turbine',
+        'gas-turbine', 'gas turbine-simple', 'gas turbine - note 1',
+        'gas turbine #1', 'simple cycle', 'gasturbine', 'combustionturbine',
+        'gas turbine (2)', 'comb turb peak units', 'jet engine',
+        'jet powered turbine', '*gas turbine', 'gas turb.(see note5)',
+        'gas turb. (see note', 'combutsion turbine', 'combustion turbin',
+        'gas turbine-unit 2', 'gas - turbine', 'comb turbine peaking',
+        'gas expander turbine', 'jet turbine', 'gas turbin (lease',
+        'gas turbine (leased', 'gas turbine/int. cm', 'comb.turb-gas oper.',
+        'comb.turb.gas/oil op', 'comb.turb.oil oper.', 'jet', 'comb. turbine (a)',
+        'gas turb.(see notes)', 'gas turb(see notes)', 'comb. turb-gas oper',
+        'comb.turb.oil oper', 'gas turbin (leasd)', 'gas turbne/int comb',
+        'gas turbine (note1)', 'combution turbin', '* gas turbine',
+        'add to gas turbine', 'gas turbine (a)', 'gas turbinint comb',
+        'gas turbine (note 3)', 'resp share gas note3', 'gas trubine',
+        '*gas turbine(note3)', 'gas turbine note 3,6', 'gas turbine note 4,6',
+        'gas turbine peakload', 'combusition turbine', 'gas turbine (lease)',
+        'comb. turb-gas oper.', 'combution turbine', 'combusion turbine',
+        'comb. turb. oil oper', 'combustion burbine', 'combustion and gas',
+        'comb. turb.', 'gas turbine (lease', 'gas turbine (leasd)',
+        'gas turbine/int comb', '*gas turbine(note 3)', 'gas turbine (see nos',
+        'i.c.e./gas turbine', 'gas turbine/intcomb', 'cumbustion turbine',
+        'gas turb, int. comb.', 'gas turb, diesel', 'gas turb, int. comb',
+        'i.c.e/gas turbine', 'diesel turbine', 'comubstion turbine',
+        'i.c.e. /gas turbine', 'i.c.e/ gas turbine', 'i.c.e./gas tubine',
+    ],
+    "combined_cycle": [
+        'Combined cycle', 'combined cycle', 'combined', 'gas & steam turbine',
+        'gas turb. & heat rec', 'combined cycle', 'com. cyc', 'com. cycle',
+        'gas turb-combined cy', 'combined cycle ctg', 'combined cycle - 40%',
+        'com cycle gas turb', 'combined cycle oper', 'gas turb/comb. cyc',
+        'combine cycle', 'cc', 'comb. cycle', 'gas turb-combined cy',
+        'steam and cc', 'steam cc', 'gas steam', 'ctg steam gas',
+        'steam comb cycle', 'gas/steam comb. cycl', 'steam (comb. cycle)'
+        'gas turbine/steam', 'steam & gas turbine', 'gas trb & heat rec',
+        'steam & combined ce', 'st/gas turb comb cyc', 'gas tur & comb cycl',
+        'combined cycle (a,b)', 'gas turbine/ steam', 'steam/gas turb.',
+        'steam & comb cycle', 'gas/steam comb cycle', 'comb cycle (a,b)', 'igcc',
+        'steam/gas turbine', 'gas turbine / steam', 'gas tur & comb cyc',
+        'comb cyc (a) (b)', 'comb cycle', 'comb cyc', 'combined turbine',
+        'combine cycle oper', 'comb cycle/steam tur', 'cc / gas turb',
+        'steam (comb. cycle)', 'steam & cc', 'gas turbine/steam',
+        'gas turb/cumbus cycl', 'gas turb/comb cycle', 'gasturb/comb cycle',
+        'gas turb/cumb. cyc', 'igcc/gas turbine', 'gas / steam', 'ctg/steam-gas',
+        'ctg/steam -gas', 'gas fired cc turbine', 'combinedcycle', 'comb cycle gas turb',
+        'combined cycle opern', 'comb. cycle gas turb',
+    ],
+    "nuclear": [
+        'nuclear', 'nuclear (3)', 'steam(nuclear)', 'nuclear(see note4)'
+        'nuclear steam', 'nuclear turbine', 'nuclear - steam',
+        'nuclear (a)(b)(c)', 'nuclear (b)(c)', '* nuclear', 'nuclear (b) (c)',
+        'nuclear (see notes)', 'steam (nuclear)', '* nuclear (note 2)',
+        'nuclear (note 2)', 'nuclear (see note 2)', 'nuclear(see note4)',
+        'nuclear steam', 'nuclear(see notes)', 'nuclear-steam',
+        'nuclear (see note 3)'
+    ],
+    "geothermal": ['steam - geothermal', 'steam_geothermal', 'geothermal'],
+    "internal_combustion": [
+        'ic', 'internal combustion', 'internal comb.', 'internl combustion'
+        'diesel turbine', 'int combust (note 1)', 'int. combust (note1)',
+        'int.combustine', 'comb. cyc', 'internal comb', 'diesel', 'diesel engine',
+        'internal combustion', 'int combust - note 1', 'int. combust - note1',
+        'internal comb recip', 'reciprocating engine', 'comb. turbine',
+        'internal combust.', 'int. combustion (1)', '*int combustion (1)',
+        "*internal combust'n", 'internal', 'internal comb.', 'steam internal comb',
+        'combustion', 'int. combustion', 'int combust (note1)', 'int. combustine',
+        'internl combustion', '*int. combustion (1)'
+    ],
+    "wind": [
+        'wind', 'wind energy', 'wind turbine', 'wind - turbine', 'wind generation'
+    ],
+    "photovoltaic": ['solar photovoltaic', 'photovoltaic', 'solar', 'solar project'],
+    "solar_thermal": ['solar thermal'],
+    "unknown": [
+        '', 'n/a', 'see pgs 402.1-402.3', 'see pgs 403.1-403.9', "respondent's share",
+        '--', '(see note 7)', 'other', 'not applicable', 'peach bottom', 'none.',
+        'fuel facilities', '0', 'not in service', 'none', 'common expenses',
+        'expenses common to', 'retired in 1981', 'retired in 1978', 'na',
+        'unit total (note3)', 'unit total (note2)', 'resp. share (note2)',
+        'resp. share (note8)', 'resp. share (note 9)', 'resp. share (note11)',
+        'resp. share (note4)', 'resp. share (note6)', 'conventional',
+        'expenses commom to', 'not in service in', 'unit total (note 3)',
+        'unit total (note 2)', 'resp. share (note 8)', 'resp. share (note 3)',
+        'resp. share note 11', 'resp. share (note 4)', 'resp. share (note 6)',
+        '(see note 5)', 'resp. share (note 2)', 'package', '(left blank)', 'common',
+        '0.0000', 'other generation', 'resp share (note 11)', 'retired',
+        'storage/pipelines', 'sold april 16, 1999', 'sold may 07, 1999',
+        'plants sold in 1999', 'gas', 'not applicable.', 'resp. share - note 2',
+        'resp. share - note 8', 'resp. share - note 9', 'resp share - note 11',
+        'resp. share - note 4', 'resp. share - note 6', 'plant retired- 2013',
+        'retired - 2013', 'resp share - note 5', 'resp. share - note 7',
+        'non-applicable', 'other generation plt', 'combined heat/power', 'oil'
+    ],
+}
+"""
+dict: A mapping from canonical plant kinds (keys) to the associated freeform strings
+    (values) identified as being associated with that kind of plant in the FERC Form 1
+    raw data. There are many strings that weren't categorized, Solar and Solar
+    Project were not classified as these do not indicate if they are solar thermal or
+    photovoltaic. Variants on Steam (e.g. "steam 72" and "steam and gas") were
+    classified based on additional research of the plants on the Internet.
+"""
+
+CONSTRUCTION_TYPE_STRINGS = {
+    "outdoor": [
+        'outdoor', 'outdoor boiler', 'full outdoor', 'outdoor boiler',
+        'outdoor boilers', 'outboilers', 'fuel outdoor', 'full outdoor',
+        'outdoors', 'outdoor', 'boiler outdoor& full', 'boiler outdoor&full',
+        'outdoor boiler& full', 'full -outdoor', 'outdoor steam',
+        'outdoor boiler', 'ob', 'outdoor automatic', 'outdoor repower',
+        'full outdoor boiler', 'fo', 'outdoor boiler & ful', 'full-outdoor',
+        'fuel outdoor', 'outoor', 'outdoor', 'outdoor  boiler&full',
+        'boiler outdoor &full', 'outdoor boiler &full', 'boiler outdoor & ful',
+        'outdoor-boiler', 'outdoor - boiler', 'outdoor const.',
+        '4 outdoor boilers', '3 outdoor boilers', 'full outdoor', 'full outdoors',
+        'full oudoors', 'outdoor (auto oper)', 'outside boiler',
+        'outdoor boiler&full', 'outdoor hrsg', 'outdoor hrsg',
+        'outdoor-steel encl.', 'boiler-outdr & full',
+        'con.& full outdoor', 'partial outdoor', 'outdoor (auto. oper)',
+        'outdoor (auto.oper)', 'outdoor construction', '1 outdoor boiler',
+        '2 outdoor boilers', 'outdoor enclosure', '2 outoor boilers',
+        'boiler outdr.& full', 'boiler outdr. & full', 'ful outdoor',
+        'outdoor-steel enclos', 'outdoor (auto oper.)', 'con. & full outdoor',
+        'outdore', 'boiler & full outdor', 'full & outdr boilers',
+        'outodoor (auto oper)', 'outdoor steel encl.', 'full outoor',
+        'boiler & outdoor ful', 'otdr. blr. & f. otdr', 'f.otdr & otdr.blr.',
+        'oudoor (auto oper)', 'outdoor constructin', 'f. otdr. & otdr. blr',
+        'outdoor boiler & fue',
+    ],
+    "semioutdoor": [
+        'more than 50% outdoo', 'more than 50% outdos', 'over 50% outdoor',
+        'over 50% outdoors', 'semi-outdoor', 'semi - outdoor', 'semi outdoor',
+        'semi-enclosed', 'semi-outdoor boiler', 'semi outdoor boiler',
+        'semi- outdoor', 'semi - outdoors', 'semi -outdoor'
+        'conven & semi-outdr', 'conv & semi-outdoor', 'conv & semi- outdoor',
+        'convent. semi-outdr', 'conv. semi outdoor', 'conv(u1)/semiod(u2)',
+        'conv u1/semi-od u2', 'conv-one blr-semi-od', 'convent semioutdoor',
+        'conv. u1/semi-od u2', 'conv - 1 blr semi od', 'conv. ui/semi-od u2',
+        'conv-1 blr semi-od', 'conven. semi-outdoor', 'conv semi-outdoor',
+        'u1-conv./u2-semi-od', 'u1-conv./u2-semi -od', 'convent. semi-outdoo',
+        'u1-conv. / u2-semi', 'conven & semi-outdr', 'semi -outdoor',
+        'outdr & conventnl', 'conven. full outdoor', 'conv. & outdoor blr',
+        'conv. & outdoor blr.', 'conv. & outdoor boil', 'conv. & outdr boiler',
+        'conv. & out. boiler', 'convntl,outdoor blr', 'outdoor & conv.',
+        '2 conv., 1 out. boil', 'outdoor/conventional', 'conv. boiler outdoor',
+        'conv-one boiler-outd', 'conventional outdoor', 'conventional outdor',
+        'conv. outdoor boiler', 'conv.outdoor boiler', 'conventional outdr.',
+        'conven,outdoorboiler', 'conven full outdoor', 'conven,full outdoor',
+        '1 out boil, 2 conv', 'conv. & full outdoor', 'conv. & outdr. boilr',
+        'conv outdoor boiler', 'convention. outdoor', 'conv. sem. outdoor',
+        'convntl, outdoor blr', 'conv & outdoor boil', 'conv & outdoor boil.',
+        'outdoor & conv', 'conv. broiler outdor', '1 out boilr, 2 conv',
+        'conv.& outdoor boil.', 'conven,outdr.boiler', 'conven,outdr boiler',
+        'outdoor & conventil', '1 out boilr 2 conv', 'conv & outdr. boilr',
+        'conven, full outdoor', 'conven full outdr.', 'conven, full outdr.',
+        'conv/outdoor boiler', "convnt'l outdr boilr", '1 out boil 2 conv',
+        'conv full outdoor', 'conven, outdr boiler', 'conventional/outdoor',
+        'conv&outdoor boiler', 'outdoor & convention', 'conv & outdoor boilr',
+        'conv & full outdoor', 'convntl. outdoor blr', 'conv - ob',
+        "1conv'l/2odboilers", "2conv'l/1odboiler", 'conv-ob', 'conv.-ob',
+        '1 conv/ 2odboilers', '2 conv /1 odboilers', 'conv- ob', 'conv -ob',
+        'con sem outdoor', 'cnvntl, outdr, boilr', 'less than 50% outdoo',
+        'under 50% outdoor', 'under 50% outdoors', '1cnvntnl/2odboilers',
+        '2cnvntnl1/1odboiler', 'con & ob', 'combination (b)', 'indoor & outdoor',
+        'conven. blr. & full', 'conv. & otdr. blr.', 'combination',
+        'indoor and outdoor', 'conven boiler & full', "2conv'l/10dboiler",
+        '4 indor/outdr boiler', '4 indr/outdr boilerr', '4 indr/outdr boiler',
+        'indoor & outdoof',
+    ],
+    "conventional": [
+        'conventional', 'conventional', 'conventional boiler', 'conv-b',
+        'conventionall', 'convention', 'conventional', 'coventional',
+        'conven full boiler', 'c0nventional', 'conventtional', 'convential'
+        'underground', 'conventional bulb', 'conventrional',
+        '*conventional', 'convential', 'convetional', 'conventioanl',
+        'conventioinal', 'conventaional', 'indoor construction', 'convenional',
+        'conventional steam', 'conventinal', 'convntional', 'conventionl',
+        'conventionsl', 'conventiional', 'convntl steam plants', 'indoor const.',
+        'full indoor', 'indoor', 'indoor automatic', 'indoor boiler',
+        '(peak load) indoor', 'conventionl,indoor', 'conventionl, indoor',
+        'conventional, indoor', 'comb. cycle indoor', '3 indoor boiler',
+        '2 indoor boilers', '1 indoor boiler', '2 indoor boiler',
+        '3 indoor boilers', 'fully contained', 'conv - b', 'conventional/boiler',
+        'cnventional', 'comb. cycle indooor', 'sonventional', 'ind enclosures',
+    ],
+    "unknown": [
+        '', 'automatic operation', 'comb. turb. installn', 'comb. turb. instaln',
+        'com. turb. installn', 'n/a', 'for detailed info.', 'for detailed info',
+        'combined cycle', 'na', 'not applicable', 'gas', 'heated individually',
+        'metal enclosure', 'pressurized water', 'nuclear', 'jet engine', 'gas turbine',
+        'storage/pipelines', '0', 'during 1994', 'peaking - automatic',
+        'gas turbine/int. cm', '2 oil/gas turbines', 'wind', 'package', 'mobile',
+        'auto-operated', 'steam plants', 'other production', 'all nuclear plants',
+        'other power gen.', 'automatically operad', 'automatically operd',
+        'circ fluidized bed', 'jet turbine', 'gas turbne/int comb',
+        'automatically oper.', 'retired 1/1/95', 'during 1995', '1996. plant sold',
+        'reactivated 7/1/96', 'gas turbine/int comb', 'portable', 'head individually',
+        'automatic opertion', 'peaking-automatic', 'cycle', 'full order',
+        'circ. fluidized bed', 'gas turbine/intcomb', '0.0000', 'none', '2 oil / gas',
+        'block & steel', 'and 2000', 'comb.turb. instaln', 'automatic oper.', 'pakage',
+        '---', 'n/a (ct)', 'comb turb instain', 'ind encloures', '2 oil /gas turbines',
+        'combustion turbine', '1970', 'gas/oil turbines', 'combined cycle steam', 'pwr',
+        '2 oil/ gas', '2 oil / gas turbines', 'gas / oil turbines', 'no boiler',
+        'internal combustion', 'gasturbine no boiler', 'boiler', 'tower -10 unit facy',
+        'gas trubine', '4 gas/oil trubines', '2 oil/ 4 gas/oil tur',
+        '5 gas/oil turbines', 'tower 16', '2 on 1 gas turbine', 'tower 23',
+        'tower -10 unit', 'tower - 101 unit', '3 on 1 gas turbine', 'tower - 10 units',
+        'tower - 165 units', 'wind turbine', 'fixed tilt pv', 'tracking pv', 'o',
+        'wind trubine', 'subcritical', 'sucritical', 'simple cycle',
+        'simple & reciprocat'
+    ],
+}
+"""dict: A dictionary of construction types (keys) and lists of construction
+    type strings associated with each type (values) from FERC Form 1.
+
+    There are many strings that weren't categorized, including crosses between
+    conventional and outdoor, PV, wind, combined cycle, and internal combustion.
+    The lists are broken out into the two types specified in Form 1:
+    conventional and outdoor. These lists are inclusive so that variants of
+    conventional (e.g. "conventional full") and outdoor (e.g. "outdoor full"
+    and "outdoor hrsg") are included.
+"""
+
+##############################################################################
 # FERC TRANSFORM HELPER FUNCTIONS ############################################
 ##############################################################################
 
@@ -361,14 +758,14 @@ def _plants_steam_clean(ferc1_steam_df):
             "tot_prdctn_expns": 'opex_production_total',
             "expns_kwh": 'opex_per_kwh'})
         .pipe(_clean_cols, "f1_steam")
-        .pipe(pudl.helpers.strip_lower, ['plant_name_ferc1'])
+        .pipe(pudl.helpers.simplify_strings, ['plant_name_ferc1'])
         .pipe(pudl.helpers.cleanstrings,
               ['construction_type', 'plant_type'],
-              [pc.ferc1_const_type_strings, pc.ferc1_plant_kind_strings],
+              [CONSTRUCTION_TYPE_STRINGS, PLANT_KIND_STRINGS],
               unmapped='')
         .pipe(pudl.helpers.oob_to_nan,
               cols=["construction_year", "installation_year"],
-              lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
+              lb=1850, ub=max(pc.working_partitions["ferc1"]["years"]) + 1)
         .assign(
             capex_per_mw=lambda x: 1000.0 * x.capex_per_kw,
             opex_per_mwh=lambda x: 1000.0 * x.opex_per_kwh,
@@ -557,9 +954,9 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     This process includes converting some columns to be in terms of our
     preferred units, like MWh and mmbtu instead of kWh and btu. Plant names are
-    also standardized (stripped & Title Case). Fuel and fuel unit strings are
+    also standardized (stripped & lower). Fuel and fuel unit strings are
     also standardized using our cleanstrings() function and string cleaning
-    dictionaries found in pudl.constants.
+    dictionaries found above (FUEL_STRINGS, etc.)
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
@@ -569,18 +966,19 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     Returns:
         dict: The dictionary of transformed dataframes.
+
     """
     # grab table from dictionary of dfs, clean it up a bit
     fuel_ferc1_df = (
         _clean_cols(ferc1_raw_dfs['fuel_ferc1'], 'f1_fuel').
         # Standardize plant_name capitalization and remove leading/trailing
         # white space -- necesary b/c plant_name is part of many foreign keys.
-        pipe(pudl.helpers.strip_lower, ['plant_name']).
+        pipe(pudl.helpers.simplify_strings, ['plant_name']).
         # Take the messy free-form fuel & fuel_unit fields, and do our best to
         # map them to some canonical categories... this is necessarily
         # imperfect:
         pipe(pudl.helpers.cleanstrings, ['fuel', 'fuel_unit'],
-             [pc.ferc1_fuel_strings, pc.ferc1_fuel_unit_strings],
+             [FUEL_STRINGS, FUEL_UNIT_STRINGS],
              unmapped='').
         # Fuel cost per kWh is a per-unit value that doesn't make sense to
         # report for a single fuel that may be only a small part of the fuel
@@ -698,7 +1096,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     ferc1_small_df = ferc1_raw_dfs['plants_small_ferc1']
     # Standardize plant_name_raw capitalization and remove leading/trailing
     # white space -- necesary b/c plant_name_raw is part of many foreign keys.
-    ferc1_small_df = pudl.helpers.strip_lower(
+    ferc1_small_df = pudl.helpers.simplify_strings(
         ferc1_small_df, ['plant_name', 'kind_of_fuel']
     )
 
@@ -706,7 +1104,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     # set them to NA if they can't be converted. (table has some junk values)
     ferc1_small_df = pudl.helpers.oob_to_nan(
         ferc1_small_df, cols=["yr_constructed"],
-        lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
+        lb=1850, ub=max(pc.working_partitions["ferc1"]["years"]) + 1)
 
     # Convert from cents per mmbtu to dollars per mmbtu to be consistent
     # with the f1_fuel table data. Also, let's use a clearer name.
@@ -749,7 +1147,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     # Standardize plant_name capitalization and remove leading/trailing white
     # space, so that plant_name matches formatting of plant_name_raw
-    ferc1_small_df = pudl.helpers.strip_lower(
+    ferc1_small_df = pudl.helpers.simplify_strings(
         ferc1_small_df, ['plant_name_clean'])
 
     # in order to create one complete column of plant names, we have to use the
@@ -808,9 +1206,9 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
         _clean_cols(ferc1_raw_dfs['plants_hydro_ferc1'], 'f1_hydro')
         # Standardize plant_name capitalization and remove leading/trailing
         # white space -- necesary b/c plant_name is part of many foreign keys.
-        .pipe(pudl.helpers.strip_lower, ['plant_name'])
+        .pipe(pudl.helpers.simplify_strings, ['plant_name'])
         .pipe(pudl.helpers.cleanstrings, ['plant_const'],
-              [pc.ferc1_const_type_strings], unmapped='')
+              [CONSTRUCTION_TYPE_STRINGS], unmapped='')
         .assign(
             # Converting kWh to MWh
             net_generation_mwh=lambda x: x.net_generation / 1000.0,
@@ -819,7 +1217,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
             # Converting kWh to MWh
             expns_per_mwh=lambda x: x.expns_kwh * 1000.0)
         .pipe(pudl.helpers.oob_to_nan, cols=["yr_const", "yr_installed"],
-              lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
+              lb=1850, ub=max(pc.working_partitions["ferc1"]["years"]) + 1)
         .drop(columns=['net_generation', 'cost_per_kw', 'expns_kwh'])
         .rename(columns={
             # FERC1 DB          PUDL DB
@@ -892,10 +1290,10 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
             ferc1_raw_dfs['plants_pumped_storage_ferc1'], 'f1_pumped_storage')
         # Standardize plant_name capitalization and remove leading/trailing
         # white space -- necesary b/c plant_name is part of many foreign keys.
-        .pipe(pudl.helpers.strip_lower, ['plant_name'])
+        .pipe(pudl.helpers.simplify_strings, ['plant_name'])
         # Clean up the messy plant construction type column:
         .pipe(pudl.helpers.cleanstrings, ['plant_kind'],
-              [pc.ferc1_const_type_strings], unmapped='')
+              [CONSTRUCTION_TYPE_STRINGS], unmapped='')
         .assign(
             # Converting from kW/kWh to MW/MWh
             net_generation_mwh=lambda x: x.net_generation / 1000.0,
@@ -904,7 +1302,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
             cost_per_mw=lambda x: x.cost_per_kw * 1000.0,
             expns_per_mwh=lambda x: x.expns_kwh * 1000.0)
         .pipe(pudl.helpers.oob_to_nan, cols=["yr_const", "yr_installed"],
-              lb=1850, ub=max(pc.working_years["ferc1"]) + 1)
+              lb=1850, ub=max(pc.working_partitions["ferc1"]["years"]) + 1)
         .drop(columns=['net_generation', 'energy_used', 'net_load',
                        'cost_per_kw', 'expns_kwh'])
         .rename(columns={
@@ -1664,7 +2062,7 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
                   left_index=True, right_index=True).reset_index()
 
     # Label each plant-year record by primary fuel:
-    for fuel_str in pc.ferc1_fuel_strings.keys():
+    for fuel_str in FUEL_STRINGS:
         try:
             mmbtu_mask = df[f'{fuel_str}_fraction_mmbtu'] > thresh
             df.loc[mmbtu_mask, 'primary_fuel_by_mmbtu'] = fuel_str
