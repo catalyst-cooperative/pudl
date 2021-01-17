@@ -92,6 +92,7 @@ def setup_logging(args):
         file_logger.setFormatter(logging.Formatter(log_format))
         logger.addHandler(file_logger)
         logger.info(f"Command line: {' '.join(sys.argv)}")
+    logger.setLevel(args.loglevel)
 
 
 def main():
