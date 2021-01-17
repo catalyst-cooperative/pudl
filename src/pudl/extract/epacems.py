@@ -12,6 +12,7 @@ import pandas as pd
 import prefect
 from prefect import task
 
+from pudl.dfc import DataFrameCollection
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
@@ -198,8 +199,8 @@ class EpaCemsDatastore:
         return df.astype(dtypes).rename(columns=self.RENAME_DICT)
 
 
-@task
-def extract_fragment(partition: EpaCemsPartition):
+@task(task_run_name="epacems-extract-{partition}")  # noqa: FS003
+def extract_epacems(partition: EpaCemsPartition) -> DataFrameCollection:
     """Extracts epacems dataframe for given year and state.
 
     Args:
@@ -213,4 +214,4 @@ def extract_fragment(partition: EpaCemsPartition):
     logger.info(f"Starting extraction for {partition}")
     ds = EpaCemsDatastore(Datastore.from_prefect_context())
     key = f'hourly_emissions_epacems_{partition.year}_{partition.state.lower()}'
-    return {key: ds.get_data_frame(partition)}
+    return DataFrameCollection(**{key: ds.get_data_frame(partition)})

@@ -50,6 +50,8 @@ import pkg_resources
 
 import pudl
 from pudl import constants as pc
+from pudl.dfc import DataFrameCollection
+from pudl.load import csv
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +124,7 @@ def get_unpartitioned_tables(resources, datapkg_settings):
     In the case of EPA CEMS and potentially other large datasets, we are
     partitioning a single table into many tabular data resources that are
     part of a resource group. However in some contexts we want to refer to the
-    list of corresponding databse tables, rather than the list of resources.
+    list of corresponding database tables, rather than the list of resources.
 
     The partition key in the datapackage settings is the name of the table
     without the partition elements, and so in the case of partitioned tables
@@ -565,12 +567,15 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
     return report
 
 
-def generate_metadata(datapkg_settings,
-                      datapkg_resources,
-                      datapkg_dir,
-                      datapkg_bundle_uuid=None,
-                      datapkg_bundle_doi=None):
+def generate_metadata(
+        datapkg_settings,
+        datapkg_data_frames: DataFrameCollection,
+        datapkg_dir,
+        datapkg_bundle_uuid=None,
+        datapkg_bundle_doi=None):
     """
+    New: this is also responsible for writing the csv files to disk.
+
     Generate metadata for package tables and validate package.
 
     The metadata for this package is compiled from the pkg_settings and from
@@ -591,8 +596,6 @@ def generate_metadata(datapkg_settings,
             * description: A paragraph long description.
             * version: the version of the data package being published.
             * keywords: For search purposes.
-        datapkg_resources (list): The names of tabular data resources that are
-            included in this data package.
         datapkg_dir (path-like): The location of the directory for this
             package. The data package directory will be a subdirectory in the
             `datapkg_dir` directory, with the name of the package as the
@@ -613,7 +616,11 @@ def generate_metadata(datapkg_settings,
     # Create a tabular data resource for each of the input resources:
     resources = []
     partitions = compile_partitions(datapkg_settings)
-    for resource in datapkg_resources:
+    logger.info(
+        f"DataFrameCollection has tables: {datapkg_data_frames.get_table_names()}")
+    for resource, df in datapkg_data_frames.items():
+        logger.info(f"Writing csv file for table {resource}.")
+        csv.clean_columns_dump(df, resource, datapkg_dir)
         resources.append(get_tabular_data_resource(
             resource,
             datapkg_dir=datapkg_dir,
@@ -622,7 +629,7 @@ def generate_metadata(datapkg_settings,
         )
 
     datapkg_tables = get_unpartitioned_tables(
-        datapkg_resources, datapkg_settings)
+        datapkg_data_frames.get_table_names(), datapkg_settings)
     data_sources = data_sources_from_tables(datapkg_tables)
 
     contributors = set()

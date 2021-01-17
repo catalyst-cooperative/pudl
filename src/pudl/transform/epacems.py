@@ -7,6 +7,8 @@ import pandas as pd
 from prefect import task
 
 import pudl
+from pudl.dfc import DataFrameCollection
+from pudl.extract.epacems import EpaCemsPartition
 
 logger = logging.getLogger(__name__)
 ###############################################################################
@@ -192,12 +194,15 @@ def correct_gross_load_mw(df):
     return df
 
 
-@task
-def transform_fragment(df_kv, plant_utc_offset, partition):
+@task(task_run_name="transform-epacems-{partition}")  # noqa: FS003
+def transform_epacems(
+        dfs: DataFrameCollection,
+        plant_utc_offset: pd.DataFrame,
+        partition: EpaCemsPartition) -> DataFrameCollection:
     """Transform EPA CEMS hourly data for use in datapackage export."""
-    results = {}
-    for k, df in df_kv.items():
-        results[k] = (
+    results = DataFrameCollection()
+    for table_name, df in dfs.items():
+        out_df = (
             df.fillna({
                 "gross_load_mw": 0.0,
                 "heat_content_mmbtu": 0.0
@@ -208,4 +213,5 @@ def transform_fragment(df_kv, plant_utc_offset, partition):
             .pipe(correct_gross_load_mw)
             .pipe(pudl.helpers.convert_cols_dtypes,
                   "epacems", "hourly_emissions_epacems"))
+        results.store(table_name, out_df)
     return results

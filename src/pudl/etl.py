@@ -29,16 +29,17 @@ from pathlib import Path
 import pandas as pd
 import prefect
 from prefect import task, unmapped
-from prefect.engine.results import GCSResult
+from prefect.engine.results import GCSResult, LocalResult
 from prefect.executors import DaskExecutor
 from prefect.executors.local import LocalExecutor
 from prefect.tasks.gcp import GCSUpload
-from prefect.utilities.collections import flatten_seq
 
 import pudl
 from pudl import constants as pc
+from pudl import dfc
+from pudl.dfc import DataFrameCollection
+from pudl.extract.epacems import EpaCemsPartition
 from pudl.extract.ferc1 import SqliteOverwriteMode
-from pudl.load.csv import write_datapackages
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
@@ -119,31 +120,15 @@ def command_line_flags() -> argparse.ArgumentParser:
         type=str,
         default=None,
         help="""If specified, use given GCS bucket to cache prefect task results.""")
+    parser.add_argument(
+        "--task-result-cache-path",
+        type=str,
+        default=None,
+        help="""Specifies where temporary DataFrames shoudl be written. This could be
+        either absolute path, file://local-path or gs://path-to-cloud-storage. DataFrames
+        will be serialized in the form of parquet files in this location as they're passed
+        between prefect tasks.""")
     return parser
-
-
-@task
-def merge_dataframe_maps(apply_dtypes=None, **kwargs):
-    """Aggregates series of dicts into single dict.
-
-    Each named argument can be either dict or list of dicts.
-
-    Returns:
-        aggregated dict encompassing key,value mapping from all inputs.
-    """
-    final_map = {}
-    for _, input_map in kwargs.items():
-        if isinstance(input_map, dict):
-            final_map.update(input_map)
-        elif isinstance(input_map, list):
-            for df_map in input_map:
-                final_map.update(df_map)
-        else:
-            raise AssertionError(
-                f'Invalid input type for merge_dataframe_map: {type(input_map)}')
-    if apply_dtypes:
-        final_map = pudl.helpers.convert_dfs_dict_dtypes(final_map, apply_dtypes)
-    return final_map
 
 
 def _validate_params_partition(etl_params_og, tables):
@@ -221,7 +206,7 @@ class DatasetPipeline:
         self.flow = flow
         self.pipeline_params = None
         self.pudl_settings = pudl_settings
-        self.output_dataframes = None
+        self.output_dfc = None
         self.pipeline_params = self._get_dataset_params(dataset_list)
         self.datapkg_name = datapkg_name
         self.etl_settings = etl_settings
@@ -229,7 +214,7 @@ class DatasetPipeline:
         self.datapkg_dir = datapkg_dir
         if self.pipeline_params:
             self.pipeline_params = self.validate_params(self.pipeline_params)
-            self.output_dataframes = self.build(self.pipeline_params)
+            self.output_dfc = self.build(self.pipeline_params)
 
     def _get_dataset_params(self, dataset_list):
         """Return params that match self.DATASET.
@@ -267,9 +252,13 @@ class DatasetPipeline:
         raise NotImplementedError(
             f'{self.__name__}: Please implement pipeline build method.')
 
-    def get_table_names(self):
-        """Returns prefect.Result which contains the table names emitted by the pipeline."""
-        return self.output_dataframes
+    def outputs(self):
+        """Returns prefect.Result containing DataFrameCollection."""
+        return self.output_dfc
+
+    def is_executed(self):
+        """Returns true if the pipeline is executed."""
+        return bool(self.pipeline_params)
 
     @classmethod
     def get_pipeline_for_dataset(cls, dataset):
@@ -301,32 +290,28 @@ def _load_static_tables_eia():
 
     """
     # create dfs for tables with static data from constants.
-    fuel_type_eia923 = pd.DataFrame(
-        {'abbr': list(pc.fuel_type_eia923.keys()),
-         'fuel_type': list(pc.fuel_type_eia923.values())})
-
-    prime_movers_eia923 = pd.DataFrame(
-        {'abbr': list(pc.prime_movers_eia923.keys()),
-         'prime_mover': list(pc.prime_movers_eia923.values())})
-
-    fuel_type_aer_eia923 = pd.DataFrame(
-        {'abbr': list(pc.fuel_type_aer_eia923.keys()),
-         'fuel_type': list(pc.fuel_type_aer_eia923.values())})
-
-    energy_source_eia923 = pd.DataFrame(
-        {'abbr': list(pc.energy_source_eia923.keys()),
-         'source': list(pc.energy_source_eia923.values())})
-
-    transport_modes_eia923 = pd.DataFrame(
-        {'abbr': list(pc.transport_modes_eia923.keys()),
-         'mode': list(pc.transport_modes_eia923.values())})
-
-    # compile the dfs in a dictionary, prep for dict_dump
-    return {'fuel_type_eia923': fuel_type_eia923,
-            'prime_movers_eia923': prime_movers_eia923,
-            'fuel_type_aer_eia923': fuel_type_aer_eia923,
-            'energy_source_eia923': energy_source_eia923,
-            'transport_modes_eia923': transport_modes_eia923}
+    return DataFrameCollection(
+        fuel_type_eia923=pd.DataFrame(
+            {'abbr': list(pc.fuel_type_eia923.keys()),
+             'fuel_type': list(pc.fuel_type_eia923.values())}
+        ),
+        prime_movers_eia923=pd.DataFrame(
+            {'abbr': list(pc.prime_movers_eia923.keys()),
+             'prime_mover': list(pc.prime_movers_eia923.values())}
+        ),
+        fuel_type_aer_eia923=pd.DataFrame(
+            {'abbr': list(pc.fuel_type_aer_eia923.keys()),
+             'fuel_type': list(pc.fuel_type_aer_eia923.values())}
+        ),
+        energy_source_eia923=pd.DataFrame(
+            {'abbr': list(pc.energy_source_eia923.keys()),
+             'source': list(pc.energy_source_eia923.values())}
+        ),
+        transport_modes_eia923=pd.DataFrame(
+            {'abbr': list(pc.transport_modes_eia923.keys()),
+             'mode': list(pc.transport_modes_eia923.values())}
+        )
+    )
 
 
 def pudl_task_target_name(**kwargs):
@@ -351,33 +336,36 @@ def _extract_eia860(params):
         eia860m_dfs = pudl.extract.eia860m.Extractor(Datastore.from_prefect_context()).extract(
             year_month=pc.working_partitions['eia860m']['year_month'])
         dfs = pudl.extract.eia860m.append_eia860m(dfs, eia860m_dfs)
-    return dfs
+    return DataFrameCollection(**dfs)
 
 
 @task
 def _extract_eia923(params):
-    return pudl.extract.eia923.Extractor(Datastore.from_prefect_context()).extract(year=params['eia923_years'])
+    dfs = pudl.extract.eia923.Extractor(
+        Datastore.from_prefect_context()).extract(year=params['eia923_years'])
+    return DataFrameCollection(**dfs)
 
 
 @task
-def _transform_eia860(params, dfs):
-    return pudl.transform.eia860.transform(dfs, params['eia860_tables'])
+def _transform_eia860(params, dfs: DataFrameCollection):
+    return DataFrameCollection(
+        **pudl.transform.eia860.transform(dfs, params['eia860_tables']))
 
 
 @task
-def _transform_eia923(params, dfs):
-    return pudl.transform.eia923.transform(dfs, params['eia923_tables'])
+def _transform_eia923(params, dfs: DataFrameCollection):
+    return DataFrameCollection(
+        **pudl.transform.eia923.transform(dfs, params['eia923_tables']))
 
 
 @task
-def _transform_eia(params, dfs):
+def _transform_eia(params, dfc: DataFrameCollection):
 
     # Add normalized EIA-EPA crosswalk tables to the transformed dfs dict.
-    assn_dfs = pudl.glue.eia_epacems.grab_clean_split()
-    dfs.update(assn_dfs)
+    dfc = dfc.union(pudl.glue.eia_epacems.grab_clean_split())
 
     return pudl.transform.eia.transform(
-        dfs,
+        dfc,
         eia860_years=params['eia860_years'],
         eia923_years=params['eia923_years'],
         eia860_ytd=params['eia860_ytd'])
@@ -449,18 +437,15 @@ class EiaPipeline(DatasetPipeline):
         with self.flow:
             # @with prefect.context(datapkg_name=self.datapkg_name):
             with prefect.tags(f'datapkg:{self.datapkg_name}'):
-                static_tables = _load_static_tables_eia()
-                eia860_raw_dfs = _extract_eia860(params)
-                eia860_out_dfs = _transform_eia860(params, eia860_raw_dfs)
-
-                eia923_raw_dfs = _extract_eia923(params)
-                eia923_out_dfs = _transform_eia923(params, eia923_raw_dfs)
-                dfs = merge_dataframe_maps(eia860=eia860_out_dfs, eia923=eia923_out_dfs)
-                out_dfs = _transform_eia(params, dfs)
-                self.raw_dfs_map = out_dfs
-                return write_datapackages(
-                    merge_dataframe_maps(static_tables=static_tables, eia=out_dfs),
-                    datapkg_dir=self.datapkg_dir)
+                # TODO(rousik): setting params in prefect.context would make these
+                # calls a lot simpler: _transform(_extract())
+                eia860_dfc = _transform_eia860(
+                    params, _extract_eia860(params))
+                eia923_dfc = _transform_eia923(
+                    params, _extract_eia923(params))
+                return dfc.merge(
+                    _load_static_tables_eia(),
+                    _transform_eia(params, dfc.merge(eia860_dfc, eia923_dfc)))
 
     def get_table(self, table_name):
         """Returns DataFrame for given table that is emitted by the pipeline.
@@ -479,10 +464,7 @@ class EiaPipeline(DatasetPipeline):
         # Loads csv form
         # TODO(rousik): once we break down tasks to table-level granularity, this
         # extraction task/functionality may no longer be needed.
-        # return _extract_table.bind(self.raw_dfs_map, table_name)
-        return _extract_table.bind(self.raw_dfs_map, table_name, flow=self.flow)
-#       with self.flow:
-#           return _extract_table(self.raw_dfs_map, table_name)
+        return _extract_table.bind(self.output_dfc, table_name, flow=self.flow)
 
 ###############################################################################
 # FERC1 EXPORT FUNCTIONS
@@ -503,45 +485,43 @@ def _load_static_tables_ferc1():
     populate a bunch of small infrastructural tables within the PUDL DB.
     """
     # create dfs for tables with static data from constants.
-    ferc_accounts = (
+    df = DataFrameCollection()
+
+    df.store(
+        'ferc_accounts',
         pc.ferc_electric_plant_accounts
         .drop('row_number', axis=1)
         .replace({'ferc_account_description': r'\s+'}, ' ', regex=True)
         .rename(columns={'ferc_account_description': 'description'})
     )
 
-    ferc_depreciation_lines = (
+    df.store(
+        'ferc_depreciation_lines',
         pc.ferc_accumulated_depreciation
         .drop('row_number', axis=1)
         .rename(columns={'ferc_account_description': 'description'})
     )
-
-    # compile the dfs in a dictionary, prep for dict_dump
-    return {
-        'ferc_accounts': ferc_accounts,
-        'ferc_depreciation_lines': ferc_depreciation_lines
-    }
+    return df
 
 
 @task
 def _extract_ferc1(params, pudl_settings):
-    return pudl.extract.ferc1.extract(
-        ferc1_tables=params['ferc1_tables'],
-        ferc1_years=params['ferc1_years'],
-        pudl_settings=pudl_settings)
+    return DataFrameCollection(
+        **pudl.extract.ferc1.extract(
+            ferc1_tables=params['ferc1_tables'],
+            ferc1_years=params['ferc1_years'],
+            pudl_settings=pudl_settings))
 
 
 @task
 def _transform_ferc1(params, dfs):
-    return pudl.transform.ferc1.transform(
-        dfs, ferc1_tables=params['ferc1_tables'])
+    return DataFrameCollection(
+        **pudl.transform.ferc1.transform(dfs, ferc1_tables=params['ferc1_tables']))
 
 
 @task
-def _extract_table(df_map, table_name):
-    if table_name not in df_map:
-        raise KeyError(f'Table {table_name} not found in {sorted(df_map)}')
-    return df_map.get(table_name)
+def _extract_table(dfc: DataFrameCollection, table_name: str) -> pd.DataFrame:
+    return dfc.get(table_name)
 
 
 class Ferc1Pipeline(DatasetPipeline):
@@ -590,11 +570,7 @@ class Ferc1Pipeline(DatasetPipeline):
             raw_dfs = _extract_ferc1(params, self.pudl_settings,
                                      upstream_tasks=self.flow.get_tasks(name='ferc1_to_sqlite'))
             dfs = _transform_ferc1(params, raw_dfs)
-            return write_datapackages(
-                merge_dataframe_maps(
-                    static_tables=_load_static_tables_ferc1(),
-                    dfs=dfs),
-                datapkg_dir=self.datapkg_dir)
+            return dfc.merge(_load_static_tables_ferc1(), dfs)
 
 
 class EpaCemsPipeline(DatasetPipeline):
@@ -657,21 +633,22 @@ class EpaCemsPipeline(DatasetPipeline):
                 self.eia_pipeline.get_table('plants_entity_eia'))
 
             partitions = [
-                pudl.extract.epacems.EpaCemsPartition(year=y, state=s)
+                EpaCemsPartition(year=y, state=s)
                 for y, s in itertools.product(params["epacems_years"], params["epacems_states"])]
-            raw_dfs = pudl.extract.epacems.extract_fragment.map(partition=partitions)
-            tf_dfs = pudl.transform.epacems.transform_fragment.map(
+            raw_dfs = pudl.extract.epacems.extract_epacems.map(partition=partitions)
+            tf_dfs = pudl.transform.epacems.transform_epacems.map(
                 raw_dfs,
                 plant_utc_offset=unmapped(plants),
                 partition=partitions)
-            return write_datapackages.map(tf_dfs, datapkg_dir=unmapped(self.datapkg_dir))
-
+            return dfc.merge_list(tf_dfs)
 
 ##############################################################################
 # EPA IPM ETL FUNCTIONS
 ###############################################################################
+
+
 @task
-def _load_static_tables_epaipm():
+def _load_static_tables_epaipm() -> DataFrameCollection:
     """
     Populate static PUDL tables with constants for use as foreign keys.
 
@@ -690,9 +667,9 @@ def _load_static_tables_epaipm():
 
     """
     # compile the dfs in a dictionary, prep for dict_dump
-    return {'regions_entity_epaipm':
-            pd.DataFrame(
-                pc.epaipm_region_names, columns=['region_id_epaipm'])}
+    return DataFrameCollection(
+        regions_entity_epaipm=pd.DataFrame(
+            pc.epaipm_region_names, columns=['region_id_epaipm']))
 
 
 @task
@@ -729,11 +706,9 @@ class EpaIpmPipeline(DatasetPipeline):
             return None
         with self.flow:
             # TODO(rousik): annotate epaipm extract/transform methods with @task decorators
-            return write_datapackages(
-                merge_dataframe_maps(
-                    static_tables=_load_static_tables_epaipm(),
-                    dfs=_transform_epaipm(params, _extract_epaipm(params))),
-                datapkg_dir=self.datapkg_dir)
+            return dfc.merge(
+                _load_static_tables_epaipm(),
+                _transform_epaipm(params, _extract_epaipm(params)))
 
 
 ###############################################################################
@@ -742,7 +717,8 @@ class EpaIpmPipeline(DatasetPipeline):
 @task
 def _transform_glue(params):
     # TODO(rousik): replace this thin wrapper with @task annotation on ferc1_eia.glue()
-    return pudl.glue.ferc1_eia.glue(ferc1=params['ferc1'], eia=params['eia'])
+    return DataFrameCollection(
+        **pudl.glue.ferc1_eia.glue(ferc1=params['ferc1'], eia=params['eia']))
 
 
 class GluePipeline(DatasetPipeline):
@@ -773,12 +749,13 @@ class GluePipeline(DatasetPipeline):
         if not params.get('ferc1') and not params.get('eia'):
             return None
         with self.flow:
-            return write_datapackages(_transform_glue(params), datapkg_dir=self.datapkg_dir)
-
+            return _transform_glue(params)
 
 ###############################################################################
 # Coordinating functions
 ###############################################################################
+
+
 def _insert_glue_settings(dataset_dicts):
     """Add glue settings into data package settings if this is a glue-y dataset.
 
@@ -989,7 +966,7 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
     logger.warning(
         f'Running etl with the following configurations: {sorted(dataset_names)}')
 
-    # datapkg_name = datapkg_builder.get_datapkg_name(datapkg_settings)
+    datapkg_name = datapkg_builder.get_datapkg_name(datapkg_settings)
     extra_params = {
         'ferc1': {'overwrite_ferc1_db': overwrite_ferc1_db},
     }
@@ -1014,8 +991,12 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
         datapkg_dir=datapkg_dir,
         eia_pipeline=pipelines['eia'])
     with flow:
-        datapkg_builder([pl.get_table_names() for pl in pipelines.values()],
-                        datapkg_settings)
+        outputs = []
+        for dataset, pl in pipelines.items():
+            if pl.is_executed():
+                logger.info(f"{datapkg_name} contains dataset {dataset}")
+                outputs.append(pl.outputs())
+        datapkg_builder(dfc.merge_list(outputs), datapkg_settings)
 
 
 class DatapackageBuilder(prefect.Task):
@@ -1069,13 +1050,11 @@ class DatapackageBuilder(prefect.Task):
         """Returns fully qualified datapkg name in the form of bundle_name/datapkg."""
         return f'{self.bundle_name}/{datapkg_settings["name"]}'
 
-    def run(self, table_names, datapkg_settings):
+    def run(self, tables: DataFrameCollection, datapkg_settings):
         """Write metadata and validate contents."""
-        # TODO(rousik): some of the input frames can be none. It is unclear whether this
-        # is expected or harmful.
-        tables = sorted(set(x for x in flatten_seq(table_names) if x is not None))
         datapkg_full_name = self.get_datapkg_name(datapkg_settings)
-        logger.info(f'Building metadata for {datapkg_full_name} with tables: {tables}')
+        logger.info(
+            f"Building metadata for {datapkg_full_name}, tables: {tables.get_table_names()}")
         results = pudl.load.metadata.generate_metadata(
             datapkg_settings,
             tables,
@@ -1139,6 +1118,8 @@ def generate_datapkg_bundle(etl_settings: dict,
     if commandline_args.gcs_bucket_for_prefect_cache:
         flow_kwargs["result"] = GCSResult(
             bucket=commandline_args.gcs_bucket_for_prefect_cache)
+    else:
+        flow_kwargs["result"] = LocalResult()
     flow = prefect.Flow("PUDL ETL", **flow_kwargs)
 
     datapkg_builder = DatapackageBuilder(
@@ -1163,6 +1144,21 @@ def generate_datapkg_bundle(etl_settings: dict,
         local_cache_path=local_cache_path,
         gcs_cache_path=commandline_args.gcs_cache_path,
         gcs_cache_readonly=commandline_args.gcs_cache_readonly)
+
+    # Configure how DataFrameCollections should store the temporary pd.DataFrames
+    if commandline_args.task_result_cache_path:
+        prefect.context.data_frame_storage_path = commandline_args.task_result_cache_path
+    else:
+        # TODO(rousik): we might want to make sure that this cache is recreated and wiped
+        # clean after the ETL finishes. Alternatively, we might want to nuke the cache here
+        # when the ETL is starting, but this carries risk of interference when two ETLs are
+        # run at the same time. That scenario is already problematic due to the sharing of
+        # ferc1 sqlite database -- pudl_etl is not designed for multiple executions at the
+        # same time.
+        local_cache_path = Path(pudl_settings["pudl_in"]) / "prefect-task-cache"
+        local_cache_path.mkdir(parents=True, exist_ok=True)
+        prefect.context.data_frame_storage_path = local_cache_path.as_posix()
+
     # TODO(rousik): the above code that sets datastore_config in prefect context
     # is a bit of a black magic and should not actually be here but be part of
     # Datastore class (maybe?)

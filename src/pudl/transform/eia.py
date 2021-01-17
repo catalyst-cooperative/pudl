@@ -25,6 +25,7 @@ import pandas as pd
 
 import pudl
 from pudl import constants as pc
+from pudl.dfc import DataFrameCollection
 
 logger = logging.getLogger(__name__)
 
@@ -838,11 +839,11 @@ def _restrict_years(df,
     return df
 
 
-def transform(eia_transformed_dfs,
+def transform(eia_dfc: DataFrameCollection,
               eia860_years=pc.working_partitions['eia860']['years'],
               eia923_years=pc.working_partitions['eia923']['years'],
               eia860_ytd=False,
-              debug=False):
+              debug=False) -> DataFrameCollection:
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
 
     This function coordinates two main actions: generating the entity tables
@@ -853,8 +854,7 @@ def transform(eia_transformed_dfs,
     entity harvesting is finished.
 
     Args:
-        eia_transformed_dfs (dict): a dictionary of table names (keys) and
-            transformed dataframes (values).
+        eia_dfc (DataFrameCollection): collection of eia860/eia923 data frames.
         eia860_years (list): a list of years for EIA 860, must be continuous,
             and only include working years.
         eia923_years (list): a list of years for EIA 923, must be continuous,
@@ -865,15 +865,14 @@ def transform(eia_transformed_dfs,
             boiler_generator_assn
 
     Returns:
-        dict: mapping from table names to dataframes. Both entity tables and
-        simplified eia tables are returned.
+        DataFrameCollection with the transformed dataframes. Both entity tabls
+        and simplified eia tables are returned.
     """
     if not eia923_years and not eia860_years:
         logger.info('Not ingesting EIA')
         return None
     # Apply the right dtypes to the input dfs
-    eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
-        eia_transformed_dfs, 'eia')
+    eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(eia_dfc.to_dict(), 'eia')
 
     # create the empty entities df to fill up
     entities_dfs = {}
@@ -900,4 +899,7 @@ def transform(eia_transformed_dfs,
     # remove the boilers annual table bc it has no columns
     eia_transformed_dfs.pop('boilers_annual_eia',)
     eia_transformed_dfs.update(entities_dfs)
-    return pudl.helpers.convert_dfs_dict_dtypes(eia_transformed_dfs, 'eia')
+
+    eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
+        eia_transformed_dfs, 'eia')
+    return DataFrameCollection(**eia_transformed_dfs)

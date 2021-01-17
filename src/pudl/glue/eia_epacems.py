@@ -21,6 +21,7 @@ import logging
 import pandas as pd
 
 import pudl
+from pudl.dfc import DataFrameCollection
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +62,7 @@ def grab_n_clean_epa_orignal():
     return eia_epacems_crosswalk
 
 
-def split_tables(df):
+def split_tables(df: pd.DataFrame) -> DataFrameCollection:
     """
     Split the cleaned EIA-EPA crosswalk table into three normalized tables.
 
@@ -75,29 +76,29 @@ def split_tables(df):
         id. Includes no nan values.
     """
     logger.info("splitting crosswalk into three normalized tables")
-    epa_df = (
+    dfc = DataFrameCollection()
+    dfc.store(
+        'plant_unit_epa',
         df.filter(['plant_id_epa', 'unit_id_epa']).copy()
         .drop_duplicates()
         .dropna()
     )
-    plants_eia_epa = (
+    dfc.store(
+        'assn_plant_id_eia_epa',
         df.filter(['plant_id_eia', 'plant_id_epa']).copy()
         .drop_duplicates()
         .dropna()
     )
-    gen_unit_df = (
+    dfc.store(
+        'assn_gen_eia_unit_epa',
         df.filter(['plant_id_eia', 'generator_id', 'unit_id_epa']).copy()
         .drop_duplicates()
         .dropna()
     )
-
-    return {
-        'plant_unit_epa': epa_df,
-        'assn_plant_id_eia_epa': plants_eia_epa,
-        'assn_gen_eia_unit_epa': gen_unit_df}
+    return dfc
 
 
-def grab_clean_split():
+def grab_clean_split() -> DataFrameCollection:
     """
     Clean raw crosswalk data, drop nans, and return split tables.
 
@@ -112,5 +113,4 @@ def grab_clean_split():
         .reset_index()
         .dropna()
     )
-
     return split_tables(crosswalk)
