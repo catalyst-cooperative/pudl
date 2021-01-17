@@ -65,6 +65,11 @@ def parse_command_line(argv):
         help="""If specified, also log to the timestamped logfile. The value of
         this flag is passed to strftime method of datetime.now().""")
     parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
+    parser.add_argument(
         "--datapkg-bundle-name",
         type=str,
         help="If specified, use this datpkg_bundle_name instead of the default from the config.""")
