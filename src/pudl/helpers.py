@@ -111,14 +111,14 @@ def clean_eia_counties(df, fixes, state_col="state", county_col="county"):
     df = df.copy()
     df[county_col] = (
         df[county_col].str.strip()
-        .str.replace(r"\s+", " ")  # Condense multiple whitespace chars.
-        .str.replace(r"^St ", "St. ")  # Standardize abbreviation.
-        .str.replace(r"^Ste ", "Ste. ")  # Standardize abbreviation.
+        .str.replace(r"\s+", " ", regex=True)  # Condense multiple whitespace chars.
+        .str.replace(r"^St ", "St. ", regex=True)  # Standardize abbreviation.
+        .str.replace(r"^Ste ", "Ste. ", regex=True)  # Standardize abbreviation.
         .str.replace("Kent & New Castle", "Kent, New Castle")  # Two counties
         # Fix ordering, remove comma
         .str.replace("Borough, Kodiak Island", "Kodiak Island Borough")
         # Turn comma-separated counties into lists
-        .str.replace(",$", "").str.split(',')
+        .str.replace(r",$", "", regex=True).str.split(',')
     )
     # Create new records for each county in a multi-valued record
     df = df.explode(county_col)
@@ -405,10 +405,10 @@ def simplify_strings(df, columns):
             out_df.loc[out_df[col].notnull(), col] = (
                 out_df.loc[out_df[col].notnull(), col]
                 .astype(str)
-                .str.replace("[\x00-\x1f\x7f-\x9f]", "")
+                .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
                 .str.strip()
                 .str.lower()
-                .str.replace(r'\s+', ' ')
+                .str.replace(r'\s+', ' ', regex=True)
             )
     return out_df
 
@@ -727,10 +727,10 @@ def simplify_columns(df):
     """
     df.columns = (
         df.columns.
-        str.replace('[^0-9a-zA-Z]+', ' ').
+        str.replace(r'[^0-9a-zA-Z]+', ' ', regex=True).
         str.strip().
         str.lower().
-        str.replace(r'\s+', ' ').
+        str.replace(r'\s+', ' ', regex=True).
         str.replace(' ', '_')
     )
     return df
@@ -1095,7 +1095,7 @@ def cleanstrings_snake(df, cols):
             df[col].astype(str).
             str.strip().
             str.lower().
-            str.replace(r'\s+', '_')
+            str.replace(r'\s+', '_', regex=True)
         )
     return df
 
