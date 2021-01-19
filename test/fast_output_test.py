@@ -63,3 +63,13 @@ def test_mcoe(fast_out):
     logger.info("Calculating MCOE.")
     mcoe_df = fast_out.mcoe()
     logger.info(f"Generated {len(mcoe_df)} MCOE records.")
+
+
+def test_eia861_etl(fast_out):
+    """Make sure that the EIA 861 Extract-Transform steps work."""
+    fast_out.etl_eia861()
+
+
+def test_ferc714_etl(fast_out):
+    """Make sure that the FERC 714 Extract-Transform steps work."""
+    fast_out.etl_ferc714()
