@@ -18,11 +18,8 @@ import io
 import logging
 import pathlib
 
-from prefect import task
-
 import pudl
 from pudl import constants as pc
-from pudl.dfc import DataFrameCollection
 
 logger = logging.getLogger(__name__)
 
@@ -49,16 +46,6 @@ def dict_dump(transformed_dfs, data_source, datapkg_dir):
         logger.info(
             f"Loading {data_source} {resource_name} dataframe into CSV")
         clean_columns_dump(df, resource_name, datapkg_dir)
-
-
-@task
-def write_datapackages(dfs: DataFrameCollection, datapkg_dir: str):
-    """Prefect task that writes named dataframe into a file."""
-    # TODO(rousik): perhaps this could be achieved with a suitable Result class
-    for name, df in dfs.items():
-        logger.info(f'Writing datapackage {name}')
-        clean_columns_dump(df, name, datapkg_dir)
-    return dfs
 
 
 def clean_columns_dump(df, resource_name, datapkg_dir):
