@@ -578,6 +578,17 @@ class Timeseries:
         self.flags: np.ndarray = np.empty(self.x.shape, dtype=object)
         self.flagged: List[str] = []
 
+    def to_dataframe(self, array: np.ndarray = None, copy: bool = True) -> pd.DataFrame:
+        """
+        Return multivariate timeseries as a :class:`pandas.DataFrame`.
+
+        Args:
+            array: Two-dimensional array to use. If `None`, uses :attr:`x`.
+            copy: Whether to use a copy of `array`.
+        """
+        x = self.x if array is None else array
+        return pd.DataFrame(x, columns=self.columns, index=self.index, copy=copy)
+
     def flag(self, mask: np.ndarray, flag: str) -> None:
         """
         Flag values.
