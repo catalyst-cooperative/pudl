@@ -151,7 +151,10 @@ def main():
     logger.info(f"pudl_out={pudl_settings['pudl_out']}")
 
     # Check if there's already a PUDL SQLite DB that we should not clobber:
-    if not args.clobber and pathlib.Path(pudl_settings["pudl_db"]).exists():
+    if (
+        not args.clobber
+        and pathlib.Path(pudl_settings["pudl_db"].replace("sqlite:///", "").exists())
+    ):
         raise FileExistsError(
             f"SQLite DB at {pudl_settings['pudl_db']} exists and clobber is False.")
 
