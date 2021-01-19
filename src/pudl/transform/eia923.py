@@ -181,11 +181,12 @@ def plants(eia923_dfs, eia923_transformed_dfs):
                                    'capacity_mw',
                                    'report_year']]
 
-    plant_info_df['reporting_frequency'] = plant_info_df.reporting_frequency.replace({'M': 'monthly',
-                                                                                      'A': 'annual'})
+    plant_info_df['reporting_frequency'] = plant_info_df.reporting_frequency.map({'M': 'monthly',
+                                                                                  'A': 'annual'})
     # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
-    plant_info_df.combined_heat_power.replace({'N': False, 'Y': True},
-                                              inplace=True)
+    plant_info_df["combined_heat_power"] = plant_info_df["combined_heat_power"].map(
+        {'N': False, 'Y': True}
+    )
 
     # Get rid of excessive whitespace introduced to break long lines (ugh)
     plant_info_df.census_region = plant_info_df.census_region.str.replace(

@@ -11,6 +11,21 @@ from pudl import constants as pc
 logger = logging.getLogger(__name__)
 
 
+BOOL_MAP = {
+    "Y": True,
+    "X": False,
+    "N": False,
+    "true": True,
+    "false": False,
+    "True": True,
+    "False": False,
+    "U": pd.NA,
+    "NaN": pd.NA,
+    "nan": pd.NA,
+    np.nan: pd.NA,
+}
+
+
 def ownership(eia860_dfs, eia860_transformed_dfs):
     """
     Pull and transform the ownership table.
@@ -109,11 +124,13 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     gr_df['operational_status'] = 'retired'
     g_df['operational_status'] = (
         g_df['operational_status_code']
-        .replace({'OP': 'existing',  # could move this dict to constants
-                  'SB': 'existing',
-                  'OA': 'existing',
-                  'OS': 'existing',
-                  'RE': 'retired'})
+        .map({  # could move this dict to constants
+            'OP': 'existing',
+            'SB': 'existing',
+            'OA': 'existing',
+            'OS': 'existing',
+            'RE': 'retired'
+        })
     )
 
     gens_df = (
@@ -124,89 +141,64 @@ def generators(eia860_dfs, eia860_transformed_dfs):
 
     # A subset of the columns have zero values, where NA is appropriate:
     columns_to_fix = [
-        'planned_retirement_month',
-        'planned_retirement_year',
-        'planned_uprate_month',
-        'planned_uprate_year',
+        'minimum_load_mw',
+        'nameplate_power_factor',
         'other_modifications_month',
         'other_modifications_year',
         'planned_derate_month',
         'planned_derate_year',
-        'planned_repower_month',
-        'planned_repower_year',
         'planned_net_summer_capacity_derate_mw',
         'planned_net_summer_capacity_uprate_mw',
         'planned_net_winter_capacity_derate_mw',
         'planned_net_winter_capacity_uprate_mw',
         'planned_new_capacity_mw',
-        'nameplate_power_factor',
-        'minimum_load_mw',
+        'planned_repower_month',
+        'planned_repower_year',
+        'planned_retirement_month',
+        'planned_retirement_year',
+        'planned_uprate_month',
+        'planned_uprate_year',
+        'summer_capacity_mw',
         'winter_capacity_mw',
-        'summer_capacity_mw'
     ]
 
     for column in columns_to_fix:
         gens_df[column] = gens_df[column].replace(
             to_replace=[" ", 0], value=np.nan)
 
-    # A subset of the columns have "X" values, where other columns_to_fix
-    # have "N" values. Replacing these values with "N" will make for uniform
-    # values that can be converted to Boolean True and False pairs.
-
-    gens_df.duct_burners = \
-        gens_df.duct_burners.replace(to_replace='X', value='N')
-    gens_df.bypass_heat_recovery = \
-        gens_df.bypass_heat_recovery.replace(to_replace='X', value='N')
-    gens_df.syncronized_transmission_grid = \
-        gens_df.bypass_heat_recovery.replace(to_replace='X', value='N')
-
-    # A subset of the columns have "U" values, presumably for "Unknown," which
-    # must be set to None in order to convert the columns to datatype Boolean.
-
-    gens_df.multiple_fuels = \
-        gens_df.multiple_fuels.replace(to_replace='U', value=None)
-    gens_df.switch_oil_gas = \
-        gens_df.switch_oil_gas.replace(to_replace='U', value=None)
-
     boolean_columns_to_fix = [
-        'duct_burners',
-        'multiple_fuels',
+        'associated_combined_heat_power',
+        'bypass_heat_recovery',
+        'carbon_capture',
+        'cofire_fuels',
         'deliver_power_transgrid',
-        'syncronized_transmission_grid',
-        'solid_fuel_gasification',
-        'pulverized_coal_tech',
+        'distributed_generation',
+        'duct_burners',
+        'ferc_cogen_status',
+        'ferc_exempt_wholesale_generator',
+        'ferc_small_power_producer',
         'fluidized_bed_tech',
+        'multiple_fuels',
+        'other_combustion_tech',
+        'other_planned_modifications',
+        'owned_by_non_utility',
+        'planned_modifications',
+        'previously_canceled',
+        'pulverized_coal_tech',
+        'solid_fuel_gasification',
+        'stoker_tech',
+        'summer_capacity_estimate',
         'subcritical_tech',
         'supercritical_tech',
-        'ultrasupercritical_tech',
-        'carbon_capture',
-        'stoker_tech',
-        'other_combustion_tech',
-        'cofire_fuels',
         'switch_oil_gas',
-        'bypass_heat_recovery',
-        'associated_combined_heat_power',
-        'planned_modifications',
-        'other_planned_modifications',
+        'syncronized_transmission_grid',
+        'ultrasupercritical_tech',
         'uprate_derate_during_year',
-        'previously_canceled',
-        'owned_by_non_utility',
-        'summer_capacity_estimate',
         'winter_capacity_estimate',
-        'distributed_generation',
-        'ferc_cogen_status',
-        'ferc_small_power_producer',
-        'ferc_exempt_wholesale_generator'
     ]
 
     for column in boolean_columns_to_fix:
-        gens_df[column] = (
-            gens_df[column]
-            .fillna("NaN")
-            .replace(
-                to_replace=["Y", "N", "NaN"],
-                value=[True, False, pd.NA])
-        )
+        gens_df[column] = gens_df[column].map(BOOL_MAP)
 
     # A subset of the pre-2009 columns refer to transportation methods with a
     # series of codes. This writes them out in their entirety.
@@ -224,7 +216,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         gens_df[column] = (
             gens_df[column]
             .astype('string')
-            .replace(pc.TRANSIT_TYPE_DICT)
+            .map(pc.TRANSIT_TYPE_DICT)
         )
 
     gens_df = (
@@ -287,17 +279,6 @@ def plants(eia860_dfs, eia860_transformed_dfs):
         str.title()
     )
 
-    # A subset of the columns have "X" values, where other columns_to_fix
-    # have "N" values. Replacing these values with "N" will make for uniform
-    # values that can be converted to Boolean True and False pairs.
-
-    p_df.ash_impoundment_lined = p_df.ash_impoundment_lined.replace(
-        to_replace='X', value='N')
-    p_df.natural_gas_storage = p_df.natural_gas_storage.replace(
-        to_replace='X', value='N')
-    p_df.liquefied_natural_gas_storage = \
-        p_df.liquefied_natural_gas_storage.replace(to_replace='X', value='N')
-
     boolean_columns_to_fix = [
         "ferc_cogen_status",
         "ferc_small_power_producer",
@@ -311,13 +292,7 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     ]
 
     for column in boolean_columns_to_fix:
-        p_df[column] = (
-            p_df[column]
-            .fillna("NaN")
-            .replace(
-                to_replace=["Y", "N", "NaN"],
-                value=[True, False, pd.NA])
-        )
+        p_df[column] = p_df[column].map(BOOL_MAP)
 
     # Ensure plant & operator IDs are integers.
     p_df = pudl.helpers.convert_to_date(p_df)
@@ -441,13 +416,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
     ]
 
     for column in boolean_columns_to_fix:
-        u_df[column] = (
-            u_df[column]
-            .fillna("NaN")
-            .replace(
-                to_replace=["Y", "N", "NaN"],
-                value=[True, False, pd.NA])
-        )
+        u_df[column] = u_df[column].map(BOOL_MAP)
 
     u_df = (
         u_df.astype({
