@@ -600,19 +600,19 @@ class Timeseries:
             if hasattr(attr, 'cache_clear'):
                 attr.cache_clear()
 
-    def unflag(self, flags: Iterable[str]) -> None:
+    def unflag(self, flags: Iterable[str] = None) -> None:
         """
         Unflag values.
 
         Unflags values by restoring their original values and removing their flag.
 
         Args:
-            flags: Flag names.
+            flags: Flag names. If `None`, all flags are removed.
         """
-        mask = np.isin(self.flags, flags)
+        mask = slice(None) if flags is None else np.isin(self.flags, flags)
         self.flags[mask] = None
         self.x[mask] = self.xi[mask]
-        self.flagged = [f for f in self.flagged if f not in flags]
+        self.flagged = [f for f in self.flagged if flags is not None and f not in flags]
 
     def flag_negative_or_zero(self) -> None:
         """Flag negative or zero values (NEGATIVE_OR_ZERO)."""
