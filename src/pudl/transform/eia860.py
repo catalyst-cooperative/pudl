@@ -280,10 +280,10 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     # harvesting.
     p_df['county'] = (
         p_df.county.
-        str.replace(r'[^a-z,A-Z]+', ' ').
+        str.replace(r'[^a-z,A-Z]+', ' ', regex=True).
         str.strip().
         str.lower().
-        str.replace(r'\s+', ' ').
+        str.replace(r'\s+', ' ', regex=True).
         str.title()
     )
 
