@@ -1521,7 +1521,7 @@ working_partitions = {
     },
     'epacems': {
         'years': tuple(range(1995, 2020)),
-        'states': cems_states.keys()},
+        'states': tuple(cems_states.keys())},
     'ferc1': {
         'years': tuple(range(1994, 2020))
     },
@@ -1968,7 +1968,7 @@ RTO_CLASSES = [
     'other'
 ]
 
-ESTIMATED_OR_ACTUAL = {'E': 'Estimated', 'A': 'Actual'}
+ESTIMATED_OR_ACTUAL = {'E': 'estimated', 'A': 'actual'}
 
 TRANSIT_TYPE_DICT = {
     'CV': 'conveyer',

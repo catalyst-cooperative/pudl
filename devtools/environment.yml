@@ -6,6 +6,7 @@ channels:
 dependencies:
   # install_requires
   - addfips~=0.3.0
+  - bitarray<=1.6.1
   - catalystcoop.dbfread~=3.0
   - coloredlogs~=15.0
   - contextily~=1.0
@@ -62,7 +63,6 @@ dependencies:
   - isort~=5.0
   - jedi~=0.17.2
   - lxml~=4.6
-  - nbdime~=2.1
   - pandoc~=2.11
   - pdbpp~=0.10
   - tox~=3.20
@@ -70,9 +70,10 @@ dependencies:
 
   # user environment
   - dask~=2020.12
-  - dask-labextension~=4.0
+  - dask-labextension~=5.0
   - jupyter-resource-usage~=0.5.0
   - jupyterlab~=3.0
+  - nodejs~=12.19
   - pygeos~=0.8.0
   - pysal~=2.1.0
   - python-graphviz~=0.16.0

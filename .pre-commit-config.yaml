@@ -75,4 +75,4 @@ repos:
       verbose: false
       pass_filenames: false
       always_run: true
-      entry: pipenv run pytest src/pudl
+      entry: tox -e unit
