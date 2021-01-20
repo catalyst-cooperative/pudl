@@ -9,11 +9,16 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")
-def fast_out(pudl_engine):
+def fast_out(pudl_engine, pudl_datastore_fixture):
     """A PUDL output object for use with Travis CI."""
     return pudl.output.pudltabl.PudlTabl(
-        pudl_engine, freq="MS", fill_fuel_cost=True,
-        roll_fuel_cost=True, fill_net_gen=True)
+        pudl_engine,
+        ds=pudl_datastore_fixture,
+        freq="MS",
+        fill_fuel_cost=True,
+        roll_fuel_cost=True,
+        fill_net_gen=True
+    )
 
 
 def test_fuel_ferc1(fast_out):
@@ -73,3 +78,13 @@ def test_eia861_etl(fast_out):
 def test_ferc714_etl(fast_out):
     """Make sure that the FERC 714 Extract-Transform steps work."""
     fast_out.etl_ferc714()
+
+
+def test_ferc714_respondents(fast_out):
+    """Test the FERC 714 Respondent & Service Territory outputs."""
+    ferc714_out = pudl.output.ferc714.Respondents(fast_out)
+    _ = ferc714_out.annualize()
+    _ = ferc714_out.categorize()
+    _ = ferc714_out.summarize_demand()
+    _ = ferc714_out.fipsify()
+    _ = ferc714_out.georef_counties()

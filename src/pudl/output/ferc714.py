@@ -1,4 +1,5 @@
 """Functions & classes for compiling derived aspects of the FERC Form 714 data."""
+import pathlib
 from functools import cached_property
 from typing import Any, Dict, List
 
@@ -154,6 +155,12 @@ class Respondents(object):
     ):
         """Set respondent compilation parameters."""
         self.pudl_out = pudl_out
+        if self.pudl_out.ds is None:
+            pudl_in = pathlib.Path(
+                pudl.workspace.setup.get_defaults()["pudl_in"])
+            self.pudl_out.ds = pudl.workspace.datastore.Datastore(
+                local_cache_path=pathlib.Path(pudl_in, "data")
+            )
 
         if pudl_settings is None:
             pudl_settings = pudl.workspace.setup.get_defaults()
@@ -531,7 +538,7 @@ class Respondents(object):
         """
         if update or self._counties_gdf is None:
             census_counties = pudl.analysis.service_territory.get_census2010_gdf(
-                pudl_settings=self.pudl_settings, layer="county")
+                pudl_settings=self.pudl_settings, layer="county", ds=self.pudl_out.ds)
             self._counties_gdf = (
                 pudl.analysis.service_territory.add_geometries(
                     self.fipsify(update=update), census_gdf=census_counties)
