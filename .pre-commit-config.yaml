@@ -30,7 +30,7 @@ repos:
 
 # Make sure import statements are sorted uniformly.
 - repo: https://github.com/pre-commit/mirrors-isort
-  rev: v5.6.4
+  rev: v5.7.0
   hooks:
   - id: isort
 
@@ -65,3 +65,14 @@ repos:
   hooks:
   - id: bandit
     args: [--configfile, .bandit.yml]
+
+- repo: local
+  hooks:
+    - id: unit-tests
+      name: unit-tests
+      stages: [commit]
+      language: system
+      verbose: false
+      pass_filenames: false
+      always_run: true
+      entry: tox -e unit

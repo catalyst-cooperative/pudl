@@ -2063,6 +2063,12 @@
                         "format": "default"
                     },
                     {
+                        "name": "owned_by_non_utility",
+                        "type": "boolean",
+                        "description": "Whether any part of generator is owned by a nonutilty",
+                        "format": "default"
+                    },
+                    {
                         "name": "utility_id_eia",
                         "type": "integer",
                         "description": "EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.",
@@ -2075,6 +2081,12 @@
                         "format": "default"
                     },
                     {
+                        "name": "reactive_power_output_mvar",
+                        "type": "number",
+                        "description": "Reactive Power Output (MVAr)",
+                        "format": "default"
+                    },
+                    {
                         "name": "summer_capacity_mw",
                         "type": "number",
                         "description": "The net summer capacity.",
@@ -2084,6 +2096,18 @@
                         "name": "winter_capacity_mw",
                         "type": "number",
                         "description": "The net winter capacity.",
+                        "format": "default"
+                    },
+                    {
+                        "name": "summer_capacity_estimate",
+                        "type": "boolean",
+                        "description": "Whether the summer capacity value was an estimate",
+                        "format": "default"
+                    },
+                    {
+                        "name": "winter_capacity_estimate",
+                        "type": "boolean",
+                        "description": "Whether the winter capacity value was an estimate",
                         "format": "default"
                     },
                     {
@@ -2123,9 +2147,51 @@
                         "format": "default"
                     },
                     {
+                        "name": "energy_source_1_transport_1",
+                        "type": "string",
+                        "description": "Primary Mode of Transportaion for Energy Source 1",
+                        "format": "default"
+                    },
+                    {
+                        "name": "energy_source_1_transport_2",
+                        "type": "string",
+                        "description": "Secondary Mode of Transportaion for Energy Source 1",
+                        "format": "default"
+                    },
+                    {
+                        "name": "energy_source_1_transport_3",
+                        "type": "string",
+                        "description": "Third Mode of Transportaion for Energy Source 1",
+                        "format": "default"
+                    },
+                    {
+                        "name": "energy_source_2_transport_1",
+                        "type": "string",
+                        "description": "Primary Mode of Transportaion for Energy Source 2",
+                        "format": "default"
+                    },
+                    {
+                        "name": "energy_source_2_transport_2",
+                        "type": "string",
+                        "description": "Secondary Mode of Transportaion for Energy Source 2",
+                        "format": "default"
+                    },
+                    {
+                        "name": "energy_source_2_transport_3",
+                        "type": "string",
+                        "description": "Third Mode of Transportaion for Energy Source 2",
+                        "format": "default"
+                    },
+                    {
                         "name": "fuel_type_code_pudl",
                         "type": "string",
                         "description": "Standardized fuel codes in PUDL.",
+                        "format": "default"
+                    },
+                    {
+                        "name": "distributed_generation",
+                        "type": "boolean",
+                        "description": "Whether the generator is considered distributed generation",
                         "format": "default"
                     },
                     {
@@ -3649,6 +3715,11 @@
                         "format": "default"
                     },
                     {
+                        "name": "datum",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
                         "name": "energy_storage",
                         "type": "string",
                         "description": "Indicates if the facility has energy storage capabilities.",
@@ -3706,6 +3777,12 @@
                         "name": "natural_gas_pipeline_name_3",
                         "type": "string",
                         "description": "The name of the owner or operator of natural gas pipeline that connects directly to this facility or that connects to a lateral pipeline owned by this facility.",
+                        "format": "default"
+                    },
+                    {
+                        "name": "nerc_region",
+                        "type": "string",
+                        "description": "NERC region in which the plant is located",
                         "format": "default"
                     },
                     {
@@ -4478,6 +4555,7 @@
                         "type": "string",
                         "constraints": {
                             "enum": [
+                                "AK",
                                 "AL",
                                 "AR",
                                 "AZ",
@@ -5174,6 +5252,11 @@
                         "format": "default"
                     },
                     {
+                        "name": "address_3",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
                         "name": "zip_code_4",
                         "type": "string",
                         "format": "default"
@@ -5206,6 +5289,30 @@
                     {
                         "name": "contact_title_2",
                         "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "phone_extension_1",
+                        "type": "string",
+                        "description": "Phone extension for contact 1",
+                        "format": "default"
+                    },
+                    {
+                        "name": "phone_extension_2",
+                        "type": "string",
+                        "description": "Phone extension for contact 2",
+                        "format": "default"
+                    },
+                    {
+                        "name": "phone_number_1",
+                        "type": "string",
+                        "description": "Phone number for contact 1",
+                        "format": "default"
+                    },
+                    {
+                        "name": "phone_number_2",
+                        "type": "string",
+                        "description": "Phone number for contact 2",
                         "format": "default"
                     }
                 ],
@@ -5398,12 +5505,6 @@
                         "format": "default"
                     },
                     {
-                        "name": "nerc_region",
-                        "type": "string",
-                        "description": "NERC region in which the plant is located",
-                        "format": "default"
-                    },
-                    {
                         "name": "primary_purpose_naics_id",
                         "type": "number",
                         "description": "North American Industry Classification System (NAICS) code that best describes the primary purpose of the reporting plant",
@@ -5419,6 +5520,12 @@
                         "name": "sector_id",
                         "type": "number",
                         "description": "Plant-level sector number, designated by the primary purpose, regulatory status and plant-level combined heat and power status",
+                        "format": "default"
+                    },
+                    {
+                        "name": "service_area",
+                        "type": "string",
+                        "description": "Service area in which plant is located; for unregulated companies, it's the electric utility with which plant is interconnected",
                         "format": "default"
                     },
                     {
