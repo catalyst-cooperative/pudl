@@ -18,7 +18,6 @@ Think of DataFrameCollection as a dict-like structure backed by a disk.
 """
 
 import logging
-import os
 import uuid
 from pathlib import Path
 from typing import Dict, Iterator, List, Optional, Tuple
@@ -84,7 +83,7 @@ class DataFrameCollection:
             # Do not make directories when dealing with remote storage.
             # TODO(rousik): this is fairly crude solution and won't work
             # for non gcs remote storage.
-            Path(os.path.dirname(filename)).mkdir(exist_ok=True, parents=True)
+            Path(filename).parent.mkdir(exist_ok=True, parents=True)
         data.to_pickle(filename)
         self._table_ids[name] = self._instance_id
 
