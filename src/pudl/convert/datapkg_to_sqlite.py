@@ -150,7 +150,9 @@ def main():
     logger.info(f"pudl_in={pudl_settings['pudl_in']}")
     logger.info(f"pudl_out={pudl_settings['pudl_out']}")
 
-    # Check if there's already a PUDL SQLite DB that we should not clobber:
+    # Check if there's already a PUDL SQLite DB that we should not clobber
+    # Need to remove the sqlite:/// prefix from the SQLAlchemy URL since
+    # what we're checking against is a file path, not a URL.
     if (
         not args.clobber
         and pathlib.Path(pudl_settings["pudl_db"].replace("sqlite:///", "").exists())

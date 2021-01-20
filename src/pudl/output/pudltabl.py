@@ -28,7 +28,7 @@ Todo:
 """
 
 import logging
-import pathlib
+from pathlib import Path
 
 # Useful high-level external modules.
 import pandas as pd
@@ -48,9 +48,17 @@ logger = logging.getLogger(__name__)
 class PudlTabl(object):
     """A class for compiling common useful tabular outputs from the PUDL DB."""
 
-    def __init__(self, pudl_engine, ds=None, freq=None, start_date=None,
-                 end_date=None, fill_fuel_cost=False, roll_fuel_cost=False,
-                 fill_net_gen=False):
+    def __init__(
+        self,
+        pudl_engine,
+        ds=None,
+        freq=None,
+        start_date=None,
+        end_date=None,
+        fill_fuel_cost=False,
+        roll_fuel_cost=False,
+        fill_net_gen=False
+    ):
         """
         Initialize the PUDL output object.
 
@@ -86,6 +94,11 @@ class PudlTabl(object):
         # We need datastore access because some data is not yet integrated into the
         # PUDL DB. See the etl_eia861 method.
         self.ds = ds
+        if self.ds is None:
+            pudl_in = Path(pudl.workspace.setup.get_defaults()["pudl_in"])
+            self.ds = pudl.workspace.datastore.Datastore(
+                local_cache_path=pudl_in / "data"
+            )
 
         # grab all working eia dates to use to set start and end dates if they
         # are not set
@@ -228,13 +241,6 @@ class PudlTabl(object):
             logger.warning(
                 "Running the interim EIA 861 ETL process!")
 
-            if self.ds is None:
-                pudl_in = pathlib.Path(
-                    pudl.workspace.setup.get_defaults()["pudl_in"])
-                self.ds = pudl.workspace.datastore.Datastore(
-                    local_cache_path=pathlib.Path(pudl_in, "data")
-                )
-
             eia861_raw_dfs = (
                 pudl.extract.eia861.Extractor(self.ds)
                 .extract(year=pc.working_partitions["eia861"]["years"])
@@ -363,12 +369,6 @@ class PudlTabl(object):
             logger.warning(
                 "Running the interim FERC 714 ETL process!")
 
-            if self.ds is None:
-                pudl_in = pathlib.Path(
-                    pudl.workspace.setup.get_defaults()["pudl_in"])
-                self.ds = pudl.workspace.datastore.Datastore(
-                    local_cache_path=pathlib.Path(pudl_in, "data")
-                )
             ferc714_raw_dfs = pudl.extract.ferc714.extract(ds=self.ds)
             ferc714_tfr_dfs = pudl.transform.ferc714.transform(ferc714_raw_dfs)
             for table in ferc714_tfr_dfs:

@@ -1,5 +1,4 @@
 """Functions & classes for compiling derived aspects of the FERC Form 714 data."""
-import pathlib
 from functools import cached_property
 from typing import Any, Dict, List
 
@@ -155,12 +154,6 @@ class Respondents(object):
     ):
         """Set respondent compilation parameters."""
         self.pudl_out = pudl_out
-        if self.pudl_out.ds is None:
-            pudl_in = pathlib.Path(
-                pudl.workspace.setup.get_defaults()["pudl_in"])
-            self.pudl_out.ds = pudl.workspace.datastore.Datastore(
-                local_cache_path=pathlib.Path(pudl_in, "data")
-            )
 
         if pudl_settings is None:
             pudl_settings = pudl.workspace.setup.get_defaults()
