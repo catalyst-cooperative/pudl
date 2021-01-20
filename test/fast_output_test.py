@@ -80,9 +80,12 @@ def test_ferc714_etl(fast_out):
     fast_out.etl_ferc714()
 
 
-def test_ferc714_respondents(fast_out):
+def test_ferc714_respondents(fast_out, pudl_settings_fixture):
     """Test the FERC 714 Respondent & Service Territory outputs."""
-    ferc714_out = pudl.output.ferc714.Respondents(fast_out)
+    ferc714_out = pudl.output.ferc714.Respondents(
+        fast_out,
+        pudl_settings=pudl_settings_fixture,
+    )
     _ = ferc714_out.annualize()
     _ = ferc714_out.categorize()
     _ = ferc714_out.summarize_demand()
