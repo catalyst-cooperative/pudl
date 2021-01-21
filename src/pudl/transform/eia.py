@@ -902,4 +902,4 @@ def transform(eia_dfc: DataFrameCollection,
 
     eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
         eia_transformed_dfs, 'eia')
-    return DataFrameCollection(**eia_transformed_dfs)
+    return DataFrameCollection.from_dict(eia_transformed_dfs)
