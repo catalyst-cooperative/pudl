@@ -43,10 +43,12 @@ import logging
 import pathlib
 import re
 import uuid
+from typing import Dict
 
 import datapackage
 import goodtables_pandas as goodtables
 import pkg_resources
+from prefect import task
 
 import pudl
 from pudl import constants as pc
@@ -502,7 +504,7 @@ def get_autoincrement_columns(unpartitioned_tables):
     return autoincrement
 
 
-def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
+def validate_save_datapkg(datapkg_descriptor, datapkg_dir, skip_validation: bool = False):
     """
     Validate datapackage descriptor, save it, and validate some sample data.
 
@@ -512,6 +514,9 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
         datapkg_dir (path-like): Directory into which the datapackage.json
             file containing the tabular datapackage descriptor should be
             written.
+        skip_validation (bool): if enabled, goodtables validation will not
+            be performed on the datapackage. This is a stop-gap solution for
+            epacems that is too large to fit.
 
     Returns:
         dict: A dictionary containing the goodtables datapackage validation
@@ -542,7 +547,13 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
     logger.info(
         f"Validating {datapkg.descriptor['name']} tabular data package "
         f"using goodtables_pandas...")
-    report = goodtables.validate(str(datapkg_json))
+    # TODO(rousik): skip this validation for epacems to avoid memory crash!
+    # Disable
+    if skip_validation:
+        report = {"valid": True}
+    else:
+        report = goodtables.validate(str(datapkg_json))
+
     if not report["valid"]:
         # This will contain human-readable compact error report with up to 5 offending
         # values per problem.
@@ -567,9 +578,41 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
     return report
 
 
+@task
+def write_to_disk_and_build_resource_descriptor(
+        dfc: DataFrameCollection,
+        datapkg_dir: str,
+        datapkg_settings: Dict):
+    """
+    Writes contents of DataFrameCollection to disk and builds resource descriptor.
+
+    Resource descriptor is dict representing json structures describing this specific
+    datpackage resource.
+
+    Args:
+        dfc: DataFrameCollection containing data frames that should be processed.
+        datapkg_dir: output directory where the csv files should be written to.
+        datapkg_settings (dict): datapackage configuration.
+
+    Returns:
+        dict representing the resource descriptor json.
+    """
+    partitions = compile_partitions(datapkg_settings)
+    # TODO(rousik): partitions should be calculated once per datapkg_settings by calling
+    # compile_partitions(datapkg_settings)
+    for resource, df in dfc.items():
+        csv.clean_columns_dump(df, resource, datapkg_dir)
+    return get_tabular_data_resource(
+        resource,
+        datapkg_dir=datapkg_dir,
+        datapkg_settings=datapkg_settings,
+        partitions=partitions)
+
+
 def generate_metadata(
         datapkg_settings,
         datapkg_data_frames: DataFrameCollection,
+        resource_descriptors: Dict,
         datapkg_dir,
         datapkg_bundle_uuid=None,
         datapkg_bundle_doi=None):
@@ -600,9 +643,12 @@ def generate_metadata(
             package. The data package directory will be a subdirectory in the
             `datapkg_dir` directory, with the name of the package as the
             name of the subdirectory.
+        resource_descriptors (list of dicts): list of dictionaries repreenting
+            resource descriptors that are contained in this datapackage.
         datapkg_bundle_uuid: A type 4 UUID identifying the ETL run which
             which generated the data package -- this indicates that the data
             packages are compatible with each other
+            resource descriptors that are contained in this datapackage.
         datapkg_bundle_doi: A digital object identifier (DOI) that will be used
             to archive the bundle of mutually compatible data packages. Needs
             to be provided by an archiving service like Zenodo. This field may
@@ -614,20 +660,6 @@ def generate_metadata(
 
     """
     # Create a tabular data resource for each of the input resources:
-    resources = []
-    partitions = compile_partitions(datapkg_settings)
-    logger.info(
-        f"DataFrameCollection has tables: {datapkg_data_frames.get_table_names()}")
-    for resource, df in datapkg_data_frames.items():
-        logger.info(f"Writing csv file for table {resource}.")
-        csv.clean_columns_dump(df, resource, datapkg_dir)
-        resources.append(get_tabular_data_resource(
-            resource,
-            datapkg_dir=datapkg_dir,
-            datapkg_settings=datapkg_settings,
-            partitions=partitions)
-        )
-
     datapkg_tables = get_unpartitioned_tables(
         datapkg_data_frames.get_table_names(), datapkg_settings)
     data_sources = data_sources_from_tables(datapkg_tables)
@@ -656,7 +688,7 @@ def generate_metadata(
         "python-package-name": "catalystcoop.pudl",
         "python-package-version":
             pkg_resources.get_distribution('catalystcoop.pudl').version,
-        "resources": resources,
+        "resources": resource_descriptors,
     }
 
     # Optional fields:
@@ -690,5 +722,11 @@ def generate_metadata(
             )
         datapkg_descriptor["datapkg-bundle-doi"] = datapkg_bundle_doi
 
-    _ = validate_save_datapkg(datapkg_descriptor, datapkg_dir)
+    # TODO(rousik): goodtables validation fails to validate epacems that is too large, so
+    # let's just skip it for now.
+    skip_validation = any(
+        'hourly_emissions_epacems' in res['name'] for res in resource_descriptors
+    )
+    _ = validate_save_datapkg(datapkg_descriptor, datapkg_dir,
+                              skip_validation=skip_validation)
     return datapkg_descriptor

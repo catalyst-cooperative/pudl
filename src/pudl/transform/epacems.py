@@ -1,6 +1,7 @@
 """Routines specific to cleaning up EPA CEMS hourly data."""
 import datetime
 import logging
+from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -8,7 +9,6 @@ from prefect import task
 
 import pudl
 from pudl.dfc import DataFrameCollection
-from pudl.extract.epacems import EpaCemsPartition
 
 logger = logging.getLogger(__name__)
 ###############################################################################
@@ -64,7 +64,7 @@ def fix_up_dates(df, plant_utc_offset):
     return df
 
 
-@task
+@task(target="epacems.plant_entity")
 def load_plant_utc_offset(plant_entity_df):
     """Build UTC offset for each EIA plant.
 
@@ -194,11 +194,9 @@ def correct_gross_load_mw(df):
     return df
 
 
-@task(task_run_name="transform-epacems-{partition}")  # noqa: FS003
 def transform_epacems(
-        dfs: DataFrameCollection,
-        plant_utc_offset: pd.DataFrame,
-        partition: EpaCemsPartition) -> DataFrameCollection:
+        dfs: Dict[str, pd.DataFrame],
+        plant_utc_offset: pd.DataFrame) -> DataFrameCollection:
     """Transform EPA CEMS hourly data for use in datapackage export."""
     results = DataFrameCollection()
     for table_name, df in dfs.items():

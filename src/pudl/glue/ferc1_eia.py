@@ -35,9 +35,11 @@ import logging
 
 import pandas as pd
 import sqlalchemy as sa
+from prefect import task
 
 import pudl
 from pudl import constants as pc
+from pudl.dfc import DataFrameCollection
 
 logger = logging.getLogger(__name__)
 
@@ -540,7 +542,8 @@ def get_lost_utils_eia(pudl_engine):
     return lost_utils_eia
 
 
-def glue(ferc1=False, eia=False):
+@task(target="glue-eia:{eia}-ferc1:{ferc1}")  # noqa: FS003
+def glue(ferc1=False, eia=False) -> DataFrameCollection:
     """Generates a dictionary of dataframes for glue tables between FERC1, EIA.
 
     That data is primarily stored in the plant_output and
@@ -582,7 +585,7 @@ def glue(ferc1=False, eia=False):
     # relationships to ferc datatables, so we need some of the eia/ferc 'glue'
     # even when only ferc is ingested into the database.
     if not ferc1 and not eia:
-        return
+        return DataFrameCollection()
 
     # We need to standardize plant names -- same capitalization and no leading
     # or trailing white space... since this field is being used as a key in
@@ -715,4 +718,4 @@ def glue(ferc1=False, eia=False):
         del glue_dfs['utilities_ferc1']
         del glue_dfs['plants_ferc1']
 
-    return glue_dfs
+    return DataFrameCollection.from_dict(glue_dfs)

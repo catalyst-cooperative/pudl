@@ -25,6 +25,7 @@ import tarfile
 import uuid
 from datetime import datetime
 from pathlib import Path
+from typing import Dict, List
 
 import pandas as pd
 import prefect
@@ -104,17 +105,21 @@ def command_line_flags() -> argparse.ArgumentParser:
         If not specified, the default will be loaded from environment variable
         PUDL_GCS_CACHE_PATH. If that one is not set, Google Cloud Storage caching will
         not be used.""")
+    # TODO(rousik): the above should be marked as "datastore" cache.
     parser.add_argument(
         "--bypass-local-cache",
         action="store_true",
         default=False,
         help="If enabled, the local file cache for datastore will not be used.")
+    # TODO(rousik): the above should also be marked as "datastore" cache
     parser.add_argument(
         "--gcs-cache-readonly",
         action="store_true",
         default=False,
         help="""If this is set to true, then the caching layer specified by --cs-cache-path
         will be set to be read-only (no modifications will be attempted).""")
+    # TODO(rousik): the above should also be datastore cache
+
     parser.add_argument(
         "--gcs-bucket-for-prefect-cache",
         type=str,
@@ -128,6 +133,16 @@ def command_line_flags() -> argparse.ArgumentParser:
         either absolute path, file://local-path or gs://path-to-cloud-storage. DataFrames
         will be serialized in the form of parquet files in this location as they're passed
         between prefect tasks.""")
+    parser.add_argument(
+        "--pipeline-cache-path",
+        type=str,
+        default=None,
+        help="""Controls where the pipeline should be storing its cache. This should be
+        used for both the prefect task results as well as for the DataFrameCollections.""")
+    # TODO(rousik): the above should replace --task-result-cache-path and
+    # --gcs-bucket-for-prefect-cache. This should also be made such that both
+    # local paths as well as gs://paths are supported.
+
     return parser
 
 
@@ -214,7 +229,8 @@ class DatasetPipeline:
         self.datapkg_dir = datapkg_dir
         if self.pipeline_params:
             self.pipeline_params = self.validate_params(self.pipeline_params)
-            self.output_dfc = self.build(self.pipeline_params)
+            with prefect.context(pudl_pipeline_params=self.pipeline_params):
+                self.output_dfc = self.build(self.pipeline_params)
 
     def _get_dataset_params(self, dataset_list):
         """Return params that match self.DATASET.
@@ -274,7 +290,7 @@ class DatasetPipeline:
 ###############################################################################
 
 
-@task
+@task(target="eia.static-tables")
 def _load_static_tables_eia():
     """Populate static EIA tables with constants for use as foreign keys.
 
@@ -314,36 +330,22 @@ def _load_static_tables_eia():
     )
 
 
-def pudl_task_target_name(**kwargs):
-    """Constructs the path where ETL task result should be stored."""
-    target_task = kwargs["task_full_name"]
-    logger.debug(
-        f'pudl_task_target_name for {target_task} has these kwargs: {sorted(kwargs)}')
-    output_path = ''
-    parsed_tags = dict(tag.split(':', maxsplit=1) for tag in kwargs["task_tags"])
-    if 'datapkg' in parsed_tags:
-        output_path += parsed_tags["datapkg"] + "/"
-    output_path += kwargs["task_name"]
-    return output_path
-
-
-# TODO(rousik): perhaps we should add target=pudl_task_target_name to these tasks
 @task
-def _extract_eia860(params):
-    dfs = pudl.extract.eia860.Extractor(
-        Datastore.from_prefect_context()).extract(year=params['eia860_years'])
-    if params['eia860_ytd']:
-        eia860m_dfs = pudl.extract.eia860m.Extractor(Datastore.from_prefect_context()).extract(
-            year_month=pc.working_partitions['eia860m']['year_month'])
-        dfs = pudl.extract.eia860m.append_eia860m(dfs, eia860m_dfs)
-    return DataFrameCollection(**dfs)
+def merge_eia860m(eia860: DataFrameCollection, eia860m: DataFrameCollection):
+    """Combines overlapping eia860 and eia860m data frames."""
+    eia860m_dfs = eia860m.to_dict()
+    result = DataFrameCollection()
 
-
-@task
-def _extract_eia923(params):
-    dfs = pudl.extract.eia923.Extractor(
-        Datastore.from_prefect_context()).extract(year=params['eia923_years'])
-    return DataFrameCollection(**dfs)
+    for table_name, table_id in eia860.get_table_ids().items():
+        if table_name not in eia860m_dfs:
+            logger.warning(
+                f'eia860 table {table_name} does not have monthly data from eia860m.')
+            result.add_reference(table_name, table_id)
+        else:
+            df = eia860.get(table_name)
+            df = df.append(eia860m_dfs[table_name], ignore_index=True, sort=True)
+            result.store(table_name, df)
+    return result
 
 
 @task
@@ -434,18 +436,40 @@ class EiaPipeline(DatasetPipeline):
         if not (_all_params_present(params, ['eia923_tables', 'eia923_years']) or
                 _all_params_present(params, ['eia860_tables', 'eia860_years'])):
             return None
+
+        # TODO(rousik): task names are nice for human readable results but in the end, they
+        # are probably not worth worrying about.
+        eia860_extract = pudl.extract.eia860.Extractor(
+            name='eia860.extract',
+            target=f'{self.datapkg_name}/eia860.extract')
+        eia860m_extract = pudl.extract.eia860m.Extractor(
+            name='eia860m.extract',
+            target=f'{self.datapkg_name}/eia860m.extract')
+        eia923_extract = pudl.extract.eia923.Extractor(
+            name='eia923.extract',
+            target=f'{self.datapkg_name}/eia923.extract')
         with self.flow:
-            # @with prefect.context(datapkg_name=self.datapkg_name):
-            with prefect.tags(f'datapkg:{self.datapkg_name}'):
-                # TODO(rousik): setting params in prefect.context would make these
-                # calls a lot simpler: _transform(_extract())
-                eia860_dfc = _transform_eia860(
-                    params, _extract_eia860(params))
-                eia923_dfc = _transform_eia923(
-                    params, _extract_eia923(params))
-                return dfc.merge(
-                    _load_static_tables_eia(),
-                    _transform_eia(params, dfc.merge(eia860_dfc, eia923_dfc)))
+            eia860_df = eia860_extract(year=params['eia860_years'])
+            if params['eia860_ytd']:
+                m_df = eia860m_extract(
+                    year_month=pc.working_partitions['eia860m']['year_month'])
+                eia860_df = merge_eia860m(
+                    eia860_df, m_df,
+                    task_args=dict(target=f'{self.datapkg_name}/eia860m.merge'))
+            eia860_df = _transform_eia860(
+                params, eia860_df,
+                task_args=dict(target=f'{self.datapkg_name}/eia860.transform'))
+
+            eia923_df = _transform_eia923(
+                params,
+                eia923_extract(year=params['eia923_years']),
+                task_args=dict(target=f'{self.datapkg_name}/eia923.transform'))
+            return dfc.merge(
+                _load_static_tables_eia(),
+                _transform_eia(
+                    params, dfc.merge(eia860_df, eia923_df),
+                    task_args=dict(target=f'{self.datapkg_name}/eia.transform')),
+                task_args=dict(target=f'{self.datapkg_name}/eia.final_tables'))
 
     def get_table(self, table_name):
         """Returns DataFrame for given table that is emitted by the pipeline.
@@ -471,7 +495,7 @@ class EiaPipeline(DatasetPipeline):
 ###############################################################################
 
 
-@task
+@task(target="ferc1.static-tables")
 def _load_static_tables_ferc1():
     """Populate static PUDL tables with constants for use as foreign keys.
 
@@ -565,12 +589,19 @@ class Ferc1Pipeline(DatasetPipeline):
                     self.etl_settings,
                     self.pudl_settings,
                     overwrite=self.overwrite_ferc1_db)
-                # TODO(rousik): wire the clobber argument to commandline flag,
-                # --create-ferc1-sqlite=always|once|never
             raw_dfs = _extract_ferc1(params, self.pudl_settings,
                                      upstream_tasks=self.flow.get_tasks(name='ferc1_to_sqlite'))
             dfs = _transform_ferc1(params, raw_dfs)
             return dfc.merge(_load_static_tables_ferc1(), dfs)
+
+
+@task(target="epacems-{partition}", task_run_name="epacems-{partition}")  # noqa: FS003
+def epacems_process_partition(
+        partition: EpaCemsPartition,
+        plant_utc_offset: pd.DataFrame) -> DataFrameCollection:
+    """Runs extract and transform phases for a given epacems partition."""
+    dfs = pudl.extract.epacems.extract_epacems(partition)
+    return pudl.transform.epacems.transform_epacems(dfs, plant_utc_offset)
 
 
 class EpaCemsPipeline(DatasetPipeline):
@@ -635,12 +666,11 @@ class EpaCemsPipeline(DatasetPipeline):
             partitions = [
                 EpaCemsPartition(year=y, state=s)
                 for y, s in itertools.product(params["epacems_years"], params["epacems_states"])]
-            raw_dfs = pudl.extract.epacems.extract_epacems.map(partition=partitions)
-            tf_dfs = pudl.transform.epacems.transform_epacems.map(
-                raw_dfs,
-                plant_utc_offset=unmapped(plants),
-                partition=partitions)
-            return dfc.merge_list(tf_dfs)
+
+            epacems_dfc = epacems_process_partition.map(
+                partitions,
+                plant_utc_offset=unmapped(plants))
+            return dfc.merge_list(epacems_dfc)
 
 ##############################################################################
 # EPA IPM ETL FUNCTIONS
@@ -714,7 +744,7 @@ class EpaIpmPipeline(DatasetPipeline):
 ###############################################################################
 # GLUE EXPORT FUNCTIONS
 ###############################################################################
-@task
+@task(target=lambda **kw: "glue." + ".".join(sorted(p for p in kw["params"] if kw["params"][p])))
 def _transform_glue(params):
     # TODO(rousik): replace this thin wrapper with @task annotation on ferc1_eia.glue()
     return DataFrameCollection(
@@ -724,32 +754,27 @@ def _transform_glue(params):
 class GluePipeline(DatasetPipeline):
     """Runs glue tasks combining eia/ferc1 results."""
 
+    # TODO(rousik): this is a lot of boilerplate for very little use. Perhaps refactor.
     DATASET = 'glue'
 
     @staticmethod
     def validate_params(etl_params):
-        """Validate and normalize glue parameters."""
-        glue_dict = {}
-        # pull out the etl_params from the dictionary passed into this function
-        try:
-            glue_dict['ferc1'] = etl_params['ferc1']
-        except KeyError:
-            glue_dict['ferc1'] = False
-        try:
-            glue_dict['eia'] = etl_params['eia']
-        except KeyError:
-            glue_dict['eia'] = False
-        if not glue_dict['ferc1'] and not glue_dict['eia']:
-            return {}
-        else:
-            return glue_dict
+        """
+        Validates and normalizes glue parameters.
+
+        This effectively creates dict with ferc1 and eia entries that determine
+        whether eia and ferc1 components of the glue process should be retrieved.
+        """
+        # Create dict that indicates whether ferc1, eia records are in the etl_params
+        glue_params = {p: bool(etl_params.get(p, False)) for p in ['ferc1', 'eia']}
+        if any(glue_params.values()):
+            return glue_params
+        return {}
 
     def build(self, params):
         """Add glue tasks to the flow."""
-        if not params.get('ferc1') and not params.get('eia'):
-            return None
         with self.flow:
-            return _transform_glue(params)
+            return pudl.glue.ferc1_eia.glue(params)
 
 ###############################################################################
 # Coordinating functions
@@ -996,7 +1021,18 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
             if pl.is_executed():
                 logger.info(f"{datapkg_name} contains dataset {dataset}")
                 outputs.append(pl.outputs())
-        datapkg_builder(dfc.merge_list(outputs), datapkg_settings)
+
+        all_outputs = dfc.merge_list(outputs)
+        resource_descriptors = pudl.load.metadata.write_to_disk_and_build_resource_descriptor.map(
+            dfc.fanout(all_outputs),
+            datapkg_dir=unmapped(datapkg_dir),
+            datapkg_settings=unmapped(datapkg_settings))
+
+        datapkg_builder(
+            all_outputs,
+            resource_descriptors,
+            datapkg_settings,
+            task_args={'task_run_name': f'DatapackageBuilder-{datapkg_name}'})
 
 
 class DatapackageBuilder(prefect.Task):
@@ -1024,6 +1060,9 @@ class DatapackageBuilder(prefect.Task):
         self.bundle_name = bundle_name
         self.gcs_bucket = gcs_bucket
         logger.warning(f'DatapackageBuilder uuid is {self.uuid}')
+        logger.info(
+            f'Datapackage bundle_name {bundle_name} with settings: {pudl_settings}')
+
         super().__init__(*args, **kwargs)
 
     def noslash_doi(self):
@@ -1050,7 +1089,11 @@ class DatapackageBuilder(prefect.Task):
         """Returns fully qualified datapkg name in the form of bundle_name/datapkg."""
         return f'{self.bundle_name}/{datapkg_settings["name"]}'
 
-    def run(self, tables: DataFrameCollection, datapkg_settings):
+    def run(
+            self,
+            tables: DataFrameCollection,
+            resource_descriptors: List[Dict],
+            datapkg_settings):
         """Write metadata and validate contents."""
         datapkg_full_name = self.get_datapkg_name(datapkg_settings)
         logger.info(
@@ -1058,6 +1101,7 @@ class DatapackageBuilder(prefect.Task):
         results = pudl.load.metadata.generate_metadata(
             datapkg_settings,
             tables,
+            resource_descriptors,
             self.get_datapkg_output_dir(datapkg_settings),
             datapkg_bundle_uuid=self.uuid,
             datapkg_bundle_doi=self.doi)
@@ -1113,15 +1157,47 @@ def generate_datapkg_bundle(etl_settings: dict,
     # TODO(rousik): args.clobber should be moved to prefect.context, also other
     # configuration parameters such as overwrite-ferc1-db.
     datapkg_bundle_settings = etl_settings['datapkg_bundle_settings']
+    prefect.context.pudl_datapkg_bundle_settings = datapkg_bundle_settings
+    prefect.context.pudl_datapkg_bundle_name = datapkg_bundle_name
 
     flow_kwargs = {}
+    # TODO(rousik): simplify the following such that pipeline_cache_path
+    # could be either local or gs:// path, then configure GCSResult in a way
+    # to store things into the corresponding bucket, under run_uuid.
     if commandline_args.gcs_bucket_for_prefect_cache:
         flow_kwargs["result"] = GCSResult(
             bucket=commandline_args.gcs_bucket_for_prefect_cache)
     else:
-        flow_kwargs["result"] = LocalResult()
+        pipeline_cache_root = commandline_args.pipeline_cache_path
+        if not pipeline_cache_root:
+            pipeline_cache_root = (Path(pudl_settings["pudl_out"]) / "cache").as_posix()
+
+        pipeline_cache_root = pipeline_cache_root.rstrip("/")
+
+        # We will store stuff under
+        # $pipeline_cache_root/prefect and $pipeline_cache_root/dataframes
+        # TODO(rousik): eventually, we should put in run_id here as well
+        prefect.context.data_frame_storage_path = f"{pipeline_cache_root}/dataframes"
+
+        def build_task_result_name(**kwargs):
+            task_name = kwargs["task_name"]
+            pudl_keys = [k for k in sorted(kwargs) if k.startswith("pudl_")]
+            logger.info(f"build_task_result_name({task_name}): {pudl_keys}")
+            task_attrs = {k: v for k, v in kwargs.items() if k.startswith("task_")}
+            logger.info(f"  - task_attributes: {task_attrs}")
+            return kwargs["task_slug"]
+            # pudl_datapkg_bundle_name.datapkg_settings[name].task_name.map_index
+
+        (Path(pipeline_cache_root) / "prefect").mkdir(exist_ok=True, parents=True)
+        flow_kwargs["result"] = LocalResult(
+            dir=f"{pipeline_cache_root}/prefect",
+            location=build_task_result_name)
+
     flow = prefect.Flow("PUDL ETL", **flow_kwargs)
 
+    # TODO(rousik): DatapackageBuilder.uuid should be restored upon --rerun $uuid,
+    # perhaps by deriving the uuid from the top uuid in a deterministic fashion (e.g.
+    # combining top-level uuid with the datapackage name)
     datapkg_builder = DatapackageBuilder(
         datapkg_bundle_name, pudl_settings, doi=datapkg_bundle_doi,
         gcs_bucket=commandline_args.upload_to_gcs_bucket)
@@ -1144,20 +1220,6 @@ def generate_datapkg_bundle(etl_settings: dict,
         local_cache_path=local_cache_path,
         gcs_cache_path=commandline_args.gcs_cache_path,
         gcs_cache_readonly=commandline_args.gcs_cache_readonly)
-
-    # Configure how DataFrameCollections should store the temporary pd.DataFrames
-    if commandline_args.task_result_cache_path:
-        prefect.context.data_frame_storage_path = commandline_args.task_result_cache_path
-    else:
-        # TODO(rousik): we might want to make sure that this cache is recreated and wiped
-        # clean after the ETL finishes. Alternatively, we might want to nuke the cache here
-        # when the ETL is starting, but this carries risk of interference when two ETLs are
-        # run at the same time. That scenario is already problematic due to the sharing of
-        # ferc1 sqlite database -- pudl_etl is not designed for multiple executions at the
-        # same time.
-        local_cache_path = Path(pudl_settings["pudl_in"]) / "prefect-task-cache"
-        local_cache_path.mkdir(parents=True, exist_ok=True)
-        prefect.context.data_frame_storage_path = local_cache_path.as_posix()
 
     # TODO(rousik): the above code that sets datastore_config in prefect context
     # is a bit of a black magic and should not actually be here but be part of
@@ -1183,6 +1245,7 @@ def generate_datapkg_bundle(etl_settings: dict,
     if commandline_args.dask_executor_address or commandline_args.use_dask_executor:
         prefect_executor = DaskExecutor(address=commandline_args.dask_executor_address)
     state = flow.run(executor=prefect_executor)
+    # TODO(rousik): summarize flow errors (directly failed tasks and their execeptions)
     if commandline_args.show_flow_graph:
         flow.visualize(flow_state=state)
 

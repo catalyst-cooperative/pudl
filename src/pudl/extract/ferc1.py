@@ -538,7 +538,7 @@ class SqliteOverwriteMode(Enum):
     NEVER = 3
 
 
-@task
+@task(checkpoint=False)
 def ferc1_to_sqlite(script_settings, pudl_settings, overwrite=SqliteOverwriteMode.ONCE):
     """Clones the FERC1 Form 1 database to sqlite."""
     logger.warning(f'overwrite={overwrite}, dbfile={pudl_settings["ferc1_db"]}')

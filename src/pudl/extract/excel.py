@@ -4,8 +4,11 @@ import importlib.resources
 import logging
 
 import pandas as pd
+from prefect import Task
 
 import pudl
+from pudl.dfc import DataFrameCollection
+from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +107,7 @@ class Metadata(object):
         return list(partition.values())[0]
 
 
-class GenericExtractor(object):
+class GenericExtractor(Task):
     """Contains logic for extracting panda.DataFrames from excel spreadsheets.
 
     This class implements the generic dataset agnostic logic to load data
@@ -144,19 +147,19 @@ class GenericExtractor(object):
     BLACKLISTED_PAGES = []
     """List of supported pages that should not be extracted."""
 
-    def __init__(self, ds):
+    def __init__(self, *args, **kwargs):
         """
         Create new extractor object and load metadata.
 
         Args:
             ds (datastore.Datastore): An initialized datastore, or subclass
         """
+        super().__init__(*args, **kwargs)
         if not self.METADATA:
             raise NotImplementedError('self.METADATA must be set.')
         self._metadata = self.METADATA
         self._dataset_name = self._metadata.get_dataset_name()
         self._file_cache = {}
-        self.ds = ds
 
     def process_raw(self, df, page, **partition):
         """Transforms raw dataframe and rename columns."""
@@ -177,6 +180,10 @@ class GenericExtractor(object):
     def get_dtypes(page, **partition):
         """Provide custom dtypes for given page and partition."""
         return {}
+
+    def run(self, **partitions):
+        """Executes the extractor task."""
+        return DataFrameCollection(**self.extract(**partitions))
 
     def extract(self, **partitions):
         """Extracts dataframes.
@@ -251,6 +258,9 @@ class GenericExtractor(object):
         Returns:
             pd.ExcelFile instance with the parsed excel spreadsheet frame
         """
+        ds = Datastore.from_prefect_context()
+        # TODO(rousik): perhaps this is not efficient because we are constructing
+        # datastore instances repeatedly
         xlsx_filename = self.excel_filename(page, **partition)
         if xlsx_filename not in self._file_cache:
             excel_file = None
@@ -262,11 +272,11 @@ class GenericExtractor(object):
 
                 # TODO(rousik): if we can make it so, it would be useful to normalize
                 # the eia860m and zip the xlsx files. Then we could simplify this code.
-                res = self.ds.get_unique_resource(
+                res = ds.get_unique_resource(
                     self._dataset_name, name=xlsx_filename)
                 excel_file = pd.ExcelFile(res)
             except KeyError:
-                zf = self.ds.get_zipfile_resource(self._dataset_name, **partition)
+                zf = ds.get_zipfile_resource(self._dataset_name, **partition)
                 excel_file = pd.ExcelFile(zf.read(xlsx_filename))
             finally:
                 self._file_cache[xlsx_filename] = excel_file
