@@ -2,9 +2,11 @@
 import shutil
 import tempfile
 import unittest
+from typing import List
 
 import pandas as pd
 import prefect
+from prefect import task
 
 from pudl import dfc
 from pudl.dfc import DataFrameCollection
@@ -105,27 +107,27 @@ class TestDataFrameCollection(unittest.TestCase):
         pd.testing.assert_frame_equal(first, d["first"])
         pd.testing.assert_frame_equal(second, d["second"])
 
-    def test_make_from_dict(self):
+    def test_from_dict(self):
         """Tests that DFCs can be built from dictionaries."""
         first = pd.DataFrame({'x': [1]})
         second = pd.DataFrame({'y': [2]})
 
-        test_dfc = DataFrameCollection.make_from_dict(
+        test_dfc = DataFrameCollection.from_dict(
             {"first": first, "second": second})
         self.assertEqual(["first", "second"], test_dfc.get_table_names())
         pd.testing.assert_frame_equal(first, test_dfc.get("first"))
         pd.testing.assert_frame_equal(second, test_dfc.get("second"))
 
-    def test_make_from_dict_fails_with_invalid_types(self):
+    def test_from_dict_fails_with_invalid_types(self):
         """If something other than pd.DataFrame is passed DFC should not be created."""
         self.assertRaises(
             ValueError,
-            DataFrameCollection.make_from_dict,
+            DataFrameCollection.from_dict,
             {"first": pd.DataFrame(), "second": "just a string"})
 
     def test_merge_task(self):
         """Test that dfc.merge prefect task works as expected."""
-        @prefect.task
+        @task
         def dfc_from_dict(df_name, d):
             return DataFrameCollection(**{df_name: pd.DataFrame(d)})
 
@@ -143,7 +145,7 @@ class TestDataFrameCollection(unittest.TestCase):
 
     def test_merge_list_task(self):
         """Test that dfc.merge_list task works as expected."""
-        @prefect.task
+        @task
         def named_empty_df(df_name):
             return DataFrameCollection(**{df_name: pd.DataFrame()})
 
@@ -152,3 +154,30 @@ class TestDataFrameCollection(unittest.TestCase):
             res = dfc.merge_list(named_empty_df.map(names))
         final = f.run().result[res].result
         self.assertEqual(["a", "b", "c", "d"], final.get_table_names())
+
+    def test_fanout_task(self):
+        """Test that dfc.fanout will split dataframes into smaller pieces."""
+        @task
+        def make_big_dfc(table_names: List[str]):
+            dfc = DataFrameCollection()
+            for tn in table_names:
+                dfc.store(tn, pd.DataFrame())
+            return dfc
+
+        with prefect.Flow("test") as f:
+            big_one = make_big_dfc(["a", "b", "c", "d", "e", "f"])
+            chunk_1 = dfc.fanout(big_one, chunk_size=1)
+            chunk_4 = dfc.fanout(big_one, chunk_size=4)
+        status = f.run()
+
+        dfc1 = status.result[chunk_1].result
+        self.assertEqual(6, len(dfc1))
+        self.assertEqual(
+            [["a"], ["b"], ["c"], ["d"], ["e"], ["f"]],
+            [x.get_table_names() for x in dfc1])
+
+        dfc4 = status.result[chunk_4].result
+        self.assertEqual(2, len(dfc4))
+        self.assertEqual(
+            [["a", "b", "c", "d"], ["e", "f"]],
+            [x.get_table_names() for x in dfc4])

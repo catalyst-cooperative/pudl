@@ -102,6 +102,10 @@ class DataFrameCollection:
         """Allows adding dataframes via self[name] = value."""
         return self.store(name, data)
 
+    def __len__(self):
+        """Returns number of tables that are stored in this DataFrameCollection."""
+        return len(self._table_ids)
+
     def items(self) -> Iterator[Tuple[str, pd.DataFrame]]:
         """Iterates over table names and the corresponding pd.DataFrame objects."""
         for name in self.get_table_names():
@@ -116,7 +120,7 @@ class DataFrameCollection:
         return dict(self._table_ids)
 
     @staticmethod
-    def make_from_dict(d: Dict[str, pd.DataFrame]):
+    def from_dict(d: Dict[str, pd.DataFrame]):
         """Constructs new DataFrameCollection from dataframe dictionary."""
         return DataFrameCollection(**d)
 
@@ -141,13 +145,34 @@ class DataFrameCollection:
         return dfc
 
 
-@task
+@task(checkpoint=False)
 def merge(left: DataFrameCollection, right: DataFrameCollection):
     """Merges two DataFrameCollection instances."""
     return left.union(right)
 
 
-@task
+@task(checkpoint=False)
 def merge_list(list_of_dfc: List[DataFrameCollection]):
     """Merges list of DataFrameCollection instancs."""
     return DataFrameCollection().union(*list_of_dfc)
+
+
+@task(checkpoint=False)
+def fanout(dfc: DataFrameCollection, chunk_size=1) -> List[DataFrameCollection]:
+    """
+    Split big DataFrameCollection into list of fixed size DataFrameCollections.
+
+    This breaks the input DataFrameCollection into list of smaller DataFrameCollection objects that
+    each hold chunk_size tables. This can be used to allow parallel processing of large DFC
+    contents.
+    """
+    current_chunk = DataFrameCollection()
+    all_results = []
+    for table_name, table_id in dfc.get_table_ids().items():
+        if len(current_chunk) >= chunk_size:
+            all_results.append(current_chunk)
+            current_chunk = DataFrameCollection()
+        current_chunk.add_reference(table_name, table_id)
+    if len(current_chunk):
+        all_results.append(current_chunk)
+    return all_results
