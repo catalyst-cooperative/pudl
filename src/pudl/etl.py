@@ -774,7 +774,8 @@ class GluePipeline(DatasetPipeline):
     def build(self, params):
         """Add glue tasks to the flow."""
         with self.flow:
-            return pudl.glue.ferc1_eia.glue(params)
+            # This expects two named attributes ferc1, eia that have bool values
+            return pudl.glue.ferc1_eia.glue(**params)
 
 ###############################################################################
 # Coordinating functions
