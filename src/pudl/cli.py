@@ -20,6 +20,7 @@ import logging
 import os
 import pathlib
 import sys
+import uuid
 from datetime import datetime
 
 import coloredlogs
@@ -73,6 +74,10 @@ def parse_command_line(argv):
         "--datapkg-bundle-name",
         type=str,
         help="If specified, use this datpkg_bundle_name instead of the default from the config.""")
+    parser.add_argument(
+        "--rerun",
+        type=str,
+        help="If specified, try to resume ETL execution for a given run_id.""")
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -100,14 +105,36 @@ def setup_logging(args):
     logger.setLevel(args.loglevel)
 
 
+def generate_run_id():
+    """Generates random id for this pipeline run that consists of uuid and timestamp."""
+    ts = datetime.now().strftime('%F-%H%M')
+    return f"{ts}-{uuid.uuid4()}"
+
+
 def main():
     """Parse command line and initialize PUDL DB."""
     # Display logged output from the PUDL package:
     args = parse_command_line(sys.argv)
     setup_logging(args)
+    script_settings = None
+    run_id = args.rerun or generate_run_id()
+    logger.warning(
+        f'Running pipeline with run_id {run_id} (use this with --rerun to resume).')
+    # TODO(rousik): run id could be prefixed w/ YYYYMMDDHHMM-uuid to give it monotonic form
 
-    with pathlib.Path(args.settings_file).open() as f:
-        script_settings = yaml.safe_load(f)
+    if args.pipeline_cache_path:
+        args.pipeline_cache_path = os.path.join(args.pipeline_cache_path, run_id)
+        if not args.pipeline_cache_path.startswith("gs://"):
+            pathlib.Path(args.pipeline_cache_path).mkdir(exist_ok=True, parents=True)
+
+    if args.rerun:
+        if not args.pipeline_cache_path:
+            raise AssertionError(
+                'When using --rerun, --pipeline-cache-path must be also set.')
+        args.settings_file = os.path.join(args.pipeline_cache_path, "settings.yml")
+        logger.warning(f'Loading settings from {args.settings_file}')
+
+    script_settings = yaml.safe_load(open(args.settings_file))
 
     if args.datapkg_bundle_name:
         script_settings["datapkg_bundle_name"] = args.datapkg_bundle_name
@@ -126,6 +153,10 @@ def main():
             f"Found invalid bundle DOI: {datapkg_bundle_doi} "
             f"in bundle {script_settings['datpkg_bundle_name']}."
         )
+
+    if args.pipeline_cache_path:
+        with open(os.path.join(args.pipeline_cache_path, "settings.yml"), "w") as outfile:
+            yaml.dump(script_settings, outfile, default_flow_style=False)
 
     pudl.etl.generate_datapkg_bundle(
         script_settings,
