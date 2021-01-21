@@ -49,6 +49,7 @@ def parse_command_line(argv):
     parser.add_argument(
         dest='settings_file',
         type=str,
+        nargs='?',
         default=os.environ.get('PUDL_SETTINGS_FILE'),
         help="""Path to YAML datapackage settings file.
 
@@ -133,6 +134,11 @@ def main():
                 'When using --rerun, --pipeline-cache-path must be also set.')
         args.settings_file = os.path.join(args.pipeline_cache_path, "settings.yml")
         logger.warning(f'Loading settings from {args.settings_file}')
+
+    if not args.settings_file:
+        raise ValueError(
+            "settings_file must be set on command-line or via PUDL_SETTINGS_FILE when"
+            " not using --rerun flag.")
 
     script_settings = yaml.safe_load(open(args.settings_file))
 

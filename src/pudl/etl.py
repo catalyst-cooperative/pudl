@@ -21,6 +21,7 @@ import io
 import itertools
 import logging
 import os
+import shutil
 import tarfile
 import uuid
 from datetime import datetime
@@ -1123,6 +1124,22 @@ class DatapackageBuilder(prefect.Task):
         return results
 
 
+def cleanup_pipeline_cache(state, commandline_args):
+    """
+    Runs the pipeline cache cleanup logic, possibly removing the local cache.
+
+    Currently, the cache is destroyed if caching is enabled, if it is done
+    locally (not on GCS) and if the flow completed succesfully.
+    """
+    # TODO(rousik): add --keep-cache=ALWAYS|NEVER|ONFAIL commandline flag to control this
+    if state.is_succesful() and commandline_args.pipeline_cache_path:
+        cache_root = commandline_args.pipeline_cache_path
+        if not cache_root.startswith("gs://"):
+            logger.warning(f'Deleting pipeline cache directory under {cache_root}')
+            # TODO(rousik): if this is badly configured, we can be in trouble!
+            shutil.rmtree(cache_root)
+
+
 def generate_datapkg_bundle(etl_settings: dict,
                             pudl_settings: dict,
                             datapkg_bundle_name: str,
@@ -1246,6 +1263,9 @@ def generate_datapkg_bundle(etl_settings: dict,
     if commandline_args.dask_executor_address or commandline_args.use_dask_executor:
         prefect_executor = DaskExecutor(address=commandline_args.dask_executor_address)
     state = flow.run(executor=prefect_executor)
+
+    cleanup_pipeline_cache(state, commandline_args)
+
     # TODO(rousik): summarize flow errors (directly failed tasks and their execeptions)
     if commandline_args.show_flow_graph:
         flow.visualize(flow_state=state)
