@@ -140,6 +140,13 @@ def command_line_flags() -> argparse.ArgumentParser:
         default=None,
         help="""Controls where the pipeline should be storing its cache. This should be
         used for both the prefect task results as well as for the DataFrameCollections.""")
+
+    parser.add_argument(
+        "--emit-epacems-parquet",
+        action="store_true",
+        default=False,
+        help="""If enabled, epacems resources will not be included in the datapackages and
+        will instead be written directly to parquet files.""")
     # TODO(rousik): the above should replace --task-result-cache-path and
     # --gcs-bucket-for-prefect-cache. This should also be made such that both
     # local paths as well as gs://paths are supported.
@@ -337,7 +344,7 @@ def merge_eia860m(eia860: DataFrameCollection, eia860m: DataFrameCollection):
     eia860m_dfs = eia860m.to_dict()
     result = DataFrameCollection()
 
-    for table_name, table_id in eia860.get_table_ids().items():
+    for table_name, table_id in eia860.references():
         if table_name not in eia860m_dfs:
             logger.warning(
                 f'eia860 table {table_name} does not have monthly data from eia860m.')
@@ -956,7 +963,8 @@ def _create_synthetic_dependencies(flow, src_group, dst_group):
 
 def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
         datapkg_builder=None, etl_settings=None, clobber=False,
-        overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS):
+        overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS,
+        emit_epacems_parquet=False):
     """
     Run ETL process for data package specified by datapkg_settings dictionary.
 
@@ -977,6 +985,8 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
         clobber (bool): if True then existing results will be overwritten.
         overwrite_ferc1_db (SqliteOverwriteMode): controls how ferc1 db should
             be treated.
+        emit_epacems_parquet (bool): if True, write epacems to parquet and do not
+            include it in regular datapackages.
 
     Returns:
         list: List of the task results that hold name of the tables included in the output
@@ -1024,15 +1034,31 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
                 logger.info(f"{datapkg_name} contains dataset {dataset}")
                 outputs.append(pl.outputs())
 
-        all_outputs = dfc.merge_list(outputs)
-        resource_descriptors = pudl.load.metadata.write_to_disk_and_build_resource_descriptor.map(
-            dfc.fanout(all_outputs),
+        regular_tables = dfc.merge_list(outputs)
+
+        if emit_epacems_parquet and pipelines['epacems'].is_executed():
+            # split data frames into epacems and the rest and write epacems
+            # into parquet files directly
+            epacems_tables = dfc.filter_by_name(
+                regular_tables,
+                lambda name: 'epacems_hourly_emissions' in name,
+                task_args={'name': 'get_epacems_tables'})
+            regular_tables = dfc.filter_by_name(
+                regular_tables,
+                lambda name: 'epacems_hourly_emissions' not in name,
+                task_args={'name': 'get_regular_tables'})
+            pudl.load.metadata.write_epacems_parquet_files.map(
+                dfc.fanout(epacems_tables),
+                pudl_settings=unmapped(pudl_settings))
+
+        resource_descriptors = pudl.load.metadata.write_csv_and_build_resource_descriptor.map(
+            dfc.fanout(regular_tables),
             datapkg_dir=unmapped(datapkg_dir),
             datapkg_settings=unmapped(datapkg_settings))
 
         datapkg_builder(
-            all_outputs,
-            resource_descriptors,
+            regular_tables,
+            prefect.flatten(resource_descriptors),
             datapkg_settings,
             task_args={'task_run_name': f'DatapackageBuilder-{datapkg_name}'})
 
@@ -1132,11 +1158,13 @@ def cleanup_pipeline_cache(state, commandline_args):
     locally (not on GCS) and if the flow completed succesfully.
     """
     # TODO(rousik): add --keep-cache=ALWAYS|NEVER|ONFAIL commandline flag to control this
-    if state.is_succesful() and commandline_args.pipeline_cache_path:
+    if state.is_successful() and commandline_args.pipeline_cache_path:
         cache_root = commandline_args.pipeline_cache_path
         if not cache_root.startswith("gs://"):
             logger.warning(f'Deleting pipeline cache directory under {cache_root}')
-            # TODO(rousik): if this is badly configured, we can be in trouble!
+            # TODO(rousik): in order to prevent catastrophic results due to misconfiguration
+            # we should refuse to delete cache_root unless the directory has the expected
+            # run_id form of YYYY-MM-DD-HHMM-uuid4
             shutil.rmtree(cache_root)
 
 
@@ -1177,6 +1205,7 @@ def generate_datapkg_bundle(etl_settings: dict,
     datapkg_bundle_settings = etl_settings['datapkg_bundle_settings']
     prefect.context.pudl_datapkg_bundle_settings = datapkg_bundle_settings
     prefect.context.pudl_datapkg_bundle_name = datapkg_bundle_name
+    prefect.context.pudl_settings = pudl_settings
 
     flow_kwargs = {}
     # TODO(rousik): simplify the following such that pipeline_cache_path
@@ -1253,7 +1282,9 @@ def generate_datapkg_bundle(etl_settings: dict,
             datapkg_builder=datapkg_builder,
             etl_settings=etl_settings,
             clobber=commandline_args.clobber,
-            overwrite_ferc1_db=commandline_args.overwrite_ferc1_db)
+            overwrite_ferc1_db=commandline_args.overwrite_ferc1_db,
+            emit_epacems_parquet=commandline_args.emit_epacems_parquet)
+    # TODO(rousik): we should simply pass commandline_args to etl function
 
     # TODO(rousik): print out the flow structure
     if commandline_args.show_flow_graph:

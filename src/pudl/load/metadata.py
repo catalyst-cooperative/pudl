@@ -43,15 +43,19 @@ import logging
 import pathlib
 import re
 import uuid
-from typing import Dict
+from pathlib import Path
+from typing import Dict, List
 
 import datapackage
 import goodtables_pandas as goodtables
 import pkg_resources
+import pyarrow
 from prefect import task
+from pyarrow import parquet
 
 import pudl
 from pudl import constants as pc
+from pudl.convert import epacems_to_parquet
 from pudl.dfc import DataFrameCollection
 from pudl.load import csv
 
@@ -579,15 +583,39 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir, skip_validation: bool
 
 
 @task
-def write_to_disk_and_build_resource_descriptor(
+def write_epacems_parquet_files(dfc: DataFrameCollection, pudl_settings: Dict):
+    """Writes epacems dataframes to parquet files."""
+    schema = epacems_to_parquet.create_cems_schema()
+    for table_name in dfc.get_table_names():
+        if 'epacems_hourly_emissions' not in table_name:
+            continue
+        df = dfc.get(table_name)
+        # TODO(rousik): determine if some transformation happens as part of csv dumping
+        # that we may be inadvertently skipping.
+        # TODO(rousik): we may need to set year=year column before writing it out.
+        parquet.write_to_dataset(
+            pyarrow.Table.from_pandas(
+                df,
+                preserve_index=False,
+                schema=schema),
+            root_path=Path(pudl_settings['parquet_dir'], "epacems"),
+            partitiont_cols=['year', 'state'],
+            compression='snappy')
+
+
+@task
+def write_csv_and_build_resource_descriptor(
         dfc: DataFrameCollection,
         datapkg_dir: str,
-        datapkg_settings: Dict):
+        datapkg_settings: Dict) -> List[Dict]:
     """
     Writes contents of DataFrameCollection to disk and builds resource descriptor.
 
     Resource descriptor is dict representing json structures describing this specific
     datpackage resource.
+
+    For epacems hourly emissions we will be writing directly to parquet files and
+    we will not be emitting any descriptors.
 
     Args:
         dfc: DataFrameCollection containing data frames that should be processed.
@@ -595,18 +623,22 @@ def write_to_disk_and_build_resource_descriptor(
         datapkg_settings (dict): datapackage configuration.
 
     Returns:
-        dict representing the resource descriptor json.
+        list of dictionaries representing the resource descriptor json for processed resources
     """
     partitions = compile_partitions(datapkg_settings)
     # TODO(rousik): partitions should be calculated once per datapkg_settings by calling
     # compile_partitions(datapkg_settings)
+    resource_descriptors = []
     for resource, df in dfc.items():
+        if 'hourly_emissions_epacems' in resource:
+            continue
         csv.clean_columns_dump(df, resource, datapkg_dir)
-    return get_tabular_data_resource(
-        resource,
-        datapkg_dir=datapkg_dir,
-        datapkg_settings=datapkg_settings,
-        partitions=partitions)
+        resource_descriptors.append(get_tabular_data_resource(
+            resource,
+            datapkg_dir=datapkg_dir,
+            datapkg_settings=datapkg_settings,
+            partitions=partitions))
+    return resource_descriptors
 
 
 def generate_metadata(
