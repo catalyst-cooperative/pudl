@@ -28,7 +28,7 @@ class TestDataFrameCollection(unittest.TestCase):
     def test_empty_dfc(self):
         """Tests that new DataFrameCollection is devoid of content."""
         self.assertEqual([], self.dfc.get_table_names())
-        self.assertEqual([], list(self.dfc.get_table_ids()))
+        self.assertEqual([], list(self.dfc.references()))
         self.assertEqual([], list(self.dfc.items()))
 
     def test_get_throws_key_error(self):
@@ -52,16 +52,21 @@ class TestDataFrameCollection(unittest.TestCase):
         pd.testing.assert_frame_equal(df_in, df_out)
 
     def test_add_reference(self):
-        """Tests that dataframes can be added to collection by reference."""
+        """Tests that dataframes can be added to a collection by reference."""
         extra_dfc = DataFrameCollection(storage_path=self.temp_dir)
 
         test_df = pd.DataFrame({"x": [1, 2, 3]})
         extra_dfc.store("test", test_df)
         self.assertEqual([], self.dfc.get_table_names())
 
-        self.dfc.add_reference("test", extra_dfc.get_table_ids()["test"])
+        refs = dict(extra_dfc.references())
+        self.assertEqual(["test"], list(refs))
+
+        # Check that df added by reference points to the same underlying frame on disk.
+        self.dfc.add_reference("test", refs["test"])
         self.assertEqual(["test"], self.dfc.get_table_names())
         pd.testing.assert_frame_equal(test_df, self.dfc.get("test"))
+        self.assertEqual(self.dfc.references(), extra_dfc.references())
 
     def test_two_dfc_do_not_collide(self):
         """Test that two dfc storing the same df will not collide."""
@@ -181,3 +186,23 @@ class TestDataFrameCollection(unittest.TestCase):
         self.assertEqual(
             [["a", "b", "c", "d"], ["e", "f"]],
             [x.get_table_names() for x in dfc4])
+
+    def test_filter_by_name(self):
+        """Test that filter_by_name task properly splits DataFrameCollections."""
+        my_dfc = DataFrameCollection.from_dict({
+            'a_positive': pd.DataFrame(),
+            'b_positive': pd.DataFrame(),
+            'a_negative': pd.DataFrame(),
+            'b_negative': pd.DataFrame(),
+        })
+        with prefect.Flow("test") as f:
+            a_frames = dfc.filter_by_name(my_dfc, lambda name: name.startswith("a_"))
+            positive_frames = dfc.filter_by_name(
+                my_dfc, lambda name: 'positive' in name)
+        status = f.run()
+        self.assertEqual(
+            ['a_negative', 'a_positive'],
+            status.result[a_frames].result.get_table_names())
+        self.assertEqual(
+            ['a_positive', 'b_positive'],
+            status.result[positive_frames].result.get_table_names())
