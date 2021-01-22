@@ -587,11 +587,17 @@ def write_epacems_parquet_files(dfc: DataFrameCollection, pudl_settings: Dict):
     """Writes epacems dataframes to parquet files."""
     schema = epacems_to_parquet.create_cems_schema()
     for table_name in dfc.get_table_names():
+        df = dfc.get(table_name)
+        df = pudl.helpers.convert_cols_dtypes(df, "epacems")
+
         df = csv.reindex_table(dfc.get(table_name), table_name)
         # TODO(rousik): this is a dirty hack, year column should simply be part of the
         # dataframe all along, however reindex_table complains about it.
         df["year"] = int(table_name.split("_")[3])
+        df.year = df.year.astype(int)
         logger.warning(f'Dataframe is: {df}')
+        logger.info(f'Columns are: {df.columns}')
+        logger.info(f'Schema: {schema}')
 
         parquet.write_to_dataset(
             pyarrow.Table.from_pandas(
