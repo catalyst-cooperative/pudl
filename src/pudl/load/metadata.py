@@ -586,6 +586,7 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir, skip_validation: bool
 def write_epacems_parquet_files(dfc: DataFrameCollection, pudl_settings: Dict):
     """Writes epacems dataframes to parquet files."""
     schema = epacems_to_parquet.create_cems_schema()
+    logger.info(f'schema.pandas_metadata: {schema.pandas_metadata}')
     for table_name in dfc.get_table_names():
         df = dfc.get(table_name)
         df = pudl.helpers.convert_cols_dtypes(df, "epacems")
@@ -598,12 +599,13 @@ def write_epacems_parquet_files(dfc: DataFrameCollection, pudl_settings: Dict):
         logger.warning(f'Dataframe is: {df}')
         logger.info(f'Columns are: {df.columns}')
         logger.info(f'Schema: {schema}')
+        table = pyarrow.Table.from_pandas(df, preserve_index=False, schema=schema)
+        logger.info(f'pyarrow table.schema: {table.schema}')
+        s2 = pyarrow.Schema.from_pandas(df, preserve_index=False)
+        logger.info(f'pyarrow.Schema.from_pandas: {s2}')
 
         parquet.write_to_dataset(
-            pyarrow.Table.from_pandas(
-                df,
-                preserve_index=False,
-                schema=schema),
+            table,
             root_path=Path(pudl_settings['parquet_dir'], "epacems"),
             partition_cols=['year', 'state'],
             compression='snappy')
