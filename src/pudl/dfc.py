@@ -20,7 +20,7 @@ Think of DataFrameCollection as a dict-like structure backed by a disk.
 import logging
 import uuid
 from pathlib import Path
-from typing import Dict, Iterator, List, Optional, Tuple
+from typing import Callable, Dict, Iterator, List, Optional, Tuple
 
 import fsspec
 import pandas as pd
@@ -132,9 +132,9 @@ class DataFrameCollection:
         """Returns sorted list of dataframes that are contained in this collection."""
         return sorted(set(self._table_ids))
 
-    def get_table_ids(self) -> Dict[str, uuid.UUID]:
-        """Returns dict mapping dataframe names to their uuid identifiers."""
-        return dict(self._table_ids)
+    def references(self) -> Iterator[Tuple[str, uuid.UUID]]:
+        """Returns a set-like object with (name, table_id) tuples."""
+        return self._table_ids.items()
 
     @staticmethod
     def from_dict(d: Dict[str, pd.DataFrame]):
@@ -148,7 +148,7 @@ class DataFrameCollection:
     def update(self, other):
         """Adds references to tables from the other DataFrameCollection."""
         # TODO(rousik): typecheck other?
-        for name, table_id in other.get_table_ids().items():
+        for name, table_id in other.references():
             self.add_reference(name, table_id)
 
     def union(self, *others):
@@ -185,7 +185,7 @@ def fanout(dfc: DataFrameCollection, chunk_size=1) -> List[DataFrameCollection]:
     """
     current_chunk = DataFrameCollection()
     all_results = []
-    for table_name, table_id in dfc.get_table_ids().items():
+    for table_name, table_id in dfc.references():
         if len(current_chunk) >= chunk_size:
             all_results.append(current_chunk)
             current_chunk = DataFrameCollection()
@@ -193,3 +193,20 @@ def fanout(dfc: DataFrameCollection, chunk_size=1) -> List[DataFrameCollection]:
     if len(current_chunk):
         all_results.append(current_chunk)
     return all_results
+
+
+@task(checkpoint=False)
+def filter_by_name(
+        dfc: DataFrameCollection,
+        condition: Callable[[str], bool]) -> DataFrameCollection:
+    """
+    Returns DataFrameCollection containing only tables that match the condition.
+
+    Conditions get table_name as a parameter. We could also pass dfc itself but it seems
+    currently unnecessary.
+    """
+    result = DataFrameCollection()
+    for table_name, table_id in dfc.references():
+        if condition(table_name):
+            result.add_reference(table_name, table_id)
+    return result
