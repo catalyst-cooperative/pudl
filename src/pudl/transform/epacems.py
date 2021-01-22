@@ -196,7 +196,8 @@ def correct_gross_load_mw(df):
 
 def transform_epacems(
         dfs: Dict[str, pd.DataFrame],
-        plant_utc_offset: pd.DataFrame) -> DataFrameCollection:
+        plant_utc_offset: pd.DataFrame,
+        partition: pudl.extract.epacems.EpaCemsPartition) -> DataFrameCollection:
     """Transform EPA CEMS hourly data for use in datapackage export."""
     results = DataFrameCollection()
     for table_name, df in dfs.items():
@@ -211,5 +212,6 @@ def transform_epacems(
             .pipe(correct_gross_load_mw)
             .pipe(pudl.helpers.convert_cols_dtypes,
                   "epacems", "hourly_emissions_epacems"))
+        # out_df["year"] = int(partition.year)
         results.store(table_name, out_df)
     return results

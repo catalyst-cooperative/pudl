@@ -167,7 +167,6 @@ def main():
     pudl.etl.generate_datapkg_bundle(
         script_settings,
         pudl_settings,
-        datapkg_bundle_name=script_settings['datapkg_bundle_name'],
         datapkg_bundle_doi=datapkg_bundle_doi,
         commandline_args=args)
 

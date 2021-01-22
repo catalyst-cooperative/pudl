@@ -587,19 +587,19 @@ def write_epacems_parquet_files(dfc: DataFrameCollection, pudl_settings: Dict):
     """Writes epacems dataframes to parquet files."""
     schema = epacems_to_parquet.create_cems_schema()
     for table_name in dfc.get_table_names():
-        if 'epacems_hourly_emissions' not in table_name:
-            continue
-        df = dfc.get(table_name)
-        # TODO(rousik): determine if some transformation happens as part of csv dumping
-        # that we may be inadvertently skipping.
-        # TODO(rousik): we may need to set year=year column before writing it out.
+        df = csv.reindex_table(dfc.get(table_name), table_name)
+        # TODO(rousik): this is a dirty hack, year column should simply be part of the
+        # dataframe all along, however reindex_table complains about it.
+        df["year"] = int(table_name.split("_")[3])
+        logger.warning(f'Dataframe is: {df}')
+
         parquet.write_to_dataset(
             pyarrow.Table.from_pandas(
                 df,
                 preserve_index=False,
                 schema=schema),
             root_path=Path(pudl_settings['parquet_dir'], "epacems"),
-            partitiont_cols=['year', 'state'],
+            partition_cols=['year', 'state'],
             compression='snappy')
 
 

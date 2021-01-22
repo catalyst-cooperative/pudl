@@ -17,6 +17,7 @@ import gzip
 import io
 import logging
 import pathlib
+import pandas as pd
 
 import pudl
 from pudl import constants as pc
@@ -46,6 +47,7 @@ def dict_dump(transformed_dfs, data_source, datapkg_dir):
         logger.info(
             f"Loading {data_source} {resource_name} dataframe into CSV")
         clean_columns_dump(df, resource_name, datapkg_dir)
+
 
 
 def clean_columns_dump(df, resource_name, datapkg_dir):
@@ -109,6 +111,20 @@ def clean_columns_dump(df, resource_name, datapkg_dir):
         df = pudl.helpers.fix_int_na(
             df, columns=pc.need_fix_inting[resource_name])
     csv_dump(df, resource_name, keep_index=keep_index, datapkg_dir=datapkg_dir)
+
+
+def reindex_table(df: pd.DataFrame, resource_name: str) -> pd.DataFrame:
+    """Fix table index before writing it out."""
+    # Reindex to ensure the index is clean
+    resource = pudl.load.metadata.pull_resource_from_megadata(resource_name)
+    # pull the columns from the table schema
+    columns = [x['name'] for x in resource['schema']['fields']]
+
+    df = df.reindex(columns=columns)
+    if resource_name in pc.need_fix_inting:
+        df = pudl.helpers.fix_int_na(
+            df, columns=pc.need_fix_inting[resource_name])
+    return df
 
 
 def csv_dump(df, resource_name, keep_index, datapkg_dir):

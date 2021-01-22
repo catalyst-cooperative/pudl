@@ -237,8 +237,7 @@ class DatasetPipeline:
         self.datapkg_dir = datapkg_dir
         if self.pipeline_params:
             self.pipeline_params = self.validate_params(self.pipeline_params)
-            with prefect.context(pudl_pipeline_params=self.pipeline_params):
-                self.output_dfc = self.build(self.pipeline_params)
+            self.output_dfc = self.build(self.pipeline_params)
 
     def _get_dataset_params(self, dataset_list):
         """Return params that match self.DATASET.
@@ -346,13 +345,18 @@ def merge_eia860m(eia860: DataFrameCollection, eia860m: DataFrameCollection):
 
     for table_name, table_id in eia860.references():
         if table_name not in eia860m_dfs:
-            logger.warning(
-                f'eia860 table {table_name} does not have monthly data from eia860m.')
             result.add_reference(table_name, table_id)
         else:
+            logger.info(f'Extending eia860 table {table_name} with montly data from eia860m.')
             df = eia860.get(table_name)
             df = df.append(eia860m_dfs[table_name], ignore_index=True, sort=True)
             result.store(table_name, df)
+    # To be really safe, check that there are no eia860m tables that are not present in eia860.
+    known_eia860_tables = set(eia860.get_table_names())
+    for table_name in list(eia860m_dfs):
+        if table_name not in known_eia860_tables:
+            logger.error(f'eia860m table {table_name} is not present in eia860.')
+
     return result
 
 
@@ -608,8 +612,9 @@ def epacems_process_partition(
         partition: EpaCemsPartition,
         plant_utc_offset: pd.DataFrame) -> DataFrameCollection:
     """Runs extract and transform phases for a given epacems partition."""
+    logger.info(f'Processing epacems partition {partition}')
     dfs = pudl.extract.epacems.extract_epacems(partition)
-    return pudl.transform.epacems.transform_epacems(dfs, plant_utc_offset)
+    return pudl.transform.epacems.transform_epacems(dfs, plant_utc_offset, partition)
 
 
 class EpaCemsPipeline(DatasetPipeline):
@@ -674,11 +679,14 @@ class EpaCemsPipeline(DatasetPipeline):
             partitions = [
                 EpaCemsPartition(year=y, state=s)
                 for y, s in itertools.product(params["epacems_years"], params["epacems_states"])]
+            logger.info('epacems pipeline has {len(partitions)} partitions.')
 
             epacems_dfc = epacems_process_partition.map(
                 partitions,
                 plant_utc_offset=unmapped(plants))
-            return dfc.merge_list(epacems_dfc)
+            df = dfc.merge_list(epacems_dfc)
+            log_dfc_tables(df, logprefix='epacems-pipeline-tables')
+            return df
 
 ##############################################################################
 # EPA IPM ETL FUNCTIONS
@@ -961,6 +969,13 @@ def _create_synthetic_dependencies(flow, src_group, dst_group):
             flow.add_edge(i, j)
 
 
+@task
+def log_dfc_tables(dfc: DataFrameCollection, logprefix: str = 'log_dfc_tables'):
+    """Debug log tables contained in dfc."""
+    tnames = dfc.get_table_names()
+    logger.info(f'{logprefix}: {len(tnames)} tables: {tnames}')
+
+
 def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
         datapkg_builder=None, etl_settings=None, clobber=False,
         overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS,
@@ -1035,18 +1050,24 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
                 outputs.append(pl.outputs())
 
         regular_tables = dfc.merge_list(outputs)
+        log_dfc_tables(regular_tables, logprefix='all-tables')
 
         if emit_epacems_parquet and pipelines['epacems'].is_executed():
+            epacems_table_match = 'hourly_emissions_epacems'
             # split data frames into epacems and the rest and write epacems
             # into parquet files directly
             epacems_tables = dfc.filter_by_name(
                 regular_tables,
-                lambda name: 'epacems_hourly_emissions' in name,
+                lambda name: epacems_table_match in name,
                 task_args={'name': 'get_epacems_tables'})
             regular_tables = dfc.filter_by_name(
                 regular_tables,
-                lambda name: 'epacems_hourly_emissions' not in name,
+                lambda name: epacems_table_match not in name,
                 task_args={'name': 'get_regular_tables'})
+
+            log_dfc_tables(epacems_tables, logprefix='epacems-tables')
+            log_dfc_tables(regular_tables, logprefix='non-epacems-tables')
+
             pudl.load.metadata.write_epacems_parquet_files.map(
                 dfc.fanout(epacems_tables),
                 pudl_settings=unmapped(pudl_settings))
@@ -1168,9 +1189,41 @@ def cleanup_pipeline_cache(state, commandline_args):
             shutil.rmtree(cache_root)
 
 
+def configure_prefect_context(etl_settings, pudl_settings, commandline_args):
+    """
+    Sets all pudl ETL relevant variables within prefect context.
+
+    The variables that are set and their meaning:
+      * pudl_etl_settings: the settings.yml file that configures the operation of the
+        pipeline.
+    """
+    prefect.context.pudl_etl_settings = etl_settings
+    prefect.context.pudl_datapkg_bundle_settings = etl_settings['datapkg_bundle_settings']
+    prefect.context.pudl_settings = pudl_settings
+    prefect.context.pudl_datapkg_bundle_name = etl_settings['datapkg_bundle_name']
+
+    local_cache_path = None
+    if not commandline_args.bypass_local_cache:
+        local_cache_path = Path(pudl_settings["pudl_in"]) / "data"
+
+    # Allow for construction of datastore by setting the params to context
+    # This will allow us to construct datastore when needed
+    # by calling Datastore.from_prefect_context()
+    prefect.context.datastore_config = dict(
+        sandbox=pudl_settings.get("sandbox", False),
+        local_cache_path=local_cache_path,
+        gcs_cache_path=commandline_args.gcs_cache_path,
+        gcs_cache_readonly=commandline_args.gcs_cache_readonly)
+
+    pipeline_cache_path = commandline_args.pipeline_cache_path
+    if not pipeline_cache_path:
+        pipeline_cache_path = os.path.join(pudl_settings["pudl_out"], "cache")
+    prefect.context.pudl_pipeline_cache_path = pipeline_cache_path
+    prefect.context.data_frame_storage_path = os.path.join(pipeline_cache_path, "dataframes")
+
+
 def generate_datapkg_bundle(etl_settings: dict,
                             pudl_settings: dict,
-                            datapkg_bundle_name: str,
                             datapkg_bundle_doi: str = None,
                             commandline_args: argparse.Namespace = None):
     """
@@ -1188,8 +1241,6 @@ def generate_datapkg_bundle(etl_settings: dict,
         etl_settings (dict): ETL configuration object.
         pudl_settings (dict): a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
-        datapkg_bundle_name (str): name of directory you want the bundle of
-            data packages to live.
         commandline_args (argparse.Namespace): provides parsed commandline
             flags that control the operation of the ETL pipeline.
 
@@ -1202,43 +1253,23 @@ def generate_datapkg_bundle(etl_settings: dict,
     """
     # TODO(rousik): args.clobber should be moved to prefect.context, also other
     # configuration parameters such as overwrite-ferc1-db.
+    datapkg_bundle_name = etl_settings['datapkg_bundle_name']
     datapkg_bundle_settings = etl_settings['datapkg_bundle_settings']
-    prefect.context.pudl_datapkg_bundle_settings = datapkg_bundle_settings
-    prefect.context.pudl_datapkg_bundle_name = datapkg_bundle_name
-    prefect.context.pudl_settings = pudl_settings
+    configure_prefect_context(etl_settings, pudl_settings, commandline_args)
 
     flow_kwargs = {}
-    # TODO(rousik): simplify the following such that pipeline_cache_path
-    # could be either local or gs:// path, then configure GCSResult in a way
-    # to store things into the corresponding bucket, under run_uuid.
+    # TODO(rousik): simplify this by allowing --pipeline-cache-path to be either local
+    # or point to gcs storage. Pick GCSResult or LocalResult accordingly.
+    # TODO(rousik): simplify this by allowing --pipeline-cache-path to be either local
+    # or point to gcs storage. Pick GCSResult or LocalResult accordingly.
     if commandline_args.gcs_bucket_for_prefect_cache:
         flow_kwargs["result"] = GCSResult(
             bucket=commandline_args.gcs_bucket_for_prefect_cache)
     else:
-        pipeline_cache_root = commandline_args.pipeline_cache_path
-        if not pipeline_cache_root:
-            pipeline_cache_root = (Path(pudl_settings["pudl_out"]) / "cache").as_posix()
-
-        pipeline_cache_root = pipeline_cache_root.rstrip("/")
-
-        # We will store stuff under
-        # $pipeline_cache_root/prefect and $pipeline_cache_root/dataframes
-        # TODO(rousik): eventually, we should put in run_id here as well
-        prefect.context.data_frame_storage_path = f"{pipeline_cache_root}/dataframes"
-
-        def build_task_result_name(**kwargs):
-            task_name = kwargs["task_name"]
-            pudl_keys = [k for k in sorted(kwargs) if k.startswith("pudl_")]
-            logger.info(f"build_task_result_name({task_name}): {pudl_keys}")
-            task_attrs = {k: v for k, v in kwargs.items() if k.startswith("task_")}
-            logger.info(f"  - task_attributes: {task_attrs}")
-            return kwargs["task_slug"]
-            # pudl_datapkg_bundle_name.datapkg_settings[name].task_name.map_index
-
-        (Path(pipeline_cache_root) / "prefect").mkdir(exist_ok=True, parents=True)
-        flow_kwargs["result"] = LocalResult(
-            dir=f"{pipeline_cache_root}/prefect",
-            location=build_task_result_name)
+        result_cache = os.path.join(prefect.context.pudl_pipeline_cache_path)
+        if not result_cache.startswith("gs://"):
+            Path(result_cache).mkdir(exist_ok=True, parents=True)
+        flow_kwargs["result"] = LocalResult(dir=result_cache)
 
     flow = prefect.Flow("PUDL ETL", **flow_kwargs)
 
@@ -1254,23 +1285,6 @@ def generate_datapkg_bundle(etl_settings: dict,
     # validate the settings from the settings file.
     validated_bundle_settings = validate_params(
         datapkg_bundle_settings, pudl_settings)
-
-    local_cache_path = None
-    if not commandline_args.bypass_local_cache:
-        local_cache_path = Path(pudl_settings["pudl_in"]) / "data"
-
-    # Allow for construction of datastore by setting the params to context
-    # This will allow us to construct datastore when needed
-    # by calling Datastore.from_prefect_context()
-    prefect.context.datastore_config = dict(
-        sandbox=pudl_settings.get("sandbox", False),
-        local_cache_path=local_cache_path,
-        gcs_cache_path=commandline_args.gcs_cache_path,
-        gcs_cache_readonly=commandline_args.gcs_cache_readonly)
-
-    # TODO(rousik): the above code that sets datastore_config in prefect context
-    # is a bit of a black magic and should not actually be here but be part of
-    # Datastore class (maybe?)
 
     # this is a list and should be processed by another task
     for datapkg_settings in validated_bundle_settings:
