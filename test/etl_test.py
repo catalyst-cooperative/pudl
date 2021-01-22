@@ -22,13 +22,11 @@ from pudl.extract.ferc1 import get_dbc_map, get_fields
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.datapkg
 def test_datapkg_bundle(datapkg_bundle):
     """Generate limited packages for testing."""
     pass
 
 
-@pytest.mark.datapkg
 def test_pudl_engine(pudl_engine):
     """Try creating a pudl_engine...."""
     pass
@@ -134,7 +132,6 @@ class TestFerc1Datastore:
         """Spot check we get correct folder names per dataset year."""
         ds = pudl_ferc1datastore_fixture
         assert ds.get_dir(1994) == Path("FORMSADMIN/FORM1/working")
-
         assert ds.get_dir(2001) == Path("UPLOADERS/FORM1/working")
         assert ds.get_dir(2002) == Path("FORMSADMIN/FORM1/working")
         assert ds.get_dir(2010) == Path("UPLOADERS/FORM1/working")
