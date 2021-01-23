@@ -63,6 +63,7 @@ test_requires = [
     "pre-commit~=2.9",
     "pydocstyle~=5.1",
     "pytest~=6.2",
+    "pytest-console-scripts~=1.1",
     "pytest-cov~=2.10",
     "responses~=0.12.1",
 ]

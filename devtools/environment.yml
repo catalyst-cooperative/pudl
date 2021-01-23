@@ -13,6 +13,7 @@ dependencies:
   - geopandas~=0.8.1
   - goodtables-pandas-py~=0.2.0
   - google-cloud-storage~=1.35.0
+  - google-cloud-bigquery~=1.6
   - matplotlib~=3.0
   - networkx~=2.2
   - numpy~=1.19
@@ -80,5 +81,6 @@ dependencies:
 
   - pip:
     - flake8-use-fstring~=1.0     # development
-    - recordlinkage~=0.14.0       # user environment
     - fredapi~=0.4.3              # user environment
+    - pytest-console-scripts~=1.1 # test_requires
+    - recordlinkage~=0.14.0       # user environment
