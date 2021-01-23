@@ -10,7 +10,6 @@ will need to tell PUDL where to find them with --pudl_in=<PUDL_IN>.
 
 """
 import logging
-import pathlib
 from pathlib import Path
 
 import pytest
@@ -23,13 +22,11 @@ from pudl.extract.ferc1 import get_dbc_map, get_fields
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.datapkg
 def test_datapkg_bundle(datapkg_bundle):
     """Generate limited packages for testing."""
     pass
 
 
-@pytest.mark.datapkg
 def test_pudl_engine(pudl_engine):
     """Try creating a pudl_engine...."""
     pass
@@ -51,7 +48,7 @@ def test_epacems_to_parquet(datapkg_bundle,
                             request):
     """Attempt to convert a small amount of EPA CEMS data to parquet format."""
     clobber = request.config.getoption("--clobber")
-    epacems_datapkg_json = pathlib.Path(
+    epacems_datapkg_json = Path(
         pudl_settings_fixture['datapkg_dir'],
         data_scope['datapkg_bundle_name'],
         'epacems-eia-test',
@@ -62,7 +59,7 @@ def test_epacems_to_parquet(datapkg_bundle,
         datapkg_path=epacems_datapkg_json,
         epacems_years=data_scope['epacems_years'],
         epacems_states=data_scope['epacems_states'],
-        out_dir=pathlib.Path(pudl_settings_fixture['parquet_dir'], 'epacems'),
+        out_dir=Path(pudl_settings_fixture['parquet_dir'], 'epacems'),
         compression='snappy',
         clobber=clobber
     )
@@ -117,16 +114,15 @@ def test_ferc1_solo_etl(pudl_settings_fixture,
                         ferc1_engine,
                         live_ferc1_db):
     """Verify that a minimal FERC Form 1 can be loaded without other data."""
-    with open(pathlib.Path(
-            pathlib.Path(__file__).parent,
-            'settings', 'ferc1-solo.yml'), "r") as f:
+    with open(Path(__file__).parent / 'settings/ferc1-solo.yml', "r") as f:
         datapkg_settings = yaml.safe_load(f)['datapkg_bundle_settings']
 
     pudl.etl.generate_datapkg_bundle(
         datapkg_settings,
         pudl_settings_fixture,
         datapkg_bundle_name='ferc1-solo',
-        clobber=True)
+        clobber=True,
+    )
 
 
 class TestFerc1Datastore:
@@ -136,7 +132,6 @@ class TestFerc1Datastore:
         """Spot check we get correct folder names per dataset year."""
         ds = pudl_ferc1datastore_fixture
         assert ds.get_dir(1994) == Path("FORMSADMIN/FORM1/working")
-
         assert ds.get_dir(2001) == Path("UPLOADERS/FORM1/working")
         assert ds.get_dir(2002) == Path("FORMSADMIN/FORM1/working")
         assert ds.get_dir(2010) == Path("UPLOADERS/FORM1/working")
@@ -146,8 +141,7 @@ class TestFerc1Datastore:
         """Check that the get fields table works as expected."""
         ds = pudl_ferc1datastore_fixture
 
-        expect_path = pathlib.Path(__file__).parent / \
-            "data/ferc1/f1_2018/get_fields.json"
+        expect_path = Path(__file__).parent / "data/ferc1/f1_2018/get_fields.json"
 
         with expect_path.open() as f:
             expect = yaml.safe_load(f)
