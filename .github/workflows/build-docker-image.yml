@@ -2,9 +2,9 @@ name: Build and publish Docker image
 on:
   push:
     branches:
-      - main
-      - dev
-      - 'sprint*'
+      #- main
+      #- dev
+      #- 'sprint*'
       - dockerbuild  # for testing purposes
 jobs:
   push_to_registry:
