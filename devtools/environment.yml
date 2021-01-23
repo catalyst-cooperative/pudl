@@ -11,6 +11,7 @@ dependencies:
   - contextily~=1.0
   - datapackage~=1.11
   - geopandas~=0.8.1
+  - goodtables-pandas-py~=0.2.0
   - google-cloud-storage~=1.35.0
   - matplotlib~=3.0
   - networkx~=2.2
@@ -79,6 +80,5 @@ dependencies:
 
   - pip:
     - flake8-use-fstring~=1.0     # development
-    - goodtables-pandas-py~=0.2.0 # install_requires
     - recordlinkage~=0.14.0       # user environment
     - fredapi~=0.4.3              # user environment
