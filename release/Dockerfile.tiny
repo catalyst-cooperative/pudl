@@ -10,7 +10,7 @@ FROM python:3.8 AS pudl-source-build
 WORKDIR /pudl/repo
 COPY . /pudl/repo
 RUN mkdir /pudl/package && mkdir /pudl/src
-RUN python /pudl/repo/devtools/print_requirements.py > /pudl/package/requirements.txt
+RUN python devtools/print_requirements.py > /pudl/package/requirements.txt
 RUN python setup.py sdist -d /pudl/package && mv /pudl/package/*tar.gz /pudl/package/pudl.tar.gz
 RUN tar xzf /pudl/package/pudl.tar.gz -C /pudl/src --strip-components=1
 RUN rm -Rf /pudl/repo
