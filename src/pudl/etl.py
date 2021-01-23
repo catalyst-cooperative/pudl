@@ -25,6 +25,7 @@ import pandas as pd
 
 import pudl
 from pudl import constants as pc
+from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
 
@@ -179,7 +180,7 @@ def _add_eia_epacems_crosswalk(eia_transformed_dfs):
     return eia_transformed_dfs
 
 
-def _etl_eia(etl_params, datapkg_dir, pudl_settings):
+def _etl_eia(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     """Extract, transform and load CSVs for the EIA datasets.
 
     Args:
@@ -211,10 +212,7 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     # generate CSVs for the static EIA tables, return the list of tables
     static_tables = _load_static_tables_eia(datapkg_dir)
 
-    sandbox = pudl_settings.get("sandbox", False)
-    ds = pudl.workspace.datastore.Datastore(
-        Path(pudl_settings["pudl_in"]),
-        sandbox=sandbox)
+    ds = Datastore(**ds_kwargs)
     # Extract EIA forms 923, 860
     eia923_raw_dfs = pudl.extract.eia923.Extractor(ds).extract(
         year=eia923_years)
@@ -330,7 +328,7 @@ def _load_static_tables_ferc1(datapkg_dir):
     return list(static_dfs.keys())
 
 
-def _etl_ferc1(etl_params, datapkg_dir, pudl_settings):
+def _etl_ferc1(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     """Extract, transform and load CSVs for FERC Form 1.
 
     Args:
@@ -412,7 +410,7 @@ def _validate_params_epacems(etl_params):
         return epacems_dict
 
 
-def _etl_epacems(etl_params, datapkg_dir, pudl_settings):
+def _etl_epacems(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     """Extract, transform and load CSVs for EPA CEMS.
 
     Args:
@@ -436,12 +434,8 @@ def _etl_epacems(etl_params, datapkg_dir, pudl_settings):
         logger.info('Not ingesting EPA CEMS.')
 
     # NOTE: This a generator for raw dataframes
-    sandbox = pudl_settings.get("sandbox", False)
-    ds = pudl.extract.epacems.EpaCemsDatastore(
-        Path(pudl_settings["pudl_in"]),
-        sandbox=sandbox)
     epacems_raw_dfs = pudl.extract.epacems.extract(
-        epacems_years, epacems_states, ds)
+        epacems_years, epacems_states, Datastore(**ds_kwargs))
 
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform(
@@ -525,7 +519,7 @@ def _load_static_tables_epaipm(datapkg_dir):
     return list(static_dfs.keys())
 
 
-def _etl_epaipm(etl_params, datapkg_dir, pudl_settings):
+def _etl_epaipm(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     """Extract, transform and load CSVs for EPA IPM.
 
     Args:
@@ -548,9 +542,7 @@ def _etl_epaipm(etl_params, datapkg_dir, pudl_settings):
     static_tables = _load_static_tables_epaipm(datapkg_dir)
 
     # Extract IPM tables
-    sandbox = pudl_settings.get("sandbox", False)
-    ds = pudl.extract.epaipm.EpaIpmDatastore(
-        Path(pudl_settings["pudl_in"]), sandbox=sandbox)
+    ds = pudl.extract.epaipm.EpaIpmDatastore(Datastore(**ds_kwargs))
     epaipm_raw_dfs = pudl.extract.epaipm.extract(epaipm_tables, ds)
 
     epaipm_transformed_dfs = pudl.transform.epaipm.transform(
@@ -584,7 +576,7 @@ def _validate_params_glue(etl_params):
         return(glue_dict)
 
 
-def _etl_glue(etl_params, datapkg_dir, pudl_settings):
+def _etl_glue(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     """Extract, transform and load CSVs for the Glue tables.
 
     Currently this only generates glue connecting FERC Form 1 and EIA
@@ -784,7 +776,7 @@ def validate_params(datapkg_bundle_settings, pudl_settings):
     return validated_settings
 
 
-def etl(datapkg_settings, output_dir, pudl_settings):
+def etl(datapkg_settings, output_dir, pudl_settings, ds_kwargs):
     """
     Run ETL process for data package specified by datapkg_settings dictionary.
 
@@ -801,6 +793,10 @@ def etl(datapkg_settings, output_dir, pudl_settings):
             will contain the datapackage.json file and the data directory.
         pudl_settings (dict): a dictionary describing paths to various
             resources and outputs.
+        ds_kwargs (dict): named-arguments to pass to Datastore constructor
+            when creating new instance. This contains values derived
+            from command-line flags that control how caching layers
+            operate.
 
     Returns:
         list: The names of the tables included in the output datapackage.
@@ -818,7 +814,8 @@ def etl(datapkg_settings, output_dir, pudl_settings):
     for dataset_dict in datapkg_settings['datasets']:
         for dataset in dataset_dict:
             new_tables = etl_funcs[dataset](
-                dataset_dict[dataset], output_dir, pudl_settings)
+                dataset_dict[dataset], output_dir, pudl_settings,
+                ds_kwargs)
             if new_tables:
                 processed_tables.extend(new_tables)
     return processed_tables
@@ -828,7 +825,9 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
                             pudl_settings,
                             datapkg_bundle_name,
                             datapkg_bundle_doi=None,
-                            clobber=False):
+                            clobber=False,
+                            use_local_cache: bool = True,
+                            gcs_cache_path: str = None):
     """
     Coordinate the generation of data packages.
 
@@ -852,6 +851,10 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
             packages with the datapkg_bundle_name, the existing data packages
             will be deleted and new data packages will be generated in their
             place.
+        use_local_cache (bool): controls whether datastore should be using local
+            file cache.
+        gcs_cache_path (str): controls whether datastore should be using Google
+            Cloud Storage based cache.
 
     Returns:
         dict: A dictionary with datapackage names as the keys, and Python
@@ -863,6 +866,12 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
     # validate the settings from the settings file.
     validated_bundle_settings = validate_params(
         datapkg_bundle_settings, pudl_settings)
+
+    ds_kwargs = dict(
+        gcs_cache_path=gcs_cache_path,
+        sandbox=pudl_settings.get("sandbox", False))
+    if use_local_cache:
+        ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
 
     # Generate a random UUID to identify this ETL run / data package bundle
     datapkg_bundle_uuid = str(uuid.uuid4())
@@ -883,7 +892,8 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
         (output_dir / "data").mkdir(parents=True)
         # run the ETL functions for this pkg and return the list of tables
         # output to CSVs:
-        datapkg_resources = etl(datapkg_settings, output_dir, pudl_settings)
+        datapkg_resources = etl(datapkg_settings, output_dir, pudl_settings,
+                                ds_kwargs)
 
         if datapkg_resources:
             descriptor = pudl.load.metadata.generate_metadata(

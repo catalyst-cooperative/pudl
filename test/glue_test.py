@@ -125,7 +125,7 @@ def test_unmapped_plants_eia(pudl_settings_fixture, pudl_engine):
         )
 
 
-def test_unmapped_utils_eia(pudl_settings_fixture, pudl_engine):
+def test_unmapped_utils_eia(pudl_settings_fixture, pudl_datastore_fixture, pudl_engine):
     """
     Check for unmapped EIA Utilities.
 
@@ -137,7 +137,11 @@ def test_unmapped_utils_eia(pudl_settings_fixture, pudl_engine):
     IDs.
 
     """
-    pudl_raw = pudl.output.pudltabl.PudlTabl(pudl_engine, freq=None)
+    pudl_raw = pudl.output.pudltabl.PudlTabl(
+        pudl_engine,
+        ds=pudl_datastore_fixture,
+        freq=None
+    )
     frc_eia923 = pudl_raw.frc_eia923()
     gf_eia923 = pudl_raw.gf_eia923()
     gen_eia923 = pudl_raw.gen_eia923()

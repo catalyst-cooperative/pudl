@@ -9,3 +9,4 @@ prune scripts
 prune test/data
 global-exclude .gitignore __pycache__ *.py[cod] *checkpoint.ipynb
 global-exclude .gitattributes .readthedocs.yml .travis.yml
+global-exclude *_test.py
