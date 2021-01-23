@@ -14,10 +14,12 @@ install_requires = [
     "datapackage~=1.11",
     "geopandas~=0.8.1",
     "goodtables-pandas-py~=0.2.0",
+    "google-cloud-storage~=1.35.0",
     "matplotlib~=3.0",
     "networkx~=2.2",
     "numpy~=1.19",
     "pandas~=1.2",
+    "prefect[viz, gcp]~=0.14.2",
     "pyarrow~=2.0",
     "pyyaml~=5.0",
     "scikit-learn~=0.24",
@@ -62,6 +64,7 @@ test_requires = [
     "pydocstyle~=5.1",
     "pytest~=6.2",
     "pytest-cov~=2.10",
+    "responses~=0.12.1",
 ]
 
 

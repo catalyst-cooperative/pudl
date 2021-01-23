@@ -11,11 +11,14 @@ dependencies:
   - contextily~=1.0
   - datapackage~=1.11
   - geopandas~=0.8.1
+  - goodtables-pandas-py~=0.2.0
+  - google-cloud-storage~=1.35.0
   - matplotlib~=3.0
   - networkx~=2.2
   - numpy~=1.19
   - pandas~=1.2
   - pip~=20.3
+  - prefect~=0.14.2
   - pyarrow~=2.0
   - pyyaml~=5.0
   - python~=3.8
@@ -52,6 +55,7 @@ dependencies:
   - pydocstyle~=5.1
   - pytest~=6.2
   - pytest-cov~=2.10
+  - responses~=0.12.1
 
   # development
   - autopep8~=1.5
@@ -59,7 +63,6 @@ dependencies:
   - isort~=5.0
   - jedi~=0.17.2
   - lxml~=4.6
-  - nbdime~=2.1
   - pandoc~=2.11
   - pdbpp~=0.10
   - tox~=3.20
@@ -67,15 +70,15 @@ dependencies:
 
   # user environment
   - dask~=2020.12
-  - dask-labextension~=4.0
+  - dask-labextension~=5.0
   - jupyter-resource-usage~=0.5.0
   - jupyterlab~=3.0
+  - nodejs~=12.19
   - pygeos~=0.8.0
   - pysal~=2.1.0
   - python-graphviz~=0.16.0
 
   - pip:
     - flake8-use-fstring~=1.0     # development
-    - goodtables-pandas-py~=0.2.0 # install_requires
     - recordlinkage~=0.14.0       # user environment
     - fredapi~=0.4.3              # user environment

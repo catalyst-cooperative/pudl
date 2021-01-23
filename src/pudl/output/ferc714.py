@@ -1,12 +1,75 @@
 """Functions & classes for compiling derived aspects of the FERC Form 714 data."""
+from functools import cached_property
+from typing import Any, Dict, List
+
+import numpy as np
 import pandas as pd
 
 import pudl
 
+ASSOCIATIONS: List[Dict[str, Any]] = [
+    # MISO: Midwest Indep System Operator
+    {'id': 56669, 'from': 2011, 'to': [2009, 2010]},
+    # SWPP: Southwest Power Pool
+    {'id': 59504, 'from': 2014, 'to': [2006, 2009], 'exclude': ['NE']},
+    {'id': 59504, 'from': 2014, 'to': [2010, 2013]},
+    # LGEE: LG&E and KU Services Company
+    {'id': 11249, 'from': 2014, 'to': [2006, 2013]},
+    # (no code): Entergy
+    {'id': 12506, 'from': 2012, 'to': [2013, 2013]},
+    # (no code): American Electric Power Co Inc
+    {'id': 829, 'from': 2008, 'to': [2009, 2013]},
+]
+"""
+Adjustments to balancing authority-utility associations from EIA 861.
+
+The changes are applied locally to EIA 861 tables.
+
+* `id` (int): EIA balancing authority identifier (`balancing_authority_id_eia`).
+* `from` (int): Reference year, to use as a template for target years.
+* `to` (List[int]): Target years, in the closed interval format [minimum, maximum].
+  Rows in `balancing_authority_eia861` are added (if missing) for every target year
+  with the attributes from the reference year.
+  Rows in `balancing_authority_assn_eia861` are added (or replaced, if existing)
+  for every target year with the utility associations from the reference year.
+  Rows in `service_territory_eia861` are added (if missing) for every target year
+  with the nearest year's associated utilities' counties.
+* `exclude` (Optional[List[str]]): Utilities to exclude, by state (two-letter code).
+  Rows are excluded from `balancing_authority_assn_eia861` with target year and state.
+"""
+
+UTILITIES: List[Dict[str, Any]] = [
+    # (no code): Pacific Gas & Electric Co
+    {'id': 14328, 'reassign': True},
+    # (no code): San Diego Gas & Electric Co
+    {'id': 16609, 'reassign': True},
+    # (no code): Dayton Power & Light Co
+    {'id': 4922, 'reassign': True},
+    # (no code): Consumers Energy Company
+    # NOTE: 2003-2006 parent to 40211, which is never child to parent BA (12427),
+    # (and 40211 never reports in service_territory_eia861) so don't reassign.
+    {'id': 4254},
+]
+"""
+Balancing authorities to treat as utilities in associations from EIA 861.
+
+The changes are applied locally to EIA 861 tables.
+
+* `id` (int): EIA balancing authority (BA) identifier (`balancing_authority_id_eia`).
+  Rows for `id` are removed from `balancing_authority_eia861`.
+* `reassign` (Optional[bool]): Whether to reassign utilities to parent BAs.
+  Rows for `id` as BA in `balancing_authority_assn_eia861` are removed.
+  Utilities assigned to `id` for a given year are reassigned
+  to the BAs for which `id` is an associated utility.
+* `replace` (Optional[bool]): Whether to remove rows where `id` is a utility in
+  `balancing_authority_assn_eia861`. Applies only if `reassign=True`.
+"""
 
 ################################################################################
 # Helper functions
 ################################################################################
+
+
 def add_dates(rids_ferc714, report_dates):
     """
     Broadcast respondent data across dates.
@@ -98,7 +161,7 @@ class Respondents(object):
 
         if ba_ids is None:
             ba_ids = (
-                self.pudl_out.balancing_authority_eia861()
+                self.balancing_authority_eia861
                 .balancing_authority_id_eia.dropna().unique()
             )
         self.ba_ids = ba_ids
@@ -118,6 +181,129 @@ class Respondents(object):
         self._fipsified = None
         self._counties_gdf = None
         self._respondents_gdf = None
+
+    @cached_property
+    def balancing_authority_eia861(self) -> pd.DataFrame:
+        """Modified balancing_authority_eia861 table."""
+        df = self.pudl_out.balancing_authority_eia861()
+        index = ['balancing_authority_id_eia', 'report_date']
+        dfi = df.set_index(index)
+        # Prepare reference rows
+        keys = [(fix['id'], pd.Timestamp(fix['from'], 1, 1)) for fix in ASSOCIATIONS]
+        refs = dfi.loc[keys].reset_index().to_dict('records')
+        # Build table of new rows
+        # Insert row for each target balancing authority-year pair
+        # missing from the original table, using the reference year as a template.
+        rows = []
+        for ref, fix in zip(refs, ASSOCIATIONS):
+            for year in range(fix['to'][0], fix['to'][1] + 1):
+                key = (fix['id'], pd.Timestamp(year, 1, 1))
+                if key not in dfi.index:
+                    rows.append({**ref, 'report_date': key[1]})
+        # Append to original table
+        df = df.append(pd.DataFrame(rows))
+        # Remove balancing authorities treated as utilities
+        mask = df['balancing_authority_id_eia'].isin([util['id'] for util in UTILITIES])
+        return df[~mask]
+
+    @cached_property
+    def balancing_authority_assn_eia861(self) -> pd.DataFrame:
+        """Modified balancing_authority_assn_eia861 table."""
+        df = self.pudl_out.balancing_authority_assn_eia861()
+        # Prepare reference rows
+        refs = []
+        for fix in ASSOCIATIONS:
+            mask = df['balancing_authority_id_eia'].eq(fix['id']).to_numpy(bool)
+            mask[mask] = df['report_date'][mask].eq(pd.Timestamp(fix['from'], 1, 1))
+            ref = df[mask]
+            if 'exclude' in fix:
+                # Exclude utilities by state
+                mask = ref['state'].isin(fix['exclude'])
+                ref = ref[mask]
+            refs.append(ref)
+        # Buid table of new rows
+        # Insert (or overwrite) rows for each target balancing authority-year pair,
+        # using the reference year as a template.
+        replaced = np.zeros(df.shape[0], dtype=bool)
+        tables = []
+        for ref, fix in zip(refs, ASSOCIATIONS):
+            for year in range(fix['to'][0], fix['to'][1] + 1):
+                key = fix['id'], pd.Timestamp(year, 1, 1)
+                mask = df['balancing_authority_id_eia'].eq(key[0]).to_numpy(bool)
+                mask[mask] = df['report_date'][mask].eq(key[1])
+                tables.append(ref.assign(report_date=key[1]))
+                replaced |= mask
+        # Append to original table with matching rows removed
+        df = df[~replaced].append(pd.concat(tables))
+        # Remove balancing authorities treated as utilities
+        mask = np.zeros(df.shape[0], dtype=bool)
+        tables = []
+        for util in UTILITIES:
+            is_parent = df['balancing_authority_id_eia'].eq(util['id'])
+            mask |= is_parent
+            # Associated utilities are reassigned to parent balancing authorities
+            if 'reassign' in util and util['reassign']:
+                # Ignore when entity is child to itself
+                is_child = ~is_parent & df['utility_id_eia'].eq(util['id'])
+                # Build table associating parents to children of entity
+                table = df[is_child].merge(
+                    df[is_parent & ~df['utility_id_eia'].eq(util['id'])],
+                    left_on=['report_date', 'utility_id_eia'],
+                    right_on=['report_date', 'balancing_authority_id_eia']
+                ).drop(
+                    columns=[
+                        'utility_id_eia_x', 'state_x', 'balancing_authority_id_eia_y'
+                    ]
+                ).rename(
+                    columns={
+                        'balancing_authority_id_eia_x': 'balancing_authority_id_eia',
+                        'utility_id_eia_y': 'utility_id_eia',
+                        'state_y': 'state'
+                    }
+                )
+                tables.append(table)
+                if 'replace' in util and util['replace']:
+                    mask |= is_child
+        return df[~mask].append(pd.concat(tables)).drop_duplicates()
+
+    @cached_property
+    def service_territory_eia861(self) -> pd.DataFrame:
+        """Modified service_territory_eia861 table."""
+        index = ['utility_id_eia', 'state', 'report_date']
+        # Select relevant balancing authority-utility associations
+        assn = self.balancing_authority_assn_eia861
+        selected = np.zeros(assn.shape[0], dtype=bool)
+        for fix in ASSOCIATIONS:
+            years = [fix['from'], *range(fix['to'][0], fix['to'][1] + 1)]
+            dates = [pd.Timestamp(year, 1, 1) for year in years]
+            mask = assn['balancing_authority_id_eia'].eq(fix['id']).to_numpy(bool)
+            mask[mask] = assn['report_date'][mask].isin(dates)
+            selected |= mask
+        # Reformat as unique utility-state-year
+        assn = assn[selected][index].drop_duplicates()
+        # Select relevant service territories
+        df = self.pudl_out.service_territory_eia861()
+        mdf = assn.merge(df, how='left')
+        # Drop utility-state with no counties for all years
+        grouped = mdf.groupby(['utility_id_eia', 'state'])['county_id_fips']
+        mdf = mdf[grouped.transform('count').gt(0)]
+        # Fill missing utility-state-year with nearest year with counties
+        grouped = mdf.groupby(index)['county_id_fips']
+        missing = mdf[grouped.transform('count').eq(0)].to_dict('records')
+        has_county = mdf['county_id_fips'].notna()
+        tables = []
+        for row in missing:
+            mask = (
+                mdf['utility_id_eia'].eq(row['utility_id_eia']) &
+                mdf['state'].eq(row['state']) &
+                has_county
+            )
+            years = mdf['report_date'][mask].drop_duplicates()
+            # Match to nearest year
+            idx = (years - row['report_date']).abs().idxmin()
+            mask &= mdf['report_date'].eq(years[idx])
+            tables.append(mdf[mask].assign(report_date=row['report_date']))
+        return pd.concat([df] + tables)
 
     def annualize(self, update=False):
         """
@@ -180,7 +366,7 @@ class Respondents(object):
             ba_respondents = (
                 categorized.query("respondent_type=='balancing_authority'")
                 .merge(
-                    self.pudl_out.balancing_authority_eia861()[[
+                    self.balancing_authority_eia861[[
                         "balancing_authority_id_eia",
                         "balancing_authority_code_eia",
                         "balancing_authority_name_eia",
@@ -293,9 +479,9 @@ class Respondents(object):
                 categorized.query("respondent_type=='balancing_authority'"),
                 pudl.analysis.service_territory.get_territory_fips(
                     ids=categorized.balancing_authority_id_eia.unique(),
-                    assn=self.pudl_out.balancing_authority_assn_eia861(),
+                    assn=self.balancing_authority_assn_eia861,
                     assn_col="balancing_authority_id_eia",
-                    st_eia861=self.pudl_out.service_territory_eia861(),
+                    st_eia861=self.service_territory_eia861,
                     limit_by_state=self.limit_by_state),
                 on=["report_date", "balancing_authority_id_eia"],
                 how="left",
@@ -307,7 +493,7 @@ class Respondents(object):
                     ids=categorized.utility_id_eia.unique(),
                     assn=self.pudl_out.utility_assn_eia861(),
                     assn_col="utility_id_eia",
-                    st_eia861=self.pudl_out.service_territory_eia861(),
+                    st_eia861=self.service_territory_eia861,
                     limit_by_state=self.limit_by_state,
                 ),
                 on=["report_date", "utility_id_eia"],
@@ -345,7 +531,7 @@ class Respondents(object):
         """
         if update or self._counties_gdf is None:
             census_counties = pudl.analysis.service_territory.get_census2010_gdf(
-                pudl_settings=self.pudl_settings, layer="county")
+                pudl_settings=self.pudl_settings, layer="county", ds=self.pudl_out.ds)
             self._counties_gdf = (
                 pudl.analysis.service_territory.add_geometries(
                     self.fipsify(update=update), census_gdf=census_counties)

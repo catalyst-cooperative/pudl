@@ -14,7 +14,6 @@ Submodules
    pudl.extract.epacems
    pudl.extract.epaipm
    pudl.extract.excel
-   pudl.extract.excel_test
    pudl.extract.ferc1
    pudl.extract.ferc714
 
