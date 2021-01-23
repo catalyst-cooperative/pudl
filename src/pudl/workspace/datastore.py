@@ -1,98 +1,171 @@
 """Datastore manages file retrieval for PUDL datasets."""
 
 import argparse
-import copy
 import hashlib
+import io
 import json
 import logging
 import re
 import sys
+import zipfile
 from pathlib import Path
+from typing import Any, Dict, Iterator, List, Optional, Tuple
 
+import coloredlogs
 import datapackage
 import requests
 import yaml
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
+from pudl.workspace import resource_cache
+from pudl.workspace.resource_cache import PudlResourceKey
+
+logger = logging.getLogger(__name__)
+
 # The Zenodo tokens recorded here should have read-only access to our archives.
 # Including them here is correct in order to allow public use of this tool, so
 # long as we stick to read-only keys.
 
-TOKEN = {
-    # Read-only personal access tokens for pudl@catalyst.coop:
-    "sandbox": "qyPC29wGPaflUUVAv1oGw99ytwBqwEEdwi4NuUrpwc3xUcEwbmuB4emwysco",
-    "production": "KXcG5s9TqeuPh1Ukt5QYbzhCElp9LxuqAuiwdqHP0WS4qGIQiydHn6FBtdJ5"
-}
-
-
-DOI = {
-    "sandbox": {
-        "censusdp1tract": "10.5072/zenodo.674992",
-        "eia860": "10.5072/zenodo.672210",
-        "eia861": "10.5072/zenodo.687052",
-        "eia923": "10.5072/zenodo.687071",
-        "epacems": "10.5072/zenodo.672963",
-        "ferc1": "10.5072/zenodo.687072",
-        "ferc714": "10.5072/zenodo.672224",
-    },
-    "production": {
-        "censusdp1tract": "10.5281/zenodo.4127049",
-        "eia860": "10.5281/zenodo.4127027",
-        "eia861": "10.5281/zenodo.4127029",
-        "eia923": "10.5281/zenodo.4127040",
-        "epacems": "10.5281/zenodo.4127055",
-        "ferc1": "10.5281/zenodo.4127044",
-        "ferc714": "10.5281/zenodo.4127101",
-    }
-}
 
 PUDL_YML = Path.home() / ".pudl.yml"
 
 
-class Datastore:
-    """Handle connections and downloading of Zenodo Source archives."""
+class ChecksumMismatch(ValueError):
+    """Resource checksum (md5) does not match."""
 
-    def __init__(
-        self,
-        pudl_in,
-        loglevel="WARNING",
-        verbose=False,
-        sandbox=False,
-        timeout=15
-    ):
+    pass
+
+
+class DatapackageDescriptor:
+    """A simple wrapper providing access to datapackage.json contents."""
+
+    def __init__(self, datapackage_json: dict, dataset: str, doi: str):
         """
-        Datastore manages file retrieval for PUDL datasets.
+        Constructs DatapackageDescriptor.
 
         Args:
-            pudl_in (Path): path to the root pudl data directory
-            loglevel (str): logging level.
-            verbose (bool): If true, logs printed to stdout.
-            sandbox (bool): If true, use the sandbox server instead of production
-            timeout (float): Network timeout for http requests.
-
+          datapackage_json (dict): parsed datapackage.json describing this datapackage.
+          dataset (str): name of the dataset.
+          doi (str): DOI (aka version) of the dataset.
         """
-        self.pudl_in = pudl_in
-        logger = logging.Logger(__name__)
-        logger.setLevel(loglevel)
+        self.datapackage_json = datapackage_json
+        self.dataset = dataset
+        self.doi = doi
+        self._validate_datapackage(datapackage_json)
 
-        if verbose:
-            logger.addHandler(logging.StreamHandler())
+    def get_resource_path(self, name: str) -> str:
+        """Returns zenodo url that holds contents of given named resource."""
+        res = self._get_resource_metadata(name)
+        # remote_url is sometimes set on the local cached version of datapackage.json
+        # so we should be using that if it exists.
+        return res.get("remote_url") or res.get("path")
 
-        self.logger = logger
-        logger.info(f"Logging at loglevel {loglevel}")
+    def _get_resource_metadata(self, name: str) -> dict:
+        for res in self.datapackage_json["resources"]:
+            if res["name"] == name:
+                return res
+        raise KeyError(f"Resource {name} not found for {self.dataset}/{self.doi}")
 
-        if sandbox:
-            self._dois = DOI["sandbox"]
-            self.token = TOKEN["sandbox"]
-            self.api_root = "https://sandbox.zenodo.org/api"
+    def validate_checksum(self, name: str, content: str) -> bool:
+        """Returns True if content matches checksum for given named resource."""
+        expected_checksum = self._get_resource_metadata(name)["hash"]
+        m = hashlib.md5()  # nosec
+        m.update(content)
+        if m.hexdigest() != expected_checksum:
+            raise ChecksumMismatch(
+                f'Checksum for resource {name} does not match.'
+                f'Expected {expected_checksum}, got {m.hexdigest()}')
 
-        else:
-            self._dois = DOI["production"]
-            self.token = TOKEN["production"]
-            self.api_root = "https://zenodo.org/api"
+    def _matches(self, res: dict, **filters: Any):
+        parts = res.get('parts', {})
+        return all(str(parts.get(k)) == str(v) for k, v in filters.items())
 
-        # HTTP Requests
+    def get_resources(self, name: str = None, **filters: Any) -> Iterator[PudlResourceKey]:
+        """Returns series of PudlResourceKey identifiers for matching resources.
+
+        Args:
+          name (str): if specified, find resource(s) with this name.
+          filters (dict): if specified, find resoure(s) matching these key=value constraints.
+            The constraints are matched against the 'parts' field of the resource
+            entry in the datapackage.json.
+        """
+        for res in self.datapackage_json["resources"]:
+            if name and res["name"] != name:
+                continue
+            if self._matches(res, **filters):
+                yield PudlResourceKey(
+                    dataset=self.dataset,
+                    doi=self.doi,
+                    name=res["name"])
+
+    def _validate_datapackage(self, datapackage_json: dict):
+        """Checks the correctness of datapackage.json metadata. Throws ValueError if invalid."""
+        dp = datapackage.Package(datapackage_json)
+        if not dp.valid:
+            msg = f"Found {len(dp.errors)} datapackage validation errors:\n"
+            for e in dp.errors:
+                msg = msg + f"  * {e}\n"
+            raise ValueError(msg)
+
+    def get_json_string(self) -> str:
+        """Exports the underlying json as normalized (sorted, indented) json string."""
+        return json.dumps(self.datapackage_json, sort_keys=True, indent=4)
+
+
+class ZenodoFetcher:
+    """API for fetching datapackage descriptors and resource contents from zenodo."""
+
+    # Zenodo tokens recorded here should have read-only access to our archives.
+    # Including them here is correct in order to allow public use of this tool, so
+    # long as we stick to read-only keys.
+    TOKEN = {
+        # Read-only personal access tokens for pudl@catalyst.coop:
+        "sandbox": "qyPC29wGPaflUUVAv1oGw99ytwBqwEEdwi4NuUrpwc3xUcEwbmuB4emwysco",
+        "production": "KXcG5s9TqeuPh1Ukt5QYbzhCElp9LxuqAuiwdqHP0WS4qGIQiydHn6FBtdJ5"
+    }
+
+    DOI = {
+        "sandbox": {
+            "censusdp1tract": "10.5072/zenodo.674992",
+            "eia860": "10.5072/zenodo.672210",
+            "eia860m": "10.5072/zenodo.692655",
+            "eia861": "10.5072/zenodo.687052",
+            "eia923": "10.5072/zenodo.687071",
+            "epacems": "10.5072/zenodo.672963",
+            "ferc1": "10.5072/zenodo.687072",
+            "ferc714": "10.5072/zenodo.672224",
+        },
+        "production": {
+            "censusdp1tract": "10.5281/zenodo.4127049",
+            "eia860": "10.5281/zenodo.4127027",
+            "eia860m": "10.5281/zenodo.4281337",
+            "eia861": "10.5281/zenodo.4127029",
+            "eia923": "10.5281/zenodo.4127040",
+            "epacems": "10.5281/zenodo.4127055",
+            "ferc1": "10.5281/zenodo.4127044",
+            "ferc714": "10.5281/zenodo.4127101",
+        },
+    }
+    API_ROOT = {
+        "sandbox": "https://sandbox.zenodo.org/api",
+        "production": "https://zenodo.org/api",
+    }
+
+    def __init__(self, sandbox: bool = False, timeout: float = 15.0):
+        """Constructs ZenodoFetcher instance.
+
+        Args:
+            sandbox (bool): controls whether production or sandbox zenodo backends
+                and associated DOIs should be used.
+            timeout (float): timeout (in seconds) for http requests.
+        """
+        backend = "sandbox" if sandbox else "production"
+        self._api_root = self.API_ROOT[backend]
+        self._token = self.TOKEN[backend]
+        self._dataset_to_doi = self.DOI[backend]
+        self._descriptor_cache = {}  # type: Dict[str, DatapackageDescriptor]
+
         self.timeout = timeout
         retries = Retry(backoff_factor=2, total=3,
                         status_forcelist=[429, 500, 502, 503, 504])
@@ -102,383 +175,192 @@ class Datastore:
         self.http.mount("http://", adapter)
         self.http.mount("https://", adapter)
 
-    # Location conversion & helpers
+    def _fetch_from_url(self, url: str) -> requests.Response:
+        # logger.info(f"Retrieving {url} from zenodo")
+        response = self.http.get(
+            url,
+            params={"access_token": self._token},
+            timeout=self.timeout)
+        if response.status_code == requests.codes.ok:
+            # logger.info(f"Successfully downloaded {url}")
+            return response
+        else:
+            raise ValueError(f"Could not download {url}: {response.text}")
 
-    def doi(self, dataset):
-        """
-        Produce the DOI for a given dataset, or log & raise error.
-
-        Args:
-            datapackage: the name of the datapackage
-
-        Returns:
-            str, doi for the datapackage
-
-        """
-        try:
-            return self._dois[dataset]
-        except KeyError:
-            msg = f"No DOI available for {dataset}"
-            self.logger.error(msg)
-            raise ValueError(msg)
-
-    def doi_to_url(self, doi):
-        """
-        Given a DOI, produce the API url to retrieve it.
-
-        Args:
-            doi (str): the doi (concept doi) to retrieve, per
-                https://help.zenodo.org/
-
-        Returns:
-            url to get the deposition from the api
-
-        """
+    def _doi_to_url(self, doi: str) -> str:
+        """Returns url that holds the datapackage for given doi."""
         match = re.search(r"zenodo.([\d]+)", doi)
-
         if match is None:
-            msg = f"Invalid doi {doi}"
-            self.logger.error(msg)
-            raise ValueError(msg)
+            raise ValueError(f"Invalid doi {doi}")
 
         zen_id = int(match.groups()[0])
-        return f"{self.api_root}/deposit/depositions/{zen_id}"
+        return f"{self._api_root}/deposit/depositions/{zen_id}"
 
-    def local_path(self, dataset, filename=None):
-        """
-        Produce the local absolute path for a given dataset.
-
-        Args:
-            dataset: the name of the dataset
-            filename: optional filename as it would appear, if included in the
-                path
-
-        Return:
-            str: a path
-        """
-        doi_dirname = re.sub("/", "-", self.doi(dataset))
-        directory = self.pudl_in / "data" / dataset / doi_dirname
-
-        if filename is None:
-            return directory
-
-        return directory / filename
-
-    def save_datapackage_json(self, dataset, dpkg):
-        """
-        Save a datapackage.json file.  Overwrite any previous version.
-
-        Args:
-            dataset (str): name of the dataset, as available in DOI
-            dpkg (dict): dict matching frictionless datapackage spec
-
-        Returns:
-            Path of the saved datapackage
-        """
-        path = self.local_path(dataset, filename="datapackage.json")
-        path.parent.mkdir(parents=True, exist_ok=True)
-        text = json.dumps(dpkg, sort_keys=True, indent=4)
-
-        with path.open("w") as f:
-            f.write(text)
-            self.logger.debug(f"{path} saved.")
-        self._validate_datapackage(dataset)
-
-        return path
-
-    # Datapackage metadata
-
-    def remote_datapackage_json(self, doi):
-        """
-        Produce the contents of a remote datapackage.json.
-
-        Args:
-            doi: the DOI
-
-        Returns:
-            dict representation of the datapackage.json file as available on
-            Zenodo, or raises an error
-        """
-        dpkg_url = self.doi_to_url(doi)
-        response = self.http.get(
-            dpkg_url, params={"access_token": self.token}, timeout=self.timeout)
-
-        if response.status_code > 299:
-            msg = f"Failed to retrieve {dpkg_url}"
-            self.logger.error(msg)
-            raise ValueError(msg)
-
-        jsr = response.json()
-        files = {x["filename"]: x for x in jsr["files"]}
-
-        response = self.http.get(
-            files["datapackage.json"]["links"]["download"],
-            params={"access_token": self.token},
-            timeout=self.timeout)
-
-        if response.status_code > 299:
-            msg = f"Failed to retrieve datapackage for {doi}: {response.text}"
-            self.logger.error(msg)
-            raise ValueError(msg)
-
-        return json.loads(response.text)
-
-    def datapackage_json(self, dataset, force_download=False):
-        """
-        Produce the contents of datapackage.json, cache as necessary.
-
-        Args:
-            dataset (str): name of the dataset, must be available in the DOIS
-
-        Return:
-            dict: representation of the datapackage.json
-
-        """
-        path = self.local_path(dataset, filename="datapackage.json")
-
-        if force_download or not path.exists():
-            doi = self.doi(dataset)
-            dpkg = self.remote_datapackage_json(doi)
-            self.save_datapackage_json(dataset, dpkg)
-
-        with path.open("r") as f:
-            return yaml.safe_load(f)
-
-    # Remote resource retrieval
-
-    def is_remote(self, resource):
-        """
-        Determine whether a described resource is located on a remote server.
-
-        Args:
-            resource: dict, a resource descriptor from a frictionless data
-                package
-
-        Returns:
-            bool
-        """
-        return resource["path"][:8] == "https://" or \
-            resource["path"][:7] == "http://"
-
-    def passes_filters(self, resource, filters):
-        """
-        Test whether file metadata passes given filters.
-
-        Args:
-            resource (dict): a "resource" descriptior from a frictionless
-                datapackage
-            filters (dict): pairs that must match in order for a
-                resource to pass
-
-        Returns:
-            bool: True if the resource parts pass the filters
-
-        """
-        for key, _ in filters.items():
-
-            part_val = resource["parts"].get(key, None)
-
-            if part_val != filters[key]:
-                self.logger.debug(
-                    f"Filtered {resource['name']} on {key}: "
-                    f"{part_val} != {filters[key]}"
-                )
-                return False
-
-        return True
-
-    def download_resource(self, resource, directory, retries=3):
-        """
-        Download a frictionless datapackage resource.
-
-        Args:
-            resource: dict, a remotely located resource descriptior from a frictionless
-                datapackage.
-            directory: the directory where the resource should be saved
-
-        Returns:
-            Path of the saved resource, or none on failure
-
-        """
-        response = self.http.get(
-            resource["remote_url"],
-            params={"access_token": self.token},
-            timeout=self.timeout)
-
-        if response.status_code >= 299:
-            msg = f"Failed to download {resource['path']}, {response.text}"
-
-            self.logger.error(msg)
-            raise RuntimeError(msg)
-
-        local_path = directory / resource["name"]
-
-        with local_path.open("wb") as f:
-            f.write(response.content)
-            self.logger.debug(f"Cached {local_path}")
-
-        if not self._validate_file(local_path, resource["hash"]):
-            self.logger.error(
-                f"Invalid md5 after download of {local_path}.\n"
-                f"Response: {response}\n"
-                f"Resource: {resource}\n"
-                f"Retries left: {retries}"
-            )
-
-            if retries > 0:
-                self.download_resource(resource, directory,
-                                       retries=retries - 1)
+    def get_descriptor(self, dataset: str) -> DatapackageDescriptor:
+        """Returns DatapackageDescriptor for given dataset."""
+        doi = self._dataset_to_doi.get(dataset)
+        if not doi:
+            raise KeyError(f"No doi found for dataset {dataset}")
+        if doi not in self._descriptor_cache:
+            dpkg = self._fetch_from_url(self._doi_to_url(doi))
+            for f in dpkg.json()["files"]:
+                if f["filename"] == "datapackage.json":
+                    resp = self._fetch_from_url(f["links"]["download"])
+                    self._descriptor_cache[doi] = DatapackageDescriptor(
+                        resp.json(), dataset=dataset, doi=doi)
+                    break
             else:
-                raise RuntimeError(f"Could not download valid {resource['path']}")
+                raise RuntimeError(
+                    f"Zenodo datapackage for {dataset}/{doi} does not contain valid datapackage.json")
+        return self._descriptor_cache[doi]
 
-        return local_path
+    def get_resource_key(self, dataset: str, name: str) -> PudlResourceKey:
+        """Returns PudlResourceKey for given resource."""
+        return PudlResourceKey(dataset, self._dataset_to_doi[dataset], name)
 
-    def _validate_file(self, path, hsh):
+    def get_doi(self, dataset: str) -> str:
+        """Returns DOI for given dataset."""
+        return self._dataset_to_doi[dataset]
+
+    def get_resource(self, res: PudlResourceKey) -> bytes:
+        """Given resource key, retrieve contents of the file from zenodo."""
+        desc = self.get_descriptor(res.dataset)
+        url = desc.get_resource_path(res.name)
+        content = self._fetch_from_url(url).content
+        desc.validate_checksum(res.name, content)
+        return content
+
+    def get_known_datasets(self) -> List[str]:
+        """Returns list of supported datasets."""
+        return sorted(self._dataset_to_doi)
+
+
+class Datastore:
+    """Handle connections and downloading of Zenodo Source archives."""
+
+    def __init__(
+        self,
+        local_cache_path: Optional[Path] = None,
+        gcs_cache_path: Optional[str] = None,
+        sandbox: bool = False,
+        timeout: float = 15
+    ):
+        # TODO(rousik): figure out an efficient way to configure datastore caching
         """
-        Validate a filename by md5 hash.
+        Datastore manages file retrieval for PUDL datasets.
 
         Args:
-            path: path to the resource on disk
-            hsh: string, expected md5hash
-
-        Returns:
-            bool: True if the resource md5sum matches the descriptor.
+            local_cache_path (Path): if provided, LocalFileCache pointed at the data
+              subdirectory of this path will be used with this Datastore.
+            gcs_cache_path (str): if provided, GoogleCloudStorageCache will be used
+              to retrieve data files. The path is expected to have the following
+              format: gs://bucket[/path_prefix]
+            sandbox (bool): if True, use sandbox zenodo backend when retrieving files,
+              otherwise use production. This affects which zenodo servers are contacted
+              as well as dois used for each dataset.
+            timeout (floaTR): connection timeouts (in seconds) to use when connecting
+              to Zenodo servers.
 
         """
-        if not path.exists():
-            return False
+        self._cache = resource_cache.LayeredCache()
+        self._datapackage_descriptors = {}  # type: Dict[str, DatapackageDescriptor]
 
-        with path.open("rb") as f:
-            m = hashlib.md5()  # nosec
-            m.update(f.read())
+        if local_cache_path:
+            self._cache.add_cache_layer(
+                resource_cache.LocalFileCache(local_cache_path))
+        if gcs_cache_path:
+            self._cache.add_cache_layer(
+                resource_cache.GoogleCloudStorageCache(gcs_cache_path))
 
-        if m.hexdigest() == hsh:
-            self.logger.debug(f"{path} md5 hash is valid")
-            return True
+        self._zenodo_fetcher = ZenodoFetcher(
+            sandbox=sandbox,
+            timeout=timeout)
 
-        self.logger.warning(f"{path} md5 mismatch")
-        return False
+    def get_known_datasets(self) -> List[str]:
+        """Returns list of supported datasets."""
+        return self._zenodo_fetcher.get_known_datasets()
 
-    def _validate_dataset(self, dataset):
-        """
-        Validate datapackage.json and check each resource on disk has correct md5sum.
+    def get_datapackage_descriptor(self, dataset: str) -> DatapackageDescriptor:
+        """Fetch datapackage descriptor for given dataset either from cache or from zenodo."""
+        doi = self._zenodo_fetcher.get_doi(dataset)
+        if doi not in self._datapackage_descriptors:
+            res = PudlResourceKey(dataset, doi, "datapackage.json")
+            if self._cache.contains(res):
+                self._datapackage_descriptors[doi] = DatapackageDescriptor(
+                    json.loads(self._cache.get(res).decode('utf-8')),
+                    dataset=dataset,
+                    doi=doi)
+            else:
+                desc = self._zenodo_fetcher.get_descriptor(dataset)
+                self._datapackage_descriptors[doi] = desc
+                self._cache.add(res, bytes(desc.get_json_string(), "utf-8"))
+        return self._datapackage_descriptors[doi]
+
+    def get_resources(self, dataset: str, cached_only: bool = False, **filters: Any) -> Iterator[Tuple[PudlResourceKey, bytes]]:
+        """Return content of the matching resources.
 
         Args:
-            dataset: name of a dataset
+            dataset (str): name of the dataset to query.
+            cached_only (bool): if True, only retrieve resources that are present in the cache.
+            filters (key=val): only return resources that match the key-value mapping in their
+            metadata["parts"].
 
-        Returns:
-            bool: True if local datapackage.json is valid and resources have good md5
-            checksums.
-
+        Yields:
+            (PudlResourceKey, io.BytesIO) holding content for each matching resource
         """
-        dp = self.datapackage_json(dataset)
-        ok = self._validate_datapackage(dataset)
+        desc = self.get_datapackage_descriptor(dataset)
+        for res in desc.get_resources(**filters):
+            if self._cache.contains(res):
+                logger.debug(f"Retrieved {res} from cache.")
+                yield (res, self._cache.get(res))
+            elif not cached_only:
+                logger.debug(f"Retrieved {res} from zenodo.")
+                contents = self._zenodo_fetcher.get_resource(res)
+                self._cache.add(res, contents)
+                yield (res, contents)
 
-        for r in dp["resources"]:
+    def remove_from_cache(self, res: PudlResourceKey):
+        """Remove given resource from the associated cache."""
+        self._cache.delete(res)
 
-            if self.is_remote(r):
-                self.logger.debug(f"{r['path']} not cached, skipping validation")
-                continue
+    def get_unique_resource(self, dataset: str, **filters: Any) -> bytes:
+        """Returns content of a resource assuming there is exactly one that matches."""
+        res = self.get_resources(dataset, **filters)
+        try:
+            _, content = next(res)
+        except StopIteration:
+            raise KeyError(f"No resources found for {dataset}: {filters}")
+        try:
+            next(res)
+        except StopIteration:
+            return content
+        raise KeyError(f"Multiple resources found for {dataset}: {filters}")
 
-            # We verify and warn on every resource. Even though a single
-            # failure could end the algorithm, we want to see which ones are
-            # invalid.
-
-            ok = self._validate_file(
-                self.local_path(dataset, r["path"]), r["hash"]) and ok
-
-        return ok
-
-    def _validate_datapackage(self, dataset):
-        """
-        Validate the datapackage.json metadata against the datapackage standard.
-
-        Args:
-            dataset (str): Name of a dataset.
-
-        Returns:
-            bool: True if the datapackage.json is valid. False otherwise.
-
-        """
-        dp = datapackage.Package(self.datapackage_json(dataset))
-        if not dp.valid:
-            msg = f"Found {len(dp.errors)} datapackage validation errors:\n"
-            for e in dp.errors:
-                msg = msg + f"  * {e}\n"
-            self.logger.warning(msg)
-        else:
-            self.logger.debug(
-                f"{self.local_path(dataset, filename='datapackage.json')} is valid"
-            )
-        return dp.valid
-
-    def validate(self, dataset=None):
-        """
-        Validate all datasets, or just the specified one.
-
-        Args:
-            dataset: name of a dataset.
-
-        Returns:
-            bool: True if local resources appear to be correct.
-
-        """
-        if dataset is not None:
-            return self._validate_dataset(dataset)
-
-        valid = True
-
-        for dataset in self._dois.keys():
-            valid = valid and self._validate_dataset(dataset)
-
-        return valid
-
-    def get_resources(self, dataset, **kwargs):
-        """
-        Produce resource descriptors as requested.
-
-        Any resource listed as remote will be downloaded and the
-        datapackage.json will be updated.
-
-        Args:
-            dataset (str): name of the dataset, must be available in the DOIS
-            kwargs: limit retrieved files to those where the datapackage.json["parts"]
-                key & val pairs match provided keywords. Eg. year=2011 or state="md"
-
-        Returns:
-            list of dicts, each representing a resource per the frictionless
-            datapackage spec, except that local paths are modified to be absolute.
-
-        """
-        filters = dict(**kwargs)
-
-        dpkg = self.datapackage_json(dataset)
-        self.logger.debug(
-            f"{dataset} datapackage lists {len(dpkg['resources'])} resources"
-        )
-
-        for r in dpkg["resources"]:
-
-            if self.passes_filters(r, filters):
-
-                if self.is_remote(r) or not self._validate_file(
-                        self.local_path(dataset, r["path"]), r["hash"]):
-                    local = self.download_resource(r, self.local_path(dataset))
-
-                    # save with a relative path
-                    r["path"] = str(local.relative_to(self.local_path(dataset)))
-                    self.logger.debug(f"resource local relative path: {r['path']}")
-                    self.save_datapackage_json(dataset, dpkg)
-
-                r_abspath = copy.deepcopy(r)
-                r_abspath["path"] = str(self.local_path(dataset, r["path"]))
-                yield r_abspath
+    def get_zipfile_resource(self, dataset: str, **filters: Any) -> zipfile.ZipFile:
+        """Retrieves unique resource and opens it as a ZipFile."""
+        return zipfile.ZipFile(io.BytesIO(self.get_unique_resource(dataset, **filters)))
 
 
-def main_arguments():
+class ParseKeyValues(argparse.Action):
+    """Transforms k1=v1,k2=v2,... into dict(k1=v1, k2=v2, ...)."""
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        """Parses the argument value into dict."""
+        d = getattr(namespace, self.dest, {})
+        if isinstance(values, str):
+            values = [values]
+        for val in values:
+            for kv in val.split(','):
+                k, v = kv.split('=')
+            d[k] = v
+        setattr(namespace, self.dest, d)
+
+
+def parse_command_line():
     """Collect the command line arguments."""
-    prod_dois = "\n".join([f"    - {x}" for x in DOI["production"].keys()])
-    sand_dois = "\n".join([f"    - {x}" for x in DOI["sandbox"].keys()])
+    prod_dois = "\n".join(
+        [f"    - {x}" for x in ZenodoFetcher.DOI["production"].keys()])
+    sand_dois = "\n".join([f"    - {x}" for x in ZenodoFetcher.DOI["sandbox"].keys()])
 
     dataset_msg = f"""
 Available Production Datasets:
@@ -506,15 +388,13 @@ Available Sandbox Datasets:
     parser.add_argument(
         "--validate",
         help="Validate locally cached datapackages, but don't download anything.",
-        action="store_const",
-        const=True,
+        action="store_true",
         default=False,
     )
     parser.add_argument(
         "--sandbox",
         help="Download data from Zenodo sandbox server. For testing purposes only.",
-        action="store_const",
-        const=True,
+        action="store_true",
         default=False,
     )
     parser.add_argument(
@@ -525,49 +405,78 @@ Available Sandbox Datasets:
     parser.add_argument(
         "--quiet",
         help="Do not send logging messages to stdout.",
-        action="store_const",
-        const=True,
+        action="store_true",
         default=False,
     )
+    parser.add_argument(
+        "--populate-gcs-cache",
+        default=None,
+        help="If specified, upload data resources to this GCS bucket"
+    )
+    parser.add_argument(
+        "--partition",
+        default={},
+        action=ParseKeyValues,
+        metavar="KEY=VALUE,...",
+        help="Only retrieve resources matching these conditions.")
 
     return parser.parse_args()
 
 
+def _get_pudl_in(args: dict) -> Path:
+    """Figure out what pudl_in path should be used."""
+    if args.pudl_in:
+        return Path(args.pudl_in)
+    else:
+        cfg = yaml.safe_load(PUDL_YML.open())
+        return Path(cfg["pudl_in"])
+
+
+def _create_datastore(args: dict) -> Datastore:
+    """Constructs datastore instance."""
+    local_cache_path = None
+    if not args.populate_gcs_cache:
+        local_cache_path = _get_pudl_in(args) / "data"
+    return Datastore(
+        sandbox=args.sandbox,
+        local_cache_path=local_cache_path,
+        gcs_cache_path=args.populate_gcs_cache)
+
+
 def main():
     """Cache datasets."""
-    args = main_arguments()
-    dataset = getattr(args, "dataset", None)
-    pudl_in = getattr(args, "pudl_in", None)
+    args = parse_command_line()
 
-    if pudl_in is None:
-        with PUDL_YML.open() as f:
-            cfg = yaml.safe_load(f)
-            pudl_in = Path(cfg["pudl_in"])
+    # logger = logging.getLogger(pudl.__name__)
+    log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
+    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
+
+    logger.setLevel(args.loglevel)
+
+    dstore = _create_datastore(args)
+
+    datasets = []
+    if args.dataset:
+        datasets.append(args.dataset)
     else:
-        pudl_in = Path(pudl_in)
+        datasets = dstore.get_known_datasets()
 
-    ds = Datastore(
-        pudl_in,
-        loglevel=args.loglevel,
-        verbose=not args.quiet,
-        sandbox=args.sandbox
-    )
-
-    if dataset is None:
-        if args.sandbox:
-            datasets = DOI["sandbox"].keys()
-        else:
-            datasets = DOI["production"].keys()
-    else:
-        datasets = [dataset]
+    if args.partition:
+        logger.info(f"Only retrieving resources for partition: {args.partition}")
 
     for selection in datasets:
-
         if args.validate:
-            ds.validate(selection)
-            continue
-
-        list(ds.get_resources(selection))
+            descriptor = dstore.get_datapackage_descriptor(selection)
+            for res, content in dstore.get_resources(selection, cached_only=True, **args.partition):
+                try:
+                    descriptor.validate_checksum(res.name, content)
+                except ChecksumMismatch:
+                    logger.warning(
+                        f"Resource {res} has invalid checksum. Removing from cache.")
+                    dstore.remove_from_cache(res)
+        else:
+            for res, _ in dstore.get_resources(selection, **args.partition):
+                logger.info(f"Retrieved {res}.")
 
 
 if __name__ == "__main__":

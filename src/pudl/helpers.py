@@ -8,6 +8,7 @@ scenarios, it should probably live here. There are lost of transform type
 functions in here that help with cleaning and restructing dataframes.
 
 """
+import itertools
 import logging
 import pathlib
 import re
@@ -109,14 +110,14 @@ def clean_eia_counties(df, fixes, state_col="state", county_col="county"):
     df = df.copy()
     df[county_col] = (
         df[county_col].str.strip()
-        .str.replace(r"\s+", " ")  # Condense multiple whitespace chars.
-        .str.replace(r"^St ", "St. ")  # Standardize abbreviation.
-        .str.replace(r"^Ste ", "Ste. ")  # Standardize abbreviation.
+        .str.replace(r"\s+", " ", regex=True)  # Condense multiple whitespace chars.
+        .str.replace(r"^St ", "St. ", regex=True)  # Standardize abbreviation.
+        .str.replace(r"^Ste ", "Ste. ", regex=True)  # Standardize abbreviation.
         .str.replace("Kent & New Castle", "Kent, New Castle")  # Two counties
         # Fix ordering, remove comma
         .str.replace("Borough, Kodiak Island", "Kodiak Island Borough")
         # Turn comma-separated counties into lists
-        .str.replace(",$", "").str.split(',')
+        .str.replace(r",$", "", regex=True).str.split(',')
     )
     # Create new records for each county in a multi-valued record
     df = df.explode(county_col)
@@ -403,10 +404,10 @@ def simplify_strings(df, columns):
             out_df.loc[out_df[col].notnull(), col] = (
                 out_df.loc[out_df[col].notnull(), col]
                 .astype(str)
-                .str.replace("[\x00-\x1f\x7f-\x9f]", "")
+                .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
                 .str.strip()
                 .str.lower()
-                .str.replace(r'\s+', ' ')
+                .str.replace(r'\s+', ' ', regex=True)
             )
     return out_df
 
@@ -438,7 +439,7 @@ def cleanstrings_series(col, str_map, unmapped=None, simplify=True):
             col.astype(str).
             str.strip().
             str.lower().
-            str.replace(r'\s+', ' ')
+            str.replace(r'\s+', ' ', regex=True)
         )
         for k in str_map:
             str_map[k] = [re.sub(r'\s+', ' ', s.lower().strip())
@@ -725,10 +726,10 @@ def simplify_columns(df):
     """
     df.columns = (
         df.columns.
-        str.replace('[^0-9a-zA-Z]+', ' ').
+        str.replace(r'[^0-9a-zA-Z]+', ' ', regex=True).
         str.strip().
         str.lower().
-        str.replace(r'\s+', ' ').
+        str.replace(r'\s+', ' ', regex=True).
         str.replace(' ', '_')
     )
     return df
@@ -1080,7 +1081,7 @@ def cleanstrings_snake(df, cols):
             df[col].astype(str).
             str.strip().
             str.lower().
-            str.replace(r'\s+', '_')
+            str.replace(r'\s+', '_', regex=True)
         )
     return df
 
@@ -1112,3 +1113,36 @@ def zero_pad_zips(zip_series, n_digits):
         .replace({n_digits * "0": pd.NA})  # All-zero Zip codes aren't valid.
     )
     return zip_series
+
+
+def iterate_multivalue_dict(**kwargs):
+    """Make dicts from dict with main dict key and one value of main dict."""
+    single_valued = {k: v for k,
+                     v in kwargs.items()
+                     if not (isinstance(v, list) or isinstance(v, tuple))}
+
+    # Transform multi-valued {k: vlist} into {k1: [{k1: v1}, {k1: v2}, ...], k2: [...], ...}
+    multi_valued = {k: [{k: v} for v in vlist]
+                    for k, vlist in kwargs.items()
+                    if (isinstance(vlist, list) or isinstance(vlist, tuple))}
+
+    for value_assignments in itertools.product(*multi_valued.values()):
+        result = dict(single_valued)
+        for k_v in value_assignments:
+            result.update(k_v)
+        yield result
+
+
+def get_working_eia_dates():
+    """Get all working EIA dates as a DatetimeIndex."""
+    dates = pd.DatetimeIndex([])
+    for dataset_name, dataset in pc.working_partitions.items():
+        if 'eia' in dataset_name:
+            for name, partition in dataset.items():
+                if name == 'years':
+                    dates = dates.append(
+                        pd.to_datetime(partition, format='%Y'))
+                if name == 'year_month':
+                    dates = dates.append(pd.DatetimeIndex(
+                        [pd.to_datetime(partition)]))
+    return dates

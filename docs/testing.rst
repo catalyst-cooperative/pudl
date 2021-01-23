@@ -21,10 +21,10 @@ Data Quantity:
 ^^^^^^^^^^^^^^
 
 * For "fast" tests we use the most recent year of data that's available for all
-  data sources, with the exception of :ref:`data-epacems`, for which we only
+  data sources, with the exception of :doc:`data_sources/epacems`, for which we only
   do the most recent year of data for a single state.
 * For "full" tests we process all of the data that we expect to work, again
-  with the exception of :ref:`data-epacems` for which we do only a single state
+  with the exception of :doc:`data_sources/epacems` for which we do only a single state
   (across all years).
 
 Data Source:
@@ -39,9 +39,9 @@ testing. They can:
 
 Because
 `FTP doesn't work on Travis <https://docs.travis-ci.com/user/common-build-problems/#ftpsmtpother-protocol-do-not-work>`__,
-and the :ref:`data-ferc1` and :ref:`data-epacems` data can only be downloaded
-over FTP, we also keep a small amount of data for those sources in the PUDL
-Github repository and use it to populate the datastore for continuous
+and the :doc:`data_sources/ferc1` and :doc:`data_sources/epacems` data can only
+be downloaded over FTP, we also keep a small amount of data for those sources in
+the PUDL Github repository and use it to populate the datastore for continuous
 integration. We download fresh data for the EIA and other data sources that are
 available via HTTPS.
 

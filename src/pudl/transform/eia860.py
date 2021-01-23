@@ -1,4 +1,5 @@
 """Module to perform data cleaning functions on EIA860 data tables."""
+
 import logging
 
 import numpy as np
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 def ownership(eia860_dfs, eia860_transformed_dfs):
     """
-    Pulls and transforms the ownership table.
+    Pull and transform the ownership table.
 
     Args:
         eia860_dfs (dict): Each entry in this dictionary of DataFrame objects
@@ -28,20 +29,23 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
         DataFrames of values from that page (values)
 
     """
+    # Preiminary clean and get rid of unecessary 'year' column
     o_df = (
         eia860_dfs['ownership'].copy()
         .pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.convert_to_date)
+        .drop(columns=['year'])
     )
 
     # The fix we're making here is only known to be valid for 2011 -- if we
     # get older data... then we need to to revisit the cleaning function and
     # make sure it also applies to those earlier years.
-    if min(o_df.report_date.dt.year) < min(pc.working_years["eia860"]):
+    if (min(o_df.report_date.dt.year)
+            < min(pc.working_partitions['eia860']['years'])):
         raise ValueError(
             f"EIA 860 transform step is only known to work for "
-            f"year {min(pc.working_years['eia860'])} and later, but found data "
-            f"from year {min(o_df.report_date.dt.year)}."
+            f"year {min(pc.working_partitions['eia860']['years'])} and later, "
+            f"but found data from year {min(o_df.report_date.dt.year)}."
         )
 
     # Prior to 2012, ownership was reported as a percentage, rather than
@@ -65,11 +69,14 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
 
 def generators(eia860_dfs, eia860_transformed_dfs):
     """
-    Pulls and transforms the generators table.
+    Pull and transform the generators table.
 
     There are three tabs that the generator records come from (proposed,
-    existing, and retired). We pull each tab into one dataframe and include
-    an ``operational_status`` to indicate which tab the record came from.
+    existing, retired). Pre 2009, the existing and retired data are lumped
+    together under a single generator file with one tab. We pull each tab into
+    one dataframe and include an ``operational_status`` to indicate which tab
+    the record came from. We use ``operational_status`` to parse the pre 2009
+    files as well.
 
     Args:
         eia860_dfs (dict): Each entry in this
@@ -96,12 +103,21 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     gp_df = eia860_dfs['generator_proposed'].copy()
     ge_df = eia860_dfs['generator_existing'].copy()
     gr_df = eia860_dfs['generator_retired'].copy()
+    g_df = eia860_dfs['generator'].copy()
     gp_df['operational_status'] = 'proposed'
     ge_df['operational_status'] = 'existing'
     gr_df['operational_status'] = 'retired'
+    g_df['operational_status'] = (
+        g_df['operational_status_code']
+        .replace({'OP': 'existing',  # could move this dict to constants
+                  'SB': 'existing',
+                  'OA': 'existing',
+                  'OS': 'existing',
+                  'RE': 'retired'})
+    )
 
     gens_df = (
-        pd.concat([ge_df, gp_df, gr_df], sort=True)
+        pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
         .dropna(subset=['generator_id', 'plant_id_eia'])
         .pipe(pudl.helpers.fix_eia_na)
     )
@@ -173,7 +189,14 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         'planned_modifications',
         'other_planned_modifications',
         'uprate_derate_during_year',
-        'previously_canceled'
+        'previously_canceled',
+        'owned_by_non_utility',
+        'summer_capacity_estimate',
+        'winter_capacity_estimate',
+        'distributed_generation',
+        'ferc_cogen_status',
+        'ferc_small_power_producer',
+        'ferc_exempt_wholesale_generator'
     ]
 
     for column in boolean_columns_to_fix:
@@ -185,6 +208,25 @@ def generators(eia860_dfs, eia860_transformed_dfs):
                 value=[True, False, pd.NA])
         )
 
+    # A subset of the pre-2009 columns refer to transportation methods with a
+    # series of codes. This writes them out in their entirety.
+
+    transport_columns_to_fix = [
+        'energy_source_1_transport_1',
+        'energy_source_1_transport_2',
+        'energy_source_1_transport_3',
+        'energy_source_2_transport_1',
+        'energy_source_2_transport_2',
+        'energy_source_2_transport_3',
+    ]
+
+    for column in transport_columns_to_fix:
+        gens_df[column] = (
+            gens_df[column]
+            .astype('string')
+            .replace(pc.TRANSIT_TYPE_DICT)
+        )
+
     gens_df = (
         gens_df.
         pipe(pudl.helpers.month_year_to_date).
@@ -193,12 +235,6 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         pipe(pudl.helpers.simplify_strings,
              columns=['rto_iso_lmp_node_id',
                       'rto_iso_location_wholesale_reporting_id']).
-        astype({
-            'plant_id_eia': int,
-            'generator_id': str,
-            'unit_id_eia': str,
-            'utility_id_eia': int
-        }).
         pipe(pudl.helpers.convert_to_date)
     )
 
@@ -209,7 +245,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
 
 def plants(eia860_dfs, eia860_transformed_dfs):
     """
-    Pulls and transforms the plants table.
+    Pull and transform the plants table.
 
     Much of the static plant information is reported repeatedly, and scattered
     across several different pages of EIA 923. The data frame which this
@@ -244,10 +280,10 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     # harvesting.
     p_df['county'] = (
         p_df.county.
-        str.replace(r'[^a-z,A-Z]+', ' ').
+        str.replace(r'[^a-z,A-Z]+', ' ', regex=True).
         str.strip().
         str.lower().
-        str.replace(r'\s+', ' ').
+        str.replace(r'\s+', ' ', regex=True).
         str.title()
     )
 
@@ -293,7 +329,7 @@ def plants(eia860_dfs, eia860_transformed_dfs):
 
 def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     """
-    Pulls and transforms the boilder generator association table.
+    Pull and transform the boilder generator association table.
 
     Args:
         eia860_dfs (dict): Each entry in this dictionary of DataFrame objects
@@ -311,7 +347,6 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     """
     # Populating the 'generators_eia860' table
     b_g_df = eia860_dfs['boiler_generator_assn'].copy()
-
     b_g_cols = ['report_year',
                 'utility_id_eia',
                 'plant_id_eia',
@@ -345,7 +380,7 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
 
 def utilities(eia860_dfs, eia860_transformed_dfs):
     """
-    Pulls and transforms the utilities table.
+    Pull and transform the utilities table.
 
     Args:
         eia860_dfs (dict): Each entry in this
@@ -371,6 +406,32 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
         'QB': 'QC',  # wrong abbreviation for Quebec
         'Y': 'NY',  # Typo
     })
+
+    # Combine phone number columns into one
+    def _make_phone_number(col1, col2, col3):
+        """Make and validate full phone number seperated by dashes."""
+        p_num = (
+            col1.astype('string')
+            + '-' + col2.astype('string')
+            + '-' + col3.astype('string')
+        )
+        # Turn anything that doesn't match a US phone number format to NA
+        # using noqa to get past flake8 test that give a false positive thinking
+        # that the regex string is supposed to be an f-string and is missing
+        # the it's designated prefix.
+        return p_num.replace(regex=r'^(?!.*\d{3}-\d{3}-\d{4}).*$', value=pd.NA)  # noqa: FS003
+
+    u_df = (
+        u_df.assign(
+            phone_number_1=_make_phone_number(
+                u_df.phone_number_first_1,
+                u_df.phone_number_mid_1,
+                u_df.phone_number_last_1),
+            phone_number_2=_make_phone_number(
+                u_df.phone_number_first_2,
+                u_df.phone_number_mid_2,
+                u_df.phone_number_last_2))
+    )
 
     boolean_columns_to_fix = [
         'plants_reported_owner',
@@ -405,7 +466,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
 
 def transform(eia860_raw_dfs, eia860_tables=pc.pudl_tables["eia860"]):
     """
-    Transforms EIA 860 DataFrames.
+    Transform EIA 860 DataFrames.
 
     Args:
         eia860_raw_dfs (dict): a dictionary of tab names (keys) and DataFrames

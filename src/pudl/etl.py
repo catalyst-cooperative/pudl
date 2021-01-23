@@ -25,6 +25,7 @@ import pandas as pd
 
 import pudl
 from pudl import constants as pc
+from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
 
@@ -48,36 +49,44 @@ def _validate_params_partition(etl_params_og, tables):
     return(partition_dict)
 
 
+def check_for_bad_years(try_years, dataset):
+    """Check for bad data years."""
+    bad_years = [
+        y for y in try_years
+        if y not in pc.working_partitions[dataset]['years']]
+    if bad_years:
+        raise AssertionError(f"Unrecognized {dataset} years: {bad_years}")
+
+
+def check_for_bad_tables(try_tables, dataset):
+    """Check for bad data tables."""
+    bad_tables = [t for t in try_tables if t not in pc.pudl_tables[dataset]]
+    if bad_tables:
+        raise AssertionError(f"Unrecognized {dataset} table: {bad_tables}")
+
 ###############################################################################
 # EIA EXPORT FUNCTIONS
 ###############################################################################
 
 
-def _validate_params_eia(etl_params):  # noqa: C901
+def _validate_params_eia(etl_params):
     # extract all of the etl_params for the EIA ETL function
     # empty dictionary to compile etl_params
     eia_input_dict = {}
     # when nothing is set in the settings file, the years will default as none
-    try:
-        eia_input_dict['eia860_years'] = etl_params['eia860_years']
-    except KeyError:
-        eia_input_dict['eia860_years'] = []
+    eia_input_dict['eia860_years'] = etl_params.get('eia860_years', [])
 
     # the tables will default to all of the tables if nothing is given
-    try:
-        eia_input_dict['eia860_tables'] = etl_params['eia860_tables']
-    except KeyError:
-        eia_input_dict['eia860_tables'] = pc.pudl_tables['eia860']
+    eia_input_dict['eia860_tables'] = etl_params.get(
+        'eia860_tables', pc.pudl_tables['eia860'])
 
-    try:
-        eia_input_dict['eia923_years'] = etl_params['eia923_years']
-    except KeyError:
-        eia_input_dict['eia923_years'] = []
+    # if eia860_ytd updates flag isn't included, the default is to not load ytd
+    eia_input_dict['eia860_ytd'] = etl_params.get('eia860_ytd', False)
 
-    try:
-        eia_input_dict['eia923_tables'] = etl_params['eia923_tables']
-    except KeyError:
-        eia_input_dict['eia923_tables'] = pc.pudl_tables['eia923']
+    eia_input_dict['eia923_years'] = etl_params.get('eia923_years', [])
+
+    eia_input_dict['eia923_tables'] = etl_params.get(
+        'eia923_tables', pc.pudl_tables['eia923'])
 
     # if we are only extracting 860, we also need to pull in the
     # boiler_fuel_eia923 table. this is for harvesting and also for the boiler
@@ -92,33 +101,26 @@ def _validate_params_eia(etl_params):  # noqa: C901
     if not eia_input_dict['eia860_years'] and eia_input_dict['eia923_years']:
         eia_input_dict['eia860_years'] = eia_input_dict['eia923_years']
 
-    # Validate the etl_params
-    if eia_input_dict['eia860_tables']:
-        for table in eia_input_dict['eia860_tables']:
-            if table not in pc.pudl_tables["eia860"]:
-                raise AssertionError(
-                    f"Unrecognized EIA 860 table: {table}"
-                )
+    eia860m_year = pd.to_datetime(
+        pc.working_partitions['eia860m']['year_month']).year
+    if (eia_input_dict['eia860_ytd']
+            and (eia860m_year in eia_input_dict['eia860_years'])):
+        raise AssertionError(
+            "Attempting to integrate an eia860m year "
+            f"({eia860m_year}) that is within the eia860 years: "
+            f"{eia_input_dict['eia860_years']}. Consider switching eia860_ytd "
+            "parameter to False."
+        )
+    check_for_bad_tables(
+        try_tables=eia_input_dict['eia923_tables'], dataset='eia923')
+    check_for_bad_tables(
+        try_tables=eia_input_dict['eia860_tables'], dataset='eia860')
+    check_for_bad_years(
+        try_years=eia_input_dict['eia860_years'], dataset='eia860')
+    check_for_bad_years(
+        try_years=eia_input_dict['eia923_years'], dataset='eia923')
 
-    if eia_input_dict['eia923_tables']:
-        for table in eia_input_dict['eia923_tables']:
-            if table not in pc.pudl_tables["eia923"]:
-                raise AssertionError(
-                    f"Unrecogized EIA 923 table: {table}"
-                )
-
-    for year in eia_input_dict['eia860_years']:
-        if year not in pc.working_years['eia860']:
-            raise AssertionError(f"Unrecognized EIA 860 year: {year}")
-
-    for year in eia_input_dict['eia923_years']:
-        if year not in pc.working_years['eia923']:
-            raise AssertionError(f"Unrecognized EIA 923 year: {year}")
-    if (not eia_input_dict['eia923_years']
-            and not eia_input_dict['eia860_years']):
-        return None
-    else:
-        return eia_input_dict
+    return eia_input_dict
 
 
 def _load_static_tables_eia(datapkg_dir):
@@ -170,7 +172,15 @@ def _load_static_tables_eia(datapkg_dir):
     return list(static_dfs.keys())
 
 
-def _etl_eia(etl_params, datapkg_dir, pudl_settings):
+def _add_eia_epacems_crosswalk(eia_transformed_dfs):
+    """Add normalized EIA-EPA crosswalk tables to the transformed dfs dict."""
+    assn_dfs = pudl.glue.eia_epacems.grab_clean_split()
+    eia_transformed_dfs.update(assn_dfs)
+
+    return eia_transformed_dfs
+
+
+def _etl_eia(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     """Extract, transform and load CSVs for the EIA datasets.
 
     Args:
@@ -188,6 +198,7 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     eia_inputs = _validate_params_eia(etl_params)
     eia860_tables = eia_inputs["eia860_tables"]
     eia860_years = eia_inputs["eia860_years"]
+    eia860_ytd = eia_inputs["eia860_ytd"]
     eia923_tables = eia_inputs["eia923_tables"]
     eia923_years = eia_inputs["eia923_years"]
 
@@ -201,13 +212,18 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     # generate CSVs for the static EIA tables, return the list of tables
     static_tables = _load_static_tables_eia(datapkg_dir)
 
-    sandbox = pudl_settings.get("sandbox", False)
-    ds = pudl.workspace.datastore.Datastore(
-        Path(pudl_settings["pudl_in"]),
-        sandbox=sandbox)
+    ds = Datastore(**ds_kwargs)
     # Extract EIA forms 923, 860
-    eia923_raw_dfs = pudl.extract.eia923.Extractor(ds).extract(eia923_years)
-    eia860_raw_dfs = pudl.extract.eia860.Extractor(ds).extract(eia860_years)
+    eia923_raw_dfs = pudl.extract.eia923.Extractor(ds).extract(
+        year=eia923_years)
+    eia860_raw_dfs = pudl.extract.eia860.Extractor(ds).extract(
+        year=eia860_years)
+    # if we are trying to add the EIA 860M YTD data, then extract it and append
+    if eia860_ytd:
+        eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
+            year_month=pc.working_partitions['eia860m']['year_month'])
+        eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
+            eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
 
     # Transform EIA forms 923, 860
     eia860_transformed_dfs = pudl.transform.eia860.transform(
@@ -217,6 +233,10 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
     # create an eia transformed dfs dictionary
     eia_transformed_dfs = eia860_transformed_dfs.copy()
     eia_transformed_dfs.update(eia923_transformed_dfs.copy())
+
+    # Add EIA-EPA crosswalk tables
+    eia_transformed_dfs = _add_eia_epacems_crosswalk(eia_transformed_dfs)
+
     # convert types..
     eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
         eia_transformed_dfs, 'eia')
@@ -225,6 +245,7 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
         eia_transformed_dfs,
         eia860_years=eia860_years,
         eia923_years=eia923_years,
+        eia860_ytd=eia860_ytd,
     )
     # convert types..
     entities_dfs = pudl.helpers.convert_dfs_dict_dtypes(entities_dfs, 'eia')
@@ -246,30 +267,21 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings):
 ###############################################################################
 # FERC1 EXPORT FUNCTIONS
 ###############################################################################
-def _validate_params_ferc1(etl_params):  # noqa: C901
+def _validate_params_ferc1(etl_params):
     ferc1_dict = {}
     # pull out the etl_params from the dictionary passed into this function
-    try:
-        ferc1_dict['ferc1_years'] = etl_params['ferc1_years']
-    except KeyError:
-        ferc1_dict['ferc1_years'] = [None]
+    ferc1_dict['ferc1_years'] = etl_params.get('ferc1_years', [None])
+
     # the tables will default to all of the tables if nothing is given
-    try:
-        ferc1_dict['ferc1_tables'] = etl_params['ferc1_tables']
-    except KeyError:
-        ferc1_dict['ferc1_tables'] = pc.pudl_tables['ferc1']
+    ferc1_dict['ferc1_tables'] = etl_params.get(
+        'ferc1_tables', pc.pudl_tables['ferc1'])
 
-    try:
-        ferc1_dict['debug'] = etl_params['debug']
-    except KeyError:
-        ferc1_dict['debug'] = False
+    ferc1_dict['debug'] = etl_params.get('debug', False)
 
-    if (not ferc1_dict['debug']) and (ferc1_dict['ferc1_tables']):
-        for table in ferc1_dict['ferc1_tables']:
-            if table not in pc.pudl_tables["ferc1"]:
-                raise AssertionError(
-                    f"Unrecognized FERC table: {table}."
-                )
+    if not ferc1_dict['debug']:
+        check_for_bad_tables(
+            try_tables=ferc1_dict['ferc1_tables'], dataset='ferc1')
+
     if not ferc1_dict['ferc1_years']:
         return {}
     else:
@@ -316,7 +328,7 @@ def _load_static_tables_ferc1(datapkg_dir):
     return list(static_dfs.keys())
 
 
-def _etl_ferc1(etl_params, datapkg_dir, pudl_settings):
+def _etl_ferc1(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     """Extract, transform and load CSVs for FERC Form 1.
 
     Args:
@@ -373,7 +385,7 @@ def _validate_params_epacems(etl_params):
     # if states are All, then we grab all of the states from constants
     if epacems_dict['epacems_states']:
         if epacems_dict['epacems_states'][0].lower() == 'all':
-            epacems_dict['epacems_states'] = list(pc.cems_states.keys())
+            epacems_dict['epacems_states'] = pc.working_partitions['epacems']['states']
 
     # CEMS is ALWAYS going to be partitioned by year and state. This means we
     # are functinoally removing the option to not partition or partition
@@ -398,7 +410,7 @@ def _validate_params_epacems(etl_params):
         return epacems_dict
 
 
-def _etl_epacems(etl_params, datapkg_dir, pudl_settings):
+def _etl_epacems(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     """Extract, transform and load CSVs for EPA CEMS.
 
     Args:
@@ -422,12 +434,8 @@ def _etl_epacems(etl_params, datapkg_dir, pudl_settings):
         logger.info('Not ingesting EPA CEMS.')
 
     # NOTE: This a generator for raw dataframes
-    sandbox = pudl_settings.get("sandbox", False)
-    ds = pudl.extract.epacems.EpaCemsDatastore(
-        Path(pudl_settings["pudl_in"]),
-        sandbox=sandbox)
     epacems_raw_dfs = pudl.extract.epacems.extract(
-        epacems_years, epacems_states, ds)
+        epacems_years, epacems_states, Datastore(**ds_kwargs))
 
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform(
@@ -445,7 +453,8 @@ def _etl_epacems(etl_params, datapkg_dir, pudl_settings):
                                 datapkg_dir=datapkg_dir)
         epacems_tables.append(list(transformed_df_dict.keys())[0])
     if logger.isEnabledFor(logging.INFO):
-        delta_t = time.strftime("%H:%M:%S", time.gmtime(time.monotonic() - start_time))
+        delta_t = time.strftime("%H:%M:%S", time.gmtime(
+            time.monotonic() - start_time))
         time_message = f"Loading EPA CEMS took {delta_t}"
         logger.info(time_message)
         start_time = time.monotonic()
@@ -510,7 +519,7 @@ def _load_static_tables_epaipm(datapkg_dir):
     return list(static_dfs.keys())
 
 
-def _etl_epaipm(etl_params, datapkg_dir, pudl_settings):
+def _etl_epaipm(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     """Extract, transform and load CSVs for EPA IPM.
 
     Args:
@@ -533,9 +542,7 @@ def _etl_epaipm(etl_params, datapkg_dir, pudl_settings):
     static_tables = _load_static_tables_epaipm(datapkg_dir)
 
     # Extract IPM tables
-    sandbox = pudl_settings.get("sandbox", False)
-    ds = pudl.extract.epaipm.EpaIpmDatastore(
-        Path(pudl_settings["pudl_in"]), sandbox=sandbox)
+    ds = pudl.extract.epaipm.EpaIpmDatastore(Datastore(**ds_kwargs))
     epaipm_raw_dfs = pudl.extract.epaipm.extract(epaipm_tables, ds)
 
     epaipm_transformed_dfs = pudl.transform.epaipm.transform(
@@ -569,7 +576,7 @@ def _validate_params_glue(etl_params):
         return(glue_dict)
 
 
-def _etl_glue(etl_params, datapkg_dir, pudl_settings):
+def _etl_glue(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     """Extract, transform and load CSVs for the Glue tables.
 
     Currently this only generates glue connecting FERC Form 1 and EIA
@@ -769,7 +776,7 @@ def validate_params(datapkg_bundle_settings, pudl_settings):
     return validated_settings
 
 
-def etl(datapkg_settings, output_dir, pudl_settings):
+def etl(datapkg_settings, output_dir, pudl_settings, ds_kwargs):
     """
     Run ETL process for data package specified by datapkg_settings dictionary.
 
@@ -786,6 +793,10 @@ def etl(datapkg_settings, output_dir, pudl_settings):
             will contain the datapackage.json file and the data directory.
         pudl_settings (dict): a dictionary describing paths to various
             resources and outputs.
+        ds_kwargs (dict): named-arguments to pass to Datastore constructor
+            when creating new instance. This contains values derived
+            from command-line flags that control how caching layers
+            operate.
 
     Returns:
         list: The names of the tables included in the output datapackage.
@@ -803,7 +814,8 @@ def etl(datapkg_settings, output_dir, pudl_settings):
     for dataset_dict in datapkg_settings['datasets']:
         for dataset in dataset_dict:
             new_tables = etl_funcs[dataset](
-                dataset_dict[dataset], output_dir, pudl_settings)
+                dataset_dict[dataset], output_dir, pudl_settings,
+                ds_kwargs)
             if new_tables:
                 processed_tables.extend(new_tables)
     return processed_tables
@@ -813,7 +825,9 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
                             pudl_settings,
                             datapkg_bundle_name,
                             datapkg_bundle_doi=None,
-                            clobber=False):
+                            clobber=False,
+                            use_local_cache: bool = True,
+                            gcs_cache_path: str = None):
     """
     Coordinate the generation of data packages.
 
@@ -837,6 +851,10 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
             packages with the datapkg_bundle_name, the existing data packages
             will be deleted and new data packages will be generated in their
             place.
+        use_local_cache (bool): controls whether datastore should be using local
+            file cache.
+        gcs_cache_path (str): controls whether datastore should be using Google
+            Cloud Storage based cache.
 
     Returns:
         dict: A dictionary with datapackage names as the keys, and Python
@@ -849,9 +867,16 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
     validated_bundle_settings = validate_params(
         datapkg_bundle_settings, pudl_settings)
 
+    ds_kwargs = dict(
+        gcs_cache_path=gcs_cache_path,
+        sandbox=pudl_settings.get("sandbox", False))
+    if use_local_cache:
+        ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
+
     # Generate a random UUID to identify this ETL run / data package bundle
     datapkg_bundle_uuid = str(uuid.uuid4())
-    datapkg_bundle_dir = Path(pudl_settings["datapkg_dir"], datapkg_bundle_name)
+    datapkg_bundle_dir = Path(
+        pudl_settings["datapkg_dir"], datapkg_bundle_name)
 
     # Create, or delete and re-create the top level datapackage bundle directory:
     _ = pudl.helpers.prep_dir(datapkg_bundle_dir, clobber=clobber)
@@ -867,7 +892,8 @@ def generate_datapkg_bundle(datapkg_bundle_settings,
         (output_dir / "data").mkdir(parents=True)
         # run the ETL functions for this pkg and return the list of tables
         # output to CSVs:
-        datapkg_resources = etl(datapkg_settings, output_dir, pudl_settings)
+        datapkg_resources = etl(datapkg_settings, output_dir, pudl_settings,
+                                ds_kwargs)
 
         if datapkg_resources:
             descriptor = pudl.load.metadata.generate_metadata(

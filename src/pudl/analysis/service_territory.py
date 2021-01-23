@@ -11,7 +11,6 @@ import argparse
 import logging
 import math
 import sys
-import zipfile
 from pathlib import Path
 
 import coloredlogs
@@ -35,7 +34,7 @@ CALC_CRS = "ESRI:102003"  # For accurate area calculations
 ################################################################################
 # Outside data that we rely on for this analysis
 ################################################################################
-def get_census2010_gdf(pudl_settings, layer):
+def get_census2010_gdf(pudl_settings, layer, ds):
     """
     Obtain a GeoDataFrame containing US Census demographic data for 2010.
 
@@ -51,6 +50,7 @@ def get_census2010_gdf(pudl_settings, layer):
         pudl_settings (dict): PUDL Settings dictionary.
         layer (str): Indicates which layer of the Census GeoDB to read.
             Must be one of "state", "county", or "tract".
+        ds (Datastore): instance of a datastore for resource retrieval.
 
     Returns:
         geopandas.GeoDataFrame: DataFrame containing the US Census
@@ -63,20 +63,11 @@ def get_census2010_gdf(pudl_settings, layer):
     census2010_gdb_dir = census2010_dir / "census2010.gdb"
 
     if not census2010_gdb_dir.is_dir():
-        sandbox = pudl_settings.get("sandbox", False)
-        ds = pudl.workspace.datastore.Datastore(
-            Path(pudl_settings["pudl_in"]),
-            sandbox=sandbox)
-        resource = next(ds.get_resources("censusdp1tract", year=2010))
-
+        zip_ref = ds.get_zipfile_resource("censusdp1tract", year=2010)
         logger.debug("Extracting census geodb to %s", census2010_gdb_dir)
-
-        # Unzip because we can't use zipfile paths with geopandas
-        with zipfile.ZipFile(resource["path"], 'r') as zip_ref:
-            zip_ref.extractall(census2010_dir)
-            # Grab the originally extracted directory name so we can change it:
-            extract_root = census2010_dir / \
-                Path(zip_ref.filelist[0].filename)
+        zip_ref.extractall(census2010_dir)
+        # Grab the originally extracted directory name so we can change it:
+        extract_root = census2010_dir / Path(zip_ref.filelist[0].filename)
         logger.warning(f"Rename {extract_root} to {census2010_gdb_dir}")
         extract_root.rename(census2010_gdb_dir)
     else:
