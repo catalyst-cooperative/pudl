@@ -26,16 +26,48 @@ import logging
 import pathlib
 import sys
 import tempfile
+from typing import List
 
 import coloredlogs
 import datapackage
+import prefect
 import sqlalchemy as sa
+from prefect import task
 from tableschema import exceptions
 
 import pudl
 from pudl.convert.merge_datapkgs import merge_datapkgs
 
 logger = logging.getLogger(__name__)
+
+
+@task(checkpoint=False)
+def populate_pudl_database(datapackage_directories: List[str], clobber: bool = False) -> None:
+    """Loads locally stored datapackages into pudl sqlite database."""
+    logger.info(f'Populating pudl db with datapackages from: {datapackage_directories}')
+    datapackages = []
+    for p in datapackage_directories:
+        descriptor_file = p / "datapackage.json"
+        if not descriptor_file.exists():
+            raise FileNotFoundError(f"Descriptor {descriptor_file} does not exist.")
+        if "epacems" in descriptor_file.parent.name:
+            logger.warning(
+                f"Skipping epacems-related datapackage from {descriptor_file}")
+            continue
+        datapackages.append(datapackage.DataPackage(
+            descriptor=descriptor_file.as_posix()))
+
+    if not datapackages:
+        logger.warning("No datapackages found to load into pudl database.")
+        return
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        merged_dpkg = pathlib.Path(tmpdir)
+        merge_datapkgs(datapackages, merged_dpkg)
+        datapkg_to_sqlite(
+            prefect.context.pudl_settings["pudl_db"],
+            merged_dpkg,
+            clobber=clobber)
 
 
 def datapkg_to_sqlite(sqlite_url, out_path, clobber=False, fkeys=False):
