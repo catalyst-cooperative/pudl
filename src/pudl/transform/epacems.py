@@ -1,7 +1,6 @@
 """Routines specific to cleaning up EPA CEMS hourly data."""
 import datetime
 import logging
-from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -194,23 +193,18 @@ def correct_gross_load_mw(df):
 
 
 def transform_epacems(
-        dfs: Dict[str, pd.DataFrame],
-        plant_utc_offset: pd.DataFrame,
-        partition: pudl.extract.epacems.EpaCemsPartition) -> Dict[str, pd.DataFrame]:
+        df: pd.DataFrame,
+        plant_utc_offset: pd.DataFrame) -> pd.DataFrame:
     """Transform EPA CEMS hourly data for use in datapackage export."""
-    results = {}
-    for table_name, df in dfs.items():
-        out_df = (
-            df.fillna({
-                "gross_load_mw": 0.0,
-                "heat_content_mmbtu": 0.0
-            })
-            .pipe(harmonize_eia_epa_orispl)
-            .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
-            .pipe(add_facility_id_unit_id_epa)
-            .pipe(correct_gross_load_mw)
-            .pipe(pudl.helpers.convert_cols_dtypes,
-                  "epacems", "hourly_emissions_epacems"))
-        # out_df["year"] = int(partition.year)
-        results[table_name] = out_df
-    return results
+    out_df = (
+        df.fillna({
+            "gross_load_mw": 0.0,
+            "heat_content_mmbtu": 0.0
+        })
+        .pipe(harmonize_eia_epa_orispl)
+        .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
+        .pipe(add_facility_id_unit_id_epa)
+        .pipe(correct_gross_load_mw)
+        .pipe(pudl.helpers.convert_cols_dtypes,
+              "epacems", "hourly_emissions_epacems"))
+    return out_df

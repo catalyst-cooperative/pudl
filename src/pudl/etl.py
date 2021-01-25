@@ -30,23 +30,23 @@ from typing import Dict, List
 
 import pandas as pd
 import prefect
+import pyarrow
 from prefect import task, unmapped
 from prefect.engine.results import GCSResult, LocalResult
 from prefect.executors import DaskExecutor
 from prefect.executors.local import LocalExecutor
 from prefect.tasks.gcp import GCSUpload
+from pyarrow import parquet
 
 import pudl
 from pudl import constants as pc
 from pudl import dfc
+from pudl.convert import epacems_to_parquet
 from pudl.dfc import DataFrameCollection
 from pudl.extract.epacems import EpaCemsPartition
 from pudl.extract.ferc1 import SqliteOverwriteMode
-from pudl.workspace.datastore import Datastore
-from pudl.convert import epacems_to_parquet
 from pudl.load import csv
-import pyarrow
-from pyarrow import parquet
+from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
 
@@ -344,7 +344,8 @@ def merge_eia860m(eia860: DataFrameCollection, eia860m: DataFrameCollection):
         if table_name not in eia860m_dfs:
             result.add_reference(table_name, table_id)
         else:
-            logger.info(f'Extending eia860 table {table_name} with montly data from eia860m.')
+            logger.info(
+                f'Extending eia860 table {table_name} with montly data from eia860m.')
             df = eia860.get(table_name)
             df = df.append(eia860m_dfs[table_name], ignore_index=True, sort=True)
             result.store(table_name, df)
@@ -605,31 +606,33 @@ class Ferc1Pipeline(DatasetPipeline):
             return dfc.merge(_load_static_tables_ferc1(), dfs)
 
 
-def write_epacems_parquet_files(dfs: Dict[str, pd.DataFrame], partition: EpaCemsPartition):
+def write_epacems_parquet_files(df: pd.DataFrame, table_name: str, partition: EpaCemsPartition):
     """Writes epacems dataframes to parquet files."""
     schema = epacems_to_parquet.create_cems_schema()
-    logger.info(f'schema.pandas_metadata: {schema.pandas_metadata}')
-    for table_name, df in dfs.items():
-        df = pudl.helpers.convert_cols_dtypes(df, "epacems")
-        df = csv.reindex_table(df, table_name)
-        # TODO(rousik): this is a dirty hack, year column should simply be part of the
-        # dataframe all along, however reindex_table complains about it.
-        df["year"] = int(partition.year)
-        df.year = df.year.astype(int)
-        table = pyarrow.Table.from_pandas(df, preserve_index=False, schema=schema)
-        # FIXME(rousik): the following line applies schema for the second time. This,
-        # for some reasons, prevents crashes when calling write_to_dataset with
-        # pyarrow~=2.0.0 that crashes on:
-        # https://github.com/apache/arrow/blob/478286658055bb91737394c2065b92a7e92fb0c1/python/pyarrow/pandas_compat.py#L1184
-        #
-        # This should be fixed in the newer pyarrow releases and could be removed
-        # once we update our dependency.
-        table = table.cast(schema)
-        parquet.write_to_dataset(
-            table,
-            root_path=Path(prefect.context.pudl_settings['parquet_dir'], "epacems"),
-            partition_cols=['year', 'state'],
-            compression='snappy')
+    df = pudl.helpers.convert_cols_dtypes(df, "epacems")
+    df = csv.reindex_table(df, table_name)
+    # TODO(rousik): this is a dirty hack, year column should simply be part of the
+    # dataframe all along, however reindex_table complains about it.
+    df["year"] = int(partition.year)
+    df.year = df.year.astype(int)
+
+    table = pyarrow.Table.from_pandas(
+        df, preserve_index=False, schema=schema).cast(schema)
+    # FIXME(rousik): cast(schema) applies schema for the second time.
+    # This looks unnecessary but prevents crash when calling write_to_dataset with
+    # pyarrow~=2.0.0 that fails on missing metadata.
+    # This code has already been fixed in the new pyarrow codebase but this may not have
+    # yet been released and we have not updated our dependency versions yet.
+    # Here's the offending line in pyarrow that throws an exception:
+    # https://github.com/apache/arrow/blob/478286658055bb91737394c2065b92a7e92fb0c1/python/pyarrow/pandas_compat.py#L1184
+    #
+    # This should be fixed in the newer pyarrow releases and could be removed
+    # once we update our dependency.
+    parquet.write_to_dataset(
+        table,
+        root_path=Path(prefect.context.pudl_settings['parquet_dir'], "epacems"),
+        partition_cols=['year', 'state'],
+        compression='snappy')
 
 
 @task(target="epacems-{partition}", task_run_name="epacems-{partition}")  # noqa: FS003
@@ -638,13 +641,11 @@ def epacems_process_partition(
         plant_utc_offset: pd.DataFrame) -> DataFrameCollection:
     """Runs extract and transform phases for a given epacems partition."""
     logger.info(f'Processing epacems partition {partition}')
-    # TODO(rousik): even though we are using dfs dicts here, we are really working with single 
-    # frame at a time.
-    dfs = pudl.extract.epacems.extract_epacems(partition)
-    dfs = pudl.transform.epacems.transform_epacems(dfs, plant_utc_offset, partition)
-    write_epacems_parquet_files(dfs, partition)
-    # No need to return anything, everything is on disk now.
-    return DataFrameCollection()
+    table_name = f'hourly_emissions_epacems_{partition.year}_{partition.state.lower()}'
+    df = pudl.extract.epacems.extract_epacems(partition)
+    df = pudl.transform.epacems.transform_epacems(df, plant_utc_offset)
+    write_epacems_parquet_files(df, table_name, partition)
+    return DataFrameCollection()  # return empty DFC because everything is on disk
 
 
 class EpaCemsPipeline(DatasetPipeline):
@@ -709,7 +710,7 @@ class EpaCemsPipeline(DatasetPipeline):
             partitions = [
                 EpaCemsPartition(year=y, state=s)
                 for y, s in itertools.product(params["epacems_years"], params["epacems_states"])]
-            logger.info('epacems pipeline has {len(partitions)} partitions.')
+            logger.info(f'epacems pipeline has {len(partitions)} partitions.')
 
             epacems_dfc = epacems_process_partition.map(
                 partitions,
@@ -1246,7 +1247,8 @@ def configure_prefect_context(etl_settings, pudl_settings, commandline_args):
     if not pipeline_cache_path:
         pipeline_cache_path = os.path.join(pudl_settings["pudl_out"], "cache")
     prefect.context.pudl_pipeline_cache_path = pipeline_cache_path
-    prefect.context.data_frame_storage_path = os.path.join(pipeline_cache_path, "dataframes")
+    prefect.context.data_frame_storage_path = os.path.join(
+        pipeline_cache_path, "dataframes")
 
 
 def generate_datapkg_bundle(etl_settings: dict,

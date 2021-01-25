@@ -5,7 +5,7 @@ This modules pulls data from EPA's published CSV files.
 """
 import logging
 from pathlib import Path
-from typing import Dict, NamedTuple
+from typing import NamedTuple
 from zipfile import ZipFile
 
 import pandas as pd
@@ -196,7 +196,7 @@ class EpaCemsDatastore:
         return df.astype(dtypes).rename(columns=self.RENAME_DICT)
 
 
-def extract_epacems(partition: EpaCemsPartition) -> Dict[str, pd.DataFrame]:
+def extract_epacems(partition: EpaCemsPartition) -> pd.DataFrame:
     """Extracts epacems dataframe for given year and state.
 
     Args:
@@ -206,6 +206,4 @@ def extract_epacems(partition: EpaCemsPartition) -> Dict[str, pd.DataFrame]:
     Returns:
         {fragment_name: pandas.DataFrame}
     """
-    ds = EpaCemsDatastore(Datastore.from_prefect_context())
-    key = f'hourly_emissions_epacems_{partition.year}_{partition.state.lower()}'
-    return {key: ds.get_data_frame(partition)}
+    return EpaCemsDatastore(Datastore.from_prefect_context()).get_data_frame(partition)

@@ -17,6 +17,7 @@ import gzip
 import io
 import logging
 import pathlib
+
 import pandas as pd
 
 import pudl
@@ -47,7 +48,6 @@ def dict_dump(transformed_dfs, data_source, datapkg_dir):
         logger.info(
             f"Loading {data_source} {resource_name} dataframe into CSV")
         clean_columns_dump(df, resource_name, datapkg_dir)
-
 
 
 def clean_columns_dump(df, resource_name, datapkg_dir):

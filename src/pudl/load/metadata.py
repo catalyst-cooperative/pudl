@@ -43,7 +43,6 @@ import logging
 import pathlib
 import re
 import uuid
-from pathlib import Path
 from typing import Dict, List
 
 import datapackage
@@ -577,6 +576,7 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir, skip_validation: bool
     logger.info("============================================================")
 
     return report
+
 
 @task
 def write_csv_and_build_resource_descriptor(
