@@ -8,7 +8,6 @@ import pandas as pd
 from prefect import task
 
 import pudl
-from pudl.dfc import DataFrameCollection
 
 logger = logging.getLogger(__name__)
 ###############################################################################
@@ -197,9 +196,9 @@ def correct_gross_load_mw(df):
 def transform_epacems(
         dfs: Dict[str, pd.DataFrame],
         plant_utc_offset: pd.DataFrame,
-        partition: pudl.extract.epacems.EpaCemsPartition) -> DataFrameCollection:
+        partition: pudl.extract.epacems.EpaCemsPartition) -> Dict[str, pd.DataFrame]:
     """Transform EPA CEMS hourly data for use in datapackage export."""
-    results = DataFrameCollection()
+    results = {}
     for table_name, df in dfs.items():
         out_df = (
             df.fillna({
@@ -213,5 +212,5 @@ def transform_epacems(
             .pipe(pudl.helpers.convert_cols_dtypes,
                   "epacems", "hourly_emissions_epacems"))
         # out_df["year"] = int(partition.year)
-        results.store(table_name, out_df)
+        results[table_name] = out_df
     return results

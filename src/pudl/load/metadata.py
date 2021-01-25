@@ -49,13 +49,10 @@ from typing import Dict, List
 import datapackage
 import goodtables_pandas as goodtables
 import pkg_resources
-import pyarrow
 from prefect import task
-from pyarrow import parquet
 
 import pudl
 from pudl import constants as pc
-from pudl.convert import epacems_to_parquet
 from pudl.dfc import DataFrameCollection
 from pudl.load import csv
 
@@ -580,36 +577,6 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir, skip_validation: bool
     logger.info("============================================================")
 
     return report
-
-
-@task
-def write_epacems_parquet_files(dfc: DataFrameCollection, pudl_settings: Dict):
-    """Writes epacems dataframes to parquet files."""
-    schema = epacems_to_parquet.create_cems_schema()
-    logger.info(f'schema.pandas_metadata: {schema.pandas_metadata}')
-    for table_name in dfc.get_table_names():
-        df = dfc.get(table_name)
-        df = pudl.helpers.convert_cols_dtypes(df, "epacems")
-
-        df = csv.reindex_table(dfc.get(table_name), table_name)
-        # TODO(rousik): this is a dirty hack, year column should simply be part of the
-        # dataframe all along, however reindex_table complains about it.
-        df["year"] = int(table_name.split("_")[3])
-        df.year = df.year.astype(int)
-        logger.warning(f'Dataframe is: {df}')
-        logger.info(f'Columns are: {df.columns}')
-        logger.info(f'Schema: {schema}')
-        table = pyarrow.Table.from_pandas(df, preserve_index=False, schema=schema)
-        logger.info(f'pyarrow table.schema: {table.schema}')
-        s2 = pyarrow.Schema.from_pandas(df, preserve_index=False)
-        logger.info(f'pyarrow.Schema.from_pandas: {s2}')
-
-        parquet.write_to_dataset(
-            table,
-            root_path=Path(pudl_settings['parquet_dir'], "epacems"),
-            partition_cols=['year', 'state'],
-            compression='snappy')
-
 
 @task
 def write_csv_and_build_resource_descriptor(

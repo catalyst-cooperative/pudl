@@ -43,6 +43,10 @@ from pudl.dfc import DataFrameCollection
 from pudl.extract.epacems import EpaCemsPartition
 from pudl.extract.ferc1 import SqliteOverwriteMode
 from pudl.workspace.datastore import Datastore
+from pudl.convert import epacems_to_parquet
+from pudl.load import csv
+import pyarrow
+from pyarrow import parquet
 
 logger = logging.getLogger(__name__)
 
@@ -140,13 +144,6 @@ def command_line_flags() -> argparse.ArgumentParser:
         default=None,
         help="""Controls where the pipeline should be storing its cache. This should be
         used for both the prefect task results as well as for the DataFrameCollections.""")
-
-    parser.add_argument(
-        "--emit-epacems-parquet",
-        action="store_true",
-        default=False,
-        help="""If enabled, epacems resources will not be included in the datapackages and
-        will instead be written directly to parquet files.""")
     # TODO(rousik): the above should replace --task-result-cache-path and
     # --gcs-bucket-for-prefect-cache. This should also be made such that both
     # local paths as well as gs://paths are supported.
@@ -585,6 +582,7 @@ class Ferc1Pipeline(DatasetPipeline):
             # TODO(rousik): this really does not make much sense? We should be skipping the pipeline
             # when ferc1_years assumes false value so why do we need to clear the parameters dict
             # here???
+            # Perhaps this is due to the [None] hack above that may span all years? Who knows.
             return {}
         else:
             return ferc1_dict
@@ -607,14 +605,46 @@ class Ferc1Pipeline(DatasetPipeline):
             return dfc.merge(_load_static_tables_ferc1(), dfs)
 
 
+def write_epacems_parquet_files(dfs: Dict[str, pd.DataFrame], partition: EpaCemsPartition):
+    """Writes epacems dataframes to parquet files."""
+    schema = epacems_to_parquet.create_cems_schema()
+    logger.info(f'schema.pandas_metadata: {schema.pandas_metadata}')
+    for table_name, df in dfs.items():
+        df = pudl.helpers.convert_cols_dtypes(df, "epacems")
+        df = csv.reindex_table(df, table_name)
+        # TODO(rousik): this is a dirty hack, year column should simply be part of the
+        # dataframe all along, however reindex_table complains about it.
+        df["year"] = int(partition.year)
+        df.year = df.year.astype(int)
+        table = pyarrow.Table.from_pandas(df, preserve_index=False, schema=schema)
+        # FIXME(rousik): the following line applies schema for the second time. This,
+        # for some reasons, prevents crashes when calling write_to_dataset with
+        # pyarrow~=2.0.0 that crashes on:
+        # https://github.com/apache/arrow/blob/478286658055bb91737394c2065b92a7e92fb0c1/python/pyarrow/pandas_compat.py#L1184
+        #
+        # This should be fixed in the newer pyarrow releases and could be removed
+        # once we update our dependency.
+        table = table.cast(schema)
+        parquet.write_to_dataset(
+            table,
+            root_path=Path(prefect.context.pudl_settings['parquet_dir'], "epacems"),
+            partition_cols=['year', 'state'],
+            compression='snappy')
+
+
 @task(target="epacems-{partition}", task_run_name="epacems-{partition}")  # noqa: FS003
 def epacems_process_partition(
         partition: EpaCemsPartition,
         plant_utc_offset: pd.DataFrame) -> DataFrameCollection:
     """Runs extract and transform phases for a given epacems partition."""
     logger.info(f'Processing epacems partition {partition}')
+    # TODO(rousik): even though we are using dfs dicts here, we are really working with single 
+    # frame at a time.
     dfs = pudl.extract.epacems.extract_epacems(partition)
-    return pudl.transform.epacems.transform_epacems(dfs, plant_utc_offset, partition)
+    dfs = pudl.transform.epacems.transform_epacems(dfs, plant_utc_offset, partition)
+    write_epacems_parquet_files(dfs, partition)
+    # No need to return anything, everything is on disk now.
+    return DataFrameCollection()
 
 
 class EpaCemsPipeline(DatasetPipeline):
@@ -978,8 +1008,7 @@ def log_dfc_tables(dfc: DataFrameCollection, logprefix: str = 'log_dfc_tables'):
 
 def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
         datapkg_builder=None, etl_settings=None, clobber=False,
-        overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS,
-        emit_epacems_parquet=False):
+        overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS):
     """
     Run ETL process for data package specified by datapkg_settings dictionary.
 
@@ -1000,8 +1029,6 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
         clobber (bool): if True then existing results will be overwritten.
         overwrite_ferc1_db (SqliteOverwriteMode): controls how ferc1 db should
             be treated.
-        emit_epacems_parquet (bool): if True, write epacems to parquet and do not
-            include it in regular datapackages.
 
     Returns:
         list: List of the task results that hold name of the tables included in the output
@@ -1052,25 +1079,25 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
         regular_tables = dfc.merge_list(outputs)
         log_dfc_tables(regular_tables, logprefix='all-tables')
 
-        if emit_epacems_parquet and pipelines['epacems'].is_executed():
-            epacems_table_match = 'hourly_emissions_epacems'
-            # split data frames into epacems and the rest and write epacems
-            # into parquet files directly
-            epacems_tables = dfc.filter_by_name(
-                regular_tables,
-                lambda name: epacems_table_match in name,
-                task_args={'name': 'get_epacems_tables'})
-            regular_tables = dfc.filter_by_name(
-                regular_tables,
-                lambda name: epacems_table_match not in name,
-                task_args={'name': 'get_regular_tables'})
+        # if emit_epacems_parquet and pipelines['epacems'].is_executed():
+        #    epacems_table_match = 'hourly_emissions_epacems'
+        #    # split data frames into epacems and the rest and write epacems
+        #    # into parquet files directly
+        #    epacems_tables = dfc.filter_by_name(
+        #        regular_tables,
+        #        lambda name: epacems_table_match in name,
+        #        task_args={'name': 'get_epacems_tables'})
+        #    regular_tables = dfc.filter_by_name(
+        #        regular_tables,
+        #        lambda name: epacems_table_match not in name,
+        #        task_args={'name': 'get_regular_tables'})
 
-            log_dfc_tables(epacems_tables, logprefix='epacems-tables')
-            log_dfc_tables(regular_tables, logprefix='non-epacems-tables')
+        #    log_dfc_tables(epacems_tables, logprefix='epacems-tables')
+        #    log_dfc_tables(regular_tables, logprefix='non-epacems-tables')
 
-            pudl.load.metadata.write_epacems_parquet_files.map(
-                dfc.fanout(epacems_tables),
-                pudl_settings=unmapped(pudl_settings))
+        #    pudl.load.metadata.write_epacems_parquet_files.map(
+        #        dfc.fanout(epacems_tables),
+        #        pudl_settings=unmapped(pudl_settings))
 
         resource_descriptors = pudl.load.metadata.write_csv_and_build_resource_descriptor.map(
             dfc.fanout(regular_tables),
@@ -1296,8 +1323,7 @@ def generate_datapkg_bundle(etl_settings: dict,
             datapkg_builder=datapkg_builder,
             etl_settings=etl_settings,
             clobber=commandline_args.clobber,
-            overwrite_ferc1_db=commandline_args.overwrite_ferc1_db,
-            emit_epacems_parquet=commandline_args.emit_epacems_parquet)
+            overwrite_ferc1_db=commandline_args.overwrite_ferc1_db)
     # TODO(rousik): we should simply pass commandline_args to etl function
 
     # TODO(rousik): print out the flow structure
