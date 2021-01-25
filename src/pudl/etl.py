@@ -17,17 +17,16 @@ data from:
 
 """
 import argparse
-import io
 import itertools
 import logging
 import os
 import shutil
-import tarfile
 import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 
+import fsspec
 import pandas as pd
 import prefect
 import pyarrow
@@ -35,13 +34,12 @@ from prefect import task, unmapped
 from prefect.engine.results import GCSResult, LocalResult
 from prefect.executors import DaskExecutor
 from prefect.executors.local import LocalExecutor
-from prefect.tasks.gcp import GCSUpload
 from pyarrow import parquet
 
 import pudl
 from pudl import constants as pc
 from pudl import dfc
-from pudl.convert import epacems_to_parquet
+from pudl.convert import datapkg_to_sqlite, epacems_to_parquet
 from pudl.dfc import DataFrameCollection
 from pudl.extract.epacems import EpaCemsPartition
 from pudl.extract.ferc1 import SqliteOverwriteMode
@@ -74,14 +72,15 @@ def command_line_flags() -> argparse.ArgumentParser:
         default=None,
         help='If specified, use pre-existing DaskExecutor at this address.')
     parser.add_argument(
-        "--upload-to-gcs-bucket",
+        "--upload-to-gcs",
         type=str,
-        default=os.environ.get('PUDL_UPLOAD_TO_GCS_BUCKET'),
-        help="""Name of the Google Cloud Storage bucket where the resulting csv
-        files should be uploaded to.
+        default=os.environ.get('PUDL_UPLOAD_TO_GCS'),
+        help="""gs://bucket/path where the ETL results should be uploaded to.
 
-        If not set, the default value will be set from PUDL_UPLOAD_TO_GCS_BUCKET
+        If not set, the default value will be read from PUDL_UPLOAD_TO_GCS
         environment variable.
+
+        Files will be stored under ${pudl_upload_to_gcs}/${run_id}.
 
         If neither command-line flag nor env variable are set, the results
         will be stored to local disk only and will not be uploaded to GCS.""")
@@ -144,6 +143,13 @@ def command_line_flags() -> argparse.ArgumentParser:
         default=None,
         help="""Controls where the pipeline should be storing its cache. This should be
         used for both the prefect task results as well as for the DataFrameCollections.""")
+    parser.add_argument(
+        "--keep-cache",
+        action="store_true",
+        help="""Do not remove local pipeline cache even if the pipeline succeeds. This can
+        be used for development/debugging purposes.
+        """)
+
     # TODO(rousik): the above should replace --task-result-cache-path and
     # --gcs-bucket-for-prefect-cache. This should also be made such that both
     # local paths as well as gs://paths are supported.
@@ -353,8 +359,7 @@ def merge_eia860m(eia860: DataFrameCollection, eia860m: DataFrameCollection):
     known_eia860_tables = set(eia860.get_table_names())
     for table_name in list(eia860m_dfs):
         if table_name not in known_eia860_tables:
-            logger.error(f'eia860m table {table_name} is not present in eia860.')
-
+            logger.error(f'eia860m table {table_name} is not present in eia860')
     return result
 
 
@@ -375,7 +380,6 @@ def _transform_eia(params, dfc: DataFrameCollection):
 
     # Add normalized EIA-EPA crosswalk tables to the transformed dfs dict.
     dfc = dfc.union(pudl.glue.eia_epacems.grab_clean_split())
-
     return pudl.transform.eia.transform(
         dfc,
         eia860_years=params['eia860_years'],
@@ -538,7 +542,7 @@ def _load_static_tables_ferc1():
     return df
 
 
-@task
+@task(target="ferc1.extract")
 def _extract_ferc1(params, pudl_settings):
     return DataFrameCollection(
         **pudl.extract.ferc1.extract(
@@ -547,13 +551,13 @@ def _extract_ferc1(params, pudl_settings):
             pudl_settings=pudl_settings))
 
 
-@task
+@task(target="ferc1.transform")
 def _transform_ferc1(params, dfs):
     return DataFrameCollection(
         **pudl.transform.ferc1.transform(dfs, ferc1_tables=params['ferc1_tables']))
 
 
-@task
+@task(target="extract-table.{table_name}")  # noqa: FS003
 def _extract_table(dfc: DataFrameCollection, table_name: str) -> pd.DataFrame:
     return dfc.get(table_name)
 
@@ -628,9 +632,17 @@ def write_epacems_parquet_files(df: pd.DataFrame, table_name: str, partition: Ep
     #
     # This should be fixed in the newer pyarrow releases and could be removed
     # once we update our dependency.
+    if prefect.context.pudl_upload_to_gcs:
+        output_path = os.path.join(
+            prefect.context.pudl_upload_to_gcs, prefect.context.pudl_run_id, "epacems")
+    else:
+        output_path = os.path.join(
+            prefect.context.pudl_settings["parquet_dir"], "epacems")
+    logger.info(f"Writing parquet file to {output_path}")
+
     parquet.write_to_dataset(
         table,
-        root_path=Path(prefect.context.pudl_settings['parquet_dir'], "epacems"),
+        root_path=output_path,
         partition_cols=['year', 'state'],
         compression='snappy')
 
@@ -1032,9 +1044,8 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
             be treated.
 
     Returns:
-        list: List of the task results that hold name of the tables included in the output
-        datapackage.
-
+        Prefect result for the DatapackageBuilder final task (that contains path to where
+        the datapackage is stored)
     """
     datapkg_dir = datapkg_builder.get_datapkg_output_dir(datapkg_settings)
     pipelines = {}
@@ -1080,32 +1091,12 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
         regular_tables = dfc.merge_list(outputs)
         log_dfc_tables(regular_tables, logprefix='all-tables')
 
-        # if emit_epacems_parquet and pipelines['epacems'].is_executed():
-        #    epacems_table_match = 'hourly_emissions_epacems'
-        #    # split data frames into epacems and the rest and write epacems
-        #    # into parquet files directly
-        #    epacems_tables = dfc.filter_by_name(
-        #        regular_tables,
-        #        lambda name: epacems_table_match in name,
-        #        task_args={'name': 'get_epacems_tables'})
-        #    regular_tables = dfc.filter_by_name(
-        #        regular_tables,
-        #        lambda name: epacems_table_match not in name,
-        #        task_args={'name': 'get_regular_tables'})
-
-        #    log_dfc_tables(epacems_tables, logprefix='epacems-tables')
-        #    log_dfc_tables(regular_tables, logprefix='non-epacems-tables')
-
-        #    pudl.load.metadata.write_epacems_parquet_files.map(
-        #        dfc.fanout(epacems_tables),
-        #        pudl_settings=unmapped(pudl_settings))
-
         resource_descriptors = pudl.load.metadata.write_csv_and_build_resource_descriptor.map(
             dfc.fanout(regular_tables),
             datapkg_dir=unmapped(datapkg_dir),
             datapkg_settings=unmapped(datapkg_settings))
 
-        datapkg_builder(
+        return datapkg_builder(
             regular_tables,
             prefect.flatten(resource_descriptors),
             datapkg_settings,
@@ -1118,7 +1109,7 @@ class DatapackageBuilder(prefect.Task):
     Writes metadata for each data package and validates results.
     """
 
-    def __init__(self, bundle_name, pudl_settings, doi, gcs_bucket=None, *args, **kwargs):
+    def __init__(self, bundle_name, pudl_settings, doi, *args, **kwargs):
         """Constructs the datapackage builder.
 
         Args:
@@ -1135,7 +1126,6 @@ class DatapackageBuilder(prefect.Task):
         self.pudl_settings = pudl_settings
         self.bundle_dir = Path(pudl_settings["datapkg_dir"], bundle_name)
         self.bundle_name = bundle_name
-        self.gcs_bucket = gcs_bucket
         logger.warning(f'DatapackageBuilder uuid is {self.uuid}')
         logger.info(
             f'Datapackage bundle_name {bundle_name} with settings: {pudl_settings}')
@@ -1170,33 +1160,54 @@ class DatapackageBuilder(prefect.Task):
             self,
             tables: DataFrameCollection,
             resource_descriptors: List[Dict],
-            datapkg_settings):
-        """Write metadata and validate contents."""
+            datapkg_settings: Dict) -> str:
+        """
+        Generates datapackage.json and validates contents of associated resources.
+
+        Returns:
+          top-level path that contains datapackage.json and resource files under data/
+        """
         datapkg_full_name = self.get_datapkg_name(datapkg_settings)
         logger.info(
             f"Building metadata for {datapkg_full_name}, tables: {tables.get_table_names()}")
-        results = pudl.load.metadata.generate_metadata(
+        pudl.load.metadata.generate_metadata(
             datapkg_settings,
             tables,
             resource_descriptors,
             self.get_datapkg_output_dir(datapkg_settings),
             datapkg_bundle_uuid=self.uuid,
             datapkg_bundle_doi=self.doi)
+        return self.get_datapkg_output_dir(datapkg_settings)
 
-        # Optionally upload files to Google Storage Bucket
-        # TODO(rousik): this should probably be separated into its own task
-        if self.gcs_bucket:
-            full_name = self.get_datapkg_name(datapkg_settings)
-            blob = f'{self.timestamp}-{self.uuid}-{self.noslash_doi()}/{full_name}.tgz'
-            # Create in-memory tar archive
-            tar_buffer = io.BytesIO()
-            with tarfile.open(mode='w:gz', fileobj=tar_buffer) as tar:
-                tar.add(self.get_datapkg_output_dir(datapkg_settings))
-            # TODO(rousik): perhaps drop the tgz file to somewhere
-            GCSUpload(bucket=self.gcs_bucket).run(
-                data=tar_buffer.getvalue(),
-                blob=blob)
-        return results
+
+@task(checkpoint=False)
+def upload_datapackages_to_gcs(gcs_root_path: str, local_directories: List[str]) -> None:
+    """
+    Upload datapackage files to GCS.
+
+    local_directories will be recursively scanned for files and these will be uploaded
+    to GCS under gcs_root_path/${pudl_run_id}. File structure will be retained using
+    paths relative to pudl_settings["pudl_out"].
+
+    Args:
+        gcs_root_path (str): a path prefix in the form of gs://bucket/path_prefix
+        local_directories (List[str]): list of directories that contain datapackage.json
+            files and the associated resources.
+    """
+    gcs_base_path = os.path.join(gcs_root_path, prefect.context.pudl_run_id)
+    local_base_path = prefect.context.pudl_settings["pudl_out"]
+    for d in local_directories:
+        for local_file in Path(d).rglob("*"):
+            if not local_file.is_file():
+                continue
+            rel_path = local_file.relative_to(local_base_path)
+            target_path = os.path.join(gcs_base_path, rel_path)
+            logger.info(f'Local file {rel_path} will be uploaded to {target_path}')
+            # TODO(rousik): this could be parallelized, but because epacems uploads
+            # its files in parallel already, this may not be a big deal.
+            with local_file.open(mode="rb") as in_file:
+                with fsspec.open(target_path, mode="wb") as out_file:
+                    out_file.write(in_file.read())
 
 
 def cleanup_pipeline_cache(state, commandline_args):
@@ -1207,6 +1218,9 @@ def cleanup_pipeline_cache(state, commandline_args):
     locally (not on GCS) and if the flow completed succesfully.
     """
     # TODO(rousik): add --keep-cache=ALWAYS|NEVER|ONFAIL commandline flag to control this
+    if commandline_args.keep_cache:
+        logger.warning('--keep-cache prevents cleanup of local cache.')
+        return
     if state.is_successful() and commandline_args.pipeline_cache_path:
         cache_root = commandline_args.pipeline_cache_path
         if not cache_root.startswith("gs://"):
@@ -1229,6 +1243,8 @@ def configure_prefect_context(etl_settings, pudl_settings, commandline_args):
     prefect.context.pudl_datapkg_bundle_settings = etl_settings['datapkg_bundle_settings']
     prefect.context.pudl_settings = pudl_settings
     prefect.context.pudl_datapkg_bundle_name = etl_settings['datapkg_bundle_name']
+    prefect.context.pudl_commandline_args = commandline_args
+    prefect.context.pudl_upload_to_gcs = commandline_args.upload_to_gcs
 
     local_cache_path = None
     if not commandline_args.bypass_local_cache:
@@ -1306,8 +1322,7 @@ def generate_datapkg_bundle(etl_settings: dict,
     # perhaps by deriving the uuid from the top uuid in a deterministic fashion (e.g.
     # combining top-level uuid with the datapackage name)
     datapkg_builder = DatapackageBuilder(
-        datapkg_bundle_name, pudl_settings, doi=datapkg_bundle_doi,
-        gcs_bucket=commandline_args.upload_to_gcs_bucket)
+        datapkg_bundle_name, pudl_settings, doi=datapkg_bundle_doi)
     # Create, or delete and re-create the top level datapackage bundle directory:
     datapkg_builder.prepare_output_directories(clobber=commandline_args.clobber)
 
@@ -1315,20 +1330,29 @@ def generate_datapkg_bundle(etl_settings: dict,
     validated_bundle_settings = validate_params(
         datapkg_bundle_settings, pudl_settings)
 
+    datapkg_paths = []
     # this is a list and should be processed by another task
     for datapkg_settings in validated_bundle_settings:
         datapkg_builder.make_datapkg_dir(datapkg_settings)
-        etl(datapkg_settings,
-            pudl_settings,
-            flow=flow,
-            bundle_name=datapkg_bundle_name,
-            datapkg_builder=datapkg_builder,
-            etl_settings=etl_settings,
-            clobber=commandline_args.clobber,
-            overwrite_ferc1_db=commandline_args.overwrite_ferc1_db)
-    # TODO(rousik): we should simply pass commandline_args to etl function
+        result = etl(datapkg_settings,
+                     pudl_settings,
+                     flow=flow,
+                     bundle_name=datapkg_bundle_name,
+                     datapkg_builder=datapkg_builder,
+                     etl_settings=etl_settings,
+                     clobber=commandline_args.clobber,
+                     overwrite_ferc1_db=commandline_args.overwrite_ferc1_db)
+        # TODO(rousik): we should simply pass commandline_args to etl function
+        datapkg_paths.append(result)
 
-    # TODO(rousik): print out the flow structure
+    with flow:
+        datapkg_to_sqlite.populate_pudl_database(
+            datapkg_paths, clobber=commandline_args.clobber)
+        if commandline_args.upload_to_gcs:
+            upload_datapackages_to_gcs(
+                commandline_args.upload_to_gcs,
+                datapkg_paths)
+
     if commandline_args.show_flow_graph:
         flow.visualize()
 
@@ -1336,6 +1360,7 @@ def generate_datapkg_bundle(etl_settings: dict,
     if commandline_args.dask_executor_address or commandline_args.use_dask_executor:
         prefect_executor = DaskExecutor(address=commandline_args.dask_executor_address)
     state = flow.run(executor=prefect_executor)
+    # TODO(rousik): Print tasks that have failed and why.
 
     cleanup_pipeline_cache(state, commandline_args)
 

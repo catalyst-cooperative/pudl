@@ -24,6 +24,7 @@ import uuid
 from datetime import datetime
 
 import coloredlogs
+import prefect
 import yaml
 
 import pudl
@@ -79,7 +80,8 @@ def parse_command_line(argv):
         "--rerun",
         type=str,
         help="If specified, try to resume ETL execution for a given run_id.""")
-
+    # TODO(rousik): we could also consider --rerun-latest that will pick up the most recent run_id
+    # from the provided cache directory.
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -152,6 +154,9 @@ def main():
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in, pudl_out=pudl_out)
     pudl_settings["sandbox"] = args.sandbox
+
+    script_settings["run_id"] = run_id
+    prefect.context.pudl_run_id = run_id
 
     datapkg_bundle_doi = script_settings.get("datapkg_bundle_doi")
     if datapkg_bundle_doi and not pudl.helpers.is_doi(datapkg_bundle_doi):
