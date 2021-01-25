@@ -103,8 +103,8 @@ def command_line_flags() -> argparse.ArgumentParser:
         If set, datastore will use this storage bucket as a caching layer and will retrieve
         resources from there before contacting Zenodo.
 
-        This can be combined with --gcs-cache-readonly and --bypass-local-cache flags
-        to control the exact operation of datastore caching layers.
+        This caching layer will be set to read-only mode. If you need to modify its
+        contents you should use pudl_datastore to populate it.
 
         If not specified, the default will be loaded from environment variable
         PUDL_GCS_CACHE_PATH. If that one is not set, Google Cloud Storage caching will
@@ -116,14 +116,6 @@ def command_line_flags() -> argparse.ArgumentParser:
         default=False,
         help="If enabled, the local file cache for datastore will not be used.")
     # TODO(rousik): the above should also be marked as "datastore" cache
-    parser.add_argument(
-        "--gcs-cache-readonly",
-        action="store_true",
-        default=False,
-        help="""If this is set to true, then the caching layer specified by --cs-cache-path
-        will be set to be read-only (no modifications will be attempted).""")
-    # TODO(rousik): the above should also be datastore cache
-
     parser.add_argument(
         "--gcs-bucket-for-prefect-cache",
         type=str,
@@ -1255,7 +1247,7 @@ def configure_prefect_context(etl_settings, pudl_settings, commandline_args):
         sandbox=pudl_settings.get("sandbox", False),
         local_cache_path=local_cache_path,
         gcs_cache_path=commandline_args.gcs_cache_path,
-        gcs_cache_readonly=commandline_args.gcs_cache_readonly)
+        gcs_cache_readonly=True)
 
     pipeline_cache_path = commandline_args.pipeline_cache_path
     if not pipeline_cache_path:
