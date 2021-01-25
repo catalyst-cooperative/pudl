@@ -13,7 +13,9 @@ from pathlib import Path
 from typing import Any, Dict, List, NamedTuple
 
 import pandas as pd
+from prefect import task
 
+from pudl.dfc import DataFrameCollection
 from pudl.workspace.datastore import Datastore
 
 # $ from pudl.workspace import datastore as datastore
@@ -105,7 +107,8 @@ class EpaIpmDatastore:
         raise ValueError(f"{path.suffix}: unknown file format for {path}")
 
 
-def extract(epaipm_tables: List[str], ds: Datastore) -> Dict[str, pd.DataFrame]:
+@task
+def extract(epaipm_tables: List[str]) -> DataFrameCollection:
     """Extracts data from IPM files.
 
     Args:
@@ -119,7 +122,7 @@ def extract(epaipm_tables: List[str], ds: Datastore) -> Dict[str, pd.DataFrame]:
     """
     # Prep for ingesting EPA IPM
     logger.info('Beginning ETL for EPA IPM.')
-    ds = EpaIpmDatastore(ds)
+    ds = EpaIpmDatastore(Datastore.from_prefect_context())
 
     if "plant_region_map_epaipm" in epaipm_tables:
         # NEEDS is the only IPM data file with multiple sheets. Keeping the overall
@@ -129,4 +132,4 @@ def extract(epaipm_tables: List[str], ds: Datastore) -> Dict[str, pd.DataFrame]:
         epaipm_tables.extend([
             "plant_region_map_epaipm_active",
             "plant_region_map_epaipm_retired"])
-    return {f: ds.get_dataframe(f) for f in epaipm_tables}
+    return DataFrameCollection.from_dict({f: ds.get_dataframe(f) for f in epaipm_tables})

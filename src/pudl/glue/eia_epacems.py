@@ -19,6 +19,7 @@ import importlib
 import logging
 
 import pandas as pd
+from prefect import task
 
 import pudl
 from pudl.dfc import DataFrameCollection
@@ -98,6 +99,7 @@ def split_tables(df: pd.DataFrame) -> DataFrameCollection:
     return dfc
 
 
+@task
 def grab_clean_split() -> DataFrameCollection:
     """
     Clean raw crosswalk data, drop nans, and return split tables.

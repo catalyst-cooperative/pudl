@@ -22,6 +22,7 @@ import logging
 import networkx as nx
 import numpy as np
 import pandas as pd
+from prefect import task
 
 import pudl
 from pudl import constants as pc
@@ -839,11 +840,13 @@ def _restrict_years(df,
     return df
 
 
-def transform(eia_dfc: DataFrameCollection,
-              eia860_years=pc.working_partitions['eia860']['years'],
-              eia923_years=pc.working_partitions['eia923']['years'],
-              eia860_ytd=False,
-              debug=False) -> DataFrameCollection:
+@task
+def transform_eia(
+        eia_dfc: DataFrameCollection,
+        eia860_years=pc.working_partitions['eia860']['years'],
+        eia923_years=pc.working_partitions['eia923']['years'],
+        eia860_ytd=False,
+        debug=False) -> DataFrameCollection:
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
 
     This function coordinates two main actions: generating the entity tables

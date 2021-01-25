@@ -106,6 +106,10 @@ class DataFrameCollection:
         """Returns number of tables that are stored in this DataFrameCollection."""
         return len(self._table_ids)
 
+    def __nonzero__(self):
+        """Returns true if this collection contains something."""
+        return bool(self._table_ids)
+
     def items(self) -> Iterator[Tuple[str, pd.DataFrame]]:
         """Iterates over table names and the corresponding pd.DataFrame objects."""
         for name in self.get_table_names():

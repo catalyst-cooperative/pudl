@@ -44,7 +44,6 @@ from pudl.dfc import DataFrameCollection
 from pudl.extract.epacems import EpaCemsPartition
 from pudl.extract.ferc1 import SqliteOverwriteMode
 from pudl.load import csv
-from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
 
@@ -355,31 +354,6 @@ def merge_eia860m(eia860: DataFrameCollection, eia860m: DataFrameCollection):
     return result
 
 
-@task
-def _transform_eia860(params, dfs: DataFrameCollection):
-    return DataFrameCollection(
-        **pudl.transform.eia860.transform(dfs, params['eia860_tables']))
-
-
-@task
-def _transform_eia923(params, dfs: DataFrameCollection):
-    return DataFrameCollection(
-        **pudl.transform.eia923.transform(dfs, params['eia923_tables']))
-
-
-@task
-def _transform_eia(params, dfc: DataFrameCollection):
-
-    # Add normalized EIA-EPA crosswalk tables to the transformed dfs dict.
-    dfc = dfc.union(pudl.glue.eia_epacems.grab_clean_split())
-    return pudl.transform.eia.transform(
-        dfc,
-        eia860_years=params['eia860_years'],
-        eia923_years=params['eia923_years'],
-        eia860_ytd=params['eia860_ytd'])
-    # TODO(rousik): the above method could be replaced with @task annotation on eia.transform
-
-
 class EiaPipeline(DatasetPipeline):
     """Runs eia923, eia860 and eia (entity extraction) tasks."""
 
@@ -462,19 +436,25 @@ class EiaPipeline(DatasetPipeline):
                 eia860_df = merge_eia860m(
                     eia860_df, m_df,
                     task_args=dict(target=f'{self.datapkg_name}/eia860m.merge'))
-            eia860_df = _transform_eia860(
-                params, eia860_df,
+            eia860_df = pudl.transform.eia860.transform_eia860(
+                eia860_df,
+                params['eia860_tables'],
                 task_args=dict(target=f'{self.datapkg_name}/eia860.transform'))
 
-            eia923_df = _transform_eia923(
-                params,
+            eia923_df = pudl.transform.eia923.transform_eia923(
                 eia923_extract(year=params['eia923_years']),
+                params['eia923_tables'],
                 task_args=dict(target=f'{self.datapkg_name}/eia923.transform'))
+
+            output_tables = pudl.transform.eia.transform_eia(
+                dfc.merge_list(
+                    [eia860_df, eia923_df, pudl.glue.eia_epacems.grab_clean_split()]),
+                eia860_years=params['eia860_years'],
+                eia923_years=params['eia923_years'],
+                eia860_ytd=params['eia860_ytd'])
             return dfc.merge(
                 _load_static_tables_eia(),
-                _transform_eia(
-                    params, dfc.merge(eia860_df, eia923_df),
-                    task_args=dict(target=f'{self.datapkg_name}/eia.transform')),
+                output_tables,
                 task_args=dict(target=f'{self.datapkg_name}/eia.final_tables'))
 
     def get_table(self, table_name):
@@ -752,16 +732,6 @@ def _load_static_tables_epaipm() -> DataFrameCollection:
             pc.epaipm_region_names, columns=['region_id_epaipm']))
 
 
-@task
-def _extract_epaipm(params):
-    return pudl.extract.epaipm.extract(params['epaipm_tables'], Datastore.from_prefect_context())
-
-
-@task
-def _transform_epaipm(params, dfs):
-    return pudl.transform.epaipm.transform(dfs, params['epaipm_tables'])
-
-
 class EpaIpmPipeline(DatasetPipeline):
     """Runs epaipm tasks."""
 
@@ -786,21 +756,17 @@ class EpaIpmPipeline(DatasetPipeline):
             return None
         with self.flow:
             # TODO(rousik): annotate epaipm extract/transform methods with @task decorators
+            tables = params["epaipm_tables"]
+            dfc = pudl.extract.epaipm.extract(tables)
+            dfc = pudl.transform.epaipm.transform(dfc, tables)
             return dfc.merge(
                 _load_static_tables_epaipm(),
-                _transform_epaipm(params, _extract_epaipm(params)))
+                dfc)
 
 
 ###############################################################################
 # GLUE EXPORT FUNCTIONS
 ###############################################################################
-@task(target=lambda **kw: "glue." + ".".join(sorted(p for p in kw["params"] if kw["params"][p])))
-def _transform_glue(params):
-    # TODO(rousik): replace this thin wrapper with @task annotation on ferc1_eia.glue()
-    return DataFrameCollection(
-        **pudl.glue.ferc1_eia.glue(ferc1=params['ferc1'], eia=params['eia']))
-
-
 class GluePipeline(DatasetPipeline):
     """Runs glue tasks combining eia/ferc1 results."""
 
@@ -1079,16 +1045,16 @@ def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
                 logger.info(f"{datapkg_name} contains dataset {dataset}")
                 outputs.append(pl.outputs())
 
-        regular_tables = dfc.merge_list(outputs)
-        log_dfc_tables(regular_tables, logprefix='all-tables')
-
+        tables = dfc.merge_list(outputs)
+        # Note that epacems is not generating any tables. It will directly write its
+        # outputs to parquet files and upload them to gcs if necessary.
         resource_descriptors = pudl.load.metadata.write_csv_and_build_resource_descriptor.map(
-            dfc.fanout(regular_tables),
+            dfc.fanout(tables),
             datapkg_dir=unmapped(datapkg_dir),
             datapkg_settings=unmapped(datapkg_settings))
 
         return datapkg_builder(
-            regular_tables,
+            tables,
             prefect.flatten(resource_descriptors),
             datapkg_settings,
             task_args={'task_run_name': f'DatapackageBuilder-{datapkg_name}'})

@@ -1,9 +1,12 @@
 """Module to perform data cleaning functions on EPA IPM data tables."""
 import logging
+from typing import List
 
 import pandas as pd
+from prefect import task
 
 from pudl import constants as pc
+from pudl.dfc import DataFrameCollection
 from pudl.helpers import simplify_columns
 
 logger = logging.getLogger(__name__)
@@ -153,21 +156,22 @@ def plant_region_map(epaipm_dfs, epaipm_transformed_dfs):
     return epaipm_transformed_dfs
 
 
-def transform(epaipm_raw_dfs, epaipm_tables=pc.epaipm_pudl_tables):
+@task
+def transform(
+        epaipm_dfc: DataFrameCollection,
+        epaipm_tables: List[str] = pc.epaipm_pudl_tables) -> DataFrameCollection:
     """
     Transform EPA IPM DataFrames.
 
     Args:
-        epaipm_raw_dfs(dict): a dictionary of table names(keys) and
-            DataFrames(values)
+        epaipm_raw_dfs(DataFrameCollection): colletion containing epaipm
+            dataframes.
         epaipm_tables(list): The list of EPA IPM tables that can be
             successfully pulled into PUDL
 
     Returns:
-        dict: A dictionary of DataFrame objects in which tables from EPA
-        IPM(keys) correspond to normalized DataFrames of values from
-        that table(values)
-
+        DataFrameCollection that will hold the transformed EPA IPM
+        tables.
     """
     epaipm_transform_functions = {
         'transmission_single_epaipm': transmission_single,
@@ -175,12 +179,13 @@ def transform(epaipm_raw_dfs, epaipm_tables=pc.epaipm_pudl_tables):
         'load_curves_epaipm': load_curves,
         'plant_region_map_epaipm': plant_region_map,
     }
+    epaipm_raw_dfs = epaipm_dfc.to_dict()
     epaipm_transformed_dfs = {}
 
     if not epaipm_raw_dfs:
         logger.info("No raw EPA IPM dataframes found. "
                     "Not transforming EPA IPM.")
-        return epaipm_transformed_dfs
+        return DataFrameCollection()
 
     for table in epaipm_transform_functions:
         if table in epaipm_tables:
@@ -188,4 +193,4 @@ def transform(epaipm_raw_dfs, epaipm_tables=pc.epaipm_pudl_tables):
             epaipm_transform_functions[table](epaipm_raw_dfs,
                                               epaipm_transformed_dfs)
 
-    return epaipm_transformed_dfs
+    return DataFrameCollection.from_dict(epaipm_transformed_dfs)

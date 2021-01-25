@@ -3,9 +3,11 @@ import logging
 
 import numpy as np
 import pandas as pd
+from prefect import task
 
 import pudl
 from pudl import constants as pc
+from pudl.dfc import DataFrameCollection
 
 logger = logging.getLogger(__name__)
 ###############################################################################
@@ -534,21 +536,19 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
-def transform(eia923_raw_dfs, eia923_tables=pc.eia923_pudl_tables):
+@task
+def transform_eia923(
+        dfc: DataFrameCollection,
+        eia923_tables=pc.eia923_pudl_tables) -> DataFrameCollection:
     """Transforms all the EIA 923 tables.
 
     Args:
-        eia923_raw_dfs (dict): a dictionary of tab names (keys) and DataFrames
-            (values). Generated from `pudl.extract.eia923.extract()`.
+        dfc (DataFrameCollection): collection of raw (extracted) eia923 data frames.
         eia923_tables (tuple): A tuple containing the EIA923 tables that can be
             pulled into PUDL.
 
     Returns:
-        dict: A dictionary of DataFrame with table names as keys and
-        :class:`pandas.DataFrame` objects as values, where the contents of the
-        DataFrames correspond to cleaned and normalized PUDL database tables,
-        ready for loading.
-
+        DataFrameCollection: collection containing transformed dataframes.
     """
     eia923_transform_functions = {
         'generation_fuel_eia923': generation_fuel,
@@ -559,18 +559,18 @@ def transform(eia923_raw_dfs, eia923_tables=pc.eia923_pudl_tables):
     }
     eia923_transformed_dfs = {}
 
-    if not eia923_raw_dfs:
+    if not dfc:
         logger.info("No raw EIA 923 DataFrames found. "
                     "Not transforming EIA 923.")
-        return eia923_transformed_dfs
+        return DataFrameCollection()
 
     for table in eia923_transform_functions.keys():
         if table in eia923_tables:
             logger.info(
                 f"Transforming raw EIA 923 DataFrames for {table} "
                 f"concatenated across all years.")
-            eia923_transform_functions[table](eia923_raw_dfs,
+            eia923_transform_functions[table](dfc,
                                               eia923_transformed_dfs)
         else:
             logger.info(f'Not transforming {table}')
-    return eia923_transformed_dfs
+    return DataFrameCollection.from_dict(eia923_transformed_dfs)
