@@ -106,7 +106,7 @@ class DataFrameCollection:
         """Returns number of tables that are stored in this DataFrameCollection."""
         return len(self._table_ids)
 
-    def __nonzero__(self):
+    def __bool__(self):
         """Returns true if this collection contains something."""
         return bool(self._table_ids)
 
