@@ -1166,6 +1166,18 @@ def upload_datapackages_to_gcs(gcs_root_path: str, local_directories: List[str])
                     out_file.write(in_file.read())
 
 
+def log_task_failures(flow_state: prefect.engine.state.State) -> None:
+    """Log messages for directly failed tasks."""
+    if not flow_state.is_failed():
+        return
+    for task_instance, task_state in flow_state.result.items():
+        if not isinstance(task_state, prefect.engine.state.Failed):
+            continue
+        if isinstance(task_state, prefect.engine.state.TriggerFailed):
+            continue
+        logger.error(f'ETL task {task_instance.name} failed: {task_state.message}')
+
+
 def cleanup_pipeline_cache(state, commandline_args):
     """
     Runs the pipeline cache cleanup logic, possibly removing the local cache.
@@ -1308,6 +1320,7 @@ def generate_datapkg_bundle(etl_settings: dict,
             upload_datapackages_to_gcs(
                 commandline_args.upload_to_gcs,
                 datapkg_paths)
+            # TODO(rousik): we could also upload pudl db to gcs as an artifact
 
     if commandline_args.show_flow_graph:
         flow.visualize()
@@ -1316,8 +1329,8 @@ def generate_datapkg_bundle(etl_settings: dict,
     if commandline_args.dask_executor_address or commandline_args.use_dask_executor:
         prefect_executor = DaskExecutor(address=commandline_args.dask_executor_address)
     state = flow.run(executor=prefect_executor)
-    # TODO(rousik): Print tasks that have failed and why.
 
+    log_task_failures(state)
     cleanup_pipeline_cache(state, commandline_args)
 
     # TODO(rousik): summarize flow errors (directly failed tasks and their execeptions)
