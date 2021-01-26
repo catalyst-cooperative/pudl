@@ -34,6 +34,7 @@ from prefect import task, unmapped
 from prefect.engine.results import GCSResult, LocalResult
 from prefect.executors import DaskExecutor
 from prefect.executors.local import LocalExecutor
+from prefect.tasks.shell import ShellTask
 from pyarrow import parquet
 
 import pudl
@@ -140,6 +141,11 @@ def command_line_flags() -> argparse.ArgumentParser:
         help="""Do not remove local pipeline cache even if the pipeline succeeds. This can
         be used for development/debugging purposes.
         """)
+    parser.add_argument(
+        "--validate",
+        default=False,
+        action="store_true",
+        help="""If enabled, run validation via tox from the current directory.""")
 
     # TODO(rousik): the above should replace --task-result-cache-path and
     # --gcs-bucket-for-prefect-cache. This should also be made such that both
@@ -1313,14 +1319,20 @@ def generate_datapkg_bundle(etl_settings: dict,
         # TODO(rousik): we should simply pass commandline_args to etl function
         datapkg_paths.append(result)
 
+    validation_task = ShellTask(stream_output=True)
+    # TODO(rousik): perhaps we could fail early if tox.ini is not found in the current
+    # directory.
     with flow:
-        datapkg_to_sqlite.populate_pudl_database(
+        pudl_db = datapkg_to_sqlite.populate_pudl_database(
             datapkg_paths, clobber=commandline_args.clobber)
+
+        # TODO(rousik): we could also upload pudl db to gcs as an artifact
+        if commandline_args.validate:
+            validation_task(command="tox -ve validate", upstream_tasks=[pudl_db])
         if commandline_args.upload_to_gcs:
             upload_datapackages_to_gcs(
                 commandline_args.upload_to_gcs,
                 datapkg_paths)
-            # TODO(rousik): we could also upload pudl db to gcs as an artifact
 
     if commandline_args.show_flow_graph:
         flow.visualize()
