@@ -80,6 +80,10 @@ def parse_command_line(argv):
         "--rerun",
         type=str,
         help="If specified, try to resume ETL execution for a given run_id.""")
+    parser.add_argument(
+        "--run-id",
+        type=str,
+        help="""If specified, use this run_id instead of generating random one.""")
     # TODO(rousik): we could also consider --rerun-latest that will pick up the most recent run_id
     # from the provided cache directory.
     arguments = parser.parse_args(argv[1:])
@@ -108,10 +112,17 @@ def setup_logging(args):
     logger.setLevel(args.loglevel)
 
 
-def generate_run_id():
-    """Generates random id for this pipeline run that consists of uuid and timestamp."""
-    ts = datetime.now().strftime('%F-%H%M')
-    return f"{ts}-{uuid.uuid4()}"
+def generate_run_id(args):
+    """Generates run_id for this ETL execution.
+
+    If --run-id is specified, use that. Otherwise generate random run_id based on timestamp
+    and uuid.
+    """
+    if args.run_id:
+        return args.run_id
+    else:
+        ts = datetime.now().strftime('%F-%H%M')
+        return f"{ts}-{uuid.uuid4()}"
 
 
 def main():
@@ -120,7 +131,7 @@ def main():
     args = parse_command_line(sys.argv)
     setup_logging(args)
     script_settings = None
-    run_id = args.rerun or generate_run_id()
+    run_id = args.rerun or generate_run_id(args)
     logger.warning(
         f'Running pipeline with run_id {run_id} (use this with --rerun to resume).')
     # TODO(rousik): run id could be prefixed w/ YYYYMMDDHHMM-uuid to give it monotonic form
