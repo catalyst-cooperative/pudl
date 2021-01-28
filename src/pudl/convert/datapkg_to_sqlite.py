@@ -103,15 +103,15 @@ def datapkg_to_sqlite(sqlite_url, out_path, clobber=False, fkeys=False):
                 cursor.close()
 
     # prepping the sqlite engine
-    pudl_engine = sa.create_engine(sqlite_url)
+    pudl_engine = sa.create_engine(
+        sqlite_url,
+        connect_args={'check_same_thread': False})
     logger.info("Dropping the current PUDL DB, if it exists.")
     try:
         # So that we can wipe it out
         pudl.helpers.drop_tables(pudl_engine, clobber=clobber)
     except sa.exc.OperationalError:
         pass
-    # And start anew
-    pudl_engine = sa.create_engine(sqlite_url)
 
     # grab the merged datapackage metadata file:
     pkg = datapackage.DataPackage(
@@ -133,6 +133,7 @@ def datapkg_to_sqlite(sqlite_url, out_path, clobber=False, fkeys=False):
     except exceptions.TableSchemaException as exception:
         logger.error('SQLite conversion failed. See following errors:')
         logger.error(exception.errors)
+    pudl_engine.dispose()
 
 
 def parse_command_line(argv):
