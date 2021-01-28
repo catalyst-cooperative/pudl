@@ -11,6 +11,7 @@ dependencies:
   - coloredlogs~=15.0
   - contextily~=1.0
   - datapackage~=1.11
+  - fsspec~=0.8.5
   - gcsfs~=0.7.1
   - geopandas~=0.8.1
   - google-cloud-storage~=1.35.0
