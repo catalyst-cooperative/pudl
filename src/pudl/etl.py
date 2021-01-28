@@ -1159,17 +1159,25 @@ def upload_datapackages_to_gcs(gcs_root_path: str, local_directories: List[str])
     """
     gcs_base_path = os.path.join(gcs_root_path, prefect.context.pudl_run_id)
     local_base_path = prefect.context.pudl_settings["pudl_out"]
+
+    def upload_file(local_file: Path):
+        rel_path = local_file.relative_to(local_base_path)
+        target_path = os.path.join(gcs_base_path, rel_path)
+        with local_file.open(mode="rb") as in_file:
+            with fsspec.open(target_path, mode="wb") as out_file:
+                out_file.write(in_file.read())
+
     for d in local_directories:
-        for local_file in Path(d).rglob("*"):
-            if not local_file.is_file():
-                continue
-            rel_path = local_file.relative_to(local_base_path)
-            target_path = os.path.join(gcs_base_path, rel_path)
-            # TODO(rousik): this could be parallelized, but because epacems uploads
-            # its files in parallel already, this may not be a big deal.
-            with local_file.open(mode="rb") as in_file:
-                with fsspec.open(target_path, mode="wb") as out_file:
-                    out_file.write(in_file.read())
+        pd = Path(d)
+        if pd.is_file():
+            upload_file(Path(d))
+        elif pd.is_dir():
+            for local_file in pd.rglob("*"):
+                if not local_file.is_file():
+                    continue
+                upload_file(local_file)
+        else:
+            logger.warning(f'{pd} is neither file nor directory.')
 
 
 def log_task_failures(flow_state: prefect.engine.state.State) -> None:
@@ -1333,6 +1341,11 @@ def generate_datapkg_bundle(etl_settings: dict,
             upload_datapackages_to_gcs(
                 commandline_args.upload_to_gcs,
                 datapkg_paths)
+            upload_datapackages_to_gcs(
+                commandline_args.upload_to_gcs,
+                [Path(pudl_settings["sqlite_dir"], "pudl.sqlite")],
+                task_args={'name': 'upload_pudl_db_to_gcs'},
+                upstream_tasks=[pudl_db])
 
     if commandline_args.show_flow_graph:
         flow.visualize()
