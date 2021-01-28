@@ -132,7 +132,7 @@ def command_line_flags() -> argparse.ArgumentParser:
     parser.add_argument(
         "--pipeline-cache-path",
         type=str,
-        default=None,
+        default=os.environ.get('PUDL_PIPELINE_CACHE_PATH'),
         help="""Controls where the pipeline should be storing its cache. This should be
         used for both the prefect task results as well as for the DataFrameCollections.""")
     parser.add_argument(

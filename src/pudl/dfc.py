@@ -20,7 +20,7 @@ Think of DataFrameCollection as a dict-like structure backed by a disk.
 import logging
 import uuid
 from pathlib import Path
-from typing import Callable, Dict, Iterator, List, Optional, Tuple
+from typing import Dict, Iterator, List, Optional, Tuple
 
 import pandas as pd
 import prefect
@@ -180,20 +180,3 @@ def fanout(dfc: DataFrameCollection, chunk_size=1) -> List[DataFrameCollection]:
     if len(current_chunk):
         all_results.append(current_chunk)
     return all_results
-
-
-@task(checkpoint=False)
-def filter_by_name(
-        dfc: DataFrameCollection,
-        condition: Callable[[str], bool]) -> DataFrameCollection:
-    """
-    Returns DataFrameCollection containing only tables that match the condition.
-
-    Conditions get table_name as a parameter. We could also pass dfc itself but it seems
-    currently unnecessary.
-    """
-    result = DataFrameCollection()
-    for table_name, table_id in dfc.references():
-        if condition(table_name):
-            result.add_reference(table_name, table_id)
-    return result

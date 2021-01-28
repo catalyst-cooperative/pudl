@@ -6,11 +6,12 @@
 # It is unclear whether this will work.
 
 # Step 1: Build pypi tarball from the local source
+# FROM treyduskin/python-setuptools AS pudl-source-build
 FROM python:3.8 AS pudl-source-build
 WORKDIR /pudl/repo
 COPY . /pudl/repo
 RUN mkdir /pudl/package && mkdir /pudl/src
-RUN python devtools/print_requirements.py > /pudl/package/requirements.txt
+RUN ./devtools/print_requirements.py > /pudl/package/requirements.txt
 RUN python setup.py sdist -d /pudl/package && mv /pudl/package/*tar.gz /pudl/package/pudl.tar.gz
 RUN tar xzf /pudl/package/pudl.tar.gz -C /pudl/src --strip-components=1
 RUN rm -Rf /pudl/repo
@@ -28,6 +29,7 @@ RUN pip install /pudl/package/pudl.tar.gz
 # Install testing infrastructure for data validation
 RUN pip install tox pytest
 WORKDIR /pudl/src
+
 
 RUN mkdir /pudl/inputs /pudl/outputs
 RUN pudl_setup --pudl_in /pudl/inputs --pudl_out /pudl/outputs

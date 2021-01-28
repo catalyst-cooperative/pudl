@@ -14,6 +14,7 @@ dependencies:
   - fsspec~=0.8.5
   - gcsfs~=0.7.1
   - geopandas~=0.8.1
+  - goodtables-pandas-py~=0.2.0
   - google-cloud-storage~=1.35.0
   - matplotlib~=3.0
   - networkx~=2.2
@@ -65,7 +66,6 @@ dependencies:
   - isort~=5.0
   - jedi~=0.17.2
   - lxml~=4.6
-  - nbdime~=2.1
   - pandoc~=2.11
   - pdbpp~=0.10
   - tox~=3.20
@@ -73,15 +73,15 @@ dependencies:
 
   # user environment
   - dask~=2020.12
-  - dask-labextension~=4.0
+  - dask-labextension~=5.0
   - jupyter-resource-usage~=0.5.0
   - jupyterlab~=3.0
+  - nodejs~=12.19
   - pygeos~=0.8.0
   - pysal~=2.1.0
   - python-graphviz~=0.16.0
 
   - pip:
     - flake8-use-fstring~=1.0     # development
-    - goodtables-pandas-py~=0.2.0 # install_requires
     - recordlinkage~=0.14.0       # user environment
     - fredapi~=0.4.3              # user environment
