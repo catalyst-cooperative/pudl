@@ -25,7 +25,8 @@ COPY --from=pudl-source-build /pudl/package/requirements.txt /tmp/requirements.t
 RUN pip install -r /tmp/requirements.txt
 COPY --from=pudl-source-build /pudl /pudl
 RUN pip install /pudl/package/pudl.tar.gz
-RUN pip install --yes tox pytest
+# Install testing infrastructure for data validation
+RUN pip install tox pytest
 WORKDIR /pudl/src
 
 RUN mkdir /pudl/inputs /pudl/outputs
