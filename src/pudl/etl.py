@@ -1293,10 +1293,12 @@ def generate_datapkg_bundle(etl_settings: dict,
         flow_kwargs["result"] = GCSResult(
             bucket=commandline_args.gcs_bucket_for_prefect_cache)
     else:
-        result_cache = os.path.join(prefect.context.pudl_pipeline_cache_path)
+        result_cache = os.path.join(prefect.context.pudl_pipeline_cache_path, "prefect")
         if not result_cache.startswith("gs://"):
             Path(result_cache).mkdir(exist_ok=True, parents=True)
         flow_kwargs["result"] = LocalResult(dir=result_cache)
+        # TODO(rousik): LocalResult likely won't work with gs://paths. We should use GCSResult
+        # and figure out how to give it path prefix.
 
     flow = prefect.Flow("PUDL ETL", **flow_kwargs)
 
