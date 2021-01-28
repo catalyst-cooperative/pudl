@@ -79,6 +79,7 @@ def parse_command_line(argv):
     parser.add_argument(
         "--rerun",
         type=str,
+        default=os.environ.get('PUDL_RUN_ID'),
         help="If specified, try to resume ETL execution for a given run_id.""")
     parser.add_argument(
         "--run-id",
