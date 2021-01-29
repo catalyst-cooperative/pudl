@@ -8,6 +8,7 @@
 # Step 1: Build pypi tarball from the local source
 # FROM treyduskin/python-setuptools AS pudl-source-build
 FROM python:3.8 AS pudl-source-build
+RUN apt-get update && apt-get install -y python3-setuptools
 WORKDIR /pudl/repo
 COPY . /pudl/repo
 RUN mkdir /pudl/package && mkdir /pudl/src
