@@ -20,6 +20,7 @@ import argparse
 import itertools
 import logging
 import os
+import re
 import shutil
 import uuid
 from datetime import datetime
@@ -117,19 +118,6 @@ def command_line_flags() -> argparse.ArgumentParser:
         help="If enabled, the local file cache for datastore will not be used.")
     # TODO(rousik): the above should also be marked as "datastore" cache
     parser.add_argument(
-        "--gcs-bucket-for-prefect-cache",
-        type=str,
-        default=None,
-        help="""If specified, use given GCS bucket to cache prefect task results.""")
-    parser.add_argument(
-        "--task-result-cache-path",
-        type=str,
-        default=None,
-        help="""Specifies where temporary DataFrames shoudl be written. This could be
-        either absolute path, file://local-path or gs://path-to-cloud-storage. DataFrames
-        will be serialized in the form of parquet files in this location as they're passed
-        between prefect tasks.""")
-    parser.add_argument(
         "--pipeline-cache-path",
         type=str,
         default=os.environ.get('PUDL_PIPELINE_CACHE_PATH'),
@@ -146,11 +134,6 @@ def command_line_flags() -> argparse.ArgumentParser:
         default=False,
         action="store_true",
         help="""If enabled, run validation via tox from the current directory.""")
-
-    # TODO(rousik): the above should replace --task-result-cache-path and
-    # --gcs-bucket-for-prefect-cache. This should also be made such that both
-    # local paths as well as gs://paths are supported.
-
     return parser
 
 
@@ -1080,8 +1063,6 @@ class DatapackageBuilder(prefect.Task):
               built by this instance.
             pudl_settings: configuration object for this ETL run.
             doi: doi associated with the datapackages that are to be built.
-            gcs_bucket (str): if specified, upload the archived datapackagers to this
-              Google Cloud Storage bucket.
         """
         self.uuid = str(uuid.uuid4())
         self.timestamp = datetime.now().strftime('%F-%H%M%S')
@@ -1287,18 +1268,17 @@ def generate_datapkg_bundle(etl_settings: dict,
     flow_kwargs = {}
     # TODO(rousik): simplify this by allowing --pipeline-cache-path to be either local
     # or point to gcs storage. Pick GCSResult or LocalResult accordingly.
-    # TODO(rousik): simplify this by allowing --pipeline-cache-path to be either local
-    # or point to gcs storage. Pick GCSResult or LocalResult accordingly.
-    if commandline_args.gcs_bucket_for_prefect_cache:
-        flow_kwargs["result"] = GCSResult(
-            bucket=commandline_args.gcs_bucket_for_prefect_cache)
+    gcs_bucket = re.search('gs://([a-zA-Z-_]*)',
+                           prefect.context.pudl_pipeline_cache_path)
+    if gcs_bucket:
+        flow_kwargs["result"] = GCSResult(gcs_bucket.group(1))
+        # TODO(rousik): this ignores the potential path prefix on pudl_pipeline_cache_path.
+        # Either we should somehow insert run_id into the targets or make a variation of
+        # GCSResult that appends prefixes to task locations.
     else:
         result_cache = os.path.join(prefect.context.pudl_pipeline_cache_path, "prefect")
-        if not result_cache.startswith("gs://"):
-            Path(result_cache).mkdir(exist_ok=True, parents=True)
+        Path(result_cache).mkdir(exist_ok=True, parents=True)
         flow_kwargs["result"] = LocalResult(dir=result_cache)
-        # TODO(rousik): LocalResult likely won't work with gs://paths. We should use GCSResult
-        # and figure out how to give it path prefix.
 
     flow = prefect.Flow("PUDL ETL", **flow_kwargs)
 

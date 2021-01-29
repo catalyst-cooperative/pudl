@@ -24,6 +24,7 @@ import uuid
 from datetime import datetime
 
 import coloredlogs
+import fsspec
 import prefect
 import yaml
 
@@ -154,7 +155,8 @@ def main():
             "settings_file must be set on command-line or via PUDL_SETTINGS_FILE when"
             " not using --rerun flag.")
 
-    script_settings = yaml.safe_load(open(args.settings_file))
+    with fsspec.open(args.settings_file, "r") as f:
+        script_settings = yaml.safe_load(f)
 
     if args.datapkg_bundle_name:
         script_settings["datapkg_bundle_name"] = args.datapkg_bundle_name
@@ -178,7 +180,7 @@ def main():
         )
 
     if args.pipeline_cache_path:
-        with open(os.path.join(args.pipeline_cache_path, "settings.yml"), "w") as outfile:
+        with fsspec.open(os.path.join(args.pipeline_cache_path, "settings.yml"), "w") as outfile:
             yaml.dump(script_settings, outfile, default_flow_style=False)
 
     pudl.etl.generate_datapkg_bundle(
