@@ -20,7 +20,6 @@ import argparse
 import itertools
 import logging
 import os
-import re
 import shutil
 import uuid
 from datetime import datetime
@@ -32,7 +31,6 @@ import pandas as pd
 import prefect
 import pyarrow
 from prefect import task, unmapped
-from prefect.engine.results import GCSResult, LocalResult
 from prefect.executors import DaskExecutor
 from prefect.executors.local import LocalExecutor
 from prefect.tasks.shell import ShellTask
@@ -45,6 +43,7 @@ from pudl.convert import datapkg_to_sqlite, epacems_to_parquet
 from pudl.dfc import DataFrameCollection
 from pudl.extract.epacems import EpaCemsPartition
 from pudl.extract.ferc1 import SqliteOverwriteMode
+from pudl.fsspec_result import FSSpecResult
 from pudl.load import csv
 
 logger = logging.getLogger(__name__)
@@ -1265,22 +1264,8 @@ def generate_datapkg_bundle(etl_settings: dict,
     datapkg_bundle_settings = etl_settings['datapkg_bundle_settings']
     configure_prefect_context(etl_settings, pudl_settings, commandline_args)
 
-    flow_kwargs = {}
-    # TODO(rousik): simplify this by allowing --pipeline-cache-path to be either local
-    # or point to gcs storage. Pick GCSResult or LocalResult accordingly.
-    gcs_bucket = re.search('gs://([a-zA-Z-_]*)',
-                           prefect.context.pudl_pipeline_cache_path)
-    if gcs_bucket:
-        flow_kwargs["result"] = GCSResult(gcs_bucket.group(1))
-        # TODO(rousik): this ignores the potential path prefix on pudl_pipeline_cache_path.
-        # Either we should somehow insert run_id into the targets or make a variation of
-        # GCSResult that appends prefixes to task locations.
-    else:
-        result_cache = os.path.join(prefect.context.pudl_pipeline_cache_path, "prefect")
-        Path(result_cache).mkdir(exist_ok=True, parents=True)
-        flow_kwargs["result"] = LocalResult(dir=result_cache)
-
-    flow = prefect.Flow("PUDL ETL", **flow_kwargs)
+    result_cache = os.path.join(prefect.context.pudl_pipeline_cache_path, "prefect")
+    flow = prefect.Flow("PUDL ETL", result=FSSpecResult(root_dir=result_cache))
 
     # TODO(rousik): DatapackageBuilder.uuid should be restored upon --rerun $uuid,
     # perhaps by deriving the uuid from the top uuid in a deterministic fashion (e.g.
