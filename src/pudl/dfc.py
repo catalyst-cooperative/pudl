@@ -84,6 +84,10 @@ class DataFrameCollection:
             return pd.read_pickle(self._get_filename(name, self._table_ids[name]))
         except KeyError:
             raise KeyError(f"Table {name} not found in the collection.")
+        except Exception as err:
+            fn = self._get_filename(name, self._table_ids[name])
+            logger.error(f'Failed to retrieve dataframe from {fn}: {err}')
+            raise err
 
     def store(self, name: str, data: pd.DataFrame):
         """Adds named dataframe to collection and stores its contents on disk."""
