@@ -24,7 +24,7 @@ class FSSpecResult(Result):
         new = self.copy()
         new.location = location
         with fsspec.open(os.path.join(self.root_dir, location), "rb") as f:
-            new.value = new.deserialize_from_bytes(f.read())
+            new.value = self.serializer.deserialize(f.read())
         return new
 
     def exists(self, location: str, **kwargs: Any) -> bool:
