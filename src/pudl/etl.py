@@ -592,7 +592,12 @@ def write_epacems_parquet_files(df: pd.DataFrame, table_name: str, partition: Ep
     #
     # This should be fixed in the newer pyarrow releases and could be removed
     # once we update our dependency.
-    output_path = os.path.join(prefect.context.pudl_settings["parquet_dir"], "epacems")
+    if prefect.context.pudl_upload_to_gcs:
+        output_path = os.path.join(
+            prefect.context.pudl_upload_to_gcs, "parquet", "epacems")
+    else:
+        output_path = os.path.join(
+            prefect.context.pudl_settings["parquet_dir"], "epacems")
     parquet.write_to_dataset(
         table,
         root_path=output_path,
@@ -681,13 +686,6 @@ class EpaCemsPipeline(DatasetPipeline):
                 partitions,
                 plant_utc_offset=unmapped(plants))
             df = dfc.merge_list(epacems_dfc)
-            if prefect.context.pudl_upload_to_gcs:
-                p = os.path.join(
-                    prefect.context.pudl_settings["parquet_dir"], "epacems")
-                upload_datapackages_to_gcs(
-                    prefect.context.pudl_upload_to_gcs, [p],
-                    upstream_tasks=[df])
-            log_dfc_tables(df, logprefix='epacems-pipeline-tables')
             return df
 
 ##############################################################################
@@ -955,13 +953,6 @@ def _create_synthetic_dependencies(flow, src_group, dst_group):
     for i in src_tasks:
         for j in dst_tasks:
             flow.add_edge(i, j)
-
-
-@task
-def log_dfc_tables(dfc: DataFrameCollection, logprefix: str = 'log_dfc_tables'):
-    """Debug log tables contained in dfc."""
-    tnames = dfc.get_table_names()
-    logger.info(f'{logprefix}: {len(tnames)} tables: {tnames}')
 
 
 def etl(datapkg_settings, pudl_settings, flow=None, bundle_name=None,
