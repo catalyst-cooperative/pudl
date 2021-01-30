@@ -149,8 +149,10 @@ def csv_dump(df, resource_name, keep_index, datapkg_dir):
         None
 
     """
+    datadir = pathlib.Path(datapkg_dir, "data")
+    datadir.mkdir(exist_ok=True, parents=True)
     args = {
-        "path_or_buf": pathlib.Path(datapkg_dir, "data", resource_name + ".csv"),
+        "path_or_buf": datadir / (resource_name + ".csv"),
         "index": keep_index,
     }
 
