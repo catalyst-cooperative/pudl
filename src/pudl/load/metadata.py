@@ -607,6 +607,7 @@ def write_csv_and_build_resource_descriptor(
     for resource, df in dfc.items():
         if 'hourly_emissions_epacems' in resource:
             continue
+        pathlib.Path(datapkg_dir).mkdir(exist_ok=True, parents=True)
         csv.clean_columns_dump(df, resource, datapkg_dir)
         resource_descriptors.append(get_tabular_data_resource(
             resource,
