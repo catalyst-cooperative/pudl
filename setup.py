@@ -18,6 +18,7 @@ install_requires = [
     "geopandas~=0.8.1",
     "goodtables-pandas-py~=0.2.0",
     "google-cloud-storage~=1.35.0",
+    "jupyter-server-proxy~=1.5.3",
     "matplotlib~=3.0",
     "networkx~=2.2",
     "numpy~=1.19",
