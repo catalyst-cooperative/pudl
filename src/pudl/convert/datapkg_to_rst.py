@@ -67,9 +67,9 @@ if __name__ == '__main__':
 # ----------------------------------------------------------------------------
 
 """
-The following templates map json data into a single rst file (rst_template_one)
-per table or one long rst file seperated by table titles and document links
-(rst_template_many).
+The following templates map json data one long rst file seperated by table
+titles and document links (rst_template_one) or a single rst file
+per table (rst_template_many)
 
 It's important for the templates that the json data do not contain execess
 white space either at the beginning or the end of each value.
