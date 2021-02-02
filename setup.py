@@ -126,6 +126,7 @@ setup(
             'ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main',
             'epacems_to_parquet = pudl.convert.epacems_to_parquet:main',
             'pudl_territories = pudl.analysis.service_territory:main',
+            'datapkg_to_rst = pudl.convert.datapkg_to_rst:main'
         ]
     },
 )
