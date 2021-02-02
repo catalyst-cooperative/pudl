@@ -87,5 +87,3 @@ Where yyyy stands for a given year. Ex: LayoutYyyy = LayoutY2013 or LayoutY2014
 
 PUDL Data Transformations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The
