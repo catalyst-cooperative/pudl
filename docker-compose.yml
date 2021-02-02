@@ -4,16 +4,14 @@ services:
     build:
       context: .
       dockerfile: release/Dockerfile.tiny
-    image: pudl:compose
+    image: rousik/pudl
     ports:
       - "8786:8786"
       - "8787:8787"
     command: ["dask-scheduler"]
 
-  dask-worker:
-    deploy:
-      replicas: 2
-    image: pudl:compose
+  dask-worker-1:
+    image: rousik/pudl
     depends_on:
       - dask-scheduler
     command: ["dask-worker", "tcp://dask-scheduler:8786"]
@@ -22,24 +20,36 @@ services:
       - datapkg:/pudl/outputs/datapkg
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /tmp/keys/gcp-keyfile.json
-
+  dask-worker-2:
+   image: rousik/pudl
+   depends_on:
+     - dask-scheduler
+   command: ["dask-worker", "tcp://dask-scheduler:8786"]
+   volumes:
+      - ${GCP_KEY_PATH}:/tmp/keys/gcp-keyfile.json:ro
+      - datapkg:/pudl/outputs/datapkg
+   environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /tmp/keys/gcp-keyfile.json
   etl:
-    image: pudl:compose
+    env_file:
+      - docker.env
+    image: rousik/pudl
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /tmp/keys/gcp-keyfile.json
     depends_on:
       - dask-scheduler
-      - dask-worker
+      - dask-worker-1
+      - dask-worker-2
     command: [
       "pudl_etl",
       "-c",
-      "--gcs-cache-readonly",
-      "--gcs-cache-path=gs://pudl-zenodo-cache/prod",
-      "--upload-to-gcs-bucket=pudl-data-releases",
       "--dask-executor-address=tcp://dask-scheduler:8786",
-      "/pudl/src/release/settings/test.yml"]
+      # "--rerun=2021-01-29-0546-616a38e4-8bbb-4cfd-8f01-47ff72ec3d68",
+      "/pudl/src/release/settings/release.yml",
+      # "/pudl/src/test/settings/test.yml",
+      ]
     volumes:
       - ${GCP_KEY_PATH}:/tmp/keys/gcp-keyfile.json:ro
-      - datapkg:/pudl/outputs/datapkg
+        # - datapkg:/pudl/outputs/datapkg
 volumes:
   datapkg:
