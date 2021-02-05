@@ -15,26 +15,27 @@ tables. This way, these tags can be referenced and appear in other rst files.
 
 """
 
+import argparse
+import importlib.resources
 import json
 import logging
 import sys
-from pathlib import Path
 
 from jinja2 import Template
 
 logger = logging.getLogger(__name__)
 
 
-path = Path.cwd() / 'src/pudl/package_data/meta/datapkg/datapackage.json'
-metadata = open(path)
-metadata_json = json.load(metadata)
+pkg = 'pudl.package_data.meta.datapkg'
+with importlib.resources.open_text(pkg, 'datapackage.json') as f:
+    metadata_dict = json.load(f)
 
 
 def datapkg2rst_one():
     """Convert json metadata to a single rst file."""
     logger.info("Converting json metadata into an rst file")
     template = Template(rst_template_one)
-    rendered = template.render(metadata_json)
+    rendered = template.render(metadata_dict)
     # Create or overwrite an rst file containing the field descriptions of the input table
     with open('docs/data_sources/metadata.rst', 'w') as f:
         f.seek(0)  # Used to overwrite exisiting content
@@ -46,7 +47,7 @@ def datapkg2rst_many(table):
     """Convert json metadata to multiple rst files."""
     logger.info("Converting json metadata into rst files")
     template = Template(rst_template_many)
-    rendered = template.render(metadata_json, table=table).strip('\n') + ('\n')
+    rendered = template.render(metadata_dict, table=table).strip('\n') + ('\n')
     # Create or overwrite an rst file containing the field descriptions of the input table
     with open(f'docs/data_sources/{table}.rst', 'w') as f:
         f.seek(0)  # Used to overwrite exisiting content
@@ -56,15 +57,17 @@ def datapkg2rst_many(table):
 
 def main():
     """Run conversion from json to rst."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.parse_args()
     datapkg2rst_one()
 
 
 if __name__ == '__main__':
     sys.exit(main())
 
-# ----------------------------------------------------------------------------
+###############################################################################
 # T E M P L A T E S
-# ----------------------------------------------------------------------------
+###############################################################################
 
 """
 The following templates map json data one long rst file seperated by table
@@ -75,6 +78,7 @@ It's important for the templates that the json data do not contain execess
 white space either at the beginning or the end of each value.
 """
 
+
 # Template for all tables in one rst file
 rst_template_one = '''
 {% for resource in resources %}
@@ -84,6 +88,8 @@ Contents of {{ resource.name }} table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -96,6 +102,9 @@ Contents of {{ resource.name }} table
 {% endfor %}
 {% endfor %}
 '''
+""" A template to map data from a json dictionary into one rst file. Contains
+    multiple tables seperated by headers.
+"""
 
 # Template for one table per rst file
 rst_template_many = '''
@@ -118,3 +127,6 @@ Contents of {{ resource.name }}
 {% endif %}
 {% endfor %}
 '''
+""" A template to map data from a json dictionary in multiple rst files--one
+    file per table.
+"""

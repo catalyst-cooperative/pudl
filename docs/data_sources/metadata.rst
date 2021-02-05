@@ -6,6 +6,8 @@ Contents of fuel_ferc1 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -62,6 +64,8 @@ Contents of load_curves_epaipm table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -98,6 +102,8 @@ Contents of plant_region_map_epaipm table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -118,6 +124,8 @@ Contents of ferc_depreciation_lines table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -138,6 +146,8 @@ Contents of utilities_eia table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -162,6 +172,8 @@ Contents of energy_source_eia923 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -182,6 +194,8 @@ Contents of datasets table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -202,6 +216,8 @@ Contents of fuel_type_eia923 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -222,6 +238,8 @@ Contents of utilities_pudl table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -242,6 +260,8 @@ Contents of plants_ferc1 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -266,6 +286,8 @@ Contents of generation_eia923 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -294,6 +316,8 @@ Contents of utilities_entity_eia table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -314,6 +338,8 @@ Contents of generators_entity_eia table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -410,6 +436,8 @@ Contents of regions_entity_epaipm table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -426,6 +454,8 @@ Contents of plants_hydro_ferc1 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -586,6 +616,8 @@ Contents of plant_in_service_ferc1 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -986,6 +1018,8 @@ Contents of purchased_power_ferc1 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1062,6 +1096,8 @@ Contents of generators_eia860 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1334,6 +1370,8 @@ Contents of ownership_eia860 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1390,6 +1428,8 @@ Contents of plants_pudl table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1410,6 +1450,8 @@ Contents of fuel_type_aer_eia923 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1430,6 +1472,8 @@ Contents of accumulated_depreciation_ferc1 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1474,6 +1518,8 @@ Contents of prime_movers_eia923 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1494,6 +1540,8 @@ Contents of fuel_receipts_costs_eia923 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1598,6 +1646,8 @@ Contents of utilities_ferc1 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1622,6 +1672,8 @@ Contents of boiler_generator_assn_eia860 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1662,6 +1714,8 @@ Contents of natural_gas_transport_eia923 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1682,6 +1736,8 @@ Contents of transport_modes_eia923 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1702,6 +1758,8 @@ Contents of coalmine_eia923 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1738,6 +1796,8 @@ Contents of plants_eia table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1762,6 +1822,8 @@ Contents of ferc_accounts table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1782,6 +1844,8 @@ Contents of utility_plant_assn table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1802,6 +1866,8 @@ Contents of plants_eia860 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1914,6 +1980,8 @@ Contents of generation_fuel_eia923 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -1978,6 +2046,8 @@ Contents of plants_small_ferc1 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -2062,6 +2132,8 @@ Contents of plants_pumped_storage_ferc1 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -2238,6 +2310,8 @@ Contents of boiler_fuel_eia923 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -2286,6 +2360,8 @@ Contents of hourly_emissions_epacems table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -2370,6 +2446,8 @@ Contents of transmission_single_epaipm table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -2402,6 +2480,8 @@ Contents of plants_steam_ferc1 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -2574,6 +2654,8 @@ Contents of utilities_eia860 table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -2686,6 +2768,8 @@ Contents of boilers_entity_eia table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -2710,6 +2794,8 @@ Contents of plants_entity_eia table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -2814,6 +2900,8 @@ Contents of transmission_joint_epaipm table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -2846,6 +2934,8 @@ Contents of plant_unit_epa table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -2866,6 +2956,8 @@ Contents of assn_plant_id_eia_epa table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
@@ -2886,6 +2978,8 @@ Contents of assn_gen_eia_unit_epa table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
+  :widths: 10 5 15
+  :header-rows: 1
 
   * - **Field**
     - **Data Type**
