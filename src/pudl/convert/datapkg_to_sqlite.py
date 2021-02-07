@@ -23,6 +23,7 @@ is stored in the SQLite DB.
 
 import argparse
 import logging
+import os
 import pathlib
 import sys
 import tempfile
@@ -30,6 +31,7 @@ from typing import List
 
 import coloredlogs
 import datapackage
+import fsspec
 import prefect
 import sqlalchemy as sa
 from prefect import task
@@ -41,27 +43,37 @@ from pudl.convert.merge_datapkgs import merge_datapkgs
 logger = logging.getLogger(__name__)
 
 
+def get_fs(urlpath):
+    """Returns fsspec fs object for a given urlpath."""
+    return fsspec.get_fs_token_paths(urlpath)[0]
+
+
 @task(checkpoint=False)
 def populate_pudl_database(datapackage_directories: List[str], clobber: bool = False) -> None:
     """Loads locally stored datapackages into pudl sqlite database."""
+    # TODO(rousik): we need to support remote datapackgages (on gcs). As a workaround
+    # we could simply fetch them recursively to local disk before merging.
+    # TODO(rousik): we should create temporary file for sqlite database and then upload
+    # this either to the final destination on local disk or to remote storage. To avoid
+    # using local disk between tasks.
     logger.info(f'Populating pudl db with datapackages from: {datapackage_directories}')
     datapackages = []
+
     for p in datapackage_directories:
-        descriptor_file = p / "datapackage.json"
-        if not descriptor_file.exists():
-            raise FileNotFoundError(f"Descriptor {descriptor_file} does not exist.")
-        if "epacems" in descriptor_file.parent.name:
-            logger.warning(
-                f"Skipping epacems-related datapackage from {descriptor_file}")
+        if p is None:
+            # Some pipelines return None when they do not produce datapackage.
             continue
-        datapackages.append(datapackage.DataPackage(
-            descriptor=descriptor_file.as_posix()))
+        descriptor_file = os.path.join(p, "datapackage.json")
+        if not get_fs(p).exists(descriptor_file):
+            raise FileNotFoundError(f"Descriptor {descriptor_file} does not exist.")
+        datapackages.append(datapackage.DataPackage(descriptor=descriptor_file))
 
     if not datapackages:
         logger.warning("No datapackages found to load into pudl database.")
         return
 
     with tempfile.TemporaryDirectory() as tmpdir:
+        # TODO(rousik): this may not work for remote paths.
         merged_dpkg = pathlib.Path(tmpdir)
         merge_datapkgs(datapackages, merged_dpkg)
         datapkg_to_sqlite(
