@@ -18,15 +18,16 @@ pudl directories see the pudl_setup script (pudl_setup --help for more details).
 import argparse
 import logging
 import os
-import pathlib
 import sys
 import uuid
 from datetime import datetime
+from typing import Dict
 
 import coloredlogs
 import fsspec
 import prefect
 import yaml
+from fsspec.implementations.local import LocalFileSystem
 
 import pudl
 
@@ -74,10 +75,6 @@ def parse_command_line(argv):
         default="INFO",
     )
     parser.add_argument(
-        "--datapkg-bundle-name",
-        type=str,
-        help="If specified, use this datpkg_bundle_name instead of the default from the config.""")
-    parser.add_argument(
         "--rerun",
         type=str,
         default=os.environ.get('PUDL_RUN_ID'),
@@ -120,47 +117,43 @@ def generate_run_id(args):
     If --run-id is specified, use that. Otherwise generate random run_id based on timestamp
     and uuid.
     """
-    if args.run_id:
+    if args.rerun:
+        return args.rerun
+    elif args.run_id:
         return args.run_id
     else:
         ts = datetime.now().strftime('%F-%H%M')
         return f"{ts}-{uuid.uuid4()}"
 
 
-def main():
-    """Parse command line and initialize PUDL DB."""
-    # Display logged output from the PUDL package:
-    args = parse_command_line(sys.argv)
-    setup_logging(args)
-    script_settings = None
-    run_id = args.rerun or generate_run_id(args)
-    logger.warning(
-        f'Running pipeline with run_id {run_id} (use this with --rerun to resume).')
-    # TODO(rousik): run id could be prefixed w/ YYYYMMDDHHMM-uuid to give it monotonic form
+def load_script_settings(args, run_id) -> Dict:
+    """Loads the script settings from the right location.
 
-    if args.pipeline_cache_path:
-        args.pipeline_cache_path = os.path.join(args.pipeline_cache_path, run_id)
-        if not args.pipeline_cache_path.startswith("gs://"):
-            pathlib.Path(args.pipeline_cache_path).mkdir(exist_ok=True, parents=True)
-
+    If --rerun is specified, it loads the settings file from the cache. Otherwise
+    it will assume that this is the first positional argument of the pudl_etl
+    script and loads that.
+    """
     if args.rerun:
         if not args.pipeline_cache_path:
             raise AssertionError(
                 'When using --rerun, --pipeline-cache-path must be also set.')
-        args.settings_file = os.path.join(args.pipeline_cache_path, "settings.yml")
-        logger.warning(f'Loading settings from {args.settings_file}')
+        settings_file_path = os.path.join(
+            args.pipeline_cache_path, run_id, "settings.yml")
+    else:
+        if not args.settings_file:
+            raise ValueError(
+                "settings_file must be set on command-line or"
+                " via PUDL_SETTINGS_FILE when not using --rerun flag.")
+        settings_file_path = args.settings_file
+    logger.info(f'Loading settings from {settings_file_path}')
+    with fsspec.open(settings_file_path, "r") as fs:
+        script_settings = yaml.safe_load(fs)
+        script_settings["run_id"] = run_id
+        return script_settings
 
-    if not args.settings_file:
-        raise ValueError(
-            "settings_file must be set on command-line or via PUDL_SETTINGS_FILE when"
-            " not using --rerun flag.")
 
-    with fsspec.open(args.settings_file, "r") as f:
-        script_settings = yaml.safe_load(f)
-
-    if args.datapkg_bundle_name:
-        script_settings["datapkg_bundle_name"] = args.datapkg_bundle_name
-
+def build_pudl_settings(script_settings, args):
+    """Builds pudl_settings object with correct path and other configurations."""
     pudl_in = script_settings.get(
         "pudl_in", pudl.workspace.setup.get_defaults()["pudl_in"])
     pudl_out = script_settings.get(
@@ -168,9 +161,33 @@ def main():
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in, pudl_out=pudl_out)
     pudl_settings["sandbox"] = args.sandbox
+    return pudl_settings
 
-    script_settings["run_id"] = run_id
+
+def main():
+    """Parse command line and initialize PUDL DB."""
+    # Display logged output from the PUDL package:
+    args = parse_command_line(sys.argv)
+    setup_logging(args)
+
+    # Ensure that directories are automatically created when dealing with local files.
+    LocalFileSystem(auto_mkdir=True)
+
+    run_id = generate_run_id(args)
     prefect.context.pudl_run_id = run_id
+
+    logger.warning(
+        f'Running pipeline with run_id {run_id} (use this with --rerun to resume).')
+
+    script_settings = load_script_settings(args, run_id)
+    pudl_settings = build_pudl_settings(script_settings, args)
+
+    if args.pipeline_cache_path:
+        args.pipeline_cache_path = os.path.join(args.pipeline_cache_path, run_id)
+    else:
+        args.pipeline_cache_path = os.path.join(
+            pudl_settings["pudl_out"], "cache", run_id)
+    prefect.context.pudl_pipeline_cache_path = args.pipeline_cache_path
 
     datapkg_bundle_doi = script_settings.get("datapkg_bundle_doi")
     if datapkg_bundle_doi and not pudl.helpers.is_doi(datapkg_bundle_doi):
@@ -178,10 +195,8 @@ def main():
             f"Found invalid bundle DOI: {datapkg_bundle_doi} "
             f"in bundle {script_settings['datpkg_bundle_name']}."
         )
-
-    if args.pipeline_cache_path:
-        with fsspec.open(os.path.join(args.pipeline_cache_path, "settings.yml"), "w") as outfile:
-            yaml.dump(script_settings, outfile, default_flow_style=False)
+    with fsspec.open(os.path.join(args.pipeline_cache_path, "settings.yml"), "w") as outfile:
+        yaml.dump(script_settings, outfile, default_flow_style=False)
 
     pudl.etl.generate_datapkg_bundle(
         script_settings,
