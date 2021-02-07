@@ -2,9 +2,10 @@
 
 Once each set of tables pertaining to a data source have been transformed, we
 need to output them into CSV files which will become the data underlying
-tabular data resources. Most of these resources contain an entire table. In the
-case of larger tables (like EPA CEMS) the data may be partitioned into a
-collection of gzipped CSV files which are all part of a single resource group.
+tabular data resources. Most of these resources contain an entire table.
+
+Larger tables (like EPA CEMS) are written to partitioned parquet files and will
+not use the csv formats.
 
 These functions are designed to pick up where the transform step leaves off,
 taking a dictionary of dataframes and applying a few last alterations that are
@@ -13,11 +14,10 @@ include converting floatified integer columns into strings with null values,
 and appropriately indexing the dataframes as needed.
 
 """
-import gzip
-import io
 import logging
-import pathlib
+import os
 
+import fsspec
 import pandas as pd
 
 import pudl
@@ -149,26 +149,10 @@ def csv_dump(df, resource_name, keep_index, datapkg_dir):
         None
 
     """
-    datadir = pathlib.Path(datapkg_dir, "data")
-    datadir.mkdir(exist_ok=True, parents=True)
-    args = {
-        "path_or_buf": datadir / (resource_name + ".csv"),
-        "index": keep_index,
-    }
-
-    if "hourly_emissions_epacems" in resource_name:
-        # In order to guarantee file checksums for gzipped csv files, mtime
-        # needs to be set to zero for zip files. Integration between pandas
-        # and ZipFile libraries is not perfect and so we have to do things a bit
-        # awkwardly here.
-        # See https://github.com/pandas-dev/pandas/issues/28103 for more details.
-        args["path_or_buf"] = io.TextIOWrapper(
-            gzip.GzipFile(
-                filename=pathlib.Path(datapkg_dir, "data", resource_name + ".csv.gz"),
-                mtime=0, mode='wb'))
-        args["date_format"] = '%Y-%m-%dT%H:%M:%SZ'
-
-    if keep_index:
-        args["index_label"] = "id"
-
-    df.to_csv(**args)
+    filepath = os.path.join(datapkg_dir, "data", resource_name + ".csv")
+    logger.debug(f'Writing dataframe into csv file {filepath}')
+    with fsspec.open(filepath, "wb") as fout:
+        kwargs = {}
+        if keep_index:
+            kwargs["index_label"] = "id"
+        df.to_csv(path_or_buf=fout, index=keep_index, **kwargs)
