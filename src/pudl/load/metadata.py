@@ -40,12 +40,14 @@ import hashlib
 import importlib
 import json
 import logging
+import os
 import pathlib
 import re
 import uuid
 from typing import Dict, List
 
 import datapackage
+import fsspec
 import goodtables_pandas as goodtables
 import pkg_resources
 from prefect import task
@@ -62,11 +64,11 @@ logger = logging.getLogger(__name__)
 ##############################################################################
 
 
-def hash_csv(csv_path):
+def hash_fd(fd):
     """Calculates a SHA-256 hash of the CSV file for data integrity checking.
 
     Args:
-        csv_path (path-like) : Path the CSV file to hash.
+        fd (file-like): open file-descriptor containing the data.
 
     Returns:
         str: the hexdigest of the hash, with a 'sha256:' prefix.
@@ -76,14 +78,8 @@ def hash_csv(csv_path):
     blocksize = 65536
     # sha256 is the fastest relatively secure hashing algorith.
     hasher = hashlib.sha256()
-    # opening the file and eat it for lunch
-    with open(csv_path, 'rb') as afile:
-        buf = afile.read(blocksize)
-        while len(buf) > 0:
-            hasher.update(buf)
-            buf = afile.read(blocksize)
-
-    # returns the hash
+    for buf in iter(lambda: fd.read(blocksize), b""):
+        hasher.update(buf)
     return f"sha256:{hasher.hexdigest()}"
 
 
@@ -390,8 +386,20 @@ def temporal_coverage(resource_name, datapkg_settings):
     return {"start_date": start_date, "end_date": end_date}
 
 
-def get_tabular_data_resource(resource_name, datapkg_dir,
-                              datapkg_settings, partitions=False):
+def add_size_and_hash_to_resource_descriptor(
+        descriptor: Dict,
+        resource_name: str,
+        datapkg_dir: str) -> None:
+    """Adds file size and sha hash to the resource descriptor."""
+    with fsspec.open(os.path.join(datapkg_dir, "data", f"{resource_name}.csv")) as fd:
+        descriptor["bytes"] = fd.size
+        descriptor["hash"] = hash_fd(fd)
+
+
+def build_tabular_data_resource_descriptor(
+        resource_name: str,
+        datapkg_settings: Dict,
+        partitions: bool = False) -> Dict:
     """
     Create a Tabular Data Resource descriptor for a PUDL table.
 
@@ -423,15 +431,11 @@ def get_tabular_data_resource(resource_name, datapkg_dir,
 
     """
     # every time we want to generate the cems table, we want it compressed
-    abs_path = pathlib.Path(datapkg_dir, "data", f"{resource_name}.csv")
-    if "hourly_emissions_epacems" in resource_name:
-        abs_path = pathlib.Path(abs_path.parent, abs_path.name + ".gz")
+    rel_path = f"data/{resource_name}.csv"
 
     # pull the skeleton of the descriptor from the megadata file
     descriptor = pull_resource_from_megadata(resource_name)
-    descriptor["path"] = str(abs_path.relative_to(abs_path.parent.parent))
-    descriptor["bytes"] = abs_path.stat().st_size
-    descriptor["hash"] = hash_csv(abs_path)
+    descriptor["path"] = rel_path
     descriptor["created"] = (
         datetime.datetime.utcnow()
         .replace(microsecond=0)
@@ -587,7 +591,7 @@ def write_csv_and_build_resource_descriptor(
     Writes contents of DataFrameCollection to disk and builds resource descriptor.
 
     Resource descriptor is dict representing json structures describing this specific
-    datpackage resource.
+    datapackage resource.
 
     For epacems hourly emissions we will be writing directly to parquet files and
     we will not be emitting any descriptors.
@@ -608,11 +612,12 @@ def write_csv_and_build_resource_descriptor(
         if 'hourly_emissions_epacems' in resource:
             continue
         csv.clean_columns_dump(df, resource, datapkg_dir)
-        resource_descriptors.append(get_tabular_data_resource(
+        desc = build_tabular_data_resource_descriptor(
             resource,
-            datapkg_dir=datapkg_dir,
             datapkg_settings=datapkg_settings,
-            partitions=partitions))
+            partitions=partitions)
+        add_size_and_hash_to_resource_descriptor(desc, resource, datapkg_dir)
+        resource_descriptors.append(desc)
     return resource_descriptors
 
 
