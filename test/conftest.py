@@ -154,7 +154,7 @@ def pudl_out_eia(live_pudl_db, pudl_engine, request):
                     end_date=END_DATE_EIA,
                     freq=request.param,
                     fill_fuel_cost=True,
-                    roll_fuel_cost_=True,
+                    roll_fuel_cost=True,
                     fill_net_gen=True,
                     )
 
