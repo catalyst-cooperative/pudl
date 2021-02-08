@@ -1,7 +1,9 @@
 """Unit tests for pudl.dfc module."""
+import os
 import shutil
 import tempfile
 import unittest
+import uuid
 from typing import List
 
 import pandas as pd
@@ -34,6 +36,21 @@ class TestDataFrameCollection(unittest.TestCase):
     def test_get_throws_key_error(self):
         """Getting frame that does not exist results in KeyError."""
         self.assertRaises(KeyError, self.dfc.get, "unknown_df")
+
+    def test_table_conflicts_are_prevented(self):
+        """Checks that subsequent calls to store throw TableExists exceptions."""
+        test_df = pd.DataFrame({'x': [1, 2]})
+        self.dfc.store("test", test_df)
+        self.assertRaises(dfc.TableExists, self.dfc.store, "test", pd.DataFrame())
+        pd.testing.assert_frame_equal(test_df, self.dfc.get("test"))
+
+    def test_disk_overwrites_are_prevented(self):
+        """Checks that TableExists is thrown if the file already exists on disk."""
+        self.dfc.store("first", pd.DataFrame())
+        instance_id = dict(self.dfc.references())["first"]
+        with open(os.path.join(self.temp_dir, instance_id.hex, "second"), "w") as f:
+            f.write("random content")
+        self.assertRaises(dfc.TableExists, self.dfc.store, "second", pd.DataFrame())
 
     def test_simple_df_retrieval(self):
         """Adds single dataframe to DFC and retrieves it."""
@@ -68,6 +85,11 @@ class TestDataFrameCollection(unittest.TestCase):
         pd.testing.assert_frame_equal(test_df, self.dfc.get("test"))
         self.assertEqual(self.dfc.references(), extra_dfc.references())
 
+    def test_add_reference_prevents_collisions(self):
+        """Tests that attempts to add_reference to existing table throw TableExists."""
+        self.dfc.store("test", pd.DataFrame())
+        self.assertRaises(dfc.TableExists, self.dfc.add_reference, "test", uuid.uuid1())
+
     def test_two_dfc_do_not_collide(self):
         """Test that two dfc storing the same df will not collide."""
         dfc1 = DataFrameCollection(storage_path=self.temp_dir)
@@ -98,6 +120,17 @@ class TestDataFrameCollection(unittest.TestCase):
         self.assertEqual(["first", "second"], final_dfc.get_table_names())
         pd.testing.assert_frame_equal(first, final_dfc.get("first"))
         pd.testing.assert_frame_equal(second, final_dfc.get("second"))
+
+    def test_overlapping_union_disallowed(self):
+        """Tests that merging two dataframes with the same table is not permitted."""
+        dfc1 = DataFrameCollection(storage_path=self.temp_dir)
+        dfc2 = DataFrameCollection(storage_path=self.temp_dir)
+
+        dfc1.store("x", pd.DataFrame())
+        dfc1.store("y", pd.DataFrame())
+        dfc2.store("y", pd.DataFrame())
+        dfc2.store("z", pd.DataFrame())
+        self.assertRaises(dfc.TableExists, dfc1.union, dfc2)
 
     def test_to_dict(self):
         """Tests that dictionaries containing dataframes are correctly built from DFCs."""

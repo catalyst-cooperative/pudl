@@ -22,11 +22,20 @@ import uuid
 from pathlib import Path
 from typing import Dict, Iterator, List, Optional, Tuple
 
+import fsspec
 import pandas as pd
 import prefect
 from prefect import task
 
 logger = logging.getLogger(__name__)
+
+
+class TableExists(Exception):
+    """The table already exists.
+
+    Either the table already exists in the DataFrameCollection when it is added or the file
+    containing the serialized form is found on disk.
+    """
 
 
 class DataFrameCollection:
@@ -82,12 +91,18 @@ class DataFrameCollection:
 
     def store(self, name: str, data: pd.DataFrame):
         """Adds named dataframe to collection and stores its contents on disk."""
+        if name in self._table_ids:
+            raise TableExists(f'Table {name} already present in the DFC.')
         filename = self._get_filename(name, self._instance_id)
         if not filename.startswith("gs://"):
             # Do not make directories when dealing with remote storage.
             # TODO(rousik): this is fairly crude solution and won't work
             # for non gcs remote storage.
             Path(filename).parent.mkdir(exist_ok=True, parents=True)
+        fs, _, _ = fsspec.get_fs_token_paths(filename)
+        if fs.exists(filename):
+            raise TableExists(
+                f'{filename} containing serialized data for table {name} already exists.')
         data.to_pickle(filename)
         self._table_ids[name] = self._instance_id
 
@@ -96,6 +111,8 @@ class DataFrameCollection:
 
         This assumes that the data is already present on disk.
         """
+        if name in self._table_ids:
+            raise TableExists(f'Table {name} already exists in this DFC.')
         self._table_ids[name] = table_id
 
     def __getitem__(self, name: str) -> pd.DataFrame:
