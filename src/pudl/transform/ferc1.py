@@ -804,7 +804,11 @@ def _plants_steam_assign_plant_ids(ferc1_steam_df, ferc1_fuel_df):
             how='left'
         )
     )
-    ferc1_steam_df[ffc] = ferc1_steam_df[ffc].fillna(value=0.0)
+    # We need to fill the null values for these numerical feature vectors with
+    # zeros. not ideal, but the model requires dealing with nulls
+    null_to_zero = ffc + ['capacity_mw']
+    ferc1_steam_df[null_to_zero] = (
+        ferc1_steam_df[null_to_zero].fillna(value=0.0))
 
     # Train the classifier using DEFAULT weights, parameters not listed here.
     ferc1_clf = pudl.transform.ferc1.make_ferc1_clf(ferc1_steam_df)
