@@ -170,12 +170,14 @@ class Ferc1Datastore:
     def get_file(self, year: int, filename: str):
         """Opens given ferc1 file from the corresponding archive."""
         if year not in self._cache:
-            self._cache[year] = self.datastore.get_zipfile_resource("ferc1", year=year)
+            self._cache[year] = self.datastore.get_zipfile_resource(
+                "ferc1", year=year)
         archive = self._cache[year]
         try:
             return archive.open((self.get_dir(year) / filename).as_posix())
         except KeyError:
-            raise KeyError(f"{filename} not availabe for year {year} in ferc1.")
+            raise KeyError(
+                f"{filename} not availabe for year {year} in ferc1.")
 
 
 def drop_tables(engine):
@@ -756,7 +758,6 @@ def plants_steam(ferc1_meta, ferc1_table, ferc1_years):
         sa.sql.select([f1_steam])
         .where(f1_steam.c.report_year.in_(ferc1_years))
         .where(f1_steam.c.plant_name != '')
-        .where(f1_steam.c.tot_capacity > 0.0)
     )
 
     return pd.read_sql(f1_steam_select, ferc1_meta.bind)
