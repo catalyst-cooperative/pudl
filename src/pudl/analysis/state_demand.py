@@ -744,13 +744,13 @@ def main():
     """Predict state demand."""
     # --- Connect to PUDL logger --- #
 
-    FORMAT = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    LEVEL = logging.INFO
     logger = logging.getLogger('pudl')
     handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter(FORMAT))
+    handler.setFormatter(logging.Formatter(
+        '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
+    ))
     logger.addHandler(handler)
-    logger.setLevel(LEVEL)
+    logger.setLevel(logging.INFO)
 
     # --- Connect to PUDL database --- #
 
@@ -781,26 +781,26 @@ def main():
 
     # --- Export results --- #
 
-    LOCAL_DIR = pathlib.Path(pudl_settings['data_dir']) / 'local'
-    VENTYX_PATH = LOCAL_DIR / 'ventyx/state_level_load_2007_2018.csv'
-    BASE_DIR = LOCAL_DIR / 'state-demand'
-    BASE_DIR.mkdir(parents=True, exist_ok=True)
-    DEMAND_PATH = BASE_DIR / 'demand.csv'
-    STATS_PATH = BASE_DIR / 'demand-stats.csv'
-    TIMESERIES_DIR = BASE_DIR / 'timeseries'
-    TIMESERIES_DIR.mkdir(parents=True, exist_ok=True)
-    SCATTER_DIR = BASE_DIR / 'scatter'
-    SCATTER_DIR.mkdir(parents=True, exist_ok=True)
+    local_dir = pathlib.Path(pudl_settings['data_dir']) / 'local'
+    ventyx_path = local_dir / 'ventyx/state_level_load_2007_2018.csv'
+    base_dir = local_dir / 'state-demand'
+    base_dir.mkdir(parents=True, exist_ok=True)
+    demand_path = base_dir / 'demand.csv'
+    stats_path = base_dir / 'demand-stats.csv'
+    timeseries_dir = base_dir / 'timeseries'
+    timeseries_dir.mkdir(parents=True, exist_ok=True)
+    scatter_dir = base_dir / 'scatter'
+    scatter_dir.mkdir(parents=True, exist_ok=True)
 
     # Write predicted hourly state demand
     prediction.to_csv(
-        DEMAND_PATH, index=False, date_format='%Y%m%dT%H', float_format='%.1f'
+        demand_path, index=False, date_format='%Y%m%dT%H', float_format='%.1f'
     )
 
     # Load Ventyx as reference if available
     reference = None
-    if VENTYX_PATH.exists():
-        reference = load_ventyx_hourly_state_demand(VENTYX_PATH)
+    if ventyx_path.exists():
+        reference = load_ventyx_hourly_state_demand(ventyx_path)
 
     # Plots and statistics
     stats = []
@@ -815,7 +815,7 @@ def main():
             b = reference.query(f'state_id_fips == {fips}')
         # Save timeseries plot
         plot_demand_timeseries(
-            a, b=b, window=168, title=title, path=TIMESERIES_DIR / plot_name
+            a, b=b, window=168, title=title, path=timeseries_dir / plot_name
         )
         if b is None or b.empty:
             continue
@@ -830,12 +830,12 @@ def main():
         stat['state_id_fips'] = fips
         stats.append(stat)
         # Save scatter plot
-        plot_demand_scatter(a, b=b, title=title, path=SCATTER_DIR / plot_name)
+        plot_demand_scatter(a, b=b, title=title, path=scatter_dir / plot_name)
 
     # Write statistics
     if reference is not None:
         pd.concat(stats, ignore_index=True).to_csv(
-            STATS_PATH, index=False, float_format='%.1f'
+            stats_path, index=False, float_format='%.1f'
         )
 
 

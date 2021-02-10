@@ -19,7 +19,7 @@ ASSOCIATIONS: List[Dict[str, Any]] = [
     {'id': 12506, 'from': 2012, 'to': [2013, 2013]},
     # (no code): American Electric Power Co Inc
     {'id': 829, 'from': 2008, 'to': [2009, 2013]},
-    # PJM: PJM Interconnection LLC 
+    # PJM: PJM Interconnection LLC
     {'id': 14725, 'from': 2011, 'to': [2006, 2010]},
     # BANC: Balancing Authority of Northern California
     {'id': 16534, 'from': 2013, 'to': [2012, 2012]},
