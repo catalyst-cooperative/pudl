@@ -6,19 +6,21 @@ channels:
 dependencies:
   # install_requires
   - addfips~=0.3.0
-  - bitarray<=1.6.1
   - catalystcoop.dbfread~=3.0
   - coloredlogs~=15.0
   - contextily~=1.0
   - datapackage~=1.11
   - geopandas~=0.8.1
-  - google-cloud-storage~=1.35.0
+  - goodtables-pandas-py~=0.2.0
+  - google-cloud-storage~=1.35
+  - google-cloud-bigquery~=1.28
   - matplotlib~=3.0
   - networkx~=2.2
-  - numpy~=1.19
+  - numpy~=1.20
   - pandas~=1.2
-  - pip~=20.3
-  - pyarrow~=2.0
+  - pip~=21.0
+  - prefect~=0.14.2
+  - pyarrow~=3.0
   - pyyaml~=5.0
   - python~=3.8
   - python-snappy~=0.5.4
@@ -79,6 +81,5 @@ dependencies:
 
   - pip:
     - flake8-use-fstring~=1.0     # development
-    - goodtables-pandas-py~=0.2.0 # install_requires
     - recordlinkage~=0.14.0       # user environment
     - fredapi~=0.4.3              # user environment

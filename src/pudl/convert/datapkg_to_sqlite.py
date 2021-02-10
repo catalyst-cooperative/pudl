@@ -155,7 +155,7 @@ def main():
     # what we're checking against is a file path, not a URL.
     if (
         not args.clobber
-        and pathlib.Path(pudl_settings["pudl_db"].replace("sqlite:///", "").exists())
+        and pathlib.Path(pudl_settings["pudl_db"].replace("sqlite:///", "")).exists()
     ):
         raise FileExistsError(
             f"SQLite DB at {pudl_settings['pudl_db']} exists and clobber is False.")

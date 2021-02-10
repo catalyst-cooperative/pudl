@@ -8,7 +8,6 @@ from setuptools import find_packages, setup
 
 install_requires = [
     "addfips~=0.3.0",
-    "bitarray<=1.6.1",
     "catalystcoop.dbfread~=3.0",
     "coloredlogs~=15.0",
     "contextily~=1.0",
@@ -18,9 +17,10 @@ install_requires = [
     "google-cloud-storage~=1.35.0",
     "matplotlib~=3.0",
     "networkx~=2.2",
-    "numpy~=1.19",
+    "numpy~=1.20",
     "pandas~=1.2",
-    "pyarrow~=2.0",
+    "prefect[viz, gcp]~=0.14.2",
+    "pyarrow~=3.0",
     "pyyaml~=5.0",
     "scikit-learn~=0.24",
     "scipy~=1.6",
