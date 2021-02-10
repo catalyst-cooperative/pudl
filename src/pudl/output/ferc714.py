@@ -19,6 +19,15 @@ ASSOCIATIONS: List[Dict[str, Any]] = [
     {'id': 12506, 'from': 2012, 'to': [2013, 2013]},
     # (no code): American Electric Power Co Inc
     {'id': 829, 'from': 2008, 'to': [2009, 2013]},
+    # PJM: PJM Interconnection LLC 
+    {'id': 14725, 'from': 2011, 'to': [2006, 2010]},
+    # BANC: Balancing Authority of Northern California
+    {'id': 16534, 'from': 2013, 'to': [2012, 2012]},
+    # SPS: Southwestern Public Service
+    {'id': 17718, 'from': 2010, 'to': [2006, 2009]},
+    # Nevada Power Company
+    {'id': 13407, 'from': 2009, 'to': [2006, 2008]},
+    {'id': 13407, 'from': 2013, 'to': [2014, 2019]},
 ]
 """
 Adjustments to balancing authority-utility associations from EIA 861.
@@ -218,7 +227,7 @@ class Respondents(object):
             ref = df[mask]
             if 'exclude' in fix:
                 # Exclude utilities by state
-                mask = ref['state'].isin(fix['exclude'])
+                mask = ~ref['state'].isin(fix['exclude'])
                 ref = ref[mask]
             refs.append(ref)
         # Buid table of new rows
