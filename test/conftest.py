@@ -137,12 +137,13 @@ def pudl_out_eia(live_pudl_db, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for EIA tests."""
     if not live_pudl_db:
         raise AssertionError("Output tests only work with a live PUDL DB.")
-    return PudlTabl(pudl_engine=pudl_engine,
-                    freq=request.param,
-                    fill_fuel_cost=True,
-                    roll_fuel_cost=True,
-                    fill_net_gen=False,
-                    )
+    return PudlTabl(
+        pudl_engine=pudl_engine,
+        freq=request.param,
+        fill_fuel_cost=True,
+        roll_fuel_cost=True,
+        fill_net_gen=False,
+    )
 
 
 @pytest.fixture(scope='session')
